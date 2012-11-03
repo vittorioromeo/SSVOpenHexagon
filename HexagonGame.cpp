@@ -18,10 +18,10 @@ namespace hg
 	{
 		pm = new PatternManager(this);
 
-		int windowSizeX = 1024;
-		int windowSizeY = 768;
-		int sizeX = 1300;
-		int sizeY = 1300;
+		int windowSizeX { 1024 };
+		int windowSizeY { 768 };
+		int sizeX { 1300 };
+		int sizeY { 1300 };
 
 		font.loadFromFile("C:/Windows/Fonts/imagine.ttf"); // TODO: fix paths
 		gameTexture.create(sizeX, sizeY, 32);
@@ -35,14 +35,15 @@ namespace hg
 
 	Entity* HexagonGame::createPlayer()
 	{
-		Entity* result = new Entity;
+		Entity* result { new Entity };
 		manager.addEntity(result);
-		result->addComponent(new CPlayer(this, centerPos));
+		result->addComponent(new CPlayer { this, centerPos } );
 		return result;
 	}
 
 	void HexagonGame::newGame()
 	{
+		currentTime = 0;
 		createPlayer();
 
 		game.addUpdateFunc([&](float frameTime)
@@ -63,6 +64,7 @@ namespace hg
 
 	void HexagonGame::update(float mFrameTime)
 	{
+		currentTime += mFrameTime / 60.0f;
 		updateDebugKeys(mFrameTime);
 		updateLevel(mFrameTime);
 		updateColor(mFrameTime);
@@ -110,26 +112,28 @@ namespace hg
 	void HexagonGame::drawDebugText()
 	{
 		ostringstream s;
-		s << "sides: " << toStr(sides) << endl
+		s << "time: " << toStr(currentTime).substr(0, 5) << endl
+		  << "sides: " << toStr(sides) << endl
 		  << "thickness: " << toStr(thickness) << endl
 		  << "speed multiplier: " << toStr(speedMult) << endl
 		  << "rotation: " << toStr(rotationSpeed) << endl;
 
-		Text t(s.str(), font, 20);
+		Text t { s.str(), font, 20 };
+		t.setPosition(10, 0);
 		t.setColor(Color::White);
 		window.renderWindow.draw(t);
 	}
 	void HexagonGame::drawBackground()
 	{
-		bool whiteScheme = false; // TODO: controlled by class
+		bool whiteScheme { false }; // TODO: controlled by class
 
-		float div = 360.f / sides;
-		float distance = 1500;
+		float div { 360.f / sides };
+		float distance { 1500 };
 
-		Color darkColor1 = darkenColor(color, 2.7f);
-		Color darkColor2 = darkenColor(darkColor1, 1.5f);
-		Color lightColor1 = Color(235,235,235,255);
-		Color lightColor2 = Color(190 + color.r / 5, 190 + color.g / 5, 190 + color.b / 5, 255);
+		Color darkColor1  { darkenColor(color, 2.7f) };
+		Color darkColor2  { darkenColor(darkColor1, 1.5f) };
+		Color lightColor1 { Color(235,235,235,255) };
+		Color lightColor2 { Color(190 + color.r / 5, 190 + color.g / 5, 190 + color.b / 5, 255) };
 		Color color1, color2;
 
 		if(whiteScheme)
@@ -143,12 +147,12 @@ namespace hg
 			color2 = darkColor2;
 		}
 
-		if((int)(hue / 26) % 2 == 0) swap(color1, color2); // TODO: add its own variable for swapping
+		if((int)(hue / 29) % 2 == 0) swap(color1, color2); // TODO: add its own variable for swapping
 
-		for(int i = 0; i < sides; i++)
+		for(int i { 0 }; i < sides; i++)
 		{
-			float angle = div * i;
-			Color currentColor = color1;
+			float angle { div * i };
+			Color currentColor { color1 };
 
 			if (i % 2 == 0)
 			{
@@ -158,10 +162,10 @@ namespace hg
 			Vector2f p1 = orbit(centerPos, angle + div * 0.5f, distance);
 			Vector2f p2 = orbit(centerPos, angle - div * 0.5f, distance);
 
-			VertexArray vertices(PrimitiveType::Triangles, 3);
-			vertices.append(Vertex(centerPos, currentColor));
-			vertices.append(Vertex(p1, currentColor));
-			vertices.append(Vertex(p2, currentColor));
+			VertexArray vertices{ PrimitiveType::Triangles, 3 };
+			vertices.append(Vertex{ centerPos, currentColor });
+			vertices.append(Vertex{ p1, currentColor });
+			vertices.append(Vertex{ p2, currentColor });
 			gameTexture.draw(vertices);
 		}
 	}

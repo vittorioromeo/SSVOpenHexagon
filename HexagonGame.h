@@ -41,6 +41,8 @@ namespace hg
 			PatternManager* pm; // owned
 			Timeline timeline;
 
+			float currentTime { 0 };
+
 			Entity* createPlayer();
 			void update(float);
 			inline void updateLevel(float);

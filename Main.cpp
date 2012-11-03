@@ -6,6 +6,7 @@
 #include "SSVStart.h"
 #include "CPlayer.h"
 #include "HexagonGame.h"
+#include <memory>
 
 using namespace std;
 using namespace sses;

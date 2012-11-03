@@ -6,12 +6,12 @@ namespace hg
 {
 	Vector2f orbit(const Vector2f mParent, const float mDegrees, const float mRadius)
 	{
-		return Vector2f(mParent.x + cos(toRadians(mDegrees)) * mRadius, mParent.y + sin(toRadians(mDegrees)) * mRadius);
+		return Vector2f{ mParent.x + cos(toRadians(mDegrees)) * mRadius, mParent.y + sin(toRadians(mDegrees)) * mRadius };
 	}
 	Vector2f normalize(const Vector2f mVector)
 	{
-		float length = std::sqrt((mVector.x * mVector.x) + (mVector.y * mVector.y));
-		return Vector2f(mVector.x / length, mVector.y / length);
+		float length { std::sqrt((mVector.x * mVector.x) + (mVector.y * mVector.y)) };
+		return Vector2f{ mVector.x / length, mVector.y / length };
 	}
 
 	int rnd(int mStart, int mEnd)

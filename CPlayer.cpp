@@ -6,7 +6,7 @@
 namespace hg
 {
 	CPlayer::CPlayer(HexagonGame *mHexagonGamePtr, Vector2f mStartPos) :
-			Component("player"), hexagonGamePtr(mHexagonGamePtr), startPos(mStartPos), pos(startPos)
+			Component{"player"}, hexagonGamePtr{mHexagonGamePtr}, startPos{mStartPos}, pos{startPos}
 	{
 	}
 
@@ -24,25 +24,25 @@ namespace hg
 	}
 	inline void CPlayer::drawPivot()
 	{
-		float div = 360.f / hexagonGamePtr->getSides();
-		float thickness = 4;
-		Color color = hexagonGamePtr->getColor();
-		float radius = hexagonGamePtr->getRadius() * 0.75f;
+		float div { 360.f / hexagonGamePtr->getSides() };
+		float thickness { 4 };
+		Color color { hexagonGamePtr->getColor() };
+		float radius { hexagonGamePtr->getRadius() * 0.75f };
 
-		for(int i = 0; i < hexagonGamePtr->getSides(); i++)
+		for(int i { 0 }; i < hexagonGamePtr->getSides(); i++)
 		{
-			float angle = div * i;
+			float angle { div * i };
 
-			Vector2f p1 = orbit(startPos, angle - div * 0.5f, radius);
-			Vector2f p2 = orbit(startPos, angle + div * 0.5f, radius);
-			Vector2f p3 = orbit(startPos, angle + div * 0.5f, radius + thickness);
-			Vector2f p4 = orbit(startPos, angle - div * 0.5f, radius + thickness);
+			Vector2f p1 { orbit(startPos, angle - div * 0.5f, radius) };
+			Vector2f p2 { orbit(startPos, angle + div * 0.5f, radius) };
+			Vector2f p3 { orbit(startPos, angle + div * 0.5f, radius + thickness) };
+			Vector2f p4 { orbit(startPos, angle - div * 0.5f, radius + thickness) };
 
-			VertexArray vertices2(PrimitiveType::Quads, 4);
-			vertices2.append(Vertex(p1, color));
-			vertices2.append(Vertex(p2, color));
-			vertices2.append(Vertex(p3, color));
-			vertices2.append(Vertex(p4, color));
+			VertexArray vertices2 { PrimitiveType::Quads, 4 };
+			vertices2.append(Vertex { p1, color } );
+			vertices2.append(Vertex { p2, color } );
+			vertices2.append(Vertex { p3, color } );
+			vertices2.append(Vertex { p4, color } );
 			hexagonGamePtr->drawOnTexture(vertices2);
 		}
 	}
@@ -53,9 +53,9 @@ namespace hg
 		pLeft = orbit(pos, angle - 100, size + 3);
 		pRight = orbit(pos, angle + 100, size + 3);
 
-		float currentSpeed = speed;
-		float lastAngle(angle);
-		int movement(0);
+		float currentSpeed { speed };
+		float lastAngle { angle };
+		int movement { 0 };
 
 		if(Keyboard::isKeyPressed(Keyboard::LShift))
 		{
@@ -68,8 +68,8 @@ namespace hg
 
 		angle += currentSpeed * mFrameTime * movement;
 
-		Vector2f pLeftCheck = orbit(pos, angle - 90, 1);
-		Vector2f pRightCheck = orbit(pos, angle + 90, 1);
+		Vector2f pLeftCheck { orbit(pos, angle - 90, 1) };
+		Vector2f pRightCheck { orbit(pos, angle + 90, 1) };
 
 		for (auto wall : getManager().getComponentPtrsByIdCasted<CWall>("wall"))
 		{
@@ -78,7 +78,7 @@ namespace hg
 			if (pnpoly(wall->pointPtrs, pos)) wall->getEntity().destroy();
 		}
 
-		float radius = hexagonGamePtr->getRadius();
+		float radius { hexagonGamePtr->getRadius() };
 		pos = orbit(startPos, angle, radius);
 	}
 }
