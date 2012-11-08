@@ -19,13 +19,15 @@ namespace hg
 			Vector2f pTop, pLeft, pRight;
 			Vector2f startPos, pos;
 
+			VertexArray vertices { PrimitiveType::Triangles, 3 };
+
 			inline void drawPivot();
 
 		public:
 			float size { 7 };
 			float angle { 0 };
-			float speed { 6.6f };
-			float focusSpeed { 3.3f };
+			float speed { 8.0f};
+			float focusSpeed { 4.0f };
 
 			CPlayer(HexagonGame*, Vector2f);
 

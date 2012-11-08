@@ -4,7 +4,7 @@
 
 namespace hg
 {
-	Vector2f orbit(const Vector2f mParent, const float mDegrees, const float mRadius)
+	Vector2f orbit(const Vector2f& mParent, const float mDegrees, const float mRadius)
 	{
 		return Vector2f{ mParent.x + cos(toRadians(mDegrees)) * mRadius, mParent.y + sin(toRadians(mDegrees)) * mRadius };
 	}
@@ -62,5 +62,16 @@ namespace hg
 		mColor.b /= mMultiplier;
 		mColor.g /= mMultiplier;
 		return mColor;
+	}
+
+	float saturate(float x)
+	{
+	  return std::max(0.0f, std::min(1.0f, x));
+	}
+
+	float smootherstep(float edge0, float edge1, float x)
+	{
+		x = saturate((x - edge0)/(edge1 - edge0));
+		return x*x*x*(x*(x*6 - 15) + 10);
 	}
 }

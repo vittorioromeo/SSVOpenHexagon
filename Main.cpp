@@ -17,7 +17,6 @@ using namespace hg;
 int main()
 {
 	HexagonGame hg;
-	hg.newGame();
-	
+
 	return 0;
 }

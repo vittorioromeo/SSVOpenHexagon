@@ -28,11 +28,17 @@ namespace hg
 	void CWall::draw()
 	{
 		Color color { hexagonGamePtr->getColor() };
-		VertexArray vertices { PrimitiveType::Quads, 4 };
-		vertices.append(Vertex { p1, color } );
-		vertices.append(Vertex { p2, color } );
-		vertices.append(Vertex { p3, color } );
-		vertices.append(Vertex { p4, color } );
+
+		vertices[0].position = p1;
+		vertices[1].position = p2;
+		vertices[2].position = p3;
+		vertices[3].position = p4;
+
+		vertices[0].color = color;
+		vertices[1].color = color;
+		vertices[2].color = color;
+		vertices[3].color = color;
+
 		hexagonGamePtr->drawOnTexture(vertices);
 	}
 

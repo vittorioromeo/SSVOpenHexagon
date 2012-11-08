@@ -18,6 +18,7 @@ namespace hg
 			HexagonGame* hexagonGamePtr;
 			Vector2f centerPos, p1, p2, p3, p4;
 			float speed;
+			VertexArray vertices { PrimitiveType::Quads, 4 };
 
 		public:
 			vector<Vector2f*> pointPtrs { &p1, &p2, &p3, &p4 };

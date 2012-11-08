@@ -11,7 +11,7 @@ using namespace sf;
 
 namespace hg
 {
-	Vector2f orbit(const Vector2f, const float, const float);
+	Vector2f orbit(const Vector2f&, const float, const float);
 	Vector2f normalize(const Vector2f);
 	int rnd(int, int);
 	bool pnpoly(std::vector<Vector2f*>, Vector2f);
@@ -32,6 +32,18 @@ namespace hg
 
 	Color hue2color(double);
 	Color darkenColor(Color, float);
+
+	float saturate(float);
+	float smootherstep(float, float, float);
+
+	template <class T>
+	int sign(T value)
+	{
+		if (value > 0)
+		return 1;
+		else
+		return -1;
+	}
 }
 
 #endif /* UTILS_H_HG */

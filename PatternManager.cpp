@@ -20,7 +20,7 @@ namespace hg
 	{
 		Entity* result { new Entity };
 		hgPtr->manager.addEntity(result);
-		result->addComponent(new CWall { hgPtr, mCenterPos, mSide, mThickness, 800, mSpeed * hgPtr->speedMult });
+		result->addComponent(new CWall { hgPtr, mCenterPos, mSide, mThickness, spawnDistance, mSpeed * hgPtr->speedMult });
 	}
 	void PatternManager::mirrorWall(Vector2f mCenterPos, int mSide, float mThickness, float mSpeed, int mSides = 1)
 	{
@@ -45,9 +45,9 @@ namespace hg
 
 	void PatternManager::alternateBarrageDiv(int mDiv = 2)
 	{
-		float delay { 19 };
-		float thickness { 25 };
-		float speed = { 8 };
+		float delay { 22 * hgPtr->delayMult };
+		float thickness { 29 };
+		float speed = { 5 };
 
 		for(int i { 0 }; i < 10; i++)
 		{
@@ -57,21 +57,25 @@ namespace hg
 	}
 	void PatternManager::spin(int mTimes)
 	{
-		float delay { 19 };
-		float thickness { 25 };
-		float speed = { 8 };
+		float delay { 40 * hgPtr->delayMult };
+		float thickness { 29 };
+		float speed = { 5 };
+		bool direction = rnd(0, 100) > 50;
 
-		for(int i = 0; i < mTimes; i++)
+		for(int i { 0 }; i < mTimes; i++)
 		{
-			timeline.add(new Do{[=](){ barrage(centerPos, i, thickness, speed); }});
+			int side = i;
+			if (direction) side *= -1;
+
+			timeline.add(new Do{[=](){ barrage(centerPos, side, thickness, speed); }});
 			timeline.add(new Wait{delay});
 		}
 	}
 	void PatternManager::zigZag(int mTimes)
 	{
-		float delay { 39 };
-		float thickness { 25 };
-		float speed = { 8 };
+		float delay { 65 * hgPtr->delayMult };
+		float thickness { 29 };
+		float speed = { 5 };
 
 		timeline.add(new Do{[=](){ barrage(centerPos, 0, thickness, speed); }});
 		timeline.add(new Wait{delay});
@@ -81,9 +85,9 @@ namespace hg
 	}
 	void PatternManager::mirrorSpin(int mTimes)
 	{
-		float delay { 19 };
-		float thickness { 25 };
-		float speed = { 8 };
+		float delay { 40 * hgPtr->delayMult };
+		float thickness { 29 };
+		float speed = { 5 };
 
 		for(int i { 0 }; i < mTimes; i++)
 		{
