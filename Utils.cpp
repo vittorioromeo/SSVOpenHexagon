@@ -14,9 +14,15 @@ namespace hg
 		return Vector2f{ mVector.x / length, mVector.y / length };
 	}
 
-	int rnd(int mStart, int mEnd)
+	int rnd(int min, int max)
 	{
-		return (rand() % (mEnd - mStart)) + mStart;
+	   // x is in [0,1[
+	   double x = rand()/static_cast<double>(RAND_MAX);
+
+	   // [0,1[ * (max - min) + min is in [min,max[
+	   int that = min + static_cast<int>( x * (max - min) );
+
+	   return that;
 	}
 
 	bool pnpoly(std::vector<Vector2f*> verts, Vector2f test)

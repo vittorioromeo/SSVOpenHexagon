@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <functional>
+#include <string>
 
 using namespace std;
 
@@ -10,18 +11,23 @@ namespace hg
 {
 	class LevelSettings
 	{
+		private:
+			vector<function<void()>> pfuncs;
+			int currentPattern{-1};
+
 		public:
+			string name;
 			float speed;
 			float speedInc;
 			float rotation;
 			float rotationInc;
 			float delay;
 			float fastSpin;
-			vector<function<void()>> pfuncs;
-
-			LevelSettings(float, float, float, float, float, float);
+			
+			LevelSettings(string, float, float, float, float, float, float);
 
 			function<void()> getRandomPattern();
+			void addPattern(function<void()> mPatternFunc, int mChance = 1);
 	};
 }
 #endif // LEVELSETTINGS_H

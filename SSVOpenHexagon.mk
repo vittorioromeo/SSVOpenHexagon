@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=11/08/12
+Date                   :=11/11/12
 CodeLitePath           :="c:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -38,12 +38,12 @@ MakeDirCommand         :=makedir
 RcCmpOptions           := 
 RcCompilerName         :=windres
 LinkOptions            :=  
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVStart $(IncludeSwitch)D:/Vee/Software/WIP/SFMLMinGW/include 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVStart $(IncludeSwitch)D:/Vee/Software/WIP/SFMLMinGW/include $(IncludeSwitch)D:/Vee/Software/WIP/jsoncpp/include 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)sfml-window-d $(LibrarySwitch)sfml-graphics-d $(LibrarySwitch)sfml-system-d $(LibrarySwitch)sfml-audio-d 
-ArLibs                 :=  "SSVEntitySystem" "SSVStart" "sfml-window-d" "sfml-graphics-d" "sfml-system-d" "sfml-audio-d" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Debug $(LibraryPathSwitch)../SSVEntitySystem/Debug $(LibraryPathSwitch)D:/Vee/Software/WIP/SFMLMinGW/lib 
+Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)sfml-window-d $(LibrarySwitch)sfml-graphics-d $(LibrarySwitch)sfml-system-d $(LibrarySwitch)sfml-audio-d $(LibrarySwitch)json_mingw_libmt 
+ArLibs                 :=  "SSVEntitySystem" "SSVStart" "sfml-window-d" "sfml-graphics-d" "sfml-system-d" "sfml-audio-d" "json_mingw_libmt" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Debug $(LibraryPathSwitch)../SSVEntitySystem/Debug $(LibraryPathSwitch)D:/Vee/Software/WIP/SFMLMinGW/lib $(LibraryPathSwitch)D:/Vee/Software/WIP/jsoncpp/libs/mingw 
 
 ##
 ## Common variables
@@ -63,7 +63,7 @@ CodeLiteDir:=c:\Program Files (x86)\CodeLite
 WXWIN:=C:\wxWidgets
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXCFG:=gcc_dll\mswu
-Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix) 
+Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) 
 
 ##
 ## Main Build Targets 
@@ -142,6 +142,14 @@ $(IntermediateDirectory)/LevelSettings$(DependSuffix): LevelSettings.cpp
 $(IntermediateDirectory)/LevelSettings$(PreprocessSuffix): LevelSettings.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/LevelSettings$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelSettings.cpp"
 
+$(IntermediateDirectory)/Config$(ObjectSuffix): Config.cpp $(IntermediateDirectory)/Config$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Config$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Config$(DependSuffix): Config.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Config$(ObjectSuffix) -MF$(IntermediateDirectory)/Config$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp"
+
+$(IntermediateDirectory)/Config$(PreprocessSuffix): Config.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Config$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp"
+
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
 ##
@@ -169,6 +177,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/LevelSettings$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/LevelSettings$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Config$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Config$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Config$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "D:\Vee\Software\WIP\CL\WorkspaceOH\OH\.build-debug\SSVOpenHexagon"

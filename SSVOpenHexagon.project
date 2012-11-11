@@ -21,6 +21,8 @@
     <File Name="Utils.cpp"/>
     <File Name="LevelSettings.cpp"/>
     <File Name="LevelSettings.h"/>
+    <File Name="Config.h"/>
+    <File Name="Config.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -37,17 +39,20 @@
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="D:/Vee/Software/WIP/SFMLMinGW/include"/>
+        <IncludePath Value="D:/Vee/Software/WIP/jsoncpp/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVStart/Debug"/>
         <LibraryPath Value="../SSVEntitySystem/Debug"/>
         <LibraryPath Value="D:/Vee/Software/WIP/SFMLMinGW/lib"/>
+        <LibraryPath Value="D:\Vee\Software\WIP\jsoncpp\libs\mingw"/>
         <Library Value="SSVEntitySystem"/>
         <Library Value="SSVStart"/>
         <Library Value="sfml-window-d"/>
         <Library Value="sfml-graphics-d"/>
         <Library Value="sfml-system-d"/>
         <Library Value="sfml-audio-d"/>
+        <Library Value="json_mingw_libmt"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>

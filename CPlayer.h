@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
+#include "Config.h"
 
 using namespace sf;
 using namespace sses;
@@ -24,10 +25,10 @@ namespace hg
 			inline void drawPivot();
 
 		public:
-			float size { 7 };
+			float size { getPlayerSize() };
 			float angle { 0 };
-			float speed { 8.0f};
-			float focusSpeed { 4.0f };
+			float speed { getPlayerSpeed() };
+			float focusSpeed { getPlayerFocusSpeed() };
 
 			CPlayer(HexagonGame*, Vector2f);
 

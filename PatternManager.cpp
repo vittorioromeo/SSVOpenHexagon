@@ -8,91 +8,152 @@
 #include <string>
 #include "SSVStart.h"
 #include "SSVEntitySystem.h"
+#include "Config.h"
 
 namespace hg
 {
-	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) :
-		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), sides{hgPtr->sides}, centerPos(hgPtr->centerPos)
+	int PatternManager::getRandomSide() { return rnd(0, sides); }
+	int PatternManager::getRandomDirection() { return rnd(0, 100) > 50 ? 1 : -1; }
+	float PatternManager::getPerfectThickness(float mBaseThickness)
 	{
+		return mBaseThickness * hgPtr->speedMult * hgPtr->delayMult;
+	}
+	float PatternManager::getPerfectDelay(float mThickness, float mSpeed)
+	{
+		return mThickness / (mSpeed * hgPtr->speedMult) + ((abs(6 - sides)) * 1.25f);
 	}
 
-	void PatternManager::wall(Vector2f mCenterPos, int mSide, float mThickness, float mSpeed)
+	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) :
+		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), sides{hgPtr->sides}, centerPos(hgPtr->centerPos) { }
+
+	void PatternManager::wallBase(Vector2f mCenterPos, int mSide, float mThickness, float mSpeed)
 	{
 		Entity* result { new Entity };
 		hgPtr->manager.addEntity(result);
-		result->addComponent(new CWall { hgPtr, mCenterPos, mSide, mThickness, spawnDistance, mSpeed * hgPtr->speedMult });
+		result->addComponent(new CWall { hgPtr, mCenterPos, mSide, mThickness, getSpawnDistance(), mSpeed * hgPtr->speedMult });
 	}
-	void PatternManager::mirrorWall(Vector2f mCenterPos, int mSide, float mThickness, float mSpeed, int mSides = 1)
+	void PatternManager::wall(int mSide, float mThickness) { wallBase(centerPos, mSide, mThickness, speed); }
+	void PatternManager::rWall(int mSide, float mThickness) { wall(mSide, mThickness); wall(mSide + sides / 2, mThickness); }
+	void PatternManager::wallExtra(int mSide, float mThickness, int mExtra)
 	{
-		int mirrorSide { mSide + hgPtr->getSides() / 2 };
+		wall(mSide, mThickness);
 
-		for (int i { 0 }; i < mSides; i++)
+		int loopDir{1};
+		if (mExtra < 0) loopDir = -1;
+
+		for (int i{0}; i != mExtra; i += loopDir) wall(mSide + i + loopDir, mThickness);
+	}
+	void PatternManager::rWallExtra(int mSide, float mThickness, int mExtra)
+	{
+		rWall(mSide, mThickness);
+
+		int loopDir{1};
+		if (mExtra < 0) loopDir = -1;
+
+		for (int i{0}; i != mExtra; i += loopDir) rWall(mSide + i + loopDir, mThickness);
+	}
+	void PatternManager::barrage(int mSide, float mThickness, int mNeighbors)
+	{
+		for(int i{mNeighbors}; i < sides - 1 - mNeighbors; i++) wall(mSide + i + 1, mThickness);
+	}
+	void PatternManager::barrageOnlyNeighbors(int mSide, float mThickness, int mNeighbors)
+	{
+		barrage(mSide, mThickness, mNeighbors);
+		wall(mSide, mThickness);
+	}
+	void PatternManager::altBarrage(int mSide, float mThickness, int mStep)
+	{
+		for(int i{0}; i < sides / mStep; i++) wall(mSide + i * mStep, mThickness);
+	}
+
+	void PatternManager::alternateBarrageDiv(int mDiv)
+	{
+		float delay {getPerfectDelay(thickness, speed) * 4.6f};
+
+		for(int i { 0 }; i < 5; i++)
 		{
-			wall(mCenterPos, mSide + i, mThickness, mSpeed);
-			wall(mCenterPos, mirrorSide + i, mThickness, mSpeed);
-		}
-	}
-	void PatternManager::barrage(Vector2f mCenterPos, int mSide, float mThickness, float mSpeed, int mOpenSides = 1)
-	{
-		for(int i { 0 }; i < hgPtr->sides - mOpenSides; i++)
-			wall(mCenterPos, mSide + i, mThickness, mSpeed);
-	}
-	void PatternManager::barrageDiv(Vector2f mCenterPos, int mSide, float mThickness, float mSpeed, int mDiv)
-	{
-		for(int i { 0 }; i < hgPtr->sides / mDiv; i++)
-			wall(mCenterPos, mSide + i * mDiv, mThickness, mSpeed);
-	}
-
-	void PatternManager::alternateBarrageDiv(int mDiv = 2)
-	{
-		float delay { 22 * hgPtr->delayMult };
-		float thickness { 29 };
-		float speed = { 5 };
-
-		for(int i { 0 }; i < 10; i++)
-		{
-			timeline.add(new Do{[=](){ barrageDiv(centerPos, i % mDiv, thickness, speed, mDiv); }});
+			timeline.add(new Do{[=](){ altBarrage(i, thickness, mDiv); }});
 			timeline.add(new Wait{delay});
 		}
+
+		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 3.2f});
 	}
-	void PatternManager::spin(int mTimes)
+	void PatternManager::barrageSpin(int mTimes)
 	{
-		float delay { 40 * hgPtr->delayMult };
-		float thickness { 29 };
-		float speed = { 5 };
-		bool direction = rnd(0, 100) > 50;
+		float delay {getPerfectDelay(thickness, speed) * 4.6f};
 
-		for(int i { 0 }; i < mTimes; i++)
+		int startSide{getRandomSide()};
+		int loopDir{getRandomDirection()};
+
+		for(int i {0}, s {0}; i < mTimes; i++, s += loopDir)
 		{
-			int side = i;
-			if (direction) side *= -1;
-
-			timeline.add(new Do{[=](){ barrage(centerPos, side, thickness, speed); }});
+			timeline.add(new Do{[=](){ barrage(startSide + s, thickness); }});
 			timeline.add(new Wait{delay});
 		}
-	}
-	void PatternManager::zigZag(int mTimes)
-	{
-		float delay { 65 * hgPtr->delayMult };
-		float thickness { 29 };
-		float speed = { 5 };
 
-		timeline.add(new Do{[=](){ barrage(centerPos, 0, thickness, speed); }});
-		timeline.add(new Wait{delay});
-		timeline.add(new Do{[=](){ barrage(centerPos, sides / 2, thickness, speed); }});
-		timeline.add(new Wait{delay});
-		timeline.add(new Goto{0, mTimes});
+		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 5.2f});
 	}
 	void PatternManager::mirrorSpin(int mTimes)
 	{
-		float delay { 40 * hgPtr->delayMult };
-		float thickness { 29 };
-		float speed = { 5 };
+		float myThickness {getPerfectThickness(baseThickness)};
+		float delay {getPerfectDelay(myThickness, speed)};
 
-		for(int i { 0 }; i < mTimes; i++)
+		int startSide{getRandomSide()};
+		int loopDir{getRandomDirection()};
+
+		for(int i{0}, s{0}; i < mTimes; i++, s += loopDir)
 		{
-			timeline.add(new Do{[=](){ mirrorWall(centerPos, i, thickness, speed, 2); }});
+			timeline.add(new Do{[=]() { rWall(startSide + s, myThickness); }});
 			timeline.add(new Wait{delay});
 		}
+
+		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 7.0f});
+	}
+	void PatternManager::evilRSpin(int mTimes, int mSteps)
+	{
+		float delay {getPerfectDelay(thickness, speed) * 4.0f};
+
+		int startSide{getRandomSide()};
+		int loopDir{getRandomDirection()};
+		int currentSide{startSide};
+
+		for(int j{0}; j < mTimes; j++)
+		{
+			for(int i{0}; i < mSteps; i++)
+			{
+				currentSide += loopDir;
+
+				timeline.add(new Do{[=](){ rWallExtra(currentSide, thickness, loopDir); }});
+				timeline.add(new Wait{delay});
+			}
+
+			loopDir *= -1;
+
+			for(int i{0}; i < mSteps + 1; i++)
+			{
+				currentSide += loopDir;
+
+				timeline.add(new Do{[=](){ rWallExtra(currentSide, thickness, loopDir); }});
+				timeline.add(new Wait{delay});
+			}
+		}
+
+		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 4.7f});
+	}
+	void PatternManager::inverseBarrage(int mTimes)
+	{
+		float delay {getPerfectDelay(thickness, speed) * 9.0f};
+
+		int startSide{getRandomSide()};
+
+		for(int i{0}; i < mTimes; i++)
+		{
+			timeline.add(new Do{[=](){ barrage(startSide, thickness); }});
+			timeline.add(new Wait{delay});
+			timeline.add(new Do{[=](){ barrage(startSide + sides / 2, thickness); }});
+			timeline.add(new Wait{delay});
+		}
+
+		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 1.7f});
 	}
 }

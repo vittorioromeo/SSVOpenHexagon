@@ -3,10 +3,23 @@
 
 namespace hg
 {
-	LevelSettings::LevelSettings(float mSpeedStart, float mSpeedIncrement, float mRotationSpeedStart,
+	LevelSettings::LevelSettings(string mName, float mSpeedStart, float mSpeedIncrement, float mRotationSpeedStart,
 		float mRotationSpeedIncrement, float mDelayMultiplier, float mFastSpin) :
-		speed{mSpeedStart}, speedInc{mSpeedIncrement}, rotation{mRotationSpeedStart},
+		name{mName}, speed{mSpeedStart}, speedInc{mSpeedIncrement}, rotation{mRotationSpeedStart},
 		rotationInc{mRotationSpeedIncrement}, delay{mDelayMultiplier}, fastSpin(mFastSpin) { }
 
-	function<void()> LevelSettings::getRandomPattern() { return pfuncs[rnd(0, pfuncs.size())]; }
+	function<void()> LevelSettings::getRandomPattern()
+	{
+		currentPattern++;
+
+		if(currentPattern == (int)pfuncs.size()) currentPattern = 0;
+		if(currentPattern == 0) random_shuffle(pfuncs.begin(), pfuncs.end());		
+
+		return pfuncs[currentPattern];
+	}
+
+	void LevelSettings::addPattern(function<void()> mPatternFunc, int mChance)
+	{
+		for(int i{0}; i < mChance; i++) pfuncs.push_back(mPatternFunc);
+	}
 }

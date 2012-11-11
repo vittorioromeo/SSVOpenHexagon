@@ -8,6 +8,8 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <map>
+#include <json/json.h>
+#include <json/reader.h>
 
 using namespace sf;
 using namespace ssvs;
@@ -15,12 +17,6 @@ using namespace sses;
 
 namespace hg
 {
-	constexpr float windowSizeX { 1024 };
-	constexpr float windowSizeY { 768 };
-	constexpr float sizeX { windowSizeX * 1.3f };
-	constexpr float sizeY { windowSizeX * 1.3f };
-	constexpr float spawnDistance { 800 };
-
 	enum Level { EASY, NORMAL, HARD, LUNATIC };
 	enum BackType { DARK, LIGHT, GRAY };
 
@@ -32,7 +28,7 @@ namespace hg
 
 		private:
 			Game game;
-			GameWindow window { (int)windowSizeX, (int)windowSizeY, 1, false };
+			GameWindow window;
 			Manager manager;
 			RenderTexture gameTexture;
 			Sprite gameSprite;
@@ -82,6 +78,9 @@ namespace hg
 
 			void initLevelSettings();
 			LevelSettings& getLevelSettings();
+			void incrementDifficulty();
+
+			LevelSettings loadLevelFromJson(Json::Value &mRoot, string mLevelObject);
 
 		public:
 			void newGame();

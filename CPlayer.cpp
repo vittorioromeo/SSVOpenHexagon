@@ -72,8 +72,11 @@ namespace hg
 
 		angle += currentSpeed * mFrameTime * movement;
 
-		Vector2f pLeftCheck { orbit(pos, angle - 90, 1) };
-		Vector2f pRightCheck { orbit(pos, angle + 90, 1) };
+		float radius { hexagonGamePtr->getRadius() };
+		Vector2f tempPos = orbit(startPos, angle, radius);
+
+		Vector2f pLeftCheck { orbit(tempPos, angle - 90, 0.01f) };
+		Vector2f pRightCheck { orbit(tempPos, angle + 90, 0.01f) };
 
 		for (auto wall : getManager().getComponentPtrsByIdCasted<CWall>("wall"))
 		{
@@ -86,7 +89,6 @@ namespace hg
 			}
 		}
 
-		float radius { hexagonGamePtr->getRadius() };
 		pos = orbit(startPos, angle, radius);
 	}
 }

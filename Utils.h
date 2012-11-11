@@ -39,10 +39,7 @@ namespace hg
 	template <class T>
 	int sign(T value)
 	{
-		if (value > 0)
-		return 1;
-		else
-		return -1;
+		if (value > 0) return 1; else return -1;
 	}
 }
 

@@ -7,6 +7,8 @@
 #include <string>
 #include "SSVStart.h"
 #include "PatternManager.h"
+#include <fstream>
+#include "Config.h"
 
 using namespace sf;
 using namespace ssvs;
@@ -14,65 +16,106 @@ using namespace sses;
 
 namespace hg
 {
+	void HexagonGame::incrementDifficulty()
+	{
+		speedMult += speedIncrement;
+		rotationSpeed += rotationSpeedIncrement;
+		rotationDirection = !rotationDirection;
+		fastSpin = getLevelSettings().fastSpin;
+
+		if (sides != 6) 					sides = 6;
+		else if (level == Level::EASY) 		sides = rnd(4, 7);
+		else if (level == Level::NORMAL) 	sides = rnd(5, 7);
+		else if (level == Level::HARD)		sides = rnd(5, 8);
+		else if (level == Level::LUNATIC)	sides = rnd(6, 9);
+
+		timeline.clear();
+		timeline.reset();
+		timeline.add(new Wait(35));
+	}
+
+    LevelSettings HexagonGame::loadLevelFromJson(Json::Value &mRoot, string mLevelObject)
+	{
+		string name { mRoot[mLevelObject]["name"].asString()              };
+		float s_m  	{ mRoot[mLevelObject]["speed_multiplier"].asFloat()   };
+		float s_i  	{ mRoot[mLevelObject]["speed_increment"].asFloat()    };
+		float rs  	{ mRoot[mLevelObject]["rotation_speed"].asFloat()     };
+		float rs_i 	{ mRoot[mLevelObject]["rotation_increment"].asFloat() };
+		float d_m  	{ mRoot[mLevelObject]["delay_multiplier"].asFloat()   };
+		float fspin { mRoot[mLevelObject]["fast_spin"].asFloat()          };
+
+		return LevelSettings{name, s_m, s_i, rs, rs_i, d_m, fspin};
+	}
+
 	void HexagonGame::initLevelSettings()
 	{
-								//s_m   s_i    rs     rs_i   d_m    fspin
-		LevelSettings easy 		{1.30f, 0.10f, 0.05f, 0.04f, 1.20f, 0.00f};
-		LevelSettings normal 	{1.60f, 0.15f, 0.09f, 0.05f, 0.95f, 0.00f};
-		LevelSettings hard 		{1.80f, 0.20f, 0.13f, 0.06f, 0.90f, 85.0f};
-		LevelSettings lunatic 	{2.30f, 0.25f, 0.19f, 0.07f, 0.85f, 85.0f};
+		Json::Value root;   // will contains the root value after parsing.
+		Json::Reader reader;
+		ifstream test("levels.json", std::ifstream::binary);
 
-		easy.pfuncs.push_back( [&](){ pm->alternateBarrageDiv(2); } );
-		easy.pfuncs.push_back( [&](){ pm->spin(2); } );
-		easy.pfuncs.push_back( [&](){ pm->zigZag(2); } );
-		easy.pfuncs.push_back( [&](){ pm->mirrorSpin(2); } );
+		bool parsingSuccessful = reader.parse( test, root, false );
+		if (!parsingSuccessful) cout << reader.getFormatedErrorMessages() << endl;
 
-		normal.pfuncs.push_back( [&](){ pm->alternateBarrageDiv(2); } );
-		normal.pfuncs.push_back( [&](){ pm->spin(2); } );
-		normal.pfuncs.push_back( [&](){ pm->zigZag(2); } );
-		normal.pfuncs.push_back( [&](){ pm->mirrorSpin(2); } );
+		LevelSettings easy 		{loadLevelFromJson(root, "0")};
+		LevelSettings normal 	{loadLevelFromJson(root, "1")};
+		LevelSettings hard 		{loadLevelFromJson(root, "2")};
+		LevelSettings lunatic 	{loadLevelFromJson(root, "3")};
 
-		hard.pfuncs.push_back( [&](){ pm->alternateBarrageDiv(2); } );
-		hard.pfuncs.push_back( [&](){ pm->spin(2); } );
-		hard.pfuncs.push_back( [&](){ pm->zigZag(2); } );
-		hard.pfuncs.push_back( [&](){ pm->mirrorSpin(2); } );
+		easy.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
+		easy.addPattern( [&]{ pm->barrageSpin(3); } 			, 2	);
+		easy.addPattern( [&]{ pm->mirrorSpin(8); } 				, 1	);
+		easy.addPattern( [&]{ pm->evilRSpin(); } 				, 1	);
+		easy.addPattern( [&]{ pm->inverseBarrage(1); }			, 2 );
 
-		lunatic.pfuncs.push_back( [&](){ pm->alternateBarrageDiv(2); } );
-		lunatic.pfuncs.push_back( [&](){ pm->spin(2); } );
-		lunatic.pfuncs.push_back( [&](){ pm->zigZag(2); } );
-		lunatic.pfuncs.push_back( [&](){ pm->mirrorSpin(2); } );
+		normal.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
+		normal.addPattern( [&]{ pm->barrageSpin(4); } 			, 2	);
+		normal.addPattern( [&]{ pm->mirrorSpin(10); } 			, 1	);
+		normal.addPattern( [&]{ pm->mirrorSpin(4); } 			, 2	);
+		normal.addPattern( [&]{ pm->evilRSpin(); } 				, 2	);
+		normal.addPattern( [&]{ pm->inverseBarrage(1); }		, 2 );
+
+		hard.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
+		hard.addPattern( [&]{ pm->barrageSpin(4); } 			, 1	);
+		hard.addPattern( [&]{ pm->mirrorSpin(12); } 			, 1	);
+		hard.addPattern( [&]{ pm->mirrorSpin(4); } 				, 2	);
+		hard.addPattern( [&]{ pm->evilRSpin(); } 				, 2	);
+		hard.addPattern( [&]{ pm->inverseBarrage(1); }			, 3 );
+
+		lunatic.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
+		lunatic.addPattern( [&]{ pm->barrageSpin(3); }			, 3 );
+		lunatic.addPattern( [&]{ pm->inverseBarrage(1); }		, 3 );
+		lunatic.addPattern( [&]{ pm->mirrorSpin(14); } 			, 1	);
+		lunatic.addPattern( [&]{ pm->mirrorSpin(6); } 			, 2	);
+		lunatic.addPattern( [&]{ pm->evilRSpin(1, 4); }			, 1	);
+		lunatic.addPattern( [&]{ pm->evilRSpin(2, 3); } 		, 1	);
 
 		levelMap.insert(make_pair(Level::EASY, easy));
 		levelMap.insert(make_pair(Level::NORMAL, normal));
 		levelMap.insert(make_pair(Level::HARD, hard));
 		levelMap.insert(make_pair(Level::LUNATIC, lunatic));
 	}
-	LevelSettings& HexagonGame::getLevelSettings() { return levelMap.find(level)->second; }
+	LevelSettings& HexagonGame::getLevelSettings() { return levelMap.find((int)level)->second; }
 
-	HexagonGame::HexagonGame()
+	HexagonGame::HexagonGame() : window { (unsigned int)getWindowSizeX(), (unsigned int)getWindowSizeY(), getPixelMultiplier(), false }
 	{
 		pm = new PatternManager(this);
 
 		font.loadFromFile("C:/Windows/Fonts/imagine.ttf"); // TODO: fix paths
-		gameTexture.create(sizeX, sizeY, 32);
-		gameTexture.setView(View{Vector2f{0,0}, Vector2f{sizeX, sizeY}});
+		gameTexture.create(getSizeX(), getSizeY(), 32);
+		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
 		gameTexture.setSmooth(true);
 		gameSprite.setTexture(gameTexture.getTexture(), false);
-		gameSprite.setOrigin(sizeX / 2, sizeY / 2);
-		gameSprite.setPosition(windowSizeX / 2, windowSizeY / 2);
+		gameSprite.setOrigin(getSizeX()/ 2, getSizeY()/ 2);
+		gameSprite.setPosition(getWindowSizeX() / 2, getWindowSizeY() / 2);
 		window.renderWindow.setVerticalSyncEnabled(true);
 
-		game.addUpdateFunc([&](float frameTime)
-		{
-			manager.update(frameTime);
-			update(frameTime);
-		});
-		game.addDrawFunc([&](){gameTexture.clear(Color::Black);}, -2);
-		game.addDrawFunc([&](){drawBackground();}, -1);
-		game.addDrawFunc([&](){manager.draw();}, 0);
-		game.addDrawFunc([&](){gameTexture.display();}, 1);
-		game.addDrawFunc([&](){drawOnWindow(gameSprite);}, 2);
-		game.addDrawFunc([&](){drawDebugText();}, 3);
+		game.addUpdateFunc(	[&](float frameTime) { update(frameTime); }	 );
+		game.addDrawFunc(	[&](){ gameTexture.clear(Color::Black); }, -2);
+		game.addDrawFunc(	[&](){ drawBackground(); }, 			   -1);
+		game.addDrawFunc(	[&](){ manager.draw(); }, 					0);
+		game.addDrawFunc(	[&](){ gameTexture.display(); }, 			1);
+		game.addDrawFunc(	[&](){ drawOnWindow(gameSprite); }, 		2);
+		game.addDrawFunc(	[&](){ drawDebugText(); }, 					3);
 
 		initLevelSettings();
 		newGame();
@@ -92,13 +135,17 @@ namespace hg
 
 	void HexagonGame::newGame()
 	{
+		mustRestart = false;
 		currentTime = 0;
 		incrementTime = 0;
 		sides = 6;
 		radius = minRadius;
+		backType = (BackType)rnd(0, 3);
 
 		manager.clear();
 		createPlayer();
+
+		timeline = Timeline{};
 
 		speedMult 				= getLevelSettings().speed;
 		rotationSpeed 			= getLevelSettings().rotation;
@@ -110,6 +157,8 @@ namespace hg
 
 	void HexagonGame::update(float mFrameTime)
 	{
+		manager.update(mFrameTime);
+
 		currentTime += mFrameTime / 60.0f;
 		incrementTime += mFrameTime / 60.0f;
 
@@ -120,12 +169,7 @@ namespace hg
 		updateRotation(mFrameTime);
 		updateRadius(mFrameTime);
 
-		if(mustRestart)
-		{
-			mustRestart = false;
-			newGame();
-			return;
-		}
+		if(mustRestart) newGame();
 	}
 	inline void HexagonGame::updateIncrement()
 	{
@@ -134,17 +178,7 @@ namespace hg
 		if(incrementTime < maxIncrement) return;
 
 		incrementTime = 0;
-
-		speedMult += speedIncrement;
-		rotationSpeed += rotationSpeedIncrement;
-		rotationDirection = !rotationDirection;
-		fastSpin = getLevelSettings().fastSpin;
-
-		if (sides != 6) 					sides = 6;
-		else if (level == Level::EASY) 		sides = rnd(3, 7);
-		else if (level == Level::NORMAL) 	sides = rnd(4, 7);
-		else if (level == Level::HARD)		sides = rnd(4, 8);
-		else if (level == Level::LUNATIC)	sides = rnd(6, 8);
+		incrementDifficulty();
 	}
 	inline void HexagonGame::updateLevel(float mFrameTime)
 	{
@@ -152,6 +186,7 @@ namespace hg
 
 		if(timeline.isFinished())
 		{
+			timeline.clear();
 			getLevelSettings().getRandomPattern()();
 			timeline.reset();
 		}
@@ -228,11 +263,12 @@ namespace hg
 	void HexagonGame::drawDebugText()
 	{
 		ostringstream s;
-		s << "time: " << toStr(currentTime).substr(0, 5) << endl
-		  << "sides: " << toStr(sides) << endl
-		  << "speed multiplier: " << toStr(speedMult) << endl
-		  << "rotation: " << toStr(rotationSpeed) << endl
-		  << "hue: " << toStr(hue) << endl;
+		s 	<< "time: " << toStr(currentTime).substr(0, 5) << endl
+			<< "level: " << toStr(getLevelSettings().name) << endl
+			<< "sides: " << toStr(sides) << endl
+			<< "speed multiplier: " << toStr(speedMult) << endl
+			<< "rotation: " << toStr(rotationSpeed) << endl
+			<< "hue: " << toStr(hue) << endl;
 
 		Text t { s.str(), font, 20 };
 		t.setPosition(10, 0);
@@ -249,7 +285,7 @@ namespace hg
 		Color lightColor1 { Color(235,235,235,255) };
 		Color lightColor2 { Color(190 + color.r / 5, 190 + color.g / 5, 190 + color.b / 5, 255) };
 		Color color1, color2;
-		
+
 		if(backType == BackType::DARK)
 		{
 			color1 = darkColor1;
@@ -266,7 +302,7 @@ namespace hg
 			color2 = darkenColor(Color(200,200,200,255), hue / 30.0f);
 		}
 
-		if(colorSwap > 50) swap(color1, color2); // TODO: add its own variable for swapping
+		if(colorSwap > 50) swap(color1, color2);
 
 		VertexArray vertices{ PrimitiveType::Triangles, 3 };
 
@@ -284,9 +320,9 @@ namespace hg
 			Vector2f p1 = orbit(centerPos, angle + div * 0.5f, distance);
 			Vector2f p2 = orbit(centerPos, angle - div * 0.5f, distance);
 
-			vertices.append(Vertex{ centerPos, currentColor });
-			vertices.append(Vertex{ p1, currentColor });
-			vertices.append(Vertex{ p2, currentColor });
+			vertices.append(Vertex{centerPos, currentColor});
+			vertices.append(Vertex{p1, currentColor});
+			vertices.append(Vertex{p2, currentColor});
 		}
 
 		gameTexture.draw(vertices);
@@ -300,3 +336,4 @@ namespace hg
 	float HexagonGame::getRadius() { return radius; }
 	Color HexagonGame::getColor() { return color; }
 }
+

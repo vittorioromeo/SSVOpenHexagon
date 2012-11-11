@@ -7,6 +7,7 @@
 #include "CPlayer.h"
 #include "HexagonGame.h"
 #include <memory>
+#include "Config.h"
 
 using namespace std;
 using namespace sses;
@@ -16,6 +17,9 @@ using namespace hg;
 
 int main()
 {
+	srand(unsigned(time(NULL)));
+
+	loadConfig();
 	HexagonGame hg;
 
 	return 0;
