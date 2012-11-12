@@ -24,13 +24,11 @@ namespace hg
 		private:
 			HexagonGame* hgPtr;
 			Timeline& timeline;
-			int& sides;
 			Vector2f& centerPos;
+			int& sides;
 
-			float thickness {baseThickness};
-			float speed {baseSpeed};
-
-			void wallBase(Vector2f, int, float, float);
+			float thickness	{baseThickness};
+			float speed 	{baseSpeed};
 
 		public:
 			PatternManager(HexagonGame*);			
@@ -40,19 +38,20 @@ namespace hg
 			float getPerfectThickness	(float mBaseThickness);
 			float getPerfectDelay		(float mThickness, float mSpeed);
 
-			void wall					(int mSide, float mThickness);
-			void rWall					(int mSide, float mThickness);
-			void wallExtra				(int mSide, float mThickness, int mExtra = 0);
-			void rWallExtra				(int mSide, float mThickness, int mExtra = 0);
-			void barrage				(int mSide, float mThickness, int mNeighbors = 0);
-			void barrageOnlyNeighbors	(int mSide, float mThickness, int mNeighbors = 1);
-			void altBarrage				(int mSide, float mThickness, int mStep);
+			void wall					(int mSide, float mThickness);						// simple wall
+			void rWall					(int mSide, float mThickness);						// wall + its opposite
+			void wallExtra				(int mSide, float mThickness, int mExtra = 0);		// wall + neighbors from 1 side (1=neighbor on the right)(-1=neighbor on the left)
+			void rWallExtra				(int mSide, float mThickness, int mExtra = 0);		// wallExtra + its opposite
+			void barrage				(int mSide, float mThickness, int mNeighbors = 0);	// all walls except one side (neighbors both from left and right)
+			void barrageOnlyNeighbors	(int mSide, float mThickness, int mNeighbors = 1);	// all walls except neighbors
+			void altBarrage				(int mSide, float mThickness, int mStep);			// pick a wall every X walls
 
-			void alternateBarrageDiv	(int mDiv = 2);
-			void barrageSpin			(int mTimes);
-			void mirrorSpin				(int mTimes);
-			void evilRSpin				(int mTimes = 1, int mSteps = 2);
-			void inverseBarrage			(int mTimes = 1);
+			void alternateBarrageDiv	(int mTimes = 5, int mDiv = 2);						// zig-zag
+			void barrageSpin			(int mTimes, float mDelayMultiplier = 1); 			// spiral of barrages with only 1 free side
+			void mirrorSpin				(int mTimes);										// spiral with touching sides, only 1 closed side
+			void evilRSpin				(int mTimes = 1, int mSteps = 2);					// left-left right-right
+			void inverseBarrage			(int mTimes = 1);									// barrage 0° and barrage 180°
+			void rWallStrip				(int mTimes = 2);									// several rWalls one after another on the same side
 	};
 }
 #endif /* PATTERNMANAGER_H_ */

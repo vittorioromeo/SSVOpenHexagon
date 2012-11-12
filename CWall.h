@@ -15,16 +15,16 @@ namespace hg
 	class CWall : public Component
 	{
 		private:
-			HexagonGame* hexagonGamePtr;
-			Vector2f centerPos, p1, p2, p3, p4;
-			float speed;
-			VertexArray vertices { PrimitiveType::Quads, 4 };
+			HexagonGame* hgPtr;
+			Vector2f centerPos, p1, p2, p3, p4;			
+			VertexArray vertices{PrimitiveType::Quads, 4};
+			vector<Vector2f*> pointPtrs{&p1, &p2, &p3, &p4};
+			float speed{0};
 
 		public:
-			vector<Vector2f*> pointPtrs { &p1, &p2, &p3, &p4 };
-
 			CWall(HexagonGame*, Vector2f, int, float, float, float);
 
+			bool isOverlapping(Vector2f mPoint);
 			void update(float mFrameTime) override;
 			void draw() override;
 	};

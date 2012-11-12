@@ -13,21 +13,34 @@ namespace hg
 	{
 		private:
 			vector<function<void()>> pfuncs;
-			int currentPattern{-1};
-
-		public:
-			string name;
-			float speed;
-			float speedInc;
-			float rotation;
-			float rotationInc;
-			float delay;
+			int currentPattern	{-1};
+			string name			{""};
+			float speedMultiplier;
+			float speedIncrement;
+			float rotationSpeed;
+			float rotationSpeedIncrement;
+			float delayMultiplier;
 			float fastSpin;
-			
-			LevelSettings(string, float, float, float, float, float, float);
+			int sidesStart;
+			int sidesMin;
+			int sidesMax;
 
-			function<void()> getRandomPattern();
+		public:					
+			LevelSettings(string, float, float, float, float, float, float, int, int, int);
+			
 			void addPattern(function<void()> mPatternFunc, int mChance = 1);
+			function<void()> getRandomPattern();
+
+			string getName();
+			float getSpeedMultiplier();
+			float getSpeedIncrement();
+			float getRotationSpeed();
+			float getRotationSpeedIncrement();
+			float getDelayMultiplier();
+			float getFastSpin();
+			int getSidesStart();
+			int getSidesMax();
+			int getSidesMin();
 	};
 }
 #endif // LEVELSETTINGS_H

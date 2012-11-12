@@ -1,6 +1,7 @@
 #include "Utils.h"
 #include <stdio.h>
 #include <math.h>
+#include <windows.h>
 
 namespace hg
 {
@@ -13,30 +14,6 @@ namespace hg
 		float length { std::sqrt((mVector.x * mVector.x) + (mVector.y * mVector.y)) };
 		return Vector2f{ mVector.x / length, mVector.y / length };
 	}
-
-	int rnd(int min, int max)
-	{
-	   // x is in [0,1[
-	   double x = rand()/static_cast<double>(RAND_MAX);
-
-	   // [0,1[ * (max - min) + min is in [min,max[
-	   int that = min + static_cast<int>( x * (max - min) );
-
-	   return that;
-	}
-
-	bool pnpoly(std::vector<Vector2f*> verts, Vector2f test)
-	{
-		int nvert = verts.size();
-		int i, j, c = 0;
-		for (i = 0, j = nvert-1; i < nvert; j = i++) {
-			if ( ((verts[i]->y>test.y) != (verts[j]->y>test.y)) &&
-					(test.x < (verts[j]->x-verts[i]->x) * (test.y-verts[i]->y) / (verts[j]->y-verts[i]->y) + verts[i]->x) )
-				c = !c;
-		}
-		return c;
-	}
-
 	Color hue2color(double h)
 	{
 		double s = 1;
@@ -70,14 +47,35 @@ namespace hg
 		return mColor;
 	}
 
-	float saturate(float x)
+	int rnd(int min, int max)
 	{
-	  return std::max(0.0f, std::min(1.0f, x));
+	   double x = rand()/static_cast<double>(RAND_MAX);
+	   int that = min + static_cast<int>( x * (max - min) );
+	   return that;
 	}
-
+	bool pnpoly(std::vector<Vector2f*> verts, Vector2f test)
+	{
+		int nvert = verts.size();
+		int i, j, c = 0;
+		for (i = 0, j = nvert-1; i < nvert; j = i++) {
+			if ( ((verts[i]->y>test.y) != (verts[j]->y>test.y)) &&
+					(test.x < (verts[j]->x-verts[i]->x) * (test.y-verts[i]->y) / (verts[j]->y-verts[i]->y) + verts[i]->x) )
+				c = !c;
+		}
+		return c;
+	}
+	float saturate(float x) { return std::max(0.0f, std::min(1.0f, x)); }
 	float smootherstep(float edge0, float edge1, float x)
 	{
 		x = saturate((x - edge0)/(edge1 - edge0));
 		return x*x*x*(x*(x*6 - 15) + 10);
+	}
+
+	string exePath()
+	{
+		char buffer[MAX_PATH];
+		GetModuleFileName( NULL, buffer, MAX_PATH );
+		string::size_type pos = string( buffer ).find_last_of( "\\/" );
+		return string( buffer ).substr( 0, pos);
 	}
 }

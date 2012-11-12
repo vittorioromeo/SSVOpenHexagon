@@ -6,7 +6,6 @@
 
 namespace hg
 {
-
 	void loadConfig();
 	float getWindowSizeX();
 	float getWindowSizeY();
@@ -18,4 +17,7 @@ namespace hg
 	float getPlayerSpeed();
 	float getPlayerFocusSpeed();
 	float getPlayerSize();
+	bool getNoRotation();
+	bool getNoBackground();
+	bool getBlackAndWhite();
 }

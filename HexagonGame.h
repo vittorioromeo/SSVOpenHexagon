@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
+#include <SFML/Audio.hpp>
 #include <map>
 #include <json/json.h>
 #include <json/reader.h>
@@ -36,36 +37,39 @@ namespace hg
 
 			Vector2f centerPos { 0, 0 };
 
-			float radius { 75 };
-			float minRadius { 75 };
-			float radiusTimer { 0 };
+			float radius {75};
+			float minRadius {75};
+			float radiusTimer {0};
 
-			Color color { Color::Red };
-			float colorSwap { 0 };
-			BackType backType { BackType::GRAY };
-			double hue { 0 };
-			float hueIncrement { 1.0f };
-			bool rotationDirection { true };
+			Color color {Color::Red};
+			float colorSwap {0};
+			BackType backType {BackType::GRAY};
+			double hue {0};
+			float hueIncrement {1.0f};
+			bool rotationDirection {true};
 
 			map<int, LevelSettings> levelMap;
-			Level level { Level::EASY };
+			Level level {Level::EASY};
 			PatternManager* pm; // owned
 			Timeline timeline;
 
-			float currentTime { 0 };
-			float incrementTime { 0 };
+			float currentTime {0};
+			float incrementTime {0};
 
-			int sides { 6 };
-			float speedMult { 1 };
-			float delayMult { 1 };
-			float speedIncrement { 0 };
-			float rotationSpeed { 0.1f };
-			float rotationSpeedIncrement { 0 };
-			float fastSpin { 0 };
+			int sides {6};
+			float speedMult {1};
+			float delayMult {1};
+			float speedIncrement {0};
+			float rotationSpeed {0.1f};
+			float rotationSpeedIncrement {0};
+			float fastSpin {0};
 
-			bool mustRestart { false };
+			bool hasDied{false};
+			bool mustRestart{false};
 
-			Entity* createPlayer();
+			SoundBuffer sbDeath;
+			Sound sDeath;
+
 			void update(float);
 			inline void updateIncrement();
 			inline void updateLevel(float);
@@ -73,16 +77,19 @@ namespace hg
 			inline void updateRotation(float);
 			inline void updateRadius(float);
 			inline void updateDebugKeys(float);
+
 			void drawDebugText();
 			void drawBackground();
 
-			void initLevelSettings();
-			LevelSettings& getLevelSettings();
-			void incrementDifficulty();
-
 			LevelSettings loadLevelFromJson(Json::Value &mRoot, string mLevelObject);
+			void initLevelSettings();
+			void incrementDifficulty();
+			LevelSettings& getLevelSettings();
 
 		public:
+			HexagonGame();
+			~HexagonGame();
+
 			void newGame();
 			void death();
 			void drawOnTexture(Drawable&);
@@ -92,9 +99,6 @@ namespace hg
 			float getRadius();
 			int getSides();
 			Color getColor();
-
-			HexagonGame();
-			~HexagonGame();
 	};
 }
 #endif /* HEXAGONGAME_H_ */

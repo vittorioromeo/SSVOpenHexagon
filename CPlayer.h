@@ -16,19 +16,20 @@ namespace hg
 	class CPlayer: public Component
 	{
 		private:
-			HexagonGame* hexagonGamePtr;
-			Vector2f pTop, pLeft, pRight;
+			HexagonGame* hgPtr;
+			Vector2f pLeft, pRight;
 			Vector2f startPos, pos;
 
-			VertexArray vertices { PrimitiveType::Triangles, 3 };
+			VertexArray vertices{PrimitiveType::Triangles, 3};
 
 			inline void drawPivot();
+			bool isDead{false};
 
 		public:
-			float size { getPlayerSize() };
-			float angle { 0 };
-			float speed { getPlayerSpeed() };
-			float focusSpeed { getPlayerFocusSpeed() };
+			float size{getPlayerSize()};
+			float angle{0};
+			float speed{getPlayerSpeed()};
+			float focusSpeed{getPlayerFocusSpeed()};
 
 			CPlayer(HexagonGame*, Vector2f);
 

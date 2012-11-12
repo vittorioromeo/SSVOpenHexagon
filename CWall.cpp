@@ -14,9 +14,9 @@ namespace hg
 	}
 
 	CWall::CWall(HexagonGame *mHexagonGamePtr, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed) :
-			Component{"wall"}, hexagonGamePtr{mHexagonGamePtr}, centerPos{mCenterPos}, speed{mSpeed}
+			Component{"wall"}, hgPtr{mHexagonGamePtr}, centerPos{mCenterPos}, speed{mSpeed}
 	{
-		float div { 360.f / hexagonGamePtr->getSides() };
+		float div { 360.f / hgPtr->getSides() };
 		float angle { div * mSide };
 
 		p1 = orbit(centerPos, angle - div * 0.5f, mDistance);
@@ -25,9 +25,11 @@ namespace hg
 		p4 = orbit(centerPos, angle - div * 0.5f, mDistance + mThickness);
 	}
 
+	bool CWall::isOverlapping(Vector2f mPoint) { return pnpoly(pointPtrs, mPoint); }
+
 	void CWall::draw()
 	{
-		Color color { hexagonGamePtr->getColor() };
+		Color color { hgPtr->getColor() };
 
 		vertices[0].position = p1;
 		vertices[1].position = p2;
@@ -39,12 +41,12 @@ namespace hg
 		vertices[2].color = color;
 		vertices[3].color = color;
 
-		hexagonGamePtr->drawOnTexture(vertices);
+		hgPtr->drawOnTexture(vertices);
 	}
 
 	void CWall::update(float mFrameTime)
 	{
-		float radius { hexagonGamePtr->getRadius() * 0.65f };
+		float radius { hgPtr->getRadius() * 0.65f };
 		int pointsOnCenter { 0 };
 
 		for(auto pointPtr : pointPtrs)

@@ -9,6 +9,8 @@
 #include "PatternManager.h"
 #include <fstream>
 #include "Config.h"
+#include <SFML/Audio.hpp>
+#include "Factory.h"
 
 using namespace sf;
 using namespace ssvs;
@@ -16,88 +18,12 @@ using namespace sses;
 
 namespace hg
 {
-	void HexagonGame::incrementDifficulty()
+	HexagonGame::HexagonGame() :
+		window { (unsigned int)getWindowSizeX(), (unsigned int)getWindowSizeY(), getPixelMultiplier(), false }
 	{
-		speedMult += speedIncrement;
-		rotationSpeed += rotationSpeedIncrement;
-		rotationDirection = !rotationDirection;
-		fastSpin = getLevelSettings().fastSpin;
+		sbDeath.loadFromFile("pldead00.wav");
+		sDeath.setBuffer(sbDeath);
 
-		if (sides != 6) 					sides = 6;
-		else if (level == Level::EASY) 		sides = rnd(4, 7);
-		else if (level == Level::NORMAL) 	sides = rnd(5, 7);
-		else if (level == Level::HARD)		sides = rnd(5, 8);
-		else if (level == Level::LUNATIC)	sides = rnd(6, 9);
-
-		timeline.clear();
-		timeline.reset();
-		timeline.add(new Wait(35));
-	}
-
-    LevelSettings HexagonGame::loadLevelFromJson(Json::Value &mRoot, string mLevelObject)
-	{
-		string name { mRoot[mLevelObject]["name"].asString()              };
-		float s_m  	{ mRoot[mLevelObject]["speed_multiplier"].asFloat()   };
-		float s_i  	{ mRoot[mLevelObject]["speed_increment"].asFloat()    };
-		float rs  	{ mRoot[mLevelObject]["rotation_speed"].asFloat()     };
-		float rs_i 	{ mRoot[mLevelObject]["rotation_increment"].asFloat() };
-		float d_m  	{ mRoot[mLevelObject]["delay_multiplier"].asFloat()   };
-		float fspin { mRoot[mLevelObject]["fast_spin"].asFloat()          };
-
-		return LevelSettings{name, s_m, s_i, rs, rs_i, d_m, fspin};
-	}
-
-	void HexagonGame::initLevelSettings()
-	{
-		Json::Value root;   // will contains the root value after parsing.
-		Json::Reader reader;
-		ifstream test("levels.json", std::ifstream::binary);
-
-		bool parsingSuccessful = reader.parse( test, root, false );
-		if (!parsingSuccessful) cout << reader.getFormatedErrorMessages() << endl;
-
-		LevelSettings easy 		{loadLevelFromJson(root, "0")};
-		LevelSettings normal 	{loadLevelFromJson(root, "1")};
-		LevelSettings hard 		{loadLevelFromJson(root, "2")};
-		LevelSettings lunatic 	{loadLevelFromJson(root, "3")};
-
-		easy.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
-		easy.addPattern( [&]{ pm->barrageSpin(3); } 			, 2	);
-		easy.addPattern( [&]{ pm->mirrorSpin(8); } 				, 1	);
-		easy.addPattern( [&]{ pm->evilRSpin(); } 				, 1	);
-		easy.addPattern( [&]{ pm->inverseBarrage(1); }			, 2 );
-
-		normal.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
-		normal.addPattern( [&]{ pm->barrageSpin(4); } 			, 2	);
-		normal.addPattern( [&]{ pm->mirrorSpin(10); } 			, 1	);
-		normal.addPattern( [&]{ pm->mirrorSpin(4); } 			, 2	);
-		normal.addPattern( [&]{ pm->evilRSpin(); } 				, 2	);
-		normal.addPattern( [&]{ pm->inverseBarrage(1); }		, 2 );
-
-		hard.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
-		hard.addPattern( [&]{ pm->barrageSpin(4); } 			, 1	);
-		hard.addPattern( [&]{ pm->mirrorSpin(12); } 			, 1	);
-		hard.addPattern( [&]{ pm->mirrorSpin(4); } 				, 2	);
-		hard.addPattern( [&]{ pm->evilRSpin(); } 				, 2	);
-		hard.addPattern( [&]{ pm->inverseBarrage(1); }			, 3 );
-
-		lunatic.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
-		lunatic.addPattern( [&]{ pm->barrageSpin(3); }			, 3 );
-		lunatic.addPattern( [&]{ pm->inverseBarrage(1); }		, 3 );
-		lunatic.addPattern( [&]{ pm->mirrorSpin(14); } 			, 1	);
-		lunatic.addPattern( [&]{ pm->mirrorSpin(6); } 			, 2	);
-		lunatic.addPattern( [&]{ pm->evilRSpin(1, 4); }			, 1	);
-		lunatic.addPattern( [&]{ pm->evilRSpin(2, 3); } 		, 1	);
-
-		levelMap.insert(make_pair(Level::EASY, easy));
-		levelMap.insert(make_pair(Level::NORMAL, normal));
-		levelMap.insert(make_pair(Level::HARD, hard));
-		levelMap.insert(make_pair(Level::LUNATIC, lunatic));
-	}
-	LevelSettings& HexagonGame::getLevelSettings() { return levelMap.find((int)level)->second; }
-
-	HexagonGame::HexagonGame() : window { (unsigned int)getWindowSizeX(), (unsigned int)getWindowSizeY(), getPixelMultiplier(), false }
-	{
 		pm = new PatternManager(this);
 
 		font.loadFromFile("C:/Windows/Fonts/imagine.ttf"); // TODO: fix paths
@@ -109,13 +35,16 @@ namespace hg
 		gameSprite.setPosition(getWindowSizeX() / 2, getWindowSizeY() / 2);
 		window.renderWindow.setVerticalSyncEnabled(true);
 
-		game.addUpdateFunc(	[&](float frameTime) { update(frameTime); }	 );
-		game.addDrawFunc(	[&](){ gameTexture.clear(Color::Black); }, -2);
-		game.addDrawFunc(	[&](){ drawBackground(); }, 			   -1);
-		game.addDrawFunc(	[&](){ manager.draw(); }, 					0);
-		game.addDrawFunc(	[&](){ gameTexture.display(); }, 			1);
-		game.addDrawFunc(	[&](){ drawOnWindow(gameSprite); }, 		2);
-		game.addDrawFunc(	[&](){ drawDebugText(); }, 					3);
+		game.addUpdateFunc(	 [&](float frameTime) { update(frameTime); });
+		game.addDrawFunc(	 [&](){ gameTexture.clear(Color::Black); }, -2);
+
+		if(!getNoBackground())
+			game.addDrawFunc([&](){ drawBackground(); }, 			   -1);
+
+		game.addDrawFunc(	 [&](){ manager.draw(); }, 					0);
+		game.addDrawFunc(	 [&](){ gameTexture.display(); }, 			1);
+		game.addDrawFunc(	 [&](){ drawOnWindow(gameSprite); }, 		2);
+		game.addDrawFunc(	 [&](){ drawDebugText(); }, 				3);
 
 		initLevelSettings();
 		newGame();
@@ -125,16 +54,11 @@ namespace hg
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
-	Entity* HexagonGame::createPlayer()
-	{
-		Entity* result { new Entity };
-		manager.addEntity(result);
-		result->addComponent(new CPlayer { this, centerPos } );
-		return result;
-	}
-
 	void HexagonGame::newGame()
 	{
+		rotationDirection = rnd(0, 100) > 50 ? true : false;
+
+		hasDied = false;
 		mustRestart = false;
 		currentTime = 0;
 		incrementTime = 0;
@@ -143,31 +67,46 @@ namespace hg
 		backType = (BackType)rnd(0, 3);
 
 		manager.clear();
-		createPlayer();
+		createPlayer(manager, this, centerPos);
 
 		timeline = Timeline{};
 
-		speedMult 				= getLevelSettings().speed;
-		rotationSpeed 			= getLevelSettings().rotation;
-		speedIncrement 			= getLevelSettings().speedInc;
-		rotationSpeedIncrement 	= getLevelSettings().rotationInc;
-		delayMult 				= getLevelSettings().delay;
+		speedMult 				= getLevelSettings().getSpeedMultiplier();
+		rotationSpeed 			= getLevelSettings().getRotationSpeed();
+		speedIncrement 			= getLevelSettings().getSpeedIncrement();
+		rotationSpeedIncrement 	= getLevelSettings().getRotationSpeedIncrement();
+		delayMult 				= getLevelSettings().getDelayMultiplier();
 	}
-	void HexagonGame::death() { mustRestart = true; }
+	void HexagonGame::death()
+	{
+		hasDied = true;
+
+		sDeath.play();
+	}
+
+	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
+	void HexagonGame::drawOnWindow(Drawable &mDrawable) { window.renderWindow.draw(mDrawable); }
 
 	void HexagonGame::update(float mFrameTime)
 	{
-		manager.update(mFrameTime);
+		if(!hasDied)
+		{
+			manager.update(mFrameTime);
+			currentTime += mFrameTime / 60.0f;
+			incrementTime += mFrameTime / 60.0f;
 
-		currentTime += mFrameTime / 60.0f;
-		incrementTime += mFrameTime / 60.0f;
+			updateIncrement();
+			updateLevel(mFrameTime);
+			updateRadius(mFrameTime);
+			if(!getBlackAndWhite()) updateColor(mFrameTime); else color = Color::White;
+		}
+		else
+		{
+			rotationSpeed /= 1.001f;
+		}
 
-		updateIncrement();
 		updateDebugKeys(mFrameTime);
-		updateLevel(mFrameTime);
-		updateColor(mFrameTime);
-		updateRotation(mFrameTime);
-		updateRadius(mFrameTime);
+		if(!getNoRotation()) updateRotation(mFrameTime);
 
 		if(mustRestart) newGame();
 	}
@@ -245,10 +184,12 @@ namespace hg
 	}
 	inline void HexagonGame::updateDebugKeys(float mFrameTime)
 	{
-		if(Keyboard::isKeyPressed(Keyboard::Num1)) { level = Level::EASY; death(); }
-		if(Keyboard::isKeyPressed(Keyboard::Num2)) { level = Level::NORMAL; death(); }
-		if(Keyboard::isKeyPressed(Keyboard::Num3)) { level = Level::HARD; death(); }
-		if(Keyboard::isKeyPressed(Keyboard::Num4)) { level = Level::LUNATIC; death(); }
+		if(Keyboard::isKeyPressed(Keyboard::R)) mustRestart = true;
+
+		if(Keyboard::isKeyPressed(Keyboard::Num1)) { level = Level::EASY; newGame(); }
+		if(Keyboard::isKeyPressed(Keyboard::Num2)) { level = Level::NORMAL; newGame(); }
+		if(Keyboard::isKeyPressed(Keyboard::Num3)) { level = Level::HARD; newGame(); }
+		if(Keyboard::isKeyPressed(Keyboard::Num4)) { level = Level::LUNATIC; newGame(); }
 
 		if(Keyboard::isKeyPressed(Keyboard::Q)) sides++;
 		if(Keyboard::isKeyPressed(Keyboard::W)) sides--;
@@ -264,11 +205,11 @@ namespace hg
 	{
 		ostringstream s;
 		s 	<< "time: " << toStr(currentTime).substr(0, 5) << endl
-			<< "level: " << toStr(getLevelSettings().name) << endl
-			<< "sides: " << toStr(sides) << endl
-			<< "speed multiplier: " << toStr(speedMult) << endl
-			<< "rotation: " << toStr(rotationSpeed) << endl
-			<< "hue: " << toStr(hue) << endl;
+			<< "level: " << toStr(getLevelSettings().getName()) << endl;
+		//	<< "sides: " << toStr(sides) << endl
+		//	<< "speed multiplier: " << toStr(speedMult) << endl
+		//	<< "rotation: " << toStr(rotationSpeed) << endl
+		//	<< "hue: " << toStr(hue) << endl;
 
 		Text t { s.str(), font, 20 };
 		t.setPosition(10, 0);
@@ -304,7 +245,7 @@ namespace hg
 
 		if(colorSwap > 50) swap(color1, color2);
 
-		VertexArray vertices{ PrimitiveType::Triangles, 3 };
+		VertexArray vertices{PrimitiveType::Triangles, 3};
 
 		for(int i {0}; i < sides; i++)
 		{
@@ -328,12 +269,92 @@ namespace hg
 		gameTexture.draw(vertices);
 	}
 
-	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
-	void HexagonGame::drawOnWindow(Drawable &mDrawable) { window.renderWindow.draw(mDrawable); }
+    LevelSettings HexagonGame::loadLevelFromJson(Json::Value &mRoot, string mLevelObject)
+	{
+		string name { mRoot[mLevelObject]["name"].asString() };
+		float s_m  	{ mRoot[mLevelObject]["speed_multiplier"].asFloat() };
+		float s_i  	{ mRoot[mLevelObject]["speed_increment"].asFloat() };
+		float rs  	{ mRoot[mLevelObject]["rotation_speed"].asFloat() };
+		float rs_i 	{ mRoot[mLevelObject]["rotation_increment"].asFloat() };
+		float d_m  	{ mRoot[mLevelObject]["delay_multiplier"].asFloat() };
+		float fspin { mRoot[mLevelObject]["fast_spin"].asFloat() };
+		int sid_s 	{ mRoot[mLevelObject]["sides_start"].asInt() };
+		int sid_min	{ mRoot[mLevelObject]["sides_min"].asInt() };
+		int sid_max	{ mRoot[mLevelObject]["sides_max"].asInt() };
 
-	Vector2f HexagonGame::getCenterPos() { return centerPos; }
-	int HexagonGame::getSides() { return sides; }
-	float HexagonGame::getRadius() { return radius; }
-	Color HexagonGame::getColor() { return color; }
+		return LevelSettings{name, s_m, s_i, rs, rs_i, d_m, fspin, sid_s, sid_min, sid_max};
+	}
+	void HexagonGame::initLevelSettings()
+	{
+		Json::Value root;
+		Json::Reader reader;
+		ifstream test("levels.json", std::ifstream::binary);
+
+		bool parsingSuccessful = reader.parse( test, root, false );
+		if (!parsingSuccessful) cout << reader.getFormatedErrorMessages() << endl;
+
+		LevelSettings easy 		{loadLevelFromJson(root, "0")};
+		LevelSettings normal 	{loadLevelFromJson(root, "1")};
+		LevelSettings hard 		{loadLevelFromJson(root, "2")};
+		LevelSettings lunatic 	{loadLevelFromJson(root, "3")};
+
+		easy.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
+		easy.addPattern( [&]{ pm->barrageSpin(3); } 			, 2	);
+		easy.addPattern( [&]{ pm->mirrorSpin(8); } 				, 1	);
+		easy.addPattern( [&]{ pm->evilRSpin(); } 				, 1	);
+		easy.addPattern( [&]{ pm->inverseBarrage(1); }			, 2 );
+		easy.addPattern( [&]{ pm->rWallStrip(); } 				, 3 );
+
+		normal.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
+		normal.addPattern( [&]{ pm->barrageSpin(4); } 			, 2	);
+		normal.addPattern( [&]{ pm->mirrorSpin(10); } 			, 1	);
+		normal.addPattern( [&]{ pm->mirrorSpin(4); } 			, 2	);
+		normal.addPattern( [&]{ pm->evilRSpin(); } 				, 2	);
+		normal.addPattern( [&]{ pm->inverseBarrage(1); }		, 2 );
+		normal.addPattern( [&]{ pm->rWallStrip(); } 			, 3 );
+
+		hard.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
+		hard.addPattern( [&]{ pm->barrageSpin(4); } 			, 1	);
+		hard.addPattern( [&]{ pm->mirrorSpin(12); } 			, 1	);
+		hard.addPattern( [&]{ pm->mirrorSpin(4); } 				, 2	);
+		hard.addPattern( [&]{ pm->evilRSpin(); } 				, 2	);
+		hard.addPattern( [&]{ pm->inverseBarrage(1); }			, 3 );
+		hard.addPattern( [&]{ pm->rWallStrip(); } 				, 4 );
+
+		lunatic.addPattern( [&]{ pm->alternateBarrageDiv(2); } 	, 1	);
+		lunatic.addPattern( [&]{ pm->barrageSpin(3); }			, 3 );
+		lunatic.addPattern( [&]{ pm->barrageSpin(8, 0.5f); }	, 1 );
+		lunatic.addPattern( [&]{ pm->inverseBarrage(1); }		, 3 );
+		lunatic.addPattern( [&]{ pm->mirrorSpin(14); } 			, 1	);
+		lunatic.addPattern( [&]{ pm->mirrorSpin(6); } 			, 2	);
+		lunatic.addPattern( [&]{ pm->evilRSpin(1, 4); }			, 1	);
+		lunatic.addPattern( [&]{ pm->evilRSpin(2, 3); } 		, 1	);
+		lunatic.addPattern( [&]{ pm->rWallStrip(); } 			, 4	);
+
+		levelMap.insert(make_pair(Level::EASY, easy));
+		levelMap.insert(make_pair(Level::NORMAL, normal));
+		levelMap.insert(make_pair(Level::HARD, hard));
+		levelMap.insert(make_pair(Level::LUNATIC, lunatic));
+	}
+	void HexagonGame::incrementDifficulty()
+	{
+		speedMult += speedIncrement;
+		rotationSpeed += rotationSpeedIncrement;
+		rotationDirection = !rotationDirection;
+		fastSpin = getLevelSettings().getFastSpin();
+
+		if (sides != 6) sides = 6;
+		else  			sides = rnd(getLevelSettings().getSidesMin(), getLevelSettings().getSidesMax() + 1);
+
+		timeline.clear();
+		timeline.reset();
+		timeline.add(new Wait(40));
+	}
+	LevelSettings& HexagonGame::getLevelSettings() { return levelMap.find((int)level)->second; }
+
+	Vector2f HexagonGame::getCenterPos() 	{ return centerPos; }
+	int HexagonGame::getSides() 			{ return sides; }
+	float HexagonGame::getRadius() 			{ return radius; }
+	Color HexagonGame::getColor() 			{ return color; }
 }
 

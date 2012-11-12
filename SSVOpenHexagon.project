@@ -23,6 +23,8 @@
     <File Name="LevelSettings.h"/>
     <File Name="Config.h"/>
     <File Name="Config.cpp"/>
+    <File Name="Factory.h"/>
+    <File Name="Factory.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>

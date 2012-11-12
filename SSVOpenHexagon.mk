@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=11/11/12
+Date                   :=11/12/12
 CodeLitePath           :="c:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -63,7 +63,7 @@ CodeLiteDir:=c:\Program Files (x86)\CodeLite
 WXWIN:=C:\wxWidgets
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXCFG:=gcc_dll\mswu
-Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) 
+Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) $(IntermediateDirectory)/Factory$(ObjectSuffix) 
 
 ##
 ## Main Build Targets 
@@ -150,6 +150,14 @@ $(IntermediateDirectory)/Config$(DependSuffix): Config.cpp
 $(IntermediateDirectory)/Config$(PreprocessSuffix): Config.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Config$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp"
 
+$(IntermediateDirectory)/Factory$(ObjectSuffix): Factory.cpp $(IntermediateDirectory)/Factory$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Factory$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Factory$(DependSuffix): Factory.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Factory$(ObjectSuffix) -MF$(IntermediateDirectory)/Factory$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp"
+
+$(IntermediateDirectory)/Factory$(PreprocessSuffix): Factory.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Factory$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp"
+
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
 ##
@@ -180,6 +188,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/Config$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Config$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Config$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Factory$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Factory$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Factory$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "D:\Vee\Software\WIP\CL\WorkspaceOH\OH\.build-debug\SSVOpenHexagon"

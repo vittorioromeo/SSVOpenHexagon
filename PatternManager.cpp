@@ -9,6 +9,7 @@
 #include "SSVStart.h"
 #include "SSVEntitySystem.h"
 #include "Config.h"
+#include "Factory.h"
 
 namespace hg
 {
@@ -24,15 +25,10 @@ namespace hg
 	}
 
 	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) :
-		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), sides{hgPtr->sides}, centerPos(hgPtr->centerPos) { }
+		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos), sides{hgPtr->sides} { }
 
-	void PatternManager::wallBase(Vector2f mCenterPos, int mSide, float mThickness, float mSpeed)
-	{
-		Entity* result { new Entity };
-		hgPtr->manager.addEntity(result);
-		result->addComponent(new CWall { hgPtr, mCenterPos, mSide, mThickness, getSpawnDistance(), mSpeed * hgPtr->speedMult });
-	}
-	void PatternManager::wall(int mSide, float mThickness) { wallBase(centerPos, mSide, mThickness, speed); }
+	
+	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness, speed, hgPtr->speedMult); }
 	void PatternManager::rWall(int mSide, float mThickness) { wall(mSide, mThickness); wall(mSide + sides / 2, mThickness); }
 	void PatternManager::wallExtra(int mSide, float mThickness, int mExtra)
 	{
@@ -66,11 +62,11 @@ namespace hg
 		for(int i{0}; i < sides / mStep; i++) wall(mSide + i * mStep, mThickness);
 	}
 
-	void PatternManager::alternateBarrageDiv(int mDiv)
+	void PatternManager::alternateBarrageDiv(int mTimes, int mDiv)
 	{
-		float delay {getPerfectDelay(thickness, speed) * 4.6f};
+		float delay{getPerfectDelay(thickness, speed) * 4.6f};
 
-		for(int i { 0 }; i < 5; i++)
+		for(int i { 0 }; i < mTimes; i++)
 		{
 			timeline.add(new Do{[=](){ altBarrage(i, thickness, mDiv); }});
 			timeline.add(new Wait{delay});
@@ -78,10 +74,9 @@ namespace hg
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 3.2f});
 	}
-	void PatternManager::barrageSpin(int mTimes)
+	void PatternManager::barrageSpin(int mTimes, float mDelayMultiplier)
 	{
-		float delay {getPerfectDelay(thickness, speed) * 4.6f};
-
+		float delay{getPerfectDelay(thickness, speed) * 4.6f * mDelayMultiplier};
 		int startSide{getRandomSide()};
 		int loopDir{getRandomDirection()};
 
@@ -95,9 +90,8 @@ namespace hg
 	}
 	void PatternManager::mirrorSpin(int mTimes)
 	{
-		float myThickness {getPerfectThickness(baseThickness)};
-		float delay {getPerfectDelay(myThickness, speed)};
-
+		float myThickness{getPerfectThickness(baseThickness)};
+		float delay{getPerfectDelay(myThickness, speed)};
 		int startSide{getRandomSide()};
 		int loopDir{getRandomDirection()};
 
@@ -111,8 +105,7 @@ namespace hg
 	}
 	void PatternManager::evilRSpin(int mTimes, int mSteps)
 	{
-		float delay {getPerfectDelay(thickness, speed) * 4.0f};
-
+		float delay{getPerfectDelay(thickness, speed) * 4.0f};
 		int startSide{getRandomSide()};
 		int loopDir{getRandomDirection()};
 		int currentSide{startSide};
@@ -142,8 +135,7 @@ namespace hg
 	}
 	void PatternManager::inverseBarrage(int mTimes)
 	{
-		float delay {getPerfectDelay(thickness, speed) * 9.0f};
-
+		float delay{getPerfectDelay(thickness, speed) * 9.0f};
 		int startSide{getRandomSide()};
 
 		for(int i{0}; i < mTimes; i++)
@@ -155,5 +147,18 @@ namespace hg
 		}
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 1.7f});
+	}
+	void PatternManager::rWallStrip(int mTimes)
+	{
+		float delay{getPerfectDelay(thickness, speed) * 2.5f};
+		int startSide{getRandomSide()};
+
+		for(int i{0}; i < mTimes; i++)
+		{
+			timeline.add(new Do{[=](){ rWall(startSide, thickness); }});
+			timeline.add(new Wait{delay});
+		}
+
+		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 0.9f});
 	}
 }
