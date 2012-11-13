@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=11/12/12
+Date                   :=11/13/12
 CodeLitePath           :="c:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -38,12 +38,12 @@ MakeDirCommand         :=makedir
 RcCmpOptions           := 
 RcCompilerName         :=windres
 LinkOptions            :=  
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVStart $(IncludeSwitch)D:/Vee/Software/WIP/SFMLMinGW/include $(IncludeSwitch)D:/Vee/Software/WIP/jsoncpp/include 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVStart $(IncludeSwitch)D:/Vee/Software/WIP/SFMLMinGW/include $(IncludeSwitch)D:/Vee/Software/WIP/jsoncpp/include $(IncludeSwitch)D:/Vee/Software/WIP/boost 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)sfml-window-d $(LibrarySwitch)sfml-graphics-d $(LibrarySwitch)sfml-system-d $(LibrarySwitch)sfml-audio-d $(LibrarySwitch)json_mingw_libmt 
-ArLibs                 :=  "SSVEntitySystem" "SSVStart" "sfml-window-d" "sfml-graphics-d" "sfml-system-d" "sfml-audio-d" "json_mingw_libmt" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Debug $(LibraryPathSwitch)../SSVEntitySystem/Debug $(LibraryPathSwitch)D:/Vee/Software/WIP/SFMLMinGW/lib $(LibraryPathSwitch)D:/Vee/Software/WIP/jsoncpp/libs/mingw 
+Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)sfml-window-d $(LibrarySwitch)sfml-graphics-d $(LibrarySwitch)sfml-system-d $(LibrarySwitch)sfml-audio-d $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)boost_system-mgw47-mt-d-1_52 $(LibrarySwitch)boost_filesystem-mgw47-mt-d-1_52 
+ArLibs                 :=  "SSVEntitySystem" "SSVStart" "sfml-window-d" "sfml-graphics-d" "sfml-system-d" "sfml-audio-d" "json_mingw_libmt" "boost_system-mgw47-mt-d-1_52" "boost_filesystem-mgw47-mt-d-1_52" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Debug $(LibraryPathSwitch)../SSVEntitySystem/Debug $(LibraryPathSwitch)D:/Vee/Software/WIP/SFMLMinGW/lib $(LibraryPathSwitch)D:/Vee/Software/WIP/jsoncpp/libs/mingw $(LibraryPathSwitch)D:/Vee/Software/WIP/boost/bin.v2/libs/system/build/gcc-mingw-4.7.2/debug/link-static/threading-multi $(LibraryPathSwitch)D:/Vee/Software/WIP/boost/bin.v2/libs/filesystem/build/gcc-mingw-4.7.2/debug/link-static/threading-multi 
 
 ##
 ## Common variables
@@ -63,7 +63,8 @@ CodeLiteDir:=c:\Program Files (x86)\CodeLite
 WXWIN:=C:\wxWidgets
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXCFG:=gcc_dll\mswu
-Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) $(IntermediateDirectory)/Factory$(ObjectSuffix) 
+Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) $(IntermediateDirectory)/Factory$(ObjectSuffix) $(IntermediateDirectory)/MusicData$(ObjectSuffix) \
+	
 
 ##
 ## Main Build Targets 
@@ -158,6 +159,14 @@ $(IntermediateDirectory)/Factory$(DependSuffix): Factory.cpp
 $(IntermediateDirectory)/Factory$(PreprocessSuffix): Factory.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Factory$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp"
 
+$(IntermediateDirectory)/MusicData$(ObjectSuffix): MusicData.cpp $(IntermediateDirectory)/MusicData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/MusicData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/MusicData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/MusicData$(DependSuffix): MusicData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/MusicData$(ObjectSuffix) -MF$(IntermediateDirectory)/MusicData$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/MusicData.cpp"
+
+$(IntermediateDirectory)/MusicData$(PreprocessSuffix): MusicData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/MusicData$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/MusicData.cpp"
+
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
 ##
@@ -191,6 +200,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/Factory$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Factory$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Factory$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/MusicData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/MusicData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/MusicData$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "D:\Vee\Software\WIP\CL\WorkspaceOH\OH\.build-debug\SSVOpenHexagon"

@@ -1,3 +1,6 @@
+#ifndef CONFIG_H_
+#define CONFIG_H_
+
 #include <iostream>
 #include <string>
 #include <json/json.h>
@@ -20,4 +23,13 @@ namespace hg
 	bool getNoRotation();
 	bool getNoBackground();
 	bool getBlackAndWhite();
+	bool getNoSound();
+	bool getNoMusic();
+	int getSoundVolume();
+	int getMusicVolume();
+	bool getStaticFrameTime();
+	float getStaticFrameTimeValue();
+	bool getLimitFps();
 }
+
+#endif /* CONFIG_H_ */

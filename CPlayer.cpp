@@ -5,8 +5,8 @@
 
 namespace hg
 {
-	CPlayer::CPlayer(HexagonGame *mHexagonGamePtr, Vector2f mStartPos) :
-		Component{"player"}, hgPtr{mHexagonGamePtr}, startPos{mStartPos}, pos{startPos} { }
+	CPlayer::CPlayer(HexagonGame *mHgPtr, Vector2f mStartPos) :
+		Component{"player"}, hgPtr{mHgPtr}, startPos{mStartPos}, pos{startPos} { }
 
 	void CPlayer::draw()
 	{
@@ -15,6 +15,9 @@ namespace hg
 		Color color{hgPtr->getColor()};
 
 		if(isDead) color = Color::Red;
+
+		pLeft = orbit(pos, angle - 100, size + 3);
+		pRight = orbit(pos, angle + 100, size + 3);
 
 		vertices[0].position = orbit(pos, angle, size);
 		vertices[1].position = pLeft;
@@ -64,29 +67,20 @@ namespace hg
 
 	void CPlayer::update(float mFrameTime)
 	{
-		pLeft = orbit(pos, angle - 100, size + 3);
-		pRight = orbit(pos, angle + 100, size + 3);
+		float currentSpeed{speed};
+		float lastAngle{angle};
+		int movement{0};
 
-		float currentSpeed { speed };
-		float lastAngle { angle };
-		int movement { 0 };
-
-		if(Keyboard::isKeyPressed(Keyboard::LShift))
-		{
-			currentSpeed = focusSpeed;
-			pLeft = orbit(pLeft, angle - 90, -3);
-			pRight = orbit(pRight, angle + 90, -3);
-		}
+		if(Keyboard::isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
 		if(Keyboard::isKeyPressed(Keyboard::Left)) movement = -1;
 		if(Keyboard::isKeyPressed(Keyboard::Right)) movement = 1;
 
-		angle += currentSpeed * mFrameTime * movement;
+		angle += currentSpeed * movement * mFrameTime;
 
-		float radius { hgPtr->getRadius() };
-		Vector2f tempPos = orbit(startPos, angle, radius);
-
-		Vector2f pLeftCheck { orbit(tempPos, angle - 90, 0.01f) };
-		Vector2f pRightCheck { orbit(tempPos, angle + 90, 0.01f) };
+		float radius{hgPtr->getRadius()};
+		Vector2f tempPos{orbit(startPos, angle, radius)};
+		Vector2f pLeftCheck{orbit(tempPos, angle - 90, 0.01f)};
+		Vector2f pRightCheck{orbit(tempPos, angle + 90, 0.01f)};
 
 		for (auto wall : getManager().getComponentPtrsByIdCasted<CWall>("wall"))
 		{
@@ -96,7 +90,6 @@ namespace hg
 			{
 				isDead = true;
 				hgPtr->death();
-				return;
 			}
 		}
 

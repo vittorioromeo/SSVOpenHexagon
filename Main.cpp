@@ -8,6 +8,9 @@
 #include "HexagonGame.h"
 #include <memory>
 #include "Config.h"
+#include <json/json.h>
+#include <json/reader.h>
+#include "Utils.h"
 
 using namespace std;
 using namespace sses;
@@ -17,6 +20,8 @@ using namespace hg;
 
 int main()
 {
+	cout << "loading assets...";
+
 	srand(unsigned(time(NULL)));
 
 	loadConfig();

@@ -5,14 +5,18 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <json/json.h>
+#include <json/reader.h>
+#include "LevelSettings.h"
+#include "PatternManager.h"
+#include "boost/filesystem.hpp"
 
 using namespace std;
 using namespace sf;
+using namespace boost::filesystem;
 
 namespace hg
-{
-	
-
+{	
 	template<class T> T toRadians(const T mValue) { return mValue / 57.3f; }
 	template <class T> int sign(T value) { if (value > 0) return 1; else return -1; }
 
@@ -35,6 +39,13 @@ namespace hg
 	float smootherstep(float, float, float);
 	
 	string exePath(); // windows-only!
+
+	vector<string> getAllJsonPaths(path mPath);
+
+	LevelSettings loadLevelFromJson(PatternManager* pm, Json::Value &mRoot);
+	void parseAndAddPattern(PatternManager* pm, LevelSettings& mLevelSettings, Json::Value &mPatternRoot);
+
+	MusicData loadMusicFromJson(Json::Value &mRoot);
 }
 
 #endif /* UTILS_H_HG */

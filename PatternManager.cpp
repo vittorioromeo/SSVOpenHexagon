@@ -62,7 +62,7 @@ namespace hg
 		for(int i{0}; i < sides / mStep; i++) wall(mSide + i * mStep, mThickness);
 	}
 
-	void PatternManager::alternateBarrageDiv(int mTimes, int mDiv)
+	void PatternManager::alternateWallBarrage(int mTimes, int mDiv)
 	{
 		float delay{getPerfectDelay(thickness, speed) * 4.6f};
 
@@ -74,7 +74,7 @@ namespace hg
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 3.2f});
 	}
-	void PatternManager::barrageSpin(int mTimes, float mDelayMultiplier)
+	void PatternManager::barrageSpiral(int mTimes, float mDelayMultiplier)
 	{
 		float delay{getPerfectDelay(thickness, speed) * 4.6f * mDelayMultiplier};
 		int startSide{getRandomSide()};
@@ -88,7 +88,7 @@ namespace hg
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 5.2f});
 	}
-	void PatternManager::mirrorSpin(int mTimes)
+	void PatternManager::mirrorSpiral(int mTimes)
 	{
 		float myThickness{getPerfectThickness(baseThickness)};
 		float delay{getPerfectDelay(myThickness, speed)};
@@ -103,7 +103,7 @@ namespace hg
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 7.0f});
 	}
-	void PatternManager::evilRSpin(int mTimes, int mSteps)
+	void PatternManager::extraWallVortex(int mTimes, int mSteps)
 	{
 		float delay{getPerfectDelay(thickness, speed) * 4.0f};
 		int startSide{getRandomSide()};
@@ -148,7 +148,7 @@ namespace hg
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 1.7f});
 	}
-	void PatternManager::rWallStrip(int mTimes)
+	void PatternManager::mirrorWallStrip(int mTimes)
 	{
 		float delay{getPerfectDelay(thickness, speed) * 2.5f};
 		int startSide{getRandomSide()};
@@ -160,5 +160,23 @@ namespace hg
 		}
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 0.9f});
+	}
+	void PatternManager::tunnelBarrage(int mTimes)
+	{		
+		float myThickness{getPerfectThickness(baseThickness)};
+		float delay{getPerfectDelay(myThickness, speed) * 5.1f};
+		int startSide{getRandomSide()};
+		int loopDir{getRandomDirection()};
+
+		for(int i{0}; i < mTimes; i++)
+		{
+			if (i < mTimes - 1) timeline.add(new Do{[=](){ wall(startSide, myThickness + (speed * hgPtr->speedMult) * delay); }});
+			timeline.add(new Do{[=](){ barrage(startSide + loopDir, myThickness); }});
+			timeline.add(new Wait{delay});
+
+			loopDir *= -1;
+		}
+
+		timeline.add(new Wait{getPerfectDelay(myThickness, speed) * 5.0f});
 	}
 }

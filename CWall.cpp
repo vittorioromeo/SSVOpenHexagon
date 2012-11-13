@@ -13,8 +13,8 @@ namespace hg
 		mVector += m;
 	}
 
-	CWall::CWall(HexagonGame *mHexagonGamePtr, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed) :
-			Component{"wall"}, hgPtr{mHexagonGamePtr}, centerPos{mCenterPos}, speed{mSpeed}
+	CWall::CWall(HexagonGame *mHgPtr, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed) :
+			Component{"wall"}, hgPtr{mHgPtr}, centerPos{mCenterPos}, speed{mSpeed}
 	{
 		float div { 360.f / hgPtr->getSides() };
 		float angle { div * mSide };

@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <windows.h>
+#include <json/json.h>
+#include <json/reader.h>
+#include "LevelSettings.h"
+#include "boost/filesystem.hpp"
+#include "MusicData.h"
 
 namespace hg
 {
@@ -77,5 +82,101 @@ namespace hg
 		GetModuleFileName( NULL, buffer, MAX_PATH );
 		string::size_type pos = string( buffer ).find_last_of( "\\/" );
 		return string( buffer ).substr( 0, pos);
+	}
+
+	vector<string> getAllJsonPaths(path mPath)
+	{
+		vector<string> result;
+
+		for(auto iter = directory_iterator(mPath); iter != directory_iterator(); iter++)
+			if(iter->path().extension() == ".json") result.push_back(iter->path().string());
+
+		return result;
+	}
+	LevelSettings loadLevelFromJson(PatternManager* pm, Json::Value &mRoot)
+	{
+		string name			 	{ mRoot["name"].asString() };
+		string description 		{ mRoot["description"].asString() };
+		string author 			{ mRoot["author"].asString() };
+		string music_id			{ mRoot["music_id"].asString() };
+
+		float speedMultiplier  	{ mRoot["speed_multiplier"].asFloat() };
+		float speedIncrement 	{ mRoot["speed_increment"].asFloat() };
+		float rotationSpeed  	{ mRoot["rotation_speed"].asFloat() };
+		float rotationIncrement	{ mRoot["rotation_increment"].asFloat() };
+		float delayMultiplier	{ mRoot["delay_multiplier"].asFloat() };
+		float delayIncrement	{ mRoot["delay_increment"].asFloat() };
+		float fastSpin			{ mRoot["fast_spin"].asFloat() };
+		int sidesStart			{ mRoot["sides_start"].asInt() };
+		int sidesMin 			{ mRoot["sides_min"].asInt() };
+		int sidesMax			{ mRoot["sides_max"].asInt() };
+		float incrementTime 	{ mRoot["increment_time"].asFloat() };
+
+		auto result = LevelSettings{name, description, author, music_id, speedMultiplier, speedIncrement, rotationSpeed,
+			rotationIncrement, delayMultiplier, delayIncrement, fastSpin, sidesStart, sidesMin, sidesMax, incrementTime};
+
+		for (Json::Value pattern : mRoot["patterns"]) parseAndAddPattern(pm, result, pattern);
+
+		return result;
+	}
+	void parseAndAddPattern(PatternManager* pm, LevelSettings& mLevelSettings, Json::Value &mPatternRoot)
+	{
+		string type	{ mPatternRoot["type"].asString() };
+		int chance	{ mPatternRoot["chance"].asInt() };
+
+		if(type == "alternate_wall_barrage")
+		{
+			int times{mPatternRoot["times"].asInt()};
+			int div{mPatternRoot["div"].asInt()};
+			mLevelSettings.addPattern([=]{ pm->alternateWallBarrage(times, div); }, chance);
+		}
+		else if(type == "barrage_spiral")
+		{
+			int times{mPatternRoot["times"].asInt()};
+			float delayMultiplier{mPatternRoot["delay_multiplier"].asFloat()};
+			mLevelSettings.addPattern([=]{ pm->barrageSpiral(times, delayMultiplier); }, chance);
+		}
+		else if(type == "mirror_spiral")
+		{
+			int times{mPatternRoot["times"].asInt()};			
+			mLevelSettings.addPattern([=]{ pm->mirrorSpiral(times); }, chance);
+		}
+		else if(type == "extra_wall_vortex")
+		{
+			int times{mPatternRoot["times"].asInt()};
+			int steps{mPatternRoot["steps"].asInt()};			
+			mLevelSettings.addPattern([=]{ pm->extraWallVortex(times, steps); }, chance);
+		}
+		else if(type == "inverse_barrage")
+		{
+			int times{mPatternRoot["times"].asInt()};
+			mLevelSettings.addPattern([=]{ pm->inverseBarrage(times); }, chance);
+		}
+		else if(type == "mirror_wall_strip")
+		{
+			int times{mPatternRoot["times"].asInt()};
+			mLevelSettings.addPattern([=]{ pm->mirrorWallStrip(times); }, chance);
+		}
+		else if(type == "tunnel_barrage")
+		{
+			int times{mPatternRoot["times"].asInt()};
+			mLevelSettings.addPattern([=]{ pm->tunnelBarrage(times); }, chance);
+		}
+	}
+
+	MusicData loadMusicFromJson(Json::Value &mRoot)
+	{
+		string id				{ mRoot["id"].asString() };
+		string fileName			{ mRoot["file_name"].asString() };
+		string name			 	{ mRoot["name"].asString() };
+		string album	 		{ mRoot["album"].asString() };
+		string author 			{ mRoot["author"].asString() };
+
+		auto result = MusicData{id, fileName, name, album, author};
+
+		for (Json::Value segment : mRoot["segments"])		
+			result.addSegment(segment["time"].asInt());
+
+		return result;
 	}
 }
