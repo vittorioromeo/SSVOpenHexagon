@@ -11,6 +11,7 @@
 #include <json/json.h>
 #include <json/reader.h>
 #include "Utils.h"
+#include "Assets.h"
 
 using namespace std;
 using namespace sses;
@@ -20,11 +21,11 @@ using namespace hg;
 
 int main()
 {
-	cout << "loading assets...";
+	loadConfig();
+	loadAssets();
 
 	srand(unsigned(time(NULL)));
 
-	loadConfig();
 	HexagonGame hg;
 
 	return 0;

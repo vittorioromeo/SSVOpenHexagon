@@ -30,6 +30,7 @@ namespace hg
 	bool getStaticFrameTime();
 	float getStaticFrameTimeValue();
 	bool getLimitFps();
+	bool getVsync();
 }
 
 #endif /* CONFIG_H_ */

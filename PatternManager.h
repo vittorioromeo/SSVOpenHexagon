@@ -30,11 +30,18 @@ namespace hg
 			float thickness	{baseThickness};
 			float speed 	{baseSpeed};
 
+			float adjDelay{1.0f};
+			float adjSpeed{1.0f};
+			float adjThickness{1.0f};
+
 			void initalizeTimeline();
 			void finalizeTimeline();
-
+			
 		public:
 			PatternManager(HexagonGame*);			
+
+			void setAdj(float mAdjDelay, float mAdjSpeed, float mAdjThickness);
+			void resetAdj();
 
 			int getRandomSide();
 			int getRandomDirection();
@@ -51,10 +58,10 @@ namespace hg
 
 			void alternateWallBarrage	(int mTimes = 5, int mDiv = 2);						// zig-zag
 			void barrageSpiral			(int mTimes, float mDelayMultiplier = 1); 			// spiral of barrages with only 1 free side
-			void mirrorSpiral			(int mTimes);										// spiral with touching sides, only 1 closed side
+			void mirrorSpiral			(int mTimes, int mExtra = 0);						// spiral with touching sides, only 1 closed side
 			void extraWallVortex		(int mTimes = 1, int mSteps = 2);					// left-left right-right
 			void inverseBarrage			(int mTimes = 1);									// barrage 0° and barrage 180°
-			void mirrorWallStrip		(int mTimes = 2);									// several rWalls one after another on the same side
+			void mirrorWallStrip		(int mTimes = 2, int mExtra = 0);					// several rWalls one after another on the same side
 			void tunnelBarrage			(int mTimes = 1);									// tunnel of barrages where you have to zig zag
 	};
 }

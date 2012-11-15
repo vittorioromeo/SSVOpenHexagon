@@ -19,13 +19,14 @@ namespace hg
 			string name			{""};
 			string album		{""};
 			string author		{""};
-			Music* musicPtr		{new Music};
 
+			Music* musicPtr		{new Music};
+			bool firstPlay		{true};
 			int getRandomSegment();
 
 		public:
+			MusicData() = default;
 			MusicData(string mId, string mFileName, string mName, string mAlbum, string mAuthor);
-			~MusicData();
 
 			void addSegment(int mSeconds);			
 			void playRandomSegment(Music*& mMusicPtr);

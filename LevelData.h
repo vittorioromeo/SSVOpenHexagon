@@ -9,14 +9,17 @@ using namespace std;
 
 namespace hg
 {
-	class LevelSettings
+	class PatternManager;
+
+	class LevelData
 	{
 		private:
-			vector<function<void()>> pfuncs;
+			vector<function<void(PatternManager* pm)>> pfuncs;
 			int currentPattern	{-1};
 			string name			{""};
 			string description	{""};
 			string author		{""};
+			string styleId		{""};
 			string musicId		{""};
 			float speedMultiplier;
 			float speedIncrement;
@@ -30,19 +33,21 @@ namespace hg
 			int sidesMax;
 			float incrementTime;
 
-		public:					
-			LevelSettings(string mName, string mDescription, string mAuthor, string mMusicId,
+		public:
+			LevelData() = default;
+			LevelData(string mName, string mDescription, string mAuthor, string mStyleId, string mMusicId,
 							float mSpeedStart, float mSpeedIncrement, float mRotationSpeed,
 							float mRotationSpeedIncrement, float mDelayMultiplier, float mDelayIncrement,
 							float mFastSpin, int mSidesStart, int mSidesMin,
 							int mSidesMax, float mIncrementTime);
 			
-			void addPattern(function<void()> mPatternFunc, int mChance = 1);
-			function<void()> getRandomPattern();
+			void addPattern(function<void(PatternManager* pm)> mPatternFunc, int mChance = 1);
+			function<void(PatternManager* pm)> getRandomPattern();
 
 			string getName();
 			string getDescription();
 			string getAuthor();
+			string getStyleId();
 			string getMusicId();
 			float getSpeedMultiplier();
 			float getSpeedIncrement();

@@ -13,8 +13,31 @@
 
 namespace hg
 {
-	int PatternManager::getRandomSide() { return rnd(0, sides); }
-	int PatternManager::getRandomDirection() { return rnd(0, 100) > 50 ? 1 : -1; }
+	void PatternManager::setAdj(float mAdjDelay, float mAdjSpeed, float mAdjThickness)
+	{
+		adjDelay = mAdjDelay;
+		adjSpeed = mAdjSpeed;
+		adjThickness = mAdjThickness;
+
+		timeline.add(new Do{[=]
+		{
+			adjDelay = mAdjDelay;
+			adjSpeed = mAdjSpeed;
+			adjThickness = mAdjThickness;
+		}});
+	}
+	void PatternManager::resetAdj()
+	{
+		timeline.add(new Do{[=]
+		{
+			adjDelay = 1.0f;
+			adjSpeed = 1.0f;
+			adjThickness = 1.0f;
+		}});
+	}
+
+	int PatternManager::getRandomSide() { return getRnd(0, sides); }
+	int PatternManager::getRandomDirection() { return getRnd(0, 100) > 50 ? 1 : -1; }
 	float PatternManager::getPerfectThickness(float mBaseThickness)
 	{
 		return mBaseThickness * hgPtr->speedMult * hgPtr->delayMult;
@@ -28,7 +51,7 @@ namespace hg
 		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos), sides{hgPtr->sides} { }
 
 	
-	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness, speed, hgPtr->speedMult); }
+	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness * adjThickness, speed * adjSpeed, hgPtr->speedMult); }
 	void PatternManager::rWall(int mSide, float mThickness) { wall(mSide, mThickness); wall(mSide + sides / 2, mThickness); }
 	void PatternManager::wallExtra(int mSide, float mThickness, int mExtra)
 	{
@@ -69,7 +92,7 @@ namespace hg
 		for(int i { 0 }; i < mTimes; i++)
 		{
 			timeline.add(new Do{[=](){ altBarrage(i, thickness, mDiv); }});
-			timeline.add(new Wait{delay});
+			timeline.add(new Wait{delay * adjDelay});
 		}
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 3.2f});
@@ -83,12 +106,12 @@ namespace hg
 		for(int i {0}, s {0}; i < mTimes; i++, s += loopDir)
 		{
 			timeline.add(new Do{[=](){ barrage(startSide + s, thickness); }});
-			timeline.add(new Wait{delay});
+			timeline.add(new Wait{delay * adjDelay});
 		}
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 5.2f});
 	}
-	void PatternManager::mirrorSpiral(int mTimes)
+	void PatternManager::mirrorSpiral(int mTimes, int mExtra)
 	{
 		float myThickness{getPerfectThickness(baseThickness)};
 		float delay{getPerfectDelay(myThickness, speed)};
@@ -97,8 +120,8 @@ namespace hg
 
 		for(int i{0}, s{0}; i < mTimes; i++, s += loopDir)
 		{
-			timeline.add(new Do{[=]() { rWall(startSide + s, myThickness); }});
-			timeline.add(new Wait{delay});
+			timeline.add(new Do{[=]() { rWallExtra(startSide + s, myThickness, mExtra); }});
+			timeline.add(new Wait{delay * adjDelay});
 		}
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 7.0f});
@@ -117,7 +140,7 @@ namespace hg
 				currentSide += loopDir;
 
 				timeline.add(new Do{[=](){ rWallExtra(currentSide, thickness, loopDir); }});
-				timeline.add(new Wait{delay});
+				timeline.add(new Wait{delay * adjDelay});
 			}
 
 			loopDir *= -1;
@@ -127,7 +150,7 @@ namespace hg
 				currentSide += loopDir;
 
 				timeline.add(new Do{[=](){ rWallExtra(currentSide, thickness, loopDir); }});
-				timeline.add(new Wait{delay});
+				timeline.add(new Wait{delay * adjDelay});
 			}
 		}
 
@@ -141,22 +164,22 @@ namespace hg
 		for(int i{0}; i < mTimes; i++)
 		{
 			timeline.add(new Do{[=](){ barrage(startSide, thickness); }});
-			timeline.add(new Wait{delay});
+			timeline.add(new Wait{delay * adjDelay});
 			timeline.add(new Do{[=](){ barrage(startSide + sides / 2, thickness); }});
-			timeline.add(new Wait{delay});
+			timeline.add(new Wait{delay * adjDelay});
 		}
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 1.7f});
 	}
-	void PatternManager::mirrorWallStrip(int mTimes)
+	void PatternManager::mirrorWallStrip(int mTimes, int mExtra)
 	{
 		float delay{getPerfectDelay(thickness, speed) * 2.5f};
 		int startSide{getRandomSide()};
 
 		for(int i{0}; i < mTimes; i++)
 		{
-			timeline.add(new Do{[=](){ rWall(startSide, thickness); }});
-			timeline.add(new Wait{delay});
+			timeline.add(new Do{[=](){ rWallExtra(startSide, thickness, mExtra); }});
+			timeline.add(new Wait{delay * adjDelay});
 		}
 
 		timeline.add(new Wait{getPerfectDelay(thickness, speed) * 0.9f});
@@ -172,7 +195,7 @@ namespace hg
 		{
 			if (i < mTimes - 1) timeline.add(new Do{[=](){ wall(startSide, myThickness + (speed * hgPtr->speedMult) * delay); }});
 			timeline.add(new Do{[=](){ barrage(startSide + loopDir, myThickness); }});
-			timeline.add(new Wait{delay});
+			timeline.add(new Wait{delay * adjDelay});
 
 			loopDir *= -1;
 		}

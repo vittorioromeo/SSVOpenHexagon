@@ -7,45 +7,42 @@
 #include <iostream>
 #include <json/json.h>
 #include <json/reader.h>
-#include "LevelSettings.h"
+#include "LevelData.h"
 #include "PatternManager.h"
 #include "boost/filesystem.hpp"
+#include "StyleData.h"
 
 using namespace std;
 using namespace sf;
 using namespace boost::filesystem;
 
 namespace hg
-{	
+{
+	template<class T> void log(T mValue) { cout << toStr(mValue) << endl; }
 	template<class T> T toRadians(const T mValue) { return mValue / 57.3f; }
-	template <class T> int sign(T value) { if (value > 0) return 1; else return -1; }
+	template<class T> string toStr(const T &t) { ostringstream oss; oss << t; return string(oss.str()); }
+	template<class T> int getSign(T value) { if (value > 0) return 1; else return -1; }
 
-	template<class T>
-	string toStr(const T &t)
-	{
-		ostringstream oss;
-		oss << t;
-		return string(oss.str());
-	}
+	int getRnd(int, int);
+	float getSaturated(float);
+	float getSmootherStep(float, float, float);
+	bool isPointInPolygon(std::vector<Vector2f*>, Vector2f);
 
-	Vector2f orbit(const Vector2f&, const float, const float);
-	Vector2f normalize(const Vector2f);
-	Color hue2color(double);
-	Color darkenColor(Color, float);
+	Vector2f getOrbit(const Vector2f&, const float, const float);
+	Vector2f getNormalized(const Vector2f);
 
-	bool pnpoly(std::vector<Vector2f*>, Vector2f);
-	int rnd(int, int);
-	float saturate(float);
-	float smootherstep(float, float, float);
-	
-	string exePath(); // windows-only!
+	Color getColorFromHue(double);
+	Color getColorDarkened(Color, float);
 
-	vector<string> getAllJsonPaths(path mPath);
+	vector<string> getAllFilePaths(string mFolderPath, string mExtension);
+	Json::Value getJsonFileRoot(string mFilePath);
 
-	LevelSettings loadLevelFromJson(PatternManager* pm, Json::Value &mRoot);
-	void parseAndAddPattern(PatternManager* pm, LevelSettings& mLevelSettings, Json::Value &mPatternRoot);
+	LevelData loadLevelFromJson(Json::Value mRoot);
+	MusicData loadMusicFromJson(Json::Value mRoot);
+	StyleData loadStyleFromJson(Json::Value mRoot);
 
-	MusicData loadMusicFromJson(Json::Value &mRoot);
+	void parseAndAddPattern(LevelData& mLevelSettings, Json::Value &mPatternRoot);
+	function<void(PatternManager*)> getAdjPatternFunc(function<void(PatternManager*)> mFunction, float mAdjDelay, float mAdjSpeed, float mAdjThickness);
 }
 
 #endif /* UTILS_H_HG */

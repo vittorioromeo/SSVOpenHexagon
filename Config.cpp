@@ -3,6 +3,7 @@
 #include <json/json.h>
 #include <json/reader.h>
 #include <fstream>
+#include "Utils.h"
 #include "Config.h"
 
 using namespace std;
@@ -29,9 +30,12 @@ namespace hg
 	bool staticFrameTime		{false};
 	float staticFrameTimeValue	{false};
 	bool limitFps				{false};
+	bool vsync					{false};
 
 	void loadConfig()
 	{
+		log("loading config");
+
 		Json::Value root;
 		Json::Reader reader;
 		ifstream test("config.json", std::ifstream::binary);
@@ -56,6 +60,7 @@ namespace hg
 		staticFrameTime = 		root["static_frametime"].asBool();
 		staticFrameTimeValue = 	root["static_frametime_value"].asFloat();
 		limitFps = 				root["limit_fps"].asBool();
+		vsync = 				root["vsync"].asBool();
 
 		sizeX = max(windowSizeX, windowSizeY) * 1.3f;
 		sizeY = max(windowSizeX, windowSizeY)  * 1.3f;
@@ -82,4 +87,5 @@ namespace hg
 	bool getStaticFrameTime()		{ return staticFrameTime; }
 	float getStaticFrameTimeValue()	{ return staticFrameTimeValue; }
 	bool getLimitFps()				{ return limitFps; }
+	bool getVsync()					{ return vsync; }
 }

@@ -22,8 +22,10 @@ namespace hg
 
 			VertexArray vertices{PrimitiveType::Triangles, 3};
 
-			inline void drawPivot();
+			float hue{0};
 			bool isDead{false};
+
+			inline void drawPivot();			
 
 		public:
 			float size{getPlayerSize()};

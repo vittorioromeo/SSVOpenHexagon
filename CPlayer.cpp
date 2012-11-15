@@ -12,56 +12,66 @@ namespace hg
 	{
 		drawPivot();
 
-		Color color{hgPtr->getColor()};
+		Color colorMain{hgPtr->getColorMain()};
 
-		if(isDead) color = Color::Red;
+		if(isDead) colorMain = getColorFromHue(hue / 255.0f);
 
-		pLeft = orbit(pos, angle - 100, size + 3);
-		pRight = orbit(pos, angle + 100, size + 3);
+		pLeft = getOrbit(pos, angle - 100, size + 3);
+		pRight = getOrbit(pos, angle + 100, size + 3);
 
-		vertices[0].position = orbit(pos, angle, size);
+		vertices[0].position = getOrbit(pos, angle, size);
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		vertices[0].color = color;
-		vertices[1].color = color;
-		vertices[2].color = color;
+		vertices[0].color = colorMain;
+		vertices[1].color = colorMain;
+		vertices[2].color = colorMain;
 
 		hgPtr->drawOnTexture(vertices);
 	}
 	inline void CPlayer::drawPivot()
 	{
-		constexpr float thickness {4};
+		float thickness{5};
 
-		Color color {hgPtr->getColor()};
+		Color colorMain{hgPtr->getColorMain()};
+		Color colorB{hgPtr->getColorB()};
+		
 		float div {360.f / hgPtr->getSides()};
 		float radius {hgPtr->getRadius() * 0.75f};
 		Vector2f pivotPos{startPos};
 
 		if(isDead)
 		{
-			pivotPos = pos;
-			radius = size * 2;
-			color = Color::White;
+			pivotPos = pos;			
+			colorMain = getColorFromHue((360 - hue) / 255.0f);
+			if(hue++ > 360) hue = 0;
+			radius = hue / 8;
+			thickness = hue / 20;
 		}
 
 		VertexArray vertices2 {PrimitiveType::Quads, 4};
+		VertexArray vertices3 {PrimitiveType::Triangles, 3};
 
-		for(int i {0}; i < hgPtr->getSides(); i++)
+		for(int i{0}; i < hgPtr->getSides(); i++)
 		{
 			float angle { div * i };
 
-			Vector2f p1{orbit(pivotPos, angle - div * 0.5f, radius)};
-			Vector2f p2{orbit(pivotPos, angle + div * 0.5f, radius)};
-			Vector2f p3{orbit(pivotPos, angle + div * 0.5f, radius + thickness)};
-			Vector2f p4{orbit(pivotPos, angle - div * 0.5f, radius + thickness)};
+			Vector2f p1{getOrbit(pivotPos, angle - div * 0.5f, radius)};
+			Vector2f p2{getOrbit(pivotPos, angle + div * 0.5f, radius)};
+			Vector2f p3{getOrbit(pivotPos, angle + div * 0.5f, radius + thickness)};
+			Vector2f p4{getOrbit(pivotPos, angle - div * 0.5f, radius + thickness)};
 			
-			vertices2.append(Vertex{p1, color});
-			vertices2.append(Vertex{p2, color});
-			vertices2.append(Vertex{p3, color});
-			vertices2.append(Vertex{p4, color});			
-		}
+			vertices2.append(Vertex{p1, colorMain});
+			vertices2.append(Vertex{p2, colorMain});
+			vertices2.append(Vertex{p3, colorMain});
+			vertices2.append(Vertex{p4, colorMain});
 
+			vertices3.append(Vertex{p1, colorB});
+			vertices3.append(Vertex{p2, colorB});
+			vertices3.append(Vertex{pivotPos, colorB});
+		}
+		
+		if(!isDead) hgPtr->drawOnTexture(vertices3);
 		hgPtr->drawOnTexture(vertices2);
 	}
 
@@ -78,9 +88,9 @@ namespace hg
 		angle += currentSpeed * movement * mFrameTime;
 
 		float radius{hgPtr->getRadius()};
-		Vector2f tempPos{orbit(startPos, angle, radius)};
-		Vector2f pLeftCheck{orbit(tempPos, angle - 90, 0.01f)};
-		Vector2f pRightCheck{orbit(tempPos, angle + 90, 0.01f)};
+		Vector2f tempPos{getOrbit(startPos, angle, radius)};
+		Vector2f pLeftCheck{getOrbit(tempPos, angle - 90, 0.01f)};
+		Vector2f pRightCheck{getOrbit(tempPos, angle + 90, 0.01f)};
 
 		for (auto wall : getManager().getComponentPtrsByIdCasted<CWall>("wall"))
 		{
@@ -93,6 +103,6 @@ namespace hg
 			}
 		}
 
-		pos = orbit(startPos, angle, radius);
+		pos = getOrbit(startPos, angle, radius);
 	}
 }

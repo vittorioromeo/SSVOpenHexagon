@@ -8,7 +8,7 @@ namespace hg
 	void movePoint(Vector2f &mVector, const Vector2f mCenter, const float mSpeed)
 	{
 		Vector2f m { mCenter - mVector };
-		m = normalize(m);
+		m = getNormalized(m);
 		m *= mSpeed;
 		mVector += m;
 	}
@@ -19,17 +19,17 @@ namespace hg
 		float div { 360.f / hgPtr->getSides() };
 		float angle { div * mSide };
 
-		p1 = orbit(centerPos, angle - div * 0.5f, mDistance);
-		p2 = orbit(centerPos, angle + div * 0.5f, mDistance);
-		p3 = orbit(centerPos, angle + div * 0.5f, mDistance + mThickness);
-		p4 = orbit(centerPos, angle - div * 0.5f, mDistance + mThickness);
+		p1 = getOrbit(centerPos, angle - div * 0.5f, mDistance);
+		p2 = getOrbit(centerPos, angle + div * 0.5f, mDistance);
+		p3 = getOrbit(centerPos, angle + div * 0.5f, mDistance + mThickness);
+		p4 = getOrbit(centerPos, angle - div * 0.5f, mDistance + mThickness);
 	}
 
-	bool CWall::isOverlapping(Vector2f mPoint) { return pnpoly(pointPtrs, mPoint); }
+	bool CWall::isOverlapping(Vector2f mPoint) { return isPointInPolygon(pointPtrs, mPoint); }
 
 	void CWall::draw()
 	{
-		Color color { hgPtr->getColor() };
+		Color color { hgPtr->getColorMain() };
 
 		vertices[0].position = p1;
 		vertices[1].position = p2;

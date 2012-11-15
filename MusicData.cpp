@@ -1,29 +1,31 @@
 #include "MusicData.h"
 #include <SFML/Audio.hpp>
 #include "Utils.h"
+#include "Assets.h"
 
 namespace hg
 {
 	MusicData::MusicData(string mId, string mFileName, string mName, string mAlbum, string mAuthor) :
 		id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor}
 	{
-		musicPtr->openFromFile("Music/" + mFileName);
+		musicPtr = getMusicPtr(mId);
 		musicPtr->setLoop(true);
 		musicPtr->setVolume(getMusicVolume());
 	}
-	MusicData::~MusicData()
-	{
-		//delete musicPtr;
-	}
 
 	void MusicData::addSegment(int mSeconds) { segments.push_back(mSeconds); }
-	int MusicData::getRandomSegment() { return segments[rnd(0, segments.size())]; }
+	int MusicData::getRandomSegment() { return segments[getRnd(0, segments.size())]; }
 	void MusicData::playRandomSegment(Music*& mMusicPtr)
 	{
 		mMusicPtr = musicPtr;
 
-		int segment{getRandomSegment()};
-		musicPtr->setPlayingOffset(sf::seconds(segment));
+		if(firstPlay)
+		{
+			firstPlay = false;
+			musicPtr->setPlayingOffset(sf::seconds(segments[0]));
+		}
+		else musicPtr->setPlayingOffset(sf::seconds(getRandomSegment()));
+
 		musicPtr->play();
 	}
 

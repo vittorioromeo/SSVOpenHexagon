@@ -2,18 +2,18 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Debug
+## Release
 ProjectName            :=SSVOpenHexagon
-ConfigurationName      :=Debug
+ConfigurationName      :=Release
 WorkspacePath          := "D:\Vee\Software\WIP\CL\WorkspaceOH\OH"
 ProjectPath            := "D:\Vee\Software\WIP\CL\WorkspaceOH\OH\SSVOpenHexagon"
-IntermediateDirectory  :=./Debug
+IntermediateDirectory  :=./Release
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=11/13/12
+Date                   :=11/15/12
 CodeLitePath           :="c:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -41,9 +41,9 @@ LinkOptions            :=
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVStart $(IncludeSwitch)D:/Vee/Software/WIP/SFMLMinGW/include $(IncludeSwitch)D:/Vee/Software/WIP/jsoncpp/include $(IncludeSwitch)D:/Vee/Software/WIP/boost 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)sfml-window-d $(LibrarySwitch)sfml-graphics-d $(LibrarySwitch)sfml-system-d $(LibrarySwitch)sfml-audio-d $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)boost_system-mgw47-mt-d-1_52 $(LibrarySwitch)boost_filesystem-mgw47-mt-d-1_52 
-ArLibs                 :=  "SSVEntitySystem" "SSVStart" "sfml-window-d" "sfml-graphics-d" "sfml-system-d" "sfml-audio-d" "json_mingw_libmt" "boost_system-mgw47-mt-d-1_52" "boost_filesystem-mgw47-mt-d-1_52" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Debug $(LibraryPathSwitch)../SSVEntitySystem/Debug $(LibraryPathSwitch)D:/Vee/Software/WIP/SFMLMinGW/lib $(LibraryPathSwitch)D:/Vee/Software/WIP/jsoncpp/libs/mingw $(LibraryPathSwitch)D:/Vee/Software/WIP/boost/bin.v2/libs/system/build/gcc-mingw-4.7.2/debug/link-static/threading-multi $(LibraryPathSwitch)D:/Vee/Software/WIP/boost/bin.v2/libs/filesystem/build/gcc-mingw-4.7.2/debug/link-static/threading-multi 
+Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)boost_system-mgw47-mt-1_52 $(LibrarySwitch)boost_filesystem-mgw47-mt-1_52 
+ArLibs                 :=  "SSVEntitySystem" "SSVStart" "sfml-window" "sfml-graphics" "sfml-system" "sfml-audio" "json_mingw_libmt" "boost_system-mgw47-mt-1_52" "boost_filesystem-mgw47-mt-1_52" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Release $(LibraryPathSwitch)../SSVEntitySystem/Release $(LibraryPathSwitch)D:/Vee/Software/WIP/SFMLMinGW/lib $(LibraryPathSwitch)D:/Vee/Software/WIP/jsoncpp/libs/mingw $(LibraryPathSwitch)D:/Vee/Software/WIP/boost/bin.v2/libs/system/build/gcc-mingw-4.7.2/release/link-static/threading-multi $(LibraryPathSwitch)D:/Vee/Software/WIP/boost/bin.v2/libs/filesystem/build/gcc-mingw-4.7.2/release/link-static/threading-multi 
 
 ##
 ## Common variables
@@ -52,8 +52,8 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/
 AR       := ar rcus
 CXX      := g++
 CC       := gcc
-CXXFLAGS :=  -pedantic -Wall -O0 -g3 -Wextra -c -std=c++11 $(Preprocessors)
-CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
+CXXFLAGS :=  -O3 -pedantic -Wall -c -std=c++11 -Wextra $(Preprocessors)
+CFLAGS   :=  -O2 -Wall $(Preprocessors)
 
 
 ##
@@ -63,8 +63,8 @@ CodeLiteDir:=c:\Program Files (x86)\CodeLite
 WXWIN:=C:\wxWidgets
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXCFG:=gcc_dll\mswu
-Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) $(IntermediateDirectory)/Factory$(ObjectSuffix) $(IntermediateDirectory)/MusicData$(ObjectSuffix) \
-	
+Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) $(IntermediateDirectory)/Factory$(ObjectSuffix) $(IntermediateDirectory)/MusicData$(ObjectSuffix) $(IntermediateDirectory)/StyleData$(ObjectSuffix) \
+	$(IntermediateDirectory)/Assets$(ObjectSuffix) $(IntermediateDirectory)/LevelData$(ObjectSuffix) $(IntermediateDirectory)/HSL$(ObjectSuffix) 
 
 ##
 ## Main Build Targets 
@@ -79,7 +79,7 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
 $(IntermediateDirectory)/.d:
-	@$(MakeDirCommand) "./Debug"
+	@$(MakeDirCommand) "./Release"
 
 PreBuild:
 
@@ -135,14 +135,6 @@ $(IntermediateDirectory)/Utils$(DependSuffix): Utils.cpp
 $(IntermediateDirectory)/Utils$(PreprocessSuffix): Utils.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Utils.cpp"
 
-$(IntermediateDirectory)/LevelSettings$(ObjectSuffix): LevelSettings.cpp $(IntermediateDirectory)/LevelSettings$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelSettings.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/LevelSettings$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/LevelSettings$(DependSuffix): LevelSettings.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/LevelSettings$(ObjectSuffix) -MF$(IntermediateDirectory)/LevelSettings$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelSettings.cpp"
-
-$(IntermediateDirectory)/LevelSettings$(PreprocessSuffix): LevelSettings.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/LevelSettings$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelSettings.cpp"
-
 $(IntermediateDirectory)/Config$(ObjectSuffix): Config.cpp $(IntermediateDirectory)/Config$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Config$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Config$(DependSuffix): Config.cpp
@@ -166,6 +158,38 @@ $(IntermediateDirectory)/MusicData$(DependSuffix): MusicData.cpp
 
 $(IntermediateDirectory)/MusicData$(PreprocessSuffix): MusicData.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/MusicData$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/MusicData.cpp"
+
+$(IntermediateDirectory)/StyleData$(ObjectSuffix): StyleData.cpp $(IntermediateDirectory)/StyleData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/StyleData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/StyleData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/StyleData$(DependSuffix): StyleData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/StyleData$(ObjectSuffix) -MF$(IntermediateDirectory)/StyleData$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/StyleData.cpp"
+
+$(IntermediateDirectory)/StyleData$(PreprocessSuffix): StyleData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/StyleData$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/StyleData.cpp"
+
+$(IntermediateDirectory)/Assets$(ObjectSuffix): Assets.cpp $(IntermediateDirectory)/Assets$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Assets.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Assets$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Assets$(DependSuffix): Assets.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Assets$(ObjectSuffix) -MF$(IntermediateDirectory)/Assets$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Assets.cpp"
+
+$(IntermediateDirectory)/Assets$(PreprocessSuffix): Assets.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Assets$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Assets.cpp"
+
+$(IntermediateDirectory)/LevelData$(ObjectSuffix): LevelData.cpp $(IntermediateDirectory)/LevelData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/LevelData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/LevelData$(DependSuffix): LevelData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/LevelData$(ObjectSuffix) -MF$(IntermediateDirectory)/LevelData$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp"
+
+$(IntermediateDirectory)/LevelData$(PreprocessSuffix): LevelData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/LevelData$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp"
+
+$(IntermediateDirectory)/HSL$(ObjectSuffix): HSL.cpp $(IntermediateDirectory)/HSL$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HSL$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HSL$(DependSuffix): HSL.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HSL$(ObjectSuffix) -MF$(IntermediateDirectory)/HSL$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp"
+
+$(IntermediateDirectory)/HSL$(PreprocessSuffix): HSL.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HSL$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
@@ -191,9 +215,6 @@ clean:
 	$(RM) $(IntermediateDirectory)/Utils$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/LevelSettings$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/LevelSettings$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/LevelSettings$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Config$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Config$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Config$(PreprocessSuffix)
@@ -203,8 +224,20 @@ clean:
 	$(RM) $(IntermediateDirectory)/MusicData$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/MusicData$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/MusicData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/StyleData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/StyleData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/StyleData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Assets$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Assets$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Assets$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/LevelData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/LevelData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/LevelData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HSL$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HSL$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HSL$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
-	$(RM) "D:\Vee\Software\WIP\CL\WorkspaceOH\OH\.build-debug\SSVOpenHexagon"
+	$(RM) "D:\Vee\Software\WIP\CL\WorkspaceOH\OH\.build-release\SSVOpenHexagon"
 
 

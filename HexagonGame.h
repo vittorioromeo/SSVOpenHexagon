@@ -3,7 +3,7 @@
 
 #include "SSVStart.h"
 #include "SSVEntitySystem.h"
-#include "LevelSettings.h"
+#include "LevelData.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
@@ -13,6 +13,7 @@
 #include <json/reader.h>
 #include "MusicData.h"
 #include <map>
+#include "StyleData.h"
 
 using namespace sf;
 using namespace ssvs;
@@ -20,8 +21,6 @@ using namespace sses;
 
 namespace hg
 {
-	enum BackType { DARK, LIGHT, GRAY };
-
 	class PatternManager;
 
 	class HexagonGame
@@ -42,17 +41,11 @@ namespace hg
 			float minRadius{75};
 			float radiusTimer{0};
 
-			Color color{Color::Red};
-			float colorSwap{0};
-			BackType backType{BackType::GRAY};
-			double hue{0};
-			float hueIncrement{1.0f};
 			bool rotationDirection{true};
 
-			vector<LevelSettings> levels;
-			LevelSettings* levelPtr{nullptr};
-
-			map<string, MusicData> musicMap;
+			LevelData levelData;
+			MusicData musicData;
+			StyleData styleData;
 			Music* musicPtr{nullptr};
 
 			PatternManager* pm; // owned
@@ -70,9 +63,6 @@ namespace hg
 			bool hasDied{false};
 			bool mustRestart{false};
 
-			SoundBuffer sbDeath;
-			Sound sDeath;
-
 			void update(float);
 			inline void updateIncrement();
 			inline void updateLevel(float);
@@ -84,14 +74,12 @@ namespace hg
 			void drawDebugText();
 			void drawBackground();
 
-			void initLevelSettings();
-			void initMusicData();
+			void setLevelData(LevelData mLevelSettings);
 
 			void playLevelMusic();
 			void stopLevelMusic();
 
 			void incrementDifficulty();
-			LevelSettings& getLevelSettings();
 
 		public:
 			HexagonGame();
@@ -105,7 +93,8 @@ namespace hg
 			Vector2f getCenterPos();
 			float getRadius();
 			int getSides();
-			Color getColor();
+			Color getColorMain();
+			Color getColorB();
 	};
 }
 #endif /* HEXAGONGAME_H_ */
