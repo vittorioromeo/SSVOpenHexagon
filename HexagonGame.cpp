@@ -13,6 +13,7 @@
 #include <SFML/Audio.hpp>
 #include "Assets.h"
 #include "StyleData.h"
+#include "MenuGame.h"
 
 using namespace sf;
 using namespace ssvs;
@@ -20,16 +21,11 @@ using namespace sses;
 
 namespace hg
 {
-	HexagonGame::HexagonGame() :
-		window { (unsigned int)getWindowSizeX(), (unsigned int)getWindowSizeY(), getPixelMultiplier(), getLimitFps() }
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) :
+		window(mGameWindow)
 	{				
-		window.isFrameTimeStatic = getStaticFrameTime();
-		window.staticFrameTime = getStaticFrameTimeValue();
-		window.renderWindow.setVerticalSyncEnabled(getVsync());
-
 		pm = new PatternManager(this);
 
-		font.loadFromFile("imagine.ttf");
 		gameTexture.create(getSizeX(), getSizeY(), 32);
 		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
 		gameTexture.setSmooth(true);
@@ -49,14 +45,14 @@ namespace hg
 		game.addDrawFunc(	 [&](){ drawDebugText(); }, 				3);
 
 		setLevelData(getLevelData("tutorial"));
-
-		newGame();
-		
-		window.setGame(&game);
-		window.run();
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
+	void HexagonGame::startFromMenu(LevelData mLevelData)
+	{
+		setLevelData(mLevelData);
+		newGame();
+	}
 	void HexagonGame::newGame()
 	{
 		stopAllSounds();
@@ -84,8 +80,6 @@ namespace hg
 		speedMult 		= levelData.getSpeedMultiplier();
 		rotationSpeed 	= levelData.getRotationSpeed();
 		delayMult 		= levelData.getDelayMultiplier();
-
-
 	}
 	void HexagonGame::death()
 	{
@@ -93,6 +87,8 @@ namespace hg
 		playSound("gameOver");
 		stopLevelMusic();
 		hasDied = true;
+		if(getScore(levelData.getId()) < currentTime) setScore(levelData.getId(), currentTime);
+		saveScores();
 	}
 
 	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
@@ -113,7 +109,7 @@ namespace hg
 		}
 		else rotationSpeed /= 1.001f;
 
-		updateDebugKeys(mFrameTime);
+		updateDebugKeys();
 		if(!getNoRotation()) updateRotation(mFrameTime);
 
 		if(mustRestart) newGame();
@@ -160,36 +156,36 @@ namespace hg
 
 		if(radius > minRadius) radius -= 0.7f * mFrameTime;
 	}
-	inline void HexagonGame::updateDebugKeys(float mFrameTime)
+	inline void HexagonGame::updateDebugKeys()
 	{
 		if(Keyboard::isKeyPressed(Keyboard::R)) mustRestart = true;
-
-		if(Keyboard::isKeyPressed(Keyboard::Num6)) { setLevelData(getLevelData("tutorial")); newGame(); }
-		if(Keyboard::isKeyPressed(Keyboard::Num1)) { setLevelData(getLevelData("easy")); newGame(); }
-		if(Keyboard::isKeyPressed(Keyboard::Num2)) { setLevelData(getLevelData("normal")); newGame(); }
-		if(Keyboard::isKeyPressed(Keyboard::Num3)) { setLevelData(getLevelData("hard")); newGame(); }
-		if(Keyboard::isKeyPressed(Keyboard::Num4)) { setLevelData(getLevelData("lunatic")); newGame(); }
-		if(Keyboard::isKeyPressed(Keyboard::Num5)) { setLevelData(getLevelData("extra")); newGame(); }
-
-		if(Keyboard::isKeyPressed(Keyboard::Q)) sides++;
-		if(Keyboard::isKeyPressed(Keyboard::W)) sides--;
-
-		if(Keyboard::isKeyPressed(Keyboard::Z)) speedMult += 0.1f * mFrameTime;
-		if(Keyboard::isKeyPressed(Keyboard::X))	speedMult -= 0.1f * mFrameTime;
-
-		if(Keyboard::isKeyPressed(Keyboard::C)) rotationSpeed += 0.03f * mFrameTime;
-		if(Keyboard::isKeyPressed(Keyboard::V))	rotationSpeed -= 0.03f * mFrameTime;
+		else if(Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+			playSound("beep");
+			window.setGame(&menuGamePtr->getGame());
+			menuGamePtr->init();
+		}
 	}
 
 	void HexagonGame::drawDebugText()
 	{
 		ostringstream s;
-		s 	<< "time: " << toStr(currentTime).substr(0, 5) << endl
-			<< "level: " << toStr(levelData.getName()) << endl;
+		s << "time: " << toStr(currentTime).substr(0, 5) << endl;
+		if(hasDied) s << "press r to restart" << endl;
 
-		Text t { s.str(), font, 20 };
-		t.setPosition(10, 0);
-		t.setColor(Color::White);
+		vector<Vector2f> offsets{{-1,-1},{-1,1},{1,-1},{1,1}};
+
+		for(auto offset : offsets)
+		{
+			Text t { s.str(), getFont("imagine"), 25 };
+			t.setPosition(Vector2f{13, 3} + offset);
+			t.setColor(getColorB());
+			window.renderWindow.draw(t);
+		}
+
+		Text t { s.str(), getFont("imagine"), 25 };
+		t.setPosition(13, 3);
+		t.setColor(getColorMain());
 		window.renderWindow.draw(t);
 	}
 	void HexagonGame::drawBackground()
@@ -249,6 +245,7 @@ namespace hg
 		musicData = getMusicData(levelData.getMusicId());
 	}
 
+	Game& HexagonGame::getGame()			{ return game; }
 	Vector2f HexagonGame::getCenterPos() 	{ return centerPos; }
 	int HexagonGame::getSides() 			{ return sides; }
 	float HexagonGame::getRadius() 			{ return radius; }

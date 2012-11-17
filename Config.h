@@ -31,6 +31,10 @@ namespace hg
 	float getStaticFrameTimeValue();
 	bool getLimitFps();
 	bool getVsync();
+	bool getAutoZoomFactor();
+	bool getFullscreen();
+	bool getAutoResolution();
+	string getVersion();
 }
 
 #endif /* CONFIG_H_ */

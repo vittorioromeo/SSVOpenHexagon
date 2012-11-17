@@ -3,12 +3,12 @@
 
 namespace hg
 {
-	LevelData::LevelData(string mName, string mDescription, string mAuthor, string mStyleId, string mMusicId,
+	LevelData::LevelData(string mId, string mName, string mDescription, string mAuthor, int mMenuPriority, string mStyleId, string mMusicId,
 								float mSpeedStart, float mSpeedIncrement, float mRotationSpeed,
 								float mRotationSpeedIncrement, float mDelayMultiplier, float mDelayIncrement,
 								float mFastSpin, int mSidesStart, int mSidesMin,
 								int mSidesMax, float mIncrementTime) :
-		name{mName}, description{mDescription}, author{mAuthor}, styleId{mStyleId}, musicId{mMusicId},
+		id{mId}, name{mName}, description{mDescription}, author{mAuthor}, menuPriority{mMenuPriority}, styleId{mStyleId}, musicId{mMusicId},
 		speedMultiplier{mSpeedStart}, speedIncrement{mSpeedIncrement}, rotationSpeed{mRotationSpeed},
 		rotationSpeedIncrement{mRotationSpeedIncrement}, delayMultiplier{mDelayMultiplier}, delayIncrement{mDelayIncrement},
 		fastSpin(mFastSpin), sidesStart{mSidesStart}, sidesMin{mSidesMin},
@@ -29,9 +29,11 @@ namespace hg
 		for(int i{0}; i < mChance; i++) pfuncs.push_back(mPatternFunc);
 	}
 
+	string LevelData::getId() 						{ return id; }
 	string LevelData::getName() 					{ return name; }
 	string LevelData::getDescription() 				{ return description; }
 	string LevelData::getAuthor() 					{ return author; }
+	int LevelData::getMenuPriority()				{ return menuPriority; }
 	string LevelData::getMusicId() 					{ return musicId; }
 	string LevelData::getStyleId() 					{ return styleId; }
 	float LevelData::getSpeedMultiplier() 			{ return speedMultiplier; }

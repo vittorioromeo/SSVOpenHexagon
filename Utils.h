@@ -22,6 +22,12 @@ namespace hg
 	template<class T> T toRadians(const T mValue) { return mValue / 57.3f; }
 	template<class T> string toStr(const T &t) { ostringstream oss; oss << t; return string(oss.str()); }
 	template<class T> int getSign(T value) { if (value > 0) return 1; else return -1; }
+	template<class T> int countNewLines(T mValue)
+	{
+		int result{0};
+		for(auto c : mValue) if (c == '\n') result++;
+		return result;
+	}
 
 	int getRnd(int, int);
 	float getSaturated(float);

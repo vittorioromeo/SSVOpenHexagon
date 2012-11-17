@@ -8,6 +8,7 @@
 #include "boost/filesystem.hpp"
 #include "MusicData.h"
 #include "StyleData.h"
+#include "wtypes.h"
 
 namespace hg
 {
@@ -102,9 +103,11 @@ namespace hg
 
 	LevelData loadLevelFromJson(Json::Value mRoot)
 	{
+		string id				{ mRoot["id"].asString() };
 		string name			 	{ mRoot["name"].asString() };
 		string description 		{ mRoot["description"].asString() };
 		string author 			{ mRoot["author"].asString() };
+		int menuPriority		{ mRoot["menu_priority"].asInt() };
 		string styleId			{ mRoot["style_id"].asString() };
 		string musicId			{ mRoot["music_id"].asString() };
 
@@ -120,7 +123,7 @@ namespace hg
 		int sidesMax			{ mRoot["sides_max"].asInt() };
 		float incrementTime 	{ mRoot["increment_time"].asFloat() };
 
-		auto result = LevelData{name, description, author, styleId, musicId, speedMultiplier, speedIncrement, rotationSpeed,
+		auto result = LevelData{id, name, description, author, menuPriority, styleId, musicId, speedMultiplier, speedIncrement, rotationSpeed,
 			rotationIncrement, delayMultiplier, delayIncrement, fastSpin, sidesStart, sidesMin, sidesMax, incrementTime};
 
 		for (Json::Value pattern : mRoot["patterns"]) parseAndAddPattern(result, pattern);

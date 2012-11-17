@@ -1,1 +1,1 @@
-./Release/main.o ./Release/CPlayer.o ./Release/CWall.o ./Release/HexagonGame.o ./Release/PatternManager.o ./Release/Utils.o ./Release/Config.o ./Release/Factory.o ./Release/MusicData.o ./Release/StyleData.o ./Release/Assets.o ./Release/LevelData.o ./Release/HSL.o  
+./Release/main.o ./Release/HexagonGame.o ./Release/PatternManager.o ./Release/HSL.o ./Release/Utils.o ./Release/LevelData.o ./Release/MusicData.o ./Release/StyleData.o ./Release/Assets.o ./Release/Config.o ./Release/Factory.o ./Release/CPlayer.o ./Release/CWall.o ./Release/MenuGame.o  

@@ -21,6 +21,7 @@ using namespace sses;
 
 namespace hg
 {
+	class MenuGame;
 	class PatternManager;
 
 	class HexagonGame
@@ -29,30 +30,28 @@ namespace hg
 
 		private:
 			Game game;
-			GameWindow window;
+			GameWindow& window;
 			Manager manager;
 			RenderTexture gameTexture;
 			Sprite gameSprite;
-			Font font;
-
-			Vector2f centerPos{0,0};
-
-			float radius{75};
-			float minRadius{75};
-			float radiusTimer{0};
-
-			bool rotationDirection{true};
 
 			LevelData levelData;
 			MusicData musicData;
 			StyleData styleData;
 			Music* musicPtr{nullptr};
 
-			PatternManager* pm; // owned
+			PatternManager* pm; // owned, opaque pointer
 			Timeline timeline;
 
-			float currentTime {0};
-			float incrementTime {0};
+			Vector2f centerPos{0,0};
+			
+			float currentTime{0};
+			float incrementTime{0};
+
+			float radius{75};
+			float minRadius{75};
+			float radiusTimer{0};
+			bool rotationDirection{true};			
 
 			int sides{6};
 			float speedMult{1};
@@ -69,7 +68,7 @@ namespace hg
 			inline void updateColor(float);
 			inline void updateRotation(float);
 			inline void updateRadius(float);
-			inline void updateDebugKeys(float);
+			inline void updateDebugKeys();
 
 			void drawDebugText();
 			void drawBackground();
@@ -82,14 +81,18 @@ namespace hg
 			void incrementDifficulty();
 
 		public:
-			HexagonGame();
+			MenuGame* menuGamePtr;
+
+			HexagonGame(GameWindow& mGameWindow);
 			~HexagonGame();
 
+			void startFromMenu(LevelData mLevelData);
 			void newGame();
 			void death();
 			void drawOnTexture(Drawable&);
 			void drawOnWindow(Drawable&);
 
+			Game& getGame();
 			Vector2f getCenterPos();
 			float getRadius();
 			int getSides();

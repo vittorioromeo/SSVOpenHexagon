@@ -16,9 +16,11 @@ namespace hg
 		private:
 			vector<function<void(PatternManager* pm)>> pfuncs;
 			int currentPattern	{-1};
+			string id			{""};
 			string name			{""};
 			string description	{""};
 			string author		{""};
+			int menuPriority    {0};
 			string styleId		{""};
 			string musicId		{""};
 			float speedMultiplier;
@@ -35,7 +37,7 @@ namespace hg
 
 		public:
 			LevelData() = default;
-			LevelData(string mName, string mDescription, string mAuthor, string mStyleId, string mMusicId,
+			LevelData(string mId, string mName, string mDescription, string mAuthor, int mMenuPriority, string mStyleId, string mMusicId,
 							float mSpeedStart, float mSpeedIncrement, float mRotationSpeed,
 							float mRotationSpeedIncrement, float mDelayMultiplier, float mDelayIncrement,
 							float mFastSpin, int mSidesStart, int mSidesMin,
@@ -44,9 +46,11 @@ namespace hg
 			void addPattern(function<void(PatternManager* pm)> mPatternFunc, int mChance = 1);
 			function<void(PatternManager* pm)> getRandomPattern();
 
+			string getId();
 			string getName();
 			string getDescription();
 			string getAuthor();
+			int getMenuPriority();
 			string getStyleId();
 			string getMusicId();
 			float getSpeedMultiplier();

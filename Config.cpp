@@ -14,7 +14,7 @@ namespace hg
 	int windowSizeY				{768};
 	float sizeX					{windowSizeX * 1.3f};
 	float sizeY					{windowSizeX * 1.3f};
-	float spawnDistance			{900};
+	float spawnDistance			{950};
 	float zoomFactor			{1};
 	int pixelMultiplier			{1};
 	float playerSpeed			{8.3f};
@@ -31,6 +31,9 @@ namespace hg
 	float staticFrameTimeValue	{false};
 	bool limitFps				{false};
 	bool vsync					{false};
+	bool autoZoomFactor			{true};
+	bool fullscreen				{true};
+	bool autoResolution			{true};
 
 	void loadConfig()
 	{
@@ -61,10 +64,26 @@ namespace hg
 		staticFrameTimeValue = 	root["static_frametime_value"].asFloat();
 		limitFps = 				root["limit_fps"].asBool();
 		vsync = 				root["vsync"].asBool();
+		autoZoomFactor = 		root["auto_zoom_factor"].asBool();
+		fullscreen = 			root["fullscreen"].asBool();
+		autoResolution =		root["auto_resolution"].asBool();
+
+		if(autoResolution)
+		{
+			windowSizeX = VideoMode::getDesktopMode().width;
+			windowSizeY = VideoMode::getDesktopMode().height;
+		}
 
 		sizeX = max(windowSizeX, windowSizeY) * 1.3f;
 		sizeY = max(windowSizeX, windowSizeY)  * 1.3f;
-		spawnDistance = max(windowSizeX, windowSizeY) * pixelMultiplier;
+		//spawnDistance = max(windowSizeX, windowSizeY) * pixelMultiplier;
+
+		if(autoZoomFactor)
+		{
+			float zoomFactorX(1024.0f / (float)windowSizeX);
+			float zoomFactorY(768.0f / (float)windowSizeY);
+			zoomFactor = max(zoomFactorX, zoomFactorY);
+		}
 	}
 
 	float getWindowSizeX() 			{ return windowSizeX; }
@@ -88,4 +107,8 @@ namespace hg
 	float getStaticFrameTimeValue()	{ return staticFrameTimeValue; }
 	bool getLimitFps()				{ return limitFps; }
 	bool getVsync()					{ return vsync; }
+	bool getAutoZoomFactor()		{ return autoZoomFactor; }
+	bool getFullscreen()			{ return fullscreen; }
+	bool getAutoResolution()		{ return autoResolution; }
+	string getVersion() 			{ return "v1.0"; }
 }

@@ -9,32 +9,40 @@
   <Dependencies/>
   <VirtualDirectory Name="src">
     <File Name="main.cpp"/>
-    <File Name="CPlayer.h"/>
-    <File Name="CWall.h"/>
     <File Name="HexagonGame.h"/>
     <File Name="PatternManager.h"/>
-    <File Name="Utils.h"/>
-    <File Name="CPlayer.cpp"/>
-    <File Name="CWall.cpp"/>
     <File Name="HexagonGame.cpp"/>
     <File Name="PatternManager.cpp"/>
-    <File Name="Utils.cpp"/>
-    <File Name="Config.h"/>
-    <File Name="Config.cpp"/>
-    <File Name="Factory.h"/>
-    <File Name="Factory.cpp"/>
-    <File Name="MusicData.h"/>
-    <File Name="MusicData.cpp"/>
-    <File Name="StyleData.h"/>
-    <File Name="StyleData.cpp"/>
-    <File Name="Assets.h"/>
-    <File Name="Assets.cpp"/>
-    <File Name="LevelData.cpp"/>
-    <File Name="LevelData.h"/>
-    <VirtualDirectory Name="ColorUtils">
+    <VirtualDirectory Name="Utils">
       <File Name="HSL.h"/>
       <File Name="HSL.cpp"/>
+      <File Name="Utils.cpp"/>
+      <File Name="Utils.h"/>
     </VirtualDirectory>
+    <VirtualDirectory Name="Data">
+      <File Name="LevelData.cpp"/>
+      <File Name="LevelData.h"/>
+      <File Name="MusicData.cpp"/>
+      <File Name="MusicData.h"/>
+      <File Name="StyleData.cpp"/>
+      <File Name="StyleData.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Global">
+      <File Name="Assets.cpp"/>
+      <File Name="Assets.h"/>
+      <File Name="Config.cpp"/>
+      <File Name="Config.h"/>
+      <File Name="Factory.cpp"/>
+      <File Name="Factory.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Components">
+      <File Name="CPlayer.cpp"/>
+      <File Name="CPlayer.h"/>
+      <File Name="CWall.cpp"/>
+      <File Name="CWall.h"/>
+    </VirtualDirectory>
+    <File Name="MenuGame.h"/>
+    <File Name="MenuGame.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -104,7 +112,7 @@
       </Completion>
     </Configuration>
     <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-O3;-pedantic;-Wall;-c;-std=c++11;-Wextra" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+      <Compiler Options="-O3;-pedantic;-Wall;-c;-std=c++11;-Wextra;" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="D:/Vee/Software/WIP/SFMLMinGW/include"/>
@@ -129,7 +137,7 @@
         <Library Value="boost_filesystem-mgw47-mt-1_52"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>

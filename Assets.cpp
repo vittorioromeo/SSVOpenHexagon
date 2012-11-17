@@ -6,6 +6,7 @@
 #include <map>
 #include "boost/filesystem.hpp"
 #include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 #include "Assets.h"
 #include "MusicData.h"
 #include "LevelData.h"
@@ -18,15 +19,20 @@ using namespace boost::filesystem;
 
 namespace hg
 {
+	map<string, Font> fontsMap;
 	map<string, SoundBuffer*> soundBufferPtrsMap;
 	map<string, Sound*> soundPtrsMap;
 	map<string, Music*> musicPtrsMap;
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
+	Json::Value scoreRoot;
 
 	void loadAssets()
 	{
+		log("loading fonts");
+		loadFonts();
+
 		log("loading sounds");
 		loadSounds();
 
@@ -41,8 +47,22 @@ namespace hg
 
 		log("loading level data");
 		loadLevelData();
+
+		log("loading scores");
+		loadScores();
 	}
 
+	void loadFonts()
+	{
+		for(auto filePath : getAllFilePaths("Fonts/", ".ttf"))
+		{
+			string fileName = path(filePath).stem().string();
+
+			Font font;
+			font.loadFromFile(filePath);			
+			fontsMap.insert(make_pair(fileName, font));
+		}
+	}
 	void loadSounds()
 	{
 		for(auto filePath : getAllFilePaths("Sounds/", ".ogg"))
@@ -92,16 +112,59 @@ namespace hg
 		for(auto filePath : getAllFilePaths("Levels/", ".json"))
 		{
 			LevelData levelData{loadLevelFromJson(getJsonFileRoot(filePath))};
-			levelDataMap.insert(make_pair(levelData.getName(), levelData)); // replace with getId
+			levelDataMap.insert(make_pair(levelData.getId(), levelData)); // replace with getId
 		}
 	}
+	void loadScores()
+	{
+		scoreRoot = getJsonFileRoot("scores.json");
+	}
 
+	void saveScores()
+	{
+		Json::StyledStreamWriter writer;
+		ofstream test("scores.json", std::ifstream::binary);
+
+		writer.write(test, scoreRoot);
+	}
+
+	void stopAllMusic() { for(auto pair : musicPtrsMap) pair.second->stop(); }
 	void stopAllSounds() { for(auto pair : soundPtrsMap) pair.second->stop(); }
 	void playSound(string mId) { if(!getNoSound()) getSoundPtr(mId)->play(); }
 
-	Sound* getSoundPtr(string mId) { return soundPtrsMap.find(mId)->second; }
-	Music* getMusicPtr(string mId) { return musicPtrsMap.find(mId)->second; }
-	MusicData getMusicData(string mId) { return musicDataMap.find(mId)->second; }
-	StyleData getStyleData(string mId) { return styleDataMap.find(mId)->second; }
-	LevelData getLevelData(string mId) { return levelDataMap.find(mId)->second; }
+	Font& getFont(string mId) 			{ return fontsMap.find(mId)->second; }
+	Sound* getSoundPtr(string mId) 		{ return soundPtrsMap.find(mId)->second; }
+	Music* getMusicPtr(string mId) 		{ return musicPtrsMap.find(mId)->second; }
+	MusicData getMusicData(string mId) 	{ return musicDataMap.find(mId)->second; }
+	StyleData getStyleData(string mId) 	{ return styleDataMap.find(mId)->second; }
+	LevelData getLevelData(string mId) 	{ return levelDataMap.find(mId)->second; }
+
+	vector<LevelData> getAllLevelData()
+	{
+		vector<LevelData> result;
+		for(auto pair : levelDataMap) result.push_back(pair.second);
+		return result;
+	}
+	vector<string> getAllLevelDataIds()
+	{
+		vector<LevelData> levelDataVector{getAllLevelData()};
+		sort(begin(levelDataVector), end(levelDataVector),
+		[](LevelData a, LevelData b) -> bool
+		{
+			return a.getMenuPriority() < b.getMenuPriority(); 
+		});
+
+		vector<string> result;
+		for(auto levelData : levelDataVector) result.push_back(levelData.getId());
+		return result;
+	}
+
+	float getScore(string mId)
+	{
+		return scoreRoot[mId].asFloat();
+	}
+	void setScore(string mId, float mScore)
+	{
+		scoreRoot[mId] = mScore;
+	}
 }

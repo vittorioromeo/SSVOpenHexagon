@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=11/15/12
+Date                   :=11/17/12
 CodeLitePath           :="c:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -52,7 +52,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/
 AR       := ar rcus
 CXX      := g++
 CC       := gcc
-CXXFLAGS :=  -O3 -pedantic -Wall -c -std=c++11 -Wextra $(Preprocessors)
+CXXFLAGS :=  -O3 -pedantic -Wall -c -std=c++11 -Wextra  $(Preprocessors)
 CFLAGS   :=  -O2 -Wall $(Preprocessors)
 
 
@@ -63,8 +63,8 @@ CodeLiteDir:=c:\Program Files (x86)\CodeLite
 WXWIN:=C:\wxWidgets
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXCFG:=gcc_dll\mswu
-Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) $(IntermediateDirectory)/Factory$(ObjectSuffix) $(IntermediateDirectory)/MusicData$(ObjectSuffix) $(IntermediateDirectory)/StyleData$(ObjectSuffix) \
-	$(IntermediateDirectory)/Assets$(ObjectSuffix) $(IntermediateDirectory)/LevelData$(ObjectSuffix) $(IntermediateDirectory)/HSL$(ObjectSuffix) 
+Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/HSL$(ObjectSuffix) $(IntermediateDirectory)/Utils$(ObjectSuffix) $(IntermediateDirectory)/LevelData$(ObjectSuffix) $(IntermediateDirectory)/MusicData$(ObjectSuffix) $(IntermediateDirectory)/StyleData$(ObjectSuffix) $(IntermediateDirectory)/Assets$(ObjectSuffix) $(IntermediateDirectory)/Config$(ObjectSuffix) \
+	$(IntermediateDirectory)/Factory$(ObjectSuffix) $(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IntermediateDirectory)/CWall$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) 
 
 ##
 ## Main Build Targets 
@@ -95,22 +95,6 @@ $(IntermediateDirectory)/main$(DependSuffix): main.cpp
 $(IntermediateDirectory)/main$(PreprocessSuffix): main.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/main$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/main.cpp"
 
-$(IntermediateDirectory)/CPlayer$(ObjectSuffix): CPlayer.cpp $(IntermediateDirectory)/CPlayer$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CPlayer.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/CPlayer$(DependSuffix): CPlayer.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/CPlayer$(ObjectSuffix) -MF$(IntermediateDirectory)/CPlayer$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CPlayer.cpp"
-
-$(IntermediateDirectory)/CPlayer$(PreprocessSuffix): CPlayer.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/CPlayer$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CPlayer.cpp"
-
-$(IntermediateDirectory)/CWall$(ObjectSuffix): CWall.cpp $(IntermediateDirectory)/CWall$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CWall.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/CWall$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/CWall$(DependSuffix): CWall.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/CWall$(ObjectSuffix) -MF$(IntermediateDirectory)/CWall$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CWall.cpp"
-
-$(IntermediateDirectory)/CWall$(PreprocessSuffix): CWall.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/CWall$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CWall.cpp"
-
 $(IntermediateDirectory)/HexagonGame$(ObjectSuffix): HexagonGame.cpp $(IntermediateDirectory)/HexagonGame$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HexagonGame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/HexagonGame$(DependSuffix): HexagonGame.cpp
@@ -127,6 +111,14 @@ $(IntermediateDirectory)/PatternManager$(DependSuffix): PatternManager.cpp
 $(IntermediateDirectory)/PatternManager$(PreprocessSuffix): PatternManager.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/PatternManager$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/PatternManager.cpp"
 
+$(IntermediateDirectory)/HSL$(ObjectSuffix): HSL.cpp $(IntermediateDirectory)/HSL$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HSL$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HSL$(DependSuffix): HSL.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HSL$(ObjectSuffix) -MF$(IntermediateDirectory)/HSL$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp"
+
+$(IntermediateDirectory)/HSL$(PreprocessSuffix): HSL.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HSL$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp"
+
 $(IntermediateDirectory)/Utils$(ObjectSuffix): Utils.cpp $(IntermediateDirectory)/Utils$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Utils.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Utils$(DependSuffix): Utils.cpp
@@ -135,21 +127,13 @@ $(IntermediateDirectory)/Utils$(DependSuffix): Utils.cpp
 $(IntermediateDirectory)/Utils$(PreprocessSuffix): Utils.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Utils.cpp"
 
-$(IntermediateDirectory)/Config$(ObjectSuffix): Config.cpp $(IntermediateDirectory)/Config$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Config$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Config$(DependSuffix): Config.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Config$(ObjectSuffix) -MF$(IntermediateDirectory)/Config$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp"
+$(IntermediateDirectory)/LevelData$(ObjectSuffix): LevelData.cpp $(IntermediateDirectory)/LevelData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/LevelData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/LevelData$(DependSuffix): LevelData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/LevelData$(ObjectSuffix) -MF$(IntermediateDirectory)/LevelData$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp"
 
-$(IntermediateDirectory)/Config$(PreprocessSuffix): Config.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Config$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp"
-
-$(IntermediateDirectory)/Factory$(ObjectSuffix): Factory.cpp $(IntermediateDirectory)/Factory$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Factory$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Factory$(DependSuffix): Factory.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Factory$(ObjectSuffix) -MF$(IntermediateDirectory)/Factory$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp"
-
-$(IntermediateDirectory)/Factory$(PreprocessSuffix): Factory.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Factory$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp"
+$(IntermediateDirectory)/LevelData$(PreprocessSuffix): LevelData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/LevelData$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp"
 
 $(IntermediateDirectory)/MusicData$(ObjectSuffix): MusicData.cpp $(IntermediateDirectory)/MusicData$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/MusicData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/MusicData$(ObjectSuffix) $(IncludePath)
@@ -175,21 +159,45 @@ $(IntermediateDirectory)/Assets$(DependSuffix): Assets.cpp
 $(IntermediateDirectory)/Assets$(PreprocessSuffix): Assets.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Assets$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Assets.cpp"
 
-$(IntermediateDirectory)/LevelData$(ObjectSuffix): LevelData.cpp $(IntermediateDirectory)/LevelData$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/LevelData$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/LevelData$(DependSuffix): LevelData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/LevelData$(ObjectSuffix) -MF$(IntermediateDirectory)/LevelData$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp"
+$(IntermediateDirectory)/Config$(ObjectSuffix): Config.cpp $(IntermediateDirectory)/Config$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Config$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Config$(DependSuffix): Config.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Config$(ObjectSuffix) -MF$(IntermediateDirectory)/Config$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp"
 
-$(IntermediateDirectory)/LevelData$(PreprocessSuffix): LevelData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/LevelData$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/LevelData.cpp"
+$(IntermediateDirectory)/Config$(PreprocessSuffix): Config.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Config$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Config.cpp"
 
-$(IntermediateDirectory)/HSL$(ObjectSuffix): HSL.cpp $(IntermediateDirectory)/HSL$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HSL$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HSL$(DependSuffix): HSL.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HSL$(ObjectSuffix) -MF$(IntermediateDirectory)/HSL$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp"
+$(IntermediateDirectory)/Factory$(ObjectSuffix): Factory.cpp $(IntermediateDirectory)/Factory$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Factory$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Factory$(DependSuffix): Factory.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Factory$(ObjectSuffix) -MF$(IntermediateDirectory)/Factory$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp"
 
-$(IntermediateDirectory)/HSL$(PreprocessSuffix): HSL.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HSL$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/HSL.cpp"
+$(IntermediateDirectory)/Factory$(PreprocessSuffix): Factory.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Factory$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/Factory.cpp"
+
+$(IntermediateDirectory)/CPlayer$(ObjectSuffix): CPlayer.cpp $(IntermediateDirectory)/CPlayer$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CPlayer.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/CPlayer$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/CPlayer$(DependSuffix): CPlayer.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/CPlayer$(ObjectSuffix) -MF$(IntermediateDirectory)/CPlayer$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CPlayer.cpp"
+
+$(IntermediateDirectory)/CPlayer$(PreprocessSuffix): CPlayer.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/CPlayer$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CPlayer.cpp"
+
+$(IntermediateDirectory)/CWall$(ObjectSuffix): CWall.cpp $(IntermediateDirectory)/CWall$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CWall.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/CWall$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/CWall$(DependSuffix): CWall.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/CWall$(ObjectSuffix) -MF$(IntermediateDirectory)/CWall$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CWall.cpp"
+
+$(IntermediateDirectory)/CWall$(PreprocessSuffix): CWall.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/CWall$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/CWall.cpp"
+
+$(IntermediateDirectory)/MenuGame$(ObjectSuffix): MenuGame.cpp $(IntermediateDirectory)/MenuGame$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/MenuGame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/MenuGame$(DependSuffix): MenuGame.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/MenuGame$(ObjectSuffix) -MF$(IntermediateDirectory)/MenuGame$(DependSuffix) -MM "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/MenuGame.cpp"
+
+$(IntermediateDirectory)/MenuGame$(PreprocessSuffix): MenuGame.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/MenuGame$(PreprocessSuffix) "D:/Vee/Software/WIP/CL/WorkspaceOH/OH/SSVOpenHexagon/MenuGame.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
@@ -200,27 +208,21 @@ clean:
 	$(RM) $(IntermediateDirectory)/main$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/main$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/main$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/CPlayer$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/CPlayer$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/CPlayer$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/CWall$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/CWall$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/CWall$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/HexagonGame$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/HexagonGame$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/PatternManager$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/PatternManager$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/PatternManager$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HSL$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HSL$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HSL$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Utils$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Config$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Config$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Config$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Factory$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Factory$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Factory$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/LevelData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/LevelData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/LevelData$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/MusicData$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/MusicData$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/MusicData$(PreprocessSuffix)
@@ -230,12 +232,21 @@ clean:
 	$(RM) $(IntermediateDirectory)/Assets$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Assets$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Assets$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/LevelData$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/LevelData$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/LevelData$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HSL$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HSL$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HSL$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Config$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Config$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Config$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Factory$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Factory$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Factory$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/CPlayer$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/CPlayer$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/CPlayer$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/CWall$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/CWall$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/CWall$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/MenuGame$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/MenuGame$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/MenuGame$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "D:\Vee\Software\WIP\CL\WorkspaceOH\OH\.build-release\SSVOpenHexagon"

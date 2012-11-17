@@ -21,20 +21,32 @@ namespace hg
 {
 	void loadAssets();
 
+	void loadFonts();
 	void loadSounds();
 	void loadMusic();
 	void loadMusicData();
 	void loadStyleData();
 	void loadLevelData();
+	void loadScores();
 
+	void saveScores();
+
+	void stopAllMusic();
 	void stopAllSounds();
 	void playSound(string mId);
 
+	Font& getFont(string mId);
 	Sound* getSoundPtr(string mId);
 	Music* getMusicPtr(string mId);
 	MusicData getMusicData(string mId);
 	StyleData getStyleData(string mId);
 	LevelData getLevelData(string mId);
+
+	vector<LevelData> getAllLevelData();
+	vector<string> getAllLevelDataIds();
+
+	float getScore(string mId);
+	void setScore(string mId, float mScore);
 }
 
 #endif /* ASSETS_H_ */

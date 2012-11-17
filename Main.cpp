@@ -6,6 +6,7 @@
 #include "SSVStart.h"
 #include "CPlayer.h"
 #include "HexagonGame.h"
+#include "MenuGame.h"
 #include <memory>
 #include "Config.h"
 #include <json/json.h>
@@ -26,7 +27,24 @@ int main()
 
 	srand(unsigned(time(NULL)));
 
-	HexagonGame hg;
+	GameWindow window{(unsigned int)getWindowSizeX(), (unsigned int)getWindowSizeY(), getPixelMultiplier(), getLimitFps(), getFullscreen()};
+	window.isFrameTimeStatic = getStaticFrameTime();
+	window.staticFrameTime = getStaticFrameTimeValue();
+	window.renderWindow.setVerticalSyncEnabled(getVsync());
+	window.renderWindow.setTitle("Open Hexagon " + getVersion() + " - vee software");
+
+	MenuGame mg{window};
+	HexagonGame hg{window};
+
+	mg.hexagonGamePtr = &hg;
+	hg.menuGamePtr = &mg;
+
+	window.setGame(&mg.getGame());
+	mg.init();
+	
+	window.run();
+
+	saveScores();
 
 	return 0;
 }
