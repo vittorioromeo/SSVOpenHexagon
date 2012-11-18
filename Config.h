@@ -11,7 +11,10 @@
 namespace hg
 {
 	void loadConfig(vector<string> mOverridesIds);
-	
+
+	void recalculateSizes();
+	void setFullscreen(GameWindow& mWindow, bool mFullscreen);
+
 	float getSizeX();
 	float getSizeY();
 	float getSpawnDistance();
@@ -42,7 +45,8 @@ namespace hg
 	unsigned int getWindowedHeight();
 	unsigned int getWidth();
 	unsigned int getHeight();
-	void setFullscreen(GameWindow& mWindow, bool mFullscreen);
+
+
 }
 
 #endif /* CONFIG_H_ */

@@ -45,7 +45,7 @@ namespace hg
 		stopAllMusic();
 		stopAllSounds();
 
-		playSound("openHexagon");
+		playSound("open_hexagon");
 	}
 
 	void MenuGame::setIndex(int mIndex)
@@ -169,6 +169,12 @@ namespace hg
 		title3.setColor(mainColor);
 		title3.setPosition(window.getWidth() / 2, 240);
 		drawOnMenuTexture(title3);
+
+		title4.setOrigin(title4.getGlobalBounds().width / 2, 0);
+		title4.setStyle(Text::Bold);		
+		title4.setColor(mainColor);
+		title4.setPosition(window.getWidth() / 2, 270);
+		drawOnMenuTexture(title4);
 
 		levelTime.setString("best time: " + toStr(getScore(levelData.getId())));
 		levelTime.setOrigin(levelTime.getGlobalBounds().width / 2, 0);

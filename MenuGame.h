@@ -51,6 +51,7 @@ namespace hg
 			Text title1{"open", getFont("imagine"), 80};
 			Text title2{"hexagon", getFont("imagine"), 160};
 			Text title3{getVersion(), getFont("imagine"), 15};
+			Text title4{"clone of ""super hexagon"" by terry canavagh\n              programmed by vittorio romeo\n                         music by bossfight", getFont("imagine"), 15};
 			Text levelTime{"", getFont("imagine"), 50};
 			Text levelName{"", getFont("imagine"), 80};
 			Text levelDesc{"", getFont("imagine"), 35};

@@ -26,31 +26,17 @@ namespace hg
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
-	Json::Value scoreRoot;
-	map<string, Json::Value> configRootsMap;
+	Json::Value scoreRoot;	
 
 	void loadAssets()
 	{
-		log("loading fonts");
-		loadFonts();
-
-		log("loading sounds");
-		loadSounds();
-
-		log("loading music");
-		loadMusic();
-
-		log("loading music data");
-		loadMusicData();
-
-		log("loading style data");
-		loadStyleData();
-
-		log("loading level data");
-		loadLevelData();
-
-		log("loading scores");
-		loadScores();
+		log("loading fonts"); 		loadFonts();
+		log("loading sounds"); 		loadSounds();
+		log("loading music"); 		loadMusic();
+		log("loading music data"); 	loadMusicData();
+		log("loading style data"); 	loadStyleData();
+		log("loading level data");	loadLevelData();
+		log("loading scores"); 		loadScores();
 	}
 
 	void loadFonts()
@@ -66,18 +52,19 @@ namespace hg
 	}
 	void loadSounds()
 	{
-		for(auto filePath : getAllFilePaths("Sounds/", ".ogg"))
-		{
-			string fileName = path(filePath).stem().string();
+		Json::Value soundsRoot = getJsonFileRoot("Sounds/sounds.json");
 
+		for(Json::ValueIterator itr{soundsRoot.begin()}; itr != soundsRoot.end(); itr++)
+		{
 			SoundBuffer* soundBuffer{new SoundBuffer};
-			soundBuffer->loadFromFile(filePath);
-			soundBufferPtrsMap.insert(make_pair(fileName, soundBuffer));
-			
+			soundBuffer->loadFromFile("Sounds/" + (*itr).asString());
+			soundBufferPtrsMap.insert(make_pair(itr.key().asString(), soundBuffer));
+
 			Sound* soundPtr{new Sound};
 			soundPtr->setBuffer(*soundBuffer);
 			soundPtr->setVolume(getSoundVolume());
-			soundPtrsMap.insert(make_pair(fileName, soundPtr));
+			soundPtrsMap.insert(make_pair(itr.key().asString(), soundPtr));
+
 		}
 	}	
 	void loadMusic()
@@ -116,20 +103,7 @@ namespace hg
 			levelDataMap.insert(make_pair(levelData.getId(), levelData)); // replace with getId
 		}
 	}
-	void loadScores()
-	{
-		scoreRoot = getJsonFileRoot("scores.json");
-	}
-	void loadConfigs()
-	{
-		for(auto filePath : getAllFilePaths("Configs/", ".json"))
-		{
-			string fileName = path(filePath).stem().string();
-
-			Json::Value root{getJsonFileRoot(filePath)};
-			configRootsMap.insert(make_pair(fileName, root));
-		}
-	}
+	void loadScores() { scoreRoot = getJsonFileRoot("scores.json"); }
 
 	void saveScores()
 	{
@@ -149,7 +123,6 @@ namespace hg
 	MusicData getMusicData(string mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData getStyleData(string mId) 		{ return styleDataMap.find(mId)->second; }
 	LevelData getLevelData(string mId) 		{ return levelDataMap.find(mId)->second; }
-	Json::Value getConfigRoot(string mId)	{ return configRootsMap.find(mId)->second; }
 
 	vector<LevelData> getAllLevelData()
 	{

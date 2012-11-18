@@ -28,7 +28,7 @@ namespace hg
 			{
 				Hue = -H;
 			}
-			else if(H < 0 && H < -360)
+			else if(H < -360)
 			{
 				Hue = -(H % 360);
 			}
@@ -49,7 +49,7 @@ namespace hg
 			{
 				Saturation = -S;
 			}
-			else if(S < 0 && S < -100)
+			else if(S < -100)
 			{
 				Saturation = -(S % 100);
 			}
@@ -70,7 +70,7 @@ namespace hg
 			{
 				Luminance = -L;
 			}
-			if(L < 0 && L < -100)
+			if(L < -100)
 			{
 				Luminance = -(L % 100);
 			}

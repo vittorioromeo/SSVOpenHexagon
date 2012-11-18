@@ -89,7 +89,7 @@ namespace hg
 	void HexagonGame::death()
 	{
 		playSound("death");
-		playSound("gameOver");
+		playSound("game_over");
 		stopLevelMusic();
 		hasDied = true;
 		if(getScore(levelData.getId()) < currentTime) setScore(levelData.getId(), currentTime);
@@ -227,7 +227,7 @@ namespace hg
 
 	void HexagonGame::incrementDifficulty()
 	{
-		playSound("levelUp");
+		playSound("level_up");
 
 		speedMult +=		levelData.getSpeedIncrement();
 		rotationSpeed +=	levelData.getRotationSpeedIncrement();

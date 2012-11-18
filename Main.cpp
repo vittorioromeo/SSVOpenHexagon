@@ -26,7 +26,6 @@ int main(int argc, char* argv[])
 
 	for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
-	loadConfigs(); // config overrides	
 	loadConfig(overrideIds);
 	loadAssets();
 
@@ -39,6 +38,7 @@ int main(int argc, char* argv[])
 	window.isFrameTimeStatic = getStaticFrameTime();
 	window.staticFrameTime = getStaticFrameTimeValue();
 	window.renderWindow.setVerticalSyncEnabled(getVsync());
+	window.renderWindow.setMouseCursorVisible(false);
 
 	MenuGame mg{window};
 	HexagonGame hg{window};

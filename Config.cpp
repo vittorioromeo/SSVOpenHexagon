@@ -10,7 +10,9 @@
 using namespace std;
 
 namespace hg
-{	
+{
+	map<string, Json::Value> configOverridesRootMap;
+
 	float sizeX						{1500};
 	float sizeY						{1500};
 	float spawnDistance				{950};
@@ -43,18 +45,14 @@ namespace hg
 	{
 		log("loading config");
 
-		Json::Value root;
-		Json::Reader reader;
-		ifstream test("config.json", std::ifstream::binary);
+		Json::Value root{getJsonFileRoot("config.json")};
 
-		bool parsingSuccessful = reader.parse( test, root, false );
-		if (!parsingSuccessful) cout << reader.getFormatedErrorMessages() << endl;
-
-		log("applying config overrides");
+		for(auto filePath : getAllFilePaths("ConfigOverrides/", ".json"))
+			configOverridesRootMap.insert(make_pair(path(filePath).stem().string(), getJsonFileRoot(filePath)));
 
 		for(string overrideId : mOverridesIds)
 		{
-			Json::Value overrideRoot{getConfigRoot(overrideId)};
+			Json::Value overrideRoot{configOverridesRootMap.find(overrideId)->second};
 
 			for(Json::ValueIterator itr{overrideRoot.begin()}; itr != overrideRoot.end(); itr++)
 				root[itr.key().asString()] = *itr;
@@ -96,6 +94,11 @@ namespace hg
 			fullscreenHeight = VideoMode::getDesktopMode().height;
 		}
 
+		recalculateSizes();
+	}
+
+	void recalculateSizes()
+	{
 		sizeX = max(getWidth(), getHeight()) * 1.3f;
 		sizeY = max(getWidth(), getHeight()) * 1.3f;
 
@@ -105,6 +108,15 @@ namespace hg
 			float zoomFactorY(768.0f / (float)getHeight());
 			zoomFactor = max(zoomFactorX, zoomFactorY);
 		}
+	}
+	void setFullscreen(GameWindow& mWindow, bool mFullscreen)
+	{
+		fullscreen = mFullscreen;
+
+		recalculateSizes();
+
+		mWindow.setSize(getWidth(), getHeight());
+		mWindow.setFullscreen(fullscreen);
 	}
 
 	float getSizeX() 					{ return sizeX; }
@@ -128,7 +140,7 @@ namespace hg
 	bool getVsync()						{ return vsync; }
 	bool getAutoZoomFactor()			{ return autoZoomFactor; }
 	bool getFullscreen()				{ return fullscreen; }	
-	string getVersion() 				{ return "v1.1"; }
+	string getVersion() 				{ return "v1.11"; }
 	bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
 	bool getFullscreenAutoResolution() 	{ return fullscreenAutoResolution; }
 	unsigned int getFullscreenWidth()	{ return fullscreenWidth; }
@@ -137,21 +149,4 @@ namespace hg
 	unsigned int getWindowedHeight()	{ return windowedHeight; }
 	unsigned int getWidth() 			{ if(fullscreen) return fullscreenWidth; else return windowedWidth; }
 	unsigned int getHeight() 			{ if(fullscreen) return fullscreenHeight; else return windowedHeight; }
-	void setFullscreen(GameWindow& mWindow, bool mFullscreen)
-	{
-		fullscreen = mFullscreen;
-
-		sizeX = max(getWidth(), getHeight()) * 1.3f;
-		sizeY = max(getWidth(), getHeight()) * 1.3f;
-
-		if(autoZoomFactor)
-		{
-			float zoomFactorX(1024.0f / (float)getWidth());
-			float zoomFactorY(768.0f / (float)getHeight());
-			zoomFactor = max(zoomFactorX, zoomFactorY);
-		}
-
-		mWindow.setSize(getWidth(), getHeight());
-		mWindow.setFullscreen(fullscreen);
-	}
 }
