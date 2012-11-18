@@ -6,12 +6,12 @@
 #include <json/json.h>
 #include <json/reader.h>
 #include <fstream>
+#include "SSVStart.h"
 
 namespace hg
 {
-	void loadConfig();
-	float getWindowSizeX();
-	float getWindowSizeY();
+	void loadConfig(vector<string> mOverridesIds);
+	
 	float getSizeX();
 	float getSizeY();
 	float getSpawnDistance();
@@ -33,8 +33,16 @@ namespace hg
 	bool getVsync();
 	bool getAutoZoomFactor();
 	bool getFullscreen();
-	bool getAutoResolution();
 	string getVersion();
+	bool getWindowedAutoResolution();
+	bool getFullscreenAutoResolution();
+	unsigned int getFullscreenWidth();
+	unsigned int getFullscreenHeight();
+	unsigned int getWindowedWidth();
+	unsigned int getWindowedHeight();
+	unsigned int getWidth();
+	unsigned int getHeight();
+	void setFullscreen(GameWindow& mWindow, bool mFullscreen);
 }
 
 #endif /* CONFIG_H_ */

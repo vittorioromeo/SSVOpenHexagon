@@ -20,24 +20,31 @@ using namespace ssvs;
 using namespace sf;
 using namespace hg;
 
-int main()
+int main(int argc, char* argv[])
 {
-	loadConfig();
+	vector<string> overrideIds;
+
+	for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
+
+	loadConfigs(); // config overrides	
+	loadConfig(overrideIds);
 	loadAssets();
 
 	srand(unsigned(time(NULL)));
 
-	GameWindow window{(unsigned int)getWindowSizeX(), (unsigned int)getWindowSizeY(), getPixelMultiplier(), getLimitFps(), getFullscreen()};
+	string title{"Open Hexagon " + getVersion() + " - vee software"};
+	bool fullscreen{getFullscreen()};
+	
+	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getLimitFps(), fullscreen};
 	window.isFrameTimeStatic = getStaticFrameTime();
 	window.staticFrameTime = getStaticFrameTimeValue();
 	window.renderWindow.setVerticalSyncEnabled(getVsync());
-	window.renderWindow.setTitle("Open Hexagon " + getVersion() + " - vee software");
 
 	MenuGame mg{window};
 	HexagonGame hg{window};
 
-	mg.hexagonGamePtr = &hg;
-	hg.menuGamePtr = &mg;
+	mg.hgPtr = &hg;
+	hg.mgPtr = &mg;
 
 	window.setGame(&mg.getGame());
 	mg.init();

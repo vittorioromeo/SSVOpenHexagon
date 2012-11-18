@@ -26,12 +26,7 @@ namespace hg
 	{				
 		pm = new PatternManager(this);
 
-		gameTexture.create(getSizeX(), getSizeY(), 32);
-		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
-		gameTexture.setSmooth(true);
-		gameSprite.setTexture(gameTexture.getTexture(), false);
-		gameSprite.setOrigin(getSizeX()/ 2, getSizeY()/ 2);
-		gameSprite.setPosition(getWindowSizeX() / 2, getWindowSizeY() / 2);
+		recreate();
 
 		game.addUpdateFunc(	 [&](float frameTime) { update(frameTime); });
 		game.addDrawFunc(	 [&](){ gameTexture.clear(Color::Black); }, -2);
@@ -47,6 +42,16 @@ namespace hg
 		setLevelData(getLevelData("tutorial"));
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
+
+	void HexagonGame::recreate()
+	{
+		gameTexture.create(getSizeX(), getSizeY(), 32);
+		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
+		gameTexture.setSmooth(true);
+		gameSprite.setTexture(gameTexture.getTexture(), false);
+		gameSprite.setOrigin(getSizeX()/ 2, getSizeY()/ 2);
+		gameSprite.setPosition(window.getWidth() / 2, window.getHeight() / 2);
+	}
 
 	void HexagonGame::startFromMenu(LevelData mLevelData)
 	{
@@ -158,12 +163,12 @@ namespace hg
 	}
 	inline void HexagonGame::updateDebugKeys()
 	{
-		if(Keyboard::isKeyPressed(Keyboard::R)) mustRestart = true;
-		else if(Keyboard::isKeyPressed(Keyboard::Escape))
+		if(isKeyPressed(Keyboard::R)) mustRestart = true;
+		else if(isKeyPressed(Keyboard::Escape))
 		{
 			playSound("beep");
-			window.setGame(&menuGamePtr->getGame());
-			menuGamePtr->init();
+			window.setGame(&mgPtr->getGame());
+			mgPtr->init();
 		}
 	}
 
@@ -229,13 +234,18 @@ namespace hg
 		rotationDirection = !rotationDirection;
 		delayMult += 		levelData.getDelayIncrement();
 		fastSpin = 			levelData.getFastSpin();
-
+		
+		timeline.add(new Do([&]{ changeSides(); }));
+	}
+	void HexagonGame::changeSides()
+	{
+		if(manager.getComponentPtrsById("wall").size() > 0)
+		{
+			timeline.add(new Wait(10));
+			timeline.add(new Do([&]{ changeSides(); }));
+			return;
+		}
 		sides = getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1);
-
-		timeline.clear();
-		timeline.reset();
-		pm->resetAdj();
-		timeline.add(new Wait(60));
 	}
 
 	void HexagonGame::setLevelData(LevelData mLevelSettings)
@@ -258,6 +268,10 @@ namespace hg
 	{
 		if(getBlackAndWhite()) return Color::Black;
 		return styleData.getCurrentB();
+	}
+	bool HexagonGame::isKeyPressed(Keyboard::Key mKey)
+	{
+		return window.isKeyPressed(mKey);
 	}
 }
 

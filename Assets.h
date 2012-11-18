@@ -28,6 +28,7 @@ namespace hg
 	void loadStyleData();
 	void loadLevelData();
 	void loadScores();
+	void loadConfigs();
 
 	void saveScores();
 
@@ -41,6 +42,7 @@ namespace hg
 	MusicData getMusicData(string mId);
 	StyleData getStyleData(string mId);
 	LevelData getLevelData(string mId);
+	Json::Value getConfigRoot(string mId);
 
 	vector<LevelData> getAllLevelData();
 	vector<string> getAllLevelDataIds();

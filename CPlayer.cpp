@@ -81,9 +81,9 @@ namespace hg
 		float lastAngle{angle};
 		int movement{0};
 
-		if(Keyboard::isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
-		if(Keyboard::isKeyPressed(Keyboard::Left)) movement = -1;
-		if(Keyboard::isKeyPressed(Keyboard::Right)) movement = 1;
+		if(hgPtr->isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
+		if(hgPtr->isKeyPressed(Keyboard::Left)) movement = -1;
+		if(hgPtr->isKeyPressed(Keyboard::Right)) movement = 1;
 
 		angle += currentSpeed * movement * mFrameTime;
 

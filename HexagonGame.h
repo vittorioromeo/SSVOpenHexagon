@@ -26,6 +26,7 @@ namespace hg
 
 	class HexagonGame
 	{
+		friend class CPlayer;
 		friend class PatternManager;
 
 		private:
@@ -79,13 +80,15 @@ namespace hg
 			void stopLevelMusic();
 
 			void incrementDifficulty();
+			void changeSides();
 
 		public:
-			MenuGame* menuGamePtr;
+			MenuGame* mgPtr;
 
 			HexagonGame(GameWindow& mGameWindow);
 			~HexagonGame();
 
+			void recreate();
 			void startFromMenu(LevelData mLevelData);
 			void newGame();
 			void death();
@@ -98,6 +101,7 @@ namespace hg
 			int getSides();
 			Color getColorMain();
 			Color getColorB();
+			bool isKeyPressed(Keyboard::Key mKey);
 	};
 }
 #endif /* HEXAGONGAME_H_ */

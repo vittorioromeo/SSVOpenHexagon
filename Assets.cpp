@@ -27,6 +27,7 @@ namespace hg
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
 	Json::Value scoreRoot;
+	map<string, Json::Value> configRootsMap;
 
 	void loadAssets()
 	{
@@ -119,6 +120,16 @@ namespace hg
 	{
 		scoreRoot = getJsonFileRoot("scores.json");
 	}
+	void loadConfigs()
+	{
+		for(auto filePath : getAllFilePaths("Configs/", ".json"))
+		{
+			string fileName = path(filePath).stem().string();
+
+			Json::Value root{getJsonFileRoot(filePath)};
+			configRootsMap.insert(make_pair(fileName, root));
+		}
+	}
 
 	void saveScores()
 	{
@@ -132,12 +143,13 @@ namespace hg
 	void stopAllSounds() { for(auto pair : soundPtrsMap) pair.second->stop(); }
 	void playSound(string mId) { if(!getNoSound()) getSoundPtr(mId)->play(); }
 
-	Font& getFont(string mId) 			{ return fontsMap.find(mId)->second; }
-	Sound* getSoundPtr(string mId) 		{ return soundPtrsMap.find(mId)->second; }
-	Music* getMusicPtr(string mId) 		{ return musicPtrsMap.find(mId)->second; }
-	MusicData getMusicData(string mId) 	{ return musicDataMap.find(mId)->second; }
-	StyleData getStyleData(string mId) 	{ return styleDataMap.find(mId)->second; }
-	LevelData getLevelData(string mId) 	{ return levelDataMap.find(mId)->second; }
+	Font& getFont(string mId) 				{ return fontsMap.find(mId)->second; }
+	Sound* getSoundPtr(string mId) 			{ return soundPtrsMap.find(mId)->second; }
+	Music* getMusicPtr(string mId) 			{ return musicPtrsMap.find(mId)->second; }
+	MusicData getMusicData(string mId) 		{ return musicDataMap.find(mId)->second; }
+	StyleData getStyleData(string mId) 		{ return styleDataMap.find(mId)->second; }
+	LevelData getLevelData(string mId) 		{ return levelDataMap.find(mId)->second; }
+	Json::Value getConfigRoot(string mId)	{ return configRootsMap.find(mId)->second; }
 
 	vector<LevelData> getAllLevelData()
 	{

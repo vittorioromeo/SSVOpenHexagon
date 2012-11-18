@@ -39,6 +39,7 @@ namespace hg
 			vector<string> levelDataIds;
 			int currentIndex{0};
 
+			void recreate();
 			void update(float mFrameTime);
 			void draw();
 			void drawBackground();
@@ -57,7 +58,7 @@ namespace hg
 			Text levelMusc{"", getFont("imagine"), 20};
 
 		public:
-			HexagonGame* hexagonGamePtr;
+			HexagonGame* hgPtr;
 
 			MenuGame(GameWindow& mGameWindow);
 
