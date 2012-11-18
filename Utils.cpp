@@ -1,14 +1,12 @@
 #include "Utils.h"
 #include <stdio.h>
 #include <math.h>
-#include <windows.h>
 #include <json/json.h>
 #include <json/reader.h>
 #include "LevelData.h"
 #include "boost/filesystem.hpp"
 #include "MusicData.h"
 #include "StyleData.h"
-#include "wtypes.h"
 
 namespace hg
 {
