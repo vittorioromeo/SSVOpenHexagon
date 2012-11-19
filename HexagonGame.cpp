@@ -53,14 +53,14 @@ namespace hg
 
 	void HexagonGame::startFromMenu(LevelData mLevelData)
 	{
-		setLevelData(mLevelData);
+		setLevelData(mLevelData, true);
 		newGame();
 	}
 	void HexagonGame::newGame()
 	{
 		clearMessages();
 
-		setLevelData(getLevelData(levelData.getId()));
+		setLevelData(getLevelData(levelData.getId()), musicData.getFirstPlay());
 
 		stopAllSounds();
 		playSound("play");
@@ -74,6 +74,10 @@ namespace hg
 
 		timeStop = 0;
 		sideChanges = true;
+		increment = true;
+		minRadius = 75;
+		maxPulse = 85;
+		pulseSpeed = 1;
 
 		hasDied = false;
 		mustRestart = false;
@@ -129,6 +133,7 @@ namespace hg
 	}
 	inline void HexagonGame::updateIncrement()
 	{
+		if(!increment) return;
 		if(incrementTime < levelData.getIncrementTime()) return;
 
 		incrementTime = 0;
@@ -176,6 +181,10 @@ namespace hg
 			else if (type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
 			else if (type == "side_changing_stop")		sideChanges = false;
 			else if (type == "side_changing_start")		sideChanges = true;
+			else if (type == "increment_stop")			increment = false;
+			else if (type == "increment_start")			increment = true;
+			else if (type == "pivot_pulse_max_set")		maxPulse = value;
+			else if (type == "pivot_pulse_speed_set")	pulseSpeed = value;
 		}
 	}
 	inline void HexagonGame::updateLevel(float mFrameTime)
@@ -204,14 +213,14 @@ namespace hg
 	}
 	inline void HexagonGame::updateRadius(float mFrameTime)
 	{
-		radiusTimer += 1.0f * mFrameTime;
+		radiusTimer += pulseSpeed * mFrameTime;
 		if(radiusTimer >= 25)
 		{
 			radiusTimer = 0;
-			radius = getRnd(82, 92);
+			radius = maxPulse;
 		}
 
-		if(radius > minRadius) radius -= 0.7f * mFrameTime;
+		if(radius > minRadius) radius -= pulseSpeed * radiusTimer / 7.f * mFrameTime;
 	}
 	inline void HexagonGame::updateDebugKeys()
 	{
@@ -344,11 +353,12 @@ namespace hg
 		messageTextPtrs.clear();
 	}
 
-	void HexagonGame::setLevelData(LevelData mLevelSettings)
+	void HexagonGame::setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay)
 	{
 		levelData = mLevelSettings;
 		styleData = getStyleData(levelData.getStyleId());
 		musicData = getMusicData(levelData.getMusicId());
+		musicData.setFirstPlay(mMusicFirstPlay);
 	}
 
 	Game& HexagonGame::getGame()						{ return game; }

@@ -22,7 +22,7 @@ namespace hg
 			firstPlay = false;
 			playSegment(mMusicPtr, 0);
 		}
-		else playSegment(mMusicPtr, getRandomSegment());
+		else playSeconds(mMusicPtr, getRandomSegment());
 	}
 	void MusicData::playSegment(Music*& mMusicPtr, int mSegmentIndex)
 	{
@@ -42,5 +42,8 @@ namespace hg
 	string MusicData::getName() 	{ return name; }
 	string MusicData::getAlbum() 	{ return album; }
 	string MusicData::getAuthor() 	{ return author; }
+
+	void MusicData::setFirstPlay(bool mFirstPlay) 	{ firstPlay = mFirstPlay; }
+	bool MusicData::getFirstPlay() 					{ return firstPlay; }
 }
 

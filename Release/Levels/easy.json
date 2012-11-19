@@ -48,7 +48,8 @@
 		{ "time": 31, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
 		{ "time": 32, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
 		{ "time": 33, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 34, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 }
+		{ "time": 34, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
+		{ "time": 90, 	"type": "increment_stop" }
 	],
 	
 	// Patterns

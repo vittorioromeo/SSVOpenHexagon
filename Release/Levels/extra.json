@@ -27,6 +27,12 @@
 	"sides_max": 8,
 	"increment_time": 15,
 	
+	//Events
+	"events":
+	[
+		{ "time": 60, "type": "increment_stop" }
+	],
+	
 	// Patterns
 	"patterns":
 	[

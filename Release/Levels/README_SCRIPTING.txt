@@ -55,6 +55,18 @@ Stops random side number changes on level up.
 "side_changing_start"
 Resumes random side number changes on level up.
 
+"increment_stop"
+Stops level up increments.
+
+"increment_start"
+Resumes level up increments.
+
+"pivot_pulse_max_set"	("value")
+Sets how far the center pulses. Default is 85;
+
+"pivot_pulse_speed_set"	("value")
+Sets how fast the center pulses. Default is 1.
+
 "menu"
 Returns to menu, saving progress.
 

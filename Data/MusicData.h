@@ -38,6 +38,9 @@ namespace hg
 			string getName();
 			string getAlbum();
 			string getAuthor();
+
+			void setFirstPlay(bool mFirstPlay);
+			bool getFirstPlay();
 	};
 }
 

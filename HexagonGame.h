@@ -53,10 +53,15 @@ namespace hg
 
 			float timeStop{0};
 			bool sideChanges{true};
+			bool increment{true};
+			float maxPulse{85};
+			float pulseSpeed{1};
 
 			float radius{75};
 			float minRadius{75};
+
 			float radiusTimer{0};
+			
 			bool rotationDirection{true};			
 
 			float fastSpin{0};
@@ -76,7 +81,7 @@ namespace hg
 			void drawDebugText();
 			void drawBackground();
 
-			void setLevelData(LevelData mLevelSettings);
+			void setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay);
 
 			void playLevelMusic();
 			void stopLevelMusic();
