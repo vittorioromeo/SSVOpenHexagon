@@ -36,6 +36,8 @@
       <File Name="Data/MusicData.h"/>
       <File Name="Data/LevelData.cpp"/>
       <File Name="Data/LevelData.h"/>
+      <File Name="Data/ProfileData.h"/>
+      <File Name="Data/ProfileData.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Utils">
       <File Name="Utils/HSL.cpp"/>

@@ -5,6 +5,7 @@
 #include <boost/filesystem.hpp>
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
+#include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "Utils/Utils.h"
 
@@ -108,7 +109,6 @@ namespace hg
 		int menuPriority		{ mRoot["menu_priority"].asInt() };
 		string styleId			{ mRoot["style_id"].asString() };
 		string musicId			{ mRoot["music_id"].asString() };
-
 		float speedMultiplier  	{ mRoot["speed_multiplier"].asFloat() };
 		float speedIncrement 	{ mRoot["speed_increment"].asFloat() };
 		float rotationSpeed  	{ mRoot["rotation_speed"].asFloat() };
@@ -168,6 +168,14 @@ namespace hg
 
 		return StyleData(id, hueMin, hueMax, huePingPong, hueIncrement, huePulse, mainDynamic, mainDynamicDarkness, mainStaticColor,
 						aDynamic, aDynamicDarkness, aStaticColor, bDynamic, bDynamicOffset, bDynamicDarkness, bStaticColor);
+	}
+	ProfileData loadProfileFromJson(string mId, Json::Value mRoot)
+	{
+		string name			{ mRoot["name"].asString() };
+		Json::Value scores	{ mRoot["scores"] };
+
+		auto result = ProfileData{mId, name, scores};
+		return result;
 	}
 
 	void parseAndAddPattern(LevelData& mLevelSettings, Json::Value &mPatternRoot)

@@ -182,7 +182,7 @@ namespace hg
 		levelTime.setPosition(window.getWidth() / 2, 768 - 425);
 		drawOnMenuTexture(levelTime);
 
-		cProfText.setString("current profile: " + getCurrentProfile()["name"].asString());
+		cProfText.setString("current profile: " + getCurrentProfile().getName());
 		cProfText.setOrigin(cProfText.getGlobalBounds().width / 2, 0);
 		cProfText.setColor(mainColor);
 		cProfText.setPosition(window.getWidth() / 2, 768 - 375);

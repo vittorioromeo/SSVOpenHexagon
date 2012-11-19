@@ -9,8 +9,9 @@
 #include <json/json.h>
 #include <json/reader.h>
 #include <boost/filesystem.hpp>
-#include "Data/MusicData.h"
 #include "Data/LevelData.h"
+#include "Data/MusicData.h"
+#include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "Utils.h"
 
@@ -48,8 +49,8 @@ namespace hg
 	float getScore(string mId);
 	void setScore(string mId, float mScore);
 
-	void setCurrentProfilePair(pair<const string, Json::Value>& mProfilePair);
-	Json::Value& getCurrentProfile();
+	void setCurrentProfile(ProfileData& mProfilePair);
+	ProfileData& getCurrentProfile();
 	string getCurrentProfileFilePath();
 }
 

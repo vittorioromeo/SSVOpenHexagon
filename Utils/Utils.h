@@ -9,6 +9,7 @@
 #include <SFML/Graphics.hpp>
 #include <boost/filesystem.hpp>
 #include "Data/LevelData.h"
+#include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "PatternManager.h"
 
@@ -46,6 +47,7 @@ namespace hg
 	LevelData loadLevelFromJson(Json::Value mRoot);
 	MusicData loadMusicFromJson(Json::Value mRoot);
 	StyleData loadStyleFromJson(Json::Value mRoot);
+	ProfileData loadProfileFromJson(string mId, Json::Value mRoot);
 
 	void parseAndAddPattern(LevelData& mLevelSettings, Json::Value &mPatternRoot);
 	function<void(PatternManager*)> getAdjPatternFunc(function<void(PatternManager*)> mFunction, float mAdjDelay, float mAdjSpeed, float mAdjThickness);

@@ -26,8 +26,8 @@ namespace hg
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
-	map<string, Json::Value> profileRootsMap;
-	pair<const string, Json::Value>* currentProfilePairPtr;
+	map<string, ProfileData> profileDataMap;
+	ProfileData* currentProfilePtr;
 
 	void loadAssets()
 	{
@@ -110,11 +110,11 @@ namespace hg
 		{
 			log("no profiles found, creating one");
 
-			ofstream o{"Profiles/player.json"};
+			ofstream o{"Profiles/default.json"};
 			Json::Value defaultProfileRoot;
 			Json::StyledStreamWriter writer;
 
-			defaultProfileRoot["name"] = "player";
+			defaultProfileRoot["name"] = "default";
 			defaultProfileRoot["scores"] = Json::objectValue;
 			writer.write(o, defaultProfileRoot);
 		}
@@ -122,10 +122,12 @@ namespace hg
 		for(auto filePath : getAllFilePaths("Profiles/", ".json"))
 		{
 			string fileName{path(filePath).stem().string()};
-			profileRootsMap.insert(make_pair(fileName, getJsonFileRoot(filePath)));
+
+			ProfileData profileData{loadProfileFromJson(fileName, getJsonFileRoot(filePath))};
+			profileDataMap.insert(make_pair(profileData.getId(), profileData));
 		}
 		
-		setCurrentProfilePair(*profileRootsMap.begin());
+		setCurrentProfile(profileDataMap.begin()->second);
 	}
 
 	void saveCurrentProfile()
@@ -133,7 +135,11 @@ namespace hg
 		Json::StyledStreamWriter writer;
 		ofstream o{getCurrentProfileFilePath(), std::ifstream::binary};
 
-		writer.write(o, getCurrentProfile());
+		Json::Value profileRoot;
+		profileRoot["name"] = getCurrentProfile().getName();
+		profileRoot["scores"] = getCurrentProfile().getScores();
+
+		writer.write(o, profileRoot);
 	}
 
 	vector<LevelData> getAllLevelData()
@@ -164,10 +170,10 @@ namespace hg
 	StyleData getStyleData(string mId) 		{ return styleDataMap.find(mId)->second; }
 	LevelData getLevelData(string mId) 		{ return levelDataMap.find(mId)->second; }
 
-	float getScore(string mId) 				{ return getCurrentProfile()["scores"][mId].asFloat(); }
-	void setScore(string mId, float mScore) { getCurrentProfile()["scores"][mId] = mScore; }
+	float getScore(string mId) 				{ return getCurrentProfile().getScore(mId); }
+	void setScore(string mId, float mScore) { getCurrentProfile().setScore(mId, mScore); }
 
-	void setCurrentProfilePair(pair<const string, Json::Value>& mProfilePair) { currentProfilePairPtr = &mProfilePair; }
-	Json::Value& getCurrentProfile() { return currentProfilePairPtr->second; }
-	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePairPtr->first + ".json"; }
+	void setCurrentProfile(ProfileData& mProfilePair) { currentProfilePtr = &mProfilePair; }
+	ProfileData& getCurrentProfile() { return *currentProfilePtr; }
+	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePtr->getId() + ".json"; }
 }
