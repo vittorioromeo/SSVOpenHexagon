@@ -8,7 +8,6 @@
 #include <SFML/Audio.hpp>
 #include <json/json.h>
 #include <json/reader.h>
-#include <boost/filesystem.hpp>
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
 #include "Data/ProfileData.h"

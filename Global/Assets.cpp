@@ -6,7 +6,6 @@
 #include <SFML/Graphics.hpp>
 #include <json/json.h>
 #include <json/reader.h>
-#include <boost/filesystem.hpp>
 #include "Data/MusicData.h"
 #include "Data/LevelData.h"
 #include "Data/StyleData.h"
@@ -15,7 +14,6 @@
 
 using namespace std;
 using namespace sf;
-using namespace boost::filesystem;
 
 namespace hg
 {
@@ -44,7 +42,7 @@ namespace hg
 	{
 		for(auto filePath : getAllFilePaths("Fonts/", ".ttf"))
 		{
-			string fileName{path(filePath).stem().string()};
+			string fileName{getFileNameFromFilePath(filePath, "Fonts/", ".ttf")};
 
 			Font font;
 			font.loadFromFile(filePath);			
@@ -72,7 +70,7 @@ namespace hg
 	{
 		for(auto filePath : getAllFilePaths("Music/", ".ogg"))
 		{
-			string fileName{path(filePath).stem().string()};
+			string fileName{getFileNameFromFilePath(filePath, "Music/", ".ogg")};
 
 			Music* music{new Music};
 			music->openFromFile(filePath);
@@ -121,7 +119,7 @@ namespace hg
 
 		for(auto filePath : getAllFilePaths("Profiles/", ".json"))
 		{
-			string fileName{path(filePath).stem().string()};
+			string fileName{getFileNameFromFilePath(filePath, "Profiles/", ".json")};
 
 			ProfileData profileData{loadProfileFromJson(fileName, getJsonFileRoot(filePath))};
 			profileDataMap.insert(make_pair(profileData.getId(), profileData));

@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include <json/json.h>
 #include <json/reader.h>
-#include <boost/filesystem.hpp>
+#include <dirent.h>
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
 #include "Data/ProfileData.h"
@@ -81,12 +82,33 @@ namespace hg
 	vector<string> getAllFilePaths(string mFolderPath, string mExtension)
 	{
 		vector<string> result;
+		struct dirent *foundFile;
+		DIR *directoryHandle;
 
-		for(auto iter = directory_iterator(mFolderPath); iter != directory_iterator(); iter++)
-			if(iter->path().extension() == mExtension)
-				result.push_back(iter->path().string());
-
+		directoryHandle = opendir(mFolderPath.c_str());
+		if (directoryHandle == NULL)
+		{
+			ostringstream fail;
+			fail << "Error querying directory " << mFolderPath;
+			log(fail.str());
+			return result;
+		}
+		while ((foundFile = readdir(directoryHandle)))
+		{
+			const char *dotCheck = strrchr(foundFile->d_name, '.');
+			if (dotCheck == NULL || dotCheck == foundFile->d_name) continue; // No extension?
+			if (strcmp(mExtension.c_str(), dotCheck) != 0) continue; // Mismatch.
+			ostringstream pass;
+			pass << mFolderPath << foundFile->d_name;
+			result.push_back(pass.str());
+		}
+		closedir(directoryHandle);
+			
 		return result;
+	}
+	string getFileNameFromFilePath(string mFilePath, string mPrefix, string mSuffix)
+	{
+		return mFilePath.substr(mPrefix.length(), mFilePath.length() - mPrefix.length() - mSuffix.length());
 	}
 	Json::Value getJsonFileRoot(string mFilePath)
 	{

@@ -7,7 +7,6 @@
 #include <json/json.h>
 #include <json/reader.h>
 #include <SFML/Graphics.hpp>
-#include <boost/filesystem.hpp>
 #include "Data/LevelData.h"
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
@@ -15,7 +14,6 @@
 
 using namespace std;
 using namespace sf;
-using namespace boost::filesystem;
 
 namespace hg
 {
@@ -42,6 +40,7 @@ namespace hg
 	Color getColorDarkened(Color, float);
 
 	vector<string> getAllFilePaths(string mFolderPath, string mExtension);
+	string getFileNameFromFilePath(string mFilePath, string mPrefix, string mSuffix);
 	Json::Value getJsonFileRoot(string mFilePath);
 
 	LevelData loadLevelFromJson(Json::Value mRoot);

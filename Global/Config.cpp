@@ -48,7 +48,10 @@ namespace hg
 		Json::Value root{getJsonFileRoot("config.json")};
 
 		for(auto filePath : getAllFilePaths("ConfigOverrides/", ".json"))
-			configOverridesRootMap.insert(make_pair(path(filePath).stem().string(), getJsonFileRoot(filePath)));
+		{
+			string fileName{getFileNameFromFilePath(filePath, "ConfigOverrides/", ".json")};
+			configOverridesRootMap.insert(make_pair(fileName, getJsonFileRoot(filePath)));
+		}
 
 		for(string overrideId : mOverridesIds)
 		{
