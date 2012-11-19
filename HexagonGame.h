@@ -83,6 +83,7 @@ namespace hg
 			void changeSides();
 			void checkAndSaveScore();
 			void goToMenu();
+			void clearMessages();
 
 		public:
 			MenuGame* mgPtr;

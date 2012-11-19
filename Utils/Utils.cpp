@@ -247,4 +247,10 @@ namespace hg
 
 		return [=](PatternManager* pm){ pm->setAdj(mAdjDelay, mAdjSpeed, mAdjThickness); mFunction(pm); pm->resetAdj(); };
 	}
+
+	void clearAndResetTimeline(Timeline& mTimeline)
+	{
+		mTimeline.clear();
+		mTimeline.reset();
+	}
 }

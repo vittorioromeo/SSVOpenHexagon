@@ -29,15 +29,15 @@
 	// Events
 	"events":
 	[
-		{ "time": 0, 	"type": "event_timeline_wait", 	"duration": 250 },
-		{ "time": 0, 	"type": "event_time_stop", 		"duration": 250 },
-		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "this is the second tutorial" },
-		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "things are slightly faster now" },
-		{ "time": 0, 	"type": "event_message_add", 	"duration": 100, 	"message": "be careful!" },
-		{ "time": 28, 	"type": "event_timeline_wait", 	"duration": 200 },
-		{ "time": 30, 	"type": "event_time_stop", 		"duration": 200 },
-		{ "time": 30, 	"type": "event_message_add", 	"duration": 200, 	"message": "get to 45 seconds to win!" },
-		{ "time": 45, 	"type": "event_gotomenu" }
+		{ "time": 0, 	"type": "timeline_wait", 	"duration": 250 },
+		{ "time": 0, 	"type": "time_stop", 		"duration": 250 },
+		{ "time": 0, 	"type": "message_add", 	"duration": 150, 	"message": "this is the second tutorial" },
+		{ "time": 0, 	"type": "message_add", 	"duration": 150, 	"message": "things are slightly faster now" },
+		{ "time": 0, 	"type": "message_add", 	"duration": 100, 	"message": "be careful!" },
+		{ "time": 28, 	"type": "timeline_wait", 	"duration": 200 },
+		{ "time": 30, 	"type": "time_stop", 		"duration": 200 },
+		{ "time": 30, 	"type": "message_add", 	"duration": 200, 	"message": "get to 45 seconds to win!" },
+		{ "time": 45, 	"type": "menu" }
 	],
 	
 	// Patterns

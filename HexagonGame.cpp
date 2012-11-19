@@ -38,8 +38,6 @@ namespace hg
 		game.addDrawFunc(	 [&](){ gameTexture.display(); }, 			1);
 		game.addDrawFunc(	 [&](){ drawOnWindow(gameSprite); }, 		2);
 		game.addDrawFunc(	 [&](){ drawDebugText(); }, 				3);
-
-		setLevelData(getLevelData("tutorial"));
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
@@ -60,8 +58,7 @@ namespace hg
 	}
 	void HexagonGame::newGame()
 	{
-		for (Text* textPtr : messageTextPtrs) delete textPtr;
-		messageTextPtrs.clear();
+		clearMessages();
 
 		setLevelData(getLevelData(levelData.getId()));
 
@@ -138,89 +135,51 @@ namespace hg
 	inline void HexagonGame::updateLevelEvents(float mFrameTime)
 	{
 		messagesTimeline.update(mFrameTime);
-
-		if(messagesTimeline.isFinished())
-		{
-			messagesTimeline.clear();
-			messagesTimeline.reset();
-		}
+		if(messagesTimeline.isFinished()) clearAndResetTimeline(messagesTimeline);
 
 		for (Json::Value& eventRoot : levelData.getEvents())
 		{
 			if(eventRoot["time"].asFloat() > currentTime) continue;
 			if(eventRoot["executed"].asBool()) continue;
-
 			eventRoot["executed"] = true;
-
 			string type{eventRoot["type"].asString()};
+			float duration{eventRoot["duration"].asFloat()};
+			string valueName{eventRoot["value_name"].asString()};
+			float value{eventRoot["value"].asFloat()};
+			string message{eventRoot["message"].asString()};
 
-			if(type == "event_time_stop")
-			{
-				float duration{eventRoot["duration"].asFloat()};
-				timeStop = duration;
-			}
-
-			else if(type == "event_timeline_wait")
-			{
-				float duration{eventRoot["duration"].asFloat()};
-				timeline.add(new Wait(duration));
-			}
-			else if(type == "event_timeline_clear")
-			{
-				timeline.clear();
-				timeline.reset();
-			}
-
-			else if (type == "event_message_add")
-			{
-				float duration{eventRoot["duration"].asFloat()};
-				string message{eventRoot["message"].asString()};
-				
-				Text* text = new Text{message, getFont("imagine"), 40 / getZoomFactor()};
-				text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
-				text->setOrigin(text->getGlobalBounds().width / 2, 0);
-
-				messagesTimeline.add(new Do{ [&, text, message] { messageTextPtrs.push_back(text); }});
-				messagesTimeline.add(new Wait{duration});
-				messagesTimeline.add(new Do{ [=] { messageTextPtrs.clear(); delete text; }});
-			}
-
-			else if (type == "event_level_change")
+			if (type == "level_change")
 			{
 				checkAndSaveScore();
 
 				string id{eventRoot["id"].asString()};
 				startFromMenu(getLevelData(id));
 			}
-			else if (type == "event_gotomenu")
-			{
-				goToMenu();
+			else if (type == "message_add")
+			{				
+				Text* text = new Text(message, getFont("imagine"), 40 / getZoomFactor());
+				text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
+				text->setOrigin(text->getGlobalBounds().width / 2, 0);
+
+				messagesTimeline.add(new Do{ [&, text, message]{ messageTextPtrs.push_back(text); }});
+				messagesTimeline.add(new Wait{duration});
+				messagesTimeline.add(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
 			}
-			
-			else if (type == "event_value_float_add")
-			{
-				string valueName{eventRoot["value_name"].asString()};
-				float value{eventRoot["value"].asFloat()};
-				levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
-			}
-			else if (type == "event_value_float_set")
-			{
-				string valueName{eventRoot["value_name"].asString()};
-				float value{eventRoot["value"].asFloat()};
-				levelData.setValueFloat(valueName, value);
-			}
-			else if (type == "event_value_int_add")
-			{
-				string valueName{eventRoot["value_name"].asString()};
-				int value{eventRoot["value"].asInt()};
-				levelData.setValueInt(valueName, levelData.getValueInt(valueName) + value);
-			}
-			else if (type == "event_value_int_set")
-			{
-				string valueName{eventRoot["value_name"].asString()};
-				int value{eventRoot["value"].asInt()};
-				levelData.setValueInt(valueName, value);
-			}
+			else if (type == "message_clear") 			clearMessages();
+			else if (type == "time_stop")				timeStop = duration;
+			else if (type == "timeline_wait") 			timeline.add(new Wait(duration));
+			else if (type == "timeline_clear") 			clearAndResetTimeline(timeline);
+			else if (type == "value_float_set") 		levelData.setValueFloat(valueName, value);
+			else if (type == "value_float_add") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
+			else if (type == "value_float_subtract") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
+			else if (type == "value_float_multiply") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
+			else if (type == "value_float_divide") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
+			else if (type == "value_int_set") 			levelData.setValueInt(valueName, value);
+			else if (type == "value_int_add") 			levelData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
+			else if (type == "value_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
+			else if (type == "value_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
+			else if (type == "value_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
+			else if (type == "menu") 					goToMenu();
 		}
 	}
 	inline void HexagonGame::updateLevel(float mFrameTime)
@@ -274,13 +233,13 @@ namespace hg
 
 		for(auto offset : offsets)
 		{
-			Text t { s.str(), getFont("imagine"), 25 };
+			Text t{s.str(), getFont("imagine"), 25};
 			t.setPosition(Vector2f{13, 3} + offset);
 			t.setColor(getColorB());
 			drawOnWindow(t);
 		}
 
-		Text t { s.str(), getFont("imagine"), 25 };
+		Text t{s.str(), getFont("imagine"), 25};
 		t.setPosition(13, 3);
 		t.setColor(getColorMain());
 		drawOnWindow(t);
@@ -302,8 +261,8 @@ namespace hg
 	}
 	void HexagonGame::drawBackground()
 	{
-		float div { 360.f / getSides() * 1.0001f };
-		float distance { 1500 };
+		float div{360.f / getSides() * 1.0001f};
+		float distance{1500};
 
 		VertexArray vertices{PrimitiveType::Triangles, 3};
 
@@ -368,6 +327,11 @@ namespace hg
 		window.setGame(&mgPtr->getGame());
 		mgPtr->init();
 	}
+	void HexagonGame::clearMessages()
+	{
+		for (Text* textPtr : messageTextPtrs) delete textPtr;
+			messageTextPtrs.clear();
+	}
 
 	void HexagonGame::setLevelData(LevelData mLevelSettings)
 	{
@@ -376,21 +340,12 @@ namespace hg
 		musicData = getMusicData(levelData.getMusicId());
 	}
 
-	Game& HexagonGame::getGame()			{ return game; }
-	Vector2f HexagonGame::getCenterPos() 	{ return centerPos; }
-
-	float HexagonGame::getRadius() 			{ return radius; }
-	Color HexagonGame::getColorMain()
-	{
-		if(getBlackAndWhite()) return Color::White;
-		return styleData.getCurrentMain();
-	}
-	Color HexagonGame::getColorB()
-	{
-		if(getBlackAndWhite()) return Color::Black;
-		return styleData.getCurrentB();
-	}
-	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) { return window.isKeyPressed(mKey); }
+	Game& HexagonGame::getGame()						{ return game; }
+	Vector2f HexagonGame::getCenterPos() 				{ return centerPos; }
+	float HexagonGame::getRadius() 						{ return radius; }
+	Color HexagonGame::getColorMain() 					{ return getBlackAndWhite() ? Color::White : styleData.getCurrentMain(); }
+	Color HexagonGame::getColorB() 						{ return getBlackAndWhite() ? Color::Black : styleData.getCurrentB(); }
+	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) 	{ return window.isKeyPressed(mKey); }
 
 	float HexagonGame::getSpeedMultiplier() { return levelData.getSpeedMultiplier(); }
 	float HexagonGame::getDelayMultiplier() { return levelData.getDelayMultiplier(); }
@@ -402,6 +357,7 @@ namespace hg
 	void HexagonGame::setRotationSpeed(float mRotationSpeed) 	 { levelData.setRotationSpeed(mRotationSpeed); }
 	void HexagonGame::setSides(int mSides)
 	{
+		playSound("beep");
 		if (mSides < 3) mSides = 3;
 		levelData.setValueInt("sides", mSides);
 	}

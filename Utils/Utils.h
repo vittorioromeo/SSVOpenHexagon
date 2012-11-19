@@ -7,6 +7,7 @@
 #include <json/json.h>
 #include <json/reader.h>
 #include <SFML/Graphics.hpp>
+#include <SSVStart.h>
 #include "Data/LevelData.h"
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
@@ -51,6 +52,8 @@ namespace hg
 	void parseAndAddPattern(LevelData& mLevelData, Json::Value &mPatternRoot);
 	void parseAndAddEvent(LevelData& mLevelData, Json::Value &mEventRoot);
 	function<void(PatternManager*)> getAdjPatternFunc(function<void(PatternManager*)> mFunction, float mAdjDelay, float mAdjSpeed, float mAdjThickness);
+
+	void clearAndResetTimeline(Timeline& mTimeline);
 }
 
 #endif /* UTILS_H_HG */
