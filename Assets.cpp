@@ -26,7 +26,8 @@ namespace hg
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
-	Json::Value scoreRoot;	
+	map<string, Json::Value> profileRootsMap;
+	pair<const string, Json::Value>* currentProfilePairPtr;
 
 	void loadAssets()
 	{
@@ -36,14 +37,14 @@ namespace hg
 		log("loading music data"); 	loadMusicData();
 		log("loading style data"); 	loadStyleData();
 		log("loading level data");	loadLevelData();
-		log("loading scores"); 		loadScores();
+		log("loading profiles"); 	loadProfiles();
 	}
 
 	void loadFonts()
 	{
 		for(auto filePath : getAllFilePaths("Fonts/", ".ttf"))
 		{
-			string fileName = path(filePath).stem().string();
+			string fileName{path(filePath).stem().string()};
 
 			Font font;
 			font.loadFromFile(filePath);			
@@ -71,7 +72,7 @@ namespace hg
 	{
 		for(auto filePath : getAllFilePaths("Music/", ".ogg"))
 		{
-			string fileName = path(filePath).stem().string();
+			string fileName{path(filePath).stem().string()};
 
 			Music* music{new Music};
 			music->openFromFile(filePath);
@@ -103,14 +104,53 @@ namespace hg
 			levelDataMap.insert(make_pair(levelData.getId(), levelData)); // replace with getId
 		}
 	}
-	void loadScores() { scoreRoot = getJsonFileRoot("scores.json"); }
+	void loadProfiles()
+	{
+		if (getAllFilePaths("Profiles/", ".json").empty())
+		{
+			log("no profiles found, creating one");
 
-	void saveScores()
+			ofstream o{"Profiles/player.json"};
+			Json::Value defaultProfileRoot;
+			Json::StyledStreamWriter writer;
+
+			defaultProfileRoot["name"] = "player";
+			defaultProfileRoot["scores"] = Json::objectValue;
+			writer.write(o, defaultProfileRoot);
+		}
+
+		for(auto filePath : getAllFilePaths("Profiles/", ".json"))
+		{
+			string fileName{path(filePath).stem().string()};
+			profileRootsMap.insert(make_pair(fileName, getJsonFileRoot(filePath)));
+		}
+		
+		setCurrentProfilePair(*profileRootsMap.begin());
+	}
+
+	void saveCurrentProfile()
 	{
 		Json::StyledStreamWriter writer;
-		ofstream test("scores.json", std::ifstream::binary);
+		ofstream o{getCurrentProfileFilePath(), std::ifstream::binary};
 
-		writer.write(test, scoreRoot);
+		writer.write(o, getCurrentProfile());
+	}
+
+	vector<LevelData> getAllLevelData()
+	{
+		vector<LevelData> result;
+		for(auto pair : levelDataMap) result.push_back(pair.second);
+		return result;
+	}
+	vector<string> getAllLevelDataIds()
+	{
+		vector<LevelData> levelDataVector{getAllLevelData()};
+		sort(begin(levelDataVector), end(levelDataVector),
+		[](LevelData a, LevelData b) -> bool { return a.getMenuPriority() < b.getMenuPriority(); });
+
+		vector<string> result;
+		for(auto levelData : levelDataVector) result.push_back(levelData.getId());
+		return result;
 	}
 
 	void stopAllMusic() { for(auto pair : musicPtrsMap) pair.second->stop(); }
@@ -124,32 +164,10 @@ namespace hg
 	StyleData getStyleData(string mId) 		{ return styleDataMap.find(mId)->second; }
 	LevelData getLevelData(string mId) 		{ return levelDataMap.find(mId)->second; }
 
-	vector<LevelData> getAllLevelData()
-	{
-		vector<LevelData> result;
-		for(auto pair : levelDataMap) result.push_back(pair.second);
-		return result;
-	}
-	vector<string> getAllLevelDataIds()
-	{
-		vector<LevelData> levelDataVector{getAllLevelData()};
-		sort(begin(levelDataVector), end(levelDataVector),
-		[](LevelData a, LevelData b) -> bool
-		{
-			return a.getMenuPriority() < b.getMenuPriority(); 
-		});
+	float getScore(string mId) 				{ return getCurrentProfile()["scores"][mId].asFloat(); }
+	void setScore(string mId, float mScore) { getCurrentProfile()["scores"][mId] = mScore; }
 
-		vector<string> result;
-		for(auto levelData : levelDataVector) result.push_back(levelData.getId());
-		return result;
-	}
-
-	float getScore(string mId)
-	{
-		return scoreRoot[mId].asFloat();
-	}
-	void setScore(string mId, float mScore)
-	{
-		scoreRoot[mId] = mScore;
-	}
+	void setCurrentProfilePair(pair<const string, Json::Value>& mProfilePair) { currentProfilePairPtr = &mProfilePair; }
+	Json::Value& getCurrentProfile() { return currentProfilePairPtr->second; }
+	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePairPtr->first + ".json"; }
 }

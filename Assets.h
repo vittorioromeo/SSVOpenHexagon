@@ -27,9 +27,9 @@ namespace hg
 	void loadMusicData();
 	void loadStyleData();
 	void loadLevelData();
-	void loadScores();
+	void loadProfiles();
 
-	void saveScores();
+	void saveCurrentProfile();
 
 	void stopAllMusic();
 	void stopAllSounds();
@@ -47,6 +47,10 @@ namespace hg
 
 	float getScore(string mId);
 	void setScore(string mId, float mScore);
+
+	void setCurrentProfilePair(pair<const string, Json::Value>& mProfilePair);
+	Json::Value& getCurrentProfile();
+	string getCurrentProfileFilePath();
 }
 
 #endif /* ASSETS_H_ */

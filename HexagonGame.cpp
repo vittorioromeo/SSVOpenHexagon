@@ -93,7 +93,7 @@ namespace hg
 		stopLevelMusic();
 		hasDied = true;
 		if(getScore(levelData.getId()) < currentTime) setScore(levelData.getId(), currentTime);
-		saveScores();
+		saveCurrentProfile();
 	}
 
 	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }

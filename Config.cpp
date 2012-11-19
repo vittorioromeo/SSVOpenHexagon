@@ -140,7 +140,7 @@ namespace hg
 	bool getVsync()						{ return vsync; }
 	bool getAutoZoomFactor()			{ return autoZoomFactor; }
 	bool getFullscreen()				{ return fullscreen; }	
-	string getVersion() 				{ return "v1.11"; }
+	string getVersion() 				{ return "v1.2"; }
 	bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
 	bool getFullscreenAutoResolution() 	{ return fullscreenAutoResolution; }
 	unsigned int getFullscreenWidth()	{ return fullscreenWidth; }

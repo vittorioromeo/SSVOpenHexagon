@@ -23,7 +23,6 @@ using namespace hg;
 int main(int argc, char* argv[])
 {
 	vector<string> overrideIds;
-
 	for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
 	loadConfig(overrideIds);
@@ -32,9 +31,8 @@ int main(int argc, char* argv[])
 	srand(unsigned(time(NULL)));
 
 	string title{"Open Hexagon " + getVersion() + " - vee software"};
-	bool fullscreen{getFullscreen()};
 	
-	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getLimitFps(), fullscreen};
+	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getLimitFps(), getFullscreen()};
 	window.isFrameTimeStatic = getStaticFrameTime();
 	window.staticFrameTime = getStaticFrameTimeValue();
 	window.renderWindow.setVerticalSyncEnabled(getVsync());
@@ -51,7 +49,6 @@ int main(int argc, char* argv[])
 	
 	window.run();
 
-	saveScores();
-
+	saveCurrentProfile();
 	return 0;
 }

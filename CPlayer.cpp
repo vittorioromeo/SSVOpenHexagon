@@ -77,6 +77,8 @@ namespace hg
 
 	void CPlayer::update(float mFrameTime)
 	{
+		Vector2f lastPos{pos};
+
 		float currentSpeed{speed};
 		float lastAngle{angle};
 		int movement{0};
@@ -99,7 +101,10 @@ namespace hg
 			if (wall->isOverlapping(pos))
 			{
 				isDead = true;
+				pos = lastPos;
 				hgPtr->death();
+
+				return;
 			}
 		}
 
