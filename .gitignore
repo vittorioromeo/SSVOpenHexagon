@@ -43,7 +43,6 @@ local.properties
 
 # Build results
 [Dd]ebug/
-[Rr]elease/
 *_i.c
 *_p.c
 *.ilk
@@ -161,12 +160,12 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
-.ogg
-.wav
-.o
-.d
-.dll
-.mp3
-.bat
-.exe
-.ttf
+*.ogg
+*.wav
+*.o
+*.d
+*.dll
+*.mp3
+*.bat
+*.exe
+*.ttf

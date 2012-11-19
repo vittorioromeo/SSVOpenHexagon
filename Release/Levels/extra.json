@@ -1,0 +1,40 @@
+{
+	// Level information
+	"id": "extra",
+	"name": "euclidean plane
+			 crash",
+	"description": "special level of difficulty",
+	"author": "vee",	
+	"menu_priority": 50,
+	
+	// Style
+	"style_id": "danger",
+	
+	// Music
+	"music_id": "steampunkWarlord",
+	
+	// Basic values
+	"speed_multiplier": 2.69,
+	"speed_increment": 0.00,
+	"rotation_speed": 0.25,
+	"rotation_increment": 0.04,
+	"delay_multiplier": 0.95,
+	"delay_increment": 0.00,
+	"fast_spin": 85.00,
+	"sides_start": 8,
+	"sides_min": 8,
+	"sides_max": 8,
+	"increment_time": 15,
+	
+	// Patterns
+	"patterns":
+	[
+		{ "type": "barrage_spiral", "chance": 3, "times": 6, "delay_multiplier": 0.5 },
+		{ "type": "alternate_wall_barrage", "chance": 3, "times": 5, "div": 2 },
+		{ "type": "mirror_spiral", "chance": 1, "times": 9, "extra": 1, "adj_delay": 0.5, "adj_thickness": 0.8},
+		{ "type": "mirror_spiral", "chance": 2, "times": 7, "extra": 1, "adj_delay": 0.5, "adj_thickness": 0.8},	
+		{ "type": "mirror_spiral", "chance": 3, "times": 5, "extra": 1, "adj_delay": 0.5, "adj_thickness": 0.8},	
+		{ "type": "inverse_barrage", "chance": 4, "times": 1 },
+		{ "type": "mirror_wall_strip", "chance": 4, "extra": 1, "times": 2 }
+	]
+}

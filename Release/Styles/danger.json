@@ -1,0 +1,27 @@
+{
+	// Style data id
+	"id": "danger",
+
+	// Hue options
+	"hue_min": 0,
+	"hue_max": 255,
+	"hue_ping_pong": false,
+	"hue_increment": 1.0,
+	"hue_pulse": true,
+	
+	// Color main
+	"main_dynamic": false,
+	"main_dynamic_darkness": 1.0,
+	"main_static": [253,253,253,255],
+	
+	// Color background a
+	"a_dynamic": false,
+	"a_dynamic_darkness": 1.0,
+	"a_static": [73,73,0,255],
+	
+	// Color background b
+	"b_dynamic": false,
+	"b_dynamic_offset": false, // Relative to main
+	"b_dynamic_darkness": 1.0, // Relative to main
+	"b_static": [11,11,11,255]
+}

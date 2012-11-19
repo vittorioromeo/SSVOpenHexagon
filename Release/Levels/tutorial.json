@@ -1,0 +1,36 @@
+{
+	// Level information
+	"id": "tutorial",
+	"name": "baby steps",
+	"description": "learn to play openhexagon",
+	"author": "vee",
+	"menu_priority": 0,
+	
+	// Style
+	"style_id": "zen",
+	
+	// Music
+	"music_id": "drFinkelfracken",
+	
+	// Basic values
+	"speed_multiplier": 0.85,
+	"speed_increment": 0.07,	
+	"rotation_speed": 0.04,
+	"rotation_increment": 0.04,
+	"delay_multiplier": 1.79,
+	"delay_increment": 0.00,
+	"fast_spin": 0.00,
+	"sides_start": 6,
+	"sides_min": 6,
+	"sides_max": 6,
+	"increment_time": 15,
+	
+	// Patterns
+	"patterns":
+	[
+		{ "type": "barrage_spiral", 		"chance": 3, "times": 3, "delay_multiplier": 1.35 },
+		{ "type": "alternate_wall_barrage", "chance": 3, "times": 3, "div": 2 },		
+		{ "type": "inverse_barrage", 		"chance": 2, "times": 1 },
+		{ "type": "tunnel_barrage", 		"chance": 2, "times": 2 }
+	]
+}

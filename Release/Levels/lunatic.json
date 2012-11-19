@@ -1,0 +1,45 @@
+{
+	// Level information
+	"id": "lunatic",
+	"name": "apeirogon",
+	"description": "hardest level of difficulty",
+	"author": "vee",	
+	"menu_priority": 40,
+	
+	// Style
+	"style_id": "gray",
+	
+	// Music
+	"music_id": "milkyWays",
+	
+	// Basic values
+	"speed_multiplier": 2.45,
+	"speed_increment": 0.10,
+	"rotation_speed": 0.30,
+	"rotation_increment": 0.05,
+	"delay_multiplier": 0.91,
+	"delay_increment": 0.00,
+	"fast_spin": 85.00,
+	"sides_start": 6,
+	"sides_min": 5,
+	"sides_max": 7,
+	"increment_time": 15,
+	
+	// Patterns
+	"patterns":
+	[
+		{ "type": "barrage_spiral", "chance": 3, "times": 4, "delay_multiplier": 0.9 },
+		{ "type": "barrage_spiral", "chance": 1, "times": 9, "delay_multiplier": 0.5 },
+		{ "type": "barrage_spiral", "chance": 2, "times": 5, "delay_multiplier": 0.7 },
+		{ "type": "alternate_wall_barrage", "chance": 2, "times": 5, "div": 2 },
+		{ "type": "extra_wall_vortex", "chance": 1, "times": 1, "steps": 2 },
+		{ "type": "extra_wall_vortex", "chance": 1, "times": 1, "steps": 4 },
+		{ "type": "extra_wall_vortex", "chance": 1, "times": 2, "steps": 3 },
+		{ "type": "mirror_spiral", "chance": 2, "times": 6 },	
+		{ "type": "mirror_spiral", "chance": 1, "times": 14 },	
+		{ "type": "inverse_barrage", "chance": 4, "times": 1 },
+		{ "type": "mirror_wall_strip", "chance": 4, "times": 2 },
+		{ "type": "tunnel_barrage", "chance": 1, "times": 5 },
+		{ "type": "tunnel_barrage", "chance": 3, "times": 3 }
+	]
+}

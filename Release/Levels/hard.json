@@ -1,0 +1,42 @@
+{
+	// Level information
+	"id": "hard",
+	"name": "second dimension",
+	"description": "hard level of difficulty",
+	"author": "vee",	
+	"menu_priority": 30,
+	
+	// Style
+	"style_id": "light",
+	
+	// Music
+	"music_id": "mazeOfMayonnaise",
+	
+	// Basic values
+	"speed_multiplier": 2.10,
+	"speed_increment": 0.09,
+	"rotation_speed": 0.20,
+	"rotation_increment": 0.06,
+	"delay_multiplier": 1.02,
+	"delay_increment": 0.00,
+	"fast_spin": 80.00,
+	"sides_start": 6,
+	"sides_min": 5,
+	"sides_max": 7,
+	"increment_time": 15,
+	
+	// Patterns
+	"patterns":
+	[
+		{ "type": "barrage_spiral", "chance": 3, "times": 3, "delay_multiplier": 1 },
+		{ "type": "barrage_spiral", "chance": 2, "times": 4, "delay_multiplier": 0.7 },
+		{ "type": "alternate_wall_barrage", "chance": 2, "times": 5, "div": 2 },
+		{ "type": "extra_wall_vortex", "chance": 2, "times": 1, "steps": 2 },
+		{ "type": "mirror_spiral", "chance": 3, "times": 6 },	
+		{ "type": "mirror_spiral", "chance": 2, "times": 8 },	
+		{ "type": "inverse_barrage", "chance": 4, "times": 1 },
+		{ "type": "mirror_wall_strip", "chance": 4, "times": 1 },
+		{ "type": "mirror_wall_strip", "chance": 2, "times": 2 },
+		{ "type": "tunnel_barrage", "chance": 3, "times": 3 }
+	]
+}

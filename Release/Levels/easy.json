@@ -1,0 +1,39 @@
+{
+	// Level information
+	"id": "easy",
+	"name": "pointless",
+	"description": "easiest level of difficulty",
+	"author": "vee",
+	"menu_priority": 10,
+	
+	// Style
+	"style_id": "dark",
+	
+	// Music
+	"music_id": "jackRussel",
+	
+	// Basic values
+	"speed_multiplier": 1.40,
+	"speed_increment": 0.13,	
+	"rotation_speed": 0.06,
+	"rotation_increment": 0.06,
+	"delay_multiplier": 1.62,
+	"delay_increment": 0.00,
+	"fast_spin": 0.00,
+	"sides_start": 6,
+	"sides_min": 5,
+	"sides_max": 6,
+	"increment_time": 15,
+	
+	// Patterns
+	"patterns":
+	[
+		{ "type": "barrage_spiral", "chance": 3, "times": 3, "delay_multiplier": 1 },
+		{ "type": "alternate_wall_barrage", "chance": 2, "times": 5, "div": 2 },
+		{ "type": "extra_wall_vortex", "chance": 1, "times": 1, "steps": 2 },
+		{ "type": "mirror_spiral", "chance": 1, "times": 8 },	
+		{ "type": "inverse_barrage", "chance": 2, "times": 1 },
+		{ "type": "mirror_wall_strip", "chance": 2, "times": 2 },
+		{ "type": "tunnel_barrage", "chance": 1, "times": 3 }
+	]
+}

@@ -1,0 +1,27 @@
+{
+	// Style data id
+	"id": "toxic",
+
+	// Hue options
+	"hue_min": 0,
+	"hue_max": 100,
+	"hue_ping_pong": true,
+	"hue_increment": 0.7,
+	"hue_pulse": false,
+	
+	// Color main
+	"main_dynamic": true,
+	"main_dynamic_darkness": 1.0,
+	"main_static": [255,0,0,255],
+	
+	// Color background a
+	"a_dynamic": true, 
+	"a_dynamic_darkness": 2.7, // Relative to main
+	"a_static": [0,0,0,0],
+	
+	// Color background b
+	"b_dynamic": false,
+	"b_dynamic_offset": true, // Relative to main
+	"b_dynamic_darkness": 2.5, // Relative to main
+	"b_static": [45,60,45,255]
+}

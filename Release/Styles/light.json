@@ -1,0 +1,27 @@
+{
+	// Style data id
+	"id": "light",
+
+	// Hue options
+	"hue_min": 149,
+	"hue_max": 255,
+	"hue_ping_pong": true,
+	"hue_increment": 1.0,
+	"hue_pulse": false,
+	
+	// Color main
+	"main_dynamic": true,
+	"main_dynamic_darkness": 1.0,
+	"main_static": [0,0,0,0],
+	
+	// Color background a
+	"a_dynamic": false,
+	"a_dynamic_darkness": 1.0,
+	"a_static": [235,235,235,255],
+	
+	// Color background b
+	"b_dynamic": true,
+	"b_dynamic_offset": true, // Relative to main
+	"b_dynamic_darkness": 1.0, // Relative to main
+	"b_static": [190,190,190,255]
+}
