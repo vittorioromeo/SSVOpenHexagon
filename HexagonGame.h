@@ -50,7 +50,9 @@ namespace hg
 			
 			float currentTime{0};
 			float incrementTime{0};
+
 			float timeStop{0};
+			bool sideChanges{true};
 
 			float radius{75};
 			float minRadius{75};
@@ -80,9 +82,11 @@ namespace hg
 			void stopLevelMusic();
 
 			void incrementDifficulty();
-			void changeSides();
+			void randomSideChange();
 			void checkAndSaveScore();
 			void goToMenu();
+			void changeLevel(string mId);
+			void addMessage(string mMessage, float mDuration);
 			void clearMessages();
 
 		public:

@@ -73,6 +73,8 @@ namespace hg
 		rotationDirection = getRnd(0, 100) > 50 ? true : false;
 
 		timeStop = 0;
+		sideChanges = true;
+
 		hasDied = false;
 		mustRestart = false;
 		currentTime = 0;
@@ -147,24 +149,11 @@ namespace hg
 			string valueName{eventRoot["value_name"].asString()};
 			float value{eventRoot["value"].asFloat()};
 			string message{eventRoot["message"].asString()};
+			string id{eventRoot["id"].asString()};
 
-			if (type == "level_change")
-			{
-				checkAndSaveScore();
-
-				string id{eventRoot["id"].asString()};
-				startFromMenu(getLevelData(id));
-			}
-			else if (type == "message_add")
-			{				
-				Text* text = new Text(message, getFont("imagine"), 40 / getZoomFactor());
-				text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
-				text->setOrigin(text->getGlobalBounds().width / 2, 0);
-
-				messagesTimeline.add(new Do{ [&, text, message]{ messageTextPtrs.push_back(text); }});
-				messagesTimeline.add(new Wait{duration});
-				messagesTimeline.add(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
-			}
+			if 		(type == "level_change")			changeLevel(id);
+			else if (type == "menu") 					goToMenu();
+			else if (type == "message_add")				addMessage(message, duration);
 			else if (type == "message_clear") 			clearMessages();
 			else if (type == "time_stop")				timeStop = duration;
 			else if (type == "timeline_wait") 			timeline.add(new Wait(duration));
@@ -179,7 +168,12 @@ namespace hg
 			else if (type == "value_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
 			else if (type == "value_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
 			else if (type == "value_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "menu") 					goToMenu();
+			else if (type == "music_set")				{ stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); }
+			else if (type == "music_set_segment")		{ stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); }
+			else if (type == "music_set_seconds")		{ stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); }
+			else if (type == "style_set")				styleData = getStyleData(id);
+			else if (type == "side_changing_stop")		sideChanges = false;
+			else if (type == "side_changing_start")		sideChanges = true;
 		}
 	}
 	inline void HexagonGame::updateLevel(float mFrameTime)
@@ -301,14 +295,14 @@ namespace hg
 		setDelayMultiplier(getDelayMultiplier() + levelData.getDelayIncrement());
 		fastSpin = 			levelData.getFastSpin();
 		
-		timeline.add(new Do([&]{ changeSides(); }));
+		if(sideChanges) timeline.add(new Do([&]{ randomSideChange(); }));
 	}
-	void HexagonGame::changeSides()
+	void HexagonGame::randomSideChange()
 	{
 		if(manager.getComponentPtrsById("wall").size() > 0)
 		{
 			timeline.add(new Wait(10));
-			timeline.add(new Do([&]{ changeSides(); }));
+			timeline.add(new Do([&]{ randomSideChange(); }));
 			return;
 		}
 		setSides(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1));
@@ -326,6 +320,21 @@ namespace hg
 		playSound("beep");
 		window.setGame(&mgPtr->getGame());
 		mgPtr->init();
+	}
+	void HexagonGame::changeLevel(string mId)
+	{
+		checkAndSaveScore();
+		startFromMenu(getLevelData(mId));
+	}
+	void HexagonGame::addMessage(string mMessage, float mDuration)
+	{
+		Text* text = new Text(mMessage, getFont("imagine"), 40 / getZoomFactor());
+		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
+		text->setOrigin(text->getGlobalBounds().width / 2, 0);
+
+		messagesTimeline.add(new Do{ [&, text, mMessage]{ messageTextPtrs.push_back(text); }});
+		messagesTimeline.add(new Wait{mDuration});
+		messagesTimeline.add(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
 	}
 	void HexagonGame::clearMessages()
 	{
@@ -362,4 +371,3 @@ namespace hg
 		levelData.setValueInt("sides", mSides);
 	}
 }
-

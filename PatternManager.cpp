@@ -15,6 +15,9 @@ namespace hg
 {
 	void PatternManager::setAdj(float mAdjDelay, float mAdjSpeed, float mAdjThickness)
 	{
+		currentSpeedMultiplier = hgPtr->getSpeedMultiplier();
+		currentDelayMultiplier = hgPtr->getDelayMultiplier();
+
 		adjDelay = mAdjDelay;
 		adjSpeed = mAdjSpeed;
 		adjThickness = mAdjThickness;
@@ -40,18 +43,18 @@ namespace hg
 	int PatternManager::getRandomDirection() { return getRnd(0, 100) > 50 ? 1 : -1; }
 	float PatternManager::getPerfectThickness(float mBaseThickness)
 	{
-		return mBaseThickness * hgPtr->getSpeedMultiplier() * hgPtr->getDelayMultiplier();
+		return mBaseThickness * currentSpeedMultiplier * currentDelayMultiplier;
 	}
 	float PatternManager::getPerfectDelay(float mThickness, float mSpeed)
 	{
-		return mThickness / (mSpeed * hgPtr->getSpeedMultiplier()) + ((abs(6 - hgPtr->getSides())) * 1.25f);
+		return mThickness / (mSpeed * currentSpeedMultiplier) + ((abs(6 - hgPtr->getSides())) * 1.25f);
 	}
 
 	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) :
 		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos) { }
 
 	
-	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness * adjThickness, speed * adjSpeed, hgPtr->getSpeedMultiplier()); }
+	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness * adjThickness, speed * adjSpeed, currentSpeedMultiplier); }
 	void PatternManager::rWall(int mSide, float mThickness) { wall(mSide, mThickness); wall(mSide + hgPtr->getSides() / 2, mThickness); }
 	void PatternManager::wallExtra(int mSide, float mThickness, int mExtra)
 	{
@@ -193,7 +196,7 @@ namespace hg
 
 		for(int i{0}; i < mTimes; i++)
 		{
-			if (i < mTimes - 1) timeline.add(new Do{[=](){ wall(startSide, myThickness + (speed * hgPtr->getSpeedMultiplier()) * delay); }});
+			if (i < mTimes - 1) timeline.add(new Do{[=](){ wall(startSide, myThickness + (speed * currentSpeedMultiplier) * delay); }});
 			timeline.add(new Do{[=](){ barrage(startSide + loopDir, myThickness); }});
 			timeline.add(new Wait{delay * adjDelay});
 

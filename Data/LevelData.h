@@ -35,6 +35,7 @@ namespace hg
 			string getDescription();
 			string getAuthor();
 			int getMenuPriority();
+			bool getSelectable();
 			string getStyleId();
 			string getMusicId();
 			float getSpeedMultiplier();

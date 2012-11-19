@@ -5,6 +5,7 @@
 	"description": "hardest level of difficulty",
 	"author": "vee",	
 	"menu_priority": 40,
+	"selectable": true,
 	
 	// Style
 	"style_id": "gray",

@@ -6,6 +6,7 @@
 	"description": "special level of difficulty",
 	"author": "vee",	
 	"menu_priority": 50,
+	"selectable": true,
 	
 	// Style
 	"style_id": "danger",

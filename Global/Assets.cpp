@@ -146,14 +146,14 @@ namespace hg
 		for(auto pair : levelDataMap) result.push_back(pair.second);
 		return result;
 	}
-	vector<string> getAllLevelDataIds()
+	vector<string> getAllMenuLevelDataIds()
 	{
 		vector<LevelData> levelDataVector{getAllLevelData()};
 		sort(begin(levelDataVector), end(levelDataVector),
 		[](LevelData a, LevelData b) -> bool { return a.getMenuPriority() < b.getMenuPriority(); });
 
 		vector<string> result;
-		for(auto levelData : levelDataVector) result.push_back(levelData.getId());
+		for(auto levelData : levelDataVector) if(levelData.getSelectable()) result.push_back(levelData.getId());
 		return result;
 	}
 

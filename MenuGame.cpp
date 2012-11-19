@@ -19,7 +19,7 @@ namespace hg
 		game.addUpdateFunc([&](float frameTime) { update(frameTime); });
 		game.addDrawFunc([&]{ draw(); }, 0);
 
-		levelDataIds = getAllLevelDataIds();
+		levelDataIds = getAllMenuLevelDataIds();
 		setIndex(0);
 	}
 

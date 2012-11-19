@@ -43,7 +43,7 @@ namespace hg
 	LevelData getLevelData(string mId);
 
 	vector<LevelData> getAllLevelData();
-	vector<string> getAllLevelDataIds();
+	vector<string> getAllMenuLevelDataIds();
 
 	float getScore(string mId);
 	void setScore(string mId, float mScore);

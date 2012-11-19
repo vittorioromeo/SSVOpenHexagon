@@ -29,6 +29,7 @@ namespace hg
 	string LevelData::getDescription() 				{ return root["description"].asString(); }
 	string LevelData::getAuthor() 					{ return root["author"].asString(); }
 	int LevelData::getMenuPriority()				{ return root["menu_priority"].asInt(); }
+	bool LevelData::getSelectable()					{ return root["selectable"].asBool(); }
 	string LevelData::getMusicId() 					{ return root["music_id"].asString(); }
 	string LevelData::getStyleId() 					{ return root["style_id"].asString(); }
 	float LevelData::getSpeedMultiplier() 			{ return root["speed_multiplier"].asFloat(); }

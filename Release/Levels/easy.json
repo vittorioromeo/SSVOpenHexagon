@@ -5,6 +5,7 @@
 	"description": "easiest level of difficulty",
 	"author": "vee",
 	"menu_priority": 10,
+	"selectable": true,
 	
 	// Style
 	"style_id": "dark",
@@ -28,19 +29,22 @@
 	// Events
 	"events":
 	[
-		{ "time": 0, 	"type": "message_add", 	"duration": 150, 	"message": "tutorials are over" },
-		{ "time": 0, 	"type": "message_add", 	"duration": 150, 	"message": "good luck getting high scores!" },
-		{ "time": 13, 	"type": "message_add", 	"duration": 150, 	"message": "did you know that there are other shapes?" },
-		{ "time": 13, 	"type": "message_add", 	"duration": 150, 	"message": "pentagons, octagons, etc..." },
-		{ "time": 13, 	"type": "message_add", 	"duration": 150, 	"message": "oh sorry, am i distracting you?" },	
+		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "tutorials are over" },
+		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "good luck getting high scores!" },
+		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "did you know that there are other shapes?" },
+		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "pentagons, octagons, etc..." },
+		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "oh sorry, am i distracting you?" },	
 		{ "time": 28, 	"type": "timeline_wait", 	"duration": 500 },
 		{ "time": 29.9, "type": "timeline_clear" },
 		{ "time": 29.9, "type": "timeline_wait", 	"duration": 600 },
 		{ "time": 30, 	"type": "time_stop", 		"duration": 300 },
-		{ "time": 30, 	"type": "message_add", 	"duration": 150, 	"message": "this is too easy for you..." },
-		{ "time": 30, 	"type": "message_add", 	"duration": 150, 	"message": "let's make it more interesting!" },
+		{ "time": 30, 	"type": "message_add", 		"duration": 150, 	"message": "this is too easy for you..." },
+		{ "time": 30, 	"type": "message_add", 		"duration": 150, 	"message": "let's make it more interesting!" },
 		{ "time": 30.1, "type": "timeline_clear" },
 		{ "time": 30.1, "type": "timeline_wait", 	"duration": 350 },
+		{ "time": 30.1, "type": "music_set",		"id": "steampunkWarlord" },
+		{ "time": 30.1, "type": "style_set",		"id": "zen2" },
+		{ "time": 30.1, "type": "side_changing_stop" },
 		{ "time": 31, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
 		{ "time": 32, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
 		{ "time": 33, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },

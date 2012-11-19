@@ -29,6 +29,9 @@ namespace hg
 			float thickness	{baseThickness};
 			float speed 	{baseSpeed};
 
+			float currentSpeedMultiplier;		
+			float currentDelayMultiplier;
+
 			float adjDelay{1.0f};
 			float adjSpeed{1.0f};
 			float adjThickness{1.0f};

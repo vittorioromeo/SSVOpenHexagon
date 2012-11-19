@@ -30,6 +30,8 @@ namespace hg
 
 			void addSegment(int mSeconds);			
 			void playRandomSegment(Music*& mMusicPtr);
+			void playSegment(Music*& mMusicPtr, int mSegmentIndex);
+			void playSeconds(Music*& mMusicPtr, int mSeconds);
 
 			string getId();
 			string getFileName();

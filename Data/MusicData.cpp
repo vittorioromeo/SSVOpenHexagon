@@ -17,15 +17,21 @@ namespace hg
 	int MusicData::getRandomSegment() { return segments[getRnd(0, segments.size())]; }
 	void MusicData::playRandomSegment(Music*& mMusicPtr)
 	{
-		mMusicPtr = musicPtr;
-
 		if(firstPlay)
 		{
 			firstPlay = false;
-			musicPtr->setPlayingOffset(sf::seconds(segments[0]));
+			playSegment(mMusicPtr, 0);
 		}
-		else musicPtr->setPlayingOffset(sf::seconds(getRandomSegment()));
-
+		else playSegment(mMusicPtr, getRandomSegment());
+	}
+	void MusicData::playSegment(Music*& mMusicPtr, int mSegmentIndex)
+	{
+		playSeconds(mMusicPtr, segments[mSegmentIndex]);
+	}
+	void MusicData::playSeconds(Music*& mMusicPtr, int mSeconds)
+	{
+		mMusicPtr = musicPtr;
+		musicPtr->setPlayingOffset(sf::seconds(mSeconds));
 		musicPtr->play();
 	}
 

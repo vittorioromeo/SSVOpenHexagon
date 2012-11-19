@@ -4,7 +4,7 @@ interesting. Here's a list of commands:
 
 * means it has to be implemented
 
-"event_time_stop" 		("duration")
+"event_time_stop" 	("duration")
 Stops the game timer for "duration" frames.
 
 "timeline_wait" 	("duration")
@@ -34,8 +34,26 @@ Clears the screen from messages.
 "value_int_divide"
 Adds, sets, subtract, multiplies or divides a JSON value by the name "value_name" by "value".
 
-"level_change"	("id")
+"style_set" 		("id")
+Changes the current style to "id".
+
+"music_set"			("id")
+Changes the current music to "id", with a random segment.
+
+"music_set_segment" ("id", "segment_index")
+Changes the current music to "id", at the segment number "segment_index".
+
+"music_set_seconds"	("id", "seconds")
+Changes the current music to "id", starting at "seconds".
+
+"level_change"		("id")
 Changes the level to "id", saving progress.
+
+"side_changing_stop"
+Stops random side number changes on level up.
+
+"side_changing_start"
+Resumes random side number changes on level up.
 
 "menu"
 Returns to menu, saving progress.
