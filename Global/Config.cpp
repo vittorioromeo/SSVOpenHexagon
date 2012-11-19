@@ -1,11 +1,11 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <json/json.h>
 #include <json/reader.h>
-#include <fstream>
-#include "Utils.h"
-#include "Config.h"
-#include "Assets.h"
+#include "Global/Config.h"
+#include "Global/Assets.h"
+#include "Utils/Utils.h"
 
 using namespace std;
 

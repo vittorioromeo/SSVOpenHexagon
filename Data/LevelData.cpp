@@ -1,5 +1,5 @@
-#include "LevelData.h"
-#include "Utils.h"
+#include "Data/LevelData.h"
+#include "Utils/Utils.h"
 
 namespace hg
 {

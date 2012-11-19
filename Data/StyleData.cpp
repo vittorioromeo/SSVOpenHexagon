@@ -1,5 +1,5 @@
-#include "StyleData.h"
-#include "Utils.h"
+#include "Data/StyleData.h"
+#include "Utils/Utils.h"
 
 namespace hg
 {

@@ -1,20 +1,21 @@
 #ifndef MENUGAME_H
 #define MENUGAME_H
 
-#include "SSVStart.h"
-#include "SSVEntitySystem.h"
-#include "LevelData.h"
+#include <map>
+#include <vector>
+#include <json/json.h>
+#include <json/reader.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
-#include <vector>
-#include <json/json.h>
-#include <json/reader.h>
-#include "MusicData.h"
-#include <map>
-#include "StyleData.h"
-#include "Assets.h"
+#include <SSVStart.h>
+#include <SSVEntitySystem.h>
+#include "Data/LevelData.h"
+#include "Data/MusicData.h"
+#include "Data/StyleData.h"
+#include "Global/Assets.h"
+#include "Global/Config.h"
 
 using namespace sf;
 using namespace ssvs;

@@ -3,15 +3,15 @@
 
 #include <iostream>
 #include <string>
-#include <json/json.h>
-#include <json/reader.h>
 #include <fstream>
 #include <map>
-#include "boost/filesystem.hpp"
 #include <SFML/Audio.hpp>
-#include "MusicData.h"
-#include "LevelData.h"
-#include "StyleData.h"
+#include <json/json.h>
+#include <json/reader.h>
+#include <boost/filesystem.hpp>
+#include "Data/MusicData.h"
+#include "Data/LevelData.h"
+#include "Data/StyleData.h"
 #include "Utils.h"
 
 using namespace std;

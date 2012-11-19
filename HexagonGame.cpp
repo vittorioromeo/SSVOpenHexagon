@@ -1,19 +1,19 @@
-#include "HexagonGame.h"
-#include "CPlayer.h"
-#include "CWall.h"
-#include "Utils.h"
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "SSVStart.h"
-#include "PatternManager.h"
-#include <fstream>
-#include "Config.h"
-#include "Factory.h"
 #include <SFML/Audio.hpp>
-#include "Assets.h"
-#include "StyleData.h"
+#include <SSVStart.h>
+#include "Components/CPlayer.h"
+#include "Components/CWall.h"
+#include "Data/StyleData.h"
+#include "Global/Assets.h"
+#include "Global/Config.h"
+#include "Global/Factory.h"
+#include "Utils/Utils.h"
+#include "HexagonGame.h"
 #include "MenuGame.h"
+#include "PatternManager.h"
 
 using namespace sf;
 using namespace ssvs;

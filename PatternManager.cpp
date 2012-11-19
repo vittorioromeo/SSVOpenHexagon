@@ -1,15 +1,15 @@
-#include "PatternManager.h"
-#include "HexagonGame.h"
-#include "CPlayer.h"
-#include "CWall.h"
-#include "Utils.h"
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "SSVStart.h"
-#include "SSVEntitySystem.h"
-#include "Config.h"
-#include "Factory.h"
+#include <SSVStart.h>
+#include <SSVEntitySystem.h>
+#include "Components/CPlayer.h"
+#include "Components/CWall.h"
+#include "Global/Config.h"
+#include "Global/Factory.h"
+#include "Utils/Utils.h"
+#include "HexagonGame.h"
+#include "PatternManager.h"
 
 namespace hg
 {

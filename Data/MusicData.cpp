@@ -1,7 +1,7 @@
-#include "MusicData.h"
 #include <SFML/Audio.hpp>
-#include "Utils.h"
-#include "Assets.h"
+#include "Data/MusicData.h"
+#include "Global/Assets.h"
+#include "Utils/Utils.h"
 
 namespace hg
 {

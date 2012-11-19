@@ -1,11 +1,11 @@
 #ifndef CWALL_H_
 #define CWALL_H_
 
-#include "SSVEntitySystem.h"
-#include "HexagonGame.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
+#include <SSVEntitySystem.h>
+#include "HexagonGame.h"
 
 using namespace sf;
 using namespace sses;

@@ -1,9 +1,9 @@
 #ifndef MUSICDATA_H_
 #define MUSICDATA_H_
 
+#include <SFML/Audio.hpp>
 #include <string>
 #include <vector>
-#include <SFML/Audio.hpp>
 
 using namespace std;
 using namespace sf;

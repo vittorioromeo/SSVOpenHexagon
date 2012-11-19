@@ -1,7 +1,7 @@
-#include "CPlayer.h"
-#include "Utils.h"
-#include "CWall.h"
 #include <iostream>
+#include "Components/CPlayer.h"
+#include "Components/CWall.h"
+#include "Utils/Utils.h"
 
 namespace hg
 {

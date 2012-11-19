@@ -1,19 +1,19 @@
 #ifndef HEXAGONGAME_H_
 #define HEXAGONGAME_H_
 
-#include "SSVStart.h"
-#include "SSVEntitySystem.h"
-#include "LevelData.h"
+#include <map>
+#include <vector>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
-#include <vector>
 #include <json/json.h>
 #include <json/reader.h>
-#include "MusicData.h"
-#include <map>
-#include "StyleData.h"
+#include <SSVStart.h>
+#include <SSVEntitySystem.h>
+#include "Data/LevelData.h"
+#include "Data/MusicData.h"
+#include "Data/StyleData.h"
 
 using namespace sf;
 using namespace ssvs;

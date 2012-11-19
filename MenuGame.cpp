@@ -1,14 +1,14 @@
-#include "MenuGame.h"
-#include "Utils.h"
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "SSVStart.h"
 #include <fstream>
-#include "Config.h"
 #include <SFML/Audio.hpp>
-#include "Assets.h"
-#include "StyleData.h"
+#include <SSVStart.h>
+#include "Data/StyleData.h"
+#include "Global/Assets.h"
+#include "Global/Config.h"
+#include "Utils/Utils.h"
+#include "MenuGame.h"
 
 namespace hg
 {

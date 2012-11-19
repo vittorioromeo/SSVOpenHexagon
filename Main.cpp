@@ -2,17 +2,16 @@
 #include <string>
 #include <iostream>
 #include <random>
-#include "SSVEntitySystem.h"
-#include "SSVStart.h"
-#include "CPlayer.h"
-#include "HexagonGame.h"
-#include "MenuGame.h"
-#include <memory>
-#include "Config.h"
 #include <json/json.h>
 #include <json/reader.h>
-#include "Utils.h"
-#include "Assets.h"
+#include <SSVEntitySystem.h>
+#include <SSVStart.h>
+#include "Components/CPlayer.h"
+#include "Global/Assets.h"
+#include "Global/Config.h"
+#include "Utils/Utils.h"
+#include "HexagonGame.h"
+#include "MenuGame.h"
 
 using namespace std;
 using namespace sses;

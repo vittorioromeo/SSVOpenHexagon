@@ -3,10 +3,12 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <json/json.h>
 #include <json/reader.h>
-#include <fstream>
-#include "SSVStart.h"
+#include <SSVStart.h>
+
+using namespace ssvs;
 
 namespace hg
 {

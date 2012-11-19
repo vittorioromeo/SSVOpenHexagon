@@ -1,16 +1,16 @@
 #ifndef UTILS_H_HG
 #define UTILS_H_HG
 
-#include <SFML/Graphics.hpp>
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <json/json.h>
 #include <json/reader.h>
-#include "LevelData.h"
+#include <SFML/Graphics.hpp>
+#include <boost/filesystem.hpp>
+#include "Data/LevelData.h"
+#include "Data/StyleData.h"
 #include "PatternManager.h"
-#include "boost/filesystem.hpp"
-#include "StyleData.h"
 
 using namespace std;
 using namespace sf;

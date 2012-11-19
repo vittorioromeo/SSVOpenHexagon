@@ -1,17 +1,17 @@
 #include <iostream>
 #include <string>
-#include <json/json.h>
-#include <json/reader.h>
 #include <fstream>
 #include <map>
-#include "boost/filesystem.hpp"
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
-#include "Assets.h"
-#include "MusicData.h"
-#include "LevelData.h"
-#include "StyleData.h"
-#include "Utils.h"
+#include <json/json.h>
+#include <json/reader.h>
+#include <boost/filesystem.hpp>
+#include "Data/MusicData.h"
+#include "Data/LevelData.h"
+#include "Data/StyleData.h"
+#include "Global/Assets.h"
+#include "Utils/Utils.h"
 
 using namespace std;
 using namespace sf;

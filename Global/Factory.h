@@ -1,8 +1,8 @@
 #ifndef FACTORY_H_
 #define FACTORY_H_
 
-#include "SSVStart.h"
-#include "SSVEntitySystem.h"
+#include <SSVStart.h>
+#include <SSVEntitySystem.h>
 
 namespace hg
 {

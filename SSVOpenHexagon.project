@@ -13,36 +13,36 @@
     <File Name="PatternManager.h"/>
     <File Name="HexagonGame.cpp"/>
     <File Name="PatternManager.cpp"/>
-    <VirtualDirectory Name="Utils">
-      <File Name="HSL.h"/>
-      <File Name="HSL.cpp"/>
-      <File Name="Utils.cpp"/>
-      <File Name="Utils.h"/>
-    </VirtualDirectory>
-    <VirtualDirectory Name="Data">
-      <File Name="LevelData.cpp"/>
-      <File Name="LevelData.h"/>
-      <File Name="MusicData.cpp"/>
-      <File Name="MusicData.h"/>
-      <File Name="StyleData.cpp"/>
-      <File Name="StyleData.h"/>
-    </VirtualDirectory>
-    <VirtualDirectory Name="Global">
-      <File Name="Assets.cpp"/>
-      <File Name="Assets.h"/>
-      <File Name="Config.cpp"/>
-      <File Name="Config.h"/>
-      <File Name="Factory.cpp"/>
-      <File Name="Factory.h"/>
-    </VirtualDirectory>
-    <VirtualDirectory Name="Components">
-      <File Name="CPlayer.cpp"/>
-      <File Name="CPlayer.h"/>
-      <File Name="CWall.cpp"/>
-      <File Name="CWall.h"/>
-    </VirtualDirectory>
     <File Name="MenuGame.h"/>
     <File Name="MenuGame.cpp"/>
+    <VirtualDirectory Name="Components">
+      <File Name="Components/CPlayer.cpp"/>
+      <File Name="Components/CPlayer.h"/>
+      <File Name="Components/CWall.cpp"/>
+      <File Name="Components/CWall.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Global">
+      <File Name="Global/Assets.cpp"/>
+      <File Name="Global/Assets.h"/>
+      <File Name="Global/Config.cpp"/>
+      <File Name="Global/Config.h"/>
+      <File Name="Global/Factory.cpp"/>
+      <File Name="Global/Factory.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Data">
+      <File Name="Data/StyleData.cpp"/>
+      <File Name="Data/StyleData.h"/>
+      <File Name="Data/MusicData.cpp"/>
+      <File Name="Data/MusicData.h"/>
+      <File Name="Data/LevelData.cpp"/>
+      <File Name="Data/LevelData.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Utils">
+      <File Name="Utils/HSL.cpp"/>
+      <File Name="Utils/HSL.h"/>
+      <File Name="Utils/Utils.cpp"/>
+      <File Name="Utils/Utils.h"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>

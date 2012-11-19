@@ -1,12 +1,13 @@
 #ifndef CPLAYER_H_
 #define CPLAYER_H_
 
-#include "SSVEntitySystem.h"
-#include "HexagonGame.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
-#include "Config.h"
+#include <SSVEntitySystem.h>
+#include "Global/Config.h"
+#include "HexagonGame.h"
+
 
 using namespace sf;
 using namespace sses;
