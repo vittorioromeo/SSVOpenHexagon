@@ -3,9 +3,12 @@
 	"name" : "default",
 	"scores" : 
 	{
+		"easy" : 66.85497283935547,
 		"extra" : null,
-		"hard" : null,
-		"lunatic" : 7.752058982849121,
-		"tutorial" : null
+		"hard" : 75.56116485595703,
+		"lunatic" : 16.26330375671387,
+		"normal" : null,
+		"tutorial" : 20.33407974243164,
+		"tutorial2" : 45.00043487548828
 	}
 }

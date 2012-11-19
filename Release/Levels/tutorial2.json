@@ -21,10 +21,24 @@
 	"delay_multiplier": 1.75,
 	"delay_increment": 0.00,
 	"fast_spin": 0.00,
-	"sides_start": 6,
+	"sides": 6,
 	"sides_min": 6,
 	"sides_max": 6,
 	"increment_time": 15,
+	
+	// Events
+	"events":
+	[
+		{ "time": 0, 	"type": "event_timeline_wait", 	"duration": 250 },
+		{ "time": 0, 	"type": "event_time_stop", 		"duration": 250 },
+		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "this is the second tutorial" },
+		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "things are slightly faster now" },
+		{ "time": 0, 	"type": "event_message_add", 	"duration": 100, 	"message": "be careful!" },
+		{ "time": 28, 	"type": "event_timeline_wait", 	"duration": 200 },
+		{ "time": 30, 	"type": "event_time_stop", 		"duration": 200 },
+		{ "time": 30, 	"type": "event_message_add", 	"duration": 200, 	"message": "get to 45 seconds to win!" },
+		{ "time": 45, 	"type": "event_gotomenu" }
+	],
 	
 	// Patterns
 	"patterns":

@@ -14,16 +14,34 @@
 	
 	// Basic values
 	"speed_multiplier": 0.85,
-	"speed_increment": 0.07,	
+	"speed_increment": 0.05,	
 	"rotation_speed": 0.04,
-	"rotation_increment": 0.04,
-	"delay_multiplier": 1.79,
+	"rotation_increment": 0.03,
+	"delay_multiplier": 1.81,
 	"delay_increment": 0.00,
 	"fast_spin": 0.00,
-	"sides_start": 6,
+	"sides": 6,
 	"sides_min": 6,
 	"sides_max": 6,
 	"increment_time": 15,
+	
+	// Events
+	"events":
+	[
+		{ "time": 0, 	"type": "event_timeline_wait", 	"duration": 300 },
+		{ "time": 0, 	"type": "event_time_stop", 		"duration": 300 },
+		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "welcome to open hexagon" },
+		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "use left/right to rotate" },
+		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "avoid the walls!" },
+		{ "time": 12, 	"type": "event_timeline_wait", 	"duration": 300 },
+		{ "time": 14, 	"type": "event_time_stop", 		"duration": 300 },
+		{ "time": 14, 	"type": "event_message_add", 	"duration": 100, 	"message": "great job!"},
+		{ "time": 14, 	"type": "event_message_add", 	"duration": 200, 	"message": "after a while, things get harder" },
+		{ "time": 28, 	"type": "event_timeline_wait", 	"duration": 200 },
+		{ "time": 30, 	"type": "event_time_stop", 		"duration": 200 },
+		{ "time": 30, 	"type": "event_message_add", 	"duration": 200, 	"message": "get to 45 seconds to win!" },
+		{ "time": 45, 	"type": "event_level_change", 	"id": "tutorial2" }
+	],
 	
 	// Patterns
 	"patterns":

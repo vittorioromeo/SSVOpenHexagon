@@ -60,6 +60,11 @@ namespace hg
 	}
 	void HexagonGame::newGame()
 	{
+		for (Text* textPtr : messageTextPtrs) delete textPtr;
+		messageTextPtrs.clear();
+
+		setLevelData(getLevelData(levelData.getId()));
+
 		stopAllSounds();
 		playSound("play");
 		
@@ -70,21 +75,19 @@ namespace hg
 
 		rotationDirection = getRnd(0, 100) > 50 ? true : false;
 
+		timeStop = 0;
 		hasDied = false;
 		mustRestart = false;
 		currentTime = 0;
 		incrementTime = 0;
-		sides = levelData.getSidesStart();
+		setSides(levelData.getSides());
 		radius = minRadius;
 
 		manager.clear();
 		createPlayer(manager, this, centerPos);
 
+		messagesTimeline = Timeline{};
 		timeline = Timeline{};
-
-		speedMult 		= levelData.getSpeedMultiplier();
-		rotationSpeed 	= levelData.getRotationSpeed();
-		delayMult 		= levelData.getDelayMultiplier();
 	}
 	void HexagonGame::death()
 	{
@@ -92,8 +95,7 @@ namespace hg
 		playSound("game_over");
 		stopLevelMusic();
 		hasDied = true;
-		if(getScore(levelData.getId()) < currentTime) setScore(levelData.getId(), currentTime);
-		saveCurrentProfile();
+		checkAndSaveScore();
 	}
 
 	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
@@ -104,15 +106,22 @@ namespace hg
 		if(!hasDied)
 		{
 			manager.update(mFrameTime);
-			currentTime += mFrameTime / 60.0f;
-			incrementTime += mFrameTime / 60.0f;
 
-			updateIncrement();
+			updateLevelEvents(mFrameTime);
+
+			if(timeStop <= 0)
+			{
+				currentTime += mFrameTime / 60.0f;
+				incrementTime += mFrameTime / 60.0f;
+			}
+			else timeStop -= 1 * mFrameTime;
+
+			updateIncrement();			
 			updateLevel(mFrameTime);
 			updateRadius(mFrameTime);
 			if(!getBlackAndWhite()) updateColor(mFrameTime);
 		}
-		else rotationSpeed /= 1.001f;
+		else setRotationSpeed(getRotationSpeed() / 1.001f);
 
 		updateDebugKeys();
 		if(!getNoRotation()) updateRotation(mFrameTime);
@@ -125,6 +134,94 @@ namespace hg
 
 		incrementTime = 0;
 		incrementDifficulty();
+	}
+	inline void HexagonGame::updateLevelEvents(float mFrameTime)
+	{
+		messagesTimeline.update(mFrameTime);
+
+		if(messagesTimeline.isFinished())
+		{
+			messagesTimeline.clear();
+			messagesTimeline.reset();
+		}
+
+		for (Json::Value& eventRoot : levelData.getEvents())
+		{
+			if(eventRoot["time"].asFloat() > currentTime) continue;
+			if(eventRoot["executed"].asBool()) continue;
+
+			eventRoot["executed"] = true;
+
+			string type{eventRoot["type"].asString()};
+
+			if(type == "event_time_stop")
+			{
+				float duration{eventRoot["duration"].asFloat()};
+				timeStop = duration;
+			}
+
+			else if(type == "event_timeline_wait")
+			{
+				float duration{eventRoot["duration"].asFloat()};
+				timeline.add(new Wait(duration));
+			}
+			else if(type == "event_timeline_clear")
+			{
+				timeline.clear();
+				timeline.reset();
+			}
+
+			else if (type == "event_message_add")
+			{
+				float duration{eventRoot["duration"].asFloat()};
+				string message{eventRoot["message"].asString()};
+				
+				Text* text = new Text{message, getFont("imagine"), 40 / getZoomFactor()};
+				text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
+				text->setOrigin(text->getGlobalBounds().width / 2, 0);
+
+				messagesTimeline.add(new Do{ [&, text, message] { messageTextPtrs.push_back(text); }});
+				messagesTimeline.add(new Wait{duration});
+				messagesTimeline.add(new Do{ [=] { messageTextPtrs.clear(); delete text; }});
+			}
+
+			else if (type == "event_level_change")
+			{
+				checkAndSaveScore();
+
+				string id{eventRoot["id"].asString()};
+				startFromMenu(getLevelData(id));
+			}
+			else if (type == "event_gotomenu")
+			{
+				goToMenu();
+			}
+			
+			else if (type == "event_value_float_add")
+			{
+				string valueName{eventRoot["value_name"].asString()};
+				float value{eventRoot["value"].asFloat()};
+				levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
+			}
+			else if (type == "event_value_float_set")
+			{
+				string valueName{eventRoot["value_name"].asString()};
+				float value{eventRoot["value"].asFloat()};
+				levelData.setValueFloat(valueName, value);
+			}
+			else if (type == "event_value_int_add")
+			{
+				string valueName{eventRoot["value_name"].asString()};
+				int value{eventRoot["value"].asInt()};
+				levelData.setValueInt(valueName, levelData.getValueInt(valueName) + value);
+			}
+			else if (type == "event_value_int_set")
+			{
+				string valueName{eventRoot["value_name"].asString()};
+				int value{eventRoot["value"].asInt()};
+				levelData.setValueInt(valueName, value);
+			}
+		}
 	}
 	inline void HexagonGame::updateLevel(float mFrameTime)
 	{
@@ -140,7 +237,7 @@ namespace hg
 	inline void HexagonGame::updateColor(float mFrameTime) { styleData.update(mFrameTime); }
 	inline void HexagonGame::updateRotation(float mFrameTime)
 	{
-		auto nextRotation = rotationSpeed * 10 * mFrameTime;
+		auto nextRotation = getRotationSpeed() * 10 * mFrameTime;
 		if(rotationDirection) nextRotation *= -1;
 		if(fastSpin > 0)
 		{
@@ -164,12 +261,7 @@ namespace hg
 	inline void HexagonGame::updateDebugKeys()
 	{
 		if(isKeyPressed(Keyboard::R)) mustRestart = true;
-		else if(isKeyPressed(Keyboard::Escape))
-		{
-			playSound("beep");
-			window.setGame(&mgPtr->getGame());
-			mgPtr->init();
-		}
+		else if(isKeyPressed(Keyboard::Escape))	goToMenu();
 	}
 
 	void HexagonGame::drawDebugText()
@@ -185,22 +277,37 @@ namespace hg
 			Text t { s.str(), getFont("imagine"), 25 };
 			t.setPosition(Vector2f{13, 3} + offset);
 			t.setColor(getColorB());
-			window.renderWindow.draw(t);
+			drawOnWindow(t);
 		}
 
 		Text t { s.str(), getFont("imagine"), 25 };
 		t.setPosition(13, 3);
 		t.setColor(getColorMain());
-		window.renderWindow.draw(t);
+		drawOnWindow(t);
+
+		for (Text* textPtr : messageTextPtrs)
+		{
+			for(auto offset : offsets)
+			{
+				Text t{textPtr->getString(), getFont("imagine"), textPtr->getCharacterSize()};
+				t.setPosition(textPtr->getPosition() + offset);
+				t.setOrigin(t.getGlobalBounds().width / 2, 0);
+				t.setColor(getColorB());
+				drawOnWindow(t);
+			}
+			
+			textPtr->setColor(getColorMain());
+			drawOnWindow(*textPtr);
+		}
 	}
 	void HexagonGame::drawBackground()
 	{
-		float div { 360.f / sides * 1.0001f };
+		float div { 360.f / getSides() * 1.0001f };
 		float distance { 1500 };
 
 		VertexArray vertices{PrimitiveType::Triangles, 3};
 
-		for(int i {0}; i < sides; i++)
+		for(int i {0}; i < getSides(); i++)
 		{
 			float angle { div * i };
 			Color currentColor { styleData.getCurrentA() };
@@ -208,7 +315,7 @@ namespace hg
 			if (i % 2 == 0)
 			{
 				currentColor = styleData.getCurrentB();
-				if (i == sides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
+				if (i == getSides() - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 			}
 
 			Vector2f p1 = getOrbit(centerPos, angle + div * 0.5f, distance);
@@ -229,10 +336,10 @@ namespace hg
 	{
 		playSound("level_up");
 
-		speedMult +=		levelData.getSpeedIncrement();
-		rotationSpeed +=	levelData.getRotationSpeedIncrement();
+		setSpeedMultiplier(getSpeedMultiplier() + levelData.getSpeedIncrement());
+		setRotationSpeed(getRotationSpeed() + levelData.getRotationSpeedIncrement());
 		rotationDirection = !rotationDirection;
-		delayMult += 		levelData.getDelayIncrement();
+		setDelayMultiplier(getDelayMultiplier() + levelData.getDelayIncrement());
 		fastSpin = 			levelData.getFastSpin();
 		
 		timeline.add(new Do([&]{ changeSides(); }));
@@ -245,7 +352,21 @@ namespace hg
 			timeline.add(new Do([&]{ changeSides(); }));
 			return;
 		}
-		sides = getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1);
+		setSides(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1));
+	}
+
+	void HexagonGame::checkAndSaveScore()
+	{
+		if(getScore(levelData.getId()) < currentTime) setScore(levelData.getId(), currentTime);
+		saveCurrentProfile();
+	}
+	void HexagonGame::goToMenu()
+	{
+		stopAllSounds();
+		checkAndSaveScore();
+		playSound("beep");
+		window.setGame(&mgPtr->getGame());
+		mgPtr->init();
 	}
 
 	void HexagonGame::setLevelData(LevelData mLevelSettings)
@@ -257,7 +378,7 @@ namespace hg
 
 	Game& HexagonGame::getGame()			{ return game; }
 	Vector2f HexagonGame::getCenterPos() 	{ return centerPos; }
-	int HexagonGame::getSides() 			{ return sides; }
+
 	float HexagonGame::getRadius() 			{ return radius; }
 	Color HexagonGame::getColorMain()
 	{
@@ -269,9 +390,20 @@ namespace hg
 		if(getBlackAndWhite()) return Color::Black;
 		return styleData.getCurrentB();
 	}
-	bool HexagonGame::isKeyPressed(Keyboard::Key mKey)
+	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) { return window.isKeyPressed(mKey); }
+
+	float HexagonGame::getSpeedMultiplier() { return levelData.getSpeedMultiplier(); }
+	float HexagonGame::getDelayMultiplier() { return levelData.getDelayMultiplier(); }
+	float HexagonGame::getRotationSpeed() 	{ return levelData.getRotationSpeed(); }
+	int HexagonGame::getSides() 			{ return levelData.getSides(); }
+
+	void HexagonGame::setSpeedMultiplier(float mSpeedMultiplier) { levelData.setSpeedMultiplier(mSpeedMultiplier); }
+	void HexagonGame::setDelayMultiplier(float mDelayMultiplier) { levelData.setDelayMultiplier(mDelayMultiplier); }
+	void HexagonGame::setRotationSpeed(float mRotationSpeed) 	 { levelData.setRotationSpeed(mRotationSpeed); }
+	void HexagonGame::setSides(int mSides)
 	{
-		return window.isKeyPressed(mKey);
+		if (mSides < 3) mSides = 3;
+		levelData.setValueInt("sides", mSides);
 	}
 }
 

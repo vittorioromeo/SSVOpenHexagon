@@ -26,7 +26,6 @@ namespace hg
 
 	class HexagonGame
 	{
-		friend class CPlayer;
 		friend class PatternManager;
 
 		private:
@@ -44,20 +43,20 @@ namespace hg
 			PatternManager* pm; // owned, opaque pointer
 			Timeline timeline;
 
+			Timeline messagesTimeline;
+			vector<Text*> messageTextPtrs;
+
 			Vector2f centerPos{0,0};
 			
 			float currentTime{0};
 			float incrementTime{0};
+			float timeStop{0};
 
 			float radius{75};
 			float minRadius{75};
 			float radiusTimer{0};
 			bool rotationDirection{true};			
 
-			int sides{6};
-			float speedMult{1};
-			float delayMult{1};
-			float rotationSpeed{0.1f};
 			float fastSpin{0};
 
 			bool hasDied{false};
@@ -65,6 +64,7 @@ namespace hg
 
 			void update(float);
 			inline void updateIncrement();
+			inline void updateLevelEvents(float);
 			inline void updateLevel(float);
 			inline void updateColor(float);
 			inline void updateRotation(float);
@@ -81,6 +81,8 @@ namespace hg
 
 			void incrementDifficulty();
 			void changeSides();
+			void checkAndSaveScore();
+			void goToMenu();
 
 		public:
 			MenuGame* mgPtr;
@@ -98,10 +100,18 @@ namespace hg
 			Game& getGame();
 			Vector2f getCenterPos();
 			float getRadius();
-			int getSides();
 			Color getColorMain();
 			Color getColorB();
 			bool isKeyPressed(Keyboard::Key mKey);
+
+			float getSpeedMultiplier();
+			float getDelayMultiplier();
+			float getRotationSpeed();
+			int getSides();
+			void setSpeedMultiplier(float mSpeedMultiplier);
+			void setDelayMultiplier(float mDelayMultiplier);
+			void setRotationSpeed(float mRotationSpeed);
+			void setSides(int mSides);
 	};
 }
 #endif /* HEXAGONGAME_H_ */

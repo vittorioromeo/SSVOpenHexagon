@@ -20,7 +20,7 @@
 	"delay_multiplier": 1.02,
 	"delay_increment": 0.00,
 	"fast_spin": 80.00,
-	"sides_start": 6,
+	"sides": 6,
 	"sides_min": 5,
 	"sides_max": 7,
 	"increment_time": 15,

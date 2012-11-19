@@ -36,23 +36,23 @@ namespace hg
 		}});
 	}
 
-	int PatternManager::getRandomSide() { return getRnd(0, sides); }
+	int PatternManager::getRandomSide() { return getRnd(0, hgPtr->getSides()); }
 	int PatternManager::getRandomDirection() { return getRnd(0, 100) > 50 ? 1 : -1; }
 	float PatternManager::getPerfectThickness(float mBaseThickness)
 	{
-		return mBaseThickness * hgPtr->speedMult * hgPtr->delayMult;
+		return mBaseThickness * hgPtr->getSpeedMultiplier() * hgPtr->getDelayMultiplier();
 	}
 	float PatternManager::getPerfectDelay(float mThickness, float mSpeed)
 	{
-		return mThickness / (mSpeed * hgPtr->speedMult) + ((abs(6 - sides)) * 1.25f);
+		return mThickness / (mSpeed * hgPtr->getSpeedMultiplier()) + ((abs(6 - hgPtr->getSides())) * 1.25f);
 	}
 
 	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) :
-		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos), sides{hgPtr->sides} { }
+		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos) { }
 
 	
-	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness * adjThickness, speed * adjSpeed, hgPtr->speedMult); }
-	void PatternManager::rWall(int mSide, float mThickness) { wall(mSide, mThickness); wall(mSide + sides / 2, mThickness); }
+	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness * adjThickness, speed * adjSpeed, hgPtr->getSpeedMultiplier()); }
+	void PatternManager::rWall(int mSide, float mThickness) { wall(mSide, mThickness); wall(mSide + hgPtr->getSides() / 2, mThickness); }
 	void PatternManager::wallExtra(int mSide, float mThickness, int mExtra)
 	{
 		wall(mSide, mThickness);
@@ -73,7 +73,7 @@ namespace hg
 	}
 	void PatternManager::barrage(int mSide, float mThickness, int mNeighbors)
 	{
-		for(int i{mNeighbors}; i < sides - 1 - mNeighbors; i++) wall(mSide + i + 1, mThickness);
+		for(int i{mNeighbors}; i < hgPtr->getSides() - 1 - mNeighbors; i++) wall(mSide + i + 1, mThickness);
 	}
 	void PatternManager::barrageOnlyNeighbors(int mSide, float mThickness, int mNeighbors)
 	{
@@ -82,7 +82,7 @@ namespace hg
 	}
 	void PatternManager::altBarrage(int mSide, float mThickness, int mStep)
 	{
-		for(int i{0}; i < sides / mStep; i++) wall(mSide + i * mStep, mThickness);
+		for(int i{0}; i < hgPtr->getSides() / mStep; i++) wall(mSide + i * mStep, mThickness);
 	}
 
 	void PatternManager::alternateWallBarrage(int mTimes, int mDiv)
@@ -165,7 +165,7 @@ namespace hg
 		{
 			timeline.add(new Do{[=](){ barrage(startSide, thickness); }});
 			timeline.add(new Wait{delay * adjDelay});
-			timeline.add(new Do{[=](){ barrage(startSide + sides / 2, thickness); }});
+			timeline.add(new Do{[=](){ barrage(startSide + hgPtr->getSides() / 2, thickness); }});
 			timeline.add(new Wait{delay * adjDelay});
 		}
 
@@ -193,7 +193,7 @@ namespace hg
 
 		for(int i{0}; i < mTimes; i++)
 		{
-			if (i < mTimes - 1) timeline.add(new Do{[=](){ wall(startSide, myThickness + (speed * hgPtr->speedMult) * delay); }});
+			if (i < mTimes - 1) timeline.add(new Do{[=](){ wall(startSide, myThickness + (speed * hgPtr->getSpeedMultiplier()) * delay); }});
 			timeline.add(new Do{[=](){ barrage(startSide + loopDir, myThickness); }});
 			timeline.add(new Wait{delay * adjDelay});
 

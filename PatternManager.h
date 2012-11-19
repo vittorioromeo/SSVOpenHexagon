@@ -25,7 +25,6 @@ namespace hg
 			HexagonGame* hgPtr;
 			Timeline& timeline;
 			Vector2f& centerPos;
-			int& sides;
 
 			float thickness	{baseThickness};
 			float speed 	{baseSpeed};

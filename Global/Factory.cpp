@@ -10,14 +10,14 @@ namespace hg
 	{
 		Entity* result { new Entity };
 		mManager.addEntity(result);
-		result->addComponent(new CWall { mHgPtr, mCenterPos, mSide, mThickness, getSpawnDistance(), mSpeed * mSpeedMultiplier });
+		result->addComponent(new CWall{mHgPtr, mCenterPos, mSide, mThickness, getSpawnDistance(), mSpeed * mSpeedMultiplier});
 		return result;
 	}
 	Entity* createPlayer(Manager& mManager, HexagonGame* mHgPtr, Vector2f mCenterPos)
 	{
 		Entity* result { new Entity };
 		mManager.addEntity(result);
-		result->addComponent(new CPlayer { mHgPtr, mCenterPos } );
+		result->addComponent(new CPlayer{mHgPtr, mCenterPos});
 		result->drawPriority = -1;
 		return result;
 	}

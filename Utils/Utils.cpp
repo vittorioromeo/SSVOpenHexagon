@@ -124,29 +124,10 @@ namespace hg
 
 	LevelData loadLevelFromJson(Json::Value mRoot)
 	{
-		string id				{ mRoot["id"].asString() };
-		string name			 	{ mRoot["name"].asString() };
-		string description 		{ mRoot["description"].asString() };
-		string author 			{ mRoot["author"].asString() };
-		int menuPriority		{ mRoot["menu_priority"].asInt() };
-		string styleId			{ mRoot["style_id"].asString() };
-		string musicId			{ mRoot["music_id"].asString() };
-		float speedMultiplier  	{ mRoot["speed_multiplier"].asFloat() };
-		float speedIncrement 	{ mRoot["speed_increment"].asFloat() };
-		float rotationSpeed  	{ mRoot["rotation_speed"].asFloat() };
-		float rotationIncrement	{ mRoot["rotation_increment"].asFloat() };
-		float delayMultiplier	{ mRoot["delay_multiplier"].asFloat() };
-		float delayIncrement	{ mRoot["delay_increment"].asFloat() };
-		float fastSpin			{ mRoot["fast_spin"].asFloat() };
-		int sidesStart			{ mRoot["sides_start"].asInt() };
-		int sidesMin 			{ mRoot["sides_min"].asInt() };
-		int sidesMax			{ mRoot["sides_max"].asInt() };
-		float incrementTime 	{ mRoot["increment_time"].asFloat() };
-
-		auto result = LevelData{id, name, description, author, menuPriority, styleId, musicId, speedMultiplier, speedIncrement, rotationSpeed,
-			rotationIncrement, delayMultiplier, delayIncrement, fastSpin, sidesStart, sidesMin, sidesMax, incrementTime};
+		LevelData result = LevelData{mRoot};
 
 		for (Json::Value pattern : mRoot["patterns"]) parseAndAddPattern(result, pattern);
+		for (Json::Value event : mRoot["events"]) parseAndAddEvent(result, event);
 
 		return result;
 	}
@@ -200,7 +181,7 @@ namespace hg
 		return result;
 	}
 
-	void parseAndAddPattern(LevelData& mLevelSettings, Json::Value &mPatternRoot)
+	void parseAndAddPattern(LevelData& mLevelData, Json::Value &mPatternRoot)
 	{
 		string type	{ mPatternRoot["type"].asString() };
 		int chance	{ mPatternRoot["chance"].asInt() };
@@ -251,8 +232,13 @@ namespace hg
 			func = [=](PatternManager* pm){ pm->tunnelBarrage(times); };
 		}
 
-		mLevelSettings.addPattern(getAdjPatternFunc(func, adjDelay, adjSpeed, adjThickness), chance);
+		mLevelData.addPattern(getAdjPatternFunc(func, adjDelay, adjSpeed, adjThickness), chance);
 	}
+	void parseAndAddEvent(LevelData& mLevelData, Json::Value &mEventRoot)
+	{
+		mLevelData.addEvent(mEventRoot);
+	}
+
 	function<void(PatternManager*)> getAdjPatternFunc(function<void(PatternManager*)> mFunction, float mAdjDelay, float mAdjSpeed, float mAdjThickness)
 	{
 		if(mAdjDelay == 0.0f) mAdjDelay = 1.0f;

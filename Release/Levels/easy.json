@@ -20,10 +20,32 @@
 	"delay_multiplier": 1.62,
 	"delay_increment": 0.00,
 	"fast_spin": 0.00,
-	"sides_start": 6,
+	"sides": 6,
 	"sides_min": 5,
 	"sides_max": 6,
 	"increment_time": 15,
+	
+	// Events
+	"events":
+	[
+		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "tutorials are over" },
+		{ "time": 0, 	"type": "event_message_add", 	"duration": 150, 	"message": "good luck getting high scores!" },
+		{ "time": 13, 	"type": "event_message_add", 	"duration": 150, 	"message": "did you know that there are other shapes?" },
+		{ "time": 13, 	"type": "event_message_add", 	"duration": 150, 	"message": "pentagons, octagons, etc..." },
+		{ "time": 13, 	"type": "event_message_add", 	"duration": 150, 	"message": "oh sorry, am i distracting you?" },	
+		{ "time": 28, 	"type": "event_timeline_wait", 	"duration": 500 },
+		{ "time": 29.9, "type": "event_timeline_clear" },
+		{ "time": 29.9, "type": "event_timeline_wait", 	"duration": 600 },
+		{ "time": 30, 	"type": "event_time_stop", 		"duration": 300 },
+		{ "time": 30, 	"type": "event_message_add", 	"duration": 150, 	"message": "this is too easy for you..." },
+		{ "time": 30, 	"type": "event_message_add", 	"duration": 150, 	"message": "let's make it more interesting!" },
+		{ "time": 30, 	"type": "event_timeline_clear" },
+		{ "time": 30, 	"type": "event_timeline_wait", 	"duration": 550 },
+		{ "time": 31, 	"type": "event_value_int_add",	"value_name": "sides", 	"value": 1 },
+		{ "time": 32, 	"type": "event_value_int_add",	"value_name": "sides", 	"value": 1 },
+		{ "time": 33, 	"type": "event_value_int_add",	"value_name": "sides", 	"value": 1 },
+		{ "time": 34, 	"type": "event_value_int_add",	"value_name": "sides", 	"value": 1 }
+	],
 	
 	// Patterns
 	"patterns":
