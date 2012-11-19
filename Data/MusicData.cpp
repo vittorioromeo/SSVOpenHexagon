@@ -31,6 +31,8 @@ namespace hg
 	void MusicData::playSeconds(Music*& mMusicPtr, int mSeconds)
 	{
 		mMusicPtr = musicPtr;
+		if(getNoMusic()) return;
+
 		musicPtr->setPlayingOffset(sf::seconds(mSeconds));
 		musicPtr->play();
 	}

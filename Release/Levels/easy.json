@@ -15,10 +15,10 @@
 	
 	// Basic values
 	"speed_multiplier": 1.40,
-	"speed_increment": 0.13,	
+	"speed_increment": 0.08,	
 	"rotation_speed": 0.06,
 	"rotation_increment": 0.06,
-	"delay_multiplier": 1.62,
+	"delay_multiplier": 1.65,
 	"delay_increment": 0.00,
 	"fast_spin": 0.00,
 	"sides": 6,

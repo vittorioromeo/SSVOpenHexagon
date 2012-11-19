@@ -136,6 +136,8 @@ namespace hg
 	}
 	inline void HexagonGame::updateLevelEvents(float mFrameTime)
 	{
+		if(!getScripting()) return;
+
 		messagesTimeline.update(mFrameTime);
 		if(messagesTimeline.isFinished()) clearAndResetTimeline(messagesTimeline);
 
@@ -153,7 +155,7 @@ namespace hg
 
 			if 		(type == "level_change")			changeLevel(id);
 			else if (type == "menu") 					goToMenu();
-			else if (type == "message_add")				addMessage(message, duration);
+			else if (type == "message_add")				{ if(getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_clear") 			clearMessages();
 			else if (type == "time_stop")				timeStop = duration;
 			else if (type == "timeline_wait") 			timeline.add(new Wait(duration));
@@ -168,10 +170,10 @@ namespace hg
 			else if (type == "value_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
 			else if (type == "value_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
 			else if (type == "value_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "music_set")				{ stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); }
-			else if (type == "music_set_segment")		{ stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); }
-			else if (type == "music_set_seconds")		{ stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); }
-			else if (type == "style_set")				styleData = getStyleData(id);
+			else if (type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); } }
+			else if (type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
+			else if (type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
+			else if (type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
 			else if (type == "side_changing_stop")		sideChanges = false;
 			else if (type == "side_changing_start")		sideChanges = true;
 		}
@@ -339,7 +341,7 @@ namespace hg
 	void HexagonGame::clearMessages()
 	{
 		for (Text* textPtr : messageTextPtrs) delete textPtr;
-			messageTextPtrs.clear();
+		messageTextPtrs.clear();
 	}
 
 	void HexagonGame::setLevelData(LevelData mLevelSettings)

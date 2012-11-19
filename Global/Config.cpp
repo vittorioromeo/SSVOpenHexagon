@@ -40,6 +40,10 @@ namespace hg
 	unsigned int fullscreenHeight 	{768};
 	unsigned int windowedWidth 		{1024};
 	unsigned int windowedHeight		{768};
+	bool scripting					{true};
+	bool showMessages				{true};
+	bool changeStyles				{true};
+	bool changeMusic				{true};
 
 	void loadConfig(vector<string> mOverridesIds)
 	{
@@ -85,6 +89,10 @@ namespace hg
 		fullscreenAutoResolution =	root["fullscreen_auto_resolution"].asBool();
 		fullscreenWidth = 			root["fullscreen_width"].asInt();
 		fullscreenHeight = 			root["fullscreen_height"].asInt();
+		scripting =					root["scripting"].asBool();
+		showMessages =				root["show_messages"].asBool();
+		changeStyles =				root["change_styles"].asBool();
+		changeMusic = 				root["change_music"].asBool();
 
 		if(windowedAutoResolution)
 		{
@@ -152,4 +160,8 @@ namespace hg
 	unsigned int getWindowedHeight()	{ return windowedHeight; }
 	unsigned int getWidth() 			{ if(fullscreen) return fullscreenWidth; else return windowedWidth; }
 	unsigned int getHeight() 			{ if(fullscreen) return fullscreenHeight; else return windowedHeight; }
+	bool getScripting()					{ return scripting; }
+	bool getShowMessages()				{ return showMessages; }
+	bool getChangeStyles()				{ return changeStyles; }
+	bool getChangeMusic()				{ return changeMusic; }
 }

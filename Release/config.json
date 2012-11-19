@@ -31,5 +31,11 @@
 	// Player options
 	"player_speed": 8.74,
 	"player_focus_speed": 4.37,
-	"player_size": 7
+	"player_size": 7,
+	
+	// Scripting options
+	"scripting": true,
+	"show_messages": true,
+	"change_styles": true,
+	"change_music": true
 }
