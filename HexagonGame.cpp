@@ -48,7 +48,7 @@ namespace hg
 	{				
 		pm = new PatternManager(this);
 
-		recreate();
+		recreateTextures();
 
 		game.addUpdateFunc(	 [&](float frameTime) { update(frameTime); });
 		game.addDrawFunc(	 [&](){ gameTexture.clear(Color::Black); }, -2);
@@ -59,11 +59,11 @@ namespace hg
 		game.addDrawFunc(	 [&](){ manager.draw(); }, 					0);
 		game.addDrawFunc(	 [&](){ gameTexture.display(); }, 			1);
 		game.addDrawFunc(	 [&](){ drawOnWindow(gameSprite); }, 		2);
-		game.addDrawFunc(	 [&](){ drawDebugText(); }, 				3);
+		game.addDrawFunc(	 [&](){ drawText(); }, 				3);
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
-	void HexagonGame::recreate()
+	void HexagonGame::recreateTextures()
 	{
 		gameTexture.create(getSizeX(), getSizeY(), 32);
 		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
@@ -90,8 +90,8 @@ namespace hg
 		rotationDirection = getRnd(0, 100) > 50 ? true : false;
 
 		timeStop = 0;
-		sideChanges = true;
-		increment = true;
+		randomSideChangesEnabled = true;
+		incrementEnabled = true;
 		maxPulse = 85;
 		minPulse = 75;
 		pulseSpeedBackwards = 1;
@@ -114,8 +114,9 @@ namespace hg
 	{
 		playSound("death");
 		playSound("game_over");
-		stopLevelMusic();
+
 		hasDied = true;
+		stopLevelMusic();
 		checkAndSaveScore();
 	}
 
@@ -128,7 +129,7 @@ namespace hg
 		{
 			manager.update(mFrameTime);
 
-			updateLevelEvents(mFrameTime);
+			updateEvents(mFrameTime);
 
 			if(timeStop <= 0)
 			{
@@ -140,7 +141,7 @@ namespace hg
 			updateIncrement();			
 			updateLevel(mFrameTime);
 			updateRadius(mFrameTime);
-			if(!getBlackAndWhite()) updateColor(mFrameTime);
+			if(!getBlackAndWhite()) styleData.update(mFrameTime);
 		}
 		else setRotationSpeed(getRotationSpeed() / 1.001f);
 
@@ -151,13 +152,13 @@ namespace hg
 	}
 	inline void HexagonGame::updateIncrement()
 	{
-		if(!increment) return;
+		if(!incrementEnabled) return;
 		if(incrementTime < levelData.getIncrementTime()) return;
 
 		incrementTime = 0;
 		incrementDifficulty();
 	}
-	inline void HexagonGame::updateLevelEvents(float mFrameTime)
+	inline void HexagonGame::updateEvents(float mFrameTime)
 	{
 		if(!getScripting()) return;
 
@@ -197,10 +198,10 @@ namespace hg
 			else if (type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
 			else if (type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
 			else if (type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
-			else if (type == "side_changing_stop")		sideChanges = false;
-			else if (type == "side_changing_start")		sideChanges = true;
-			else if (type == "increment_stop")			increment = false;
-			else if (type == "increment_start")			increment = true;
+			else if (type == "side_changing_stop")		randomSideChangesEnabled = false;
+			else if (type == "side_changing_start")		randomSideChangesEnabled = true;
+			else if (type == "increment_stop")			incrementEnabled = false;
+			else if (type == "increment_start")			incrementEnabled = true;
 			else if (type == "pulse_max_set")			maxPulse = value;
 			else if (type == "pulse_min_set")			minPulse = value;
 			else if (type == "pulse_speed_set")			pulseSpeed = value;
@@ -219,7 +220,6 @@ namespace hg
 			timeline.reset();
 		}
 	}
-	inline void HexagonGame::updateColor(float mFrameTime) { styleData.update(mFrameTime); }
 	inline void HexagonGame::updateRotation(float mFrameTime)
 	{
 		auto nextRotation = getRotationSpeed() * 10 * mFrameTime;
@@ -249,7 +249,7 @@ namespace hg
 		else if(isKeyPressed(Keyboard::Escape))	goToMenu();
 	}
 
-	void HexagonGame::drawDebugText()
+	void HexagonGame::drawText()
 	{
 		ostringstream s;
 		s << "time: " << toStr(currentTime).substr(0, 5) << endl;
@@ -257,28 +257,27 @@ namespace hg
 
 		vector<Vector2f> offsets{{-1,-1},{-1,1},{1,-1},{1,1}};
 
+		Text timeText(s.str(), getFont("imagine"), 25 / getZoomFactor());
+		timeText.setPosition(15, 3);
+		timeText.setColor(getColorMain());
 		for(auto offset : offsets)
 		{
-			Text t{s.str(), getFont("imagine"), 25};
-			t.setPosition(Vector2f{13, 3} + offset);
-			t.setColor(getColorB());
-			drawOnWindow(t);
+			Text timeOffsetText(s.str(), getFont("imagine"), timeText.getCharacterSize());
+			timeOffsetText.setPosition(timeText.getPosition() + offset);
+			timeOffsetText.setColor(getColorB());
+			drawOnWindow(timeOffsetText);
 		}
-
-		Text t{s.str(), getFont("imagine"), 25};
-		t.setPosition(13, 3);
-		t.setColor(getColorMain());
-		drawOnWindow(t);
+		drawOnWindow(timeText);
 
 		for (Text* textPtr : messageTextPtrs)
 		{
 			for(auto offset : offsets)
 			{
-				Text t{textPtr->getString(), getFont("imagine"), textPtr->getCharacterSize()};
-				t.setPosition(textPtr->getPosition() + offset);
-				t.setOrigin(t.getGlobalBounds().width / 2, 0);
-				t.setColor(getColorB());
-				drawOnWindow(t);
+				Text textPtrOffset{textPtr->getString(), getFont("imagine"), textPtr->getCharacterSize()};
+				textPtrOffset.setPosition(textPtr->getPosition() + offset);
+				textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
+				textPtrOffset.setColor(getColorB());
+				drawOnWindow(textPtrOffset);
 			}
 			
 			textPtr->setColor(getColorMain());
@@ -292,7 +291,7 @@ namespace hg
 
 		VertexArray vertices{PrimitiveType::Triangles, 3};
 
-		for(int i {0}; i < getSides(); i++)
+		for(int i{0}; i < getSides(); i++)
 		{
 			float angle { div * i };
 			Color currentColor { styleData.getCurrentA() };
@@ -323,11 +322,11 @@ namespace hg
 
 		setSpeedMultiplier(getSpeedMultiplier() + levelData.getSpeedIncrement());
 		setRotationSpeed(getRotationSpeed() + levelData.getRotationSpeedIncrement());
-		rotationDirection = !rotationDirection;
 		setDelayMultiplier(getDelayMultiplier() + levelData.getDelayIncrement());
-		fastSpin = 			levelData.getFastSpin();
+		rotationDirection = !rotationDirection;
+		fastSpin = levelData.getFastSpin();
 		
-		if(sideChanges) timeline.add(new Do([&]{ randomSideChange(); }));
+		if(randomSideChangesEnabled) timeline.add(new Do([&]{ randomSideChange(); }));
 	}
 	void HexagonGame::randomSideChange()
 	{
@@ -348,8 +347,9 @@ namespace hg
 	void HexagonGame::goToMenu()
 	{
 		stopAllSounds();
-		checkAndSaveScore();
 		playSound("beep");
+
+		checkAndSaveScore();
 		window.setGame(&mgPtr->getGame());
 		mgPtr->init();
 	}
@@ -382,12 +382,12 @@ namespace hg
 		musicData.setFirstPlay(mMusicFirstPlay);
 	}
 
+	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) 	{ return window.isKeyPressed(mKey); }
+
 	Game& HexagonGame::getGame()						{ return game; }
-	Vector2f HexagonGame::getCenterPos() 				{ return centerPos; }
 	float HexagonGame::getRadius() 						{ return radius; }
 	Color HexagonGame::getColorMain() 					{ return getBlackAndWhite() ? Color::White : styleData.getCurrentMain(); }
 	Color HexagonGame::getColorB() 						{ return getBlackAndWhite() ? Color::Black : styleData.getCurrentB(); }
-	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) 	{ return window.isKeyPressed(mKey); }
 
 	float HexagonGame::getSpeedMultiplier() { return levelData.getSpeedMultiplier(); }
 	float HexagonGame::getDelayMultiplier() { return levelData.getDelayMultiplier(); }

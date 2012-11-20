@@ -62,7 +62,7 @@ namespace hg
 			vector<string> levelDataIds;
 			int currentIndex{0};
 
-			void recreate();
+			void recreateTextures();
 			void update(float mFrameTime);
 			void draw();
 			void drawBackground();

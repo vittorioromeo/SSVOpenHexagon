@@ -36,7 +36,7 @@ namespace hg
 {
 	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow)
 	{
-		recreate();
+		recreateTextures();
 
 		game.addUpdateFunc([&](float frameTime) { update(frameTime); });
 		game.addDrawFunc([&]{ draw(); }, 0);
@@ -45,7 +45,7 @@ namespace hg
 		setIndex(0);
 	}
 
-	void MenuGame::recreate()
+	void MenuGame::recreateTextures()
 	{		
 		gameTexture.create(getSizeX(), getSizeY(), 32);
 		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
@@ -91,8 +91,8 @@ namespace hg
 			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return))
 			{
 				setFullscreen(window, !window.getFullscreen());
-				recreate();
-				hgPtr->recreate();
+				recreateTextures();
+				hgPtr->recreateTextures();
 				inputDelay = 25;
 			}
 			else if(window.isKeyPressed(Keyboard::Escape)) inputDelay = 25;

@@ -62,7 +62,6 @@ namespace hg
 			StyleData styleData;
 			Music* musicPtr{nullptr};
 
-			PatternManager* pm; // owned, opaque pointer
 			Timeline timeline;
 
 			Timeline messagesTimeline;
@@ -74,8 +73,8 @@ namespace hg
 			float incrementTime{0};
 
 			float timeStop{0};
-			bool sideChanges{true};
-			bool increment{true};
+			bool randomSideChangesEnabled;
+			bool incrementEnabled;
 			float maxPulse{85};
 			float minPulse{75};
 			float pulseSpeed{1};
@@ -93,14 +92,13 @@ namespace hg
 
 			void update(float);
 			inline void updateIncrement();
-			inline void updateLevelEvents(float);
+			inline void updateEvents(float);
 			inline void updateLevel(float);
-			inline void updateColor(float);
 			inline void updateRotation(float);
 			inline void updateRadius(float);
 			inline void updateDebugKeys();
 
-			void drawDebugText();
+			void drawText();
 			void drawBackground();
 
 			void setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay);
@@ -118,18 +116,18 @@ namespace hg
 
 		public:
 			MenuGame* mgPtr;
+			PatternManager* pm; // owned, opaque pointer
 
 			HexagonGame(GameWindow& mGameWindow);
 			~HexagonGame();
 
-			void recreate();
+			void recreateTextures();
 			void newGame(string mId, bool mFirstPlay);
 			void death();
 			void drawOnTexture(Drawable&);
 			void drawOnWindow(Drawable&);
 
 			Game& getGame();
-			Vector2f getCenterPos();
 			float getRadius();
 			Color getColorMain();
 			Color getColorB();
