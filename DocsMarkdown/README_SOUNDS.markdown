@@ -1,3 +1,5 @@
+# Sounds #
+
 The sounds.json file is very simple.
 Every member points to a different sound file.
 Only .ogg vorbis is currently supported.

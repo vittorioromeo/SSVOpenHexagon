@@ -1,3 +1,5 @@
+# Music #
+
 Music files have to be in the .ogg vorbis
 format. I included the "vorbisgain.exe" program,
 which helps removing distorsion caused by too
@@ -8,7 +10,7 @@ then run vorbisgain.exe using the file as a
 parameter (either via command line or batch
 file), like this:
 
-vorbisgain.exe drFinkelfracken.ogg
+`vorbisgain.exe drFinkelfracken.ogg`
 
 After that, you're ready to make a .json file
 for the music (it is required).

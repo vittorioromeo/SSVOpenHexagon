@@ -123,8 +123,7 @@ namespace hg
 			~HexagonGame();
 
 			void recreate();
-			void startFromMenu(LevelData mLevelData);
-			void newGame();
+			void newGame(string mId, bool mFirstPlay);
 			void death();
 			void drawOnTexture(Drawable&);
 			void drawOnWindow(Drawable&);

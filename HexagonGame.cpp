@@ -51,16 +51,11 @@ namespace hg
 		gameSprite.setPosition(window.getWidth() / 2, window.getHeight() / 2);
 	}
 
-	void HexagonGame::startFromMenu(LevelData mLevelData)
-	{
-		setLevelData(mLevelData, true);
-		newGame();
-	}
-	void HexagonGame::newGame()
+	void HexagonGame::newGame(string mId, bool mFirstPlay)
 	{
 		clearMessages();
 
-		setLevelData(getLevelData(levelData.getId()), musicData.getFirstPlay());
+		setLevelData(getLevelData(mId), mFirstPlay);
 
 		stopAllSounds();
 		playSound("play");
@@ -130,7 +125,7 @@ namespace hg
 		updateDebugKeys();
 		if(!getNoRotation()) updateRotation(mFrameTime);
 
-		if(mustRestart) newGame();
+		if(mustRestart) newGame(levelData.getId(), false);
 	}
 	inline void HexagonGame::updateIncrement()
 	{
@@ -339,7 +334,7 @@ namespace hg
 	void HexagonGame::changeLevel(string mId)
 	{
 		checkAndSaveScore();
-		startFromMenu(getLevelData(mId));
+		newGame(mId, true);
 	}
 	void HexagonGame::addMessage(string mMessage, float mDuration)
 	{

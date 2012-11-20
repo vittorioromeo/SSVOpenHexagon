@@ -92,7 +92,7 @@ namespace hg
 			{
 				playSound("beep");
 				window.setGame(&hgPtr->getGame());
-				hgPtr->startFromMenu(getLevelData(levelDataIds[currentIndex]));
+				hgPtr->newGame(levelDataIds[currentIndex], true);
 
 				inputDelay = 14;
 			}			

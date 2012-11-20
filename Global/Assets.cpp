@@ -63,7 +63,6 @@ namespace hg
 			soundPtr->setBuffer(*soundBuffer);
 			soundPtr->setVolume(getSoundVolume());
 			soundPtrsMap.insert(make_pair(itr.key().asString(), soundPtr));
-
 		}
 	}	
 	void loadMusic()
