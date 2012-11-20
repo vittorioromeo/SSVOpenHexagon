@@ -44,7 +44,7 @@
 		{ "time": 60, 	"type": "side_changing_stop" },
 		{ "time": 60, 	"type": "style_set",		"id": "danger" },
 		{ "time": 60, 	"type": "music_set",		"id": "mazeOfMayonnaise" },
-		{ "time": 90, 	"type": "increment_stop" }
+		{ "time": 120, "type": "increment_stop" }
 	],
 	
 	// Patterns
