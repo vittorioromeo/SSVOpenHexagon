@@ -29,7 +29,7 @@
 	// Events
 	"events":
 	[
-		{ "time": 0,	"type": "pivot_pulse_speed_set","value": 1.1 },
+		{ "time": 0,	"type": "pulse_speed_set","value": 1.1 },
 		{ "time": 0, 	"type": "timeline_wait", 	"duration": 300 },
 		{ "time": 0, 	"type": "time_stop", 		"duration": 300 },
 		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "welcome to open hexagon" },

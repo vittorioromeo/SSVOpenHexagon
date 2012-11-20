@@ -61,11 +61,17 @@ Stops level up increments.
 "increment_start"
 Resumes level up increments.
 
-"pivot_pulse_max_set"	("value")
+"pulse_max_set"		("value")
 Sets how far the center pulses. Default is 85;
 
-"pivot_pulse_speed_set"	("value")
+"pulse_min_set"*	("value")
+Sets how close the center pulses. Default is 75;
+
+"pulse_speed_set"	("value")
 Sets how fast the center pulses. Default is 1.
+
+"pulse_speed_b_set"	("value")
+Sets how fast the center pulses back. Default is 1.
 
 "menu"
 Returns to menu, saving progress.

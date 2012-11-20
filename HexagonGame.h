@@ -55,11 +55,11 @@ namespace hg
 			bool sideChanges{true};
 			bool increment{true};
 			float maxPulse{85};
+			float minPulse{75};
 			float pulseSpeed{1};
+			float pulseSpeedBackwards{1};
 
 			float radius{75};
-			float minRadius{75};
-
 			float radiusTimer{0};
 			
 			bool rotationDirection{true};			

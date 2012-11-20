@@ -75,8 +75,9 @@ namespace hg
 		timeStop = 0;
 		sideChanges = true;
 		increment = true;
-		minRadius = 75;
 		maxPulse = 85;
+		minPulse = 75;
+		pulseSpeedBackwards = 1;
 		pulseSpeed = 1;
 
 		hasDied = false;
@@ -84,7 +85,7 @@ namespace hg
 		currentTime = 0;
 		incrementTime = 0;
 		setSides(levelData.getSides());
-		radius = minRadius;
+		radius = minPulse;
 
 		manager.clear();
 		createPlayer(manager, this, centerPos);
@@ -183,8 +184,11 @@ namespace hg
 			else if (type == "side_changing_start")		sideChanges = true;
 			else if (type == "increment_stop")			increment = false;
 			else if (type == "increment_start")			increment = true;
-			else if (type == "pivot_pulse_max_set")		maxPulse = value;
-			else if (type == "pivot_pulse_speed_set")	pulseSpeed = value;
+			else if (type == "pulse_max_set")			maxPulse = value;
+			else if (type == "pulse_min_set")			minPulse = value;
+			else if (type == "pulse_speed_set")			pulseSpeed = value;
+			else if (type == "pulse_speed_b_set")		pulseSpeedBackwards = value;
+			else										log("unknown script command: " + type);
 		}
 	}
 	inline void HexagonGame::updateLevel(float mFrameTime)
@@ -220,7 +224,7 @@ namespace hg
 			radius = maxPulse;
 		}
 
-		if(radius > minRadius) radius -= pulseSpeed * radiusTimer / 7.f * mFrameTime;
+		if(radius > minPulse) radius -= pulseSpeedBackwards * mFrameTime;
 	}
 	inline void HexagonGame::updateDebugKeys()
 	{
