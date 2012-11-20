@@ -4,7 +4,7 @@
 
 	// Hue options
 	"hue_min": 149,
-	"hue_max": 255,
+	"hue_max": 360,
 	"hue_ping_pong": false,
 	"hue_increment": 1.0,
 	"hue_pulse": true,

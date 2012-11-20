@@ -41,7 +41,7 @@ namespace hg
 
 	void StyleData::update(float mFrameTime)
 	{
-		if(mainDynamic) currentMain = getColorFromHue(currentHue / 255.0f);
+		if(mainDynamic) currentMain = getColorFromHue(currentHue / 360.0f);
 		else currentMain = mainStatic;
 
 		currentSwapTime += 1.f * mFrameTime;
@@ -56,7 +56,7 @@ namespace hg
 				currentHue = hueMin;
 				hueIncrement *= -1;
 			}
-			else currentHue = 255;
+			else currentHue = hueMax;
 		}
 		if(currentHue > hueMax)
 		{
@@ -65,7 +65,7 @@ namespace hg
 				currentHue = hueMax;
 				hueIncrement *= -1;
 			}
-			else currentHue = 0;
+			else currentHue = hueMin;
 		}
 
 		if(aDynamic) currentA = getColorDarkened(currentMain, aDynamicDarkness);

@@ -46,6 +46,7 @@ namespace hg
 		events.push_back(mEventRoot);
 	}
 
+	Json::Value& LevelData::getRoot()				{ return root; }
 	string LevelData::getId() 						{ return root["id"].asString(); }
 	string LevelData::getName() 					{ return root["name"].asString(); }
 	string LevelData::getDescription() 				{ return root["description"].asString(); }

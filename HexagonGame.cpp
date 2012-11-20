@@ -89,6 +89,8 @@ namespace hg
 
 		rotationDirection = getRnd(0, 100) > 50 ? true : false;
 
+		scripts.clear();
+
 		timeStop = 0;
 		randomSideChangesEnabled = true;
 		incrementEnabled = true;
@@ -107,6 +109,7 @@ namespace hg
 		manager.clear();
 		createPlayer(manager, this, centerPos);
 
+		scriptsTimeline = Timeline{};
 		messagesTimeline = Timeline{};
 		timeline = Timeline{};
 	}
@@ -129,7 +132,7 @@ namespace hg
 		{
 			manager.update(mFrameTime);
 
-			updateEvents(mFrameTime);
+			updateLevelEvents(mFrameTime);
 
 			if(timeStop <= 0)
 			{
@@ -145,7 +148,7 @@ namespace hg
 		}
 		else setRotationSpeed(getRotationSpeed() / 1.001f);
 
-		updateDebugKeys();
+		updateKeys();
 		if(!getNoRotation()) updateRotation(mFrameTime);
 
 		if(mustRestart) newGame(levelData.getId(), false);
@@ -158,56 +161,19 @@ namespace hg
 		incrementTime = 0;
 		incrementDifficulty();
 	}
-	inline void HexagonGame::updateEvents(float mFrameTime)
+	inline void HexagonGame::updateLevelEvents(float mFrameTime)
 	{
+		scriptsTimeline.update(mFrameTime);
+		if(scriptsTimeline.isFinished()) clearAndResetTimeline(scriptsTimeline);
+
+		for(ScriptData& pattern : scripts) pattern.update(mFrameTime);
+
 		if(!getScripting()) return;
 
 		messagesTimeline.update(mFrameTime);
 		if(messagesTimeline.isFinished()) clearAndResetTimeline(messagesTimeline);
 
-		for (Json::Value& eventRoot : levelData.getEvents())
-		{
-			if(eventRoot["time"].asFloat() > currentTime) continue;
-			if(eventRoot["executed"].asBool()) continue;
-			eventRoot["executed"] = true;
-			string type{eventRoot["type"].asString()};
-			float duration{eventRoot["duration"].asFloat()};
-			string valueName{eventRoot["value_name"].asString()};
-			float value{eventRoot["value"].asFloat()};
-			string message{eventRoot["message"].asString()};
-			string id{eventRoot["id"].asString()};
-
-			if 		(type == "level_change")			changeLevel(id);
-			else if (type == "menu") 					goToMenu();
-			else if (type == "message_add")				{ if(getShowMessages()) addMessage(message, duration); }
-			else if (type == "message_clear") 			clearMessages();
-			else if (type == "time_stop")				timeStop = duration;
-			else if (type == "timeline_wait") 			timeline.add(new Wait(duration));
-			else if (type == "timeline_clear") 			clearAndResetTimeline(timeline);
-			else if (type == "value_float_set") 		levelData.setValueFloat(valueName, value);
-			else if (type == "value_float_add") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "value_float_subtract") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "value_float_multiply") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "value_float_divide") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "value_int_set") 			levelData.setValueInt(valueName, value);
-			else if (type == "value_int_add") 			levelData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "value_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "value_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "value_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); } }
-			else if (type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
-			else if (type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
-			else if (type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
-			else if (type == "side_changing_stop")		randomSideChangesEnabled = false;
-			else if (type == "side_changing_start")		randomSideChangesEnabled = true;
-			else if (type == "increment_stop")			incrementEnabled = false;
-			else if (type == "increment_start")			incrementEnabled = true;
-			else if (type == "pulse_max_set")			maxPulse = value;
-			else if (type == "pulse_min_set")			minPulse = value;
-			else if (type == "pulse_speed_set")			pulseSpeed = value;
-			else if (type == "pulse_speed_b_set")		pulseSpeedBackwards = value;
-			else										log("unknown script command: " + type);
-		}
+		executeEvents(levelData.getRoot()["events"], currentTime);
 	}
 	inline void HexagonGame::updateLevel(float mFrameTime)
 	{
@@ -243,7 +209,7 @@ namespace hg
 
 		if(radius > minPulse) radius -= pulseSpeedBackwards * mFrameTime;
 	}
-	inline void HexagonGame::updateDebugKeys()
+	inline void HexagonGame::updateKeys()
 	{
 		if(isKeyPressed(Keyboard::R)) mustRestart = true;
 		else if(isKeyPressed(Keyboard::Escape))	goToMenu();
@@ -402,5 +368,59 @@ namespace hg
 		playSound("beep");
 		if (mSides < 3) mSides = 3;
 		levelData.setValueInt("sides", mSides);
+	}
+
+	void HexagonGame::executeEvents(Json::Value& mRoot, float mTime)
+	{
+		for (Json::Value& eventRoot : mRoot)
+		{
+			if(eventRoot["time"].asFloat() >  mTime) continue;
+			if(eventRoot["executed"].asBool()) continue;
+			eventRoot["executed"] = true;
+			string type{eventRoot["type"].asString()};
+			float duration{eventRoot["duration"].asFloat()};
+			string valueName{eventRoot["value_name"].asString()};
+			float value{eventRoot["value"].asFloat()};
+			string message{eventRoot["message"].asString()};
+			string id{eventRoot["id"].asString()};
+
+			if 		(type == "level_change")			changeLevel(id);
+			else if (type == "menu") 					goToMenu();
+			else if (type == "message_add")				{ if(getShowMessages()) addMessage(message, duration); }
+			else if (type == "message_clear") 			clearMessages();
+			else if (type == "time_stop")				timeStop = duration;
+			else if (type == "timeline_wait") 			timeline.add(new Wait(duration));
+			else if (type == "timeline_clear") 			clearAndResetTimeline(timeline);
+			else if (type == "value_float_set") 		levelData.setValueFloat(valueName, value);
+			else if (type == "value_float_add") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
+			else if (type == "value_float_subtract") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
+			else if (type == "value_float_multiply") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
+			else if (type == "value_float_divide") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
+			else if (type == "value_int_set") 			levelData.setValueInt(valueName, value);
+			else if (type == "value_int_add") 			levelData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
+			else if (type == "value_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
+			else if (type == "value_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
+			else if (type == "value_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
+			else if (type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); } }
+			else if (type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
+			else if (type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
+			else if (type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
+			else if (type == "side_changing_stop")		randomSideChangesEnabled = false;
+			else if (type == "side_changing_start")		randomSideChangesEnabled = true;
+			else if (type == "increment_stop")			incrementEnabled = false;
+			else if (type == "increment_start")			incrementEnabled = true;
+			else if (type == "pulse_max_set")			maxPulse = value;
+			else if (type == "pulse_min_set")			minPulse = value;
+			else if (type == "pulse_speed_set")			pulseSpeed = value;
+			else if (type == "pulse_speed_b_set")		pulseSpeedBackwards = value;
+			else if (type == "script_exec")				scripts.push_back(getScriptData(id, this));
+			else if (type == "script_queue")			queueScript(getScriptData(id, this));
+			else										log("unknown script command: " + type);
+		}
+	}
+
+	void HexagonGame::queueScript(ScriptData mScript)
+	{
+		// TO IMPLEMENT
 	}
 }

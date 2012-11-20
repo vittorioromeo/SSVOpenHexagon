@@ -35,12 +35,13 @@
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "Utils.h"
+#include "HexagonGame.h"
 
 using namespace std;
 using namespace sf;
 
 namespace hg
-{
+{	
 	void loadAssets();
 
 	void loadFonts();
@@ -50,6 +51,7 @@ namespace hg
 	void loadStyleData();
 	void loadLevelData();
 	void loadProfiles();
+	void loadScripts();
 
 	void saveCurrentProfile();
 
@@ -73,6 +75,8 @@ namespace hg
 	void setCurrentProfile(ProfileData& mProfilePair);
 	ProfileData& getCurrentProfile();
 	string getCurrentProfileFilePath();
+
+	ScriptData getScriptData(string mId, HexagonGame* mHgPtr);
 }
 
 #endif /* ASSETS_H_ */

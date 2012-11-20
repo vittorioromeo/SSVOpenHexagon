@@ -1,0 +1,10 @@
+{
+	"id": "test",
+	
+	// Events
+	"events":
+	[
+		{ "time": 0, 	"type": "message_add", 		"duration": 15, 	"message": "ha" },
+		{ "time": 25, 	"type": "message_add", 		"duration": 15, 	"message": "ah" }
+	]
+}

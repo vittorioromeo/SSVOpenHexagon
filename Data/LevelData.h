@@ -52,6 +52,7 @@ namespace hg
 
 			function<void(PatternManager* pm)> getRandomPattern();
 
+			Json::Value& getRoot();
 			string getId();
 			string getName();
 			string getDescription();

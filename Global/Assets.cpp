@@ -30,6 +30,8 @@
 #include <json/reader.h>
 #include "Data/MusicData.h"
 #include "Data/LevelData.h"
+#include "Data/ScriptData.h"
+#include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
@@ -47,6 +49,7 @@ namespace hg
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
 	map<string, ProfileData> profileDataMap;
+	map<string, ScriptData> patternDataMap;
 	ProfileData* currentProfilePtr;
 
 	void loadAssets()
@@ -58,6 +61,7 @@ namespace hg
 		log("loading style data"); 	loadStyleData();
 		log("loading level data");	loadLevelData();
 		log("loading profiles"); 	loadProfiles();
+		log("loading scripts"); 	loadScripts();
 	}
 
 	void loadFonts()
@@ -67,7 +71,7 @@ namespace hg
 			string fileName{getFileNameFromFilePath(filePath, "Fonts/", ".ttf")};
 
 			Font font;
-			font.loadFromFile(filePath);			
+			font.loadFromFile(filePath);
 			fontsMap.insert(make_pair(fileName, font));
 		}
 	}
@@ -86,7 +90,7 @@ namespace hg
 			soundPtr->setVolume(getSoundVolume());
 			soundPtrsMap.insert(make_pair(itr.key().asString(), soundPtr));
 		}
-	}	
+	}
 	void loadMusic()
 	{
 		for(auto filePath : getAllFilePaths("Music/", ".ogg"))
@@ -120,7 +124,7 @@ namespace hg
 		for(auto filePath : getAllFilePaths("Levels/", ".json"))
 		{
 			LevelData levelData{loadLevelFromJson(getJsonFileRoot(filePath))};
-			levelDataMap.insert(make_pair(levelData.getId(), levelData)); // replace with getId
+			levelDataMap.insert(make_pair(levelData.getId(), levelData));
 		}
 	}
 	void loadProfiles()
@@ -145,8 +149,16 @@ namespace hg
 			ProfileData profileData{loadProfileFromJson(fileName, getJsonFileRoot(filePath))};
 			profileDataMap.insert(make_pair(profileData.getId(), profileData));
 		}
-		
+
 		setCurrentProfile(profileDataMap.begin()->second);
+	}
+	void loadScripts()
+	{
+		for(auto filePath : getAllFilePaths("Scripts/", ".json"))
+		{
+			ScriptData patternData{getJsonFileRoot(filePath)};
+			patternDataMap.insert(make_pair(patternData.getId(), patternData));
+		}
 	}
 
 	void saveCurrentProfile()
@@ -195,4 +207,11 @@ namespace hg
 	void setCurrentProfile(ProfileData& mProfilePair) { currentProfilePtr = &mProfilePair; }
 	ProfileData& getCurrentProfile() { return *currentProfilePtr; }
 	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePtr->getId() + ".json"; }
+
+	ScriptData getScriptData(string mId, HexagonGame* mHgPtr)
+	{
+		ScriptData result{patternDataMap.find(mId)->second};
+		result.setHexagonGamePtr(mHgPtr);
+		return result;
+	}
 }

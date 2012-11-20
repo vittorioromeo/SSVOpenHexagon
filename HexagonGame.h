@@ -35,6 +35,7 @@
 #include <SSVEntitySystem.h>
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
+#include "Data/ScriptData.h"
 #include "Data/StyleData.h"
 
 using namespace sf;
@@ -67,8 +68,12 @@ namespace hg
 			Timeline messagesTimeline;
 			vector<Text*> messageTextPtrs;
 
+			vector<ScriptData> scripts;
+
+			Timeline scriptsTimeline;
+
 			Vector2f centerPos{0,0};
-			
+
 			float currentTime{0};
 			float incrementTime{0};
 
@@ -82,8 +87,8 @@ namespace hg
 
 			float radius{75};
 			float radiusTimer{0};
-			
-			bool rotationDirection{true};			
+
+			bool rotationDirection{true};
 
 			float fastSpin{0};
 
@@ -92,11 +97,11 @@ namespace hg
 
 			void update(float);
 			inline void updateIncrement();
-			inline void updateEvents(float);
+			inline void updateLevelEvents(float);
 			inline void updateLevel(float);
 			inline void updateRotation(float);
 			inline void updateRadius(float);
-			inline void updateDebugKeys();
+			inline void updateKeys();
 
 			void drawText();
 			void drawBackground();
@@ -113,6 +118,8 @@ namespace hg
 			void changeLevel(string mId);
 			void addMessage(string mMessage, float mDuration);
 			void clearMessages();
+
+			void queueScript(ScriptData mScript);
 
 		public:
 			MenuGame* mgPtr;
@@ -141,6 +148,8 @@ namespace hg
 			void setDelayMultiplier(float mDelayMultiplier);
 			void setRotationSpeed(float mRotationSpeed);
 			void setSides(int mSides);
+
+			void executeEvents(Json::Value& mRoot, float mTime);
 	};
 }
 #endif /* HEXAGONGAME_H_ */

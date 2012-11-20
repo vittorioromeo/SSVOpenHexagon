@@ -31,7 +31,8 @@
 	[
 		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "tutorials are over" },
 		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "good luck getting high scores!" },
-		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "did you know that there are other shapes?" },
+		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "did you know that there
+		are other shapes?" },
 		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "pentagons, octagons, etc..." },
 		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "oh sorry, am i distracting you?" },	
 		{ "time": 28, 	"type": "timeline_wait", 	"duration": 500 },

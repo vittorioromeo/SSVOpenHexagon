@@ -38,6 +38,8 @@
       <File Name="Data/LevelData.h"/>
       <File Name="Data/ProfileData.h"/>
       <File Name="Data/ProfileData.cpp"/>
+      <File Name="Data/ScriptData.cpp"/>
+      <File Name="Data/ScriptData.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Utils">
       <File Name="Utils/HSL.cpp"/>
