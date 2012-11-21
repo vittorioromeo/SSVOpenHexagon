@@ -61,6 +61,7 @@ namespace hg
 
 	Color getColorFromHue(double);
 	Color getColorDarkened(Color, float);
+	Color getColorFromJsonArray(Json::Value mArray);
 
 	vector<string> getAllFilePaths(string mFolderPath, string mExtension);
 	string getFileNameFromFilePath(string mFilePath, string mPrefix, string mSuffix);

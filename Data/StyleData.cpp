@@ -25,13 +25,10 @@
 
 namespace hg
 {
-	Color getColorFromJson(Json::Value mArray)
-	{
-		return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat());
-	}
+	
 	Color StyleData::calculateColor(Json::Value mColorRoot)
 	{
-		Color color{getColorFromJson(mColorRoot["value"])};
+		Color color{getColorFromJsonArray(mColorRoot["value"])};
 
 		if(mColorRoot["dynamic"].asBool())
 		{
@@ -51,7 +48,7 @@ namespace hg
 			}
 		}
 
-		Color pulse{getColorFromJson(mColorRoot["pulse"])};
+		Color pulse{getColorFromJsonArray(mColorRoot["pulse"])};
 		return Color(color.r + pulse.r * pulseFactor, color.g + pulse.g * pulseFactor, color.b + pulse.b * pulseFactor, color.a);
 	}
 

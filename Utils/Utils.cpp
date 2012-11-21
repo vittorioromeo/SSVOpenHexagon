@@ -100,6 +100,10 @@ namespace hg
 		mColor.g /= mMultiplier;
 		return mColor;
 	}
+	Color getColorFromJsonArray(Json::Value mArray)
+	{
+		return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat());
+	}
 
 	vector<string> getAllFilePaths(string mFolderPath, string mExtension)
 	{
