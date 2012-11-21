@@ -1,3 +1,6 @@
 [submodule "SSVStart"]
 	path = SSVStart
 	url = https://github.com/SuperV1234/SSVStart.git
+[submodule "SSVEntitySystem"]
+	path = SSVEntitySystem
+	url = https://github.com/SuperV1234/SSVEntitySystem.git
