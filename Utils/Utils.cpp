@@ -170,29 +170,8 @@ namespace hg
 	}
 	StyleData loadStyleFromJson(Json::Value mRoot)
 	{
-		string id					{ mRoot["id"].asString() };
-		float hueMin  				{ mRoot["hue_min"].asFloat() };
-		float hueMax  				{ mRoot["hue_max"].asFloat() };
-		bool huePingPong			{ mRoot["hue_ping_pong"].asBool() };
-		float hueIncrement 			{ mRoot["hue_increment"].asFloat() };
-		bool huePulse				{ mRoot["hue_pulse"].asBool() };
-		bool mainDynamic			{ mRoot["main_dynamic"].asBool() };
-		float mainDynamicDarkness	{ mRoot["main_dynamic_darkness"].asFloat() };
-		Json::Value mainStatic		{ mRoot["main_static"] };
-		bool aDynamic				{ mRoot["a_dynamic"].asBool() };
-		float aDynamicDarkness		{ mRoot["a_dynamic_darkness"].asFloat() };
-		Json::Value aStatic			{ mRoot["a_static"] };
-		bool bDynamic				{ mRoot["b_dynamic"].asBool() };
-		bool bDynamicOffset			{ mRoot["b_dynamic_offset"].asBool() };
-		float bDynamicDarkness		{ mRoot["b_dynamic_darkness"].asFloat() };
-		Json::Value bStatic			{ mRoot["b_static"] };
 
-		Color mainStaticColor(mainStatic[0].asInt(), mainStatic[1].asInt(), mainStatic[2].asInt(), mainStatic[3].asInt());
-		Color aStaticColor(aStatic[0].asInt(), aStatic[1].asInt(), aStatic[2].asInt(), aStatic[3].asInt());
-		Color bStaticColor(bStatic[0].asInt(), bStatic[1].asInt(), bStatic[2].asInt(), bStatic[3].asInt());
-
-		return StyleData(id, hueMin, hueMax, huePingPong, hueIncrement, huePulse, mainDynamic, mainDynamicDarkness, mainStaticColor,
-						aDynamic, aDynamicDarkness, aStaticColor, bDynamic, bDynamicOffset, bDynamicDarkness, bStaticColor);
+		return StyleData(mRoot);
 	}
 	ProfileData loadProfileFromJson(string mId, Json::Value mRoot)
 	{

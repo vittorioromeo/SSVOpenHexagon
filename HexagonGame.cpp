@@ -232,7 +232,7 @@ namespace hg
 		{
 			Text timeOffsetText(s.str(), getFont("imagine"), timeText.getCharacterSize());
 			timeOffsetText.setPosition(timeText.getPosition() + offset);
-			timeOffsetText.setColor(getColorB());
+			timeOffsetText.setColor(styleData.getColors()[1]);
 			drawOnWindow(timeOffsetText);
 		}
 		drawOnWindow(timeText);
@@ -244,7 +244,7 @@ namespace hg
 				Text textPtrOffset{textPtr->getString(), getFont("imagine"), textPtr->getCharacterSize()};
 				textPtrOffset.setPosition(textPtr->getPosition() + offset);
 				textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
-				textPtrOffset.setColor(getColorB());
+				textPtrOffset.setColor(styleData.getColors()[1]);
 				drawOnWindow(textPtrOffset);
 			}
 			
@@ -258,15 +258,15 @@ namespace hg
 		float distance{1500};
 
 		VertexArray vertices{PrimitiveType::Triangles, 3};
+		vector<Color> colors{styleData.getColors()};
 
 		for(int i{0}; i < getSides(); i++)
 		{
 			float angle { div * i };
-			Color currentColor { styleData.getCurrentA() };
+			Color currentColor{colors[i % colors.size()]};
 
 			if (i % 2 == 0)
 			{
-				currentColor = styleData.getCurrentB();
 				if (i == getSides() - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 			}
 
@@ -354,8 +354,8 @@ namespace hg
 
 	Game& HexagonGame::getGame()						{ return game; }
 	float HexagonGame::getRadius() 						{ return radius; }
-	Color HexagonGame::getColorMain() 					{ return getBlackAndWhite() ? Color::White : styleData.getCurrentMain(); }
-	Color HexagonGame::getColorB() 						{ return getBlackAndWhite() ? Color::Black : styleData.getCurrentB(); }
+	Color HexagonGame::getColorMain() 					{ return getBlackAndWhite() ? Color::White : styleData.getMainColor(); }
+
 
 	float HexagonGame::getSpeedMultiplier() { return levelData.getSpeedMultiplier(); }
 	float HexagonGame::getDelayMultiplier() { return levelData.getDelayMultiplier(); }

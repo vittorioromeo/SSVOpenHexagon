@@ -7,21 +7,19 @@
 	"hue_max": 360,
 	"hue_ping_pong": false,
 	"hue_increment": 1.0,
-	"hue_pulse": false,
 	
-	// Color main
-	"main_dynamic": false,
-	"main_dynamic_darkness": 1.0,
-	"main_static": [0,0,100,255],
+	// Pulse options
+	"pulse_min": 0.0,
+	"pulse_max": 1.5,
+	"pulse_increment": 0.025,
 	
-	// Color background a
-	"a_dynamic": false,
-	"a_dynamic_darkness": 1.0,
-	"a_static": [230,230,255,255],
-	
-	// Color background b
-	"b_dynamic": false,
-	"b_dynamic_offset": false, // Relative to main
-	"b_dynamic_darkness": 1.0, // Relative to main
-	"b_static": [230,200,200,255]
+	// Main color
+	"main": { "main": true, "dynamic": false, "value": [0, 0, 100, 255], "pulse": [0, 0, 0, 0] },
+
+	// Background colors
+	"colors":
+	[
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [230, 230, 255, 255], "pulse": [0, 0, 0, 0]},
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [230, 200, 200, 255], "pulse": [0, 0, 0, 0]}
+	]
 }

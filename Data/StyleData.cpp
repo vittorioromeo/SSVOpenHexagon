@@ -25,102 +25,98 @@
 
 namespace hg
 {
-	StyleData::StyleData(string mId, float mHueMin, float mHueMax, bool mHuePingPong, float mHueIncrement, bool mHuePulse, bool mMainDynamic,
-						float mMainDynamicDarkness, Color mMainStatic, bool mADynamic, float mADynamicDarkness, Color mAStatic,
-						bool mBDynamic, bool mBDynamicOffset, float mBDynamicDarkness, Color mBStatic) :
-		id{mId}, hueMin{mHueMin}, hueMax{mHueMax}, huePingPong{mHuePingPong}, hueIncrement{mHueIncrement}, huePulse{mHuePulse}, mainDynamic{mMainDynamic},
-		mainDynamicDarkness{mMainDynamicDarkness}, mainStatic{mMainStatic}, aDynamic{mADynamic}, aDynamicDarkness{mADynamicDarkness},
-		aStatic{mAStatic}, bDynamic{mBDynamic}, bDynamicOffset{mBDynamicOffset}, bDynamicDarkness{mBDynamicDarkness}, bStatic{mBStatic}
+	Color getColorFromJson(Json::Value mArray)
 	{
-		currentHue = hueMin;
+		return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat());
+	}
+	Color StyleData::calculateColor(Json::Value mColorRoot)
+	{
+		Color color{getColorFromJson(mColorRoot["value"])};
+
+		if(mColorRoot["dynamic"].asBool())
+		{
+			Color dynamicColor{getColorFromHue((currentHue + mColorRoot["hue_shift"].asFloat()) / 360.0f)};
+
+			if(mColorRoot["main"].asBool()) color = dynamicColor;
+			else
+			{
+				if(!mColorRoot["dynamic_offset"].asBool()) color = getColorDarkened(dynamicColor, mColorRoot["dynamic_darkness"].asFloat());
+				else
+				{
+					color.r += dynamicColor.r / mColorRoot["offset"].asFloat();
+					color.g += dynamicColor.g / mColorRoot["offset"].asFloat();
+					color.b += dynamicColor.b / mColorRoot["offset"].asFloat();
+					color.a += dynamicColor.a;
+				}
+			}
+		}
+
+		Color pulse{getColorFromJson(mColorRoot["pulse"])};
+		return Color(color.r + pulse.r * pulseFactor, color.g + pulse.g * pulseFactor, color.b + pulse.b * pulseFactor, color.a);
+	}
+
+	StyleData::StyleData(Json::Value mRoot) : root{mRoot}
+	{
+		currentHue = getHueMin();
 		currentSwapTime = 0;
-		currentMain = mainStatic;
-		currentA = aStatic;
-		currentB = bStatic;
 	}
 
 	void StyleData::update(float mFrameTime)
 	{
-		if(mainDynamic) currentMain = getColorFromHue(currentHue / 360.0f);
-		else currentMain = mainStatic;
-
 		currentSwapTime += 1.f * mFrameTime;
 		if(currentSwapTime > 100) currentSwapTime = 0;
 
-		currentHue += hueIncrement * mFrameTime;
+		currentHue += getHueIncrement() * mFrameTime;
 				
-		if(currentHue < hueMin)
+		if(currentHue < getHueMin())
 		{
-			if(huePingPong)
+			if(getHuePingPong())
 			{
-				currentHue = hueMin;
-				hueIncrement *= -1;
+				currentHue = getHueMin();
+				root["hue_increment"] = getHueIncrement() * -1;
 			}
-			else currentHue = hueMax;
+			else currentHue = getHueMax();
 		}
-		if(currentHue > hueMax)
+		if(currentHue > getHueMax())
 		{
-			if(huePingPong)
+			if(getHuePingPong())
 			{
-				currentHue = hueMax;
-				hueIncrement *= -1;
+				currentHue = getHueMax();
+				root["hue_increment"] = getHueIncrement() * -1;
 			}
-			else currentHue = hueMin;
-		}
-
-		if(aDynamic) currentA = getColorDarkened(currentMain, aDynamicDarkness);
-		else currentA = aStatic;
-
-		if(bDynamic)
-		{
-			if(!bDynamicOffset) currentB = getColorDarkened(currentMain, bDynamicDarkness);
-			else currentB = Color(bStatic.r + currentMain.r / 5, bStatic.g + currentMain.g / 5, bStatic.b + currentMain.b / 5, bStatic.a);
-		}
-		else currentB = bStatic;
-
-		if(huePulse)
-		{
-			pulseFactor += pulseFactorIncrement * mFrameTime;
-
-			if(pulseFactor < pulseFactorMin)
-			{
-				pulseFactorIncrement *= -1;
-				pulseFactor = pulseFactorMin;
-			}
-			if(pulseFactor > pulseFactorMax)
-			{
-				pulseFactorIncrement *= -1;
-				pulseFactor = pulseFactorMax;
-			}
-
-			if(!aDynamic) currentA = getColorDarkened(aStatic, pulseFactor);
-			if(!bDynamic) currentB = getColorDarkened(bStatic, pulseFactor);
+			else currentHue = getHueMin();
 		}
 
-		if(currentSwapTime > 50) std::swap(currentA, currentB);
+		pulseFactor += root["pulse_increment"].asFloat() * mFrameTime;
+
+		if(pulseFactor < root["pulse_min"].asFloat())
+		{
+			root["pulse_increment"] = root["pulse_increment"].asFloat() * -1;
+			pulseFactor = root["pulse_min"].asFloat();
+		}
+		if(pulseFactor > root["pulse_max"].asFloat())
+		{
+			root["pulse_increment"] = root["pulse_increment"].asFloat() * -1;
+			pulseFactor = root["pulse_max"].asFloat();
+		}
 	}
 
-	string StyleData::getId() 					{ return id; }
-	float StyleData::getHueMin() 				{ return hueMin; }
-	float StyleData::getHueMax()				{ return hueMax; }
-	bool StyleData::getHuePingPong()			{ return huePingPong; }
-	float StyleData::getHueIncrement()			{ return hueIncrement; }
-	bool StyleData::getHuePulse()				{ return huePulse; }
-	bool StyleData::getMainDynamic()			{ return mainDynamic; }
-	float StyleData::getMainDynamicDarkness()	{ return mainDynamicDarkness; }
-	Color StyleData::getMainStatic()			{ return mainStatic; }
-	bool StyleData::getADynamic()				{ return aDynamic; }
-	float StyleData::getADynamicDarkness()		{ return aDynamicDarkness; }
-	Color StyleData::getAStatic()				{ return aStatic; }
-	bool StyleData::getBDynamic()				{ return bDynamic; }
-	bool StyleData::getBDynamicOffset() 		{ return bDynamicOffset; }
-	float StyleData::getBDynamicDarkness()		{ return bDynamicDarkness; }
-	Color StyleData::getBStatic()				{ return bStatic; }
-
+	string StyleData::getId() 					{ return root["id"].asString(); }
+	float StyleData::getHueMin() 				{ return root["hue_min"].asFloat(); }
+	float StyleData::getHueMax()				{ return root["hue_max"].asFloat(); }
+	bool StyleData::getHuePingPong()			{ return root["hue_ping_pong"].asBool(); }
+	float StyleData::getHueIncrement()			{ return root["hue_increment"].asFloat(); }
 	float StyleData::getCurrentHue() 			{ return currentHue; }
 	float StyleData::getCurrentSwapTime() 		{ return currentSwapTime; }
-	Color StyleData::getCurrentMain() 			{ return currentMain; }
-	Color StyleData::getCurrentA()				{ return currentA; }
-	Color StyleData::getCurrentB()				{ return currentB; }
+	Color StyleData::getMainColor()				{ return calculateColor(root["main"]); }
+	vector<Color> StyleData::getColors()
+	{
+		vector<Color> result;
+
+		for(unsigned int i{0}; i < root["colors"].size(); i++) result.push_back(calculateColor(root["colors"][i]));
+		std::rotate(result.begin(), result.begin() + currentSwapTime / 50, result.end());
+
+		return result;
+	}
 }
 

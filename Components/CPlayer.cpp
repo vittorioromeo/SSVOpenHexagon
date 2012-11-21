@@ -56,7 +56,7 @@ namespace hg
 		float thickness{5};
 
 		Color colorMain{hgPtr->getColorMain()};
-		Color colorB{hgPtr->getColorB()};
+		Color colorB{hgPtr->styleData.getColors()[1]};
 		
 		float div {360.f / hgPtr->getSides()};
 		float radius {hgPtr->getRadius() * 0.75f};

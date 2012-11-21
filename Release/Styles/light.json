@@ -3,25 +3,23 @@
 	"id": "light",
 
 	// Hue options
-	"hue_min": 195,
-	"hue_max": 350,
+	"hue_min": 200,
+	"hue_max": 340,
 	"hue_ping_pong": true,
 	"hue_increment": 1.0,
-	"hue_pulse": false,
 	
-	// Color main
-	"main_dynamic": true,
-	"main_dynamic_darkness": 1.0,
-	"main_static": [0,0,0,0],
+	// Pulse options
+	"pulse_min": 0.0,
+	"pulse_max": 1.5,
+	"pulse_increment": 0.025,
 	
-	// Color background a
-	"a_dynamic": false,
-	"a_dynamic_darkness": 1.0,
-	"a_static": [235,235,235,255],
-	
-	// Color background b
-	"b_dynamic": true,
-	"b_dynamic_offset": true, // Relative to main
-	"b_dynamic_darkness": 1.0, // Relative to main
-	"b_static": [190,190,190,255]
+	// Main color
+	"main": { "main": true, "dynamic": true, "value": [0, 0, 0, 255], "pulse": [0, 0, 0, 0] },
+
+	// Background colors
+	"colors":
+	[
+		{ "dynamic": true, "dynamic_offset": true, "dynamic_darkness": 1.0, "value": [190, 190, 190, 255], "pulse": [0, 0, 0, 0], "offset": 5.0},
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [235, 235, 235, 255], "pulse": [0, 0, 0, 0]}
+	]
 }

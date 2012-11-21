@@ -51,6 +51,7 @@ namespace hg
 	class HexagonGame
 	{
 		friend class PatternManager;
+		friend class CPlayer;
 
 		private:
 			Game game;
@@ -137,7 +138,6 @@ namespace hg
 			Game& getGame();
 			float getRadius();
 			Color getColorMain();
-			Color getColorB();
 			bool isKeyPressed(Keyboard::Key mKey);
 
 			float getSpeedMultiplier();

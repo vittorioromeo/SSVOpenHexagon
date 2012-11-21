@@ -128,7 +128,7 @@ namespace hg
 	}
 	void MenuGame::draw()
 	{
-		gameTexture.clear(styleData.getCurrentA());
+		gameTexture.clear(styleData.getColors()[0]);
 		menuTexture.clear(Color{0,0,0,0});
 
 		drawBackground();
@@ -148,15 +148,15 @@ namespace hg
 		float distance{1500};
 
 		VertexArray vertices{PrimitiveType::Triangles, 3};
+		vector<Color> colors{styleData.getColors()};
 
-		for(int i {0}; i < sides; i++)
+		for(int i{0}; i < sides; i++)
 		{
 			float angle { div * i };
-			Color currentColor { styleData.getCurrentA() };
+			Color currentColor{colors[i % colors.size()]};
 
 			if (i % 2 == 0)
 			{
-				currentColor = styleData.getCurrentB();
 				if (i == sides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 			}
 
@@ -172,7 +172,7 @@ namespace hg
 	}
 	void MenuGame::drawText()
 	{
-		Color mainColor{styleData.getCurrentMain()};
+		Color mainColor{styleData.getMainColor()};
 
 		title1.setOrigin(title1.getGlobalBounds().width / 2, 0);
 		title1.setStyle(Text::Bold);
