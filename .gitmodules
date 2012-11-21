@@ -4,3 +4,6 @@
 [submodule "SSVEntitySystem"]
 	path = SSVEntitySystem
 	url = https://github.com/SuperV1234/SSVEntitySystem.git
+[submodule "Unix"]
+	path = Unix
+	url = git://github.com/flibitijibibo/OpenHexagon-Unix.git
