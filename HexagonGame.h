@@ -92,6 +92,8 @@ namespace hg
 
 			bool hasDied{false};
 			bool mustRestart{false};
+			string restartId{""};
+			bool restartFirstTime{true};
 
 			void update(float);
 			inline void updateIncrement();
@@ -113,7 +115,7 @@ namespace hg
 			void randomSideChange();
 			void checkAndSaveScore();
 			void goToMenu();
-			void changeLevel(string mId);
+			void changeLevel(string mId, bool mFirstTime);
 			void addMessage(string mMessage, float mDuration);
 			void clearMessages();
 

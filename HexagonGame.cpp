@@ -75,8 +75,6 @@ namespace hg
 
 	void HexagonGame::newGame(string mId, bool mFirstPlay)
 	{
-		clearMessages();
-
 		setLevelData(getLevelData(mId), mFirstPlay);
 
 		stopAllSounds();
@@ -87,8 +85,7 @@ namespace hg
 		stopLevelMusic();
 		playLevelMusic();
 
-		//rotationDirection = getRnd(0, 100) > 50 ? true : false;
-
+		clearMessages();
 		scripts.clear();
 		scriptQueue = queue<ScriptData>{};
 
@@ -101,7 +98,11 @@ namespace hg
 		pulseSpeed = 1;
 
 		hasDied = false;
+
 		mustRestart = false;
+		restartId = mId;
+		restartFirstTime = false;
+
 		currentTime = 0;
 		incrementTime = 0;
 		setSides(levelData.getSides());
@@ -110,8 +111,8 @@ namespace hg
 		manager.clear();
 		createPlayer(manager, this, centerPos);
 
-		messagesTimeline = Timeline{};
 		timeline = Timeline{};
+		messagesTimeline = Timeline{};		
 	}
 	void HexagonGame::death()
 	{
@@ -151,7 +152,7 @@ namespace hg
 		updateKeys();
 		if(!getNoRotation()) updateRotation(mFrameTime);
 
-		if(mustRestart) newGame(levelData.getId(), false);
+		if(mustRestart) changeLevel(restartId, restartFirstTime);
 	}
 	inline void HexagonGame::updateIncrement()
 	{
@@ -167,10 +168,7 @@ namespace hg
 		if(!scriptQueue.empty())
 		{
 			scriptQueue.front().update(mFrameTime);
-			if(scriptQueue.front().getFinished())
-			{
-				scriptQueue.pop();
-			}
+			if(scriptQueue.front().getFinished()) scriptQueue.pop();
 		}
 
 		if(!getScripting()) return;
@@ -323,10 +321,10 @@ namespace hg
 		window.setGame(&mgPtr->getGame());
 		mgPtr->init();
 	}
-	void HexagonGame::changeLevel(string mId)
+	void HexagonGame::changeLevel(string mId, bool mFirstTime)
 	{
 		checkAndSaveScore();
-		newGame(mId, true);
+		newGame(mId, mFirstTime);
 	}
 	void HexagonGame::addMessage(string mMessage, float mDuration)
 	{
@@ -389,7 +387,7 @@ namespace hg
 			string message{eventRoot["message"].asString()};
 			string id{eventRoot["id"].asString()};
 
-			if 		(type == "level_change")			changeLevel(id);
+			if 		(type == "level_change")			{ mustRestart = true; restartId = id; restartFirstTime = true; return; }
 			else if (type == "menu") 					goToMenu();
 			else if (type == "message_add")				{ if(getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_clear") 			clearMessages();

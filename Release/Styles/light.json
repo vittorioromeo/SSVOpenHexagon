@@ -3,8 +3,8 @@
 	"id": "light",
 
 	// Hue options
-	"hue_min": 185,
-	"hue_max": 360,
+	"hue_min": 195,
+	"hue_max": 350,
 	"hue_ping_pong": true,
 	"hue_increment": 1.0,
 	"hue_pulse": false,
