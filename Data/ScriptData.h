@@ -20,11 +20,13 @@ namespace hg
 			HexagonGame* hgPtr;
 			Json::Value root;
 			float currentTime{0};
+			bool finished{false};
 			
 		public:
 			ScriptData(Json::Value mRoot);
 
 			string getId();
+			bool getFinished();
 
 			void setHexagonGamePtr(HexagonGame* mHgPtr);
 

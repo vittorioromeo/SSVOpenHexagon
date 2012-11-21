@@ -29,11 +29,11 @@
 	//Events
 	"events":
 	[
-		{ "time": 0,	"type": "script_exec", 			"id": "test" },
-		{ "time": 0,	"type": "script_exec", 			"id": "test" },
-		{ "time": 0,	"type": "script_exec", 			"id": "test" },
-		{ "time": 0,	"type": "script_exec", 			"id": "test" },
-		{ "time": 0,	"type": "script_exec", 			"id": "test" },
+		{ "time": 0,	"type": "script_enqueue", 	"id": "test" },
+		{ "time": 0,	"type": "script_enqueue", 	"id": "test" },
+		{ "time": 0,	"type": "script_enqueue", 	"id": "test" },
+		{ "time": 0,	"type": "script_enqueue", 	"id": "test" },
+		{ "time": 0,	"type": "script_enqueue", 	"id": "test" },
 		{ "time": 0,	"type": "pulse_max_set", 	"value": 92 },
 		{ "time": 0,	"type": "pulse_speed_set",	"value": 1.455 },
 		{ "time": 60, 	"type": "increment_stop" }

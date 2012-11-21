@@ -87,9 +87,10 @@ namespace hg
 		stopLevelMusic();
 		playLevelMusic();
 
-		rotationDirection = getRnd(0, 100) > 50 ? true : false;
+		//rotationDirection = getRnd(0, 100) > 50 ? true : false;
 
 		scripts.clear();
+		scriptQueue = queue<ScriptData>{};
 
 		timeStop = 0;
 		randomSideChangesEnabled = true;
@@ -109,7 +110,6 @@ namespace hg
 		manager.clear();
 		createPlayer(manager, this, centerPos);
 
-		scriptsTimeline = Timeline{};
 		messagesTimeline = Timeline{};
 		timeline = Timeline{};
 	}
@@ -163,10 +163,15 @@ namespace hg
 	}
 	inline void HexagonGame::updateLevelEvents(float mFrameTime)
 	{
-		scriptsTimeline.update(mFrameTime);
-		if(scriptsTimeline.isFinished()) clearAndResetTimeline(scriptsTimeline);
-
 		for(ScriptData& pattern : scripts) pattern.update(mFrameTime);
+		if(!scriptQueue.empty())
+		{
+			scriptQueue.front().update(mFrameTime);
+			if(scriptQueue.front().getFinished())
+			{
+				scriptQueue.pop();
+			}
+		}
 
 		if(!getScripting()) return;
 
@@ -189,7 +194,6 @@ namespace hg
 	inline void HexagonGame::updateRotation(float mFrameTime)
 	{
 		auto nextRotation = getRotationSpeed() * 10 * mFrameTime;
-		if(rotationDirection) nextRotation *= -1;
 		if(fastSpin > 0)
 		{
 			nextRotation += (getSmootherStep(0, 85, fastSpin) / 3.5f) * getSign(nextRotation) * mFrameTime * 17.0f;
@@ -289,7 +293,7 @@ namespace hg
 		setSpeedMultiplier(getSpeedMultiplier() + levelData.getSpeedIncrement());
 		setRotationSpeed(getRotationSpeed() + levelData.getRotationSpeedIncrement());
 		setDelayMultiplier(getDelayMultiplier() + levelData.getDelayIncrement());
-		rotationDirection = !rotationDirection;
+		setRotationSpeed(getRotationSpeed() * -1);
 		fastSpin = levelData.getFastSpin();
 		
 		if(randomSideChangesEnabled) timeline.add(new Do([&]{ randomSideChange(); }));
@@ -377,6 +381,7 @@ namespace hg
 			if(eventRoot["time"].asFloat() >  mTime) continue;
 			if(eventRoot["executed"].asBool()) continue;
 			eventRoot["executed"] = true;
+
 			string type{eventRoot["type"].asString()};
 			float duration{eventRoot["duration"].asFloat()};
 			string valueName{eventRoot["value_name"].asString()};
@@ -414,13 +419,8 @@ namespace hg
 			else if (type == "pulse_speed_set")			pulseSpeed = value;
 			else if (type == "pulse_speed_b_set")		pulseSpeedBackwards = value;
 			else if (type == "script_exec")				scripts.push_back(getScriptData(id, this));
-			else if (type == "script_queue")			queueScript(getScriptData(id, this));
+			else if (type == "script_enqueue")			scriptQueue.push(getScriptData(id, this));
 			else										log("unknown script command: " + type);
 		}
-	}
-
-	void HexagonGame::queueScript(ScriptData mScript)
-	{
-		// TO IMPLEMENT
 	}
 }

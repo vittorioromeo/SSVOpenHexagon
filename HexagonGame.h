@@ -25,6 +25,7 @@
 
 #include <map>
 #include <vector>
+#include <queue>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
@@ -69,8 +70,7 @@ namespace hg
 			vector<Text*> messageTextPtrs;
 
 			vector<ScriptData> scripts;
-
-			Timeline scriptsTimeline;
+			queue<ScriptData> scriptQueue;
 
 			Vector2f centerPos{0,0};
 
@@ -87,8 +87,6 @@ namespace hg
 
 			float radius{75};
 			float radiusTimer{0};
-
-			bool rotationDirection{true};
 
 			float fastSpin{0};
 
