@@ -174,7 +174,6 @@ namespace hg
 	}
 	StyleData loadStyleFromJson(Json::Value mRoot)
 	{
-
 		return StyleData(mRoot);
 	}
 	ProfileData loadProfileFromJson(string mId, Json::Value mRoot)

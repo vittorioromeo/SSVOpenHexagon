@@ -47,6 +47,7 @@ namespace hg
 		window(mGameWindow)
 	{				
 		pm = new PatternManager(this);
+		initLua();
 
 		recreateTextures();
 
@@ -127,6 +128,25 @@ namespace hg
 	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
 	void HexagonGame::drawOnWindow(Drawable &mDrawable) { window.renderWindow.draw(mDrawable); }
 
+	void HexagonGame::initLua()
+	{
+		auto wall = [=](int mSide, float mThickness) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, 1)(pm); };
+		auto wallAdj = [=](int mSide, float mThickness, float mSpeedAdj) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, mSpeedAdj)(pm); };
+
+		lua.writeVariable("getSides", [=]() { return levelData.getSides(); });
+		lua.writeVariable("getSpeedMult", [=]() { return levelData.getSpeedMultiplier(); });
+		lua.writeVariable("getDelayMult", [=]() { return levelData.getDelayMultiplier(); });		
+		lua.writeVariable("execFile", [=](string mName) { runLuaFile(mName); });
+		lua.writeVariable("wait", [=](float mDuration) { timeline.add(new Wait(mDuration)); });
+		lua.writeVariable("wall", [=](int mSide, int mThickness) { timeline.add(new Do{[=] { wall(mSide, mThickness); }}); });
+		lua.writeVariable("wallAdj", [=](int mSide, int mThickness, float mSpeedAdj) { timeline.add(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
+	}
+	void HexagonGame::runLuaFile(string mFileName)
+	{
+		ifstream s("LuaScripts/" + mFileName + ".lua");
+		lua.executeCode(s);
+	}
+
 	void HexagonGame::update(float mFrameTime)
 	{
 		if(!hasDied)
@@ -185,7 +205,12 @@ namespace hg
 		if(timeline.isFinished())
 		{
 			timeline.clear();
-			levelData.getRandomPattern()(pm);
+
+
+			runLuaFile("test2");
+
+
+			//levelData.getRandomPattern()(pm);
 			timeline.reset();
 		}
 	}

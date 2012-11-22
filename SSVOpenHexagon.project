@@ -47,6 +47,8 @@
       <File Name="Utils/Utils.cpp"/>
       <File Name="Utils/Utils.h"/>
     </VirtualDirectory>
+    <File Name="LuaContext.cpp"/>
+    <File Name="LuaContext.h"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -121,12 +123,14 @@
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="D:/Vee/Software/WIP/SFMLMinGW/include"/>
         <IncludePath Value="D:/Vee/Software/WIP/jsoncpp/include"/>
+        <IncludePath Value="C:/lua/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVStart/Release"/>
         <LibraryPath Value="../SSVEntitySystem/Release"/>
         <LibraryPath Value="D:/Vee/Software/WIP/SFMLMinGW/lib"/>
         <LibraryPath Value="D:/Vee/Software/WIP/jsoncpp/libs/mingw"/>
+        <LibraryPath Value="c:/lua"/>
         <Library Value="SSVEntitySystem"/>
         <Library Value="SSVStart"/>
         <Library Value="sfml-window"/>
@@ -134,6 +138,8 @@
         <Library Value="sfml-system"/>
         <Library Value="sfml-audio"/>
         <Library Value="json_mingw_libmt"/>
+        <Library Value="lua5.1"/>
+        <Library Value="lua51"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no"/>

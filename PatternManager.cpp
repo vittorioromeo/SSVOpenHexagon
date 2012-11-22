@@ -75,7 +75,7 @@ namespace hg
 	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) :
 		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos) { }
 
-	
+		
 	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness * adjThickness, speed * adjSpeed, currentSpeedMultiplier); }
 	void PatternManager::rWall(int mSide, float mThickness) { wall(mSide, mThickness); wall(mSide + hgPtr->getSides() / 2, mThickness); }
 	void PatternManager::wallExtra(int mSide, float mThickness, int mExtra)

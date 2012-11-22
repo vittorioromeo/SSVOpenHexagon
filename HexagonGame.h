@@ -26,6 +26,8 @@
 #include <map>
 #include <vector>
 #include <queue>
+#include <iostream>
+#include <fstream>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
@@ -38,6 +40,7 @@
 #include "Data/MusicData.h"
 #include "Data/ScriptData.h"
 #include "Data/StyleData.h"
+#include "LuaContext.h"
 
 using namespace sf;
 using namespace ssvs;
@@ -59,6 +62,10 @@ namespace hg
 			Manager manager;
 			RenderTexture gameTexture;
 			Sprite gameSprite;
+
+			Lua::LuaContext lua;
+			void initLua();
+			void runLuaFile(string mFileName);
 
 			LevelData levelData;
 			MusicData musicData;
@@ -121,6 +128,7 @@ namespace hg
 			void clearMessages();
 
 			void queueScript(ScriptData mScript);
+
 
 		public:
 			MenuGame* mgPtr;
