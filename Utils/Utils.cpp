@@ -152,7 +152,6 @@ namespace hg
 	{
 		LevelData result = LevelData{mRoot};
 
-		for (Json::Value pattern : mRoot["patterns"]) parseAndAddPattern(result, pattern);
 		for (Json::Value event : mRoot["events"]) parseAndAddEvent(result, event);
 
 		return result;
@@ -185,59 +184,6 @@ namespace hg
 		return result;
 	}
 
-	void parseAndAddPattern(LevelData& mLevelData, Json::Value &mPatternRoot)
-	{
-		string type	{ mPatternRoot["type"].asString() };
-		int chance	{ mPatternRoot["chance"].asInt() };
-		float adjDelay { mPatternRoot["adj_delay"].asFloat() };
-		float adjSpeed { mPatternRoot["adj_speed"].asFloat() };
-		float adjThickness { mPatternRoot["adj_thickness"].asFloat() };
-
-		function<void(PatternManager*)> func;
-
-		if(type == "alternate_wall_barrage")
-		{
-			int times{mPatternRoot["times"].asInt()};
-			int div{mPatternRoot["div"].asInt()};
-			func = [=](PatternManager* pm){ pm->alternateWallBarrage(times, div); };
-		}
-		else if(type == "barrage_spiral")
-		{
-			int times{mPatternRoot["times"].asInt()};
-			float delayMultiplier{mPatternRoot["delay_multiplier"].asFloat()};
-			func = [=](PatternManager* pm){ pm->barrageSpiral(times, delayMultiplier); };
-		}
-		else if(type == "mirror_spiral")
-		{
-			int times{mPatternRoot["times"].asInt()};
-			int extra{mPatternRoot["extra"].asInt()};
-			func = [=](PatternManager* pm){ pm->mirrorSpiral(times, extra); };
-		}
-		else if(type == "extra_wall_vortex")
-		{
-			int times{mPatternRoot["times"].asInt()};
-			int steps{mPatternRoot["steps"].asInt()};
-			func = [=](PatternManager* pm){ pm->extraWallVortex(times, steps); };
-		}
-		else if(type == "inverse_barrage")
-		{
-			int times{mPatternRoot["times"].asInt()};
-			func = [=](PatternManager* pm){ pm->inverseBarrage(times); };
-		}
-		else if(type == "mirror_wall_strip")
-		{
-			int times{mPatternRoot["times"].asInt()};
-			int extra{mPatternRoot["extra"].asInt()};
-			func = [=](PatternManager* pm){ pm->mirrorWallStrip(times, extra); };
-		}
-		else if(type == "tunnel_barrage")
-		{
-			int times{mPatternRoot["times"].asInt()};
-			func = [=](PatternManager* pm){ pm->tunnelBarrage(times); };
-		}
-
-		mLevelData.addPattern(getAdjPatternFunc(func, adjDelay, adjSpeed, adjThickness), chance);
-	}
 	void parseAndAddEvent(LevelData& mLevelData, Json::Value &mEventRoot)
 	{
 		mLevelData.addEvent(mEventRoot);

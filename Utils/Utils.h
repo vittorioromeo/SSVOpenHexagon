@@ -72,7 +72,6 @@ namespace hg
 	StyleData loadStyleFromJson(Json::Value mRoot);
 	ProfileData loadProfileFromJson(string mId, Json::Value mRoot);
 
-	void parseAndAddPattern(LevelData& mLevelData, Json::Value &mPatternRoot);
 	void parseAndAddEvent(LevelData& mLevelData, Json::Value &mEventRoot);
 	function<void(PatternManager*)> getAdjPatternFunc(function<void(PatternManager*)> mFunction, float mAdjDelay, float mAdjSpeed, float mAdjThickness);
 

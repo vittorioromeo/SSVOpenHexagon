@@ -13,6 +13,9 @@
 	// Music
 	"music_id": "mazeOfMayonnaise",
 	
+	// Lua
+	"lua_file": "defaultLevels/zen.lua",
+	
 	// Basic values
 	"speed_multiplier": 2.10,
 	"speed_increment": 0.09,
@@ -31,21 +34,6 @@
 	[
 		{ "time": 0,	"type": "pulse_max_set", 	"value": 90 },
 		{ "time": 0,	"type": "pulse_speed_set","value": 1 },
-		{ "time": 90, "type": "increment_stop" }
-	],
-	
-	// Patterns
-	"patterns":
-	[
-		{ "type": "barrage_spiral", "chance": 3, "times": 3, "delay_multiplier": 1 },
-		{ "type": "barrage_spiral", "chance": 2, "times": 4, "delay_multiplier": 0.7 },
-		{ "type": "alternate_wall_barrage", "chance": 2, "times": 5, "div": 2 },
-		{ "type": "extra_wall_vortex", "chance": 2, "times": 1, "steps": 2 },
-		{ "type": "mirror_spiral", "chance": 3, "times": 6, "adj_delay": 0.80, "adj_thickness": 0.88 },	
-		{ "type": "mirror_spiral", "chance": 2, "times": 8, "adj_delay": 0.80, "adj_thickness": 0.88 },	
-		{ "type": "inverse_barrage", "chance": 4, "times": 1 },
-		{ "type": "mirror_wall_strip", "chance": 4, "times": 1 },
-		{ "type": "mirror_wall_strip", "chance": 2, "times": 2 },
-		{ "type": "tunnel_barrage", "chance": 3, "times": 3 }
+		{ "time": 90, 	"type": "increment_stop" }
 	]
 }

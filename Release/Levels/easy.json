@@ -13,6 +13,9 @@
 	// Music
 	"music_id": "jackRussel",
 	
+	// Lua
+	"lua_file": "defaultLevels/zen.lua",
+	
 	// Basic values
 	"speed_multiplier": 1.40,
 	"speed_increment": 0.08,	
@@ -50,18 +53,6 @@
 		{ "time": 32, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
 		{ "time": 33, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
 		{ "time": 34, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 150, "type": "increment_stop" }
-	],
-	
-	// Patterns
-	"patterns":
-	[
-		{ "type": "barrage_spiral", "chance": 3, "times": 3, "delay_multiplier": 1 },
-		{ "type": "alternate_wall_barrage", "chance": 2, "times": 5, "div": 2 },
-		{ "type": "extra_wall_vortex", "chance": 1, "times": 1, "steps": 2 },
-		{ "type": "mirror_spiral", "chance": 1, "times": 8 },	
-		{ "type": "inverse_barrage", "chance": 2, "times": 1 },
-		{ "type": "mirror_wall_strip", "chance": 2, "times": 2 },
-		{ "type": "tunnel_barrage", "chance": 1, "times": 3 }
+		{ "time": 150, 	"type": "increment_stop" }
 	]
 }

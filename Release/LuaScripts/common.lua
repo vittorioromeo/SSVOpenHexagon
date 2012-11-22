@@ -1,28 +1,13 @@
--- set common variables
-thickness = 40;
+-- common variables
+THICKNESS = 40;
 
--- getsides: returns current sides
-function getsides()
-	return getSides()
+-- getRandomSide: returns random mSide
+function getRandomSide()
+	return math.random(0, getSides() - 1)
 end
 
--- getspeedmult: returns current speed multiplier
-function getspeedmult()
-	return getSpeedMult()
-end
-
--- getdelaymult: returns current delay multiplier
-function getdelaymult()
-	return getDelayMult();
-end
-
--- getrandomside: returns random side
-function getrandomside()
-	return math.random(0, getsides() - 1)
-end
-
--- getrandomdir: returns either 1 or -1
-function getrandomdir()
+-- getRandomDir: returns either 1 or -1
+function getRandomDir()
 	if math.random(0, 100) > 50 then
 		return 1
 	end
@@ -30,79 +15,79 @@ function getrandomdir()
 	return -1
 end
 
--- getperfectdelay: returns time to wait for two walls to be next to each other
-function getperfectdelay(pthickness)
-	return pthickness / (5 * getspeedmult()) + ((math.abs(6 - getsides())) * 1.25)
+-- getPerfectDelay: returns time to wait for two walls to be next to each other
+function getPerfectDelay(mThickness)
+	return mThickness / (5 * getSpeedMult()) + ((math.abs(6 - getSides())) * 1.25)
 end
 
--- getperfectthickness: returns a good thickness value in relation to human reflexes
-function getperfectthickness(pthickness)
-	return pthickness * getspeedmult() * getdelaymult()
+-- getPerfectThickness: returns a good THICKNESS value in relation to human reflexes
+function getPerfectThickness(mThickness)
+	return mThickness * getSpeedMult() * getDelayMult()
 end
 
--- cwall: creates a wall with the common thickness
-function cwall(side)
-	wall(side, thickness)
+-- cWall: creates a wall with the common THICKNESS
+function cWall(mSide)
+	wall(mSide, THICKNESS)
 end
 
--- owall: creates a wall opposite to the side passed
-function owall(side)
-	cwall(side + getsides() / 2)
+-- oWall: creates a wall opposite to the mSide passed
+function oWall(mSide)
+	cWall(mSide + getSides() / 2)
 end
 
--- rwall: union of cwall and owall (created 2 walls facing each other)
-function rwall(side)
-	cwall(side)
-	owall(side)
+-- rWall: union of cwall and owall (created 2 walls facing each other)
+function rWall(mSide)
+	cWall(mSide)
+	oWall(mSide)
 end
 
--- cwallex: creates a wall with extra walls attached to it 
-function cwallex(side, extra)
-	cwall(side);
+-- cWallEx: creates a wall with mExtra walls attached to it 
+function cWallEx(mSide, mExtra)
+	cWall(mSide);
 
-	loopdir = 1;
+	loopDir = 1;
 	
-	if extra < 0 then 
-		loopdir = -1
+	if mExtra < 0 then 
+		loopDir = -1
 	end
 	
-	for i = 0, extra, loopdir do
-		cwall(side + i)
+	for i = 0, mExtra, loopDir do
+		cWall(mSide + i)
 	end
 end
 
--- owallex: creates a wall with extra walls opposite to side
-function owallex(side, extra)
-	cwallex(side + getsides() / 2, extra)
+-- oWallEx: creates a wall with mExtra walls opposite to mSide
+function oWallEx(mSide, mExtra)
+	cWallEx(mSide + getSides() / 2, mExtra)
 end
 
--- rwallex: union of cwallex and owallex
-function rwallex(side, extra)
-	cwallex(side, extra)
-	owallex(side, extra)
+-- rWallEx: union of cwallex and owallex
+function rWallEx(mSide, mExtra)
+	cWallEx(mSide, mExtra)
+	oWallEx(mSide, mExtra)
 end
 
--- cbarragen: spawns a barrage of walls, with a free side plus neighbors
-function cbarragen(side, neighbors)
-	for i = neighbors, getsides() - 2 - neighbors, 1 do
-		cwall(side + i + 1)
+-- cBarrageN: spawns a barrage of walls, with a free mSide plus mNeighbors
+function cBarrageN(mSide, mNeighbors)
+	for i = mNeighbors, getSides() - 2 - mNeighbors, 1 do
+		cWall(mSide + i + 1)
 	end
 end
 
--- cbarrage: spawns a barrage of walls, with a single free side
-function cbarrage(side)
-	cbarragen(side, 0)
+-- cBarrage: spawns a barrage of walls, with a single free mSide
+function cBarrage(mSide)
+	cBarrageN(mSide, 0)
 end
 
--- cbarrageonlyn: spawns a barrage of wall, with only free neighbors
-function cbarrageonlyn(side, neighbors)
-	cwall(side)
-	cbarragen(side, neighbors)
+-- cBarrageOnlyN: spawns a barrage of wall, with only free mNeighbors
+function cBarrageOnlyN(mSide, mNeighbors)
+	cWall(mSide)
+	cBarrageN(mSide, mNeighbors)
 end
 
--- caltbarrage: spawns a barrage of alternate walls
-function caltbarrage(side, step)
-	for i = 0, getsides() / step, 1 do
-		cwall(side + i * step)
+-- cAltBarrage: spawns a barrage of alternate walls
+function cAltBarrage(mSide, mStep)
+	for i = 0, getSides() / mStep, 1 do
+		cWall(mSide + i * mStep)
 	end
 end

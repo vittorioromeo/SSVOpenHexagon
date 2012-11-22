@@ -14,6 +14,9 @@
 	// Music
 	"music_id": "steampunkWarlord",
 	
+	// Lua
+	"lua_file": "defaultLevels/zen.lua",
+	
 	// Basic values
 	"speed_multiplier": 2.69,
 	"speed_increment": 0.00,
@@ -30,18 +33,6 @@
 	//Events
 	"events":
 	[
-		{ "time": 60, "type": "increment_stop" }
-	],
-	
-	// Patterns
-	"patterns":
-	[
-		{ "type": "barrage_spiral", "chance": 3, "times": 6, "delay_multiplier": 0.5 },
-		{ "type": "alternate_wall_barrage", "chance": 3, "times": 5, "div": 2 },
-		{ "type": "mirror_spiral", "chance": 1, "times": 9, "extra": 1, "adj_delay": 0.5, "adj_thickness": 0.8},
-		{ "type": "mirror_spiral", "chance": 2, "times": 7, "extra": 1, "adj_delay": 0.5, "adj_thickness": 0.8},	
-		{ "type": "mirror_spiral", "chance": 3, "times": 5, "extra": 1, "adj_delay": 0.5, "adj_thickness": 0.8},	
-		{ "type": "inverse_barrage", "chance": 4, "times": 1 },
-		{ "type": "mirror_wall_strip", "chance": 4, "extra": 1, "times": 2 }
+		{ "time": 60, 	"type": "increment_stop" }
 	]
 }

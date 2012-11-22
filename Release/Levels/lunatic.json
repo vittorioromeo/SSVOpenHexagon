@@ -13,6 +13,9 @@
 	// Music
 	"music_id": "milkyWays",
 	
+	// Lua
+	"lua_file": "defaultLevels/zen.lua",
+	
 	// Basic values
 	"speed_multiplier": 2.45,
 	"speed_increment": 0.10,
@@ -37,23 +40,5 @@
 		{ "time": 0,	"type": "pulse_max_set", 	"value": 92 },
 		{ "time": 0,	"type": "pulse_speed_set",	"value": 1.455 },
 		{ "time": 60, 	"type": "increment_stop" }
-	],
-	
-	// Patterns
-	"patterns":
-	[
-		{ "type": "barrage_spiral", "chance": 3, "times": 4, "delay_multiplier": 0.9 },
-		{ "type": "barrage_spiral", "chance": 1, "times": 9, "delay_multiplier": 0.5 },
-		{ "type": "barrage_spiral", "chance": 2, "times": 5, "delay_multiplier": 0.7 },
-		{ "type": "alternate_wall_barrage", "chance": 2, "times": 5, "div": 2 },
-		{ "type": "extra_wall_vortex", "chance": 1, "times": 1, "steps": 2 },
-		{ "type": "extra_wall_vortex", "chance": 1, "times": 1, "steps": 4 },
-		{ "type": "extra_wall_vortex", "chance": 1, "times": 2, "steps": 3 },
-		{ "type": "mirror_spiral", "chance": 2, "times": 6, "adj_delay": 0.85, "adj_thickness": 0.9 },	
-		{ "type": "mirror_spiral", "chance": 1, "times": 14, "adj_delay": 0.85, "adj_thickness": 0.9 },	
-		{ "type": "inverse_barrage", "chance": 4, "times": 1 },
-		{ "type": "mirror_wall_strip", "chance": 4, "times": 2 },
-		{ "type": "tunnel_barrage", "chance": 1, "times": 5 },
-		{ "type": "tunnel_barrage", "chance": 3, "times": 3 }
 	]
 }

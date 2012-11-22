@@ -1,6 +1,6 @@
 # Open Hexagon - version 1.2 #
 
-## A free, open source clone of "Super Hexagon" (by Terry Cavanagh). ##
+## A free, open source clone of "[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)" (by Terry Cavanagh). ##
 ## Programmed by Vittorio Romeo. ##
 ## Music by BOSSFIGHT. ##
 
@@ -19,8 +19,9 @@
 **Terry Cavanagh's page**: [http://distractionware.com](http://distractionware.com/) </br>
 **BOSSFIGHT's page:** [http://soundcloud.com/bossfightswe](http://soundcloud.com/bossfightswe) </br>
 
-Special thanks to **BubblegumBalloon** for the announcer sounds </br>
-Special thanks to **Dajoh** for hosting
+Special thanks:</br> to **BubblegumBalloon** for the announcer sounds </br>
+to **Dajoh** for hosting </br>
+to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)
 
 ----------
 

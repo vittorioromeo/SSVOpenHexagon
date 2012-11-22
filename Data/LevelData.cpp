@@ -77,4 +77,6 @@ namespace hg
 
 	void LevelData::setValueInt(string mValueName, int mValue)		{ root[mValueName] = mValue; }
 	float LevelData::getValueInt(string mValueName)					{ return root[mValueName].asInt(); }
+
+	string LevelData::getValueString(string mValueName)				{ return root[mValueName].asString(); }
 }

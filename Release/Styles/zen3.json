@@ -1,6 +1,6 @@
 {
 	// Style data id
-	"id": "strawberry",
+	"id": "zen3",
 
 	// Hue options
 	"hue_min": 0,
@@ -14,7 +14,7 @@
 	"pulse_increment": 0.025,
 	
 	// Main color
-	"main": { "main": true, "dynamic": false, "value": [0, 0, 0, 255], "pulse": [25, 50, 75, -20] },
+	"main": { "main": true, "dynamic": false, "value": [0, 0, 0, 225], "pulse": [25, 50, 75, 0] },
 
 	// Background colors
 	"colors":

@@ -1,49 +1,127 @@
-execFile("common")
+execFile("common.lua")
 
--- paltbarrage: spawns a series of caltbarrage
-function paltbarrage(times, step)
-	delay = getperfectdelay(thickness) * 4.6
+-- pAltBarrage: spawns a series of cAltBarrage
+function pAltBarrage(mTimes, mStep)
+	delay = getPerfectDelay(THICKNESS) * 4.6
 	
-	for i = 0, times do
-		caltbarrage(i, step)
+	for i = 0, mTimes do
+		cAltBarrage(i, mStep)
 		wait(delay)
 	end
 	
 	wait(delay)
 end
 
--- pmirrorspiral: spawns a spiral of rwallex
-function pmirrorspiral(times, extra)
-	oldthickness = thickness
-	thickness = getperfectthickness(thickness)
-	delay = getperfectdelay(thickness)
-	startside = getrandomside()
-	loopdir = getrandomdir()	
+-- pMirrorSpiral: spawns a spiral of rWallEx
+function pMirrorSpiral(mTimes, mExtra)
+	oldThickness = THICKNESS
+	THICKNESS = getPerfectThickness(THICKNESS)
+	delay = getPerfectDelay(THICKNESS)
+	startSide = getRandomSide()
+	loopDir = getRandomDir()	
 	j = 0
 	
-	for i = 0, times do
-		rwallex(startside + j, extra)
-		j = j + loopdir
+	for i = 0, mTimes do
+		rWallEx(startSide + j, mExtra)
+		j = j + loopDir
 		wait(delay)
 	end
 	
-	thickness = oldthickness
+	THICKNESS = oldThickness
 	
-	wait(getperfectdelay(thickness) * 6.5)
+	wait(getPerfectDelay(THICKNESS) * 6.5)
 end
 
--- pbarragespiral: spawns a spiral of cbarrage
-function pbarragespiral(times, delaymult)
-	delay = getperfectdelay(thickness) * 4.6 * delaymult
-	startside = getrandomside()
-	loopdir = getrandomdir()	
+-- pBarrageSpiral: spawns a spiral of cBarrage
+function pBarrageSpiral(mTimes, mDelayMult)
+	delay = getPerfectDelay(THICKNESS) * 4.6 * mDelayMult
+	startSide = getRandomSide()
+	loopDir = getRandomDir()	
 	j = 0
 	
-	for i = 0, times do
-		cbarrage(startside + j)
-		j = j + loopdir
+	for i = 0, mTimes do
+		cBarrage(startSide + j)
+		j = j + loopDir
 		wait(delay)
 	end
 	
-	wait(getperfectdelay(thickness) * 5.1)
+	wait(getPerfectDelay(THICKNESS) * 5.1)
+end
+
+-- pWallExVortex: spawns left-left right-right spiral patters
+function pWallExVortex(mTimes, mStep, mExtraMult)
+	delay = getPerfectDelay(THICKNESS) * 4.0 
+	startSide = getRandomSide()
+	loopDir = getRandomDir()
+	currentSide = startSide
+	
+	for j = 0, mTimes do
+		for i = 0, mStep do
+			currentSide = currentSide + loopDir
+			rWallEx(currentSide, loopDir * mExtraMult)
+			wait(delay)
+		end
+		
+		loopDir = loopDir * -1
+		
+		for i = 0, mStep + 1 do
+			currentSide = currentSide + loopDir;
+			rWallEx(currentSide, loopDir * mExtraMult)
+			wait(delay)
+		end
+	end
+	
+	wait(getPerfectDelay(THICKNESS) * 4.5)
+end
+
+-- pInverseBarrage: spawns two barrages who force you to turn 180 degrees
+function pInverseBarrage(mTimes)
+	delay = getPerfectDelay(THICKNESS) * 8.9
+	startSide = getRandomSide()
+	
+	for i = 0, mTimes do
+		cBarrage(startSide)
+		wait(delay)
+		cBarrage(startSide + getSides() / 2)
+		wait(delay)
+	end
+	
+	wait(getPerfectDelay(THICKNESS) * 1.5)
+end
+
+-- pMirrorWallStrip: spawns rWalls close to one another on the same side
+function pMirrorWallStrip(mTimes, mExtra)
+	delay = getPerfectDelay(THICKNESS) * 2.5
+	startSide = getRandomSide()
+	
+	for i = 0, mTimes do
+		rWallEx(startSide, mExtra)
+		wait(delay)
+	end
+	
+	delay = getPerfectDelay(THICKNESS) * 0.85
+end
+
+-- pTunnel: forces you to circle around a very thick wall
+function pTunnel(mTimes)
+	oldThickness = THICKNESS
+	myThickness = getPerfectThickness(THICKNESS)
+	delay = getPerfectDelay(myThickness) * 5
+	startSide = getRandomSide()
+	loopDir = getRandomDir()
+	
+	THICKNESS = myThickness
+	
+	for i = 0, mTimes do
+		if i < mTimes then
+			wall(startSide, myThickness + 5 * getSpeedMult() * delay)
+		end
+		
+		cBarrage(startSide + loopDir)
+		wait(delay)
+		
+		loopDir = loopDir * -1
+	end
+	
+	THICKNESS = oldThickness
 end

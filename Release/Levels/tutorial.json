@@ -13,6 +13,9 @@
 	// Music
 	"music_id": "drFinkelfracken",
 	
+	// Lua
+	"lua_file": "defaultLevels/tutorial.lua",
+	
 	// Basic values
 	"speed_multiplier": 0.85,
 	"speed_increment": 0.05,	
@@ -29,7 +32,7 @@
 	// Events
 	"events":
 	[
-		{ "time": 0,	"type": "pulse_speed_set","value": 1.1 },
+		{ "time": 0,	"type": "pulse_speed_set",	"value": 1.1 },
 		{ "time": 0, 	"type": "timeline_wait", 	"duration": 300 },
 		{ "time": 0, 	"type": "time_stop", 		"duration": 300 },
 		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "welcome to open hexagon" },
@@ -43,14 +46,5 @@
 		{ "time": 30, 	"type": "time_stop", 		"duration": 200 },
 		{ "time": 30, 	"type": "message_add", 		"duration": 200, 	"message": "get to 45 seconds to win!" },
 		{ "time": 45, 	"type": "level_change", 	"id": "tutorial2" }
-	],
-	
-	// Patterns
-	"patterns":
-	[
-		{ "type": "barrage_spiral", 		"chance": 3, "times": 3, "delay_multiplier": 1.35 },
-		{ "type": "alternate_wall_barrage", "chance": 3, "times": 3, "div": 2 },		
-		{ "type": "inverse_barrage", 		"chance": 2, "times": 1 },
-		{ "type": "tunnel_barrage", 		"chance": 2, "times": 2 }
 	]
 }

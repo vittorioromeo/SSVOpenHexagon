@@ -143,7 +143,7 @@ namespace hg
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{
-		ifstream s("LuaScripts/" + mFileName + ".lua");
+		ifstream s("LuaScripts/" + mFileName);
 		lua.executeCode(s);
 	}
 
@@ -205,12 +205,7 @@ namespace hg
 		if(timeline.isFinished())
 		{
 			timeline.clear();
-
-
-			runLuaFile("test2");
-
-
-			//levelData.getRandomPattern()(pm);
+			runLuaFile(levelData.getValueString("lua_file"));
 			timeline.reset();
 		}
 	}

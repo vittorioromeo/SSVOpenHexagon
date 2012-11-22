@@ -13,6 +13,9 @@
 	// Music
 	"music_id": "starshipShowdown",
 	
+	// Lua
+	"lua_file": "defaultLevels/zen.lua",
+	
 	// Basic values
 	"speed_multiplier": 1.50,
 	"speed_increment": 0.08,
@@ -46,19 +49,5 @@
 		{ "time": 60, 	"type": "style_set",		"id": "danger" },
 		{ "time": 60, 	"type": "music_set",		"id": "mazeOfMayonnaise" },
 		{ "time": 120, "type": "increment_stop" }
-	],
-	
-	// Patterns
-	"patterns":
-	[
-		{ "type": "barrage_spiral", "chance": 3, "times": 3, "delay_multiplier": 1 },
-		{ "type": "barrage_spiral", "chance": 2, "times": 2, "delay_multiplier": 0.7 },
-		{ "type": "alternate_wall_barrage", "chance": 2, "times": 5, "div": 2 },
-		{ "type": "extra_wall_vortex", "chance": 2, "times": 1, "steps": 2 },
-		{ "type": "mirror_spiral", "chance": 2, "times": 5 },	
-		{ "type": "mirror_spiral", "chance": 1, "times": 7 },	
-		{ "type": "inverse_barrage", "chance": 4, "times": 1 },
-		{ "type": "mirror_wall_strip", "chance": 3, "times": 1 },
-		{ "type": "tunnel_barrage", "chance": 3, "times": 3 }
 	]
 }

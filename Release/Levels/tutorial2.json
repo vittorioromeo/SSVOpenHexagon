@@ -14,6 +14,9 @@
 	// Music
 	"music_id": "drFinkelfracken",
 	
+	// Lua
+	"lua_file": "defaultLevels/tutorial.lua",
+	
 	// Basic values
 	"speed_multiplier": 0.95,
 	"speed_increment": 0.10,	
@@ -42,15 +45,5 @@
 		{ "time": 45, 	"type": "time_stop",		"duration": 300 },		
 		{ "time": 45,	"type": "message_add",		"duration": 100,	"message": "congratulations!" },
 		{ "time": 46,	"type":	"menu"}
-	],
-	
-	// Patterns
-	"patterns":
-	[
-		{ "type": "barrage_spiral", 		"chance": 3, "times": 3, "delay_multiplier": 1.35 },
-		{ "type": "alternate_wall_barrage", "chance": 3, "times": 3, "div": 2 },		
-		{ "type": "inverse_barrage", 		"chance": 2, "times": 1 },
-		{ "type": "tunnel_barrage", 		"chance": 2, "times": 2 },
-		{ "type": "extra_wall_vortex", 		"chance": 1, "times": 1, "steps": 2 }
 	]
 }
