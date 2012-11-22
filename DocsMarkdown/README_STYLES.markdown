@@ -15,20 +15,13 @@ colors that will be used. </br>
 set to false, otherwise they will go back and
 forth.</br>
 `"hue_increment"` is the speed of color changes.</br>
-`"hue_pulse"` makes the background pulse using
-the hue as a reference.
 
 
 ----------
 
-
-We have 3 colors:</br>
-		main: used by player, walls and text</br>
-	a: used by background</br>
-	b: used by background</br>
 	
-These colors can either be:
-	static: they don't change using hue
+Colors can either be:</br>
+	static: they don't change using hue</br>
 	dynamic: they change with hue
 	
 If the colors are dynamic you can set:</br>

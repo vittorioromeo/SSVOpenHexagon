@@ -76,6 +76,7 @@ Avoid the walls! Press **R** to restart.</br> Press **ESC** to go back to the me
 Version 1.2
 
 * Added: completely new level scripting system
+* Added: LUA scripting for patterns
 * Added: new announcer sounds by BubblegumBalloon! (thank you)
 * Added: save profiles for scores
 

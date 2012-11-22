@@ -25,11 +25,6 @@ Clears the pattern timeline, stopping all the patterns.
 
 ----------
 
-`"timeline_add"* 	("pattern")`</br>
-Adds "pattern" to the end of the pattern timeline.
-
-----------
-
 `"message_add"		("duration", "message")`</br>
 Queues a text message with the string "message" that lasts for "duration" frames.
 
