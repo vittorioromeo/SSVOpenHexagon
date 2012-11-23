@@ -34,7 +34,6 @@
 	"player_size": 7,
 	
 	// Scripting options
-	"scripting": true,
 	"show_messages": true,
 	"change_styles": true,
 	"change_music": true
