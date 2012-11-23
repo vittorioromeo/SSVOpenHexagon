@@ -4,6 +4,8 @@
 
 [http://www.lua.org/manual/5.1/manual.html](http://www.lua.org/manual/5.1/manual.html "LUA manual")
 
+There are many LUA editors that can check your syntax and make you avoid typos: I use [http://sourceforge.net/projects/luaedit/](http://sourceforge.net/projects/luaedit/)
+
 ----------
 
 ## Hardcoded LUA commands ##
