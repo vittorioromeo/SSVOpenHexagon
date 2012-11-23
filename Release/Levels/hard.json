@@ -23,7 +23,7 @@
 	"rotation_increment": 0.06,
 	"delay_multiplier": 1.02,
 	"delay_increment": 0.00,
-	"fast_spin": 80.00,
+	"fast_spin": 82.00,
 	"sides": 6,
 	"sides_min": 5,
 	"sides_max": 7,
@@ -33,7 +33,21 @@
 	"events":
 	[
 		{ "time": 0,	"type": "pulse_max_set", 	"value": 90 },
-		{ "time": 0,	"type": "pulse_speed_set","value": 1 },
-		{ "time": 90, 	"type": "increment_stop" }
+		{ "time": 0,	"type": "pulse_speed_set",	"value": 1 },
+		{ "time": 90, 	"type": "increment_stop" },
+		
+		{ "time": 4, 	"type": "message_add", 		"duration": 100, 	"message": "hi!" },
+		{ "time": 5, 	"type": "message_add", 		"duration": 170, 	"message": "are you used to this kind of speed?" },
+		{ "time": 15.5, "type": "message_add", 		"duration": 100, 	"message": "whoa!" },	
+		{ "time": 24, 	"type": "message_add", 		"duration": 180, 	"message": "hmm, i upgraded the screen rotation" },
+		{ "time": 24, 	"type": "message_add", 		"duration": 150, 	"message": "no need to thank me" },
+		{ "time": 25, 	"type": "event_exec", 		"id": "continuous_rotation"},
+
+		{ "time": 42, 	"type": "timeline_clear" },
+		{ "time": 42, 	"type": "timeline_wait", 	"duration": 600 },
+		{ "time": 45, 	"type": "time_stop", 		"duration": 300 },
+		{ "time": 45, 	"type": "message_add", 		"duration": 200, 	"message": "may the mayhem begin!" },
+		{ "time": 46.5, "type": "style_set",		"id": "mayhem" }
+
 	]
 }

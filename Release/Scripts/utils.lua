@@ -6,13 +6,13 @@ math.random()
 
 -- shuffle: shuffles an array
 function shuffle(t)
-  local n = #t
-  
-  while n >= 2 do
-    local k = math.random(n) -- 1 <= k <= n
-    t[n], t[k] = t[k], t[n]
-    n = n - 1
-  end
-  
-  return t
+	math.randomseed(os.time())
+	local iterations = #t
+	local j
+	for i = iterations, 2, -1 do
+			j = math.random(i)
+			t[i], t[j] = t[j], t[i]
+	end
+	
+	return t
 end

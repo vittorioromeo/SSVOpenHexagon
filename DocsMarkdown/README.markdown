@@ -98,6 +98,7 @@ Version 1.2
 * Added: new announcer sounds by BubblegumBalloon! (thank you)
 * Added: save profiles for scores
 * Added: new event scripting ocmmands ("play_sound", LUA-related)
+* Added: new song, Captain Cool
 
 Version 1.11
 

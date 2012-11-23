@@ -36,7 +36,7 @@ namespace hg
 	}
 
 	void MusicData::addSegment(int mSeconds) { segments.push_back(mSeconds); }
-	int MusicData::getRandomSegment() { return segments[getRnd(0, segments.size())]; }
+	int MusicData::getRandomSegment() { return segments[getRnd(0, segments.size() + 1)]; }
 	void MusicData::playRandomSegment(Music*& mMusicPtr)
 	{
 		if(firstPlay)

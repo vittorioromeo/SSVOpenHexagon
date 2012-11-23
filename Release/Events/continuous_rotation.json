@@ -1,11 +1,11 @@
 {
-	"id": "test",
+	"id": "continuous_rotation",
 	
 	// Events
 	"events":
 	[
 		{ "time": 0,	"type": "value_float_multiply", 	"value_name": "rotation_speed", "value": -1 },
 		{ "time": 2,	"type": "value_float_multiply", 	"value_name": "rotation_speed", "value": -1 },
-		{ "time": 4	}
+		{ "time": 4,	"type": "event_enqueue", 			"id": "continuous_rotation" }
 	]
 }

@@ -1,0 +1,25 @@
+{
+	// Style data id
+	"id": "mayhem",
+
+	// Hue options
+	"hue_min": 200,
+	"hue_max": 340,
+	"hue_ping_pong": true,
+	"hue_increment": 3.2,
+	
+	// Pulse options
+	"pulse_min": 0.0,
+	"pulse_max": 1.5,
+	"pulse_increment": 0.055,
+	
+	// Main color
+	"main": { "main": true, "dynamic": true, "value": [0, 0, 0, 255], "pulse": [0, 0, 0, 0] },
+
+	// Background colors
+	"colors":
+	[
+		{ "dynamic": true, "dynamic_offset": true, "dynamic_darkness": 1.0, "value": [190, 190, 190, 255], "pulse": [0, 0, 0, 0], "offset": 5.0},
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [100, 150, 150, 255], "pulse": [85, 15, 15, 0]}
+	]
+}

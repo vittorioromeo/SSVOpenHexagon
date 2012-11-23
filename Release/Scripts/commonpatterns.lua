@@ -33,16 +33,17 @@ function pMirrorSpiral(mTimes, mExtra)
 end
 
 -- pBarrageSpiral: spawns a spiral of cBarrage
-function pBarrageSpiral(mTimes, mDelayMult)
+function pBarrageSpiral(mTimes, mDelayMult, mStep)
 	delay = getPerfectDelay(THICKNESS) * 4.6 * mDelayMult
 	startSide = getRandomSide()
-	loopDir = getRandomDir()	
+	loopDir = mStep * getRandomDir()	
 	j = 0
 	
 	for i = 0, mTimes do
 		cBarrage(startSide + j)
 		j = j + loopDir
 		wait(delay)
+		if(getSides() < 6) then wait(delay * 0.4) end
 	end
 	
 	wait(getPerfectDelay(THICKNESS) * 5.1)
@@ -82,6 +83,7 @@ function pInverseBarrage(mTimes)
 	for i = 0, mTimes do
 		cBarrage(startSide)
 		wait(delay)
+		if(getSides() < 6) then wait(delay * 0.5) end
 		cBarrage(startSide + getHalfSides())
 		wait(delay)
 	end
@@ -91,7 +93,7 @@ end
 
 -- pMirrorWallStrip: spawns rWalls close to one another on the same side
 function pMirrorWallStrip(mTimes, mExtra)
-	delay = getPerfectDelay(THICKNESS) * 2.5
+	delay = getPerfectDelay(THICKNESS) * 2.65
 	startSide = getRandomSide()
 	
 	for i = 0, mTimes do
@@ -99,7 +101,7 @@ function pMirrorWallStrip(mTimes, mExtra)
 		wait(delay)
 	end
 	
-	delay = getPerfectDelay(THICKNESS) * 0.85
+	wait(getPerfectDelay(THICKNESS) * 4.00)
 end
 
 -- pTunnel: forces you to circle around a very thick wall
