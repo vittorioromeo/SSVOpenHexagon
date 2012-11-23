@@ -1,11 +1,14 @@
-# Open Hexagon - version 1.2 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.2 #
+## [vee software](http://veegamedev.wordpress.com/) ##
 
-## A free, open source clone of "[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)" (by Terry Cavanagh). ##
-## Programmed by Vittorio Romeo. ##
-## Music by BOSSFIGHT. ##
+**A free, open source clone of "[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)" (by Terry Cavanagh). </br>**
+**Programmed by Vittorio Romeo. </br>**
+**Music by BOSSFIGHT.** 
 
 ----------
 
+##EPILESPSY WARNING##
+*The game may contain flashing light patterns that could trigger a seizure. Play at your own risk.*
 
 ----------
 
@@ -19,9 +22,11 @@
 **Terry Cavanagh's page**: [http://distractionware.com](http://distractionware.com/) </br>
 **BOSSFIGHT's page:** [http://soundcloud.com/bossfightswe](http://soundcloud.com/bossfightswe) </br>
 
-Special thanks:</br> to **BubblegumBalloon** for the announcer sounds </br>
+Special thanks:</br> 
+to **BubblegumBalloon** for the announcer sounds </br>
 to **Dajoh** for hosting </br>
-to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)
+to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)</br>
+to **Ethan Lee** for the [Unix port](https://github.com/flibitijibibo/OpenHexagon-Unix)
 
 ----------
 
@@ -68,8 +73,21 @@ In game, press the **Left** and **Right** arrow keys to rotate.</br>
 Press **SHIFT** to rotate more slowly.</br>
 Avoid the walls! Press **R** to restart.</br> Press **ESC** to go back to the menu.
 
+----------
+
+## Customization ##
+
+Customizing Open Hexagon can be very easy or very complex depending on what you're trying to do. </br>Almost everything is written in simple to edit [JSON](http://www.json.org/).
+
+Patterns, however, must be created using [LUA](http://www.lua.org/) (which can also be used for other cool stuff).
+
+Please refer to the files in the **documentation** folder.
+
+*If you need further assistance post on the official page:*
+[http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon)
 
 ----------
+
 
 ## Changelog ##
 
