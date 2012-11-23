@@ -87,8 +87,8 @@ namespace hg
 		playLevelMusic();
 
 		clearMessages();
-		scripts.clear();
-		scriptQueue = queue<ScriptData>{};
+		events.clear();
+		eventQueue = queue<EventData>{};
 
 		timeStop = 0;
 		randomSideChangesEnabled = true;
@@ -113,7 +113,7 @@ namespace hg
 		createPlayer(manager, this, centerPos);
 
 		timeline = Timeline{};
-		messagesTimeline = Timeline{};		
+		messageTimeline = Timeline{};
 	}
 	void HexagonGame::death()
 	{
@@ -133,17 +133,25 @@ namespace hg
 		auto wall = [=](int mSide, float mThickness) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, 1)(pm); };
 		auto wallAdj = [=](int mSide, float mThickness, float mSpeedAdj) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, mSpeedAdj)(pm); };
 
-		lua.writeVariable("getSides", [=]() { return levelData.getSides(); });
-		lua.writeVariable("getSpeedMult", [=]() { return levelData.getSpeedMultiplier(); });
-		lua.writeVariable("getDelayMult", [=]() { return levelData.getDelayMultiplier(); });		
-		lua.writeVariable("execFile", [=](string mName) { runLuaFile(mName); });
-		lua.writeVariable("wait", [=](float mDuration) { timeline.add(new Wait(mDuration)); });
-		lua.writeVariable("wall", [=](int mSide, int mThickness) { timeline.add(new Do{[=] { wall(mSide, mThickness); }}); });
-		lua.writeVariable("wallAdj", [=](int mSide, int mThickness, float mSpeedAdj) { timeline.add(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
+		lua.writeVariable("wall", 					[=](int mSide, int mThickness) { timeline.add(new Do{[=] { wall(mSide, mThickness); }}); });
+		lua.writeVariable("wallAdj", 				[=](int mSide, int mThickness, float mSpeedAdj) { timeline.add(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
+		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
+		lua.writeVariable("getSpeedMult",			[=]() 									{ return levelData.getSpeedMultiplier(); });
+		lua.writeVariable("getDelayMult", 			[=]() 									{ return levelData.getDelayMultiplier(); });
+		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
+		lua.writeVariable("execEvent", 				[=](string mId) 						{ events.push_back(getEventData(mId, this)); });
+		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventQueue.push(getEventData(mId, this)); });
+		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.add(new Wait(mDuration)); });
+		lua.writeVariable("getLevelValueInt", 		[=](string mValueName) 					{ return levelData.getValueInt(mValueName); });
+		lua.writeVariable("getLevelValueFloat", 	[=](string mValueName) 					{ return levelData.getValueFloat(mValueName); });
+		lua.writeVariable("getLevelValueString", 	[=](string mValueName) 					{ return levelData.getValueString(mValueName); });
+		lua.writeVariable("setLevelValueInt", 		[=](string mValueName, int mValue) 		{ return levelData.setValueInt(mValueName, mValue); });
+		lua.writeVariable("setLevelValueFloat", 	[=](string mValueName, float mValue) 	{ return levelData.setValueFloat(mValueName, mValue); });
+		lua.writeVariable("setLevelValueString", 	[=](string mValueName, string mValue) 	{ return levelData.setValueString(mValueName, mValue); });
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{
-		ifstream s("LuaScripts/" + mFileName);
+		ifstream s("Scripts/" + mFileName);
 		lua.executeCode(s);
 	}
 
@@ -184,17 +192,17 @@ namespace hg
 	}
 	inline void HexagonGame::updateLevelEvents(float mFrameTime)
 	{
-		for(ScriptData& pattern : scripts) pattern.update(mFrameTime);
-		if(!scriptQueue.empty())
+		for(EventData& pattern : events) pattern.update(mFrameTime);
+		if(!eventQueue.empty())
 		{
-			scriptQueue.front().update(mFrameTime);
-			if(scriptQueue.front().getFinished()) scriptQueue.pop();
+			eventQueue.front().update(mFrameTime);
+			if(eventQueue.front().getFinished()) eventQueue.pop();
 		}
 
 		if(!getScripting()) return;
 
-		messagesTimeline.update(mFrameTime);
-		if(messagesTimeline.isFinished()) clearAndResetTimeline(messagesTimeline);
+		messageTimeline.update(mFrameTime);
+		if(messageTimeline.isFinished()) clearAndResetTimeline(messageTimeline);
 
 		executeEvents(levelData.getRoot()["events"], currentTime);
 	}
@@ -352,9 +360,9 @@ namespace hg
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
-		messagesTimeline.add(new Do{ [&, text, mMessage]{ messageTextPtrs.push_back(text); }});
-		messagesTimeline.add(new Wait{mDuration});
-		messagesTimeline.add(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
+		messageTimeline.add(new Do{ [&, text, mMessage]{ messageTextPtrs.push_back(text); }});
+		messageTimeline.add(new Wait{mDuration});
+		messageTimeline.add(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
 	}
 	void HexagonGame::clearMessages()
 	{
@@ -436,8 +444,9 @@ namespace hg
 			else if (type == "pulse_min_set")			minPulse = value;
 			else if (type == "pulse_speed_set")			pulseSpeed = value;
 			else if (type == "pulse_speed_b_set")		pulseSpeedBackwards = value;
-			else if (type == "script_exec")				scripts.push_back(getScriptData(id, this));
-			else if (type == "script_enqueue")			scriptQueue.push(getScriptData(id, this));
+			else if (type == "event_exec")				events.push_back(getEventData(id, this));
+			else if (type == "event_enqueue")			eventQueue.push(getEventData(id, this));
+			else if (type == "script_exec")				runLuaFile(valueName);
 			else										log("unknown script command: " + type);
 		}
 	}

@@ -1,7 +1,7 @@
 -- include useful files
-execFile("utils.lua")
-execFile("common.lua")
-execFile("commonpatterns.lua")
+execScript("utils.lua")
+execScript("common.lua")
+execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)

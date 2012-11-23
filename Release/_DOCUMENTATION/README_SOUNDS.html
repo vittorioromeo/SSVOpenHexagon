@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>README_STYLES.txt</title>
+<title>README_SOUNDS.markdown</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
 body{
@@ -266,45 +266,15 @@ button::-moz-focus-inner {
 </style>
 </head>
 <body>
-<h1>Styles</h1>
+<h1>Sounds</h1>
 
-<p>Style json files in Open Hexagon contain all the
-information to draw the background of any level.</p>
+<p>The sounds.json file is very simple.
+Every member points to a different sound file.
+Only .ogg vorbis is currently supported.</p>
 
-<p>It's easier to copy-paste an existing style file
-and edit it.</p>
-
-<p>Styles must have an unique id (that will be used
-in the level json files).</p>
-
-<p><code>"hue_min"</code> and <code>"hue_max"</code> represent the range of
-colors that will be used. </br>
-<code>"hue_ping_pong"</code> will make the colors loop if
-set to false, otherwise they will go back and
-forth.</br>
-<code>"hue_increment"</code> is the speed of color changes.</br>
-<code>"hue_pulse"</code> makes the background pulse using
-the hue as a reference.</p>
-
-<hr />
-
-<p>We have 3 colors:</br>
-        main: used by player, walls and text</br>
-    a: used by background</br>
-    b: used by background</br></p>
-
-<p>These colors can either be:
-    static: they don't change using hue
-    dynamic: they change with hue</p>
-
-<p>If the colors are dynamic you can set:</br>
-    <code>"dynamic_darkness"</code>: darkness of the color</br>
-    <code>"dynamic_offset"</code>: subtract static color from
-                      the main color</p>
-
-<p>The <code>"?_static"</code> members contain a color in the
-[R, G, B, ALPHA] format that will be used if
-the color is static or <code>"dynamic_offset"</code> is true.</p>
+<p>You can easily convert any music/sound file by
+using the program "foobar2000", which can be
+easily found on Google.</p>
 
 </body>
 </html>

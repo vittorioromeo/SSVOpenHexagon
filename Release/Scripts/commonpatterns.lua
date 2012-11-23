@@ -1,4 +1,4 @@
-execFile("common.lua")
+execScript("common.lua")
 
 -- pAltBarrage: spawns a series of cAltBarrage
 function pAltBarrage(mTimes, mStep)
@@ -82,7 +82,7 @@ function pInverseBarrage(mTimes)
 	for i = 0, mTimes do
 		cBarrage(startSide)
 		wait(delay)
-		cBarrage(startSide + getSides() / 2)
+		cBarrage(startSide + getHalfSides())
 		wait(delay)
 	end
 	

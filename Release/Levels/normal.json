@@ -14,7 +14,7 @@
 	"music_id": "starshipShowdown",
 	
 	// Lua
-	"lua_file": "defaultLevels/zen.lua",
+	"lua_file": "defaultLevels/allcpatterns.lua",
 	
 	// Basic values
 	"speed_multiplier": 1.50,

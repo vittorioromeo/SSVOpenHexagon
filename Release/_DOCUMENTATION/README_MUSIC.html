@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>README_SCRIPTING.markdown</title>
+<title>README_MUSIC.markdown</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
 body{
@@ -266,125 +266,53 @@ button::-moz-focus-inner {
 </style>
 </head>
 <body>
-<h1>Scripting</h1>
+<h1>Music</h1>
 
-<p><em>Level scripts can be used to control the game parameters and to do 
-more cool stuff during gameplay. They make every level unique and more
-interesting. Here's a list of commands:</em></p>
+<p>Music files have to be in the .ogg vorbis
+format. I included the "vorbisgain.exe" program,
+which helps removing distorsion caused by too
+high volumes (it's a known SFML bug).</p>
 
-<hr />
+<p>Simply place your music file in this folder,
+then run vorbisgain.exe using the file as a 
+parameter (either via command line or batch
+file), like this:</p>
 
-<p><code>"event_time_stop"  ("duration")</code></br>
-Stops the game timer for "duration" frames.</p>
+<p><code>vorbisgain.exe drFinkelfracken.ogg</code></p>
 
-<hr />
+<p>After that, you're ready to make a .json file
+for the music (it is required).</p>
 
-<p><code>"timeline_wait"    ("duration")</code></br>
-Stops the pattern timeline for "duration" frames.</p>
+<p>Copy paste an existing .json file, it's easier.</p>
 
-<hr />
+<p>The "id" member requires you to invent an 
+unique id for the music data. It doesn't have
+to be the same as the music file. It mustn't
+be the same as any other id.</p>
 
-<p><code>"timeline_clear"</code></br>
-Clears the pattern timeline, stopping all the patterns.</p>
+<p>The "file_name" member is the name of the 
+music file with the .ogg extension.</p>
 
-<hr />
+<p>Add your music information to make it show up
+in the menu.</p>
 
-<p><code>"timeline_add"*    ("pattern")</code></br>
-Adds "pattern" to the end of the pattern timeline.</p>
+<p>The "segments" array contains objects with
+"time" members - every value is in seconds, and
+represents the start of a segment in the song
+which is suitable to gameplay.</p>
 
-<hr />
+<p>If your song has a long intro, or different
+parts that you want to hear in random sequences,
+you can add the corresponding second as a new 
+object in the "segments" array, like I've done
+for the existing songs.</p>
 
-<p><code>"message_add"      ("duration", "message")</code></br>
-Queues a text message with the string "message" that lasts for "duration" frames.</p>
+<p>If you want the full songs to always play,
+add a single object, with "time" equal to 0.</p>
 
-<hr />
-
-<p><code>"message_clear"</code></br>
-Clears the screen from messages.</p>
-
-<hr />
-
-<p><code>"value_float_add"  ("value_name", "value")</code></br>
-<code>"value_float_set"</code></br>
-<code>"value_float_subtract"</code></br>
-<code>"value_float_multiply"</code></br>
-<code>"value_float_divide"</code></br>
-<code>"value_int_add"</code></br>
-<code>"value_int_set"</code></br>
-<code>"value_int_subtract"</code></br>
-<code>"value_int_multiply"</code></br>
-<code>"value_int_divide"</code></br>
-Adds, sets, subtract, multiplies or divides a JSON value by the name "value_name" by "value".</p>
-
-<hr />
-
-<p><code>"style_set"        ("id")</code></br>
-Changes the current style to "id".</p>
-
-<hr />
-
-<p><code>"music_set"            ("id")</code></br>
-Changes the current music to "id", with a random segment.</p>
-
-<hr />
-
-<p><code>"music_set_segment" ("id", "segment_index")</code></br>
-Changes the current music to "id", at the segment number "segment_index".</p>
-
-<hr />
-
-<p><code>"music_set_seconds"    ("id", "seconds")</code></br>
-Changes the current music to "id", starting at "seconds".</p>
-
-<hr />
-
-<p><code>"level_change"     ("id")</code></br>
-Changes the level to "id", saving progress.</p>
-
-<hr />
-
-<p><code>"side_changing_stop"</code></br>
-Stops random side number changes on level up.</p>
-
-<hr />
-
-<p><code>"side_changing_start"</code></br>
-Resumes random side number changes on level up.</p>
-
-<hr />
-
-<p><code>"increment_stop"</code></br>
-Stops level up increments.</p>
-
-<hr />
-
-<p><code>"increment_start"</code></br>
-Resumes level up increments.</p>
-
-<hr />
-
-<p><code>"pulse_max_set"        ("value")</code></br>
-Sets how far the center pulses. Default is 85;</p>
-
-<hr />
-
-<p><code>"pulse_min_set"    ("value")</code></br>
-Sets how close the center pulses. Default is 75;</p>
-
-<hr />
-
-<p><code>"pulse_speed_set"  ("value")</code></br>
-Sets how fast the center pulses. Default is 1.</p>
-
-<hr />
-
-<p><code>"pulse_speed_b_set"    ("value")</code></br>
-Sets how fast the center pulses back. Default is 1.</p>
-
-<hr />
-
-<p><code>"menu"</code></br>
-Returns to menu, saving progress.</p>
+<p>You can easily convert any music/sound file by
+using the program "foobar2000", which can be
+easily found on Google.</p>
 
 </body>
 </html>

@@ -1,7 +1,7 @@
 -- include useful files
-execFile("utils.lua")
-execFile("common.lua")
-execFile("commonpatterns.lua")
+execScript("utils.lua")
+execScript("common.lua")
+execScript("commonpatterns.lua")
 
 -- this function is a non-default pattern, unique to this level
 function pCoolPattern()
@@ -12,7 +12,7 @@ function pCoolPattern()
 		wall(startSide + getSides() / 2, THICKNESS * 5)
 		cBarrage(startSide - 1)
 		wait(delay)
-		wall(startSide, THICKNESS * 5)
+		wall(startSide, THICKNESS * 6)
 		cBarrage(startSide + getSides() / 2 - 1)
 		wait(delay)
 	end
@@ -23,7 +23,7 @@ function pCoolPattern()
 		wall(startSide, THICKNESS * 5)
 		cBarrage(startSide - 1)
 		wait(delay)
-		wall(startSide + getSides() / 2, THICKNESS * 5)
+		wall(startSide + getSides() / 2, THICKNESS * 6)
 		cBarrage(startSide + getSides() / 2 - 1)
 		wait(delay)
 	end

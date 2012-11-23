@@ -51,7 +51,7 @@ namespace hg
 	void loadStyleData();
 	void loadLevelData();
 	void loadProfiles();
-	void loadScripts();
+	void loadEvents();
 
 	void saveCurrentProfile();
 
@@ -76,7 +76,7 @@ namespace hg
 	ProfileData& getCurrentProfile();
 	string getCurrentProfileFilePath();
 
-	ScriptData getScriptData(string mId, HexagonGame* mHgPtr);
+	EventData getEventData(string mId, HexagonGame* mHgPtr);
 }
 
 #endif /* ASSETS_H_ */

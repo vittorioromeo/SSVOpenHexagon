@@ -1,6 +1,11 @@
 -- common variables
 THICKNESS = 40;
 
+-- getHalfSides: returns half the number of sides (integer)
+function getHalfSides()
+	return math.ceil(getSides() / 2)
+end
+
 -- getRandomSide: returns random mSide
 function getRandomSide()
 	return math.random(0, getSides() - 1)
@@ -32,7 +37,7 @@ end
 
 -- oWall: creates a wall opposite to the mSide passed
 function oWall(mSide)
-	cWall(mSide + getSides() / 2)
+	cWall(mSide + getHalfSides())
 end
 
 -- rWall: union of cwall and owall (created 2 walls facing each other)
@@ -58,7 +63,7 @@ end
 
 -- oWallEx: creates a wall with mExtra walls opposite to mSide
 function oWallEx(mSide, mExtra)
-	cWallEx(mSide + getSides() / 2, mExtra)
+	cWallEx(mSide + getHalfSides(), mExtra)
 end
 
 -- rWallEx: union of cwallex and owallex

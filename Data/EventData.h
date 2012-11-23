@@ -14,7 +14,7 @@ namespace hg
 {
 	class HexagonGame;
 
-	class ScriptData
+	class EventData
 	{
 		private:
 			HexagonGame* hgPtr;
@@ -23,7 +23,7 @@ namespace hg
 			bool finished{false};
 			
 		public:
-			ScriptData(Json::Value mRoot);
+			EventData(Json::Value mRoot);
 
 			string getId();
 			bool getFinished();

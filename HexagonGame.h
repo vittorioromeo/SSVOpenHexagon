@@ -38,7 +38,7 @@
 #include <SSVEntitySystem.h>
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
-#include "Data/ScriptData.h"
+#include "Data/EventData.h"
 #include "Data/StyleData.h"
 #include "LuaContext.h"
 
@@ -74,11 +74,11 @@ namespace hg
 
 			Timeline timeline;
 
-			Timeline messagesTimeline;
+			Timeline messageTimeline;
 			vector<Text*> messageTextPtrs;
 
-			vector<ScriptData> scripts;
-			queue<ScriptData> scriptQueue;
+			vector<EventData> events;
+			queue<EventData> eventQueue;
 
 			Vector2f centerPos{0,0};
 
@@ -127,7 +127,7 @@ namespace hg
 			void addMessage(string mMessage, float mDuration);
 			void clearMessages();
 
-			void queueScript(ScriptData mScript);
+			void queueScript(EventData mScript);
 
 
 		public:

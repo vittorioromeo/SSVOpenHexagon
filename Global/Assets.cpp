@@ -30,7 +30,7 @@
 #include <json/reader.h>
 #include "Data/MusicData.h"
 #include "Data/LevelData.h"
-#include "Data/ScriptData.h"
+#include "Data/EventData.h"
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "Global/Assets.h"
@@ -49,7 +49,7 @@ namespace hg
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
 	map<string, ProfileData> profileDataMap;
-	map<string, ScriptData> patternDataMap;
+	map<string, EventData> eventDataMap;
 	ProfileData* currentProfilePtr;
 
 	void loadAssets()
@@ -61,7 +61,7 @@ namespace hg
 		log("loading style data"); 	loadStyleData();
 		log("loading level data");	loadLevelData();
 		log("loading profiles"); 	loadProfiles();
-		log("loading scripts"); 	loadScripts();
+		log("loading scripts"); 	loadEvents();
 	}
 
 	void loadFonts()
@@ -152,12 +152,12 @@ namespace hg
 
 		setCurrentProfile(profileDataMap.begin()->second);
 	}
-	void loadScripts()
+	void loadEvents()
 	{
-		for(auto filePath : getAllFilePaths("Scripts/", ".json"))
+		for(auto filePath : getAllFilePaths("Events/", ".json"))
 		{
-			ScriptData patternData{getJsonFileRoot(filePath)};
-			patternDataMap.insert(make_pair(patternData.getId(), patternData));
+			EventData eventData{getJsonFileRoot(filePath)};
+			eventDataMap.insert(make_pair(eventData.getId(), eventData));
 		}
 	}
 
@@ -208,9 +208,9 @@ namespace hg
 	ProfileData& getCurrentProfile() { return *currentProfilePtr; }
 	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePtr->getId() + ".json"; }
 
-	ScriptData getScriptData(string mId, HexagonGame* mHgPtr)
+	EventData getEventData(string mId, HexagonGame* mHgPtr)
 	{
-		ScriptData result{patternDataMap.find(mId)->second};
+		EventData result{eventDataMap.find(mId)->second};
 		result.setHexagonGamePtr(mHgPtr);
 		return result;
 	}

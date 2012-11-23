@@ -84,7 +84,8 @@ namespace hg
 			void setValueInt(string mValueName, int mValue);
 			float getValueInt(string mValueName);
 
-			string getValueString(string mValueName);
+			void setValueString(string mValueName, string mValue);
+			string getValueString(string mValueName);			
 	};
 }
 #endif // LEVELSETTINGS_H
