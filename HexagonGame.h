@@ -54,7 +54,6 @@ namespace hg
 	class HexagonGame
 	{
 		friend class PatternManager;
-		friend class CPlayer;
 
 		private:
 			Game game;
@@ -146,6 +145,7 @@ namespace hg
 			Game& getGame();
 			float getRadius();
 			Color getColorMain();
+			Color getColor(int mIndex);
 			bool isKeyPressed(Keyboard::Key mKey);
 
 			float getSpeedMultiplier();
@@ -156,6 +156,7 @@ namespace hg
 			void setDelayMultiplier(float mDelayMultiplier);
 			void setRotationSpeed(float mRotationSpeed);
 			void setSides(int mSides);
+			float getWallSkew();
 
 			void executeEvents(Json::Value& mRoot, float mTime);
 	};

@@ -103,6 +103,7 @@ namespace hg
 	float StyleData::getHueMax()				{ return root["hue_max"].asFloat(); }
 	bool StyleData::getHuePingPong()			{ return root["hue_ping_pong"].asBool(); }
 	float StyleData::getHueIncrement()			{ return root["hue_increment"].asFloat(); }
+
 	float StyleData::getCurrentHue() 			{ return currentHue; }
 	float StyleData::getCurrentSwapTime() 		{ return currentSwapTime; }
 	Color StyleData::getMainColor()				{ return calculateColor(root["main"]); }

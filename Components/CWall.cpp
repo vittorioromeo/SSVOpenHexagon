@@ -27,31 +27,23 @@
 
 namespace hg
 {
-	void movePoint(Vector2f &mVector, const Vector2f mCenter, const float mSpeed)
-	{
-		Vector2f m { mCenter - mVector };
-		m = getNormalized(m);
-		m *= mSpeed;
-		mVector += m;
-	}
-
 	CWall::CWall(HexagonGame *mHgPtr, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed) :
-			Component{"wall"}, hgPtr{mHgPtr}, centerPos{mCenterPos}, speed{mSpeed}
+			Component{"wall"}, hgPtr{mHgPtr}, centerPos{mCenterPos}, speed{mSpeed}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
-		float div { 360.f / hgPtr->getSides() };
-		float angle { div * mSide };
+		float div{360.f / hgPtr->getSides()};
+		float angle{div * side};
 
-		p1 = getOrbit(centerPos, angle - div * 0.5f, mDistance);
-		p2 = getOrbit(centerPos, angle + div * 0.5f, mDistance);
-		p3 = getOrbit(centerPos, angle + div * 0.5f, mDistance + mThickness);
-		p4 = getOrbit(centerPos, angle - div * 0.5f, mDistance + mThickness);
+		p1 = getOrbit(centerPos, angle - div * 0.5f, distance);
+		p2 = getOrbit(centerPos, angle + div * 0.5f, distance);
+		p3 = getOrbit(centerPos, angle + div * 0.5f, distance + thickness + hgPtr->getWallSkewLeft());
+		p4 = getOrbit(centerPos, angle - div * 0.5f, distance + thickness + hgPtr->getWallSkewRight());
 	}
 
 	bool CWall::isOverlapping(Vector2f mPoint) { return isPointInPolygon(pointPtrs, mPoint); }
 
 	void CWall::draw()
 	{
-		Color color { hgPtr->getColorMain() };
+		Color color{hgPtr->getColorMain()};
 
 		vertices[0].position = p1;
 		vertices[1].position = p2;
@@ -68,8 +60,8 @@ namespace hg
 
 	void CWall::update(float mFrameTime)
 	{
-		float radius { hgPtr->getRadius() * 0.65f };
-		int pointsOnCenter { 0 };
+		float radius{hgPtr->getRadius() * 0.65f};
+		int pointsOnCenter{0};
 
 		for(auto pointPtr : pointPtrs)
 		{
@@ -77,7 +69,7 @@ namespace hg
 			float distanceY { abs(pointPtr->y - centerPos.y) };
 
 			if(distanceX < radius && distanceY < radius) pointsOnCenter++;
-			else movePoint(*pointPtr, centerPos, speed * mFrameTime);
+			else movePointTowardsCenter(*pointPtr, centerPos, speed * mFrameTime);
 		}
 
 		if(pointsOnCenter > 3) getEntity().destroy();

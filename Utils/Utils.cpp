@@ -67,6 +67,12 @@ namespace hg
 		float length { std::sqrt((mVector.x * mVector.x) + (mVector.y * mVector.y)) };
 		return Vector2f{ mVector.x / length, mVector.y / length };
 	}
+	void movePointTowardsCenter(Vector2f &mVector, const Vector2f mCenter, const float mSpeed)
+	{
+		Vector2f m{mCenter - mVector};
+		m = getNormalized(m) * mSpeed;
+		mVector += m;
+	}
 
 	Color getColorFromHue(double h)
 	{

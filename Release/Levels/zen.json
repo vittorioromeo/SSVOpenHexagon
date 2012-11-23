@@ -8,7 +8,7 @@
 	"selectable": true,
 	
 	// Style
-	"style_id": "zen3",
+	"style_id": "zen",
 	
 	// Music
 	"music_id": "captainCool",
@@ -28,6 +28,7 @@
 	"sides_min": 5,
 	"sides_max": 8,
 	"increment_time": 10,
+	"wall_skew_right": -65, 
 	
 	//Events
 	"events":

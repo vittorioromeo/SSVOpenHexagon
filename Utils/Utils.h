@@ -58,6 +58,7 @@ namespace hg
 
 	Vector2f getOrbit(const Vector2f&, const float, const float);
 	Vector2f getNormalized(const Vector2f);
+	void movePointTowardsCenter(Vector2f &mVector, const Vector2f mCenter, const float mSpeed);
 
 	Color getColorFromHue(double);
 	Color getColorDarkened(Color, float);

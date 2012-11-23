@@ -42,6 +42,9 @@ namespace hg
 			VertexArray vertices{PrimitiveType::Quads, 4};
 			vector<Vector2f*> pointPtrs{&p1, &p2, &p3, &p4};
 			float speed{0};
+			float distance{0};
+			float thickness{0};
+			int side{0};
 
 		public:
 			CWall(HexagonGame*, Vector2f, int, float, float, float);

@@ -46,16 +46,15 @@ namespace hg
 			VertexArray vertices{PrimitiveType::Triangles, 3};
 
 			float hue{0};
-			bool isDead{false};
-
-			inline void drawPivot();			
-
-		public:
 			float size{getPlayerSize()};
 			float angle{0};
 			float speed{getPlayerSpeed()};
 			float focusSpeed{getPlayerFocusSpeed()};
+			bool isDead{false};
 
+			inline void drawPivot();			
+
+		public:		
 			CPlayer(HexagonGame*, Vector2f);
 
 			void update(float mFrameTime) override;

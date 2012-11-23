@@ -260,7 +260,7 @@ namespace hg
 		{
 			Text timeOffsetText(s.str(), getFont("imagine"), timeText.getCharacterSize());
 			timeOffsetText.setPosition(timeText.getPosition() + offset);
-			timeOffsetText.setColor(styleData.getColors()[1]);
+			timeOffsetText.setColor(getColor(1));
 			drawOnWindow(timeOffsetText);
 		}
 		drawOnWindow(timeText);
@@ -272,7 +272,7 @@ namespace hg
 				Text textPtrOffset{textPtr->getString(), getFont("imagine"), textPtr->getCharacterSize()};
 				textPtrOffset.setPosition(textPtr->getPosition() + offset);
 				textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
-				textPtrOffset.setColor(styleData.getColors()[1]);
+				textPtrOffset.setColor(getColor(1));
 				drawOnWindow(textPtrOffset);
 			}
 			
@@ -383,7 +383,9 @@ namespace hg
 	Game& HexagonGame::getGame()						{ return game; }
 	float HexagonGame::getRadius() 						{ return radius; }
 	Color HexagonGame::getColorMain() 					{ return getBlackAndWhite() ? Color::White : styleData.getMainColor(); }
-
+	Color HexagonGame::getColor(int mIndex)				{ return styleData.getColors()[mIndex]; }
+	float HexagonGame::getWallSkewLeft() 				{ return levelData.getValueFloat("wall_skew_left"); }
+	float HexagonGame::getWallSkewRight() 				{ return levelData.getValueFloat("wall_skew_right"); }
 
 	float HexagonGame::getSpeedMultiplier() { return levelData.getSpeedMultiplier(); }
 	float HexagonGame::getDelayMultiplier() { return levelData.getDelayMultiplier(); }
