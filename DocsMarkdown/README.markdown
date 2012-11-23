@@ -75,10 +75,11 @@ Avoid the walls! Press **R** to restart.</br> Press **ESC** to go back to the me
 
 Version 1.2
 
-* Added: completely new level scripting system
+* Added: completely new JSON event scripting system
 * Added: LUA scripting for patterns
 * Added: new announcer sounds by BubblegumBalloon! (thank you)
 * Added: save profiles for scores
+* Added: new event scripting ocmmands ("play_sound", LUA-related)
 
 Version 1.11
 

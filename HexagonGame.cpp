@@ -447,6 +447,7 @@ namespace hg
 			else if (type == "event_exec")				events.push_back(getEventData(id, this));
 			else if (type == "event_enqueue")			eventQueue.push(getEventData(id, this));
 			else if (type == "script_exec")				runLuaFile(valueName);
+			else if (type == "play_sound")				playSound(id);
 			else										log("unknown script command: " + type);
 		}
 	}

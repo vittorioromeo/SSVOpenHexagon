@@ -72,6 +72,9 @@ Sets how fast the center pulses. Default is 1.
 `"pulse_speed_b_set"	("value")`</br>
 Sets how fast the center pulses back. Default is 1.
 
+`"play_sound"	("id")`</br>
+Plays sound with id "id".
+
 `"menu"`</br>
 Returns to menu, saving progress.
 
