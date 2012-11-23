@@ -26,7 +26,8 @@ Special thanks:</br>
 to **BubblegumBalloon** for the announcer sounds </br>
 to **Dajoh** for hosting </br>
 to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)</br>
-to **Ethan Lee** for the [Unix port](https://github.com/flibitijibibo/OpenHexagon-Unix)
+to **Ethan Lee** for the [Unix port](https://github.com/flibitijibibo/OpenHexagon-Unix)</br>
+to **Jookia** for his help with the CMake files
 
 ----------
 
