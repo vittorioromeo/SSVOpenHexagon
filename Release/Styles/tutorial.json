@@ -20,6 +20,6 @@
 	"colors":
 	[
 		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [240, 240, 240, 255], "pulse": [0, 0, 0, 0]},
-		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [200, 200, 200, 255], "pulse": [0, 0, 0, 0]}
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [200, 200, 200, 255], "pulse": [0, 0, 25, 0]}
 	]
 }

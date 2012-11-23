@@ -21,17 +21,29 @@ Queues a text message with the string "message" that lasts for "duration" frames
 `"message_clear"`</br>
 Clears the screen from messages.
 
-`"value_float_add"	("value_name", "value")`</br>
-`"value_float_set"`</br>
-`"value_float_subtract"`</br>
-`"value_float_multiply"`</br>
-`"value_float_divide"`</br>
-`"value_int_add"`</br>
-`"value_int_set"`</br>
-`"value_int_subtract"`</br>
-`"value_int_multiply"`</br>
-`"value_int_divide"`</br>
-Adds, sets, subtract, multiplies or divides a JSON value by the name "value_name" by "value".
+`"level_float_add"	("value_name", "value")`</br>
+`"level_float_set"`</br>
+`"level_float_subtract"`</br>
+`"level_float_multiply"`</br>
+`"level_float_divide"`</br>
+`"level_int_add"`</br>
+`"level_int_set"`</br>
+`"level_int_subtract"`</br>
+`"level_int_multiply"`</br>
+`"level_int_divide"`</br>
+Adds, sets, subtract, multiplies or divides a level JSON value by the name "value_name" by "value".
+
+`"style_float_add"	("value_name", "value")`</br>
+`"style_float_set"`</br>
+`"style_float_subtract"`</br>
+`"style_float_multiply"`</br>
+`"style_float_divide"`</br>
+`"style_int_add"`</br>
+`"style_int_set"`</br>
+`"style_int_subtract"`</br>
+`"style_int_multiply"`</br>
+`"style_int_divide"`</br>
+Adds, sets, subtract, multiplies or divides a style JSON value by the name "value_name" by "value".
 
 `"style_set" 		("id")`</br>
 Changes the current style to "id".

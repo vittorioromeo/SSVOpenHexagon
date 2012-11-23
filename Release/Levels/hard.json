@@ -14,7 +14,7 @@
 	"music_id": "mazeOfMayonnaise",
 	
 	// Lua
-	"lua_file": "defaultLevels/allcpatterns.lua",
+	"lua_file": "defaultLevels/hardpatterns.lua",
 	
 	// Basic values
 	"speed_multiplier": 2.10,
@@ -36,7 +36,7 @@
 		{ "time": 0,	"type": "pulse_speed_set",	"value": 1 },
 		{ "time": 90, 	"type": "increment_stop" },
 		
-		{ "time": 4, 	"type": "message_add", 		"duration": 100, 	"message": "hi!" },
+		{ "time": 4, 	"type": "message_add", 		"duration": 100, 	"message": "hi again" },
 		{ "time": 5, 	"type": "message_add", 		"duration": 170, 	"message": "are you used to this kind of speed?" },
 		{ "time": 15.5, "type": "message_add", 		"duration": 100, 	"message": "whoa!" },	
 		{ "time": 24, 	"type": "message_add", 		"duration": 180, 	"message": "hmm, i upgraded the screen rotation" },
@@ -47,7 +47,7 @@
 		{ "time": 42, 	"type": "timeline_wait", 	"duration": 600 },
 		{ "time": 45, 	"type": "time_stop", 		"duration": 300 },
 		{ "time": 45, 	"type": "message_add", 		"duration": 200, 	"message": "may the mayhem begin!" },
-		{ "time": 46.5, "type": "style_set",		"id": "mayhem" }
+		{ "time": 46.5, "type": "style_float_set",	"value_name": "pulse_increment",	"value": 0.15 }
 
 	]
 }

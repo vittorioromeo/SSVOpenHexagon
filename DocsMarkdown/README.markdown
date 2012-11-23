@@ -27,7 +27,8 @@ to **BubblegumBalloon** for the announcer sounds </br>
 to **Dajoh** for hosting </br>
 to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)</br>
 to **Ethan Lee** for the [Unix port](https://github.com/flibitijibibo/OpenHexagon-Unix)</br>
-to **Jookia** for his help with the CMake files
+to **Jookia** for his help with the CMake files</br>
+to **Giuseppe Vinci**, **Jordo Matt**, **Pascal Schuster**, **Sean Pek** for beta-testing
 
 ----------
 
@@ -94,12 +95,13 @@ Please refer to the files in the **documentation** folder.
 
 Version 1.2
 
-* Added: completely new JSON event scripting system
-* Added: LUA scripting for patterns
-* Added: new announcer sounds by BubblegumBalloon! (thank you)
-* Added: save profiles for scores
-* Added: new event scripting ocmmands ("play_sound", LUA-related)
-* Added: new song, Captain Cool
+* Added: completely new **JSON event scripting system**
+* Added: **LUA scripting** for patterns
+* Added: **new announcer sounds** by **BubblegumBalloon**! (thank you)
+* Added: **save profiles** for scores
+* Added: new event scripting commands (`"play_sound"`, LUA-related)
+* Added: new song, **Captain Cool**
+* Added: `"wall_skew"` and `"wall__angle"` level parameters
 
 Version 1.11
 

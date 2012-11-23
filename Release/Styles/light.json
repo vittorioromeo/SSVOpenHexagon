@@ -19,7 +19,7 @@
 	// Background colors
 	"colors":
 	[
-		{ "dynamic": true, "dynamic_offset": true, "dynamic_darkness": 1.0, "value": [190, 190, 190, 255], "pulse": [0, 0, 0, 0], "offset": 5.0},
+		{ "dynamic": true, "dynamic_offset": true, "dynamic_darkness": 1.0, "value": [190, 190, 190, 255], "pulse": [0, 35, 0, 0], "offset": 4.5},
 		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [235, 235, 235, 255], "pulse": [0, 0, 0, 0]}
 	]
 }

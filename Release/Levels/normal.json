@@ -14,7 +14,7 @@
 	"music_id": "starshipShowdown",
 	
 	// Lua
-	"lua_file": "defaultLevels/allcpatterns.lua",
+	"lua_file": "defaultLevels/normalpatterns.lua",
 	
 	// Basic values
 	"speed_multiplier": 1.50,
@@ -41,13 +41,13 @@
 		{ "time": 57, 	"type": "timeline_wait", 	"duration": 500 },
 		{ "time": 60, 	"type": "time_stop", 		"duration": 300 },
 		{ "time": 60, 	"type": "message_add", 		"duration": 150, 	"message": "you did it! good luck!" },
-		{ "time": 60, 	"type": "value_float_add",	"value_name": "speed_multiplier", 	"value": 0.37 },
-		{ "time": 60, 	"type": "value_float_add",	"value_name": "delay_multiplier", 	"value": 0.27 },
-		{ "time": 60, 	"type": "value_float_add",	"value_name": "rotation_speed", 	"value": 0.04 },
-		{ "time": 60, 	"type": "value_int_set",	"value_name": "sides", 				"value": 6 },
+		{ "time": 60, 	"type": "level_float_add",	"value_name": "speed_multiplier", 	"value": 0.37 },
+		{ "time": 60, 	"type": "level_float_add",	"value_name": "delay_multiplier", 	"value": 0.27 },
+		{ "time": 60, 	"type": "level_float_add",	"value_name": "rotation_speed", 	"value": 0.04 },
+		{ "time": 60, 	"type": "level_int_set",	"value_name": "sides", 				"value": 6 },
 		{ "time": 60, 	"type": "side_changing_stop" },
 		{ "time": 60, 	"type": "style_set",		"id": "danger" },
 		{ "time": 60, 	"type": "music_set",		"id": "mazeOfMayonnaise" },
-		{ "time": 120, "type": "increment_stop" }
+		{ "time": 120, 	"type": "increment_stop" }
 	]
 }

@@ -24,8 +24,7 @@
 #include "Utils/Utils.h"
 
 namespace hg
-{
-	
+{	
 	Color StyleData::calculateColor(Json::Value mColorRoot)
 	{
 		Color color{getColorFromJsonArray(mColorRoot["value"])};
@@ -49,7 +48,10 @@ namespace hg
 		}
 
 		Color pulse{getColorFromJsonArray(mColorRoot["pulse"])};
-		return Color(color.r + pulse.r * pulseFactor, color.g + pulse.g * pulseFactor, color.b + pulse.b * pulseFactor, color.a);
+		return Color(clamp(color.r + pulse.r * pulseFactor, 0.f, 255.f),
+					 clamp(color.g + pulse.g * pulseFactor, 0.f, 255.f),
+					 clamp(color.b + pulse.b * pulseFactor, 0.f, 255.f),
+					 clamp(color.a + pulse.a * pulseFactor, 0.f, 255.f));
 	}
 
 	StyleData::StyleData(Json::Value mRoot) : root{mRoot}
@@ -116,5 +118,17 @@ namespace hg
 
 		return result;
 	}
+
+	void StyleData::setValueFloat(string mValueName, float mValue)	{ root[mValueName] = mValue; }
+	float StyleData::getValueFloat(string mValueName)				{ return root[mValueName].asFloat(); }
+
+	void StyleData::setValueInt(string mValueName, int mValue)		{ root[mValueName] = mValue; }
+	float StyleData::getValueInt(string mValueName)					{ return root[mValueName].asInt(); }
+
+	void StyleData::setValueString(string mValueName, string mValue){ root[mValueName] = mValue; }
+	string StyleData::getValueString(string mValueName)				{ return root[mValueName].asString(); }
+
+	void StyleData::setValueBool(string mValueName, bool mValue)	{ root[mValueName] = mValue; }
+	bool StyleData::getValueBool(string mValueName)					{ return root[mValueName].asBool(); }
 }
 

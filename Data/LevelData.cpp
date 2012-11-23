@@ -80,4 +80,7 @@ namespace hg
 
 	void LevelData::setValueString(string mValueName, string mValue){ root[mValueName] = mValue; }
 	string LevelData::getValueString(string mValueName)				{ return root[mValueName].asString(); }
+
+	void LevelData::setValueBool(string mValueName, bool mValue)	{ root[mValueName] = mValue; }
+	bool LevelData::getValueBool(string mValueName)					{ return root[mValueName].asBool(); }
 }

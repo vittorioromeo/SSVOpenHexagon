@@ -60,6 +60,18 @@ namespace hg
 
 			float getCurrentHue();
 			float getCurrentSwapTime();
+
+			void setValueFloat(string mValueName, float mValue);
+			float getValueFloat(string mValueName);
+
+			void setValueInt(string mValueName, int mValue);
+			float getValueInt(string mValueName);
+
+			void setValueString(string mValueName, string mValue);
+			string getValueString(string mValueName);
+
+			void setValueBool(string mValueName, bool mValue);
+			bool getValueBool(string mValueName);
 	};
 }
 

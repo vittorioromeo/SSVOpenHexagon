@@ -119,7 +119,7 @@ namespace hg
 			void stopLevelMusic();
 
 			void incrementDifficulty();
-			void randomSideChange();
+			void sideChange(int mSideNumber);
 			void checkAndSaveScore();
 			void goToMenu();
 			void changeLevel(string mId, bool mFirstTime);
@@ -156,7 +156,10 @@ namespace hg
 			void setDelayMultiplier(float mDelayMultiplier);
 			void setRotationSpeed(float mRotationSpeed);
 			void setSides(int mSides);
-			float getWallSkew();
+			float getWallSkewLeft();
+			float getWallSkewRight();
+			float getWallAngleLeft();
+			float getWallAngleRight();
 
 			void executeEvents(Json::Value& mRoot, float mTime);
 	};

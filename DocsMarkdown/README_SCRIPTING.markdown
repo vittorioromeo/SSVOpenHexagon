@@ -43,7 +43,19 @@ Enqueues an event file with id `mId`. Similar to event command `"event_enqueue"`
 `getLevelValueInt(mValueName)` </br>
 `getLevelValueFloat(mValueName)` </br> 
 `getLevelValueString(mValueName)` </br> 
+`getLevelValueBool(mValueName)` </br> 
 `setLevelValueInt(mValueName, mValue)` </br>
 `setLevelValueFloat(mValueName, mValue)`</br> 
 `setLevelValueString(mValueName, mValue)` </br> 
+`setLevelValueBool(mValueName, mValue)` </br> 
 Manipulate the current level values. This allows you to change any value that is present in the level .json file. You can also create new values and use them as 'global variables' for your LUA scripts. Nothing will be saved to the actual .json file, it only works in memory.
+
+`getStyleValueInt(mValueName)` </br>
+`getStyleValueFloat(mValueName)` </br> 
+`getStyleValueString(mValueName)` </br> 
+`getStyleValueBool(mValueName)` </br> 
+`setStyleValueInt(mValueName, mValue)` </br>
+`setStyleValueFloat(mValueName, mValue)`</br> 
+`setStyleValueString(mValueName, mValue)` </br> 
+`setStyleValueBool(mValueName, mValue)` </br> 
+Manipulate the current style values. This allows you to change any value that is present in the style .json file. You can also create new values and use them as 'global variables' for your LUA scripts. Nothing will be saved to the actual .json file, it only works in memory.

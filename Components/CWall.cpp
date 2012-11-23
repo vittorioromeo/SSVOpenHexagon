@@ -35,8 +35,8 @@ namespace hg
 
 		p1 = getOrbit(centerPos, angle - div * 0.5f, distance);
 		p2 = getOrbit(centerPos, angle + div * 0.5f, distance);
-		p3 = getOrbit(centerPos, angle + div * 0.5f, distance + thickness + hgPtr->getWallSkewLeft());
-		p4 = getOrbit(centerPos, angle - div * 0.5f, distance + thickness + hgPtr->getWallSkewRight());
+		p3 = getOrbit(centerPos, angle + div * 0.5f + hgPtr->getWallAngleLeft(), distance + thickness + hgPtr->getWallSkewLeft());
+		p4 = getOrbit(centerPos, angle - div * 0.5f + hgPtr->getWallAngleRight(), distance + thickness + hgPtr->getWallSkewRight());
 	}
 
 	bool CWall::isOverlapping(Vector2f mPoint) { return isPointInPolygon(pointPtrs, mPoint); }

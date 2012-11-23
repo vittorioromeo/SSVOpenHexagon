@@ -97,6 +97,7 @@ namespace hg
 		minPulse = 75;
 		pulseSpeedBackwards = 1;
 		pulseSpeed = 1;
+		fastSpin = 0;
 
 		hasDied = false;
 
@@ -142,12 +143,25 @@ namespace hg
 		lua.writeVariable("execEvent", 				[=](string mId) 						{ events.push_back(getEventData(mId, this)); });
 		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventQueue.push(getEventData(mId, this)); });
 		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.add(new Wait(mDuration)); });
+
 		lua.writeVariable("getLevelValueInt", 		[=](string mValueName) 					{ return levelData.getValueInt(mValueName); });
 		lua.writeVariable("getLevelValueFloat", 	[=](string mValueName) 					{ return levelData.getValueFloat(mValueName); });
 		lua.writeVariable("getLevelValueString", 	[=](string mValueName) 					{ return levelData.getValueString(mValueName); });
+		lua.writeVariable("getLevelValueBool", 		[=](string mValueName) 					{ return levelData.getValueBool(mValueName); });
 		lua.writeVariable("setLevelValueInt", 		[=](string mValueName, int mValue) 		{ return levelData.setValueInt(mValueName, mValue); });
 		lua.writeVariable("setLevelValueFloat", 	[=](string mValueName, float mValue) 	{ return levelData.setValueFloat(mValueName, mValue); });
 		lua.writeVariable("setLevelValueString", 	[=](string mValueName, string mValue) 	{ return levelData.setValueString(mValueName, mValue); });
+		lua.writeVariable("setLevelValueBool", 		[=](string mValueName, bool mValue) 	{ return levelData.setValueBool(mValueName, mValue); });
+
+		lua.writeVariable("getStyleValueInt", 		[=](string mValueName) 					{ return styleData.getValueInt(mValueName); });
+		lua.writeVariable("getStyleValueFloat", 	[=](string mValueName) 					{ return styleData.getValueFloat(mValueName); });
+		lua.writeVariable("getStyleValueString", 	[=](string mValueName) 					{ return styleData.getValueString(mValueName); });
+		lua.writeVariable("getStyleValueBool", 		[=](string mValueName) 					{ return styleData.getValueBool(mValueName); });
+		lua.writeVariable("setStyleValueInt", 		[=](string mValueName, int mValue) 		{ return styleData.setValueInt(mValueName, mValue); });
+		lua.writeVariable("setStyleValueFloat", 	[=](string mValueName, float mValue) 	{ return styleData.setValueFloat(mValueName, mValue); });
+		lua.writeVariable("setStyleValueString", 	[=](string mValueName, string mValue) 	{ return styleData.setValueString(mValueName, mValue); });
+		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
+
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{
@@ -198,8 +212,6 @@ namespace hg
 			eventQueue.front().update(mFrameTime);
 			if(eventQueue.front().getFinished()) eventQueue.pop();
 		}
-
-		if(!getScripting()) return;
 
 		messageTimeline.update(mFrameTime);
 		if(messageTimeline.isFinished()) clearAndResetTimeline(messageTimeline);
@@ -317,22 +329,24 @@ namespace hg
 		playSound("level_up");
 
 		setSpeedMultiplier(getSpeedMultiplier() + levelData.getSpeedIncrement());
-		setRotationSpeed(getRotationSpeed() + levelData.getRotationSpeedIncrement());
+		setRotationSpeed(getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setDelayMultiplier(getDelayMultiplier() + levelData.getDelayIncrement());
 		setRotationSpeed(getRotationSpeed() * -1);
 		fastSpin = levelData.getFastSpin();
 		
-		if(randomSideChangesEnabled) timeline.add(new Do([&]{ randomSideChange(); }));
+		if(randomSideChangesEnabled) timeline.add(new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
 	}
-	void HexagonGame::randomSideChange()
+	void HexagonGame::sideChange(int mSideNumber)
 	{
+		if(mSideNumber == getSides()) return;
+
 		if(manager.getComponentPtrsById("wall").size() > 0)
 		{
 			timeline.add(new Wait(10));
-			timeline.add(new Do([&]{ randomSideChange(); }));
+			timeline.add(new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
 			return;
 		}
-		setSides(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1));
+		setSides(mSideNumber);
 	}
 
 	void HexagonGame::checkAndSaveScore()
@@ -360,7 +374,7 @@ namespace hg
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
-		messageTimeline.add(new Do{ [&, text, mMessage]{ messageTextPtrs.push_back(text); }});
+		messageTimeline.add(new Do{ [&, text, mMessage]{ playSound("beep"); messageTextPtrs.push_back(text); }});
 		messageTimeline.add(new Wait{mDuration});
 		messageTimeline.add(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
 	}
@@ -386,6 +400,8 @@ namespace hg
 	Color HexagonGame::getColor(int mIndex)				{ return styleData.getColors()[mIndex]; }
 	float HexagonGame::getWallSkewLeft() 				{ return levelData.getValueFloat("wall_skew_left"); }
 	float HexagonGame::getWallSkewRight() 				{ return levelData.getValueFloat("wall_skew_right"); }
+	float HexagonGame::getWallAngleLeft() 				{ return levelData.getValueFloat("wall_angle_left"); }
+	float HexagonGame::getWallAngleRight() 				{ return levelData.getValueFloat("wall_angle_right"); }
 
 	float HexagonGame::getSpeedMultiplier() { return levelData.getSpeedMultiplier(); }
 	float HexagonGame::getDelayMultiplier() { return levelData.getDelayMultiplier(); }
@@ -424,16 +440,29 @@ namespace hg
 			else if (type == "time_stop")				timeStop = duration;
 			else if (type == "timeline_wait") 			timeline.add(new Wait(duration));
 			else if (type == "timeline_clear") 			clearAndResetTimeline(timeline);
-			else if (type == "value_float_set") 		levelData.setValueFloat(valueName, value);
-			else if (type == "value_float_add") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "value_float_subtract") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "value_float_multiply") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "value_float_divide") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "value_int_set") 			levelData.setValueInt(valueName, value);
-			else if (type == "value_int_add") 			levelData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "value_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "value_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "value_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
+			
+			else if (type == "level_float_set") 		levelData.setValueFloat(valueName, value);
+			else if (type == "level_float_add") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
+			else if (type == "level_float_subtract") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
+			else if (type == "level_float_multiply") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
+			else if (type == "level_float_divide") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
+			else if (type == "level_int_set") 			levelData.setValueInt(valueName, value);
+			else if (type == "level_int_add") 			levelData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
+			else if (type == "level_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
+			else if (type == "level_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
+			else if (type == "level_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
+
+			else if (type == "style_float_set") 		styleData.setValueFloat(valueName, value);
+			else if (type == "style_float_add") 		styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
+			else if (type == "style_float_subtract") 	styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
+			else if (type == "style_float_multiply") 	styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
+			else if (type == "style_float_divide") 		styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
+			else if (type == "style_int_set") 			styleData.setValueInt(valueName, value);
+			else if (type == "style_int_add") 			styleData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
+			else if (type == "style_int_subtract")		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
+			else if (type == "style_int_multiply") 		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
+			else if (type == "style_int_divide") 		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
+
 			else if (type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); } }
 			else if (type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
 			else if (type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
@@ -450,7 +479,7 @@ namespace hg
 			else if (type == "event_enqueue")			eventQueue.push(getEventData(id, this));
 			else if (type == "script_exec")				runLuaFile(valueName);
 			else if (type == "play_sound")				playSound(id);
-			else										log("unknown script command: " + type);
+			else										log("unknown event type: " + type);
 		}
 	}
 }

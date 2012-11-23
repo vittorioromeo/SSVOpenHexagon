@@ -14,7 +14,7 @@
 	"music_id": "jackRussel",
 	
 	// Lua
-	"lua_file": "defaultLevels/allcpatterns.lua",
+	"lua_file": "defaultLevels/easypatterns.lua",
 	
 	// Basic values
 	"speed_multiplier": 1.40,
@@ -47,12 +47,12 @@
 		{ "time": 30.1, "type": "timeline_clear" },
 		{ "time": 30.1, "type": "timeline_wait", 	"duration": 350 },
 		{ "time": 30.1, "type": "music_set",		"id": "steampunkWarlord" },
-		{ "time": 30.1, "type": "style_set",		"id": "zen2" },
+		{ "time": 30.1, "type": "style_float_set",	"value_name": "pulse_increment",	"value": 0.2 },
 		{ "time": 30.1, "type": "side_changing_stop" },
-		{ "time": 31, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 32, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 33, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 34, 	"type": "value_int_add",	"value_name": "sides", 	"value": 1 },
+		{ "time": 31, 	"type": "level_int_add",	"value_name": "sides", 	"value": 1 },
+		{ "time": 32, 	"type": "level_int_add",	"value_name": "sides", 	"value": 1 },
+		{ "time": 33, 	"type": "level_int_add",	"value_name": "sides", 	"value": 1 },
+		{ "time": 34, 	"type": "level_int_add",	"value_name": "sides", 	"value": 1 },
 		{ "time": 150, 	"type": "increment_stop" }
 	]
 }

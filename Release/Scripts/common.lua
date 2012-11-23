@@ -30,6 +30,28 @@ function getPerfectThickness(mThickness)
 	return mThickness * getSpeedMult() * getDelayMult()
 end
 
+-- getSideDistance: returns shortest distance from a side to another
+function getSideDistance(mSide1, mSide2)
+	start = mSide1	
+	rightSteps = 0
+	while start ~= mSide2 do
+		rightSteps = rightSteps + 1
+		start = start + 1
+		if start > getSides() - 1 then start = 0 end
+	end
+	
+	start = mSide1	
+	leftSteps = 0
+	while start ~= mSide2 do
+		leftSteps = leftSteps + 1
+		start = start - 1
+		if start < 0 then start = getSides() - 1 end
+	end
+	
+	if rightSteps < leftSteps then return rightSteps end
+	return leftSteps
+end
+
 -- cWall: creates a wall with the common THICKNESS
 function cWall(mSide)
 	wall(mSide, THICKNESS)

@@ -14,7 +14,7 @@
 	"pulse_increment": 0.025,
 	
 	// Main color
-	"main": { "main": true, "dynamic": true, "value": [255, 0, 0, 255], "pulse": [0, 0, 0, 0] },
+	"main": { "main": true, "dynamic": true, "value": [255, 0, 0, 255], "pulse": [-80, 75, 65, 0] },
 
 	// Background colors
 	"colors":
