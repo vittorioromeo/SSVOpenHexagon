@@ -14,16 +14,16 @@
 	"music_id": "milkyWays",
 	
 	// Lua
-	"lua_file": "defaultLevels/allcpatterns.lua",
+	"lua_file": "defaultLevels/lunaticpatterns.lua",
 	
 	// Basic values
-	"speed_multiplier": 2.45,
-	"speed_increment": 0.10,
-	"rotation_speed": 0.30,
+	"speed_multiplier": 2.43,
+	"speed_increment": 0.07,
+	"rotation_speed": 0.29,
 	"rotation_increment": 0.05,
-	"delay_multiplier": 0.91,
+	"delay_multiplier": 0.94,
 	"delay_increment": 0.00,
-	"fast_spin": 85.00,
+	"fast_spin": 83.00,
 	"sides": 6,
 	"sides_min": 5,
 	"sides_max": 7,
@@ -35,6 +35,8 @@
 		{ "time": 0,	"type": "event_exec", 		"id": "continuous_rotation" },
 		{ "time": 0,	"type": "pulse_max_set", 	"value": 92 },
 		{ "time": 0,	"type": "pulse_speed_set",	"value": 1.455 },
-		{ "time": 60, 	"type": "increment_stop" }
+		{ "time": 60, 	"type": "increment_stop" },
+		
+		{ "time": 0, 	"type": "message_add", 		"duration": 135, 	"message": "you're alone here" },
 	]
 }

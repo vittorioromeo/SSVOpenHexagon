@@ -69,7 +69,6 @@ namespace hg
 	unsigned int getWindowedHeight();
 	unsigned int getWidth();
 	unsigned int getHeight();
-	bool getScripting();		
 	bool getShowMessages();
 	bool getChangeStyles();
 	bool getChangeMusic();

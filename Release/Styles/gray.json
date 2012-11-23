@@ -10,8 +10,8 @@
 	
 	// Pulse options
 	"pulse_min": 0.0,
-	"pulse_max": 1.5,
-	"pulse_increment": 0.025,
+	"pulse_max": 1.8,
+	"pulse_increment": 0.027,
 	
 	// Main color
 	"main": { "main": true, "dynamic": false, "value": [253, 253, 253, 255], "pulse": [0, 0, 0, 0] },
@@ -19,7 +19,7 @@
 	// Background colors
 	"colors":
 	[
-		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [90, 90, 90, 255], "pulse": [75,0, 0, 0]},
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [90, 90, 90, 255], "pulse": [75, 15, 15, 0]},
 		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [60, 60, 60, 255], "pulse": [0, 0, 0, 0]}
 	]
 }
