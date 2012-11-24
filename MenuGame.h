@@ -45,6 +45,8 @@ using namespace sses;
 
 namespace hg
 {
+	enum StateType { LEVEL_SELECTION, PROFILE_CREATION, PROFILE_SELECTION };
+
 	class HexagonGame;
 
 	class MenuGame
@@ -58,15 +60,23 @@ namespace hg
 			Sprite gameSprite;
 			Sprite menuSprite;
 
+			StateType state;
+
 			float inputDelay{0};
 			vector<string> levelDataIds;
 			int currentIndex{0};
 
+			string profileCreationName;
+			int profileIndex{0};
+
 			void recreateTextures();
 			void update(float mFrameTime);
 			void draw();
-			void drawText();
+			void drawLevelSelection();
+			void drawProfileCreation();
+			void drawProfileSelection();
 			void setIndex(int mIndex);
+			void positionAndDrawCenteredText(Text& mText, Color mColor, float mElevation, bool mBold);
 
 			LevelData levelData;
 			StyleData styleData;
@@ -96,4 +106,3 @@ namespace hg
 	};
 }
 #endif // MENUGAME_H
-

@@ -181,12 +181,12 @@ namespace hg
 	{
 		return StyleData(mRoot);
 	}
-	ProfileData loadProfileFromJson(string mId, Json::Value mRoot)
+	ProfileData loadProfileFromJson(Json::Value mRoot)
 	{
 		string name			{ mRoot["name"].asString() };
-		Json::Value scores	{ mRoot["scores"] };
+		Json::Value scores	{ mRoot["scores"] };	
 
-		auto result = ProfileData{mId, name, scores};
+		ProfileData result{name, scores};
 		return result;
 	}
 

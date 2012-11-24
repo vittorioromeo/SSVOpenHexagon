@@ -72,9 +72,13 @@ namespace hg
 	float getScore(string mId);
 	void setScore(string mId, float mScore);
 
-	void setCurrentProfile(ProfileData& mProfilePair);
+	void setCurrentProfile(string mName);
 	ProfileData& getCurrentProfile();
 	string getCurrentProfileFilePath();
+	void createProfile(string mName);
+	int getProfilesSize();
+	vector<string> getProfileNames();
+	string getFirstProfileName();
 
 	EventData getEventData(string mId, HexagonGame* mHgPtr);
 }

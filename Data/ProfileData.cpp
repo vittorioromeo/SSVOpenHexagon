@@ -26,9 +26,8 @@ using namespace std;
 
 namespace hg
 {
-	ProfileData::ProfileData(string mId, string mName, Json::Value mScores) : id{mId}, name{mName}, scores{mScores} { }
+	ProfileData::ProfileData(string mName, Json::Value mScores) : name{mName}, scores{mScores} { }
 
-	string ProfileData::getId() 			{ return id; }
 	string ProfileData::getName()			{ return name; }
 	Json::Value ProfileData::getScores()	{ return scores; }
 

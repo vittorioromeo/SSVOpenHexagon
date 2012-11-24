@@ -75,7 +75,7 @@ namespace hg
 	LevelData loadLevelFromJson(Json::Value mRoot);
 	MusicData loadMusicFromJson(Json::Value mRoot);
 	StyleData loadStyleFromJson(Json::Value mRoot);
-	ProfileData loadProfileFromJson(string mId, Json::Value mRoot);
+	ProfileData loadProfileFromJson(Json::Value mRoot);
 
 	void parseAndAddEvent(LevelData& mLevelData, Json::Value &mEventRoot);
 	function<void(PatternManager*)> getAdjPatternFunc(function<void(PatternManager*)> mFunction, float mAdjDelay, float mAdjSpeed, float mAdjThickness);

@@ -52,7 +52,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/
 AR       := ar rcus
 CXX      := g++
 CC       := gcc
-CXXFLAGS :=  -pedantic -Wall -c -std=c++11  $(Preprocessors)
+CXXFLAGS :=  -g -pedantic -Wall -c -std=c++11 $(Preprocessors)
 CFLAGS   :=  -O2 -Wall $(Preprocessors)
 
 

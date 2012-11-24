@@ -50,7 +50,7 @@ namespace hg
 	map<string, LevelData> levelDataMap;
 	map<string, ProfileData> profileDataMap;
 	map<string, EventData> eventDataMap;
-	ProfileData* currentProfilePtr;
+	ProfileData* currentProfilePtr{nullptr};
 
 	void loadAssets()
 	{
@@ -129,28 +129,13 @@ namespace hg
 	}
 	void loadProfiles()
 	{
-		if (getAllFilePaths("Profiles/", ".json").empty())
-		{
-			log("no profiles found, creating one");
-
-			ofstream o{"Profiles/default.json"};
-			Json::Value defaultProfileRoot;
-			Json::StyledStreamWriter writer;
-
-			defaultProfileRoot["name"] = "default";
-			defaultProfileRoot["scores"] = Json::objectValue;
-			writer.write(o, defaultProfileRoot);
-		}
-
 		for(auto filePath : getAllFilePaths("Profiles/", ".json"))
 		{
 			string fileName{getFileNameFromFilePath(filePath, "Profiles/", ".json")};
 
-			ProfileData profileData{loadProfileFromJson(fileName, getJsonFileRoot(filePath))};
-			profileDataMap.insert(make_pair(profileData.getId(), profileData));
+			ProfileData profileData{loadProfileFromJson(getJsonFileRoot(filePath))};
+			profileDataMap.insert(make_pair(profileData.getName(), profileData));
 		}
-
-		setCurrentProfile(profileDataMap.begin()->second);
 	}
 	void loadEvents()
 	{
@@ -163,6 +148,8 @@ namespace hg
 
 	void saveCurrentProfile()
 	{
+		if(currentProfilePtr == nullptr) return;
+
 		Json::StyledStreamWriter writer;
 		ofstream o{getCurrentProfileFilePath(), std::ifstream::binary};
 
@@ -171,6 +158,8 @@ namespace hg
 		profileRoot["scores"] = getCurrentProfile().getScores();
 
 		writer.write(o, profileRoot);
+		o.flush();
+		o.close();
 	}
 
 	vector<LevelData> getAllLevelData()
@@ -204,9 +193,35 @@ namespace hg
 	float getScore(string mId) 				{ return getCurrentProfile().getScore(mId); }
 	void setScore(string mId, float mScore) { getCurrentProfile().setScore(mId, mScore); }
 
-	void setCurrentProfile(ProfileData& mProfilePair) { currentProfilePtr = &mProfilePair; }
+	void setCurrentProfile(string mName) { currentProfilePtr = &profileDataMap.find(mName)->second; }
 	ProfileData& getCurrentProfile() { return *currentProfilePtr; }
-	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePtr->getId() + ".json"; }
+	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePtr->getName() + ".json"; }
+	void createProfile(string mName)
+	{
+		ofstream o{"Profiles/" + mName + ".json"};
+		Json::Value root;
+		Json::StyledStreamWriter writer;
+
+		root["name"] = mName;
+		root["scores"] = Json::objectValue;
+		writer.write(o, root);
+		o.flush();
+		o.close();
+
+		profileDataMap.clear();
+		loadProfiles();
+	}
+	int getProfilesSize() { return profileDataMap.size(); }
+	vector<string> getProfileNames()
+	{
+		vector<string> result;
+
+		for(auto pair : profileDataMap)
+			result.push_back(pair.second.getName());
+
+		return result;
+	}
+	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }
 
 	EventData getEventData(string mId, HexagonGame* mHgPtr)
 	{

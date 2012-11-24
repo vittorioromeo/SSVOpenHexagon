@@ -34,7 +34,7 @@
 
 namespace hg
 {
-	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow)
+	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow), state(StateType::PROFILE_SELECTION)
 	{
 		recreateTextures();
 
@@ -43,6 +43,13 @@ namespace hg
 
 		levelDataIds = getAllMenuLevelDataIds();
 		setIndex(0);
+		
+		if(getProfilesSize() == 0) state = StateType::PROFILE_CREATION;
+		else if(getProfilesSize() == 1)
+		{
+			setCurrentProfile(getFirstProfileName());
+			state = StateType::LEVEL_SELECTION;
+		}
 	}
 
 	void MenuGame::recreateTextures()
@@ -83,8 +90,102 @@ namespace hg
 
 	void MenuGame::update(float mFrameTime)
 	{
-		styleData.update(mFrameTime);
-		gameSprite.rotate(levelData.getRotationSpeed() * 10 * mFrameTime);
+		if(state == StateType::PROFILE_CREATION)
+		{
+			Event e;
+			window.renderWindow.pollEvent(e);
+
+			if(e.type == Event::TextEntered)
+			{
+				if (e.text.unicode > 48 && e.text.unicode < 126) if (profileCreationName.size() < 16) profileCreationName.append(toStr((char)(e.text.unicode)));
+				if (e.text.unicode == 8) if(!profileCreationName.empty()) profileCreationName.erase(profileCreationName.end() - 1);
+				if (e.text.unicode == 13) if(!profileCreationName.empty())
+				{
+					createProfile(profileCreationName);
+					setCurrentProfile(profileCreationName);
+					inputDelay = 30;
+					state = StateType::LEVEL_SELECTION;
+				}
+			}
+		}
+		else if(state == StateType::PROFILE_SELECTION)
+		{
+			vector<string> profileNames{getProfileNames()};
+			profileCreationName = profileNames[profileIndex % profileNames.size()];
+
+			if(inputDelay <= 0)
+			{
+				if(window.isKeyPressed(Keyboard::Left))
+				{
+					playSound("beep");
+					profileIndex--;
+					
+					inputDelay = 14;
+				}
+				else if(window.isKeyPressed(Keyboard::Right))
+				{
+					playSound("beep");
+					profileIndex++;
+
+					inputDelay = 14;
+				}
+				else if(window.isKeyPressed(Keyboard::Return))
+				{
+					playSound("beep");
+					setCurrentProfile(profileCreationName);
+					state = StateType::LEVEL_SELECTION;
+
+					inputDelay = 30;
+				}
+				else if(window.isKeyPressed(Keyboard::F1))
+				{
+					playSound("beep");
+					profileCreationName = "";
+					state = StateType::PROFILE_CREATION;
+
+					inputDelay = 14;
+				}
+			}
+		}
+		else if (state == StateType::LEVEL_SELECTION)
+		{
+			styleData.update(mFrameTime);
+			gameSprite.rotate(levelData.getRotationSpeed() * 10 * mFrameTime);
+
+			if(inputDelay <= 0)
+			{
+				if(window.isKeyPressed(Keyboard::Right))
+				{
+					playSound("beep");
+					setIndex(currentIndex + 1);
+
+					inputDelay = 14;
+				}
+				else if(window.isKeyPressed(Keyboard::Left))
+				{
+					playSound("beep");
+					setIndex(currentIndex - 1);
+
+					inputDelay = 14;
+				}
+				else if(window.isKeyPressed(Keyboard::Return))
+				{
+					playSound("beep");
+					window.setGame(&hgPtr->getGame());
+					hgPtr->newGame(levelDataIds[currentIndex], true);
+
+					inputDelay = 14;
+				}
+				else if(window.isKeyPressed(Keyboard::F2))
+				{
+					playSound("beep");
+					profileCreationName = "";
+					state = StateType::PROFILE_SELECTION;
+
+					inputDelay = 14;
+				}
+			}
+		}
 
 		if(inputDelay <= 0)
 		{
@@ -96,43 +197,33 @@ namespace hg
 				inputDelay = 25;
 			}
 			else if(window.isKeyPressed(Keyboard::Escape)) inputDelay = 25;
-			else if(window.isKeyPressed(Keyboard::Right))
-			{
-				playSound("beep");
-				setIndex(currentIndex + 1);
-
-				inputDelay = 14;
-			}
-			else if(window.isKeyPressed(Keyboard::Left))
-			{
-				playSound("beep");
-				setIndex(currentIndex - 1);
-
-				inputDelay = 14;
-			}
-			else if(window.isKeyPressed(Keyboard::Return))
-			{
-				playSound("beep");
-				window.setGame(&hgPtr->getGame());
-				hgPtr->newGame(levelDataIds[currentIndex], true);
-
-				inputDelay = 14;
-			}			
 		}
 		else
 		{
 			inputDelay -= 1 * mFrameTime;
-
 			if(inputDelay < 1.0f && window.isKeyPressed(Keyboard::Escape)) window.stop();
 		}
 	}
 	void MenuGame::draw()
 	{
-		gameTexture.clear(styleData.getColors()[0]);
 		menuTexture.clear(Color{0,0,0,0});
-		styleData.drawBackground(gameTexture, Vector2f{0,0}, 6);
 
-		drawText();
+		if(state == StateType::LEVEL_SELECTION)
+		{
+			gameTexture.clear(styleData.getColors()[0]);
+			styleData.drawBackground(gameTexture, Vector2f{0,0}, 6);
+			drawLevelSelection();
+		}
+		else if(state == StateType::PROFILE_CREATION)
+		{
+			gameTexture.clear(Color::Black);
+			drawProfileCreation();
+		}
+		else if(state == StateType::PROFILE_SELECTION)
+		{
+			gameTexture.clear(Color::Black);
+			drawProfileSelection();
+		}
 
 		gameTexture.display();
 		menuTexture.display();
@@ -140,71 +231,94 @@ namespace hg
 		drawOnWindow(gameSprite);
 		drawOnWindow(menuSprite);
 	}
-	void MenuGame::drawText()
+
+	void MenuGame::positionAndDrawCenteredText(Text& mText, Color mColor, float mElevation, bool mBold)
+	{
+		mText.setOrigin(mText.getGlobalBounds().width / 2, 0);
+		if(mBold) mText.setStyle(Text::Bold);
+		mText.setColor(mColor);
+		mText.setPosition(window.getWidth() / 2, mElevation);
+		drawOnMenuTexture(mText);
+	}
+
+	void MenuGame::drawLevelSelection()
 	{
 		Color mainColor{styleData.getMainColor()};
-
-		title1.setOrigin(title1.getGlobalBounds().width / 2, 0);
-		title1.setStyle(Text::Bold);
-		title1.setColor(mainColor);
-		title1.setPosition(window.getWidth() / 2, 45);
-		drawOnMenuTexture(title1);
-
-		title2.setOrigin(title2.getGlobalBounds().width / 2, 0);
-		title2.setStyle(Text::Bold);
-		title2.setColor(mainColor);
-		title2.setPosition(window.getWidth() / 2, 80);
-		drawOnMenuTexture(title2);
-
-		title3.setOrigin(title3.getGlobalBounds().width / 2, 0);
-		title3.setStyle(Text::Bold);
-		title3.setColor(mainColor);
-		title3.setPosition(window.getWidth() / 2, 240);
-		drawOnMenuTexture(title3);
-
-		title4.setOrigin(title4.getGlobalBounds().width / 2, 0);
-		title4.setStyle(Text::Bold);		
-		title4.setColor(mainColor);
-		title4.setPosition(window.getWidth() / 2, 270);
-		drawOnMenuTexture(title4);
-
-		levelTime.setString("best time: " + toStr(getScore(levelData.getId())));
-		levelTime.setOrigin(levelTime.getGlobalBounds().width / 2, 0);
-		levelTime.setColor(mainColor);
-		levelTime.setPosition(window.getWidth() / 2, 768 - 425);
-		drawOnMenuTexture(levelTime);
-
-		cProfText.setString("current profile: " + getCurrentProfile().getName());
-		cProfText.setOrigin(cProfText.getGlobalBounds().width / 2, 0);
-		cProfText.setColor(mainColor);
-		cProfText.setPosition(window.getWidth() / 2, 768 - 375);
-		drawOnMenuTexture(cProfText);
-
-		levelName.setString(levelData.getName());
-		levelName.setOrigin(levelName.getGlobalBounds().width / 2, 0);
-		levelName.setColor(mainColor);
-		levelName.setPosition(window.getWidth() / 2, 768 - 295 - 40*(countNewLines(levelData.getName())));
-		drawOnMenuTexture(levelName);
-
-		levelDesc.setString(levelData.getDescription());
-		levelDesc.setOrigin(levelDesc.getGlobalBounds().width / 2, 0);
-		levelDesc.setColor(mainColor);
-		levelDesc.setPosition(window.getWidth() / 2, 768 - 220 + 25*(countNewLines(levelData.getName())) );
-		drawOnMenuTexture(levelDesc);
-
-		levelAuth.setString("author: " + levelData.getAuthor());
-		levelAuth.setOrigin(levelAuth.getGlobalBounds().width / 2, 0);
-		levelAuth.setColor(mainColor);
-		levelAuth.setPosition(window.getWidth() / 2, 768 - 75);
-		drawOnMenuTexture(levelAuth);
-
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 
+		positionAndDrawCenteredText(title1, mainColor, 45, true);
+		positionAndDrawCenteredText(title2, mainColor, 80, true);
+		positionAndDrawCenteredText(title3, mainColor, 240, true);
+		positionAndDrawCenteredText(title4, mainColor, 270, true);
+
+		levelTime.setString("best time: " + toStr(getScore(levelData.getId())));
+		positionAndDrawCenteredText(levelTime, mainColor, 768 - 425, false);
+
+		cProfText.setString("current profile: " + getCurrentProfile().getName());
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 375, false);
+		cProfText.setString("(press f2 to change)");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 355, false);
+
+
+		levelName.setString(levelData.getName());
+		positionAndDrawCenteredText(levelName, mainColor, 768 - 285 - 40*(countNewLines(levelData.getName())), false);
+
+		levelDesc.setString(levelData.getDescription());
+		positionAndDrawCenteredText(levelDesc, mainColor, 768 - 210 + 25*(countNewLines(levelData.getName())), false);
+
+		levelAuth.setString("author: " + levelData.getAuthor());
+		positionAndDrawCenteredText(levelAuth, mainColor, 768 - 75, false);
+
 		levelMusc.setString("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")");
-		levelMusc.setOrigin(levelMusc.getGlobalBounds().width / 2, 0);
-		levelMusc.setColor(mainColor);
-		levelMusc.setPosition(window.getWidth() / 2, 768 - 60);
-		drawOnMenuTexture(levelMusc);
+		positionAndDrawCenteredText(levelMusc, mainColor, 768 - 60, false);
+	}
+	void MenuGame::drawProfileCreation()
+	{
+		Color mainColor{Color::White};
+
+		positionAndDrawCenteredText(title1, mainColor, 45, true);
+		positionAndDrawCenteredText(title2, mainColor, 80, true);
+		positionAndDrawCenteredText(title3, mainColor, 240, true);
+		positionAndDrawCenteredText(title4, mainColor, 270, true);
+
+		cProfText.setString("profile creation");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 395, false);
+
+		cProfText.setString("insert profile name");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 375, false);
+
+		cProfText.setString("press enter when done");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 335, false);
+
+		cProfText.setString("keep esc pressed to exit");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 315, false);
+
+		levelName.setString(profileCreationName);
+		positionAndDrawCenteredText(levelName, mainColor, 768 - 245 - 40, false);
+	}
+	void MenuGame::drawProfileSelection()
+	{
+		Color mainColor{Color::White};
+
+		positionAndDrawCenteredText(title1, mainColor, 45, true);
+		positionAndDrawCenteredText(title2, mainColor, 80, true);
+		positionAndDrawCenteredText(title3, mainColor, 240, true);
+		positionAndDrawCenteredText(title4, mainColor, 270, true);
+
+		cProfText.setString("profile selection");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 395, false);
+
+		cProfText.setString("press left/right to browse profiles");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 375, false);
+
+		cProfText.setString("press enter to select profile");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 355, false);
+
+		cProfText.setString("press f1 to create a new profile");
+		positionAndDrawCenteredText(cProfText, mainColor, 768 - 335, false);
+
+		levelName.setString(profileCreationName);
+		positionAndDrawCenteredText(levelName, mainColor, 768 - 245 - 40, false);
 	}
 	
 	void MenuGame::drawOnGameTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
