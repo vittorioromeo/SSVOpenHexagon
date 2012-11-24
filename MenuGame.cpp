@@ -130,8 +130,8 @@ namespace hg
 	{
 		gameTexture.clear(styleData.getColors()[0]);
 		menuTexture.clear(Color{0,0,0,0});
+		styleData.drawBackground(gameTexture, Vector2f{0,0}, 6);
 
-		drawBackground();
 		drawText();
 
 		gameTexture.display();
@@ -139,36 +139,6 @@ namespace hg
 
 		drawOnWindow(gameSprite);
 		drawOnWindow(menuSprite);
-	}
-	void MenuGame::drawBackground()
-	{
-		Vector2f centerPos{0,0};
-		int sides{6};
-		float div{360.f / sides * 1.0001f};
-		float distance{1500};
-
-		VertexArray vertices{PrimitiveType::Triangles, 3};
-		vector<Color> colors{styleData.getColors()};
-
-		for(int i{0}; i < sides; i++)
-		{
-			float angle { div * i };
-			Color currentColor{colors[i % colors.size()]};
-
-			if (i % 2 == 0)
-			{
-				if (i == sides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
-			}
-
-			Vector2f p1 = getOrbit(centerPos, angle + div * 0.5f, distance);
-			Vector2f p2 = getOrbit(centerPos, angle - div * 0.5f, distance);
-
-			vertices.append(Vertex{centerPos, currentColor});
-			vertices.append(Vertex{p1, currentColor});
-			vertices.append(Vertex{p2, currentColor});
-		}
-
-		gameTexture.draw(vertices);
 	}
 	void MenuGame::drawText()
 	{

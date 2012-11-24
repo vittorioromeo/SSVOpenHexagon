@@ -111,7 +111,6 @@ namespace hg
 			inline void updateKeys();
 
 			void drawText();
-			void drawBackground();
 
 			void setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay);
 

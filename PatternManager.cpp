@@ -44,7 +44,7 @@ namespace hg
 		adjSpeed = mAdjSpeed;
 		adjThickness = mAdjThickness;
 
-		timeline.add(new Do{[=]
+		timeline.push_back(new Do{[=]
 		{
 			adjDelay = mAdjDelay;
 			adjSpeed = mAdjSpeed;
@@ -53,7 +53,7 @@ namespace hg
 	}
 	void PatternManager::resetAdj()
 	{
-		timeline.add(new Do{[=]
+		timeline.push_back(new Do{[=]
 		{
 			adjDelay = 1.0f;
 			adjSpeed = 1.0f;

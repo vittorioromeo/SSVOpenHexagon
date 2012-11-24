@@ -55,7 +55,7 @@ namespace hg
 		game.addDrawFunc(	 [&](){ gameTexture.clear(Color::Black); }, -2);
 
 		if(!getNoBackground())
-			game.addDrawFunc([&](){ drawBackground(); }, 			   -1);
+			game.addDrawFunc([&](){ styleData.drawBackground(gameTexture, centerPos, getSides()); }, -1);
 
 		game.addDrawFunc(	 [&](){ manager.draw(); }, 					0);
 		game.addDrawFunc(	 [&](){ gameTexture.display(); }, 			1);
@@ -134,15 +134,15 @@ namespace hg
 		auto wall = [=](int mSide, float mThickness) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, 1)(pm); };
 		auto wallAdj = [=](int mSide, float mThickness, float mSpeedAdj) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, mSpeedAdj)(pm); };
 
-		lua.writeVariable("wall", 					[=](int mSide, int mThickness) { timeline.add(new Do{[=] { wall(mSide, mThickness); }}); });
-		lua.writeVariable("wallAdj", 				[=](int mSide, int mThickness, float mSpeedAdj) { timeline.add(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
+		lua.writeVariable("wall", 					[=](int mSide, int mThickness) { timeline.push_back(new Do{[=] { wall(mSide, mThickness); }}); });
+		lua.writeVariable("wallAdj", 				[=](int mSide, int mThickness, float mSpeedAdj) { timeline.push_back(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return levelData.getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return levelData.getDelayMultiplier(); });
 		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
 		lua.writeVariable("execEvent", 				[=](string mId) 						{ events.push_back(getEventData(mId, this)); });
 		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventQueue.push(getEventData(mId, this)); });
-		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.add(new Wait(mDuration)); });
+		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.push_back(new Wait(mDuration)); });
 
 		lua.writeVariable("getLevelValueInt", 		[=](string mValueName) 					{ return levelData.getValueInt(mValueName); });
 		lua.writeVariable("getLevelValueFloat", 	[=](string mValueName) 					{ return levelData.getValueFloat(mValueName); });
@@ -292,34 +292,6 @@ namespace hg
 			drawOnWindow(*textPtr);
 		}
 	}
-	void HexagonGame::drawBackground()
-	{
-		float div{360.f / getSides() * 1.0001f};
-		float distance{1500};
-
-		VertexArray vertices{PrimitiveType::Triangles, 3};
-		vector<Color> colors{styleData.getColors()};
-
-		for(int i{0}; i < getSides(); i++)
-		{
-			float angle { div * i };
-			Color currentColor{colors[i % colors.size()]};
-
-			if (i % 2 == 0)
-			{
-				if (i == getSides() - 1) currentColor = getColorDarkened(currentColor, 1.4f);
-			}
-
-			Vector2f p1 = getOrbit(centerPos, angle + div * 0.5f, distance);
-			Vector2f p2 = getOrbit(centerPos, angle - div * 0.5f, distance);
-
-			vertices.append(Vertex{centerPos, currentColor});
-			vertices.append(Vertex{p1, currentColor});
-			vertices.append(Vertex{p2, currentColor});
-		}
-
-		gameTexture.draw(vertices);
-	}
 
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
@@ -334,16 +306,19 @@ namespace hg
 		setRotationSpeed(getRotationSpeed() * -1);
 		fastSpin = levelData.getFastSpin();
 		
-		if(randomSideChangesEnabled) timeline.add(new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
+		if(randomSideChangesEnabled)
+		{
+			timeline.push_back(new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
+			timeline.jumpTo(timeline.getSize() - 1);
+		}
 	}
 	void HexagonGame::sideChange(int mSideNumber)
-	{
-		if(mSideNumber == getSides()) return;
-
+	{		
 		if(manager.getComponentPtrsById("wall").size() > 0)
 		{
-			timeline.add(new Wait(10));
-			timeline.add(new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
+			timeline.push_back(new Wait(5));
+			timeline.push_back(new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
+			timeline.jumpTo(timeline.getSize() - 3);
 			return;
 		}
 		setSides(mSideNumber);
@@ -374,9 +349,9 @@ namespace hg
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
-		messageTimeline.add(new Do{ [&, text, mMessage]{ playSound("beep"); messageTextPtrs.push_back(text); }});
-		messageTimeline.add(new Wait{mDuration});
-		messageTimeline.add(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
+		messageTimeline.push_back(new Do{ [&, text, mMessage]{ playSound("beep"); messageTextPtrs.push_back(text); }});
+		messageTimeline.push_back(new Wait{mDuration});
+		messageTimeline.push_back(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
 	}
 	void HexagonGame::clearMessages()
 	{
@@ -438,7 +413,7 @@ namespace hg
 			else if (type == "message_add")				{ if(getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_clear") 			clearMessages();
 			else if (type == "time_stop")				timeStop = duration;
-			else if (type == "timeline_wait") 			timeline.add(new Wait(duration));
+			else if (type == "timeline_wait") 			timeline.push_back(new Wait(duration));
 			else if (type == "timeline_clear") 			clearAndResetTimeline(timeline);
 			
 			else if (type == "level_float_set") 		levelData.setValueFloat(valueName, value);

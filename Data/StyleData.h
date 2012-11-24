@@ -46,6 +46,7 @@ namespace hg
 			StyleData(Json::Value mRoot);
 
 			void update(float mFrameTime);
+			void drawBackground(RenderTarget& mRenderTarget, Vector2f mCenterPos, int mSides);
 
 			string getId();
 			float getHueMin();

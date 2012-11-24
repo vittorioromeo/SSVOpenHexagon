@@ -65,7 +65,6 @@ namespace hg
 			void recreateTextures();
 			void update(float mFrameTime);
 			void draw();
-			void drawBackground();
 			void drawText();
 			void setIndex(int mIndex);
 

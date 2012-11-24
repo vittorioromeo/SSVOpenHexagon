@@ -130,5 +130,34 @@ namespace hg
 
 	void StyleData::setValueBool(string mValueName, bool mValue)	{ root[mValueName] = mValue; }
 	bool StyleData::getValueBool(string mValueName)					{ return root[mValueName].asBool(); }
+
+	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vector2f mCenterPos, int mSides)
+	{
+		float div{360.f / mSides * 1.0001f};
+		float distance{1500};
+
+		VertexArray vertices{PrimitiveType::Triangles, 3};
+		vector<Color> colors{getColors()};
+
+		for(int i{0}; i < mSides; i++)
+		{
+			float angle { div * i };
+			Color currentColor{colors[i % colors.size()]};
+
+			if (i % 2 == 0)
+			{
+				if (i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
+			}
+
+			Vector2f p1 = getOrbit(mCenterPos, angle + div * 0.5f, distance);
+			Vector2f p2 = getOrbit(mCenterPos, angle - div * 0.5f, distance);
+
+			vertices.append(Vertex{mCenterPos, currentColor});
+			vertices.append(Vertex{p1, currentColor});
+			vertices.append(Vertex{p2, currentColor});
+		}
+
+		mRenderTarget.draw(vertices);
+	}
 }
 

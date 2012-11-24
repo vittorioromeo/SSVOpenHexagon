@@ -37,6 +37,6 @@
 		{ "time": 0,	"type": "pulse_speed_set",	"value": 1.455 },
 		{ "time": 60, 	"type": "increment_stop" },
 		
-		{ "time": 0, 	"type": "message_add", 		"duration": 135, 	"message": "you're alone here" },
+		{ "time": 0, 	"type": "message_add", 		"duration": 135, 	"message": "you're alone here" }
 	]
 }
