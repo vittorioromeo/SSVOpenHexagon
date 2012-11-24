@@ -307,21 +307,22 @@ namespace hg
 		fastSpin = levelData.getFastSpin();
 		
 		if(randomSideChangesEnabled)
-		{
-			timeline.push_back(new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
-			timeline.jumpTo(timeline.getSize() - 1);
+		{			
+			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
 		}
 	}
 	void HexagonGame::sideChange(int mSideNumber)
 	{		
 		if(manager.getComponentPtrsById("wall").size() > 0)
 		{
-			timeline.push_back(new Wait(5));
-			timeline.push_back(new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
-			timeline.jumpTo(timeline.getSize() - 3);
+			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
+			timeline.insert(timeline.getCurrentIndex() + 1, new Wait(5));
+
 			return;
 		}
 		setSides(mSideNumber);
+		timeline.clear();
+		timeline.reset();
 	}
 
 	void HexagonGame::checkAndSaveScore()
