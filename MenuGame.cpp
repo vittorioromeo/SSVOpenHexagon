@@ -90,6 +90,23 @@ namespace hg
 
 	void MenuGame::update(float mFrameTime)
 	{
+		if(inputDelay <= 0)
+		{
+			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return))
+			{
+				setFullscreen(window, !window.getFullscreen());
+				recreateTextures();
+				hgPtr->recreateTextures();
+				inputDelay = 25;
+			}
+			else if(window.isKeyPressed(Keyboard::Escape)) inputDelay = 25;
+		}
+		else
+		{
+			inputDelay -= 1 * mFrameTime;
+			if(inputDelay < 1.0f && window.isKeyPressed(Keyboard::Escape)) window.stop();
+		}
+
 		if(state == StateType::PROFILE_CREATION)
 		{
 			Event e;
@@ -185,23 +202,6 @@ namespace hg
 					inputDelay = 14;
 				}
 			}
-		}
-
-		if(inputDelay <= 0)
-		{
-			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return))
-			{
-				setFullscreen(window, !window.getFullscreen());
-				recreateTextures();
-				hgPtr->recreateTextures();
-				inputDelay = 25;
-			}
-			else if(window.isKeyPressed(Keyboard::Escape)) inputDelay = 25;
-		}
-		else
-		{
-			inputDelay -= 1 * mFrameTime;
-			if(inputDelay < 1.0f && window.isKeyPressed(Keyboard::Escape)) window.stop();
 		}
 	}
 	void MenuGame::draw()

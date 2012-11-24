@@ -1,0 +1,14 @@
+
+{
+	"name" : "vee",
+	"scores" : 
+	{
+		"easy" : null,
+		"extra" : 19.60993194580078,
+		"hard" : 27.27801513671875,
+		"lunatic" : 10.49800586700440,
+		"normal" : 48.19266128540039,
+		"tutorial" : null,
+		"zen" : null
+	}
+}

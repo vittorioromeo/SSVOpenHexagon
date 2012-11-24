@@ -85,6 +85,8 @@ Patterns, however, must be created using [LUA](http://www.lua.org/) (which can a
 
 Please refer to the files in the **documentation** folder.
 
+*Keep in mind that things will change from version to version. Existing files may not work in the next version of Open Hexagon or may work differently.*
+
 *If you need further assistance post on the official page:*
 [http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon)
 
@@ -96,12 +98,12 @@ Please refer to the files in the **documentation** folder.
 Version 1.2
 
 * Added: completely new **JSON event scripting system**
-* Added: **LUA scripting** for patterns
+* Added: completely new **LUA scripting** for patterns
 * Added: **new announcer sounds** by **BubblegumBalloon**! (thank you)
 * Added: **save profiles** for scores
 * Added: new event scripting commands (`"play_sound"`, LUA-related)
 * Added: new song, **Captain Cool**
-* Added: `"wall_skew"` and `"wall__angle"` level parameters
+* Added: new level, **Golden Ratio**
 
 Version 1.11
 

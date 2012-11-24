@@ -15,7 +15,7 @@
 	"music_id": "steampunkWarlord",
 	
 	// Lua
-	"lua_file": "defaultLevels/allcpatterns.lua",
+	"lua_file": "defaultLevels/hardpatterns.lua",
 	
 	// Basic values
 	"speed_multiplier": 2.69,
