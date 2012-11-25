@@ -40,6 +40,7 @@
 #include "Data/MusicData.h"
 #include "Data/EventData.h"
 #include "Data/StyleData.h"
+#pragma GCC system_header
 #include "LuaContext.h"
 
 using namespace sf;
@@ -103,12 +104,13 @@ namespace hg
 			bool restartFirstTime{true};
 
 			void update(float);
+			inline void updateTimeStop(float mFrameTime);
 			inline void updateIncrement();
-			inline void updateLevelEvents(float);
-			inline void updateLevel(float);
-			inline void updateRotation(float);
-			inline void updateRadius(float);
+			inline void updateLevelEvents(float mFrameTime);
+			inline void updateLevel(float mFrameTime);			
+			inline void updateRadius(float mFrameTime);
 			inline void updateKeys();
+			inline void updateRotation(float mFrameTime);
 
 			void drawText();
 

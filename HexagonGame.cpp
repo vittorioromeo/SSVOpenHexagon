@@ -64,16 +64,6 @@ namespace hg
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
-	void HexagonGame::recreateTextures()
-	{
-		gameTexture.create(getSizeX(), getSizeY(), 32);
-		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
-		gameTexture.setSmooth(true);
-		gameSprite.setTexture(gameTexture.getTexture(), false);
-		gameSprite.setOrigin(getSizeX()/ 2, getSizeY()/ 2);
-		gameSprite.setPosition(window.getWidth() / 2, window.getHeight() / 2);
-	}
-
 	void HexagonGame::newGame(string mId, bool mFirstPlay)
 	{
 		setLevelData(getLevelData(mId), mFirstPlay);
@@ -126,176 +116,6 @@ namespace hg
 		checkAndSaveScore();
 	}
 
-	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
-	void HexagonGame::drawOnWindow(Drawable &mDrawable) { window.renderWindow.draw(mDrawable); }
-
-	void HexagonGame::initLua()
-	{
-		auto wall = [=](int mSide, float mThickness) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, 1)(pm); };
-		auto wallAdj = [=](int mSide, float mThickness, float mSpeedAdj) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, mSpeedAdj)(pm); };
-
-		lua.writeVariable("wall", 					[=](int mSide, int mThickness) { timeline.push_back(new Do{[=] { wall(mSide, mThickness); }}); });
-		lua.writeVariable("wallAdj", 				[=](int mSide, int mThickness, float mSpeedAdj) { timeline.push_back(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
-		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
-		lua.writeVariable("getSpeedMult",			[=]() 									{ return levelData.getSpeedMultiplier(); });
-		lua.writeVariable("getDelayMult", 			[=]() 									{ return levelData.getDelayMultiplier(); });
-		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
-		lua.writeVariable("execEvent", 				[=](string mId) 						{ events.push_back(getEventData(mId, this)); });
-		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventQueue.push(getEventData(mId, this)); });
-		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.push_back(new Wait(mDuration)); });
-
-		lua.writeVariable("getLevelValueInt", 		[=](string mValueName) 					{ return levelData.getValueInt(mValueName); });
-		lua.writeVariable("getLevelValueFloat", 	[=](string mValueName) 					{ return levelData.getValueFloat(mValueName); });
-		lua.writeVariable("getLevelValueString", 	[=](string mValueName) 					{ return levelData.getValueString(mValueName); });
-		lua.writeVariable("getLevelValueBool", 		[=](string mValueName) 					{ return levelData.getValueBool(mValueName); });
-		lua.writeVariable("setLevelValueInt", 		[=](string mValueName, int mValue) 		{ return levelData.setValueInt(mValueName, mValue); });
-		lua.writeVariable("setLevelValueFloat", 	[=](string mValueName, float mValue) 	{ return levelData.setValueFloat(mValueName, mValue); });
-		lua.writeVariable("setLevelValueString", 	[=](string mValueName, string mValue) 	{ return levelData.setValueString(mValueName, mValue); });
-		lua.writeVariable("setLevelValueBool", 		[=](string mValueName, bool mValue) 	{ return levelData.setValueBool(mValueName, mValue); });
-
-		lua.writeVariable("getStyleValueInt", 		[=](string mValueName) 					{ return styleData.getValueInt(mValueName); });
-		lua.writeVariable("getStyleValueFloat", 	[=](string mValueName) 					{ return styleData.getValueFloat(mValueName); });
-		lua.writeVariable("getStyleValueString", 	[=](string mValueName) 					{ return styleData.getValueString(mValueName); });
-		lua.writeVariable("getStyleValueBool", 		[=](string mValueName) 					{ return styleData.getValueBool(mValueName); });
-		lua.writeVariable("setStyleValueInt", 		[=](string mValueName, int mValue) 		{ return styleData.setValueInt(mValueName, mValue); });
-		lua.writeVariable("setStyleValueFloat", 	[=](string mValueName, float mValue) 	{ return styleData.setValueFloat(mValueName, mValue); });
-		lua.writeVariable("setStyleValueString", 	[=](string mValueName, string mValue) 	{ return styleData.setValueString(mValueName, mValue); });
-		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
-
-	}
-	void HexagonGame::runLuaFile(string mFileName)
-	{
-		ifstream s("Scripts/" + mFileName);
-		lua.executeCode(s);
-	}
-
-	void HexagonGame::update(float mFrameTime)
-	{
-		if(!hasDied)
-		{
-			manager.update(mFrameTime);
-
-			updateLevelEvents(mFrameTime);
-
-			if(timeStop <= 0)
-			{
-				currentTime += mFrameTime / 60.0f;
-				incrementTime += mFrameTime / 60.0f;
-			}
-			else timeStop -= 1 * mFrameTime;
-
-			updateIncrement();			
-			updateLevel(mFrameTime);
-			updateRadius(mFrameTime);
-			if(!getBlackAndWhite()) styleData.update(mFrameTime);
-		}
-		else setRotationSpeed(getRotationSpeed() / 1.001f);
-
-		updateKeys();
-		if(!getNoRotation()) updateRotation(mFrameTime);
-
-		if(mustRestart) changeLevel(restartId, restartFirstTime);
-	}
-	inline void HexagonGame::updateIncrement()
-	{
-		if(!incrementEnabled) return;
-		if(incrementTime < levelData.getIncrementTime()) return;
-
-		incrementTime = 0;
-		incrementDifficulty();
-	}
-	inline void HexagonGame::updateLevelEvents(float mFrameTime)
-	{
-		for(EventData& pattern : events) pattern.update(mFrameTime);
-		if(!eventQueue.empty())
-		{
-			eventQueue.front().update(mFrameTime);
-			if(eventQueue.front().getFinished()) eventQueue.pop();
-		}
-
-		messageTimeline.update(mFrameTime);
-		if(messageTimeline.isFinished()) clearAndResetTimeline(messageTimeline);
-
-		executeEvents(levelData.getRoot()["events"], currentTime);
-	}
-	inline void HexagonGame::updateLevel(float mFrameTime)
-	{
-		timeline.update(mFrameTime);
-
-		if(timeline.isFinished())
-		{
-			timeline.clear();
-			runLuaFile(levelData.getValueString("lua_file"));
-			timeline.reset();
-		}
-	}
-	inline void HexagonGame::updateRotation(float mFrameTime)
-	{
-		auto nextRotation = getRotationSpeed() * 10 * mFrameTime;
-		if(fastSpin > 0)
-		{
-			nextRotation += (getSmootherStep(0, 85, fastSpin) / 3.5f) * getSign(nextRotation) * mFrameTime * 17.0f;
-			fastSpin -= mFrameTime;
-		}
-
-		gameSprite.rotate(nextRotation);
-	}
-	inline void HexagonGame::updateRadius(float mFrameTime)
-	{
-		radiusTimer += pulseSpeed * mFrameTime;
-		if(radiusTimer >= 25)
-		{
-			radiusTimer = 0;
-			radius = maxPulse;
-		}
-
-		if(radius > minPulse) radius -= pulseSpeedBackwards * mFrameTime;
-	}
-	inline void HexagonGame::updateKeys()
-	{
-		if(isKeyPressed(Keyboard::R)) mustRestart = true;
-		else if(isKeyPressed(Keyboard::Escape))	goToMenu();
-	}
-
-	void HexagonGame::drawText()
-	{
-		ostringstream s;
-		s << "time: " << toStr(currentTime).substr(0, 5) << endl;
-		if(hasDied) s << "press r to restart" << endl;
-
-		vector<Vector2f> offsets{{-1,-1},{-1,1},{1,-1},{1,1}};
-
-		Text timeText(s.str(), getFont("imagine"), 25 / getZoomFactor());
-		timeText.setPosition(15, 3);
-		timeText.setColor(getColorMain());
-		for(auto offset : offsets)
-		{
-			Text timeOffsetText(s.str(), getFont("imagine"), timeText.getCharacterSize());
-			timeOffsetText.setPosition(timeText.getPosition() + offset);
-			timeOffsetText.setColor(getColor(1));
-			drawOnWindow(timeOffsetText);
-		}
-		drawOnWindow(timeText);
-
-		for (Text* textPtr : messageTextPtrs)
-		{
-			for(auto offset : offsets)
-			{
-				Text textPtrOffset{textPtr->getString(), getFont("imagine"), textPtr->getCharacterSize()};
-				textPtrOffset.setPosition(textPtr->getPosition() + offset);
-				textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
-				textPtrOffset.setColor(getColor(1));
-				drawOnWindow(textPtrOffset);
-			}
-			
-			textPtr->setColor(getColorMain());
-			drawOnWindow(*textPtr);
-		}
-	}
-
-	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
-	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
-
 	void HexagonGame::incrementDifficulty()
 	{
 		playSound("level_up");
@@ -307,9 +127,7 @@ namespace hg
 		fastSpin = levelData.getFastSpin();
 		
 		if(randomSideChangesEnabled)
-		{			
 			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
-		}
 	}
 	void HexagonGame::sideChange(int mSideNumber)
 	{		
@@ -321,8 +139,7 @@ namespace hg
 			return;
 		}
 		setSides(mSideNumber);
-		timeline.clear();
-		timeline.reset();
+		clearAndResetTimeline(timeline);
 	}
 
 	void HexagonGame::checkAndSaveScore()
@@ -369,93 +186,6 @@ namespace hg
 	}
 
 	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) 	{ return window.isKeyPressed(mKey); }
-
-	Game& HexagonGame::getGame()						{ return game; }
-	float HexagonGame::getRadius() 						{ return radius; }
-	Color HexagonGame::getColorMain() 					{ return getBlackAndWhite() ? Color::White : styleData.getMainColor(); }
-	Color HexagonGame::getColor(int mIndex)				{ return styleData.getColors()[mIndex]; }
-	float HexagonGame::getWallSkewLeft() 				{ return levelData.getValueFloat("wall_skew_left"); }
-	float HexagonGame::getWallSkewRight() 				{ return levelData.getValueFloat("wall_skew_right"); }
-	float HexagonGame::getWallAngleLeft() 				{ return levelData.getValueFloat("wall_angle_left"); }
-	float HexagonGame::getWallAngleRight() 				{ return levelData.getValueFloat("wall_angle_right"); }
-
-	float HexagonGame::getSpeedMultiplier() { return levelData.getSpeedMultiplier(); }
-	float HexagonGame::getDelayMultiplier() { return levelData.getDelayMultiplier(); }
-	float HexagonGame::getRotationSpeed() 	{ return levelData.getRotationSpeed(); }
-	int HexagonGame::getSides() 			{ return levelData.getSides(); }
-
-	void HexagonGame::setSpeedMultiplier(float mSpeedMultiplier) { levelData.setSpeedMultiplier(mSpeedMultiplier); }
-	void HexagonGame::setDelayMultiplier(float mDelayMultiplier) { levelData.setDelayMultiplier(mDelayMultiplier); }
-	void HexagonGame::setRotationSpeed(float mRotationSpeed) 	 { levelData.setRotationSpeed(mRotationSpeed); }
-	void HexagonGame::setSides(int mSides)
-	{
-		playSound("beep");
-		if (mSides < 3) mSides = 3;
-		levelData.setValueInt("sides", mSides);
-	}
-
-	void HexagonGame::executeEvents(Json::Value& mRoot, float mTime)
-	{
-		for (Json::Value& eventRoot : mRoot)
-		{
-			if(eventRoot["time"].asFloat() >  mTime) continue;
-			if(eventRoot["executed"].asBool()) continue;
-			eventRoot["executed"] = true;
-
-			string type{eventRoot["type"].asString()};
-			float duration{eventRoot["duration"].asFloat()};
-			string valueName{eventRoot["value_name"].asString()};
-			float value{eventRoot["value"].asFloat()};
-			string message{eventRoot["message"].asString()};
-			string id{eventRoot["id"].asString()};
-
-			if 		(type == "level_change")			{ mustRestart = true; restartId = id; restartFirstTime = true; return; }
-			else if (type == "menu") 					goToMenu();
-			else if (type == "message_add")				{ if(getShowMessages()) addMessage(message, duration); }
-			else if (type == "message_clear") 			clearMessages();
-			else if (type == "time_stop")				timeStop = duration;
-			else if (type == "timeline_wait") 			timeline.push_back(new Wait(duration));
-			else if (type == "timeline_clear") 			clearAndResetTimeline(timeline);
-			
-			else if (type == "level_float_set") 		levelData.setValueFloat(valueName, value);
-			else if (type == "level_float_add") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "level_float_subtract") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "level_float_multiply") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "level_float_divide") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "level_int_set") 			levelData.setValueInt(valueName, value);
-			else if (type == "level_int_add") 			levelData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "level_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "level_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "level_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
-
-			else if (type == "style_float_set") 		styleData.setValueFloat(valueName, value);
-			else if (type == "style_float_add") 		styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "style_float_subtract") 	styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "style_float_multiply") 	styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "style_float_divide") 		styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "style_int_set") 			styleData.setValueInt(valueName, value);
-			else if (type == "style_int_add") 			styleData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "style_int_subtract")		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "style_int_multiply") 		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "style_int_divide") 		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
-
-			else if (type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); } }
-			else if (type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
-			else if (type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
-			else if (type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
-			else if (type == "side_changing_stop")		randomSideChangesEnabled = false;
-			else if (type == "side_changing_start")		randomSideChangesEnabled = true;
-			else if (type == "increment_stop")			incrementEnabled = false;
-			else if (type == "increment_start")			incrementEnabled = true;
-			else if (type == "pulse_max_set")			maxPulse = value;
-			else if (type == "pulse_min_set")			minPulse = value;
-			else if (type == "pulse_speed_set")			pulseSpeed = value;
-			else if (type == "pulse_speed_b_set")		pulseSpeedBackwards = value;
-			else if (type == "event_exec")				events.push_back(getEventData(id, this));
-			else if (type == "event_enqueue")			eventQueue.push(getEventData(id, this));
-			else if (type == "script_exec")				runLuaFile(valueName);
-			else if (type == "play_sound")				playSound(id);
-			else										log("unknown event type: " + type);
-		}
-	}
+	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
+	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
 }

@@ -47,8 +47,10 @@
       <File Name="Utils/Utils.cpp"/>
       <File Name="Utils/Utils.h"/>
     </VirtualDirectory>
-    <File Name="LuaContext.cpp"/>
-    <File Name="LuaContext.h"/>
+    <File Name="HGScripting.cpp"/>
+    <File Name="HGUpdate.cpp"/>
+    <File Name="HGProperties.cpp"/>
+    <File Name="HGGraphics.cpp"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -117,7 +119,7 @@
       </Completion>
     </Configuration>
     <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-O3;-pedantic;-Wall;-c;-std=c++11;-g" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+      <Compiler Options="-O3;-pedantic;-Wall;-c;-std=c++11" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="D:/Vee/Software/WIP/SFMLMinGW/include"/>
@@ -127,11 +129,13 @@
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVStart/Release"/>
         <LibraryPath Value="../SSVEntitySystem/Release"/>
+        <LibraryPath Value="./Release"/>
         <LibraryPath Value="D:/Vee/Software/WIP/SFMLMinGW/lib"/>
         <LibraryPath Value="D:/Vee/Software/WIP/jsoncpp/libs/mingw"/>
         <LibraryPath Value="c:/lua"/>
         <Library Value="SSVEntitySystem"/>
         <Library Value="SSVStart"/>
+        <Library Value="SSVLuaWrapper"/>
         <Library Value="sfml-window"/>
         <Library Value="sfml-graphics"/>
         <Library Value="sfml-system"/>

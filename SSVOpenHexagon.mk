@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=11/24/12
+Date                   :=11/25/12
 CodeLitePath           :="c:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -41,9 +41,9 @@ LinkOptions            :=
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVStart $(IncludeSwitch)D:/Vee/Software/WIP/SFMLMinGW/include $(IncludeSwitch)D:/Vee/Software/WIP/jsoncpp/include $(IncludeSwitch)C:/lua/include 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)lua5.1 $(LibrarySwitch)lua51 
-ArLibs                 :=  "SSVEntitySystem" "SSVStart" "sfml-window" "sfml-graphics" "sfml-system" "sfml-audio" "json_mingw_libmt" "lua5.1" "lua51" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Release $(LibraryPathSwitch)../SSVEntitySystem/Release $(LibraryPathSwitch)D:/Vee/Software/WIP/SFMLMinGW/lib $(LibraryPathSwitch)D:/Vee/Software/WIP/jsoncpp/libs/mingw $(LibraryPathSwitch)c:/lua 
+Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)SSVLuaWrapper $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)lua5.1 $(LibrarySwitch)lua51 
+ArLibs                 :=  "SSVEntitySystem" "SSVStart" "SSVLuaWrapper" "sfml-window" "sfml-graphics" "sfml-system" "sfml-audio" "json_mingw_libmt" "lua5.1" "lua51" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Release $(LibraryPathSwitch)../SSVEntitySystem/Release $(LibraryPathSwitch)./Release $(LibraryPathSwitch)D:/Vee/Software/WIP/SFMLMinGW/lib $(LibraryPathSwitch)D:/Vee/Software/WIP/jsoncpp/libs/mingw $(LibraryPathSwitch)c:/lua 
 
 ##
 ## Common variables
@@ -52,7 +52,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/
 AR       := ar rcus
 CXX      := g++
 CC       := gcc
-CXXFLAGS :=  -O3 -pedantic -Wall -c -std=c++11 -g $(Preprocessors)
+CXXFLAGS :=  -O3 -pedantic -Wall -c -std=c++11 $(Preprocessors)
 CFLAGS   :=  -O2 -Wall $(Preprocessors)
 
 
@@ -64,7 +64,8 @@ WXWIN:=C:\wxWidgets
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXCFG:=gcc_dll\mswu
 Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) $(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) \
-	$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Utils_HSL$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/LuaContext$(ObjectSuffix) 
+	$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Utils_HSL$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) \
+	
 
 ##
 ## Main Build Targets 
@@ -215,13 +216,37 @@ $(IntermediateDirectory)/Utils_Utils$(DependSuffix): Utils/Utils.cpp
 $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix): Utils/Utils.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/Utils.cpp"
 
-$(IntermediateDirectory)/LuaContext$(ObjectSuffix): LuaContext.cpp $(IntermediateDirectory)/LuaContext$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/LuaContext.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/LuaContext$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/LuaContext$(DependSuffix): LuaContext.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/LuaContext$(ObjectSuffix) -MF$(IntermediateDirectory)/LuaContext$(DependSuffix) -MM "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/LuaContext.cpp"
+$(IntermediateDirectory)/HGScripting$(ObjectSuffix): HGScripting.cpp $(IntermediateDirectory)/HGScripting$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGScripting.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HGScripting$(DependSuffix): HGScripting.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGScripting$(ObjectSuffix) -MF$(IntermediateDirectory)/HGScripting$(DependSuffix) -MM "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGScripting.cpp"
 
-$(IntermediateDirectory)/LuaContext$(PreprocessSuffix): LuaContext.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/LuaContext$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/LuaContext.cpp"
+$(IntermediateDirectory)/HGScripting$(PreprocessSuffix): HGScripting.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGScripting$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGScripting.cpp"
+
+$(IntermediateDirectory)/HGUpdate$(ObjectSuffix): HGUpdate.cpp $(IntermediateDirectory)/HGUpdate$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGUpdate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HGUpdate$(DependSuffix): HGUpdate.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGUpdate$(ObjectSuffix) -MF$(IntermediateDirectory)/HGUpdate$(DependSuffix) -MM "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGUpdate.cpp"
+
+$(IntermediateDirectory)/HGUpdate$(PreprocessSuffix): HGUpdate.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGUpdate$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGUpdate.cpp"
+
+$(IntermediateDirectory)/HGProperties$(ObjectSuffix): HGProperties.cpp $(IntermediateDirectory)/HGProperties$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGProperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HGProperties$(DependSuffix): HGProperties.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGProperties$(ObjectSuffix) -MF$(IntermediateDirectory)/HGProperties$(DependSuffix) -MM "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGProperties.cpp"
+
+$(IntermediateDirectory)/HGProperties$(PreprocessSuffix): HGProperties.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGProperties$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGProperties.cpp"
+
+$(IntermediateDirectory)/HGGraphics$(ObjectSuffix): HGGraphics.cpp $(IntermediateDirectory)/HGGraphics$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGGraphics.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HGGraphics$(DependSuffix): HGGraphics.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGGraphics$(ObjectSuffix) -MF$(IntermediateDirectory)/HGGraphics$(DependSuffix) -MM "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGGraphics.cpp"
+
+$(IntermediateDirectory)/HGGraphics$(PreprocessSuffix): HGGraphics.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGGraphics.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
@@ -277,9 +302,18 @@ clean:
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/LuaContext$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/LuaContext$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/LuaContext$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HGScripting$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HGScripting$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HGScripting$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HGUpdate$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HGUpdate$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HGProperties$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HGProperties$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HGProperties$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HGGraphics$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "D:\Vee\Software\GitHub\OHWorkspace\.build-release\SSVOpenHexagon"
