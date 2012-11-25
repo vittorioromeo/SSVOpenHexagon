@@ -63,11 +63,12 @@ namespace hg
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
-	void HexagonGame::newGame(string mId, bool mFirstPlay)
+	void HexagonGame::newGame(string mId, bool mFirstPlay, float mDifficultyMult)
 	{
 		firstPlay = mFirstPlay;
 		setLevelData(getLevelData(mId), mFirstPlay);
 		pm->resetAdj();
+		difficultyMult = mDifficultyMult;
 
 		// Audio cleanup
 		stopAllSounds();
@@ -102,6 +103,7 @@ namespace hg
 		effectXInc = 1;
 		effectYInc = 1;
 		setSides(levelData.getSides());
+		gameSprite.setRotation(0);
 
 		// Manager cleanup
 		manager.clear();
@@ -132,19 +134,17 @@ namespace hg
 	{
 		playSound("level_up");
 
-		setSpeedMultiplier(getSpeedMultiplier() + levelData.getSpeedIncrement());		
-		setDelayMultiplier(getDelayMultiplier() + levelData.getDelayIncrement());
+		setSpeedMultiplier(levelData.getSpeedMultiplier() + levelData.getSpeedIncrement());
+		setDelayMultiplier(levelData.getDelayMultiplier() + levelData.getDelayIncrement());
 
-		setRotationSpeed(getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
-		setRotationSpeed(getRotationSpeed() * -1);
+		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
+		setRotationSpeed(levelData.getRotationSpeed() * -1);
 		
-		if(abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
+		if(fastSpin < 0 && abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
 			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));
 
 		fastSpin = levelData.getFastSpin();
-		
-		if(randomSideChangesEnabled)
-			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
+		timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
 	}
 	void HexagonGame::sideChange(int mSideNumber)
 	{		
@@ -156,12 +156,15 @@ namespace hg
 
 			return;
 		}
-		setSides(mSideNumber);
+
+		lua.callLuaFunction<void>("onIncrement");
+		if(randomSideChangesEnabled) setSides(mSideNumber);
 	}
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(getScore(levelData.getId()) < currentTime) setScore(levelData.getId(), currentTime);
+		if(getScore(levelData.getId() + "_m_" + toStr(difficultyMult)) < currentTime)
+			setScore(levelData.getId() + "_m_" + toStr(difficultyMult), currentTime);
 		saveCurrentProfile();
 	}
 	void HexagonGame::goToMenu()
@@ -177,7 +180,7 @@ namespace hg
 	void HexagonGame::changeLevel(string mId, bool mFirstTime)
 	{
 		checkAndSaveScore();		
-		newGame(mId, mFirstTime);
+		newGame(mId, mFirstTime, difficultyMult);
 	}
 	void HexagonGame::addMessage(string mMessage, float mDuration)
 	{

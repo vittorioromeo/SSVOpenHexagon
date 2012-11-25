@@ -91,12 +91,18 @@ namespace hg
 		lua.writeVariable("wall", 					[=](int mSide, int mThickness) { timeline.push_back(new Do{[=] { wall(mSide, mThickness); }}); });
 		lua.writeVariable("wallAdj", 				[=](int mSide, int mThickness, float mSpeedAdj) { timeline.push_back(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
-		lua.writeVariable("getSpeedMult",			[=]() 									{ return levelData.getSpeedMultiplier(); });
-		lua.writeVariable("getDelayMult", 			[=]() 									{ return levelData.getDelayMultiplier(); });
+		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
+		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
 		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
 		lua.writeVariable("execEvent", 				[=](string mId) 						{ events.push_back(getEventData(mId, this)); });
 		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventQueue.push(getEventData(mId, this)); });
 		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.push_back(new Wait(mDuration)); });
+
+		lua.writeVariable("playSound", 				[=](string mId) 						{ playSound(mId); });
+		lua.writeVariable("forceIncrement", 		[=]()			 						{ incrementDifficulty(); });
+
+		lua.writeVariable("messageAdd", 			[=](string mMessage, float mDuration)	{ if(firstPlay && getShowMessages()) addMessage(mMessage, mDuration); });
+		lua.writeVariable("messageImportantAdd",	[=](string mMessage, float mDuration)	{ if(getShowMessages()) addMessage(mMessage, mDuration); });
 
 		lua.writeVariable("getLevelValueInt", 		[=](string mValueName) 					{ return levelData.getValueInt(mValueName); });
 		lua.writeVariable("getLevelValueFloat", 	[=](string mValueName) 					{ return levelData.getValueFloat(mValueName); });

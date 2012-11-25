@@ -63,6 +63,17 @@ Manipulate the current level values. This allows you to change any value that is
 `setStyleValueBool(mValueName, mValue)` </br> 
 Manipulate the current style values. This allows you to change any value that is present in the style .json file. You can also create new values and use them as 'global variables' for your LUA scripts. Nothing will be saved to the actual .json file, it only works in memory.
 
+`playSound(mId)` </br>
+Plays a sound with id mId.
+
+`forceIncrement()` </br>
+Increments the level difficulty.
+
+`messageAdd(mMessage, mDuration)` </br>
+Adds a message to the message queue.
+
+`messageImportantAdd(mMessage, mDuration)` </br>
+Adds an important message to the message queue.
 
 ----------
 
@@ -75,6 +86,9 @@ This functions runs when the level starts or is restarted.
 
 `function onStep() ... end` </br>
 This function runs when the level timeline is empty. You should place your pattern selection logic here.
+
+`function onIncrement() ... end` </br>
+This function runs when the difficulty is incremented.
 
 `function onUnload() ... end` </br>
 This function runs when the level is closed or restarted.

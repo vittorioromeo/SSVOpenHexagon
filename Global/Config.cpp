@@ -37,7 +37,7 @@ namespace hg
 
 	float sizeX						{1500};
 	float sizeY						{1500};
-	float spawnDistance				{950};
+	float spawnDistance				{1100};
 	float zoomFactor				{1};
 	int pixelMultiplier				{1};
 	float playerSpeed				{8.3f};

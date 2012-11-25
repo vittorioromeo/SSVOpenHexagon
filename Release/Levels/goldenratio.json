@@ -1,6 +1,6 @@
 {
 	// Level information
-	"id": "zen",
+	"id": "goldenratio",
 	"name": "golden ratio",
 	"description": "relax with the spirals",
 	"author": "vee",	
@@ -8,7 +8,7 @@
 	"selectable": true,
 	
 	// Style
-	"style_id": "zen",
+	"style_id": "goldenratio",
 	
 	// Music
 	"music_id": "captainCool",

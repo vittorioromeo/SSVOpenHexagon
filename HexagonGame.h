@@ -96,6 +96,7 @@ namespace hg
 			float effectY{1};
 			float effectXInc{1};
 			float effectYInc{1};
+			float difficultyMult{1};
 
 			// LUA-related methods
 			void initLua();
@@ -141,7 +142,7 @@ namespace hg
 			~HexagonGame();
 
 			// Gameplay methods
-			void newGame(string mId, bool mFirstPlay);
+			void newGame(string mId, bool mFirstPlay, float mDifficultyMult);
 			void death();
 
 			// Other methods

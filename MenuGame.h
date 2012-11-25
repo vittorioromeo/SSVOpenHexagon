@@ -69,6 +69,8 @@ namespace hg
 			string profileCreationName;
 			int profileIndex{0};
 
+			float difficultyMult{1};
+
 			void recreateTextures();
 			void update(float mFrameTime);
 			void draw();

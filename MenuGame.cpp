@@ -185,11 +185,27 @@ namespace hg
 
 					inputDelay = 14;
 				}
+				else if(window.isKeyPressed(Keyboard::Up))
+				{
+					playSound("beep");
+					difficultyMult += 0.10f;
+					if(difficultyMult > 2.0f) difficultyMult = 2.0f;
+
+					inputDelay = 14;
+				}
+				else if(window.isKeyPressed(Keyboard::Down))
+				{
+					playSound("beep");
+					difficultyMult -= 0.10;
+					if(difficultyMult < 0.5f) difficultyMult = 0.5f;
+
+					inputDelay = 14;
+				}
 				else if(window.isKeyPressed(Keyboard::Return))
 				{
 					playSound("beep");
 					window.setGame(&hgPtr->getGame());
-					hgPtr->newGame(levelDataIds[currentIndex], true);
+					hgPtr->newGame(levelDataIds[currentIndex], true, difficultyMult);
 
 					inputDelay = 14;
 				}
@@ -251,13 +267,14 @@ namespace hg
 		positionAndDrawCenteredText(title3, mainColor, 240, true);
 		positionAndDrawCenteredText(title4, mainColor, 270, true);
 
-		levelTime.setString("best time: " + toStr(getScore(levelData.getId())));
+		levelTime.setString("best time: " + toStr(getScore(levelData.getId() + "_m_" + toStr(difficultyMult))));
 		positionAndDrawCenteredText(levelTime, mainColor, 768 - 425, false);
 
-		cProfText.setString("current profile: " + getCurrentProfile().getName());
+		cProfText.setString("(F2) current profile: " + getCurrentProfile().getName());
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 375, false);
-		cProfText.setString("(press f2 to change)");
+		cProfText.setString("(up/down) difficulty multiplier: " + toStr(difficultyMult));
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 355, false);
+
 
 
 		levelName.setString(levelData.getName());

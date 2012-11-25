@@ -97,14 +97,14 @@ namespace hg
 	}
 	inline void HexagonGame::updateRotation(float mFrameTime)
 	{
-		auto nextRotation = getRotationSpeed() * 10 * mFrameTime;
+		auto nextRotation = abs(getRotationSpeed()) * 10 * mFrameTime;
 		if(fastSpin > 0)
 		{
-			nextRotation += (getSmootherStep(0, 85, fastSpin) / 3.5f) * getSign(nextRotation) * mFrameTime * 17.0f;
+			nextRotation += (getSmootherStep(0, levelData.getValueFloat("fast_spin"), fastSpin) / 3.5f) * mFrameTime * 17.0f;
 			fastSpin -= mFrameTime;
 		}
 
-		gameSprite.rotate(nextRotation);
+		gameSprite.rotate(nextRotation * getSign(getRotationSpeed()));
 	}
 	inline void HexagonGame::update3DEffects(float mFrameTime)
 	{

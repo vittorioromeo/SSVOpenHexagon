@@ -1,0 +1,19 @@
+{
+	// Music data id
+	"id": "commandoSteve",
+
+	// Music file
+	"file_name": "commandoSteve.ogg",
+
+	// Music information
+	"name": "Commando Steve",
+	"album": "Caps On, Hats Off",
+	"author": "BOSSFIGHT",
+	
+	// Segments
+	"segments":
+	[
+		{ "time": 61 },
+		{ "time": 88 }
+	]
+}

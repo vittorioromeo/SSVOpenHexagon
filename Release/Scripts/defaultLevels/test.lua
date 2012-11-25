@@ -3,19 +3,8 @@ execScript("utils.lua")
 execScript("common.lua")
 execScript("commonpatterns.lua")
 
--- this function adds a pattern to the timeline based on a key
-function addPattern(mKey)
-	if mKey == 0 then pBarrageSpiral(math.random(1, 2), 1, 1) 
-	elseif mKey == 1 then pInverseBarrage(0)
-	elseif mKey == 2 then pAltBarrage(math.random(1, 3), 2)
-	end
-end
-
--- shuffle the keys, and then call them to add all the patterns
--- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 1, 2 }
-keys = shuffle(keys)
-index = 0
+extra = 0
+incrementTime = 5
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
@@ -27,17 +16,23 @@ end
 function onStep()
 	log("level onStep")
 	
-	addPattern(keys[index])
-	index = index + 1
-	
-	if index == table.getn(keys) then
-		index = 0
-	end
+	rWallEx(getRandomSide(), extra)
+	wait((getPerfectDelay(THICKNESS) - ((math.abs(6 - getSides())) * 1.13)) * (4 + extra / 1.25))
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
 	log("level onIncrement")	
+	
+	playSound("beep")
+	
+	extra = extra + 1
+	incrementTime = incrementTime + 2
+	
+	setLevelValueInt("sides", getSides() + 2)
+	setLevelValueInt("increment_time", incrementTime)
+	
+	messageImportantAdd("level: "..extra.." / time: "..incrementTime, 170)
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted

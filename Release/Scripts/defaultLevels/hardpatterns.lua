@@ -43,6 +43,11 @@ function onStep()
 	end
 end
 
+-- onIncrement is an hardcoded function that is called when the level difficulty is incremented
+function onIncrement()
+	log("level onIncrement")	
+end
+
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
 function onUnload()
 	log("level onUnload")	

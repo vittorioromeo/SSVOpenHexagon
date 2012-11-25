@@ -97,15 +97,20 @@ Please refer to the files in the **documentation** folder.
 
 Version 1.3
 
+* Added: **automatic difficulty variants** (select in menu with up/down arrow key) - scores are not shared between difficulty variants!
 * Changed: balanced default levels to feel more like a natural progresion
 * Fixed: random side changing now happens as soon as possible
-* Added: **LUA** hardcoded functions for levels (`onLoad`, `onStep`, `onUnload`) - **these are REQUIRED in level script files**
+* Added: **LUA** hardcoded functions for levels (`onLoad`, `onStep`, `onUnload`, `onIncrement`) - **these are REQUIRED in level script files**
 * Added: **LUA** `log(mLog)` function, which sends a message to the console
 * Fixed: **LUA** context now gets reset every time you start/restart a level
 * Added: **3D effects** (customizable in the level file) - they can be disabled from config.json
 * Added: `"rotation_speed_max"` level parameter
 * Changed: messages now show only the first time you play the level (not on restart)
 * Added `"message_important_add"` event - it shows even if you restart the level
+* Added `playSound(mId)` **LUA** command
+* Added `forceIncrement()` **LUA** command
+* Added `messageAdd(mMessage, mDuration)` **LUA** command
+* Added `messageImportantAdd(mMessage, mDuration)` **LUA** command
 
 Version 1.2
 
