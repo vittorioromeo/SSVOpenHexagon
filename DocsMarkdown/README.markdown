@@ -104,6 +104,8 @@ Version 1.3
 * Fixed: **LUA** context now gets reset every time you start/restart a level
 * Added: **3D effects** (customizable in the level file) - they can be disabled from config.json
 * Added: `"rotation_speed_max"` level parameter
+* Changed: messages now show only the first time you play the level (not on restart)
+* Added `"message_important_add"` event - it shows even if you restart the level
 
 Version 1.2
 

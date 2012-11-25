@@ -64,8 +64,7 @@ WXWIN:=C:\wxWidgets
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXCFG:=gcc_dll\mswu
 Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) $(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) \
-	$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Utils_HSL$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) \
-	
+	$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) 
 
 ##
 ## Main Build Targets 
@@ -200,14 +199,6 @@ $(IntermediateDirectory)/Data_EventData$(DependSuffix): Data/EventData.cpp
 $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix): Data/EventData.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/EventData.cpp"
 
-$(IntermediateDirectory)/Utils_HSL$(ObjectSuffix): Utils/HSL.cpp $(IntermediateDirectory)/Utils_HSL$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/HSL.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_HSL$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Utils_HSL$(DependSuffix): Utils/HSL.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Utils_HSL$(ObjectSuffix) -MF$(IntermediateDirectory)/Utils_HSL$(DependSuffix) -MM "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/HSL.cpp"
-
-$(IntermediateDirectory)/Utils_HSL$(PreprocessSuffix): Utils/HSL.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_HSL$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/HSL.cpp"
-
 $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix): Utils/Utils.cpp $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/Utils.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Utils_Utils$(DependSuffix): Utils/Utils.cpp
@@ -296,9 +287,6 @@ clean:
 	$(RM) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Data_EventData$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_HSL$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_HSL$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_HSL$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix)

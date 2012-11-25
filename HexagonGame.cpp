@@ -65,20 +65,22 @@ namespace hg
 
 	void HexagonGame::newGame(string mId, bool mFirstPlay)
 	{
+		firstPlay = mFirstPlay;
 		setLevelData(getLevelData(mId), mFirstPlay);
-
-		stopAllSounds();
-		playSound("play");
-		
 		pm->resetAdj();
 
+		// Audio cleanup
+		stopAllSounds();
+		playSound("play");
 		stopLevelMusic();
 		playLevelMusic();
 
+		// Events cleanup
 		clearMessages();
 		events.clear();
 		eventQueue = queue<EventData>{};
 
+		// Parameters cleanup
 		timeStop = 0;
 		randomSideChangesEnabled = true;
 		incrementEnabled = true;
@@ -87,24 +89,30 @@ namespace hg
 		pulseSpeedBackwards = 1;
 		pulseSpeed = 1;
 		fastSpin = 0;
-
 		hasDied = false;
-
 		mustRestart = false;
 		restartId = mId;
 		restartFirstTime = false;
-
 		currentTime = 0;
 		incrementTime = 0;
 		setSides(levelData.getSides());
 		radius = minPulse;
 
+		// Manager cleanup
 		manager.clear();
 		createPlayer(manager, this, centerPos);
 
+		// Timeline cleanup
 		timeline = Timeline{};
-		messageTimeline = Timeline{};		
+		messageTimeline = Timeline{};
 
+		// 3D Effects cleanup
+		effectX = 1;
+		effectY = 1;
+		effectXInc = 1;
+		effectYInc = 1;
+
+		// LUA context cleanup
 		if(!mFirstPlay) lua.callLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
 		initLua();
@@ -178,14 +186,16 @@ namespace hg
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
-		messageTimeline.push_back(new Do{ [&, text, mMessage]{ playSound("beep"); messageTextPtrs.push_back(text); }});
+		messageTimeline.push_back(new Do{ [&, text, mMessage]{ playSound("beep"); messageTextPtr = text; }});
 		messageTimeline.push_back(new Wait{mDuration});
-		messageTimeline.push_back(new Do{ [=]{ messageTextPtrs.clear(); delete text; }});
+		messageTimeline.push_back(new Do{ [=]{ messageTextPtr = nullptr; delete text; }});
 	}
 	void HexagonGame::clearMessages()
 	{
-		for (Text* textPtr : messageTextPtrs) delete textPtr;
-		messageTextPtrs.clear();
+		if(messageTextPtr == nullptr) return;
+
+		delete messageTextPtr;
+		messageTextPtr = nullptr;
 	}
 
 	void HexagonGame::setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay)

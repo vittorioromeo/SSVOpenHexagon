@@ -15,28 +15,29 @@
 
 namespace hg
 {
-	Game& HexagonGame::getGame()						{ return game; }
-	float HexagonGame::getRadius() 						{ return radius; }
-	Color HexagonGame::getColorMain() 					{ return getBlackAndWhite() ? Color::White : styleData.getMainColor(); }
-	Color HexagonGame::getColor(int mIndex)				{ return styleData.getColors()[mIndex]; }
-	float HexagonGame::getWallSkewLeft() 				{ return levelData.getValueFloat("wall_skew_left"); }
-	float HexagonGame::getWallSkewRight() 				{ return levelData.getValueFloat("wall_skew_right"); }
-	float HexagonGame::getWallAngleLeft() 				{ return levelData.getValueFloat("wall_angle_left"); }
-	float HexagonGame::getWallAngleRight() 				{ return levelData.getValueFloat("wall_angle_right"); }
+	Game& HexagonGame::getGame()									{ return game; }
+	float HexagonGame::getRadius() 									{ return radius; }
+	Color HexagonGame::getColorMain() 								{ return getBlackAndWhite() ? Color::White : styleData.getMainColor(); }
+	Color HexagonGame::getColor(int mIndex)							{ return styleData.getColors()[mIndex]; }
 
-	float HexagonGame::getSpeedMultiplier() { return levelData.getSpeedMultiplier(); }
-	float HexagonGame::getDelayMultiplier() { return levelData.getDelayMultiplier(); }
-	float HexagonGame::getRotationSpeed() 	{ return levelData.getRotationSpeed(); }
-	int HexagonGame::getSides() 			{ return levelData.getSides(); }
+	int HexagonGame::getSides() 									{ return levelData.getSides(); }
+	float HexagonGame::getWallSkewLeft() 							{ return levelData.getValueFloat("wall_skew_left"); }
+	float HexagonGame::getWallSkewRight() 							{ return levelData.getValueFloat("wall_skew_right"); }
+	float HexagonGame::getWallAngleLeft() 							{ return levelData.getValueFloat("wall_angle_left"); }
+	float HexagonGame::getWallAngleRight() 							{ return levelData.getValueFloat("wall_angle_right"); }
+	float HexagonGame::getSpeedMultiplier() 						{ return levelData.getSpeedMultiplier(); }
+	float HexagonGame::getDelayMultiplier() 						{ return levelData.getDelayMultiplier(); }
+	float HexagonGame::getRotationSpeed() 							{ return levelData.getRotationSpeed(); }
+	float HexagonGame::get3DEffectMult() 							{ return levelData.getValueFloat("3d_effect_multiplier"); }
 
-	void HexagonGame::setSpeedMultiplier(float mSpeedMultiplier) { levelData.setSpeedMultiplier(mSpeedMultiplier); }
-	void HexagonGame::setDelayMultiplier(float mDelayMultiplier) { levelData.setDelayMultiplier(mDelayMultiplier); }
-	void HexagonGame::setRotationSpeed(float mRotationSpeed) 	 { levelData.setRotationSpeed(mRotationSpeed); }
+	void HexagonGame::setSpeedMultiplier(float mSpeedMultiplier) 	{ levelData.setSpeedMultiplier(mSpeedMultiplier); }
+	void HexagonGame::setDelayMultiplier(float mDelayMultiplier)	{ levelData.setDelayMultiplier(mDelayMultiplier); }
+	void HexagonGame::setRotationSpeed(float mRotationSpeed) 	 	{ levelData.setRotationSpeed(mRotationSpeed); }
 	void HexagonGame::setSides(int mSides)
 	{
 		playSound("beep");
 		if (mSides < 3) mSides = 3;
 		levelData.setValueInt("sides", mSides);
 	}
-	float HexagonGame::get3DEffectMult() { return levelData.getValueFloat("3d_effect_multiplier"); }
+
 }

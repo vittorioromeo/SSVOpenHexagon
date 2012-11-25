@@ -23,16 +23,17 @@ namespace hg
 			if(eventRoot["executed"].asBool()) continue;
 			eventRoot["executed"] = true;
 
-			string type{eventRoot["type"].asString()};
-			float duration{eventRoot["duration"].asFloat()};
+			string type		{eventRoot["type"].asString()};
+			float duration	{eventRoot["duration"].asFloat()};
 			string valueName{eventRoot["value_name"].asString()};
-			float value{eventRoot["value"].asFloat()};
-			string message{eventRoot["message"].asString()};
-			string id{eventRoot["id"].asString()};
+			float value		{eventRoot["value"].asFloat()};
+			string message	{eventRoot["message"].asString()};
+			string id		{eventRoot["id"].asString()};
 
 			if 		(type == "level_change")			{ mustRestart = true; restartId = id; restartFirstTime = true; return; }
 			else if (type == "menu") 					goToMenu();
-			else if (type == "message_add")				{ if(getShowMessages()) addMessage(message, duration); }
+			else if (type == "message_add")				{ if(firstPlay && getShowMessages()) addMessage(message, duration); }
+			else if (type == "message_important_add")	{ if(getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_clear") 			clearMessages();
 			else if (type == "time_stop")				timeStop = duration;
 			else if (type == "timeline_wait") 			timeline.push_back(new Wait(duration));

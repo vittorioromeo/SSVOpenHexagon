@@ -42,8 +42,6 @@
       <File Name="Data/EventData.h"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Utils">
-      <File Name="Utils/HSL.cpp"/>
-      <File Name="Utils/HSL.h"/>
       <File Name="Utils/Utils.cpp"/>
       <File Name="Utils/Utils.h"/>
     </VirtualDirectory>

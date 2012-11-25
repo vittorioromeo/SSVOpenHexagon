@@ -42,7 +42,7 @@
 		{ "time": 57, 	"type": "timeline_clear" },
 		{ "time": 57, 	"type": "timeline_wait", 	"duration": 500 },
 		{ "time": 60, 	"type": "time_stop", 		"duration": 300 },
-		{ "time": 60, 	"type": "message_add", 		"duration": 150, 	"message": "you did it! good luck!" },
+		{ "time": 60, 	"type": "message_important_add", 		"duration": 150, 	"message": "here's your surprise!" },
 		{ "time": 60, 	"type": "level_float_set",		"value_name": "wall_skew_left", 	"value": 25 },
 		{ "time": 60, 	"type": "level_float_subtract",	"value_name": "delay_multiplier", 	"value": 0.2 },
 		{ "time": 60, 	"type": "level_float_add",	"value_name": "speed_multiplier", 	"value": 0.37 },

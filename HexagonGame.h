@@ -75,7 +75,7 @@ namespace hg
 			Timeline timeline;
 
 			Timeline messageTimeline;
-			vector<Text*> messageTextPtrs;
+			Text* messageTextPtr{nullptr};
 
 			vector<EventData> events;
 			queue<EventData> eventQueue;
@@ -101,12 +101,14 @@ namespace hg
 			bool hasDied{false};
 			bool mustRestart{false};
 			string restartId{""};
+
 			bool restartFirstTime{true};
+			bool firstPlay{true};
 
 			void update(float);
 			inline void updateTimeStop(float mFrameTime);
 			inline void updateIncrement();
-			inline void updateLevelEvents(float mFrameTime);
+			inline void updateEvents(float mFrameTime);
 			inline void updateLevel(float mFrameTime);			
 			inline void updateRadius(float mFrameTime);
 			inline void updateKeys();

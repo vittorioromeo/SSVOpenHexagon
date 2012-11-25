@@ -29,6 +29,7 @@ namespace hg
 		Text timeText(s.str(), getFont("imagine"), 25 / getZoomFactor());
 		timeText.setPosition(15, 3);
 		timeText.setColor(getColorMain());
+
 		for(auto offset : offsets)
 		{
 			Text timeOffsetText(s.str(), getFont("imagine"), timeText.getCharacterSize());
@@ -36,22 +37,22 @@ namespace hg
 			timeOffsetText.setColor(getColor(1));
 			drawOnWindow(timeOffsetText);
 		}
+
 		drawOnWindow(timeText);
 
-		for (Text* textPtr : messageTextPtrs)
-		{
-			for(auto offset : offsets)
-			{
-				Text textPtrOffset{textPtr->getString(), getFont("imagine"), textPtr->getCharacterSize()};
-				textPtrOffset.setPosition(textPtr->getPosition() + offset);
-				textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
-				textPtrOffset.setColor(getColor(1));
-				drawOnWindow(textPtrOffset);
-			}
+		if(messageTextPtr == nullptr) return;
 
-			textPtr->setColor(getColorMain());
-			drawOnWindow(*textPtr);
+		for(auto offset : offsets)
+		{
+			Text textPtrOffset{messageTextPtr->getString(), getFont("imagine"), messageTextPtr->getCharacterSize()};
+			textPtrOffset.setPosition(messageTextPtr->getPosition() + offset);
+			textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
+			textPtrOffset.setColor(getColor(1));
+			drawOnWindow(textPtrOffset);
 		}
+
+		messageTextPtr->setColor(getColorMain());
+		drawOnWindow(*messageTextPtr);
 	}
 
 	void HexagonGame::recreateTextures()

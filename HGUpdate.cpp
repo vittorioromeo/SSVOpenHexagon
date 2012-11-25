@@ -21,25 +21,25 @@ namespace hg
 		{
 			manager.update(mFrameTime);
 
-			updateLevelEvents(mFrameTime);
+			updateEvents(mFrameTime);
 			updateTimeStop(mFrameTime);
 			updateIncrement();
 			updateLevel(mFrameTime);
 			updateRadius(mFrameTime);
 			if(!getBlackAndWhite()) styleData.update(mFrameTime);
 		}
-		else setRotationSpeed(getRotationSpeed() / 1.001f);
+		else setRotationSpeed(getRotationSpeed() * 0.99f);
 
 		updateKeys();
+
 		if(!getNoRotation()) updateRotation(mFrameTime);
+		if(!getNo3DEffects()) update3DEffects(mFrameTime);
 
 		if(mustRestart) changeLevel(restartId, restartFirstTime);
-
-		update3DEffects(mFrameTime);
 	}
-	inline void HexagonGame::updateLevelEvents(float mFrameTime)
+	inline void HexagonGame::updateEvents(float mFrameTime)
 	{
-		for(EventData& pattern : events) pattern.update(mFrameTime);
+		for(EventData& event : events)  event.update(mFrameTime);
 		if(!eventQueue.empty())
 		{
 			eventQueue.front().update(mFrameTime);

@@ -37,16 +37,16 @@
 		{ "time": 0,	"type": "pulse_speed_set",	"value": 1.1 },
 		{ "time": 0, 	"type": "timeline_wait", 	"duration": 300 },
 		{ "time": 0, 	"type": "time_stop", 		"duration": 300 },
-		{ "time": 0, 	"type": "message_add", 		"duration": 170, 	"message": "welcome to open hexagon" },
-		{ "time": 0, 	"type": "message_add", 		"duration": 170, 	"message": "use left/right to rotate" },
-		{ "time": 0, 	"type": "message_add", 		"duration": 170, 	"message": "avoid the walls!" },
+		{ "time": 0, 	"type": "message_important_add", 		"duration": 170, 	"message": "welcome to open hexagon" },
+		{ "time": 0, 	"type": "message_important_add", 		"duration": 170, 	"message": "use left/right to rotate" },
+		{ "time": 0, 	"type": "message_important_add", 		"duration": 170, 	"message": "avoid the walls!" },
 		{ "time": 12, 	"type": "timeline_wait", 	"duration": 300 },
 		{ "time": 14, 	"type": "time_stop", 		"duration": 300 },
-		{ "time": 14, 	"type": "message_add", 		"duration": 100, 	"message": "great job!"},
-		{ "time": 14, 	"type": "message_add", 		"duration": 200, 	"message": "after a while, things get harder" },
+		{ "time": 14, 	"type": "message_important_add", 		"duration": 100, 	"message": "great job!"},
+		{ "time": 14, 	"type": "message_important_add", 		"duration": 200, 	"message": "after a while, things get harder" },
 		{ "time": 28, 	"type": "timeline_wait", 	"duration": 200 },
 		{ "time": 30, 	"type": "time_stop", 		"duration": 200 },
-		{ "time": 30, 	"type": "message_add", 		"duration": 200, 	"message": "get to 45 seconds to win!" },
+		{ "time": 30, 	"type": "message_important_add", 		"duration": 200, 	"message": "get to 45 seconds to win!" },
 		{ "time": 45, 	"type": "level_change", 	"id": "tutorial2" }
 	]
 }

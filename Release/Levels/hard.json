@@ -48,7 +48,7 @@
 		{ "time": 42, 	"type": "timeline_clear" },
 		{ "time": 42, 	"type": "timeline_wait", 	"duration": 600 },
 		{ "time": 45, 	"type": "time_stop", 		"duration": 300 },
-		{ "time": 45, 	"type": "message_add", 		"duration": 200, 	"message": "may the mayhem begin!" },
+		{ "time": 45, 	"type": "message_important_add", 		"duration": 200, 	"message": "may the mayhem begin!" },
 		{ "time": 46.5, "type": "style_float_set",	"value_name": "pulse_increment",	"value": 0.15 }
 
 	]
