@@ -48,6 +48,12 @@ function pMirrorSpiralDouble(mTimes, mExtra)
 		wait(delay)
 	end
 	
+	rWallEx(startSide + j, mExtra)
+	wait(delay * 0.9)
+	
+	rWallEx(startSide + j, mExtra)
+	wait(delay * 0.9)
+	
 	loopDir = loopDir * -1
 	
 	for i = 0, mTimes + 1 do

@@ -1,5 +1,13 @@
 
 {
 	"name" : "test",
-	"scores" : {}
+	"scores" : 
+	{
+		"extra" : 0.5268789529800415,
+		"hard" : null,
+		"lunatic" : 10.89086055755615,
+		"normal" : 39.93793487548828,
+		"tutorial" : null,
+		"zen" : null
+	}
 }
