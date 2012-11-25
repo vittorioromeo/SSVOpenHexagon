@@ -38,4 +38,5 @@ namespace hg
 		if (mSides < 3) mSides = 3;
 		levelData.setValueInt("sides", mSides);
 	}
+	float HexagonGame::get3DEffectMult() { return levelData.getValueFloat("3d_effect_multiplier"); }
 }

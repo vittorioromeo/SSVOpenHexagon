@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.2 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.3 #
 ## [vee software](http://veegamedev.wordpress.com/) ##
 
 **A free, open source clone of "[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)" (by Terry Cavanagh). </br>**
@@ -94,6 +94,16 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.3
+
+* Changed: balanced default levels to feel more like a natural progresion
+* Fixed: random side changing now happens as soon as possible
+* Added: **LUA** hardcoded functions for levels (`onLoad`, `onStep`, `onUnload`) - **these are REQUIRED in level script files**
+* Added: **LUA** `log(mLog)` function, which sends a message to the console
+* Fixed: **LUA** context now gets reset every time you start/restart a level
+* Added: **3D effects** (customizable in the level file) - they can be disabled from config.json
+* Added: `"rotation_speed_max"` level parameter
 
 Version 1.2
 

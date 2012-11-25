@@ -50,6 +50,7 @@ namespace hg
 	bool getNoRotation();
 	bool getNoBackground();
 	bool getBlackAndWhite();
+	bool getNo3DEffects();
 	bool getNoSound();
 	bool getNoMusic();
 	int getSoundVolume();

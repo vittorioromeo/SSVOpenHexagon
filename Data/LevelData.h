@@ -47,10 +47,7 @@ namespace hg
 			LevelData() = default;
 			LevelData(Json::Value mRoot);
 			
-			void addPattern(function<void(PatternManager* pm)> mPatternFunc, int mChance = 1);
 			void addEvent(Json::Value mEventRoot);
-
-			function<void(PatternManager* pm)> getRandomPattern();
 
 			Json::Value& getRoot();
 			string getId();

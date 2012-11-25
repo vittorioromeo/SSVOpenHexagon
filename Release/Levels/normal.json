@@ -17,17 +17,19 @@
 	"lua_file": "defaultLevels/normalpatterns.lua",
 	
 	// Basic values
-	"speed_multiplier": 1.70,
-	"speed_increment": 0.08,
+	"speed_multiplier": 1.80,
+	"speed_increment": 0.13,
 	"rotation_speed": 0.11,
-	"rotation_increment": 0.052,
-	"delay_multiplier": 1.35,
-	"delay_increment": 0.00,
+	"rotation_increment": 0.05,
+	"delay_multiplier": 1.25,
+	"delay_increment": -0.02,
 	"fast_spin": 0.00,
 	"sides": 6,
 	"sides_min": 5,
 	"sides_max": 6,
 	"increment_time": 15,
+	"3d_effect_multiplier": 1.1,
+	"rotation_speed_max": 0.8,
 	
 	// Events
 	"events":
@@ -41,6 +43,8 @@
 		{ "time": 57, 	"type": "timeline_wait", 	"duration": 500 },
 		{ "time": 60, 	"type": "time_stop", 		"duration": 300 },
 		{ "time": 60, 	"type": "message_add", 		"duration": 150, 	"message": "you did it! good luck!" },
+		{ "time": 60, 	"type": "level_float_set",		"value_name": "wall_skew_left", 	"value": 25 },
+		{ "time": 60, 	"type": "level_float_subtract",	"value_name": "delay_multiplier", 	"value": 0.2 },
 		{ "time": 60, 	"type": "level_float_add",	"value_name": "speed_multiplier", 	"value": 0.37 },
 		{ "time": 60, 	"type": "level_float_add",	"value_name": "delay_multiplier", 	"value": 0.27 },
 		{ "time": 60, 	"type": "level_float_add",	"value_name": "rotation_speed", 	"value": 0.04 },

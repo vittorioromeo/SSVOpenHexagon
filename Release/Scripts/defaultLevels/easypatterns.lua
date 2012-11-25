@@ -17,9 +17,27 @@ end
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
 keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4 }
 keys = shuffle(keys)
+index = 0
 
-for i = 0, table.getn(keys) do
-	addPattern(keys[i])
+-- onLoad is an hardcoded function that is called when the level is started/restarted
+function onLoad()
+	log("level onLoad")
 end
 
--- end - the file will restart from the beginning when the timeline is clear
+-- onStep is an hardcoded function that is called when the level timeline is empty
+-- onStep should contain your pattern spawning logic
+function onStep()
+	log("level onStep")
+	
+	addPattern(keys[index])
+	index = index + 1
+	
+	if index == table.getn(keys) then
+		index = 0
+	end
+end
+
+-- onUnload is an hardcoded function that is called when the level is closed/restarted
+function onUnload()
+	log("level onUnload")	
+end

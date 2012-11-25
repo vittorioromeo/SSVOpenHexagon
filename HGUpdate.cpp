@@ -34,6 +34,8 @@ namespace hg
 		if(!getNoRotation()) updateRotation(mFrameTime);
 
 		if(mustRestart) changeLevel(restartId, restartFirstTime);
+
+		update3DEffects(mFrameTime);
 	}
 	inline void HexagonGame::updateLevelEvents(float mFrameTime)
 	{
@@ -73,7 +75,7 @@ namespace hg
 		if(timeline.isFinished())
 		{
 			timeline.clear();
-			runLuaFile(levelData.getValueString("lua_file"));
+			lua.callLuaFunction<void>("onStep");
 			timeline.reset();
 		}
 	}
@@ -103,5 +105,25 @@ namespace hg
 		}
 
 		gameSprite.rotate(nextRotation);
+	}
+	inline void HexagonGame::update3DEffects(float mFrameTime)
+	{
+		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor() * effectX, getSizeY() * getZoomFactor() * effectY}});
+
+		if(getRnd(0, 100) > 50)
+		{
+			if(getRnd(0, 100) > 50)
+			{
+				effectX += effectXInc * getRnd(0, 300) / 20000.f * mFrameTime * get3DEffectMult();
+				if(effectX < 0.85f) effectXInc = 1;
+				else if(effectX > 1.15f) effectXInc = -1;
+			}
+			else
+			{
+				effectY += effectYInc * getRnd(0, 300) / 20000.f * mFrameTime * get3DEffectMult();
+				if(effectY < 0.85f) effectYInc = 1;
+				else if(effectY > 1.15f) effectYInc = -1;
+			}
+		}		
 	}
 }

@@ -27,20 +27,6 @@ namespace hg
 {
 	LevelData::LevelData(Json::Value mRoot) : root{mRoot} { }
 
-	function<void(PatternManager* pm)> LevelData::getRandomPattern()
-	{
-		currentPattern++;
-
-		if(currentPattern == (int)pfuncs.size()) currentPattern = 0;
-		if(currentPattern == 0) random_shuffle(pfuncs.begin(), pfuncs.end());
-
-		return pfuncs[currentPattern];
-	}
-
-	void LevelData::addPattern(function<void(PatternManager* pm)> mPatternFunc, int mChance)
-	{
-		for(int i{0}; i < mChance; i++) pfuncs.push_back(mPatternFunc);
-	}
 	void LevelData::addEvent(Json::Value mEventRoot)
 	{
 		events.push_back(mEventRoot);

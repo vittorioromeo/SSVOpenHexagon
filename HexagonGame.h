@@ -112,6 +112,12 @@ namespace hg
 			inline void updateKeys();
 			inline void updateRotation(float mFrameTime);
 
+			float effectX{1};
+			float effectY{1};
+			float effectXInc{1};
+			float effectYInc{1};
+			inline void update3DEffects(float mFrameTime);
+
 			void drawText();
 
 			void setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay);
@@ -161,6 +167,7 @@ namespace hg
 			float getWallSkewRight();
 			float getWallAngleLeft();
 			float getWallAngleRight();
+			float get3DEffectMult();
 
 			void executeEvents(Json::Value& mRoot, float mTime);
 	};

@@ -12,6 +12,9 @@ There are many LUA editors that can check your syntax and make you avoid typos: 
 
 *These commands can be called like any other function. They are hardcoded because they directly communicate with the C++ engine.*
 
+`log(mLog)` </br>
+Sends a log message to the console. Very useful for debugging!
+
 `getSides()` </br>
 Returns the current number of sides.
 
@@ -59,3 +62,19 @@ Manipulate the current level values. This allows you to change any value that is
 `setStyleValueString(mValueName, mValue)` </br> 
 `setStyleValueBool(mValueName, mValue)` </br> 
 Manipulate the current style values. This allows you to change any value that is present in the style .json file. You can also create new values and use them as 'global variables' for your LUA scripts. Nothing will be saved to the actual .json file, it only works in memory.
+
+
+----------
+
+## Hardcoded level LUA functions ##
+
+These functions are **REQUIRED** in level script files.
+
+`function onLoad() ... end` </br>
+This functions runs when the level starts or is restarted.
+
+`function onStep() ... end` </br>
+This function runs when the level timeline is empty. You should place your pattern selection logic here.
+
+`function onUnload() ... end` </br>
+This function runs when the level is closed or restarted.

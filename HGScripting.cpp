@@ -85,6 +85,8 @@ namespace hg
 		auto wall = [=](int mSide, float mThickness) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, 1)(pm); };
 		auto wallAdj = [=](int mSide, float mThickness, float mSpeedAdj) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, mSpeedAdj)(pm); };
 
+		lua.writeVariable("log", 					[=](string mLog) 						{ log("LUA log: " + mLog); });
+
 		lua.writeVariable("wall", 					[=](int mSide, int mThickness) { timeline.push_back(new Do{[=] { wall(mSide, mThickness); }}); });
 		lua.writeVariable("wallAdj", 				[=](int mSide, int mThickness, float mSpeedAdj) { timeline.push_back(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });

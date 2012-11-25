@@ -29,6 +29,8 @@
 	"sides_max": 7,
 	"increment_time": 5,
 	"wall_skew_right": -20, 
+	"3d_effect_multiplier": 1.3,
+	"rotation_speed_max": 0.8,
 	
 	//Events
 	"events":

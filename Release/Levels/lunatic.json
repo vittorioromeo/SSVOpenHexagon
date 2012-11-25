@@ -28,6 +28,8 @@
 	"sides_min": 5,
 	"sides_max": 7,
 	"increment_time": 15,
+	"3d_effect_multiplier": 1.25,
+	"rotation_speed_max": 0.8,
 	
 	//Events
 	"events":

@@ -47,7 +47,6 @@ namespace hg
 		window(mGameWindow)
 	{				
 		pm = new PatternManager(this);
-		initLua();
 
 		recreateTextures();
 
@@ -104,7 +103,13 @@ namespace hg
 		createPlayer(manager, this, centerPos);
 
 		timeline = Timeline{};
-		messageTimeline = Timeline{};
+		messageTimeline = Timeline{};		
+
+		if(!mFirstPlay) lua.callLuaFunction<void>("onUnload");
+		lua = Lua::LuaContext{};
+		initLua();
+		runLuaFile(levelData.getValueString("lua_file"));
+		lua.callLuaFunction<void>("onLoad");
 	}
 	void HexagonGame::death()
 	{
@@ -120,10 +125,15 @@ namespace hg
 	{
 		playSound("level_up");
 
-		setSpeedMultiplier(getSpeedMultiplier() + levelData.getSpeedIncrement());
-		setRotationSpeed(getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
+		setSpeedMultiplier(getSpeedMultiplier() + levelData.getSpeedIncrement());		
 		setDelayMultiplier(getDelayMultiplier() + levelData.getDelayIncrement());
+
+		setRotationSpeed(getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setRotationSpeed(getRotationSpeed() * -1);
+		
+		if(abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
+			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));
+
 		fastSpin = levelData.getFastSpin();
 		
 		if(randomSideChangesEnabled)
@@ -133,13 +143,13 @@ namespace hg
 	{		
 		if(manager.getComponentPtrsById("wall").size() > 0)
 		{
+			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
 			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
 			timeline.insert(timeline.getCurrentIndex() + 1, new Wait(5));
 
 			return;
 		}
 		setSides(mSideNumber);
-		clearAndResetTimeline(timeline);
 	}
 
 	void HexagonGame::checkAndSaveScore()
@@ -153,12 +163,13 @@ namespace hg
 		playSound("beep");
 
 		checkAndSaveScore();
+		lua.callLuaFunction<void>("onUnload");
 		window.setGame(&mgPtr->getGame());
 		mgPtr->init();
 	}
 	void HexagonGame::changeLevel(string mId, bool mFirstTime)
 	{
-		checkAndSaveScore();
+		checkAndSaveScore();		
 		newGame(mId, mFirstTime);
 	}
 	void HexagonGame::addMessage(string mMessage, float mDuration)
