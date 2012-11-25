@@ -62,49 +62,46 @@ namespace hg
 			Manager manager;
 			RenderTexture gameTexture;
 			Sprite gameSprite;
-
 			Lua::LuaContext lua;
-			void initLua();
-			void runLuaFile(string mFileName);
-
+			Vector2f centerPos{0,0};
 			LevelData levelData;
 			MusicData musicData;
 			StyleData styleData;
 			Music* musicPtr{nullptr};
-
 			Timeline timeline;
-
 			Timeline messageTimeline;
 			Text* messageTextPtr{nullptr};
-
 			vector<EventData> events;
 			queue<EventData> eventQueue;
+			bool firstPlay{true};
 
-			Vector2f centerPos{0,0};
-
+			// New game parameters
 			float currentTime{0};
 			float incrementTime{0};
-
 			float timeStop{0};
-			bool randomSideChangesEnabled;
-			bool incrementEnabled;
+			bool randomSideChangesEnabled{true};
+			bool incrementEnabled{true};
 			float maxPulse{85};
 			float minPulse{75};
 			float pulseSpeed{1};
 			float pulseSpeedBackwards{1};
-
-			float radius{75};
+			float radius{minPulse};
 			float radiusTimer{0};
-
 			float fastSpin{0};
-
 			bool hasDied{false};
 			bool mustRestart{false};
 			string restartId{""};
-
 			bool restartFirstTime{true};
-			bool firstPlay{true};
+			float effectX{1};
+			float effectY{1};
+			float effectXInc{1};
+			float effectYInc{1};
 
+			// LUA-related methods
+			void initLua();
+			void runLuaFile(string mFileName);
+
+			// Update methods
 			void update(float);
 			inline void updateTimeStop(float mFrameTime);
 			inline void updateIncrement();
@@ -113,30 +110,28 @@ namespace hg
 			inline void updateRadius(float mFrameTime);
 			inline void updateKeys();
 			inline void updateRotation(float mFrameTime);
-
-			float effectX{1};
-			float effectY{1};
-			float effectXInc{1};
-			float effectYInc{1};
 			inline void update3DEffects(float mFrameTime);
 
+			// Gameplay methods
+			void incrementDifficulty();
+			void sideChange(int mSideNumber);
+
+			// Draw methods
 			void drawText();
 
+			// Data-related methods
 			void setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay);
-
 			void playLevelMusic();
 			void stopLevelMusic();
 
-			void incrementDifficulty();
-			void sideChange(int mSideNumber);
+			// Message-related methods
+			void addMessage(string mMessage, float mDuration);
+			void clearMessage();
+
+			// Level/menu loading/unloading/changing
 			void checkAndSaveScore();
 			void goToMenu();
 			void changeLevel(string mId, bool mFirstTime);
-			void addMessage(string mMessage, float mDuration);
-			void clearMessages();
-
-			void queueScript(EventData mScript);
-
 
 		public:
 			MenuGame* mgPtr;
@@ -145,18 +140,24 @@ namespace hg
 			HexagonGame(GameWindow& mGameWindow);
 			~HexagonGame();
 
-			void recreateTextures();
+			// Gameplay methods
 			void newGame(string mId, bool mFirstPlay);
 			void death();
+
+			// Other methods
+			bool isKeyPressed(Keyboard::Key mKey);
+			void executeEvents(Json::Value& mRoot, float mTime);
+
+			// Graphics-related methods
+			void recreateTextures();
 			void drawOnTexture(Drawable&);
 			void drawOnWindow(Drawable&);
 
+			// Properties
 			Game& getGame();
 			float getRadius();
 			Color getColorMain();
 			Color getColor(int mIndex);
-			bool isKeyPressed(Keyboard::Key mKey);
-
 			float getSpeedMultiplier();
 			float getDelayMultiplier();
 			float getRotationSpeed();
@@ -170,8 +171,6 @@ namespace hg
 			float getWallAngleLeft();
 			float getWallAngleRight();
 			float get3DEffectMult();
-
-			void executeEvents(Json::Value& mRoot, float mTime);
 	};
 }
 #endif /* HEXAGONGAME_H_ */

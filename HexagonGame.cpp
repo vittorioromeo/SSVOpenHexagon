@@ -76,27 +76,32 @@ namespace hg
 		playLevelMusic();
 
 		// Events cleanup
-		clearMessages();
+		clearMessage();
 		events.clear();
 		eventQueue = queue<EventData>{};
 
 		// Parameters cleanup
+		currentTime = 0;
+		incrementTime = 0;
 		timeStop = 0;
 		randomSideChangesEnabled = true;
 		incrementEnabled = true;
 		maxPulse = 85;
 		minPulse = 75;
-		pulseSpeedBackwards = 1;
 		pulseSpeed = 1;
+		pulseSpeedBackwards = 1;
+		radius = minPulse;
+		radiusTimer = 0;
 		fastSpin = 0;
 		hasDied = false;
 		mustRestart = false;
 		restartId = mId;
 		restartFirstTime = false;
-		currentTime = 0;
-		incrementTime = 0;
+		effectX = 1;
+		effectY = 1;
+		effectXInc = 1;
+		effectYInc = 1;
 		setSides(levelData.getSides());
-		radius = minPulse;
 
 		// Manager cleanup
 		manager.clear();
@@ -105,12 +110,6 @@ namespace hg
 		// Timeline cleanup
 		timeline = Timeline{};
 		messageTimeline = Timeline{};
-
-		// 3D Effects cleanup
-		effectX = 1;
-		effectY = 1;
-		effectXInc = 1;
-		effectYInc = 1;
 
 		// LUA context cleanup
 		if(!mFirstPlay) lua.callLuaFunction<void>("onUnload");
@@ -190,7 +189,7 @@ namespace hg
 		messageTimeline.push_back(new Wait{mDuration});
 		messageTimeline.push_back(new Do{ [=]{ messageTextPtr = nullptr; delete text; }});
 	}
-	void HexagonGame::clearMessages()
+	void HexagonGame::clearMessage()
 	{
 		if(messageTextPtr == nullptr) return;
 

@@ -34,7 +34,7 @@ namespace hg
 			else if (type == "menu") 					goToMenu();
 			else if (type == "message_add")				{ if(firstPlay && getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_important_add")	{ if(getShowMessages()) addMessage(message, duration); }
-			else if (type == "message_clear") 			clearMessages();
+			else if (type == "message_clear") 			clearMessage();
 			else if (type == "time_stop")				timeStop = duration;
 			else if (type == "timeline_wait") 			timeline.push_back(new Wait(duration));
 			else if (type == "timeline_clear") 			clearAndResetTimeline(timeline);
