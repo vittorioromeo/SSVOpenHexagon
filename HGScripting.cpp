@@ -93,6 +93,7 @@ namespace hg
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
+		lua.writeVariable("getDifficultyMult",		[=]() 									{ return difficultyMult; });
 		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
 		lua.writeVariable("execEvent", 				[=](string mId) 						{ events.push_back(getEventData(mId, this)); });
 		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventQueue.push(getEventData(mId, this)); });

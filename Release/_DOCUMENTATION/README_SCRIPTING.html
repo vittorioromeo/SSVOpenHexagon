@@ -280,6 +280,9 @@ button::-moz-focus-inner {
 
 <p><em>These commands can be called like any other function. They are hardcoded because they directly communicate with the C++ engine.</em></p>
 
+<p><code>log(mLog)</code> </br>
+Sends a log message to the console. Very useful for debugging!</p>
+
 <p><code>getSides()</code> </br>
 Returns the current number of sides.</p>
 
@@ -327,6 +330,39 @@ Manipulate the current level values. This allows you to change any value that is
 <code>setStyleValueString(mValueName, mValue)</code> </br> 
 <code>setStyleValueBool(mValueName, mValue)</code> </br> 
 Manipulate the current style values. This allows you to change any value that is present in the style .json file. You can also create new values and use them as 'global variables' for your LUA scripts. Nothing will be saved to the actual .json file, it only works in memory.</p>
+
+<p><code>playSound(mId)</code> </br>
+Plays a sound with id mId.</p>
+
+<p><code>forceIncrement()</code> </br>
+Increments the level difficulty.</p>
+
+<p><code>messageAdd(mMessage, mDuration)</code> </br>
+Adds a message to the message queue.</p>
+
+<p><code>messageImportantAdd(mMessage, mDuration)</code> </br>
+Adds an important message to the message queue.</p>
+
+<p><code>getDifficultyMult()</code> </br>
+Gets the automatic difficulty variant multiplier.</p>
+
+<hr />
+
+<h2>Hardcoded level LUA functions</h2>
+
+<p>These functions are <strong>REQUIRED</strong> in level script files.</p>
+
+<p><code>function onLoad() ... end</code> </br>
+This functions runs when the level starts or is restarted.</p>
+
+<p><code>function onStep() ... end</code> </br>
+This function runs when the level timeline is empty. You should place your pattern selection logic here.</p>
+
+<p><code>function onIncrement() ... end</code> </br>
+This function runs when the difficulty is incremented.</p>
+
+<p><code>function onUnload() ... end</code> </br>
+This function runs when the level is closed or restarted.</p>
 
 </body>
 </html>

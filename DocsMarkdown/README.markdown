@@ -106,11 +106,13 @@ Version 1.3
 * Added: **3D effects** (customizable in the level file) - they can be disabled from config.json
 * Added: `"rotation_speed_max"` level parameter
 * Changed: messages now show only the first time you play the level (not on restart)
-* Added `"message_important_add"` event - it shows even if you restart the level
-* Added `playSound(mId)` **LUA** command
-* Added `forceIncrement()` **LUA** command
-* Added `messageAdd(mMessage, mDuration)` **LUA** command
-* Added `messageImportantAdd(mMessage, mDuration)` **LUA** command
+* Added: `"message_important_add"` event - it shows even if you restart the level
+* Added: `playSound(mId)` **LUA** command
+* Added: `forceIncrement()` **LUA** command
+* Added: `messageAdd(mMessage, mDuration)` **LUA** command
+* Added: `messageImportantAdd(mMessage, mDuration)` **LUA** command
+* Added: `getDifficultyMult()` **LUA** command
+* Added: new level and **Commando Steve** song
 
 Version 1.2
 

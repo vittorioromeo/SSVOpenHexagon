@@ -75,6 +75,9 @@ Adds a message to the message queue.
 `messageImportantAdd(mMessage, mDuration)` </br>
 Adds an important message to the message queue.
 
+`getDifficultyMult()` </br>
+Gets the automatic difficulty variant multiplier.
+
 ----------
 
 ## Hardcoded level LUA functions ##

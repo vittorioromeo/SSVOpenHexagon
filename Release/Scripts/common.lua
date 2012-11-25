@@ -22,7 +22,7 @@ end
 
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
 function getPerfectDelay(mThickness)
-	return mThickness / (5 * getSpeedMult()) + ((math.abs(6 - getSides())) * 1.15)
+	return (mThickness / (5 * getSpeedMult()) + ((math.abs(6 - getSides())) * 1.15)) - (1 - getDifficultyMult()) * 2
 end
 
 -- getPerfectThickness: returns a good THICKNESS value in relation to human reflexes

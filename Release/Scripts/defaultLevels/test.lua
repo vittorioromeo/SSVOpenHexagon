@@ -4,7 +4,7 @@ execScript("common.lua")
 execScript("commonpatterns.lua")
 
 extra = 0
-incrementTime = 5
+incrementTime = 3
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
