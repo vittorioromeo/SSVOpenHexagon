@@ -30,6 +30,7 @@
 	"increment_time": 5,
 	"3d_effect_multiplier": 1.25,
 	"rotation_speed_max": 0.7,
+	"wall_skew_left": 30,
 	
 	//Events
 	"events":

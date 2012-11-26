@@ -4,11 +4,13 @@ execScript("common.lua")
 execScript("commonpatterns.lua")
 
 extra = 0
-incrementTime = 3
+incrementTime = 5
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
 	log("level onLoad")
+	
+	messageImportantAdd("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -31,8 +33,8 @@ function onIncrement()
 	
 	setLevelValueInt("sides", getSides() + 2)
 	setLevelValueInt("increment_time", incrementTime)
-	
-	messageImportantAdd("level: "..extra.." / time: "..incrementTime, 170)
+		
+	messageImportantAdd("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted

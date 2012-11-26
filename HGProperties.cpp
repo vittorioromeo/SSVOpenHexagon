@@ -27,7 +27,7 @@ namespace hg
 	float HexagonGame::getWallAngleRight() 							{ return levelData.getValueFloat("wall_angle_right"); }
 	float HexagonGame::getSpeedMultiplier() 						{ return levelData.getSpeedMultiplier() * difficultyMult; }
 	float HexagonGame::getDelayMultiplier() 						{ return levelData.getDelayMultiplier() / difficultyMult; }
-	float HexagonGame::getRotationSpeed() 							{ return levelData.getRotationSpeed() * difficultyMult * 0.5f; }
+	float HexagonGame::getRotationSpeed() 							{ return levelData.getRotationSpeed(); }
 	float HexagonGame::get3DEffectMult() 							{ return levelData.getValueFloat("3d_effect_multiplier"); }
 
 	void HexagonGame::setSpeedMultiplier(float mSpeedMultiplier) 	{ levelData.setSpeedMultiplier(mSpeedMultiplier); }
