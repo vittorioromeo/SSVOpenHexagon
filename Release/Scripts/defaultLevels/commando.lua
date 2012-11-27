@@ -19,7 +19,7 @@ function onStep()
 	log("level onStep")
 	
 	rWallEx(getRandomSide(), extra)
-	wait((getPerfectDelay(THICKNESS) - ((math.abs(6 - getSides())) * 1.13)) * (4 + extra / 1.25))
+	wait(getPerfectDelay(THICKNESS) * 6)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented

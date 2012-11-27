@@ -33,7 +33,6 @@ namespace hg
 		updateKeys();
 
 		if(!getNoRotation()) updateRotation(mFrameTime);
-		if(!getNo3DEffects()) update3DEffects(mFrameTime);
 
 		if(mustRestart) changeLevel(restartId, restartFirstTime);
 	}
@@ -47,7 +46,7 @@ namespace hg
 		}
 
 		messageTimeline.update(mFrameTime);
-		if(messageTimeline.isFinished()) clearAndResetTimeline(messageTimeline);
+		if(messageTimeline.getFinished()) clearAndResetTimeline(messageTimeline);
 
 		executeEvents(levelData.getRoot()["events"], currentTime);
 	}
@@ -72,28 +71,10 @@ namespace hg
 	{
 		timeline.update(mFrameTime);
 
-		if(timeline.isFinished())
+		if(timeline.getFinished())
 		{
 			timeline.clear();
 			lua.callLuaFunction<void>("onStep");
-
-			//auto size = 55.f;
-			//auto cossize = size * 0.86602540378;
-			//log(cossize);
-            //
-			//timeline.push_back(new Do([=]{ pm->wall(1, size); }));
-			//timeline.push_back(new Wait(cossize / (5.f * getSpeedMultiplier())));
-            //
-			//timeline.push_back(new Do([=]{ pm->wall(2, size); }));
-			//timeline.push_back(new Wait(cossize / (5.f * getSpeedMultiplier())));
-            //
-			//timeline.push_back(new Do([=]{ pm->wall(1, size); }));
-			//timeline.push_back(new Wait(cossize / (5.f * getSpeedMultiplier())));
-            //
-			//timeline.push_back(new Do([=]{ pm->wall(2, size); }));
-			//timeline.push_back(new Wait(cossize / (5.f * getSpeedMultiplier())));
-            //
-			
 			timeline.reset();
 		}
 	}
@@ -123,25 +104,5 @@ namespace hg
 		}
 
 		gameSprite.rotate(nextRotation * getSign(getRotationSpeed()));
-	}
-	inline void HexagonGame::update3DEffects(float mFrameTime)
-	{
-		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor() * effectX, getSizeY() * getZoomFactor() * effectY}});
-
-		if(getRnd(0, 100) > 50)
-		{
-			if(getRnd(0, 100) > 50)
-			{
-				effectX += effectXInc * getRnd(0, 300) / 20000.f * mFrameTime * get3DEffectMult();
-				if(effectX < 0.85f) effectXInc = 1;
-				else if(effectX > 1.15f) effectXInc = -1;
-			}
-			else
-			{
-				effectY += effectYInc * getRnd(0, 300) / 20000.f * mFrameTime * get3DEffectMult();
-				if(effectY < 0.85f) effectYInc = 1;
-				else if(effectY > 1.15f) effectYInc = -1;
-			}
-		}		
 	}
 }

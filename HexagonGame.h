@@ -111,7 +111,6 @@ namespace hg
 			inline void updateRadius(float mFrameTime);
 			inline void updateKeys();
 			inline void updateRotation(float mFrameTime);
-			inline void update3DEffects(float mFrameTime);
 
 			// Gameplay methods
 			void incrementDifficulty();

@@ -98,9 +98,10 @@ Please refer to the files in the **documentation** folder.
 Version 1.4
 
 * Removed: scripted events from default levels (the flow isn't interrupted anymore)
-* Changed: pseudo-3D effects are now disabled by default
+* Removed: experimental pseudo-3D effects
 * Fixed: index calculation bug in default pattern LUA files (thanks Sean Pek!)
 * Fixed: level rotation always in the same direction
+* Fixed: `getPerfectDelay()` not returning the correct values
 
 Version 1.3a *(experimental version)*
 

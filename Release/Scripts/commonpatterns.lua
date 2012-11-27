@@ -64,7 +64,6 @@ function pMirrorSpiralDouble(mTimes, mExtra)
 	end
 	
 	THICKNESS = oldThickness
-	
 	wait(getPerfectDelay(THICKNESS) * 6.5)
 end
 

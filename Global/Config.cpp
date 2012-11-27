@@ -46,7 +46,6 @@ namespace hg
 	bool noRotation					{false};
 	bool noBackground				{false};
 	bool blackAndWhite				{false};
-	bool no3DEffects				{false};
 	bool noSound					{false};
 	bool noMusic					{false};
 	int soundVolume					{100};
@@ -95,7 +94,6 @@ namespace hg
 		noRotation = 				root["no_rotation"].asBool();
 		noBackground = 				root["no_background"].asBool();
 		blackAndWhite = 			root["black_and_white"].asBool();
-		no3DEffects =				root["no_3d_effects"].asBool();
 		noSound = 					root["no_sound"].asBool();
 		noMusic = 					root["no_music"].asBool();
 		soundVolume = 				root["sound_volume"].asInt();
@@ -163,7 +161,6 @@ namespace hg
 	bool getNoRotation() 				{ return noRotation; }
 	bool getNoBackground() 				{ return noBackground; }
 	bool getBlackAndWhite() 			{ return blackAndWhite; }
-	bool getNo3DEffects()				{ return no3DEffects; }
 	bool getNoSound()					{ return noSound; }
 	bool getNoMusic()					{ return noMusic; }
 	int getSoundVolume()  				{ return soundVolume; }

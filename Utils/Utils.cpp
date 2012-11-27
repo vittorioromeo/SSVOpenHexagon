@@ -46,7 +46,7 @@ namespace hg
 		x = getSaturated((x - edge0)/(edge1 - edge0));
 		return x*x*x*(x*(x*6 - 15) + 10);
 	}
-	bool isPointInPolygon(std::vector<Vector2f*> verts, Vector2f test)
+	bool isPointInPolygon(vector<Vector2f*> verts, Vector2f test)
 	{
 		int nvert = verts.size();
 		int i, j, c = 0;
@@ -156,10 +156,8 @@ namespace hg
 
 	LevelData loadLevelFromJson(Json::Value mRoot)
 	{
-		LevelData result = LevelData{mRoot};
-
-		for (Json::Value event : mRoot["events"]) parseAndAddEvent(result, event);
-
+		auto result = LevelData{mRoot};
+		for (Json::Value event : mRoot["events"]) result.addEvent(event);
 		return result;
 	}
 	MusicData loadMusicFromJson(Json::Value mRoot)
@@ -171,16 +169,10 @@ namespace hg
 		string author 			{ mRoot["author"].asString() };
 
 		auto result = MusicData{id, fileName, name, album, author};
-
-		for (Json::Value segment : mRoot["segments"])
-			result.addSegment(segment["time"].asInt());
-
+		for (Json::Value segment : mRoot["segments"]) result.addSegment(segment["time"].asInt());
 		return result;
 	}
-	StyleData loadStyleFromJson(Json::Value mRoot)
-	{
-		return StyleData(mRoot);
-	}
+	StyleData loadStyleFromJson(Json::Value mRoot) { return StyleData(mRoot); }
 	ProfileData loadProfileFromJson(Json::Value mRoot)
 	{
 		string name			{ mRoot["name"].asString() };
@@ -190,14 +182,5 @@ namespace hg
 		return result;
 	}
 
-	void parseAndAddEvent(LevelData& mLevelData, Json::Value &mEventRoot)
-	{
-		mLevelData.addEvent(mEventRoot);
-	}
-
-	void clearAndResetTimeline(Timeline& mTimeline)
-	{
-		mTimeline.clear();
-		mTimeline.reset();
-	}
+	void clearAndResetTimeline(Timeline& mTimeline) { mTimeline.clear(); mTimeline.reset(); }
 }

@@ -21,17 +21,16 @@
 	"no_rotation": false,
 	"no_background": false,
 	"black_and_white": false,
-	"no_3d_effects": true,
 	
 	// Audio options
 	"no_sound": false,
 	"no_music": false,
 	"sound_volume": 100,
-	"music_volume": 50,	
+	"music_volume": 75,	
 	
 	// Player options
-	"player_speed": 8.74,
-	"player_focus_speed": 4.37,
+	"player_speed": 8.94,
+	"player_focus_speed": 4.54,
 	"player_size": 7,
 	
 	// Scripting options

@@ -2,34 +2,22 @@
 THICKNESS = 40.0;
 
 -- getHalfSides: returns half the number of sides (integer)
-function getHalfSides()
-	return math.ceil(getSides() / 2)
-end
+function getHalfSides() return math.ceil(getSides() / 2) end
 
 -- getRandomSide: returns random mSide
-function getRandomSide()
-	return math.random(0, getSides() - 1)
-end
+function getRandomSide() return math.random(0, getSides() - 1) end
 
 -- getRandomDir: returns either 1 or -1
 function getRandomDir()
-	if math.random(0, 100) > 50 then
-		return 1
-	end
-	
+	if math.random(0, 100) > 50 then return 1 end
 	return -1
 end
 
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
-function getPerfectDelay(mThickness)
-	cosThickness = mThickness * math.cos(3.14 / getSides())
-	return ((cosThickness / (5.0 * getSpeedMult()) + ((math.abs(6 - getSides())) * 1.15)) - (1 - getDifficultyMult()) * 2) 
-end
+function getPerfectDelay(mThickness) return mThickness / (5.0 * getSpeedMult()) end
 
 -- getPerfectThickness: returns a good THICKNESS value in relation to human reflexes
-function getPerfectThickness(mThickness)
-	return mThickness * getSpeedMult() * getDelayMult()
-end
+function getPerfectThickness(mThickness) return mThickness * getSpeedMult() * getDelayMult() end
 
 -- getSideDistance: returns shortest distance from a side to another
 function getSideDistance(mSide1, mSide2)
@@ -54,14 +42,10 @@ function getSideDistance(mSide1, mSide2)
 end
 
 -- cWall: creates a wall with the common THICKNESS
-function cWall(mSide)
-	wall(mSide, THICKNESS)
-end
+function cWall(mSide) wall(mSide, THICKNESS) end
 
 -- oWall: creates a wall opposite to the mSide passed
-function oWall(mSide)
-	cWall(mSide + getHalfSides())
-end
+function oWall(mSide) cWall(mSide + getHalfSides()) end
 
 -- rWall: union of cwall and owall (created 2 walls facing each other)
 function rWall(mSide)
@@ -72,16 +56,10 @@ end
 -- cWallEx: creates a wall with mExtra walls attached to it 
 function cWallEx(mSide, mExtra)
 	cWall(mSide);
-
 	loopDir = 1;
 	
-	if mExtra < 0 then 
-		loopDir = -1
-	end
-	
-	for i = 0, mExtra, loopDir do
-		cWall(mSide + i)
-	end
+	if mExtra < 0 then loopDir = -1 end
+	for i = 0, mExtra, loopDir do cWall(mSide + i) end
 end
 
 -- oWallEx: creates a wall with mExtra walls opposite to mSide
@@ -103,9 +81,7 @@ function cBarrageN(mSide, mNeighbors)
 end
 
 -- cBarrage: spawns a barrage of walls, with a single free mSide
-function cBarrage(mSide)
-	cBarrageN(mSide, 0)
-end
+function cBarrage(mSide) cBarrageN(mSide, 0) end
 
 -- cBarrageOnlyN: spawns a barrage of wall, with only free mNeighbors
 function cBarrageOnlyN(mSide, mNeighbors)
