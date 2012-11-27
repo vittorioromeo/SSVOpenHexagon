@@ -2,12 +2,15 @@
 execScript("utils.lua")
 execScript("common.lua")
 execScript("commonpatterns.lua")
+execScript("alternativepatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-	if mKey == 0 then pBarrageSpiral(math.random(5, 9), 0.41, 1)
-	elseif mKey == 1 then pMirrorSpiralDouble(math.random(8, 10), 0)
-	elseif mKey == 2 then pMirrorSpiral(math.random(2, 5), 0)
+	if mKey == 0 then patternizer( {1,1,0,0,0,1,1,1,1,0,1,1,1,0,0,0,0,0,1,0,0,1,0,0,1,0,1,1,1,0,1,0,0,1,0,0,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0}, getPerfectThickness(THICKNESS))
+	elseif mKey == 1 then patternizer( {1,0,0,0,0,1,1,0,0,0,0,1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,0,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,1,1,0,0,0,0,0,0}, getPerfectThickness(THICKNESS))
+	elseif mKey == 2 then patternizer( {0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,1,0,0,0,0,1,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0}, getPerfectThickness(THICKNESS))
+	elseif mKey == 3 then patternizer( {1,1,0,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,1,1,1,1,1,0,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0}, getPerfectThickness(THICKNESS))
+	elseif mKey == 4 then patternizer( {1,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,0,1,1,1,0,0,0,1,1,1,0,1,1,0,1,1,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0}, getPerfectThickness(THICKNESS))
 	end
 end
 
