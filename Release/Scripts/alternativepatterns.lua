@@ -6,8 +6,8 @@ function pAltMirrorSpiral(mTimes, mExtra)
 	delay = getPerfectDelay(THICKNESS)
 	startSide = getRandomSide()
 	loopDir = getRandomDir()	
-	for k = 0, table.getn(mTimes) do
-		for i = 0, mTimes[k] do
+	for k = 1, table.getn(mTimes) do
+		for i = 1, mTimes[k] do
 			rWallEx(startSide, mExtra)
 			if (k % 2) == 0 then
 				startSide = startSide + loopDir
@@ -21,6 +21,14 @@ function pAltMirrorSpiral(mTimes, mExtra)
 	THICKNESS = oldThickness
 	
 	wait(getPerfectDelay(THICKNESS) * 6.5)
+end
+
+function randomArray(mNumber,mLower,mUpper)
+	a = {}
+	for k = 1, mNumber do
+		a[k] = math.random(mLower,mUpper)
+	end
+	return a
 end
 
 function pAltTunnel(mTimes,mFree)
@@ -42,6 +50,39 @@ function pAltTunnel(mTimes,mFree)
 		
 		loopDir = loopDir * -1
 	end
+	
+	THICKNESS = oldThickness
+end
+
+function pLadder(mTimes,mArray,mCycles)
+	oldThickness = THICKNESS
+	myThickness = getPerfectThickness(THICKNESS)
+	delay = getPerfectDelay(myThickness)
+
+	THICKNESS = myThickness
+
+	for i = 1, mTimes do
+
+		k = i % mCycles + 1
+		for j = 1, getSides() do
+			if(mArray[(k-1)*getSides() + j] ~= 0) then
+				cWall(j)
+			end
+		end
+		wait(delay)
+		
+		if i < mTimes then
+			for j = 1, getSides() do
+				if(mArray[(k-1)*getSides() + j] == 2) then
+					wall(j, myThickness + 25 * getSpeedMult() * delay)
+				end
+			end
+			wait(delay*5)
+		end
+		wait(delay)
+	end
+
+	wait(delay*2)
 	
 	THICKNESS = oldThickness
 end

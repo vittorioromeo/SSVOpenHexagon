@@ -35,8 +35,8 @@ function onStep()
 	addPattern(keys[index])
 	index = index + 1
 	
-	if index == table.getn(keys) then
-		index = 0
+	if index - 1 == table.getn(keys) then
+		index = 1
 	end
 end
 

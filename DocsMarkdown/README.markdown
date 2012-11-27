@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.3 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.4 #
 ## [vee software](http://veegamedev.wordpress.com/) ##
 
 **A free, open source clone of "[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)" (by Terry Cavanagh). </br>**
@@ -95,10 +95,15 @@ Please refer to the files in the **documentation** folder.
 
 ## Changelog ##
 
-Version 1.3
+Version 1.4
+
+* Removed: scripted events from default levels (the flow isn't interrupted anymore)
+* Changed: pseudo-3D effects are now disabled by default
+
+Version 1.3a *(experimental version)*
 
 * Added: **automatic difficulty variants** (select in menu with up/down arrow key) - scores are not shared between difficulty variants!
-* Changed: balanced default levels to feel more like a natural progresion
+* Changed: balanced default levels to feel more like a natural progression
 * Fixed: random side changing now happens as soon as possible
 * Added: **LUA** hardcoded functions for levels (`onLoad`, `onStep`, `onUnload`, `onIncrement`) - **these are REQUIRED in level script files**
 * Added: **LUA** `log(mLog)` function, which sends a message to the console
@@ -113,6 +118,7 @@ Version 1.3
 * Added: `messageImportantAdd(mMessage, mDuration)` **LUA** command
 * Added: `getDifficultyMult()` **LUA** command
 * Added: new level and **Commando Steve** song
+* Fixed: impossible wall bug (?)
 
 Version 1.2
 

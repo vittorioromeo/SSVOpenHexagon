@@ -34,24 +34,5 @@
 	// Events
 	"events":
 	[
-		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "you're back for more, huh?" },
-		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "there's a surprise waiting" },
-		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "at 60 seconds..." },
-		{ "time": 30, 	"type": "message_add", 		"duration": 150, 	"message": "i bet you can't survive" },
-		{ "time": 30, 	"type": "message_add", 		"duration": 150, 	"message": "30 more seconds..." },
-		{ "time": 57, 	"type": "timeline_clear" },
-		{ "time": 57, 	"type": "timeline_wait", 	"duration": 500 },
-		{ "time": 60, 	"type": "time_stop", 		"duration": 300 },
-		{ "time": 60, 	"type": "message_important_add", 		"duration": 150, 	"message": "here's your surprise!" },
-		{ "time": 60, 	"type": "level_float_set",		"value_name": "wall_skew_left", 	"value": 25 },
-		{ "time": 60, 	"type": "level_float_subtract",	"value_name": "delay_multiplier", 	"value": 0.2 },
-		{ "time": 60, 	"type": "level_float_add",	"value_name": "speed_multiplier", 	"value": 0.37 },
-		{ "time": 60, 	"type": "level_float_add",	"value_name": "delay_multiplier", 	"value": 0.27 },
-		{ "time": 60, 	"type": "level_float_add",	"value_name": "rotation_speed", 	"value": 0.04 },
-		{ "time": 60, 	"type": "level_int_set",	"value_name": "sides", 				"value": 6 },
-		{ "time": 60, 	"type": "side_changing_stop" },
-		{ "time": 60, 	"type": "style_set",		"id": "danger" },
-		{ "time": 60, 	"type": "music_set",		"id": "mazeOfMayonnaise" },
-		{ "time": 120, 	"type": "increment_stop" }
 	]
 }

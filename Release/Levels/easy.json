@@ -35,28 +35,6 @@
 	"events":
 	[
 		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "tutorials are over" },
-		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "good luck getting high scores!" },
-		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "did you know that there
-		are other shapes?" },
-		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "pentagons, octagons, etc..." },
-		{ "time": 13, 	"type": "message_add", 		"duration": 150, 	"message": "oh sorry, am i distracting you?" },	
-		{ "time": 58, 	"type": "timeline_wait", 	"duration": 500 },
-		{ "time": 59.9, "type": "timeline_clear" },
-		{ "time": 59.9, "type": "timeline_wait", 	"duration": 600 },
-		{ "time": 60, 	"type": "time_stop", 		"duration": 300 },
-		{ "time": 60, 	"type": "message_important_add", 		"duration": 150, 	"message": "this is too easy for you..." },
-		{ "time": 60, 	"type": "message_important_add", 		"duration": 150, 	"message": "let's make it more interesting!" },
-		{ "time": 60.1, "type": "timeline_clear" },
-		{ "time": 60.1, "type": "timeline_wait", 	"duration": 350 },
-		{ "time": 60.1, "type": "music_set",		"id": "steampunkWarlord" },
-		{ "time": 60.1, "type": "style_float_set",	"value_name": "pulse_increment",	"value": 0.21 },
-		{ "time": 60.1, "type": "side_changing_stop" },
-		{ "time": 61, 	"type": "level_float_set",		"value_name": "wall_skew_left", 	"value": 25 },
-		{ "time": 61, 	"type": "level_float_subtract",	"value_name": "delay_multiplier", 	"value": 0.45 },
-		{ "time": 61, 	"type": "level_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 62, 	"type": "level_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 63, 	"type": "level_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 64, 	"type": "level_int_add",	"value_name": "sides", 	"value": 1 },
-		{ "time": 150, 	"type": "increment_stop" }
+		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "good luck getting high scores!" }
 	]
 }
