@@ -149,15 +149,16 @@ namespace hg
 		timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
 	}
 	void HexagonGame::sideChange(int mSideNumber)
-	{		
-		if(manager.getComponentPtrsById("wall").size() > 0)
-		{
-			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
-			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
-			timeline.insert(timeline.getCurrentIndex() + 1, new Wait(5));
+	{
+		if(mSideNumber != getSides())
+			if(manager.getComponentPtrsById("wall").size() > 0)
+			{
+				timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
+				timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
+				timeline.insert(timeline.getCurrentIndex() + 1, new Wait(5));
 
-			return;
-		}
+				return;
+			}
 
 		lua.callLuaFunction<void>("onIncrement");
 		if(randomSideChangesEnabled) setSides(mSideNumber);

@@ -102,6 +102,7 @@ Version 1.4
 * Fixed: index calculation bug in default pattern LUA files (thanks Sean Pek!)
 * Fixed: level rotation always in the same direction
 * Fixed: `getPerfectDelay()` not returning the correct values
+* Changed: during difficulty increment, if the side number is unchanged, no more delay will occur
 
 Version 1.3a *(experimental version)*
 

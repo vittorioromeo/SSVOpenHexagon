@@ -167,7 +167,7 @@
         <CustomPostBuild/>
         <CustomPreBuild/>
       </AdditionalRules>
-      <Completion EnableCpp11="no">
+      <Completion EnableCpp11="yes">
         <ClangCmpFlagsC/>
         <ClangCmpFlags/>
         <ClangPP/>

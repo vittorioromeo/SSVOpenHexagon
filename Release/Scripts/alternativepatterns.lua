@@ -54,27 +54,33 @@ function pAltTunnel(mTimes,mFree)
 	THICKNESS = oldThickness
 end
 
-function pLadder(mTimes,mArray,mCycles)
-	oldThickness = THICKNESS
-	myThickness = getPerfectThickness(THICKNESS)
+function cycle(mSides)
+	eArray = {}
+	j = getRandomSide()
+	for i = 1, mSides do 
+		eArray[i] = (i + j) % mSides + 1
+	end
+	return eArray
+end
+
+function pLadder(mTimes,mArray,myThickness)
+
 	delay = getPerfectDelay(myThickness)
 
-	THICKNESS = myThickness
+	eArray = cycle(getSides())
 
-	for i = 1, mTimes do
-
-		k = i % mCycles + 1
+	for i = 1, mTimes do 
 		for j = 1, getSides() do
-			if(mArray[(k-1)*getSides() + j] ~= 0) then
-				cWall(j)
+			if(mArray[(i-1)*getSides() + j] ~= 0) then
+				wall(eArray[j],myThickness)
 			end
 		end
 		wait(delay)
 		
 		if i < mTimes then
 			for j = 1, getSides() do
-				if(mArray[(k-1)*getSides() + j] == 2) then
-					wall(j, myThickness + 25 * getSpeedMult() * delay)
+				if(mArray[(i-1)*getSides() + j] == 2) then
+					wall(eArray[j], myThickness + 25 * getSpeedMult() * delay)
 				end
 			end
 			wait(delay*5)
@@ -84,5 +90,20 @@ function pLadder(mTimes,mArray,mCycles)
 
 	wait(delay*2)
 	
-	THICKNESS = oldThickness
+end
+
+function patternizer(mArray,myThickness)
+	delay = getPerfectDelay(myThickness)
+	eArray = cycle(getSides())
+
+	j = math.floor(table.getn(mArray) / getSides())
+	
+	for i = 1, j do
+		for k = 1, getSides() do
+			if mArray[(i - 1)*getSides() + k] == 1 then
+				wall(eArray[k], myThickness)
+			end
+		end
+		wait(delay)
+	end
 end
