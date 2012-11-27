@@ -1,5 +1,5 @@
 -- common variables
-THICKNESS = 40;
+THICKNESS = 40.0;
 
 -- getHalfSides: returns half the number of sides (integer)
 function getHalfSides()
@@ -22,7 +22,8 @@ end
 
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
 function getPerfectDelay(mThickness)
-	return (mThickness / (5 * getSpeedMult()) + ((math.abs(6 - getSides())) * 1.15)) - (1 - getDifficultyMult()) * 2
+	cosThickness = mThickness * math.cos(3.14 / getSides())
+	return ((cosThickness / (5.0 * getSpeedMult()) + ((math.abs(6 - getSides())) * 1.15)) - (1 - getDifficultyMult()) * 2) 
 end
 
 -- getPerfectThickness: returns a good THICKNESS value in relation to human reflexes

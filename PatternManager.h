@@ -47,27 +47,11 @@ namespace hg
 			HexagonGame* hgPtr;
 			Timeline& timeline;
 			Vector2f& centerPos;
-
-			float thickness	{baseThickness};
-			float speed 	{baseSpeed};
-
-			float currentSpeedMultiplier;		
-			float currentDelayMultiplier;
-
-			float adjDelay{1.0f};
-			float adjSpeed{1.0f};
-			float adjThickness{1.0f};
-
-			void initalizeTimeline();
-			void finalizeTimeline();
 			
 		public:
 			PatternManager(HexagonGame*);			
-
-			void setAdj(float mAdjDelay, float mAdjSpeed, float mAdjThickness);
-			void resetAdj();
-
-			void wall					(int mSide, float mThickness);
+			void wall(int mSide, float mThickness);
+			void wallAdj(int mSide, float mThickness, float mSpeedAdj);
 	};
 }
 #endif /* PATTERNMANAGER_H_ */

@@ -83,13 +83,10 @@ namespace hg
 
 	void HexagonGame::initLua()
 	{
-		auto wall = [=](int mSide, float mThickness) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, 1)(pm); };
-		auto wallAdj = [=](int mSide, float mThickness, float mSpeedAdj) { getAdjPatternFunc([=](PatternManager* p) { p->wall(mSide, mThickness); }, 1, 1, mSpeedAdj)(pm); };
-
 		lua.writeVariable("log", 					[=](string mLog) 						{ log("LUA log: " + mLog); });
 
-		lua.writeVariable("wall", 					[=](int mSide, int mThickness) { timeline.push_back(new Do{[=] { wall(mSide, mThickness); }}); });
-		lua.writeVariable("wallAdj", 				[=](int mSide, int mThickness, float mSpeedAdj) { timeline.push_back(new Do{[=] { wallAdj(mSide, mThickness, mSpeedAdj); }}); });
+		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 					{ timeline.push_back(new Do{[=]{ pm->wall(mSide, mThickness); }}); });
+		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.push_back(new Do{[=]{ pm->wallAdj(mSide, mThickness, mSpeedAdj); }}); });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
@@ -122,7 +119,6 @@ namespace hg
 		lua.writeVariable("setStyleValueFloat", 	[=](string mValueName, float mValue) 	{ return styleData.setValueFloat(mValueName, mValue); });
 		lua.writeVariable("setStyleValueString", 	[=](string mValueName, string mValue) 	{ return styleData.setValueString(mValueName, mValue); });
 		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
-
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{

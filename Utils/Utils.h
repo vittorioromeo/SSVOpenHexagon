@@ -78,7 +78,6 @@ namespace hg
 	ProfileData loadProfileFromJson(Json::Value mRoot);
 
 	void parseAndAddEvent(LevelData& mLevelData, Json::Value &mEventRoot);
-	function<void(PatternManager*)> getAdjPatternFunc(function<void(PatternManager*)> mFunction, float mAdjDelay, float mAdjSpeed, float mAdjThickness);
 
 	void clearAndResetTimeline(Timeline& mTimeline);
 }

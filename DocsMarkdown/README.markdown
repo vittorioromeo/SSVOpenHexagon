@@ -99,6 +99,8 @@ Version 1.4
 
 * Removed: scripted events from default levels (the flow isn't interrupted anymore)
 * Changed: pseudo-3D effects are now disabled by default
+* Fixed: index calculation bug in default pattern LUA files (thanks Sean Pek!)
+* Fixed: level rotation always in the same direction
 
 Version 1.3a *(experimental version)*
 

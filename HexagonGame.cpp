@@ -67,7 +67,6 @@ namespace hg
 	{
 		firstPlay = mFirstPlay;
 		setLevelData(getLevelData(mId), mFirstPlay);
-		pm->resetAdj();
 		difficultyMult = mDifficultyMult;
 
 		// Audio cleanup
@@ -119,6 +118,9 @@ namespace hg
 		initLua();
 		runLuaFile(levelData.getValueString("lua_file"));
 		lua.callLuaFunction<void>("onLoad");
+
+		// Random rotation direction
+		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1);
 	}
 	void HexagonGame::death()
 	{

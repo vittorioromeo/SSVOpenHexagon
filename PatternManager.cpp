@@ -35,35 +35,13 @@
 
 namespace hg
 {
-	void PatternManager::setAdj(float mAdjDelay, float mAdjSpeed, float mAdjThickness)
+	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) : hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos) { }
+	void PatternManager::wall(int mSide, float mThickness)
 	{
-		currentSpeedMultiplier = hgPtr->getSpeedMultiplier();
-		currentDelayMultiplier = hgPtr->getDelayMultiplier();
-
-		adjDelay = mAdjDelay;
-		adjSpeed = mAdjSpeed;
-		adjThickness = mAdjThickness;
-
-		timeline.push_back(new Do{[=]
-		{
-			adjDelay = mAdjDelay;
-			adjSpeed = mAdjSpeed;
-			adjThickness = mAdjThickness;
-		}});
+		createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness, baseSpeed, hgPtr->getSpeedMultiplier()); 
 	}
-	void PatternManager::resetAdj()
+	void PatternManager::wallAdj(int mSide, float mThickness, float mSpeedAdj)
 	{
-		timeline.push_back(new Do{[=]
-		{
-			adjDelay = 1.0f;
-			adjSpeed = 1.0f;
-			adjThickness = 1.0f;
-		}});
+		createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness, baseSpeed * mSpeedAdj, hgPtr->getSpeedMultiplier()); 
 	}
-
-	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) :
-		hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos) { }
-
-		
-	void PatternManager::wall(int mSide, float mThickness) { createWall(hgPtr->manager, hgPtr, centerPos, mSide, mThickness * adjThickness, speed * adjSpeed, currentSpeedMultiplier); }
 }

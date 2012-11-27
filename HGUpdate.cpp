@@ -76,6 +76,24 @@ namespace hg
 		{
 			timeline.clear();
 			lua.callLuaFunction<void>("onStep");
+
+			//auto size = 55.f;
+			//auto cossize = size * 0.86602540378;
+			//log(cossize);
+            //
+			//timeline.push_back(new Do([=]{ pm->wall(1, size); }));
+			//timeline.push_back(new Wait(cossize / (5.f * getSpeedMultiplier())));
+            //
+			//timeline.push_back(new Do([=]{ pm->wall(2, size); }));
+			//timeline.push_back(new Wait(cossize / (5.f * getSpeedMultiplier())));
+            //
+			//timeline.push_back(new Do([=]{ pm->wall(1, size); }));
+			//timeline.push_back(new Wait(cossize / (5.f * getSpeedMultiplier())));
+            //
+			//timeline.push_back(new Do([=]{ pm->wall(2, size); }));
+			//timeline.push_back(new Wait(cossize / (5.f * getSpeedMultiplier())));
+            //
+			
 			timeline.reset();
 		}
 	}

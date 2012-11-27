@@ -195,15 +195,6 @@ namespace hg
 		mLevelData.addEvent(mEventRoot);
 	}
 
-	function<void(PatternManager*)> getAdjPatternFunc(function<void(PatternManager*)> mFunction, float mAdjDelay, float mAdjSpeed, float mAdjThickness)
-	{
-		if(mAdjDelay == 0.0f) mAdjDelay = 1.0f;
-		if(mAdjSpeed == 0.0f) mAdjSpeed = 1.0f;
-		if(mAdjThickness == 0.0f) mAdjThickness = 1.0f;
-
-		return [=](PatternManager* pm){ pm->setAdj(mAdjDelay, mAdjSpeed, mAdjThickness); mFunction(pm); pm->resetAdj(); };
-	}
-
 	void clearAndResetTimeline(Timeline& mTimeline)
 	{
 		mTimeline.clear();

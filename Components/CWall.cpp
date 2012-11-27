@@ -65,8 +65,8 @@ namespace hg
 
 		for(auto pointPtr : pointPtrs)
 		{
-			float distanceX { abs(pointPtr->x - centerPos.x) };
-			float distanceY { abs(pointPtr->y - centerPos.y) };
+			float distanceX{abs(pointPtr->x - centerPos.x)};
+			float distanceY{abs(pointPtr->y - centerPos.y)};
 
 			if(distanceX < radius && distanceY < radius) pointsOnCenter++;
 			else movePointTowardsCenter(*pointPtr, centerPos, speed * mFrameTime);
