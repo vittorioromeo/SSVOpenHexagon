@@ -7,3 +7,6 @@
 [submodule "Unix"]
 	path = Unix
 	url = git://github.com/flibitijibibo/OpenHexagon-Unix.git
+[submodule "SSVLuaWrapper"]
+	path = SSVLuaWrapper
+	url = https://github.com/SuperV1234/SSVLuaWrapper.git
