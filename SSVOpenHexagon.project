@@ -143,7 +143,7 @@
         <Library Value="lua51"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="windowed" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="windowed debug" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>

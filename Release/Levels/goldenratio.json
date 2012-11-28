@@ -27,7 +27,7 @@
 	"sides": 6,
 	"sides_min": 5,
 	"sides_max": 7,
-	"increment_time": 5,
+	"increment_time": 10,
 	"wall_skew_right": -20, 
 	"3d_effect_multiplier": 1.3,
 	"rotation_speed_max": 0.8,

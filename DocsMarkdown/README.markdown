@@ -97,12 +97,16 @@ Please refer to the files in the **documentation** folder.
 
 Version 1.4
 
+* Changed: **LUA** file execution errors do not crash the game anymore - they display an error in the console and kill the player
+* Changed: **LUA** runtime execution errors do not crash the game anymore - they display an error in the console and try continuing the game
 * Removed: scripted events from default levels (the flow isn't interrupted anymore)
 * Removed: experimental pseudo-3D effects
-* Fixed: index calculation bug in default pattern LUA files (thanks Sean Pek!)
+* Fixed: index calculation bug in default pattern **LUA** files (thanks Sean Pek!)
 * Fixed: level rotation always in the same direction
 * Fixed: `getPerfectDelay()` not returning the correct values
-* Changed: during difficulty increment, if the side number is unchanged, no more delay will occur
+* Added: **LUA** **REQUIRED** level function onUpdate(mFrameTime), which is called every frame
+* Added: **LUA** `isKeyPressed(mKey)` command, as requested - it returns true if `mKey` is pressed
+* Changed: logging is only enabled in debug mode, which can be set in config.json or by using the `debug.bat` file, which loads the debug config override
 
 Version 1.3a *(experimental version)*
 

@@ -40,6 +40,7 @@
 #include "Data/MusicData.h"
 #include "Data/EventData.h"
 #include "Data/StyleData.h"
+#include "Utils/Utils.h"
 #pragma GCC system_header
 #include "LuaContext.h"
 
@@ -101,13 +102,20 @@ namespace hg
 			// LUA-related methods
 			void initLua();
 			void runLuaFile(string mFileName);
+			template<typename R, typename... Args> R runLuaFunction(const std::string& variableName, const Args&... args)
+			{
+				try { return lua.callLuaFunction<R>(variableName, std::make_tuple(args...)); }
+				catch(runtime_error &error) { cout << "LUA runtime error: " << endl << toStr(error.what()) << endl << endl; }
+
+				return R();
+			}
 
 			// Update methods
 			void update(float);
 			inline void updateTimeStop(float mFrameTime);
 			inline void updateIncrement();
 			inline void updateEvents(float mFrameTime);
-			inline void updateLevel(float mFrameTime);			
+			inline void updateLevel(float mFrameTime);	
 			inline void updateRadius(float mFrameTime);
 			inline void updateKeys();
 			inline void updateRotation(float mFrameTime);

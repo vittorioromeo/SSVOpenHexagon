@@ -78,6 +78,9 @@ Adds an important message to the message queue.
 `getDifficultyMult()` </br>
 Gets the automatic difficulty variant multiplier.
 
+`isKeyPressed(mKey)` </br>
+Returns true if mKey is pressed. 0=A, 1=B, 3=C... (refer to [http://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php](http://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php))
+
 ----------
 
 ## Hardcoded level LUA functions ##
@@ -95,3 +98,6 @@ This function runs when the difficulty is incremented.
 
 `function onUnload() ... end` </br>
 This function runs when the level is closed or restarted.
+
+`function onUpdate(mFrameTime) ... end` </br>
+This function runs every frame.

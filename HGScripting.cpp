@@ -119,10 +119,17 @@ namespace hg
 		lua.writeVariable("setStyleValueFloat", 	[=](string mValueName, float mValue) 	{ return styleData.setValueFloat(mValueName, mValue); });
 		lua.writeVariable("setStyleValueString", 	[=](string mValueName, string mValue) 	{ return styleData.setValueString(mValueName, mValue); });
 		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
+		
+		lua.writeVariable("isKeyPressed",			[=](int mKey) 							{ return Keyboard::isKeyPressed((Keyboard::Key) mKey); });
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{
 		ifstream s("Scripts/" + mFileName);
-		lua.executeCode(s);
+		try { lua.executeCode(s); }
+		catch(runtime_error &error)
+		{
+			cout << "LUA execution error: " << endl << "(killing the player...)" << endl << toStr(error.what()) << endl << endl;
+			death();
+		}
 	}
 }

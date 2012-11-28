@@ -65,6 +65,7 @@ namespace hg
 	bool showMessages				{true};
 	bool changeStyles				{true};
 	bool changeMusic				{true};
+	bool debug						{false};
 
 	void loadConfig(vector<string> mOverridesIds)
 	{
@@ -113,6 +114,7 @@ namespace hg
 		showMessages =				root["show_messages"].asBool();
 		changeStyles =				root["change_styles"].asBool();
 		changeMusic = 				root["change_music"].asBool();
+		debug =		 				root["debug"].asBool();
 
 		if(windowedAutoResolution)
 		{
@@ -171,7 +173,7 @@ namespace hg
 	bool getVsync()						{ return vsync; }
 	bool getAutoZoomFactor()			{ return autoZoomFactor; }
 	bool getFullscreen()				{ return fullscreen; }	
-	string getVersion() 				{ return "v1.4"; }
+	float getVersion() 					{ return 1.4f; }
 	bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
 	bool getFullscreenAutoResolution() 	{ return fullscreenAutoResolution; }
 	unsigned int getFullscreenWidth()	{ return fullscreenWidth; }
@@ -183,4 +185,5 @@ namespace hg
 	bool getShowMessages()				{ return showMessages; }
 	bool getChangeStyles()				{ return changeStyles; }
 	bool getChangeMusic()				{ return changeMusic; }
+	bool getDebug()						{ return debug; }
 }

@@ -69,12 +69,13 @@ namespace hg
 	}
 	inline void HexagonGame::updateLevel(float mFrameTime)
 	{
+		runLuaFunction<float>("onUpdate", mFrameTime);
 		timeline.update(mFrameTime);
 
 		if(timeline.getFinished())
 		{
 			timeline.clear();
-			lua.callLuaFunction<void>("onStep");
+			runLuaFunction<void>("onStep");
 			timeline.reset();
 		}
 	}

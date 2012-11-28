@@ -45,7 +45,7 @@ namespace hg
 {
 	HexagonGame::HexagonGame(GameWindow& mGameWindow) :
 		window(mGameWindow)
-	{				
+	{
 		pm = new PatternManager(this);
 
 		recreateTextures();
@@ -113,11 +113,11 @@ namespace hg
 		messageTimeline = Timeline{};
 
 		// LUA context cleanup
-		if(!mFirstPlay) lua.callLuaFunction<void>("onUnload");
+		if(!mFirstPlay) runLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
 		initLua();
 		runLuaFile(levelData.getValueString("lua_file"));
-		lua.callLuaFunction<void>("onLoad");
+		runLuaFunction<void>("onLoad");
 
 		// Random rotation direction
 		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1);
@@ -136,9 +136,6 @@ namespace hg
 	{
 		playSound("level_up");
 
-		setSpeedMultiplier(levelData.getSpeedMultiplier() + levelData.getSpeedIncrement());
-		setDelayMultiplier(levelData.getDelayMultiplier() + levelData.getDelayIncrement());
-
 		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setRotationSpeed(levelData.getRotationSpeed() * -1);
 		
@@ -150,17 +147,19 @@ namespace hg
 	}
 	void HexagonGame::sideChange(int mSideNumber)
 	{
-		if(mSideNumber != getSides())
-			if(manager.getComponentPtrsById("wall").size() > 0)
-			{
-				timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
-				timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
-				timeline.insert(timeline.getCurrentIndex() + 1, new Wait(5));
+		if(manager.getComponentPtrsById("wall").size() > 0)
+		{
+			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
+			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
+			timeline.insert(timeline.getCurrentIndex() + 1, new Wait(1));
 
-				return;
-			}
+			return;
+		}
 
-		lua.callLuaFunction<void>("onIncrement");
+		runLuaFunction<void>("onIncrement");
+		setSpeedMultiplier(levelData.getSpeedMultiplier() + levelData.getSpeedIncrement());
+		setDelayMultiplier(levelData.getDelayMultiplier() + levelData.getDelayIncrement());
+
 		if(randomSideChangesEnabled) setSides(mSideNumber);
 	}
 
@@ -176,7 +175,7 @@ namespace hg
 		playSound("beep");
 
 		checkAndSaveScore();
-		lua.callLuaFunction<void>("onUnload");
+		runLuaFunction<void>("onUnload");
 		window.setGame(&mgPtr->getGame());
 		mgPtr->init();
 	}

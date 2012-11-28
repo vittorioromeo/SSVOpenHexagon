@@ -14,7 +14,7 @@ function getRandomDir()
 end
 
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
-function getPerfectDelay(mThickness) return mThickness / (5.0 * getSpeedMult()) end
+function getPerfectDelay(mThickness) return mThickness / (5.02 * getSpeedMult()) end
 
 -- getPerfectThickness: returns a good THICKNESS value in relation to human reflexes
 function getPerfectThickness(mThickness) return mThickness * getSpeedMult() * getDelayMult() end

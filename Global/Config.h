@@ -60,7 +60,7 @@ namespace hg
 	bool getVsync();
 	bool getAutoZoomFactor();
 	bool getFullscreen();
-	string getVersion();
+	float getVersion();
 	bool getWindowedAutoResolution();
 	bool getFullscreenAutoResolution();
 	unsigned int getFullscreenWidth();
@@ -72,6 +72,7 @@ namespace hg
 	bool getShowMessages();
 	bool getChangeStyles();
 	bool getChangeMusic();
+	bool getDebug();
 }
 
 #endif /* CONFIG_H_ */

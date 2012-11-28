@@ -34,13 +34,14 @@
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "PatternManager.h"
+#include "Global/Config.h"
 
 using namespace std;
 using namespace sf;
 
 namespace hg
 {
-	template<class T> void log(T mValue) { cout << toStr(mValue) << endl; }
+	template<class T> void log(T mValue) { if(!getDebug()) return; cout << toStr(mValue) << endl; }
 	template<class T> T toRadians(const T mValue) { return mValue / 57.3f; }
 	template<class T> string toStr(const T &t) { ostringstream oss; oss << t; return string(oss.str()); }
 	template<class T> int getSign(T mValue) { if (mValue > 0) return 1; else return -1; }

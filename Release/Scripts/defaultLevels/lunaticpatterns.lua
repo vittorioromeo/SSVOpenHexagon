@@ -51,3 +51,8 @@ end
 function onUnload()
 	log("level onUnload")	
 end
+
+-- onUpdate is an hardcoded function that is called every frame
+function onUpdate(mFrameTime)
+	log("level onUpdate")		
+end
