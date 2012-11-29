@@ -346,6 +346,9 @@ Adds an important message to the message queue.</p>
 <p><code>getDifficultyMult()</code> </br>
 Gets the automatic difficulty variant multiplier.</p>
 
+<p><code>isKeyPressed(mKey)</code> </br>
+Returns true if mKey is pressed. 0=A, 1=B, 3=C... (refer to <a href="http://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php">http://www.sfml-dev.org/documentation/2.0/classsf<em>1</em>1Keyboard.php</a>)</p>
+
 <hr />
 
 <h2>Hardcoded level LUA functions</h2>
@@ -363,6 +366,9 @@ This function runs when the difficulty is incremented.</p>
 
 <p><code>function onUnload() ... end</code> </br>
 This function runs when the level is closed or restarted.</p>
+
+<p><code>function onUpdate(mFrameTime) ... end</code> </br>
+This function runs every frame.</p>
 
 </body>
 </html>

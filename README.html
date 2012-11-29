@@ -266,7 +266,7 @@ button::-moz-focus-inner {
 </style>
 </head>
 <body>
-<h1><a href="http://www.facebook.com/OpenHexagon">Open Hexagon</a> - version 1.3a</h1>
+<h1><a href="http://www.facebook.com/OpenHexagon">Open Hexagon</a> - version 1.4</h1>
 
 <h2><a href="http://veegamedev.wordpress.com/">vee software</a></h2>
 
@@ -363,11 +363,26 @@ Avoid the walls! Press <strong>R</strong> to restart.</br> Press <strong>ESC</st
 
 <h2>Changelog</h2>
 
+<p>Version 1.4</p>
+
+<ul>
+<li>Changed: <strong>LUA</strong> file execution errors do not crash the game anymore - they display an error in the console and kill the player</li>
+<li>Changed: <strong>LUA</strong> runtime execution errors do not crash the game anymore - they display an error in the console and try continuing the game</li>
+<li>Removed: scripted events from default levels (the flow isn't interrupted anymore)</li>
+<li>Removed: experimental pseudo-3D effects</li>
+<li>Fixed: index calculation bug in default pattern <strong>LUA</strong> files (thanks Sean Pek!)</li>
+<li>Fixed: level rotation always in the same direction</li>
+<li>Fixed: <code>getPerfectDelay()</code> not returning the correct values</li>
+<li>Added: <strong>LUA</strong> <strong>REQUIRED</strong> level function onUpdate(mFrameTime), which is called every frame</li>
+<li>Added: <strong>LUA</strong> <code>isKeyPressed(mKey)</code> command, as requested - it returns true if <code>mKey</code> is pressed</li>
+<li>Changed: logging is only enabled in debug mode, which can be set in config.json or by using the <code>debug.bat</code> file, which loads the debug config override</li>
+</ul>
+
 <p>Version 1.3a <em>(experimental version)</em></p>
 
 <ul>
 <li>Added: <strong>automatic difficulty variants</strong> (select in menu with up/down arrow key) - scores are not shared between difficulty variants!</li>
-<li>Changed: balanced default levels to feel more like a natural progresion</li>
+<li>Changed: balanced default levels to feel more like a natural progression</li>
 <li>Fixed: random side changing now happens as soon as possible</li>
 <li>Added: <strong>LUA</strong> hardcoded functions for levels (<code>onLoad</code>, <code>onStep</code>, <code>onUnload</code>, <code>onIncrement</code>) - <strong>these are REQUIRED in level script files</strong></li>
 <li>Added: <strong>LUA</strong> <code>log(mLog)</code> function, which sends a message to the console</li>
@@ -382,6 +397,7 @@ Avoid the walls! Press <strong>R</strong> to restart.</br> Press <strong>ESC</st
 <li>Added: <code>messageImportantAdd(mMessage, mDuration)</code> <strong>LUA</strong> command</li>
 <li>Added: <code>getDifficultyMult()</code> <strong>LUA</strong> command</li>
 <li>Added: new level and <strong>Commando Steve</strong> song</li>
+<li>Fixed: impossible wall bug (?)</li>
 </ul>
 
 <p>Version 1.2</p>

@@ -29,8 +29,8 @@
 	"music_volume": 75,	
 	
 	// Player options
-	"player_speed": 9,
-	"player_focus_speed": 4.5,
+	"player_speed": 9.45,
+	"player_focus_speed": 4.625,
 	"player_size": 7.3,
 	
 	// Scripting options
