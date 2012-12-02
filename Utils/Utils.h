@@ -42,20 +42,8 @@ using namespace sf;
 namespace hg
 {
 	template<class T> void log(T mValue) { if(!getDebug()) return; cout << toStr(mValue) << endl; }
-	template<class T> T toRadians(const T mValue) { return mValue / 57.3f; }
-	template<class T> string toStr(const T &t) { ostringstream oss; oss << t; return string(oss.str()); }
-	template<class T> int getSign(T mValue) { if (mValue > 0) return 1; else return -1; }
-	template<class T> T clamp(const T& value, const T& low, const T& high) { return value < low ? low : (value > high ? high : value); }
-	template<class T> int countNewLines(T mValue) { int result{0}; for(auto c : mValue) if (c == '\n') result++; return result; }
 
-	int getRnd(int, int);
-	float getSaturated(float);
-	float getSmootherStep(float, float, float);
-	bool isPointInPolygon(std::vector<Vector2f*>, Vector2f);
-
-	Vector2f getOrbit(const Vector2f&, const float, const float);
-	Vector2f getNormalized(const Vector2f);
-	void movePointTowardsCenter(Vector2f &mVector, const Vector2f mCenter, const float mSpeed);
+	void read(char* path);
 
 	Color getColorFromHue(double);
 	Color getColorDarkened(Color, float);
@@ -69,8 +57,6 @@ namespace hg
 	MusicData loadMusicFromJson(Json::Value mRoot);
 	StyleData loadStyleFromJson(Json::Value mRoot);
 	ProfileData loadProfileFromJson(Json::Value mRoot);
-
-	void clearAndResetTimeline(Timeline& mTimeline);
 }
 
 #endif /* UTILS_H_HG */

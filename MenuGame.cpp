@@ -110,7 +110,7 @@ namespace hg
 		if(state == StateType::PROFILE_CREATION)
 		{
 			Event e;
-			window.renderWindow.pollEvent(e);
+			window.pollEvent(e);
 
 			if(e.type == Event::TextEntered)
 			{
@@ -340,7 +340,7 @@ namespace hg
 	
 	void MenuGame::drawOnGameTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
 	void MenuGame::drawOnMenuTexture(Drawable &mDrawable) { menuTexture.draw(mDrawable); }
-	void MenuGame::drawOnWindow(Drawable &mDrawable) { window.renderWindow.draw(mDrawable); }
+	void MenuGame::drawOnWindow(Drawable &mDrawable) { window.draw(mDrawable); }
 
 	Game& MenuGame::getGame() { return game; }
 }

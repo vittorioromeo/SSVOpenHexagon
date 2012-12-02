@@ -51,13 +51,13 @@ int main(int argc, char* argv[])
 
 	srand(unsigned(time(NULL)));
 
-	string title{"Open Hexagon " + hg::toStr<float>(getVersion()) + " - vee software"};
+	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - vee software"};
 	
 	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getLimitFps(), getFullscreen()};
-	window.isFrameTimeStatic = getStaticFrameTime();
-	window.staticFrameTime = getStaticFrameTimeValue();
-	window.renderWindow.setVerticalSyncEnabled(getVsync());
-	window.renderWindow.setMouseCursorVisible(false);
+	window.setStaticFrameTime(getStaticFrameTime());
+	window.setStaticFrameTimeValue(getStaticFrameTimeValue());
+	window.setVsync(getVsync());
+	window.setMouseCursorVisible(false);
 
 	MenuGame mg{window};
 	HexagonGame hg{window};
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
 	window.setGame(&mg.getGame());
 	mg.init();
-	
+
 	window.run();
 
 	saveCurrentProfile();

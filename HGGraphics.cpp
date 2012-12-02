@@ -16,7 +16,7 @@
 namespace hg
 {
 	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
-	void HexagonGame::drawOnWindow(Drawable &mDrawable) { window.renderWindow.draw(mDrawable); }
+	void HexagonGame::drawOnWindow(Drawable &mDrawable) { window.draw(mDrawable); }
 
 	void HexagonGame::drawText()
 	{
