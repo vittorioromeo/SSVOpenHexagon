@@ -32,6 +32,12 @@
 	"rotation_speed_max": 0.7,
 	"wall_skew_left": 30,
 	
+	"pulse_min": 75,
+	"pulse_max": 91,
+	"pulse_speed": 2,
+	"pulse_speed_r": 1,
+	"pulse_delay_max": 0.7,
+	
 	//Events
 	"events":
 	[
