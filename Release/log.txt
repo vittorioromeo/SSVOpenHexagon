@@ -1,0 +1,13 @@
+loading profiles
+loading fonts
+loading sounds
+loading music
+loading music data
+loading style data
+loading level data
+loading events
+loading music
+loading music data
+loading style data
+loading level data
+loading events

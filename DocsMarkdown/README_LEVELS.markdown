@@ -27,13 +27,20 @@ Lua file the level uses. It is executed every time the timeline is empty. Think 
 `"sides_min"`</br>
 `"sides_max"`</br>
 `"increment_time"`</br>
-`"3d_effect_multiplier"`</br>
 `"rotation_speed_max"`</br>
+Basic gameplay parameters. Should be easy to understand them just by looking at the name.
+
 `"wall_skew_left"`</br>
 `"wall_skew_right"`</br>
 `"wall_angle_left"`</br>
 `"wall_angle_right"`</br>
-Basic gameplay parameters. Should be easy to understand them just by looking at the name.
+`"pulse_min"`</br>
+`"pulse_max"`</br>
+`"pulse_speed"`</br>
+`"pulse_speed_r"`</br>
+`"pulse_delay_max"`</br>
+`"pulse_radius_multiplier"`</br>
+Graphical effect parameters.
 
 `"events":[]`</br>
 Level event scripting. Refer to README_EVENTS.

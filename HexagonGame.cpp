@@ -86,21 +86,14 @@ namespace hg
 		timeStop = 0;
 		randomSideChangesEnabled = true;
 		incrementEnabled = true;
-		maxPulse = 85;
-		minPulse = 75;
-		pulseSpeed = 1;
-		pulseSpeedBackwards = 1;
-		radius = minPulse;
+		pulseRadiusMultiplier = 1;
+		radius = 75;
 		radiusTimer = 0;
 		fastSpin = 0;
 		hasDied = false;
 		mustRestart = false;
 		restartId = mId;
 		restartFirstTime = false;
-		effectX = 1;
-		effectY = 1;
-		effectXInc = 1;
-		effectYInc = 1;
 		setSides(levelData.getSides());
 		gameSprite.setRotation(0);
 

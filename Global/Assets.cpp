@@ -54,14 +54,18 @@ namespace hg
 
 	void loadAssets()
 	{
-		log("loading fonts"); 		loadFonts();
-		log("loading sounds"); 		loadSounds();
-		log("loading music"); 		loadMusic();
-		log("loading music data"); 	loadMusicData();
-		log("loading style data"); 	loadStyleData();
-		log("loading level data");	loadLevelData();
-		log("loading profiles"); 	loadProfiles();
-		log("loading scripts"); 	loadEvents();
+		log("loading profiles"); 	loadProfiles	();
+		log("loading fonts"); 		loadFonts		();
+		log("loading sounds"); 		loadSounds		();
+
+		for(string packName : getAllSubFolderNames("Packs/"))
+		{
+			log("loading " + packName + " music"); 		loadMusic		("Packs/" + packName + "/");
+			log("loading " + packName + " music data"); loadMusicData	("Packs/" + packName + "/");
+			log("loading " + packName + " style data"); loadStyleData	("Packs/" + packName + "/");
+			log("loading " + packName + " level data");	loadLevelData	("Packs/" + packName + "/");
+			log("loading " + packName + " events"); 	loadEvents		("Packs/" + packName + "/");
+		}
 	}
 
 	void loadFonts()
@@ -91,11 +95,11 @@ namespace hg
 			soundPtrsMap.insert(make_pair(itr.key().asString(), soundPtr));
 		}
 	}
-	void loadMusic()
+	void loadMusic(string mPath)
 	{
-		for(auto filePath : getAllFilePaths("Music/", ".ogg"))
+		for(auto filePath : getAllFilePaths(mPath + "Music/", ".ogg"))
 		{
-			string fileName{getFileNameFromFilePath(filePath, "Music/", ".ogg")};
+			string fileName{getFileNameFromFilePath(filePath, mPath + "Music/", ".ogg")};
 
 			Music* music{new Music};
 			music->openFromFile(filePath);
@@ -103,27 +107,28 @@ namespace hg
 			musicPtrsMap.insert(make_pair(fileName, music));
 		}
 	}
-	void loadMusicData()
+	void loadMusicData(string mPath)
 	{
-		for(auto filePath : getAllFilePaths("Music/", ".json"))
+		for(auto filePath : getAllFilePaths(mPath + "Music/", ".json"))
 		{
 			MusicData musicData{loadMusicFromJson(getJsonFileRoot(filePath))};
 			musicDataMap.insert(make_pair(musicData.getId(), musicData));
 		}
 	}
-	void loadStyleData()
+	void loadStyleData(string mPath)
 	{
-		for(auto filePath : getAllFilePaths("Styles/", ".json"))
+		for(auto filePath : getAllFilePaths(mPath + "Styles/", ".json"))
 		{
 			StyleData styleData{loadStyleFromJson(getJsonFileRoot(filePath))};
 			styleDataMap.insert(make_pair(styleData.getId(), styleData));
 		}
 	}
-	void loadLevelData()
+	void loadLevelData(string mPath)
 	{
-		for(auto filePath : getAllFilePaths("Levels/", ".json"))
+		for(auto filePath : getAllFilePaths(mPath + "Levels/", ".json"))
 		{
 			LevelData levelData{loadLevelFromJson(getJsonFileRoot(filePath))};
+			levelData.setPackPath(mPath);
 			levelDataMap.insert(make_pair(levelData.getId(), levelData));
 		}
 	}
@@ -137,9 +142,9 @@ namespace hg
 			profileDataMap.insert(make_pair(profileData.getName(), profileData));
 		}
 	}
-	void loadEvents()
+	void loadEvents(string mPath)
 	{
-		for(auto filePath : getAllFilePaths("Events/", ".json"))
+		for(auto filePath : getAllFilePaths(mPath + "Events/", ".json"))
 		{
 			EventData eventData{getJsonFileRoot(filePath)};
 			eventDataMap.insert(make_pair(eventData.getId(), eventData));

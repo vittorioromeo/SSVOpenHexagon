@@ -123,6 +123,9 @@ namespace hg
 			if (wall->isOverlapping(pos))
 			{
 				isDead = true;
+
+				movePointTowardsCenter(lastPos, Vector2f(0,0), 5 * hgPtr->getSpeedMultiplier());
+
 				pos = lastPos;
 				hgPtr->death();
 				return;

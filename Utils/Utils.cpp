@@ -35,6 +35,62 @@
 
 namespace hg
 {
+	vector<string> logEntries;
+	vector<string>& getLogEntries() { return logEntries; }
+
+	vector<string> getAllSubFolderNames(string mPath)
+	{
+		vector<string> result;
+		DIR *dir{opendir(mPath.c_str())};
+		struct dirent *entry{readdir(dir)};
+
+		while (entry != NULL)
+		{
+			struct stat s;
+			stat(entry->d_name, &s);
+			if (S_ISDIR(s.st_mode))
+			{
+				string name{entry->d_name};
+				if(name != "." && name != "..") result.push_back(name);
+			}
+			entry = readdir(dir);
+		}
+
+		closedir(dir);
+		return result;
+	}
+	vector<string> getAllFilePaths(string mFolderPath, string mExtension)
+	{		
+		vector<string> result;
+		struct dirent *foundFile;
+		DIR *directoryHandle;
+
+		directoryHandle = opendir(mFolderPath.c_str());
+		if (directoryHandle == NULL)
+		{
+			ostringstream fail;
+			fail << "Error querying directory " << mFolderPath;
+			log(fail.str());
+			return result;
+		}
+		while ((foundFile = readdir(directoryHandle)))
+		{
+			const char *dotCheck = strrchr(foundFile->d_name, '.');
+			if (dotCheck == NULL || dotCheck == foundFile->d_name) continue; // No extension?
+			if (strcmp(mExtension.c_str(), dotCheck) != 0) continue; // Mismatch.
+			ostringstream pass;
+			pass << mFolderPath << foundFile->d_name;
+			result.push_back(pass.str());
+		}
+		closedir(directoryHandle);
+
+		return result;
+	}
+	string getFileNameFromFilePath(string mFilePath, string mPrefix, string mSuffix)
+	{
+		return mFilePath.substr(mPrefix.length(), mFilePath.length() - mPrefix.length() - mSuffix.length());
+	}
+
 	Color getColorFromHue(double h)
 	{
 		double s{1};
@@ -72,37 +128,6 @@ namespace hg
 		return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat());
 	}
 
-	vector<string> getAllFilePaths(string mFolderPath, string mExtension)
-	{
-		vector<string> result;
-		struct dirent *foundFile;
-		DIR *directoryHandle;
-
-		directoryHandle = opendir(mFolderPath.c_str());
-		if (directoryHandle == NULL)
-		{
-			ostringstream fail;
-			fail << "Error querying directory " << mFolderPath;
-			log(fail.str());
-			return result;
-		}
-		while ((foundFile = readdir(directoryHandle)))
-		{
-			const char *dotCheck = strrchr(foundFile->d_name, '.');
-			if (dotCheck == NULL || dotCheck == foundFile->d_name) continue; // No extension?
-			if (strcmp(mExtension.c_str(), dotCheck) != 0) continue; // Mismatch.
-			ostringstream pass;
-			pass << mFolderPath << foundFile->d_name;
-			result.push_back(pass.str());
-		}
-		closedir(directoryHandle);
-			
-		return result;
-	}
-	string getFileNameFromFilePath(string mFilePath, string mPrefix, string mSuffix)
-	{
-		return mFilePath.substr(mPrefix.length(), mFilePath.length() - mPrefix.length() - mSuffix.length());
-	}
 	Json::Value getJsonFileRoot(string mFilePath)
 	{
 		Json::Value root;

@@ -1,0 +1,25 @@
+{
+	// Style data id
+	"id": "tutorial2",
+
+	// Hue options
+	"hue_min": 0,
+	"hue_max": 360,
+	"hue_ping_pong": false,
+	"hue_increment": 1.0,
+	
+	// Pulse options
+	"pulse_min": 0.0,
+	"pulse_max": 1.5,
+	"pulse_increment": 0.025,
+	
+	// Main color
+	"main": { "main": true, "dynamic": false, "value": [0, 0, 100, 255], "pulse": [0, 0, 25, 0] },
+
+	// Background colors
+	"colors":
+	[
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [230, 230, 255, 255], "pulse": [0, 0, 0, 0]},
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [230, 200, 200, 255], "pulse": [0, 0, 0, 0]}
+	]
+}

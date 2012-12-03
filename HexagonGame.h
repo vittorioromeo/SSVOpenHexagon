@@ -63,7 +63,7 @@ namespace hg
 			Manager manager;
 			RenderTexture gameTexture;
 			Sprite gameSprite;
-			Lua::LuaContext lua;
+			Lua::LuaContext	 lua;
 			Vector2f centerPos{0,0};
 			LevelData levelData;
 			MusicData musicData;
@@ -82,21 +82,19 @@ namespace hg
 			float timeStop{0};
 			bool randomSideChangesEnabled{true};
 			bool incrementEnabled{true};
-			float maxPulse{85};
-			float minPulse{75};
-			float pulseSpeed{1};
-			float pulseSpeedBackwards{1};
-			float radius{minPulse};
+
+			float pulse					{75};
+			float pulseDirection		{1};
+			float pulseDelay			{0};
+			float pulseRadiusMultiplier	{1.f};
+
+			float radius{75};
 			float radiusTimer{0};
 			float fastSpin{0};
 			bool hasDied{false};
 			bool mustRestart{false};
 			string restartId{""};
 			bool restartFirstTime{true};
-			float effectX{1};
-			float effectY{1};
-			float effectXInc{1};
-			float effectYInc{1};
 			float difficultyMult{1};
 
 			// LUA-related methods
@@ -105,7 +103,7 @@ namespace hg
 			template<typename R, typename... Args> R runLuaFunction(const std::string& variableName, const Args&... args)
 			{
 				try { return lua.callLuaFunction<R>(variableName, std::make_tuple(args...)); }
-				catch(runtime_error &error) { cout << "LUA runtime error: " << endl << toStr(error.what()) << endl << endl; }
+				catch(runtime_error &error) { cout << variableName << endl << "LUA runtime error: " << endl << toStr(error.what()) << endl << endl; }
 
 				return R();
 			}
@@ -116,6 +114,7 @@ namespace hg
 			inline void updateIncrement();
 			inline void updateEvents(float mFrameTime);
 			inline void updateLevel(float mFrameTime);	
+			inline void updatePulse(float mFrameTime);
 			inline void updateRadius(float mFrameTime);
 			inline void updateKeys();
 			inline void updateRotation(float mFrameTime);

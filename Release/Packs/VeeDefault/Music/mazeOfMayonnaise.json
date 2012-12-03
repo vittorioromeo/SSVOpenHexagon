@@ -1,0 +1,20 @@
+{
+	// Music data id
+	"id": "mazeOfMayonnaise",
+
+	// Music file
+	"file_name": "mazeOfMayonnaise.ogg",
+
+	// Music information
+	"name": "The Maze of Mayonnaise",
+	"album": "Caps On, Hats Off",
+	"author": "BOSSFIGHT",
+	
+	// Segments
+	"segments":
+	[
+		{ "time": 35 },
+		{ "time": 52 },
+		{ "time": 93 }
+	]
+}

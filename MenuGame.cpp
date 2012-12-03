@@ -264,8 +264,8 @@ namespace hg
 
 		positionAndDrawCenteredText(title1, mainColor, 45, true);
 		positionAndDrawCenteredText(title2, mainColor, 80, true);
-		positionAndDrawCenteredText(title3, mainColor, 240, true);
-		positionAndDrawCenteredText(title4, mainColor, 270, true);
+		positionAndDrawCenteredText(title3, mainColor, 214, true);
+		positionAndDrawCenteredText(title4, mainColor, 250, true);
 
 		levelTime.setString("best time: " + toStr(getScore(levelData.getId() + "_m_" + toStr(difficultyMult))));
 		positionAndDrawCenteredText(levelTime, mainColor, 768 - 425, false);

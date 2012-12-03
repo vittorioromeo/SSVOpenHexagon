@@ -42,6 +42,7 @@ namespace hg
 			vector<function<void(PatternManager* pm)>> pfuncs;
 			int currentPattern	{-1};
 			vector<Json::Value> events;
+			string packPath;
 
 		public:
 			LevelData() = default;
@@ -50,6 +51,10 @@ namespace hg
 			void addEvent(Json::Value mEventRoot);
 
 			Json::Value& getRoot();
+
+			void setPackPath(string mPackPath);
+			string getPackPath();
+
 			string getId();
 			string getName();
 			string getDescription();
@@ -69,6 +74,12 @@ namespace hg
 			int getSidesMax();
 			int getSidesMin();
 			float getIncrementTime();
+			float getPulseMin();
+			float getPulseMax();
+			float getPulseSpeed();
+			float getPulseSpeedR();
+			float getPulseDelayMax();
+			float getPulseRadiusMultiplier();	
 			vector<Json::Value>& getEvents();
 
 			void setSpeedMultiplier(float mSpeedMultiplier);

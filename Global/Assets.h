@@ -46,12 +46,12 @@ namespace hg
 
 	void loadFonts();
 	void loadSounds();
-	void loadMusic();
-	void loadMusicData();
-	void loadStyleData();
-	void loadLevelData();
+	void loadMusic(string mPath);
+	void loadMusicData(string mPath);
+	void loadStyleData(string mPath);
+	void loadLevelData(string mPath);
 	void loadProfiles();
-	void loadEvents();
+	void loadEvents(string mPath);
 
 	void saveCurrentProfile();
 

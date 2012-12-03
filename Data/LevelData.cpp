@@ -32,6 +32,9 @@ namespace hg
 		events.push_back(mEventRoot);
 	}
 
+	void LevelData::setPackPath(string mPackPath) { packPath = mPackPath; }
+	string LevelData::getPackPath() { return packPath; }
+
 	Json::Value& LevelData::getRoot()				{ return root; }
 	string LevelData::getId() 						{ return root["id"].asString(); }
 	string LevelData::getName() 					{ return root["name"].asString(); }
@@ -52,6 +55,48 @@ namespace hg
 	int LevelData::getSidesMax() 					{ return root["sides_max"].asInt(); }
 	int LevelData::getSidesMin() 					{ return root["sides_min"].asInt(); }
 	float LevelData::getIncrementTime()				{ return root["increment_time"].asFloat(); }
+	float LevelData::getPulseMin()
+	{
+		if (root.isMember("pulse_min"))
+			return root["pulse_min"].asFloat();
+
+		return 75.f;
+	}
+	float LevelData::getPulseMax()
+	{
+		if (root.isMember("pulse_max"))
+			return root["pulse_max"].asFloat();
+
+		return 80.f;
+	}
+	float LevelData::getPulseSpeed()
+	{
+		if (root.isMember("pulse_speed"))
+			return root["pulse_speed"].asFloat();
+
+		return 0.f;
+	}
+	float LevelData::getPulseSpeedR()
+	{
+		if (root.isMember("pulse_speed_r"))
+			return root["pulse_speed_r"].asFloat();
+
+		return 0.f;
+	}
+	float LevelData::getPulseDelayMax()
+	{
+		if (root.isMember("pulse_delay_max"))
+			return root["pulse_delay_max"].asFloat();
+
+		return 0.f;
+	}
+	float LevelData::getPulseRadiusMultiplier()
+	{
+		if (root.isMember("pulse_radius_multiplier"))
+			return root["pulse_radius_multiplier"].asFloat();
+
+		return 1.f;
+	}
 	vector<Json::Value>& LevelData::getEvents()		{ return events; }
 
 	void LevelData::setSpeedMultiplier(float mSpeedMultiplier)  { root["speed_multiplier"] = mSpeedMultiplier; }

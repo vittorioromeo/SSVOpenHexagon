@@ -26,6 +26,7 @@ namespace hg
 			updateIncrement();
 			updateLevel(mFrameTime);
 			updateRadius(mFrameTime);
+			updatePulse(mFrameTime);
 			if(!getBlackAndWhite()) styleData.update(mFrameTime);
 		}
 		else setRotationSpeed(getRotationSpeed() * 0.99f);
@@ -79,16 +80,42 @@ namespace hg
 			timeline.reset();
 		}
 	}
+	inline void HexagonGame::updatePulse(float mFrameTime)
+	{
+		if(pulseDelay <= 0)
+		{
+			if(pulseDirection == 1)
+			{
+				pulse += levelData.getPulseSpeed() * mFrameTime;
+
+				if(pulse >= levelData.getPulseMax())
+				{
+					pulse = levelData.getPulseMax();
+					pulseDirection *= -1;
+
+					pulseDelay = levelData.getPulseDelayMax();
+				}
+			}
+			else if(pulseDirection == -1)
+			{
+				pulse -= levelData.getPulseSpeedR() * mFrameTime;
+
+				if(pulse <= levelData.getPulseMin())
+				{
+					pulse = levelData.getPulseMin();
+					pulseDirection *= -1;
+
+					pulseDelay = levelData.getPulseDelayMax();
+				}
+			}
+		}
+		else pulseDelay -= 1 * mFrameTime;
+
+		gameTexture.setView(View{Vector2f{0,0}, Vector2f{(getSizeX() * getZoomFactor()) * pulse / levelData.getPulseMin(), (getSizeY() * getZoomFactor()) * pulse / levelData.getPulseMin()}});
+	}
 	inline void HexagonGame::updateRadius(float mFrameTime)
 	{
-		radiusTimer += pulseSpeed * mFrameTime;
-		if(radiusTimer >= 25)
-		{
-			radiusTimer = 0;
-			radius = maxPulse;
-		}
-
-		if(radius > minPulse) radius -= pulseSpeedBackwards * mFrameTime;
+		if(pulseRadiusMultiplier != 0) radius = 75.f * ((pulse / levelData.getPulseMin()) * pulseRadiusMultiplier);
 	}
 	inline void HexagonGame::updateKeys()
 	{

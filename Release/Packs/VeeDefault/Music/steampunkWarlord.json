@@ -1,0 +1,20 @@
+{
+	// Music data id
+	"id": "steampunkWarlord",
+
+	// Music file
+	"file_name": "steampunkWarlord.ogg",
+
+	// Music information
+	"name": "Steampunk Warlord",
+	"album": "Caps On, Hats Off",
+	"author": "BOSSFIGHT",
+	
+	// Segments
+	"segments":
+	[
+		{ "time": 74 },
+		{ "time": 98 },		
+		{ "time": 174 }
+	]
+}

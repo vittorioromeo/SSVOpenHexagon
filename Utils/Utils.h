@@ -41,16 +41,21 @@ using namespace sf;
 
 namespace hg
 {
-	template<class T> void log(T mValue) { if(!getDebug()) return; cout << toStr(mValue) << endl; }
+	vector<string>& getLogEntries();
+	template<class T> void log(T mValue)
+	{
+		if(!getDebug()) return; cout << toStr(mValue) << endl;
+		getLogEntries().push_back(toStr(mValue));
+	}
 
-	void read(char* path);
+	vector<string> getAllSubFolderNames(string mPath);
+	vector<string> getAllFilePaths(string mFolderPath, string mExtension);
+	string getFileNameFromFilePath(string mFilePath, string mPrefix, string mSuffix);
 
 	Color getColorFromHue(double);
 	Color getColorDarkened(Color, float);
 	Color getColorFromJsonArray(Json::Value mArray);
 
-	vector<string> getAllFilePaths(string mFolderPath, string mExtension);
-	string getFileNameFromFilePath(string mFilePath, string mPrefix, string mSuffix);
 	Json::Value getJsonFileRoot(string mFilePath);
 
 	LevelData loadLevelFromJson(Json::Value mRoot);

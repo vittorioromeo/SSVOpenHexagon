@@ -61,7 +61,7 @@
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-pedantic;-Wall;-c -std=c++11" C_Options="-g;-O0;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+      <Compiler Options="-g;-pedantic;-Wall;-std=c++11;-c" C_Options="-g;-O0;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="D:/Vee/Software/WIP/SFMLMinGW/include"/>
@@ -71,11 +71,13 @@
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVStart/Release"/>
         <LibraryPath Value="../SSVEntitySystem/Release"/>
+        <LibraryPath Value="./Release"/>
         <LibraryPath Value="D:/Vee/Software/WIP/SFMLMinGW/lib"/>
         <LibraryPath Value="D:/Vee/Software/WIP/jsoncpp/libs/mingw"/>
         <LibraryPath Value="c:/lua"/>
         <Library Value="SSVEntitySystem"/>
         <Library Value="SSVStart"/>
+        <Library Value="SSVLuaWrapper"/>
         <Library Value="sfml-window"/>
         <Library Value="sfml-graphics"/>
         <Library Value="sfml-system"/>

@@ -69,10 +69,6 @@ namespace hg
 			else if (type == "side_changing_start")		randomSideChangesEnabled = true;
 			else if (type == "increment_stop")			incrementEnabled = false;
 			else if (type == "increment_start")			incrementEnabled = true;
-			else if (type == "pulse_max_set")			maxPulse = value;
-			else if (type == "pulse_min_set")			minPulse = value;
-			else if (type == "pulse_speed_set")			pulseSpeed = value;
-			else if (type == "pulse_speed_b_set")		pulseSpeedBackwards = value;
 			else if (type == "event_exec")				events.push_back(getEventData(id, this));
 			else if (type == "event_enqueue")			eventQueue.push(getEventData(id, this));
 			else if (type == "script_exec")				runLuaFile(valueName);
@@ -124,10 +120,11 @@ namespace hg
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{
-		ifstream s("Scripts/" + mFileName);
+		ifstream s(levelData.getPackPath() + "Scripts/" + mFileName);
 		try { lua.executeCode(s); }
 		catch(runtime_error &error)
 		{
+			cout << mFileName << endl;
 			cout << "LUA execution error: " << endl << "(killing the player...)" << endl << toStr(error.what()) << endl << endl;
 			death();
 		}

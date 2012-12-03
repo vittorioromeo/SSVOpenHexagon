@@ -72,18 +72,6 @@ Stops level up increments.
 `"increment_start"`</br>
 Resumes level up increments.
 
-`"pulse_max_set"		("value")`</br>
-Sets how far the center pulses. Default is 85;
-
-`"pulse_min_set"	("value")`</br>
-Sets how close the center pulses. Default is 75;
-
-`"pulse_speed_set"	("value")`</br>
-Sets how fast the center pulses. Default is 1.
-
-`"pulse_speed_b_set"	("value")`</br>
-Sets how fast the center pulses back. Default is 1.
-
 `"play_sound"	("id")`</br>
 Plays sound with id "id".
 
