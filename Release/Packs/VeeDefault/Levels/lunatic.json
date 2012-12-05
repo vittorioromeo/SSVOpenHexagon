@@ -23,19 +23,26 @@
 	"rotation_increment": 0.045,
 	"delay_multiplier": 0.97,
 	"delay_increment": 0.00,
-	"fast_spin": 81.00,
+	"fast_spin": 71.00,
 	"sides": 6,
 	"sides_min": 5,
 	"sides_max": 7,
 	"increment_time": 15,
-	"3d_effect_multiplier": 1.25,
 	"rotation_speed_max": 0.8,
+	
+	"pulse_min": 64,
+	"pulse_max": 84,
+	"pulse_speed": 2.01,
+	"pulse_speed_r": 1.54,
+	"pulse_delay_max": 3.7,
+	"pulse_delay_max": 9.1,
+	
+	"beatpulse_max": 15,
+	"beatpulse_delay_max": 21.8,
 	
 	//Events
 	"events":
 	[
-		{ "time": 0,	"type": "event_exec", 		"id": "continuous_rotation" },
-		{ "time": 0,	"type": "pulse_max_set", 	"value": 92 },
-		{ "time": 0,	"type": "pulse_speed_set",	"value": 1.455 }
+		{ "time": 0,	"type": "event_exec", 		"id": "continuous_rotation" }
 	]
 }

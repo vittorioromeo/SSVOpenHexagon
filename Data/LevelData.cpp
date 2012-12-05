@@ -90,13 +90,35 @@ namespace hg
 
 		return 0.f;
 	}
-	float LevelData::getPulseRadiusMultiplier()
+	float LevelData::getPulseDelayHalfMax()
 	{
-		if (root.isMember("pulse_radius_multiplier"))
-			return root["pulse_radius_multiplier"].asFloat();
+		if (root.isMember("pulse_delay_half_max"))
+			return root["pulse_delay_half_max"].asFloat();
 
-		return 1.f;
+		return 0.f;
 	}
+	float LevelData::getBeatPulseMax()
+	{
+		if (root.isMember("beatpulse_max"))
+			return root["beatpulse_max"].asFloat();
+
+		return 0.f;
+	}
+	float LevelData::getBeatPulseDelayMax()
+	{
+		if (root.isMember("beatpulse_delay_max"))
+			return root["beatpulse_delay_max"].asFloat();
+
+		return 0.f;
+	}
+	float LevelData::getRadiusMin()
+	{
+		if (root.isMember("radius_min"))
+			return root["radius_min"].asFloat();
+
+		return 72.f;
+	}
+
 	vector<Json::Value>& LevelData::getEvents()		{ return events; }
 
 	void LevelData::setSpeedMultiplier(float mSpeedMultiplier)  { root["speed_multiplier"] = mSpeedMultiplier; }

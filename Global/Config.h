@@ -73,6 +73,8 @@ namespace hg
 	bool getChangeStyles();
 	bool getChangeMusic();
 	bool getDebug();
+	bool getPulse();
+	bool getBeatPulse();
 }
 
 #endif /* CONFIG_H_ */

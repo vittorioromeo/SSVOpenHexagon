@@ -28,13 +28,11 @@
 	"sides_min": 6,
 	"sides_max": 6,
 	"increment_time": 15,
-	"3d_effect_multiplier": 0.7,
 	"rotation_speed_max": 0.8,
 	
 	// Events
 	"events":
 	[
-		{ "time": 0,	"type": "pulse_speed_set",	"value": 1.1 },
 		{ "time": 0, 	"type": "timeline_wait", 	"duration": 300 },
 		{ "time": 0, 	"type": "time_stop", 		"duration": 300 },
 		{ "time": 0, 	"type": "message_important_add", 		"duration": 170, 	"message": "welcome to open hexagon" },

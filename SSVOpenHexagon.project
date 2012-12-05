@@ -122,6 +122,7 @@
       <Compiler Options="-O3;-pedantic;-Wall;-c;-std=c++11" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
+        <IncludePath Value="../SSVLuaWrapper"/>
         <IncludePath Value="D:/Vee/Software/WIP/SFMLMinGW/include"/>
         <IncludePath Value="D:/Vee/Software/WIP/jsoncpp/include"/>
         <IncludePath Value="C:/lua/include"/>
@@ -129,6 +130,7 @@
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVStart/Release"/>
         <LibraryPath Value="../SSVEntitySystem/Release"/>
+        <LibraryPath Value="../SSVLuaWrapper/Release"/>
         <LibraryPath Value="./Release"/>
         <LibraryPath Value="D:/Vee/Software/WIP/SFMLMinGW/lib"/>
         <LibraryPath Value="D:/Vee/Software/WIP/jsoncpp/libs/mingw"/>

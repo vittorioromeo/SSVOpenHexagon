@@ -31,7 +31,6 @@
 	"increment_time": 15,
 	"wall_skew_left": 15,
 	"wall_skew_right": -15,
-	"3d_effect_multiplier": 0.85,
 	"rotation_speed_max": 0.8,
 	
 	// Events

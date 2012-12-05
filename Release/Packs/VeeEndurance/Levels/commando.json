@@ -28,7 +28,6 @@
 	"sides_min": 0,
 	"sides_max": 0,
 	"increment_time": 5,
-	"3d_effect_multiplier": 1.25,
 	"rotation_speed_max": 0.7,
 	"wall_skew_left": 30,
 	
@@ -37,6 +36,9 @@
 	"pulse_speed": 2,
 	"pulse_speed_r": 1,
 	"pulse_delay_max": 0.7,
+	
+	"beatpulse_max": 17,
+	"beatpulse_delay_half_max": 23.8,
 	
 	//Events
 	"events":

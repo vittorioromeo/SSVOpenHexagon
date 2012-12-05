@@ -28,8 +28,16 @@
 	"sides_min": 5,
 	"sides_max": 6,
 	"increment_time": 15,
-	"3d_effect_multiplier": 1,
 	"rotation_speed_max": 0.8,
+	
+	"pulse_min": 75,
+	"pulse_max": 91,
+	"pulse_speed": 1.2,
+	"pulse_speed_r": 1,
+	"pulse_delay_max": 23.9,
+	
+	"beatpulse_max": 17,
+	"beatpulse_delay_max": 24.8,
 	
 	// Events
 	"events":

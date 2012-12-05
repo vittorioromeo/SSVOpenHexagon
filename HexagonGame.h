@@ -42,7 +42,7 @@
 #include "Data/StyleData.h"
 #include "Utils/Utils.h"
 #pragma GCC system_header
-#include "LuaContext.h"
+#include <SSVLuaWrapper.h>
 
 using namespace sf;
 using namespace ssvs;
@@ -86,10 +86,12 @@ namespace hg
 			float pulse					{75};
 			float pulseDirection		{1};
 			float pulseDelay			{0};
-			float pulseRadiusMultiplier	{1.f};
+			float pulseDelayHalf		{0};
+
+			float beatPulse				{0};
+			float beatPulseDelay		{0};
 
 			float radius{75};
-			float radiusTimer{0};
 			float fastSpin{0};
 			bool hasDied{false};
 			bool mustRestart{false};
@@ -115,7 +117,7 @@ namespace hg
 			inline void updateEvents(float mFrameTime);
 			inline void updateLevel(float mFrameTime);	
 			inline void updatePulse(float mFrameTime);
-			inline void updateRadius(float mFrameTime);
+			inline void updateBeatPulse(float mFrameTime);
 			inline void updateKeys();
 			inline void updateRotation(float mFrameTime);
 

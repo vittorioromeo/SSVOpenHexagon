@@ -33,11 +33,12 @@ using namespace std;
 
 namespace hg
 {
+	Json::Value root{getJsonFileRoot("config.json")};
 	map<string, Json::Value> configOverridesRootMap;
 
 	float sizeX						{1500};
 	float sizeY						{1500};
-	float spawnDistance				{1100};
+	float spawnDistance				{1600};
 	float zoomFactor				{1};
 	int pixelMultiplier				{1};
 	float playerSpeed				{8.3f};
@@ -54,24 +55,10 @@ namespace hg
 	float staticFrameTimeValue		{false};
 	bool limitFps					{false};
 	bool vsync						{false};
-	bool autoZoomFactor				{true};
-	bool fullscreen					{true};
-	bool windowedAutoResolution		{false};
-	bool fullscreenAutoResolution 	{true};
-	unsigned int fullscreenWidth 	{1024};
-	unsigned int fullscreenHeight 	{768};
-	unsigned int windowedWidth 		{1024};
-	unsigned int windowedHeight		{768};
-	bool showMessages				{true};
-	bool changeStyles				{true};
-	bool changeMusic				{true};
-	bool debug						{false};
 
 	void loadConfig(vector<string> mOverridesIds)
 	{
 		log("loading config");
-
-		Json::Value root{getJsonFileRoot("config.json")};
 
 		for(auto filePath : getAllFilePaths("ConfigOverrides/", ".json"))
 		{
@@ -103,28 +90,16 @@ namespace hg
 		staticFrameTimeValue = 		root["static_frametime_value"].asFloat();
 		limitFps = 					root["limit_fps"].asBool();
 		vsync = 					root["vsync"].asBool();
-		autoZoomFactor = 			root["auto_zoom_factor"].asBool();
-		fullscreen = 				root["fullscreen"].asBool();
-		windowedAutoResolution =	root["windowed_auto_resolution"].asBool();
-		windowedWidth = 			root["windowed_width"].asInt();
-		windowedHeight = 			root["windowed_height"].asInt();
-		fullscreenAutoResolution =	root["fullscreen_auto_resolution"].asBool();
-		fullscreenWidth = 			root["fullscreen_width"].asInt();
-		fullscreenHeight = 			root["fullscreen_height"].asInt();
-		showMessages =				root["show_messages"].asBool();
-		changeStyles =				root["change_styles"].asBool();
-		changeMusic = 				root["change_music"].asBool();
-		debug =		 				root["debug"].asBool();
 
-		if(windowedAutoResolution)
+		if(getWindowedAutoResolution())
 		{
-			windowedWidth = VideoMode::getDesktopMode().width;
-			windowedHeight = VideoMode::getDesktopMode().height;
+			root["windowed_width"] = VideoMode::getDesktopMode().width;
+			root["windowed_height"] = VideoMode::getDesktopMode().height;
 		}
-		if(fullscreenAutoResolution)
+		if(getFullscreenAutoResolution())
 		{
-			fullscreenWidth = VideoMode::getDesktopMode().width;
-			fullscreenHeight = VideoMode::getDesktopMode().height;
+			root["fullscreen_width"] = VideoMode::getDesktopMode().width;
+			root["fullscreen_height"] = VideoMode::getDesktopMode().height;
 		}
 
 		recalculateSizes();
@@ -135,7 +110,7 @@ namespace hg
 		sizeX = max(getWidth(), getHeight()) * 1.3f;
 		sizeY = max(getWidth(), getHeight()) * 1.3f;
 
-		if(autoZoomFactor)
+		if(getAutoZoomFactor())
 		{
 			float zoomFactorX(1024.0f / (float)getWidth());
 			float zoomFactorY(768.0f / (float)getHeight());
@@ -144,12 +119,12 @@ namespace hg
 	}
 	void setFullscreen(GameWindow& mWindow, bool mFullscreen)
 	{
-		fullscreen = mFullscreen;
+		root["fullscreen"] = mFullscreen;
 
 		recalculateSizes();
 
 		mWindow.setSize(getWidth(), getHeight());
-		mWindow.setFullscreen(fullscreen);
+		mWindow.setFullscreen(getFullscreen());
 	}
 
 	float getSizeX() 					{ return sizeX; }
@@ -171,19 +146,21 @@ namespace hg
 	float getStaticFrameTimeValue()		{ return staticFrameTimeValue; }
 	bool getLimitFps()					{ return limitFps; }
 	bool getVsync()						{ return vsync; }
-	bool getAutoZoomFactor()			{ return autoZoomFactor; }
-	bool getFullscreen()				{ return fullscreen; }	
+	bool getAutoZoomFactor()			{ return root["auto_zoom_factor"].asBool(); }
+	bool getFullscreen()				{ return root["fullscreen"].asBool(); }
 	float getVersion() 					{ return 1.5f; }
-	bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
-	bool getFullscreenAutoResolution() 	{ return fullscreenAutoResolution; }
-	unsigned int getFullscreenWidth()	{ return fullscreenWidth; }
-	unsigned int getFullscreenHeight() 	{ return fullscreenHeight; }
-	unsigned int getWindowedWidth()		{ return windowedWidth; }
-	unsigned int getWindowedHeight()	{ return windowedHeight; }
-	unsigned int getWidth() 			{ if(fullscreen) return fullscreenWidth; else return windowedWidth; }
-	unsigned int getHeight() 			{ if(fullscreen) return fullscreenHeight; else return windowedHeight; }
-	bool getShowMessages()				{ return showMessages; }
-	bool getChangeStyles()				{ return changeStyles; }
-	bool getChangeMusic()				{ return changeMusic; }
-	bool getDebug()						{ return debug; }
+	bool getWindowedAutoResolution()	{ return root["windowed_auto_resolution"].asBool(); }
+	bool getFullscreenAutoResolution() 	{ return root["fullscreen_auto_resolution"].asBool(); }
+	unsigned int getFullscreenWidth()	{ return root["fullscreen_width"].asInt(); }
+	unsigned int getFullscreenHeight() 	{ return root["fullscreen_height"].asInt(); }
+	unsigned int getWindowedWidth()		{ return root["windowed_width"].asInt(); }
+	unsigned int getWindowedHeight()	{ return root["windowed_height"].asInt(); }
+	unsigned int getWidth() 			{ if(getFullscreen()) return getFullscreenWidth(); else return getWindowedWidth(); }
+	unsigned int getHeight() 			{ if(getFullscreen()) return getFullscreenHeight(); else return getWindowedHeight(); }
+	bool getShowMessages()				{ return root["show_messages"].asBool(); }
+	bool getChangeStyles()				{ return root["change_styles"].asBool(); }
+	bool getChangeMusic()				{ return root["change_music"].asBool(); }
+	bool getDebug()						{ return root["debug"].asBool(); }
+	bool getPulse()						{ return root["pulse_enabled"].asBool(); }
+	bool getBeatPulse()					{ return root["beatpulse_enabled"].asBool(); }
 }

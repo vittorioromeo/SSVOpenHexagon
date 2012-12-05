@@ -81,14 +81,20 @@ namespace hg
 		eventQueue = queue<EventData>{};
 
 		// Parameters cleanup
-		currentTime = 0;
+		currentTime = -1;
 		incrementTime = 0;
 		timeStop = 0;
 		randomSideChangesEnabled = true;
 		incrementEnabled = true;
-		pulseRadiusMultiplier = 1;
+
+		pulse			= 75;
+		pulseDirection	= 1;
+		pulseDelay		= 0;
+		pulseDelayHalf	= 0;
+		beatPulse		= 0;
+		beatPulseDelay	= 0;
+		
 		radius = 75;
-		radiusTimer = 0;
 		fastSpin = 0;
 		hasDied = false;
 		mustRestart = false;

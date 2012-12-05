@@ -39,7 +39,9 @@ Basic gameplay parameters. Should be easy to understand them just by looking at 
 `"pulse_speed"`</br>
 `"pulse_speed_r"`</br>
 `"pulse_delay_max"`</br>
-`"pulse_radius_multiplier"`</br>
+`"pulse_delay_half_max"`</br>
+`"beatpulse_max"`</br>
+`"beatpulse_delay_max"`</br>
 Graphical effect parameters.
 
 `"events":[]`</br>
