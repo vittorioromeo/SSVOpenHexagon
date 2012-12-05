@@ -68,6 +68,8 @@ namespace hg
 
 	vector<LevelData> getAllLevelData();
 	vector<string> getAllMenuLevelDataIds();
+	vector<string> getMenuLevelDataIdsByPack(string mPackPath);
+	vector<string> getPackPaths();
 
 	float getScore(string mId);
 	void setScore(string mId, float mScore);

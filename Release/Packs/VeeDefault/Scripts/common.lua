@@ -14,10 +14,10 @@ function getRandomDir()
 end
 
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
-function getPerfectDelay(mThickness) return mThickness / (5.02 * getSpeedMult()) end
+function getPerfectDelay(mThickness) return mThickness / (5.02 * getSpeedMult()) * getDelayMult() end
 
 -- getPerfectThickness: returns a good THICKNESS value in relation to human reflexes
-function getPerfectThickness(mThickness) return mThickness * getSpeedMult() * getDelayMult() end
+function getPerfectThickness(mThickness) return mThickness * getSpeedMult() end
 
 -- getSideDistance: returns shortest distance from a side to another
 function getSideDistance(mSide1, mSide2)

@@ -66,6 +66,7 @@ namespace hg
 			float inputDelay{0};
 			vector<string> levelDataIds;
 			int currentIndex{0};
+			int packIndex{0};
 
 			string profileCreationName;
 			int profileIndex{0};

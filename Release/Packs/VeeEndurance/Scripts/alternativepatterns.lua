@@ -67,27 +67,37 @@ function pLadder(mTimes,mArray,myThickness)
 
 	delay = getPerfectDelay(myThickness)
 
-	eArray = cycle(getSides())
+	local eArray = {}
+	l = 1
+	s = table.getn(mArray)/getSides()
+	t = math.random(0,100)
 
-	for i = 1, mTimes do 
-		for j = 1, getSides() do
-			if(mArray[(i-1)*getSides() + j] ~= 0) then
-				wall(eArray[j],myThickness)
+	for i = 1, mTimes do
+		q = (i+t) % s + 1
+		for k = 1, getSides() do
+			if(mArray[(q-1)*getSides() + k] ~= 0) then
+				eArray[l] = 1
+			else
+				eArray[l] = 0
 			end
+			l = l + 1
 		end
-		wait(delay)
 		
-		if i < mTimes then
-			for j = 1, getSides() do
-				if(mArray[(i-1)*getSides() + j] == 2) then
-					wall(eArray[j], myThickness + 25 * getSpeedMult() * delay)
+		if i ~= mTimes then
+			for j = 1, 3 do
+				for k = 1,getSides() do
+					if(mArray[(q-1)*getSides() + k] == 2) then
+						eArray[l] = 1
+					else
+						eArray[l] = 0
+					end
+					l = l + 1
 				end
 			end
-			wait(delay*5)
 		end
-		wait(delay)
 	end
 
+	patternizer(eArray,myThickness)
 	wait(delay*2)
 	
 end

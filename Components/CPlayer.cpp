@@ -76,7 +76,7 @@ namespace hg
 
 		for(int i{0}; i < hgPtr->getSides(); i++)
 		{
-			float angle { div * i };
+			float angle{div * i};
 
 			Vector2f p1{getOrbit(pivotPos, angle - div * 0.5f, radius)};
 			Vector2f p2{getOrbit(pivotPos, angle + div * 0.5f, radius)};

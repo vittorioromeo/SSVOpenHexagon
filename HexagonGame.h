@@ -79,7 +79,7 @@ namespace hg
 			// New game parameters
 			float currentTime{0};
 			float incrementTime{0};
-			float timeStop{0};
+			float timeStop{1};
 			bool randomSideChangesEnabled{true};
 			bool incrementEnabled{true};
 

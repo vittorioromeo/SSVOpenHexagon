@@ -21,7 +21,7 @@
 	"speed_increment": 0.00,
 	"rotation_speed": 0.00,
 	"rotation_increment": 0.00,
-	"delay_multiplier": 1.32,
+	"delay_multiplier": 1.00,
 	"delay_increment": 0.00,
 	"fast_spin": 0.00,
 	"sides": 3,

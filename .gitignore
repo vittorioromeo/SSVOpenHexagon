@@ -170,3 +170,4 @@ pip-log.txt
 *.exe
 *.ttf
 *.i
+*.a

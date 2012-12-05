@@ -38,24 +38,8 @@ namespace hg
 
 	float sizeX						{1500};
 	float sizeY						{1500};
-	float spawnDistance				{1600};
-	float zoomFactor				{1};
-	int pixelMultiplier				{1};
-	float playerSpeed				{8.3f};
-	float playerFocusSpeed			{4.15f};
-	float playerSize				{7};
-	bool noRotation					{false};
-	bool noBackground				{false};
-	bool blackAndWhite				{false};
-	bool noSound					{false};
-	bool noMusic					{false};
-	int soundVolume					{100};
-	int musicVolume					{100};
-	bool staticFrameTime			{false};
-	float staticFrameTimeValue		{false};
-	bool limitFps					{false};
-	bool vsync						{false};
-
+	constexpr float spawnDistance	{1600};
+	
 	void loadConfig(vector<string> mOverridesIds)
 	{
 		log("loading config");
@@ -73,23 +57,6 @@ namespace hg
 			for(Json::ValueIterator itr{overrideRoot.begin()}; itr != overrideRoot.end(); itr++)
 				root[itr.key().asString()] = *itr;
 		}
-
-		zoomFactor = 				root["zoom_factor"].asFloat();
-		pixelMultiplier = 			root["pixel_multiplier"].asInt();
-		playerSpeed = 				root["player_speed"].asFloat();
-		playerFocusSpeed = 			root["player_focus_speed"].asFloat();
-		playerSize = 				root["player_size"].asFloat();
-		noRotation = 				root["no_rotation"].asBool();
-		noBackground = 				root["no_background"].asBool();
-		blackAndWhite = 			root["black_and_white"].asBool();
-		noSound = 					root["no_sound"].asBool();
-		noMusic = 					root["no_music"].asBool();
-		soundVolume = 				root["sound_volume"].asInt();
-		musicVolume = 				root["music_volume"].asInt();
-		staticFrameTime = 			root["static_frametime"].asBool();
-		staticFrameTimeValue = 		root["static_frametime_value"].asFloat();
-		limitFps = 					root["limit_fps"].asBool();
-		vsync = 					root["vsync"].asBool();
 
 		if(getWindowedAutoResolution())
 		{
@@ -114,7 +81,7 @@ namespace hg
 		{
 			float zoomFactorX(1024.0f / (float)getWidth());
 			float zoomFactorY(768.0f / (float)getHeight());
-			zoomFactor = max(zoomFactorX, zoomFactorY);
+			root["zoom_factor"] = max(zoomFactorX, zoomFactorY);
 		}
 	}
 	void setFullscreen(GameWindow& mWindow, bool mFullscreen)
@@ -127,25 +94,27 @@ namespace hg
 		mWindow.setFullscreen(getFullscreen());
 	}
 
+	void setPulse(bool mPulse) 			{ root["pulse_enabled"] = mPulse; }
+
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
 	float getSpawnDistance() 			{ return spawnDistance; }
-	float getZoomFactor() 				{ return zoomFactor; }
-	int getPixelMultiplier() 			{ return pixelMultiplier; }
-	float getPlayerSpeed() 				{ return playerSpeed; }
-	float getPlayerFocusSpeed() 		{ return playerFocusSpeed; }
-	float getPlayerSize() 				{ return playerSize; }
-	bool getNoRotation() 				{ return noRotation; }
-	bool getNoBackground() 				{ return noBackground; }
-	bool getBlackAndWhite() 			{ return blackAndWhite; }
-	bool getNoSound()					{ return noSound; }
-	bool getNoMusic()					{ return noMusic; }
-	int getSoundVolume()  				{ return soundVolume; }
-	int getMusicVolume() 				{ return musicVolume; }
-	bool getStaticFrameTime()			{ return staticFrameTime; }
-	float getStaticFrameTimeValue()		{ return staticFrameTimeValue; }
-	bool getLimitFps()					{ return limitFps; }
-	bool getVsync()						{ return vsync; }
+	float getZoomFactor() 				{ return root["zoom_factor"].asFloat(); }
+	int getPixelMultiplier() 			{ return root["pixel_multiplier"].asInt(); }
+	float getPlayerSpeed() 				{ return root["player_speed"].asFloat(); }
+	float getPlayerFocusSpeed() 		{ return root["player_focus_speed"].asFloat(); }
+	float getPlayerSize() 				{ return root["player_size"].asFloat(); }
+	bool getNoRotation() 				{ return root["no_rotation"].asBool(); }
+	bool getNoBackground() 				{ return root["no_background"].asBool(); }
+	bool getBlackAndWhite() 			{ return root["black_and_white"].asBool(); }
+	bool getNoSound()					{ return root["no_sound"].asBool(); }
+	bool getNoMusic()					{ return root["no_music"].asBool(); }
+	int getSoundVolume()  				{ return root["sound_volume"].asInt(); }
+	int getMusicVolume() 				{ return root["music_volume"].asInt(); }
+	bool getStaticFrameTime()			{ return root["static_frametime"].asBool(); }
+	float getStaticFrameTimeValue()		{ return root["static_frametime_value"].asFloat(); }
+	bool getLimitFps()					{ return root["limit_fps"].asBool(); }
+	bool getVsync()						{ return root["vsync"].asBool(); }
 	bool getAutoZoomFactor()			{ return root["auto_zoom_factor"].asBool(); }
 	bool getFullscreen()				{ return root["fullscreen"].asBool(); }
 	float getVersion() 					{ return 1.5f; }

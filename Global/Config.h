@@ -39,6 +39,8 @@ namespace hg
 	void recalculateSizes();
 	void setFullscreen(GameWindow& mWindow, bool mFullscreen);
 
+	void setPulse(bool mPulse);
+
 	float getSizeX();
 	float getSizeY();
 	float getSpawnDistance();

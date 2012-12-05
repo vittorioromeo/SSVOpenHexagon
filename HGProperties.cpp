@@ -25,8 +25,8 @@ namespace hg
 	float HexagonGame::getWallSkewRight() 							{ return levelData.getValueFloat("wall_skew_right"); }
 	float HexagonGame::getWallAngleLeft() 							{ return levelData.getValueFloat("wall_angle_left"); }
 	float HexagonGame::getWallAngleRight() 							{ return levelData.getValueFloat("wall_angle_right"); }
-	float HexagonGame::getSpeedMultiplier() 						{ return levelData.getSpeedMultiplier() * difficultyMult; }
-	float HexagonGame::getDelayMultiplier() 						{ return levelData.getDelayMultiplier() / difficultyMult; }
+	float HexagonGame::getSpeedMultiplier() 						{ return levelData.getSpeedMultiplier() * (pow(difficultyMult, 0.65f)); }
+	float HexagonGame::getDelayMultiplier() 						{ return levelData.getDelayMultiplier() / (pow(difficultyMult, 0.10f)); }
 	float HexagonGame::getRotationSpeed() 							{ return levelData.getRotationSpeed(); }
 	float HexagonGame::get3DEffectMult() 							{ return levelData.getValueFloat("3d_effect_multiplier"); }
 

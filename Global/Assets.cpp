@@ -51,6 +51,8 @@ namespace hg
 	map<string, ProfileData> profileDataMap;
 	map<string, EventData> eventDataMap;
 	ProfileData* currentProfilePtr{nullptr};
+	map<string, vector<string>> levelIdsByPackMap;
+	vector<string> packPaths;
 
 	void loadAssets()
 	{
@@ -60,6 +62,7 @@ namespace hg
 
 		for(string packName : getAllSubFolderNames("Packs/"))
 		{
+			packPaths.push_back("Packs/" + packName + "/");
 			log("loading " + packName + " music"); 		loadMusic		("Packs/" + packName + "/");
 			log("loading " + packName + " music data"); loadMusicData	("Packs/" + packName + "/");
 			log("loading " + packName + " style data"); loadStyleData	("Packs/" + packName + "/");
@@ -130,6 +133,7 @@ namespace hg
 			LevelData levelData{loadLevelFromJson(getJsonFileRoot(filePath))};
 			levelData.setPackPath(mPath);
 			levelDataMap.insert(make_pair(levelData.getId(), levelData));
+			levelIdsByPackMap[levelData.getPackPath()].push_back(levelData.getId());
 		}
 	}
 	void loadProfiles()
@@ -177,12 +181,34 @@ namespace hg
 	{
 		vector<LevelData> levelDataVector{getAllLevelData()};
 		sort(begin(levelDataVector), end(levelDataVector),
-		[](LevelData a, LevelData b) -> bool { return a.getMenuPriority() < b.getMenuPriority(); });
+		[](LevelData a, LevelData b) -> bool
+		{
+			if(a.getPackPath() == b.getPackPath())
+				return a.getMenuPriority() < b.getMenuPriority();
+
+			return a.getPackPath() < b.getPackPath();
+		});
 
 		vector<string> result;
 		for(auto levelData : levelDataVector) if(levelData.getSelectable()) result.push_back(levelData.getId());
 		return result;
 	}
+	vector<string> getMenuLevelDataIdsByPack(string mPackPath)
+	{
+		vector<LevelData> levelDataVector;
+		for(string id : levelIdsByPackMap[mPackPath]) levelDataVector.push_back(getLevelData(id));
+
+		sort(begin(levelDataVector), end(levelDataVector),
+		[](LevelData a, LevelData b) -> bool
+		{
+			return a.getMenuPriority() < b.getMenuPriority();
+		});
+
+		vector<string> result;
+		for(auto levelData : levelDataVector) if(levelData.getSelectable()) result.push_back(levelData.getId());
+		return result;
+	}
+	vector<string> getPackPaths() { return packPaths; }
 
 	void stopAllMusic() { for(auto pair : musicPtrsMap) pair.second->stop(); }
 	void stopAllSounds() { for(auto pair : soundPtrsMap) pair.second->stop(); }

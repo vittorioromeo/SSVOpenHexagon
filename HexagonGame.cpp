@@ -81,9 +81,9 @@ namespace hg
 		eventQueue = queue<EventData>{};
 
 		// Parameters cleanup
-		currentTime = -1;
+		currentTime = 0;
 		incrementTime = 0;
-		timeStop = 0;
+		timeStop = 1;
 		randomSideChangesEnabled = true;
 		incrementEnabled = true;
 
@@ -164,8 +164,8 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(getScore(levelData.getId() + "_m_" + toStr(difficultyMult)) < currentTime)
-			setScore(levelData.getId() + "_m_" + toStr(difficultyMult), currentTime);
+		if(getScore(levelData.getId() + "_m_" + (getPulse() ? "_p_" : "") + toStr(difficultyMult)) < currentTime)
+			setScore(levelData.getId() + "_m_" + (getPulse() ? "_p_" : "") + toStr(difficultyMult), currentTime);
 		saveCurrentProfile();
 	}
 	void HexagonGame::goToMenu()
