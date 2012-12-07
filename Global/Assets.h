@@ -37,52 +37,49 @@
 #include "Utils.h"
 #include "HexagonGame.h"
 
-using namespace std;
-using namespace sf;
-
 namespace hg
 {	
 	void loadAssets();
 
 	void loadFonts();
 	void loadSounds();
-	void loadMusic(string mPath);
-	void loadMusicData(string mPath);
-	void loadStyleData(string mPath);
-	void loadLevelData(string mPath);
+	void loadMusic(std::string mPath);
+	void loadMusicData(std::string mPath);
+	void loadStyleData(std::string mPath);
+	void loadLevelData(std::string mPath);
 	void loadProfiles();
-	void loadEvents(string mPath);
+	void loadEvents(std::string mPath);
 
 	void saveCurrentProfile();
 
 	void stopAllMusic();
 	void stopAllSounds();
-	void playSound(string mId);
+	void playSound(std::string mId);
 
-	Font& getFont(string mId);
-	Sound* getSoundPtr(string mId);
-	Music* getMusicPtr(string mId);
-	MusicData getMusicData(string mId);
-	StyleData getStyleData(string mId);
-	LevelData getLevelData(string mId);
+	sf::Font& getFont(std::string mId);
+	sf::Sound* getSoundPtr(std::string mId);
+	sf::Music* getMusicPtr(std::string mId);
+	MusicData getMusicData(std::string mId);
+	StyleData getStyleData(std::string mId);
+	LevelData getLevelData(std::string mId);
 
-	vector<LevelData> getAllLevelData();
-	vector<string> getAllMenuLevelDataIds();
-	vector<string> getMenuLevelDataIdsByPack(string mPackPath);
-	vector<string> getPackPaths();
+	std::vector<LevelData> getAllLevelData();
+	std::vector<std::string> getAllMenuLevelDataIds();
+	std::vector<std::string> getMenuLevelDataIdsByPack(std::string mPackPath);
+	std::vector<std::string> getPackPaths();
 
-	float getScore(string mId);
-	void setScore(string mId, float mScore);
+	float getScore(std::string mId);
+	void setScore(std::string mId, float mScore);
 
-	void setCurrentProfile(string mName);
+	void setCurrentProfile(std::string mName);
 	ProfileData& getCurrentProfile();
-	string getCurrentProfileFilePath();
-	void createProfile(string mName);
+	std::string getCurrentProfileFilePath();
+	void createProfile(std::string mName);
 	int getProfilesSize();
-	vector<string> getProfileNames();
-	string getFirstProfileName();
+	std::vector<std::string> getProfileNames();
+	std::string getFirstProfileName();
 
-	EventData getEventData(string mId, HexagonGame* mHgPtr);
+	EventData getEventData(std::string mId, HexagonGame* mHgPtr);
 }
 
 #endif /* ASSETS_H_ */

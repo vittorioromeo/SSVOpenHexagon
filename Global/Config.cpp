@@ -30,6 +30,7 @@
 #include "Utils/Utils.h"
 
 using namespace std;
+using namespace ssvs;
 
 namespace hg
 {

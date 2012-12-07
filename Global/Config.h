@@ -30,14 +30,12 @@
 #include <json/reader.h>
 #include <SSVStart.h>
 
-using namespace ssvs;
-
 namespace hg
 {
-	void loadConfig(vector<string> mOverridesIds);
+	void loadConfig(std::vector<std::string> mOverridesIds);
 
 	void recalculateSizes();
-	void setFullscreen(GameWindow& mWindow, bool mFullscreen);
+	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
 	void setPulse(bool mPulse);
 
