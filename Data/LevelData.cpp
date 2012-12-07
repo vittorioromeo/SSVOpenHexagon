@@ -36,7 +36,7 @@ namespace hg
 	string LevelData::getPackPath() { return packPath; }
 
 	Json::Value& LevelData::getRoot()				{ return root; }
-	string LevelData::getId() 						{ return root["id"].asString(); }
+	string LevelData::getId() 						{ return getPackPath() + root["id"].asString(); }
 	string LevelData::getName() 					{ return root["name"].asString(); }
 	string LevelData::getDescription() 				{ return root["description"].asString(); }
 	string LevelData::getAuthor() 					{ return root["author"].asString(); }
