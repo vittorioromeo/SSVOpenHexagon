@@ -11,10 +11,10 @@ function addPattern(mKey)
 	elseif mKey == 3 then pTunnel(math.random(1, 3))
 	elseif mKey == 4 then pMirrorWallStrip(1, 0)
 	elseif mKey == 5 then pWallExVortex(0, math.random(1, 2), 1)
-	elseif mKey == 6 then pBarrageSpiral(math.random(5, 9), 0.41, 1)
+	elseif mKey == 6 then pBarrageSpiral(math.random(4, 7), 0.41, 1)
 	elseif mKey == 7 then pRandomBarrage(math.random(2, 5), 2.25)
-	elseif mKey == 8 then pMirrorSpiralDouble(math.random(8, 10), 0)
-	elseif mKey == 9 then pMirrorSpiral(math.random(2, 5), 0)
+	elseif mKey == 8 then pMirrorSpiralDouble(math.random(4, 6), 0)
+	elseif mKey == 9 then pMirrorSpiral(math.random(2, 4), 0)
 	end
 end
 

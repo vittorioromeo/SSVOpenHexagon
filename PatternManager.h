@@ -45,8 +45,8 @@ namespace hg
 
 		private:
 			HexagonGame* hgPtr;
-			Timeline& timeline;
-			Vector2f& centerPos;
+			ssvs::Timeline& timeline;
+			sf::Vector2f& centerPos;
 			
 		public:
 			PatternManager(HexagonGame*);			

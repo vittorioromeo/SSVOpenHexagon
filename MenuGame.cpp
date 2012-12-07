@@ -305,9 +305,12 @@ namespace hg
 		positionAndDrawCenteredText(levelDesc, mainColor, 768 - 180 + 45*(countNewLines(levelData.getName())), false);
 
 		levelAuth.setString("author: " + levelData.getAuthor());
-		positionAndDrawCenteredText(levelAuth, mainColor, 768 - 70, false);
+		positionAndDrawCenteredText(levelAuth, mainColor, 768 - 85, false);
 		levelMusc.setString("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")");
-		positionAndDrawCenteredText(levelMusc, mainColor, 768 - 55, false);
+		positionAndDrawCenteredText(levelMusc, mainColor, 768 - 70, false);
+
+		levelMusc.setString("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")");
+		positionAndDrawCenteredText(levelMusc, mainColor, 768 - 40, false);
 	}
 	void MenuGame::drawProfileCreation()
 	{

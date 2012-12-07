@@ -33,6 +33,8 @@
 #include "HexagonGame.h"
 #include "PatternManager.h"
 
+using namespace ssvs;
+
 namespace hg
 {
 	PatternManager::PatternManager(HexagonGame* mHexagonGamePtr) : hgPtr{mHexagonGamePtr}, timeline(hgPtr->timeline), centerPos(hgPtr->centerPos) { }
