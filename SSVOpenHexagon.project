@@ -123,7 +123,7 @@
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="../SSVLuaWrapper"/>
-        <IncludePath Value="D:\Vee\Software\GitHub\OHWorkspace\SFML\include"/>
+        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/include"/>
         <IncludePath Value="D:/Vee/Software/WIP/jsoncpp/include"/>
         <IncludePath Value="C:/lua/include"/>
       </Compiler>
@@ -132,7 +132,7 @@
         <LibraryPath Value="../SSVEntitySystem/Release"/>
         <LibraryPath Value="../SSVLuaWrapper/Release"/>
         <LibraryPath Value="./Release"/>
-        <LibraryPath Value="D:\Vee\Software\GitHub\OHWorkspace\SFML\lib"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/lib"/>
         <LibraryPath Value="D:/Vee/Software/WIP/jsoncpp/libs/mingw"/>
         <LibraryPath Value="c:/lua"/>
         <Library Value="SSVEntitySystem"/>

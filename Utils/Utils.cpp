@@ -33,6 +33,9 @@
 #include "Data/StyleData.h"
 #include "Utils/Utils.h"
 
+using namespace std;
+using namespace sf;
+
 namespace hg
 {
 	vector<string> logEntries;

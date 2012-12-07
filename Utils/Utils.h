@@ -36,27 +36,24 @@
 #include "PatternManager.h"
 #include "Global/Config.h"
 
-using namespace std;
-using namespace sf;
-
 namespace hg
 {
-	vector<string>& getLogEntries();
+	std::vector<std::string>& getLogEntries();
 	template<class T> void log(T mValue)
 	{
-		if(!getDebug()) return; cout << toStr(mValue) << endl;
-		getLogEntries().push_back(toStr(mValue));
+		if(!getDebug()) return; std::cout << ssvs::toStr(mValue) << std::endl;
+		getLogEntries().push_back(ssvs::toStr(mValue));
 	}
 
-	vector<string> getAllSubFolderNames(string mPath);
-	vector<string> getAllFilePaths(string mFolderPath, string mExtension);
-	string getFileNameFromFilePath(string mFilePath, string mPrefix, string mSuffix);
+	std::vector<std::string> getAllSubFolderNames(std::string mPath);
+	std::vector<std::string> getAllFilePaths(std::string mFolderPath, std::string mExtension);
+	std::string getFileNameFromFilePath(std::string mFilePath, std::string mPrefix, std::string mSuffix);
 
-	Color getColorFromHue(double);
-	Color getColorDarkened(Color, float);
-	Color getColorFromJsonArray(Json::Value mArray);
+	sf::Color getColorFromHue(double);
+	sf::Color getColorDarkened(sf::Color, float);
+	sf::Color getColorFromJsonArray(Json::Value mArray);
 
-	Json::Value getJsonFileRoot(string mFilePath);
+	Json::Value getJsonFileRoot(std::string mFilePath);
 
 	LevelData loadLevelFromJson(Json::Value mRoot);
 	MusicData loadMusicFromJson(Json::Value mRoot);
