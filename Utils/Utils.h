@@ -59,6 +59,8 @@ namespace hg
 	MusicData loadMusicFromJson(Json::Value mRoot);
 	StyleData loadStyleFromJson(Json::Value mRoot);
 	ProfileData loadProfileFromJson(Json::Value mRoot);
+
+	std::string getScoreValidator(std::string mId, bool mPulse, float mDifficultyMult);
 }
 
 #endif /* UTILS_H_HG */

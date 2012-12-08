@@ -284,7 +284,7 @@ namespace hg
 		positionAndDrawCenteredText(title3, mainColor, 214, true);
 		positionAndDrawCenteredText(title4, mainColor, 250, true);
 
-		levelTime.setString("best time: " + toStr(getScore(levelData.getId() + "_m_" + (getPulse() ? "_p_" : "") + toStr(difficultyMult))));
+		levelTime.setString("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), getPulse(), difficultyMult))));
 		positionAndDrawCenteredText(levelTime, mainColor, 768 - 425, false);
 
 		cProfText.setString("(J)(F2) profile: " + getCurrentProfile().getName());

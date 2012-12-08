@@ -170,4 +170,6 @@ namespace hg
 		ProfileData result{name, scores};
 		return result;
 	}
+
+	string getScoreValidator(string mId, bool mPulse, float mDifficultyMult) { return mId + "_m_" + /*(mPulse ? "_p_" : "") +*/ toStr(mDifficultyMult); }
 }

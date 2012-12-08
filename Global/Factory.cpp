@@ -40,7 +40,7 @@ namespace hg
 		Entity* result { new Entity };
 		mManager.addEntity(result);
 		result->addComponent(new CPlayer{mHgPtr, mCenterPos});
-		result->drawPriority = -1;
+		result->setDrawPriority(-1);
 		return result;
 	}
 }

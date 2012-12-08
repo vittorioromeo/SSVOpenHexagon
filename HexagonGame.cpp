@@ -83,7 +83,7 @@ namespace hg
 		// Parameters cleanup
 		currentTime = 0;
 		incrementTime = 0;
-		timeStop = 1;
+		timeStop = 50;
 		randomSideChangesEnabled = true;
 		incrementEnabled = true;
 
@@ -146,7 +146,7 @@ namespace hg
 	}
 	void HexagonGame::sideChange(int mSideNumber)
 	{
-		if(manager.getComponentPtrsById("wall").size() > 0)
+		if(manager.getComponentPtrs("wall").size() > 0)
 		{
 			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
 			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
@@ -164,8 +164,8 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(getScore(levelData.getId() + "_m_" + (getPulse() ? "_p_" : "") + toStr(difficultyMult)) < currentTime)
-			setScore(levelData.getId() + "_m_" + (getPulse() ? "_p_" : "") + toStr(difficultyMult), currentTime);
+		if(getScore(getScoreValidator(levelData.getId(), getPulse(), difficultyMult)) < currentTime)
+			setScore(getScoreValidator(levelData.getId(), getPulse(), difficultyMult), currentTime);
 		saveCurrentProfile();
 	}
 	void HexagonGame::goToMenu()
