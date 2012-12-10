@@ -164,12 +164,36 @@ namespace hg
 	StyleData loadStyleFromJson(Json::Value mRoot) { return StyleData(mRoot); }
 	ProfileData loadProfileFromJson(Json::Value mRoot)
 	{
+		float version 		{ mRoot["version"].asFloat() };
 		string name			{ mRoot["name"].asString() };
-		Json::Value scores	{ mRoot["scores"] };	
+		Json::Value scores	{ mRoot["scores"] };
 
-		ProfileData result{name, scores};
+		if(version < getVersion()) log("Profile: " + name + " is outdated - updating");
+		for(Json::ValueIterator itr = scores.begin(); itr != scores.end(); itr++)
+		{
+			string key{itr.key().asString()};
+			replace(key, "tutorial", 	"Packs/VeeDefault/tutorial");
+			replace(key, "easy", 		"Packs/VeeDefault/easy");
+			replace(key, "normal", 		"Packs/VeeDefault/normal");
+			replace(key, "hard", 		"Packs/VeeDefault/hard");
+			replace(key, "lunatic", 	"Packs/VeeDefault/lunatic");
+			replace(key, "extra", 		"Packs/VeeDefault/extra");
+			replace(key, "goldenratio", "Packs/VeeDefault/goldenratio");
+			replace(key, "commando", 	"Packs/VeeEndurance/commando");
+			scores[key] = (*itr).asFloat();
+		}
+
+		ProfileData result{version, name, scores};
 		return result;
 	}
 
 	string getScoreValidator(string mId, bool mPulse, float mDifficultyMult) { return mId + "_m_" + /*(mPulse ? "_p_" : "") +*/ toStr(mDifficultyMult); }
+
+	bool replace(std::string& str, const std::string& from, const std::string& to) 
+	{
+		size_t start_pos = str.find(from);
+		if(start_pos == std::string::npos) return false;
+		str.replace(start_pos, from.length(), to);
+		return true;
+	}
 }

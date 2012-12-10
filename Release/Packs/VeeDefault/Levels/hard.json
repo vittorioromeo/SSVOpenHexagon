@@ -16,6 +16,9 @@
 	// Lua
 	"lua_file": "defaultLevels/hardpatterns.lua",
 	
+	// Difficulty multipliers
+	"difficulty_multipliers": [1.5, 1.70, 0.75, 0.5],
+	
 	// Basic values
 	"speed_multiplier": 2.65,
 	"speed_increment": 0.10,

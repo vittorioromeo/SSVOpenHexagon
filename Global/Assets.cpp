@@ -31,6 +31,7 @@
 #include "Data/MusicData.h"
 #include "Data/LevelData.h"
 #include "Data/EventData.h"
+#include "Data/PackData.h"
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "Global/Assets.h"
@@ -50,6 +51,7 @@ namespace hg
 	map<string, LevelData> levelDataMap;
 	map<string, ProfileData> profileDataMap;
 	map<string, EventData> eventDataMap;
+	map<string, PackData> packDataMap;
 	ProfileData* currentProfilePtr{nullptr};
 	map<string, vector<string>> levelIdsByPackMap;
 	vector<string> packPaths;
@@ -62,6 +64,18 @@ namespace hg
 
 		for(string packName : getAllSubFolderNames("Packs/"))
 		{
+			Json::Value packRoot{getJsonFileRoot("Packs/" + packName + "/pack.json")};
+			PackData packData(packName, packRoot["name"].asString(), packRoot["priority"].asFloat());
+			packDataMap.insert(make_pair(packName, packData));
+		}
+
+		vector<PackData> packDatasToQuery;
+		for(pair<string, PackData> packDataPair : packDataMap) packDatasToQuery.push_back(packDataPair.second);
+		sort(begin(packDatasToQuery), end(packDatasToQuery), [](PackData a, PackData b) -> bool { return a.getPriority() < b.getPriority(); });
+
+		for(PackData packData : packDatasToQuery)
+		{
+			string packName{packData.getId()};
 			packPaths.push_back("Packs/" + packName + "/");
 			log("loading " + packName + " music"); 		loadMusic		("Packs/" + packName + "/");
 			log("loading " + packName + " music data"); loadMusicData	("Packs/" + packName + "/");
@@ -163,6 +177,7 @@ namespace hg
 		ofstream o{getCurrentProfileFilePath(), std::ifstream::binary};
 
 		Json::Value profileRoot;
+		profileRoot["version"] = getVersion();
 		profileRoot["name"] = getCurrentProfile().getName();
 		profileRoot["scores"] = getCurrentProfile().getScores();
 
@@ -220,6 +235,7 @@ namespace hg
 	MusicData getMusicData(string mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData getStyleData(string mId) 		{ return styleDataMap.find(mId)->second; }
 	LevelData getLevelData(string mId) 		{ return levelDataMap.find(mId)->second; }
+	PackData getPackData(string mId) 		{ return packDataMap.find(mId)->second; }
 
 	float getScore(string mId) 				{ return getCurrentProfile().getScore(mId); }
 	void setScore(string mId, float mScore) { getCurrentProfile().setScore(mId, mScore); }

@@ -61,6 +61,8 @@ namespace hg
 	ProfileData loadProfileFromJson(Json::Value mRoot);
 
 	std::string getScoreValidator(std::string mId, bool mPulse, float mDifficultyMult);
+
+	bool replace(std::string& str, const std::string& from, const std::string& to);
 }
 
 #endif /* UTILS_H_HG */

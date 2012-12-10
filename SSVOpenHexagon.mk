@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=12/08/12
+Date                   :=12/10/12
 CodeLitePath           :="c:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -64,7 +64,8 @@ WXWIN:=C:\wxWidgets
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXCFG:=gcc_dll\mswu
 Objects=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/PatternManager$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) $(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) \
-	$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) 
+	$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) \
+	
 
 ##
 ## Main Build Targets 
@@ -199,6 +200,14 @@ $(IntermediateDirectory)/Data_EventData$(DependSuffix): Data/EventData.cpp
 $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix): Data/EventData.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/EventData.cpp"
 
+$(IntermediateDirectory)/Data_PackData$(ObjectSuffix): Data/PackData.cpp $(IntermediateDirectory)/Data_PackData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/PackData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Data_PackData$(DependSuffix): Data/PackData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_PackData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_PackData$(DependSuffix) -MM "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/PackData.cpp"
+
+$(IntermediateDirectory)/Data_PackData$(PreprocessSuffix): Data/PackData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_PackData$(PreprocessSuffix) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/PackData.cpp"
+
 $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix): Utils/Utils.cpp $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/Utils.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Utils_Utils$(DependSuffix): Utils/Utils.cpp
@@ -287,6 +296,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Data_EventData$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Data_PackData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Data_PackData$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix)

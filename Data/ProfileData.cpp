@@ -26,8 +26,9 @@ using namespace std;
 
 namespace hg
 {
-	ProfileData::ProfileData(string mName, Json::Value mScores) : name{mName}, scores{mScores} { }
+	ProfileData::ProfileData(float mVersion, string mName, Json::Value mScores) : version{mVersion}, name{mName}, scores{mScores} { }
 
+	float ProfileData::getVersion()			{ return version; }
 	string ProfileData::getName()			{ return name; }
 	Json::Value ProfileData::getScores()	{ return scores; }
 

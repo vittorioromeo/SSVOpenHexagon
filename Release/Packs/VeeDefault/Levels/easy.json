@@ -16,6 +16,9 @@
 	// Lua
 	"lua_file": "defaultLevels/easypatterns.lua",
 	
+	// Difficulty multipliers
+	"difficulty_multipliers": [1.5, 2, 2.5, 3, 0.5],
+	
 	// Basic values
 	"speed_multiplier": 1.55,
 	"speed_increment": 0.125,	

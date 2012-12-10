@@ -32,6 +32,7 @@
 #include <json/reader.h>
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
+#include "Data/PackData.h"
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "Utils.h"
@@ -62,6 +63,7 @@ namespace hg
 	MusicData getMusicData(std::string mId);
 	StyleData getStyleData(std::string mId);
 	LevelData getLevelData(std::string mId);
+	PackData getPackData(std::string mId);
 
 	std::vector<LevelData> getAllLevelData();
 	std::vector<std::string> getAllMenuLevelDataIds();

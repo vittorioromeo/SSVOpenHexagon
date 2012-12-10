@@ -36,6 +36,7 @@
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
 #include "Data/StyleData.h"
+#include "Data/PackData.h"
 #include "Global/Assets.h"
 #include "Global/Config.h"
 #include "Utils/Utils.h"
@@ -71,7 +72,8 @@ namespace hg
 			string profileCreationName;
 			int profileIndex{0};
 
-			float difficultyMult{1};
+			vector<float> difficultyMultipliers;
+			int difficultyMultIndex{0};
 
 			void recreateTextures();
 			void update(float mFrameTime);

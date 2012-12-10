@@ -97,7 +97,16 @@ Please refer to the files in the **documentation** folder.
 
 Version 1.5
 
-
+* Fixed: player death position now displays more accurately
+* Added: **pulsing effect** (can be disabled right in the main menu)
+* Added: **level packs** - sharing and installing levels is now really easy, just place the level folder in the Packs directory (unfortunately, scores are reset)
+* Added: additional shortcuts for menu options (requested by people having troubles with the function keys)
+* Changed: toned down difficulty multiplier's effect
+* Changed: difficulty multipliers has now a wider range
+* Changed: balanced default levels
+* Added: new hard endurance level, **labyrinth**
+* Changed: delay multiplier now has an effect
+* Fixed: minor **LUA** bugs
 
 Version 1.4
 

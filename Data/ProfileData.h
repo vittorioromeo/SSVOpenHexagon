@@ -34,12 +34,14 @@ namespace hg
 	class ProfileData
 	{
 		private:
+			float version;
 			string name;
 			Json::Value scores;
 
 		public:
-			ProfileData(string mName, Json::Value mScores);
+			ProfileData(float mVersion, string mName, Json::Value mScores);
 
+			float getVersion();
 			string getName();
 			Json::Value getScores();
 

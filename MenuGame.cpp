@@ -86,6 +86,8 @@ namespace hg
 
 		levelData = getLevelData(levelDataIds[currentIndex]);
 		styleData = getStyleData(levelData.getStyleId());
+		difficultyMultipliers = levelData.getDifficultyMultipliers();
+		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
 	}
 
 	void MenuGame::update(float mFrameTime)
@@ -188,24 +190,20 @@ namespace hg
 				else if(window.isKeyPressed(Keyboard::Up))
 				{
 					playSound("beep");
-					difficultyMult += 0.10f;
-					if(difficultyMult > 2.6f) difficultyMult = 2.6f;
-
-					inputDelay = 9;
+					difficultyMultIndex++;
+					inputDelay = 12;
 				}
 				else if(window.isKeyPressed(Keyboard::Down))
 				{
 					playSound("beep");
-					difficultyMult -= 0.10;
-					if(difficultyMult < 0.2f) difficultyMult = 0.2f;
-
-					inputDelay = 9;
+					difficultyMultIndex--;
+					inputDelay = 12;
 				}
 				else if(window.isKeyPressed(Keyboard::Return))
 				{
 					playSound("beep");
 					window.setGame(&hgPtr->getGame());
-					hgPtr->newGame(levelDataIds[currentIndex], true, difficultyMult);
+					hgPtr->newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 
 					inputDelay = 14;
 				}
@@ -284,7 +282,7 @@ namespace hg
 		positionAndDrawCenteredText(title3, mainColor, 214, true);
 		positionAndDrawCenteredText(title4, mainColor, 250, true);
 
-		levelTime.setString("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), getPulse(), difficultyMult))));
+		levelTime.setString("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), getPulse(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))));
 		positionAndDrawCenteredText(levelTime, mainColor, 768 - 425, false);
 
 		cProfText.setString("(J)(F2) profile: " + getCurrentProfile().getName());
@@ -292,12 +290,17 @@ namespace hg
 		cProfText.setString("(K)(F3) pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")));
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 355, false);
 
-		string packName{levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7)};
+		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
+		string packName{packData.getName()};
 		cProfText.setString("(L)(F4) level pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")");
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 335, false);
-		cProfText.setString("(up/down) difficulty multiplier: " + toStr(difficultyMult));
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 315, false);
 
+		if(difficultyMultipliers.size() > 1)
+		{
+			cProfText.setString("(up/down) difficulty multiplier: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]));
+			positionAndDrawCenteredText(cProfText, mainColor, 768 - 315, false);
+		}
+		
 		levelName.setString(levelData.getName());
 		positionAndDrawCenteredText(levelName, mainColor, 768 - 255 - 20*(countNewLines(levelData.getName())), false);
 

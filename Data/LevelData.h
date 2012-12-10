@@ -83,6 +83,7 @@ namespace hg
 			float getBeatPulseMax();
 			float getBeatPulseDelayMax();
 			float getRadiusMin();
+			vector<float> getDifficultyMultipliers();
 			vector<Json::Value>& getEvents();
 
 			void setSpeedMultiplier(float mSpeedMultiplier);
