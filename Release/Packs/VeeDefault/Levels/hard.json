@@ -17,7 +17,7 @@
 	"lua_file": "defaultLevels/hardpatterns.lua",
 	
 	// Difficulty multipliers
-	"difficulty_multipliers": [1.5, 1.70, 0.75, 0.5],
+	"difficulty_multipliers": [1.5, 1.60, 0.75, 0.5],
 	
 	// Basic values
 	"speed_multiplier": 2.65,
@@ -33,8 +33,8 @@
 	"increment_time": 15,
 	"rotation_speed_max": 0.8,
 	
-	"pulse_min": 64,
-	"pulse_max": 94,
+	"pulse_min": 70,
+	"pulse_max": 90,
 	"pulse_speed": 1.03,
 	"pulse_speed_r": 0.57,
 	"pulse_delay_max": 0.7,
