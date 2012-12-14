@@ -120,6 +120,7 @@ namespace hg
 	inline void HexagonGame::updateKeys()
 	{
 		if(isKeyPressed(Keyboard::R)) mustRestart = true;
+		if(hasDied && (isKeyPressed(Keyboard::Space) || isKeyPressed(Keyboard::Return))) mustRestart = true;
 		else if(isKeyPressed(Keyboard::Escape))	goToMenu();
 	}
 	inline void HexagonGame::updateRotation(float mFrameTime)

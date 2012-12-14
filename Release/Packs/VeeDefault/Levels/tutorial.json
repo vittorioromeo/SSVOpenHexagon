@@ -45,6 +45,6 @@
 		{ "time": 28, 	"type": "timeline_wait", 	"duration": 200 },
 		{ "time": 30, 	"type": "time_stop", 		"duration": 200 },
 		{ "time": 30, 	"type": "message_important_add", 		"duration": 200, 	"message": "get to 45 seconds to win!" },
-		{ "time": 45, 	"type": "level_change", 	"id": "tutorial2" }
+		{ "time": 45, 	"type": "level_change", 	"id": "Packs/VeeDefault/tutorial2" }
 	]
 }

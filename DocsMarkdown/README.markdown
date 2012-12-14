@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.5 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.51 #
 ## [vee software](http://veegamedev.wordpress.com/) ##
 
 **A free, open source clone of "[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)" (by Terry Cavanagh). </br>**
@@ -94,6 +94,11 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.51
+
+* Fixed: crash on tutorial level
+* Added: Space and Enter keys now restart the game (only if you're already dead)
 
 Version 1.5
 
