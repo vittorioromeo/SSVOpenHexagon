@@ -168,19 +168,25 @@ namespace hg
 		string name			{ mRoot["name"].asString() };
 		Json::Value scores	{ mRoot["scores"] };
 
-		if(version < getVersion()) log("Profile: " + name + " is outdated - updating");
-		for(Json::ValueIterator itr = scores.begin(); itr != scores.end(); itr++)
+		if(version < 1.49f) 
 		{
-			string key{itr.key().asString()};
-			replace(key, "tutorial", 	"Packs/VeeDefault/tutorial");
-			replace(key, "easy", 		"Packs/VeeDefault/easy");
-			replace(key, "normal", 		"Packs/VeeDefault/normal");
-			replace(key, "hard", 		"Packs/VeeDefault/hard");
-			replace(key, "lunatic", 	"Packs/VeeDefault/lunatic");
-			replace(key, "extra", 		"Packs/VeeDefault/extra");
-			replace(key, "goldenratio", "Packs/VeeDefault/goldenratio");
-			replace(key, "commando", 	"Packs/VeeEndurance/commando");
-			scores[key] = (*itr).asFloat();
+			vector<string> oldKeys;
+			log("Profile: " + name + " is outdated - updating");
+			for(Json::ValueIterator itr = scores.begin(); itr != scores.end(); itr++)
+			{
+				string key{itr.key().asString()};
+				oldKeys.push_back(key);
+				replace(key, "tutorial", 	"Packs/VeeDefault/tutorial");
+				replace(key, "easy", 		"Packs/VeeDefault/easy");
+				replace(key, "normal", 		"Packs/VeeDefault/normal");
+				replace(key, "hard", 		"Packs/VeeDefault/hard");
+				replace(key, "lunatic", 	"Packs/VeeDefault/lunatic");
+				replace(key, "extra", 		"Packs/VeeDefault/extra");
+				replace(key, "goldenratio", "Packs/VeeDefault/goldenratio");
+				replace(key, "commando", 	"Packs/VeeEndurance/commando");
+				scores[key] = (*itr).asFloat();
+			}
+			for(auto oldKey : oldKeys) scores.removeMember(oldKey);
 		}
 
 		ProfileData result{version, name, scores};
