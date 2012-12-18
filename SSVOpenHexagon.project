@@ -65,36 +65,37 @@
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g;-pedantic;-Wall;-std=c++11;-c" C_Options="-g;-O0;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+      <Compiler Options="-g;-pedantic;-Wall;-std=c++11;-c;-O0" C_Options="-g;-O0;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
-        <IncludePath Value="D:/Vee/Software/WIP/SFMLMinGW/include"/>
-        <IncludePath Value="D:/Vee/Software/WIP/jsoncpp/include"/>
+        <IncludePath Value="../SSVLuaWrapper"/>
+        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/include"/>
+        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/include"/>
         <IncludePath Value="C:/lua/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVStart/Release"/>
         <LibraryPath Value="../SSVEntitySystem/Release"/>
+        <LibraryPath Value="../SSVLuaWrapper/Release"/>
         <LibraryPath Value="./Release"/>
-        <LibraryPath Value="D:/Vee/Software/WIP/SFMLMinGW/lib"/>
-        <LibraryPath Value="D:/Vee/Software/WIP/jsoncpp/libs/mingw"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw"/>
         <LibraryPath Value="c:/lua"/>
         <Library Value="SSVEntitySystem"/>
         <Library Value="SSVStart"/>
         <Library Value="SSVLuaWrapper"/>
-        <Library Value="sfml-window"/>
-        <Library Value="sfml-graphics"/>
-        <Library Value="sfml-system"/>
-        <Library Value="sfml-audio"/>
+        <Library Value="sfml-window-d"/>
+        <Library Value="sfml-graphics-d"/>
+        <Library Value="sfml-system-d"/>
+        <Library Value="sfml-audio-d"/>
         <Library Value="json_mingw_libmt"/>
         <Library Value="lua5.1"/>
         <Library Value="lua51"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="windowed debug noaudio" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[
-      ]]>
+        <![CDATA[]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="">
         <PostConnectCommands/>
@@ -129,7 +130,7 @@
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="../SSVLuaWrapper"/>
         <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/include"/>
-        <IncludePath Value="D:/Vee/Software/WIP/jsoncpp/include"/>
+        <IncludePath Value="D:\Vee\Software\GitHub\OHWorkspace\jsoncpp\include"/>
         <IncludePath Value="C:/lua/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
@@ -137,8 +138,8 @@
         <LibraryPath Value="../SSVEntitySystem/Release"/>
         <LibraryPath Value="../SSVLuaWrapper/Release"/>
         <LibraryPath Value="./Release"/>
-        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/lib"/>
-        <LibraryPath Value="D:/Vee/Software/WIP/jsoncpp/libs/mingw"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw"/>
         <LibraryPath Value="c:/lua"/>
         <Library Value="SSVEntitySystem"/>
         <Library Value="SSVStart"/>
