@@ -39,11 +39,12 @@ namespace hg
 	}
 	inline void HexagonGame::updateEvents(float mFrameTime)
 	{
-		for(EventData& event : events)  event.update(mFrameTime);
-		if(!eventQueue.empty())
+		for(EventData* event : eventPtrs) event->update(mFrameTime);
+
+		if(!eventPtrQueue.empty())
 		{
-			eventQueue.front().update(mFrameTime);
-			if(eventQueue.front().getFinished()) eventQueue.pop();
+			eventPtrQueue.front()->update(mFrameTime);
+			if(eventPtrQueue.front()->getFinished()) { delete eventPtrQueue.front(); eventPtrQueue.pop(); }
 		}
 
 		messageTimeline.update(mFrameTime);

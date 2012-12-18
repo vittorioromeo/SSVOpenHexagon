@@ -56,7 +56,7 @@ namespace hg
 	int LevelData::getSidesMin() 					{ return root["sides_min"].asInt(); }
 	float LevelData::getIncrementTime()				{ return root["increment_time"].asFloat(); }
 	float LevelData::getPulseMin()
-	{
+	{		
 		if (root.isMember("pulse_min")) return root["pulse_min"].asFloat();
 		return 75.f;
 	}

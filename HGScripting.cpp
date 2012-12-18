@@ -19,61 +19,62 @@ namespace hg
 	{
 		for (Json::Value& eventRoot : mRoot)
 		{
-			if(eventRoot["time"].asFloat() >  mTime) continue;
 			if(eventRoot["executed"].asBool()) continue;
+			float time{eventRoot.isMember("time") ? eventRoot["time"].asFloat() : 0.00f};
+			if(time > mTime) continue;
 			eventRoot["executed"] = true;
 
-			string type		{eventRoot["type"].asString()};
-			float duration	{eventRoot["duration"].asFloat()};
-			string valueName{eventRoot["value_name"].asString()};
-			float value		{eventRoot["value"].asFloat()};
-			string message	{eventRoot["message"].asString()};
-			string id		{eventRoot["id"].asString()};
+			string type		{eventRoot.isMember("type") ? eventRoot["type"].asString()				: ""};
+			float duration	{eventRoot.isMember("duration") ? eventRoot["duration"].asFloat()		: 0.00f};
+			string valueName{eventRoot.isMember("value_name") ? eventRoot["value_name"].asString()	: ""};
+			float value		{eventRoot.isMember("value") ? eventRoot["value"].asFloat()			: 0.00f};
+			string message	{eventRoot.isMember("message") ? eventRoot["message"].asString()		: ""};
+			string id		{eventRoot.isMember("id") ? eventRoot["id"].asString()					: ""};
 
 			if 		(type == "level_change")			{ mustRestart = true; restartId = id; restartFirstTime = true; return; }
-			else if (type == "menu") 					goToMenu();
+			else if (type == "menu") 					{ goToMenu(); }
 			else if (type == "message_add")				{ if(firstPlay && getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_important_add")	{ if(getShowMessages()) addMessage(message, duration); }
-			else if (type == "message_clear") 			clearMessage();
-			else if (type == "time_stop")				timeStop = duration;
-			else if (type == "timeline_wait") 			timeline.push_back(new Wait(duration));
-			else if (type == "timeline_clear") 			clearAndResetTimeline(timeline);
+			else if (type == "message_clear") 			{ clearMessage(); }
+			else if (type == "time_stop")				{ timeStop = duration; }
+			else if (type == "timeline_wait") 			{ timeline.push_back(new Wait(duration)); }
+			else if (type == "timeline_clear") 			{ clearAndResetTimeline(timeline); }
 
-			else if (type == "level_float_set") 		levelData.setValueFloat(valueName, value);
-			else if (type == "level_float_add") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "level_float_subtract") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "level_float_multiply") 	levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "level_float_divide") 		levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "level_int_set") 			levelData.setValueInt(valueName, value);
-			else if (type == "level_int_add") 			levelData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "level_int_subtract")		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "level_int_multiply") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "level_int_divide") 		levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
+			else if (type == "level_float_set") 		{ levelData.setValueFloat(valueName, value); }
+			else if (type == "level_float_add") 		{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value); }
+			else if (type == "level_float_subtract") 	{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value); }
+			else if (type == "level_float_multiply") 	{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value); }
+			else if (type == "level_float_divide") 		{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value); }
+			else if (type == "level_int_set") 			{ levelData.setValueInt(valueName, value); }
+			else if (type == "level_int_add") 			{ levelData.setValueInt(valueName, levelData.getValueFloat(valueName) + value); }
+			else if (type == "level_int_subtract")		{ levelData.setValueInt(valueName, levelData.getValueFloat(valueName) - value); }
+			else if (type == "level_int_multiply") 		{ levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value); }
+			else if (type == "level_int_divide") 		{ levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value); }
 
-			else if (type == "style_float_set") 		styleData.setValueFloat(valueName, value);
-			else if (type == "style_float_add") 		styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "style_float_subtract") 	styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "style_float_multiply") 	styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "style_float_divide") 		styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value);
-			else if (type == "style_int_set") 			styleData.setValueInt(valueName, value);
-			else if (type == "style_int_add") 			styleData.setValueInt(valueName, levelData.getValueFloat(valueName) + value);
-			else if (type == "style_int_subtract")		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) - value);
-			else if (type == "style_int_multiply") 		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) * value);
-			else if (type == "style_int_divide") 		styleData.setValueInt(valueName, levelData.getValueFloat(valueName) / value);
+			else if (type == "style_float_set") 		{ styleData.setValueFloat(valueName, value); }
+			else if (type == "style_float_add") 		{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value); }
+			else if (type == "style_float_subtract") 	{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value); }
+			else if (type == "style_float_multiply") 	{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value); }
+			else if (type == "style_float_divide") 		{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value); }
+			else if (type == "style_int_set") 			{ styleData.setValueInt(valueName, value); }
+			else if (type == "style_int_add") 			{ styleData.setValueInt(valueName, levelData.getValueFloat(valueName) + value); }
+			else if (type == "style_int_subtract")		{ styleData.setValueInt(valueName, levelData.getValueFloat(valueName) - value); }
+			else if (type == "style_int_multiply") 		{ styleData.setValueInt(valueName, levelData.getValueFloat(valueName) * value); }
+			else if (type == "style_int_divide") 		{ styleData.setValueInt(valueName, levelData.getValueFloat(valueName) / value); }
 
 			else if (type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); } }
 			else if (type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
 			else if (type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
 			else if (type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
-			else if (type == "side_changing_stop")		randomSideChangesEnabled = false;
-			else if (type == "side_changing_start")		randomSideChangesEnabled = true;
-			else if (type == "increment_stop")			incrementEnabled = false;
-			else if (type == "increment_start")			incrementEnabled = true;
-			else if (type == "event_exec")				events.push_back(getEventData(id, this));
-			else if (type == "event_enqueue")			eventQueue.push(getEventData(id, this));
-			else if (type == "script_exec")				runLuaFile(valueName);
-			else if (type == "play_sound")				playSound(id);
-			else										log("unknown event type: " + type);
+			else if (type == "side_changing_stop")		{ randomSideChangesEnabled = false; }
+			else if (type == "side_changing_start")		{ randomSideChangesEnabled = true; }
+			else if (type == "increment_stop")			{ incrementEnabled = false; }
+			else if (type == "increment_start")			{ incrementEnabled = true; }
+			else if (type == "event_exec") 				{ eventPtrs.push_back(getEventData(id, this)); }
+			else if (type == "event_enqueue")			{ eventPtrQueue.push(getEventData(id, this)); }
+			else if (type == "script_exec")				{ runLuaFile(valueName); }
+			else if (type == "play_sound")				{ playSound(id); }
+			else										{ log("unknown event type: " + type); }
 		}
 	}
 
@@ -88,8 +89,8 @@ namespace hg
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
 		lua.writeVariable("getDifficultyMult",		[=]() 									{ return difficultyMult; });
 		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
-		lua.writeVariable("execEvent", 				[=](string mId) 						{ events.push_back(getEventData(mId, this)); });
-		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventQueue.push(getEventData(mId, this)); });
+		lua.writeVariable("execEvent", 				[=](string mId) 						{ eventPtrs.push_back(getEventData(mId, this)); });
+		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventPtrQueue.push(getEventData(mId, this)); });
 		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.push_back(new Wait(mDuration)); });
 
 		lua.writeVariable("playSound", 				[=](string mId) 						{ playSound(mId); });

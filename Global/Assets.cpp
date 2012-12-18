@@ -270,10 +270,10 @@ namespace hg
 	}
 	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }
 
-	EventData getEventData(string mId, HexagonGame* mHgPtr)
+	EventData* getEventData(string mId, HexagonGame* mHgPtr)
 	{
-		EventData result{eventDataMap.find(mId)->second};
-		result.setHexagonGamePtr(mHgPtr);
+		EventData* result = new EventData(eventDataMap.find(mId)->second);
+		result->setHexagonGamePtr(mHgPtr);
 		return result;
 	}
 }

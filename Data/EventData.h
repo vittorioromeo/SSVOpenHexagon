@@ -17,9 +17,9 @@ namespace hg
 	class EventData
 	{
 		private:
-			HexagonGame* hgPtr;
 			Json::Value root;
-			float currentTime{0};
+			HexagonGame* hgPtr{nullptr};
+			float currentTime{0.0f};
 			bool finished{false};
 			
 		public:

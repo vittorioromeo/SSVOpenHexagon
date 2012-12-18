@@ -17,7 +17,6 @@ namespace hg
 	{
 		currentTime += mFrameTime / 60.0f;
 		hgPtr->executeEvents(root["events"], currentTime);
-
 		for (Json::Value event : root["events"]) if(event["time"].asFloat() > currentTime) return;
 		finished = true;
 	}

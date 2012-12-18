@@ -72,8 +72,8 @@ namespace hg
 			Timeline timeline;
 			Timeline messageTimeline;
 			Text* messageTextPtr{nullptr};
-			vector<EventData> events;
-			queue<EventData> eventQueue;
+			vector<EventData*> eventPtrs;
+			queue<EventData*> eventPtrQueue;
 			bool firstPlay{true};
 
 			// New game parameters

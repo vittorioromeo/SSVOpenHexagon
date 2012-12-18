@@ -77,8 +77,12 @@ namespace hg
 
 		// Events cleanup
 		clearMessage();
-		events.clear();
-		eventQueue = queue<EventData>{};
+
+		for(auto eventPtr : eventPtrs) delete eventPtr;
+		eventPtrs.clear();
+
+		while(!eventPtrQueue.empty()) { delete eventPtrQueue.front(); eventPtrQueue.pop(); }
+		eventPtrQueue = queue<EventData*>{};
 
 		// Parameters cleanup
 		currentTime = 0;
@@ -120,6 +124,9 @@ namespace hg
 
 		// Random rotation direction
 		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1);
+
+		// Reset zoom
+		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
 	}
 	void HexagonGame::death()
 	{

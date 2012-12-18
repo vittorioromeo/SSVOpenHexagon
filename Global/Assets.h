@@ -81,7 +81,7 @@ namespace hg
 	std::vector<std::string> getProfileNames();
 	std::string getFirstProfileName();
 
-	EventData getEventData(std::string mId, HexagonGame* mHgPtr);
+	EventData* getEventData(std::string mId, HexagonGame* mHgPtr);
 }
 
 #endif /* ASSETS_H_ */
