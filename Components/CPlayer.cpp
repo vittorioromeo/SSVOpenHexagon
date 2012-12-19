@@ -106,8 +106,8 @@ namespace hg
 		int movement{0};
 
 		if(hgPtr->isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
-		if(hgPtr->isKeyPressed(Keyboard::Left)) movement = -1;
-		if(hgPtr->isKeyPressed(Keyboard::Right)) movement = 1;
+		if(hgPtr->isKeyPressed(Keyboard::Left) || hgPtr->isKeyPressed(Keyboard::A)) movement = -1;
+		if(hgPtr->isKeyPressed(Keyboard::Right) || hgPtr->isKeyPressed(Keyboard::D)) movement = 1;
 
 		angle += currentSpeed * movement * mFrameTime;
 

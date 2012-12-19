@@ -2,9 +2,9 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Debug
+## Release
 ProjectName            :=SSVOpenHexagon
-ConfigurationName      :=Debug
+ConfigurationName      :=Release
 WorkspacePath          := "D:\Vee\Software\GitHub\OHWorkspace"
 ProjectPath            := "D:\Vee\Software\GitHub\OHWorkspace\SSVOpenHexagon"
 IntermediateDirectory  :=./Release
@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=12/18/12
+Date                   :=12/19/12
 CodeLitePath           :="c:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -41,8 +41,8 @@ LinkOptions            :=
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVStart $(IncludeSwitch)../SSVLuaWrapper $(IncludeSwitch)D:/Vee/Software/GitHub/OHWorkspace/SFML/include $(IncludeSwitch)D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/include $(IncludeSwitch)C:/lua/include 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)SSVLuaWrapper $(LibrarySwitch)sfml-window-d $(LibrarySwitch)sfml-graphics-d $(LibrarySwitch)sfml-system-d $(LibrarySwitch)sfml-audio-d $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)lua5.1 $(LibrarySwitch)lua51 
-ArLibs                 :=  "SSVEntitySystem" "SSVStart" "SSVLuaWrapper" "sfml-window-d" "sfml-graphics-d" "sfml-system-d" "sfml-audio-d" "json_mingw_libmt" "lua5.1" "lua51" 
+Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)SSVLuaWrapper $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)lua5.1 $(LibrarySwitch)lua51 
+ArLibs                 :=  "SSVEntitySystem" "SSVStart" "SSVLuaWrapper" "sfml-window" "sfml-graphics" "sfml-system" "sfml-audio" "json_mingw_libmt" "lua5.1" "lua51" 
 LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Release $(LibraryPathSwitch)../SSVEntitySystem/Release $(LibraryPathSwitch)../SSVLuaWrapper/Release $(LibraryPathSwitch)./Release $(LibraryPathSwitch)D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib $(LibraryPathSwitch)D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw $(LibraryPathSwitch)c:/lua 
 
 ##
@@ -52,8 +52,8 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/
 AR       := ar rcus
 CXX      := g++
 CC       := gcc
-CXXFLAGS :=  -g -pedantic -Wall -std=c++11 -c -O0 $(Preprocessors)
-CFLAGS   :=  -g -O0 -Wall $(Preprocessors)
+CXXFLAGS :=  -O3 -pedantic -Wall -c -std=c++11 $(Preprocessors)
+CFLAGS   :=  -O2 -Wall $(Preprocessors)
 
 
 ##
@@ -316,6 +316,6 @@ clean:
 	$(RM) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
-	$(RM) "D:\Vee\Software\GitHub\OHWorkspace\.build-debug\SSVOpenHexagon"
+	$(RM) "D:\Vee\Software\GitHub\OHWorkspace\.build-release\SSVOpenHexagon"
 
 
