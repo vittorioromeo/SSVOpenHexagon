@@ -41,6 +41,14 @@ namespace hg
 	vector<string> logEntries;
 	vector<string>& getLogEntries() { return logEntries; }
 
+	bool isFolder(const string mPath)
+	{
+		struct stat fileStat;
+		int err{stat(mPath.c_str(), &fileStat)};
+		if (err != 0) return false;
+		return (fileStat.st_mode & S_IFMT) == S_IFDIR;
+	}
+
 	vector<string> getAllSubFolderNames(string mPath)
 	{
 		vector<string> result;
@@ -49,9 +57,7 @@ namespace hg
 
 		while (entry != NULL)
 		{
-			struct stat s;
-			stat(entry->d_name, &s);
-			if (S_ISDIR(s.st_mode))
+			if (isFolder(mPath + entry->d_name))
 			{
 				string name{entry->d_name};
 				if(name != "." && name != "..") result.push_back(name);

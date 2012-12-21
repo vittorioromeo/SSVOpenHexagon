@@ -11,8 +11,3 @@ loading VeeEndurance music data
 loading VeeEndurance style data
 loading VeeEndurance level data
 loading VeeEndurance events
-loading Redi music
-loading Redi music data
-loading Redi style data
-loading Redi level data
-loading Redi events

@@ -1,0 +1,16 @@
+
+{
+	"name" : "test",
+	"scores" : 
+	{
+		"Packs/VeeDefault/easy_m_1" : null,
+		"Packs/VeeDefault/extra_m_1" : null,
+		"Packs/VeeDefault/goldenratio_m_1" : null,
+		"Packs/VeeDefault/hard_m_1" : null,
+		"Packs/VeeDefault/lunatic_m_1" : null,
+		"Packs/VeeDefault/normal_m_1" : null,
+		"Packs/VeeDefault/tutorial_m_1" : null,
+		"Packs/VeeEndurance/commando_m_1" : null
+	},
+	"version" : 1.509999990463257
+}

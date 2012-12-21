@@ -45,6 +45,7 @@ namespace hg
 		getLogEntries().push_back(ssvs::toStr(mValue));
 	}
 
+	bool isFolder(const std::string mPath);
 	std::vector<std::string> getAllSubFolderNames(std::string mPath);
 	std::vector<std::string> getAllFilePaths(std::string mFolderPath, std::string mExtension);
 	std::string getFileNameFromFilePath(std::string mFilePath, std::string mPrefix, std::string mSuffix);
