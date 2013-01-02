@@ -44,22 +44,20 @@ using namespace sses;
 namespace hg
 {
 	HexagonGame::HexagonGame(GameWindow& mGameWindow) :
-		window(mGameWindow)
+		window(mGameWindow), pm{new PatternManager(this)}
 	{
-		pm = new PatternManager(this);
-
 		recreateTextures();
 
-		game.addUpdateFunc(	 [&](float frameTime) { update(frameTime); });
-		game.addDrawFunc(	 [&](){ gameTexture.clear(Color::Black); }, -2);
+		game.addUpdateFunc([&](float frameTime) { update(frameTime); });
+		game.addDrawFunc([&](){ gameTexture.clear(Color::Black); }, -2);
 
 		if(!getNoBackground())
 			game.addDrawFunc([&](){ styleData.drawBackground(gameTexture, centerPos, getSides()); }, -1);
 
-		game.addDrawFunc(	 [&](){ manager.draw(); }, 					0);
-		game.addDrawFunc(	 [&](){ gameTexture.display(); }, 			1);
-		game.addDrawFunc(	 [&](){ drawOnWindow(gameSprite); }, 		2);
-		game.addDrawFunc(	 [&](){ drawText(); }, 				3);
+		game.addDrawFunc([&](){ manager.draw(); }, 			0);
+		game.addDrawFunc([&](){ gameTexture.display(); }, 	1);
+		game.addDrawFunc([&](){ drawOnWindow(gameSprite); },2);
+		game.addDrawFunc([&](){ drawText(); }, 				3);
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
@@ -171,8 +169,8 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(getScore(getScoreValidator(levelData.getId(), getPulse(), difficultyMult)) < currentTime)
-			setScore(getScoreValidator(levelData.getId(), getPulse(), difficultyMult), currentTime);
+		string validator{getScoreValidator(levelData.getId(), getPulse(), difficultyMult)};
+		if(getScore(validator) < currentTime) setScore(validator, currentTime);
 		saveCurrentProfile();
 	}
 	void HexagonGame::goToMenu()

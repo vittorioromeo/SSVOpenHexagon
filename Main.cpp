@@ -44,8 +44,6 @@ using namespace hg;
 
 int main(int argc, char* argv[])
 {
-	//for(string x : getAllSubFolderNames(".")) cout << x << endl;
-
 	vector<string> overrideIds;
 	for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
@@ -73,8 +71,10 @@ int main(int argc, char* argv[])
 
 	window.run();
 
+	// Save profile
 	saveCurrentProfile();
 
+	// Save log to text file
 	ofstream o;
 	o.open("log.txt");
 	for(string logEntry : getLogEntries()) 	o << logEntry << endl;

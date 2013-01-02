@@ -63,7 +63,7 @@ namespace hg
 			Manager manager;
 			RenderTexture gameTexture;
 			Sprite gameSprite;
-			Lua::LuaContext	 lua;
+			Lua::LuaContext	lua;
 			Vector2f centerPos{0,0};
 			LevelData levelData;
 			MusicData musicData;
