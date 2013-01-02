@@ -17,7 +17,7 @@
 	"lua_file": "defaultLevels/lunaticpatterns.lua",
 	
 	// Difficulty multipliers
-	"difficulty_multipliers": [1.25, 1.50, 0.75, 0.5, 0.25],
+	"difficulty_multipliers": [1.25, 1.40, 0.75, 0.5, 0.35],
 	
 	// Basic values
 	"speed_multiplier": 2.89,
