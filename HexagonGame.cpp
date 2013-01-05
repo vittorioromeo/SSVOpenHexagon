@@ -43,8 +43,7 @@ using namespace sses;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) :
-		window(mGameWindow), pm{new PatternManager(this)}
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), pm{new PatternManager{this}}
 	{
 		recreateTextures();
 

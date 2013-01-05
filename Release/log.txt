@@ -11,15 +11,3 @@ loading VeeEndurance music data
 loading VeeEndurance style data
 loading VeeEndurance level data
 loading VeeEndurance events
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad
-LUA log: level onLoad

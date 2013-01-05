@@ -58,7 +58,7 @@ namespace hg
 		friend class PatternManager;
 
 		private:
-			Game game;
+			GameState game;
 			GameWindow& window;
 			Manager manager;
 			RenderTexture gameTexture;
@@ -163,7 +163,7 @@ namespace hg
 			void drawOnWindow(Drawable&);
 
 			// Properties
-			Game& getGame();
+			GameState& getGame();
 			float getRadius();
 			Color getColorMain();
 			Color getColor(int mIndex);

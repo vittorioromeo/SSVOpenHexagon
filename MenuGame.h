@@ -54,7 +54,7 @@ namespace hg
 	class MenuGame
 	{
 		private:
-			Game game;
+			GameState game;
 			GameWindow& window;
 			Manager manager;
 			RenderTexture gameTexture;
@@ -108,7 +108,7 @@ namespace hg
 			void drawOnMenuTexture(Drawable&);
 			void drawOnWindow(Drawable&);
 
-			Game& getGame();
+			GameState& getGame();
 	};
 }
 #endif // MENUGAME_H

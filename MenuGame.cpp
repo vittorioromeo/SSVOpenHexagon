@@ -368,6 +368,6 @@ namespace hg
 	void MenuGame::drawOnMenuTexture(Drawable &mDrawable) { menuTexture.draw(mDrawable); }
 	void MenuGame::drawOnWindow(Drawable &mDrawable) { window.draw(mDrawable); }
 
-	Game& MenuGame::getGame() { return game; }
+	GameState& MenuGame::getGame() { return game; }
 }
 
