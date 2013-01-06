@@ -74,13 +74,13 @@ namespace hg
 			else if (type == "event_enqueue")			{ eventPtrQueue.push(getEventData(id, this)); }
 			else if (type == "script_exec")				{ runLuaFile(valueName); }
 			else if (type == "play_sound")				{ playSound(id); }
-			else										{ log("unknown event type: " + type); }
+			else										{ log("unknown event type: " + type, "EVENT ERROR"); }
 		}
 	}
 
 	void HexagonGame::initLua()
 	{
-		lua.writeVariable("log", 					[=](string mLog) 						{ log("LUA log: " + mLog); });
+		lua.writeVariable("log", 					[=](string mLog) 						{ log(mLog, "LUA"); });
 
 		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 					{ timeline.push_back(new Do{[=]{ pm->wall(mSide, mThickness); }}); });
 		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.push_back(new Do{[=]{ pm->wallAdj(mSide, mThickness, mSpeedAdj); }}); });

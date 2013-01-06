@@ -1,13 +1,14 @@
-loading profiles
-loading fonts
-loading sounds
-loading VeeDefault music
-loading VeeDefault music data
-loading VeeDefault style data
-loading VeeDefault level data
-loading VeeDefault events
-loading VeeEndurance music
-loading VeeEndurance music data
-loading VeeEndurance style data
-loading VeeEndurance level data
-loading VeeEndurance events
+[CONFIG] loading config
+[ASSETS] loading profiles
+[ASSETS] loading fonts
+[ASSETS] loading sounds
+[ASSETS] loading VeeDefault music
+[ASSETS] loading VeeDefault music data
+[ASSETS] loading VeeDefault style data
+[ASSETS] loading VeeDefault level data
+[ASSETS] loading VeeDefault events
+[ASSETS] loading VeeEndurance music
+[ASSETS] loading VeeEndurance music data
+[ASSETS] loading VeeEndurance style data
+[ASSETS] loading VeeEndurance level data
+[ASSETS] loading VeeEndurance events

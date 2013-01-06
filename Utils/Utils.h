@@ -38,12 +38,7 @@
 
 namespace hg
 {
-	std::vector<std::string>& getLogEntries();
-	template<class T> void log(T mValue)
-	{
-		if(!getDebug()) return; std::cout << ssvs::toStr(mValue) << std::endl;
-		getLogEntries().push_back(ssvs::toStr(mValue));
-	}
+
 
 	bool isFolder(const std::string mPath);
 	std::vector<std::string> getAllSubFolderNames(std::string mPath);

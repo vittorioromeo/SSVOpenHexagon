@@ -38,8 +38,7 @@ using namespace sf;
 
 namespace hg
 {
-	vector<string> logEntries;
-	vector<string>& getLogEntries() { return logEntries; }
+	
 
 	bool isFolder(const string mPath)
 	{
@@ -79,7 +78,7 @@ namespace hg
 		{
 			ostringstream fail;
 			fail << "Error querying directory " << mFolderPath;
-			log(fail.str());
+			log(fail.str(), "FILESYSTEM ERROR");
 			return result;
 		}
 		while ((foundFile = readdir(directoryHandle)))
@@ -177,7 +176,7 @@ namespace hg
 		if(version < 1.49f) 
 		{
 			vector<string> oldKeys;
-			log("Profile: " + name + " is outdated - updating");
+			log(name + " is outdated - updating", "PROFILE UPDATE");
 			for(Json::ValueIterator itr = scores.begin(); itr != scores.end(); itr++)
 			{
 				string key{itr.key().asString()};

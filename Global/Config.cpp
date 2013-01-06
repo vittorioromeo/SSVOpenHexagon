@@ -43,7 +43,7 @@ namespace hg
 	
 	void loadConfig(vector<string> mOverridesIds)
 	{
-		log("loading config");
+		log("loading config", "CONFIG");
 
 		for(auto filePath : getAllFilePaths("ConfigOverrides/", ".json"))
 		{

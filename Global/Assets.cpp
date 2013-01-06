@@ -58,9 +58,9 @@ namespace hg
 
 	void loadAssets()
 	{
-		log("loading profiles"); 	loadProfiles	();
-		log("loading fonts"); 		loadFonts		();
-		log("loading sounds"); 		loadSounds		();
+		log("loading profiles", "ASSETS"); 	loadProfiles();
+		log("loading fonts", "ASSETS"); 	loadFonts();
+		log("loading sounds", "ASSETS"); 	loadSounds();
 
 		for(string packName : getAllSubFolderNames("Packs/"))
 		{
@@ -77,11 +77,11 @@ namespace hg
 		{
 			string packName{packData.getId()};
 			packPaths.push_back("Packs/" + packName + "/");
-			log("loading " + packName + " music"); 		loadMusic		("Packs/" + packName + "/");
-			log("loading " + packName + " music data"); loadMusicData	("Packs/" + packName + "/");
-			log("loading " + packName + " style data"); loadStyleData	("Packs/" + packName + "/");
-			log("loading " + packName + " level data");	loadLevelData	("Packs/" + packName + "/");
-			log("loading " + packName + " events"); 	loadEvents		("Packs/" + packName + "/");
+			log("loading " + packName + " music", "ASSETS"); 		loadMusic("Packs/" + packName + "/");
+			log("loading " + packName + " music data", "ASSETS"); 	loadMusicData("Packs/" + packName + "/");
+			log("loading " + packName + " style data", "ASSETS"); 	loadStyleData("Packs/" + packName + "/");
+			log("loading " + packName + " level data", "ASSETS");	loadLevelData("Packs/" + packName + "/");
+			log("loading " + packName + " events", "ASSETS"); 		loadEvents("Packs/" + packName + "/");
 		}
 	}
 
