@@ -34,15 +34,24 @@ Basic gameplay parameters. Should be easy to understand them just by looking at 
 `"wall_skew_right"`</br>
 `"wall_angle_left"`</br>
 `"wall_angle_right"`</br>
+Graphical effect parameters.
+
 `"pulse_min"`</br>
 `"pulse_max"`</br>
+Min/max values for the pulse zoom effect.
+
 `"pulse_speed"`</br>
 `"pulse_speed_r"`</br>
+Speed and reverse speed of the pulse zoom effect.
+
 `"pulse_delay_max"`</br>
 `"pulse_delay_half_max"`</br>
+Time between every pulse zoom. The second parameter is taken into account 2 times per zoom (one when the zoom is at the max value, one when the zoom is at the min value).
+
+
 `"beatpulse_max"`</br>
 `"beatpulse_delay_max"`</br>
-Graphical effect parameters.
+These two parameters control the center polygon (the one the player spins around). The first one is the maximum added radius it can reach, the second one how much time passes from a radius expansion to another radius expansion.
 
 `"events":[]`</br>
 Level event scripting. Refer to README_EVENTS.

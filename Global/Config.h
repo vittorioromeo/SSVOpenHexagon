@@ -33,6 +33,7 @@
 namespace hg
 {
 	void loadConfig(std::vector<std::string> mOverridesIds);
+	void saveConfig();
 
 	void recalculateSizes();
 	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);

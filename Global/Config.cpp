@@ -72,6 +72,16 @@ namespace hg
 
 		recalculateSizes();
 	}
+	void saveConfig()
+	{
+		ofstream o;
+		o.open("config.json");
+		Json::StyledStreamWriter writer;
+
+		// TO DO 
+		
+		o.flush(); o.close();
+	}
 
 	void recalculateSizes()
 	{

@@ -74,10 +74,8 @@ int main(int argc, char* argv[])
 
 	window.run();
 
-	// Save profile
-	saveCurrentProfile();
-
-	// Save log
+	saveConfig();
+	saveCurrentProfile();	
 	saveLogToFile("log.txt");
 
 	return 0;

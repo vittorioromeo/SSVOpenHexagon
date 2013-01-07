@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.52 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.6 #
 ## [vee software](http://veegamedev.wordpress.com/) ##
 
 **A free, open source clone of "[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)" (by Terry Cavanagh). </br>**
@@ -94,6 +94,10 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.6
+* Fixed: outdated level documentation file
+
 
 Version 1.52
 * Fixed: non-folders in Packs/ directory caused crash
