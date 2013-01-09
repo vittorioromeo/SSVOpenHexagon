@@ -213,7 +213,8 @@ namespace hg
 		musicData.setFirstPlay(mMusicFirstPlay);
 	}
 
-	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) 	{ return window.isKeyPressed(mKey); }
+	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) 		{ return window.isKeyPressed(mKey); }
+	bool HexagonGame::isButtonPressed(Mouse::Button mButton){ return window.isButtonPressed(mButton); }
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
 }

@@ -154,13 +154,14 @@ namespace hg
 			void death();
 
 			// Other methods
-			bool isKeyPressed(Keyboard::Key mKey);
+			bool isKeyPressed(sf::Keyboard::Key mKey);
+			bool isButtonPressed(sf::Mouse::Button mButton);
 			void executeEvents(Json::Value& mRoot, float mTime);
 
 			// Graphics-related methods
 			void recreateTextures();
-			void drawOnTexture(Drawable&);
-			void drawOnWindow(Drawable&);
+			void drawOnTexture(sf::Drawable&);
+			void drawOnWindow(sf::Drawable&);
 
 			// Properties
 			GameState& getGame();

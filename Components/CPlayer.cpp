@@ -105,9 +105,17 @@ namespace hg
 		float lastAngle{angle};
 		int movement{0};
 
+		// Keyboard controls
+		vector<Keyboard::Key> leftKeys{Keyboard::Left, Keyboard::A};
+		vector<Keyboard::Key> rightKeys{Keyboard::Right, Keyboard::D};
 		if(hgPtr->isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
-		if(hgPtr->isKeyPressed(Keyboard::Left) || hgPtr->isKeyPressed(Keyboard::A)) movement = -1;
-		if(hgPtr->isKeyPressed(Keyboard::Right) || hgPtr->isKeyPressed(Keyboard::D)) movement = 1;
+		for (auto key : leftKeys) if(hgPtr->isKeyPressed(key)) movement = -1;
+		for (auto key : rightKeys) if(hgPtr->isKeyPressed(key)) movement = 1;
+
+		// Mousebutton controls
+		if(hgPtr->isButtonPressed(Mouse::Button::Middle)) currentSpeed = focusSpeed;
+		if(hgPtr->isButtonPressed(Mouse::Button::Left)) movement = -1;
+		if(hgPtr->isButtonPressed(Mouse::Button::Right)) movement = 1;
 
 		angle += currentSpeed * movement * mFrameTime;
 
