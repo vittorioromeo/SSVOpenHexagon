@@ -262,10 +262,7 @@ namespace hg
 	vector<string> getProfileNames()
 	{
 		vector<string> result;
-
-		for(auto pair : profileDataMap)
-			result.push_back(pair.second.getName());
-
+		for(auto pair : profileDataMap) result.push_back(pair.second.getName());
 		return result;
 	}
 	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }

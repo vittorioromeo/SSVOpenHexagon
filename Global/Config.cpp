@@ -74,13 +74,16 @@ namespace hg
 	}
 	void saveConfig()
 	{
-		ofstream o;
-		o.open("config.json");
-		Json::StyledStreamWriter writer;
+		// Seems like JSONcpp doesn't have a way to change a single value in an existing file - I'll just
+		// replace the pulse effect option manually for now
 
-		// TO DO 
-		
-		o.flush(); o.close();
+		fstream f; f.open("config.json"); stringstream buffer; buffer << f.rdbuf(); f.close();
+
+		string original{buffer.str()};
+		if(getPulse()) replace(original, R"("pulse_enabled": false,)", R"("pulse_enabled": true,)");
+		else replace(original, R"("pulse_enabled": true,)", R"("pulse_enabled": false,)");
+
+		f.open("config.json", fstream::out | fstream::trunc); f << original; f.flush(); f.close();
 	}
 
 	void recalculateSizes()
