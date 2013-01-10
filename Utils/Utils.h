@@ -38,12 +38,7 @@
 
 namespace hg
 {
-
-
-	bool isFolder(const std::string mPath);
-	std::vector<std::string> getAllSubFolderNames(std::string mPath);
-	std::vector<std::string> getAllFilePaths(std::string mFolderPath, std::string mExtension);
-	std::string getFileNameFromFilePath(std::string mFilePath, std::string mPrefix, std::string mSuffix);
+	
 
 	sf::Color getColorFromHue(double);
 	sf::Color getColorDarkened(sf::Color, float);
@@ -58,7 +53,7 @@ namespace hg
 
 	std::string getScoreValidator(std::string mId, bool mPulse, float mDifficultyMult);
 
-	bool replace(std::string& str, const std::string& from, const std::string& to);
+	
 }
 
 #endif /* UTILS_H_HG */

@@ -370,4 +370,3 @@ namespace hg
 
 	GameState& MenuGame::getGame() { return game; }
 }
-

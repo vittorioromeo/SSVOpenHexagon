@@ -39,6 +39,7 @@
 
 using namespace std;
 using namespace sf;
+using namespace ssvs::FileSystem;
 
 namespace hg
 {
@@ -62,9 +63,11 @@ namespace hg
 		log("loading fonts", "ASSETS"); 	loadFonts();
 		log("loading sounds", "ASSETS"); 	loadSounds();
 
-		for(string packName : getAllSubFolderNames("Packs/"))
+		for(string packPath : listFolders("Packs/"))
 		{
-			Json::Value packRoot{getJsonFileRoot("Packs/" + packName + "/pack.json")};
+			string packName{packPath.substr(6, packPath.length() - 6)};
+
+			Json::Value packRoot{getJsonFileRoot(packPath + "/pack.json")};
 			PackData packData(packName, packRoot["name"].asString(), packRoot["priority"].asFloat());
 			packDataMap.insert(make_pair(packName, packData));
 		}
@@ -87,7 +90,7 @@ namespace hg
 
 	void loadFonts()
 	{
-		for(auto filePath : getAllFilePaths("Fonts/", ".ttf"))
+		for(auto filePath : listFilesByExtension("Fonts/", ".ttf"))
 		{
 			string fileName{getFileNameFromFilePath(filePath, "Fonts/", ".ttf")};
 
@@ -114,7 +117,7 @@ namespace hg
 	}
 	void loadMusic(string mPath)
 	{
-		for(auto filePath : getAllFilePaths(mPath + "Music/", ".ogg"))
+		for(auto filePath : listFilesByExtension(mPath + "Music/", ".ogg"))
 		{
 			string fileName{getFileNameFromFilePath(filePath, mPath + "Music/", ".ogg")};
 
@@ -126,7 +129,7 @@ namespace hg
 	}
 	void loadMusicData(string mPath)
 	{
-		for(auto filePath : getAllFilePaths(mPath + "Music/", ".json"))
+		for(auto filePath : listFilesByExtension(mPath + "Music/", ".json"))
 		{
 			MusicData musicData{loadMusicFromJson(getJsonFileRoot(filePath))};
 			musicDataMap.insert(make_pair(musicData.getId(), musicData));
@@ -134,7 +137,7 @@ namespace hg
 	}
 	void loadStyleData(string mPath)
 	{
-		for(auto filePath : getAllFilePaths(mPath + "Styles/", ".json"))
+		for(auto filePath : listFilesByExtension(mPath + "Styles/", ".json"))
 		{
 			StyleData styleData{loadStyleFromJson(getJsonFileRoot(filePath))};
 			styleDataMap.insert(make_pair(styleData.getId(), styleData));
@@ -142,7 +145,7 @@ namespace hg
 	}
 	void loadLevelData(string mPath)
 	{
-		for(auto filePath : getAllFilePaths(mPath + "Levels/", ".json"))
+		for(auto filePath : listFilesByExtension(mPath + "Levels/", ".json"))
 		{
 			LevelData levelData{loadLevelFromJson(getJsonFileRoot(filePath))};
 			levelData.setPackPath(mPath);
@@ -152,7 +155,7 @@ namespace hg
 	}
 	void loadProfiles()
 	{
-		for(auto filePath : getAllFilePaths("Profiles/", ".json"))
+		for(auto filePath : listFilesByExtension("Profiles/", ".json"))
 		{
 			string fileName{getFileNameFromFilePath(filePath, "Profiles/", ".json")};
 
@@ -162,7 +165,7 @@ namespace hg
 	}
 	void loadEvents(string mPath)
 	{
-		for(auto filePath : getAllFilePaths(mPath + "Events/", ".json"))
+		for(auto filePath : listFilesByExtension(mPath + "Events/", ".json"))
 		{
 			EventData eventData{getJsonFileRoot(filePath)};
 			eventDataMap.insert(make_pair(eventData.getId(), eventData));

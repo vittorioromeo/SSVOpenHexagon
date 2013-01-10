@@ -31,6 +31,7 @@
 
 using namespace std;
 using namespace ssvs;
+using namespace ssvs::FileSystem;
 
 namespace hg
 {
@@ -45,7 +46,7 @@ namespace hg
 	{
 		log("loading config", "CONFIG");
 
-		for(auto filePath : getAllFilePaths("ConfigOverrides/", ".json"))
+		for(auto filePath : listFilesByExtension("ConfigOverrides/", ".json"))
 		{
 			string fileName{getFileNameFromFilePath(filePath, "ConfigOverrides/", ".json")};
 			configOverridesRootMap.insert(make_pair(fileName, getJsonFileRoot(filePath)));
