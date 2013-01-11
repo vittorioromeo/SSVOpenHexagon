@@ -46,9 +46,9 @@ namespace hg
 	{
 		log("loading config", "CONFIG");
 
-		for(auto filePath : listFilesByExtension("ConfigOverrides/", ".json"))
+		for(auto filePath : getFilesByExtension("ConfigOverrides/", ".json"))
 		{
-			string fileName{getFileNameFromFilePath(filePath, "ConfigOverrides/", ".json")};
+			string fileName{getNameFromPath(filePath, "ConfigOverrides/", ".json")};
 			configOverridesRootMap.insert(make_pair(fileName, getJsonFileRoot(filePath)));
 		}
 
