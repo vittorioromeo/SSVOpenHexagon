@@ -46,6 +46,7 @@
 
 using namespace sf;
 using namespace ssvs;
+using namespace ssvs::Utils;
 using namespace sses;
 
 namespace hg

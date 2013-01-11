@@ -160,7 +160,7 @@ namespace hg
 		string album	 		{ mRoot["album"].asString() };
 		string author 			{ mRoot["author"].asString() };
 
-		auto result = MusicData{id, fileName, name, album, author};
+		MusicData result{id, fileName, name, album, author};
 		for (Json::Value segment : mRoot["segments"]) result.addSegment(segment["time"].asInt());
 		return result;
 	}
@@ -170,27 +170,6 @@ namespace hg
 		float version 		{ mRoot["version"].asFloat() };
 		string name			{ mRoot["name"].asString() };
 		Json::Value scores	{ mRoot["scores"] };
-
-		if(version < 1.49f) 
-		{
-			vector<string> oldKeys;
-			log(name + " is outdated - updating", "PROFILE UPDATE");
-			for(Json::ValueIterator itr = scores.begin(); itr != scores.end(); itr++)
-			{
-				string key{itr.key().asString()};
-				oldKeys.push_back(key);
-				replace(key, "tutorial", 	"Packs/VeeDefault/tutorial");
-				replace(key, "easy", 		"Packs/VeeDefault/easy");
-				replace(key, "normal", 		"Packs/VeeDefault/normal");
-				replace(key, "hard", 		"Packs/VeeDefault/hard");
-				replace(key, "lunatic", 	"Packs/VeeDefault/lunatic");
-				replace(key, "extra", 		"Packs/VeeDefault/extra");
-				replace(key, "goldenratio", "Packs/VeeDefault/goldenratio");
-				replace(key, "commando", 	"Packs/VeeEndurance/commando");
-				scores[key] = (*itr).asFloat();
-			}
-			for(auto oldKey : oldKeys) scores.removeMember(oldKey);
-		}
 
 		ProfileData result{version, name, scores};
 		return result;

@@ -25,6 +25,8 @@
 #include "Components/CWall.h"
 #include "Utils/Utils.h"
 
+using namespace ssvs::Utils;
+
 namespace hg
 {
 	CWall::CWall(HexagonGame *mHgPtr, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed) :

@@ -81,8 +81,8 @@ namespace hg
 		fstream f; f.open("config.json"); stringstream buffer; buffer << f.rdbuf(); f.close();
 
 		string original{buffer.str()};
-		if(getPulse()) replace(original, R"("pulse_enabled": false,)", R"("pulse_enabled": true,)");
-		else replace(original, R"("pulse_enabled": true,)", R"("pulse_enabled": false,)");
+		if(getPulse()) original = replace(original, R"("pulse_enabled": false,)", R"("pulse_enabled": true,)");
+		else original = replace(original, R"("pulse_enabled": true,)", R"("pulse_enabled": false,)");
 
 		f.open("config.json", fstream::out | fstream::trunc); f << original; f.flush(); f.close();
 	}

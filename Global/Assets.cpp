@@ -40,6 +40,7 @@
 using namespace std;
 using namespace sf;
 using namespace ssvs::FileSystem;
+using namespace ssvs::Utils;
 
 namespace hg
 {

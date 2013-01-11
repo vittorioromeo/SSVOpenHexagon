@@ -25,6 +25,8 @@
 #include "Components/CWall.h"
 #include "Utils/Utils.h"
 
+using namespace ssvs::Utils;
+
 namespace hg
 {
 	CPlayer::CPlayer(HexagonGame *mHgPtr, Vector2f mStartPos) :

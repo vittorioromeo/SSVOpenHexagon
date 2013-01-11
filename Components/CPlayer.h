@@ -30,7 +30,6 @@
 #include "Global/Config.h"
 #include "HexagonGame.h"
 
-
 using namespace sf;
 using namespace sses;
 

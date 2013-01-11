@@ -39,14 +39,12 @@
 using namespace std;
 using namespace sses;
 using namespace ssvs;
+using namespace ssvs::Utils;
 using namespace sf;
 using namespace hg;
 
 int main(int argc, char* argv[])
 {
-	
-	
-
 	vector<string> overrideIds;
 	for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
