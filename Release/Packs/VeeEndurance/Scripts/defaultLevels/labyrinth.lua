@@ -21,6 +21,7 @@ end
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()	
 	playSound("beep")
+	playSound("VeeEndurance_test")
 	
 	level = level + 1
 	incrementTime = incrementTime + 2

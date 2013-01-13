@@ -48,6 +48,7 @@ namespace hg
 	void loadMusicData(std::string mPath);
 	void loadStyleData(std::string mPath);
 	void loadLevelData(std::string mPath);
+	void loadCustomSounds(std::string mPackName, std::string mPath);
 	void loadProfiles();
 	void loadEvents(std::string mPath);
 

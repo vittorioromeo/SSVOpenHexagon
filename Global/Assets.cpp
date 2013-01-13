@@ -86,6 +86,7 @@ namespace hg
 			log("loading " + packName + " style data", "ASSETS"); 	loadStyleData("Packs/" + packName + "/");
 			log("loading " + packName + " level data", "ASSETS");	loadLevelData("Packs/" + packName + "/");
 			log("loading " + packName + " events", "ASSETS"); 		loadEvents("Packs/" + packName + "/");
+			log("loading " + packName + " custom sounds", "ASSETS");loadCustomSounds(packName, "Packs/" + packName + "/");
 		}
 	}
 
@@ -114,6 +115,22 @@ namespace hg
 			soundPtr->setBuffer(*soundBuffer);
 			soundPtr->setVolume(getSoundVolume());
 			soundPtrsMap.insert(make_pair(itr.key().asString(), soundPtr));
+		}
+	}
+	void loadCustomSounds(string mPackName, string mPath)
+	{
+		for(auto filePath : getFilesByExtension(mPath + "Sounds/", ".ogg"))
+		{
+			string fileName{getNameFromPath(filePath, mPath + "Sounds/", ".ogg")};
+
+			SoundBuffer* soundBuffer{new SoundBuffer};
+			soundBuffer->loadFromFile(filePath);
+			soundBufferPtrsMap.insert(make_pair(mPackName + "_" + fileName, soundBuffer));
+
+			Sound* soundPtr{new Sound};
+			soundPtr->setBuffer(*soundBuffer);
+			soundPtr->setVolume(getSoundVolume());
+			soundPtrsMap.insert(make_pair(mPackName + "_" + fileName, soundPtr));
 		}
 	}
 	void loadMusic(string mPath)

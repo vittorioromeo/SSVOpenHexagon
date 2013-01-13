@@ -276,6 +276,25 @@ Only .ogg vorbis is currently supported.</p>
 using the program "foobar2000", which can be
 easily found on Google.</p>
 
+<hr />
+
+<h2>Custom sounds</h2>
+
+<p>Custom sounds work differently from normal sounds.
+They can only be in the <code>.ogg</code> extension, and must placed in <code>Packs/&lt;pack name&gt;/Sounds/</code>.</p>
+
+<p>There is no need for a JSON file - to play your custom sounds via LUA scripts or events just call the following commands:</p>
+
+<p>LUA: <br>
+<code>playSound(&lt;pack name&gt;_&lt;sound name without extension&gt;)</code></p>
+
+<p>Event: <br>
+<code>"play_sound" ("&lt;pack name&gt;_&lt;sound name without extension&gt;")</code></p>
+
+<p>Obviously, you have to replace the placeholders with the name of the pack folder and the filename of the sound (without the extension). Please remember names are case sensitive.</p>
+
+<p>You can find a working example in the VeeEndurance pack.</p>
+
 </body>
 </html>
 <!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

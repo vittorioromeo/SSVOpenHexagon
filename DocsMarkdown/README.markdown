@@ -98,7 +98,8 @@ Please refer to the files in the **documentation** folder.
 Version 1.6
 * Fixed: outdated level documentation file
 * Added: flash effect on death
-
+* Added: mouse-button control (use left/right buttons to spin)
+* Added: custom sounds for level packs (they work differently from normal sounds, please refer to the sounds documentation)
 
 Version 1.52
 * Fixed: non-folders in Packs/ directory caused crash
