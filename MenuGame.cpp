@@ -38,8 +38,8 @@ namespace hg
 	{
 		recreateTextures();
 
-		game.addUpdateFunc([&](float frameTime) { update(frameTime); });
-		game.addDrawFunc([&]{ draw(); }, 0);
+		game.onUpdate += [&](float frameTime) { update(frameTime); };
+		game.onDraw += [&]{ draw(); };
 
 		levelDataIds = getMenuLevelDataIdsByPack(getPackPaths()[packIndex]);
 		setIndex(0);

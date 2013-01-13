@@ -47,17 +47,17 @@ namespace hg
 	{
 		recreateTextures();
 
-		game.addUpdateFunc([&](float frameTime) { update(frameTime); });
-		game.addDrawFunc([&](){ gameTexture.clear(Color::Black); }, -2);
+		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
+		game.onDraw += [&](){ gameTexture.clear(Color::Black); };
 
 		if(!getNoBackground())
-			game.addDrawFunc([&](){ styleData.drawBackground(gameTexture, centerPos, getSides()); }, -1);
+			game.onDraw += [&](){ styleData.drawBackground(gameTexture, centerPos, getSides()); };
 		
-		game.addDrawFunc([&](){ manager.draw(); }, 				0);
-		game.addDrawFunc([&](){ gameTexture.display(); }, 		1);
-		game.addDrawFunc([&](){ drawOnWindow(gameSprite); },	2);
-		game.addDrawFunc([&](){ drawText(); }, 					3);
-		game.addDrawFunc([&](){ drawOnWindow(flashPolygon); },	4);
+		game.onDraw += [&](){ manager.draw(); };
+		game.onDraw += [&](){ gameTexture.display(); };
+		game.onDraw += [&](){ drawOnWindow(gameSprite); };
+		game.onDraw += [&](){ drawText(); };
+		game.onDraw += [&](){ drawOnWindow(flashPolygon); };
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
