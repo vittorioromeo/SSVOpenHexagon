@@ -97,6 +97,7 @@ Please refer to the files in the **documentation** folder.
 
 Version 1.6
 * Fixed: outdated level documentation file
+* Added: flash effect on death
 
 
 Version 1.52

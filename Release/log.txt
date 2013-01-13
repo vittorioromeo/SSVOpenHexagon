@@ -12,3 +12,7 @@
 [ASSETS] loading VeeEndurance style data
 [ASSETS] loading VeeEndurance level data
 [ASSETS] loading VeeEndurance events
+[LUA] level onLoad
+[LUA] level onLoad
+[LUA] level onLoad
+[LUA] level onLoad

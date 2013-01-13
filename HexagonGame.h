@@ -75,6 +75,7 @@ namespace hg
 			Text* messageTextPtr{nullptr};
 			vector<EventData*> eventPtrs;
 			queue<EventData*> eventPtrQueue;
+			VertexArray flashPolygon{PrimitiveType::Quads, 4};
 			bool firstPlay{true};
 
 			// New game parameters
@@ -91,6 +92,8 @@ namespace hg
 
 			float beatPulse				{0};
 			float beatPulseDelay		{0};
+
+			float flashEffect			{0};
 
 			float radius{75};
 			float fastSpin{0};

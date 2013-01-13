@@ -52,11 +52,12 @@ namespace hg
 
 		if(!getNoBackground())
 			game.addDrawFunc([&](){ styleData.drawBackground(gameTexture, centerPos, getSides()); }, -1);
-
-		game.addDrawFunc([&](){ manager.draw(); }, 			0);
-		game.addDrawFunc([&](){ gameTexture.display(); }, 	1);
-		game.addDrawFunc([&](){ drawOnWindow(gameSprite); },2);
-		game.addDrawFunc([&](){ drawText(); }, 				3);
+		
+		game.addDrawFunc([&](){ manager.draw(); }, 				0);
+		game.addDrawFunc([&](){ gameTexture.display(); }, 		1);
+		game.addDrawFunc([&](){ drawOnWindow(gameSprite); },	2);
+		game.addDrawFunc([&](){ drawText(); }, 					3);
+		game.addDrawFunc([&](){ drawOnWindow(flashPolygon); },	4);
 	}
 	HexagonGame::~HexagonGame() { delete pm; }
 
@@ -94,6 +95,7 @@ namespace hg
 		pulseDelayHalf	= 0;
 		beatPulse		= 0;
 		beatPulseDelay	= 0;
+		flashEffect		= 0;
 		
 		radius = 75;
 		fastSpin = 0;
@@ -133,6 +135,7 @@ namespace hg
 		hasDied = true;
 		stopLevelMusic();
 		checkAndSaveScore();
+		flashEffect = 255;
 	}
 
 	void HexagonGame::incrementDifficulty()

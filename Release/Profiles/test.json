@@ -7,20 +7,26 @@
 		"Packs/VeeDefault/extra_m_1" : 5.411600589752197,
 		"Packs/VeeDefault/goldenratio_m_1" : 2.874085664749146,
 		"Packs/VeeDefault/hard_m_0.5" : null,
+		"Packs/VeeDefault/hard_m_0.6" : null,
 		"Packs/VeeDefault/hard_m_0.75" : null,
 		"Packs/VeeDefault/hard_m_1" : 14.41009140014648,
+		"Packs/VeeDefault/hard_m_1.4" : 5.988154888153076,
 		"Packs/VeeDefault/hard_m_1.5" : 4.032617092132568,
 		"Packs/VeeDefault/lunatic_m_0.25" : 11.81641674041748,
 		"Packs/VeeDefault/lunatic_m_0.5" : 7.965998649597168,
 		"Packs/VeeDefault/lunatic_m_0.75" : 1.509466290473938,
-		"Packs/VeeDefault/lunatic_m_1" : 16.25669670104981,
+		"Packs/VeeDefault/lunatic_m_1" : 30.50329589843750,
 		"Packs/VeeDefault/lunatic_m_1.25" : 2.545102596282959,
+		"Packs/VeeDefault/lunatic_m_1.4" : 5.056010723114014,
 		"Packs/VeeDefault/lunatic_m_1.5" : 1.598291039466858,
 		"Packs/VeeDefault/normal_m_1" : 15.46376800537109,
 		"Packs/VeeDefault/tutorial_m_1" : null,
+		"Packs/VeeEndurance/commando_m_0.25" : null,
 		"Packs/VeeEndurance/commando_m_0.75" : null,
 		"Packs/VeeEndurance/commando_m_1" : 29.96761131286621,
+		"Packs/VeeEndurance/commando_m_1.25" : null,
+		"Packs/VeeEndurance/commando_m_1.5" : 12.44244098663330,
 		"Packs/VeeEndurance/labyrinth_m_1" : 19.03953170776367
 	},
-	"version" : 1.519999980926514
+	"version" : 1.600000023841858
 }
