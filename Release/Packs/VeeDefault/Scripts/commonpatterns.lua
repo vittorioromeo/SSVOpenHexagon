@@ -98,7 +98,7 @@ function pDMBarrageSpiral(mTimes, mDelayMult, mStep)
 		if(getSides() < 6) then wait(delay * 0.6) end
 	end
 	
-	wait(getPerfectDelay(THICKNESS) * 6.1)
+	wait(getPerfectDelay(THICKNESS) * 6.4)
 end
 
 -- pWallExVortex: spawns left-left right-right spiral patters
