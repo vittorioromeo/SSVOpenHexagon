@@ -84,6 +84,23 @@ function pBarrageSpiral(mTimes, mDelayMult, mStep)
 	wait(getPerfectDelay(THICKNESS) * 6.1)
 end
 
+-- pDMBarrageSpiral: spawns a spiral of cBarrage, with static delay
+function pDMBarrageSpiral(mTimes, mDelayMult, mStep)
+	delay = getPerfectDelayDM(THICKNESS) * (5.6 * mDelayMult)
+	startSide = getRandomSide()
+	loopDir = mStep * getRandomDir()	
+	j = 0
+	
+	for i = 0, mTimes do
+		cBarrage(startSide + j)
+		j = j + loopDir
+		wait(delay)
+		if(getSides() < 6) then wait(delay * 0.6) end
+	end
+	
+	wait(getPerfectDelay(THICKNESS) * 6.1)
+end
+
 -- pWallExVortex: spawns left-left right-right spiral patters
 function pWallExVortex(mTimes, mStep, mExtraMult)
 	delay = getPerfectDelay(THICKNESS) * 5.0 
