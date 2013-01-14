@@ -93,6 +93,7 @@ Please refer to the files in the **documentation** folder.
 
 Version 1.6
 
+* Fixed: impossible patterns with extreme difficulty multipliers (should be fixed) - **getPerfectDelayDM** is a new function that takes difficulty multiplier into account
 * Fixed: outdated level documentation file
 * Added: flash effect on death
 * Added: pulse effect option is saved when closing the game
