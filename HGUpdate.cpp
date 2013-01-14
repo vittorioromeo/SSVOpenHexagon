@@ -19,7 +19,7 @@ namespace hg
 	{
 		// Flash effect
 		if(flashEffect > 0) flashEffect -= 3 * mFrameTime;
-		clamp(flashEffect, 0.f, 255.f);
+		flashEffect = clamp(flashEffect, 0.f, 255.f);
 		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = flashEffect;
 
 		if(!hasDied)
