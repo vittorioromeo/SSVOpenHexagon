@@ -35,7 +35,6 @@
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 #include "MenuGame.h"
-#include "PatternManager.h"
 
 using namespace sf;
 using namespace ssvs;
@@ -43,7 +42,7 @@ using namespace sses;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), pm{new PatternManager{this}}
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow)
 	{
 		recreateTextures();
 
@@ -59,7 +58,6 @@ namespace hg
 		game.onDraw += [&](){ drawText(); };
 		game.onDraw += [&](){ drawOnWindow(flashPolygon); };
 	}
-	HexagonGame::~HexagonGame() { delete pm; }
 
 	void HexagonGame::newGame(string mId, bool mFirstPlay, float mDifficultyMult)
 	{
@@ -158,7 +156,6 @@ namespace hg
 			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
 			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
 			timeline.insert(timeline.getCurrentIndex() + 1, new Wait(1));
-
 			return;
 		}
 
@@ -220,4 +217,13 @@ namespace hg
 	bool HexagonGame::isButtonPressed(Mouse::Button mButton){ return window.isButtonPressed(mButton); }
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
+
+	void HexagonGame::wall(int mSide, float mThickness)
+	{
+		createWall(manager, this, centerPos, mSide, mThickness, baseSpeed, getSpeedMultiplier());
+	}
+	void HexagonGame::wallAdj(int mSide, float mThickness, float mSpeedAdj)
+	{
+		createWall(manager, this, centerPos, mSide, mThickness, baseSpeed * mSpeedAdj, getSpeedMultiplier());
+	}
 }

@@ -17,10 +17,7 @@ namespace hg
 {
 	void HexagonGame::update(float mFrameTime)
 	{
-		// Flash effect
-		if(flashEffect > 0) flashEffect -= 3 * mFrameTime;
-		flashEffect = clamp(flashEffect, 0.f, 255.f);
-		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = flashEffect;
+		updateFlash(mFrameTime);
 
 		if(!hasDied)
 		{
@@ -138,5 +135,11 @@ namespace hg
 		}
 
 		gameSprite.rotate(nextRotation * getSign(getRotationSpeed()));
+	}
+	inline void HexagonGame::updateFlash(float mFrameTime)
+	{
+		if(flashEffect > 0) flashEffect -= 3 * mFrameTime;
+		flashEffect = clamp(flashEffect, 0.f, 255.f);
+		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = flashEffect;
 	}
 }

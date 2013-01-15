@@ -32,8 +32,8 @@
 #include <SSVStart.h>
 #include "Data/LevelData.h"
 #include "Data/ProfileData.h"
+#include "Data/MusicData.h"
 #include "Data/StyleData.h"
-#include "PatternManager.h"
 #include "Global/Config.h"
 
 namespace hg

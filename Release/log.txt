@@ -14,3 +14,4 @@
 [ASSETS] loading VeeEndurance level data
 [ASSETS] loading VeeEndurance events
 [ASSETS] loading VeeEndurance custom sounds
+[LUA] level onLoad

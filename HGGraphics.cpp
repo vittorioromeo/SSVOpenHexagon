@@ -65,9 +65,9 @@ namespace hg
 		gameSprite.setPosition(window.getWidth() / 2, window.getHeight() / 2);
 
 		flashPolygon.clear();
-		flashPolygon.append(Vertex{{0, 0}, Color{255, 255, 255, 0}});
-		flashPolygon.append(Vertex{{getSizeX(), 0}, Color{255, 255, 255, 0}});
-		flashPolygon.append(Vertex{{getSizeX(), getSizeY()}, Color{255, 255, 255, 0}});
-		flashPolygon.append(Vertex{{0, getSizeY()}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{0, 0}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{getSizeX(), 0}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{getSizeX(), getSizeY()}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{0, getSizeY()}, Color{255, 255, 255, 0}});
 	}	
 }

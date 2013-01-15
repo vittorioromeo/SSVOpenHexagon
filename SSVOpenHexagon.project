@@ -10,9 +10,7 @@
   <VirtualDirectory Name="src">
     <File Name="main.cpp"/>
     <File Name="HexagonGame.h"/>
-    <File Name="PatternManager.h"/>
     <File Name="HexagonGame.cpp"/>
-    <File Name="PatternManager.cpp"/>
     <File Name="MenuGame.h"/>
     <File Name="MenuGame.cpp"/>
     <VirtualDirectory Name="Components">

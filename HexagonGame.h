@@ -51,6 +51,9 @@ using namespace sses;
 
 namespace hg
 {
+	constexpr float baseSpeed{5};
+	constexpr float baseThickness{40};
+
 	class MenuGame;
 	class PatternManager;
 
@@ -124,6 +127,7 @@ namespace hg
 			inline void updateBeatPulse(float mFrameTime);
 			inline void updateKeys();
 			inline void updateRotation(float mFrameTime);
+			inline void updateFlash(float mFrameTime);
 
 			// Gameplay methods
 			void incrementDifficulty();
@@ -146,12 +150,14 @@ namespace hg
 			void goToMenu();
 			void changeLevel(string mId, bool mFirstTime);
 
+			// Wall spawn
+			void wall(int mSide, float mThickness);
+			void wallAdj(int mSide, float mThickness, float mSpeedAdj);
+
 		public:
 			MenuGame* mgPtr;
-			PatternManager* pm; // owned, opaque pointer
 
 			HexagonGame(GameWindow& mGameWindow);
-			~HexagonGame();
 
 			// Gameplay methods
 			void newGame(string mId, bool mFirstPlay, float mDifficultyMult);

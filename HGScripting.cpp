@@ -82,8 +82,8 @@ namespace hg
 	{
 		lua.writeVariable("log", 					[=](string mLog) 						{ log(mLog, "LUA"); });
 
-		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 					{ timeline.push_back(new Do{[=]{ pm->wall(mSide, mThickness); }}); });
-		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.push_back(new Do{[=]{ pm->wallAdj(mSide, mThickness, mSpeedAdj); }}); });
+		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 					{ timeline.push_back(new Do{[=]{ wall(mSide, mThickness); }}); });
+		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.push_back(new Do{[=]{ wallAdj(mSide, mThickness, mSpeedAdj); }}); });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });

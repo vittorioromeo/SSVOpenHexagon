@@ -23,6 +23,8 @@
 #include "Data/StyleData.h"
 #include "Utils/Utils.h"
 
+using namespace ssvs::Utils;
+
 namespace hg
 {	
 	Color StyleData::calculateColor(Json::Value mColorRoot)

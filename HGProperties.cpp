@@ -15,7 +15,7 @@
 
 namespace hg
 {
-	GameState& HexagonGame::getGame()									{ return game; }
+	GameState& HexagonGame::getGame()								{ return game; }
 	float HexagonGame::getRadius() 									{ return radius; }
 	Color HexagonGame::getColorMain() 								{ return getBlackAndWhite() ? Color::White : styleData.getMainColor(); }
 	Color HexagonGame::getColor(int mIndex)							{ return styleData.getColors()[mIndex]; }
