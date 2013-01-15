@@ -126,7 +126,7 @@ namespace hg
 		Vector2f pLeftCheck{getOrbit(tempPos, angle - 90, 0.01f)};
 		Vector2f pRightCheck{getOrbit(tempPos, angle + 90, 0.01f)};
 
-		for (auto wall : getManager().getComponentPtrsCasted<CWall>("wall"))
+		for (auto wall : getManager().getComponents<CWall>("wall"))
 		{
 			if (movement == -1 && wall->isOverlapping(pLeftCheck)) angle = lastAngle;
 			if (movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;

@@ -30,7 +30,6 @@
     <VirtualDirectory Name="Data">
       <File Name="Data/StyleData.cpp"/>
       <File Name="Data/StyleData.h"/>
-      <File Name="Data/MusicData.cpp"/>
       <File Name="Data/MusicData.h"/>
       <File Name="Data/LevelData.cpp"/>
       <File Name="Data/LevelData.h"/>
@@ -40,6 +39,7 @@
       <File Name="Data/EventData.h"/>
       <File Name="Data/PackData.h"/>
       <File Name="Data/PackData.cpp"/>
+      <File Name="Data/MusicData.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Utils">
       <File Name="Utils/Utils.cpp"/>

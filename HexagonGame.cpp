@@ -151,7 +151,7 @@ namespace hg
 	}
 	void HexagonGame::sideChange(int mSideNumber)
 	{
-		if(manager.getComponentPtrs("wall").size() > 0)
+		if(manager.getComponents("wall").size() > 0)
 		{
 			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
 			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
