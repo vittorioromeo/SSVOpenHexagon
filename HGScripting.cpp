@@ -37,7 +37,7 @@ namespace hg
 			else if (type == "message_important_add")	{ if(getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_clear") 			{ clearMessage(); }
 			else if (type == "time_stop")				{ timeStop = duration; }
-			else if (type == "timeline_wait") 			{ timeline.push_back(new Wait(duration)); }
+			else if (type == "timeline_wait") 			{ timeline.wait(duration); }
 			else if (type == "timeline_clear") 			{ clearAndResetTimeline(timeline); }
 
 			else if (type == "level_float_set") 		{ levelData.setValueFloat(valueName, value); }
@@ -82,8 +82,8 @@ namespace hg
 	{
 		lua.writeVariable("log", 					[=](string mLog) 						{ log(mLog, "LUA"); });
 
-		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 					{ timeline.push_back(new Do{[=]{ wall(mSide, mThickness); }}); });
-		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.push_back(new Do{[=]{ wallAdj(mSide, mThickness, mSpeedAdj); }}); });
+		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 					{ timeline += [=]{ wall(mSide, mThickness); }; });
+		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline += [=]{ wallAdj(mSide, mThickness, mSpeedAdj); }; });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
@@ -91,7 +91,7 @@ namespace hg
 		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
 		lua.writeVariable("execEvent", 				[=](string mId) 						{ eventPtrs.push_back(getEventData(mId, this)); });
 		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventPtrQueue.push(getEventData(mId, this)); });
-		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.push_back(new Wait(mDuration)); });
+		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.wait(mDuration); });
 
 		lua.writeVariable("playSound", 				[=](string mId) 						{ playSound(mId); });
 		lua.writeVariable("forceIncrement", 		[=]()			 						{ incrementDifficulty(); });

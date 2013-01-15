@@ -193,9 +193,9 @@ namespace hg
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
-		messageTimeline.push_back(new Do{ [&, text, mMessage]{ playSound("beep"); messageTextPtr = text; }});
-		messageTimeline.push_back(new Wait{mDuration});
-		messageTimeline.push_back(new Do{ [=]{ messageTextPtr = nullptr; delete text; }});
+		messageTimeline += [&, text, mMessage]{ playSound("beep"); messageTextPtr = text; };
+		messageTimeline.wait(mDuration);
+		messageTimeline += [=]{ messageTextPtr = nullptr; delete text; };
 	}
 	void HexagonGame::clearMessage()
 	{
