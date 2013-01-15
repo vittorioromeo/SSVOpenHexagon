@@ -38,9 +38,10 @@ namespace hg
 	{
 		private:
 			HexagonGame* hgPtr;
-			Vector2f centerPos, p1, p2, p3, p4;			
+			Vector2f centerPos;
+			vector<Vector2f> vertexPositions{4};
 			VertexArray vertices{PrimitiveType::Quads, 4};
-			vector<Vector2f*> pointPtrs{&p1, &p2, &p3, &p4};
+			vector<Vector2f*> pointPtrs{&vertexPositions[0], &vertexPositions[1], &vertexPositions[2], &vertexPositions[3]};
 			float speed{0};
 			float distance{0};
 			float thickness{0};

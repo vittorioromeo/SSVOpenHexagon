@@ -35,15 +35,12 @@ using namespace sses;
 
 namespace hg
 {
-	class CPlayer: public Component
+	class CPlayer : public Component
 	{
 		private:
 			HexagonGame* hgPtr;
-			Vector2f pLeft, pRight;
-			Vector2f startPos, pos;
-
+			Vector2f pLeft, pRight, startPos, pos;
 			VertexArray vertices{PrimitiveType::Triangles, 3};
-
 			float hue{0};
 			float size{getPlayerSize()};
 			float angle{0};

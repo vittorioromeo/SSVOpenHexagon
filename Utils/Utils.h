@@ -38,8 +38,6 @@
 
 namespace hg
 {
-	
-
 	sf::Color getColorFromHue(double);
 	sf::Color getColorDarkened(sf::Color, float);
 	sf::Color getColorFromJsonArray(Json::Value mArray);
@@ -52,8 +50,6 @@ namespace hg
 	ProfileData loadProfileFromJson(Json::Value mRoot);
 
 	std::string getScoreValidator(std::string mId, bool mPulse, float mDifficultyMult);
-
-	
 }
 
 #endif /* UTILS_H_HG */

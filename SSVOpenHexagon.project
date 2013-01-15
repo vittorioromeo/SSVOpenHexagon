@@ -26,6 +26,7 @@
       <File Name="Global/Config.h"/>
       <File Name="Global/Factory.cpp"/>
       <File Name="Global/Factory.h"/>
+      <File Name="Data/MusicData.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Data">
       <File Name="Data/StyleData.cpp"/>
@@ -39,7 +40,6 @@
       <File Name="Data/EventData.h"/>
       <File Name="Data/PackData.h"/>
       <File Name="Data/PackData.cpp"/>
-      <File Name="Data/MusicData.cpp"/>
     </VirtualDirectory>
     <VirtualDirectory Name="Utils">
       <File Name="Utils/Utils.cpp"/>

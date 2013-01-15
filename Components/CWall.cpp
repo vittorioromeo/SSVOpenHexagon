@@ -35,28 +35,22 @@ namespace hg
 		float div{360.f / hgPtr->getSides()};
 		float angle{div * side};
 
-		p1 = getOrbit(centerPos, angle - div * 0.5f, distance);
-		p2 = getOrbit(centerPos, angle + div * 0.5f, distance);
-		p3 = getOrbit(centerPos, angle + div * 0.5f + hgPtr->getWallAngleLeft(), distance + thickness + hgPtr->getWallSkewLeft());
-		p4 = getOrbit(centerPos, angle - div * 0.5f + hgPtr->getWallAngleRight(), distance + thickness + hgPtr->getWallSkewRight());
+		vertexPositions[0] = getOrbit(centerPos, angle - div * 0.5f, distance);
+		vertexPositions[1] = getOrbit(centerPos, angle + div * 0.5f, distance);
+		vertexPositions[2] = getOrbit(centerPos, angle + div * 0.5f + hgPtr->getWallAngleLeft(), distance + thickness + hgPtr->getWallSkewLeft());
+		vertexPositions[3] = getOrbit(centerPos, angle - div * 0.5f + hgPtr->getWallAngleRight(), distance + thickness + hgPtr->getWallSkewRight());
 	}
 
 	bool CWall::isOverlapping(Vector2f mPoint) { return isPointInPolygon(pointPtrs, mPoint); }
 
 	void CWall::draw()
 	{
-		Color color{hgPtr->getColorMain()};
-
-		vertices[0].position = p1;
-		vertices[1].position = p2;
-		vertices[2].position = p3;
-		vertices[3].position = p4;
-
-		vertices[0].color = color;
-		vertices[1].color = color;
-		vertices[2].color = color;
-		vertices[3].color = color;
-
+		for (int i{0}; i < 4; i++)
+		{
+			vertices[i].position = vertexPositions[i];
+			vertices[i].color = hgPtr->getColorMain();
+		}
+		
 		hgPtr->drawOnTexture(vertices);
 	}
 
@@ -65,13 +59,13 @@ namespace hg
 		float radius{hgPtr->getRadius() * 0.65f};
 		int pointsOnCenter{0};
 
-		for(auto pointPtr : pointPtrs)
+		for(auto vertexPosition : vertexPositions)
 		{
-			float distanceX{abs(pointPtr->x - centerPos.x)};
-			float distanceY{abs(pointPtr->y - centerPos.y)};
+			float distanceX{abs(vertexPosition.x - centerPos.x)};
+			float distanceY{abs(vertexPosition.y - centerPos.y)};
 
 			if(distanceX < radius && distanceY < radius) pointsOnCenter++;
-			else movePointTowardsCenter(*pointPtr, centerPos, speed * mFrameTime);
+			else movePointTowardsCenter(vertexPosition, centerPos, speed * mFrameTime);
 		}
 
 		if(pointsOnCenter > 3) getEntity().destroy();

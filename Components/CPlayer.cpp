@@ -36,9 +36,7 @@ namespace hg
 	{
 		drawPivot();
 
-		Color colorMain{hgPtr->getColorMain()};
-
-		if(isDead) colorMain = getColorFromHue(hue / 255.0f);
+		Color colorMain = isDead ? hgPtr->getColorMain() : getColorFromHue(hue / 255.0f);
 
 		pLeft = getOrbit(pos, angle - 100, size + 3);
 		pRight = getOrbit(pos, angle + 100, size + 3);
@@ -47,9 +45,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		vertices[0].color = colorMain;
-		vertices[1].color = colorMain;
-		vertices[2].color = colorMain;
+		for(int i{0}; i < 3; i++) vertices[i].color = colorMain;
 
 		hgPtr->drawOnTexture(vertices);
 	}
@@ -85,14 +81,14 @@ namespace hg
 			Vector2f p3{getOrbit(pivotPos, angle + div * 0.5f, radius + thickness)};
 			Vector2f p4{getOrbit(pivotPos, angle - div * 0.5f, radius + thickness)};
 			
-			vertices2.append(Vertex{p1, colorMain});
-			vertices2.append(Vertex{p2, colorMain});
-			vertices2.append(Vertex{p3, colorMain});
-			vertices2.append(Vertex{p4, colorMain});
+			vertices2.append({p1, colorMain});
+			vertices2.append({p2, colorMain});
+			vertices2.append({p3, colorMain});
+			vertices2.append({p4, colorMain});
 
-			vertices3.append(Vertex{p1, colorB});
-			vertices3.append(Vertex{p2, colorB});
-			vertices3.append(Vertex{pivotPos, colorB});
+			vertices3.append({p1, colorB});
+			vertices3.append({p2, colorB});
+			vertices3.append({pivotPos, colorB});
 		}
 		
 		if(!isDead) hgPtr->drawOnTexture(vertices3);
@@ -111,8 +107,8 @@ namespace hg
 		vector<Keyboard::Key> leftKeys{Keyboard::Left, Keyboard::A};
 		vector<Keyboard::Key> rightKeys{Keyboard::Right, Keyboard::D};
 		if(hgPtr->isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
-		for (auto key : leftKeys) if(hgPtr->isKeyPressed(key)) movement = -1;
-		for (auto key : rightKeys) if(hgPtr->isKeyPressed(key)) movement = 1;
+		for(auto key : leftKeys) if(hgPtr->isKeyPressed(key)) movement = -1;
+		for(auto key : rightKeys) if(hgPtr->isKeyPressed(key)) movement = 1;
 
 		// Mousebutton controls
 		if(hgPtr->isButtonPressed(Mouse::Button::Middle)) currentSpeed = focusSpeed;
