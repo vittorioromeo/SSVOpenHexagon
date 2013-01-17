@@ -59,7 +59,7 @@ namespace hg
 		float radius{hgPtr->getRadius() * 0.65f};
 		int pointsOnCenter{0};
 
-		for(auto vertexPosition : vertexPositions)
+		for(auto& vertexPosition : vertexPositions)
 		{
 			float distanceX{abs(vertexPosition.x - centerPos.x)};
 			float distanceY{abs(vertexPosition.y - centerPos.y)};

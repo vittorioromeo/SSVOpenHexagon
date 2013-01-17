@@ -36,7 +36,7 @@ namespace hg
 	{
 		drawPivot();
 
-		Color colorMain = isDead ? hgPtr->getColorMain() : getColorFromHue(hue / 255.0f);
+		Color colorMain = !isDead ? hgPtr->getColorMain() : getColorFromHue(hue / 255.0f);
 
 		pLeft = getOrbit(pos, angle - 100, size + 3);
 		pRight = getOrbit(pos, angle + 100, size + 3);
