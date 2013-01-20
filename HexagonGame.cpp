@@ -130,10 +130,12 @@ namespace hg
 		playSound("death");
 		playSound("game_over");
 
+		if(getInvincible()) return;
+
+		flashEffect = 255;
 		hasDied = true;
 		stopLevelMusic();
 		checkAndSaveScore();
-		flashEffect = 255;
 	}
 
 	void HexagonGame::incrementDifficulty()

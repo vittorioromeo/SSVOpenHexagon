@@ -21,7 +21,7 @@
 	"no_rotation": false,
 	"no_background": false,
 	"black_and_white": false,
-	"pulse_enabled": true,
+	"pulse_enabled": false,
 	"beatpulse_enabled": true,
 	
 	// Audio options
@@ -39,5 +39,8 @@
 	"debug": false,
 	"show_messages": true,
 	"change_styles": true,
-	"change_music": true
+	"change_music": true,
+	
+	// Cheats
+	"invincible": true
 }

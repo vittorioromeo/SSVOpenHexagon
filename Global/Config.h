@@ -76,6 +76,7 @@ namespace hg
 	bool getDebug();
 	bool getPulse();
 	bool getBeatPulse();
+	bool getInvincible();
 }
 
 #endif /* CONFIG_H_ */

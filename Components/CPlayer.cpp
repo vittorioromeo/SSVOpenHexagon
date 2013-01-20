@@ -128,7 +128,7 @@ namespace hg
 			if (movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;
 			if (wall->isOverlapping(pos))
 			{
-				isDead = true;
+				if(!getInvincible()) isDead = true;
 
 				movePointTowardsCenter(lastPos, Vector2f(0,0), 5 * hgPtr->getSpeedMultiplier());
 

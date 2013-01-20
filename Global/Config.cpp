@@ -147,4 +147,5 @@ namespace hg
 	bool getDebug()						{ return root["debug"].asBool(); }
 	bool getPulse()						{ return root["pulse_enabled"].asBool(); }
 	bool getBeatPulse()					{ return root["beatpulse_enabled"].asBool(); }
+	bool getInvincible()				{ return root["invincible"].asBool(); }
 }
