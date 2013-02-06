@@ -117,5 +117,5 @@ namespace hg
 		return result;
 	}
 
-	string getScoreValidator(string mId, bool mPulse, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
+	string getScoreValidator(string mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
 }

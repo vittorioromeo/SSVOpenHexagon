@@ -49,7 +49,7 @@ namespace hg
 	StyleData loadStyleFromJson(Json::Value mRoot);
 	ProfileData loadProfileFromJson(Json::Value mRoot);
 
-	std::string getScoreValidator(std::string mId, bool mPulse, float mDifficultyMult);
+	std::string getScoreValidator(std::string mId, float mDifficultyMult);
 }
 
 #endif /* UTILS_H_HG */

@@ -170,7 +170,7 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		string validator{getScoreValidator(levelData.getId(), getPulse(), difficultyMult)};
+		string validator{getScoreValidator(levelData.getId(), difficultyMult)};
 		if(getScore(validator) < currentTime) setScore(validator, currentTime);
 		saveCurrentProfile();
 	}
