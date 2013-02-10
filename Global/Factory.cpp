@@ -8,18 +8,21 @@
 #include "Components/CWall.h"
 #include "Utils/Utils.h"
 
+using namespace sf;
+using namespace sses;
+
 namespace hg
 {
 	Entity* createWall(Manager& mManager, HexagonGame* mHgPtr, Vector2f mCenterPos, int mSide, float mThickness, float mSpeed, float mSpeedMultiplier)
 	{
 		auto result = mManager.createEntity();
-		*result += mManager.createComponent<CWall>(mHgPtr, mCenterPos, mSide, mThickness, getSpawnDistance(), mSpeed * mSpeedMultiplier);
+		*result += mManager.createComponent<CWall>(*mHgPtr, mCenterPos, mSide, mThickness, getSpawnDistance(), mSpeed * mSpeedMultiplier);
 		return result;
 	}
 	Entity* createPlayer(Manager& mManager, HexagonGame* mHgPtr, Vector2f mCenterPos)
 	{
 		auto result = mManager.createEntity();
-		*result += mManager.createComponent<CPlayer>(mHgPtr, mCenterPos);
+		*result += mManager.createComponent<CPlayer>(*mHgPtr, mCenterPos);
 		result->setDrawPriority(-1);
 		return result;
 	}

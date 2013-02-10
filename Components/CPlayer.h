@@ -12,28 +12,21 @@
 #include "Global/Config.h"
 #include "HexagonGame.h"
 
-using namespace sf;
-using namespace sses;
-
 namespace hg
 {
-	class CPlayer : public Component
+	class CPlayer : public sses::Component
 	{
 		private:
-			HexagonGame* hgPtr;
-			Vector2f pLeft, pRight, startPos, pos;
-			VertexArray vertices{PrimitiveType::Triangles, 3};
-			float hue{0};
-			float size{getPlayerSize()};
-			float angle{0};
-			float speed{getPlayerSpeed()};
-			float focusSpeed{getPlayerFocusSpeed()};
-			bool isDead{false};
+			HexagonGame& hexagonGame;
+			sf::Vector2f pLeft, pRight, startPos, pos;
+			sf::VertexArray vertices{sf::PrimitiveType::Triangles, 3};
+			float hue{0}, angle{0}, size{getPlayerSize()}, speed{getPlayerSpeed()}, focusSpeed{getPlayerFocusSpeed()};
+			bool dead{false};
 
-			inline void drawPivot();			
+			void drawPivot();			
 
 		public:		
-			CPlayer(HexagonGame*, Vector2f);
+			CPlayer(HexagonGame& mHexagonGame, sf::Vector2f mStartPos);
 
 			void update(float mFrameTime) override;
 			void draw() override;

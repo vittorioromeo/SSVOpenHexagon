@@ -11,28 +11,23 @@
 #include <SSVEntitySystem.h>
 #include "HexagonGame.h"
 
-using namespace sf;
-using namespace sses;
-
 namespace hg
 {
-	class CWall : public Component
+	class CWall : public sses::Component
 	{
 		private:
-			HexagonGame* hgPtr;
-			Vector2f centerPos;
-			vector<Vector2f> vertexPositions{4};
-			VertexArray vertices{PrimitiveType::Quads, 4};
-			vector<Vector2f*> pointPtrs{&vertexPositions[0], &vertexPositions[1], &vertexPositions[2], &vertexPositions[3]};
-			float speed{0};
-			float distance{0};
-			float thickness{0};
+			HexagonGame& hexagonGame;
+			sf::Vector2f centerPos;
+			std::vector<sf::Vector2f> vertexPositions{4};
+			sf::VertexArray vertices{sf::PrimitiveType::Quads, 4};
+			std::vector<sf::Vector2f*> pointPtrs{&vertexPositions[0], &vertexPositions[1], &vertexPositions[2], &vertexPositions[3]};
+			float speed{0}, distance{0}, thickness{0};
 			int side{0};
 
 		public:
-			CWall(HexagonGame*, Vector2f, int, float, float, float);
+			CWall(HexagonGame& mHexagonGame, sf::Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed);
 
-			bool isOverlapping(Vector2f mPoint);
+			bool isOverlapping(sf::Vector2f mPoint);
 			void update(float mFrameTime) override;
 			void draw() override;
 	};

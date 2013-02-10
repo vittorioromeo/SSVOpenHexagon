@@ -1,14 +1,8 @@
 #ifndef PATTERNDATA_H
 #define PATTERNDATA_H
 
-#include <vector>
-#include <functional>
 #include <string>
-#include <map>
 #include <json/json.h>
-#include <SSVStart.h>
-
-using namespace std;
 
 namespace hg
 {
@@ -25,7 +19,7 @@ namespace hg
 		public:
 			EventData(Json::Value mRoot);
 
-			string getId();
+			std::string getId();
 			bool getFinished();
 
 			void setHexagonGamePtr(HexagonGame* mHgPtr);

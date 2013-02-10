@@ -10,8 +10,8 @@
 
 namespace hg
 {
-	Entity* createWall(Manager& mManager, HexagonGame* mHgPtr, Vector2f mCenterPos, int mSide, float mThickness, float mSpeed, float mSpeedMultiplier);
-	Entity* createPlayer(Manager& mManager, HexagonGame* mHgPtr, Vector2f mCenterPos);
+	sses::Entity* createWall(sses::Manager& mManager, HexagonGame* mHgPtr, sf::Vector2f mCenterPos, int mSide, float mThickness, float mSpeed, float mSpeedMultiplier);
+	sses::Entity* createPlayer(sses::Manager& mManager, HexagonGame* mHgPtr, sf::Vector2f mCenterPos);
 }
 
 #endif /* FACTORY_H_ */

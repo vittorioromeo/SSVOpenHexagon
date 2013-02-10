@@ -6,25 +6,18 @@
 #define LEVELSETTINGS_H
 
 #include <vector>
-#include <functional>
 #include <string>
-#include <map>
 #include <json/json.h>
-
-using namespace std;
 
 namespace hg
 {
-	class PatternManager;
-
 	class LevelData
 	{
 		private:
 			Json::Value root;
-			vector<function<void(PatternManager* pm)>> pfuncs;
-			int currentPattern	{-1};
-			vector<Json::Value> events;
-			string packPath;
+			int currentPattern{-1};
+			std::vector<Json::Value> events;
+			std::string packPath;
 
 		public:
 			LevelData() = default;
@@ -34,17 +27,17 @@ namespace hg
 
 			Json::Value& getRoot();
 
-			void setPackPath(string mPackPath);
-			string getPackPath();
+			void setPackPath(std::string mPackPath);
+			std::string getPackPath();
 
-			string getId();
-			string getName();
-			string getDescription();
-			string getAuthor();
+			std::string getId();
+			std::string getName();
+			std::string getDescription();
+			std::string getAuthor();
 			int getMenuPriority();
 			bool getSelectable();
-			string getStyleId();
-			string getMusicId();
+			std::string getStyleId();
+			std::string getMusicId();
 			float getSpeedMultiplier();
 			float getSpeedIncrement();
 			float getRotationSpeed();
@@ -65,24 +58,24 @@ namespace hg
 			float getBeatPulseMax();
 			float getBeatPulseDelayMax();
 			float getRadiusMin();
-			vector<float> getDifficultyMultipliers();
-			vector<Json::Value>& getEvents();
+			std::vector<float> getDifficultyMultipliers();
+			std::vector<Json::Value>& getEvents();
 
 			void setSpeedMultiplier(float mSpeedMultiplier);
 			void setDelayMultiplier(float mDelayMultiplier);
 			void setRotationSpeed(float mRotationSpeed);
 
-			void setValueFloat(string mValueName, float mValue);
-			float getValueFloat(string mValueName);
+			void setValueFloat(std::string mValueName, float mValue);
+			float getValueFloat(std::string mValueName);
 
-			void setValueInt(string mValueName, int mValue);
-			float getValueInt(string mValueName);
+			void setValueInt(std::string mValueName, int mValue);
+			float getValueInt(std::string mValueName);
 
-			void setValueString(string mValueName, string mValue);
-			string getValueString(string mValueName);
+			void setValueString(std::string mValueName, std::string mValue);
+			std::string getValueString(std::string mValueName);
 
-			void setValueBool(string mValueName, bool mValue);
-			bool getValueBool(string mValueName);
+			void setValueBool(std::string mValueName, bool mValue);
+			bool getValueBool(std::string mValueName);
 
 	};
 }

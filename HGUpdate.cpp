@@ -13,6 +13,12 @@
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 
+using namespace std;
+using namespace sf;
+using namespace ssvs;
+using namespace ssvs::Utils;
+using namespace sses;
+
 namespace hg
 {
 	void HexagonGame::update(float mFrameTime)
@@ -38,7 +44,7 @@ namespace hg
 		if(!getNoRotation()) updateRotation(mFrameTime);
 		if(mustRestart) changeLevel(restartId, restartFirstTime);
 	}
-	inline void HexagonGame::updateEvents(float mFrameTime)
+	void HexagonGame::updateEvents(float mFrameTime)
 	{
 		for(EventData* event : eventPtrs) event->update(mFrameTime);
 
@@ -53,7 +59,7 @@ namespace hg
 
 		executeEvents(levelData.getRoot()["events"], currentTime);
 	}
-	inline void HexagonGame::updateTimeStop(float mFrameTime)
+	void HexagonGame::updateTimeStop(float mFrameTime)
 	{
 		if(timeStop <= 0)
 		{
@@ -62,7 +68,7 @@ namespace hg
 		}
 		else timeStop -= 1 * mFrameTime;
 	}
-	inline void HexagonGame::updateIncrement()
+	void HexagonGame::updateIncrement()
 	{
 		if(!incrementEnabled) return;
 		if(incrementTime < levelData.getIncrementTime()) return;
@@ -70,7 +76,7 @@ namespace hg
 		incrementTime = 0;
 		incrementDifficulty();
 	}
-	inline void HexagonGame::updateLevel(float mFrameTime)
+	void HexagonGame::updateLevel(float mFrameTime)
 	{
 		runLuaFunction<float>("onUpdate", mFrameTime);
 		timeline.update(mFrameTime);
@@ -82,7 +88,7 @@ namespace hg
 			timeline.reset();
 		}
 	}
-	inline void HexagonGame::updatePulse(float mFrameTime)
+	void HexagonGame::updatePulse(float mFrameTime)
 	{
 		if(pulseDelay <= 0 && pulseDelayHalf <= 0)
 		{
@@ -105,7 +111,7 @@ namespace hg
 		float p{pulse / levelData.getPulseMin()};
 		gameTexture.setView(View{Vector2f{0,0}, Vector2f{(getSizeX() * getZoomFactor()) * p, (getSizeY() * getZoomFactor()) * p}});
 	}
-	inline void HexagonGame::updateBeatPulse(float mFrameTime)
+	void HexagonGame::updateBeatPulse(float mFrameTime)
 	{
 		if(beatPulseDelay <= 0)
 		{
@@ -119,13 +125,13 @@ namespace hg
 		float radiusMin{getBeatPulse() ? levelData.getRadiusMin() : 75};
 		radius = radiusMin * (pulse / levelData.getPulseMin()) + beatPulse;
 	}
-	inline void HexagonGame::updateKeys()
+	void HexagonGame::updateKeys()
 	{
 		if(isKeyPressed(Keyboard::R)) mustRestart = true;
 		if(hasDied && (isKeyPressed(Keyboard::Space) || isKeyPressed(Keyboard::Return))) mustRestart = true;
 		else if(isKeyPressed(Keyboard::Escape))	goToMenu();
 	}
-	inline void HexagonGame::updateRotation(float mFrameTime)
+	void HexagonGame::updateRotation(float mFrameTime)
 	{
 		auto nextRotation = abs(getRotationSpeed()) * 10 * mFrameTime;
 		if(fastSpin > 0)
@@ -136,7 +142,7 @@ namespace hg
 
 		gameSprite.rotate(nextRotation * getSign(getRotationSpeed()));
 	}
-	inline void HexagonGame::updateFlash(float mFrameTime)
+	void HexagonGame::updateFlash(float mFrameTime)
 	{
 		if(flashEffect > 0) flashEffect -= 3 * mFrameTime;
 		flashEffect = clamp(flashEffect, 0.f, 255.f);

@@ -26,10 +26,6 @@
 #pragma GCC system_header
 #include <SSVLuaWrapper.h>
 
-using namespace sf;
-using namespace ssvs;
-using namespace ssvs::Utils;
-using namespace sses;
 
 namespace hg
 {
@@ -44,23 +40,23 @@ namespace hg
 		friend class PatternManager;
 
 		private:
-			GameState game;
-			GameWindow& window;
-			Manager manager;
-			RenderTexture gameTexture;
-			Sprite gameSprite;
+			ssvs::GameState game;
+			ssvs::GameWindow& window;
+			sses::Manager manager;
+			sf::RenderTexture gameTexture;
+			sf::Sprite gameSprite;
 			Lua::LuaContext	lua;
-			Vector2f centerPos{0,0};
+			sf::Vector2f centerPos{0,0};
 			LevelData levelData;
 			MusicData musicData;
 			StyleData styleData;
-			Music* musicPtr{nullptr};
-			Timeline timeline;
-			Timeline messageTimeline;
-			Text* messageTextPtr{nullptr};
-			vector<EventData*> eventPtrs;
-			queue<EventData*> eventPtrQueue;
-			VertexArray flashPolygon{PrimitiveType::Quads, 4};
+			sf::Music* musicPtr{nullptr};
+			ssvs::Timeline timeline;
+			ssvs::Timeline messageTimeline;
+			sf::Text* messageTextPtr{nullptr};
+			std::vector<EventData*> eventPtrs;
+			std::queue<EventData*> eventPtrQueue;
+			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
 			bool firstPlay{true};
 
 			// New game parameters
@@ -84,32 +80,35 @@ namespace hg
 			float fastSpin{0};
 			bool hasDied{false};
 			bool mustRestart{false};
-			string restartId{""};
+			std::string restartId{""};
 			bool restartFirstTime{true};
 			float difficultyMult{1};
 
 			// LUA-related methods
 			void initLua();
-			void runLuaFile(string mFileName);
+			void runLuaFile(std::string mFileName);
 			template<typename R, typename... Args> R runLuaFunction(const std::string& variableName, const Args&... args)
 			{
 				try { return lua.callLuaFunction<R>(variableName, std::make_tuple(args...)); }
-				catch(runtime_error &error) { cout << variableName << endl << "LUA runtime error: " << endl << toStr(error.what()) << endl << endl; }
+				catch(std::runtime_error &error)
+				{
+					std::cout << variableName << std::endl << "LUA runtime error: " << std::endl << ssvs::Utils::toStr(error.what()) << std::endl << std::endl; 
+				}
 
 				return R();
 			}
 
 			// Update methods
 			void update(float);
-			inline void updateTimeStop(float mFrameTime);
-			inline void updateIncrement();
-			inline void updateEvents(float mFrameTime);
-			inline void updateLevel(float mFrameTime);	
-			inline void updatePulse(float mFrameTime);
-			inline void updateBeatPulse(float mFrameTime);
-			inline void updateKeys();
-			inline void updateRotation(float mFrameTime);
-			inline void updateFlash(float mFrameTime);
+			void updateTimeStop(float mFrameTime);
+			void updateIncrement();
+			void updateEvents(float mFrameTime);
+			void updateLevel(float mFrameTime);
+			void updatePulse(float mFrameTime);
+			void updateBeatPulse(float mFrameTime);
+			void updateKeys();
+			void updateRotation(float mFrameTime);
+			void updateFlash(float mFrameTime);
 
 			// Gameplay methods
 			void incrementDifficulty();
@@ -124,13 +123,13 @@ namespace hg
 			void stopLevelMusic();
 
 			// Message-related methods
-			void addMessage(string mMessage, float mDuration);
+			void addMessage(std::string mMessage, float mDuration);
 			void clearMessage();
 
 			// Level/menu loading/unloading/changing
 			void checkAndSaveScore();
 			void goToMenu();
-			void changeLevel(string mId, bool mFirstTime);
+			void changeLevel(std::string mId, bool mFirstTime);
 
 			// Wall spawn
 			void wall(int mSide, float mThickness);
@@ -139,10 +138,10 @@ namespace hg
 		public:
 			MenuGame* mgPtr;
 
-			HexagonGame(GameWindow& mGameWindow);
+			HexagonGame(ssvs::GameWindow& mGameWindow);
 
 			// Gameplay methods
-			void newGame(string mId, bool mFirstPlay, float mDifficultyMult);
+			void newGame(std::string mId, bool mFirstPlay, float mDifficultyMult);
 			void death();
 
 			// Other methods
@@ -156,10 +155,10 @@ namespace hg
 			void drawOnWindow(sf::Drawable&);
 
 			// Properties
-			GameState& getGame();
+			ssvs::GameState& getGame();
 			float getRadius();
-			Color getColorMain();
-			Color getColor(int mIndex);
+			sf::Color getColorMain();
+			sf::Color getColor(int mIndex);
 			float getSpeedMultiplier();
 			float getDelayMultiplier();
 			float getRotationSpeed();

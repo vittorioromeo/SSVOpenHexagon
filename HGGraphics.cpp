@@ -13,6 +13,12 @@
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 
+using namespace std;
+using namespace sf;
+using namespace ssvs;
+using namespace ssvs::Utils;
+using namespace sses;
+
 namespace hg
 {
 	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }

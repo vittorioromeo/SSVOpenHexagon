@@ -2,24 +2,21 @@
 #define PACKDATA_H
 
 #include <string>
-#include <vector>
 #include <json/json.h>
-
-using namespace std;
 
 namespace hg
 {
 	class PackData
 	{
 		private:
-			string id;
-			string name;
+			std::string id;
+			std::string name;
 			float priority;
 
 		public:
-			PackData(string mId, string mName, float mPriority);
-			string getId();
-			string getName();
+			PackData(std::string mId, std::string mName, float mPriority);
+			std::string getId();
+			std::string getName();
 			float getPriority();
 	};
 }

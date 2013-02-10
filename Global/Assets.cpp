@@ -21,8 +21,9 @@
 
 using namespace std;
 using namespace sf;
-using namespace ssvs::FileSystem;
+using namespace ssvs;
 using namespace ssvs::Utils;
+using namespace ssvs::FileSystem;
 
 namespace hg
 {

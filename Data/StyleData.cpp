@@ -5,6 +5,8 @@
 #include "Data/StyleData.h"
 #include "Utils/Utils.h"
 
+using namespace std;
+using namespace sf;
 using namespace ssvs::Utils;
 
 namespace hg

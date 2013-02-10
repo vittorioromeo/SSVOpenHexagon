@@ -5,6 +5,8 @@
 #include "Data/LevelData.h"
 #include "Utils/Utils.h"
 
+using namespace std;
+
 namespace hg
 {
 	LevelData::LevelData(Json::Value mRoot) : root{mRoot} { }

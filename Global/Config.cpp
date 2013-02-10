@@ -12,7 +12,9 @@
 #include "Utils/Utils.h"
 
 using namespace std;
+using namespace sf;
 using namespace ssvs;
+using namespace ssvs::Utils;
 using namespace ssvs::FileSystem;
 
 namespace hg

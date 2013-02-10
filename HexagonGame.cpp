@@ -18,8 +18,10 @@
 #include "HexagonGame.h"
 #include "MenuGame.h"
 
+using namespace std;
 using namespace sf;
 using namespace ssvs;
+using namespace ssvs::Utils;
 using namespace sses;
 
 namespace hg
@@ -131,15 +133,15 @@ namespace hg
 			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));
 
 		fastSpin = levelData.getFastSpin();
-		timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); }));
+		timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); });
 	}
 	void HexagonGame::sideChange(int mSideNumber)
 	{
 		if(manager.getComponents("wall").size() > 0)
 		{
-			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&]{ clearAndResetTimeline(timeline); }));
-			timeline.insert(timeline.getCurrentIndex() + 1, new Do([&, mSideNumber]{ sideChange(mSideNumber); }));
-			timeline.insert(timeline.getCurrentIndex() + 1, new Wait(1));
+			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ clearAndResetTimeline(timeline); });
+			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&, mSideNumber]{ sideChange(mSideNumber); });
+			timeline.insert<Wait>(timeline.getCurrentIndex() + 1, 1);
 			return;
 		}
 
@@ -177,9 +179,9 @@ namespace hg
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
-		messageTimeline += [&, text, mMessage]{ playSound("beep"); messageTextPtr = text; };
-		messageTimeline.wait(mDuration);
-		messageTimeline += [=]{ messageTextPtr = nullptr; delete text; };
+		messageTimeline.append<Do>([&, text, mMessage]{ playSound("beep"); messageTextPtr = text; });
+		messageTimeline.append<Wait>(mDuration);
+		messageTimeline.append<Do>([=]{ messageTextPtr = nullptr; delete text; });
 	}
 	void HexagonGame::clearMessage()
 	{

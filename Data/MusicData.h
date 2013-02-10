@@ -9,39 +9,36 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-using namespace sf;
-
 namespace hg
 {
 	class MusicData
 	{
 		private:
-			vector<int> segments;
-			string id 			{""};
-			string fileName 	{""};
-			string name			{""};
-			string album		{""};
-			string author		{""};
+			std::vector<int> segments;
+			std::string id 			{""};
+			std::string fileName 	{""};
+			std::string name		{""};
+			std::string album		{""};
+			std::string author		{""};
 
-			Music* musicPtr		{new Music};
+			sf::Music* musicPtr		{new sf::Music};
 			bool firstPlay		{true};
 			int getRandomSegment();
 
 		public:
 			MusicData() = default;
-			MusicData(string mId, string mFileName, string mName, string mAlbum, string mAuthor);
+			MusicData(std::string mId, std::string mFileName, std::string mName, std::string mAlbum, std::string mAuthor);
 
 			void addSegment(int mSeconds);			
-			void playRandomSegment(Music*& mMusicPtr);
-			void playSegment(Music*& mMusicPtr, int mSegmentIndex);
-			void playSeconds(Music*& mMusicPtr, int mSeconds);
+			void playRandomSegment(sf::Music*& mMusicPtr);
+			void playSegment(sf::Music*& mMusicPtr, int mSegmentIndex);
+			void playSeconds(sf::Music*& mMusicPtr, int mSeconds);
 
-			string getId();
-			string getFileName();
-			string getName();
-			string getAlbum();
-			string getAuthor();
+			std::string getId();
+			std::string getFileName();
+			std::string getName();
+			std::string getAlbum();
+			std::string getAuthor();
 
 			void setFirstPlay(bool mFirstPlay);
 			bool getFirstPlay();

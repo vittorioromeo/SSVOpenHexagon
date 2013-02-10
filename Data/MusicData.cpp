@@ -7,6 +7,12 @@
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
 
+using namespace std;
+using namespace sf;
+using namespace ssvs;
+using namespace ssvs::Utils;
+using namespace sses;
+
 namespace hg
 {
 	MusicData::MusicData(string mId, string mFileName, string mName, string mAlbum, string mAuthor) :

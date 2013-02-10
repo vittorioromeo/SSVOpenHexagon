@@ -9,9 +9,7 @@
 #include <fstream>
 #include <json/json.h>
 #include <json/reader.h>
-#include <SSVEntitySystem.h>
 #include <SSVStart.h>
-#include "Components/CPlayer.h"
 #include "Global/Assets.h"
 #include "Global/Config.h"
 #include "Utils/Utils.h"
@@ -27,17 +25,17 @@ using namespace hg;
 
 int main(int argc, char* argv[])
 {
+	srand(unsigned(time(NULL)));
+
 	vector<string> overrideIds;
 	for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
 	loadConfig(overrideIds);
 	loadAssets();
 
-	srand(unsigned(time(NULL)));
-
 	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - vee software"};
 	
-	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getLimitFps(), getFullscreen()};
+	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
 	window.setStaticFrameTime(getStaticFrameTime());
 	window.setStaticFrameTimeValue(getStaticFrameTimeValue());
 	window.setVsync(getVsync());

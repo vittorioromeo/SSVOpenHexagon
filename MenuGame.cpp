@@ -14,6 +14,12 @@
 #include "Utils/Utils.h"
 #include "MenuGame.h"
 
+using namespace std;
+using namespace sf;
+using namespace ssvs;
+using namespace ssvs::Utils;
+using namespace sses;
+
 namespace hg
 {
 	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow), state(StateType::PROFILE_SELECTION)

@@ -6,10 +6,7 @@
 #define PROFILEDATA_H
 
 #include <string>
-#include <vector>
 #include <json/json.h>
-
-using namespace std;
 
 namespace hg
 {
@@ -17,18 +14,18 @@ namespace hg
 	{
 		private:
 			float version;
-			string name;
+			std::string name;
 			Json::Value scores;
 
 		public:
-			ProfileData(float mVersion, string mName, Json::Value mScores);
+			ProfileData(float mVersion, std::string mName, Json::Value mScores);
 
 			float getVersion();
-			string getName();
+			std::string getName();
 			Json::Value getScores();
 
-			void setScore(string mId, float mScore);
-			float getScore(string mId);
+			void setScore(std::string mId, float mScore);
+			float getScore(std::string mId);
 	};
 }
 

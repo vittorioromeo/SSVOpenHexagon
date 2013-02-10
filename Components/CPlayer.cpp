@@ -7,18 +7,20 @@
 #include "Components/CWall.h"
 #include "Utils/Utils.h"
 
+using namespace std;
+using namespace sf;
+using namespace sses;
 using namespace ssvs::Utils;
 
 namespace hg
 {
-	CPlayer::CPlayer(HexagonGame *mHgPtr, Vector2f mStartPos) :
-		Component{"player"}, hgPtr{mHgPtr}, startPos{mStartPos}, pos{startPos} { }
+	CPlayer::CPlayer(HexagonGame& mHexagonGame, Vector2f mStartPos) : Component{"player"}, hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
 
 	void CPlayer::draw()
 	{
 		drawPivot();
 
-		Color colorMain = !isDead ? hgPtr->getColorMain() : getColorFromHue(hue / 255.0f);
+		Color colorMain = !dead ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f);
 
 		pLeft = getOrbit(pos, angle - 100, size + 3);
 		pRight = getOrbit(pos, angle + 100, size + 3);
@@ -29,20 +31,20 @@ namespace hg
 
 		for(int i{0}; i < 3; i++) vertices[i].color = colorMain;
 
-		hgPtr->drawOnTexture(vertices);
+		hexagonGame.drawOnTexture(vertices);
 	}
-	inline void CPlayer::drawPivot()
+	void CPlayer::drawPivot()
 	{
 		float thickness{5};
 
-		Color colorMain{hgPtr->getColorMain()};
-		Color colorB{hgPtr->getColor(1)};
+		Color colorMain{hexagonGame.getColorMain()};
+		Color colorB{hexagonGame.getColor(1)};
 		
-		float div {360.f / hgPtr->getSides()};
-		float radius {hgPtr->getRadius() * 0.75f};
+		float div {360.f / hexagonGame.getSides()};
+		float radius {hexagonGame.getRadius() * 0.75f};
 		Vector2f pivotPos{startPos};
 
-		if(isDead)
+		if(dead)
 		{
 			pivotPos = pos;			
 			colorMain = getColorFromHue((360 - hue) / 255.0f);
@@ -54,7 +56,7 @@ namespace hg
 		VertexArray vertices2 {PrimitiveType::Quads, 4};
 		VertexArray vertices3 {PrimitiveType::Triangles, 3};
 
-		for(int i{0}; i < hgPtr->getSides(); i++)
+		for(int i{0}; i < hexagonGame.getSides(); i++)
 		{
 			float angle{div * i};
 
@@ -73,8 +75,8 @@ namespace hg
 			vertices3.append({pivotPos, colorB});
 		}
 		
-		if(!isDead) hgPtr->drawOnTexture(vertices3);
-		hgPtr->drawOnTexture(vertices2);
+		if(!dead) hexagonGame.drawOnTexture(vertices3);
+		hexagonGame.drawOnTexture(vertices2);
 	}
 
 	void CPlayer::update(float mFrameTime)
@@ -88,18 +90,18 @@ namespace hg
 		// Keyboard controls
 		vector<Keyboard::Key> leftKeys{Keyboard::Left, Keyboard::A};
 		vector<Keyboard::Key> rightKeys{Keyboard::Right, Keyboard::D};
-		if(hgPtr->isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
-		for(auto key : leftKeys) if(hgPtr->isKeyPressed(key)) movement = -1;
-		for(auto key : rightKeys) if(hgPtr->isKeyPressed(key)) movement = 1;
+		if(hexagonGame.isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
+		for(auto key : leftKeys) if(hexagonGame.isKeyPressed(key)) movement = -1;
+		for(auto key : rightKeys) if(hexagonGame.isKeyPressed(key)) movement = 1;
 
 		// Mousebutton controls
-		if(hgPtr->isButtonPressed(Mouse::Button::Middle)) currentSpeed = focusSpeed;
-		if(hgPtr->isButtonPressed(Mouse::Button::Left)) movement = -1;
-		if(hgPtr->isButtonPressed(Mouse::Button::Right)) movement = 1;
+		if(hexagonGame.isButtonPressed(Mouse::Button::Middle)) currentSpeed = focusSpeed;
+		if(hexagonGame.isButtonPressed(Mouse::Button::Left)) movement = -1;
+		if(hexagonGame.isButtonPressed(Mouse::Button::Right)) movement = 1;
 
 		angle += currentSpeed * movement * mFrameTime;
 
-		float radius{hgPtr->getRadius()};
+		float radius{hexagonGame.getRadius()};
 		Vector2f tempPos{getOrbit(startPos, angle, radius)};
 		Vector2f pLeftCheck{getOrbit(tempPos, angle - 90, 0.01f)};
 		Vector2f pRightCheck{getOrbit(tempPos, angle + 90, 0.01f)};
@@ -110,12 +112,12 @@ namespace hg
 			if (movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;
 			if (wall->isOverlapping(pos))
 			{
-				if(!getInvincible()) isDead = true;
+				if(!getInvincible()) dead = true;
 
-				movePointTowardsCenter(lastPos, Vector2f(0,0), 5 * hgPtr->getSpeedMultiplier());
+				movePointTowardsCenter(lastPos, Vector2f(0,0), 5 * hexagonGame.getSpeedMultiplier());
 
 				pos = lastPos;
-				hgPtr->death();
+				hexagonGame.death();
 				return;
 			}
 		}

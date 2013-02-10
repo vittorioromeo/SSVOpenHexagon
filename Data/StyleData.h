@@ -8,9 +8,6 @@
 #include <json/json.h>
 #include <SFML/Graphics.hpp>
 
-using namespace sf;
-using namespace std;
-
 namespace hg
 {
 	class StyleData
@@ -28,33 +25,33 @@ namespace hg
 			StyleData(Json::Value mRoot);
 
 			void update(float mFrameTime);
-			void drawBackground(RenderTarget& mRenderTarget, Vector2f mCenterPos, int mSides);
+			void drawBackground(sf::RenderTarget& mRenderTarget, sf::Vector2f mCenterPos, int mSides);
 
-			string getId();
+			std::string getId();
 			float getHueMin();
 			float getHueMax();
 			bool getHuePingPong();
 			float getHueIncrement();
 
-			Color calculateColor(Json::Value mColorRoot);
+			sf::Color calculateColor(Json::Value mColorRoot);
 
-			Color getMainColor();
-			vector<Color> getColors();
+			sf::Color getMainColor();
+			std::vector<sf::Color> getColors();
 
 			float getCurrentHue();
 			float getCurrentSwapTime();
 
-			void setValueFloat(string mValueName, float mValue);
-			float getValueFloat(string mValueName);
+			void setValueFloat(std::string mValueName, float mValue);
+			float getValueFloat(std::string mValueName);
 
-			void setValueInt(string mValueName, int mValue);
-			float getValueInt(string mValueName);
+			void setValueInt(std::string mValueName, int mValue);
+			float getValueInt(std::string mValueName);
 
-			void setValueString(string mValueName, string mValue);
-			string getValueString(string mValueName);
+			void setValueString(std::string mValueName, std::string mValue);
+			std::string getValueString(std::string mValueName);
 
-			void setValueBool(string mValueName, bool mValue);
-			bool getValueBool(string mValueName);
+			void setValueBool(std::string mValueName, bool mValue);
+			bool getValueBool(std::string mValueName);
 	};
 }
 
