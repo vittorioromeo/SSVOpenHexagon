@@ -1,9 +1,9 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.52 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.6 #
 ## [vee software](http://veegamedev.wordpress.com/) ##
 
-**A free, open source clone of "[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)" (by Terry Cavanagh). </br>**
-**Programmed by Vittorio Romeo. </br>**
-**Music by BOSSFIGHT.** 
+A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
+Programmed by **[Vittorio Romeo](http://vittorioromeo.info)</br>**
+Music by **[BOSSFIGHT](https://soundcloud.com/bossfightswe)</br>**
 
 ----------
 
@@ -17,14 +17,10 @@
 
 **Official page:** [http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon) </br>
 **Source code page:** [https://github.com/SuperV1234](https://github.com/SuperV1234)</br>
-**Vittorio's website**: [http://vittorioromeo.info](http://http://vittorioromeo.info)</br>
-
-**Terry Cavanagh's page**: [http://distractionware.com](http://distractionware.com/) </br>
-**BOSSFIGHT's page:** [http://soundcloud.com/bossfightswe](http://soundcloud.com/bossfightswe) </br>
+**Vittorio's website**: [http://vittorioromeo.info](http://vittorioromeo.info)</br>
 
 Special thanks:</br> 
 to **BubblegumBalloon** for the announcer sounds </br>
-to **Dajoh** for hosting </br>
 to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)</br>
 to **Ethan Lee** for the [Unix port](https://github.com/flibitijibibo/OpenHexagon-Unix)</br>
 to **Jookia** for his help with the CMake files</br>
@@ -95,7 +91,17 @@ Please refer to the files in the **documentation** folder.
 
 ## Changelog ##
 
+Version 1.6
+
+* Fixed: impossible patterns with extreme difficulty multipliers (should be fixed) - **getPerfectDelayDM** is a new function that takes difficulty multiplier into account
+* Fixed: outdated level documentation file
+* Added: flash effect on death
+* Added: pulse effect option is saved when closing the game
+* Added: **mouse-button control** (use left/right buttons to spin)
+* Added: **custom sounds** for level packs (they work differently from normal sounds, please refer to the sounds documentation)
+
 Version 1.52
+
 * Fixed: non-folders in Packs/ directory caused crash
 * Fixed: impossible wall bug with low difficulty multipliers
 
