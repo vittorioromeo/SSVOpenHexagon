@@ -7,13 +7,13 @@ ProjectName            :=SSVOpenHexagon
 ConfigurationName      :=Release
 WorkspacePath          := "D:\Vee\Software\GitHub\OHWorkspace"
 ProjectPath            := "D:\Vee\Software\GitHub\OHWorkspace\SSVOpenHexagon"
-IntermediateDirectory  :=./Release
+IntermediateDirectory  :=./_INTERMEDIATE
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=10/02/2013
+Date                   :=11/02/2013
 CodeLitePath           :="C:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -27,7 +27,7 @@ OutputSwitch           :=-o
 LibraryPathSwitch      :=-L
 PreprocessorSwitch     :=-D
 SourceSwitch           :=-c 
-OutputFile             :=$(IntermediateDirectory)/$(ProjectName).exe
+OutputFile             :=./_RELEASE/$(ProjectName).exe
 Preprocessors          :=
 ObjectSwitch           :=-o 
 ArchiveOutputSwitch    := 
@@ -43,7 +43,7 @@ IncludePCH             :=
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVStart $(LibrarySwitch)SSVLuaWrapper $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)lua5.1 $(LibrarySwitch)lua51 
 ArLibs                 :=  "SSVEntitySystem" "SSVStart" "SSVLuaWrapper" "sfml-window" "sfml-graphics" "sfml-system" "sfml-audio" "json_mingw_libmt" "lua5.1" "lua51" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/Release $(LibraryPathSwitch)../SSVEntitySystem/Release $(LibraryPathSwitch)../SSVLuaWrapper/Release $(LibraryPathSwitch)./Release $(LibraryPathSwitch)D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib $(LibraryPathSwitch)D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw $(LibraryPathSwitch)c:/lua 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/_RELEASE $(LibraryPathSwitch)../SSVEntitySystem/_RELEASE $(LibraryPathSwitch)../SSVLuaWrapper/_RELEASE $(LibraryPathSwitch)../SSVSCollision/_RELEASE $(LibraryPathSwitch)D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib $(LibraryPathSwitch)D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw $(LibraryPathSwitch)c:/lua 
 
 ##
 ## Common variables
@@ -79,7 +79,7 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
 $(IntermediateDirectory)/.d:
-	@$(MakeDirCommand) "./Release"
+	@$(MakeDirCommand) "./_INTERMEDIATE"
 
 PreBuild:
 

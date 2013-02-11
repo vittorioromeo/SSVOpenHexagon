@@ -15,14 +15,10 @@ namespace hg
 	{
 		private:
 			std::vector<int> segments;
-			std::string id 			{""};
-			std::string fileName 	{""};
-			std::string name		{""};
-			std::string album		{""};
-			std::string author		{""};
+			std::string id{""}, fileName{""}, name{""}, album{""}, author{""};
+			sf::Music* musicPtr{new sf::Music};
+			bool firstPlay{true};
 
-			sf::Music* musicPtr		{new sf::Music};
-			bool firstPlay		{true};
 			int getRandomSegment();
 
 		public:

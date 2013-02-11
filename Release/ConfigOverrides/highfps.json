@@ -1,9 +1,0 @@
-{
-	// Meant to get maximum performance
-
-	"fullscreen": true,
-	"fullscreen_auto_resolution": false,
-	"fullscreen_width": 640,
-	"fullscreen_height": 480,
-	"vsync": false
-}

@@ -1,0 +1,54 @@
+{
+	// Level information
+	"id": "hard",
+	"name": "second dimension",
+	"description": "hard level of difficulty",
+	"author": "vee",	
+	"menu_priority": 30,
+	"selectable": true,
+	
+	// Style
+	"style_id": "light",
+	
+	// Music
+	"music_id": "mazeOfMayonnaise",
+	
+	// Lua
+	"lua_file": "defaultLevels/hardpatterns.lua",
+	
+	// Difficulty multipliers
+	"difficulty_multipliers": [1.4, 0.75, 0.6],
+	
+	// Basic values
+	"speed_multiplier": 2.65,
+	"speed_increment": 0.10,
+	"rotation_speed": 0.21,
+	"rotation_increment": 0.045,
+	"delay_multiplier": 1.10,
+	"delay_increment": -0.01,
+	"fast_spin": 70.00,
+	"sides": 6,
+	"sides_min": 5,
+	"sides_max": 7,
+	"increment_time": 15,
+	"rotation_speed_max": 0.4,
+	
+	"pulse_min": 70,
+	"pulse_max": 90,
+	"pulse_speed": 1.03,
+	"pulse_speed_r": 0.57,
+	"pulse_delay_max": 0.7,
+	"pulse_delay_max": 9.1,
+	
+	"beatpulse_max": 17,
+	"beatpulse_delay_max": 23.8,
+	
+	//Events
+	"events":
+	[
+		{ "time": 15.5, "type": "message_add", 		"duration": 100, 	"message": "whoa!" },	
+		{ "time": 25, 	"type": "event_exec", 		"id": "continuous_rotation"},
+		{ "time": 45, 	"type": "message_important_add", 		"duration": 200, 	"message": "may the mayhem begin!" },
+		{ "time": 46.5, "type": "style_float_set",	"value_name": "pulse_increment",	"value": 0.15 }
+	]
+}

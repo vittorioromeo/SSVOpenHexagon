@@ -132,10 +132,10 @@
         <IncludePath Value="C:/lua/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
-        <LibraryPath Value="../SSVStart/Release"/>
-        <LibraryPath Value="../SSVEntitySystem/Release"/>
-        <LibraryPath Value="../SSVLuaWrapper/Release"/>
-        <LibraryPath Value="./Release"/>
+        <LibraryPath Value="../SSVStart/_RELEASE"/>
+        <LibraryPath Value="../SSVEntitySystem/_RELEASE"/>
+        <LibraryPath Value="../SSVLuaWrapper/_RELEASE"/>
+        <LibraryPath Value="../SSVSCollision/_RELEASE"/>
         <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib"/>
         <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw"/>
         <LibraryPath Value="c:/lua"/>
@@ -151,7 +151,7 @@
         <Library Value="lua51"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="debug windowed noaudio" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no"/>
+      <General OutputFile="./_RELEASE/$(ProjectName).exe" IntermediateDirectory="./_INTERMEDIATE" Command="./$(ProjectName)" CommandArguments="debug windowed noaudio" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="no"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
