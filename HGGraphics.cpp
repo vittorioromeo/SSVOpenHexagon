@@ -21,7 +21,6 @@ using namespace sses;
 
 namespace hg
 {
-	void HexagonGame::drawOnTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
 	void HexagonGame::drawOnWindow(Drawable &mDrawable) { window.draw(mDrawable); }
 
 	void HexagonGame::drawText()
@@ -60,20 +59,4 @@ namespace hg
 		messageTextPtr->setColor(getColorMain());
 		drawOnWindow(*messageTextPtr);		
 	}
-
-	void HexagonGame::recreateTextures()
-	{
-		gameTexture.create(getSizeX(), getSizeY(), 32);
-		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
-		gameTexture.setSmooth(true);
-		gameSprite.setTexture(gameTexture.getTexture(), false);
-		gameSprite.setOrigin(getSizeX()/ 2, getSizeY()/ 2);
-		gameSprite.setPosition(window.getWidth() / 2, window.getHeight() / 2);
-
-		flashPolygon.clear();
-		flashPolygon.append({{0, 0}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{getSizeX(), 0}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{getSizeX(), getSizeY()}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{0, getSizeY()}, Color{255, 255, 255, 0}});
-	}	
 }

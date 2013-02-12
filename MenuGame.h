@@ -30,7 +30,7 @@ namespace hg
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
-			ssvs::Camera backgroundCamera, menuCamera;
+			ssvs::Camera backgroundCamera, overlayCamera;
 			StateType state;
 
 			float inputDelay{0};

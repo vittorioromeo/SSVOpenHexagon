@@ -23,11 +23,11 @@ using namespace sses;
 namespace hg
 {
 	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow), backgroundCamera{window, {getSizeX(), getSizeY()}},
-		menuCamera{window, {getSizeX(), getSizeY()}}, state{StateType::PROFILE_SELECTION}
+		overlayCamera{window, {getSizeX(), getSizeY()}}, state{StateType::PROFILE_SELECTION}
 	{
 		backgroundCamera.setView({{0,0}, {getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
-		menuCamera.setView({{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
-		menuCamera.move({0, 20});
+		overlayCamera.setView({{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
+		overlayCamera.move({0, 20});
 
 		game.onUpdate += [&](float frameTime) { update(frameTime); };
 		game.onDraw += [&]{ draw(); };
@@ -71,7 +71,6 @@ namespace hg
 			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return))
 			{
 				setFullscreen(window, !window.getFullscreen());
-				hgPtr->recreateTextures();
 				inputDelay = 25;
 			}
 			else if(window.isKeyPressed(Keyboard::Escape)) inputDelay = 25;
@@ -220,7 +219,7 @@ namespace hg
 			window.clear(styleData.getColors()[0]);
 			styleData.drawBackground(window.getRenderWindow(), Vector2f{0,0}, 6);
 
-			menuCamera.apply();
+			overlayCamera.apply();
 			drawLevelSelection();
 			backgroundCamera.apply();
 		}
@@ -228,7 +227,7 @@ namespace hg
 		{
 			window.clear(Color::Black);
 
-			menuCamera.apply();
+			overlayCamera.apply();
 			drawProfileCreation();
 			backgroundCamera.apply();
 		}
@@ -236,7 +235,7 @@ namespace hg
 		{
 			window.clear(Color::Black);
 
-			menuCamera.apply();
+			overlayCamera.apply();
 			drawProfileSelection();
 			backgroundCamera.apply();
 		}

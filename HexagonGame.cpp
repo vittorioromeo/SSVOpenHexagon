@@ -26,19 +26,27 @@ using namespace sses;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow)
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), backgroundCamera{window, {getSizeX(), getSizeY()}},
+		overlayCamera{window, {getSizeX(), getSizeY()}}
 	{
-		recreateTextures();
+		flashPolygon.clear();
+		flashPolygon.append({{0, 0}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{getSizeX(), 0}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{getSizeX(), getSizeY()}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{0, getSizeY()}, Color{255, 255, 255, 0}});
+
+		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
+		overlayCamera.setView({{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
-		game.onDraw += [&](){ gameTexture.clear(Color::Black); };
 
-		if(!getNoBackground())
-			game.onDraw += [&](){ styleData.drawBackground(gameTexture, centerPos, getSides()); };
-		
+		game.onDraw += [&](){ window.clear(Color::Black); };
+		game.onDraw += [&](){ backgroundCamera.apply(); };
+
+		if(!getNoBackground()) game.onDraw += [&](){ styleData.drawBackground(window.getRenderWindow(), centerPos, getSides()); };
+
 		game.onDraw += [&](){ manager.draw(); };
-		game.onDraw += [&](){ gameTexture.display(); };
-		game.onDraw += [&](){ drawOnWindow(gameSprite); };
+		game.onDraw += [&](){ overlayCamera.apply(); };
 		game.onDraw += [&](){ drawText(); };
 		game.onDraw += [&](){ drawOnWindow(flashPolygon); };
 	}
@@ -86,7 +94,7 @@ namespace hg
 		restartId = mId;
 		restartFirstTime = false;
 		setSides(levelData.getSides());
-		gameSprite.setRotation(0);
+		backgroundCamera.setRotation(0);
 
 		// Manager cleanup
 		manager.clear();
@@ -107,7 +115,7 @@ namespace hg
 		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1);
 
 		// Reset zoom
-		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
+		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
 	}
 	void HexagonGame::death()
 	{

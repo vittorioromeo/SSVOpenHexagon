@@ -109,7 +109,7 @@ namespace hg
 		pulseDelayHalf -= 1 * mFrameTime;
 		
 		float p{pulse / levelData.getPulseMin()};
-		gameTexture.setView(View{Vector2f{0,0}, Vector2f{(getSizeX() * getZoomFactor()) * p, (getSizeY() * getZoomFactor()) * p}});
+		backgroundCamera.setView({{0, 0}, {(getWidth() * getZoomFactor()) * p, (getHeight() * getZoomFactor()) * p}});
 	}
 	void HexagonGame::updateBeatPulse(float mFrameTime)
 	{
@@ -140,7 +140,7 @@ namespace hg
 			fastSpin -= mFrameTime;
 		}
 
-		gameSprite.rotate(nextRotation * getSign(getRotationSpeed()));
+		backgroundCamera.rotate(nextRotation * getSign(getRotationSpeed()));
 	}
 	void HexagonGame::updateFlash(float mFrameTime)
 	{

@@ -26,7 +26,6 @@
 #pragma GCC system_header
 #include <SSVLuaWrapper.h>
 
-
 namespace hg
 {
 	constexpr float baseSpeed{5};
@@ -43,8 +42,7 @@ namespace hg
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
-			sf::RenderTexture gameTexture;
-			sf::Sprite gameSprite;
+			ssvs::Camera backgroundCamera, overlayCamera;
 			Lua::LuaContext	lua;
 			sf::Vector2f centerPos{0,0};
 			LevelData levelData;
@@ -150,8 +148,6 @@ namespace hg
 			void executeEvents(Json::Value& mRoot, float mTime);
 
 			// Graphics-related methods
-			void recreateTextures();
-			void drawOnTexture(sf::Drawable&);
 			void drawOnWindow(sf::Drawable&);
 
 			// Properties
