@@ -28,7 +28,6 @@ using namespace ssvs::FileSystem;
 namespace hg
 {
 	AssetManager assetManager;
-	map<string, SoundBuffer*> soundBufferPtrsMap;
 	map<string, Music*> musicPtrsMap;
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;

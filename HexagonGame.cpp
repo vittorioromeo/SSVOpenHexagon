@@ -68,25 +68,8 @@ namespace hg
 		while(!eventPtrQueue.empty()) { delete eventPtrQueue.front(); eventPtrQueue.pop(); }
 		eventPtrQueue = queue<EventData*>{};
 
-		// Parameters cleanup
-		currentTime = 0;
-		incrementTime = 0;
-		timeStop = 50;
-		randomSideChangesEnabled = true;
-		incrementEnabled = true;
-
-		pulse			= 75;
-		pulseDirection	= 1;
-		pulseDelay		= 0;
-		pulseDelayHalf	= 0;
-		beatPulse		= 0;
-		beatPulseDelay	= 0;
-		flashEffect		= 0;
-		
-		radius = 75;
-		fastSpin = 0;
-		hasDied = false;
-		mustRestart = false;
+		// Game status cleanup
+		hgStatus = {};
 		restartId = mId;
 		restartFirstTime = false;
 		setSides(levelData.getSides());
@@ -99,6 +82,7 @@ namespace hg
 		// Timeline cleanup
 		timeline = Timeline{};
 		messageTimeline = Timeline{};
+		effectTimelineManager.clear();
 
 		// LUA context cleanup
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
@@ -120,10 +104,10 @@ namespace hg
 
 		if(getInvincible()) return;
 
-		flashEffect = 255;
+		hgStatus.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
 		shakeCamera(effectTimelineManager, backgroundCamera);
-		hasDied = true;
+		hgStatus.hasDied = true;
 		stopLevelMusic();
 		checkAndSaveScore();
 	}
@@ -135,10 +119,10 @@ namespace hg
 		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setRotationSpeed(levelData.getRotationSpeed() * -1);
 		
-		if(fastSpin < 0 && abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
+		if(hgStatus.fastSpin < 0 && abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
 			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));
 
-		fastSpin = levelData.getFastSpin();
+		hgStatus.fastSpin = levelData.getFastSpin();
 		timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); });
 	}
 	void HexagonGame::sideChange(int mSideNumber)
@@ -155,13 +139,13 @@ namespace hg
 		setSpeedMultiplier(levelData.getSpeedMultiplier() + levelData.getSpeedIncrement());
 		setDelayMultiplier(levelData.getDelayMultiplier() + levelData.getDelayIncrement());
 
-		if(randomSideChangesEnabled) setSides(mSideNumber);
+		if(hgStatus.randomSideChangesEnabled) setSides(mSideNumber);
 	}
 
 	void HexagonGame::checkAndSaveScore()
 	{
 		string validator{getScoreValidator(levelData.getId(), difficultyMult)};
-		if(getScore(validator) < currentTime) setScore(validator, currentTime);
+		if(getScore(validator) < hgStatus.currentTime) setScore(validator, hgStatus.currentTime);
 		saveCurrentProfile();
 	}
 	void HexagonGame::goToMenu()

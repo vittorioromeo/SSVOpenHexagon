@@ -34,6 +34,19 @@ namespace hg
 	class MenuGame;
 	class PatternManager;
 
+	struct HexagonGameStatus
+	{
+		float currentTime{0}, incrementTime{0}, timeStop{50};
+		float pulse{75}, pulseDirection{1}, pulseDelay{0}, pulseDelayHalf{0};
+		float beatPulse{0}, beatPulseDelay{0};
+		float flashEffect{0};
+		float radius{75};
+		float fastSpin{0};
+		bool hasDied{false}, mustRestart{false};
+		bool randomSideChangesEnabled{true};
+		bool incrementEnabled{true};
+	};
+
 	class HexagonGame
 	{
 		friend class PatternManager;
@@ -57,28 +70,7 @@ namespace hg
 			std::queue<EventData*> eventPtrQueue;
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
 			bool firstPlay{true};
-
-			// New game parameters
-			float currentTime{0};
-			float incrementTime{0};
-			float timeStop{1};
-			bool randomSideChangesEnabled{true};
-			bool incrementEnabled{true};
-
-			float pulse					{75};
-			float pulseDirection		{1};
-			float pulseDelay			{0};
-			float pulseDelayHalf		{0};
-
-			float beatPulse				{0};
-			float beatPulseDelay		{0};
-
-			float flashEffect			{0};
-
-			float radius{75};
-			float fastSpin{0};
-			bool hasDied{false};
-			bool mustRestart{false};
+			HexagonGameStatus hgStatus;
 			std::string restartId{""};
 			bool restartFirstTime{true};
 			float difficultyMult{1};
