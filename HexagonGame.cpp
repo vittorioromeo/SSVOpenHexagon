@@ -112,6 +112,7 @@ namespace hg
 		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1);
 
 		// Reset zoom
+		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())});
 		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
 	}
 	void HexagonGame::death()

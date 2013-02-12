@@ -52,3 +52,11 @@
 [ASSETS] loading VeeEndurance custom sounds
 [loadSound] VeeEndurance_test.ogg soundBuffer added
 [loadSound] VeeEndurance_test.ogg sound added
+[LUA] level onLoad
+[LUA] level onLoad
+[LUA] level onLoad
+[LUA] level onLoad
+[LUA] level onLoad
+[LUA] level onLoad
+[LUA] level onLoad
+[LUA] level onLoad
