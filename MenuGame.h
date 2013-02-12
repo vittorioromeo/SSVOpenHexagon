@@ -30,8 +30,7 @@ namespace hg
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
-			sf::RenderTexture gameTexture, menuTexture;
-			sf::Sprite gameSprite, menuSprite;
+			ssvs::Camera backgroundCamera, menuCamera;
 			StateType state;
 
 			float inputDelay{0};
@@ -45,7 +44,6 @@ namespace hg
 			std::vector<float> difficultyMultipliers;
 			int difficultyMultIndex{0};
 
-			void recreateTextures();
 			void update(float mFrameTime);
 			void draw();
 			void drawLevelSelection();
@@ -56,16 +54,16 @@ namespace hg
 
 			LevelData levelData;
 			StyleData styleData;
-			sf::Text title1{"open", getFont("imagine"), 80};
-			sf::Text title2{"hexagon", getFont("imagine"), 160};
-			sf::Text title3{ssvs::Utils::toStr(getVersion()), getFont("imagine"), 25};
-			sf::Text title4{"clone of ""super hexagon"" by terry cavanagh\n              programmed by vittorio romeo\n                         music by bossfight", getFont("imagine"), 15};
-			sf::Text levelTime{"", getFont("imagine"), 50};
-			sf::Text cProfText{"", getFont("imagine"), 25};
-			sf::Text levelName{"", getFont("imagine"), 80};
-			sf::Text levelDesc{"", getFont("imagine"), 35};
-			sf::Text levelAuth{"", getFont("imagine"), 20};
-			sf::Text levelMusc{"", getFont("imagine"), 20};
+			sf::Text 	title1{"open", getFont("imagine"), 80},
+						title2{"hexagon", getFont("imagine"), 160},
+						title3{ssvs::Utils::toStr(getVersion()), getFont("imagine"), 25},
+						title4{"clone of ""super hexagon"" by terry cavanagh\n              programmed by vittorio romeo\n                         music by bossfight", getFont("imagine"), 15},
+						levelTime{"", getFont("imagine"), 50},
+						cProfText{"", getFont("imagine"), 25},
+						levelName{"", getFont("imagine"), 80},
+						levelDesc{"", getFont("imagine"), 35},
+						levelAuth{"", getFont("imagine"), 20},
+						levelMusc{"", getFont("imagine"), 20};
 
 		public:
 			HexagonGame* hgPtr;
@@ -73,9 +71,6 @@ namespace hg
 			MenuGame(ssvs::GameWindow& mGameWindow);
 
 			void init();
-
-			void drawOnGameTexture(sf::Drawable&);
-			void drawOnMenuTexture(sf::Drawable&);
 			void drawOnWindow(sf::Drawable&);
 
 			ssvs::GameState& getGame();

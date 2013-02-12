@@ -22,9 +22,12 @@ using namespace sses;
 
 namespace hg
 {
-	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow), state{StateType::PROFILE_SELECTION}
+	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow), backgroundCamera{window, {getSizeX(), getSizeY()}},
+		menuCamera{window, {getSizeX(), getSizeY()}}, state{StateType::PROFILE_SELECTION}
 	{
-		recreateTextures();
+		backgroundCamera.setView({{0,0}, {getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
+		menuCamera.setView({{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
+		menuCamera.move({0, 20});
 
 		game.onUpdate += [&](float frameTime) { update(frameTime); };
 		game.onDraw += [&]{ draw(); };
@@ -38,23 +41,6 @@ namespace hg
 			setCurrentProfile(getFirstProfileName());
 			state = StateType::LEVEL_SELECTION;
 		}
-	}
-
-	void MenuGame::recreateTextures()
-	{		
-		gameTexture.create(getSizeX(), getSizeY(), 32);
-		gameTexture.setView(View{Vector2f{0,0}, Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
-		gameTexture.setSmooth(true);
-		gameSprite.setTexture(gameTexture.getTexture(), false);
-		gameSprite.setOrigin(getSizeX()/ 2, getSizeY()/ 2);
-		gameSprite.setPosition(window.getWidth() / 2, window.getHeight() / 2);
-
-		menuTexture.create(getSizeX(), getSizeY(), 32);
-		menuTexture.setView(View{Vector2f(window.getWidth()/2, 810/2), Vector2f{getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
-		menuTexture.setSmooth(true);
-		menuSprite.setTexture(menuTexture.getTexture(), false);
-		menuSprite.setOrigin(getSizeX()/ 2, getSizeY()/ 2);
-		menuSprite.setPosition(getWidth() / 2, getHeight() / 2);
 	}
 
 	void MenuGame::init()
@@ -85,7 +71,6 @@ namespace hg
 			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return))
 			{
 				setFullscreen(window, !window.getFullscreen());
-				recreateTextures();
 				hgPtr->recreateTextures();
 				inputDelay = 25;
 			}
@@ -157,7 +142,8 @@ namespace hg
 		else if (state == StateType::LEVEL_SELECTION)
 		{
 			styleData.update(mFrameTime);
-			gameSprite.rotate(levelData.getRotationSpeed() * 10 * mFrameTime);
+
+			backgroundCamera.rotate(levelData.getRotationSpeed() * 10 * mFrameTime);
 
 			if(inputDelay <= 0)
 			{
@@ -225,30 +211,37 @@ namespace hg
 	}
 	void MenuGame::draw()
 	{
-		menuTexture.clear(Color{0,0,0,0});
+		backgroundCamera.apply();
 
+		window.clear(Color{0, 0, 0, 0});
+		
 		if(state == StateType::LEVEL_SELECTION)
 		{
-			gameTexture.clear(styleData.getColors()[0]);
-			styleData.drawBackground(gameTexture, Vector2f{0,0}, 6);
+			window.clear(styleData.getColors()[0]);
+			styleData.drawBackground(window.getRenderWindow(), Vector2f{0,0}, 6);
+
+			menuCamera.apply();
 			drawLevelSelection();
+			backgroundCamera.apply();
 		}
 		else if(state == StateType::PROFILE_CREATION)
 		{
-			gameTexture.clear(Color::Black);
+			window.clear(Color::Black);
+
+			menuCamera.apply();
 			drawProfileCreation();
+			backgroundCamera.apply();
 		}
 		else if(state == StateType::PROFILE_SELECTION)
 		{
-			gameTexture.clear(Color::Black);
+			window.clear(Color::Black);
+
+			menuCamera.apply();
 			drawProfileSelection();
+			backgroundCamera.apply();
 		}
 
-		gameTexture.display();
-		menuTexture.display();
-
-		drawOnWindow(gameSprite);
-		drawOnWindow(menuSprite);
+		backgroundCamera.unapply();
 	}
 
 	void MenuGame::positionAndDrawCenteredText(Text& mText, Color mColor, float mElevation, bool mBold)
@@ -256,12 +249,12 @@ namespace hg
 		mText.setOrigin(mText.getGlobalBounds().width / 2, 0);
 		if(mBold) mText.setStyle(Text::Bold);
 		mText.setColor(mColor);
-		mText.setPosition(window.getWidth() / 2, mElevation);
-		drawOnMenuTexture(mText);
+		mText.setPosition(getWidth() / 2, mElevation);
+		drawOnWindow(mText);
 	}
 
 	void MenuGame::drawLevelSelection()
-	{
+	{		
 		Color mainColor{styleData.getMainColor()};
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 
@@ -351,9 +344,7 @@ namespace hg
 		levelName.setString(profileCreationName);
 		positionAndDrawCenteredText(levelName, mainColor, 768 - 245 - 40, false);
 	}
-	
-	void MenuGame::drawOnGameTexture(Drawable &mDrawable) { gameTexture.draw(mDrawable); }
-	void MenuGame::drawOnMenuTexture(Drawable &mDrawable) { menuTexture.draw(mDrawable); }
+
 	void MenuGame::drawOnWindow(Drawable &mDrawable) { window.draw(mDrawable); }
 
 	GameState& MenuGame::getGame() { return game; }
