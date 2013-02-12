@@ -26,17 +26,13 @@ using namespace sses;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), backgroundCamera{window, {getSizeX(), getSizeY()}},
-		overlayCamera{window, {getSizeX(), getSizeY()}}
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow)
 	{
 		flashPolygon.clear();
 		flashPolygon.append({{-100.f, -100.f}, Color{255, 255, 255, 0}});
 		flashPolygon.append({{getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0}});
 		flashPolygon.append({{getWidth() + 100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
 		flashPolygon.append({{-100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
-
-		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
-		overlayCamera.setView({{getWidth() / 2.f, getHeight()  / 2.f}, Vector2f(getWidth(), getHeight())});
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 

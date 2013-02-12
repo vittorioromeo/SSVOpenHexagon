@@ -41,10 +41,9 @@ int main(int argc, char* argv[])
 	window.setVsync(getVsync());
 	window.setMouseCursorVisible(false);
 
-	MenuGame mg{window};
 	HexagonGame hg{window};
+	MenuGame mg{hg, window};
 
-	mg.hgPtr = &hg;
 	hg.mgPtr = &mg;
 
 	window.setGame(&mg.getGame());

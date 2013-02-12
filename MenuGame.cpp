@@ -22,11 +22,9 @@ using namespace sses;
 
 namespace hg
 {
-	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow), backgroundCamera{window, {getSizeX(), getSizeY()}},
-		overlayCamera{window, {getSizeX(), getSizeY()}}, state{StateType::PROFILE_SELECTION}
+	MenuGame::MenuGame(HexagonGame& mHexagonGame, GameWindow& mGameWindow) : hexagonGame(mHexagonGame), window(mGameWindow)
 	{
-		backgroundCamera.setView({{0,0}, {getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}});
-		overlayCamera.setView({{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
+
 		overlayCamera.move({0, 20});
 
 		game.onUpdate += [&](float frameTime) { update(frameTime); };
@@ -175,8 +173,8 @@ namespace hg
 				else if(window.isKeyPressed(Keyboard::Return))
 				{
 					playSound("beep");
-					window.setGame(&hgPtr->getGame());
-					hgPtr->newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
+					window.setGame(&hexagonGame.getGame());
+					hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 
 					inputDelay = 14;
 				}

@@ -20,18 +20,20 @@
 
 namespace hg
 {
-	enum StateType { LEVEL_SELECTION, PROFILE_CREATION, PROFILE_SELECTION };
+	enum class StateType { LEVEL_SELECTION, PROFILE_CREATION, PROFILE_SELECTION };
 
 	class HexagonGame;
 
 	class MenuGame
 	{
 		private:
+			HexagonGame& hexagonGame;
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
-			ssvs::Camera backgroundCamera, overlayCamera;
-			StateType state;
+			ssvs::Camera backgroundCamera{window, {{0, 0}, {getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}}};
+			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
+			StateType state{StateType::PROFILE_SELECTION};
 
 			float inputDelay{0};
 			std::vector<std::string> levelDataIds;
@@ -66,9 +68,9 @@ namespace hg
 						levelMusc{"", getFont("imagine"), 20};
 
 		public:
-			HexagonGame* hgPtr;
 
-			MenuGame(ssvs::GameWindow& mGameWindow);
+
+			MenuGame(HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
 			void init();
 			void drawOnWindow(sf::Drawable&);
