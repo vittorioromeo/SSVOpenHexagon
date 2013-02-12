@@ -22,7 +22,7 @@ using namespace sses;
 
 namespace hg
 {
-	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow), state(StateType::PROFILE_SELECTION)
+	MenuGame::MenuGame(GameWindow& mGameWindow) : window(mGameWindow), state{StateType::PROFILE_SELECTION}
 	{
 		recreateTextures();
 
@@ -104,7 +104,7 @@ namespace hg
 
 			if(e.type == Event::TextEntered)
 			{
-				if (e.text.unicode > 48 && e.text.unicode < 126) if (profileCreationName.size() < 16) profileCreationName.append(toStr((char)(e.text.unicode)));
+				if (e.text.unicode > 47 && e.text.unicode < 126) if (profileCreationName.size() < 16) profileCreationName.append(toStr((char)(e.text.unicode)));
 				if (e.text.unicode == 8) if(!profileCreationName.empty()) profileCreationName.erase(profileCreationName.end() - 1);
 				if (e.text.unicode == 13) if(!profileCreationName.empty())
 				{

@@ -55,7 +55,7 @@ namespace hg
 		}
 
 		messageTimeline.update(mFrameTime);
-		if(messageTimeline.getFinished()) clearAndResetTimeline(messageTimeline);
+		if(messageTimeline.isFinished()) clearAndResetTimeline(messageTimeline);
 
 		executeEvents(levelData.getRoot()["events"], currentTime);
 	}
@@ -81,7 +81,7 @@ namespace hg
 		runLuaFunction<float>("onUpdate", mFrameTime);
 		timeline.update(mFrameTime);
 
-		if(timeline.getFinished())
+		if(timeline.isFinished())
 		{
 			timeline.clear();
 			runLuaFunction<void>("onStep");
