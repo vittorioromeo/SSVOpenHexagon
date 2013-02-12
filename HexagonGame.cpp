@@ -69,7 +69,7 @@ namespace hg
 		eventPtrQueue = queue<EventData*>{};
 
 		// Game status cleanup
-		hgStatus = {};
+		status = {};
 		restartId = mId;
 		restartFirstTime = false;
 		setSides(levelData.getSides());
@@ -104,10 +104,10 @@ namespace hg
 
 		if(getInvincible()) return;
 
-		hgStatus.flashEffect = 255;
+		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
 		shakeCamera(effectTimelineManager, backgroundCamera);
-		hgStatus.hasDied = true;
+		status.hasDied = true;
 		stopLevelMusic();
 		checkAndSaveScore();
 	}
@@ -119,10 +119,10 @@ namespace hg
 		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setRotationSpeed(levelData.getRotationSpeed() * -1);
 		
-		if(hgStatus.fastSpin < 0 && abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
+		if(status.fastSpin < 0 && abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
 			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));
 
-		hgStatus.fastSpin = levelData.getFastSpin();
+		status.fastSpin = levelData.getFastSpin();
 		timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); });
 	}
 	void HexagonGame::sideChange(int mSideNumber)
@@ -139,13 +139,13 @@ namespace hg
 		setSpeedMultiplier(levelData.getSpeedMultiplier() + levelData.getSpeedIncrement());
 		setDelayMultiplier(levelData.getDelayMultiplier() + levelData.getDelayIncrement());
 
-		if(hgStatus.randomSideChangesEnabled) setSides(mSideNumber);
+		if(status.randomSideChangesEnabled) setSides(mSideNumber);
 	}
 
 	void HexagonGame::checkAndSaveScore()
 	{
 		string validator{getScoreValidator(levelData.getId(), difficultyMult)};
-		if(getScore(validator) < hgStatus.currentTime) setScore(validator, hgStatus.currentTime);
+		if(getScore(validator) < status.currentTime) setScore(validator, status.currentTime);
 		saveCurrentProfile();
 	}
 	void HexagonGame::goToMenu()

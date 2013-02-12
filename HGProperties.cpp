@@ -22,7 +22,7 @@ using namespace sses;
 namespace hg
 {
 	GameState& HexagonGame::getGame()								{ return game; }
-	float HexagonGame::getRadius() 									{ return hgStatus.radius; }
+	float HexagonGame::getRadius() 									{ return status.radius; }
 	Color HexagonGame::getColorMain() 								{ return getBlackAndWhite() ? Color::White : styleData.getMainColor(); }
 	Color HexagonGame::getColor(int mIndex)							{ return styleData.getColors()[mIndex]; }
 

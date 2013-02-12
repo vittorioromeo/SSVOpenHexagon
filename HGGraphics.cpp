@@ -26,8 +26,8 @@ namespace hg
 	void HexagonGame::drawText()
 	{
 		ostringstream s;
-		s << "time: " << toStr(hgStatus.currentTime).substr(0, 5) << endl;
-		if(hgStatus.hasDied) s << "press r to restart" << endl;
+		s << "time: " << toStr(status.currentTime).substr(0, 5) << endl;
+		if(status.hasDied) s << "press r to restart" << endl;
 
 		vector<Vector2f> offsets{{-1,-1},{-1,1},{1,-1},{1,1}};
 

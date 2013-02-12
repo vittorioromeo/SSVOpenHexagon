@@ -26,7 +26,7 @@ namespace hg
 		updateFlash(mFrameTime);
 		effectTimelineManager.update(mFrameTime);
 
-		if(!hgStatus.hasDied)
+		if(!status.hasDied)
 		{
 			manager.update(mFrameTime);
 			updateEvents(mFrameTime);
@@ -42,7 +42,7 @@ namespace hg
 		updateKeys();
 
 		if(!getNoRotation()) updateRotation(mFrameTime);
-		if(hgStatus.mustRestart) changeLevel(restartId, restartFirstTime);
+		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
 	{
@@ -57,23 +57,23 @@ namespace hg
 		messageTimeline.update(mFrameTime);
 		if(messageTimeline.isFinished()) clearAndResetTimeline(messageTimeline);
 
-		executeEvents(levelData.getRoot()["events"], hgStatus.currentTime);
+		executeEvents(levelData.getRoot()["events"], status.currentTime);
 	}
 	void HexagonGame::updateTimeStop(float mFrameTime)
 	{
-		if(hgStatus.timeStop <= 0)
+		if(status.timeStop <= 0)
 		{
-			hgStatus.currentTime += mFrameTime / 60.0f;
-			hgStatus.incrementTime += mFrameTime / 60.0f;
+			status.currentTime += mFrameTime / 60.0f;
+			status.incrementTime += mFrameTime / 60.0f;
 		}
-		else hgStatus.timeStop -= 1 * mFrameTime;
+		else status.timeStop -= 1 * mFrameTime;
 	}
 	void HexagonGame::updateIncrement()
 	{
-		if(!hgStatus.incrementEnabled) return;
-		if(hgStatus.incrementTime < levelData.getIncrementTime()) return;
+		if(!status.incrementEnabled) return;
+		if(status.incrementTime < levelData.getIncrementTime()) return;
 
-		hgStatus.incrementTime = 0;
+		status.incrementTime = 0;
 		incrementDifficulty();
 	}
 	void HexagonGame::updateLevel(float mFrameTime)
@@ -90,25 +90,25 @@ namespace hg
 	}
 	void HexagonGame::updatePulse(float mFrameTime)
 	{
-		if(hgStatus.pulseDelay <= 0 && hgStatus.pulseDelayHalf <= 0)
+		if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
 		{
-			float pulseAdd{hgStatus.pulseDirection > 0 ? levelData.getPulseSpeed() : -levelData.getPulseSpeedR()};
-			float pulseLimit{hgStatus.pulseDirection > 0 ? levelData.getPulseMax() : levelData.getPulseMin()};
+			float pulseAdd{status.pulseDirection > 0 ? levelData.getPulseSpeed() : -levelData.getPulseSpeedR()};
+			float pulseLimit{status.pulseDirection > 0 ? levelData.getPulseMax() : levelData.getPulseMin()};
 			
-			hgStatus.pulse += pulseAdd * mFrameTime;
-			if((hgStatus.pulseDirection > 0 && hgStatus.pulse >= pulseLimit) || (hgStatus.pulseDirection < 0 && hgStatus.pulse <= pulseLimit))
+			status.pulse += pulseAdd * mFrameTime;
+			if((status.pulseDirection > 0 && status.pulse >= pulseLimit) || (status.pulseDirection < 0 && status.pulse <= pulseLimit))
 			{
-				hgStatus.pulse = pulseLimit;
-				hgStatus.pulseDirection *= -1;
-				hgStatus.pulseDelayHalf = levelData.getPulseDelayHalfMax();
-				if(hgStatus.pulseDirection < 0) hgStatus.pulseDelay = levelData.getPulseDelayMax();
+				status.pulse = pulseLimit;
+				status.pulseDirection *= -1;
+				status.pulseDelayHalf = levelData.getPulseDelayHalfMax();
+				if(status.pulseDirection < 0) status.pulseDelay = levelData.getPulseDelayMax();
 			}
 		}
 
-		hgStatus.pulseDelay -= 1 * mFrameTime;
-		hgStatus.pulseDelayHalf -= 1 * mFrameTime;
+		status.pulseDelay -= 1 * mFrameTime;
+		status.pulseDelayHalf -= 1 * mFrameTime;
 		
-		float p{hgStatus.pulse / levelData.getPulseMin()};
+		float p{status.pulse / levelData.getPulseMin()};
 
 		float rotation{backgroundCamera.getRotation()};
 		backgroundCamera.setView({{0, 0}, {(getWidth() * getZoomFactor()) * p, (getHeight() * getZoomFactor()) * p}});
@@ -116,39 +116,39 @@ namespace hg
 	}
 	void HexagonGame::updateBeatPulse(float mFrameTime)
 	{
-		if(hgStatus.beatPulseDelay <= 0)
+		if(status.beatPulseDelay <= 0)
 		{
-			hgStatus.beatPulse = levelData.getBeatPulseMax();
-			hgStatus.beatPulseDelay = levelData.getBeatPulseDelayMax();
+			status.beatPulse = levelData.getBeatPulseMax();
+			status.beatPulseDelay = levelData.getBeatPulseDelayMax();
 		}
-		else hgStatus.beatPulseDelay -= 1 * mFrameTime;
+		else status.beatPulseDelay -= 1 * mFrameTime;
 
-		if(hgStatus.beatPulse > 0) hgStatus.beatPulse -= 2.f * mFrameTime;
+		if(status.beatPulse > 0) status.beatPulse -= 2.f * mFrameTime;
 
 		float radiusMin{getBeatPulse() ? levelData.getRadiusMin() : 75};
-		hgStatus.radius = radiusMin * (hgStatus.pulse / levelData.getPulseMin()) + hgStatus.beatPulse;
+		status.radius = radiusMin * (status.pulse / levelData.getPulseMin()) + status.beatPulse;
 	}
 	void HexagonGame::updateKeys()
 	{
-		if(isKeyPressed(Keyboard::R)) hgStatus.mustRestart = true;
-		if(hgStatus.hasDied && (isKeyPressed(Keyboard::Space) || isKeyPressed(Keyboard::Return))) hgStatus.mustRestart = true;
+		if(isKeyPressed(Keyboard::R)) status.mustRestart = true;
+		if(status.hasDied && (isKeyPressed(Keyboard::Space) || isKeyPressed(Keyboard::Return))) status.mustRestart = true;
 		else if(isKeyPressed(Keyboard::Escape))	goToMenu();
 	}
 	void HexagonGame::updateRotation(float mFrameTime)
 	{
 		auto nextRotation = abs(getRotationSpeed()) * 10 * mFrameTime;
-		if(hgStatus.fastSpin > 0)
+		if(status.fastSpin > 0)
 		{
-			nextRotation += abs((getSmootherStep(0, levelData.getValueFloat("fast_spin"), hgStatus.fastSpin) / 3.5f) * mFrameTime * 17.0f);
-			hgStatus.fastSpin -= mFrameTime;
+			nextRotation += abs((getSmootherStep(0, levelData.getValueFloat("fast_spin"), status.fastSpin) / 3.5f) * mFrameTime * 17.0f);
+			status.fastSpin -= mFrameTime;
 		}
 
 		backgroundCamera.rotate(nextRotation * getSign(getRotationSpeed()));
 	}
 	void HexagonGame::updateFlash(float mFrameTime)
 	{
-		if(hgStatus.flashEffect > 0) hgStatus.flashEffect -= 3 * mFrameTime;
-		hgStatus.flashEffect = clamp(hgStatus.flashEffect, 0.f, 255.f);
-		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = hgStatus.flashEffect;
+		if(status.flashEffect > 0) status.flashEffect -= 3 * mFrameTime;
+		status.flashEffect = clamp(status.flashEffect, 0.f, 255.f);
+		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = status.flashEffect;
 	}
 }

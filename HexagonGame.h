@@ -70,7 +70,7 @@ namespace hg
 			std::queue<EventData*> eventPtrQueue;
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
 			bool firstPlay{true};
-			HexagonGameStatus hgStatus;
+			HexagonGameStatus status;
 			std::string restartId{""};
 			bool restartFirstTime{true};
 			float difficultyMult{1};

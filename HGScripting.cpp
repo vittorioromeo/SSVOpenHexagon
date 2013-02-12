@@ -37,12 +37,12 @@ namespace hg
 			string message	{eventRoot.isMember("message") ? eventRoot["message"].asString()		: ""};
 			string id		{eventRoot.isMember("id") ? eventRoot["id"].asString()					: ""};
 
-			if 		(type == "level_change")			{ hgStatus.mustRestart = true; restartId = id; restartFirstTime = true; return; }
+			if 		(type == "level_change")			{ status.mustRestart = true; restartId = id; restartFirstTime = true; return; }
 			else if (type == "menu") 					{ goToMenu(); }
 			else if (type == "message_add")				{ if(firstPlay && getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_important_add")	{ if(getShowMessages()) addMessage(message, duration); }
 			else if (type == "message_clear") 			{ clearMessage(); }
-			else if (type == "time_stop")				{ hgStatus.timeStop = duration; }
+			else if (type == "time_stop")				{ status.timeStop = duration; }
 			else if (type == "timeline_wait") 			{ timeline.append<Wait>(duration); }
 			else if (type == "timeline_clear") 			{ clearAndResetTimeline(timeline); }
 
@@ -72,10 +72,10 @@ namespace hg
 			else if (type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
 			else if (type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
 			else if (type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
-			else if (type == "side_changing_stop")		{ hgStatus.randomSideChangesEnabled = false; }
-			else if (type == "side_changing_start")		{ hgStatus.randomSideChangesEnabled = true; }
-			else if (type == "increment_stop")			{ hgStatus.incrementEnabled = false; }
-			else if (type == "increment_start")			{ hgStatus.incrementEnabled = true; }
+			else if (type == "side_changing_stop")		{ status.randomSideChangesEnabled = false; }
+			else if (type == "side_changing_start")		{ status.randomSideChangesEnabled = true; }
+			else if (type == "increment_stop")			{ status.incrementEnabled = false; }
+			else if (type == "increment_start")			{ status.incrementEnabled = true; }
 			else if (type == "event_exec") 				{ eventPtrs.push_back(getEventData(id, this)); }
 			else if (type == "event_enqueue")			{ eventPtrQueue.push(getEventData(id, this)); }
 			else if (type == "script_exec")				{ runLuaFile(valueName); }
