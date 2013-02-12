@@ -31,7 +31,7 @@ namespace hg
 
 		for(int i{0}; i < 3; i++) vertices[i].color = colorMain;
 
-		hexagonGame.drawOnWindow(vertices);
+		hexagonGame.render(vertices);
 	}
 	void CPlayer::drawPivot()
 	{
@@ -75,8 +75,8 @@ namespace hg
 			vertices3.append({pivotPos, colorB});
 		}
 		
-		if(!dead) hexagonGame.drawOnWindow(vertices3);
-		hexagonGame.drawOnWindow(vertices2);
+		if(!dead) hexagonGame.render(vertices3);
+		hexagonGame.render(vertices2);
 	}
 
 	void CPlayer::update(float mFrameTime)

@@ -49,6 +49,7 @@
     <File Name="HGUpdate.cpp"/>
     <File Name="HGProperties.cpp"/>
     <File Name="HGGraphics.cpp"/>
+    <File Name="HGStatus.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

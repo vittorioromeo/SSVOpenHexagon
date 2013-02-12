@@ -246,7 +246,7 @@ namespace hg
 		if(mBold) mText.setStyle(Text::Bold);
 		mText.setColor(mColor);
 		mText.setPosition(getWidth() / 2, mElevation);
-		drawOnWindow(mText);
+		render(mText);
 	}
 
 	void MenuGame::drawLevelSelection()
@@ -341,7 +341,7 @@ namespace hg
 		positionAndDrawCenteredText(levelName, mainColor, 768 - 245 - 40, false);
 	}
 
-	void MenuGame::drawOnWindow(Drawable &mDrawable) { window.draw(mDrawable); }
+	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
 
 	GameState& MenuGame::getGame() { return game; }
 }

@@ -73,7 +73,7 @@ namespace hg
 			MenuGame(HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
 			void init();
-			void drawOnWindow(sf::Drawable&);
+			void render(sf::Drawable&);
 
 			ssvs::GameState& getGame();
 	};

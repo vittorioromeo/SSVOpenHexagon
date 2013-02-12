@@ -18,6 +18,7 @@
 #include <json/reader.h>
 #include <SSVStart.h>
 #include <SSVEntitySystem.h>
+#include "HGStatus.h"
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
 #include "Data/EventData.h"
@@ -33,19 +34,6 @@ namespace hg
 
 	class MenuGame;
 	class PatternManager;
-
-	struct HexagonGameStatus
-	{
-		float currentTime{0}, incrementTime{0}, timeStop{50};
-		float pulse{75}, pulseDirection{1}, pulseDelay{0}, pulseDelayHalf{0};
-		float beatPulse{0}, beatPulseDelay{0};
-		float flashEffect{0};
-		float radius{75};
-		float fastSpin{0};
-		bool hasDied{false}, mustRestart{false};
-		bool randomSideChangesEnabled{true};
-		bool incrementEnabled{true};
-	};
 
 	class HexagonGame
 	{
@@ -138,7 +126,7 @@ namespace hg
 			void executeEvents(Json::Value& mRoot, float mTime);
 
 			// Graphics-related methods
-			void drawOnWindow(sf::Drawable&);
+			void render(sf::Drawable&);
 
 			// Properties
 			ssvs::GameState& getGame();

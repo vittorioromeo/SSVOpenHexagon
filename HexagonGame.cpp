@@ -45,7 +45,7 @@ namespace hg
 		game.onDraw += [&](){ manager.draw(); };
 		game.onDraw += [&](){ overlayCamera.apply(); };
 		game.onDraw += [&](){ drawText(); };
-		game.onDraw += [&](){ drawOnWindow(flashPolygon); };
+		game.onDraw += [&](){ render(flashPolygon); };
 
 		using k = Keyboard::Key;
 		game.addInput({k::Left}, [&](float){ inputMovement = -1; });

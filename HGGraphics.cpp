@@ -21,7 +21,7 @@ using namespace sses;
 
 namespace hg
 {
-	void HexagonGame::drawOnWindow(Drawable &mDrawable) { window.draw(mDrawable); }
+	void HexagonGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
 
 	void HexagonGame::drawText()
 	{
@@ -40,10 +40,10 @@ namespace hg
 			Text timeOffsetText(s.str(), getFont("imagine.ttf"), timeText.getCharacterSize());
 			timeOffsetText.setPosition(timeText.getPosition() + offset);
 			timeOffsetText.setColor(getColor(1));
-			drawOnWindow(timeOffsetText);
+			render(timeOffsetText);
 		}
 
-		drawOnWindow(timeText);
+		render(timeText);
 
 		if(messageTextPtr == nullptr) return;
 
@@ -53,10 +53,10 @@ namespace hg
 			textPtrOffset.setPosition(messageTextPtr->getPosition() + offset);
 			textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
 			textPtrOffset.setColor(getColor(1));
-			drawOnWindow(textPtrOffset);
+			render(textPtrOffset);
 		}
 
 		messageTextPtr->setColor(getColorMain());
-		drawOnWindow(*messageTextPtr);		
+		render(*messageTextPtr);
 	}
 }

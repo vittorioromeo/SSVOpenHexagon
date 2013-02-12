@@ -35,7 +35,7 @@ namespace hg
 			vertices[i].color = hexagonGame.getColorMain();
 		}
 		
-		hexagonGame.drawOnWindow(vertices);
+		hexagonGame.render(vertices);
 	}
 
 	void CWall::update(float mFrameTime)
