@@ -63,16 +63,14 @@ namespace hg
 			MusicData musicData;
 			StyleData styleData;
 			sf::Music* musicPtr{nullptr};
-			ssvs::Timeline timeline;
-			ssvs::Timeline messageTimeline;
+			ssvs::Timeline timeline, messageTimeline;
 			sf::Text* messageTextPtr{nullptr};
 			std::vector<EventData*> eventPtrs;
 			std::queue<EventData*> eventPtrQueue;
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
-			bool firstPlay{true};
+			bool firstPlay{true}, restartFirstTime{true};
 			HexagonGameStatus status;
 			std::string restartId{""};
-			bool restartFirstTime{true};
 			float difficultyMult{1};
 
 			// LUA-related methods
@@ -90,7 +88,7 @@ namespace hg
 			}
 
 			// Update methods
-			void update(float);
+			void update(float mFrameTime);
 			void updateTimeStop(float mFrameTime);
 			void updateIncrement();
 			void updateEvents(float mFrameTime);

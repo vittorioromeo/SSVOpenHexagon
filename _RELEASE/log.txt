@@ -1,3 +1,4 @@
+[CONFIG] loading config
 [loadSound] beep.ogg soundBuffer added
 [loadSound] beep.ogg sound added
 [loadSoundsToManager(Assets/)] beep.ogg soundBuffer added
@@ -36,7 +37,6 @@
 [loadMusicsToManager(Assets/)] openHexagon.ogg music added
 [loadFonts] imagine.ttf font added
 [loadFontsToManager(Assets/)] imagine.ttf font added
-[CONFIG] loading config
 [ASSETS] loading profiles
 [ASSETS] loading VeeDefault music
 [ASSETS] loading VeeDefault music data

@@ -25,14 +25,13 @@ using namespace hg;
 
 int main(int argc, char* argv[])
 {
-	initAssetManager();
-
 	srand(unsigned(time(NULL)));
 
 	vector<string> overrideIds;
 	for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
 	loadConfig(overrideIds);
+	initAssetManager();
 	loadAssets();
 
 	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - vee software"};
