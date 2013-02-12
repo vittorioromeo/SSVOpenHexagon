@@ -1,7 +1,43 @@
+[loadSound] beep.ogg soundBuffer added
+[loadSound] beep.ogg sound added
+[loadSoundsToManager(Assets/)] beep.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] beep.ogg sound added
+[loadSound] death.ogg soundBuffer added
+[loadSound] death.ogg sound added
+[loadSoundsToManager(Assets/)] death.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] death.ogg sound added
+[loadSound] gameOver.ogg soundBuffer added
+[loadSound] gameOver.ogg sound added
+[loadSoundsToManager(Assets/)] gameOver.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] gameOver.ogg sound added
+[loadSound] go.ogg soundBuffer added
+[loadSound] go.ogg sound added
+[loadSoundsToManager(Assets/)] go.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] go.ogg sound added
+[loadSound] levelUp.ogg soundBuffer added
+[loadSound] levelUp.ogg sound added
+[loadSoundsToManager(Assets/)] levelUp.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] levelUp.ogg sound added
+[loadSound] openHexagon.ogg soundBuffer added
+[loadSound] openHexagon.ogg sound added
+[loadSoundsToManager(Assets/)] openHexagon.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] openHexagon.ogg sound added
+[loadMusic] beep.ogg music added
+[loadMusicsToManager(Assets/)] beep.ogg music added
+[loadMusic] death.ogg music added
+[loadMusicsToManager(Assets/)] death.ogg music added
+[loadMusic] gameOver.ogg music added
+[loadMusicsToManager(Assets/)] gameOver.ogg music added
+[loadMusic] go.ogg music added
+[loadMusicsToManager(Assets/)] go.ogg music added
+[loadMusic] levelUp.ogg music added
+[loadMusicsToManager(Assets/)] levelUp.ogg music added
+[loadMusic] openHexagon.ogg music added
+[loadMusicsToManager(Assets/)] openHexagon.ogg music added
+[loadFonts] imagine.ttf font added
+[loadFontsToManager(Assets/)] imagine.ttf font added
 [CONFIG] loading config
 [ASSETS] loading profiles
-[ASSETS] loading fonts
-[ASSETS] loading sounds
 [ASSETS] loading VeeDefault music
 [ASSETS] loading VeeDefault music data
 [ASSETS] loading VeeDefault style data
@@ -14,4 +50,5 @@
 [ASSETS] loading VeeEndurance level data
 [ASSETS] loading VeeEndurance events
 [ASSETS] loading VeeEndurance custom sounds
-[LUA] level onLoad
+[loadSound] VeeEndurance_test.ogg soundBuffer added
+[loadSound] VeeEndurance_test.ogg sound added

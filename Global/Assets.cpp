@@ -27,9 +27,8 @@ using namespace ssvs::FileSystem;
 
 namespace hg
 {
-	map<string, Font> fontsMap;
+	AssetManager assetManager;
 	map<string, SoundBuffer*> soundBufferPtrsMap;
-	map<string, Sound*> soundPtrsMap;
 	map<string, Music*> musicPtrsMap;
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;
@@ -41,11 +40,12 @@ namespace hg
 	map<string, vector<string>> levelIdsByPackMap;
 	vector<string> packPaths;
 
+	void initAssetManager() { assetManager.loadFolder("Assets/"); }
+	AssetManager& getAssetManager() { return assetManager; }
+
 	void loadAssets()
 	{
 		log("loading profiles", "ASSETS"); 	loadProfiles();
-		log("loading fonts", "ASSETS"); 	loadFonts();
-		log("loading sounds", "ASSETS"); 	loadSounds();
 
 		for(string packPath : getFolders("Packs/"))
 		{
@@ -73,47 +73,13 @@ namespace hg
 		}
 	}
 
-	void loadFonts()
-	{
-		for(auto filePath : getFilesByExtension("Fonts/", ".ttf"))
-		{
-			string fileName{getNameFromPath(filePath, "Fonts/", ".ttf")};
-
-			Font font;
-			font.loadFromFile(filePath);
-			fontsMap.insert(make_pair(fileName, font));
-		}
-	}
-	void loadSounds()
-	{
-		Json::Value soundsRoot = getJsonFileRoot("Sounds/sounds.json");
-
-		for(Json::ValueIterator itr{soundsRoot.begin()}; itr != soundsRoot.end(); itr++)
-		{
-			SoundBuffer* soundBuffer{new SoundBuffer};
-			soundBuffer->loadFromFile("Sounds/" + (*itr).asString());
-			soundBufferPtrsMap.insert(make_pair(itr.key().asString(), soundBuffer));
-
-			Sound* soundPtr{new Sound};
-			soundPtr->setBuffer(*soundBuffer);
-			soundPtr->setVolume(getSoundVolume());
-			soundPtrsMap.insert(make_pair(itr.key().asString(), soundPtr));
-		}
-	}
 	void loadCustomSounds(string mPackName, string mPath)
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Sounds/", ".ogg"))
 		{
-			string fileName{getNameFromPath(filePath, mPath + "Sounds/", ".ogg")};
-
-			SoundBuffer* soundBuffer{new SoundBuffer};
-			soundBuffer->loadFromFile(filePath);
-			soundBufferPtrsMap.insert(make_pair(mPackName + "_" + fileName, soundBuffer));
-
-			Sound* soundPtr{new Sound};
-			soundPtr->setBuffer(*soundBuffer);
-			soundPtr->setVolume(getSoundVolume());
-			soundPtrsMap.insert(make_pair(mPackName + "_" + fileName, soundPtr));
+			string fileName{getNameFromPath(filePath, mPath + "Sounds/", "")};
+			assetManager.loadSound(mPackName + "_" + fileName, filePath);
+			assetManager.getSound(mPackName + "_" + fileName).setVolume(getSoundVolume());
 		}
 	}
 	void loadMusic(string mPath)
@@ -230,11 +196,11 @@ namespace hg
 	vector<string> getPackPaths() { return packPaths; }
 
 	void stopAllMusic() { for(auto pair : musicPtrsMap) pair.second->stop(); }
-	void stopAllSounds() { for(auto pair : soundPtrsMap) pair.second->stop(); }
+	void stopAllSounds() { assetManager.stopSounds(); }
 	void playSound(string mId) { if(!getNoSound()) getSoundPtr(mId)->play(); }
 
-	Font& getFont(string mId) 				{ return fontsMap.find(mId)->second; }
-	Sound* getSoundPtr(string mId) 			{ return soundPtrsMap.find(mId)->second; }
+	Font& getFont(string mId) 				{ return assetManager.getFont(mId); }
+	Sound* getSoundPtr(string mId) 			{ return &assetManager.getSound(mId); }
 	Music* getMusicPtr(string mId) 			{ return musicPtrsMap.find(mId)->second; }
 	MusicData getMusicData(string mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData getStyleData(string mId) 		{ return styleDataMap.find(mId)->second; }

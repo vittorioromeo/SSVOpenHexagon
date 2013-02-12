@@ -56,16 +56,16 @@ namespace hg
 
 			LevelData levelData;
 			StyleData styleData;
-			sf::Text 	title1{"open", getFont("imagine"), 80},
-						title2{"hexagon", getFont("imagine"), 160},
-						title3{ssvs::Utils::toStr(getVersion()), getFont("imagine"), 25},
-						title4{"clone of ""super hexagon"" by terry cavanagh\n              programmed by vittorio romeo\n                         music by bossfight", getFont("imagine"), 15},
-						levelTime{"", getFont("imagine"), 50},
-						cProfText{"", getFont("imagine"), 25},
-						levelName{"", getFont("imagine"), 80},
-						levelDesc{"", getFont("imagine"), 35},
-						levelAuth{"", getFont("imagine"), 20},
-						levelMusc{"", getFont("imagine"), 20};
+			sf::Text 	title1{"open", getFont("imagine.ttf"), 80},
+						title2{"hexagon", getFont("imagine.ttf"), 160},
+						title3{ssvs::Utils::toStr(getVersion()), getFont("imagine.ttf"), 25},
+						title4{"clone of ""super hexagon"" by terry cavanagh\n              programmed by vittorio romeo\n                         music by bossfight", getFont("imagine.ttf"), 15},
+						levelTime{"", getFont("imagine.ttf"), 50},
+						cProfText{"", getFont("imagine.ttf"), 25},
+						levelName{"", getFont("imagine.ttf"), 80},
+						levelDesc{"", getFont("imagine.ttf"), 35},
+						levelAuth{"", getFont("imagine.ttf"), 20},
+						levelMusc{"", getFont("imagine.ttf"), 20};
 
 		public:
 

@@ -9,6 +9,7 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <SSVStart.h>
 #include <SFML/Audio.hpp>
 #include <json/json.h>
 #include <json/reader.h>
@@ -21,11 +22,12 @@
 #include "HexagonGame.h"
 
 namespace hg
-{	
+{
+	void initAssetManager();
+	ssvs::AssetManager& getAssetManager();
+
 	void loadAssets();
 
-	void loadFonts();
-	void loadSounds();
 	void loadMusic(std::string mPath);
 	void loadMusicData(std::string mPath);
 	void loadStyleData(std::string mPath);

@@ -31,13 +31,13 @@ namespace hg
 
 		vector<Vector2f> offsets{{-1,-1},{-1,1},{1,-1},{1,1}};
 
-		Text timeText(s.str(), getFont("imagine"), 25 / getZoomFactor());
+		Text timeText(s.str(), getFont("imagine.ttf"), 25 / getZoomFactor());
 		timeText.setPosition(15, 3);
 		timeText.setColor(getColorMain());
 
 		for(auto offset : offsets)
 		{
-			Text timeOffsetText(s.str(), getFont("imagine"), timeText.getCharacterSize());
+			Text timeOffsetText(s.str(), getFont("imagine.ttf"), timeText.getCharacterSize());
 			timeOffsetText.setPosition(timeText.getPosition() + offset);
 			timeOffsetText.setColor(getColor(1));
 			drawOnWindow(timeOffsetText);
@@ -49,7 +49,7 @@ namespace hg
 
 		for(auto offset : offsets)
 		{
-			Text textPtrOffset{messageTextPtr->getString(), getFont("imagine"), messageTextPtr->getCharacterSize()};
+			Text textPtrOffset{messageTextPtr->getString(), getFont("imagine.ttf"), messageTextPtr->getCharacterSize()};
 			textPtrOffset.setPosition(messageTextPtr->getPosition() + offset);
 			textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
 			textPtrOffset.setColor(getColor(1));

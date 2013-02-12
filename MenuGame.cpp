@@ -24,7 +24,6 @@ namespace hg
 {
 	MenuGame::MenuGame(HexagonGame& mHexagonGame, GameWindow& mGameWindow) : hexagonGame(mHexagonGame), window(mGameWindow)
 	{
-
 		overlayCamera.move({0, 20});
 
 		game.onUpdate += [&](float frameTime) { update(frameTime); };
@@ -46,7 +45,7 @@ namespace hg
 		stopAllMusic();
 		stopAllSounds();
 
-		playSound("open_hexagon");
+		playSound("openHexagon.ogg");
 	}
 
 	void MenuGame::setIndex(int mIndex)
@@ -106,21 +105,21 @@ namespace hg
 			{
 				if(window.isKeyPressed(Keyboard::Left))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					profileIndex--;
 					
 					inputDelay = 14;
 				}
 				else if(window.isKeyPressed(Keyboard::Right))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					profileIndex++;
 
 					inputDelay = 14;
 				}
 				else if(window.isKeyPressed(Keyboard::Return))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					setCurrentProfile(profileCreationName);
 					state = StateType::LEVEL_SELECTION;
 
@@ -128,7 +127,7 @@ namespace hg
 				}
 				else if(window.isKeyPressed(Keyboard::F1))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					profileCreationName = "";
 					state = StateType::PROFILE_CREATION;
 
@@ -146,33 +145,33 @@ namespace hg
 			{
 				if(window.isKeyPressed(Keyboard::Right))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					setIndex(currentIndex + 1);
 
 					inputDelay = 14;
 				}
 				else if(window.isKeyPressed(Keyboard::Left))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					setIndex(currentIndex - 1);
 
 					inputDelay = 14;
 				}
 				else if(window.isKeyPressed(Keyboard::Up))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					difficultyMultIndex++;
 					inputDelay = 12;
 				}
 				else if(window.isKeyPressed(Keyboard::Down))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					difficultyMultIndex--;
 					inputDelay = 12;
 				}
 				else if(window.isKeyPressed(Keyboard::Return))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					window.setGame(&hexagonGame.getGame());
 					hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 
@@ -180,7 +179,7 @@ namespace hg
 				}
 				else if(window.isKeyPressed(Keyboard::F2) || window.isKeyPressed(Keyboard::J))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					profileCreationName = "";
 					state = StateType::PROFILE_SELECTION;
 
@@ -188,14 +187,14 @@ namespace hg
 				}
 				else if(window.isKeyPressed(Keyboard::F3) || window.isKeyPressed(Keyboard::K))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 					setPulse(!getPulse());
 
 					inputDelay = 14;
 				}
 				else if (window.isKeyPressed(Keyboard::F4) || window.isKeyPressed(Keyboard::L))
 				{
-					playSound("beep");
+					playSound("beep.ogg");
 
 					packIndex = (packIndex + 1) % getPackPaths().size();
 					levelDataIds = getMenuLevelDataIdsByPack(getPackPaths()[packIndex]);

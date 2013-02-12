@@ -25,6 +25,8 @@ using namespace hg;
 
 int main(int argc, char* argv[])
 {
+	initAssetManager();
+
 	srand(unsigned(time(NULL)));
 
 	vector<string> overrideIds;

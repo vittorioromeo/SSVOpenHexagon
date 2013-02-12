@@ -55,7 +55,7 @@ namespace hg
 
 		// Audio cleanup
 		stopAllSounds();
-		playSound("play");
+		playSound("go.ogg");
 		stopLevelMusic();
 		playLevelMusic();
 
@@ -115,8 +115,8 @@ namespace hg
 	}
 	void HexagonGame::death()
 	{
-		playSound("death");
-		playSound("game_over");
+		playSound("death.ogg");
+		playSound("gameOver.ogg");
 
 		if(getInvincible()) return;
 
@@ -130,7 +130,7 @@ namespace hg
 
 	void HexagonGame::incrementDifficulty()
 	{
-		playSound("level_up");
+		playSound("levelUp.ogg");
 
 		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setRotationSpeed(levelData.getRotationSpeed() * -1);
@@ -167,7 +167,7 @@ namespace hg
 	void HexagonGame::goToMenu()
 	{
 		stopAllSounds();
-		playSound("beep");
+		playSound("beep.ogg");
 
 		checkAndSaveScore();
 		runLuaFunction<void>("onUnload");
@@ -181,11 +181,11 @@ namespace hg
 	}
 	void HexagonGame::addMessage(string mMessage, float mDuration)
 	{
-		Text* text = new Text(mMessage, getFont("imagine"), 40 / getZoomFactor());
+		Text* text = new Text(mMessage, getFont("imagine.ttf"), 40 / getZoomFactor());
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
-		messageTimeline.append<Do>([&, text, mMessage]{ playSound("beep"); messageTextPtr = text; });
+		messageTimeline.append<Do>([&, text, mMessage]{ playSound("beep.ogg"); messageTextPtr = text; });
 		messageTimeline.append<Wait>(mDuration);
 		messageTimeline.append<Do>([=]{ messageTextPtr = nullptr; delete text; });
 	}

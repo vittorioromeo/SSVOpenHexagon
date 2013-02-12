@@ -41,7 +41,7 @@ namespace hg
 	void HexagonGame::setRotationSpeed(float mRotationSpeed) 	 	{ levelData.setRotationSpeed(mRotationSpeed); }
 	void HexagonGame::setSides(int mSides)
 	{
-		playSound("beep");
+		playSound("beep.ogg");
 		if (mSides < 3) mSides = 3;
 		levelData.setValueInt("sides", mSides);
 	}

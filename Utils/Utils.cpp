@@ -108,11 +108,11 @@ namespace hg
 		Vector2f oldCenter{mCamera.getCenter()};
 		Timeline& timeline(mTimelineManager.create());
 
-		for(int i{s}; i > 2; --i)
+		for(int i{s}; i > 0; --i)
 		{
 			timeline.append<Do>([&mCamera, oldCenter, i]{ mCamera.centerOn(oldCenter + Vector2f(getRnd(-i, i), getRnd(-i, i))); });
-			timeline.append<Wait>(2);
-			timeline.append<Go>(0, 5);
+			timeline.append<Wait>(1);
+			timeline.append<Go>(0, 3);
 		}
 
 		timeline.append<Do>([&mCamera, oldCenter]{ mCamera.centerOn(oldCenter); });
