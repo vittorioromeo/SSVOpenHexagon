@@ -32,6 +32,8 @@ namespace hg
 	ProfileData loadProfileFromJson(Json::Value mRoot);
 
 	std::string getScoreValidator(std::string mId, float mDifficultyMult);
+
+	void shakeCamera(ssvs::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 }
 
 #endif /* UTILS_H_HG */

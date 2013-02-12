@@ -24,11 +24,11 @@ namespace hg
 	void HexagonGame::update(float mFrameTime)
 	{
 		updateFlash(mFrameTime);
+		effectTimelineManager.update(mFrameTime);
 
 		if(!hasDied)
 		{
 			manager.update(mFrameTime);
-
 			updateEvents(mFrameTime);
 			updateTimeStop(mFrameTime);
 			updateIncrement();

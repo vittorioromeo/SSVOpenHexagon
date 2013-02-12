@@ -42,5 +42,5 @@
 	"change_music": true,
 	
 	// Cheats
-	"invincible": true
+	"invincible": false
 }

@@ -17,6 +17,7 @@
 
 using namespace std;
 using namespace sf;
+using namespace ssvs;
 using namespace ssvs::Utils;
 
 namespace hg
@@ -100,4 +101,20 @@ namespace hg
 	}
 
 	string getScoreValidator(string mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
+
+	void shakeCamera(TimelineManager& mTimelineManager, Camera& mCamera)
+	{
+		int s{7};
+		Vector2f oldCenter{mCamera.getCenter()};
+		Timeline& timeline(mTimelineManager.create());
+
+		for(int i{s}; i > 2; --i)
+		{
+			timeline.append<Do>([&mCamera, oldCenter, i]{ mCamera.centerOn(oldCenter + Vector2f(getRnd(-i, i), getRnd(-i, i))); });
+			timeline.append<Wait>(2);
+			timeline.append<Go>(0, 5);
+		}
+
+		timeline.append<Do>([&mCamera, oldCenter]{ mCamera.centerOn(oldCenter); });
+	}
 }

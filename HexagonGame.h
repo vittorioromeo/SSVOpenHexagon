@@ -43,8 +43,8 @@ namespace hg
 			ssvs::GameWindow& window;
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera, overlayCamera;
+			ssvs::TimelineManager effectTimelineManager;
 			Lua::LuaContext	lua;
-			sf::Vector2f centerPos{0,0};
 			LevelData levelData;
 			MusicData musicData;
 			StyleData styleData;

@@ -30,20 +30,20 @@ namespace hg
 		overlayCamera{window, {getSizeX(), getSizeY()}}
 	{
 		flashPolygon.clear();
-		flashPolygon.append({{0, 0}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{getSizeX(), 0}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{getSizeX(), getSizeY()}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{0, getSizeY()}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{-100.f, -100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{getWidth() + 100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{-100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
 
 		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
-		overlayCamera.setView({{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
+		overlayCamera.setView({{getWidth() / 2.f, getHeight()  / 2.f}, Vector2f(getWidth(), getHeight())});
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 
 		game.onDraw += [&](){ window.clear(Color::Black); };
 		game.onDraw += [&](){ backgroundCamera.apply(); };
 
-		if(!getNoBackground()) game.onDraw += [&](){ styleData.drawBackground(window.getRenderWindow(), centerPos, getSides()); };
+		if(!getNoBackground()) game.onDraw += [&](){ styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); };
 
 		game.onDraw += [&](){ manager.draw(); };
 		game.onDraw += [&](){ overlayCamera.apply(); };
@@ -98,7 +98,7 @@ namespace hg
 
 		// Manager cleanup
 		manager.clear();
-		createPlayer(manager, this, centerPos);
+		createPlayer(manager, this, {0, 0});
 
 		// Timeline cleanup
 		timeline = Timeline{};
@@ -125,6 +125,8 @@ namespace hg
 		if(getInvincible()) return;
 
 		flashEffect = 255;
+		shakeCamera(effectTimelineManager, overlayCamera);
+		shakeCamera(effectTimelineManager, backgroundCamera);
 		hasDied = true;
 		stopLevelMusic();
 		checkAndSaveScore();
@@ -214,10 +216,10 @@ namespace hg
 
 	void HexagonGame::wall(int mSide, float mThickness)
 	{
-		createWall(manager, this, centerPos, mSide, mThickness, baseSpeed, getSpeedMultiplier());
+		createWall(manager, this, {0, 0}, mSide, mThickness, baseSpeed, getSpeedMultiplier());
 	}
 	void HexagonGame::wallAdj(int mSide, float mThickness, float mSpeedAdj)
 	{
-		createWall(manager, this, centerPos, mSide, mThickness, baseSpeed * mSpeedAdj, getSpeedMultiplier());
+		createWall(manager, this, {0, 0}, mSide, mThickness, baseSpeed * mSpeedAdj, getSpeedMultiplier());
 	}
 }
