@@ -35,6 +35,7 @@ namespace hg
 		flashPolygon.append({{-100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
+		game.onUpdate += [&](float) { inputMovement = 0; inputFocused = false; };
 
 		game.onDraw += [&](){ window.clear(Color::Black); };
 		game.onDraw += [&](){ backgroundCamera.apply(); };
@@ -45,6 +46,22 @@ namespace hg
 		game.onDraw += [&](){ overlayCamera.apply(); };
 		game.onDraw += [&](){ drawText(); };
 		game.onDraw += [&](){ drawOnWindow(flashPolygon); };
+
+		using k = Keyboard::Key;
+		game.addInput({k::Left}, [&](float){ inputMovement = -1; });
+		game.addInput({k::Right}, [&](float){ inputMovement = 1; });
+		game.addInput({k::LShift}, [&](float){ inputFocused = true; });
+		game.addInput({k::Escape}, [&](float){ goToMenu(); });
+		game.addInput({k::R}, [&](float){ status.mustRestart = true; });
+		game.addInput({k::Space}, [&](float){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput({k::Return}, [&](float){ if(status.hasDied) status.mustRestart = true; });
+
+		using b = Mouse::Button;
+		game.addInput({b::Left}, [&](float){ inputMovement = -1; });
+		game.addInput({b::Right}, [&](float){ inputMovement = 1; });
+		game.addInput({b::Middle}, [&](float){ inputFocused = true; });
+		game.addInput({b::XButton1}, [&](float){ status.mustRestart = true; });
+		game.addInput({b::XButton2}, [&](float){ status.mustRestart = true; });
 	}
 
 	void HexagonGame::newGame(string mId, bool mFirstPlay, float mDifficultyMult)
@@ -189,8 +206,7 @@ namespace hg
 		musicData.setFirstPlay(mMusicFirstPlay);
 	}
 
-	bool HexagonGame::isKeyPressed(Keyboard::Key mKey) 		{ return window.isKeyPressed(mKey); }
-	bool HexagonGame::isButtonPressed(Mouse::Button mButton){ return window.isButtonPressed(mButton); }
+
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
 

@@ -72,6 +72,8 @@ namespace hg
 			HexagonGameStatus status;
 			std::string restartId{""};
 			float difficultyMult{1};
+			int inputMovement{0};
+			bool inputFocused{false};
 
 			// LUA-related methods
 			void initLua();
@@ -95,7 +97,6 @@ namespace hg
 			void updateLevel(float mFrameTime);
 			void updatePulse(float mFrameTime);
 			void updateBeatPulse(float mFrameTime);
-			void updateKeys();
 			void updateRotation(float mFrameTime);
 			void updateFlash(float mFrameTime);
 
@@ -134,8 +135,6 @@ namespace hg
 			void death();
 
 			// Other methods
-			bool isKeyPressed(sf::Keyboard::Key mKey);
-			bool isButtonPressed(sf::Mouse::Button mButton);
 			void executeEvents(Json::Value& mRoot, float mTime);
 
 			// Graphics-related methods
@@ -159,6 +158,10 @@ namespace hg
 			float getWallAngleLeft();
 			float getWallAngleRight();
 			float get3DEffectMult();
+
+			// Input
+			bool getInputFocused();
+			int getInputMovement();
 	};
 }
 #endif /* HEXAGONGAME_H_ */

@@ -88,16 +88,8 @@ namespace hg
 		int movement{0};
 
 		// Keyboard controls
-		vector<Keyboard::Key> leftKeys{Keyboard::Left, Keyboard::A};
-		vector<Keyboard::Key> rightKeys{Keyboard::Right, Keyboard::D};
-		if(hexagonGame.isKeyPressed(Keyboard::LShift)) currentSpeed = focusSpeed;
-		for(auto key : leftKeys) if(hexagonGame.isKeyPressed(key)) movement = -1;
-		for(auto key : rightKeys) if(hexagonGame.isKeyPressed(key)) movement = 1;
-
-		// Mousebutton controls
-		if(hexagonGame.isButtonPressed(Mouse::Button::Middle)) currentSpeed = focusSpeed;
-		if(hexagonGame.isButtonPressed(Mouse::Button::Left)) movement = -1;
-		if(hexagonGame.isButtonPressed(Mouse::Button::Right)) movement = 1;
+		if(hexagonGame.getInputFocused()) currentSpeed = focusSpeed;
+		movement = hexagonGame.getInputMovement();
 
 		angle += currentSpeed * movement * mFrameTime;
 

@@ -46,4 +46,6 @@ namespace hg
 		levelData.setValueInt("sides", mSides);
 	}
 
+	bool HexagonGame::getInputFocused() { return inputFocused; }
+	int HexagonGame::getInputMovement() { return inputMovement; }
 }

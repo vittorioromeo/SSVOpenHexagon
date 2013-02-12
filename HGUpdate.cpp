@@ -39,8 +39,6 @@ namespace hg
 		}
 		else setRotationSpeed(getRotationSpeed() * 0.99f);
 
-		updateKeys();
-
 		if(!getNoRotation()) updateRotation(mFrameTime);
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 	}
@@ -127,12 +125,6 @@ namespace hg
 
 		float radiusMin{getBeatPulse() ? levelData.getRadiusMin() : 75};
 		status.radius = radiusMin * (status.pulse / levelData.getPulseMin()) + status.beatPulse;
-	}
-	void HexagonGame::updateKeys()
-	{
-		if(isKeyPressed(Keyboard::R)) status.mustRestart = true;
-		if(status.hasDied && (isKeyPressed(Keyboard::Space) || isKeyPressed(Keyboard::Return))) status.mustRestart = true;
-		else if(isKeyPressed(Keyboard::Escape))	goToMenu();
 	}
 	void HexagonGame::updateRotation(float mFrameTime)
 	{
