@@ -26,7 +26,7 @@ namespace hg
 	{
 		overlayCamera.move({0, 20});
 
-		game.onUpdate += [&](float frameTime) { update(frameTime); };
+		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
 
 		levelDataIds = getMenuLevelDataIdsByPack(getPackPaths()[packIndex]);
