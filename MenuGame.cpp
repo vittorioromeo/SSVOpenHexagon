@@ -25,21 +25,25 @@ namespace hg
 	MenuGame::MenuGame(HexagonGame& mHexagonGame, GameWindow& mGameWindow) : hexagonGame(mHexagonGame), window(mGameWindow)
 	{
 		// Title bar
+		getAssetManager().getTexture("titleBar.png").setSmooth(true);
 		titleBar.setOrigin({0, 0});
 		titleBar.setScale({0.5f, 0.5f});
 		titleBar.setPosition(overlayCamera.getConvertedCoords({20, 20}));
 
 		// Credits bar 1
+		getAssetManager().getTexture("creditsBar1.png").setSmooth(true);
 		creditsBar1.setOrigin({1024, 0});
 		creditsBar1.setScale({0.373f, 0.373f});
 		creditsBar1.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 20.f)));
 		
 		// Credits bar 2
+		getAssetManager().getTexture("creditsBar2.png").setSmooth(true);
 		creditsBar2.setOrigin({1024, 116});
 		creditsBar2.setScale({0.373f, 0.373f});
 		creditsBar2.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 160.f / getZoomFactor())));
 
 		// Bottom bar
+		getAssetManager().getTexture("bottomBar.png").setSmooth(true);
 		float scaleFactor{getWidth() * getZoomFactor() / 2048.f};
 		bottomBar.setOrigin({0, 112.f});
 		bottomBar.setScale({scaleFactor, scaleFactor});
@@ -293,7 +297,6 @@ namespace hg
 			cProfText.setString("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]));
 			positionAndDrawCenteredText(cProfText, mainColor, 80, false);
 		}
-
 
 		levelName.setString(levelData.getName());
 		positionAndDrawCenteredText(levelName, mainColor, 50 + 120, false);

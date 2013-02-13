@@ -42,8 +42,7 @@ namespace hg
 
 			float inputDelay{0};
 			std::vector<std::string> levelDataIds;
-			int currentIndex{0};
-			int packIndex{0};
+			int currentIndex{0}, packIndex{0};
 
 			std::string profileCreationName;
 			int profileIndex{0};
@@ -61,16 +60,13 @@ namespace hg
 
 			LevelData levelData;
 			StyleData styleData;
-			sf::Text 	levelTime{"", getFont("imagine.ttf"), 50},
-						cProfText{"", getFont("imagine.ttf"), 25},
+			sf::Text 	cProfText{"", getFont("imagine.ttf"), 25},
 						levelName{"", getFont("imagine.ttf"), 80},
 						levelDesc{"", getFont("imagine.ttf"), 35},
 						levelAuth{"", getFont("imagine.ttf"), 20},
 						levelMusc{"", getFont("imagine.ttf"), 20};
 
 		public:
-
-
 			MenuGame(HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
 			void init();
