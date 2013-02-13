@@ -236,6 +236,7 @@ namespace hg
 
 			overlayCamera.apply();
 			drawLevelSelection();
+			render(bottomBar);
 		}
 		else if(state == StateType::PROFILE_CREATION)
 		{
@@ -256,7 +257,6 @@ namespace hg
 		render(titleBar);
 		render(creditsBar1);
 		render(creditsBar2); 
-		render(bottomBar);
 	}
 
 	void MenuGame::positionAndDrawCenteredText(Text& mText, Color mColor, float mElevation, bool mBold)
@@ -264,7 +264,7 @@ namespace hg
 		//mText.setOrigin(mText.getGlobalBounds().width / 2, 0);
 		if(mBold) mText.setStyle(Text::Bold);
 		mText.setColor(mColor);
-		mText.setPosition(overlayCamera.getConvertedCoords({20, 0}).x, mElevation - 120);
+		mText.setPosition(overlayCamera.getConvertedCoords({20, 0}).x, titleBar.getGlobalBounds().top + titleBar.getGlobalBounds().height + mElevation);
 		render(mText);
 	}
 
@@ -272,39 +272,43 @@ namespace hg
 	{		
 		Color mainColor{styleData.getMainColor()};
 		MusicData musicData{getMusicData(levelData.getMusicId())};
-
-		levelTime.setString("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))));
-		positionAndDrawCenteredText(levelTime, mainColor, 768 - 425, false);
-
-		cProfText.setString("profile: " + getCurrentProfile().getName());
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 375, false);
-		cProfText.setString("pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")));
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 355, false);
-
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
 		string packName{packData.getName()};
-		cProfText.setString("level pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 335, false);
+
+
+		cProfText.setString("profile: " + getCurrentProfile().getName());
+		positionAndDrawCenteredText(cProfText, mainColor, 0, false);
+
+		cProfText.setString("pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")));
+		positionAndDrawCenteredText(cProfText, mainColor, 20, false);
+
+		cProfText.setString("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")");
+		positionAndDrawCenteredText(cProfText, mainColor, 40, false);
+
+		cProfText.setString("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))));
+		positionAndDrawCenteredText(cProfText, mainColor, 60, false);
 
 		if(difficultyMultipliers.size() > 1)
 		{
-			cProfText.setString("(up/down) difficulty multiplier: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]));
-			positionAndDrawCenteredText(cProfText, mainColor, 768 - 315, false);
+			cProfText.setString("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]));
+			positionAndDrawCenteredText(cProfText, mainColor, 80, false);
 		}
-		
+
+
 		levelName.setString(levelData.getName());
-		positionAndDrawCenteredText(levelName, mainColor, 768 - 255 - 20*(countNewLines(levelData.getName())), false);
+		positionAndDrawCenteredText(levelName, mainColor, 50 + 120, false);
 
 		levelDesc.setString(levelData.getDescription());
-		positionAndDrawCenteredText(levelDesc, mainColor, 768 - 180 + 45*(countNewLines(levelData.getName())), false);
+		positionAndDrawCenteredText(levelDesc, mainColor, 50 + 195 + 60*(countNewLines(levelData.getName())), false);
 
 		levelAuth.setString("author: " + levelData.getAuthor());
-		positionAndDrawCenteredText(levelAuth, mainColor, 768 - 85, false);
+		positionAndDrawCenteredText(levelAuth, mainColor, -30 + 500, false);
+		
 		levelMusc.setString("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")");
-		positionAndDrawCenteredText(levelMusc, mainColor, 768 - 70, false);
+		positionAndDrawCenteredText(levelMusc, mainColor, -30 + 515, false);
 
 		levelMusc.setString("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")");
-		positionAndDrawCenteredText(levelMusc, mainColor, 768 - 40, false);
+		positionAndDrawCenteredText(levelMusc, mainColor, -30 + 530, false);
 	}
 	void MenuGame::drawProfileCreation()
 	{
