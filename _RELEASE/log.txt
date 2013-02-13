@@ -1,4 +1,16 @@
 [CONFIG] loading config
+[loadImages] bottomBar.png image added
+[loadImages] bottomBar.png texture added
+[loadImagesToManager(Assets/)] bottomBar.png image added
+[loadImages] creditsBar1.png image added
+[loadImages] creditsBar1.png texture added
+[loadImagesToManager(Assets/)] creditsBar1.png image added
+[loadImages] creditsBar2.png image added
+[loadImages] creditsBar2.png texture added
+[loadImagesToManager(Assets/)] creditsBar2.png image added
+[loadImages] titleBar.png image added
+[loadImages] titleBar.png texture added
+[loadImagesToManager(Assets/)] titleBar.png image added
 [loadSound] beep.ogg soundBuffer added
 [loadSound] beep.ogg sound added
 [loadSoundsToManager(Assets/)] beep.ogg soundBuffer added
@@ -52,11 +64,4 @@
 [ASSETS] loading VeeEndurance custom sounds
 [loadSound] VeeEndurance_test.ogg soundBuffer added
 [loadSound] VeeEndurance_test.ogg sound added
-[LUA] level onLoad
-[LUA] level onLoad
-[LUA] level onLoad
-[LUA] level onLoad
-[LUA] level onLoad
-[LUA] level onLoad
-[LUA] level onLoad
 [LUA] level onLoad

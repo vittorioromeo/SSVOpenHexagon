@@ -3,6 +3,7 @@
 	"name" : "test",
 	"scores" : 
 	{
+		"Packs/VeeDefault/easy_m_0.5" : null,
 		"Packs/VeeDefault/easy_m_1" : 14.15530300140381,
 		"Packs/VeeDefault/easy_m_1.5" : null,
 		"Packs/VeeDefault/easy_m_2" : null,
@@ -29,6 +30,7 @@
 		"Packs/VeeDefault/lunatic_m_1.25" : 3.542372226715088,
 		"Packs/VeeDefault/lunatic_m_1.4" : 6.229018688201904,
 		"Packs/VeeDefault/lunatic_m_1.5" : 1.598291039466858,
+		"Packs/VeeDefault/normal_m_0.5" : null,
 		"Packs/VeeDefault/normal_m_1" : 15.46376800537109,
 		"Packs/VeeDefault/normal_m_1.5" : null,
 		"Packs/VeeDefault/normal_m_2" : 4.687472820281982,

@@ -24,7 +24,26 @@ namespace hg
 {
 	MenuGame::MenuGame(HexagonGame& mHexagonGame, GameWindow& mGameWindow) : hexagonGame(mHexagonGame), window(mGameWindow)
 	{
-		overlayCamera.move({0, 20});
+		// Title bar
+		titleBar.setOrigin({0, 0});
+		titleBar.setScale({0.5f, 0.5f});
+		titleBar.setPosition(overlayCamera.getConvertedCoords({20, 20}));
+
+		// Credits bar 1
+		creditsBar1.setOrigin({1024, 0});
+		creditsBar1.setScale({0.373f, 0.373f});
+		creditsBar1.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 20.f)));
+		
+		// Credits bar 2
+		creditsBar2.setOrigin({1024, 116});
+		creditsBar2.setScale({0.373f, 0.373f});
+		creditsBar2.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 160.f / getZoomFactor())));
+
+		// Bottom bar
+		float scaleFactor{getWidth() * getZoomFactor() / 2048.f};
+		bottomBar.setOrigin({0, 112.f});
+		bottomBar.setScale({scaleFactor, scaleFactor});
+		bottomBar.setPosition(overlayCamera.getConvertedCoords(Vector2i(0, getHeight())));
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
@@ -207,18 +226,16 @@ namespace hg
 	}
 	void MenuGame::draw()
 	{
-		backgroundCamera.apply();
-
 		window.clear(Color{0, 0, 0, 0});
 		
 		if(state == StateType::LEVEL_SELECTION)
 		{
 			window.clear(styleData.getColors()[0]);
+			backgroundCamera.apply();
 			styleData.drawBackground(window.getRenderWindow(), Vector2f{0,0}, 6);
 
 			overlayCamera.apply();
 			drawLevelSelection();
-			backgroundCamera.apply();
 		}
 		else if(state == StateType::PROFILE_CREATION)
 		{
@@ -226,7 +243,6 @@ namespace hg
 
 			overlayCamera.apply();
 			drawProfileCreation();
-			backgroundCamera.apply();
 		}
 		else if(state == StateType::PROFILE_SELECTION)
 		{
@@ -234,18 +250,21 @@ namespace hg
 
 			overlayCamera.apply();
 			drawProfileSelection();
-			backgroundCamera.apply();
 		}
 
-		backgroundCamera.unapply();
+		overlayCamera.apply();
+		render(titleBar);
+		render(creditsBar1);
+		render(creditsBar2); 
+		render(bottomBar);
 	}
 
 	void MenuGame::positionAndDrawCenteredText(Text& mText, Color mColor, float mElevation, bool mBold)
 	{
-		mText.setOrigin(mText.getGlobalBounds().width / 2, 0);
+		//mText.setOrigin(mText.getGlobalBounds().width / 2, 0);
 		if(mBold) mText.setStyle(Text::Bold);
 		mText.setColor(mColor);
-		mText.setPosition(getWidth() / 2, mElevation);
+		mText.setPosition(overlayCamera.getConvertedCoords({20, 0}).x, mElevation - 120);
 		render(mText);
 	}
 
@@ -254,22 +273,17 @@ namespace hg
 		Color mainColor{styleData.getMainColor()};
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 
-		positionAndDrawCenteredText(title1, mainColor, 45, true);
-		positionAndDrawCenteredText(title2, mainColor, 80, true);
-		positionAndDrawCenteredText(title3, mainColor, 214, true);
-		positionAndDrawCenteredText(title4, mainColor, 250, true);
-
 		levelTime.setString("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))));
 		positionAndDrawCenteredText(levelTime, mainColor, 768 - 425, false);
 
-		cProfText.setString("(J)(F2) profile: " + getCurrentProfile().getName());
+		cProfText.setString("profile: " + getCurrentProfile().getName());
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 375, false);
-		cProfText.setString("(K)(F3) pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")));
+		cProfText.setString("pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")));
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 355, false);
 
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
 		string packName{packData.getName()};
-		cProfText.setString("(L)(F4) level pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")");
+		cProfText.setString("level pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")");
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 335, false);
 
 		if(difficultyMultipliers.size() > 1)
@@ -296,11 +310,6 @@ namespace hg
 	{
 		Color mainColor{Color::White};
 
-		positionAndDrawCenteredText(title1, mainColor, 45, true);
-		positionAndDrawCenteredText(title2, mainColor, 80, true);
-		positionAndDrawCenteredText(title3, mainColor, 240, true);
-		positionAndDrawCenteredText(title4, mainColor, 270, true);
-
 		cProfText.setString("profile creation");
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 395, false);
 
@@ -319,11 +328,6 @@ namespace hg
 	void MenuGame::drawProfileSelection()
 	{
 		Color mainColor{Color::White};
-
-		positionAndDrawCenteredText(title1, mainColor, 45, true);
-		positionAndDrawCenteredText(title2, mainColor, 80, true);
-		positionAndDrawCenteredText(title3, mainColor, 240, true);
-		positionAndDrawCenteredText(title4, mainColor, 270, true);
 
 		cProfText.setString("profile selection");
 		positionAndDrawCenteredText(cProfText, mainColor, 768 - 395, false);

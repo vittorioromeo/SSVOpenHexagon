@@ -35,6 +35,11 @@ namespace hg
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
 			StateType state{StateType::PROFILE_SELECTION};
 
+			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")};
+			sf::Sprite creditsBar1{getAssetManager().getTexture("creditsBar1.png")};
+			sf::Sprite creditsBar2{getAssetManager().getTexture("creditsBar2.png")};
+			sf::Sprite bottomBar{getAssetManager().getTexture("bottomBar.png")};
+
 			float inputDelay{0};
 			std::vector<std::string> levelDataIds;
 			int currentIndex{0};
@@ -56,11 +61,7 @@ namespace hg
 
 			LevelData levelData;
 			StyleData styleData;
-			sf::Text 	title1{"open", getFont("imagine.ttf"), 80},
-						title2{"hexagon", getFont("imagine.ttf"), 160},
-						title3{ssvs::Utils::toStr(getVersion()), getFont("imagine.ttf"), 25},
-						title4{"clone of ""super hexagon"" by terry cavanagh\n              programmed by vittorio romeo\n                         music by bossfight", getFont("imagine.ttf"), 15},
-						levelTime{"", getFont("imagine.ttf"), 50},
+			sf::Text 	levelTime{"", getFont("imagine.ttf"), 50},
 						cProfText{"", getFont("imagine.ttf"), 25},
 						levelName{"", getFont("imagine.ttf"), 80},
 						levelDesc{"", getFont("imagine.ttf"), 35},
