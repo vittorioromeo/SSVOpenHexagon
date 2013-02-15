@@ -23,6 +23,7 @@
 #include "Data/MusicData.h"
 #include "Data/EventData.h"
 #include "Data/StyleData.h"
+#include "Global/Factory.h"
 #include "Utils/Utils.h"
 #pragma GCC system_header
 #include <SSVLuaWrapper.h>
@@ -46,6 +47,7 @@ namespace hg
 			ssvs::Camera backgroundCamera{window, {{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())}};
 			ssvs::TimelineManager effectTimelineManager;
+			Factory factory{*this, manager, {0, 0}};
 			Lua::LuaContext	lua;
 			LevelData levelData;
 			MusicData musicData;
@@ -76,6 +78,8 @@ namespace hg
 
 				return R();
 			}
+
+			void initFlashEffect();
 
 			// Update methods
 			void update(float mFrameTime);

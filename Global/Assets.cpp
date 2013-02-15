@@ -193,6 +193,12 @@ namespace hg
 		return result;
 	}
 	vector<string> getPackPaths() { return packPaths; }
+	vector<string> getPackNames()
+	{
+		vector<string> result;
+		for(auto& packPair : packDataMap) result.push_back(packPair.first);
+		return result;
+	}
 
 	void stopAllMusic() { for(auto pair : musicPtrsMap) pair.second->stop(); }
 	void stopAllSounds() { assetManager.stopSounds(); }

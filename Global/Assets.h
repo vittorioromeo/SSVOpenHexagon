@@ -54,6 +54,7 @@ namespace hg
 	std::vector<std::string> getAllMenuLevelDataIds();
 	std::vector<std::string> getMenuLevelDataIdsByPack(std::string mPackPath);
 	std::vector<std::string> getPackPaths();
+	std::vector<std::string> getPackNames();
 
 	float getScore(std::string mId);
 	void setScore(std::string mId, float mScore);

@@ -23,19 +23,28 @@ namespace hg
 {
 	void HexagonGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
 
+	void HexagonGame::initFlashEffect()
+	{
+		flashPolygon.clear();
+		flashPolygon.append({{-100.f, -100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{getWidth() + 100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{-100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
+	}
+
 	void HexagonGame::drawText()
 	{
 		ostringstream s;
 		s << "time: " << toStr(status.currentTime).substr(0, 5) << endl;
 		if(status.hasDied) s << "press r to restart" << endl;
 
-		vector<Vector2f> offsets{{-1,-1},{-1,1},{1,-1},{1,1}};
+		vector<Vector2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 		Text timeText(s.str(), getFont("imagine.ttf"), 25 / getZoomFactor());
 		timeText.setPosition(15, 3);
 		timeText.setColor(getColorMain());
 
-		for(auto offset : offsets)
+		for(auto& offset : offsets)
 		{
 			Text timeOffsetText(s.str(), getFont("imagine.ttf"), timeText.getCharacterSize());
 			timeOffsetText.setPosition(timeText.getPosition() + offset);
@@ -47,7 +56,7 @@ namespace hg
 
 		if(messageTextPtr == nullptr) return;
 
-		for(auto offset : offsets)
+		for(auto& offset : offsets)
 		{
 			Text textPtrOffset{messageTextPtr->getString(), getFont("imagine.ttf"), messageTextPtr->getCharacterSize()};
 			textPtrOffset.setPosition(messageTextPtr->getPosition() + offset);

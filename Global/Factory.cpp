@@ -6,6 +6,7 @@
 #include <SSVEntitySystem.h>
 #include "Components/CPlayer.h"
 #include "Components/CWall.h"
+#include "Global/Factory.h"
 #include "Utils/Utils.h"
 
 using namespace sf;
@@ -13,16 +14,18 @@ using namespace sses;
 
 namespace hg
 {
-	Entity* createWall(Manager& mManager, HexagonGame* mHgPtr, Vector2f mCenterPos, int mSide, float mThickness, float mSpeed, float mSpeedMultiplier)
+	Factory::Factory(HexagonGame& mHexagonGame, Manager& mManager, Vector2f mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
+
+	Entity* Factory::createWall(int mSide, float mThickness, float mSpeed, float mSpeedMultiplier)
 	{
-		auto result = mManager.createEntity();
-		*result += mManager.createComponent<CWall>(*mHgPtr, mCenterPos, mSide, mThickness, getSpawnDistance(), mSpeed * mSpeedMultiplier);
+		auto result = manager.createEntity();
+		*result += manager.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeed * mSpeedMultiplier);
 		return result;
 	}
-	Entity* createPlayer(Manager& mManager, HexagonGame* mHgPtr, Vector2f mCenterPos)
+	Entity* Factory::createPlayer()
 	{
-		auto result = mManager.createEntity();
-		*result += mManager.createComponent<CPlayer>(*mHgPtr, mCenterPos);
+		auto result = manager.createEntity();
+		*result += manager.createComponent<CPlayer>(hexagonGame, centerPos);
 		result->setDrawPriority(-1);
 		return result;
 	}

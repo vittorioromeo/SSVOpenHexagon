@@ -263,93 +263,92 @@ namespace hg
 		render(creditsBar2); 
 	}
 
-	void MenuGame::positionAndDrawCenteredText(Text& mText, Color mColor, float mElevation, bool mBold)
+	void MenuGame::renderText(Text& mText, sf::Vector2f mPosition)
 	{
-		//mText.setOrigin(mText.getGlobalBounds().width / 2, 0);
-		if(mBold) mText.setStyle(Text::Bold);
-		mText.setColor(mColor);
-		mText.setPosition(overlayCamera.getConvertedCoords({20, 0}).x, titleBar.getGlobalBounds().top + titleBar.getGlobalBounds().height + mElevation);
+		mText.setColor(styleData.getMainColor());
+		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);
 		render(mText);
 	}
 
 	void MenuGame::drawLevelSelection()
 	{		
-		Color mainColor{styleData.getMainColor()};
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
 		string packName{packData.getName()};
 
+		string packNames{""};
+		for(string packName : getPackNames()) packNames.append(packName + "\n");
 
 		cProfText.setString("profile: " + getCurrentProfile().getName());
-		positionAndDrawCenteredText(cProfText, mainColor, 0, false);
+		renderText(cProfText, {20, 0});
 
 		cProfText.setString("pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")));
-		positionAndDrawCenteredText(cProfText, mainColor, 20, false);
+		renderText(cProfText, {20, 20});
 
 		cProfText.setString("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")");
-		positionAndDrawCenteredText(cProfText, mainColor, 40, false);
+		renderText(cProfText, {20, 40});
 
 		cProfText.setString("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))));
-		positionAndDrawCenteredText(cProfText, mainColor, 60, false);
+		renderText(cProfText, {20, 60});
 
 		if(difficultyMultipliers.size() > 1)
 		{
 			cProfText.setString("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]));
-			positionAndDrawCenteredText(cProfText, mainColor, 80, false);
+			renderText(cProfText, {20, 80});
 		}
 
 		levelName.setString(levelData.getName());
-		positionAndDrawCenteredText(levelName, mainColor, 50 + 120, false);
+		renderText(levelName, {20, 50 + 120});
 
 		levelDesc.setString(levelData.getDescription());
-		positionAndDrawCenteredText(levelDesc, mainColor, 50 + 195 + 60*(countNewLines(levelData.getName())), false);
+		renderText(levelDesc, {20, 50 + 195 + 60*(countNewLines(levelData.getName()))});
 
 		levelAuth.setString("author: " + levelData.getAuthor());
-		positionAndDrawCenteredText(levelAuth, mainColor, -30 + 500, false);
+		renderText(levelAuth, {20, -30 + 500});
 		
 		levelMusc.setString("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")");
-		positionAndDrawCenteredText(levelMusc, mainColor, -30 + 515, false);
+		renderText(levelMusc, {20, -30 + 515});
 
 		levelMusc.setString("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")");
-		positionAndDrawCenteredText(levelMusc, mainColor, -30 + 530, false);
+		renderText(levelMusc, {20, -30 + 530});
 	}
 	void MenuGame::drawProfileCreation()
 	{
 		Color mainColor{Color::White};
 
 		cProfText.setString("profile creation");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 395, false);
+		renderText(cProfText, {20, 768 - 395});
 
 		cProfText.setString("insert profile name");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 375, false);
+		renderText(cProfText, {20, 768 - 375});
 
 		cProfText.setString("press enter when done");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 335, false);
+		renderText(cProfText, {20, 768 - 335});
 
 		cProfText.setString("keep esc pressed to exit");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 315, false);
+		renderText(cProfText, {20, 768 - 315});
 
 		levelName.setString(profileCreationName);
-		positionAndDrawCenteredText(levelName, mainColor, 768 - 245 - 40, false);
+		renderText(levelName, {20, 768 - 245 - 40});
 	}
 	void MenuGame::drawProfileSelection()
 	{
 		Color mainColor{Color::White};
 
 		cProfText.setString("profile selection");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 395, false);
+		renderText(cProfText, {20, 768 - 395});
 
 		cProfText.setString("press left/right to browse profiles");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 375, false);
+		renderText(cProfText, {20, 768 - 375});
 
 		cProfText.setString("press enter to select profile");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 355, false);
+		renderText(cProfText, {20, 768 - 355});
 
 		cProfText.setString("press f1 to create a new profile");
-		positionAndDrawCenteredText(cProfText, mainColor, 768 - 335, false);
+		renderText(cProfText, {20, 768 - 335});
 
 		levelName.setString(profileCreationName);
-		positionAndDrawCenteredText(levelName, mainColor, 768 - 245 - 40, false);
+		renderText(levelName, {20, 768 - 245 - 40});
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }

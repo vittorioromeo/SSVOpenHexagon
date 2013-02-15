@@ -56,7 +56,7 @@ namespace hg
 			void drawProfileCreation();
 			void drawProfileSelection();
 			void setIndex(int mIndex);
-			void positionAndDrawCenteredText(sf::Text& mText, sf::Color mColor, float mElevation, bool mBold);
+			void renderText(sf::Text& mText, sf::Vector2f mPosition);
 
 			LevelData levelData;
 			StyleData styleData;

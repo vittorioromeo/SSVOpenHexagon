@@ -28,40 +28,34 @@ namespace hg
 {
 	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow)
 	{
-		flashPolygon.clear();
-		flashPolygon.append({{-100.f, -100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{getWidth() + 100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{-100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
+		initFlashEffect();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onUpdate += [&](float) { inputMovement = 0; inputFocused = false; };
 
 		game.onDraw += [&](){ window.clear(Color::Black); };
 		game.onDraw += [&](){ backgroundCamera.apply(); };
-
 		if(!getNoBackground()) game.onDraw += [&](){ styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); };
-
 		game.onDraw += [&](){ manager.draw(); };
 		game.onDraw += [&](){ overlayCamera.apply(); };
 		game.onDraw += [&](){ drawText(); };
 		game.onDraw += [&](){ render(flashPolygon); };
 
 		using k = Keyboard::Key;
-		game.addInput({k::Left}, [&](float){ inputMovement = -1; });
-		game.addInput({k::Right}, [&](float){ inputMovement = 1; });
-		game.addInput({k::LShift}, [&](float){ inputFocused = true; });
-		game.addInput({k::Escape}, [&](float){ goToMenu(); });
-		game.addInput({k::R}, [&](float){ status.mustRestart = true; });
-		game.addInput({k::Space}, [&](float){ if(status.hasDied) status.mustRestart = true; });
-		game.addInput({k::Return}, [&](float){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput({k::Left}, 		[&](float){ inputMovement = -1; });
+		game.addInput({k::Right}, 		[&](float){ inputMovement = 1; });
+		game.addInput({k::LShift}, 		[&](float){ inputFocused = true; });
+		game.addInput({k::Escape}, 		[&](float){ goToMenu(); });
+		game.addInput({k::R}, 			[&](float){ status.mustRestart = true; });
+		game.addInput({k::Space}, 		[&](float){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput({k::Return}, 		[&](float){ if(status.hasDied) status.mustRestart = true; });
 
 		using b = Mouse::Button;
-		game.addInput({b::Left}, [&](float){ inputMovement = -1; });
-		game.addInput({b::Right}, [&](float){ inputMovement = 1; });
-		game.addInput({b::Middle}, [&](float){ inputFocused = true; });
-		game.addInput({b::XButton1}, [&](float){ status.mustRestart = true; });
-		game.addInput({b::XButton2}, [&](float){ status.mustRestart = true; });
+		game.addInput({b::Left}, 		[&](float){ inputMovement = -1; });
+		game.addInput({b::Right}, 		[&](float){ inputMovement = 1; });
+		game.addInput({b::Middle}, 		[&](float){ inputFocused = true; });
+		game.addInput({b::XButton1},	[&](float){ status.mustRestart = true; });
+		game.addInput({b::XButton2},	[&](float){ status.mustRestart = true; });
 	}
 
 	void HexagonGame::newGame(string mId, bool mFirstPlay, float mDifficultyMult)
@@ -94,16 +88,16 @@ namespace hg
 
 		// Manager cleanup
 		manager.clear();
-		createPlayer(manager, this, {0, 0});
+		factory.createPlayer();
 
 		// Timeline cleanup
-		timeline = Timeline{};
-		messageTimeline = Timeline{};
+		timeline = {};
+		messageTimeline = {};
 		effectTimelineManager.clear();
 
 		// LUA context cleanup
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
-		lua = Lua::LuaContext{};
+		lua = {};
 		initLua();
 		runLuaFile(levelData.getValueString("lua_file"));
 		runLuaFunction<void>("onLoad");
@@ -194,9 +188,7 @@ namespace hg
 	void HexagonGame::clearMessage()
 	{
 		if(messageTextPtr == nullptr) return;
-
-		delete messageTextPtr;
-		messageTextPtr = nullptr;
+		delete messageTextPtr; messageTextPtr = nullptr;
 	}
 
 	void HexagonGame::setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay)
@@ -207,16 +199,9 @@ namespace hg
 		musicData.setFirstPlay(mMusicFirstPlay);
 	}
 
-
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
 
-	void HexagonGame::wall(int mSide, float mThickness)
-	{
-		createWall(manager, this, {0, 0}, mSide, mThickness, baseSpeed, getSpeedMultiplier());
-	}
-	void HexagonGame::wallAdj(int mSide, float mThickness, float mSpeedAdj)
-	{
-		createWall(manager, this, {0, 0}, mSide, mThickness, baseSpeed * mSpeedAdj, getSpeedMultiplier());
-	}
+	void HexagonGame::wall(int mSide, float mThickness) { factory.createWall(mSide, mThickness, baseSpeed, getSpeedMultiplier()); }
+	void HexagonGame::wallAdj(int mSide, float mThickness, float mSpeedAdj) { factory.createWall(mSide, mThickness, baseSpeed * mSpeedAdj, getSpeedMultiplier()); }
 }

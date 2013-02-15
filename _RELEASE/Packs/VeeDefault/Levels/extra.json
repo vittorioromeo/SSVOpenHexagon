@@ -1,8 +1,8 @@
 {
 	// Level information
 	"id": "extra",
-	"name": "euclidean plane
-			 crash",
+	"name": "euclidean plane 
+crash",
 	"description": "special level of difficulty",
 	"author": "vee",	
 	"menu_priority": 50,
