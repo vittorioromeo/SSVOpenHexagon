@@ -80,7 +80,7 @@ namespace hg
 		eventPtrQueue = queue<EventData*>{};
 
 		// Game status cleanup
-		status = {};
+		status = HexagonGameStatus{};
 		restartId = mId;
 		restartFirstTime = false;
 		setSides(levelData.getSides());
@@ -91,13 +91,13 @@ namespace hg
 		factory.createPlayer();
 
 		// Timeline cleanup
-		timeline = {};
-		messageTimeline = {};
+		timeline = Timeline{};
+		messageTimeline = Timeline{};
 		effectTimelineManager.clear();
 
 		// LUA context cleanup
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
-		lua = {};
+		lua = Lua::LuaContext{};
 		initLua();
 		runLuaFile(levelData.getValueString("lua_file"));
 		runLuaFunction<void>("onLoad");
@@ -167,7 +167,7 @@ namespace hg
 
 		checkAndSaveScore();
 		runLuaFunction<void>("onUnload");
-		window.setGame(&mgPtr->getGame());
+		window.setGameState(mgPtr->getGame());
 		mgPtr->init();
 	}
 	void HexagonGame::changeLevel(string mId, bool mFirstTime)

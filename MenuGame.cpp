@@ -195,7 +195,7 @@ namespace hg
 				else if(window.isKeyPressed(Keyboard::Return))
 				{
 					playSound("beep.ogg");
-					window.setGame(&hexagonGame.getGame());
+					window.setGameState(hexagonGame.getGame());
 					hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 
 					inputDelay = 14;

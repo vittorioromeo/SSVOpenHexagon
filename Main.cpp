@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
 	hg.mgPtr = &mg;
 
-	window.setGame(&mg.getGame());
+	window.setGameState(mg.getGame());
 	mg.init();
 
 	window.run();
