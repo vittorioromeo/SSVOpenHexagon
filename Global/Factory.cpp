@@ -16,17 +16,17 @@ namespace hg
 {
 	Factory::Factory(HexagonGame& mHexagonGame, Manager& mManager, Vector2f mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
 
-	Entity* Factory::createWall(int mSide, float mThickness, float mSpeed, float mSpeedMultiplier)
+	Entity& Factory::createWall(int mSide, float mThickness, float mSpeed, float mSpeedMultiplier)
 	{
-		auto result = manager.createEntity();
-		*result += manager.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeed * mSpeedMultiplier);
+		auto& result = manager.createEntity();
+		result += manager.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeed * mSpeedMultiplier);
 		return result;
 	}
-	Entity* Factory::createPlayer()
+	Entity& Factory::createPlayer()
 	{
-		auto result = manager.createEntity();
-		*result += manager.createComponent<CPlayer>(hexagonGame, centerPos);
-		result->setDrawPriority(-1);
+		auto& result = manager.createEntity();
+		result += manager.createComponent<CPlayer>(hexagonGame, centerPos);
+		result.setDrawPriority(-1);
 		return result;
 	}
 }
