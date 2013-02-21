@@ -2,7 +2,7 @@
 	// Level information
 	"id": "commando",
 	"name": "commando",
-	"description": "		  exponential difficulty \nfor exponential entertainment",
+	"description": "exponential difficulty \nfor exponential entertainment",
 	"author": "vee",	
 	"menu_priority": 50,
 	"selectable": true,
