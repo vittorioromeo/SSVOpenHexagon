@@ -53,8 +53,8 @@ namespace hg
 			thickness = hue / 20;
 		}
 
-		VertexArray vertices2 {PrimitiveType::Quads, 4};
-		VertexArray vertices3 {PrimitiveType::Triangles, 3};
+		VertexArray vertices2{PrimitiveType::Quads, 4};
+		VertexArray vertices3{PrimitiveType::Triangles, 3};
 
 		for(int i{0}; i < hexagonGame.getSides(); i++)
 		{

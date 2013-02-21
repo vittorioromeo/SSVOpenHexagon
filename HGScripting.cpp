@@ -33,7 +33,7 @@ namespace hg
 			string type		{eventRoot.isMember("type") ? eventRoot["type"].asString()				: ""};
 			float duration	{eventRoot.isMember("duration") ? eventRoot["duration"].asFloat()		: 0.00f};
 			string valueName{eventRoot.isMember("value_name") ? eventRoot["value_name"].asString()	: ""};
-			float value		{eventRoot.isMember("value") ? eventRoot["value"].asFloat()			: 0.00f};
+			float value		{eventRoot.isMember("value") ? eventRoot["value"].asFloat()				: 0.00f};
 			string message	{eventRoot.isMember("message") ? eventRoot["message"].asString()		: ""};
 			string id		{eventRoot.isMember("id") ? eventRoot["id"].asString()					: ""};
 
