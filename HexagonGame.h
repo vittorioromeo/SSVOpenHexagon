@@ -34,12 +34,9 @@ namespace hg
 	constexpr float baseThickness{40};
 
 	class MenuGame;
-	class PatternManager;
 
 	class HexagonGame
 	{
-		friend class PatternManager;
-
 		private:
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
