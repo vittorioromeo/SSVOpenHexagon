@@ -41,55 +41,75 @@ namespace hg
 	float LevelData::getIncrementTime()				{ return root["increment_time"].asFloat(); }
 	float LevelData::getPulseMin()
 	{		
-		if (root.isMember("pulse_min")) return root["pulse_min"].asFloat();
+		if(root.isMember("pulse_min")) return root["pulse_min"].asFloat();
 		return 75.f;
 	}
 	float LevelData::getPulseMax()
 	{
-		if (root.isMember("pulse_max")) return root["pulse_max"].asFloat();
+		if(root.isMember("pulse_max")) return root["pulse_max"].asFloat();
 		return 80.f;
 	}
 	float LevelData::getPulseSpeed()
 	{
-		if (root.isMember("pulse_speed")) return root["pulse_speed"].asFloat();
+		if(root.isMember("pulse_speed")) return root["pulse_speed"].asFloat();
 		return 0.f;
 	}
 	float LevelData::getPulseSpeedR()
 	{
-		if (root.isMember("pulse_speed_r")) return root["pulse_speed_r"].asFloat();
+		if(root.isMember("pulse_speed_r")) return root["pulse_speed_r"].asFloat();
 		return 0.f;
 	}
 	float LevelData::getPulseDelayMax()
 	{
-		if (root.isMember("pulse_delay_max")) return root["pulse_delay_max"].asFloat();
+		if(root.isMember("pulse_delay_max")) return root["pulse_delay_max"].asFloat();
 		return 0.f;
 	}
 	float LevelData::getPulseDelayHalfMax()
 	{
-		if (root.isMember("pulse_delay_half_max")) return root["pulse_delay_half_max"].asFloat();
+		if(root.isMember("pulse_delay_half_max")) return root["pulse_delay_half_max"].asFloat();
 		return 0.f;
 	}
 	float LevelData::getBeatPulseMax()
 	{
-		if (root.isMember("beatpulse_max")) return root["beatpulse_max"].asFloat();
+		if(root.isMember("beatpulse_max")) return root["beatpulse_max"].asFloat();
 		return 0.f;
 	}
 	float LevelData::getBeatPulseDelayMax()
 	{
-		if (root.isMember("beatpulse_delay_max")) return root["beatpulse_delay_max"].asFloat();
+		if(root.isMember("beatpulse_delay_max")) return root["beatpulse_delay_max"].asFloat();
 		return 0.f;
 	}
 	float LevelData::getRadiusMin()
 	{
-		if (root.isMember("radius_min")) return root["radius_min"].asFloat();
+		if(root.isMember("radius_min")) return root["radius_min"].asFloat();
 		return 72.f;
 	}
 	vector<float> LevelData::getDifficultyMultipliers()
 	{
 		vector<float> result{1.0f};
-		if (root.isMember("difficulty_multipliers")) for(Json::Value f : root["difficulty_multipliers"]) result.push_back(f.asFloat());
+		if(root.isMember("difficulty_multipliers")) for(Json::Value f : root["difficulty_multipliers"]) result.push_back(f.asFloat());
 		sort(begin(result), end(result));
 		return result;
+	}
+	float LevelData::get3DMultiplier()
+	{
+		if(root.isMember("3d_multiplier")) return root["3d_multiplier"].asFloat();
+		return 20.5f;
+	}
+	float LevelData::get3DIncrement()
+	{
+		if(root.isMember("3d_increment")) return root["3d_increment"].asFloat();
+		return 0.062f;
+	}
+	float LevelData::get3DMax()
+	{
+		if(root.isMember("3d_max")) return root["3d_max"].asFloat();
+		return 26.f;
+	}
+	float LevelData::get3DMin()
+	{
+		if(root.isMember("3d_min")) return root["3d_min"].asFloat();
+		return 1.5f;
 	}
 
 	vector<Json::Value>& LevelData::getEvents()		{ return events; }

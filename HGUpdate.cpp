@@ -36,6 +36,7 @@ namespace hg
 			if(getBeatPulse()) updateBeatPulse(mFrameTime);
 			if(getPulse()) updatePulse(mFrameTime);
 			if(!getBlackAndWhite()) styleData.update(mFrameTime);
+			if(get3D()) update3D(mFrameTime);
 		}
 		else setRotationSpeed(getRotationSpeed() * 0.99f);
 
@@ -107,7 +108,6 @@ namespace hg
 		status.pulseDelayHalf -= 1 * mFrameTime;
 		
 		float p{status.pulse / levelData.getPulseMin()};
-
 		float rotation{backgroundCamera.getRotation()};
 		backgroundCamera.setView({{0, 0}, {(getWidth() * getZoomFactor()) * p, (getHeight() * getZoomFactor()) * p}});
 		backgroundCamera.setRotation(rotation);
@@ -142,5 +142,22 @@ namespace hg
 		if(status.flashEffect > 0) status.flashEffect -= 3 * mFrameTime;
 		status.flashEffect = clamp(status.flashEffect, 0.f, 255.f);
 		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = status.flashEffect;
+	}
+	void HexagonGame::update3D(float mFrameTime)
+	{
+		status.effect3D += (levelData.get3DIncrement() + getRnd(-10, 10) * 0.01f) * mFrameTime;
+		if(status.effect3D > levelData.get3DMax()) { status.effect3DDir *= -1; status.effect3D = levelData.get3DMax(); }
+		if(status.effect3D < levelData.get3DMin()) { status.effect3DDir *= -1; status.effect3D = levelData.get3DMin(); }
+
+		float rotation{backgroundCamera.getRotation()};
+		View view{{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}};
+		if(getPulse())
+		{
+			float p{status.pulse / levelData.getPulseMin()};
+			view = {{0, 0}, {(getWidth() * getZoomFactor()) * p, (getHeight() * getZoomFactor()) * p}};
+		}
+		view.setSize(view.getSize() + Vector2f{0, status.effect3D * levelData.get3DMultiplier()});
+		backgroundCamera.setView(view);
+		backgroundCamera.setRotation(rotation);
 	}
 }

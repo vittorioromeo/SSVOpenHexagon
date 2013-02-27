@@ -66,7 +66,7 @@ namespace hg
 		ifstream stream(mFilePath, std::ifstream::binary);
 
 		bool parsingSuccessful = reader.parse( stream, root, false );
-		if (!parsingSuccessful) cout << reader.getFormatedErrorMessages() << endl;
+		if(!parsingSuccessful) cout << reader.getFormatedErrorMessages() << endl;
 
 		return root;
 	}

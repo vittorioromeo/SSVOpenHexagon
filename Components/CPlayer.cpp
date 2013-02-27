@@ -100,9 +100,9 @@ namespace hg
 
 		for (auto wall : getManager().getComponents<CWall>("wall"))
 		{
-			if (movement == -1 && wall->isOverlapping(pLeftCheck)) angle = lastAngle;
-			if (movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;
-			if (wall->isOverlapping(pos))
+			if(movement == -1 && wall->isOverlapping(pLeftCheck)) angle = lastAngle;
+			if(movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;
+			if(wall->isOverlapping(pos))
 			{
 				if(!getInvincible()) dead = true;
 

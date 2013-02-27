@@ -108,9 +108,9 @@ namespace hg
 
 			if(e.type == Event::TextEntered)
 			{
-				if (e.text.unicode > 47 && e.text.unicode < 126) if (profileCreationName.size() < 16) profileCreationName.append(toStr((char)(e.text.unicode)));
-				if (e.text.unicode == 8) if(!profileCreationName.empty()) profileCreationName.erase(profileCreationName.end() - 1);
-				if (e.text.unicode == 13) if(!profileCreationName.empty())
+				if(e.text.unicode > 47 && e.text.unicode < 126) if(profileCreationName.size() < 16) profileCreationName.append(toStr((char)(e.text.unicode)));
+				if(e.text.unicode == 8) if(!profileCreationName.empty()) profileCreationName.erase(profileCreationName.end() - 1);
+				if(e.text.unicode == 13) if(!profileCreationName.empty())
 				{
 					createProfile(profileCreationName);
 					setCurrentProfile(profileCreationName);
@@ -158,7 +158,7 @@ namespace hg
 				}
 			}
 		}
-		else if (state == StateType::LEVEL_SELECTION)
+		else if(state == StateType::LEVEL_SELECTION)
 		{
 			styleData.update(mFrameTime);
 
@@ -215,7 +215,7 @@ namespace hg
 
 					inputDelay = 14;
 				}
-				else if (window.isKeyPressed(Keyboard::F4) || window.isKeyPressed(Keyboard::L))
+				else if(window.isKeyPressed(Keyboard::F4) || window.isKeyPressed(Keyboard::L))
 				{
 					playSound("beep.ogg");
 

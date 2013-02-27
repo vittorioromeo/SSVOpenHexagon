@@ -4,7 +4,7 @@
 	"scores" : 
 	{
 		"Packs/VeeDefault/easy_m_0.5" : null,
-		"Packs/VeeDefault/easy_m_1" : 14.15530300140381,
+		"Packs/VeeDefault/easy_m_1" : 20.71286201477051,
 		"Packs/VeeDefault/easy_m_1.5" : null,
 		"Packs/VeeDefault/easy_m_2" : null,
 		"Packs/VeeDefault/easy_m_2.5" : 7.579372406005859,
@@ -23,7 +23,7 @@
 		"Packs/VeeDefault/hard_m_0.5" : null,
 		"Packs/VeeDefault/hard_m_0.6" : null,
 		"Packs/VeeDefault/hard_m_0.75" : null,
-		"Packs/VeeDefault/hard_m_1" : 16.14340400695801,
+		"Packs/VeeDefault/hard_m_1" : 31.70766067504883,
 		"Packs/VeeDefault/hard_m_1.4" : 5.988154888153076,
 		"Packs/VeeDefault/hard_m_1.5" : 4.032617092132568,
 		"Packs/VeeDefault/lunatic_m_0.25" : 11.81641674041748,
@@ -46,8 +46,8 @@
 		"Packs/VeeDefault/test_m_1.25" : null,
 		"Packs/VeeDefault/test_m_1.4" : 23.64847373962402,
 		"Packs/VeeDefault/test_m_2.1" : 21.89302444458008,
-		"Packs/VeeDefault/tutorial_m_1" : 7.201663970947266,
-		"Packs/VeeEndurance/commando_m_0.25" : null,
+		"Packs/VeeDefault/tutorial_m_1" : 30.00023078918457,
+		"Packs/VeeEndurance/commando_m_0.25" : 8.073561668395996,
 		"Packs/VeeEndurance/commando_m_0.75" : null,
 		"Packs/VeeEndurance/commando_m_1" : 59.36914443969727,
 		"Packs/VeeEndurance/commando_m_1.25" : null,

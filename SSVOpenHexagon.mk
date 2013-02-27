@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Vittorio
-Date                   :=21/02/2013
+Date                   :=27/02/2013
 CodeLitePath           :="C:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -61,8 +61,10 @@ CFLAGS   :=  -O2 -Wall $(Preprocessors)
 ##
 CodeLiteDir:=C:\Program Files (x86)\CodeLite
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
-Objects0=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) $(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) \
-	$(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) 
+WXWIN:=C:\wxWidgets
+WXCFG:=gcc_dll\mswu
+Objects0=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) \
+	$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) 
 
 Objects=$(Objects0) 
 
@@ -110,6 +112,38 @@ $(IntermediateDirectory)/MenuGame$(DependSuffix): MenuGame.cpp
 
 $(IntermediateDirectory)/MenuGame$(PreprocessSuffix): MenuGame.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/MenuGame$(PreprocessSuffix) "MenuGame.cpp"
+
+$(IntermediateDirectory)/HGScripting$(ObjectSuffix): HGScripting.cpp $(IntermediateDirectory)/HGScripting$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGScripting.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HGScripting$(DependSuffix): HGScripting.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGScripting$(ObjectSuffix) -MF$(IntermediateDirectory)/HGScripting$(DependSuffix) -MM "HGScripting.cpp"
+
+$(IntermediateDirectory)/HGScripting$(PreprocessSuffix): HGScripting.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGScripting$(PreprocessSuffix) "HGScripting.cpp"
+
+$(IntermediateDirectory)/HGUpdate$(ObjectSuffix): HGUpdate.cpp $(IntermediateDirectory)/HGUpdate$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGUpdate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HGUpdate$(DependSuffix): HGUpdate.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGUpdate$(ObjectSuffix) -MF$(IntermediateDirectory)/HGUpdate$(DependSuffix) -MM "HGUpdate.cpp"
+
+$(IntermediateDirectory)/HGUpdate$(PreprocessSuffix): HGUpdate.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGUpdate$(PreprocessSuffix) "HGUpdate.cpp"
+
+$(IntermediateDirectory)/HGProperties$(ObjectSuffix): HGProperties.cpp $(IntermediateDirectory)/HGProperties$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGProperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HGProperties$(DependSuffix): HGProperties.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGProperties$(ObjectSuffix) -MF$(IntermediateDirectory)/HGProperties$(DependSuffix) -MM "HGProperties.cpp"
+
+$(IntermediateDirectory)/HGProperties$(PreprocessSuffix): HGProperties.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGProperties$(PreprocessSuffix) "HGProperties.cpp"
+
+$(IntermediateDirectory)/HGGraphics$(ObjectSuffix): HGGraphics.cpp $(IntermediateDirectory)/HGGraphics$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGGraphics.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/HGGraphics$(DependSuffix): HGGraphics.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGGraphics$(ObjectSuffix) -MF$(IntermediateDirectory)/HGGraphics$(DependSuffix) -MM "HGGraphics.cpp"
+
+$(IntermediateDirectory)/HGGraphics$(PreprocessSuffix): HGGraphics.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix) "HGGraphics.cpp"
 
 $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix): Components/CPlayer.cpp $(IntermediateDirectory)/Components_CPlayer$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Components/CPlayer.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IncludePath)
@@ -207,38 +241,6 @@ $(IntermediateDirectory)/Utils_Utils$(DependSuffix): Utils/Utils.cpp
 $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix): Utils/Utils.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix) "Utils/Utils.cpp"
 
-$(IntermediateDirectory)/HGScripting$(ObjectSuffix): HGScripting.cpp $(IntermediateDirectory)/HGScripting$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGScripting.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HGScripting$(DependSuffix): HGScripting.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGScripting$(ObjectSuffix) -MF$(IntermediateDirectory)/HGScripting$(DependSuffix) -MM "HGScripting.cpp"
-
-$(IntermediateDirectory)/HGScripting$(PreprocessSuffix): HGScripting.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGScripting$(PreprocessSuffix) "HGScripting.cpp"
-
-$(IntermediateDirectory)/HGUpdate$(ObjectSuffix): HGUpdate.cpp $(IntermediateDirectory)/HGUpdate$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGUpdate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HGUpdate$(DependSuffix): HGUpdate.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGUpdate$(ObjectSuffix) -MF$(IntermediateDirectory)/HGUpdate$(DependSuffix) -MM "HGUpdate.cpp"
-
-$(IntermediateDirectory)/HGUpdate$(PreprocessSuffix): HGUpdate.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGUpdate$(PreprocessSuffix) "HGUpdate.cpp"
-
-$(IntermediateDirectory)/HGProperties$(ObjectSuffix): HGProperties.cpp $(IntermediateDirectory)/HGProperties$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGProperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HGProperties$(DependSuffix): HGProperties.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGProperties$(ObjectSuffix) -MF$(IntermediateDirectory)/HGProperties$(DependSuffix) -MM "HGProperties.cpp"
-
-$(IntermediateDirectory)/HGProperties$(PreprocessSuffix): HGProperties.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGProperties$(PreprocessSuffix) "HGProperties.cpp"
-
-$(IntermediateDirectory)/HGGraphics$(ObjectSuffix): HGGraphics.cpp $(IntermediateDirectory)/HGGraphics$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGGraphics.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HGGraphics$(DependSuffix): HGGraphics.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGGraphics$(ObjectSuffix) -MF$(IntermediateDirectory)/HGGraphics$(DependSuffix) -MM "HGGraphics.cpp"
-
-$(IntermediateDirectory)/HGGraphics$(PreprocessSuffix): HGGraphics.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix) "HGGraphics.cpp"
-
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
 ##
@@ -254,6 +256,18 @@ clean:
 	$(RM) $(IntermediateDirectory)/MenuGame$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/MenuGame$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/MenuGame$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HGScripting$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HGScripting$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HGScripting$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HGUpdate$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HGUpdate$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HGProperties$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HGProperties$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HGProperties$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/HGGraphics$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CPlayer$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CPlayer$(PreprocessSuffix)
@@ -290,18 +304,6 @@ clean:
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HGScripting$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HGScripting$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HGScripting$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HGUpdate$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HGUpdate$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HGProperties$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HGProperties$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HGProperties$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HGGraphics$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "../.build-release/SSVOpenHexagon"

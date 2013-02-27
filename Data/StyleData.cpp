@@ -130,7 +130,7 @@ namespace hg
 			float angle{div * i};
 			Color currentColor{colors[i % colors.size()]};
 
-			if (i % 2 == 0) if (i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
+			if(i % 2 == 0) if(i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 
 			vertices.append(Vertex{mCenterPos, currentColor});
 			vertices.append(Vertex{getOrbit(mCenterPos, angle + div * 0.5f, distance), currentColor});

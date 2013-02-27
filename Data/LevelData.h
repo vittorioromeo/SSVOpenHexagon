@@ -58,6 +58,10 @@ namespace hg
 			float getBeatPulseMax();
 			float getBeatPulseDelayMax();
 			float getRadiusMin();
+			float get3DMultiplier();
+			float get3DIncrement();
+			float get3DMax();
+			float get3DMin();
 			std::vector<float> getDifficultyMultipliers();
 			std::vector<Json::Value>& getEvents();
 

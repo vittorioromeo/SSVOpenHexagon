@@ -88,6 +88,7 @@ namespace hg
 			void updateBeatPulse(float mFrameTime);
 			void updateRotation(float mFrameTime);
 			void updateFlash(float mFrameTime);
+			void update3D(float mFrameTime);
 
 			// Gameplay methods
 			void incrementDifficulty();

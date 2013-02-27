@@ -42,7 +42,7 @@ namespace hg
 	void HexagonGame::setSides(int mSides)
 	{
 		playSound("beep.ogg");
-		if (mSides < 3) mSides = 3;
+		if(mSides < 3) mSides = 3;
 		levelData.setValueInt("sides", mSides);
 	}
 

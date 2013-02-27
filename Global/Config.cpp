@@ -132,4 +132,5 @@ namespace hg
 	bool getPulse()						{ return root["pulse_enabled"].asBool(); }
 	bool getBeatPulse()					{ return root["beatpulse_enabled"].asBool(); }
 	bool getInvincible()				{ return root["invincible"].asBool(); }
+	bool get3D()						{ return true; } // TODO!
 }
