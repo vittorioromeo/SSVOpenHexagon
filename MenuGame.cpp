@@ -63,13 +63,7 @@ namespace hg
 		}
 	}
 
-	void MenuGame::init()
-	{
-		stopAllMusic();
-		stopAllSounds();
-
-		playSound("openHexagon.ogg");
-	}
+	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
 
 	void MenuGame::setIndex(int mIndex)
 	{
@@ -263,8 +257,9 @@ namespace hg
 		render(creditsBar2); 
 	}
 
-	void MenuGame::renderText(Text& mText, sf::Vector2f mPosition)
+	void MenuGame::renderText(const string& mString, Text& mText, sf::Vector2f mPosition)
 	{
+		mText.setString(mString);
 		mText.setColor(styleData.getMainColor());
 		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);
 		render(mText);
@@ -274,81 +269,34 @@ namespace hg
 	{		
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
-		string packName{packData.getName()};
+		string packName{packData.getName()}; string packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
 
-		string packNames{""};
-		for(string packName : getPackNames()) packNames.append(packName + "\n");
-
-		cProfText.setString("profile: " + getCurrentProfile().getName());
-		renderText(cProfText, {20, 0});
-
-		cProfText.setString("pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")));
-		renderText(cProfText, {20, 20});
-
-		cProfText.setString("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")");
-		renderText(cProfText, {20, 40});
-
-		cProfText.setString("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))));
-		renderText(cProfText, {20, 60});
-
-		if(difficultyMultipliers.size() > 1)
-		{
-			cProfText.setString("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]));
-			renderText(cProfText, {20, 80});
-		}
-
-		levelName.setString(levelData.getName());
-		renderText(levelName, {20, 50 + 120});
-
-		levelDesc.setString(levelData.getDescription());
-		renderText(levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});
-
-		levelAuth.setString("author: " + levelData.getAuthor());
-		renderText(levelAuth, {20, -30 + 500});
-		
-		levelMusc.setString("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")");
-		renderText(levelMusc, {20, -30 + 515});
-
-		levelMusc.setString("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")");
-		renderText(levelMusc, {20, -30 + 530});
+		renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 0});
+		renderText("pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")), cProfText, {20, 20});
+		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 40});
+		renderText("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 60});
+		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 80});
+		renderText(levelData.getName(), levelName, {20, 50 + 120});
+		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});
+		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500});
+		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515});
+		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530});
 	}
 	void MenuGame::drawProfileCreation()
 	{
-		Color mainColor{Color::White};
-
-		cProfText.setString("profile creation");
-		renderText(cProfText, {20, 768 - 395});
-
-		cProfText.setString("insert profile name");
-		renderText(cProfText, {20, 768 - 375});
-
-		cProfText.setString("press enter when done");
-		renderText(cProfText, {20, 768 - 335});
-
-		cProfText.setString("keep esc pressed to exit");
-		renderText(cProfText, {20, 768 - 315});
-
-		levelName.setString(profileCreationName);
-		renderText(levelName, {20, 768 - 245 - 40});
+		renderText("profile creation", cProfText, {20, 768 - 395});
+		renderText("insert profile name", cProfText, {20, 768 - 375});
+		renderText("press enter when done", cProfText, {20, 768 - 335});
+		renderText("keep esc pressed to exit", cProfText, {20, 768 - 315});
+		renderText(profileCreationName, levelName, {20, 768 - 245 - 40});
 	}
 	void MenuGame::drawProfileSelection()
 	{
-		Color mainColor{Color::White};
-
-		cProfText.setString("profile selection");
-		renderText(cProfText, {20, 768 - 395});
-
-		cProfText.setString("press left/right to browse profiles");
-		renderText(cProfText, {20, 768 - 375});
-
-		cProfText.setString("press enter to select profile");
-		renderText(cProfText, {20, 768 - 355});
-
-		cProfText.setString("press f1 to create a new profile");
-		renderText(cProfText, {20, 768 - 335});
-
-		levelName.setString(profileCreationName);
-		renderText(levelName, {20, 768 - 245 - 40});
+		renderText("profile selection", cProfText, {20, 768 - 395});
+		renderText("press left/right to browse profiles", cProfText, {20, 768 - 375});
+		renderText("press enter to select profile", cProfText, {20, 768 - 355});
+		renderText("press f1 to create a new profile", cProfText, {20, 768 - 335});
+		renderText(profileCreationName, levelName, {20, 768 - 245 - 40});
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }

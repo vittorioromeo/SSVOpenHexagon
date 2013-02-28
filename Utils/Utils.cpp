@@ -28,7 +28,6 @@ namespace hg
 	template<> string getJsonValue(const Json::Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asString(); }
 	template<> char const* getJsonValue(const Json::Value& mRoot, const string& mValue)	{ return mRoot[mValue].asString().c_str(); }
 
-
 	Color getColorFromHue(double h)
 	{
 		double s{1}, v{1}, r{0}, g{0}, b{0};
