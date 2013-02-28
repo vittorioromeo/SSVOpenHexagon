@@ -18,14 +18,14 @@ namespace hg
 			Json::Value scores;
 
 		public:
-			ProfileData(float mVersion, std::string mName, Json::Value mScores);
+			ProfileData(float mVersion, const std::string& mName, Json::Value mScores);
 
 			float getVersion();
 			std::string getName();
 			Json::Value getScores();
 
-			void setScore(std::string mId, float mScore);
-			float getScore(std::string mId);
+			void setScore(const std::string& mId, float mScore);
+			float getScore(const std::string& mId);
 	};
 }
 

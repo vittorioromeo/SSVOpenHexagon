@@ -15,7 +15,7 @@ using namespace sses;
 
 namespace hg
 {
-	MusicData::MusicData(string mId, string mFileName, string mName, string mAlbum, string mAuthor) :
+	MusicData::MusicData(const string& mId, const string& mFileName, const string& mName, const string& mAlbum, const string& mAuthor) :
 		id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor}
 	{
 		musicPtr = getMusicPtr(mId);

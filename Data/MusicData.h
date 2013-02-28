@@ -23,7 +23,7 @@ namespace hg
 
 		public:
 			MusicData() = default;
-			MusicData(std::string mId, std::string mFileName, std::string mName, std::string mAlbum, std::string mAuthor);
+			MusicData(const std::string& mId, const std::string& mFileName, const std::string& mName, const std::string& mAlbum, const std::string& mAuthor);
 
 			void addSegment(int mSeconds);			
 			void playRandomSegment(sf::Music*& mMusicPtr);

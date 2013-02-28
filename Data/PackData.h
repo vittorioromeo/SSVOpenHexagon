@@ -9,12 +9,11 @@ namespace hg
 	class PackData
 	{
 		private:
-			std::string id;
-			std::string name;
+			std::string id, name;
 			float priority;
 
 		public:
-			PackData(std::string mId, std::string mName, float mPriority);
+			PackData(std::string mId, const std::string& mName, float mPriority);
 			std::string getId();
 			std::string getName();
 			float getPriority();

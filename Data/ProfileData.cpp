@@ -8,13 +8,13 @@ using namespace std;
 
 namespace hg
 {
-	ProfileData::ProfileData(float mVersion, string mName, Json::Value mScores) : version{mVersion}, name{mName}, scores{mScores} { }
+	ProfileData::ProfileData(float mVersion, const string& mName, Json::Value mScores) : version{mVersion}, name{mName}, scores{mScores} { }
 
 	float ProfileData::getVersion()			{ return version; }
 	string ProfileData::getName()			{ return name; }
 	Json::Value ProfileData::getScores()	{ return scores; }
 
-	void ProfileData::setScore(string mId, float mScore) 	{ scores[mId] = mScore; }
-	float ProfileData::getScore(string mId)					{ return scores[mId].asFloat(); }
+	void ProfileData::setScore(const string& mId, float mScore) 	{ scores[mId] = mScore; }
+	float ProfileData::getScore(const string& mId)					{ return scores[mId].asFloat(); }
 }
 

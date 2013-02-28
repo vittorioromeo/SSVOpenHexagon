@@ -107,13 +107,10 @@ namespace hg
 
 	void StyleData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
 	float StyleData::getValueFloat(const string& mValueName)						{ return root[mValueName].asFloat(); }
-
 	void StyleData::setValueInt(const string& mValueName, int mValue)				{ root[mValueName] = mValue; }
 	float StyleData::getValueInt(const string& mValueName)							{ return root[mValueName].asInt(); }
-
 	void StyleData::setValueString(const string& mValueName, const string& mValue)	{ root[mValueName] = mValue; }
 	string StyleData::getValueString(const string& mValueName)						{ return root[mValueName].asString(); }
-
 	void StyleData::setValueBool(const string& mValueName, bool mValue)				{ root[mValueName] = mValue; }
 	bool StyleData::getValueBool(const string& mValueName)							{ return root[mValueName].asBool(); }
 

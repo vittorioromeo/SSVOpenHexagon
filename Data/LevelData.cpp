@@ -59,15 +59,12 @@ namespace hg
 	void LevelData::setDelayMultiplier(float mDelayMultiplier)	{ root["delay_increment"] = mDelayMultiplier; }
 	void LevelData::setRotationSpeed(float mRotationSpeed) 		{ root["rotation_speed"] = mRotationSpeed; }
 
-	void LevelData::setValueFloat(string mValueName, float mValue)	{ root[mValueName] = mValue; }
-	float LevelData::getValueFloat(string mValueName)				{ return root[mValueName].asFloat(); }
-
-	void LevelData::setValueInt(string mValueName, int mValue)		{ root[mValueName] = mValue; }
-	float LevelData::getValueInt(string mValueName)					{ return root[mValueName].asInt(); }
-
-	void LevelData::setValueString(string mValueName, string mValue){ root[mValueName] = mValue; }
-	string LevelData::getValueString(string mValueName)				{ return root[mValueName].asString(); }
-
-	void LevelData::setValueBool(string mValueName, bool mValue)	{ root[mValueName] = mValue; }
-	bool LevelData::getValueBool(string mValueName)					{ return root[mValueName].asBool(); }
+	void LevelData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
+	float LevelData::getValueFloat(const string& mValueName)						{ return root[mValueName].asFloat(); }
+	void LevelData::setValueInt(const string& mValueName, int mValue)				{ root[mValueName] = mValue; }
+	float LevelData::getValueInt(const string& mValueName)							{ return root[mValueName].asInt(); }
+	void LevelData::setValueString(const string& mValueName, const string& mValue)	{ root[mValueName] = mValue; }
+	string LevelData::getValueString(const string& mValueName)						{ return root[mValueName].asString(); }
+	void LevelData::setValueBool(const string& mValueName, bool mValue)				{ root[mValueName] = mValue; }
+	bool LevelData::getValueBool(const string& mValueName)							{ return root[mValueName].asBool(); }
 }
