@@ -29,38 +29,13 @@ namespace hg
 	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow)
 	{
 		initFlashEffect();
-		for(int i{0}; i < 15; ++i) depthCameras.push_back({window, {}});
+		for(int i{0}; i < 15; ++i) depthCameras.push_back({window, {}}); // TODO: FIX AND ADD STYLE PARAMETERS
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onUpdate += [&](float) { inputMovement = 0; inputFocused = false; };
 
-		game.onDraw += [&](){ window.clear(Color::Black); };
-		game.onDraw += [&](){ backgroundCamera.apply(); };
-		if(!getNoBackground()) game.onDraw += [&](){ styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); };
-
-		if(get3D())
-		{
-			game.onDraw += [&]()
-			{
-				status.drawing3D = true;
-				for(unsigned int i{0}; i < depthCameras.size(); ++i)
-				{
-					status.overrideColor = getColorDarkened(styleData.getMainColor(), 1.5f);
-					status.overrideColor.a /= 2;
-					status.overrideColor.a -= i * 3;
-					depthCameras[i].apply();
-					manager.draw();
-				}
-				status.drawing3D = false;
-			};
-		}
-
-		game.onDraw += [&](){ backgroundCamera.apply(); };
-		game.onDraw += [&](){ manager.draw(); };
-
-		game.onDraw += [&](){ overlayCamera.apply(); };
-		game.onDraw += [&](){ drawText(); };
-		game.onDraw += [&](){ render(flashPolygon); };
+		game.onDraw += [&](){ draw(); };
+		
 
 		using k = Keyboard::Key;
 		game.addInput({k::Left}, 		[&](float){ inputMovement = -1; });

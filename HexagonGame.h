@@ -91,6 +91,9 @@ namespace hg
 			void updateFlash(float mFrameTime);
 			void update3D(float mFrameTime);
 
+			// Draw methods
+			void draw();
+
 			// Gameplay methods
 			void incrementDifficulty();
 			void sideChange(int mSideNumber);

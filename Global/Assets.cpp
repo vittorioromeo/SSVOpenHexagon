@@ -225,8 +225,7 @@ namespace hg
 		root["name"] = mName;
 		root["scores"] = Json::objectValue;
 		writer.write(o, root);
-		o.flush();
-		o.close();
+		o.flush(); o.close();
 
 		profileDataMap.clear();
 		loadProfiles();

@@ -21,6 +21,27 @@ using namespace sses;
 
 namespace hg
 {
+	void HexagonGame::draw()
+	{
+		window.clear(Color::Black);
+		if(!getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); }
+		if(get3D())
+		{
+			status.drawing3D = true;
+			for(unsigned int i{0}; i < depthCameras.size(); ++i)
+			{
+				status.overrideColor = getColorDarkened(styleData.getMainColor(), 1.5f);
+				status.overrideColor.a /= 2;
+				status.overrideColor.a -= i * 3;
+				depthCameras[i].apply();
+				manager.draw();
+			}
+			status.drawing3D = false;
+		}
+		backgroundCamera.apply(); manager.draw();
+		overlayCamera.apply(); drawText(); render(flashPolygon);
+	}
+
 	void HexagonGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
 
 	void HexagonGame::initFlashEffect()
