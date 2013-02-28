@@ -11,13 +11,10 @@ namespace hg
 {
 	LevelData::LevelData(Json::Value mRoot) : root{mRoot} { }
 
-	void LevelData::addEvent(Json::Value mEventRoot)
-	{
-		events.push_back(mEventRoot);
-	}
+	void LevelData::addEvent(Json::Value mEventRoot) { events.push_back(mEventRoot); }
 
-	void LevelData::setPackPath(string mPackPath) { packPath = mPackPath; }
-	string LevelData::getPackPath() { return packPath; }
+	void LevelData::setPackPath(string mPackPath) 	{ packPath = mPackPath; }
+	string LevelData::getPackPath() 				{ return packPath; }
 
 	Json::Value& LevelData::getRoot()				{ return root; }
 	string LevelData::getId() 						{ return getPackPath() + root["id"].asString(); }
@@ -39,51 +36,15 @@ namespace hg
 	int LevelData::getSidesMax() 					{ return root["sides_max"].asInt(); }
 	int LevelData::getSidesMin() 					{ return root["sides_min"].asInt(); }
 	float LevelData::getIncrementTime()				{ return root["increment_time"].asFloat(); }
-	float LevelData::getPulseMin()
-	{		
-		if(root.isMember("pulse_min")) return root["pulse_min"].asFloat();
-		return 75.f;
-	}
-	float LevelData::getPulseMax()
-	{
-		if(root.isMember("pulse_max")) return root["pulse_max"].asFloat();
-		return 80.f;
-	}
-	float LevelData::getPulseSpeed()
-	{
-		if(root.isMember("pulse_speed")) return root["pulse_speed"].asFloat();
-		return 0.f;
-	}
-	float LevelData::getPulseSpeedR()
-	{
-		if(root.isMember("pulse_speed_r")) return root["pulse_speed_r"].asFloat();
-		return 0.f;
-	}
-	float LevelData::getPulseDelayMax()
-	{
-		if(root.isMember("pulse_delay_max")) return root["pulse_delay_max"].asFloat();
-		return 0.f;
-	}
-	float LevelData::getPulseDelayHalfMax()
-	{
-		if(root.isMember("pulse_delay_half_max")) return root["pulse_delay_half_max"].asFloat();
-		return 0.f;
-	}
-	float LevelData::getBeatPulseMax()
-	{
-		if(root.isMember("beatpulse_max")) return root["beatpulse_max"].asFloat();
-		return 0.f;
-	}
-	float LevelData::getBeatPulseDelayMax()
-	{
-		if(root.isMember("beatpulse_delay_max")) return root["beatpulse_delay_max"].asFloat();
-		return 0.f;
-	}
-	float LevelData::getRadiusMin()
-	{
-		if(root.isMember("radius_min")) return root["radius_min"].asFloat();
-		return 72.f;
-	}
+	float LevelData::getPulseMin() 					{ return getJsonValueOrDefault(root, "pulse_min", 75.f); }
+	float LevelData::getPulseMax() 					{ return getJsonValueOrDefault(root, "pulse_max", 80.f); }
+	float LevelData::getPulseSpeed() 				{ return getJsonValueOrDefault(root, "pulse_speed", 0.f); }
+	float LevelData::getPulseSpeedR() 				{ return getJsonValueOrDefault(root, "pulse_speed_r", 0.f); }
+	float LevelData::getPulseDelayMax() 			{ return getJsonValueOrDefault(root, "pulse_delay_max", 0.f); }
+	float LevelData::getPulseDelayHalfMax() 		{ return getJsonValueOrDefault(root, "pulse_delay_half_max", 0.f); }
+	float LevelData::getBeatPulseMax() 				{ return getJsonValueOrDefault(root, "beatpulse_max", 0.f); }
+	float LevelData::getBeatPulseDelayMax() 		{ return getJsonValueOrDefault(root, "beatpulse_delay_max", 0.f); }
+	float LevelData::getRadiusMin() 				{ return getJsonValueOrDefault(root, "radius_min", 72.f); }
 	vector<float> LevelData::getDifficultyMultipliers()
 	{
 		vector<float> result{1.0f};

@@ -20,18 +20,20 @@
 
 namespace hg
 {
+	template<typename T> T getJsonValueOrDefault(const Json::Value& mRoot, const std::string& mValue, T mDefault);
+
 	sf::Color getColorFromHue(double);
 	sf::Color getColorDarkened(sf::Color, float);
 	sf::Color getColorFromJsonArray(Json::Value mArray);
 
-	Json::Value getJsonFileRoot(std::string mFilePath);
+	Json::Value getJsonFileRoot(const std::string& mFilePath);
 
 	LevelData loadLevelFromJson(Json::Value mRoot);
 	MusicData loadMusicFromJson(Json::Value mRoot);
 	StyleData loadStyleFromJson(Json::Value mRoot);
 	ProfileData loadProfileFromJson(Json::Value mRoot);
 
-	std::string getScoreValidator(std::string mId, float mDifficultyMult);
+	std::string getScoreValidator(const std::string& mId, float mDifficultyMult);
 
 	void shakeCamera(ssvs::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 }

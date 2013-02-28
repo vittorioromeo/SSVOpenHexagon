@@ -22,18 +22,15 @@ using namespace ssvs::Utils;
 
 namespace hg
 {
+	template<> int getJsonValueOrDefault(const Json::Value& mRoot, const string& mValue, int mDefault) { return mRoot.isMember(mValue) ? mRoot[mValue].asInt() : mDefault; }
+	template<> float getJsonValueOrDefault(const Json::Value& mRoot, const string& mValue, float mDefault) { return mRoot.isMember(mValue) ? mRoot[mValue].asFloat() : mDefault; }
+	template<> bool getJsonValueOrDefault(const Json::Value& mRoot, const string& mValue, bool mDefault) { return mRoot.isMember(mValue) ? mRoot[mValue].asBool() : mDefault; }
+
 	Color getColorFromHue(double h)
 	{
-		double s{1};
-		double v{1};
-
-		double r{0}, g{0}, b{0};
-
+		double s{1}, v{1}, r{0}, g{0}, b{0};
 		int i = floor(h * 6);
-		double f{h * 6 - i};
-		double p{v * (1 - s)};
-		double q{v * (1 - f * s)};
-		double t{v * (1 - (1 - f) * s)};
+		double f{h * 6 - i}, p{v * (1 - s)}, q{v * (1 - f * s)}, t{v * (1 - (1 - f) * s)};
 
 		switch(i % 6)
 		{
@@ -47,19 +44,10 @@ namespace hg
 
 		return Color(r * 255, g * 255, b * 255, 255);
 	}
-	Color getColorDarkened(Color mColor, float mMultiplier)
-	{
-		mColor.r /= mMultiplier;
-		mColor.b /= mMultiplier;
-		mColor.g /= mMultiplier;
-		return mColor;
-	}
-	Color getColorFromJsonArray(Json::Value mArray)
-	{
-		return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat());
-	}
+	Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
+	Color getColorFromJsonArray(Json::Value mArray) { return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat()); }
 
-	Json::Value getJsonFileRoot(string mFilePath)
+	Json::Value getJsonFileRoot(const string& mFilePath)
 	{
 		Json::Value root;
 		Json::Reader reader;
@@ -100,7 +88,7 @@ namespace hg
 		return result;
 	}
 
-	string getScoreValidator(string mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
+	string getScoreValidator(const string& mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
 
 	void shakeCamera(TimelineManager& mTimelineManager, Camera& mCamera)
 	{
