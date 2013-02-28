@@ -29,7 +29,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		for(int i{0}; i < 3; i++) vertices[i].color = colorMain;
+		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);
 	}
@@ -53,8 +53,7 @@ namespace hg
 			thickness = hue / 20;
 		}
 
-		VertexArray vertices2{PrimitiveType::Quads, 4};
-		VertexArray vertices3{PrimitiveType::Triangles, 3};
+		VertexArray vertices2{PrimitiveType::Quads, 4}, vertices3{PrimitiveType::Triangles, 3};
 
 		for(int i{0}; i < hexagonGame.getSides(); i++)
 		{
@@ -82,9 +81,7 @@ namespace hg
 	void CPlayer::update(float mFrameTime)
 	{
 		Vector2f lastPos{pos};
-
-		float currentSpeed{speed};
-		float lastAngle{angle};
+		float currentSpeed{speed}, lastAngle{angle};
 		int movement{0};
 
 		// Keyboard controls
@@ -98,19 +95,15 @@ namespace hg
 		Vector2f pLeftCheck{getOrbit(tempPos, angle - 90, 0.01f)};
 		Vector2f pRightCheck{getOrbit(tempPos, angle + 90, 0.01f)};
 
-		for (auto wall : getManager().getComponents<CWall>("wall"))
+		for(auto& wall : getManager().getComponents<CWall>("wall"))
 		{
 			if(movement == -1 && wall->isOverlapping(pLeftCheck)) angle = lastAngle;
 			if(movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;
 			if(wall->isOverlapping(pos))
 			{
 				if(!getInvincible()) dead = true;
-
 				movePointTowardsCenter(lastPos, Vector2f(0,0), 5 * hexagonGame.getSpeedMultiplier());
-
-				pos = lastPos;
-				hexagonGame.death();
-				return;
+				pos = lastPos; hexagonGame.death(); return;
 			}
 		}
 

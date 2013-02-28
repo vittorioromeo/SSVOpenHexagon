@@ -32,8 +32,6 @@ namespace hg
 		for(int i{0}; i < 15; ++i) depthCameras.push_back({window, {}}); // TODO: FIX AND ADD STYLE PARAMETERS
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
-		game.onUpdate += [&](float) { inputMovement = 0; inputFocused = false; };
-
 		game.onDraw += [&](){ draw(); };
 		
 
@@ -198,7 +196,4 @@ namespace hg
 
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
-
-	void HexagonGame::wall(int mSide, float mThickness) { factory.createWall(mSide, mThickness, baseSpeed, getSpeedMultiplier()); }
-	void HexagonGame::wallAdj(int mSide, float mThickness, float mSpeedAdj) { factory.createWall(mSide, mThickness, baseSpeed * mSpeedAdj, getSpeedMultiplier()); }
 }

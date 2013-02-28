@@ -115,10 +115,6 @@ namespace hg
 			void goToMenu();
 			void changeLevel(std::string mId, bool mFirstTime);
 
-			// Wall spawn
-			void wall(int mSide, float mThickness);
-			void wallAdj(int mSide, float mThickness, float mSpeedAdj);
-
 		public:
 			MenuGame* mgPtr;
 

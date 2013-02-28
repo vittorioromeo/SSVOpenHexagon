@@ -88,7 +88,7 @@ namespace hg
 	{
 		lua.writeVariable("log", 					[=](string mLog) 						{ log(mLog, "LUA"); });
 
-		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 		{ timeline.append<Do>([=]{ wall(mSide, mThickness); }); });
+		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 		{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, baseSpeed, getSpeedMultiplier()); }); });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
@@ -123,7 +123,7 @@ namespace hg
 		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
 		
 		lua.writeVariable("isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
-		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.append<Do>([=]{ wallAdj(mSide, mThickness, mSpeedAdj); }); });
+		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, baseSpeed * mSpeedAdj, getSpeedMultiplier()); }); });
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{

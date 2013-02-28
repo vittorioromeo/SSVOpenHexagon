@@ -97,8 +97,7 @@ namespace hg
 
 		if(state == StateType::PROFILE_CREATION)
 		{
-			Event e;
-			window.pollEvent(e);
+			Event e; window.pollEvent(e);
 
 			if(e.type == Event::TextEntered)
 			{
@@ -269,7 +268,7 @@ namespace hg
 	{		
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
-		string packName{packData.getName()}; string packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
+		string packName{packData.getName()}, packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
 
 		renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 0});
 		renderText("pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")), cProfText, {20, 20});

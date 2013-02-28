@@ -27,34 +27,21 @@ int main(int argc, char* argv[])
 {
 	srand(unsigned(time(NULL)));
 
-	vector<string> overrideIds;
-	for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
-
-	loadConfig(overrideIds);
-	initAssetManager();
-	loadAssets();
+	vector<string> overrideIds; for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
+	loadConfig(overrideIds); initAssetManager(); loadAssets();
 
 	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - vee software"};
-	
 	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
 	window.setStaticFrameTime(getStaticFrameTime());
 	window.setStaticFrameTimeValue(getStaticFrameTimeValue());
 	window.setVsync(getVsync());
 	window.setMouseCursorVisible(false);
 
-	HexagonGame hg{window};
-	MenuGame mg{hg, window};
+	HexagonGame hg{window}; MenuGame mg{hg, window}; hg.mgPtr = &mg;
 
-	hg.mgPtr = &mg;
-
-	window.setGameState(mg.getGame());
-	mg.init();
-
+	window.setGameState(mg.getGame()); mg.init();
 	window.run();
 
-	saveConfig();
-	saveCurrentProfile();	
-	saveLogToFile("log.txt");
-
+	saveConfig(); saveCurrentProfile(); saveLogToFile("log.txt");
 	return 0;
 }

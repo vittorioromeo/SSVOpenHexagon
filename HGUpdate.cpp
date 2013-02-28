@@ -42,6 +42,8 @@ namespace hg
 		if(get3D()) update3D(mFrameTime);
 		if(!getNoRotation()) updateRotation(mFrameTime);
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
+
+		inputMovement = 0; inputFocused = false;
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
 	{
@@ -65,7 +67,7 @@ namespace hg
 			status.currentTime += mFrameTime / 60.0f;
 			status.incrementTime += mFrameTime / 60.0f;
 		}
-		else status.timeStop -= 1 * mFrameTime;
+		else status.timeStop -= mFrameTime;
 	}
 	void HexagonGame::updateIncrement()
 	{
@@ -104,8 +106,8 @@ namespace hg
 			}
 		}
 
-		status.pulseDelay -= 1 * mFrameTime;
-		status.pulseDelayHalf -= 1 * mFrameTime;
+		status.pulseDelay -= mFrameTime;
+		status.pulseDelayHalf -= mFrameTime;
 		
 		float p{status.pulse / levelData.getPulseMin()};
 		float rotation{backgroundCamera.getRotation()};
@@ -145,7 +147,7 @@ namespace hg
 	}
 	void HexagonGame::update3D(float)
 	{
-		float effect{0.35f};
+		float effect{0.3f};
 		Vector2f skew{1.f - effect, 1.f + effect};
 		backgroundCamera.setSkew(skew);
 

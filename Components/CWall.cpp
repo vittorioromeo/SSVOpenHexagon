@@ -45,8 +45,7 @@ namespace hg
 
 		for(auto& vertexPosition : vertexPositions)
 		{
-			int distanceX{abs(vertexPosition.x - centerPos.x)};
-			int distanceY{abs(vertexPosition.y - centerPos.y)};
+			int distanceX{abs(vertexPosition.x - centerPos.x)}, distanceY{abs(vertexPosition.y - centerPos.y)};
 
 			if(distanceX < radius && distanceY < radius) pointsOnCenter++;
 			else movePointTowardsCenter(vertexPosition, centerPos, speed * mFrameTime);
