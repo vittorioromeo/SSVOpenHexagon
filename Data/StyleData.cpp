@@ -105,22 +105,21 @@ namespace hg
 		return result;
 	}
 
-	void StyleData::setValueFloat(string mValueName, float mValue)	{ root[mValueName] = mValue; }
-	float StyleData::getValueFloat(string mValueName)				{ return root[mValueName].asFloat(); }
+	void StyleData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
+	float StyleData::getValueFloat(const string& mValueName)						{ return root[mValueName].asFloat(); }
 
-	void StyleData::setValueInt(string mValueName, int mValue)		{ root[mValueName] = mValue; }
-	float StyleData::getValueInt(string mValueName)					{ return root[mValueName].asInt(); }
+	void StyleData::setValueInt(const string& mValueName, int mValue)				{ root[mValueName] = mValue; }
+	float StyleData::getValueInt(const string& mValueName)							{ return root[mValueName].asInt(); }
 
-	void StyleData::setValueString(string mValueName, string mValue){ root[mValueName] = mValue; }
-	string StyleData::getValueString(string mValueName)				{ return root[mValueName].asString(); }
+	void StyleData::setValueString(const string& mValueName, const string& mValue)	{ root[mValueName] = mValue; }
+	string StyleData::getValueString(const string& mValueName)						{ return root[mValueName].asString(); }
 
-	void StyleData::setValueBool(string mValueName, bool mValue)	{ root[mValueName] = mValue; }
-	bool StyleData::getValueBool(string mValueName)					{ return root[mValueName].asBool(); }
+	void StyleData::setValueBool(const string& mValueName, bool mValue)				{ root[mValueName] = mValue; }
+	bool StyleData::getValueBool(const string& mValueName)							{ return root[mValueName].asBool(); }
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vector2f mCenterPos, int mSides)
 	{
-		float div{360.f / mSides * 1.0001f};
-		float distance{4500};
+		float div{360.f / mSides * 1.0001f}, distance{4500};
 
 		VertexArray vertices{PrimitiveType::Triangles, 3};
 		vector<Color> colors{getColors()};

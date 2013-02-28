@@ -37,7 +37,7 @@ namespace hg
 			string message	{getJsonValueOrDefault(eventRoot, "message", "")};
 			string id		{getJsonValueOrDefault(eventRoot, "id", "")};
 
-			if 		 (type == "level_change")			{ status.mustRestart = true; restartId = id; restartFirstTime = true; return; }
+			if 	   (type == "level_change")				{ status.mustRestart = true; restartId = id; restartFirstTime = true; return; }
 			else if(type == "menu") 					{ goToMenu(); }
 			else if(type == "message_add")				{ if(firstPlay && getShowMessages()) addMessage(message, duration); }
 			else if(type == "message_important_add")	{ if(getShowMessages()) addMessage(message, duration); }
@@ -46,8 +46,8 @@ namespace hg
 			else if(type == "timeline_wait") 			{ timeline.append<Wait>(duration); }
 			else if(type == "timeline_clear") 			{ clearAndResetTimeline(timeline); }
 
-			else if(type == "level_float_set") 		{ levelData.setValueFloat(valueName, value); }
-			else if(type == "level_float_add") 		{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value); }
+			else if(type == "level_float_set") 			{ levelData.setValueFloat(valueName, value); }
+			else if(type == "level_float_add") 			{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value); }
 			else if(type == "level_float_subtract") 	{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value); }
 			else if(type == "level_float_multiply") 	{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value); }
 			else if(type == "level_float_divide") 		{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value); }
@@ -57,8 +57,8 @@ namespace hg
 			else if(type == "level_int_multiply") 		{ levelData.setValueInt(valueName, levelData.getValueFloat(valueName) * value); }
 			else if(type == "level_int_divide") 		{ levelData.setValueInt(valueName, levelData.getValueFloat(valueName) / value); }
 
-			else if(type == "style_float_set") 		{ styleData.setValueFloat(valueName, value); }
-			else if(type == "style_float_add") 		{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value); }
+			else if(type == "style_float_set") 			{ styleData.setValueFloat(valueName, value); }
+			else if(type == "style_float_add") 			{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value); }
 			else if(type == "style_float_subtract") 	{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) - value); }
 			else if(type == "style_float_multiply") 	{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) * value); }
 			else if(type == "style_float_divide") 		{ styleData.setValueFloat(valueName, levelData.getValueFloat(valueName) / value); }
@@ -88,8 +88,7 @@ namespace hg
 	{
 		lua.writeVariable("log", 					[=](string mLog) 						{ log(mLog, "LUA"); });
 
-		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 					{ timeline.append<Do>([=]{ wall(mSide, mThickness); }); });
-		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.append<Do>([=]{ wallAdj(mSide, mThickness, mSpeedAdj); }); });
+		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 		{ timeline.append<Do>([=]{ wall(mSide, mThickness); }); });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
@@ -123,7 +122,8 @@ namespace hg
 		lua.writeVariable("setStyleValueString", 	[=](string mValueName, string mValue) 	{ return styleData.setValueString(mValueName, mValue); });
 		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
 		
-		lua.writeVariable("isKeyPressed",			[=](int mKey) 							{ return Keyboard::isKeyPressed((Keyboard::Key) mKey); });
+		lua.writeVariable("isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
+		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.append<Do>([=]{ wallAdj(mSide, mThickness, mSpeedAdj); }); });
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{
@@ -131,8 +131,7 @@ namespace hg
 		try { lua.executeCode(s); }
 		catch(runtime_error &error)
 		{
-			cout << mFileName << endl;
-			cout << "LUA execution error: " << endl << "(killing the player...)" << endl << toStr(error.what()) << endl << endl;
+			cout << mFileName << endl << "LUA execution error: " << endl << "(killing the player...)" << endl << toStr(error.what()) << endl << endl;
 			death();
 		}
 	}
