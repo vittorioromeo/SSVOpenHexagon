@@ -28,27 +28,27 @@ namespace hg
 
 	void loadAssets();
 
-	void loadMusic(std::string mPath);
-	void loadMusicData(std::string mPath);
-	void loadStyleData(std::string mPath);
-	void loadLevelData(std::string mPath);
-	void loadCustomSounds(std::string mPackName, std::string mPath);
+	void loadMusic(const std::string& mPath);
+	void loadMusicData(const std::string& mPath);
+	void loadStyleData(const std::string& mPath);
+	void loadLevelData(const std::string& mPath);
+	void loadCustomSounds(const std::string& mPackName, const std::string& mPath);
 	void loadProfiles();
-	void loadEvents(std::string mPath);
+	void loadEvents(const std::string& mPath);
 
 	void saveCurrentProfile();
 
 	void stopAllMusic();
 	void stopAllSounds();
-	void playSound(std::string mId);
+	void playSound(const std::string& mId);
 
-	sf::Font& getFont(std::string mId);
-	sf::Sound* getSoundPtr(std::string mId);
-	sf::Music* getMusicPtr(std::string mId);
-	MusicData getMusicData(std::string mId);
-	StyleData getStyleData(std::string mId);
-	LevelData getLevelData(std::string mId);
-	PackData getPackData(std::string mId);
+	sf::Font& getFont(const std::string& mId);
+	sf::Sound* getSoundPtr(const std::string& mId);
+	sf::Music* getMusicPtr(const std::string& mId);
+	MusicData getMusicData(const std::string& mId);
+	StyleData getStyleData(const std::string& mId);
+	LevelData getLevelData(const std::string& mId);
+	PackData getPackData(const std::string& mId);
 
 	std::vector<LevelData> getAllLevelData();
 	std::vector<std::string> getAllMenuLevelDataIds();
@@ -56,18 +56,18 @@ namespace hg
 	std::vector<std::string> getPackPaths();
 	std::vector<std::string> getPackNames();
 
-	float getScore(std::string mId);
-	void setScore(std::string mId, float mScore);
+	float getScore(const std::string& mId);
+	void setScore(const std::string& mId, float mScore);
 
-	void setCurrentProfile(std::string mName);
+	void setCurrentProfile(const std::string& mName);
 	ProfileData& getCurrentProfile();
 	std::string getCurrentProfileFilePath();
-	void createProfile(std::string mName);
+	void createProfile(const std::string& mName);
 	int getProfilesSize();
 	std::vector<std::string> getProfileNames();
 	std::string getFirstProfileName();
 
-	EventData* getEventData(std::string mId, HexagonGame* mHgPtr);
+	EventData* getEventData(const std::string& mId, HexagonGame* mHgPtr);
 }
 
 #endif /* ASSETS_H_ */

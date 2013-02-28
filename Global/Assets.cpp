@@ -72,7 +72,7 @@ namespace hg
 		}
 	}
 
-	void loadCustomSounds(string mPackName, string mPath)
+	void loadCustomSounds(const string& mPackName, const string& mPath)
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Sounds/", ".ogg"))
 		{
@@ -81,7 +81,7 @@ namespace hg
 			assetManager.getSound(mPackName + "_" + fileName).setVolume(getSoundVolume());
 		}
 	}
-	void loadMusic(string mPath)
+	void loadMusic(const string& mPath)
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Music/", ".ogg"))
 		{
@@ -93,7 +93,7 @@ namespace hg
 			musicPtrsMap.insert(make_pair(fileName, music));
 		}
 	}
-	void loadMusicData(string mPath)
+	void loadMusicData(const string& mPath)
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Music/", ".json"))
 		{
@@ -101,7 +101,7 @@ namespace hg
 			musicDataMap.insert(make_pair(musicData.getId(), musicData));
 		}
 	}
-	void loadStyleData(string mPath)
+	void loadStyleData(const string& mPath)
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Styles/", ".json"))
 		{
@@ -109,7 +109,7 @@ namespace hg
 			styleDataMap.insert(make_pair(styleData.getId(), styleData));
 		}
 	}
-	void loadLevelData(string mPath)
+	void loadLevelData(const string& mPath)
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Levels/", ".json"))
 		{
@@ -129,7 +129,7 @@ namespace hg
 			profileDataMap.insert(make_pair(profileData.getName(), profileData));
 		}
 	}
-	void loadEvents(string mPath)
+	void loadEvents(const string& mPath)
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Events/", ".json"))
 		{
@@ -167,9 +167,7 @@ namespace hg
 		sort(begin(levelDataVector), end(levelDataVector),
 		[](LevelData a, LevelData b) -> bool
 		{
-			if(a.getPackPath() == b.getPackPath())
-				return a.getMenuPriority() < b.getMenuPriority();
-
+			if(a.getPackPath() == b.getPackPath()) return a.getMenuPriority() < b.getMenuPriority();
 			return a.getPackPath() < b.getPackPath();
 		});
 
@@ -202,23 +200,23 @@ namespace hg
 
 	void stopAllMusic() { for(auto pair : musicPtrsMap) pair.second->stop(); }
 	void stopAllSounds() { assetManager.stopSounds(); }
-	void playSound(string mId) { if(!getNoSound()) getSoundPtr(mId)->play(); }
+	void playSound(const string& mId) { if(!getNoSound()) getSoundPtr(mId)->play(); }
 
-	Font& getFont(string mId) 				{ return assetManager.getFont(mId); }
-	Sound* getSoundPtr(string mId) 			{ return &assetManager.getSound(mId); }
-	Music* getMusicPtr(string mId) 			{ return musicPtrsMap.find(mId)->second; }
-	MusicData getMusicData(string mId) 		{ return musicDataMap.find(mId)->second; }
-	StyleData getStyleData(string mId) 		{ return styleDataMap.find(mId)->second; }
-	LevelData getLevelData(string mId) 		{ return levelDataMap.find(mId)->second; }
-	PackData getPackData(string mId) 		{ return packDataMap.find(mId)->second; }
+	Font& getFont(const string& mId) 				{ return assetManager.getFont(mId); }
+	Sound* getSoundPtr(const string& mId) 			{ return &assetManager.getSound(mId); }
+	Music* getMusicPtr(const string& mId) 			{ return musicPtrsMap.find(mId)->second; }
+	MusicData getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
+	StyleData getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
+	LevelData getLevelData(const string& mId) 		{ return levelDataMap.find(mId)->second; }
+	PackData getPackData(const string& mId) 		{ return packDataMap.find(mId)->second; }
 
-	float getScore(string mId) 				{ return getCurrentProfile().getScore(mId); }
-	void setScore(string mId, float mScore) { getCurrentProfile().setScore(mId, mScore); }
+	float getScore(const string& mId) 				{ return getCurrentProfile().getScore(mId); }
+	void setScore(const string& mId, float mScore) { getCurrentProfile().setScore(mId, mScore); }
 
-	void setCurrentProfile(string mName) { currentProfilePtr = &profileDataMap.find(mName)->second; }
+	void setCurrentProfile(const string& mName) { currentProfilePtr = &profileDataMap.find(mName)->second; }
 	ProfileData& getCurrentProfile() { return *currentProfilePtr; }
 	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePtr->getName() + ".json"; }
-	void createProfile(string mName)
+	void createProfile(const string& mName)
 	{
 		ofstream o{"Profiles/" + mName + ".json"};
 		Json::Value root;
@@ -242,7 +240,7 @@ namespace hg
 	}
 	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }
 
-	EventData* getEventData(string mId, HexagonGame* mHgPtr)
+	EventData* getEventData(const string& mId, HexagonGame* mHgPtr)
 	{
 		EventData* result = new EventData(eventDataMap.find(mId)->second);
 		result->setHexagonGamePtr(mHgPtr);
