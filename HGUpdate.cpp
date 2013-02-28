@@ -145,19 +145,11 @@ namespace hg
 	}
 	void HexagonGame::update3D(float mFrameTime)
 	{
-		status.effect3D += (levelData.get3DIncrement() + getRnd(-10, 10) * 0.01f) * mFrameTime;
+		status.effect3D += status.effect3DDir * levelData.get3DIncrement() * mFrameTime;
 		if(status.effect3D > levelData.get3DMax()) { status.effect3DDir *= -1; status.effect3D = levelData.get3DMax(); }
-		if(status.effect3D < levelData.get3DMin()) { status.effect3DDir *= -1; status.effect3D = levelData.get3DMin(); }
+		else if(status.effect3D < levelData.get3DMin()) { status.effect3DDir *= -1; status.effect3D = levelData.get3DMin(); }
 
-		float rotation{backgroundCamera.getRotation()};
-		View view{{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}};
-		if(getPulse())
-		{
-			float p{status.pulse / levelData.getPulseMin()};
-			view = {{0, 0}, {(getWidth() * getZoomFactor()) * p, (getHeight() * getZoomFactor()) * p}};
-		}
-		view.setSize(view.getSize() + Vector2f{0, status.effect3D * levelData.get3DMultiplier()});
-		backgroundCamera.setView(view);
-		backgroundCamera.setRotation(rotation);
+		float effect{status.effect3D * levelData.get3DMultiplier()};
+		backgroundCamera.setSkew({1.f - effect, 1.f + effect});
 	}
 }
