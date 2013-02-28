@@ -22,9 +22,12 @@ using namespace ssvs::Utils;
 
 namespace hg
 {
-	template<> int getJsonValueOrDefault(const Json::Value& mRoot, const string& mValue, int mDefault) { return mRoot.isMember(mValue) ? mRoot[mValue].asInt() : mDefault; }
-	template<> float getJsonValueOrDefault(const Json::Value& mRoot, const string& mValue, float mDefault) { return mRoot.isMember(mValue) ? mRoot[mValue].asFloat() : mDefault; }
-	template<> bool getJsonValueOrDefault(const Json::Value& mRoot, const string& mValue, bool mDefault) { return mRoot.isMember(mValue) ? mRoot[mValue].asBool() : mDefault; }
+	template<> int getJsonValue(const Json::Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asInt(); }
+	template<> float getJsonValue(const Json::Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asFloat(); }
+	template<> bool getJsonValue(const Json::Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asBool(); }
+	template<> string getJsonValue(const Json::Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asString(); }
+	template<> char const* getJsonValue(const Json::Value& mRoot, const string& mValue)	{ return mRoot[mValue].asString().c_str(); }
+
 
 	Color getColorFromHue(double h)
 	{

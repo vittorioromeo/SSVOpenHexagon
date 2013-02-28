@@ -20,7 +20,11 @@
 
 namespace hg
 {
-	template<typename T> T getJsonValueOrDefault(const Json::Value& mRoot, const std::string& mValue, T mDefault);
+	template<typename T> T getJsonValue(const Json::Value& mRoot, const std::string& mValue);
+	template<typename T> T getJsonValueOrDefault(const Json::Value& mRoot, const std::string& mValue, T mDefault)
+	{
+		return mRoot.isMember(mValue) ? getJsonValue<T>(mRoot, mValue) : mDefault;
+	}
 
 	sf::Color getColorFromHue(double);
 	sf::Color getColorDarkened(sf::Color, float);

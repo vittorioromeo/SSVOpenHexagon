@@ -26,18 +26,18 @@ namespace hg
 		for (Json::Value& eventRoot : mRoot)
 		{
 			if(eventRoot["executed"].asBool()) continue;
-			float time{eventRoot.isMember("time") ? eventRoot["time"].asFloat() : 0.00f};
+			float time{getJsonValueOrDefault(eventRoot, "time", 0.f)};
 			if(time > mTime) continue;
 			eventRoot["executed"] = true;
 
-			string type		{eventRoot.isMember("type") ? eventRoot["type"].asString()				: ""};
-			float duration	{eventRoot.isMember("duration") ? eventRoot["duration"].asFloat()		: 0.00f};
-			string valueName{eventRoot.isMember("value_name") ? eventRoot["value_name"].asString()	: ""};
-			float value		{eventRoot.isMember("value") ? eventRoot["value"].asFloat()				: 0.00f};
-			string message	{eventRoot.isMember("message") ? eventRoot["message"].asString()		: ""};
-			string id		{eventRoot.isMember("id") ? eventRoot["id"].asString()					: ""};
+			string type		{getJsonValueOrDefault(eventRoot, "type", "")};
+			float duration	{getJsonValueOrDefault(eventRoot, "duration", 0.f)};
+			string valueName{getJsonValueOrDefault(eventRoot, "value_name", "")};
+			float value		{getJsonValueOrDefault(eventRoot, "value", 0.f)};
+			string message	{getJsonValueOrDefault(eventRoot, "message", "")};
+			string id		{getJsonValueOrDefault(eventRoot, "id", "")};
 
-			if 		(type == "level_change")			{ status.mustRestart = true; restartId = id; restartFirstTime = true; return; }
+			if 		 (type == "level_change")			{ status.mustRestart = true; restartId = id; restartFirstTime = true; return; }
 			else if(type == "menu") 					{ goToMenu(); }
 			else if(type == "message_add")				{ if(firstPlay && getShowMessages()) addMessage(message, duration); }
 			else if(type == "message_important_add")	{ if(getShowMessages()) addMessage(message, duration); }
