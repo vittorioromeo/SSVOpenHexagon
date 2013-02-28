@@ -151,5 +151,15 @@ namespace hg
 
 		float effect{status.effect3D * levelData.get3DMultiplier()};
 		backgroundCamera.setSkew({1.f - effect, 1.f + effect});
+
+		camera3D1.setView(backgroundCamera.getView());
+		camera3D1.setSkew({1.f - effect, 1.f + effect});
+		camera3D1.setOffsetAngle(90);
+		camera3D1.setOffsetRadius(-8);
+		
+		camera3D2.setView(backgroundCamera.getView());
+		camera3D2.setSkew({1.f - effect, 1.f + effect});
+		camera3D2.setOffsetAngle(90);
+		camera3D2.setOffsetRadius(-4);
 	}
 }

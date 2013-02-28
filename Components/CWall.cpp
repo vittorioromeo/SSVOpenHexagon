@@ -29,7 +29,7 @@ namespace hg
 
 	void CWall::draw()
 	{
-		for (int i{0}; i < 4; i++)
+		for(int i{0}; i < 4; i++)
 		{
 			vertices[i].position = vertexPositions[i];
 			vertices[i].color = hexagonGame.getColorMain();

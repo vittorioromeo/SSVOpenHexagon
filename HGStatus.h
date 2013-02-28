@@ -1,6 +1,8 @@
 #ifndef HGSTATUS_H
 #define HGSTATUS_H
 
+#include <SFML/Graphics.hpp>
+
 namespace hg
 {
 	struct HexagonGameStatus
@@ -15,6 +17,8 @@ namespace hg
 		bool randomSideChangesEnabled{true};
 		bool incrementEnabled{true};
 		float effect3DDir{1.f}, effect3D{1.f};
+		bool mainColorOverride{false};
+		sf::Color overrideColor{0, 0, 0, 0};
 	};
 }
 

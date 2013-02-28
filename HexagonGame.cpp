@@ -36,7 +36,29 @@ namespace hg
 		game.onDraw += [&](){ window.clear(Color::Black); };
 		game.onDraw += [&](){ backgroundCamera.apply(); };
 		if(!getNoBackground()) game.onDraw += [&](){ styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); };
+
+		if(get3D())
+		{
+			game.onDraw += [&]()
+			{
+				status.mainColorOverride = true;
+				status.overrideColor = styleData.getMainColor();
+				status.overrideColor = getColorDarkened(status.overrideColor, 2.0f);
+				camera3D1.apply();
+				manager.draw();
+
+				status.overrideColor = styleData.getMainColor();
+				status.overrideColor = getColorDarkened(status.overrideColor, 1.6f);
+				camera3D2.apply(); 
+				manager.draw();
+
+				status.mainColorOverride = false;
+			};
+		}
+
+		game.onDraw += [&](){ backgroundCamera.apply(); };
 		game.onDraw += [&](){ manager.draw(); };
+
 		game.onDraw += [&](){ overlayCamera.apply(); };
 		game.onDraw += [&](){ drawText(); };
 		game.onDraw += [&](){ render(flashPolygon); };

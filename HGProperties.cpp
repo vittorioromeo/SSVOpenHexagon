@@ -23,7 +23,11 @@ namespace hg
 {
 	GameState& HexagonGame::getGame()								{ return game; }
 	float HexagonGame::getRadius() 									{ return status.radius; }
-	Color HexagonGame::getColorMain() 								{ return getBlackAndWhite() ? Color::White : styleData.getMainColor(); }
+	Color HexagonGame::getColorMain()
+	{
+		if(status.mainColorOverride) return status.overrideColor;
+		return getBlackAndWhite() ? Color::White : styleData.getMainColor();
+	}
 	Color HexagonGame::getColor(int mIndex)							{ return styleData.getColors()[mIndex]; }
 
 	int HexagonGame::getSides() 									{ return levelData.getSides(); }
