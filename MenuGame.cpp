@@ -301,7 +301,7 @@ namespace hg
 		renderText(levelName, {20, 50 + 120});
 
 		levelDesc.setString(levelData.getDescription());
-		renderText(levelDesc, {20, 50 + 195 + 60*(countNewLines(levelData.getName()))});
+		renderText(levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});
 
 		levelAuth.setString("author: " + levelData.getAuthor());
 		renderText(levelAuth, {20, -30 + 500});

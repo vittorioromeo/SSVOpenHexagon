@@ -36,10 +36,10 @@ namespace hg
 			if(getBeatPulse()) updateBeatPulse(mFrameTime);
 			if(getPulse()) updatePulse(mFrameTime);
 			if(!getBlackAndWhite()) styleData.update(mFrameTime);
-			if(get3D()) update3D(mFrameTime);
 		}
 		else setRotationSpeed(getRotationSpeed() * 0.99f);
-
+		
+		if(get3D()) update3D(mFrameTime);
 		if(!getNoRotation()) updateRotation(mFrameTime);
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 	}
@@ -143,23 +143,18 @@ namespace hg
 		status.flashEffect = clamp(status.flashEffect, 0.f, 255.f);
 		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = status.flashEffect;
 	}
-	void HexagonGame::update3D(float mFrameTime)
+	void HexagonGame::update3D(float)
 	{
-		status.effect3D += status.effect3DDir * levelData.get3DIncrement() * mFrameTime;
-		if(status.effect3D > levelData.get3DMax()) { status.effect3DDir *= -1; status.effect3D = levelData.get3DMax(); }
-		else if(status.effect3D < levelData.get3DMin()) { status.effect3DDir *= -1; status.effect3D = levelData.get3DMin(); }
+		float effect{0.35f};
+		Vector2f skew{1.f - effect, 1.f + effect};
+		backgroundCamera.setSkew(skew);
 
-		float effect{status.effect3D * levelData.get3DMultiplier()};
-		backgroundCamera.setSkew({1.f - effect, 1.f + effect});
-
-		camera3D1.setView(backgroundCamera.getView());
-		camera3D1.setSkew({1.f - effect, 1.f + effect});
-		camera3D1.setOffsetAngle(90);
-		camera3D1.setOffsetRadius(-8);
-		
-		camera3D2.setView(backgroundCamera.getView());
-		camera3D2.setSkew({1.f - effect, 1.f + effect});
-		camera3D2.setOffsetAngle(90);
-		camera3D2.setOffsetRadius(-4);
+		for(unsigned int i{0}; i < depthCameras.size(); ++i)
+		{
+			Camera& depthCamera(depthCameras[i]);
+			depthCamera.setView(backgroundCamera.getView());
+			depthCamera.setSkew(skew);
+			depthCamera.setOffset({0, 1.f * i});			
+		}
 	}
 }

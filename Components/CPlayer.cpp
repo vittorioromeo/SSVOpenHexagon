@@ -44,7 +44,7 @@ namespace hg
 		float radius {hexagonGame.getRadius() * 0.75f};
 		Vector2f pivotPos{startPos};
 
-		if(dead)
+		if(dead && !hexagonGame.getStatus().drawing3D)
 		{
 			pivotPos = pos;			
 			colorMain = getColorFromHue((360 - hue) / 255.0f);
@@ -75,7 +75,7 @@ namespace hg
 			vertices3.append({pivotPos, colorB});
 		}
 		
-		if(!dead) hexagonGame.render(vertices3);
+		if(!dead && !hexagonGame.getStatus().drawing3D) hexagonGame.render(vertices3);
 		hexagonGame.render(vertices2);
 	}
 

@@ -42,8 +42,7 @@ namespace hg
 			ssvs::GameWindow& window;
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera{window, {{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
-			ssvs::Camera camera3D1{window, {{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
-			ssvs::Camera camera3D2{window, {{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
+			std::vector<ssvs::Camera> depthCameras;
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())}};
 			ssvs::TimelineManager effectTimelineManager;
 			Factory factory{*this, manager, {0, 0}};
@@ -150,6 +149,7 @@ namespace hg
 			float getWallAngleLeft();
 			float getWallAngleRight();
 			float get3DEffectMult();
+			HexagonGameStatus& getStatus();
 
 			// Input
 			bool getInputFocused();

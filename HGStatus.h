@@ -16,8 +16,7 @@ namespace hg
 		bool hasDied{false}, mustRestart{false};
 		bool randomSideChangesEnabled{true};
 		bool incrementEnabled{true};
-		float effect3DDir{1.f}, effect3D{1.f};
-		bool mainColorOverride{false};
+		bool drawing3D{false};
 		sf::Color overrideColor{0, 0, 0, 0};
 	};
 }

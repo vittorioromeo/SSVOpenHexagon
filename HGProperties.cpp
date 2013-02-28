@@ -25,7 +25,7 @@ namespace hg
 	float HexagonGame::getRadius() 									{ return status.radius; }
 	Color HexagonGame::getColorMain()
 	{
-		if(status.mainColorOverride) return status.overrideColor;
+		if(status.drawing3D) return status.overrideColor;
 		return getBlackAndWhite() ? Color::White : styleData.getMainColor();
 	}
 	Color HexagonGame::getColor(int mIndex)							{ return styleData.getColors()[mIndex]; }
@@ -39,6 +39,7 @@ namespace hg
 	float HexagonGame::getDelayMultiplier() 						{ return levelData.getDelayMultiplier() / (pow(difficultyMult, 0.10f)); }
 	float HexagonGame::getRotationSpeed() 							{ return levelData.getRotationSpeed(); }
 	float HexagonGame::get3DEffectMult() 							{ return levelData.getValueFloat("3d_effect_multiplier"); }
+	HexagonGameStatus& HexagonGame::getStatus()						{ return status; }
 
 	void HexagonGame::setSpeedMultiplier(float mSpeedMultiplier) 	{ levelData.setSpeedMultiplier(mSpeedMultiplier); }
 	void HexagonGame::setDelayMultiplier(float mDelayMultiplier)	{ levelData.setDelayMultiplier(mDelayMultiplier); }

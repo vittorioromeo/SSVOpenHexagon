@@ -91,26 +91,6 @@ namespace hg
 		sort(begin(result), end(result));
 		return result;
 	}
-	float LevelData::get3DMultiplier()
-	{
-		if(root.isMember("3d_multiplier")) return root["3d_multiplier"].asFloat();
-		return 1.f;
-	}
-	float LevelData::get3DIncrement()
-	{
-		if(root.isMember("3d_increment")) return root["3d_increment"].asFloat();
-		return 0.001f;
-	}
-	float LevelData::get3DMax()
-	{
-		if(root.isMember("3d_max")) return root["3d_max"].asFloat();
-		return 0.34f;
-	}
-	float LevelData::get3DMin()
-	{
-		if(root.isMember("3d_min")) return root["3d_min"].asFloat();
-		return 0.18f;
-	}
 
 	vector<Json::Value>& LevelData::getEvents()		{ return events; }
 

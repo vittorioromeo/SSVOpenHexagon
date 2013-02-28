@@ -29,6 +29,7 @@ namespace hg
 	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow)
 	{
 		initFlashEffect();
+		for(int i{0}; i < 15; ++i) depthCameras.push_back({window, {}});
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onUpdate += [&](float) { inputMovement = 0; inputFocused = false; };
@@ -41,18 +42,16 @@ namespace hg
 		{
 			game.onDraw += [&]()
 			{
-				status.mainColorOverride = true;
-				status.overrideColor = styleData.getMainColor();
-				status.overrideColor = getColorDarkened(status.overrideColor, 2.0f);
-				camera3D1.apply();
-				manager.draw();
-
-				status.overrideColor = styleData.getMainColor();
-				status.overrideColor = getColorDarkened(status.overrideColor, 1.6f);
-				camera3D2.apply(); 
-				manager.draw();
-
-				status.mainColorOverride = false;
+				status.drawing3D = true;
+				for(unsigned int i{0}; i < depthCameras.size(); ++i)
+				{
+					status.overrideColor = getColorDarkened(styleData.getMainColor(), 1.5f);
+					status.overrideColor.a /= 2;
+					status.overrideColor.a -= i * 3;
+					depthCameras[i].apply();
+					manager.draw();
+				}
+				status.drawing3D = false;
 			};
 		}
 
@@ -141,6 +140,7 @@ namespace hg
 		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
 		shakeCamera(effectTimelineManager, backgroundCamera);
+		for(auto& depthCamera : depthCameras) shakeCamera(effectTimelineManager, depthCamera);
 		status.hasDied = true;
 		stopLevelMusic();
 		checkAndSaveScore();
