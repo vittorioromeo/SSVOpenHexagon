@@ -20,7 +20,7 @@ namespace hg
 	{
 		drawPivot();
 
-		Color colorMain = !dead ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f);
+		Color colorMain{!dead || hexagonGame.getStatus().drawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f)};
 
 		pLeft = getOrbit(pos, angle - 100, size + 3);
 		pRight = getOrbit(pos, angle + 100, size + 3);
