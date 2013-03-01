@@ -135,7 +135,7 @@ namespace hg
 	}
 	void HexagonGame::update3D(float)
 	{
-		float effect{0.3f};
+		float effect{styleData.get3DSkew() * get3DMultiplier()};
 		Vector2f skew{1.f - effect, 1.f + effect};
 		backgroundCamera.setSkew(skew);
 
@@ -144,7 +144,7 @@ namespace hg
 			Camera& depthCamera(depthCameras[i]);
 			depthCamera.setView(backgroundCamera.getView());
 			depthCamera.setSkew(skew);
-			depthCamera.setOffset({0, 1.f * i});			
+			depthCamera.setOffset({0, styleData.get3DSpacing() * i});			
 		}
 	}
 }

@@ -19,9 +19,10 @@ namespace hg
 			status.drawing3D = true;
 			for(unsigned int i{0}; i < depthCameras.size(); ++i)
 			{
-				status.overrideColor = getColorDarkened(styleData.getMainColor(), 1.5f);
-				status.overrideColor.a /= 2;
-				status.overrideColor.a -= i * 3;
+				status.overrideColor = getColorDarkened(styleData.get3DOverrideColor(), styleData.get3DDarkenMultiplier());
+				status.overrideColor.a /= styleData.get3DAlphaMultiplier();
+				status.overrideColor.a -= i * styleData.get3DAlphaFalloff();
+
 				depthCameras[i].apply();
 				manager.draw();
 			}

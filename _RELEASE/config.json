@@ -23,6 +23,8 @@
 	"black_and_white": false,
 	"pulse_enabled": true,
 	"beatpulse_enabled": true,
+	"3D_enabled": true,
+	"3D_multiplier": 1.0,
 	
 	// Audio options
 	"no_sound": false,

@@ -45,6 +45,14 @@ namespace hg
 			std::string getValueString(const std::string& mValueName);
 			void setValueBool(const std::string& mValueName, bool mValue);
 			bool getValueBool(const std::string& mValueName);
+
+			unsigned int get3DDepth();
+			float get3DSkew();
+			float get3DSpacing();
+			float get3DDarkenMultiplier();
+			float get3DAlphaMultiplier();
+			float get3DAlphaFalloff();
+			sf::Color get3DOverrideColor();
 	};
 }
 

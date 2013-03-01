@@ -55,7 +55,8 @@ namespace hg
 	bool getPulse();
 	bool getBeatPulse();
 	bool getInvincible();
-	bool get3D(); // TODO!!
+	bool get3D();
+	float get3DMultiplier();
 }
 
 #endif
