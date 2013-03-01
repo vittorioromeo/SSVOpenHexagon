@@ -19,7 +19,10 @@ namespace hg
 	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow)
 	{
 		initFlashEffect();
-		for(unsigned int i{0}; i < styleData.get3DDepth(); ++i) depthCameras.push_back({window, {}}); // TODO: FIX AND ADD STYLE PARAMETERS
+		unsigned int depth{styleData.get3DDepth()};
+		if(depth > get3DMaxDepth()) depth = get3DMaxDepth();
+		
+		for(unsigned int i{0}; i < depth; ++i) depthCameras.push_back({window, {}}); // TODO: FIX AND ADD STYLE PARAMETERS
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&](){ draw(); };

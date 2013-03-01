@@ -57,6 +57,7 @@ namespace hg
 	bool getInvincible();
 	bool get3D();
 	float get3DMultiplier();
+	unsigned int get3DMaxDepth();
 }
 
 #endif

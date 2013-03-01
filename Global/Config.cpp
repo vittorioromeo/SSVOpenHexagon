@@ -134,4 +134,5 @@ namespace hg
 	bool getInvincible()				{ return root["invincible"].asBool(); }
 	bool get3D()						{ return root["3D_enabled"].asBool(); }
 	float get3DMultiplier()				{ return root["3D_multiplier"].asFloat(); }
+	unsigned int get3DMaxDepth()		{ return root["3D_max_depth"].asInt(); }
 }
