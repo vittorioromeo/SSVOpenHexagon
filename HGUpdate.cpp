@@ -133,10 +133,14 @@ namespace hg
 		status.flashEffect = clamp(status.flashEffect, 0.f, 255.f);
 		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = status.flashEffect;
 	}
-	void HexagonGame::update3D(float)
+	void HexagonGame::update3D(float mFrameTime)
 	{
-		float effect{styleData.get3DSkew() * get3DMultiplier()};
-		Vector2f skew{1.f - effect, 1.f + effect};
+		status.pulse3D += styleData.get3DPulseSpeed() * status.pulse3DDirection * mFrameTime;
+		if(status.pulse3D > styleData.get3DPulseMax()) status.pulse3DDirection = -1;
+		else if(status.pulse3D < styleData.get3DPulseMin()) status.pulse3DDirection = 1;
+
+		float effect{styleData.get3DSkew() * get3DMultiplier() * status.pulse3D};
+		Vector2f skew{1.f, 1.f + effect};
 		backgroundCamera.setSkew(skew);
 
 		for(unsigned int i{0}; i < depthCameras.size(); ++i)
@@ -144,7 +148,7 @@ namespace hg
 			Camera& depthCamera(depthCameras[i]);
 			depthCamera.setView(backgroundCamera.getView());
 			depthCamera.setSkew(skew);
-			depthCamera.setOffset({0, styleData.get3DSpacing() * i});			
+			depthCamera.setOffset({0, styleData.get3DSpacing() * i * (effect * 3.f)});			
 		}
 	}
 }

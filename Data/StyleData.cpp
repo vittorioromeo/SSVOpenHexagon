@@ -142,6 +142,9 @@ namespace hg
 	float StyleData::get3DDarkenMultiplier() 	{ return getJsonValueOrDefault(root, "3D_darken_multiplier", 1.5f); }
 	float StyleData::get3DAlphaMultiplier() 	{ return getJsonValueOrDefault(root, "3D_alpha_multiplier", 0.5f); }
 	float StyleData::get3DAlphaFalloff() 		{ return getJsonValueOrDefault(root, "3D_alpha_falloff", 3.0f); }
-	Color StyleData::get3DOverrideColor() 		{ return root.isMember("3D_override_color") ? getColorFromJsonArray("3D_override_color") : getMainColor(); }
+	Color StyleData::get3DOverrideColor() 		{ return root.isMember("3D_override_color") ? getColorFromJsonArray(root["3D_override_color"]) : getMainColor(); }
+	float StyleData::get3DPulseMax()			{ return getJsonValueOrDefault(root, "3D_pulse_max", 3.2f); }
+	float StyleData::get3DPulseMin()			{ return getJsonValueOrDefault(root, "3D_pulse_min", -0.0f); }
+	float StyleData::get3DPulseSpeed()			{ return getJsonValueOrDefault(root, "3D_pulse_speed", 0.01f); }
 }
 

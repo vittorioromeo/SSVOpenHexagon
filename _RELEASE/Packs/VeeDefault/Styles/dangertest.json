@@ -1,26 +1,26 @@
 {
 	// Style data id
-	"id": "danger",
+	"id": "dangertest",
 
 	// Hue options
 	"hue_min": 0,
 	"hue_max": 360,
 	"hue_ping_pong": false,
 	"hue_increment": 1.0,
-	
+
+	// 3D options
+	"3D_depth": 5,
+	"3D_skew": 0.15,
+	"3D_spacing": 1.5,
+	"3D_darken_multiplier": 1.5,
+	"3D_alpha_multiplier": 0.5,
+	"3D_alpha_falloff": 15.0,
+	"3D_override_color": [45, 45, 45, 255],
+
 	// Pulse options
 	"pulse_min": 0.0,
 	"pulse_max": 1.5,
 	"pulse_increment": 0.025,
-
-	// 3D options
-	"3D_depth": 12,
-	"3D_skew": 0.15,
-	"3D_spacing": 2.1,
-	"3D_darken_multiplier": 1.1,
-	"3D_alpha_multiplier": 0.4,
-	"3D_alpha_falloff": 1.0,
-	"3D_override_color": [166, 166, 166, 255],
 	
 	// Main color
 	"main": { "main": true, "dynamic": false, "value": [253, 253, 253, 255], "pulse": [0, 0, 0, 0] },

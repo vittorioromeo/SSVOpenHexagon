@@ -8,7 +8,7 @@
 	"selectable": true,
 	
 	// Style
-	"style_id": "gray",
+	"style_id": "dangertest",
 	
 	// Music
 	"music_id": "milkyWays",
@@ -20,9 +20,9 @@
 	"difficulty_multipliers": [1.25, 1.40, 0.75, 0.5, 0.25, 2.10],
 	
 	// Basic values
-	"speed_multiplier": 2.89,
+	"speed_multiplier": 1.89,
 	"speed_increment": 0.1,
-	"rotation_speed": 0.0,
+	"rotation_speed": 0.2,
 	"rotation_increment": 0.00,
 	"delay_multiplier": 1.10,
 	"delay_increment": -0.002,

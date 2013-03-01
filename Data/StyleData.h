@@ -53,6 +53,9 @@ namespace hg
 			float get3DAlphaMultiplier();
 			float get3DAlphaFalloff();
 			sf::Color get3DOverrideColor();
+			float get3DPulseMax();
+			float get3DPulseMin();
+			float get3DPulseSpeed();
 	};
 }
 

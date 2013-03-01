@@ -12,6 +12,11 @@
 	"pulse_min": 0.0,
 	"pulse_max": 2.0,
 	"pulse_increment": 0.025,
+
+	// 3D options
+	"3D_depth": 7,
+	"3D_skew": 0.15,
+	"3D_spacing": 1.2,
 	
 	// Main color
 	"main": { "main": true, "dynamic": true, "value": [255, 0, 0, 255], "pulse": [0, 50, 0, 0] },

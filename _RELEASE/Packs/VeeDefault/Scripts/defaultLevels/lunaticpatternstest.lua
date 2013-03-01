@@ -43,6 +43,23 @@ end
 function onUnload()
 end
 
+minSpacing = 100
+maxSpacing = 400
+spacing = 100
+spacingDir = 1
+
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	spacing = spacing + spacingDir
+	
+	if spacing > maxSpacing then
+		spacingDir = -1
+	end
+
+	if spacing < minSpacing then
+		spacingDir = 1
+	end
+
+	setStyleValueFloat("3D_spacing", spacing / 60.0)
+
 end
