@@ -148,7 +148,7 @@ namespace hg
 			Camera& depthCamera(depthCameras[i]);
 			depthCamera.setView(backgroundCamera.getView());
 			depthCamera.setSkew(skew);
-			depthCamera.setOffset({0, styleData.get3DSpacing() * i * (effect * 3.f)});			
+			depthCamera.setOffset({0, styleData.get3DSpacing() * i * (effect * 3.6f)});			
 		}
 	}
 }

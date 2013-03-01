@@ -6,7 +6,7 @@
 a little more",
 	"author": "vee",
 	"menu_priority": 0,
-	"selectable": true,
+	"selectable": false,
 	
 	// Style
 	"style_id": "tutorial2",
