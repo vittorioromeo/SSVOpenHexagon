@@ -78,8 +78,8 @@ namespace hg
 
 		if(getAutoZoomFactor())
 		{
-			float zoomFactorX(1024.0f / (float)getWidth());
-			float zoomFactorY(768.0f / (float)getHeight());
+			float zoomFactorX(1024.0f / static_cast<float>(getWidth()));
+			float zoomFactorY(768.0f / static_cast<float>(getHeight()));
 			root["zoom_factor"] = max(zoomFactorX, zoomFactorY);
 		}
 	}
@@ -123,8 +123,8 @@ namespace hg
 	unsigned int getFullscreenHeight() 	{ return root["fullscreen_height"].asInt(); }
 	unsigned int getWindowedWidth()		{ return root["windowed_width"].asInt(); }
 	unsigned int getWindowedHeight()	{ return root["windowed_height"].asInt(); }
-	unsigned int getWidth() 			{ if(getFullscreen()) return getFullscreenWidth(); else return getWindowedWidth(); }
-	unsigned int getHeight() 			{ if(getFullscreen()) return getFullscreenHeight(); else return getWindowedHeight(); }
+	unsigned int getWidth() 			{ return getFullscreen() ? getFullscreenWidth() : getWindowedWidth(); }
+	unsigned int getHeight() 			{ return getFullscreen() ? getFullscreenHeight() : getWindowedHeight(); }
 	bool getShowMessages()				{ return root["show_messages"].asBool(); }
 	bool getChangeStyles()				{ return root["change_styles"].asBool(); }
 	bool getChangeMusic()				{ return root["change_music"].asBool(); }
