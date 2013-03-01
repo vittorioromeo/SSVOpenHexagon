@@ -2,17 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <SFML/Audio.hpp>
-#include <SSVStart.h>
-#include "Components/CPlayer.h"
-#include "Components/CWall.h"
-#include "Data/StyleData.h"
 #include "Global/Assets.h"
-#include "Global/Config.h"
 #include "Global/Factory.h"
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
@@ -34,7 +24,6 @@ namespace hg
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&](){ draw(); };
 		
-
 		using k = Keyboard::Key;
 		game.addInput({k::Left}, 		[&](float){ inputMovement = -1; });
 		game.addInput({k::Right}, 		[&](float){ inputMovement = 1; });

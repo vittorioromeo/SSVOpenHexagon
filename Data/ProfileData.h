@@ -2,8 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef PROFILEDATA_H
-#define PROFILEDATA_H
+#ifndef HG_PROFILEDATA
+#define HG_PROFILEDATA
 
 #include <string>
 #include <json/json.h>
@@ -29,4 +29,4 @@ namespace hg
 	};
 }
 
-#endif // PROFILEDATA_H
+#endif

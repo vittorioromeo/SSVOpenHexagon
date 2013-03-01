@@ -2,14 +2,10 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef HG_CONFIG
+#define HG_CONFIG
 
-#include <iostream>
 #include <string>
-#include <fstream>
-#include <json/json.h>
-#include <json/reader.h>
 #include <SSVStart.h>
 
 namespace hg
@@ -62,4 +58,4 @@ namespace hg
 	bool get3D(); // TODO!!
 }
 
-#endif /* CONFIG_H_ */
+#endif

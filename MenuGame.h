@@ -2,21 +2,15 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef MENUGAME_H
-#define MENUGAME_H
+#ifndef HG_MENUGAME
+#define HG_MENUGAME
 
 #include <vector>
 #include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
 #include <SSVStart.h>
-#include <SSVEntitySystem.h>
 #include "Data/LevelData.h"
 #include "Data/StyleData.h"
-#include "Global/Assets.h"
 #include "Global/Config.h"
-#include "Utils/Utils.h"
 
 namespace hg
 {
@@ -75,4 +69,5 @@ namespace hg
 			ssvs::GameState& getGame();
 	};
 }
-#endif // MENUGAME_H
+
+#endif

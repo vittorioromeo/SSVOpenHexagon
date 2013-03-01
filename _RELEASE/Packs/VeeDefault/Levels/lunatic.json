@@ -44,8 +44,5 @@
 	"beatpulse_delay_max": 21.8,
 	
 	//Events
-	"events":
-	[
-		{ "time": 0,	"type": "event_exec", 		"id": "continuous_rotation" }
-	]
+	"events": []
 }

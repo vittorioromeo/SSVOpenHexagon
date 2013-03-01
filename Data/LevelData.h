@@ -2,8 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef LEVELSETTINGS_H
-#define LEVELSETTINGS_H
+#ifndef HG_LEVELDATA
+#define HG_LEVELDATA
 
 #include <vector>
 #include <string>
@@ -74,4 +74,5 @@ namespace hg
 			bool getValueBool(const std::string& mValueName);
 	};
 }
-#endif // LEVELSETTINGS_H
+
+#endif

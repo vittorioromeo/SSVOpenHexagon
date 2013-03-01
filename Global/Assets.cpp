@@ -17,6 +17,7 @@
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
 #include "Global/Assets.h"
+#include "Global/Config.h"
 #include "Utils/Utils.h"
 
 using namespace std;

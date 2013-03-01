@@ -1,5 +1,5 @@
-#ifndef HGSTATUS_H
-#define HGSTATUS_H
+#ifndef HG_STATUS
+#define HG_STATUS
 
 #include <SFML/Graphics.hpp>
 
@@ -21,4 +21,4 @@ namespace hg
 	};
 }
 
-#endif // HGSTATUS_H
+#endif

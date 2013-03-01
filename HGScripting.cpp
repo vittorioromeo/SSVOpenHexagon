@@ -1,15 +1,4 @@
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <SFML/Audio.hpp>
-#include <SSVStart.h>
-#include "Components/CPlayer.h"
-#include "Components/CWall.h"
-#include "Data/StyleData.h"
 #include "Global/Assets.h"
-#include "Global/Config.h"
-#include "Global/Factory.h"
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 
@@ -123,6 +112,8 @@ namespace hg
 		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
 		
 		lua.writeVariable("isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
+		lua.writeVariable("isFastSpinning",			[=]() 									{ return status.fastSpin > 0; });
+		
 		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, baseSpeed * mSpeedAdj, getSpeedMultiplier()); }); });
 	}
 	void HexagonGame::runLuaFile(string mFileName)

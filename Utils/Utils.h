@@ -2,12 +2,10 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef UTILS_H_HG
-#define UTILS_H_HG
+#ifndef HG_UTILS
+#define HG_UTILS
 
 #include <string>
-#include <sstream>
-#include <iostream>
 #include <json/json.h>
 #include <json/reader.h>
 #include <SFML/Graphics.hpp>
@@ -16,7 +14,6 @@
 #include "Data/ProfileData.h"
 #include "Data/MusicData.h"
 #include "Data/StyleData.h"
-#include "Global/Config.h"
 
 namespace hg
 {
@@ -42,4 +39,4 @@ namespace hg
 	void shakeCamera(ssvs::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 }
 
-#endif /* UTILS_H_HG */
+#endif

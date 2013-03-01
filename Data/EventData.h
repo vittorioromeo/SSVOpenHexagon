@@ -1,5 +1,5 @@
-#ifndef PATTERNDATA_H
-#define PATTERNDATA_H
+#ifndef HG_EVENTDATA
+#define HG_EVENTDATA
 
 #include <string>
 #include <json/json.h>
@@ -28,4 +28,4 @@ namespace hg
 	};
 }
 
-#endif // PATTERNDATA_H
+#endif

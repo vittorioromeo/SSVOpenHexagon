@@ -2,24 +2,18 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef ASSETS_H_
-#define ASSETS_H_
+#ifndef HG_ASSETS
+#define HG_ASSETS
 
-#include <iostream>
 #include <string>
-#include <fstream>
-#include <map>
 #include <SSVStart.h>
 #include <SFML/Audio.hpp>
-#include <json/json.h>
-#include <json/reader.h>
+#include "Data/EventData.h"
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
 #include "Data/PackData.h"
 #include "Data/ProfileData.h"
 #include "Data/StyleData.h"
-#include "Utils.h"
-#include "HexagonGame.h"
 
 namespace hg
 {
@@ -70,4 +64,4 @@ namespace hg
 	EventData* getEventData(const std::string& mId, HexagonGame* mHgPtr);
 }
 
-#endif /* ASSETS_H_ */
+#endif

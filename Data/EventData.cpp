@@ -1,6 +1,5 @@
 #include "Data/EventData.h"
 #include "HexagonGame.h"
-#include "Utils/Utils.h"
 
 using namespace std;
 

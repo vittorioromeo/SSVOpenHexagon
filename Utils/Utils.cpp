@@ -2,18 +2,12 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
 #include <json/json.h>
 #include <json/reader.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include "Data/LevelData.h"
-#include "Data/MusicData.h"
-#include "Data/ProfileData.h"
-#include "Data/StyleData.h"
 #include "Utils/Utils.h"
+#include "Global/Config.h"
 
 using namespace std;
 using namespace sf;

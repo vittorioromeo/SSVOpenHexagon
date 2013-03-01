@@ -2,7 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <iostream>
+#include "HexagonGame.h"
 #include "Components/CPlayer.h"
 #include "Components/CWall.h"
 #include "Utils/Utils.h"
@@ -14,10 +14,9 @@ using namespace ssvs::Utils;
 namespace hg
 {
 	CWall::CWall(HexagonGame& mHexagonGame, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed) :
-			Component{"wall"}, hexagonGame(mHexagonGame), centerPos{mCenterPos}, speed{mSpeed}, distance{mDistance}, thickness{mThickness}, side{mSide}
+		Component{"wall"}, hexagonGame(mHexagonGame), centerPos{mCenterPos}, speed{mSpeed}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
-		float div{360.f / hexagonGame.getSides()};
-		float angle{div * side};
+		float div{360.f / hexagonGame.getSides()}, angle{div * side};
 
 		vertexPositions[0] = getOrbit(centerPos, angle - div * 0.5f, distance);
 		vertexPositions[1] = getOrbit(centerPos, angle + div * 0.5f, distance);
@@ -29,7 +28,7 @@ namespace hg
 
 	void CWall::draw()
 	{
-		for(int i{0}; i < 4; i++)
+		for(unsigned int i{0}; i < 4; ++i)
 		{
 			vertices[i].position = vertexPositions[i];
 			vertices[i].color = hexagonGame.getColorMain();

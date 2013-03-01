@@ -2,17 +2,16 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef CWALL_H_
-#define CWALL_H_
+#ifndef HG_CWALL
+#define HG_CWALL
 
 #include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
 #include <SSVEntitySystem.h>
-#include "HexagonGame.h"
 
 namespace hg
 {
+	class HexagonGame;
+
 	class CWall : public sses::Component
 	{
 		private:
@@ -32,4 +31,5 @@ namespace hg
 			void draw() override;
 	};
 }
-#endif /* CWALL_H_ */
+
+#endif

@@ -2,7 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <iostream>
+#include "HexagonGame.h"
 #include "Components/CPlayer.h"
 #include "Components/CWall.h"
 #include "Utils/Utils.h"
@@ -35,13 +35,8 @@ namespace hg
 	}
 	void CPlayer::drawPivot()
 	{
-		float thickness{5};
-
-		Color colorMain{hexagonGame.getColorMain()};
-		Color colorB{hexagonGame.getColor(1)};
-		
-		float div {360.f / hexagonGame.getSides()};
-		float radius {hexagonGame.getRadius() * 0.75f};
+		float thickness{5}, div{360.f / hexagonGame.getSides()}, radius{hexagonGame.getRadius() * 0.75f};
+		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
 		Vector2f pivotPos{startPos};
 
 		if(dead && !hexagonGame.getStatus().drawing3D)
@@ -55,7 +50,7 @@ namespace hg
 
 		VertexArray vertices2{PrimitiveType::Quads, 4}, vertices3{PrimitiveType::Triangles, 3};
 
-		for(int i{0}; i < hexagonGame.getSides(); i++)
+		for(unsigned int i{0}; i < hexagonGame.getSides(); ++i)
 		{
 			float angle{div * i};
 
@@ -81,16 +76,11 @@ namespace hg
 	void CPlayer::update(float mFrameTime)
 	{
 		Vector2f lastPos{pos};
-		float currentSpeed{speed}, lastAngle{angle};
-		int movement{0};
-
-		// Keyboard controls
+		float currentSpeed{speed}, lastAngle{angle}, radius{hexagonGame.getRadius()};
+		int movement{hexagonGame.getInputMovement()};
 		if(hexagonGame.getInputFocused()) currentSpeed = focusSpeed;
-		movement = hexagonGame.getInputMovement();
-
 		angle += currentSpeed * movement * mFrameTime;
 
-		float radius{hexagonGame.getRadius()};
 		Vector2f tempPos{getOrbit(startPos, angle, radius)};
 		Vector2f pLeftCheck{getOrbit(tempPos, angle - 90, 0.01f)};
 		Vector2f pRightCheck{getOrbit(tempPos, angle + 90, 0.01f)};

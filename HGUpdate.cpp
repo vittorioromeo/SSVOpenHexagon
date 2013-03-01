@@ -1,15 +1,3 @@
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <SFML/Audio.hpp>
-#include <SSVStart.h>
-#include "Components/CPlayer.h"
-#include "Components/CWall.h"
-#include "Data/StyleData.h"
-#include "Global/Assets.h"
-#include "Global/Config.h"
-#include "Global/Factory.h"
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 

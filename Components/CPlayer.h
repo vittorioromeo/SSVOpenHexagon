@@ -2,18 +2,17 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef CPLAYER_H_
-#define CPLAYER_H_
+#ifndef HG_CPLAYER
+#define HG_CPLAYER
 
 #include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
 #include <SSVEntitySystem.h>
 #include "Global/Config.h"
-#include "HexagonGame.h"
 
 namespace hg
 {
+	class HexagonGame;
+
 	class CPlayer : public sses::Component
 	{
 		private:
@@ -32,4 +31,5 @@ namespace hg
 			void draw() override;
 	};
 }
-#endif /* CPLAYER_H_ */
+
+#endif

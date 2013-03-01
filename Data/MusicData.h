@@ -2,8 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef MUSICDATA_H_
-#define MUSICDATA_H_
+#ifndef HG_MUSICDATA
+#define HG_MUSICDATA
 
 #include <SFML/Audio.hpp>
 #include <string>
@@ -41,4 +41,4 @@ namespace hg
 	};
 }
 
-#endif // MUSICDATA_H_
+#endif

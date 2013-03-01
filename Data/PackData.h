@@ -1,5 +1,5 @@
-#ifndef PACKDATA_H
-#define PACKDATA_H
+#ifndef HG_PACKDATA
+#define HG_PACKDATA
 
 #include <string>
 #include <json/json.h>
@@ -20,4 +20,4 @@ namespace hg
 	};
 }
 
-#endif // PACKDATA_H
+#endif

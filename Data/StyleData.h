@@ -2,8 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef STYLEDATA_H_
-#define STYLEDATA_H_
+#ifndef HG_STYLEDATA
+#define HG_STYLEDATA
 
 #include <json/json.h>
 #include <SFML/Graphics.hpp>
@@ -48,4 +48,4 @@ namespace hg
 	};
 }
 
-#endif // STYLEDATA_H_
+#endif

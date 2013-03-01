@@ -2,20 +2,17 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef HEXAGONGAME_H_
-#define HEXAGONGAME_H_
+#ifndef HG_HEXAGONGAME
+#define HG_HEXAGONGAME
 
 #include <map>
 #include <vector>
 #include <queue>
-#include <iostream>
-#include <fstream>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 #include <json/json.h>
-#include <json/reader.h>
 #include <SSVStart.h>
 #include <SSVEntitySystem.h>
 #include "HGStatus.h"
@@ -23,8 +20,8 @@
 #include "Data/MusicData.h"
 #include "Data/EventData.h"
 #include "Data/StyleData.h"
+#include "Global/Config.h"
 #include "Global/Factory.h"
-#include "Utils/Utils.h"
 #pragma GCC system_header
 #include <SSVLuaWrapper.h>
 
@@ -138,11 +135,11 @@ namespace hg
 			float getSpeedMultiplier();
 			float getDelayMultiplier();
 			float getRotationSpeed();
-			int getSides();
+			unsigned int getSides();
 			void setSpeedMultiplier(float mSpeedMultiplier);
 			void setDelayMultiplier(float mDelayMultiplier);
 			void setRotationSpeed(float mRotationSpeed);
-			void setSides(int mSides);
+			void setSides(unsigned int mSides);
 			float getWallSkewLeft();
 			float getWallSkewRight();
 			float getWallAngleLeft();
@@ -155,4 +152,4 @@ namespace hg
 			int getInputMovement();
 	};
 }
-#endif /* HEXAGONGAME_H_ */
+#endif
