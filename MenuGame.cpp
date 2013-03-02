@@ -257,7 +257,6 @@ namespace hg
 		if(state == StateType::PROFILE_CREATION || state == StateType::PROFILE_SELECTION) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
-
 		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);
 		render(mText);
 	}

@@ -3,9 +3,13 @@
 	"name" : "dgsgdgsdg",
 	"scores" : 
 	{
-		"Packs/VeeDefault/extra_m_1" : null,
+		"Packs/VeeDefault/easy_m_1" : null,
+		"Packs/VeeDefault/extra_m_1" : 3.831082105636597,
 		"Packs/VeeDefault/goldenratio_m_1" : null,
-		"Packs/VeeDefault/pi_m_1" : 0.01939000003039837,
+		"Packs/VeeDefault/hard_m_1" : null,
+		"Packs/VeeDefault/lunatic_m_1" : 12.70757484436035,
+		"Packs/VeeDefault/normal_m_1" : null,
+		"Packs/VeeDefault/pi_m_1" : 19.06370544433594,
 		"Packs/VeeDefault/tutorial_m_1" : null,
 		"Packs/VeeEndurance/commando_m_1" : null
 	},
