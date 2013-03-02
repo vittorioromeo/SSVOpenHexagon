@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.6 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.7 #
 ## [vee software](http://veegamedev.wordpress.com/) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
@@ -90,6 +90,19 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.7
+
+* Added: **3D effects** (can be customized in style JSON files) (can be enabled/disabled/tuned in config.json file)
+* Added: **antialiasing**
+* Added: new default level, **PI**
+* Added: invincibility JSON config variable for debugging
+* Added: **camera shake effect** on death
+* Added: **new main menu**
+* Fixed: "renderTexture is too big" bug
+* Fixed: spinning bug in Aperoigon
+* Fixed: unable to use '0' character in profile names
+* Fixed: a lot of minor bugs and a game crash
 
 Version 1.6
 

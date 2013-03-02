@@ -81,6 +81,9 @@ Gets the automatic difficulty variant multiplier.
 `isKeyPressed(mKey)` </br>
 Returns true if mKey is pressed. 0=A, 1=B, 3=C... (refer to [http://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php](http://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php))
 
+`isFastSpinning()` </br>
+Returns true if the game is currently doing a "fast spin".
+
 ----------
 
 ## Hardcoded level LUA functions ##
