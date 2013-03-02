@@ -1,0 +1,20 @@
+{
+	// Music data id
+	"id": "callMeKatla",
+
+	// Music file
+	"file_name": "callMeKatla.ogg",
+
+	// Music information
+	"name": "Call me Katla, baby",
+	"album": "",
+	"author": "Dunderpatrullen VS. BOSSFIGHT",
+	
+	// Segments
+	"segments":
+	[
+		{ "time": 22 },
+		{ "time": 72 },
+		{ "time": 140 }
+	]
+}

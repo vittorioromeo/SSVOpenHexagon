@@ -1,0 +1,48 @@
+{
+	// Level information
+	"id": "pi",
+	"name": "3.141592653589793238462643383279502884197169399375105820974944592307816406286",
+	"description": "do you like pi?",
+	"author": "vee",	
+	"menu_priority": 75,
+	"selectable": true,
+	
+	// Style
+	"style_id": "pistyle",
+	
+	// Music
+	"music_id": "callMeKatla",
+	
+	// Lua
+	"lua_file": "defaultLevels/pipatterns.lua",
+	
+	// Difficulty multipliers
+	"difficulty_multipliers": [1.25, 1.50, 0.75, 0.5, 0.25],
+	
+	// Basic values
+	"speed_multiplier": 3.40,
+	"speed_increment": 0.10,
+	"rotation_speed": 0.25,
+	"rotation_increment": 0.04,
+	"delay_multiplier": 1.00,
+	"delay_increment": -0.01,
+	"fast_spin": 85.00,
+	"sides": 24,
+	"sides_min": 20,
+	"sides_max": 28,
+	"increment_time": 15,
+	"rotation_speed_max": 0.4,
+
+	// Pulse
+	"pulse_min": 68,
+	"pulse_max": 80,
+	"pulse_speed": 3.61,
+	"pulse_speed_r": 1.44,
+	"pulse_delay_max": 6.9,
+	
+	"beatpulse_max": 15,
+	"beatpulse_delay_max": 21.8,
+	
+	//Events
+	"events": []
+}
