@@ -103,6 +103,7 @@ Version 1.7
 * Fixed: spinning bug in Aperoigon
 * Fixed: unable to use '0' character in profile names
 * Fixed: a lot of minor bugs and a game crash
+* Changed: custom sounds now require extension to play via LUA/JSON scripts (previous levels will need to be updated!)
 
 Version 1.6
 
