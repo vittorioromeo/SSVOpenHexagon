@@ -22,7 +22,8 @@ namespace hg
 			float hue{0}, angle{0}, size{getPlayerSize()}, speed{getPlayerSpeed()}, focusSpeed{getPlayerFocusSpeed()};
 			bool dead{false};
 
-			void drawPivot();			
+			void drawPivot();
+			void drawDeathEffect();
 
 		public:		
 			CPlayer(HexagonGame& mHexagonGame, sf::Vector2f mStartPos);

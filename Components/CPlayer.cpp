@@ -19,6 +19,7 @@ namespace hg
 	void CPlayer::draw()
 	{
 		drawPivot();
+		if(dead && !hexagonGame.getStatus().drawing3D) drawDeathEffect();
 
 		Color colorMain{!dead || hexagonGame.getStatus().drawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f)};
 
@@ -37,27 +38,16 @@ namespace hg
 	{
 		float thickness{5}, div{360.f / hexagonGame.getSides()}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
-		Vector2f pivotPos{startPos};
-
-		if(dead && !hexagonGame.getStatus().drawing3D)
-		{
-			pivotPos = pos;			
-			colorMain = getColorFromHue((360 - hue) / 255.0f);
-			if(hue++ > 360) hue = 0;
-			radius = hue / 8;
-			thickness = hue / 20;
-		}
-
 		VertexArray vertices2{PrimitiveType::Quads, 4}, vertices3{PrimitiveType::Triangles, 3};
 
 		for(unsigned int i{0}; i < hexagonGame.getSides(); ++i)
 		{
 			float angle{div * i};
 
-			Vector2f p1{getOrbit(pivotPos, angle - div * 0.5f, radius)};
-			Vector2f p2{getOrbit(pivotPos, angle + div * 0.5f, radius)};
-			Vector2f p3{getOrbit(pivotPos, angle + div * 0.5f, radius + thickness)};
-			Vector2f p4{getOrbit(pivotPos, angle - div * 0.5f, radius + thickness)};
+			Vector2f p1{getOrbit(startPos, angle - div * 0.5f, radius)};
+			Vector2f p2{getOrbit(startPos, angle + div * 0.5f, radius)};
+			Vector2f p3{getOrbit(startPos, angle + div * 0.5f, radius + thickness)};
+			Vector2f p4{getOrbit(startPos, angle - div * 0.5f, radius + thickness)};
 			
 			vertices2.append({p1, colorMain});
 			vertices2.append({p2, colorMain});
@@ -66,11 +56,35 @@ namespace hg
 
 			vertices3.append({p1, colorB});
 			vertices3.append({p2, colorB});
-			vertices3.append({pivotPos, colorB});
+			vertices3.append({startPos, colorB});
 		}
 		
-		if(!dead && !hexagonGame.getStatus().drawing3D) hexagonGame.render(vertices3);
+		if(!hexagonGame.getStatus().drawing3D) hexagonGame.render(vertices3);
 		hexagonGame.render(vertices2);
+	}
+	void CPlayer::drawDeathEffect()
+	{
+		float div{360.f / hexagonGame.getSides()}, radius{hue / 8}, thickness{hue / 20};
+		Color colorMain{getColorFromHue((360 - hue) / 255.0f)};
+		VertexArray verticesDeath{PrimitiveType::Quads, 4};
+		if(hue++ > 360) hue = 0;
+
+		for(unsigned int i{0}; i < hexagonGame.getSides(); ++i)
+		{
+			float angle{div * i};
+
+			Vector2f p1{getOrbit(pos, angle - div * 0.5f, radius)};
+			Vector2f p2{getOrbit(pos, angle + div * 0.5f, radius)};
+			Vector2f p3{getOrbit(pos, angle + div * 0.5f, radius + thickness)};
+			Vector2f p4{getOrbit(pos, angle - div * 0.5f, radius + thickness)};
+
+			verticesDeath.append({p1, colorMain});
+			verticesDeath.append({p2, colorMain});
+			verticesDeath.append({p3, colorMain});
+			verticesDeath.append({p4, colorMain});
+		}
+
+		hexagonGame.render(verticesDeath);
 	}
 
 	void CPlayer::update(float mFrameTime)
