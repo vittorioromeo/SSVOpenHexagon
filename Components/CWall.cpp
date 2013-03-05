@@ -47,7 +47,7 @@ namespace hg
 			int distanceX{abs(vertexPosition.x - centerPos.x)}, distanceY{abs(vertexPosition.y - centerPos.y)};
 
 			if(distanceX < radius && distanceY < radius) pointsOnCenter++;
-			else movePointTowardsCenter(vertexPosition, centerPos, speed * mFrameTime);
+			else movePointTowardsCenter(vertexPosition, centerPos, speed * 5 * mFrameTime);
 		}
 
 		if(pointsOnCenter > 3) getEntity().destroy();

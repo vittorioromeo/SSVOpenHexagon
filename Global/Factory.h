@@ -22,7 +22,7 @@ namespace hg
 		public:
 			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, sf::Vector2f mCenterPos);
 
-			sses::Entity& createWall(int mSide, float mThickness, float mSpeed, float mSpeedMultiplier);
+			sses::Entity& createWall(int mSide, float mThickness, float mSpeedMultiplier);
 			sses::Entity& createPlayer();
 	};
 }
