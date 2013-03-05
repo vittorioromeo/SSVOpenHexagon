@@ -59,17 +59,17 @@ namespace hg
 
 		// Options menu
 		Category& options(optionsMenu.createCategory("options"));
-		options.createItem<Items::Toggle>("screen rotation", [&]{ return !getNoRotation(); }, [&]{ setNoRotation(false); }, [&]{ setNoRotation(true); });
-		options.createItem<Items::Toggle>("display background", [&]{ return !getNoBackground(); }, [&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
-		options.createItem<Items::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, [&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
-		options.createItem<Items::Toggle>("sounds", [&]{ return !getNoSound(); }, [&]{ setNoSound(false); }, [&]{ setNoSound(true); });
-		options.createItem<Items::Toggle>("music", [&]{ return !getNoMusic(); }, [&]{ setNoMusic(false); }, [&]{ setNoMusic(true); });
-		options.createItem<Items::Toggle>("3D effect", [&]{ return get3D(); }, [&]{ set3D(true); }, [&]{ set3D(false); });
-		options.createItem<Items::Toggle>("pulse effect", [&]{ return getPulse(); }, [&]{ setPulse(true); }, [&]{ setPulse(false); });
-		options.createItem<Items::Toggle>("invincibility", [&]{ return getInvincible(); }, [&]{ setInvincible(true); }, [&]{ setInvincible(false); });
-		options.createItem<Items::Single>("go windowed", [&]{ setFullscreen(window, false); });
-		options.createItem<Items::Single>("go fullscreen", [&]{ setFullscreen(window, true); });
-		options.createItem<Items::Single>("back", [&]{ state = StateType::LEVEL_SELECTION; });
+		options.createItem<Items::Toggle>("screen rotation", 	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
+		options.createItem<Items::Toggle>("display background", [&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
+		options.createItem<Items::Toggle>("b&w colors", 		[&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
+		options.createItem<Items::Toggle>("sounds", 			[&]{ return !getNoSound(); }, 		[&]{ setNoSound(false); }, 		[&]{ setNoSound(true); });
+		options.createItem<Items::Toggle>("music", 				[&]{ return !getNoMusic(); }, 		[&]{ setNoMusic(false); }, 		[&]{ setNoMusic(true); });
+		options.createItem<Items::Toggle>("3D effect",			[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
+		options.createItem<Items::Toggle>("pulse effect", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
+		options.createItem<Items::Toggle>("invincibility",		[&]{ return getInvincible(); },		[&]{ setInvincible(true); }, 	[&]{ setInvincible(false); });
+		options.createItem<Items::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
+		options.createItem<Items::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
+		options.createItem<Items::Single>("back", 			[&]{ state = StateType::LEVEL_SELECTION; });
 	}
 
 	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
@@ -301,10 +301,9 @@ namespace hg
 		string packName{packData.getName()}, packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
 
 		renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 0});
-		renderText("pulse: " + (getPulse() ? toStr("enabled") : toStr("disabled")), cProfText, {20, 20});
-		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 40});
-		renderText("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 60});
-		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 80});
+		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 20});
+		renderText("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 40});
+		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60});
 		renderText(levelData.getName(), levelName, {20, 50 + 120});
 		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});
 		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500});
