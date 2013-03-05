@@ -20,7 +20,7 @@
 	// Graphical options
 	"no_rotation": false,
 	"no_background": false,
-	"black_and_white": false,
+	"black_and_white": true,
 	"pulse_enabled": true,
 	"beatpulse_enabled": true,
 	"3D_enabled": true,

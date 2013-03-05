@@ -14,8 +14,9 @@ namespace hg
 	float HexagonGame::getRadius() 									{ return status.radius; }
 	Color HexagonGame::getColorMain()
 	{
-		if(status.drawing3D) return status.overrideColor;
-		return getBlackAndWhite() ? Color::White : styleData.getMainColor();
+		if(getBlackAndWhite()) return Color::White;
+		else if(status.drawing3D) return status.overrideColor;
+		else return styleData.getMainColor();
 	}
 	Color HexagonGame::getColor(int mIndex)							{ return styleData.getColors()[mIndex]; }
 

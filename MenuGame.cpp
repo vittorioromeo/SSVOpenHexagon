@@ -128,36 +128,10 @@ namespace hg
 
 			if(inputDelay <= 0)
 			{
-				if(window.isKeyPressed(Keyboard::Left))
-				{
-					playSound("beep.ogg");
-					profileIndex--;
-					
-					inputDelay = 14;
-				}
-				else if(window.isKeyPressed(Keyboard::Right))
-				{
-					playSound("beep.ogg");
-					profileIndex++;
-
-					inputDelay = 14;
-				}
-				else if(window.isKeyPressed(Keyboard::Return))
-				{
-					playSound("beep.ogg");
-					setCurrentProfile(profileCreationName);
-					state = StateType::LEVEL_SELECTION;
-
-					inputDelay = 30;
-				}
-				else if(window.isKeyPressed(Keyboard::F1))
-				{
-					playSound("beep.ogg");
-					profileCreationName = "";
-					state = StateType::PROFILE_CREATION;
-
-					inputDelay = 14;
-				}
+				if(window.isKeyPressed(Keyboard::Left)) { playSound("beep.ogg"); profileIndex--; inputDelay = 14; }
+				else if(window.isKeyPressed(Keyboard::Right)) { playSound("beep.ogg"); profileIndex++; inputDelay = 14; }
+				else if(window.isKeyPressed(Keyboard::Return)) { playSound("beep.ogg"); setCurrentProfile(profileCreationName); state = StateType::LEVEL_SELECTION; inputDelay = 30; }
+				else if(window.isKeyPressed(Keyboard::F1)) { playSound("beep.ogg"); profileCreationName = ""; state = StateType::PROFILE_CREATION; inputDelay = 14; }
 			}
 		}
 		else if(state == StateType::LEVEL_SELECTION)
@@ -168,32 +142,10 @@ namespace hg
 
 			if(inputDelay <= 0)
 			{
-				if(window.isKeyPressed(Keyboard::Right))
-				{
-					playSound("beep.ogg");
-					setIndex(currentIndex + 1);
-
-					inputDelay = 14;
-				}
-				else if(window.isKeyPressed(Keyboard::Left))
-				{
-					playSound("beep.ogg");
-					setIndex(currentIndex - 1);
-
-					inputDelay = 14;
-				}
-				else if(window.isKeyPressed(Keyboard::Up))
-				{
-					playSound("beep.ogg");
-					difficultyMultIndex++;
-					inputDelay = 12;
-				}
-				else if(window.isKeyPressed(Keyboard::Down))
-				{
-					playSound("beep.ogg");
-					difficultyMultIndex--;
-					inputDelay = 12;
-				}
+				if(window.isKeyPressed(Keyboard::Right)) { playSound("beep.ogg"); setIndex(currentIndex + 1); inputDelay = 14; }
+				else if(window.isKeyPressed(Keyboard::Left)){ playSound("beep.ogg"); setIndex(currentIndex - 1); inputDelay = 14; }
+				else if(window.isKeyPressed(Keyboard::Up)) { playSound("beep.ogg"); difficultyMultIndex++; inputDelay = 12; }
+				else if(window.isKeyPressed(Keyboard::Down)) { playSound("beep.ogg"); difficultyMultIndex--; inputDelay = 12; }
 				else if(window.isKeyPressed(Keyboard::Return))
 				{
 					playSound("beep.ogg");
@@ -210,13 +162,7 @@ namespace hg
 
 					inputDelay = 14;
 				}
-				else if(window.isKeyPressed(Keyboard::F3) || window.isKeyPressed(Keyboard::K))
-				{
-					playSound("beep.ogg");
-					state = StateType::OPTIONS;
-
-					inputDelay = 14;
-				}
+				else if(window.isKeyPressed(Keyboard::F3) || window.isKeyPressed(Keyboard::K)) { playSound("beep.ogg"); state = StateType::OPTIONS; inputDelay = 14; }
 				else if(window.isKeyPressed(Keyboard::F4) || window.isKeyPressed(Keyboard::L))
 				{
 					playSound("beep.ogg");
@@ -251,43 +197,20 @@ namespace hg
 			backgroundCamera.apply();
 			styleData.drawBackground(window.getRenderWindow(), Vector2f{0,0}, 6);
 
-			overlayCamera.apply();
-			drawLevelSelection();
-			render(bottomBar);
+			overlayCamera.apply(); drawLevelSelection(); render(bottomBar);
 		}
-		else if(state == StateType::PROFILE_CREATION)
-		{
-			window.clear(Color::Black);
+		else if(state == StateType::PROFILE_CREATION) { window.clear(Color::Black); overlayCamera.apply(); drawProfileCreation(); }
+		else if(state == StateType::PROFILE_SELECTION) { window.clear(Color::Black); overlayCamera.apply(); drawProfileSelection(); }
+		else if(state == StateType::OPTIONS) { window.clear(Color::Black); overlayCamera.apply(); drawOptions(); }
 
-			overlayCamera.apply();
-			drawProfileCreation();
-		}
-		else if(state == StateType::PROFILE_SELECTION)
-		{
-			window.clear(Color::Black);
-
-			overlayCamera.apply();
-			drawProfileSelection();
-		}
-		else if(state == StateType::OPTIONS)
-		{
-			window.clear(Color::Black);
-
-			overlayCamera.apply();
-			drawOptions();
-		}
-
-		overlayCamera.apply();
-		render(titleBar);
-		render(creditsBar1);
-		render(creditsBar2); 
+		overlayCamera.apply(); render(titleBar); render(creditsBar1); render(creditsBar2); 
 	}
 
 	void MenuGame::renderText(const string& mString, Text& mText, sf::Vector2f mPosition)
 	{
 		mText.setString(mString);
 
-		if(state != StateType::LEVEL_SELECTION) mText.setColor(Color::White);
+		if(state != StateType::LEVEL_SELECTION || getBlackAndWhite()) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
 		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);
@@ -312,19 +235,19 @@ namespace hg
 	}
 	void MenuGame::drawProfileCreation()
 	{
-		renderText("profile creation", cProfText, {20, 768 - 395});
-		renderText("insert profile name", cProfText, {20, 768 - 375});
-		renderText("press enter when done", cProfText, {20, 768 - 335});
-		renderText("keep esc pressed to exit", cProfText, {20, 768 - 315});
-		renderText(profileCreationName, levelName, {20, 768 - 245 - 40});
+		renderText("profile creation", cProfText, 						{20, 768 - 395});
+		renderText("insert profile name", cProfText, 					{20, 768 - 375});
+		renderText("press enter when done", cProfText, 					{20, 768 - 335});
+		renderText("keep esc pressed to exit", cProfText, 				{20, 768 - 315});
+		renderText(profileCreationName, levelName, 						{20, 768 - 245 - 40});
 	}
 	void MenuGame::drawProfileSelection()
 	{
-		renderText("profile selection", cProfText, {20, 768 - 395});
-		renderText("press left/right to browse profiles", cProfText, {20, 768 - 375});
-		renderText("press enter to select profile", cProfText, {20, 768 - 355});
-		renderText("press f1 to create a new profile", cProfText, {20, 768 - 335});
-		renderText(profileCreationName, levelName, {20, 768 - 245 - 40});
+		renderText("profile selection", cProfText, 						{20, 768 - 395});
+		renderText("press left/right to browse profiles", cProfText, 	{20, 768 - 375});
+		renderText("press enter to select profile", cProfText, 			{20, 768 - 355});
+		renderText("press f1 to create a new profile", cProfText, 		{20, 768 - 335});
+		renderText(profileCreationName, levelName, 						{20, 768 - 245 - 40});
 	}
 	void MenuGame::drawOptions()
 	{
