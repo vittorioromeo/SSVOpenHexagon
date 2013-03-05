@@ -60,7 +60,7 @@ namespace hg
 	void saveConfig()
 	{
 		// Seems like JSONcpp doesn't have a way to change a single value in an existing file - I'll just
-		// replace the pulse effect option manually for now
+		// replace the options manually for now
 
 		if(getDebug()) return;
 		fstream f; f.open("config.json"); stringstream buffer; buffer << f.rdbuf(); f.close();

@@ -10,3 +10,6 @@
 [submodule "Unix"]
 	path = Unix
 	url = https://github.com/flibitijibibo/OpenHexagon-Unix
+[submodule "SSVMenuSystem"]
+	path = SSVMenuSystem
+	url = https://github.com/SuperV1234/SSVMenuSystem.git
