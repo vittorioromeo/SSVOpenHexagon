@@ -27,9 +27,6 @@
 
 namespace hg
 {
-	constexpr float baseSpeed{5};
-	constexpr float baseThickness{40};
-
 	class MenuGame;
 
 	class HexagonGame
