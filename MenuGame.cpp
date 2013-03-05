@@ -257,7 +257,7 @@ namespace hg
 		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
 		{
 			string name, itemName{currentItems[i]->getName()};
-			if(i == optionsMenu.getCurrentItemsIndex()) name.append(">> ");
+			if(i == optionsMenu.getCurrentIndex()) name.append(">> ");
 			name.append(itemName);
 
 			int extraSpacing{0};
