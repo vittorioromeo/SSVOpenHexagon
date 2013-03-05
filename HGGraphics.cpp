@@ -51,6 +51,8 @@ namespace hg
 
 		vector<Vector2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
+		Color offsetColor{getColor(1)};
+		if(getBlackAndWhite()) offsetColor = Color::Black;
 		Text timeText(s.str(), getFont("imagine.ttf"), 25 / getZoomFactor());
 		timeText.setPosition(15, 3);
 		timeText.setColor(getColorMain());
@@ -59,7 +61,7 @@ namespace hg
 		{
 			Text timeOffsetText(s.str(), getFont("imagine.ttf"), timeText.getCharacterSize());
 			timeOffsetText.setPosition(timeText.getPosition() + offset);
-			timeOffsetText.setColor(getColor(1));
+			timeOffsetText.setColor(offsetColor);
 			render(timeOffsetText);
 		}
 
@@ -72,7 +74,7 @@ namespace hg
 			Text textPtrOffset{messageTextPtr->getString(), getFont("imagine.ttf"), messageTextPtr->getCharacterSize()};
 			textPtrOffset.setPosition(messageTextPtr->getPosition() + offset);
 			textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
-			textPtrOffset.setColor(getColor(1));
+			textPtrOffset.setColor(offsetColor);
 			render(textPtrOffset);
 		}
 
