@@ -56,6 +56,7 @@ namespace hg
 			float get3DPulseMax();
 			float get3DPulseMin();
 			float get3DPulseSpeed();
+			float get3DPerspectiveMultiplier();
 	};
 }
 

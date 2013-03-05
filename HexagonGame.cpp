@@ -90,6 +90,12 @@ namespace hg
 		// Reset zoom
 		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())});
 		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
+		
+		// 3D Cameras cleanup
+		depthCameras.clear();
+		unsigned int depth{styleData.get3DDepth()};
+		if(depth > get3DMaxDepth()) depth = get3DMaxDepth();
+		for(unsigned int i{0}; i < depth; ++i) depthCameras.push_back({window, {}});
 	}
 	void HexagonGame::death()
 	{
@@ -180,11 +186,6 @@ namespace hg
 		styleData = getStyleData(levelData.getStyleId());
 		musicData = getMusicData(levelData.getMusicId());
 		musicData.setFirstPlay(mMusicFirstPlay);
-
-		depthCameras.clear();
-		unsigned int depth{styleData.get3DDepth()};
-		if(depth > get3DMaxDepth()) depth = get3DMaxDepth();
-		for(unsigned int i{0}; i < depth; ++i) depthCameras.push_back({window, {}});
 	}
 
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
