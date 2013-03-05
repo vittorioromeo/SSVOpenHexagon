@@ -16,7 +16,14 @@ namespace hg
 	void recalculateSizes();
 	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
+	void setNoRotation(bool mNoRotation);		
+	void setNoBackground(bool mNoBackground);
+	void setBlackAndWhite(bool mBlackAndWhite);
+	void setNoSound(bool mNoSound);
+	void setNoMusic(bool mNoMusic);
 	void setPulse(bool mPulse);
+	void set3D(bool m3D);
+	void setInvincible(bool mInvincible);
 
 	float getSizeX();
 	float getSizeY();

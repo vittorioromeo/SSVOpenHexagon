@@ -13,6 +13,7 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace sses;
+using namespace ssvms;
 
 namespace hg
 {
@@ -55,6 +56,20 @@ namespace hg
 			setCurrentProfile(getFirstProfileName());
 			state = StateType::LEVEL_SELECTION;
 		}
+
+		// Options menu
+		Category& options(optionsMenu.createCategory("options"));
+		options.createItem<Items::Toggle>("screen rotation", [&]{ return !getNoRotation(); }, [&]{ setNoRotation(false); }, [&]{ setNoRotation(true); });
+		options.createItem<Items::Toggle>("display background", [&]{ return !getNoBackground(); }, [&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
+		options.createItem<Items::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, [&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
+		options.createItem<Items::Toggle>("sounds", [&]{ return !getNoSound(); }, [&]{ setNoSound(false); }, [&]{ setNoSound(true); });
+		options.createItem<Items::Toggle>("music", [&]{ return !getNoMusic(); }, [&]{ setNoMusic(false); }, [&]{ setNoMusic(true); });
+		options.createItem<Items::Toggle>("3D effect", [&]{ return get3D(); }, [&]{ set3D(true); }, [&]{ set3D(false); });
+		options.createItem<Items::Toggle>("pulse effect", [&]{ return getPulse(); }, [&]{ setPulse(true); }, [&]{ setPulse(false); });
+		options.createItem<Items::Toggle>("invincibility", [&]{ return getInvincible(); }, [&]{ setInvincible(true); }, [&]{ setInvincible(false); });
+		options.createItem<Items::Single>("go windowed", [&]{ setFullscreen(window, false); });
+		options.createItem<Items::Single>("go fullscreen", [&]{ setFullscreen(window, true); });
+		options.createItem<Items::Single>("back", [&]{ state = StateType::LEVEL_SELECTION; });
 	}
 
 	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
@@ -198,7 +213,7 @@ namespace hg
 				else if(window.isKeyPressed(Keyboard::F3) || window.isKeyPressed(Keyboard::K))
 				{
 					playSound("beep.ogg");
-					setPulse(!getPulse());
+					state = StateType::OPTIONS;
 
 					inputDelay = 14;
 				}
@@ -212,6 +227,17 @@ namespace hg
 
 					inputDelay = 14;
 				}
+			}
+		}
+		else if(state == StateType::OPTIONS)
+		{
+			if(inputDelay <= 0)
+			{
+				if(window.isKeyPressed(Keyboard::Left)) { playSound("beep.ogg"); optionsMenu.decreaseCurrentItem(); inputDelay = 14; }
+				else if(window.isKeyPressed(Keyboard::Right)) { playSound("beep.ogg"); optionsMenu.increaseCurrentItem(); inputDelay = 14; }
+				else if(window.isKeyPressed(Keyboard::Up)) { playSound("beep.ogg"); optionsMenu.selectPreviousItem(); inputDelay = 14; }
+				else if(window.isKeyPressed(Keyboard::Down)) { playSound("beep.ogg"); optionsMenu.selectNextItem(); inputDelay = 14; }
+				else if(window.isKeyPressed(Keyboard::Return)) { playSound("beep.ogg"); optionsMenu.executeCurrentItem(); inputDelay = 14; }
 			}
 		}
 	}
@@ -243,6 +269,13 @@ namespace hg
 			overlayCamera.apply();
 			drawProfileSelection();
 		}
+		else if(state == StateType::OPTIONS)
+		{
+			window.clear(Color::Black);
+
+			overlayCamera.apply();
+			drawOptions();
+		}
 
 		overlayCamera.apply();
 		render(titleBar);
@@ -254,7 +287,7 @@ namespace hg
 	{
 		mText.setString(mString);
 
-		if(state == StateType::PROFILE_CREATION || state == StateType::PROFILE_SELECTION) mText.setColor(Color::White);
+		if(state != StateType::LEVEL_SELECTION) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
 		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);
@@ -293,6 +326,22 @@ namespace hg
 		renderText("press enter to select profile", cProfText, {20, 768 - 355});
 		renderText("press f1 to create a new profile", cProfText, {20, 768 - 335});
 		renderText(profileCreationName, levelName, {20, 768 - 245 - 40});
+	}
+	void MenuGame::drawOptions()
+	{
+		renderText(optionsMenu.getCurrentCategory().getName(), levelDesc, {20, 20});
+
+		vector<ItemBase*>& currentItems(optionsMenu.getCurrentItems());
+		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
+		{
+			string name, itemName{currentItems[i]->getName()};
+			if(i == optionsMenu.getCurrentItemsIndex()) name.append(">> ");
+			name.append(itemName);
+
+			int extraSpacing{0};
+			if(itemName == "back") extraSpacing = 20;
+			renderText(name, cProfText, {20, 60.f + i * 20 + extraSpacing});
+		}
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }

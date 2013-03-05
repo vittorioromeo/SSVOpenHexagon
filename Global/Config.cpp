@@ -62,11 +62,19 @@ namespace hg
 		// Seems like JSONcpp doesn't have a way to change a single value in an existing file - I'll just
 		// replace the pulse effect option manually for now
 
+		if(getDebug()) return;
 		fstream f; f.open("config.json"); stringstream buffer; buffer << f.rdbuf(); f.close();
 
 		string original{buffer.str()};
-		if(getPulse()) original = replace(original, R"("pulse_enabled": false,)", R"("pulse_enabled": true,)");
-		else original = replace(original, R"("pulse_enabled": true,)", R"("pulse_enabled": false,)");
+
+		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible"};
+		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible()};
+
+		for(unsigned int i{0}; i < elements.size(); ++i)
+		{
+			string element{"\"" + elements[i] + "\""};
+			original = predicates[i] ? replace(original, element + ": false", element + ": true") : replace(original, element + ": true", element + ": false");
+		}
 
 		f.open("config.json", fstream::out | fstream::trunc); f << original; f.flush(); f.close();
 	}
@@ -93,7 +101,14 @@ namespace hg
 		mWindow.setFullscreen(getFullscreen());
 	}
 
-	void setPulse(bool mPulse) 			{ root["pulse_enabled"] = mPulse; }
+	void setNoRotation(bool mNoRotation)		{ root["no_rotation"] = mNoRotation; }
+	void setNoBackground(bool mNoBackground)	{ root["no_background"] = mNoBackground; }
+	void setBlackAndWhite(bool mBlackAndWhite)	{ root["black_and_white"] = mBlackAndWhite; }
+	void setNoSound(bool mNoSound)				{ root["no_sound"] = mNoSound; }
+	void setNoMusic(bool mNoMusic)				{ root["no_music"] = mNoMusic; }
+	void setPulse(bool mPulse) 					{ root["pulse_enabled"] = mPulse; }
+	void set3D(bool m3D)						{ root["3D_enabled"] = m3D; }
+	void setInvincible(bool mInvincible)		{ root["invincible"] = mInvincible; }
 
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
