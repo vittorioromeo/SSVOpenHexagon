@@ -66,15 +66,14 @@ namespace hg
 		restartId = mId;
 		restartFirstTime = false;
 		setSides(levelData.getSides());
-		backgroundCamera.setRotation(0);
 
 		// Manager cleanup
 		manager.clear();
 		factory.createPlayer();
 
 		// Timeline cleanup
-		timeline = Timeline{};
-		messageTimeline = Timeline{};
+		timeline.clear();
+		messageTimeline.clear();
 		effectTimelineManager.clear();
 
 		// LUA context cleanup
@@ -90,6 +89,7 @@ namespace hg
 		// Reset zoom
 		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())});
 		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
+		backgroundCamera.setRotation(0);
 		
 		// 3D Cameras cleanup
 		depthCameras.clear();
