@@ -3,7 +3,21 @@
 	"name" : "dfhhd",
 	"scores" : 
 	{
-		"Packs/VeeDefault/tutorial_m_1" : null
+		"Packs/VeeDefault/easy_m_1" : null,
+		"Packs/VeeDefault/extra_m_1" : null,
+		"Packs/VeeDefault/goldenratio_m_1" : null,
+		"Packs/VeeDefault/hard_m_1" : null,
+		"Packs/VeeDefault/lunatic_m_1" : 14.23665332794190,
+		"Packs/VeeDefault/normal_m_1" : null,
+		"Packs/VeeDefault/pi_m_1" : 9.274601936340332,
+		"Packs/VeeDefault/tutorial_m_1" : null,
+		"Packs/VeeEndurance/commando_m_0.25" : null,
+		"Packs/VeeEndurance/commando_m_0.5" : null,
+		"Packs/VeeEndurance/commando_m_0.75" : null,
+		"Packs/VeeEndurance/commando_m_1" : null,
+		"Packs/VeeEndurance/commando_m_1.25" : null,
+		"Packs/VeeEndurance/commando_m_1.5" : null,
+		"Packs/VeeEndurance/labyrinth_m_1" : null
 	},
 	"version" : 1.799999952316284
 }

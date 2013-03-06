@@ -73,9 +73,9 @@ namespace hg
 		options.createItem<Items::Toggle>("3D effect",			[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
 		options.createItem<Items::Toggle>("pulse effect", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
 		options.createItem<Items::Toggle>("invincibility",		[&]{ return getInvincible(); },		[&]{ setInvincible(true); }, 	[&]{ setInvincible(false); });
-		options.createItem<Items::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
-		options.createItem<Items::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
-		options.createItem<Items::Single>("back", 			[&]{ state = States::MAIN; });
+		options.createItem<Items::Single>("go windowed", 		[&]{ setFullscreen(window, false); });
+		options.createItem<Items::Single>("go fullscreen", 		[&]{ setFullscreen(window, true); });
+		options.createItem<Items::Single>("back", 				[&]{ state = States::MAIN; });
 
 		// Input
 		using k = Keyboard::Key;
@@ -131,6 +131,10 @@ namespace hg
 		game.addInput({k::F4}, [&](float) // AND L
 		{
 			playSound("beep.ogg"); if(state == States::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
+		}, InputCombo::Types::SINGLE);
+		game.addInput({k::Escape}, [&](float) // AND K
+		{
+			playSound("beep.ogg"); if(state == States::OPTIONS) { state = States::MAIN; }
 		}, InputCombo::Types::SINGLE);
 	}
 
