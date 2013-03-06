@@ -19,18 +19,11 @@ using namespace ssvs::FileSystem;
 
 namespace hg
 {
-	bool updatesChecked{false};
-	float serverVersion{-1};
 	Json::Value root{getJsonFileRoot("config.json")};
 	map<string, Json::Value> configOverridesRootMap;
 
 	float sizeX{1500}, sizeY{1500};
-	constexpr float spawnDistance{1600};
-
-	void setUpdatesChecked(bool mUpdatesChecked) { updatesChecked = mUpdatesChecked; }
-	bool getUpdatesChecked() { return updatesChecked; }
-	void setServerVersion(float mServerVersion) { serverVersion = mServerVersion; }
-	float getServerVersion() { return serverVersion; }
+	constexpr float spawnDistance{1600};	
 	
 	void loadConfig(vector<string> mOverridesIds)
 	{

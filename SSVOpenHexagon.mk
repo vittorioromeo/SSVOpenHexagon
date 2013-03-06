@@ -64,7 +64,8 @@ UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXWIN:=C:\wxWidgets-2.9.4
 WXCFG:=gcc_dll\mswu
 Objects0=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) \
-	$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) 
+	$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/Online_Online$(ObjectSuffix) \
+	
 
 Objects=$(Objects0) 
 
@@ -241,6 +242,14 @@ $(IntermediateDirectory)/Utils_Utils$(DependSuffix): Utils/Utils.cpp
 $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix): Utils/Utils.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix) "Utils/Utils.cpp"
 
+$(IntermediateDirectory)/Online_Online$(ObjectSuffix): Online/Online.cpp $(IntermediateDirectory)/Online_Online$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Online/Online.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Online_Online$(DependSuffix): Online/Online.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Online_Online$(ObjectSuffix) -MF$(IntermediateDirectory)/Online_Online$(DependSuffix) -MM "Online/Online.cpp"
+
+$(IntermediateDirectory)/Online_Online$(PreprocessSuffix): Online/Online.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix) "Online/Online.cpp"
+
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
 ##
@@ -304,6 +313,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Online_Online$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Online_Online$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "../.build-release/SSVOpenHexagon"

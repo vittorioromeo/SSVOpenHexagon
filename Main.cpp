@@ -7,42 +7,17 @@
 #include <random>
 #include <SSVStart.h>
 #include <SFML/System.hpp>
-#include <SFML/Network.hpp>
+#include "Online/Online.h"
 #include "Global/Assets.h"
 #include "Global/Config.h"
 #include "HexagonGame.h"
 #include "MenuGame.h"
-#include "Utils/Utils.h"
 
 using namespace std;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace sf;
 using namespace hg;
-
-void checkUpdates()
-{
-	Http http;
-	http.setHost("http://vittorioromeo.info");
-	Http::Request request("Misc/Linked/OHServer/OHVersion.txt");
-	Http::Response response{http.sendRequest(request)};
-	Http::Response::Status status{response.getStatus()};
-	if (status == Http::Response::Ok)
-	{
-		float serverVersion{lexicalCast<float>(response.getBody())};
-		setServerVersion(serverVersion);
-
-		if(serverVersion == getVersion()) log("No updates available", "Updates");
-		else if(serverVersion < getVersion()) log("Your version is newer than the server's (beta)", "Updates");
-		else if(serverVersion > getVersion()) log("Update available (" + toStr(serverVersion) + ")", "Updates");
-	}
-	else
-	{
-		cout << "Error " << status << endl;
-	}
-
-	setUpdatesChecked(true);
-}
 
 int main(int argc, char* argv[])
 {

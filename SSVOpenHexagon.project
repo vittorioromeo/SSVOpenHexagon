@@ -50,6 +50,10 @@
     <File Name="HGProperties.cpp"/>
     <File Name="HGGraphics.cpp"/>
     <File Name="HGStatus.h"/>
+    <VirtualDirectory Name="Online">
+      <File Name="Online/Online.cpp"/>
+      <File Name="Online/Online.h"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

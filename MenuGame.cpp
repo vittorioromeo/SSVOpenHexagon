@@ -7,6 +7,7 @@
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 #include "MenuGame.h"
+#include "Online/Online.h"
 
 using namespace std;
 using namespace sf;
@@ -35,7 +36,7 @@ namespace hg
 		creditsBar1.setOrigin({1024, 0});
 		creditsBar1.setScale({0.373f, 0.373f});
 		creditsBar1.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 20.f)));
-		
+
 		// Credits bar 2
 		getAssetManager().getTexture("creditsBar2.png").setSmooth(true);
 		creditsBar2.setOrigin({1024, 116});
@@ -54,7 +55,7 @@ namespace hg
 
 		levelDataIds = getMenuLevelDataIdsByPack(getPackPaths()[packIndex]);
 		setIndex(0);
-		
+
 		if(getProfilesSize() == 0) state = StateType::PROFILE_CREATION;
 		else if(getProfilesSize() == 1)
 		{
@@ -195,7 +196,7 @@ namespace hg
 	void MenuGame::draw()
 	{
 		window.clear(Color{0, 0, 0, 0});
-		
+
 		if(state == StateType::LEVEL_SELECTION)
 		{
 			window.clear(styleData.getColors()[0]);
@@ -223,7 +224,7 @@ namespace hg
 	}
 
 	void MenuGame::drawLevelSelection()
-	{		
+	{
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
 		string packName{packData.getName()}, packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
@@ -236,7 +237,8 @@ namespace hg
 		string serverMessage{"connecting to server..."};
 		if(getUpdatesChecked())
 		{
-			if(getServerVersion() == getVersion()) serverMessage = "";
+			if(getServerVersion() == -1) serverMessage = "error connecting to server";
+			else if(getServerVersion() == getVersion()) serverMessage = "";
 			else if(getServerVersion() < getVersion()) serverMessage = "your version is newer (beta)";
 			else if(getServerVersion() > getVersion()) serverMessage = "update available (" + toStr(getServerVersion()) + ")";
 		}
