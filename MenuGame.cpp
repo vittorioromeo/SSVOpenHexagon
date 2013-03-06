@@ -25,6 +25,11 @@ namespace hg
 		titleBar.setScale({0.5f, 0.5f});
 		titleBar.setPosition(overlayCamera.getConvertedCoords({20, 20}));
 
+		// Version text
+		versionText.setString(toStr(getVersion()));
+		versionText.setColor(Color::White);
+		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 67, titleBar.getGlobalBounds().top});
+
 		// Credits bar 1
 		getAssetManager().getTexture("creditsBar1.png").setSmooth(true);
 		creditsBar1.setOrigin({1024, 0});
@@ -203,7 +208,7 @@ namespace hg
 		else if(state == StateType::PROFILE_SELECTION) { window.clear(Color::Black); overlayCamera.apply(); drawProfileSelection(); }
 		else if(state == StateType::OPTIONS) { window.clear(Color::Black); overlayCamera.apply(); drawOptions(); }
 
-		overlayCamera.apply(); render(titleBar); render(creditsBar1); render(creditsBar2); 
+		overlayCamera.apply(); render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
 	}
 
 	void MenuGame::renderText(const string& mString, Text& mText, sf::Vector2f mPosition)
@@ -227,6 +232,16 @@ namespace hg
 		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 20});
 		renderText("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 40});
 		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60});
+
+		string serverMessage{"connecting to server..."};
+		if(getUpdatesChecked())
+		{
+			if(getServerVersion() == getVersion()) serverMessage = "";
+			else if(getServerVersion() < getVersion()) serverMessage = "your version is newer (beta)";
+			else if(getServerVersion() > getVersion()) serverMessage = "update available (" + toStr(getServerVersion()) + ")";
+		}
+		renderText(serverMessage, cProfText, {20, 80});
+
 		renderText(levelData.getName(), levelName, {20, 50 + 120});
 		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});
 		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500});

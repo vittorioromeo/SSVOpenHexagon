@@ -10,6 +10,11 @@
 
 namespace hg
 {
+	void setUpdatesChecked(bool mUpdatesChecked);
+	bool getUpdatesChecked();
+	void setServerVersion(float mServerVersion);
+	float getServerVersion();
+
 	void loadConfig(std::vector<std::string> mOverridesIds);
 	void saveConfig();
 

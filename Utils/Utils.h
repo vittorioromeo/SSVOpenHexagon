@@ -6,6 +6,7 @@
 #define HG_UTILS
 
 #include <string>
+#include <sstream>
 #include <json/json.h>
 #include <json/reader.h>
 #include <SFML/Graphics.hpp>
@@ -17,6 +18,8 @@
 
 namespace hg
 {
+	template<typename TResult, typename T> TResult lexicalCast(const T& mValue) { std::stringstream os; TResult result; os << mValue; os >> result; return result; }
+
 	template<typename T> T getJsonValue(const Json::Value& mRoot, const std::string& mValue);
 	template<typename T> T getJsonValueOrDefault(const Json::Value& mRoot, const std::string& mValue, T mDefault)
 	{

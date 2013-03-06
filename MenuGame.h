@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <SFML/Graphics.hpp>
+
 #include <SSVStart.h>
 #include <SSVMenuSystem.h>
 #include "Data/LevelData.h"
@@ -57,7 +58,8 @@ namespace hg
 
 			LevelData levelData;
 			StyleData styleData;
-			sf::Text 	cProfText{"", getFont("imagine.ttf"), 25},
+			sf::Text 	versionText{"", getFont("imagine.ttf"), 40},
+						cProfText{"", getFont("imagine.ttf"), 25},
 						levelName{"", getFont("imagine.ttf"), 80},
 						levelDesc{"", getFont("imagine.ttf"), 35},
 						levelAuth{"", getFont("imagine.ttf"), 20},

@@ -150,6 +150,7 @@
         <Library Value="sfml-graphics"/>
         <Library Value="sfml-system"/>
         <Library Value="sfml-audio"/>
+        <Library Value="sfml-network"/>
         <Library Value="json_mingw_libmt"/>
         <Library Value="lua5.1"/>
         <Library Value="lua51"/>

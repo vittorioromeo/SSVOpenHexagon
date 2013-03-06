@@ -19,12 +19,18 @@ using namespace ssvs::FileSystem;
 
 namespace hg
 {
+	bool updatesChecked{false};
+	float serverVersion{-1};
 	Json::Value root{getJsonFileRoot("config.json")};
 	map<string, Json::Value> configOverridesRootMap;
 
-	float sizeX						{1500};
-	float sizeY						{1500};
-	constexpr float spawnDistance	{1600};
+	float sizeX{1500}, sizeY{1500};
+	constexpr float spawnDistance{1600};
+
+	void setUpdatesChecked(bool mUpdatesChecked) { updatesChecked = mUpdatesChecked; }
+	bool getUpdatesChecked() { return updatesChecked; }
+	void setServerVersion(float mServerVersion) { serverVersion = mServerVersion; }
+	float getServerVersion() { return serverVersion; }
 	
 	void loadConfig(vector<string> mOverridesIds)
 	{
@@ -131,7 +137,7 @@ namespace hg
 	bool getVsync()						{ return root["vsync"].asBool(); }
 	bool getAutoZoomFactor()			{ return root["auto_zoom_factor"].asBool(); }
 	bool getFullscreen()				{ return root["fullscreen"].asBool(); }
-	float getVersion() 					{ return 1.71f; }
+	float getVersion() 					{ return 1.8f; }
 	bool getWindowedAutoResolution()	{ return root["windowed_auto_resolution"].asBool(); }
 	bool getFullscreenAutoResolution() 	{ return root["fullscreen_auto_resolution"].asBool(); }
 	unsigned int getFullscreenWidth()	{ return root["fullscreen_width"].asInt(); }
