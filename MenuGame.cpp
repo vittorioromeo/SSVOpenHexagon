@@ -53,14 +53,14 @@ namespace hg
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
 
-		levelDataIds = getMenuLevelDataIdsByPack(getPackPaths()[packIndex]);
+		levelDataIds = getMenuLevelIDsByPack(getPackPaths()[packIndex]);
 		setIndex(0);
 
-		if(getProfilesSize() == 0) state = StateType::PROFILE_CREATION;
+		if(getProfilesSize() == 0) state = States::PROFILE_NEW;
 		else if(getProfilesSize() == 1)
 		{
 			setCurrentProfile(getFirstProfileName());
-			state = StateType::LEVEL_SELECTION;
+			state = States::MAIN;
 		}
 
 		// Options menu
@@ -75,62 +75,77 @@ namespace hg
 		options.createItem<Items::Toggle>("invincibility",		[&]{ return getInvincible(); },		[&]{ setInvincible(true); }, 	[&]{ setInvincible(false); });
 		options.createItem<Items::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
 		options.createItem<Items::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
-		options.createItem<Items::Single>("back", 			[&]{ state = StateType::LEVEL_SELECTION; });
+		options.createItem<Items::Single>("back", 			[&]{ state = States::MAIN; });
 
 		// Input
 		using k = Keyboard::Key;
 		game.addInput({k::Left}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == StateType::PROFILE_SELECTION) 		{  --profileIndex; }
-			else if(state == StateType::PROFILE_CREATION) 	{ }
-			else if(state == StateType::LEVEL_SELECTION) 	{ setIndex(currentIndex - 1); }
-			else if(state == StateType::OPTIONS) 			{ optionsMenu.decreaseCurrentItem(); }
-		}, InputCombo::ComboType::SINGLE);
+			if(state == States::PROFILES) 			{  --profileIndex; }
+			else if(state == States::PROFILE_NEW) 	{ }
+			else if(state == States::MAIN) 			{ setIndex(currentIndex - 1); }
+			else if(state == States::OPTIONS) 		{ optionsMenu.decreaseCurrentItem(); }
+		}, InputCombo::Types::SINGLE);
 		game.addInput({k::Right}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == StateType::PROFILE_SELECTION) 		{ ++profileIndex; }
-			else if(state == StateType::PROFILE_CREATION) 	{ }
-			else if(state == StateType::LEVEL_SELECTION) 	{ setIndex(currentIndex + 1); }
-			else if(state == StateType::OPTIONS) 			{ optionsMenu.increaseCurrentItem(); }
-		}, InputCombo::ComboType::SINGLE);
+			if(state == States::PROFILES) 			{ ++profileIndex; }
+			else if(state == States::PROFILE_NEW) 	{ }
+			else if(state == States::MAIN) 			{ setIndex(currentIndex + 1); }
+			else if(state == States::OPTIONS) 		{ optionsMenu.increaseCurrentItem(); }
+		}, InputCombo::Types::SINGLE);
 		game.addInput({k::Up}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == StateType::PROFILE_SELECTION) 		{ }
-			else if(state == StateType::PROFILE_CREATION) 	{ }
-			else if(state == StateType::LEVEL_SELECTION) 	{ ++difficultyMultIndex; }
-			else if(state == StateType::OPTIONS) 			{ optionsMenu.selectPreviousItem(); }
-		}, InputCombo::ComboType::SINGLE);
+			if(state == States::PROFILES) 			{ }
+			else if(state == States::PROFILE_NEW) 	{ }
+			else if(state == States::MAIN) 			{ ++difficultyMultIndex; }
+			else if(state == States::OPTIONS) 		{ optionsMenu.selectPreviousItem(); }
+		}, InputCombo::Types::SINGLE);
 		game.addInput({k::Down}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == StateType::PROFILE_SELECTION) 		{ }
-			else if(state == StateType::PROFILE_CREATION) 	{ }
-			else if(state == StateType::LEVEL_SELECTION) 	{ --difficultyMultIndex; }
-			else if(state == StateType::OPTIONS) 			{ optionsMenu.selectNextItem(); }
-		}, InputCombo::ComboType::SINGLE);
+			if(state == States::PROFILES) 			{ }
+			else if(state == States::PROFILE_NEW) 	{ }
+			else if(state == States::MAIN) 			{ --difficultyMultIndex; }
+			else if(state == States::OPTIONS) 		{ optionsMenu.selectNextItem(); }
+		}, InputCombo::Types::SINGLE);
 		game.addInput({k::Return}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == StateType::PROFILE_SELECTION) 		{ setCurrentProfile(profileCreationName); state = StateType::LEVEL_SELECTION; }
-			else if(state == StateType::PROFILE_CREATION) 	{ }
-			else if(state == StateType::LEVEL_SELECTION)
+			if(state == States::PROFILES) 			{ setCurrentProfile(profileCreationName); state = States::MAIN; }
+			else if(state == States::PROFILE_NEW) 	{ }
+			else if(state == States::MAIN)
 			{
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
-			else if(state == StateType::OPTIONS) 			{ optionsMenu.executeCurrentItem(); }
-		}, InputCombo::ComboType::SINGLE);
+			else if(state == States::OPTIONS) 		{ optionsMenu.executeCurrentItem(); }
+		}, InputCombo::Types::SINGLE);
 		game.addInput({k::F1}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == StateType::PROFILE_SELECTION) 		{ profileCreationName = ""; state = StateType::PROFILE_CREATION; }
-			else if(state == StateType::PROFILE_CREATION) 	{ }
-			else if(state == StateType::LEVEL_SELECTION) 	{ }
-			else if(state == StateType::OPTIONS) 			{ }
-		}, InputCombo::ComboType::SINGLE);
+			if(state == States::PROFILES) 			{ profileCreationName = ""; state = States::PROFILE_NEW; }
+			else if(state == States::PROFILE_NEW) 	{ }
+			else if(state == States::MAIN) 			{ }
+			else if(state == States::OPTIONS) 		{ }
+		}, InputCombo::Types::SINGLE);
+		game.addInput({k::F2}, [&](float) // AND J
+		{
+			playSound("beep.ogg");
+			if(state == States::MAIN) 				{ profileCreationName = ""; state = States::PROFILES; }
+		}, InputCombo::Types::SINGLE);
+		game.addInput({k::F3}, [&](float) // AND K
+		{
+			playSound("beep.ogg");
+			if(state == States::MAIN) 				{ state = States::OPTIONS; }
+		}, InputCombo::Types::SINGLE);
+		game.addInput({k::F4}, [&](float) // AND L
+		{
+			playSound("beep.ogg");
+			if(state == States::MAIN) 				{ auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getMenuLevelIDsByPack(p[packIndex]); setIndex(0); }
+		}, InputCombo::Types::SINGLE);
 	}
 
 	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
@@ -152,11 +167,7 @@ namespace hg
 	{
 		if(inputDelay <= 0)
 		{
-			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return))
-			{
-				setFullscreen(window, !window.getFullscreen());
-				inputDelay = 25;
-			}
+			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return)) { setFullscreen(window, !window.getFullscreen()); inputDelay = 25; }
 			else if(window.isKeyPressed(Keyboard::Escape)) inputDelay = 25;
 		}
 		else
@@ -165,63 +176,30 @@ namespace hg
 			if(inputDelay < 1.0f && window.isKeyPressed(Keyboard::Escape)) window.stop();
 		}
 
-		if(state == StateType::PROFILE_CREATION)
+		if(state == States::PROFILE_NEW)
 		{
 			Event e; window.pollEvent(e);
-
 			if(e.type == Event::TextEntered)
 			{
-				if(e.text.unicode > 47 && e.text.unicode < 126) if(profileCreationName.size() < 16) profileCreationName.append(toStr((char)(e.text.unicode)));
-				if(e.text.unicode == 8) if(!profileCreationName.empty()) profileCreationName.erase(profileCreationName.end() - 1);
-				if(e.text.unicode == 13) if(!profileCreationName.empty())
+				if(e.text.unicode > 47 && e.text.unicode < 126 && profileCreationName.size() < 16) profileCreationName.append(toStr((char)(e.text.unicode)));
+				if(e.text.unicode == 8 && !profileCreationName.empty()) profileCreationName.erase(profileCreationName.end() - 1);
+				if(e.text.unicode == 13 && !profileCreationName.empty())
 				{
 					createProfile(profileCreationName);
 					setCurrentProfile(profileCreationName);
 					inputDelay = 30;
-					state = StateType::LEVEL_SELECTION;
+					state = States::MAIN;
 				}
 			}
 		}
-		else if(state == StateType::PROFILE_SELECTION)
-		{
-			vector<string> profileNames{getProfileNames()};
-			profileCreationName = profileNames[profileIndex % profileNames.size()];
-		}
-		else if(state == StateType::LEVEL_SELECTION)
-		{
-			styleData.update(mFrameTime);
-
-			backgroundCamera.rotate(levelData.getRotationSpeed() * 10 * mFrameTime);
-
-			if(inputDelay <= 0)
-			{
-				if(window.isKeyPressed(Keyboard::F2) || window.isKeyPressed(Keyboard::J))
-				{
-					playSound("beep.ogg");
-					profileCreationName = "";
-					state = StateType::PROFILE_SELECTION;
-
-					inputDelay = 14;
-				}
-				else if(window.isKeyPressed(Keyboard::F3) || window.isKeyPressed(Keyboard::K)) { playSound("beep.ogg"); state = StateType::OPTIONS; inputDelay = 14; }
-				else if(window.isKeyPressed(Keyboard::F4) || window.isKeyPressed(Keyboard::L))
-				{
-					playSound("beep.ogg");
-
-					packIndex = (packIndex + 1) % getPackPaths().size();
-					levelDataIds = getMenuLevelDataIdsByPack(getPackPaths()[packIndex]);
-					setIndex(0);
-
-					inputDelay = 14;
-				}
-			}
-		}
+		else if(state == States::PROFILES) { profileCreationName = getProfileNames()[profileIndex % getProfileNames().size()]; }
+		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.getRotationSpeed() * 10 * mFrameTime); }
 	}
 	void MenuGame::draw()
 	{
 		window.clear(Color{0, 0, 0, 0});
 
-		if(state == StateType::LEVEL_SELECTION)
+		if(state == States::MAIN)
 		{
 			window.clear(styleData.getColors()[0]);
 			backgroundCamera.apply();
@@ -229,9 +207,9 @@ namespace hg
 
 			overlayCamera.apply(); drawLevelSelection(); render(bottomBar);
 		}
-		else if(state == StateType::PROFILE_CREATION) { window.clear(Color::Black); overlayCamera.apply(); drawProfileCreation(); }
-		else if(state == StateType::PROFILE_SELECTION) { window.clear(Color::Black); overlayCamera.apply(); drawProfileSelection(); }
-		else if(state == StateType::OPTIONS) { window.clear(Color::Black); overlayCamera.apply(); drawOptions(); }
+		else if(state == States::PROFILE_NEW) { window.clear(Color::Black); overlayCamera.apply(); drawProfileCreation(); }
+		else if(state == States::PROFILES) { window.clear(Color::Black); overlayCamera.apply(); drawProfileSelection(); }
+		else if(state == States::OPTIONS) { window.clear(Color::Black); overlayCamera.apply(); drawOptions(); }
 
 		overlayCamera.apply(); render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
 	}
@@ -240,7 +218,7 @@ namespace hg
 	{
 		mText.setString(mString);
 
-		if(state != StateType::LEVEL_SELECTION || getBlackAndWhite()) mText.setColor(Color::White);
+		if(state != States::MAIN || getBlackAndWhite()) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
 		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);

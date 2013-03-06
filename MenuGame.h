@@ -16,7 +16,7 @@
 
 namespace hg
 {
-	enum class StateType { LEVEL_SELECTION, PROFILE_CREATION, PROFILE_SELECTION, OPTIONS };
+	enum class States { MAIN, PROFILE_NEW, PROFILES, OPTIONS };
 
 	class HexagonGame;
 
@@ -29,7 +29,7 @@ namespace hg
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera{window, {{0, 0}, {getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
-			StateType state{StateType::PROFILE_SELECTION};
+			States state{States::PROFILES};
 			ssvms::Menu optionsMenu;
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")};

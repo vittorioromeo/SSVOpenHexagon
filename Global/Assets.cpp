@@ -176,7 +176,7 @@ namespace hg
 		for(auto levelData : levelDataVector) if(levelData.getSelectable()) result.push_back(levelData.getId());
 		return result;
 	}
-	vector<string> getMenuLevelDataIdsByPack(string mPackPath)
+	vector<string> getMenuLevelIDsByPack(string mPackPath)
 	{
 		vector<LevelData> levelDataVector;
 		for(string id : levelIdsByPackMap[mPackPath]) levelDataVector.push_back(getLevelData(id));
