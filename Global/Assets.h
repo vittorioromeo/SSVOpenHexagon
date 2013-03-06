@@ -45,8 +45,8 @@ namespace hg
 	PackData getPackData(const std::string& mId);
 
 	std::vector<LevelData> getAllLevelData();
-	std::vector<std::string> getAllMenuLevelDataIds();
-	std::vector<std::string> getMenuLevelIDsByPack(std::string mPackPath);
+	std::vector<std::string> getAllLevelIds();
+	std::vector<std::string> getLevelIdsByPack(std::string mPackPath);
 	std::vector<std::string> getPackPaths();
 	std::vector<std::string> getPackNames();
 

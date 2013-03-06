@@ -53,7 +53,7 @@ namespace hg
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
 
-		levelDataIds = getMenuLevelIDsByPack(getPackPaths()[packIndex]);
+		levelDataIds = getLevelIdsByPack(getPackPaths()[packIndex]);
 		setIndex(0);
 
 		if(getProfilesSize() == 0) state = States::PROFILE_NEW;
@@ -82,69 +82,55 @@ namespace hg
 		game.addInput({k::Left}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::PROFILES) 			{  --profileIndex; }
-			else if(state == States::PROFILE_NEW) 	{ }
-			else if(state == States::MAIN) 			{ setIndex(currentIndex - 1); }
-			else if(state == States::OPTIONS) 		{ optionsMenu.decreaseCurrentItem(); }
+			if(state == States::PROFILES) 		{  --profileIndex; }
+			else if(state == States::MAIN) 		{ setIndex(currentIndex - 1); }
+			else if(state == States::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
 		}, InputCombo::Types::SINGLE);
 		game.addInput({k::Right}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::PROFILES) 			{ ++profileIndex; }
-			else if(state == States::PROFILE_NEW) 	{ }
-			else if(state == States::MAIN) 			{ setIndex(currentIndex + 1); }
-			else if(state == States::OPTIONS) 		{ optionsMenu.increaseCurrentItem(); }
+			if(state == States::PROFILES) 		{ ++profileIndex; }
+			else if(state == States::MAIN) 		{ setIndex(currentIndex + 1); }
+			else if(state == States::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
 		}, InputCombo::Types::SINGLE);
 		game.addInput({k::Up}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::PROFILES) 			{ }
-			else if(state == States::PROFILE_NEW) 	{ }
-			else if(state == States::MAIN) 			{ ++difficultyMultIndex; }
-			else if(state == States::OPTIONS) 		{ optionsMenu.selectPreviousItem(); }
+			if(state == States::MAIN) 			{ ++difficultyMultIndex; }
+			else if(state == States::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
 		}, InputCombo::Types::SINGLE);
 		game.addInput({k::Down}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::PROFILES) 			{ }
-			else if(state == States::PROFILE_NEW) 	{ }
-			else if(state == States::MAIN) 			{ --difficultyMultIndex; }
-			else if(state == States::OPTIONS) 		{ optionsMenu.selectNextItem(); }
+			if(state == States::MAIN) 			{ --difficultyMultIndex; }
+			else if(state == States::OPTIONS) 	{ optionsMenu.selectNextItem(); }
 		}, InputCombo::Types::SINGLE);
 		game.addInput({k::Return}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::PROFILES) 			{ setCurrentProfile(profileCreationName); state = States::MAIN; }
-			else if(state == States::PROFILE_NEW) 	{ }
+			if(state == States::PROFILES) 		{ setCurrentProfile(profileCreationName); state = States::MAIN; }
 			else if(state == States::MAIN)
 			{
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
-			else if(state == States::OPTIONS) 		{ optionsMenu.executeCurrentItem(); }
+			else if(state == States::OPTIONS) 	{ optionsMenu.executeCurrentItem(); }
 		}, InputCombo::Types::SINGLE);
 		game.addInput({k::F1}, [&](float)
 		{
-			playSound("beep.ogg");
-			if(state == States::PROFILES) 			{ profileCreationName = ""; state = States::PROFILE_NEW; }
-			else if(state == States::PROFILE_NEW) 	{ }
-			else if(state == States::MAIN) 			{ }
-			else if(state == States::OPTIONS) 		{ }
+			playSound("beep.ogg"); if(state == States::PROFILES) { profileCreationName = ""; state = States::PROFILE_NEW; }
 		}, InputCombo::Types::SINGLE);
 		game.addInput({k::F2}, [&](float) // AND J
 		{
-			playSound("beep.ogg");
-			if(state == States::MAIN) 				{ profileCreationName = ""; state = States::PROFILES; }
+			playSound("beep.ogg"); if(state == States::MAIN ) { profileCreationName = ""; state = States::PROFILES; }
 		}, InputCombo::Types::SINGLE);
 		game.addInput({k::F3}, [&](float) // AND K
 		{
-			playSound("beep.ogg");
-			if(state == States::MAIN) 				{ state = States::OPTIONS; }
+			playSound("beep.ogg"); if(state == States::MAIN) { state = States::OPTIONS; }
 		}, InputCombo::Types::SINGLE);
 		game.addInput({k::F4}, [&](float) // AND L
 		{
-			playSound("beep.ogg");
-			if(state == States::MAIN) 				{ auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getMenuLevelIDsByPack(p[packIndex]); setIndex(0); }
+			playSound("beep.ogg"); if(state == States::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
 		}, InputCombo::Types::SINGLE);
 	}
 

@@ -162,7 +162,7 @@ namespace hg
 		for(auto pair : levelDataMap) result.push_back(pair.second);
 		return result;
 	}
-	vector<string> getAllMenuLevelDataIds()
+	vector<string> getAllLevelIds()
 	{
 		vector<LevelData> levelDataVector{getAllLevelData()};
 		sort(begin(levelDataVector), end(levelDataVector),
@@ -176,7 +176,7 @@ namespace hg
 		for(auto levelData : levelDataVector) if(levelData.getSelectable()) result.push_back(levelData.getId());
 		return result;
 	}
-	vector<string> getMenuLevelIDsByPack(string mPackPath)
+	vector<string> getLevelIdsByPack(string mPackPath)
 	{
 		vector<LevelData> levelDataVector;
 		for(string id : levelIdsByPackMap[mPackPath]) levelDataVector.push_back(getLevelData(id));
