@@ -28,7 +28,7 @@ namespace hg
 			Json::Value root; Json::Reader reader; reader.parse(response.getBody(), root);
 
 			string message(getJsonValueOrDefault<string>(root, "message", ""));
-			log("Message: " + message, "Online");
+			log("Server message:\n" + message, "Online");
 
 			setServerVersion(getJsonValueOrDefault<float>(root, "latest_version", -1));
 			log("Server latest version: " + toStr(getServerVersion()), "Online");
@@ -40,7 +40,7 @@ namespace hg
 		else
 		{
 			setServerVersion(-1);
-			log("Error contacting the server", "Online");
+			log("Error connecting to the server", "Online");
 		}
 
 		setUpdatesChecked(true);
