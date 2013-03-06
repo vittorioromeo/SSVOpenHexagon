@@ -6,6 +6,7 @@
 #include <json/reader.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <fstream>
 #include "Utils/Utils.h"
 #include "Global/Config.h"
 

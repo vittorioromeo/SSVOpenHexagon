@@ -1,3 +1,4 @@
+#include <fstream>
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
 #include "HexagonGame.h"

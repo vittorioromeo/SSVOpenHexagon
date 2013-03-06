@@ -80,32 +80,33 @@ namespace hg
 
 		// Input
 		using k = Keyboard::Key;
+		using t = Trigger::Types;
 		game.addInput({{k::Left}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == States::PROFILES) 		{  --profileIndex; }
 			else if(state == States::MAIN) 		{ setIndex(currentIndex - 1); }
 			else if(state == States::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::Right}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == States::PROFILES) 		{ ++profileIndex; }
 			else if(state == States::MAIN) 		{ setIndex(currentIndex + 1); }
 			else if(state == States::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::Up}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == States::MAIN) 			{ ++difficultyMultIndex; }
 			else if(state == States::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::Down}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == States::MAIN) 			{ --difficultyMultIndex; }
 			else if(state == States::OPTIONS) 	{ optionsMenu.selectNextItem(); }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::Return}}, [&](float)
 		{
 			playSound("beep.ogg");
@@ -116,27 +117,27 @@ namespace hg
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
 			else if(state == States::OPTIONS) 	{ optionsMenu.executeCurrentItem(); }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::F1}}, [&](float)
 		{
 			playSound("beep.ogg"); if(state == States::PROFILES) { profileCreationName = ""; state = States::PROFILE_NEW; }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::F2}, {k::J}}, [&](float)
 		{
 			playSound("beep.ogg"); if(state == States::MAIN ) { profileCreationName = ""; state = States::PROFILES; }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::F3}, {k::K}}, [&](float)
 		{
 			playSound("beep.ogg"); if(state == States::MAIN) { state = States::OPTIONS; }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
 			playSound("beep.ogg"); if(state == States::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 		game.addInput({{k::Escape}}, [&](float)
 		{
 			playSound("beep.ogg"); if(state == States::OPTIONS) { state = States::MAIN; }
-		}, Trigger::Types::SINGLE);
+		}, t::SINGLE);
 	}
 
 	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
