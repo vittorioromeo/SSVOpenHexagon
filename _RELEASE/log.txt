@@ -65,4 +65,8 @@
 [ASSETS] loading VeeEndurance custom sounds
 [loadSound] VeeEndurance_test.ogg soundBuffer added
 [loadSound] VeeEndurance_test.ogg sound added
-[Updates] Your version is newer than the server's (beta)
+[Online] Message: Welcome to Open Hexagon! 
+ You're now connected to vittorioromeo.info. 
+ Good luck and have fun!
+[Online] Server latest version: 1.8
+[Online] No updates available
