@@ -25,17 +25,17 @@ namespace hg
 		
 		using k = Keyboard::Key;
 		game.addInput({{k::Left}}, 		[&](float){ inputMovement = -1; });
-		game.addInput({{k::Right}}, 		[&](float){ inputMovement = 1; });
-		game.addInput({{k::LShift}}, 		[&](float){ inputFocused = true; });
-		game.addInput({{k::Escape}}, 		[&](float){ goToMenu(); });
-		game.addInput({{k::R}}, 			[&](float){ status.mustRestart = true; });
-		game.addInput({{k::Space}}, 		[&](float){ if(status.hasDied) status.mustRestart = true; });
-		game.addInput({{k::Return}}, 		[&](float){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput({{k::Right}}, 	[&](float){ inputMovement = 1; });
+		game.addInput({{k::LShift}}, 	[&](float){ inputFocused = true; });
+		game.addInput({{k::Escape}}, 	[&](float){ goToMenu(); });
+		game.addInput({{k::R}}, 		[&](float){ status.mustRestart = true; });
+		game.addInput({{k::Space}}, 	[&](float){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput({{k::Return}}, 	[&](float){ if(status.hasDied) status.mustRestart = true; });
 
 		using b = Mouse::Button;
 		game.addInput({{b::Left}}, 		[&](float){ inputMovement = -1; });
-		game.addInput({{b::Right}}, 		[&](float){ inputMovement = 1; });
-		game.addInput({{b::Middle}}, 		[&](float){ inputFocused = true; });
+		game.addInput({{b::Right}}, 	[&](float){ inputMovement = 1; });
+		game.addInput({{b::Middle}}, 	[&](float){ inputFocused = true; });
 		game.addInput({{b::XButton1}},	[&](float){ status.mustRestart = true; });
 		game.addInput({{b::XButton2}},	[&](float){ status.mustRestart = true; });
 	}
@@ -111,6 +111,8 @@ namespace hg
 		status.hasDied = true;
 		stopLevelMusic();
 		checkAndSaveScore();
+
+		if(getAutoRestart()) status.mustRestart = true;
 	}
 
 	void HexagonGame::incrementDifficulty()

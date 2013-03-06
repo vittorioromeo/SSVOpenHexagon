@@ -66,8 +66,8 @@ namespace hg
 
 		string original{buffer.str()};
 
-		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible"};
-		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible()};
+		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible", "auto_restart"};
+		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible(), getAutoRestart()};
 
 		for(unsigned int i{0}; i < elements.size(); ++i)
 		{
@@ -108,6 +108,7 @@ namespace hg
 	void setPulse(bool mPulse) 					{ root["pulse_enabled"] = mPulse; }
 	void set3D(bool m3D)						{ root["3D_enabled"] = m3D; }
 	void setInvincible(bool mInvincible)		{ root["invincible"] = mInvincible; }
+	void setAutoRestart(bool mAutoRestart) 		{ root["auto_restart"] = mAutoRestart; }
 
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
@@ -149,4 +150,5 @@ namespace hg
 	bool get3D()						{ return root["3D_enabled"].asBool(); }
 	float get3DMultiplier()				{ return root["3D_multiplier"].asFloat(); }
 	unsigned int get3DMaxDepth()		{ return root["3D_max_depth"].asInt(); }
+	bool getAutoRestart()				{ return root["auto_restart"].asBool(); }
 }

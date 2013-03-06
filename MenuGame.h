@@ -7,7 +7,6 @@
 
 #include <vector>
 #include <SFML/Graphics.hpp>
-
 #include <SSVStart.h>
 #include <SSVMenuSystem.h>
 #include "Data/LevelData.h"
@@ -41,7 +40,7 @@ namespace hg
 			std::vector<std::string> levelDataIds;
 			int currentIndex{0}, packIndex{0};
 
-			std::string profileCreationName;
+			std::string profileNewName;
 			int profileIndex{0};
 
 			std::vector<float> difficultyMultipliers;

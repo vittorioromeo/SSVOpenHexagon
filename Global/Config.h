@@ -24,6 +24,7 @@ namespace hg
 	void setPulse(bool mPulse);
 	void set3D(bool m3D);
 	void setInvincible(bool mInvincible);
+	void setAutoRestart(bool mAutoRestart);
 
 	float getSizeX();
 	float getSizeY();
@@ -65,6 +66,7 @@ namespace hg
 	bool get3D();
 	float get3DMultiplier();
 	unsigned int get3DMaxDepth();
+	bool getAutoRestart();
 }
 
 #endif
