@@ -26,7 +26,7 @@ namespace hg
 			void drawDeathEffect();
 
 		public:		
-			CPlayer(HexagonGame& mHexagonGame, sf::Vector2f mStartPos);
+			CPlayer(sses::Entity& mEntity, HexagonGame& mHexagonGame, sf::Vector2f mStartPos);
 
 			void update(float mFrameTime) override;
 			void draw() override;

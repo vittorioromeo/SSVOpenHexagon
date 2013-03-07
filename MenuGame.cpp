@@ -21,35 +21,7 @@ namespace hg
 {
 	MenuGame::MenuGame(HexagonGame& mHexagonGame, GameWindow& mGameWindow) : hexagonGame(mHexagonGame), window(mGameWindow)
 	{
-		// Title bar
-		getAssetManager().getTexture("titleBar.png").setSmooth(true);
-		titleBar.setOrigin({0, 0});
-		titleBar.setScale({0.5f, 0.5f});
-		titleBar.setPosition(overlayCamera.getConvertedCoords({20, 20}));
-
-		// Version text
-		versionText.setString(toStr(getVersion()));
-		versionText.setColor(Color::White);
-		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 67, titleBar.getGlobalBounds().top});
-
-		// Credits bar 1
-		getAssetManager().getTexture("creditsBar1.png").setSmooth(true);
-		creditsBar1.setOrigin({1024, 0});
-		creditsBar1.setScale({0.373f, 0.373f});
-		creditsBar1.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 20.f)));
-
-		// Credits bar 2
-		getAssetManager().getTexture("creditsBar2.png").setSmooth(true);
-		creditsBar2.setOrigin({1024, 116});
-		creditsBar2.setScale({0.373f, 0.373f});
-		creditsBar2.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 160.f / getZoomFactor())));
-
-		// Bottom bar
-		getAssetManager().getTexture("bottomBar.png").setSmooth(true);
-		float scaleFactor{getWidth() * getZoomFactor() / 2048.f};
-		bottomBar.setOrigin({0, 112.f});
-		bottomBar.setScale({scaleFactor, scaleFactor});
-		bottomBar.setPosition(overlayCamera.getConvertedCoords(Vector2i(0, getHeight())));
+		initAssets();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
@@ -60,85 +32,126 @@ namespace hg
 		if(getProfilesSize() == 0) state = States::PROFILE_NEW;
 		else if(getProfilesSize() == 1) { setCurrentProfile(getFirstProfileName()); state = States::MAIN; }
 
-		// Options menu
-		Category& options(optionsMenu.createCategory("options"));
-		options.createItem<Items::Toggle>("screen rotation", 	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
-		options.createItem<Items::Toggle>("display background", [&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
-		options.createItem<Items::Toggle>("b&w colors", 		[&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
-		options.createItem<Items::Toggle>("sounds", 			[&]{ return !getNoSound(); }, 		[&]{ setNoSound(false); }, 		[&]{ setNoSound(true); });
-		options.createItem<Items::Toggle>("music", 				[&]{ return !getNoMusic(); }, 		[&]{ setNoMusic(false); }, 		[&]{ setNoMusic(true); });
-		options.createItem<Items::Toggle>("3D effect",			[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
-		options.createItem<Items::Toggle>("pulse effect", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
-		options.createItem<Items::Toggle>("auto restart",		[&]{ return getAutoRestart(); },	[&]{ setAutoRestart(true); }, 	[&]{ setAutoRestart(false); });
-		options.createItem<Items::Toggle>("invincibility",		[&]{ return getInvincible(); },		[&]{ setInvincible(true); }, 	[&]{ setInvincible(false); });
-		options.createItem<Items::Slider>("3D multiplier",		[&]{ return toStr(get3DMultiplier()); },	[&]{ set3DMultiplier(get3DMultiplier() + 0.5f); }, 	[&]{ set3DMultiplier(get3DMultiplier() - 0.5f); });
-		options.createItem<Items::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
-		options.createItem<Items::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
-		options.createItem<Items::Single>("back", 			[&]{ state = States::MAIN; });
+		initOptionsMenu();
+		initInput();
+	}
 
-		// Input
+	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
+	void MenuGame::initAssets()
+	{
+		getAssetManager().getTexture("titleBar.png").setSmooth(true);
+		getAssetManager().getTexture("creditsBar1.png").setSmooth(true);
+		getAssetManager().getTexture("creditsBar2.png").setSmooth(true);
+		getAssetManager().getTexture("bottomBar.png").setSmooth(true);
+
+		titleBar.setOrigin({0, 0});
+		titleBar.setScale({0.5f, 0.5f});
+		titleBar.setPosition(overlayCamera.getConvertedCoords({20, 20}));
+
+		versionText.setString(toStr(getVersion()));
+		versionText.setColor(Color::White);
+		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 67, titleBar.getGlobalBounds().top});
+
+		creditsBar1.setOrigin({1024, 0});
+		creditsBar1.setScale({0.373f, 0.373f});
+		creditsBar1.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 20.f)));
+
+		creditsBar2.setOrigin({1024, 116});
+		creditsBar2.setScale({0.373f, 0.373f});
+		creditsBar2.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 160.f / getZoomFactor())));
+
+		float scaleFactor{getWidth() * getZoomFactor() / 2048.f};
+		bottomBar.setOrigin({0, 112.f});
+		bottomBar.setScale({scaleFactor, scaleFactor});
+		bottomBar.setPosition(overlayCamera.getConvertedCoords(Vector2i(0, getHeight())));
+	}
+	void MenuGame::initOptionsMenu()
+	{
+		namespace i = ssvms::Items;
+		auto& main(optionsMenu.createCategory("options"));
+		auto& gfx(optionsMenu.createCategory("graphics"));
+		auto& sfx(optionsMenu.createCategory("audio"));
+		auto& play(optionsMenu.createCategory("gameplay"));
+		auto& debug(optionsMenu.createCategory("debug"));
+
+		main.create<i::Goto>("gameplay", play);
+		main.create<i::Goto>("graphics", gfx);
+		main.create<i::Goto>("audio", sfx);
+		main.create<i::Goto>("debug", debug);
+		main.create<i::Single>("back", [&]{ state = States::MAIN; });
+
+		gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
+		gfx.create<i::Toggle>("background",	[&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
+		gfx.create<i::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
+		gfx.create<i::Toggle>("3D effect",	[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
+		gfx.create<i::Toggle>("pulse", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
+		gfx.create<i::Slider>("3D mult",	[&]{ return toStr(get3DMultiplier()); },[&]{ set3DMultiplier(get3DMultiplier() + 0.5f); }, 	[&]{ set3DMultiplier(get3DMultiplier() - 0.5f); });
+		gfx.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
+		gfx.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
+		gfx.create<i::Goto>("back", main);
+
+		sfx.create<i::Toggle>("sounds",	[&]{ return !getNoSound(); }, 	[&]{ setNoSound(false); }, 	[&]{ setNoSound(true); });
+		sfx.create<i::Toggle>("music",	[&]{ return !getNoMusic(); },	[&]{ setNoMusic(false); }, 	[&]{ setNoMusic(true); });
+		sfx.create<i::Goto>("back", main);
+
+		play.create<i::Toggle>("autorestart", [&]{ return getAutoRestart(); }, [&]{ setAutoRestart(true); }, [&]{ setAutoRestart(false); });
+		play.create<i::Goto>("back", main);
+
+		debug.create<i::Toggle>("invincible", [&]{ return getInvincible(); }, [&]{ setInvincible(true); }, [&]{ setInvincible(false); });
+		debug.create<i::Goto>("back", main);
+	}
+	void MenuGame::initInput()
+	{
 		using k = Keyboard::Key;
 		using t = Trigger::Types;
+		using s = States;
 		game.addInput({{k::Left}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::PROFILES) 		{  --profileIndex; }
-			else if(state == States::MAIN) 		{ setIndex(currentIndex - 1); }
-			else if(state == States::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
+			if(state == s::PROFILES) 		{  --profileIndex; }
+			else if(state == s::MAIN) 		{ setIndex(currentIndex - 1); }
+			else if(state == s::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
 		}, t::SINGLE);
 		game.addInput({{k::Right}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::PROFILES) 		{ ++profileIndex; }
-			else if(state == States::MAIN) 		{ setIndex(currentIndex + 1); }
-			else if(state == States::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
+			if(state == s::PROFILES) 		{ ++profileIndex; }
+			else if(state == s::MAIN) 		{ setIndex(currentIndex + 1); }
+			else if(state == s::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
 		}, t::SINGLE);
 		game.addInput({{k::Up}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::MAIN) 			{ ++difficultyMultIndex; }
-			else if(state == States::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
+			if(state == s::MAIN) 			{ ++difficultyMultIndex; }
+			else if(state == s::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
 		}, t::SINGLE);
 		game.addInput({{k::Down}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::MAIN) 			{ --difficultyMultIndex; }
-			else if(state == States::OPTIONS) 	{ optionsMenu.selectNextItem(); }
+			if(state == s::MAIN) 			{ --difficultyMultIndex; }
+			else if(state == s::OPTIONS)	{ optionsMenu.selectNextItem(); }
 		}, t::SINGLE);
 		game.addInput({{k::Return}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == States::PROFILES) 		{ setCurrentProfile(profileNewName); state = States::MAIN; }
-			else if(state == States::MAIN)
+			if(state == s::PROFILES) { setCurrentProfile(profileNewName); state = s::MAIN; }
+			else if(state == s::MAIN)
 			{
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
-			else if(state == States::OPTIONS) 	{ optionsMenu.executeCurrentItem(); }
+			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem(); 
 		}, t::SINGLE);
-		game.addInput({{k::F1}}, [&](float)
-		{
-			playSound("beep.ogg"); if(state == States::PROFILES) { profileNewName = ""; state = States::PROFILE_NEW; }
-		}, t::SINGLE);
-		game.addInput({{k::F2}, {k::J}}, [&](float)
-		{
-			playSound("beep.ogg"); if(state == States::MAIN ) { profileNewName = ""; state = States::PROFILES; }
-		}, t::SINGLE);
-		game.addInput({{k::F3}, {k::K}}, [&](float)
-		{
-			playSound("beep.ogg"); if(state == States::MAIN) { state = States::OPTIONS; }
-		}, t::SINGLE);
+		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { profileNewName = ""; state = s::PROFILE_NEW; } }, t::SINGLE);
+		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { profileNewName = ""; state = s::PROFILES; } }, t::SINGLE);
+		game.addInput({{k::F3}, {k::K}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::SINGLE);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
-			playSound("beep.ogg"); if(state == States::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
+			playSound("beep.ogg"); if(state == s::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
 		}, t::SINGLE);
-		game.addInput({{k::Escape}}, [&](float)
-		{
-			playSound("beep.ogg"); if(state == States::OPTIONS) { state = States::MAIN; }
-		}, t::SINGLE);
+		game.addInput({{k::Escape}}, [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; }, t::SINGLE);
+		game.addInput({{k::Escape}}, [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
 	}
-
-	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
 
 	void MenuGame::setIndex(int mIndex)
 	{
@@ -155,16 +168,14 @@ namespace hg
 
 	void MenuGame::update(float mFrameTime)
 	{
+		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
+		if(exitTimer > 20) window.stop();
+
 		if(inputDelay <= 0)
 		{
 			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return)) { setFullscreen(window, !window.getFullscreen()); inputDelay = 25; }
-			else if(window.isKeyPressed(Keyboard::Escape)) inputDelay = 25;
 		}
-		else
-		{
-			inputDelay -= 1 * mFrameTime;
-			if(inputDelay < 1.0f && window.isKeyPressed(Keyboard::Escape)) window.stop();
-		}
+		else inputDelay -= 1 * mFrameTime;
 
 		if(state == States::PROFILE_NEW)
 		{

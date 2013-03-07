@@ -30,6 +30,7 @@ namespace hg
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
 			States state{States::PROFILES};
 			ssvms::Menu optionsMenu;
+			float exitTimer{0};
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")};
 			sf::Sprite creditsBar1{getAssetManager().getTexture("creditsBar1.png")};
@@ -68,6 +69,9 @@ namespace hg
 			MenuGame(HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
 			void init();
+			void initAssets();
+			void initOptionsMenu();
+			void initInput();
 			void render(sf::Drawable&);
 
 			ssvs::GameState& getGame();

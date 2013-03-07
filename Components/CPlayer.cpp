@@ -15,7 +15,7 @@ using namespace ssvs::Utils;
 
 namespace hg
 {
-	CPlayer::CPlayer(HexagonGame& mHexagonGame, Vector2f mStartPos) : Component{"player"}, hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
+	CPlayer::CPlayer(Entity& mEntity, HexagonGame& mHexagonGame, Vector2f mStartPos) : Component{mEntity, "player"}, hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
 
 	void CPlayer::draw()
 	{

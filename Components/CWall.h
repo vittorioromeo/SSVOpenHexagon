@@ -24,7 +24,7 @@ namespace hg
 			int side{0};
 
 		public:
-			CWall(HexagonGame& mHexagonGame, sf::Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed);
+			CWall(sses::Entity& mEntity, HexagonGame& mHexagonGame, sf::Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed);
 
 			bool isOverlapping(sf::Vector2f mPoint);
 			void update(float mFrameTime) override;
