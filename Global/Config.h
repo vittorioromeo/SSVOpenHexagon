@@ -25,6 +25,7 @@ namespace hg
 	void set3D(bool m3D);
 	void setInvincible(bool mInvincible);
 	void setAutoRestart(bool mAutoRestart);
+	void set3DMultiplier(float m3DMultiplier);
 
 	float getSizeX();
 	float getSizeY();

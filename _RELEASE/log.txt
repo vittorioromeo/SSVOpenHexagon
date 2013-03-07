@@ -58,6 +58,12 @@
 [ASSETS] loading VeeDefault custom sounds
 [FileSystem] Directory "Packs/VeeDefault/Sounds/" not found
 [ASSETS] loading VeeEndurance music
+[Online] Server message:
+Welcome to Open Hexagon!
+You're now connected to vittorioromeo.info.
+Good luck and have fun!
+[Online] Server latest version: 1.8
+[Online] No updates available
 [ASSETS] loading VeeEndurance music data
 [ASSETS] loading VeeEndurance style data
 [ASSETS] loading VeeEndurance level data
@@ -65,9 +71,3 @@
 [ASSETS] loading VeeEndurance custom sounds
 [loadSound] VeeEndurance_test.ogg soundBuffer added
 [loadSound] VeeEndurance_test.ogg sound added
-[Online] Server message:
-Welcome to Open Hexagon!
-You're now connected to vittorioromeo.info.
-Good luck and have fun!
-[Online] Server latest version: 1.8
-[Online] No updates available

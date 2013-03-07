@@ -71,6 +71,7 @@ namespace hg
 		options.createItem<Items::Toggle>("pulse effect", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
 		options.createItem<Items::Toggle>("auto restart",		[&]{ return getAutoRestart(); },	[&]{ setAutoRestart(true); }, 	[&]{ setAutoRestart(false); });
 		options.createItem<Items::Toggle>("invincibility",		[&]{ return getInvincible(); },		[&]{ setInvincible(true); }, 	[&]{ setInvincible(false); });
+		options.createItem<Items::Slider>("3D multiplier",		[&]{ return toStr(get3DMultiplier()); },	[&]{ set3DMultiplier(get3DMultiplier() + 0.5f); }, 	[&]{ set3DMultiplier(get3DMultiplier() - 0.5f); });
 		options.createItem<Items::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
 		options.createItem<Items::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
 		options.createItem<Items::Single>("back", 			[&]{ state = States::MAIN; });
