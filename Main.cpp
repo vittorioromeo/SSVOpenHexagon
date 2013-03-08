@@ -21,7 +21,7 @@ using namespace hg;
 
 int main(int argc, char* argv[])
 {
-	sf::Thread thread(&checkUpdates); thread.launch();
+	Online::checkUpdates();
 
 	srand(unsigned(time(NULL)));
 

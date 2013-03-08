@@ -3,12 +3,20 @@
 
 namespace hg
 {
-	void checkUpdates();
+	namespace Online
+	{
+		void checkUpdates();
+		void sendScore(const std::string& mProfileName, const std::string& mLevelValidator, float mScore);
+		std::vector<std::pair<std::string, float>>& getScores(const std::string& mLevelValidator);
 
-	void setUpdatesChecked(bool mUpdatesChecked);
-	bool getUpdatesChecked();
-	void setServerVersion(float mServerVersion);
-	float getServerVersion();
+		void setUpdatesChecked(bool mUpdatesChecked);
+		bool getUpdatesChecked();
+		void setServerVersion(float mServerVersion);
+		float getServerVersion();
+
+		std::string getStripped(const std::string& mString);
+		std::string getCompressed(const std::string& mString);
+	}
 }
 
-#endif // HG_SERVER
+#endif

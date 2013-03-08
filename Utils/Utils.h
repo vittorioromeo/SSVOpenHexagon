@@ -30,9 +30,10 @@ namespace hg
 	sf::Color getColorDarkened(sf::Color, float);
 	sf::Color getColorFromJsonArray(Json::Value mArray);
 
+	std::string getFileContents(const std::string& mFilePath);
 	Json::Value getJsonFileRoot(const std::string& mFilePath);
 
-	LevelData loadLevelFromJson(Json::Value mRoot);
+	LevelData loadLevelFromJson(const std::string& mValidator, Json::Value mRoot);
 	MusicData loadMusicFromJson(Json::Value mRoot);
 	StyleData loadStyleFromJson(Json::Value mRoot);
 	ProfileData loadProfileFromJson(Json::Value mRoot);

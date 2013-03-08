@@ -51,6 +51,12 @@
 [loadFontsToManager(Assets/)] imagine.ttf font added
 [ASSETS] loading profiles
 [ASSETS] loading VeeDefault music
+[Online] Server message:
+Welcome to Open Hexagon!
+You're now connected to vittorioromeo.info.
+Good luck and have fun!
+[Online] Server latest version: 1.8
+[Online] No updates available
 [ASSETS] loading VeeDefault music data
 [ASSETS] loading VeeDefault style data
 [ASSETS] loading VeeDefault level data
@@ -65,9 +71,4 @@
 [ASSETS] loading VeeEndurance custom sounds
 [loadSound] VeeEndurance_test.ogg soundBuffer added
 [loadSound] VeeEndurance_test.ogg sound added
-[Online] Server message:
-Welcome to Open Hexagon!
-You're now connected to vittorioromeo.info.
-Good luck and have fun!
-[Online] Server latest version: 1.8
-[Online] No updates available
+[Online] 200

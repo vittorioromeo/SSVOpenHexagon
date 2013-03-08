@@ -9,13 +9,14 @@ using namespace std;
 
 namespace hg
 {
-	LevelData::LevelData(Json::Value mRoot) : root{mRoot} { }
+	LevelData::LevelData(const string& mValidator, Json::Value mRoot) : validator{mValidator}, root{mRoot} { }
 
 	void LevelData::addEvent(Json::Value mEventRoot) { events.push_back(mEventRoot); }
 
 	void LevelData::setPackPath(string mPackPath) 	{ packPath = mPackPath; }
 	string LevelData::getPackPath() 				{ return packPath; }
 
+	string LevelData::getValidator() 				{ return validator; }
 	Json::Value& LevelData::getRoot()				{ return root; }
 	string LevelData::getId() 						{ return getPackPath() + root["id"].asString(); }
 	string LevelData::getName() 					{ return root["name"].asString(); }

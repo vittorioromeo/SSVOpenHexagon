@@ -3,7 +3,8 @@
 	"name" : "dfhhd",
 	"scores" : 
 	{
-		"Packs/VeeDefault/easy_m_1" : null,
+		"Packs/VeeDefault/easy_m_0.5" : null,
+		"Packs/VeeDefault/easy_m_1" : 3.839192390441895,
 		"Packs/VeeDefault/extra_m_1" : 1.406468987464905,
 		"Packs/VeeDefault/goldenratio_m_1" : null,
 		"Packs/VeeDefault/hard_m_1" : 38.13558197021484,

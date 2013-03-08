@@ -14,6 +14,7 @@ namespace hg
 	class LevelData
 	{
 		private:
+			std::string validator;
 			Json::Value root;
 			int currentPattern{-1};
 			std::vector<Json::Value> events;
@@ -21,10 +22,11 @@ namespace hg
 
 		public:
 			LevelData() = default;
-			LevelData(Json::Value mRoot);
+			LevelData(const std::string& mValidator, Json::Value mRoot);
 			
 			void addEvent(Json::Value mEventRoot);
 
+			std::string getValidator();
 			Json::Value& getRoot();
 
 			void setPackPath(std::string mPackPath);

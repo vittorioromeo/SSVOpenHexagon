@@ -7,6 +7,7 @@
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 #include "MenuGame.h"
+#include "Online/Online.h"
 
 using namespace std;
 using namespace sf;
@@ -21,7 +22,7 @@ namespace hg
 		initFlashEffect();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
-		game.onDraw += [&](){ draw(); };
+		game.onDraw += [&]{ draw(); };
 		
 		using k = Keyboard::Key;
 		game.addInput({{k::Left}}, 		[&](float){ inputMovement = -1; });
@@ -148,10 +149,16 @@ namespace hg
 	void HexagonGame::checkAndSaveScore()
 	{
 		if(getInvincible()) return;
-		
+
 		string validator{getScoreValidator(levelData.getId(), difficultyMult)};
 		if(getScore(validator) < status.currentTime) setScore(validator, status.currentTime);
 		saveCurrentProfile();
+
+		string val{getScoreValidator(levelData.getId(), difficultyMult)};
+		val = Online::getStripped(val);
+		string onlineValidator{levelData.getValidator() + val};
+
+		Online::sendScore(getCurrentProfile().getName(), onlineValidator, status.currentTime);
 	}
 	void HexagonGame::goToMenu()
 	{

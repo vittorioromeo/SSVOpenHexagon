@@ -19,6 +19,7 @@
 #include "Global/Assets.h"
 #include "Global/Config.h"
 #include "Utils/Utils.h"
+#include "Online/Online.h"
 
 using namespace std;
 using namespace sf;
@@ -114,7 +115,17 @@ namespace hg
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Levels/", ".json"))
 		{
-			LevelData levelData{loadLevelFromJson(getJsonFileRoot(filePath))};
+			Json::Value root{getJsonFileRoot(filePath)};
+
+			string validatorLevel{getFileContents(filePath)};
+			string validatorLua{getFileContents(mPath + "Scripts/" + root["lua_file"].asString())};
+
+			validatorLevel = Online::getStripped(validatorLevel);
+			validatorLua = Online::getStripped(validatorLua);
+
+
+
+			LevelData levelData{loadLevelFromJson(validatorLevel + validatorLua, root)};
 			levelData.setPackPath(mPath);
 			levelDataMap.insert(make_pair(levelData.getId(), levelData));
 			levelIdsByPackMap[levelData.getPackPath()].push_back(levelData.getId());

@@ -230,14 +230,29 @@ namespace hg
 		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60});
 
 		string serverMessage{"connecting to server..."};
-		if(getUpdatesChecked())
+		if(Online::getUpdatesChecked())
 		{
-			if(getServerVersion() == -1) serverMessage = "error connecting to server";
-			else if(getServerVersion() == getVersion()) serverMessage = "";
-			else if(getServerVersion() < getVersion()) serverMessage = "your version is newer (beta)";
-			else if(getServerVersion() > getVersion()) serverMessage = "update available (" + toStr(getServerVersion()) + ")";
+			float serverVersion{Online::getServerVersion()};
+			if(serverVersion == -1) serverMessage = "error connecting to server";
+			else if(serverVersion == getVersion()) serverMessage = "";
+			else if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
+			else if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
 		}
 		renderText(serverMessage, cProfText, {20, 80});
+
+		//string val{getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])};
+		//val = Online.:getStripped(val);
+		//string onlineValidator{levelData.getValidator() + val};
+        //
+		//auto& scores(Online::getScores(onlineValidator));
+		//string scoresMessage{"getting scores..."};
+		//if(!scores.empty())
+		//{
+		//	scoresMessage = "";
+		//	for(auto& scorePair : scores)
+		//		scoresMessage.append(scorePair.first + ": " + toStr(scorePair.second) + "\n");
+		//}
+		//renderText(scoresMessage, cProfText, {20, 100});
 
 		renderText(levelData.getName(), levelName, {20, 50 + 120});
 		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});

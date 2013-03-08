@@ -21,12 +21,12 @@ namespace hg
 	template<> float getJsonValue(const Json::Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asFloat(); }
 	template<> bool getJsonValue(const Json::Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asBool(); }
 	template<> string getJsonValue(const Json::Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asString(); }
-	template<> char const* getJsonValue(const Json::Value& mRoot, const string& mValue)	{ return mRoot[mValue].asString().c_str(); }
+	template<> char const* getJsonValue(const Json::Value& mRoot, const string& mValue)	{ return mRoot[mValue].asCString(); }
 
 	Color getColorFromHue(double h)
 	{
 		double s{1}, v{1}, r{0}, g{0}, b{0};
-		int i = floor(h * 6);
+		int i(floor(h * 6));
 		double f{h * 6 - i}, p{v * (1 - s)}, q{v * (1 - f * s)}, t{v * (1 - (1 - f) * s)};
 
 		switch(i % 6)
@@ -44,22 +44,26 @@ namespace hg
 	Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
 	Color getColorFromJsonArray(Json::Value mArray) { return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat()); }
 
+	string getFileContents(const string& mFilePath)
+	{
+		std::ifstream ifs(mFilePath);
+		std::string content{(istreambuf_iterator<char>(ifs)), (istreambuf_iterator<char>())};
+		return content;
+	}
 	Json::Value getJsonFileRoot(const string& mFilePath)
 	{
 		Json::Value root;
 		Json::Reader reader;
-		ifstream stream(mFilePath, std::ifstream::binary);
+		ifstream stream{mFilePath, ifstream::binary};
 
-		bool parsingSuccessful = reader.parse( stream, root, false );
-		if(!parsingSuccessful) cout << reader.getFormatedErrorMessages() << endl;
-
+		if(!reader.parse(stream, root, false)) log(reader.getFormatedErrorMessages() + " [" + mFilePath + "]", "JSON Error");
 		return root;
 	}
 
-	LevelData loadLevelFromJson(Json::Value mRoot)
+	LevelData loadLevelFromJson(const string& mValidator, Json::Value mRoot)
 	{
-		auto result = LevelData{mRoot};
-		for (Json::Value event : mRoot["events"]) result.addEvent(event);
+		auto result = LevelData{mValidator, mRoot};
+		for(Json::Value event : mRoot["events"]) result.addEvent(event);
 		return result;
 	}
 	MusicData loadMusicFromJson(Json::Value mRoot)
@@ -71,7 +75,7 @@ namespace hg
 		string author 			{ mRoot["author"].asString() };
 
 		MusicData result{id, fileName, name, album, author};
-		for (Json::Value segment : mRoot["segments"]) result.addSegment(segment["time"].asInt());
+		for(Json::Value segment : mRoot["segments"]) result.addSegment(segment["time"].asInt());
 		return result;
 	}
 	StyleData loadStyleFromJson(Json::Value mRoot) { return StyleData(mRoot); }
