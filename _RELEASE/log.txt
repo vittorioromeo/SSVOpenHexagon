@@ -63,180 +63,21 @@
 [ASSETS] loading VeeEndurance level data
 [ASSETS] loading VeeEndurance events
 [ASSETS] loading VeeEndurance custom sounds
+[loadSound] VeeEndurance_test.ogg soundBuffer added
+[loadSound] VeeEndurance_test.ogg sound added
 [Online] Server message:
 Welcome to Open Hexagon!
 You're now connected to vittorioromeo.info.
 Good luck and have fun!
 [Online] Server latest version: 1.8
 [Online] No updates available
-[loadSound] VeeEndurance_test.ogg soundBuffer added
-[loadSound] VeeEndurance_test.ogg sound added
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
@@ -246,33 +87,23 @@ Good luck and have fun!
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
@@ -281,77 +112,46 @@ Good luck and have fun!
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
-[Online] Score sent successfully
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
 [Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
 [Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Checking scores
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores

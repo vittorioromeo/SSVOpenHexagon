@@ -16,14 +16,13 @@ namespace hg
 	namespace Online
 	{
 		MemoryManager<Thread> memoryManager;
-		vector<string> checkedValidators;
 		map<string, vector<pair<string, float>>> scoreVectors;
 		bool updatesChecked{false};
 		float serverVersion{-1};
 
 		void checkUpdates()
 		{
-			memoryManager.create([]
+			Thread& thread = memoryManager.create([&thread]
 			{
 				Http http;
 				http.setHost("http://vittorioromeo.info");
@@ -51,12 +50,17 @@ namespace hg
 				}
 
 				setUpdatesChecked(true);
-			}).launch();
+
+				memoryManager.del(&thread);
+				memoryManager.cleanUp();
+			});
+			
+			thread.launch();
 		}
 
 		void sendScore(const string& mProfileName, const string& mLevelValidator, float mScore)
 		{
-			auto& thread = memoryManager.create([=]
+			Thread& thread = memoryManager.create([=, &thread]
 			{
 				Http http;
 				http.setHost("http://vittorioromeo.info");
@@ -68,9 +72,12 @@ namespace hg
 
 				if(status == Http::Response::Ok) log("Score sent successfully", "Online");
 				else log("Send score error: " + status, "Online");
+
+				memoryManager.del(&thread);
+				memoryManager.cleanUp();
 			});
 
-			auto& checkThread = memoryManager.create([=, &thread]
+			Thread& checkThread = memoryManager.create([=, &thread, &checkThread]
 			{
 				while(!updatesChecked)
 				{
@@ -86,8 +93,11 @@ namespace hg
 						checkUpdates();
 					}
 				}
-
+				
 				thread.launch();
+
+				memoryManager.del(&checkThread);
+				memoryManager.cleanUp();
 			});
 
 			checkThread.launch();
@@ -95,12 +105,9 @@ namespace hg
 		vector<pair<string, float>>& getScores(const string& mLevelValidator)
 		{
 			string compressedValidator{getCompressed(mLevelValidator)};
-			vector<pair<string, float>>& result(scoreVectors[compressedValidator]);
+			auto& result(scoreVectors[compressedValidator]);
 
-			if(!(find(checkedValidators.begin(), checkedValidators.end(), compressedValidator) == checkedValidators.end())) return result;
-			
-			checkedValidators.push_back(compressedValidator);
-			memoryManager.create([&result, &checkedValidators, compressedValidator]
+			Thread& thread = memoryManager.create([&result, &thread, compressedValidator]
 			{
 				log("Checking scores", "Online");
 				
@@ -126,15 +133,48 @@ namespace hg
 					}
 
 					log("Scores retrieved successfully", "Online");
-
-					eraseRemove(checkedValidators, compressedValidator);
 				}
 				else log("Error getting scores", "Online");
 
 				log("Finished checking scores", "Online");
-			}).launch();
+
+				memoryManager.del(&thread);
+				memoryManager.cleanUp();
+			});
+
+			thread.launch();
 
 			return result;
+		}
+		void getLeaderboard(string& mLeaderboard, const string& mLevelValidator)
+		{
+			string compressedValidator{getCompressed(mLevelValidator)};
+			auto& scores(scoreVectors[compressedValidator]);
+			mLeaderboard = "checking scores...";
+
+			Thread& thread = memoryManager.create([&mLeaderboard, &scores, &thread, compressedValidator]
+			{
+				while(scores.empty()) sleep(seconds(1));
+
+				mLeaderboard = "";
+				for(unsigned int i{0}; i < scores.size(); ++i)
+				{
+					if(i > 2) break;
+					auto& scorePair(scores[i]);
+					mLeaderboard.append("(" + toStr(i + 1) +") " + scorePair.first + ": " + toStr(scorePair.second) + "\n");
+				}
+
+				memoryManager.del(&thread);
+				memoryManager.cleanUp();
+			});
+
+			thread.launch();
+		}
+
+		void cleanUp()
+		{
+			for(auto& thread : memoryManager.getItems()) thread->terminate();
+			memoryManager.cleanUp();
 		}
 
 		void setUpdatesChecked(bool mUpdatesChecked) { updatesChecked = mUpdatesChecked; }

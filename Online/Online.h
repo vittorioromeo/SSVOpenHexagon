@@ -8,6 +8,9 @@ namespace hg
 		void checkUpdates();
 		void sendScore(const std::string& mProfileName, const std::string& mLevelValidator, float mScore);
 		std::vector<std::pair<std::string, float>>& getScores(const std::string& mLevelValidator);
+		void getLeaderboard(std::string& mLeaderboard, const std::string& mLevelValidator);
+
+		void cleanUp();
 
 		void setUpdatesChecked(bool mUpdatesChecked);
 		bool getUpdatesChecked();

@@ -36,7 +36,7 @@ namespace hg
 		initInput();
 	}
 
-	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
+	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); checkScores(); }
 	void MenuGame::initAssets()
 	{
 		getAssetManager().getTexture("titleBar.png").setSmooth(true);
@@ -164,6 +164,18 @@ namespace hg
 		styleData = getStyleData(levelData.getStyleId());
 		difficultyMultipliers = levelData.getDifficultyMultipliers();
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
+
+		checkScores();
+	}
+
+	void MenuGame::checkScores()
+	{
+		string val{getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])};
+		val = Online::getStripped(val);
+		string onlineValidator{levelData.getValidator() + val};
+
+		Online::getScores(onlineValidator);
+		Online::getLeaderboard(scoresMessage, onlineValidator);
 	}
 
 	void MenuGame::update(float mFrameTime)
@@ -239,19 +251,7 @@ namespace hg
 			else if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
 		}
 		renderText(serverMessage, cProfText, {20, 80});
-
-		string val{getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])};
-		val = Online::getStripped(val);
-		string onlineValidator{levelData.getValidator() + val};
-
-		auto& scores(Online::getScores(onlineValidator));
-		string scoresMessage{"getting scores..."};
-		if(!scores.empty())
-		{
-			scoresMessage = "";
-			for(auto& scorePair : scores)
-				scoresMessage.append(scorePair.first + ": " + toStr(scorePair.second) + "\n");
-		}
+		
 		renderText(scoresMessage, cProfText, {20, 100});
 
 		renderText(levelData.getName(), levelName, {20, 50 + 120});

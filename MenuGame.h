@@ -30,6 +30,7 @@ namespace hg
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
 			States state{States::PROFILES};
 			ssvms::Menu optionsMenu;
+			std::string scoresMessage;
 			float exitTimer{0};
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")};
@@ -46,6 +47,8 @@ namespace hg
 
 			std::vector<float> difficultyMultipliers;
 			int difficultyMultIndex{0};
+
+			void checkScores();
 
 			void update(float mFrameTime);
 			void draw();
