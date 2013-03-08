@@ -240,19 +240,19 @@ namespace hg
 		}
 		renderText(serverMessage, cProfText, {20, 80});
 
-		//string val{getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])};
-		//val = Online.:getStripped(val);
-		//string onlineValidator{levelData.getValidator() + val};
-        //
-		//auto& scores(Online::getScores(onlineValidator));
-		//string scoresMessage{"getting scores..."};
-		//if(!scores.empty())
-		//{
-		//	scoresMessage = "";
-		//	for(auto& scorePair : scores)
-		//		scoresMessage.append(scorePair.first + ": " + toStr(scorePair.second) + "\n");
-		//}
-		//renderText(scoresMessage, cProfText, {20, 100});
+		string val{getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])};
+		val = Online::getStripped(val);
+		string onlineValidator{levelData.getValidator() + val};
+
+		auto& scores(Online::getScores(onlineValidator));
+		string scoresMessage{"getting scores..."};
+		if(!scores.empty())
+		{
+			scoresMessage = "";
+			for(auto& scorePair : scores)
+				scoresMessage.append(scorePair.first + ": " + toStr(scorePair.second) + "\n");
+		}
+		renderText(scoresMessage, cProfText, {20, 100});
 
 		renderText(levelData.getName(), levelName, {20, 50 + 120});
 		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});

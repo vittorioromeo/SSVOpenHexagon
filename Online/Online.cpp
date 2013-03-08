@@ -17,8 +17,7 @@ namespace hg
 	{
 		MemoryManager<Thread> memoryManager;
 		vector<string> checkedValidators;
-		map<string, bool> scoresBeingChecked;
-		MemoryManager<pair<string, vector<pair<string, float>>>> vecMemoryManager;
+		map<string, vector<pair<string, float>>> scoreVectors;
 		bool updatesChecked{false};
 		float serverVersion{-1};
 
@@ -57,31 +56,18 @@ namespace hg
 
 		void sendScore(const string& mProfileName, const string& mLevelValidator, float mScore)
 		{
-			string compressedValidator{getCompressed(mLevelValidator)};
-
-			Http http;
-			http.setHost("http://vittorioromeo.info");
-			string phpArguments{"profileName=" + mProfileName + "&levelValidator=" + compressedValidator + "&score=" + toStr(mScore)};
-
-
-			string data{"Content-Type: multipart/form-data;\n\nContent-Disposition: form-data; name=\"profileName\"\nContent-Type: text/plain\n\n" +
-							mProfileName + "\n\nContent-Disposition: form-data; name=\"levelValidator\"\nContent-Type: text/plain\n\n" +
-							mLevelValidator + "\n\nContent-Disposition: form-data; name=\"score\"\nContent-Type: text/plain\n\n" + toStr(mScore)};
-cout <<phpArguments << endl;
-
-			Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post);
-			request.setBody(phpArguments);
-			Http::Response response{http.sendRequest(request)};
-			Http::Response::Status status{response.getStatus()};
-
-			log(response.getStatus(), "Online");
-
-
-			return;
-
 			auto& thread = memoryManager.create([=]
 			{
-				
+				Http http;
+				http.setHost("http://vittorioromeo.info");
+				string compressedValidator{getCompressed(mLevelValidator)};
+				string args{"profileName=" + mProfileName + "&levelValidator=" + compressedValidator + "&score=" + toStr(mScore)};
+				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
+				Http::Response response{http.sendRequest(request)};
+				Http::Response::Status status{response.getStatus()};
+
+				if(status == Http::Response::Ok) log("Score sent successfully", "Online");
+				else log("Send score error: " + status, "Online");
 			});
 
 			auto& checkThread = memoryManager.create([=, &thread]
@@ -108,23 +94,13 @@ cout <<phpArguments << endl;
 		}
 		vector<pair<string, float>>& getScores(const string& mLevelValidator)
 		{
-			vector<pair<string, float>>* result{nullptr};
+			string compressedValidator{getCompressed(mLevelValidator)};
+			vector<pair<string, float>>& result(scoreVectors[compressedValidator]);
 
-			if(!contains(checkedValidators, mLevelValidator))
-			{
-				checkedValidators.push_back(mLevelValidator);
-				result = &(vecMemoryManager.create(mLevelValidator, vector<pair<string, float>>{}).second);
-			}
-			else
-			{
-				for(auto& pair : vecMemoryManager.getItems()) if(pair->first == mLevelValidator) { result = &(pair->second); break; }
-			}
-
-			if(scoresBeingChecked.find(mLevelValidator) == scoresBeingChecked.end()) scoresBeingChecked[mLevelValidator] = false;
-			if(scoresBeingChecked[mLevelValidator]) return *result;
-			scoresBeingChecked[mLevelValidator] = true;
-
-			memoryManager.create([result, mLevelValidator, &scoresBeingChecked]
+			if(!(find(checkedValidators.begin(), checkedValidators.end(), compressedValidator) == checkedValidators.end())) return result;
+			
+			checkedValidators.push_back(compressedValidator);
+			memoryManager.create([&result, &checkedValidators, compressedValidator]
 			{
 				log("Checking scores", "Online");
 				
@@ -135,20 +111,30 @@ cout <<phpArguments << endl;
 				Http::Response::Status status{response.getStatus()};
 				if(status == Http::Response::Ok)
 				{
+					result.clear();
+
 					Json::Value root; Json::Reader reader; reader.parse(response.getBody(), root);
-					Json::Value array{root[mLevelValidator]};
-					for(unsigned int i{0}; i < root["mLevelValidator"].size(); ++i)
-						result->push_back({root[mLevelValidator][i]["profileName"].asString(), root[mLevelValidator][i]["score"].asFloat()});
+					Json::Value array{root[compressedValidator]};
+
+					for(auto itr = array.begin(); itr != array.end(); ++itr)
+					{
+						Json::Value& record(*itr);
+						string name{record["profileName"].asString()};
+						float score{record["score"].asFloat()};
+
+						result.push_back({name, score});
+					}
 
 					log("Scores retrieved successfully", "Online");
+
+					eraseRemove(checkedValidators, compressedValidator);
 				}
 				else log("Error getting scores", "Online");
 
 				log("Finished checking scores", "Online");
-				scoresBeingChecked[mLevelValidator] = false;
 			}).launch();
 
-			return *result;
+			return result;
 		}
 
 		void setUpdatesChecked(bool mUpdatesChecked) { updatesChecked = mUpdatesChecked; }
