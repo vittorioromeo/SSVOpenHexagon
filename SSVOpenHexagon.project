@@ -44,6 +44,8 @@
     <VirtualDirectory Name="Utils">
       <File Name="Utils/Utils.cpp"/>
       <File Name="Utils/Utils.h"/>
+      <File Name="Utils/MD5.h"/>
+      <File Name="Utils/MD5.cpp"/>
     </VirtualDirectory>
     <File Name="HGScripting.cpp"/>
     <File Name="HGUpdate.cpp"/>
