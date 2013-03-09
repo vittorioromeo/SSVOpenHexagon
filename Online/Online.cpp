@@ -21,6 +21,8 @@ namespace hg
 
 		void startCheckUpdates()
 		{
+			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+
 			Thread& thread = memoryManager.create([&thread]
 			{
 				log("Checking updates...", "Online");
@@ -59,6 +61,8 @@ namespace hg
 		}
 		void startCheckScores()
 		{
+			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+
 			Thread& thread = memoryManager.create([&thread]
 			{
 				log("Checking scores...", "Online");
@@ -87,6 +91,8 @@ namespace hg
 		}
 		void startSendScore(const string& mName, const string& mValidator, float mScore)
 		{
+			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+
 			Thread& thread = memoryManager.create([=, &thread]
 			{
 				log("Sending score to server...", "Online");

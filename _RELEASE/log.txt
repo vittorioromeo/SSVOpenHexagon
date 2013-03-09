@@ -1,6 +1,6 @@
+[Online] Online disabled, aborting
+[Online] Online disabled, aborting
 [CONFIG] loading config
-[Online] Checking updates...
-[Online] Checking scores...
 [loadImages] bottomBar.png image added
 [loadImages] bottomBar.png texture added
 [loadImagesToManager(Assets/)] bottomBar.png image added
@@ -67,6 +67,8 @@
 [ASSETS] loading VeeEndurance custom sounds
 [loadSound] VeeEndurance_test.ogg soundBuffer added
 [loadSound] VeeEndurance_test.ogg sound added
+[Online] Checking updates...
+[Online] Checking scores...
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
 [Online] Server message:

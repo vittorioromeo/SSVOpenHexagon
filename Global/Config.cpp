@@ -10,6 +10,7 @@
 #include "Global/Config.h"
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
+#include "Online/Online.h"
 
 using namespace std;
 using namespace sf;
@@ -66,8 +67,8 @@ namespace hg
 
 		string original{buffer.str()};
 
-		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible", "auto_restart"};
-		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible(), getAutoRestart()};
+		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible", "auto_restart", "online"};
+		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible(), getAutoRestart(), getOnline()};
 
 		for(unsigned int i{0}; i < elements.size(); ++i)
 		{
@@ -81,6 +82,8 @@ namespace hg
 	bool isEligibleForScore()
 	{
 		if(getInvincible()) return false;
+		if(Online::getServerVersion() == -1) return false;
+		if(Online::getServerVersion() > getVersion()) return false;
 		return true;
 	}
 
@@ -106,6 +109,7 @@ namespace hg
 		mWindow.setFullscreen(getFullscreen());
 	}
 
+	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) { Online::startCheckUpdates(); Online::startCheckScores(); } }
 	void setNoRotation(bool mNoRotation)		{ root["no_rotation"] = mNoRotation; }
 	void setNoBackground(bool mNoBackground)	{ root["no_background"] = mNoBackground; }
 	void setBlackAndWhite(bool mBlackAndWhite)	{ root["black_and_white"] = mBlackAndWhite; }
@@ -116,6 +120,7 @@ namespace hg
 	void setInvincible(bool mInvincible)		{ root["invincible"] = mInvincible; }
 	void setAutoRestart(bool mAutoRestart) 		{ root["auto_restart"] = mAutoRestart; }
 
+	bool getOnline()					{ return root["online"].asBool(); }
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
 	float getSpawnDistance() 			{ return spawnDistance; }

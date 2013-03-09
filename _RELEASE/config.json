@@ -1,4 +1,7 @@
 {
+	// Online capabilities
+	"online": false,
+
 	// Window options
 	"fullscreen": true,
 	"fullscreen_auto_resolution": true,

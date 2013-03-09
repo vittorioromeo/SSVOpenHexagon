@@ -18,6 +18,7 @@ namespace hg
 	void recalculateSizes();
 	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
+	void setOnline(bool mOnline);
 	void setNoRotation(bool mNoRotation);		
 	void setNoBackground(bool mNoBackground);
 	void setBlackAndWhite(bool mBlackAndWhite);
@@ -28,6 +29,7 @@ namespace hg
 	void setInvincible(bool mInvincible);
 	void setAutoRestart(bool mAutoRestart);
 
+	bool getOnline();
 	float getSizeX();
 	float getSizeY();
 	float getSpawnDistance();

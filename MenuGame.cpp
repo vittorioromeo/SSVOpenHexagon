@@ -78,6 +78,7 @@ namespace hg
 		main.create<i::Goto>("graphics", gfx);
 		main.create<i::Goto>("audio", sfx);
 		main.create<i::Goto>("debug", debug);
+		main.create<i::Toggle>("online", [&]{ return getOnline(); }, [&]{ setOnline(true); }, [&]{ setOnline(false); });
 		main.create<i::Single>("back", [&]{ state = States::MAIN; });
 
 		gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
@@ -264,7 +265,7 @@ namespace hg
 		if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
 		renderText(serverMessage, cProfText, {20, 0}, 13);
 
-		if(!isEligibleForScore()) renderText("your options are not eligible for scoring", cProfText, {20, 11}, 11);
+		if(!isEligibleForScore()) renderText("you are not eligible for scoring", cProfText, {20, 11}, 11);
 
 		renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5});
 		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 5});

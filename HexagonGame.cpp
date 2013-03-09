@@ -148,14 +148,16 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(!isEligibleForScore()) return;
+		if(getInvincible()) return;
 
-		string validator{getScoreValidator(levelData.getId(), difficultyMult)};
-		if(getScore(validator) < status.currentTime) setScore(validator, status.currentTime);
+		string localValidator{getScoreValidator(levelData.getId(), difficultyMult)};
+		if(getScore(localValidator) < status.currentTime) setScore(localValidator, status.currentTime);
 		saveCurrentProfile();
 
-		string onlineValidator{Online::getValidator(levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
-		Online::startSendScore(getCurrentProfile().getName(), onlineValidator, status.currentTime);
+		if(!isEligibleForScore()) return;
+
+		string validator{Online::getValidator(levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+		Online::startSendScore(getCurrentProfile().getName(), validator, status.currentTime);
 	}
 	void HexagonGame::goToMenu()
 	{
