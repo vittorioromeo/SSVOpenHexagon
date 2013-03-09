@@ -56,6 +56,7 @@
       <File Name="Online/Online.cpp"/>
       <File Name="Online/Online.h"/>
       <File Name="Online/ThreadWrapper.h"/>
+      <File Name="Online/Definitions.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>

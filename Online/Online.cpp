@@ -6,7 +6,9 @@
 #include "Online.h"
 #include "Global/Config.h"
 #include "Utils/Utils.h"
+#include "Utils/MD5.h"
 #include "Online/ThreadWrapper.h"
+#include "Online/Definitions.h"
 
 using namespace std;
 using namespace sf;
@@ -97,8 +99,12 @@ namespace hg
 			{
 				log("Sending score to server...", "Online");
 
+				string scoreString{toStr(mScore)};
+				MD5 key(mName + mValidator + scoreString + HG_SERVER_KEY);
+				string hash{key.GetHash()};
+
 				Http http("http://vittorioromeo.info");
-				string args{"n=" + mName + "&v=" + mValidator + "&s=" + toStr(mScore)};
+				string args{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k="};
 				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
@@ -154,7 +160,7 @@ namespace hg
 		string getCompressed(const string& mString)
 		{
 			string result{""};
-			for(unsigned int i{0}; i < mString.size(); ++i) if(i % 15 == 0) result += mString[i];
+			for(unsigned int i{0}; i < mString.size(); ++i) if(i % 20 == 0) result += mString[i];
 			return result;
 		}
 		string getValidator(const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
