@@ -55,7 +55,7 @@ namespace hg
 			std::string restartId{""};
 			float difficultyMult{1};
 			int inputMovement{0};
-			bool inputFocused{false};
+			bool inputFocused{false}, mustTakeScreenshot{false};
 
 			// LUA-related methods
 			void initLua();

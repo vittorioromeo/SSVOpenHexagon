@@ -30,6 +30,8 @@ namespace hg
 		}
 		backgroundCamera.apply(); manager.draw();
 		overlayCamera.apply(); drawText(); render(flashPolygon);
+
+		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
 	void HexagonGame::render(Drawable &mDrawable) { window.draw(mDrawable); }

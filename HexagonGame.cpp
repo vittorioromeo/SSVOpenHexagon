@@ -32,7 +32,7 @@ namespace hg
 		game.addInput({{k::R}}, 		[&](float){ status.mustRestart = true; });
 		game.addInput({{k::Space}}, 	[&](float){ if(status.hasDied) status.mustRestart = true; });
 		game.addInput({{k::Return}}, 	[&](float){ if(status.hasDied) status.mustRestart = true; });
-		game.addInput({{k::F12}}, 		[&](float){ window.getRenderWindow().capture().saveToFile("screenshot.jpg"); });
+		game.addInput({{k::F12}}, 		[&](float){ mustTakeScreenshot = true; }, Input::Trigger::Types::SINGLE);
 
 		using b = Mouse::Button;
 		game.addInput({{b::Left}}, 		[&](float){ inputMovement = -1; });
