@@ -2,6 +2,7 @@
 ## Eclipse
 #################
 
+*.project
 *.pydevproject
 .project
 .metadata
@@ -160,6 +161,9 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+*.project
+.project
+SSVOpenHexagon.project
 *.ogg
 *.wav
 *.o
