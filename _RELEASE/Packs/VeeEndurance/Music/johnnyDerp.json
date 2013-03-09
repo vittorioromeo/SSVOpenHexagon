@@ -18,7 +18,3 @@
 		{ "time": 145 }
 	]
 }
-
-//  $hash = md5($_GET['username'] . $_GET['score'] . $_GLOBAL['secretkey']);
-// COSMO_SERVER_KEY it's a #define created during compilation
-// so it doesn't appear it the source
