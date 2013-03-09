@@ -132,7 +132,7 @@
       </Completion>
     </Configuration>
     <Configuration Name="Release" CompilerType="nuwen" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-W;-pedantic;-O3;-Wextra;-std=c++11;-Wall" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+      <Compiler Options="-W;-pedantic;-O3;-std=c++11;-Wall;-Wextra;-DHG_SERVER_KEY &quot;o5h2h8g4v1e7e4&quot;" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="../SSVLuaWrapper"/>

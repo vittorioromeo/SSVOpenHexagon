@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=vittorio.romeo
-Date                   :=09/03/2013
+Date                   :=10/03/2013
 CodeLitePath           :="C:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -52,7 +52,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/
 AR       := ar rcus
 CXX      := g++
 CC       := gcc
-CXXFLAGS :=  -W -pedantic -O3 -Wextra -std=c++11 -Wall $(Preprocessors)
+CXXFLAGS :=  -W -pedantic -O3 -std=c++11 -Wall -Wextra -DHG_SERVER_KEY "o5h2h8g4v1e7e4" $(Preprocessors)
 CFLAGS   :=  -O2 -Wall $(Preprocessors)
 
 
