@@ -1,0 +1,12 @@
+
+{
+	"name" : "test",
+	"scores" : 
+	{
+		"Packs/VeeDefault/easy_m_1" : null,
+		"Packs/VeeDefault/hard_m_1" : 1.170714139938355,
+		"Packs/VeeDefault/normal_m_1" : null,
+		"Packs/VeeDefault/tutorial_m_1" : null
+	},
+	"version" : 1.799999952316284
+}
