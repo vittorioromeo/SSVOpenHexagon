@@ -258,21 +258,25 @@ namespace hg
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
 		string packName{packData.getName()}, packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
 
-		string serverMessage{"connecting to server..."};
-		float serverVersion{Online::getServerVersion()};
-		if(serverVersion == getVersion()) serverMessage = "you have the latest version";
-		if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
-		if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
-		renderText(serverMessage, cProfText, {20, 0}, 13);
+		if(getOnline())
+		{
+			string serverMessage{"connecting to server..."};
+			float serverVersion{Online::getServerVersion()};
+			if(serverVersion == getVersion()) serverMessage = "you have the latest version";
+			if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
+			if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
+			renderText(serverMessage, cProfText, {20, 0}, 13);
 
-		if(!isEligibleForScore()) renderText("you are not eligible for scoring", cProfText, {20, 11}, 11);
+			if(!isEligibleForScore()) renderText("you are not eligible for scoring", cProfText, {20, 11}, 11);
 
-		renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5});
-		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 5});
-		renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 50 + 5});
-		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 70 + 5});
+			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5});
+			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 5});
+			renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 50 + 5});
+			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 70 + 5});
 
-		renderText(getLeaderboard(), cProfText, {20, 100});
+			renderText(getLeaderboard(), cProfText, {20, 100});
+		}
+		else renderText("online disabled", cProfText, {20, 0}, 13);
 
 		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25});
 		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 60.f * (countNewLines(levelData.getName()))});

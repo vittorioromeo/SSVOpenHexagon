@@ -1,3 +1,4 @@
+#include <functional>
 #include <SFML/Network.hpp>
 #include <json/json.h>
 #include <json/reader.h>
@@ -15,6 +16,14 @@ namespace hg
 {
 	namespace Online
 	{
+		struct ThreadWrapper
+		{
+			bool finished;
+			function<void()> func;
+			Thread thread;
+			ThreadWrapper(function<void()> mFunction) : finished{false}, func{[&, mFunction]{ mFunction(); finished = true; }}, thread{func} { thread.launch(); }
+		};
+
 		MemoryManager<Thread> memoryManager;
 		float serverVersion{-1};
 		Json::Value scoresRoot;
@@ -88,6 +97,8 @@ namespace hg
 			});
 
 			thread.launch();
+			Thread& test = memoryManager.create([&test] { startCheckScores(); sleep(seconds(1)); memoryManager.del(&test); memoryManager.cleanUp();});
+			test.launch();
 		}
 		void startSendScore(const string& mName, const string& mValidator, float mScore)
 		{
