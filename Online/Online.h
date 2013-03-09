@@ -15,8 +15,6 @@ namespace hg
 		float getServerVersion();
 		Json::Value getScores(const std::string& mValidator);
 		std::string getValidator(const std::string& mLevelId, const std::string& mJsonRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);
-		std::string getStripped(const std::string& mString);
-		std::string getCompressed(const std::string& mString);
 	}
 }
 

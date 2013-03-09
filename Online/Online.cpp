@@ -6,6 +6,7 @@
 #include "Online.h"
 #include "Global/Config.h"
 #include "Utils/Utils.h"
+#include "Online/ThreadWrapper.h"
 
 using namespace std;
 using namespace sf;
@@ -16,15 +17,7 @@ namespace hg
 {
 	namespace Online
 	{
-		struct ThreadWrapper
-		{
-			bool finished;
-			function<void()> func;
-			Thread thread;
-			ThreadWrapper(function<void()> mFunction) : finished{false}, func{[&, mFunction]{ mFunction(); finished = true; }}, thread{func} { }
-			void launch() { thread.launch(); }
-			void terminate() { thread.terminate(); }
-		};
+		
 
 		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
@@ -38,7 +31,7 @@ namespace hg
 			{
 				log("Checking updates...", "Online");
 
-				Http http; http.setHost("http://vittorioromeo.info");
+				Http http("http://vittorioromeo.info");
 				Http::Request request("Misc/Linked/OHServer/OHInfo.json");
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
@@ -77,7 +70,7 @@ namespace hg
 			{
 				log("Checking scores...", "Online");
 
-				Http http; http.setHost("http://vittorioromeo.info");
+				Http http("http://vittorioromeo.info");
 				Http::Request request("Misc/Linked/OHServer/scores.json");
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
@@ -106,7 +99,7 @@ namespace hg
 			{
 				log("Sending score to server...", "Online");
 
-				Http http; http.setHost("http://vittorioromeo.info");
+				Http http("http://vittorioromeo.info");
 				string args{"n=" + mName + "&v=" + mValidator + "&s=" + toStr(mScore)};
 				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
 				Http::Response response{http.sendRequest(request)};
@@ -142,7 +135,7 @@ namespace hg
 
 		void cleanUp()
 		{
-			for(auto& thread : memoryManager.getItems()) if(thread->finished) memoryManager.del(thread); 
+			for(auto& thread : memoryManager.getItems()) if(thread->getFinished()) memoryManager.del(thread); 
 			memoryManager.cleanUp();
 		}
 		void terminateAll()
@@ -153,15 +146,6 @@ namespace hg
 
 		float getServerVersion() { return serverVersion; }
 		Json::Value getScores(const std::string& mValidator) { return scoresRoot[mValidator]; }
-		string getValidator(const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
-		{
-			string result{""};
-			result.append(getStripped(mLevelId));
-			result.append(getCompressed(getStripped(getFileContents(mJsonRootPath))));
-			result.append(getCompressed(getStripped(getFileContents(mLuaScriptPath))));
-			result.append(toStr(mDifficultyMultiplier));
-			return result;
-		}
 		string getStripped(const string& mString)
 		{
 			string result{mString};
@@ -173,6 +157,15 @@ namespace hg
 		{
 			string result{""};
 			for(unsigned int i{0}; i < mString.size(); ++i) if(i % 15 == 0) result += mString[i];
+			return result;
+		}
+		string getValidator(const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		{
+			string result{""};
+			result.append(getStripped(mLevelId));
+			result.append(getCompressed(getStripped(getFileContents(mJsonRootPath))));
+			result.append(getCompressed(getStripped(getFileContents(mLuaScriptPath))));
+			result.append(toStr(mDifficultyMultiplier));
 			return result;
 		}
 	}
