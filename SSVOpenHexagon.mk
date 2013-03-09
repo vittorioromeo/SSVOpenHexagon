@@ -52,7 +52,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVStart/
 AR       := ar rcus
 CXX      := g++
 CC       := gcc
-CXXFLAGS :=  -W -pedantic -O3 -std=c++11 -Wall -Wextra -DHG_SERVER_KEY "o5h2h8g4v1e7e4" $(Preprocessors)
+CXXFLAGS :=  -W -pedantic -O3 -std=c++11 -Wall -Wextra -DHG_SERVER_KEY="o5h2h8g4v1e7e4" $(Preprocessors)
 CFLAGS   :=  -O2 -Wall $(Preprocessors)
 
 
