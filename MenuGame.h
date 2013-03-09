@@ -57,7 +57,7 @@ namespace hg
 			void drawProfileSelection();
 			void drawOptions();
 			void setIndex(int mIndex);
-			void renderText(const std::string& mString, sf::Text& mText, sf::Vector2f mPosition);
+			void renderText(const std::string& mString, sf::Text& mText, sf::Vector2f mPosition, unsigned int mSize = 0);
 
 			LevelData levelData;
 			StyleData styleData;

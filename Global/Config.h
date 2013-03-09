@@ -13,6 +13,8 @@ namespace hg
 	void loadConfig(std::vector<std::string> mOverridesIds);
 	void saveConfig();
 
+	bool isEligibleForScore();
+
 	void recalculateSizes();
 	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
@@ -25,7 +27,6 @@ namespace hg
 	void set3D(bool m3D);
 	void setInvincible(bool mInvincible);
 	void setAutoRestart(bool mAutoRestart);
-	void set3DMultiplier(float m3DMultiplier);
 
 	float getSizeX();
 	float getSizeY();
@@ -65,8 +66,8 @@ namespace hg
 	bool getBeatPulse();
 	bool getInvincible();
 	bool get3D();
-	float get3DMultiplier();
 	unsigned int get3DMaxDepth();
+	float get3DMultiplier();
 	bool getAutoRestart();
 }
 

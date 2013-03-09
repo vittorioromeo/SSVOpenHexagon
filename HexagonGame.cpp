@@ -148,7 +148,7 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(getInvincible()) return;
+		if(!isEligibleForScore()) return;
 
 		string validator{getScoreValidator(levelData.getId(), difficultyMult)};
 		if(getScore(validator) < status.currentTime) setScore(validator, status.currentTime);

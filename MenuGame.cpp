@@ -85,7 +85,6 @@ namespace hg
 		gfx.create<i::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
 		gfx.create<i::Toggle>("3D effect",	[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
 		gfx.create<i::Toggle>("pulse", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
-		gfx.create<i::Slider>("3D mult",	[&]{ return toStr(get3DMultiplier()); },[&]{ set3DMultiplier(get3DMultiplier() + 0.5f); }, 	[&]{ set3DMultiplier(get3DMultiplier() - 0.5f); });
 		gfx.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
 		gfx.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
 		gfx.create<i::Goto>("back", main);
@@ -188,7 +187,7 @@ namespace hg
 		string result{""};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
-			if(i > 2) break;
+			if(i > 4) break;
 			auto& recordPair(recordPairs[i]);
 			result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
 		}
@@ -236,8 +235,11 @@ namespace hg
 		overlayCamera.apply(); render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
 	}
 
-	void MenuGame::renderText(const string& mString, Text& mText, sf::Vector2f mPosition)
+	void MenuGame::renderText(const string& mString, Text& mText, sf::Vector2f mPosition, unsigned int mSize)
 	{
+		unsigned int originalSize{mText.getCharacterSize()};
+		if(mSize != 0) mText.setCharacterSize(mSize);
+
 		mText.setString(mString);
 
 		if(state != States::MAIN || getBlackAndWhite()) mText.setColor(Color::White);
@@ -245,6 +247,8 @@ namespace hg
 
 		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);
 		render(mText);
+
+		mText.setCharacterSize(originalSize);
 	}
 
 	void MenuGame::drawLevelSelection()
@@ -253,21 +257,24 @@ namespace hg
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
 		string packName{packData.getName()}, packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
 
-		renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 0});
-		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 20});
-		renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 40});
-		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60});
-
 		string serverMessage{"connecting to server..."};
 		float serverVersion{Online::getServerVersion()};
 		if(serverVersion == getVersion()) serverMessage = "you have the latest version";
 		if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
 		if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
-		renderText(serverMessage, cProfText, {20, 80});
+		renderText(serverMessage, cProfText, {20, 0}, 13);
+
+		if(!isEligibleForScore()) renderText("your options are not eligible for scoring", cProfText, {20, 11}, 11);
+
+		renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5});
+		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 5});
+		renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 50 + 5});
+		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 70 + 5});
+
 		renderText(getLeaderboard(), cProfText, {20, 100});
 
-		renderText(levelData.getName(), levelName, {20, 50 + 120});
-		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});
+		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25});
+		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 60.f * (countNewLines(levelData.getName()))});
 		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500});
 		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530});

@@ -78,6 +78,12 @@ namespace hg
 		f.open("config.json", fstream::out | fstream::trunc); f << original; f.flush(); f.close();
 	}
 
+	bool isEligibleForScore()
+	{
+		if(getInvincible()) return false;
+		return true;
+	}
+
 	void recalculateSizes()
 	{
 		sizeX = max(getWidth(), getHeight()) * 1.3f;
@@ -109,7 +115,6 @@ namespace hg
 	void set3D(bool m3D)						{ root["3D_enabled"] = m3D; }
 	void setInvincible(bool mInvincible)		{ root["invincible"] = mInvincible; }
 	void setAutoRestart(bool mAutoRestart) 		{ root["auto_restart"] = mAutoRestart; }
-	void set3DMultiplier(float m3DMultiplier)   { root["3D_multiplier"] = m3DMultiplier; }
 
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
