@@ -164,6 +164,7 @@ pip-log.txt
 *.project
 .project
 SSVOpenHexagon.project
+SSVOpenHexagon.txt
 *.ogg
 *.wav
 *.o
