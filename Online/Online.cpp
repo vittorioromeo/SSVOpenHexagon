@@ -160,16 +160,22 @@ namespace hg
 		string getCompressed(const string& mString)
 		{
 			string result{""};
-			for(unsigned int i{0}; i < mString.size(); ++i) if(i % 20 == 0) result += mString[i];
+			for(unsigned int i{0}; i < mString.size(); ++i) if(i % 2 == 0) result += mString[i];
+			return result;
+		}
+		string getUrlEncoded(const std::string& mString)
+		{
+			string result{""};
+			for(size_t c{0}; c < mString.length(); ++c) if(isalnum(mString[c])) result += mString[c];
 			return result;
 		}
 		string getValidator(const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
 			string result{""};
-			result.append(getStripped(mLevelId));
-			result.append(getCompressed(getStripped(getFileContents(mJsonRootPath))));
-			result.append(getCompressed(getStripped(getFileContents(mLuaScriptPath))));
-			result.append(toStr(mDifficultyMultiplier));
+			result.append(getUrlEncoded(getStripped(mLevelId)));
+			result.append(getUrlEncoded(getCompressed(getStripped(getFileContents(mJsonRootPath)))));
+			result.append(getUrlEncoded(getCompressed(getStripped(getFileContents(mLuaScriptPath)))));
+			result.append(getUrlEncoded(toStr(mDifficultyMultiplier)));
 			return result;
 		}
 	}

@@ -3,10 +3,18 @@
 	"name" : "test",
 	"scores" : 
 	{
-		"Packs/VeeDefault/easy_m_1" : null,
+		"Packs/VeeDefault/easy_m_1" : 0.4097889959812164,
+		"Packs/VeeDefault/easy_m_1.5" : 0.5789689421653748,
+		"Packs/VeeDefault/extra_m_1" : 1.061451911926270,
+		"Packs/VeeDefault/goldenratio_m_1" : 0.2299299836158752,
 		"Packs/VeeDefault/hard_m_1" : 1.170714139938355,
-		"Packs/VeeDefault/normal_m_1" : null,
-		"Packs/VeeDefault/tutorial_m_1" : null
+		"Packs/VeeDefault/lunatic_m_1" : 1.392498731613159,
+		"Packs/VeeDefault/normal_m_1" : 0.6992042064666748,
+		"Packs/VeeDefault/pi_m_1" : 2.393049240112305,
+		"Packs/VeeDefault/tutorial_m_1" : null,
+		"Packs/VeeEndurance/commando_m_1" : 2.796535730361939,
+		"Packs/VeeEndurance/labyrinth_m_1" : 1.371657729148865,
+		"Packs/VeeEndurance/volcano_m_1" : 2.858851909637451
 	},
 	"version" : 1.799999952316284
 }
