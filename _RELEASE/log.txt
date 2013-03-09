@@ -76,3 +76,12 @@ Good luck and have fun!
 [Online] Finished checking updates
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
+[Online] Checking if score can be sent...
+[Online] Score can be sent - sending
+[Online] Sending score to server...
+[ARGS] n=dfhhd&v=PacksVeeDefaulteasyLsidebaullill5rtyn0e5uudesvegmauieScuaadhneaea3nmrehnhaw2icatiahvSrctneersietcaloeorm1&s=2.40667&k=6cea819f8ecb7f94ba7bb97409d7a092
+[Online] Score sent successfully
+[Online] Finished sending score
+[Online] Checking scores...
+[Online] Scores retrieved successfully
+[Online] Finished checking scores
