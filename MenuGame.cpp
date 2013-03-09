@@ -177,8 +177,8 @@ namespace hg
 		for(auto itr(root.begin()); itr != root.end(); ++itr)
 		{
 			Json::Value& record(*itr);
-			string name{record["name"].asString()};
-			float score{record["score"].asFloat()};
+			string name{record["n"].asString()};
+			float score{record["s"].asFloat()};
 
 			recordPairs.push_back({name, score});
 		}

@@ -1,6 +1,6 @@
 {
 	// Online capabilities
-	"online": false,
+	"online": true,
 
 	// Window options
 	"fullscreen": true,

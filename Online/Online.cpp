@@ -107,7 +107,7 @@ namespace hg
 				log("Sending score to server...", "Online");
 
 				Http http; http.setHost("http://vittorioromeo.info");
-				string args{"name=" + mName + "&validator=" + mValidator + "&score=" + toStr(mScore)};
+				string args{"n=" + mName + "&v=" + mValidator + "&s=" + toStr(mScore)};
 				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
