@@ -21,7 +21,8 @@ using namespace hg;
 
 int main(int argc, char* argv[])
 {
-	Online::checkUpdates();
+	Online::startCheckUpdates();
+	Online::startCheckScores();
 
 	srand(unsigned(time(NULL)));
 

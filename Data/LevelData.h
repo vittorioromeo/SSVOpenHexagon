@@ -14,23 +14,25 @@ namespace hg
 	class LevelData
 	{
 		private:
-			std::string validator;
 			Json::Value root;
 			int currentPattern{-1};
 			std::vector<Json::Value> events;
-			std::string packPath;
+			std::string packPath, jsonRootPath, luaScriptPath;
 
 		public:
 			LevelData() = default;
-			LevelData(const std::string& mValidator, Json::Value mRoot);
+			LevelData(Json::Value mRoot);
 			
 			void addEvent(Json::Value mEventRoot);
 
-			std::string getValidator();
 			Json::Value& getRoot();
 
-			void setPackPath(std::string mPackPath);
+			void setPackPath(const std::string& mPackPath);
+			void setJsonRootPath(const std::string& mJsonRootPath);
+			void setLuaScriptPath(const std::string& mLuaScriptPath);
 			std::string getPackPath();
+			std::string getJsonRootPath();
+			std::string getLuaScriptPath();
 
 			std::string getId();
 			std::string getName();

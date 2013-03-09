@@ -60,9 +60,9 @@ namespace hg
 		return root;
 	}
 
-	LevelData loadLevelFromJson(const string& mValidator, Json::Value mRoot)
+	LevelData loadLevelFromJson(Json::Value mRoot)
 	{
-		auto result = LevelData{mValidator, mRoot};
+		auto result = LevelData{mRoot};
 		for(Json::Value event : mRoot["events"]) result.addEvent(event);
 		return result;
 	}

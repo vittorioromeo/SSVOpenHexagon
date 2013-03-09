@@ -1,4 +1,6 @@
 [CONFIG] loading config
+[Online] Checking updates...
+[Online] Checking scores...
 [loadImages] bottomBar.png image added
 [loadImages] bottomBar.png texture added
 [loadImagesToManager(Assets/)] bottomBar.png image added
@@ -65,93 +67,52 @@
 [ASSETS] loading VeeEndurance custom sounds
 [loadSound] VeeEndurance_test.ogg soundBuffer added
 [loadSound] VeeEndurance_test.ogg sound added
+[Online] Scores retrieved successfully
+[Online] Finished checking scores
 [Online] Server message:
 Welcome to Open Hexagon!
 You're now connected to vittorioromeo.info.
 Good luck and have fun!
 [Online] Server latest version: 1.8
 [Online] No updates available
-[Online] Checking scores
+[Online] Finished checking updates
+[Online] Checking if score can be sent...
+[Online] Score can be sent - sending
+[Online] Sending score to server...
+[Online] Score sent successfully
+[Online] Finished sending score
+[Online] Checking scores...
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
+[Online] Checking if score can be sent...
+[Online] Score can be sent - sending
+[Online] Sending score to server...
+[Online] Score sent successfully
+[Online] Finished sending score
+[Online] Checking scores...
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
+[Online] Checking if score can be sent...
+[Online] Score can be sent - sending
+[Online] Sending score to server...
+[Online] Score sent successfully
+[Online] Finished sending score
+[Online] Checking scores...
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
+[Online] Checking if score can be sent...
+[Online] Score can be sent - sending
+[Online] Sending score to server...
+[Online] Score sent successfully
+[Online] Finished sending score
+[Online] Checking scores...
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Scores retrieved successfully
-[Online] Finished checking scores
-[Online] Checking scores
+[Online] Checking if score can be sent...
+[Online] Score can be sent - sending
+[Online] Sending score to server...
+[Online] Score sent successfully
+[Online] Finished sending score
+[Online] Checking scores...
 [Online] Scores retrieved successfully
 [Online] Finished checking scores

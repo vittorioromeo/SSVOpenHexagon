@@ -37,7 +37,7 @@
 	"player_speed": 9.45,
 	"player_focus_speed": 4.625,
 	"player_size": 7.3,
-	"auto_restart": true,
+	"auto_restart": false,
 	
 	// Scripting options
 	"debug": false,

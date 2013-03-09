@@ -116,17 +116,12 @@ namespace hg
 		for(auto filePath : getFilesByExtension(mPath + "Levels/", ".json"))
 		{
 			Json::Value root{getJsonFileRoot(filePath)};
+			string luaScriptPath{mPath + "Scripts/" + root["lua_file"].asString()};
 
-			string validatorLevel{getFileContents(filePath)};
-			string validatorLua{getFileContents(mPath + "Scripts/" + root["lua_file"].asString())};
-
-			validatorLevel = Online::getStripped(validatorLevel);
-			validatorLua = Online::getStripped(validatorLua);
-
-
-
-			LevelData levelData{loadLevelFromJson(validatorLevel + validatorLua, root)};
+			LevelData levelData{loadLevelFromJson(root)};
 			levelData.setPackPath(mPath);
+			levelData.setJsonRootPath(filePath);
+			levelData.setLuaScriptPath(luaScriptPath);
 			levelDataMap.insert(make_pair(levelData.getId(), levelData));
 			levelIdsByPackMap[levelData.getPackPath()].push_back(levelData.getId());
 		}

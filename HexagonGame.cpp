@@ -154,27 +154,20 @@ namespace hg
 		if(getScore(validator) < status.currentTime) setScore(validator, status.currentTime);
 		saveCurrentProfile();
 
-		string val{getScoreValidator(levelData.getId(), difficultyMult)};
-		val = Online::getStripped(val);
-		string onlineValidator{levelData.getValidator() + val};
-
-		Online::sendScore(getCurrentProfile().getName(), onlineValidator, status.currentTime);
+		string onlineValidator{Online::getValidator(levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+		Online::startSendScore(getCurrentProfile().getName(), onlineValidator, status.currentTime);
 	}
 	void HexagonGame::goToMenu()
 	{
 		stopAllSounds();
 		playSound("beep.ogg");
 
-		checkAndSaveScore();
+		if(!status.hasDied) checkAndSaveScore();
 		runLuaFunction<void>("onUnload");
 		window.setGameState(mgPtr->getGame());
 		mgPtr->init();
 	}
-	void HexagonGame::changeLevel(string mId, bool mFirstTime)
-	{
-		checkAndSaveScore();		
-		newGame(mId, mFirstTime, difficultyMult);
-	}
+	void HexagonGame::changeLevel(string mId, bool mFirstTime) { newGame(mId, mFirstTime, difficultyMult); }
 	void HexagonGame::addMessage(string mMessage, float mDuration)
 	{
 		Text* text = new Text(mMessage, getFont("imagine.ttf"), 40 / getZoomFactor());

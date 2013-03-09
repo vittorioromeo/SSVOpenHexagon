@@ -36,7 +36,7 @@ namespace hg
 		initInput();
 	}
 
-	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); checkScores(); }
+	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
 	void MenuGame::initAssets()
 	{
 		getAssetManager().getTexture("titleBar.png").setSmooth(true);
@@ -164,18 +164,35 @@ namespace hg
 		styleData = getStyleData(levelData.getStyleId());
 		difficultyMultipliers = levelData.getDifficultyMultipliers();
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
-
-		checkScores();
 	}
 
-	void MenuGame::checkScores()
+	string MenuGame::getLeaderboard()
 	{
-		string val{getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])};
-		val = Online::getStripped(val);
-		string onlineValidator{levelData.getValidator() + val};
+		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
+		string validator{Online::getValidator(levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+		Json::Value root{Online::getScores(validator)};
 
-		Online::getScores(onlineValidator);
-		Online::getLeaderboard(scoresMessage, onlineValidator);
+		using RecordPair = pair<string, float>;
+		vector<RecordPair> recordPairs;
+		for(auto itr(root.begin()); itr != root.end(); ++itr)
+		{
+			Json::Value& record(*itr);
+			string name{record["name"].asString()};
+			float score{record["score"].asFloat()};
+
+			recordPairs.push_back({name, score});
+		}
+
+		sort(begin(recordPairs), end(recordPairs), [&](const RecordPair& mA, const RecordPair& mB){ return mA.second > mB.second; });
+
+		string result{""};
+		for(unsigned int i{0}; i < recordPairs.size(); ++i)
+		{
+			if(i > 2) break;
+			auto& recordPair(recordPairs[i]);
+			result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
+		}
+		return result;
 	}
 
 	void MenuGame::update(float mFrameTime)
@@ -238,21 +255,16 @@ namespace hg
 
 		renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 0});
 		renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 20});
-		renderText("best time: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 40});
+		renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 40});
 		if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60});
 
 		string serverMessage{"connecting to server..."};
-		if(Online::getUpdatesChecked())
-		{
-			float serverVersion{Online::getServerVersion()};
-			if(serverVersion == -1) serverMessage = "error connecting to server";
-			else if(serverVersion == getVersion()) serverMessage = "";
-			else if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
-			else if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
-		}
+		float serverVersion{Online::getServerVersion()};
+		if(serverVersion == getVersion()) serverMessage = "you have the latest version";
+		if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
+		if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
 		renderText(serverMessage, cProfText, {20, 80});
-		
-		renderText(scoresMessage, cProfText, {20, 100});
+		renderText(getLeaderboard(), cProfText, {20, 100});
 
 		renderText(levelData.getName(), levelName, {20, 50 + 120});
 		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 60.f * (countNewLines(levelData.getName()))});

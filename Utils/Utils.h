@@ -33,7 +33,7 @@ namespace hg
 	std::string getFileContents(const std::string& mFilePath);
 	Json::Value getJsonFileRoot(const std::string& mFilePath);
 
-	LevelData loadLevelFromJson(const std::string& mValidator, Json::Value mRoot);
+	LevelData loadLevelFromJson(Json::Value mRoot);
 	MusicData loadMusicFromJson(Json::Value mRoot);
 	StyleData loadStyleFromJson(Json::Value mRoot);
 	ProfileData loadProfileFromJson(Json::Value mRoot);

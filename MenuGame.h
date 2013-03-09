@@ -48,7 +48,7 @@ namespace hg
 			std::vector<float> difficultyMultipliers;
 			int difficultyMultIndex{0};
 
-			void checkScores();
+			std::string getLeaderboard();
 
 			void update(float mFrameTime);
 			void draw();

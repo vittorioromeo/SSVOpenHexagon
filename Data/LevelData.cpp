@@ -9,14 +9,18 @@ using namespace std;
 
 namespace hg
 {
-	LevelData::LevelData(const string& mValidator, Json::Value mRoot) : validator{mValidator}, root{mRoot} { }
+	LevelData::LevelData(Json::Value mRoot) : root{mRoot} { }
 
 	void LevelData::addEvent(Json::Value mEventRoot) { events.push_back(mEventRoot); }
 
-	void LevelData::setPackPath(string mPackPath) 	{ packPath = mPackPath; }
-	string LevelData::getPackPath() 				{ return packPath; }
+	void LevelData::setPackPath(const string& mPackPath) 			{ packPath = mPackPath; }
+	void LevelData::setJsonRootPath(const string& mJsonRootPath) 	{ jsonRootPath = mJsonRootPath; }
+	void LevelData::setLuaScriptPath(const string& mLuaScriptPath)	{ luaScriptPath = mLuaScriptPath; }
 
-	string LevelData::getValidator() 				{ return validator; }
+	string LevelData::getPackPath() 				{ return packPath; }
+	string LevelData::getJsonRootPath()				{ return jsonRootPath; }
+	string LevelData::getLuaScriptPath()			{ return luaScriptPath; }
+
 	Json::Value& LevelData::getRoot()				{ return root; }
 	string LevelData::getId() 						{ return getPackPath() + root["id"].asString(); }
 	string LevelData::getName() 					{ return root["name"].asString(); }

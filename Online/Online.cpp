@@ -16,16 +16,16 @@ namespace hg
 	namespace Online
 	{
 		MemoryManager<Thread> memoryManager;
-		map<string, vector<pair<string, float>>> scoreVectors;
-		bool updatesChecked{false};
 		float serverVersion{-1};
+		Json::Value scoresRoot;
 
-		void checkUpdates()
+		void startCheckUpdates()
 		{
 			Thread& thread = memoryManager.create([&thread]
 			{
-				Http http;
-				http.setHost("http://vittorioromeo.info");
+				log("Checking updates...", "Online");
+
+				Http http; http.setHost("http://vittorioromeo.info");
 				Http::Request request("Misc/Linked/OHServer/OHInfo.json");
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
@@ -36,7 +36,7 @@ namespace hg
 					string message(getJsonValueOrDefault<string>(root, "message", ""));
 					log("Server message:\n" + message, "Online");
 
-					setServerVersion(getJsonValueOrDefault<float>(root, "latest_version", -1));
+					serverVersion = (getJsonValueOrDefault<float>(root, "latest_version", -1));
 					log("Server latest version: " + toStr(getServerVersion()), "Online");
 
 					if(getServerVersion() == getVersion()) log("No updates available", "Online");
@@ -45,27 +45,54 @@ namespace hg
 				}
 				else
 				{
-					setServerVersion(-1);
-					log("Error connecting to the server", "Online");
+					serverVersion = -1;
+					log("Error checking updates", "Online");
+					log("Error code: " + status, "Online");
 				}
 
-				setUpdatesChecked(true);
+				log("Finished checking updates", "Online");
 
-				memoryManager.del(&thread);
-				memoryManager.cleanUp();
+				memoryManager.del(&thread); memoryManager.cleanUp();
 			});
 			
 			thread.launch();
 		}
+		void startCheckScores()
+		{
+			Thread& thread = memoryManager.create([&thread]
+			{
+				log("Checking scores...", "Online");
 
-		void sendScore(const string& mProfileName, const string& mLevelValidator, float mScore)
+				Http http; http.setHost("http://vittorioromeo.info");
+				Http::Request request("Misc/Linked/OHServer/scores.json");
+				Http::Response response{http.sendRequest(request)};
+				Http::Response::Status status{response.getStatus()};
+				if(status == Http::Response::Ok)
+				{
+					Json::Reader reader; reader.parse(response.getBody(), scoresRoot);
+					log("Scores retrieved successfully", "Online");
+				}
+				else
+				{
+					log("Error checking scores", "Online");
+					log("Error code: " + status, "Online");
+				}
+
+				log("Finished checking scores", "Online");
+
+				memoryManager.del(&thread); memoryManager.cleanUp();
+			});
+
+			thread.launch();
+		}
+		void startSendScore(const string& mName, const string& mValidator, float mScore)
 		{
 			Thread& thread = memoryManager.create([=, &thread]
 			{
-				Http http;
-				http.setHost("http://vittorioromeo.info");
-				string compressedValidator{getCompressed(mLevelValidator)};
-				string args{"profileName=" + mProfileName + "&levelValidator=" + compressedValidator + "&score=" + toStr(mScore)};
+				log("Sending score to server...", "Online");
+
+				Http http; http.setHost("http://vittorioromeo.info");
+				string args{"name=" + mName + "&validator=" + mValidator + "&score=" + toStr(mScore)};
 				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
@@ -73,102 +100,31 @@ namespace hg
 				if(status == Http::Response::Ok) log("Score sent successfully", "Online");
 				else log("Send score error: " + status, "Online");
 
-				memoryManager.del(&thread);
-				memoryManager.cleanUp();
+				log("Finished sending score", "Online");
+				startCheckScores();
+
+				memoryManager.del(&thread); memoryManager.cleanUp();
 			});
 
 			Thread& checkThread = memoryManager.create([=, &thread, &checkThread]
 			{
-				while(!updatesChecked)
+				log("Checking if score can be sent...", "Online");
+
+				while(serverVersion == -1)
 				{
-					if(getServerVersion() > getVersion())
-					{
-						log("Can't send score to server - version outdates", "Online");
-						return;
-					}
-					else
-					{
-						log("Can't send score to server - version not checked, retrying...", "Online");
-						sleep(seconds(5));
-						checkUpdates();
-					}
+					log("Can't send score to server - version not checked, retrying...", "Online");
+					sleep(seconds(5)); startCheckUpdates();
 				}
-				
+
+				if(serverVersion > getVersion()) { log("Can't send score to server - version outdated", "Online"); return; }
+
+				log("Score can be sent - sending", "Online");
 				thread.launch();
 
-				memoryManager.del(&checkThread);
-				memoryManager.cleanUp();
+				memoryManager.del(&checkThread); memoryManager.cleanUp();
 			});
 
 			checkThread.launch();
-		}
-		vector<pair<string, float>>& getScores(const string& mLevelValidator)
-		{
-			string compressedValidator{getCompressed(mLevelValidator)};
-			auto& result(scoreVectors[compressedValidator]);
-
-			Thread& thread = memoryManager.create([&result, &thread, compressedValidator]
-			{
-				log("Checking scores", "Online");
-				
-				Http http;
-				http.setHost("http://vittorioromeo.info");
-				Http::Request request("Misc/Linked/OHServer/scores.json");
-				Http::Response response{http.sendRequest(request)};
-				Http::Response::Status status{response.getStatus()};
-				if(status == Http::Response::Ok)
-				{
-					result.clear();
-
-					Json::Value root; Json::Reader reader; reader.parse(response.getBody(), root);
-					Json::Value array{root[compressedValidator]};
-
-					for(auto itr = array.begin(); itr != array.end(); ++itr)
-					{
-						Json::Value& record(*itr);
-						string name{record["profileName"].asString()};
-						float score{record["score"].asFloat()};
-
-						result.push_back({name, score});
-					}
-
-					log("Scores retrieved successfully", "Online");
-				}
-				else log("Error getting scores", "Online");
-
-				log("Finished checking scores", "Online");
-
-				memoryManager.del(&thread);
-				memoryManager.cleanUp();
-			});
-
-			thread.launch();
-
-			return result;
-		}
-		void getLeaderboard(string& mLeaderboard, const string& mLevelValidator)
-		{
-			string compressedValidator{getCompressed(mLevelValidator)};
-			auto& scores(scoreVectors[compressedValidator]);
-			mLeaderboard = "checking scores...";
-
-			Thread& thread = memoryManager.create([&mLeaderboard, &scores, &thread, compressedValidator]
-			{
-				while(scores.empty()) sleep(seconds(1));
-
-				mLeaderboard = "";
-				for(unsigned int i{0}; i < scores.size(); ++i)
-				{
-					if(i > 2) break;
-					auto& scorePair(scores[i]);
-					mLeaderboard.append("(" + toStr(i + 1) +") " + scorePair.first + ": " + toStr(scorePair.second) + "\n");
-				}
-
-				memoryManager.del(&thread);
-				memoryManager.cleanUp();
-			});
-
-			thread.launch();
 		}
 
 		void cleanUp()
@@ -177,11 +133,17 @@ namespace hg
 			memoryManager.cleanUp();
 		}
 
-		void setUpdatesChecked(bool mUpdatesChecked) { updatesChecked = mUpdatesChecked; }
-		bool getUpdatesChecked() { return updatesChecked; }
-		void setServerVersion(float mServerVersion) { serverVersion = mServerVersion; }
 		float getServerVersion() { return serverVersion; }
-
+		Json::Value getScores(const std::string& mValidator) { return scoresRoot[mValidator]; }
+		string getValidator(const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		{
+			string result{""};
+			result.append(getStripped(mLevelId));
+			result.append(getCompressed(getStripped(getFileContents(mJsonRootPath))));
+			result.append(getCompressed(getStripped(getFileContents(mLuaScriptPath))));
+			result.append(toStr(mDifficultyMultiplier));
+			return result;
+		}
 		string getStripped(const string& mString)
 		{
 			string result{mString};
@@ -192,7 +154,7 @@ namespace hg
 		string getCompressed(const string& mString)
 		{
 			string result{""};
-			for(unsigned int i{0}; i < mString.size(); ++i) if(i % 9 == 0) result += mString[i];
+			for(unsigned int i{0}; i < mString.size(); ++i) if(i % 15 == 0) result += mString[i];
 			return result;
 		}
 	}
