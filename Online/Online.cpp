@@ -104,7 +104,7 @@ namespace hg
 				string hash{key.GetHash()};
 
 				Http http("http://vittorioromeo.info");
-				string args{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k="};
+				string args{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + hash};
 				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
