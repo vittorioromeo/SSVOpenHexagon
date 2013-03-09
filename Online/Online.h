@@ -9,8 +9,8 @@ namespace hg
 		void startCheckScores();
 		void startSendScore(const std::string& mName, const std::string& mValidator, float mScore);
 
-		void freeMemory();
 		void cleanUp();
+		void terminateAll();
 
 		float getServerVersion();
 		Json::Value getScores(const std::string& mValidator);

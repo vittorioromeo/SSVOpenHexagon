@@ -64,7 +64,7 @@ namespace hg
 				}
 
 				log("Finished checking updates", "Online");
-				freeMemory();
+				cleanUp();
 			});
 
 			thread.launch();
@@ -93,7 +93,7 @@ namespace hg
 				}
 
 				log("Finished checking scores", "Online");
-				freeMemory();
+				cleanUp();
 			});
 			
 			thread.launch();
@@ -117,7 +117,7 @@ namespace hg
 
 				log("Finished sending score", "Online");
 				startCheckScores();
-				freeMemory();
+				cleanUp();
 			});
 
 			ThreadWrapper& checkThread = memoryManager.create([&thread]
@@ -134,18 +134,18 @@ namespace hg
 
 				log("Score can be sent - sending", "Online");
 				thread.launch();
-				freeMemory();
+				cleanUp();
 			});
 			
 			checkThread.launch();
 		}
 
-		void freeMemory()
+		void cleanUp()
 		{
 			for(auto& thread : memoryManager.getItems()) if(thread->finished) memoryManager.del(thread); 
 			memoryManager.cleanUp();
 		}
-		void cleanUp()
+		void terminateAll()
 		{
 			for(auto& thread : memoryManager.getItems()) thread->terminate();
 			memoryManager.cleanUp();

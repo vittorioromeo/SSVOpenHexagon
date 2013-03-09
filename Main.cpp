@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	window.setGameState(mg.getGame()); mg.init();
 	window.run();
 
-	Online::cleanUp();
+	Online::terminateAll();
 
 	saveConfig(); saveCurrentProfile(); saveLogToFile("log.txt");
 	return 0;
