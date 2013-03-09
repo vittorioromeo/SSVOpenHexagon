@@ -17,8 +17,6 @@ namespace hg
 {
 	namespace Online
 	{
-		
-
 		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
 		Json::Value scoresRoot;
