@@ -21,10 +21,12 @@ namespace hg
 			bool finished;
 			function<void()> func;
 			Thread thread;
-			ThreadWrapper(function<void()> mFunction) : finished{false}, func{[&, mFunction]{ mFunction(); finished = true; }}, thread{func} { thread.launch(); }
+			ThreadWrapper(function<void()> mFunction) : finished{false}, func{[&, mFunction]{ mFunction(); finished = true; }}, thread{func} { }
+			void launch() { thread.launch(); }
+			void terminate() { thread.terminate(); }
 		};
 
-		MemoryManager<Thread> memoryManager;
+		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
 		Json::Value scoresRoot;
 
@@ -32,7 +34,7 @@ namespace hg
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 
-			Thread& thread = memoryManager.create([&thread]
+			ThreadWrapper& thread = memoryManager.create([]
 			{
 				log("Checking updates...", "Online");
 
@@ -62,17 +64,16 @@ namespace hg
 				}
 
 				log("Finished checking updates", "Online");
-
-				memoryManager.del(&thread); memoryManager.cleanUp();
+				freeMemory();
 			});
-			
+
 			thread.launch();
 		}
 		void startCheckScores()
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 
-			Thread& thread = memoryManager.create([&thread]
+			ThreadWrapper& thread = memoryManager.create([]
 			{
 				log("Checking scores...", "Online");
 
@@ -92,19 +93,16 @@ namespace hg
 				}
 
 				log("Finished checking scores", "Online");
-
-				memoryManager.del(&thread); memoryManager.cleanUp();
+				freeMemory();
 			});
-
+			
 			thread.launch();
-			Thread& test = memoryManager.create([&test] { startCheckScores(); sleep(seconds(1)); memoryManager.del(&test); memoryManager.cleanUp();});
-			test.launch();
 		}
 		void startSendScore(const string& mName, const string& mValidator, float mScore)
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 
-			Thread& thread = memoryManager.create([=, &thread]
+			ThreadWrapper& thread = memoryManager.create([=]
 			{
 				log("Sending score to server...", "Online");
 
@@ -119,11 +117,10 @@ namespace hg
 
 				log("Finished sending score", "Online");
 				startCheckScores();
-
-				memoryManager.del(&thread); memoryManager.cleanUp();
+				freeMemory();
 			});
 
-			Thread& checkThread = memoryManager.create([=, &thread, &checkThread]
+			ThreadWrapper& checkThread = memoryManager.create([&thread]
 			{
 				log("Checking if score can be sent...", "Online");
 
@@ -137,13 +134,17 @@ namespace hg
 
 				log("Score can be sent - sending", "Online");
 				thread.launch();
-
-				memoryManager.del(&checkThread); memoryManager.cleanUp();
+				freeMemory();
 			});
-
+			
 			checkThread.launch();
 		}
 
+		void freeMemory()
+		{
+			for(auto& thread : memoryManager.getItems()) if(thread->finished) memoryManager.del(thread); 
+			memoryManager.cleanUp();
+		}
 		void cleanUp()
 		{
 			for(auto& thread : memoryManager.getItems()) thread->terminate();
