@@ -104,11 +104,8 @@ namespace hg
 				log("Sending score to server...", "Online");
 
 				string scoreString{toStr(mScore)};
-				MD5 key(mName + mValidator + scoreString + HG_SERVER_KEY);
-				string hash{key.GetHash()};
-
 				Http http("http://vittorioromeo.info");
-				string args{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + hash};
+				string args{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
 				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
@@ -154,31 +151,19 @@ namespace hg
 
 		float getServerVersion() { return serverVersion; }
 		Json::Value getScores(const std::string& mValidator) { return scoresRoot[mValidator]; }
-		string getStripped(const string& mString)
-		{
-			string result{mString};
-			vector<string> toStrip{" ", "\n", "\t", "\v", "\f", "\r", "\\", "/", "\"", "&", "?", "{", "}", "[", "]", "(", ")", "=", ",", ":", "-", "_", ".", "!"};
-			for(auto& s : toStrip) result = replaceAll(result, s, "");
-			return result;
-		}
-		string getCompressed(const string& mString)
+		string getMD5Hash(const string& mString) { MD5 key{mString}; return key.GetHash(); }
+		string getUrlEncoded(const string& mString)
 		{
 			string result{""};
-			for(unsigned int i{0}; i < mString.size(); ++i) if(i % 2 == 0) result += mString[i];
-			return result;
-		}
-		string getUrlEncoded(const std::string& mString)
-		{
-			string result{""};
-			for(size_t c{0}; c < mString.length(); ++c) if(isalnum(mString[c])) result += mString[c];
+			for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i];
 			return result;
 		}
 		string getValidator(const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
 			string result{""};
-			result.append(getUrlEncoded(getStripped(mLevelId)));
-			result.append(getUrlEncoded(getCompressed(getStripped(getFileContents(mJsonRootPath)))));
-			result.append(getUrlEncoded(getCompressed(getStripped(getFileContents(mLuaScriptPath)))));
+			result.append(getUrlEncoded(mLevelId));
+			result.append(getMD5Hash(getFileContents(mJsonRootPath) + HG_SERVER_KEY));
+			result.append(getMD5Hash(getFileContents(mLuaScriptPath) + HG_SERVER_KEY));
 			result.append(getUrlEncoded(toStr(mDifficultyMultiplier)));
 			return result;
 		}
