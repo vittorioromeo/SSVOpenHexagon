@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeLite_Project Name="SSVOpenHexagon" InternalType="Console">
+  <Plugins>
+    <Plugin Name="qmake">
+      <![CDATA[00020001N0005Debug0000000000000001N0007Release000000000000]]>
+    </Plugin>
+  </Plugins>
+  <Description/>
+  <Dependencies/>
+  <VirtualDirectory Name="src">
+    <File Name="main.cpp"/>
+    <File Name="HexagonGame.h"/>
+    <File Name="HexagonGame.cpp"/>
+    <File Name="MenuGame.h"/>
+    <File Name="MenuGame.cpp"/>
+    <VirtualDirectory Name="Components">
+      <File Name="Components/CPlayer.cpp"/>
+      <File Name="Components/CPlayer.h"/>
+      <File Name="Components/CWall.cpp"/>
+      <File Name="Components/CWall.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Global">
+      <File Name="Global/Assets.cpp"/>
+      <File Name="Global/Assets.h"/>
+      <File Name="Global/Config.cpp"/>
+      <File Name="Global/Config.h"/>
+      <File Name="Global/Factory.cpp"/>
+      <File Name="Global/Factory.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Data">
+      <File Name="Data/StyleData.cpp"/>
+      <File Name="Data/StyleData.h"/>
+      <File Name="Data/MusicData.h"/>
+      <File Name="Data/LevelData.cpp"/>
+      <File Name="Data/LevelData.h"/>
+      <File Name="Data/ProfileData.h"/>
+      <File Name="Data/ProfileData.cpp"/>
+      <File Name="Data/EventData.cpp"/>
+      <File Name="Data/EventData.h"/>
+      <File Name="Data/PackData.h"/>
+      <File Name="Data/PackData.cpp"/>
+      <File Name="Data/MusicData.cpp"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="Utils">
+      <File Name="Utils/Utils.cpp"/>
+      <File Name="Utils/Utils.h"/>
+      <File Name="Utils/MD5.h"/>
+      <File Name="Utils/MD5.cpp"/>
+    </VirtualDirectory>
+    <File Name="HGScripting.cpp"/>
+    <File Name="HGUpdate.cpp"/>
+    <File Name="HGProperties.cpp"/>
+    <File Name="HGGraphics.cpp"/>
+    <File Name="HGStatus.h"/>
+    <VirtualDirectory Name="Online">
+      <File Name="Online/Online.cpp"/>
+      <File Name="Online/Online.h"/>
+      <File Name="Online/ThreadWrapper.h"/>
+      <File Name="Online/Definitions.h"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <Dependencies Name="Debug"/>
+  <Dependencies Name="Release"/>
+  <Settings Type="Executable">
+    <GlobalSettings>
+      <Compiler Options="" C_Options="">
+        <IncludePath Value="."/>
+      </Compiler>
+      <Linker Options="">
+        <LibraryPath Value="."/>
+      </Linker>
+      <ResourceCompiler Options=""/>
+    </GlobalSettings>
+    <Configuration Name="Debug" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g;-pedantic;-Wall;-std=c++11;-c;-O0" C_Options="-g;-O0;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+        <IncludePath Value="../SSVEntitySystem"/>
+        <IncludePath Value="../SSVStart"/>
+        <IncludePath Value="../SSVLuaWrapper"/>
+        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/include"/>
+        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/include"/>
+        <IncludePath Value="C:/lua/include"/>
+      </Compiler>
+      <Linker Options="" Required="yes">
+        <LibraryPath Value="../SSVStart/Release"/>
+        <LibraryPath Value="../SSVEntitySystem/Release"/>
+        <LibraryPath Value="../SSVLuaWrapper/Release"/>
+        <LibraryPath Value="./Release"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw"/>
+        <LibraryPath Value="c:/lua"/>
+        <Library Value="SSVEntitySystem"/>
+        <Library Value="SSVStart"/>
+        <Library Value="SSVLuaWrapper"/>
+        <Library Value="sfml-window-d"/>
+        <Library Value="sfml-graphics-d"/>
+        <Library Value="sfml-system-d"/>
+        <Library Value="sfml-audio-d"/>
+        <Library Value="json_mingw_libmt"/>
+        <Library Value="lua5.1"/>
+        <Library Value="lua51"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName).exe" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="windowed debug noaudio" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="">
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release" CompilerType="nuwen" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-W;-pedantic;-O3;-std=c++11;-Wall;-Wextra" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+        <IncludePath Value="../SSVEntitySystem"/>
+        <IncludePath Value="../SSVStart"/>
+        <IncludePath Value="../SSVLuaWrapper"/>
+        <IncludePath Value="../SSVMenuSystem"/>
+        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/include"/>
+        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/include"/>
+        <IncludePath Value="C:/lua/include"/>
+        <IncludePath Value="D:/Vee/Software/Repos/sparsehash/build/built/include"/>
+      </Compiler>
+      <Linker Options="" Required="yes">
+        <LibraryPath Value="../SSVStart/_RELEASE"/>
+        <LibraryPath Value="../SSVEntitySystem/_RELEASE"/>
+        <LibraryPath Value="../SSVLuaWrapper/_RELEASE"/>
+        <LibraryPath Value="../SSVSCollision/_RELEASE"/>
+        <LibraryPath Value="../SSVMenuSystem/_RELEASE"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib"/>
+        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw"/>
+        <LibraryPath Value="c:/lua"/>
+        <Library Value="SSVEntitySystem"/>
+        <Library Value="SSVStart"/>
+        <Library Value="SSVLuaWrapper"/>
+        <Library Value="SSVMenuSystem"/>
+        <Library Value="sfml-window"/>
+        <Library Value="sfml-graphics"/>
+        <Library Value="sfml-system"/>
+        <Library Value="sfml-audio"/>
+        <Library Value="sfml-network"/>
+        <Library Value="json_mingw_libmt"/>
+        <Library Value="lua5.1"/>
+        <Library Value="lua51"/>
+      </Linker>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="./_RELEASE/$(ProjectName).exe" IntermediateDirectory="./_INTERMEDIATE" Command="./$(ProjectName)" CommandArguments="debug windowed noaudio" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="./_RELEASE/" PauseExecWhenProcTerminates="no"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="">
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName>None</ThirdPartyToolName>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="yes">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+  </Settings>
+</CodeLite_Project>
