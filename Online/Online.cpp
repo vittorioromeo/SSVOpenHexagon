@@ -25,6 +25,7 @@ namespace hg
 	{
 		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
+		string serverMessage{""};
 		Json::Value scoresRoot;
 
 		void startCheckUpdates()
@@ -44,6 +45,7 @@ namespace hg
 					Json::Value root; Json::Reader reader; reader.parse(response.getBody(), root);
 
 					string message(getJsonValueOrDefault<string>(root, "message", ""));
+					serverMessage = message;
 					log("Server message:\n" + message, "Online");
 
 					serverVersion = (getJsonValueOrDefault<float>(root, "latest_version", -1));
@@ -110,7 +112,7 @@ namespace hg
 				Http::Response response{http.sendRequest(request)};
 				Http::Response::Status status{response.getStatus()};
 
-				if(status == Http::Response::Ok) log("Score sent successfully", "Online");
+				if(status == Http::Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
 				else log("Send score error: " + status, "Online");
 
 				log("Finished sending score", "Online");
@@ -150,6 +152,7 @@ namespace hg
 		}
 
 		float getServerVersion() { return serverVersion; }
+		string getServerMessage() { return serverMessage; }
 		Json::Value getScores(const std::string& mValidator) { return scoresRoot[mValidator]; }
 		string getMD5Hash(const string& mString) { MD5 key{mString}; return key.GetHash(); }
 		string getUrlEncoded(const string& mString)

@@ -17,6 +17,7 @@ namespace hg
 		void terminateAll();
 
 		float getServerVersion();
+		std::string getServerMessage();
 		Json::Value getScores(const std::string& mValidator);
 		std::string getMD5Hash(const std::string& mString);
 		std::string getValidator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mJsonRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);

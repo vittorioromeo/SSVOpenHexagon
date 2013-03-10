@@ -76,4 +76,3 @@ Good luck and have fun!
 [Online] Finished checking updates
 [Online] Scores retrieved successfully
 [Online] Finished checking scores
-[Online] Too low FPS, invalidating official game
