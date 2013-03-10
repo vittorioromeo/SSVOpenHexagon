@@ -160,12 +160,12 @@ namespace hg
 		string validator{Online::getValidator(levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 		Online::startSendScore(getCurrentProfile().getName(), validator, status.currentTime);
 	}
-	void HexagonGame::goToMenu()
+	void HexagonGame::goToMenu(bool mSendScores)
 	{
 		stopAllSounds();
 		playSound("beep.ogg");
 
-		if(!status.hasDied) checkAndSaveScore();
+		if(mSendScores && !status.hasDied) checkAndSaveScore();
 		runLuaFunction<void>("onUnload");
 		window.setGameState(mgPtr->getGame());
 		mgPtr->init();

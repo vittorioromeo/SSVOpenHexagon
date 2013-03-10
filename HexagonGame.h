@@ -106,7 +106,7 @@ namespace hg
 
 			// Level/menu loading/unloading/changing
 			void checkAndSaveScore();
-			void goToMenu();
+			void goToMenu(bool mSendScores = true);
 			void changeLevel(std::string mId, bool mFirstTime);
 
 		public:

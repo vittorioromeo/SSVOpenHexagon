@@ -5,6 +5,7 @@
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
+#include "Global/Config.h"
 
 using namespace std;
 using namespace sf;
@@ -53,6 +54,8 @@ namespace hg
 	{
 		ostringstream s;
 		s << "time: " << toStr(status.currentTime).substr(0, 5) << endl;
+		if(getOfficial()) s << "official mode" << endl;
+		if(getDebug()) s << "debug mode" << endl;
 		if(status.hasDied) s << "press r to restart" << endl;
 
 		vector<Vector2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
