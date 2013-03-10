@@ -15,6 +15,6 @@ Both **online functionality** and **official mode** are enabled by default.
 
 The high score server validates your score by receiving both the level JSON and LUA file. Editing the level files will still send your score, but it will appear only for you (and those who have the same modified files as you do).
 
-**If you have performance issues (less than 30 FPS) and play in official mode, you will be dropped from the current game back into the main menu, and your score won't be sent.**
+**If you have performance issues (less than 20 FPS) and play in official mode, your score won't be sent.**
 
 Connection to the server is encrypted thanks to a **secret key**. If you want to port Open Hexagon to another operating system, please contact me at **vittorio.romeo@outlook.com** to get the key.
