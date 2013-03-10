@@ -1,3 +1,7 @@
+// Copyright (c) 2013 Vittorio Romeo
+// License: Academic Free License ("AFL") v. 3.0
+// AFL License page: http://opensource.org/licenses/AFL-3.0
+
 #ifndef HG_MD5
 #define HG_MD5
 
@@ -27,11 +31,15 @@ documentation and/or software.
 #include <fstream>
 #define uint32 unsigned int
 
-#include<stdint.h>
-using namespace std;
+#include <stdint.h>
+
 
 class MD5
 {
+	private:
+        std::string m_sHash;
+        unsigned char m_rawHash[16];
+
 	public:
         MD5();
         MD5(const std::string& source);
@@ -44,10 +52,6 @@ class MD5
 
         std::string GetHash() const;
         const unsigned char* GetRawHash() const { return m_rawHash; }
-
-	private:
-        std::string     m_sHash;
-        unsigned char m_rawHash[16];
 };
 
 #endif
