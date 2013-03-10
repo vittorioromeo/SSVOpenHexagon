@@ -79,6 +79,7 @@ namespace hg
 		main.create<i::Goto>("audio", sfx);
 		main.create<i::Goto>("debug", debug);
 		main.create<i::Toggle>("online", [&]{ return getOnline(); }, [&]{ setOnline(true); }, [&]{ setOnline(false); });
+		main.create<i::Toggle>("official mode", [&]{ return getOfficial(); }, [&]{ setOfficial(true); }, [&]{ setOfficial(false); });
 		main.create<i::Single>("back", [&]{ state = States::MAIN; });
 
 		gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
@@ -267,7 +268,7 @@ namespace hg
 			if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
 			renderText(serverMessage, cProfText, {20, 0}, 13);
 
-			if(!isEligibleForScore()) renderText("you are not eligible for scoring", cProfText, {20, 11}, 11);
+			if(!isEligibleForScore()) renderText("you are not eligible for scoring: " + getUneligibilityReason(), cProfText, {20, 11}, 11);
 
 			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5});
 			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 5});
@@ -315,6 +316,9 @@ namespace hg
 			if(itemName == "back") extraSpacing = 20;
 			renderText(name, cProfText, {20, 60.f + i * 20 + extraSpacing});
 		}
+
+		if(getOfficial()) renderText("official mode on - some options cannot be changed", cProfText, {20, 500});
+		else if(getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, 500});
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }

@@ -19,6 +19,7 @@ namespace hg
 	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
 	void setOnline(bool mOnline);
+	void setOfficial(bool mOfficial);
 	void setNoRotation(bool mNoRotation);		
 	void setNoBackground(bool mNoBackground);
 	void setBlackAndWhite(bool mBlackAndWhite);
@@ -30,6 +31,8 @@ namespace hg
 	void setAutoRestart(bool mAutoRestart);
 
 	bool getOnline();
+	bool getOfficial();
+	std::string getUneligibilityReason();
 	float getSizeX();
 	float getSizeY();
 	float getSpawnDistance();

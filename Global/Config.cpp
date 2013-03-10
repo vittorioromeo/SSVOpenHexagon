@@ -24,7 +24,8 @@ namespace hg
 	map<string, Json::Value> configOverridesRootMap;
 
 	float sizeX{1500}, sizeY{1500};
-	constexpr float spawnDistance{1600};	
+	constexpr float spawnDistance{1600};
+	string uneligibilityReason{""};
 	
 	void loadConfig(vector<string> mOverridesIds)
 	{
@@ -67,8 +68,8 @@ namespace hg
 
 		string original{buffer.str()};
 
-		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible", "auto_restart", "online"};
-		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible(), getAutoRestart(), getOnline()};
+		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible", "auto_restart", "online", "official"};
+		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible(), getAutoRestart(), getOnline(), getOfficial()};
 
 		for(unsigned int i{0}; i < elements.size(); ++i)
 		{
@@ -81,9 +82,16 @@ namespace hg
 
 	bool isEligibleForScore()
 	{
-		if(getInvincible()) return false;
-		if(Online::getServerVersion() == -1) return false;
-		if(Online::getServerVersion() > getVersion()) return false;
+		if(!getOfficial()) { uneligibilityReason = "official mode off"; return false; }
+		if(getDebug()) { uneligibilityReason = "debug mode on"; return false; }
+		if(!getAutoZoomFactor()) { uneligibilityReason = "modified zoom factor"; return false; }
+		if(getPlayerSpeed() != 9.45f) { uneligibilityReason = "player speed modified"; return false; }
+		if(getPlayerFocusSpeed() != 4.625f) { uneligibilityReason = "player focus speed modified"; return false; }
+		if(getPlayerSize() != 7.3f) { uneligibilityReason = "player size modified"; return false; }
+		if(getInvincible()) { uneligibilityReason = "invincibility on"; return false; }
+		if(getNoRotation()) { uneligibilityReason = "rotation off"; return false; }
+		if(Online::getServerVersion() == -1) { uneligibilityReason = "version mismatch"; return false; }
+		if(Online::getServerVersion() > getVersion()) { uneligibilityReason = "version mismatch"; return false; }
 		return true;
 	}
 
@@ -110,6 +118,7 @@ namespace hg
 	}
 
 	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) { Online::startCheckUpdates(); Online::startCheckScores(); } }
+	void setOfficial(bool mOfficial)			{ root["official"] = mOfficial; }
 	void setNoRotation(bool mNoRotation)		{ root["no_rotation"] = mNoRotation; }
 	void setNoBackground(bool mNoBackground)	{ root["no_background"] = mNoBackground; }
 	void setBlackAndWhite(bool mBlackAndWhite)	{ root["black_and_white"] = mBlackAndWhite; }
@@ -121,26 +130,28 @@ namespace hg
 	void setAutoRestart(bool mAutoRestart) 		{ root["auto_restart"] = mAutoRestart; }
 
 	bool getOnline()					{ return root["online"].asBool(); }
+	bool getOfficial()					{ return root["official"].asBool(); }
+	string getUneligibilityReason()  	{ return uneligibilityReason; }
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
 	float getSpawnDistance() 			{ return spawnDistance; }
 	float getZoomFactor() 				{ return root["zoom_factor"].asFloat(); }
 	int getPixelMultiplier() 			{ return root["pixel_multiplier"].asInt(); }
-	float getPlayerSpeed() 				{ return root["player_speed"].asFloat(); }
-	float getPlayerFocusSpeed() 		{ return root["player_focus_speed"].asFloat(); }
-	float getPlayerSize() 				{ return root["player_size"].asFloat(); }
-	bool getNoRotation() 				{ return root["no_rotation"].asBool(); }
-	bool getNoBackground() 				{ return root["no_background"].asBool(); }
-	bool getBlackAndWhite() 			{ return root["black_and_white"].asBool(); }
+	float getPlayerSpeed() 				{ if(getOfficial()) return 9.45f; return root["player_speed"].asFloat(); }
+	float getPlayerFocusSpeed() 		{ if(getOfficial()) return 4.625f; return root["player_focus_speed"].asFloat(); }
+	float getPlayerSize() 				{ if(getOfficial()) return 7.3f; return root["player_size"].asFloat(); }
+	bool getNoRotation() 				{ if(getOfficial()) return false; return root["no_rotation"].asBool(); }
+	bool getNoBackground() 				{ if(getOfficial()) return false; return root["no_background"].asBool(); }
+	bool getBlackAndWhite() 			{ if(getOfficial()) return false; return root["black_and_white"].asBool(); }
 	bool getNoSound()					{ return root["no_sound"].asBool(); }
 	bool getNoMusic()					{ return root["no_music"].asBool(); }
 	int getSoundVolume()  				{ return root["sound_volume"].asInt(); }
 	int getMusicVolume() 				{ return root["music_volume"].asInt(); }
-	bool getStaticFrameTime()			{ return root["static_frametime"].asBool(); }
+	bool getStaticFrameTime()			{ if(getOfficial()) return false; return root["static_frametime"].asBool(); }
 	float getStaticFrameTimeValue()		{ return root["static_frametime_value"].asFloat(); }
 	bool getLimitFps()					{ return root["limit_fps"].asBool(); }
 	bool getVsync()						{ return root["vsync"].asBool(); }
-	bool getAutoZoomFactor()			{ return root["auto_zoom_factor"].asBool(); }
+	bool getAutoZoomFactor()			{ if(getOfficial()) return true; return root["auto_zoom_factor"].asBool(); }
 	bool getFullscreen()				{ return root["fullscreen"].asBool(); }
 	float getVersion() 					{ return 1.8f; }
 	bool getWindowedAutoResolution()	{ return root["windowed_auto_resolution"].asBool(); }
@@ -155,9 +166,9 @@ namespace hg
 	bool getChangeStyles()				{ return root["change_styles"].asBool(); }
 	bool getChangeMusic()				{ return root["change_music"].asBool(); }
 	bool getDebug()						{ return root["debug"].asBool(); }
-	bool getPulse()						{ return root["pulse_enabled"].asBool(); }
-	bool getBeatPulse()					{ return root["beatpulse_enabled"].asBool(); }
-	bool getInvincible()				{ return root["invincible"].asBool(); }
+	bool getPulse()						{ if(getOfficial()) return true; return root["pulse_enabled"].asBool(); }
+	bool getBeatPulse()					{ if(getOfficial()) return true; return root["beatpulse_enabled"].asBool(); }
+	bool getInvincible()				{ if(getOfficial()) return false; return root["invincible"].asBool(); }
 	bool get3D()						{ return root["3D_enabled"].asBool(); }
 	float get3DMultiplier()				{ return root["3D_multiplier"].asFloat(); }
 	unsigned int get3DMaxDepth()		{ return root["3D_max_depth"].asInt(); }
