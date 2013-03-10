@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.8 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.81 #
 ## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
@@ -95,6 +95,13 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.81
+
+* Added: screenshots in the menu (press F12)
+* Added: server messages are now shown in the main menu
+* Changed: if FPS gets below 20 in **official mode**, now the score is invalidated instead of ejecting the player to the main menu (this also happens if you take a screenshot!)
+* Fixed: severe score security issue - **scores will be wiped, sorry!**
 
 Version 1.8 
 

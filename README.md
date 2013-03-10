@@ -1,241 +1,222 @@
-<body>
-<h1><a href="http://www.facebook.com/OpenHexagon">Open Hexagon</a> - version 1.8</h1>
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.81 #
+## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
-<h2><a href="http://vittorioromeo.info">by Vittorio Romeo</a></h2>
+A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
+Programmed by **[Vittorio Romeo](http://vittorioromeo.info)</br>**
+Music by **[BOSSFIGHT](https://soundcloud.com/bossfightswe)</br>**
 
-<p>A free, open source clone of <strong><a href="https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8">Super Hexagon</a></strong> (by Terry Cavanagh) </br>
-Programmed by <strong><a href="http://vittorioromeo.info">Vittorio Romeo</a></br></strong>
-Music by <strong><a href="https://soundcloud.com/bossfightswe">BOSSFIGHT</a></br></strong></p>
+----------
 
-<hr />
+##EPILESPSY WARNING##
+*The game may contain flashing light patterns that could trigger a seizure. Play at your own risk.*
 
-<h2>EPILESPSY WARNING</h2>
+----------
 
-<p><em>The game may contain flashing light patterns that could trigger a seizure. Play at your own risk.</em></p>
+## Links and additional credits ##
 
-<hr />
 
-<h2>Links and additional credits</h2>
+**Official page:** [http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon) </br>
+**Source code page:** [https://github.com/SuperV1234](https://github.com/SuperV1234)</br>
+**Vittorio's website**: [http://vittorioromeo.info](http://vittorioromeo.info)</br>
 
-<p><strong>Official page:</strong> <a href="http://www.facebook.com/OpenHexagon">http://www.facebook.com/OpenHexagon</a> </br>
-<strong>Source code page:</strong> <a href="https://github.com/SuperV1234">https://github.com/SuperV1234</a></br>
-<strong>Vittorio's website</strong>: <a href="http://vittorioromeo.info">http://vittorioromeo.info</a></br></p>
+Special thanks:</br> 
+to **BubblegumBalloon** for the announcer sounds </br>
+to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)</br>
+to **Ethan Lee** for the [Unix port](https://github.com/flibitijibibo/OpenHexagon-Unix)</br>
+to **Jookia** for his help with the CMake files</br>
+to **Giuseppe Vinci**, **Jordo Matt**, **Pascal Schuster**, **Sean Pek** for beta-testing</br>
+to the **SFML** [IRC channel](http://en.sfml-dev.org/forums/index.php?topic=2997.0) community for all the help
 
-<p>Special thanks:</br> 
-to <strong>BubblegumBalloon</strong> for the announcer sounds </br>
-to <strong>Tomaka17</strong> for creating <a href="http://code.google.com/p/luawrapper/">LuaWrapper</a></br>
-to <strong>Ethan Lee</strong> for the <a href="https://github.com/flibitijibibo/OpenHexagon-Unix">Unix port</a></br>
-to <strong>Jookia</strong> for his help with the CMake files</br>
-to <strong>Giuseppe Vinci</strong>, <strong>Jordo Matt</strong>, <strong>Pascal Schuster</strong>, <strong>Sean Pek</strong> for beta-testing</br>
-to the <strong>SFML</strong> <a href="http://en.sfml-dev.org/forums/index.php?topic=2997.0">IRC channel</a> community for all the help</p>
+----------
 
-<hr />
+## Description ##
 
-<h2>Description</h2>
+> "You are a triangle." </br>
+Fast paced, challenging, free to play, open source game.
 
-<blockquote>
-  <p>"You are a triangle." </br>
-  Fast paced, challenging, free to play, open source game.</p>
-  
-  <p>You control a little triangle, which can be rotated clockwise or counterclockwise. Your goal is to suvive as long as possible by dodging polygons that move towards the center. Things get more difficult as time passes!</p>
-  
-  <p>Features a lot of variety and full customization: users can create/modify/share levels, patterns, music, sounds, scripts, and more.</p>
-  
-  <p>Play in Official Mode and submit your highscores to the server. Be the first in the leaderboards!</p>
-  
-  <p>Clone of the game "Super Hexagon" by Terry Cavanagh.</br>
-  Please check it out and consider buying it if you like Open Hexagon!</p>
-</blockquote>
+> You control a little triangle, which can be rotated clockwise or counterclockwise. Your goal is to suvive as long as possible by dodging polygons that move towards the center. Things get more difficult as time passes!
 
-<hr />
+> Features a lot of variety and full customization: users can create/modify/share levels, patterns, music, sounds, scripts, and more.
 
-<h2>Requirements</h2>
+> Play in Official Mode and submit your highscores to the server. Be the first in the leaderboards!
 
-<p><strong>Visual C++ Redistributable:</strong>
-<a href="http://www.microsoft.com/en-us/download/details.aspx?id=30679">http://www.microsoft.com/en-us/download/details.aspx?id=30679</a></p>
+>Clone of the game "Super Hexagon" by Terry Cavanagh.</br>
+Please check it out and consider buying it if you like Open Hexagon!
 
-<hr />
 
-<h2>Installation</h2>
+----------
 
-<p>Simply extract the contents of the compressed file in a folder.</br>
-Open <strong>SSVOpenHexagon.exe</strong> or any of the batch files to play.</p>
+## Requirements ##
 
-<p><em>If you need further assistance post on the official page:</em>
-<a href="http://www.facebook.com/OpenHexagon">http://www.facebook.com/OpenHexagon</a></p>
+**Visual C++ Redistributable:**
+[http://www.microsoft.com/en-us/download/details.aspx?id=30679](http://www.microsoft.com/en-us/download/details.aspx?id=30679)
 
-<hr />
 
-<h2>How to play</h2>
+----------
 
-<p>In the menu, press the <strong>Left</strong> and <strong>Right</strong> arrow keys to choose levels.</br>
-Press <strong>Enter</strong> to play.</br>
-Press <strong>F2</strong> to enter profile selection. Press <strong>F1</strong> to create a new profile.</br>
-Press <strong>F3</strong> to enter the options menu.</br>
-Keep <strong>ESC</strong> pressed to quit the game.</p>
+## Installation ##
 
-<p>In game, press the <strong>Left</strong> and <strong>Right</strong> arrow keys to rotate.</br>
-Press <strong>SHIFT</strong> to rotate more slowly.</br>
-Avoid the walls! Press <strong>R</strong> to restart.</br> Press <strong>ESC</strong> to go back to the menu.</p>
+Simply extract the contents of the compressed file in a folder.</br>
+Open **SSVOpenHexagon.exe** or any of the batch files to play.
 
-<hr />
+*If you need further assistance post on the official page:*
+[http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon)
 
-<h2>Customization</h2>
+----------
 
-<p>Customizing Open Hexagon can be very easy or very complex depending on what you're trying to do. </br>Almost everything is written in simple to edit <a href="http://www.json.org/">JSON</a>.</p>
+## How to play ##
 
-<p>Patterns, however, must be created using <a href="http://www.lua.org/">LUA</a> (which can also be used for other cool stuff).</p>
+In the menu, press the **Left** and **Right** arrow keys to choose levels.</br>
+Press **Enter** to play.</br>
+Press **F2** to enter profile selection. Press **F1** to create a new profile.</br>
+Press **F3** to enter the options menu.</br>
+Keep **ESC** pressed to quit the game.
 
-<p>Please refer to the files in the <strong>documentation</strong> folder.</p>
+In game, press the **Left** and **Right** arrow keys to rotate.</br>
+Press **SHIFT** to rotate more slowly.</br>
+Avoid the walls! Press **R** to restart.</br> Press **ESC** to go back to the menu.
 
-<p><em>Keep in mind that things will change from version to version. Existing files may not work in the next version of Open Hexagon or may work differently.</em></p>
+----------
 
-<p><em>If you need further assistance post on the official page:</em>
-<a href="http://www.facebook.com/OpenHexagon">http://www.facebook.com/OpenHexagon</a></p>
+## Customization ##
 
-<hr />
+Customizing Open Hexagon can be very easy or very complex depending on what you're trying to do. </br>Almost everything is written in simple to edit [JSON](http://www.json.org/).
 
-<h2>Changelog</h2>
+Patterns, however, must be created using [LUA](http://www.lua.org/) (which can also be used for other cool stuff).
 
-<p>Version 1.8 </p>
+Please refer to the files in the **documentation** folder.
 
-<ul>
-<li>Added: <strong>new documentation file</strong>: <strong>online</strong> - <strong>PLEASE READ IT</strong></li>
-<li>Added: <strong>options menu</strong> - open it by pressing <strong>F3</strong> on the main menu screen</li>
-<li>Added: <strong>official mode</strong> - play the game as it was meant to be (locks some options, makes you eligible for online scoring)</li>
-<li>Added: <strong>online highscores</strong> - your scores in official mode will be automatically submitted to the server</li>
-<li>Added: <strong>leaderboards</strong> - in the main menu you'll be able to see the top 5 online scores in official mode</li>
-<li>Added: <strong>online version checking</strong> - you will be notified when a new version of Open Hexagon is available</li>
-<li>Added: <strong>auto-restart</strong> option - automatically restarts when you die (toggle it in options menu)</li>
-<li>Added: <strong>screenshot</strong> feature - press <strong>F12</strong> during gameplay to save "screenshot.png" in the game folder</li>
-<li>Fixed: <strong>crash</strong> on PI, Aperoigon with 3D effects enabled</li>
-</ul>
+*Keep in mind that things will change from version to version. Existing files may not work in the next version of Open Hexagon or may work differently.*
 
-<p>Version 1.7</p>
+*If you need further assistance post on the official page:*
+[http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon)
 
-<ul>
-<li>Added: <strong>3D effects</strong> (can be customized in style JSON files) (can be enabled/disabled/tuned in config.json file)</li>
-<li>Added: <strong>antialiasing</strong></li>
-<li>Added: new default level, <strong>PI</strong></li>
-<li>Added: invincibility JSON config variable for debugging</li>
-<li>Added: <strong>camera shake effect</strong> on death</li>
-<li>Added: <strong>new main menu</strong></li>
-<li>Fixed: "renderTexture is too big" bug</li>
-<li>Fixed: spinning bug in Aperoigon</li>
-<li>Fixed: unable to use '0' character in profile names</li>
-<li>Fixed: a lot of minor bugs and a game crash</li>
-</ul>
+----------
 
-<p>Version 1.6</p>
 
-<ul>
-<li>Fixed: impossible patterns with extreme difficulty multipliers (should be fixed) - <strong>getPerfectDelayDM</strong> is a new function that takes difficulty multiplier into account</li>
-<li>Fixed: outdated level documentation file</li>
-<li>Added: flash effect on death</li>
-<li>Added: pulse effect option is saved when closing the game</li>
-<li>Added: <strong>mouse-button control</strong> (use left/right buttons to spin)</li>
-<li>Added: <strong>custom sounds</strong> for level packs (they work differently from normal sounds, please refer to the sounds documentation)</li>
-</ul>
+## Changelog ##
 
-<p>Version 1.52</p>
+Version 1.81
 
-<ul>
-<li>Fixed: non-folders in Packs/ directory caused crash</li>
-<li>Fixed: impossible wall bug with low difficulty multipliers</li>
-</ul>
+* Added: screenshots in the menu (press F12)
+* Added: server messages are now shown in the main menu
+* Changed: if FPS gets below 20 in **official mode**, now the score is invalidated instead of ejecting the player to the main menu (this also happens if you take a screenshot!)
+* Fixed: severe score security issue - **scores will be wiped, sorry!**
 
-<p>Version 1.51</p>
+Version 1.8 
 
-<ul>
-<li>Fixed: crash on tutorial level</li>
-<li>Added: Space and Enter keys now restart the game (only if you're already dead)</li>
-</ul>
+* Added: **new documentation file**: **online** - **PLEASE READ IT**
+* Added: **options menu** - open it by pressing **F3** on the main menu screen
+* Added: **official mode** - play the game as it was meant to be (locks some options, makes you eligible for online scoring)
+* Added: **online highscores** - your scores in official mode will be automatically submitted to the server
+* Added: **leaderboards** - in the main menu you'll be able to see the top 5 online scores in official mode
+* Added: **online version checking** - you will be notified when a new version of Open Hexagon is available
+* Added: **auto-restart** option - automatically restarts when you die (toggle it in options menu)
+* Added: **screenshot** feature - press **F12** during gameplay to save "screenshot.png" in the game folder
+* Fixed: **crash** on PI, Aperoigon with 3D effects enabled
 
-<p>Version 1.5</p>
 
-<ul>
-<li>Fixed: player death position now displays more accurately</li>
-<li>Added: <strong>pulsing effect</strong> (can be disabled right in the main menu)</li>
-<li>Added: <strong>level packs</strong> - sharing and installing levels is now really easy, just place the level folder in the Packs directory (unfortunately, scores are reset)</li>
-<li>Added: additional shortcuts for menu options (requested by people having troubles with the function keys)</li>
-<li>Changed: toned down difficulty multiplier's effect</li>
-<li>Changed: difficulty multipliers has now a wider range</li>
-<li>Changed: balanced default levels</li>
-<li>Added: new hard endurance level, <strong>labyrinth</strong></li>
-<li>Changed: delay multiplier now has an effect</li>
-<li>Fixed: minor <strong>LUA</strong> bugs</li>
-</ul>
+Version 1.7
 
-<p>Version 1.4</p>
+* Added: **3D effects** (can be customized in style JSON files) (can be enabled/disabled/tuned in config.json file)
+* Added: **antialiasing**
+* Added: new default level, **PI**
+* Added: invincibility JSON config variable for debugging
+* Added: **camera shake effect** on death
+* Added: **new main menu**
+* Fixed: "renderTexture is too big" bug
+* Fixed: spinning bug in Aperoigon
+* Fixed: unable to use '0' character in profile names
+* Fixed: a lot of minor bugs and a game crash
 
-<ul>
-<li>Changed: <strong>LUA</strong> file execution errors do not crash the game anymore - they display an error in the console and kill the player</li>
-<li>Changed: <strong>LUA</strong> runtime execution errors do not crash the game anymore - they display an error in the console and try continuing the game</li>
-<li>Removed: scripted events from default levels (the flow isn't interrupted anymore)</li>
-<li>Removed: experimental pseudo-3D effects</li>
-<li>Fixed: index calculation bug in default pattern <strong>LUA</strong> files (thanks Sean Pek!)</li>
-<li>Fixed: level rotation always in the same direction</li>
-<li>Fixed: <code>getPerfectDelay()</code> not returning the correct values</li>
-<li>Added: <strong>LUA</strong> <strong>REQUIRED</strong> level function onUpdate(mFrameTime), which is called every frame</li>
-<li>Added: <strong>LUA</strong> <code>isKeyPressed(mKey)</code> command, as requested - it returns true if <code>mKey</code> is pressed</li>
-<li>Changed: logging is only enabled in debug mode, which can be set in config.json or by using the <code>debug.bat</code> file, which loads the debug config override</li>
-</ul>
+Version 1.6
 
-<p>Version 1.3a <em>(experimental version)</em></p>
+* Fixed: impossible patterns with extreme difficulty multipliers (should be fixed) - **getPerfectDelayDM** is a new function that takes difficulty multiplier into account
+* Fixed: outdated level documentation file
+* Added: flash effect on death
+* Added: pulse effect option is saved when closing the game
+* Added: **mouse-button control** (use left/right buttons to spin)
+* Added: **custom sounds** for level packs (they work differently from normal sounds, please refer to the sounds documentation)
 
-<ul>
-<li>Added: <strong>automatic difficulty variants</strong> (select in menu with up/down arrow key) - scores are not shared between difficulty variants!</li>
-<li>Changed: balanced default levels to feel more like a natural progression</li>
-<li>Fixed: random side changing now happens as soon as possible</li>
-<li>Added: <strong>LUA</strong> hardcoded functions for levels (<code>onLoad</code>, <code>onStep</code>, <code>onUnload</code>, <code>onIncrement</code>) - <strong>these are REQUIRED in level script files</strong></li>
-<li>Added: <strong>LUA</strong> <code>log(mLog)</code> function, which sends a message to the console</li>
-<li>Fixed: <strong>LUA</strong> context now gets reset every time you start/restart a level</li>
-<li>Added: <strong>3D effects</strong> (customizable in the level file) - they can be disabled from config.json</li>
-<li>Added: <code>"rotation_speed_max"</code> level parameter</li>
-<li>Changed: messages now show only the first time you play the level (not on restart)</li>
-<li>Added: <code>"message_important_add"</code> event - it shows even if you restart the level</li>
-<li>Added: <code>playSound(mId)</code> <strong>LUA</strong> command</li>
-<li>Added: <code>forceIncrement()</code> <strong>LUA</strong> command</li>
-<li>Added: <code>messageAdd(mMessage, mDuration)</code> <strong>LUA</strong> command</li>
-<li>Added: <code>messageImportantAdd(mMessage, mDuration)</code> <strong>LUA</strong> command</li>
-<li>Added: <code>getDifficultyMult()</code> <strong>LUA</strong> command</li>
-<li>Added: new level and <strong>Commando Steve</strong> song</li>
-<li>Fixed: impossible wall bug (?)</li>
-</ul>
+Version 1.52
 
-<p>Version 1.2</p>
+* Fixed: non-folders in Packs/ directory caused crash
+* Fixed: impossible wall bug with low difficulty multipliers
 
-<ul>
-<li>Added: completely new <strong>JSON event scripting system</strong></li>
-<li>Added: completely new <strong>LUA scripting</strong> for patterns</li>
-<li>Added: <strong>new announcer sounds</strong> by <strong>BubblegumBalloon</strong>! (thank you)</li>
-<li>Added: <strong>save profiles</strong> for scores</li>
-<li>Added: new event scripting commands (<code>"play_sound"</code>, LUA-related)</li>
-<li>Added: new song, <strong>Captain Cool</strong></li>
-<li>Added: new level, <strong>Golden Ratio</strong></li>
-</ul>
+Version 1.51
 
-<p>Version 1.11</p>
+* Fixed: crash on tutorial level
+* Added: Space and Enter keys now restart the game (only if you're already dead)
 
-<ul>
-<li>Added: readme files for customization </li>
-<li>Added: credits in menu screen</li>
-<li>Added: JSON file for sound customization</li>
-</ul>
+Version 1.5
 
-<p>Version 1.1</p>
+* Fixed: player death position now displays more accurately
+* Added: **pulsing effect** (can be disabled right in the main menu)
+* Added: **level packs** - sharing and installing levels is now really easy, just place the level folder in the Packs directory (unfortunately, scores are reset)
+* Added: additional shortcuts for menu options (requested by people having troubles with the function keys)
+* Changed: toned down difficulty multiplier's effect
+* Changed: difficulty multipliers has now a wider range
+* Changed: balanced default levels
+* Added: new hard endurance level, **labyrinth**
+* Changed: delay multiplier now has an effect
+* Fixed: minor **LUA** bugs
 
-<ul>
-<li>Fixed: input being registered when the game was not in focus</li>
-<li>Added: config overrides (JSON files that override certain config parameters)</li>
-<li>Added: .bat files for WINDOWED and FULLSCREEN modes</li>
-<li>Changed: JSON name members for windowed/fullscreen config parameters</li>
-<li>Fixed: sudden side number changing bug (now it waits until all the obstacles are removed)</li>
-<li>Fixed: impossible pattern bug</li>
-<li>Added: another tutorial level</li>
-<li>Added: new style (zen2)</li>
-</ul>
+Version 1.4
 
-</body>
-</html>
-<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->
+* Changed: **LUA** file execution errors do not crash the game anymore - they display an error in the console and kill the player
+* Changed: **LUA** runtime execution errors do not crash the game anymore - they display an error in the console and try continuing the game
+* Removed: scripted events from default levels (the flow isn't interrupted anymore)
+* Removed: experimental pseudo-3D effects
+* Fixed: index calculation bug in default pattern **LUA** files (thanks Sean Pek!)
+* Fixed: level rotation always in the same direction
+* Fixed: `getPerfectDelay()` not returning the correct values
+* Added: **LUA** **REQUIRED** level function onUpdate(mFrameTime), which is called every frame
+* Added: **LUA** `isKeyPressed(mKey)` command, as requested - it returns true if `mKey` is pressed
+* Changed: logging is only enabled in debug mode, which can be set in config.json or by using the `debug.bat` file, which loads the debug config override
+
+Version 1.3a *(experimental version)*
+
+* Added: **automatic difficulty variants** (select in menu with up/down arrow key) - scores are not shared between difficulty variants!
+* Changed: balanced default levels to feel more like a natural progression
+* Fixed: random side changing now happens as soon as possible
+* Added: **LUA** hardcoded functions for levels (`onLoad`, `onStep`, `onUnload`, `onIncrement`) - **these are REQUIRED in level script files**
+* Added: **LUA** `log(mLog)` function, which sends a message to the console
+* Fixed: **LUA** context now gets reset every time you start/restart a level
+* Added: **3D effects** (customizable in the level file) - they can be disabled from config.json
+* Added: `"rotation_speed_max"` level parameter
+* Changed: messages now show only the first time you play the level (not on restart)
+* Added: `"message_important_add"` event - it shows even if you restart the level
+* Added: `playSound(mId)` **LUA** command
+* Added: `forceIncrement()` **LUA** command
+* Added: `messageAdd(mMessage, mDuration)` **LUA** command
+* Added: `messageImportantAdd(mMessage, mDuration)` **LUA** command
+* Added: `getDifficultyMult()` **LUA** command
+* Added: new level and **Commando Steve** song
+* Fixed: impossible wall bug (?)
+
+Version 1.2
+
+* Added: completely new **JSON event scripting system**
+* Added: completely new **LUA scripting** for patterns
+* Added: **new announcer sounds** by **BubblegumBalloon**! (thank you)
+* Added: **save profiles** for scores
+* Added: new event scripting commands (`"play_sound"`, LUA-related)
+* Added: new song, **Captain Cool**
+* Added: new level, **Golden Ratio**
+
+Version 1.11
+
+* Added: readme files for customization 
+* Added: credits in menu screen
+* Added: JSON file for sound customization
+
+Version 1.1
+
+* Fixed: input being registered when the game was not in focus
+* Added: config overrides (JSON files that override certain config parameters)
+* Added: .bat files for WINDOWED and FULLSCREEN modes
+* Changed: JSON name members for windowed/fullscreen config parameters
+* Fixed: sudden side number changing bug (now it waits until all the obstacles are removed)
+* Fixed: impossible pattern bug
+* Added: another tutorial level
+* Added: new style (zen2)
