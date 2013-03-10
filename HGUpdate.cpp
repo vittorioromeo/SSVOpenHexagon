@@ -33,14 +33,15 @@ namespace hg
 		
 		if(get3D()) update3D(mFrameTime);
 		if(!getNoRotation()) updateRotation(mFrameTime);
-		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 
 		inputMovement = 0; inputFocused = false;
 
-		if(status.currentTime > 5 && getOfficial() && window.getFPS() < 30)
+		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
+
+		if(!status.scoreInvalid && status.currentTime > 5 && getOfficial() && window.getFPS() < 25)
 		{
-			log("Too low FPS, aborting official game", "Online");
-			goToMenu(false);
+			log("Too low FPS, invalidating official game", "Online");
+			status.scoreInvalid = true;
 		}
 	}
 	void HexagonGame::updateEvents(float mFrameTime)

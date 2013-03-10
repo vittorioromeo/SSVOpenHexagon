@@ -8,10 +8,11 @@ using namespace std;
 
 namespace hg
 {
-	PackData::PackData(string mId, const string& mName, float mPriority) : id{mId}, name{mName}, priority{mPriority} { }
+	PackData::PackData(const string& mId, const string& mName, float mPriority, const string& mHash) : id{mId}, name{mName}, priority{mPriority}, hash{mHash} { }
 
 	string PackData::getId() 		{ return id; }
 	string PackData::getName() 		{ return name; }
+	string PackData::getHash() 		{ return hash; }
 	float PackData::getPriority() 	{ return priority; }
 }
 
