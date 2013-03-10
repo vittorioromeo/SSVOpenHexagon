@@ -1,6 +1,6 @@
 [CONFIG] loading config
-[Online] Checking updates...
 [Online] Checking scores...
+[Online] Checking updates...
 [loadImages] bottomBar.png image added
 [loadImages] bottomBar.png texture added
 [loadImagesToManager(Assets/)] bottomBar.png image added
@@ -76,3 +76,11 @@ Good luck and have fun!
 [Online] Server latest version: 1.8
 [Online] No updates available
 [Online] Finished checking updates
+[Online] Checking if score can be sent...
+[Online] Score can be sent - sending
+[Online] Sending score to server...
+[Online] Score sent successfully
+[Online] Finished sending score
+[Online] Checking scores...
+[Online] Scores retrieved successfully
+[Online] Finished checking scores

@@ -211,7 +211,7 @@ namespace hg
 			Event e; window.pollEvent(e);
 			if(e.type == Event::TextEntered)
 			{
-				if(e.text.unicode > 47 && e.text.unicode < 126 && profileNewName.size() < 16) profileNewName.append(toStr((char)(e.text.unicode)));
+				if(e.text.unicode > 47 && e.text.unicode < 126 && profileNewName.size() < 16) {char c{static_cast<char>(e.text.unicode)}; if(isalnum(c)) profileNewName.append(toStr(c)); }
 				else if(e.text.unicode == 8 && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1);
 				else if(e.text.unicode == 13 && !profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = States::MAIN; inputDelay = 30; }
 			}
