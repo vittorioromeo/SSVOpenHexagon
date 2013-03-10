@@ -1,5 +1,5 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.7 #
-## [vee software](http://veegamedev.wordpress.com/) ##
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.8 #
+## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
 Programmed by **[Vittorio Romeo](http://vittorioromeo.info)</br>**
@@ -24,7 +24,8 @@ to **BubblegumBalloon** for the announcer sounds </br>
 to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)</br>
 to **Ethan Lee** for the [Unix port](https://github.com/flibitijibibo/OpenHexagon-Unix)</br>
 to **Jookia** for his help with the CMake files</br>
-to **Giuseppe Vinci**, **Jordo Matt**, **Pascal Schuster**, **Sean Pek** for beta-testing
+to **Giuseppe Vinci**, **Jordo Matt**, **Pascal Schuster**, **Sean Pek** for beta-testing</br>
+to the **SFML** [IRC channel](http://en.sfml-dev.org/forums/index.php?topic=2997.0) community for all the help
 
 ----------
 
@@ -36,6 +37,8 @@ Fast paced, challenging, free to play, open source game.
 > You control a little triangle, which can be rotated clockwise or counterclockwise. Your goal is to suvive as long as possible by dodging polygons that move towards the center. Things get more difficult as time passes!
 
 > Features a lot of variety and full customization: users can create/modify/share levels, patterns, music, sounds, scripts, and more.
+
+> Play in Official Mode and submit your highscores to the server. Be the first in the leaderboards!
 
 >Clone of the game "Super Hexagon" by Terry Cavanagh.</br>
 Please check it out and consider buying it if you like Open Hexagon!
@@ -65,6 +68,8 @@ Open **SSVOpenHexagon.exe** or any of the batch files to play.
 
 In the menu, press the **Left** and **Right** arrow keys to choose levels.</br>
 Press **Enter** to play.</br>
+Press **F2** to enter profile selection. Press **F1** to create a new profile.</br>
+Press **F3** to enter the options menu.</br>
 Keep **ESC** pressed to quit the game.
 
 In game, press the **Left** and **Right** arrow keys to rotate.</br>
@@ -90,6 +95,19 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.8 
+
+* Added: **new documentation file**: **online** - **PLEASE READ IT**
+* Added: **options menu** - open it by pressing **F3** on the main menu screen
+* Added: **official mode** - play the game as it was meant to be (locks some options, makes you eligible for online scoring)
+* Added: **online highscores** - your scores in official mode will be automatically submitted to the server
+* Added: **leaderboards** - in the main menu you'll be able to see the top 5 online scores in official mode
+* Added: **online version checking** - you will be notified when a new version of Open Hexagon is available
+* Added: **auto-restart** option - automatically restarts when you die (toggle it in options menu)
+* Added: **screenshot** feature - press **F12** during gameplay to save "screenshot.png" in the game folder
+* Fixed: **crash** on PI, Aperoigon with 3D effects enabled
+
 
 Version 1.7
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<title>README.md</title>
+<title>README.markdown</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <style type="text/css">
 body{
@@ -266,9 +266,9 @@ button::-moz-focus-inner {
 </style>
 </head>
 <body>
-<h1><a href="http://www.facebook.com/OpenHexagon">Open Hexagon</a> - version 1.7</h1>
+<h1><a href="http://www.facebook.com/OpenHexagon">Open Hexagon</a> - version 1.8</h1>
 
-<h2><a href="http://veegamedev.wordpress.com/">vee software</a></h2>
+<h2><a href="http://vittorioromeo.info">by Vittorio Romeo</a></h2>
 
 <p>A free, open source clone of <strong><a href="https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8">Super Hexagon</a></strong> (by Terry Cavanagh) </br>
 Programmed by <strong><a href="http://vittorioromeo.info">Vittorio Romeo</a></br></strong>
@@ -293,7 +293,8 @@ to <strong>BubblegumBalloon</strong> for the announcer sounds </br>
 to <strong>Tomaka17</strong> for creating <a href="http://code.google.com/p/luawrapper/">LuaWrapper</a></br>
 to <strong>Ethan Lee</strong> for the <a href="https://github.com/flibitijibibo/OpenHexagon-Unix">Unix port</a></br>
 to <strong>Jookia</strong> for his help with the CMake files</br>
-to <strong>Giuseppe Vinci</strong>, <strong>Jordo Matt</strong>, <strong>Pascal Schuster</strong>, <strong>Sean Pek</strong> for beta-testing</p>
+to <strong>Giuseppe Vinci</strong>, <strong>Jordo Matt</strong>, <strong>Pascal Schuster</strong>, <strong>Sean Pek</strong> for beta-testing</br>
+to the <strong>SFML</strong> <a href="http://en.sfml-dev.org/forums/index.php?topic=2997.0">IRC channel</a> community for all the help</p>
 
 <hr />
 
@@ -306,6 +307,8 @@ to <strong>Giuseppe Vinci</strong>, <strong>Jordo Matt</strong>, <strong>Pascal 
   <p>You control a little triangle, which can be rotated clockwise or counterclockwise. Your goal is to suvive as long as possible by dodging polygons that move towards the center. Things get more difficult as time passes!</p>
   
   <p>Features a lot of variety and full customization: users can create/modify/share levels, patterns, music, sounds, scripts, and more.</p>
+  
+  <p>Play in Official Mode and submit your highscores to the server. Be the first in the leaderboards!</p>
   
   <p>Clone of the game "Super Hexagon" by Terry Cavanagh.</br>
   Please check it out and consider buying it if you like Open Hexagon!</p>
@@ -334,6 +337,8 @@ Open <strong>SSVOpenHexagon.exe</strong> or any of the batch files to play.</p>
 
 <p>In the menu, press the <strong>Left</strong> and <strong>Right</strong> arrow keys to choose levels.</br>
 Press <strong>Enter</strong> to play.</br>
+Press <strong>F2</strong> to enter profile selection. Press <strong>F1</strong> to create a new profile.</br>
+Press <strong>F3</strong> to enter the options menu.</br>
 Keep <strong>ESC</strong> pressed to quit the game.</p>
 
 <p>In game, press the <strong>Left</strong> and <strong>Right</strong> arrow keys to rotate.</br>
@@ -359,6 +364,20 @@ Avoid the walls! Press <strong>R</strong> to restart.</br> Press <strong>ESC</st
 
 <h2>Changelog</h2>
 
+<p>Version 1.8 </p>
+
+<ul>
+<li>Added: <strong>new documentation file</strong>: <strong>online</strong> - <strong>PLEASE READ IT</strong></li>
+<li>Added: <strong>options menu</strong> - open it by pressing <strong>F3</strong> on the main menu screen</li>
+<li>Added: <strong>official mode</strong> - play the game as it was meant to be (locks some options, makes you eligible for online scoring)</li>
+<li>Added: <strong>online highscores</strong> - your scores in official mode will be automatically submitted to the server</li>
+<li>Added: <strong>leaderboards</strong> - in the main menu you'll be able to see the top 5 online scores in official mode</li>
+<li>Added: <strong>online version checking</strong> - you will be notified when a new version of Open Hexagon is available</li>
+<li>Added: <strong>auto-restart</strong> option - automatically restarts when you die (toggle it in options menu)</li>
+<li>Added: <strong>screenshot</strong> feature - press <strong>F12</strong> during gameplay to save "screenshot.png" in the game folder</li>
+<li>Fixed: <strong>crash</strong> on PI, Aperoigon with 3D effects enabled</li>
+</ul>
+
 <p>Version 1.7</p>
 
 <ul>
@@ -372,7 +391,6 @@ Avoid the walls! Press <strong>R</strong> to restart.</br> Press <strong>ESC</st
 <li>Fixed: spinning bug in Aperoigon</li>
 <li>Fixed: unable to use '0' character in profile names</li>
 <li>Fixed: a lot of minor bugs and a game crash</li>
-<li>Changed: custom sounds now require extension to play via LUA/JSON scripts (previous levels will need to be updated!)</li>
 </ul>
 
 <p>Version 1.6</p>
