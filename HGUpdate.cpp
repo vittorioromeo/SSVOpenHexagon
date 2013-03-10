@@ -38,7 +38,7 @@ namespace hg
 
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 
-		if(!status.scoreInvalid && status.currentTime > 5 && getOfficial() && window.getFPS() < 25)
+		if(!status.scoreInvalid && status.currentTime > 5 && getOfficial() && window.getFPS() < 20)
 		{
 			log("Too low FPS, invalidating official game", "Online");
 			status.scoreInvalid = true;
