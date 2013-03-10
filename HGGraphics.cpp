@@ -56,6 +56,7 @@ namespace hg
 		s << "time: " << toStr(status.currentTime).substr(0, 5) << endl;
 		if(getOfficial()) s << "official mode" << endl;
 		if(getDebug()) s << "debug mode" << endl;
+		if(status.scoreInvalid) s << "your score has been invalidated (performance issues)" << endl;
 		if(status.hasDied) s << "press r to restart" << endl;
 
 		vector<Vector2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
