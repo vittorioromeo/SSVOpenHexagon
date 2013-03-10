@@ -1,103 +1,87 @@
+// Copyright (c) 2013 Vittorio Romeo
+// License: Academic Free License ("AFL") v. 3.0
+// AFL License page: http://opensource.org/licenses/AFL-3.0
+
 #include <cstdlib>
 #include <cstdio>
 #include <climits>
 #include "Utils/MD5.h"
 
+using namespace std;
+
 typedef unsigned char *POINTER;
 
 // 16 bits integer
 #if USHRT_MAX == 0xFFFF
-        typedef unsigned short UINT2;
+    typedef unsigned short UINT2;
 #elif UINT_MAX == 0xFFFF
-        typedef unsigned int UINT2;
+    typedef unsigned int UINT2;
 #elif ULONG_MAX == 0xFFFF
-        typedef unsigned long UINT2;
+    typedef unsigned long UINT2;
 #endif
 
 // 32 bits integer
 #if USHRT_MAX == 0xFFFFFFFF
-        typedef unsigned short UINT4;
+    typedef unsigned short UINT4;
 #elif UINT_MAX == 0xFFFFFFFF
-        typedef unsigned int UINT4;
+    typedef unsigned int UINT4;
 #elif ULONG_MAX == 0xFFFFFFFF
-        typedef unsigned long UINT4;
+    typedef unsigned long UINT4;
 #endif
 
 
-typedef struct {
+typedef struct
+{
   UINT4 state[4];
   UINT4 count[2];
   unsigned char buffer[64];
 } MD5_CTX;
 
-void MD5Init (MD5_CTX *);
-void MD5Update (MD5_CTX *, const unsigned char *, unsigned int);
-void MD5Final (unsigned char [16], MD5_CTX *);
+void MD5Init(MD5_CTX*);
+void MD5Update(MD5_CTX*, const unsigned char*, unsigned int);
+void MD5Final(unsigned char[16], MD5_CTX*);
 
-MD5::MD5()
-{
-}
+MD5::MD5() { }
+MD5::MD5(const std::string& source) { Calculate(source); }
+MD5::MD5(const unsigned char* source, uint32 len) { Calculate(source, len); }
+MD5::MD5(std::ifstream& file) { Calculate(file); }
 
-MD5::MD5(const std::string& source)
-{
-        Calculate(source);
-}
-
-MD5::MD5(const unsigned char* source, uint32 len)
-{
-        Calculate(source, len);
-}
-
-MD5::MD5(std::ifstream& file)
-{
-        Calculate(file);
-}
-
-std::string MD5::Calculate(const std::string& source)
-{
-        return Calculate((const unsigned char*)source.c_str(), source.size());
-}
-
+std::string MD5::Calculate(const std::string& source) { return Calculate((const unsigned char*)source.c_str(), source.size()); }
 std::string MD5::Calculate(std::ifstream& file)
 {
-        if (!file)
-                return "";
-        file.seekg(0, std::ios::end);
-        int length = file.tellg();
-        file.seekg(0, std::ios::beg);
+	if(!file) return "";
+	file.seekg(0, std::ios::end);
+	int length{file.tellg()};
+	file.seekg(0, std::ios::beg);
 
-        char* buffer = new char [length];
+	char* buffer{new char[length]};
 
-        file.read(buffer, length);
-        Calculate((unsigned char*) buffer, length);
-        delete [] buffer;
-        return m_sHash;
+	file.read(buffer, length);
+	Calculate((unsigned char*) buffer, length);
+	delete[] buffer;
+	return m_sHash;
 }
-
 std::string MD5::Calculate(const unsigned char* source, uint32_t len)
 {
-        MD5_CTX context;
+	MD5_CTX context;
 
-        MD5Init(&context);
-        MD5Update(&context, source, len);
-        MD5Final(m_rawHash, &context);
+	MD5Init(&context);
+	MD5Update(&context, source, len);
+	MD5Final(m_rawHash, &context);
 
-        m_sHash.clear();
-        m_sHash.reserve(32);
-        char buffer[3];
-        buffer[2] = '\0';
-        for (int i = 0; i < 16; ++i)
-        {
-                sprintf(buffer, "%02x", m_rawHash[i]);
-                m_sHash += buffer;
-        }
-        return m_sHash;
+	m_sHash.clear();
+	m_sHash.reserve(32);
+	char buffer[3];
+	buffer[2] = '\0';
+	for(int i{0}; i < 16; ++i)
+	{
+		sprintf(buffer, "%02x", m_rawHash[i]);
+		m_sHash += buffer;
+	}
+	return m_sHash;
 }
 
-std::string MD5::GetHash() const
-{
-        return m_sHash;
-}
+std::string MD5::GetHash() const { return m_sHash; }
 
 #define S11 7
 #define S12 12
@@ -116,11 +100,11 @@ std::string MD5::GetHash() const
 #define S43 15
 #define S44 21
 
-static void MD5Transform (UINT4 [4], const unsigned char [64]);
-static void Encode (unsigned char *, const UINT4 *, unsigned int);
-static void Decode (UINT4 *, const unsigned char *, unsigned int);
-static void MD5_memcpy (POINTER, POINTER, unsigned int);
-static void MD5_memset (POINTER, int, unsigned int);
+static void MD5Transform(UINT4[4], const unsigned char[64]);
+static void Encode(unsigned char*, const UINT4*, unsigned int);
+static void Decode(UINT4*, const unsigned char*, unsigned int);
+static void MD5_memcpy(POINTER, POINTER, unsigned int);
+static void MD5_memset(POINTER, int, unsigned int);
 
 static unsigned char PADDING[64] = {
   0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -186,7 +170,7 @@ void MD5Init (MD5_CTX *context)
   operation, processing another message block, and updating the
   context.
  */
-void MD5Update (MD5_CTX *context, const unsigned char *input, unsigned int inputLen)
+void MD5Update(MD5_CTX* context, const unsigned char* input, unsigned int inputLen)
 {
   unsigned int i, index, partLen;
 
@@ -225,7 +209,7 @@ void MD5Update (MD5_CTX *context, const unsigned char *input, unsigned int input
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
   the message digest and zeroizing the context.
  */
-void MD5Final (unsigned char digest[16], MD5_CTX *context)
+void MD5Final(unsigned char digest[16], MD5_CTX *context)
 {
   unsigned char bits[8];
   unsigned int index, padLen;
@@ -251,7 +235,7 @@ void MD5Final (unsigned char digest[16], MD5_CTX *context)
 
 /* MD5 basic transformation. Transforms state based on block.
  */
-static void MD5Transform (UINT4 state[4], const unsigned char block[64])
+static void MD5Transform(UINT4 state[4], const unsigned char block[64])
 {
   UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
@@ -344,14 +328,15 @@ static void MD5Transform (UINT4 state[4], const unsigned char block[64])
  */
 static void Encode (unsigned char *output, const UINT4 *input, unsigned int len)
 {
-  unsigned int i, j;
+	unsigned int i, j;
 
-  for (i = 0, j = 0; j < len; i++, j += 4) {
- output[j] = (unsigned char)(input[i] & 0xff);
- output[j+1] = (unsigned char)((input[i] >> 8) & 0xff);
- output[j+2] = (unsigned char)((input[i] >> 16) & 0xff);
- output[j+3] = (unsigned char)((input[i] >> 24) & 0xff);
-  }
+	for(i = 0, j = 0; j < len; i++, j += 4)
+	{
+		output[j] = (unsigned char)(input[i] & 0xff);
+		output[j+1] = (unsigned char)((input[i] >> 8) & 0xff);
+		output[j+2] = (unsigned char)((input[i] >> 16) & 0xff);
+		output[j+3] = (unsigned char)((input[i] >> 24) & 0xff);
+	}
 }
 
 /* Decodes input (unsigned char) into output (UINT4). Assumes len is
@@ -359,9 +344,9 @@ static void Encode (unsigned char *output, const UINT4 *input, unsigned int len)
  */
 static void Decode (UINT4 *output, const unsigned char *input, unsigned int len)
 {
-  unsigned int i, j;
+	unsigned int i, j;
 
-  for (i = 0, j = 0; j < len; i++, j += 4)
+	for(i = 0, j = 0; j < len; i++, j += 4)
  output[i] = ((UINT4)input[j]) | (((UINT4)input[j+1]) << 8) |
    (((UINT4)input[j+2]) << 16) | (((UINT4)input[j+3]) << 24);
 }
@@ -381,8 +366,8 @@ static void MD5_memcpy (POINTER output, POINTER input, unsigned int len)
  */
 static void MD5_memset (POINTER output, int value, unsigned int len)
 {
-  unsigned int i;
+	unsigned int i;
 
-  for (i = 0; i < len; i++)
+  for(i = 0; i < len; i++)
  ((char *)output)[i] = (char)value;
 }
