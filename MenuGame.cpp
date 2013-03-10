@@ -279,15 +279,15 @@ namespace hg
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 70 + 5});
 
 			renderText(getLeaderboard(), cProfText, {20, 100});
-			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 535}, 13);
+			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
 		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25});
 		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 60.f * (countNewLines(levelData.getName()))});
-		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500 - 20});
-		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515 - 20});
-		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530 - 20});
+		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500 - 35});
+		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515 - 35});
+		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530 - 35});
 	}
 	void MenuGame::drawProfileCreation()
 	{
