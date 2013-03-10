@@ -106,4 +106,36 @@ namespace hg
 
 		timeline.append<Do>([&mCamera, oldCenter]{ mCamera.centerOn(oldCenter); });
 	}
+
+	unordered_set<string> getIncludedLuaFileNames(const string& mLuaScript)
+	{
+		string script{mLuaScript};
+		string sub{"execScript("};
+		unordered_set<string> result;
+
+		size_t pos = script.find(sub, 0);
+		while(pos != string::npos)
+		{
+			size_t startPos{pos};
+			string untilEnd{script.substr(startPos + sub.length() + 1, script.length() - startPos)};
+			size_t lastPos{untilEnd.find("\"", 0)};
+			string luaName{untilEnd.substr(0, lastPos)};
+
+			result.insert(luaName);
+
+			pos = script.find(sub,pos+1);
+		}
+
+		return result;
+	}
+	void recursiveFillIncludedLuaFileNames(unordered_set<string>& mLuaScriptNames, const string& mPackPath, const string& mLuaScript)
+	{
+		unordered_set<string> current = getIncludedLuaFileNames(mLuaScript);
+		for(auto& name : current)
+		{
+			mLuaScriptNames.insert(name);
+			string luaFilePath{mPackPath + "/Scripts/" + name};
+			recursiveFillIncludedLuaFileNames(mLuaScriptNames, mPackPath, getFileContents(luaFilePath));
+		}
+	}
 }
