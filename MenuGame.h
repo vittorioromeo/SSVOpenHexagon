@@ -32,6 +32,7 @@ namespace hg
 			ssvms::Menu optionsMenu;
 			std::string scoresMessage;
 			float exitTimer{0};
+			bool mustTakeScreenshot{false};
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")};
 			sf::Sprite creditsBar1{getAssetManager().getTexture("creditsBar1.png")};

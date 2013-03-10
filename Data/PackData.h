@@ -15,11 +15,13 @@ namespace hg
 		private:
 			std::string id, name;
 			float priority;
+			std::string hash;
 
 		public:
-			PackData(std::string mId, const std::string& mName, float mPriority);
+			PackData(const std::string& mId, const std::string& mName, float mPriority, const std::string& mHash);
 			std::string getId();
 			std::string getName();
+			std::string getHash();
 			float getPriority();
 	};
 }

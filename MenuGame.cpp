@@ -152,6 +152,7 @@ namespace hg
 		}, t::SINGLE);
 		game.addInput({{k::Escape}}, [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; }, t::SINGLE);
 		game.addInput({{k::Escape}}, [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
+		game.addInput({{k::F12}}, [&](float){ mustTakeScreenshot = true; }, t::SINGLE);
 	}
 
 	void MenuGame::setIndex(int mIndex)
@@ -235,6 +236,8 @@ namespace hg
 		else if(state == States::OPTIONS) 		{ window.clear(Color::Black); overlayCamera.apply(); drawOptions(); }
 
 		overlayCamera.apply(); render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
+
+		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
 	void MenuGame::renderText(const string& mString, Text& mText, sf::Vector2f mPosition, unsigned int mSize)

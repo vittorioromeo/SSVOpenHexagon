@@ -1,0 +1,78 @@
+[CONFIG] loading config
+[Online] Checking updates...
+[Online] Checking scores...
+[loadImages] bottomBar.png image added
+[loadImages] bottomBar.png texture added
+[loadImagesToManager(Assets/)] bottomBar.png image added
+[loadImages] creditsBar1.png image added
+[loadImages] creditsBar1.png texture added
+[loadImagesToManager(Assets/)] creditsBar1.png image added
+[loadImages] creditsBar2.png image added
+[loadImages] creditsBar2.png texture added
+[loadImagesToManager(Assets/)] creditsBar2.png image added
+[loadImages] titleBar.png image added
+[loadImages] titleBar.png texture added
+[loadImagesToManager(Assets/)] titleBar.png image added
+[loadSound] beep.ogg soundBuffer added
+[loadSound] beep.ogg sound added
+[loadSoundsToManager(Assets/)] beep.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] beep.ogg sound added
+[loadSound] death.ogg soundBuffer added
+[loadSound] death.ogg sound added
+[loadSoundsToManager(Assets/)] death.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] death.ogg sound added
+[loadSound] gameOver.ogg soundBuffer added
+[loadSound] gameOver.ogg sound added
+[loadSoundsToManager(Assets/)] gameOver.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] gameOver.ogg sound added
+[loadSound] go.ogg soundBuffer added
+[loadSound] go.ogg sound added
+[loadSoundsToManager(Assets/)] go.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] go.ogg sound added
+[loadSound] levelUp.ogg soundBuffer added
+[loadSound] levelUp.ogg sound added
+[loadSoundsToManager(Assets/)] levelUp.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] levelUp.ogg sound added
+[loadSound] openHexagon.ogg soundBuffer added
+[loadSound] openHexagon.ogg sound added
+[loadSoundsToManager(Assets/)] openHexagon.ogg soundBuffer added
+[loadSoundsToManager(Assets/)] openHexagon.ogg sound added
+[loadMusic] beep.ogg music added
+[loadMusicsToManager(Assets/)] beep.ogg music added
+[loadMusic] death.ogg music added
+[loadMusicsToManager(Assets/)] death.ogg music added
+[loadMusic] gameOver.ogg music added
+[loadMusicsToManager(Assets/)] gameOver.ogg music added
+[loadMusic] go.ogg music added
+[loadMusicsToManager(Assets/)] go.ogg music added
+[loadMusic] levelUp.ogg music added
+[loadMusicsToManager(Assets/)] levelUp.ogg music added
+[loadMusic] openHexagon.ogg music added
+[loadMusicsToManager(Assets/)] openHexagon.ogg music added
+[loadFonts] imagine.ttf font added
+[loadFontsToManager(Assets/)] imagine.ttf font added
+[ASSETS] loading profiles
+[ASSETS] loading VeeDefault music
+[ASSETS] loading VeeDefault music data
+[ASSETS] loading VeeDefault style data
+[ASSETS] loading VeeDefault level data
+[ASSETS] loading VeeDefault events
+[ASSETS] loading VeeDefault custom sounds
+[FileSystem] Directory "Packs/VeeDefault/Sounds/" not found
+[ASSETS] loading VeeEndurance music
+[ASSETS] loading VeeEndurance music data
+[ASSETS] loading VeeEndurance style data
+[ASSETS] loading VeeEndurance level data
+[ASSETS] loading VeeEndurance events
+[ASSETS] loading VeeEndurance custom sounds
+[loadSound] VeeEndurance_test.ogg soundBuffer added
+[loadSound] VeeEndurance_test.ogg sound added
+[Online] Scores retrieved successfully
+[Online] Finished checking scores
+[Online] Server message:
+Welcome to Open Hexagon!
+You're now connected to vittorioromeo.info.
+Good luck and have fun!
+[Online] Server latest version: 1.8
+[Online] No updates available
+[Online] Finished checking updates

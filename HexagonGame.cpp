@@ -155,7 +155,7 @@ namespace hg
 		if(getScore(localValidator) < status.currentTime) setScore(localValidator, status.currentTime);
 		saveCurrentProfile();
 
-		if(!isEligibleForScore()) return;
+		if(status.scoreInvalid || !isEligibleForScore()) return;
 
 		string validator{Online::getValidator(levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 		Online::startSendScore(getCurrentProfile().getName(), validator, status.currentTime);

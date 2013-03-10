@@ -20,6 +20,8 @@
 #include "Global/Config.h"
 #include "Utils/Utils.h"
 #include "Online/Online.h"
+#include "Utils/MD5.h"
+#include "Online/Definitions.h"
 
 using namespace std;
 using namespace sf;
@@ -52,8 +54,12 @@ namespace hg
 		{
 			string packName{packPath.substr(6, packPath.length() - 6)};
 
+			string packLua{""};
+			for(auto& path : getRecursiveFilesByExtension(packPath, ".lua")) packLua.append(getFileContents(path));
+			string packHash{Online::getMD5Hash(packLua + HG_SERVER_KEY)};
+
 			Json::Value packRoot{getJsonFileRoot(packPath + "/pack.json")};
-			PackData packData(packName, packRoot["name"].asString(), packRoot["priority"].asFloat());
+			PackData packData(packName, packRoot["name"].asString(), packRoot["priority"].asFloat(), packHash);
 			packDataMap.insert(make_pair(packName, packData));
 		}
 
