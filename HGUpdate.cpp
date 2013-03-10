@@ -36,6 +36,12 @@ namespace hg
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 
 		inputMovement = 0; inputFocused = false;
+
+		if(status.currentTime > 5 && getOfficial() && window.getFPS() < 30)
+		{
+			log("Too low FPS, aborting official game", "Online");
+			goToMenu(false);
+		}
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
 	{
