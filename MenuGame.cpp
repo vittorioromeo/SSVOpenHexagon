@@ -171,7 +171,7 @@ namespace hg
 	string MenuGame::getLeaderboard()
 	{
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
-		string validator{Online::getValidator(levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 		Json::Value root{Online::getScores(validator)};
 
 		using RecordPair = pair<string, float>;

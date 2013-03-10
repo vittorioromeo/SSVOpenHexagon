@@ -7,6 +7,7 @@
 
 #include <string>
 #include <sstream>
+#include <unordered_set>
 #include <json/json.h>
 #include <json/reader.h>
 #include <SFML/Graphics.hpp>
@@ -41,6 +42,9 @@ namespace hg
 	std::string getScoreValidator(const std::string& mId, float mDifficultyMult);
 
 	void shakeCamera(ssvs::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
+
+	std::unordered_set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
+	void recursiveFillIncludedLuaFileNames(std::unordered_set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
 }
 
 #endif
