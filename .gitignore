@@ -1,6 +1,8 @@
 #################
 ## Eclipse
 #################
+_RELEASE/Profiles/*.json
+_RELEASE/log.txt
 
 *.pydevproject
 .metadata

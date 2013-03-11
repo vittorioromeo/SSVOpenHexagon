@@ -8,10 +8,10 @@
 namespace hg
 {
 	namespace Online
-	{	
+	{
 		void startCheckUpdates();
-		void startCheckScores();
 		void startSendScore(const std::string& mName, const std::string& mValidator, float mScore);
+		void startGetScores(std::string& mTargetString, const std::string& mValidator);
 
 		void cleanUp();
 		void terminateAll();
@@ -20,7 +20,8 @@ namespace hg
 		std::string getServerMessage();
 		Json::Value getScores(const std::string& mValidator);
 		std::string getMD5Hash(const std::string& mString);
-		std::string getValidator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mJsonRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);
+		std::string getValidator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mLevelRootPath, const std::string& mStyleRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);
+		std::string get181Validator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mJsonRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);
 	}
 }
 

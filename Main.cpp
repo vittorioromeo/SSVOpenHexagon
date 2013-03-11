@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <fstream>
 #include <SSVStart.h>
 #include <SFML/System.hpp>
 #include "Online/Online.h"
@@ -19,10 +20,53 @@ using namespace ssvs::Utils;
 using namespace sf;
 using namespace hg;
 
+void convertHashes()
+{
+	string scores{getFileContents("E:/WIP/OHServer/beta/converting/oldscores.json")};
+	vector<string> oldValidators, newValidators;
+
+	for(auto& levelData : getAllLevelData())
+	{
+		for(float difficultyMult : levelData.getDifficultyMultipliers())
+		{
+			log("");
+			log("");
+
+			log("computing old validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
+			string oldValidator{Online::get181Validator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+			log("\"" + oldValidator + "\"");
+			oldValidators.push_back("\"" + oldValidator + "\"");
+			log("");
+
+			log("computing new validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
+			string newValidator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+			log("\"" + newValidator + "\"");
+			newValidators.push_back("\"" + newValidator + "\"");
+			log("");
+		}
+	}
+
+	log("");
+	log("");
+
+	for(unsigned int i{0}; i < oldValidators.size(); ++i)
+	{
+		scores = replaceAll(scores, oldValidators[i], newValidators[i]);
+		log("replacing");
+		log(oldValidators[i]);
+		log("with");
+		log(newValidators[i]);
+		log("");
+	}
+
+	ofstream o; o.open("E:/WIP/OHServer/beta/converting/convertedscores.json");
+	o << scores;
+	o.flush(); o.close();
+}
+
 int main(int argc, char* argv[])
 {	
 	Online::startCheckUpdates();
-	Online::startCheckScores();
 
 	srand(unsigned(time(NULL)));
 
@@ -36,10 +80,14 @@ int main(int argc, char* argv[])
 	window.setVsync(getVsync());
 	window.setMouseCursorVisible(false);
 
-	HexagonGame hg{window}; MenuGame mg{hg, window}; hg.mgPtr = &mg;
+	if(false) convertHashes();
+	else
+	{
+		HexagonGame hg{window}; MenuGame mg{hg, window}; hg.mgPtr = &mg;
 
-	window.setGameState(mg.getGame()); mg.init();
-	window.run();
+		window.setGameState(mg.getGame()); mg.init();
+		window.run();
+	}
 
 	Online::terminateAll();
 

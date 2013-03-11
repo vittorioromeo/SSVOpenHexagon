@@ -36,7 +36,7 @@ namespace hg
 		initInput();
 	}
 
-	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
+	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); refreshScores(); }
 	void MenuGame::initAssets()
 	{
 		getAssetManager().getTexture("titleBar.png").setSmooth(true);
@@ -50,7 +50,7 @@ namespace hg
 
 		versionText.setString(toStr(getVersion()));
 		versionText.setColor(Color::White);
-		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 83, titleBar.getGlobalBounds().top});
+		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 97, titleBar.getGlobalBounds().top});
 
 		creditsBar1.setOrigin({1024, 0});
 		creditsBar1.setScale({0.373f, 0.373f});
@@ -87,12 +87,17 @@ namespace hg
 		gfx.create<i::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
 		gfx.create<i::Toggle>("3D effect",	[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
 		gfx.create<i::Toggle>("pulse", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
+		gfx.create<i::Toggle>("flash", 		[&]{ return getFlash(); }, 			[&]{ setFlash(true); }, 		[&]{ setFlash(false); });
 		gfx.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
 		gfx.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
 		gfx.create<i::Goto>("back", main);
 
 		sfx.create<i::Toggle>("sounds",	[&]{ return !getNoSound(); }, 	[&]{ setNoSound(false); }, 	[&]{ setNoSound(true); });
 		sfx.create<i::Toggle>("music",	[&]{ return !getNoMusic(); },	[&]{ setNoMusic(false); }, 	[&]{ setNoMusic(true); });
+		sfx.create<i::Slider>("sounds volume", [&]{ return toStr(getSoundVolume()); },
+		[&]{ setSoundVolume(clamp(getSoundVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setSoundVolume(clamp(getSoundVolume() - 5, 0, 100)); refreshVolumes(); });
+		sfx.create<i::Slider>("music volume", [&]{ return toStr(getMusicVolume()); },
+		[&]{ setMusicVolume(clamp(getMusicVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setMusicVolume(clamp(getMusicVolume() - 5, 0, 100)); refreshVolumes(); });
 		sfx.create<i::Goto>("back", main);
 
 		play.create<i::Toggle>("autorestart", [&]{ return getAutoRestart(); }, [&]{ setAutoRestart(true); }, [&]{ setAutoRestart(false); });
@@ -123,13 +128,13 @@ namespace hg
 		game.addInput({{k::Up}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == s::MAIN) 			{ ++difficultyMultIndex; }
+			if(state == s::MAIN) 			{ ++difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
 		}, t::SINGLE);
 		game.addInput({{k::Down}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == s::MAIN) 			{ --difficultyMultIndex; }
+			if(state == s::MAIN) 			{ --difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS)	{ optionsMenu.selectNextItem(); }
 		}, t::SINGLE);
 		game.addInput({{k::Return}}, [&](float)
@@ -166,33 +171,63 @@ namespace hg
 		styleData = getStyleData(levelData.getStyleId());
 		difficultyMultipliers = levelData.getDifficultyMultipliers();
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
+
+		refreshScores();
 	}
 
-	string MenuGame::getLeaderboard()
+	void MenuGame::refreshScores()
 	{
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
-		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
-		Json::Value root{Online::getScores(validator)};
+		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+		Online::startGetScores(currentScores, validator);
+	}
+	string MenuGame::getLeaderboard()
+	{
+		if(currentScores == "") return "refreshing...";
+
+		unsigned int leaderboardRecordCount{8};
+		Json::Value root{getJsonFromString(currentScores)};
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
+
+		int playerPosition{-1};
+		float playerScore{-1};
+
 		for(auto itr(root.begin()); itr != root.end(); ++itr)
 		{
 			Json::Value& record(*itr);
 			string name{record["n"].asString()};
 			float score{record["s"].asFloat()};
-
 			recordPairs.push_back({name, score});
 		}
 
 		sort(begin(recordPairs), end(recordPairs), [&](const RecordPair& mA, const RecordPair& mB){ return mA.second > mB.second; });
 
+		for(unsigned int i{0}; i < recordPairs.size(); ++i)
+		{
+			if(recordPairs[i].first != getCurrentProfile().getName()) continue;			
+			playerPosition = i + 1;
+			playerScore = recordPairs[i].second;
+			break;
+		}
+
 		string result{""};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
-			if(i > 4) break;
-			auto& recordPair(recordPairs[i]);
-			result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
+			if(i <= leaderboardRecordCount)
+			{
+				if(playerPosition == -1 || i < leaderboardRecordCount)
+				{
+					auto& recordPair(recordPairs[i]);
+					if(recordPair.first == getCurrentProfile().getName()) result.append(" >> ");
+					result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
+				}
+				else if(static_cast<unsigned int>(playerPosition) > leaderboardRecordCount) 
+					result.append("...(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
+
+			}
+			else break;
 		}
 		return result;
 	}
@@ -264,27 +299,29 @@ namespace hg
 
 		if(getOnline())
 		{
-			string serverMessage{"connecting to server..."};
+			string versionMessage{"connecting to server..."};
 			float serverVersion{Online::getServerVersion()};
-			if(serverVersion == getVersion()) serverMessage = "you have the latest version";
-			if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
-			if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
-			renderText(serverMessage, cProfText, {20, 0}, 13);
 
-			if(!isEligibleForScore()) renderText("you are not eligible for scoring: " + getUneligibilityReason(), cProfText, {20, 11}, 11);
+			if(serverVersion == -1) versionMessage = "error connecting to server";
+			else if(serverVersion == getVersion()) versionMessage = "you have the latest version";
+			else if(serverVersion < getVersion()) versionMessage = "your version is newer (beta)";
+			else if(serverVersion > getVersion()) versionMessage = "update available (" + toStr(serverVersion) + ")";
+			renderText(versionMessage, cProfText, {20, 0}, 13);
 
-			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5});
-			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 5});
-			renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 50 + 5});
-			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 70 + 5});
+			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20, 11}, 11);
 
-			renderText(getLeaderboard(), cProfText, {20, 100});
+			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5 + 3});
+			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 3});
+			renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 45 + 3});
+			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60 + 3});
+
+			renderText(getLeaderboard(), cProfText, {20, 100}, 20);
 			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
-		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25});
-		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 60.f * (countNewLines(levelData.getName()))});
+		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25 + 45});
+		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 28 + 60.f * (countNewLines(levelData.getName()))});
 		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500 - 35});
 		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515 - 35});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530 - 35});
