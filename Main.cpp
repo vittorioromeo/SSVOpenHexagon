@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <fstream>
 #include <SSVStart.h>
 #include <SFML/System.hpp>
 #include "Online/Online.h"
@@ -21,6 +22,9 @@ using namespace hg;
 
 void convertHashes()
 {
+	string scores{getFileContents("E:/WIP/OHServer/beta/converting/oldscores.json")};
+	vector<string> oldValidators, newValidators;
+
 	for(auto& levelData : getAllLevelData())
 	{
 		for(float difficultyMult : levelData.getDifficultyMultipliers())
@@ -31,14 +35,22 @@ void convertHashes()
 			log("computing old validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
 			string oldValidator{Online::get181Validator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 			log(oldValidator);
+			oldValidators.push_back(oldValidator);
 			log("");
 
 			log("computing new validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
 			string newValidator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 			log(newValidator);
+			newValidators.push_back(newValidator);
 			log("");
 		}
 	}
+
+	for(unsigned int i{0}; i < oldValidators.size(); ++i) scores = replaceAll(scores, oldValidators[i], newValidators[i]);
+
+	ofstream o; o.open("E:/WIP/OHServer/beta/converting/convertedscores.json");
+	o << scores;
+	o.flush(); o.close();
 }
 
 int main(int argc, char* argv[])
