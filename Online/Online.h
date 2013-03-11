@@ -21,6 +21,7 @@ namespace hg
 		Json::Value getScores(const std::string& mValidator);
 		std::string getMD5Hash(const std::string& mString);
 		std::string getValidator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mJsonRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);
+		std::string get181Validator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mJsonRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);
 	}
 }
 
