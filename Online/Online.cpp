@@ -32,6 +32,7 @@ namespace hg
 		const string infoFile{"OHInfo.json"};
 		const string scoresFile{"scores.json"};
 		const string sendScoreFile{"sendScore.php"};
+		const string getScoresFile{"getScores.php"};
 
 		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
@@ -40,7 +41,6 @@ namespace hg
 
 		Response getGetResponse(const string& mRequestFile){ return Http(host).sendRequest({folder + mRequestFile}); }
 		Response getPostResponse(const string& mRequestFile, const string& mBody){ return Http(host).sendRequest({folder + mRequestFile, Request::Post, mBody}); }
-		Json::Value getJsonFromString(const string& mString) { Json::Value result; Json::Reader reader; reader.parse(mString, result); return result; }
 
 		void startCheckUpdates()
 		{
@@ -123,6 +123,8 @@ namespace hg
 				else log("Send score error: " + status, "Online");
 
 				log("Finished sending score", "Online");
+				log("");
+				log(response.getBody(), "Server Message");
 				startCheckScores();
 				cleanUp();
 			});
@@ -145,6 +147,33 @@ namespace hg
 			});
 
 			checkThread.launch();
+		}
+		void startGetScores(string& mTargetString, const string& mValidator)
+		{
+			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+
+			ThreadWrapper& thread = memoryManager.create([=, &mTargetString]
+			{
+				mTargetString = "";
+
+				log("Getting scores from server...", "Online");
+
+				string body{"v=" + mValidator};
+				Response response{getPostResponse(getScoresFile, body)};
+				Status status{response.getStatus()};
+
+				if(status == Response::Ok)
+				{
+					log("Scores got successfully", "Online");
+					mTargetString = response.getBody();
+				}
+				else log("Get scores error: " + status, "Online");
+
+				log("Finished getting scores", "Online");
+				cleanUp();
+			});
+
+			thread.launch();
 		}
 
 		void cleanUp()

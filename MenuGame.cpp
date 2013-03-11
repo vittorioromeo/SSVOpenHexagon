@@ -123,13 +123,13 @@ namespace hg
 		game.addInput({{k::Up}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == s::MAIN) 			{ ++difficultyMultIndex; }
+			if(state == s::MAIN) 			{ ++difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
 		}, t::SINGLE);
 		game.addInput({{k::Down}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == s::MAIN) 			{ --difficultyMultIndex; }
+			if(state == s::MAIN) 			{ --difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS)	{ optionsMenu.selectNextItem(); }
 		}, t::SINGLE);
 		game.addInput({{k::Return}}, [&](float)
@@ -166,15 +166,22 @@ namespace hg
 		styleData = getStyleData(levelData.getStyleId());
 		difficultyMultipliers = levelData.getDifficultyMultipliers();
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
+
+		refreshScores();
 	}
 
-	string MenuGame::getLeaderboard()
+	void MenuGame::refreshScores()
 	{
-		unsigned int leaderboardRecordCount{8};
-
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
 		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
-		Json::Value root{Online::getScores(validator)};
+		Online::startGetScores(currentScores, validator);
+	}
+	string MenuGame::getLeaderboard()
+	{
+		if(currentScores == "") return "";
+
+		unsigned int leaderboardRecordCount{8};
+		Json::Value root{getJsonFromString(currentScores)};
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
@@ -208,9 +215,11 @@ namespace hg
 				if(playerPosition == -1 || i < leaderboardRecordCount)
 				{
 					auto& recordPair(recordPairs[i]);
+					if(recordPair.first == getCurrentProfile().getName()) result.append(" >> ");
 					result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
 				}
-				else result.append("...(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
+				else if(static_cast<unsigned int>(playerPosition) > leaderboardRecordCount) 
+					result.append("...(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
 
 			}
 			else break;

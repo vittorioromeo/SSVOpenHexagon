@@ -117,7 +117,7 @@ namespace hg
 		mWindow.setFullscreen(getFullscreen());
 	}
 
-	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) { Online::startCheckUpdates(); Online::startCheckScores(); } }
+	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) { Online::startCheckUpdates(); } }
 	void setOfficial(bool mOfficial)			{ root["official"] = mOfficial; }
 	void setNoRotation(bool mNoRotation)		{ root["no_rotation"] = mNoRotation; }
 	void setNoBackground(bool mNoBackground)	{ root["no_background"] = mNoBackground; }
