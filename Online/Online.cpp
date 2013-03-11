@@ -168,6 +168,12 @@ namespace hg
 			for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i];
 			return result;
 		}
+		string getControlStripped(const string& mString)
+		{
+			string result{""};
+			for(unsigned int i{0}; i < mString.size(); ++i) if(!iscntrl(mString[i])) result += mString[i];
+			return result;
+		}
 		string getValidator(const string& mPackPath, const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
