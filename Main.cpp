@@ -19,6 +19,28 @@ using namespace ssvs::Utils;
 using namespace sf;
 using namespace hg;
 
+void convertHashes()
+{
+	for(auto& levelData : getAllLevelData())
+	{
+		for(float difficultyMult : levelData.getDifficultyMultipliers())
+		{
+			log("");
+			log("");
+
+			log("computing old validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
+			string oldValidator{Online::get181Validator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+			log(oldValidator);
+			log("");
+
+			log("computing new validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
+			string newValidator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+			log(newValidator);
+			log("");
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {	
 	Online::startCheckUpdates();
@@ -35,10 +57,14 @@ int main(int argc, char* argv[])
 	window.setVsync(getVsync());
 	window.setMouseCursorVisible(false);
 
-	HexagonGame hg{window}; MenuGame mg{hg, window}; hg.mgPtr = &mg;
+	if(true) convertHashes();
+	else
+	{
+		HexagonGame hg{window}; MenuGame mg{hg, window}; hg.mgPtr = &mg;
 
-	window.setGameState(mg.getGame()); mg.init();
-	window.run();
+		window.setGameState(mg.getGame()); mg.init();
+		window.run();
+	}
 
 	Online::terminateAll();
 
