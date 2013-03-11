@@ -34,14 +34,14 @@ void convertHashes()
 
 			log("computing old validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
 			string oldValidator{Online::get181Validator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
-			log(oldValidator);
-			oldValidators.push_back(oldValidator);
+			log("\"" + oldValidator + "\"");
+			oldValidators.push_back("\"" + oldValidator + "\"");
 			log("");
 
 			log("computing new validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
 			string newValidator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
-			log(newValidator);
-			newValidators.push_back(newValidator);
+			log("\"" + newValidator + "\"");
+			newValidators.push_back("\"" + newValidator + "\"");
 			log("");
 		}
 	}
