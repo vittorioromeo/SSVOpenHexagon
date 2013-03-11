@@ -178,7 +178,7 @@ namespace hg
 	}
 	string MenuGame::getLeaderboard()
 	{
-		if(currentScores == "") return "";
+		if(currentScores == "") return "refreshing...";
 
 		unsigned int leaderboardRecordCount{8};
 		Json::Value root{getJsonFromString(currentScores)};
