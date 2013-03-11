@@ -50,7 +50,7 @@ namespace hg
 
 		versionText.setString(toStr(getVersion()));
 		versionText.setColor(Color::White);
-		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 83, titleBar.getGlobalBounds().top});
+		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 97, titleBar.getGlobalBounds().top});
 
 		creditsBar1.setOrigin({1024, 0});
 		creditsBar1.setScale({0.373f, 0.373f});
@@ -170,7 +170,7 @@ namespace hg
 
 	string MenuGame::getLeaderboard()
 	{
-		unsigned int leaderboardRecordCount{6};
+		unsigned int leaderboardRecordCount{8};
 
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
 		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
@@ -285,28 +285,29 @@ namespace hg
 
 		if(getOnline())
 		{
-			string serverMessage{"connecting to server..."};
+			string versionMessage{"connecting to server..."};
 			float serverVersion{Online::getServerVersion()};
-			if(serverVersion == -1) serverMessage = "error connecting to server";
-			else if(serverVersion == getVersion()) serverMessage = "you have the latest version";
-			else if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
-			else if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
-			renderText(serverMessage, cProfText, {20, 0}, 13);
+
+			if(serverVersion == -1) versionMessage = "error connecting to server";
+			else if(serverVersion == getVersion()) versionMessage = "you have the latest version";
+			else if(serverVersion < getVersion()) versionMessage = "your version is newer (beta)";
+			else if(serverVersion > getVersion()) versionMessage = "update available (" + toStr(serverVersion) + ")";
+			renderText(versionMessage, cProfText, {20, 0}, 13);
 
 			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20, 11}, 11);
 
-			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5});
-			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 5});
-			renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 50 + 5});
-			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 70 + 5});
+			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5 + 3});
+			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 3});
+			renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 45 + 3});
+			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60 + 3});
 
-			renderText(getLeaderboard(), cProfText, {20, 100}, 18);
+			renderText(getLeaderboard(), cProfText, {20, 100}, 20);
 			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
-		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25});
-		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 60.f * (countNewLines(levelData.getName()))});
+		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25 + 45});
+		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 28 + 60.f * (countNewLines(levelData.getName()))});
 		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500 - 35});
 		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515 - 35});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530 - 35});

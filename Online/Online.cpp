@@ -28,7 +28,7 @@ namespace hg
 		using Status = Http::Response::Status;
 
 		const string host{"http://vittorioromeo.info"};
-		const string folder{"Misc/Linked/OHServer/"};
+		const string folder{"Misc/Linked/OHServer/beta/"};
 		const string infoFile{"OHInfo.json"};
 		const string scoresFile{"scores.json"};
 		const string sendScoreFile{"sendScore.php"};
@@ -55,7 +55,7 @@ namespace hg
 				if(status == Response::Ok)
 				{
 					Json::Value root{getJsonFromString(response.getBody())};
-					serverMessage = getJsonValueOrDefault<string>(root, "message", "no message");
+					serverMessage = getJsonValueOrDefault<string>(root, "message", "");
 					log("Server message:\n" + serverMessage, "Online");
 
 					serverVersion = getJsonValueOrDefault<float>(root, "latest_version", -1);
@@ -68,6 +68,7 @@ namespace hg
 				else
 				{
 					serverVersion = -1;
+					serverMessage = "Error connecting to server";
 					log("Error checking updates", "Online");
 					log("Error code: " + status, "Online");
 				}
