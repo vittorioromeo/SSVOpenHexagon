@@ -36,7 +36,7 @@ namespace hg
 		initInput();
 	}
 
-	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); }
+	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); refreshScores(); }
 	void MenuGame::initAssets()
 	{
 		getAssetManager().getTexture("titleBar.png").setSmooth(true);
