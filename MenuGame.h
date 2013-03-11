@@ -33,6 +33,7 @@ namespace hg
 			std::string scoresMessage;
 			float exitTimer{0};
 			bool mustTakeScreenshot{false};
+			std::string currentScores{""};
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")};
 			sf::Sprite creditsBar1{getAssetManager().getTexture("creditsBar1.png")};
@@ -49,6 +50,7 @@ namespace hg
 			std::vector<float> difficultyMultipliers;
 			int difficultyMultIndex{0};
 
+			void refreshScores();
 			std::string getLeaderboard();
 
 			void update(float mFrameTime);
@@ -63,9 +65,9 @@ namespace hg
 			LevelData levelData;
 			StyleData styleData;
 			sf::Text 	versionText{"", getFont("imagine.ttf"), 40},
-						cProfText{"", getFont("imagine.ttf"), 25},
-						levelName{"", getFont("imagine.ttf"), 80},
-						levelDesc{"", getFont("imagine.ttf"), 35},
+						cProfText{"", getFont("imagine.ttf"), 21},
+						levelName{"", getFont("imagine.ttf"), 65},
+						levelDesc{"", getFont("imagine.ttf"), 32},
 						levelAuth{"", getFont("imagine.ttf"), 20},
 						levelMusc{"", getFont("imagine.ttf"), 20};
 

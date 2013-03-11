@@ -17,7 +17,7 @@ namespace hg
 			Json::Value root;
 			int currentPattern{-1};
 			std::vector<Json::Value> events;
-			std::string packPath, jsonRootPath, luaScriptPath;
+			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
 
 		public:
 			LevelData() = default;
@@ -27,11 +27,13 @@ namespace hg
 
 			Json::Value& getRoot();
 
-			void setPackPath(const std::string& mPackPath);
-			void setJsonRootPath(const std::string& mJsonRootPath);
-			void setLuaScriptPath(const std::string& mLuaScriptPath);
+			void setPackPath(const std::string& mPath);
+			void setLevelRootPath(const std::string& mPath);
+			void setStyleRootPath(const std::string& mPath);
+			void setLuaScriptPath(const std::string& mPath);
 			std::string getPackPath();
-			std::string getJsonRootPath();
+			std::string getLevelRootPath();
+			std::string getStyleRootPath();
 			std::string getLuaScriptPath();
 
 			std::string getId();

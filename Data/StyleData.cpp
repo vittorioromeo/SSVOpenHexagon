@@ -87,6 +87,9 @@ namespace hg
 		}
 	}
 
+	void StyleData::setRootPath(const std::string& mPath) { rootPath = mPath; }
+	string StyleData::getRootPath() { return rootPath; }
+
 	string StyleData::getId() 					{ return root["id"].asString(); }
 	float StyleData::getHueMin() 				{ return root["hue_min"].asFloat(); }
 	float StyleData::getHueMax()				{ return root["hue_max"].asFloat(); }

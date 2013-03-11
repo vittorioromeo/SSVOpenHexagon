@@ -59,6 +59,7 @@ namespace hg
 		if(!reader.parse(stream, root, false)) log(reader.getFormatedErrorMessages() + " [" + mFilePath + "]", "JSON Error");
 		return root;
 	}
+	Json::Value getJsonFromString(const string& mString) { Json::Value result; Json::Reader reader; reader.parse(mString, result); return result; }
 
 	LevelData loadLevelFromJson(Json::Value mRoot)
 	{

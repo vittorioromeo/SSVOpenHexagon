@@ -32,6 +32,7 @@
 	"3D_enabled": true,
 	"3D_multiplier": 1.0,
 	"3D_max_depth": 100,
+	"flash_enabled": true,
 	
 	// Audio options
 	"no_sound": false,
