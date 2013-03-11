@@ -34,7 +34,9 @@ namespace hg
 			status.drawing3D = false;
 		}
 		backgroundCamera.apply(); manager.draw();
-		overlayCamera.apply(); drawText(); render(flashPolygon);
+		overlayCamera.apply(); drawText();
+
+		if(getFlash()) render(flashPolygon);
 
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
