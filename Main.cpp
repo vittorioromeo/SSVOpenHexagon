@@ -46,7 +46,18 @@ void convertHashes()
 		}
 	}
 
-	for(unsigned int i{0}; i < oldValidators.size(); ++i) scores = replaceAll(scores, oldValidators[i], newValidators[i]);
+	log("");
+	log("");
+
+	for(unsigned int i{0}; i < oldValidators.size(); ++i)
+	{
+		scores = replaceAll(scores, oldValidators[i], newValidators[i]);
+		log("replacing");
+		log(oldValidators[i]);
+		log("with");
+		log(newValidators[i]);
+		log("");
+	}
 
 	ofstream o; o.open("E:/WIP/OHServer/beta/converting/convertedscores.json");
 	o << scores;
