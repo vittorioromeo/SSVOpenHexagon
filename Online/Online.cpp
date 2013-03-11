@@ -28,7 +28,7 @@ namespace hg
 		using Status = Http::Response::Status;
 
 		const string host{"http://vittorioromeo.info"};
-		const string folder{"Misc/Linked/OHServer/beta/"};
+		const string folder{"Misc/Linked/OHServer/"};
 		const string infoFile{"OHInfo.json"};
 		const string scoresFile{"scores.json"};
 		const string sendScoreFile{"sendScore.php"};
