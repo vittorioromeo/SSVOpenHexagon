@@ -36,6 +36,7 @@ namespace hg
 		Json::Value scoresRoot;
 
 		Response getResponse(const string& mRequestFile){ return Http(host).sendRequest({folder + mRequestFile}); }
+		Response postResponse(const string& mRequestFile, const string& mBody){ return Http(host).sendRequest({folder + mRequestFile, Request::Post, mBody}); }
 
 		void startCheckUpdates()
 		{
@@ -112,8 +113,8 @@ namespace hg
 
 				string scoreString{toStr(mScore)};
 				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
-				Http http(host); Request request(folder + "sendScore.php", Request::Post, body);
-				Response response{http.sendRequest(request)};
+
+				Response response{postResponse("sendScore.php", body)};
 				Status status{response.getStatus()};
 
 				if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
