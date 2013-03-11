@@ -46,8 +46,19 @@ namespace hg
 
 	string getFileContents(const string& mFilePath)
 	{
-		std::ifstream ifs(mFilePath);
-		std::string content{(istreambuf_iterator<char>(ifs)), (istreambuf_iterator<char>())};
+		FILE *fptr=fopen(mFilePath.c_str(),"rb");
+		fseek (fptr, 0, SEEK_END);//jump to end of file
+		size_t fsize=ftell (fptr);//get position
+		fseek (fptr, 0, SEEK_SET);//jump back
+		std::string content;
+		content.resize(fsize);
+		if(fread((char*)content.c_str(),1,fsize,fptr)!=fsize)
+		{
+			log(mFilePath,"FileLoadWarning");
+		}
+		fclose(fptr);
+
+		log(toStr(content.size())+" - "+mFilePath,"LoadFileSize");
 		return content;
 	}
 	Json::Value getJsonFileRoot(const string& mFilePath)
