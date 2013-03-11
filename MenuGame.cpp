@@ -170,29 +170,55 @@ namespace hg
 
 	string MenuGame::getLeaderboard()
 	{
+		unsigned int leaderboardRecordCount{6};
+
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
 		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 		Json::Value root{Online::getScores(validator)};
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
+
+		int playerPosition{-1};
+		float playerScore{-1};
+
 		for(auto itr(root.begin()); itr != root.end(); ++itr)
 		{
 			Json::Value& record(*itr);
 			string name{record["n"].asString()};
 			float score{record["s"].asFloat()};
-
 			recordPairs.push_back({name, score});
 		}
 
 		sort(begin(recordPairs), end(recordPairs), [&](const RecordPair& mA, const RecordPair& mB){ return mA.second > mB.second; });
 
+		for(unsigned int i{0}; i < recordPairs.size(); ++i)
+		{
+			string name{recordPairs[i].first};
+			float score{recordPairs[i].second};
+
+			if(name == getCurrentProfile().getName())
+			{
+				playerPosition = i + 1;
+				playerScore = score;
+				break;
+			}
+		}
+
 		string result{""};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
-			if(i > 4) break;
-			auto& recordPair(recordPairs[i]);
-			result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
+			if(i <= leaderboardRecordCount)
+			{
+				if(playerPosition == -1 || i < leaderboardRecordCount)
+				{
+					auto& recordPair(recordPairs[i]);
+					result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
+				}
+				else result.append("(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
+
+			}
+			else break;
 		}
 		return result;
 	}
@@ -266,19 +292,20 @@ namespace hg
 		{
 			string serverMessage{"connecting to server..."};
 			float serverVersion{Online::getServerVersion()};
-			if(serverVersion == getVersion()) serverMessage = "you have the latest version";
-			if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
-			if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
+			if(serverVersion == -1) serverMessage = "error connecting to server";
+			else if(serverVersion == getVersion()) serverMessage = "you have the latest version";
+			else if(serverVersion < getVersion()) serverMessage = "your version is newer (beta)";
+			else if(serverVersion > getVersion()) serverMessage = "update available (" + toStr(serverVersion) + ")";
 			renderText(serverMessage, cProfText, {20, 0}, 13);
 
-			if(!isEligibleForScore()) renderText("you are not eligible for scoring: " + getUneligibilityReason(), cProfText, {20, 11}, 11);
+			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20, 11}, 11);
 
 			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5});
 			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 5});
 			renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 50 + 5});
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 70 + 5});
 
-			renderText(getLeaderboard(), cProfText, {20, 100});
+			renderText(getLeaderboard(), cProfText, {20, 100}, 18);
 			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
