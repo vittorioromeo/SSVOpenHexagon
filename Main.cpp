@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 	window.setVsync(getVsync());
 	window.setMouseCursorVisible(false);
 
-	if(true) convertHashes();
+	if(false) convertHashes();
 	else
 	{
 		HexagonGame hg{window}; MenuGame mg{hg, window}; hg.mgPtr = &mg;
