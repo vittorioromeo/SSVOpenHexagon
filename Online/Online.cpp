@@ -29,6 +29,9 @@ namespace hg
 
 		const string host{"http://vittorioromeo.info"};
 		const string folder{"Misc/Linked/OHServer/"};
+		const string infoFile{"OHInfo.json"};
+		const string scoresFile{"scores.json"};
+		const string sendScoreFile{"sendScore.php"};
 
 		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
@@ -37,8 +40,7 @@ namespace hg
 
 		Response getGetResponse(const string& mRequestFile){ return Http(host).sendRequest({folder + mRequestFile}); }
 		Response getPostResponse(const string& mRequestFile, const string& mBody){ return Http(host).sendRequest({folder + mRequestFile, Request::Post, mBody}); }
-		void fillJsonValueFromString(Json::Value& mValue, const string& mString) { Json::Reader reader; reader.parse(mString, mValue); }
-		Json::Value getJsonValueFromString(const string& mString) { Json::Value result; Json::Reader reader; reader.parse(mString, result); return result; }
+		Json::Value getJsonFromString(const string& mString) { Json::Value result; Json::Reader reader; reader.parse(mString, result); return result; }
 
 		void startCheckUpdates()
 		{
@@ -48,11 +50,11 @@ namespace hg
 			{
 				log("Checking updates...", "Online");
 
-				Response response{getGetResponse("OHInfo.json")};
+				Response response{getGetResponse(infoFile)};
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
-					Json::Value root{getJsonValueFromString(response.getBody())};
+					Json::Value root{getJsonFromString(response.getBody())};
 					serverMessage = getJsonValueOrDefault<string>(root, "message", "no message");
 					log("Server message:\n" + serverMessage, "Online");
 
@@ -84,7 +86,7 @@ namespace hg
 			{
 				log("Checking scores...", "Online");
 
-				Response response{getGetResponse("scores.json")};
+				Response response{getGetResponse(scoresFile)};
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
@@ -113,7 +115,7 @@ namespace hg
 
 				string scoreString{toStr(mScore)};
 				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
-				Response response{getPostResponse("sendScore.php", body)};
+				Response response{getPostResponse(sendScoreFile, body)};
 				Status status{response.getStatus()};
 
 				if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
@@ -166,6 +168,34 @@ namespace hg
 			return result;
 		}
 		string getValidator(const string& mPackPath, const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		{
+			string luaScriptContents{getFileContents(mLuaScriptPath)};
+
+			unordered_set<string> luaScriptNames;
+			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
+
+			string result{""};
+			result.append(getUrlEncoded(mLevelId));
+			result.append(getMD5Hash(getFileContents(mJsonRootPath) + HG_SERVER_KEY));
+			result.append(getMD5Hash(luaScriptContents + HG_SERVER_KEY));
+
+			for(auto& luaScriptName : luaScriptNames)
+			{
+				string path{mPackPath + "/Scripts/" + luaScriptName};
+				string contents{getFileContents(path)};
+				string hash{getMD5Hash(contents + HG_SERVER_KEY)};
+				string compressedHash{""};
+
+				for(unsigned int i{0}; i < hash.length(); ++i) if(i % 3 == 0) compressedHash.append(toStr(hash[i]));
+
+				result.append(compressedHash);
+			}
+
+			result.append(getUrlEncoded(toStr(mDifficultyMultiplier)));
+
+			return result;
+		}
+		string get181Validator(const string& mPackPath, const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 
