@@ -93,6 +93,10 @@ namespace hg
 
 		sfx.create<i::Toggle>("sounds",	[&]{ return !getNoSound(); }, 	[&]{ setNoSound(false); }, 	[&]{ setNoSound(true); });
 		sfx.create<i::Toggle>("music",	[&]{ return !getNoMusic(); },	[&]{ setNoMusic(false); }, 	[&]{ setNoMusic(true); });
+		sfx.create<i::Slider>("sounds volume", [&]{ return toStr(getSoundVolume()); },
+		[&]{ setSoundVolume(clamp(getSoundVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setSoundVolume(clamp(getSoundVolume() - 5, 0, 100)); refreshVolumes(); });
+		sfx.create<i::Slider>("music volume", [&]{ return toStr(getMusicVolume()); },
+		[&]{ setMusicVolume(clamp(getMusicVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setMusicVolume(clamp(getMusicVolume() - 5, 0, 100)); refreshVolumes(); });
 		sfx.create<i::Goto>("back", main);
 
 		play.create<i::Toggle>("autorestart", [&]{ return getAutoRestart(); }, [&]{ setAutoRestart(true); }, [&]{ setAutoRestart(false); });

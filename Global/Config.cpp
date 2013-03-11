@@ -128,6 +128,8 @@ namespace hg
 	void set3D(bool m3D)						{ root["3D_enabled"] = m3D; }
 	void setInvincible(bool mInvincible)		{ root["invincible"] = mInvincible; }
 	void setAutoRestart(bool mAutoRestart) 		{ root["auto_restart"] = mAutoRestart; }
+	void setSoundVolume(int mVolume) 			{ root["sound_volume"] = mVolume; }
+	void setMusicVolume(int mVolume) 			{ root["music_volume"] = mVolume; }
 
 	bool getOnline()					{ return root["online"].asBool(); }
 	bool getOfficial()					{ return root["official"].asBool(); }

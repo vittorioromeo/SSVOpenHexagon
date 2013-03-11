@@ -213,6 +213,11 @@ namespace hg
 		return result;
 	}
 
+	void refreshVolumes()
+	{
+		for(auto& pair : assetManager.getSounds()) pair.second->setVolume(getSoundVolume());
+		for(auto& pair : musicPtrsMap) pair.second->setVolume(getMusicVolume());
+	}
 	void stopAllMusic() { for(auto pair : musicPtrsMap) pair.second->stop(); }
 	void stopAllSounds() { assetManager.stopSounds(); }
 	void playSound(const string& mId) { if(!getNoSound()) getSoundPtr(mId)->play(); }
