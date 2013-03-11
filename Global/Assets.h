@@ -32,6 +32,7 @@ namespace hg
 
 	void saveCurrentProfile();
 
+	void refreshVolumes();
 	void stopAllMusic();
 	void stopAllSounds();
 	void playSound(const std::string& mId);

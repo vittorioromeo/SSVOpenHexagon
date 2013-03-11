@@ -23,10 +23,24 @@ namespace hg
 {
 	namespace Online
 	{
+		using Request = Http::Request;
+		using Response = Http::Response;
+		using Status = Http::Response::Status;
+
+		const string host{"http://vittorioromeo.info"};
+		const string folder{"Misc/Linked/OHServer/beta/"};
+		const string infoFile{"OHInfo.json"};
+		const string scoresFile{"scores.json"};
+		const string sendScoreFile{"sendScore.php"};
+		const string getScoresFile{"getScores.php"};
+
 		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
 		string serverMessage{""};
 		Json::Value scoresRoot;
+
+		Response getGetResponse(const string& mRequestFile){ return Http(host).sendRequest({folder + mRequestFile}); }
+		Response getPostResponse(const string& mRequestFile, const string& mBody){ return Http(host).sendRequest({folder + mRequestFile, Request::Post, mBody}); }
 
 		void startCheckUpdates()
 		{
@@ -36,28 +50,25 @@ namespace hg
 			{
 				log("Checking updates...", "Online");
 
-				Http http("http://vittorioromeo.info");
-				Http::Request request("Misc/Linked/OHServer/OHInfo.json");
-				Http::Response response{http.sendRequest(request)};
-				Http::Response::Status status{response.getStatus()};
-				if(status == Http::Response::Ok)
+				Response response{getGetResponse(infoFile)};
+				Status status{response.getStatus()};
+				if(status == Response::Ok)
 				{
-					Json::Value root; Json::Reader reader; reader.parse(response.getBody(), root);
+					Json::Value root{getJsonFromString(response.getBody())};
+					serverMessage = getJsonValueOrDefault<string>(root, "message", "");
+					log("Server message:\n" + serverMessage, "Online");
 
-					string message(getJsonValueOrDefault<string>(root, "message", ""));
-					serverMessage = message;
-					log("Server message:\n" + message, "Online");
-
-					serverVersion = (getJsonValueOrDefault<float>(root, "latest_version", -1));
+					serverVersion = getJsonValueOrDefault<float>(root, "latest_version", -1);
 					log("Server latest version: " + toStr(getServerVersion()), "Online");
 
-					if(getServerVersion() == getVersion()) log("No updates available", "Online");
-					else if(getServerVersion() < getVersion()) log("Your version is newer than the server's (beta)", "Online");
-					else if(getServerVersion() > getVersion()) log("Update available (" + toStr(getServerVersion()) + ")", "Online");
+					if(serverVersion == getVersion()) log("No updates available", "Online");
+					else if(serverVersion < getVersion()) log("Your version is newer than the server's (beta)", "Online");
+					else if(serverVersion > getVersion()) log("Update available (" + toStr(serverVersion) + ")", "Online");
 				}
 				else
 				{
 					serverVersion = -1;
+					serverMessage = "Error connecting to server";
 					log("Error checking updates", "Online");
 					log("Error code: " + status, "Online");
 				}
@@ -76,11 +87,9 @@ namespace hg
 			{
 				log("Checking scores...", "Online");
 
-				Http http("http://vittorioromeo.info");
-				Http::Request request("Misc/Linked/OHServer/scores.json");
-				Http::Response response{http.sendRequest(request)};
-				Http::Response::Status status{response.getStatus()};
-				if(status == Http::Response::Ok)
+				Response response{getGetResponse(scoresFile)};
+				Status status{response.getStatus()};
+				if(status == Response::Ok)
 				{
 					Json::Reader reader; reader.parse(response.getBody(), scoresRoot);
 					log("Scores retrieved successfully", "Online");
@@ -94,7 +103,7 @@ namespace hg
 				log("Finished checking scores", "Online");
 				cleanUp();
 			});
-			
+
 			thread.launch();
 		}
 		void startSendScore(const string& mName, const string& mValidator, float mScore)
@@ -106,16 +115,16 @@ namespace hg
 				log("Sending score to server...", "Online");
 
 				string scoreString{toStr(mScore)};
-				Http http("http://vittorioromeo.info");
-				string args{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
-				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
-				Http::Response response{http.sendRequest(request)};
-				Http::Response::Status status{response.getStatus()};
+				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
+				Response response{getPostResponse(sendScoreFile, body)};
+				Status status{response.getStatus()};
 
-				if(status == Http::Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
+				if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
 				else log("Send score error: " + status, "Online");
 
 				log("Finished sending score", "Online");
+				log("");
+				log(response.getBody(), "Server Message");
 				startCheckScores();
 				cleanUp();
 			});
@@ -136,13 +145,40 @@ namespace hg
 				thread.launch();
 				cleanUp();
 			});
-			
+
 			checkThread.launch();
+		}
+		void startGetScores(string& mTargetString, const string& mValidator)
+		{
+			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+
+			ThreadWrapper& thread = memoryManager.create([=, &mTargetString]
+			{
+				mTargetString = "";
+
+				log("Getting scores from server...", "Online");
+
+				string body{"v=" + mValidator};
+				Response response{getPostResponse(getScoresFile, body)};
+				Status status{response.getStatus()};
+
+				if(status == Response::Ok)
+				{
+					log("Scores got successfully", "Online");
+					mTargetString = response.getBody();
+				}
+				else log("Get scores error: " + status, "Online");
+
+				log("Finished getting scores", "Online");
+				cleanUp();
+			});
+
+			thread.launch();
 		}
 
 		void cleanUp()
 		{
-			for(auto& thread : memoryManager.getItems()) if(thread->getFinished()) memoryManager.del(thread); 
+			for(auto& thread : memoryManager.getItems()) if(thread->getFinished()) memoryManager.del(thread);
 			memoryManager.cleanUp();
 		}
 		void terminateAll()
@@ -161,7 +197,38 @@ namespace hg
 			for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i];
 			return result;
 		}
-		string getValidator(const string& mPackPath, const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		string getControlStripped(const string& mString)
+		{
+			string result{""};
+			for(unsigned int i{0}; i < mString.size(); ++i) if(!iscntrl(mString[i])) result += mString[i];
+			return result;
+		}
+		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		{
+			string luaScriptContents{getFileContents(mLuaScriptPath)};
+			unordered_set<string> luaScriptNames;
+			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
+
+			string toEncrypt{""};
+			toEncrypt.append(mLevelId);
+			toEncrypt.append(toStr(mDifficultyMultiplier));
+			toEncrypt.append(getFileContents(mLevelRootPath));
+			toEncrypt.append(getFileContents(mStyleRootPath));
+			toEncrypt.append(luaScriptContents);
+
+			for(auto& luaScriptName : luaScriptNames)
+			{
+				string path{mPackPath + "/Scripts/" + luaScriptName};
+				string contents{getFileContents(path)};
+				toEncrypt.append(contents);
+			}
+
+			toEncrypt = getControlStripped(toEncrypt);
+
+			string result{getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SERVER_KEY)}; 
+			return result;
+		}
+		string get181Validator(const string& mPackPath, const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 

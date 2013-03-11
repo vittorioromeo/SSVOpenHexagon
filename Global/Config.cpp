@@ -68,8 +68,10 @@ namespace hg
 
 		string original{buffer.str()};
 
-		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible", "auto_restart", "online", "official"};
-		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible(), getAutoRestart(), getOnline(), getOfficial()};
+		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled",
+		"invincible", "auto_restart", "online", "official", "flash_enabled"};
+		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(),
+		getInvincible(), getAutoRestart(), getOnline(), getOfficial(), getFlash()};
 
 		for(unsigned int i{0}; i < elements.size(); ++i)
 		{
@@ -117,7 +119,7 @@ namespace hg
 		mWindow.setFullscreen(getFullscreen());
 	}
 
-	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) { Online::startCheckUpdates(); Online::startCheckScores(); } }
+	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) { Online::startCheckUpdates(); } }
 	void setOfficial(bool mOfficial)			{ root["official"] = mOfficial; }
 	void setNoRotation(bool mNoRotation)		{ root["no_rotation"] = mNoRotation; }
 	void setNoBackground(bool mNoBackground)	{ root["no_background"] = mNoBackground; }
@@ -128,6 +130,9 @@ namespace hg
 	void set3D(bool m3D)						{ root["3D_enabled"] = m3D; }
 	void setInvincible(bool mInvincible)		{ root["invincible"] = mInvincible; }
 	void setAutoRestart(bool mAutoRestart) 		{ root["auto_restart"] = mAutoRestart; }
+	void setSoundVolume(int mVolume) 			{ root["sound_volume"] = mVolume; }
+	void setMusicVolume(int mVolume) 			{ root["music_volume"] = mVolume; }
+	void setFlash(bool mFlash)					{ root["flash_enabled"] = mFlash; }
 
 	bool getOnline()					{ return root["online"].asBool(); }
 	bool getOfficial()					{ return root["official"].asBool(); }
@@ -153,7 +158,7 @@ namespace hg
 	bool getVsync()						{ return root["vsync"].asBool(); }
 	bool getAutoZoomFactor()			{ if(getOfficial()) return true; return root["auto_zoom_factor"].asBool(); }
 	bool getFullscreen()				{ return root["fullscreen"].asBool(); }
-	float getVersion() 					{ return 1.81f; }
+	float getVersion() 					{ return 1.82f; }
 	bool getWindowedAutoResolution()	{ return root["windowed_auto_resolution"].asBool(); }
 	bool getFullscreenAutoResolution() 	{ return root["fullscreen_auto_resolution"].asBool(); }
 	unsigned int getFullscreenWidth()	{ return root["fullscreen_width"].asInt(); }
@@ -173,4 +178,5 @@ namespace hg
 	float get3DMultiplier()				{ return root["3D_multiplier"].asFloat(); }
 	unsigned int get3DMaxDepth()		{ return root["3D_max_depth"].asInt(); }
 	bool getAutoRestart()				{ return root["auto_restart"].asBool(); }
+	bool getFlash() 					{ return root["flash_enabled"].asBool(); }
 }

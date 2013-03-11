@@ -13,12 +13,14 @@ namespace hg
 
 	void LevelData::addEvent(Json::Value mEventRoot) { events.push_back(mEventRoot); }
 
-	void LevelData::setPackPath(const string& mPackPath) 			{ packPath = mPackPath; }
-	void LevelData::setJsonRootPath(const string& mJsonRootPath) 	{ jsonRootPath = mJsonRootPath; }
-	void LevelData::setLuaScriptPath(const string& mLuaScriptPath)	{ luaScriptPath = mLuaScriptPath; }
+	void LevelData::setPackPath(const string& mPath) 		{ packPath = mPath; }
+	void LevelData::setLevelRootPath(const string& mPath) 	{ levelRootPath = mPath; }
+	void LevelData::setStyleRootPath(const string& mPath) 	{ styleRootPath = mPath; }
+	void LevelData::setLuaScriptPath(const string& mPath)	{ luaScriptPath = mPath; }
 
 	string LevelData::getPackPath() 				{ return packPath; }
-	string LevelData::getJsonRootPath()				{ return jsonRootPath; }
+	string LevelData::getLevelRootPath()			{ return levelRootPath; }
+	string LevelData::getStyleRootPath()			{ return styleRootPath; }
 	string LevelData::getLuaScriptPath()			{ return luaScriptPath; }
 
 	Json::Value& LevelData::getRoot()				{ return root; }
