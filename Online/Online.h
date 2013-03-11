@@ -10,8 +10,8 @@ namespace hg
 	namespace Online
 	{
 		void startCheckUpdates();
-		void startCheckScores();
 		void startSendScore(const std::string& mName, const std::string& mValidator, float mScore);
+		void startGetScores(std::string& mTargetString, const std::string& mValidator);
 
 		void cleanUp();
 		void terminateAll();

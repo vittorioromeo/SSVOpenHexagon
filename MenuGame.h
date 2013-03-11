@@ -33,6 +33,7 @@ namespace hg
 			std::string scoresMessage;
 			float exitTimer{0};
 			bool mustTakeScreenshot{false};
+			std::string currentScores{""};
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")};
 			sf::Sprite creditsBar1{getAssetManager().getTexture("creditsBar1.png")};
@@ -49,6 +50,7 @@ namespace hg
 			std::vector<float> difficultyMultipliers;
 			int difficultyMultIndex{0};
 
+			void refreshScores();
 			std::string getLeaderboard();
 
 			void update(float mFrameTime);
