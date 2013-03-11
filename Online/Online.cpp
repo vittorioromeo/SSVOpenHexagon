@@ -23,10 +23,19 @@ namespace hg
 {
 	namespace Online
 	{
+		using Request = Http::Request;
+		using Response = Http::Response;
+		using Status = Http::Response::Status;
+
+		const string host{"http://vittorioromeo.info"};
+		const string folder{"Misc/Linked/OHServer/"};
+
 		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
 		string serverMessage{""};
 		Json::Value scoresRoot;
+
+		Response getResponse(const string& mRequestFile){ return Http(host).sendRequest({folder + mRequestFile}); }
 
 		void startCheckUpdates()
 		{
@@ -36,11 +45,9 @@ namespace hg
 			{
 				log("Checking updates...", "Online");
 
-				Http http("http://vittorioromeo.info");
-				Http::Request request("Misc/Linked/OHServer/OHInfo.json");
-				Http::Response response{http.sendRequest(request)};
-				Http::Response::Status status{response.getStatus()};
-				if(status == Http::Response::Ok)
+				Response response{getResponse("OHInfo.json")};
+				Status status{response.getStatus()};
+				if(status == Response::Ok)
 				{
 					Json::Value root; Json::Reader reader; reader.parse(response.getBody(), root);
 
@@ -76,11 +83,9 @@ namespace hg
 			{
 				log("Checking scores...", "Online");
 
-				Http http("http://vittorioromeo.info");
-				Http::Request request("Misc/Linked/OHServer/scores.json");
-				Http::Response response{http.sendRequest(request)};
-				Http::Response::Status status{response.getStatus()};
-				if(status == Http::Response::Ok)
+				Response response{getResponse("scores.json")};
+				Status status{response.getStatus()};
+				if(status == Response::Ok)
 				{
 					Json::Reader reader; reader.parse(response.getBody(), scoresRoot);
 					log("Scores retrieved successfully", "Online");
@@ -106,13 +111,12 @@ namespace hg
 				log("Sending score to server...", "Online");
 
 				string scoreString{toStr(mScore)};
-				Http http("http://vittorioromeo.info");
-				string args{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
-				Http::Request request("Misc/Linked/OHServer/sendScore.php", Http::Request::Post); request.setBody(args);
-				Http::Response response{http.sendRequest(request)};
-				Http::Response::Status status{response.getStatus()};
+				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
+				Http http(host); Request request(folder + "sendScore.php", Request::Post, body);
+				Response response{http.sendRequest(request)};
+				Status status{response.getStatus()};
 
-				if(status == Http::Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
+				if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
 				else log("Send score error: " + status, "Online");
 
 				log("Finished sending score", "Online");
