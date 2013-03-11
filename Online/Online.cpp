@@ -35,8 +35,10 @@ namespace hg
 		string serverMessage{""};
 		Json::Value scoresRoot;
 
-		Response getResponse(const string& mRequestFile){ return Http(host).sendRequest({folder + mRequestFile}); }
-		Response postResponse(const string& mRequestFile, const string& mBody){ return Http(host).sendRequest({folder + mRequestFile, Request::Post, mBody}); }
+		Response getGetResponse(const string& mRequestFile){ return Http(host).sendRequest({folder + mRequestFile}); }
+		Response getPostResponse(const string& mRequestFile, const string& mBody){ return Http(host).sendRequest({folder + mRequestFile, Request::Post, mBody}); }
+		void fillJsonValueFromString(Json::Value& mValue, const string& mString) { Json::Reader reader; reader.parse(mString, mValue); }
+		Json::Value getJsonValueFromString(const string& mString) { Json::Value result; Json::Reader reader; reader.parse(mString, result); return result; }
 
 		void startCheckUpdates()
 		{
@@ -46,22 +48,20 @@ namespace hg
 			{
 				log("Checking updates...", "Online");
 
-				Response response{getResponse("OHInfo.json")};
+				Response response{getGetResponse("OHInfo.json")};
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
-					Json::Value root; Json::Reader reader; reader.parse(response.getBody(), root);
+					Json::Value root{getJsonValueFromString(response.getBody())};
+					serverMessage = getJsonValueOrDefault<string>(root, "message", "no message");
+					log("Server message:\n" + serverMessage, "Online");
 
-					string message(getJsonValueOrDefault<string>(root, "message", ""));
-					serverMessage = message;
-					log("Server message:\n" + message, "Online");
-
-					serverVersion = (getJsonValueOrDefault<float>(root, "latest_version", -1));
+					serverVersion = getJsonValueOrDefault<float>(root, "latest_version", -1);
 					log("Server latest version: " + toStr(getServerVersion()), "Online");
 
-					if(getServerVersion() == getVersion()) log("No updates available", "Online");
-					else if(getServerVersion() < getVersion()) log("Your version is newer than the server's (beta)", "Online");
-					else if(getServerVersion() > getVersion()) log("Update available (" + toStr(getServerVersion()) + ")", "Online");
+					if(serverVersion == getVersion()) log("No updates available", "Online");
+					else if(serverVersion < getVersion()) log("Your version is newer than the server's (beta)", "Online");
+					else if(serverVersion > getVersion()) log("Update available (" + toStr(serverVersion) + ")", "Online");
 				}
 				else
 				{
@@ -84,7 +84,7 @@ namespace hg
 			{
 				log("Checking scores...", "Online");
 
-				Response response{getResponse("scores.json")};
+				Response response{getGetResponse("scores.json")};
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
@@ -100,7 +100,7 @@ namespace hg
 				log("Finished checking scores", "Online");
 				cleanUp();
 			});
-			
+
 			thread.launch();
 		}
 		void startSendScore(const string& mName, const string& mValidator, float mScore)
@@ -113,8 +113,7 @@ namespace hg
 
 				string scoreString{toStr(mScore)};
 				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
-
-				Response response{postResponse("sendScore.php", body)};
+				Response response{getPostResponse("sendScore.php", body)};
 				Status status{response.getStatus()};
 
 				if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
@@ -141,13 +140,13 @@ namespace hg
 				thread.launch();
 				cleanUp();
 			});
-			
+
 			checkThread.launch();
 		}
 
 		void cleanUp()
 		{
-			for(auto& thread : memoryManager.getItems()) if(thread->getFinished()) memoryManager.del(thread); 
+			for(auto& thread : memoryManager.getItems()) if(thread->getFinished()) memoryManager.del(thread);
 			memoryManager.cleanUp();
 		}
 		void terminateAll()
