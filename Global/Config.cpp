@@ -68,8 +68,10 @@ namespace hg
 
 		string original{buffer.str()};
 
-		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled", "invincible", "auto_restart", "online", "official"};
-		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(), getInvincible(), getAutoRestart(), getOnline(), getOfficial()};
+		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled",
+		"invincible", "auto_restart", "online", "official", "flash_enabled"};
+		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(),
+		getInvincible(), getAutoRestart(), getOnline(), getOfficial(), getFlash()};
 
 		for(unsigned int i{0}; i < elements.size(); ++i)
 		{
@@ -130,6 +132,7 @@ namespace hg
 	void setAutoRestart(bool mAutoRestart) 		{ root["auto_restart"] = mAutoRestart; }
 	void setSoundVolume(int mVolume) 			{ root["sound_volume"] = mVolume; }
 	void setMusicVolume(int mVolume) 			{ root["music_volume"] = mVolume; }
+	void setFlash(bool mFlash)					{ root["flash_enabled"] = mFlash; }
 
 	bool getOnline()					{ return root["online"].asBool(); }
 	bool getOfficial()					{ return root["official"].asBool(); }
@@ -175,4 +178,5 @@ namespace hg
 	float get3DMultiplier()				{ return root["3D_multiplier"].asFloat(); }
 	unsigned int get3DMaxDepth()		{ return root["3D_max_depth"].asInt(); }
 	bool getAutoRestart()				{ return root["auto_restart"].asBool(); }
+	bool getFlash() 					{ return root["flash_enabled"].asBool(); }
 }

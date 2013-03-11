@@ -31,6 +31,7 @@ namespace hg
 	void setAutoRestart(bool mAutoRestart);
 	void setSoundVolume(int mVolume);
 	void setMusicVolume(int mVolume);
+	void setFlash(bool mFlash);
 
 	bool getOnline();
 	bool getOfficial();
@@ -76,6 +77,7 @@ namespace hg
 	unsigned int get3DMaxDepth();
 	float get3DMultiplier();
 	bool getAutoRestart();
+	bool getFlash();
 }
 
 #endif

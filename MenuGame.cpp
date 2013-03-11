@@ -87,6 +87,7 @@ namespace hg
 		gfx.create<i::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
 		gfx.create<i::Toggle>("3D effect",	[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
 		gfx.create<i::Toggle>("pulse", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
+		gfx.create<i::Toggle>("flash", 		[&]{ return getFlash(); }, 			[&]{ setFlash(true); }, 		[&]{ setFlash(false); });
 		gfx.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
 		gfx.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
 		gfx.create<i::Goto>("back", main);
