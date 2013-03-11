@@ -29,6 +29,8 @@ namespace hg
 	void set3D(bool m3D);
 	void setInvincible(bool mInvincible);
 	void setAutoRestart(bool mAutoRestart);
+	void setSoundVolume(int mVolume);
+	void setMusicVolume(int mVolume);
 
 	bool getOnline();
 	bool getOfficial();
