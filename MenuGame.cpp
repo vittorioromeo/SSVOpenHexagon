@@ -194,15 +194,10 @@ namespace hg
 
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
-			string name{recordPairs[i].first};
-			float score{recordPairs[i].second};
-
-			if(name == getCurrentProfile().getName())
-			{
-				playerPosition = i + 1;
-				playerScore = score;
-				break;
-			}
+			if(recordPairs[i].first != getCurrentProfile().getName()) continue;			
+			playerPosition = i + 1;
+			playerScore = recordPairs[i].second;
+			break;
 		}
 
 		string result{""};
@@ -215,7 +210,7 @@ namespace hg
 					auto& recordPair(recordPairs[i]);
 					result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
 				}
-				else result.append("(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
+				else result.append("...(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
 
 			}
 			else break;
