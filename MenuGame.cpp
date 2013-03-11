@@ -173,7 +173,7 @@ namespace hg
 	void MenuGame::refreshScores()
 	{
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
-		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getJsonRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 		Online::startGetScores(currentScores, validator);
 	}
 	string MenuGame::getLeaderboard()

@@ -15,6 +15,7 @@ namespace hg
 		private:
 			Json::Value root;
 			float currentHue, currentSwapTime, pulseFactor{0};
+			std::string rootPath;
 
 		public:
 			StyleData() = default;
@@ -23,11 +24,14 @@ namespace hg
 			void update(float mFrameTime);
 			void drawBackground(sf::RenderTarget& mRenderTarget, sf::Vector2f mCenterPos, int mSides);
 
+			void setRootPath(const std::string& mPath);
+
+			std::string getRootPath();
 			std::string getId();
 			float getHueMin();
 			float getHueMax();
 			bool getHuePingPong();
-			float getHueIncrement();
+			float getHueIncrement();			
 
 			sf::Color calculateColor(Json::Value mColorRoot);
 
