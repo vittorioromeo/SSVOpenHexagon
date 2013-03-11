@@ -114,6 +114,7 @@ namespace hg
 		for(auto filePath : getFilesByExtension(mPath + "Styles/", ".json"))
 		{
 			StyleData styleData{loadStyleFromJson(getJsonFileRoot(filePath))};
+			styleData.setRootPath(filePath);
 			styleDataMap.insert(make_pair(styleData.getId(), styleData));
 		}
 	}
@@ -123,10 +124,11 @@ namespace hg
 		{
 			Json::Value root{getJsonFileRoot(filePath)};
 			string luaScriptPath{mPath + "Scripts/" + root["lua_file"].asString()};
-
+			
 			LevelData levelData{loadLevelFromJson(root)};
 			levelData.setPackPath(mPath);
-			levelData.setJsonRootPath(filePath);
+			levelData.setLevelRootPath(filePath);
+			levelData.setStyleRootPath(getStyleData(levelData.getStyleId()).getRootPath());
 			levelData.setLuaScriptPath(luaScriptPath);
 			levelDataMap.insert(make_pair(levelData.getId(), levelData));
 			levelIdsByPackMap[levelData.getPackPath()].push_back(levelData.getId());

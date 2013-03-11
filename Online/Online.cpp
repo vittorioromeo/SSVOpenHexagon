@@ -203,32 +203,29 @@ namespace hg
 			for(unsigned int i{0}; i < mString.size(); ++i) if(!iscntrl(mString[i])) result += mString[i];
 			return result;
 		}
-		string getValidator(const string& mPackPath, const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
-
 			unordered_set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
-			string result{""};
-			result.append(getUrlEncoded(mLevelId));
-			result.append(getMD5Hash(getFileContents(mJsonRootPath) + HG_SERVER_KEY));
-			result.append(getMD5Hash(luaScriptContents + HG_SERVER_KEY));
+			string toEncrypt{""};
+			toEncrypt.append(mLevelId);
+			toEncrypt.append(toStr(mDifficultyMultiplier));
+			toEncrypt.append(getFileContents(mLevelRootPath));
+			toEncrypt.append(getFileContents(mStyleRootPath));
+			toEncrypt.append(luaScriptContents);
 
 			for(auto& luaScriptName : luaScriptNames)
 			{
 				string path{mPackPath + "/Scripts/" + luaScriptName};
 				string contents{getFileContents(path)};
-				string hash{getMD5Hash(contents + HG_SERVER_KEY)};
-				string compressedHash{""};
-
-				for(unsigned int i{0}; i < hash.length(); ++i) if(i % 3 == 0) compressedHash.append(toStr(hash[i]));
-
-				result.append(compressedHash);
+				toEncrypt.append(contents);
 			}
 
-			result.append(getUrlEncoded(toStr(mDifficultyMultiplier)));
+			toEncrypt = getControlStripped(toEncrypt);
 
+			string result{getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SERVER_KEY)}; 
 			return result;
 		}
 		string get181Validator(const string& mPackPath, const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
