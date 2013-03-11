@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.81 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.82 #
 ## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
@@ -95,6 +95,12 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.82
+
+* Added: volume and flash effect option in **F3** menu
+* Fixed/changed: server stability and security improvements
+* Changed: improved menu **leaderboards**
 
 Version 1.81
 

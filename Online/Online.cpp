@@ -230,20 +230,20 @@ namespace hg
 		}
 		string get181Validator(const string& mPackPath, const string& mLevelId, const string& mJsonRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
-			string luaScriptContents{getFileContents(mLuaScriptPath)};
+			string luaScriptContents{get181FileContents(mLuaScriptPath)};
 
 			unordered_set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
 			string result{""};
 			result.append(getUrlEncoded(mLevelId));
-			result.append(getMD5Hash(getFileContents(mJsonRootPath) + HG_SERVER_KEY));
+			result.append(getMD5Hash(get181FileContents(mJsonRootPath) + HG_SERVER_KEY));
 			result.append(getMD5Hash(luaScriptContents + HG_SERVER_KEY));
 
 			for(auto& luaScriptName : luaScriptNames)
 			{
 				string path{mPackPath + "/Scripts/" + luaScriptName};
-				string contents{getFileContents(path)};
+				string contents{get181FileContents(path)};
 				string hash{getMD5Hash(contents + HG_SERVER_KEY)};
 				string compressedHash{""};
 
