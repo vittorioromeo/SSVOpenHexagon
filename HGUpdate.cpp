@@ -38,10 +38,10 @@ namespace hg
 
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 
-		if(!status.scoreInvalid && status.lostFrames > 100 && getOfficial())
+		if(getOfficial())
 		{
-			log("Too low FPS, invalidating official game", "Online");
-			status.scoreInvalid = true;
+			if(status.currentTime > 1 && window.getFPS() < 20) loseFrame();
+			if(status.lostFrames >= maxLostFrames) invalidateScore();
 		}
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
