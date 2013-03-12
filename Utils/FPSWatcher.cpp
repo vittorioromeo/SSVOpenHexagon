@@ -21,6 +21,7 @@ namespace hg
 				float lastFps{gameWindow.getFPS()};
 				sleep(milliseconds(20));
 				if(gameWindow.getFPS() < minFPS || (gameWindow.getFPS() == lastFps && lostFrames <= maxLostFrames)) loseFrame();
+				// FPS CHECK IS BROKEN - TODO - FIX IT
 			}
 			sleep(milliseconds(20));
 		}

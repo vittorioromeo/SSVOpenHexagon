@@ -117,6 +117,8 @@ namespace hg
 
 		mWindow.setSize(getWidth(), getHeight());
 		mWindow.setFullscreen(getFullscreen());
+
+		mWindow.setMouseCursorVisible(false);
 	}
 
 	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) { Online::startCheckUpdates(); } }
