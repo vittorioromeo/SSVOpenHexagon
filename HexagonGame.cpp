@@ -80,6 +80,7 @@ namespace hg
 
 		// FPSWatcher reset
 		fpsWatcher.reset();
+		fpsWatcher.enable();
 
 		// LUA context cleanup
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
@@ -167,6 +168,7 @@ namespace hg
 	{
 		stopAllSounds();
 		playSound("beep.ogg");
+		fpsWatcher.disable();
 
 		if(mSendScores && !status.hasDied) checkAndSaveScore();
 		runLuaFunction<void>("onUnload");
