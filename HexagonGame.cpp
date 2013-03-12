@@ -17,8 +17,25 @@ using namespace sses;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow)
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow),
+		lostFramesThread([&]
+		{
+			while(true)
+			{
+				float fpsTest1 = window.getFPS();
+				sleep(milliseconds(25));
+				float fpsTest2 = window.getFPS();
+
+				if(fpsTest1 == fpsTest2)
+				{
+					log("Too low FPS - " + toStr(status.lostFrames) + "/100", "Online");
+					++status.lostFrames;
+				}
+				sleep(milliseconds(25));
+			}
+		})
 	{
+		lostFramesThread.launch();
 		initFlashEffect();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };

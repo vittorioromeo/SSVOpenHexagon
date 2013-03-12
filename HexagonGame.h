@@ -22,6 +22,7 @@
 #include "Data/StyleData.h"
 #include "Global/Config.h"
 #include "Global/Factory.h"
+#include "Online/ThreadWrapper.h"
 #pragma GCC system_header
 #include <SSVLuaWrapper.h>
 
@@ -56,6 +57,7 @@ namespace hg
 			float difficultyMult{1};
 			int inputMovement{0};
 			bool inputFocused{false}, mustTakeScreenshot{false};
+			ThreadWrapper lostFramesThread;
 
 			// LUA-related methods
 			void initLua();

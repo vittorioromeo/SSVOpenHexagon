@@ -166,7 +166,7 @@
         <Library Value="lua51"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="./_RELEASE/$(ProjectName).exe" IntermediateDirectory="./_INTERMEDIATE" Command="./$(ProjectName)" CommandArguments="debug windowed noaudio" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="./_RELEASE/" PauseExecWhenProcTerminates="no"/>
+      <General OutputFile="./_RELEASE/$(ProjectName).exe" IntermediateDirectory="./_INTERMEDIATE" Command="./$(ProjectName)" CommandArguments="windowed noaudio" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="./_RELEASE/" PauseExecWhenProcTerminates="no"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
