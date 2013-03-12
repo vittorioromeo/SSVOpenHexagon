@@ -38,6 +38,8 @@ namespace hg
 
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 		if(!status.scoreInvalid && getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
+
+		updateCheck = true;
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
 	{

@@ -46,18 +46,14 @@ namespace hg
 
 	string getFileContents(const string& mFilePath)
 	{
-		FILE *fptr=fopen(mFilePath.c_str(),"rb");
-		fseek (fptr, 0, SEEK_END);//jump to end of file
-		size_t fsize=ftell (fptr);//get position
-		fseek (fptr, 0, SEEK_SET);//jump back
-		std::string content;
-		content.resize(fsize);
-		if(fread((char*)content.c_str(),1,fsize,fptr)!=fsize)
-		{
-			log(mFilePath,"FileLoadWarning");
-		}
-		fclose(fptr);
+		FILE* fptr{fopen(mFilePath.c_str(), "rb")};
+		fseek(fptr, 0, SEEK_END);
+		size_t fsize(ftell(fptr));
+		fseek(fptr, 0, SEEK_SET);
+		string content; content.resize(fsize);
+		if(fread(const_cast<char*>(content.c_str()), 1, fsize, fptr) != fsize) log("Error: " + mFilePath, "File loading");
 
+		fclose(fptr);
 		return content;
 	}
 	string get181FileContents(const string& mFilePath)
