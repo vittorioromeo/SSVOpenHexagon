@@ -18,22 +18,31 @@ namespace hg
 		{
 			if(!disabled)
 			{
-				float lastFps{gameWindow.getFPS()};
-				sleep(milliseconds(20));
-				if(gameWindow.getFPS() < minFPS || (gameWindow.getFPS() == lastFps && lostFrames <= maxLostFrames)) loseFrame();
-				// FPS CHECK IS BROKEN - TODO - FIX IT
+				if(check)
+				{
+					check = false;
+					sleep(milliseconds(50));
+					while(check == false) { loseFrame(); sleep(milliseconds(12)); }
+				}
+				sleep(milliseconds(80));
+				if(gameWindow.getFPS() < minFPS) loseFrame();
 			}
-			sleep(milliseconds(20));
+			sleep(milliseconds(80));
 		}
 	}
-	void FPSWatcher::loseFrame() { ++lostFrames; log("Slowdown " + toStr(lostFrames) + "/" + toStr(maxLostFrames), "Performance"); }
+	void FPSWatcher::loseFrame()
+	{
+		if(lostFrames > maxLostFrames) return;
+		++lostFrames;
+		log("Slowdown " + toStr(lostFrames) + "/" + toStr(maxLostFrames), "Performance");
+	}
 
-	FPSWatcher::FPSWatcher(GameWindow& mGameWindow) : gameWindow(mGameWindow), thread([&]{ watch(); }) { thread.launch(); }
+	FPSWatcher::FPSWatcher(GameWindow& mGameWindow, bool& mCheck) : gameWindow(mGameWindow), check(mCheck), thread([&]{ watch(); }) { thread.launch(); }
 	FPSWatcher::~FPSWatcher() { running = false; }
 	bool FPSWatcher::isLimitReached() { return lostFrames >= maxLostFrames; }
 
-	void FPSWatcher::enable() { disabled = false; }
-	void FPSWatcher::disable() { disabled = true; }
-	void FPSWatcher::reset() { lostFrames = 0; disabled = true; }
+	void FPSWatcher::enable() 	{ disabled = false; }
+	void FPSWatcher::disable() 	{ disabled = true; }
+	void FPSWatcher::reset() 	{ lostFrames = 0; disabled = true; }
 }
 

@@ -17,7 +17,7 @@ using namespace sses;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), fpsWatcher(window)
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), fpsWatcher(window, updateCheck)
 	{
 		initFlashEffect();
 
@@ -80,7 +80,7 @@ namespace hg
 
 		// FPSWatcher reset
 		fpsWatcher.reset();
-		fpsWatcher.enable();
+		if(getOfficial()) fpsWatcher.enable();
 
 		// LUA context cleanup
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
