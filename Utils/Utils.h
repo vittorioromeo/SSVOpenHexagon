@@ -31,7 +31,6 @@ namespace hg
 	sf::Color getColorDarkened(sf::Color, float);
 	sf::Color getColorFromJsonArray(Json::Value mArray);
 
-	std::string get181FileContents(const std::string& mFilePath);
 	std::string getFileContents(const std::string& mFilePath);
 	Json::Value getJsonFileRoot(const std::string& mFilePath);
 	Json::Value getJsonFromString(const std::string& mString);

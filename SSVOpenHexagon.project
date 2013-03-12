@@ -60,6 +60,10 @@
       <File Name="Online/Online.h"/>
       <File Name="Online/Definitions.h"/>
     </VirtualDirectory>
+    <VirtualDirectory Name="Compatibility">
+      <File Name="Compatibility/Compatibility.h"/>
+      <File Name="Compatibility/Compatibility.cpp"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

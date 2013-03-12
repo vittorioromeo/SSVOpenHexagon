@@ -65,7 +65,7 @@ WXWIN:=C:\wxWidgets-2.9.4
 WXCFG:=gcc_dll\mswu
 Objects0=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) \
 	$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/Utils_MD5$(ObjectSuffix) \
-	$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IntermediateDirectory)/Online_Online$(ObjectSuffix) 
+	$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) 
 
 Objects=$(Objects0) 
 
@@ -266,6 +266,14 @@ $(IntermediateDirectory)/Online_Online$(DependSuffix): Online/Online.cpp
 $(IntermediateDirectory)/Online_Online$(PreprocessSuffix): Online/Online.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix) "Online/Online.cpp"
 
+$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix): Compatibility/Compatibility.cpp $(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Compatibility/Compatibility.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix): Compatibility/Compatibility.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) -MF$(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix) -MM "Compatibility/Compatibility.cpp"
+
+$(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix): Compatibility/Compatibility.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix) "Compatibility/Compatibility.cpp"
+
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
 ##
@@ -338,6 +346,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/Online_Online$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "../.build-release/SSVOpenHexagon"
