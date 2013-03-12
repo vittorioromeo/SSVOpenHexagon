@@ -22,9 +22,9 @@
 #include "Data/StyleData.h"
 #include "Global/Config.h"
 #include "Global/Factory.h"
-#include "Utils/FPSWatcher.h"
 #pragma GCC system_header
 #include <SSVLuaWrapper.h>
+#include "Utils/FPSWatcher.h"
 
 namespace hg
 {
