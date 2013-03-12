@@ -58,6 +58,7 @@ namespace hg
 			int inputMovement{0};
 			bool inputFocused{false}, mustTakeScreenshot{false};
 			ThreadWrapper lostFramesThread;
+			float maxLostFrames{20};
 
 			// LUA-related methods
 			void initLua();
@@ -110,6 +111,9 @@ namespace hg
 			void checkAndSaveScore();
 			void goToMenu(bool mSendScores = true);
 			void changeLevel(std::string mId, bool mFirstTime);
+
+			void loseFrame();
+			void invalidateScore();
 
 		public:
 			MenuGame* mgPtr;

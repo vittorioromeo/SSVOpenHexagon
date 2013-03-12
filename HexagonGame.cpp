@@ -22,16 +22,13 @@ namespace hg
 		{
 			while(true)
 			{
-				float fpsTest1 = window.getFPS();
-				sleep(milliseconds(25));
-				float fpsTest2 = window.getFPS();
-
-				if(fpsTest1 == fpsTest2)
+				if(status.currentTime >= 1)
 				{
-					log("Too low FPS - " + toStr(status.lostFrames) + "/100", "Online");
-					++status.lostFrames;
+					float lastFps{window.getFPS()};
+					sleep(milliseconds(20));
+					if(window.getFPS() == lastFps && status.lostFrames <= maxLostFrames) loseFrame();
 				}
-				sleep(milliseconds(25));
+				sleep(milliseconds(20));
 			}
 		})
 	{
@@ -214,4 +211,7 @@ namespace hg
 
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
+
+	void HexagonGame::loseFrame() { ++status.lostFrames; log("Slowdown " + toStr(status.lostFrames) + "/" + toStr(maxLostFrames), "Performance"); }
+	void HexagonGame::invalidateScore() { status.scoreInvalid = true; log("Too much slowdown, invalidating official game", "Performance"); }
 }
