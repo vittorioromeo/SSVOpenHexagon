@@ -141,6 +141,7 @@
         <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/include"/>
         <IncludePath Value="C:/lua/include"/>
         <IncludePath Value="D:/Vee/Software/Repos/sparsehash/build/built/include"/>
+        <Preprocessor Value="HG_SERVER_KEY=\&quot;development_version\&quot;"/>
       </Compiler>
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVStart/_RELEASE"/>
