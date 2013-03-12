@@ -46,6 +46,9 @@
       <File Name="Utils/Utils.h"/>
       <File Name="Utils/MD5.h"/>
       <File Name="Utils/MD5.cpp"/>
+      <File Name="Utils/ThreadWrapper.h"/>
+      <File Name="Utils/FPSWatcher.h"/>
+      <File Name="Utils/FPSWatcher.cpp"/>
     </VirtualDirectory>
     <File Name="HGScripting.cpp"/>
     <File Name="HGUpdate.cpp"/>
@@ -55,7 +58,6 @@
     <VirtualDirectory Name="Online">
       <File Name="Online/Online.cpp"/>
       <File Name="Online/Online.h"/>
-      <File Name="Online/ThreadWrapper.h"/>
       <File Name="Online/Definitions.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
