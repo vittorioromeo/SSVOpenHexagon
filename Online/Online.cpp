@@ -69,8 +69,7 @@ namespace hg
 				{
 					serverVersion = -1;
 					serverMessage = "Error connecting to server";
-					log("Error checking updates", "Online");
-					log("Error code: " + status, "Online");
+					log("Error checking updates - code: " + status, "Online");
 				}
 
 				log("Finished checking updates", "Online");
@@ -94,11 +93,7 @@ namespace hg
 					Json::Reader reader; reader.parse(response.getBody(), scoresRoot);
 					log("Scores retrieved successfully", "Online");
 				}
-				else
-				{
-					log("Error checking scores", "Online");
-					log("Error code: " + status, "Online");
-				}
+				else log("Error checking scores - code: " + status, "Online");
 
 				log("Finished checking scores", "Online");
 				cleanUp();
@@ -122,9 +117,7 @@ namespace hg
 				if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
 				else log("Send score error: " + status, "Online");
 
-				log("Finished sending score", "Online");
-				log("");
-				log(response.getBody(), "Server Message");
+				log("Finished sending score", "Online"); log(""); log(response.getBody(), "Server Message");
 				startCheckScores();
 				cleanUp();
 			});
@@ -176,34 +169,11 @@ namespace hg
 			thread.launch();
 		}
 
-		void cleanUp()
-		{
-			for(auto& thread : memoryManager.getItems()) if(thread->getFinished()) memoryManager.del(thread);
-			memoryManager.cleanUp();
-		}
-		void terminateAll()
-		{
-			for(auto& thread : memoryManager.getItems()) thread->terminate();
-			memoryManager.cleanUp();
-		}
+		void cleanUp() 		{ for(auto& t : memoryManager.getItems()) if(t->getFinished()) memoryManager.del(t); memoryManager.cleanUp(); }
+		void terminateAll() { for(auto& t : memoryManager.getItems()) t->terminate(); memoryManager.cleanUp(); }
 
-		float getServerVersion() { return serverVersion; }
-		string getServerMessage() { return serverMessage; }
-		Json::Value getScores(const std::string& mValidator) { return scoresRoot[mValidator]; }
-		string getMD5Hash(const string& mString) { MD5 key{mString}; return key.GetHash(); }
-		string getUrlEncoded(const string& mString)
-		{
-			string result{""};
-			for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i];
-			return result;
-		}
-		string getControlStripped(const string& mString)
-		{
-			string result{""};
-			for(unsigned int i{0}; i < mString.size(); ++i) if(!iscntrl(mString[i])) result += mString[i];
-			return result;
-		}
-		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath,
+			const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 			unordered_set<string> luaScriptNames;
@@ -225,9 +195,17 @@ namespace hg
 
 			toEncrypt = getControlStripped(toEncrypt);
 
-			string result{getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SERVER_KEY)}; 
+			string result{getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SERVER_KEY)};
 			return result;
 		}
+
+		float getServerVersion() 								{ return serverVersion; }
+		string getServerMessage() 								{ return serverMessage; }
+		Json::Value getScores(const std::string& mValidator) 	{ return scoresRoot[mValidator]; }
+		string getMD5Hash(const string& mString) 				{ MD5 key{mString}; return key.GetHash(); }
+		string getUrlEncoded(const string& mString) 			{ string result{""}; for(auto c : mString) if(isalnum(c)) result += c; return result; }
+		string getControlStripped(const string& mString)		{ string result{""}; for(auto c : mString) if(!iscntrl(c)) result += c; return result; }
+		
 	}
 }
 
