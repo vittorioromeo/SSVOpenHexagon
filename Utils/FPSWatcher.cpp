@@ -14,7 +14,7 @@ namespace hg
 {
 	void FPSWatcher::watch()
 	{
-		while(true)
+		while(running)
 		{
 			if(!disabled)
 			{
@@ -28,6 +28,7 @@ namespace hg
 	void FPSWatcher::loseFrame() { ++lostFrames; log("Slowdown " + toStr(lostFrames) + "/" + toStr(maxLostFrames), "Performance"); }
 
 	FPSWatcher::FPSWatcher(GameWindow& mGameWindow) : gameWindow(mGameWindow), thread([&]{ watch(); }) { thread.launch(); }
+	FPSWatcher::~FPSWatcher() { running = false; }
 	bool FPSWatcher::isLimitReached() { return lostFrames >= maxLostFrames; }
 
 	void FPSWatcher::enable() { disabled = false; }
