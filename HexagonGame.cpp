@@ -17,22 +17,8 @@ using namespace sses;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow),
-		lostFramesThread([&]
-		{
-			while(true)
-			{
-				if(status.currentTime >= 1)
-				{
-					float lastFps{window.getFPS()};
-					sleep(milliseconds(20));
-					if(window.getFPS() == lastFps && status.lostFrames <= maxLostFrames) loseFrame();
-				}
-				sleep(milliseconds(20));
-			}
-		})
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), fpsWatcher(window)
 	{
-		lostFramesThread.launch();
 		initFlashEffect();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
@@ -91,6 +77,9 @@ namespace hg
 		timeline.clear();
 		messageTimeline.clear();
 		effectTimelineManager.clear();
+
+		// FPSWatcher reset
+		fpsWatcher.reset();
 
 		// LUA context cleanup
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
@@ -212,6 +201,5 @@ namespace hg
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
 
-	void HexagonGame::loseFrame() { ++status.lostFrames; log("Slowdown " + toStr(status.lostFrames) + "/" + toStr(maxLostFrames), "Performance"); }
 	void HexagonGame::invalidateScore() { status.scoreInvalid = true; log("Too much slowdown, invalidating official game", "Performance"); }
 }

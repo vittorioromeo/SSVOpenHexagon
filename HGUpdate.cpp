@@ -37,12 +37,7 @@ namespace hg
 		inputMovement = 0; inputFocused = false;
 
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
-
-		if(getOfficial())
-		{
-			if(status.currentTime > 1 && window.getFPS() < 20) loseFrame();
-			if(status.lostFrames >= maxLostFrames) invalidateScore();
-		}
+		if(!status.scoreInvalid && getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
 	{

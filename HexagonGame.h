@@ -22,7 +22,7 @@
 #include "Data/StyleData.h"
 #include "Global/Config.h"
 #include "Global/Factory.h"
-#include "Online/ThreadWrapper.h"
+#include "Utils/FPSWatcher.h"
 #pragma GCC system_header
 #include <SSVLuaWrapper.h>
 
@@ -57,8 +57,7 @@ namespace hg
 			float difficultyMult{1};
 			int inputMovement{0};
 			bool inputFocused{false}, mustTakeScreenshot{false};
-			ThreadWrapper lostFramesThread;
-			float maxLostFrames{20};
+			FPSWatcher fpsWatcher;
 
 			// LUA-related methods
 			void initLua();
@@ -112,7 +111,6 @@ namespace hg
 			void goToMenu(bool mSendScores = true);
 			void changeLevel(std::string mId, bool mFirstTime);
 
-			void loseFrame();
 			void invalidateScore();
 
 		public:
