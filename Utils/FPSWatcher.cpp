@@ -16,9 +16,12 @@ namespace hg
 	{
 		while(true)
 		{
-			float lastFps{gameWindow.getFPS()};
-			sleep(milliseconds(20));
-			if(gameWindow.getFPS() < minFPS || (gameWindow.getFPS() == lastFps && lostFrames <= maxLostFrames)) loseFrame();
+			if(!disabled)
+			{
+				float lastFps{gameWindow.getFPS()};
+				sleep(milliseconds(20));
+				if(gameWindow.getFPS() < minFPS || (gameWindow.getFPS() == lastFps && lostFrames <= maxLostFrames)) loseFrame();
+			}
 			sleep(milliseconds(20));
 		}
 	}
@@ -26,6 +29,9 @@ namespace hg
 
 	FPSWatcher::FPSWatcher(GameWindow& mGameWindow) : gameWindow(mGameWindow), thread([&]{ watch(); }) { thread.launch(); }
 	bool FPSWatcher::isLimitReached() { return lostFrames >= maxLostFrames; }
-	void FPSWatcher::reset() { lostFrames = 0; }
+
+	void FPSWatcher::enable() { disabled = false; }
+	void FPSWatcher::disable() { disabled = true; }
+	void FPSWatcher::reset() { lostFrames = 0; disabled = true; }
 }
 
