@@ -56,12 +56,6 @@ namespace hg
 		fclose(fptr);
 		return content;
 	}
-	string get181FileContents(const string& mFilePath)
-	{
-		std::ifstream ifs(mFilePath);
-		std::string content{(istreambuf_iterator<char>(ifs)), (istreambuf_iterator<char>())};
-		return content;
-	}
 	Json::Value getJsonFileRoot(const string& mFilePath)
 	{
 		Json::Value root;
