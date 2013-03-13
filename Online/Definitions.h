@@ -5,8 +5,16 @@
 #ifndef HG_DEFINITIONS
 #define HG_DEFINITIONS
 
-#ifndef HG_SERVER_KEY
-#define HG_SERVER_KEY "secret - this is only knows by Open Hexagon maintainers"
+#ifndef HG_SKEY1
+#define HG_SKEY1 "dev1"
+#endif
+
+#ifndef HG_SKEY2
+#define HG_SKEY2 "dev2"
+#endif
+
+#ifndef HG_SKEY3
+#define HG_SKEY3 "dev3"
 #endif
 
 #endif

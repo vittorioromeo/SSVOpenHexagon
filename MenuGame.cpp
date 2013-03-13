@@ -188,7 +188,7 @@ namespace hg
 		if(currentScores == "") return "refreshing...";
 
 		unsigned int leaderboardRecordCount{8};
-		Json::Value root{getValueFromString(currentScores)};
+		Json::Value root{getRootFromString(currentScores)};
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;

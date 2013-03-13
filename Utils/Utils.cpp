@@ -29,8 +29,8 @@ namespace hg
 		template<> string getValue(const Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asString(); }
 		template<> char const* getValue(const Value& mRoot, const string& mValue)	{ return mRoot[mValue].asCString(); }
 
-		Value getRootFromFile(const string& mPath) { return getValueFromString(getFileContents(mPath)); }
-		Value getValueFromString(const string& mString)
+		Value getRootFromFile(const string& mPath) { return getRootFromString(getFileContents(mPath)); }
+		Value getRootFromString(const string& mString)
 		{
 			Value result; Reader reader;
 			if(!reader.parse(mString, result, false)) log(reader.getFormatedErrorMessages() + "\n" + "From: [" + mString + "]", "JSON Error");

@@ -21,7 +21,7 @@ using namespace sf;
 using namespace hg;
 
 int main(int argc, char* argv[])
-{	
+{
 	Online::startCheckUpdates();
 
 	srand(unsigned(time(NULL)));

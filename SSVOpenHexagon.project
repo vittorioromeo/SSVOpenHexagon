@@ -137,8 +137,8 @@
         <SearchPaths/>
       </Completion>
     </Configuration>
-    <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-W;-pedantic;-O3;-std=c++11;-Wall;-Wextra" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+    <Configuration Name="Release" CompilerType="nuwen" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-W;-s;-pedantic;-O3;-Wextra;-std=c++11;-Wall" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="../SSVLuaWrapper"/>
@@ -147,7 +147,6 @@
         <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/include"/>
         <IncludePath Value="C:/lua/include"/>
         <IncludePath Value="D:/Vee/Software/Repos/sparsehash/build/built/include"/>
-        <Preprocessor Value="HG_SERVER_KEY=\&quot;development_version\&quot;"/>
       </Compiler>
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVStart/_RELEASE"/>
