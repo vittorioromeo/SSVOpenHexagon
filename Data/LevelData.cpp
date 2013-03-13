@@ -6,6 +6,7 @@
 #include "Utils/Utils.h"
 
 using namespace std;
+using namespace hg::UtilsJson;
 
 namespace hg
 {
@@ -43,15 +44,15 @@ namespace hg
 	int LevelData::getSidesMax() 					{ return root["sides_max"].asInt(); }
 	int LevelData::getSidesMin() 					{ return root["sides_min"].asInt(); }
 	float LevelData::getIncrementTime()				{ return root["increment_time"].asFloat(); }
-	float LevelData::getPulseMin() 					{ return getJsonValueOrDefault(root, "pulse_min", 75.f); }
-	float LevelData::getPulseMax() 					{ return getJsonValueOrDefault(root, "pulse_max", 80.f); }
-	float LevelData::getPulseSpeed() 				{ return getJsonValueOrDefault(root, "pulse_speed", 0.f); }
-	float LevelData::getPulseSpeedR() 				{ return getJsonValueOrDefault(root, "pulse_speed_r", 0.f); }
-	float LevelData::getPulseDelayMax() 			{ return getJsonValueOrDefault(root, "pulse_delay_max", 0.f); }
-	float LevelData::getPulseDelayHalfMax() 		{ return getJsonValueOrDefault(root, "pulse_delay_half_max", 0.f); }
-	float LevelData::getBeatPulseMax() 				{ return getJsonValueOrDefault(root, "beatpulse_max", 0.f); }
-	float LevelData::getBeatPulseDelayMax() 		{ return getJsonValueOrDefault(root, "beatpulse_delay_max", 0.f); }
-	float LevelData::getRadiusMin() 				{ return getJsonValueOrDefault(root, "radius_min", 72.f); }
+	float LevelData::getPulseMin() 					{ return getValueOrDefault(root, "pulse_min", 75.f); }
+	float LevelData::getPulseMax() 					{ return getValueOrDefault(root, "pulse_max", 80.f); }
+	float LevelData::getPulseSpeed() 				{ return getValueOrDefault(root, "pulse_speed", 0.f); }
+	float LevelData::getPulseSpeedR() 				{ return getValueOrDefault(root, "pulse_speed_r", 0.f); }
+	float LevelData::getPulseDelayMax() 			{ return getValueOrDefault(root, "pulse_delay_max", 0.f); }
+	float LevelData::getPulseDelayHalfMax() 		{ return getValueOrDefault(root, "pulse_delay_half_max", 0.f); }
+	float LevelData::getBeatPulseMax() 				{ return getValueOrDefault(root, "beatpulse_max", 0.f); }
+	float LevelData::getBeatPulseDelayMax() 		{ return getValueOrDefault(root, "beatpulse_delay_max", 0.f); }
+	float LevelData::getRadiusMin() 				{ return getValueOrDefault(root, "radius_min", 72.f); }
 	vector<float> LevelData::getDifficultyMultipliers()
 	{
 		vector<float> result{1.0f};

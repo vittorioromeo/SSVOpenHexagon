@@ -28,6 +28,8 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace ssvs::FileSystem;
+using namespace hg::Utils;
+using namespace hg::UtilsJson;
 
 namespace hg
 {
@@ -58,7 +60,7 @@ namespace hg
 			for(auto& path : getRecursiveFilesByExtension(packPath, ".lua")) packLua.append(getFileContents(path));
 			string packHash{Online::getMD5Hash(packLua + HG_SERVER_KEY)};
 
-			Json::Value packRoot{getJsonFileRoot(packPath + "/pack.json")};
+			Json::Value packRoot{getRootFromFile(packPath + "/pack.json")};
 			PackData packData(packName, packRoot["name"].asString(), packRoot["priority"].asFloat(), packHash);
 			packDataMap.insert(make_pair(packName, packData));
 		}
@@ -105,7 +107,7 @@ namespace hg
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Music/", ".json"))
 		{
-			MusicData musicData{loadMusicFromJson(getJsonFileRoot(filePath))};
+			MusicData musicData{loadMusicFromJson(getRootFromFile(filePath))};
 			musicDataMap.insert(make_pair(musicData.getId(), musicData));
 		}
 	}
@@ -113,7 +115,7 @@ namespace hg
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Styles/", ".json"))
 		{
-			StyleData styleData{loadStyleFromJson(getJsonFileRoot(filePath))};
+			StyleData styleData{loadStyleFromJson(getRootFromFile(filePath))};
 			styleData.setRootPath(filePath);
 			styleDataMap.insert(make_pair(styleData.getId(), styleData));
 		}
@@ -122,7 +124,7 @@ namespace hg
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Levels/", ".json"))
 		{
-			Json::Value root{getJsonFileRoot(filePath)};
+			Json::Value root{getRootFromFile(filePath)};
 			string luaScriptPath{mPath + "Scripts/" + root["lua_file"].asString()};
 			
 			LevelData levelData{loadLevelFromJson(root)};
@@ -140,7 +142,7 @@ namespace hg
 		{
 			string fileName{getNameFromPath(filePath, "Profiles/", ".json")};
 
-			ProfileData profileData{loadProfileFromJson(getJsonFileRoot(filePath))};
+			ProfileData profileData{loadProfileFromJson(getRootFromFile(filePath))};
 			profileDataMap.insert(make_pair(profileData.getName(), profileData));
 		}
 	}
@@ -148,7 +150,7 @@ namespace hg
 	{
 		for(auto filePath : getFilesByExtension(mPath + "Events/", ".json"))
 		{
-			EventData eventData{getJsonFileRoot(filePath)};
+			EventData eventData{getRootFromFile(filePath)};
 			eventDataMap.insert(make_pair(eventData.getId(), eventData));
 		}
 	}

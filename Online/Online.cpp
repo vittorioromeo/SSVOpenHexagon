@@ -18,6 +18,8 @@ using namespace std;
 using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
+using namespace hg::Utils;
+using namespace hg::UtilsJson;
 
 namespace hg
 {
@@ -54,11 +56,11 @@ namespace hg
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
-					Json::Value root{getJsonFromString(response.getBody())};
-					serverMessage = getJsonValueOrDefault<string>(root, "message", "");
+					Json::Value root{getValueFromString(response.getBody())};
+					serverMessage = getValueOrDefault<string>(root, "message", "");
 					log("Server message:\n" + serverMessage, "Online");
 
-					serverVersion = getJsonValueOrDefault<float>(root, "latest_version", -1);
+					serverVersion = getValueOrDefault<float>(root, "latest_version", -1);
 					log("Server latest version: " + toStr(getServerVersion()), "Online");
 
 					if(serverVersion == getVersion()) log("No updates available", "Online");

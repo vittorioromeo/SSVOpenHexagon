@@ -16,6 +16,8 @@ using namespace ssvs::Utils;
 using namespace ssvs::Input;
 using namespace sses;
 using namespace ssvms;
+using namespace hg::Utils;
+using namespace hg::UtilsJson;
 
 namespace hg
 {
@@ -186,7 +188,7 @@ namespace hg
 		if(currentScores == "") return "refreshing...";
 
 		unsigned int leaderboardRecordCount{8};
-		Json::Value root{getJsonFromString(currentScores)};
+		Json::Value root{getValueFromString(currentScores)};
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
@@ -312,7 +314,7 @@ namespace hg
 
 			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5 + 3});
 			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 3});
-			renderText("local best: " + toStr(getScore(getScoreValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 45 + 3});
+			renderText("local best: " + toStr(getScore(getLocalValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 45 + 3});
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60 + 3});
 
 			renderText(getLeaderboard(), cProfText, {20, 100}, 20);

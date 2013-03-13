@@ -9,6 +9,8 @@
 using namespace std;
 using namespace sf;
 using namespace ssvs::Utils;
+using namespace hg::Utils;
+using namespace hg::UtilsJson;
 
 namespace hg
 {	
@@ -141,16 +143,16 @@ namespace hg
 		mRenderTarget.draw(vertices);
 	}
 
-	unsigned int StyleData::get3DDepth() 			{ return getJsonValueOrDefault(root, "3D_depth", 15); }
-	float StyleData::get3DSkew() 					{ return getJsonValueOrDefault(root, "3D_skew", 0.18f); }
-	float StyleData::get3DSpacing() 				{ return getJsonValueOrDefault(root, "3D_spacing", 1.0f); }
-	float StyleData::get3DDarkenMultiplier() 		{ return getJsonValueOrDefault(root, "3D_darken_multiplier", 1.5f); }
-	float StyleData::get3DAlphaMultiplier() 		{ return getJsonValueOrDefault(root, "3D_alpha_multiplier", 0.5f); }
-	float StyleData::get3DAlphaFalloff() 			{ return getJsonValueOrDefault(root, "3D_alpha_falloff", 3.0f); }
+	unsigned int StyleData::get3DDepth() 			{ return getValueOrDefault(root, "3D_depth", 15); }
+	float StyleData::get3DSkew() 					{ return getValueOrDefault(root, "3D_skew", 0.18f); }
+	float StyleData::get3DSpacing() 				{ return getValueOrDefault(root, "3D_spacing", 1.0f); }
+	float StyleData::get3DDarkenMultiplier() 		{ return getValueOrDefault(root, "3D_darken_multiplier", 1.5f); }
+	float StyleData::get3DAlphaMultiplier() 		{ return getValueOrDefault(root, "3D_alpha_multiplier", 0.5f); }
+	float StyleData::get3DAlphaFalloff() 			{ return getValueOrDefault(root, "3D_alpha_falloff", 3.0f); }
 	Color StyleData::get3DOverrideColor() 			{ return root.isMember("3D_override_color") ? getColorFromJsonArray(root["3D_override_color"]) : getMainColor(); }
-	float StyleData::get3DPulseMax()				{ return getJsonValueOrDefault(root, "3D_pulse_max", 3.2f); }
-	float StyleData::get3DPulseMin()				{ return getJsonValueOrDefault(root, "3D_pulse_min", -0.0f); }
-	float StyleData::get3DPulseSpeed()				{ return getJsonValueOrDefault(root, "3D_pulse_speed", 0.01f); }
-	float StyleData::get3DPerspectiveMultiplier()	{ return getJsonValueOrDefault(root, "3D_perspective_multiplier", 1.0f); }
+	float StyleData::get3DPulseMax()				{ return getValueOrDefault(root, "3D_pulse_max", 3.2f); }
+	float StyleData::get3DPulseMin()				{ return getValueOrDefault(root, "3D_pulse_min", -0.0f); }
+	float StyleData::get3DPulseSpeed()				{ return getValueOrDefault(root, "3D_pulse_speed", 0.01f); }
+	float StyleData::get3DPerspectiveMultiplier()	{ return getValueOrDefault(root, "3D_perspective_multiplier", 1.0f); }
 }
 

@@ -51,7 +51,7 @@ std::string MD5::Calculate(std::ifstream& file)
 {
 	if(!file) return "";
 	file.seekg(0, std::ios::end);
-	int length{file.tellg()};
+	int length(file.tellg());
 	file.seekg(0, std::ios::beg);
 
 	char* buffer{new char[length]};
