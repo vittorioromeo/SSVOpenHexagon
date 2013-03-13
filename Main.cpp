@@ -13,6 +13,8 @@
 #include "Global/Config.h"
 #include "HexagonGame.h"
 #include "MenuGame.h"
+#include "Online/Definitions.h"
+#include "Compatibility/Compatibility.h"
 
 using namespace std;
 using namespace ssvs;
@@ -22,12 +24,18 @@ using namespace hg;
 
 int main(int argc, char* argv[])
 {
-	Online::startCheckUpdates();
-
-	srand(unsigned(time(NULL)));
-
 	vector<string> overrideIds; for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
+
+	Online::startCheckUpdates();
+	srand(unsigned(time(NULL)));
 	loadConfig(overrideIds); initAssetManager(); loadAssets();
+
+	if(overrideIds[1] == "convert182to183")
+	{
+		Compatibility::convert182to183Hashes("_CONVERT/from.json", "_CONVERT/to.json");
+		saveLogToFile("log.txt");
+		return 0;
+	}
 
 	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - vee software"};
 	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
