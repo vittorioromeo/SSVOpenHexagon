@@ -17,6 +17,8 @@ namespace hg
 {
 	namespace Compatiblity
 	{
+		const string serverKey182{"3g2n9br8bjuwe1"};
+
 		string get181MD5Hash(const string& mString) { MD5 key{mString}; return key.GetHash(); }
 		string get181UrlEncoded(const string& mString)
 		{
@@ -39,14 +41,14 @@ namespace hg
 
 			string result{""};
 			result.append(get181UrlEncoded(mLevelId));
-			result.append(get181MD5Hash(get181FileContents(mJsonRootPath) + HG_SERVER_KEY));
-			result.append(get181MD5Hash(luaScriptContents + HG_SERVER_KEY));
+			result.append(get181MD5Hash(get181FileContents(mJsonRootPath) + serverKey182));
+			result.append(get181MD5Hash(luaScriptContents + serverKey182));
 
 			for(auto& luaScriptName : luaScriptNames)
 			{
 				string path{mPackPath + "/Scripts/" + luaScriptName};
 				string contents{get181FileContents(path)};
-				string hash{get181MD5Hash(contents + HG_SERVER_KEY)};
+				string hash{get181MD5Hash(contents + serverKey182)};
 				string compressedHash{""};
 
 				for(unsigned int i{0}; i < hash.length(); ++i) if(i % 3 == 0) compressedHash.append(toStr(hash[i]));

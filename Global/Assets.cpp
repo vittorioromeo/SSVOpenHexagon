@@ -58,7 +58,7 @@ namespace hg
 
 			string packLua{""};
 			for(auto& path : getRecursiveFilesByExtension(packPath, ".lua")) packLua.append(getFileContents(path));
-			string packHash{Online::getMD5Hash(packLua + HG_SERVER_KEY)};
+			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
 			Json::Value packRoot{getRootFromFile(packPath + "/pack.json")};
 			PackData packData(packName, packRoot["name"].asString(), packRoot["priority"].asFloat(), packHash);

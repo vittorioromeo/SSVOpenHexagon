@@ -56,7 +56,7 @@ namespace hg
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
-					Json::Value root{getValueFromString(response.getBody())};
+					Json::Value root{getRootFromString(response.getBody())};
 					serverMessage = getValueOrDefault<string>(root, "message", "");
 					log("Server message:\n" + serverMessage, "Online");
 
@@ -112,7 +112,7 @@ namespace hg
 				log("Sending score to server...", "Online");
 
 				string scoreString{toStr(mScore)};
-				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SERVER_KEY)};
+				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 				Response response{getPostResponse(sendScoreFile, body)};
 				Status status{response.getStatus()};
 
@@ -197,7 +197,7 @@ namespace hg
 
 			toEncrypt = getControlStripped(toEncrypt);
 
-			string result{getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SERVER_KEY)};
+			string result{getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 			return result;
 		}
 
