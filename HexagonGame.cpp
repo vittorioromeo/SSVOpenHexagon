@@ -14,6 +14,8 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace sses;
+using namespace hg::Utils;
+using namespace hg::UtilsJson;
 
 namespace hg
 {
@@ -155,7 +157,7 @@ namespace hg
 	{
 		if(getInvincible()) return;
 
-		string localValidator{getScoreValidator(levelData.getId(), difficultyMult)};
+		string localValidator{getLocalValidator(levelData.getId(), difficultyMult)};
 		if(getScore(localValidator) < status.currentTime) setScore(localValidator, status.currentTime);
 		saveCurrentProfile();
 

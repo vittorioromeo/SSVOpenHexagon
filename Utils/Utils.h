@@ -19,33 +19,34 @@
 
 namespace hg
 {
-	template<typename TResult, typename T> TResult lexicalCast(const T& mValue) { std::stringstream os; TResult result; os << mValue; os >> result; return result; }
-
-	template<typename T> T getJsonValue(const Json::Value& mRoot, const std::string& mValue);
-	template<typename T> T getJsonValueOrDefault(const Json::Value& mRoot, const std::string& mValue, T mDefault)
+	namespace UtilsJson
 	{
-		return mRoot.isMember(mValue) ? getJsonValue<T>(mRoot, mValue) : mDefault;
+		template<typename T> T getValue(const Json::Value& mRoot, const std::string& mValue);
+		template<typename T> T getValueOrDefault(const Json::Value& mRoot, const std::string& mValue, T mDefault) { return mRoot.isMember(mValue) ? getValue<T>(mRoot, mValue) : mDefault; }
+		Json::Value getRootFromFile(const std::string& mPath);
+		Json::Value getRootFromString(const std::string& mString);
 	}
 
-	sf::Color getColorFromHue(double);
-	sf::Color getColorDarkened(sf::Color, float);
-	sf::Color getColorFromJsonArray(Json::Value mArray);
+	namespace Utils
+	{
+		sf::Color getColorFromHue(double mHue);
+		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
+		sf::Color getColorFromJsonArray(Json::Value mArray);
 
-	std::string getFileContents(const std::string& mFilePath);
-	Json::Value getJsonFileRoot(const std::string& mFilePath);
-	Json::Value getJsonFromString(const std::string& mString);
+		std::string getFileContents(const std::string& mPath);
 
-	LevelData loadLevelFromJson(Json::Value mRoot);
-	MusicData loadMusicFromJson(Json::Value mRoot);
-	StyleData loadStyleFromJson(Json::Value mRoot);
-	ProfileData loadProfileFromJson(Json::Value mRoot);
+		LevelData loadLevelFromJson(Json::Value mRoot);
+		MusicData loadMusicFromJson(const Json::Value& mRoot);
+		StyleData loadStyleFromJson(Json::Value mRoot);
+		ProfileData loadProfileFromJson(const Json::Value& mRoot);
 
-	std::string getScoreValidator(const std::string& mId, float mDifficultyMult);
+		std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 
-	void shakeCamera(ssvs::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
+		void shakeCamera(ssvs::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 
-	std::unordered_set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
-	void recursiveFillIncludedLuaFileNames(std::unordered_set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
+		std::unordered_set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
+		void recursiveFillIncludedLuaFileNames(std::unordered_set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
+	}
 }
 
 #endif

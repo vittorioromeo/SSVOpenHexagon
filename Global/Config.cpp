@@ -17,10 +17,11 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace ssvs::FileSystem;
+using namespace hg::UtilsJson;
 
 namespace hg
 {
-	Json::Value root{getJsonFileRoot("config.json")};
+	Json::Value root{getRootFromFile("config.json")};
 	map<string, Json::Value> configOverridesRootMap;
 
 	float sizeX{1500}, sizeY{1500};
@@ -34,7 +35,7 @@ namespace hg
 		for(auto filePath : getFilesByExtension("ConfigOverrides/", ".json"))
 		{
 			string fileName{getNameFromPath(filePath, "ConfigOverrides/", ".json")};
-			configOverridesRootMap.insert(make_pair(fileName, getJsonFileRoot(filePath)));
+			configOverridesRootMap.insert(make_pair(fileName, getRootFromFile(filePath)));
 		}
 
 		for(string overrideId : mOverridesIds)

@@ -12,6 +12,7 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace sses;
+using namespace hg::UtilsJson;
 
 namespace hg
 {
@@ -20,16 +21,16 @@ namespace hg
 		for (Json::Value& eventRoot : mRoot)
 		{
 			if(eventRoot["executed"].asBool()) continue;
-			float time{getJsonValueOrDefault(eventRoot, "time", 0.f)};
+			float time{getValueOrDefault(eventRoot, "time", 0.f)};
 			if(time > mTime) continue;
 			eventRoot["executed"] = true;
 
-			string type		{getJsonValueOrDefault(eventRoot, "type", "")};
-			float duration	{getJsonValueOrDefault(eventRoot, "duration", 0.f)};
-			string valueName{getJsonValueOrDefault(eventRoot, "value_name", "")};
-			float value		{getJsonValueOrDefault(eventRoot, "value", 0.f)};
-			string message	{getJsonValueOrDefault(eventRoot, "message", "")};
-			string id		{getJsonValueOrDefault(eventRoot, "id", "")};
+			string type		{getValueOrDefault(eventRoot, "type", "")};
+			float duration	{getValueOrDefault(eventRoot, "duration", 0.f)};
+			string valueName{getValueOrDefault(eventRoot, "value_name", "")};
+			float value		{getValueOrDefault(eventRoot, "value", 0.f)};
+			string message	{getValueOrDefault(eventRoot, "message", "")};
+			string id		{getValueOrDefault(eventRoot, "id", "")};
 
 			if 	   (type == "level_change")				{ status.mustRestart = true; restartId = id; restartFirstTime = true; return; }
 			else if(type == "menu") 					{ goToMenu(); }
