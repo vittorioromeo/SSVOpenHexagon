@@ -112,7 +112,8 @@ namespace hg
 				log("Sending score to server...", "Online");
 
 				string scoreString{toStr(mScore)};
-				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + getMD5Hash(mName + mValidator + scoreString + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
+				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k="
+					+ getMD5Hash(mName + mValidator + scoreString + getMD5Hash(HG_SKEY1) + getMD5Hash(HG_SKEY2) + getMD5Hash(HG_SKEY3) + getMD5Hash(toStr(HG_NKEY1)))};
 				Response response{getPostResponse(sendScoreFile, body)};
 				Status status{response.getStatus()};
 

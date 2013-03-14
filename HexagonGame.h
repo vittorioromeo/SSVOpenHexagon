@@ -58,7 +58,6 @@ namespace hg
 			int inputMovement{0};
 			bool inputFocused{false}, mustTakeScreenshot{false};
 			FPSWatcher fpsWatcher;
-			bool updateCheck{false};
 
 			// LUA-related methods
 			void initLua();

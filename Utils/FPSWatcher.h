@@ -14,7 +14,7 @@ namespace hg
 	{
 		private:
 			ssvs::GameWindow& gameWindow;
-			bool& check;
+			bool check{false};
 			ThreadWrapper thread;
 			float lostFrames{0};
 			const float maxLostFrames{20}, minFPS{20};
@@ -24,10 +24,11 @@ namespace hg
 			void loseFrame();
 
 		public:
-			FPSWatcher(ssvs::GameWindow& mGameWindow, bool& mCheck);
+			FPSWatcher(ssvs::GameWindow& mGameWindow);
 			~FPSWatcher();
 			bool isLimitReached();
 			void reset();
+			void update();
 
 			void enable();
 			void disable();

@@ -37,12 +37,13 @@ namespace hg
 		log("Slowdown " + toStr(lostFrames) + "/" + toStr(maxLostFrames), "Performance");
 	}
 
-	FPSWatcher::FPSWatcher(GameWindow& mGameWindow, bool& mCheck) : gameWindow(mGameWindow), check(mCheck), thread([&]{ watch(); }) { thread.launch(); }
+	FPSWatcher::FPSWatcher(GameWindow& mGameWindow) : gameWindow(mGameWindow), thread([&]{ watch(); }) { thread.launch(); }
 	FPSWatcher::~FPSWatcher() { running = false; }
 	bool FPSWatcher::isLimitReached() { return lostFrames >= maxLostFrames; }
 
 	void FPSWatcher::enable() 	{ disabled = false; }
 	void FPSWatcher::disable() 	{ disabled = true; }
-	void FPSWatcher::reset() 	{ lostFrames = 0; disabled = true; }
+	void FPSWatcher::reset() 	{ lostFrames = 0; disabled = true; check = false; }
+	void FPSWatcher::update() 	{ check = true; }
 }
 
