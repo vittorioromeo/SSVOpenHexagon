@@ -19,7 +19,7 @@ using namespace hg::UtilsJson;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), fpsWatcher(window, updateCheck)
+	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), fpsWatcher(window)
 	{
 		initFlashEffect();
 
@@ -27,8 +27,8 @@ namespace hg
 		game.onDraw += [&]{ draw(); };
 		
 		using k = Keyboard::Key;
-		game.addInput({{k::Left}}, 		[&](float){ inputMovement = -1; });
-		game.addInput({{k::Right}}, 	[&](float){ inputMovement = 1; });
+		game.addInput({{k::Left}, {k::A}}, 	[&](float){ inputMovement = -1; });
+		game.addInput({{k::Right}, {k::D}}, [&](float){ inputMovement = 1; });
 		game.addInput({{k::LShift}}, 	[&](float){ inputFocused = true; });
 		game.addInput({{k::Escape}}, 	[&](float){ goToMenu(); });
 		game.addInput({{k::R}}, 		[&](float){ status.mustRestart = true; });

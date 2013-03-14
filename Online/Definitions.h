@@ -17,4 +17,9 @@
 #define HG_SKEY3 "dev3"
 #endif
 
+#ifndef HG_NKEY1
+#define HG_NKEY1 123456
+#endif
+
+
 #endif
