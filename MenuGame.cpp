@@ -255,10 +255,10 @@ namespace hg
 	void MenuGame::draw()
 	{
 		styleData.computeColors();
-
 		window.clear(state != States::MAIN ? Color::Black : styleData.getColors()[0]);
 
-		if(state == States::MAIN) { backgroundCamera.apply(); styleData.drawBackground(window.getRenderWindow(), {0, 0}, 6); }
+		backgroundCamera.apply();
+		if(state == States::MAIN) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelData.getSides());
 
 		overlayCamera.apply();
 		if(state == States::MAIN) { drawLevelSelection(); render(bottomBar); }
@@ -267,7 +267,6 @@ namespace hg
 		else if(state == States::OPTIONS) drawOptions(); 
 
 		render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
-
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
@@ -282,9 +281,7 @@ namespace hg
 		else mText.setColor(styleData.getMainColor());
 
 		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);
-		render(mText);
-
-		mText.setCharacterSize(originalSize);
+		render(mText); mText.setCharacterSize(originalSize);
 	}
 
 	void MenuGame::drawLevelSelection()
