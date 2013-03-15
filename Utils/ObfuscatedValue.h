@@ -28,11 +28,7 @@ namespace hg
 			public:
 				ObfuscatedValue(T mValue) { set(mValue); }
 
-				void set(T mValue)
-				{
-					dummy = mValue; std::string s{ssvs::Utils::toStr(mValue)};
-					encodedValue = base64_encode(reinterpret_cast<const unsigned char*>(s.c_str()), s.length());
-				}
+				void set(T mValue) { dummy = mValue; encodedValue = base64_encode(ssvs::Utils::toStr(mValue)); }
 				T get() const { return fromString(base64_decode(encodedValue)); }
 				operator T() const { return get(); }
 				T operator +=(const T& mValue) { set(get() + mValue); return get(); }

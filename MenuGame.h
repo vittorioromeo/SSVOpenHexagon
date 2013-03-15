@@ -35,10 +35,8 @@ namespace hg
 			bool mustTakeScreenshot{false};
 			std::string currentScores{""}, profileNewName{""};
 
-			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")};
-			sf::Sprite creditsBar1{getAssetManager().getTexture("creditsBar1.png")};
-			sf::Sprite creditsBar2{getAssetManager().getTexture("creditsBar2.png")};
-			sf::Sprite bottomBar{getAssetManager().getTexture("bottomBar.png")};
+			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")}, creditsBar1{getAssetManager().getTexture("creditsBar1.png")},
+			creditsBar2{getAssetManager().getTexture("creditsBar2.png")}, bottomBar{getAssetManager().getTexture("bottomBar.png")};
 
 			std::vector<std::string> levelDataIds;
 			std::vector<float> difficultyMultipliers;
@@ -49,26 +47,24 @@ namespace hg
 			sf::Text versionText{"", getFont("imagine.ttf"), 40}, cProfText{"", getFont("imagine.ttf"), 21}, levelName{"", getFont("imagine.ttf"), 65},
 				levelDesc{"", getFont("imagine.ttf"), 32}, levelAuth{"", getFont("imagine.ttf"), 20}, levelMusc{"", getFont("imagine.ttf"), 20};
 
-			void refreshScores();
-			std::string getLeaderboard();
+			void initAssets();
+			void initOptionsMenu();
+			void initInput();
 			void update(float mFrameTime);
 			void draw();
 			void drawLevelSelection();
 			void drawProfileCreation();
 			void drawProfileSelection();
 			void drawOptions();
-			void setIndex(int mIndex);
+			void render(sf::Drawable&);
 			void renderText(const std::string& mString, sf::Text& mText, sf::Vector2f mPosition, unsigned int mSize = 0);
+			void setIndex(int mIndex);
+			void refreshScores();
+			std::string getLeaderboard();
 
 		public:
 			MenuGame(HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
-
 			void init();
-			void initAssets();
-			void initOptionsMenu();
-			void initInput();
-			void render(sf::Drawable&);
-
 			ssvs::GameState& getGame();
 	};
 }
