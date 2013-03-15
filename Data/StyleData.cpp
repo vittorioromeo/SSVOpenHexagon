@@ -87,8 +87,14 @@ namespace hg
 			root["pulse_increment"] = root["pulse_increment"].asFloat() * -1;
 			pulseFactor = root["pulse_max"].asFloat();
 		}
+	}
 
+	void StyleData::computeColors()
+	{
 		currentMainColor = calculateColor(root["main"]);
+		currentColors.clear();
+		for(unsigned int i{0}; i < root["colors"].size(); i++) currentColors.push_back(calculateColor(root["colors"][i]));
+		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / 50, currentColors.end());
 	}
 
 	void StyleData::setRootPath(const std::string& mPath) { rootPath = mPath; }
@@ -103,15 +109,7 @@ namespace hg
 	float StyleData::getCurrentHue() 			{ return currentHue; }
 	float StyleData::getCurrentSwapTime() 		{ return currentSwapTime; }
 	Color StyleData::getMainColor()				{ return currentMainColor; }
-	vector<Color> StyleData::getColors()
-	{
-		vector<Color> result;
-
-		for(unsigned int i{0}; i < root["colors"].size(); i++) result.push_back(calculateColor(root["colors"][i]));
-		std::rotate(result.begin(), result.begin() + currentSwapTime / 50, result.end());
-
-		return result;
-	}
+	vector<Color> StyleData::getColors() 		{ return currentColors; }
 
 	void StyleData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
 	float StyleData::getValueFloat(const string& mValueName)						{ return root[mValueName].asFloat(); }

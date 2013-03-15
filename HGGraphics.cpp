@@ -19,6 +19,8 @@ namespace hg
 {
 	void HexagonGame::draw()
 	{
+		styleData.computeColors();
+
 		window.clear(Color::Black);
 		if(!getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); }
 		if(get3D())
