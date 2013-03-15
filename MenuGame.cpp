@@ -113,27 +113,27 @@ namespace hg
 		using k = Keyboard::Key;
 		using t = Trigger::Types;
 		using s = States;
-		game.addInput({{k::Left}}, [&](float)
+		game.addInput({{k::Left}, {k::A}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::PROFILES) 		{  --profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex - 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
 		}, t::SINGLE);
-		game.addInput({{k::Right}}, [&](float)
+		game.addInput({{k::Right}, {k::D}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::PROFILES) 		{ ++profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex + 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
 		}, t::SINGLE);
-		game.addInput({{k::Up}}, [&](float)
+		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::MAIN) 			{ ++difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
 		}, t::SINGLE);
-		game.addInput({{k::Down}}, [&](float)
+		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::MAIN) 			{ --difficultyMultIndex; refreshScores(); }
@@ -161,8 +161,6 @@ namespace hg
 		game.addInput({{k::Escape}}, [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
 		game.addInput({{k::F12}}, [&](float){ mustTakeScreenshot = true; }, t::SINGLE);
 		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::SINGLE);
-
-
 	}
 
 	void MenuGame::setIndex(int mIndex)
@@ -241,8 +239,6 @@ namespace hg
 		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
-		if(inputDelay > 0) inputDelay -= 1 * mFrameTime;
-
 		if(state == States::PROFILE_NEW)
 		{
 			Event e; window.pollEvent(e);
@@ -250,7 +246,7 @@ namespace hg
 			{
 				if(e.text.unicode > 47 && e.text.unicode < 126 && profileNewName.size() < 16) {char c{static_cast<char>(e.text.unicode)}; if(isalnum(c)) profileNewName.append(toStr(c)); }
 				else if(e.text.unicode == 8 && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1);
-				else if(e.text.unicode == 13 && !profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = States::MAIN; inputDelay = 30; }
+				else if(e.text.unicode == 13 && !profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = States::MAIN; }
 			}
 		}
 		else if(state == States::PROFILES) { profileNewName = getProfileNames()[profileIndex % getProfileNames().size()]; }

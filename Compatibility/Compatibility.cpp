@@ -22,10 +22,8 @@ namespace hg
 
 		string get181MD5Hash(const string& mString) { MD5 key{mString}; return key.GetHash(); }
 		string get182MD5Hash(const string& mString) { MD5 key{mString}; return key.GetHash(); }
-
 		string get181UrlEncoded(const string& mString) { string result{""}; for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i]; return result; }
 		string get182UrlEncoded(const string& mString) { string result{""}; for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i]; return result; }
-
 		string get182ControlStripped(const string& mString) { string result{""}; for(unsigned int i{0}; i < mString.size(); ++i) if(!iscntrl(mString[i])) result += mString[i]; return result; }
 
 		string get181FileContents(const string& mFilePath) { ifstream ifs(mFilePath); string content{(istreambuf_iterator<char>(ifs)), (istreambuf_iterator<char>())}; return content; }

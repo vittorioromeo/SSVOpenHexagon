@@ -42,12 +42,12 @@ namespace hg
 		float radius{hexagonGame.getRadius() * 0.65f};
 		int pointsOnCenter{0};
 
-		for(auto& vertexPosition : vertexPositions)
+		for(auto& vp : vertexPositions)
 		{
-			int distanceX{abs(vertexPosition.x - centerPos.x)}, distanceY{abs(vertexPosition.y - centerPos.y)};
+			int distanceX{abs(vp.x - centerPos.x)}, distanceY{abs(vp.y - centerPos.y)};
 
 			if(distanceX < radius && distanceY < radius) pointsOnCenter++;
-			else movePointTowardsCenter(vertexPosition, centerPos, speed * 5.0f * mFrameTime);
+			else movePointTowardsCenter(vp, centerPos, speed * 5.0f * mFrameTime);
 		}
 
 		if(pointsOnCenter > 3) getEntity().destroy();
