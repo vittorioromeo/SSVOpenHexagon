@@ -43,50 +43,30 @@ namespace hg
 					 clamp(color.a + pulse.a * pulseFactor, 0.f, 255.f));
 	}
 
-	StyleData::StyleData(Json::Value mRoot) : root{mRoot}
-	{
-		currentHue = getHueMin();
-		currentSwapTime = 0;
-	}
+	StyleData::StyleData(Json::Value mRoot) : root{mRoot}, currentHue{getHueMin()} { }
 
 	void StyleData::update(float mFrameTime)
 	{
-		currentSwapTime += 1.f * mFrameTime;
-		if(currentSwapTime > 100) currentSwapTime = 0;
+		currentSwapTime += mFrameTime;
+		if(currentSwapTime > getMaxSwapTime()) currentSwapTime = 0;
 
 		currentHue += getHueIncrement() * mFrameTime;
 				
 		if(currentHue < getHueMin())
 		{
-			if(getHuePingPong())
-			{
-				currentHue = getHueMin();
-				root["hue_increment"] = getHueIncrement() * -1;
-			}
+			if(getHuePingPong()) { currentHue = getHueMin(); root["hue_increment"] = getHueIncrement() * -1; }
 			else currentHue = getHueMax();
 		}
 		if(currentHue > getHueMax())
 		{
-			if(getHuePingPong())
-			{
-				currentHue = getHueMax();
-				root["hue_increment"] = getHueIncrement() * -1;
-			}
+			if(getHuePingPong()) { currentHue = getHueMax(); root["hue_increment"] = getHueIncrement() * -1; }
 			else currentHue = getHueMin();
 		}
 
 		pulseFactor += root["pulse_increment"].asFloat() * mFrameTime;
 
-		if(pulseFactor < root["pulse_min"].asFloat())
-		{
-			root["pulse_increment"] = root["pulse_increment"].asFloat() * -1;
-			pulseFactor = root["pulse_min"].asFloat();
-		}
-		if(pulseFactor > root["pulse_max"].asFloat())
-		{
-			root["pulse_increment"] = root["pulse_increment"].asFloat() * -1;
-			pulseFactor = root["pulse_max"].asFloat();
-		}
+		if(pulseFactor < root["pulse_min"].asFloat()) { root["pulse_increment"] = root["pulse_increment"].asFloat() * -1; pulseFactor = root["pulse_min"].asFloat(); }
+		if(pulseFactor > root["pulse_max"].asFloat()) { root["pulse_increment"] = root["pulse_increment"].asFloat() * -1; pulseFactor = root["pulse_max"].asFloat(); }
 	}
 
 	void StyleData::computeColors()
@@ -94,7 +74,7 @@ namespace hg
 		currentMainColor = calculateColor(root["main"]);
 		currentColors.clear();
 		for(unsigned int i{0}; i < root["colors"].size(); i++) currentColors.push_back(calculateColor(root["colors"][i]));
-		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / 50, currentColors.end());
+		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / (getMaxSwapTime() / 2), currentColors.end());
 	}
 
 	void StyleData::setRootPath(const std::string& mPath) { rootPath = mPath; }
@@ -105,6 +85,7 @@ namespace hg
 	float StyleData::getHueMax()				{ return root["hue_max"].asFloat(); }
 	bool StyleData::getHuePingPong()			{ return root["hue_ping_pong"].asBool(); }
 	float StyleData::getHueIncrement()			{ return root["hue_increment"].asFloat(); }
+	float StyleData::getMaxSwapTime()			{ return getValueOrDefault(root, "max_swap_time", 100.f); }
 
 	float StyleData::getCurrentHue() 			{ return currentHue; }
 	float StyleData::getCurrentSwapTime() 		{ return currentSwapTime; }

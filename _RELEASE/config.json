@@ -35,8 +35,8 @@
 	"flash_enabled": true,
 	
 	// Audio options
-	"no_sound": false,
-	"no_music": false,
+	"no_sound": true,
+	"no_music": true,
 	"sound_volume": 100,
 	"music_volume": 75,	
 	
