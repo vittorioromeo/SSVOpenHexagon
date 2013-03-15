@@ -26,6 +26,19 @@ namespace hg
 		if(get3D())
 		{
 			status.drawing3D = true;
+
+			float effect{styleData.get3DSkew() * get3DMultiplier() * status.pulse3D};
+			Vector2f skew{1.f, 1.f + effect};
+			backgroundCamera.setSkew(skew);
+
+			for(unsigned int i{0}; i < depthCameras.size(); ++i)
+			{
+				Camera& depthCamera(depthCameras[i]);
+				depthCamera.setView(backgroundCamera.getView());
+				depthCamera.setSkew(skew);
+				depthCamera.setOffset({0, styleData.get3DSpacing() * (i * styleData.get3DPerspectiveMultiplier()) * (effect * 3.6f)});
+			}
+
 			for(unsigned int i{0}; i < depthCameras.size(); ++i)
 			{
 				status.overrideColor = getColorDarkened(styleData.get3DOverrideColor(), styleData.get3DDarkenMultiplier());

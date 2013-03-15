@@ -147,16 +147,6 @@ namespace hg
 		if(status.pulse3D > styleData.get3DPulseMax()) status.pulse3DDirection = -1;
 		else if(status.pulse3D < styleData.get3DPulseMin()) status.pulse3DDirection = 1;
 
-		float effect{styleData.get3DSkew() * get3DMultiplier() * status.pulse3D};
-		Vector2f skew{1.f, 1.f + effect};
-		backgroundCamera.setSkew(skew);
-
-		for(unsigned int i{0}; i < depthCameras.size(); ++i)
-		{
-			Camera& depthCamera(depthCameras[i]);
-			depthCamera.setView(backgroundCamera.getView());
-			depthCamera.setSkew(skew);
-			depthCamera.setOffset({0, styleData.get3DSpacing() * (i * styleData.get3DPerspectiveMultiplier()) * (effect * 3.6f)});
-		}
+		
 	}
 }
