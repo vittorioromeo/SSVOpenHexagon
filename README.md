@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.83 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.84 #
 ## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
@@ -95,6 +95,13 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.84
+
+* Fixed: major performance improvements
+* Fixed: some more security flaws
+* Added "max_swap_time" JSON variable to styles (allows you to set how fast colors rotate)
+* Fixed: WSAD now works in menu
 
 Version 1.83
 
