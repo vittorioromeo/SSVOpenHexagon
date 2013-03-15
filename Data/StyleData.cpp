@@ -87,6 +87,8 @@ namespace hg
 			root["pulse_increment"] = root["pulse_increment"].asFloat() * -1;
 			pulseFactor = root["pulse_max"].asFloat();
 		}
+
+		currentMainColor = calculateColor(root["main"]);
 	}
 
 	void StyleData::setRootPath(const std::string& mPath) { rootPath = mPath; }
@@ -100,7 +102,7 @@ namespace hg
 
 	float StyleData::getCurrentHue() 			{ return currentHue; }
 	float StyleData::getCurrentSwapTime() 		{ return currentSwapTime; }
-	Color StyleData::getMainColor()				{ return calculateColor(root["main"]); }
+	Color StyleData::getMainColor()				{ return currentMainColor; }
 	vector<Color> StyleData::getColors()
 	{
 		vector<Color> result;

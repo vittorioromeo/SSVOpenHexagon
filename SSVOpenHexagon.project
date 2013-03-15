@@ -49,6 +49,9 @@
       <File Name="Utils/ThreadWrapper.h"/>
       <File Name="Utils/FPSWatcher.h"/>
       <File Name="Utils/FPSWatcher.cpp"/>
+      <File Name="Utils/ObfuscatedValue.h"/>
+      <File Name="Utils/Base64.h"/>
+      <File Name="Utils/Base64.cpp"/>
     </VirtualDirectory>
     <File Name="HGScripting.cpp"/>
     <File Name="HGUpdate.cpp"/>

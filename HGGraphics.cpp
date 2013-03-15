@@ -39,7 +39,6 @@ namespace hg
 		overlayCamera.apply(); drawText();
 
 		if(getFlash()) render(flashPolygon);
-
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
