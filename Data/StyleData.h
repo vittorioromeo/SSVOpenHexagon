@@ -16,6 +16,7 @@ namespace hg
 			Json::Value root;
 			float currentHue, currentSwapTime, pulseFactor{0};
 			std::string rootPath;
+			sf::Color currentMainColor;
 
 		public:
 			StyleData() = default;

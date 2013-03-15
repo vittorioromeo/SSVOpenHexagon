@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=vittorio.romeo
-Date                   :=14/03/2013
+Date                   :=15/03/2013
 CodeLitePath           :="C:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -65,7 +65,7 @@ WXWIN:=C:\wxWidgets-2.9.4
 WXCFG:=gcc_dll\mswu
 Objects0=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) \
 	$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/Utils_MD5$(ObjectSuffix) \
-	$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) 
+	$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IntermediateDirectory)/Utils_Base64$(ObjectSuffix) $(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) 
 
 Objects=$(Objects0) 
 
@@ -258,6 +258,14 @@ $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix): Utils/FPSWatcher.cpp
 $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix): Utils/FPSWatcher.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix) "Utils/FPSWatcher.cpp"
 
+$(IntermediateDirectory)/Utils_Base64$(ObjectSuffix): Utils/Base64.cpp $(IntermediateDirectory)/Utils_Base64$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/Base64.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_Base64$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Utils_Base64$(DependSuffix): Utils/Base64.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Utils_Base64$(ObjectSuffix) -MF$(IntermediateDirectory)/Utils_Base64$(DependSuffix) -MM "Utils/Base64.cpp"
+
+$(IntermediateDirectory)/Utils_Base64$(PreprocessSuffix): Utils/Base64.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_Base64$(PreprocessSuffix) "Utils/Base64.cpp"
+
 $(IntermediateDirectory)/Online_Online$(ObjectSuffix): Online/Online.cpp $(IntermediateDirectory)/Online_Online$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Online/Online.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Online_Online$(DependSuffix): Online/Online.cpp
@@ -343,6 +351,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_Base64$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_Base64$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_Base64$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix)
