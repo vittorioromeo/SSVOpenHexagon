@@ -26,7 +26,7 @@ namespace hg
 		bool drawing3D{false};
 		bool scoreInvalid{false};
 		sf::Color overrideColor{0, 0, 0, 0};
-		float lostFrames{0};
+		Utils::ObfuscatedValue<float> lostFrames{0};
 	};
 }
 
