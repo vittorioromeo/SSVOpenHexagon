@@ -160,6 +160,9 @@ namespace hg
 		game.addInput({{k::Escape}}, [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; }, t::SINGLE);
 		game.addInput({{k::Escape}}, [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
 		game.addInput({{k::F12}}, [&](float){ mustTakeScreenshot = true; }, t::SINGLE);
+		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::SINGLE);
+
+
 	}
 
 	void MenuGame::setIndex(int mIndex)
@@ -227,7 +230,6 @@ namespace hg
 				}
 				else if(static_cast<unsigned int>(playerPosition) > leaderboardRecordCount) 
 					result.append("...(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
-
 			}
 			else break;
 		}
@@ -239,11 +241,7 @@ namespace hg
 		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
-		if(inputDelay <= 0)
-		{
-			if(window.isKeyPressed(Keyboard::LAlt) && window.isKeyPressed(Keyboard::Return)) { setFullscreen(window, !window.getFullscreen()); inputDelay = 25; }
-		}
-		else inputDelay -= 1 * mFrameTime;
+		if(inputDelay > 0) inputDelay -= 1 * mFrameTime;
 
 		if(state == States::PROFILE_NEW)
 		{
@@ -262,19 +260,17 @@ namespace hg
 	{
 		styleData.computeColors();
 
-		window.clear(Color{0, 0, 0, 0});
+		window.clear(state != States::MAIN ? Color::Black : styleData.getColors()[0]);
 
-		if(state == States::MAIN)
-		{
-			window.clear(styleData.getColors()[0]);
-			backgroundCamera.apply(); styleData.drawBackground(window.getRenderWindow(), Vector2f{0,0}, 6);
-			overlayCamera.apply(); drawLevelSelection(); render(bottomBar);
-		}
-		else if(state == States::PROFILE_NEW) 	{ window.clear(Color::Black); overlayCamera.apply(); drawProfileCreation(); }
-		else if(state == States::PROFILES) 		{ window.clear(Color::Black); overlayCamera.apply(); drawProfileSelection(); }
-		else if(state == States::OPTIONS) 		{ window.clear(Color::Black); overlayCamera.apply(); drawOptions(); }
+		if(state == States::MAIN) { backgroundCamera.apply(); styleData.drawBackground(window.getRenderWindow(), {0, 0}, 6); }
 
-		overlayCamera.apply(); render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
+		overlayCamera.apply();
+		if(state == States::MAIN) { drawLevelSelection(); render(bottomBar); }
+		else if(state == States::PROFILE_NEW) drawProfileCreation();
+		else if(state == States::PROFILES) drawProfileSelection();
+		else if(state == States::OPTIONS) drawOptions(); 
+
+		render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
 
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
@@ -299,7 +295,7 @@ namespace hg
 	{
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
-		string packName{packData.getName()}, packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
+		string packName{packData.getName()}; //, packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
 
 		if(getOnline())
 		{
