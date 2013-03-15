@@ -14,7 +14,7 @@ namespace hg
 	{
 		private:
 			Json::Value root;
-			float currentHue, currentSwapTime, pulseFactor{0};
+			float currentHue, currentSwapTime{0}, pulseFactor{0};
 			std::string rootPath;
 			sf::Color currentMainColor;
 			std::vector<sf::Color> currentColors;
@@ -34,7 +34,8 @@ namespace hg
 			float getHueMin();
 			float getHueMax();
 			bool getHuePingPong();
-			float getHueIncrement();			
+			float getHueIncrement();
+			float getMaxSwapTime();
 
 			sf::Color calculateColor(Json::Value mColorRoot);
 
