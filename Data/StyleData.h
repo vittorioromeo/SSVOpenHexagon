@@ -17,12 +17,14 @@ namespace hg
 			float currentHue, currentSwapTime, pulseFactor{0};
 			std::string rootPath;
 			sf::Color currentMainColor;
+			std::vector<sf::Color> currentColors;
 
 		public:
 			StyleData() = default;
 			StyleData(Json::Value mRoot);
 
 			void update(float mFrameTime);
+			void computeColors();
 			void drawBackground(sf::RenderTarget& mRenderTarget, sf::Vector2f mCenterPos, int mSides);
 
 			void setRootPath(const std::string& mPath);

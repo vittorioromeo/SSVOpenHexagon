@@ -260,6 +260,8 @@ namespace hg
 	}
 	void MenuGame::draw()
 	{
+		styleData.computeColors();
+
 		window.clear(Color{0, 0, 0, 0});
 
 		if(state == States::MAIN)
