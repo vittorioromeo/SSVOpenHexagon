@@ -12,7 +12,7 @@ using namespace std;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
 
 namespace hg
 {
@@ -35,6 +35,16 @@ namespace hg
 			fseek(fptr, 0, SEEK_SET);
 			string content; content.resize(fsize);
 			if(fread((char*)content.c_str(),1,fsize,fptr) != fsize) log(mFilePath,"FileLoadWarning");
+			fclose(fptr); return content;
+		}
+		string get184FileContents(const string& mPath)
+		{
+			FILE* fptr{fopen(mPath.c_str(), "rb")};
+			fseek(fptr, 0, SEEK_END);
+			size_t fsize(ftell(fptr));
+			fseek(fptr, 0, SEEK_SET);
+			string content; content.resize(fsize);
+			if(fread(const_cast<char*>(content.c_str()), 1, fsize, fptr) != fsize) log("Error: " + mPath, "File loading");
 			fclose(fptr); return content;
 		}
 
@@ -78,7 +88,7 @@ namespace hg
 
 		void convert181to183Hashes(const string& mSourceJsonPath, const string& mTargetJsonPath)
 		{
-			string scores{getFileContents(mSourceJsonPath)};
+			string scores{get184FileContents(mSourceJsonPath)};
 			vector<string> oldValidators, newValidators;
 
 			for(auto& levelData : getAllLevelData())
@@ -111,7 +121,7 @@ namespace hg
 		}
 		void convert182to183Hashes(const string& mSourceJsonPath, const string& mTargetJsonPath)
 		{
-			string scores{getFileContents(mSourceJsonPath)};
+			string scores{get184FileContents(mSourceJsonPath)};
 			vector<string> oldValidators, newValidators;
 
 			for(auto& levelData : getAllLevelData())

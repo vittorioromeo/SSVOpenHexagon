@@ -19,21 +19,13 @@
 
 namespace hg
 {
-	namespace UtilsJson
-	{
-		template<typename T> T getValue(const Json::Value& mRoot, const std::string& mValue);
-		template<typename T> T getValueOrDefault(const Json::Value& mRoot, const std::string& mValue, T mDefault) { return mRoot.isMember(mValue) ? getValue<T>(mRoot, mValue) : mDefault; }
-		Json::Value getRootFromFile(const std::string& mPath);
-		Json::Value getRootFromString(const std::string& mString);
-	}
-
 	namespace Utils
 	{
 		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 		sf::Color getColorFromJsonArray(Json::Value mArray);
 
-		std::string getFileContents(const std::string& mPath);
+		
 
 		LevelData loadLevelFromJson(Json::Value mRoot);
 		MusicData loadMusicFromJson(const Json::Value& mRoot);

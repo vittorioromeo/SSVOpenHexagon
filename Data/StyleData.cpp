@@ -10,7 +10,7 @@ using namespace std;
 using namespace sf;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
 
 namespace hg
 {	

@@ -17,7 +17,7 @@ using namespace ssvs::Input;
 using namespace sses;
 using namespace ssvms;
 using namespace hg::Utils;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
 
 namespace hg
 {
@@ -52,7 +52,7 @@ namespace hg
 
 		versionText.setString(toStr(getVersion()));
 		versionText.setColor(Color::White);
-		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 97, titleBar.getGlobalBounds().top});
+		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 67, titleBar.getGlobalBounds().top});
 
 		creditsBar1.setOrigin({1024, 0});
 		creditsBar1.setScale({0.373f, 0.373f});

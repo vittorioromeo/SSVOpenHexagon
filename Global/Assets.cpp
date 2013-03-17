@@ -29,7 +29,7 @@ using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace ssvs::FileSystem;
 using namespace hg::Utils;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
 
 namespace hg
 {

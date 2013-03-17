@@ -15,29 +15,11 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
+using namespace ssvs::FileSystem;
 
 namespace hg
 {
-	namespace UtilsJson
-	{
-		using namespace Json;
-
-		template<> int getValue(const Value& mRoot, const string& mValue) 			{ return mRoot[mValue].asInt(); }
-		template<> float getValue(const Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asFloat(); }
-		template<> bool getValue(const Value& mRoot, const string& mValue) 			{ return mRoot[mValue].asBool(); }
-		template<> string getValue(const Value& mRoot, const string& mValue) 		{ return mRoot[mValue].asString(); }
-		template<> char const* getValue(const Value& mRoot, const string& mValue)	{ return mRoot[mValue].asCString(); }
-
-		Value getRootFromFile(const string& mPath) { return getRootFromString(getFileContents(mPath)); }
-		Value getRootFromString(const string& mString)
-		{
-			Value result; Reader reader;
-			if(!reader.parse(mString, result, false)) log(reader.getFormatedErrorMessages() + "\n" + "From: [" + mString + "]", "JSON Error");
-			return result;
-		}
-	}
-
 	namespace Utils
 	{
 		Color getColorFromHue(double mHue)
@@ -60,17 +42,6 @@ namespace hg
 		}
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
 		Color getColorFromJsonArray(Json::Value mArray) { return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat()); }
-
-		string getFileContents(const string& mPath)
-		{
-			FILE* fptr{fopen(mPath.c_str(), "rb")};
-			fseek(fptr, 0, SEEK_END);
-			size_t fsize(ftell(fptr));
-			fseek(fptr, 0, SEEK_SET);
-			string content; content.resize(fsize);
-			if(fread(const_cast<char*>(content.c_str()), 1, fsize, fptr) != fsize) log("Error: " + mPath, "File loading");
-			fclose(fptr); return content;
-		}
 
 		LevelData loadLevelFromJson(Json::Value mRoot) { LevelData result{mRoot}; for(auto event : mRoot["events"]) result.addEvent(event); return result; }
 		MusicData loadMusicFromJson(const Json::Value& mRoot)
