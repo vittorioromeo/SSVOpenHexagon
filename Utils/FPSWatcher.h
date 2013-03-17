@@ -15,7 +15,7 @@ namespace hg
 		private:
 			ssvs::GameWindow& gameWindow;
 			bool check{false};
-			ThreadWrapper thread;
+			ssvs::Utils::ThreadWrapper thread;
 			float lostFrames{0};
 			const float maxLostFrames{20}, minFPS{20};
 			bool disabled{true}, running{true};
