@@ -17,7 +17,7 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace ssvs::FileSystem;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
 
 namespace hg
 {
@@ -161,7 +161,7 @@ namespace hg
 	bool getVsync()						{ return root["vsync"].asBool(); }
 	bool getAutoZoomFactor()			{ if(getOfficial()) return true; return root["auto_zoom_factor"].asBool(); }
 	bool getFullscreen()				{ return root["fullscreen"].asBool(); }
-	float getVersion() 					{ return 1.84f; }
+	float getVersion() 					{ return 1.9f; }
 	bool getWindowedAutoResolution()	{ return root["windowed_auto_resolution"].asBool(); }
 	bool getFullscreenAutoResolution() 	{ return root["fullscreen_auto_resolution"].asBool(); }
 	unsigned int getFullscreenWidth()	{ return root["fullscreen_width"].asInt(); }

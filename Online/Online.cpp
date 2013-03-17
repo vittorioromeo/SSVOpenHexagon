@@ -19,7 +19,8 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
+using namespace ssvs::FileSystem;
 
 namespace hg
 {
@@ -41,9 +42,6 @@ namespace hg
 		string serverMessage{""};
 		Json::Value scoresRoot;
 
-		Response getGetResponse(const string& mRequestFile){ return Http(host).sendRequest({folder + mRequestFile}); }
-		Response getPostResponse(const string& mRequestFile, const string& mBody){ return Http(host).sendRequest({folder + mRequestFile, Request::Post, mBody}); }
-
 		void startCheckUpdates()
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
@@ -52,7 +50,7 @@ namespace hg
 			{
 				log("Checking updates...", "Online");
 
-				Response response{getGetResponse(infoFile)};
+				Response response{getGetResponse(host, folder, infoFile)};
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
@@ -88,7 +86,7 @@ namespace hg
 			{
 				log("Checking scores...", "Online");
 
-				Response response{getGetResponse(scoresFile)};
+				Response response{getGetResponse(host, folder, scoresFile)};
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
@@ -113,7 +111,7 @@ namespace hg
 
 				string scoreString{toStr(mScore)};
 				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + HG_ENCRYPTIONKEY};
-				Response response{getPostResponse(sendScoreFile, body)};
+				Response response{getPostResponse(host, folder, sendScoreFile, body)};
 				Status status{response.getStatus()};
 
 				if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
@@ -154,7 +152,7 @@ namespace hg
 				log("Getting scores from server...", "Online");
 
 				string body{"v=" + mValidator};
-				Response response{getPostResponse(getScoresFile, body)};
+				Response response{getPostResponse(host, folder, getScoresFile, body)};
 				Status status{response.getStatus()};
 
 				if(status == Response::Ok)

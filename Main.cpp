@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - vee software"};
+	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - by vittorio romeo"};
 	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
 	window.setStaticFrameTime(getStaticFrameTime());
 	window.setStaticFrameTimeValue(getStaticFrameTimeValue());

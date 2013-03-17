@@ -12,7 +12,7 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace sses;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
 
 namespace hg
 {

@@ -6,7 +6,7 @@
 #include "Utils/Utils.h"
 
 using namespace std;
-using namespace hg::UtilsJson;
+using namespace ssvs::UtilsJson;
 
 namespace hg
 {
@@ -26,24 +26,24 @@ namespace hg
 
 	Json::Value& LevelData::getRoot()				{ return root; }
 	string LevelData::getId() 						{ return getPackPath() + root["id"].asString(); }
-	string LevelData::getName() 					{ return root["name"].asString(); }
-	string LevelData::getDescription() 				{ return root["description"].asString(); }
-	string LevelData::getAuthor() 					{ return root["author"].asString(); }
-	int LevelData::getMenuPriority()				{ return root["menu_priority"].asInt(); }
-	bool LevelData::getSelectable()					{ return root["selectable"].asBool(); }
-	string LevelData::getMusicId() 					{ return root["music_id"].asString(); }
-	string LevelData::getStyleId() 					{ return root["style_id"].asString(); }
-	float LevelData::getSpeedMultiplier() 			{ return root["speed_multiplier"].asFloat(); }
-	float LevelData::getSpeedIncrement() 			{ return root["speed_increment"].asFloat(); }
-	float LevelData::getRotationSpeed() 			{ return root["rotation_speed"].asFloat(); }
-	float LevelData::getRotationSpeedIncrement() 	{ return root["rotation_increment"].asFloat(); }
-	float LevelData::getDelayMultiplier() 			{ return root["delay_multiplier"].asFloat(); }
-	float LevelData::getDelayIncrement() 			{ return root["delay_increment"].asFloat(); }
-	float LevelData::getFastSpin() 					{ return root["fast_spin"].asFloat(); }
-	int LevelData::getSides() 						{ return root["sides"].asInt(); }
-	int LevelData::getSidesMax() 					{ return root["sides_max"].asInt(); }
-	int LevelData::getSidesMin() 					{ return root["sides_min"].asInt(); }
-	float LevelData::getIncrementTime()				{ return root["increment_time"].asFloat(); }
+	string LevelData::getName() 					{ return getValue<string>(root, "name"); }
+	string LevelData::getDescription() 				{ return getValue<string>(root, "description"); }
+	string LevelData::getAuthor() 					{ return getValue<string>(root, "author"); }
+	int LevelData::getMenuPriority()				{ return getValue<int>(root, "menu_priority"); }
+	bool LevelData::getSelectable()					{ return getValue<bool>(root, "selectable"); }
+	string LevelData::getMusicId() 					{ return getValue<string>(root, "music_id"); }
+	string LevelData::getStyleId() 					{ return getValue<string>(root, "style_id"); }
+	float LevelData::getSpeedMultiplier() 			{ return getValue<float>(root, "speed_multiplier"); }
+	float LevelData::getSpeedIncrement() 			{ return getValue<float>(root, "speed_increment"); }
+	float LevelData::getRotationSpeed() 			{ return getValue<float>(root, "rotation_speed"); }
+	float LevelData::getRotationSpeedIncrement() 	{ return getValue<float>(root, "rotation_increment"); }
+	float LevelData::getDelayMultiplier() 			{ return getValue<float>(root, "delay_multiplier"); }
+	float LevelData::getDelayIncrement() 			{ return getValue<float>(root, "delay_increment"); }
+	float LevelData::getFastSpin() 					{ return getValue<float>(root, "fast_spin"); }
+	int LevelData::getSides() 						{ return getValue<int>(root, "sides"); }
+	int LevelData::getSidesMax() 					{ return getValue<int>(root, "sides_max"); }
+	int LevelData::getSidesMin() 					{ return getValue<int>(root, "sides_min"); }
+	float LevelData::getIncrementTime()				{ return getValue<float>(root, "increment_time"); }
 	float LevelData::getPulseMin() 					{ return getValueOrDefault(root, "pulse_min", 75.f); }
 	float LevelData::getPulseMax() 					{ return getValueOrDefault(root, "pulse_max", 80.f); }
 	float LevelData::getPulseSpeed() 				{ return getValueOrDefault(root, "pulse_speed", 0.f); }

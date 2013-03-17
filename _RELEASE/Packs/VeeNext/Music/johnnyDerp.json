@@ -1,0 +1,20 @@
+{
+	// Music data id
+	"id": "johnnyDerp",
+
+	// Music file
+	"file_name": "johnnyDerp.ogg",
+
+	// Music information
+	"name": "Johnny Derp",
+	"album": "",
+	"author": "Dunderpatrullen VS. BOSSFIGHT",
+	
+	// Segments
+	"segments":
+	[
+		{ "time": 7 },
+		{ "time": 46 },
+		{ "time": 145 }
+	]
+}
