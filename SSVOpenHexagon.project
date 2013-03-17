@@ -46,7 +46,6 @@
       <File Name="Utils/Utils.h"/>
       <File Name="Utils/MD5.h"/>
       <File Name="Utils/MD5.cpp"/>
-      <File Name="Utils/ThreadWrapper.h"/>
       <File Name="Utils/FPSWatcher.h"/>
       <File Name="Utils/FPSWatcher.cpp"/>
       <File Name="Utils/ObfuscatedValue.h"/>
