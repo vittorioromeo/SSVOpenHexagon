@@ -35,8 +35,7 @@ namespace hg
 		if(getProfilesSize() == 0) state = States::PROFILE_NEW;
 		else if(getProfilesSize() == 1) { setCurrentProfile(getFirstProfileName()); state = States::MAIN; }
 
-		initOptionsMenu();
-		initInput();
+		initOptionsMenu(); initInput();
 	}
 
 	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); refreshScores(); }
@@ -242,13 +241,18 @@ namespace hg
 
 		if(state == States::PROFILE_NEW)
 		{
-			Event e; window.pollEvent(e);
-			if(e.type == Event::TextEntered)
-			{
-				if(e.text.unicode > 47 && e.text.unicode < 126 && profileNewName.size() < 16) {char c{static_cast<char>(e.text.unicode)}; if(isalnum(c)) profileNewName.append(toStr(c)); }
-				else if(e.text.unicode == 8 && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1);
-				else if(e.text.unicode == 13 && !profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = States::MAIN; }
-			}
+			Event e;
+			while(window.getRenderWindow().pollEvent(e))
+				if(e.type == Event::TextEntered)
+				{
+					if(e.text.unicode > 47 && e.text.unicode < 126 && profileNewName.size() < 16)
+					{
+						char c{static_cast<char>(e.text.unicode)};
+						if(isalnum(c)) { playSound("beep.ogg"); profileNewName.append(toStr(c)); }
+					}
+					else if(e.text.unicode == 8 && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1);
+					else if(e.text.unicode == 13 && !profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = States::MAIN; }
+				}
 		}
 		else if(state == States::PROFILES) { profileNewName = getProfileNames()[profileIndex % getProfileNames().size()]; }
 		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.getRotationSpeed() * 10 * mFrameTime); }
