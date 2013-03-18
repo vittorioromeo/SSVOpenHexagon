@@ -3,33 +3,28 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include <iostream>
-#include <string>
 #include <fstream>
 #include <map>
-#include <SFML/Audio.hpp>
+#include <SSVUtils.h>
+#include <SSVUtilsJson.h>
 #include <SFML/Graphics.hpp>
 #include <json/json.h>
 #include <json/reader.h>
-#include "Data/MusicData.h"
-#include "Data/LevelData.h"
-#include "Data/EventData.h"
-#include "Data/PackData.h"
-#include "Data/ProfileData.h"
-#include "Data/StyleData.h"
 #include "Global/Assets.h"
 #include "Global/Config.h"
-#include "Utils/Utils.h"
-#include "Online/Online.h"
-#include "Utils/MD5.h"
 #include "Online/Definitions.h"
+#include "Online/Online.h"
+#include "Utils/Utils.h"
+#include "Utils/MD5.h"
 
 using namespace std;
 using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
-using namespace ssvs::FileSystem;
 using namespace hg::Utils;
-using namespace ssvs::UtilsJson;
+using namespace ssvu;
+using namespace ssvu::UtilsJson;
+using namespace ssvu::FileSystem;
 
 namespace hg
 {

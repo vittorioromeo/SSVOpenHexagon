@@ -10,7 +10,7 @@
 using namespace std;
 using namespace sf;
 using namespace ssvs;
-using namespace ssvs::Utils;
+using namespace ssvu::Utils;
 
 namespace hg
 {

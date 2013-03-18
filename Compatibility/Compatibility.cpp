@@ -1,3 +1,5 @@
+#include <SSVUtils.h>
+#include <SSVUtilsJson.h>
 #include <fstream>
 #include <unordered_set>
 #include <SSVStart.h>
@@ -12,7 +14,9 @@ using namespace std;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
-using namespace ssvs::UtilsJson;
+using namespace ssvu;
+using namespace ssvu::Utils;
+using namespace ssvu::UtilsJson;
 
 namespace hg
 {

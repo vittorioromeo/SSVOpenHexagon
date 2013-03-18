@@ -2,6 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
+#include <SSVUtils.h>
+#include <SSVUtilsJson.h>
 #include "Data/StyleData.h"
 #include "Utils/Utils.h"
 #include "Global/Config.h"
@@ -10,7 +12,9 @@ using namespace std;
 using namespace sf;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
-using namespace ssvs::UtilsJson;
+using namespace ssvu;
+using namespace ssvu::Utils;
+using namespace ssvu::UtilsJson;
 
 namespace hg
 {	

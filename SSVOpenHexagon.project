@@ -141,8 +141,10 @@
     </Configuration>
     <Configuration Name="Release" CompilerType="nuwen" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-W;-s;-pedantic;-O3;-Wextra;-std=c++11;-Wall" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
-        <IncludePath Value="../SSVEntitySystem"/>
+        <IncludePath Value="../SSVUtils"/>
+        <IncludePath Value="../SSVUtilsJson"/>
         <IncludePath Value="../SSVStart"/>
+        <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVLuaWrapper"/>
         <IncludePath Value="../SSVMenuSystem"/>
         <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/include"/>
@@ -151,16 +153,19 @@
         <IncludePath Value="D:/Vee/Software/Repos/sparsehash/build/built/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
+        <LibraryPath Value="../SSVUtils/_RELEASE"/>
+        <LibraryPath Value="../SSVUtilsJson/_RELEASE"/>
         <LibraryPath Value="../SSVStart/_RELEASE"/>
         <LibraryPath Value="../SSVEntitySystem/_RELEASE"/>
         <LibraryPath Value="../SSVLuaWrapper/_RELEASE"/>
-        <LibraryPath Value="../SSVSCollision/_RELEASE"/>
         <LibraryPath Value="../SSVMenuSystem/_RELEASE"/>
         <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib"/>
         <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw"/>
         <LibraryPath Value="c:/lua"/>
-        <Library Value="SSVEntitySystem"/>
+        <Library Value="SSVUtils"/>
+        <Library Value="SSVUtilsJson"/>
         <Library Value="SSVStart"/>
+        <Library Value="SSVEntitySystem"/>
         <Library Value="SSVLuaWrapper"/>
         <Library Value="SSVMenuSystem"/>
         <Library Value="sfml-window"/>

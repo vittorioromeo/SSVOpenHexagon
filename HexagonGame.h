@@ -5,7 +5,6 @@
 #ifndef HG_HEXAGONGAME
 #define HG_HEXAGONGAME
 
-#include <map>
 #include <vector>
 #include <queue>
 #include <SFML/Graphics.hpp>
@@ -13,6 +12,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 #include <json/json.h>
+#include <SSVUtils.h>
 #include <SSVStart.h>
 #include <SSVEntitySystem.h>
 #include "HGStatus.h"
@@ -22,9 +22,9 @@
 #include "Data/StyleData.h"
 #include "Global/Config.h"
 #include "Global/Factory.h"
+#include "Utils/FPSWatcher.h"
 #pragma GCC system_header
 #include <SSVLuaWrapper.h>
-#include "Utils/FPSWatcher.h"
 
 namespace hg
 {
@@ -46,7 +46,7 @@ namespace hg
 			MusicData musicData;
 			StyleData styleData;
 			sf::Music* musicPtr{nullptr};
-			ssvs::Timeline timeline, messageTimeline;
+			ssvu::Timeline timeline, messageTimeline;
 			sf::Text* messageTextPtr{nullptr};
 			std::vector<EventData*> eventPtrs;
 			std::queue<EventData*> eventPtrQueue;
@@ -67,7 +67,7 @@ namespace hg
 				try { return lua.callLuaFunction<R>(variableName, std::make_tuple(args...)); }
 				catch(std::runtime_error &error)
 				{
-					std::cout << variableName << std::endl << "LUA runtime error: " << std::endl << ssvs::Utils::toStr(error.what()) << std::endl << std::endl; 
+					std::cout << variableName << std::endl << "LUA runtime error: " << std::endl << ssvu::Utils::toStr(error.what()) << std::endl << std::endl;
 				}
 
 				return R();
