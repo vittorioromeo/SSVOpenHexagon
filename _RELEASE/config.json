@@ -53,5 +53,5 @@
 	"change_music": true,
 	
 	// Cheats
-	"invincible": true // Ignored in official mode
+	"invincible": false // Ignored in official mode
 }

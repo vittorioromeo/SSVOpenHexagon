@@ -77,3 +77,41 @@ function pTrapSpiral(mSide)
 
 	wait(delay * 2.5)
 end
+
+function pRCBarrage()
+	currentSides = getLevelValueInt("sides")
+	delay = getPerfectDelay(THICKNESS) * 3.7
+	startSide = math.random(0, 10)
+	for i = 0, currentSides - 2 do
+		currentSide = startSide + i
+		cWall(currentSide)
+	end
+	wait(delay * 2.5)
+end
+
+function pRCBarrageDouble()
+	currentSides = getLevelValueInt("sides")
+	delay = getPerfectDelay(THICKNESS) * 3.7
+	startSide = math.random(0, 10)
+	for i = 0, currentSides - 2 do
+		currentSide = startSide + i
+		holeSide = startSide + i + (currentSides / 2)
+		if(i ~= holeSide) then cWall(currentSide) end
+	end
+	wait(delay * 2.5)
+end
+
+function pRCBarrageSpin()
+	currentSides = getLevelValueInt("sides")
+	delay = getPerfectDelay(THICKNESS) * 3.7
+	startSide = math.random(0, 10)
+	loopDir = getRandomDir()
+	for j = 0, 2 do
+		for i = 0, currentSides - 2 do
+			currentSide = startSide + i
+			cWall(currentSide + (j * loopDir))
+		end
+		wait(delay + 1)
+	end
+	wait(delay * 2.5)
+end
