@@ -3,7 +3,7 @@
 	"online": true,
 
 	// Official mode - if set to false, you won't be eligible for online scores - this setting ignores some of the customizable options
-	"official": false, 
+	"official": true, 
 
 	// Window options
 	"fullscreen": true,
