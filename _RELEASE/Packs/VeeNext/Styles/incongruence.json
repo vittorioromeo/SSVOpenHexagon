@@ -1,6 +1,6 @@
 {
 	// Style data id
-	"id": "polyhedrug",
+	"id": "incongruence",
 
 	// Hue options
 	"hue_min": 0,
@@ -22,12 +22,11 @@
 	"3D_alpha_falloff": 16.0,
 
 	// Main color
-	"main": { "main": true, "dynamic": true, "value": [255, 0, 0, 255], "pulse": [-80, 75, 65, 0] },
+	"main": { "main": true, "dynamic": true, "value": [255, 155, 155, 230], "pulse": [50, -75, 125, 0] },
 
 	// Background colors
 	"colors":
 	[
-		{ "dynamic": true, "dynamic_offset": false, "dynamic_darkness": 8.7, "value": [0, 0, 0, 0], "pulse": [0, 0, 0, 0]},
-		{ "dynamic": true, "dynamic_offset": false, "dynamic_darkness": 9.5, "value": [0, 0, 0, 0], "pulse": [0, 0, 0, 0]}
+		{ "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [0, 0, 0, 0], "pulse": [0, 0, 0, 0]}
 	]
 }

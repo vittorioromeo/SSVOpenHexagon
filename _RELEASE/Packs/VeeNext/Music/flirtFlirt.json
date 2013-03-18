@@ -1,0 +1,21 @@
+{
+	// Music data id
+	"id": "flirtFlirt",
+
+	// Music file
+	"file_name": "flirtFlirt.ogg",
+
+	// Music information
+	"name": "Flirt Flirt Oh It Hurts",
+	"album": "Caps On, Hats Off",
+	"author": "BOSSFIGHT",
+	
+	// Segments
+	"segments":
+	[
+		{ "time": 17 },
+		{ "time": 39 },
+		{ "time": 86 },
+		{ "time": 165 }
+	]
+}
