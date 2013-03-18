@@ -6,7 +6,6 @@
 #include "Components/CPlayer.h"
 #include "Components/CWall.h"
 #include "Utils/Utils.h"
-#include "Global/Config.h"
 
 using namespace std;
 using namespace sf;

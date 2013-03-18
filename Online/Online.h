@@ -5,6 +5,8 @@
 #ifndef HG_SERVER
 #define HG_SERVER
 
+#include <json/json.h>
+
 namespace hg
 {
 	namespace Online

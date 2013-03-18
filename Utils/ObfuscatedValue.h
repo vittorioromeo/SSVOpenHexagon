@@ -5,7 +5,7 @@
 #ifndef HG_UTILS_OBFUSCATEDVALUE
 #define HG_UTILS_OBFUSCATEDVALUE
 
-#include <SSVStart.h>
+#include <SSVUtils.h>
 #include <string>
 #include <sstream>
 #include <type_traits>
@@ -28,7 +28,7 @@ namespace hg
 			public:
 				ObfuscatedValue(T mValue) { set(mValue); }
 
-				void set(T mValue) { dummy = mValue; encodedValue = base64_encode(ssvs::Utils::toStr(mValue)); }
+				void set(T mValue) { dummy = mValue; encodedValue = base64_encode(ssvu::Utils::toStr(mValue)); }
 				T get() const { return fromString(base64_decode(encodedValue)); }
 				operator T() const { return get(); }
 				T operator +=(const T& mValue) { set(get() + mValue); return get(); }

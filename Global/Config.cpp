@@ -3,10 +3,11 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include <iostream>
-#include <string>
 #include <fstream>
 #include <json/json.h>
 #include <json/reader.h>
+#include <SSVUtils.h>
+#include <SSVUtilsJson.h>
 #include "Global/Config.h"
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
@@ -16,8 +17,10 @@ using namespace std;
 using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
-using namespace ssvs::FileSystem;
-using namespace ssvs::UtilsJson;
+using namespace ssvu::FileSystem;
+using namespace ssvu::UtilsJson;
+using namespace ssvu;
+using namespace ssvu::Utils;
 
 namespace hg
 {

@@ -5,15 +5,13 @@
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
-#include "Global/Config.h"
 
 using namespace std;
 using namespace sf;
 using namespace ssvs;
-using namespace ssvs::Utils;
 using namespace sses;
 using namespace hg::Utils;
-using namespace ssvs::UtilsJson;
+using namespace ssvu::Utils;
 
 namespace hg
 {

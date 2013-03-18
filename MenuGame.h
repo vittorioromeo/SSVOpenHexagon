@@ -11,6 +11,7 @@
 #include <SSVMenuSystem.h>
 #include "Data/LevelData.h"
 #include "Data/StyleData.h"
+#include "Global/Assets.h"
 #include "Global/Config.h"
 
 namespace hg

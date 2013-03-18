@@ -3,16 +3,17 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include <fstream>
+#include <SSVUtilsJson.h>
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 
 using namespace std;
 using namespace sf;
-using namespace ssvs;
-using namespace ssvs::Utils;
 using namespace sses;
-using namespace ssvs::UtilsJson;
+using namespace ssvu;
+using namespace ssvu::Utils;
+using namespace ssvu::UtilsJson;
 
 namespace hg
 {
