@@ -80,7 +80,7 @@ namespace hg
 		for(unsigned int i{0}; i < elements.size(); ++i)
 		{
 			string element{"\"" + elements[i] + "\""};
-			original = predicates[i] ? replace(original, element + ": false", element + ": true") : replace(original, element + ": true", element + ": false");
+			original = predicates[i] ? getReplaced(original, element + ": false", element + ": true") : getReplaced(original, element + ": true", element + ": false");
 		}
 
 		f.open("config.json", fstream::out | fstream::trunc); f << original; f.flush(); f.close();

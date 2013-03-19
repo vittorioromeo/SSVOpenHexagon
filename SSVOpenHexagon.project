@@ -147,8 +147,8 @@
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVLuaWrapper"/>
         <IncludePath Value="../SSVMenuSystem"/>
-        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/include"/>
-        <IncludePath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/include"/>
+        <IncludePath Value="../SFML/include"/>
+        <IncludePath Value="../jsoncpp/include"/>
         <IncludePath Value="C:/lua/include"/>
         <IncludePath Value="D:/Vee/Software/Repos/sparsehash/build/built/include"/>
       </Compiler>
@@ -159,8 +159,8 @@
         <LibraryPath Value="../SSVEntitySystem/_RELEASE"/>
         <LibraryPath Value="../SSVLuaWrapper/_RELEASE"/>
         <LibraryPath Value="../SSVMenuSystem/_RELEASE"/>
-        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/SFML/build2/lib"/>
-        <LibraryPath Value="D:/Vee/Software/GitHub/OHWorkspace/jsoncpp/libs/mingw"/>
+        <LibraryPath Value="../SFML/build2/lib"/>
+        <LibraryPath Value="../jsoncpp/libs/mingw"/>
         <LibraryPath Value="c:/lua"/>
         <Library Value="SSVUtils"/>
         <Library Value="SSVUtilsJson"/>
