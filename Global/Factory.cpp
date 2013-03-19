@@ -14,10 +14,10 @@ namespace hg
 {
 	Factory::Factory(HexagonGame& mHexagonGame, Manager& mManager, Vector2f mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
 
-	Entity& Factory::createWall(int mSide, float mThickness, float mSpeedMultiplier)
+	Entity& Factory::createWall(int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration, float mMinSpeed, float mMaxSpeed)
 	{
 		auto& result = manager.createEntity();
-		result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeedMultiplier);
+		result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeedMultiplier, mAcceleration, mMinSpeed, mMaxSpeed);
 		return result;
 	}
 	Entity& Factory::createPlayer()
