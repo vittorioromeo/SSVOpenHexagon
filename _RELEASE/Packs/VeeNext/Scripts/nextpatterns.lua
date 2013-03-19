@@ -134,10 +134,10 @@ function pACBarrageMulti()
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
 		currentSide = startSide + i
-		wallSAcc(currentSide, 10, -1.09, 0.30, 10)
+		wallSAcc(currentSide, 10, -1.09, 0.31, 10)
 		wallSAcc(currentSide, 0, 0.05, 0, 4.0)
-		wallSAcc(currentSide, 0, 0.10, 0, 4.0)
-		wallSAcc(currentSide, 0, 0.15, 0, 4.0)
+		wallSAcc(currentSide, 0, 0.09, 0, 4.0)
+		wallSAcc(currentSide, 0, 0.12, 0, 4.0)
 	end
 	wait(delay * 8)
 end
@@ -150,9 +150,9 @@ function pACBarrageMultiAltDir()
 	loopDir = getRandomDir()
 	for i = 0, currentSides + getHalfSides() do
 		currentSide = startSide + i * loopDir
-		wallSAcc(currentSide, 10, -1.09, 0.40, 10)
-		wait((delay / 2.5) * (mdiff * 1.29))
-		wallSAcc(currentSide + getHalfSides(), 0, 0.13, 0, 1.4)
+		wallSAcc(currentSide, 10, -1.095, 0.40, 10)
+		wait((delay / 2.21) * (mdiff * 1.29))
+		wallSAcc(currentSide + (getHalfSides() * loopDir), 0, 0.128, 0, 1.4)
 	end
 	wait(delay * 8)
 end

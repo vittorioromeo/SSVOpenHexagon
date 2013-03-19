@@ -20,12 +20,12 @@
 	"difficulty_multipliers": [0.75, 1.25, 1.5],
 	
 	// Basic values
-	"speed_multiplier": 2.69,
-	"speed_increment": 0.12,
+	"speed_multiplier": 2.70,
+	"speed_increment": 0.11,
 	"rotation_speed": 0.27,
 	"rotation_increment": 0.045,
 	"delay_multiplier": 1.10,
-	"delay_increment": -0.05,
+	"delay_increment": -0.04,
 	"fast_spin": 71.00,
 	"sides": 6,
 	"sides_min": 0,
