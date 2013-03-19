@@ -76,8 +76,8 @@ namespace hg
 		factory.createPlayer();
 
 		// Timeline cleanup
-		timeline.clear();
-		messageTimeline.clear();
+		clearAndResetTimeline(timeline);
+		clearAndResetTimeline(messageTimeline);
 		effectTimelineManager.clear();
 
 		// FPSWatcher reset
@@ -180,7 +180,7 @@ namespace hg
 	void HexagonGame::changeLevel(string mId, bool mFirstTime) { newGame(mId, mFirstTime, difficultyMult); }
 	void HexagonGame::addMessage(string mMessage, float mDuration)
 	{
-		Text* text = new Text(mMessage, getFont("imagine.ttf"), 40 / getZoomFactor());
+		Text* text{new Text(mMessage, getFont("imagine.ttf"), 40 / getZoomFactor())};
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
