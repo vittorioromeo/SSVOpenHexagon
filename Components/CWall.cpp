@@ -13,8 +13,9 @@ using namespace ssvs::Utils;
 
 namespace hg
 {
-	CWall::CWall(Entity& mEntity, HexagonGame& mHexagonGame, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed) :
-		Component{mEntity, "wall"}, hexagonGame(mHexagonGame), centerPos{mCenterPos}, speed{mSpeed}, distance{mDistance}, thickness{mThickness}, side{mSide}
+	CWall::CWall(Entity& mEntity, HexagonGame& mHexagonGame, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
+		float mAcceleration, float mMinSpeed, float mMaxSpeed) : Component{mEntity, "wall"}, hexagonGame(mHexagonGame), centerPos{mCenterPos},
+		speed{mSpeed}, distance{mDistance}, thickness{mThickness}, acceleration{mAcceleration}, minSpeed{mMinSpeed}, maxSpeed{mMaxSpeed}, side{mSide} 
 	{
 		float div{360.f / hexagonGame.getSides()}, angle{div * side};
 
@@ -39,6 +40,13 @@ namespace hg
 
 	void CWall::update(float mFrameTime)
 	{
+		if(acceleration != 0)
+		{
+			speed += acceleration;
+			if(speed > maxSpeed) speed = maxSpeed;
+			else if(speed < minSpeed) speed = minSpeed;
+		}
+
 		float radius{hexagonGame.getRadius() * 0.65f};
 		int pointsOnCenter{0};
 

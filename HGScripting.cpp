@@ -121,7 +121,14 @@ namespace hg
 		lua.writeVariable("isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
 		lua.writeVariable("isFastSpinning",			[=]() 									{ return status.fastSpin > 0; });
 		
-		lua.writeVariable("wallAdj", 				[=](int mSide, float mThickness, float mSpeedAdj) 	{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier()); }); });
+		lua.writeVariable("wallAdj", [=](int mSide, float mThickness, float mSpeedAdj)
+		{
+			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier()); });
+		});
+		lua.writeVariable("wallAcc", [=](int mSide, float mThickness, float mAcceleration, float mMinSpeed, float mMaxSpeed)
+		{
+			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, getSpeedMultiplier(), mAcceleration, mMinSpeed, mMaxSpeed); });
+		});
 	}
 	void HexagonGame::runLuaFile(string mFileName)
 	{

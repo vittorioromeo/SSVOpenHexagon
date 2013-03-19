@@ -3,7 +3,7 @@
 	"online": true,
 
 	// Official mode - if set to false, you won't be eligible for online scores - this setting ignores some of the customizable options
-	"official": true, 
+	"official": false, 
 
 	// Window options
 	"fullscreen": true,
@@ -27,7 +27,7 @@
 	"no_rotation": false, // Ignored in official mode
 	"no_background": false, // Ignored in official mode
 	"black_and_white": false, // Ignored in official mode
-	"pulse_enabled": true, // Ignored in official mode
+	"pulse_enabled": false, // Ignored in official mode
 	"beatpulse_enabled": true, // Ignored in official mode
 	"3D_enabled": true,
 	"3D_multiplier": 1.0,

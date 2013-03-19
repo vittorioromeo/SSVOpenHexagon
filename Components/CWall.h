@@ -20,11 +20,12 @@ namespace hg
 			std::vector<sf::Vector2f> vertexPositions{4};
 			sf::VertexArray vertices{sf::PrimitiveType::Quads, 4};
 			std::vector<sf::Vector2f*> pointPtrs{&vertexPositions[0], &vertexPositions[1], &vertexPositions[2], &vertexPositions[3]};
-			float speed{0}, distance{0}, thickness{0};
+			float speed{0}, distance{0}, thickness{0}, acceleration{0}, minSpeed{0}, maxSpeed{0};
 			int side{0};
 
 		public:
-			CWall(sses::Entity& mEntity, HexagonGame& mHexagonGame, sf::Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed);
+			CWall(sses::Entity& mEntity, HexagonGame& mHexagonGame, sf::Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
+				float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
 
 			bool isOverlapping(sf::Vector2f mPoint);
 			void update(float mFrameTime) override;
