@@ -319,7 +319,7 @@ namespace hg
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
 		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25 + 45});
-		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 28 + 60.f * (countNewLines(levelData.getName()))});
+		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 28 + 60.f * (getNewLinesCount(levelData.getName()))});
 		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500 - 35});
 		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515 - 35});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530 - 35});

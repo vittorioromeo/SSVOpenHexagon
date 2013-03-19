@@ -117,7 +117,7 @@ namespace hg
 
 			for(unsigned int i{0}; i < oldValidators.size(); ++i)
 			{
-				scores = replaceAll(scores, oldValidators[i], newValidators[i]);
+				scores = getReplacedAll(scores, oldValidators[i], newValidators[i]);
 				log("replacing"); log(oldValidators[i]); log("with"); log(newValidators[i]); log("");
 			}
 
@@ -150,7 +150,7 @@ namespace hg
 
 			for(unsigned int i{0}; i < oldValidators.size(); ++i)
 			{
-				scores = replaceAll(scores, oldValidators[i], newValidators[i]);
+				scores = getReplacedAll(scores, oldValidators[i], newValidators[i]);
 				log("replacing"); log(oldValidators[i]); log("with"); log(newValidators[i]); log("");
 			}
 

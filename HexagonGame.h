@@ -39,7 +39,7 @@ namespace hg
 			ssvs::Camera backgroundCamera{window, {{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())}};
 			std::vector<ssvs::Camera> depthCameras;
-			ssvs::TimelineManager effectTimelineManager;
+			ssvu::TimelineManager effectTimelineManager;
 			Factory factory{*this, manager, {0, 0}};
 			Lua::LuaContext	lua;
 			LevelData levelData;

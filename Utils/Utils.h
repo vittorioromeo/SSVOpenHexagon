@@ -32,7 +32,7 @@ namespace hg
 
 		std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 
-		void shakeCamera(ssvs::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
+		void shakeCamera(ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 
 		std::unordered_set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
 		void recursiveFillIncludedLuaFileNames(std::unordered_set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
