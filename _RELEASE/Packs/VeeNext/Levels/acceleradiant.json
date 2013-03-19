@@ -1,40 +1,40 @@
 {
 	// Level information
-	"id": "polyhedrug",
-	"name": "polyhedrug",
-	"description": "ready to experience something different?",
+	"id": "acceleradiant",
+	"name": "acceleradiant",
+	"description": "dunno lol",
 	"author": "vee",	
-	"menu_priority": 40,
+	"menu_priority": 20,
 	"selectable": true,
 	
 	// Style
-	"style_id": "polyhedrug",
+	"style_id": "acceleradiant",
 	
 	// Music
-	"music_id": "johnnyDerp",
+	"music_id": "mrGawne",
 	
 	// Lua
-	"lua_file": "defaultLevels/polyhedrug.lua",
+	"lua_file": "defaultLevels/acceleradiant.lua",
 	
 	// Difficulty multipliers
 	"difficulty_multipliers": [0.75, 1.25, 1.5],
 	
 	// Basic values
-	"speed_multiplier": 2.00,
-	"speed_increment": 0,
+	"speed_multiplier": 2.26,
+	"speed_increment": 0.05,
 	"rotation_speed": 0.27,
 	"rotation_increment": 0.045,
-	"delay_multiplier": 1.13,
-	"delay_increment": -0.00,
+	"delay_multiplier": 1.09,
+	"delay_increment": -0.02,
 	"fast_spin": 71.00,
-	"sides": 4,
+	"sides": 6,
 	"sides_min": 0,
 	"sides_max": 0,
-	"increment_time": 10,
+	"increment_time": 15,
 	"rotation_speed_max": 0.38,
-	
-	"wall_skew_right": 12,
 
+	"wall_skew_left": 18,
+	
 	"pulse_min": 64,
 	"pulse_max": 84,
 	"pulse_speed": 1.05,

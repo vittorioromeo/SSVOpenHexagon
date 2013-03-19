@@ -125,9 +125,9 @@ namespace hg
 		{
 			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier()); });
 		});
-		lua.writeVariable("wallAcc", [=](int mSide, float mThickness, float mAcceleration, float mMinSpeed, float mMaxSpeed)
+		lua.writeVariable("wallAcc", [=](int mSide, float mThickness, float mSpeedAdj, float mAcceleration, float mMinSpeed, float mMaxSpeed)
 		{
-			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, getSpeedMultiplier(), mAcceleration, mMinSpeed, mMaxSpeed); });
+			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier(), mAcceleration, mMinSpeed * getSpeedMultiplier(), mMaxSpeed * getSpeedMultiplier()); });
 		});
 	}
 	void HexagonGame::runLuaFile(string mFileName)

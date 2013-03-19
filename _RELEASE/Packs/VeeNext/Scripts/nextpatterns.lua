@@ -4,6 +4,7 @@ execScript("utils.lua")
 execScript("alternativepatterns.lua")
 
 function wallSAdj(mSide, mAdj) wallAdj(mSide, THICKNESS, mAdj) end
+function wallSAcc(mSide, mAdj, mAcc, mMinSpd, mMaxSpd) wallAcc(mSide, THICKNESS, mAdj, mAcc * (getDifficultyMult()), mMinSpd, mMaxSpd) end
 
 function pTrapBarrage(mSide)
 	delay = getPerfectDelay(THICKNESS) * 3.7
@@ -114,4 +115,44 @@ function pRCBarrageSpin()
 		wait(delay + 1)
 	end
 	wait(delay * 2.5)
+end
+
+function pACBarrage()
+	currentSides = getLevelValueInt("sides")
+	delay = getPerfectDelay(THICKNESS) * 3.7
+	startSide = math.random(0, 10)
+	for i = 0, currentSides - 2 do
+		currentSide = startSide + i
+		wallSAcc(currentSide, 9 + math.random(0, 1), -1.1, 1, 12)
+	end
+	wait(delay * 2.5)
+end
+
+function pACBarrageMulti()
+	currentSides = getLevelValueInt("sides")
+	delay = getPerfectDelay(THICKNESS) * 3.7
+	startSide = math.random(0, 10)
+	for i = 0, currentSides - 2 do
+		currentSide = startSide + i
+		wallSAcc(currentSide, 10, -1.09, 0.30, 10)
+		wallSAcc(currentSide, 0, 0.05, 0, 4.0)
+		wallSAcc(currentSide, 0, 0.10, 0, 4.0)
+		wallSAcc(currentSide, 0, 0.15, 0, 4.0)
+	end
+	wait(delay * 8)
+end
+
+function pACBarrageMultiAltDir()
+	currentSides = getLevelValueInt("sides")
+	delay = getPerfectDelayDM(THICKNESS) * 4
+	mdiff = 1 + math.abs(1 - getDifficultyMult())
+	startSide = math.random(0, 10)
+	loopDir = getRandomDir()
+	for i = 0, currentSides + getHalfSides() do
+		currentSide = startSide + i * loopDir
+		wallSAcc(currentSide, 10, -1.09, 0.40, 10)
+		wait((delay / 2.5) * (mdiff * 1.29))
+		wallSAcc(currentSide + getHalfSides(), 0, 0.13, 0, 1.4)
+	end
+	wait(delay * 8)
 end

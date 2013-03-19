@@ -42,9 +42,9 @@ namespace hg
 	{
 		if(acceleration != 0)
 		{
-			speed += acceleration;
+			speed += acceleration * mFrameTime;
 			if(speed > maxSpeed) speed = maxSpeed;
-			else if(speed < minSpeed) speed = minSpeed;
+			if(speed < minSpeed) speed = minSpeed;
 		}
 
 		float radius{hexagonGame.getRadius() * 0.65f};
