@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <random>
-#include <SSVUtils.h>
+#include <SSVUtils/SSVUtils.h>
 #include <SSVStart.h>
 #include "Online/Online.h"
 #include "HexagonGame.h"
@@ -17,7 +17,6 @@
 using namespace std;
 using namespace ssvs;
 using namespace ssvu;
-using namespace ssvu::Utils;
 using namespace hg;
 
 int main(int argc, char* argv[])

@@ -3,8 +3,8 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include <string>
-#include <SSVUtils.h>
-#include <SSVUtilsJson.h>
+#include <SSVUtils/SSVUtils.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 #include "MenuGame.h"
@@ -17,8 +17,8 @@ using namespace ssvs::Input;
 using namespace sses;
 using namespace ssvms;
 using namespace hg::Utils;
-using namespace ssvu::Utils;
-using namespace ssvu::UtilsJson;
+using namespace ssvu;
+using namespace ssvuj;
 
 namespace hg
 {

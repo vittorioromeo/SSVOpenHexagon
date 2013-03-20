@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=vittorio.romeo
-Date                   :=19/03/2013
+Date                   :=20/03/2013
 CodeLitePath           :="C:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -38,7 +38,7 @@ MakeDirCommand         :=makedir
 RcCmpOptions           := 
 RcCompilerName         :=windres
 LinkOptions            :=  
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVUtils $(IncludeSwitch)../SSVUtilsJson $(IncludeSwitch)../SSVStart $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVLuaWrapper $(IncludeSwitch)../SSVMenuSystem $(IncludeSwitch)../SFML/include $(IncludeSwitch)../jsoncpp/include $(IncludeSwitch)C:/lua/include $(IncludeSwitch)D:/Vee/Software/Repos/sparsehash/build/built/include 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVUtils/include $(IncludeSwitch)../SSVUtilsJson/include $(IncludeSwitch)../SSVStart $(IncludeSwitch)../SSVEntitySystem $(IncludeSwitch)../SSVLuaWrapper $(IncludeSwitch)../SSVMenuSystem $(IncludeSwitch)../SFML/include $(IncludeSwitch)../jsoncpp/include $(IncludeSwitch)C:/lua/include $(IncludeSwitch)D:/Vee/Software/Repos/sparsehash/build/built/include 
 IncludePCH             := 
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)SSVUtils $(LibrarySwitch)SSVUtilsJson $(LibrarySwitch)SSVStart $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVLuaWrapper $(LibrarySwitch)SSVMenuSystem $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)sfml-network $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)lua5.1 $(LibrarySwitch)lua51 
@@ -64,8 +64,8 @@ UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXWIN:=C:\wxWidgets-2.9.4
 WXCFG:=gcc_dll\mswu
 Objects0=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) \
-	$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/Utils_MD5$(ObjectSuffix) \
-	$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IntermediateDirectory)/Utils_Base64$(ObjectSuffix) $(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) 
+	$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) \
+	$(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) 
 
 Objects=$(Objects0) 
 
@@ -242,14 +242,6 @@ $(IntermediateDirectory)/Utils_Utils$(DependSuffix): Utils/Utils.cpp
 $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix): Utils/Utils.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix) "Utils/Utils.cpp"
 
-$(IntermediateDirectory)/Utils_MD5$(ObjectSuffix): Utils/MD5.cpp $(IntermediateDirectory)/Utils_MD5$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/MD5.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_MD5$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Utils_MD5$(DependSuffix): Utils/MD5.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Utils_MD5$(ObjectSuffix) -MF$(IntermediateDirectory)/Utils_MD5$(DependSuffix) -MM "Utils/MD5.cpp"
-
-$(IntermediateDirectory)/Utils_MD5$(PreprocessSuffix): Utils/MD5.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_MD5$(PreprocessSuffix) "Utils/MD5.cpp"
-
 $(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix): Utils/FPSWatcher.cpp $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/FPSWatcher.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix): Utils/FPSWatcher.cpp
@@ -257,14 +249,6 @@ $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix): Utils/FPSWatcher.cpp
 
 $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix): Utils/FPSWatcher.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix) "Utils/FPSWatcher.cpp"
-
-$(IntermediateDirectory)/Utils_Base64$(ObjectSuffix): Utils/Base64.cpp $(IntermediateDirectory)/Utils_Base64$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/Base64.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_Base64$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Utils_Base64$(DependSuffix): Utils/Base64.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Utils_Base64$(ObjectSuffix) -MF$(IntermediateDirectory)/Utils_Base64$(DependSuffix) -MM "Utils/Base64.cpp"
-
-$(IntermediateDirectory)/Utils_Base64$(PreprocessSuffix): Utils/Base64.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_Base64$(PreprocessSuffix) "Utils/Base64.cpp"
 
 $(IntermediateDirectory)/Online_Online$(ObjectSuffix): Online/Online.cpp $(IntermediateDirectory)/Online_Online$(DependSuffix)
 	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Online/Online.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IncludePath)
@@ -345,15 +329,9 @@ clean:
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_MD5$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_MD5$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_MD5$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_Base64$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_Base64$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_Base64$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix)

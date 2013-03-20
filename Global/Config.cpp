@@ -6,8 +6,8 @@
 #include <fstream>
 #include <json/json.h>
 #include <json/reader.h>
-#include <SSVUtils.h>
-#include <SSVUtilsJson.h>
+#include <SSVUtils/SSVUtils.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include "Global/Config.h"
 #include "Global/Assets.h"
 #include "Utils/Utils.h"
@@ -18,9 +18,8 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace ssvu::FileSystem;
-using namespace ssvu::UtilsJson;
+using namespace ssvuj;
 using namespace ssvu;
-using namespace ssvu::Utils;
 
 namespace hg
 {
@@ -73,9 +72,9 @@ namespace hg
 		string original{buffer.str()};
 
 		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled",
-		"invincible", "auto_restart", "online", "official", "flash_enabled"};
+			"invincible", "auto_restart", "online", "official", "flash_enabled"};
 		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(),
-		getInvincible(), getAutoRestart(), getOnline(), getOfficial(), getFlash()};
+			getInvincible(), getAutoRestart(), getOnline(), getOfficial(), getFlash()};
 
 		for(unsigned int i{0}; i < elements.size(); ++i)
 		{

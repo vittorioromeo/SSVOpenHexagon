@@ -2,7 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <SSVUtils.h>
+#include <SSVUtils/SSVUtils.h>
 #include <SFML/System.hpp>
 #include "FPSWatcher.h"
 
@@ -11,7 +11,6 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace ssvu;
-using namespace ssvu::Utils;
 
 namespace hg
 {

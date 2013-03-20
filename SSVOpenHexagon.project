@@ -44,13 +44,8 @@
     <VirtualDirectory Name="Utils">
       <File Name="Utils/Utils.cpp"/>
       <File Name="Utils/Utils.h"/>
-      <File Name="Utils/MD5.h"/>
-      <File Name="Utils/MD5.cpp"/>
       <File Name="Utils/FPSWatcher.h"/>
       <File Name="Utils/FPSWatcher.cpp"/>
-      <File Name="Utils/ObfuscatedValue.h"/>
-      <File Name="Utils/Base64.h"/>
-      <File Name="Utils/Base64.cpp"/>
     </VirtualDirectory>
     <File Name="HGScripting.cpp"/>
     <File Name="HGUpdate.cpp"/>
@@ -141,8 +136,8 @@
     </Configuration>
     <Configuration Name="Release" CompilerType="nuwen" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-W;-s;-pedantic;-O3;-Wextra;-std=c++11;-Wall" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
-        <IncludePath Value="../SSVUtils"/>
-        <IncludePath Value="../SSVUtilsJson"/>
+        <IncludePath Value="../SSVUtils/include"/>
+        <IncludePath Value="../SSVUtilsJson/include"/>
         <IncludePath Value="../SSVStart"/>
         <IncludePath Value="../SSVEntitySystem"/>
         <IncludePath Value="../SSVLuaWrapper"/>

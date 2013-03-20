@@ -12,7 +12,7 @@
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
 #include <json/json.h>
-#include <SSVUtils.h>
+#include <SSVUtils/SSVUtils.h>
 #include <SSVStart.h>
 #include <SSVEntitySystem.h>
 #include "HGStatus.h"
@@ -67,7 +67,7 @@ namespace hg
 				try { return lua.callLuaFunction<R>(variableName, std::make_tuple(args...)); }
 				catch(std::runtime_error &error)
 				{
-					std::cout << variableName << std::endl << "LUA runtime error: " << std::endl << ssvu::Utils::toStr(error.what()) << std::endl << std::endl;
+					std::cout << variableName << std::endl << "LUA runtime error: " << std::endl << ssvu::toStr(error.what()) << std::endl << std::endl;
 				}
 
 				return R();
