@@ -6,13 +6,13 @@
 #define HG_STATUS
 
 #include <SFML/Graphics.hpp>
-#include "Utils/ObfuscatedValue.h"
+#include <SSVUtils/SSVUtils.h>
 
 namespace hg
 {
 	struct HexagonGameStatus
 	{
-		Utils::ObfuscatedValue<float> currentTime{0};
+		ssvu::ObfuscatedValue<float> currentTime{0};
 		float incrementTime{0}, timeStop{50};
 		float pulse{75}, pulseDirection{1}, pulseDelay{0}, pulseDelayHalf{0};
 		float beatPulse{0}, beatPulseDelay{0};
@@ -26,7 +26,7 @@ namespace hg
 		bool drawing3D{false};
 		bool scoreInvalid{false};
 		sf::Color overrideColor{0, 0, 0, 0};
-		Utils::ObfuscatedValue<float> lostFrames{0};
+		ssvu::ObfuscatedValue<float> lostFrames{0};
 	};
 }
 

@@ -1,11 +1,10 @@
-#include <SSVUtils.h>
-#include <SSVUtilsJson.h>
 #include <fstream>
 #include <unordered_set>
+#include <SSVUtils/SSVUtils.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SSVStart.h>
 #include "Compatibility/Compatibility.h"
 #include "Utils/Utils.h"
-#include "Utils/MD5.h"
 #include "Global/Assets.h"
 #include "Online/Online.h"
 #include "Online/Definitions.h"
@@ -15,8 +14,7 @@ using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
 using namespace ssvu;
-using namespace ssvu::Utils;
-using namespace ssvu::UtilsJson;
+using namespace ssvuj;
 
 namespace hg
 {

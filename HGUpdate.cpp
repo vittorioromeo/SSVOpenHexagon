@@ -2,15 +2,15 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <SSVUtils.h>
-#include <SSVUtilsJson.h>
+#include <SSVUtils/SSVUtils.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include "Utils/Utils.h"
 #include "HexagonGame.h"
 
 using namespace std;
 using namespace sf;
 using namespace ssvs;
-using namespace ssvu::Utils;
+using namespace ssvu;
 using namespace sses;
 
 namespace hg

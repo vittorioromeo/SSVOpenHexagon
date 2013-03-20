@@ -11,7 +11,6 @@
 using namespace std;
 using namespace sf;
 using namespace ssvu;
-using namespace ssvu::Utils;
 using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace sses;

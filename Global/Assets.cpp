@@ -5,8 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-#include <SSVUtils.h>
-#include <SSVUtilsJson.h>
+#include <SSVUtils/SSVUtils.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SFML/Graphics.hpp>
 #include <json/json.h>
 #include <json/reader.h>
@@ -15,7 +15,6 @@
 #include "Online/Definitions.h"
 #include "Online/Online.h"
 #include "Utils/Utils.h"
-#include "Utils/MD5.h"
 
 using namespace std;
 using namespace sf;
@@ -23,7 +22,7 @@ using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
 using namespace ssvu;
-using namespace ssvu::UtilsJson;
+using namespace ssvuj;
 using namespace ssvu::FileSystem;
 
 namespace hg
