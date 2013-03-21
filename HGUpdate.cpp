@@ -140,7 +140,7 @@ namespace hg
 	void HexagonGame::updateFlash(float mFrameTime)
 	{
 		if(status.flashEffect > 0) status.flashEffect -= 3 * mFrameTime;
-		status.flashEffect = clamp(status.flashEffect, 0.f, 255.f);
+		status.flashEffect = getClamped(status.flashEffect, 0.f, 255.f);
 		for(int i{0}; i < 4; i++) flashPolygon[i].color.a = status.flashEffect;
 	}
 	void HexagonGame::update3D(float mFrameTime)

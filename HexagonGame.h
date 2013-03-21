@@ -20,6 +20,7 @@
 #include "Data/MusicData.h"
 #include "Data/EventData.h"
 #include "Data/StyleData.h"
+#include "Global/Assets.h"
 #include "Global/Config.h"
 #include "Global/Factory.h"
 #include "Utils/FPSWatcher.h"
@@ -58,6 +59,7 @@ namespace hg
 			int inputMovement{0};
 			bool inputFocused{false}, mustTakeScreenshot{false};
 			FPSWatcher fpsWatcher;
+			sf::Text text{"", getFont("imagine.ttf"), 25 / getZoomFactor()};
 
 			// LUA-related methods
 			void initLua();

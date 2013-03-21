@@ -2,11 +2,13 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
+#include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include "Data/LevelData.h"
 #include "Utils/Utils.h"
 
 using namespace std;
+using namespace ssvu;
 using namespace ssvuj;
 
 namespace hg
@@ -26,7 +28,7 @@ namespace hg
 	string LevelData::getLuaScriptPath()			{ return luaScriptPath; }
 
 	Json::Value& LevelData::getRoot()				{ return root; }
-	string LevelData::getId() 						{ return getPackPath() + root["id"].asString(); }
+	string LevelData::getId() 						{ return getPackPath() + getValue<string>(root, "id"); }
 	string LevelData::getName() 					{ return getValue<string>(root, "name"); }
 	string LevelData::getDescription() 				{ return getValue<string>(root, "description"); }
 	string LevelData::getAuthor() 					{ return getValue<string>(root, "author"); }
@@ -56,12 +58,10 @@ namespace hg
 	float LevelData::getRadiusMin() 				{ return getValueOrDefault(root, "radius_min", 72.f); }
 	vector<float> LevelData::getDifficultyMultipliers()
 	{
-		vector<float> result{1.0f};
-		if(root.isMember("difficulty_multipliers")) for(Json::Value f : root["difficulty_multipliers"]) result.push_back(f.asFloat());
-		sort(begin(result), end(result));
-		return result;
+		vector<float> result{getArrayOrDefault<float>(root, "difficulty_multipliers", {})};
+		result.push_back(1.0f);
+		sort(result); return result;
 	}
-
 	vector<Json::Value>& LevelData::getEvents()		{ return events; }
 
 	void LevelData::setSpeedMultiplier(float mSpeedMultiplier)  { root["speed_multiplier"] = mSpeedMultiplier; }
@@ -69,11 +69,12 @@ namespace hg
 	void LevelData::setRotationSpeed(float mRotationSpeed) 		{ root["rotation_speed"] = mRotationSpeed; }
 
 	void LevelData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
-	float LevelData::getValueFloat(const string& mValueName)						{ return root[mValueName].asFloat(); }
 	void LevelData::setValueInt(const string& mValueName, int mValue)				{ root[mValueName] = mValue; }
-	float LevelData::getValueInt(const string& mValueName)							{ return root[mValueName].asInt(); }
 	void LevelData::setValueString(const string& mValueName, const string& mValue)	{ root[mValueName] = mValue; }
-	string LevelData::getValueString(const string& mValueName)						{ return root[mValueName].asString(); }
 	void LevelData::setValueBool(const string& mValueName, bool mValue)				{ root[mValueName] = mValue; }
-	bool LevelData::getValueBool(const string& mValueName)							{ return root[mValueName].asBool(); }
+
+	float LevelData::getValueFloat(const string& mValueName)						{ return getValue<float>(root, mValueName); }
+	float LevelData::getValueInt(const string& mValueName)							{ return getValue<int>(root, mValueName); }
+	string LevelData::getValueString(const string& mValueName)						{ return getValue<string>(root, mValueName); }
+	bool LevelData::getValueBool(const string& mValueName)							{ return getValue<bool>(root, mValueName); }
 }

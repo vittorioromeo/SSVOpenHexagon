@@ -23,12 +23,12 @@ namespace hg
 		public:
 			EventData(Json::Value mRoot);
 
-			std::string getId();
-			bool getFinished();
+			void update(float mFrameTime);
 
 			void setHexagonGamePtr(HexagonGame* mHgPtr);
 
-			void update(float mFrameTime);
+			std::string getId();
+			bool getFinished();
 	};
 }
 
