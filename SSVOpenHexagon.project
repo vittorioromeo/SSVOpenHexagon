@@ -145,10 +145,10 @@
     </Configuration>
     <Configuration Name="Release" CompilerType="nuwen" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-W;-s;-pedantic;-O3;-Wextra;-std=c++11;-Wall" C_Options="-O2;-Wall" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+        <IncludePath Value="../SSVStart/include/"/>
         <IncludePath Value="../SSVUtils/include/"/>
         <IncludePath Value="../SSVUtilsJson/include/"/>
-        <IncludePath Value="../SSVStart/include/"/>
-        <IncludePath Value="../SSVEntitySystem"/>
+        <IncludePath Value="../SSVEntitySystem/"/>
         <IncludePath Value="../SSVLuaWrapper"/>
         <IncludePath Value="../SSVMenuSystem"/>
         <IncludePath Value="../SFML/include"/>
