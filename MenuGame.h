@@ -8,7 +8,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <SSVStart/SSVStart.h>
-#include <SSVMenuSystem.h>
+#include <SSVMenuSystem/SSVMenuSystem.h>
 #include "Data/LevelData.h"
 #include "Data/StyleData.h"
 #include "Global/Assets.h"
