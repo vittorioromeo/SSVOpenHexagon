@@ -6,7 +6,6 @@
 #define HG_UTILS_FPSWATCHER
 
 #include <SSVStart/SSVStart.h>
-#include "Utils/ThreadWrapper.h"
 
 namespace hg
 {
