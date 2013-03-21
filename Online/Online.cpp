@@ -7,7 +7,7 @@
 #include <SFML/Network.hpp>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVStart.h>
+#include <SSVStart/SSVStart.h>
 #include "Online/Online.h"
 #include "Global/Config.h"
 #include "Online/Definitions.h"

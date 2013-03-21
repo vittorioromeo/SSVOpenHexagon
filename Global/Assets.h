@@ -6,7 +6,7 @@
 #define HG_ASSETS
 
 #include <string>
-#include <SSVStart.h>
+#include <SSVStart/SSVStart.h>
 #include <SFML/Audio.hpp>
 #include "Data/EventData.h"
 #include "Data/LevelData.h"

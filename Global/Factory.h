@@ -5,7 +5,7 @@
 #ifndef HG_FACTORY
 #define HG_FACTORY
 
-#include <SSVStart.h>
+#include <SSVStart/SSVStart.h>
 #include <SSVEntitySystem.h>
 
 namespace hg

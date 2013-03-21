@@ -6,7 +6,7 @@
 #define HG_CONFIG
 
 #include <string>
-#include <SSVStart.h>
+#include <SSVStart/SSVStart.h>
 
 namespace hg
 {

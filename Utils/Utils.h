@@ -11,7 +11,7 @@
 #include <json/json.h>
 #include <json/reader.h>
 #include <SFML/Graphics.hpp>
-#include <SSVStart.h>
+#include <SSVStart/SSVStart.h>
 #include "Data/LevelData.h"
 #include "Data/ProfileData.h"
 #include "Data/MusicData.h"

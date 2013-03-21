@@ -13,7 +13,7 @@
 #include <SFML/Audio.hpp>
 #include <json/json.h>
 #include <SSVUtils/SSVUtils.h>
-#include <SSVStart.h>
+#include <SSVStart/SSVStart.h>
 #include <SSVEntitySystem.h>
 #include "HGStatus.h"
 #include "Data/LevelData.h"

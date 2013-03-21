@@ -6,7 +6,7 @@
 #include <string>
 #include <random>
 #include <SSVUtils/SSVUtils.h>
-#include <SSVStart.h>
+#include <SSVStart/SSVStart.h>
 #include "Online/Online.h"
 #include "HexagonGame.h"
 #include "MenuGame.h"
