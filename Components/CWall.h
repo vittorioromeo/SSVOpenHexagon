@@ -6,7 +6,7 @@
 #define HG_CWALL
 
 #include <SFML/Graphics.hpp>
-#include <SSVEntitySystem.h>
+#include <SSVEntitySystem/SSVEntitySystem.h>
 
 namespace hg
 {

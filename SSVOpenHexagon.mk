@@ -41,9 +41,9 @@ LinkOptions            :=
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)../SSVStart/include/ $(IncludeSwitch)../SSVUtils/include/ $(IncludeSwitch)../SSVUtilsJson/include/ $(IncludeSwitch)../SSVEntitySystem/include/ $(IncludeSwitch)../SSVLuaWrapper/include/ $(IncludeSwitch)../SSVMenuSystem/include/ $(IncludeSwitch)../SFML/include $(IncludeSwitch)../jsoncpp/include $(IncludeSwitch)C:/lua/include 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)SSVUtils $(LibrarySwitch)SSVUtilsJson $(LibrarySwitch)SSVStart $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVLuaWrapper $(LibrarySwitch)SSVMenuSystem $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)sfml-network $(LibrarySwitch)json_mingw_libmt $(LibrarySwitch)lua5.1 $(LibrarySwitch)lua51 
-ArLibs                 :=  "SSVUtils" "SSVUtilsJson" "SSVStart" "SSVEntitySystem" "SSVLuaWrapper" "SSVMenuSystem" "sfml-window" "sfml-graphics" "sfml-system" "sfml-audio" "sfml-network" "json_mingw_libmt" "lua5.1" "lua51" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVUtils/_RELEASE/ $(LibraryPathSwitch)../SSVUtilsJson/_RELEASE/ $(LibraryPathSwitch)../SSVStart/_RELEASE/ $(LibraryPathSwitch)../SSVEntitySystem/_RELEASE/ $(LibraryPathSwitch)../SSVLuaWrapper/_RELEASE/ $(LibraryPathSwitch)../SSVMenuSystem/_RELEASE/ $(LibraryPathSwitch)../SFML/build2/lib/ 
+Libs                   := $(LibrarySwitch)SSVUtils $(LibrarySwitch)SSVUtilsJson $(LibrarySwitch)SSVStart $(LibrarySwitch)SSVEntitySystem $(LibrarySwitch)SSVLuaWrapper $(LibrarySwitch)SSVMenuSystem $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)sfml-network $(LibrarySwitch)lua51 
+ArLibs                 :=  "SSVUtils" "SSVUtilsJson" "SSVStart" "SSVEntitySystem" "SSVLuaWrapper" "SSVMenuSystem" "sfml-window" "sfml-graphics" "sfml-system" "sfml-audio" "sfml-network" "lua51" 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVUtils/_RELEASE/ $(LibraryPathSwitch)../SSVUtilsJson/_RELEASE/ $(LibraryPathSwitch)../SSVStart/_RELEASE/ $(LibraryPathSwitch)../SSVEntitySystem/_RELEASE/ $(LibraryPathSwitch)../SSVLuaWrapper/_RELEASE/ $(LibraryPathSwitch)../SSVMenuSystem/_RELEASE/ $(LibraryPathSwitch)../SFML/build2/lib/ $(LibraryPathSwitch)c:/lua 
 
 ##
 ## Common variables
