@@ -75,34 +75,30 @@ namespace hg
 		if(status.scoreInvalid) s << "score invalidated (performance issues)" << endl;
 		if(status.hasDied) s << "press r to restart" << endl;
 
+		Vector2f pos{15, 3};
 		vector<Vector2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 		Color offsetColor{getColor(1)};
 		if(getBlackAndWhite()) offsetColor = Color::Black;
-		Text timeText(s.str(), getFont("imagine.ttf"), 25 / getZoomFactor());
-		timeText.setPosition(15, 3);
-		timeText.setColor(getColorMain());
+		text.setString(s.str());
+		text.setCharacterSize(25 / getZoomFactor());
+		text.setOrigin(0, 0);
 
-		for(auto& offset : offsets)
-		{
-			Text timeOffsetText(s.str(), getFont("imagine.ttf"), timeText.getCharacterSize());
-			timeOffsetText.setPosition(timeText.getPosition() + offset);
-			timeOffsetText.setColor(offsetColor);
-			render(timeOffsetText);
-		}
+		text.setColor(offsetColor);
+		for(auto& o : offsets) { text.setPosition(pos + o); render(text); }
 
-		render(timeText);
-
+		text.setColor(getColorMain());
+		text.setPosition(pos);
+		render(text);
+		
 		if(messageTextPtr == nullptr) return;
 
-		for(auto& offset : offsets)
-		{
-			Text textPtrOffset{messageTextPtr->getString(), getFont("imagine.ttf"), messageTextPtr->getCharacterSize()};
-			textPtrOffset.setPosition(messageTextPtr->getPosition() + offset);
-			textPtrOffset.setOrigin(textPtrOffset.getGlobalBounds().width / 2, 0);
-			textPtrOffset.setColor(offsetColor);
-			render(textPtrOffset);
-		}
+		text.setString(messageTextPtr->getString());
+		text.setCharacterSize(messageTextPtr->getCharacterSize());
+		text.setOrigin(text.getGlobalBounds().width / 2, 0);
+
+		text.setColor(offsetColor);
+		for(auto& o : offsets) { text.setPosition(messageTextPtr->getPosition() + o); render(text); }
 
 		messageTextPtr->setColor(getColorMain());
 		render(*messageTextPtr);

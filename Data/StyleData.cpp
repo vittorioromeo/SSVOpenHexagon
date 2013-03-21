@@ -40,10 +40,10 @@ namespace hg
 		}
 
 		Color pulse{getColorFromJsonArray(mColorRoot["pulse"])};
-		return Color(clamp(color.r + pulse.r * pulseFactor, 0.f, 255.f),
-					 clamp(color.g + pulse.g * pulseFactor, 0.f, 255.f),
-					 clamp(color.b + pulse.b * pulseFactor, 0.f, 255.f),
-					 clamp(color.a + pulse.a * pulseFactor, 0.f, 255.f));
+		return Color(getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f),
+					 getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f),
+					 getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f),
+					 getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f));
 	}
 
 	StyleData::StyleData(Json::Value mRoot) : root{mRoot}, currentHue{getHueMin()} { }
