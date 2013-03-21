@@ -148,24 +148,21 @@
         <IncludePath Value="../SSVStart/include/"/>
         <IncludePath Value="../SSVUtils/include/"/>
         <IncludePath Value="../SSVUtilsJson/include/"/>
-        <IncludePath Value="../SSVEntitySystem/"/>
+        <IncludePath Value="../SSVEntitySystem/include/"/>
         <IncludePath Value="../SSVLuaWrapper/include/"/>
         <IncludePath Value="../SSVMenuSystem/include/"/>
         <IncludePath Value="../SFML/include"/>
         <IncludePath Value="../jsoncpp/include"/>
         <IncludePath Value="C:/lua/include"/>
-        <IncludePath Value="D:/Vee/Software/Repos/sparsehash/build/built/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
-        <LibraryPath Value="../SSVUtils/_RELEASE"/>
-        <LibraryPath Value="../SSVUtilsJson/_RELEASE"/>
-        <LibraryPath Value="../SSVStart/_RELEASE"/>
-        <LibraryPath Value="../SSVEntitySystem/_RELEASE"/>
-        <LibraryPath Value="../SSVLuaWrapper/_RELEASE"/>
-        <LibraryPath Value="../SSVMenuSystem/_RELEASE"/>
-        <LibraryPath Value="../SFML/build2/lib"/>
-        <LibraryPath Value="../jsoncpp/libs/mingw"/>
-        <LibraryPath Value="c:/lua"/>
+        <LibraryPath Value="../SSVUtils/_RELEASE/"/>
+        <LibraryPath Value="../SSVUtilsJson/_RELEASE/"/>
+        <LibraryPath Value="../SSVStart/_RELEASE/"/>
+        <LibraryPath Value="../SSVEntitySystem/_RELEASE/"/>
+        <LibraryPath Value="../SSVLuaWrapper/_RELEASE/"/>
+        <LibraryPath Value="../SSVMenuSystem/_RELEASE/"/>
+        <LibraryPath Value="../SFML/build2/lib/"/>
         <Library Value="SSVUtils"/>
         <Library Value="SSVUtilsJson"/>
         <Library Value="SSVStart"/>

@@ -6,7 +6,7 @@
 #define HG_CPLAYER
 
 #include <SFML/Graphics.hpp>
-#include <SSVEntitySystem.h>
+#include <SSVEntitySystem/SSVEntitySystem.h>
 #include "Global/Config.h"
 
 namespace hg
