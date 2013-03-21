@@ -149,7 +149,7 @@
         <IncludePath Value="../SSVUtils/include/"/>
         <IncludePath Value="../SSVUtilsJson/include/"/>
         <IncludePath Value="../SSVEntitySystem/"/>
-        <IncludePath Value="../SSVLuaWrapper"/>
+        <IncludePath Value="../SSVLuaWrapper/include/"/>
         <IncludePath Value="../SSVMenuSystem/include/"/>
         <IncludePath Value="../SFML/include"/>
         <IncludePath Value="../jsoncpp/include"/>
