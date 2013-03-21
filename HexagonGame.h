@@ -14,7 +14,7 @@
 #include <json/json.h>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVStart/SSVStart.h>
-#include <SSVEntitySystem.h>
+#include <SSVEntitySystem/SSVEntitySystem.h>
 #include "HGStatus.h"
 #include "Data/LevelData.h"
 #include "Data/MusicData.h"
