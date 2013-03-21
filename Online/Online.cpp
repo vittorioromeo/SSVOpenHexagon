@@ -12,7 +12,6 @@
 #include "Global/Config.h"
 #include "Online/Definitions.h"
 #include "Utils/Utils.h"
-#include "Utils/ThreadWrapper.h"
 
 using namespace std;
 using namespace sf;
