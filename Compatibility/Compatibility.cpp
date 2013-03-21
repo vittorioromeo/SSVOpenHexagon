@@ -2,7 +2,7 @@
 #include <unordered_set>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVStart.h>
+#include <SSVStart/SSVStart.h>
 #include "Compatibility/Compatibility.h"
 #include "Utils/Utils.h"
 #include "Global/Assets.h"
