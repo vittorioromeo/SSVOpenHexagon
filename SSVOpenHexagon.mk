@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=vittorio.romeo
-Date                   :=21/03/2013
+Date                   :=22/03/2013
 CodeLitePath           :="C:\Program Files (x86)\CodeLite"
 LinkerName             :=g++
 SharedObjectLinkerName :=g++ -shared -fPIC
@@ -63,9 +63,9 @@ CodeLiteDir:=C:\Program Files (x86)\CodeLite
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 WXWIN:=C:\wxWidgets-2.9.4
 WXCFG:=gcc_dll\mswu
-Objects0=$(IntermediateDirectory)/main$(ObjectSuffix) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) \
-	$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) \
-	$(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IntermediateDirectory)/Core_HGGraphics$(ObjectSuffix) $(IntermediateDirectory)/Core_HGProperties$(ObjectSuffix) $(IntermediateDirectory)/Core_HGScripting$(ObjectSuffix) $(IntermediateDirectory)/Core_HGUpdate$(ObjectSuffix) $(IntermediateDirectory)/Core_HexagonGame$(ObjectSuffix) $(IntermediateDirectory)/Core_MenuGame$(ObjectSuffix) $(IntermediateDirectory)/Core_main$(ObjectSuffix) \
+	$(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix) $(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IntermediateDirectory)/Online_Online$(ObjectSuffix) \
+	$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) 
 
 Objects=$(Objects0) 
 
@@ -90,181 +90,181 @@ PreBuild:
 ##
 ## Objects
 ##
-$(IntermediateDirectory)/main$(ObjectSuffix): main.cpp $(IntermediateDirectory)/main$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/main$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/main$(DependSuffix): main.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/main$(ObjectSuffix) -MF$(IntermediateDirectory)/main$(DependSuffix) -MM "main.cpp"
+$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix): src/SSVOpenHexagon/Compatibility/Compatibility.cpp $(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Compatibility/Compatibility.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix): src/SSVOpenHexagon/Compatibility/Compatibility.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) -MF$(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix) -MM "src/SSVOpenHexagon/Compatibility/Compatibility.cpp"
 
-$(IntermediateDirectory)/main$(PreprocessSuffix): main.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/main$(PreprocessSuffix) "main.cpp"
+$(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix): src/SSVOpenHexagon/Compatibility/Compatibility.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix) "src/SSVOpenHexagon/Compatibility/Compatibility.cpp"
 
-$(IntermediateDirectory)/HexagonGame$(ObjectSuffix): HexagonGame.cpp $(IntermediateDirectory)/HexagonGame$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HexagonGame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HexagonGame$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HexagonGame$(DependSuffix): HexagonGame.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HexagonGame$(ObjectSuffix) -MF$(IntermediateDirectory)/HexagonGame$(DependSuffix) -MM "HexagonGame.cpp"
+$(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix): src/SSVOpenHexagon/Components/CPlayer.cpp $(IntermediateDirectory)/Components_CPlayer$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Components/CPlayer.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Components_CPlayer$(DependSuffix): src/SSVOpenHexagon/Components/CPlayer.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) -MF$(IntermediateDirectory)/Components_CPlayer$(DependSuffix) -MM "src/SSVOpenHexagon/Components/CPlayer.cpp"
 
-$(IntermediateDirectory)/HexagonGame$(PreprocessSuffix): HexagonGame.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HexagonGame$(PreprocessSuffix) "HexagonGame.cpp"
+$(IntermediateDirectory)/Components_CPlayer$(PreprocessSuffix): src/SSVOpenHexagon/Components/CPlayer.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Components_CPlayer$(PreprocessSuffix) "src/SSVOpenHexagon/Components/CPlayer.cpp"
 
-$(IntermediateDirectory)/MenuGame$(ObjectSuffix): MenuGame.cpp $(IntermediateDirectory)/MenuGame$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/MenuGame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/MenuGame$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/MenuGame$(DependSuffix): MenuGame.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/MenuGame$(ObjectSuffix) -MF$(IntermediateDirectory)/MenuGame$(DependSuffix) -MM "MenuGame.cpp"
+$(IntermediateDirectory)/Components_CWall$(ObjectSuffix): src/SSVOpenHexagon/Components/CWall.cpp $(IntermediateDirectory)/Components_CWall$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Components/CWall.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Components_CWall$(DependSuffix): src/SSVOpenHexagon/Components/CWall.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Components_CWall$(ObjectSuffix) -MF$(IntermediateDirectory)/Components_CWall$(DependSuffix) -MM "src/SSVOpenHexagon/Components/CWall.cpp"
 
-$(IntermediateDirectory)/MenuGame$(PreprocessSuffix): MenuGame.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/MenuGame$(PreprocessSuffix) "MenuGame.cpp"
+$(IntermediateDirectory)/Components_CWall$(PreprocessSuffix): src/SSVOpenHexagon/Components/CWall.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Components_CWall$(PreprocessSuffix) "src/SSVOpenHexagon/Components/CWall.cpp"
 
-$(IntermediateDirectory)/HGScripting$(ObjectSuffix): HGScripting.cpp $(IntermediateDirectory)/HGScripting$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGScripting.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGScripting$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HGScripting$(DependSuffix): HGScripting.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGScripting$(ObjectSuffix) -MF$(IntermediateDirectory)/HGScripting$(DependSuffix) -MM "HGScripting.cpp"
+$(IntermediateDirectory)/Core_HGGraphics$(ObjectSuffix): src/SSVOpenHexagon/Core/HGGraphics.cpp $(IntermediateDirectory)/Core_HGGraphics$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGGraphics.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Core_HGGraphics$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Core_HGGraphics$(DependSuffix): src/SSVOpenHexagon/Core/HGGraphics.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Core_HGGraphics$(ObjectSuffix) -MF$(IntermediateDirectory)/Core_HGGraphics$(DependSuffix) -MM "src/SSVOpenHexagon/Core/HGGraphics.cpp"
 
-$(IntermediateDirectory)/HGScripting$(PreprocessSuffix): HGScripting.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGScripting$(PreprocessSuffix) "HGScripting.cpp"
+$(IntermediateDirectory)/Core_HGGraphics$(PreprocessSuffix): src/SSVOpenHexagon/Core/HGGraphics.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Core_HGGraphics$(PreprocessSuffix) "src/SSVOpenHexagon/Core/HGGraphics.cpp"
 
-$(IntermediateDirectory)/HGUpdate$(ObjectSuffix): HGUpdate.cpp $(IntermediateDirectory)/HGUpdate$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGUpdate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGUpdate$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HGUpdate$(DependSuffix): HGUpdate.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGUpdate$(ObjectSuffix) -MF$(IntermediateDirectory)/HGUpdate$(DependSuffix) -MM "HGUpdate.cpp"
+$(IntermediateDirectory)/Core_HGProperties$(ObjectSuffix): src/SSVOpenHexagon/Core/HGProperties.cpp $(IntermediateDirectory)/Core_HGProperties$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGProperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Core_HGProperties$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Core_HGProperties$(DependSuffix): src/SSVOpenHexagon/Core/HGProperties.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Core_HGProperties$(ObjectSuffix) -MF$(IntermediateDirectory)/Core_HGProperties$(DependSuffix) -MM "src/SSVOpenHexagon/Core/HGProperties.cpp"
 
-$(IntermediateDirectory)/HGUpdate$(PreprocessSuffix): HGUpdate.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGUpdate$(PreprocessSuffix) "HGUpdate.cpp"
+$(IntermediateDirectory)/Core_HGProperties$(PreprocessSuffix): src/SSVOpenHexagon/Core/HGProperties.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Core_HGProperties$(PreprocessSuffix) "src/SSVOpenHexagon/Core/HGProperties.cpp"
 
-$(IntermediateDirectory)/HGProperties$(ObjectSuffix): HGProperties.cpp $(IntermediateDirectory)/HGProperties$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGProperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGProperties$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HGProperties$(DependSuffix): HGProperties.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGProperties$(ObjectSuffix) -MF$(IntermediateDirectory)/HGProperties$(DependSuffix) -MM "HGProperties.cpp"
+$(IntermediateDirectory)/Core_HGScripting$(ObjectSuffix): src/SSVOpenHexagon/Core/HGScripting.cpp $(IntermediateDirectory)/Core_HGScripting$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGScripting.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Core_HGScripting$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Core_HGScripting$(DependSuffix): src/SSVOpenHexagon/Core/HGScripting.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Core_HGScripting$(ObjectSuffix) -MF$(IntermediateDirectory)/Core_HGScripting$(DependSuffix) -MM "src/SSVOpenHexagon/Core/HGScripting.cpp"
 
-$(IntermediateDirectory)/HGProperties$(PreprocessSuffix): HGProperties.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGProperties$(PreprocessSuffix) "HGProperties.cpp"
+$(IntermediateDirectory)/Core_HGScripting$(PreprocessSuffix): src/SSVOpenHexagon/Core/HGScripting.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Core_HGScripting$(PreprocessSuffix) "src/SSVOpenHexagon/Core/HGScripting.cpp"
 
-$(IntermediateDirectory)/HGGraphics$(ObjectSuffix): HGGraphics.cpp $(IntermediateDirectory)/HGGraphics$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/HGGraphics.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/HGGraphics$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/HGGraphics$(DependSuffix): HGGraphics.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/HGGraphics$(ObjectSuffix) -MF$(IntermediateDirectory)/HGGraphics$(DependSuffix) -MM "HGGraphics.cpp"
+$(IntermediateDirectory)/Core_HGUpdate$(ObjectSuffix): src/SSVOpenHexagon/Core/HGUpdate.cpp $(IntermediateDirectory)/Core_HGUpdate$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGUpdate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Core_HGUpdate$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Core_HGUpdate$(DependSuffix): src/SSVOpenHexagon/Core/HGUpdate.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Core_HGUpdate$(ObjectSuffix) -MF$(IntermediateDirectory)/Core_HGUpdate$(DependSuffix) -MM "src/SSVOpenHexagon/Core/HGUpdate.cpp"
 
-$(IntermediateDirectory)/HGGraphics$(PreprocessSuffix): HGGraphics.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix) "HGGraphics.cpp"
+$(IntermediateDirectory)/Core_HGUpdate$(PreprocessSuffix): src/SSVOpenHexagon/Core/HGUpdate.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Core_HGUpdate$(PreprocessSuffix) "src/SSVOpenHexagon/Core/HGUpdate.cpp"
 
-$(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix): Components/CPlayer.cpp $(IntermediateDirectory)/Components_CPlayer$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Components/CPlayer.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Components_CPlayer$(DependSuffix): Components/CPlayer.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix) -MF$(IntermediateDirectory)/Components_CPlayer$(DependSuffix) -MM "Components/CPlayer.cpp"
+$(IntermediateDirectory)/Core_HexagonGame$(ObjectSuffix): src/SSVOpenHexagon/Core/HexagonGame.cpp $(IntermediateDirectory)/Core_HexagonGame$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HexagonGame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Core_HexagonGame$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Core_HexagonGame$(DependSuffix): src/SSVOpenHexagon/Core/HexagonGame.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Core_HexagonGame$(ObjectSuffix) -MF$(IntermediateDirectory)/Core_HexagonGame$(DependSuffix) -MM "src/SSVOpenHexagon/Core/HexagonGame.cpp"
 
-$(IntermediateDirectory)/Components_CPlayer$(PreprocessSuffix): Components/CPlayer.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Components_CPlayer$(PreprocessSuffix) "Components/CPlayer.cpp"
+$(IntermediateDirectory)/Core_HexagonGame$(PreprocessSuffix): src/SSVOpenHexagon/Core/HexagonGame.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Core_HexagonGame$(PreprocessSuffix) "src/SSVOpenHexagon/Core/HexagonGame.cpp"
 
-$(IntermediateDirectory)/Components_CWall$(ObjectSuffix): Components/CWall.cpp $(IntermediateDirectory)/Components_CWall$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Components/CWall.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Components_CWall$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Components_CWall$(DependSuffix): Components/CWall.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Components_CWall$(ObjectSuffix) -MF$(IntermediateDirectory)/Components_CWall$(DependSuffix) -MM "Components/CWall.cpp"
+$(IntermediateDirectory)/Core_MenuGame$(ObjectSuffix): src/SSVOpenHexagon/Core/MenuGame.cpp $(IntermediateDirectory)/Core_MenuGame$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/MenuGame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Core_MenuGame$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Core_MenuGame$(DependSuffix): src/SSVOpenHexagon/Core/MenuGame.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Core_MenuGame$(ObjectSuffix) -MF$(IntermediateDirectory)/Core_MenuGame$(DependSuffix) -MM "src/SSVOpenHexagon/Core/MenuGame.cpp"
 
-$(IntermediateDirectory)/Components_CWall$(PreprocessSuffix): Components/CWall.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Components_CWall$(PreprocessSuffix) "Components/CWall.cpp"
+$(IntermediateDirectory)/Core_MenuGame$(PreprocessSuffix): src/SSVOpenHexagon/Core/MenuGame.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Core_MenuGame$(PreprocessSuffix) "src/SSVOpenHexagon/Core/MenuGame.cpp"
 
-$(IntermediateDirectory)/Global_Assets$(ObjectSuffix): Global/Assets.cpp $(IntermediateDirectory)/Global_Assets$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Global/Assets.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Global_Assets$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Global_Assets$(DependSuffix): Global/Assets.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Global_Assets$(ObjectSuffix) -MF$(IntermediateDirectory)/Global_Assets$(DependSuffix) -MM "Global/Assets.cpp"
+$(IntermediateDirectory)/Core_main$(ObjectSuffix): src/SSVOpenHexagon/Core/main.cpp $(IntermediateDirectory)/Core_main$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/main.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Core_main$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Core_main$(DependSuffix): src/SSVOpenHexagon/Core/main.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Core_main$(ObjectSuffix) -MF$(IntermediateDirectory)/Core_main$(DependSuffix) -MM "src/SSVOpenHexagon/Core/main.cpp"
 
-$(IntermediateDirectory)/Global_Assets$(PreprocessSuffix): Global/Assets.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Global_Assets$(PreprocessSuffix) "Global/Assets.cpp"
+$(IntermediateDirectory)/Core_main$(PreprocessSuffix): src/SSVOpenHexagon/Core/main.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Core_main$(PreprocessSuffix) "src/SSVOpenHexagon/Core/main.cpp"
 
-$(IntermediateDirectory)/Global_Config$(ObjectSuffix): Global/Config.cpp $(IntermediateDirectory)/Global_Config$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Global/Config.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Global_Config$(DependSuffix): Global/Config.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Global_Config$(ObjectSuffix) -MF$(IntermediateDirectory)/Global_Config$(DependSuffix) -MM "Global/Config.cpp"
+$(IntermediateDirectory)/Data_EventData$(ObjectSuffix): src/SSVOpenHexagon/Data/EventData.cpp $(IntermediateDirectory)/Data_EventData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/EventData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Data_EventData$(DependSuffix): src/SSVOpenHexagon/Data/EventData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_EventData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_EventData$(DependSuffix) -MM "src/SSVOpenHexagon/Data/EventData.cpp"
 
-$(IntermediateDirectory)/Global_Config$(PreprocessSuffix): Global/Config.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Global_Config$(PreprocessSuffix) "Global/Config.cpp"
+$(IntermediateDirectory)/Data_EventData$(PreprocessSuffix): src/SSVOpenHexagon/Data/EventData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix) "src/SSVOpenHexagon/Data/EventData.cpp"
 
-$(IntermediateDirectory)/Global_Factory$(ObjectSuffix): Global/Factory.cpp $(IntermediateDirectory)/Global_Factory$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Global/Factory.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Global_Factory$(DependSuffix): Global/Factory.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Global_Factory$(ObjectSuffix) -MF$(IntermediateDirectory)/Global_Factory$(DependSuffix) -MM "Global/Factory.cpp"
+$(IntermediateDirectory)/Data_LevelData$(ObjectSuffix): src/SSVOpenHexagon/Data/LevelData.cpp $(IntermediateDirectory)/Data_LevelData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/LevelData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Data_LevelData$(DependSuffix): src/SSVOpenHexagon/Data/LevelData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_LevelData$(DependSuffix) -MM "src/SSVOpenHexagon/Data/LevelData.cpp"
 
-$(IntermediateDirectory)/Global_Factory$(PreprocessSuffix): Global/Factory.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Global_Factory$(PreprocessSuffix) "Global/Factory.cpp"
+$(IntermediateDirectory)/Data_LevelData$(PreprocessSuffix): src/SSVOpenHexagon/Data/LevelData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_LevelData$(PreprocessSuffix) "src/SSVOpenHexagon/Data/LevelData.cpp"
 
-$(IntermediateDirectory)/Data_StyleData$(ObjectSuffix): Data/StyleData.cpp $(IntermediateDirectory)/Data_StyleData$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/StyleData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Data_StyleData$(DependSuffix): Data/StyleData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_StyleData$(DependSuffix) -MM "Data/StyleData.cpp"
+$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix): src/SSVOpenHexagon/Data/MusicData.cpp $(IntermediateDirectory)/Data_MusicData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/MusicData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Data_MusicData$(DependSuffix): src/SSVOpenHexagon/Data/MusicData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_MusicData$(DependSuffix) -MM "src/SSVOpenHexagon/Data/MusicData.cpp"
 
-$(IntermediateDirectory)/Data_StyleData$(PreprocessSuffix): Data/StyleData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_StyleData$(PreprocessSuffix) "Data/StyleData.cpp"
+$(IntermediateDirectory)/Data_MusicData$(PreprocessSuffix): src/SSVOpenHexagon/Data/MusicData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_MusicData$(PreprocessSuffix) "src/SSVOpenHexagon/Data/MusicData.cpp"
 
-$(IntermediateDirectory)/Data_LevelData$(ObjectSuffix): Data/LevelData.cpp $(IntermediateDirectory)/Data_LevelData$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/LevelData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Data_LevelData$(DependSuffix): Data/LevelData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_LevelData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_LevelData$(DependSuffix) -MM "Data/LevelData.cpp"
+$(IntermediateDirectory)/Data_PackData$(ObjectSuffix): src/SSVOpenHexagon/Data/PackData.cpp $(IntermediateDirectory)/Data_PackData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/PackData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Data_PackData$(DependSuffix): src/SSVOpenHexagon/Data/PackData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_PackData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_PackData$(DependSuffix) -MM "src/SSVOpenHexagon/Data/PackData.cpp"
 
-$(IntermediateDirectory)/Data_LevelData$(PreprocessSuffix): Data/LevelData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_LevelData$(PreprocessSuffix) "Data/LevelData.cpp"
+$(IntermediateDirectory)/Data_PackData$(PreprocessSuffix): src/SSVOpenHexagon/Data/PackData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_PackData$(PreprocessSuffix) "src/SSVOpenHexagon/Data/PackData.cpp"
 
-$(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix): Data/ProfileData.cpp $(IntermediateDirectory)/Data_ProfileData$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/ProfileData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Data_ProfileData$(DependSuffix): Data/ProfileData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_ProfileData$(DependSuffix) -MM "Data/ProfileData.cpp"
+$(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix): src/SSVOpenHexagon/Data/ProfileData.cpp $(IntermediateDirectory)/Data_ProfileData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/ProfileData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Data_ProfileData$(DependSuffix): src/SSVOpenHexagon/Data/ProfileData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_ProfileData$(DependSuffix) -MM "src/SSVOpenHexagon/Data/ProfileData.cpp"
 
-$(IntermediateDirectory)/Data_ProfileData$(PreprocessSuffix): Data/ProfileData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_ProfileData$(PreprocessSuffix) "Data/ProfileData.cpp"
+$(IntermediateDirectory)/Data_ProfileData$(PreprocessSuffix): src/SSVOpenHexagon/Data/ProfileData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_ProfileData$(PreprocessSuffix) "src/SSVOpenHexagon/Data/ProfileData.cpp"
 
-$(IntermediateDirectory)/Data_EventData$(ObjectSuffix): Data/EventData.cpp $(IntermediateDirectory)/Data_EventData$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/EventData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_EventData$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Data_EventData$(DependSuffix): Data/EventData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_EventData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_EventData$(DependSuffix) -MM "Data/EventData.cpp"
+$(IntermediateDirectory)/Data_StyleData$(ObjectSuffix): src/SSVOpenHexagon/Data/StyleData.cpp $(IntermediateDirectory)/Data_StyleData$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/StyleData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Data_StyleData$(DependSuffix): src/SSVOpenHexagon/Data/StyleData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_StyleData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_StyleData$(DependSuffix) -MM "src/SSVOpenHexagon/Data/StyleData.cpp"
 
-$(IntermediateDirectory)/Data_EventData$(PreprocessSuffix): Data/EventData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix) "Data/EventData.cpp"
+$(IntermediateDirectory)/Data_StyleData$(PreprocessSuffix): src/SSVOpenHexagon/Data/StyleData.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_StyleData$(PreprocessSuffix) "src/SSVOpenHexagon/Data/StyleData.cpp"
 
-$(IntermediateDirectory)/Data_PackData$(ObjectSuffix): Data/PackData.cpp $(IntermediateDirectory)/Data_PackData$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/PackData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_PackData$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Data_PackData$(DependSuffix): Data/PackData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_PackData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_PackData$(DependSuffix) -MM "Data/PackData.cpp"
+$(IntermediateDirectory)/Global_Assets$(ObjectSuffix): src/SSVOpenHexagon/Global/Assets.cpp $(IntermediateDirectory)/Global_Assets$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Assets.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Global_Assets$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Global_Assets$(DependSuffix): src/SSVOpenHexagon/Global/Assets.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Global_Assets$(ObjectSuffix) -MF$(IntermediateDirectory)/Global_Assets$(DependSuffix) -MM "src/SSVOpenHexagon/Global/Assets.cpp"
 
-$(IntermediateDirectory)/Data_PackData$(PreprocessSuffix): Data/PackData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_PackData$(PreprocessSuffix) "Data/PackData.cpp"
+$(IntermediateDirectory)/Global_Assets$(PreprocessSuffix): src/SSVOpenHexagon/Global/Assets.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Global_Assets$(PreprocessSuffix) "src/SSVOpenHexagon/Global/Assets.cpp"
 
-$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix): Data/MusicData.cpp $(IntermediateDirectory)/Data_MusicData$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Data/MusicData.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Data_MusicData$(DependSuffix): Data/MusicData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Data_MusicData$(ObjectSuffix) -MF$(IntermediateDirectory)/Data_MusicData$(DependSuffix) -MM "Data/MusicData.cpp"
+$(IntermediateDirectory)/Global_Config$(ObjectSuffix): src/SSVOpenHexagon/Global/Config.cpp $(IntermediateDirectory)/Global_Config$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Config.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Global_Config$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Global_Config$(DependSuffix): src/SSVOpenHexagon/Global/Config.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Global_Config$(ObjectSuffix) -MF$(IntermediateDirectory)/Global_Config$(DependSuffix) -MM "src/SSVOpenHexagon/Global/Config.cpp"
 
-$(IntermediateDirectory)/Data_MusicData$(PreprocessSuffix): Data/MusicData.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Data_MusicData$(PreprocessSuffix) "Data/MusicData.cpp"
+$(IntermediateDirectory)/Global_Config$(PreprocessSuffix): src/SSVOpenHexagon/Global/Config.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Global_Config$(PreprocessSuffix) "src/SSVOpenHexagon/Global/Config.cpp"
 
-$(IntermediateDirectory)/Utils_Utils$(ObjectSuffix): Utils/Utils.cpp $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/Utils.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Utils_Utils$(DependSuffix): Utils/Utils.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) -MF$(IntermediateDirectory)/Utils_Utils$(DependSuffix) -MM "Utils/Utils.cpp"
+$(IntermediateDirectory)/Global_Factory$(ObjectSuffix): src/SSVOpenHexagon/Global/Factory.cpp $(IntermediateDirectory)/Global_Factory$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Factory.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Global_Factory$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Global_Factory$(DependSuffix): src/SSVOpenHexagon/Global/Factory.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Global_Factory$(ObjectSuffix) -MF$(IntermediateDirectory)/Global_Factory$(DependSuffix) -MM "src/SSVOpenHexagon/Global/Factory.cpp"
 
-$(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix): Utils/Utils.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix) "Utils/Utils.cpp"
+$(IntermediateDirectory)/Global_Factory$(PreprocessSuffix): src/SSVOpenHexagon/Global/Factory.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Global_Factory$(PreprocessSuffix) "src/SSVOpenHexagon/Global/Factory.cpp"
 
-$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix): Utils/FPSWatcher.cpp $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Utils/FPSWatcher.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix): Utils/FPSWatcher.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) -MF$(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix) -MM "Utils/FPSWatcher.cpp"
+$(IntermediateDirectory)/Online_Online$(ObjectSuffix): src/SSVOpenHexagon/Online/Online.cpp $(IntermediateDirectory)/Online_Online$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Online/Online.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Online_Online$(DependSuffix): src/SSVOpenHexagon/Online/Online.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Online_Online$(ObjectSuffix) -MF$(IntermediateDirectory)/Online_Online$(DependSuffix) -MM "src/SSVOpenHexagon/Online/Online.cpp"
 
-$(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix): Utils/FPSWatcher.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix) "Utils/FPSWatcher.cpp"
+$(IntermediateDirectory)/Online_Online$(PreprocessSuffix): src/SSVOpenHexagon/Online/Online.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix) "src/SSVOpenHexagon/Online/Online.cpp"
 
-$(IntermediateDirectory)/Online_Online$(ObjectSuffix): Online/Online.cpp $(IntermediateDirectory)/Online_Online$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Online/Online.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Online_Online$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Online_Online$(DependSuffix): Online/Online.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Online_Online$(ObjectSuffix) -MF$(IntermediateDirectory)/Online_Online$(DependSuffix) -MM "Online/Online.cpp"
+$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix): src/SSVOpenHexagon/Utils/FPSWatcher.cpp $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Utils/FPSWatcher.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix): src/SSVOpenHexagon/Utils/FPSWatcher.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix) -MF$(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix) -MM "src/SSVOpenHexagon/Utils/FPSWatcher.cpp"
 
-$(IntermediateDirectory)/Online_Online$(PreprocessSuffix): Online/Online.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix) "Online/Online.cpp"
+$(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix): src/SSVOpenHexagon/Utils/FPSWatcher.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix) "src/SSVOpenHexagon/Utils/FPSWatcher.cpp"
 
-$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix): Compatibility/Compatibility.cpp $(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/Compatibility/Compatibility.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix): Compatibility/Compatibility.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix) -MF$(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix) -MM "Compatibility/Compatibility.cpp"
+$(IntermediateDirectory)/Utils_Utils$(ObjectSuffix): src/SSVOpenHexagon/Utils/Utils.cpp $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Utils/Utils.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/Utils_Utils$(DependSuffix): src/SSVOpenHexagon/Utils/Utils.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/Utils_Utils$(ObjectSuffix) -MF$(IntermediateDirectory)/Utils_Utils$(DependSuffix) -MM "src/SSVOpenHexagon/Utils/Utils.cpp"
 
-$(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix): Compatibility/Compatibility.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix) "Compatibility/Compatibility.cpp"
+$(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix): src/SSVOpenHexagon/Utils/Utils.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix) "src/SSVOpenHexagon/Utils/Utils.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
@@ -272,33 +272,54 @@ $(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix): Compati
 ## Clean
 ##
 clean:
-	$(RM) $(IntermediateDirectory)/main$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/main$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/main$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HexagonGame$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HexagonGame$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HexagonGame$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/MenuGame$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/MenuGame$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/MenuGame$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HGScripting$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HGScripting$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HGScripting$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HGUpdate$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HGUpdate$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HGUpdate$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HGProperties$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HGProperties$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HGProperties$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/HGGraphics$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/HGGraphics$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/HGGraphics$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CPlayer$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CPlayer$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CPlayer$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CWall$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CWall$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Components_CWall$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGGraphics$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGGraphics$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGGraphics$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGProperties$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGProperties$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGProperties$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGScripting$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGScripting$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGScripting$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGUpdate$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGUpdate$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HGUpdate$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HexagonGame$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HexagonGame$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Core_HexagonGame$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Core_MenuGame$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Core_MenuGame$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Core_MenuGame$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Core_main$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Core_main$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Core_main$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Data_EventData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Data_LevelData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Data_LevelData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Data_MusicData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Data_MusicData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Data_PackData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Data_PackData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Data_ProfileData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Data_ProfileData$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Data_StyleData$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Data_StyleData$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Global_Assets$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Global_Assets$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Global_Assets$(PreprocessSuffix)
@@ -308,36 +329,15 @@ clean:
 	$(RM) $(IntermediateDirectory)/Global_Factory$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Global_Factory$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Global_Factory$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Data_StyleData$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Data_StyleData$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Data_StyleData$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Data_LevelData$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Data_LevelData$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Data_LevelData$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Data_ProfileData$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Data_ProfileData$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Data_ProfileData$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Data_EventData$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Data_EventData$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Data_EventData$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Data_PackData$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Data_PackData$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Data_PackData$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Data_MusicData$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Data_MusicData$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Data_MusicData$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(ObjectSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(DependSuffix)
 	$(RM) $(IntermediateDirectory)/Online_Online$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/Compatibility_Compatibility$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_FPSWatcher$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_Utils$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_Utils$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/Utils_Utils$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "../.build-release/SSVOpenHexagon"
