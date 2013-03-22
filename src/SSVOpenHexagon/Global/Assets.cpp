@@ -8,8 +8,8 @@
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SFML/Graphics.hpp>
-#include <json/json.h>
-#include <json/reader.h>
+#include <jsoncpp/json.h>
+#include <jsoncpp/reader.h>
 #include "Global/Assets.h"
 #include "Global/Config.h"
 #include "Online/Definitions.h"

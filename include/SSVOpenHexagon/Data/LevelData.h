@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <string>
-#include <json/json.h>
+#include <jsoncpp/json.h>
 
 namespace hg
 {
