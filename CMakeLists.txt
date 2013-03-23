@@ -45,7 +45,7 @@ endif()
 
 find_package(SSVMenuSystem)
 if(SSVMENUSYSTEM_FOUND)
-    include_directories(${SSVUTILS_INCLUDE_DIR})
+    include_directories(${SSVMENUSYSTEM_INCLUDE_DIR})
 else()
     set(SSVUTILS_ROOT "" CACHE PATH "SSVUtils top-level directory")
     message("\n-> SSVMenuSystem directory not found. Set SSVMENUSYSTEM_ROOT to SSVMenuSystem's top-level path (containing both \"include\" and \"lib\" directories).")
