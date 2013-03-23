@@ -198,5 +198,5 @@ if(UNIX)
     )
 else(WIN32)
     install(TARGETS SSVOpenHexagon
-                RUNTIME DESTINATION ./RELEASE_/)
+                RUNTIME DESTINATION ./_RELEASE/)
 endif()
