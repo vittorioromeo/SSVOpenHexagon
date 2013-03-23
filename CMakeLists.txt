@@ -183,20 +183,20 @@ target_link_libraries(SSVOpenHexagon ${LUA_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${SSVMENUSYSTEM_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${SSVUTILS_LIBRARIES})
 
-install(TARGETS SSVOpenHexagon
-		RUNTIME DESTINATION /usr/local/)
+if(UNIX)
+    install(TARGETS SSVOpenHexagon
+		RUNTIME DESTINATION /usr/local/games/SSVOpenHexagon/
+    )
 
-if(WIN32)
-	install(TARGETS ${PROJECT_NAME}
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib)
-else()
-	install(TARGETS ${PROJECT_NAME}
-		RUNTIME DESTINATION lib
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib)
+    install(DIRECTORY _RELEASE/
+                DESTINATION /usr/local/games/SSVOpenHexagon/
+    )
+
+    install(PROGRAMS _RELEASE/openhexagon
+                DESTINATION /usr/local/bin/
+                PERMISSIONS WORLD_EXECUTE WORLD_READ
+    )
+else(WIN32)
+    install(TARGETS SSVOpenHexagon
+                RUNTIME DESTINATION ./RELEASE_/)
 endif()
-
-install(DIRECTORY ${INC_DIR}
-	DESTINATION .)
