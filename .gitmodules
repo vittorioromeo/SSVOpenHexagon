@@ -13,3 +13,6 @@
 [submodule "extlibs/SSVUtilsJson"]
 	path = extlibs/SSVUtilsJson
 	url = https://github.com/SuperV1234/SSVUtilsJson.git
+[submodule "extlibs/SSVLuaWrapper"]
+	path = extlibs/SSVLuaWrapper
+	url = https://github.com/SuperV1234/SSVLuaWrapper.git
