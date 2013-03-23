@@ -1,0 +1,18 @@
+[submodule "extlibs/SSVEntitySystem"]
+	path = extlibs/SSVEntitySystem
+	url = https://github.com/SuperV1234/SSVEntitySystem.git
+[submodule ".extlibs/SSVLuaWrapper"]
+	path = .extlibs/SSVLuaWrapper
+	url = https://github.com/SuperV1234/SSVLuaWrapper.git
+[submodule "extlibs/SSVMenuSystem"]
+	path = extlibs/SSVMenuSystem
+	url = https://github.com/SuperV1234/SSVMenuSystem.git
+[submodule "extlibs/SSVStart"]
+	path = extlibs/SSVStart
+	url = https://github.com/SuperV1234/SSVStart.git
+[submodule "extlibs/SSVUtils"]
+	path = extlibs/SSVUtils
+	url = https://github.com/SuperV1234/SSVUtils.git
+[submodule "extlibs/SSVUtilsJson"]
+	path = extlibs/SSVUtilsJson
+	url = https://github.com/SuperV1234/SSVUtilsJson.git
