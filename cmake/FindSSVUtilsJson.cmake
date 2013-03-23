@@ -9,23 +9,17 @@
 # also defined, but not for general use are
 # SSVUTILSJSON_LIBRARY, where to find the SSVUtilsJson library.
 
-message("\nAttempting to find SSVUtilsJson.\n")
-
 FIND_PATH(SSVUTILSJSON_INCLUDE_DIR
   NAMES SSVUtilsJson/SSVUtilsJson.h
   PATH_SUFFIXES include
   PATHS "/usr/local/"
 )
 
-message("\nFound SSVUtilsJson include at: ${SSVUTILSJSON_INCLUDE_DIR}.\n")
-
 FIND_LIBRARY(SSVUTILSJSON_LIBRARY
   NAMES SSVUtilsJson libSSVUtilsJson SSVUtilsJson-s libSSVUtilsJson-s ssvutilsjson libssvutilsjson ssvutilsjson-s libssvutilsjson-s
   PATH_SUFFIXES lib/ lib64/
   PATHS /usr/ /usr/local/
 )
-
-message("\nFound SSVUtilsJson library at: ${SSVUTILSJSON_LIBRARY}.\n")
 
 IF (SSVUTILSJSON_LIBRARY AND SSVUTILSJSON_INCLUDE_DIR)
     SET(SSVUTILSJSON_LIBRARIES ${SSVUTILSJSON_LIBRARY})
@@ -36,10 +30,10 @@ ENDIF (SSVUTILSJSON_LIBRARY AND SSVUTILSJSON_INCLUDE_DIR)
 
 
 IF (SSVUTILSJSON_FOUND)
-      MESSAGE(STATUS "Found SSVUTILSJSON: ${SSVUTILSJSON_LIBRARIES}")
+      MESSAGE(STATUS "Found SSVUtilsJson in ${SSVUTILSJSON_INCLUDE_DIR}")
 ELSE (SSVUTILSJSON_FOUND)
    IF (SSVUTILSJSON_FIND_REQUIRED)
-      MESSAGE(FATAL_ERROR "Could not find SSVUTILSJSON library")
+      MESSAGE(FATAL_ERROR "Could not find SSVUtilsJson library")
    ENDIF (SSVUTILSJSON_FIND_REQUIRED)
 ENDIF (SSVUTILSJSON_FOUND)
 
