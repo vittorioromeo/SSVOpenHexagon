@@ -11,12 +11,11 @@ if(SFML_STATIC_LIBS)
 endif()
 
 find_package(SFML 2 COMPONENTS audio graphics window system network)
-
 if(SFML_FOUND)
-	include_directories(${SFML_INCLUDE_DIR})
+    include_directories(${SFML_INCLUDE_DIR})
 else()
-	set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
-	message("\n-> SFML directory not found. Set SFML_ROOT to SFML's top-level path (containing both \"include\" and \"lib\" directories).")
+    set(SFML_ROOT "" CACHE PATH "SFML top-level directory")
+    message("\n-> SFML directory not found. Set SFML_ROOT to SFML's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
 
@@ -25,7 +24,7 @@ if(JSONCPP_FOUND)
     include_directories(${JSONCPP_INCLUDE_DIR})
 else()
     set(JSONCPP_ROOT "" CACHE PATH "JsonCPP top-level directory")
-	message("\n-> JsonCPP directory not found. Set JSONCPP_ROOT to JsonCPP's top-level path (containing both \"include\" and \"lib\" directories).")
+    message("\n-> JsonCPP directory not found. Set JSONCPP_ROOT to JsonCPP's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
 find_package(LUA)
@@ -65,18 +64,23 @@ if(SSVSTART_FOUND)
     include_directories(${SSVSTART_INCLUDE_DIR})
 else()
     set(SSVSTART_ROOT "" CACHE PATH "SSVStart top-level directory")
-    message("\n-> SSVStart directory not found. Set SSVSTART_ROOT to SSVStart's top-level path (containing both \"include\" and \"lib\" 
-directories).")
+    message("\n-> SSVStart directory not found. Set SSVSTART_ROOT to SSVStart's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
 find_package(SSVLuaWrapper)
 if(SSVLUAWRAPPER_FOUND)
     include_directories(${SSVLUAWRAPPER_INCLUDE_DIR})
+else()
+    set(SSVLUAWRAPPER_ROOT "" CACHE PATH "SSVLuaWrapper top-level directory")
+    message("\n-> SSVLuaWrapper directory not found. Set SSVLUAWRAPPER_ROOT to SSVLuaWrapper's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
 find_package(SSVUtilsJson)
 if(SSVUTILSJSON_FOUND)
     include_directories(${SSVUTILSJSON_INCLUDE_DIR})
+else()
+    set(SSVUTILSJSON_ROOT "" CACHE PATH "SSVUtilsJson top-level directory")
+    message("\n-> SSVUtilsJson directory not found. Set SSVUTILSJSON_ROOT to SSVUtilsJson's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
 set(SSVUTILS_STATIC_LIBS "" CACHE BOOL "Check to link SSVUtils statically.")
@@ -167,13 +171,12 @@ include_directories(${INC_DIR}/${PROJECT_NAME}/Utils)
 
 add_executable(SSVOpenHexagon ${SOURCES})
 
-target_link_libraries(SSVOpenHexagon ${SSVUTILS_LIBRARY})
-target_link_libraries(SSVOpenHexagon ${SSVUTILSJSON_LIBRARY})
-target_link_libraries(SSVOpenHexagon ${SSVSTART_LIBRARY})
-target_link_libraries(SSVOpenHexagon ${SSVLUAWRAPPER_LIBRARY})
-target_link_libraries(SSVOpenHexagon ${SSVENTITYSYSTEM_LIBRARY})
-target_link_libraries(SSVOpenHexagon ${SSVMENUSYSTEM_LIBRARY})
-
+target_link_libraries(SSVOpenHexagon ${SSVUTILS_LIBRARIES})
+target_link_libraries(SSVOpenHexagon ${SSVUTILSJSON_LIBRARIES})
+target_link_libraries(SSVOpenHexagon ${SSVSTART_LIBRARIES})
+target_link_libraries(SSVOpenHexagon ${SSVLUAWRAPPER_LIBRARIES})
+target_link_libraries(SSVOpenHexagon ${SSVENTITYSYSTEM_LIBRARIES})
+target_link_libraries(SSVOpenHexagon ${SSVMENUSYSTEM_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${JSONCPP_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${SFML_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${LUA_LIBRARIES})
@@ -181,7 +184,7 @@ target_link_libraries(SSVOpenHexagon ${SSVMENUSYSTEM_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${SSVUTILS_LIBRARIES})
 
 install(TARGETS SSVOpenHexagon
-		RUNTIME DESTINATION ./_RELEASE)
+		RUNTIME DESTINATION /usr/local/)
 
 if(WIN32)
 	install(TARGETS ${PROJECT_NAME}
