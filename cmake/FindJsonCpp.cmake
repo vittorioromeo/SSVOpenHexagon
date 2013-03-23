@@ -10,6 +10,7 @@
 #  JSONCPP_LIBRARY, where to find the jsoncpp library.
 
 FIND_PATH(JSONCPP_INCLUDE_DIR jsoncpp/json.h
+PATHS
 /usr/local/include
 /usr/include
 )
@@ -24,7 +25,7 @@ EXEC_PROGRAM(${CMAKE_CXX_COMPILER}
 SET(JSONCPP_NAMES ${JSONCPP_NAMES} libjson_linux-gcc-${_gcc_COMPILER_VERSION}_libmt.so)
 FIND_LIBRARY(JSONCPP_LIBRARY
   NAMES ${JSONCPP_NAMES}
-  PATHS /usr/lib /usr/local/lib
+  PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64 /lib /lib64
   )
 
 IF (JSONCPP_LIBRARY AND JSONCPP_INCLUDE_DIR)
