@@ -1,0 +1,51 @@
+# -*- cmake -*-
+
+# - Find SSVEntitySystem
+# Find the SSVEntitySystem includes and library
+# This module defines
+# SSVENTITYSYSTEM_INCLUDE_DIR, where to find SSVEntitySystem headers.
+# SSVENTITYSYSTEM_LIBRARIES, the libraries needed to use SSVEntitySystem.
+# SSVENTITYSYSTEM_FOUND, If false, do not try to use SSVEntitySystem.
+# also defined, but not for general use are
+# SSVENTITYSYSTEM_LIBRARY, where to find the SSVEntitySystem library.
+
+message("\nAttempting to find SSVEntitySystem.\n")
+
+FIND_PATH(SSVENTITYSYSTEM_INCLUDE_DIR
+  NAMES SSVEntitySystem/SSVEntitySystem.h
+  PATH_SUFFIXES include
+  PATHS "/usr/local/"
+)
+
+message("\nFound SSVEntitySystem include at: ${SSVENTITYSYSTEM_INCLUDE_DIR}.\n")
+
+FIND_LIBRARY(SSVENTITYSYSTEM_LIBRARY
+  NAMES SSVEntitySystem libSSVEntitySystem SSVEntitySystem-s libSSVEntitySystem-s ssventitysystem libssventitysystem ssventitysystem-s libssventitysystem-s
+  PATH_SUFFIXES lib/ lib64/
+  PATHS /usr/ /usr/local/
+)
+
+message("\nFound SSVEntitySystem library at: ${SSVENTITYSYSTEM_LIBRARY}.\n")
+
+IF (SSVENTITYSYSTEM_LIBRARY AND SSVENTITYSYSTEM_INCLUDE_DIR)
+    SET(SSVENTITYSYSTEM_LIBRARIES ${SSVENTITYSYSTEM_LIBRARY})
+    SET(SSVENTITYSYSTEM_FOUND TRUE)
+ELSE (SSVENTITYSYSTEM_LIBRARY AND SSVENTITYSYSTEM_INCLUDE_DIR)
+    SET(SSVENTITYSYSTEM_FOUND FALSE)
+ENDIF (SSVENTITYSYSTEM_LIBRARY AND SSVENTITYSYSTEM_INCLUDE_DIR)
+
+
+IF (SSVENTITYSYSTEM_FOUND)
+   #IF (NOT SSVENTITYSYSTEM_FIND_QUIETLY)
+      MESSAGE(STATUS "Found SSVENTITYSYSTEM: ${SSVENTITYSYSTEM_LIBRARIES}")
+   #ENDIF (NOT SSVENTITYSYSTEM_FIND_QUIETLY)
+ELSE (SSVENTITYSYSTEM_FOUND)
+   IF (SSVENTITYSYSTEM_FIND_REQUIRED)
+      MESSAGE(FATAL_ERROR "Could not find SSVENTITYSYSTEM library")
+   ENDIF (SSVENTITYSYSTEM_FIND_REQUIRED)
+ENDIF (SSVENTITYSYSTEM_FOUND)
+
+MARK_AS_ADVANCED(
+  SSVENTITYSYSTEM_LIBRARY
+  SSVENTITYSYSTEM_INCLUDE_DIR
+)
