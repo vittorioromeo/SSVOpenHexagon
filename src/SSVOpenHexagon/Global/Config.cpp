@@ -8,10 +8,10 @@
 #include <jsoncpp/reader.h>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include "Global/Config.h"
-#include "Global/Assets.h"
-#include "Utils/Utils.h"
-#include "Online/Online.h"
+#include "SSVOpenHexagon/Global/Config.h"
+#include "SSVOpenHexagon/Global/Assets.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Online/Online.h"
 
 using namespace std;
 using namespace sf;

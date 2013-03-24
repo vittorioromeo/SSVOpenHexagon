@@ -2,10 +2,10 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include "Components/CPlayer.h"
-#include "Components/CWall.h"
-#include "Global/Factory.h"
-#include "Utils/Utils.h"
+#include "SSVOpenHexagon/Components/CPlayer.h"
+#include "SSVOpenHexagon/Components/CWall.h"
+#include "SSVOpenHexagon/Global/Factory.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
 
 using namespace sf;
 using namespace sses;

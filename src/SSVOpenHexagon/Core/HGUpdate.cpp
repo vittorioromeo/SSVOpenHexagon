@@ -4,8 +4,8 @@
 
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include "Utils/Utils.h"
-#include "HexagonGame.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Core/HexagonGame.h"
 
 using namespace std;
 using namespace sf;

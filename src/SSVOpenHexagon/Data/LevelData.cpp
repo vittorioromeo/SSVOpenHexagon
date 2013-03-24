@@ -4,8 +4,8 @@
 
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include "Data/LevelData.h"
-#include "Utils/Utils.h"
+#include "SSVOpenHexagon/Data/LevelData.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
 
 using namespace std;
 using namespace ssvu;

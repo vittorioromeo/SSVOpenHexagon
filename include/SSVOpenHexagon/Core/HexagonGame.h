@@ -15,15 +15,15 @@
 #include <SSVUtils/SSVUtils.h>
 #include <SSVStart/SSVStart.h>
 #include <SSVEntitySystem/SSVEntitySystem.h>
-#include "HGStatus.h"
-#include "Data/LevelData.h"
-#include "Data/MusicData.h"
-#include "Data/EventData.h"
-#include "Data/StyleData.h"
-#include "Global/Assets.h"
-#include "Global/Config.h"
-#include "Global/Factory.h"
-#include "Utils/FPSWatcher.h"
+#include "SSVOpenHexagon/Core/HGStatus.h"
+#include "SSVOpenHexagon/Data/LevelData.h"
+#include "SSVOpenHexagon/Data/MusicData.h"
+#include "SSVOpenHexagon/Data/EventData.h"
+#include "SSVOpenHexagon/Data/StyleData.h"
+#include "SSVOpenHexagon/Global/Assets.h"
+#include "SSVOpenHexagon/Global/Config.h"
+#include "SSVOpenHexagon/Global/Factory.h"
+#include "SSVOpenHexagon/Utils/FPSWatcher.h"
 #pragma GCC system_header
 #include <SSVLuaWrapper/SSVLuaWrapper.h>
 

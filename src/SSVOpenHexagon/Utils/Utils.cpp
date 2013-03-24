@@ -7,8 +7,8 @@
 #include <fstream>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include "Utils/Utils.h"
-#include "Global/Config.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Global/Config.h"
 
 using namespace std;
 using namespace sf;

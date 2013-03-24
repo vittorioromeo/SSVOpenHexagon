@@ -26,6 +26,50 @@
   <Dependencies/>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>
+  <VirtualDirectory Name="src"/>
+  <VirtualDirectory Name="include">
+    <File Name="include/SSVOpenHexagon/Compatibility/Compatibility.h"/>
+    <File Name="include/SSVOpenHexagon/Components/CPlayer.h"/>
+    <File Name="include/SSVOpenHexagon/Components/CWall.h"/>
+    <File Name="include/SSVOpenHexagon/Core/HGStatus.h"/>
+    <File Name="include/SSVOpenHexagon/Core/HexagonGame.h"/>
+    <File Name="include/SSVOpenHexagon/Core/MenuGame.h"/>
+    <File Name="include/SSVOpenHexagon/Data/EventData.h"/>
+    <File Name="include/SSVOpenHexagon/Data/LevelData.h"/>
+    <File Name="include/SSVOpenHexagon/Data/MusicData.h"/>
+    <File Name="include/SSVOpenHexagon/Data/PackData.h"/>
+    <File Name="include/SSVOpenHexagon/Data/ProfileData.h"/>
+    <File Name="include/SSVOpenHexagon/Data/StyleData.h"/>
+    <File Name="include/SSVOpenHexagon/Global/Assets.h"/>
+    <File Name="include/SSVOpenHexagon/Global/Config.h"/>
+    <File Name="include/SSVOpenHexagon/Global/Factory.h"/>
+    <File Name="include/SSVOpenHexagon/Online/Definitions.h"/>
+    <File Name="include/SSVOpenHexagon/Online/Online.h"/>
+    <File Name="include/SSVOpenHexagon/Utils/FPSWatcher.h"/>
+    <File Name="include/SSVOpenHexagon/Utils/Utils.h"/>
+    <File Name="src/SSVOpenHexagon/Compatibility/Compatibility.cpp"/>
+    <File Name="src/SSVOpenHexagon/Components/CPlayer.cpp"/>
+    <File Name="src/SSVOpenHexagon/Components/CWall.cpp"/>
+    <File Name="src/SSVOpenHexagon/Core/HGGraphics.cpp"/>
+    <File Name="src/SSVOpenHexagon/Core/HGProperties.cpp"/>
+    <File Name="src/SSVOpenHexagon/Core/HGScripting.cpp"/>
+    <File Name="src/SSVOpenHexagon/Core/HGUpdate.cpp"/>
+    <File Name="src/SSVOpenHexagon/Core/HexagonGame.cpp"/>
+    <File Name="src/SSVOpenHexagon/Core/MenuGame.cpp"/>
+    <File Name="src/SSVOpenHexagon/Core/main.cpp"/>
+    <File Name="src/SSVOpenHexagon/Data/EventData.cpp"/>
+    <File Name="src/SSVOpenHexagon/Data/LevelData.cpp"/>
+    <File Name="src/SSVOpenHexagon/Data/MusicData.cpp"/>
+    <File Name="src/SSVOpenHexagon/Data/PackData.cpp"/>
+    <File Name="src/SSVOpenHexagon/Data/ProfileData.cpp"/>
+    <File Name="src/SSVOpenHexagon/Data/StyleData.cpp"/>
+    <File Name="src/SSVOpenHexagon/Global/Assets.cpp"/>
+    <File Name="src/SSVOpenHexagon/Global/Config.cpp"/>
+    <File Name="src/SSVOpenHexagon/Global/Factory.cpp"/>
+    <File Name="src/SSVOpenHexagon/Online/Online.cpp"/>
+    <File Name="src/SSVOpenHexagon/Utils/FPSWatcher.cpp"/>
+    <File Name="src/SSVOpenHexagon/Utils/Utils.cpp"/>
+  </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
       <Compiler Options="" C_Options="">
@@ -110,26 +154,28 @@
         <IncludePath Value="C:/lua/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
-        <LibraryPath Value="../SSVUtils/_RELEASE/"/>
-        <LibraryPath Value="../SSVUtilsJson/_RELEASE/"/>
-        <LibraryPath Value="../SSVStart/_RELEASE/"/>
-        <LibraryPath Value="../SSVEntitySystem/_RELEASE/"/>
-        <LibraryPath Value="../SSVLuaWrapper/_RELEASE/"/>
-        <LibraryPath Value="../SSVMenuSystem/_RELEASE/"/>
+        <LibraryPath Value="../SSVUtils/lib/"/>
+        <LibraryPath Value="../SSVUtilsJson/lib/"/>
+        <LibraryPath Value="../SSVStart/lib/"/>
+        <LibraryPath Value="../SSVEntitySystem/lib/"/>
+        <LibraryPath Value="../SSVLuaWrapper/lib/"/>
+        <LibraryPath Value="../SSVMenuSystem/lib/"/>
         <LibraryPath Value="../SFML/build2/lib/"/>
-        <LibraryPath Value="c:/lua"/>
-        <Library Value="SSVUtils"/>
-        <Library Value="SSVUtilsJson"/>
-        <Library Value="SSVStart"/>
-        <Library Value="SSVEntitySystem"/>
-        <Library Value="SSVLuaWrapper"/>
-        <Library Value="SSVMenuSystem"/>
+        <LibraryPath Value="../lua"/>
+        <LibraryPath Value="../jsoncpp/libs/mingw/"/>
+        <Library Value="SSVUtils-s"/>
+        <Library Value="SSVUtilsJson-s"/>
+        <Library Value="SSVStart-s"/>
+        <Library Value="SSVEntitySystem-s"/>
+        <Library Value="SSVLuaWrapper-s"/>
+        <Library Value="SSVMenuSystem-s"/>
         <Library Value="sfml-window"/>
         <Library Value="sfml-graphics"/>
         <Library Value="sfml-system"/>
         <Library Value="sfml-audio"/>
         <Library Value="sfml-network"/>
         <Library Value="lua51"/>
+        <Library Value="json_mingw_libmt"/>
       </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="./_RELEASE/$(ProjectName).exe" IntermediateDirectory="./_INTERMEDIATE" Command="./$(ProjectName)" CommandArguments="windowed noaudio" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="./_RELEASE/" PauseExecWhenProcTerminates="no"/>
@@ -164,49 +210,4 @@
       </Completion>
     </Configuration>
   </Settings>
-  <VirtualDirectory Name="src"/>
-  <VirtualDirectory Name="include">
-    <File Name="include/SSVOpenHexagon/Compatibility/Compatibility.h"/>
-    <File Name="include/SSVOpenHexagon/Components/CPlayer.h"/>
-    <File Name="include/SSVOpenHexagon/Components/CWall.h"/>
-    <File Name="include/SSVOpenHexagon/Core/HGStatus.h"/>
-    <File Name="include/SSVOpenHexagon/Core/HexagonGame.h"/>
-    <File Name="include/SSVOpenHexagon/Core/MenuGame.h"/>
-    <File Name="include/SSVOpenHexagon/Data/EventData.h"/>
-    <File Name="include/SSVOpenHexagon/Data/LevelData.h"/>
-    <File Name="include/SSVOpenHexagon/Data/MusicData.h"/>
-    <File Name="include/SSVOpenHexagon/Data/PackData.h"/>
-    <File Name="include/SSVOpenHexagon/Data/PatternData.h"/>
-    <File Name="include/SSVOpenHexagon/Data/ProfileData.h"/>
-    <File Name="include/SSVOpenHexagon/Data/StyleData.h"/>
-    <File Name="include/SSVOpenHexagon/Global/Assets.h"/>
-    <File Name="include/SSVOpenHexagon/Global/Config.h"/>
-    <File Name="include/SSVOpenHexagon/Global/Factory.h"/>
-    <File Name="include/SSVOpenHexagon/Online/Definitions.h"/>
-    <File Name="include/SSVOpenHexagon/Online/Online.h"/>
-    <File Name="include/SSVOpenHexagon/Utils/FPSWatcher.h"/>
-    <File Name="include/SSVOpenHexagon/Utils/Utils.h"/>
-    <File Name="src/SSVOpenHexagon/Compatibility/Compatibility.cpp"/>
-    <File Name="src/SSVOpenHexagon/Components/CPlayer.cpp"/>
-    <File Name="src/SSVOpenHexagon/Components/CWall.cpp"/>
-    <File Name="src/SSVOpenHexagon/Core/HGGraphics.cpp"/>
-    <File Name="src/SSVOpenHexagon/Core/HGProperties.cpp"/>
-    <File Name="src/SSVOpenHexagon/Core/HGScripting.cpp"/>
-    <File Name="src/SSVOpenHexagon/Core/HGUpdate.cpp"/>
-    <File Name="src/SSVOpenHexagon/Core/HexagonGame.cpp"/>
-    <File Name="src/SSVOpenHexagon/Core/MenuGame.cpp"/>
-    <File Name="src/SSVOpenHexagon/Core/main.cpp"/>
-    <File Name="src/SSVOpenHexagon/Data/EventData.cpp"/>
-    <File Name="src/SSVOpenHexagon/Data/LevelData.cpp"/>
-    <File Name="src/SSVOpenHexagon/Data/MusicData.cpp"/>
-    <File Name="src/SSVOpenHexagon/Data/PackData.cpp"/>
-    <File Name="src/SSVOpenHexagon/Data/ProfileData.cpp"/>
-    <File Name="src/SSVOpenHexagon/Data/StyleData.cpp"/>
-    <File Name="src/SSVOpenHexagon/Global/Assets.cpp"/>
-    <File Name="src/SSVOpenHexagon/Global/Config.cpp"/>
-    <File Name="src/SSVOpenHexagon/Global/Factory.cpp"/>
-    <File Name="src/SSVOpenHexagon/Online/Online.cpp"/>
-    <File Name="src/SSVOpenHexagon/Utils/FPSWatcher.cpp"/>
-    <File Name="src/SSVOpenHexagon/Utils/Utils.cpp"/>
-  </VirtualDirectory>
 </CodeLite_Project>

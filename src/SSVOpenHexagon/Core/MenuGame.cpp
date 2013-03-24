@@ -5,10 +5,10 @@
 #include <string>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include "Utils/Utils.h"
-#include "HexagonGame.h"
-#include "MenuGame.h"
-#include "Online/Online.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Core/HexagonGame.h"
+#include "SSVOpenHexagon/Core/MenuGame.h"
+#include "SSVOpenHexagon/Online/Online.h"
 
 using namespace std;
 using namespace sf;

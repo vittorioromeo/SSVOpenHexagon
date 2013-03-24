@@ -12,10 +12,10 @@
 #include <jsoncpp/reader.h>
 #include <SFML/Graphics.hpp>
 #include <SSVStart/SSVStart.h>
-#include "Data/LevelData.h"
-#include "Data/ProfileData.h"
-#include "Data/MusicData.h"
-#include "Data/StyleData.h"
+#include "SSVOpenHexagon/Data/LevelData.h"
+#include "SSVOpenHexagon/Data/ProfileData.h"
+#include "SSVOpenHexagon/Data/MusicData.h"
+#include "SSVOpenHexagon/Data/StyleData.h"
 
 namespace hg
 {

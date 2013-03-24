@@ -10,11 +10,11 @@
 #include <SFML/Graphics.hpp>
 #include <jsoncpp/json.h>
 #include <jsoncpp/reader.h>
-#include "Global/Assets.h"
-#include "Global/Config.h"
-#include "Online/Definitions.h"
-#include "Online/Online.h"
-#include "Utils/Utils.h"
+#include "SSVOpenHexagon/Global/Assets.h"
+#include "SSVOpenHexagon/Global/Config.h"
+#include "SSVOpenHexagon/Online/Definitions.h"
+#include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
 
 using namespace std;
 using namespace sf;

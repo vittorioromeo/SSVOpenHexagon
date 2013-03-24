@@ -7,7 +7,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SSVEntitySystem/SSVEntitySystem.h>
-#include "Global/Config.h"
+#include "SSVOpenHexagon/Global/Config.h"
 
 namespace hg
 {

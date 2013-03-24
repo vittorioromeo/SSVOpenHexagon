@@ -7,12 +7,12 @@
 #include <random>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVStart/SSVStart.h>
-#include "Online/Online.h"
-#include "HexagonGame.h"
-#include "MenuGame.h"
-#include "Global/Assets.h"
-#include "Global/Config.h"
-#include "Compatibility/Compatibility.h"
+#include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Core/HexagonGame.h"
+#include "SSVOpenHexagon/Core/MenuGame.h"
+#include "SSVOpenHexagon/Global/Assets.h"
+#include "SSVOpenHexagon/Global/Config.h"
+#include "SSVOpenHexagon/Compatibility/Compatibility.h"
 
 using namespace std;
 using namespace ssvs;
