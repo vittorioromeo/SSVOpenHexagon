@@ -38,12 +38,12 @@ MakeDirCommand         :=makedir
 RcCmpOptions           := 
 RcCompilerName         :=windres
 LinkOptions            :=  
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)./include/ $(IncludeSwitch)../SSVStart/include/ $(IncludeSwitch)../SSVUtils/include/ $(IncludeSwitch)../SSVUtilsJson/include/ $(IncludeSwitch)../SSVEntitySystem/include/ $(IncludeSwitch)../SSVLuaWrapper/include/ $(IncludeSwitch)../SSVMenuSystem/include/ $(IncludeSwitch)../SFML/include $(IncludeSwitch)../jsoncpp/include $(IncludeSwitch)C:/lua/include 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)./include/ $(IncludeSwitch)../SSVStart/include/ $(IncludeSwitch)../SSVUtils/include/ $(IncludeSwitch)../SSVUtilsJson/include/ $(IncludeSwitch)../SSVEntitySystem/include/ $(IncludeSwitch)../SSVLuaWrapper/include/ $(IncludeSwitch)../SSVMenuSystem/include/ $(IncludeSwitch)../SFML/include $(IncludeSwitch)../jsoncpp/include $(IncludeSwitch)../lua/include 
 IncludePCH             := 
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)SSVUtils-s $(LibrarySwitch)SSVUtilsJson-s $(LibrarySwitch)SSVStart-s $(LibrarySwitch)SSVEntitySystem-s $(LibrarySwitch)SSVLuaWrapper-s $(LibrarySwitch)SSVMenuSystem-s $(LibrarySwitch)sfml-window $(LibrarySwitch)sfml-graphics $(LibrarySwitch)sfml-system $(LibrarySwitch)sfml-audio $(LibrarySwitch)sfml-network $(LibrarySwitch)lua51 $(LibrarySwitch)json_mingw_libmt 
 ArLibs                 :=  "SSVUtils-s" "SSVUtilsJson-s" "SSVStart-s" "SSVEntitySystem-s" "SSVLuaWrapper-s" "SSVMenuSystem-s" "sfml-window" "sfml-graphics" "sfml-system" "sfml-audio" "sfml-network" "lua51" "json_mingw_libmt" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVUtils/lib/ $(LibraryPathSwitch)../SSVUtilsJson/lib/ $(LibraryPathSwitch)../SSVStart/lib/ $(LibraryPathSwitch)../SSVEntitySystem/lib/ $(LibraryPathSwitch)../SSVLuaWrapper/lib/ $(LibraryPathSwitch)../SSVMenuSystem/lib/ $(LibraryPathSwitch)../SFML/build2/lib/ $(LibraryPathSwitch)../lua $(LibraryPathSwitch)../jsoncpp/libs/mingw/ 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)../SSVUtils/lib/ $(LibraryPathSwitch)../SSVUtilsJson/lib/ $(LibraryPathSwitch)../SSVStart/lib/ $(LibraryPathSwitch)../SSVEntitySystem/lib/ $(LibraryPathSwitch)../SSVLuaWrapper/lib/ $(LibraryPathSwitch)../SSVMenuSystem/lib/ $(LibraryPathSwitch)../SFML/build2/lib/ $(LibraryPathSwitch)../lua/ $(LibraryPathSwitch)../jsoncpp/libs/mingw/ 
 
 ##
 ## Common variables

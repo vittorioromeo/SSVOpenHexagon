@@ -8,13 +8,13 @@
   <Reconciliation>
     <Regexes/>
     <Excludepaths>
-      <Path>..\OHWorkspace\SSVOpenHexagon\cmake\</Path>
-      <Path>..\OHWorkspace\SSVOpenHexagon\DocsMarkdown\</Path>
-      <Path>..\OHWorkspace\SSVOpenHexagon\SSVEntitySystem\</Path>
-      <Path>..\OHWorkspace\SSVOpenHexagon\SSVLuaWrapper\</Path>
-      <Path>..\OHWorkspace\SSVOpenHexagon\SSVMenuSystem\</Path>
-      <Path>..\OHWorkspace\SSVOpenHexagon\SSVStart\</Path>
       <Path>..\OHWorkspace\SSVOpenHexagon\Unix\</Path>
+      <Path>..\OHWorkspace\SSVOpenHexagon\SSVStart\</Path>
+      <Path>..\OHWorkspace\SSVOpenHexagon\SSVMenuSystem\</Path>
+      <Path>..\OHWorkspace\SSVOpenHexagon\SSVLuaWrapper\</Path>
+      <Path>..\OHWorkspace\SSVOpenHexagon\SSVEntitySystem\</Path>
+      <Path>..\OHWorkspace\SSVOpenHexagon\DocsMarkdown\</Path>
+      <Path>..\OHWorkspace\SSVOpenHexagon\cmake\</Path>
     </Excludepaths>
     <Ignorefiles/>
     <Extensions>
@@ -24,8 +24,6 @@
   </Reconciliation>
   <Description/>
   <Dependencies/>
-  <Dependencies Name="Debug"/>
-  <Dependencies Name="Release"/>
   <VirtualDirectory Name="src"/>
   <VirtualDirectory Name="include">
     <File Name="include/SSVOpenHexagon/Compatibility/Compatibility.h"/>
@@ -70,6 +68,8 @@
     <File Name="src/SSVOpenHexagon/Utils/FPSWatcher.cpp"/>
     <File Name="src/SSVOpenHexagon/Utils/Utils.cpp"/>
   </VirtualDirectory>
+  <Dependencies Name="Debug"/>
+  <Dependencies Name="Release"/>
   <Settings Type="Executable">
     <GlobalSettings>
       <Compiler Options="" C_Options="">
@@ -151,7 +151,7 @@
         <IncludePath Value="../SSVMenuSystem/include/"/>
         <IncludePath Value="../SFML/include"/>
         <IncludePath Value="../jsoncpp/include"/>
-        <IncludePath Value="C:/lua/include"/>
+        <IncludePath Value="../lua/include"/>
       </Compiler>
       <Linker Options="" Required="yes">
         <LibraryPath Value="../SSVUtils/lib/"/>
@@ -161,7 +161,7 @@
         <LibraryPath Value="../SSVLuaWrapper/lib/"/>
         <LibraryPath Value="../SSVMenuSystem/lib/"/>
         <LibraryPath Value="../SFML/build2/lib/"/>
-        <LibraryPath Value="../lua"/>
+        <LibraryPath Value="../lua/"/>
         <LibraryPath Value="../jsoncpp/libs/mingw/"/>
         <Library Value="SSVUtils-s"/>
         <Library Value="SSVUtilsJson-s"/>
