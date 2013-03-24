@@ -3,8 +3,8 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include "Data/EventData.h"
-#include "HexagonGame.h"
+#include "SSVOpenHexagon/Data/EventData.h"
+#include "SSVOpenHexagon/Core/HexagonGame.h"
 
 using namespace std;
 using namespace ssvuj;

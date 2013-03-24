@@ -4,9 +4,9 @@
 
 #include <fstream>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include "Global/Assets.h"
-#include "Utils/Utils.h"
-#include "HexagonGame.h"
+#include "SSVOpenHexagon/Global/Assets.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Core/HexagonGame.h"
 
 using namespace std;
 using namespace sf;

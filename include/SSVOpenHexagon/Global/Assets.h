@@ -8,12 +8,12 @@
 #include <string>
 #include <SSVStart/SSVStart.h>
 #include <SFML/Audio.hpp>
-#include "Data/EventData.h"
-#include "Data/LevelData.h"
-#include "Data/MusicData.h"
-#include "Data/PackData.h"
-#include "Data/ProfileData.h"
-#include "Data/StyleData.h"
+#include "SSVOpenHexagon/Data/EventData.h"
+#include "SSVOpenHexagon/Data/LevelData.h"
+#include "SSVOpenHexagon/Data/MusicData.h"
+#include "SSVOpenHexagon/Data/PackData.h"
+#include "SSVOpenHexagon/Data/ProfileData.h"
+#include "SSVOpenHexagon/Data/StyleData.h"
 
 namespace hg
 {

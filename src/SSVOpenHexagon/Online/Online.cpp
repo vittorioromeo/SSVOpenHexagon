@@ -8,10 +8,10 @@
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SSVStart/SSVStart.h>
-#include "Online/Online.h"
-#include "Global/Config.h"
-#include "Online/Definitions.h"
-#include "Utils/Utils.h"
+#include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Global/Config.h"
+#include "SSVOpenHexagon/Online/Definitions.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
 
 using namespace std;
 using namespace sf;

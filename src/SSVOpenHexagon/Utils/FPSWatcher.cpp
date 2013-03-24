@@ -4,7 +4,7 @@
 
 #include <SSVUtils/SSVUtils.h>
 #include <SFML/System.hpp>
-#include "FPSWatcher.h"
+#include "SSVOpenHexagon/Utils/FPSWatcher.h"
 
 using namespace std;
 using namespace sf;

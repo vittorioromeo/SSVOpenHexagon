@@ -9,10 +9,10 @@
 #include <SFML/Graphics.hpp>
 #include <SSVStart/SSVStart.h>
 #include <SSVMenuSystem/SSVMenuSystem.h>
-#include "Data/LevelData.h"
-#include "Data/StyleData.h"
-#include "Global/Assets.h"
-#include "Global/Config.h"
+#include "SSVOpenHexagon/Data/LevelData.h"
+#include "SSVOpenHexagon/Data/StyleData.h"
+#include "SSVOpenHexagon/Global/Assets.h"
+#include "SSVOpenHexagon/Global/Config.h"
 
 namespace hg
 {

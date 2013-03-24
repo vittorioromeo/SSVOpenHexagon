@@ -3,11 +3,11 @@
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SSVStart/SSVStart.h>
-#include "Compatibility/Compatibility.h"
-#include "Utils/Utils.h"
-#include "Global/Assets.h"
-#include "Online/Online.h"
-#include "Online/Definitions.h"
+#include "SSVOpenHexagon/Compatibility/Compatibility.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Global/Assets.h"
+#include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Online/Definitions.h"
 
 using namespace std;
 using namespace ssvs;
