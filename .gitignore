@@ -1,4 +1,8 @@
 /lib
+CMakeFiles/
+Makefile
+CMakeCache.*
+cmake_install.cmake
 
 #################
 ## Eclipse
