@@ -24,7 +24,6 @@ else()
     message("\n-> SFML directory not found. Set SFML_ROOT to SFML's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
-
 find_package(JsonCpp)
 if(JSONCPP_FOUND)
     include_directories(${JSONCPP_INCLUDE_DIR})
@@ -113,7 +112,6 @@ set(SSVMENUSYSTEM_STATIC_LIBS "" CACHE BOOL "Check to link SSVMenuSystem statica
 set(SSVMENUSYSTEM_INCLUDE_DIR "" CACHE STRING "SSVMenuSystem include directory")
 set(SSVMENUSYSTEM_LIBRARY "" CACHE STRING "SSVMenuSystem library file")
 
-set(SSVUTILS_STATIC_LIBS "" CACHE BOOL "Check to link SSVUtils statically.")
 set(SFML_INCLUDE_DIR "" CACHE STRING "SFML2 include directory")
 set(SFML_SYSTEM_LIBRARY "" CACHE STRING "SFML2 System library file")
 set(SFML_WINDOW_LIBRARY "" CACHE STRING "SFML2 Window library file")
@@ -187,7 +185,6 @@ target_link_libraries(SSVOpenHexagon ${JSONCPP_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${SFML_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${LUA_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${SSVMENUSYSTEM_LIBRARIES})
-target_link_libraries(SSVOpenHexagon ${SSVUTILS_LIBRARIES})
 
 if(UNIX)
     install(TARGETS SSVOpenHexagon
