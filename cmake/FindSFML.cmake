@@ -64,7 +64,8 @@ endif()
 # find the SFML include directory
 find_path(SFML_INCLUDE_DIR SFML/Config.hpp
           PATH_SUFFIXES include
-          PATHS
+          PATHS "${PROJECT_SOURCE_DIR}/../SFML/"
+          "${PROJECT_SOURCE_DIR}/extlibs/SFML/"
           ${SFML_ROOT}
           $ENV{SFML_ROOT}
           ~/Library/Frameworks
@@ -114,6 +115,8 @@ endif()
 # find the requested modules
 set(SFML_FOUND TRUE) # will be set to false if one of the required modules is not found
 set(FIND_SFML_LIB_PATHS
+    "${PROJECT_SOURCE_DIR}/../SFML/"
+    "${PROJECT_SOURCE_DIR}/extlibs/SFML/"
     ${SFML_ROOT}
     $ENV{SFML_ROOT}
     ~/Library/Frameworks

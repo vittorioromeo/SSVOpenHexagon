@@ -9,11 +9,22 @@
 #  also defined, but not for general use are
 #  JSONCPP_LIBRARY, where to find the jsoncpp library.
 
-FIND_PATH(JSONCPP_INCLUDE_DIR jsoncpp/json.h
-PATHS
-/usr/local/include
-/usr/include
+FIND_PATH(JSONCPP_INCLUDE_DIR 
+  NAMES jsoncpp/json.h
+  PATH_SUFFIXES include/
+  PATHS "${PROJECT_SOURCE_DIR}/../jsoncpp/"
+  "${PROJECT_SOURCE_DIR}/extlibs/jsoncpp/"
+  ${SSVENTITYSYSTEM_ROOT}
+  $ENV{SSVENTITYSYSTEM_ROOT}
+  /usr/local/
+  /usr/
+  /sw/         # Fink
+  /opt/local/  # DarwinPorts
+  /opt/csw/    # Blastwave
+  /opt/
 )
+
+message("\nFound JsonCpp include at: ${JSONCPP_INCLUDE_DIR}.\n")
 
 # Get the GCC compiler version
 EXEC_PROGRAM(${CMAKE_CXX_COMPILER}
@@ -25,8 +36,20 @@ EXEC_PROGRAM(${CMAKE_CXX_COMPILER}
 SET(JSONCPP_NAMES ${JSONCPP_NAMES} libjson_linux-gcc-${_gcc_COMPILER_VERSION}_libmt.so)
 FIND_LIBRARY(JSONCPP_LIBRARY
   NAMES ${JSONCPP_NAMES}
-  PATHS /usr/lib /usr/lib64 /usr/local/lib /usr/local/lib64 /lib /lib64
-  )
+  PATH_SUFFIXES lib/ lib64/ libs/ libs/mingw/
+  PATHS "${PROJECT_SOURCE_DIR}/../jsoncpp/"
+  "${PROJECT_SOURCE_DIR}/extlibs/jsoncpp/"
+  ${SSVENTITYSYSTEM_ROOT}
+  $ENV{SSVENTITYSYSTEM_ROOT}
+  /usr/local/
+  /usr/
+  /sw/         # Fink
+  /opt/local/  # DarwinPorts
+  /opt/csw/    # Blastwave
+  /opt/
+)
+
+message("\nFound JsonCpp library at: ${JSONCPP_LIBRARY}.\n")
 
 IF (JSONCPP_LIBRARY AND JSONCPP_INCLUDE_DIR)
     SET(JSONCPP_LIBRARIES ${JSONCPP_LIBRARY})
@@ -35,11 +58,8 @@ ELSE (JSONCPP_LIBRARY AND JSONCPP_INCLUDE_DIR)
     SET(JSONCPP_FOUND "NO")
 ENDIF (JSONCPP_LIBRARY AND JSONCPP_INCLUDE_DIR)
 
-
 IF (JSONCPP_FOUND)
-   IF (NOT JSONCPP_FIND_QUIETLY)
       MESSAGE(STATUS "Found JSONCpp in ${JSONCPP_INCLUDE_DIR}")
-   ENDIF (NOT JSONCPP_FIND_QUIETLY)
 ELSE (JSONCPP_FOUND)
    IF (JSONCPP_FIND_REQUIRED)
       MESSAGE(FATAL_ERROR "Could not find JSONCpp library")
@@ -53,4 +73,4 @@ GET_FILENAME_COMPONENT (NATIVE_JSONCPP_LIB_PATH ${JSONCPP_LIBRARY} PATH)
 MARK_AS_ADVANCED(
   JSONCPP_LIBRARY
   JSONCPP_INCLUDE_DIR
-  )
+)
