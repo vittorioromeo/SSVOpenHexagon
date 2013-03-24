@@ -3,40 +3,39 @@ project(SSVOpenHexagon)
 
 set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type." FORCE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" CACHE STRING "" FORCE)
-
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/;${CMAKE_MODULE_PATH}")
 
 if(SFML_STATIC_LIBS)
-    set(SFML_STATIC_LIBS TRUE)
+	set(SFML_STATIC_LIBS TRUE)
 endif()
 
 find_package(SFML 2 COMPONENTS audio graphics window system network)
 if(SFML_FOUND)
-    include_directories(${SFML_INCLUDE_DIR})
+	include_directories(${SFML_INCLUDE_DIR})
 else()
-    set(SFML_ROOT 				""	CACHE PATH "SFML top-level directory"		)
-	set(SFML_INCLUDE_DIR 		""	CACHE STRING "SFML2 include directory"		)
-	set(SFML_WINDOW_LIBRARY 	""	CACHE STRING "SFML2 Window library file"	)
-	set(SFML_GRAPHICS_LIBRARY 	"" 	CACHE STRING "SFML2 Graphics library file"	)
-	set(SFML_NETWORK_LIBRARY 	"" 	CACHE STRING "SFML2 Network library file"	)
-	set(SFML_AUDIO_LIBRARY 		""	CACHE STRING "SFML2 Audio library file"		)
-    message("\n-> SFML directory not found. Set SFML_ROOT to SFML's top-level path (containing both \"include\" and \"lib\" directories).")
+	set(SFML_ROOT				""	CACHE PATH		"SFML2 top-level directory")
+	set(SFML_INCLUDE_DIR		""	CACHE STRING	"SFML2 include directory")
+	set(SFML_WINDOW_LIBRARY		""	CACHE STRING	"SFML2 Window library file")
+	set(SFML_GRAPHICS_LIBRARY	""	CACHE STRING	"SFML2 Graphics library file")
+	set(SFML_NETWORK_LIBRARY	""	CACHE STRING	"SFML2 Network library file")
+	set(SFML_AUDIO_LIBRARY		""	CACHE STRING	"SFML2 Audio library file")
+	message("\n-> SFML directory not found. Set SFML_ROOT to SFML's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
 find_package(JsonCpp)
 if(JSONCPP_FOUND)
-    include_directories(${JSONCPP_INCLUDE_DIR})
+	include_directories(${JSONCPP_INCLUDE_DIR})
 else()
-    set(JSONCPP_ROOT "" CACHE PATH "JsonCPP top-level directory")
-    message("\n-> JsonCPP directory not found. Set JSONCPP_ROOT to JsonCPP's top-level path (containing both \"include\" and \"lib\" directories).")
+	set(JSONCPP_ROOT "" CACHE PATH "JsonCPP top-level directory")
+	message("\n-> JsonCPP directory not found. Set JSONCPP_ROOT to JsonCPP's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
 find_package(LUA)
 if(LUA_FOUND)
-    include_directories(${LUA_INCLUDE_DIR})
+	include_directories(${LUA_INCLUDE_DIR})
 else()
-    set(LUA_ROOT "" CACHE PATH "LUA top-level directory")
-    message("\n-> LUA directory not found. Set LUA_ROOT to LUA's top-level path (containing both \"include\" and \"lib\" directories).")
+	set(LUA_ROOT "" CACHE PATH "LUA top-level directory")
+	message("\n-> LUA directory not found. Set LUA_ROOT to LUA's top-level path (containing both \"include\" and \"lib\" directories).")
 endif()
 
 ##############################################################
@@ -340,49 +339,48 @@ set(SRC_DIR "src")
 set(INC_DIR "include")
 
 set(
-    SOURCES
-    ${INC_DIR}/${PROJECT_NAME}/Compatibility/Compatibility.h
-    ${INC_DIR}/${PROJECT_NAME}/Components/CPlayer.h
-    ${INC_DIR}/${PROJECT_NAME}/Components/CWall.h
-    ${INC_DIR}/${PROJECT_NAME}/Core/HGStatus.h
-    ${INC_DIR}/${PROJECT_NAME}/Core/HexagonGame.h
-    ${INC_DIR}/${PROJECT_NAME}/Core/MenuGame.h
-    ${INC_DIR}/${PROJECT_NAME}/Data/EventData.h
-    ${INC_DIR}/${PROJECT_NAME}/Data/LevelData.h
-    ${INC_DIR}/${PROJECT_NAME}/Data/MusicData.h
-    ${INC_DIR}/${PROJECT_NAME}/Data/PackData.h
-    #${INC_DIR}/${PROJECT_NAME}/Data/PatternData.h
-    ${INC_DIR}/${PROJECT_NAME}/Data/ProfileData.h
-    ${INC_DIR}/${PROJECT_NAME}/Data/StyleData.h
-    ${INC_DIR}/${PROJECT_NAME}/Global/Assets.h
-    ${INC_DIR}/${PROJECT_NAME}/Global/Config.h
-    ${INC_DIR}/${PROJECT_NAME}/Global/Factory.h
-    ${INC_DIR}/${PROJECT_NAME}/Online/Definitions.h
-    ${INC_DIR}/${PROJECT_NAME}/Online/Online.h
-    ${INC_DIR}/${PROJECT_NAME}/Utils/FPSWatcher.h
-    ${INC_DIR}/${PROJECT_NAME}/Utils/Utils.h
-    ${SRC_DIR}/${PROJECT_NAME}/Compatibility/Compatibility.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Components/CPlayer.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Components/CWall.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Core/HGGraphics.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Core/HGProperties.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Core/HGScripting.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Core/HGUpdate.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Core/HexagonGame.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Core/MenuGame.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Core/main.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Data/EventData.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Data/LevelData.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Data/MusicData.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Data/PackData.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Data/ProfileData.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Data/StyleData.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Global/Assets.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Global/Config.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Global/Factory.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Online/Online.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Utils/FPSWatcher.cpp
-    ${SRC_DIR}/${PROJECT_NAME}/Utils/Utils.cpp
+	SOURCES
+	${INC_DIR}/${PROJECT_NAME}/Compatibility/Compatibility.h
+	${INC_DIR}/${PROJECT_NAME}/Components/CPlayer.h
+	${INC_DIR}/${PROJECT_NAME}/Components/CWall.h
+	${INC_DIR}/${PROJECT_NAME}/Core/HGStatus.h
+	${INC_DIR}/${PROJECT_NAME}/Core/HexagonGame.h
+	${INC_DIR}/${PROJECT_NAME}/Core/MenuGame.h
+	${INC_DIR}/${PROJECT_NAME}/Data/EventData.h
+	${INC_DIR}/${PROJECT_NAME}/Data/LevelData.h
+	${INC_DIR}/${PROJECT_NAME}/Data/MusicData.h
+	${INC_DIR}/${PROJECT_NAME}/Data/PackData.h
+	${INC_DIR}/${PROJECT_NAME}/Data/ProfileData.h
+	${INC_DIR}/${PROJECT_NAME}/Data/StyleData.h
+	${INC_DIR}/${PROJECT_NAME}/Global/Assets.h
+	${INC_DIR}/${PROJECT_NAME}/Global/Config.h
+	${INC_DIR}/${PROJECT_NAME}/Global/Factory.h
+	${INC_DIR}/${PROJECT_NAME}/Online/Definitions.h
+	${INC_DIR}/${PROJECT_NAME}/Online/Online.h
+	${INC_DIR}/${PROJECT_NAME}/Utils/FPSWatcher.h
+	${INC_DIR}/${PROJECT_NAME}/Utils/Utils.h
+	${SRC_DIR}/${PROJECT_NAME}/Compatibility/Compatibility.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Components/CPlayer.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Components/CWall.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Core/HGGraphics.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Core/HGProperties.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Core/HGScripting.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Core/HGUpdate.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Core/HexagonGame.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Core/MenuGame.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Core/main.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Data/EventData.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Data/LevelData.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Data/MusicData.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Data/PackData.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Data/ProfileData.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Data/StyleData.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Global/Assets.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Global/Config.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Global/Factory.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Online/Online.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Utils/FPSWatcher.cpp
+	${SRC_DIR}/${PROJECT_NAME}/Utils/Utils.cpp
 )
 
 include_directories(${INC_DIR})
@@ -405,24 +403,24 @@ target_link_libraries(SSVOpenHexagon ${LUA_LIBRARIES})
 target_link_libraries(SSVOpenHexagon ${SSVMENUSYSTEM_LIBRARIES})
 
 if(UNIX)
-    install(TARGETS SSVOpenHexagon
-				RUNTIME DESTINATION /usr/local/games/SSVOpenHexagon/
-    )
-
-    install(DIRECTORY _RELEASE/
-                DESTINATION /usr/local/games/SSVOpenHexagon/
-    )
-
-    install(PROGRAMS _RELEASE/openhexagon
-                DESTINATION /usr/local/bin/
-                PERMISSIONS WORLD_EXECUTE WORLD_READ
-    )
-else(WIN32)
-    install(TARGETS SSVOpenHexagon
-                RUNTIME DESTINATION .
+	install(TARGETS SSVOpenHexagon
+		RUNTIME DESTINATION /usr/local/games/SSVOpenHexagon/
 	)
-	
+
 	install(DIRECTORY _RELEASE/
-				DESTINATION "C:/Program Files (x86)/SSVOpenHexagon/"
+		DESTINATION /usr/local/games/SSVOpenHexagon/
+	)
+
+	install(PROGRAMS _RELEASE/openhexagon
+		DESTINATION /usr/local/bin/
+		PERMISSIONS WORLD_EXECUTE WORLD_READ
+	)
+else(WIN32)
+	install(TARGETS SSVOpenHexagon
+		RUNTIME DESTINATION .
+	)
+
+	install(DIRECTORY _RELEASE/
+		DESTINATION "C:/Program Files (x86)/SSVOpenHexagon/"
 	)
 endif()
