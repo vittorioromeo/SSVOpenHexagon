@@ -34,6 +34,11 @@ EXEC_PROGRAM(${CMAKE_CXX_COMPILER}
             )
 
 SET(JSONCPP_NAMES ${JSONCPP_NAMES} libjson_linux-gcc-${_gcc_COMPILER_VERSION}_libmt.so)
+
+IF (WIN32)
+    SET(JSONCPP_NAMES ${JSONCPP_NAMES} libjson_mingw_libmt.a)
+ENDIF ()
+
 FIND_LIBRARY(JSONCPP_LIBRARY
   NAMES ${JSONCPP_NAMES}
   PATH_SUFFIXES lib/ lib64/ libs/ libs/mingw/

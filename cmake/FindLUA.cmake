@@ -23,7 +23,7 @@ FIND_PATH(LUA_INCLUDE_DIR lua5.1/lua.hpp
 message("\nFound Lua include at: ${LUA_INCLUDE_DIR}.\n")
 
 FIND_LIBRARY(LUA_LIBRARY
-  NAMES liblua5.1 lua5.1 lua liblua
+  NAMES lua5.1.lib liblua5.1 lua5.1 lua liblua
   PATHS "${PROJECT_SOURCE_DIR}/../lua/"
   "${PROJECT_SOURCE_DIR}/extlibs/lua/"
   ${LUA_ROOT}
