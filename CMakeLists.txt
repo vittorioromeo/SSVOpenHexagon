@@ -6,9 +6,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" CACHE STRING "" FORCE)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/;${CMAKE_MODULE_PATH}")
 
 if(SFML_STATIC_LIBS)
-	set(SFML_STATIC_LIBS TRUE)
+	set(SFML_STATIC_LIBRARIES TRUE)
 endif()
 
+set(SFML_STATIC_LIBRARIES TRUE)
 find_package(SFML 2 COMPONENTS audio graphics window system network)
 if(SFML_FOUND)
 	include_directories(${SFML_INCLUDE_DIR})
