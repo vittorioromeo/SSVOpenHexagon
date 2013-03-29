@@ -109,6 +109,8 @@ set(INC_DIR "include")
 file(GLOB SRC_LIST 
 	${INC_DIR}/${PROJECT_NAME}/Compatibility/*.h
 	${SRC_DIR}/${PROJECT_NAME}/Compatibility/*.cpp
+	${INC_DIR}/${PROJECT_NAME}/Components/*.h
+	${SRC_DIR}/${PROJECT_NAME}/Components/*.cpp
 	${INC_DIR}/${PROJECT_NAME}/Core/*.h
 	${SRC_DIR}/${PROJECT_NAME}/Core/*.cpp
 	${INC_DIR}/${PROJECT_NAME}/Data/*.h
@@ -123,6 +125,14 @@ file(GLOB SRC_LIST
 
 include_directories(${SPARSEHASH_INCLUDE_DIR})
 include_directories(${INC_DIR})
+include_directories(${INC_DIR}/${PROJECT_NAME})
+include_directories(${INC_DIR}/${PROJECT_NAME}/Compatibility)
+include_directories(${INC_DIR}/${PROJECT_NAME}/Components)
+include_directories(${INC_DIR}/${PROJECT_NAME}/Core)
+include_directories(${INC_DIR}/${PROJECT_NAME}/Data)
+include_directories(${INC_DIR}/${PROJECT_NAME}/Global)
+include_directories(${INC_DIR}/${PROJECT_NAME}/Online)
+include_directories(${INC_DIR}/${PROJECT_NAME}/Utils)
 
 add_executable(SSVOpenHexagon ${SRC_LIST})
 
