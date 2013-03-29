@@ -30,7 +30,7 @@ namespace hg
 		game.addInput({{k::Right}, {k::D}}, [&](float){ inputMovement = 1; });
 		game.addInput({{k::LShift}}, 		[&](float){ inputFocused = true; });
 		game.addInput({{k::Escape}}, 		[&](float){ goToMenu(); });
-		game.addInput({{k::R}}, 			[&](float){ status.mustRestart = true; });
+		game.addInput({{k::R}, {k::Up}}, 	[&](float){ status.mustRestart = true; });
 		game.addInput({{k::Space}}, 		[&](float){ if(status.hasDied) status.mustRestart = true; });
 		game.addInput({{k::Return}}, 		[&](float){ if(status.hasDied) status.mustRestart = true; });
 		game.addInput({{k::F12}}, 			[&](float){ mustTakeScreenshot = true; }, Input::Trigger::Types::SINGLE);
