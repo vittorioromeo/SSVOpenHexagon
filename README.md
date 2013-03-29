@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.84 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.9 #
 ## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
@@ -96,24 +96,14 @@ Please refer to the files in the **documentation** folder.
 
 ## Changelog ##
 
-Version 1.84
+Version 1.9
 
-* Fixed: major performance improvements
-* Fixed: some more security flaws
-* Added "max_swap_time" JSON variable to styles (allows you to set how fast colors rotate)
-* Fixed: WSAD now works in menu
-
-Version 1.83
-
-* Fixed: severe security issues
-* Added: WSAD controls for gameplay
-* Changed: slowdown check now invalidates scores less often (more tolerance to lag spikes or freezes)
-
-Version 1.82
-
-* Added: volume and flash effect option in **F3** menu
-* Fixed/changed: server stability and security improvements
-* Changed: improved menu **leaderboards**
+* Added: **VeeNext**, a new level pack with scripted levels
+* Added: walls with **custom acceleration**
+* Added: game can be restarted with **up arrow key**
+* Fixed: minor bugs, minor text drawing performance issues
+* Fixed: 3D opacity bug with black and white enabled
+* Fixed: Profiles folder is created if it's missing
 
 Version 1.81
 
