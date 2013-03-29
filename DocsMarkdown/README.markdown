@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.81 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.9 #
 ## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
@@ -95,6 +95,15 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.9
+
+* Added: **VeeNext**, a new level pack with scripted levels
+* Added: walls with **custom acceleration**
+* Added: game can be restarted with **up arrow key**
+* Fixed: minor bugs, minor text drawing performance issues
+* Fixed: 3D opacity bug with black and white enabled
+* Fixed: Profiles folder is created if it's missing
 
 Version 1.81
 
