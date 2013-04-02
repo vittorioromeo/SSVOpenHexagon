@@ -14,6 +14,7 @@ namespace hg
 		std::string get181Validator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mJsonRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);
 		void convert181to183Hashes(const std::string& mSourceJsonPath, const std::string& mTargetJsonPath);
 		void convert182to183Hashes(const std::string& mSourceJsonPath, const std::string& mTargetJsonPath);
+		void merge19Scores(const std::string& mSourceJsonPathA, const std::string& mSourceJsonPathB, const std::string& mTargetJsonPath);
 	}
 }
 
