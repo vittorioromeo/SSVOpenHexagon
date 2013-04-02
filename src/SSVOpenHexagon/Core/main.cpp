@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 		log("Profiles folder does not exist, creating", "Mkdir");
 		mkdir("Profiles/");
 	}
-	
+
 	Online::startCheckUpdates();
 	srand(unsigned(time(NULL)));
 	loadConfig(overrideIds); initAssetManager(); loadAssets();
@@ -45,9 +45,7 @@ int main(int argc, char* argv[])
 	}
 
 	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - by vittorio romeo"};
-	GameWindow window{title, getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
-	window.setStaticFrameTime(getStaticFrameTime());
-	window.setStaticFrameTimeValue(getStaticFrameTimeValue());
+	GameWindow window{title, createDynamicTimer(window), getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
 	window.setVsync(getVsync());
 	window.setMouseCursorVisible(false);
 
