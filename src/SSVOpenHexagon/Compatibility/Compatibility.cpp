@@ -154,5 +154,51 @@ namespace hg
 
 			ofstream o; o.open(mTargetJsonPath); o << scores; o.flush(); o.close();
 		}
+		void merge19Scores(const string& mSourceJsonPathA, const string& mSourceJsonPathB, const string& mTargetJsonPath)
+		{
+			string aStr{get184FileContents(mSourceJsonPathA)};
+			string bStr{get184FileContents(mSourceJsonPathB)};
+			Json::Value a{getRootFromString(aStr)};
+			Json::Value b{getRootFromString(bStr)};
+
+			Json::Value result{a};
+
+			for(auto itr = b.begin(); itr != b.end(); ++itr)
+			{
+				string validator = itr.key().asString();
+				log("Dealing with validator <" + validator + ">", "Merge");
+
+				if(result.isMember(validator))
+				{
+					log("Result has alerady validator <" + validator + ">", "Merge");
+					Json::Value& lvl = result[validator];
+					
+					for(auto nsPairItr = (*itr).begin(); nsPairItr != (*itr).end(); ++nsPairItr)
+					{
+						Json::Value& nsPair = (*nsPairItr);
+						
+						bool found{false};
+						for(auto lvlPairItr = lvl.begin(); lvlPairItr != lvl.end(); ++lvlPairItr)
+						{
+							Json::Value& lvlPair = (*lvlPairItr);
+							if(lvlPair["n"] == nsPair["n"] && nsPair["s"].asFloat() > lvlPair["s"].asFloat()) 
+							{
+								lvlPair["s"] = nsPair["s"].asFloat();
+								found = true;
+								break;
+							}
+						}
+						
+						if(!found) lvl.append(nsPair);
+					}
+				}
+				else log("Result has not validator <" + validator + ">, creating", "Merge");
+			}
+			
+			string resString{""};
+			Json::FastWriter fw; 
+			resString = fw.write(result);
+			ofstream o; o.open(mTargetJsonPath); o << resString; o.flush(); o.close();
+		}
 	}
 }

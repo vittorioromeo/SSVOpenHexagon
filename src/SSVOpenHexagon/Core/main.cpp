@@ -24,7 +24,7 @@ using namespace ssvu::FileSystem;
 using namespace hg;
 
 int main(int argc, char* argv[])
-{
+{	
 	vector<string> overrideIds; for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
 	if(!exists("Profiles/"))
