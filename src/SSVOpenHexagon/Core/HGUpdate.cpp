@@ -32,11 +32,9 @@ namespace hg
 			if(!getBlackAndWhite()) styleData.update(mFrameTime);
 		}
 		else setRotationSpeed(getRotationSpeed() * 0.99f);
-		
+
 		if(get3D()) update3D(mFrameTime);
 		if(!getNoRotation()) updateRotation(mFrameTime);
-
-		inputMovement = 0; inputFocused = false;
 
 		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
 		if(!status.scoreInvalid && getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
@@ -93,7 +91,7 @@ namespace hg
 		{
 			float pulseAdd{status.pulseDirection > 0 ? levelData.getPulseSpeed() : -levelData.getPulseSpeedR()};
 			float pulseLimit{status.pulseDirection > 0 ? levelData.getPulseMax() : levelData.getPulseMin()};
-			
+
 			status.pulse += pulseAdd * mFrameTime;
 			if((status.pulseDirection > 0 && status.pulse >= pulseLimit) || (status.pulseDirection < 0 && status.pulse <= pulseLimit))
 			{
@@ -106,7 +104,7 @@ namespace hg
 
 		status.pulseDelay -= mFrameTime;
 		status.pulseDelayHalf -= mFrameTime;
-		
+
 		float p{status.pulse / levelData.getPulseMin()};
 		float rotation{backgroundCamera.getRotation()};
 		backgroundCamera.setView({{0, 0}, {(getWidth() * getZoomFactor()) * p, (getHeight() * getZoomFactor()) * p}});
@@ -149,6 +147,6 @@ namespace hg
 		if(status.pulse3D > styleData.get3DPulseMax()) status.pulse3DDirection = -1;
 		else if(status.pulse3D < styleData.get3DPulseMin()) status.pulse3DDirection = 1;
 
-		
+
 	}
 }
