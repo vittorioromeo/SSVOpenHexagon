@@ -23,6 +23,7 @@ namespace hg
 		initFlashEffect();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
+		game.onPostUpdate += [&]{ inputMovement = 0; inputFocused = false; };
 		game.onDraw += [&]{ draw(); };
 
 		using k = Keyboard::Key;
