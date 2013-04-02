@@ -24,7 +24,7 @@ namespace hg
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
-		
+
 		using k = Keyboard::Key;
 		game.addInput({{k::Left}, {k::A}}, 	[&](float){ inputMovement = -1; });
 		game.addInput({{k::Right}, {k::D}}, [&](float){ inputMovement = 1; });
@@ -97,7 +97,7 @@ namespace hg
 		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())});
 		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
 		backgroundCamera.setRotation(0);
-		
+
 		// 3D Cameras cleanup
 		depthCameras.clear();
 		unsigned int depth{styleData.get3DDepth()};
@@ -128,7 +128,7 @@ namespace hg
 
 		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setRotationSpeed(levelData.getRotationSpeed() * -1);
-		
+
 		if(status.fastSpin < 0 && abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
 			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));
 

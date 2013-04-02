@@ -148,7 +148,7 @@ namespace hg
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
-			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem(); 
+			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem();
 		}, t::SINGLE);
 		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { profileNewName = ""; state = s::PROFILE_NEW; } }, t::SINGLE);
 		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { profileNewName = ""; state = s::PROFILES; } }, t::SINGLE);
@@ -209,7 +209,7 @@ namespace hg
 
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
-			if(recordPairs[i].first != getCurrentProfile().getName()) continue;			
+			if(recordPairs[i].first != getCurrentProfile().getName()) continue;
 			playerPosition = i + 1;
 			playerScore = recordPairs[i].second;
 			break;
@@ -226,7 +226,7 @@ namespace hg
 					if(recordPair.first == getCurrentProfile().getName()) result.append(" >> ");
 					result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
 				}
-				else if(static_cast<unsigned int>(playerPosition) > leaderboardRecordCount) 
+				else if(static_cast<unsigned int>(playerPosition) > leaderboardRecordCount)
 					result.append("...(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
 			}
 			else break;
@@ -269,7 +269,7 @@ namespace hg
 		if(state == States::MAIN) { drawLevelSelection(); render(bottomBar); }
 		else if(state == States::PROFILE_NEW) drawProfileCreation();
 		else if(state == States::PROFILES) drawProfileSelection();
-		else if(state == States::OPTIONS) drawOptions(); 
+		else if(state == States::OPTIONS) drawOptions();
 
 		render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
