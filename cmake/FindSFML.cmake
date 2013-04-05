@@ -64,7 +64,8 @@ endif()
 # find the SFML include directory
 find_path(SFML_INCLUDE_DIR SFML/Config.hpp
           PATH_SUFFIXES include
-          PATHS "${PROJECT_SOURCE_DIR}/../SFML/"
+          PATHS "D:/Vee/Software/GitHub/OHWorkspace/SFML/"
+          "${PROJECT_SOURCE_DIR}/../SFML/"
           "${PROJECT_SOURCE_DIR}/extlibs/SFML/"
           ${SFML_ROOT}
           $ENV{SFML_ROOT}
@@ -72,10 +73,11 @@ find_path(SFML_INCLUDE_DIR SFML/Config.hpp
           /Library/Frameworks
           /usr/local/
           /usr/
-          /sw          # Fink
-          /opt/local/  # DarwinPorts
-          /opt/csw/    # Blastwave
-          /opt/)
+          /sw/
+          /opt/local/
+          /opt/csw/
+          /opt/
+)
 
 # check the version number
 set(SFML_VERSION_OK TRUE)
@@ -115,6 +117,8 @@ endif()
 # find the requested modules
 set(SFML_FOUND TRUE) # will be set to false if one of the required modules is not found
 set(FIND_SFML_LIB_PATHS
+    "D:/Vee/Software/GitHub/OHWorkspace/SFML/"
+    "D:/Vee/Software/GitHub/OHWorkspace/SFML/lib/"
     "${PROJECT_SOURCE_DIR}/../SFML/"
     "${PROJECT_SOURCE_DIR}/../SFML/lib/"
     "${PROJECT_SOURCE_DIR}/../SFML/build2/lib/"
@@ -125,11 +129,13 @@ set(FIND_SFML_LIB_PATHS
     ~/Library/Frameworks
     /Library/Frameworks
     /usr/local
-    /usr
-    /sw
+    /usr/
+    /sw/
     /opt/local
     /opt/csw
-    /opt)
+    /opt
+)
+
 foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
     string(TOLOWER ${FIND_SFML_COMPONENT} FIND_SFML_COMPONENT_LOWER)
     string(TOUPPER ${FIND_SFML_COMPONENT} FIND_SFML_COMPONENT_UPPER)
@@ -149,6 +155,7 @@ foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
     # release library
     find_library(SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_RELEASE
                  NAMES ${FIND_SFML_COMPONENT_NAME}
+                 ${FIND_SFML_COMPONENT_NAME}-2
                  PATH_SUFFIXES lib64/ lib/
                  PATHS ${FIND_SFML_LIB_PATHS})
 
