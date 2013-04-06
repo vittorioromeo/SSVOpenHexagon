@@ -88,6 +88,33 @@ namespace hg
 			return get182UrlEncoded(mLevelId) + get182MD5Hash(toEncrypt + serverKey182);
 		}
 
+		string get19Validator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath,
+			const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		{
+			string luaScriptContents{ssvu::FileSystem::getFileContents(mLuaScriptPath)};
+			unordered_set<string> luaScriptNames;
+			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
+
+			string toEncrypt{""};
+			toEncrypt.append(mLevelId);
+			toEncrypt.append(toStr(mDifficultyMultiplier));
+			toEncrypt.append(ssvu::FileSystem::getFileContents(mLevelRootPath));
+			toEncrypt.append(ssvu::FileSystem::getFileContents(mStyleRootPath));
+			toEncrypt.append(luaScriptContents);
+
+			for(auto& luaScriptName : luaScriptNames)
+			{
+				string path{mPackPath + "/Scripts/" + luaScriptName};
+				string contents{ssvu::FileSystem::getFileContents(path)};
+				toEncrypt.append(contents);
+			}
+
+			toEncrypt = get182ControlStripped(toEncrypt);
+
+			string result{get182UrlEncoded(mLevelId) + get182MD5Hash(toEncrypt + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
+			return result;
+		}
+
 		void convert181to183Hashes(const string& mSourceJsonPath, const string& mTargetJsonPath)
 		{
 			string scores{get184FileContents(mSourceJsonPath)};
@@ -105,7 +132,7 @@ namespace hg
 					log("");
 
 					log("computing new validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
-					string newValidator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+					string newValidator{get19Validator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 					log("\"" + newValidator + "\"");
 					newValidators.push_back("\"" + newValidator + "\"");
 					log("");
@@ -138,7 +165,7 @@ namespace hg
 					log("");
 
 					log("computing new validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
-					string newValidator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+					string newValidator{get19Validator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
 					log("\"" + newValidator + "\"");
 					newValidators.push_back("\"" + newValidator + "\"");
 					log("");
@@ -172,31 +199,31 @@ namespace hg
 				{
 					log("Result has alerady validator <" + validator + ">", "Merge");
 					Json::Value& lvl = result[validator];
-					
+
 					for(auto nsPairItr = (*itr).begin(); nsPairItr != (*itr).end(); ++nsPairItr)
 					{
 						Json::Value& nsPair = (*nsPairItr);
-						
+
 						bool found{false};
 						for(auto lvlPairItr = lvl.begin(); lvlPairItr != lvl.end(); ++lvlPairItr)
 						{
 							Json::Value& lvlPair = (*lvlPairItr);
-							if(lvlPair["n"] == nsPair["n"] && nsPair["s"].asFloat() > lvlPair["s"].asFloat()) 
+							if(lvlPair["n"] == nsPair["n"] && nsPair["s"].asFloat() > lvlPair["s"].asFloat())
 							{
 								lvlPair["s"] = nsPair["s"].asFloat();
 								found = true;
 								break;
 							}
 						}
-						
+
 						if(!found) lvl.append(nsPair);
 					}
 				}
 				else log("Result has not validator <" + validator + ">, creating", "Merge");
 			}
-			
+
 			string resString{""};
-			Json::FastWriter fw; 
+			Json::FastWriter fw;
 			resString = fw.write(result);
 			ofstream o; o.open(mTargetJsonPath); o << resString; o.flush(); o.close();
 		}
