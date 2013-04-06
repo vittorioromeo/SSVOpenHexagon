@@ -180,9 +180,10 @@ namespace hg
 
 	void MenuGame::refreshScores()
 	{
+		if(state != States::MAIN) return;
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
-		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
-		Online::startGetScores(currentScores, validator);
+		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
+		Online::startGetScores(currentScores, getCurrentProfile().getName(), validator, difficultyMult);
 	}
 	string MenuGame::getLeaderboard()
 	{

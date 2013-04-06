@@ -101,7 +101,7 @@ namespace hg
 
 			thread.launch();
 		}
-		void startSendScore(const string& mName, const string& mValidator, float mScore)
+		void startSendScore(const string& mName, const string& mValidator, float mDifficulty, float mScore)
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 
@@ -110,14 +110,32 @@ namespace hg
 				log("Sending score to server...", "Online");
 
 				string scoreString{toStr(mScore)};
-				string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + HG_ENCRYPTIONKEY};
-				Response response{getPostResponse(host, folder, sendScoreFile, body)};
-				Status status{response.getStatus()};
+				//string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + HG_ENCRYPTIONKEY};
 
-				if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
-				else log("Send score error: " + status, "Online");
+				Packet packet0x00, packet0x10;
+				packet0x00 << int8_t{0x00} << (string)mValidator << (float)mDifficulty << (string)mName << (float)mScore << (string)HG_ENCRYPTIONKEY;
+				TcpSocket socket;
+				socket.connect("209.236.124.147", 27272);
+				socket.send(packet0x00);
+				socket.receive(packet0x10);
+				uint8_t packetID, pass;
+				if(packet0x10 >> packetID >> pass)
+				{
+					if(packetID == 0x10)
+					{
+						if(pass == 0) cout << "Successfully submitted score!";
+						else cout << "Oops! Something went wrong!";
+					}
+				}
+				socket.disconnect();
 
-				log("Finished sending score", "Online"); log(""); log(response.getBody(), "Server Message");
+				//Response response{getPostResponse(host, folder, sendScoreFile, body)};
+				//Status status{response.getStatus()};
+
+				//if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
+				//else log("Send score error: " + status, "Online");
+
+				//log("Finished sending score", "Online"); log(""); log(response.getBody(), "Server Message");
 				startCheckScores();
 				cleanUp();
 			});
@@ -141,7 +159,7 @@ namespace hg
 
 			checkThread.launch();
 		}
-		void startGetScores(string& mTargetString, const string& mValidator)
+		void startGetScores(string& mTargetString, const string& mName, const string& mValidator, float mDifficulty)
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 
@@ -151,16 +169,38 @@ namespace hg
 
 				log("Getting scores from server...", "Online");
 
-				string body{"v=" + mValidator};
-				Response response{getPostResponse(host, folder, getScoresFile, body)};
-				Status status{response.getStatus()};
+				Packet packet0x01, packet0x11;
+				packet0x01 << int8_t{0x01} << (string)mValidator << (float)mDifficulty << (string)mName;
+				TcpSocket socket;
+				socket.connect("209.236.124.147", 27272);
+				socket.send(packet0x01);
+				socket.receive(packet0x11);
+				uint8_t packetID, pass;
+				string response[2];
 
-				if(status == Response::Ok)
+				if(packet0x11 >> packetID >> pass)
 				{
-					log("Scores got successfully", "Online");
-					mTargetString = response.getBody();
+					if(pass == 0)
+					{
+						if(packet0x11 >> response[0] >> response[1]) cout << "Received scores!" << endl << response[0]<< endl << response[1] << endl;
+						else cout<<"Oops! Something went wrong with getting the scores!";
+					}
+					else cout<<"Oops! Something went wrong with getting the scores!";
 				}
-				else log("Get scores error: " + status, "Online");
+				socket.disconnect();
+
+
+
+				//string body{"v=" + mValidator};
+				//Response response{getPostResponse(host, folder, getScoresFile, body)};
+				//Status status{response.getStatus()};
+
+				//if(status == Response::Ok)
+				//{
+				//	log("Scores got successfully", "Online");
+				//	mTargetString = response.getBody();
+				//}
+				//else log("Get scores error: " + status, "Online");
 
 				log("Finished getting scores", "Online");
 				cleanUp();
@@ -173,7 +213,7 @@ namespace hg
 		void terminateAll() { for(auto& t : memoryManager.getItems()) t->terminate(); memoryManager.cleanUp(); }
 
 		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath,
-			const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+			const string& mStyleRootPath, const string& mLuaScriptPath)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 			unordered_set<string> luaScriptNames;
@@ -181,7 +221,6 @@ namespace hg
 
 			string toEncrypt{""};
 			toEncrypt.append(mLevelId);
-			toEncrypt.append(toStr(mDifficultyMultiplier));
 			toEncrypt.append(getFileContents(mLevelRootPath));
 			toEncrypt.append(getFileContents(mStyleRootPath));
 			toEncrypt.append(luaScriptContents);
@@ -201,11 +240,11 @@ namespace hg
 
 		float getServerVersion() 								{ return serverVersion; }
 		string getServerMessage() 								{ return serverMessage; }
-		Json::Value getScores(const std::string& mValidator) 	{ return scoresRoot[mValidator]; }
+		Json::Value getScores(const string& mValidator) 	{ return scoresRoot[mValidator]; }
 		string getMD5Hash(const string& mString) 				{ MD5 key{mString}; return key.GetHash(); }
 		string getUrlEncoded(const string& mString) 			{ string result{""}; for(auto c : mString) if(isalnum(c)) result += c; return result; }
 		string getControlStripped(const string& mString)		{ string result{""}; for(auto c : mString) if(!iscntrl(c)) result += c; return result; }
-		
+
 	}
 }
 

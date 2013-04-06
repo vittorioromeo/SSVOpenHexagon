@@ -12,13 +12,13 @@ namespace hg
 	namespace Online
 	{
 		void startCheckUpdates();
-		void startSendScore(const std::string& mName, const std::string& mValidator, float mScore);
-		void startGetScores(std::string& mTargetString, const std::string& mValidator);
+		void startSendScore(const std::string& mName, const std::string& mValidator, float mDifficulty, float mScore);
+		void startGetScores(std::string& mTargetString, const std::string& mName, const std::string& mValidator, float mDifficulty);
 
 		void cleanUp();
 		void terminateAll();
 
-		std::string getValidator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mLevelRootPath, const std::string& mStyleRootPath, const std::string& mLuaScriptPath, float mDifficultyMultiplier);
+		std::string getValidator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mLevelRootPath, const std::string& mStyleRootPath, const std::string& mLuaScriptPath);
 
 		float getServerVersion();
 		std::string getServerMessage();
