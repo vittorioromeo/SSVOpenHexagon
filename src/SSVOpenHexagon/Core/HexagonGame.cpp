@@ -164,7 +164,7 @@ namespace hg
 		if(status.scoreInvalid || !isEligibleForScore()) return;
 
 		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
-		Online::startSendScore(getCurrentProfile().getName(), validator, difficultyMult, status.currentTime);
+		Online::startSendScore(toLower(getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);
 	}
 	void HexagonGame::goToMenu(bool mSendScores)
 	{

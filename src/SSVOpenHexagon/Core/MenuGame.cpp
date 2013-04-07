@@ -142,14 +142,14 @@ namespace hg
 		game.addInput({{k::Return}}, [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == s::PROFILES) { setCurrentProfile(profileNewName); state = s::MAIN; }
+			if(state == s::PROFILES) { setCurrentProfile(profileNewName); state = s::MAIN; refreshScores(); }
 			else if(state == s::MAIN)
 			{
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
 			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem();
-			else if(state == s::PROFILE_NEW) if(!profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = States::MAIN; }
+			else if(state == s::PROFILE_NEW) if(!profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = s::MAIN; refreshScores(); }
 		}, t::SINGLE);
 		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { profileNewName = ""; state = s::PROFILE_NEW; } }, t::SINGLE);
 		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { profileNewName = ""; state = s::PROFILES; } }, t::SINGLE);
@@ -158,7 +158,7 @@ namespace hg
 		{
 			playSound("beep.ogg"); if(state == s::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
 		}, t::SINGLE);
-		game.addInput({{k::Escape}}, [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; }, t::SINGLE);
+		game.addInput({{k::Escape}}, [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; refreshScores(); }, t::SINGLE);
 		game.addInput({{k::Escape}}, [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
 		game.addInput({{k::F12}}, [&](float){ mustTakeScreenshot = true; }, t::SINGLE);
 		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::SINGLE);
@@ -189,6 +189,7 @@ namespace hg
 	}
 	string MenuGame::getLeaderboard()
 	{
+		if(currentLeaderboard == "NULL" || currentPlayerScore == "NULL") return "no scores";
 		if(currentLeaderboard == "" || currentPlayerScore == "") return "refreshing...";
 
 		unsigned int leaderboardRecordCount{8};
@@ -202,7 +203,7 @@ namespace hg
 		for(auto itr(root.begin()); itr != root.end(); ++itr)
 		{
 			Json::Value& record(*itr);
-			string name{getValue<string>(record, "n")};
+			string name{toLower(getValue<string>(record, "n"))};
 			float score{getValue<float>(record, "s")};
 			recordPairs.push_back({name, score});
 		}
