@@ -29,7 +29,7 @@ namespace hg
 	float sizeX{1500}, sizeY{1500};
 	constexpr float spawnDistance{1600};
 	string uneligibilityReason{""};
-	
+
 	void loadConfig(vector<string> mOverridesIds)
 	{
 		log("loading config", "CONFIG");
@@ -95,7 +95,7 @@ namespace hg
 		if(getPlayerSize() != 7.3f) { uneligibilityReason = "player size modified"; return false; }
 		if(getInvincible()) { uneligibilityReason = "invincibility on"; return false; }
 		if(getNoRotation()) { uneligibilityReason = "rotation off"; return false; }
-		if(Online::getServerVersion() == -1) { uneligibilityReason = "version mismatch"; return false; }
+		if(Online::getServerVersion() == -1) { uneligibilityReason = "connection error"; return false; }
 		if(Online::getServerVersion() > getVersion()) { uneligibilityReason = "version mismatch"; return false; }
 		return true;
 	}
