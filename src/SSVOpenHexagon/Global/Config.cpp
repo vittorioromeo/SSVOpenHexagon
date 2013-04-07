@@ -163,7 +163,7 @@ namespace hg
 	bool getVsync()						{ return root["vsync"].asBool(); }
 	bool getAutoZoomFactor()			{ if(getOfficial()) return true; return root["auto_zoom_factor"].asBool(); }
 	bool getFullscreen()				{ return root["fullscreen"].asBool(); }
-	float getVersion() 					{ return 1.9f; }
+	float getVersion() 					{ return 1.91f; }
 	bool getWindowedAutoResolution()	{ return root["windowed_auto_resolution"].asBool(); }
 	bool getFullscreenAutoResolution() 	{ return root["fullscreen_auto_resolution"].asBool(); }
 	unsigned int getFullscreenWidth()	{ return root["fullscreen_width"].asInt(); }

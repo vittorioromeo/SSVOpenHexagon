@@ -198,29 +198,36 @@ namespace hg
 		vector<RecordPair> recordPairs;
 
 		int playerPosition{-1};
-		float playerScore{-1};
 
 		for(auto itr(root.begin()); itr != root.end(); ++itr)
 		{
 			Json::Value& record(*itr);
-			string name{record["n"].asString()};
-			float score{record["s"].asFloat()};
+			string name{getValue<string>(record, "n")};
+			float score{getValue<float>(record, "s")};
 			recordPairs.push_back({name, score});
 		}
 
 		sort(begin(recordPairs), end(recordPairs), [&](const RecordPair& mA, const RecordPair& mB){ return mA.second > mB.second; });
 
+		bool foundPlayer{false};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
 			if(recordPairs[i].first != getCurrentProfile().getName()) continue;
 			playerPosition = i + 1;
-			playerScore = recordPairs[i].second;
+			foundPlayer = true;
 			break;
 		}
 
 		string result{""};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
+			if(currentPlayerScore != "NULL" && !foundPlayer && i == leaderboardRecordCount -1)
+			{
+				Json::Value playerScoreRoot{getRootFromString(currentPlayerScore)};
+				result.append("...(" + toStr(getValue<int>(playerScoreRoot, "p")) + ") " + getCurrentProfile().getName() + ": " + toStr(getValue<float>(playerScoreRoot, "s")) + "\n");
+				break;
+			}
+
 			if(i <= leaderboardRecordCount)
 			{
 				if(playerPosition == -1 || i < leaderboardRecordCount)
@@ -229,8 +236,6 @@ namespace hg
 					if(recordPair.first == getCurrentProfile().getName()) result.append(" >> ");
 					result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
 				}
-				else if(static_cast<unsigned int>(playerPosition) > leaderboardRecordCount)
-					result.append("...(" + toStr(playerPosition) +") " + getCurrentProfile().getName() + ": " + toStr(playerScore) + "\n");
 			}
 			else break;
 		}
