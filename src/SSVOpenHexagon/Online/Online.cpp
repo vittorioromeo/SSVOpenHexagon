@@ -174,10 +174,8 @@ namespace hg
 						if(packet0x11 >> response[0] >> response[1])
 						{
 							log("Scores successfully received", "Online");
-							log(response[0]);
-							log(response[1]);
-							mTargetScores = response[0];
-							mTargetPlayerScore = response[1];
+							if(!startsWith(response[0], "MySQL Error") && !startsWith(response[0], "NULL")) mTargetScores = response[0];
+							if(!startsWith(response[1], "MySQL Error") && !startsWith(response[1], "NULL")) mTargetPlayerScore = response[1];
 						}
 						else log("Error: could not get scores", "Online");
 					}
@@ -194,8 +192,7 @@ namespace hg
 		void cleanUp() 		{ for(auto& t : memoryManager.getItems()) if(t->getFinished()) memoryManager.del(t); memoryManager.cleanUp(); }
 		void terminateAll() { for(auto& t : memoryManager.getItems()) t->terminate(); memoryManager.cleanUp(); }
 
-		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath,
-			const string& mStyleRootPath, const string& mLuaScriptPath)
+		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 			unordered_set<string> luaScriptNames;
