@@ -24,9 +24,12 @@ namespace hg
 
 		string get181MD5Hash(const string& mString) { MD5 key{mString}; return key.GetHash(); }
 		string get182MD5Hash(const string& mString) { MD5 key{mString}; return key.GetHash(); }
-		string get181UrlEncoded(const string& mString) { string result{""}; for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i]; return result; }
-		string get182UrlEncoded(const string& mString) { string result{""}; for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i]; return result; }
+		string get19MD5Hash(const string& mString) 	{ MD5 key{mString}; return key.GetHash(); }
+		string get181UrlEncoded(const string& mString)	{ string result{""}; for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i]; return result; }
+		string get182UrlEncoded(const string& mString)	{ string result{""}; for(unsigned int i{0}; i < mString.size(); ++i) if(isalnum(mString[i])) result += mString[i]; return result; }
+		string get19UrlEncoded(const string& mString)	{ string result{""}; for(auto c : mString) if(isalnum(c)) result += c; return result; }
 		string get182ControlStripped(const string& mString) { string result{""}; for(unsigned int i{0}; i < mString.size(); ++i) if(!iscntrl(mString[i])) result += mString[i]; return result; }
+		string get19ControlStripped(const string& mString)	{ string result{""}; for(auto c : mString) if(!iscntrl(c)) result += c; return result; }
 
 		string get181FileContents(const string& mFilePath) { ifstream ifs(mFilePath); string content{(istreambuf_iterator<char>(ifs)), (istreambuf_iterator<char>())}; return content; }
 		string get182FileContents(const string& mFilePath)
@@ -40,6 +43,16 @@ namespace hg
 			fclose(fptr); return content;
 		}
 		string get184FileContents(const string& mPath)
+		{
+			FILE* fptr{fopen(mPath.c_str(), "rb")};
+			fseek(fptr, 0, SEEK_END);
+			size_t fsize(ftell(fptr));
+			fseek(fptr, 0, SEEK_SET);
+			string content; content.resize(fsize);
+			if(fread(const_cast<char*>(content.c_str()), 1, fsize, fptr) != fsize) log("Error: " + mPath, "File loading");
+			fclose(fptr); return content;
+		}
+		string get19FileContents(const string& mPath)
 		{
 			FILE* fptr{fopen(mPath.c_str(), "rb")};
 			fseek(fptr, 0, SEEK_END);
@@ -69,7 +82,6 @@ namespace hg
 
 			result.append(get181UrlEncoded(toStr(mDifficultyMultiplier))); return result;
 		}
-
 		string get182Validator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
 			string luaScriptContents{get182FileContents(mLuaScriptPath)}, toEncrypt{""};
@@ -87,31 +99,29 @@ namespace hg
 			toEncrypt = get182ControlStripped(toEncrypt);
 			return get182UrlEncoded(mLevelId) + get182MD5Hash(toEncrypt + serverKey182);
 		}
-
-		string get19Validator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath,
-			const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
+		string get19Validator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath, float mDifficultyMultiplier)
 		{
-			string luaScriptContents{ssvu::FileSystem::getFileContents(mLuaScriptPath)};
+			string luaScriptContents{get19FileContents(mLuaScriptPath)};
 			unordered_set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
 			string toEncrypt{""};
 			toEncrypt.append(mLevelId);
 			toEncrypt.append(toStr(mDifficultyMultiplier));
-			toEncrypt.append(ssvu::FileSystem::getFileContents(mLevelRootPath));
-			toEncrypt.append(ssvu::FileSystem::getFileContents(mStyleRootPath));
+			toEncrypt.append(get19FileContents(mLevelRootPath));
+			toEncrypt.append(get19FileContents(mStyleRootPath));
 			toEncrypt.append(luaScriptContents);
 
 			for(auto& luaScriptName : luaScriptNames)
 			{
 				string path{mPackPath + "/Scripts/" + luaScriptName};
-				string contents{ssvu::FileSystem::getFileContents(path)};
+				string contents{get19FileContents(path)};
 				toEncrypt.append(contents);
 			}
 
-			toEncrypt = get182ControlStripped(toEncrypt);
+			toEncrypt = get19ControlStripped(toEncrypt);
 
-			string result{get182UrlEncoded(mLevelId) + get182MD5Hash(toEncrypt + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
+			string result{get19UrlEncoded(mLevelId) + get19MD5Hash(toEncrypt + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 			return result;
 		}
 

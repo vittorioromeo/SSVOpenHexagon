@@ -117,9 +117,7 @@ namespace hg
 				TcpSocket socket;
 				Packet packet0x00, packet0x10;
 				packet0x00 << int8_t{0x00} << (string)mValidator << (float)mDifficulty << (string)mName << (float)mScore << (string)HG_ENCRYPTIONKEY;
-				socket.connect(hostIp, hostPort);
-				socket.send(packet0x00);
-				socket.receive(packet0x10);
+				socket.connect(hostIp, hostPort); socket.send(packet0x00); socket.receive(packet0x10);
 				uint8_t packetID, pass;
 				if(packet0x10 >> packetID >> pass)
 				{
@@ -166,9 +164,7 @@ namespace hg
 				TcpSocket socket;
 				Packet packet0x01, packet0x11;
 				packet0x01 << int8_t{0x01} << (string)mValidator << (float)mDifficulty << (string)mName;
-				socket.connect(hostIp, hostPort);
-				socket.send(packet0x01);
-				socket.receive(packet0x11);
+				socket.connect(hostIp, hostPort); socket.send(packet0x01); socket.receive(packet0x11);
 				uint8_t packetID, pass;
 				string response[2];
 				if(packet0x11 >> packetID >> pass)
@@ -177,7 +173,9 @@ namespace hg
 					{
 						if(packet0x11 >> response[0] >> response[1])
 						{
-							cout << "Received scores!" << endl << response[0]<< endl << response[1] << endl;
+							log("Scores successfully received", "Online");
+							log(response[0]);
+							log(response[1]);
 							mTargetScores = response[0];
 							mTargetPlayerScore = response[1];
 						}
