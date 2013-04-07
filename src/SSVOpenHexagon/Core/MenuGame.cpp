@@ -149,6 +149,7 @@ namespace hg
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
 			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem();
+			else if(state == s::PROFILE_NEW) if(!profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = States::MAIN; }
 		}, t::SINGLE);
 		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { profileNewName = ""; state = s::PROFILE_NEW; } }, t::SINGLE);
 		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { profileNewName = ""; state = s::PROFILES; } }, t::SINGLE);
@@ -161,6 +162,7 @@ namespace hg
 		game.addInput({{k::Escape}}, [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
 		game.addInput({{k::F12}}, [&](float){ mustTakeScreenshot = true; }, t::SINGLE);
 		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::SINGLE);
+		game.addInput({{k::BackSpace}}, [&](float){ if(state == s::PROFILE_NEW && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1); }, t::SINGLE);
 	}
 
 	void MenuGame::setIndex(int mIndex)
@@ -183,14 +185,14 @@ namespace hg
 		if(state != States::MAIN) return;
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
 		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
-		Online::startGetScores(currentScores, getCurrentProfile().getName(), validator, difficultyMult);
+		Online::startGetScores(currentLeaderboard, currentPlayerScore, getCurrentProfile().getName(), validator, difficultyMult);
 	}
 	string MenuGame::getLeaderboard()
 	{
-		if(currentScores == "") return "refreshing...";
+		if(currentLeaderboard == "" || currentPlayerScore == "") return "refreshing...";
 
 		unsigned int leaderboardRecordCount{8};
-		Json::Value root{getRootFromString(currentScores)};
+		Json::Value root{getRootFromString(currentLeaderboard)};
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
@@ -242,18 +244,7 @@ namespace hg
 
 		if(state == States::PROFILE_NEW)
 		{
-			Event e;
-			while(window.getRenderWindow().pollEvent(e))
-				if(e.type == Event::TextEntered)
-				{
-					if(e.text.unicode > 47 && e.text.unicode < 126 && profileNewName.size() < 16)
-					{
-						char c{static_cast<char>(e.text.unicode)};
-						if(isalnum(c)) { playSound("beep.ogg"); profileNewName.append(toStr(c)); }
-					}
-					else if(e.text.unicode == 8 && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1);
-					else if(e.text.unicode == 13 && !profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = States::MAIN; }
-				}
+			for(auto& c : game.getEnteredChars()) if(profileNewName.size() < 16 && isalnum(c)) { playSound("beep.ogg"); profileNewName.append(toStr(c)); }
 		}
 		else if(state == States::PROFILES) { profileNewName = getProfileNames()[profileIndex % getProfileNames().size()]; }
 		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.getRotationSpeed() * 10 * mFrameTime); }
