@@ -30,6 +30,9 @@ namespace hg
 		using Response = Http::Response;
 		using Status = Http::Response::Status;
 
+		const IpAddress hostIp{"209.236.124.147"};
+		const unsigned short hostPort{27272};
+
 		const string host{"http://vittorioromeo.info"};
 		const string folder{"Misc/Linked/OHServer/"};
 		const string infoFile{"OHInfo.json"};
@@ -107,101 +110,82 @@ namespace hg
 
 			ThreadWrapper& thread = memoryManager.create([=]
 			{
-				log("Sending score to server...", "Online");
+				log("Submitting score...", "Online");
 
 				string scoreString{toStr(mScore)};
-				//string body{"n=" + mName + "&v=" + mValidator + "&s=" + scoreString + "&k=" + HG_ENCRYPTIONKEY};
 
+				TcpSocket socket;
 				Packet packet0x00, packet0x10;
 				packet0x00 << int8_t{0x00} << (string)mValidator << (float)mDifficulty << (string)mName << (float)mScore << (string)HG_ENCRYPTIONKEY;
-				TcpSocket socket;
-				socket.connect("209.236.124.147", 27272);
+				socket.connect(hostIp, hostPort);
 				socket.send(packet0x00);
 				socket.receive(packet0x10);
 				uint8_t packetID, pass;
 				if(packet0x10 >> packetID >> pass)
 				{
-					if(packetID == 0x10)
-					{
-						if(pass == 0) cout << "Successfully submitted score!";
-						else cout << "Oops! Something went wrong!";
-					}
+					if(packetID == 0x10 && pass == 0) log("Score successfully sumbitted", "Online");
+					else log("Error: could not submit score", "Online");
 				}
 				socket.disconnect();
 
-				//Response response{getPostResponse(host, folder, sendScoreFile, body)};
-				//Status status{response.getStatus()};
-
-				//if(status == Response::Ok) log("Score sent successfully: " + mName + ", " + scoreString, "Online");
-				//else log("Send score error: " + status, "Online");
-
-				//log("Finished sending score", "Online"); log(""); log(response.getBody(), "Server Message");
+				log("Finished submitting score", "Online");
 				startCheckScores();
 				cleanUp();
 			});
 
 			ThreadWrapper& checkThread = memoryManager.create([&thread]
 			{
-				log("Checking if score can be sent...", "Online");
+				log("Checking score submission validity...", "Online");
 
 				while(serverVersion == -1)
 				{
-					log("Can't send score to server - version not checked, retrying...", "Online");
+					log("Can't submit score - version not checked, retrying...", "Online");
 					sleep(seconds(5)); startCheckUpdates();
 				}
 
 				if(serverVersion > getVersion()) { log("Can't send score to server - version outdated", "Online"); return; }
 
-				log("Score can be sent - sending", "Online");
+				log("Score submission valid - submitting", "Online");
 				thread.launch();
 				cleanUp();
 			});
 
 			checkThread.launch();
 		}
-		void startGetScores(string& mTargetString, const string& mName, const string& mValidator, float mDifficulty)
+		void startGetScores(string& mTargetScores, string& mTargetPlayerScore, const string& mName, const string& mValidator, float mDifficulty)
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 
-			ThreadWrapper& thread = memoryManager.create([=, &mTargetString]
+			ThreadWrapper& thread = memoryManager.create([=, &mTargetScores, &mTargetPlayerScore]
 			{
-				mTargetString = "";
+				mTargetScores = "";
+				mTargetPlayerScore = "";
 
 				log("Getting scores from server...", "Online");
 
+				TcpSocket socket;
 				Packet packet0x01, packet0x11;
 				packet0x01 << int8_t{0x01} << (string)mValidator << (float)mDifficulty << (string)mName;
-				TcpSocket socket;
-				socket.connect("209.236.124.147", 27272);
+				socket.connect(hostIp, hostPort);
 				socket.send(packet0x01);
 				socket.receive(packet0x11);
 				uint8_t packetID, pass;
 				string response[2];
-
 				if(packet0x11 >> packetID >> pass)
 				{
-					if(pass == 0)
+					if(packetID == 0x11 && pass == 0)
 					{
-						if(packet0x11 >> response[0] >> response[1]) cout << "Received scores!" << endl << response[0]<< endl << response[1] << endl;
-						else cout<<"Oops! Something went wrong with getting the scores!";
+						if(packet0x11 >> response[0] >> response[1])
+						{
+							cout << "Received scores!" << endl << response[0]<< endl << response[1] << endl;
+							mTargetScores = response[0];
+							mTargetPlayerScore = response[1];
+						}
+						else log("Error: could not get scores", "Online");
 					}
-					else cout<<"Oops! Something went wrong with getting the scores!";
+					else log("Error: could not get scores", "Online");
 				}
 				socket.disconnect();
-
-
-
-				//string body{"v=" + mValidator};
-				//Response response{getPostResponse(host, folder, getScoresFile, body)};
-				//Status status{response.getStatus()};
-
-				//if(status == Response::Ok)
-				//{
-				//	log("Scores got successfully", "Online");
-				//	mTargetString = response.getBody();
-				//}
-				//else log("Get scores error: " + status, "Online");
-
 				log("Finished getting scores", "Online");
 				cleanUp();
 			});

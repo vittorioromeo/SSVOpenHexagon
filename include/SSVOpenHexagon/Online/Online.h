@@ -13,7 +13,7 @@ namespace hg
 	{
 		void startCheckUpdates();
 		void startSendScore(const std::string& mName, const std::string& mValidator, float mDifficulty, float mScore);
-		void startGetScores(std::string& mTargetString, const std::string& mName, const std::string& mValidator, float mDifficulty);
+		void startGetScores(std::string& mTargetScores, std::string& mTargetPlayerScore, const std::string& mName, const std::string& mValidator, float mDifficulty);
 
 		void cleanUp();
 		void terminateAll();
