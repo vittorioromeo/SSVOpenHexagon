@@ -175,7 +175,10 @@ namespace hg
 						{
 							log("Scores successfully received", "Online");
 							if(!startsWith(response[0], "MySQL Error") && !startsWith(response[0], "NULL")) mTargetScores = response[0];
+							else mTargetScores = "NULL";
+
 							if(!startsWith(response[1], "MySQL Error") && !startsWith(response[1], "NULL")) mTargetPlayerScore = response[1];
+							else mTargetPlayerScore = "NULL";
 						}
 						else log("Error: could not get scores", "Online");
 					}
