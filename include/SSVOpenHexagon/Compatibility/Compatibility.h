@@ -15,6 +15,7 @@ namespace hg
 		void convert181to183Hashes(const std::string& mSourceJsonPath, const std::string& mTargetJsonPath);
 		void convert182to183Hashes(const std::string& mSourceJsonPath, const std::string& mTargetJsonPath);
 		void merge19Scores(const std::string& mSourceJsonPathA, const std::string& mSourceJsonPathB, const std::string& mTargetJsonPath);
+		void separate19Scores(const std::string& mSourceJsonPath, const std::string& mTargetJsonPath);
 	}
 }
 

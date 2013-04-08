@@ -24,7 +24,7 @@ using namespace ssvu::FileSystem;
 using namespace hg;
 
 int main(int argc, char* argv[])
-{	
+{
 	vector<string> overrideIds; for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
 	if(!exists("Profiles/"))
@@ -37,12 +37,8 @@ int main(int argc, char* argv[])
 	srand(unsigned(time(NULL)));
 	loadConfig(overrideIds); initAssetManager(); loadAssets();
 
-	if(overrideIds[1] == "convert182to183")
-	{
-		Compatibility::convert182to183Hashes("_CONVERT/from.json", "_CONVERT/to.json");
-		saveLogToFile("log.txt");
-		return 0;
-	}
+	if(overrideIds[1] == "convert182to183") { Compatibility::convert182to183Hashes("_CONVERT/from.json", "_CONVERT/to.json"); saveLogToFile("log.txt"); return 0; }
+	if(overrideIds[1] == "separate19scores") { Compatibility::separate19Scores("_CONVERT/from.json", "_CONVERT/to.json"); saveLogToFile("log.txt"); return 0; }
 
 	string title{"Open Hexagon " + toStr<float>(getVersion()) + " - by vittorio romeo"};
 	GameWindow window{title, createDynamicTimer(window), getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
