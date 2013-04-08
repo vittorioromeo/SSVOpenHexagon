@@ -58,7 +58,7 @@ namespace hg
 	float LevelData::getRadiusMin() 				{ return getValueOrDefault(root, "radius_min", 72.f); }
 	vector<float> LevelData::getDifficultyMultipliers()
 	{
-		vector<float> result{getArrayOrDefault<float>(root, "difficulty_multipliers", {})};
+		vector<float> result{getContainerOrDefault<vector<float>>(root, "difficulty_multipliers", {})};
 		result.push_back(1.0f);
 		sort(result); return result;
 	}
