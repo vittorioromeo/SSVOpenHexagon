@@ -237,5 +237,100 @@ namespace hg
 			resString = fw.write(result);
 			ofstream o; o.open(mTargetJsonPath); o << resString; o.flush(); o.close();
 		}
+		void separate19Scores(const string& mSourceJsonPath, const string& mTargetJsonPath)
+		{
+			string scores{get19FileContents(mSourceJsonPath)};
+			Json::Value oldRoot{getRootFromString(scores)};
+			vector<string> oldValidators;
+			vector<pair<string, float>> newValidators;
+
+			for(auto& levelData : getAllLevelData())
+				for(float difficultyMult : levelData.getDifficultyMultipliers())
+				{
+					log(""); log("");
+
+					log("computing old validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
+					string oldValidator{get19Validator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath(), difficultyMult)};
+					log("\"" + oldValidator + "\"");
+					oldValidators.push_back(oldValidator);
+					log("");
+
+					log("computing new validator for " + levelData.getId() + ", difficulty multiplier " + toStr(difficultyMult) +  "...");
+					string newValidator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
+					float newDifficulty{difficultyMult};
+					log("\"" + newValidator + "\"" + "difficulty: " + toStr(difficultyMult));
+					newValidators.push_back({newValidator, newDifficulty});
+					log("");
+				}
+
+			log(""); log("");
+
+			Json::Value result;
+
+			for(unsigned int i{0}; i < oldValidators.size(); ++i)
+			{
+				string& newValidatorString(newValidators[i].first);
+				float& newValidatorDifficulty(newValidators[i].second);
+
+				//log("");
+				//log("getting currentScores: " + toStr(oldValidators[i]));
+				Json::Value oldScores = oldRoot[oldValidators[i]];
+				//log(toStr(currentScores));
+				//log("");
+
+
+				for(unsigned int j{0}; j < oldScores.size(); ++j)
+				{
+					Json::Value oldScore = oldScores[j];
+
+					//log("");
+					//log("setting " + newValidatorString + " to object value");
+					//result[newValidatorString] = Json::Value(Json::ValueType::objectValue);
+
+					//log("");
+					//log("setting " + newValidatorString + "[" + toStr(newValidatorDifficulty) + "][" + toStr(j) + "] to " + toStr(currentScore));
+					//log("");
+					//log(toStr(j));
+					//log(toStr(oldScore));
+					result[newValidatorString][toStr(newValidatorDifficulty)].append(oldScore);
+				}
+			}
+
+			//log(toStr(result));
+			log("DONE");
+
+			Json::FastWriter jsonWriter;
+			string out = jsonWriter.write(result);
+
+			ofstream o; o.open(mTargetJsonPath);
+			o << out;
+			o.flush(); o.close();
+
+			for(Json::ValueIterator itr = result.begin(); itr != result.end(); itr++)
+			{
+				Json::Value val = *itr;
+				string validator = itr.key().asString();
+				log("validator: " + toStr(validator));
+
+				for(Json::ValueIterator itrD = val.begin(); itrD != val.end(); itrD++)
+				{
+					Json::Value valD = *itrD;
+					float difficulty = ::atof(itrD.key().asString().c_str());
+					log("-- difficulty: " + toStr(difficulty));
+
+					for(Json::ValueIterator itrAV = valD.begin(); itrAV != valD.end(); itrAV++)
+					{
+						Json::Value valAV = *itrAV;
+						string name = valAV["n"].asString();
+						float score = valAV["s"].asFloat();
+
+						log("-- -- name: " + toStr(name));
+						log("-- -- score: " + toStr(score));
+
+						ssvs::Utils::waitFor(Online::startSendScore(name, validator, difficulty, score));
+					}
+				}
+			}
+		}
 	}
 }

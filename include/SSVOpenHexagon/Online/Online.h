@@ -6,13 +6,14 @@
 #define HG_SERVER
 
 #include <jsoncpp/json.h>
+#include <SSVStart/SSVStart.h>
 
 namespace hg
 {
 	namespace Online
 	{
 		void startCheckUpdates();
-		void startSendScore(const std::string& mName, const std::string& mValidator, float mDifficulty, float mScore);
+		ssvs::Utils::ThreadWrapper& startSendScore(const std::string& mName, const std::string& mValidator, float mDifficulty, float mScore);
 		void startGetScores(std::string& mTargetScores, std::string& mTargetPlayerScore, const std::string& mName, const std::string& mValidator, float mDifficulty);
 
 		void cleanUp();

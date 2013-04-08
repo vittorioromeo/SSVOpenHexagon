@@ -7,7 +7,6 @@
 #include <SFML/Network.hpp>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVStart/SSVStart.h>
 #include "SSVOpenHexagon/Online/Online.h"
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Online/Definitions.h"
@@ -104,9 +103,9 @@ namespace hg
 
 			thread.launch();
 		}
-		void startSendScore(const string& mName, const string& mValidator, float mDifficulty, float mScore)
+		ThreadWrapper& startSendScore(const string& mName, const string& mValidator, float mDifficulty, float mScore)
 		{
-			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+			//if(!getOnline()) { log("Online disabled, aborting", "Online"); return dio; }
 
 			ThreadWrapper& thread = memoryManager.create([=]
 			{
@@ -149,6 +148,8 @@ namespace hg
 			});
 
 			checkThread.launch();
+
+			return thread;
 		}
 		void startGetScores(string& mTargetScores, string& mTargetPlayerScore, const string& mName, const string& mValidator, float mDifficulty)
 		{
