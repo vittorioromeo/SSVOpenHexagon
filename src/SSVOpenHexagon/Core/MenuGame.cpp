@@ -191,7 +191,7 @@ namespace hg
 	}
 	string MenuGame::getLeaderboard()
 	{
-		if(currentLeaderboard == "NULL" || currentPlayerScore == "NULL") return "no scores";
+		if(currentLeaderboard == "NULL") return "no scores";
 		if(currentLeaderboard == "" || currentPlayerScore == "") return "refreshing...";
 
 		unsigned int leaderboardRecordCount{8};
@@ -224,7 +224,7 @@ namespace hg
 		string result{""};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
-			if(currentPlayerScore != "NULL" && !foundPlayer && i == leaderboardRecordCount -1)
+			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount -1)
 			{
 				Json::Value playerScoreRoot{getRootFromString(currentPlayerScore)};
 				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + getCurrentProfile().getName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");

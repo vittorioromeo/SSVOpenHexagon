@@ -13,7 +13,7 @@ namespace hg
 	namespace Online
 	{
 		void startCheckUpdates();
-		ssvs::Utils::ThreadWrapper& startSendScore(const std::string& mName, const std::string& mValidator, float mDifficulty, float mScore);
+		void startSendScore(const std::string& mName, const std::string& mValidator, float mDifficulty, float mScore);
 		void startGetScores(std::string& mTargetScores, std::string& mTargetPlayerScore, const std::string& mName, const std::string& mValidator, float mDifficulty);
 
 		void cleanUp();

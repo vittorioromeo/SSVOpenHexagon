@@ -299,6 +299,7 @@ namespace hg
 			//log(toStr(result));
 			log("DONE");
 
+
 			Json::FastWriter jsonWriter;
 			string out = jsonWriter.write(result);
 
@@ -306,6 +307,7 @@ namespace hg
 			o << out;
 			o.flush(); o.close();
 
+			/*
 			for(Json::ValueIterator itr = result.begin(); itr != result.end(); itr++)
 			{
 				Json::Value val = *itr;
@@ -334,6 +336,7 @@ namespace hg
 					}
 				}
 			}
+			*/
 		}
 	}
 }
