@@ -324,10 +324,13 @@ namespace hg
 						string name = valAV["n"].asString();
 						float score = valAV["s"].asFloat();
 
+						if(score < 25.0f) continue;
+
 						log("-- -- name: " + toStr(name));
 						log("-- -- score: " + toStr(score));
 
-						ssvs::Utils::waitFor(Online::startSendScore(name, validator, difficulty, score));
+
+						ssvs::Utils::waitFor(Online::startSendScore(toLower(name), validator, difficulty, score));
 					}
 				}
 			}

@@ -29,6 +29,8 @@ namespace hg
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
 
+		game.getEventDelegate(Event::EventType::TextEntered) += [&](const Event& mEvent){ enteredChars.push_back(mEvent.text.unicode); };
+
 		levelDataIds = getLevelIdsByPack(getPackPaths()[packIndex]);
 		setIndex(0);
 
@@ -248,9 +250,11 @@ namespace hg
 		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
-		if(state == States::PROFILE_NEW) { for(auto& c : game.getEnteredChars()) if(profileNewName.size() < 16 && isalnum(c)) { playSound("beep.ogg"); profileNewName.append(toStr(c)); } }
+		if(state == States::PROFILE_NEW) { for(auto& c : enteredChars) if(profileNewName.size() < 16 && isalnum(c)) { playSound("beep.ogg"); profileNewName.append(toStr(c)); } }
 		else if(state == States::PROFILES) { profileNewName = getProfileNames()[profileIndex % getProfileNames().size()]; }
 		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.getRotationSpeed() * 10 * mFrameTime); }
+
+		enteredChars.clear();
 	}
 	void MenuGame::draw()
 	{
