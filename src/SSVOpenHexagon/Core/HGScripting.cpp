@@ -21,16 +21,16 @@ namespace hg
 		for (Json::Value& eventRoot : mRoot)
 		{
 			if(eventRoot["executed"].asBool()) continue;
-			float time{getValueOrDefault(eventRoot, "time", 0.f)};
+			float time{asOrDefault(eventRoot, "time", 0.f)};
 			if(time > mTime) continue;
 			eventRoot["executed"] = true;
 
-			string type		{getValueOrDefault(eventRoot, "type", "")};
-			float duration	{getValueOrDefault(eventRoot, "duration", 0.f)};
-			string valueName{getValueOrDefault(eventRoot, "value_name", "")};
-			float value		{getValueOrDefault(eventRoot, "value", 0.f)};
-			string message	{getValueOrDefault(eventRoot, "message", "")};
-			string id		{getValueOrDefault(eventRoot, "id", "")};
+			string type		{asOrDefault(eventRoot, "type", "")};
+			float duration	{asOrDefault(eventRoot, "duration", 0.f)};
+			string valueName{asOrDefault(eventRoot, "value_name", "")};
+			float value		{asOrDefault(eventRoot, "value", 0.f)};
+			string message	{asOrDefault(eventRoot, "message", "")};
+			string id		{asOrDefault(eventRoot, "id", "")};
 
 			if 	   (type == "level_change")				{ status.mustRestart = true; restartId = id; restartFirstTime = true; return; }
 			else if(type == "menu") 					{ goToMenu(); }
@@ -116,10 +116,10 @@ namespace hg
 		lua.writeVariable("setStyleValueFloat", 	[=](string mValueName, float mValue) 	{ return styleData.setValueFloat(mValueName, mValue); });
 		lua.writeVariable("setStyleValueString", 	[=](string mValueName, string mValue) 	{ return styleData.setValueString(mValueName, mValue); });
 		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
-		
+
 		lua.writeVariable("isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
 		lua.writeVariable("isFastSpinning",			[=]() 									{ return status.fastSpin > 0; });
-		
+
 		lua.writeVariable("wallAdj", [=](int mSide, float mThickness, float mSpeedAdj)
 		{
 			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier()); });

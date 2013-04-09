@@ -16,7 +16,7 @@ using namespace ssvu;
 using namespace ssvuj;
 
 namespace hg
-{	
+{
 	Color StyleData::calculateColor(Json::Value mColorRoot)
 	{
 		Color color{getColorFromJsonArray(mColorRoot["value"])};
@@ -54,7 +54,7 @@ namespace hg
 		if(currentSwapTime > getMaxSwapTime()) currentSwapTime = 0;
 
 		currentHue += getHueIncrement() * mFrameTime;
-				
+
 		if(currentHue < getHueMin())
 		{
 			if(getHuePingPong()) { currentHue = getHueMin(); root["hue_increment"] = getHueIncrement() * -1; }
@@ -88,7 +88,7 @@ namespace hg
 	float StyleData::getHueMax()				{ return root["hue_max"].asFloat(); }
 	bool StyleData::getHuePingPong()			{ return root["hue_ping_pong"].asBool(); }
 	float StyleData::getHueIncrement()			{ return root["hue_increment"].asFloat(); }
-	float StyleData::getMaxSwapTime()			{ return getValueOrDefault(root, "max_swap_time", 100.f); }
+	float StyleData::getMaxSwapTime()			{ return asOrDefault(root, "max_swap_time", 100.f); }
 
 	float StyleData::getCurrentHue() 			{ return currentHue; }
 	float StyleData::getCurrentSwapTime() 		{ return currentSwapTime; }
@@ -120,23 +120,23 @@ namespace hg
 			if(i % 2 == 0) if(i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 
 			vertices.append(Vertex{mCenterPos, currentColor});
-			vertices.append(Vertex{getOrbit(mCenterPos, angle + div * 0.5f, distance), currentColor});
-			vertices.append(Vertex{getOrbit(mCenterPos, angle - div * 0.5f, distance), currentColor});
+			vertices.append(Vertex{getOrbitFromDegrees(mCenterPos, angle + div * 0.5f, distance), currentColor});
+			vertices.append(Vertex{getOrbitFromDegrees(mCenterPos, angle - div * 0.5f, distance), currentColor});
 		}
 
 		mRenderTarget.draw(vertices);
 	}
 
-	unsigned int StyleData::get3DDepth() 			{ return getValueOrDefault(root, "3D_depth", 15); }
-	float StyleData::get3DSkew() 					{ return getValueOrDefault(root, "3D_skew", 0.18f); }
-	float StyleData::get3DSpacing() 				{ return getValueOrDefault(root, "3D_spacing", 1.0f); }
-	float StyleData::get3DDarkenMultiplier() 		{ return getValueOrDefault(root, "3D_darken_multiplier", 1.5f); }
-	float StyleData::get3DAlphaMultiplier() 		{ return getValueOrDefault(root, "3D_alpha_multiplier", 0.5f); }
-	float StyleData::get3DAlphaFalloff() 			{ return getValueOrDefault(root, "3D_alpha_falloff", 3.0f); }
+	unsigned int StyleData::get3DDepth() 			{ return asOrDefault(root, "3D_depth", 15); }
+	float StyleData::get3DSkew() 					{ return asOrDefault(root, "3D_skew", 0.18f); }
+	float StyleData::get3DSpacing() 				{ return asOrDefault(root, "3D_spacing", 1.0f); }
+	float StyleData::get3DDarkenMultiplier() 		{ return asOrDefault(root, "3D_darken_multiplier", 1.5f); }
+	float StyleData::get3DAlphaMultiplier() 		{ return asOrDefault(root, "3D_alpha_multiplier", 0.5f); }
+	float StyleData::get3DAlphaFalloff() 			{ return asOrDefault(root, "3D_alpha_falloff", 3.0f); }
 	Color StyleData::get3DOverrideColor() 			{ return root.isMember("3D_override_color") ? getColorFromJsonArray(root["3D_override_color"]) : getMainColor(); }
-	float StyleData::get3DPulseMax()				{ return getValueOrDefault(root, "3D_pulse_max", 3.2f); }
-	float StyleData::get3DPulseMin()				{ return getValueOrDefault(root, "3D_pulse_min", -0.0f); }
-	float StyleData::get3DPulseSpeed()				{ return getValueOrDefault(root, "3D_pulse_speed", 0.01f); }
-	float StyleData::get3DPerspectiveMultiplier()	{ return getValueOrDefault(root, "3D_perspective_multiplier", 1.0f); }
+	float StyleData::get3DPulseMax()				{ return asOrDefault(root, "3D_pulse_max", 3.2f); }
+	float StyleData::get3DPulseMin()				{ return asOrDefault(root, "3D_pulse_min", -0.0f); }
+	float StyleData::get3DPulseSpeed()				{ return asOrDefault(root, "3D_pulse_speed", 0.01f); }
+	float StyleData::get3DPerspectiveMultiplier()	{ return asOrDefault(root, "3D_perspective_multiplier", 1.0f); }
 }
 

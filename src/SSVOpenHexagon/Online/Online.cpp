@@ -57,10 +57,10 @@ namespace hg
 				if(status == Response::Ok)
 				{
 					Json::Value root{getRootFromString(response.getBody())};
-					serverMessage = getValueOrDefault<string>(root, "message", "");
+					serverMessage = asOrDefault<string>(root, "message", "");
 					log("Server message:\n" + serverMessage, "Online");
 
-					serverVersion = getValueOrDefault<float>(root, "latest_version", -1);
+					serverVersion = asOrDefault<float>(root, "latest_version", -1);
 					log("Server latest version: " + toStr(getServerVersion()), "Online");
 
 					if(serverVersion == getVersion()) log("No updates available", "Online");
