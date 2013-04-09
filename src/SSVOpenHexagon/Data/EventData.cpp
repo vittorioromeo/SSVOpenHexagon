@@ -17,13 +17,13 @@ namespace hg
 	{
 		currentTime += mFrameTime / 60.0f;
 		hgPtr->executeEvents(root["events"], currentTime);
-		for(Json::Value event : root["events"]) if(getValue<float>(event, "time") > currentTime) return;
+		for(Json::Value event : root["events"]) if(as<float>(event, "time") > currentTime) return;
 		finished = true;
 	}
 
 	void EventData::setHexagonGamePtr(HexagonGame* mHgPtr) { hgPtr = mHgPtr; }
 
-	string EventData::getId() { return getValue<string>(root, "id"); }
+	string EventData::getId() { return as<string>(root, "id"); }
 	bool EventData::getFinished() { return finished; }
 }
 

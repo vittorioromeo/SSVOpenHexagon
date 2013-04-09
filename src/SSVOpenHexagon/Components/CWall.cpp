@@ -19,10 +19,10 @@ namespace hg
 	{
 		float div{360.f / hexagonGame.getSides()}, angle{div * side};
 
-		vertexPositions[0] = getOrbit(centerPos, angle - div * 0.5f, distance);
-		vertexPositions[1] = getOrbit(centerPos, angle + div * 0.5f, distance);
-		vertexPositions[2] = getOrbit(centerPos, angle + div * 0.5f + hexagonGame.getWallAngleLeft(), distance + thickness + hexagonGame.getWallSkewLeft());
-		vertexPositions[3] = getOrbit(centerPos, angle - div * 0.5f + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
+		vertexPositions[0] = getOrbitFromDegrees(centerPos, angle - div * 0.5f, distance);
+		vertexPositions[1] = getOrbitFromDegrees(centerPos, angle + div * 0.5f, distance);
+		vertexPositions[2] = getOrbitFromDegrees(centerPos, angle + div * 0.5f + hexagonGame.getWallAngleLeft(), distance + thickness + hexagonGame.getWallSkewLeft());
+		vertexPositions[3] = getOrbitFromDegrees(centerPos, angle - div * 0.5f + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
 	}
 
 	bool CWall::isOverlapping(Vector2f mPoint) { return isPointInPolygon(vertexPositions, mPoint); }
@@ -52,10 +52,8 @@ namespace hg
 
 		for(auto& vp : vertexPositions)
 		{
-			int distanceX{abs(vp.x - centerPos.x)}, distanceY{abs(vp.y - centerPos.y)};
-
-			if(distanceX < radius && distanceY < radius) pointsOnCenter++;
-			else movePointTowardsCenter(vp, centerPos, speed * 5.0f * mFrameTime);
+			if(abs(vp.x - centerPos.x) < radius && abs(vp.y - centerPos.y) < radius) pointsOnCenter++;
+			else vp = getMovedTowards(vp, centerPos, speed * 5.0f * mFrameTime);
 		}
 
 		if(pointsOnCenter > 3) getEntity().destroy();

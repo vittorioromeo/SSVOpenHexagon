@@ -42,18 +42,17 @@ namespace hg
 			return Color(r * 255, g * 255, b * 255, 255);
 		}
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
-		Color getColorFromJsonArray(Json::Value mArray) { return Color(mArray[0].asFloat(), mArray[1].asFloat(), mArray[2].asFloat(), mArray[3].asFloat()); }
+		Color getColorFromJsonArray(Json::Value mArray) { return Color(as<float>(mArray, 0), as<float>(mArray, 1), as<float>(mArray, 2), as<float>(mArray, 3)); }
 
 		LevelData loadLevelFromJson(Json::Value mRoot) { LevelData result{mRoot}; for(auto event : mRoot["events"]) result.addEvent(event); return result; }
 		MusicData loadMusicFromJson(const Json::Value& mRoot)
 		{
-			MusicData result{getValue<string>(mRoot, "id"), getValue<string>(mRoot, "file_name"), getValue<string>(mRoot, "name"), getValue<string>(mRoot, "album"),
-				getValue<string>(mRoot, "author")};
-			for(auto segment : mRoot["segments"]) result.addSegment(segment["time"].asInt());
+			MusicData result{as<string>(mRoot, "id"), as<string>(mRoot, "file_name"), as<string>(mRoot, "name"), as<string>(mRoot, "album"), as<string>(mRoot, "author")};
+			for(auto segment : mRoot["segments"]) result.addSegment(as<int>(segment, "time"));
 			return result;
 		}
 		StyleData loadStyleFromJson(Json::Value mRoot) { return {mRoot}; }
-		ProfileData loadProfileFromJson(const Json::Value& mRoot) { return {getValue<float>(mRoot, "version"), getValue<string>(mRoot, "name"), mRoot["scores"]}; }
+		ProfileData loadProfileFromJson(const Json::Value& mRoot) { return {as<float>(mRoot, "version"), as<string>(mRoot, "name"), mRoot["scores"]}; }
 
 		string getLocalValidator(const string& mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
 

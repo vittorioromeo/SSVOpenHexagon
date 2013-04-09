@@ -205,8 +205,8 @@ namespace hg
 		for(auto itr(root.begin()); itr != root.end(); ++itr)
 		{
 			Json::Value& record(*itr);
-			string name{toLower(getValue<string>(record, "n"))};
-			float score{getValue<float>(record, "s")};
+			string name{toLower(as<string>(record, "n"))};
+			float score{as<float>(record, "s")};
 			recordPairs.push_back({name, score});
 		}
 
@@ -227,7 +227,7 @@ namespace hg
 			if(currentPlayerScore != "NULL" && !foundPlayer && i == leaderboardRecordCount -1)
 			{
 				Json::Value playerScoreRoot{getRootFromString(currentPlayerScore)};
-				result.append("...(" + toStr(getValue<int>(playerScoreRoot, "p")) + ") " + getCurrentProfile().getName() + ": " + toStr(getValue<float>(playerScoreRoot, "s")) + "\n");
+				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + getCurrentProfile().getName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");
 				break;
 			}
 
