@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.9 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.91 #
 ## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
@@ -95,6 +95,11 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.91
+
+* Changed: new server written in native code - should be faster and more reliable.
+
 
 Version 1.9
 
