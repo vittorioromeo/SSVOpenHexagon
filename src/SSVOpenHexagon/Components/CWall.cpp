@@ -15,7 +15,7 @@ namespace hg
 {
 	CWall::CWall(Entity& mEntity, HexagonGame& mHexagonGame, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
 		float mAcceleration, float mMinSpeed, float mMaxSpeed) : Component{mEntity, "wall"}, hexagonGame(mHexagonGame), centerPos{mCenterPos},
-		speed{mSpeed}, distance{mDistance}, thickness{mThickness}, acceleration{mAcceleration}, minSpeed{mMinSpeed}, maxSpeed{mMaxSpeed}, side{mSide} 
+		speed{mSpeed}, distance{mDistance}, thickness{mThickness}, acceleration{mAcceleration}, minSpeed{mMinSpeed}, maxSpeed{mMaxSpeed}, side{mSide}
 	{
 		float div{360.f / hexagonGame.getSides()}, angle{div * side};
 
@@ -25,7 +25,7 @@ namespace hg
 		vertexPositions[3] = getOrbit(centerPos, angle - div * 0.5f + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
 	}
 
-	bool CWall::isOverlapping(Vector2f mPoint) { return isPointInPolygon(pointPtrs, mPoint); }
+	bool CWall::isOverlapping(Vector2f mPoint) { return isPointInPolygon(vertexPositions, mPoint); }
 
 	void CWall::draw()
 	{
@@ -34,7 +34,7 @@ namespace hg
 			vertices[i].position = vertexPositions[i];
 			vertices[i].color = hexagonGame.getColorMain();
 		}
-		
+
 		hexagonGame.render(vertices);
 	}
 

@@ -126,7 +126,7 @@ namespace hg
 				socket.disconnect();
 
 				log("Finished submitting score", "Online");
-				startCheckScores();
+				//startCheckScores();
 				cleanUp();
 			});
 

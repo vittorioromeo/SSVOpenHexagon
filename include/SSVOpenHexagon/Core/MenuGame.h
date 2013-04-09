@@ -35,6 +35,7 @@ namespace hg
 			float exitTimer{0};
 			bool mustTakeScreenshot{false};
 			std::string currentLeaderboard{""}, currentPlayerScore{""}, profileNewName{""};
+			std::vector<char> enteredChars;
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")}, creditsBar1{getAssetManager().getTexture("creditsBar1.png")},
 			creditsBar2{getAssetManager().getTexture("creditsBar2.png")}, bottomBar{getAssetManager().getTexture("bottomBar.png")};
