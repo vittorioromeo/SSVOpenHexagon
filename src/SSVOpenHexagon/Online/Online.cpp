@@ -103,9 +103,9 @@ namespace hg
 
 			thread.launch();
 		}
-		ThreadWrapper& startSendScore(const string& mName, const string& mValidator, float mDifficulty, float mScore)
+		void startSendScore(const string& mName, const string& mValidator, float mDifficulty, float mScore)
 		{
-			//if(!getOnline()) { log("Online disabled, aborting", "Online"); return dio; }
+			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 
 			ThreadWrapper& thread = memoryManager.create([=]
 			{
@@ -126,7 +126,7 @@ namespace hg
 				socket.disconnect();
 
 				log("Finished submitting score", "Online");
-				//startCheckScores();
+				startCheckScores();
 				cleanUp();
 			});
 
@@ -148,8 +148,6 @@ namespace hg
 			});
 
 			checkThread.launch();
-
-			return thread;
 		}
 		void startGetScores(string& mTargetScores, string& mTargetPlayerScore, const string& mName, const string& mValidator, float mDifficulty)
 		{
@@ -221,12 +219,12 @@ namespace hg
 			return result;
 		}
 
-		float getServerVersion() 								{ return serverVersion; }
-		string getServerMessage() 								{ return serverMessage; }
+		float getServerVersion() 							{ return serverVersion; }
+		string getServerMessage() 							{ return serverMessage; }
 		Json::Value getScores(const string& mValidator) 	{ return scoresRoot[mValidator]; }
-		string getMD5Hash(const string& mString) 				{ MD5 key{mString}; return key.GetHash(); }
-		string getUrlEncoded(const string& mString) 			{ string result{""}; for(auto c : mString) if(isalnum(c)) result += c; return result; }
-		string getControlStripped(const string& mString)		{ string result{""}; for(auto c : mString) if(!iscntrl(c)) result += c; return result; }
+		string getMD5Hash(const string& mString) 			{ MD5 key{mString}; return key.GetHash(); }
+		string getUrlEncoded(const string& mString) 		{ string result{""}; for(auto c : mString) if(isalnum(c)) result += c; return result; }
+		string getControlStripped(const string& mString)	{ string result{""}; for(auto c : mString) if(!iscntrl(c)) result += c; return result; }
 
 	}
 }
