@@ -21,16 +21,16 @@ namespace hg
 		for (Json::Value& eventRoot : mRoot)
 		{
 			if(eventRoot["executed"].asBool()) continue;
-			float time{asOrDefault(eventRoot, "time", 0.f)};
+			float time{as<float>(eventRoot, "time", 0.f)};
 			if(time > mTime) continue;
 			eventRoot["executed"] = true;
 
-			string type		{asOrDefault(eventRoot, "type", "")};
-			float duration	{asOrDefault(eventRoot, "duration", 0.f)};
-			string valueName{asOrDefault(eventRoot, "value_name", "")};
-			float value		{asOrDefault(eventRoot, "value", 0.f)};
-			string message	{asOrDefault(eventRoot, "message", "")};
-			string id		{asOrDefault(eventRoot, "id", "")};
+			string type		{as<string>(eventRoot, "type", "")};
+			float duration	{as<float>(eventRoot, "duration", 0.f)};
+			string valueName{as<string>(eventRoot, "value_name", "")};
+			float value		{as<float>(eventRoot, "value", 0.f)};
+			string message	{as<string>(eventRoot, "message", "")};
+			string id		{as<string>(eventRoot, "id", "")};
 
 			if 	   (type == "level_change")				{ status.mustRestart = true; restartId = id; restartFirstTime = true; return; }
 			else if(type == "menu") 					{ goToMenu(); }
