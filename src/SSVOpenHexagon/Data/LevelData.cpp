@@ -47,18 +47,18 @@ namespace hg
 	int LevelData::getSidesMax() 					{ return as<int>(root, "sides_max"); }
 	int LevelData::getSidesMin() 					{ return as<int>(root, "sides_min"); }
 	float LevelData::getIncrementTime()				{ return as<float>(root, "increment_time"); }
-	float LevelData::getPulseMin() 					{ return asOrDefault(root, "pulse_min", 75.f); }
-	float LevelData::getPulseMax() 					{ return asOrDefault(root, "pulse_max", 80.f); }
-	float LevelData::getPulseSpeed() 				{ return asOrDefault(root, "pulse_speed", 0.f); }
-	float LevelData::getPulseSpeedR() 				{ return asOrDefault(root, "pulse_speed_r", 0.f); }
-	float LevelData::getPulseDelayMax() 			{ return asOrDefault(root, "pulse_delay_max", 0.f); }
-	float LevelData::getPulseDelayHalfMax() 		{ return asOrDefault(root, "pulse_delay_half_max", 0.f); }
-	float LevelData::getBeatPulseMax() 				{ return asOrDefault(root, "beatpulse_max", 0.f); }
-	float LevelData::getBeatPulseDelayMax() 		{ return asOrDefault(root, "beatpulse_delay_max", 0.f); }
-	float LevelData::getRadiusMin() 				{ return asOrDefault(root, "radius_min", 72.f); }
+	float LevelData::getPulseMin() 					{ return as<float>(root, "pulse_min", 75.f); }
+	float LevelData::getPulseMax() 					{ return as<float>(root, "pulse_max", 80.f); }
+	float LevelData::getPulseSpeed() 				{ return as<float>(root, "pulse_speed", 0.f); }
+	float LevelData::getPulseSpeedR() 				{ return as<float>(root, "pulse_speed_r", 0.f); }
+	float LevelData::getPulseDelayMax() 			{ return as<float>(root, "pulse_delay_max", 0.f); }
+	float LevelData::getPulseDelayHalfMax() 		{ return as<float>(root, "pulse_delay_half_max", 0.f); }
+	float LevelData::getBeatPulseMax() 				{ return as<float>(root, "beatpulse_max", 0.f); }
+	float LevelData::getBeatPulseDelayMax() 		{ return as<float>(root, "beatpulse_delay_max", 0.f); }
+	float LevelData::getRadiusMin() 				{ return as<float>(root, "radius_min", 72.f); }
 	vector<float> LevelData::getDifficultyMultipliers()
 	{
-		vector<float> result{asVectorOrDefault<float>(root, "difficulty_multipliers", {})};
+		vector<float> result{as<vector<float>>(root, "difficulty_multipliers", {})};
 		result.push_back(1.0f);
 		sort(result); return result;
 	}
