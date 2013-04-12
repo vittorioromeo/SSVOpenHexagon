@@ -28,7 +28,6 @@ using namespace ssvu::FileSystem;
 namespace hg
 {
 	AssetManager assetManager;
-	map<string, Music*> musicPtrsMap;
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
@@ -91,10 +90,10 @@ namespace hg
 		{
 			string fileName{getNameFromPath(filePath, mPath + "Music/", ".ogg")};
 
-			Music* music{new Music};
-			music->openFromFile(filePath);
-			music->setVolume(getMusicVolume());
-			musicPtrsMap.insert(make_pair(fileName, music));
+			auto& music(assetManager.loadMusic(fileName, filePath));
+			music.openFromFile(filePath);
+			music.setVolume(getMusicVolume());
+			music.setLoop(true);
 		}
 	}
 	void loadMusicData(const string& mPath)
@@ -120,7 +119,7 @@ namespace hg
 		{
 			Json::Value root{getRootFromFile(filePath)};
 			string luaScriptPath{mPath + "Scripts/" + root["lua_file"].asString()};
-			
+
 			LevelData levelData{loadLevelFromJson(root)};
 			levelData.setPackPath(mPath);
 			levelData.setLevelRootPath(filePath);
@@ -212,22 +211,28 @@ namespace hg
 	void refreshVolumes()
 	{
 		for(auto& pair : assetManager.getSounds()) pair.second->setVolume(getSoundVolume());
-		for(auto& pair : musicPtrsMap) pair.second->setVolume(getMusicVolume());
+		for(auto& pair : assetManager.getMusics()) pair.second->setVolume(getMusicVolume());
 	}
-	void stopAllMusic() { for(auto pair : musicPtrsMap) pair.second->stop(); }
+	void stopAllMusic() { assetManager.stopMusics(); }
 	void stopAllSounds() { assetManager.stopSounds(); }
-	void playSound(const string& mId) { if(!getNoSound()) getSoundPtr(mId)->play(); }
+	void playSound(const string& mId)
+	{
+		if(getNoSound()) return;
+		auto soundPtr(getSoundPtr(mId));
+		if(soundPtr == nullptr) return;
+		soundPtr->play();
+	}
 
 	Font& getFont(const string& mId) 				{ return assetManager.getFont(mId); }
-	Sound* getSoundPtr(const string& mId) 			{ return &assetManager.getSound(mId); }
-	Music* getMusicPtr(const string& mId) 			{ return musicPtrsMap.find(mId)->second; }
+	Sound* getSoundPtr(const string& mId) 			{ return assetManager.hasSound(mId) ? &assetManager.getSound(mId) : nullptr; }
+	Music* getMusicPtr(const string& mId) 			{ return assetManager.hasMusic(mId) ? &assetManager.getMusic(mId) : nullptr; }
 	MusicData getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
 	LevelData getLevelData(const string& mId) 		{ return levelDataMap.find(mId)->second; }
 	PackData getPackData(const string& mId) 		{ return packDataMap.find(mId)->second; }
 
 	float getScore(const string& mId) 				{ return getCurrentProfile().getScore(mId); }
-	void setScore(const string& mId, float mScore) { getCurrentProfile().setScore(mId, mScore); }
+	void setScore(const string& mId, float mScore)	{ getCurrentProfile().setScore(mId, mScore); }
 
 	void setCurrentProfile(const string& mName) { currentProfilePtr = &profileDataMap.find(mName)->second; }
 	ProfileData& getCurrentProfile() { return *currentProfilePtr; }

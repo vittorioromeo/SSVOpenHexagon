@@ -44,7 +44,7 @@ namespace hg
 		game.addInput({{b::XButton2}},	[&](float){ status.mustRestart = true; });
 	}
 
-	void HexagonGame::newGame(string mId, bool mFirstPlay, float mDifficultyMult)
+	void HexagonGame::newGame(const string& mId, bool mFirstPlay, float mDifficultyMult)
 	{
 		firstPlay = mFirstPlay;
 		setLevelData(getLevelData(mId), mFirstPlay);
@@ -177,8 +177,8 @@ namespace hg
 		window.setGameState(mgPtr->getGame());
 		mgPtr->init();
 	}
-	void HexagonGame::changeLevel(string mId, bool mFirstTime) { newGame(mId, mFirstTime, difficultyMult); }
-	void HexagonGame::addMessage(string mMessage, float mDuration)
+	void HexagonGame::changeLevel(const string& mId, bool mFirstTime) { newGame(mId, mFirstTime, difficultyMult); }
+	void HexagonGame::addMessage(const string& mMessage, float mDuration)
 	{
 		Text* text{new Text(mMessage, getFont("imagine.ttf"), 40 / getZoomFactor())};
 		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
@@ -202,8 +202,8 @@ namespace hg
 		musicData.setFirstPlay(mMusicFirstPlay);
 	}
 
-	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(musicPtr); }
-	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicPtr != nullptr) musicPtr->stop(); }
+	void HexagonGame::playLevelMusic() { if(!getNoMusic()) if(musicData.getMusic() != nullptr) musicData.playRandomSegment(); }
+	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicData.getMusic() != nullptr) musicData.getMusic()->stop(); }
 
 	void HexagonGame::invalidateScore() { status.scoreInvalid = true; log("Too much slowdown, invalidating official game", "Performance"); }
 }

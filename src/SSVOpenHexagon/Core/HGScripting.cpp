@@ -63,9 +63,9 @@ namespace hg
 			else if(type == "style_int_multiply") 		{ styleData.setValueInt(valueName, levelData.getValueFloat(valueName) * value); }
 			else if(type == "style_int_divide") 		{ styleData.setValueInt(valueName, levelData.getValueFloat(valueName) / value); }
 
-			else if(type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(musicPtr); } }
-			else if(type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(musicPtr, eventRoot["segment_index"].asInt()); } }
-			else if(type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(musicPtr, eventRoot["seconds"].asInt()); } }
+			else if(type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(); } }
+			else if(type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(eventRoot["segment_index"].asInt()); } }
+			else if(type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(eventRoot["seconds"].asInt()); } }
 			else if(type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
 			else if(type == "side_changing_stop")		{ status.randomSideChangesEnabled = false; }
 			else if(type == "side_changing_start")		{ status.randomSideChangesEnabled = true; }
@@ -129,7 +129,7 @@ namespace hg
 			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier(), mAcceleration, mMinSpeed * getSpeedMultiplier(), mMaxSpeed * getSpeedMultiplier()); });
 		});
 	}
-	void HexagonGame::runLuaFile(string mFileName)
+	void HexagonGame::runLuaFile(const string& mFileName)
 	{
 		ifstream s(levelData.getPackPath() + "Scripts/" + mFileName);
 		try { lua.executeCode(s); }
