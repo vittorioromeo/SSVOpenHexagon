@@ -5,7 +5,7 @@
 #ifndef HG_SERVER
 #define HG_SERVER
 
-#include <jsoncpp/json.h>
+#include "json/json.h"
 #include <SSVStart/SSVStart.h>
 
 namespace hg

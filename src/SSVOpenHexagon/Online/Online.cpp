@@ -3,7 +3,6 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include <functional>
-#include <jsoncpp/reader.h>
 #include <SFML/Network.hpp>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
