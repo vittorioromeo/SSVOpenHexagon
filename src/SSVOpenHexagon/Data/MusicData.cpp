@@ -18,33 +18,29 @@ namespace hg
 		id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor}
 	{
 		musicPtr = getMusicPtr(mId);
-		musicPtr->setLoop(true);
-		musicPtr->setVolume(getMusicVolume());
+		if(musicPtr == nullptr) log("Error loading music <" + mId + "> - ID not found", "MusicData");
 	}
 
 	void MusicData::addSegment(int mSeconds) { segments.push_back(mSeconds); }
 	int MusicData::getRandomSegment() { return segments[getRnd(0, segments.size())]; }
-	void MusicData::playRandomSegment(Music*& mMusicPtr)
+	void MusicData::playRandomSegment()
 	{
-		if(firstPlay)
-		{
-			firstPlay = false;
-			playSegment(mMusicPtr, 0);
-		}
-		else playSeconds(mMusicPtr, getRandomSegment());
+		if(firstPlay) { firstPlay = false; playSegment(0); }
+		else playSeconds(getRandomSegment());
 	}
-	void MusicData::playSegment(Music*& mMusicPtr, int mSegmentIndex)
+	void MusicData::playSegment(int mSegmentIndex)
 	{
-		playSeconds(mMusicPtr, segments[mSegmentIndex]);
+		playSeconds(segments[mSegmentIndex]);
 	}
-	void MusicData::playSeconds(Music*& mMusicPtr, int mSeconds)
+	void MusicData::playSeconds(int mSeconds)
 	{
-		mMusicPtr = musicPtr;
 		if(getNoMusic()) return;
 
-		musicPtr->setPlayingOffset(sf::seconds(mSeconds));
+		musicPtr->setPlayingOffset(seconds(mSeconds));
 		musicPtr->play();
 	}
+
+	Music* MusicData::getMusic()	{ return musicPtr; }
 
 	string MusicData::getId() 		{ return id; }
 	string MusicData::getFileName() { return fileName; }
@@ -52,7 +48,7 @@ namespace hg
 	string MusicData::getAlbum() 	{ return album; }
 	string MusicData::getAuthor() 	{ return author; }
 
-	void MusicData::setFirstPlay(bool mFirstPlay) 	{ firstPlay = mFirstPlay; }
+	void MusicData::setFirstPlay(bool mFirstPlay)	{ firstPlay = mFirstPlay; }
 	bool MusicData::getFirstPlay() 					{ return firstPlay; }
 }
 

@@ -46,7 +46,6 @@ namespace hg
 			LevelData levelData;
 			MusicData musicData;
 			StyleData styleData;
-			sf::Music* musicPtr{nullptr};
 			ssvu::Timeline timeline, messageTimeline;
 			sf::Text* messageTextPtr{nullptr};
 			std::vector<EventData*> eventPtrs;
@@ -63,7 +62,7 @@ namespace hg
 
 			// LUA-related methods
 			void initLua();
-			void runLuaFile(std::string mFileName);
+			void runLuaFile(const std::string& mFileName);
 			template<typename R, typename... Args> R runLuaFunction(const std::string& variableName, const Args&... args)
 			{
 				try { return lua.callLuaFunction<R>(variableName, std::make_tuple(args...)); }
@@ -105,13 +104,13 @@ namespace hg
 			void stopLevelMusic();
 
 			// Message-related methods
-			void addMessage(std::string mMessage, float mDuration);
+			void addMessage(const std::string& mMessage, float mDuration);
 			void clearMessage();
 
 			// Level/menu loading/unloading/changing
 			void checkAndSaveScore();
 			void goToMenu(bool mSendScores = true);
-			void changeLevel(std::string mId, bool mFirstTime);
+			void changeLevel(const std::string& mId, bool mFirstTime);
 
 			void invalidateScore();
 
@@ -121,7 +120,7 @@ namespace hg
 			HexagonGame(ssvs::GameWindow& mGameWindow);
 
 			// Gameplay methods
-			void newGame(std::string mId, bool mFirstPlay, float mDifficultyMult);
+			void newGame(const std::string& mId, bool mFirstPlay, float mDifficultyMult);
 			void death();
 
 			// Other methods
