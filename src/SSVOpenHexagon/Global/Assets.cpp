@@ -8,8 +8,7 @@
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SFML/Graphics.hpp>
-#include <jsoncpp/json.h>
-#include <jsoncpp/reader.h>
+#include "json/json.h"
 #include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Online/Definitions.h"

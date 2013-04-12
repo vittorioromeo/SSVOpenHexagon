@@ -4,8 +4,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <jsoncpp/json.h>
-#include <jsoncpp/reader.h>
+#include "json/json.h"
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Global/Config.h"

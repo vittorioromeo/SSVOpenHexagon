@@ -5,7 +5,7 @@
 #ifndef HG_STYLEDATA
 #define HG_STYLEDATA
 
-#include <jsoncpp/json.h>
+#include "json/json.h"
 #include <SFML/Graphics.hpp>
 
 namespace hg
