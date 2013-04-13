@@ -15,8 +15,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/extlibs/SSVStart
 
 set(SPARSEHASH_INCLUDE_DIR "" CACHE STRING "google::sparsehash include directory")
 
-find_package(JsonCpp REQUIRED)
-
 set(SFML_STATIC_LIBRARIES FALSE CACHE BOOL "Look for static SFML libraries.")
 find_package(SFML 2 COMPONENTS audio graphics window system network)
 if(NOT SFML_FOUND)
@@ -55,11 +53,11 @@ file(GLOB SRC_LIST
 	${SRC_DIR}/${PROJECT_NAME}/Online/*.cpp
 	${INC_DIR}/${PROJECT_NAME}/Utils/*.h
 	${SRC_DIR}/${PROJECT_NAME}/Utils/*.cpp
+	${CMAKE_SOURCE_DIR}/extlibs/jsoncpp/jsoncpp.cpp
 )
 
 include_directories(${INC_DIR})
 include_directories(${SPARSEHASH_INCLUDE_DIR})
-include_directories(${JSONCPP_INCLUDE_DIR})
 include_directories(${SFML_INCLUDE_DIR})
 include_directories(${SSVUTILS_INCLUDE_DIR})
 include_directories(${SSVUTILSJSON_INCLUDE_DIR})
@@ -68,6 +66,7 @@ include_directories(${SSVENTITYSYSTEM_INCLUDE_DIR})
 include_directories(${LUA_INCLUDE_DIR})
 include_directories(${SSVMENUSYSTEM_INCLUDE_DIR})
 include_directories(${SSVLUAWRAPPER_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/extlibs/jsoncpp)
 add_executable(SSVOpenHexagon ${SRC_LIST})
 target_link_libraries(SSVOpenHexagon ${SSVUTILS_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SSVUTILSJSON_LIBRARY})
@@ -75,7 +74,6 @@ target_link_libraries(SSVOpenHexagon ${SSVSTART_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SSVLUAWRAPPER_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SSVENTITYSYSTEM_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SSVMENUSYSTEM_LIBRARY})
-target_link_libraries(SSVOpenHexagon ${JSONCPP_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SFML_AUDIO_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SFML_GRAPHICS_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SFML_WINDOW_LIBRARY})
