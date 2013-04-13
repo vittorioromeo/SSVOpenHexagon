@@ -5,10 +5,10 @@
 #include <iostream>
 #include <fstream>
 #include <map>
-#include <SSVUtils/SSVUtils.h>
-#include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SFML/Graphics.hpp>
 #include <SSVJsonCpp/SSVJsonCpp.h>
+#include <SSVUtils/SSVUtils.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Online/Definitions.h"
