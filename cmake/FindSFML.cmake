@@ -12,8 +12,7 @@ endif()
 # find the SFML include directory
 find_path(SFML_INCLUDE_DIR SFML/Config.hpp
           PATH_SUFFIXES include
-          PATHS "D:/Vee/Software/GitHub/OHWorkspace/SFML/"
-          "${PROJECT_SOURCE_DIR}/../SFML/"
+          PATHS "${PROJECT_SOURCE_DIR}/../SFML/"
           "${PROJECT_SOURCE_DIR}/extlibs/SFML/"
           ${SFML_ROOT}
           $ENV{SFML_ROOT}
