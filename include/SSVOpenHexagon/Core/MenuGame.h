@@ -34,7 +34,7 @@ namespace hg
 			std::string scoresMessage;
 			float exitTimer{0};
 			bool mustTakeScreenshot{false};
-			std::string currentLeaderboard{""}, currentPlayerScore{""}, profileNewName{""};
+			std::string currentLeaderboard{""}, currentPlayerScore{""}, profileNewName{""}, leaderboardString{""};
 			std::vector<char> enteredChars;
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")}, creditsBar1{getAssetManager().getTexture("creditsBar1.png")},
@@ -62,7 +62,7 @@ namespace hg
 			void renderText(const std::string& mString, sf::Text& mText, sf::Vector2f mPosition, unsigned int mSize = 0);
 			void setIndex(int mIndex);
 			void refreshScores();
-			std::string getLeaderboard();
+			void updateLeaderboard();
 
 		public:
 			MenuGame(HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);

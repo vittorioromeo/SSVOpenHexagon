@@ -189,10 +189,10 @@ namespace hg
 		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
 		Online::startGetScores(currentLeaderboard, currentPlayerScore, getCurrentProfile().getName(), validator, difficultyMult);
 	}
-	string MenuGame::getLeaderboard()
+	void MenuGame::updateLeaderboard()
 	{
-		if(currentLeaderboard == "NULL") return "no scores";
-		if(currentLeaderboard == "" || currentPlayerScore == "") return "refreshing...";
+		if(currentLeaderboard == "NULL") { leaderboardString = "no scores"; return; }
+		if(currentLeaderboard == "" || currentPlayerScore == "") { leaderboardString = "refreshing..."; return; }
 
 		unsigned int leaderboardRecordCount{8};
 		Json::Value root{getRootFromString(currentLeaderboard)};
@@ -242,11 +242,14 @@ namespace hg
 			}
 			else break;
 		}
-		return result;
+
+		leaderboardString = result;
 	}
 
 	void MenuGame::update(float mFrameTime)
 	{
+		updateLeaderboard();
+
 		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
@@ -312,7 +315,7 @@ namespace hg
 			renderText("local best: " + toStr(getScore(getLocalValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 45 + 3});
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60 + 3});
 
-			renderText(getLeaderboard(), cProfText, {20, 100}, 20);
+			renderText(leaderboardString, cProfText, {20, 100}, 20);
 			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
