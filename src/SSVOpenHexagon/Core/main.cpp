@@ -30,7 +30,11 @@ int main(int argc, char* argv[])
 	if(!exists("Profiles/"))
 	{
 		log("Profiles folder does not exist, creating", "Mkdir");
-		mkdir("Profiles/");
+#if defined(_WIN32)
+		_mkdir("Profiles/");
+#else
+		mkdir("Profiles", 0755);
+#endif
 	}
 
 	Online::startCheckUpdates();

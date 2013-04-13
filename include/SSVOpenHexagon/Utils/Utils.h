@@ -8,8 +8,7 @@
 #include <string>
 #include <sstream>
 #include <unordered_set>
-#include <jsoncpp/json.h>
-#include <jsoncpp/reader.h>
+#include "json/json.h"
 #include <SFML/Graphics.hpp>
 #include <SSVStart/SSVStart.h>
 #include "SSVOpenHexagon/Data/LevelData.h"
