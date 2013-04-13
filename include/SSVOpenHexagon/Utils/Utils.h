@@ -8,7 +8,7 @@
 #include <string>
 #include <sstream>
 #include <unordered_set>
-#include "json/json.h"
+#include <SSVJsonCpp/SSVJsonCpp.h>
 #include <SFML/Graphics.hpp>
 #include <SSVStart/SSVStart.h>
 #include "SSVOpenHexagon/Data/LevelData.h"
@@ -23,7 +23,7 @@ namespace hg
 		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 		sf::Color getColorFromJsonArray(Json::Value mArray);
-		
+
 		LevelData loadLevelFromJson(Json::Value mRoot);
 		MusicData loadMusicFromJson(const Json::Value& mRoot);
 		StyleData loadStyleFromJson(Json::Value mRoot);

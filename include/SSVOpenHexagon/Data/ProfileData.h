@@ -6,7 +6,7 @@
 #define HG_PROFILEDATA
 
 #include <string>
-#include "json/json.h"
+#include <SSVJsonCpp/SSVJsonCpp.h>
 
 namespace hg
 {

@@ -6,7 +6,7 @@
 #define HG_EVENTDATA
 
 #include <string>
-#include "json/json.h"
+#include <SSVJsonCpp/SSVJsonCpp.h>
 
 namespace hg
 {
@@ -19,7 +19,7 @@ namespace hg
 			HexagonGame* hgPtr{nullptr};
 			float currentTime{0.0f};
 			bool finished{false};
-			
+
 		public:
 			EventData(Json::Value mRoot);
 

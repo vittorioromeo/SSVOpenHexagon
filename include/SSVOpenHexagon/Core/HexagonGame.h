@@ -11,7 +11,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
-#include "json/json.h"
+#include <SSVJsonCpp/SSVJsonCpp.h>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVStart/SSVStart.h>
 #include <SSVEntitySystem/SSVEntitySystem.h>

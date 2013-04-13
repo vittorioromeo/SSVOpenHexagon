@@ -6,7 +6,6 @@
 #define HG_PACKDATA
 
 #include <string>
-#include "json/json.h"
 
 namespace hg
 {

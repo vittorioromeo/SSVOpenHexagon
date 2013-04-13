@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <string>
-#include "json/json.h"
+#include <SSVJsonCpp/SSVJsonCpp.h>
 
 namespace hg
 {
@@ -22,7 +22,7 @@ namespace hg
 		public:
 			LevelData() = default;
 			LevelData(Json::Value mRoot);
-			
+
 			void addEvent(Json::Value mEventRoot);
 
 			Json::Value& getRoot();
