@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	{
 		log("Profiles folder does not exist, creating", "Mkdir");
 #if defined(_WIN32)
-		_mkdir("Profiles/");
+		mkdir("Profiles/");
 #else
 		mkdir("Profiles", 0755);
 #endif
