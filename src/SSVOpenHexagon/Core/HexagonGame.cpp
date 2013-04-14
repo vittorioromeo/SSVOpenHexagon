@@ -23,25 +23,26 @@ namespace hg
 		initFlashEffect();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
-		game.onPostUpdate += [&]{ inputMovement = 0; inputFocused = false; };
 		game.onDraw += [&]{ draw(); };
 
-		using k = Keyboard::Key;
-		game.addInput({{k::Left}, {k::A}}, 	[&](float){ inputMovement = -1; });
-		game.addInput({{k::Right}, {k::D}}, [&](float){ inputMovement = 1; });
-		game.addInput({{k::LShift}}, 		[&](float){ inputFocused = true; });
-		game.addInput({{k::Escape}}, 		[&](float){ goToMenu(); });
-		game.addInput({{k::R}, {k::Up}}, 	[&](float){ status.mustRestart = true; });
-		game.addInput({{k::Space}}, 		[&](float){ if(status.hasDied) status.mustRestart = true; });
-		game.addInput({{k::Return}}, 		[&](float){ if(status.hasDied) status.mustRestart = true; });
-		game.addInput({{k::F12}}, 			[&](float){ mustTakeScreenshot = true; }, Input::Trigger::Types::SINGLE);
+		auto add2StateInput = [&](Input::Trigger mTrigger, bool& mValue)
+		{
+			game.addInput(mTrigger,		[&](float){ mValue = true; },	[&](float){ mValue = false; });
+		};
+		auto add3StateInput = [&](Input::Trigger mNegative, Input::Trigger mPositive, int& mValue)
+		{
+			game.addInput(mNegative,	[&](float){ mValue = -1; },	[&](float){ if(mValue == -1) mValue = 0; });
+			game.addInput(mPositive,	[&](float){ mValue = 1; },	[&](float){ if(mValue == 1) mValue = 0; });
+		};
 
+		using k = Keyboard::Key;
 		using b = Mouse::Button;
-		game.addInput({{b::Left}}, 		[&](float){ inputMovement = -1; });
-		game.addInput({{b::Right}}, 	[&](float){ inputMovement = 1; });
-		game.addInput({{b::Middle}}, 	[&](float){ inputFocused = true; });
-		game.addInput({{b::XButton1}},	[&](float){ status.mustRestart = true; });
-		game.addInput({{b::XButton2}},	[&](float){ status.mustRestart = true; });
+		add3StateInput(getTriggerRotateCCW(), getTriggerRotateCW(), inputMovement);
+		add2StateInput(getTriggerFocus(), inputFocused);
+		game.addInput(getTriggerExit(),			[&](float){ goToMenu(); });
+		game.addInput(getTriggerForceRestart(),	[&](float){ status.mustRestart = true; });
+		game.addInput(getTriggerRestart(),		[&](float){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput(getTriggerScreenshot(),	[&](float){ mustTakeScreenshot = true; }, Input::Trigger::Types::SINGLE);
 	}
 
 	void HexagonGame::newGame(const string& mId, bool mFirstPlay, float mDifficultyMult)

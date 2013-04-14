@@ -20,7 +20,7 @@ namespace hg
 
 	void setOnline(bool mOnline);
 	void setOfficial(bool mOfficial);
-	void setNoRotation(bool mNoRotation);		
+	void setNoRotation(bool mNoRotation);
 	void setNoBackground(bool mNoBackground);
 	void setBlackAndWhite(bool mBlackAndWhite);
 	void setNoSound(bool mNoSound);
@@ -78,6 +78,14 @@ namespace hg
 	float get3DMultiplier();
 	bool getAutoRestart();
 	bool getFlash();
+
+	ssvs::Input::Trigger getTriggerRotateCCW();
+	ssvs::Input::Trigger getTriggerRotateCW();
+	ssvs::Input::Trigger getTriggerFocus();
+	ssvs::Input::Trigger getTriggerExit();
+	ssvs::Input::Trigger getTriggerForceRestart();
+	ssvs::Input::Trigger getTriggerRestart();
+	ssvs::Input::Trigger getTriggerScreenshot();
 }
 
 #endif

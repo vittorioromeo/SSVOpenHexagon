@@ -99,5 +99,28 @@ namespace hg
 				recursiveFillIncludedLuaFileNames(mLuaScriptNames, mPackPath, getFileContents(mPackPath + "/Scripts/" + name));
 			}
 		}
+
+		Input::Combo getInputComboFromJSON(const Json::Value mArray)
+		{
+			Input::Combo result;
+
+			for(auto& inputName : as<vector<string>>(mArray))
+			{
+				if(isKeyNameValid(inputName)) result.addKey(getKey(inputName));
+				else if(isButtonNameValid(inputName)) result.addButton(getButton(inputName));
+				else log("<" + inputName + "> is not a valid input name", "getInputComboFromJSON");
+			}
+
+			return result;
+		}
+		Input::Trigger getInputTriggerFromJSON(const Json::Value mArray)
+		{
+			Input::Trigger result;
+
+			for(auto& comboArray : as<vector<Json::Value>>(mArray))
+				result.addCombo(getInputComboFromJSON(comboArray));
+
+			return result;
+		}
 	}
 }

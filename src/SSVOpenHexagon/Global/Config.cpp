@@ -15,6 +15,7 @@
 using namespace std;
 using namespace sf;
 using namespace ssvs;
+using namespace ssvs::Input;
 using namespace ssvs::Utils;
 using namespace ssvu::FileSystem;
 using namespace ssvuj;
@@ -183,4 +184,12 @@ namespace hg
 	unsigned int get3DMaxDepth()		{ return root["3D_max_depth"].asInt(); }
 	bool getAutoRestart()				{ return root["auto_restart"].asBool(); }
 	bool getFlash() 					{ return root["flash_enabled"].asBool(); }
+
+	Trigger getTriggerRotateCCW()		{ return Utils::getInputTriggerFromJSON(root["t_rotate_ccw"]); }
+	Trigger getTriggerRotateCW()		{ return Utils::getInputTriggerFromJSON(root["t_rotate_cw"]); }
+	Trigger getTriggerFocus()			{ return Utils::getInputTriggerFromJSON(root["t_focus"]); }
+	Trigger getTriggerExit()			{ return Utils::getInputTriggerFromJSON(root["t_exit"]); }
+	Trigger getTriggerForceRestart()	{ return Utils::getInputTriggerFromJSON(root["t_force_restart"]); }
+	Trigger getTriggerRestart()			{ return Utils::getInputTriggerFromJSON(root["t_restart"]); }
+	Trigger getTriggerScreenshot()		{ return Utils::getInputTriggerFromJSON(root["t_screenshot"]); }
 }

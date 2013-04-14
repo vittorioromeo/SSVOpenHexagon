@@ -115,14 +115,14 @@ namespace hg
 		using k = Keyboard::Key;
 		using t = Trigger::Types;
 		using s = States;
-		game.addInput({{k::Left}, {k::A}}, [&](float)
+		game.addInput(getTriggerRotateCCW(), [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::PROFILES) 		{  --profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex - 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
 		}, t::SINGLE);
-		game.addInput({{k::Right}, {k::D}}, [&](float)
+		game.addInput(getTriggerRotateCW(), [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::PROFILES) 		{ ++profileIndex; }
@@ -141,7 +141,7 @@ namespace hg
 			if(state == s::MAIN) 			{ --difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS)	{ optionsMenu.selectNextItem(); }
 		}, t::SINGLE);
-		game.addInput({{k::Return}}, [&](float)
+		game.addInput(getTriggerRestart(), [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::PROFILES) { setCurrentProfile(profileNewName); state = s::MAIN; refreshScores(); }
@@ -160,9 +160,9 @@ namespace hg
 		{
 			playSound("beep.ogg"); if(state == s::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
 		}, t::SINGLE);
-		game.addInput({{k::Escape}}, [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; refreshScores(); }, t::SINGLE);
-		game.addInput({{k::Escape}}, [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
-		game.addInput({{k::F12}}, [&](float){ mustTakeScreenshot = true; }, t::SINGLE);
+		game.addInput(getTriggerExit(), [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; refreshScores(); }, t::SINGLE);
+		game.addInput(getTriggerExit(), [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
+		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::SINGLE);
 		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::SINGLE);
 		game.addInput({{k::BackSpace}}, [&](float){ if(state == s::PROFILE_NEW && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1); }, t::SINGLE);
 	}
