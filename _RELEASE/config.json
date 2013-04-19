@@ -53,5 +53,14 @@
 	"change_music": true,
 	
 	// Cheats
-	"invincible": false // Ignored in official mode
+	"invincible": false, // Ignored in official mode
+
+	// Inputs
+	"t_rotate_ccw":		[ ["kLeft"], ["kA"], ["bLeft"] ],
+	"t_rotate_cw":		[ ["kRight"], ["kD"], ["bRight"] ],
+	"t_focus":			[ ["kLShift"], ["bMiddle"] ],
+	"t_exit": 			[ ["kEscape"] ],
+	"t_force_restart": 	[ ["kR"], ["kUp"], ["bXButton1"], ["bXButton2"] ],
+	"t_restart":		[ ["kReturn"], ["kSpace"] ],
+	"t_screenshot":		[ ["kF12"] ]
 }
