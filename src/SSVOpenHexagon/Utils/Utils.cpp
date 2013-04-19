@@ -118,7 +118,7 @@ namespace hg
 			Input::Trigger result;
 
 			for(auto& comboArray : as<vector<Json::Value>>(mArray))
-				result.addCombo(getInputComboFromJSON(comboArray));
+				result.add(getInputComboFromJSON(comboArray));
 
 			return result;
 		}
