@@ -44,14 +44,14 @@ namespace hg
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
 		Color getColorFromJsonArray(Json::Value mArray) { return Color(as<float>(mArray, 0), as<float>(mArray, 1), as<float>(mArray, 2), as<float>(mArray, 3)); }
 
-		LevelData loadLevelFromJson(Json::Value mRoot) { LevelData result{mRoot}; for(auto event : mRoot["events"]) result.addEvent(event); return result; }
+		LevelData loadLevelFromJson(const Json::Value& mRoot) { LevelData result{mRoot}; for(auto event : mRoot["events"]) result.addEvent(event); return result; }
 		MusicData loadMusicFromJson(const Json::Value& mRoot)
 		{
 			MusicData result{as<string>(mRoot, "id"), as<string>(mRoot, "file_name"), as<string>(mRoot, "name"), as<string>(mRoot, "album"), as<string>(mRoot, "author")};
 			for(auto segment : mRoot["segments"]) result.addSegment(as<int>(segment, "time"));
 			return result;
 		}
-		StyleData loadStyleFromJson(Json::Value mRoot) { return {mRoot}; }
+		StyleData loadStyleFromJson(const Json::Value& mRoot) { return {mRoot}; }
 		ProfileData loadProfileFromJson(const Json::Value& mRoot) { return {as<float>(mRoot, "version"), as<string>(mRoot, "name"), mRoot["scores"]}; }
 
 		string getLocalValidator(const string& mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }

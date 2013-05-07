@@ -35,8 +35,6 @@ namespace hg
 			game.addInput(mPositive,	[&](float){ mValue = 1; },	[&](float){ if(mValue == 1) mValue = 0; });
 		};
 
-		using k = Keyboard::Key;
-		using b = Mouse::Button;
 		add3StateInput(getTriggerRotateCCW(), getTriggerRotateCW(), inputMovement);
 		add2StateInput(getTriggerFocus(), inputFocused);
 		game.addInput(getTriggerExit(),			[&](float){ goToMenu(); });

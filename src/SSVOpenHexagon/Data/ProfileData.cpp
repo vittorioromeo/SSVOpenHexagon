@@ -16,7 +16,7 @@ namespace hg
 	string ProfileData::getName()			{ return toLower(name); }
 	Json::Value ProfileData::getScores()	{ return scores; }
 
-	void ProfileData::setScore(const string& mId, float mScore) 	{ scores[mId] = mScore; }
-	float ProfileData::getScore(const string& mId)					{ return scores[mId].asFloat(); }
+	void ProfileData::setScore(const string& mId, float mScore)	{ scores[mId] = mScore; }
+	float ProfileData::getScore(const string& mId)				{ return scores[mId].asFloat(); }
 }
 

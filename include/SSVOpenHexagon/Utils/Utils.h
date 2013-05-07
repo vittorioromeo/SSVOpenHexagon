@@ -24,9 +24,9 @@ namespace hg
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 		sf::Color getColorFromJsonArray(Json::Value mArray);
 
-		LevelData loadLevelFromJson(Json::Value mRoot);
+		LevelData loadLevelFromJson(const Json::Value& mRoot);
 		MusicData loadMusicFromJson(const Json::Value& mRoot);
-		StyleData loadStyleFromJson(Json::Value mRoot);
+		StyleData loadStyleFromJson(const Json::Value& mRoot);
 		ProfileData loadProfileFromJson(const Json::Value& mRoot);
 
 		std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
