@@ -35,9 +35,6 @@ namespace hg
 
 		std::unordered_set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
 		void recursiveFillIncludedLuaFileNames(std::unordered_set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
-
-		ssvs::Input::Combo getInputComboFromJSON(const Json::Value mArray);
-		ssvs::Input::Trigger getInputTriggerFromJSON(const Json::Value mArray);
 	}
 }
 
