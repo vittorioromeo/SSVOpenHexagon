@@ -25,18 +25,8 @@ namespace hg
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
 
-		auto add2StateInput = [&](Input::Trigger mTrigger, bool& mValue)
-		{
-			game.addInput(mTrigger,		[&](float){ mValue = true; },	[&](float){ mValue = false; });
-		};
-		auto add3StateInput = [&](Input::Trigger mNegative, Input::Trigger mPositive, int& mValue)
-		{
-			game.addInput(mNegative,	[&](float){ mValue = -1; },	[&](float){ if(mValue == -1) mValue = 0; });
-			game.addInput(mPositive,	[&](float){ mValue = 1; },	[&](float){ if(mValue == 1) mValue = 0; });
-		};
-
-		add3StateInput(getTriggerRotateCCW(), getTriggerRotateCW(), inputMovement);
-		add2StateInput(getTriggerFocus(), inputFocused);
+		add3StateInput(game, getTriggerRotateCCW(), getTriggerRotateCW(), inputMovement);
+		add2StateInput(game, getTriggerFocus(), inputFocused);
 		game.addInput(getTriggerExit(),			[&](float){ goToMenu(); });
 		game.addInput(getTriggerForceRestart(),	[&](float){ status.mustRestart = true; });
 		game.addInput(getTriggerRestart(),		[&](float){ if(status.hasDied) status.mustRestart = true; });
