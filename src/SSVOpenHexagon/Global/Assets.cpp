@@ -49,7 +49,7 @@ namespace hg
 			string packName{packPath.substr(6, packPath.length() - 6)};
 
 			string packLua{""};
-			for(auto& path : getRecursiveFilesByExtension(packPath, ".lua")) packLua.append(getFileContents(path));
+			for(const auto& path : getRecursiveFilesByExtension(packPath, ".lua")) packLua.append(getFileContents(path));
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
 			Json::Value packRoot{getRootFromFile(packPath + "/pack.json")};
@@ -203,14 +203,14 @@ namespace hg
 	vector<string> getPackNames()
 	{
 		vector<string> result;
-		for(auto& packPair : packDataMap) result.push_back(packPair.first);
+		for(const auto& packPair : packDataMap) result.push_back(packPair.first);
 		return result;
 	}
 
 	void refreshVolumes()
 	{
-		for(auto& pair : assetManager.getSounds()) pair.second->setVolume(getSoundVolume());
-		for(auto& pair : assetManager.getMusics()) pair.second->setVolume(getMusicVolume());
+		for(const auto& pair : assetManager.getSounds()) pair.second->setVolume(getSoundVolume());
+		for(const auto& pair : assetManager.getMusics()) pair.second->setVolume(getMusicVolume());
 	}
 	void stopAllMusic() { assetManager.stopMusics(); }
 	void stopAllSounds() { assetManager.stopSounds(); }

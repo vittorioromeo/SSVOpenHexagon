@@ -47,7 +47,7 @@ namespace hg
 			toEncrypt.append(get19FileContents(mStyleRootPath));
 			toEncrypt.append(luaScriptContents);
 
-			for(auto& luaScriptName : luaScriptNames)
+			for(const auto& luaScriptName : luaScriptNames)
 			{
 				string path{mPackPath + "/Scripts/" + luaScriptName};
 				string contents{get19FileContents(path)};

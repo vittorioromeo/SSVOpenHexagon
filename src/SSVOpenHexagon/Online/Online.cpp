@@ -190,8 +190,8 @@ namespace hg
 			thread.launch();
 		}
 
-		void cleanUp() 		{ for(auto& t : memoryManager.getItems()) if(t->getFinished()) memoryManager.del(t); memoryManager.cleanUp(); }
-		void terminateAll() { for(auto& t : memoryManager.getItems()) t->terminate(); memoryManager.cleanUp(); }
+		void cleanUp() 		{ for(const auto& t : memoryManager.getItems()) if(t->getFinished()) memoryManager.del(t); memoryManager.cleanUp(); }
+		void terminateAll() { for(const auto& t : memoryManager.getItems()) t->terminate(); memoryManager.cleanUp(); }
 
 		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath)
 		{
@@ -205,7 +205,7 @@ namespace hg
 			toEncrypt.append(getFileContents(mStyleRootPath));
 			toEncrypt.append(luaScriptContents);
 
-			for(auto& luaScriptName : luaScriptNames)
+			for(const auto& luaScriptName : luaScriptNames)
 			{
 				string path{mPackPath + "/Scripts/" + luaScriptName};
 				string contents{getFileContents(path)};

@@ -101,7 +101,7 @@ namespace hg
 		Vector2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
 		Vector2f pRightCheck{getOrbitFromDegrees(tempPos, angle + 90, 0.01f)};
 
-		for(auto& wall : getManager().getComponents<CWall>("wall"))
+		for(const auto& wall : getManager().getComponents<CWall>("wall"))
 		{
 			if(movement == -1 && wall->isOverlapping(pLeftCheck)) angle = lastAngle;
 			if(movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;

@@ -93,7 +93,7 @@ namespace hg
 		void recursiveFillIncludedLuaFileNames(unordered_set<string>& mLuaScriptNames, const string& mPackPath, const string& mLuaScript)
 		{
 			unordered_set<string> current{getIncludedLuaFileNames(mLuaScript)};
-			for(auto& name : current)
+			for(const auto& name : current)
 			{
 				mLuaScriptNames.insert(name);
 				recursiveFillIncludedLuaFileNames(mLuaScriptNames, mPackPath, getFileContents(mPackPath + "/Scripts/" + name));

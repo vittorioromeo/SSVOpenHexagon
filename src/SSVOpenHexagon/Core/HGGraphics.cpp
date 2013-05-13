@@ -85,7 +85,7 @@ namespace hg
 		text.setOrigin(0, 0);
 
 		text.setColor(offsetColor);
-		for(auto& o : offsets) { text.setPosition(pos + o); render(text); }
+		for(const auto& o : offsets) { text.setPosition(pos + o); render(text); }
 
 		text.setColor(getColorMain());
 		text.setPosition(pos);
@@ -98,7 +98,7 @@ namespace hg
 		text.setOrigin(text.getGlobalBounds().width / 2, 0);
 
 		text.setColor(offsetColor);
-		for(auto& o : offsets) { text.setPosition(messageTextPtr->getPosition() + o); render(text); }
+		for(const auto& o : offsets) { text.setPosition(messageTextPtr->getPosition() + o); render(text); }
 
 		messageTextPtr->setColor(getColorMain());
 		render(*messageTextPtr);
