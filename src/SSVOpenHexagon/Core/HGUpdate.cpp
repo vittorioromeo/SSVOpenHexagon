@@ -146,7 +146,5 @@ namespace hg
 		status.pulse3D += styleData.get3DPulseSpeed() * status.pulse3DDirection * mFrameTime;
 		if(status.pulse3D > styleData.get3DPulseMax()) status.pulse3DDirection = -1;
 		else if(status.pulse3D < styleData.get3DPulseMin()) status.pulse3DDirection = 1;
-
-
 	}
 }

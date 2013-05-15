@@ -16,13 +16,13 @@ namespace hg
 
 	Entity& Factory::createWall(int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration, float mMinSpeed, float mMaxSpeed)
 	{
-		auto& result = manager.createEntity("wall");
+		auto& result(manager.createEntity("wall"));
 		result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeedMultiplier, mAcceleration, mMinSpeed, mMaxSpeed);
 		return result;
 	}
 	Entity& Factory::createPlayer()
 	{
-		auto& result = manager.createEntity("player");
+		auto& result(manager.createEntity("player"));
 		result.createComponent<CPlayer>(hexagonGame, centerPos);
 		result.setDrawPriority(-1);
 		return result;

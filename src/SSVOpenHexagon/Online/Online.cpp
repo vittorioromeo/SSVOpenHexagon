@@ -222,8 +222,8 @@ namespace hg
 		string getServerMessage() 							{ return serverMessage; }
 		Json::Value getScores(const string& mValidator) 	{ return scoresRoot[mValidator]; }
 		string getMD5Hash(const string& mString) 			{ MD5 key{mString}; return key.GetHash(); }
-		string getUrlEncoded(const string& mString) 		{ string result{""}; for(auto c : mString) if(isalnum(c)) result += c; return result; }
-		string getControlStripped(const string& mString)	{ string result{""}; for(auto c : mString) if(!iscntrl(c)) result += c; return result; }
+		string getUrlEncoded(const string& mString) 		{ string result{""}; for(const auto& c : mString) if(isalnum(c)) result += c; return result; }
+		string getControlStripped(const string& mString)	{ string result{""}; for(const auto& c : mString) if(!iscntrl(c)) result += c; return result; }
 
 	}
 }

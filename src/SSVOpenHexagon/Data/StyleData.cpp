@@ -75,6 +75,7 @@ namespace hg
 	void StyleData::computeColors()
 	{
 		currentMainColor = calculateColor(root["main"]);
+		current3DOverrideColor = root.isMember("3D_override_color") ? getColorFromJsonArray(root["3D_override_color"]) : getMainColor();
 		currentColors.clear();
 		for(unsigned int i{0}; i < root["colors"].size(); i++) currentColors.push_back(calculateColor(root["colors"][i]));
 		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / (getMaxSwapTime() / 2), currentColors.end());
@@ -133,7 +134,7 @@ namespace hg
 	float StyleData::get3DDarkenMultiplier() 		{ return as<float>(root, "3D_darken_multiplier", 1.5f); }
 	float StyleData::get3DAlphaMultiplier() 		{ return as<float>(root, "3D_alpha_multiplier", 0.5f); }
 	float StyleData::get3DAlphaFalloff() 			{ return as<float>(root, "3D_alpha_falloff", 3.0f); }
-	Color StyleData::get3DOverrideColor() 			{ return root.isMember("3D_override_color") ? getColorFromJsonArray(root["3D_override_color"]) : getMainColor(); }
+	Color StyleData::get3DOverrideColor() 			{ return current3DOverrideColor; }
 	float StyleData::get3DPulseMax()				{ return as<float>(root, "3D_pulse_max", 3.2f); }
 	float StyleData::get3DPulseMin()				{ return as<float>(root, "3D_pulse_min", -0.0f); }
 	float StyleData::get3DPulseSpeed()				{ return as<float>(root, "3D_pulse_speed", 0.01f); }

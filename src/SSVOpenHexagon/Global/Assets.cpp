@@ -42,7 +42,7 @@ namespace hg
 
 	void loadAssets()
 	{
-		log("loading profiles", "ASSETS"); 	loadProfiles();
+		log("loading profiles", "LoadAssets"); 	loadProfiles();
 
 		for(string packPath : getFolders("Packs/"))
 		{
@@ -59,18 +59,18 @@ namespace hg
 
 		vector<PackData> packDatasToQuery;
 		for(pair<string, PackData> packDataPair : packDataMap) packDatasToQuery.push_back(packDataPair.second);
-		sort(begin(packDatasToQuery), end(packDatasToQuery), [](PackData a, PackData b) -> bool { return a.getPriority() < b.getPriority(); });
+		sort(begin(packDatasToQuery), end(packDatasToQuery), [](PackData a, PackData b) { return a.getPriority() < b.getPriority(); });
 
 		for(PackData packData : packDatasToQuery)
 		{
-			string packName{packData.getId()};
+			string packName{packData.getId()}, packPath{"Packs/" + packName + "/"};
 			packPaths.push_back("Packs/" + packName + "/");
-			log("loading " + packName + " music", "ASSETS"); 		loadMusic("Packs/" + packName + "/");
-			log("loading " + packName + " music data", "ASSETS"); 	loadMusicData("Packs/" + packName + "/");
-			log("loading " + packName + " style data", "ASSETS"); 	loadStyleData("Packs/" + packName + "/");
-			log("loading " + packName + " level data", "ASSETS");	loadLevelData("Packs/" + packName + "/");
-			log("loading " + packName + " events", "ASSETS"); 		loadEvents("Packs/" + packName + "/");
-			log("loading " + packName + " custom sounds", "ASSETS");loadCustomSounds(packName, "Packs/" + packName + "/");
+			log("loading " + packName + " music", "LoadAssets");			loadMusic(packPath);
+			log("loading " + packName + " music data", "LoadAssets");		loadMusicData(packPath);
+			log("loading " + packName + " style data", "LoadAssets");		loadStyleData(packPath);
+			log("loading " + packName + " level data", "LoadAssets");		loadLevelData(packPath);
+			log("loading " + packName + " events", "LoadAssets");			loadEvents(packPath);
+			log("loading " + packName + " custom sounds", "LoadAssets");	loadCustomSounds(packName, packPath);
 		}
 	}
 
@@ -159,9 +159,7 @@ namespace hg
 		profileRoot["name"] = getCurrentProfile().getName();
 		profileRoot["scores"] = getCurrentProfile().getScores();
 
-		writer.write(o, profileRoot);
-		o.flush();
-		o.close();
+		writer.write(o, profileRoot); o.flush(); o.close();
 	}
 
 	vector<LevelData> getAllLevelData()
@@ -174,7 +172,7 @@ namespace hg
 	{
 		vector<LevelData> levelDataVector{getAllLevelData()};
 		sort(begin(levelDataVector), end(levelDataVector),
-		[](LevelData a, LevelData b) -> bool
+		[](LevelData a, LevelData b)
 		{
 			if(a.getPackPath() == b.getPackPath()) return a.getMenuPriority() < b.getMenuPriority();
 			return a.getPackPath() < b.getPackPath();
@@ -190,7 +188,7 @@ namespace hg
 		for(string id : levelIdsByPackMap[mPackPath]) levelDataVector.push_back(getLevelData(id));
 
 		sort(begin(levelDataVector), end(levelDataVector),
-		[](LevelData a, LevelData b) -> bool
+		[](LevelData a, LevelData b)
 		{
 			return a.getMenuPriority() < b.getMenuPriority();
 		});

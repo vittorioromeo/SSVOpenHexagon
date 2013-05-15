@@ -41,12 +41,11 @@ namespace hg
 			configOverridesRootMap.insert(make_pair(fileName, getRootFromFile(filePath)));
 		}
 
-		for(string overrideId : mOverridesIds)
+		for(auto& overrideId : mOverridesIds)
 		{
 			Json::Value overrideRoot{configOverridesRootMap.find(overrideId)->second};
 
-			for(Json::ValueIterator itr{overrideRoot.begin()}; itr != overrideRoot.end(); itr++)
-				root[itr.key().asString()] = *itr;
+			for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[itr.key().asString()] = *itr;
 		}
 
 		if(getWindowedAutoResolution())
@@ -64,8 +63,7 @@ namespace hg
 	}
 	void saveConfig()
 	{
-		// Seems like JSONcpp doesn't have a way to change a single value in an existing file - I'll just
-		// replace the options manually for now
+		// Seems like JSONcpp doesn't have a way to change a single value in an existing file - I'll just replace the options manually for now
 
 		if(getDebug()) return;
 		fstream f; f.open("config.json"); stringstream buffer; buffer << f.rdbuf(); f.close();

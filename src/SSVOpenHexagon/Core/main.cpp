@@ -19,15 +19,19 @@ using namespace ssvu;
 using namespace ssvu::FileSystem;
 using namespace hg;
 
+void createProfilesFolder()
+{
+	if(exists("Profiles/")) return;
+
+	log("Profiles folder does not exist, creating", "CreateProfilesFolder");
+	createFolder("Profiles/");
+}
+
 int main(int argc, char* argv[])
 {
 	vector<string> overrideIds; for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
 
-	if(!exists("Profiles/"))
-	{
-		log("Profiles folder does not exist, creating", "CreateFolder");
-		createFolder("Profiles/");
-	}
+	createProfilesFolder();
 
 	Online::startCheckUpdates();
 	setRandomSeed();
