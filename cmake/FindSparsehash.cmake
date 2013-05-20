@@ -1,14 +1,15 @@
-FIND_PATH(SPARSEHASH_INCLUDE_DIR google/dense_hash_map
-  PATHS "${PROJECT_SOURCE_DIR}/../google/"
-  PATH_SUFFIXES include/ google/ google/sparsehash/ ./
+FIND_PATH(SPARSEHASH_INCLUDE_DIR
+  NAMES google/dense_hash_map
+  PATH_SUFFIXES include/ google/ google/sparsehash/ 
+  PATHS "${PROJECT_SOURCE_DIR}/../sparsehash/"
   "${PROJECT_SOURCE_DIR}/extlibs/sparsehash/"
   ${SPARSEHASH_ROOT}
   $ENV{SPARSEHASH_ROOT}
   /usr/local/
   /usr/
-  /sw/
+  /sw/       
   /opt/local/
-  /opt/csw/
+  /opt/csw/  
   /opt/
 )
 
