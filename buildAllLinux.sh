@@ -10,7 +10,7 @@ BUILDTYPE="RELEASE"
 # Passed to CMake (LIBNAME_BUILD_SHARED_LIB)
 BUILDSHARED="TRUE" 
 
-# Passed to CMake (SPARSEHASH_INCLUDE_DIR)
+# Passed to CMake (SPARSEHASH_INCLUDE_DIR) [you may have to set this manually]
 SPARSEHASHINCLUDEDIR="/usr/include/google/"
 
 # List of extlibs to build
