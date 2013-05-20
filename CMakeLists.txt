@@ -14,8 +14,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/extlibs/SSVLuaWr
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/extlibs/SSVEntitySystem/cmake/modules/")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/extlibs/SSVStart/cmake/modules/")
 
-set(SPARSEHASH_INCLUDE_DIR "" CACHE STRING "google::sparsehash include directory")
-
 set(SFML_STATIC_LIBRARIES FALSE CACHE BOOL "Look for static SFML libraries.")
 find_package(SFML 2 COMPONENTS audio graphics window system network)
 if(NOT SFML_FOUND)
@@ -28,6 +26,7 @@ if(NOT SFML_FOUND)
 	message("\n-> SFML directory not found. Set include and libraries manually.")
 endif()
 
+find_package(Sparsehash REQUIRED)
 find_package(SSVJsonCpp REQUIRED)
 find_package(SSVUtils REQUIRED)
 find_package(SSVUtilsJson REQUIRED)
