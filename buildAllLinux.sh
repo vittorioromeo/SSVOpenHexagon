@@ -10,9 +10,6 @@ BUILDTYPE="RELEASE"
 # Passed to CMake (LIBNAME_BUILD_SHARED_LIB)
 BUILDSHARED="TRUE" 
 
-# Passed to CMake (SPARSEHASH_INCLUDE_DIR) [you may have to set this manually]
-SPARSEHASHINCLUDEDIR="/usr/include/google/"
-
 # List of extlibs to build
 LIBS=("SSVJsonCpp" "SSVUtils" "SSVUtilsJson" "SSVStart" "SSVEntitySystem" "SSVMenuSystem" "SSVLuaWrapper")
 
@@ -48,7 +45,7 @@ function buildLib
   	rm CMakeCache.txt
 
   	## Run CMake, make and make install
-	cmake ../ -D"$ULIBNAME"_BUILD_SHARED_LIB=$BUILDSHARED -DCMAKE_BUILD_TYPE=$BUILDTYPE -DSPARSEHASH_INCLUDE_DIR=$SPARSEHASHINCLUDEDIR
+	cmake ../ -D"$ULIBNAME"_BUILD_SHARED_LIB=$BUILDSHARED -DCMAKE_BUILD_TYPE=$BUILDTYPE
 	make -j
 	make install -j
 
@@ -72,7 +69,7 @@ cd ..
 # Now we are in the main folder
 prettyEcho "Building $PROJECTNAME..." 
 
-cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=$BUILDTYPE -DSPARSEHASH_INCLUDE_DIR=$SPARSEHASHINCLUDEDIR
+cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=$BUILDTYPE
 make -j
 make install -j
 
