@@ -69,8 +69,21 @@ cd ..
 # Now we are in the main folder
 prettyEcho "Building $PROJECTNAME..." 
 
-cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=$BUILDTYPE
+# Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory
+rm CMakeCache.txt
+
+# Create and move to the build directory
+mkdir build
+cd build
+
+# If the library was previously built, remove CMakeCache.txt
+rm CMakeCache.txt
+
+## Run CMake, make and make install
+cmake ../ -DCMAKE_BUILD_TYPE=$BUILDTYPE
 make -j
 make install -j
+
+cd ..
 
 prettyEcho "Finished building $PROJECTNAME..."
