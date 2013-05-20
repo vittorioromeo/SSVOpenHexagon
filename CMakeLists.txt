@@ -81,7 +81,6 @@ target_link_libraries(SSVOpenHexagon ${SFML_WINDOW_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SFML_SYSTEM_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${SFML_NETWORK_LIBRARY})
 target_link_libraries(SSVOpenHexagon ${LUA_LIBRARY})
-target_link_libraries(SSVOpenHexagon ${SSVMENUSYSTEM_LIBRARY})
 
 if(UNIX)
 	install(TARGETS SSVOpenHexagon RUNTIME DESTINATION /usr/local/games/SSVOpenHexagon/)
