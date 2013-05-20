@@ -1,14 +1,8 @@
 #!/bin/bash
 
-# Project to build
-PROJECTNAME="SSVOpenHexagon"
-UPROJECTNAME=$(echo "$PROJECTNAME" | tr -s '[:lower:]' '[:upper:]')
-
-# Passed to CMake (CMAKE_BUILD_TYPE)
-BUILDTYPE="RELEASE" 
-
-# Passed to CMake (LIBNAME_BUILD_SHARED_LIB)
-BUILDSHARED="TRUE" 
+PROJECTNAME="SSVOpenHexagon" # Project to build
+BUILDTYPE="RELEASE" # Passed to CMake (CMAKE_BUILD_TYPE)
+BUILDSHARED="TRUE" # Passed to CMake (LIBNAME_BUILD_SHARED_LIB)
 
 # List of extlibs to build
 LIBS=("SSVJsonCpp" "SSVUtils" "SSVUtilsJson" "SSVStart" "SSVEntitySystem" "SSVMenuSystem" "SSVLuaWrapper")
