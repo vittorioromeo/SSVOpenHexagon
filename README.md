@@ -8,7 +8,7 @@ Music by **[BOSSFIGHT](https://soundcloud.com/bossfightswe)</br>**
 ----------
 
 ##EPILESPSY WARNING##
-*The game may contain flashing light patterns that could trigger a seizure. Play at your own risk.*
+*The game may contain flashing light patterns that could trigger a seizure. Play at your own risk!*
 
 ----------
 
