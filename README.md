@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - GitHub repository# 
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - GitHub repository
 ##[by Vittorio Romeo](http://vittorioromeo.info) </br>
 [Official README](http://vittorioromeo.info/Downloads/OpenHexagon/README.html)
 
