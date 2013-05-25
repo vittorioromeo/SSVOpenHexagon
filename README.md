@@ -14,7 +14,7 @@ Compiler used: **clang++ 3.4** ([DEB REPO](http://llvm.org/apt/))
 `> cd SSVOpenHexagon`
 
 2. Pull everything recursively (submodules!) </br>
-`> bash ./pullEverything.sh`
+`> bash ./init-repository.sh`
 
 3. You should now have all submodules updated and pulled
 4. Consider using `update-alternatives --config cc` and `update-alternatives --config cxx` to set **clang** and **clang++** as your default compilers, if GCC does not cooperate.
