@@ -39,7 +39,7 @@ namespace hg
 			else if(type == "message_clear") 			{ clearMessage(); }
 			else if(type == "time_stop")				{ status.timeStop = duration; }
 			else if(type == "timeline_wait") 			{ timeline.append<Wait>(duration); }
-			else if(type == "timeline_clear") 			{ clearAndResetTimeline(timeline); }
+			else if(type == "timeline_clear") 			{ timeline.clear(); timeline.reset(); }
 
 			else if(type == "level_float_set") 			{ levelData.setValueFloat(valueName, value); }
 			else if(type == "level_float_add") 			{ levelData.setValueFloat(valueName, levelData.getValueFloat(valueName) + value); }

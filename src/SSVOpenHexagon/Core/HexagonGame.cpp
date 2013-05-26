@@ -65,8 +65,8 @@ namespace hg
 		factory.createPlayer();
 
 		// Timeline cleanup
-		clearAndResetTimeline(timeline);
-		clearAndResetTimeline(messageTimeline);
+		timeline.clear(); timeline.reset();
+		messageTimeline.clear(); messageTimeline.reset();
 		effectTimelineManager.clear();
 
 		// FPSWatcher reset
@@ -129,7 +129,7 @@ namespace hg
 	{
 		if(manager.getComponents("wall").size() > 0)
 		{
-			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ clearAndResetTimeline(timeline); });
+			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ timeline.clear(); timeline.reset(); });
 			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&, mSideNumber]{ sideChange(mSideNumber); });
 			timeline.insert<Wait>(timeline.getCurrentIndex() + 1, 1);
 			return;

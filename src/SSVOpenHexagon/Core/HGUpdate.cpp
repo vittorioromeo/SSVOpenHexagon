@@ -52,7 +52,7 @@ namespace hg
 		}
 
 		messageTimeline.update(mFrameTime);
-		if(messageTimeline.isFinished()) clearAndResetTimeline(messageTimeline);
+		if(messageTimeline.isFinished()) { messageTimeline.clear(); messageTimeline.reset(); }
 
 		executeEvents(levelData.getRoot()["events"], status.currentTime);
 	}

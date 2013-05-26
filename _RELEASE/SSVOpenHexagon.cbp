@@ -5,254 +5,231 @@
       <Option title="SSVOpenHexagon" />
       <Option makefile_is_custom="1" />
       <Option compiler="gcc" />
-      <Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\extlibs\;CMake Files\extlibs\SSVJsonCpp\;CMake Files\extlibs\SSVJsonCpp\cmake\;CMake Files\extlibs\SSVJsonCpp\cmake\modules\;CMake Files\extlibs\SSVUtils\;CMake Files\extlibs\SSVUtils\cmake\;CMake Files\extlibs\SSVUtils\cmake\Modules\;CMake Files\extlibs\SSVUtilsJson\;CMake Files\extlibs\SSVUtilsJson\cmake\;CMake Files\extlibs\SSVUtilsJson\cmake\Modules\;CMake Files\extlibs\SSVStart\;CMake Files\extlibs\SSVStart\cmake\;CMake Files\extlibs\SSVStart\cmake\Modules\;CMake Files\extlibs\SSVEntitySystem\;CMake Files\extlibs\SSVEntitySystem\cmake\;CMake Files\extlibs\SSVEntitySystem\cmake\Modules\;CMake Files\extlibs\SSVMenuSystem\;CMake Files\extlibs\SSVMenuSystem\cmake\;CMake Files\extlibs\SSVMenuSystem\cmake\Modules\;CMake Files\extlibs\SSVLuaWrapper\;CMake Files\extlibs\SSVLuaWrapper\cmake\;CMake Files\extlibs\SSVLuaWrapper\cmake\Modules\;" />
+      <Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\extlibs\;CMake Files\extlibs\SSVJsonCpp\;CMake Files\extlibs\SSVJsonCpp\cmake\;CMake Files\extlibs\SSVJsonCpp\cmake\modules\;CMake Files\extlibs\SSVUtils\;CMake Files\extlibs\SSVUtils\cmake\;CMake Files\extlibs\SSVUtils\cmake\modules\;CMake Files\extlibs\SSVUtilsJson\;CMake Files\extlibs\SSVUtilsJson\cmake\;CMake Files\extlibs\SSVUtilsJson\cmake\modules\;CMake Files\extlibs\SSVStart\;CMake Files\extlibs\SSVStart\cmake\;CMake Files\extlibs\SSVStart\cmake\modules\;CMake Files\extlibs\SSVEntitySystem\;CMake Files\extlibs\SSVEntitySystem\cmake\;CMake Files\extlibs\SSVEntitySystem\cmake\modules\;CMake Files\extlibs\SSVMenuSystem\;CMake Files\extlibs\SSVMenuSystem\cmake\;CMake Files\extlibs\SSVMenuSystem\cmake\modules\;CMake Files\extlibs\SSVLuaWrapper\;CMake Files\extlibs\SSVLuaWrapper\cmake\;CMake Files\extlibs\SSVLuaWrapper\cmake\modules\;" />
       <Build>
       <Target title="all">
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option type="4" />
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 all" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 all" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       <Target title="SSVOpenHexagon">
-         <Option output="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/SSVOpenHexagon.exe" prefix_auto="0" extension_auto="0" />
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option output="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/SSVOpenHexagon" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option object_output="./" />
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SFML/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVEntitySystem/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVJsonCpp/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVLuaWrapper/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVMenuSystem/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVStart/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVUtils/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVUtilsJson/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/lua" />
-            <Add directory="D:/Vee/Software/Repos/sparsehash/build/built/include" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/../../../../i686-w64-mingw32/include" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include-fixed" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include/c++" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include/c++/backward" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include/c++/i686-w64-mingw32" />
+            <Add directory="/home/vittorioromeo/OHWorkspace/SSVJsonCpp/include" />
+            <Add directory="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include" />
+            <Add directory="/usr/include/." />
+            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 SSVOpenHexagon" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 SSVOpenHexagon" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       <Target title="SSVOpenHexagon/fast">
-         <Option output="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/SSVOpenHexagon.exe" prefix_auto="0" extension_auto="0" />
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option output="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/SSVOpenHexagon" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option object_output="./" />
          <Option type="1" />
          <Option compiler="gcc" />
          <Compiler>
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SFML/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVEntitySystem/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVJsonCpp/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVLuaWrapper/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVMenuSystem/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVStart/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVUtils/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/SSVUtilsJson/include" />
-            <Add directory="D:/Vee/Software/GitHub/OHWorkspace/lua" />
-            <Add directory="D:/Vee/Software/Repos/sparsehash/build/built/include" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/../../../../i686-w64-mingw32/include" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include-fixed" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include/c++" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include/c++/backward" />
-            <Add directory="c:/mingw/bin/../lib/gcc/i686-w64-mingw32/4.8.0/include/c++/i686-w64-mingw32" />
+            <Add directory="/home/vittorioromeo/OHWorkspace/SSVJsonCpp/include" />
+            <Add directory="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include" />
+            <Add directory="/usr/include/." />
+            <Add directory="/usr/local/include" />
          </Compiler>
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 SSVOpenHexagon/fast" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 SSVOpenHexagon/fast" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       <Target title="edit_cache">
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option type="4" />
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 edit_cache" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 edit_cache" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       <Target title="install">
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option type="4" />
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 install" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 install" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       <Target title="install/local">
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option type="4" />
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 install/local" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 install/local" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       <Target title="install/strip">
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option type="4" />
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 install/strip" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 install/strip" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       <Target title="list_install_components">
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option type="4" />
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 list_install_components" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 list_install_components" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       <Target title="rebuild_cache">
-         <Option working_dir="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE" />
+         <Option working_dir="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build" />
          <Option type="4" />
          <MakeCommands>
-            <Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 rebuild_cache" />
-            <CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
-            <Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
-            <DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/_RELEASE/Makefile&quot;  VERBOSE=1 clean" />
+            <Build command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 rebuild_cache" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/build/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
       </Build>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Compatibility/Compatibility.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Compatibility/Compatibility.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Components/CPlayer.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Components/CPlayer.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Components/CWall.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Components/CWall.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGGraphics.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGGraphics.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGProperties.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGProperties.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGScripting.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGScripting.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGUpdate.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HGUpdate.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HexagonGame.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/HexagonGame.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/MenuGame.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/MenuGame.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/main.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Core/main.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/EventData.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/EventData.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/LevelData.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/LevelData.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/MusicData.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/MusicData.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/PackData.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/PackData.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/ProfileData.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/ProfileData.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/StyleData.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Data/StyleData.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Assets.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Assets.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Config.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Config.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Factory.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Global/Factory.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Online/Online.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Online/Online.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Utils/FPSWatcher.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Utils/FPSWatcher.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Utils/Utils.cpp">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/src/SSVOpenHexagon/Utils/Utils.cpp">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Compatibility/Compatibility.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Compatibility/Compatibility.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Components/CPlayer.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Components/CPlayer.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Components/CWall.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Components/CWall.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Core/HGStatus.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Core/HGStatus.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Core/HexagonGame.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Core/HexagonGame.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Core/MenuGame.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Core/MenuGame.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/EventData.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/EventData.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/LevelData.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/LevelData.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/MusicData.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/MusicData.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/PackData.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/PackData.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/ProfileData.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/ProfileData.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/StyleData.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Data/StyleData.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Global/Assets.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Global/Assets.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Global/Config.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Global/Config.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Global/Factory.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Global/Factory.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Online/Definitions.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Online/Definitions.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Online/Online.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Online/Online.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Utils/FPSWatcher.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Utils/FPSWatcher.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Utils/Utils.h">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/include/SSVOpenHexagon/Utils/Utils.h">
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/CMakeLists.txt">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/CMakeLists.txt">
           <Option virtualFolder="CMake Files\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/cmake/FindSFML.cmake">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/cmake/FindSFML.cmake">
           <Option virtualFolder="CMake Files\cmake\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/cmake/FindLUA.cmake">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/cmake/FindSparsehash.cmake">
           <Option virtualFolder="CMake Files\cmake\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/extlibs/SSVJsonCpp/cmake/modules/FindSSVJsonCpp.cmake">
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/cmake/FindLUA.cmake">
+          <Option virtualFolder="CMake Files\cmake\" />
+      </Unit>
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/extlibs/SSVJsonCpp/cmake/modules/FindSSVJsonCpp.cmake">
           <Option virtualFolder="CMake Files\extlibs\SSVJsonCpp\cmake\modules\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/extlibs/SSVUtils/cmake/Modules/FindSSVUtils.cmake">
-          <Option virtualFolder="CMake Files\extlibs\SSVUtils\cmake\Modules\" />
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/extlibs/SSVUtils/cmake/modules/FindSSVUtils.cmake">
+          <Option virtualFolder="CMake Files\extlibs\SSVUtils\cmake\modules\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/extlibs/SSVUtilsJson/cmake/Modules/FindSSVUtilsJson.cmake">
-          <Option virtualFolder="CMake Files\extlibs\SSVUtilsJson\cmake\Modules\" />
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/extlibs/SSVUtilsJson/cmake/modules/FindSSVUtilsJson.cmake">
+          <Option virtualFolder="CMake Files\extlibs\SSVUtilsJson\cmake\modules\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/extlibs/SSVStart/cmake/Modules/FindSSVStart.cmake">
-          <Option virtualFolder="CMake Files\extlibs\SSVStart\cmake\Modules\" />
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/extlibs/SSVStart/cmake/modules/FindSSVStart.cmake">
+          <Option virtualFolder="CMake Files\extlibs\SSVStart\cmake\modules\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/extlibs/SSVEntitySystem/cmake/Modules/FindSSVEntitySystem.cmake">
-          <Option virtualFolder="CMake Files\extlibs\SSVEntitySystem\cmake\Modules\" />
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/extlibs/SSVEntitySystem/cmake/modules/FindSSVEntitySystem.cmake">
+          <Option virtualFolder="CMake Files\extlibs\SSVEntitySystem\cmake\modules\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/extlibs/SSVMenuSystem/cmake/Modules/FindSSVMenuSystem.cmake">
-          <Option virtualFolder="CMake Files\extlibs\SSVMenuSystem\cmake\Modules\" />
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/extlibs/SSVMenuSystem/cmake/modules/FindSSVMenuSystem.cmake">
+          <Option virtualFolder="CMake Files\extlibs\SSVMenuSystem\cmake\modules\" />
       </Unit>
-      <Unit filename="D:/Vee/Software/GitHub/OHWorkspace/SSVOpenHexagon/extlibs/SSVLuaWrapper/cmake/Modules/FindSSVLuaWrapper.cmake">
-          <Option virtualFolder="CMake Files\extlibs\SSVLuaWrapper\cmake\Modules\" />
+      <Unit filename="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/extlibs/SSVLuaWrapper/cmake/modules/FindSSVLuaWrapper.cmake">
+          <Option virtualFolder="CMake Files\extlibs\SSVLuaWrapper\cmake\modules\" />
       </Unit>
    </Project>
 </CodeBlocks_project_file>

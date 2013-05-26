@@ -15,7 +15,6 @@ namespace hg
 	{
 		private:
 			Json::Value root;
-			int currentPattern{-1};
 			std::vector<Json::Value> events;
 			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
 
