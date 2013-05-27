@@ -63,8 +63,6 @@ namespace hg
 			root["fullscreen_height"] = VideoMode::getDesktopMode().height;
 		}
 
-
-
 		recalculateSizes();
 	}
 	void saveConfig()
