@@ -43,7 +43,10 @@ namespace hg
 
 		for(auto& overrideId : mOverridesIds)
 		{
-			Json::Value overrideRoot{configOverridesRootMap.find(overrideId)->second};
+			auto itr(configOverridesRootMap.find(overrideId));
+			if(itr == end(configOverridesRootMap)) continue;
+
+			Json::Value overrideRoot{itr->second};
 
 			for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[itr.key().asString()] = *itr;
 		}
@@ -53,11 +56,14 @@ namespace hg
 			root["windowed_width"] = VideoMode::getDesktopMode().width;
 			root["windowed_height"] = VideoMode::getDesktopMode().height;
 		}
+
 		if(getFullscreenAutoResolution())
 		{
 			root["fullscreen_width"] = VideoMode::getDesktopMode().width;
 			root["fullscreen_height"] = VideoMode::getDesktopMode().height;
 		}
+
+
 
 		recalculateSizes();
 	}
