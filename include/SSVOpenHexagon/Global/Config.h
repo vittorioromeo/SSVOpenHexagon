@@ -10,7 +10,7 @@
 
 namespace hg
 {
-	void loadConfig(std::vector<std::string> mOverridesIds);
+	void loadConfig(const std::vector<std::string>& mOverridesIds);
 	void saveConfig();
 
 	bool isEligibleForScore();

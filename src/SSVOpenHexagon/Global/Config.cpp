@@ -31,7 +31,7 @@ namespace hg
 	constexpr float spawnDistance{1600};
 	string uneligibilityReason{""};
 
-	void loadConfig(vector<string> mOverridesIds)
+	void loadConfig(const vector<string>& mOverridesIds)
 	{
 		log("loading config", "CONFIG");
 
