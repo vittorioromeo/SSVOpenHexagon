@@ -1,8 +1,10 @@
 #!/bin/bash
 
-echo "Recursively pulling all submodules..."
+echo "Initializing all submodules..."
 git submodule update --init --recursive
-git submodule foreach git pull origin master --recurse-submodules
 
-echo "Pulling last version..."
-git pull origin master --recurse-submodules
+echo "Stashing all submodule changes..."
+git submodule foreach --recursive git stash
+
+echo "Recursively pulling all submodules..."
+git submodule foreach --recursive git pull origin master --recurse-submodules
