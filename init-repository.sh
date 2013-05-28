@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This bash script, called in a repository with submodules, inits and pulls all submodules recursively
+
 echo "Initializing all submodules..."
 git submodule update --init --recursive
 
