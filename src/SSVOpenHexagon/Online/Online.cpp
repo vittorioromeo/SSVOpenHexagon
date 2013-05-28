@@ -70,7 +70,7 @@ namespace hg
 				{
 					serverVersion = -1;
 					serverMessage = "Error connecting to server";
-					log("Error checking updates - code: " + status, "Online");
+					log("Error checking updates - code: " + toStr(status), "Online");
 				}
 
 				log("Finished checking updates", "Online");
@@ -94,7 +94,7 @@ namespace hg
 					Json::Reader reader; reader.parse(response.getBody(), scoresRoot);
 					log("Scores retrieved successfully", "Online");
 				}
-				else log("Error checking scores - code: " + status, "Online");
+				else log("Error checking scores - code: " + toStr(status), "Online");
 
 				log("Finished checking scores", "Online");
 				cleanUp();
