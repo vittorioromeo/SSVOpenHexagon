@@ -17,6 +17,7 @@ using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
 using namespace ssvu;
+using namespace ssvu::Encryption;
 using namespace ssvuj;
 using namespace ssvu::FileSystem;
 
@@ -221,7 +222,7 @@ namespace hg
 		float getServerVersion() 							{ return serverVersion; }
 		string getServerMessage() 							{ return serverMessage; }
 		Json::Value getScores(const string& mValidator) 	{ return scoresRoot[mValidator]; }
-		string getMD5Hash(const string& mString) 			{ MD5 key{mString}; return key.GetHash(); }
+		string getMD5Hash(const string& mString) 			{ return encrypt<Type::MD5>(mString); }
 		string getUrlEncoded(const string& mString) 		{ string result{""}; for(const auto& c : mString) if(isalnum(c)) result += c; return result; }
 		string getControlStripped(const string& mString)	{ string result{""}; for(const auto& c : mString) if(!iscntrl(c)) result += c; return result; }
 

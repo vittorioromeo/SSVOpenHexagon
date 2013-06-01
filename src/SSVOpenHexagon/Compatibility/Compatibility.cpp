@@ -14,14 +14,14 @@ using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
 using namespace ssvu;
+using namespace ssvu::Encryption;
 using namespace ssvuj;
 
 namespace hg
 {
 	namespace Compatibility
 	{
-
-		string get19MD5Hash(const string& mString) 	{ MD5 key{mString}; return key.GetHash(); }
+		string get19MD5Hash(const string& mString) 	{ return encrypt<Type::MD5>(mString); }
 		string get19UrlEncoded(const string& mString)	{ string result{""}; for(auto c : mString) if(isalnum(c)) result += c; return result; }
 		string get19ControlStripped(const string& mString)	{ string result{""}; for(auto c : mString) if(!iscntrl(c)) result += c; return result; }
 		string get19FileContents(const string& mPath)
