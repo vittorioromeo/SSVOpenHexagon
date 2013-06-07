@@ -44,12 +44,12 @@ namespace hg
 	{
 		log("loading profiles", "LoadAssets"); 	loadProfiles();
 
-		for(string packPath : getFolders("Packs/"))
+		for(string packPath : get<Mode::NON_RECURSIVE, Type::FOLDERS>("Packs/"))
 		{
 			string packName{packPath.substr(6, packPath.length() - 6)};
 
 			string packLua{""};
-			for(const auto& path : getRecursiveFilesByExtension(packPath, ".lua")) packLua.append(getFileContents(path));
+			for(const auto& path : get<Mode::RECURSIVE, Type::FILES, Pick::BY_EXTENSION>(packPath, ".lua")) packLua.append(getFileContents(path));
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
 			Json::Value packRoot{getRootFromFile(packPath + "/pack.json")};
@@ -76,7 +76,7 @@ namespace hg
 
 	void loadCustomSounds(const string& mPackName, const string& mPath)
 	{
-		for(auto filePath : getFilesByExtension(mPath + "Sounds/", ".ogg"))
+		for(auto filePath : get<Mode::NON_RECURSIVE, Type::FILES, Pick::BY_EXTENSION>(mPath + "Sounds/", ".ogg"))
 		{
 			string fileName{getNameFromPath(filePath, mPath + "Sounds/", "")};
 			assetManager.loadSound(mPackName + "_" + fileName, filePath);
@@ -85,7 +85,7 @@ namespace hg
 	}
 	void loadMusic(const string& mPath)
 	{
-		for(auto filePath : getFilesByExtension(mPath + "Music/", ".ogg"))
+		for(auto filePath : get<Mode::NON_RECURSIVE, Type::FILES, Pick::BY_EXTENSION>(mPath + "Music/", ".ogg"))
 		{
 			string fileName{getNameFromPath(filePath, mPath + "Music/", ".ogg")};
 
@@ -97,7 +97,7 @@ namespace hg
 	}
 	void loadMusicData(const string& mPath)
 	{
-		for(auto filePath : getFilesByExtension(mPath + "Music/", ".json"))
+		for(auto filePath : get<Mode::NON_RECURSIVE, Type::FILES, Pick::BY_EXTENSION>(mPath + "Music/", ".json"))
 		{
 			MusicData musicData{loadMusicFromJson(getRootFromFile(filePath))};
 			musicDataMap.insert(make_pair(musicData.getId(), musicData));
@@ -105,7 +105,7 @@ namespace hg
 	}
 	void loadStyleData(const string& mPath)
 	{
-		for(auto filePath : getFilesByExtension(mPath + "Styles/", ".json"))
+		for(auto filePath : get<Mode::NON_RECURSIVE, Type::FILES, Pick::BY_EXTENSION>(mPath + "Styles/", ".json"))
 		{
 			StyleData styleData{loadStyleFromJson(getRootFromFile(filePath))};
 			styleData.setRootPath(filePath);
@@ -114,7 +114,7 @@ namespace hg
 	}
 	void loadLevelData(const string& mPath)
 	{
-		for(auto filePath : getFilesByExtension(mPath + "Levels/", ".json"))
+		for(auto filePath : get<Mode::NON_RECURSIVE, Type::FILES, Pick::BY_EXTENSION>(mPath + "Levels/", ".json"))
 		{
 			Json::Value root{getRootFromFile(filePath)};
 			string luaScriptPath{mPath + "Scripts/" + root["lua_file"].asString()};
@@ -130,7 +130,7 @@ namespace hg
 	}
 	void loadProfiles()
 	{
-		for(auto filePath : getFilesByExtension("Profiles/", ".json"))
+		for(auto filePath : get<Mode::NON_RECURSIVE, Type::FILES, Pick::BY_EXTENSION>("Profiles/", ".json"))
 		{
 			string fileName{getNameFromPath(filePath, "Profiles/", ".json")};
 
@@ -140,7 +140,7 @@ namespace hg
 	}
 	void loadEvents(const string& mPath)
 	{
-		for(auto filePath : getFilesByExtension(mPath + "Events/", ".json"))
+		for(auto filePath : get<Mode::NON_RECURSIVE, Type::FILES, Pick::BY_EXTENSION>(mPath + "Events/", ".json"))
 		{
 			EventData eventData{getRootFromFile(filePath)};
 			eventDataMap.insert(make_pair(eventData.getId(), eventData));
