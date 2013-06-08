@@ -35,7 +35,7 @@ namespace hg
 	{
 		log("loading config", "CONFIG");
 
-		for(auto filePath : get<Mode::NON_RECURSIVE, Type::FILES, Pick::BY_EXTENSION>("ConfigOverrides/", ".json"))
+		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
 		{
 			string fileName{getNameFromPath(filePath, "ConfigOverrides/", ".json")};
 			configOverridesRootMap.insert(make_pair(fileName, getRootFromFile(filePath)));
@@ -188,11 +188,11 @@ namespace hg
 	bool getAutoRestart()				{ return root["auto_restart"].asBool(); }
 	bool getFlash() 					{ return root["flash_enabled"].asBool(); }
 
-	Trigger getTriggerRotateCCW()		{ return getInputTriggerFromJSON(root["t_rotate_ccw"]); }
-	Trigger getTriggerRotateCW()		{ return getInputTriggerFromJSON(root["t_rotate_cw"]); }
-	Trigger getTriggerFocus()			{ return getInputTriggerFromJSON(root["t_focus"]); }
-	Trigger getTriggerExit()			{ return getInputTriggerFromJSON(root["t_exit"]); }
-	Trigger getTriggerForceRestart()	{ return getInputTriggerFromJSON(root["t_force_restart"]); }
-	Trigger getTriggerRestart()			{ return getInputTriggerFromJSON(root["t_restart"]); }
-	Trigger getTriggerScreenshot()		{ return getInputTriggerFromJSON(root["t_screenshot"]); }
+	Trigger getTriggerRotateCCW()		{ return getInputTriggerFromJson(root["t_rotate_ccw"]); }
+	Trigger getTriggerRotateCW()		{ return getInputTriggerFromJson(root["t_rotate_cw"]); }
+	Trigger getTriggerFocus()			{ return getInputTriggerFromJson(root["t_focus"]); }
+	Trigger getTriggerExit()			{ return getInputTriggerFromJson(root["t_exit"]); }
+	Trigger getTriggerForceRestart()	{ return getInputTriggerFromJson(root["t_force_restart"]); }
+	Trigger getTriggerRestart()			{ return getInputTriggerFromJson(root["t_restart"]); }
+	Trigger getTriggerScreenshot()		{ return getInputTriggerFromJson(root["t_screenshot"]); }
 }

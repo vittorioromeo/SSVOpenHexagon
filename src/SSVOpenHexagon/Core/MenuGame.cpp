@@ -113,7 +113,7 @@ namespace hg
 	void MenuGame::initInput()
 	{
 		using k = Keyboard::Key;
-		using t = Trigger::Types;
+		using t = Trigger::Type;
 		using s = States;
 		game.addInput(getTriggerRotateCCW(), [&](float)
 		{
@@ -121,26 +121,26 @@ namespace hg
 			if(state == s::PROFILES) 		{  --profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex - 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
-		}, t::SINGLE);
+		}, t::Single);
 		game.addInput(getTriggerRotateCW(), [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::PROFILES) 		{ ++profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex + 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
-		}, t::SINGLE);
+		}, t::Single);
 		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::MAIN) 			{ ++difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
-		}, t::SINGLE);
+		}, t::Single);
 		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
 			playSound("beep.ogg");
 			if(state == s::MAIN) 			{ --difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS)	{ optionsMenu.selectNextItem(); }
-		}, t::SINGLE);
+		}, t::Single);
 		game.addInput(getTriggerRestart(), [&](float)
 		{
 			playSound("beep.ogg");
@@ -152,19 +152,19 @@ namespace hg
 			}
 			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem();
 			else if(state == s::PROFILE_NEW) if(!profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = s::MAIN; refreshScores(); }
-		}, t::SINGLE);
-		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { profileNewName = ""; state = s::PROFILE_NEW; } }, t::SINGLE);
-		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { profileNewName = ""; state = s::PROFILES; } }, t::SINGLE);
-		game.addInput({{k::F3}, {k::K}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::SINGLE);
+		}, t::Single);
+		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { profileNewName = ""; state = s::PROFILE_NEW; } }, t::Single);
+		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { profileNewName = ""; state = s::PROFILES; } }, t::Single);
+		game.addInput({{k::F3}, {k::K}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::Single);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
 			playSound("beep.ogg"); if(state == s::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
-		}, t::SINGLE);
-		game.addInput(getTriggerExit(), [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; refreshScores(); }, t::SINGLE);
+		}, t::Single);
+		game.addInput(getTriggerExit(), [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; refreshScores(); }, t::Single);
 		game.addInput(getTriggerExit(), [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
-		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::SINGLE);
-		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::SINGLE);
-		game.addInput({{k::BackSpace}}, [&](float){ if(state == s::PROFILE_NEW && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1); }, t::SINGLE);
+		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
+		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::Single);
+		game.addInput({{k::BackSpace}}, [&](float){ if(state == s::PROFILE_NEW && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1); }, t::Single);
 	}
 
 	void MenuGame::setIndex(int mIndex)
