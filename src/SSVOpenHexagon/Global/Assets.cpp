@@ -158,6 +158,7 @@ namespace hg
 		profileRoot["version"] = getVersion();
 		profileRoot["name"] = getCurrentProfile().getName();
 		profileRoot["scores"] = getCurrentProfile().getScores();
+		for(const auto& n : getCurrentProfile().getTrackedNames()) profileRoot["trackedNames"].append(n);
 
 		writer.write(o, profileRoot); o.flush(); o.close();
 	}

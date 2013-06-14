@@ -52,7 +52,7 @@ namespace hg
 			return result;
 		}
 		StyleData loadStyleFromJson(const Json::Value& mRoot) { return {mRoot}; }
-		ProfileData loadProfileFromJson(const Json::Value& mRoot) { return {as<float>(mRoot, "version"), as<string>(mRoot, "name"), mRoot["scores"]}; }
+		ProfileData loadProfileFromJson(const Json::Value& mRoot) { return {as<float>(mRoot, "version"), as<string>(mRoot, "name"), mRoot["scores"], as<vector<string>>(mRoot, "trackedNames", {})}; }
 
 		string getLocalValidator(const string& mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
 

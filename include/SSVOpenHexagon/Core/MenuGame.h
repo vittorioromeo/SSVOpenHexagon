@@ -16,7 +16,7 @@
 
 namespace hg
 {
-	enum class States { MAIN, PROFILE_NEW, PROFILES, OPTIONS };
+	enum class States { MAIN, PROFILE_NEW, PROFILES, OPTIONS, ADD_FRIEND };
 
 	class HexagonGame;
 
@@ -34,8 +34,9 @@ namespace hg
 			std::string scoresMessage;
 			float exitTimer{0};
 			bool mustTakeScreenshot{false};
-			std::string currentLeaderboard{""}, currentPlayerScore{""}, profileNewName{""}, leaderboardString{""};
+			std::string currentLeaderboard{""}, currentPlayerScore{""}, profileNewName{""}, leaderboardString{""}, friendsString{""};
 			std::vector<char> enteredChars;
+			std::vector<std::string> friendsScores;
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")}, creditsBar1{getAssetManager().getTexture("creditsBar1.png")},
 			creditsBar2{getAssetManager().getTexture("creditsBar2.png")}, bottomBar{getAssetManager().getTexture("bottomBar.png")};
@@ -44,10 +45,13 @@ namespace hg
 			std::vector<float> difficultyMultipliers;
 			int currentIndex{0}, packIndex{0}, profileIndex{0}, difficultyMultIndex{0};
 
+			bool wasOverloaded{false};
+
 			LevelData levelData;
 			StyleData styleData;
 			sf::Text versionText{"", getFont("imagine.ttf"), 40}, cProfText{"", getFont("imagine.ttf"), 21}, levelName{"", getFont("imagine.ttf"), 65},
-				levelDesc{"", getFont("imagine.ttf"), 32}, levelAuth{"", getFont("imagine.ttf"), 20}, levelMusc{"", getFont("imagine.ttf"), 20};
+				levelDesc{"", getFont("imagine.ttf"), 32}, levelAuth{"", getFont("imagine.ttf"), 20}, levelMusc{"", getFont("imagine.ttf"), 20},
+				friendsText{"", getFont("imagine.ttf"), 21};
 
 			void initAssets();
 			void initOptionsMenu();
@@ -63,6 +67,7 @@ namespace hg
 			void setIndex(int mIndex);
 			void refreshScores();
 			void updateLeaderboard();
+			void updateFriends();
 
 		public:
 			MenuGame(HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);

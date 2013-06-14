@@ -35,7 +35,6 @@ namespace hg
 		const string host{"http://vittorioromeo.info"};
 		const string folder{"Misc/Linked/OHServer/"};
 		const string infoFile{"OHInfo.json"};
-		const string scoresFile{"scores.json"};
 		const string sendScoreFile{"sendScore.php"};
 		const string getScoresFile{"getScores.php"};
 
@@ -80,29 +79,6 @@ namespace hg
 
 			thread.launch();
 		}
-		void startCheckScores()
-		{
-			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
-
-			ThreadWrapper& thread = memoryManager.create([]
-			{
-				log("Checking scores...", "Online");
-
-				Response response{getGetResponse(host, folder, scoresFile)};
-				Status status{response.getStatus()};
-				if(status == Response::Ok)
-				{
-					Json::Reader reader; reader.parse(response.getBody(), scoresRoot);
-					log("Scores retrieved successfully", "Online");
-				}
-				else log("Error checking scores - code: " + toStr(status), "Online");
-
-				log("Finished checking scores", "Online");
-				cleanUp();
-			});
-
-			thread.launch();
-		}
 		void startSendScore(const string& mName, const string& mValidator, float mDifficulty, float mScore)
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
@@ -126,7 +102,6 @@ namespace hg
 				socket.disconnect();
 
 				log("Finished submitting score", "Online");
-				startCheckScores();
 				cleanUp();
 			});
 
@@ -149,12 +124,13 @@ namespace hg
 
 			checkThread.launch();
 		}
-		void startGetScores(string& mTargetScores, string& mTargetPlayerScore, const string& mName, const string& mValidator, float mDifficulty)
+		void startGetScores(string& mTargetScores, string& mTargetPlayerScore, const string& mName, vector<string>& mTarget, const vector<string>& mNames, const string& mValidator, float mDifficulty)
 		{
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 
-			ThreadWrapper& thread = memoryManager.create([=, &mTargetScores, &mTargetPlayerScore]
+			ThreadWrapper& thread = memoryManager.create([=, &mTargetScores, &mTargetPlayerScore, &mTarget, &mNames]
 			{
+				mTarget.clear();
 				mTargetScores = "";
 				mTargetPlayerScore = "";
 
@@ -185,6 +161,48 @@ namespace hg
 				}
 				socket.disconnect();
 				log("Finished getting scores", "Online");
+				startGetFriendsScores(mTarget, mNames, mValidator, mDifficulty);
+				cleanUp();
+			});
+
+			thread.launch();
+		}
+		void startGetFriendsScores(vector<string>& mTarget, const vector<string>& mNames, const string& mValidator, float mDifficulty)
+		{
+			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+
+			ThreadWrapper& thread = memoryManager.create([=, &mTarget, &mNames]
+			{
+				vector<string> result;
+				log("Getting friend scores from server...", "Online");
+
+				for(const auto& n : mNames)
+				{
+					TcpSocket socket;
+					Packet packet0x01, packet0x11;
+					packet0x01 << int8_t{0x01} << (string)mValidator << (float)mDifficulty << (string)n;
+					socket.connect(hostIp, hostPort); socket.send(packet0x01); socket.receive(packet0x11);
+					uint8_t packetID, pass;
+					string response[2];
+					if(packet0x11 >> packetID >> pass)
+					{
+						if(packetID == 0x11 && pass == 0)
+						{
+							if(packet0x11 >> response[0] >> response[1])
+							{
+								if(!startsWith(response[1], "MySQL Error") && !startsWith(response[1], "NULL")) result.push_back(response[1]);
+								else result.push_back("NULL");
+							}
+							else log("Error: could not get scores", "Online");
+						}
+						else log("Error: could not get scores", "Online");
+					}
+					socket.disconnect();
+				}
+
+				mTarget = result;
+
+				log("Finished getting friend scores", "Online");
 				cleanUp();
 			});
 
@@ -221,11 +239,12 @@ namespace hg
 
 		float getServerVersion() 							{ return serverVersion; }
 		string getServerMessage() 							{ return serverMessage; }
-		Json::Value getScores(const string& mValidator) 	{ return scoresRoot[mValidator]; }
 		string getMD5Hash(const string& mString) 			{ return encrypt<Encryption::Type::MD5>(mString); }
 		string getUrlEncoded(const string& mString) 		{ string result{""}; for(const auto& c : mString) if(isalnum(c)) result += c; return result; }
 		string getControlStripped(const string& mString)	{ string result{""}; for(const auto& c : mString) if(!iscntrl(c)) result += c; return result; }
 
+		bool isOverloaded() { return memoryManager.getItems().size() > 4; }
+		bool isFree() { return memoryManager.getItems().size() < 2; }
 	}
 }
 

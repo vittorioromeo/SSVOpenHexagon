@@ -16,16 +16,21 @@ namespace hg
 			float version;
 			std::string name;
 			Json::Value scores;
+			std::vector<std::string> trackedNames;
 
 		public:
-			ProfileData(float mVersion, const std::string& mName, Json::Value mScores);
+			ProfileData(float mVersion, const std::string& mName, Json::Value mScores, const std::vector<std::string>& mTrackedNames);
 
 			float getVersion();
 			std::string getName();
 			Json::Value getScores();
+			const std::vector<std::string>& getTrackedNames();
 
 			void setScore(const std::string& mId, float mScore);
 			float getScore(const std::string& mId);
+
+			void addTrackedName(const std::string& mTrackedName);
+			void clearTrackedNames();
 	};
 }
 

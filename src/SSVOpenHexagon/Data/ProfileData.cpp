@@ -10,13 +10,16 @@ using namespace ssvu;
 
 namespace hg
 {
-	ProfileData::ProfileData(float mVersion, const string& mName, Json::Value mScores) : version{mVersion}, name{mName}, scores{mScores} { }
+	ProfileData::ProfileData(float mVersion, const string& mName, Json::Value mScores, const vector<string>& mTrackedNames) : version{mVersion}, name{mName}, scores{mScores}, trackedNames{mTrackedNames} { }
 
-	float ProfileData::getVersion()			{ return version; }
-	string ProfileData::getName()			{ return toLower(name); }
-	Json::Value ProfileData::getScores()	{ return scores; }
+	float ProfileData::getVersion()							{ return version; }
+	string ProfileData::getName()							{ return toLower(name); }
+	Json::Value ProfileData::getScores()					{ return scores; }
+	const vector<string>& ProfileData::getTrackedNames()	{ return trackedNames; }
 
-	void ProfileData::setScore(const string& mId, float mScore)	{ scores[mId] = mScore; }
-	float ProfileData::getScore(const string& mId)				{ return scores[mId].asFloat(); }
+	void ProfileData::setScore(const string& mId, float mScore)		{ scores[mId] = mScore; }
+	float ProfileData::getScore(const string& mId)					{ return scores[mId].asFloat(); }
+	void ProfileData::addTrackedName(const string& mTrackedName)	{ trackedNames.push_back(toLower(mTrackedName)); }
+	void ProfileData::clearTrackedNames()							{ trackedNames.clear(); }
 }
 
