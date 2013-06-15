@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.9 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.92 #
 ## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
@@ -95,6 +95,12 @@ Please refer to the files in the **documentation** folder.
 
 
 ## Changelog ##
+
+Version 1.92
+
+* Added: simple **friend list** - track player names and get their position on the leaderboard
+* Added: **key customization** (only via JSON currently)
+* Changed: possible minor **performance optimization** with 3D enabled
 
 Version 1.9
 
