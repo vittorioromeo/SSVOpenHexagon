@@ -80,6 +80,9 @@ namespace hg
 		auto& friends(optionsMenu.createCategory("friends"));
 
 		main.create<i::Goto>("friends", friends);
+		main.create<i::Single>("change profile", [&]{ enteredString = ""; state = States::PROFILES; });
+		main.create<i::Single>("new profile", [&]{ enteredString = ""; state = States::PROFILE_NEW; });
+
 		main.create<i::Goto>("gameplay", play);
 		main.create<i::Goto>("graphics", gfx);
 		main.create<i::Goto>("audio", sfx);
@@ -100,10 +103,8 @@ namespace hg
 
 		sfx.create<i::Toggle>("sounds",	[&]{ return !getNoSound(); }, 	[&]{ setNoSound(false); }, 	[&]{ setNoSound(true); });
 		sfx.create<i::Toggle>("music",	[&]{ return !getNoMusic(); },	[&]{ setNoMusic(false); }, 	[&]{ setNoMusic(true); });
-		sfx.create<i::Slider>("sounds volume", [&]{ return toStr(getSoundVolume()); },
-		[&]{ setSoundVolume(getClamped(getSoundVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setSoundVolume(getClamped(getSoundVolume() - 5, 0, 100)); refreshVolumes(); });
-		sfx.create<i::Slider>("music volume", [&]{ return toStr(getMusicVolume()); },
-		[&]{ setMusicVolume(getClamped(getMusicVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setMusicVolume(getClamped(getMusicVolume() - 5, 0, 100)); refreshVolumes(); });
+		sfx.create<i::Slider>("sounds volume", [&]{ return toStr(getSoundVolume()); }, [&]{ setSoundVolume(getClamped(getSoundVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setSoundVolume(getClamped(getSoundVolume() - 5, 0, 100)); refreshVolumes(); });
+		sfx.create<i::Slider>("music volume", [&]{ return toStr(getMusicVolume()); }, [&]{ setMusicVolume(getClamped(getMusicVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setMusicVolume(getClamped(getMusicVolume() - 5, 0, 100)); refreshVolumes(); });
 		sfx.create<i::Goto>("back", main);
 
 		play.create<i::Toggle>("autorestart", [&]{ return getAutoRestart(); }, [&]{ setAutoRestart(true); }, [&]{ setAutoRestart(false); });
@@ -112,7 +113,7 @@ namespace hg
 		debug.create<i::Toggle>("invincible", [&]{ return getInvincible(); }, [&]{ setInvincible(true); }, [&]{ setInvincible(false); });
 		debug.create<i::Goto>("back", main);
 
-		friends.create<i::Single>("add friend", [&]{ state = States::ADD_FRIEND; });
+		friends.create<i::Single>("add friend", [&]{ enteredString = ""; state = States::ADD_FRIEND; });
 		friends.create<i::Single>("clear friends", [&]{ getCurrentProfile().clearTrackedNames(); });
 		friends.create<i::Goto>("back", main);
 	}
@@ -150,18 +151,18 @@ namespace hg
 		game.addInput(getTriggerRestart(), [&](float)
 		{
 			playSound("beep.ogg");
-			if(state == s::PROFILES) { setCurrentProfile(profileNewName); state = s::MAIN; refreshScores(); }
+			if(state == s::PROFILES) { setCurrentProfile(enteredString); state = s::MAIN; refreshScores(); }
 			else if(state == s::MAIN)
 			{
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
 			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem();
-			else if(state == s::PROFILE_NEW) { if(!profileNewName.empty()) { createProfile(profileNewName); setCurrentProfile(profileNewName); state = s::MAIN; refreshScores(); profileNewName = ""; } }
-			else if(state == s::ADD_FRIEND) { if(!profileNewName.empty() && !contains(getCurrentProfile().getTrackedNames(), profileNewName)) { getCurrentProfile().addTrackedName(profileNewName); state = s::MAIN; refreshScores(); profileNewName = ""; } }
+			else if(state == s::PROFILE_NEW) { if(!enteredString.empty()) { createProfile(enteredString); setCurrentProfile(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
+			else if(state == s::ADD_FRIEND) { if(!enteredString.empty() && !contains(getCurrentProfile().getTrackedNames(), enteredString)) { getCurrentProfile().addTrackedName(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
 		}, t::Single);
-		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { profileNewName = ""; state = s::PROFILE_NEW; } }, t::Single);
-		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { profileNewName = ""; state = s::PROFILES; } }, t::Single);
+		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
+		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { enteredString = ""; state = s::PROFILES; } }, t::Single);
 		game.addInput({{k::F3}, {k::K}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::Single);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
@@ -172,7 +173,7 @@ namespace hg
 		game.addInput(getTriggerExit(), [&](float) { if(state == s::ADD_FRIEND) state = s::MAIN; });
 		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
 		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::Single);
-		game.addInput({{k::BackSpace}}, [&](float){ if((state == s::PROFILE_NEW || state == s::ADD_FRIEND) && !profileNewName.empty()) profileNewName.erase(profileNewName.end() - 1); }, t::Single);
+		game.addInput({{k::BackSpace}}, [&](float){ if((state == s::PROFILE_NEW || state == s::ADD_FRIEND) && !enteredString.empty()) enteredString.erase(enteredString.end() - 1); }, t::Single);
 	}
 
 	void MenuGame::setIndex(int mIndex)
@@ -262,8 +263,8 @@ namespace hg
 		if(getCurrentProfile().getTrackedNames().empty()) { friendsString = "you have no friends! :(\nadd them in the options menu"; return; }
 		if(friendsScores.empty())
 		{
-			friendsString = "...";
-			for(const auto& n : getCurrentProfile().getTrackedNames()) friendsString.append("\n" + n + "?");
+			friendsString = "";
+			for(const auto& n : getCurrentProfile().getTrackedNames()) friendsString.append("(?)" + n + "\n");
 			return;
 		}
 		using ScoreTuple = tuple<int, string, float>;
@@ -276,17 +277,12 @@ namespace hg
 		}
 		sort(begin(tuples), end(tuples), [&](const ScoreTuple& mA, const ScoreTuple& mB){ return get<0>(mA) < get<0>(mB); });
 		friendsString.clear();
-		friendsString.append("friend scores\n");
 		for(const auto& t : tuples) friendsString.append("(" + toStr(get<0>(t)) + ") " + get<1>(t) + ": " + toStr(get<2>(t)) + "\n");
 	}
 
 	void MenuGame::update(float mFrameTime)
 	{
-		if(wasOverloaded == true && Online::isFree())
-		{
-			wasOverloaded = false;
-			refreshScores();
-		}
+		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
 
 		updateLeaderboard();
 		updateFriends();
@@ -294,8 +290,8 @@ namespace hg
 		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
-		if(state == States::PROFILE_NEW || state == States::ADD_FRIEND) { for(const auto& c : enteredChars) if(profileNewName.size() < 16 && isalnum(c)) { playSound("beep.ogg"); profileNewName.append(toStr(c)); } }
-		else if(state == States::PROFILES) { profileNewName = getProfileNames()[profileIndex % getProfileNames().size()]; }
+		if(state == States::PROFILE_NEW || state == States::ADD_FRIEND) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { playSound("beep.ogg"); enteredString.append(toStr(c)); } }
+		else if(state == States::PROFILES) { enteredString = getProfileNames()[profileIndex % getProfileNames().size()]; }
 		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.getRotationSpeed() * 10 * mFrameTime); }
 
 		enteredChars.clear();
@@ -360,7 +356,7 @@ namespace hg
 
 			renderText(leaderboardString, cProfText, {20, 100}, 20);
 			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
-			renderText(friendsString, friendsText, {overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, 0)).x, 10 + 5 + 3});
+			renderText("friends:\n" + friendsString, friendsText, {overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, 0)).x, 10 + 5 + 3});
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
@@ -376,7 +372,7 @@ namespace hg
 		renderText("insert profile name", cProfText, 					{20, 768 - 375});
 		renderText("press enter when done", cProfText, 					{20, 768 - 335});
 		renderText("keep esc pressed to exit", cProfText, 				{20, 768 - 315});
-		renderText(profileNewName, levelName, 							{20, 768 - 245 - 40});
+		renderText(enteredString, levelName, 							{20, 768 - 245 - 40});
 	}
 	void MenuGame::drawProfileSelection()
 	{
@@ -384,7 +380,7 @@ namespace hg
 		renderText("press left/right to browse profiles", cProfText, 	{20, 768 - 375});
 		renderText("press enter to select profile", cProfText, 			{20, 768 - 355});
 		renderText("press f1 to create a new profile", cProfText, 		{20, 768 - 335});
-		renderText(profileNewName, levelName, 							{20, 768 - 245 - 40});
+		renderText(enteredString, levelName, 							{20, 768 - 245 - 40});
 	}
 	void MenuGame::drawOptions()
 	{

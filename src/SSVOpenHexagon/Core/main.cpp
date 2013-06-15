@@ -11,7 +11,6 @@
 #include "SSVOpenHexagon/Core/MenuGame.h"
 #include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Global/Config.h"
-#include "SSVOpenHexagon/Compatibility/Compatibility.h"
 
 using namespace std;
 using namespace ssvs;

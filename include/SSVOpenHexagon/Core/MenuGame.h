@@ -34,7 +34,7 @@ namespace hg
 			std::string scoresMessage;
 			float exitTimer{0};
 			bool mustTakeScreenshot{false};
-			std::string currentLeaderboard{""}, currentPlayerScore{""}, profileNewName{""}, leaderboardString{""}, friendsString{""};
+			std::string currentLeaderboard{""}, currentPlayerScore{""}, enteredString{""}, leaderboardString{""}, friendsString{""};
 			std::vector<char> enteredChars;
 			std::vector<std::string> friendsScores;
 

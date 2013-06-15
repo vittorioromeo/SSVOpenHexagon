@@ -40,8 +40,6 @@ set(SRC_DIR "src")
 set(INC_DIR "include")
 
 file(GLOB SRC_LIST
-	${INC_DIR}/${PROJECT_NAME}/Compatibility/*.h
-	${SRC_DIR}/${PROJECT_NAME}/Compatibility/*.cpp
 	${INC_DIR}/${PROJECT_NAME}/Components/*.h
 	${SRC_DIR}/${PROJECT_NAME}/Components/*.cpp
 	${INC_DIR}/${PROJECT_NAME}/Core/*.h
