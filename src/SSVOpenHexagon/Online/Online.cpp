@@ -51,7 +51,7 @@ namespace hg
 			{
 				log("Checking updates...", "Online");
 
-				Response response{getGetResponse(host, folder, infoFile)};
+				Response response{Http(host).sendRequest(folder + infoFile)};
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
