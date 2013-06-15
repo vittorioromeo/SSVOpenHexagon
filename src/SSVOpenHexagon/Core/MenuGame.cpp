@@ -54,7 +54,7 @@ namespace hg
 
 		versionText.setString(toStr(getVersion()));
 		versionText.setColor(Color::White);
-		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 83, titleBar.getGlobalBounds().top});
+		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 97, titleBar.getGlobalBounds().top});
 
 		creditsBar1.setOrigin({1024, 0});
 		creditsBar1.setScale({0.373f, 0.373f});
