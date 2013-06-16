@@ -130,7 +130,7 @@ namespace hg
 	{
 		if(manager.getComponents("wall").size() > 0)
 		{
-			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ wtf(); });
+			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ clearAndResetTimeline(); });
 			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&, mSideNumber]{ sideChange(mSideNumber); });
 			timeline.insert<Wait>(timeline.getCurrentIndex() + 1, 1);
 			return;
