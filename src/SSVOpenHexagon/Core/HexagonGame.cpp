@@ -123,24 +123,16 @@ namespace hg
 			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));
 
 		status.fastSpin = levelData.getFastSpin();
-		timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); });
 	}
-	void HexagonGame::clearAndResetTimeline() { timeline.clear(); timeline.reset(); }
+	
 	void HexagonGame::sideChange(int mSideNumber)
 	{
-		if(manager.getComponents("wall").size() > 0)
-		{
-			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ clearAndResetTimeline(); });
-			timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&, mSideNumber]{ sideChange(mSideNumber); });
-			timeline.insert<Wait>(timeline.getCurrentIndex() + 1, 1);
-			return;
-		}
-
 		runLuaFunction<void>("onIncrement");
 		setSpeedMultiplier(levelData.getSpeedMultiplier() + levelData.getSpeedIncrement());
 		setDelayMultiplier(levelData.getDelayMultiplier() + levelData.getDelayIncrement());
 
 		if(status.randomSideChangesEnabled) setSides(mSideNumber);
+		mustChangeSides = false;
 	}
 
 	void HexagonGame::checkAndSaveScore()

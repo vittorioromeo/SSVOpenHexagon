@@ -26,6 +26,7 @@ namespace hg
 			updateEvents(mFrameTime);
 			updateTimeStop(mFrameTime);
 			updateIncrement();
+			if(mustChangeSides && manager.getComponents("wall").size() <= 0) sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1));
 			updateLevel(mFrameTime);
 			if(getBeatPulse()) updateBeatPulse(mFrameTime);
 			if(getPulse()) updatePulse(mFrameTime);
@@ -72,13 +73,15 @@ namespace hg
 
 		status.incrementTime = 0;
 		incrementDifficulty();
+
+		mustChangeSides = true;
 	}
 	void HexagonGame::updateLevel(float mFrameTime)
 	{
 		runLuaFunction<float>("onUpdate", mFrameTime);
 		timeline.update(mFrameTime);
 
-		if(timeline.isFinished())
+		if(timeline.isFinished() && !mustChangeSides)
 		{
 			timeline.clear();
 			runLuaFunction<void>("onStep");

@@ -59,6 +59,7 @@ namespace hg
 			bool inputFocused{false}, mustTakeScreenshot{false};
 			FPSWatcher fpsWatcher;
 			sf::Text text{"", getFont("imagine.ttf"), 25 / getZoomFactor()};
+			bool mustChangeSides{false}; // Is the game currently trying to change sides?
 
 			// LUA-related methods
 			void initLua();
@@ -113,9 +114,6 @@ namespace hg
 			void changeLevel(const std::string& mId, bool mFirstTime);
 
 			void invalidateScore();
-
-			// Hotfix
-			void clearAndResetTimeline();
 
 		public:
 			MenuGame* mgPtr;
