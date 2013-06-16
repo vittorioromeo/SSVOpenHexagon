@@ -125,7 +125,7 @@ namespace hg
 		status.fastSpin = levelData.getFastSpin();
 		timeline.insert<Do>(timeline.getCurrentIndex() + 1, [&]{ sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1)); });
 	}
-	void HexagonGame::wtf() { timeline.clear(); timeline.reset(); }
+	void HexagonGame::clearAndResetTimeline() { timeline.clear(); timeline.reset(); }
 	void HexagonGame::sideChange(int mSideNumber)
 	{
 		if(manager.getComponents("wall").size() > 0)

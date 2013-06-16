@@ -33,7 +33,7 @@ namespace hg
 
 	class HexagonGame
 	{
-		private: void wtf();
+		private:
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
@@ -113,6 +113,9 @@ namespace hg
 			void changeLevel(const std::string& mId, bool mFirstTime);
 
 			void invalidateScore();
+
+			// Hotfix
+			void clearAndResetTimeline();
 
 		public:
 			MenuGame* mgPtr;
