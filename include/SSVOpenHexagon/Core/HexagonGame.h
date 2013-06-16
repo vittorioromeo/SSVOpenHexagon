@@ -33,7 +33,7 @@ namespace hg
 
 	class HexagonGame
 	{
-		private:
+		private: void wtf();
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
