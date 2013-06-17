@@ -29,10 +29,12 @@ namespace hg
 
 	void CWall::draw()
 	{
+		const auto& colorMain(hexagonGame.getColorMain());
+
 		for(unsigned int i{0}; i < 4; ++i)
 		{
 			vertices[i].position = vertexPositions[i];
-			vertices[i].color = hexagonGame.getColorMain();
+			vertices[i].color = colorMain;
 		}
 
 		hexagonGame.render(vertices);
