@@ -112,7 +112,7 @@ namespace hg
 		VertexArray vertices{PrimitiveType::Triangles, 3};
 		vector<Color> colors{getColors()};
 
-		for(int i{0}; i < mSides; i++)
+		for(int i{0}; i < mSides; ++i)
 		{
 			float angle{div * i};
 			Color currentColor{colors[i % colors.size()]};

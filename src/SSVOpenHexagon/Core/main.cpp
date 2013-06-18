@@ -28,7 +28,7 @@ void createProfilesFolder()
 
 int main(int argc, char* argv[])
 {
-	vector<string> overrideIds; for(int i{0}; i < argc; i++) overrideIds.push_back(string{argv[i]});
+	vector<string> overrideIds; for(int i{0}; i < argc; ++i) overrideIds.push_back(string{argv[i]});
 
 	createProfilesFolder();
 
