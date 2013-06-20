@@ -9,6 +9,18 @@ BUILDSHARED="TRUE" # Passed to CMake (LIBNAME_BUILD_SHARED_LIB)
 LIBS=() # List of extlibs to build (gathered from ./extlibs/*)
 for dir in ./extlibs/*; do LIBS+=(${dir##*/}); done	# Fill LIBS
 
+function warn() {
+	echo "Error occured in: `pwd`"
+	echo "Error was: "$@
+}
+
+function die() {
+	status=$1; shift
+	warn "$@" >&2
+	exit $status
+}
+
+
 # Builds a lib, with name $1 - calls CMake, make -j and make install -j
 function buildLib
 {
@@ -21,9 +33,15 @@ function buildLib
   	mkdir build; cd build # Create and move to the build directory
   	rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
 
-  	# Run CMake, make and make install
-	cmake ../ -D"$ULIBNAME"_BUILD_SHARED_LIB=$BUILDSHARED -DCMAKE_BUILD_TYPE=$BUILDTYPE
-	make -j; make install -j
+	# Run CMake, make and make install
+	cmake ../ -D"$ULIBNAME"_BUILD_SHARED_LIB=$BUILDSHARED -DCMAKE_BUILD_TYPE=$BUILDTYPE || \
+		die 1 "cmake failed"
+
+	make -j || \
+		die 1 "make failed"
+
+	make install -j || \
+		die 1 "make install failed"
 
 	cd ../.. # Go back to extlibs directory
 	echo "Finished building $ULIBNAME..."
