@@ -10,12 +10,12 @@ LIBS=() # List of extlibs to build (gathered from ./extlibs/*)
 for dir in ./extlibs/*; do LIBS+=(${dir##*/}); done	# Fill LIBS
 
 # Builds a lib, with name $1 - calls CMake, make -j and make install -j
-function buildLib 
+function buildLib
 {
 	local LIBNAME="$1"
 	local ULIBNAME=$(echo "$1" | tr '[:lower:]' '[:upper:]')
 
-	echo "Building $ULIBNAME..." 
+	echo "Building $ULIBNAME..."
   	cd $LIBNAME # Enter lib main directory (where CMakeLists.txt is)
   	rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory1
   	mkdir build; cd build # Create and move to the build directory
@@ -27,12 +27,12 @@ function buildLib
 
 	cd ../.. # Go back to extlibs directory
 	echo "Finished building $ULIBNAME..."
-}  
+}
 
 cd extlibs  # Start building... Enter extlibs, and build extlibs
 for LIB in ${LIBS[*]}; do buildLib $LIB; done
 cd .. # Now we are in the main folder
-echo "Building $PROJECTNAME..." 
+echo "Building $PROJECTNAME..."
 rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory
 mkdir build; cd build # Create and move to the build directory
 rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
