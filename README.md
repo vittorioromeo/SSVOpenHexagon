@@ -23,7 +23,7 @@ Tested compilers: **G++ 4.8.0**, **G++ 4.8.1**, **clang++ 3.2**, **clang++ 3.4**
 
 6. Open Hexagon requires `liblua5.1-dev` and `sparsehash` libraries to compile </br>
 `> apt-get install liblua5.1-dev` </br>
-And get latest sparsehash package from ([HERE](https://code.google.com/p/sparsehash/downloads/list))
+Get latest sparsehash package [from here](https://code.google.com/p/sparsehash/downloads/list)
 
 7. Build dependencies + Open Hexagon </br>
 `> cd SSVOpenHexagon` </br>
