@@ -21,8 +21,12 @@ Tested compilers: **G++ 4.8.0**, **G++ 4.8.1**, **clang++ 3.2**, **clang++ 3.4**
 
 5. Build and install [**SFML**](http://sfmlcoder.wordpress.com/2011/08/16/building-sfml-2-0-with-make-for-gcc/ "**SFML**")
 
-6. Build dependencies + Open Hexagon </br>
+6. Open Hexagon requires `liblua5.1-dev` and `sparsehash` libraries to compile` </br>
+`> apt-get install liblua5.1-dev` </br>
+And get latest sparsehash package from ([HERE](https://code.google.com/p/sparsehash/downloads/list))
+
+7. Build dependencies + Open Hexagon </br>
 `> cd SSVOpenHexagon` </br>
 `> bash ./build-repository.sh`
 
-7. Open Hexagon should now be installed on your system - download the assets from a released binary version [from my website](http://vittorioromeo.info) and put them in the installed game folder
+8. Open Hexagon should now be installed on your system - download the assets from a released binary version [from my website](http://vittorioromeo.info) and put them in the installed game folder
