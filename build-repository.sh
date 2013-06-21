@@ -5,6 +5,7 @@
 PROJECTNAME=${PWD##*/} # Project to build (current directory name)
 BUILDTYPE="RELEASE" # Passed to CMake (CMAKE_BUILD_TYPE)
 BUILDSHARED="TRUE" # Passed to CMake (LIBNAME_BUILD_SHARED_LIB)
+MAKEJOBS="4" # make -j...
 
 LIBS=() # List of extlibs to build (gathered from ./extlibs/*)
 for dir in ./extlibs/*; do LIBS+=(${dir##*/}); done	# Fill LIBS
@@ -37,10 +38,10 @@ function buildLib
 	cmake ../ -D"$ULIBNAME"_BUILD_SHARED_LIB=$BUILDSHARED -DCMAKE_BUILD_TYPE=$BUILDTYPE || \
 		die 1 "cmake failed"
 
-	make -j || \
+	make -j$MAKEJOBS || \
 		die 1 "make failed"
 
-	make install -j || \
+	make install -j$MAKEJOBS || \
 		die 1 "make install failed"
 
 	cd ../.. # Go back to extlibs directory
@@ -57,7 +58,7 @@ rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
 
 ## Run CMake, make and make install
 cmake ../ -DCMAKE_BUILD_TYPE=$BUILDTYPE
-make -j; make install -j
+make -j$MAKEJOBS; make install -j$MAKEJOBS
 
 cd ..
 echo "Finished building $PROJECTNAME..."
