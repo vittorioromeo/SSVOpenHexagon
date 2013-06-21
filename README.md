@@ -1,8 +1,7 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - GitHub repository
-##[by Vittorio Romeo](http://vittorioromeo.info) <br/>
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) -  ##[by Vittorio Romeo](http://vittorioromeo.info) <br/>
 [Official README](http://vittorioromeo.info/Downloads/OpenHexagon/README.html)
 
-----------
+<br/>
 
 ## How to build (Linux)
 
