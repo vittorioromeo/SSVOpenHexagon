@@ -4,9 +4,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <SSVJsonCpp/SSVJsonCpp.h>
-#include <SSVUtils/SSVUtils.h>
-#include <SSVUtilsJson/SSVUtilsJson.h>
+
 #include <SSVStart/Json/UtilsJson.h>
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Global/Assets.h"
@@ -24,8 +22,86 @@ using namespace ssvu;
 
 namespace hg
 {
-	bool official;
-	bool blackAndWhite;
+	ConfigValue<bool> online{"online"};
+	ConfigValue<bool> official{"official"};
+	ConfigValue<bool> noRotation{"no_rotation"};
+	ConfigValue<bool> noBackground{"no_background"};
+	ConfigValue<bool> noSound{"no_sound"};
+	ConfigValue<bool> noMusic{"no_music"};
+	ConfigValue<bool> blackAndWhite{"black_and_white"};
+	ConfigValue<bool> pulseEnabled{"pulse_enabled"};
+	ConfigValue<bool> _3DEnabled{"3D_enabled"};
+	ConfigValue<float> _3DMultiplier{"3D_multiplier"};
+	ConfigValue<int> _3DMaxDepth{"3D_max_depth"};
+	ConfigValue<bool> invincible{"invincible"};
+	ConfigValue<bool> autoRestart{"auto_restart"};
+	ConfigValue<int> soundVolume{"sound_volume"};
+	ConfigValue<int> musicVolume{"music_volume"};
+	ConfigValue<bool> flashEnabled{"flash_enabled"};
+	ConfigValue<float> zoomFactor{"zoom_factor"};
+	ConfigValue<int> pixelMultiplier{"pixel_multiplier"};
+	ConfigValue<float> playerSpeed{"player_speed"};
+	ConfigValue<float> playerFocusSpeed{"player_focus_speed"};
+	ConfigValue<float> playerSize{"player_size"};
+	ConfigValue<bool> staticFrameTime{"static_frametime"};
+	ConfigValue<float> staticFrameTimeValue{"static_frametime_value"};
+	ConfigValue<bool> limitFps{"limit_fps"};
+	ConfigValue<bool> vsync{"vsync"};
+	ConfigValue<bool> autoZoomFactor{"auto_zoom_factor"};
+	ConfigValue<bool> fullscreen{"fullscreen"};
+	ConfigValue<bool> windowedAutoResolution{"windowed_auto_resolution"};
+	ConfigValue<bool> fullscreenAutoResolution{"fullscreen_auto_resolution"};
+	ConfigValue<int> fullscreenWidth{"fullscreen_width"};
+	ConfigValue<int> fullscreenHeight{"fullscreen_height"};
+	ConfigValue<int> windowedWidth{"windowed_width"};
+	ConfigValue<int> windowedHeight{"windowed_height"};
+	ConfigValue<bool> showMessages{"show_messages"};
+	ConfigValue<bool> changeStyles{"change_styles"};
+	ConfigValue<bool> changeMusic{"change_music"};
+	ConfigValue<bool> debug{"debug"};
+	ConfigValue<bool> beatPulse{"beatpulse_enabled"};
+
+	vector<ConfigValueBase*> configValues
+	{
+		&online,
+		&official,
+		&noRotation,
+		&noBackground,
+		&noSound,
+		&noMusic,
+		&blackAndWhite,
+		&pulseEnabled,
+		&_3DEnabled,
+		&_3DMultiplier,
+		&_3DMaxDepth,
+		&invincible,
+		&autoRestart,
+		&soundVolume,
+		&musicVolume,
+		&flashEnabled,
+		&zoomFactor,
+		&pixelMultiplier,
+		&playerSpeed,
+		&playerFocusSpeed,
+		&playerSize,
+		&staticFrameTime,
+		&staticFrameTimeValue,
+		&limitFps,
+		&vsync,
+		&autoZoomFactor,
+		&fullscreen,
+		&windowedAutoResolution,
+		&fullscreenAutoResolution,
+		&fullscreenWidth,
+		&fullscreenHeight,
+		&windowedWidth,
+		&windowedHeight,
+		&showMessages,
+		&changeStyles,
+		&changeMusic,
+		&debug,
+		&beatPulse
+	};
 
 	Json::Value root{getRootFromFile("config.json")};
 	map<string, Json::Value> configOverridesRootMap;
@@ -34,42 +110,43 @@ namespace hg
 	constexpr float spawnDistance{1600};
 	string uneligibilityReason{""};
 
+	void applyWindowedResolution()
+	{
+		auto d(VideoMode::getDesktopMode());
+		windowedWidth = d.width; windowedHeight = d.height;
+	}
+	void applyFullscreenResolution()
+	{
+		auto d(VideoMode::getDesktopMode());
+		fullscreenWidth = d.width; fullscreenHeight = d.height;
+	}
+
 	void loadConfig(const vector<string>& mOverridesIds)
 	{
 		log("loading config", "CONFIG");
 
-		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
 		{
-			string fileName{getNameFromPath(filePath, "ConfigOverrides/", ".json")};
-			configOverridesRootMap.insert(make_pair(fileName, getRootFromFile(filePath)));
+			string fileName{getNameFromPath(p, "ConfigOverrides/", ".json")};
+			configOverridesRootMap.insert(make_pair(fileName, getRootFromFile(p)));
 		}
 
-		for(auto& overrideId : mOverridesIds)
+		for(const auto& id : mOverridesIds)
 		{
-			auto itr(configOverridesRootMap.find(overrideId));
+			auto itr(configOverridesRootMap.find(id));
 			if(itr == end(configOverridesRootMap)) continue;
 
 			Json::Value overrideRoot{itr->second};
-
 			for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[itr.key().asString()] = *itr;
 		}
 
-		if(getWindowedAutoResolution())
-		{
-			root["windowed_width"] = VideoMode::getDesktopMode().width;
-			root["windowed_height"] = VideoMode::getDesktopMode().height;
-		}
+		for(auto& cv : configValues) cv->syncFrom(root);
 
-		if(getFullscreenAutoResolution())
-		{
-			root["fullscreen_width"] = VideoMode::getDesktopMode().width;
-			root["fullscreen_height"] = VideoMode::getDesktopMode().height;
-		}
+		if(!getWindowedAutoResolution()) applyWindowedResolution();
+		if(!getFullscreenAutoResolution()) applyFullscreenResolution();
 
 		recalculateSizes();
 
-		official = as<bool>(root, "official");
-		blackAndWhite = as<bool>(root, "black_and_white");
 	}
 	void saveConfig()
 	{
@@ -80,10 +157,8 @@ namespace hg
 
 		string original{buffer.str()};
 
-		vector<string> elements{"no_rotation", "no_background", "black_and_white", "no_sound", "no_music", "pulse_enabled", "3D_enabled",
-			"invincible", "auto_restart", "online", "official", "flash_enabled"};
-		vector<bool> predicates{getNoRotation(), getNoBackground(), getBlackAndWhite(), getNoSound(), getNoMusic(), getPulse(), get3D(),
-			getInvincible(), getAutoRestart(), getOnline(), getOfficial(), getFlash()};
+		vector<string> elements{"no_rotation",	"no_background",	"black_and_white",	"no_sound",	"no_music",	"pulse_enabled",	"3D_enabled",	"invincible",	"auto_restart",	"online",	"official",	"flash_enabled"};
+		vector<bool> predicates{noRotation,		noBackground,		blackAndWhite,		noSound,	noMusic,	pulseEnabled,		_3DEnabled,		invincible,		autoRestart,	online,		official,	flashEnabled};
 
 		for(unsigned int i{0}; i < elements.size(); ++i)
 		{
@@ -111,88 +186,84 @@ namespace hg
 
 	void recalculateSizes()
 	{
-		sizeX = max(getWidth(), getHeight()) * 1.3f;
-		sizeY = max(getWidth(), getHeight()) * 1.3f;
+		sizeX = sizeY = max(getWidth(), getHeight()) * 1.3f;
 
 		if(getAutoZoomFactor())
 		{
-			float zoomFactorX(1024.0f / static_cast<float>(getWidth()));
-			float zoomFactorY(768.0f / static_cast<float>(getHeight()));
-			root["zoom_factor"] = max(zoomFactorX, zoomFactorY);
+			float zoomFactorX(1024.0f / static_cast<float>(getWidth())), zoomFactorY(768.0f / static_cast<float>(getHeight()));
+			zoomFactor = max(zoomFactorX, zoomFactorY);
 		}
 	}
 	void setFullscreen(GameWindow& mWindow, bool mFullscreen)
 	{
-		root["fullscreen"] = mFullscreen;
-
+		fullscreen = mFullscreen;
 		recalculateSizes();
 
 		mWindow.setSize(getWidth(), getHeight());
 		mWindow.setFullscreen(getFullscreen());
-
 		mWindow.setMouseCursorVisible(false);
 	}
 
-	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) Online::startCheckUpdates(); }
+	void setOnline(bool mOnline)				{ online = mOnline; if(mOnline) Online::startCheckUpdates(); }
 	void setOfficial(bool mOfficial)			{ official = mOfficial; }
-	void setNoRotation(bool mNoRotation)		{ root["no_rotation"] = mNoRotation; }
-	void setNoBackground(bool mNoBackground)	{ root["no_background"] = mNoBackground; }
+	void setNoRotation(bool mNoRotation)		{ noRotation = mNoRotation; }
+	void setNoBackground(bool mNoBackground)	{ noBackground = mNoBackground; }
 	void setBlackAndWhite(bool mBlackAndWhite)	{ blackAndWhite = mBlackAndWhite; }
-	void setNoSound(bool mNoSound)				{ root["no_sound"] = mNoSound; }
-	void setNoMusic(bool mNoMusic)				{ root["no_music"] = mNoMusic; }
-	void setPulse(bool mPulse) 					{ root["pulse_enabled"] = mPulse; }
-	void set3D(bool m3D)						{ root["3D_enabled"] = m3D; }
-	void setInvincible(bool mInvincible)		{ root["invincible"] = mInvincible; }
-	void setAutoRestart(bool mAutoRestart) 		{ root["auto_restart"] = mAutoRestart; }
-	void setSoundVolume(int mVolume) 			{ root["sound_volume"] = mVolume; }
-	void setMusicVolume(int mVolume) 			{ root["music_volume"] = mVolume; }
-	void setFlash(bool mFlash)					{ root["flash_enabled"] = mFlash; }
+	void setNoSound(bool mNoSound)				{ noSound = mNoSound; }
+	void setNoMusic(bool mNoMusic)				{ noMusic = mNoMusic; }
+	void setPulse(bool mPulse) 					{ pulseEnabled = mPulse; }
+	void set3D(bool m3D)						{ _3DEnabled = m3D; }
+	void setInvincible(bool mInvincible)		{ invincible = mInvincible; }
+	void setAutoRestart(bool mAutoRestart) 		{ autoRestart = mAutoRestart; }
+	void setSoundVolume(int mVolume) 			{ soundVolume = mVolume; }
+	void setMusicVolume(int mVolume) 			{ musicVolume = mVolume; }
+	void setFlash(bool mFlash)					{ flashEnabled = mFlash; }
 
-	bool getOnline()					{ return as<bool>(root, "online"); }
+	bool getOnline()					{ return online; }
 	bool getOfficial()					{ return official; }
 	string getUneligibilityReason()  	{ return uneligibilityReason; }
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
 	float getSpawnDistance() 			{ return spawnDistance; }
-	float getZoomFactor() 				{ return as<float>(root, "zoom_factor"); }
-	int getPixelMultiplier() 			{ return as<int>(root, "pixel_multiplier"); }
-	float getPlayerSpeed() 				{ return getOfficial() ? 9.45f : as<float>(root, "player_speed"); }
-	float getPlayerFocusSpeed() 		{ return getOfficial() ? 4.625f : as<float>(root, "player_focus_speed"); }
-	float getPlayerSize() 				{ return getOfficial() ? 7.3f : as<float>(root, "player_size"); }
-	bool getNoRotation() 				{ return getOfficial() ? false : as<bool>(root, "no_rotation"); }
-	bool getNoBackground() 				{ return getOfficial() ? false : as<bool>(root, "no_background"); }
+	float getZoomFactor() 				{ return zoomFactor; }
+	int getPixelMultiplier() 			{ return pixelMultiplier; }
+	float getPlayerSpeed() 				{ return getOfficial() ? 9.45f : playerSpeed; }
+	float getPlayerFocusSpeed() 		{ return getOfficial() ? 4.625f : playerFocusSpeed; }
+	float getPlayerSize() 				{ return getOfficial() ? 7.3f : playerSize; }
+	bool getNoRotation() 				{ return getOfficial() ? false : noRotation; }
+	bool getNoBackground() 				{ return getOfficial() ? false : noBackground; }
 	bool getBlackAndWhite() 			{ return getOfficial() ? false : blackAndWhite; }
-	bool getNoSound()					{ return as<bool>(root, "no_sound"); }
-	bool getNoMusic()					{ return as<bool>(root, "no_music"); }
-	int getSoundVolume()  				{ return as<int>(root, "sound_volume"); }
-	int getMusicVolume() 				{ return as<int>(root, "music_volume"); }
-	bool getStaticFrameTime()			{ return getOfficial() ? false : as<bool>(root, "static_frametime"); }
-	float getStaticFrameTimeValue()		{ return as<float>(root, "static_frametime_value"); }
-	bool getLimitFps()					{ return as<bool>(root, "limit_fps"); }
-	bool getVsync()						{ return as<bool>(root, "vsync"); }
-	bool getAutoZoomFactor()			{ return getOfficial() ? true : as<bool>(root, "auto_zoom_factor"); }
-	bool getFullscreen()				{ return as<bool>(root, "fullscreen"); }
+	bool getNoSound()					{ return noSound; }
+	bool getNoMusic()					{ return noMusic; }
+	int getSoundVolume()  				{ return soundVolume; }
+	int getMusicVolume() 				{ return musicVolume; }
+	bool getStaticFrameTime()			{ return getOfficial() ? false : staticFrameTime; }
+	float getStaticFrameTimeValue()		{ return staticFrameTimeValue; }
+	bool getLimitFps()					{ return limitFps; }
+	bool getVsync()						{ return vsync; }
+	bool getAutoZoomFactor()			{ return getOfficial() ? true : autoZoomFactor; }
+	bool getFullscreen()				{ return fullscreen; }
 	float getVersion() 					{ return 1.93f; }
-	bool getWindowedAutoResolution()	{ return as<bool>(root, "windowed_auto_resolution"); }
-	bool getFullscreenAutoResolution() 	{ return as<bool>(root, "fullscreen_auto_resolution"); }
-	unsigned int getFullscreenWidth()	{ return as<int>(root, "fullscreen_width"); }
-	unsigned int getFullscreenHeight() 	{ return as<int>(root, "fullscreen_height"); }
-	unsigned int getWindowedWidth()		{ return as<int>(root, "windowed_width"); }
-	unsigned int getWindowedHeight()	{ return as<int>(root, "windowed_height"); }
+	bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
+	bool getFullscreenAutoResolution() 	{ return fullscreenAutoResolution; }
+	unsigned int getFullscreenWidth()	{ return fullscreenWidth; }
+	unsigned int getFullscreenHeight() 	{ return fullscreenHeight; }
+	unsigned int getWindowedWidth()		{ return windowedWidth; }
+	unsigned int getWindowedHeight()	{ return windowedHeight; }
 	unsigned int getWidth() 			{ return getFullscreen() ? getFullscreenWidth() : getWindowedWidth(); }
 	unsigned int getHeight() 			{ return getFullscreen() ? getFullscreenHeight() : getWindowedHeight(); }
-	bool getShowMessages()				{ return as<bool>(root, "show_messages"); }
-	bool getChangeStyles()				{ return as<bool>(root, "change_styles"); }
-	bool getChangeMusic()				{ return as<bool>(root, "change_music"); }
-	bool getDebug()						{ return as<bool>(root, "debug"); }
-	bool getPulse()						{ return getOfficial() ? true : as<bool>(root, "pulse_enabled"); }
-	bool getBeatPulse()					{ return getOfficial() ? true : as<bool>(root, "beatpulse_enabled"); }
-	bool getInvincible()				{ return getOfficial() ? false : as<bool>(root, "invincible"); }
-	bool get3D()						{ return as<bool>(root, "3D_enabled"); }
-	float get3DMultiplier()				{ return as<float>(root, "3D_multiplier"); }
-	unsigned int get3DMaxDepth()		{ return as<int>(root, "3D_max_depth"); }
-	bool getAutoRestart()				{ return as<bool>(root, "auto_restart"); }
-	bool getFlash() 					{ return as<bool>(root, "flash_enabled"); }
+	bool getShowMessages()				{ return showMessages; }
+	bool getChangeStyles()				{ return changeStyles; }
+	bool getChangeMusic()				{ return changeMusic; }
+	bool getDebug()						{ return debug; }
+	bool getPulse()						{ return getOfficial() ? true : pulseEnabled; }
+	bool getBeatPulse()					{ return getOfficial() ? true : beatPulse; }
+	bool getInvincible()				{ return getOfficial() ? false :invincible; }
+	bool get3D()						{ return _3DEnabled; }
+	float get3DMultiplier()				{ return _3DMultiplier; }
+	unsigned int get3DMaxDepth()		{ return _3DMaxDepth; }
+	bool getAutoRestart()				{ return autoRestart; }
+	bool getFlash() 					{ return flashEnabled; }
 
 	Trigger getTriggerRotateCCW()		{ return getInputTriggerFromJson(root["t_rotate_ccw"]); }
 	Trigger getTriggerRotateCW()		{ return getInputTriggerFromJson(root["t_rotate_cw"]); }
