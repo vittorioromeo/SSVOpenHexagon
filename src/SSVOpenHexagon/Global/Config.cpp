@@ -22,46 +22,46 @@ using namespace ssvu;
 
 namespace hg
 {
-	ConfigValue<bool> online{"online"};
-	ConfigValue<bool> official{"official"};
-	ConfigValue<bool> noRotation{"no_rotation"};
-	ConfigValue<bool> noBackground{"no_background"};
-	ConfigValue<bool> noSound{"no_sound"};
-	ConfigValue<bool> noMusic{"no_music"};
-	ConfigValue<bool> blackAndWhite{"black_and_white"};
-	ConfigValue<bool> pulseEnabled{"pulse_enabled"};
-	ConfigValue<bool> _3DEnabled{"3D_enabled"};
-	ConfigValue<float> _3DMultiplier{"3D_multiplier"};
-	ConfigValue<int> _3DMaxDepth{"3D_max_depth"};
-	ConfigValue<bool> invincible{"invincible"};
-	ConfigValue<bool> autoRestart{"auto_restart"};
-	ConfigValue<int> soundVolume{"sound_volume"};
-	ConfigValue<int> musicVolume{"music_volume"};
-	ConfigValue<bool> flashEnabled{"flash_enabled"};
-	ConfigValue<float> zoomFactor{"zoom_factor"};
-	ConfigValue<int> pixelMultiplier{"pixel_multiplier"};
-	ConfigValue<float> playerSpeed{"player_speed"};
-	ConfigValue<float> playerFocusSpeed{"player_focus_speed"};
-	ConfigValue<float> playerSize{"player_size"};
-	ConfigValue<bool> staticFrameTime{"static_frametime"};
-	ConfigValue<float> staticFrameTimeValue{"static_frametime_value"};
-	ConfigValue<bool> limitFps{"limit_fps"};
-	ConfigValue<bool> vsync{"vsync"};
-	ConfigValue<bool> autoZoomFactor{"auto_zoom_factor"};
-	ConfigValue<bool> fullscreen{"fullscreen"};
-	ConfigValue<bool> windowedAutoResolution{"windowed_auto_resolution"};
-	ConfigValue<bool> fullscreenAutoResolution{"fullscreen_auto_resolution"};
-	ConfigValue<int> fullscreenWidth{"fullscreen_width"};
-	ConfigValue<int> fullscreenHeight{"fullscreen_height"};
-	ConfigValue<int> windowedWidth{"windowed_width"};
-	ConfigValue<int> windowedHeight{"windowed_height"};
-	ConfigValue<bool> showMessages{"show_messages"};
-	ConfigValue<bool> changeStyles{"change_styles"};
-	ConfigValue<bool> changeMusic{"change_music"};
-	ConfigValue<bool> debug{"debug"};
-	ConfigValue<bool> beatPulse{"beatpulse_enabled"};
+	LinkedValue<bool> online{"online"};
+	LinkedValue<bool> official{"official"};
+	LinkedValue<bool> noRotation{"no_rotation"};
+	LinkedValue<bool> noBackground{"no_background"};
+	LinkedValue<bool> noSound{"no_sound"};
+	LinkedValue<bool> noMusic{"no_music"};
+	LinkedValue<bool> blackAndWhite{"black_and_white"};
+	LinkedValue<bool> pulseEnabled{"pulse_enabled"};
+	LinkedValue<bool> _3DEnabled{"3D_enabled"};
+	LinkedValue<float> _3DMultiplier{"3D_multiplier"};
+	LinkedValue<int> _3DMaxDepth{"3D_max_depth"};
+	LinkedValue<bool> invincible{"invincible"};
+	LinkedValue<bool> autoRestart{"auto_restart"};
+	LinkedValue<int> soundVolume{"sound_volume"};
+	LinkedValue<int> musicVolume{"music_volume"};
+	LinkedValue<bool> flashEnabled{"flash_enabled"};
+	LinkedValue<float> zoomFactor{"zoom_factor"};
+	LinkedValue<int> pixelMultiplier{"pixel_multiplier"};
+	LinkedValue<float> playerSpeed{"player_speed"};
+	LinkedValue<float> playerFocusSpeed{"player_focus_speed"};
+	LinkedValue<float> playerSize{"player_size"};
+	LinkedValue<bool> staticFrameTime{"static_frametime"};
+	LinkedValue<float> staticFrameTimeValue{"static_frametime_value"};
+	LinkedValue<bool> limitFps{"limit_fps"};
+	LinkedValue<bool> vsync{"vsync"};
+	LinkedValue<bool> autoZoomFactor{"auto_zoom_factor"};
+	LinkedValue<bool> fullscreen{"fullscreen"};
+	LinkedValue<bool> windowedAutoResolution{"windowed_auto_resolution"};
+	LinkedValue<bool> fullscreenAutoResolution{"fullscreen_auto_resolution"};
+	LinkedValue<int> fullscreenWidth{"fullscreen_width"};
+	LinkedValue<int> fullscreenHeight{"fullscreen_height"};
+	LinkedValue<int> windowedWidth{"windowed_width"};
+	LinkedValue<int> windowedHeight{"windowed_height"};
+	LinkedValue<bool> showMessages{"show_messages"};
+	LinkedValue<bool> changeStyles{"change_styles"};
+	LinkedValue<bool> changeMusic{"change_music"};
+	LinkedValue<bool> debug{"debug"};
+	LinkedValue<bool> beatPulse{"beatpulse_enabled"};
 
-	vector<ConfigValueBase*> configValues
+	vector<LinkedValueBase*> configValues
 	{
 		&online,
 		&official,
@@ -142,8 +142,8 @@ namespace hg
 
 		for(auto& cv : configValues) cv->syncFrom(root);
 
-		if(!getWindowedAutoResolution()) applyWindowedResolution();
-		if(!getFullscreenAutoResolution()) applyFullscreenResolution();
+		if(getWindowedAutoResolution()) applyWindowedResolution();
+		if(getFullscreenAutoResolution()) applyFullscreenResolution();
 
 		recalculateSizes();
 
