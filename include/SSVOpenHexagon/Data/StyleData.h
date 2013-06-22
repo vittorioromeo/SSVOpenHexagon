@@ -48,7 +48,7 @@ namespace hg
 			void setValueFloat(const std::string& mValueName, float mValue);
 			float getValueFloat(const std::string& mValueName);
 			void setValueInt(const std::string& mValueName, int mValue);
-			float getValueInt(const std::string& mValueName);
+			int getValueInt(const std::string& mValueName);
 			void setValueString(const std::string& mValueName, const std::string& mValue);
 			std::string getValueString(const std::string& mValueName);
 			void setValueBool(const std::string& mValueName, bool mValue);

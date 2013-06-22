@@ -24,6 +24,9 @@ using namespace ssvu;
 
 namespace hg
 {
+	bool official;
+	bool blackAndWhite;
+
 	Json::Value root{getRootFromFile("config.json")};
 	map<string, Json::Value> configOverridesRootMap;
 
@@ -64,6 +67,9 @@ namespace hg
 		}
 
 		recalculateSizes();
+
+		official = as<bool>(root, "official");
+		blackAndWhite = as<bool>(root, "black_and_white");
 	}
 	void saveConfig()
 	{
@@ -127,11 +133,11 @@ namespace hg
 		mWindow.setMouseCursorVisible(false);
 	}
 
-	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) { Online::startCheckUpdates(); } }
-	void setOfficial(bool mOfficial)			{ root["official"] = mOfficial; }
+	void setOnline(bool mOnline)				{ root["online"] = mOnline; if(mOnline) Online::startCheckUpdates(); }
+	void setOfficial(bool mOfficial)			{ official = mOfficial; }
 	void setNoRotation(bool mNoRotation)		{ root["no_rotation"] = mNoRotation; }
 	void setNoBackground(bool mNoBackground)	{ root["no_background"] = mNoBackground; }
-	void setBlackAndWhite(bool mBlackAndWhite)	{ root["black_and_white"] = mBlackAndWhite; }
+	void setBlackAndWhite(bool mBlackAndWhite)	{ blackAndWhite = mBlackAndWhite; }
 	void setNoSound(bool mNoSound)				{ root["no_sound"] = mNoSound; }
 	void setNoMusic(bool mNoMusic)				{ root["no_music"] = mNoMusic; }
 	void setPulse(bool mPulse) 					{ root["pulse_enabled"] = mPulse; }
@@ -143,7 +149,7 @@ namespace hg
 	void setFlash(bool mFlash)					{ root["flash_enabled"] = mFlash; }
 
 	bool getOnline()					{ return as<bool>(root, "online"); }
-	bool getOfficial()					{ return as<bool>(root, "official"); }
+	bool getOfficial()					{ return official; }
 	string getUneligibilityReason()  	{ return uneligibilityReason; }
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
@@ -155,7 +161,7 @@ namespace hg
 	float getPlayerSize() 				{ return getOfficial() ? 7.3f : as<float>(root, "player_size"); }
 	bool getNoRotation() 				{ return getOfficial() ? false : as<bool>(root, "no_rotation"); }
 	bool getNoBackground() 				{ return getOfficial() ? false : as<bool>(root, "no_background"); }
-	bool getBlackAndWhite() 			{ return getOfficial() ? false : as<bool>(root, "black_and_white"); }
+	bool getBlackAndWhite() 			{ return getOfficial() ? false : blackAndWhite; }
 	bool getNoSound()					{ return as<bool>(root, "no_sound"); }
 	bool getNoMusic()					{ return as<bool>(root, "no_music"); }
 	int getSoundVolume()  				{ return as<int>(root, "sound_volume"); }

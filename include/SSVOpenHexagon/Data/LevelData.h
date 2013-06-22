@@ -18,6 +18,8 @@ namespace hg
 			std::vector<Json::Value> events;
 			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
 
+			unsigned int sides;
+
 		public:
 			LevelData() = default;
 			LevelData(const Json::Value& mRoot);

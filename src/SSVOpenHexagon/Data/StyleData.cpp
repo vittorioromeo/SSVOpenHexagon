@@ -84,11 +84,11 @@ namespace hg
 	void StyleData::setRootPath(const std::string& mPath) { rootPath = mPath; }
 	string StyleData::getRootPath() { return rootPath; }
 
-	string StyleData::getId() 					{ return root["id"].asString(); }
-	float StyleData::getHueMin() 				{ return root["hue_min"].asFloat(); }
-	float StyleData::getHueMax()				{ return root["hue_max"].asFloat(); }
-	bool StyleData::getHuePingPong()			{ return root["hue_ping_pong"].asBool(); }
-	float StyleData::getHueIncrement()			{ return root["hue_increment"].asFloat(); }
+	string StyleData::getId() 					{ return as<string>(root, "id"); }
+	float StyleData::getHueMin() 				{ return as<float>(root, "hue_min"); }
+	float StyleData::getHueMax()				{ return as<float>(root, "hue_max"); }
+	bool StyleData::getHuePingPong()			{ return as<bool>(root, "hue_ping_pong"); }
+	float StyleData::getHueIncrement()			{ return as<float>(root, "hue_increment"); }
 	float StyleData::getMaxSwapTime()			{ return as<float>(root, "max_swap_time", 100.f); }
 
 	float StyleData::getCurrentHue() 			{ return currentHue; }
@@ -97,13 +97,13 @@ namespace hg
 	vector<Color> StyleData::getColors() 		{ return currentColors; }
 
 	void StyleData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
-	float StyleData::getValueFloat(const string& mValueName)						{ return root[mValueName].asFloat(); }
+	float StyleData::getValueFloat(const string& mValueName)						{ return as<float>(root, mValueName); }
 	void StyleData::setValueInt(const string& mValueName, int mValue)				{ root[mValueName] = mValue; }
-	float StyleData::getValueInt(const string& mValueName)							{ return root[mValueName].asInt(); }
+	int StyleData::getValueInt(const string& mValueName)							{ return as<int>(root, mValueName); }
 	void StyleData::setValueString(const string& mValueName, const string& mValue)	{ root[mValueName] = mValue; }
-	string StyleData::getValueString(const string& mValueName)						{ return root[mValueName].asString(); }
+	string StyleData::getValueString(const string& mValueName)						{ return as<string>(root, mValueName); }
 	void StyleData::setValueBool(const string& mValueName, bool mValue)				{ root[mValueName] = mValue; }
-	bool StyleData::getValueBool(const string& mValueName)							{ return root[mValueName].asBool(); }
+	bool StyleData::getValueBool(const string& mValueName)							{ return as<bool>(root, mValueName); }
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vector2f mCenterPos, int mSides)
 	{

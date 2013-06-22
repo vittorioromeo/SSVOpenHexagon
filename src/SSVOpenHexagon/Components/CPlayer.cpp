@@ -37,12 +37,13 @@ namespace hg
 	}
 	void CPlayer::drawPivot()
 	{
-		float thickness{5}, div{360.f / hexagonGame.getSides()}, radius{hexagonGame.getRadius() * 0.75f};
+		unsigned int sides{hexagonGame.getSides()};
+		float thickness{5}, div{360.f / sides}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
 		if(getBlackAndWhite()) colorB = Color::Black;
 		VertexArray vertices2{PrimitiveType::Quads, 4}, vertices3{PrimitiveType::Triangles, 3};
 
-		for(unsigned int i{0}; i < hexagonGame.getSides(); ++i)
+		for(unsigned int i{0}; i < sides; ++i)
 		{
 			float angle{div * i};
 
