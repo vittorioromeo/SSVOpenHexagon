@@ -142,51 +142,51 @@ namespace hg
 	void setMusicVolume(int mVolume) 			{ root["music_volume"] = mVolume; }
 	void setFlash(bool mFlash)					{ root["flash_enabled"] = mFlash; }
 
-	bool getOnline()					{ return root["online"].asBool(); }
-	bool getOfficial()					{ return root["official"].asBool(); }
+	bool getOnline()					{ return as<bool>(root, "online"); }
+	bool getOfficial()					{ return as<bool>(root, "official"); }
 	string getUneligibilityReason()  	{ return uneligibilityReason; }
 	float getSizeX() 					{ return sizeX; }
 	float getSizeY() 					{ return sizeY; }
 	float getSpawnDistance() 			{ return spawnDistance; }
-	float getZoomFactor() 				{ return root["zoom_factor"].asFloat(); }
-	int getPixelMultiplier() 			{ return root["pixel_multiplier"].asInt(); }
-	float getPlayerSpeed() 				{ if(getOfficial()) return 9.45f; return root["player_speed"].asFloat(); }
-	float getPlayerFocusSpeed() 		{ if(getOfficial()) return 4.625f; return root["player_focus_speed"].asFloat(); }
-	float getPlayerSize() 				{ if(getOfficial()) return 7.3f; return root["player_size"].asFloat(); }
-	bool getNoRotation() 				{ if(getOfficial()) return false; return root["no_rotation"].asBool(); }
-	bool getNoBackground() 				{ if(getOfficial()) return false; return root["no_background"].asBool(); }
-	bool getBlackAndWhite() 			{ if(getOfficial()) return false; return root["black_and_white"].asBool(); }
-	bool getNoSound()					{ return root["no_sound"].asBool(); }
-	bool getNoMusic()					{ return root["no_music"].asBool(); }
-	int getSoundVolume()  				{ return root["sound_volume"].asInt(); }
-	int getMusicVolume() 				{ return root["music_volume"].asInt(); }
-	bool getStaticFrameTime()			{ if(getOfficial()) return false; return root["static_frametime"].asBool(); }
-	float getStaticFrameTimeValue()		{ return root["static_frametime_value"].asFloat(); }
-	bool getLimitFps()					{ return root["limit_fps"].asBool(); }
-	bool getVsync()						{ return root["vsync"].asBool(); }
-	bool getAutoZoomFactor()			{ if(getOfficial()) return true; return root["auto_zoom_factor"].asBool(); }
-	bool getFullscreen()				{ return root["fullscreen"].asBool(); }
+	float getZoomFactor() 				{ return as<float>(root, "zoom_factor"); }
+	int getPixelMultiplier() 			{ return as<int>(root, "pixel_multiplier"); }
+	float getPlayerSpeed() 				{ return getOfficial() ? 9.45f : as<float>(root, "player_speed"); }
+	float getPlayerFocusSpeed() 		{ return getOfficial() ? 4.625f : as<float>(root, "player_focus_speed"); }
+	float getPlayerSize() 				{ return getOfficial() ? 7.3f : as<float>(root, "player_size"); }
+	bool getNoRotation() 				{ return getOfficial() ? false : as<bool>(root, "no_rotation"); }
+	bool getNoBackground() 				{ return getOfficial() ? false : as<bool>(root, "no_background"); }
+	bool getBlackAndWhite() 			{ return getOfficial() ? false : as<bool>(root, "black_and_white"); }
+	bool getNoSound()					{ return as<bool>(root, "no_sound"); }
+	bool getNoMusic()					{ return as<bool>(root, "no_music"); }
+	int getSoundVolume()  				{ return as<int>(root, "sound_volume"); }
+	int getMusicVolume() 				{ return as<int>(root, "music_volume"); }
+	bool getStaticFrameTime()			{ return getOfficial() ? false : as<bool>(root, "static_frametime"); }
+	float getStaticFrameTimeValue()		{ return as<float>(root, "static_frametime_value"); }
+	bool getLimitFps()					{ return as<bool>(root, "limit_fps"); }
+	bool getVsync()						{ return as<bool>(root, "vsync"); }
+	bool getAutoZoomFactor()			{ return getOfficial() ? true : as<bool>(root, "auto_zoom_factor"); }
+	bool getFullscreen()				{ return as<bool>(root, "fullscreen"); }
 	float getVersion() 					{ return 1.93f; }
-	bool getWindowedAutoResolution()	{ return root["windowed_auto_resolution"].asBool(); }
-	bool getFullscreenAutoResolution() 	{ return root["fullscreen_auto_resolution"].asBool(); }
-	unsigned int getFullscreenWidth()	{ return root["fullscreen_width"].asInt(); }
-	unsigned int getFullscreenHeight() 	{ return root["fullscreen_height"].asInt(); }
-	unsigned int getWindowedWidth()		{ return root["windowed_width"].asInt(); }
-	unsigned int getWindowedHeight()	{ return root["windowed_height"].asInt(); }
+	bool getWindowedAutoResolution()	{ return as<bool>(root, "windowed_auto_resolution"); }
+	bool getFullscreenAutoResolution() 	{ return as<bool>(root, "fullscreen_auto_resolution"); }
+	unsigned int getFullscreenWidth()	{ return as<int>(root, "fullscreen_width"); }
+	unsigned int getFullscreenHeight() 	{ return as<int>(root, "fullscreen_height"); }
+	unsigned int getWindowedWidth()		{ return as<int>(root, "windowed_width"); }
+	unsigned int getWindowedHeight()	{ return as<int>(root, "windowed_height"); }
 	unsigned int getWidth() 			{ return getFullscreen() ? getFullscreenWidth() : getWindowedWidth(); }
 	unsigned int getHeight() 			{ return getFullscreen() ? getFullscreenHeight() : getWindowedHeight(); }
-	bool getShowMessages()				{ return root["show_messages"].asBool(); }
-	bool getChangeStyles()				{ return root["change_styles"].asBool(); }
-	bool getChangeMusic()				{ return root["change_music"].asBool(); }
-	bool getDebug()						{ return root["debug"].asBool(); }
-	bool getPulse()						{ if(getOfficial()) return true; return root["pulse_enabled"].asBool(); }
-	bool getBeatPulse()					{ if(getOfficial()) return true; return root["beatpulse_enabled"].asBool(); }
-	bool getInvincible()				{ if(getOfficial()) return false; return root["invincible"].asBool(); }
-	bool get3D()						{ return root["3D_enabled"].asBool(); }
-	float get3DMultiplier()				{ return root["3D_multiplier"].asFloat(); }
-	unsigned int get3DMaxDepth()		{ return root["3D_max_depth"].asInt(); }
-	bool getAutoRestart()				{ return root["auto_restart"].asBool(); }
-	bool getFlash() 					{ return root["flash_enabled"].asBool(); }
+	bool getShowMessages()				{ return as<bool>(root, "show_messages"); }
+	bool getChangeStyles()				{ return as<bool>(root, "change_styles"); }
+	bool getChangeMusic()				{ return as<bool>(root, "change_music"); }
+	bool getDebug()						{ return as<bool>(root, "debug"); }
+	bool getPulse()						{ return getOfficial() ? true : as<bool>(root, "pulse_enabled"); }
+	bool getBeatPulse()					{ return getOfficial() ? true : as<bool>(root, "beatpulse_enabled"); }
+	bool getInvincible()				{ return getOfficial() ? false : as<bool>(root, "invincible"); }
+	bool get3D()						{ return as<bool>(root, "3D_enabled"); }
+	float get3DMultiplier()				{ return as<float>(root, "3D_multiplier"); }
+	unsigned int get3DMaxDepth()		{ return as<int>(root, "3D_max_depth"); }
+	bool getAutoRestart()				{ return as<bool>(root, "auto_restart"); }
+	bool getFlash() 					{ return as<bool>(root, "flash_enabled"); }
 
 	Trigger getTriggerRotateCCW()		{ return getInputTriggerFromJson(root["t_rotate_ccw"]); }
 	Trigger getTriggerRotateCW()		{ return getInputTriggerFromJson(root["t_rotate_cw"]); }

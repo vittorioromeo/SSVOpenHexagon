@@ -19,7 +19,7 @@ namespace hg
 			std::vector<std::string> trackedNames;
 
 		public:
-			ProfileData(float mVersion, const std::string& mName, Json::Value mScores, const std::vector<std::string>& mTrackedNames);
+			ProfileData(float mVersion, const std::string& mName, const Json::Value& mScores, const std::vector<std::string>& mTrackedNames);
 
 			float getVersion();
 			std::string getName();

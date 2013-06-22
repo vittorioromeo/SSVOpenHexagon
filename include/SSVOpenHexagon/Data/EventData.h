@@ -21,7 +21,7 @@ namespace hg
 			bool finished{false};
 
 		public:
-			EventData(Json::Value mRoot);
+			EventData(const Json::Value& mRoot);
 
 			void update(float mFrameTime);
 

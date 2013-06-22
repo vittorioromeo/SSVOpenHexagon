@@ -10,7 +10,7 @@ using namespace ssvu;
 
 namespace hg
 {
-	ProfileData::ProfileData(float mVersion, const string& mName, Json::Value mScores, const vector<string>& mTrackedNames) : version{mVersion}, name{mName}, scores{mScores}, trackedNames{mTrackedNames} { }
+	ProfileData::ProfileData(float mVersion, const string& mName, const Json::Value& mScores, const vector<string>& mTrackedNames) : version{mVersion}, name{mName}, scores{mScores}, trackedNames{mTrackedNames} { }
 
 	float ProfileData::getVersion()							{ return version; }
 	string ProfileData::getName()							{ return toLower(name); }

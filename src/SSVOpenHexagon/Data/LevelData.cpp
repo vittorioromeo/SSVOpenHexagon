@@ -13,9 +13,9 @@ using namespace ssvuj;
 
 namespace hg
 {
-	LevelData::LevelData(Json::Value mRoot) : root{mRoot} { }
+	LevelData::LevelData(const Json::Value& mRoot) : root{mRoot} { }
 
-	void LevelData::addEvent(Json::Value mEventRoot) { events.push_back(mEventRoot); }
+	void LevelData::addEvent(const Json::Value& mEventRoot) { events.push_back(mEventRoot); }
 
 	void LevelData::setPackPath(const string& mPath) 		{ packPath = mPath; }
 	void LevelData::setLevelRootPath(const string& mPath) 	{ levelRootPath = mPath; }

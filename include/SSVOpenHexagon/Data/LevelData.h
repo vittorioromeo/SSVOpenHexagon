@@ -20,9 +20,9 @@ namespace hg
 
 		public:
 			LevelData() = default;
-			LevelData(Json::Value mRoot);
+			LevelData(const Json::Value& mRoot);
 
-			void addEvent(Json::Value mEventRoot);
+			void addEvent(const Json::Value& mEventRoot);
 
 			Json::Value& getRoot();
 

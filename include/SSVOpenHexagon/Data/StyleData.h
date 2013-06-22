@@ -21,7 +21,7 @@ namespace hg
 
 		public:
 			StyleData() = default;
-			StyleData(Json::Value mRoot);
+			StyleData(const Json::Value& mRoot);
 
 			void update(float mFrameTime);
 			void computeColors();
@@ -37,7 +37,7 @@ namespace hg
 			float getHueIncrement();
 			float getMaxSwapTime();
 
-			sf::Color calculateColor(Json::Value mColorRoot);
+			sf::Color calculateColor(const Json::Value& mColorRoot);
 
 			sf::Color getMainColor();
 			std::vector<sf::Color> getColors();

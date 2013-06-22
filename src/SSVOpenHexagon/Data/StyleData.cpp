@@ -17,7 +17,7 @@ using namespace ssvuj;
 
 namespace hg
 {
-	Color StyleData::calculateColor(Json::Value mColorRoot)
+	Color StyleData::calculateColor(const Json::Value& mColorRoot)
 	{
 		Color color{getColorFromJsonArray(mColorRoot["value"])};
 
@@ -46,7 +46,7 @@ namespace hg
 					 getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f));
 	}
 
-	StyleData::StyleData(Json::Value mRoot) : root{mRoot}, currentHue{getHueMin()} { }
+	StyleData::StyleData(const Json::Value& mRoot) : root{mRoot}, currentHue{getHueMin()} { }
 
 	void StyleData::update(float mFrameTime)
 	{

@@ -11,7 +11,7 @@ using namespace ssvuj;
 
 namespace hg
 {
-	EventData::EventData(Json::Value mRoot) : root{mRoot} { }
+	EventData::EventData(const Json::Value& mRoot) : root{mRoot} { }
 
 	void EventData::update(float mFrameTime)
 	{

@@ -22,7 +22,7 @@ namespace hg
 	{
 		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
-		sf::Color getColorFromJsonArray(Json::Value mArray);
+		sf::Color getColorFromJsonArray(const Json::Value& mArray);
 
 		LevelData loadLevelFromJson(const Json::Value& mRoot);
 		MusicData loadMusicFromJson(const Json::Value& mRoot);

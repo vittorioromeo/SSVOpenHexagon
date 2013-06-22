@@ -42,7 +42,7 @@ namespace hg
 			return Color(r * 255, g * 255, b * 255, 255);
 		}
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
-		Color getColorFromJsonArray(Json::Value mArray) { return Color(as<float>(mArray, 0), as<float>(mArray, 1), as<float>(mArray, 2), as<float>(mArray, 3)); }
+		Color getColorFromJsonArray(const Json::Value& mArray) { return Color(as<float>(mArray, 0), as<float>(mArray, 1), as<float>(mArray, 2), as<float>(mArray, 3)); }
 
 		LevelData loadLevelFromJson(const Json::Value& mRoot) { LevelData result{mRoot}; for(auto event : mRoot["events"]) result.addEvent(event); return result; }
 		MusicData loadMusicFromJson(const Json::Value& mRoot)
