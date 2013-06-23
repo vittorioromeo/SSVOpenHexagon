@@ -209,8 +209,8 @@ namespace hg
 			thread.launch();
 		}
 
-		void cleanUp() 		{ for(const auto& t : memoryManager.getItems()) if(t->getFinished()) memoryManager.del(t); memoryManager.cleanUp(); }
-		void terminateAll() { for(const auto& t : memoryManager.getItems()) t->terminate(); memoryManager.cleanUp(); }
+		void cleanUp() 		{ for(const auto& t : memoryManager) if(t->getFinished()) memoryManager.del(t); memoryManager.cleanUp(); }
+		void terminateAll() { for(const auto& t : memoryManager) t->terminate(); memoryManager.cleanUp(); }
 
 		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath)
 		{

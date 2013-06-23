@@ -44,11 +44,11 @@ namespace hg
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
 		Color getColorFromJsonArray(const Json::Value& mArray) { return Color(as<float>(mArray, 0), as<float>(mArray, 1), as<float>(mArray, 2), as<float>(mArray, 3)); }
 
-		LevelData loadLevelFromJson(const Json::Value& mRoot) { LevelData result{mRoot}; for(auto event : mRoot["events"]) result.addEvent(event); return result; }
+		LevelData loadLevelFromJson(const Json::Value& mRoot) { LevelData result{mRoot}; for(const auto& event : mRoot["events"]) result.addEvent(event); return result; }
 		MusicData loadMusicFromJson(const Json::Value& mRoot)
 		{
 			MusicData result{as<string>(mRoot, "id"), as<string>(mRoot, "file_name"), as<string>(mRoot, "name"), as<string>(mRoot, "album"), as<string>(mRoot, "author")};
-			for(auto segment : mRoot["segments"]) result.addSegment(as<int>(segment, "time"));
+			for(const auto& segment : mRoot["segments"]) result.addSegment(as<int>(segment, "time"));
 			return result;
 		}
 		StyleData loadStyleFromJson(const Json::Value& mRoot) { return {mRoot}; }
@@ -92,8 +92,7 @@ namespace hg
 		}
 		void recursiveFillIncludedLuaFileNames(unordered_set<string>& mLuaScriptNames, const string& mPackPath, const string& mLuaScript)
 		{
-			unordered_set<string> current{getIncludedLuaFileNames(mLuaScript)};
-			for(const auto& name : current)
+			for(const auto& name : getIncludedLuaFileNames(mLuaScript))
 			{
 				mLuaScriptNames.insert(name);
 				recursiveFillIncludedLuaFileNames(mLuaScriptNames, mPackPath, getFileContents(mPackPath + "/Scripts/" + name));

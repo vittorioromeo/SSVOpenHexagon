@@ -46,14 +46,12 @@ namespace hg
 
 		for(string packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
 		{
-			string packName{packPath.substr(6, packPath.length() - 6)};
-
-			string packLua{""};
-			for(const auto& path : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(path));
+			string packName{packPath.substr(6, packPath.length() - 6)}, packLua{""};
+			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
 			Json::Value packRoot{getRootFromFile(packPath + "/pack.json")};
-			PackData packData(packName, packRoot["name"].asString(), packRoot["priority"].asFloat(), packHash);
+			PackData packData(packName, as<string>(packRoot, "name"), as<float>(packRoot, "priority"), packHash);
 			packDataMap.insert(make_pair(packName, packData));
 		}
 
@@ -76,52 +74,52 @@ namespace hg
 
 	void loadCustomSounds(const string& mPackName, const string& mPath)
 	{
-		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Sounds/", ".ogg"))
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Sounds/", ".ogg"))
 		{
-			string fileName{getNameFromPath(filePath, mPath + "Sounds/", "")};
-			assetManager.loadSound(mPackName + "_" + fileName, filePath);
+			string fileName{getNameFromPath(p, mPath + "Sounds/", "")};
+			assetManager.loadSound(mPackName + "_" + fileName, p);
 			assetManager.getSound(mPackName + "_" + fileName).setVolume(getSoundVolume());
 		}
 	}
 	void loadMusic(const string& mPath)
 	{
-		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".ogg"))
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".ogg"))
 		{
-			string fileName{getNameFromPath(filePath, mPath + "Music/", ".ogg")};
+			string fileName{getNameFromPath(p, mPath + "Music/", ".ogg")};
 
-			auto& music(assetManager.loadMusic(fileName, filePath));
-			music.openFromFile(filePath);
+			auto& music(assetManager.loadMusic(fileName, p));
+			music.openFromFile(p);
 			music.setVolume(getMusicVolume());
 			music.setLoop(true);
 		}
 	}
 	void loadMusicData(const string& mPath)
 	{
-		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".json"))
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".json"))
 		{
-			MusicData musicData{loadMusicFromJson(getRootFromFile(filePath))};
+			MusicData musicData{loadMusicFromJson(getRootFromFile(p))};
 			musicDataMap.insert(make_pair(musicData.getId(), musicData));
 		}
 	}
 	void loadStyleData(const string& mPath)
 	{
-		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Styles/", ".json"))
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Styles/", ".json"))
 		{
-			StyleData styleData{loadStyleFromJson(getRootFromFile(filePath))};
-			styleData.setRootPath(filePath);
+			StyleData styleData{loadStyleFromJson(getRootFromFile(p))};
+			styleData.setRootPath(p);
 			styleDataMap.insert(make_pair(styleData.getId(), styleData));
 		}
 	}
 	void loadLevelData(const string& mPath)
 	{
-		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Levels/", ".json"))
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Levels/", ".json"))
 		{
-			Json::Value root{getRootFromFile(filePath)};
-			string luaScriptPath{mPath + "Scripts/" + root["lua_file"].asString()};
+			Json::Value root{getRootFromFile(p)};
+			string luaScriptPath{mPath + "Scripts/" + as<string>(root, "lua_file")};
 
 			LevelData levelData{loadLevelFromJson(root)};
 			levelData.setPackPath(mPath);
-			levelData.setLevelRootPath(filePath);
+			levelData.setLevelRootPath(p);
 			levelData.setStyleRootPath(getStyleData(levelData.getStyleId()).getRootPath());
 			levelData.setLuaScriptPath(luaScriptPath);
 			levelDataMap.insert(make_pair(levelData.getId(), levelData));
@@ -130,19 +128,19 @@ namespace hg
 	}
 	void loadProfiles()
 	{
-		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>("Profiles/", ".json"))
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("Profiles/", ".json"))
 		{
-			string fileName{getNameFromPath(filePath, "Profiles/", ".json")};
+			string fileName{getNameFromPath(p, "Profiles/", ".json")};
 
-			ProfileData profileData{loadProfileFromJson(getRootFromFile(filePath))};
+			ProfileData profileData{loadProfileFromJson(getRootFromFile(p))};
 			profileDataMap.insert(make_pair(profileData.getName(), profileData));
 		}
 	}
 	void loadEvents(const string& mPath)
 	{
-		for(auto filePath : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Events/", ".json"))
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Events/", ".json"))
 		{
-			EventData eventData{getRootFromFile(filePath)};
+			EventData eventData{getRootFromFile(p)};
 			eventDataMap.insert(make_pair(eventData.getId(), eventData));
 		}
 	}
@@ -166,7 +164,7 @@ namespace hg
 	vector<LevelData> getAllLevelData()
 	{
 		vector<LevelData> result;
-		for(auto pair : levelDataMap) result.push_back(pair.second);
+		for(const auto& pair : levelDataMap) result.push_back(pair.second);
 		return result;
 	}
 	vector<string> getAllLevelIds()
@@ -180,7 +178,7 @@ namespace hg
 		});
 
 		vector<string> result;
-		for(auto levelData : levelDataVector) if(levelData.getSelectable()) result.push_back(levelData.getId());
+		for(auto& ld : levelDataVector) if(ld.getSelectable()) result.push_back(ld.getId());
 		return result;
 	}
 	vector<string> getLevelIdsByPack(string mPackPath)
@@ -217,8 +215,7 @@ namespace hg
 	{
 		if(getNoSound()) return;
 		auto soundPtr(getSoundPtr(mId));
-		if(soundPtr == nullptr) return;
-		soundPtr->play();
+		if(soundPtr != nullptr) soundPtr->play();
 	}
 
 	Font& getFont(const string& mId) 				{ return assetManager.getFont(mId); }
@@ -253,7 +250,7 @@ namespace hg
 	vector<string> getProfileNames()
 	{
 		vector<string> result;
-		for(auto pair : profileDataMap) result.push_back(pair.second.getName());
+		for(auto& pair : profileDataMap) result.push_back(pair.second.getName());
 		return result;
 	}
 	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }

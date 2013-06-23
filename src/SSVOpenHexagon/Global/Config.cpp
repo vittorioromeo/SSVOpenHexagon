@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <fstream>
-
+#include <memory>
 #include <SSVStart/Json/UtilsJson.h>
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Global/Assets.h"
@@ -22,125 +22,81 @@ using namespace ssvu;
 
 namespace hg
 {
-	LinkedValue<bool> online{"online"};
-	LinkedValue<bool> official{"official"};
-	LinkedValue<bool> noRotation{"no_rotation"};
-	LinkedValue<bool> noBackground{"no_background"};
-	LinkedValue<bool> noSound{"no_sound"};
-	LinkedValue<bool> noMusic{"no_music"};
-	LinkedValue<bool> blackAndWhite{"black_and_white"};
-	LinkedValue<bool> pulseEnabled{"pulse_enabled"};
-	LinkedValue<bool> _3DEnabled{"3D_enabled"};
-	LinkedValue<float> _3DMultiplier{"3D_multiplier"};
-	LinkedValue<int> _3DMaxDepth{"3D_max_depth"};
-	LinkedValue<bool> invincible{"invincible"};
-	LinkedValue<bool> autoRestart{"auto_restart"};
-	LinkedValue<int> soundVolume{"sound_volume"};
-	LinkedValue<int> musicVolume{"music_volume"};
-	LinkedValue<bool> flashEnabled{"flash_enabled"};
-	LinkedValue<float> zoomFactor{"zoom_factor"};
-	LinkedValue<int> pixelMultiplier{"pixel_multiplier"};
-	LinkedValue<float> playerSpeed{"player_speed"};
-	LinkedValue<float> playerFocusSpeed{"player_focus_speed"};
-	LinkedValue<float> playerSize{"player_size"};
-	LinkedValue<bool> staticFrameTime{"static_frametime"};
-	LinkedValue<float> staticFrameTimeValue{"static_frametime_value"};
-	LinkedValue<bool> limitFps{"limit_fps"};
-	LinkedValue<bool> vsync{"vsync"};
-	LinkedValue<bool> autoZoomFactor{"auto_zoom_factor"};
-	LinkedValue<bool> fullscreen{"fullscreen"};
-	LinkedValue<bool> windowedAutoResolution{"windowed_auto_resolution"};
-	LinkedValue<bool> fullscreenAutoResolution{"fullscreen_auto_resolution"};
-	LinkedValue<int> fullscreenWidth{"fullscreen_width"};
-	LinkedValue<int> fullscreenHeight{"fullscreen_height"};
-	LinkedValue<int> windowedWidth{"windowed_width"};
-	LinkedValue<int> windowedHeight{"windowed_height"};
-	LinkedValue<bool> showMessages{"show_messages"};
-	LinkedValue<bool> changeStyles{"change_styles"};
-	LinkedValue<bool> changeMusic{"change_music"};
-	LinkedValue<bool> debug{"debug"};
-	LinkedValue<bool> beatPulse{"beatpulse_enabled"};
-
-	vector<LinkedValueBase*> configValues
-	{
-		&online,
-		&official,
-		&noRotation,
-		&noBackground,
-		&noSound,
-		&noMusic,
-		&blackAndWhite,
-		&pulseEnabled,
-		&_3DEnabled,
-		&_3DMultiplier,
-		&_3DMaxDepth,
-		&invincible,
-		&autoRestart,
-		&soundVolume,
-		&musicVolume,
-		&flashEnabled,
-		&zoomFactor,
-		&pixelMultiplier,
-		&playerSpeed,
-		&playerFocusSpeed,
-		&playerSize,
-		&staticFrameTime,
-		&staticFrameTimeValue,
-		&limitFps,
-		&vsync,
-		&autoZoomFactor,
-		&fullscreen,
-		&windowedAutoResolution,
-		&fullscreenAutoResolution,
-		&fullscreenWidth,
-		&fullscreenHeight,
-		&windowedWidth,
-		&windowedHeight,
-		&showMessages,
-		&changeStyles,
-		&changeMusic,
-		&debug,
-		&beatPulse
-	};
-
 	Json::Value root{getRootFromFile("config.json")};
-	map<string, Json::Value> configOverridesRootMap;
+	LinkedValueManager lvm{root};
 
+	auto& online					(lvm.create<bool>("online"));
+	auto& official					(lvm.create<bool>("official"));
+	auto& noRotation				(lvm.create<bool>("no_rotation"));
+	auto& noBackground				(lvm.create<bool>("no_background"));
+	auto& noSound					(lvm.create<bool>("no_sound"));
+	auto& noMusic					(lvm.create<bool>("no_music"));
+	auto& blackAndWhite				(lvm.create<bool>("black_and_white"));
+	auto& pulseEnabled				(lvm.create<bool>("pulse_enabled"));
+	auto& _3DEnabled				(lvm.create<bool>("3D_enabled"));
+	auto& _3DMultiplier				(lvm.create<float>("3D_multiplier"));
+	auto& _3DMaxDepth				(lvm.create<int>("3D_max_depth"));
+	auto& invincible				(lvm.create<bool>("invincible"));
+	auto& autoRestart				(lvm.create<bool>("auto_restart"));
+	auto& soundVolume				(lvm.create<int>("sound_volume"));
+	auto& musicVolume				(lvm.create<int>("music_volume"));
+	auto& flashEnabled				(lvm.create<bool>("flash_enabled"));
+	auto& zoomFactor				(lvm.create<float>("zoom_factor"));
+	auto& pixelMultiplier			(lvm.create<int>("pixel_multiplier"));
+	auto& playerSpeed				(lvm.create<float>("player_speed"));
+	auto& playerFocusSpeed			(lvm.create<float>("player_focus_speed"));
+	auto& playerSize				(lvm.create<float>("player_size"));
+	auto& staticFrameTime			(lvm.create<bool>("static_frametime"));
+	auto& staticFrameTimeValue		(lvm.create<float>("static_frametime_value"));
+	auto& limitFps					(lvm.create<bool>("limit_fps"));
+	auto& vsync						(lvm.create<bool>("vsync"));
+	auto& autoZoomFactor			(lvm.create<bool>("auto_zoom_factor"));
+	auto& fullscreen				(lvm.create<bool>("fullscreen"));
+	auto& windowedAutoResolution	(lvm.create<bool>("windowed_auto_resolution"));
+	auto& fullscreenAutoResolution	(lvm.create<bool>("fullscreen_auto_resolution"));
+	auto& fullscreenWidth			(lvm.create<int>("fullscreen_width"));
+	auto& fullscreenHeight			(lvm.create<int>("fullscreen_height"));
+	auto& windowedWidth				(lvm.create<int>("windowed_width"));
+	auto& windowedHeight			(lvm.create<int>("windowed_height"));
+	auto& showMessages				(lvm.create<bool>("show_messages"));
+	auto& changeStyles				(lvm.create<bool>("change_styles"));
+	auto& changeMusic				(lvm.create<bool>("change_music"));
+	auto& debug						(lvm.create<bool>("debug"));
+	auto& beatPulse					(lvm.create<bool>("beatpulse_enabled"));
+
+	map<string, Json::Value> overridesMap;
 	float sizeX{1500}, sizeY{1500};
 	constexpr float spawnDistance{1600};
 	string uneligibilityReason{""};
 
-	void applyWindowedResolution()
+	void applyWindowedResolution() { auto d(VideoMode::getDesktopMode()); windowedWidth = d.width; windowedHeight = d.height; }
+	void applyFullscreenResolution() { auto d(VideoMode::getDesktopMode()); fullscreenWidth = d.width; fullscreenHeight = d.height; }
+
+	void loadOverrides()
 	{
-		auto d(VideoMode::getDesktopMode());
-		windowedWidth = d.width; windowedHeight = d.height;
-	}
-	void applyFullscreenResolution()
-	{
-		auto d(VideoMode::getDesktopMode());
-		fullscreenWidth = d.width; fullscreenHeight = d.height;
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
+		{
+			string fileName{getNameFromPath(p, "ConfigOverrides/", ".json")};
+			overridesMap.insert(make_pair(fileName, getRootFromFile(p)));
+		}
 	}
 
 	void loadConfig(const vector<string>& mOverridesIds)
 	{
 		log("loading config", "CONFIG");
 
-		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
-		{
-			string fileName{getNameFromPath(p, "ConfigOverrides/", ".json")};
-			configOverridesRootMap.insert(make_pair(fileName, getRootFromFile(p)));
-		}
+		loadOverrides();
 
 		for(const auto& id : mOverridesIds)
 		{
-			auto itr(configOverridesRootMap.find(id));
-			if(itr == end(configOverridesRootMap)) continue;
+			auto itr(overridesMap.find(id));
+			if(itr == end(overridesMap)) continue;
 
-			Json::Value overrideRoot{itr->second};
+			const Json::Value& overrideRoot{itr->second};
 			for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[itr.key().asString()] = *itr;
 		}
 
-		for(auto& cv : configValues) cv->syncFrom(root);
+		lvm.syncFromRoot();
 
 		if(getWindowedAutoResolution()) applyWindowedResolution();
 		if(getFullscreenAutoResolution()) applyFullscreenResolution();
