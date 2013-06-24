@@ -22,7 +22,7 @@ void createProfilesFolder()
 {
 	if(exists("Profiles/")) return;
 
-	log("Profiles folder does not exist, creating", "CreateProfilesFolder");
+	log("Profiles folder does not exist, creating", "::createProfilesFolder");
 	createFolder("Profiles/");
 }
 

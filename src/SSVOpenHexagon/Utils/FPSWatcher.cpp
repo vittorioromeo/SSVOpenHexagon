@@ -36,7 +36,7 @@ namespace hg
 	{
 		if(lostFrames > maxLostFrames) return;
 		++lostFrames;
-		log("Slowdown " + toStr(lostFrames) + "/" + toStr(maxLostFrames), "Performance");
+		log("Slowdown " + toStr(lostFrames) + "/" + toStr(maxLostFrames), "FPSWatcher::watch");
 	}
 
 	FPSWatcher::FPSWatcher(GameWindow& mGameWindow) : gameWindow(mGameWindow), thread([&]{ watch(); }) { thread.launch(); }

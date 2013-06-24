@@ -18,7 +18,7 @@ namespace hg
 		id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor}
 	{
 		musicPtr = getMusicPtr(mId);
-		if(musicPtr == nullptr) log("Error loading music <" + mId + "> - ID not found", "MusicData");
+		if(musicPtr == nullptr) log("Error loading music <" + mId + "> - ID not found", "MusicData::MusicData");
 	}
 
 	void MusicData::addSegment(int mSeconds) { segments.push_back(mSeconds); }

@@ -124,7 +124,7 @@ namespace hg
 
 		status.fastSpin = levelData.getFastSpin();
 	}
-	
+
 	void HexagonGame::sideChange(int mSideNumber)
 	{
 		runLuaFunction<void>("onIncrement");
@@ -187,5 +187,5 @@ namespace hg
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) if(musicData.getMusic() != nullptr) musicData.playRandomSegment(); }
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicData.getMusic() != nullptr) musicData.getMusic()->stop(); }
 
-	void HexagonGame::invalidateScore() { status.scoreInvalid = true; log("Too much slowdown, invalidating official game", "Performance"); }
+	void HexagonGame::invalidateScore() { status.scoreInvalid = true; log("Too much slowdown, invalidating official game", "HexagonGame::invalidateScore"); }
 }

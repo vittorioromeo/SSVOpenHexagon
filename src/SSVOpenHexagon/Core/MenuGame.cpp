@@ -319,7 +319,7 @@ namespace hg
 		unsigned int originalSize{mText.getCharacterSize()};
 		if(mSize != 0) mText.setCharacterSize(mSize);
 
-		mText.setString(mString);
+		if(mText.getString() != mString) mText.setString(mString);
 
 		if(state != States::MAIN || getBlackAndWhite()) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());

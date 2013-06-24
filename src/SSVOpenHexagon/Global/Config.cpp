@@ -83,7 +83,7 @@ namespace hg
 
 	void loadConfig(const vector<string>& mOverridesIds)
 	{
-		log("loading config", "CONFIG");
+		log("loading config", "::loadConfig");
 
 		loadOverrides();
 
