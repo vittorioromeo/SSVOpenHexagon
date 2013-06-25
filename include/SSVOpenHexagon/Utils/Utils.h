@@ -20,6 +20,8 @@ namespace hg
 {
 	namespace Utils
 	{
+		float getSmootherStep(float edge0, float edge1, float x);
+
 		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 		sf::Color getColorFromJsonArray(const Json::Value& mArray);

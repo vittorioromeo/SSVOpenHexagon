@@ -12,6 +12,7 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvu;
 using namespace sses;
+using namespace hg::Utils;
 
 namespace hg
 {

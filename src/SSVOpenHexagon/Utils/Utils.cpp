@@ -23,6 +23,13 @@ namespace hg
 {
 	namespace Utils
 	{
+		float getSaturated(float mValue) { return max(0.0f, min(1.0f, mValue)); }
+		float getSmootherStep(float edge0, float edge1, float x)
+		{
+			x = getSaturated((x - edge0)/(edge1 - edge0));
+			return x * x * x * (x * (x * 6 - 15) + 10);
+		}
+
 		Color getColorFromHue(double mHue)
 		{
 			double s{1}, v{1}, r{0}, g{0}, b{0};
