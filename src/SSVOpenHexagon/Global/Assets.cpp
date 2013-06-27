@@ -37,7 +37,7 @@ namespace hg
 	map<string, vector<string>> levelIdsByPackMap;
 	vector<string> packPaths;
 
-	void initAssetManager() { assetManager.loadFolder("Assets/"); }
+	void initAssetManager() { loadAssetsFromJson(assetManager, "Assets/", getRootFromFile("Assets/assets.json")); }
 	AssetManager& getAssetManager() { return assetManager; }
 
 	void loadAssets()
