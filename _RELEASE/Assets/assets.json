@@ -10,7 +10,7 @@
 		"creditsBar2.png",
 		"titleBar.png"
 	],
-	"sounds":
+	"soundBuffers":
 	[
 		"beep.ogg",
 		"death.ogg",

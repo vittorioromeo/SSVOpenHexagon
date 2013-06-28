@@ -36,6 +36,7 @@ namespace hg
 	ProfileData* currentProfilePtr{nullptr};
 	map<string, vector<string>> levelIdsByPackMap;
 	vector<string> packPaths;
+	SoundPlayer soundPlayer;
 
 	void initAssetManager() { loadAssetsFromJson(assetManager, "Assets/", getRootFromFile("Assets/assets.json")); }
 	AssetManager& getAssetManager() { return assetManager; }
@@ -77,8 +78,7 @@ namespace hg
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Sounds/", ".ogg"))
 		{
 			string fileName{getNameFromPath(p, mPath + "Sounds/", "")};
-			assetManager.loadSound(mPackName + "_" + fileName, p);
-			assetManager.getSound(mPackName + "_" + fileName).setVolume(getSoundVolume());
+			assetManager.loadSoundBuffer(mPackName + "_" + fileName, p);
 		}
 	}
 	void loadMusic(const string& mPath)
@@ -206,11 +206,11 @@ namespace hg
 
 	void refreshVolumes()
 	{
-		for(const auto& pair : assetManager.getSounds()) pair.second->setVolume(getSoundVolume());
+		soundPlayer.setVolume(getSoundVolume());
 		for(const auto& pair : assetManager.getMusics()) pair.second->setVolume(getMusicVolume());
 	}
 	void stopAllMusic() { assetManager.stopMusics(); }
-	void stopAllSounds() { assetManager.stopSounds(); }
+	void stopAllSounds() { soundPlayer.stop(); soundPlayer.cleanUp(); }
 	void playSound(const string& mId)
 	{
 		if(getNoSound()) return;
@@ -219,7 +219,7 @@ namespace hg
 	}
 
 	Font& getFont(const string& mId) 				{ return assetManager.getFont(mId); }
-	Sound* getSoundPtr(const string& mId) 			{ return assetManager.hasSound(mId) ? &assetManager.getSound(mId) : nullptr; }
+	Sound* getSoundPtr(const string& mId) 			{ return assetManager.hasSoundBuffer(mId) ? &soundPlayer.create(assetManager.getSoundBuffer(mId)).getSound() : nullptr; }
 	Music* getMusicPtr(const string& mId) 			{ return assetManager.hasMusic(mId) ? &assetManager.getMusic(mId) : nullptr; }
 	MusicData getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
