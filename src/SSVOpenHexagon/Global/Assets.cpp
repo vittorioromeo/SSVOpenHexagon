@@ -210,7 +210,7 @@ namespace hg
 		for(const auto& pair : assetManager.getMusics()) pair.second->setVolume(getMusicVolume());
 	}
 	void stopAllMusic() { assetManager.stopMusics(); }
-	void stopAllSounds() { soundPlayer.stop(); soundPlayer.cleanUp(); }
+	void stopAllSounds() { soundPlayer.stop(); }
 	void playSound(const string& mId)
 	{
 		if(getNoSound()) return;
