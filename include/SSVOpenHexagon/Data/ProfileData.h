@@ -21,13 +21,13 @@ namespace hg
 		public:
 			ProfileData(float mVersion, const std::string& mName, const Json::Value& mScores, const std::vector<std::string>& mTrackedNames);
 
-			float getVersion();
-			std::string getName();
-			Json::Value getScores();
-			const std::vector<std::string>& getTrackedNames();
+			float getVersion() const;
+			std::string getName() const;
+			Json::Value getScores() const;
+			const std::vector<std::string>& getTrackedNames() const;
 
 			void setScore(const std::string& mId, float mScore);
-			float getScore(const std::string& mId);
+			float getScore(const std::string& mId) const;
 
 			void addTrackedName(const std::string& mTrackedName);
 			void clearTrackedNames();

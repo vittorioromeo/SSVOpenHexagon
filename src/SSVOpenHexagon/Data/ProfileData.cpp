@@ -12,13 +12,13 @@ namespace hg
 {
 	ProfileData::ProfileData(float mVersion, const string& mName, const Json::Value& mScores, const vector<string>& mTrackedNames) : version{mVersion}, name{mName}, scores{mScores}, trackedNames{mTrackedNames} { }
 
-	float ProfileData::getVersion()							{ return version; }
-	string ProfileData::getName()							{ return toLower(name); }
-	Json::Value ProfileData::getScores()					{ return scores; }
-	const vector<string>& ProfileData::getTrackedNames()	{ return trackedNames; }
+	float ProfileData::getVersion() const							{ return version; }
+	string ProfileData::getName() const								{ return toLower(name); }
+	Json::Value ProfileData::getScores() const						{ return scores; }
+	const vector<string>& ProfileData::getTrackedNames() const		{ return trackedNames; }
 
 	void ProfileData::setScore(const string& mId, float mScore)		{ scores[mId] = mScore; }
-	float ProfileData::getScore(const string& mId)					{ return scores[mId].asFloat(); }
+	float ProfileData::getScore(const string& mId) const			{ return scores[mId].asFloat(); }
 	void ProfileData::addTrackedName(const string& mTrackedName)	{ trackedNames.push_back(toLower(mTrackedName)); }
 	void ProfileData::clearTrackedNames()							{ trackedNames.clear(); }
 }

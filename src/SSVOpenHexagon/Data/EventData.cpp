@@ -23,7 +23,7 @@ namespace hg
 
 	void EventData::setHexagonGamePtr(HexagonGame* mHgPtr) { hgPtr = mHgPtr; }
 
-	string EventData::getId()		{ return as<string>(root, "id"); }
-	bool EventData::getFinished()	{ return finished; }
+	string EventData::getId() const		{ return as<string>(root, "id"); }
+	bool EventData::getFinished() const	{ return finished; }
 }
 

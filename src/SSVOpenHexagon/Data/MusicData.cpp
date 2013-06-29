@@ -22,7 +22,7 @@ namespace hg
 	}
 
 	void MusicData::addSegment(int mSeconds) { segments.push_back(mSeconds); }
-	int MusicData::getRandomSegment() { return segments[getRnd(0, segments.size())]; }
+	int MusicData::getRandomSegment() const { return segments[getRnd(0, segments.size())]; }
 	void MusicData::playRandomSegment()
 	{
 		if(firstPlay) { firstPlay = false; playSegment(0); }
@@ -40,15 +40,15 @@ namespace hg
 		musicPtr->play();
 	}
 
-	Music* MusicData::getMusic()	{ return musicPtr; }
+	Music* MusicData::getMusic() const		{ return musicPtr; }
 
-	string MusicData::getId() 		{ return id; }
-	string MusicData::getFileName() { return fileName; }
-	string MusicData::getName() 	{ return name; }
-	string MusicData::getAlbum() 	{ return album; }
-	string MusicData::getAuthor() 	{ return author; }
+	string MusicData::getId() const			{ return id; }
+	string MusicData::getFileName() const	{ return fileName; }
+	string MusicData::getName() const		{ return name; }
+	string MusicData::getAlbum() const		{ return album; }
+	string MusicData::getAuthor() const		{ return author; }
 
 	void MusicData::setFirstPlay(bool mFirstPlay)	{ firstPlay = mFirstPlay; }
-	bool MusicData::getFirstPlay() 					{ return firstPlay; }
+	bool MusicData::getFirstPlay() const			{ return firstPlay; }
 }
 

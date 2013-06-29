@@ -29,42 +29,42 @@ namespace hg
 
 			void setRootPath(const std::string& mPath);
 
-			std::string getRootPath();
-			std::string getId();
-			float getHueMin();
-			float getHueMax();
-			bool getHuePingPong();
-			float getHueIncrement();
-			float getMaxSwapTime();
+			std::string getRootPath() const;
+			std::string getId() const;
+			float getHueMin() const;
+			float getHueMax() const;
+			bool getHuePingPong() const;
+			float getHueIncrement() const;
+			float getMaxSwapTime() const;
 
-			sf::Color calculateColor(const Json::Value& mColorRoot);
+			sf::Color calculateColor(const Json::Value& mColorRoot) const;
 
-			sf::Color getMainColor();
-			std::vector<sf::Color> getColors();
+			sf::Color getMainColor() const;
+			std::vector<sf::Color> getColors() const;
 
-			float getCurrentHue();
-			float getCurrentSwapTime();
+			float getCurrentHue() const;
+			float getCurrentSwapTime() const;
 
 			void setValueFloat(const std::string& mValueName, float mValue);
-			float getValueFloat(const std::string& mValueName);
+			float getValueFloat(const std::string& mValueName) const;
 			void setValueInt(const std::string& mValueName, int mValue);
-			int getValueInt(const std::string& mValueName);
+			int getValueInt(const std::string& mValueName) const;
 			void setValueString(const std::string& mValueName, const std::string& mValue);
-			std::string getValueString(const std::string& mValueName);
+			std::string getValueString(const std::string& mValueName) const;
 			void setValueBool(const std::string& mValueName, bool mValue);
-			bool getValueBool(const std::string& mValueName);
+			bool getValueBool(const std::string& mValueName) const;
 
-			unsigned int get3DDepth();
-			float get3DSkew();
-			float get3DSpacing();
-			float get3DDarkenMultiplier();
-			float get3DAlphaMultiplier();
-			float get3DAlphaFalloff();
-			sf::Color get3DOverrideColor();
-			float get3DPulseMax();
-			float get3DPulseMin();
-			float get3DPulseSpeed();
-			float get3DPerspectiveMultiplier();
+			unsigned int get3DDepth() const;
+			float get3DSkew() const;
+			float get3DSpacing() const;
+			float get3DDarkenMultiplier() const;
+			float get3DAlphaMultiplier() const;
+			float get3DAlphaFalloff() const;
+			sf::Color get3DOverrideColor() const;
+			float get3DPulseMax() const;
+			float get3DPulseMin() const;
+			float get3DPulseSpeed() const;
+			float get3DPerspectiveMultiplier() const;
 	};
 }
 

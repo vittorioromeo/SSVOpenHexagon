@@ -71,8 +71,8 @@ namespace hg
 			else if(type == "side_changing_start")		{ status.randomSideChangesEnabled = true; }
 			else if(type == "increment_stop")			{ status.incrementEnabled = false; }
 			else if(type == "increment_start")			{ status.incrementEnabled = true; }
-			else if(type == "event_exec") 				{ eventPtrs.push_back(getEventData(id, this)); }
-			else if(type == "event_enqueue")			{ eventPtrQueue.push(getEventData(id, this)); }
+			else if(type == "event_exec") 				{ eventPtrs.push_back(createEventData(id, this)); }
+			else if(type == "event_enqueue")			{ eventPtrQueue.push(createEventData(id, this)); }
 			else if(type == "script_exec")				{ runLuaFile(valueName); }
 			else if(type == "play_sound")				{ playSound(id); }
 			else										{ log("Error - unknown event type: " + type, "HexagonGame::executeEvents"); }
@@ -89,8 +89,8 @@ namespace hg
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
 		lua.writeVariable("getDifficultyMult",		[=]() 									{ return difficultyMult; });
 		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
-		lua.writeVariable("execEvent", 				[=](string mId) 						{ eventPtrs.push_back(getEventData(mId, this)); });
-		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventPtrQueue.push(getEventData(mId, this)); });
+		lua.writeVariable("execEvent", 				[=](string mId) 						{ eventPtrs.push_back(createEventData(mId, this)); });
+		lua.writeVariable("enqueueEvent", 			[=](string mId) 						{ eventPtrQueue.push(createEventData(mId, this)); });
 		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.append<Wait>(mDuration); });
 
 		lua.writeVariable("playSound", 				[=](string mId) 						{ playSound(mId); });

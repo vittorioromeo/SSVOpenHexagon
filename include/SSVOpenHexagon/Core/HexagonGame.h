@@ -132,27 +132,27 @@ namespace hg
 
 			// Properties
 			ssvs::GameState& getGame();
-			float getRadius();
-			sf::Color getColorMain();
-			sf::Color getColor(int mIndex);
-			float getSpeedMultiplier();
-			float getDelayMultiplier();
-			float getRotationSpeed();
-			unsigned int getSides();
+			float getRadius() const;
+			sf::Color getColorMain() const;
+			sf::Color getColor(int mIndex) const;
+			float getSpeedMultiplier() const;
+			float getDelayMultiplier() const;
+			float getRotationSpeed() const;
+			unsigned int getSides() const;
 			void setSpeedMultiplier(float mSpeedMultiplier);
 			void setDelayMultiplier(float mDelayMultiplier);
 			void setRotationSpeed(float mRotationSpeed);
 			void setSides(unsigned int mSides);
-			float getWallSkewLeft();
-			float getWallSkewRight();
-			float getWallAngleLeft();
-			float getWallAngleRight();
-			float get3DEffectMult();
+			float getWallSkewLeft() const;
+			float getWallSkewRight() const;
+			float getWallAngleLeft() const;
+			float getWallAngleRight() const;
+			float get3DEffectMult() const;
 			HexagonGameStatus& getStatus();
 
 			// Input
-			bool getInputFocused();
-			int getInputMovement();
+			bool getInputFocused() const;
+			int getInputMovement() const;
 	};
 }
 #endif

@@ -19,7 +19,7 @@ namespace hg
 			sf::Music* musicPtr{nullptr};
 			bool firstPlay{true};
 
-			int getRandomSegment();
+			int getRandomSegment() const;
 
 		public:
 			MusicData() = default;
@@ -30,16 +30,16 @@ namespace hg
 			void playSegment(int mSegmentIndex);
 			void playSeconds(int mSeconds);
 
-			sf::Music* getMusic();
+			sf::Music* getMusic() const;
 
-			std::string getId();
-			std::string getFileName();
-			std::string getName();
-			std::string getAlbum();
-			std::string getAuthor();
+			std::string getId() const;
+			std::string getFileName() const;
+			std::string getName() const;
+			std::string getAlbum() const;
+			std::string getAuthor() const;
 
 			void setFirstPlay(bool mFirstPlay);
-			bool getFirstPlay();
+			bool getFirstPlay() const;
 	};
 }
 

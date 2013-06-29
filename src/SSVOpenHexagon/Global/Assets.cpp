@@ -27,6 +27,7 @@ using namespace ssvu::FileSystem;
 namespace hg
 {
 	AssetManager assetManager;
+	SoundPlayer soundPlayer;
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
@@ -36,18 +37,17 @@ namespace hg
 	ProfileData* currentProfilePtr{nullptr};
 	map<string, vector<string>> levelIdsByPackMap;
 	vector<string> packPaths;
-	SoundPlayer soundPlayer;
 
 	void initAssetManager() { loadAssetsFromJson(assetManager, "Assets/", getRootFromFile("Assets/assets.json")); }
 	AssetManager& getAssetManager() { return assetManager; }
 
 	void loadAssets()
 	{
-		log("loading profiles", "LoadAssets"); 	loadProfiles();
+		log("loading profiles", "::loadAssets"); loadProfiles();
 
-		for(string packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
+		for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
 		{
-			string packName{packPath.substr(6, packPath.length() - 6)}, packLua{""};
+			string packName{packPath.substr(6, packPath.length() - 6)}, packLua;
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
@@ -56,20 +56,20 @@ namespace hg
 			packDataMap.insert(make_pair(packName, packData));
 		}
 
-		vector<PackData> packDatasToQuery;
-		for(pair<string, PackData> packDataPair : packDataMap) packDatasToQuery.push_back(packDataPair.second);
-		sort(begin(packDatasToQuery), end(packDatasToQuery), [](PackData a, PackData b) { return a.getPriority() < b.getPriority(); });
+		vector<PackData> packDatas;
+		for(auto& pair : packDataMap) packDatas.push_back(pair.second);
+		sort(begin(packDatas), end(packDatas), [](const PackData& a, const PackData& b) { return a.getPriority() < b.getPriority(); });
 
-		for(PackData packData : packDatasToQuery)
+		for(auto& pd : packDatas)
 		{
-			string packName{packData.getId()}, packPath{"Packs/" + packName + "/"};
+			string packName{pd.getId()}, packPath{"Packs/" + packName + "/"};
 			packPaths.push_back("Packs/" + packName + "/");
-			log("loading " + packName + " music", "LoadAssets");			loadMusic(packPath);
-			log("loading " + packName + " music data", "LoadAssets");		loadMusicData(packPath);
-			log("loading " + packName + " style data", "LoadAssets");		loadStyleData(packPath);
-			log("loading " + packName + " level data", "LoadAssets");		loadLevelData(packPath);
-			log("loading " + packName + " events", "LoadAssets");			loadEvents(packPath);
-			log("loading " + packName + " custom sounds", "LoadAssets");	loadCustomSounds(packName, packPath);
+			log("loading " + packName + " music", "::loadAssets");			loadMusic(packPath);
+			log("loading " + packName + " music data", "::loadAssets");		loadMusicData(packPath);
+			log("loading " + packName + " style data", "::loadAssets");		loadStyleData(packPath);
+			log("loading " + packName + " level data", "::loadAssets");		loadLevelData(packPath);
+			log("loading " + packName + " events", "::loadAssets");			loadEvents(packPath);
+			log("loading " + packName + " custom sounds", "::loadAssets");	loadCustomSounds(packName, packPath);
 		}
 	}
 
@@ -169,31 +169,26 @@ namespace hg
 	}
 	vector<string> getAllLevelIds()
 	{
-		vector<LevelData> levelDataVector{getAllLevelData()};
-		sort(begin(levelDataVector), end(levelDataVector),
-		[](LevelData a, LevelData b)
+		vector<LevelData> levelDatas{getAllLevelData()};
+		sort(begin(levelDatas), end(levelDatas), [](const LevelData& a, const LevelData& b)
 		{
 			if(a.getPackPath() == b.getPackPath()) return a.getMenuPriority() < b.getMenuPriority();
 			return a.getPackPath() < b.getPackPath();
 		});
 
 		vector<string> result;
-		for(auto& ld : levelDataVector) if(ld.getSelectable()) result.push_back(ld.getId());
+		for(const auto& l : levelDatas) if(l.getSelectable()) result.push_back(l.getId());
 		return result;
 	}
 	vector<string> getLevelIdsByPack(string mPackPath)
 	{
-		vector<LevelData> levelDataVector;
-		for(string id : levelIdsByPackMap[mPackPath]) levelDataVector.push_back(getLevelData(id));
+		vector<LevelData> levelDatas;
+		for(const auto& id : levelIdsByPackMap[mPackPath]) levelDatas.push_back(getLevelData(id));
 
-		sort(begin(levelDataVector), end(levelDataVector),
-		[](LevelData a, LevelData b)
-		{
-			return a.getMenuPriority() < b.getMenuPriority();
-		});
+		sort(begin(levelDatas), end(levelDatas), [](const LevelData& a, const LevelData& b){ return a.getMenuPriority() < b.getMenuPriority(); });
 
 		vector<string> result;
-		for(auto levelData : levelDataVector) if(levelData.getSelectable()) result.push_back(levelData.getId());
+		for(const auto& l : levelDatas) if(l.getSelectable()) result.push_back(l.getId());
 		return result;
 	}
 	vector<string> getPackPaths() { return packPaths; }
@@ -207,7 +202,7 @@ namespace hg
 	void refreshVolumes()
 	{
 		soundPlayer.setVolume(getSoundVolume());
-		for(const auto& pair : assetManager.getMusics()) pair.second->setVolume(getMusicVolume());
+		assetManager.setMusicsVolume(getMusicVolume());
 	}
 	void stopAllMusic() { assetManager.stopMusics(); }
 	void stopAllSounds() { soundPlayer.stop(); }
@@ -255,9 +250,9 @@ namespace hg
 	}
 	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }
 
-	EventData* getEventData(const string& mId, HexagonGame* mHgPtr)
+	EventData* createEventData(const string& mId, HexagonGame* mHgPtr)
 	{
-		EventData* result = new EventData(eventDataMap.find(mId)->second);
+		EventData* result{new EventData(eventDataMap.find(mId)->second)};
 		result->setHexagonGamePtr(mHgPtr);
 		return result;
 	}

@@ -27,8 +27,8 @@ namespace hg
 
 			void setHexagonGamePtr(HexagonGame* mHgPtr);
 
-			std::string getId();
-			bool getFinished();
+			std::string getId() const;
+			bool getFinished() const;
 	};
 }
 

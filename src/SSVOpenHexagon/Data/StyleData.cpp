@@ -17,7 +17,7 @@ using namespace ssvuj;
 
 namespace hg
 {
-	Color StyleData::calculateColor(const Json::Value& mColorRoot)
+	Color StyleData::calculateColor(const Json::Value& mColorRoot) const
 	{
 		Color color{getColorFromJsonArray(mColorRoot["value"])};
 
@@ -82,28 +82,28 @@ namespace hg
 	}
 
 	void StyleData::setRootPath(const std::string& mPath) { rootPath = mPath; }
-	string StyleData::getRootPath() { return rootPath; }
+	string StyleData::getRootPath() const { return rootPath; }
 
-	string StyleData::getId() 					{ return as<string>(root, "id"); }
-	float StyleData::getHueMin() 				{ return as<float>(root, "hue_min"); }
-	float StyleData::getHueMax()				{ return as<float>(root, "hue_max"); }
-	bool StyleData::getHuePingPong()			{ return as<bool>(root, "hue_ping_pong"); }
-	float StyleData::getHueIncrement()			{ return as<float>(root, "hue_increment"); }
-	float StyleData::getMaxSwapTime()			{ return as<float>(root, "max_swap_time", 100.f); }
+	string StyleData::getId() const					{ return as<string>(root, "id"); }
+	float StyleData::getHueMin() const				{ return as<float>(root, "hue_min"); }
+	float StyleData::getHueMax() const				{ return as<float>(root, "hue_max"); }
+	bool StyleData::getHuePingPong() const			{ return as<bool>(root, "hue_ping_pong"); }
+	float StyleData::getHueIncrement() const		{ return as<float>(root, "hue_increment"); }
+	float StyleData::getMaxSwapTime() const			{ return as<float>(root, "max_swap_time", 100.f); }
 
-	float StyleData::getCurrentHue() 			{ return currentHue; }
-	float StyleData::getCurrentSwapTime() 		{ return currentSwapTime; }
-	Color StyleData::getMainColor()				{ return currentMainColor; }
-	vector<Color> StyleData::getColors() 		{ return currentColors; }
+	float StyleData::getCurrentHue() const 			{ return currentHue; }
+	float StyleData::getCurrentSwapTime() const		{ return currentSwapTime; }
+	Color StyleData::getMainColor() const			{ return currentMainColor; }
+	vector<Color> StyleData::getColors() const		{ return currentColors; }
 
 	void StyleData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
-	float StyleData::getValueFloat(const string& mValueName)						{ return as<float>(root, mValueName); }
+	float StyleData::getValueFloat(const string& mValueName) const					{ return as<float>(root, mValueName); }
 	void StyleData::setValueInt(const string& mValueName, int mValue)				{ root[mValueName] = mValue; }
-	int StyleData::getValueInt(const string& mValueName)							{ return as<int>(root, mValueName); }
+	int StyleData::getValueInt(const string& mValueName) const						{ return as<int>(root, mValueName); }
 	void StyleData::setValueString(const string& mValueName, const string& mValue)	{ root[mValueName] = mValue; }
-	string StyleData::getValueString(const string& mValueName)						{ return as<string>(root, mValueName); }
+	string StyleData::getValueString(const string& mValueName) const				{ return as<string>(root, mValueName); }
 	void StyleData::setValueBool(const string& mValueName, bool mValue)				{ root[mValueName] = mValue; }
-	bool StyleData::getValueBool(const string& mValueName)							{ return as<bool>(root, mValueName); }
+	bool StyleData::getValueBool(const string& mValueName) const					{ return as<bool>(root, mValueName); }
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vector2f mCenterPos, int mSides)
 	{
@@ -128,16 +128,16 @@ namespace hg
 		mRenderTarget.draw(vertices);
 	}
 
-	unsigned int StyleData::get3DDepth() 			{ return as<float>(root, "3D_depth", 15); }
-	float StyleData::get3DSkew() 					{ return as<float>(root, "3D_skew", 0.18f); }
-	float StyleData::get3DSpacing() 				{ return as<float>(root, "3D_spacing", 1.0f); }
-	float StyleData::get3DDarkenMultiplier() 		{ return as<float>(root, "3D_darken_multiplier", 1.5f); }
-	float StyleData::get3DAlphaMultiplier() 		{ return as<float>(root, "3D_alpha_multiplier", 0.5f); }
-	float StyleData::get3DAlphaFalloff() 			{ return as<float>(root, "3D_alpha_falloff", 3.0f); }
-	Color StyleData::get3DOverrideColor() 			{ return current3DOverrideColor; }
-	float StyleData::get3DPulseMax()				{ return as<float>(root, "3D_pulse_max", 3.2f); }
-	float StyleData::get3DPulseMin()				{ return as<float>(root, "3D_pulse_min", -0.0f); }
-	float StyleData::get3DPulseSpeed()				{ return as<float>(root, "3D_pulse_speed", 0.01f); }
-	float StyleData::get3DPerspectiveMultiplier()	{ return as<float>(root, "3D_perspective_multiplier", 1.0f); }
+	unsigned int StyleData::get3DDepth() const			{ return as<float>(root, "3D_depth", 15); }
+	float StyleData::get3DSkew() const					{ return as<float>(root, "3D_skew", 0.18f); }
+	float StyleData::get3DSpacing() const				{ return as<float>(root, "3D_spacing", 1.0f); }
+	float StyleData::get3DDarkenMultiplier() const		{ return as<float>(root, "3D_darken_multiplier", 1.5f); }
+	float StyleData::get3DAlphaMultiplier() const		{ return as<float>(root, "3D_alpha_multiplier", 0.5f); }
+	float StyleData::get3DAlphaFalloff() const			{ return as<float>(root, "3D_alpha_falloff", 3.0f); }
+	Color StyleData::get3DOverrideColor() const			{ return current3DOverrideColor; }
+	float StyleData::get3DPulseMax() const				{ return as<float>(root, "3D_pulse_max", 3.2f); }
+	float StyleData::get3DPulseMin() const				{ return as<float>(root, "3D_pulse_min", -0.0f); }
+	float StyleData::get3DPulseSpeed() const			{ return as<float>(root, "3D_pulse_speed", 0.01f); }
+	float StyleData::get3DPerspectiveMultiplier() const	{ return as<float>(root, "3D_perspective_multiplier", 1.0f); }
 }
 

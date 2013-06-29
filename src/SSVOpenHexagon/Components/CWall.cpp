@@ -25,7 +25,7 @@ namespace hg
 		vertexPositions[3] = getOrbitFromDegrees(centerPos, angle - div * 0.5f + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
 	}
 
-	bool CWall::isOverlapping(Vector2f mPoint) { return isPointInPolygon(vertexPositions, mPoint); }
+	bool CWall::isOverlapping(Vector2f mPoint) const { return isPointInPolygon(vertexPositions, mPoint); }
 
 	void CWall::draw()
 	{
