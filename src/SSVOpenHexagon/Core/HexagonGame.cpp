@@ -68,6 +68,7 @@ namespace hg
 		timeline.clear(); timeline.reset();
 		messageTimeline.clear(); messageTimeline.reset();
 		effectTimelineManager.clear();
+		mustChangeSides = false;
 
 		// FPSWatcher reset
 		fpsWatcher.reset();
