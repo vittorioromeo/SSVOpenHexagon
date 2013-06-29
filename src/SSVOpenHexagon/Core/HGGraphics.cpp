@@ -75,6 +75,27 @@ namespace hg
 		if(status.scoreInvalid) s << "score invalidated (performance issues)" << endl;
 		if(status.hasDied) s << "press r to restart" << endl;
 
+		const auto& trackedVariables(levelData.getTrackedVariables());
+		if(getShowTrackedVariables() && !trackedVariables.empty())
+		{
+			s << endl;
+			for(const auto& t : trackedVariables)
+			{
+				if(lua.doesVariableExist(t.variableName)) continue; // TODO: check LuaWrapper
+
+				string var;
+				if(t.hasOffset)
+				{
+					int temp{lua.readVariable<int>(t.variableName)};
+					temp += t.offset;
+					var = toStr(temp);
+				}
+				else var = lua.readVariable<string>(t.variableName);
+
+				s << t.displayName << ": " << var << endl;
+			}
+		}
+
 		Vector2f pos{15, 3};
 		vector<Vector2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
@@ -90,7 +111,7 @@ namespace hg
 		text.setColor(getColorMain());
 		text.setPosition(pos);
 		render(text);
-		
+
 		if(messageTextPtr == nullptr) return;
 
 		text.setString(messageTextPtr->getString());

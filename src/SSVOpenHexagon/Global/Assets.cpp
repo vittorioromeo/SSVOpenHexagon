@@ -118,6 +118,10 @@ namespace hg
 			string luaScriptPath{mPath + "Scripts/" + as<string>(root, "lua_file")};
 
 			LevelData levelData{loadLevelFromJson(root)};
+
+			string trackedVariablesPath{getReplaced(p, ".json", ".tracked")};
+			if(exists(trackedVariablesPath)) levelData.loadTrackedVariables(getRootFromFile(trackedVariablesPath));
+
 			levelData.setPackPath(mPath);
 			levelData.setLevelRootPath(p);
 			levelData.setStyleRootPath(getStyleData(levelData.getStyleId()).getRootPath());

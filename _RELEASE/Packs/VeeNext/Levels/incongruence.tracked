@@ -1,0 +1,8 @@
+{
+	// LUA tracked variables
+	"tracked": 
+	[
+		["lowerBound", "min"],
+		["upperBound", "max"]
+	]
+}

@@ -17,6 +17,23 @@ namespace hg
 
 	void LevelData::addEvent(const Json::Value& mEventRoot) { events.push_back(mEventRoot); }
 
+	void LevelData::loadTrackedVariables(const Json::Value& mRoot)
+	{
+		for(const auto& t : as<Json::Value>(mRoot, "tracked"))
+		{
+			const string& variableName{as<string>(t, 0)};
+			const string& displayName{as<string>(t, 1)};
+			bool hasOffset{t.size() == 3};
+
+			if(hasOffset)
+			{
+				int offset{as<int>(t, 2)};
+				trackedVariables.emplace_back(variableName, displayName, offset);
+			}
+			else trackedVariables.emplace_back(variableName, displayName);
+		}
+	}
+
 	void LevelData::setPackPath(const string& mPath) 		{ packPath = mPath; }
 	void LevelData::setLevelRootPath(const string& mPath) 	{ levelRootPath = mPath; }
 	void LevelData::setStyleRootPath(const string& mPath) 	{ styleRootPath = mPath; }
@@ -76,4 +93,6 @@ namespace hg
 	float LevelData::getValueInt(const string& mValueName) const					{ return as<int>(root, mValueName); }
 	string LevelData::getValueString(const string& mValueName) const				{ return as<string>(root, mValueName); }
 	bool LevelData::getValueBool(const string& mValueName) const					{ return as<bool>(root, mValueName); }
+
+	const vector<TrackedVariable>& LevelData::getTrackedVariables() const			{ return trackedVariables; }
 }

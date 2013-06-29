@@ -63,6 +63,7 @@ namespace hg
 	auto& changeMusic				(lvm.create<bool>("change_music"));
 	auto& debug						(lvm.create<bool>("debug"));
 	auto& beatPulse					(lvm.create<bool>("beatpulse_enabled"));
+	auto& showTrackedVariables		(lvm.create<bool>("show_tracked_variables"));
 
 	map<string, Json::Value> overridesMap;
 	float sizeX{1500}, sizeY{1500};
@@ -220,6 +221,7 @@ namespace hg
 	unsigned int get3DMaxDepth()		{ return _3DMaxDepth; }
 	bool getAutoRestart()				{ return autoRestart; }
 	bool getFlash() 					{ return flashEnabled; }
+	bool getShowTrackedVariables()		{ return showTrackedVariables; }
 
 	Trigger getTriggerRotateCCW()		{ return getInputTriggerFromJson(root["t_rotate_ccw"]); }
 	Trigger getTriggerRotateCW()		{ return getInputTriggerFromJson(root["t_rotate_cw"]); }

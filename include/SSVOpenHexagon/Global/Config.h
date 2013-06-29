@@ -81,6 +81,7 @@ namespace hg
 	float get3DMultiplier();
 	bool getAutoRestart();
 	bool getFlash();
+	bool getShowTrackedVariables();
 
 	ssvs::Input::Trigger getTriggerRotateCCW();
 	ssvs::Input::Trigger getTriggerRotateCW();

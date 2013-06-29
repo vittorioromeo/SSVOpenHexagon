@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <SSVJsonCpp/SSVJsonCpp.h>
+#include "SSVOpenHexagon/Data/TrackedVariable.h"
 
 namespace hg
 {
@@ -17,12 +18,15 @@ namespace hg
 			Json::Value root;
 			std::vector<Json::Value> events;
 			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
+			std::vector<TrackedVariable> trackedVariables;
 
 		public:
 			LevelData() = default;
 			LevelData(const Json::Value& mRoot);
 
 			void addEvent(const Json::Value& mEventRoot);
+
+			void loadTrackedVariables(const Json::Value& mRoot);
 
 			Json::Value& getRoot();
 
@@ -65,6 +69,7 @@ namespace hg
 			float getRadiusMin() const;
 			std::vector<float> getDifficultyMultipliers() const;
 			std::vector<Json::Value>& getEvents();
+			const std::vector<TrackedVariable>& getTrackedVariables() const;
 
 			void setSpeedMultiplier(float mSpeedMultiplier);
 			void setDelayMultiplier(float mDelayMultiplier);
