@@ -7,8 +7,8 @@ BUILDTYPE="RELEASE" # Passed to CMake (CMAKE_BUILD_TYPE)
 BUILDSHARED="TRUE" # Passed to CMake (LIBNAME_BUILD_SHARED_LIB)
 MAKEJOBS="4" # make -j...
 
-LIBS=() # List of extlibs to build (gathered from ./extlibs/*)
-for dir in ./extlibs/*; do LIBS+=(${dir##*/}); done	# Fill LIBS
+LIBS=("SSVJsonCpp" "SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
+
 
 function warn() {
 	echo "Error occured in: `pwd`"
