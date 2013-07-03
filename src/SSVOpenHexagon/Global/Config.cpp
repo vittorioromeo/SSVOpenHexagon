@@ -94,7 +94,7 @@ namespace hg
 			if(itr == end(overridesMap)) continue;
 
 			const ssvuj::Value& overrideRoot{itr->second};
-			for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[itr.key().asString()] = *itr;
+			for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[as<string>(itr.key())] = *itr;
 		}
 
 		lvm.syncFromRoot();
