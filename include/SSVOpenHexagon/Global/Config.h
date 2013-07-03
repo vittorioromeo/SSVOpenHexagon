@@ -6,7 +6,7 @@
 #define HG_CONFIG
 
 #include <string>
-#include <SSVJsonCpp/SSVJsonCpp.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SSVStart/SSVStart.h>

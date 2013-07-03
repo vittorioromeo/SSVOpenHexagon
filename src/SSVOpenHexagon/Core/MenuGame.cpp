@@ -213,7 +213,7 @@ namespace hg
 
 		int playerPosition{-1};
 
-		for(auto itr(root.begin()); itr != root.end(); ++itr)
+		for(auto itr(begin(root)); itr != end(root); ++itr)
 		{
 			Json::Value& record(*itr);
 			string name{toLower(as<string>(record, "n"))};

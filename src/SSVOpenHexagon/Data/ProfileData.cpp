@@ -7,6 +7,7 @@
 
 using namespace std;
 using namespace ssvu;
+using namespace ssvuj;
 
 namespace hg
 {
@@ -17,8 +18,8 @@ namespace hg
 	Json::Value ProfileData::getScores() const						{ return scores; }
 	const vector<string>& ProfileData::getTrackedNames() const		{ return trackedNames; }
 
-	void ProfileData::setScore(const string& mId, float mScore)		{ scores[mId] = mScore; }
-	float ProfileData::getScore(const string& mId) const			{ return scores[mId].asFloat(); }
+	void ProfileData::setScore(const string& mId, float mScore)		{ ssvuj::set(scores, mId, mScore); }
+	float ProfileData::getScore(const string& mId) const			{ return as<float>(scores, mId); }
 	void ProfileData::addTrackedName(const string& mTrackedName)	{ trackedNames.push_back(toLower(mTrackedName)); }
 	void ProfileData::clearTrackedNames()							{ trackedNames.clear(); }
 }

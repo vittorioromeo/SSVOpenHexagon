@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <string>
-#include <SSVJsonCpp/SSVJsonCpp.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Data/TrackedVariable.h"
 
 namespace hg

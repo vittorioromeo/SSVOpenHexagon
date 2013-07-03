@@ -6,7 +6,7 @@
 #include <fstream>
 #include <map>
 #include <SFML/Graphics.hpp>
-#include <SSVJsonCpp/SSVJsonCpp.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Global/Assets.h"

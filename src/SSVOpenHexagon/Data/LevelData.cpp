@@ -84,10 +84,10 @@ namespace hg
 	void LevelData::setDelayMultiplier(float mDelayMultiplier)	{ root["delay_increment"] = mDelayMultiplier; }
 	void LevelData::setRotationSpeed(float mRotationSpeed) 		{ root["rotation_speed"] = mRotationSpeed; }
 
-	void LevelData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
-	void LevelData::setValueInt(const string& mValueName, int mValue)				{ root[mValueName] = mValue; }
-	void LevelData::setValueString(const string& mValueName, const string& mValue)	{ root[mValueName] = mValue; }
-	void LevelData::setValueBool(const string& mValueName, bool mValue)				{ root[mValueName] = mValue; }
+	void LevelData::setValueFloat(const string& mValueName, float mValue)			{ ssvuj::set(root, mValueName, mValue); }
+	void LevelData::setValueInt(const string& mValueName, int mValue)				{ ssvuj::set(root, mValueName, mValue); }
+	void LevelData::setValueString(const string& mValueName, const string& mValue)	{ ssvuj::set(root, mValueName, mValue); }
+	void LevelData::setValueBool(const string& mValueName, bool mValue)				{ ssvuj::set(root, mValueName, mValue); }
 
 	float LevelData::getValueFloat(const string& mValueName) const					{ return as<float>(root, mValueName); }
 	float LevelData::getValueInt(const string& mValueName) const					{ return as<int>(root, mValueName); }

@@ -20,7 +20,7 @@ namespace hg
 	{
 		for (Json::Value& eventRoot : mRoot)
 		{
-			if(eventRoot["executed"].asBool()) continue;
+			if(as<bool>(eventRoot, "executed")) continue;
 			float time{as<float>(eventRoot, "time", 0.f)};
 			if(time > mTime) continue;
 			eventRoot["executed"] = true;
@@ -64,8 +64,8 @@ namespace hg
 			else if(type == "style_int_divide") 		{ styleData.setValueInt(valueName, levelData.getValueFloat(valueName) / value); }
 
 			else if(type == "music_set")				{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playRandomSegment(); } }
-			else if(type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(eventRoot["segment_index"].asInt()); } }
-			else if(type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(eventRoot["seconds"].asInt()); } }
+			else if(type == "music_set_segment")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSegment(as<int>(eventRoot, "segment_index")); } }
+			else if(type == "music_set_seconds")		{ if(getChangeMusic()) { stopLevelMusic(); musicData = getMusicData(id); musicData.playSeconds(as<int>(eventRoot, "seconds")); } }
 			else if(type == "style_set")				{ if(getChangeStyles()) styleData = getStyleData(id); }
 			else if(type == "side_changing_stop")		{ status.randomSideChangesEnabled = false; }
 			else if(type == "side_changing_start")		{ status.randomSideChangesEnabled = true; }

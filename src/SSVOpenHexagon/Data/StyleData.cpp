@@ -21,19 +21,19 @@ namespace hg
 	{
 		Color color{getColorFromJsonArray(mColorRoot["value"])};
 
-		if(mColorRoot["dynamic"].asBool())
+		if(as<bool>(mColorRoot, "dynamic"))
 		{
-			Color dynamicColor{getColorFromHue((currentHue + mColorRoot["hue_shift"].asFloat()) / 360.0f)};
+			Color dynamicColor{getColorFromHue((currentHue + as<float>(mColorRoot, "hue_shift")) / 360.0f)};
 
-			if(mColorRoot["main"].asBool()) color = dynamicColor;
+			if(as<bool>(mColorRoot, "main")) color = dynamicColor;
 			else
 			{
-				if(!mColorRoot["dynamic_offset"].asBool()) color = getColorDarkened(dynamicColor, mColorRoot["dynamic_darkness"].asFloat());
+				if(!as<bool>(mColorRoot, "dynamic_offset")) color = getColorDarkened(dynamicColor, as<float>(mColorRoot, "dynamic_darkness"));
 				else
 				{
-					color.r += dynamicColor.r / mColorRoot["offset"].asFloat();
-					color.g += dynamicColor.g / mColorRoot["offset"].asFloat();
-					color.b += dynamicColor.b / mColorRoot["offset"].asFloat();
+					color.r += dynamicColor.r / as<float>(mColorRoot, "offset");
+					color.g += dynamicColor.g / as<float>(mColorRoot, "offset");
+					color.b += dynamicColor.b / as<float>(mColorRoot, "offset");
 					color.a += dynamicColor.a;
 				}
 			}
@@ -66,18 +66,18 @@ namespace hg
 			else currentHue = getHueMin();
 		}
 
-		pulseFactor += root["pulse_increment"].asFloat() * mFrameTime;
+		pulseFactor += as<float>(root, "pulse_increment") * mFrameTime;
 
-		if(pulseFactor < root["pulse_min"].asFloat()) { root["pulse_increment"] = root["pulse_increment"].asFloat() * -1; pulseFactor = root["pulse_min"].asFloat(); }
-		if(pulseFactor > root["pulse_max"].asFloat()) { root["pulse_increment"] = root["pulse_increment"].asFloat() * -1; pulseFactor = root["pulse_max"].asFloat(); }
+		if(pulseFactor < as<float>(root, "pulse_min")) { root["pulse_increment"] = as<float>(root, "pulse_increment") * -1; pulseFactor = as<float>(root, "pulse_min"); }
+		if(pulseFactor > as<float>(root, "pulse_max")) { root["pulse_increment"] = as<float>(root, "pulse_increment") * -1; pulseFactor = as<float>(root, "pulse_max"); }
 	}
 
 	void StyleData::computeColors()
 	{
 		currentMainColor = calculateColor(root["main"]);
-		current3DOverrideColor = root.isMember("3D_override_color") ? getColorFromJsonArray(root["3D_override_color"]) : getMainColor();
+		current3DOverrideColor = has(root, "3D_override_color") ? getColorFromJsonArray(root["3D_override_color"]) : getMainColor();
 		currentColors.clear();
-		for(unsigned int i{0}; i < root["colors"].size(); i++) currentColors.push_back(calculateColor(root["colors"][i]));
+		for(unsigned int i{0}; i < size(root, "colors"); i++) currentColors.push_back(calculateColor(root["colors"][i]));
 		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / (getMaxSwapTime() / 2), currentColors.end());
 	}
 
@@ -96,13 +96,13 @@ namespace hg
 	Color StyleData::getMainColor() const			{ return currentMainColor; }
 	vector<Color> StyleData::getColors() const		{ return currentColors; }
 
-	void StyleData::setValueFloat(const string& mValueName, float mValue)			{ root[mValueName] = mValue; }
+	void StyleData::setValueFloat(const string& mValueName, float mValue)			{ ssvuj::set(root, mValueName, mValue); }
 	float StyleData::getValueFloat(const string& mValueName) const					{ return as<float>(root, mValueName); }
-	void StyleData::setValueInt(const string& mValueName, int mValue)				{ root[mValueName] = mValue; }
+	void StyleData::setValueInt(const string& mValueName, int mValue)				{ ssvuj::set(root, mValueName, mValue); }
 	int StyleData::getValueInt(const string& mValueName) const						{ return as<int>(root, mValueName); }
-	void StyleData::setValueString(const string& mValueName, const string& mValue)	{ root[mValueName] = mValue; }
+	void StyleData::setValueString(const string& mValueName, const string& mValue)	{ ssvuj::set(root, mValueName, mValue); }
 	string StyleData::getValueString(const string& mValueName) const				{ return as<string>(root, mValueName); }
-	void StyleData::setValueBool(const string& mValueName, bool mValue)				{ root[mValueName] = mValue; }
+	void StyleData::setValueBool(const string& mValueName, bool mValue)				{ ssvuj::set(root, mValueName, mValue); }
 	bool StyleData::getValueBool(const string& mValueName) const					{ return as<bool>(root, mValueName); }
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vector2f mCenterPos, int mSides)

@@ -6,7 +6,7 @@
 #define HG_EVENTDATA
 
 #include <string>
-#include <SSVJsonCpp/SSVJsonCpp.h>
+#include <SSVUtilsJson/SSVUtilsJson.h>
 
 namespace hg
 {
