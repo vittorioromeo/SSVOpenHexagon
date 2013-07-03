@@ -125,7 +125,7 @@ namespace hg
 			void death();
 
 			// Other methods
-			void executeEvents(Json::Value& mRoot, float mTime);
+			void executeEvents(ssvuj::Value& mRoot, float mTime);
 
 			// Graphics-related methods
 			void render(sf::Drawable&);

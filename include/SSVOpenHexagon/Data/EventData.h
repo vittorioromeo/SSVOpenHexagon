@@ -15,13 +15,13 @@ namespace hg
 	class EventData
 	{
 		private:
-			Json::Value root;
+			ssvuj::Value root;
 			HexagonGame* hgPtr{nullptr};
 			float currentTime{0.0f};
 			bool finished{false};
 
 		public:
-			EventData(const Json::Value& mRoot);
+			EventData(const ssvuj::Value& mRoot);
 
 			void update(float mFrameTime);
 

@@ -13,7 +13,7 @@ namespace hg
 	class StyleData
 	{
 		private:
-			Json::Value root;
+			ssvuj::Value root;
 			float currentHue, currentSwapTime{0}, pulseFactor{0};
 			std::string rootPath;
 			sf::Color currentMainColor, current3DOverrideColor;
@@ -21,7 +21,7 @@ namespace hg
 
 		public:
 			StyleData() = default;
-			StyleData(const Json::Value& mRoot);
+			StyleData(const ssvuj::Value& mRoot);
 
 			void update(float mFrameTime);
 			void computeColors();
@@ -37,7 +37,7 @@ namespace hg
 			float getHueIncrement() const;
 			float getMaxSwapTime() const;
 
-			sf::Color calculateColor(const Json::Value& mColorRoot) const;
+			sf::Color calculateColor(const ssvuj::Value& mColorRoot) const;
 
 			sf::Color getMainColor() const;
 			std::vector<sf::Color> getColors() const;

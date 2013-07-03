@@ -24,12 +24,12 @@ namespace hg
 
 		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
-		sf::Color getColorFromJsonArray(const Json::Value& mArray);
+		sf::Color getColorFromJsonArray(const ssvuj::Value& mArray);
 
-		LevelData loadLevelFromJson(const Json::Value& mRoot);
-		MusicData loadMusicFromJson(const Json::Value& mRoot);
-		StyleData loadStyleFromJson(const Json::Value& mRoot);
-		ProfileData loadProfileFromJson(const Json::Value& mRoot);
+		LevelData loadLevelFromJson(const ssvuj::Value& mRoot);
+		MusicData loadMusicFromJson(const ssvuj::Value& mRoot);
+		StyleData loadStyleFromJson(const ssvuj::Value& mRoot);
+		ProfileData loadProfileFromJson(const ssvuj::Value& mRoot);
 
 		std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 

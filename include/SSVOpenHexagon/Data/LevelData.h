@@ -15,20 +15,20 @@ namespace hg
 	class LevelData
 	{
 		private:
-			Json::Value root;
-			std::vector<Json::Value> events;
+			ssvuj::Value root;
+			std::vector<ssvuj::Value> events;
 			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
 			std::vector<TrackedVariable> trackedVariables;
 
 		public:
 			LevelData() = default;
-			LevelData(const Json::Value& mRoot);
+			LevelData(const ssvuj::Value& mRoot);
 
-			void addEvent(const Json::Value& mEventRoot);
+			void addEvent(const ssvuj::Value& mEventRoot);
 
-			void loadTrackedVariables(const Json::Value& mRoot);
+			void loadTrackedVariables(const ssvuj::Value& mRoot);
 
-			Json::Value& getRoot();
+			ssvuj::Value& getRoot();
 
 			void setPackPath(const std::string& mPath);
 			void setLevelRootPath(const std::string& mPath);
@@ -68,7 +68,7 @@ namespace hg
 			float getBeatPulseDelayMax() const;
 			float getRadiusMin() const;
 			std::vector<float> getDifficultyMultipliers() const;
-			std::vector<Json::Value>& getEvents();
+			std::vector<ssvuj::Value>& getEvents();
 			const std::vector<TrackedVariable>& getTrackedVariables() const;
 
 			void setSpeedMultiplier(float mSpeedMultiplier);

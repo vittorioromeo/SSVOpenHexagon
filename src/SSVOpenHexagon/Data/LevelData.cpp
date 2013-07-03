@@ -13,13 +13,13 @@ using namespace ssvuj;
 
 namespace hg
 {
-	LevelData::LevelData(const Json::Value& mRoot) : root{mRoot} { }
+	LevelData::LevelData(const ssvuj::Value& mRoot) : root{mRoot} { }
 
-	void LevelData::addEvent(const Json::Value& mEventRoot) { events.push_back(mEventRoot); }
+	void LevelData::addEvent(const ssvuj::Value& mEventRoot) { events.push_back(mEventRoot); }
 
-	void LevelData::loadTrackedVariables(const Json::Value& mRoot)
+	void LevelData::loadTrackedVariables(const ssvuj::Value& mRoot)
 	{
-		for(const auto& t : as<Json::Value>(mRoot, "tracked"))
+		for(const auto& t : as<ssvuj::Value>(mRoot, "tracked"))
 		{
 			const string& variableName{as<string>(t, 0)};
 			const string& displayName{as<string>(t, 1)};
@@ -44,7 +44,7 @@ namespace hg
 	string LevelData::getStyleRootPath() const			{ return styleRootPath; }
 	string LevelData::getLuaScriptPath() const			{ return luaScriptPath; }
 
-	Json::Value& LevelData::getRoot()					{ return root; }
+	ssvuj::Value& LevelData::getRoot()					{ return root; }
 	string LevelData::getId() const						{ return getPackPath() + as<string>(root, "id"); }
 	string LevelData::getName() const					{ return as<string>(root, "name"); }
 	string LevelData::getDescription() const			{ return as<string>(root, "description"); }
@@ -78,7 +78,7 @@ namespace hg
 		auto result(as<vector<float>>(root, "difficulty_multipliers", {}));
 		result.push_back(1.0f); sort(result); return result;
 	}
-	vector<Json::Value>& LevelData::getEvents()			{ return events; }
+	vector<ssvuj::Value>& LevelData::getEvents()			{ return events; }
 
 	void LevelData::setSpeedMultiplier(float mSpeedMultiplier)  { root["speed_multiplier"] = mSpeedMultiplier; }
 	void LevelData::setDelayMultiplier(float mDelayMultiplier)	{ root["delay_increment"] = mDelayMultiplier; }

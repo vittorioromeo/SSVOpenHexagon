@@ -51,7 +51,7 @@ namespace hg
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
-			Json::Value packRoot{getRootFromFile(packPath + "/pack.json")};
+			ssvuj::Value packRoot{getRootFromFile(packPath + "/pack.json")};
 			PackData packData(packName, as<string>(packRoot, "name"), as<float>(packRoot, "priority"), packHash);
 			packDataMap.insert(make_pair(packName, packData));
 		}
@@ -114,7 +114,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Levels/", ".json"))
 		{
-			Json::Value root{getRootFromFile(p)};
+			ssvuj::Value root{getRootFromFile(p)};
 			string luaScriptPath{mPath + "Scripts/" + as<string>(root, "lua_file")};
 
 			LevelData levelData{loadLevelFromJson(root)};
@@ -153,16 +153,12 @@ namespace hg
 	{
 		if(currentProfilePtr == nullptr) return;
 
-		Json::StyledStreamWriter writer;
-		ofstream o{getCurrentProfileFilePath(), std::ifstream::binary};
-
-		Json::Value profileRoot;
+		ssvuj::Value profileRoot;
 		profileRoot["version"] = getVersion();
 		profileRoot["name"] = getCurrentProfile().getName();
 		profileRoot["scores"] = getCurrentProfile().getScores();
 		for(const auto& n : getCurrentProfile().getTrackedNames()) profileRoot["trackedNames"].append(n);
-
-		writer.write(o, profileRoot); o.flush(); o.close();
+		ssvuj::writeRootToFile(profileRoot, getCurrentProfileFilePath());
 	}
 
 	vector<LevelData> getAllLevelData()
@@ -233,14 +229,10 @@ namespace hg
 	string getCurrentProfileFilePath() { return "Profiles/" + currentProfilePtr->getName() + ".json"; }
 	void createProfile(const string& mName)
 	{
-		ofstream o{"Profiles/" + mName + ".json"};
-		Json::Value root;
-		Json::StyledStreamWriter writer;
-
+		ssvuj::Value root;
 		root["name"] = mName;
-		root["scores"] = Json::objectValue;
-		writer.write(o, root);
-		o.flush(); o.close();
+		root["scores"] = {};
+		ssvuj::writeRootToFile(root, "Profiles/" + mName + ".json");
 
 		profileDataMap.clear();
 		loadProfiles();

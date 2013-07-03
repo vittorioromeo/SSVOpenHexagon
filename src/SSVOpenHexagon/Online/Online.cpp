@@ -41,7 +41,7 @@ namespace hg
 		MemoryManager<ThreadWrapper> memoryManager;
 		float serverVersion{-1};
 		string serverMessage{""};
-		Json::Value scoresRoot;
+		ssvuj::Value scoresRoot;
 
 		void startCheckUpdates()
 		{
@@ -55,7 +55,7 @@ namespace hg
 				Status status{response.getStatus()};
 				if(status == Response::Ok)
 				{
-					Json::Value root{getRootFromString(response.getBody())};
+					ssvuj::Value root{getRootFromString(response.getBody())};
 					serverMessage = as<string>(root, "message", "");
 					log("Server message:\n" + serverMessage, "Online");
 

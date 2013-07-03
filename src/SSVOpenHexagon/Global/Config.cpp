@@ -22,7 +22,7 @@ using namespace ssvu;
 
 namespace hg
 {
-	Json::Value root{getRootFromFile("config.json")};
+	ssvuj::Value root{getRootFromFile("config.json")};
 	LinkedValueManager lvm{root};
 
 	auto& online					(lvm.create<bool>("online"));
@@ -65,7 +65,7 @@ namespace hg
 	auto& beatPulse					(lvm.create<bool>("beatpulse_enabled"));
 	auto& showTrackedVariables		(lvm.create<bool>("show_tracked_variables"));
 
-	map<string, Json::Value> overridesMap;
+	map<string, ssvuj::Value> overridesMap;
 	float sizeX{1500}, sizeY{1500};
 	constexpr float spawnDistance{1600};
 	string uneligibilityReason{""};
@@ -93,7 +93,7 @@ namespace hg
 			auto itr(overridesMap.find(id));
 			if(itr == end(overridesMap)) continue;
 
-			const Json::Value& overrideRoot{itr->second};
+			const ssvuj::Value& overrideRoot{itr->second};
 			for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[itr.key().asString()] = *itr;
 		}
 

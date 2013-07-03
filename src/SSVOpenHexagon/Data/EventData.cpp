@@ -11,13 +11,13 @@ using namespace ssvuj;
 
 namespace hg
 {
-	EventData::EventData(const Json::Value& mRoot) : root{mRoot} { }
+	EventData::EventData(const ssvuj::Value& mRoot) : root{mRoot} { }
 
 	void EventData::update(float mFrameTime)
 	{
 		currentTime += mFrameTime / 60.0f;
 		hgPtr->executeEvents(root["events"], currentTime);
-		for(Json::Value event : root["events"]) if(as<float>(event, "time") > currentTime) return;
+		for(ssvuj::Value event : root["events"]) if(as<float>(event, "time") > currentTime) return;
 		finished = true;
 	}
 

@@ -16,9 +16,9 @@ using namespace ssvuj;
 
 namespace hg
 {
-	void HexagonGame::executeEvents(Json::Value& mRoot, float mTime)
+	void HexagonGame::executeEvents(ssvuj::Value& mRoot, float mTime)
 	{
-		for (Json::Value& eventRoot : mRoot)
+		for (ssvuj::Value& eventRoot : mRoot)
 		{
 			if(as<bool>(eventRoot, "executed")) continue;
 			float time{as<float>(eventRoot, "time", 0.f)};

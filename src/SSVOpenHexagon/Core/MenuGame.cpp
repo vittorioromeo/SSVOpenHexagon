@@ -206,7 +206,7 @@ namespace hg
 		if(currentLeaderboard == "" || currentPlayerScore == "") { leaderboardString = "refreshing..."; return; }
 
 		unsigned int leaderboardRecordCount{8};
-		Json::Value root{getRootFromString(currentLeaderboard)};
+		ssvuj::Value root{getRootFromString(currentLeaderboard)};
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
@@ -215,7 +215,7 @@ namespace hg
 
 		for(auto itr(begin(root)); itr != end(root); ++itr)
 		{
-			Json::Value& record(*itr);
+			ssvuj::Value& record(*itr);
 			string name{toLower(as<string>(record, "n"))};
 			float score{as<float>(record, "s")};
 			recordPairs.push_back({name, score});
@@ -237,7 +237,7 @@ namespace hg
 		{
 			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount -1)
 			{
-				Json::Value playerScoreRoot{getRootFromString(currentPlayerScore)};
+				ssvuj::Value playerScoreRoot{getRootFromString(currentPlayerScore)};
 				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + getCurrentProfile().getName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");
 				break;
 			}

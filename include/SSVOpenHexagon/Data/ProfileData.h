@@ -15,15 +15,15 @@ namespace hg
 		private:
 			float version;
 			std::string name;
-			Json::Value scores;
+			ssvuj::Value scores;
 			std::vector<std::string> trackedNames;
 
 		public:
-			ProfileData(float mVersion, const std::string& mName, const Json::Value& mScores, const std::vector<std::string>& mTrackedNames);
+			ProfileData(float mVersion, const std::string& mName, const ssvuj::Value& mScores, const std::vector<std::string>& mTrackedNames);
 
 			float getVersion() const;
 			std::string getName() const;
-			Json::Value getScores() const;
+			ssvuj::Value getScores() const;
 			const std::vector<std::string>& getTrackedNames() const;
 
 			void setScore(const std::string& mId, float mScore);
