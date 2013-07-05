@@ -185,8 +185,8 @@ namespace hg
 		musicData.setFirstPlay(mMusicFirstPlay);
 	}
 
-	void HexagonGame::playLevelMusic() { if(!getNoMusic()) if(musicData.getMusic() != nullptr) musicData.playRandomSegment(); }
-	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) if(musicData.getMusic() != nullptr) musicData.getMusic()->stop(); }
+	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(); }
+	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) stopAllMusic(); }
 
 	void HexagonGame::invalidateScore() { status.scoreInvalid = true; log("Too much slowdown, invalidating official game", "HexagonGame::invalidateScore"); }
 }
