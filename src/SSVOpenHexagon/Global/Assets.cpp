@@ -28,6 +28,7 @@ namespace hg
 {
 	AssetManager assetManager;
 	SoundPlayer soundPlayer;
+	MusicPlayer musicPlayer;
 	map<string, MusicData> musicDataMap;
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
@@ -47,7 +48,7 @@ namespace hg
 
 		for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
 		{
-			string packName{packPath.substr(6, packPath.length() - 6)}, packLua;
+			string packName{packPath.substr(6, packPath.length() - 7)}, packLua;
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
@@ -88,7 +89,6 @@ namespace hg
 			string fileName{getNameFromPath(p, mPath + "Music/", ".ogg")};
 
 			auto& music(assetManager.loadMusic(fileName, p));
-			music.openFromFile(p);
 			music.setVolume(getMusicVolume());
 			music.setLoop(true);
 		}
@@ -202,9 +202,9 @@ namespace hg
 	void refreshVolumes()
 	{
 		soundPlayer.setVolume(getSoundVolume());
-		assetManager.setMusicsVolume(getMusicVolume());
+		musicPlayer.setVolume(getMusicVolume());
 	}
-	void stopAllMusic() { assetManager.stopMusics(); }
+	void stopAllMusic() { musicPlayer.stop(); }
 	void stopAllSounds() { soundPlayer.stop(); }
 	void playSound(const string& mId)
 	{
@@ -245,6 +245,8 @@ namespace hg
 		return result;
 	}
 	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }
+
+	void playMusic(const std::string& mId, Time mPlayingOffset) { Music* music{getMusicPtr(mId)}; if(music != nullptr) musicPlayer.play(*music, mPlayingOffset); }
 
 	EventData* createEventData(const string& mId, HexagonGame* mHgPtr)
 	{
