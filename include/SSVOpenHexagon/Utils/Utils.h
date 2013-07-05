@@ -37,6 +37,8 @@ namespace hg
 
 		std::unordered_set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
 		void recursiveFillIncludedLuaFileNames(std::unordered_set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
+
+		sf::Color TransformH(const sf::Color& in, float H);
 	}
 }
 

@@ -12,6 +12,32 @@ namespace hg
 {
 	class HexagonGame;
 
+	struct SpeedData
+	{
+		float speed{0}, accel{0}, min{0}, max{0};
+		bool pingPong{false};
+
+		SpeedData() = default;
+		SpeedData(float mSpeed, float mAccel, float mMin, float mMax, bool mPingPong)
+			: speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{mPingPong} { }
+
+		void update(float mFrameTime)
+		{
+			if(accel == 0) return;
+			speed += accel * mFrameTime;
+			if(speed > max)
+			{
+				speed = max;
+				if(pingPong) accel *= -1;
+			}
+			if(speed < min)
+			{
+				speed = min;
+				if(pingPong) accel *= -1;
+			}
+		}
+	};
+
 	class CWall : public sses::Component
 	{
 		private:
@@ -19,16 +45,20 @@ namespace hg
 			ssvs::Vec2f centerPos;
 			std::vector<ssvs::Vec2f> vertexPositions{4};
 			sf::VertexArray vertices{sf::PrimitiveType::Quads, 4};
-			float speed{0}, distance{0}, thickness{0}, acceleration{0}, minSpeed{0}, maxSpeed{0};
+			SpeedData speed, curve;
+			float distance{0}, thickness{0}, hueModifier{0};
 			int side{0};
 
 		public:
-			CWall(sses::Entity& mEntity, HexagonGame& mHexagonGame, ssvs::Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
-				float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
+			CWall(sses::Entity& mEntity, HexagonGame& mHexagonGame, ssvs::Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
 
 			bool isOverlapping(ssvs::Vec2f mPoint) const;
 			void update(float mFrameTime) override;
 			void draw() override;
+
+			void setHueModifier(float mHueModifier);
+			SpeedData& getSpeed();
+			SpeedData& getCurve();
 	};
 }
 

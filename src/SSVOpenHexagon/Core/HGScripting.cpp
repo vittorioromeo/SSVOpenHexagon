@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Core/HexagonGame.h"
+#include "SSVOpenHexagon/Components/CWall.h"
 
 using namespace std;
 using namespace sf;
@@ -127,6 +128,20 @@ namespace hg
 		lua.writeVariable("wallAcc", [=](int mSide, float mThickness, float mSpeedAdj, float mAcceleration, float mMinSpeed, float mMaxSpeed)
 		{
 			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier(), mAcceleration, mMinSpeed * getSpeedMultiplier(), mMaxSpeed * getSpeedMultiplier()); });
+		});
+		lua.writeVariable("wallHModSpeedData", [=](float mHueModifier, int mSide, float mThickness, float mSpeedAdj, float mSpeedAccel, float mSpeedMin, float mSpeedMax, bool mSpeedPingPong)
+		{
+			timeline.append<Do>([=]
+			{
+				factory.createWallHModData(mHueModifier, mSide, mThickness, {mSpeedAdj * getSpeedMultiplier(), mSpeedAccel, mSpeedMin, mSpeedMax, mSpeedPingPong}, {});
+			});
+		});
+		lua.writeVariable("wallHModCurveData", [=](float mHueModifier, int mSide, float mThickness, float mCurveAdj, float mCurveAccel, float mCurveMin, float mCurveMax, bool mCurvePingPong)
+		{
+			timeline.append<Do>([=]
+			{
+				factory.createWallHModData(mHueModifier, mSide, mThickness, {}, {mCurveAdj, mCurveAccel, mCurveMin, mCurveMax, mCurvePingPong});
+			});
 		});
 	}
 	void HexagonGame::runLuaFile(const string& mFileName)

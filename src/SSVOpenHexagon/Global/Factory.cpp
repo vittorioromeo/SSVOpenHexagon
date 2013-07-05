@@ -21,6 +21,22 @@ namespace hg
 		result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeedMultiplier, mAcceleration, mMinSpeed, mMaxSpeed);
 		return result;
 	}
+	Entity& Factory::createWallHMod(float mHueModifier, int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration, float mMinSpeed, float mMaxSpeed)
+	{
+		auto& result(Factory::createWall(mSide, mThickness, mSpeedMultiplier, mAcceleration, mMinSpeed, mMaxSpeed));
+		auto& wall(result.getFirstComponent<CWall>("wall"));
+		wall.setHueModifier(mHueModifier);
+		return result;
+	}
+	Entity& Factory::createWallHModData(float mHueModifier, int mSide, float mThickness, SpeedData mSpeed, SpeedData mCurve)
+	{
+		auto& result(Factory::createWall(mSide, mThickness, mSpeed.speed, mSpeed.accel, mSpeed.min, mSpeed.max));
+		auto& wall(result.getFirstComponent<CWall>("wall"));
+		wall.setHueModifier(mHueModifier);
+		wall.getSpeed() = mSpeed;
+		wall.getCurve() = mCurve;
+		return result;
+	}
 	Entity& Factory::createPlayer()
 	{
 		auto& result(manager.createEntity("player"));

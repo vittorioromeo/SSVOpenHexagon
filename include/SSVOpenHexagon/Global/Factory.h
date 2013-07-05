@@ -11,6 +11,7 @@
 namespace hg
 {
 	class HexagonGame;
+	struct SpeedData;
 
 	class Factory
 	{
@@ -23,6 +24,8 @@ namespace hg
 			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, ssvs::Vec2f mCenterPos);
 
 			sses::Entity& createWall(int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
+			sses::Entity& createWallHMod(float mHueModifier, int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
+			sses::Entity& createWallHModData(float mHueModifier, int mSide, float mThickness, SpeedData mSpeed, SpeedData mCurve);
 			sses::Entity& createPlayer();
 	};
 }

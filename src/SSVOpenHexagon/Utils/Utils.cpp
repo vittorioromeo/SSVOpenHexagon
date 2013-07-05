@@ -105,5 +105,23 @@ namespace hg
 				recursiveFillIncludedLuaFileNames(mLuaScriptNames, mPackPath, getFileContents(mPackPath + "/Scripts/" + name));
 			}
 		}
+
+		Color TransformH(const Color& in, float H)
+		{
+		  float U = cos(H*M_PI/180);
+		  float W = sin(H*M_PI/180);
+
+		  Color ret;
+		  ret.r = (.701*U+.168*W)*in.r
+			+ (-.587*U+.330*W)*in.g
+			+ (-.114*U-.497*W)*in.b;
+		  ret.g = (-.299*U-.328*W)*in.r
+			+ (.413*U+.035*W)*in.g
+			+ (-.114*U+.292*W)*in.b;
+		  ret.b = (-.3*U+1.25*W)*in.r
+			+ (-.588*U-1.05*W)*in.g
+			+ (.886*U-.203*W)*in.b;
+		  return ret;
+		}
 	}
 }

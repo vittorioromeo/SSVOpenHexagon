@@ -16,7 +16,7 @@ namespace hg
 {
 	CWall::CWall(Entity& mEntity, HexagonGame& mHexagonGame, Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
 		float mAcceleration, float mMinSpeed, float mMaxSpeed) : Component{mEntity, "wall"}, hexagonGame(mHexagonGame), centerPos{mCenterPos},
-		speed{mSpeed}, distance{mDistance}, thickness{mThickness}, acceleration{mAcceleration}, minSpeed{mMinSpeed}, maxSpeed{mMaxSpeed}, side{mSide}
+		speed{mSpeed, mAcceleration, mMinSpeed, mMaxSpeed, false}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
 		float div{360.f / hexagonGame.getSides()}, angle{div * side};
 
@@ -30,7 +30,8 @@ namespace hg
 
 	void CWall::draw()
 	{
-		const auto& colorMain(hexagonGame.getColorMain());
+		auto colorMain(hexagonGame.getColorMain());
+		if(hueModifier != 0) colorMain = Utils::TransformH(colorMain, hueModifier);
 
 		for(unsigned int i{0}; i < 4; ++i)
 		{
@@ -43,12 +44,8 @@ namespace hg
 
 	void CWall::update(float mFrameTime)
 	{
-		if(acceleration != 0)
-		{
-			speed += acceleration * mFrameTime;
-			if(speed > maxSpeed) speed = maxSpeed;
-			if(speed < minSpeed) speed = minSpeed;
-		}
+		speed.update(mFrameTime);
+		curve.update(mFrameTime);
 
 		float radius{hexagonGame.getRadius() * 0.65f};
 		int pointsOnCenter{0};
@@ -56,10 +53,18 @@ namespace hg
 		for(auto& vp : vertexPositions)
 		{
 			if(abs(vp.x - centerPos.x) < radius && abs(vp.y - centerPos.y) < radius) pointsOnCenter++;
-			else vp = getMovedTowards(vp, centerPos, speed * 5.0f * mFrameTime);
+			else
+			{
+				moveTowards(vp, centerPos, speed.speed * 5.0f * mFrameTime);
+				rotateAroundCenter(vp, centerPos, curve.speed / 1000.f);
+			}
 		}
 
 		if(pointsOnCenter > 3) getEntity().destroy();
 	}
+
+	void CWall::setHueModifier(float mHueModifier) { hueModifier = mHueModifier; }
+	SpeedData& CWall::getSpeed() { return speed; }
+	SpeedData& CWall::getCurve() { return curve; }
 }
 
