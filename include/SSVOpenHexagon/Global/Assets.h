@@ -62,6 +62,8 @@ namespace hg
 	std::vector<std::string> getProfileNames();
 	std::string getFirstProfileName();
 
+	void playMusic(const std::string& mId, sf::Time mPlayingOffset = sf::seconds(0));
+
 	EventData* createEventData(const std::string& mId, HexagonGame* mHgPtr);
 }
 
