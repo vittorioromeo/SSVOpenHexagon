@@ -66,12 +66,12 @@ namespace hg
 		void shakeCamera(TimelineManager& mTimelineManager, Camera& mCamera)
 		{
 			int s{7};
-			Vector2f oldCenter{mCamera.getCenter()};
+			Vec2f oldCenter{mCamera.getCenter()};
 			Timeline& timeline(mTimelineManager.create());
 
 			for(int i{s}; i > 0; --i)
 			{
-				timeline.append<Do>([&mCamera, oldCenter, i]{ mCamera.centerOn(oldCenter + Vector2f(getRnd(-i, i), getRnd(-i, i))); });
+				timeline.append<Do>([&mCamera, oldCenter, i]{ mCamera.centerOn(oldCenter + Vec2f(getRnd(-i, i), getRnd(-i, i))); });
 				timeline.append<Wait>(1); timeline.append<Go>(0, 3);
 			}
 

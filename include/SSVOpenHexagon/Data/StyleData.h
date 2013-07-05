@@ -6,7 +6,7 @@
 #define HG_STYLEDATA
 
 #include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SFML/Graphics.hpp>
+#include <SSVStart/SSVStart.h>
 
 namespace hg
 {
@@ -25,7 +25,7 @@ namespace hg
 
 			void update(float mFrameTime);
 			void computeColors();
-			void drawBackground(sf::RenderTarget& mRenderTarget, sf::Vector2f mCenterPos, int mSides);
+			void drawBackground(sf::RenderTarget& mRenderTarget, ssvs::Vec2f mCenterPos, int mSides);
 
 			void setRootPath(const std::string& mPath);
 

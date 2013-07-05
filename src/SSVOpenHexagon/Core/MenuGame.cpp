@@ -54,20 +54,20 @@ namespace hg
 
 		versionText.setString(toStr(getVersion()));
 		versionText.setColor(Color::White);
-		versionText.setPosition(titleBar.getPosition() + Vector2f{titleBar.getGlobalBounds().width - 97, titleBar.getGlobalBounds().top});
+		versionText.setPosition(titleBar.getPosition() + Vec2f{titleBar.getGlobalBounds().width - 97, titleBar.getGlobalBounds().top});
 
 		creditsBar1.setOrigin({1024, 0});
 		creditsBar1.setScale({0.373f, 0.373f});
-		creditsBar1.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 20.f)));
+		creditsBar1.setPosition(overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f, 20.f)));
 
 		creditsBar2.setOrigin({1024, 116});
 		creditsBar2.setScale({0.373f, 0.373f});
-		creditsBar2.setPosition(overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f, 160.f / getZoomFactor())));
+		creditsBar2.setPosition(overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f, 160.f / getZoomFactor())));
 
 		float scaleFactor{getWidth() * getZoomFactor() / 2048.f};
 		bottomBar.setOrigin({0, 112.f});
 		bottomBar.setScale({scaleFactor, scaleFactor});
-		bottomBar.setPosition(overlayCamera.getConvertedCoords(Vector2i(0, getHeight())));
+		bottomBar.setPosition(overlayCamera.getConvertedCoords(Vec2i(0, getHeight())));
 	}
 	void MenuGame::initOptionsMenu()
 	{
@@ -314,7 +314,7 @@ namespace hg
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
-	void MenuGame::renderText(const string& mString, Text& mText, sf::Vector2f mPosition, unsigned int mSize)
+	void MenuGame::renderText(const string& mString, Text& mText, ssvs::Vec2f mPosition, unsigned int mSize)
 	{
 		unsigned int originalSize{mText.getCharacterSize()};
 		if(mSize != 0) mText.setCharacterSize(mSize);
@@ -324,7 +324,7 @@ namespace hg
 		if(state != States::MAIN || getBlackAndWhite()) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
-		mText.setPosition(overlayCamera.getConvertedCoords(Vector2i(mPosition)).x, mPosition.y + 160);
+		mText.setPosition(overlayCamera.getConvertedCoords(Vec2i(mPosition)).x, mPosition.y + 160);
 		render(mText); mText.setCharacterSize(originalSize);
 	}
 
@@ -356,7 +356,7 @@ namespace hg
 
 			renderText(leaderboardString, cProfText, {20, 100}, 20);
 			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
-			renderText("friends:\n" + friendsString, friendsText, {overlayCamera.getConvertedCoords(Vector2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, 0)).x, 10 + 5 + 3});
+			renderText("friends:\n" + friendsString, friendsText, {overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, 0)).x, 10 + 5 + 3});
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 

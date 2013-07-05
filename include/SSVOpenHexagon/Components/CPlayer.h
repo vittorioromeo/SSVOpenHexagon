@@ -17,7 +17,7 @@ namespace hg
 	{
 		private:
 			HexagonGame& hexagonGame;
-			sf::Vector2f pLeft, pRight, startPos, pos;
+			ssvs::Vec2f pLeft, pRight, startPos, pos;
 			sf::VertexArray vertices{sf::PrimitiveType::Triangles, 3};
 			float hue{0}, angle{0}, size{getPlayerSize()}, speed{getPlayerSpeed()}, focusSpeed{getPlayerFocusSpeed()};
 			bool dead{false};
@@ -26,7 +26,7 @@ namespace hg
 			void drawDeathEffect();
 
 		public:		
-			CPlayer(sses::Entity& mEntity, HexagonGame& mHexagonGame, sf::Vector2f mStartPos);
+			CPlayer(sses::Entity& mEntity, HexagonGame& mHexagonGame, ssvs::Vec2f mStartPos);
 
 			void update(float mFrameTime) override;
 			void draw() override;

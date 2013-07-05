@@ -85,7 +85,7 @@ namespace hg
 		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1);
 
 		// Reset zoom
-		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())});
+		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, ssvs::Vec2f(getWidth(), getHeight())});
 		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
 		backgroundCamera.setRotation(0);
 
@@ -164,7 +164,7 @@ namespace hg
 	void HexagonGame::addMessage(const string& mMessage, float mDuration)
 	{
 		Text* text{new Text(mMessage, getFont("imagine.ttf"), 40 / getZoomFactor())};
-		text->setPosition(Vector2f(getWidth() / 2, getHeight() / 6));
+		text->setPosition(Vec2f(getWidth() / 2, getHeight() / 6));
 		text->setOrigin(text->getGlobalBounds().width / 2, 0);
 
 		messageTimeline.append<Do>([&, text, mMessage]{ playSound("beep.ogg"); messageTextPtr = text; });

@@ -10,12 +10,13 @@
 using namespace std;
 using namespace sf;
 using namespace sses;
+using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
 
 namespace hg
 {
-	CPlayer::CPlayer(Entity& mEntity, HexagonGame& mHexagonGame, Vector2f mStartPos) : Component{mEntity, "player"}, hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
+	CPlayer::CPlayer(Entity& mEntity, HexagonGame& mHexagonGame, Vec2f mStartPos) : Component{mEntity, "player"}, hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
 
 	void CPlayer::draw()
 	{
@@ -47,10 +48,10 @@ namespace hg
 		{
 			float angle{div * i};
 
-			Vector2f p1{getOrbitFromDegrees(startPos, angle - div * 0.5f, radius)};
-			Vector2f p2{getOrbitFromDegrees(startPos, angle + div * 0.5f, radius)};
-			Vector2f p3{getOrbitFromDegrees(startPos, angle + div * 0.5f, radius + thickness)};
-			Vector2f p4{getOrbitFromDegrees(startPos, angle - div * 0.5f, radius + thickness)};
+			Vec2f p1{getOrbitFromDegrees(startPos, angle - div * 0.5f, radius)};
+			Vec2f p2{getOrbitFromDegrees(startPos, angle + div * 0.5f, radius)};
+			Vec2f p3{getOrbitFromDegrees(startPos, angle + div * 0.5f, radius + thickness)};
+			Vec2f p4{getOrbitFromDegrees(startPos, angle - div * 0.5f, radius + thickness)};
 
 			vertices2.append({p1, colorMain});
 			vertices2.append({p2, colorMain});
@@ -76,10 +77,10 @@ namespace hg
 		{
 			float angle{div * i};
 
-			Vector2f p1{getOrbitFromDegrees(pos, angle - div * 0.5f, radius)};
-			Vector2f p2{getOrbitFromDegrees(pos, angle + div * 0.5f, radius)};
-			Vector2f p3{getOrbitFromDegrees(pos, angle + div * 0.5f, radius + thickness)};
-			Vector2f p4{getOrbitFromDegrees(pos, angle - div * 0.5f, radius + thickness)};
+			Vec2f p1{getOrbitFromDegrees(pos, angle - div * 0.5f, radius)};
+			Vec2f p2{getOrbitFromDegrees(pos, angle + div * 0.5f, radius)};
+			Vec2f p3{getOrbitFromDegrees(pos, angle + div * 0.5f, radius + thickness)};
+			Vec2f p4{getOrbitFromDegrees(pos, angle - div * 0.5f, radius + thickness)};
 
 			verticesDeath.append({p1, colorMain});
 			verticesDeath.append({p2, colorMain});
@@ -92,15 +93,15 @@ namespace hg
 
 	void CPlayer::update(float mFrameTime)
 	{
-		Vector2f lastPos{pos};
+		Vec2f lastPos{pos};
 		float currentSpeed{speed}, lastAngle{angle}, radius{hexagonGame.getRadius()};
 		int movement{hexagonGame.getInputMovement()};
 		if(hexagonGame.getInputFocused()) currentSpeed = focusSpeed;
 		angle += currentSpeed * movement * mFrameTime;
 
-		Vector2f tempPos{getOrbitFromDegrees(startPos, angle, radius)};
-		Vector2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
-		Vector2f pRightCheck{getOrbitFromDegrees(tempPos, angle + 90, 0.01f)};
+		Vec2f tempPos{getOrbitFromDegrees(startPos, angle, radius)};
+		Vec2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
+		Vec2f pRightCheck{getOrbitFromDegrees(tempPos, angle + 90, 0.01f)};
 
 		for(const auto& wall : getManager().getComponents<CWall>("wall"))
 		{

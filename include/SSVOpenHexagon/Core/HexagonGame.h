@@ -38,7 +38,7 @@ namespace hg
 			ssvs::GameWindow& window;
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera{window, {{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
-			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() / 2.f}, sf::Vector2f(getWidth(), getHeight())}};
+			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() / 2.f}, ssvs::Vec2f(getWidth(), getHeight())}};
 			std::vector<ssvs::Camera> depthCameras;
 			ssvu::TimelineManager effectTimelineManager;
 			Factory factory{*this, manager, {0, 0}};

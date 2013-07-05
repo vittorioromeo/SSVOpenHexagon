@@ -17,10 +17,10 @@ namespace hg
 		private:
 			HexagonGame& hexagonGame;
 			sses::Manager& manager;
-			sf::Vector2f centerPos;
+			ssvs::Vec2f centerPos;
 
 		public:
-			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, sf::Vector2f mCenterPos);
+			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, ssvs::Vec2f mCenterPos);
 
 			sses::Entity& createWall(int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
 			sses::Entity& createPlayer();

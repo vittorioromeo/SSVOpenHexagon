@@ -9,10 +9,11 @@
 
 using namespace sf;
 using namespace sses;
+using namespace ssvs;
 
 namespace hg
 {
-	Factory::Factory(HexagonGame& mHexagonGame, Manager& mManager, Vector2f mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
+	Factory::Factory(HexagonGame& mHexagonGame, Manager& mManager, Vec2f mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
 
 	Entity& Factory::createWall(int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration, float mMinSpeed, float mMaxSpeed)
 	{

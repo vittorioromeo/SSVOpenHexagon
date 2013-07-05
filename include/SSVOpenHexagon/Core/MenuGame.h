@@ -63,7 +63,7 @@ namespace hg
 			void drawProfileSelection();
 			void drawOptions();
 			void render(sf::Drawable&);
-			void renderText(const std::string& mString, sf::Text& mText, sf::Vector2f mPosition, unsigned int mSize = 0);
+			void renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
 			void setIndex(int mIndex);
 			void refreshScores();
 			void updateLeaderboard();

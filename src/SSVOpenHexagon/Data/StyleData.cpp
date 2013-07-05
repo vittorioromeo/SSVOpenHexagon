@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace sf;
+using namespace ssvs;
 using namespace ssvs::Utils;
 using namespace hg::Utils;
 using namespace ssvu;
@@ -105,7 +106,7 @@ namespace hg
 	void StyleData::setValueBool(const string& mValueName, bool mValue)				{ ssvuj::set(root, mValueName, mValue); }
 	bool StyleData::getValueBool(const string& mValueName) const					{ return as<bool>(root, mValueName); }
 
-	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vector2f mCenterPos, int mSides)
+	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vec2f mCenterPos, int mSides)
 	{
 		float div{360.f / mSides * 1.0001f}, distance{4500};
 

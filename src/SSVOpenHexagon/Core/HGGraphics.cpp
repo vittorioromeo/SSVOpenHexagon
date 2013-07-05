@@ -26,7 +26,7 @@ namespace hg
 			status.drawing3D = true;
 
 			float effect{styleData.get3DSkew() * get3DMultiplier() * status.pulse3D};
-			Vector2f skew{1.f, 1.f + effect};
+			Vec2f skew{1.f, 1.f + effect};
 			backgroundCamera.setSkew(skew);
 
 			for(unsigned int i{0}; i < depthCameras.size(); ++i)
@@ -96,8 +96,8 @@ namespace hg
 			}
 		}
 
-		Vector2f pos{15, 3};
-		vector<Vector2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+		Vec2f pos{15, 3};
+		vector<Vec2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 		Color offsetColor{getColor(1)};
 		if(getBlackAndWhite()) offsetColor = Color::Black;
