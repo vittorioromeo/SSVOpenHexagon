@@ -9,11 +9,12 @@
 
 using namespace sf;
 using namespace sses;
+using namespace ssvs;
 using namespace ssvs::Utils;
 
 namespace hg
 {
-	CWall::CWall(Entity& mEntity, HexagonGame& mHexagonGame, Vector2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
+	CWall::CWall(Entity& mEntity, HexagonGame& mHexagonGame, Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
 		float mAcceleration, float mMinSpeed, float mMaxSpeed) : Component{mEntity, "wall"}, hexagonGame(mHexagonGame), centerPos{mCenterPos},
 		speed{mSpeed}, distance{mDistance}, thickness{mThickness}, acceleration{mAcceleration}, minSpeed{mMinSpeed}, maxSpeed{mMaxSpeed}, side{mSide}
 	{
@@ -25,7 +26,7 @@ namespace hg
 		vertexPositions[3] = getOrbitFromDegrees(centerPos, angle - div * 0.5f + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
 	}
 
-	bool CWall::isOverlapping(Vector2f mPoint) const { return isPointInPolygon(vertexPositions, mPoint); }
+	bool CWall::isOverlapping(Vec2f mPoint) const { return isPointInPolygon(vertexPositions, mPoint); }
 
 	void CWall::draw()
 	{
