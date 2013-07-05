@@ -15,8 +15,7 @@ namespace hg
 	{
 		private:
 			std::vector<int> segments;
-			std::string id{""}, fileName{""}, name{""}, album{""}, author{""};
-			sf::Music* musicPtr{nullptr};
+			std::string id, fileName, name, album, author;
 			bool firstPlay{true};
 
 			int getRandomSegment() const;
@@ -29,8 +28,6 @@ namespace hg
 			void playRandomSegment();
 			void playSegment(int mSegmentIndex);
 			void playSeconds(int mSeconds);
-
-			sf::Music* getMusic() const;
 
 			std::string getId() const;
 			std::string getFileName() const;
