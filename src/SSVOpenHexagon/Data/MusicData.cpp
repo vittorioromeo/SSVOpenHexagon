@@ -15,11 +15,7 @@ using namespace ssvu;
 namespace hg
 {
 	MusicData::MusicData(const string& mId, const string& mFileName, const string& mName, const string& mAlbum, const string& mAuthor) :
-		id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor}
-	{
-		musicPtr = getMusicPtr(mId);
-		if(musicPtr == nullptr) log("Error loading music <" + mId + "> - ID not found", "MusicData::MusicData");
-	}
+		id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor} { }
 
 	void MusicData::addSegment(int mSeconds) { segments.push_back(mSeconds); }
 	int MusicData::getRandomSegment() const { return segments[getRnd(0, segments.size())]; }
@@ -36,11 +32,8 @@ namespace hg
 	{
 		if(getNoMusic()) return;
 
-		musicPtr->setPlayingOffset(seconds(mSeconds));
-		musicPtr->play();
+		playMusic(id, seconds(mSeconds));
 	}
-
-	Music* MusicData::getMusic() const		{ return musicPtr; }
 
 	string MusicData::getId() const			{ return id; }
 	string MusicData::getFileName() const	{ return fileName; }
