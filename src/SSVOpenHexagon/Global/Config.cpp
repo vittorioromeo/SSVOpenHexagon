@@ -154,11 +154,12 @@ namespace hg
 	void setFullscreen(GameWindow& mWindow, bool mFullscreen)
 	{
 		fullscreen = mFullscreen;
-		recalculateSizes();
 
 		mWindow.setSize(getWidth(), getHeight());
 		mWindow.setFullscreen(getFullscreen());
 		mWindow.setMouseCursorVisible(false);
+
+		recalculateSizes();
 	}
 
 	void setOnline(bool mOnline)				{ online = mOnline; if(mOnline) Online::startCheckUpdates(); }
