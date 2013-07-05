@@ -36,9 +36,9 @@ namespace hg
 	void stopAllMusic();
 	void stopAllSounds();
 	void playSound(const std::string& mId);
+	void playSoundOnce(const std::string& mId);
 
 	sf::Font& getFont(const std::string& mId);
-	sf::Sound* getSoundPtr(const std::string& mId);
 	sf::Music* getMusicPtr(const std::string& mId);
 	MusicData getMusicData(const std::string& mId);
 	StyleData getStyleData(const std::string& mId);

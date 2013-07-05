@@ -31,7 +31,7 @@ namespace hg
 	void CWall::draw()
 	{
 		auto colorMain(hexagonGame.getColorMain());
-		if(hueModifier != 0) colorMain = Utils::TransformH(colorMain, hueModifier);
+		if(hueModifier != 0 && !hexagonGame.getStatus().drawing3D) colorMain = Utils::TransformH(colorMain, hueModifier);
 
 		for(unsigned int i{0}; i < 4; ++i)
 		{

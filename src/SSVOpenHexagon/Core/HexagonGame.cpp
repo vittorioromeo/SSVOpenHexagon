@@ -97,10 +97,10 @@ namespace hg
 	}
 	void HexagonGame::death()
 	{
-		playSound("death.ogg");
-		playSound("gameOver.ogg");
+		playSoundOnce("death.ogg");
+		playSoundOnce("gameOver.ogg");
 
-		if(getInvincible()) return;
+		if(getInvincible() || status.tutorialMode) return;
 
 		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);

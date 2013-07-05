@@ -27,6 +27,7 @@ namespace hg
 		bool scoreInvalid{false};
 		sf::Color overrideColor{0, 0, 0, 0};
 		ssvu::ObfuscatedValue<float> lostFrames{0};
+		bool tutorialMode{false};
 	};
 }
 

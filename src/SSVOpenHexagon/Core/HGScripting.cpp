@@ -140,9 +140,13 @@ namespace hg
 		{
 			timeline.append<Do>([=]
 			{
-				factory.createWallHModData(mHueModifier, mSide, mThickness, {}, {mCurveAdj, mCurveAccel, mCurveMin, mCurveMax, mCurvePingPong});
+				factory.createWallHModData(mHueModifier, mSide, mThickness, {getSpeedMultiplier(), 0, 0, 0, false}, {mCurveAdj, mCurveAccel, mCurveMin, mCurveMax, mCurvePingPong});
 			});
 		});
+
+		lua.writeVariable("tutorialMode", [=]{ status.tutorialMode = true; });
+		lua.writeVariable("stopIncrement", [=]{ status.incrementEnabled = false; });
+		lua.writeVariable("startIncrement", [=]{ status.incrementEnabled = true; });
 	}
 	void HexagonGame::runLuaFile(const string& mFileName)
 	{

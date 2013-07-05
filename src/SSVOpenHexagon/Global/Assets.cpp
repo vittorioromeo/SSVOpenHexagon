@@ -208,13 +208,17 @@ namespace hg
 	void stopAllSounds() { soundPlayer.stop(); }
 	void playSound(const string& mId)
 	{
-		if(getNoSound()) return;
-		auto soundPtr(getSoundPtr(mId));
-		if(soundPtr != nullptr) soundPtr->play();
+		if(getNoSound() || !assetManager.hasSoundBuffer(mId)) return;
+		soundPlayer.play(soundPlayer.create(assetManager.getSoundBuffer(mId)));
 	}
+	void playSoundOnce(const string& mId)
+	{
+		if(getNoSound() || !assetManager.hasSoundBuffer(mId)) return;
+		soundPlayer.play(soundPlayer.create(assetManager.getSoundBuffer(mId)));
+	}
+	void playMusic(const std::string& mId, Time mPlayingOffset) { Music* music{getMusicPtr(mId)}; if(music != nullptr) musicPlayer.play(*music, mPlayingOffset); }
 
 	Font& getFont(const string& mId) 				{ return assetManager.getFont(mId); }
-	Sound* getSoundPtr(const string& mId) 			{ return assetManager.hasSoundBuffer(mId) ? &soundPlayer.create(assetManager.getSoundBuffer(mId)).getSound() : nullptr; }
 	Music* getMusicPtr(const string& mId) 			{ return assetManager.hasMusic(mId) ? &assetManager.getMusic(mId) : nullptr; }
 	MusicData getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
@@ -246,7 +250,6 @@ namespace hg
 	}
 	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }
 
-	void playMusic(const std::string& mId, Time mPlayingOffset) { Music* music{getMusicPtr(mId)}; if(music != nullptr) musicPlayer.play(*music, mPlayingOffset); }
 
 	EventData* createEventData(const string& mId, HexagonGame* mHgPtr)
 	{
