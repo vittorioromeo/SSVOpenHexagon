@@ -24,14 +24,14 @@ namespace hg
 	Entity& Factory::createWallHMod(float mHueModifier, int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration, float mMinSpeed, float mMaxSpeed)
 	{
 		auto& result(Factory::createWall(mSide, mThickness, mSpeedMultiplier, mAcceleration, mMinSpeed, mMaxSpeed));
-		auto& wall(result.getFirstComponent<CWall>("wall"));
+		auto& wall(result.getFirstComponent<CWall>());
 		wall.setHueModifier(mHueModifier);
 		return result;
 	}
 	Entity& Factory::createWallHModData(float mHueModifier, int mSide, float mThickness, SpeedData mSpeed, SpeedData mCurve)
 	{
 		auto& result(Factory::createWall(mSide, mThickness, mSpeed.speed, mSpeed.accel, mSpeed.min, mSpeed.max));
-		auto& wall(result.getFirstComponent<CWall>("wall"));
+		auto& wall(result.getFirstComponent<CWall>());
 		wall.setHueModifier(mHueModifier);
 		wall.getSpeed() = mSpeed;
 		wall.getCurve() = mCurve;

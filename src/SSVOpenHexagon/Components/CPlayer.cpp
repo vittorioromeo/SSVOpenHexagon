@@ -16,7 +16,7 @@ using namespace hg::Utils;
 
 namespace hg
 {
-	CPlayer::CPlayer(HexagonGame& mHexagonGame, Vec2f mStartPos) : Component{"player"}, hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
+	CPlayer::CPlayer(HexagonGame& mHexagonGame, Vec2f mStartPos) : hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
 
 	void CPlayer::draw()
 	{
@@ -103,7 +103,7 @@ namespace hg
 		Vec2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
 		Vec2f pRightCheck{getOrbitFromDegrees(tempPos, angle + 90, 0.01f)};
 
-		for(const auto& wall : getManager().getComponents<CWall>("wall"))
+		for(const auto& wall : getManager().getComponents<CWall>())
 		{
 			if(movement == -1 && wall->isOverlapping(pLeftCheck)) angle = lastAngle;
 			if(movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;

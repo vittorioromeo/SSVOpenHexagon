@@ -15,7 +15,7 @@ using namespace ssvs::Utils;
 namespace hg
 {
 	CWall::CWall(HexagonGame& mHexagonGame, Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
-		float mAcceleration, float mMinSpeed, float mMaxSpeed) : Component{"wall"}, hexagonGame(mHexagonGame), centerPos{mCenterPos},
+		float mAcceleration, float mMinSpeed, float mMaxSpeed) : hexagonGame(mHexagonGame), centerPos{mCenterPos},
 		speed{mSpeed, mAcceleration, mMinSpeed, mMaxSpeed, false}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
 		float div{360.f / hexagonGame.getSides()}, angle{div * side};
