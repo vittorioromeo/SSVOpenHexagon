@@ -206,20 +206,14 @@ namespace hg
 	}
 	void stopAllMusic() { musicPlayer.stop(); }
 	void stopAllSounds() { soundPlayer.stop(); }
-	void playSound(const string& mId)
+	void playSound(const string& mId, SoundPlayer::Mode mMode)
 	{
 		if(getNoSound() || !assetManager.hasSoundBuffer(mId)) return;
-		soundPlayer.play(soundPlayer.create(assetManager.getSoundBuffer(mId)));
+		soundPlayer.play(assetManager.getSoundBuffer(mId), mMode);
 	}
-	void playSoundOnce(const string& mId)
-	{
-		if(getNoSound() || !assetManager.hasSoundBuffer(mId)) return;
-		soundPlayer.play(soundPlayer.create(assetManager.getSoundBuffer(mId)));
-	}
-	void playMusic(const std::string& mId, Time mPlayingOffset) { Music* music{getMusicPtr(mId)}; if(music != nullptr) musicPlayer.play(*music, mPlayingOffset); }
+	void playMusic(const std::string& mId, Time mPlayingOffset) { if(assetManager.hasMusic(mId)) musicPlayer.play(assetManager.getMusic(mId), mPlayingOffset); }
 
 	Font& getFont(const string& mId) 				{ return assetManager.getFont(mId); }
-	Music* getMusicPtr(const string& mId) 			{ return assetManager.hasMusic(mId) ? &assetManager.getMusic(mId) : nullptr; }
 	MusicData getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
 	LevelData getLevelData(const string& mId) 		{ return levelDataMap.find(mId)->second; }

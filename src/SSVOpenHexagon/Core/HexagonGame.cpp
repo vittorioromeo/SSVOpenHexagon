@@ -97,8 +97,8 @@ namespace hg
 	}
 	void HexagonGame::death()
 	{
-		playSoundOnce("death.ogg");
-		playSoundOnce("gameOver.ogg");
+		playSound("death.ogg", SoundPlayer::Mode::Abort);
+		playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
 		if(getInvincible() || status.tutorialMode) return;
 
