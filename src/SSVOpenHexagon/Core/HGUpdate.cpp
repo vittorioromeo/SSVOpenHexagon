@@ -6,6 +6,7 @@
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Core/HexagonGame.h"
+#include "SSVOpenHexagon/Components/CWall.h"
 
 using namespace std;
 using namespace sf;
@@ -27,7 +28,7 @@ namespace hg
 			updateEvents(mFrameTime);
 			updateTimeStop(mFrameTime);
 			updateIncrement();
-			if(mustChangeSides && manager.getComponents("wall").size() <= 0) sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1));
+			if(mustChangeSides && !manager.hasComponent<CWall>()) sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1));
 			updateLevel(mFrameTime);
 			if(getBeatPulse()) updateBeatPulse(mFrameTime);
 			if(getPulse()) updatePulse(mFrameTime);
