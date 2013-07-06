@@ -25,8 +25,8 @@ namespace hg
 			void drawPivot();
 			void drawDeathEffect();
 
-		public:		
-			CPlayer(sses::Entity& mEntity, HexagonGame& mHexagonGame, ssvs::Vec2f mStartPos);
+		public:
+			CPlayer(HexagonGame& mHexagonGame, ssvs::Vec2f mStartPos);
 
 			void update(float mFrameTime) override;
 			void draw() override;

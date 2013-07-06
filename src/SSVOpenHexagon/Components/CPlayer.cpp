@@ -16,7 +16,7 @@ using namespace hg::Utils;
 
 namespace hg
 {
-	CPlayer::CPlayer(Entity& mEntity, HexagonGame& mHexagonGame, Vec2f mStartPos) : Component{mEntity, "player"}, hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
+	CPlayer::CPlayer(HexagonGame& mHexagonGame, Vec2f mStartPos) : Component{"player"}, hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
 
 	void CPlayer::draw()
 	{
