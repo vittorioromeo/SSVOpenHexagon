@@ -103,11 +103,12 @@ namespace hg
 		Vec2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
 		Vec2f pRightCheck{getOrbitFromDegrees(tempPos, angle + 90, 0.01f)};
 
-		for(const auto& wall : getManager().getComponents<CWall>())
+		for(const auto& wall : getManager().getEntities("wall"))
 		{
-			if(movement == -1 && wall->isOverlapping(pLeftCheck)) angle = lastAngle;
-			if(movement == 1 && wall->isOverlapping(pRightCheck)) angle = lastAngle;
-			if(wall->isOverlapping(pos))
+			const auto& cwall(wall->getFirstComponent<CWall>());
+			if(movement == -1 && cwall.isOverlapping(pLeftCheck)) angle = lastAngle;
+			if(movement == 1 && cwall.isOverlapping(pRightCheck)) angle = lastAngle;
+			if(cwall.isOverlapping(pos))
 			{
 				if(!getInvincible()) dead = true;
 				lastPos = getMovedTowards(lastPos, {0, 0}, 5 * hexagonGame.getSpeedMultiplier());
