@@ -26,12 +26,18 @@ function onLoad()
 
 	messageImportantAdd("welcome to the evolution tutorial", 120)
 	messageImportantAdd("today you'll be introduced to...", 120)
-	messageImportantAdd("curving walls!", 100)
+	messageImportantAdd("1. swapping!", 100)
+	messageImportantAdd("2. curving walls!", 100)
+	messageImportantAdd("", 120)
+	messageImportantAdd("press space or middle mouse button\nto swap", 250)
+	messageImportantAdd("it allows you to rotate 180 degrees!", 200)
+	messageImportantAdd("", 120)
 
+	messageImportantAdd("now: curving walls", 120)
 	messageImportantAdd("they can be simple...", 120)
 	messageImportantAdd("", 120 * 3 + 80)
-	
-	wait(120 * 3)
+
+	wait(135 * 8)
 	hmcSimpleBarrage(1)
 	wait(100)
 	hmcSimpleBarrage(-1)
@@ -67,7 +73,7 @@ function onLoad()
 	wait(200)
 
 	messageImportantAdd("they can also do crazy stuff!", 130)
-	messageImportantAdd("", 120 * 5 + 80)
+	messageImportantAdd("", 120 * 9 + 50)
 
 	hmcSimpleCage(2.5, 1)
 	wait(80)
@@ -96,6 +102,12 @@ function onLoad()
 	wait(100)
 	hmcSimpleSpinner(1)
 	hmcSimpleSpinner(-1.2)
+	wait(300)
+
+	messageImportantAdd("well done!", 130)
+	messageImportantAdd("now play some real levels!", 138)
+
+	kill()
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

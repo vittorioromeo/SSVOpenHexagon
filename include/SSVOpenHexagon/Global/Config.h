@@ -90,6 +90,7 @@ namespace hg
 	ssvs::Input::Trigger getTriggerForceRestart();
 	ssvs::Input::Trigger getTriggerRestart();
 	ssvs::Input::Trigger getTriggerScreenshot();
+	ssvs::Input::Trigger getTriggerSwap();
 }
 
 #endif

@@ -55,7 +55,7 @@ namespace hg
 			std::string restartId{""};
 			float difficultyMult{1};
 			int inputMovement{0};
-			bool inputFocused{false}, mustTakeScreenshot{false};
+			bool inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false};
 			FPSWatcher fpsWatcher;
 			sf::Text text{"", getFont("imagine.ttf"), static_cast<unsigned int>(25.f / getZoomFactor())};
 			bool mustChangeSides{false}; // Is the game currently trying to change sides?
@@ -121,7 +121,7 @@ namespace hg
 
 			// Gameplay methods
 			void newGame(const std::string& mId, bool mFirstPlay, float mDifficultyMult);
-			void death();
+			void death(bool mForce = false);
 
 			// Other methods
 			void executeEvents(ssvuj::Value& mRoot, float mTime);
@@ -151,6 +151,7 @@ namespace hg
 
 			// Input
 			bool getInputFocused() const;
+			bool getInputSwap() const;
 			int getInputMovement() const;
 	};
 }

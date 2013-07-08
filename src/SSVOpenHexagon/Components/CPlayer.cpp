@@ -21,7 +21,7 @@ namespace hg
 	void CPlayer::draw()
 	{
 		drawPivot();
-		if(dead && !hexagonGame.getStatus().drawing3D) drawDeathEffect();
+		if(!hexagonGame.getStatus().drawing3D && deadEffectTimer > 0) drawDeathEffect();
 
 		Color colorMain{!dead || hexagonGame.getStatus().drawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f)};
 
@@ -32,6 +32,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
+		if(swapTimer > 0) colorMain = Utils::TransformH(colorMain, 90);
 		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);
@@ -93,11 +94,22 @@ namespace hg
 
 	void CPlayer::update(float mFrameTime)
 	{
+		if(hexagonGame.getStatus().swapEnabled && swapTimer > 0) swapTimer -= mFrameTime;
+		if(hexagonGame.getStatus().tutorialMode && deadEffectTimer > 0) deadEffectTimer -= mFrameTime;
+
 		Vec2f lastPos{pos};
 		float currentSpeed{speed}, lastAngle{angle}, radius{hexagonGame.getRadius()};
 		int movement{hexagonGame.getInputMovement()};
 		if(hexagonGame.getInputFocused()) currentSpeed = focusSpeed;
+
 		angle += currentSpeed * movement * mFrameTime;
+
+		if(hexagonGame.getStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer <= 0)
+		{
+			playSound("swap.ogg");
+			swapTimer = 50;
+			angle += 180;
+		}
 
 		Vec2f tempPos{getOrbitFromDegrees(startPos, angle, radius)};
 		Vec2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
@@ -110,6 +122,7 @@ namespace hg
 			if(movement == 1 && cwall.isOverlapping(pRightCheck)) angle = lastAngle;
 			if(cwall.isOverlapping(pos))
 			{
+				deadEffectTimer = 100;
 				if(!getInvincible()) dead = true;
 				lastPos = getMovedTowards(lastPos, {0, 0}, 5 * hexagonGame.getSpeedMultiplier());
 				pos = lastPos; hexagonGame.death(); return;

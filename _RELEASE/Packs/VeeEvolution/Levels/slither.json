@@ -1,20 +1,20 @@
 {
 	// Level information
-	"id": "disc-o",
-	"name": "disc-o",
-	"description": "dance!",
+	"id": "slither",
+	"name": "slither",
+	"description": "sssssss",
 	"author": "vee",	
-	"menu_priority": 20,
+	"menu_priority": 80,
 	"selectable": true,
 	
 	// Style
-	"style_id": "disc-o",
+	"style_id": "slither",
 	
 	// Music
-	"music_id": "dischipo",
+	"music_id": "pep",
 	
 	// Lua
-	"lua_file": "defaultLevels/disc-o.lua",
+	"lua_file": "defaultLevels/slither.lua",
 	
 	// Difficulty multipliers
 	"difficulty_multipliers": [1.5, 2, 2.5, 0.5, 0.75],
@@ -23,24 +23,25 @@
 	"swap_enabled": true,
 	
 	// Basic values
-	"speed_multiplier": 1.64,
-	"speed_increment": 0.16,
+	"speed_multiplier": 1.03,
+	"speed_increment": 0.07,
 	"rotation_speed": 0.10,
 	"rotation_increment": 0.035,
-	"delay_multiplier": 1.20,
+	"delay_multiplier": 1.25,
 	"delay_increment": 0.03,
 	"fast_spin": 0.00,
-	"sides": 6,
-	"sides_min": 6,
-	"sides_max": 6,
-	"increment_time": 15,
+	"sides": 3,
+	"sides_min": 3,
+	"sides_max": 3,
+	"increment_time": 10,
 	"rotation_speed_max": 0.25,
+	"wall_angle_left": -25,
 	
-	"pulse_min": 79,
+	"pulse_min": 53,
 	"pulse_max": 86,
-	"pulse_speed": 1.45,
-	"pulse_speed_r": 0.62,
-	"pulse_delay_max": 8.9,
+	"pulse_speed": 2.35,
+	"pulse_speed_r": 0.65,
+	"pulse_delay_max": 8.7,
 	
 	"beatpulse_max": 17,
 	"beatpulse_delay_max": 23.8,

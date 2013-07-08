@@ -82,6 +82,8 @@ namespace hg
 			std::string getValueString(const std::string& mValueName) const;
 			void setValueBool(const std::string& mValueName, bool mValue);
 			bool getValueBool(const std::string& mValueName) const;
+
+			bool getSwapEnabled() const;
 	};
 }
 

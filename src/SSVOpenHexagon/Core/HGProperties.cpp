@@ -49,4 +49,5 @@ namespace hg
 
 	bool HexagonGame::getInputFocused() const { return inputFocused; }
 	int HexagonGame::getInputMovement() const { return inputMovement; }
+	bool HexagonGame::getInputSwap() const { return inputSwap; }
 }

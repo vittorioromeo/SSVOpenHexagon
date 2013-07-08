@@ -15,10 +15,10 @@
 	
 	// Lua
 	"lua_file": "defaultLevels/evotutorial.lua",
-	
-	// Difficulty multipliers
-	"difficulty_multipliers": [0.85, 1.25, 1.4],
-	
+
+	// Swap
+	"swap_enabled": true,
+
 	// Basic values
 	"speed_multiplier": 1.00,
 	"speed_increment": 0.045,

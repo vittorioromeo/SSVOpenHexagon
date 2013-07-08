@@ -27,6 +27,7 @@ namespace hg
 
 		add3StateInput(game, getTriggerRotateCCW(), getTriggerRotateCW(), inputMovement);
 		add2StateInput(game, getTriggerFocus(), inputFocused);
+		add2StateInput(game, getTriggerSwap(), inputSwap);
 		game.addInput(getTriggerExit(),			[&](float){ goToMenu(); });
 		game.addInput(getTriggerForceRestart(),	[&](float){ status.mustRestart = true; });
 		game.addInput(getTriggerRestart(),		[&](float){ if(status.hasDied) status.mustRestart = true; });
@@ -59,6 +60,7 @@ namespace hg
 		restartId = mId;
 		restartFirstTime = false;
 		setSides(levelData.getSides());
+		status.swapEnabled = levelData.getSwapEnabled();
 
 		// Manager cleanup
 		manager.clear();
@@ -95,11 +97,11 @@ namespace hg
 		if(depth > get3DMaxDepth()) depth = get3DMaxDepth();
 		for(unsigned int i{0}; i < depth; ++i) depthCameras.push_back({window, {}});
 	}
-	void HexagonGame::death()
+	void HexagonGame::death(bool mForce)
 	{
 		playSound("death.ogg", SoundPlayer::Mode::Abort);
 
-		if(getInvincible() || status.tutorialMode) return;
+		if(!mForce && (getInvincible() || status.tutorialMode)) return;
 		playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
 		status.flashEffect = 255;

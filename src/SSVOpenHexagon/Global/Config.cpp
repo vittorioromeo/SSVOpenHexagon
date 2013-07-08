@@ -231,4 +231,5 @@ namespace hg
 	Trigger getTriggerForceRestart()	{ return getInputTriggerFromJson(root["t_force_restart"]); }
 	Trigger getTriggerRestart()			{ return getInputTriggerFromJson(root["t_restart"]); }
 	Trigger getTriggerScreenshot()		{ return getInputTriggerFromJson(root["t_screenshot"]); }
+	Trigger getTriggerSwap()			{ return getInputTriggerFromJson(root["t_swap"]); }
 }

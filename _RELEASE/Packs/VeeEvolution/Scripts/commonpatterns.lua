@@ -2,7 +2,7 @@ execScript("common.lua")
 
 -- pAltBarrage: spawns a series of cAltBarrage
 function pAltBarrage(mTimes, mStep)
-	delay = getPerfectDelay(THICKNESS) * 5.6
+	delay = getPerfectDelayDM(THICKNESS) * 5.6
 	
 	for i = 0, mTimes do
 		cAltBarrage(i, mStep)
@@ -29,14 +29,14 @@ function pMirrorSpiral(mTimes, mExtra)
 	
 	THICKNESS = oldThickness
 	
-	wait(getPerfectDelay(THICKNESS) * 6.5)
+	wait(getPerfectDelayDM(THICKNESS) * 6.5)
 end
 
 -- pMirrorSpiralDouble: spawns a spiral of rWallEx where you need to change direction
 function pMirrorSpiralDouble(mTimes, mExtra)
 	oldThickness = THICKNESS
 	THICKNESS = getPerfectThickness(THICKNESS)
-	delay = getPerfectDelay(THICKNESS)
+	delay = getPerfectDelayDM(THICKNESS)
 	startSide = getRandomSide()
 	currentSide = startSide
 	loopDir = getRandomDir()	
@@ -64,12 +64,12 @@ function pMirrorSpiralDouble(mTimes, mExtra)
 	end
 	
 	THICKNESS = oldThickness
-	wait(getPerfectDelay(THICKNESS) * 7.5)
+	wait(getPerfectDelayDM(THICKNESS) * 7.5)
 end
 
 -- pBarrageSpiral: spawns a spiral of cBarrage
 function pBarrageSpiral(mTimes, mDelayMult, mStep)
-	delay = getPerfectDelay(THICKNESS) * 5.6 * mDelayMult
+	delay = getPerfectDelayDM(THICKNESS) * 5.6 * mDelayMult
 	startSide = getRandomSide()
 	loopDir = mStep * getRandomDir()	
 	j = 0
@@ -81,7 +81,7 @@ function pBarrageSpiral(mTimes, mDelayMult, mStep)
 		if(getSides() < 6) then wait(delay * 0.6) end
 	end
 	
-	wait(getPerfectDelay(THICKNESS) * 6.1)
+	wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 -- pDMBarrageSpiral: spawns a spiral of cBarrage, with static delay
@@ -98,12 +98,12 @@ function pDMBarrageSpiral(mTimes, mDelayMult, mStep)
 		if(getSides() < 6) then wait(delay * 0.49) end
 	end
 	
-	wait(getPerfectDelay(THICKNESS) * (6.7 * (getDifficultyMult() ^ 0.50)))
+	wait(getPerfectDelayDM(THICKNESS) * (6.7 * (getDifficultyMult() ^ 0.50)))
 end
 
 -- pWallExVortex: spawns left-left right-right spiral patters
 function pWallExVortex(mTimes, mStep, mExtraMult)
-	delay = getPerfectDelay(THICKNESS) * 5.0 
+	delay = getPerfectDelayDM(THICKNESS) * 5.0 
 	startSide = getRandomSide()
 	loopDir = getRandomDir()
 	currentSide = startSide
@@ -124,12 +124,12 @@ function pWallExVortex(mTimes, mStep, mExtraMult)
 		end
 	end
 	
-	wait(getPerfectDelay(THICKNESS) * 5.5)
+	wait(getPerfectDelayDM(THICKNESS) * 5.5)
 end
 
 -- pInverseBarrage: spawns two barrages who force you to turn 180 degrees
 function pInverseBarrage(mTimes)
-	delay = getPerfectDelay(THICKNESS) * 9.9
+	delay = getPerfectDelayDM(THICKNESS) * 9.9
 	startSide = getRandomSide()
 	
 	for i = 0, mTimes do
@@ -140,7 +140,7 @@ function pInverseBarrage(mTimes)
 		wait(delay)
 	end
 	
-	wait(getPerfectDelay(THICKNESS) * 2.5)
+	wait(getPerfectDelayDM(THICKNESS) * 2.5)
 end
 
 -- pRandomBarrage: spawns barrages with random side, and waits humanly-possible times depending on the sides distance
@@ -152,15 +152,15 @@ function pRandomBarrage(mTimes, mDelayMult)
 		cBarrage(side)
 		oldSide = side
 		side = getRandomSide()
-		wait(getPerfectDelay(THICKNESS) * (2 + (getSideDistance(side, oldSide)*mDelayMult)))
+		wait(getPerfectDelayDM(THICKNESS) * (2 + (getSideDistance(side, oldSide)*mDelayMult)))
 	end
 	
-	wait(getPerfectDelay(THICKNESS) * 5.6)
+	wait(getPerfectDelayDM(THICKNESS) * 5.6)
 end
 
 -- pMirrorWallStrip: spawns rWalls close to one another on the same side
 function pMirrorWallStrip(mTimes, mExtra)
-	delay = getPerfectDelay(THICKNESS) * 3.65
+	delay = getPerfectDelayDM(THICKNESS) * 3.65
 	startSide = getRandomSide()
 	
 	for i = 0, mTimes do
@@ -168,7 +168,7 @@ function pMirrorWallStrip(mTimes, mExtra)
 		wait(delay)
 	end
 	
-	wait(getPerfectDelay(THICKNESS) * 5.00)
+	wait(getPerfectDelayDM(THICKNESS) * 5.00)
 end
 
 -- pTunnel: forces you to circle around a very thick wall

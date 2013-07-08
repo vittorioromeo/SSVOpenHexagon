@@ -147,6 +147,11 @@ namespace hg
 		lua.writeVariable("tutorialMode", [=]{ status.tutorialMode = true; });
 		lua.writeVariable("stopIncrement", [=]{ status.incrementEnabled = false; });
 		lua.writeVariable("startIncrement", [=]{ status.incrementEnabled = true; });
+
+		lua.writeVariable("disableSwap", [=]{ status.swapEnabled = false; });
+		lua.writeVariable("enableSwap", [=]{ status.swapEnabled = true; });
+
+		lua.writeVariable("kill", [=]{ timeline.append<Do>([=]{ death(true); }); });
 	}
 	void HexagonGame::runLuaFile(const string& mFileName)
 	{

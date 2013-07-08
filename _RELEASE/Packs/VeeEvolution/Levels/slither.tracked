@@ -1,0 +1,10 @@
+{
+	// LUA tracked variables
+	"tracked": 
+	[
+		["level", "level"],
+		["next at", "incrementTime"],
+		["special", "special"],
+		["range", "range"]
+	]
+}
