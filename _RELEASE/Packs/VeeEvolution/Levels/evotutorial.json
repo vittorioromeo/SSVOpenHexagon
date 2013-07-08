@@ -1,20 +1,20 @@
 {
 	// Level information
-	"id": "acceleradiant",
-	"name": "acceleradiant",
-	"description": "dunno lol",
+	"id": "evotutorial",
+	"name": "evotutorial",
+	"description": "learn new game mechanics here!",
 	"author": "vee",	
-	"menu_priority": 20,
+	"menu_priority": 0,
 	"selectable": true,
 	
 	// Style
-	"style_id": "acceleradiant",
+	"style_id": "evotutorial",
 	
 	// Music
-	"music_id": "mrGawne",
+	"music_id": "gmoomh",
 	
 	// Lua
-	"lua_file": "defaultLevels/acceleradiant.lua",
+	"lua_file": "defaultLevels/evotutorial.lua",
 	
 	// Difficulty multipliers
 	"difficulty_multipliers": [0.85, 1.25, 1.4],

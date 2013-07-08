@@ -26,14 +26,12 @@ function onLoad()
 
 	messageImportantAdd("welcome to the evolution tutorial", 120)
 	messageImportantAdd("today you'll be introduced to...", 120)
-	messageImportantAdd("1. curving walls", 100)
-	messageImportantAdd("2. restrictions", 100)
-	messageImportantAdd("let's start with curving walls!", 120)
+	messageImportantAdd("curving walls!", 100)
 
 	messageImportantAdd("they can be simple...", 120)
-	messageImportantAdd("", 120 * 5 + 80)
+	messageImportantAdd("", 120 * 3 + 80)
 	
-	wait(120 * 5)
+	wait(120 * 3)
 	hmcSimpleBarrage(1)
 	wait(100)
 	hmcSimpleBarrage(-1)
@@ -56,7 +54,7 @@ function onLoad()
 	hmcSimpleTwirl(5, -2.5, 0.3)
 
 	messageImportantAdd("...or can accellerate!", 130)
-	messageImportantAdd("", 120 * 5 + 80)
+	messageImportantAdd("", 120 * 4 + 40)
 	wait(130)
 
 	hmcBarrage(0, 0.05, -1.5, 3, true)
@@ -68,7 +66,7 @@ function onLoad()
 	hmcBarrage(0, 0.1, -3, 3, true)
 	wait(200)
 
-	messageImportantAdd("they can also do crazy stuff", 120)
+	messageImportantAdd("they can also do crazy stuff!", 130)
 	messageImportantAdd("", 120 * 5 + 80)
 
 	hmcSimpleCage(2.5, 1)
@@ -103,12 +101,6 @@ end
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()	
-	-- addPattern(keys[index])
-	-- index = index + 1
-	
-	-- if index - 1 == table.getn(keys) then
---		index = 1
---	end
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
@@ -120,10 +112,7 @@ function onUnload()
 end
 
 -- continuous direction change (even if not on level increment)
-dirChangeTime = 400
-hueIMin = 0.0
-hueIMax = 22.0
-hueIStep = 0.0065
+dirChangeTime = 600
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
@@ -135,8 +124,4 @@ function onUpdate(mFrameTime)
 			dirChangeTime = 400
 		end
 	end 
-
-	setStyleValueFloat("hue_increment", getStyleValueFloat("hue_increment") + hueIStep)
-	if(getStyleValueFloat("hue_increment") > hueIMax) then hueIStep = hueIStep * -1 end
-	if(getStyleValueFloat("hue_increment") < hueIMin) then hueIStep = hueIStep * -1 end
 end
