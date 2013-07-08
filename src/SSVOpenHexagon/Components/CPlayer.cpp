@@ -105,7 +105,7 @@ namespace hg
 
 		for(const auto& wall : getManager().getEntities("wall"))
 		{
-			const auto& cwall(wall->getFirstComponent<CWall>());
+			const auto& cwall(wall->getComponent<CWall>());
 			if(movement == -1 && cwall.isOverlapping(pLeftCheck)) angle = lastAngle;
 			if(movement == 1 && cwall.isOverlapping(pRightCheck)) angle = lastAngle;
 			if(cwall.isOverlapping(pos))
