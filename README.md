@@ -26,12 +26,10 @@ cd SSVOpenHexagon
 
 4. If your distribution packages SFML 2 you can install it through your package manager otherwise build and install it [manually](http://sfmlcoder.wordpress.com/2011/08/16/building-sfml-2-0-with-make-for-gcc/) - you can also try the [Ubuntu PPA](https://github.com/SFML/ubuntu-sfml/wiki) or the [official binaries](http://sfml-dev.org/download/sfml/2.0/)
 
-5. Open Hexagon requires `liblua5.1-dev` and `sparsehash` libraries to compile
+5. Open Hexagon requires `liblua5.1-dev` library to compile
 ```bash
 sudo apt-get install liblua5.1-dev
 ```
-If your distribution doesn't package sparsehash 2 you can get latest version [from here](https://code.google.com/p/sparsehash/downloads/list)
-
 6. Build dependencies and Open Hexagon
 ```bash
 cd SSVOpenHexagon
@@ -59,7 +57,7 @@ cd SSVOpenHexagon
 
 4. Install dependencies 
 ```bash
-sudo pacman -S sfml lua51 sparsehash
+sudo pacman -S sfml lua51
 ```
 
 5. Build dependencies and Open Hexagon
