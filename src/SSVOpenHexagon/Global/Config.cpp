@@ -162,6 +162,12 @@ namespace hg
 		recalculateSizes();
 	}
 
+	void refreshWindowSize(unsigned int mWidth, unsigned int mHeight)
+	{
+		windowedWidth = mWidth;
+		windowedHeight = mHeight;
+	}
+
 	void setOnline(bool mOnline)				{ online = mOnline; if(mOnline) Online::startCheckUpdates(); }
 	void setOfficial(bool mOfficial)			{ official = mOfficial; }
 	void setNoRotation(bool mNoRotation)		{ noRotation = mNoRotation; }
@@ -201,7 +207,7 @@ namespace hg
 	bool getVsync()						{ return vsync; }
 	bool getAutoZoomFactor()			{ return getOfficial() ? true : autoZoomFactor; }
 	bool getFullscreen()				{ return fullscreen; }
-	float getVersion() 					{ return 1.93f; }
+	float getVersion() 					{ return 2.00f; }
 	bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
 	bool getFullscreenAutoResolution() 	{ return fullscreenAutoResolution; }
 	unsigned int getFullscreenWidth()	{ return fullscreenWidth; }

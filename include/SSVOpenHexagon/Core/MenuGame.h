@@ -32,11 +32,12 @@ namespace hg
 			States state{States::PROFILES};
 			ssvms::Menu optionsMenu;
 			std::string scoresMessage;
-			float exitTimer{0};
+			float exitTimer{0}, currentCreditsId{0};
 			bool mustTakeScreenshot{false};
-			std::string currentLeaderboard{""}, currentPlayerScore{""}, enteredString{""}, leaderboardString{""}, friendsString{""};
+			std::string currentLeaderboard, currentPlayerScore, enteredString, leaderboardString, friendsString;
 			std::vector<char> enteredChars;
 			std::vector<std::string> friendsScores;
+			std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png"};
 
 			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")}, creditsBar1{getAssetManager().getTexture("creditsBar1.png")},
 			creditsBar2{getAssetManager().getTexture("creditsBar2.png")}, bottomBar{getAssetManager().getTexture("bottomBar.png")};

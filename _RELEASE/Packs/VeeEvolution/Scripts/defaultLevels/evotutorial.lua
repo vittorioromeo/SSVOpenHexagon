@@ -102,7 +102,7 @@ function onLoad()
 	wait(100)
 	hmcSimpleSpinner(1)
 	hmcSimpleSpinner(-1.2)
-	wait(300)
+	wait(600)
 
 	messageImportantAdd("well done!", 130)
 	messageImportantAdd("now play some real levels!", 138)

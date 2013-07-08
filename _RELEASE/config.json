@@ -7,9 +7,9 @@
 
 	// Window options
 	"fullscreen": true,
-	"fullscreen_auto_resolution": true,
-	"fullscreen_width": 1024,
-	"fullscreen_height": 768,
+	"fullscreen_auto_resolution": false,
+	"fullscreen_width": 1920,
+	"fullscreen_height": 1080,
 	"windowed_auto_resolution": false,
 	"windowed_width": 1024,
 	"windowed_height": 768,

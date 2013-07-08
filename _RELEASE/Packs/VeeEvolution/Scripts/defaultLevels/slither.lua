@@ -17,26 +17,23 @@ keys = { 0 }
 keys = shuffle(keys)
 index = 0
 
-specials = { "none" }
-special = "none"
-
-smin = 3
-smax = 3
+smin = 2
+smax = 2
 
 level = 1
 incrementTime = 10
 
-range = "("..smin.."/"..smax.."]"
+range = "("..(smin * 2).."/"..(smax * 2).."]"
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	messageAdd("remember you can focus with lshift!", 150)
+	messageAdd("remember, you can focus with lshift!", 150)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()	
-	setLevelValueInt("sides", math.random(smin, smax))
+	setLevelValueInt("sides", math.random(smin, smax) * 2)
 	hmcDefSpinnerSpiralAcc()
 end
 
@@ -47,27 +44,18 @@ function onIncrement()
 	incrementTime = incrementTime + 5
 	messageImportantAdd("level: "..(level).." / time: "..incrementTime, 150)
 
-	if smax < 7 then
+	if smax < 4 then
 		smax = smax + 1;
 	else
 		smin = smin + 1;
 		smax = smin;
 	end
 
-	range = "("..smin.."/"..smax.."]"
+	range = "("..(smin * 2).."/"..(smax * 2).."]"
 	messageImportantAdd("Range: "..range, 100)
 
 	setLevelValueInt("sides", getSides() + 2)
 	setLevelValueInt("increment_time", incrementTime)
-
-	specials = shuffle(specials)
-
-	if special == "none" then
-		special = specials[1]
-		messageImportantAdd("Special: "..special, 100)
-	else
-		special = "none"
-	end
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted

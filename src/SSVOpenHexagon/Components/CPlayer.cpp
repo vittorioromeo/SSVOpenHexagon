@@ -107,7 +107,7 @@ namespace hg
 		if(hexagonGame.getStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer <= 0)
 		{
 			playSound("swap.ogg");
-			swapTimer = 50;
+			swapTimer = 40;
 			angle += 180;
 		}
 
@@ -122,7 +122,7 @@ namespace hg
 			if(movement == 1 && cwall.isOverlapping(pRightCheck)) angle = lastAngle;
 			if(cwall.isOverlapping(pos))
 			{
-				deadEffectTimer = 100;
+				deadEffectTimer = 80;
 				if(!getInvincible()) dead = true;
 				lastPos = getMovedTowards(lastPos, {0, 0}, 5 * hexagonGame.getSpeedMultiplier());
 				pos = lastPos; hexagonGame.death(); return;

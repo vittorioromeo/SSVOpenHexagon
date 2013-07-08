@@ -21,6 +21,8 @@ namespace hg
 	void recalculateSizes();
 	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
+	void refreshWindowSize(unsigned int mWidth, unsigned int mHeight);
+
 	void setOnline(bool mOnline);
 	void setOfficial(bool mOfficial);
 	void setNoRotation(bool mNoRotation);

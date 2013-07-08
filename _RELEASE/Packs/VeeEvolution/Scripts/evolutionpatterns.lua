@@ -4,8 +4,10 @@ execScript("utils.lua")
 execScript("alternativepatterns.lua")
 execScript("nextpatterns.lua")
 
+hueModifier = 0.2
+
 function wallHMCurveAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
-	wallHModCurveData(0.2, mSide, THICKNESS, mCurve * (getDifficultyMult() ^ 0.25), mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
+	wallHModCurveData(hueModifier, mSide, THICKNESS, mCurve * (getDifficultyMult() ^ 0.25), mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 end
 
 function wallHMCurve(mSide, mCurve)
@@ -92,9 +94,9 @@ function hmcSimpleSpinnerSAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mC
 end
 
 function hmcDefSpinner()
-	wait(getPerfectDelayDM(THICKNESS) * 3.1)
-	hmcSimpleSpinner(math.random(10, 20) / 10.0 * getRandomDir())
-	wait(getPerfectDelayDM(THICKNESS) * 5)
+	wait(getPerfectDelayDM(THICKNESS) * 3.2)
+	hmcSimpleSpinner(math.random(10, 19) / 10.0 * getRandomDir())
+	wait(getPerfectDelayDM(THICKNESS) * 5.9)
 end
 
 function hmcDefBarrage()
@@ -104,6 +106,7 @@ function hmcDefBarrage()
 end
 
 function hmcDef2Cage()
+	wait(getPerfectDelayDM(THICKNESS) * 2.1)
 	side = getRandomSide()
 	rndspd = math.random(10, 20) / 10.0
 
@@ -113,11 +116,33 @@ function hmcDef2Cage()
 	hmcSimpleCageS(rndspd, -1, side)
 	wait(getPerfectDelayDM(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	wait(getPerfectDelayDM(THICKNESS) * 5)
+	wait(getPerfectDelayDM(THICKNESS) * 5.3)
+end
+
+function hmcDef2CageD()
+	wait(getPerfectDelayDM(THICKNESS) * 2.1)
+
+	side = getRandomSide()
+	oppositeSide = getHalfSides() + side
+	rndspd = math.random(10, 17) / 10.0
+
+	wait(getPerfectDelayDM(THICKNESS) * 3.1)
+	hmcSimpleCageS(rndspd, -1, side)
+	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	hmcSimpleCageS(rndspd, -1, side)
+	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	hmcSimpleCageS(rndspd, -1, side)
+	wait(getPerfectDelayDM(THICKNESS) * 6.0)
+	hmcSimpleCageS(rndspd, -1, oppositeSide)
+	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	hmcSimpleCageS(rndspd, -1, oppositeSide)
+	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	hmcSimpleCageS(rndspd, -1, oppositeSide)
+	wait(getPerfectDelayDM(THICKNESS) * 9.2)
 end
 
 function hmcSimpleBarrageSpiral(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
-	delay = getPerfectDelayDM(THICKNESS) * 5.6 * mDelayMult
+	delay = getPerfectDelayDM(THICKNESS) * 6.2 * mDelayMult
 	startSide = getRandomSide()
 	loopDir = mStep * getRandomDir()	
 	j = 0
@@ -126,7 +151,20 @@ function hmcSimpleBarrageSpiral(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
 		hmcSimpleBarrageSNeigh(startSide + j, mCurve, mNeighbors)
 		j = j + loopDir
 		wait(delay)
-		if(getSides() < 6) then wait(delay * 0.6) end
+		if(getSides() < 6) then wait(delay * 0.7) end
+	end
+	
+	wait(getPerfectDelayDM(THICKNESS) * 6.1)
+end
+
+function hmcSimpleBarrageSpiralRnd(mTimes, mDelayMult, mCurve, mNeighbors)
+	delay = getPerfectDelayDM(THICKNESS) * 6.2 * mDelayMult
+	startSide = getRandomSide()
+	
+	for i = 0, mTimes do
+		hmcSimpleBarrageSNeigh(getRandomSide(), mCurve, mNeighbors)
+		wait(delay)
+		if(getSides() < 6) then wait(delay * 0.7) end
 	end
 	
 	wait(getPerfectDelayDM(THICKNESS) * 6.1)
@@ -149,14 +187,37 @@ function hmcSimpleBarrageSpiralStatic(mTimes, mDelayMult, mStep, mCurve, mNeighb
 end
 
 function hmcDefBarrageSpiral()
-	hmcSimpleBarrageSpiral(math.random(2, 5), 1, 1, math.random(5, 15) / 10.0 * getRandomDir(), 0)
+	hmcSimpleBarrageSpiral(math.random(1, 3), 1, 1, math.random(5, 15) / 10.0 * getRandomDir(), 0)
+end
+
+function hmcDefBarrageSpiralRnd()
+	hmcSimpleBarrageSpiralRnd(math.random(1, 3), 1, math.random(5, 15) / 10.0 * getRandomDir(), 0)
+end
+
+function hmcDefBarrageSpiralFast()
+	hmcSimpleBarrageSpiral(math.random(1, 3), 0.8, 1, math.random(5, 15) / 10.0 * getRandomDir(), 0)
 end
 
 function hmcDefBarrageSpiralSpin()
 	hmcSimpleBarrageSpiralStatic(math.random(7, 14), 0.25, 1, math.random(5, 18) / 10.0 * getRandomDir(), 2)
 end
 
+function hmcDefBarrageInv()
+	wait(getPerfectDelayDM(THICKNESS) * 2.0)
+	delay = getPerfectDelay(THICKNESS) * 5.6 
+	side = getRandomSide()
+	rndspd = math.random(10, 20) / 10.0
+	oppositeSide = getRandomSide() + getHalfSides()
+
+	hmcSimpleBarrageSNeigh(side, rndspd * getRandomDir(), 0)
+	wait(delay)
+
+	hmcSimpleBarrageSNeigh(oppositeSide, rndspd * getRandomDir(), 0)
+	wait(delay)
+end
+
 function hmcDefAccelBarrage()
+	wait(getPerfectDelayDM(THICKNESS) * 1.5)
 	c = math.random(50, 100) / 1000.0 * getRandomDir()
 	min = math.random(5, 35) / 10.0 * -1
 	max = math.random(5, 35) / 10.0
@@ -165,6 +226,7 @@ function hmcDefAccelBarrage()
 end
 
 function hmcDefAccelBarrageDouble()
+	wait(getPerfectDelayDM(THICKNESS) * 1.5)
 	c = math.random(50, 100) / 1000.0 * getRandomDir()
 	min = math.random(5, 35) / 10.0 * -1
 	max = math.random(5, 35) / 10.0
@@ -175,6 +237,7 @@ function hmcDefAccelBarrageDouble()
 end
 
 function hmcDefSpinnerSpiral()
+	wait(getPerfectDelayDM(THICKNESS) * 1.5)
 	side = getRandomSide()
 	c = math.random(10, 20) / 10.0 * getRandomDir()
 
@@ -188,15 +251,21 @@ function hmcDefSpinnerSpiral()
 	wait(getPerfectDelayDM(THICKNESS) * 5)
 end
 
-function getRndDM(mNum)
-	return math.random(mNum - getDifficultyMult() ^ 1.25, mNum + getDifficultyMult() ^ 1.25)
+function getRndMinDM(mNum)
+	return math.random(mNum - getDifficultyMult() ^ 3, mNum)
+end
+
+function getRndMaxDM(mNum)
+	return math.random(mNum, mNum + getDifficultyMult() ^ 2.25)
 end
 
 function hmcDefSpinnerSpiralAcc()
+	wait(getPerfectDelayDM(THICKNESS) * 2.1)
+	wait(getPerfectDelayDM(THICKNESS) * 2.1)
 	side = getRandomSide()
-	acc = math.random(50, 100) / 1000.0 * getRandomDir()
-	min = math.random(getRndDM(12), getRndDM(28)) / 10.0 * -1
-	max = math.random(getRndDM(12), getRndDM(28)) / 10.0
+	acc = math.random(getRndMinDM(50), getRndMaxDM(100)) / 1000.0 * getRandomDir()
+	min = math.random(getRndMinDM(12), getRndMaxDM(28)) / 10.0 * -1
+	max = math.random(getRndMinDM(12), getRndMaxDM(28)) / 10.0
 
 	wait(getPerfectDelayDM(THICKNESS) * 3.1)
 
@@ -205,5 +274,5 @@ function hmcDefSpinnerSpiralAcc()
 		wait(getPerfectDelay(THICKNESS) * 0.8)
 	end
 
-	wait(getPerfectDelayDM(THICKNESS) * 5)
+	wait(getPerfectDelayDM(THICKNESS) * 5.3)
 end

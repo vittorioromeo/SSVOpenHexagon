@@ -46,6 +46,8 @@ namespace hg
 		getAssetManager().getTexture("titleBar.png").setSmooth(true);
 		getAssetManager().getTexture("creditsBar1.png").setSmooth(true);
 		getAssetManager().getTexture("creditsBar2.png").setSmooth(true);
+		getAssetManager().getTexture("creditsBar2b.png").setSmooth(true);
+		getAssetManager().getTexture("creditsBar2c.png").setSmooth(true);
 		getAssetManager().getTexture("bottomBar.png").setSmooth(true);
 
 		titleBar.setOrigin({0, 0});
@@ -54,7 +56,7 @@ namespace hg
 
 		versionText.setString(toStr(getVersion()));
 		versionText.setColor(Color::White);
-		versionText.setPosition(titleBar.getPosition() + Vec2f{titleBar.getGlobalBounds().width - 97, titleBar.getGlobalBounds().top});
+		versionText.setPosition(titleBar.getPosition() + Vec2f{titleBar.getGlobalBounds().width - 42, titleBar.getGlobalBounds().top});
 
 		creditsBar1.setOrigin({1024, 0});
 		creditsBar1.setScale({0.373f, 0.373f});
@@ -282,6 +284,9 @@ namespace hg
 
 	void MenuGame::update(float mFrameTime)
 	{
+		currentCreditsId += mFrameTime;
+		creditsBar2.setTexture(getAssetManager().getTexture(creditsIds[static_cast<int>(currentCreditsId / 100) % 3]));
+
 		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
 
 		updateLeaderboard();
