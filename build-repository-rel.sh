@@ -88,7 +88,7 @@ echo "Copying system libraries..."
 x86Folder="${destinationDir}/x86/"
 mkdir "${x86Folder}"
 
-cp -av "${cmakePrefixPath}/lib/"* "${x86Folder}"
+cp -av "${cmakePrefixPath}/usr/local/lib/"* "${x86Folder}"
 echo "Removing temp directories..."
 rm -Rf "${cmakePrefixPath}"
 

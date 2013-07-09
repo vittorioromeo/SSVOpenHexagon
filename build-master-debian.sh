@@ -7,4 +7,4 @@ git clone https://github.com/LaurentGomila/SFML
 (cd SFML; mkdir build; cd build; cmake ..; make -j4; make install -j4)
 
 git clone https://github.com/SuperV1234/SSVOpenHexagon -b curveWalls
-(cd SSVOpenHexagon; ./init-repository.sh; mkdir "/home/OH/"; ./build-repository-rel.sh "/home/OH/")
+(cd SSVOpenHexagon; ./init-repository.sh; mkdir "/home/OH/"; ./build-repository-oh.sh; ./build-repository-rel.sh "/home/OH/")
