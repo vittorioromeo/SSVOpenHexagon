@@ -80,7 +80,7 @@ sudo ldconfig /usr/local/lib
 
 7. Download assets
 ```bash
-./wget-assets.sh
+./wget-assets.sh ./_RELEASE/
 ```
 
 8. Open Hexagon should now be installed on your system - play!
