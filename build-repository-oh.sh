@@ -26,16 +26,15 @@ function die() {
 function buildLib
 {
 	local LIBNAME="$1"
-	local ULIBNAME=$(echo "$1" | tr '[:lower:]' '[:upper:]')
 
-	echo "Building $ULIBNAME..."
+	echo "Building $LIBNAME..."
   	cd $LIBNAME # Enter lib main directory (where CMakeLists.txt is)
   	rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory1
   	mkdir build; cd build # Create and move to the build directory
   	rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
 
 	# Run CMake, make and make install
-	cmake ../ -D"$ULIBNAME"_BUILD_SHARED_LIB=$BUILDSHARED -DCMAKE_BUILD_TYPE=$BUILDTYPE || \
+	cmake ../ -DBUILD_SHARED_LIB=$BUILDSHARED -DCMAKE_BUILD_TYPE=$BUILDTYPE || \
 		die 1 "cmake failed"
 
 	make -j$MAKEJOBS || \
@@ -45,7 +44,7 @@ function buildLib
 		die 1 "make install failed"
 
 	cd ../.. # Go back to extlibs directory
-	echo "Finished building $ULIBNAME..."
+	echo "Finished building $LIBNAME..."
 }
 
 cd extlibs  # Start building... Enter extlibs, and build extlibs
