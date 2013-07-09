@@ -128,21 +128,11 @@ SFML/
 lua/
 	include/
 	lib/
-
 ```
 
-5. Build dependencies and Open Hexagon using `cmake-gui`
-```bash
-cd SSVOpenHexagon
-cmake-gui 
-```
+10. Build with `./build-win.bat`
 
-6. You may have to append `/usr/local/lib` to the `$PATH` or `$LD_LIBRARY_PATH` environment variables to allow Open Hexagon to find the required libraries - if that doesn't work, try:
-```bash
-sudo ldconfig /usr/local/lib  
-```
-
-7. Download assets
+11. Download assets with `git bash`
 ```bash
 ./wget-assets.sh ./_RELEASE/
 ```
