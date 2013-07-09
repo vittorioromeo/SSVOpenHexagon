@@ -16,4 +16,4 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 cd "$1"
-wget -r -nH --cut-dirs=4 --no-parent -e robots=off --reject="*index.html*" "http://vittorioromeo.info/Misc/Linked/OHResources/$FOLDERNAME"
+wget -r -nH --cut-dirs=4 --no-parent -e robots=off --reject="*index.html*" "http://vittorioromeo.info/Misc/Linked/OHResources/$FOLDERNAME/"
