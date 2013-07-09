@@ -69,7 +69,7 @@ echo "Building $PROJECTNAME..."
 rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory
 
 ## Run CMake, make and make install
-cmake ../ $CMAKEFLAGS
+cmake ./ $CMAKEFLAGS
 make -j$MAKEJOBS; make install -j$MAKEJOBS
 
 cd ..
