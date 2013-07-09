@@ -38,8 +38,8 @@
 	// Audio options
 	"no_sound": false,
 	"no_music": false,
-	"sound_volume": 100,
-	"music_volume": 75,	
+	"sound_volume": 40,
+	"music_volume": 35,	
 	
 	// Player options
 	"player_speed": 9.45, // Ignored in official mode
