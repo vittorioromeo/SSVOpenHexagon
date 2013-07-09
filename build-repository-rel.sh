@@ -102,7 +102,7 @@ cp -av "/usr/lib/i386-linux-gnu/"libGLEW*.so* "$DESTLIBPATH"
 cp -av "/usr/lib/i386-linux-gnu/"libopenal*.so* "$DESTLIBPATH"
 cp -av "/usr/lib/i386-linux-gnu/"libstdc++*.so* "$DESTLIBPATH"
 
-mv "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/SSVOpenHexagon" "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/x86"
+mv -f "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/SSVOpenHexagon" "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/x86"
 chmod 777 "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/x86/SSVOpenHexagon"
 
 touch "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
@@ -112,9 +112,9 @@ echo '#!/bin/bash' > "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
 echo 'export LD_LIBRARY_PATH=./x86/; ./x86/SSVOpenHexagon' >> "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
 
 chmod a+x "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
-mv "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon" "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon.sh"
+mv -f "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon" "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon.sh"
 
-mv "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon" "$1/"
+mv -f "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon" "$1/"
 rm "$1/"[!S]* -Rf
 
 find "$1" -name *'.so' | xargs strip -s -g
