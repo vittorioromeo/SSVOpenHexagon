@@ -27,14 +27,11 @@ fi
 LIBS=("SSVJsonCpp" "SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
 
 function warn() {
-	echo "Error occured in: `pwd`"
-	echo "Error was: "$@
+	echo "Error occured in: `pwd`"; echo "Error was: "$@
 }
 
 function die() {
-	status=$1; shift
-	warn "$@" >&2
-	exit $status
+	status=$1; shift; warn "$@" >&2; exit $status
 }
 
 # Builds a lib, with name $1 - calls CMake, make -j and make install -j
@@ -44,9 +41,7 @@ function buildLib
 
 	echo "Building $LIBNAME..."
   	cd $LIBNAME # Enter lib main directory (where CMakeLists.txt is)
-  	rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory1
   	mkdir build; cd build # Create and move to the build directory
-  	rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
 
 	# Run CMake, make and make install
 	cmake ../ -DBUILD_SHARED_LIB=$BUILDSHARED $CMAKEFLAGS || \
@@ -66,9 +61,8 @@ cd extlibs  # Start building... Enter extlibs, and build extlibs
 for LIB in ${LIBS[*]}; do buildLib $LIB; done
 cd .. # Now we are in the main folder
 echo "Building $PROJECTNAME..."
-rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory
 mkdir build; cd build # Create and move to the build directory
-rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
+
 
 ## Run CMake, make and make install
 cmake ../ $CMAKEFLAGS
@@ -76,3 +70,45 @@ make -j$MAKEJOBS; make install -j$MAKEJOBS
 
 cd ..
 echo "Finished building $PROJECTNAME..."
+echo "copying libraries"
+
+DESTLIBPATH="${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/x86/"
+mkdir "${DESTLIBPATH}"
+
+echo $DESTLIBPATH
+echo "${CMAKE_PREFIX_PATH}lib/*"
+
+cp -av --preserve=links "${CMAKE_PREFIX_PATH}lib/"* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/local/lib/"libsfml*[!d].so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/local/lib/"libfreetype*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/local/lib/"libjpeg*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/local/lib/"liblua*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/local/lib/"libGLEW*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/local/lib/"libopenal*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/local/lib/"libstdc++*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/local/lib/"libsfml*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/lib/"libsfml*[!d].so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/lib/"libfreetype*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/lib/"libjpeg*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/lib/"liblua*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/lib/"libGLEW*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/lib/"libopenal*.so.* "$DESTLIBPATH"
+cp -av --preserve=links "/usr/lib/"libstdc++*.so.* "$DESTLIBPATH"
+
+mv "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/SSVOpenHexagon" "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/x86"
+chmod 777 "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/x86/SSVOpenHexagon"
+
+touch "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
+chmod 777 "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
+
+echo '#!/bin/bash' > "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
+echo 'export LD_LIBRARY_PATH=./x86/; ./x86/SSVOpenHexagon' >> "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
+
+chmod a+x "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon"
+mv "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon" "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon/OpenHexagon.sh"
+
+mv "${CMAKE_PREFIX_PATH}games/SSVOpenHexagon" "$1/"
+rm "$1/"[!S]* -Rf
+
+find "$1" -name *'.so' | xargs strip -s -g
+find "$1" -name 'SSVOpenHexagon'* | xargs strip -s -g
