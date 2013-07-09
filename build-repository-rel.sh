@@ -67,9 +67,11 @@ for LIB in ${LIBS[*]}; do buildLib $LIB; done
 cd .. # Now we are in the main folder
 echo "Building $PROJECTNAME..."
 rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory
+mkdir build; cd build # Create and move to the build directory
+rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
 
 ## Run CMake, make and make install
-cmake ./ $CMAKEFLAGS
+cmake ../ $CMAKEFLAGS
 make -j$MAKEJOBS; make install -j$MAKEJOBS
 
 cd ..
