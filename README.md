@@ -32,8 +32,12 @@ sudo apt-get install liblua5.1-dev
 ```
 6. Build dependencies and Open Hexagon
 ```bash
-cd SSVOpenHexagon
 ./build-repository-oh.sh
+```
+
+7. Download assets
+```bash
+./wget-assets.sh
 ```
 
 7. Open Hexagon should now be installed on your system - download the assets from a released binary version [from my website](http://vittorioromeo.info) and put them in the installed game folder
