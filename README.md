@@ -132,12 +132,9 @@ lua/
 
 10. Build with `./build-win.bat`
 
-11. Download assets with `git bash`
-```bash
-./wget-assets.sh ./_RELEASE/
-```
+11. Download assets manually from `http://vittorioromeo.info/Misc/Linked/OHResources/`
 
-8. Open Hexagon should now be installed on your system - play!
+12. Open Hexagon should now be finally installed on your system - play!
 ```bash
-./_RELEASE/SSVOpenHexagon
+./_RELEASE/SSVOpenHexagon.exe
 ```
