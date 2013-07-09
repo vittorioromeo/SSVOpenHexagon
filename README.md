@@ -40,7 +40,10 @@ sudo apt-get install liblua5.1-dev
 ./wget-assets.sh
 ```
 
-7. Open Hexagon should now be installed on your system - download the assets from a released binary version [from my website](http://vittorioromeo.info) and put them in the installed game folder
+8. Open Hexagon should now be installed on your system - play!
+```bash
+./_RELEASE/SSVOpenHexagon
+```
 
 ---
 
@@ -75,4 +78,12 @@ cd SSVOpenHexagon
 sudo ldconfig /usr/local/lib  
 ```
 
-7. Open Hexagon should now be installed on your system - download the assets from a released binary version [from my website](http://vittorioromeo.info) and put them in the installed game folder
+7. Download assets
+```bash
+./wget-assets.sh
+```
+
+8. Open Hexagon should now be installed on your system - play!
+```bash
+./_RELEASE/SSVOpenHexagon
+```
