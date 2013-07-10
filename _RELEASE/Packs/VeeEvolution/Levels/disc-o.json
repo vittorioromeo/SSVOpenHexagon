@@ -17,7 +17,7 @@
 	"lua_file": "defaultLevels/disc-o.lua",
 	
 	// Difficulty multipliers
-	"difficulty_multipliers": [1.5, 2, 2.5, 2.75, 0.5, 0.75],
+	"difficulty_multipliers": [1.6, 2.2, 2.8, 0.6, 0.4],
 
 	// Swap
 	"swap_enabled": true,
