@@ -58,28 +58,28 @@ cd SSVOpenHexagon
 ./init-repository.sh`
 ```
 
-4. Install dependencies 
+3. Install dependencies 
 ```bash
 sudo pacman -S sfml lua51
 ```
 
-5. Build dependencies and Open Hexagon
+4. Build dependencies and Open Hexagon
 ```bash
 cd SSVOpenHexagon
 ./build-repository-oh.sh
 ```
 
-6. You may have to append `/usr/local/lib` to the `$PATH` or `$LD_LIBRARY_PATH` environment variables to allow Open Hexagon to find the required libraries - if that doesn't work, try:
+5. You may have to append `/usr/local/lib` to the `$PATH` or `$LD_LIBRARY_PATH` environment variables to allow Open Hexagon to find the required libraries - if that doesn't work, try:
 ```bash
 sudo ldconfig /usr/local/lib  
 ```
 
-7. Download assets
+6. Download assets
 ```bash
 ./wget-assets.sh ./_RELEASE/
 ```
 
-8. Open Hexagon should now be installed on your system - play!
+7. Open Hexagon should now be installed on your system - play!
 ```bash
 ./_RELEASE/SSVOpenHexagon
 ```
@@ -103,7 +103,6 @@ Tested on `Windows 8 x86`
 git clone git://github.com/SuperV1234/SSVOpenHexagon.git
 cd SSVOpenHexagon
 ```
-
 6. Pull everything recursively using `git bash`
 ```bash
 ./init-repository.sh`
@@ -112,7 +111,6 @@ cd SSVOpenHexagon
 7. Get [SFML](http://sfml-dev.org/download/sfml/2.0/SFML-2.0-windows-gcc-4.7-mingw-32bits.zip) and extract in `SSVOpenHexagon/extlibs/SFML/`
 
 8. Get [Lua5.1 binaries](http://sourceforge.net/projects/luabinaries/files/5.1.4/Executables/lua5_1_4_Win32_bin.zip/download) and [Lua5.1 includes](http://sourceforge.net/projects/luabinaries/files/5.1.4/Executables/lua5_1_4_Win32_bin.zip/download) and extract them in `SSVOpenHexagon/extlibs/lua/`
-```
 
 9. Your `extlibs` directory should look like this, make the required changes
 ```
