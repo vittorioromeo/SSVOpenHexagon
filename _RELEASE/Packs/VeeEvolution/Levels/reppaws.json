@@ -1,0 +1,52 @@
+{
+	// Level information
+	"id": "reppaws",
+	"name": "reppaws",
+	"description": "180 degrees of awesomeness",
+	"author": "vee",	
+	"menu_priority": 40,
+	"selectable": true,
+	
+	// Style
+	"style_id": "reppaws",
+	
+	// Music
+	"music_id": "minimal",
+	
+	// Lua
+	"lua_file": "defaultLevels/reppaws.lua",
+	
+	// Difficulty multipliers
+	"difficulty_multipliers": [1.5, 2, 2.5, 2.75, 0.5, 0.75],
+
+	// Swap
+	"swap_enabled": true,
+	
+	// Basic values
+	"speed_multiplier": 2.70,
+	"speed_increment": 0.16,
+	"rotation_speed": 0.12,
+	"rotation_increment": 0.035,
+	"delay_multiplier": 1.15,
+	"delay_increment": 0.00,
+	"fast_spin": 0.00,
+	"sides": 24,
+	"sides_min": 20,
+	"sides_max": 28,
+	"increment_time": 15,
+	"rotation_speed_max": 0.25,
+	"wall_skew_left": 15,
+	
+	// Pulse
+	"pulse_min": 68,
+	"pulse_max": 80,
+	"pulse_speed": 3.61,
+	"pulse_speed_r": 1.44,
+	"pulse_delay_max": 6.9,
+	
+	"beatpulse_max": 15,
+	"beatpulse_delay_max": 21.8,
+	
+	//Events
+	"events": []
+}
