@@ -85,21 +85,25 @@ namespace hg
 
 			ThreadWrapper& thread = memoryManager.create([=]
 			{
+				int tries{3};
 				log("Submitting score...", "Online");
 
 				string scoreString{toStr(mScore)};
 
-				TcpSocket socket;
-				Packet packet0x00, packet0x10;
-				packet0x00 << int8_t{0x00} << (string)mValidator << (float)mDifficulty << (string)mName << (float)mScore << (string)HG_ENCRYPTIONKEY;
-				socket.connect(hostIp, hostPort); socket.send(packet0x00); socket.receive(packet0x10);
-				uint8_t packetID, pass;
-				if(packet0x10 >> packetID >> pass)
+				while(tries > 0)
 				{
-					if(packetID == 0x10 && pass == 0) log("Score successfully sumbitted", "Online");
-					else log("Error: could not submit score", "Online");
+					TcpSocket socket;
+					Packet packet0x00, packet0x10;
+					packet0x00 << int8_t{0x00} << (string)mValidator << (float)mDifficulty << (string)mName << (float)mScore << (string)HG_ENCRYPTIONKEY;
+					socket.connect(hostIp, hostPort); socket.send(packet0x00); socket.receive(packet0x10);
+					uint8_t packetID, pass;
+					if(packet0x10 >> packetID >> pass)
+					{
+						if(packetID == 0x10 && pass == 0) { break; log("Score successfully sumbitted", "Online"); }
+						else { --tries; log("Error: could not submit score", "Online"); }
+					}
+					socket.disconnect();
 				}
-				socket.disconnect();
 
 				log("Finished submitting score", "Online");
 				cleanUp();
