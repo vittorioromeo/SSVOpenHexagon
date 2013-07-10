@@ -286,7 +286,7 @@ namespace hg
 	void MenuGame::update(float mFrameTime)
 	{
 		currentCreditsId += mFrameTime;
-		creditsBar2.setTexture(getAssetManager().getTexture(creditsIds[static_cast<int>(currentCreditsId / 100) % 3]));
+		creditsBar2.setTexture(getAssetManager().getTexture(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
 
 		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
 
