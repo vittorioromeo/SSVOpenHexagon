@@ -29,7 +29,7 @@
 	"rotation_increment": 0.00,
 	"delay_multiplier": 1.35,
 	"delay_increment": 0.00,
-	"fast_spin": 0.00,
+	"fast_spin": 71.00,
 	"sides": 32,
 	"sides_min": 32,
 	"sides_max": 32,
@@ -38,14 +38,14 @@
 	"wall_skew_left": 15,
 	
 	// Pulse
-	"pulse_min": 68,
+	"pulse_min": 60.8,
 	"pulse_max": 80,
 	"pulse_speed": 3.61,
 	"pulse_speed_r": 1.44,
-	"pulse_delay_max": 6.9,
-	
-	"beatpulse_max": 15,
-	"beatpulse_delay_max": 21.8,
+	"pulse_delay_max": 6.8,
+
+	"beatpulse_max": 20,
+	"beatpulse_delay_max": 26.11,
 	
 	//Events
 	"events": []

@@ -37,14 +37,14 @@
 	"rotation_speed_max": 0.25,
 	"wall_skew_left": -15,
 	
-	"pulse_min": 79,
-	"pulse_max": 86,
-	"pulse_speed": 1.45,
-	"pulse_speed_r": 0.62,
-	"pulse_delay_max": 8.9,
+	"pulse_min": 77,
+	"pulse_max": 95,
+	"pulse_speed": 2.95,
+	"pulse_speed_r": 0.51,
+	"pulse_delay_max": 13.0,
 	
-	"beatpulse_max": 17,
-	"beatpulse_delay_max": 23.8,
+	"beatpulse_max": 19,
+	"beatpulse_delay_max": 14.2,
 	
 	//Events
 	"events": []

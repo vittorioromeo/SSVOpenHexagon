@@ -9,10 +9,16 @@ sync = false
 syncRndMin = 0
 syncRndMax = 0
 
+curveMult = 1
+
 function syncCurveWithRotationSpeed(mRndMin, mRndMax)
 	sync = true
 	syncRndMin = mRndMin
 	syncRndMax = mRndMax
+end
+
+function setCurveMult(mMult)
+	curveMult = mMult
 end
 
 function wallHMCurveAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
@@ -21,7 +27,7 @@ function wallHMCurveAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePi
 		mCurve = mCurve + (math.random(syncRndMin, syncRndMax) / 100.0)
 	end
 
-	wallHModCurveData(hueModifier, mSide, THICKNESS, mCurve * (getDifficultyMult() ^ 0.25), mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
+	wallHModCurveData(hueModifier, mSide, THICKNESS, mCurve * (getDifficultyMult() ^ 0.25) * curveMult, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 end
 
 function wallHMCurve(mSide, mCurve)

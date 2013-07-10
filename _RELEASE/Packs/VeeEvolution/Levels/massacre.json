@@ -36,15 +36,15 @@
 	"increment_time": 10,
 	"rotation_speed_max": 0.30,
 	
-	"pulse_min": 64,
-	"pulse_max": 84,
-	"pulse_speed": 2.01,
-	"pulse_speed_r": 1.54,
-	"pulse_delay_max": 3.7,
-	"pulse_delay_max": 9.1,
+	// Pulse
+	"pulse_min": 60.8,
+	"pulse_max": 80,
+	"pulse_speed": 2.38,
+	"pulse_speed_r": 1.44,
+	"pulse_delay_max": 6.8,
 	
-	"beatpulse_max": 15,
-	"beatpulse_delay_max": 21.8,
+	"beatpulse_max": 18,
+	"beatpulse_delay_max": 18.8,
 	
 	//Events
 	"events": []

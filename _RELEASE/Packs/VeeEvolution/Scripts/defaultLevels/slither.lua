@@ -58,10 +58,21 @@ function onIncrement()
 	setLevelValueInt("increment_time", incrementTime)
 end
 
+-- continuous direction change (even if not on level increment)
+dirChangeTime = 120
+
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
 function onUnload()
 end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	dirChangeTime = dirChangeTime - mFrameTime;
+	if dirChangeTime < 0 then
+		-- do not change direction while fast spinning
+		if isFastSpinning() == false then
+			setLevelValueFloat("rotation_speed", getLevelValueFloat("rotation_speed") * -1)
+			dirChangeTime = 200
+		end
+	end 
 end

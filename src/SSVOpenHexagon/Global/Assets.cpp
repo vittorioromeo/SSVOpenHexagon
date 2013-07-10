@@ -196,6 +196,10 @@ namespace hg
 	{
 		vector<string> result;
 		for(const auto& packPair : packDataMap) result.push_back(packPair.first);
+		sort(begin(result), end(result), [](const string& mA, const string& mB)
+		{
+			return packDataMap.at(mA).getPriority() < packDataMap.at(mB).getPriority();
+		});
 		return result;
 	}
 

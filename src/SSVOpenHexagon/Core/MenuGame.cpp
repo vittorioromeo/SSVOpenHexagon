@@ -71,6 +71,8 @@ namespace hg
 		bottomBar.setOrigin({0, 112.f});
 		bottomBar.setScale({scaleFactor, scaleFactor});
 		bottomBar.setPosition(overlayCamera.getConvertedCoords(Vec2i(0, getHeight())));
+
+
 	}
 	void MenuGame::initOptionsMenu()
 	{
@@ -338,7 +340,7 @@ namespace hg
 	{
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
-		string packName{packData.getName()}; //, packNames{""}; for(string packName : getPackNames()) packNames.append(packName + "\n"); // TODO!!!!
+		const string& packName{packData.getName()};
 
 		if(getOnline())
 		{
@@ -363,6 +365,7 @@ namespace hg
 			renderText(leaderboardString, cProfText, {20, 100}, 20);
 			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
 			renderText("friends:\n" + friendsString, friendsText, {overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, 0)).x, 10 + 5 + 3});
+			//renderText("packs:\n" + packNames, packsText, {overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, getHeight() - 20.f - friendsText.getGlobalBounds().height))});
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
@@ -371,6 +374,14 @@ namespace hg
 		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500 - 35});
 		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515 - 35});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530 - 35});
+
+		string packNames{"Installed packs:\n"};
+		for(const auto& n : getPackNames()) { if(packData.getId() == n) packNames += ">>> "; packNames.append(n + "\n"); }
+		packsText.setString(packNames);
+		packsText.setOrigin(packsText.getGlobalBounds().width, packsText.getGlobalBounds().height);
+		packsText.setPosition(overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f, getHeight() - 125.f)));
+		packsText.setColor(styleData.getMainColor());
+		render(packsText);
 	}
 	void MenuGame::drawProfileCreation()
 	{
