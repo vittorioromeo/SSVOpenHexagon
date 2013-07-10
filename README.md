@@ -116,13 +116,11 @@ cd SSVOpenHexagon
 ```
 SSV*/ folders
 	...
-
 SFML/
 	bin/
 	lib/
 	include/
 	...
-
 lua/
 	include/
 	lib/
