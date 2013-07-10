@@ -73,7 +73,7 @@ function onLoad()
 	wait(200)
 
 	messageImportantAdd("they can also do crazy stuff!", 130)
-	messageImportantAdd("", 120 * 9 + 50)
+	messageImportantAdd("", 120 * 8 + 50)
 
 	hmcSimpleCage(2.5, 1)
 	wait(80)
@@ -102,7 +102,7 @@ function onLoad()
 	wait(100)
 	hmcSimpleSpinner(1)
 	hmcSimpleSpinner(-1.2)
-	wait(600)
+	wait(700)
 
 	messageImportantAdd("well done!", 130)
 	messageImportantAdd("now play some real levels!", 138)

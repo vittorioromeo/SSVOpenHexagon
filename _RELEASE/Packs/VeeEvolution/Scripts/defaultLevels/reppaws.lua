@@ -5,26 +5,24 @@ execScript("commonpatterns.lua")
 execScript("nextpatterns.lua")
 execScript("evolutionpatterns.lua")
 
-gap = 4
+gap = 6
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pMirrorSpiralDouble(math.random(1, 2), 4)
-	elseif mKey == 1 then rWallEx(math.random(0, getSides()), math.random(1, 2)) wait(getPerfectDelay(THICKNESS) * 2.8)
-	elseif mKey == 2 then pMirrorWallStrip(1, 2)
-	elseif mKey == 3 then cBarrageN(getRandomSide(), gap) wait(getPerfectDelay(THICKNESS) * 6)
-	elseif mKey == 4 then hmcSimpleBarrageSNeigh(getRandomSide(), 0.07 * getRandomSide(), gap) wait(getPerfectDelay(THICKNESS) * 6)
+		if mKey == 0 then cBarrageN(getRandomSide(), gap) wait(getPerfectDelayDM(THICKNESS) * 6)
+	elseif mKey == 1 then hmcSimpleBarrageSNeigh(getRandomSide(), 0, gap) wait(getPerfectDelayDM(THICKNESS) * 6)
 	end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 1, 2, 3, 3, 3, 3, 4, 4, 4, 4 }
+keys = { 0, 0, 0, 1, 1, 1 }
 keys = shuffle(keys)
 index = 0
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	syncCurveWithRotationSpeed(0, 0)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

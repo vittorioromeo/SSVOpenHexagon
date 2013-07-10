@@ -5,8 +5,22 @@ execScript("alternativepatterns.lua")
 execScript("nextpatterns.lua")
 
 hueModifier = 0.2
+sync = false
+syncRndMin = 0
+syncRndMax = 0
+
+function syncCurveWithRotationSpeed(mRndMin, mRndMax)
+	sync = true
+	syncRndMin = mRndMin
+	syncRndMax = mRndMax
+end
 
 function wallHMCurveAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
+	if sync == true then
+		mCurve = getLevelValueFloat("rotation_speed") * 10
+		mCurve = mCurve + (math.random(syncRndMin, syncRndMax) / 100.0)
+	end
+
 	wallHModCurveData(hueModifier, mSide, THICKNESS, mCurve * (getDifficultyMult() ^ 0.25), mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 end
 
