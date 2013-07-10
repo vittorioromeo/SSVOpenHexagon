@@ -48,6 +48,7 @@ namespace hg
 		getAssetManager().getTexture("creditsBar2.png").setSmooth(true);
 		getAssetManager().getTexture("creditsBar2b.png").setSmooth(true);
 		getAssetManager().getTexture("creditsBar2c.png").setSmooth(true);
+		getAssetManager().getTexture("creditsBar2d.png").setSmooth(true);
 		getAssetManager().getTexture("bottomBar.png").setSmooth(true);
 
 		titleBar.setOrigin({0, 0});
