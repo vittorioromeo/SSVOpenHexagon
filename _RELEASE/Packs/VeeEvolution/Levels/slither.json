@@ -17,7 +17,7 @@
 	"lua_file": "defaultLevels/slither.lua",
 	
 	// Difficulty multipliers
-	"difficulty_multipliers": [0.5, 1, 2, 3],
+	"difficulty_multipliers": [0.5, 2, 3],
 
 	// Swap
 	"swap_enabled": true,

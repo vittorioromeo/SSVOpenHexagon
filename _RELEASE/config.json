@@ -3,7 +3,7 @@
 	"3D_enabled" : true,
 	"3D_max_depth" : 100,
 	"3D_multiplier" : 1.0,
-	"auto_restart" : true,
+	"auto_restart" : false,
 	"auto_zoom_factor" : true,
 	"beatpulse_enabled" : true,
 	"black_and_white" : false,
@@ -11,7 +11,7 @@
 	"change_styles" : true,
 	"debug" : false,
 	"flash_enabled" : true,
-	"fullscreen" : false,
+	"fullscreen" : true,
 	"fullscreen_auto_resolution" : false,
 	"fullscreen_height" : 1080,
 	"fullscreen_width" : 1920,
@@ -80,5 +80,5 @@
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 480,
 	"windowed_width" : 640,
-	"zoom_factor" : 1.600000023841858
+	"zoom_factor" : 0.7111111283302307
 }

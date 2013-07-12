@@ -165,7 +165,7 @@ namespace hg
 		game.addInput(getTriggerExit(), [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
 		game.addInput(getTriggerExit(), [&](float) { if(state == s::ADD_FRIEND) state = s::MAIN; });
 		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
-		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); }, t::Single);
+		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); refreshCamera(); }, t::Single);
 		game.addInput({{k::BackSpace}}, [&](float){ if((state == s::PROFILE_NEW || state == s::ADD_FRIEND) && !enteredString.empty()) enteredString.erase(enteredString.end() - 1); }, t::Single);
 	}
 
