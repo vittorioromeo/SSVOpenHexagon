@@ -71,13 +71,15 @@ namespace hg
 		bottomBar.setOrigin({0, 112.f});
 		bottomBar.setScale({scaleFactor, scaleFactor});
 		bottomBar.setPosition(overlayCamera.getConvertedCoords(Vec2i(0, getHeight())));
-
-
 	}
 	void MenuGame::initOptionsMenu()
 	{
 		namespace i = ssvms::Items;
 		auto& main(optionsMenu.createCategory("options"));
+		auto& resolution(optionsMenu.createCategory("resolution"));
+		auto& resolution43(optionsMenu.createCategory("4:3"));
+		auto& resolution169(optionsMenu.createCategory("16:9"));
+		auto& resolution1610(optionsMenu.createCategory("16:10"));
 		auto& gfx(optionsMenu.createCategory("graphics"));
 		auto& sfx(optionsMenu.createCategory("audio"));
 		auto& play(optionsMenu.createCategory("gameplay"));
@@ -89,6 +91,7 @@ namespace hg
 		main.create<i::Single>("new profile", [&]{ enteredString = ""; state = States::PROFILE_NEW; });
 
 		main.create<i::Goto>("gameplay", play);
+		main.create<i::Goto>("resolution", resolution);
 		main.create<i::Goto>("graphics", gfx);
 		main.create<i::Goto>("audio", sfx);
 		main.create<i::Goto>("debug", debug);
@@ -96,14 +99,39 @@ namespace hg
 		main.create<i::Toggle>("official mode", [&]{ return getOfficial(); }, [&]{ setOfficial(true); }, [&]{ setOfficial(false); });
 		main.create<i::Single>("back", [&]{ state = States::MAIN; });
 
+		resolution.create<i::Single>("auto", [&]{ setCurrentResolutionAuto(window); });
+		resolution.create<i::Goto>("4:3", resolution43);
+		resolution.create<i::Goto>("16:9", resolution169);
+		resolution.create<i::Goto>("16:10", resolution1610);
+		resolution.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
+		resolution.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
+		resolution.create<i::Goto>("back", main);
+
+		resolution43.create<i::Single>("320x240",		[&]{ setCurrentResolution(window, 320, 240); });
+		resolution43.create<i::Single>("640x480",		[&]{ setCurrentResolution(window, 640, 480); });
+		resolution43.create<i::Single>("800x600",		[&]{ setCurrentResolution(window, 800, 600); });
+		resolution43.create<i::Single>("1024x768",		[&]{ setCurrentResolution(window, 1024, 768); });
+		resolution43.create<i::Single>("1280x960",		[&]{ setCurrentResolution(window, 1280, 960); });
+		resolution43.create<i::Goto>("back", resolution);
+
+		resolution169.create<i::Single>("854x480",		[&]{ setCurrentResolution(window, 854, 480); });
+		resolution169.create<i::Single>("1280x720",		[&]{ setCurrentResolution(window, 1280, 720); });
+		resolution169.create<i::Single>("1366x768",		[&]{ setCurrentResolution(window, 1366, 768); });
+		resolution169.create<i::Single>("1366x768",		[&]{ setCurrentResolution(window, 1920, 1080); });
+		resolution169.create<i::Goto>("back", resolution);
+
+		resolution1610.create<i::Single>("1280x800",	[&]{ setCurrentResolution(window, 1280, 800); });
+		resolution1610.create<i::Single>("1440x900",	[&]{ setCurrentResolution(window, 1440, 900); });
+		resolution1610.create<i::Single>("1680x1050",	[&]{ setCurrentResolution(window, 1680, 1050); });
+		resolution1610.create<i::Single>("1920x1200",	[&]{ setCurrentResolution(window, 1920, 1200); });
+		resolution1610.create<i::Goto>("back", resolution);
+
 		gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
 		gfx.create<i::Toggle>("background",	[&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
 		gfx.create<i::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
 		gfx.create<i::Toggle>("3D effect",	[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
 		gfx.create<i::Toggle>("pulse", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
 		gfx.create<i::Toggle>("flash", 		[&]{ return getFlash(); }, 			[&]{ setFlash(true); }, 		[&]{ setFlash(false); });
-		gfx.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
-		gfx.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
 		gfx.create<i::Goto>("back", main);
 
 		sfx.create<i::Toggle>("sounds",	[&]{ return !getNoSound(); }, 	[&]{ setNoSound(false); }, 	[&]{ setNoSound(true); });

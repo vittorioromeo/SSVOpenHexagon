@@ -32,7 +32,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		if(swapTimer > 0) colorMain = Utils::TransformH(colorMain, 90);
+		if(swapTimer <= 0) colorMain = Utils::TransformH(colorMain, 90);
 		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);

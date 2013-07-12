@@ -64,92 +64,68 @@ namespace hg
 	auto& debug						(lvm.create<bool>("debug"));
 	auto& beatPulse					(lvm.create<bool>("beatpulse_enabled"));
 	auto& showTrackedVariables		(lvm.create<bool>("show_tracked_variables"));
+	auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
+	auto& triggerRotateCW			(lvm.create<Trigger>("t_rotate_cw"));
+	auto& triggerFocus				(lvm.create<Trigger>("t_focus"));
+	auto& triggerExit				(lvm.create<Trigger>("t_exit"));
+	auto& triggerForceRestart		(lvm.create<Trigger>("t_force_restart"));
+	auto& triggerRestart			(lvm.create<Trigger>("t_restart"));
+	auto& triggerScreenshot			(lvm.create<Trigger>("t_screenshot"));
+	auto& triggerSwap				(lvm.create<Trigger>("t_swap"));
 
-	map<string, ssvuj::Value> overridesMap;
 	float sizeX{1500}, sizeY{1500};
 	constexpr float spawnDistance{1600};
 	string uneligibilityReason{""};
 
-	void applyWindowedResolution() { auto d(VideoMode::getDesktopMode()); windowedWidth = d.width; windowedHeight = d.height; }
-	void applyFullscreenResolution() { auto d(VideoMode::getDesktopMode()); fullscreenWidth = d.width; fullscreenHeight = d.height; }
-
-	void loadOverrides()
-	{
-		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
-		{
-			string fileName{getNameFromPath(p, "ConfigOverrides/", ".json")};
-			overridesMap.insert(make_pair(fileName, getRootFromFile(p)));
-		}
-	}
+	void applyAutoWindowedResolution() { auto d(VideoMode::getDesktopMode()); windowedWidth = d.width; windowedHeight = d.height; }
+	void applyAutoFullscreenResolution() { auto d(VideoMode::getDesktopMode()); fullscreenWidth = d.width; fullscreenHeight = d.height; }
 
 	void loadConfig(const vector<string>& mOverridesIds)
 	{
 		log("loading config", "::loadConfig");
 
-		loadOverrides();
-
-		for(const auto& id : mOverridesIds)
+		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
 		{
-			auto itr(overridesMap.find(id));
-			if(itr == end(overridesMap)) continue;
-
-			const ssvuj::Value& overrideRoot{itr->second};
-			for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[as<string>(itr.key())] = *itr;
+			const auto& fileName(getNameFromPath(p, "ConfigOverrides/", ".json"));
+			if(contains(mOverridesIds, fileName))
+			{
+				const auto& overrideRoot(getRootFromFile(p));
+				for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[as<string>(itr.key())] = *itr;
+			}
 		}
 
 		lvm.syncFromRoot();
 
-		if(getWindowedAutoResolution()) applyWindowedResolution();
-		if(getFullscreenAutoResolution()) applyFullscreenResolution();
+		if(getWindowedAutoResolution()) applyAutoWindowedResolution();
+		if(getFullscreenAutoResolution()) applyAutoFullscreenResolution();
 
 		recalculateSizes();
 
 	}
-	void saveConfig()
-	{
-		// Seems like JSONcpp doesn't have a way to change a single value in an existing file - I'll just replace the options manually for now
-
-		if(getDebug()) return;
-		fstream f; f.open("config.json"); stringstream buffer; buffer << f.rdbuf(); f.close();
-
-		string original{buffer.str()};
-
-		vector<string> elements{"no_rotation",	"no_background",	"black_and_white",	"no_sound",	"no_music",	"pulse_enabled",	"3D_enabled",	"invincible",	"auto_restart",	"online",	"official",	"flash_enabled"};
-		vector<bool> predicates{noRotation,		noBackground,		blackAndWhite,		noSound,	noMusic,	pulseEnabled,		_3DEnabled,		invincible,		autoRestart,	online,		official,	flashEnabled};
-
-		for(unsigned int i{0}; i < elements.size(); ++i)
-		{
-			string element{"\"" + elements[i] + "\""};
-			original = predicates[i] ? getReplaced(original, element + ": false", element + ": true") : getReplaced(original, element + ": true", element + ": false");
-		}
-
-		f.open("config.json", fstream::out | fstream::trunc); f << original; f.flush(); f.close();
-	}
+	void saveConfig() { log("saving config", "::saveConfig"); lvm.syncToRoot(); writeRootToFile(root, "config.json"); }
 
 	bool isEligibleForScore()
 	{
-		if(!getOfficial()) { uneligibilityReason = "official mode off"; return false; }
-		if(getDebug()) { uneligibilityReason = "debug mode on"; return false; }
-		if(!getAutoZoomFactor()) { uneligibilityReason = "modified zoom factor"; return false; }
-		if(getPlayerSpeed() != 9.45f) { uneligibilityReason = "player speed modified"; return false; }
-		if(getPlayerFocusSpeed() != 4.625f) { uneligibilityReason = "player focus speed modified"; return false; }
-		if(getPlayerSize() != 7.3f) { uneligibilityReason = "player size modified"; return false; }
-		if(getInvincible()) { uneligibilityReason = "invincibility on"; return false; }
-		if(getNoRotation()) { uneligibilityReason = "rotation off"; return false; }
-		if(Online::getServerVersion() == -1) { uneligibilityReason = "connection error"; return false; }
-		if(Online::getServerVersion() > getVersion()) { uneligibilityReason = "version mismatch"; return false; }
+		if(!getOfficial())								{ uneligibilityReason = "official mode off"; return false; }
+		if(getDebug())									{ uneligibilityReason = "debug mode on"; return false; }
+		if(!getAutoZoomFactor())						{ uneligibilityReason = "modified zoom factor"; return false; }
+		if(getPlayerSpeed() != 9.45f)					{ uneligibilityReason = "player speed modified"; return false; }
+		if(getPlayerFocusSpeed() != 4.625f)				{ uneligibilityReason = "player focus speed modified"; return false; }
+		if(getPlayerSize() != 7.3f)						{ uneligibilityReason = "player size modified"; return false; }
+		if(getInvincible())								{ uneligibilityReason = "invincibility on"; return false; }
+		if(getNoRotation())								{ uneligibilityReason = "rotation off"; return false; }
+		if(Online::getServerVersion() == -1)			{ uneligibilityReason = "connection error"; return false; }
+		if(Online::getServerVersion() > getVersion())	{ uneligibilityReason = "version mismatch"; return false; }
 		return true;
 	}
 
 	void recalculateSizes()
 	{
 		sizeX = sizeY = max(getWidth(), getHeight()) * 1.3f;
+		if(!getAutoZoomFactor()) return;
 
-		if(getAutoZoomFactor())
-		{
-			float zoomFactorX(1024.0f / static_cast<float>(getWidth())), zoomFactorY(768.0f / static_cast<float>(getHeight()));
-			zoomFactor = max(zoomFactorX, zoomFactorY);
-		}
+		float factorX(1024.0f / static_cast<float>(getWidth())), factorY(768.0f / static_cast<float>(getHeight()));
+		zoomFactor = max(factorX, factorY);
 	}
 	void setFullscreen(GameWindow& mWindow, bool mFullscreen)
 	{
@@ -162,10 +138,45 @@ namespace hg
 		recalculateSizes();
 	}
 
-	void refreshWindowSize(unsigned int mWidth, unsigned int mHeight)
+	void refreshWindowSize(unsigned int mWidth, unsigned int mHeight) { windowedWidth = mWidth; windowedHeight = mHeight; }
+
+	void setCurrentResolution(GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight)
 	{
-		windowedWidth = mWidth;
-		windowedHeight = mHeight;
+		if(getFullscreen())
+		{
+			fullscreenAutoResolution = false;
+			fullscreenWidth = mWidth;
+			fullscreenHeight = mHeight;
+		}
+		else
+		{
+			windowedAutoResolution = false;
+			windowedWidth = mWidth;
+			windowedHeight = mHeight;
+		}
+
+		mWindow.setSize(getWidth(), getHeight());
+		mWindow.setFullscreen(getFullscreen());
+		mWindow.setMouseCursorVisible(false);
+		recalculateSizes();
+	}
+	void setCurrentResolutionAuto(GameWindow& mWindow)
+	{
+		if(getFullscreen())
+		{
+			fullscreenAutoResolution = true;
+			applyAutoFullscreenResolution();
+		}
+		else
+		{
+			windowedAutoResolution = true;
+			applyAutoWindowedResolution();
+		}
+
+		mWindow.setSize(getWidth(), getHeight());
+		mWindow.setFullscreen(getFullscreen());
+		mWindow.setMouseCursorVisible(false);
+		recalculateSizes();
 	}
 
 	void setOnline(bool mOnline)				{ online = mOnline; if(mOnline) Online::startCheckUpdates(); }
@@ -230,12 +241,12 @@ namespace hg
 	bool getFlash() 					{ return flashEnabled; }
 	bool getShowTrackedVariables()		{ return showTrackedVariables; }
 
-	Trigger getTriggerRotateCCW()		{ return getInputTriggerFromJson(root["t_rotate_ccw"]); }
-	Trigger getTriggerRotateCW()		{ return getInputTriggerFromJson(root["t_rotate_cw"]); }
-	Trigger getTriggerFocus()			{ return getInputTriggerFromJson(root["t_focus"]); }
-	Trigger getTriggerExit()			{ return getInputTriggerFromJson(root["t_exit"]); }
-	Trigger getTriggerForceRestart()	{ return getInputTriggerFromJson(root["t_force_restart"]); }
-	Trigger getTriggerRestart()			{ return getInputTriggerFromJson(root["t_restart"]); }
-	Trigger getTriggerScreenshot()		{ return getInputTriggerFromJson(root["t_screenshot"]); }
-	Trigger getTriggerSwap()			{ return getInputTriggerFromJson(root["t_swap"]); }
+	Trigger getTriggerRotateCCW()		{ return triggerRotateCCW; }
+	Trigger getTriggerRotateCW()		{ return triggerRotateCW; }
+	Trigger getTriggerFocus()			{ return triggerFocus; }
+	Trigger getTriggerExit()			{ return triggerExit; }
+	Trigger getTriggerForceRestart()	{ return triggerForceRestart; }
+	Trigger getTriggerRestart()			{ return triggerRestart; }
+	Trigger getTriggerScreenshot()		{ return triggerScreenshot; }
+	Trigger getTriggerSwap()			{ return triggerSwap; }
 }

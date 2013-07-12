@@ -22,6 +22,8 @@ namespace hg
 	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
 	void refreshWindowSize(unsigned int mWidth, unsigned int mHeight);
+	void setCurrentResolution(ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight);
+	void setCurrentResolutionAuto(ssvs::GameWindow& mWindow);
 
 	void setOnline(bool mOnline);
 	void setOfficial(bool mOfficial);
