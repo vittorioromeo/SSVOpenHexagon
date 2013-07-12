@@ -116,6 +116,9 @@ for s in "${searchPaths[@]}"; do
 	cp -av "${s}"libpthread.so* "${x86Folder}"
 	cp -av "${s}"librt.so* "${x86Folder}"
 	cp -av "${s}"libz.so* "${x86Folder}"
+	cp -av "${s}"libx*.so* "${x86Folder}"
+	cp -av "${s}"libX*.so* "${x86Folder}"
+	cp -av "${s}"libSM.so* "${x86Folder}"
 done
 
 mv -f "${destinationDir}/SSVOpenHexagon" "${x86Folder}"
@@ -125,7 +128,7 @@ touch "${destinationDir}/OpenHexagon"
 chmod +x "${destinationDir}/OpenHexagon"
 
 echo '#!/bin/bash' > "${destinationDir}/OpenHexagon"
-echo 'export LD_LIBRARY_PATH=./x86/; ./x86/SSVOpenHexagon' >> "${destinationDir}/OpenHexagon"
+echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./x86/; ./x86/SSVOpenHexagon' >> "${destinationDir}/OpenHexagon"
 
 find "${x86Folder}" -name SSV*'.so' | xargs strip -s -g
 find "${x86Folder}" -name 'SSVOpenHexagon'* | xargs strip -s -g
