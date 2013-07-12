@@ -54,6 +54,7 @@ namespace hg
 				levelDesc{"", getFont("imagine.ttf"), 32}, levelAuth{"", getFont("imagine.ttf"), 20}, levelMusc{"", getFont("imagine.ttf"), 20},
 				friendsText{"", getFont("imagine.ttf"), 21}, packsText{"", getFont("imagine.ttf"), 14};
 
+			void refreshCamera();
 			void initAssets();
 			void initOptionsMenu();
 			void initInput();
@@ -64,7 +65,7 @@ namespace hg
 			void drawProfileSelection();
 			void drawOptions();
 			void render(sf::Drawable&);
-			void renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
+			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
 			void setIndex(int mIndex);
 			void refreshScores();
 			void updateLeaderboard();

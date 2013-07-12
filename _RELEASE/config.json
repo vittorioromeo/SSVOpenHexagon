@@ -3,7 +3,7 @@
 	"3D_enabled" : true,
 	"3D_max_depth" : 100,
 	"3D_multiplier" : 1.0,
-	"auto_restart" : false,
+	"auto_restart" : true,
 	"auto_zoom_factor" : true,
 	"beatpulse_enabled" : true,
 	"black_and_white" : false,
@@ -78,7 +78,7 @@
 	],
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 900,
-	"windowed_width" : 1440,
-	"zoom_factor" : 0.8533333539962769
+	"windowed_height" : 480,
+	"windowed_width" : 640,
+	"zoom_factor" : 1.600000023841858
 }

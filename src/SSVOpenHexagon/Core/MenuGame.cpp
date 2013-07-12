@@ -51,35 +51,13 @@ namespace hg
 		getAssetManager().getTexture("creditsBar2d.png").setSmooth(true);
 		getAssetManager().getTexture("bottomBar.png").setSmooth(true);
 
-		titleBar.setOrigin({0, 0});
-		titleBar.setScale({0.5f, 0.5f});
-		titleBar.setPosition(overlayCamera.getConvertedCoords({20, 20}));
-
-		versionText.setString(toStr(getVersion()));
-		versionText.setColor(Color::White);
-		versionText.setPosition(titleBar.getPosition() + Vec2f{titleBar.getGlobalBounds().width - 42, titleBar.getGlobalBounds().top});
-
-		creditsBar1.setOrigin({1024, 0});
-		creditsBar1.setScale({0.373f, 0.373f});
-		creditsBar1.setPosition(overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f, 20.f)));
-
-		creditsBar2.setOrigin({1024, 116});
-		creditsBar2.setScale({0.373f, 0.373f});
-		creditsBar2.setPosition(overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f, 160.f / getZoomFactor())));
-
-		float scaleFactor{getWidth() * getZoomFactor() / 2048.f};
-		bottomBar.setOrigin({0, 112.f});
-		bottomBar.setScale({scaleFactor, scaleFactor});
-		bottomBar.setPosition(overlayCamera.getConvertedCoords(Vec2i(0, getHeight())));
+		refreshCamera();
 	}
 	void MenuGame::initOptionsMenu()
 	{
 		namespace i = ssvms::Items;
 		auto& main(optionsMenu.createCategory("options"));
 		auto& resolution(optionsMenu.createCategory("resolution"));
-		auto& resolution43(optionsMenu.createCategory("4:3"));
-		auto& resolution169(optionsMenu.createCategory("16:9"));
-		auto& resolution1610(optionsMenu.createCategory("16:10"));
 		auto& gfx(optionsMenu.createCategory("graphics"));
 		auto& sfx(optionsMenu.createCategory("audio"));
 		auto& play(optionsMenu.createCategory("gameplay"));
@@ -100,31 +78,13 @@ namespace hg
 		main.create<i::Single>("back", [&]{ state = States::MAIN; });
 
 		resolution.create<i::Single>("auto", [&]{ setCurrentResolutionAuto(window); });
-		resolution.create<i::Goto>("4:3", resolution43);
-		resolution.create<i::Goto>("16:9", resolution169);
-		resolution.create<i::Goto>("16:10", resolution1610);
+		for(const auto& vm : VideoMode::getFullscreenModes())
+			if(vm.bitsPerPixel == 32)
+				resolution.create<i::Single>(toStr(vm.width) + "x" + toStr(vm.height), [&]{ setCurrentResolution(window, vm.width, vm.height); refreshCamera(); });
 		resolution.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
 		resolution.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
 		resolution.create<i::Goto>("back", main);
 
-		resolution43.create<i::Single>("320x240",		[&]{ setCurrentResolution(window, 320, 240); });
-		resolution43.create<i::Single>("640x480",		[&]{ setCurrentResolution(window, 640, 480); });
-		resolution43.create<i::Single>("800x600",		[&]{ setCurrentResolution(window, 800, 600); });
-		resolution43.create<i::Single>("1024x768",		[&]{ setCurrentResolution(window, 1024, 768); });
-		resolution43.create<i::Single>("1280x960",		[&]{ setCurrentResolution(window, 1280, 960); });
-		resolution43.create<i::Goto>("back", resolution);
-
-		resolution169.create<i::Single>("854x480",		[&]{ setCurrentResolution(window, 854, 480); });
-		resolution169.create<i::Single>("1280x720",		[&]{ setCurrentResolution(window, 1280, 720); });
-		resolution169.create<i::Single>("1366x768",		[&]{ setCurrentResolution(window, 1366, 768); });
-		resolution169.create<i::Single>("1366x768",		[&]{ setCurrentResolution(window, 1920, 1080); });
-		resolution169.create<i::Goto>("back", resolution);
-
-		resolution1610.create<i::Single>("1280x800",	[&]{ setCurrentResolution(window, 1280, 800); });
-		resolution1610.create<i::Single>("1440x900",	[&]{ setCurrentResolution(window, 1440, 900); });
-		resolution1610.create<i::Single>("1680x1050",	[&]{ setCurrentResolution(window, 1680, 1050); });
-		resolution1610.create<i::Single>("1920x1200",	[&]{ setCurrentResolution(window, 1920, 1200); });
-		resolution1610.create<i::Goto>("back", resolution);
 
 		gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
 		gfx.create<i::Toggle>("background",	[&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
@@ -313,6 +273,51 @@ namespace hg
 		for(const auto& t : tuples) friendsString.append("(" + toStr(get<0>(t)) + ") " + get<1>(t) + ": " + toStr(get<2>(t)) + "\n");
 	}
 
+	template<typename T> float getGlobalLeft(const T& mElement) { return mElement.getGlobalBounds().left; }
+	template<typename T> float getGlobalRight(const T& mElement) { return mElement.getGlobalBounds().left + mElement.getGlobalBounds().width; }
+	template<typename T> float getGlobalTop(const T& mElement) { return mElement.getGlobalBounds().top; }
+	template<typename T> float getGlobalBottom(const T& mElement) { return mElement.getGlobalBounds().top + mElement.getGlobalBounds().height; }
+	template<typename T> float getGlobalWidth(const T& mElement) { return mElement.getGlobalBounds().width; }
+	template<typename T> float getGlobalHeight(const T& mElement) { return mElement.getGlobalBounds().height; }
+
+	template<typename T> float getLocalLeft(const T& mElement) { return mElement.getLocalBounds().left; }
+	template<typename T> float getLocalRight(const T& mElement) { return mElement.getLocalBounds().left + mElement.getLocalBounds().width; }
+	template<typename T> float getLocalTop(const T& mElement) { return mElement.getLocalBounds().top; }
+	template<typename T> float getLocalBottom(const T& mElement) { return mElement.getLocalBounds().top + mElement.getLocalBounds().height; }
+	template<typename T> float getLocalWidth(const T& mElement) { return mElement.getLocalBounds().width; }
+	template<typename T> float getLocalHeight(const T& mElement) { return mElement.getLocalBounds().height; }
+
+	void MenuGame::refreshCamera()
+	{
+		float fw = (1024.f / getWidth());
+		float fh = (768.f / getHeight());
+		float fmin = min(fw, fh);
+		float w = getWidth() * fmin;
+		float h = getHeight() * fmin;
+		overlayCamera.setView(View{FloatRect(0, 0, w, h)});
+		titleBar.setOrigin({0, 0});
+		titleBar.setScale({0.5f, 0.5f});
+		titleBar.setPosition({20.f, 20.f});
+
+		versionText.setString(toStr(getVersion()));
+		versionText.setColor(Color::White);
+		versionText.setOrigin({getLocalRight(versionText), 0.f});
+		versionText.setPosition({getGlobalRight(titleBar) - 15.f, getGlobalTop(titleBar) + 15.f});
+
+		creditsBar1.setOrigin({getLocalWidth(creditsBar1), 0.f});
+		creditsBar1.setScale({0.373f, 0.373f});
+		creditsBar1.setPosition({w - 20.f, 20.f});
+
+		creditsBar2.setOrigin({getLocalWidth(creditsBar2), 0});
+		creditsBar2.setScale({0.373f, 0.373f});
+		creditsBar2.setPosition({w - 20.f, 17.f + getGlobalBottom(creditsBar1)});
+
+		float scaleFactor{w / 2048.f};
+		bottomBar.setOrigin({0, 112.f});
+		bottomBar.setScale({scaleFactor, scaleFactor});
+		bottomBar.setPosition(Vec2f(0, h));
+	}
+
 	void MenuGame::update(float mFrameTime)
 	{
 		currentCreditsId += mFrameTime;
@@ -350,7 +355,7 @@ namespace hg
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
-	void MenuGame::renderText(const string& mString, Text& mText, ssvs::Vec2f mPosition, unsigned int mSize)
+	Text& MenuGame::renderText(const string& mString, Text& mText, Vec2f mPosition, unsigned int mSize)
 	{
 		unsigned int originalSize{mText.getCharacterSize()};
 		if(mSize != 0) mText.setCharacterSize(mSize);
@@ -360,12 +365,20 @@ namespace hg
 		if(state != States::MAIN || getBlackAndWhite()) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
-		mText.setPosition(overlayCamera.getConvertedCoords(Vec2i(mPosition)).x, mPosition.y + 160);
+		mText.setPosition(mPosition);
 		render(mText); mText.setCharacterSize(originalSize);
+
+		return mText;
 	}
 
 	void MenuGame::drawLevelSelection()
 	{
+		float fw = (1024.f / getWidth());
+		float fh = (768.f / getHeight());
+		float fmin = min(fw, fh);
+		float w = getWidth() * fmin;
+		float h = getHeight() * fmin;
+
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
 		const string& packName{packData.getName()};
@@ -381,33 +394,34 @@ namespace hg
 			else if(serverVersion > getVersion()) versionMessage = "update available (" + toStr(serverVersion) + ")";
 			renderText(versionMessage, cProfText, {20, 0}, 13);
 
-			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20, 11}, 11);
+			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20.f, getGlobalTop(titleBar)}, 11);
 
-			renderText("profile: " + getCurrentProfile().getName(), cProfText, {20, 10 + 5 + 3});
-			renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20, 30 + 3});
-			renderText("local best: " + toStr(getScore(getLocalValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20, 45 + 3});
-			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20, 60 + 3});
+			Text& profile = renderText("profile: " + getCurrentProfile().getName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
+			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20.f, getGlobalBottom(profile) - 7.f}, 18);
+			Text& lbest = renderText("local best: " + toStr(getScore(getLocalValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
+			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
 
 			if(wasOverloaded || Online::isOverloaded()) { leaderboardString = friendsString = "too many requests, wait..."; }
 
-			renderText(leaderboardString, cProfText, {20, 100}, 20);
-			renderText("server message: " + Online::getServerMessage(), levelAuth, {20, -30 + 525}, 13);
-			renderText("friends:\n" + friendsString, friendsText, {overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, 0)).x, 10 + 5 + 3});
+			renderText(leaderboardString, cProfText, {20.f, getGlobalBottom(lbest)}, 15);
+			renderText("server message: " + Online::getServerMessage(), levelAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+			friendsText.setOrigin({getLocalWidth(friendsText), 0.f});
+			renderText("friends:\n" + friendsString, friendsText, {w - 20.f, getGlobalBottom(titleBar)}, 18);
 			//renderText("packs:\n" + packNames, packsText, {overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, getHeight() - 20.f - friendsText.getGlobalBounds().height))});
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
-		renderText(levelData.getName(), levelName, {20, 50 + 120 + 25 + 45});
-		renderText(levelData.getDescription(), levelDesc, {20, 50 + 195 + 25 + 28 + 60.f * (getNewLinesCount(levelData.getName()))});
-		renderText("author: " + levelData.getAuthor(), levelAuth, {20, -30 + 500 - 35});
-		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20, -30 + 515 - 35});
-		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20, -30 + 530 - 35});
+		Text& lname = renderText(levelData.getName(), levelName, {20.f, h / 2.f});
+		Text& ldesc = renderText(levelData.getDescription(), levelDesc, {20.f, getGlobalBottom(lname) - 5.f});
+		Text& lauth = renderText("author: " + levelData.getAuthor(), levelAuth, {20.f, getGlobalBottom(ldesc) + 25.f});
+		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20.f, getGlobalBottom(lauth) - 5.f});
+		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20.f, getGlobalTop(lname) - 25.f});
 
 		string packNames{"Installed packs:\n"};
 		for(const auto& n : getPackNames()) { if(packData.getId() == n) packNames += ">>> "; packNames.append(n + "\n"); }
 		packsText.setString(packNames);
 		packsText.setOrigin(packsText.getGlobalBounds().width, packsText.getGlobalBounds().height);
-		packsText.setPosition(overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f, getHeight() - 125.f)));
+		packsText.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
 		packsText.setColor(styleData.getMainColor());
 		render(packsText);
 	}
@@ -429,22 +443,31 @@ namespace hg
 	}
 	void MenuGame::drawOptions()
 	{
-		renderText(optionsMenu.getCurrentCategory().getName(), levelDesc, {20, 20});
+		float fw = (1024.f / getWidth());
+		float fh = (768.f / getHeight());
+		float fmin = min(fw, fh);
+		float w = getWidth() * fmin;
+		float h = getHeight() * fmin;
 
+		renderText(optionsMenu.getCurrentCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
+
+		float currentX{0.f}, currentY{0.f};
 		vector<ItemBase*>& currentItems(optionsMenu.getCurrentItems());
 		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
 		{
+			currentY += 19;
+			if(i != 0 && i % 21 == 0) { currentY = 0; currentX += 180; }
 			string name, itemName{currentItems[i]->getName()};
 			if(i == optionsMenu.getCurrentIndex()) name.append(">> ");
 			name.append(itemName);
 
 			int extraSpacing{0};
 			if(itemName == "back") extraSpacing = 20;
-			renderText(name, cProfText, {20, 60.f + i * 20 + extraSpacing});
+			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing});
 		}
 
-		if(getOfficial()) renderText("official mode on - some options cannot be changed", cProfText, {20, 500});
-		else if(getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, 500});
+		if(getOfficial()) renderText("official mode on - some options cannot be changed", cProfText, {20, h - 30.f});
+		else if(getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, h - 30.f});
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
