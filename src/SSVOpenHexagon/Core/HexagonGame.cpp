@@ -84,7 +84,7 @@ namespace hg
 		runLuaFunction<void>("onLoad");
 
 		// Random rotation direction
-		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1);
+		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1.f);
 
 		// Reset zoom
 		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, ssvs::Vec2f(getWidth(), getHeight())});
@@ -120,7 +120,7 @@ namespace hg
 		playSound("levelUp.ogg");
 
 		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
-		setRotationSpeed(levelData.getRotationSpeed() * -1);
+		setRotationSpeed(levelData.getRotationSpeed() * -1.f);
 
 		if(status.fastSpin < 0 && abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
 			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));

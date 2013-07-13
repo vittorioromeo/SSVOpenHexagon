@@ -335,7 +335,7 @@ namespace hg
 
 		if(state == States::PROFILE_NEW || state == States::ADD_FRIEND) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { playSound("beep.ogg"); enteredString.append(toStr(c)); } }
 		else if(state == States::PROFILES) { enteredString = getProfileNames()[profileIndex % getProfileNames().size()]; }
-		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.getRotationSpeed() * 10 * mFrameTime); }
+		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.getRotationSpeed() * 10.f * mFrameTime); }
 
 		enteredChars.clear();
 	}

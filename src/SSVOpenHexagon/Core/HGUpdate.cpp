@@ -130,7 +130,7 @@ namespace hg
 	}
 	void HexagonGame::updateRotation(float mFrameTime)
 	{
-		auto nextRotation = abs(getRotationSpeed()) * 10 * mFrameTime;
+		auto nextRotation = abs(getRotationSpeed()) * 10.f * mFrameTime;
 		if(status.fastSpin > 0)
 		{
 			nextRotation += abs((getSmootherStep(0, levelData.getValueFloat("fast_spin"), status.fastSpin) / 3.5f) * mFrameTime * 17.0f);

@@ -23,7 +23,7 @@ end
 
 function wallHMCurveAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 	if sync == true then
-		mCurve = getLevelValueFloat("rotation_speed") * 10
+		mCurve = getLevelValueFloat("rotation_speed") * 10.0
 		mCurve = mCurve + (math.random(syncRndMin, syncRndMax) / 100.0)
 	end
 
