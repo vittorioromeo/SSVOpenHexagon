@@ -24,7 +24,6 @@
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Global/Factory.h"
 #include "SSVOpenHexagon/Utils/FPSWatcher.h"
-#pragma GCC system_header
 #include <SSVLuaWrapper/SSVLuaWrapper.h>
 
 namespace hg
@@ -56,9 +55,9 @@ namespace hg
 			std::string restartId{""};
 			float difficultyMult{1};
 			int inputMovement{0};
-			bool inputFocused{false}, mustTakeScreenshot{false};
+			bool inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false};
 			FPSWatcher fpsWatcher;
-			sf::Text text{"", getFont("imagine.ttf"), 25 / getZoomFactor()};
+			sf::Text text{"", getFont("imagine.ttf"), static_cast<unsigned int>(25.f / getZoomFactor())};
 			bool mustChangeSides{false}; // Is the game currently trying to change sides?
 
 			// LUA-related methods
@@ -122,7 +121,7 @@ namespace hg
 
 			// Gameplay methods
 			void newGame(const std::string& mId, bool mFirstPlay, float mDifficultyMult);
-			void death();
+			void death(bool mForce = false);
 
 			// Other methods
 			void executeEvents(ssvuj::Value& mRoot, float mTime);
@@ -152,6 +151,7 @@ namespace hg
 
 			// Input
 			bool getInputFocused() const;
+			bool getInputSwap() const;
 			int getInputMovement() const;
 	};
 }

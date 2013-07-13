@@ -27,6 +27,7 @@ namespace hg
 
 		add3StateInput(game, getTriggerRotateCCW(), getTriggerRotateCW(), inputMovement);
 		add2StateInput(game, getTriggerFocus(), inputFocused);
+		add2StateInput(game, getTriggerSwap(), inputSwap);
 		game.addInput(getTriggerExit(),			[&](float){ goToMenu(); });
 		game.addInput(getTriggerForceRestart(),	[&](float){ status.mustRestart = true; });
 		game.addInput(getTriggerRestart(),		[&](float){ if(status.hasDied) status.mustRestart = true; });
@@ -59,6 +60,7 @@ namespace hg
 		restartId = mId;
 		restartFirstTime = false;
 		setSides(levelData.getSides());
+		status.swapEnabled = levelData.getSwapEnabled();
 
 		// Manager cleanup
 		manager.clear();
@@ -95,12 +97,12 @@ namespace hg
 		if(depth > get3DMaxDepth()) depth = get3DMaxDepth();
 		for(unsigned int i{0}; i < depth; ++i) depthCameras.push_back({window, {}});
 	}
-	void HexagonGame::death()
+	void HexagonGame::death(bool mForce)
 	{
-		playSound("death.ogg");
-		playSound("gameOver.ogg");
+		playSound("death.ogg", SoundPlayer::Mode::Abort);
 
-		if(getInvincible()) return;
+		if(!mForce && (getInvincible() || status.tutorialMode)) return;
+		playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
 		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
@@ -138,13 +140,14 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(getInvincible()) return;
+		if(getInvincible()) { log("Not saving score - invincibility on", "hg::HexagonGame::checkAndSaveScore()"); return; }
 
 		string localValidator{getLocalValidator(levelData.getId(), difficultyMult)};
 		if(getScore(localValidator) < status.currentTime) setScore(localValidator, status.currentTime);
 		saveCurrentProfile();
 
-		if(status.scoreInvalid || !isEligibleForScore()) return;
+		if(status.currentTime < 8) { log("Not sending score - less than 8 seconds", "hg::HexagonGame::checkAndSaveScore()"); return; }
+		if(status.scoreInvalid || !isEligibleForScore()) { log("Not sending score - not eligible", "hg::HexagonGame::checkAndSaveScore()"); return; }
 
 		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
 		Online::startSendScore(toLower(getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);

@@ -108,8 +108,8 @@ namespace hg
 
 		Color TransformH(const Color& in, float H)
 		{
-		  float U = cos(H*M_PI/180);
-		  float W = sin(H*M_PI/180);
+		  float U = cos(H*3.14f/180.f);
+		  float W = sin(H*3.14f/180.f);
 
 		  Color ret;
 		  ret.r = (.701*U+.168*W)*in.r

@@ -95,4 +95,6 @@ namespace hg
 	bool LevelData::getValueBool(const string& mValueName) const					{ return as<bool>(root, mValueName); }
 
 	const vector<TrackedVariable>& LevelData::getTrackedVariables() const			{ return trackedVariables; }
+
+	bool LevelData::getSwapEnabled() const { return as<bool>(root, "swap_enabled", false); }
 }
