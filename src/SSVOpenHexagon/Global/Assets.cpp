@@ -79,7 +79,7 @@ namespace hg
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Sounds/", ".ogg"))
 		{
 			string fileName{getNameFromPath(p, mPath + "Sounds/", "")};
-			assetManager.loadSoundBuffer(mPackName + "_" + fileName, p);
+			assetManager.load<SoundBuffer>(mPackName + "_" + fileName, p);
 		}
 	}
 	void loadMusic(const string& mPath)
@@ -88,7 +88,7 @@ namespace hg
 		{
 			string fileName{getNameFromPath(p, mPath + "Music/", ".ogg")};
 
-			auto& music(assetManager.loadMusic(fileName, p));
+			auto& music(assetManager.load<Music>(fileName, p));
 			music.setVolume(getMusicVolume());
 			music.setLoop(true);
 		}
@@ -212,12 +212,12 @@ namespace hg
 	void stopAllSounds() { soundPlayer.stop(); }
 	void playSound(const string& mId, SoundPlayer::Mode mMode)
 	{
-		if(getNoSound() || !assetManager.hasSoundBuffer(mId)) return;
-		soundPlayer.play(assetManager.getSoundBuffer(mId), mMode);
+		if(getNoSound() || !assetManager.has<SoundBuffer>(mId)) return;
+		soundPlayer.play(assetManager.get<SoundBuffer>(mId), mMode);
 	}
-	void playMusic(const std::string& mId, Time mPlayingOffset) { if(assetManager.hasMusic(mId)) musicPlayer.play(assetManager.getMusic(mId), mPlayingOffset); }
+	void playMusic(const std::string& mId, Time mPlayingOffset) { if(assetManager.has<Music>(mId)) musicPlayer.play(assetManager.get<Music>(mId), mPlayingOffset); }
 
-	Font& getFont(const string& mId) 				{ return assetManager.getFont(mId); }
+	Font& getFont(const string& mId) 				{ return assetManager.get<Font>(mId); }
 	MusicData getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
 	LevelData getLevelData(const string& mId) 		{ return levelDataMap.find(mId)->second; }

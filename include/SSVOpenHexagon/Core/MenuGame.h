@@ -39,8 +39,8 @@ namespace hg
 			std::vector<std::string> friendsScores;
 			std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "creditsBar2d.png", "creditsBar2d.png"};
 
-			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")}, creditsBar1{getAssetManager().getTexture("creditsBar1.png")},
-			creditsBar2{getAssetManager().getTexture("creditsBar2.png")}, bottomBar{getAssetManager().getTexture("bottomBar.png")};
+			sf::Sprite titleBar{getAssetManager().get<sf::Texture>("titleBar.png")}, creditsBar1{getAssetManager().get<sf::Texture>("creditsBar1.png")},
+			creditsBar2{getAssetManager().get<sf::Texture>("creditsBar2.png")}, bottomBar{getAssetManager().get<sf::Texture>("bottomBar.png")};
 
 			std::vector<std::string> levelDataIds;
 			std::vector<float> difficultyMultipliers;

@@ -44,13 +44,13 @@ namespace hg
 	void MenuGame::initAssets()
 	{
 		auto& assetManager(getAssetManager());
-		assetManager.getTexture("titleBar.png").setSmooth(true);
-		assetManager.getTexture("creditsBar1.png").setSmooth(true);
-		assetManager.getTexture("creditsBar2.png").setSmooth(true);
-		assetManager.getTexture("creditsBar2b.png").setSmooth(true);
-		assetManager.getTexture("creditsBar2c.png").setSmooth(true);
-		assetManager.getTexture("creditsBar2d.png").setSmooth(true);
-		assetManager.getTexture("bottomBar.png").setSmooth(true);
+		assetManager.get<Texture>("titleBar.png").setSmooth(true);
+		assetManager.get<Texture>("creditsBar1.png").setSmooth(true);
+		assetManager.get<Texture>("creditsBar2.png").setSmooth(true);
+		assetManager.get<Texture>("creditsBar2b.png").setSmooth(true);
+		assetManager.get<Texture>("creditsBar2c.png").setSmooth(true);
+		assetManager.get<Texture>("creditsBar2d.png").setSmooth(true);
+		assetManager.get<Texture>("bottomBar.png").setSmooth(true);
 
 		refreshCamera();
 	}
@@ -322,7 +322,7 @@ namespace hg
 	void MenuGame::update(float mFrameTime)
 	{
 		currentCreditsId += mFrameTime;
-		creditsBar2.setTexture(getAssetManager().getTexture(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
+		creditsBar2.setTexture(getAssetManager().get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
 
 		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
 
