@@ -28,7 +28,6 @@ namespace hg
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
-
 		game.getEventDelegate(Event::EventType::TextEntered) += [&](const Event& mEvent){ enteredChars.push_back(mEvent.text.unicode); };
 
 		levelDataIds = getLevelIdsByPack(getPackPaths()[packIndex]);
@@ -36,6 +35,7 @@ namespace hg
 
 		if(getProfilesSize() == 0) state = States::PROFILE_NEW;
 		else if(getProfilesSize() == 1) { setCurrentProfile(getFirstProfileName()); state = States::MAIN; }
+
 
 		initOptionsMenu(); initInput();
 	}
@@ -292,7 +292,7 @@ namespace hg
 	{
 		float fw = (1024.f / getWidth());
 		float fh = (768.f / getHeight());
-		float fmin = min(fw, fh);
+		float fmin = max(fw, fh);
 		float w = getWidth() * fmin;
 		float h = getHeight() * fmin;
 		overlayCamera.setView(View{FloatRect(0, 0, w, h)});
@@ -376,7 +376,7 @@ namespace hg
 	{
 		float fw = (1024.f / getWidth());
 		float fh = (768.f / getHeight());
-		float fmin = min(fw, fh);
+		float fmin = max(fw, fh);
 		float w = getWidth() * fmin;
 		float h = getHeight() * fmin;
 
@@ -395,7 +395,6 @@ namespace hg
 			else if(serverVersion > getVersion()) versionMessage = "update available (" + toStr(serverVersion) + ")";
 			renderText(versionMessage, cProfText, {20, 0}, 13);
 
-			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20.f, getGlobalTop(titleBar)}, 11);
 
 			Text& profile = renderText("profile: " + getCurrentProfile().getName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
 			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20.f, getGlobalBottom(profile) - 7.f}, 18);
@@ -405,10 +404,12 @@ namespace hg
 			if(wasOverloaded || Online::isOverloaded()) { leaderboardString = friendsString = "too many requests, wait..."; }
 
 			renderText(leaderboardString, cProfText, {20.f, getGlobalBottom(lbest)}, 15);
-			renderText("server message: " + Online::getServerMessage(), levelAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+			Text& smsg = renderText("server message: " + Online::getServerMessage(), levelAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
 			friendsText.setOrigin({getLocalWidth(friendsText), 0.f});
 			renderText("friends:\n" + friendsString, friendsText, {w - 20.f, getGlobalBottom(titleBar)}, 18);
 			//renderText("packs:\n" + packNames, packsText, {overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, getHeight() - 20.f - friendsText.getGlobalBounds().height))});
+
+			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20.f, getGlobalTop(smsg) - 20.f}, 11);
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
@@ -446,7 +447,7 @@ namespace hg
 	{
 		float fw = (1024.f / getWidth());
 		float fh = (768.f / getHeight());
-		float fmin = min(fw, fh);
+		float fmin = max(fw, fh);
 		float w = getWidth() * fmin;
 		float h = getHeight() * fmin;
 
