@@ -140,14 +140,14 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(getInvincible()) { log("Not saving score - invincibility on", "HexagonGame::checkAndSaveScore()"); return; }
+		if(getInvincible()) { log("Not saving score - invincibility on", "hg::HexagonGame::checkAndSaveScore()"); return; }
 
 		string localValidator{getLocalValidator(levelData.getId(), difficultyMult)};
 		if(getScore(localValidator) < status.currentTime) setScore(localValidator, status.currentTime);
 		saveCurrentProfile();
 
-		if(status.currentTime < 8) { log("Not sending score - less than 8 seconds", "HexagonGame::checkAndSaveScore()"); return; }
-		if(status.scoreInvalid || !isEligibleForScore()) { log("Not sending score - not eligible", "HexagonGame::checkAndSaveScore()"); return; }
+		if(status.currentTime < 8) { log("Not sending score - less than 8 seconds", "hg::HexagonGame::checkAndSaveScore()"); return; }
+		if(status.scoreInvalid || !isEligibleForScore()) { log("Not sending score - not eligible", "hg::HexagonGame::checkAndSaveScore()"); return; }
 
 		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
 		Online::startSendScore(toLower(getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);
