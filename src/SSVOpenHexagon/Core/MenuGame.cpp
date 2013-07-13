@@ -313,8 +313,8 @@ namespace hg
 		creditsBar2.setScale({0.373f, 0.373f});
 		creditsBar2.setPosition({w - 20.f, 17.f + getGlobalBottom(creditsBar1)});
 
-		float scaleFactor{w / 2048.f};
-		bottomBar.setOrigin({0, 112.f});
+		float scaleFactor{w / 1024.f};
+		bottomBar.setOrigin({0, 56.f});
 		bottomBar.setScale({scaleFactor, scaleFactor});
 		bottomBar.setPosition(Vec2f(0, h));
 	}
