@@ -14,7 +14,7 @@ absolutePath=$(readlink -f ${1})
 projectName="SSVOpenHexagon"
 buildType="Release"
 buildSharedLibs="True"
-makeJobs="8"
+makeJobs="4"
 destinationDir="${absolutePath}/"
 cmakePrefixPath="${absolutePath}/temp"
 cmakeFlags="-DCMAKE_BUILD_TYPE=${buildType} -DCMAKE_SKIP_BUILD_RPATH=True"
@@ -24,11 +24,12 @@ if [ ! -d "${destinationDir}" ]; then
   	exit 1
 fi
 
-echo "Building a release version of ${projectName}"
+echo "Building a release (distribution) version of ${projectName}"
 echo "cmakeFlags: ${cmakeFlags}"
 echo "cmakePrefixPath: ${cmakePrefixPath}"
 echo "destinationDir: ${destinationDir}"
 echo "All files in ${destinationDir} will be removed"
+echo "Building ${projectName} requires a C++11 compiler (like clang++-3.2 or g++-4.7.2)"
 
 read -p "Continue? [Y/N] " -n 1
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -133,4 +134,4 @@ echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./x86/; ./x86/SSVOpenHexagon' >> "
 find "${x86Folder}" -name SSV*'.so' | xargs strip -s -g
 find "${x86Folder}" -name 'SSVOpenHexagon'* | xargs strip -s -g
 
-echo "Successfully finished."
+echo "Successfully finished building ${projectName}."
