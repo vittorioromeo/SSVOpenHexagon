@@ -23,6 +23,8 @@ namespace hg
 	class MenuGame
 	{
 		private:
+			float fw, fh, fmin, w, h;
+
 			HexagonGame& hexagonGame;
 			ssvs::GameState game;
 			ssvs::GameWindow& window;

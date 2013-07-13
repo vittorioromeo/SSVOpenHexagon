@@ -18,25 +18,25 @@ namespace hg
 			std::string id, fileName, name, album, author;
 			bool firstPlay{true};
 
-			int getRandomSegment() const;
+			inline int getRandomSegment() const;
 
 		public:
 			MusicData() = default;
 			MusicData(const std::string& mId, const std::string& mFileName, const std::string& mName, const std::string& mAlbum, const std::string& mAuthor);
 
-			void addSegment(int mSeconds);
+			inline void addSegment(int mSeconds) { segments.push_back(mSeconds); }
 			void playRandomSegment();
 			void playSegment(int mSegmentIndex);
 			void playSeconds(int mSeconds);
 
-			std::string getId() const;
-			std::string getFileName() const;
-			std::string getName() const;
-			std::string getAlbum() const;
-			std::string getAuthor() const;
+			inline const std::string& getId() const			{ return id; }
+			inline const std::string& getFileName() const	{ return fileName; }
+			inline const std::string& getName() const		{ return name; }
+			inline const std::string& getAlbum() const		{ return album; }
+			inline const std::string& getAuthor() const		{ return author; }
 
-			void setFirstPlay(bool mFirstPlay);
-			bool getFirstPlay() const;
+			inline void setFirstPlay(bool mFirstPlay) { firstPlay = mFirstPlay; }
+			inline bool getFirstPlay() const { return firstPlay; }
 	};
 }
 

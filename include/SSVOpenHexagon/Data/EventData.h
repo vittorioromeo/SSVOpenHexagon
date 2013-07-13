@@ -25,10 +25,10 @@ namespace hg
 
 			void update(float mFrameTime);
 
-			void setHexagonGamePtr(HexagonGame* mHgPtr);
+			inline void setHexagonGamePtr(HexagonGame* mHgPtr) { hgPtr = mHgPtr; }
 
-			std::string getId() const;
-			bool getFinished() const;
+			inline std::string getId() const { return ssvuj::as<std::string>(root, "id"); }
+			inline bool getFinished() const { return finished; }
 	};
 }
 

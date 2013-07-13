@@ -24,7 +24,6 @@ namespace hg
 
 		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
-		sf::Color getColorFromJsonArray(const ssvuj::Value& mArray);
 
 		LevelData loadLevelFromJson(const ssvuj::Value& mRoot);
 		MusicData loadMusicFromJson(const ssvuj::Value& mRoot);

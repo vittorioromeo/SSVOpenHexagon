@@ -26,8 +26,6 @@ namespace hg
 		vertexPositions[3] = getOrbitFromDegrees(centerPos, angle - div * 0.5f + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
 	}
 
-	bool CWall::isOverlapping(Vec2f mPoint) const { return isPointInPolygon(vertexPositions, mPoint); }
-
 	void CWall::draw()
 	{
 		auto colorMain(hexagonGame.getColorMain());
@@ -62,9 +60,5 @@ namespace hg
 
 		if(pointsOnCenter > 3) getEntity().destroy();
 	}
-
-	void CWall::setHueModifier(float mHueModifier) { hueModifier = mHueModifier; }
-	SpeedData& CWall::getSpeed() { return speed; }
-	SpeedData& CWall::getCurve() { return curve; }
 }
 

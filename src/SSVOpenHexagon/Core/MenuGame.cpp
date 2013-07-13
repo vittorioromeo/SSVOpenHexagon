@@ -24,6 +24,7 @@ namespace hg
 {
 	MenuGame::MenuGame(HexagonGame& mHexagonGame, GameWindow& mGameWindow) : hexagonGame(mHexagonGame), window(mGameWindow)
 	{
+		refreshCamera();
 		initAssets();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
@@ -290,11 +291,11 @@ namespace hg
 
 	void MenuGame::refreshCamera()
 	{
-		float fw = (1024.f / getWidth());
-		float fh = (768.f / getHeight());
-		float fmin = max(fw, fh);
-		float w = getWidth() * fmin;
-		float h = getHeight() * fmin;
+		fw = (1024.f / getWidth());
+		fh = (768.f / getHeight());
+		fmin = max(fw, fh);
+		w = getWidth() * fmin;
+		h = getHeight() * fmin;
 		overlayCamera.setView(View{FloatRect(0, 0, w, h)});
 		titleBar.setOrigin({0, 0});
 		titleBar.setScale({0.5f, 0.5f});
@@ -374,12 +375,6 @@ namespace hg
 
 	void MenuGame::drawLevelSelection()
 	{
-		float fw = (1024.f / getWidth());
-		float fh = (768.f / getHeight());
-		float fmin = max(fw, fh);
-		float w = getWidth() * fmin;
-		float h = getHeight() * fmin;
-
 		MusicData musicData{getMusicData(levelData.getMusicId())};
 		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
 		const string& packName{packData.getName()};
@@ -445,12 +440,6 @@ namespace hg
 	}
 	void MenuGame::drawOptions()
 	{
-		float fw = (1024.f / getWidth());
-		float fh = (768.f / getHeight());
-		float fmin = max(fw, fh);
-		float w = getWidth() * fmin;
-		float h = getHeight() * fmin;
-
 		renderText(optionsMenu.getCurrentCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
 
 		float currentX{0.f}, currentY{0.f};

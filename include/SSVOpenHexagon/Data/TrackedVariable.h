@@ -15,8 +15,8 @@ namespace hg
 		bool hasOffset;
 		int offset;
 
-		TrackedVariable(const std::string& mVariableName, const std::string& mDisplayName);
-		TrackedVariable(const std::string& mVariableName, const std::string& mDisplayName, int mOffset);
+		TrackedVariable(const std::string& mVariableName, const std::string& mDisplayName) : variableName{mVariableName}, displayName{mDisplayName}, hasOffset{false} { }
+		TrackedVariable(const std::string& mVariableName, const std::string& mDisplayName, int mOffset) : variableName{mVariableName}, displayName{mDisplayName}, hasOffset{true}, offset{mOffset} { }
 	};
 }
 

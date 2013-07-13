@@ -24,66 +24,63 @@ namespace hg
 			LevelData() = default;
 			LevelData(const ssvuj::Value& mRoot);
 
-			void addEvent(const ssvuj::Value& mEventRoot);
+			inline void addEvent(const ssvuj::Value& mEventRoot) { events.push_back(mEventRoot); }
 
 			void loadTrackedVariables(const ssvuj::Value& mRoot);
 
-			ssvuj::Value& getRoot();
+			inline void setPackPath(const std::string& mPath) 		{ packPath = mPath; }
+			inline void setLevelRootPath(const std::string& mPath) 	{ levelRootPath = mPath; }
+			inline void setStyleRootPath(const std::string& mPath) 	{ styleRootPath = mPath; }
+			inline void setLuaScriptPath(const std::string& mPath)	{ luaScriptPath = mPath; }
+			inline void setSpeedMultiplier(float mSpeedMultiplier)  { root["speed_multiplier"] = mSpeedMultiplier; }
+			inline void setDelayMultiplier(float mDelayMultiplier)	{ root["delay_increment"] = mDelayMultiplier; }
+			inline void setRotationSpeed(float mRotationSpeed) 		{ root["rotation_speed"] = mRotationSpeed; }
+			inline void setValueFloat(const std::string& mValueName, float mValue)					{ ssvuj::set(root, mValueName, mValue); }
+			inline void setValueInt(const std::string& mValueName, int mValue)						{ ssvuj::set(root, mValueName, mValue); }
+			inline void setValueString(const std::string& mValueName, const std::string& mValue)	{ ssvuj::set(root, mValueName, mValue); }
+			inline void setValueBool(const std::string& mValueName, bool mValue)					{ ssvuj::set(root, mValueName, mValue); }
 
-			void setPackPath(const std::string& mPath);
-			void setLevelRootPath(const std::string& mPath);
-			void setStyleRootPath(const std::string& mPath);
-			void setLuaScriptPath(const std::string& mPath);
-			std::string getPackPath() const;
-			std::string getLevelRootPath() const;
-			std::string getStyleRootPath() const;
-			std::string getLuaScriptPath() const;
-
-			std::string getId() const;
-			std::string getName() const;
-			std::string getDescription() const;
-			std::string getAuthor() const;
-			int getMenuPriority() const;
-			bool getSelectable() const;
-			std::string getStyleId() const;
-			std::string getMusicId() const;
-			float getSpeedMultiplier() const;
-			float getSpeedIncrement() const;
-			float getRotationSpeed() const;
-			float getRotationSpeedIncrement() const;
-			float getDelayMultiplier() const;
-			float getDelayIncrement() const;
-			float getFastSpin() const;
-			int getSides() const;
-			int getSidesMax() const;
-			int getSidesMin() const;
-			float getIncrementTime() const;
-			float getPulseMin() const;
-			float getPulseMax() const;
-			float getPulseSpeed() const;
-			float getPulseSpeedR() const;
-			float getPulseDelayMax() const;
-			float getPulseDelayHalfMax() const;
-			float getBeatPulseMax() const;
-			float getBeatPulseDelayMax() const;
-			float getRadiusMin() const;
+			inline ssvuj::Value& getRoot() { return root; }
+			inline const std::string& getPackPath() const		{ return packPath; }
+			inline const std::string& getLevelRootPath() const	{ return levelRootPath; }
+			inline const std::string& getStyleRootPath() const	{ return styleRootPath; }
+			inline const std::string& getLuaScriptPath() const	{ return luaScriptPath; }
+			inline std::string getId() const				{ return getPackPath() + ssvuj::as<std::string>(root, "id"); }
+			inline std::string getName() const				{ return ssvuj::as<std::string>(root, "name"); }
+			inline std::string getDescription() const		{ return ssvuj::as<std::string>(root, "description"); }
+			inline std::string getAuthor() const			{ return ssvuj::as<std::string>(root, "author"); }
+			inline int getMenuPriority() const				{ return ssvuj::as<int>(root, "menu_priority"); }
+			inline bool getSelectable() const				{ return ssvuj::as<bool>(root, "selectable"); }
+			inline std::string getMusicId() const			{ return ssvuj::as<std::string>(root, "music_id"); }
+			inline std::string getStyleId() const			{ return ssvuj::as<std::string>(root, "style_id"); }
+			inline float getSpeedMultiplier() const			{ return ssvuj::as<float>(root, "speed_multiplier"); }
+			inline float getSpeedIncrement() const			{ return ssvuj::as<float>(root, "speed_increment"); }
+			inline float getRotationSpeed() const			{ return ssvuj::as<float>(root, "rotation_speed"); }
+			inline float getRotationSpeedIncrement() const	{ return ssvuj::as<float>(root, "rotation_increment"); }
+			inline float getDelayMultiplier() const			{ return ssvuj::as<float>(root, "delay_multiplier"); }
+			inline float getDelayIncrement() const			{ return ssvuj::as<float>(root, "delay_increment"); }
+			inline float getFastSpin() const				{ return ssvuj::as<float>(root, "fast_spin"); }
+			inline int getSides() const						{ return ssvuj::as<int>(root, "sides"); }
+			inline int getSidesMax() const					{ return ssvuj::as<int>(root, "sides_max"); }
+			inline int getSidesMin() const					{ return ssvuj::as<int>(root, "sides_min"); }
+			inline float getIncrementTime() const			{ return ssvuj::as<float>(root, "increment_time"); }
+			inline float getPulseMin() const				{ return ssvuj::as<float>(root, "pulse_min", 75.f); }
+			inline float getPulseMax() const				{ return ssvuj::as<float>(root, "pulse_max", 80.f); }
+			inline float getPulseSpeed() const				{ return ssvuj::as<float>(root, "pulse_speed", 0.f); }
+			inline float getPulseSpeedR() const				{ return ssvuj::as<float>(root, "pulse_speed_r", 0.f); }
+			inline float getPulseDelayMax() const			{ return ssvuj::as<float>(root, "pulse_delay_max", 0.f); }
+			inline float getPulseDelayHalfMax() const		{ return ssvuj::as<float>(root, "pulse_delay_half_max", 0.f); }
+			inline float getBeatPulseMax() const			{ return ssvuj::as<float>(root, "beatpulse_max", 0.f); }
+			inline float getBeatPulseDelayMax() const		{ return ssvuj::as<float>(root, "beatpulse_delay_max", 0.f); }
+			inline float getRadiusMin() const				{ return ssvuj::as<float>(root, "radius_min", 72.f); }
 			std::vector<float> getDifficultyMultipliers() const;
-			std::vector<ssvuj::Value>& getEvents();
-			const std::vector<TrackedVariable>& getTrackedVariables() const;
-
-			void setSpeedMultiplier(float mSpeedMultiplier);
-			void setDelayMultiplier(float mDelayMultiplier);
-			void setRotationSpeed(float mRotationSpeed);
-			void setValueFloat(const std::string& mValueName, float mValue);
-			float getValueFloat(const std::string& mValueName) const;
-			void setValueInt(const std::string& mValueName, int mValue);
-			float getValueInt(const std::string& mValueName) const;
-			void setValueString(const std::string& mValueName, const std::string& mValue);
-			std::string getValueString(const std::string& mValueName) const;
-			void setValueBool(const std::string& mValueName, bool mValue);
-			bool getValueBool(const std::string& mValueName) const;
-
-			bool getSwapEnabled() const;
+			inline std::vector<ssvuj::Value>& getEvents() { return events; }
+			inline const std::vector<TrackedVariable>& getTrackedVariables() const { return trackedVariables; }
+			inline float getValueFloat(const std::string& mValueName) const							{ return ssvuj::as<float>(root, mValueName); }
+			inline float getValueInt(const std::string& mValueName) const							{ return ssvuj::as<int>(root, mValueName); }
+			inline std::string getValueString(const std::string& mValueName) const					{ return ssvuj::as<std::string>(root, mValueName); }
+			inline bool getValueBool(const std::string& mValueName) const							{ return ssvuj::as<bool>(root, mValueName); }
+			inline bool getSwapEnabled() const { return ssvuj::as<bool>(root, "swap_enabled", false); }
 	};
 }
 

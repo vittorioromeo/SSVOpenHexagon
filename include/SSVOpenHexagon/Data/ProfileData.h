@@ -6,6 +6,7 @@
 #define HG_PROFILEDATA
 
 #include <string>
+#include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 
 namespace hg
@@ -19,18 +20,18 @@ namespace hg
 			std::vector<std::string> trackedNames;
 
 		public:
-			ProfileData(float mVersion, const std::string& mName, const ssvuj::Value& mScores, const std::vector<std::string>& mTrackedNames);
+			ProfileData(float mVersion, const std::string& mName, const ssvuj::Value& mScores, const std::vector<std::string>& mTrackedNames) : version{mVersion}, name{mName}, scores{mScores}, trackedNames{mTrackedNames} { }
 
-			float getVersion() const;
-			std::string getName() const;
-			ssvuj::Value getScores() const;
-			const std::vector<std::string>& getTrackedNames() const;
+			inline float getVersion() const									{ return version; }
+			inline const std::string& getName() const						{ return name; }
+			inline const ssvuj::Value& getScores() const					{ return scores; }
+			inline const std::vector<std::string>& getTrackedNames() const	{ return trackedNames; }
 
-			void setScore(const std::string& mId, float mScore);
-			float getScore(const std::string& mId) const;
+			inline void setScore(const std::string& mId, float mScore)	{ ssvuj::set(scores, mId, mScore); }
+			inline float getScore(const std::string& mId) const			{ return ssvuj::as<float>(scores, mId); }
 
-			void addTrackedName(const std::string& mTrackedName);
-			void clearTrackedNames();
+			inline void addTrackedName(const std::string& mTrackedName)	{ trackedNames.push_back(ssvu::toLower(mTrackedName)); }
+			inline void clearTrackedNames()								{ trackedNames.clear(); }
 	};
 }
 

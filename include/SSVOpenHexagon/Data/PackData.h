@@ -16,11 +16,11 @@ namespace hg
 			float priority;
 
 		public:
-			PackData(const std::string& mId, const std::string& mName, float mPriority, const std::string& mHash);
-			std::string getId() const;
-			std::string getName() const;
-			std::string getHash() const;
-			float getPriority() const;
+			PackData(const std::string& mId, const std::string& mName, float mPriority, const std::string& mHash) : id{mId}, name{mName}, hash{mHash}, priority{mPriority} { }
+			inline const std::string& getId() const		{ return id; }
+			inline const std::string& getName() const	{ return name; }
+			inline const std::string& getHash() const	{ return hash; }
+			inline float getPriority() const			{ return priority; }
 	};
 }
 

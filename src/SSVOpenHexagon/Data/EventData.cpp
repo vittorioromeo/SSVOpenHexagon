@@ -20,10 +20,5 @@ namespace hg
 		for(ssvuj::Value event : root["events"]) if(as<float>(event, "time") > currentTime) return;
 		finished = true;
 	}
-
-	void EventData::setHexagonGamePtr(HexagonGame* mHgPtr) { hgPtr = mHgPtr; }
-
-	string EventData::getId() const		{ return as<string>(root, "id"); }
-	bool EventData::getFinished() const	{ return finished; }
 }
 

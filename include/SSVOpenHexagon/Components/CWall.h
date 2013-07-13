@@ -52,13 +52,14 @@ namespace hg
 		public:
 			CWall(HexagonGame& mHexagonGame, ssvs::Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
 
-			bool isOverlapping(ssvs::Vec2f mPoint) const;
 			void update(float mFrameTime) override;
 			void draw() override;
 
-			void setHueModifier(float mHueModifier);
-			SpeedData& getSpeed();
-			SpeedData& getCurve();
+			inline void setHueModifier(float mHueModifier) { hueModifier = mHueModifier; }
+
+			inline SpeedData& getSpeed() { return speed; }
+			inline SpeedData& getCurve() { return curve; }
+			inline bool isOverlapping(ssvs::Vec2f mPoint) const { return ssvs::Utils::isPointInPolygon(vertexPositions, mPoint); }
 	};
 }
 

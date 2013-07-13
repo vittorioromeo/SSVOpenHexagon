@@ -129,30 +129,33 @@ namespace hg
 			// Graphics-related methods
 			void render(sf::Drawable&);
 
-			// Properties
-			ssvs::GameState& getGame();
-			float getRadius() const;
-			sf::Color getColorMain() const;
-			sf::Color getColor(int mIndex) const;
-			float getSpeedMultiplier() const;
-			float getDelayMultiplier() const;
-			float getRotationSpeed() const;
-			unsigned int getSides() const;
-			void setSpeedMultiplier(float mSpeedMultiplier);
-			void setDelayMultiplier(float mDelayMultiplier);
-			void setRotationSpeed(float mRotationSpeed);
+			// Setters
+			inline void setSpeedMultiplier(float mSpeedMultiplier)	{ levelData.setSpeedMultiplier(mSpeedMultiplier); }
+			inline void setDelayMultiplier(float mDelayMultiplier)	{ levelData.setDelayMultiplier(mDelayMultiplier); }
+			inline void setRotationSpeed(float mRotationSpeed)		{ levelData.setRotationSpeed(mRotationSpeed); }
 			void setSides(unsigned int mSides);
-			float getWallSkewLeft() const;
-			float getWallSkewRight() const;
-			float getWallAngleLeft() const;
-			float getWallAngleRight() const;
-			float get3DEffectMult() const;
-			HexagonGameStatus& getStatus();
+
+			// Getters
+			inline ssvs::GameState& getGame()						{ return game; }
+			inline float getRadius() const							{ return status.radius; }
+			inline const sf::Color& getColor(int mIndex) const		{ return styleData.getColor(mIndex); }
+			inline float getSpeedMultiplier() const					{ return levelData.getSpeedMultiplier() * (pow(difficultyMult, 0.65f)); }
+			inline float getDelayMultiplier() const					{ return levelData.getDelayMultiplier() / (pow(difficultyMult, 0.10f)); }
+			inline float getRotationSpeed() const					{ return levelData.getRotationSpeed(); }
+			inline unsigned int getSides() const					{ return levelData.getSides(); }
+			inline float getWallSkewLeft() const					{ return levelData.getValueFloat("wall_skew_left"); }
+			inline float getWallSkewRight() const					{ return levelData.getValueFloat("wall_skew_right"); }
+			inline float getWallAngleLeft() const					{ return levelData.getValueFloat("wall_angle_left"); }
+			inline float getWallAngleRight() const					{ return levelData.getValueFloat("wall_angle_right"); }
+			inline float get3DEffectMult() const					{ return levelData.getValueFloat("3d_effect_multiplier"); }
+			inline HexagonGameStatus& getStatus()					{ return status; }
+			sf::Color getColorMain() const;
 
 			// Input
-			bool getInputFocused() const;
-			bool getInputSwap() const;
-			int getInputMovement() const;
+			inline bool getInputFocused() const	{ return inputFocused; }
+			inline bool getInputSwap() const	{ return inputSwap; }
+			inline int getInputMovement() const	{ return inputMovement; }
 	};
 }
+
 #endif
