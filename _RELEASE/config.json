@@ -11,7 +11,7 @@
 	"change_styles" : true,
 	"debug" : false,
 	"flash_enabled" : true,
-	"fullscreen" : true,
+	"fullscreen" : false,
 	"fullscreen_auto_resolution" : false,
 	"fullscreen_height" : 1080,
 	"fullscreen_width" : 1920,
@@ -78,7 +78,7 @@
 	],
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 480,
-	"windowed_width" : 640,
-	"zoom_factor" : 0.7111111283302307
+	"windowed_height" : 1024,
+	"windowed_width" : 1280,
+	"zoom_factor" : 0.8000000119209290
 }

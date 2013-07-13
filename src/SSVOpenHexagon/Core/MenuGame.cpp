@@ -43,13 +43,14 @@ namespace hg
 	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); refreshScores(); }
 	void MenuGame::initAssets()
 	{
-		getAssetManager().getTexture("titleBar.png").setSmooth(true);
-		getAssetManager().getTexture("creditsBar1.png").setSmooth(true);
-		getAssetManager().getTexture("creditsBar2.png").setSmooth(true);
-		getAssetManager().getTexture("creditsBar2b.png").setSmooth(true);
-		getAssetManager().getTexture("creditsBar2c.png").setSmooth(true);
-		getAssetManager().getTexture("creditsBar2d.png").setSmooth(true);
-		getAssetManager().getTexture("bottomBar.png").setSmooth(true);
+		auto& assetManager(getAssetManager());
+		assetManager.getTexture("titleBar.png").setSmooth(true);
+		assetManager.getTexture("creditsBar1.png").setSmooth(true);
+		assetManager.getTexture("creditsBar2.png").setSmooth(true);
+		assetManager.getTexture("creditsBar2b.png").setSmooth(true);
+		assetManager.getTexture("creditsBar2c.png").setSmooth(true);
+		assetManager.getTexture("creditsBar2d.png").setSmooth(true);
+		assetManager.getTexture("bottomBar.png").setSmooth(true);
 
 		refreshCamera();
 	}
