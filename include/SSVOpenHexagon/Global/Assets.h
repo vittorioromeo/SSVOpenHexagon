@@ -35,11 +35,9 @@ namespace hg
 	void refreshVolumes();
 	void stopAllMusic();
 	void stopAllSounds();
-	void playSound(const std::string& mId);
+	void playSound(const std::string& mId, ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
 
 	sf::Font& getFont(const std::string& mId);
-	sf::Sound* getSoundPtr(const std::string& mId);
-	sf::Music* getMusicPtr(const std::string& mId);
 	MusicData getMusicData(const std::string& mId);
 	StyleData getStyleData(const std::string& mId);
 	LevelData getLevelData(const std::string& mId);

@@ -27,7 +27,7 @@ namespace hg
 			updateEvents(mFrameTime);
 			updateTimeStop(mFrameTime);
 			updateIncrement();
-			if(mustChangeSides && manager.getComponents("wall").size() <= 0) sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1));
+			if(mustChangeSides && !manager.hasEntity("wall")) sideChange(getRnd(levelData.getSidesMin(), levelData.getSidesMax() + 1));
 			updateLevel(mFrameTime);
 			if(getBeatPulse()) updateBeatPulse(mFrameTime);
 			if(getPulse()) updatePulse(mFrameTime);

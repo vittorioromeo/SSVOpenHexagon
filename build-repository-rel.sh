@@ -1,55 +1,136 @@
 #!/bin/bash
 
 # This bash script, called in a repository with submodules, builds and installs all submodules then the project itself
+# RELEASE MODE, SKIPS RPATH
+# Takes $1 destination directory parameter
 
-CMAKEFLAGS="-DCMAKE_BUILD_TYPE=$BUILDTYPE -DCMAKE_SKIP_BUILD_RPATH=TRUE"
+if [ -z "${1}" ]; then
+	echo "This script the installation path as an argument!"
+	exit 1
+fi
 
-export DESTDIR="$1/"
-export CMAKE_PREFIX_PATH="$1/usr/local/"
+absolutePath=$(readlink -f ${1})
 
-echo "building for release"
-echo "CMAKEFLAGS = $CMAKEFLAGS"
-echo "DESTDIR = $DESTDIR"
-echo "CMAKE_PREFIX_PATH = $CMAKE_PREFIX_PATH"
+projectName="SSVOpenHexagon"
+buildType="Release"
+buildSharedLibs="True"
+makeJobs="8"
+destinationDir="${absolutePath}/"
+cmakePrefixPath="${absolutePath}/temp"
+cmakeFlags="-DCMAKE_BUILD_TYPE=${buildType} -DCMAKE_SKIP_BUILD_RPATH=True"
 
-PROJECTNAME=${PWD##*/} # Project to build (current directory name)
-BUILDTYPE="RELEASE" # Passed to CMake (CMAKE_BUILD_TYPE)
-BUILDSHARED="TRUE" # Passed to CMake (LIBNAME_BUILD_SHARED_LIB)
+if [ ! -d "${destinationDir}" ]; then
+  	echo "${destinationDir} does not exist!"
+  	exit 1
+fi
 
-LIBS=() # List of extlibs to build (gathered from ./extlibs/*)
-for dir in ./extlibs/*; do LIBS+=(${dir##*/}); done	# Fill LIBS
+echo "Building a release version of ${projectName}"
+echo "cmakeFlags: ${cmakeFlags}"
+echo "cmakePrefixPath: ${cmakePrefixPath}"
+echo "destinationDir: ${destinationDir}"
+echo "All files in ${destinationDir} will be removed"
+
+read -p "Continue? [Y/N] " -n 1
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 1
+fi
+
+rm -Rf "${destinationDir}"*
+
+dependencies=("SSVJsonCpp" "SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
+
+export DESTDIR="${cmakePrefixPath}"
+
+function warn() {
+	echo "Error occured in: `pwd`"; echo "Error was: "$@
+}
+
+function die() {
+	status=$1; shift; warn "$@" >&2; exit $status
+}
 
 # Builds a lib, with name $1 - calls CMake, make -j and make install -j
-function buildLib 
+function buildLib
 {
-	local LIBNAME="$1"
-	local ULIBNAME=$(echo "$1" | tr '[:lower:]' '[:upper:]')
+	local libName="${1}"
 
-	echo "Building $ULIBNAME..." 
-  	cd $LIBNAME # Enter lib main directory (where CMakeLists.txt is)
-  	rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory1
-  	mkdir build; cd build # Create and move to the build directory
-  	rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
+	echo "Building ${libName}..."
+  	cd "${libName}" # Enter lib main directory (where CMakeLists.txt is)
+  	mkdir "build"; cd "build" # Create and move to the build directory
 
-  	# Run CMake, make and make install
-	cmake ../ -D"$ULIBNAME"_BUILD_SHARED_LIB=$BUILDSHARED $CMAKEFLAGS
-	make -j; make install -j
+	# Run CMake, make and make install
+	cmake ../ "-DBUILD_SHARED_LIB=${buildSharedLibs} ${cmakeFlags}" || die 1 "cmake failed"
+
+	make "-j${makeJobs}" || die 1 "make failed"
+	make install "-j${makeJobs}" || die 1 "make install failed"
 
 	cd ../.. # Go back to extlibs directory
-	echo "Finished building $ULIBNAME..."
-}  
+	echo "Finished building ${libName}..."
+}
 
-cd extlibs  # Start building... Enter extlibs, and build extlibs
-for LIB in ${LIBS[*]}; do buildLib $LIB; done
-cd .. # Now we are in the main folder
-echo "Building $PROJECTNAME..." 
-rm CMakeCache.txt # Remove CMakeCache.txt, in case an earlier (accidental) build was made in the main directory
-mkdir build; cd build # Create and move to the build directory
-rm CMakeCache.txt # If the library was previously built, remove CMakeCache.txt
+cd "extlibs"  # Start building... Enter extlibs, and build extlibs
+for l in "${dependencies[@]}"; do buildLib "${l}"; done
+cd ".." # Now we are in the main folder
+echo "Building ${projectName}..."
+mkdir "build"; cd "build" # Create and move to the build directory
 
 ## Run CMake, make and make install
-cmake ../ $CMAKEFLAGS
-make -j; make install -j
+cmake ../ "${cmakeFlags}"
+make "-j${makeJobs}"; make install "-j${makeJobs}"
 
-cd ..
-echo "Finished building $PROJECTNAME..."
+cd ".."
+echo "Finished building ${projectName}..."
+
+mv "${cmakePrefixPath}/usr/local/games/SSVOpenHexagon/"* "${destinationDir}"
+
+echo "Copying system libraries..."
+
+x86Folder="${destinationDir}/x86/"
+mkdir "${x86Folder}"
+
+cp -av "${cmakePrefixPath}/usr/local/lib/"* "${x86Folder}"
+echo "Removing temp directories..."
+rm -Rf "${cmakePrefixPath}"
+
+searchPaths=("/usr/local/lib/" "/usr/lib/" "/usr/lib/i386-linux-gnu/")
+
+for s in "${searchPaths[@]}"; do
+	cp -av "${s}"libsfml*[!d].so* "${x86Folder}"
+	cp -av "${s}"libfreetype*.so* "${x86Folder}"
+	cp -av "${s}"libjpeg*.so* "${x86Folder}"
+	cp -av "${s}"liblua*.so* "${x86Folder}"
+	cp -av "${s}"libGLEW*.so* "${x86Folder}"
+	cp -av "${s}"libopenal*.so* "${x86Folder}"
+	cp -av "${s}"libstdc++*.so* "${x86Folder}"
+	cp -av "${s}"libsfml*.so* "${x86Folder}"
+	cp -av "${s}"libsndfile*.so* "${x86Folder}"
+	cp -av "${s}"libFLAC*.so* "${x86Folder}"
+	cp -av "${s}"libogg.so* "${x86Folder}"
+	cp -av "${s}"libvorbis*.so* "${x86Folder}"
+	cp -av "${s}"ld-linux*.so* "${x86Folder}"
+	cp -av "${s}"libc.so* "${x86Folder}"
+	cp -av "${s}"libdrm.so* "${x86Folder}"
+	cp -av "${s}"libgcc*.so* "${x86Folder}"
+	cp -av "${s}"libglapi.so* "${x86Folder}"
+	cp -av "${s}"libm.so* "${x86Folder}"
+	cp -av "${s}"libpthread.so* "${x86Folder}"
+	cp -av "${s}"librt.so* "${x86Folder}"
+	cp -av "${s}"libz.so* "${x86Folder}"
+	cp -av "${s}"libx*.so* "${x86Folder}"
+	cp -av "${s}"libX*.so* "${x86Folder}"
+	cp -av "${s}"libSM.so* "${x86Folder}"
+done
+
+mv -f "${destinationDir}/SSVOpenHexagon" "${x86Folder}"
+chmod +x "${x86Folder}/SSVOpenHexagon"
+
+touch "${destinationDir}/OpenHexagon"
+chmod +x "${destinationDir}/OpenHexagon"
+
+echo '#!/bin/bash' > "${destinationDir}/OpenHexagon"
+echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./x86/; ./x86/SSVOpenHexagon' >> "${destinationDir}/OpenHexagon"
+
+find "${x86Folder}" -name SSV*'.so' | xargs strip -s -g
+find "${x86Folder}" -name 'SSVOpenHexagon'* | xargs strip -s -g
+
+echo "Successfully finished."

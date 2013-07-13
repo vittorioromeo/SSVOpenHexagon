@@ -1,0 +1,20 @@
+{
+	// Music data id
+	"id": "massacrev2",
+
+	// Music file
+	"file_name": "massacrev2.ogg",
+
+	// Music information
+	"name": "Massacre (version 2)",
+	"album": "",
+	"author": "Fantomenk",
+	
+	// Segments
+	"segments":
+	[
+		{ "time": 15 },
+		{ "time": 83 },
+		{ "time": 160 }
+	]
+}

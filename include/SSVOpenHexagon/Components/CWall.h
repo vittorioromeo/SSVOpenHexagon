@@ -50,7 +50,7 @@ namespace hg
 			int side{0};
 
 		public:
-			CWall(sses::Entity& mEntity, HexagonGame& mHexagonGame, ssvs::Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
+			CWall(HexagonGame& mHexagonGame, ssvs::Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
 
 			bool isOverlapping(ssvs::Vec2f mPoint) const;
 			void update(float mFrameTime) override;

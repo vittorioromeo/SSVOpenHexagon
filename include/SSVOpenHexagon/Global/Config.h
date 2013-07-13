@@ -21,6 +21,10 @@ namespace hg
 	void recalculateSizes();
 	void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
+	void refreshWindowSize(unsigned int mWidth, unsigned int mHeight);
+	void setCurrentResolution(ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight);
+	void setCurrentResolutionAuto(ssvs::GameWindow& mWindow);
+
 	void setOnline(bool mOnline);
 	void setOfficial(bool mOfficial);
 	void setNoRotation(bool mNoRotation);
@@ -90,6 +94,7 @@ namespace hg
 	ssvs::Input::Trigger getTriggerForceRestart();
 	ssvs::Input::Trigger getTriggerRestart();
 	ssvs::Input::Trigger getTriggerScreenshot();
+	ssvs::Input::Trigger getTriggerSwap();
 }
 
 #endif

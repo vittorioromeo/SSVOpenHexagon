@@ -21,12 +21,13 @@ namespace hg
 			sf::VertexArray vertices{sf::PrimitiveType::Triangles, 3};
 			float hue{0}, angle{0}, size{getPlayerSize()}, speed{getPlayerSpeed()}, focusSpeed{getPlayerFocusSpeed()};
 			bool dead{false};
+			float deadEffectTimer{-1}, swapTimer{40};
 
 			void drawPivot();
 			void drawDeathEffect();
 
-		public:		
-			CPlayer(sses::Entity& mEntity, HexagonGame& mHexagonGame, ssvs::Vec2f mStartPos);
+		public:
+			CPlayer(HexagonGame& mHexagonGame, ssvs::Vec2f mStartPos);
 
 			void update(float mFrameTime) override;
 			void draw() override;

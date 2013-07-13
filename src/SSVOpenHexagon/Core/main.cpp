@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
 
 	HexagonGame hg{window}; MenuGame mg{hg, window}; hg.mgPtr = &mg;
 
+	refreshVolumes();
 	window.setGameState(mg.getGame()); mg.init();
 	window.run();
 

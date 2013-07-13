@@ -32,14 +32,15 @@ namespace hg
 			States state{States::PROFILES};
 			ssvms::Menu optionsMenu;
 			std::string scoresMessage;
-			float exitTimer{0};
+			float exitTimer{0}, currentCreditsId{0};
 			bool mustTakeScreenshot{false};
-			std::string currentLeaderboard{""}, currentPlayerScore{""}, enteredString{""}, leaderboardString{""}, friendsString{""};
+			std::string currentLeaderboard, currentPlayerScore, enteredString, leaderboardString, friendsString;
 			std::vector<char> enteredChars;
 			std::vector<std::string> friendsScores;
+			std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "creditsBar2d.png", "creditsBar2d.png"};
 
-			sf::Sprite titleBar{getAssetManager().getTexture("titleBar.png")}, creditsBar1{getAssetManager().getTexture("creditsBar1.png")},
-			creditsBar2{getAssetManager().getTexture("creditsBar2.png")}, bottomBar{getAssetManager().getTexture("bottomBar.png")};
+			sf::Sprite titleBar{getAssetManager().get<sf::Texture>("titleBar.png")}, creditsBar1{getAssetManager().get<sf::Texture>("creditsBar1.png")},
+			creditsBar2{getAssetManager().get<sf::Texture>("creditsBar2.png")}, bottomBar{getAssetManager().get<sf::Texture>("bottomBar.png")};
 
 			std::vector<std::string> levelDataIds;
 			std::vector<float> difficultyMultipliers;
@@ -51,8 +52,9 @@ namespace hg
 			StyleData styleData;
 			sf::Text versionText{"", getFont("imagine.ttf"), 40}, cProfText{"", getFont("imagine.ttf"), 21}, levelName{"", getFont("imagine.ttf"), 65},
 				levelDesc{"", getFont("imagine.ttf"), 32}, levelAuth{"", getFont("imagine.ttf"), 20}, levelMusc{"", getFont("imagine.ttf"), 20},
-				friendsText{"", getFont("imagine.ttf"), 21};
+				friendsText{"", getFont("imagine.ttf"), 21}, packsText{"", getFont("imagine.ttf"), 14};
 
+			void refreshCamera();
 			void initAssets();
 			void initOptionsMenu();
 			void initInput();
@@ -63,7 +65,7 @@ namespace hg
 			void drawProfileSelection();
 			void drawOptions();
 			void render(sf::Drawable&);
-			void renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
+			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
 			void setIndex(int mIndex);
 			void refreshScores();
 			void updateLeaderboard();

@@ -1,0 +1,51 @@
+{
+	// Level information
+	"id": "g-force",
+	"name": "g-force",
+	"description": "beware the acceleration",
+	"author": "vee",	
+	"menu_priority": 40,
+	"selectable": true,
+	
+	// Style
+	"style_id": "g-force",
+	
+	// Music
+	"music_id": "cpumood",
+	
+	// Lua
+	"lua_file": "defaultLevels/g-force.lua",
+	
+	// Difficulty multipliers
+	"difficulty_multipliers": [1.6, 2.2, 2.8, 0.4, 0.6],
+
+	// Swap
+	"swap_enabled": true,
+	
+	// Basic values
+	"speed_multiplier": 2.10,
+	"speed_increment": 0.16,
+	"rotation_speed": 0.12,
+	"rotation_increment": 0.035,
+	"delay_multiplier": 1.90,
+	"delay_increment": 0.00,
+	"fast_spin": 0.00,
+	"sides": 4,
+	"sides_min": 4,
+	"sides_max": 4,
+	"increment_time": 10,
+	"rotation_speed_max": 0.25,
+	"wall_skew_left": -15,
+	
+	"pulse_min": 77,
+	"pulse_max": 95,
+	"pulse_speed": 2.95,
+	"pulse_speed_r": 0.51,
+	"pulse_delay_max": 13.0,
+	
+	"beatpulse_max": 19,
+	"beatpulse_delay_max": 14.2,
+	
+	//Events
+	"events": []
+}
