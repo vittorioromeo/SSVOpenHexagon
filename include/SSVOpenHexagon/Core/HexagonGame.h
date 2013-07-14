@@ -48,15 +48,15 @@ namespace hg
 			ssvu::Timeline timeline, eventTimeline, messageTimeline;
 			sf::Text messageText{"", getFont("imagine.ttf"), static_cast<unsigned int>(38.f / getZoomFactor())};
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
-			bool firstPlay{true}, restartFirstTime{true};
+			bool firstPlay{true}, restartFirstTime{true}, inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false}, mustChangeSides{false};
 			HexagonGameStatus status;
 			std::string restartId{""};
 			float difficultyMult{1};
 			int inputMovement{0};
-			bool inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false};
+
 			FPSWatcher fpsWatcher;
 			sf::Text text{"", getFont("imagine.ttf"), static_cast<unsigned int>(25.f / getZoomFactor())};
-			bool mustChangeSides{false}; // Is the game currently trying to change sides?
+
 
 			// LUA-related methods
 			void initLua();
@@ -140,11 +140,11 @@ namespace hg
 			inline float getDelayMultiplier() const					{ return levelData.getDelayMultiplier() / (pow(difficultyMult, 0.10f)); }
 			inline float getRotationSpeed() const					{ return levelData.getRotationSpeed(); }
 			inline unsigned int getSides() const					{ return levelData.getSides(); }
-			inline float getWallSkewLeft() const					{ return levelData.getValueFloat("wall_skew_left"); }
-			inline float getWallSkewRight() const					{ return levelData.getValueFloat("wall_skew_right"); }
-			inline float getWallAngleLeft() const					{ return levelData.getValueFloat("wall_angle_left"); }
-			inline float getWallAngleRight() const					{ return levelData.getValueFloat("wall_angle_right"); }
-			inline float get3DEffectMult() const					{ return levelData.getValueFloat("3d_effect_multiplier"); }
+			inline float getWallSkewLeft() const					{ return levelData.getWallSkewLeft(); }
+			inline float getWallSkewRight() const					{ return levelData.getWallSkewRight(); }
+			inline float getWallAngleLeft() const					{ return levelData.getWallAngleLeft(); }
+			inline float getWallAngleRight() const					{ return levelData.getWallAngleRight(); }
+			inline float get3DEffectMult() const					{ return levelData.get3DEffectMult(); }
 			inline HexagonGameStatus& getStatus()					{ return status; }
 			sf::Color getColorMain() const;
 

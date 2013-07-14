@@ -80,7 +80,7 @@ function pTrapSpiral(mSide)
 end
 
 function pRCBarrage()
-	currentSides = getLevelValueInt("sides")
+	currentSides = getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
@@ -91,7 +91,7 @@ function pRCBarrage()
 end
 
 function pRCBarrageDouble()
-	currentSides = getLevelValueInt("sides")
+	currentSides = getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
@@ -103,7 +103,7 @@ function pRCBarrageDouble()
 end
 
 function pRCBarrageSpin()
-	currentSides = getLevelValueInt("sides")
+	currentSides = getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	loopDir = getRandomDir()
@@ -118,7 +118,7 @@ function pRCBarrageSpin()
 end
 
 function pACBarrage()
-	currentSides = getLevelValueInt("sides")
+	currentSides = getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
@@ -129,7 +129,7 @@ function pACBarrage()
 end
 
 function pACBarrageMulti()
-	currentSides = getLevelValueInt("sides")
+	currentSides = getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
@@ -143,7 +143,7 @@ function pACBarrageMulti()
 end
 
 function pACBarrageMultiAltDir()
-	currentSides = getLevelValueInt("sides")
+	currentSides = getSides()
 	delay = getPerfectDelayDMDM(THICKNESS) * 4
 	mdiff = 1 + math.abs(1 - getDifficultyMult())
 	startSide = math.random(0, 10)

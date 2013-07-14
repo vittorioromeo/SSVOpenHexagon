@@ -35,10 +35,8 @@ namespace hg
 			inline void setSpeedMultiplier(float mSpeedMultiplier)  { ssvuj::set(root, "speed_multiplier", mSpeedMultiplier); }
 			inline void setDelayMultiplier(float mDelayMultiplier)	{ ssvuj::set(root, "delay_multiplier", mDelayMultiplier); }
 			inline void setRotationSpeed(float mRotationSpeed) 		{ ssvuj::set(root, "rotation_speed", mRotationSpeed); }
-			inline void setValueFloat(const std::string& mValueName, float mValue)					{ ssvuj::set(root, mValueName, mValue); }
-			inline void setValueInt(const std::string& mValueName, int mValue)						{ ssvuj::set(root, mValueName, mValue); }
-			inline void setValueString(const std::string& mValueName, const std::string& mValue)	{ ssvuj::set(root, mValueName, mValue); }
-			inline void setValueBool(const std::string& mValueName, bool mValue)					{ ssvuj::set(root, mValueName, mValue); }
+			inline void setSides(unsigned int mSides)				{ ssvuj::set(root, "sides", mSides); }
+			inline void setIncrementTime(float mIncrementTime)	{ ssvuj::set(root, "increment_time", mIncrementTime); }
 
 			inline ssvuj::Value& getRoot() { return root; }
 			inline const std::string& getPackPath() const		{ return packPath; }
@@ -73,13 +71,15 @@ namespace hg
 			inline float getBeatPulseMax() const			{ return ssvuj::as<float>(root, "beatpulse_max", 0.f); }
 			inline float getBeatPulseDelayMax() const		{ return ssvuj::as<float>(root, "beatpulse_delay_max", 0.f); }
 			inline float getRadiusMin() const				{ return ssvuj::as<float>(root, "radius_min", 72.f); }
+			inline float getWallSkewLeft() const			{ return ssvuj::as<float>(root, "wall_skew_left", 0.f); }
+			inline float getWallSkewRight() const			{ return ssvuj::as<float>(root, "wall_skew_right", 0.f); }
+			inline float getWallAngleLeft() const			{ return ssvuj::as<float>(root, "wall_angle_left", 0.f); }
+			inline float getWallAngleRight() const			{ return ssvuj::as<float>(root, "wall_angle_right", 0.f); }
+			inline float get3DEffectMult() const			{ return ssvuj::as<float>(root, "3d_effect_multiplier", 1.f); }
+			inline float getRotationSpeedMax() const		{ return ssvuj::as<float>(root, "rotation_speed_max", 0.f); }
 			std::vector<float> getDifficultyMultipliers() const;
 			inline std::vector<ssvuj::Value>& getEvents() { return events; }
 			inline const std::vector<TrackedVariable>& getTrackedVariables() const { return trackedVariables; }
-			inline float getValueFloat(const std::string& mValueName) const							{ return ssvuj::as<float>(root, mValueName); }
-			inline float getValueInt(const std::string& mValueName) const							{ return ssvuj::as<int>(root, mValueName); }
-			inline std::string getValueString(const std::string& mValueName) const					{ return ssvuj::as<std::string>(root, mValueName); }
-			inline bool getValueBool(const std::string& mValueName) const							{ return ssvuj::as<bool>(root, mValueName); }
 			inline bool getSwapEnabled() const { return ssvuj::as<bool>(root, "swap_enabled", false); }
 	};
 }

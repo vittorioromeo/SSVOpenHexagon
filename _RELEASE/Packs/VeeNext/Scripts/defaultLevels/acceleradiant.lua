@@ -53,12 +53,12 @@ function onUpdate(mFrameTime)
 	if dirChangeTime < 0 then
 		-- do not change direction while fast spinning
 		if isFastSpinning() == false then
-			setLevelValueFloat("rotation_speed", getLevelValueFloat("rotation_speed") * -1)
+			setLevelRotationSpeed(getLevelRotationSpeed() * -1.0)
 			dirChangeTime = 400
 		end
 	end 
 
-	setStyleValueFloat("hue_increment", getStyleValueFloat("hue_increment") + hueIStep)
-	if(getStyleValueFloat("hue_increment") > hueIMax) then hueIStep = hueIStep * -1 end
-	if(getStyleValueFloat("hue_increment") < hueIMin) then hueIStep = hueIStep * -1 end
+	setStyleHueIncrement(getStyleHueIncrement() + hueIStep)
+	if(getStyleHueIncrement() > hueIMax) then hueIStep = hueIStep * -1 end
+	if(getStyleHueIncrement() < hueIMin) then hueIStep = hueIStep * -1 end
 end

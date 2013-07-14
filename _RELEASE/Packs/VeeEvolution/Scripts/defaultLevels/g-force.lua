@@ -40,9 +40,9 @@ end
 -- onStep should contain your pattern spawning logic
 function onStep()	
 	if special == "incongruence" then
-		setLevelValueInt("sides", math.random(4, 5))
+		setLevelSides(math.random(4, 5))
 	else
-		setLevelValueInt("sides", 4)
+		setLevelSides(4)
 	end
 
 	if special == "assault" then

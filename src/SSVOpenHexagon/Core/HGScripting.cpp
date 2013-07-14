@@ -26,7 +26,7 @@ namespace hg
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
 		lua.writeVariable("getDifficultyMult",		[=]() 									{ return difficultyMult; });
-		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(mName); });
+		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(levelData.getPackPath() + "Scripts/" + mName); });
 		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.append<Wait>(mDuration); });
 
 		lua.writeVariable("playSound", 				[=](string mId) 						{ playSound(mId); });
@@ -43,24 +43,6 @@ namespace hg
 		});
 		lua.writeVariable("messageAdd", 			[=](string mMessage, float mDuration)	{ eventTimeline.append<Do>([=]{ if(firstPlay && getShowMessages()) addMessage(mMessage, mDuration); }); });
 		lua.writeVariable("messageImportantAdd",	[=](string mMessage, float mDuration)	{ eventTimeline.append<Do>([=]{ if(getShowMessages()) addMessage(mMessage, mDuration); }); });
-
-		lua.writeVariable("getLevelValueInt", 		[=](string mValueName) 					{ return levelData.getValueInt(mValueName); });
-		lua.writeVariable("getLevelValueFloat", 	[=](string mValueName) 					{ return levelData.getValueFloat(mValueName); });
-		lua.writeVariable("getLevelValueString", 	[=](string mValueName) 					{ return levelData.getValueString(mValueName); });
-		lua.writeVariable("getLevelValueBool", 		[=](string mValueName) 					{ return levelData.getValueBool(mValueName); });
-		lua.writeVariable("setLevelValueInt", 		[=](string mValueName, int mValue) 		{ return levelData.setValueInt(mValueName, mValue); });
-		lua.writeVariable("setLevelValueFloat", 	[=](string mValueName, float mValue) 	{ return levelData.setValueFloat(mValueName, mValue); });
-		lua.writeVariable("setLevelValueString", 	[=](string mValueName, string mValue) 	{ return levelData.setValueString(mValueName, mValue); });
-		lua.writeVariable("setLevelValueBool", 		[=](string mValueName, bool mValue) 	{ return levelData.setValueBool(mValueName, mValue); });
-
-		lua.writeVariable("getStyleValueInt", 		[=](string mValueName) 					{ return styleData.getValueInt(mValueName); });
-		lua.writeVariable("getStyleValueFloat", 	[=](string mValueName) 					{ return styleData.getValueFloat(mValueName); });
-		lua.writeVariable("getStyleValueString", 	[=](string mValueName) 					{ return styleData.getValueString(mValueName); });
-		lua.writeVariable("getStyleValueBool", 		[=](string mValueName) 					{ return styleData.getValueBool(mValueName); });
-		lua.writeVariable("setStyleValueInt", 		[=](string mValueName, int mValue) 		{ return styleData.setValueInt(mValueName, mValue); });
-		lua.writeVariable("setStyleValueFloat", 	[=](string mValueName, float mValue) 	{ return styleData.setValueFloat(mValueName, mValue); });
-		lua.writeVariable("setStyleValueString", 	[=](string mValueName, string mValue) 	{ return styleData.setValueString(mValueName, mValue); });
-		lua.writeVariable("setStyleValueBool", 		[=](string mValueName, bool mValue) 	{ return styleData.setValueBool(mValueName, mValue); });
 
 		lua.writeVariable("isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
 		lua.writeVariable("isFastSpinning",			[=]() 									{ return status.fastSpin > 0; });
@@ -100,10 +82,21 @@ namespace hg
 
 		lua.writeVariable("kill", [=]{ timeline.append<Do>([=]{ death(true); }); });
 		lua.writeVariable("eventKill", [=]{ eventTimeline.append<Do>([=]{ death(true); }); });
+
+		lua.writeVariable("setStylePulseIncrement", [=](float mValue){ styleData.setPulseIncrement(mValue); });
+
+		lua.writeVariable("setStyleHueIncrement", [=](float mValue){ styleData.setHueIncrement(mValue); });
+		lua.writeVariable("getStyleHueIncrement", [=](){ return styleData.getHueIncrement(); });
+
+		lua.writeVariable("setLevelRotationSpeed", [=](float mValue){ levelData.setRotationSpeed(mValue); });
+		lua.writeVariable("getLevelRotationSpeed", [=]{ return levelData.getRotationSpeed(); });
+
+		lua.writeVariable("setLevelSides", [=](int mValue){ levelData.setSides(mValue); });
+		lua.writeVariable("setLevelIncrementTime", [=](int mValue){ levelData.setIncrementTime(mValue); });
 	}
 	void HexagonGame::runLuaFile(const string& mFileName)
 	{
-		ifstream s(levelData.getPackPath() + "Scripts/" + mFileName);
+		ifstream s(mFileName);
 		try { lua.executeCode(s); }
 		catch(runtime_error &error)
 		{

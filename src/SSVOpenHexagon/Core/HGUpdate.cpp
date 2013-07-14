@@ -128,7 +128,7 @@ namespace hg
 		auto nextRotation =getRotationSpeed() * 10.f * mFrameTime;
 		if(status.fastSpin > 0)
 		{
-			nextRotation += abs((getSmootherStep(0, levelData.getValueFloat("fast_spin"), status.fastSpin) / 3.5f) * mFrameTime * 17.0f);
+			nextRotation += abs((getSmootherStep(0, levelData.getFastSpin(), status.fastSpin) / 3.5f) * mFrameTime * 17.0f);
 			status.fastSpin -= mFrameTime;
 		}
 

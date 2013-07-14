@@ -28,6 +28,8 @@ namespace hg
 			void drawBackground(sf::RenderTarget& mRenderTarget, ssvs::Vec2f mCenterPos, int mSides);
 
 			void setRootPath(const std::string& mPath) { rootPath = mPath; }
+			inline void setPulseIncrement(float mValue)		{ ssvuj::set(root, "pulse_increment", mValue); }
+			inline void setHueIncrement(float mValue)		{ ssvuj::set(root, "hue_increment", mValue); }
 
 			inline const std::string& getRootPath() const	{ return rootPath; }
 			inline std::string getId() const				{ return ssvuj::as<std::string>(root, "id"); }
@@ -45,15 +47,6 @@ namespace hg
 
 			inline float getCurrentHue() const 			{ return currentHue; }
 			inline float getCurrentSwapTime() const		{ return currentSwapTime; }
-
-			inline void setValueFloat(const std::string& mValueName, float mValue)					{ ssvuj::set(root, mValueName, mValue); }
-			inline void setValueInt(const std::string& mValueName, int mValue)						{ ssvuj::set(root, mValueName, mValue); }
-			inline void setValueString(const std::string& mValueName, const std::string& mValue)	{ ssvuj::set(root, mValueName, mValue); }
-			inline void setValueBool(const std::string& mValueName, bool mValue)					{ ssvuj::set(root, mValueName, mValue); }
-			inline float getValueFloat(const std::string& mValueName) const							{ return ssvuj::as<float>(root, mValueName); }
-			inline float getValueInt(const std::string& mValueName) const							{ return ssvuj::as<int>(root, mValueName); }
-			inline std::string getValueString(const std::string& mValueName) const					{ return ssvuj::as<std::string>(root, mValueName); }
-			inline bool getValueBool(const std::string& mValueName) const							{ return ssvuj::as<bool>(root, mValueName); }
 
 			inline unsigned int get3DDepth() const				{ return ssvuj::as<float>(root, "3D_depth", 15); }
 			inline float get3DSkew() const						{ return ssvuj::as<float>(root, "3D_skew", 0.18f); }

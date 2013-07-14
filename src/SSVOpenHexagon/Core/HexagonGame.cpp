@@ -75,7 +75,7 @@ namespace hg
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
 		initLua();
-		runLuaFile(levelData.getValueString("lua_file"));
+		runLuaFile(levelData.getLuaScriptPath());
 		runLuaFunction<void>("onLoad");
 
 		// Random rotation direction
@@ -117,7 +117,7 @@ namespace hg
 		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setRotationSpeed(levelData.getRotationSpeed() * -1.f);
 
-		const auto& rotationSpeedMax(levelData.getValueFloat("rotation_speed_max"));
+		const auto& rotationSpeedMax(levelData.getRotationSpeedMax());
 		if(status.fastSpin < 0 && abs(getRotationSpeed()) > rotationSpeedMax) setRotationSpeed(rotationSpeedMax * getSign(getRotationSpeed()));
 
 		status.fastSpin = levelData.getFastSpin();

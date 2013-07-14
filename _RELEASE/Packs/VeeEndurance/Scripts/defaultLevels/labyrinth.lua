@@ -27,9 +27,8 @@ function onIncrement()
 	level = level + 1
 	incrementTime = incrementTime + 2
 	
-	setLevelValueInt("sides", getSides() + 1)
-	setLevelValueInt("increment_time", incrementTime)
-	--if level < 6 then setLevelValueFloat("rotation_speed", getLevelValueFloat("rotation_speed") + 0.1) end
+	setLevelSides(getSides() + 1)
+	setLevelIncrementTime(incrementTime)
 		
 	messageImportantAdd("level: "..(level + 1).." / time: "..incrementTime, 170)
 end

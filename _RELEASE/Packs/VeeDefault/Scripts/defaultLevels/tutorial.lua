@@ -26,7 +26,7 @@ function onLoad()
 	messageImportantAdd("avoid the walls!", 130)
 	eventStopTimeS(6) eventWaitS(6)
 	
-	eventStopTimeS(8) eventWaitUntilS(12)
+	eventStopTimeS(3) eventWaitUntilS(12)
 	messageImportantAdd("great job!", 130)
 	messageImportantAdd("after a while, things get harder", 130)
 	messageImportantAdd("get to 45 seconds to win!", 130)
