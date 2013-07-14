@@ -41,13 +41,5 @@
 	"pulse_delay_max": 9.1,
 	
 	"beatpulse_max": 17,
-	"beatpulse_delay_max": 23.8,
-	
-	//Events
-	"events":
-	[
-		{ "time": 15.5, "type": "message_add", 		"duration": 100, 	"message": "whoa!" },	
-		{ "time": 45, 	"type": "message_important_add", 		"duration": 200, 	"message": "may the mayhem begin!" },
-		{ "time": 46.5, "type": "style_float_set",	"value_name": "pulse_increment",	"value": 0.15 }
-	]
+	"beatpulse_delay_max": 23.8
 }

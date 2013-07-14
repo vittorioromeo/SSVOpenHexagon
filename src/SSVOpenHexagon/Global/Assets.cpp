@@ -33,7 +33,6 @@ namespace hg
 	map<string, StyleData> styleDataMap;
 	map<string, LevelData> levelDataMap;
 	map<string, ProfileData> profileDataMap;
-	map<string, EventData> eventDataMap;
 	map<string, PackData> packDataMap;
 	ProfileData* currentProfilePtr{nullptr};
 	map<string, vector<string>> levelIdsByPackMap;
@@ -69,7 +68,6 @@ namespace hg
 			log("loading " + packName + " music data", "::loadAssets");		loadMusicData(packPath);
 			log("loading " + packName + " style data", "::loadAssets");		loadStyleData(packPath);
 			log("loading " + packName + " level data", "::loadAssets");		loadLevelData(packPath);
-			log("loading " + packName + " events", "::loadAssets");			loadEvents(packPath);
 			log("loading " + packName + " custom sounds", "::loadAssets");	loadCustomSounds(packName, packPath);
 		}
 	}
@@ -138,14 +136,6 @@ namespace hg
 
 			ProfileData profileData{loadProfileFromJson(getRootFromFile(p))};
 			profileDataMap.insert(make_pair(profileData.getName(), profileData));
-		}
-	}
-	void loadEvents(const string& mPath)
-	{
-		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Events/", ".json"))
-		{
-			EventData eventData{getRootFromFile(p)};
-			eventDataMap.insert(make_pair(eventData.getId(), eventData));
 		}
 	}
 
@@ -247,12 +237,4 @@ namespace hg
 		return result;
 	}
 	string getFirstProfileName() { return profileDataMap.begin()->second.getName(); }
-
-
-	EventData* createEventData(const string& mId, HexagonGame* mHgPtr)
-	{
-		EventData* result{new EventData(eventDataMap.find(mId)->second)};
-		result->setHexagonGamePtr(mHgPtr);
-		return result;
-	}
 }

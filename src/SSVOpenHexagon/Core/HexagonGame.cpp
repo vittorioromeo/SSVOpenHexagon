@@ -47,13 +47,9 @@ namespace hg
 		playLevelMusic();
 
 		// Events cleanup
-		clearMessage();
-
-		for(auto eventPtr : eventPtrs) delete eventPtr;
-		eventPtrs.clear();
-
-		while(!eventPtrQueue.empty()) { delete eventPtrQueue.front(); eventPtrQueue.pop(); }
-		eventPtrQueue = queue<EventData*>{};
+		messageText.setString("");
+		eventTimeline.clear(); eventTimeline.reset();
+		messageTimeline.clear(); messageTimeline.reset();
 
 		// Game status cleanup
 		status = HexagonGameStatus{};
@@ -68,7 +64,6 @@ namespace hg
 
 		// Timeline cleanup
 		timeline.clear(); timeline.reset();
-		messageTimeline.clear(); messageTimeline.reset();
 		effectTimelineManager.clear();
 		mustChangeSides = false;
 
@@ -122,8 +117,8 @@ namespace hg
 		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
 		setRotationSpeed(levelData.getRotationSpeed() * -1.f);
 
-		if(status.fastSpin < 0 && abs(getRotationSpeed()) > levelData.getValueFloat("rotation_speed_max"))
-			setRotationSpeed(levelData.getValueFloat("rotation_speed_max") * getSign(getRotationSpeed()));
+		const auto& rotationSpeedMax(levelData.getValueFloat("rotation_speed_max"));
+		if(status.fastSpin < 0 && abs(getRotationSpeed()) > rotationSpeedMax) setRotationSpeed(rotationSpeedMax * getSign(getRotationSpeed()));
 
 		status.fastSpin = levelData.getFastSpin();
 	}
@@ -166,20 +161,10 @@ namespace hg
 	void HexagonGame::changeLevel(const string& mId, bool mFirstTime) { newGame(mId, mFirstTime, difficultyMult); }
 	void HexagonGame::addMessage(const string& mMessage, float mDuration)
 	{
-		Text* text{new Text(mMessage, getFont("imagine.ttf"), 40 / getZoomFactor())};
-		text->setPosition(Vec2f(getWidth() / 2, getHeight() / 6));
-		text->setOrigin(text->getGlobalBounds().width / 2, 0);
-
-		messageTimeline.append<Do>([&, text, mMessage]{ playSound("beep.ogg"); messageTextPtr = text; });
+		messageTimeline.append<Do>([&, mMessage]{ playSound("beep.ogg"); messageText.setString(mMessage); });
 		messageTimeline.append<Wait>(mDuration);
-		messageTimeline.append<Do>([=]{ messageTextPtr = nullptr; delete text; });
+		messageTimeline.append<Do>([=]{ messageText.setString(""); });
 	}
-	void HexagonGame::clearMessage()
-	{
-		if(messageTextPtr == nullptr) return;
-		delete messageTextPtr; messageTextPtr = nullptr;
-	}
-
 	void HexagonGame::setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay)
 	{
 		levelData = mLevelSettings;

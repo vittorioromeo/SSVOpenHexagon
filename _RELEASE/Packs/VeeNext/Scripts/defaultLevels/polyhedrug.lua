@@ -24,6 +24,7 @@ index = 0
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	disableRandomSideChanges()
 	messageImportantAdd("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 

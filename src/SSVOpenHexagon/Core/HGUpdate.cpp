@@ -45,18 +45,11 @@ namespace hg
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
 	{
-		for(EventData* event : eventPtrs) event->update(mFrameTime);
-
-		if(!eventPtrQueue.empty())
-		{
-			eventPtrQueue.front()->update(mFrameTime);
-			if(eventPtrQueue.front()->getFinished()) { delete eventPtrQueue.front(); eventPtrQueue.pop(); }
-		}
+		eventTimeline.update(mFrameTime);
+		if(eventTimeline.isFinished()) { eventTimeline.clear(); eventTimeline.reset(); }
 
 		messageTimeline.update(mFrameTime);
 		if(messageTimeline.isFinished()) { messageTimeline.clear(); messageTimeline.reset(); }
-
-		executeEvents(levelData.getRoot()["events"], status.currentTime);
 	}
 	void HexagonGame::updateTimeStop(float mFrameTime)
 	{
@@ -79,6 +72,8 @@ namespace hg
 	}
 	void HexagonGame::updateLevel(float mFrameTime)
 	{
+		if(status.timeStop > 0) return;
+
 		runLuaFunction<float>("onUpdate", mFrameTime);
 		timeline.update(mFrameTime);
 
@@ -130,14 +125,14 @@ namespace hg
 	}
 	void HexagonGame::updateRotation(float mFrameTime)
 	{
-		auto nextRotation = abs(getRotationSpeed()) * 10.f * mFrameTime;
+		auto nextRotation =getRotationSpeed() * 10.f * mFrameTime;
 		if(status.fastSpin > 0)
 		{
 			nextRotation += abs((getSmootherStep(0, levelData.getValueFloat("fast_spin"), status.fastSpin) / 3.5f) * mFrameTime * 17.0f);
 			status.fastSpin -= mFrameTime;
 		}
 
-		backgroundCamera.rotate(nextRotation * getSign(getRotationSpeed()));
+		backgroundCamera.rotate(nextRotation);
 	}
 	void HexagonGame::updateFlash(float mFrameTime)
 	{

@@ -43,8 +43,5 @@
 	"pulse_delay_max": 13.0,
 	
 	"beatpulse_max": 17,
-	"beatpulse_delay_max": 27.8,
-	
-	//Events
-	"events": []
+	"beatpulse_delay_max": 27.8
 }

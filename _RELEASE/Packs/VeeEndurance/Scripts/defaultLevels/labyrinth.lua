@@ -13,7 +13,8 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
+	disableRandomSideChanges()	
 	cBarrage(getRandomSide())
 	wait(getPerfectDelay(THICKNESS) * 6.55)
 end

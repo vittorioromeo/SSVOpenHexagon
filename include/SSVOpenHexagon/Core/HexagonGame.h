@@ -15,16 +15,16 @@
 #include <SSVUtils/SSVUtils.h>
 #include <SSVStart/SSVStart.h>
 #include <SSVEntitySystem/SSVEntitySystem.h>
+#include <SSVLuaWrapper/SSVLuaWrapper.h>
 #include "SSVOpenHexagon/Core/HGStatus.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
 #include "SSVOpenHexagon/Data/MusicData.h"
-#include "SSVOpenHexagon/Data/EventData.h"
 #include "SSVOpenHexagon/Data/StyleData.h"
 #include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Global/Factory.h"
+#include "SSVOpenHexagon/Global/Typedefs.h"
 #include "SSVOpenHexagon/Utils/FPSWatcher.h"
-#include <SSVLuaWrapper/SSVLuaWrapper.h>
 
 namespace hg
 {
@@ -45,10 +45,8 @@ namespace hg
 			LevelData levelData;
 			MusicData musicData;
 			StyleData styleData;
-			ssvu::Timeline timeline, messageTimeline;
-			sf::Text* messageTextPtr{nullptr};
-			std::vector<EventData*> eventPtrs;
-			std::queue<EventData*> eventPtrQueue;
+			ssvu::Timeline timeline, eventTimeline, messageTimeline;
+			sf::Text messageText{"", getFont("imagine.ttf"), static_cast<unsigned int>(38.f / getZoomFactor())};
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
 			bool firstPlay{true}, restartFirstTime{true};
 			HexagonGameStatus status;
@@ -105,7 +103,6 @@ namespace hg
 
 			// Message-related methods
 			void addMessage(const std::string& mMessage, float mDuration);
-			void clearMessage();
 
 			// Level/menu loading/unloading/changing
 			void checkAndSaveScore();

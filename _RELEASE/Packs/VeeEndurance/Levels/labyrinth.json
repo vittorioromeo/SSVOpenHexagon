@@ -42,11 +42,5 @@
 	"beatpulse_max": 17,
 	"beatpulse_delay_half_max": 23.8,
 	
-	"radius_min": 40,
-	
-	//Events
-	"events":
-	[
-		{ "time": 0, 	"type": "side_changing_stop" }
-	]
+	"radius_min": 40
 }

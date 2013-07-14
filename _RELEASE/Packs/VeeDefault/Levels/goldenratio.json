@@ -32,10 +32,5 @@
 	"sides_max": 7,
 	"increment_time": 10,
 	"wall_skew_right": -20, 
-	"rotation_speed_max": 0.4,
-	
-	//Events
-	"events":
-	[
-	]
+	"rotation_speed_max": 0.4
 }

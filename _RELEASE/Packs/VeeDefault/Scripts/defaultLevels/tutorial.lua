@@ -19,6 +19,24 @@ index = 0
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	tutorialMode()
+
+	messageImportantAdd("welcome to open hexagon 2", 130)
+	messageImportantAdd("use left/right to rotate", 130)
+	messageImportantAdd("avoid the walls!", 130)
+	eventStopTimeS(6) eventWaitS(6)
+	
+	eventStopTimeS(8) eventWaitUntilS(12)
+	messageImportantAdd("great job!", 130)
+	messageImportantAdd("after a while, things get harder", 130)
+	messageImportantAdd("get to 45 seconds to win!", 130)
+
+	eventWaitUntilS(42)
+	messageImportantAdd("well done!", 130)
+	messageImportantAdd("now play some real levels!", 138)
+
+	eventWaitUntilS(45)
+	eventKill()
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

@@ -114,16 +114,13 @@ namespace hg
 		text.setPosition(pos);
 		render(text);
 
-		if(messageTextPtr == nullptr) return;
+		if(messageText.getString() == "") return;
 
-		text.setString(messageTextPtr->getString());
-		text.setCharacterSize(messageTextPtr->getCharacterSize());
-		text.setOrigin(text.getGlobalBounds().width / 2, 0);
+		messageText.setOrigin(messageText.getGlobalBounds().width / 2, 0);
+		messageText.setColor(offsetColor);
+		for(const auto& o : offsets) { messageText.setPosition(Vec2f{getWidth() / 2.f, getHeight() / 6.f} + o); render(messageText); }
 
-		text.setColor(offsetColor);
-		for(const auto& o : offsets) { text.setPosition(messageTextPtr->getPosition() + o); render(text); }
-
-		messageTextPtr->setColor(getColorMain());
-		render(*messageTextPtr);
+		messageText.setColor(getColorMain());
+		render(messageText);
 	}
 }

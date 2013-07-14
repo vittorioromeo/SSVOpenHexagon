@@ -40,12 +40,5 @@
 	"pulse_delay_max": 23.9,
 	
 	"beatpulse_max": 17,
-	"beatpulse_delay_max": 24.8,
-	
-	// Events
-	"events":
-	[
-		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "tutorials are over" },
-		{ "time": 0, 	"type": "message_add", 		"duration": 150, 	"message": "good luck getting high scores!" }
-	]
+	"beatpulse_delay_max": 24.8
 }

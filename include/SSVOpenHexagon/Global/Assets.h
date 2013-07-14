@@ -8,7 +8,6 @@
 #include <string>
 #include <SSVStart/SSVStart.h>
 #include <SFML/Audio.hpp>
-#include "SSVOpenHexagon/Data/EventData.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
 #include "SSVOpenHexagon/Data/MusicData.h"
 #include "SSVOpenHexagon/Data/PackData.h"
@@ -28,7 +27,6 @@ namespace hg
 	void loadLevelData(const std::string& mPath);
 	void loadCustomSounds(const std::string& mPackName, const std::string& mPath);
 	void loadProfiles();
-	void loadEvents(const std::string& mPath);
 
 	void saveCurrentProfile();
 
@@ -61,8 +59,6 @@ namespace hg
 	std::string getFirstProfileName();
 
 	void playMusic(const std::string& mId, sf::Time mPlayingOffset = sf::seconds(0));
-
-	EventData* createEventData(const std::string& mId, HexagonGame* mHgPtr);
 }
 
 #endif

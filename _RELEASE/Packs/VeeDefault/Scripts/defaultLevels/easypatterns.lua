@@ -21,6 +21,8 @@ index = 0
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	messageAdd("tutorials are over", 130)
+	messageAdd("good luck getting high scores!", 130)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

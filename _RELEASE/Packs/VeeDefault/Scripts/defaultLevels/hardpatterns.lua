@@ -27,7 +27,11 @@ index = 0
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	log("level onLoad")
+	eventWaitS(15)
+	messageAdd("whoa!", 120)
+	eventWaitS(45)
+	messageImportantAdd("may the mayhem begin!", 130)
+	setStyleValueFloat("pulse_increment", 0.15)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -51,4 +55,4 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
-end
+end	

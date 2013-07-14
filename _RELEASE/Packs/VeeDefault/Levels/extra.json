@@ -32,10 +32,5 @@ crash",
 	"sides_min": 8,
 	"sides_max": 8,
 	"increment_time": 15,
-	"rotation_speed_max": 0.4,
-	
-	//Events
-	"events":
-	[
-	]
+	"rotation_speed_max": 0.4
 }

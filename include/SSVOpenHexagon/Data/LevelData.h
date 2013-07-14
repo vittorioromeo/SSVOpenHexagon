@@ -32,9 +32,9 @@ namespace hg
 			inline void setLevelRootPath(const std::string& mPath) 	{ levelRootPath = mPath; }
 			inline void setStyleRootPath(const std::string& mPath) 	{ styleRootPath = mPath; }
 			inline void setLuaScriptPath(const std::string& mPath)	{ luaScriptPath = mPath; }
-			inline void setSpeedMultiplier(float mSpeedMultiplier)  { root["speed_multiplier"] = mSpeedMultiplier; }
-			inline void setDelayMultiplier(float mDelayMultiplier)	{ root["delay_increment"] = mDelayMultiplier; }
-			inline void setRotationSpeed(float mRotationSpeed) 		{ root["rotation_speed"] = mRotationSpeed; }
+			inline void setSpeedMultiplier(float mSpeedMultiplier)  { ssvuj::set(root, "speed_multiplier", mSpeedMultiplier); }
+			inline void setDelayMultiplier(float mDelayMultiplier)	{ ssvuj::set(root, "delay_multiplier", mDelayMultiplier); }
+			inline void setRotationSpeed(float mRotationSpeed) 		{ ssvuj::set(root, "rotation_speed", mRotationSpeed); }
 			inline void setValueFloat(const std::string& mValueName, float mValue)					{ ssvuj::set(root, mValueName, mValue); }
 			inline void setValueInt(const std::string& mValueName, int mValue)						{ ssvuj::set(root, mValueName, mValue); }
 			inline void setValueString(const std::string& mValueName, const std::string& mValue)	{ ssvuj::set(root, mValueName, mValue); }

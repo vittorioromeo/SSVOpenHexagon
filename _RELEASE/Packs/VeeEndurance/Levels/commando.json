@@ -41,11 +41,5 @@
 	"pulse_delay_max": 0.7,
 	
 	"beatpulse_max": 17,
-	"beatpulse_delay_half_max": 23.8,
-	
-	//Events
-	"events":
-	[
-		{ "time": 0, 	"type": "side_changing_stop" }
-	]
+	"beatpulse_delay_half_max": 23.8
 }
