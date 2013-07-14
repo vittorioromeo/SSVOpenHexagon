@@ -16,71 +16,53 @@ namespace hg
 	{
 		private:
 			ssvuj::Value root;
-			std::vector<ssvuj::Value> events;
-			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
 			std::vector<TrackedVariable> trackedVariables;
 
 		public:
+			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
+			std::vector<float> difficultyMultipliers{ssvuj::as<std::vector<float>>(root, "difficulty_multipliers", {})};
+			float speedMultiplier				{ssvuj::as<float>(root, "speed_multiplier", 1.f)};
+			float speedIncrement				{ssvuj::as<float>(root, "speed_increment", 0.f)};
+			float rotationSpeed					{ssvuj::as<float>(root, "rotation_speed", 0.f)};
+			float rotationSpeedIncrement		{ssvuj::as<float>(root, "rotation_increment", 0.f)};
+			float delayMultiplier				{ssvuj::as<float>(root, "delay_multiplier", 1.f)};
+			float delayIncrement				{ssvuj::as<float>(root, "delay_increment", 0.f)};
+			float fastSpin						{ssvuj::as<float>(root, "fast_spin", 0.f)};
+			float incrementTime					{ssvuj::as<float>(root, "increment_time", 15.f)};
+			float pulseMin						{ssvuj::as<float>(root, "pulse_min", 75.f)};
+			float pulseMax						{ssvuj::as<float>(root, "pulse_max", 80.f)};
+			float pulseSpeed					{ssvuj::as<float>(root, "pulse_speed", 0.f)};
+			float pulseSpeedR					{ssvuj::as<float>(root, "pulse_speed_r", 0.f)};
+			float pulseDelayMax					{ssvuj::as<float>(root, "pulse_delay_max", 0.f)};
+			float pulseDelayHalfMax				{ssvuj::as<float>(root, "pulse_delay_half_max", 0.f)};
+			float beatPulseMax					{ssvuj::as<float>(root, "beatpulse_max", 0.f)};
+			float beatPulseDelayMax				{ssvuj::as<float>(root, "beatpulse_delay_max", 0.f)};
+			float radiusMin						{ssvuj::as<float>(root, "radius_min", 72.f)};
+			float wallSkewLeft					{ssvuj::as<float>(root, "wall_skew_left", 0.f)};
+			float wallSkewRight					{ssvuj::as<float>(root, "wall_skew_right", 0.f)};
+			float wallAngleLeft					{ssvuj::as<float>(root, "wall_angle_left", 0.f)};
+			float wallAngleRight				{ssvuj::as<float>(root, "wall_angle_right", 0.f)};
+			float _3dEffectMultiplier			{ssvuj::as<float>(root, "3d_effect_multiplier", 1.f)};
+			float rotationSpeedMax				{ssvuj::as<float>(root, "rotation_speed_max", 0.f)};
+			int sides							{ssvuj::as<int>(root, "sides", 6)};
+			int sidesMax						{ssvuj::as<int>(root, "sides_max", 6)};
+			int sidesMin						{ssvuj::as<int>(root, "sides_min", 6)};
+			bool swapEnabled					{ssvuj::as<bool>(root, "swap_enabled", false)};
+			int menuPriority					{ssvuj::as<int>(root, "menu_priority", 0)};
+			bool selectable						{ssvuj::as<bool>(root, "selectable", true)};
+			std::string id						{packPath + ssvuj::as<std::string>(root, "id", "nullId")};
+			std::string name					{ssvuj::as<std::string>(root, "name", "nullName")};
+			std::string description				{ssvuj::as<std::string>(root, "description", "")};
+			std::string author					{ssvuj::as<std::string>(root, "author", "")};
+			std::string musicId					{ssvuj::as<std::string>(root, "music_id", "nullMusicId")};
+			std::string styleId					{ssvuj::as<std::string>(root, "style_id", "nullStyleId")};
+
 			LevelData() = default;
 			LevelData(const ssvuj::Value& mRoot);
 
-			inline void addEvent(const ssvuj::Value& mEventRoot) { events.push_back(mEventRoot); }
-
 			void loadTrackedVariables(const ssvuj::Value& mRoot);
 
-			inline void setPackPath(const std::string& mPath) 		{ packPath = mPath; }
-			inline void setLevelRootPath(const std::string& mPath) 	{ levelRootPath = mPath; }
-			inline void setStyleRootPath(const std::string& mPath) 	{ styleRootPath = mPath; }
-			inline void setLuaScriptPath(const std::string& mPath)	{ luaScriptPath = mPath; }
-			inline void setSpeedMultiplier(float mSpeedMultiplier)  { ssvuj::set(root, "speed_multiplier", mSpeedMultiplier); }
-			inline void setDelayMultiplier(float mDelayMultiplier)	{ ssvuj::set(root, "delay_multiplier", mDelayMultiplier); }
-			inline void setRotationSpeed(float mRotationSpeed) 		{ ssvuj::set(root, "rotation_speed", mRotationSpeed); }
-			inline void setSides(unsigned int mSides)				{ ssvuj::set(root, "sides", mSides); }
-			inline void setIncrementTime(float mIncrementTime)	{ ssvuj::set(root, "increment_time", mIncrementTime); }
-
-			inline ssvuj::Value& getRoot() { return root; }
-			inline const std::string& getPackPath() const		{ return packPath; }
-			inline const std::string& getLevelRootPath() const	{ return levelRootPath; }
-			inline const std::string& getStyleRootPath() const	{ return styleRootPath; }
-			inline const std::string& getLuaScriptPath() const	{ return luaScriptPath; }
-			inline std::string getId() const				{ return getPackPath() + ssvuj::as<std::string>(root, "id"); }
-			inline std::string getName() const				{ return ssvuj::as<std::string>(root, "name"); }
-			inline std::string getDescription() const		{ return ssvuj::as<std::string>(root, "description"); }
-			inline std::string getAuthor() const			{ return ssvuj::as<std::string>(root, "author"); }
-			inline int getMenuPriority() const				{ return ssvuj::as<int>(root, "menu_priority"); }
-			inline bool getSelectable() const				{ return ssvuj::as<bool>(root, "selectable"); }
-			inline std::string getMusicId() const			{ return ssvuj::as<std::string>(root, "music_id"); }
-			inline std::string getStyleId() const			{ return ssvuj::as<std::string>(root, "style_id"); }
-			inline float getSpeedMultiplier() const			{ return ssvuj::as<float>(root, "speed_multiplier"); }
-			inline float getSpeedIncrement() const			{ return ssvuj::as<float>(root, "speed_increment"); }
-			inline float getRotationSpeed() const			{ return ssvuj::as<float>(root, "rotation_speed"); }
-			inline float getRotationSpeedIncrement() const	{ return ssvuj::as<float>(root, "rotation_increment"); }
-			inline float getDelayMultiplier() const			{ return ssvuj::as<float>(root, "delay_multiplier"); }
-			inline float getDelayIncrement() const			{ return ssvuj::as<float>(root, "delay_increment"); }
-			inline float getFastSpin() const				{ return ssvuj::as<float>(root, "fast_spin"); }
-			inline int getSides() const						{ return ssvuj::as<int>(root, "sides"); }
-			inline int getSidesMax() const					{ return ssvuj::as<int>(root, "sides_max"); }
-			inline int getSidesMin() const					{ return ssvuj::as<int>(root, "sides_min"); }
-			inline float getIncrementTime() const			{ return ssvuj::as<float>(root, "increment_time"); }
-			inline float getPulseMin() const				{ return ssvuj::as<float>(root, "pulse_min", 75.f); }
-			inline float getPulseMax() const				{ return ssvuj::as<float>(root, "pulse_max", 80.f); }
-			inline float getPulseSpeed() const				{ return ssvuj::as<float>(root, "pulse_speed", 0.f); }
-			inline float getPulseSpeedR() const				{ return ssvuj::as<float>(root, "pulse_speed_r", 0.f); }
-			inline float getPulseDelayMax() const			{ return ssvuj::as<float>(root, "pulse_delay_max", 0.f); }
-			inline float getPulseDelayHalfMax() const		{ return ssvuj::as<float>(root, "pulse_delay_half_max", 0.f); }
-			inline float getBeatPulseMax() const			{ return ssvuj::as<float>(root, "beatpulse_max", 0.f); }
-			inline float getBeatPulseDelayMax() const		{ return ssvuj::as<float>(root, "beatpulse_delay_max", 0.f); }
-			inline float getRadiusMin() const				{ return ssvuj::as<float>(root, "radius_min", 72.f); }
-			inline float getWallSkewLeft() const			{ return ssvuj::as<float>(root, "wall_skew_left", 0.f); }
-			inline float getWallSkewRight() const			{ return ssvuj::as<float>(root, "wall_skew_right", 0.f); }
-			inline float getWallAngleLeft() const			{ return ssvuj::as<float>(root, "wall_angle_left", 0.f); }
-			inline float getWallAngleRight() const			{ return ssvuj::as<float>(root, "wall_angle_right", 0.f); }
-			inline float get3DEffectMult() const			{ return ssvuj::as<float>(root, "3d_effect_multiplier", 1.f); }
-			inline float getRotationSpeedMax() const		{ return ssvuj::as<float>(root, "rotation_speed_max", 0.f); }
-			std::vector<float> getDifficultyMultipliers() const;
-			inline std::vector<ssvuj::Value>& getEvents() { return events; }
 			inline const std::vector<TrackedVariable>& getTrackedVariables() const { return trackedVariables; }
-			inline bool getSwapEnabled() const { return ssvuj::as<bool>(root, "swap_enabled", false); }
 	};
 }
 

@@ -50,7 +50,7 @@ namespace hg
 		}
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
 
-		LevelData loadLevelFromJson(const ssvuj::Value& mRoot) { LevelData result{mRoot}; for(const auto& event : mRoot["events"]) result.addEvent(event); return result; }
+		LevelData loadLevelFromJson(const ssvuj::Value& mRoot) { return {mRoot}; }
 		MusicData loadMusicFromJson(const ssvuj::Value& mRoot)
 		{
 			MusicData result{as<string>(mRoot, "id"), as<string>(mRoot, "file_name"), as<string>(mRoot, "name"), as<string>(mRoot, "album"), as<string>(mRoot, "author")};

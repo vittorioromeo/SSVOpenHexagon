@@ -26,6 +26,6 @@ namespace hg
 	{
 		playSound("beep.ogg");
 		if(mSides < 3) mSides = 3;
-		levelData.setSides(mSides);
+		levelData.sides = mSides;
 	}
 }

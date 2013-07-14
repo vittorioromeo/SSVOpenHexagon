@@ -179,8 +179,8 @@ namespace hg
 		else if(currentIndex < 0) currentIndex = levelDataIds.size() - 1;
 
 		levelData = getLevelData(levelDataIds[currentIndex]);
-		styleData = getStyleData(levelData.getStyleId());
-		difficultyMultipliers = levelData.getDifficultyMultipliers();
+		styleData = getStyleData(levelData.styleId);
+		difficultyMultipliers = levelData.difficultyMultipliers;
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
 
 		refreshScores();
@@ -190,7 +190,7 @@ namespace hg
 	{
 		if(state != States::MAIN) return;
 		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
-		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
+		string validator{Online::getValidator(levelData.packPath, levelData.id, levelData.levelRootPath, levelData.styleRootPath, levelData.luaScriptPath)};
 
 		if(Online::isOverloaded()) { wasOverloaded = true; return; }
 		Online::startGetScores(currentLeaderboard, currentPlayerScore, getCurrentProfile().getName(), friendsScores, getCurrentProfile().getTrackedNames(), validator, difficultyMult);
@@ -335,7 +335,7 @@ namespace hg
 
 		if(state == States::PROFILE_NEW || state == States::ADD_FRIEND) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { playSound("beep.ogg"); enteredString.append(toStr(c)); } }
 		else if(state == States::PROFILES) { enteredString = getProfileNames()[profileIndex % getProfileNames().size()]; }
-		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.getRotationSpeed() * 10.f * mFrameTime); }
+		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.rotationSpeed * 10.f * mFrameTime); }
 
 		enteredChars.clear();
 	}
@@ -345,7 +345,7 @@ namespace hg
 		window.clear(state != States::MAIN ? Color::Black : styleData.getColors()[0]);
 
 		backgroundCamera.apply();
-		if(state == States::MAIN) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelData.getSides());
+		if(state == States::MAIN) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelData.sides);
 
 		overlayCamera.apply();
 		if(state == States::MAIN) { drawLevelSelection(); render(bottomBar); }
@@ -375,8 +375,8 @@ namespace hg
 
 	void MenuGame::drawLevelSelection()
 	{
-		MusicData musicData{getMusicData(levelData.getMusicId())};
-		PackData packData{getPackData(levelData.getPackPath().substr(6, levelData.getPackPath().size() - 7))};
+		MusicData musicData{getMusicData(levelData.musicId)};
+		PackData packData{getPackData(levelData.packPath.substr(6, levelData.packPath.size() - 7))};
 		const string& packName{packData.getName()};
 
 		if(getOnline())
@@ -393,7 +393,7 @@ namespace hg
 
 			Text& profile = renderText("profile: " + getCurrentProfile().getName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
 			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20.f, getGlobalBottom(profile) - 7.f}, 18);
-			Text& lbest = renderText("local best: " + toStr(getScore(getLocalValidator(levelData.getId(), difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
+			Text& lbest = renderText("local best: " + toStr(getScore(getLocalValidator(levelData.id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
 
 			if(wasOverloaded || Online::isOverloaded()) { leaderboardString = friendsString = "too many requests, wait..."; }
@@ -408,9 +408,9 @@ namespace hg
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
-		Text& lname = renderText(levelData.getName(), levelName, {20.f, h / 2.f});
-		Text& ldesc = renderText(levelData.getDescription(), levelDesc, {20.f, getGlobalBottom(lname) - 5.f});
-		Text& lauth = renderText("author: " + levelData.getAuthor(), levelAuth, {20.f, getGlobalBottom(ldesc) + 25.f});
+		Text& lname = renderText(levelData.name, levelName, {20.f, h / 2.f});
+		Text& ldesc = renderText(levelData.description, levelDesc, {20.f, getGlobalBottom(lname) - 5.f});
+		Text& lauth = renderText("author: " + levelData.author, levelAuth, {20.f, getGlobalBottom(ldesc) + 25.f});
 		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20.f, getGlobalBottom(lauth) - 5.f});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20.f, getGlobalTop(lname) - 25.f});
 

@@ -120,12 +120,12 @@ namespace hg
 			string trackedVariablesPath{getReplaced(p, ".json", ".tracked")};
 			if(exists(trackedVariablesPath)) levelData.loadTrackedVariables(getRootFromFile(trackedVariablesPath));
 
-			levelData.setPackPath(mPath);
-			levelData.setLevelRootPath(p);
-			levelData.setStyleRootPath(getStyleData(levelData.getStyleId()).getRootPath());
-			levelData.setLuaScriptPath(luaScriptPath);
-			levelDataMap.insert(make_pair(levelData.getId(), levelData));
-			levelIdsByPackMap[levelData.getPackPath()].push_back(levelData.getId());
+			levelData.packPath = mPath;
+			levelData.levelRootPath = p;
+			levelData.styleRootPath = getStyleData(levelData.styleId).getRootPath();
+			levelData.luaScriptPath = luaScriptPath;
+			levelDataMap.insert(make_pair(levelData.id, levelData));
+			levelIdsByPackMap[levelData.packPath].push_back(levelData.id);
 		}
 	}
 	void loadProfiles()
@@ -162,12 +162,12 @@ namespace hg
 		vector<LevelData> levelDatas{getAllLevelData()};
 		sort(begin(levelDatas), end(levelDatas), [](const LevelData& a, const LevelData& b)
 		{
-			if(a.getPackPath() == b.getPackPath()) return a.getMenuPriority() < b.getMenuPriority();
-			return a.getPackPath() < b.getPackPath();
+			if(a.packPath == b.packPath) return a.menuPriority < b.menuPriority;
+			return a.packPath < b.packPath;
 		});
 
 		vector<string> result;
-		for(const auto& l : levelDatas) if(l.getSelectable()) result.push_back(l.getId());
+		for(const auto& l : levelDatas) if(l.selectable) result.push_back(l.id);
 		return result;
 	}
 	vector<string> getLevelIdsByPack(string mPackPath)
@@ -175,10 +175,10 @@ namespace hg
 		vector<LevelData> levelDatas;
 		for(const auto& id : levelIdsByPackMap[mPackPath]) levelDatas.push_back(getLevelData(id));
 
-		sort(begin(levelDatas), end(levelDatas), [](const LevelData& a, const LevelData& b){ return a.getMenuPriority() < b.getMenuPriority(); });
+		sort(begin(levelDatas), end(levelDatas), [](const LevelData& a, const LevelData& b){ return a.menuPriority < b.menuPriority; });
 
 		vector<string> result;
-		for(const auto& l : levelDatas) if(l.getSelectable()) result.push_back(l.getId());
+		for(const auto& l : levelDatas) if(l.selectable) result.push_back(l.id);
 		return result;
 	}
 	vector<string> getPackPaths() { return packPaths; }

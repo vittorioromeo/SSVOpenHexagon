@@ -22,11 +22,11 @@ namespace hg
 		lua.writeVariable("log", 					[=](string mLog) 						{ log(mLog, "Lua log"); });
 
 		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 		{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, getSpeedMultiplier()); }); });
-		lua.writeVariable("getSides", 				[=]() 									{ return levelData.getSides(); });
+		lua.writeVariable("getSides", 				[=]() 									{ return levelData.sides; });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
 		lua.writeVariable("getDifficultyMult",		[=]() 									{ return difficultyMult; });
-		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(levelData.getPackPath() + "Scripts/" + mName); });
+		lua.writeVariable("execScript", 			[=](string mName) 						{ runLuaFile(levelData.packPath + "Scripts/" + mName); });
 		lua.writeVariable("wait", 					[=](float mDuration) 					{ timeline.append<Wait>(mDuration); });
 
 		lua.writeVariable("playSound", 				[=](string mId) 						{ playSound(mId); });
@@ -88,11 +88,11 @@ namespace hg
 		lua.writeVariable("setStyleHueIncrement", [=](float mValue){ styleData.setHueIncrement(mValue); });
 		lua.writeVariable("getStyleHueIncrement", [=](){ return styleData.getHueIncrement(); });
 
-		lua.writeVariable("setLevelRotationSpeed", [=](float mValue){ levelData.setRotationSpeed(mValue); });
-		lua.writeVariable("getLevelRotationSpeed", [=]{ return levelData.getRotationSpeed(); });
+		lua.writeVariable("setLevelRotationSpeed", [=](float mValue){ levelData.rotationSpeed = mValue; });
+		lua.writeVariable("getLevelRotationSpeed", [=]{ return levelData.rotationSpeed; });
 
-		lua.writeVariable("setLevelSides", [=](int mValue){ levelData.setSides(mValue); });
-		lua.writeVariable("setLevelIncrementTime", [=](int mValue){ levelData.setIncrementTime(mValue); });
+		lua.writeVariable("setLevelSides", [=](int mValue){ levelData.sides = mValue;; });
+		lua.writeVariable("setLevelIncrementTime", [=](int mValue){ levelData.incrementTime = mValue; });
 	}
 	void HexagonGame::runLuaFile(const string& mFileName)
 	{

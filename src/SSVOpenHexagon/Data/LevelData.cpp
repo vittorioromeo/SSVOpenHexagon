@@ -13,7 +13,10 @@ using namespace ssvuj;
 
 namespace hg
 {
-	LevelData::LevelData(const ssvuj::Value& mRoot) : root{mRoot} { }
+	LevelData::LevelData(const ssvuj::Value& mRoot) : root{mRoot}
+	{
+		difficultyMultipliers.push_back(1.0f); sort(difficultyMultipliers);
+	}
 
 	void LevelData::loadTrackedVariables(const ssvuj::Value& mRoot)
 	{
@@ -30,11 +33,5 @@ namespace hg
 			}
 			else trackedVariables.emplace_back(variableName, displayName);
 		}
-	}
-
-	vector<float> LevelData::getDifficultyMultipliers() const
-	{
-		auto result(as<vector<float>>(root, "difficulty_multipliers", {}));
-		result.push_back(1.0f); sort(result); return result;
 	}
 }

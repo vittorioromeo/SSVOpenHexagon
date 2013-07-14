@@ -55,8 +55,8 @@ namespace hg
 		status = HexagonGameStatus{};
 		restartId = mId;
 		restartFirstTime = false;
-		setSides(levelData.getSides());
-		status.swapEnabled = levelData.getSwapEnabled();
+		setSides(levelData.sides);
+		status.swapEnabled = levelData.swapEnabled;
 
 		// Manager cleanup
 		manager.clear();
@@ -75,7 +75,7 @@ namespace hg
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
 		initLua();
-		runLuaFile(levelData.getLuaScriptPath());
+		runLuaFile(levelData.luaScriptPath);
 		runLuaFunction<void>("onLoad");
 
 		// Random rotation direction
@@ -114,20 +114,20 @@ namespace hg
 	{
 		playSound("levelUp.ogg");
 
-		setRotationSpeed(levelData.getRotationSpeed() + levelData.getRotationSpeedIncrement() * getSign(getRotationSpeed()));
-		setRotationSpeed(levelData.getRotationSpeed() * -1.f);
+		levelData.rotationSpeed += levelData.rotationSpeedIncrement * getSign(levelData.rotationSpeed);
+		levelData.rotationSpeed *= -1.f;
 
-		const auto& rotationSpeedMax(levelData.getRotationSpeedMax());
-		if(status.fastSpin < 0 && abs(getRotationSpeed()) > rotationSpeedMax) setRotationSpeed(rotationSpeedMax * getSign(getRotationSpeed()));
+		const auto& rotationSpeedMax(levelData.rotationSpeedMax);
+		if(status.fastSpin < 0 && abs(levelData.rotationSpeed) > rotationSpeedMax) levelData.rotationSpeed = rotationSpeedMax * getSign(levelData.rotationSpeed);
 
-		status.fastSpin = levelData.getFastSpin();
+		status.fastSpin = levelData.fastSpin;
 	}
 
 	void HexagonGame::sideChange(int mSideNumber)
 	{
 		runLuaFunction<void>("onIncrement");
-		setSpeedMultiplier(levelData.getSpeedMultiplier() + levelData.getSpeedIncrement());
-		setDelayMultiplier(levelData.getDelayMultiplier() + levelData.getDelayIncrement());
+		levelData.speedMultiplier += levelData.speedIncrement;
+		levelData.delayMultiplier += levelData.delayIncrement;
 
 		if(status.randomSideChangesEnabled) setSides(mSideNumber);
 		mustChangeSides = false;
@@ -137,14 +137,14 @@ namespace hg
 	{
 		if(getInvincible()) { log("Not saving score - invincibility on", "hg::HexagonGame::checkAndSaveScore()"); return; }
 
-		string localValidator{getLocalValidator(levelData.getId(), difficultyMult)};
+		string localValidator{getLocalValidator(levelData.id, difficultyMult)};
 		if(getScore(localValidator) < status.currentTime) setScore(localValidator, status.currentTime);
 		saveCurrentProfile();
 
 		if(status.currentTime < 8) { log("Not sending score - less than 8 seconds", "hg::HexagonGame::checkAndSaveScore()"); return; }
 		if(status.scoreInvalid || !isEligibleForScore()) { log("Not sending score - not eligible", "hg::HexagonGame::checkAndSaveScore()"); return; }
 
-		string validator{Online::getValidator(levelData.getPackPath(), levelData.getId(), levelData.getLevelRootPath(), levelData.getStyleRootPath(), levelData.getLuaScriptPath())};
+		string validator{Online::getValidator(levelData.packPath, levelData.id, levelData.levelRootPath, levelData.styleRootPath, levelData.luaScriptPath)};
 		Online::startSendScore(toLower(getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);
 	}
 	void HexagonGame::goToMenu(bool mSendScores)
@@ -168,8 +168,8 @@ namespace hg
 	void HexagonGame::setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay)
 	{
 		levelData = mLevelSettings;
-		styleData = getStyleData(levelData.getStyleId());
-		musicData = getMusicData(levelData.getMusicId());
+		styleData = getStyleData(levelData.styleId);
+		musicData = getMusicData(levelData.musicId);
 		musicData.setFirstPlay(mMusicFirstPlay);
 	}
 
