@@ -21,7 +21,7 @@ namespace hg
 	{
 		lua.writeVariable("log", 					[=](string mLog) 						{ log(mLog, "Lua log"); });
 
-		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 		{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, getSpeedMultiplier()); }); });
+		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 		{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {getSpeedMultiplier()}); }); });
 		lua.writeVariable("getSides", 				[=]() 									{ return levelData.sides; });
 		lua.writeVariable("getSpeedMult",			[=]() 									{ return getSpeedMultiplier(); });
 		lua.writeVariable("getDelayMult", 			[=]() 									{ return getDelayMultiplier(); });
@@ -53,20 +53,20 @@ namespace hg
 		});
 		lua.writeVariable("wallAcc", [=](int mSide, float mThickness, float mSpeedAdj, float mAcceleration, float mMinSpeed, float mMaxSpeed)
 		{
-			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier(), mAcceleration, mMinSpeed * getSpeedMultiplier(), mMaxSpeed * getSpeedMultiplier()); });
+			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {mSpeedAdj * getSpeedMultiplier(), mAcceleration, mMinSpeed * getSpeedMultiplier(), mMaxSpeed * getSpeedMultiplier()}); });
 		});
-		lua.writeVariable("wallHModSpeedData", [=](float mHueModifier, int mSide, float mThickness, float mSpeedAdj, float mSpeedAccel, float mSpeedMin, float mSpeedMax, bool mSpeedPingPong)
+		lua.writeVariable("wallHModSpeedData", [=](float mHueMod, int mSide, float mThickness, float mSpeedAdj, float mSpeedAccel, float mSpeedMin, float mSpeedMax, bool mSpeedPingPong)
 		{
 			timeline.append<Do>([=]
 			{
-				factory.createWallHModData(mHueModifier, mSide, mThickness, {mSpeedAdj * getSpeedMultiplier(), mSpeedAccel, mSpeedMin, mSpeedMax, mSpeedPingPong}, {});
+				factory.createWall(mSide, mThickness, {mSpeedAdj * getSpeedMultiplier(), mSpeedAccel, mSpeedMin, mSpeedMax, mSpeedPingPong}, mHueMod);
 			});
 		});
-		lua.writeVariable("wallHModCurveData", [=](float mHueModifier, int mSide, float mThickness, float mCurveAdj, float mCurveAccel, float mCurveMin, float mCurveMax, bool mCurvePingPong)
+		lua.writeVariable("wallHModCurveData", [=](float mHueMod, int mSide, float mThickness, float mCurveAdj, float mCurveAccel, float mCurveMin, float mCurveMax, bool mCurvePingPong)
 		{
 			timeline.append<Do>([=]
 			{
-				factory.createWallHModData(mHueModifier, mSide, mThickness, {getSpeedMultiplier(), 0, 0, 0, false}, {mCurveAdj, mCurveAccel, mCurveMin, mCurveMax, mCurvePingPong});
+				factory.createWall(mSide, mThickness, {getSpeedMultiplier()}, {mCurveAdj, mCurveAccel, mCurveMin, mCurveMax, mCurvePingPong}, mHueMod);
 			});
 		});
 

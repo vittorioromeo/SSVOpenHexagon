@@ -23,13 +23,6 @@ namespace hg
 {
 	namespace Utils
 	{
-		float getSaturated(float mValue) { return max(0.0f, min(1.0f, mValue)); }
-		float getSmootherStep(float edge0, float edge1, float x)
-		{
-			x = getSaturated((x - edge0)/(edge1 - edge0));
-			return x * x * x * (x * (x * 6 - 15) + 10);
-		}
-
 		Color getColorFromHue(double mHue)
 		{
 			double s{1}, v{1}, r{0}, g{0}, b{0};
@@ -50,14 +43,12 @@ namespace hg
 		}
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
 
-		LevelData loadLevelFromJson(const ssvuj::Value& mRoot) { return {mRoot}; }
 		MusicData loadMusicFromJson(const ssvuj::Value& mRoot)
 		{
 			MusicData result{as<string>(mRoot, "id"), as<string>(mRoot, "file_name"), as<string>(mRoot, "name"), as<string>(mRoot, "album"), as<string>(mRoot, "author")};
 			for(const auto& segment : mRoot["segments"]) result.addSegment(as<int>(segment, "time"));
 			return result;
 		}
-		StyleData loadStyleFromJson(const ssvuj::Value& mRoot) { return {mRoot}; }
 		ProfileData loadProfileFromJson(const ssvuj::Value& mRoot) { return {as<float>(mRoot, "version"), as<string>(mRoot, "name"), mRoot["scores"], as<vector<string>>(mRoot, "trackedNames", {})}; }
 
 		string getLocalValidator(const string& mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
@@ -107,20 +98,14 @@ namespace hg
 
 		Color TransformH(const Color& in, float H)
 		{
-		  float U = cos(H*3.14f/180.f);
-		  float W = sin(H*3.14f/180.f);
+			float U{cos(H * 3.14f / 180.f)};
+			float W{sin(H * 3.14f / 180.f)};
 
-		  Color ret;
-		  ret.r = (.701*U+.168*W)*in.r
-			+ (-.587*U+.330*W)*in.g
-			+ (-.114*U-.497*W)*in.b;
-		  ret.g = (-.299*U-.328*W)*in.r
-			+ (.413*U+.035*W)*in.g
-			+ (-.114*U+.292*W)*in.b;
-		  ret.b = (-.3*U+1.25*W)*in.r
-			+ (-.588*U-1.05*W)*in.g
-			+ (.886*U-.203*W)*in.b;
-		  return ret;
+			Color ret;
+			ret.r = (.701*U+.168*W)*in.r + (-.587*U+.330*W)*in.g + (-.114*U-.497*W)*in.b;
+			ret.g = (-.299*U-.328*W)*in.r + (.413*U+.035*W)*in.g + (-.114*U+.292*W)*in.b;
+			ret.b = (-.3*U+1.25*W)*in.r + (-.588*U-1.05*W)*in.g + (.886*U-.203*W)*in.b;
+			return ret;
 		}
 	}
 }

@@ -14,9 +14,8 @@ using namespace ssvs::Utils;
 
 namespace hg
 {
-	CWall::CWall(HexagonGame& mHexagonGame, Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed,
-		float mAcceleration, float mMinSpeed, float mMaxSpeed) : hexagonGame(mHexagonGame), centerPos{mCenterPos},
-		speed{mSpeed, mAcceleration, mMinSpeed, mMaxSpeed, false}, distance{mDistance}, thickness{mThickness}, side{mSide}
+	CWall::CWall(HexagonGame& mHexagonGame, Vec2f mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve) : hexagonGame(mHexagonGame), centerPos{mCenterPos},
+		speed{mSpeed}, curve{mCurve}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
 		float div{360.f / hexagonGame.getSides() * 0.5f}, angle{div * 2 * side};
 
@@ -29,7 +28,7 @@ namespace hg
 	void CWall::draw()
 	{
 		auto colorMain(hexagonGame.getColorMain());
-		if(hueModifier != 0 && !hexagonGame.getStatus().drawing3D) colorMain = Utils::TransformH(colorMain, hueModifier);
+		if(hueMod != 0 && !hexagonGame.getStatus().drawing3D) colorMain = Utils::TransformH(colorMain, hueMod);
 
 		for(unsigned int i{0}; i < 4; ++i)
 		{

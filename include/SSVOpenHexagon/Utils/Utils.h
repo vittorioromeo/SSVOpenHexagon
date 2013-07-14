@@ -20,14 +20,17 @@ namespace hg
 {
 	namespace Utils
 	{
-		float getSmootherStep(float edge0, float edge1, float x);
+		inline float getSaturated(float mValue) { return std::max(0.f, std::min(1.f, mValue)); }
+		inline float getSmootherStep(float edge0, float edge1, float x)
+		{
+			x = getSaturated((x - edge0)/(edge1 - edge0));
+			return x * x * x * (x * (x * 6 - 15) + 10);
+		}
 
 		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 
-		LevelData loadLevelFromJson(const ssvuj::Value& mRoot);
 		MusicData loadMusicFromJson(const ssvuj::Value& mRoot);
-		StyleData loadStyleFromJson(const ssvuj::Value& mRoot);
 		ProfileData loadProfileFromJson(const ssvuj::Value& mRoot);
 
 		std::string getLocalValidator(const std::string& mId, float mDifficultyMult);

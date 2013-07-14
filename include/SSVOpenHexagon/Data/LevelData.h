@@ -59,10 +59,7 @@ namespace hg
 			std::string styleId					{ssvuj::as<std::string>(root, "style_id", "nullStyleId")};
 
 			LevelData() = default;
-			LevelData(const ssvuj::Value& mRoot) : root{mRoot}
-			{
-				difficultyMultipliers.push_back(1.0f); ssvu::sort(difficultyMultipliers);
-			}
+			LevelData(const ssvuj::Value& mRoot) : root{mRoot} { difficultyMultipliers.push_back(1.0f); ssvu::sort(difficultyMultipliers); }
 	};
 }
 

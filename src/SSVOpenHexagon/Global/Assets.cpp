@@ -103,7 +103,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Styles/", ".json"))
 		{
-			StyleData styleData{loadStyleFromJson(getRootFromFile(p))};
+			StyleData styleData{getRootFromFile(p)};
 			styleData.setRootPath(p);
 			styleDataMap.insert(make_pair(styleData.id, styleData));
 		}
@@ -115,7 +115,7 @@ namespace hg
 			ssvuj::Value root{getRootFromFile(p)};
 			string luaScriptPath{mPath + "Scripts/" + as<string>(root, "lua_file")};
 
-			LevelData levelData{loadLevelFromJson(root)};
+			LevelData levelData{root};
 
 			levelData.packPath = mPath;
 			levelData.levelRootPath = p;

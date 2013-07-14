@@ -14,27 +14,17 @@ namespace hg
 
 	struct SpeedData
 	{
-		float speed{0}, accel{0}, min{0}, max{0};
-		bool pingPong{false};
+		float speed, accel, min, max;
+		bool pingPong;
 
-		SpeedData() = default;
-		SpeedData(float mSpeed, float mAccel, float mMin, float mMax, bool mPingPong)
-			: speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{mPingPong} { }
+		SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f, float mMax = 0.f, bool mPingPong = false) : speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{mPingPong} { }
 
 		void update(float mFrameTime)
 		{
 			if(accel == 0) return;
 			speed += accel * mFrameTime;
-			if(speed > max)
-			{
-				speed = max;
-				if(pingPong) accel *= -1;
-			}
-			if(speed < min)
-			{
-				speed = min;
-				if(pingPong) accel *= -1;
-			}
+			if(speed > max)	{ speed = max; if(pingPong) accel *= -1; }
+			else if(speed < min) { speed = min; if(pingPong) accel *= -1; }
 		}
 	};
 
@@ -46,16 +36,16 @@ namespace hg
 			std::vector<ssvs::Vec2f> vertexPositions{4};
 			sf::VertexArray vertices{sf::PrimitiveType::Quads, 4};
 			SpeedData speed, curve;
-			float distance{0}, thickness{0}, hueModifier{0};
+			float distance{0}, thickness{0}, hueMod{0};
 			int side{0};
 
 		public:
-			CWall(HexagonGame& mHexagonGame, ssvs::Vec2f mCenterPos, int mSide, float mThickness, float mDistance, float mSpeed, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
+			CWall(HexagonGame& mHexagonGame, ssvs::Vec2f mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
 			void update(float mFrameTime) override;
 			void draw() override;
 
-			inline void setHueModifier(float mHueModifier) { hueModifier = mHueModifier; }
+			inline void setHueMod(float mHueMod) { hueMod = mHueMod; }
 
 			inline SpeedData& getSpeed() { return speed; }
 			inline SpeedData& getCurve() { return curve; }

@@ -7,11 +7,13 @@
 
 #include <SSVStart/SSVStart.h>
 #include <SSVEntitySystem/SSVEntitySystem.h>
+#include "SSVOpenHexagon/Components/CWall.h"
+#include "SSVOpenHexagon/Components/CPlayer.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
 
 namespace hg
 {
 	class HexagonGame;
-	struct SpeedData;
 
 	class Factory
 	{
@@ -21,12 +23,22 @@ namespace hg
 			ssvs::Vec2f centerPos;
 
 		public:
-			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, ssvs::Vec2f mCenterPos);
+			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, ssvs::Vec2f mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
 
-			sses::Entity& createWall(int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
-			sses::Entity& createWallHMod(float mHueModifier, int mSide, float mThickness, float mSpeedMultiplier, float mAcceleration = 0, float mMinSpeed = 0, float mMaxSpeed = 0);
-			sses::Entity& createWallHModData(float mHueModifier, int mSide, float mThickness, SpeedData mSpeed, SpeedData mCurve);
-			sses::Entity& createPlayer();
+			inline sses::Entity& createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{}, float mHueMod = 0)
+			{
+				auto& result(manager.createEntity("wall"));
+				auto& wall(result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeed, mCurve));
+				wall.setHueMod(mHueMod);
+				return result;
+			}
+			inline sses::Entity& createPlayer()
+			{
+				auto& result(manager.createEntity("player"));
+				result.createComponent<CPlayer>(hexagonGame, centerPos);
+				result.setDrawPriority(-1);
+				return result;
+			}
 	};
 }
 
