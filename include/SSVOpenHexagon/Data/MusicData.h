@@ -15,12 +15,13 @@ namespace hg
 	{
 		private:
 			std::vector<int> segments;
-			std::string id, fileName, name, album, author;
-			bool firstPlay{true};
 
 			inline int getRandomSegment() const;
 
 		public:
+			std::string id, fileName, name, album, author;
+			bool firstPlay{true};
+
 			MusicData() = default;
 			MusicData(const std::string& mId, const std::string& mFileName, const std::string& mName, const std::string& mAlbum, const std::string& mAuthor);
 
@@ -28,15 +29,6 @@ namespace hg
 			void playRandomSegment();
 			void playSegment(int mSegmentIndex);
 			void playSeconds(int mSeconds);
-
-			inline const std::string& getId() const			{ return id; }
-			inline const std::string& getFileName() const	{ return fileName; }
-			inline const std::string& getName() const		{ return name; }
-			inline const std::string& getAlbum() const		{ return album; }
-			inline const std::string& getAuthor() const		{ return author; }
-
-			inline void setFirstPlay(bool mFirstPlay) { firstPlay = mFirstPlay; }
-			inline bool getFirstPlay() const { return firstPlay; }
 	};
 }
 

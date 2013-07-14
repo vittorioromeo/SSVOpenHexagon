@@ -4,10 +4,12 @@ execScript("common.lua")
 execScript("commonpatterns.lua")
 
 level = 0
+levelTracked = 1
 incrementTime = 3
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()	
+	addTracked("levelTracked", "level")
 	messageImportantAdd("level: "..(level + 1).." / time: "..incrementTime, 170)
 end
 
@@ -25,6 +27,7 @@ function onIncrement()
 	playSound("VeeEndurance_test.ogg")
 	
 	level = level + 1
+	levelTracked = level + 1
 	incrementTime = incrementTime + 2
 	
 	setLevelSides(getSides() + 1)

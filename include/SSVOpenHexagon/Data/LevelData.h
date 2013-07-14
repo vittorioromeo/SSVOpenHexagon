@@ -16,9 +16,9 @@ namespace hg
 	{
 		private:
 			ssvuj::Value root;
-			std::vector<TrackedVariable> trackedVariables;
 
 		public:
+			std::vector<TrackedVariable> trackedVariables;
 			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
 			std::vector<float> difficultyMultipliers{ssvuj::as<std::vector<float>>(root, "difficulty_multipliers", {})};
 			float speedMultiplier				{ssvuj::as<float>(root, "speed_multiplier", 1.f)};
@@ -59,10 +59,6 @@ namespace hg
 
 			LevelData() = default;
 			LevelData(const ssvuj::Value& mRoot);
-
-			void loadTrackedVariables(const ssvuj::Value& mRoot);
-
-			inline const std::vector<TrackedVariable>& getTrackedVariables() const { return trackedVariables; }
 	};
 }
 

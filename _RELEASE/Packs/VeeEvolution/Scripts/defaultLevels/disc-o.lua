@@ -33,6 +33,7 @@ special = "none"
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	addTracked("special", "special")
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

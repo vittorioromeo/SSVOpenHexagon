@@ -5,6 +5,7 @@ execScript("commonpatterns.lua")
 execScript("nextpatterns.lua")
 
 extra = 0
+level = 1
 incrementTime = 10
 
 -- this function adds a pattern to the timeline based on a key
@@ -24,6 +25,7 @@ index = 0
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	addTracked("level", "level")
 	disableRandomSideChanges()
 	messageImportantAdd("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
@@ -42,6 +44,7 @@ end
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
 	extra = extra + 1
+	level = extra + 1
 	incrementTime = incrementTime + 5
 	setLevelSides(getSides() + 1)
 	setLevelIncrementTime(incrementTime)

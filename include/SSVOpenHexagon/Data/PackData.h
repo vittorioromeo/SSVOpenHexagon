@@ -9,18 +9,12 @@
 
 namespace hg
 {
-	class PackData
+	struct PackData
 	{
-		private:
-			std::string id, name, hash;
-			float priority;
+		std::string id, name, hash;
+		float priority;
 
-		public:
-			PackData(const std::string& mId, const std::string& mName, float mPriority, const std::string& mHash) : id{mId}, name{mName}, hash{mHash}, priority{mPriority} { }
-			inline const std::string& getId() const		{ return id; }
-			inline const std::string& getName() const	{ return name; }
-			inline const std::string& getHash() const	{ return hash; }
-			inline float getPriority() const			{ return priority; }
+		PackData(const std::string& mId, const std::string& mName, float mPriority, const std::string& mHash) : id{mId}, name{mName}, hash{mHash}, priority{mPriority} { }
 	};
 }
 

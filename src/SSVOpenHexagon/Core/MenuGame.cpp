@@ -377,7 +377,7 @@ namespace hg
 	{
 		MusicData musicData{getMusicData(levelData.musicId)};
 		PackData packData{getPackData(levelData.packPath.substr(6, levelData.packPath.size() - 7))};
-		const string& packName{packData.getName()};
+		const string& packName{packData.name};
 
 		if(getOnline())
 		{
@@ -411,11 +411,11 @@ namespace hg
 		Text& lname = renderText(levelData.name, levelName, {20.f, h / 2.f});
 		Text& ldesc = renderText(levelData.description, levelDesc, {20.f, getGlobalBottom(lname) - 5.f});
 		Text& lauth = renderText("author: " + levelData.author, levelAuth, {20.f, getGlobalBottom(ldesc) + 25.f});
-		renderText("music: " + musicData.getName() + " by " + musicData.getAuthor() + " (" + musicData.getAlbum() + ")", levelMusc, {20.f, getGlobalBottom(lauth) - 5.f});
+		renderText("music: " + musicData.name + " by " + musicData.author + " (" + musicData.album + ")", levelMusc, {20.f, getGlobalBottom(lauth) - 5.f});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20.f, getGlobalTop(lname) - 25.f});
 
 		string packNames{"Installed packs:\n"};
-		for(const auto& n : getPackNames()) { if(packData.getId() == n) packNames += ">>> "; packNames.append(n + "\n"); }
+		for(const auto& n : getPackNames()) { if(packData.id == n) packNames += ">>> "; packNames.append(n + "\n"); }
 		packsText.setString(packNames);
 		packsText.setOrigin(packsText.getGlobalBounds().width, packsText.getGlobalBounds().height);
 		packsText.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});

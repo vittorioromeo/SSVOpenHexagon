@@ -88,7 +88,7 @@ namespace hg
 
 		// 3D Cameras cleanup
 		depthCameras.clear();
-		unsigned int depth{styleData.get3DDepth()};
+		unsigned int depth(styleData._3dDepth);
 		if(depth > get3DMaxDepth()) depth = get3DMaxDepth();
 		for(unsigned int i{0}; i < depth; ++i) depthCameras.push_back({window, {}});
 	}
@@ -170,7 +170,7 @@ namespace hg
 		levelData = mLevelSettings;
 		styleData = getStyleData(levelData.styleId);
 		musicData = getMusicData(levelData.musicId);
-		musicData.setFirstPlay(mMusicFirstPlay);
+		musicData.firstPlay = mMusicFirstPlay;
 	}
 
 	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(); }

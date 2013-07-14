@@ -37,6 +37,7 @@ special = "none"
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	addTracked("special", "special")
 	setCurveMult(0.85)
 end
 

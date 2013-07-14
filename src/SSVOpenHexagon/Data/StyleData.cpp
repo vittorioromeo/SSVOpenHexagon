@@ -47,30 +47,30 @@ namespace hg
 					 getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f));
 	}
 
-	StyleData::StyleData(const ssvuj::Value& mRoot) : root{mRoot}, currentHue{getHueMin()} { }
+	StyleData::StyleData(const ssvuj::Value& mRoot) : root{mRoot}, currentHue{hueMin} { }
 
 	void StyleData::update(float mFrameTime)
 	{
 		currentSwapTime += mFrameTime;
-		if(currentSwapTime > getMaxSwapTime()) currentSwapTime = 0;
+		if(currentSwapTime > maxSwapTime) currentSwapTime = 0;
 
-		currentHue += getHueIncrement() * mFrameTime;
+		currentHue += hueIncrement * mFrameTime;
 
-		if(currentHue < getHueMin())
+		if(currentHue < hueMin)
 		{
-			if(getHuePingPong()) { currentHue = getHueMin(); root["hue_increment"] = getHueIncrement() * -1; }
-			else currentHue = getHueMax();
+			if(huePingPong) { currentHue = hueMin; hueIncrement *= -1.f; }
+			else currentHue = hueMax;
 		}
-		if(currentHue > getHueMax())
+		if(currentHue > hueMax)
 		{
-			if(getHuePingPong()) { currentHue = getHueMax(); root["hue_increment"] = getHueIncrement() * -1; }
-			else currentHue = getHueMin();
+			if(huePingPong) { currentHue = hueMax; hueIncrement *= -1.f; }
+			else currentHue = hueMin;
 		}
 
 		pulseFactor += as<float>(root, "pulse_increment") * mFrameTime;
 
-		if(pulseFactor < as<float>(root, "pulse_min")) { root["pulse_increment"] = as<float>(root, "pulse_increment") * -1; pulseFactor = as<float>(root, "pulse_min"); }
-		if(pulseFactor > as<float>(root, "pulse_max")) { root["pulse_increment"] = as<float>(root, "pulse_increment") * -1; pulseFactor = as<float>(root, "pulse_max"); }
+		if(pulseFactor < pulseMin) { pulseIncrement *= -1.f; pulseFactor = pulseMin; }
+		if(pulseFactor > pulseMax) { pulseIncrement *= -1.f; pulseFactor = pulseMax; }
 	}
 
 	void StyleData::computeColors()
@@ -79,7 +79,7 @@ namespace hg
 		current3DOverrideColor = has(root, "3D_override_color") ? as<Color>(root, "3D_override_color") : getMainColor();
 		currentColors.clear();
 		for(unsigned int i{0}; i < size(root, "colors"); i++) currentColors.push_back(calculateColor(root["colors"][i]));
-		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / (getMaxSwapTime() / 2), currentColors.end());
+		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / (maxSwapTime / 2.f), currentColors.end());
 	}
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vec2f mCenterPos, int mSides)

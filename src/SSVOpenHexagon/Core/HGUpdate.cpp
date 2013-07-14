@@ -142,8 +142,8 @@ namespace hg
 	}
 	void HexagonGame::update3D(float mFrameTime)
 	{
-		status.pulse3D += styleData.get3DPulseSpeed() * status.pulse3DDirection * mFrameTime;
-		if(status.pulse3D > styleData.get3DPulseMax()) status.pulse3DDirection = -1;
-		else if(status.pulse3D < styleData.get3DPulseMin()) status.pulse3DDirection = 1;
+		status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFrameTime;
+		if(status.pulse3D > styleData._3dPulseMax) status.pulse3DDirection = -1;
+		else if(status.pulse3D < styleData._3dPulseMin) status.pulse3DDirection = 1;
 	}
 }

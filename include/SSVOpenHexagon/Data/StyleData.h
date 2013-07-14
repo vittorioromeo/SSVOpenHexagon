@@ -20,6 +20,25 @@ namespace hg
 			std::vector<sf::Color> currentColors;
 
 		public:
+			float hueMin						{ssvuj::as<float>(root, "hue_min", 0.f)};
+			float hueMax						{ssvuj::as<float>(root, "hue_max", 360.f)};
+			float hueIncrement					{ssvuj::as<float>(root, "hue_increment", 0.f)};
+			float pulseMin						{ssvuj::as<float>(root, "pulse_min", 0.f)};
+			float pulseMax						{ssvuj::as<float>(root, "pulse_max", 0.f)};
+			float pulseIncrement				{ssvuj::as<float>(root, "pulse_increment", 0.f)};
+			bool huePingPong					{ssvuj::as<bool>(root, "hue_ping_pong", false)};
+			float maxSwapTime					{ssvuj::as<float>(root, "max_swap_time", 100.f)};
+			float _3dDepth						{ssvuj::as<float>(root, "3D_depth", 15.f)};
+			float _3dSkew						{ssvuj::as<float>(root, "3D_skew", 0.18f)};
+			float _3dSpacing					{ssvuj::as<float>(root, "3D_spacing", 1.f)};
+			float _3dDarkenMult					{ssvuj::as<float>(root, "3D_darken_multiplier", 1.5f)};
+			float _3dAlphaMult					{ssvuj::as<float>(root, "3D_alpha_multiplier", 0.5f)};
+			float _3dAlphaFalloff				{ssvuj::as<float>(root, "3D_alpha_falloff", 3.f)};
+			float _3dPulseMax					{ssvuj::as<float>(root, "3D_pulse_max", 3.2f)};
+			float _3dPulseMin					{ssvuj::as<float>(root, "3D_pulse_min", 0.f)};
+			float _3dPulseSpeed					{ssvuj::as<float>(root, "3D_pulse_speed", 0.01f)};
+			float _3dPerspectiveMult			{ssvuj::as<float>(root, "3D_perspective_multiplier", 1.f)};
+
 			StyleData() = default;
 			StyleData(const ssvuj::Value& mRoot);
 
@@ -28,16 +47,9 @@ namespace hg
 			void drawBackground(sf::RenderTarget& mRenderTarget, ssvs::Vec2f mCenterPos, int mSides);
 
 			void setRootPath(const std::string& mPath) { rootPath = mPath; }
-			inline void setPulseIncrement(float mValue)		{ ssvuj::set(root, "pulse_increment", mValue); }
-			inline void setHueIncrement(float mValue)		{ ssvuj::set(root, "hue_increment", mValue); }
 
 			inline const std::string& getRootPath() const	{ return rootPath; }
 			inline std::string getId() const				{ return ssvuj::as<std::string>(root, "id"); }
-			inline float getHueMin() const					{ return ssvuj::as<float>(root, "hue_min"); }
-			inline float getHueMax() const					{ return ssvuj::as<float>(root, "hue_max"); }
-			inline bool getHuePingPong() const				{ return ssvuj::as<bool>(root, "hue_ping_pong"); }
-			inline float getHueIncrement() const			{ return ssvuj::as<float>(root, "hue_increment"); }
-			inline float getMaxSwapTime() const				{ return ssvuj::as<float>(root, "max_swap_time", 100.f); }
 
 			sf::Color calculateColor(const ssvuj::Value& mColorRoot) const;
 
@@ -48,17 +60,7 @@ namespace hg
 			inline float getCurrentHue() const 			{ return currentHue; }
 			inline float getCurrentSwapTime() const		{ return currentSwapTime; }
 
-			inline unsigned int get3DDepth() const				{ return ssvuj::as<float>(root, "3D_depth", 15); }
-			inline float get3DSkew() const						{ return ssvuj::as<float>(root, "3D_skew", 0.18f); }
-			inline float get3DSpacing() const					{ return ssvuj::as<float>(root, "3D_spacing", 1.0f); }
-			inline float get3DDarkenMultiplier() const			{ return ssvuj::as<float>(root, "3D_darken_multiplier", 1.5f); }
-			inline float get3DAlphaMultiplier() const			{ return ssvuj::as<float>(root, "3D_alpha_multiplier", 0.5f); }
-			inline float get3DAlphaFalloff() const				{ return ssvuj::as<float>(root, "3D_alpha_falloff", 3.0f); }
 			inline const sf::Color& get3DOverrideColor() const	{ return current3DOverrideColor; }
-			inline float get3DPulseMax() const					{ return ssvuj::as<float>(root, "3D_pulse_max", 3.2f); }
-			inline float get3DPulseMin() const					{ return ssvuj::as<float>(root, "3D_pulse_min", -0.0f); }
-			inline float get3DPulseSpeed() const				{ return ssvuj::as<float>(root, "3D_pulse_speed", 0.01f); }
-			inline float get3DPerspectiveMultiplier() const		{ return ssvuj::as<float>(root, "3D_perspective_multiplier", 1.0f); }
 	};
 }
 

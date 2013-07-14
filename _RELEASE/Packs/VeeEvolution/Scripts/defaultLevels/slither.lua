@@ -27,6 +27,9 @@ range = "("..(smin * 2).."/"..(smax * 2).."]"
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	addTracked("level", "level")
+	addTracked("next at", "incrementTime")
+	addTracked("range", "range")
 	messageAdd("remember, you can focus with lshift!", 150)
 end
 

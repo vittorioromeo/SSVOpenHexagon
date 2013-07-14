@@ -58,11 +58,11 @@ namespace hg
 
 		vector<PackData> packDatas;
 		for(auto& pair : packDataMap) packDatas.push_back(pair.second);
-		sort(begin(packDatas), end(packDatas), [](const PackData& a, const PackData& b) { return a.getPriority() < b.getPriority(); });
+		sort(begin(packDatas), end(packDatas), [](const PackData& a, const PackData& b) { return a.priority < b.priority; });
 
 		for(auto& pd : packDatas)
 		{
-			string packName{pd.getId()}, packPath{"Packs/" + packName + "/"};
+			string packName{pd.id}, packPath{"Packs/" + packName + "/"};
 			packPaths.push_back("Packs/" + packName + "/");
 			log("loading " + packName + " music", "::loadAssets");			loadMusic(packPath);
 			log("loading " + packName + " music data", "::loadAssets");		loadMusicData(packPath);
@@ -96,7 +96,7 @@ namespace hg
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".json"))
 		{
 			MusicData musicData{loadMusicFromJson(getRootFromFile(p))};
-			musicDataMap.insert(make_pair(musicData.getId(), musicData));
+			musicDataMap.insert(make_pair(musicData.id, musicData));
 		}
 	}
 	void loadStyleData(const string& mPath)
@@ -116,9 +116,6 @@ namespace hg
 			string luaScriptPath{mPath + "Scripts/" + as<string>(root, "lua_file")};
 
 			LevelData levelData{loadLevelFromJson(root)};
-
-			string trackedVariablesPath{getReplaced(p, ".json", ".tracked")};
-			if(exists(trackedVariablesPath)) levelData.loadTrackedVariables(getRootFromFile(trackedVariablesPath));
 
 			levelData.packPath = mPath;
 			levelData.levelRootPath = p;
@@ -188,7 +185,7 @@ namespace hg
 		for(const auto& packPair : packDataMap) result.push_back(packPair.first);
 		sort(begin(result), end(result), [](const string& mA, const string& mB)
 		{
-			return packDataMap.at(mA).getPriority() < packDataMap.at(mB).getPriority();
+			return packDataMap.at(mA).priority < packDataMap.at(mB).priority;
 		});
 		return result;
 	}

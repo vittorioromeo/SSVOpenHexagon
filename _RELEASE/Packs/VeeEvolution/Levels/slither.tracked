@@ -1,9 +1,0 @@
-{
-	// LUA tracked variables
-	"tracked": 
-	[
-		["level", "level"],
-		["next at", "incrementTime"],
-		["range", "range"]
-	]
-}

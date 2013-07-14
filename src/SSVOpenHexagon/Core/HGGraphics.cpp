@@ -25,7 +25,7 @@ namespace hg
 		{
 			status.drawing3D = true;
 
-			float effect{styleData.get3DSkew() * get3DMultiplier() * status.pulse3D};
+			float effect{styleData._3dSkew * get3DMultiplier() * status.pulse3D};
 			Vec2f skew{1.f, 1.f + effect};
 			backgroundCamera.setSkew(skew);
 
@@ -34,14 +34,14 @@ namespace hg
 				Camera& depthCamera(depthCameras[i]);
 				depthCamera.setView(backgroundCamera.getView());
 				depthCamera.setSkew(skew);
-				depthCamera.setOffset({0, styleData.get3DSpacing() * (i * styleData.get3DPerspectiveMultiplier()) * (effect * 3.6f)});
+				depthCamera.setOffset({0, styleData._3dSpacing * (i * styleData._3dPerspectiveMult) * (effect * 3.6f)});
 			}
 
 			for(unsigned int i{0}; i < depthCameras.size(); ++i)
 			{
-				status.overrideColor = getColorDarkened(styleData.get3DOverrideColor(), styleData.get3DDarkenMultiplier());
-				status.overrideColor.a /= styleData.get3DAlphaMultiplier();
-				status.overrideColor.a -= i * styleData.get3DAlphaFalloff();
+				status.overrideColor = getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult);
+				status.overrideColor.a /= styleData._3dAlphaMult;
+				status.overrideColor.a -= i * styleData._3dAlphaFalloff;
 
 				depthCameras[i].apply();
 				manager.draw();
@@ -77,23 +77,14 @@ namespace hg
 		if(status.scoreInvalid) s << "score invalidated (performance issues)" << endl;
 		if(status.hasDied) s << "press r to restart" << endl;
 
-		const auto& trackedVariables(levelData.getTrackedVariables());
+		const auto& trackedVariables(levelData.trackedVariables);
 		if(getShowTrackedVariables() && !trackedVariables.empty())
 		{
 			s << endl;
 			for(const auto& t : trackedVariables)
 			{
 				if(lua.doesVariableExist(t.variableName)) continue; // TODO: check LuaWrapper
-
-				string var;
-				if(t.hasOffset)
-				{
-					int temp{lua.readVariable<int>(t.variableName)};
-					temp += t.offset;
-					var = toStr(temp);
-				}
-				else var = lua.readVariable<string>(t.variableName);
-
+				string var{lua.readVariable<string>(t.variableName)};
 				s << t.displayName << ": " << var << endl;
 			}
 		}
