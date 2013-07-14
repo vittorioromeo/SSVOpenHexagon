@@ -41,10 +41,8 @@ namespace hg
 		difficultyMult = mDifficultyMult;
 
 		// Audio cleanup
-		stopAllSounds();
-		playSound("go.ogg");
-		stopLevelMusic();
-		playLevelMusic();
+		stopAllSounds(); stopLevelMusic();
+		playSound("go.ogg"); playLevelMusic();
 
 		// Events cleanup
 		messageText.setString("");
@@ -94,6 +92,7 @@ namespace hg
 	}
 	void HexagonGame::death(bool mForce)
 	{
+		fpsWatcher.disable();
 		playSound("death.ogg", SoundPlayer::Mode::Abort);
 
 		if(!mForce && (getInvincible() || status.tutorialMode)) return;

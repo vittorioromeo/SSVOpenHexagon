@@ -18,12 +18,12 @@ namespace hg
 		float mAcceleration, float mMinSpeed, float mMaxSpeed) : hexagonGame(mHexagonGame), centerPos{mCenterPos},
 		speed{mSpeed, mAcceleration, mMinSpeed, mMaxSpeed, false}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
-		float div{360.f / hexagonGame.getSides()}, angle{div * side};
+		float div{360.f / hexagonGame.getSides() * 0.5f}, angle{div * 2 * side};
 
-		vertexPositions[0] = getOrbitFromDegrees(centerPos, angle - div * 0.5f, distance);
-		vertexPositions[1] = getOrbitFromDegrees(centerPos, angle + div * 0.5f, distance);
-		vertexPositions[2] = getOrbitFromDegrees(centerPos, angle + div * 0.5f + hexagonGame.getWallAngleLeft(), distance + thickness + hexagonGame.getWallSkewLeft());
-		vertexPositions[3] = getOrbitFromDegrees(centerPos, angle - div * 0.5f + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
+		vertexPositions[0] = getOrbitFromDegrees(centerPos, angle - div, distance);
+		vertexPositions[1] = getOrbitFromDegrees(centerPos, angle + div, distance);
+		vertexPositions[2] = getOrbitFromDegrees(centerPos, angle + div + hexagonGame.getWallAngleLeft(), distance + thickness + hexagonGame.getWallSkewLeft());
+		vertexPositions[3] = getOrbitFromDegrees(centerPos, angle - div + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
 	}
 
 	void CWall::draw()
@@ -33,8 +33,9 @@ namespace hg
 
 		for(unsigned int i{0}; i < 4; ++i)
 		{
-			vertices[i].position = vertexPositions[i];
-			vertices[i].color = colorMain;
+			auto& vertex(vertices[i]);
+			vertex.position = vertexPositions[i];
+			vertex.color = colorMain;
 		}
 
 		hexagonGame.render(vertices);
@@ -54,7 +55,7 @@ namespace hg
 			else
 			{
 				moveTowards(vp, centerPos, speed.speed * 5.0f * mFrameTime);
-				rotateAroundCenter(vp, centerPos, curve.speed / 1000.f);
+				rotateAroundCenter(vp, centerPos, curve.speed / 60.f * mFrameTime);
 			}
 		}
 

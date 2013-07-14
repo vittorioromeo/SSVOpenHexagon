@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <SSVUtils/SSVUtils.h>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Data/TrackedVariable.h"
 
@@ -58,7 +59,10 @@ namespace hg
 			std::string styleId					{ssvuj::as<std::string>(root, "style_id", "nullStyleId")};
 
 			LevelData() = default;
-			LevelData(const ssvuj::Value& mRoot);
+			LevelData(const ssvuj::Value& mRoot) : root{mRoot}
+			{
+				difficultyMultipliers.push_back(1.0f); ssvu::sort(difficultyMultipliers);
+			}
 	};
 }
 

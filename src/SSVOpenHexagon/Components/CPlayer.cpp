@@ -16,6 +16,8 @@ using namespace hg::Utils;
 
 namespace hg
 {
+	const float baseThickness{5};
+
 	CPlayer::CPlayer(HexagonGame& mHexagonGame, Vec2f mStartPos) : hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
 
 	void CPlayer::draw()
@@ -40,19 +42,19 @@ namespace hg
 	void CPlayer::drawPivot()
 	{
 		unsigned int sides{hexagonGame.getSides()};
-		float thickness{5}, div{360.f / sides}, radius{hexagonGame.getRadius() * 0.75f};
+		float div{360.f / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
 		if(getBlackAndWhite()) colorB = Color::Black;
 		VertexArray vertices2{PrimitiveType::Quads, 4}, vertices3{PrimitiveType::Triangles, 3};
 
 		for(unsigned int i{0}; i < sides; ++i)
 		{
-			float angle{div * i};
+			float angle{div / 0.5f * i};
 
-			Vec2f p1{getOrbitFromDegrees(startPos, angle - div * 0.5f, radius)};
-			Vec2f p2{getOrbitFromDegrees(startPos, angle + div * 0.5f, radius)};
-			Vec2f p3{getOrbitFromDegrees(startPos, angle + div * 0.5f, radius + thickness)};
-			Vec2f p4{getOrbitFromDegrees(startPos, angle - div * 0.5f, radius + thickness)};
+			Vec2f p1{getOrbitFromDegrees(startPos, angle - div, radius)};
+			Vec2f p2{getOrbitFromDegrees(startPos, angle + div, radius)};
+			Vec2f p3{getOrbitFromDegrees(startPos, angle + div, radius + baseThickness)};
+			Vec2f p4{getOrbitFromDegrees(startPos, angle - div, radius + baseThickness)};
 
 			vertices2.append({p1, colorMain});
 			vertices2.append({p2, colorMain});
@@ -69,19 +71,19 @@ namespace hg
 	}
 	void CPlayer::drawDeathEffect()
 	{
-		float div{360.f / hexagonGame.getSides()}, radius{hue / 8}, thickness{hue / 20};
+		float div{360.f / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
 		Color colorMain{getColorFromHue((360 - hue) / 255.0f)};
 		VertexArray verticesDeath{PrimitiveType::Quads, 4};
 		if(hue++ > 360) hue = 0;
 
 		for(unsigned int i{0}; i < hexagonGame.getSides(); ++i)
 		{
-			float angle{div * i};
+			float angle{div / 0.5f * i};
 
-			Vec2f p1{getOrbitFromDegrees(pos, angle - div * 0.5f, radius)};
-			Vec2f p2{getOrbitFromDegrees(pos, angle + div * 0.5f, radius)};
-			Vec2f p3{getOrbitFromDegrees(pos, angle + div * 0.5f, radius + thickness)};
-			Vec2f p4{getOrbitFromDegrees(pos, angle - div * 0.5f, radius + thickness)};
+			Vec2f p1{getOrbitFromDegrees(pos, angle - div, radius)};
+			Vec2f p2{getOrbitFromDegrees(pos, angle + div, radius)};
+			Vec2f p3{getOrbitFromDegrees(pos, angle + div, radius + thickness)};
+			Vec2f p4{getOrbitFromDegrees(pos, angle - div, radius + thickness)};
 
 			verticesDeath.append({p1, colorMain});
 			verticesDeath.append({p2, colorMain});
@@ -107,8 +109,7 @@ namespace hg
 		if(hexagonGame.getStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer <= 0)
 		{
 			playSound("swap.ogg");
-			swapTimer = 40;
-			angle += 180;
+			swapTimer = 40; angle += 180;
 		}
 
 		Vec2f tempPos{getOrbitFromDegrees(startPos, angle, radius)};
@@ -118,8 +119,7 @@ namespace hg
 		for(const auto& wall : getManager().getEntities("wall"))
 		{
 			const auto& cwall(wall->getComponent<CWall>());
-			if(movement == -1 && cwall.isOverlapping(pLeftCheck)) angle = lastAngle;
-			if(movement == 1 && cwall.isOverlapping(pRightCheck)) angle = lastAngle;
+			if((movement == -1 && cwall.isOverlapping(pLeftCheck)) || (movement == 1 && cwall.isOverlapping(pRightCheck))) angle = lastAngle;
 			if(cwall.isOverlapping(pos))
 			{
 				deadEffectTimer = 80;
