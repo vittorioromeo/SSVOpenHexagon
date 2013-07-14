@@ -105,7 +105,7 @@ namespace hg
 		{
 			StyleData styleData{loadStyleFromJson(getRootFromFile(p))};
 			styleData.setRootPath(p);
-			styleDataMap.insert(make_pair(styleData.getId(), styleData));
+			styleDataMap.insert(make_pair(styleData.id, styleData));
 		}
 	}
 	void loadLevelData(const string& mPath)

@@ -32,9 +32,10 @@ namespace hg
 				if(!as<bool>(mColorRoot, "dynamic_offset")) color = getColorDarkened(dynamicColor, as<float>(mColorRoot, "dynamic_darkness"));
 				else
 				{
-					color.r += dynamicColor.r / as<float>(mColorRoot, "offset");
-					color.g += dynamicColor.g / as<float>(mColorRoot, "offset");
-					color.b += dynamicColor.b / as<float>(mColorRoot, "offset");
+					const auto& offset(as<float>(mColorRoot, "offset"));
+					color.r += dynamicColor.r / offset;
+					color.g += dynamicColor.g / offset;
+					color.b += dynamicColor.b / offset;
 					color.a += dynamicColor.a;
 				}
 			}
@@ -87,7 +88,7 @@ namespace hg
 		float div{360.f / mSides * 1.0001f}, distance{4500};
 
 		VertexArray vertices{PrimitiveType::Triangles, 3};
-		vector<Color> colors{getColors()};
+		const auto& colors(getColors());
 
 		for(int i{0}; i < mSides; ++i)
 		{

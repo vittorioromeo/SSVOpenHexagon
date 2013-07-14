@@ -19,7 +19,10 @@ namespace hg
 			sf::Color currentMainColor, current3DOverrideColor;
 			std::vector<sf::Color> currentColors;
 
+			sf::Color calculateColor(const ssvuj::Value& mColorRoot) const;
+
 		public:
+			std::string id						{ssvuj::as<std::string>(root, "id", "nullId")};
 			float hueMin						{ssvuj::as<float>(root, "hue_min", 0.f)};
 			float hueMax						{ssvuj::as<float>(root, "hue_max", 360.f)};
 			float hueIncrement					{ssvuj::as<float>(root, "hue_increment", 0.f)};
@@ -49,9 +52,7 @@ namespace hg
 			void setRootPath(const std::string& mPath) { rootPath = mPath; }
 
 			inline const std::string& getRootPath() const	{ return rootPath; }
-			inline std::string getId() const				{ return ssvuj::as<std::string>(root, "id"); }
 
-			sf::Color calculateColor(const ssvuj::Value& mColorRoot) const;
 
 			inline const sf::Color& getMainColor() const			{ return currentMainColor; }
 			inline const std::vector<sf::Color>& getColors() const	{ return currentColors; }
