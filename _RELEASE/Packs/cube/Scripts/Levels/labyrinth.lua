@@ -46,6 +46,8 @@ function onInit()
 	l_setRadiusMin(40)
 	l_addTracked("levelTracked", "level")
 	l_enableRndSideChanges(false)
+
+	enableSwapIfDMGreaterThan(1.5)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented

@@ -47,6 +47,9 @@ function onInit()
 
 	l_setBeatPulseMax(15)
 	l_setBeatPulseDelayMax(21.8)
+
+	enableSwapIfDMGreaterThan(1)
+	disableIncIfDMGreaterThan(1)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted

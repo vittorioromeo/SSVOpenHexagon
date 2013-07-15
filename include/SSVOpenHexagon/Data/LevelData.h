@@ -30,7 +30,7 @@ namespace hg
 			std::string musicId					{ssvuj::as<std::string>(root, "musicId", "nullMusicId")};
 			std::string styleId					{ssvuj::as<std::string>(root, "styleId", "nullStyleId")};
 			std::string luaScriptPath			{packPath + ssvuj::as<std::string>(root, "luaFile", "nullLuaPath")};
-			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "diffMults", {})};
+			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "difficultyMults", {})};
 
 			LevelData(const ssvuj::Value& mRoot, const std::string& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
 	};

@@ -51,6 +51,8 @@ function onInit()
 	l_addTracked("lowerBound", "min")
 	l_addTracked("upperBound", "max")
 	l_enableRndSideChanges(false)
+
+	enableSwapIfDMGreaterThan(1.5)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted

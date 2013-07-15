@@ -21,7 +21,7 @@ namespace hg
 			sf::VertexArray vertices{sf::PrimitiveType::Triangles, 3};
 			float hue{0}, angle{0}, size{getPlayerSize()}, speed{getPlayerSpeed()}, focusSpeed{getPlayerFocusSpeed()};
 			bool dead{false};
-			float deadEffectTimer{-1}, swapTimer{40};
+			float deadEffectTimer{-1}, swapTimer{40}, swapBlinkTimer{5};
 
 			void drawPivot();
 			void drawDeathEffect();

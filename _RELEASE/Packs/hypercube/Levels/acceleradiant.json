@@ -8,5 +8,5 @@
 	"styleId": "acceleradiant",
 	"musicId": "mrGawne",
 	"luaFile": "Scripts/Levels/acceleradiant.lua",
-	"difficultyMults": [0.85, 1.25, 1.4]
+	"difficultyMults": [0.85, 1.25, 1.4, 1.8]
 }

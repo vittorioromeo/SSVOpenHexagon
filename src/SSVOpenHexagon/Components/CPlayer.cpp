@@ -34,7 +34,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		if(swapTimer <= 0) colorMain = Utils::TransformH(colorMain, 90);
+		if(swapTimer <= 0) colorMain = Utils::TransformH(getColorFromHue(hue / 255.0f), swapBlinkTimer * 25);
 		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);
@@ -96,7 +96,8 @@ namespace hg
 
 	void CPlayer::update(float mFrameTime)
 	{
-		if(hexagonGame.getLevelStatus().swapEnabled && swapTimer > 0) swapTimer -= mFrameTime;
+		swapBlinkTimer -= mFrameTime; if(swapBlinkTimer < 0) swapBlinkTimer = 5;
+		if(hexagonGame.getLevelStatus().swapEnabled && swapTimer > 0) { swapTimer -= mFrameTime; }
 		if(hexagonGame.getLevelStatus().tutorialMode && deadEffectTimer > 0) deadEffectTimer -= mFrameTime;
 
 		Vec2f lastPos{pos};
