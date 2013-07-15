@@ -26,15 +26,17 @@ namespace hg
 			ssvs::AssetManager assetManager;
 			ssvs::SoundPlayer soundPlayer;
 			ssvs::MusicPlayer musicPlayer;
+
 			std::unordered_map<std::string, Uptr<LevelData>> levelDatas;
 			std::unordered_map<std::string, std::vector<std::string>> levelDataIdsByPack;
+
+			std::unordered_map<std::string, Uptr<PackData>> packDatas;
+			std::vector<std::string> packIds, packPaths;
 
 			std::map<std::string, MusicData> musicDataMap;
 			std::map<std::string, StyleData> styleDataMap;
 			std::map<std::string, ProfileData> profileDataMap;
-			std::map<std::string, PackData> packDataMap;
 			ProfileData* currentProfilePtr{nullptr};
-			std::vector<std::string> packPaths;
 
 		public:
 			HGAssets();
@@ -44,6 +46,13 @@ namespace hg
 			inline const std::unordered_map<std::string, Uptr<LevelData>>& getLevelDatas()			{ return levelDatas; }
 			inline const LevelData& getLevelData(const std::string& mId)							{ return *levelDatas.at(mId); }
 			inline const std::vector<std::string>& getLevelIdsByPack(const std::string& mPackPath)	{ return levelDataIdsByPack.at(mPackPath); }
+
+			inline const PackData& getPackData(const std::string& mId)	{ return *packDatas.at(mId); }
+			inline const std::vector<std::string>& getPackPaths()		{ return packPaths; }
+			inline const std::vector<std::string>& getPackIds()			{ return packIds; }
+
+
+
 
 
 			void loadAssets();
@@ -57,14 +66,9 @@ namespace hg
 
 			void saveCurrentProfile();
 
-
-
 			MusicData getMusicData(const std::string& mId);
 			StyleData getStyleData(const std::string& mId);
-			PackData getPackData(const std::string& mId);
 
-			std::vector<std::string> getPackPaths();
-			std::vector<std::string> getPackNames();
 
 			float getScore(const std::string& mId);
 			void setScore(const std::string& mId, float mScore);
@@ -76,6 +80,12 @@ namespace hg
 			int getProfilesSize();
 			std::vector<std::string> getProfileNames();
 			std::string getFirstProfileName();
+
+
+
+
+
+
 
 			void refreshVolumes();
 			void stopMusics();

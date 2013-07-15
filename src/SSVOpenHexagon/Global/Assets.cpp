@@ -32,6 +32,7 @@ namespace hg
 		loadAssets();
 
 		for(auto& v : levelDataIdsByPack) sort(begin(v.second), end(v.second), [&](const string& mA, const string& mB){ return levelDatas[mA]->menuPriority < levelDatas[mB]->menuPriority; });
+		sort(begin(packIds), end(packIds), [&](const string& mA, const string& mB){ return packDatas[mA]->priority < packDatas[mB]->priority; });
 	}
 
 
@@ -48,26 +49,22 @@ namespace hg
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
 			ssvuj::Value packRoot{getRootFromFile(packPath + "/pack.json")};
-			PackData packData(packName, as<string>(packRoot, "name"), as<float>(packRoot, "priority"), packHash);
-			packDataMap.insert(make_pair(packName, packData));
+			auto packData(new PackData{packName, as<string>(packRoot, "name"), as<float>(packRoot, "priority"), packHash});
+			packDatas.insert(make_pair(packName, Uptr<PackData>(packData)));
 		}
 
-		vector<PackData> packDatas;
-		for(auto& pair : packDataMap) packDatas.push_back(pair.second);
-		sort(begin(packDatas), end(packDatas), [](const PackData& a, const PackData& b) { return a.priority < b.priority; });
-
-		for(auto& pd : packDatas)
+		for(auto& p : packDatas)
 		{
-			string packName{pd.id}, packPath{"Packs/" + packName + "/"};
-			packPaths.push_back("Packs/" + packName + "/");
-			log("loading " + packName + " music", "::loadAssets");			loadMusic(packPath);
-			log("loading " + packName + " music data", "::loadAssets");		loadMusicData(packPath);
-			log("loading " + packName + " style data", "::loadAssets");		loadStyleData(packPath);
-			log("loading " + packName + " level data", "::loadAssets");		loadLevelData(packPath);
-			log("loading " + packName + " custom sounds", "::loadAssets");	loadCustomSounds(packName, packPath);
+			const auto& pd(p.second);
+			string packId{pd->id}, packPath{"Packs/" + packId + "/"};
+			packIds.push_back(packId);
+			packPaths.push_back(packPath);
+			log("loading " + packId + " music", "::loadAssets");			loadMusic(packPath);
+			log("loading " + packId + " music data", "::loadAssets");		loadMusicData(packPath);
+			log("loading " + packId + " style data", "::loadAssets");		loadStyleData(packPath);
+			log("loading " + packId + " level data", "::loadAssets");		loadLevelData(packPath);
+			log("loading " + packId + " custom sounds", "::loadAssets");	loadCustomSounds(packId, packPath);
 		}
-
-
 	}
 
 	void HGAssets::loadCustomSounds(const string& mPackName, const string& mPath)
@@ -138,24 +135,8 @@ namespace hg
 		ssvuj::writeRootToFile(profileRoot, getCurrentProfileFilePath());
 	}
 
-	vector<string> HGAssets::getPackPaths() { return packPaths; }
-	vector<string> HGAssets::getPackNames()
-	{
-		vector<string> result;
-		for(const auto& packPair : packDataMap) result.push_back(packPair.first);
-		sort(begin(result), end(result), [&](const string& mA, const string& mB)
-		{
-			return packDataMap.at(mA).priority < packDataMap.at(mB).priority;
-		});
-		return result;
-	}
-
-
-
-
 	MusicData HGAssets::getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData HGAssets::getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
-	PackData HGAssets::getPackData(const string& mId) 		{ return packDataMap.find(mId)->second; }
 
 	float HGAssets::getScore(const string& mId) 				{ return getCurrentProfile().getScore(mId); }
 	void HGAssets::setScore(const string& mId, float mScore)	{ getCurrentProfile().setScore(mId, mScore); }

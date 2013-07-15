@@ -415,7 +415,7 @@ namespace hg
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20.f, getGlobalTop(lname) - 25.f});
 
 		string packNames{"Installed packs:\n"};
-		for(const auto& n : assets.getPackNames()) { if(packData.id == n) packNames += ">>> "; packNames.append(n + "\n"); }
+		for(const auto& n : assets.getPackIds()) { if(packData.id == n) packNames += ">>> "; packNames.append(n + "\n"); }
 		packsText.setString(packNames);
 		packsText.setOrigin(packsText.getGlobalBounds().width, packsText.getGlobalBounds().height);
 		packsText.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
