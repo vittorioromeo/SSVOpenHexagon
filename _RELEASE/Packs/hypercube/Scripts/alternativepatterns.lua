@@ -1,4 +1,4 @@
-execScript("common.lua")
+u_execScript("common.lua")
 
 function pAltMirrorSpiral(mTimes, mExtra)
 	oldThickness = THICKNESS
@@ -14,13 +14,13 @@ function pAltMirrorSpiral(mTimes, mExtra)
 			else
 				startSide = startSide - loopDir
 			end
-			wait(delay)
+			t_wait(delay)
 		end 
 	end
 
 	THICKNESS = oldThickness
 	
-	wait(getPerfectDelay(THICKNESS) * 6.5)
+	t_wait(getPerfectDelay(THICKNESS) * 6.5)
 end
 
 function randomArray(mNumber,mLower,mUpper)
@@ -46,7 +46,7 @@ function pAltTunnel(mTimes,mFree)
 		end
 		
 		cBarrageN(startSide + loopDir,mFree)
-		wait(delay)
+		t_wait(delay)
 		
 		loopDir = loopDir * -1
 	end
@@ -98,7 +98,7 @@ function pLadder(mTimes,mArray,myThickness)
 	end
 
 	patternizer(eArray,myThickness)
-	wait(delay*2)
+	t_wait(delay*2)
 	
 end
 
@@ -114,6 +114,6 @@ function patternizer(mArray,myThickness)
 				wall(eArray[k], myThickness)
 			end
 		end
-		wait(delay)
+		t_wait(delay)
 	end
 end

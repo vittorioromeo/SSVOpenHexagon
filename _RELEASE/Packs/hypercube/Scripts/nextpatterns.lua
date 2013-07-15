@@ -1,19 +1,19 @@
-execScript("common.lua")
-execScript("commonpatterns.lua")
-execScript("utils.lua")
-execScript("alternativepatterns.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("alternativepatterns.lua")
 
 function wallSAdj(mSide, mAdj) wallAdj(mSide, THICKNESS, mAdj) end
-function wallSAcc(mSide, mAdj, mAcc, mMinSpd, mMaxSpd) wallAcc(mSide, THICKNESS, mAdj, mAcc * (getDifficultyMult()), mMinSpd, mMaxSpd) end
+function wallSAcc(mSide, mAdj, mAcc, mMinSpd, mMaxSpd) wallAcc(mSide, THICKNESS, mAdj, mAcc * (u_getDifficultyMult()), mMinSpd, mMaxSpd) end
 
 function pTrapBarrage(mSide)
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 		
 	cBarrage(mSide)
-	wait(delay * 3)
+	t_wait(delay * 3)
 	wallSAdj(mSide, 1.9)
 
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pTrapBarrageDouble(mSide)
@@ -25,25 +25,25 @@ function pTrapBarrageDouble(mSide)
 		if((currentSide ~= mSide) and (currentSide ~= side2)) then cWall(currentSide) end
 	end
 
-	wait(delay * 3)
+	t_wait(delay * 3)
 	wallSAdj(mSide, 1.9)
 	wallSAdj(side2, 1.9)
 	
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pTrapBarrageInverse(mSide)
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	
 	cWall(mSide)	
-	wait(delay * 3)
+	t_wait(delay * 3)
 
 	for i = 0, l_getSides() - 1 do
 		currentSide = mSide + i
 		if(currentSide ~= mSide) then wallSAdj(currentSide, 1.9) end
 	end
 
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pTrapBarrageAlt(mSide)
@@ -54,14 +54,14 @@ function pTrapBarrageAlt(mSide)
 		if(currentSide % 2 ~= 0) then cWall(currentSide) end
 	end
 
-	wait(delay * 3)
+	t_wait(delay * 3)
 
 	for i = 0, l_getSides() - 1 do
 		currentSide = mSide + i
 		if(currentSide % 2 == 0) then wallSAdj(currentSide, 1.9) end
 	end
 
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pTrapSpiral(mSide)
@@ -73,10 +73,10 @@ function pTrapSpiral(mSide)
 	for i = 0, l_getSides() + getHalfSides() do
 		currentSide = (mSide + i) * loopDir
 		for j = 0, getHalfSides() do wallSAdj(currentSide + j, 1.2 + (i / 7.9)) end
-		wait((delay * 0.75) - (i * 0.45) + 3)
+		t_wait((delay * 0.75) - (i * 0.45) + 3)
 	end
 
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pRCBarrage()
@@ -87,7 +87,7 @@ function pRCBarrage()
 		currentSide = startSide + i
 		cWall(currentSide)
 	end
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pRCBarrageDouble()
@@ -99,7 +99,7 @@ function pRCBarrageDouble()
 		holeSide = startSide + i + (currentSides / 2)
 		if(i ~= holeSide) then cWall(currentSide) end
 	end
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pRCBarrageSpin()
@@ -112,9 +112,9 @@ function pRCBarrageSpin()
 			currentSide = startSide + i
 			cWall(currentSide + (j * loopDir))
 		end
-		wait(delay + 1)
+		t_wait(delay + 1)
 	end
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pACBarrage()
@@ -125,7 +125,7 @@ function pACBarrage()
 		currentSide = startSide + i
 		wallSAcc(currentSide, 9 + math.random(0, 1), -1.1, 1, 12)
 	end
-	wait(delay * 2.5)
+	t_wait(delay * 2.5)
 end
 
 function pACBarrageMulti()
@@ -139,20 +139,20 @@ function pACBarrageMulti()
 		wallSAcc(currentSide, 0, 0.09, 0, 4.0)
 		wallSAcc(currentSide, 0, 0.12, 0, 4.0)
 	end
-	wait(delay * 8)
+	t_wait(delay * 8)
 end
 
 function pACBarrageMultiAltDir()
 	currentSides = l_getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 4
-	mdiff = 1 + math.abs(1 - getDifficultyMult())
+	mdiff = 1 + math.abs(1 - u_getDifficultyMult())
 	startSide = math.random(0, 10)
 	loopDir = getRandomDir()
 	for i = 0, currentSides + getHalfSides() do
 		currentSide = startSide + i * loopDir
 		wallSAcc(currentSide, 10, -1.095, 0.40, 10)
-		wait((delay / 2.21) * (mdiff * 1.29))
+		t_wait((delay / 2.21) * (mdiff * 1.29))
 		wallSAcc(currentSide + (getHalfSides() * loopDir), 0, 0.128, 0, 1.4)
 	end
-	wait(delay * 8)
+	t_wait(delay * 8)
 end

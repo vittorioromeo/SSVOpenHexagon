@@ -1,16 +1,16 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
-execScript("nextpatterns.lua")
-execScript("evolutionpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
+u_execScript("nextpatterns.lua")
+u_execScript("evolutionpatterns.lua")
 
 gap = 6
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then cBarrageN(getRandomSide(), gap) wait(getPerfectDelayDM(THICKNESS) * 6)
-	elseif mKey == 1 then hmcSimpleBarrageSNeigh(getRandomSide(), 0, gap) wait(getPerfectDelayDM(THICKNESS) * 6)
+		if mKey == 0 then cBarrageN(getRandomSide(), gap) t_wait(getPerfectDelayDM(THICKNESS) * 6)
+	elseif mKey == 1 then hmcSimpleBarrageSNeigh(getRandomSide(), 0, gap) t_wait(getPerfectDelayDM(THICKNESS) * 6)
 	end
 end
 
@@ -53,7 +53,7 @@ end
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
 	syncCurveWithRotationSpeed(0, 0)
-	messageAdd("remember, swap with spacebar!", 120)
+	m_messageAdd("remember, swap with spacebar!", 120)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -73,7 +73,7 @@ end
 function onIncrement()
 	if gap > 2 then
 		gap = gap -1
-		messageImportantAdd("Gap size: "..gap, 120)
+		m_messageAddImportant("Gap size: "..gap, 120)
 	end
 end
 

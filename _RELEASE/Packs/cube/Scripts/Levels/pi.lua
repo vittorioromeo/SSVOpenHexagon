@@ -1,16 +1,16 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then cWallEx(math.random(0, l_getSides()), math.random(1, 2)) wait(getPerfectDelay(THICKNESS) * 2.5)
+		if mKey == 0 then cWallEx(math.random(0, l_getSides()), math.random(1, 2)) t_wait(getPerfectDelay(THICKNESS) * 2.5)
 	elseif mKey == 1 then pMirrorSpiralDouble(math.random(1, 2), 4)
-	elseif mKey == 2 then rWallEx(math.random(0, l_getSides()), math.random(1, 2)) wait(getPerfectDelay(THICKNESS) * 2.8)
+	elseif mKey == 2 then rWallEx(math.random(0, l_getSides()), math.random(1, 2)) t_wait(getPerfectDelay(THICKNESS) * 2.8)
 	elseif mKey == 3 then pMirrorWallStrip(1, 2)
-	elseif mKey == 4 then rWallEx(math.random(0, l_getSides()), 1) wait(getPerfectDelay(THICKNESS) * 2.3)
-	elseif mKey == 5 then cWallEx(math.random(0, l_getSides()), 7) wait(getPerfectDelay(THICKNESS) * 2.7)
+	elseif mKey == 4 then rWallEx(math.random(0, l_getSides()), 1) t_wait(getPerfectDelay(THICKNESS) * 2.3)
+	elseif mKey == 5 then cWallEx(math.random(0, l_getSides()), 7) t_wait(getPerfectDelay(THICKNESS) * 2.7)
 	end
 end
 
@@ -76,7 +76,7 @@ function onUpdate(mFrameTime)
 	dirChangeTime = dirChangeTime - mFrameTime;
 	if dirChangeTime < 0 then
 		-- do not change direction while fast spinning
-		if isFastSpinning() == false then
+		if u_isFastSpinning() == false then
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 100
 		end

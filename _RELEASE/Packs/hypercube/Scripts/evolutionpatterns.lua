@@ -1,8 +1,8 @@
-execScript("common.lua")
-execScript("commonpatterns.lua")
-execScript("utils.lua")
-execScript("alternativepatterns.lua")
-execScript("nextpatterns.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("alternativepatterns.lua")
+u_execScript("nextpatterns.lua")
 
 hueModifier = 0.2
 sync = false
@@ -27,7 +27,7 @@ function wallHMCurveAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePi
 		mCurve = mCurve + (math.random(syncRndMin, syncRndMax) / 100.0)
 	end
 
-	wallHModCurveData(hueModifier, mSide, THICKNESS, mCurve * (getDifficultyMult() ^ 0.25) * curveMult, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
+	wallHModCurveData(hueModifier, mSide, THICKNESS, mCurve * (u_getDifficultyMult() ^ 0.25) * curveMult, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 end
 
 function wallHMCurve(mSide, mCurve)
@@ -74,7 +74,7 @@ function hmcSimpleTwirl(mTimes, mCurve, mCurveAdd)
 		hmcSimpleBarrageS(startSide + j, currentCurve)
 		j = j + loopDir
 		currentCurve = currentCurve + mCurveAdd
-		wait(delay)
+		t_wait(delay)
 	end
 end
 
@@ -114,51 +114,51 @@ function hmcSimpleSpinnerSAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mC
 end
 
 function hmcDefSpinner()
-	wait(getPerfectDelayDM(THICKNESS) * 3.2)
+	t_wait(getPerfectDelayDM(THICKNESS) * 3.2)
 	hmcSimpleSpinner(math.random(10, 19) / 10.0 * getRandomDir())
-	wait(getPerfectDelayDM(THICKNESS) * 5.9)
+	t_wait(getPerfectDelayDM(THICKNESS) * 5.9)
 end
 
 function hmcDefBarrage()
-	wait(getPerfectDelayDM(THICKNESS) * 3.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 	hmcSimpleBarrage(math.random(10, 20) / 10.0 * getRandomDir())
-	wait(getPerfectDelayDM(THICKNESS) * 5)
+	t_wait(getPerfectDelayDM(THICKNESS) * 5)
 end
 
 function hmcDef2Cage()
-	wait(getPerfectDelayDM(THICKNESS) * 2.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
 	side = getRandomSide()
 	rndspd = math.random(10, 20) / 10.0
 
-	wait(getPerfectDelayDM(THICKNESS) * 3.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	wait(getPerfectDelayDM(THICKNESS) * 5.3)
+	t_wait(getPerfectDelayDM(THICKNESS) * 5.3)
 end
 
 function hmcDef2CageD()
-	wait(getPerfectDelayDM(THICKNESS) * 2.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
 
 	side = getRandomSide()
 	oppositeSide = getHalfSides() + side
 	rndspd = math.random(10, 17) / 10.0
 
-	wait(getPerfectDelayDM(THICKNESS) * 3.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	wait(getPerfectDelayDM(THICKNESS) * 6.0)
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.0)
 	hmcSimpleCageS(rndspd, -1, oppositeSide)
-	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, oppositeSide)
-	wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, oppositeSide)
-	wait(getPerfectDelayDM(THICKNESS) * 9.2)
+	t_wait(getPerfectDelayDM(THICKNESS) * 9.2)
 end
 
 function hmcSimpleBarrageSpiral(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
@@ -170,11 +170,11 @@ function hmcSimpleBarrageSpiral(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
 	for i = 0, mTimes do
 		hmcSimpleBarrageSNeigh(startSide + j, mCurve, mNeighbors)
 		j = j + loopDir
-		wait(delay)
-		if(l_getSides() < 6) then wait(delay * 0.7) end
+		t_wait(delay)
+		if(l_getSides() < 6) then t_wait(delay * 0.7) end
 	end
 	
-	wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function hmcSimpleBarrageSpiralRnd(mTimes, mDelayMult, mCurve, mNeighbors)
@@ -183,11 +183,11 @@ function hmcSimpleBarrageSpiralRnd(mTimes, mDelayMult, mCurve, mNeighbors)
 	
 	for i = 0, mTimes do
 		hmcSimpleBarrageSNeigh(getRandomSide(), mCurve, mNeighbors)
-		wait(delay)
-		if(l_getSides() < 6) then wait(delay * 0.7) end
+		t_wait(delay)
+		if(l_getSides() < 6) then t_wait(delay * 0.7) end
 	end
 	
-	wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function hmcSimpleBarrageSpiralStatic(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
@@ -199,11 +199,11 @@ function hmcSimpleBarrageSpiralStatic(mTimes, mDelayMult, mStep, mCurve, mNeighb
 	for i = 0, mTimes do
 		hmcSimpleBarrageSNeigh(startSide + j, mCurve, mNeighbors)
 		j = j + loopDir
-		wait(delay)
-		if(l_getSides() < 6) then wait(delay * 0.6) end
+		t_wait(delay)
+		if(l_getSides() < 6) then t_wait(delay * 0.6) end
 	end
 	
-	wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function hmcDefBarrageSpiral()
@@ -223,76 +223,76 @@ function hmcDefBarrageSpiralSpin()
 end
 
 function hmcDefBarrageInv()
-	wait(getPerfectDelayDM(THICKNESS) * 2.0)
+	t_wait(getPerfectDelayDM(THICKNESS) * 2.0)
 	delay = getPerfectDelay(THICKNESS) * 5.6 
 	side = getRandomSide()
 	rndspd = math.random(10, 20) / 10.0
 	oppositeSide = getRandomSide() + getHalfSides()
 
 	hmcSimpleBarrageSNeigh(side, rndspd * getRandomDir(), 0)
-	wait(delay)
+	t_wait(delay)
 
 	hmcSimpleBarrageSNeigh(oppositeSide, rndspd * getRandomDir(), 0)
-	wait(delay)
+	t_wait(delay)
 end
 
 function hmcDefAccelBarrage()
-	wait(getPerfectDelayDM(THICKNESS) * 1.5)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.5)
 	c = math.random(50, 100) / 1000.0 * getRandomDir()
 	min = math.random(5, 35) / 10.0 * -1
 	max = math.random(5, 35) / 10.0
 	hmcBarrage(0, c, min, max, true)
-	wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function hmcDefAccelBarrageDouble()
-	wait(getPerfectDelayDM(THICKNESS) * 1.5)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.5)
 	c = math.random(50, 100) / 1000.0 * getRandomDir()
 	min = math.random(5, 35) / 10.0 * -1
 	max = math.random(5, 35) / 10.0
 	hmcBarrage(0, c, min, max, true)
-	wait(getPerfectDelayDM(THICKNESS) * 2.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
 	hmcBarrage(0, c, min, max, true)
-	wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function hmcDefSpinnerSpiral()
-	wait(getPerfectDelayDM(THICKNESS) * 1.5)
+	t_wait(getPerfectDelayDM(THICKNESS) * 1.5)
 	side = getRandomSide()
 	c = math.random(10, 20) / 10.0 * getRandomDir()
 
-	wait(getPerfectDelayDM(THICKNESS) * 3.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 
 	for i = 0, math.random(4, 8) do
 		hmcSimpleSpinnerS(side, c)
-		wait(getPerfectDelayDM(THICKNESS) * 1.15)
+		t_wait(getPerfectDelayDM(THICKNESS) * 1.15)
 	end
 
-	wait(getPerfectDelayDM(THICKNESS) * 5)
+	t_wait(getPerfectDelayDM(THICKNESS) * 5)
 end
 
 function getRndMinDM(mNum)
-	return math.random(mNum - getDifficultyMult() ^ 3, mNum)
+	return math.random(mNum - u_getDifficultyMult() ^ 3, mNum)
 end
 
 function getRndMaxDM(mNum)
-	return math.random(mNum, mNum + getDifficultyMult() ^ 2.25)
+	return math.random(mNum, mNum + u_getDifficultyMult() ^ 2.25)
 end
 
 function hmcDefSpinnerSpiralAcc()
-	wait(getPerfectDelayDM(THICKNESS) * 2.1)
-	wait(getPerfectDelayDM(THICKNESS) * 2.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
 	side = getRandomSide()
 	acc = math.random(getRndMinDM(50), getRndMaxDM(100)) / 1000.0 * getRandomDir()
 	min = math.random(getRndMinDM(12), getRndMaxDM(28)) / 10.0 * -1
 	max = math.random(getRndMinDM(12), getRndMaxDM(28)) / 10.0
 
-	wait(getPerfectDelayDM(THICKNESS) * 3.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 
 	for i = 0, math.random(4, 8) do
 		hmcSimpleSpinnerSAcc(side, 0, acc, min, max, true)
-		wait(getPerfectDelay(THICKNESS) * 0.8)
+		t_wait(getPerfectDelay(THICKNESS) * 0.8)
 	end
 
-	wait(getPerfectDelayDM(THICKNESS) * 5.3)
+	t_wait(getPerfectDelayDM(THICKNESS) * 5.3)
 end

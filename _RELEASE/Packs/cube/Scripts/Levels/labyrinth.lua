@@ -1,7 +1,7 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
 
 level = 0
 levelTracked = 1
@@ -9,7 +9,7 @@ incrementTime = 3
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()	
-	messageImportantAdd("level: "..(level + 1).." / time: "..incrementTime, 170)
+	m_messageAddImportant("level: "..(level + 1).." / time: "..incrementTime, 170)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -17,7 +17,7 @@ end
 function onStep()
 	disableRandomSideChanges()	
 	cBarrage(getRandomSide())
-	wait(getPerfectDelay(THICKNESS) * 6.55)
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.55)
 end
 
 -- onInit is an hardcoded function that is called when the level is first loaded
@@ -50,8 +50,8 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()	
-	playSound("beep.ogg")
-	playSound("VeeEndurance_test.ogg")
+	u_playSound("beep.ogg")
+	u_playSound("VeeEndurance_test.ogg")
 	
 	level = level + 1
 	levelTracked = level + 1
@@ -60,7 +60,7 @@ function onIncrement()
 	l_setSides(l_getSides() + 1)
 	l_setIncTime(incrementTime)
 		
-	messageImportantAdd("level: "..(level + 1).." / time: "..incrementTime, 170)
+	m_messageAddImportant("level: "..(level + 1).." / time: "..incrementTime, 170)
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted

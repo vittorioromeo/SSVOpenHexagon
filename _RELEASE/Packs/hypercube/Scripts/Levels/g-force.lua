@@ -1,18 +1,18 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
-execScript("nextpatterns.lua")
-execScript("evolutionpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
+u_execScript("nextpatterns.lua")
+u_execScript("evolutionpatterns.lua")
 
 function gforceBarrage()
 	cBarrage(getRandomSide()) 
-	wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function gforceBarrageAssault()
 	cBarrage(getRandomSide()) 
-	wait(getPerfectDelayDM(THICKNESS) * 3.1)
+	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 end
 
 
@@ -106,7 +106,7 @@ function onIncrement()
 
 	if special == "none" then
 		special = specials[1]
-		messageImportantAdd("Special: "..special, 120)
+		m_messageAddImportant("Special: "..special, 120)
 	else
 		special = "none"
 	end

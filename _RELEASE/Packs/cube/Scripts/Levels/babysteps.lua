@@ -1,7 +1,7 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
@@ -37,22 +37,22 @@ end
 function onLoad()
 	tutorialMode()
 
-	messageImportantAdd("welcome to open hexagon 2", 130)
-	messageImportantAdd("use left/right to rotate", 130)
-	messageImportantAdd("avoid the walls!", 130)
-	eventStopTimeS(6) eventWaitS(6)
+	m_messageAddImportant("welcome to open hexagon 2", 130)
+	m_messageAddImportant("use left/right to rotate", 130)
+	m_messageAddImportant("avoid the walls!", 130)
+	e_eventStopTimeS(6) e_eventWaitS(6)
 	
-	eventStopTimeS(3) eventWaitUntilS(12)
-	messageImportantAdd("great job!", 130)
-	messageImportantAdd("after a while, things get harder", 130)
-	messageImportantAdd("get to 45 seconds to win!", 130)
+	e_eventStopTimeS(3) e_eventWaitUntilS(12)
+	m_messageAddImportant("great job!", 130)
+	m_messageAddImportant("after a while, things get harder", 130)
+	m_messageAddImportant("get to 45 seconds to win!", 130)
 
-	eventWaitUntilS(42)
-	messageImportantAdd("well done!", 130)
-	messageImportantAdd("now play some real levels!", 138)
+	e_eventWaitUntilS(42)
+	m_messageAddImportant("well done!", 130)
+	m_messageAddImportant("now play some real levels!", 138)
 
-	eventWaitUntilS(45)
-	eventKill()
+	e_eventWaitUntilS(45)
+	u_eventKill()
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

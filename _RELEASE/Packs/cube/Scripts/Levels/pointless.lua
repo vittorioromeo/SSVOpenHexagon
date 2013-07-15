@@ -1,7 +1,7 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
@@ -46,8 +46,8 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	messageAdd("tutorials are over", 130)
-	messageAdd("good luck getting high scores!", 130)
+	m_messageAdd("tutorials are over", 130)
+	m_messageAdd("good luck getting high scores!", 130)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

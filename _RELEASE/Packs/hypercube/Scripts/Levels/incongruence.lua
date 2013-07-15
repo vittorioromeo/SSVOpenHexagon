@@ -1,8 +1,8 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
-execScript("nextpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
+u_execScript("nextpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
@@ -51,7 +51,7 @@ end
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
 	disableRandomSideChanges()
-	messageImportantAdd("Sides ("..lowerBound.." / "..upperBound..")", 170)
+	m_messageAddImportant("Sides ("..lowerBound.." / "..upperBound..")", 170)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -70,7 +70,7 @@ end
 function onIncrement()
 	lowerBound = math.random(4, 6)
 	upperBound = lowerBound + math.random(1, 3)
-	messageImportantAdd("Sides ("..lowerBound.." / "..upperBound..")", 170)
+	m_messageAddImportant("Sides ("..lowerBound.." / "..upperBound..")", 170)
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
@@ -88,7 +88,7 @@ function onUpdate(mFrameTime)
 	dirChangeTime = dirChangeTime - mFrameTime;
 	if dirChangeTime < 0 then
 		-- do not change direction while fast spinning
-		if isFastSpinning() == false then
+		if u_isFastSpinning() == false then
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 400
 		end

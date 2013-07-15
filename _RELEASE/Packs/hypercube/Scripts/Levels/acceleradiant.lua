@@ -1,8 +1,8 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
-execScript("nextpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
+u_execScript("nextpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
@@ -77,7 +77,7 @@ function onUpdate(mFrameTime)
 	dirChangeTime = dirChangeTime - mFrameTime;
 	if dirChangeTime < 0 then
 		-- do not change direction while fast spinning
-		if isFastSpinning() == false then
+		if u_isFastSpinning() == false then
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 400
 		end

@@ -172,4 +172,21 @@ namespace hg
 	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) stopAllMusic(); }
 
 	void HexagonGame::invalidateScore() { status.scoreInvalid = true; log("Too much slowdown, invalidating official game", "HexagonGame::invalidateScore"); }
+
+	Color HexagonGame::getColorMain() const
+	{
+		if(getBlackAndWhite())
+		{
+			if(status.drawing3D) return Color{255, 255, 255, status.overrideColor.a};
+			return Color(255, 255, 255, styleData.getMainColor().a);
+		}
+		else if(status.drawing3D) return status.overrideColor;
+		else return styleData.getMainColor();
+	}
+	void HexagonGame::setSides(unsigned int mSides)
+	{
+		playSound("beep.ogg");
+		if(mSides < 3) mSides = 3;
+		levelData.sides = mSides;
+	}
 }

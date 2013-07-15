@@ -1,7 +1,7 @@
 -- include useful files
-execScript("utils.lua")
-execScript("common.lua")
-execScript("commonpatterns.lua")
+u_execScript("utils.lua")
+u_execScript("common.lua")
+u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
@@ -52,10 +52,10 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	eventWaitS(15)
-	messageAdd("whoa!", 120)
-	eventWaitS(45)
-	messageImportantAdd("may the mayhem begin!", 130)
+	e_eventWaitS(15)
+	m_messageAdd("whoa!", 120)
+	e_eventWaitS(45)
+	m_messageAddImportant("may the mayhem begin!", 130)
 	setStylePulseIncrement(0.15)
 end
 
