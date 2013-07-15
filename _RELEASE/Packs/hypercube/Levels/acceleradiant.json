@@ -1,0 +1,12 @@
+{
+	"id": "acceleradiant",
+	"name": "acceleradiant",
+	"description": "dunno lol",
+	"author": "vittorio romeo",	
+	"menu_priority": 20,
+	"selectable": true,
+	"style_id": "acceleradiant",
+	"music_id": "mrGawne",
+	"lua_file": "Levels/acceleradiant.lua",
+	"difficulty_multipliers": [0.85, 1.25, 1.4]
+}

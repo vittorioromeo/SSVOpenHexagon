@@ -49,13 +49,6 @@ namespace hg
 		eventTimeline.clear(); eventTimeline.reset();
 		messageTimeline.clear(); messageTimeline.reset();
 
-		// Game status cleanup
-		status = HexagonGameStatus{};
-		restartId = mId;
-		restartFirstTime = false;
-		setSides(levelData.sides);
-		status.swapEnabled = levelData.swapEnabled;
-
 		// Manager cleanup
 		manager.clear();
 		factory.createPlayer();
@@ -69,15 +62,18 @@ namespace hg
 		fpsWatcher.reset();
 		if(getOfficial()) fpsWatcher.enable();
 
-		// LUA context cleanup
+		// LUA context and game statuscleanup
+		status = HexagonGameStatus{};
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
 		initLua();
 		runLuaFile(levelData.luaScriptPath);
+		runLuaFunction<void>("onInit");
 		runLuaFunction<void>("onLoad");
-
-		// Random rotation direction
-		if(getRnd(0, 100) > 50) setRotationSpeed(getRotationSpeed() * -1.f);
+		restartId = mId;
+		restartFirstTime = false;
+		setSides(levelData.sides);
+		status.swapEnabled = levelData.swapEnabled;
 
 		// Reset zoom
 		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, ssvs::Vec2f(getWidth(), getHeight())});

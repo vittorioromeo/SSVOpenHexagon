@@ -1,0 +1,12 @@
+{
+	"id": "slither",
+	"name": "slither",
+	"description": "sssssss",
+	"author": "vittorio romeo",	
+	"menu_priority": 80,
+	"selectable": true,
+	"style_id": "slither",
+	"music_id": "pep",
+	"lua_file": "Levels/slither.lua",
+	"difficulty_multipliers": [0.5, 2, 3]
+}

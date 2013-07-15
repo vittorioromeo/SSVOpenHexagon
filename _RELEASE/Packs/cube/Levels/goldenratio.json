@@ -1,0 +1,12 @@
+{
+	"id": "goldenratio",
+	"name": "golden ratio",
+	"description": "relax with the spirals",
+	"author": "vittorio romeo",	
+	"menu_priority": 150,
+	"selectable": true,
+	"style_id": "goldenratio",
+	"music_id": "captainCool",
+	"lua_file": "Levels/goldenratio.lua",
+	"difficulty_multipliers": [1.25, 1.50, 0.75, 0.5, 0.25]
+}

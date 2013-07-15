@@ -19,6 +19,34 @@ namespace hg
 {
 	void HexagonGame::initLua()
 	{
+		// Level initialization
+		lua.writeVariable("l_setSpeedMult",			[=](float mValue)						{ levelData.speedMultiplier = mValue; });
+		lua.writeVariable("l_setSpeedInc",			[=](float mValue)						{ levelData.speedIncrement = mValue; });
+		lua.writeVariable("l_setRotationSpeed",		[=](float mValue)						{ levelData.rotationSpeed = mValue; });
+		lua.writeVariable("l_setRotationSpeedMax",	[=](float mValue)						{ levelData.rotationSpeedMax = mValue; });
+		lua.writeVariable("l_setRotationSpeedInc",	[=](float mValue)						{ levelData.rotationSpeedIncrement = mValue; });
+		lua.writeVariable("l_setDelayMult",			[=](float mValue)						{ levelData.delayMultiplier = mValue; });
+		lua.writeVariable("l_setDelayInc",			[=](float mValue)						{ levelData.delayIncrement = mValue; });
+		lua.writeVariable("l_setFastSpin",			[=](float mValue)						{ levelData.fastSpin = mValue; });
+		lua.writeVariable("l_setSides",				[=](int mValue)							{ levelData.sides = mValue; });
+		lua.writeVariable("l_setSidesMin",			[=](int mValue)							{ levelData.sidesMin = mValue; });
+		lua.writeVariable("l_setSidesMax",			[=](int mValue)							{ levelData.sidesMax = mValue; });
+		lua.writeVariable("l_setIncTime",			[=](float mValue)						{ levelData.incrementTime = mValue; });
+		lua.writeVariable("l_setPulseMin",			[=](float mValue)						{ levelData.pulseMin = mValue; });
+		lua.writeVariable("l_setPulseMax",			[=](float mValue)						{ levelData.pulseMax = mValue; });
+		lua.writeVariable("l_setPulseSpeed",		[=](float mValue)						{ levelData.pulseSpeed = mValue; });
+		lua.writeVariable("l_setPulseSpeedR",		[=](float mValue)						{ levelData.pulseSpeedR = mValue; });
+		lua.writeVariable("l_setPulseDelayMax",		[=](float mValue)						{ levelData.pulseDelayMax = mValue; });
+		lua.writeVariable("l_setBeatPulseMax",		[=](float mValue)						{ levelData.beatPulseMax = mValue; });
+		lua.writeVariable("l_setBeatPulseDelayMax",	[=](float mValue)						{ levelData.beatPulseDelayMax = mValue; });
+		lua.writeVariable("l_setWallSkewLeft",		[=](float mValue)						{ levelData.wallSkewLeft = mValue; });
+		lua.writeVariable("l_setWallSkewRight",		[=](float mValue)						{ levelData.wallSkewRight = mValue; });
+		lua.writeVariable("l_setWallAngleLeft",		[=](float mValue)						{ levelData.wallAngleLeft = mValue; });
+		lua.writeVariable("l_setWallAngleRight",	[=](float mValue)						{ levelData.wallAngleRight = mValue; });
+		lua.writeVariable("l_setRadiusMin",			[=](float mValue)						{ levelData.radiusMin = mValue; });
+		lua.writeVariable("l_setSwapEnabled",		[=](bool mValue)						{ levelData.swapEnabled = mValue; });
+		lua.writeVariable("l_addTracked",			[=](string mVar, string mName)			{ levelData.trackedVariables.emplace_back(mVar, mName); });
+
 		lua.writeVariable("log", 					[=](string mLog) 						{ log(mLog, "Lua log"); });
 
 		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 		{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {getSpeedMultiplier()}); }); });
@@ -94,7 +122,7 @@ namespace hg
 		lua.writeVariable("setLevelSides", [=](int mValue){ levelData.sides = mValue; });
 		lua.writeVariable("setLevelIncrementTime", [=](int mValue){ levelData.incrementTime = mValue; });
 
-		lua.writeVariable("addTracked", [=](string mVariableName, string mDisplayName){ levelData.trackedVariables.emplace_back(mVariableName, mDisplayName); });
+
 	}
 	void HexagonGame::runLuaFile(const string& mFileName)
 	{
