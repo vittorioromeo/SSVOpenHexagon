@@ -3,7 +3,7 @@
 	"name": "polyhedrug",
 	"description": "ready to experience something different?",
 	"author": "vittorio romeo",	
-	"menu_priority": 40,
+	"menu_priority": 60,
 	"selectable": true,
 	"style_id": "polyhedrug",
 	"music_id": "johnnyDerp",

@@ -3,7 +3,7 @@
 	"name": "massacre",
 	"description": "you >will< die",
 	"author": "vittorio romeo",	
-	"menu_priority": 500,
+	"menu_priority": 80,
 	"selectable": true,
 	"style_id": "massacre",
 	"music_id": "massacrev2",

@@ -109,7 +109,7 @@ namespace hg
 	{
 		playSound("levelUp.ogg");
 
-		levelData.rotationSpeed += levelData.rotationSpeedIncrement * getSign(levelData.rotationSpeed);
+		levelData.rotationSpeed += levelData.rotationSpeedInc * getSign(levelData.rotationSpeed);
 		levelData.rotationSpeed *= -1.f;
 
 		const auto& rotationSpeedMax(levelData.rotationSpeedMax);
@@ -121,8 +121,8 @@ namespace hg
 	void HexagonGame::sideChange(int mSideNumber)
 	{
 		runLuaFunction<void>("onIncrement");
-		levelData.speedMultiplier += levelData.speedIncrement;
-		levelData.delayMultiplier += levelData.delayIncrement;
+		levelData.speedMult += levelData.speedInc;
+		levelData.delayMult += levelData.delayInc;
 
 		if(status.randomSideChangesEnabled) setSides(mSideNumber);
 		mustChangeSides = false;

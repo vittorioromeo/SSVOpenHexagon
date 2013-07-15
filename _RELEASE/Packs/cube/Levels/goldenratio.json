@@ -3,7 +3,7 @@
 	"name": "golden ratio",
 	"description": "relax with the spirals",
 	"author": "vittorio romeo",	
-	"menu_priority": 150,
+	"menu_priority": 90,
 	"selectable": true,
 	"style_id": "goldenratio",
 	"music_id": "captainCool",

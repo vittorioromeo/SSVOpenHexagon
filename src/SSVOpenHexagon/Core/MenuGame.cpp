@@ -180,7 +180,7 @@ namespace hg
 
 		levelData = getLevelData(levelDataIds[currentIndex]);
 		styleData = getStyleData(levelData.styleId);
-		difficultyMultipliers = levelData.difficultyMultipliers;
+		difficultyMultipliers = levelData.difficultyMults;
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
 
 		refreshScores();

@@ -3,7 +3,7 @@
 	"name": "3.141592653589793238462643383279502884197169399375105820974944592307816406286",
 	"description": "do you like pi?",
 	"author": "vittorio romeo",	
-	"menu_priority": 75,
+	"menu_priority": 70,
 	"selectable": true,
 	"style_id": "pi",
 	"music_id": "callMeKatla",

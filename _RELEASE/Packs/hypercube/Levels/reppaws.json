@@ -3,7 +3,7 @@
 	"name": "reppaws",
 	"description": "180 degrees of awesomeness",
 	"author": "vittorio romeo",	
-	"menu_priority": 40,
+	"menu_priority": 70,
 	"selectable": true,
 	"style_id": "reppaws",
 	"music_id": "minimal",

@@ -3,7 +3,7 @@
 	"name": "g-force",
 	"description": "beware the acceleration",
 	"author": "vittorio romeo",	
-	"menu_priority": 40,
+	"menu_priority": 30,
 	"selectable": true,
 	"style_id": "g-force",
 	"music_id": "cpumood",

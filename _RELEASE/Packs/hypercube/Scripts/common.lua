@@ -2,10 +2,10 @@
 THICKNESS = 40.0;
 
 -- getHalfSides: returns half the number of sides (integer)
-function getHalfSides() return math.ceil(getSides() / 2) end
+function getHalfSides() return math.ceil(l_getSides() / 2) end
 
 -- getRandomSide: returns random mSide
-function getRandomSide() return math.random(0, getSides() - 1) end
+function getRandomSide() return math.random(0, l_getSides() - 1) end
 
 -- getRandomDir: returns either 1 or -1
 function getRandomDir()
@@ -14,13 +14,13 @@ function getRandomDir()
 end
 
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
-function getPerfectDelay(mThickness) return mThickness / (5.02 * getSpeedMult()) * getDelayMult() end
+function getPerfectDelay(mThickness) return mThickness / (5.02 * l_getSpeedMult()) * l_getDelayMult() end
 
 -- getPerfectDelayDM: returns getPerfectDelay calculated with difficulty mutliplier
-function getPerfectDelayDM(mThickness) return mThickness / (5.02 * (getSpeedMult() / (getDifficultyMult() ^ 0.65))) * (getDelayMult() * (getDifficultyMult() ^ -0.60)) end
+function getPerfectDelayDM(mThickness) return mThickness / (5.02 * (l_getSpeedMult() / (getDifficultyMult() ^ 0.65))) * (l_getDelayMult() * (getDifficultyMult() ^ -0.60)) end
 
 -- getPerfectThickness: returns a good THICKNESS value in relation to human reflexes
-function getPerfectThickness(mThickness) return mThickness * getSpeedMult() end
+function getPerfectThickness(mThickness) return mThickness * l_getSpeedMult() end
 
 -- getSideDistance: returns shortest distance from a side to another
 function getSideDistance(mSide1, mSide2)
@@ -29,7 +29,7 @@ function getSideDistance(mSide1, mSide2)
 	while start ~= mSide2 do
 		rightSteps = rightSteps + 1
 		start = start + 1
-		if start > getSides() - 1 then start = 0 end
+		if start > l_getSides() - 1 then start = 0 end
 	end
 	
 	start = mSide1	
@@ -37,7 +37,7 @@ function getSideDistance(mSide1, mSide2)
 	while start ~= mSide2 do
 		leftSteps = leftSteps + 1
 		start = start - 1
-		if start < 0 then start = getSides() - 1 end
+		if start < 0 then start = l_getSides() - 1 end
 	end
 	
 	if rightSteps < leftSteps then return rightSteps end
@@ -78,7 +78,7 @@ end
 
 -- cBarrageN: spawns a barrage of walls, with a free mSide plus mNeighbors
 function cBarrageN(mSide, mNeighbors)
-	for i = mNeighbors, getSides() - 2 - mNeighbors, 1 do
+	for i = mNeighbors, l_getSides() - 2 - mNeighbors, 1 do
 		cWall(mSide + i + 1)
 	end
 end
@@ -94,7 +94,7 @@ end
 
 -- cAltBarrage: spawns a barrage of alternate walls
 function cAltBarrage(mSide, mStep)
-	for i = 0, getSides() / mStep, 1 do
+	for i = 0, l_getSides() / mStep, 1 do
 		cWall(mSide + i * mStep)
 	end
 end

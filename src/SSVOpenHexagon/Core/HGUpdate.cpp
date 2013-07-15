@@ -63,7 +63,7 @@ namespace hg
 	void HexagonGame::updateIncrement()
 	{
 		if(!status.incrementEnabled) return;
-		if(status.incrementTime < levelData.incrementTime) return;
+		if(status.incrementTime < levelData.incTime) return;
 
 		status.incrementTime = 0;
 		incrementDifficulty();

@@ -78,7 +78,7 @@ function pBarrageSpiral(mTimes, mDelayMult, mStep)
 		cBarrage(startSide + j)
 		j = j + loopDir
 		wait(delay)
-		if(getSides() < 6) then wait(delay * 0.6) end
+		if(l_getSides() < 6) then wait(delay * 0.6) end
 	end
 	
 	wait(getPerfectDelayDM(THICKNESS) * 6.1)
@@ -86,7 +86,7 @@ end
 
 -- pDMBarrageSpiral: spawns a spiral of cBarrage, with static delay
 function pDMBarrageSpiral(mTimes, mDelayMult, mStep)
-	delay = (getPerfectDelayDM(THICKNESS) * 5.42) * (mDelayMult / (getDifficultyMult() ^ 0.24)) * (getSpeedMult() ^ 0.16)
+	delay = (getPerfectDelayDM(THICKNESS) * 5.42) * (mDelayMult / (getDifficultyMult() ^ 0.24)) * (l_getSpeedMult() ^ 0.16)
 	startSide = getRandomSide()
 	loopDir = mStep * getRandomDir()	
 	j = 0
@@ -95,7 +95,7 @@ function pDMBarrageSpiral(mTimes, mDelayMult, mStep)
 		cBarrage(startSide + j)
 		j = j + loopDir
 		wait(delay)
-		if(getSides() < 6) then wait(delay * 0.49) end
+		if(l_getSides() < 6) then wait(delay * 0.49) end
 	end
 	
 	wait(getPerfectDelayDM(THICKNESS) * (6.7 * (getDifficultyMult() ^ 0.50)))
@@ -135,7 +135,7 @@ function pInverseBarrage(mTimes)
 	for i = 0, mTimes do
 		cBarrage(startSide)
 		wait(delay)
-		if(getSides() < 6) then wait(delay * 0.8) end
+		if(l_getSides() < 6) then wait(delay * 0.8) end
 		cBarrage(startSide + getHalfSides())
 		wait(delay)
 	end
@@ -183,7 +183,7 @@ function pTunnel(mTimes)
 	
 	for i = 0, mTimes do
 		if i < mTimes then
-			wall(startSide, myThickness + 5 * getSpeedMult() * delay)
+			wall(startSide, myThickness + 5 * l_getSpeedMult() * delay)
 		end
 		
 		cBarrage(startSide + loopDir)

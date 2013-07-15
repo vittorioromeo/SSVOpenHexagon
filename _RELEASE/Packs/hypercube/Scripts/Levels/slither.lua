@@ -65,7 +65,7 @@ end
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()	
-	setLevelSides(math.random(smin, smax) * 2)
+	l_setSides(math.random(smin, smax) * 2)
 	hmcDefSpinnerSpiralAcc()
 end
 
@@ -86,8 +86,8 @@ function onIncrement()
 	range = "("..(smin * 2).."/"..(smax * 2).."]"
 	messageImportantAdd("Range: "..range, 100)
 
-	setLevelSides(getSides() + 2)
-	setLevelIncrementTime(incrementTime)
+	l_setSides(l_getSides() + 2)
+	l_setIncTime(incrementTime)
 end
 
 -- continuous direction change (even if not on level increment)
@@ -103,8 +103,8 @@ function onUpdate(mFrameTime)
 	if dirChangeTime < 0 then
 		-- do not change direction while fast spinning
 		if isFastSpinning() == false then
-			setLevelRotationSpeed(getLevelRotationSpeed() * -1.0)
-			dirChangeTime = 200
+			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
+			dirChangeTime = 400
 		end
 	end 
 end

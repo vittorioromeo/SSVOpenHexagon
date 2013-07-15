@@ -3,7 +3,7 @@
 	"name": "euclidean plane crash",
 	"description": "special level of difficulty",
 	"author": "vittorio romeo",	
-	"menu_priority": 50,
+	"menu_priority": 60,
 	"selectable": true,
 	"style_id": "euclideanpc",
 	"music_id": "steampunkWarlord",

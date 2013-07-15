@@ -23,7 +23,7 @@ end
 
 function wallHMCurveAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 	if sync == true then
-		mCurve = getLevelRotationSpeed() * 10.0
+		mCurve = l_getRotationSpeed() * 10.0
 		mCurve = mCurve + (math.random(syncRndMin, syncRndMax) / 100.0)
 	end
 
@@ -35,7 +35,7 @@ function wallHMCurve(mSide, mCurve)
 end
 
 function hmcBarrageN(mSide, mNeighbors, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
-	for i = mNeighbors, getSides() - 2 - mNeighbors, 1 do
+	for i = mNeighbors, l_getSides() - 2 - mNeighbors, 1 do
 		wallHMCurveAcc(mSide + i + 1, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 	end
 end
@@ -96,19 +96,19 @@ end
 function hmcSimpleSpinner(mCurve)
 	side = getRandomSide()
 
-	for i = 0, getSides() / 2, 1 do
+	for i = 0, l_getSides() / 2, 1 do
 		wallHMCurve(side + i * 2, mCurve)
 	end
 end
 
 function hmcSimpleSpinnerS(mSide, mCurve)
-	for i = 0, getSides() / 2, 1 do
+	for i = 0, l_getSides() / 2, 1 do
 		wallHMCurve(mSide + i * 2, mCurve)
 	end
 end
 
 function hmcSimpleSpinnerSAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
-	for i = 0, getSides() / 2, 1 do
+	for i = 0, l_getSides() / 2, 1 do
 		wallHMCurveAcc(mSide + i * 2, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 	end
 end
@@ -171,7 +171,7 @@ function hmcSimpleBarrageSpiral(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
 		hmcSimpleBarrageSNeigh(startSide + j, mCurve, mNeighbors)
 		j = j + loopDir
 		wait(delay)
-		if(getSides() < 6) then wait(delay * 0.7) end
+		if(l_getSides() < 6) then wait(delay * 0.7) end
 	end
 	
 	wait(getPerfectDelayDM(THICKNESS) * 6.1)
@@ -184,7 +184,7 @@ function hmcSimpleBarrageSpiralRnd(mTimes, mDelayMult, mCurve, mNeighbors)
 	for i = 0, mTimes do
 		hmcSimpleBarrageSNeigh(getRandomSide(), mCurve, mNeighbors)
 		wait(delay)
-		if(getSides() < 6) then wait(delay * 0.7) end
+		if(l_getSides() < 6) then wait(delay * 0.7) end
 	end
 	
 	wait(getPerfectDelayDM(THICKNESS) * 6.1)
@@ -200,7 +200,7 @@ function hmcSimpleBarrageSpiralStatic(mTimes, mDelayMult, mStep, mCurve, mNeighb
 		hmcSimpleBarrageSNeigh(startSide + j, mCurve, mNeighbors)
 		j = j + loopDir
 		wait(delay)
-		if(getSides() < 6) then wait(delay * 0.6) end
+		if(l_getSides() < 6) then wait(delay * 0.6) end
 	end
 	
 	wait(getPerfectDelayDM(THICKNESS) * 6.1)

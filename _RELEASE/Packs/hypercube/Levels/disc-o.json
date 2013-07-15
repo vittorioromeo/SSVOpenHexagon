@@ -3,7 +3,7 @@
 	"name": "disc-o",
 	"description": "dance!",
 	"author": "vittorio romeo",	
-	"menu_priority": 20,
+	"menu_priority": 10,
 	"selectable": true,
 	"style_id": "disc-o",
 	"music_id": "dischipo",

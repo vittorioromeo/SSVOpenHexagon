@@ -56,8 +56,8 @@ function onIncrement()
 	level = extra + 1
 	incrementTime = incrementTime + 2
 	
-	setLevelSides(getSides() + 2)
-	setLevelIncrementTime(incrementTime)
+	l_setSides(l_getSides() + 2)
+	l_setIncTime(incrementTime)
 		
 	messageImportantAdd("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end

@@ -3,7 +3,7 @@
 	"name": "slither",
 	"description": "sssssss",
 	"author": "vittorio romeo",	
-	"menu_priority": 80,
+	"menu_priority": 50,
 	"selectable": true,
 	"style_id": "slither",
 	"music_id": "pep",

@@ -20,7 +20,7 @@ function pTrapBarrageDouble(mSide)
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	side2 = mSide + getHalfSides();
 	
-	for i = 0, getSides() - 1 do
+	for i = 0, l_getSides() - 1 do
 		currentSide = mSide + i
 		if((currentSide ~= mSide) and (currentSide ~= side2)) then cWall(currentSide) end
 	end
@@ -38,7 +38,7 @@ function pTrapBarrageInverse(mSide)
 	cWall(mSide)	
 	wait(delay * 3)
 
-	for i = 0, getSides() - 1 do
+	for i = 0, l_getSides() - 1 do
 		currentSide = mSide + i
 		if(currentSide ~= mSide) then wallSAdj(currentSide, 1.9) end
 	end
@@ -49,14 +49,14 @@ end
 function pTrapBarrageAlt(mSide)
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 
-	for i = 0, getSides() - 1 do
+	for i = 0, l_getSides() - 1 do
 		currentSide = mSide + i
 		if(currentSide % 2 ~= 0) then cWall(currentSide) end
 	end
 
 	wait(delay * 3)
 
-	for i = 0, getSides() - 1 do
+	for i = 0, l_getSides() - 1 do
 		currentSide = mSide + i
 		if(currentSide % 2 == 0) then wallSAdj(currentSide, 1.9) end
 	end
@@ -68,9 +68,9 @@ function pTrapSpiral(mSide)
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	loopDir = getRandomDir()		
 
-	if(getSides() < 6) then delay = delay + 4 end
+	if(l_getSides() < 6) then delay = delay + 4 end
 
-	for i = 0, getSides() + getHalfSides() do
+	for i = 0, l_getSides() + getHalfSides() do
 		currentSide = (mSide + i) * loopDir
 		for j = 0, getHalfSides() do wallSAdj(currentSide + j, 1.2 + (i / 7.9)) end
 		wait((delay * 0.75) - (i * 0.45) + 3)
@@ -80,7 +80,7 @@ function pTrapSpiral(mSide)
 end
 
 function pRCBarrage()
-	currentSides = getSides()
+	currentSides = l_getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
@@ -91,7 +91,7 @@ function pRCBarrage()
 end
 
 function pRCBarrageDouble()
-	currentSides = getSides()
+	currentSides = l_getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
@@ -103,7 +103,7 @@ function pRCBarrageDouble()
 end
 
 function pRCBarrageSpin()
-	currentSides = getSides()
+	currentSides = l_getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	loopDir = getRandomDir()
@@ -118,7 +118,7 @@ function pRCBarrageSpin()
 end
 
 function pACBarrage()
-	currentSides = getSides()
+	currentSides = l_getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
@@ -129,7 +129,7 @@ function pACBarrage()
 end
 
 function pACBarrageMulti()
-	currentSides = getSides()
+	currentSides = l_getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 3.7
 	startSide = math.random(0, 10)
 	for i = 0, currentSides - 2 do
@@ -143,7 +143,7 @@ function pACBarrageMulti()
 end
 
 function pACBarrageMultiAltDir()
-	currentSides = getSides()
+	currentSides = l_getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 4
 	mdiff = 1 + math.abs(1 - getDifficultyMult())
 	startSide = math.random(0, 10)

@@ -5,12 +5,12 @@ execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then cWallEx(math.random(0, getSides()), math.random(1, 2)) wait(getPerfectDelay(THICKNESS) * 2.5)
+		if mKey == 0 then cWallEx(math.random(0, l_getSides()), math.random(1, 2)) wait(getPerfectDelay(THICKNESS) * 2.5)
 	elseif mKey == 1 then pMirrorSpiralDouble(math.random(1, 2), 4)
-	elseif mKey == 2 then rWallEx(math.random(0, getSides()), math.random(1, 2)) wait(getPerfectDelay(THICKNESS) * 2.8)
+	elseif mKey == 2 then rWallEx(math.random(0, l_getSides()), math.random(1, 2)) wait(getPerfectDelay(THICKNESS) * 2.8)
 	elseif mKey == 3 then pMirrorWallStrip(1, 2)
-	elseif mKey == 4 then rWallEx(math.random(0, getSides()), 1) wait(getPerfectDelay(THICKNESS) * 2.3)
-	elseif mKey == 5 then cWallEx(math.random(0, getSides()), 7) wait(getPerfectDelay(THICKNESS) * 2.7)
+	elseif mKey == 4 then rWallEx(math.random(0, l_getSides()), 1) wait(getPerfectDelay(THICKNESS) * 2.3)
+	elseif mKey == 5 then cWallEx(math.random(0, l_getSides()), 7) wait(getPerfectDelay(THICKNESS) * 2.7)
 	end
 end
 
@@ -77,7 +77,7 @@ function onUpdate(mFrameTime)
 	if dirChangeTime < 0 then
 		-- do not change direction while fast spinning
 		if isFastSpinning() == false then
-			setLevelRotationSpeed(getLevelRotationSpeed() * -1.0)
+			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 100
 		end
 	end 

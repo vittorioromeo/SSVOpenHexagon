@@ -10,10 +10,10 @@ incrementTime = 10
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pTrapBarrage(math.random(0, getSides())) 
-	elseif mKey == 1 then pTrapBarrageDouble(math.random(0, getSides()))
-	elseif mKey == 2 then pTrapBarrageInverse(math.random(0, getSides()))
-	elseif mKey == 3 then pTrapBarrageAlt(math.random(0, getSides()))
+		if mKey == 0 then pTrapBarrage(math.random(0, l_getSides())) 
+	elseif mKey == 1 then pTrapBarrageDouble(math.random(0, l_getSides()))
+	elseif mKey == 2 then pTrapBarrageInverse(math.random(0, l_getSides()))
+	elseif mKey == 3 then pTrapBarrageAlt(math.random(0, l_getSides()))
 	end
 end
 
@@ -74,8 +74,8 @@ function onIncrement()
 	extra = extra + 1
 	level = extra + 1
 	incrementTime = incrementTime + 5
-	setLevelSides(getSides() + 1)
-	setLevelIncrementTime(incrementTime)
+	l_setSides(l_getSides() + 1)
+	l_setIncTime(incrementTime)
 	messageImportantAdd("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
@@ -95,7 +95,7 @@ function onUpdate(mFrameTime)
 	if dirChangeTime < 0 then
 		-- do not change direction while fast spinning
 		if isFastSpinning() == false then
-			setLevelRotationSpeed(getLevelRotationSpeed() * -1.0)
+			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 400
 		end
 	end 

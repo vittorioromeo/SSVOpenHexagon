@@ -57,8 +57,8 @@ function onIncrement()
 	levelTracked = level + 1
 	incrementTime = incrementTime + 2
 	
-	setLevelSides(getSides() + 1)
-	setLevelIncrementTime(incrementTime)
+	l_setSides(l_getSides() + 1)
+	l_setIncTime(incrementTime)
 		
 	messageImportantAdd("level: "..(level + 1).." / time: "..incrementTime, 170)
 end

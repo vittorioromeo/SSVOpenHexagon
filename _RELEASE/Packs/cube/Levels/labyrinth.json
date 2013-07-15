@@ -3,7 +3,7 @@
 	"name": "labyrinth",
 	"description": "forever trapped",
 	"author": "vittorio romeo",	
-	"menu_priority": 50,
+	"menu_priority": 80,
 	"selectable": true,
 	"style_id": "labyrinth",
 	"music_id": "commandoSteve",
