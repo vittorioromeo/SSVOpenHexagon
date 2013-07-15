@@ -3,10 +3,10 @@
 	"name": "pointless",
 	"description": "easiest level of difficulty",
 	"author": "vittorio romeo",
-	"menu_priority": 10,
+	"menuPriority": 10,
 	"selectable": true,
-	"style_id": "pointless",
-	"music_id": "jackRussel",
-	"lua_file": "Levels/pointless.lua",
-	"difficulty_multipliers": [1.5, 2, 2.5, 3, 0.5]
+	"styleId": "pointless",
+	"musicId": "jackRussel",
+	"luaFile": "Scripts/Levels/pointless.lua",
+	"difficultyMults": [1.5, 2, 2.5, 3, 0.5]
 }

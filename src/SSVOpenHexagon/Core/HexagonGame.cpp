@@ -18,7 +18,7 @@ using namespace hg::Utils;
 
 namespace hg
 {
-	HexagonGame::HexagonGame(GameWindow& mGameWindow) : window(mGameWindow), fpsWatcher(window)
+	HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow) : assets(mAssets), window(mGameWindow), fpsWatcher(window)
 	{
 		initFlashEffect();
 
@@ -37,12 +37,12 @@ namespace hg
 	void HexagonGame::newGame(const string& mId, bool mFirstPlay, float mDifficultyMult)
 	{
 		firstPlay = mFirstPlay;
-		setLevelData(hg::getLevelData(mId), mFirstPlay);
+		setLevelData(assets.getLevelData(mId), mFirstPlay);
 		difficultyMult = mDifficultyMult;
 
 		// Audio cleanup
-		stopAllSounds(); stopLevelMusic();
-		playSound("go.ogg"); playLevelMusic();
+		assets.stopSounds(); stopLevelMusic();
+		assets.playSound("go.ogg"); playLevelMusic();
 
 		// Events cleanup
 		messageText.setString("");
@@ -67,12 +67,13 @@ namespace hg
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
 		initLua();
-		runLuaFile(levelData.luaScriptPath);
+		log(levelData->luaScriptPath);
+		runLuaFile(levelData->luaScriptPath);
 		runLuaFunction<void>("onInit");
 		runLuaFunction<void>("onLoad");
 		restartId = mId;
 		restartFirstTime = false;
-		setSides(levelData.sides);
+		setSides(levelStatus.sides);
 
 		// Reset zoom
 		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, ssvs::Vec2f(getWidth(), getHeight())});
@@ -88,10 +89,10 @@ namespace hg
 	void HexagonGame::death(bool mForce)
 	{
 		fpsWatcher.disable();
-		playSound("death.ogg", SoundPlayer::Mode::Abort);
+		assets.playSound("death.ogg", SoundPlayer::Mode::Abort);
 
-		if(!mForce && (getInvincible() || levelData.tutorialMode)) return;
-		playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
+		if(!mForce && (getInvincible() || levelStatus.tutorialMode)) return;
+		assets.playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
 		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
@@ -106,24 +107,24 @@ namespace hg
 
 	void HexagonGame::incrementDifficulty()
 	{
-		playSound("levelUp.ogg");
+		assets.playSound("levelUp.ogg");
 
-		levelData.rotationSpeed += levelData.rotationSpeedInc * getSign(levelData.rotationSpeed);
-		levelData.rotationSpeed *= -1.f;
+		levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
+		levelStatus.rotationSpeed *= -1.f;
 
-		const auto& rotationSpeedMax(levelData.rotationSpeedMax);
-		if(status.fastSpin < 0 && abs(levelData.rotationSpeed) > rotationSpeedMax) levelData.rotationSpeed = rotationSpeedMax * getSign(levelData.rotationSpeed);
+		const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
+		if(status.fastSpin < 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax) levelStatus.rotationSpeed = rotationSpeedMax * getSign(levelStatus.rotationSpeed);
 
-		status.fastSpin = levelData.fastSpin;
+		status.fastSpin = levelStatus.fastSpin;
 	}
 
 	void HexagonGame::sideChange(int mSideNumber)
 	{
 		runLuaFunction<void>("onIncrement");
-		levelData.speedMult += levelData.speedInc;
-		levelData.delayMult += levelData.delayInc;
+		levelStatus.speedMult += levelStatus.speedInc;
+		levelStatus.delayMult += levelStatus.delayInc;
 
-		if(levelData.rndSideChangesEnabled) setSides(mSideNumber);
+		if(levelStatus.rndSideChangesEnabled) setSides(mSideNumber);
 		mustChangeSides = false;
 	}
 
@@ -131,20 +132,20 @@ namespace hg
 	{
 		if(getInvincible()) { log("Not saving score - invincibility on", "hg::HexagonGame::checkAndSaveScore()"); return; }
 
-		string localValidator{getLocalValidator(levelData.id, difficultyMult)};
-		if(getScore(localValidator) < status.currentTime) setScore(localValidator, status.currentTime);
-		saveCurrentProfile();
+		string localValidator{getLocalValidator(levelData->id, difficultyMult)};
+		if(assets.getScore(localValidator) < status.currentTime) assets.setScore(localValidator, status.currentTime);
+		assets.saveCurrentProfile();
 
 		if(status.currentTime < 8) { log("Not sending score - less than 8 seconds", "hg::HexagonGame::checkAndSaveScore()"); return; }
 		if(status.scoreInvalid || !isEligibleForScore()) { log("Not sending score - not eligible", "hg::HexagonGame::checkAndSaveScore()"); return; }
 
-		string validator{Online::getValidator(levelData.packPath, levelData.id, levelData.levelRootPath, levelData.styleRootPath, levelData.luaScriptPath)};
-		Online::startSendScore(toLower(getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);
+//		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
+//		Online::startSendScore(toLower(assets.getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);
 	}
 	void HexagonGame::goToMenu(bool mSendScores)
 	{
-		stopAllSounds();
-		playSound("beep.ogg");
+		assets.stopSounds();
+		assets.playSound("beep.ogg");
 		fpsWatcher.disable();
 
 		if(mSendScores && !status.hasDied) checkAndSaveScore();
@@ -155,20 +156,21 @@ namespace hg
 	void HexagonGame::changeLevel(const string& mId, bool mFirstTime) { newGame(mId, mFirstTime, difficultyMult); }
 	void HexagonGame::addMessage(const string& mMessage, float mDuration)
 	{
-		messageTimeline.append<Do>([&, mMessage]{ playSound("beep.ogg"); messageText.setString(mMessage); });
+		messageTimeline.append<Do>([&, mMessage]{ assets.playSound("beep.ogg"); messageText.setString(mMessage); });
 		messageTimeline.append<Wait>(mDuration);
 		messageTimeline.append<Do>([=]{ messageText.setString(""); });
 	}
-	void HexagonGame::setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay)
+	void HexagonGame::setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay)
 	{
-		levelData = mLevelSettings;
-		styleData = getStyleData(levelData.styleId);
-		musicData = getMusicData(levelData.musicId);
+		levelData = &mLevelData;
+		levelStatus = LevelStatus{};
+		styleData = assets.getStyleData(levelData->styleId);
+		musicData = assets.getMusicData(levelData->musicId);
 		musicData.firstPlay = mMusicFirstPlay;
 	}
 
-	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(); }
-	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) stopAllMusic(); }
+	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(assets); }
+	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) assets.stopMusics(); }
 
 	void HexagonGame::invalidateScore() { status.scoreInvalid = true; log("Too much slowdown, invalidating official game", "HexagonGame::invalidateScore"); }
 
@@ -184,8 +186,8 @@ namespace hg
 	}
 	void HexagonGame::setSides(unsigned int mSides)
 	{
-		playSound("beep.ogg");
+		assets.playSound("beep.ogg");
 		if(mSides < 3) mSides = 3;
-		levelData.sides = mSides;
+		levelStatus.sides = mSides;
 	}
 }

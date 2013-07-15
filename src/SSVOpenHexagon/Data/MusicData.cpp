@@ -3,9 +3,9 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/MusicData.h"
-#include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Global/Config.h"
+#include "SSVOpenHexagon/Global/Assets.h"
 
 using namespace std;
 using namespace sf;
@@ -18,8 +18,8 @@ namespace hg
 		id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor} { }
 
 	int MusicData::getRandomSegment() const { return segments[getRnd(0, segments.size())]; }
-	void MusicData::playRandomSegment() { if(firstPlay) { firstPlay = false; playSegment(0); } else playSeconds(getRandomSegment());}
-	void MusicData::playSegment(int mSegmentIndex) { playSeconds(segments[mSegmentIndex]); }
-	void MusicData::playSeconds(int mSeconds) { if(getNoMusic()) return; playMusic(id, seconds(mSeconds)); }
+	void MusicData::playRandomSegment(HGAssets& mAssets) { if(firstPlay) { firstPlay = false; playSegment(mAssets, 0); } else playSeconds(mAssets, getRandomSegment());}
+	void MusicData::playSegment(HGAssets& mAssets, int mSegmentIndex) { playSeconds(mAssets, segments[mSegmentIndex]); }
+	void MusicData::playSeconds(HGAssets& mAssets, int mSeconds) { if(getNoMusic()) return; mAssets.playMusic(id, seconds(mSeconds)); }
 }
 

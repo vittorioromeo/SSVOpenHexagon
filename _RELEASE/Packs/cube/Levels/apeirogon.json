@@ -3,10 +3,10 @@
 	"name": "apeirogon",
 	"description": "hardest level of difficulty",
 	"author": "vittorio romeo",	
-	"menu_priority": 40,
+	"menuPriority": 40,
 	"selectable": true,
-	"style_id": "apeirogon",
-	"music_id": "milkyWays",
-	"lua_file": "Levels/apeirogon.lua",
-	"difficulty_multipliers": [1.25, 1.40, 0.75, 0.5, 0.35]
+	"styleId": "apeirogon",
+	"musicId": "milkyWays",
+	"luaFile": "Scripts/Levels/apeirogon.lua",
+	"difficultyMults": [1.25, 1.40, 0.75, 0.5, 0.35]
 }

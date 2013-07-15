@@ -11,6 +11,8 @@
 
 namespace hg
 {
+	class HGAssets;
+
 	class MusicData
 	{
 		private:
@@ -26,9 +28,9 @@ namespace hg
 			MusicData(const std::string& mId, const std::string& mFileName, const std::string& mName, const std::string& mAlbum, const std::string& mAuthor);
 
 			inline void addSegment(int mSeconds) { segments.push_back(mSeconds); }
-			void playRandomSegment();
-			void playSegment(int mSegmentIndex);
-			void playSeconds(int mSeconds);
+			void playRandomSegment(HGAssets& mAssets);
+			void playSegment(HGAssets& mAssets, int mSegmentIndex);
+			void playSeconds(HGAssets& mAssets, int mSeconds);
 	};
 }
 

@@ -3,10 +3,10 @@
 	"name": "commando",
 	"description": "exponential difficulty \nfor exponential entertainment",
 	"author": "vittorio romeo",	
-	"menu_priority": 50,
+	"menuPriority": 50,
 	"selectable": true,
-	"style_id": "commando",
-	"music_id": "commandoSteve",
-	"lua_file": "Levels/commando.lua",
-	"difficulty_multipliers": [1.25, 1.50, 0.75, 0.5, 0.25]
+	"styleId": "commando",
+	"musicId": "commandoSteve",
+	"luaFile": "Scripts/Levels/commando.lua",
+	"difficultyMults": [1.25, 1.50, 0.75, 0.5, 0.25]
 }

@@ -22,7 +22,7 @@ using namespace ssvuj;
 
 namespace hg
 {
-	MenuGame::MenuGame(HexagonGame& mHexagonGame, GameWindow& mGameWindow) : hexagonGame(mHexagonGame), window(mGameWindow)
+	MenuGame::MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame, GameWindow& mGameWindow) : assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
 	{
 		refreshCamera();
 		initAssets();
@@ -31,27 +31,26 @@ namespace hg
 		game.onDraw += [&]{ draw(); };
 		game.getEventDelegate(Event::EventType::TextEntered) += [&](const Event& mEvent){ enteredChars.push_back(mEvent.text.unicode); };
 
-		levelDataIds = getLevelIdsByPack(getPackPaths()[packIndex]);
+		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIndex]);
 		setIndex(0);
 
-		if(getProfilesSize() == 0) state = States::PROFILE_NEW;
-		else if(getProfilesSize() == 1) { setCurrentProfile(getFirstProfileName()); state = States::MAIN; }
+		if(assets.getProfilesSize() == 0) state = States::PROFILE_NEW;
+		else if(assets.getProfilesSize() == 1) { assets.setCurrentProfile(assets.getFirstProfileName()); state = States::MAIN; }
 
 
 		initOptionsMenu(); initInput();
 	}
 
-	void MenuGame::init() { stopAllMusic(); stopAllSounds(); playSound("openHexagon.ogg"); refreshScores(); }
+	void MenuGame::init() { assets.stopMusics(); assets.stopSounds(); assets.playSound("openHexagon.ogg"); refreshScores(); }
 	void MenuGame::initAssets()
 	{
-		auto& assetManager(getAssetManager());
-		assetManager.get<Texture>("titleBar.png").setSmooth(true);
-		assetManager.get<Texture>("creditsBar1.png").setSmooth(true);
-		assetManager.get<Texture>("creditsBar2.png").setSmooth(true);
-		assetManager.get<Texture>("creditsBar2b.png").setSmooth(true);
-		assetManager.get<Texture>("creditsBar2c.png").setSmooth(true);
-		assetManager.get<Texture>("creditsBar2d.png").setSmooth(true);
-		assetManager.get<Texture>("bottomBar.png").setSmooth(true);
+		assets().get<Texture>("titleBar.png").setSmooth(true);
+		assets().get<Texture>("creditsBar1.png").setSmooth(true);
+		assets().get<Texture>("creditsBar2.png").setSmooth(true);
+		assets().get<Texture>("creditsBar2b.png").setSmooth(true);
+		assets().get<Texture>("creditsBar2c.png").setSmooth(true);
+		assets().get<Texture>("creditsBar2d.png").setSmooth(true);
+		assets().get<Texture>("bottomBar.png").setSmooth(true);
 
 		refreshCamera();
 	}
@@ -98,8 +97,8 @@ namespace hg
 
 		sfx.create<i::Toggle>("sounds",	[&]{ return !getNoSound(); }, 	[&]{ setNoSound(false); }, 	[&]{ setNoSound(true); });
 		sfx.create<i::Toggle>("music",	[&]{ return !getNoMusic(); },	[&]{ setNoMusic(false); }, 	[&]{ setNoMusic(true); });
-		sfx.create<i::Slider>("sounds volume", [&]{ return toStr(getSoundVolume()); }, [&]{ setSoundVolume(getClamped(getSoundVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setSoundVolume(getClamped(getSoundVolume() - 5, 0, 100)); refreshVolumes(); });
-		sfx.create<i::Slider>("music volume", [&]{ return toStr(getMusicVolume()); }, [&]{ setMusicVolume(getClamped(getMusicVolume() + 5, 0, 100)); refreshVolumes(); }, [&]{ setMusicVolume(getClamped(getMusicVolume() - 5, 0, 100)); refreshVolumes(); });
+		sfx.create<i::Slider>("sounds volume", [&]{ return toStr(getSoundVolume()); }, [&]{ setSoundVolume(getClamped(getSoundVolume() + 5, 0, 100)); assets.refreshVolumes(); }, [&]{ setSoundVolume(getClamped(getSoundVolume() - 5, 0, 100)); assets.refreshVolumes(); });
+		sfx.create<i::Slider>("music volume", [&]{ return toStr(getMusicVolume()); }, [&]{ setMusicVolume(getClamped(getMusicVolume() + 5, 0, 100)); assets.refreshVolumes(); }, [&]{ setMusicVolume(getClamped(getMusicVolume() - 5, 0, 100)); assets.refreshVolumes(); });
 		sfx.create<i::Goto>("back", main);
 
 		play.create<i::Toggle>("autorestart", [&]{ return getAutoRestart(); }, [&]{ setAutoRestart(true); }, [&]{ setAutoRestart(false); });
@@ -109,7 +108,7 @@ namespace hg
 		debug.create<i::Goto>("back", main);
 
 		friends.create<i::Single>("add friend", [&]{ enteredString = ""; state = States::ADD_FRIEND; });
-		friends.create<i::Single>("clear friends", [&]{ getCurrentProfile().clearTrackedNames(); });
+		friends.create<i::Single>("clear friends", [&]{ assets.getCurrentProfile().clearTrackedNames(); });
 		friends.create<i::Goto>("back", main);
 	}
 	void MenuGame::initInput()
@@ -119,51 +118,51 @@ namespace hg
 		using s = States;
 		game.addInput(getTriggerRotateCCW(), [&](float)
 		{
-			playSound("beep.ogg");
+			assets.playSound("beep.ogg");
 			if(state == s::PROFILES) 		{  --profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex - 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
 		}, t::Single);
 		game.addInput(getTriggerRotateCW(), [&](float)
 		{
-			playSound("beep.ogg");
+			assets.playSound("beep.ogg");
 			if(state == s::PROFILES) 		{ ++profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex + 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
 		}, t::Single);
 		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
-			playSound("beep.ogg");
+			assets.playSound("beep.ogg");
 			if(state == s::MAIN) 			{ ++difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
 		}, t::Single);
 		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
-			playSound("beep.ogg");
+			assets.playSound("beep.ogg");
 			if(state == s::MAIN) 			{ --difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS)	{ optionsMenu.selectNextItem(); }
 		}, t::Single);
 		game.addInput(getTriggerRestart(), [&](float)
 		{
-			playSound("beep.ogg");
-			if(state == s::PROFILES) { setCurrentProfile(enteredString); state = s::MAIN; refreshScores(); }
+			assets.playSound("beep.ogg");
+			if(state == s::PROFILES) { assets.setCurrentProfile(enteredString); state = s::MAIN; refreshScores(); }
 			else if(state == s::MAIN)
 			{
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
 			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem();
-			else if(state == s::PROFILE_NEW) { if(!enteredString.empty()) { createProfile(enteredString); setCurrentProfile(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
-			else if(state == s::ADD_FRIEND) { if(!enteredString.empty() && !contains(getCurrentProfile().getTrackedNames(), enteredString)) { getCurrentProfile().addTrackedName(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
+			else if(state == s::PROFILE_NEW) { if(!enteredString.empty()) { assets.createProfile(enteredString); assets.setCurrentProfile(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
+			else if(state == s::ADD_FRIEND) { if(!enteredString.empty() && !contains(assets.getCurrentProfile().getTrackedNames(), enteredString)) { assets.getCurrentProfile().addTrackedName(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
 		}, t::Single);
-		game.addInput({{k::F1}}, [&](float) { playSound("beep.ogg"); if(state == s::PROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
-		game.addInput({{k::F2}, {k::J}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN ) { enteredString = ""; state = s::PROFILES; } }, t::Single);
-		game.addInput({{k::F3}, {k::K}}, [&](float) { playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::Single);
+		game.addInput({{k::F1}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::PROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
+		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::MAIN ) { enteredString = ""; state = s::PROFILES; } }, t::Single);
+		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::Single);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
-			playSound("beep.ogg"); if(state == s::MAIN) { auto p(getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = getLevelIdsByPack(p[packIndex]); setIndex(0); }
+			assets.playSound("beep.ogg"); if(state == s::MAIN) { auto p(assets.getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = assets.getLevelIdsByPack(p[packIndex]); setIndex(0); }
 		}, t::Single);
-		game.addInput(getTriggerExit(), [&](float) { playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; refreshScores(); }, t::Single);
+		game.addInput(getTriggerExit(), [&](float) { assets.playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; refreshScores(); }, t::Single);
 		game.addInput(getTriggerExit(), [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
 		game.addInput(getTriggerExit(), [&](float) { if(state == s::ADD_FRIEND) state = s::MAIN; });
 		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
@@ -178,9 +177,10 @@ namespace hg
 		if(currentIndex > (int)(levelDataIds.size() - 1)) currentIndex = 0;
 		else if(currentIndex < 0) currentIndex = levelDataIds.size() - 1;
 
-		levelData = getLevelData(levelDataIds[currentIndex]);
-		styleData = getStyleData(levelData.styleId);
-		difficultyMultipliers = levelData.difficultyMults;
+		levelData = &assets.getLevelData(levelDataIds[currentIndex]);
+		//levelStatus = levelData->createStatus();
+		styleData = assets.getStyleData(levelData->styleId);
+		difficultyMultipliers = levelData->difficultyMults;
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
 
 		refreshScores();
@@ -188,12 +188,12 @@ namespace hg
 
 	void MenuGame::refreshScores()
 	{
-		if(state != States::MAIN) return;
-		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
-		string validator{Online::getValidator(levelData.packPath, levelData.id, levelData.levelRootPath, levelData.styleRootPath, levelData.luaScriptPath)};
+//		if(state != States::MAIN) return;
+//		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
+//		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
 
-		if(Online::isOverloaded()) { wasOverloaded = true; return; }
-		Online::startGetScores(currentLeaderboard, currentPlayerScore, getCurrentProfile().getName(), friendsScores, getCurrentProfile().getTrackedNames(), validator, difficultyMult);
+	//	if(Online::isOverloaded()) { wasOverloaded = true; return; }
+	//	Online::startGetScores(currentLeaderboard, currentPlayerScore, assets.getCurrentProfile().getName(), friendsScores, assets.getCurrentProfile().getTrackedNames(), validator, difficultyMult);
 	}
 	void MenuGame::updateLeaderboard()
 	{
@@ -221,7 +221,7 @@ namespace hg
 		bool foundPlayer{false};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
-			if(recordPairs[i].first != getCurrentProfile().getName()) continue;
+			if(recordPairs[i].first != assets.getCurrentProfile().getName()) continue;
 			playerPosition = i + 1;
 			foundPlayer = true;
 			break;
@@ -233,7 +233,7 @@ namespace hg
 			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount -1)
 			{
 				ssvuj::Value playerScoreRoot{getRootFromString(currentPlayerScore)};
-				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + getCurrentProfile().getName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");
+				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + assets.getCurrentProfile().getName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");
 				break;
 			}
 
@@ -242,7 +242,7 @@ namespace hg
 				if(playerPosition == -1 || i < leaderboardRecordCount)
 				{
 					auto& recordPair(recordPairs[i]);
-					if(recordPair.first == getCurrentProfile().getName()) result.append(" >> ");
+					if(recordPair.first == assets.getCurrentProfile().getName()) result.append(" >> ");
 					result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
 				}
 			}
@@ -255,11 +255,11 @@ namespace hg
 	void MenuGame::updateFriends()
 	{
 		if(state != States::MAIN) return;
-		if(getCurrentProfile().getTrackedNames().empty()) { friendsString = "you have no friends! :(\nadd them in the options menu"; return; }
+		if(assets.getCurrentProfile().getTrackedNames().empty()) { friendsString = "you have no friends! :(\nadd them in the options menu"; return; }
 		if(friendsScores.empty())
 		{
 			friendsString = "";
-			for(const auto& n : getCurrentProfile().getTrackedNames()) friendsString.append("(?)" + n + "\n");
+			for(const auto& n : assets.getCurrentProfile().getTrackedNames()) friendsString.append("(?)" + n + "\n");
 			return;
 		}
 		using ScoreTuple = tuple<int, string, float>;
@@ -323,7 +323,7 @@ namespace hg
 	void MenuGame::update(float mFrameTime)
 	{
 		currentCreditsId += mFrameTime;
-		creditsBar2.setTexture(getAssetManager().get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
+		creditsBar2.setTexture(assets().get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
 
 		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
 
@@ -333,9 +333,9 @@ namespace hg
 		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
-		if(state == States::PROFILE_NEW || state == States::ADD_FRIEND) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { playSound("beep.ogg"); enteredString.append(toStr(c)); } }
-		else if(state == States::PROFILES) { enteredString = getProfileNames()[profileIndex % getProfileNames().size()]; }
-		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelData.rotationSpeed * 10.f * mFrameTime); }
+		if(state == States::PROFILE_NEW || state == States::ADD_FRIEND) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { assets.playSound("beep.ogg"); enteredString.append(toStr(c)); } }
+		else if(state == States::PROFILES) { enteredString = assets.getProfileNames()[profileIndex % assets.getProfileNames().size()]; }
+		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelStatus.rotationSpeed * 10.f * mFrameTime); }
 
 		enteredChars.clear();
 	}
@@ -345,7 +345,7 @@ namespace hg
 		window.clear(state != States::MAIN ? Color::Black : styleData.getColors()[0]);
 
 		backgroundCamera.apply();
-		if(state == States::MAIN) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelData.sides);
+		if(state == States::MAIN) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelStatus.sides);
 
 		overlayCamera.apply();
 		if(state == States::MAIN) { drawLevelSelection(); render(bottomBar); }
@@ -375,8 +375,8 @@ namespace hg
 
 	void MenuGame::drawLevelSelection()
 	{
-		MusicData musicData{getMusicData(levelData.musicId)};
-		PackData packData{getPackData(levelData.packPath.substr(6, levelData.packPath.size() - 7))};
+		MusicData musicData{assets.getMusicData(levelData->musicId)};
+		PackData packData{assets.getPackData(levelData->packPath.substr(6, levelData->packPath.size() - 7))};
 		const string& packName{packData.name};
 
 		if(getOnline())
@@ -391,9 +391,9 @@ namespace hg
 			renderText(versionMessage, cProfText, {20, 0}, 13);
 
 
-			Text& profile = renderText("profile: " + getCurrentProfile().getName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
-			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(getPackPaths().size()) + ")", cProfText, {20.f, getGlobalBottom(profile) - 7.f}, 18);
-			Text& lbest = renderText("local best: " + toStr(getScore(getLocalValidator(levelData.id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
+			Text& profile = renderText("profile: " + assets.getCurrentProfile().getName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
+			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(assets.getPackPaths().size()) + ")", cProfText, {20.f, getGlobalBottom(profile) - 7.f}, 18);
+			Text& lbest = renderText("local best: " + toStr(assets.getScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
 
 			if(wasOverloaded || Online::isOverloaded()) { leaderboardString = friendsString = "too many requests, wait..."; }
@@ -408,14 +408,14 @@ namespace hg
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
-		Text& lname = renderText(levelData.name, levelName, {20.f, h / 2.f});
-		Text& ldesc = renderText(levelData.description, levelDesc, {20.f, getGlobalBottom(lname) - 5.f});
-		Text& lauth = renderText("author: " + levelData.author, levelAuth, {20.f, getGlobalBottom(ldesc) + 25.f});
+		Text& lname = renderText(levelData->name, levelName, {20.f, h / 2.f});
+		Text& ldesc = renderText(levelData->description, levelDesc, {20.f, getGlobalBottom(lname) - 5.f});
+		Text& lauth = renderText("author: " + levelData->author, levelAuth, {20.f, getGlobalBottom(ldesc) + 25.f});
 		renderText("music: " + musicData.name + " by " + musicData.author + " (" + musicData.album + ")", levelMusc, {20.f, getGlobalBottom(lauth) - 5.f});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", levelMusc, {20.f, getGlobalTop(lname) - 25.f});
 
 		string packNames{"Installed packs:\n"};
-		for(const auto& n : getPackNames()) { if(packData.id == n) packNames += ">>> "; packNames.append(n + "\n"); }
+		for(const auto& n : assets.getPackNames()) { if(packData.id == n) packNames += ">>> "; packNames.append(n + "\n"); }
 		packsText.setString(packNames);
 		packsText.setOrigin(packsText.getGlobalBounds().width, packsText.getGlobalBounds().height);
 		packsText.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});

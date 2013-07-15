@@ -23,6 +23,8 @@ namespace hg
 	class MenuGame
 	{
 		private:
+			HGAssets& assets;
+
 			float fw, fh, fmin, w, h;
 
 			HexagonGame& hexagonGame;
@@ -41,8 +43,8 @@ namespace hg
 			std::vector<std::string> friendsScores;
 			std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "creditsBar2d.png", "creditsBar2d.png"};
 
-			sf::Sprite titleBar{getAssetManager().get<sf::Texture>("titleBar.png")}, creditsBar1{getAssetManager().get<sf::Texture>("creditsBar1.png")},
-			creditsBar2{getAssetManager().get<sf::Texture>("creditsBar2.png")}, bottomBar{getAssetManager().get<sf::Texture>("bottomBar.png")};
+			sf::Sprite titleBar{assets().get<sf::Texture>("titleBar.png")}, creditsBar1{assets().get<sf::Texture>("creditsBar1.png")},
+			creditsBar2{assets().get<sf::Texture>("creditsBar2.png")}, bottomBar{assets().get<sf::Texture>("bottomBar.png")};
 
 			std::vector<std::string> levelDataIds;
 			std::vector<float> difficultyMultipliers;
@@ -50,11 +52,12 @@ namespace hg
 
 			bool wasOverloaded{false};
 
-			LevelData levelData;
+			const LevelData* levelData;
+			LevelStatus levelStatus;
 			StyleData styleData;
-			sf::Text versionText{"", getFont("imagine.ttf"), 40}, cProfText{"", getFont("imagine.ttf"), 21}, levelName{"", getFont("imagine.ttf"), 65},
-				levelDesc{"", getFont("imagine.ttf"), 32}, levelAuth{"", getFont("imagine.ttf"), 20}, levelMusc{"", getFont("imagine.ttf"), 20},
-				friendsText{"", getFont("imagine.ttf"), 21}, packsText{"", getFont("imagine.ttf"), 14};
+			sf::Text versionText{"", assets().get<sf::Font>("imagine.ttf"), 40}, cProfText{"", assets().get<sf::Font>("imagine.ttf"), 21}, levelName{"", assets().get<sf::Font>("imagine.ttf"), 65},
+				levelDesc{"", assets().get<sf::Font>("imagine.ttf"), 32}, levelAuth{"", assets().get<sf::Font>("imagine.ttf"), 20}, levelMusc{"", assets().get<sf::Font>("imagine.ttf"), 20},
+				friendsText{"", assets().get<sf::Font>("imagine.ttf"), 21}, packsText{"", assets().get<sf::Font>("imagine.ttf"), 14};
 
 			void refreshCamera();
 			void initAssets();
@@ -74,7 +77,7 @@ namespace hg
 			void updateFriends();
 
 		public:
-			MenuGame(HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
+			MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 			void init();
 			ssvs::GameState& getGame();
 	};

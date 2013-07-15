@@ -21,8 +21,8 @@ namespace hg
 	{
 		// Utils
 		lua.writeVariable("u_log", 					[=](string mLog) 						{ log(mLog, "Lua log"); });
-		lua.writeVariable("u_execScript", 			[=](string mName) 						{ runLuaFile(levelData.packPath + "Scripts/" + mName); });
-		lua.writeVariable("u_playSound", 			[=](string mId) 						{ playSound(mId); });
+		lua.writeVariable("u_execScript", 			[=](string mName) 						{ runLuaFile(levelData->packPath + "Scripts/" + mName); });
+		lua.writeVariable("u_playSound", 			[=](string mId) 						{ assets.playSound(mId); });
 		lua.writeVariable("u_isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
 		lua.writeVariable("u_isFastSpinning",		[=] 									{ return status.fastSpin > 0; });
 		lua.writeVariable("u_forceIncrement", 		[=]				 						{ incrementDifficulty(); });
@@ -57,39 +57,39 @@ namespace hg
 		});
 
 		// Level control
-		lua.writeVariable("l_setSpeedMult",			[=](float mValue)						{ levelData.speedMult = mValue; });
-		lua.writeVariable("l_setSpeedInc",			[=](float mValue)						{ levelData.speedInc = mValue; });
-		lua.writeVariable("l_setRotationSpeed",		[=](float mValue)						{ levelData.rotationSpeed = mValue; });
-		lua.writeVariable("l_setRotationSpeedMax",	[=](float mValue)						{ levelData.rotationSpeedMax = mValue; });
-		lua.writeVariable("l_setRotationSpeedInc",	[=](float mValue)						{ levelData.rotationSpeedInc = mValue; });
-		lua.writeVariable("l_setDelayMult",			[=](float mValue)						{ levelData.delayMult = mValue; });
-		lua.writeVariable("l_setDelayInc",			[=](float mValue)						{ levelData.delayInc = mValue; });
-		lua.writeVariable("l_setFastSpin",			[=](float mValue)						{ levelData.fastSpin = mValue; });
-		lua.writeVariable("l_setSides",				[=](int mValue)							{ levelData.sides = mValue; });
-		lua.writeVariable("l_setSidesMin",			[=](int mValue)							{ levelData.sidesMin = mValue; });
-		lua.writeVariable("l_setSidesMax",			[=](int mValue)							{ levelData.sidesMax = mValue; });
-		lua.writeVariable("l_setIncTime",			[=](float mValue)						{ levelData.incTime = mValue; });
-		lua.writeVariable("l_setPulseMin",			[=](float mValue)						{ levelData.pulseMin = mValue; });
-		lua.writeVariable("l_setPulseMax",			[=](float mValue)						{ levelData.pulseMax = mValue; });
-		lua.writeVariable("l_setPulseSpeed",		[=](float mValue)						{ levelData.pulseSpeed = mValue; });
-		lua.writeVariable("l_setPulseSpeedR",		[=](float mValue)						{ levelData.pulseSpeedR = mValue; });
-		lua.writeVariable("l_setPulseDelayMax",		[=](float mValue)						{ levelData.pulseDelayMax = mValue; });
-		lua.writeVariable("l_setBeatPulseMax",		[=](float mValue)						{ levelData.beatPulseMax = mValue; });
-		lua.writeVariable("l_setBeatPulseDelayMax",	[=](float mValue)						{ levelData.beatPulseDelayMax = mValue; });
-		lua.writeVariable("l_setWallSkewLeft",		[=](float mValue)						{ levelData.wallSkewLeft = mValue; });
-		lua.writeVariable("l_setWallSkewRight",		[=](float mValue)						{ levelData.wallSkewRight = mValue; });
-		lua.writeVariable("l_setWallAngleLeft",		[=](float mValue)						{ levelData.wallAngleLeft = mValue; });
-		lua.writeVariable("l_setWallAngleRight",	[=](float mValue)						{ levelData.wallAngleRight = mValue; });
-		lua.writeVariable("l_setRadiusMin",			[=](float mValue)						{ levelData.radiusMin = mValue; });
-		lua.writeVariable("l_setSwapEnabled",		[=](bool mValue)						{ levelData.swapEnabled = mValue; });
-		lua.writeVariable("l_setTutorialMode",		[=](bool mValue)						{ levelData.tutorialMode = mValue; });
-		lua.writeVariable("l_setIncEnabled",		[=](bool mValue)						{ levelData.incEnabled = mValue; });
-		lua.writeVariable("l_addTracked",			[=](string mVar, string mName)			{ levelData.trackedVariables.emplace_back(mVar, mName); });
-		lua.writeVariable("l_enableRndSideChanges", [=](bool mValue)						{ levelData.rndSideChangesEnabled = mValue; });
-		lua.writeVariable("l_getRotationSpeed",		[=]										{ return levelData.rotationSpeed; });
-		lua.writeVariable("l_getSides",				[=]										{ return levelData.sides; });
-		lua.writeVariable("l_getSpeedMult",			[=]										{ return levelData.speedMult; });
-		lua.writeVariable("l_getDelayMult",			[=]										{ return levelData.delayMult; });
+		lua.writeVariable("l_setSpeedMult",			[=](float mValue)						{ levelStatus.speedMult = mValue; });
+		lua.writeVariable("l_setSpeedInc",			[=](float mValue)						{ levelStatus.speedInc = mValue; });
+		lua.writeVariable("l_setRotationSpeed",		[=](float mValue)						{ levelStatus.rotationSpeed = mValue; });
+		lua.writeVariable("l_setRotationSpeedMax",	[=](float mValue)						{ levelStatus.rotationSpeedMax = mValue; });
+		lua.writeVariable("l_setRotationSpeedInc",	[=](float mValue)						{ levelStatus.rotationSpeedInc = mValue; });
+		lua.writeVariable("l_setDelayMult",			[=](float mValue)						{ levelStatus.delayMult = mValue; });
+		lua.writeVariable("l_setDelayInc",			[=](float mValue)						{ levelStatus.delayInc = mValue; });
+		lua.writeVariable("l_setFastSpin",			[=](float mValue)						{ levelStatus.fastSpin = mValue; });
+		lua.writeVariable("l_setSides",				[=](int mValue)							{ levelStatus.sides = mValue; });
+		lua.writeVariable("l_setSidesMin",			[=](int mValue)							{ levelStatus.sidesMin = mValue; });
+		lua.writeVariable("l_setSidesMax",			[=](int mValue)							{ levelStatus.sidesMax = mValue; });
+		lua.writeVariable("l_setIncTime",			[=](float mValue)						{ levelStatus.incTime = mValue; });
+		lua.writeVariable("l_setPulseMin",			[=](float mValue)						{ levelStatus.pulseMin = mValue; });
+		lua.writeVariable("l_setPulseMax",			[=](float mValue)						{ levelStatus.pulseMax = mValue; });
+		lua.writeVariable("l_setPulseSpeed",		[=](float mValue)						{ levelStatus.pulseSpeed = mValue; });
+		lua.writeVariable("l_setPulseSpeedR",		[=](float mValue)						{ levelStatus.pulseSpeedR = mValue; });
+		lua.writeVariable("l_setPulseDelayMax",		[=](float mValue)						{ levelStatus.pulseDelayMax = mValue; });
+		lua.writeVariable("l_setBeatPulseMax",		[=](float mValue)						{ levelStatus.beatPulseMax = mValue; });
+		lua.writeVariable("l_setBeatPulseDelayMax",	[=](float mValue)						{ levelStatus.beatPulseDelayMax = mValue; });
+		lua.writeVariable("l_setWallSkewLeft",		[=](float mValue)						{ levelStatus.wallSkewLeft = mValue; });
+		lua.writeVariable("l_setWallSkewRight",		[=](float mValue)						{ levelStatus.wallSkewRight = mValue; });
+		lua.writeVariable("l_setWallAngleLeft",		[=](float mValue)						{ levelStatus.wallAngleLeft = mValue; });
+		lua.writeVariable("l_setWallAngleRight",	[=](float mValue)						{ levelStatus.wallAngleRight = mValue; });
+		lua.writeVariable("l_setRadiusMin",			[=](float mValue)						{ levelStatus.radiusMin = mValue; });
+		lua.writeVariable("l_setSwapEnabled",		[=](bool mValue)						{ levelStatus.swapEnabled = mValue; });
+		lua.writeVariable("l_setTutorialMode",		[=](bool mValue)						{ levelStatus.tutorialMode = mValue; });
+		lua.writeVariable("l_setIncEnabled",		[=](bool mValue)						{ levelStatus.incEnabled = mValue; });
+		lua.writeVariable("l_addTracked",			[=](string mVar, string mName)			{ levelStatus.trackedVariables.emplace_back(mVar, mName); });
+		lua.writeVariable("l_enableRndSideChanges", [=](bool mValue)						{ levelStatus.rndSideChangesEnabled = mValue; });
+		lua.writeVariable("l_getRotationSpeed",		[=]										{ return levelStatus.rotationSpeed; });
+		lua.writeVariable("l_getSides",				[=]										{ return levelStatus.sides; });
+		lua.writeVariable("l_getSpeedMult",			[=]										{ return levelStatus.speedMult; });
+		lua.writeVariable("l_getDelayMult",			[=]										{ return levelStatus.delayMult; });
 
 		// Style control
 		lua.writeVariable("s_setPulseInc",			[=](float mValue)						{ styleData.pulseIncrement = mValue; });

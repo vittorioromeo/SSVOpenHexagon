@@ -3,10 +3,10 @@
 	"name": "flattering shape",
 	"description": "normal level of difficulty",
 	"author": "vittorio romeo",	
-	"menu_priority": 20,
+	"menuPriority": 20,
 	"selectable": true,
-	"style_id": "flatteringshape",
-	"music_id": "starshipShowdown",
-	"lua_file": "Levels/flatteringshape.lua",
-	"difficulty_multipliers": [1.5, 2, 2.5, 0.5]
+	"styleId": "flatteringshape",
+	"musicId": "starshipShowdown",
+	"luaFile": "Scripts/Levels/flatteringshape.lua",
+	"difficultyMults": [1.5, 2, 2.5, 0.5]
 }

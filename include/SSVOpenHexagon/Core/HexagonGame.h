@@ -33,6 +33,9 @@ namespace hg
 	class HexagonGame
 	{
 		private:
+			HGAssets& assets;
+			const LevelData* levelData;
+
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
@@ -42,11 +45,11 @@ namespace hg
 			ssvu::TimelineManager effectTimelineManager;
 			Factory factory{*this, manager, {0, 0}};
 			Lua::LuaContext	lua;
-			LevelData levelData;
+			LevelStatus levelStatus;
 			MusicData musicData;
 			StyleData styleData;
 			ssvu::Timeline timeline, eventTimeline, messageTimeline;
-			sf::Text messageText{"", getFont("imagine.ttf"), static_cast<unsigned int>(38.f / getZoomFactor())};
+			sf::Text messageText{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(38.f / getZoomFactor())};
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
 			bool firstPlay{true}, restartFirstTime{true}, inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false}, mustChangeSides{false};
 			HexagonGameStatus status;
@@ -55,7 +58,7 @@ namespace hg
 			int inputMovement{0};
 
 			FPSWatcher fpsWatcher;
-			sf::Text text{"", getFont("imagine.ttf"), static_cast<unsigned int>(25.f / getZoomFactor())};
+			sf::Text text{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / getZoomFactor())};
 
 
 			// LUA-related methods
@@ -97,7 +100,7 @@ namespace hg
 			void drawText();
 
 			// Data-related methods
-			void setLevelData(LevelData mLevelSettings, bool mMusicFirstPlay);
+			void setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay);
 			void playLevelMusic();
 			void stopLevelMusic();
 
@@ -114,7 +117,7 @@ namespace hg
 		public:
 			MenuGame* mgPtr;
 
-			HexagonGame(ssvs::GameWindow& mGameWindow);
+			HexagonGame(HGAssets& mAssets, ssvs::GameWindow& mGameWindow);
 
 			// Gameplay methods
 			void newGame(const std::string& mId, bool mFirstPlay, float mDifficultyMult);
@@ -133,17 +136,18 @@ namespace hg
 			inline ssvs::GameState& getGame()						{ return game; }
 			inline float getRadius() const							{ return status.radius; }
 			inline const sf::Color& getColor(int mIndex) const		{ return styleData.getColor(mIndex); }
-			inline float getSpeedMultDM() const						{ return levelData.speedMult * (pow(difficultyMult, 0.65f)); }
-			inline float getDelayMultDM() const						{ return levelData.delayMult / (pow(difficultyMult, 0.10f)); }
-			inline float getRotationSpeed() const					{ return levelData.rotationSpeed; }
-			inline unsigned int getSides() const					{ return levelData.sides; }
-			inline float getWallSkewLeft() const					{ return levelData.wallSkewLeft; }
-			inline float getWallSkewRight() const					{ return levelData.wallSkewRight; }
-			inline float getWallAngleLeft() const					{ return levelData.wallAngleLeft; }
-			inline float getWallAngleRight() const					{ return levelData.wallAngleRight; }
-			inline float get3DEffectMult() const					{ return levelData._3dEffectMultiplier; }
+			inline float getSpeedMultDM() const						{ return levelStatus.speedMult * (pow(difficultyMult, 0.65f)); }
+			inline float getDelayMultDM() const						{ return levelStatus.delayMult / (pow(difficultyMult, 0.10f)); }
+			inline float getRotationSpeed() const					{ return levelStatus.rotationSpeed; }
+			inline unsigned int getSides() const					{ return levelStatus.sides; }
+			inline float getWallSkewLeft() const					{ return levelStatus.wallSkewLeft; }
+			inline float getWallSkewRight() const					{ return levelStatus.wallSkewRight; }
+			inline float getWallAngleLeft() const					{ return levelStatus.wallAngleLeft; }
+			inline float getWallAngleRight() const					{ return levelStatus.wallAngleRight; }
+			inline float get3DEffectMult() const					{ return levelStatus._3dEffectMultiplier; }
 			inline HexagonGameStatus& getStatus()					{ return status; }
-			inline LevelData& getLevelData()						{ return levelData; }
+			inline LevelStatus& getLevelStatus()						{ return levelStatus; }
+			inline HGAssets& getAssets()							{ return assets; }
 			sf::Color getColorMain() const;
 
 			// Input

@@ -34,21 +34,24 @@ int main(int argc, char* argv[])
 
 	Online::startCheckUpdates();
 	setRandomSeed();
-	loadConfig(overrideIds); initAssetManager(); loadAssets();
+	loadConfig(overrideIds);
 
 	string title{"Open Hexagon " + toStr(getVersion()) + " - by vittorio romeo"};
 	GameWindow window{title, createDynamicTimer(window), getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
 	window.setVsync(getVsync());
 	window.setMouseCursorVisible(false);
 
-	HexagonGame hg{window}; MenuGame mg{hg, window}; hg.mgPtr = &mg;
+	HGAssets assets;
+	HexagonGame hg{assets, window};
+	MenuGame mg{assets, hg, window};
+	hg.mgPtr = &mg;
 
-	refreshVolumes();
+	assets.refreshVolumes();
 	window.setGameState(mg.getGame()); mg.init();
 	window.run();
 
 	Online::terminateAll();
 
-	saveConfig(); saveCurrentProfile(); saveLogToFile("log.txt");
+	saveConfig(); assets.saveCurrentProfile(); saveLogToFile("log.txt");
 	return 0;
 }

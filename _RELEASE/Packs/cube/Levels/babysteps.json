@@ -3,9 +3,9 @@
 	"name": "baby steps",
 	"description": "learn to play openhexagon",
 	"author": "vittorio romeo",
-	"menu_priority": 0,
+	"menuPriority": 0,
 	"selectable": true,
-	"style_id": "babysteps",
-	"music_id": "drFinkelfracken",
-	"lua_file": "Levels/babysteps.lua"
+	"styleId": "babysteps",
+	"musicId": "drFinkelfracken",
+	"luaFile": "Scripts/Levels/babysteps.lua"
 }

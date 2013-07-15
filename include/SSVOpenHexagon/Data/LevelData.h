@@ -19,39 +19,42 @@ namespace hg
 			ssvuj::Value root;
 
 		public:
-			std::vector<TrackedVariable> trackedVariables;
-			std::string packPath, levelRootPath, styleRootPath, luaScriptPath;
+			std::string packPath;
 
-			float speedMult{1.f}, speedInc{0.f};
-			float rotationSpeed{0.f}, rotationSpeedInc{0.f}, rotationSpeedMax{0.f};
-			float delayMult{1.f}, delayInc{0.f};
-			float fastSpin{0.f};
-			float incTime{15.f};
-			float pulseMin{75.f}, pulseMax{80.f}, pulseSpeed{0.f}, pulseSpeedR{0.f};
-			float pulseDelayMax{0.f}, pulseDelayHalfMax{0.f};
-			float beatPulseMax{0.f}, beatPulseDelayMax{0.f};
-			float radiusMin{72.f};
-			float wallSkewLeft{0.f}, wallSkewRight{0.f};
-			float wallAngleLeft{0.f}, wallAngleRight{0.f};
-			float _3dEffectMultiplier{1.f};
-			int sides{6}, sidesMax{6}, sidesMin{6};
-			bool swapEnabled{false};
-			bool selectable{true};
-			bool tutorialMode{false};
-			bool incEnabled{true};
-			bool rndSideChangesEnabled{true};
-
-			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "difficulty_multipliers", {})};
-			int menuPriority					{ssvuj::as<int>(root, "menu_priority", 0)};
 			std::string id						{packPath + ssvuj::as<std::string>(root, "id", "nullId")};
 			std::string name					{ssvuj::as<std::string>(root, "name", "nullName")};
 			std::string description				{ssvuj::as<std::string>(root, "description", "")};
 			std::string author					{ssvuj::as<std::string>(root, "author", "")};
-			std::string musicId					{ssvuj::as<std::string>(root, "music_id", "nullMusicId")};
-			std::string styleId					{ssvuj::as<std::string>(root, "style_id", "nullStyleId")};
+			int menuPriority					{ssvuj::as<int>(root, "menuPriority", 0)};
+			bool selectable						{ssvuj::as<bool>(root, "selectable", true)};
+			std::string musicId					{ssvuj::as<std::string>(root, "musicId", "nullMusicId")};
+			std::string styleId					{ssvuj::as<std::string>(root, "styleId", "nullStyleId")};
+			std::string luaScriptPath			{packPath + ssvuj::as<std::string>(root, "luaFile", "nullLuaPath")};
+			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "diffMults", {})};
 
-			LevelData() = default;
-			LevelData(const ssvuj::Value& mRoot) : root{mRoot} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
+			LevelData(const ssvuj::Value& mRoot, const std::string& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
+	};
+
+	struct LevelStatus
+	{
+		std::vector<TrackedVariable> trackedVariables;
+		float speedMult{1.f}, speedInc{0.f};
+		float rotationSpeed{0.f}, rotationSpeedInc{0.f}, rotationSpeedMax{0.f};
+		float delayMult{1.f}, delayInc{0.f};
+		float fastSpin{0.f};
+		float incTime{15.f};
+		float pulseMin{75.f}, pulseMax{80.f}, pulseSpeed{0.f}, pulseSpeedR{0.f};
+		float pulseDelayMax{0.f}, pulseDelayHalfMax{0.f};
+		float beatPulseMax{0.f}, beatPulseDelayMax{0.f};
+		float radiusMin{72.f};
+		float wallSkewLeft{0.f}, wallSkewRight{0.f};
+		float wallAngleLeft{0.f}, wallAngleRight{0.f};
+		float _3dEffectMultiplier{1.f};
+		int sides{6}, sidesMax{6}, sidesMin{6};
+		bool swapEnabled{false};
+		bool tutorialMode{false};
+		bool incEnabled{true};
+		bool rndSideChangesEnabled{true};
 	};
 }
 
