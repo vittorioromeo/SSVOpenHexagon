@@ -46,13 +46,13 @@ function onInit()
 	l_setBeatPulseDelayMax(110)
 
 	l_setSwapEnabled(true)
+
+	l_setTutorialMode(true)
+	l_setIncEnabled(false)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	tutorialMode()
-	stopIncrement()
-
 	m_messageAddImportant("welcome to the evolution tutorial", 120)
 	m_messageAddImportant("today you'll be introduced to...", 120)
 	m_messageAddImportant("1. swapping!", 100)

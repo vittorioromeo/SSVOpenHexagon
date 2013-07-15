@@ -37,7 +37,7 @@ namespace hg
 	void HexagonGame::newGame(const string& mId, bool mFirstPlay, float mDifficultyMult)
 	{
 		firstPlay = mFirstPlay;
-		setLevelData(getLevelData(mId), mFirstPlay);
+		setLevelData(hg::getLevelData(mId), mFirstPlay);
 		difficultyMult = mDifficultyMult;
 
 		// Audio cleanup
@@ -73,7 +73,6 @@ namespace hg
 		restartId = mId;
 		restartFirstTime = false;
 		setSides(levelData.sides);
-		status.swapEnabled = levelData.swapEnabled;
 
 		// Reset zoom
 		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, ssvs::Vec2f(getWidth(), getHeight())});
@@ -91,7 +90,7 @@ namespace hg
 		fpsWatcher.disable();
 		playSound("death.ogg", SoundPlayer::Mode::Abort);
 
-		if(!mForce && (getInvincible() || status.tutorialMode)) return;
+		if(!mForce && (getInvincible() || levelData.tutorialMode)) return;
 		playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
 		status.flashEffect = 255;
@@ -124,7 +123,7 @@ namespace hg
 		levelData.speedMult += levelData.speedInc;
 		levelData.delayMult += levelData.delayInc;
 
-		if(status.randomSideChangesEnabled) setSides(mSideNumber);
+		if(levelData.rndSideChangesEnabled) setSides(mSideNumber);
 		mustChangeSides = false;
 	}
 

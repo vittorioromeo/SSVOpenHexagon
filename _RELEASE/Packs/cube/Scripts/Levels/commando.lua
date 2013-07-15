@@ -9,7 +9,6 @@ incrementTime = 5
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()	
-	disableRandomSideChanges()
 	m_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
@@ -45,6 +44,7 @@ function onInit()
 	l_setBeatPulseDelayMax(23.8)
 	
 	l_addTracked("level", "level")
+	l_enableRndSideChanges(false)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented

@@ -42,7 +42,7 @@ function pAltTunnel(mTimes,mFree)
 	
 	for i = 0, mTimes do
 		if i < mTimes then
-			wall(startSide, myThickness + 5 * l_getSpeedMult() * delay)
+			w_wall(startSide, myThickness + 5 * l_getSpeedMult() * delay)
 		end
 		
 		cBarrageN(startSide + loopDir,mFree)
@@ -111,7 +111,7 @@ function patternizer(mArray,myThickness)
 	for i = 1, j do
 		for k = 1, l_getSides() do
 			if mArray[(i - 1)*l_getSides() + k] == 1 then
-				wall(eArray[k], myThickness)
+				w_wall(eArray[k], myThickness)
 			end
 		end
 		t_wait(delay)

@@ -183,7 +183,7 @@ function pTunnel(mTimes)
 	
 	for i = 0, mTimes do
 		if i < mTimes then
-			wall(startSide, myThickness + 5 * u_getSpeedMultDM() * delay)
+			w_wall(startSide, myThickness + 5 * u_getSpeedMultDM() * delay)
 		end
 		
 		cBarrage(startSide + loopDir)

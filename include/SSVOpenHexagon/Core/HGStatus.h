@@ -21,14 +21,10 @@ namespace hg
 		float radius{75};
 		float fastSpin{0};
 		bool hasDied{false}, mustRestart{false};
-		bool randomSideChangesEnabled{true};
-		bool incrementEnabled{true};
 		bool drawing3D{false};
 		bool scoreInvalid{false};
 		sf::Color overrideColor{0, 0, 0, 0};
 		ssvu::ObfuscatedValue<float> lostFrames{0};
-		bool tutorialMode{false};
-		bool swapEnabled{false};
 	};
 }
 

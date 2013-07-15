@@ -56,7 +56,7 @@ function onLoad()
 	m_messageAdd("whoa!", 120)
 	e_eventWaitS(45)
 	m_messageAddImportant("may the mayhem begin!", 130)
-	setStylePulseIncrement(0.15)
+	s_setPulseInc(0.15)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

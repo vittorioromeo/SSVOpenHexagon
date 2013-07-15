@@ -70,9 +70,9 @@ namespace hg
 	{
 		ostringstream s;
 		s << "time: " << toStr(status.currentTime).substr(0, 5) << endl;
-		if(status.tutorialMode) s << "tutorial mode" << endl; else if(getOfficial()) s << "official mode" << endl;
+		if(levelData.tutorialMode) s << "tutorial mode" << endl; else if(getOfficial()) s << "official mode" << endl;
 		if(getDebug()) s << "debug mode" << endl;
-		if(status.swapEnabled) s << "swap enabled" << endl;
+		if(levelData.swapEnabled) s << "swap enabled" << endl;
 		if(getInvincible()) s << "invincibility on" << endl;
 		if(status.scoreInvalid) s << "score invalidated (performance issues)" << endl;
 		if(status.hasDied) s << "press r to restart" << endl;

@@ -29,8 +29,8 @@ namespace hg
 		lua.writeVariable("u_kill",					[=]										{ timeline.append<Do>([=]{ death(true); }); });
 		lua.writeVariable("u_eventKill",			[=]										{ eventTimeline.append<Do>([=]{ death(true); }); });
 		lua.writeVariable("u_getDifficultyMult",	[=] 									{ return difficultyMult; });
-		lua.writeVariable("u_getSpeedMultDM",		[=]										{ return levelData.speedMult * (pow(difficultyMult, 0.65f)); });
-		lua.writeVariable("u_getDelayMultDM",		[=]										{ return levelData.delayMult * (pow(difficultyMult, 0.10f)); });
+		lua.writeVariable("u_getSpeedMultDM",		[=]										{ return getSpeedMultDM(); });
+		lua.writeVariable("u_getDelayMultDM",		[=]										{ return getDelayMultDM(); });
 
 		// Messages
 		lua.writeVariable("m_messageAdd", 			[=](string mMsg, float mDuration)		{ eventTimeline.append<Do>([=]{ if(firstPlay && getShowMessages()) addMessage(mMsg, mDuration); }); });
@@ -56,7 +56,7 @@ namespace hg
 			eventTimeline.append<Do>([=]{ if(status.currentTime < mDuration) eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2); });
 		});
 
-		// Level setters
+		// Level control
 		lua.writeVariable("l_setSpeedMult",			[=](float mValue)						{ levelData.speedMult = mValue; });
 		lua.writeVariable("l_setSpeedInc",			[=](float mValue)						{ levelData.speedInc = mValue; });
 		lua.writeVariable("l_setRotationSpeed",		[=](float mValue)						{ levelData.rotationSpeed = mValue; });
@@ -82,57 +82,26 @@ namespace hg
 		lua.writeVariable("l_setWallAngleRight",	[=](float mValue)						{ levelData.wallAngleRight = mValue; });
 		lua.writeVariable("l_setRadiusMin",			[=](float mValue)						{ levelData.radiusMin = mValue; });
 		lua.writeVariable("l_setSwapEnabled",		[=](bool mValue)						{ levelData.swapEnabled = mValue; });
+		lua.writeVariable("l_setTutorialMode",		[=](bool mValue)						{ levelData.tutorialMode = mValue; });
+		lua.writeVariable("l_setIncEnabled",		[=](bool mValue)						{ levelData.incEnabled = mValue; });
 		lua.writeVariable("l_addTracked",			[=](string mVar, string mName)			{ levelData.trackedVariables.emplace_back(mVar, mName); });
-
-		// Level getters
+		lua.writeVariable("l_enableRndSideChanges", [=](bool mValue)						{ levelData.rndSideChangesEnabled = mValue; });
 		lua.writeVariable("l_getRotationSpeed",		[=]										{ return levelData.rotationSpeed; });
 		lua.writeVariable("l_getSides",				[=]										{ return levelData.sides; });
 		lua.writeVariable("l_getSpeedMult",			[=]										{ return levelData.speedMult; });
 		lua.writeVariable("l_getDelayMult",			[=]										{ return levelData.delayMult; });
 
-		// Style setters
-		lua.writeVariable("setStylePulseIncrement", [=](float mValue){ styleData.pulseIncrement = mValue; });
-		lua.writeVariable("setStyleHueIncrement", [=](float mValue){ styleData.hueIncrement = mValue; });
+		// Style control
+		lua.writeVariable("s_setPulseInc",			[=](float mValue)						{ styleData.pulseIncrement = mValue; });
+		lua.writeVariable("s_setHueInc",			[=](float mValue)						{ styleData.hueIncrement = mValue; });
+		lua.writeVariable("s_getHueInc",			[=]										{ return styleData.hueIncrement; });
 
-		// Style getters
-		lua.writeVariable("getStyleHueIncrement", [=]{ return styleData.hueIncrement; });
-
-		lua.writeVariable("wall", 					[=](int mSide, float mThickness) 		{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {getSpeedMultiplier()}); }); });
-		lua.writeVariable("wallAdj", [=](int mSide, float mThickness, float mSpeedAdj)
-		{
-			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultiplier()); });
-		});
-		lua.writeVariable("wallAcc", [=](int mSide, float mThickness, float mSpeedAdj, float mAcceleration, float mMinSpeed, float mMaxSpeed)
-		{
-			timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {mSpeedAdj * getSpeedMultiplier(), mAcceleration, mMinSpeed * getSpeedMultiplier(), mMaxSpeed * getSpeedMultiplier()}); });
-		});
-		lua.writeVariable("wallHModSpeedData", [=](float mHueMod, int mSide, float mThickness, float mSpeedAdj, float mSpeedAccel, float mSpeedMin, float mSpeedMax, bool mSpeedPingPong)
-		{
-			timeline.append<Do>([=]
-			{
-				factory.createWall(mSide, mThickness, {mSpeedAdj * getSpeedMultiplier(), mSpeedAccel, mSpeedMin, mSpeedMax, mSpeedPingPong}, mHueMod);
-			});
-		});
-		lua.writeVariable("wallHModCurveData", [=](float mHueMod, int mSide, float mThickness, float mCurveAdj, float mCurveAccel, float mCurveMin, float mCurveMax, bool mCurvePingPong)
-		{
-			timeline.append<Do>([=]
-			{
-				factory.createWall(mSide, mThickness, {getSpeedMultiplier()}, {mCurveAdj, mCurveAccel, mCurveMin, mCurveMax, mCurvePingPong}, mHueMod);
-			});
-		});
-
-		lua.writeVariable("tutorialMode", [=]{ status.tutorialMode = true; });
-		lua.writeVariable("stopIncrement", [=]{ status.incrementEnabled = false; });
-		lua.writeVariable("startIncrement", [=]{ status.incrementEnabled = true; });
-
-		lua.writeVariable("disableSwap", [=]{ status.swapEnabled = false; });
-		lua.writeVariable("enableSwap", [=]{ status.swapEnabled = true; });
-
-		lua.writeVariable("disableRandomSideChanges", [=]{ status.randomSideChangesEnabled = false; });
-		lua.writeVariable("enableRandomSideChanges", [=]{ status.randomSideChangesEnabled = true; });
-
-
-
+		// Wall creation
+		lua.writeVariable("w_wall",					[=](int mSide, float mThickness)																					{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {getSpeedMultDM()}); }); });
+		lua.writeVariable("w_wallAdj",				[=](int mSide, float mThickness, float mSpeedAdj)																	{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultDM()); }); });
+		lua.writeVariable("w_wallAcc",				[=](int mSide, float mThickness, float mSpeedAdj, float mAcceleration, float mMinSpeed, float mMaxSpeed)			{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {mSpeedAdj * getSpeedMultDM(), mAcceleration, mMinSpeed * getSpeedMultDM(), mMaxSpeed * getSpeedMultDM()}); }); });
+		lua.writeVariable("w_wallHModSpeedData",	[=](float mHMod, int mSide, float mThickness, float mSAdj, float mSAcc, float mSMin, float mSMax, bool mSPingPong)	{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax, mSPingPong}, mHMod); }); });
+		lua.writeVariable("w_wallHModCurveData",	[=](float mHMod, int mSide, float mThickness, float mCAdj, float mCAcc, float mCMin, float mCMax, bool mCPingPong)	{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {getSpeedMultDM()}, {mCAdj, mCAcc, mCMin, mCMax, mCPingPong}, mHMod); }); });
 	}
 	void HexagonGame::runLuaFile(const string& mFileName)
 	{
@@ -140,7 +109,11 @@ namespace hg
 		try { lua.executeCode(s); }
 		catch(runtime_error &error)
 		{
-			cout << mFileName << endl << "LUA execution error: " << endl << "(killing the player...)" << endl << toStr(error.what()) << endl << endl;
+			log("Fatal error, killing the player", "hg::HexagonGame::runLuaFile");
+			log("Filename: " + mFileName, "hg::HexagonGame::runLuaFile");
+			log("Error: " + toStr(error.what()), "hg::HexagonGame::runLuaFile");
+			log("");
+
 			death();
 		}
 	}

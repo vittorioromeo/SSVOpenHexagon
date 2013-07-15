@@ -46,11 +46,11 @@ function onInit()
 
 	l_addTracked("lowerBound", "min")
 	l_addTracked("upperBound", "max")
+	l_enableRndSideChanges(false)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	disableRandomSideChanges()
 	m_messageAddImportant("Sides ("..lowerBound.." / "..upperBound..")", 170)
 end
 
@@ -94,7 +94,7 @@ function onUpdate(mFrameTime)
 		end
 	end 
 
-	setStyleHueIncrement(getStyleHueIncrement() + hueIStep)
-	if(getStyleHueIncrement() > hueIMax) then hueIStep = hueIStep * -1 end
-	if(getStyleHueIncrement() < hueIMin) then hueIStep = hueIStep * -1 end
+	s_setHueInc(s_getHueInc() + hueIStep)
+	if(s_getHueInc() > hueIMax) then hueIStep = hueIStep * -1 end
+	if(s_getHueInc() < hueIMin) then hueIStep = hueIStep * -1 end
 end

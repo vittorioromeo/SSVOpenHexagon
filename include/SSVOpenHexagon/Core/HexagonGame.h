@@ -127,17 +127,14 @@ namespace hg
 			void render(sf::Drawable&);
 
 			// Setters
-			inline void setSpeedMultiplier(float mSpeedMultiplier)	{ levelData.speedMult = mSpeedMultiplier; }
-			inline void setDelayMultiplier(float mDelayMultiplier)	{ levelData.delayMult = mDelayMultiplier; }
-			inline void setRotationSpeed(float mRotationSpeed)		{ levelData.rotationSpeed = mRotationSpeed; }
 			void setSides(unsigned int mSides);
 
 			// Getters
 			inline ssvs::GameState& getGame()						{ return game; }
 			inline float getRadius() const							{ return status.radius; }
 			inline const sf::Color& getColor(int mIndex) const		{ return styleData.getColor(mIndex); }
-			inline float getSpeedMultiplier() const					{ return levelData.speedMult * (pow(difficultyMult, 0.65f)); }
-			inline float getDelayMultiplier() const					{ return levelData.delayMult / (pow(difficultyMult, 0.10f)); }
+			inline float getSpeedMultDM() const						{ return levelData.speedMult * (pow(difficultyMult, 0.65f)); }
+			inline float getDelayMultDM() const						{ return levelData.delayMult / (pow(difficultyMult, 0.10f)); }
 			inline float getRotationSpeed() const					{ return levelData.rotationSpeed; }
 			inline unsigned int getSides() const					{ return levelData.sides; }
 			inline float getWallSkewLeft() const					{ return levelData.wallSkewLeft; }
@@ -146,6 +143,7 @@ namespace hg
 			inline float getWallAngleRight() const					{ return levelData.wallAngleRight; }
 			inline float get3DEffectMult() const					{ return levelData._3dEffectMultiplier; }
 			inline HexagonGameStatus& getStatus()					{ return status; }
+			inline LevelData& getLevelData()						{ return levelData; }
 			sf::Color getColorMain() const;
 
 			// Input

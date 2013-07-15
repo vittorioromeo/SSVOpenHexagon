@@ -15,7 +15,6 @@ end
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()
-	disableRandomSideChanges()	
 	cBarrage(getRandomSide())
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.55)
 end
@@ -46,6 +45,7 @@ function onInit()
 
 	l_setRadiusMin(40)
 	l_addTracked("levelTracked", "level")
+	l_enableRndSideChanges(false)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented

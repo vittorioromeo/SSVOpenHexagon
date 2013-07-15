@@ -33,7 +33,7 @@ namespace hg
 			if(getPulse()) updatePulse(mFrameTime);
 			if(!getBlackAndWhite()) styleData.update(mFrameTime);
 		}
-		else setRotationSpeed(getRotationSpeed() * 0.99f);
+		else levelData.rotationSpeed *= 0.99f;
 
 		if(get3D()) update3D(mFrameTime);
 		if(!getNoRotation()) updateRotation(mFrameTime);
@@ -62,7 +62,7 @@ namespace hg
 	}
 	void HexagonGame::updateIncrement()
 	{
-		if(!status.incrementEnabled) return;
+		if(!levelData.incEnabled) return;
 		if(status.incrementTime < levelData.incTime) return;
 
 		status.incrementTime = 0;

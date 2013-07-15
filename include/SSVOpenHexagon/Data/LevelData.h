@@ -37,6 +37,9 @@ namespace hg
 			int sides{6}, sidesMax{6}, sidesMin{6};
 			bool swapEnabled{false};
 			bool selectable{true};
+			bool tutorialMode{false};
+			bool incEnabled{true};
+			bool rndSideChangesEnabled{true};
 
 			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "difficulty_multipliers", {})};
 			int menuPriority					{ssvuj::as<int>(root, "menu_priority", 0)};

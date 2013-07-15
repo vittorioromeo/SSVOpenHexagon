@@ -96,8 +96,8 @@ namespace hg
 
 	void CPlayer::update(float mFrameTime)
 	{
-		if(hexagonGame.getStatus().swapEnabled && swapTimer > 0) swapTimer -= mFrameTime;
-		if(hexagonGame.getStatus().tutorialMode && deadEffectTimer > 0) deadEffectTimer -= mFrameTime;
+		if(hexagonGame.getLevelData().swapEnabled && swapTimer > 0) swapTimer -= mFrameTime;
+		if(hexagonGame.getLevelData().tutorialMode && deadEffectTimer > 0) deadEffectTimer -= mFrameTime;
 
 		Vec2f lastPos{pos};
 		float currentSpeed{speed}, lastAngle{angle}, radius{hexagonGame.getRadius()};
@@ -106,7 +106,7 @@ namespace hg
 
 		angle += currentSpeed * movement * mFrameTime;
 
-		if(hexagonGame.getStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer <= 0)
+		if(hexagonGame.getLevelData().swapEnabled && hexagonGame.getInputSwap() && swapTimer <= 0)
 		{
 			playSound("swap.ogg");
 			swapTimer = 40; angle += 180;
@@ -124,7 +124,7 @@ namespace hg
 			{
 				deadEffectTimer = 80;
 				if(!getInvincible()) dead = true;
-				lastPos = getMovedTowards(lastPos, {0, 0}, 5 * hexagonGame.getSpeedMultiplier());
+				lastPos = getMovedTowards(lastPos, {0, 0}, 5 * hexagonGame.getSpeedMultDM());
 				pos = lastPos; hexagonGame.death(); return;
 			}
 		}

@@ -45,7 +45,7 @@ function getSideDistance(mSide1, mSide2)
 end
 
 -- cWall: creates a wall with the common THICKNESS
-function cWall(mSide) wall(mSide, THICKNESS) end
+function cWall(mSide) w_wall(mSide, THICKNESS) end
 
 -- oWall: creates a wall opposite to the mSide passed
 function oWall(mSide) cWall(mSide + getHalfSides()) end

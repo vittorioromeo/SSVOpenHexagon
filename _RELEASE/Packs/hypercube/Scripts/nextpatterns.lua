@@ -3,8 +3,8 @@ u_execScript("commonpatterns.lua")
 u_execScript("utils.lua")
 u_execScript("alternativepatterns.lua")
 
-function wallSAdj(mSide, mAdj) wallAdj(mSide, THICKNESS, mAdj) end
-function wallSAcc(mSide, mAdj, mAcc, mMinSpd, mMaxSpd) wallAcc(mSide, THICKNESS, mAdj, mAcc * (u_getDifficultyMult()), mMinSpd, mMaxSpd) end
+function wallSAdj(mSide, mAdj) w_wallAdj(mSide, THICKNESS, mAdj) end
+function wallSAcc(mSide, mAdj, mAcc, mMinSpd, mMaxSpd) w_wallAcc(mSide, THICKNESS, mAdj, mAcc * (u_getDifficultyMult()), mMinSpd, mMaxSpd) end
 
 function pTrapBarrage(mSide)
 	delay = getPerfectDelayDM(THICKNESS) * 3.7

@@ -31,6 +31,7 @@ function onInit()
 	l_setSidesMin(6)
 	l_setSidesMax(6)
 	l_setIncTime(15)
+	l_setTutorialMode(true)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
