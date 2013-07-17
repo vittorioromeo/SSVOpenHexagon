@@ -67,7 +67,6 @@ namespace hg
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
 		initLua();
-		log(levelData->luaScriptPath);
 		runLuaFile(levelData->luaScriptPath);
 		runLuaFunction<void>("onInit");
 		runLuaFunction<void>("onLoad");
