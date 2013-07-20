@@ -51,9 +51,15 @@ namespace hg
 		void initializeServer()
 		{
 			PacketHandler packetHandler;
-			packetHandler[ClientPackets::Ping] = [](ManagedSocket&, sf::Packet& mPacket)
+			packetHandler[ClientPackets::Ping] = [](ManagedSocket& ms, sf::Packet&)
 			{
 				ssvu::log("Ping", "PacketHandler");
+
+				Packet r;
+				string response{"pingback, bro"};
+				r << ServerPackets::LoginResponse << response;
+				ms.send(r);
+
 			};
 
 			packetHandler[ClientPackets::Login] = [](ManagedSocket& mManagedSocket, sf::Packet& mPacket)

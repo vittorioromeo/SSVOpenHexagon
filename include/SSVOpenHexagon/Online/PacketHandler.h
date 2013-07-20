@@ -1,12 +1,6 @@
 #ifndef HG_ONLINE_PACKETHANDLER
 #define HG_ONLINE_PACKETHANDLER
 
-#include <iostream>
-#include <algorithm>
-#include <string>
-#include <vector>
-#include <chrono>
-#include <thread>
 #include <SSVUtils/SSVUtils.h>
 #include <SFML/Network.hpp>
 #include <unordered_map>
@@ -21,11 +15,11 @@ namespace hg
 
 		struct PacketHandler
 		{
-			using HandlerFunc = std::function<void(ManagedSocket&, sf::Packet&)>;
+			using HandlerFunc = std::function<void(ManagedSocket&, Packet&)>;
 
 			std::unordered_map<unsigned int, HandlerFunc> functionHandlers;
 
-			void handle(ManagedSocket& mManagedSocket, sf::Packet& mPacket)
+			void handle(ManagedSocket& mManagedSocket, Packet& mPacket)
 			{
 				unsigned int type;
 				mPacket >> type;

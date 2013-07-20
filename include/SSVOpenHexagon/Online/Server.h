@@ -1,17 +1,13 @@
 #ifndef HG_ONLINE_SERVER
 #define HG_ONLINE_SERVER
 
-#include <iostream>
 #include <algorithm>
-#include <string>
 #include <vector>
 #include <chrono>
 #include <thread>
 #include <SSVUtils/SSVUtils.h>
 #include <SFML/Network.hpp>
-#include <unordered_map>
 #include "SSVOpenHexagon/Online/Online.h"
-#include "SSVOpenHexagon/Online/PacketHandler.h"
 #include "SSVOpenHexagon/Online/ClientHandler.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 
@@ -23,7 +19,7 @@ namespace hg
 		{
 			private:
 				PacketHandler& packetHandler;
-				sf::TcpListener listener;
+				Listener listener;
 				std::vector<Uptr<ClientHandler>> clientHandlers;
 				std::thread receiveThread;
 
@@ -44,7 +40,7 @@ namespace hg
 					for(auto& c : clientHandlers)
 					{
 						if(c->isBusy()) continue;
-						if(!asyncTry([&]{ return c->tryAccept(listener); }).get()) continue;
+						if(!retry([&]{ return c->tryAccept(listener); }).get()) continue;
 
 						ssvu::log("Accepted client (" + ssvu::toStr(c->uid) + ")", "Server");
 					}
@@ -59,7 +55,7 @@ namespace hg
 
 				void start(unsigned int mPort)
 				{
-					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::log("Error initializing listener", "Server"); return; }
+					if(listener.listen(mPort) != Socket::Done) { ssvu::log("Error initializing listener", "Server"); return; }
 					else ssvu::log("Listener initialized", "Server");
 
 					receiveThread.detach();

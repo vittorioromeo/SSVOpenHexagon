@@ -14,6 +14,11 @@ namespace hg
 {
 	namespace Online
 	{
+		using Listener = sf::TcpListener;
+		using Packet = sf::Packet;
+		using Socket = sf::TcpSocket;
+		using IpAddress = sf::IpAddress;
+
 		void initializeServer();
 		void initializeClient();
 
@@ -22,16 +27,6 @@ namespace hg
 
 		void tryLogin(const std::string& mUsername, const std::string& mPassword);
 		bool isLoggedIn();
-
-		//void startCheckUpdates();
-		//void startSendScore(const std::string& mName, const std::string& mValidator, float mDifficulty, float mScore);
-		//void startGetScores(std::string& mTargetScores, std::string& mTargetPlayerScore, const std::string& mName, std::vector<std::string>& mTarget, const std::vector<std::string>& mNames, const std::string& mValidator, float mDifficulty);
-		//void startGetFriendsScores(std::vector<std::string>& mTarget, const std::vector<std::string>& mNames, const std::string& mValidator, float mDifficulty);
-
-		//void cleanUp();
-		//void terminateAll();
-
-		//std::string getValidator(const std::string& mPackPath, const std::string& mLevelId, const std::string& mLevelRootPath, const std::string& mStyleRootPath, const std::string& mLuaScriptPath);
 
 		float getServerVersion();
 		std::string getServerMessage();
@@ -56,15 +51,15 @@ namespace hg
 			LoginResponse = 0
 		};
 
-		template<LogMode TLM = LogMode::Quiet> std::future<bool> asyncTry(std::function<bool()> mFunc, const std::chrono::duration<int, std::milli>& mDuration = std::chrono::milliseconds(1500), int mTimes = 5)
+		template<int TTimes = 5, LogMode TLM = LogMode::Quiet> std::future<bool> retry(std::function<bool()> mFunc, const std::chrono::duration<int, std::milli>& mDuration = std::chrono::milliseconds(1500))
 		{
 			auto result(std::async(std::launch::async, [=]
 			{
-				for(int i{0}; i < mTimes; ++i)
+				for(int i{0}; i < TTimes; ++i)
 				{
 					if(mFunc()) return true;
 
-					if(TLM == LogMode::Verbose) ssvu::log("Error - retrying (" + ssvu::toStr(i + 1) + "/" + ssvu::toStr(mTimes) + ")", "asyncTry");
+					if(TLM == LogMode::Verbose) ssvu::log("Error - retrying (" + ssvu::toStr(i + 1) + "/" + ssvu::toStr(TTimes) + ")", "asyncTry");
 					std::this_thread::sleep_for(mDuration);
 				}
 

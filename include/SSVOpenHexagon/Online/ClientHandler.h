@@ -1,18 +1,11 @@
 #ifndef HG_ONLINE_CLIENTHANDLER
 #define HG_ONLINE_CLIENTHANDLER
 
-#include <iostream>
-#include <algorithm>
-#include <string>
-#include <vector>
 #include <chrono>
 #include <thread>
 #include <SSVUtils/SSVUtils.h>
 #include <SFML/Network.hpp>
-#include <unordered_map>
-#include "SSVOpenHexagon/Online/Online.h"
-#include "SSVOpenHexagon/Online/PacketHandler.h"
-#include "SSVOpenHexagon/Online/Client.h"
+#include "SSVOpenHexagon/Online/ManagedSocket.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
@@ -43,18 +36,17 @@ namespace hg
 							if(!isBusy()) continue;
 
 							--untilTimeout;
-							if(untilTimeout <= 0)
-							{
-								ssvu::log("Client timed out", "ClientHandler");
-								managedSocket.disconnect();
-							}
+							if(untilTimeout > 0) continue;
+
+							ssvu::log("Client timed out", "ClientHandler");
+							managedSocket.disconnect();
 						}
 					}).detach();
 				}
 
-				inline bool send(const sf::Packet& mPacket)			{ return managedSocket.send(mPacket); }
-				inline bool tryAccept(sf::TcpListener& mListener)	{ return managedSocket.tryAccept(mListener); }
-				inline bool isBusy() const							{ return managedSocket.isBusy(); }
+				inline bool send(const Packet& mPacket)		{ return managedSocket.send(mPacket); }
+				inline bool tryAccept(Listener& mListener)	{ return managedSocket.tryAccept(mListener); }
+				inline bool isBusy() const					{ return managedSocket.isBusy(); }
 		};
 	}
 }
