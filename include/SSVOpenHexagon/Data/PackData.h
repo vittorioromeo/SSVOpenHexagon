@@ -8,7 +8,7 @@
 #include <string>
 
 namespace hg
-{
+{ 
 	struct PackData
 	{
 		std::string id, name, hash; float priority;

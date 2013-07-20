@@ -7,6 +7,7 @@
 #include <SSVUtils/SSVUtils.h>
 #include <SSVStart/SSVStart.h>
 #include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Online/Server.h"
 #include "SSVOpenHexagon/Core/HexagonGame.h"
 #include "SSVOpenHexagon/Core/MenuGame.h"
 #include "SSVOpenHexagon/Global/Assets.h"
@@ -30,9 +31,18 @@ int main(int argc, char* argv[])
 {
 	vector<string> overrideIds; for(int i{0}; i < argc; ++i) overrideIds.push_back(string{argv[i]});
 
+	if(contains(overrideIds, "server"))
+	{
+		Online::initializeServer();
+		return 0;
+	}
+
 	createProfilesFolder();
 
-	Online::startCheckUpdates();
+	Online::initializeClient();
+	Online::tryConnectToServer();
+
+	//Online::startCheckUpdates();
 	setRandomSeed();
 	loadConfig(overrideIds);
 
@@ -48,10 +58,14 @@ int main(int argc, char* argv[])
 
 	assets.refreshVolumes();
 	window.setGameState(mg.getGame()); mg.init();
+
+	Online::tryLogin("vittorioromeo", "vittro1234");
+
 	window.run();
 
-	Online::terminateAll();
+	//Online::terminateAll();
 
 	saveConfig(); assets.saveCurrentProfile(); saveLogToFile("log.txt");
 	return 0;
 }
+

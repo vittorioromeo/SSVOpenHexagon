@@ -179,7 +179,7 @@ namespace hg
 		recalculateSizes();
 	}
 
-	void setOnline(bool mOnline)				{ online = mOnline; if(mOnline) Online::startCheckUpdates(); }
+	void setOnline(bool mOnline)				{ online = mOnline; /*if(mOnline) Online::startCheckUpdates();*/ }
 	void setOfficial(bool mOfficial)			{ official = mOfficial; }
 	void setNoRotation(bool mNoRotation)		{ noRotation = mNoRotation; }
 	void setNoBackground(bool mNoBackground)	{ noBackground = mNoBackground; }
