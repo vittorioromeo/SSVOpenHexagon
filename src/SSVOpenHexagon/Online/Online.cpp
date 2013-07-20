@@ -41,54 +41,71 @@ namespace hg
 		PacketHandler clientPacketHandler;
 		Uptr<Client> client;
 
-		Packet buildLoginPacket(const string& mUsername, const string& mPassword)
-		{
-			Packet result;
-			result << ClientPackets::Login << mUsername << mPassword;
-			return result;
-		}
+		template<unsigned int TType> Packet buildPacket() { Packet result; result << TType; return result; }
+
+		template<typename TArg> void buildHelper(Packet& mPacket, TArg&& mArg) { mPacket << mArg; }
+		template<typename TArg, typename... TArgs> void buildHelper(Packet& mPacket, TArg&& mArg, TArgs&&... mArgs) { mPacket << mArg; buildHelper(mPacket, mArgs...); }
+		template<unsigned int TType, typename... TArgs> Packet buildPacket(TArgs&&... mArgs) { Packet result; result << TType; buildHelper(result, mArgs...); return result; }
+
+
+
+		// Client -> Server
+		Packet buildPingPacket()													{ Packet result; result << ClientPackets::Ping; return result; }
+		Packet buildLoginPacket(const string& mUsername, const string& mPassword)	{ Packet result; result << ClientPackets::Login << mUsername << mPassword; return result; }
+
+		// Server -> Client
+		Packet buildLoginResponseValidPacket()										{ Packet result; result << ServerPackets::LoginResponseValid; return result; }
+		Packet buildLoginResponseInvalidPacket()									{ Packet result; result << ServerPackets::LoginResponseInvalid; return result; }
+
 
 		void initializeServer()
 		{
 			PacketHandler packetHandler;
-			packetHandler[ClientPackets::Ping] = [](ManagedSocket& ms, sf::Packet&)
+			packetHandler[ClientPackets::Ping] = [](ManagedSocket&, sf::Packet&)
 			{
-				ssvu::log("Ping", "PacketHandler");
-
-				Packet r;
-				string response{"pingback, bro"};
-				r << ServerPackets::LoginResponse << response;
-				ms.send(r);
-
+				// Do nothing
 			};
 
 			packetHandler[ClientPackets::Login] = [](ManagedSocket& mManagedSocket, sf::Packet& mPacket)
 			{
+				// Validate login information, then send a response
+
 				string username, password;
 				mPacket >> username >> password;
 
 				ssvu::log("Username: " + username + "; Password: " + password, "PacketHandler");
 
-				Packet response;
-				response << ServerPackets::LoginResponse << "Login accepted!";
-				mManagedSocket.send(response);
+				mManagedSocket.send(buildPacket<ServerPackets::LoginResponseValid>());
+
 			};
 
-			Server server{packetHandler}; server.start(54000);
+			Server server{packetHandler};
 
-			while(true)
+			std::vector<Uptr<ClientData>> clientDatas;
+
+			server.onClientAccepted += [&](ClientHandler& mClientHandler)
 			{
-				this_thread::sleep_for(std::chrono::milliseconds(250));
-			}
+
+			};
+
+
+			server.start(54000);
+
+			while(true) this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 
 		void initializeClient()
 		{
-			clientPacketHandler[ServerPackets::LoginResponse] = [](ManagedSocket&, sf::Packet& mPacket)
+			clientPacketHandler[ServerPackets::LoginResponseValid] = [](ManagedSocket&, sf::Packet& mPacket)
 			{
-				string response;
-				mPacket >> response;
-				log(response, "SERVER RESPONSE");
+				log("Successfully logged in!", "PacketHandler");
+				loggedIn = true;
+			};
+
+			clientPacketHandler[ServerPackets::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet& mPacket)
+			{
+				log("Login invalid!", "PacketHandler");
+				loggedIn = false;
 			};
 
 			client = Uptr<Client>(new Client(clientPacketHandler));
@@ -129,7 +146,7 @@ namespace hg
 			{
 				this_thread::sleep_for(std::chrono::milliseconds(1000));
 				if(!connected) { log("Client isn't connected, aborting", "hg::Online::tryLogin"); return; }
-				client->send(buildLoginPacket(mUsername, mPassword));
+				client->send(buildPacket<ClientPackets::Login>(mUsername, mPassword));
 			}).detach();
 		}
 		bool isLoggedIn() { return loggedIn; }

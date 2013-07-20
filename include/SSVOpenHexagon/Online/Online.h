@@ -5,6 +5,7 @@
 #ifndef HG_ONLINE
 #define HG_ONLINE
 
+#include <string>
 #include <future>
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include <SSVStart/SSVStart.h>
@@ -14,6 +15,11 @@ namespace hg
 {
 	namespace Online
 	{
+		struct ClientData
+		{
+			std::string username, password;
+		};
+
 		using Listener = sf::TcpListener;
 		using Packet = sf::Packet;
 		using Socket = sf::TcpSocket;
@@ -48,7 +54,8 @@ namespace hg
 
 		enum ServerPackets : unsigned int
 		{
-			LoginResponse = 0
+			LoginResponseValid = 0,
+			LoginResponseInvalid = 1
 		};
 
 		template<int TTimes = 5, LogMode TLM = LogMode::Quiet> std::future<bool> retry(std::function<bool()> mFunc, const std::chrono::duration<int, std::milli>& mDuration = std::chrono::milliseconds(1500))
@@ -68,9 +75,6 @@ namespace hg
 
 			return result;
 		}
-
-		inline sf::Packet buildPingPacket()							{ sf::Packet result; result << ClientPackets::Ping; return result; }
-		inline sf::Packet buildHelloPacket()						{ sf::Packet result; result << ClientPackets::Data << "hello bro!"; return result; }
 	}
 }
 

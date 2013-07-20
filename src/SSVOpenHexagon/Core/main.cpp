@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 	assets.refreshVolumes();
 	window.setGameState(mg.getGame()); mg.init();
 
-	Online::tryLogin("vittorioromeo", "vittro1234");
+	Online::tryLogin("test1", "test1");
 
 	window.run();
 

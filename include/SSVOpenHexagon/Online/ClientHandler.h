@@ -47,6 +47,7 @@ namespace hg
 				inline bool send(const Packet& mPacket)		{ return managedSocket.send(mPacket); }
 				inline bool tryAccept(Listener& mListener)	{ return managedSocket.tryAccept(mListener); }
 				inline bool isBusy() const					{ return managedSocket.isBusy(); }
+				inline ManagedSocket& getManagedSocket()	{ return managedSocket; }
 		};
 	}
 }

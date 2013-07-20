@@ -20,6 +20,7 @@ namespace hg
 				inline bool connect(IpAddress mIp, unsigned int mPort)	{ return managedSocket.connect(mIp, mPort); }
 				inline bool send(const Packet& mPacket)					{ return managedSocket.send(mPacket); }
 				inline void disconnect()								{ managedSocket.disconnect(); }
+				inline ManagedSocket& getManagedSocket()				{ return managedSocket; }
 		};
 	}
 }

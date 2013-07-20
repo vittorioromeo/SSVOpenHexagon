@@ -42,11 +42,14 @@ namespace hg
 						if(c->isBusy()) continue;
 						if(!retry([&]{ return c->tryAccept(listener); }).get()) continue;
 
+						onClientAccepted(*c.get());
 						ssvu::log("Accepted client (" + ssvu::toStr(c->uid) + ")", "Server");
 					}
 				}
 
 			public:
+				ssvu::Delegate<void, ClientHandler&> onClientAccepted;
+
 				Server(PacketHandler& mPacketHandler) : packetHandler(mPacketHandler)
 				{
 					listener.setBlocking(false);
