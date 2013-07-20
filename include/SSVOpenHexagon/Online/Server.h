@@ -43,7 +43,7 @@ namespace hg
 						if(!retry([&]{ return c->tryAccept(listener); }).get()) continue;
 
 						onClientAccepted(*c.get());
-						ssvu::log("Accepted client (" + ssvu::toStr(c->uid) + ")", "Server");
+						ssvu::log("Accepted client (" + ssvu::toStr(c->getUid()) + ")", "Server");
 					}
 				}
 

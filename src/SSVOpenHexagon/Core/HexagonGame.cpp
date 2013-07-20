@@ -43,6 +43,7 @@ namespace hg
 		// Audio cleanup
 		assets.stopSounds(); stopLevelMusic();
 		assets.playSound("go.ogg"); playLevelMusic();
+		if(getMusicSpeedDMSync()) assets.getMusicPlayer().getCurrent()->setPitch(pow(difficultyMult, 0.12f));
 
 		// Events cleanup
 		messageText.setString("");

@@ -39,6 +39,7 @@ namespace hg
 	void setSoundVolume(int mVolume);
 	void setMusicVolume(int mVolume);
 	void setFlash(bool mFlash);
+	void setMusicSpeedDMSync(bool mValue);
 
 	bool getOnline();
 	bool getOfficial();
@@ -86,6 +87,7 @@ namespace hg
 	bool getAutoRestart();
 	bool getFlash();
 	bool getShowTrackedVariables();
+	bool getMusicSpeedDMSync();
 
 	ssvs::Input::Trigger getTriggerRotateCCW();
 	ssvs::Input::Trigger getTriggerRotateCW();

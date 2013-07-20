@@ -40,22 +40,22 @@ namespace hg
 		inline std::string getUrlEncoded(const std::string& mString) 		{ std::string result; for(const auto& c : mString) if(std::isalnum(c)) result += c; return result; }
 		inline std::string getControlStripped(const std::string& mString)	{ std::string result; for(const auto& c : mString) if(!std::iscntrl(c)) result += c; return result; }
 
-		bool isOverloaded();
-		bool isFree();
-
 		enum class LogMode { Quiet, Verbose };
 
+		// Client to server
 		enum ClientPackets : unsigned int
 		{
 			Ping = 0,
-			Data = 1,
-			Login = 2
+			Login = 1,
+			RequestInfo = 2
 		};
 
+		// Server to client
 		enum ServerPackets : unsigned int
 		{
 			LoginResponseValid = 0,
-			LoginResponseInvalid = 1
+			LoginResponseInvalid = 1,
+			RequestInfoResponse = 2
 		};
 
 		template<int TTimes = 5, LogMode TLM = LogMode::Quiet> std::future<bool> retry(std::function<bool()> mFunc, const std::chrono::duration<int, std::milli>& mDuration = std::chrono::milliseconds(1500))

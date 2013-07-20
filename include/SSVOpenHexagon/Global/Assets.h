@@ -92,6 +92,8 @@ namespace hg
 			void stopSounds();
 			void playSound(const std::string& mId, ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
 			void playMusic(const std::string& mId, sf::Time mPlayingOffset = sf::seconds(0));
+			inline ssvs::SoundPlayer& getSoundPlayer() { return soundPlayer; }
+			inline ssvs::MusicPlayer& getMusicPlayer() { return musicPlayer; }
 	};
 
 

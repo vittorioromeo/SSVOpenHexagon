@@ -5,6 +5,8 @@
 #ifndef HG_UTILS_FPSWATCHER
 #define HG_UTILS_FPSWATCHER
 
+#include <thread>
+#include <chrono>
 #include <SSVStart/SSVStart.h>
 
 namespace hg
@@ -14,23 +16,44 @@ namespace hg
 		private:
 			ssvs::GameWindow& gameWindow;
 			bool check{false};
-			ssvs::Utils::ThreadWrapper thread;
+			std::thread watcherThread;
 			float lostFrames{0};
 			const float maxLostFrames{20}, minFPS{20};
 			bool disabled{true}, running{true};
 
-			void watch();
-			void loseFrame();
+			void watch()
+			{
+				while(running)
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(80));
+
+					if(disabled) continue;
+
+					if(check)
+					{
+						check = false;
+						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+						while(check == false) { loseFrame(); std::this_thread::sleep_for(std::chrono::milliseconds(12)); }
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(80));
+					if(gameWindow.getFPS() < minFPS) loseFrame();
+				}
+			}
+			void loseFrame()
+			{
+				if(lostFrames > maxLostFrames) return;
+				++lostFrames;
+				ssvu::log("Slowdown " + ssvu::toStr(lostFrames) + "/" + ssvu::toStr(maxLostFrames), "FPSWatcher::watch");
+			}
 
 		public:
-			FPSWatcher(ssvs::GameWindow& mGameWindow);
-			~FPSWatcher();
-			bool isLimitReached();
-			void reset();
-			void update();
+			FPSWatcher(ssvs::GameWindow& mGameWindow) : gameWindow(mGameWindow), watcherThread([&]{ watch(); }) { watcherThread.detach(); }
 
-			void enable();
-			void disable();
+			inline bool isLimitReached() const	{ return lostFrames >= maxLostFrames; }
+			inline void reset()					{ lostFrames = 0; disabled = true; check = false; }
+			inline void update()				{ check = true; }
+			inline void enable()				{ disabled = false; }
+			inline void disable()				{ disabled = true; }
 	};
 }
 

@@ -91,7 +91,7 @@ namespace hg
 			float pulseAdd{status.pulseDirection > 0 ? levelStatus.pulseSpeed : -levelStatus.pulseSpeedR};
 			float pulseLimit{status.pulseDirection > 0 ? levelStatus.pulseMax : levelStatus.pulseMin};
 
-			status.pulse += pulseAdd * mFrameTime;
+			status.pulse += pulseAdd * mFrameTime * (getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f);
 			if((status.pulseDirection > 0 && status.pulse >= pulseLimit) || (status.pulseDirection < 0 && status.pulse <= pulseLimit))
 			{
 				status.pulse = pulseLimit;
@@ -116,9 +116,9 @@ namespace hg
 			status.beatPulse = levelStatus.beatPulseMax;
 			status.beatPulseDelay = levelStatus.beatPulseDelayMax;
 		}
-		else status.beatPulseDelay -= 1 * mFrameTime;
+		else status.beatPulseDelay -= 1 * mFrameTime * (getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f);
 
-		if(status.beatPulse > 0) status.beatPulse -= 2.f * mFrameTime;
+		if(status.beatPulse > 0) status.beatPulse -= 2.f * mFrameTime * (getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f);
 
 		float radiusMin{getBeatPulse() ? levelStatus.radiusMin : 75};
 		status.radius = radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;

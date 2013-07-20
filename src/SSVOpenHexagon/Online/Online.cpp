@@ -37,6 +37,9 @@ namespace hg
 		bool connected{false};
 		bool loggedIn{false};
 
+		float serverVersion{-1};
+		string serverMessage{""};
+
 
 		PacketHandler clientPacketHandler;
 		Uptr<Client> client;
@@ -47,25 +50,10 @@ namespace hg
 		template<typename TArg, typename... TArgs> void buildHelper(Packet& mPacket, TArg&& mArg, TArgs&&... mArgs) { mPacket << mArg; buildHelper(mPacket, mArgs...); }
 		template<unsigned int TType, typename... TArgs> Packet buildPacket(TArgs&&... mArgs) { Packet result; result << TType; buildHelper(result, mArgs...); return result; }
 
-
-
-		// Client -> Server
-		Packet buildPingPacket()													{ Packet result; result << ClientPackets::Ping; return result; }
-		Packet buildLoginPacket(const string& mUsername, const string& mPassword)	{ Packet result; result << ClientPackets::Login << mUsername << mPassword; return result; }
-
-		// Server -> Client
-		Packet buildLoginResponseValidPacket()										{ Packet result; result << ServerPackets::LoginResponseValid; return result; }
-		Packet buildLoginResponseInvalidPacket()									{ Packet result; result << ServerPackets::LoginResponseInvalid; return result; }
-
-
 		void initializeServer()
 		{
 			PacketHandler packetHandler;
-			packetHandler[ClientPackets::Ping] = [](ManagedSocket&, sf::Packet&)
-			{
-				// Do nothing
-			};
-
+			packetHandler[ClientPackets::Ping] = [](ManagedSocket&, sf::Packet&) { };
 			packetHandler[ClientPackets::Login] = [](ManagedSocket& mManagedSocket, sf::Packet& mPacket)
 			{
 				// Validate login information, then send a response
@@ -78,34 +66,46 @@ namespace hg
 				mManagedSocket.send(buildPacket<ServerPackets::LoginResponseValid>());
 
 			};
+			packetHandler[ClientPackets::RequestInfo] = [](ManagedSocket& mManagedSocket, sf::Packet&)
+			{
+				// Return info from server
+
+				float version{2.f};
+				string message{"Welcome to Open Hexagon 2.0!"};
+
+				mManagedSocket.send(buildPacket<ServerPackets::RequestInfoResponse>(version, message));
+			};
 
 			Server server{packetHandler};
 
 			std::vector<Uptr<ClientData>> clientDatas;
-
-			server.onClientAccepted += [&](ClientHandler& mClientHandler)
+			server.onClientAccepted += [&](ClientHandler&)
 			{
 
 			};
 
 
 			server.start(54000);
-
 			while(true) this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 
 		void initializeClient()
 		{
-			clientPacketHandler[ServerPackets::LoginResponseValid] = [](ManagedSocket&, sf::Packet& mPacket)
+			clientPacketHandler[ServerPackets::LoginResponseValid] = [](ManagedSocket& mManagedSocket, sf::Packet&)
 			{
 				log("Successfully logged in!", "PacketHandler");
 				loggedIn = true;
-			};
 
-			clientPacketHandler[ServerPackets::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet& mPacket)
+				mManagedSocket.send(buildPacket<ClientPackets::RequestInfo>());
+			};
+			clientPacketHandler[ServerPackets::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)
 			{
 				log("Login invalid!", "PacketHandler");
 				loggedIn = false;
+			};
+			clientPacketHandler[ServerPackets::RequestInfoResponse] = [](ManagedSocket&, sf::Packet& mPacket)
+			{
+				mPacket >> serverVersion >> serverMessage;
 			};
 
 			client = Uptr<Client>(new Client(clientPacketHandler));
@@ -114,7 +114,7 @@ namespace hg
 			{
 				while(true)
 				{
-					if(connected) { client->send(buildPingPacket()); }
+					if(connected) { client->send(buildPacket<ClientPackets::Ping>()); }
 					this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
 			}).detach();
@@ -159,15 +159,6 @@ namespace hg
 
 
 
-		const string host{"http://vittorioromeo.info"};
-		const string folder{"Misc/Linked/OHServer/"};
-		const string infoFile{"OHInfo.json"};
-		const string sendScoreFile{"sendScore.php"};
-		const string getScoresFile{"getScores.php"};
-
-		MemoryManager<ThreadWrapper> memoryManager;
-		float serverVersion{-1};
-		string serverMessage{""};
 
 		void startCheckUpdates()
 		{
@@ -186,8 +177,7 @@ namespace hg
 			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 		}
 
-		void cleanUp() 		{ for(const auto& t : memoryManager) if(t->getFinished()) memoryManager.del(*t); memoryManager.refresh(); }
-		void terminateAll() { for(const auto& t : memoryManager) t->terminate(); memoryManager.refresh(); }
+
 
 		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath)
 		{
@@ -218,8 +208,7 @@ namespace hg
 		string getServerMessage() 							{ return serverMessage; }
 		string getMD5Hash(const string& mString) 			{ return encrypt<Encryption::Type::MD5>(mString); }
 
-		bool isOverloaded() { return memoryManager.getItems().size() > 4; }
-		bool isFree() { return memoryManager.getItems().size() < 2; }
+
 	}
 }
 

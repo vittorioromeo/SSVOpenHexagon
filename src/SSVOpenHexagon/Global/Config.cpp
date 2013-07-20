@@ -64,6 +64,7 @@ namespace hg
 	auto& debug						(lvm.create<bool>("debug"));
 	auto& beatPulse					(lvm.create<bool>("beatpulse_enabled"));
 	auto& showTrackedVariables		(lvm.create<bool>("show_tracked_variables"));
+	auto& musicSpeedDMSync			(lvm.create<bool>("music_speed_dm_sync"));
 	auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
 	auto& triggerRotateCW			(lvm.create<Trigger>("t_rotate_cw"));
 	auto& triggerFocus				(lvm.create<Trigger>("t_focus"));
@@ -193,6 +194,7 @@ namespace hg
 	void setSoundVolume(int mVolume) 			{ soundVolume = mVolume; }
 	void setMusicVolume(int mVolume) 			{ musicVolume = mVolume; }
 	void setFlash(bool mFlash)					{ flashEnabled = mFlash; }
+	void setMusicSpeedDMSync(bool mValue)		{ musicSpeedDMSync = mValue; }
 
 	bool getOnline()					{ return online; }
 	bool getOfficial()					{ return official; }
@@ -240,6 +242,7 @@ namespace hg
 	bool getAutoRestart()				{ return autoRestart; }
 	bool getFlash() 					{ return flashEnabled; }
 	bool getShowTrackedVariables()		{ return showTrackedVariables; }
+	bool getMusicSpeedDMSync()			{ return musicSpeedDMSync; }
 
 	Trigger getTriggerRotateCCW()		{ return triggerRotateCCW; }
 	Trigger getTriggerRotateCW()		{ return triggerRotateCW; }

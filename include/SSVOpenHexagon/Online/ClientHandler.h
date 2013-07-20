@@ -18,11 +18,11 @@ namespace hg
 		{
 			private:
 				static unsigned int lastUid;
+				unsigned int uid;
 				ManagedSocket managedSocket;
 				int untilTimeout{100};
 
 			public:
-				unsigned int uid;
 
 				ClientHandler(PacketHandler& mPacketHandler) : managedSocket(mPacketHandler)
 				{
@@ -47,6 +47,7 @@ namespace hg
 				inline bool send(const Packet& mPacket)		{ return managedSocket.send(mPacket); }
 				inline bool tryAccept(Listener& mListener)	{ return managedSocket.tryAccept(mListener); }
 				inline bool isBusy() const					{ return managedSocket.isBusy(); }
+				inline unsigned int getUid() const			{ return uid; }
 				inline ManagedSocket& getManagedSocket()	{ return managedSocket; }
 		};
 	}

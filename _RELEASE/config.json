@@ -17,6 +17,7 @@
 	"fullscreen_width" : 640,
 	"invincible" : false,
 	"limit_fps" : false,
+	"music_speed_dm_sync" : true,
 	"music_volume" : 30,
 	"no_background" : false,
 	"no_music" : false,

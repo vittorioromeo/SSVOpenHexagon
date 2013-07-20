@@ -99,6 +99,7 @@ namespace hg
 		sfx.create<i::Toggle>("music",	[&]{ return !getNoMusic(); },	[&]{ setNoMusic(false); }, 	[&]{ setNoMusic(true); });
 		sfx.create<i::Slider>("sounds volume", [&]{ return toStr(getSoundVolume()); }, [&]{ setSoundVolume(getClamped(getSoundVolume() + 5, 0, 100)); assets.refreshVolumes(); }, [&]{ setSoundVolume(getClamped(getSoundVolume() - 5, 0, 100)); assets.refreshVolumes(); });
 		sfx.create<i::Slider>("music volume", [&]{ return toStr(getMusicVolume()); }, [&]{ setMusicVolume(getClamped(getMusicVolume() + 5, 0, 100)); assets.refreshVolumes(); }, [&]{ setMusicVolume(getClamped(getMusicVolume() - 5, 0, 100)); assets.refreshVolumes(); });
+		sfx.create<i::Toggle>("sync music speed with difficulty",	[&]{ return getMusicSpeedDMSync(); },	[&]{ setMusicSpeedDMSync(true); }, 	[&]{ setMusicSpeedDMSync(false); });
 		sfx.create<i::Goto>("back", main);
 
 		play.create<i::Toggle>("autorestart", [&]{ return getAutoRestart(); }, [&]{ setAutoRestart(true); }, [&]{ setAutoRestart(false); });
@@ -325,7 +326,8 @@ namespace hg
 		currentCreditsId += mFrameTime;
 		creditsBar2.setTexture(assets().get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
 
-		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
+//		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
+		refreshScores();
 
 		updateLeaderboard();
 		updateFriends();
@@ -396,7 +398,7 @@ namespace hg
 			Text& lbest = renderText("local best: " + toStr(assets.getScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
 
-			if(wasOverloaded || Online::isOverloaded()) { leaderboardString = friendsString = "too many requests, wait..."; }
+			//if(wasOverloaded || Online::isOverloaded()) { leaderboardString = friendsString = "too many requests, wait..."; }
 
 			renderText(leaderboardString, cProfText, {20.f, getGlobalBottom(lbest)}, 15);
 			Text& smsg = renderText("server message: " + Online::getServerMessage(), levelAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
