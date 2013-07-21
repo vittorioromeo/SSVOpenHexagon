@@ -77,7 +77,7 @@ namespace hg
 			while(pos != string::npos)
 			{
 				size_t startPos{pos};
-				string untilEnd{script.substr(startPos + toFind.length() + 1, script.length() - startPos)};
+				string untilEnd{script.substr(startPos + toFind.size() + 1, script.size() - startPos)};
 				size_t lastPos{untilEnd.find("\"", 0)};
 				string luaFileName{untilEnd.substr(0, lastPos)};
 

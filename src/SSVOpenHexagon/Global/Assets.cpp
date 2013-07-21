@@ -44,7 +44,7 @@ namespace hg
 
 		for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
 		{
-			string packName{packPath.substr(6, packPath.length() - 7)}, packLua;
+			string packName{packPath.substr(6, packPath.size() - 7)}, packLua;
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
