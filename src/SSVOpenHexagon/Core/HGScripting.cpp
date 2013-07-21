@@ -20,7 +20,7 @@ namespace hg
 	void HexagonGame::initLua()
 	{
 		// Utils
-		lua.writeVariable("u_log", 					[=](string mLog) 						{ log(mLog, "Lua log"); });
+		lua.writeVariable("u_log", 					[=](string mLog) 						{ lo << lt("lua") << mLog << endl; });
 		lua.writeVariable("u_execScript", 			[=](string mName) 						{ runLuaFile(levelData->packPath + "Scripts/" + mName); });
 		lua.writeVariable("u_playSound", 			[=](string mId) 						{ assets.playSound(mId); });
 		lua.writeVariable("u_isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
@@ -109,10 +109,10 @@ namespace hg
 		try { lua.executeCode(s); }
 		catch(runtime_error &error)
 		{
-			log("Fatal error, killing the player", "hg::HexagonGame::runLuaFile");
-			log("Filename: " + mFileName, "hg::HexagonGame::runLuaFile");
-			log("Error: " + toStr(error.what()), "hg::HexagonGame::runLuaFile");
-			log("");
+			lo << lt("hg::HexagonGame::runLuaFile") << "Fatal error, killing the player" << endl;
+			lo << lt("hg::HexagonGame::runLuaFile") << "Filename: " << mFileName << endl;
+			lo << lt("hg::HexagonGame::runLuaFile") << "Error: " << error.what() << endl;
+			lo << endl;
 
 			death();
 		}

@@ -35,11 +35,11 @@ namespace hg
 
 				bool trySendPacket(Packet mPacket)
 				{
-					if(!busy) { ssvu::log("Couldn't send packet - not busy", "ManagedSocket"); return false; }
+					if(!busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Couldn't send packet - not busy" << std::endl; return false; }
 
 					if(retry([&]{ return socket.send(mPacket) == sf::Socket::Done; }).get()) { onPacketSent(); return true; }
 
-					ssvu::log("Couldn't send packet - disconnecting", "ManagedSocket");
+					ssvu::lo << ssvu::lt("ManagedSocket") << "Couldn't send packet - disconnecting" << std::endl;
 					busy = false; return false;
 				}
 
@@ -56,18 +56,18 @@ namespace hg
 				inline bool send(const Packet& mPacket) { return trySendPacket(mPacket); }
 				inline bool connect(IpAddress mIp, unsigned int mPort)
 				{
-					if(busy) { ssvu::log("Error: already connected", "ManagedSocket"); return false; }
+					if(busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Error: already connected" << std::endl; return false; }
 					if(!retry([&]{ return socket.connect(mIp, mPort) == Socket::Done; }).get()) return false;
 
-					ssvu::log("Connected to " + mIp.toString() + ":" + ssvu::toStr(mPort), "ManagedSocket");
+					ssvu::lo << ssvu::lt("ManagedSocket") << "Connected to " << mIp.toString() << ":" << mPort << std::endl;
 					busy = true; return true;
 				}
 				inline bool tryAccept(Listener& mListener)
 				{
-					if(busy) { ssvu::log("Error: already connected", "ManagedSocket"); return false; }
+					if(busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Error: already connected" << std::endl; return false; }
 					if(!retry([&]{ return mListener.accept(socket) == Socket::Done; }).get()) return false;
 
-					ssvu::log("Accepted", "ManagedSocket");
+					ssvu::lo << ssvu::lt("ManagedSocket") << "Accepted" << std::endl;
 					busy = true; return true;
 				}
 				inline void disconnect()	{ socket.disconnect(); busy = false; }

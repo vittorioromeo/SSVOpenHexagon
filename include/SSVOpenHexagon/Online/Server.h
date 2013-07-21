@@ -27,7 +27,7 @@ namespace hg
 				{
 					if(find_if(begin(clientHandlers), end(clientHandlers), [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); }) != end(clientHandlers)) return;
 
-					ssvu::log("Creating new client handlers", "Server");
+					ssvu::lo << ssvu::lt("Server") << "Creating new client handlers" << std::endl;
 					for(int i{0}; i < 10; ++i) clientHandlers.emplace_back(new ClientHandler{packetHandler});
 				}
 
@@ -43,7 +43,7 @@ namespace hg
 						if(!retry([&]{ return c->tryAccept(listener); }).get()) continue;
 
 						onClientAccepted(*c.get());
-						ssvu::log("Accepted client (" + ssvu::toStr(c->getUid()) + ")", "Server");
+						ssvu::lo << ssvu::lt("Server") << "Accepted client (" << c->getUid() << ")" << std::endl;
 					}
 				}
 
@@ -58,8 +58,8 @@ namespace hg
 
 				void start(unsigned int mPort)
 				{
-					if(listener.listen(mPort) != Socket::Done) { ssvu::log("Error initializing listener", "Server"); return; }
-					else ssvu::log("Listener initialized", "Server");
+					if(listener.listen(mPort) != Socket::Done) { ssvu::lo << ssvu::lt("Server") << "Error initalizing listener" << std::endl; return; }
+					else ssvu::lo << ssvu::lt("Server") << "Listener initialized" << std::endl;
 
 					receiveThread.detach();
 				}

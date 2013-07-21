@@ -38,7 +38,7 @@ namespace hg
 							--untilTimeout;
 							if(untilTimeout > 0) continue;
 
-							ssvu::log("Client timed out", "ClientHandler");
+							ssvu::lo << ssvu::lt("ClientHandler") << "Client timed out" << std::endl;
 							managedSocket.disconnect();
 						}
 					}).detach();

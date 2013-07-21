@@ -66,7 +66,7 @@ namespace hg
 				{
 					if(mFunc()) return true;
 
-					if(TLM == LogMode::Verbose) ssvu::log("Error - retrying (" + ssvu::toStr(i + 1) + "/" + ssvu::toStr(TTimes) + ")", "asyncTry");
+					if(TLM == LogMode::Verbose) ssvu::lo << ssvu::lt("asyncTry") << "Error - retrying (" << i + 1 << "/" << TTimes << ")" << std::endl;
 					std::this_thread::sleep_for(mDuration);
 				}
 

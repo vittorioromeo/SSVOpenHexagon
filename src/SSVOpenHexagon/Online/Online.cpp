@@ -61,7 +61,7 @@ namespace hg
 				string username, password;
 				mPacket >> username >> password;
 
-				ssvu::log("Username: " + username + "; Password: " + password, "PacketHandler");
+				ssvu::lo << ssvu::lt("PacketHandler") << "Username: " + username + "; Password: " + password << std::endl;
 
 				mManagedSocket.send(buildPacket<ServerPackets::LoginResponseValid>());
 
@@ -93,14 +93,14 @@ namespace hg
 		{
 			clientPacketHandler[ServerPackets::LoginResponseValid] = [](ManagedSocket& mManagedSocket, sf::Packet&)
 			{
-				log("Successfully logged in!", "PacketHandler");
+				lo << lt("PacketHandler") << "Successfully logged in!" << endl;
 				loggedIn = true;
 
 				mManagedSocket.send(buildPacket<ClientPackets::RequestInfo>());
 			};
 			clientPacketHandler[ServerPackets::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)
 			{
-				log("Login invalid!", "PacketHandler");
+				lo << lt("PacketHandler") << "Login invalid!" << endl;
 				loggedIn = false;
 			};
 			clientPacketHandler[ServerPackets::RequestInfoResponse] = [](ManagedSocket&, sf::Packet& mPacket)
@@ -122,17 +122,17 @@ namespace hg
 
 		void tryConnectToServer()
 		{
-			log("Connecting to server...", "hg::Online::connectToServer");
+			lo << lt("hg::Online::connectToServer") << "Connecting to server..." << endl;
 
 			thread([]
 			{
 				if(client->connect("127.0.0.1", 54000))
 				{
-					log("Successfully connected to server", "hg::Online::connectToServer");
+					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
 					connected = true; return;
 				}
 
-				log("Failed to connect to server", "hg::Online::connectToServer");
+				lo << lt("hg::Online::connectToServer") << "Failed to connect" << endl;
 				connected = false;
 			}).detach();
 		}
@@ -140,12 +140,12 @@ namespace hg
 
 		void tryLogin(const string& mUsername, const string& mPassword)
 		{
-			log("Logging in...", "hg::Online::tryLogin");
+			lo << lt("hg::Online::tryLogin") << "Logging in..." << endl;
 
 			thread([=]
 			{
 				this_thread::sleep_for(std::chrono::milliseconds(1000));
-				if(!connected) { log("Client isn't connected, aborting", "hg::Online::tryLogin"); return; }
+				if(!connected) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; return; }
 				client->send(buildPacket<ClientPackets::Login>(mUsername, mPassword));
 			}).detach();
 		}
@@ -162,19 +162,19 @@ namespace hg
 
 		void startCheckUpdates()
 		{
-			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+			//if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 		}
 		void startSendScore(const string&, const string&, float, float)
 		{
-			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+			//if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 		}
 		void startGetScores(string&, string&, const string&, vector<string>&, const vector<string>&, const string&, float)
 		{
-			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+			//if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 		}
 		void startGetFriendsScores(vector<string>&, const vector<string>&, const string&, float)
 		{
-			if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
+			//if(!getOnline()) { log("Online disabled, aborting", "Online"); return; }
 		}
 
 

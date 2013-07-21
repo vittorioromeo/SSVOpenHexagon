@@ -21,7 +21,7 @@ namespace hg
 			const float maxLostFrames{20}, minFPS{20};
 			bool disabled{true}, running{true};
 
-			void watch()
+			inline void watch()
 			{
 				while(running)
 				{
@@ -39,11 +39,11 @@ namespace hg
 					if(gameWindow.getFPS() < minFPS) loseFrame();
 				}
 			}
-			void loseFrame()
+			inline void loseFrame()
 			{
 				if(lostFrames > maxLostFrames) return;
 				++lostFrames;
-				ssvu::log("Slowdown " + ssvu::toStr(lostFrames) + "/" + ssvu::toStr(maxLostFrames), "FPSWatcher::watch");
+				ssvu::lo << ssvu::lt("FPSWatcher::watch") << "Slowdown " << lostFrames << "/" << maxLostFrames << std::endl;
 			}
 
 		public:
