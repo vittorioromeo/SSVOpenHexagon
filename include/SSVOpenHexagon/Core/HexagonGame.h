@@ -146,7 +146,7 @@ namespace hg
 			inline float getWallAngleRight() const					{ return levelStatus.wallAngleRight; }
 			inline float get3DEffectMult() const					{ return levelStatus._3dEffectMultiplier; }
 			inline HexagonGameStatus& getStatus()					{ return status; }
-			inline LevelStatus& getLevelStatus()						{ return levelStatus; }
+			inline LevelStatus& getLevelStatus()					{ return levelStatus; }
 			inline HGAssets& getAssets()							{ return assets; }
 			sf::Color getColorMain() const;
 
