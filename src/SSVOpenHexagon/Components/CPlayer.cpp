@@ -23,9 +23,11 @@ namespace hg
 	void CPlayer::draw()
 	{
 		drawPivot();
-		if(!hexagonGame.getStatus().drawing3D && deadEffectTimer > 0) drawDeathEffect();
+		const auto& isDrawing3D(hexagonGame.getStatus().drawing3D);
 
-		Color colorMain{!dead || hexagonGame.getStatus().drawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f)};
+		if(!isDrawing3D && deadEffectTimer > 0) drawDeathEffect();
+
+		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f)};
 
 		pLeft = getOrbitFromDegrees(pos, angle - 100, size + 3);
 		pRight = getOrbitFromDegrees(pos, angle + 100, size + 3);
@@ -34,7 +36,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		if(swapTimer <= 0) colorMain = Utils::TransformH(getColorFromHue(hue / 255.0f), swapBlinkTimer * 25);
+		if(swapTimer <= 0 && !isDrawing3D) colorMain = Utils::TransformH(getColorFromHue(hue / 255.0f), swapBlinkTimer * 25);
 		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);
@@ -49,7 +51,7 @@ namespace hg
 
 		for(unsigned int i{0}; i < sides; ++i)
 		{
-			float angle{div / 0.5f * i};
+			float angle{div * 2.f * i};
 
 			Vec2f p1{getOrbitFromDegrees(startPos, angle - div, radius)};
 			Vec2f p2{getOrbitFromDegrees(startPos, angle + div, radius)};
@@ -78,7 +80,7 @@ namespace hg
 
 		for(unsigned int i{0}; i < hexagonGame.getSides(); ++i)
 		{
-			float angle{div / 0.5f * i};
+			float angle{div * 2.f * i};
 
 			Vec2f p1{getOrbitFromDegrees(pos, angle - div, radius)};
 			Vec2f p2{getOrbitFromDegrees(pos, angle + div, radius)};
