@@ -43,7 +43,6 @@ int main(int argc, char* argv[])
 	Online::tryConnectToServer();
 
 	//Online::startCheckUpdates();
-	setRandomSeed();
 	loadConfig(overrideIds);
 
 	string title{"Open Hexagon " + toStr(getVersion()) + " - by vittorio romeo"};
