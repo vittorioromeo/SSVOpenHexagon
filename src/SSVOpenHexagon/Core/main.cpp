@@ -46,8 +46,9 @@ int main(int argc, char* argv[])
 	loadConfig(overrideIds);
 
 	string title{"Open Hexagon " + toStr(getVersion()) + " - by vittorio romeo"};
-	GameWindow window{title, createDynamicTimer(window), getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
+	GameWindow window{title, createStaticTimer(window), getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
 	window.setVsync(getVsync());
+	window.setFPSLimit(60); // TODO: make optional
 	window.setMouseCursorVisible(false);
 
 	HGAssets assets;
