@@ -36,8 +36,6 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	tutorialMode()
-
 	m_messageAddImportant("welcome to open hexagon 2", 130)
 	m_messageAddImportant("use left/right to rotate", 130)
 	m_messageAddImportant("avoid the walls!", 130)
