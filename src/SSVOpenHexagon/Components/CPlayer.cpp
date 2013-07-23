@@ -36,7 +36,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		if(swapTimer <= 0 && !isDrawing3D) colorMain = Utils::TransformH(getColorFromHue(hue) / 255.0f, swapBlinkTimer * 25);
+		if(swapTimer <= 0 && !isDrawing3D) colorMain = getColorFromHue((swapBlinkTimer * 2) / 255.0f);
 		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);
