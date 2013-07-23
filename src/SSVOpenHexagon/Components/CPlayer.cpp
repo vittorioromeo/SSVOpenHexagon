@@ -112,7 +112,7 @@ namespace hg
 		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer <= 0)
 		{
 			hexagonGame.getAssets().playSound("swap.ogg");
-			swapTimer = 40; angle += 180;
+			swapTimer = 37; angle += 180;
 		}
 
 		Vec2f tempPos{getOrbitFromDegrees(startPos, angle, radius)};
