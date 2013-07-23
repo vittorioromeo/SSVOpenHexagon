@@ -45,7 +45,7 @@ namespace hg
 			StyleData() = default;
 			StyleData(const ssvuj::Value& mRoot);
 
-			void update(float mFrameTime);
+			void update(float mFrameTime, float mMult = 1.f);
 			void computeColors();
 			void drawBackground(sf::RenderTarget& mRenderTarget, ssvs::Vec2f mCenterPos, int mSides);
 

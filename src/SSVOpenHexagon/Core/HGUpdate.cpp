@@ -31,7 +31,7 @@ namespace hg
 			updateLevel(mFrameTime);
 			if(getBeatPulse()) updateBeatPulse(mFrameTime);
 			if(getPulse()) updatePulse(mFrameTime);
-			if(!getBlackAndWhite()) styleData.update(mFrameTime);
+			if(!getBlackAndWhite()) styleData.update(mFrameTime, pow(difficultyMult, 0.8f));
 		}
 		else levelStatus.rotationSpeed *= 0.99f;
 
@@ -42,6 +42,7 @@ namespace hg
 		if(!status.scoreInvalid && getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
 
 		fpsWatcher.update();
+		//window.setTitle(toStr(window.getFPS()));
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
 	{
