@@ -50,12 +50,12 @@ namespace hg
 
 	StyleData::StyleData(const ssvuj::Value& mRoot) : root{mRoot}, currentHue{hueMin} { }
 
-	void StyleData::update(float mFrameTime)
+	void StyleData::update(float mFrameTime, float mMult)
 	{
-		currentSwapTime += mFrameTime;
+		currentSwapTime += mFrameTime * mMult;
 		if(currentSwapTime > maxSwapTime) currentSwapTime = 0;
 
-		currentHue += hueIncrement * mFrameTime;
+		currentHue += hueIncrement * mFrameTime * mMult;
 
 		if(currentHue < hueMin)
 		{
