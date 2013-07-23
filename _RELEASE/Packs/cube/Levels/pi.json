@@ -8,5 +8,5 @@
 	"styleId": "pi",
 	"musicId": "callMeKatla",
 	"luaFile": "Scripts/Levels/pi.lua",
-	"difficultyMults": [1.25, 1.50, 0.75, 0.5, 0.25]
+	"difficultyMults": [1.25, 1.50, 0.75, 0.5, 0.25, 1.8]
 }
