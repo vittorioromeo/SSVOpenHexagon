@@ -179,6 +179,7 @@ namespace hg
 		mWindow.setMouseCursorVisible(false);
 		recalculateSizes();
 	}
+	void setVsync(GameWindow& mWindow, bool mValue)	{ vsync = mValue; mWindow.setVsync(vsync); }
 
 	void setOnline(bool mOnline)				{ online = mOnline; /*if(mOnline) Online::startCheckUpdates();*/ }
 	void setOfficial(bool mOfficial)			{ official = mOfficial; }
