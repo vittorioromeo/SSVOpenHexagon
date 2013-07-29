@@ -142,7 +142,7 @@ namespace hg
 		assets.saveCurrentProfile();
 
 		if(status.currentTime < 1) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
-		if(status.scoreInvalid || !isEligibleForScore()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - not eligible" << endl; return; }
+		//if(status.scoreInvalid || !isEligibleForScore()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - not eligible" << endl; return; }
 
 //		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
 //		Online::startSendScore(toLower(assets.getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);

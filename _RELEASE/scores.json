@@ -1,5 +1,15 @@
 
 {
+	"Packs/hypercube/acceleradiant" : 
+	{
+		"1" : 
+		[
+			[ "brofist", 6.251070022583008 ],
+			[ "nanbaan", 8.651550292968750 ],
+			[ "veetest", 1.883530020713806 ]
+		],
+		"validator" : "0"
+	},
 	"Packs/hypercube/disc-o" : 
 	{
 		"1" : 
@@ -7,9 +17,34 @@
 			[ "brofist", 7.768040180206299 ],
 			[ "nanbaan", 4.517389774322510 ],
 			[ "veetest", 3.600539922714233 ],
-			[ "shampoo", 8.600539922714233 ],
+			[ "shampoo", 8.600540161132812 ],
 			[ "balsamo", 1.600539922714233 ],
 			[ "god", 1.600539922714233 ]
+		],
+		"validator" : "0"
+	},
+	"Packs/hypercube/g-force" : 
+	{
+		"1.5" : 
+		[
+			[ "brofist", 7.768040180206299 ],
+			[ "nanbaan", 4.517389774322510 ],
+			[ "veetest", 3.600539922714233 ],
+			[ "shampoo", 8.600540161132812 ],
+			[ "balsamo", 1.600539922714233 ],
+			[ "god", 1.600539922714233 ]
+		],
+		"validator" : "0"
+	},
+	"Packs/hypercube/incongruence" : 
+	{
+		"1" : 
+		[
+			[ "brofist", 2.450309991836548 ]
+		],
+		"1.5" : 
+		[
+			[ "brofist", 4.384029865264893 ]
 		],
 		"validator" : "0"
 	}

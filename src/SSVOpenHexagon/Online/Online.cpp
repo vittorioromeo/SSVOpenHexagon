@@ -52,17 +52,26 @@ namespace hg
 		template<typename TArg, typename... TArgs> void buildHelper(Packet& mP, TArg&& mArg, TArgs&&... mArgs) { mP << mArg; buildHelper(mP, mArgs...); }
 		template<unsigned int TType, typename... TArgs> Packet buildPacket(TArgs&&... mArgs) { Packet result; result << TType; buildHelper(result, mArgs...); return result; }
 
+
+
+
 		void initializeServer()
 		{
 			const std::string secretKey{"temp"};
+			UserDB users;
+			ScoreDB scores;
 
 			const auto& usersPath("users.json");
-			ssvuj::Value users{ssvuj::getRootFromFile(usersPath)};
-			auto saveUsers = [&]{ ssvuj::writeRootToFile(users, usersPath); };
+			users = ssvuj::as<UserDB>(ssvuj::getRootFromFile(usersPath));
+			auto saveUsers = [&]{ ssvuj::Value root; ssvuj::set(root, users); ssvuj::writeRootToFile(root, usersPath); };
+
 
 			const auto& scoresPath("scores.json");
-			ssvuj::Value scores{ssvuj::getRootFromFile(scoresPath)};
-			auto saveScores = [&]{ ssvuj::writeRootToFile(scores, scoresPath); };
+			scores = ssvuj::as<ScoreDB>(ssvuj::getRootFromFile(scoresPath));
+			auto saveScores = [&]{ ssvuj::Value root; ssvuj::set(root, scores); ssvuj::writeRootToFile(root, scoresPath); };
+
+			saveScores(); // PROBLEM HERE
+
 
 			PacketHandler pHandler;
 			pHandler[ClientPackets::Ping] = [](ManagedSocket&, sf::Packet&) { };
@@ -75,12 +84,12 @@ namespace hg
 
 				string passwordHash{Encryption::encrypt<Encryption::Type::MD5>(password + secretKey)};
 
-				if(ssvuj::has(users, username))
+				if(users.hasUser(username))
 				{
+					const auto& u(users.getUser(username));
 					lo << lt("PacketHandler") << "Username found" << endl;
 
-					const auto& userData(ssvuj::as<ssvuj::Value>(users, username));
-					if(as<string>(userData, "passwordHash") == passwordHash)
+					if(u.isPasswordHash(passwordHash))
 					{
 						lo << lt("PacketHandler") << "Password valid" << endl;
 						mMS.send(buildPacket<ServerPackets::LoginResponseValid>());
@@ -94,8 +103,9 @@ namespace hg
 				else
 				{
 					lo << lt("PacketHandler") << "Username not found, registering" << endl;
-					users[username] = ssvuj::Value{};
-					ssvuj::set(users[username], "passwordHash", passwordHash);
+
+					User newUser; newUser.setPasswordHash(passwordHash);
+					users.registerUser(username, newUser);
 
 					saveUsers();
 
@@ -117,90 +127,66 @@ namespace hg
 				string username, levelId, validator; float diffMult, score;
 				mP >> username >> levelId >> validator >> diffMult >> score;
 
-				if(!ssvuj::has(scores, levelId))
+				if(!scores.hasLevel(levelId))
 				{
 					lo << lt("PacketHandler") << "No table for this level id, creating one" << endl;
-					scores[levelId] = ssvuj::Value{};
-					ssvuj::set(scores[levelId]["validator"], /* calc validator here */ "0");
+					LevelScoreDB db; db.setValidator("0");
+					scores.addLevel(levelId, db);
 				}
 
-				if(ssvuj::as<string>(scores[levelId], "validator") == validator)
-				{
-					lo << lt("PacketHandler") << "Validator matches, inserting score" << endl;
+				auto& l(scores.getLevel(levelId));
 
-					if(!ssvuj::has(scores[levelId], toStr(diffMult))) scores[levelId][toStr(diffMult)] = ssvuj::Value{};
-
-					ssvuj::Value scoreData;
-					ssvuj::set(scoreData, 0, username);
-					ssvuj::set(scoreData, 1, score);
-
-					auto& d(scores[levelId][toStr(diffMult)]);
-					if(ssvuj::size(d) == 0) ssvuj::append(d, scoreData);
-					else
-					{
-						for(unsigned int i{0}; i < ssvuj::size(d); ++i)
-						{
-							if(d[i][0] == username)
-							{
-								if(d[i][1] < score)	{ ssvuj::erase(d, i); break; }
-								else { mMS.send(buildPacket<ServerPackets::SendScoreResponseValid>()); return; }
-							}
-						}
-
-						bool found{false};
-						for(unsigned int i{0}; i < ssvuj::size(d); ++i)
-						{
-							if(score > as<float>(d[i], 1)) { ssvuj::insert(d, i, scoreData); found = true; break; }
-						}
-
-						if(!found) ssvuj::append(scores[levelId][toStr(diffMult)], scoreData);
-					}
-
-					saveScores();
-
-					mMS.send(buildPacket<ServerPackets::SendScoreResponseValid>());
-				}
-				else
+				if(!l.isValidator(validator))
 				{
 					lo << lt("PacketHandler") << "Validator doesn't match" << endl;
 					mMS.send(buildPacket<ServerPackets::SendScoreResponseInvalid>());
+					return;
 				}
+
+				lo << lt("PacketHandler") << "Validator matches, inserting score" << endl;
+				if(l.getScore(diffMult, username) < score) l.addScore(diffMult, username, score);
+
+				saveScores();
+				mMS.send(buildPacket<ServerPackets::SendScoreResponseValid>());
 			};
 			pHandler[ClientPackets::RequestLeaderboard] = [&](ManagedSocket& mMS, sf::Packet& mP)
 			{
 				string username, levelId, validator; float diffMult;
 				mP >> username >> levelId >> validator >> diffMult;
 
-				if(!ssvuj::has(scores, levelId)) { mMS.send(buildPacket<ServerPackets::SendLeaderboardFailed>()); return; }
+				if(!scores.hasLevel(levelId)) { mMS.send(buildPacket<ServerPackets::SendLeaderboardFailed>()); return; }
+				auto& l(scores.getLevel(levelId));
 
-				if(ssvuj::as<string>(scores[levelId], "validator") == validator)
+				if(!l.isValidator(validator) || !l.hasDiffMult(diffMult)) { mMS.send(buildPacket<ServerPackets::SendLeaderboardFailed>()); return; }
+				lo << lt("PacketHandler") << "Validator matches, sending leaderboard" << endl;
+
+				const auto& sortedScores(l.getSortedScores(diffMult));
+				ssvuj::Value response;
+
+				unsigned int i{0};
+				for(const auto& v : sortedScores)
 				{
-					lo << lt("PacketHandler") << "Validator matches, sending leaderboard" << endl;
-
-					if(!ssvuj::has(scores[levelId], toStr(diffMult))) scores[levelId][toStr(diffMult)] = ssvuj::Value{};
-					ssvuj::Value leaderboardData;
-					const auto& d(scores[levelId][toStr(diffMult)]);
-
-					for(unsigned int i{0}; i < ssvu::getClamped(5u, 0u, ssvuj::size(d)); ++i) leaderboardData["records"].append(ssvuj::as<ssvuj::Value>(d[i]));
-					ssvuj::set(leaderboardData, "levelId", levelId);
-					ssvuj::set(leaderboardData, "playerScore", "NULL");
-
-					for(unsigned int i{0}; i < ssvuj::size(d); ++i) if(as<string>(d[i], 0) == username) { ssvuj::set(leaderboardData, "playerScore", as<float>(d[i], 1)); break; }
-
-					string leaderboardDataString;
-					ssvuj::writeRootToString(leaderboardData, leaderboardDataString);
-					mMS.send(buildPacket<ServerPackets::SendLeaderboard>(leaderboardDataString));
+					ssvuj::set(response["r"][i], 0, v.second);
+					ssvuj::set(response["r"][i], 1, v.first);
+					++i;
+					if(i > getClamped(8u, 0u, static_cast<unsigned int>(sortedScores.size()))) break;
 				}
-				else mMS.send(buildPacket<ServerPackets::SendLeaderboardFailed>());
+				ssvuj::set(response, "id", levelId);
+
+				float playerScore{l.getPlayerScore(username, diffMult)};
+				playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
+
+				string leaderboardDataString;
+				ssvuj::writeRootToString(response, leaderboardDataString);
+				mMS.send(buildPacket<ServerPackets::SendLeaderboard>(leaderboardDataString));
 			};
 
 
 			Server server{pHandler};
-			std::vector<Uptr<ClientData>> clientDatas;
 			server.onClientAccepted += [&](ClientHandler&){ };
 
 			server.start(54000);
-			while(true) this_thread::sleep_for(std::chrono::milliseconds(100));
+			while(true) this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 
 		void initializeClient()
@@ -247,7 +233,7 @@ namespace hg
 
 			thread([=]
 			{
-				this_thread::sleep_for(std::chrono::milliseconds(1000));
+				this_thread::sleep_for(std::chrono::milliseconds(100));
 				if(!connected) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; return; }
 				client->send(buildPacket<ClientPackets::Login>(mUsername, mPassword));
 			}).detach();
@@ -260,7 +246,7 @@ namespace hg
 
 			thread([=]
 			{
-				this_thread::sleep_for(std::chrono::milliseconds(1000));
+				this_thread::sleep_for(std::chrono::milliseconds(100));
 				if(!connected) { lo << lt("hg::Online::trySendScore") << "Client not connected - aborting" << endl; return; }
 				client->send(buildPacket<ClientPackets::SendScore>(mUsername, mLevelId, mValidator, mDiffMult, mScore));
 			}).detach();
@@ -272,7 +258,7 @@ namespace hg
 
 			thread([=]
 			{
-				this_thread::sleep_for(std::chrono::milliseconds(1000));
+				this_thread::sleep_for(std::chrono::milliseconds(100));
 				if(!connected) { lo << lt("hg::Online::tryRequestLeaderboard") << "Client not connected - aborting" << endl; return; }
 				client->send(buildPacket<ClientPackets::RequestLeaderboard>(mUsername, mLevelId, mValidator, mDiffMult));
 			}).detach();

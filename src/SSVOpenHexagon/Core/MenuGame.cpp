@@ -211,14 +211,14 @@ namespace hg
 		unsigned int leaderboardRecordCount{8};
 		ssvuj::Value root{getRootFromString(currentLeaderboard)};
 
-		currentPlayerScore = as<string>(root, "playerScore");
+		currentPlayerScore = as<string>(root, "ps");
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
 
 		int playerPosition{-1};
 
-		for(auto itr(begin(root["records"])); itr != end(root["records"]); ++itr)
+		for(auto itr(begin(root["r"])); itr != end(root["r"]); ++itr)
 		{
 			ssvuj::Value& record(*itr);
 			string name{toLower(as<string>(record, 0))};
