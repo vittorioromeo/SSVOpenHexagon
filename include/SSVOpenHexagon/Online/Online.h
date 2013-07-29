@@ -34,6 +34,12 @@ namespace hg
 		void tryLogin(const std::string& mUsername, const std::string& mPassword);
 		bool isLoggedIn();
 
+		void trySendScore(const std::string& mUsername, const std::string& mLevelId, const std::string& mValidator, float mDiffMult, float mScore);
+		void tryRequestLeaderboard(const std::string& mUsername, const std::string& mLevelId, const std::string& mValidator, float mDiffMult);
+
+		void invalidateCurrentLeaderboard();
+		const std::string& getCurrentLeaderboard();
+
 		float getServerVersion();
 		std::string getServerMessage();
 		std::string getMD5Hash(const std::string& mString);
@@ -47,7 +53,9 @@ namespace hg
 		{
 			Ping = 0,
 			Login = 1,
-			RequestInfo = 2
+			RequestInfo = 2,
+			SendScore = 3,
+			RequestLeaderboard = 4
 		};
 
 		// Server to client
@@ -55,7 +63,11 @@ namespace hg
 		{
 			LoginResponseValid = 0,
 			LoginResponseInvalid = 1,
-			RequestInfoResponse = 2
+			RequestInfoResponse = 2,
+			SendLeaderboard = 3,
+			SendScoreResponseValid = 4,
+			SendScoreResponseInvalid = 5,
+			SendLeaderboardFailed = 6
 		};
 
 		template<int TTimes = 5, LogMode TLM = LogMode::Quiet> std::future<bool> retry(std::function<bool()> mFunc, const std::chrono::duration<int, std::milli>& mDuration = std::chrono::milliseconds(1500))

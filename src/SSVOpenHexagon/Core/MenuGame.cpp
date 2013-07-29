@@ -192,33 +192,40 @@ namespace hg
 
 	void MenuGame::refreshScores()
 	{
-//		if(state != States::MAIN) return;
-//		float difficultyMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
+		if(state != States::MAIN) return;
+		float diffMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
+		Online::invalidateCurrentLeaderboard();
+		Online::tryRequestLeaderboard(assets.getCurrentProfile().getName(), levelData->id, "0", diffMult);
 //		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
+		//string validator{"0"};
 
 	//	if(Online::isOverloaded()) { wasOverloaded = true; return; }
 	//	Online::startGetScores(currentLeaderboard, currentPlayerScore, assets.getCurrentProfile().getName(), friendsScores, assets.getCurrentProfile().getTrackedNames(), validator, difficultyMult);
 	}
 	void MenuGame::updateLeaderboard()
 	{
-		if(currentLeaderboard == "NULL") { leaderboardString = "no scores"; return; }
-		if(currentLeaderboard == "" || currentPlayerScore == "") { leaderboardString = "refreshing..."; return; }
+		currentLeaderboard = Online::getCurrentLeaderboard();
+		if(currentLeaderboard == "NULL") { leaderboardString = "..."; return; }
+		//if(currentLeaderboard == "" || currentPlayerScore == "") { leaderboardString = "refreshing..."; return; }
 
 		unsigned int leaderboardRecordCount{8};
 		ssvuj::Value root{getRootFromString(currentLeaderboard)};
+
+		currentPlayerScore = as<string>(root, "playerScore");
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
 
 		int playerPosition{-1};
 
-		for(auto itr(begin(root)); itr != end(root); ++itr)
+		for(auto itr(begin(root["records"])); itr != end(root["records"]); ++itr)
 		{
 			ssvuj::Value& record(*itr);
-			string name{toLower(as<string>(record, "n"))};
-			float score{as<float>(record, "s")};
+			string name{toLower(as<string>(record, 0))};
+			float score{as<float>(record, 1)};
 			recordPairs.push_back({name, score});
 		}
+
 
 		sort(begin(recordPairs), end(recordPairs), [&](const RecordPair& mA, const RecordPair& mB){ return mA.second > mB.second; });
 
@@ -279,19 +286,19 @@ namespace hg
 		for(const auto& t : tuples) friendsString.append("(" + toStr(get<0>(t)) + ") " + get<1>(t) + ": " + toStr(get<2>(t)) + "\n");
 	}
 
-	template<typename T> float getGlobalLeft(const T& mElement) { return mElement.getGlobalBounds().left; }
-	template<typename T> float getGlobalRight(const T& mElement) { return mElement.getGlobalBounds().left + mElement.getGlobalBounds().width; }
-	template<typename T> float getGlobalTop(const T& mElement) { return mElement.getGlobalBounds().top; }
-	template<typename T> float getGlobalBottom(const T& mElement) { return mElement.getGlobalBounds().top + mElement.getGlobalBounds().height; }
-	template<typename T> float getGlobalWidth(const T& mElement) { return mElement.getGlobalBounds().width; }
-	template<typename T> float getGlobalHeight(const T& mElement) { return mElement.getGlobalBounds().height; }
+	template<typename T> float getGlobalLeft(const T& mElement)		{ return mElement.getGlobalBounds().left; }
+	template<typename T> float getGlobalRight(const T& mElement)	{ return mElement.getGlobalBounds().left + mElement.getGlobalBounds().width; }
+	template<typename T> float getGlobalTop(const T& mElement)		{ return mElement.getGlobalBounds().top; }
+	template<typename T> float getGlobalBottom(const T& mElement)	{ return mElement.getGlobalBounds().top + mElement.getGlobalBounds().height; }
+	template<typename T> float getGlobalWidth(const T& mElement)	{ return mElement.getGlobalBounds().width; }
+	template<typename T> float getGlobalHeight(const T& mElement)	{ return mElement.getGlobalBounds().height; }
 
-	template<typename T> float getLocalLeft(const T& mElement) { return mElement.getLocalBounds().left; }
-	template<typename T> float getLocalRight(const T& mElement) { return mElement.getLocalBounds().left + mElement.getLocalBounds().width; }
-	template<typename T> float getLocalTop(const T& mElement) { return mElement.getLocalBounds().top; }
-	template<typename T> float getLocalBottom(const T& mElement) { return mElement.getLocalBounds().top + mElement.getLocalBounds().height; }
-	template<typename T> float getLocalWidth(const T& mElement) { return mElement.getLocalBounds().width; }
-	template<typename T> float getLocalHeight(const T& mElement) { return mElement.getLocalBounds().height; }
+	template<typename T> float getLocalLeft(const T& mElement)		{ return mElement.getLocalBounds().left; }
+	template<typename T> float getLocalRight(const T& mElement)		{ return mElement.getLocalBounds().left + mElement.getLocalBounds().width; }
+	template<typename T> float getLocalTop(const T& mElement)		{ return mElement.getLocalBounds().top; }
+	template<typename T> float getLocalBottom(const T& mElement)	{ return mElement.getLocalBounds().top + mElement.getLocalBounds().height; }
+	template<typename T> float getLocalWidth(const T& mElement)		{ return mElement.getLocalBounds().width; }
+	template<typename T> float getLocalHeight(const T& mElement)	{ return mElement.getLocalBounds().height; }
 
 	void MenuGame::refreshCamera()
 	{
@@ -330,7 +337,7 @@ namespace hg
 		creditsBar2.setTexture(assets().get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
 
 //		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
-		refreshScores();
+		//refreshScores();
 
 		updateLeaderboard();
 		updateFriends();

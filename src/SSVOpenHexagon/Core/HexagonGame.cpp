@@ -141,11 +141,12 @@ namespace hg
 		if(assets.getScore(localValidator) < status.currentTime) assets.setScore(localValidator, status.currentTime);
 		assets.saveCurrentProfile();
 
-		if(status.currentTime < 8) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
+		if(status.currentTime < 1) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
 		if(status.scoreInvalid || !isEligibleForScore()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - not eligible" << endl; return; }
 
 //		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
 //		Online::startSendScore(toLower(assets.getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);
+		Online::trySendScore(assets.getCurrentProfile().getName(), levelData->id, "0", difficultyMult, status.currentTime);
 	}
 	void HexagonGame::goToMenu(bool mSendScores)
 	{
