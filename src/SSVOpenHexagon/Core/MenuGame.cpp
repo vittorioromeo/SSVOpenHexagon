@@ -37,20 +37,14 @@ namespace hg
 		if(assets.getProfilesSize() == 0) state = States::PROFILE_NEW;
 		else if(assets.getProfilesSize() == 1) { assets.setCurrentProfile(assets.getFirstProfileName()); state = States::MAIN; }
 
-
 		initOptionsMenu(); initInput();
 	}
 
 	void MenuGame::init() { assets.stopMusics(); assets.stopSounds(); assets.playSound("openHexagon.ogg"); refreshScores(); }
 	void MenuGame::initAssets()
 	{
-		assets().get<Texture>("titleBar.png").setSmooth(true);
-		assets().get<Texture>("creditsBar1.png").setSmooth(true);
-		assets().get<Texture>("creditsBar2.png").setSmooth(true);
-		assets().get<Texture>("creditsBar2b.png").setSmooth(true);
-		assets().get<Texture>("creditsBar2c.png").setSmooth(true);
-		assets().get<Texture>("creditsBar2d.png").setSmooth(true);
-		assets().get<Texture>("bottomBar.png").setSmooth(true);
+		for(const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "bottomBar.png"})
+			assets().get<Texture>(t).setSmooth(true);
 
 		refreshCamera();
 	}
@@ -210,6 +204,7 @@ namespace hg
 
 		unsigned int leaderboardRecordCount{8};
 		ssvuj::Value root{getRootFromString(currentLeaderboard)};
+		if(as<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
 
 		currentPlayerScore = as<string>(root, "ps");
 

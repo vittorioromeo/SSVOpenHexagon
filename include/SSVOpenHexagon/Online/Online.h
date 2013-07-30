@@ -83,13 +83,12 @@ namespace hg
 		void initializeClient();
 
 		void tryConnectToServer();
-		bool isConnected();
-
 		void tryLogin(const std::string& mUsername, const std::string& mPassword);
-		bool isLoggedIn();
-
 		void trySendScore(const std::string& mUsername, const std::string& mLevelId, const std::string& mValidator, float mDiffMult, float mScore);
 		void tryRequestLeaderboard(const std::string& mUsername, const std::string& mLevelId, const std::string& mValidator, float mDiffMult);
+
+		bool isConnected();
+		bool isLoggedIn();
 
 		void invalidateCurrentLeaderboard();
 		const std::string& getCurrentLeaderboard();
@@ -103,7 +102,7 @@ namespace hg
 		enum class LogMode { Quiet, Verbose };
 
 		// Client to server
-		enum ClientPackets : unsigned int
+		enum FromClient : unsigned int
 		{
 			Ping = 0,
 			Login = 1,
@@ -113,7 +112,7 @@ namespace hg
 		};
 
 		// Server to client
-		enum ServerPackets : unsigned int
+		enum FromServer : unsigned int
 		{
 			LoginResponseValid = 0,
 			LoginResponseInvalid = 1,

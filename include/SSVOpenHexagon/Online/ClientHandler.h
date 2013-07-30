@@ -1,3 +1,7 @@
+// Copyright (c) 2013 Vittorio Romeo
+// License: Academic Free License ("AFL") v. 3.0
+// AFL License page: http://opensource.org/licenses/AFL-3.0
+
 #ifndef HG_ONLINE_CLIENTHANDLER
 #define HG_ONLINE_CLIENTHANDLER
 
@@ -24,14 +28,16 @@ namespace hg
 
 			public:
 
-				ClientHandler(PacketHandler& mPacketHandler) : managedSocket(mPacketHandler)
+				ClientHandler(PacketHandler& mPacketHandler) : uid{lastUid}, managedSocket(mPacketHandler)
 				{
+					++lastUid;
+
 					managedSocket.onPacketReceived += [&]{ untilTimeout = 100; };
 					std::thread([&]
 					{
 						while(true)
 						{
-							std::this_thread::sleep_for(std::chrono::milliseconds(150));
+							std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
 							if(!isBusy()) continue;
 
