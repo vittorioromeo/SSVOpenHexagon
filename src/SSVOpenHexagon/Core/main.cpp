@@ -33,6 +33,8 @@ int main(int argc, char* argv[])
 
 	if(contains(overrideIds, "server"))
 	{
+		HGAssets levelOnlyAssets{true};
+		Online::initalizeValidators(levelOnlyAssets);
 		Online::initializeServer();
 		return 0;
 	}
@@ -52,6 +54,7 @@ int main(int argc, char* argv[])
 	window.setMouseCursorVisible(false);
 
 	HGAssets assets;
+	Online::initalizeValidators(assets);
 	HexagonGame hg{assets, window};
 	MenuGame mg{assets, hg, window};
 	hg.mgPtr = &mg;
@@ -59,13 +62,13 @@ int main(int argc, char* argv[])
 	assets.refreshVolumes();
 	window.setGameState(mg.getGame()); mg.init();
 
-	Online::tryLogin("test1", "test1");
+//	Online::tryLogin("test1", "test1");
 
 	window.run();
 
 	//Online::terminateAll();
 
-	saveConfig(); assets.saveCurrentProfile(); saveLogToFile("log.txt");
+	saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
 	return 0;
 }
 

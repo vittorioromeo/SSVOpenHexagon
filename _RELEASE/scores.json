@@ -1,179 +1,22 @@
 
 {
-	"Packs/cube/apeirogon" : 
-	{
-		"1" : 
-		[
-			[ "veenew", 2.867059946060181 ]
-		],
-		"1.4" : 
-		[
-			[ "veenew", 4.984149932861328 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/cube/commando" : 
-	{
-		"1.5" : 
-		[
-			[ "veenew", 21.05719947814941 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/cube/euclideanpc" : 
-	{
-		"1.5" : 
-		[
-			[ "veenew", 4.550730228424072 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/cube/flatteringshape" : 
-	{
-		"3" : 
-		[
-			[ "veenew", 8.518190383911133 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/cube/labyrinth" : 
-	{
-		"1.8" : 
-		[
-			[ "veenew", 9.618410110473633 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/cube/pi" : 
-	{
-		"1.8" : 
-		[
-			[ "veenew", 6.984549999237061 ]
-		],
-		"validator" : "0"
-	},
 	"Packs/cube/pointless" : 
 	{
-		"4" : 
-		[
-			[ "veenew", 4.717430114746094 ],
-			[ "brofist", 11.27099990844727 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/cube/seconddimension" : 
-	{
-		"1.8" : 
-		[
-			[ "veenew", 7.001220226287842 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/hypercube/acceleradiant" : 
-	{
 		"1" : 
 		[
-			[ "veetest", 1.883530020713806 ],
-			[ "nanbaan", 8.651550292968750 ],
-			[ "brofist", 6.251070022583008 ]
+			[ "ONLINE", 4.117310047149658 ]
 		],
-		"validator" : "0"
+		"4" : 
+		[
+			[ "vittorioromeo", 10.13539981842041 ]
+		]
 	},
 	"Packs/hypercube/disc-o" : 
 	{
 		"1" : 
 		[
-			[ "god", 1.600539922714233 ],
-			[ "balsamo", 1.600539922714233 ],
-			[ "shampoo", 8.600540161132812 ],
-			[ "veetest", 3.600539922714233 ],
-			[ "nanbaan", 4.517389774322510 ],
-			[ "brofist", 7.768040180206299 ]
-		],
-		"2.8" : 
-		[
-			[ "brofist", 5.234200000762939 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/hypercube/g-force" : 
-	{
-		"1" : 
-		[
-			[ "brofist", 4.267340183258057 ]
-		],
-		"1.5" : 
-		[
-			[ "god", 1.600539922714233 ],
-			[ "balsamo", 1.600539922714233 ],
-			[ "shampoo", 8.600540161132812 ],
-			[ "veetest", 3.600539922714233 ],
-			[ "nanbaan", 4.517389774322510 ],
-			[ "brofist", 7.768040180206299 ]
-		],
-		"2.2" : 
-		[
-			[ "brofist", 1.733500003814697 ]
-		],
-		"2.8" : 
-		[
-			[ "veenew", 12.82409954071045 ],
-			[ "brofist", 7.067900180816650 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/hypercube/incongruence" : 
-	{
-		"1" : 
-		[
-			[ "brofist", 2.450309991836548 ]
-		],
-		"1.5" : 
-		[
-			[ "brofist", 4.384029865264893 ]
-		],
-		"1.8" : 
-		[
-			[ "veenew", 8.384830474853516 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/hypercube/massacre" : 
-	{
-		"1.6" : 
-		[
-			[ "veenew", 5.500919818878174 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/hypercube/polyhedrug" : 
-	{
-		"1" : 
-		[
-			[ "brofist", 2.166919946670532 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/hypercube/reppaws" : 
-	{
-		"1" : 
-		[
-			[ "brofist", 15.44600009918213 ]
-		],
-		"1.6" : 
-		[
-			[ "brofist", 6.667819976806641 ],
-			[ "veenew", 9.501720428466797 ],
-			[ "veetest", 5.550930023193359 ]
-		],
-		"validator" : "0"
-	},
-	"Packs/hypercube/slither" : 
-	{
-		"3" : 
-		[
-			[ "veenew", 3.817250013351440 ]
-		],
-		"validator" : "0"
+			[ "ONLINE", 4.400700092315674 ],
+			[ "nanbaan", 3.017090082168579 ]
+		]
 	}
 }

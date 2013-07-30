@@ -13,6 +13,7 @@
 #include "SSVOpenHexagon/Online/Definitions.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Online/Compression.h"
+#include "SSVOpenHexagon/Global/Assets.h"
 
 using namespace std;
 using namespace sf;
@@ -35,12 +36,14 @@ namespace hg
 		const IpAddress hostIp{"209.236.124.147"};
 		const unsigned short hostPort{27272};
 
-		bool connected{false};
-		bool loggedIn{false};
+		bool connected{false}, connecting{false};
+		bool loggedIn{false}; string currentUsername;
+		bool loginTimedOut{false};
 
 		float serverVersion{-1};
 		string serverMessage{""};
 
+		ValidatorDB validators;
 
 		PacketHandler clientPHandler;
 		Uptr<Client> client;
@@ -138,13 +141,10 @@ namespace hg
 				if(!scores.hasLevel(levelId))
 				{
 					lo << lt("PacketHandler") << "No table for this level id, creating one" << endl;
-					LevelScoreDB db; db.setValidator("0");
-					scores.addLevel(levelId, db);
+					scores.addLevel(levelId, {});
 				}
 
-				auto& l(scores.getLevel(levelId));
-
-				if(!l.isValidator(validator))
+				if(validators.getValidator(levelId) != validator)
 				{
 					lo << lt("PacketHandler") << "Validator doesn't match" << endl;
 					mMS.send(buildPacket<FromServer::SendScoreResponseInvalid>());
@@ -152,6 +152,8 @@ namespace hg
 				}
 
 				lo << lt("PacketHandler") << "Validator matches, inserting score" << endl;
+
+				auto& l(scores.getLevel(levelId));
 				if(l.getScore(diffMult, username) < score) l.addScore(diffMult, username, score);
 
 				saveScores();
@@ -167,7 +169,7 @@ namespace hg
 				if(!scores.hasLevel(levelId)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
 				auto& l(scores.getLevel(levelId));
 
-				if(!l.isValidator(validator) || !l.hasDiffMult(diffMult)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
+				if(validators.getValidator(levelId) != validator || !l.hasDiffMult(diffMult)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
 				lo << lt("PacketHandler") << "Validator matches, sending leaderboard" << endl;
 
 				const auto& sortedScores(l.getSortedScores(diffMult));
@@ -201,10 +203,12 @@ namespace hg
 		void initializeClient()
 		{
 			clientPHandler[FromServer::LoginResponseValid] = [](ManagedSocket& mMS, sf::Packet&)	{ lo << lt("PacketHandler") << "Successfully logged in!" << endl; loggedIn = true; mMS.send(buildPacket<FromClient::RequestInfo>()); };
-			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loggedIn = false; lo << lt("PacketHandler") << "Login invalid!" << endl; };
+			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loggedIn = false; loginTimedOut = true; lo << lt("PacketHandler") << "Login invalid!" << endl; };
 			clientPHandler[FromServer::RequestInfoResponse] = [](ManagedSocket&, sf::Packet& mP)	{ ssvuj::Value r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
 			clientPHandler[FromServer::SendLeaderboard] = [](ManagedSocket&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); };
 			clientPHandler[FromServer::SendLeaderboardFailed] = [](ManagedSocket&, sf::Packet&)		{ currentLeaderboard = "NULL"; };
+			clientPHandler[FromServer::SendScoreResponseValid] = [](ManagedSocket&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score"; };
+			clientPHandler[FromServer::SendScoreResponseInvalid] = [](ManagedSocket&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score - level data doesn't match server's"; };
 
 			client = Uptr<Client>(new Client(clientPHandler));
 
@@ -213,6 +217,7 @@ namespace hg
 				while(true)
 				{
 					if(connected) { client->send(buildPacket<FromClient::Ping>()); }
+					if(!client->getManagedSocket().isBusy()) connected = false;
 					this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
 			}).detach();
@@ -220,6 +225,9 @@ namespace hg
 
 		void tryConnectToServer()
 		{
+			if(connected || connecting) { lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
+			connecting = true;
+
 			lo << lt("hg::Online::connectToServer") << "Connecting to server..." << endl;
 
 			thread([]
@@ -227,11 +235,11 @@ namespace hg
 				if(client->connect("127.0.0.1", 54000))
 				{
 					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
-					connected = true; return;
+					connecting = false; connected = true; return;
 				}
 
 				lo << lt("hg::Online::connectToServer") << "Failed to connect" << endl;
-				connected = false;
+				connected = false; connecting = false;
 			}).detach();
 		}
 
@@ -241,14 +249,16 @@ namespace hg
 
 			thread([=]
 			{
+				loginTimedOut = false;
 				this_thread::sleep_for(std::chrono::milliseconds(100));
-				if(!retry([&]{ return connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; return; }
+				if(!retry([&]{ return connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginTimedOut = true; return; }
 				client->send(buildCompressedPacket<FromClient::Login>(mUsername, mPassword));
+				currentUsername = mUsername;
 			}).detach();
 		}
 
 
-		void trySendScore(const string& mUsername, const string& mLevelId, const string& mValidator, float mDiffMult, float mScore)
+		void trySendScore(const string& mUsername, const string& mLevelId, float mDiffMult, float mScore)
 		{
 			lo << lt("hg::Online::trySendScore") << "Sending score..." << endl;
 
@@ -256,11 +266,11 @@ namespace hg
 			{
 				this_thread::sleep_for(std::chrono::milliseconds(100));
 				if(!connected) { lo << lt("hg::Online::trySendScore") << "Client not connected - aborting" << endl; return; }
-				client->send(buildCompressedPacket<FromClient::SendScore>(mUsername, mLevelId, mValidator, mDiffMult, mScore));
+				client->send(buildCompressedPacket<FromClient::SendScore>(mUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult, mScore));
 			}).detach();
 		}
 
-		void tryRequestLeaderboard(const std::string& mUsername, const string& mLevelId, const string& mValidator, float mDiffMult)
+		void tryRequestLeaderboard(const std::string& mUsername, const string& mLevelId, float mDiffMult)
 		{
 			lo << lt("hg::Online::tryRequestLeaderboard") << "Requesting scores..." << endl;
 
@@ -268,17 +278,19 @@ namespace hg
 			{
 				this_thread::sleep_for(std::chrono::milliseconds(100));
 				if(!connected) { lo << lt("hg::Online::tryRequestLeaderboard") << "Client not connected - aborting" << endl; return; }
-				client->send(buildCompressedPacket<FromClient::RequestLeaderboard>(mUsername, mLevelId, mValidator, mDiffMult));
+				client->send(buildCompressedPacket<FromClient::RequestLeaderboard>(mUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult));
 			}).detach();
 		}
 
 		bool isConnected()	{ return connected; }
 		bool isLoggedIn()	{ return loggedIn; }
+		bool isLoginTimedOut()	{ return loginTimedOut; }
+		const string& getCurrentUsername() { if(!loggedIn) throw; return currentUsername; }
 
 		void invalidateCurrentLeaderboard() { currentLeaderboard = "NULL"; }
 		const string& getCurrentLeaderboard() { return currentLeaderboard; }
 
-		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootPath, const string& mStyleRootPath, const string& mLuaScriptPath)
+		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootString, const string& mStyleRootPath, const string& mLuaScriptPath)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 			unordered_set<string> luaScriptNames;
@@ -286,7 +298,7 @@ namespace hg
 
 			string toEncrypt{""};
 			toEncrypt.append(mLevelId);
-			toEncrypt.append(getFileContents(mLevelRootPath));
+			toEncrypt.append(mLevelRootString);
 			toEncrypt.append(getFileContents(mStyleRootPath));
 			toEncrypt.append(luaScriptContents);
 
@@ -305,6 +317,20 @@ namespace hg
 		float getServerVersion()					{ return serverVersion; }
 		string getServerMessage()					{ return serverMessage; }
 		string getMD5Hash(const string& mString)	{ return encrypt<Encryption::Type::MD5>(mString); }
+
+		void initalizeValidators(HGAssets& mAssets)
+		{
+			lo << lt("hg::Online::initalizeValidators") << "Initializing validators..." << endl;
+
+			for(const auto& p : mAssets.getLevelDatas())
+			{
+				const auto& l(p.second);
+				const auto& validator(getValidator(l->packPath, l->id, l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(), l->luaScriptPath));
+				validators.addValidator(p.first, validator);
+
+				//lo << lt("hg::Online::initalizeValidators") << "Added (" << p.first << "): " << validator << endl;
+			}
+		}
 	}
 }
 

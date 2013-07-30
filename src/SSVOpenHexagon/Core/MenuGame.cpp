@@ -34,10 +34,10 @@ namespace hg
 		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIndex]);
 		setIndex(0);
 
-		if(assets.getProfilesSize() == 0) state = States::PROFILE_NEW;
-		else if(assets.getProfilesSize() == 1) { assets.setCurrentProfile(assets.getFirstProfileName()); state = States::MAIN; }
+		//if(assets.getProfilesSize() == 0) state = States::PROFILE_NEW;
+		//else if(assets.getProfilesSize() == 1) { assets.setCurrentProfile(assets.getFirstProfileName()); state = States::MAIN; }
 
-		initOptionsMenu(); initInput();
+		initWelcomeMenu(); initOptionsMenu(); initInput();
 	}
 
 	void MenuGame::init() { assets.stopMusics(); assets.stopSounds(); assets.playSound("openHexagon.ogg"); refreshScores(); }
@@ -47,6 +47,14 @@ namespace hg
 			assets().get<Texture>(t).setSmooth(true);
 
 		refreshCamera();
+	}
+	void MenuGame::initWelcomeMenu()
+	{
+		namespace i = ssvms::Items;
+		auto& main(welcomeMenu.createCategory("welcome"));
+		main.create<i::Single>("login", [&]{ if(!Online::isConnected()) { Online::tryConnectToServer(); return; } assets.pSetPlayingLocally(false); enteredString = ""; state = States::LR_USER; });
+		main.create<i::Single>("play locally", [&]{ assets.pSetPlayingLocally(true); enteredString = ""; state = States::LOCALPROFILES; });
+		main.create<i::Single>("exit game", [&]{ window.stop(); });
 	}
 	void MenuGame::initOptionsMenu()
 	{
@@ -60,8 +68,9 @@ namespace hg
 		auto& friends(optionsMenu.createCategory("friends"));
 
 		main.create<i::Goto>("friends", friends);
-		main.create<i::Single>("change profile", [&]{ enteredString = ""; state = States::PROFILES; });
-		main.create<i::Single>("new profile", [&]{ enteredString = ""; state = States::PROFILE_NEW; });
+		main.create<i::Single>("change local profile", [&]{ if(!assets.pIsPlayingLocally()) return; enteredString = ""; state = States::LOCALPROFILES; });
+		main.create<i::Single>("new local profile", [&]{ if(!assets.pIsPlayingLocally()) return; enteredString = ""; state = States::PROFILE_NEW; });
+		main.create<i::Single>("login screen", [&]{ state = States::WELCOME; });
 
 		main.create<i::Goto>("gameplay", play);
 		main.create<i::Goto>("resolution", resolution);
@@ -70,6 +79,7 @@ namespace hg
 		main.create<i::Goto>("debug", debug);
 		main.create<i::Toggle>("online", [&]{ return getOnline(); }, [&]{ setOnline(true); }, [&]{ setOnline(false); });
 		main.create<i::Toggle>("official mode", [&]{ return getOfficial(); }, [&]{ setOfficial(true); }, [&]{ setOfficial(false); });
+		main.create<i::Single>("exit game", [&]{ window.stop(); });
 		main.create<i::Single>("back", [&]{ state = States::MAIN; });
 
 		resolution.create<i::Single>("auto", [&]{ setCurrentResolutionAuto(window); });
@@ -106,7 +116,7 @@ namespace hg
 		debug.create<i::Goto>("back", main);
 
 		friends.create<i::Single>("add friend", [&]{ enteredString = ""; state = States::ADD_FRIEND; });
-		friends.create<i::Single>("clear friends", [&]{ assets.getCurrentProfile().clearTrackedNames(); });
+		friends.create<i::Single>("clear friends", [&]{ assets.pClearTrackedNames(); });
 		friends.create<i::Goto>("back", main);
 	}
 	void MenuGame::initInput()
@@ -117,44 +127,51 @@ namespace hg
 		game.addInput(getTriggerRotateCCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::PROFILES) 		{  --profileIndex; }
+			if(state == s::LOCALPROFILES) 		{  --profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex - 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
+			else if(state == s::WELCOME) 	{ welcomeMenu.decreaseCurrentItem(); }
 		}, t::Single);
 		game.addInput(getTriggerRotateCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::PROFILES) 		{ ++profileIndex; }
+			if(state == s::LOCALPROFILES) 		{ ++profileIndex; }
 			else if(state == s::MAIN) 		{ setIndex(currentIndex + 1); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
+			else if(state == s::WELCOME) 	{ welcomeMenu.increaseCurrentItem(); }
 		}, t::Single);
 		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::MAIN) 			{ ++difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
+			else if(state == s::WELCOME) 	{ welcomeMenu.selectPreviousItem(); }
 		}, t::Single);
 		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::MAIN) 			{ --difficultyMultIndex; refreshScores(); }
 			else if(state == s::OPTIONS)	{ optionsMenu.selectNextItem(); }
+			else if(state == s::WELCOME) 	{ welcomeMenu.selectNextItem(); }
 		}, t::Single);
 		game.addInput(getTriggerRestart(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::PROFILES) { assets.setCurrentProfile(enteredString); state = s::MAIN; refreshScores(); }
+			if(state == s::LOCALPROFILES) { assets.pSetCurrent(enteredString); state = s::MAIN; refreshScores(); }
 			else if(state == s::MAIN)
 			{
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
-			else if(state == s::OPTIONS) optionsMenu.executeCurrentItem();
-			else if(state == s::PROFILE_NEW) { if(!enteredString.empty()) { assets.createProfile(enteredString); assets.setCurrentProfile(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
-			else if(state == s::ADD_FRIEND) { if(!enteredString.empty() && !contains(assets.getCurrentProfile().getTrackedNames(), enteredString)) { assets.getCurrentProfile().addTrackedName(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
+			else if(state == s::OPTIONS) { optionsMenu.executeCurrentItem(); }
+			else if(state == s::WELCOME) { welcomeMenu.executeCurrentItem(); }
+			else if(state == s::PROFILE_NEW) { if(!enteredString.empty()) { assets.pCreate(enteredString); assets.pSetCurrent(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
+			else if(state == s::ADD_FRIEND) { if(!enteredString.empty() && !contains(assets.pGetTrackedNames(), enteredString)) { assets.pAddTrackedName(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
+			else if(state == s::LR_USER) { if(!enteredString.empty()) { lrUser = enteredString; state = s::LR_PASS; enteredString = ""; } }
+			else if(state == s::LR_PASS) { if(!enteredString.empty()) { lrPass = enteredString; state = s::LOGGING; enteredString = ""; Online::tryLogin(lrUser, lrPass); } }
 		}, t::Single);
-		game.addInput({{k::F1}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::PROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
-		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::MAIN ) { enteredString = ""; state = s::PROFILES; } }, t::Single);
+		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::LOCALPROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
+		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::MAIN) { enteredString = ""; state = s::LOCALPROFILES; } }, t::Single);
 		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::Single);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
@@ -165,7 +182,7 @@ namespace hg
 		game.addInput(getTriggerExit(), [&](float) { if(state == s::ADD_FRIEND) state = s::MAIN; });
 		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
 		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); refreshCamera(); }, t::Single);
-		game.addInput({{k::BackSpace}}, [&](float){ if((state == s::PROFILE_NEW || state == s::ADD_FRIEND) && !enteredString.empty()) enteredString.erase(enteredString.end() - 1); }, t::Single);
+		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredString.empty()) enteredString.erase(enteredString.end() - 1); }, t::Single);
 	}
 
 	void MenuGame::setIndex(int mIndex)
@@ -186,10 +203,11 @@ namespace hg
 
 	void MenuGame::refreshScores()
 	{
-		if(state != States::MAIN) return;
+		if(state != States::MAIN || assets.pIsPlayingLocally()) return;
+
 		float diffMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
 		Online::invalidateCurrentLeaderboard();
-		Online::tryRequestLeaderboard(assets.getCurrentProfile().getName(), levelData->id, "0", diffMult);
+		Online::tryRequestLeaderboard(assets.pGetName(), levelData->id, diffMult);
 //		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
 		//string validator{"0"};
 
@@ -198,6 +216,8 @@ namespace hg
 	}
 	void MenuGame::updateLeaderboard()
 	{
+		if(assets.pIsPlayingLocally()) { leaderboardString = "playing locally"; return; }
+
 		currentLeaderboard = Online::getCurrentLeaderboard();
 		if(currentLeaderboard == "NULL") { leaderboardString = "..."; return; }
 		//if(currentLeaderboard == "" || currentPlayerScore == "") { leaderboardString = "refreshing..."; return; }
@@ -221,13 +241,12 @@ namespace hg
 			recordPairs.push_back({name, score});
 		}
 
-
 		sort(begin(recordPairs), end(recordPairs), [&](const RecordPair& mA, const RecordPair& mB){ return mA.second > mB.second; });
 
 		bool foundPlayer{false};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
-			if(recordPairs[i].first != assets.getCurrentProfile().getName()) continue;
+			if(recordPairs[i].first != assets.pGetName()) continue;
 			playerPosition = i + 1;
 			foundPlayer = true;
 			break;
@@ -239,7 +258,7 @@ namespace hg
 			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount -1)
 			{
 				ssvuj::Value playerScoreRoot{getRootFromString(currentPlayerScore)};
-				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + assets.getCurrentProfile().getName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");
+				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + assets.pGetName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");
 				break;
 			}
 
@@ -248,7 +267,7 @@ namespace hg
 				if(playerPosition == -1 || i < leaderboardRecordCount)
 				{
 					auto& recordPair(recordPairs[i]);
-					if(recordPair.first == assets.getCurrentProfile().getName()) result.append(" >> ");
+					if(recordPair.first == assets.pGetName()) result.append(" >> ");
 					result.append("(" + toStr(i + 1) +") " + recordPair.first + ": " + toStr(recordPair.second) + "\n");
 				}
 			}
@@ -261,11 +280,14 @@ namespace hg
 	void MenuGame::updateFriends()
 	{
 		if(state != States::MAIN) return;
-		if(assets.getCurrentProfile().getTrackedNames().empty()) { friendsString = "you have no friends! :(\nadd them in the options menu"; return; }
+
+		if(assets.pIsPlayingLocally()) { friendsString = "playing locally"; return; }
+
+		if(assets.pGetTrackedNames().empty()) { friendsString = "you have no friends! :(\nadd them in the options menu"; return; }
 		if(friendsScores.empty())
 		{
 			friendsString = "";
-			for(const auto& n : assets.getCurrentProfile().getTrackedNames()) friendsString.append("(?)" + n + "\n");
+			for(const auto& n : assets.pGetTrackedNames()) friendsString.append("(?)" + n + "\n");
 			return;
 		}
 		using ScoreTuple = tuple<int, string, float>;
@@ -334,14 +356,21 @@ namespace hg
 //		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
 		//refreshScores();
 
+		if(state == States::LOGGING)
+		{
+			if(Online::isLoggedIn()) state = States::MAIN;
+			if(Online::isLoginTimedOut()) state = States::WELCOME;
+		}
+		if(!assets.pIsPlayingLocally() && !Online::isConnected()) state = States::WELCOME;
+
 		updateLeaderboard();
 		updateFriends();
 
 		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
-		if(state == States::PROFILE_NEW || state == States::ADD_FRIEND) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { assets.playSound("beep.ogg"); enteredString.append(toStr(c)); } }
-		else if(state == States::PROFILES) { enteredString = assets.getProfileNames()[profileIndex % assets.getProfileNames().size()]; }
+		if(isEnteringText()) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { assets.playSound("beep.ogg"); enteredString.append(toStr(c)); } }
+		else if(state == States::LOCALPROFILES) { enteredString = assets.getLocalProfileNames()[profileIndex % assets.getLocalProfileNames().size()]; }
 		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelStatus.rotationSpeed * 10.f * mFrameTime); }
 
 		enteredChars.clear();
@@ -356,9 +385,10 @@ namespace hg
 
 		overlayCamera.apply();
 		if(state == States::MAIN) { drawLevelSelection(); render(bottomBar); }
-		else if(state == States::PROFILE_NEW || state == States::ADD_FRIEND) drawProfileCreation();
-		else if(state == States::PROFILES) drawProfileSelection();
+		else if(isEnteringText()) drawProfileCreation();
+		else if(state == States::LOCALPROFILES) drawProfileSelection();
 		else if(state == States::OPTIONS) drawOptions();
+		else if(state == States::WELCOME) drawWelcome();
 
 		render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
@@ -398,9 +428,14 @@ namespace hg
 			renderText(versionMessage, cProfText, {20, 0}, 13);
 
 
-			Text& profile = renderText("profile: " + assets.getCurrentProfile().getName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
+			Text& profile = renderText("profile: " + assets.pGetName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
 			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(assets.getPackPaths().size()) + ")", cProfText, {20.f, getGlobalBottom(profile) - 7.f}, 18);
-			Text& lbest = renderText("local best: " + toStr(assets.getScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]))), cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
+
+			string lbestStr{""};
+			if(assets.pIsPlayingLocally()) lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])));
+			else { lbestStr = Online::isLoggedIn() ? "logged in as " + Online::getCurrentUsername() : "logging in..."; }
+
+			Text& lbest = renderText(lbestStr, cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
 
 			//if(wasOverloaded || Online::isOverloaded()) { leaderboardString = friendsString = "too many requests, wait..."; }
@@ -431,15 +466,27 @@ namespace hg
 	}
 	void MenuGame::drawProfileCreation()
 	{
-		renderText(state == States::ADD_FRIEND ? "add friend" : "profile creation", cProfText, {20, 768 - 395});
-		renderText("insert profile name", cProfText, 					{20, 768 - 375});
-		renderText("press enter when done", cProfText, 					{20, 768 - 335});
-		renderText("keep esc pressed to exit", cProfText, 				{20, 768 - 315});
-		renderText(enteredString, levelName, 							{20, 768 - 245 - 40});
+		string title;
+		switch(state)
+		{
+			case hg::States::LR_USER:		title = "insert username"; break;
+			case hg::States::LR_PASS:		title = "insert password"; break;
+			case hg::States::LR_EMAIL:		title = "insert email"; break;
+			case hg::States::PROFILE_NEW:	title = "create local profile"; break;
+			case hg::States::ADD_FRIEND:	title = "add friend"; break;
+			default: throw;
+		}
+
+		renderText(title, cProfText,						{20, 768 - 395});
+		renderText("insert text", cProfText,				{20, 768 - 375});
+		renderText("press enter when done", cProfText, 		{20, 768 - 335});
+		renderText("keep esc pressed to exit", cProfText, 	{20, 768 - 315});
+		renderText(enteredString, levelName, 				{20, 768 - 245 - 40});
 	}
 	void MenuGame::drawProfileSelection()
 	{
-		renderText("profile selection", cProfText, 						{20, 768 - 395});
+		if(!assets.pIsPlayingLocally()) throw;
+		renderText("local profile selection", cProfText, 				{20, 768 - 395});
 		renderText("press left/right to browse profiles", cProfText, 	{20, 768 - 375});
 		renderText("press enter to select profile", cProfText, 			{20, 768 - 355});
 		renderText("press f1 to create a new profile", cProfText, 		{20, 768 - 335});
@@ -466,6 +513,29 @@ namespace hg
 
 		if(getOfficial()) renderText("official mode on - some options cannot be changed", cProfText, {20, h - 30.f});
 		else if(getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, h - 30.f});
+	}
+
+	void MenuGame::drawWelcome()
+	{
+		renderText(welcomeMenu.getCurrentCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
+
+		float currentX{0.f}, currentY{0.f};
+		vector<ItemBase*>& currentItems(welcomeMenu.getCurrentItems());
+		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
+		{
+			currentY += 19;
+			if(i != 0 && i % 21 == 0) { currentY = 0; currentX += 180; }
+			string name, itemName{currentItems[i]->getName()};
+			if(i == welcomeMenu.getCurrentIndex()) name.append(">> ");
+			name.append(itemName);
+
+			int extraSpacing{0};
+			if(itemName == "back") extraSpacing = 20;
+			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing});
+		}
+
+		renderText(Online::isConnected() ? "connected to server" : "not connected to server", cProfText, {20, h - 30.f});
+		//else if(getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, h - 30.f});
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }

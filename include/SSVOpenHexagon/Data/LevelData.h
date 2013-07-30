@@ -33,6 +33,8 @@ namespace hg
 			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "difficultyMults", {})};
 
 			LevelData(const ssvuj::Value& mRoot, const std::string& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
+
+			std::string getRootString() const { std::string result; ssvuj::writeRootToString(root, result); return result; }
 	};
 
 	struct LevelStatus

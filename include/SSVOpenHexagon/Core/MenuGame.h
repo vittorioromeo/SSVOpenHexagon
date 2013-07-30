@@ -16,7 +16,7 @@
 
 namespace hg
 {
-	enum class States { MAIN, PROFILE_NEW, PROFILES, OPTIONS, ADD_FRIEND };
+	enum class States { WELCOME, LR_USER, LR_PASS, LR_EMAIL, LOGGING, MAIN, PROFILE_NEW, LOCALPROFILES, OPTIONS, ADD_FRIEND };
 
 	class HexagonGame;
 
@@ -26,6 +26,7 @@ namespace hg
 			HGAssets& assets;
 
 			float fw, fh, fmin, w, h;
+			std::string lrUser, lrPass;
 
 			HexagonGame& hexagonGame;
 			ssvs::GameState game;
@@ -33,8 +34,8 @@ namespace hg
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera{window, {{0, 0}, {getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
-			States state{States::PROFILES};
-			ssvms::Menu optionsMenu;
+			States state{States::WELCOME};
+			ssvms::Menu optionsMenu, welcomeMenu;
 			std::string scoresMessage;
 			float exitTimer{0}, currentCreditsId{0};
 			bool mustTakeScreenshot{false};
@@ -61,6 +62,7 @@ namespace hg
 
 			void refreshCamera();
 			void initAssets();
+			void initWelcomeMenu();
 			void initOptionsMenu();
 			void initInput();
 			void update(float mFrameTime);
@@ -69,12 +71,15 @@ namespace hg
 			void drawProfileCreation();
 			void drawProfileSelection();
 			void drawOptions();
+			void drawWelcome();
 			void render(sf::Drawable&);
 			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
 			void setIndex(int mIndex);
 			void refreshScores();
 			void updateLeaderboard();
 			void updateFriends();
+
+			bool isEnteringText() { return state == States::LR_USER || state == States::LR_PASS|| state == States::LR_EMAIL || state == States::PROFILE_NEW || state == States::ADD_FRIEND; }
 
 		public:
 			MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);

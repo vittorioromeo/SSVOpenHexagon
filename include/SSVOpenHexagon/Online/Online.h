@@ -14,6 +14,8 @@
 
 namespace hg
 {
+	class HGAssets;
+
 	namespace Online
 	{
 		class User
@@ -40,12 +42,10 @@ namespace hg
 		class LevelScoreDB
 		{
 			private:
-				std::string validator;
 				std::unordered_map<float, std::unordered_map<std::string, float>> scores;
 				std::unordered_map<float, std::map<float, std::string>> sortedScores;
 
 			public:
-				inline void setValidator(const std::string& mValidator) { validator = mValidator; }
 				inline void addScore(float mDiffMult, const std::string& mUsername, float mScore)
 				{
 					scores[mDiffMult][mUsername] = mScore;
@@ -54,10 +54,8 @@ namespace hg
 					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) if(itr->second == mUsername) { ss.erase(itr); break; }
 					ss.insert({mScore, mUsername});
 				}
-				inline bool isValidator(const std::string& mValidator) const { return validator == mValidator; }
 				inline bool hasDiffMult(float mDiffMult) const { return scores.count(mDiffMult) > 0; }
 				inline float getScore(float mDiffMult, const std::string& mUsername) const { if(!hasDiffMult(mDiffMult) || scores.at(mDiffMult).count(mUsername) == 0) return -1; return scores.at(mDiffMult).at(mUsername); }
-				inline const std::string& getValidator() const { return validator; }
 				inline const std::unordered_map<float, std::unordered_map<std::string, float>>& getScores() const { return scores; }
 				inline const std::unordered_map<std::string, float>& getScores(float mDiffMult) const { return scores.at(mDiffMult); }
 				inline float getPlayerScore(const std::string& mUsername, float mDiffMult) const { for(const auto& v : getScores(mDiffMult)) if(v.first == mUsername) return v.second; return -1.f; }
@@ -75,6 +73,16 @@ namespace hg
 				inline void addLevel(const std::string& mId, const LevelScoreDB& mDB) { levels[mId] = mDB; }
 				inline const std::unordered_map<std::string, LevelScoreDB>& getLevels() const { return levels; }
 		};
+		class ValidatorDB
+		{
+			private:
+				std::string nullString{"NULL"};
+				std::unordered_map<std::string, std::string> validators;
+
+			public:
+				void addValidator(const std::string& mLevelId, const std::string& mValidator) { validators[mLevelId] = mValidator; }
+				const std::string& getValidator(const std::string& mLevelId) const { return validators.count(mLevelId) == 0 ? nullString : validators.at(mLevelId); }
+		};
 
 
 		using Listener = sf::TcpListener;
@@ -82,16 +90,20 @@ namespace hg
 		using Socket = sf::TcpSocket;
 		using IpAddress = sf::IpAddress;
 
+		void initalizeValidators(HGAssets& mAssets);
 		void initializeServer();
 		void initializeClient();
 
 		void tryConnectToServer();
 		void tryLogin(const std::string& mUsername, const std::string& mPassword);
-		void trySendScore(const std::string& mUsername, const std::string& mLevelId, const std::string& mValidator, float mDiffMult, float mScore);
-		void tryRequestLeaderboard(const std::string& mUsername, const std::string& mLevelId, const std::string& mValidator, float mDiffMult);
+		void trySendScore(const std::string& mUsername, const std::string& mLevelId, float mDiffMult, float mScore);
+		void tryRequestLeaderboard(const std::string& mUsername, const std::string& mLevelId, float mDiffMult);
 
 		bool isConnected();
 		bool isLoggedIn();
+		bool isLoginTimedOut();
+
+		const std::string& getCurrentUsername();
 
 		void invalidateCurrentLeaderboard();
 		const std::string& getCurrentLeaderboard();
@@ -179,8 +191,6 @@ namespace ssvuj
 			{
 				hg::Online::LevelScoreDB result;
 
-				result.setValidator(ssvuj::as<std::string>(mValue, "validator"));
-
 				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
 				{
 					if(ssvuj::as<std::string>(itr.key()) == "validator") continue;
@@ -222,7 +232,6 @@ namespace ssvuj
 
 	template<> inline void set<hg::Online::LevelScoreDB>(Impl& mRoot, const hg::Online::LevelScoreDB& mValueToSet)
 	{
-		ssvuj::set(mRoot, "validator", mValueToSet.getValidator());
 		for(const auto& s : mValueToSet.getScores())
 		{
 			unsigned int i{0};

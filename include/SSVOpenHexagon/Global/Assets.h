@@ -17,12 +17,17 @@
 #include "SSVOpenHexagon/Data/ProfileData.h"
 #include "SSVOpenHexagon/Data/StyleData.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
+#include "SSVOpenHexagon/Online/Online.h"
 
 namespace hg
 {
 	class HGAssets
 	{
 		private:
+			bool playingLocally{true};
+
+			bool levelsOnly{false};
+
 			ssvs::AssetManager assetManager;
 			ssvs::SoundPlayer soundPlayer;
 			ssvs::MusicPlayer musicPlayer;
@@ -39,7 +44,7 @@ namespace hg
 			ProfileData* currentProfilePtr{nullptr};
 
 		public:
-			HGAssets();
+			HGAssets(bool mLevelsOnly = false);
 
 			inline ssvs::AssetManager& operator()() { return assetManager; }
 
@@ -62,28 +67,62 @@ namespace hg
 			void loadStyleData(const std::string& mPath);
 			void loadLevelData(const std::string& mPath);
 			void loadCustomSounds(const std::string& mPackName, const std::string& mPath);
-			void loadProfiles();
+			void loadLocalProfiles();
 
-			void saveCurrentProfile();
+			void saveCurrentLocalProfile();
 
 			MusicData getMusicData(const std::string& mId);
 			StyleData getStyleData(const std::string& mId);
 
 
-			float getScore(const std::string& mId);
-			void setScore(const std::string& mId, float mScore);
+			float getLocalScore(const std::string& mId);
+			void setLocalScore(const std::string& mId, float mScore);
+			void setCurrentLocalProfile(const std::string& mName);
+			ProfileData& getCurrentLocalProfile();
+			const ProfileData& getCurrentLocalProfile() const;
+			std::string getCurrentLocalProfileFilePath();
+			void createLocalProfile(const std::string& mName);
+			int getLocalProfilesSize();
+			std::vector<std::string> getLocalProfileNames();
+			std::string getFirstLocalProfileName();
 
-			void setCurrentProfile(const std::string& mName);
-			ProfileData& getCurrentProfile();
-			std::string getCurrentProfileFilePath();
-			void createProfile(const std::string& mName);
-			int getProfilesSize();
-			std::vector<std::string> getProfileNames();
-			std::string getFirstProfileName();
-
-
-
-
+			inline std::string pGetName() const
+			{
+				if(!playingLocally) { if(!Online::isLoggedIn()) throw; return Online::getCurrentUsername(); }
+				return getCurrentLocalProfile().getName();
+			}
+			inline const std::vector<std::string>& pGetTrackedNames() const
+			{
+				if(!playingLocally) return {};
+				return getCurrentLocalProfile().getTrackedNames();
+			}
+			inline void pClearTrackedNames()
+			{
+				if(!playingLocally) return;
+				getCurrentLocalProfile().clearTrackedNames();
+			}
+			inline void pAddTrackedName(const std::string& mName)
+			{
+				if(!playingLocally) return;
+				getCurrentLocalProfile().addTrackedName(mName);
+			}
+			inline void pSaveCurrent()
+			{
+				if(!playingLocally) return;
+				saveCurrentLocalProfile();
+			}
+			inline void pSetCurrent(const std::string& mName)
+			{
+				if(!playingLocally) throw;
+				setCurrentLocalProfile(mName);
+			}
+			inline void pCreate(const std::string& mName)
+			{
+				if(!playingLocally) throw;
+				createLocalProfile(mName);
+			}
+			inline bool pIsPlayingLocally() const { return playingLocally; }
+			inline void pSetPlayingLocally(bool mPlayingLocally) { playingLocally = mPlayingLocally; }
 
 
 

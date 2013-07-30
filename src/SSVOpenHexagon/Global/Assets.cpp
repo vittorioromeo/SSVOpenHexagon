@@ -26,9 +26,9 @@ using namespace ssvu::FileSystem;
 
 namespace hg
 {
-	HGAssets::HGAssets()
+	HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
 	{
-		loadAssetsFromJson(assetManager, "Assets/", getRootFromFile("Assets/assets.json"));
+		if(!levelsOnly) loadAssetsFromJson(assetManager, "Assets/", getRootFromFile("Assets/assets.json"));
 		loadAssets();
 
 		for(auto& v : levelDataIdsByPack) sort(begin(v.second), end(v.second), [&](const string& mA, const string& mB){ return levelDatas[mA]->menuPriority < levelDatas[mB]->menuPriority; });
@@ -40,7 +40,7 @@ namespace hg
 
 	void HGAssets::loadAssets()
 	{
-		lo << lt("::loadAssets") << "loading profiles" << endl; loadProfiles();
+		lo << lt("::loadAssets") << "loading local profiles" << endl; loadLocalProfiles();
 
 		for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
 		{
@@ -59,11 +59,11 @@ namespace hg
 			string packId{pd->id}, packPath{"Packs/" + packId + "/"};
 			packIds.push_back(packId);
 			packPaths.push_back(packPath);
-			lo << lt("::loadAssets") << "loading " << packId << " music" << endl;			loadMusic(packPath);
-			lo << lt("::loadAssets") << "loading " << packId << " music data" << endl;	loadMusicData(packPath);
-			lo << lt("::loadAssets") << "loading " << packId << " style data" << endl;	loadStyleData(packPath);
-			lo << lt("::loadAssets") << "loading " << packId << " level data" << endl;	loadLevelData(packPath);
-			lo << lt("::loadAssets") << "loading " << packId << " custom sounds" << endl;	loadCustomSounds(packId, packPath);
+			if(!levelsOnly) {	lo << lt("::loadAssets") << "loading " << packId << " music" << endl;			loadMusic(packPath); }
+			if(!levelsOnly) {	lo << lt("::loadAssets") << "loading " << packId << " music data" << endl;		loadMusicData(packPath); }
+								lo << lt("::loadAssets") << "loading " << packId << " style data" << endl;		loadStyleData(packPath);
+								lo << lt("::loadAssets") << "loading " << packId << " level data" << endl;		loadLevelData(packPath);
+			if(!levelsOnly) {	lo << lt("::loadAssets") << "loading " << packId << " custom sounds" << endl;	loadCustomSounds(packId, packPath); }
 		}
 	}
 
@@ -112,7 +112,7 @@ namespace hg
 			levelDatas.insert(make_pair(levelData->id, Uptr<LevelData>(levelData)));
 		}
 	}
-	void HGAssets::loadProfiles()
+	void HGAssets::loadLocalProfiles()
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("Profiles/", ".json"))
 		{
@@ -123,28 +123,29 @@ namespace hg
 		}
 	}
 
-	void HGAssets::saveCurrentProfile()
+	void HGAssets::saveCurrentLocalProfile()
 	{
 		if(currentProfilePtr == nullptr) return;
 
 		ssvuj::Value profileRoot;
 		profileRoot["version"] = getVersion();
-		profileRoot["name"] = getCurrentProfile().getName();
-		profileRoot["scores"] = getCurrentProfile().getScores();
-		for(const auto& n : getCurrentProfile().getTrackedNames()) profileRoot["trackedNames"].append(n);
-		ssvuj::writeRootToFile(profileRoot, getCurrentProfileFilePath());
+		profileRoot["name"] = getCurrentLocalProfile().getName();
+		profileRoot["scores"] = getCurrentLocalProfile().getScores();
+		for(const auto& n : getCurrentLocalProfile().getTrackedNames()) profileRoot["trackedNames"].append(n);
+		ssvuj::writeRootToFile(profileRoot, getCurrentLocalProfileFilePath());
 	}
 
 	MusicData HGAssets::getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
 	StyleData HGAssets::getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
 
-	float HGAssets::getScore(const string& mId) 				{ return getCurrentProfile().getScore(mId); }
-	void HGAssets::setScore(const string& mId, float mScore)	{ getCurrentProfile().setScore(mId, mScore); }
+	float HGAssets::getLocalScore(const string& mId) 				{ return getCurrentLocalProfile().getScore(mId); }
+	void HGAssets::setLocalScore(const string& mId, float mScore)	{ getCurrentLocalProfile().setScore(mId, mScore); }
 
-	void HGAssets::setCurrentProfile(const string& mName) { currentProfilePtr = &profileDataMap.find(mName)->second; }
-	ProfileData& HGAssets::getCurrentProfile() { return *currentProfilePtr; }
-	string HGAssets::getCurrentProfileFilePath() { return "Profiles/" + currentProfilePtr->getName() + ".json"; }
-	void HGAssets::createProfile(const string& mName)
+	void HGAssets::setCurrentLocalProfile(const string& mName) { currentProfilePtr = &profileDataMap.find(mName)->second; }
+	ProfileData& HGAssets::getCurrentLocalProfile() { return *currentProfilePtr; }
+	const ProfileData& HGAssets::getCurrentLocalProfile() const { return *currentProfilePtr; }
+	string HGAssets::getCurrentLocalProfileFilePath() { return "Profiles/" + currentProfilePtr->getName() + ".json"; }
+	void HGAssets::createLocalProfile(const string& mName)
 	{
 		ssvuj::Value root;
 		root["name"] = mName;
@@ -152,16 +153,16 @@ namespace hg
 		ssvuj::writeRootToFile(root, "Profiles/" + mName + ".json");
 
 		profileDataMap.clear();
-		loadProfiles();
+		loadLocalProfiles();
 	}
-	int HGAssets::getProfilesSize() { return profileDataMap.size(); }
-	vector<string> HGAssets::getProfileNames()
+	int HGAssets::getLocalProfilesSize() { return profileDataMap.size(); }
+	vector<string> HGAssets::getLocalProfileNames()
 	{
 		vector<string> result;
 		for(auto& pair : profileDataMap) result.push_back(pair.second.getName());
 		return result;
 	}
-	string HGAssets::getFirstProfileName() { return profileDataMap.begin()->second.getName(); }
+	string HGAssets::getFirstLocalProfileName() { return profileDataMap.begin()->second.getName(); }
 
 	void HGAssets::refreshVolumes()	{ soundPlayer.setVolume(getSoundVolume()); musicPlayer.setVolume(getMusicVolume()); }
 	void HGAssets::stopMusics()	{ musicPlayer.stop(); }
