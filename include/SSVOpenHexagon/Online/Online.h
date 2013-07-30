@@ -49,7 +49,10 @@ namespace hg
 				inline void addScore(float mDiffMult, const std::string& mUsername, float mScore)
 				{
 					scores[mDiffMult][mUsername] = mScore;
-					sortedScores[mDiffMult].insert({mScore, mUsername});
+
+					auto& ss(sortedScores[mDiffMult]);
+					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) if(itr->second == mUsername) { ss.erase(itr); break; }
+					ss.insert({mScore, mUsername});
 				}
 				inline bool isValidator(const std::string& mValidator) const { return validator == mValidator; }
 				inline bool hasDiffMult(float mDiffMult) const { return scores.count(mDiffMult) > 0; }

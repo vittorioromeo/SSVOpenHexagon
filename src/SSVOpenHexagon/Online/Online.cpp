@@ -80,13 +80,9 @@ namespace hg
 			users = ssvuj::as<UserDB>(ssvuj::getRootFromFile(usersPath));
 			auto saveUsers = [&]{ ssvuj::Value root; ssvuj::set(root, users); ssvuj::writeRootToFile(root, usersPath); };
 
-
 			const auto& scoresPath("scores.json");
 			scores = ssvuj::as<ScoreDB>(ssvuj::getRootFromFile(scoresPath));
 			auto saveScores = [&]{ ssvuj::Value root; ssvuj::set(root, scores); ssvuj::writeRootToFile(root, scoresPath); };
-
-			saveScores();
-
 
 			PacketHandler pHandler;
 			pHandler[FromClient::Ping] = [](ManagedSocket&, sf::Packet&) { };
@@ -106,12 +102,11 @@ namespace hg
 					{
 						lo << lt("PacketHandler") << "Password valid" << endl;
 						mMS.send(buildPacket<FromServer::LoginResponseValid>());
+						return;
 					}
-					else
-					{
-						lo << lt("PacketHandler") << "Password invalid" << endl;
-						mMS.send(buildPacket<FromServer::LoginResponseInvalid>());
-					}
+
+					lo << lt("PacketHandler") << "Password invalid" << endl;
+					mMS.send(buildPacket<FromServer::LoginResponseInvalid>());
 				}
 				else
 				{
@@ -181,8 +176,7 @@ namespace hg
 				unsigned int i{0};
 				for(const auto& v : sortedScores)
 				{
-					ssvuj::set(response["r"][i], 0, v.second);
-					ssvuj::set(response["r"][i], 1, v.first);
+					ssvuj::set(response["r"][i], 0, v.second); ssvuj::set(response["r"][i], 1, v.first);
 					++i;
 					if(i > getClamped(8u, 0u, static_cast<unsigned int>(sortedScores.size()))) break;
 				}
