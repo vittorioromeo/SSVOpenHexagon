@@ -43,6 +43,7 @@ namespace hg
 			private:
 				std::unordered_map<float, std::unordered_map<std::string, float>> scores;
 				std::unordered_map<float, std::map<float, std::string>> sortedScores;
+				std::unordered_map<float, std::unordered_map<std::string, int>> userPositions;
 
 			public:
 				inline void addScore(float mDiffMult, const std::string& mUsername, float mScore)
@@ -52,13 +53,17 @@ namespace hg
 					auto& ss(sortedScores[mDiffMult]);
 					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) if(itr->second == mUsername) { ss.erase(itr); break; }
 					ss.insert({mScore, mUsername});
+
+					unsigned int p{1};
+					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) { userPositions[mDiffMult][mUsername] = p; ++p; }
 				}
 				inline bool hasDiffMult(float mDiffMult) const { return scores.count(mDiffMult) > 0; }
 				inline float getScore(float mDiffMult, const std::string& mUsername) const { if(!hasDiffMult(mDiffMult) || scores.at(mDiffMult).count(mUsername) == 0) return -1; return scores.at(mDiffMult).at(mUsername); }
 				inline const std::unordered_map<float, std::unordered_map<std::string, float>>& getScores() const { return scores; }
 				inline const std::unordered_map<std::string, float>& getScores(float mDiffMult) const { return scores.at(mDiffMult); }
-				inline float getPlayerScore(const std::string& mUsername, float mDiffMult) const { for(const auto& v : getScores(mDiffMult)) if(v.first == mUsername) return v.second; return -1.f; }
+				inline float getPlayerScore(const std::string& mUsername, float mDiffMult) const { if(!hasDiffMult(mDiffMult) || scores.at(mDiffMult).count(mUsername) == 0) return -1.f; return scores.at(mDiffMult).at(mUsername); }
 				inline const std::map<float, std::string>& getSortedScores(float mDiffMult) const { return sortedScores.at(mDiffMult); }
+				inline int getPlayerPosition(const std::string& mUsername, float mDiffMult) const { if(!hasDiffMult(mDiffMult) || userPositions.at(mDiffMult).count(mUsername) == 0) return -1; return userPositions.at(mDiffMult).at(mUsername); }
 
 		};
 		class ScoreDB
@@ -360,30 +365,22 @@ namespace hg
 					std::string username{ssvuj::as<std::string>(request, 0)}, levelId{ssvuj::as<std::string>(request, 1)};
 
 					if(!scores.hasLevel(levelId)) return;
+					const auto& l(scores.getLevel(levelId));
 
 					float diffMult{ssvuj::as<float>(request, 2)};
 					ssvuj::Value responseValue;
-					unsigned int i{0}, p{1};
-					bool found{false};
+					unsigned int i{0};
 
-					for(const auto& v : scores.getLevel(levelId).getSortedScores(diffMult))
+					for(const auto& n : users.getUser(username).stats.trackedNames)
 					{
-						for(const auto& n : users.getUser(username).stats.trackedNames)
-						{
-							if(v.second != n) continue;
-
-							found = true;
-
-							ssvuj::set(responseValue, i, v.first);
-							++i;
-							ssvuj::set(responseValue, i, p);
-							++i;
-						}
-
-						++p;
+						const auto& score(l.getPlayerScore(n, diffMult));
+						if(score == -1.f) continue;
+						ssvuj::set(responseValue, i, score);
+						++i;
+						ssvuj::set(responseValue, i, l.getPlayerPosition(n, diffMult));
+						++i;
 					}
 
-					if(!found) return;
 					std::string response; ssvuj::writeRootToString(responseValue, response);
 					mMS.send(buildCompressedPacket<FromServer::SendFriendsScores>(response));
 				};

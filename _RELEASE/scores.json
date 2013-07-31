@@ -25,11 +25,22 @@
 			[ "tanaka", 8.684889793395996 ]
 		]
 	},
+	"Packs/hypercube/incongruence" : 
+	{
+		"1" : 
+		[
+			[ "tanaka", 28.55550003051758 ]
+		]
+	},
 	"Packs/hypercube/slither" : 
 	{
 		"1" : 
 		[
 			[ "tanaka", 5.150849819183350 ]
+		],
+		"3" : 
+		[
+			[ "tanaka", 8.434840202331543 ]
 		]
 	}
 }
