@@ -93,7 +93,8 @@ namespace hg
 			}
 			inline const std::vector<std::string>& pGetTrackedNames() const
 			{
-				if(!playingLocally) return {};
+				static std::vector<std::string> temp{};
+				if(!playingLocally) return temp;
 				return getCurrentLocalProfile().getTrackedNames();
 			}
 			inline void pClearTrackedNames()

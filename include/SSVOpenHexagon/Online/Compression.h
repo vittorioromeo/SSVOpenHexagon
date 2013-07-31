@@ -5,10 +5,6 @@
 // From: http://panthema.net/2007/0328-ZLibString.html
 
 #include <string>
-#include <stdexcept>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
 #include <zlib.h>
 
 #ifndef HG_ONLINE_COMPRESSION

@@ -8,6 +8,7 @@
 #include <SSVStart/SSVStart.h>
 #include "SSVOpenHexagon/Online/Online.h"
 #include "SSVOpenHexagon/Online/Server.h"
+#include "SSVOpenHexagon/Online/OHServer.h"
 #include "SSVOpenHexagon/Core/HexagonGame.h"
 #include "SSVOpenHexagon/Core/MenuGame.h"
 #include "SSVOpenHexagon/Global/Assets.h"
@@ -35,7 +36,8 @@ int main(int argc, char* argv[])
 	{
 		HGAssets levelOnlyAssets{true};
 		Online::initalizeValidators(levelOnlyAssets);
-		Online::initializeServer();
+		Online::OHServer ohServer;
+		ohServer.start();
 		return 0;
 	}
 

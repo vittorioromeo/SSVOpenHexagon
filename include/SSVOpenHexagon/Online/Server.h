@@ -11,9 +11,9 @@
 #include <thread>
 #include <SSVUtils/SSVUtils.h>
 #include <SFML/Network.hpp>
-#include "SSVOpenHexagon/Online/Online.h"
 #include "SSVOpenHexagon/Online/ClientHandler.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
+#include "SSVOpenHexagon/Online/Utils.h"
 
 namespace hg
 {
@@ -23,11 +23,11 @@ namespace hg
 		{
 			private:
 				PacketHandler& packetHandler;
-				Listener listener;
+				sf::TcpListener listener;
 				std::vector<Uptr<ClientHandler>> clientHandlers;
 				std::thread receiveThread;
 
-				void grow()
+				void growIfNeeded()
 				{
 					if(find_if(begin(clientHandlers), end(clientHandlers), [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); }) != end(clientHandlers)) return;
 
@@ -39,7 +39,7 @@ namespace hg
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-					grow();
+					growIfNeeded();
 
 					for(auto& c : clientHandlers)
 					{
@@ -62,7 +62,7 @@ namespace hg
 
 				void start(unsigned int mPort)
 				{
-					if(listener.listen(mPort) != Socket::Done) { ssvu::lo << ssvu::lt("Server") << "Error initalizing listener" << std::endl; return; }
+					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::lo << ssvu::lt("Server") << "Error initalizing listener" << std::endl; return; }
 					else ssvu::lo << ssvu::lt("Server") << "Listener initialized" << std::endl;
 
 					receiveThread.detach();

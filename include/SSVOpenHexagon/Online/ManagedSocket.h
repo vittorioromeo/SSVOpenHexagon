@@ -9,7 +9,7 @@
 #include <thread>
 #include <SSVUtils/SSVUtils.h>
 #include <SFML/Network.hpp>
-#include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Online/Utils.h"
 #include "SSVOpenHexagon/Online/PacketHandler.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 
@@ -21,7 +21,7 @@ namespace hg
 		{
 			private:
 				PacketHandler& packetHandler;
-				Socket socket;
+				sf::TcpSocket socket;
 				bool busy{false};
 
 				void update()
@@ -37,7 +37,7 @@ namespace hg
 					}
 				}
 
-				bool trySendPacket(Packet mPacket)
+				bool trySendPacket(sf::Packet mPacket)
 				{
 					if(!busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Couldn't send packet - not busy" << std::endl; return false; }
 
@@ -57,19 +57,19 @@ namespace hg
 					std::thread([&]{ while(true) update(); }).detach();
 				}
 
-				inline bool send(const Packet& mPacket) { return trySendPacket(mPacket); }
-				inline bool connect(IpAddress mIp, unsigned int mPort)
+				inline bool send(const sf::Packet& mPacket) { return trySendPacket(mPacket); }
+				inline bool connect(sf::IpAddress mIp, unsigned int mPort)
 				{
 					if(busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Error: already connected" << std::endl; return false; }
-					if(!retry([&]{ return socket.connect(mIp, mPort) == Socket::Done; }).get()) return false;
+					if(!retry([&]{ return socket.connect(mIp, mPort) == sf::Socket::Done; }).get()) return false;
 
 					ssvu::lo << ssvu::lt("ManagedSocket") << "Connected to " << mIp.toString() << ":" << mPort << std::endl;
 					busy = true; return true;
 				}
-				inline bool tryAccept(Listener& mListener)
+				inline bool tryAccept(sf::TcpListener& mListener)
 				{
 					if(busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Error: already connected" << std::endl; return false; }
-					if(!retry([&]{ return mListener.accept(socket) == Socket::Done; }).get()) return false;
+					if(!retry([&]{ return mListener.accept(socket) == sf::Socket::Done; }).get()) return false;
 
 					ssvu::lo << ssvu::lt("ManagedSocket") << "Accepted" << std::endl;
 					busy = true; return true;

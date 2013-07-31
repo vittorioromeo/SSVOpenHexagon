@@ -115,8 +115,8 @@ namespace hg
 		debug.create<i::Toggle>("invincible", [&]{ return getInvincible(); }, [&]{ setInvincible(true); }, [&]{ setInvincible(false); });
 		debug.create<i::Goto>("back", main);
 
-		friends.create<i::Single>("add friend", [&]{ enteredString = ""; state = States::ADD_FRIEND; });
-		friends.create<i::Single>("clear friends", [&]{ assets.pClearTrackedNames(); });
+		friends.create<i::Single>("add friend", [&]{ if(assets.pIsPlayingLocally()) return; enteredString = ""; state = States::ADD_FRIEND; });
+		friends.create<i::Single>("clear friends", [&]{ if(assets.pIsPlayingLocally()) return; assets.pClearTrackedNames(); });
 		friends.create<i::Goto>("back", main);
 	}
 	void MenuGame::initInput()
@@ -170,8 +170,8 @@ namespace hg
 			else if(state == s::LR_USER) { if(!enteredString.empty()) { lrUser = enteredString; state = s::LR_PASS; enteredString = ""; } }
 			else if(state == s::LR_PASS) { if(!enteredString.empty()) { lrPass = enteredString; state = s::LOGGING; enteredString = ""; Online::tryLogin(lrUser, lrPass); } }
 		}, t::Single);
-		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::LOCALPROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
-		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::MAIN) { enteredString = ""; state = s::LOCALPROFILES; } }, t::Single);
+		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::LOCALPROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
+		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::MAIN) { enteredString = ""; state = s::LOCALPROFILES; } }, t::Single);
 		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::Single);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
@@ -513,6 +513,8 @@ namespace hg
 
 		if(getOfficial()) renderText("official mode on - some options cannot be changed", cProfText, {20, h - 30.f});
 		else if(getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, h - 30.f});
+
+		if(assets.pIsPlayingLocally()) renderText("local mode on - some options cannot be changed", cProfText, {20, h - 60.f});
 	}
 
 	void MenuGame::drawWelcome()

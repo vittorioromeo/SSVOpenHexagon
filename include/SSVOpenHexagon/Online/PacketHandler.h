@@ -8,7 +8,6 @@
 #include <SSVUtils/SSVUtils.h>
 #include <SFML/Network.hpp>
 #include <unordered_map>
-#include "SSVOpenHexagon/Online/Online.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
@@ -19,11 +18,11 @@ namespace hg
 
 		struct PacketHandler
 		{
-			using HandlerFunc = std::function<void(ManagedSocket&, Packet&)>;
+			using HandlerFunc = std::function<void(ManagedSocket&, sf::Packet&)>;
 
 			std::unordered_map<unsigned int, HandlerFunc> functionHandlers;
 
-			void handle(ManagedSocket& mManagedSocket, Packet& mPacket)
+			void handle(ManagedSocket& mManagedSocket, sf::Packet& mPacket)
 			{
 				unsigned int type;
 				mPacket >> type;

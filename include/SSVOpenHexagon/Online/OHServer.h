@@ -1,0 +1,299 @@
+#ifndef HG_ONLINE_OHSERVER
+#define HG_ONLINE_OHSERVER
+
+#include <string>
+#include <unordered_map>
+#include <SSVUtilsJson/SSVUtilsJson.h>
+#include <SSVStart/SSVStart.h>
+#include <SFML/Network.hpp>
+#include "SSVOpenHexagon/Online/PacketHandler.h"
+#include "SSVOpenHexagon/Online/Server.h"
+#include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Online/Definitions.h"
+
+namespace hg
+{
+	namespace Online
+	{
+		class User
+		{
+			private:
+				std::string passwordHash;
+
+			public:
+				inline void setPasswordHash(const std::string& mPasswordHash) { passwordHash = mPasswordHash; }
+				inline const std::string& getPasswordHash() const { return passwordHash; }
+				inline bool isPasswordHash(const std::string& mPasswordHash) const { return passwordHash == mPasswordHash; }
+		};
+		class UserDB
+		{
+			private:
+				std::unordered_map<std::string, User> users;
+
+			public:
+				inline bool hasUser(const std::string& mUsername) const { return users.count(mUsername) > 0; }
+				inline User& getUser(const std::string& mUsername) { return users[mUsername]; }
+				inline void registerUser(const std::string& mUsername, const User& mUser) { users[mUsername] = mUser; }
+				inline const std::unordered_map<std::string, User>& getUsers() const { return users; }
+		};
+		class LevelScoreDB
+		{
+			private:
+				std::unordered_map<float, std::unordered_map<std::string, float>> scores;
+				std::unordered_map<float, std::map<float, std::string>> sortedScores;
+
+			public:
+				inline void addScore(float mDiffMult, const std::string& mUsername, float mScore)
+				{
+					scores[mDiffMult][mUsername] = mScore;
+
+					auto& ss(sortedScores[mDiffMult]);
+					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) if(itr->second == mUsername) { ss.erase(itr); break; }
+					ss.insert({mScore, mUsername});
+				}
+				inline bool hasDiffMult(float mDiffMult) const { return scores.count(mDiffMult) > 0; }
+				inline float getScore(float mDiffMult, const std::string& mUsername) const { if(!hasDiffMult(mDiffMult) || scores.at(mDiffMult).count(mUsername) == 0) return -1; return scores.at(mDiffMult).at(mUsername); }
+				inline const std::unordered_map<float, std::unordered_map<std::string, float>>& getScores() const { return scores; }
+				inline const std::unordered_map<std::string, float>& getScores(float mDiffMult) const { return scores.at(mDiffMult); }
+				inline float getPlayerScore(const std::string& mUsername, float mDiffMult) const { for(const auto& v : getScores(mDiffMult)) if(v.first == mUsername) return v.second; return -1.f; }
+				inline const std::map<float, std::string>& getSortedScores(float mDiffMult) const { return sortedScores.at(mDiffMult); }
+
+		};
+		class ScoreDB
+		{
+			private:
+				std::unordered_map<std::string, LevelScoreDB> levels;
+
+			public:
+				inline bool hasLevel(const std::string& mId) const { return levels.count(mId) > 0; }
+				inline LevelScoreDB& getLevel(const std::string& mId) { return levels[mId]; }
+				inline void addLevel(const std::string& mId, const LevelScoreDB& mDB) { levels[mId] = mDB; }
+				inline const std::unordered_map<std::string, LevelScoreDB>& getLevels() const { return levels; }
+		};
+	}
+}
+
+namespace ssvuj
+{
+	namespace Internal
+	{
+		template<> struct AsHelper<hg::Online::User>
+		{
+			inline static hg::Online::User as(const Impl& mValue)
+			{
+				hg::Online::User result;
+				result.setPasswordHash(ssvuj::as<std::string>(mValue, "ph"));
+				return result;
+			}
+		};
+
+		template<> struct AsHelper<hg::Online::UserDB>
+		{
+			inline static hg::Online::UserDB as(const Impl& mValue)
+			{
+				hg::Online::UserDB result;
+
+				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
+					result.registerUser(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::User>(*itr));
+
+				return result;
+			}
+		};
+
+		template<> struct AsHelper<hg::Online::LevelScoreDB>
+		{
+			inline static hg::Online::LevelScoreDB as(const Impl& mValue)
+			{
+				hg::Online::LevelScoreDB result;
+
+				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
+				{
+					if(ssvuj::as<std::string>(itr.key()) == "validator") continue;
+
+					for(unsigned int i{0}; i < ssvuj::size(*itr); ++i)
+						result.addScore(std::stof(ssvuj::as<std::string>(itr.key())), ssvuj::as<std::string>((*itr)[i], 0), ssvuj::as<float>((*itr)[i], 1));
+				}
+
+				return result;
+			}
+		};
+
+		template<> struct AsHelper<hg::Online::ScoreDB>
+		{
+			inline static hg::Online::ScoreDB as(const Impl& mValue)
+			{
+				hg::Online::ScoreDB result;
+
+				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
+					result.addLevel(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::LevelScoreDB>(*itr));
+
+				return result;
+			}
+		};
+	}
+
+	template<> inline void set<hg::Online::User>(Impl& mRoot, const hg::Online::User& mValueToSet)
+	{
+		set(mRoot, "ph", mValueToSet.getPasswordHash());
+	}
+
+	template<> inline void set<hg::Online::UserDB>(Impl& mRoot, const hg::Online::UserDB& mValueToSet)
+	{
+		for(const auto p : mValueToSet.getUsers()) ssvuj::set(mRoot, p.first, p.second);
+	}
+
+	template<> inline void set<hg::Online::LevelScoreDB>(Impl& mRoot, const hg::Online::LevelScoreDB& mValueToSet)
+	{
+		for(const auto& s : mValueToSet.getScores())
+		{
+			unsigned int i{0};
+			for(const auto& r : s.second)
+			{
+				ssvuj::Value temp; ssvuj::set(temp, 0, r.first); ssvuj::set(temp, 1, r.second);
+				ssvuj::set(mRoot[ssvu::toStr(s.first)], i, temp);
+				++i;
+			}
+		}
+	}
+
+	template<> inline void set<hg::Online::ScoreDB>(Impl& mRoot, const hg::Online::ScoreDB& mValueToSet)
+	{
+		for(const auto& l : mValueToSet.getLevels()) ssvuj::set(mRoot, l.first, l.second);
+	}
+}
+
+namespace hg
+{
+	namespace Online
+	{
+		struct OHServer
+		{
+			const std::string usersPath{"users.json"};
+			const std::string scoresPath{"scores.json"};
+
+			UserDB users{ssvuj::as<UserDB>(ssvuj::getRootFromFile(usersPath))};
+			ScoreDB scores{ssvuj::as<ScoreDB>(ssvuj::getRootFromFile(scoresPath))};
+			PacketHandler pHandler;
+			Server server{pHandler};
+
+			inline void saveUsers()	const	{ ssvuj::Value root; ssvuj::set(root, users); ssvuj::writeRootToFile(root, usersPath); }
+			inline void saveScores() const	{ ssvuj::Value root; ssvuj::set(root, scores); ssvuj::writeRootToFile(root, scoresPath); }
+
+			OHServer()
+			{
+				server.onClientAccepted += [&](ClientHandler&){ };
+				pHandler[FromClient::Ping] = [](ManagedSocket&, sf::Packet&) { };
+				pHandler[FromClient::Login] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				{
+					ssvuj::Value request{getDecompressedPacket(mP)};
+
+					std::string username{ssvuj::as<std::string>(request, 0)}, password{ssvuj::as<std::string>(request, 1)};
+					std::string passwordHash{getMD5Hash(password + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
+
+					if(users.hasUser(username))
+					{
+						const auto& u(users.getUser(username));
+						ssvu::lo << ssvu::lt("PacketHandler") << "Username found" << std::endl;
+
+						if(u.isPasswordHash(passwordHash))
+						{
+							ssvu::lo << ssvu::lt("PacketHandler") << "Password valid" << std::endl;
+							mMS.send(buildPacket<FromServer::LoginResponseValid>());
+							return;
+						}
+
+						ssvu::lo << ssvu::lt("PacketHandler") << "Password invalid" << std::endl;
+						mMS.send(buildPacket<FromServer::LoginResponseInvalid>());
+					}
+					else
+					{
+						ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
+
+						User newUser; newUser.setPasswordHash(passwordHash);
+						users.registerUser(username, newUser);
+
+						saveUsers();
+
+						ssvu::lo << ssvu::lt("PacketHandler") << "Accepting new user" << std::endl;
+						mMS.send(buildPacket<FromServer::LoginResponseValid>());
+					}
+				};
+				pHandler[FromClient::RequestInfo] = [](ManagedSocket& mMS, sf::Packet&)
+				{
+					float version{2.f};
+					std::string message{"Welcome to Open Hexagon 2.0!"};
+
+					mMS.send(buildCompressedPacket<FromServer::RequestInfoResponse>(version, message));
+				};
+				pHandler[FromClient::SendScore] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				{
+					ssvuj::Value request{getDecompressedPacket(mP)};
+
+					std::string username{ssvuj::as<std::string>(request, 0)}, levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
+					float diffMult{ssvuj::as<float>(request, 3)}, score{ssvuj::as<float>(request, 4)};
+
+					if(!scores.hasLevel(levelId))
+					{
+						ssvu::lo << ssvu::lt("PacketHandler") << "No table for this level id, creating one" << std::endl;
+						scores.addLevel(levelId, {});
+					}
+
+					if(Online::getValidators().getValidator(levelId) != validator)
+					{
+						ssvu::lo << ssvu::lt("PacketHandler") << "Validator doesn't match" << std::endl;
+						mMS.send(buildPacket<FromServer::SendScoreResponseInvalid>());
+						return;
+					}
+
+					ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, inserting score" << std::endl;
+
+					auto& l(scores.getLevel(levelId));
+					if(l.getScore(diffMult, username) < score) l.addScore(diffMult, username, score);
+
+					saveScores();
+					mMS.send(buildPacket<FromServer::SendScoreResponseValid>());
+				};
+				pHandler[FromClient::RequestLeaderboard] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				{
+					ssvuj::Value request{getDecompressedPacket(mP)};
+
+					std::string username{ssvuj::as<std::string>(request, 0)}, levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
+					float diffMult{ssvuj::as<float>(request, 3)};
+
+					if(!scores.hasLevel(levelId)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
+					auto& l(scores.getLevel(levelId));
+
+					if(Online::getValidators().getValidator(levelId) != validator || !l.hasDiffMult(diffMult)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
+					ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, sending leaderboard" << std::endl;
+
+					const auto& sortedScores(l.getSortedScores(diffMult));
+					ssvuj::Value response;
+
+					unsigned int i{0};
+					for(const auto& v : sortedScores)
+					{
+						ssvuj::set(response["r"][i], 0, v.second); ssvuj::set(response["r"][i], 1, v.first);
+						++i;
+						if(i > ssvu::getClamped(8u, 0u, static_cast<unsigned int>(sortedScores.size()))) break;
+					}
+					ssvuj::set(response, "id", levelId);
+
+					float playerScore{l.getPlayerScore(username, diffMult)};
+					playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
+
+					std::string leaderboardDataString;
+					ssvuj::writeRootToString(response, leaderboardDataString);
+					mMS.send(buildCompressedPacket<FromServer::SendLeaderboard>(leaderboardDataString));
+				};
+			}
+
+			inline void start()
+			{
+				server.start(54000);
+				while(true) std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+		};
+	}
+}
+
+#endif

@@ -1,22 +1,2 @@
-
 {
-	"Packs/cube/pointless" : 
-	{
-		"1" : 
-		[
-			[ "ONLINE", 4.117310047149658 ]
-		],
-		"4" : 
-		[
-			[ "vittorioromeo", 10.13539981842041 ]
-		]
-	},
-	"Packs/hypercube/disc-o" : 
-	{
-		"1" : 
-		[
-			[ "ONLINE", 4.400700092315674 ],
-			[ "nanbaan", 3.017090082168579 ]
-		]
-	}
 }
