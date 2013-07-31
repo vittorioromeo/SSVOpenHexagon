@@ -41,7 +41,6 @@ namespace hg
 			bool mustTakeScreenshot{false};
 			std::string currentLeaderboard, currentPlayerScore, enteredString, leaderboardString, friendsString;
 			std::vector<char> enteredChars;
-			std::vector<std::string> friendsScores;
 			std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "creditsBar2d.png", "creditsBar2d.png"};
 
 			sf::Sprite titleBar{assets().get<sf::Texture>("titleBar.png")}, creditsBar1{assets().get<sf::Texture>("creditsBar1.png")},

@@ -19,6 +19,8 @@ namespace hg
 
 	namespace Online
 	{
+		class UserStats;
+
 		class ValidatorDB
 		{
 			private:
@@ -35,19 +37,33 @@ namespace hg
 
 		void tryConnectToServer();
 		void tryLogin(const std::string& mUsername, const std::string& mPassword);
-		void trySendScore(const std::string& mUsername, const std::string& mLevelId, float mDiffMult, float mScore);
-		void tryRequestLeaderboard(const std::string& mUsername, const std::string& mLevelId, float mDiffMult);
+
+		void trySendScore(const std::string& mLevelId, float mDiffMult, float mScore);
+		void tryRequestLeaderboard(const std::string& mLevelId, float mDiffMult);
+		void trySendDeath();
+		void trySendMinutePlayed();
+		void trySendRestart();
+		void trySendInitialRequests();
+		void trySendAddFriend(const std::string& mFriendName);
+		void trySendClearFriends();
+		void tryRequestFriendsScores(const std::string& mLevelId, float mDiffMult);
 
 		bool isConnected();
 		bool isLoggedIn();
 		bool isLoginTimedOut();
 
+		void logOut();
+
 		ValidatorDB& getValidators();
 
 		const std::string& getCurrentUsername();
 
+		const UserStats& getUserStats();
+
 		void invalidateCurrentLeaderboard();
+		void invalidateCurrentFriendsScores();
 		const std::string& getCurrentLeaderboard();
+		const ssvuj::Value& getCurrentFriendScores();
 
 		float getServerVersion();
 		std::string getServerMessage();
@@ -55,27 +71,36 @@ namespace hg
 		inline std::string getUrlEncoded(const std::string& mString) 		{ std::string result; for(const auto& c : mString) if(std::isalnum(c)) result += c; return result; }
 		inline std::string getControlStripped(const std::string& mString)	{ std::string result; for(const auto& c : mString) if(!std::iscntrl(c)) result += c; return result; }
 
-
 		// Client to server
 		enum FromClient : unsigned int
 		{
 			Ping = 0,
-			Login = 1,
-			RequestInfo = 2,
-			SendScore = 3,
-			RequestLeaderboard = 4
+			Login,
+			RequestInfo,
+			SendScore,
+			RequestLeaderboard,
+			RequestUserStats,
+			US_Death,
+			US_MinutePlayed,
+			US_Restart,
+			US_AddFriend,
+			US_ClearFriends,
+			RequestFriendsScores
 		};
 
 		// Server to client
 		enum FromServer : unsigned int
 		{
 			LoginResponseValid = 0,
-			LoginResponseInvalid = 1,
-			RequestInfoResponse = 2,
-			SendLeaderboard = 3,
-			SendScoreResponseValid = 4,
-			SendScoreResponseInvalid = 5,
-			SendLeaderboardFailed = 6
+			LoginResponseInvalid,
+			RequestInfoResponse,
+			SendLeaderboard,
+			SendScoreResponseValid,
+			SendScoreResponseInvalid,
+			SendLeaderboardFailed,
+			SendUserStats,
+			SendUserStatsFailed,
+			SendFriendsScores
 		};
 	}
 }

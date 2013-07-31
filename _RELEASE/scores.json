@@ -1,2 +1,35 @@
+
 {
+	"Packs/cube/seconddimension" : 
+	{
+		"1.8" : 
+		[
+			[ "tanaka", 5.050829887390137 ]
+		]
+	},
+	"Packs/hypercube/disc-o" : 
+	{
+		"1" : 
+		[
+			[ "tanaka", 5.951010227203369 ]
+		]
+	},
+	"Packs/hypercube/g-force" : 
+	{
+		"1" : 
+		[
+			[ "tanaka", 26.11730003356934 ]
+		],
+		"2.8" : 
+		[
+			[ "tanaka", 8.684889793395996 ]
+		]
+	},
+	"Packs/hypercube/slither" : 
+	{
+		"1" : 
+		[
+			[ "tanaka", 5.150849819183350 ]
+		]
+	}
 }

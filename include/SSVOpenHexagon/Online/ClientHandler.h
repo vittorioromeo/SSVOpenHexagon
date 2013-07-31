@@ -32,7 +32,7 @@ namespace hg
 				{
 					++lastUid;
 
-					managedSocket.onPacketReceived += [&]{ untilTimeout = 100; };
+					managedSocket.onPacketReceived += [&]{ untilTimeout = 5; };
 					std::thread([&]
 					{
 						while(true)

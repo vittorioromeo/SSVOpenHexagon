@@ -165,10 +165,10 @@ namespace hg
 			}
 			else if(state == s::OPTIONS) { optionsMenu.executeCurrentItem(); }
 			else if(state == s::WELCOME) { welcomeMenu.executeCurrentItem(); }
-			else if(state == s::PROFILE_NEW) { if(!enteredString.empty()) { assets.pCreate(enteredString); assets.pSetCurrent(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
-			else if(state == s::ADD_FRIEND) { if(!enteredString.empty() && !contains(assets.pGetTrackedNames(), enteredString)) { assets.pAddTrackedName(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
-			else if(state == s::LR_USER) { if(!enteredString.empty()) { lrUser = enteredString; state = s::LR_PASS; enteredString = ""; } }
-			else if(state == s::LR_PASS) { if(!enteredString.empty()) { lrPass = enteredString; state = s::LOGGING; enteredString = ""; Online::tryLogin(lrUser, lrPass); } }
+			else if(state == s::PROFILE_NEW)	{ if(!enteredString.empty()) { assets.pCreate(enteredString); assets.pSetCurrent(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
+			else if(state == s::ADD_FRIEND)		{ if(!enteredString.empty() && !contains(assets.pGetTrackedNames(), enteredString)) { assets.pAddTrackedName(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
+			else if(state == s::LR_USER)		{ if(!enteredString.empty()) { lrUser = enteredString; state = s::LR_PASS; enteredString = ""; } }
+			else if(state == s::LR_PASS)		{ if(!enteredString.empty()) { lrPass = enteredString; state = s::LOGGING; enteredString = ""; Online::tryLogin(lrUser, lrPass); } }
 		}, t::Single);
 		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::LOCALPROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
 		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::MAIN) { enteredString = ""; state = s::LOCALPROFILES; } }, t::Single);
@@ -207,7 +207,9 @@ namespace hg
 
 		float diffMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
 		Online::invalidateCurrentLeaderboard();
-		Online::tryRequestLeaderboard(assets.pGetName(), levelData->id, diffMult);
+		Online::invalidateCurrentFriendsScores();
+		Online::tryRequestLeaderboard(levelData->id, diffMult);
+		Online::tryRequestFriendsScores(levelData->id, diffMult);
 //		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
 		//string validator{"0"};
 
@@ -281,23 +283,31 @@ namespace hg
 	{
 		if(state != States::MAIN) return;
 
-		if(assets.pIsPlayingLocally()) { friendsString = "playing locally"; return; }
+		if(assets.pIsPlayingLocally())			{ friendsString = "playing locally"; return; }
+		if(assets.pGetTrackedNames().empty())	{ friendsString = "you have no friends! :(\nadd them in the options menu"; return; }
 
-		if(assets.pGetTrackedNames().empty()) { friendsString = "you have no friends! :(\nadd them in the options menu"; return; }
-		if(friendsScores.empty())
+		const auto& fs(Online::getCurrentFriendScores());
+
+		if(ssvuj::size(fs) == 0)
 		{
 			friendsString = "";
 			for(const auto& n : assets.pGetTrackedNames()) friendsString.append("(?)" + n + "\n");
 			return;
 		}
+
 		using ScoreTuple = tuple<int, string, float>;
 		vector<ScoreTuple> tuples;
-		for(const auto& s : friendsScores)
+		unsigned int index{0};
+		for(const auto& n : assets.pGetTrackedNames())
 		{
-			if(s == "NULL") continue;
-			auto value(getRootFromString(s));
-			tuples.emplace_back(as<int>(value, "p"), as<string>(value, "n"), as<float>(value, "s"));
+			const auto& score(ssvuj::as<float>(fs, index));
+			++index;
+			const auto& pos(ssvuj::as<unsigned int>(fs, index));
+			++index;
+
+			tuples.emplace_back(pos, n, score);
 		}
+
 		sort(begin(tuples), end(tuples), [&](const ScoreTuple& mA, const ScoreTuple& mB){ return get<0>(mA) < get<0>(mB); });
 		friendsString.clear();
 		for(const auto& t : tuples) friendsString.append("(" + toStr(get<0>(t)) + ") " + get<1>(t) + ": " + toStr(get<2>(t)) + "\n");

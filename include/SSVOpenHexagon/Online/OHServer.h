@@ -15,15 +15,17 @@ namespace hg
 {
 	namespace Online
 	{
-		class User
+		struct UserStats
 		{
-			private:
-				std::string passwordHash;
-
-			public:
-				inline void setPasswordHash(const std::string& mPasswordHash) { passwordHash = mPasswordHash; }
-				inline const std::string& getPasswordHash() const { return passwordHash; }
-				inline bool isPasswordHash(const std::string& mPasswordHash) const { return passwordHash == mPasswordHash; }
+			unsigned int minutesSpentPlaying{0};
+			unsigned int deaths{0};
+			unsigned int restarts{0};
+			std::vector<std::string> trackedNames;
+		};
+		struct User
+		{
+			std::string passwordHash;
+			UserStats stats;
 		};
 		class UserDB
 		{
@@ -77,12 +79,26 @@ namespace ssvuj
 {
 	namespace Internal
 	{
+		template<> struct AsHelper<hg::Online::UserStats>
+		{
+			inline static hg::Online::UserStats as(const Impl& mValue)
+			{
+				hg::Online::UserStats result;
+				result.deaths = ssvuj::as<long>(mValue, "dth");
+				result.minutesSpentPlaying = ssvuj::as<long>(mValue, "msp");
+				result.restarts = ssvuj::as<long>(mValue, "rst");
+				result.trackedNames = ssvuj::as<std::vector<std::string>>(mValue, "tn");
+				return result;
+			}
+		};
+
 		template<> struct AsHelper<hg::Online::User>
 		{
 			inline static hg::Online::User as(const Impl& mValue)
 			{
 				hg::Online::User result;
-				result.setPasswordHash(ssvuj::as<std::string>(mValue, "ph"));
+				result.passwordHash = ssvuj::as<std::string>(mValue, "ph");
+				result.stats = ssvuj::as<hg::Online::UserStats>(mValue, "st");
 				return result;
 			}
 		};
@@ -92,10 +108,7 @@ namespace ssvuj
 			inline static hg::Online::UserDB as(const Impl& mValue)
 			{
 				hg::Online::UserDB result;
-
-				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
-					result.registerUser(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::User>(*itr));
-
+				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr) result.registerUser(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::User>(*itr));
 				return result;
 			}
 		};
@@ -109,9 +122,7 @@ namespace ssvuj
 				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
 				{
 					if(ssvuj::as<std::string>(itr.key()) == "validator") continue;
-
-					for(unsigned int i{0}; i < ssvuj::size(*itr); ++i)
-						result.addScore(std::stof(ssvuj::as<std::string>(itr.key())), ssvuj::as<std::string>((*itr)[i], 0), ssvuj::as<float>((*itr)[i], 1));
+					for(unsigned int i{0}; i < ssvuj::size(*itr); ++i) result.addScore(std::stof(ssvuj::as<std::string>(itr.key())), ssvuj::as<std::string>((*itr)[i], 0), ssvuj::as<float>((*itr)[i], 1));
 				}
 
 				return result;
@@ -132,9 +143,20 @@ namespace ssvuj
 		};
 	}
 
+	template<> inline void set<hg::Online::UserStats>(Impl& mRoot, const hg::Online::UserStats& mValueToSet)
+	{
+		set(mRoot, "dth", mValueToSet.deaths);
+		set(mRoot, "msp", mValueToSet.minutesSpentPlaying);
+		set(mRoot, "rst", mValueToSet.restarts);
+
+		for(unsigned int i{0}; i < mValueToSet.trackedNames.size(); ++i)
+			set(mRoot["tn"], i, mValueToSet.trackedNames[i]);
+	}
+
 	template<> inline void set<hg::Online::User>(Impl& mRoot, const hg::Online::User& mValueToSet)
 	{
-		set(mRoot, "ph", mValueToSet.getPasswordHash());
+		set(mRoot, "ph", mValueToSet.passwordHash);
+		set(mRoot, "st", mValueToSet.stats);
 	}
 
 	template<> inline void set<hg::Online::UserDB>(Impl& mRoot, const hg::Online::UserDB& mValueToSet)
@@ -195,7 +217,7 @@ namespace hg
 						const auto& u(users.getUser(username));
 						ssvu::lo << ssvu::lt("PacketHandler") << "Username found" << std::endl;
 
-						if(u.isPasswordHash(passwordHash))
+						if(u.passwordHash == passwordHash)
 						{
 							ssvu::lo << ssvu::lt("PacketHandler") << "Password valid" << std::endl;
 							mMS.send(buildPacket<FromServer::LoginResponseValid>());
@@ -209,7 +231,7 @@ namespace hg
 					{
 						ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
 
-						User newUser; newUser.setPasswordHash(passwordHash);
+						User newUser; newUser.passwordHash = passwordHash;
 						users.registerUser(username, newUser);
 
 						saveUsers();
@@ -245,7 +267,7 @@ namespace hg
 						return;
 					}
 
-					ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, inserting score" << std::endl;
+					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, inserting score" << std::endl;
 
 					auto& l(scores.getLevel(levelId));
 					if(l.getScore(diffMult, username) < score) l.addScore(diffMult, username, score);
@@ -264,7 +286,7 @@ namespace hg
 					auto& l(scores.getLevel(levelId));
 
 					if(Online::getValidators().getValidator(levelId) != validator || !l.hasDiffMult(diffMult)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
-					ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, sending leaderboard" << std::endl;
+					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, sending leaderboard" << std::endl;
 
 					const auto& sortedScores(l.getSortedScores(diffMult));
 					ssvuj::Value response;
@@ -285,7 +307,88 @@ namespace hg
 					ssvuj::writeRootToString(response, leaderboardDataString);
 					mMS.send(buildCompressedPacket<FromServer::SendLeaderboard>(leaderboardDataString));
 				};
+
+				pHandler[FromClient::RequestUserStats] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				{
+					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
+					ssvuj::Value statsValue;
+					ssvuj::set(statsValue, users.getUser(username).stats);
+					std::string response;
+					ssvuj::writeRootToString(statsValue, response);
+					mMS.send(buildCompressedPacket<FromServer::SendUserStats>(response));
+				};
+
+				pHandler[FromClient::US_Death] = [&](ManagedSocket&, sf::Packet& mP)
+				{
+					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
+					users.getUser(username).stats.deaths += 1;
+					saveUsers();
+				};
+				pHandler[FromClient::US_Restart] = [&](ManagedSocket&, sf::Packet& mP)
+				{
+					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
+					users.getUser(username).stats.restarts += 1;
+					saveUsers();
+				};
+				pHandler[FromClient::US_MinutePlayed] = [&](ManagedSocket&, sf::Packet& mP)
+				{
+					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
+					users.getUser(username).stats.minutesSpentPlaying += 1;
+					saveUsers();
+				};
+				pHandler[FromClient::US_AddFriend] = [&](ManagedSocket&, sf::Packet& mP)
+				{
+					ssvuj::Value request{getDecompressedPacket(mP)};
+					std::string username{ssvuj::as<std::string>(request, 0)}, friendUsername{ssvuj::as<std::string>(request, 1)};
+					if(!users.hasUser(friendUsername)) return;
+
+					auto& tn(users.getUser(username).stats.trackedNames);
+					if(ssvu::contains(tn, friendUsername)) return;
+					tn.push_back(friendUsername);
+					saveUsers();
+				};
+				pHandler[FromClient::US_ClearFriends] = [&](ManagedSocket&, sf::Packet& mP)
+				{
+					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
+					users.getUser(username).stats.trackedNames.clear();
+					saveUsers();
+				};
+
+				pHandler[FromClient::RequestFriendsScores] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				{
+					ssvuj::Value request{getDecompressedPacket(mP)};
+					std::string username{ssvuj::as<std::string>(request, 0)}, levelId{ssvuj::as<std::string>(request, 1)};
+
+					if(!scores.hasLevel(levelId)) return;
+
+					float diffMult{ssvuj::as<float>(request, 2)};
+					ssvuj::Value responseValue;
+					unsigned int i{0}, p{1};
+					bool found{false};
+
+					for(const auto& v : scores.getLevel(levelId).getSortedScores(diffMult))
+					{
+						for(const auto& n : users.getUser(username).stats.trackedNames)
+						{
+							if(v.second != n) continue;
+
+							found = true;
+
+							ssvuj::set(responseValue, i, v.first);
+							++i;
+							ssvuj::set(responseValue, i, p);
+							++i;
+						}
+
+						++p;
+					}
+
+					if(!found) return;
+					std::string response; ssvuj::writeRootToString(responseValue, response);
+					mMS.send(buildCompressedPacket<FromServer::SendFriendsScores>(response));
+				};
 			}
+
 
 			inline void start()
 			{

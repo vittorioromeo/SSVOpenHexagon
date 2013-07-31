@@ -27,7 +27,7 @@ namespace hg
 			template<unsigned int TIndex, typename TArg, typename... TArgs> inline void jBuildHelper(ssvuj::Value& mP, TArg&& mArg, TArgs&&... mArgs) { ssvuj::set(mP, TIndex, mArg); jBuildHelper<TIndex + 1>(mP, mArgs...); }
 
 			inline ssvuj::Value getDecompressedJsonString(const std::string& mData) { ssvuj::Value result{ssvuj::getRootFromString(getZLIBDecompress(mData))}; return result; }
-			template<typename... TArgs> inline  ssvuj::Value buildJsonDataArray(TArgs&&... mArgs) { ssvuj::Value result; Internal::jBuildHelper<0>(result, mArgs...); return result; }
+			template<typename... TArgs> inline ssvuj::Value buildJsonDataArray(TArgs&&... mArgs) { ssvuj::Value result; Internal::jBuildHelper<0>(result, mArgs...); return result; }
 			template<typename... TArgs> inline std::string buildCompressedJsonString(TArgs&&... mArgs)
 			{
 				ssvuj::Value request{buildJsonDataArray(mArgs...)}; std::string requestString;

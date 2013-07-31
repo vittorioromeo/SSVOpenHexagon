@@ -18,6 +18,16 @@ namespace hg
 {
 	void HexagonGame::update(float mFrameTime)
 	{
+		if(!assets.pIsPlayingLocally() && isEligibleForScore())
+		{
+			assets.playedSeconds += mFrameTime / 60.0f;
+			if(assets.playedSeconds >= 60.f)
+			{
+				assets.playedSeconds = 0;
+				Online::trySendMinutePlayed();
+			}
+		}
+
 		updateFlash(mFrameTime);
 		effectTimelineManager.update(mFrameTime);
 
@@ -38,7 +48,11 @@ namespace hg
 		if(get3D()) update3D(mFrameTime);
 		if(!getNoRotation()) updateRotation(mFrameTime);
 
-		if(status.mustRestart) changeLevel(restartId, restartFirstTime);
+		if(status.mustRestart)
+		{
+			changeLevel(restartId, restartFirstTime);
+			if(!assets.pIsPlayingLocally() && isEligibleForScore()) { Online::trySendRestart(); }
+		}
 		if(!status.scoreInvalid && getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
 
 		fpsWatcher.update();

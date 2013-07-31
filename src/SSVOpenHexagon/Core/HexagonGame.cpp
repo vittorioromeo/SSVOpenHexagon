@@ -99,6 +99,8 @@ namespace hg
 		if(!mForce && (getInvincible() || levelStatus.tutorialMode)) return;
 		assets.playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
+		if(!assets.pIsPlayingLocally() && isEligibleForScore()) { Online::trySendDeath(); }
+
 		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
 		shakeCamera(effectTimelineManager, backgroundCamera);
@@ -147,7 +149,7 @@ namespace hg
 		else
 		{
 			if(status.currentTime < 1) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
-			Online::trySendScore(assets.pGetName(), levelData->id, difficultyMult, status.currentTime);
+			Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
 		}
 
 

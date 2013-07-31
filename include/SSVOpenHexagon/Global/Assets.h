@@ -18,6 +18,7 @@
 #include "SSVOpenHexagon/Data/StyleData.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 #include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Online/OHServer.h"
 
 namespace hg
 {
@@ -44,6 +45,8 @@ namespace hg
 			ProfileData* currentProfilePtr{nullptr};
 
 		public:
+			float playedSeconds{0};
+
 			HGAssets(bool mLevelsOnly = false);
 
 			inline ssvs::AssetManager& operator()() { return assetManager; }
@@ -93,18 +96,17 @@ namespace hg
 			}
 			inline const std::vector<std::string>& pGetTrackedNames() const
 			{
-				static std::vector<std::string> temp{};
-				if(!playingLocally) return temp;
+				if(!playingLocally) return Online::getUserStats().trackedNames;
 				return getCurrentLocalProfile().getTrackedNames();
 			}
 			inline void pClearTrackedNames()
 			{
-				if(!playingLocally) return;
+				if(!playingLocally) { Online::trySendClearFriends(); return; }
 				getCurrentLocalProfile().clearTrackedNames();
 			}
 			inline void pAddTrackedName(const std::string& mName)
 			{
-				if(!playingLocally) return;
+				if(!playingLocally) { Online::trySendAddFriend(mName); return; }
 				getCurrentLocalProfile().addTrackedName(mName);
 			}
 			inline void pSaveCurrent()
