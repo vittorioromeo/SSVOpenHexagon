@@ -24,9 +24,10 @@ namespace hg
 				static unsigned int lastUid;
 				unsigned int uid;
 				ManagedSocket managedSocket;
-				int untilTimeout{100};
+				int untilTimeout{5};
 
 			public:
+				ssvu::Delegate<void> onDisconnect;
 
 				ClientHandler(PacketHandler& mPacketHandler) : uid{lastUid}, managedSocket(mPacketHandler)
 				{
@@ -37,7 +38,7 @@ namespace hg
 					{
 						while(true)
 						{
-							std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+							std::this_thread::sleep_for(std::chrono::milliseconds(800));
 
 							if(!isBusy()) continue;
 
@@ -45,7 +46,7 @@ namespace hg
 							if(untilTimeout > 0) continue;
 
 							ssvu::lo << ssvu::lt("ClientHandler") << "Client timed out" << std::endl;
-							managedSocket.disconnect();
+							onDisconnect(); managedSocket.disconnect();
 						}
 					}).detach();
 				}
@@ -55,6 +56,7 @@ namespace hg
 				inline bool isBusy() const							{ return managedSocket.isBusy(); }
 				inline unsigned int getUid() const					{ return uid; }
 				inline ManagedSocket& getManagedSocket()			{ return managedSocket; }
+				inline void refreshTimeout()						{ untilTimeout = 5; }
 		};
 	}
 }

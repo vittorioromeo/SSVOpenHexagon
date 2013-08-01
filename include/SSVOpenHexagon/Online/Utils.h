@@ -36,7 +36,6 @@ namespace hg
 		}
 		template<unsigned int TType> inline sf::Packet buildPacket() { sf::Packet result; result << TType; return result; }
 		template<unsigned int TType, typename... TArgs> inline sf::Packet buildPacket(TArgs&&... mArgs) { sf::Packet result; result << TType; Internal::pBuildHelper(result, mArgs...); return result; }
-
 		template<unsigned int TType, typename... TArgs> inline sf::Packet buildCompressedPacket(TArgs&&... mArgs) { sf::Packet result; result << TType << Internal::buildCompressedJsonString(mArgs...); return result; }
 		inline ssvuj::Value getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return Internal::getDecompressedJsonString(data); }
 

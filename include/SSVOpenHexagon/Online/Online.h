@@ -52,11 +52,11 @@ namespace hg
 		bool isLoggedIn();
 		bool isLoginTimedOut();
 
-		void logOut();
+		void logout();
 
 		ValidatorDB& getValidators();
 
-		const std::string& getCurrentUsername();
+		std::string getCurrentUsername();
 
 		const UserStats& getUserStats();
 
@@ -85,7 +85,8 @@ namespace hg
 			US_Restart,
 			US_AddFriend,
 			US_ClearFriends,
-			RequestFriendsScores
+			RequestFriendsScores,
+			Logout
 		};
 
 		// Server to client
@@ -100,7 +101,9 @@ namespace hg
 			SendLeaderboardFailed,
 			SendUserStats,
 			SendUserStatsFailed,
-			SendFriendsScores
+			SendFriendsScores,
+			SendLogoutValid,
+			ClientAccepted
 		};
 	}
 }

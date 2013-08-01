@@ -151,10 +151,6 @@ namespace hg
 			if(status.currentTime < 1) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
 			Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
 		}
-
-
-//		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
-//		Online::startSendScore(toLower(assets.getCurrentProfile().getName()), validator, difficultyMult, status.currentTime);
 	}
 	void HexagonGame::goToMenu(bool mSendScores)
 	{

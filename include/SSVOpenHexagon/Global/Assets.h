@@ -91,7 +91,7 @@ namespace hg
 
 			inline std::string pGetName() const
 			{
-				if(!playingLocally) { if(!Online::isLoggedIn()) throw; return Online::getCurrentUsername(); }
+				if(!playingLocally) return Online::getCurrentUsername();
 				return getCurrentLocalProfile().getName();
 			}
 			inline const std::vector<std::string>& pGetTrackedNames() const

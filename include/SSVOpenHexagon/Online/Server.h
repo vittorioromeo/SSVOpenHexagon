@@ -47,6 +47,7 @@ namespace hg
 						if(!retry([&]{ return c->tryAccept(listener); }).get()) continue;
 
 						onClientAccepted(*c.get());
+						c->refreshTimeout();
 						ssvu::lo << ssvu::lt("Server") << "Accepted client (" << c->getUid() << ")" << std::endl;
 					}
 				}

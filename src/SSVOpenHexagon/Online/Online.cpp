@@ -43,6 +43,8 @@ namespace hg
 
 		PacketHandler clientPHandler;
 		Uptr<Client> client;
+		bool accepted{false};
+		unsigned int clientUid;
 
 		string currentUsername{"NULL"};
 		string currentLeaderboard{"NULL"};
@@ -74,6 +76,8 @@ namespace hg
 			clientPHandler[FromServer::SendUserStats] = [](ManagedSocket&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](ManagedSocket&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats"; };
 			clientPHandler[FromServer::SendFriendsScores] = [](ManagedSocket&, sf::Packet& mP)		{ currentFriendScores = ssvuj::getRootFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0));};
+			clientPHandler[FromServer::SendLogoutValid] = [](ManagedSocket&, sf::Packet&)			{ loggedIn = false; };
+			clientPHandler[FromServer::ClientAccepted] = [](ManagedSocket&, sf::Packet& mP)			{ ssvuj::Value r{getDecompressedPacket(mP)}; clientUid = ssvuj::as<unsigned int>(r, 0); accepted = true; lo << lt("PacketHandler") << "Client UID: " << clientUid << endl; };
 
 			client = Uptr<Client>(new Client(clientPHandler));
 
@@ -91,7 +95,7 @@ namespace hg
 		void tryConnectToServer()
 		{
 			if(connected || connecting) { lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
-			connecting = true;
+			accepted = false; connecting = true;
 
 			lo << lt("hg::Online::connectToServer") << "Connecting to server..." << endl;
 
@@ -110,14 +114,17 @@ namespace hg
 
 		void tryLogin(const string& mUsername, const string& mPassword)
 		{
+			if(isLoggedIn()) { logout(); return; }
+
 			lo << lt("hg::Online::tryLogin") << "Logging in..." << endl;
 
 			thread([=]
 			{
 				loginTimedOut = false;
-				this_thread::sleep_for(std::chrono::milliseconds(100));
+				this_thread::sleep_for(std::chrono::milliseconds(80));
 				if(!retry([&]{ return connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginTimedOut = true; return; }
-				client->send(buildCompressedPacket<FromClient::Login>(mUsername, mPassword));
+				if(!retry([&]{ return accepted; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not accepted - aborting" << endl; loginTimedOut = true; return; }
+				client->send(buildCompressedPacket<FromClient::Login>(clientUid, mUsername, mPassword));
 				currentUsername = mUsername;
 			}).detach();
 		}
@@ -129,7 +136,7 @@ namespace hg
 
 			thread([=]
 			{
-				this_thread::sleep_for(std::chrono::milliseconds(100));
+				this_thread::sleep_for(std::chrono::milliseconds(80));
 				if(!isConnected() || !isLoggedIn() || currentUsername == "NULL") { lo << lt("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
 				mFunc();
 			}).detach();
@@ -145,12 +152,12 @@ namespace hg
 		void trySendClearFriends()													{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::US_ClearFriends>(currentUsername)); trySendInitialRequests(); }); }
 		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult)); }); }
 
-		bool isConnected()	{ return connected; }
-		bool isLoggedIn()	{ return loggedIn; }
-		bool isLoginTimedOut()	{ return loginTimedOut; }
-		const string& getCurrentUsername() { if(!loggedIn) throw; return currentUsername; }
+		bool isConnected()					{ return connected; }
+		bool isLoggedIn()					{ if(!connected) loggedIn = false; return loggedIn; }
+		bool isLoginTimedOut()				{ return loginTimedOut; }
+		string getCurrentUsername()			{ return loggedIn ? currentUsername : "NULL"; }
 
-		void logOut() { client->disconnect(); }
+		void logout() { trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::Logout>(currentUsername)); }); }
 
 		void invalidateCurrentLeaderboard() { currentLeaderboard = "NULL"; }
 		void invalidateCurrentFriendsScores() { currentFriendScores = ssvuj::Value{}; }

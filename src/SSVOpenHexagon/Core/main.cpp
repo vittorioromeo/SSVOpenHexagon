@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 
 	//Online::terminateAll();
 
-	if(Online::isLoggedIn()) Online::logOut();
+	if(Online::isLoggedIn()) Online::logout();
 
 	saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
 	return 0;

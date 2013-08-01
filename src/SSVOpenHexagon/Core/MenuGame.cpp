@@ -34,9 +34,6 @@ namespace hg
 		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIndex]);
 		setIndex(0);
 
-		//if(assets.getProfilesSize() == 0) state = States::PROFILE_NEW;
-		//else if(assets.getProfilesSize() == 1) { assets.setCurrentProfile(assets.getFirstProfileName()); state = States::MAIN; }
-
 		initWelcomeMenu(); initOptionsMenu(); initInput();
 	}
 
@@ -52,8 +49,19 @@ namespace hg
 	{
 		namespace i = ssvms::Items;
 		auto& main(welcomeMenu.createCategory("welcome"));
-		main.create<i::Single>("login", [&]{ if(!Online::isConnected()) { Online::tryConnectToServer(); return; } assets.pSetPlayingLocally(false); enteredString = ""; state = States::LR_USER; });
-		main.create<i::Single>("play locally", [&]{ assets.pSetPlayingLocally(true); enteredString = ""; state = States::LOCALPROFILES; });
+		main.create<i::Single>("login", [&]
+		{
+			if(!Online::isConnected()) { Online::tryConnectToServer(); return; }
+			if(Online::isLoggedIn()) { Online::logout(); return; }
+			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
+			assets.pSetPlayingLocally(false); enteredString = ""; state = States::LR_USER;
+		});
+		main.create<i::Single>("play locally", [&]
+		{
+			if(Online::isLoggedIn()) { Online::logout(); return; }
+			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
+			assets.pSetPlayingLocally(true); enteredString = ""; state = States::LOCALPROFILES;
+		});
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
 	}
 	void MenuGame::initOptionsMenu()
@@ -89,7 +97,6 @@ namespace hg
 		resolution.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
 		resolution.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
 		resolution.create<i::Goto>("back", main);
-
 
 		gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
 		gfx.create<i::Toggle>("background",	[&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
@@ -210,11 +217,8 @@ namespace hg
 		Online::invalidateCurrentFriendsScores();
 		Online::tryRequestLeaderboard(levelData->id, diffMult);
 		Online::tryRequestFriendsScores(levelData->id, diffMult);
-//		string validator{Online::getValidator(levelData->packPath, levelData->id, levelData->levelRootPath, levelData->styleRootPath, levelData->luaScriptPath)};
-		//string validator{"0"};
 
-	//	if(Online::isOverloaded()) { wasOverloaded = true; return; }
-	//	Online::startGetScores(currentLeaderboard, currentPlayerScore, assets.getCurrentProfile().getName(), friendsScores, assets.getCurrentProfile().getTrackedNames(), validator, difficultyMult);
+		// if(Online::isOverloaded()) { wasOverloaded = true; return; }
 	}
 	void MenuGame::updateLeaderboard()
 	{
@@ -224,7 +228,7 @@ namespace hg
 		if(currentLeaderboard == "NULL") { leaderboardString = "..."; return; }
 		//if(currentLeaderboard == "" || currentPlayerScore == "") { leaderboardString = "refreshing..."; return; }
 
-		unsigned int leaderboardRecordCount{8};
+		constexpr unsigned int leaderboardRecordCount{8};
 		ssvuj::Value root{getRootFromString(currentLeaderboard)};
 		if(as<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
 
@@ -243,7 +247,7 @@ namespace hg
 			recordPairs.push_back({name, score});
 		}
 
-		sort(begin(recordPairs), end(recordPairs), [&](const RecordPair& mA, const RecordPair& mB){ return mA.second > mB.second; });
+		//sort(begin(recordPairs), end(recordPairs), [&](const RecordPair& mA, const RecordPair& mB){ return mA.second > mB.second; });
 
 		bool foundPlayer{false};
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
@@ -300,11 +304,10 @@ namespace hg
 		unsigned int index{0};
 		for(const auto& n : assets.pGetTrackedNames())
 		{
-			const auto& score(ssvuj::as<float>(fs, index));
-			++index;
-			const auto& pos(ssvuj::as<unsigned int>(fs, index));
-			++index;
+			const auto& score(ssvuj::as<float>(fs, index++));
+			const auto& pos(ssvuj::as<unsigned int>(fs, index++));
 
+			if(pos == 0) continue;
 			tuples.emplace_back(pos, n, score);
 		}
 
@@ -437,13 +440,12 @@ namespace hg
 			else if(serverVersion > getVersion()) versionMessage = "update available (" + toStr(serverVersion) + ")";
 			renderText(versionMessage, cProfText, {20, 0}, 13);
 
-
 			Text& profile = renderText("profile: " + assets.pGetName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
 			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(assets.getPackPaths().size()) + ")", cProfText, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
 			string lbestStr{""};
 			if(assets.pIsPlayingLocally()) lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])));
-			else { lbestStr = Online::isLoggedIn() ? "logged in as " + Online::getCurrentUsername() : "logging in..."; }
+			else { lbestStr = Online::isLoggedIn() ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
 
 			Text& lbest = renderText(lbestStr, cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
@@ -454,7 +456,6 @@ namespace hg
 			Text& smsg = renderText("server message: " + Online::getServerMessage(), levelAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
 			friendsText.setOrigin({getLocalWidth(friendsText), 0.f});
 			renderText("friends:\n" + friendsString, friendsText, {w - 20.f, getGlobalBottom(titleBar)}, 18);
-			//renderText("packs:\n" + packNames, packsText, {overlayCamera.getConvertedCoords(Vec2i(getWidth() - 20.f - friendsText.getGlobalBounds().width, getHeight() - 20.f - friendsText.getGlobalBounds().height))});
 
 			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20.f, getGlobalTop(smsg) - 20.f}, 11);
 		}
@@ -546,8 +547,8 @@ namespace hg
 			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing});
 		}
 
+		renderText(Online::isLoggedIn() ? "logged in as: " + Online::getCurrentUsername() : "not logged in", cProfText, {20, h - 50.f});
 		renderText(Online::isConnected() ? "connected to server" : "not connected to server", cProfText, {20, h - 30.f});
-		//else if(getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, h - 30.f});
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
