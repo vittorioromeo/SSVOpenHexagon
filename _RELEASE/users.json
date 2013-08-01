@@ -1,5 +1,15 @@
 
 {
+	"bahb" : 
+	{
+		"ph" : "7c9faa926d9d2d6a236b759fccc9dc3e",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
+		}
+	},
 	"endo" : 
 	{
 		"ph" : "1c34261f89c2c2eda0929b38292baf08",
@@ -8,6 +18,16 @@
 			"dth" : 6,
 			"msp" : 0,
 			"rst" : 5
+		}
+	},
+	"fukiwa" : 
+	{
+		"ph" : "d9eca919bbf5d0a3e0be4f124d7e6eae",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
 		}
 	},
 	"ha" : 
@@ -25,9 +45,9 @@
 		"ph" : "d6b8fbf77dc70012e9199481e06a1c49",
 		"st" : 
 		{
-			"dth" : 3,
-			"msp" : 0,
-			"rst" : 1,
+			"dth" : 14,
+			"msp" : 1,
+			"rst" : 10,
 			"tn" : [ "matsumoto", "tanaka", "endo", "yamasaki" ]
 		}
 	},

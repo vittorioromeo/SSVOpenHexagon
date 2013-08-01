@@ -301,11 +301,12 @@ namespace hg
 
 		using ScoreTuple = tuple<int, string, float>;
 		vector<ScoreTuple> tuples;
-		unsigned int index{0};
 		for(const auto& n : assets.pGetTrackedNames())
 		{
-			const auto& score(ssvuj::as<float>(fs, index++));
-			const auto& pos(ssvuj::as<unsigned int>(fs, index++));
+			if(!ssvuj::has(fs, n)) continue;
+
+			const auto& score(ssvuj::as<float>(fs[n], 0));
+			const auto& pos(ssvuj::as<unsigned int>(fs[n], 1));
 
 			if(pos == 0) continue;
 			tuples.emplace_back(pos, n, score);

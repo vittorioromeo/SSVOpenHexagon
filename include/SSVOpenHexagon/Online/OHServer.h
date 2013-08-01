@@ -55,16 +55,16 @@ namespace hg
 					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) if(itr->second == mUsername) { ss.erase(itr); break; }
 					ss.insert({mScore, mUsername});
 
-					unsigned int p{1};
-					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) { userPositions[mDiffMult][mUsername] = p; ++p; }
+					unsigned int i{1};
+					for(const auto& v : ss) userPositions[mDiffMult][v.second] = i++;
 				}
+
 				inline bool hasDiffMult(float mDiffMult) const { return scores.count(mDiffMult) > 0; }
-				inline float getScore(float mDiffMult, const std::string& mUsername) const { if(!hasDiffMult(mDiffMult) || scores.at(mDiffMult).count(mUsername) == 0) return -1; return scores.at(mDiffMult).at(mUsername); }
 				inline const std::unordered_map<float, std::unordered_map<std::string, float>>& getScores() const { return scores; }
 				inline const std::unordered_map<std::string, float>& getScores(float mDiffMult) const { return scores.at(mDiffMult); }
-				inline float getPlayerScore(const std::string& mUsername, float mDiffMult) const { if(!hasDiffMult(mDiffMult) || scores.at(mDiffMult).count(mUsername) == 0) return -1.f; return scores.at(mDiffMult).at(mUsername); }
 				inline const std::map<float, std::string>& getSortedScores(float mDiffMult) const { return sortedScores.at(mDiffMult); }
-				inline int getPlayerPosition(const std::string& mUsername, float mDiffMult) const { if(!hasDiffMult(mDiffMult) || userPositions.at(mDiffMult).count(mUsername) == 0) return -1; return userPositions.at(mDiffMult).at(mUsername); }
+				inline float getPlayerScore(const std::string& mUsername, float mDiffMult) const { if(scores.count(mDiffMult) == 0 || scores.at(mDiffMult).count(mUsername) == 0) return -1.f; return scores.at(mDiffMult).at(mUsername); }
+				inline int getPlayerPosition(const std::string& mUsername, float mDiffMult) const { if(userPositions.count(mDiffMult) == 0 || userPositions.at(mDiffMult).count(mUsername) == 0) return -1; return userPositions.at(mDiffMult).at(mUsername); }
 
 		};
 		class ScoreDB
@@ -315,7 +315,7 @@ namespace hg
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, inserting score" << std::endl;
 
 					auto& l(scores.getLevel(levelId));
-					if(l.getScore(diffMult, username) < score) l.addScore(diffMult, username, score);
+					if(l.getPlayerScore(username, diffMult) < score) l.addScore(diffMult, username, score);
 
 					saveScores();
 					mMS.send(buildPacket<FromServer::SendScoreResponseValid>());
@@ -340,8 +340,9 @@ namespace hg
 					ssvuj::Value response;
 
 					unsigned int i{0};
-					for(const auto& v : sortedScores)
+					for(auto itr(sortedScores.rbegin()); itr != sortedScores.rend(); ++itr)
 					{
+						const auto& v(*itr);
 						ssvuj::set(response["r"][i], 0, v.second); ssvuj::set(response["r"][i], 1, v.first);
 						++i;
 						if(i > ssvu::getClamped(8u, 0u, static_cast<unsigned int>(sortedScores.size()))) break;
@@ -412,16 +413,13 @@ namespace hg
 
 					float diffMult{ssvuj::as<float>(request, 2)};
 					ssvuj::Value responseValue;
-					unsigned int i{0};
 
 					for(const auto& n : users.getUser(username).stats.trackedNames)
 					{
 						const auto& score(l.getPlayerScore(n, diffMult));
 						if(score == -1.f) continue;
-						ssvuj::set(responseValue, i, score);
-						++i;
-						ssvuj::set(responseValue, i, l.getPlayerPosition(n, diffMult));
-						++i;
+						ssvuj::set(responseValue[n], 0, score);
+						ssvuj::set(responseValue[n], 1, l.getPlayerPosition(n, diffMult));
 					}
 
 					std::string response; ssvuj::writeRootToString(responseValue, response);
