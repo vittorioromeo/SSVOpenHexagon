@@ -45,9 +45,9 @@
 		"ph" : "d6b8fbf77dc70012e9199481e06a1c49",
 		"st" : 
 		{
-			"dth" : 14,
-			"msp" : 1,
-			"rst" : 10,
+			"dth" : 25,
+			"msp" : 2,
+			"rst" : 20,
 			"tn" : [ "matsumoto", "tanaka", "endo", "yamasaki" ]
 		}
 	},

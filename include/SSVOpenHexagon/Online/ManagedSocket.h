@@ -23,6 +23,8 @@ namespace hg
 				PacketHandler& packetHandler;
 				sf::TcpSocket socket;
 				bool busy{false};
+				bool boundToCH{false};
+				unsigned int chUid;
 
 				void update()
 				{
@@ -76,6 +78,8 @@ namespace hg
 				}
 				inline void disconnect()	{ socket.disconnect(); busy = false; }
 				inline bool isBusy() const	{ return busy; }
+				inline void setCHUid(unsigned int mCHUid) { chUid = mCHUid; boundToCH = true; }
+				inline unsigned int getCHUid() { if(!boundToCH) throw; return chUid; }
 		};
 	}
 }

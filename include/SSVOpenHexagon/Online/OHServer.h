@@ -56,7 +56,7 @@ namespace hg
 					ss.insert({mScore, mUsername});
 
 					unsigned int i{1};
-					for(const auto& v : ss) userPositions[mDiffMult][v.second] = i++;
+					for(auto ritr(ss.rbegin()); ritr != ss.rend(); ++ritr) userPositions[mDiffMult][ritr->second] = i++;
 				}
 
 				inline bool hasDiffMult(float mDiffMult) const { return scores.count(mDiffMult) > 0; }
@@ -232,7 +232,6 @@ namespace hg
 			{
 				server.onClientAccepted += [&](ClientHandler& mCH)
 				{
-					mCH.send(buildCompressedPacket<FromServer::ClientAccepted>(mCH.getUid()));
 					mCH.onDisconnect += [&]{ forceLogout(mCH.getUid()); };
 				};
 				pHandler[FromClient::Ping] = [](ManagedSocket&, sf::Packet&) { };
@@ -240,8 +239,8 @@ namespace hg
 				{
 					ssvuj::Value request{getDecompressedPacket(mP)};
 
-					unsigned int clientUid{ssvuj::as<unsigned int>(request, 0)};
-					std::string username{ssvuj::as<std::string>(request, 1)};
+					unsigned int clientUid{mMS.getCHUid()};
+					std::string username{ssvuj::as<std::string>(request, 0)};
 
 					if(isLoggedIn(username))
 					{
@@ -250,7 +249,7 @@ namespace hg
 						return;
 					}
 
-					std::string password{ssvuj::as<std::string>(request, 2)};
+					std::string password{ssvuj::as<std::string>(request, 1)};
 					std::string passwordHash{getMD5Hash(password + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
 					if(users.hasUser(username))
@@ -423,6 +422,7 @@ namespace hg
 					}
 
 					std::string response; ssvuj::writeRootToString(responseValue, response);
+					//ssvu::lo << response << std::endl;
 					mMS.send(buildCompressedPacket<FromServer::SendFriendsScores>(response));
 				};
 

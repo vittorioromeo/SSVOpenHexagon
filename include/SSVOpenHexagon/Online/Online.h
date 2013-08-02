@@ -102,8 +102,7 @@ namespace hg
 			SendUserStats,
 			SendUserStatsFailed,
 			SendFriendsScores,
-			SendLogoutValid,
-			ClientAccepted
+			SendLogoutValid
 		};
 	}
 }
