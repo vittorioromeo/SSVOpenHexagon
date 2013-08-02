@@ -481,11 +481,11 @@ namespace hg
 		string title;
 		switch(state)
 		{
-			case hg::States::LR_USER:		title = "insert username"; break;
-			case hg::States::LR_PASS:		title = "insert password"; break;
-			case hg::States::LR_EMAIL:		title = "insert email"; break;
-			case hg::States::PROFILE_NEW:	title = "create local profile"; break;
-			case hg::States::ADD_FRIEND:	title = "add friend"; break;
+			case States::LR_USER:		title = "insert username"; break;
+			case States::LR_PASS:		title = "insert password"; break;
+			case States::LR_EMAIL:		title = "insert email"; break;
+			case States::PROFILE_NEW:	title = "create local profile"; break;
+			case States::ADD_FRIEND:	title = "add friend"; break;
 			default: throw;
 		}
 
@@ -493,7 +493,7 @@ namespace hg
 		renderText("insert text", cProfText,				{20, 768 - 375});
 		renderText("press enter when done", cProfText, 		{20, 768 - 335});
 		renderText("keep esc pressed to exit", cProfText, 	{20, 768 - 315});
-		renderText(enteredString, levelName, 				{20, 768 - 245 - 40});
+		renderText(state == States::LR_PASS ? std::string(enteredString.size(), '*') : enteredString, levelName, {20, 768 - 245 - 40});
 	}
 	void MenuGame::drawProfileSelection()
 	{
