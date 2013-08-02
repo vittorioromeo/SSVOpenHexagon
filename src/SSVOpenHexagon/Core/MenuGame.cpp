@@ -51,14 +51,14 @@ namespace hg
 		auto& main(welcomeMenu.createCategory("welcome"));
 		main.create<i::Single>("login", [&]
 		{
-			if(!Online::isConnected()) { Online::tryConnectToServer(); return; }
-			if(Online::isLoggedIn()) { Online::logout(); return; }
+			if(Online::getConnectionStatus() != Online::ConnectionStatus::Connected)	{ Online::tryConnectToServer(); return; }
+			if(Online::getLoginStatus() == Online::LoginStatus::Logged)					{ Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
 			assets.pSetPlayingLocally(false); enteredString = ""; state = States::LR_USER;
 		});
 		main.create<i::Single>("play locally", [&]
 		{
-			if(Online::isLoggedIn()) { Online::logout(); return; }
+			if(Online::getLoginStatus() == Online::LoginStatus::Logged)	{ Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
 			assets.pSetPlayingLocally(true); enteredString = ""; state = States::LOCALPROFILES;
 		});
@@ -372,10 +372,10 @@ namespace hg
 
 		if(state == States::LOGGING)
 		{
-			if(Online::isLoggedIn()) state = States::MAIN;
-			if(Online::isLoginTimedOut()) state = States::WELCOME;
+			if(Online::getLoginStatus() == Online::LoginStatus::Logged)		state = States::MAIN;
+			if(Online::getLoginStatus() == Online::LoginStatus::TimedOut)	state = States::WELCOME;
 		}
-		if(!assets.pIsPlayingLocally() && !Online::isConnected()) state = States::WELCOME;
+		if(!assets.pIsPlayingLocally() && Online::getConnectionStatus() != Online::ConnectionStatus::Connected) state = States::WELCOME;
 
 		updateLeaderboard();
 		updateFriends();
@@ -446,7 +446,7 @@ namespace hg
 
 			string lbestStr{""};
 			if(assets.pIsPlayingLocally()) lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])));
-			else { lbestStr = Online::isLoggedIn() ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
+			else { lbestStr = Online::getLoginStatus() == Online::LoginStatus::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
 
 			Text& lbest = renderText(lbestStr, cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
@@ -548,8 +548,16 @@ namespace hg
 			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing});
 		}
 
-		renderText(Online::isLoggedIn() ? "logged in as: " + Online::getCurrentUsername() : "not logged in", cProfText, {20, h - 50.f});
-		renderText(Online::isConnected() ? "connected to server" : "not connected to server", cProfText, {20, h - 30.f});
+		renderText(Online::getLoginStatus() == Online::LoginStatus::Logged ? "logged in as: " + Online::getCurrentUsername() : "not logged in", cProfText, {20, h - 50.f});
+
+		string connectionString;
+		switch(Online::getConnectionStatus())
+		{
+			case Online::ConnectionStatus::Disconnected:	connectionString = "not connected to server"; break;
+			case Online::ConnectionStatus::Connecting:		connectionString = "connecting to server..."; break;
+			case Online::ConnectionStatus::Connected:		connectionString = "connected to server"; break;
+		}
+		renderText(connectionString, cProfText, {20, h - 30.f});
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }

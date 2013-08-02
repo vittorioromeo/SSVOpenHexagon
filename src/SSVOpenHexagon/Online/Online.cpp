@@ -32,9 +32,8 @@ namespace hg
 		const IpAddress hostIp{"209.236.124.147"};
 		const unsigned short hostPort{27272};
 
-		bool connected{false}, connecting{false};
-		bool loggedIn{false};
-		bool loginTimedOut{false};
+		ConnectionStatus connectionStatus{ConnectionStatus::Disconnected};
+		LoginStatus loginStatus{LoginStatus::Unlogged};
 
 		float serverVersion{-1};
 		string serverMessage{""};
@@ -64,8 +63,8 @@ namespace hg
 
 		void initializeClient()
 		{
-			clientPHandler[FromServer::LoginResponseValid] = [](ManagedSocket&, sf::Packet&)		{ lo << lt("PacketHandler") << "Successfully logged in!" << endl; loggedIn = true; trySendInitialRequests(); };
-			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loggedIn = false; loginTimedOut = true; lo << lt("PacketHandler") << "Login invalid!" << endl; };
+			clientPHandler[FromServer::LoginResponseValid] = [](ManagedSocket&, sf::Packet&)		{ lo << lt("PacketHandler") << "Successfully logged in!" << endl; loginStatus = LoginStatus::Logged; trySendInitialRequests(); };
+			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loginStatus = LoginStatus::TimedOut; lo << lt("PacketHandler") << "Login invalid!" << endl; };
 			clientPHandler[FromServer::RequestInfoResponse] = [](ManagedSocket&, sf::Packet& mP)	{ ssvuj::Value r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
 			clientPHandler[FromServer::SendLeaderboard] = [](ManagedSocket&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); };
 			clientPHandler[FromServer::SendLeaderboardFailed] = [](ManagedSocket&, sf::Packet&)		{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard"; };
@@ -74,7 +73,7 @@ namespace hg
 			clientPHandler[FromServer::SendUserStats] = [](ManagedSocket&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](ManagedSocket&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats"; };
 			clientPHandler[FromServer::SendFriendsScores] = [](ManagedSocket&, sf::Packet& mP)		{ currentFriendScores = ssvuj::getRootFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0));};
-			clientPHandler[FromServer::SendLogoutValid] = [](ManagedSocket&, sf::Packet&)			{ loggedIn = false; };
+			clientPHandler[FromServer::SendLogoutValid] = [](ManagedSocket&, sf::Packet&)			{ loginStatus = LoginStatus::Unlogged; };
 
 			client = Uptr<Client>(new Client(clientPHandler));
 
@@ -82,8 +81,12 @@ namespace hg
 			{
 				while(true)
 				{
-					if(connected) { client->send(buildPacket<FromClient::Ping>()); }
-					if(!client->getManagedSocket().isBusy()) connected = false;
+					if(connectionStatus == ConnectionStatus::Connected) client->send(buildPacket<FromClient::Ping>());
+					if(!client->getManagedSocket().isBusy())
+					{
+						connectionStatus = ConnectionStatus::Disconnected;
+						loginStatus = LoginStatus::Unlogged;
+					}
 					this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
 			}).detach();
@@ -91,49 +94,52 @@ namespace hg
 
 		void tryConnectToServer()
 		{
-			if(connected || connecting) { lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
-			connecting = true;
+			if(connectionStatus == ConnectionStatus::Connecting)	{ lo << lt("hg::Online::connectToServer") << "Already connecting" << endl; return; }
+			if(connectionStatus == ConnectionStatus::Connected)		{ lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
 
 			lo << lt("hg::Online::connectToServer") << "Connecting to server..." << endl;
+			connectionStatus = ConnectionStatus::Connecting;
 
 			thread([]
 			{
 				if(client->connect("127.0.0.1", 54000))
 				{
 					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
-					connecting = false; connected = true; return;
+					connectionStatus = ConnectionStatus::Connected; return;
 				}
 
 				lo << lt("hg::Online::connectToServer") << "Failed to connect" << endl;
-				connected = false; connecting = false;
+				connectionStatus = ConnectionStatus::Disconnected;
 			}).detach();
 		}
 
 		void tryLogin(const string& mUsername, const string& mPassword)
 		{
-			if(isLoggedIn()) { logout(); return; }
+			if(loginStatus != LoginStatus::Unlogged) { logout(); return; }
 
 			lo << lt("hg::Online::tryLogin") << "Logging in..." << endl;
+			loginStatus = LoginStatus::Logging;
 
 			thread([=]
 			{
-				loginTimedOut = false;
 				this_thread::sleep_for(std::chrono::milliseconds(80));
-				if(!retry([&]{ return connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginTimedOut = true; return; }
+				if(!retry([&]{ return connectionStatus == ConnectionStatus::Connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStatus::TimedOut; return; }
 				client->send(buildCompressedPacket<FromClient::Login>(mUsername, mPassword));
 				currentUsername = mUsername;
 			}).detach();
 		}
 
+		bool canSendPacket() { return connectionStatus == ConnectionStatus::Connected && loginStatus == LoginStatus::Logged && currentUsername != "NULL"; }
+
 		template<typename T> void trySendFunc(T&& mFunc)
 		{
-			if(!isConnected() || !isLoggedIn() || currentUsername == "NULL") { lo << lt("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
+			if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
 			lo << lt("hg::Online::trySendFunc") << "Sending data to server..." << endl;
 
 			thread([=]
 			{
 				this_thread::sleep_for(std::chrono::milliseconds(80));
-				if(!isConnected() || !isLoggedIn() || currentUsername == "NULL") { lo << lt("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
+				if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
 				mFunc();
 			}).detach();
 		}
@@ -148,10 +154,9 @@ namespace hg
 		void trySendClearFriends()													{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::US_ClearFriends>(currentUsername)); trySendInitialRequests(); }); }
 		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult)); }); }
 
-		bool isConnected()					{ return connected; }
-		bool isLoggedIn()					{ if(!connected) loggedIn = false; return loggedIn; }
-		bool isLoginTimedOut()				{ return loginTimedOut; }
-		string getCurrentUsername()			{ return loggedIn ? currentUsername : "NULL"; }
+		ConnectionStatus getConnectionStatus()	{ return connectionStatus; }
+		LoginStatus getLoginStatus()			{ return loginStatus; }
+		string getCurrentUsername()				{ return loginStatus == LoginStatus::Logged ? currentUsername : "NULL"; }
 
 		void logout() { trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::Logout>(currentUsername)); }); }
 

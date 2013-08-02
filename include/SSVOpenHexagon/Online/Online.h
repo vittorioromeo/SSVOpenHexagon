@@ -32,6 +32,9 @@ namespace hg
 				const std::string& getValidator(const std::string& mLevelId) const { return validators.count(mLevelId) == 0 ? nullString : validators.at(mLevelId); }
 		};
 
+		enum class ConnectionStatus{Disconnected, Connecting, Connected};
+		enum class LoginStatus{Unlogged, TimedOut, Logging, Logged};
+
 		void initalizeValidators(HGAssets& mAssets);
 		void initializeClient();
 
@@ -48,9 +51,8 @@ namespace hg
 		void trySendClearFriends();
 		void tryRequestFriendsScores(const std::string& mLevelId, float mDiffMult);
 
-		bool isConnected();
-		bool isLoggedIn();
-		bool isLoginTimedOut();
+		ConnectionStatus getConnectionStatus();
+		LoginStatus getLoginStatus();
 
 		void logout();
 
