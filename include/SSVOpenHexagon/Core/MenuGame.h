@@ -16,7 +16,7 @@
 
 namespace hg
 {
-	enum class States{WELCOME, LR_USER, LR_PASS, LR_EMAIL, LOGGING, MAIN, PROFILE_NEW, LOCALPROFILES, OPTIONS, ADD_FRIEND};
+	enum class States{Welcome, LRUser, LRPass, LREmail, Logging, Main, LocalProfileNew, LocalProfileSelect, Options, FriendAdd};
 
 	class HexagonGame;
 
@@ -34,7 +34,7 @@ namespace hg
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera{window, {{0, 0}, {getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
-			States state{States::WELCOME};
+			States state{States::Welcome};
 			ssvms::Menu optionsMenu, welcomeMenu;
 			std::string scoresMessage;
 			float exitTimer{0}, currentCreditsId{0};
@@ -78,7 +78,7 @@ namespace hg
 			void updateLeaderboard();
 			void updateFriends();
 
-			bool isEnteringText() { return state == States::LR_USER || state == States::LR_PASS|| state == States::LR_EMAIL || state == States::PROFILE_NEW || state == States::ADD_FRIEND; }
+			bool isEnteringText() { return state == States::LRUser || state == States::LRPass|| state == States::LREmail || state == States::LocalProfileNew || state == States::FriendAdd; }
 
 		public:
 			MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);

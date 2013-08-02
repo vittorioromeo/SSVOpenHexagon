@@ -54,13 +54,13 @@ namespace hg
 			if(Online::getConnectionStatus() != Online::ConnectionStatus::Connected)	{ Online::tryConnectToServer(); return; }
 			if(Online::getLoginStatus() == Online::LoginStatus::Logged)					{ Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
-			assets.pSetPlayingLocally(false); enteredString = ""; state = States::LR_USER;
+			assets.pSetPlayingLocally(false); enteredString = ""; state = States::LRUser;
 		});
 		main.create<i::Single>("play locally", [&]
 		{
 			if(Online::getLoginStatus() == Online::LoginStatus::Logged)	{ Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
-			assets.pSetPlayingLocally(true); enteredString = ""; state = States::LOCALPROFILES;
+			assets.pSetPlayingLocally(true); enteredString = ""; state = States::LocalProfileSelect;
 		});
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
 	}
@@ -76,9 +76,9 @@ namespace hg
 		auto& friends(optionsMenu.createCategory("friends"));
 
 		main.create<i::Goto>("friends", friends);
-		main.create<i::Single>("change local profile", [&]{ if(!assets.pIsPlayingLocally()) return; enteredString = ""; state = States::LOCALPROFILES; });
-		main.create<i::Single>("new local profile", [&]{ if(!assets.pIsPlayingLocally()) return; enteredString = ""; state = States::PROFILE_NEW; });
-		main.create<i::Single>("login screen", [&]{ state = States::WELCOME; });
+		main.create<i::Single>("change local profile", [&]{ if(!assets.pIsPlayingLocally()) return; enteredString = ""; state = States::LocalProfileSelect; });
+		main.create<i::Single>("new local profile", [&]{ if(!assets.pIsPlayingLocally()) return; enteredString = ""; state = States::LocalProfileNew; });
+		main.create<i::Single>("login screen", [&]{ state = States::Welcome; });
 
 		main.create<i::Goto>("gameplay", play);
 		main.create<i::Goto>("resolution", resolution);
@@ -88,7 +88,7 @@ namespace hg
 		main.create<i::Toggle>("online", [&]{ return getOnline(); }, [&]{ setOnline(true); }, [&]{ setOnline(false); });
 		main.create<i::Toggle>("official mode", [&]{ return getOfficial(); }, [&]{ setOfficial(true); }, [&]{ setOfficial(false); });
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
-		main.create<i::Single>("back", [&]{ state = States::MAIN; });
+		main.create<i::Single>("back", [&]{ state = States::Main; });
 
 		resolution.create<i::Single>("auto", [&]{ setCurrentResolutionAuto(window); });
 		for(const auto& vm : VideoMode::getFullscreenModes())
@@ -122,7 +122,7 @@ namespace hg
 		debug.create<i::Toggle>("invincible", [&]{ return getInvincible(); }, [&]{ setInvincible(true); }, [&]{ setInvincible(false); });
 		debug.create<i::Goto>("back", main);
 
-		friends.create<i::Single>("add friend", [&]{ if(assets.pIsPlayingLocally()) return; enteredString = ""; state = States::ADD_FRIEND; });
+		friends.create<i::Single>("add friend", [&]{ if(assets.pIsPlayingLocally()) return; enteredString = ""; state = States::FriendAdd; });
 		friends.create<i::Single>("clear friends", [&]{ if(assets.pIsPlayingLocally()) return; assets.pClearTrackedNames(); });
 		friends.create<i::Goto>("back", main);
 	}
@@ -134,59 +134,59 @@ namespace hg
 		game.addInput(getTriggerRotateCCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::LOCALPROFILES) 		{  --profileIndex; }
-			else if(state == s::MAIN) 		{ setIndex(currentIndex - 1); }
-			else if(state == s::OPTIONS) 	{ optionsMenu.decreaseCurrentItem(); }
-			else if(state == s::WELCOME) 	{ welcomeMenu.decreaseCurrentItem(); }
+			if(state == s::LocalProfileSelect) 		{  --profileIndex; }
+			else if(state == s::Main) 		{ setIndex(currentIndex - 1); }
+			else if(state == s::Options) 	{ optionsMenu.decreaseCurrentItem(); }
+			else if(state == s::Welcome) 	{ welcomeMenu.decreaseCurrentItem(); }
 		}, t::Single);
 		game.addInput(getTriggerRotateCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::LOCALPROFILES) 		{ ++profileIndex; }
-			else if(state == s::MAIN) 		{ setIndex(currentIndex + 1); }
-			else if(state == s::OPTIONS) 	{ optionsMenu.increaseCurrentItem(); }
-			else if(state == s::WELCOME) 	{ welcomeMenu.increaseCurrentItem(); }
+			if(state == s::LocalProfileSelect) 		{ ++profileIndex; }
+			else if(state == s::Main) 		{ setIndex(currentIndex + 1); }
+			else if(state == s::Options) 	{ optionsMenu.increaseCurrentItem(); }
+			else if(state == s::Welcome) 	{ welcomeMenu.increaseCurrentItem(); }
 		}, t::Single);
 		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::MAIN) 			{ ++difficultyMultIndex; refreshScores(); }
-			else if(state == s::OPTIONS) 	{ optionsMenu.selectPreviousItem(); }
-			else if(state == s::WELCOME) 	{ welcomeMenu.selectPreviousItem(); }
+			if(state == s::Main) 			{ ++difficultyMultIndex; refreshScores(); }
+			else if(state == s::Options) 	{ optionsMenu.selectPreviousItem(); }
+			else if(state == s::Welcome) 	{ welcomeMenu.selectPreviousItem(); }
 		}, t::Single);
 		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::MAIN) 			{ --difficultyMultIndex; refreshScores(); }
-			else if(state == s::OPTIONS)	{ optionsMenu.selectNextItem(); }
-			else if(state == s::WELCOME) 	{ welcomeMenu.selectNextItem(); }
+			if(state == s::Main) 			{ --difficultyMultIndex; refreshScores(); }
+			else if(state == s::Options)	{ optionsMenu.selectNextItem(); }
+			else if(state == s::Welcome) 	{ welcomeMenu.selectNextItem(); }
 		}, t::Single);
 		game.addInput(getTriggerRestart(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::LOCALPROFILES) { assets.pSetCurrent(enteredString); state = s::MAIN; refreshScores(); }
-			else if(state == s::MAIN)
+			if(state == s::LocalProfileSelect) { assets.pSetCurrent(enteredString); state = s::Main; refreshScores(); }
+			else if(state == s::Main)
 			{
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
-			else if(state == s::OPTIONS) { optionsMenu.executeCurrentItem(); }
-			else if(state == s::WELCOME) { welcomeMenu.executeCurrentItem(); }
-			else if(state == s::PROFILE_NEW)	{ if(!enteredString.empty()) { assets.pCreate(enteredString); assets.pSetCurrent(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
-			else if(state == s::ADD_FRIEND)		{ if(!enteredString.empty() && !contains(assets.pGetTrackedNames(), enteredString)) { assets.pAddTrackedName(enteredString); state = s::MAIN; refreshScores(); enteredString = ""; } }
-			else if(state == s::LR_USER)		{ if(!enteredString.empty()) { lrUser = enteredString; state = s::LR_PASS; enteredString = ""; } }
-			else if(state == s::LR_PASS)		{ if(!enteredString.empty()) { lrPass = enteredString; state = s::LOGGING; enteredString = ""; Online::tryLogin(lrUser, lrPass); } }
+			else if(state == s::Options)			{ optionsMenu.executeCurrentItem(); }
+			else if(state == s::Welcome)			{ welcomeMenu.executeCurrentItem(); }
+			else if(state == s::LocalProfileNew)	{ if(!enteredString.empty()) { assets.pCreate(enteredString); assets.pSetCurrent(enteredString); state = s::Main; refreshScores(); enteredString = ""; } }
+			else if(state == s::FriendAdd)			{ if(!enteredString.empty() && !contains(assets.pGetTrackedNames(), enteredString)) { assets.pAddTrackedName(enteredString); state = s::Main; refreshScores(); enteredString = ""; } }
+			else if(state == s::LRUser)				{ if(!enteredString.empty()) { lrUser = enteredString; state = s::LRPass; enteredString = ""; } }
+			else if(state == s::LRPass)				{ if(!enteredString.empty()) { lrPass = enteredString; state = s::Logging; enteredString = ""; Online::tryLogin(lrUser, lrPass); } }
 		}, t::Single);
-		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::LOCALPROFILES) { enteredString = ""; state = s::PROFILE_NEW; } }, t::Single);
-		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::WELCOME; return; } if(state == s::MAIN) { enteredString = ""; state = s::LOCALPROFILES; } }, t::Single);
-		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::MAIN) state = s::OPTIONS; }, t::Single);
+		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::Welcome; return; } if(state == s::LocalProfileSelect) { enteredString = ""; state = s::LocalProfileNew; } }, t::Single);
+		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::Welcome; return; } if(state == s::Main) { enteredString = ""; state = s::LocalProfileSelect; } }, t::Single);
+		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state == s::Main) state = s::Options; }, t::Single);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
-			assets.playSound("beep.ogg"); if(state == s::MAIN) { auto p(assets.getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = assets.getLevelIdsByPack(p[packIndex]); setIndex(0); }
+			assets.playSound("beep.ogg"); if(state == s::Main) { auto p(assets.getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = assets.getLevelIdsByPack(p[packIndex]); setIndex(0); }
 		}, t::Single);
-		game.addInput(getTriggerExit(), [&](float) { assets.playSound("beep.ogg"); if(state == s::OPTIONS) state = s::MAIN; refreshScores(); }, t::Single);
-		game.addInput(getTriggerExit(), [&](float mFrameTime) { if(state != s::OPTIONS) exitTimer += mFrameTime; });
-		game.addInput(getTriggerExit(), [&](float) { if(state == s::ADD_FRIEND) state = s::MAIN; });
+		game.addInput(getTriggerExit(), [&](float) { assets.playSound("beep.ogg"); if(state == s::Options) state = s::Main; refreshScores(); }, t::Single);
+		game.addInput(getTriggerExit(), [&](float mFrameTime) { if(state != s::Options) exitTimer += mFrameTime; });
+		game.addInput(getTriggerExit(), [&](float) { if(state == s::FriendAdd) state = s::Main; });
 		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
 		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); refreshCamera(); }, t::Single);
 		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredString.empty()) enteredString.erase(enteredString.end() - 1); }, t::Single);
@@ -210,7 +210,7 @@ namespace hg
 
 	void MenuGame::refreshScores()
 	{
-		if(state != States::MAIN || assets.pIsPlayingLocally()) return;
+		if(state != States::Main || assets.pIsPlayingLocally()) return;
 
 		float diffMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
 		Online::invalidateCurrentLeaderboard();
@@ -285,7 +285,7 @@ namespace hg
 
 	void MenuGame::updateFriends()
 	{
-		if(state != States::MAIN) return;
+		if(state != States::Main) return;
 
 		if(assets.pIsPlayingLocally())			{ friendsString = "playing locally"; return; }
 		if(assets.pGetTrackedNames().empty())	{ friendsString = "you have no friends! :(\nadd them in the options menu"; return; }
@@ -370,12 +370,12 @@ namespace hg
 //		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
 		//refreshScores();
 
-		if(state == States::LOGGING)
+		if(state == States::Logging)
 		{
-			if(Online::getLoginStatus() == Online::LoginStatus::Logged)		state = States::MAIN;
-			if(Online::getLoginStatus() == Online::LoginStatus::TimedOut)	state = States::WELCOME;
+			if(Online::getLoginStatus() == Online::LoginStatus::Logged)		state = States::Main;
+			if(Online::getLoginStatus() == Online::LoginStatus::TimedOut)	state = States::Welcome;
 		}
-		if(!assets.pIsPlayingLocally() && Online::getConnectionStatus() != Online::ConnectionStatus::Connected) state = States::WELCOME;
+		if(!assets.pIsPlayingLocally() && Online::getConnectionStatus() != Online::ConnectionStatus::Connected) state = States::Welcome;
 
 		updateLeaderboard();
 		updateFriends();
@@ -384,25 +384,25 @@ namespace hg
 		if(exitTimer > 20) window.stop();
 
 		if(isEnteringText()) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { assets.playSound("beep.ogg"); enteredString.append(toStr(c)); } }
-		else if(state == States::LOCALPROFILES) { enteredString = assets.getLocalProfileNames()[profileIndex % assets.getLocalProfileNames().size()]; }
-		else if(state == States::MAIN) { styleData.update(mFrameTime); backgroundCamera.rotate(levelStatus.rotationSpeed * 10.f * mFrameTime); }
+		else if(state == States::LocalProfileSelect) { enteredString = assets.getLocalProfileNames()[profileIndex % assets.getLocalProfileNames().size()]; }
+		else if(state == States::Main) { styleData.update(mFrameTime); backgroundCamera.rotate(levelStatus.rotationSpeed * 10.f * mFrameTime); }
 
 		enteredChars.clear();
 	}
 	void MenuGame::draw()
 	{
 		styleData.computeColors();
-		window.clear(state != States::MAIN ? Color::Black : styleData.getColors()[0]);
+		window.clear(state != States::Main ? Color::Black : styleData.getColors()[0]);
 
 		backgroundCamera.apply();
-		if(state == States::MAIN) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelStatus.sides);
+		if(state == States::Main) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelStatus.sides);
 
 		overlayCamera.apply();
-		if(state == States::MAIN) { drawLevelSelection(); render(bottomBar); }
+		if(state == States::Main) { drawLevelSelection(); render(bottomBar); }
 		else if(isEnteringText()) drawProfileCreation();
-		else if(state == States::LOCALPROFILES) drawProfileSelection();
-		else if(state == States::OPTIONS) drawOptions();
-		else if(state == States::WELCOME) drawWelcome();
+		else if(state == States::LocalProfileSelect) drawProfileSelection();
+		else if(state == States::Options) drawOptions();
+		else if(state == States::Welcome) drawWelcome();
 
 		render(titleBar); render(creditsBar1); render(creditsBar2); render(versionText);
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
@@ -415,7 +415,7 @@ namespace hg
 
 		if(mText.getString() != mString) mText.setString(mString);
 
-		if(state != States::MAIN || getBlackAndWhite()) mText.setColor(Color::White);
+		if(state != States::Main || getBlackAndWhite()) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
 		mText.setPosition(mPosition);
@@ -481,11 +481,11 @@ namespace hg
 		string title;
 		switch(state)
 		{
-			case States::LR_USER:		title = "insert username"; break;
-			case States::LR_PASS:		title = "insert password"; break;
-			case States::LR_EMAIL:		title = "insert email"; break;
-			case States::PROFILE_NEW:	title = "create local profile"; break;
-			case States::ADD_FRIEND:	title = "add friend"; break;
+			case States::LRUser:		title = "insert username"; break;
+			case States::LRPass:		title = "insert password"; break;
+			case States::LREmail:		title = "insert email"; break;
+			case States::LocalProfileNew:	title = "create local profile"; break;
+			case States::FriendAdd:	title = "add friend"; break;
 			default: throw;
 		}
 
@@ -493,7 +493,7 @@ namespace hg
 		renderText("insert text", cProfText,				{20, 768 - 375});
 		renderText("press enter when done", cProfText, 		{20, 768 - 335});
 		renderText("keep esc pressed to exit", cProfText, 	{20, 768 - 315});
-		renderText(state == States::LR_PASS ? std::string(enteredString.size(), '*') : enteredString, levelName, {20, 768 - 245 - 40});
+		renderText(state == States::LRPass ? std::string(enteredString.size(), '*') : enteredString, levelName, {20, 768 - 245 - 40});
 	}
 	void MenuGame::drawProfileSelection()
 	{

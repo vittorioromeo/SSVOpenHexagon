@@ -16,7 +16,7 @@ using namespace hg::Utils;
 
 namespace hg
 {
-	const float baseThickness{5};
+	constexpr float baseThickness{5.f};
 
 	CPlayer::CPlayer(HexagonGame& mHexagonGame, Vec2f mStartPos) : hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
 

@@ -46,7 +46,6 @@ int main(int argc, char* argv[])
 	Online::initializeClient();
 	Online::tryConnectToServer();
 
-	//Online::startCheckUpdates();
 	loadConfig(overrideIds);
 
 	string title{"Open Hexagon " + toStr(getVersion()) + " - by vittorio romeo"};
@@ -64,11 +63,9 @@ int main(int argc, char* argv[])
 	assets.refreshVolumes();
 	window.setGameState(mg.getGame()); mg.init();
 
-//	Online::tryLogin("test1", "test1");
 
 	window.run();
 
-	//Online::terminateAll();
 
 	if(Online::getLoginStatus() != Online::LoginStatus::Logged) Online::logout();
 
