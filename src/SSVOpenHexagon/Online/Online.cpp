@@ -81,7 +81,7 @@ namespace hg
 			{
 				while(true)
 				{
-					if(connectionStatus == ConnectionStatus::Connected) client->send(buildPacket<FromClient::Ping>());
+					if(connectionStatus == ConnectionStatus::Connected) client->send(buildCPacket<FromClient::Ping>());
 					if(!client->getManagedSocket().isBusy())
 					{
 						connectionStatus = ConnectionStatus::Disconnected;
@@ -124,7 +124,7 @@ namespace hg
 			{
 				this_thread::sleep_for(std::chrono::milliseconds(80));
 				if(!retry([&]{ return connectionStatus == ConnectionStatus::Connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStatus::TimedOut; return; }
-				client->send(buildCompressedPacket<FromClient::Login>(mUsername, mPassword));
+				client->send(buildCPacket<FromClient::Login>(mUsername, mPassword));
 				currentUsername = mUsername;
 			}).detach();
 		}
@@ -144,21 +144,26 @@ namespace hg
 			}).detach();
 		}
 
-		void trySendScore(const string& mLevelId, float mDiffMult, float mScore)	{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::SendScore>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult, mScore)); }); }
-		void tryRequestLeaderboard(const string& mLevelId, float mDiffMult)			{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::RequestLeaderboard>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult)); }); }
-		void trySendDeath()															{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::US_Death>(currentUsername)); }); }
-		void trySendMinutePlayed()													{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::US_MinutePlayed>(currentUsername)); }); }
-		void trySendRestart()														{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::US_Restart>(currentUsername)); }); }
-		void trySendInitialRequests()												{ trySendFunc([=]{ client->send(buildPacket<FromClient::RequestInfo>()); client->send(buildCompressedPacket<FromClient::RequestUserStats>(currentUsername));}); }
-		void trySendAddFriend(const string& mFriendName)							{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::US_AddFriend>(currentUsername, mFriendName)); trySendInitialRequests(); }); }
-		void trySendClearFriends()													{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::US_ClearFriends>(currentUsername)); trySendInitialRequests(); }); }
-		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult)); }); }
+		template<unsigned int TType, typename... TArgs> void trySendPacket(TArgs&&... mArgs)
+		{
+
+		}
+
+		void trySendScore(const string& mLevelId, float mDiffMult, float mScore)	{ trySendFunc([=]{ client->send(buildCPacket<FromClient::SendScore>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult, mScore)); }); }
+		void tryRequestLeaderboard(const string& mLevelId, float mDiffMult)			{ trySendFunc([=]{ client->send(buildCPacket<FromClient::RequestLeaderboard>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult)); }); }
+		void trySendDeath()															{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_Death>(currentUsername)); }); }
+		void trySendMinutePlayed()													{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_MinutePlayed>(currentUsername)); }); }
+		void trySendRestart()														{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_Restart>(currentUsername)); }); }
+		void trySendInitialRequests()												{ trySendFunc([=]{ client->send(buildCPacket<FromClient::RequestInfo>()); client->send(buildCPacket<FromClient::RequestUserStats>(currentUsername));}); }
+		void trySendAddFriend(const string& mFriendName)							{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_AddFriend>(currentUsername, mFriendName)); trySendInitialRequests(); }); }
+		void trySendClearFriends()													{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_ClearFriends>(currentUsername)); trySendInitialRequests(); }); }
+		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendFunc([=]{ client->send(buildCPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult)); }); }
 
 		ConnectionStatus getConnectionStatus()	{ return connectionStatus; }
 		LoginStatus getLoginStatus()			{ return loginStatus; }
 		string getCurrentUsername()				{ return loginStatus == LoginStatus::Logged ? currentUsername : "NULL"; }
 
-		void logout() { trySendFunc([=]{ client->send(buildCompressedPacket<FromClient::Logout>(currentUsername)); }); }
+		void logout() { trySendFunc([=]{ client->send(buildCPacket<FromClient::Logout>(currentUsername)); }); }
 
 		void invalidateCurrentLeaderboard() { currentLeaderboard = "NULL"; }
 		void invalidateCurrentFriendsScores() { currentFriendScores = ssvuj::Value{}; }

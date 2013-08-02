@@ -140,10 +140,7 @@ namespace ssvuj
 			inline static hg::Online::ScoreDB as(const Impl& mValue)
 			{
 				hg::Online::ScoreDB result;
-
-				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
-					result.addLevel(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::LevelScoreDB>(*itr));
-
+				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr) result.addLevel(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::LevelScoreDB>(*itr));
 				return result;
 			}
 		};
@@ -154,7 +151,6 @@ namespace ssvuj
 		set(mRoot, "dth", mValueToSet.deaths);
 		set(mRoot, "msp", mValueToSet.minutesSpentPlaying);
 		set(mRoot, "rst", mValueToSet.restarts);
-
 		for(unsigned int i{0}; i < mValueToSet.trackedNames.size(); ++i) set(mRoot["tn"], i, mValueToSet.trackedNames[i]);
 	}
 
@@ -177,8 +173,7 @@ namespace ssvuj
 			for(const auto& r : s.second)
 			{
 				ssvuj::Value temp; ssvuj::set(temp, 0, r.first); ssvuj::set(temp, 1, r.second);
-				ssvuj::set(mRoot[ssvu::toStr(s.first)], i, temp);
-				++i;
+				ssvuj::set(mRoot[ssvu::toStr(s.first)], i++, temp);
 			}
 		}
 	}
@@ -216,7 +211,7 @@ namespace hg
 			{
 				const auto& itr(loggedUids.find(mUid));
 				if(itr == std::end(loggedUids)) return;
-				auto username(itr->second);
+				const auto& username(itr->second);
 				loggedUsers.erase(username);
 				loggedUids.erase(itr);
 				ssvu::lo << ssvu::lt("Forced logout") << username << std::endl;
@@ -238,15 +233,12 @@ namespace hg
 				pHandler[FromClient::Login] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
 					ssvuj::Value request{getDecompressedPacket(mP)};
-
-					unsigned int clientUid{mMS.getCHUid()};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 
 					if(isLoggedIn(username))
 					{
 						ssvu::lo << ssvu::lt("PacketHandler") << "User already logged in" << std::endl;
-						mMS.send(buildPacket<FromServer::LoginResponseInvalid>());
-						return;
+						mMS.send(buildCPacket<FromServer::LoginResponseInvalid>()); return;
 					}
 
 					std::string password{ssvuj::as<std::string>(request, 1)};
@@ -257,43 +249,35 @@ namespace hg
 						const auto& u(users.getUser(username));
 						ssvu::lo << ssvu::lt("PacketHandler") << "Username found" << std::endl;
 
-						if(u.passwordHash == passwordHash)
+						if(u.passwordHash == passwordHash) ssvu::lo << ssvu::lt("PacketHandler") << "Password valid" << std::endl;
+						else
 						{
-							ssvu::lo << ssvu::lt("PacketHandler") << "Password valid" << std::endl;
-							acceptLogin(clientUid, username);
-							mMS.send(buildPacket<FromServer::LoginResponseValid>());
-							return;
+							ssvu::lo << ssvu::lt("PacketHandler") << "Password invalid" << std::endl;
+							mMS.send(buildCPacket<FromServer::LoginResponseInvalid>()); return;
 						}
-
-						ssvu::lo << ssvu::lt("PacketHandler") << "Password invalid" << std::endl;
-						mMS.send(buildPacket<FromServer::LoginResponseInvalid>());
-						return;
+					}
+					else
+					{
+						ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
+						User newUser; newUser.passwordHash = passwordHash;
+						users.registerUser(username, newUser); saveUsers();
 					}
 
-					ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
-
-					User newUser; newUser.passwordHash = passwordHash;
-					users.registerUser(username, newUser);
-
-					saveUsers();
-
-					ssvu::lo << ssvu::lt("PacketHandler") << "Accepting new user" << std::endl;
-					acceptLogin(clientUid, username);
-					mMS.send(buildPacket<FromServer::LoginResponseValid>());
+					ssvu::lo << ssvu::lt("PacketHandler") << "Accepting user" << std::endl;
+					acceptLogin(mMS.getCHUid(), username);
+					mMS.send(buildCPacket<FromServer::LoginResponseValid>());
 				};
 				pHandler[FromClient::RequestInfo] = [](ManagedSocket& mMS, sf::Packet&)
 				{
-					float version{2.f};
-					std::string message{"Welcome to Open Hexagon 2.0!"};
-
-					mMS.send(buildCompressedPacket<FromServer::RequestInfoResponse>(version, message));
+					float version{2.f}; std::string message{"Welcome to Open Hexagon 2.0!"};
+					mMS.send(buildCPacket<FromServer::RequestInfoResponse>(version, message));
 				};
 				pHandler[FromClient::SendScore] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
 					ssvuj::Value request{getDecompressedPacket(mP)};
-
 					std::string username{ssvuj::as<std::string>(request, 0)};
-					if(!isLoggedIn(username)) { mMS.send(buildPacket<FromServer::SendScoreResponseInvalid>()); return; }
+
+					if(!isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return; }
 
 					std::string levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
 					float diffMult{ssvuj::as<float>(request, 3)}, score{ssvuj::as<float>(request, 4)};
@@ -307,32 +291,28 @@ namespace hg
 					if(Online::getValidators().getValidator(levelId) != validator)
 					{
 						ssvu::lo << ssvu::lt("PacketHandler") << "Validator doesn't match" << std::endl;
-						mMS.send(buildPacket<FromServer::SendScoreResponseInvalid>());
-						return;
+						mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return;
 					}
 
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, inserting score" << std::endl;
-
 					auto& l(scores.getLevel(levelId));
-					if(l.getPlayerScore(username, diffMult) < score) l.addScore(diffMult, username, score);
-
-					saveScores();
-					mMS.send(buildPacket<FromServer::SendScoreResponseValid>());
+					if(l.getPlayerScore(username, diffMult) < score) { l.addScore(diffMult, username, score); saveScores(); }
+					mMS.send(buildCPacket<FromServer::SendScoreResponseValid>());
 				};
 				pHandler[FromClient::RequestLeaderboard] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
 					ssvuj::Value request{getDecompressedPacket(mP)};
-
 					std::string username{ssvuj::as<std::string>(request, 0)};
-					if(!isLoggedIn(username)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
+
+					if(!isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
 
 					std::string levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
 					float diffMult{ssvuj::as<float>(request, 3)};
 
-					if(!scores.hasLevel(levelId)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
+					if(!scores.hasLevel(levelId)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
 					auto& l(scores.getLevel(levelId));
 
-					if(Online::getValidators().getValidator(levelId) != validator || !l.hasDiffMult(diffMult)) { mMS.send(buildPacket<FromServer::SendLeaderboardFailed>()); return; }
+					if(Online::getValidators().getValidator(levelId) != validator || !l.hasDiffMult(diffMult)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, sending leaderboard" << std::endl;
 
 					const auto& sortedScores(l.getSortedScores(diffMult));
@@ -350,39 +330,30 @@ namespace hg
 
 					float playerScore{l.getPlayerScore(username, diffMult)};
 					playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
-
-					std::string leaderboardDataString;
-					ssvuj::writeRootToString(response, leaderboardDataString);
-					mMS.send(buildCompressedPacket<FromServer::SendLeaderboard>(leaderboardDataString));
+					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteRootToString(response)));
 				};
 
 				pHandler[FromClient::RequestUserStats] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					ssvuj::Value statsValue;
-					ssvuj::set(statsValue, users.getUser(username).stats);
-					std::string response;
-					ssvuj::writeRootToString(statsValue, response);
-					mMS.send(buildCompressedPacket<FromServer::SendUserStats>(response));
+					ssvuj::Value response; ssvuj::set(response, users.getUser(username).stats);
+					mMS.send(buildCPacket<FromServer::SendUserStats>(ssvuj::getWriteRootToString(response)));
 				};
 
 				pHandler[FromClient::US_Death] = [&](ManagedSocket&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.deaths += 1;
-					saveUsers();
+					users.getUser(username).stats.deaths += 1; saveUsers();
 				};
 				pHandler[FromClient::US_Restart] = [&](ManagedSocket&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.restarts += 1;
-					saveUsers();
+					users.getUser(username).stats.restarts += 1; saveUsers();
 				};
 				pHandler[FromClient::US_MinutePlayed] = [&](ManagedSocket&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.minutesSpentPlaying += 1;
-					saveUsers();
+					users.getUser(username).stats.minutesSpentPlaying += 1; saveUsers();
 				};
 				pHandler[FromClient::US_AddFriend] = [&](ManagedSocket&, sf::Packet& mP)
 				{
@@ -392,14 +363,12 @@ namespace hg
 
 					auto& tn(users.getUser(username).stats.trackedNames);
 					if(ssvu::contains(tn, friendUsername)) return;
-					tn.push_back(friendUsername);
-					saveUsers();
+					tn.push_back(friendUsername); saveUsers();
 				};
 				pHandler[FromClient::US_ClearFriends] = [&](ManagedSocket&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.trackedNames.clear();
-					saveUsers();
+					users.getUser(username).stats.trackedNames.clear(); saveUsers();
 				};
 
 				pHandler[FromClient::RequestFriendsScores] = [&](ManagedSocket& mMS, sf::Packet& mP)
@@ -411,19 +380,17 @@ namespace hg
 					const auto& l(scores.getLevel(levelId));
 
 					float diffMult{ssvuj::as<float>(request, 2)};
-					ssvuj::Value responseValue;
+					ssvuj::Value response;
 
 					for(const auto& n : users.getUser(username).stats.trackedNames)
 					{
 						const auto& score(l.getPlayerScore(n, diffMult));
 						if(score == -1.f) continue;
-						ssvuj::set(responseValue[n], 0, score);
-						ssvuj::set(responseValue[n], 1, l.getPlayerPosition(n, diffMult));
+						ssvuj::set(response[n], 0, score);
+						ssvuj::set(response[n], 1, l.getPlayerPosition(n, diffMult));
 					}
 
-					std::string response; ssvuj::writeRootToString(responseValue, response);
-					//ssvu::lo << response << std::endl;
-					mMS.send(buildCompressedPacket<FromServer::SendFriendsScores>(response));
+					mMS.send(buildCPacket<FromServer::SendFriendsScores>(ssvuj::getWriteRootToString(response)));
 				};
 
 				pHandler[FromClient::Logout] = [&](ManagedSocket& mMS, sf::Packet& mP)
@@ -434,16 +401,11 @@ namespace hg
 					logout(username);
 
 					ssvu::lo << ssvu::lt("PacketHandler") << username << " logged out" << std::endl;
-					mMS.send(buildPacket<FromServer::SendLogoutValid>());
+					mMS.send(buildCPacket<FromServer::SendLogoutValid>());
 				};
 			}
 
-
-			inline void start()
-			{
-				server.start(54000);
-				while(true) std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			}
+			inline void start() { server.start(54000); while(true) std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
 		};
 	}
 }

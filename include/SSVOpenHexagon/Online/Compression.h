@@ -10,7 +10,10 @@
 #ifndef HG_ONLINE_COMPRESSION
 #define HG_ONLINE_COMPRESSION
 
-std::string getZLIBCompress(const std::string& mString, int mCompressionlevel = Z_BEST_COMPRESSION);
-std::string getZLIBDecompress(const std::string& mString);
+namespace hg
+{
+	std::string getZLibCompress(const std::string& mString, int mCompressionlevel = Z_BEST_COMPRESSION);
+	std::string getZLibDecompress(const std::string& mString);
+}
 
 #endif

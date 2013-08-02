@@ -22,8 +22,7 @@ namespace hg
 			private:
 				PacketHandler& packetHandler;
 				sf::TcpSocket socket;
-				bool busy{false};
-				bool boundToCH{false};
+				bool busy{false}, boundToCH{false};
 				unsigned int chUid;
 
 				void update()
@@ -76,9 +75,13 @@ namespace hg
 					ssvu::lo << ssvu::lt("ManagedSocket") << "Accepted" << std::endl;
 					busy = true; return true;
 				}
+				inline bool tryAcceptCH(sf::TcpListener& mListener, unsigned int mCHUid)
+				{
+					if(tryAccept(mListener)) { chUid = mCHUid; boundToCH = true; return true; }
+					return false;
+				}
 				inline void disconnect()	{ socket.disconnect(); busy = false; }
 				inline bool isBusy() const	{ return busy; }
-				inline void setCHUid(unsigned int mCHUid) { chUid = mCHUid; boundToCH = true; }
 				inline unsigned int getCHUid() { if(!boundToCH) throw; return chUid; }
 		};
 	}

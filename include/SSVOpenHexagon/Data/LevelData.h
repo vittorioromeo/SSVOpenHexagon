@@ -34,7 +34,7 @@ namespace hg
 
 			LevelData(const ssvuj::Value& mRoot, const std::string& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
 
-			std::string getRootString() const { std::string result; ssvuj::writeRootToString(root, result); return result; }
+			std::string getRootString() const { return ssvuj::getWriteRootToString(root); }
 	};
 
 	struct LevelStatus

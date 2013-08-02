@@ -39,24 +39,16 @@ namespace hg
 						while(true)
 						{
 							std::this_thread::sleep_for(std::chrono::milliseconds(800));
+							if(!isBusy() !! --untilTimeout > 0) continue;
 
-							if(!isBusy()) continue;
-
-							--untilTimeout;
-							if(untilTimeout > 0) continue;
-
-							ssvu::lo << ssvu::lt("ClientHandler") << "Client timed out" << std::endl;
+							ssvu::lo << ssvu::lt("ClientHandler") << "Client (" << uid << ") timed out" << std::endl;
 							onDisconnect(); managedSocket.disconnect();
 						}
 					}).detach();
 				}
 
 				inline bool send(const sf::Packet& mPacket)			{ return managedSocket.send(mPacket); }
-				inline bool tryAccept(sf::TcpListener& mListener)
-				{
-					if(managedSocket.tryAccept(mListener)) { managedSocket.setCHUid(uid); return true; }
-					return false;
-				}
+				inline bool tryAccept(sf::TcpListener& mListener)	{ return managedSocket.tryAcceptCH(mListener, uid); }
 				inline bool isBusy() const							{ return managedSocket.isBusy(); }
 				inline unsigned int getUid() const					{ return uid; }
 				inline ManagedSocket& getManagedSocket()			{ return managedSocket; }
