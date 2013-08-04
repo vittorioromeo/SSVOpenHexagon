@@ -36,7 +36,7 @@ namespace hg
 		LoginStatus loginStatus{LoginStatus::Unlogged};
 
 		float serverVersion{-1};
-		string serverMessage{""};
+		string serverMessage;
 
 		ValidatorDB validators;
 
@@ -175,7 +175,7 @@ namespace hg
 			unordered_set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
-			string toEncrypt{""};
+			string toEncrypt;
 			toEncrypt.append(mLevelId);
 			toEncrypt.append(mLevelRootString);
 			toEncrypt.append(getFileContents(mStyleRootPath));

@@ -53,7 +53,7 @@ namespace hg
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
 			bool firstPlay{true}, restartFirstTime{true}, inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false}, mustChangeSides{false};
 			HexagonGameStatus status;
-			std::string restartId{""};
+			std::string restartId;
 			float difficultyMult{1};
 			int inputMovement{0};
 

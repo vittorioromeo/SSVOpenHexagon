@@ -76,7 +76,7 @@ namespace hg
 
 	float sizeX{1500}, sizeY{1500};
 	constexpr float spawnDistance{1600};
-	string uneligibilityReason{""};
+	string uneligibilityReason;
 
 	void applyAutoWindowedResolution() { auto d(VideoMode::getDesktopMode()); windowedWidth = d.width; windowedHeight = d.height; }
 	void applyAutoFullscreenResolution() { auto d(VideoMode::getDesktopMode()); fullscreenWidth = d.width; fullscreenHeight = d.height; }

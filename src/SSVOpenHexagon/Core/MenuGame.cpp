@@ -258,7 +258,7 @@ namespace hg
 			break;
 		}
 
-		string result{""};
+		string result;
 		for(unsigned int i{0}; i < recordPairs.size(); ++i)
 		{
 			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount -1)
@@ -444,7 +444,7 @@ namespace hg
 			Text& profile = renderText("profile: " + assets.pGetName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
 			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(assets.getPackPaths().size()) + ")", cProfText, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
-			string lbestStr{""};
+			string lbestStr;
 			if(assets.pIsPlayingLocally()) lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])));
 			else { lbestStr = Online::getLoginStatus() == Online::LoginStatus::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
 
