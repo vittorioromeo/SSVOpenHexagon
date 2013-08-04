@@ -53,7 +53,7 @@ namespace hg
 				}
 
 			public:
-				ssvu::Delegate<void, ClientHandler&> onClientAccepted;
+				ssvu::Delegate<void(ClientHandler&)> onClientAccepted;
 
 				Server(PacketHandler& mPacketHandler) : packetHandler(mPacketHandler)
 				{

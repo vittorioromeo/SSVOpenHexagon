@@ -27,7 +27,7 @@ namespace hg
 				int untilTimeout{5};
 
 			public:
-				ssvu::Delegate<void> onDisconnect;
+				ssvu::Delegate<void()> onDisconnect;
 
 				ClientHandler(PacketHandler& mPacketHandler) : uid{lastUid}, managedSocket(mPacketHandler)
 				{

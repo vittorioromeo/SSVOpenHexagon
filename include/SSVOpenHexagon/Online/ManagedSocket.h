@@ -49,8 +49,8 @@ namespace hg
 				}
 
 			public:
-				ssvu::Delegate<void> onPacketSent;
-				ssvu::Delegate<void> onPacketReceived;
+				ssvu::Delegate<void()> onPacketSent;
+				ssvu::Delegate<void()> onPacketReceived;
 
 				ManagedSocket(PacketHandler& mPacketHandler) : packetHandler(mPacketHandler)
 				{
