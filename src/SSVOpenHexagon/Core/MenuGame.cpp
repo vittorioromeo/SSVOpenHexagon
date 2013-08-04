@@ -509,7 +509,7 @@ namespace hg
 		renderText(optionsMenu.getCurrentCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
 
 		float currentX{0.f}, currentY{0.f};
-		vector<ItemBase*>& currentItems(optionsMenu.getCurrentItems());
+		auto& currentItems(optionsMenu.getCurrentItems());
 		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
 		{
 			currentY += 19;
@@ -534,7 +534,7 @@ namespace hg
 		renderText(welcomeMenu.getCurrentCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
 
 		float currentX{0.f}, currentY{0.f};
-		vector<ItemBase*>& currentItems(welcomeMenu.getCurrentItems());
+		auto& currentItems(welcomeMenu.getCurrentItems());
 		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
 		{
 			currentY += 19;
