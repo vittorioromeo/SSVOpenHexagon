@@ -83,7 +83,7 @@ namespace hg
 			s << endl;
 			for(const auto& t : trackedVariables)
 			{
-				if(lua.doesVariableExist(t.variableName)) continue; // TODO: check LuaWrapper
+				if(!lua.doesVariableExist(t.variableName)) continue;
 				string var{lua.readVariable<string>(t.variableName)};
 				s << t.displayName << ": " << var << endl;
 			}

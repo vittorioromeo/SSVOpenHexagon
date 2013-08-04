@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Components/CWall.h"
 #include "SSVOpenHexagon/Components/CPlayer.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Global/Groups.h"
 
 namespace hg
 {
@@ -27,14 +28,15 @@ namespace hg
 
 			inline sses::Entity& createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{}, float mHueMod = 0)
 			{
-				auto& result(manager.createEntity("wall"));
+				auto& result(manager.createEntity());
+				result.addGroup(getGWall());
 				auto& wall(result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeed, mCurve));
 				wall.setHueMod(mHueMod);
 				return result;
 			}
 			inline sses::Entity& createPlayer()
 			{
-				auto& result(manager.createEntity("player"));
+				auto& result(manager.createEntity());
 				result.createComponent<CPlayer>(hexagonGame, centerPos);
 				result.setDrawPriority(-1);
 				return result;

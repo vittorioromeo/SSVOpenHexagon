@@ -60,7 +60,6 @@ namespace hg
 			FPSWatcher fpsWatcher;
 			sf::Text text{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / getZoomFactor())};
 
-
 			// LUA-related methods
 			void initLua();
 			void runLuaFile(const std::string& mFileName);

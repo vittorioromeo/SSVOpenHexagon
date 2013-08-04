@@ -6,6 +6,7 @@
 #include "SSVOpenHexagon/Components/CPlayer.h"
 #include "SSVOpenHexagon/Components/CWall.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Global/Groups.h"
 
 using namespace std;
 using namespace sf;
@@ -119,7 +120,7 @@ namespace hg
 		Vec2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
 		Vec2f pRightCheck{getOrbitFromDegrees(tempPos, angle + 90, 0.01f)};
 
-		for(const auto& wall : getManager().getEntities("wall"))
+		for(const auto& wall : getEntity().getManager().getEntities(getGWall()))
 		{
 			const auto& cwall(wall->getComponent<CWall>());
 			if((movement == -1 && cwall.isOverlapping(pLeftCheck)) || (movement == 1 && cwall.isOverlapping(pRightCheck))) angle = lastAngle;
