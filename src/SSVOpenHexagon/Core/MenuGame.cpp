@@ -49,13 +49,14 @@ namespace hg
 	{
 		namespace i = ssvms::Items;
 		auto& main(welcomeMenu.createCategory("welcome"));
-		main.create<i::Single>("login", [&]
+		auto& bLogin = main.create<i::Single>("login", [&]
 		{
 			if(Online::getConnectionStatus() != Online::ConnectionStatus::Connected)	{ Online::tryConnectToServer(); return; }
 			if(Online::getLoginStatus() == Online::LoginStatus::Logged)					{ Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
 			assets.pSetPlayingLocally(false); enteredString = ""; state = States::LRUser;
 		});
+		menuController.emplace_back(bLogin, [&]{ return Online::getConnectionStatus() == Online::ConnectionStatus::Connected; });
 		main.create<i::Single>("play locally", [&]
 		{
 			if(Online::getLoginStatus() == Online::LoginStatus::Logged)	{ Online::logout(); return; }
@@ -63,6 +64,7 @@ namespace hg
 			assets.pSetPlayingLocally(true); enteredString = ""; state = States::LocalProfileSelect;
 		});
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
+
 	}
 	void MenuGame::initOptionsMenu()
 	{
@@ -75,16 +77,25 @@ namespace hg
 		auto& debug(optionsMenu.createCategory("debug"));
 		auto& friends(optionsMenu.createCategory("friends"));
 
-		main.create<i::Goto>("friends", friends);
-		main.create<i::Single>("change local profile", [&]{ if(!assets.pIsPlayingLocally()) return; enteredString = ""; state = States::LocalProfileSelect; });
-		main.create<i::Single>("new local profile", [&]{ if(!assets.pIsPlayingLocally()) return; enteredString = ""; state = States::LocalProfileNew; });
+		auto& bFriends = main.create<i::Goto>("friends", friends);
+		menuController.emplace_back(bFriends, [&]{ return !assets.pIsPlayingLocally(); });
+
+		auto& bLP1 = main.create<i::Single>("change local profile", [&]{ enteredString = ""; state = States::LocalProfileSelect; });
+		menuController.emplace_back(bLP1, [&]{ return assets.pIsPlayingLocally(); });
+
+		auto& bLP2 = main.create<i::Single>("new local profile", [&]{ enteredString = ""; state = States::LocalProfileNew; });
+		menuController.emplace_back(bLP2, [&]{ return assets.pIsPlayingLocally(); });
+
 		main.create<i::Single>("login screen", [&]{ state = States::Welcome; });
 
 		main.create<i::Goto>("gameplay", play);
 		main.create<i::Goto>("resolution", resolution);
 		main.create<i::Goto>("graphics", gfx);
 		main.create<i::Goto>("audio", sfx);
-		main.create<i::Goto>("debug", debug);
+
+		auto& bDebug = main.create<i::Goto>("debug", debug);
+		menuController.emplace_back(bDebug, [&]{ return !getOfficial(); });
+
 		main.create<i::Toggle>("online", [&]{ return getOnline(); }, [&]{ setOnline(true); }, [&]{ setOnline(false); });
 		main.create<i::Toggle>("official mode", [&]{ return getOfficial(); }, [&]{ setOfficial(true); }, [&]{ setOfficial(false); });
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
@@ -98,11 +109,20 @@ namespace hg
 		resolution.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
 		resolution.create<i::Goto>("back", main);
 
-		gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
-		gfx.create<i::Toggle>("background",	[&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
-		gfx.create<i::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
+		auto& bOO1 = gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
+		menuController.emplace_back(bOO1, [&]{ return !getOfficial(); });
+
+		auto& bOO2 = gfx.create<i::Toggle>("background",	[&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
+		menuController.emplace_back(bOO2, [&]{ return !getOfficial(); });
+
+		auto& bOO3 = gfx.create<i::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
+		menuController.emplace_back(bOO3, [&]{ return !getOfficial(); });
+
 		gfx.create<i::Toggle>("3D effect",	[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
-		gfx.create<i::Toggle>("pulse", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
+
+		auto& bOO4 = gfx.create<i::Toggle>("pulse", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
+		menuController.emplace_back(bOO4, [&]{ return !getOfficial(); });
+
 		gfx.create<i::Toggle>("flash", 		[&]{ return getFlash(); }, 			[&]{ setFlash(true); }, 		[&]{ setFlash(false); });
 		gfx.create<i::Toggle>("vsync", 		[&]{ return getVsync(); }, 			[&]{ setVsync(window, true); }, 		[&]{ setVsync(window, false); });
 		gfx.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
@@ -136,30 +156,30 @@ namespace hg
 			assets.playSound("beep.ogg");
 			if(state == s::LocalProfileSelect) 		{  --profileIndex; }
 			else if(state == s::Main) 		{ setIndex(currentIndex - 1); }
-			else if(state == s::Options) 	{ optionsMenu.decreaseCurrentItem(); }
-			else if(state == s::Welcome) 	{ welcomeMenu.decreaseCurrentItem(); }
+			else if(state == s::Options) 	{ optionsMenu.decrease(); }
+			else if(state == s::Welcome) 	{ welcomeMenu.decrease(); }
 		}, t::Single);
 		game.addInput(getTriggerRotateCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::LocalProfileSelect) 		{ ++profileIndex; }
 			else if(state == s::Main) 		{ setIndex(currentIndex + 1); }
-			else if(state == s::Options) 	{ optionsMenu.increaseCurrentItem(); }
-			else if(state == s::Welcome) 	{ welcomeMenu.increaseCurrentItem(); }
+			else if(state == s::Options) 	{ optionsMenu.increase(); }
+			else if(state == s::Welcome) 	{ welcomeMenu.increase(); }
 		}, t::Single);
 		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::Main) 			{ ++difficultyMultIndex; refreshScores(); }
-			else if(state == s::Options) 	{ optionsMenu.selectPreviousItem(); }
-			else if(state == s::Welcome) 	{ welcomeMenu.selectPreviousItem(); }
+			else if(state == s::Options) 	{ optionsMenu.previous(); }
+			else if(state == s::Welcome) 	{ welcomeMenu.previous(); }
 		}, t::Single);
 		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::Main) 			{ --difficultyMultIndex; refreshScores(); }
-			else if(state == s::Options)	{ optionsMenu.selectNextItem(); }
-			else if(state == s::Welcome) 	{ welcomeMenu.selectNextItem(); }
+			else if(state == s::Options)	{ optionsMenu.next(); }
+			else if(state == s::Welcome) 	{ welcomeMenu.next(); }
 		}, t::Single);
 		game.addInput(getTriggerRestart(), [&](float)
 		{
@@ -170,8 +190,8 @@ namespace hg
 				window.setGameState(hexagonGame.getGame());
 				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
 			}
-			else if(state == s::Options)			{ optionsMenu.executeCurrentItem(); }
-			else if(state == s::Welcome)			{ welcomeMenu.executeCurrentItem(); }
+			else if(state == s::Options)			{ optionsMenu.exec(); }
+			else if(state == s::Welcome)			{ welcomeMenu.exec(); }
 			else if(state == s::LocalProfileNew)	{ if(!enteredString.empty()) { assets.pCreate(enteredString); assets.pSetCurrent(enteredString); state = s::Main; refreshScores(); enteredString = ""; } }
 			else if(state == s::FriendAdd)			{ if(!enteredString.empty() && !contains(assets.pGetTrackedNames(), enteredString)) { assets.pAddTrackedName(enteredString); state = s::Main; refreshScores(); enteredString = ""; } }
 			else if(state == s::LRUser)				{ if(!enteredString.empty()) { lrUser = enteredString; state = s::LRPass; enteredString = ""; } }
@@ -364,6 +384,8 @@ namespace hg
 
 	void MenuGame::update(float mFrameTime)
 	{
+		for(auto& p : menuController) p.first.setEnabled(p.second());
+
 		currentCreditsId += mFrameTime;
 		creditsBar2.setTexture(assets().get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
 
@@ -418,6 +440,19 @@ namespace hg
 		if(state != States::Main || getBlackAndWhite()) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
+		mText.setPosition(mPosition);
+		render(mText); mText.setCharacterSize(originalSize);
+
+		return mText;
+	}
+	Text& MenuGame::renderText(const string& mString, Text& mText, Vec2f mPosition, const Color& mColor, unsigned int mSize)
+	{
+		unsigned int originalSize{mText.getCharacterSize()};
+		if(mSize != 0) mText.setCharacterSize(mSize);
+
+		if(mText.getString() != mString) mText.setString(mString);
+
+		mText.setColor(mColor);
 		mText.setPosition(mPosition);
 		render(mText); mText.setCharacterSize(originalSize);
 
@@ -506,21 +541,21 @@ namespace hg
 	}
 	void MenuGame::drawOptions()
 	{
-		renderText(optionsMenu.getCurrentCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
+		renderText(optionsMenu.getCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
 
 		float currentX{0.f}, currentY{0.f};
-		auto& currentItems(optionsMenu.getCurrentItems());
+		auto& currentItems(optionsMenu.getItems());
 		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
 		{
 			currentY += 19;
 			if(i != 0 && i % 21 == 0) { currentY = 0; currentX += 180; }
 			string name, itemName{currentItems[i]->getName()};
-			if(i == optionsMenu.getCurrentIndex()) name.append(">> ");
+			if(i == optionsMenu.getIndex()) name.append(">> ");
 			name.append(itemName);
 
 			int extraSpacing{0};
 			if(itemName == "back") extraSpacing = 20;
-			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing});
+			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing}, currentItems[i]->isEnabled() ? Color::White : Color{155, 155, 155, 255});
 		}
 
 		if(getOfficial()) renderText("official mode on - some options cannot be changed", cProfText, {20, h - 30.f});
@@ -531,21 +566,21 @@ namespace hg
 
 	void MenuGame::drawWelcome()
 	{
-		renderText(welcomeMenu.getCurrentCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
+		renderText(welcomeMenu.getCategory().getName(), levelDesc, {20.f, getGlobalBottom(titleBar)});
 
 		float currentX{0.f}, currentY{0.f};
-		auto& currentItems(welcomeMenu.getCurrentItems());
+		auto& currentItems(welcomeMenu.getItems());
 		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
 		{
 			currentY += 19;
 			if(i != 0 && i % 21 == 0) { currentY = 0; currentX += 180; }
 			string name, itemName{currentItems[i]->getName()};
-			if(i == welcomeMenu.getCurrentIndex()) name.append(">> ");
+			if(i == welcomeMenu.getIndex()) name.append(">> ");
 			name.append(itemName);
 
 			int extraSpacing{0};
 			if(itemName == "back") extraSpacing = 20;
-			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing});
+			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing}, currentItems[i]->isEnabled() ? Color::White : Color{155, 155, 155, 255});
 		}
 
 		renderText(Online::getLoginStatus() == Online::LoginStatus::Logged ? "logged in as: " + Online::getCurrentUsername() : "not logged in", cProfText, {20, h - 50.f});

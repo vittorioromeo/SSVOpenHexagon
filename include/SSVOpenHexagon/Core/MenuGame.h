@@ -6,6 +6,7 @@
 #define HG_MENUGAME
 
 #include <vector>
+#include <functional>
 #include <SFML/Graphics.hpp>
 #include <SSVStart/SSVStart.h>
 #include <SSVMenuSystem/SSVMenuSystem.h>
@@ -23,6 +24,9 @@ namespace hg
 	class MenuGame
 	{
 		private:
+			using Predicate = std::function<bool()>;
+			std::vector<std::pair<ssvms::ItemBase&, Predicate>> menuController;
+
 			HGAssets& assets;
 
 			float fw, fh, fmin, w, h;
@@ -73,6 +77,7 @@ namespace hg
 			void drawWelcome();
 			void render(sf::Drawable&);
 			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
+			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, const sf::Color& mColor, unsigned int mSize = 0);
 			void setIndex(int mIndex);
 			void refreshScores();
 			void updateLeaderboard();
