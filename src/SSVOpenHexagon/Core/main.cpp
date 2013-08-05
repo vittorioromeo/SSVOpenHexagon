@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
 	window.run();
 
 
-	if(Online::getLoginStatus() != Online::LoginStatus::Logged) Online::logout();
+	if(Online::getLoginStatus() != Online::LoginStat::Logged) Online::logout();
 
 	saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
 	return 0;

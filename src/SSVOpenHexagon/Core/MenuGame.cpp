@@ -48,15 +48,15 @@ namespace hg
 		auto& main(welcomeMenu.createCategory("welcome"));
 		auto& bLogin = main.create<i::Single>("login", [&]
 		{
-			if(Online::getConnectionStatus() != Online::ConnectionStatus::Connected)	{ Online::tryConnectToServer(); return; }
-			if(Online::getLoginStatus() == Online::LoginStatus::Logged)					{ Online::logout(); return; }
+			if(Online::getConnectionStatus() != Online::ConnectStat::Connected)	{ Online::tryConnectToServer(); return; }
+			if(Online::getLoginStatus() == Online::LoginStat::Logged)					{ Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
 			assets.pSetPlayingLocally(false); enteredString = ""; state = States::LRUser;
 		});
-		menuController.emplace_back(bLogin, [&]{ return Online::getConnectionStatus() == Online::ConnectionStatus::Connected; });
+		menuController.emplace_back(bLogin, [&]{ return Online::getConnectionStatus() == Online::ConnectStat::Connected; });
 		main.create<i::Single>("play locally", [&]
 		{
-			if(Online::getLoginStatus() == Online::LoginStatus::Logged)	{ Online::logout(); return; }
+			if(Online::getLoginStatus() == Online::LoginStat::Logged)	{ Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
 			assets.pSetPlayingLocally(true); enteredString = ""; state = States::LocalProfileSelect;
 		});
@@ -391,10 +391,10 @@ namespace hg
 
 		if(state == States::Logging)
 		{
-			if(Online::getLoginStatus() == Online::LoginStatus::Logged)		state = States::Main;
-			if(Online::getLoginStatus() == Online::LoginStatus::TimedOut)	state = States::Welcome;
+			if(Online::getLoginStatus() == Online::LoginStat::Logged)		state = States::Main;
+			if(Online::getLoginStatus() == Online::LoginStat::TimedOut)	state = States::Welcome;
 		}
-		if(!assets.pIsPlayingLocally() && Online::getConnectionStatus() != Online::ConnectionStatus::Connected) state = States::Welcome;
+		if(!assets.pIsPlayingLocally() && Online::getConnectionStatus() != Online::ConnectStat::Connected) state = States::Welcome;
 
 		updateLeaderboard();
 		updateFriends();
@@ -478,7 +478,7 @@ namespace hg
 
 			string lbestStr;
 			if(assets.pIsPlayingLocally()) lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])));
-			else { lbestStr = Online::getLoginStatus() == Online::LoginStatus::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
+			else { lbestStr = Online::getLoginStatus() == Online::LoginStat::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
 
 			Text& lbest = renderText(lbestStr, cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
@@ -580,14 +580,14 @@ namespace hg
 			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing}, currentItems[i]->isEnabled() ? Color::White : Color{155, 155, 155, 255});
 		}
 
-		renderText(Online::getLoginStatus() == Online::LoginStatus::Logged ? "logged in as: " + Online::getCurrentUsername() : "not logged in", cProfText, {20, h - 50.f});
+		renderText(Online::getLoginStatus() == Online::LoginStat::Logged ? "logged in as: " + Online::getCurrentUsername() : "not logged in", cProfText, {20, h - 50.f});
 
 		string connectionString;
 		switch(Online::getConnectionStatus())
 		{
-			case Online::ConnectionStatus::Disconnected:	connectionString = "not connected to server"; break;
-			case Online::ConnectionStatus::Connecting:		connectionString = "connecting to server..."; break;
-			case Online::ConnectionStatus::Connected:		connectionString = "connected to server"; break;
+			case Online::ConnectStat::Disconnected:	connectionString = "not connected to server"; break;
+			case Online::ConnectStat::Connecting:		connectionString = "connecting to server..."; break;
+			case Online::ConnectStat::Connected:		connectionString = "connected to server"; break;
 		}
 		renderText(connectionString, cProfText, {20, h - 30.f});
 	}

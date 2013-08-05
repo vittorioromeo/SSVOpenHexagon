@@ -28,8 +28,8 @@ namespace hg
 		const IpAddress hostIp{"209.236.124.147"};
 		const unsigned short hostPort{27272};
 
-		ConnectionStatus connectionStatus{ConnectionStatus::Disconnected};
-		LoginStatus loginStatus{LoginStatus::Unlogged};
+		ConnectStat connectionStatus{ConnectStat::Disconnected};
+		LoginStat loginStatus{LoginStat::Unlogged};
 
 		float serverVersion{-1};
 		string serverMessage;
@@ -59,8 +59,8 @@ namespace hg
 
 		void initializeClient()
 		{
-			clientPHandler[FromServer::LoginResponseValid] = [](ManagedSocket&, sf::Packet&)		{ lo << lt("PacketHandler") << "Successfully logged in!" << endl; loginStatus = LoginStatus::Logged; trySendInitialRequests(); };
-			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loginStatus = LoginStatus::TimedOut; lo << lt("PacketHandler") << "Login invalid!" << endl; };
+			clientPHandler[FromServer::LoginResponseValid] = [](ManagedSocket&, sf::Packet&)		{ lo << lt("PacketHandler") << "Successfully logged in!" << endl; loginStatus = LoginStat::Logged; trySendInitialRequests(); };
+			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loginStatus = LoginStat::TimedOut; lo << lt("PacketHandler") << "Login invalid!" << endl; };
 			clientPHandler[FromServer::RequestInfoResponse] = [](ManagedSocket&, sf::Packet& mP)	{ ssvuj::Value r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
 			clientPHandler[FromServer::SendLeaderboard] = [](ManagedSocket&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); };
 			clientPHandler[FromServer::SendLeaderboardFailed] = [](ManagedSocket&, sf::Packet&)		{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard"; };
@@ -69,7 +69,7 @@ namespace hg
 			clientPHandler[FromServer::SendUserStats] = [](ManagedSocket&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](ManagedSocket&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats"; };
 			clientPHandler[FromServer::SendFriendsScores] = [](ManagedSocket&, sf::Packet& mP)		{ currentFriendScores = ssvuj::getRootFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0));};
-			clientPHandler[FromServer::SendLogoutValid] = [](ManagedSocket&, sf::Packet&)			{ loginStatus = LoginStatus::Unlogged; };
+			clientPHandler[FromServer::SendLogoutValid] = [](ManagedSocket&, sf::Packet&)			{ loginStatus = LoginStat::Unlogged; };
 
 			client = Uptr<Client>(new Client(clientPHandler));
 
@@ -77,11 +77,11 @@ namespace hg
 			{
 				while(true)
 				{
-					if(connectionStatus == ConnectionStatus::Connected) client->send(buildCPacket<FromClient::Ping>());
+					if(connectionStatus == ConnectStat::Connected) client->send(buildCPacket<FromClient::Ping>());
 					if(!client->getManagedSocket().isBusy())
 					{
-						connectionStatus = ConnectionStatus::Disconnected;
-						loginStatus = LoginStatus::Unlogged;
+						connectionStatus = ConnectStat::Disconnected;
+						loginStatus = LoginStat::Unlogged;
 					}
 					this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
@@ -90,42 +90,42 @@ namespace hg
 
 		void tryConnectToServer()
 		{
-			if(connectionStatus == ConnectionStatus::Connecting)	{ lo << lt("hg::Online::connectToServer") << "Already connecting" << endl; return; }
-			if(connectionStatus == ConnectionStatus::Connected)		{ lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
+			if(connectionStatus == ConnectStat::Connecting)	{ lo << lt("hg::Online::connectToServer") << "Already connecting" << endl; return; }
+			if(connectionStatus == ConnectStat::Connected)		{ lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
 
 			lo << lt("hg::Online::connectToServer") << "Connecting to server..." << endl;
-			connectionStatus = ConnectionStatus::Connecting;
+			connectionStatus = ConnectStat::Connecting;
 
 			thread([]
 			{
 				if(client->connect("127.0.0.1", 54000))
 				{
 					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
-					connectionStatus = ConnectionStatus::Connected; return;
+					connectionStatus = ConnectStat::Connected; return;
 				}
 
 				lo << lt("hg::Online::connectToServer") << "Failed to connect" << endl;
-				connectionStatus = ConnectionStatus::Disconnected;
+				connectionStatus = ConnectStat::Disconnected;
 			}).detach();
 		}
 
 		void tryLogin(const string& mUsername, const string& mPassword)
 		{
-			if(loginStatus != LoginStatus::Unlogged) { logout(); return; }
+			if(loginStatus != LoginStat::Unlogged) { logout(); return; }
 
 			lo << lt("hg::Online::tryLogin") << "Logging in..." << endl;
-			loginStatus = LoginStatus::Logging;
+			loginStatus = LoginStat::Logging;
 
 			thread([=]
 			{
 				this_thread::sleep_for(std::chrono::milliseconds(80));
-				if(!retry([&]{ return connectionStatus == ConnectionStatus::Connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStatus::TimedOut; return; }
+				if(!retry([&]{ return connectionStatus == ConnectStat::Connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::TimedOut; return; }
 				client->send(buildCPacket<FromClient::Login>(mUsername, mPassword));
 				currentUsername = mUsername;
 			}).detach();
 		}
 
-		bool canSendPacket() { return connectionStatus == ConnectionStatus::Connected && loginStatus == LoginStatus::Logged && currentUsername != "NULL"; }
+		bool canSendPacket() { return connectionStatus == ConnectStat::Connected && loginStatus == LoginStat::Logged && currentUsername != "NULL"; }
 
 		template<typename T> void trySendFunc(T&& mFunc)
 		{
@@ -142,22 +142,23 @@ namespace hg
 
 		template<unsigned int TType, typename... TArgs> void trySendPacket(TArgs&&... mArgs)
 		{
-
+			const auto& packet(buildCPacket<TType>(mArgs...));
+			trySendFunc([=]{ client->send(packet); });
 		}
 
-		void trySendScore(const string& mLevelId, float mDiffMult, float mScore)	{ trySendFunc([=]{ client->send(buildCPacket<FromClient::SendScore>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult, mScore)); }); }
-		void tryRequestLeaderboard(const string& mLevelId, float mDiffMult)			{ trySendFunc([=]{ client->send(buildCPacket<FromClient::RequestLeaderboard>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult)); }); }
-		void trySendDeath()															{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_Death>(currentUsername)); }); }
-		void trySendMinutePlayed()													{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_MinutePlayed>(currentUsername)); }); }
-		void trySendRestart()														{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_Restart>(currentUsername)); }); }
-		void trySendInitialRequests()												{ trySendFunc([=]{ client->send(buildCPacket<FromClient::RequestInfo>()); client->send(buildCPacket<FromClient::RequestUserStats>(currentUsername));}); }
-		void trySendAddFriend(const string& mFriendName)							{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_AddFriend>(currentUsername, mFriendName)); trySendInitialRequests(); }); }
-		void trySendClearFriends()													{ trySendFunc([=]{ client->send(buildCPacket<FromClient::US_ClearFriends>(currentUsername)); trySendInitialRequests(); }); }
-		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendFunc([=]{ client->send(buildCPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult)); }); }
+		void trySendScore(const string& mLevelId, float mDiffMult, float mScore)	{ trySendPacket<FromClient::SendScore>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult, mScore); }
+		void tryRequestLeaderboard(const string& mLevelId, float mDiffMult)			{ trySendPacket<FromClient::RequestLeaderboard>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult); }
+		void trySendDeath()															{ trySendPacket<FromClient::US_Death>(currentUsername); }
+		void trySendMinutePlayed()													{ trySendPacket<FromClient::US_MinutePlayed>(currentUsername); }
+		void trySendRestart()														{ trySendPacket<FromClient::US_Restart>(currentUsername); }
+		void trySendInitialRequests()												{ trySendPacket<FromClient::RequestInfo>(); trySendPacket<FromClient::RequestUserStats>(currentUsername); }
+		void trySendAddFriend(const string& mFriendName)							{ trySendPacket<FromClient::US_AddFriend>(currentUsername, mFriendName); trySendInitialRequests(); }
+		void trySendClearFriends()													{ trySendPacket<FromClient::US_ClearFriends>(currentUsername); trySendInitialRequests(); }
+		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult); }
 
-		ConnectionStatus getConnectionStatus()	{ return connectionStatus; }
-		LoginStatus getLoginStatus()			{ return loginStatus; }
-		string getCurrentUsername()				{ return loginStatus == LoginStatus::Logged ? currentUsername : "NULL"; }
+		ConnectStat getConnectionStatus()	{ return connectionStatus; }
+		LoginStat getLoginStatus()			{ return loginStatus; }
+		string getCurrentUsername()				{ return loginStatus == LoginStat::Logged ? currentUsername : "NULL"; }
 
 		void logout() { trySendFunc([=]{ client->send(buildCPacket<FromClient::Logout>(currentUsername)); }); }
 
