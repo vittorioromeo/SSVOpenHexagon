@@ -46,20 +46,26 @@ namespace hg
 	{
 		namespace i = ssvms::Items;
 		auto& main(welcomeMenu.createCategory("welcome"));
+		auto& bConnect = main.create<i::Single>("connect", [&]
+		{
+			if(Online::getConnectionStatus() == Online::ConnectStat::Disconnected)	{ Online::tryConnectToServer(); return; }
+		});
+		menuController.emplace_back(bConnect, [&]{ return Online::getConnectionStatus() == Online::ConnectStat::Disconnected; });
 		auto& bLogin = main.create<i::Single>("login", [&]
 		{
-			if(Online::getConnectionStatus() != Online::ConnectStat::Connected)	{ Online::tryConnectToServer(); return; }
-			if(Online::getLoginStatus() == Online::LoginStat::Logged)					{ Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
 			assets.pSetPlayingLocally(false); enteredString = ""; state = States::LRUser;
 		});
-		menuController.emplace_back(bLogin, [&]{ return Online::getConnectionStatus() == Online::ConnectStat::Connected; });
-		main.create<i::Single>("play locally", [&]
+		menuController.emplace_back(bLogin, [&]{ return Online::getConnectionStatus() == Online::ConnectStat::Connected && Online::getLoginStatus() == Online::LoginStat::Unlogged; });
+		auto& bLogout = main.create<i::Single>("logout", [&]{ Online::logout(); });
+		menuController.emplace_back(bLogout, [&]{ return Online::getConnectionStatus() == Online::ConnectStat::Connected && Online::getLoginStatus() == Online::LoginStat::Logged; });
+		auto& bLocal = main.create<i::Single>("play locally", [&]
 		{
-			if(Online::getLoginStatus() == Online::LoginStat::Logged)	{ Online::logout(); return; }
+			if(Online::getLoginStatus() == Online::LoginStat::Logged) { Online::logout(); return; }
 			if(assets.pIsPlayingLocally()) { assets.pSaveCurrent(); }
 			assets.pSetPlayingLocally(true); enteredString = ""; state = States::LocalProfileSelect;
 		});
+		menuController.emplace_back(bLocal, [&]{ return Online::getLoginStatus() == Online::LoginStat::Unlogged; });
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
 
 	}
@@ -193,6 +199,7 @@ namespace hg
 			else if(state == s::FriendAdd)			{ if(!enteredString.empty() && !contains(assets.pGetTrackedNames(), enteredString)) { assets.pAddTrackedName(enteredString); state = s::Main; refreshScores(); enteredString = ""; } }
 			else if(state == s::LRUser)				{ if(!enteredString.empty()) { lrUser = enteredString; state = s::LRPass; enteredString = ""; } }
 			else if(state == s::LRPass)				{ if(!enteredString.empty()) { lrPass = enteredString; state = s::Logging; enteredString = ""; Online::tryLogin(lrUser, lrPass); } }
+			else if(state == s::LREmail)			{ if(!enteredString.empty()) { lrEmail = enteredString; enteredString = ""; Online::trySendUserEmail(lrEmail); } }
 		}, t::Single);
 		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::Welcome; return; } if(state == s::LocalProfileSelect) { enteredString = ""; state = s::LocalProfileNew; } }, t::Single);
 		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(!assets.pIsPlayingLocally()) { state = s::Welcome; return; } if(state == s::Main) { enteredString = ""; state = s::LocalProfileSelect; } }, t::Single);
@@ -227,15 +234,6 @@ namespace hg
 
 	void MenuGame::refreshScores()
 	{
-		if(state != States::Main || assets.pIsPlayingLocally()) return;
-
-		float diffMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
-		Online::invalidateCurrentLeaderboard();
-		Online::invalidateCurrentFriendsScores();
-		Online::tryRequestLeaderboard(levelData->id, diffMult);
-		Online::tryRequestFriendsScores(levelData->id, diffMult);
-
-		// if(Online::isOverloaded()) { wasOverloaded = true; return; }
 	}
 	void MenuGame::updateLeaderboard()
 	{
@@ -391,9 +389,16 @@ namespace hg
 
 		if(state == States::Logging)
 		{
-			if(Online::getLoginStatus() == Online::LoginStat::Logged)		state = States::Main;
+			if(Online::getLoginStatus() == Online::LoginStat::Logged)
+			{
+				if(Online::getNewUserReg()) state = States::LREmail;
+				else state = States::Main;
+			}
 			if(Online::getLoginStatus() == Online::LoginStat::TimedOut)	state = States::Welcome;
 		}
+
+		if(state == States::LREmail && !Online::getNewUserReg()) state = States::Main;
+
 		if(!assets.pIsPlayingLocally() && Online::getConnectionStatus() != Online::ConnectStat::Connected) state = States::Welcome;
 
 		updateLeaderboard();
@@ -402,9 +407,23 @@ namespace hg
 		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
-		if(isEnteringText()) { for(const auto& c : enteredChars) if(enteredString.size() < 16 && isalnum(c)) { assets.playSound("beep.ogg"); enteredString.append(toStr(c)); } }
+		if(isEnteringText())
+		{
+			unsigned int limit = (state == States::LREmail) ? 40 : 18;
+			for(const auto& c : enteredChars) if(enteredString.size() < limit && (isalnum(c) || ispunct(c))) { assets.playSound("beep.ogg"); enteredString.append(toStr(c)); }
+		}
 		else if(state == States::LocalProfileSelect) { enteredString = assets.getLocalProfileNames()[profileIndex % assets.getLocalProfileNames().size()]; }
-		else if(state == States::Main) { styleData.update(mFrameTime); backgroundCamera.rotate(levelStatus.rotationSpeed * 10.f * mFrameTime); }
+		else if(state == States::Main)
+		{
+			styleData.update(mFrameTime);
+			backgroundCamera.rotate(levelStatus.rotationSpeed * 10.f * mFrameTime);
+
+			if(!assets.pIsPlayingLocally())
+			{
+				float diffMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
+				Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
+			}
+		}
 
 		enteredChars.clear();
 	}
@@ -513,11 +532,11 @@ namespace hg
 		string title;
 		switch(state)
 		{
-			case States::LRUser:		title = "insert username"; break;
-			case States::LRPass:		title = "insert password"; break;
-			case States::LREmail:		title = "insert email"; break;
+			case States::LRUser:			title = "insert username"; break;
+			case States::LRPass:			title = "insert password"; break;
+			case States::LREmail:			title = "insert email"; break;
 			case States::LocalProfileNew:	title = "create local profile"; break;
-			case States::FriendAdd:	title = "add friend"; break;
+			case States::FriendAdd:			title = "add friend"; break;
 			default: throw;
 		}
 
@@ -525,7 +544,7 @@ namespace hg
 		renderText("insert text", cProfText,				{20, 768 - 375});
 		renderText("press enter when done", cProfText, 		{20, 768 - 335});
 		renderText("keep esc pressed to exit", cProfText, 	{20, 768 - 315});
-		renderText(state == States::LRPass ? std::string(enteredString.size(), '*') : enteredString, levelName, {20, 768 - 245 - 40});
+		renderText(state == States::LRPass ? std::string(enteredString.size(), '*') : enteredString, levelName, {20, 768 - 245 - 40}, (state == States::LREmail) ? 32 : 0);
 	}
 	void MenuGame::drawProfileSelection()
 	{
@@ -586,8 +605,8 @@ namespace hg
 		switch(Online::getConnectionStatus())
 		{
 			case Online::ConnectStat::Disconnected:	connectionString = "not connected to server"; break;
-			case Online::ConnectStat::Connecting:		connectionString = "connecting to server..."; break;
-			case Online::ConnectStat::Connected:		connectionString = "connected to server"; break;
+			case Online::ConnectStat::Connecting:	connectionString = "connecting to server..."; break;
+			case Online::ConnectStat::Connected:	connectionString = "connected to server"; break;
 		}
 		renderText(connectionString, cProfText, {20, h - 30.f});
 	}

@@ -39,6 +39,13 @@ namespace hg
 		PacketHandler clientPHandler;
 		Uptr<Client> client;
 
+		bool gettingLeaderboard{false};
+		string lastLeaderboardId;
+		float lastLeaderboardDM;
+
+		bool newUserReg{false};
+		bool getNewUserReg() { return newUserReg; }
+
 		string currentUsername{"NULL"};
 		string currentLeaderboard{"NULL"};
 		string currentUserStatsStr{"NULL"};
@@ -59,17 +66,24 @@ namespace hg
 
 		void initializeClient()
 		{
-			clientPHandler[FromServer::LoginResponseValid] = [](ManagedSocket&, sf::Packet&)		{ lo << lt("PacketHandler") << "Successfully logged in!" << endl; loginStatus = LoginStat::Logged; trySendInitialRequests(); };
+			clientPHandler[FromServer::LoginResponseValid] = [](ManagedSocket&, sf::Packet& mP)
+			{
+				lo << lt("PacketHandler") << "Successfully logged in!" << endl;
+				loginStatus = LoginStat::Logged;
+				newUserReg = ssvuj::as<bool>(getDecompressedPacket(mP), 0);
+				trySendInitialRequests();
+			};
 			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loginStatus = LoginStat::TimedOut; lo << lt("PacketHandler") << "Login invalid!" << endl; };
 			clientPHandler[FromServer::RequestInfoResponse] = [](ManagedSocket&, sf::Packet& mP)	{ ssvuj::Value r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
-			clientPHandler[FromServer::SendLeaderboard] = [](ManagedSocket&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); };
-			clientPHandler[FromServer::SendLeaderboardFailed] = [](ManagedSocket&, sf::Packet&)		{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard"; };
+			clientPHandler[FromServer::SendLeaderboard] = [](ManagedSocket&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
+			clientPHandler[FromServer::SendLeaderboardFailed] = [](ManagedSocket&, sf::Packet&)		{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard"; gettingLeaderboard = false; };
 			clientPHandler[FromServer::SendScoreResponseValid] = [](ManagedSocket&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score"; };
 			clientPHandler[FromServer::SendScoreResponseInvalid] = [](ManagedSocket&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score - level data doesn't match server's"; };
 			clientPHandler[FromServer::SendUserStats] = [](ManagedSocket&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](ManagedSocket&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats"; };
 			clientPHandler[FromServer::SendFriendsScores] = [](ManagedSocket&, sf::Packet& mP)		{ currentFriendScores = ssvuj::getRootFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0));};
 			clientPHandler[FromServer::SendLogoutValid] = [](ManagedSocket&, sf::Packet&)			{ loginStatus = LoginStat::Unlogged; };
+			clientPHandler[FromServer::NUR_EmailValid] = [](ManagedSocket&, sf::Packet&)			{ newUserReg = false; };
 
 			client = Uptr<Client>(new Client(clientPHandler));
 
@@ -77,11 +91,14 @@ namespace hg
 			{
 				while(true)
 				{
-					if(connectionStatus == ConnectStat::Connected) client->send(buildCPacket<FromClient::Ping>());
-					if(!client->getManagedSocket().isBusy())
+					if(connectionStatus == ConnectStat::Connected)
 					{
-						connectionStatus = ConnectStat::Disconnected;
-						loginStatus = LoginStat::Unlogged;
+						client->send(buildCPacket<FromClient::Ping>());
+						if(!client->getManagedSocket().isBusy())
+						{
+							connectionStatus = ConnectStat::Disconnected;
+							loginStatus = LoginStat::Unlogged;
+						}
 					}
 					this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
@@ -91,9 +108,10 @@ namespace hg
 		void tryConnectToServer()
 		{
 			if(connectionStatus == ConnectStat::Connecting)	{ lo << lt("hg::Online::connectToServer") << "Already connecting" << endl; return; }
-			if(connectionStatus == ConnectStat::Connected)		{ lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
+			if(connectionStatus == ConnectStat::Connected)	{ lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
 
 			lo << lt("hg::Online::connectToServer") << "Connecting to server..." << endl;
+			client->disconnect();
 			connectionStatus = ConnectStat::Connecting;
 
 			thread([]
@@ -106,6 +124,7 @@ namespace hg
 
 				lo << lt("hg::Online::connectToServer") << "Failed to connect" << endl;
 				connectionStatus = ConnectStat::Disconnected;
+				client->disconnect();
 			}).detach();
 		}
 
@@ -155,10 +174,23 @@ namespace hg
 		void trySendAddFriend(const string& mFriendName)							{ trySendPacket<FromClient::US_AddFriend>(currentUsername, mFriendName); trySendInitialRequests(); }
 		void trySendClearFriends()													{ trySendPacket<FromClient::US_ClearFriends>(currentUsername); trySendInitialRequests(); }
 		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult); }
+		void trySendUserEmail(const string& mEmail)									{ trySendPacket<FromClient::NUR_Email>(currentUsername, mEmail); }
+
+		void requestLeaderboardIfNeeded(const string& mLevelId, float mDiffMult)
+		{
+			if(gettingLeaderboard || (lastLeaderboardId == mLevelId && lastLeaderboardDM == mDiffMult)) return;
+			invalidateCurrentLeaderboard();
+			invalidateCurrentFriendsScores();
+			gettingLeaderboard = true;
+			lastLeaderboardId = mLevelId;
+			lastLeaderboardDM = mDiffMult;
+			tryRequestLeaderboard(mLevelId, mDiffMult);
+			tryRequestFriendsScores(mLevelId, mDiffMult);
+		}
 
 		ConnectStat getConnectionStatus()	{ return connectionStatus; }
 		LoginStat getLoginStatus()			{ return loginStatus; }
-		string getCurrentUsername()				{ return loginStatus == LoginStat::Logged ? currentUsername : "NULL"; }
+		string getCurrentUsername()			{ return loginStatus == LoginStat::Logged ? currentUsername : "NULL"; }
 
 		void logout() { trySendFunc([=]{ client->send(buildCPacket<FromClient::Logout>(currentUsername)); }); }
 

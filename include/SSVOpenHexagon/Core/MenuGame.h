@@ -26,7 +26,7 @@ namespace hg
 			HGAssets& assets;
 
 			float fw, fh, fmin, w, h;
-			std::string lrUser, lrPass;
+			std::string lrUser, lrPass, lrEmail;
 
 			HexagonGame& hexagonGame;
 			ssvs::GameState game;

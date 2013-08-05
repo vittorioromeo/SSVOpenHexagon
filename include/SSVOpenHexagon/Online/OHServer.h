@@ -23,7 +23,7 @@ namespace hg
 		};
 		struct User
 		{
-			std::string passwordHash; // ph
+			std::string passwordHash, email; // ph, em
 			UserStats stats; // st
 		};
 		class UserDB
@@ -36,6 +36,7 @@ namespace hg
 				inline User& getUser(const std::string& mUsername) { return users[mUsername]; }
 				inline void registerUser(const std::string& mUsername, const User& mUser) { users[mUsername] = mUser; }
 				inline const std::unordered_map<std::string, User>& getUsers() const { return users; }
+				inline void setEmail(const std::string& mUsername, const std::string& mEmail) { users[mUsername].email = mEmail; }
 		};
 		class LevelScoreDB
 		{
@@ -102,6 +103,7 @@ namespace ssvuj
 			{
 				hg::Online::User result;
 				result.passwordHash = ssvuj::as<std::string>(mValue, "ph");
+				result.email = ssvuj::as<std::string>(mValue, "em");
 				result.stats = ssvuj::as<hg::Online::UserStats>(mValue, "st");
 				return result;
 			}
@@ -155,6 +157,7 @@ namespace ssvuj
 	template<> inline void set<hg::Online::User>(Impl& mRoot, const hg::Online::User& mValueToSet)
 	{
 		set(mRoot, "ph", mValueToSet.passwordHash);
+		set(mRoot, "em", mValueToSet.email);
 		set(mRoot, "st", mValueToSet.stats);
 	}
 
@@ -210,9 +213,9 @@ namespace hg
 				const auto& itr(loggedUids.find(mUid));
 				if(itr == std::end(loggedUids)) return;
 				const auto& username(itr->second);
+				ssvu::lo << ssvu::lt("Forced logout") << mUid << " " << username << std::endl;
 				loggedUsers.erase(username);
 				loggedUids.erase(itr);
-				ssvu::lo << ssvu::lt("Forced logout") << username << std::endl;
 			}
 			inline void logout(const std::string& mUsername)
 			{
@@ -230,6 +233,7 @@ namespace hg
 				pHandler[FromClient::Ping] = [](ManagedSocket&, sf::Packet&) { };
 				pHandler[FromClient::Login] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
+					bool newUserRegistration{false};
 					ssvuj::Value request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 
@@ -259,11 +263,12 @@ namespace hg
 						ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
 						User newUser; newUser.passwordHash = passwordHash;
 						users.registerUser(username, newUser); saveUsers();
+						newUserRegistration = true;
 					}
 
 					ssvu::lo << ssvu::lt("PacketHandler") << "Accepting user" << std::endl;
 					acceptLogin(mMS.getCHUid(), username);
-					mMS.send(buildCPacket<FromServer::LoginResponseValid>());
+					mMS.send(buildCPacket<FromServer::LoginResponseValid>(newUserRegistration));
 				};
 				pHandler[FromClient::RequestInfo] = [](ManagedSocket& mMS, sf::Packet&)
 				{
@@ -329,6 +334,18 @@ namespace hg
 					float playerScore{l.getPlayerScore(username, diffMult)};
 					playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
 					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteRootToString(response)));
+				};
+				pHandler[FromClient::NUR_Email] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				{
+					ssvuj::Value request{getDecompressedPacket(mP)};
+					std::string username{ssvuj::as<std::string>(request, 0)};
+					std::string email{ssvuj::as<std::string>(request, 1)};
+
+					users.setEmail(username, email);
+
+					ssvu::lo << ssvu::lt("PacketHandler") << "Email accepted" << std::endl;
+					mMS.send(buildCPacket<FromServer::NUR_EmailValid>());
+					saveUsers();
 				};
 
 				pHandler[FromClient::RequestUserStats] = [&](ManagedSocket& mMS, sf::Packet& mP)

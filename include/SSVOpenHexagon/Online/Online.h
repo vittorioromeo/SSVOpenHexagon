@@ -28,7 +28,7 @@ namespace hg
 		};
 
 		enum class ConnectStat{Disconnected, Connecting, Connected};
-		enum class LoginStat{Unlogged, TimedOut, Logging, Logged};
+		enum class LoginStat{Unlogged, TimedOut, Logging, Logged, NewUserReg};
 
 		void initalizeValidators(HGAssets& mAssets);
 		void initializeClient();
@@ -45,6 +45,9 @@ namespace hg
 		void trySendAddFriend(const std::string& mFriendName);
 		void trySendClearFriends();
 		void tryRequestFriendsScores(const std::string& mLevelId, float mDiffMult);
+		void trySendUserEmail(const std::string& mEmail);
+
+		void requestLeaderboardIfNeeded(const std::string& mLevelId, float mDiffMult);
 
 		ConnectStat getConnectionStatus();
 		LoginStat getLoginStatus();
@@ -68,6 +71,8 @@ namespace hg
 		inline std::string getUrlEncoded(const std::string& mString) 		{ std::string result; for(const auto& c : mString) if(std::isalnum(c)) result += c; return result; }
 		inline std::string getControlStripped(const std::string& mString)	{ std::string result; for(const auto& c : mString) if(!std::iscntrl(c)) result += c; return result; }
 
+		bool getNewUserReg();
+
 		// Client to server
 		enum FromClient : unsigned int
 		{
@@ -83,7 +88,8 @@ namespace hg
 			US_AddFriend,
 			US_ClearFriends,
 			RequestFriendsScores,
-			Logout
+			Logout,
+			NUR_Email
 		};
 
 		// Server to client
@@ -99,7 +105,8 @@ namespace hg
 			SendUserStats,
 			SendUserStatsFailed,
 			SendFriendsScores,
-			SendLogoutValid
+			SendLogoutValid,
+			NUR_EmailValid
 		};
 	}
 }

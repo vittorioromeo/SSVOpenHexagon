@@ -2,7 +2,19 @@
 {
 	"bahb" : 
 	{
+		"em" : "",
 		"ph" : "7c9faa926d9d2d6a236b759fccc9dc3e",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
+		}
+	},
+	"chiaki" : 
+	{
+		"em" : "",
+		"ph" : "002c5026dde552c67493f63099833c99",
 		"st" : 
 		{
 			"dth" : 0,
@@ -12,6 +24,7 @@
 	},
 	"endo" : 
 	{
+		"em" : "",
 		"ph" : "1c34261f89c2c2eda0929b38292baf08",
 		"st" : 
 		{
@@ -22,7 +35,19 @@
 	},
 	"fukiwa" : 
 	{
+		"em" : "",
 		"ph" : "d9eca919bbf5d0a3e0be4f124d7e6eae",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
+		}
+	},
+	"gasu" : 
+	{
+		"em" : "",
+		"ph" : "509f46cbdeae839a55d0b81caf59fef3",
 		"st" : 
 		{
 			"dth" : 0,
@@ -32,6 +57,7 @@
 	},
 	"ha" : 
 	{
+		"em" : "",
 		"ph" : "9e094e9849febdc2c71ff5c93e5efba1",
 		"st" : 
 		{
@@ -42,17 +68,19 @@
 	},
 	"hamada" : 
 	{
+		"em" : "",
 		"ph" : "d6b8fbf77dc70012e9199481e06a1c49",
 		"st" : 
 		{
-			"dth" : 50,
-			"msp" : 3,
-			"rst" : 40,
+			"dth" : 82,
+			"msp" : 5,
+			"rst" : 68,
 			"tn" : [ "matsumoto", "tanaka", "endo", "yamasaki" ]
 		}
 	},
 	"matsumoto" : 
 	{
+		"em" : "",
 		"ph" : "957fe9797755118ccf4c0a92440a68cf",
 		"st" : 
 		{
@@ -62,8 +90,31 @@
 			"tn" : [ "tanaka" ]
 		}
 	},
+	"newtest" : 
+	{
+		"em" : "",
+		"ph" : "49f949234a056d25d97489b649962db9",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
+		}
+	},
+	"newtest2" : 
+	{
+		"em" : "myemail@myemail.com",
+		"ph" : "101ebb2077a1eec686322042f84715d9",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
+		}
+	},
 	"tan" : 
 	{
+		"em" : "",
 		"ph" : "7fba4a50c4668e664ad2358c9d2103a2",
 		"st" : 
 		{
@@ -74,6 +125,7 @@
 	},
 	"tanaka" : 
 	{
+		"em" : "",
 		"ph" : "dbdfaca29a3bd56caa7bad49e98d781f",
 		"st" : 
 		{
@@ -83,8 +135,20 @@
 			"tn" : [ "tanaka" ]
 		}
 	},
+	"testemail" : 
+	{
+		"em" : "",
+		"ph" : "904f6090eded2728a205fa840097c3aa",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
+		}
+	},
 	"yamasaki" : 
 	{
+		"em" : "",
 		"ph" : "f5c539d07ea23a42bcd2400edc191881",
 		"st" : 
 		{
