@@ -36,7 +36,7 @@ namespace hg
 						while(true)
 						{
 							std::this_thread::sleep_for(std::chrono::milliseconds(800));
-							if(!isBusy() !! --untilTimeout > 0) continue;
+							if(!isBusy() || --untilTimeout > 0) continue;
 
 							ssvu::lo << ssvu::lt("ClientHandler") << "Client (" << uid << ") timed out" << std::endl;
 							onDisconnect(); managedSocket.disconnect();
