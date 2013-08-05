@@ -60,6 +60,7 @@ namespace hg
 				friendsText{"", assets().get<sf::Font>("imagine.ttf"), 21}, packsText{"", assets().get<sf::Font>("imagine.ttf"), 14};
 
 			void refreshCamera();
+			void refreshFPS();
 			void initAssets();
 			void initWelcomeMenu();
 			void initOptionsMenu();
@@ -84,7 +85,7 @@ namespace hg
 		public:
 			MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 			void init();
-			ssvs::GameState& getGame();
+			inline ssvs::GameState& getGame() { return game; }
 	};
 }
 

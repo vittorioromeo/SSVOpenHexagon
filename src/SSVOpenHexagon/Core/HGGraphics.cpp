@@ -76,6 +76,7 @@ namespace hg
 		if(getInvincible()) s << "invincibility on" << endl;
 		if(status.scoreInvalid) s << "score invalidated (performance issues)" << endl;
 		if(status.hasDied) s << "press r to restart" << endl;
+		if(getShowFPS()) s << "FPS: " << window.getFPS() << endl;
 
 		const auto& trackedVariables(levelStatus.trackedVariables);
 		if(getShowTrackedVariables() && !trackedVariables.empty())

@@ -112,6 +112,18 @@
 			"rst" : 0
 		}
 	},
+	"newuserstream" : 
+	{
+		"em" : "addresss",
+		"ph" : "6a84a5969dfb51016e8b3a745dc6389c",
+		"st" : 
+		{
+			"dth" : 9,
+			"msp" : 0,
+			"rst" : 9,
+			"tn" : [ "tanaka" ]
+		}
+	},
 	"tan" : 
 	{
 		"em" : "",

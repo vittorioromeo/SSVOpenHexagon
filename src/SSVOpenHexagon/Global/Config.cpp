@@ -64,6 +64,8 @@ namespace hg
 	auto& beatPulse					(lvm.create<bool>("beatpulse_enabled"));
 	auto& showTrackedVariables		(lvm.create<bool>("show_tracked_variables"));
 	auto& musicSpeedDMSync			(lvm.create<bool>("music_speed_dm_sync"));
+	auto& maxFPS					(lvm.create<unsigned int>("max_fps"));
+	auto& showFps					(lvm.create<bool>("show_fps"));
 	auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
 	auto& triggerRotateCW			(lvm.create<Trigger>("t_rotate_cw"));
 	auto& triggerFocus				(lvm.create<Trigger>("t_focus"));
@@ -77,8 +79,8 @@ namespace hg
 	constexpr float spawnDistance{1600};
 	string uneligibilityReason;
 
-	void applyAutoWindowedResolution() { auto d(VideoMode::getDesktopMode()); windowedWidth = d.width; windowedHeight = d.height; }
-	void applyAutoFullscreenResolution() { auto d(VideoMode::getDesktopMode()); fullscreenWidth = d.width; fullscreenHeight = d.height; }
+	void applyAutoWindowedResolution()		{ auto d(VideoMode::getDesktopMode()); windowedWidth = d.width; windowedHeight = d.height; }
+	void applyAutoFullscreenResolution()	{ auto d(VideoMode::getDesktopMode()); fullscreenWidth = d.width; fullscreenHeight = d.height; }
 
 	void loadConfig(const vector<string>& mOverridesIds)
 	{
@@ -195,6 +197,9 @@ namespace hg
 	void setMusicVolume(int mVolume) 			{ musicVolume = mVolume; }
 	void setFlash(bool mFlash)					{ flashEnabled = mFlash; }
 	void setMusicSpeedDMSync(bool mValue)		{ musicSpeedDMSync = mValue; }
+	void setLimitFPS(bool mValue)				{ limitFps = mValue; }
+	void setMaxFPS(unsigned int mValue)			{ maxFPS = mValue; }
+	void setShowFPS(bool mValue)				{ showFps = mValue; }
 
 	bool getOnline()					{ return online; }
 	bool getOfficial()					{ return official; }
@@ -216,7 +221,7 @@ namespace hg
 	int getMusicVolume() 				{ return musicVolume; }
 	bool getStaticFrameTime()			{ return getOfficial() ? false : staticFrameTime; }
 	float getStaticFrameTimeValue()		{ return staticFrameTimeValue; }
-	bool getLimitFps()					{ return limitFps; }
+	bool getLimitFPS()					{ return limitFps; }
 	bool getVsync()						{ return vsync; }
 	bool getAutoZoomFactor()			{ return getOfficial() ? true : autoZoomFactor; }
 	bool getFullscreen()				{ return fullscreen; }
@@ -243,6 +248,8 @@ namespace hg
 	bool getFlash() 					{ return flashEnabled; }
 	bool getShowTrackedVariables()		{ return showTrackedVariables; }
 	bool getMusicSpeedDMSync()			{ return musicSpeedDMSync; }
+	unsigned int getMaxFPS()			{ return maxFPS; }
+	bool getShowFPS()					{ return showFps; }
 
 	Trigger getTriggerRotateCCW()		{ return triggerRotateCCW; }
 	Trigger getTriggerRotateCW()		{ return triggerRotateCW; }

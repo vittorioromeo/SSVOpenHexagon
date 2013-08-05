@@ -37,6 +37,9 @@ namespace hg
 	void setMusicVolume(int mVolume);
 	void setFlash(bool mFlash);
 	void setMusicSpeedDMSync(bool mValue);
+	void setLimitFPS(bool mValue);
+	void setMaxFPS(unsigned int mValue);
+	void setShowFPS(bool mValue);
 
 	bool getOnline();
 	bool getOfficial();
@@ -58,7 +61,7 @@ namespace hg
 	int getMusicVolume();
 	bool getStaticFrameTime();
 	float getStaticFrameTimeValue();
-	bool getLimitFps();
+	bool getLimitFPS();
 	bool getVsync();
 	bool getAutoZoomFactor();
 	bool getFullscreen();
@@ -85,6 +88,8 @@ namespace hg
 	bool getFlash();
 	bool getShowTrackedVariables();
 	bool getMusicSpeedDMSync();
+	unsigned int getMaxFPS();
+	bool getShowFPS();
 
 	ssvs::Input::Trigger getTriggerRotateCCW();
 	ssvs::Input::Trigger getTriggerRotateCW();

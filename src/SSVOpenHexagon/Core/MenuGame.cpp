@@ -130,6 +130,11 @@ namespace hg
 		gfx.create<i::Toggle>("vsync", 		[&]{ return getVsync(); }, 			[&]{ setVsync(window, true); }, 		[&]{ setVsync(window, false); });
 		gfx.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
 		gfx.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
+
+		gfx.create<i::Toggle>("limit fps",	[&]{ return getLimitFPS(); }, 			[&]{ setLimitFPS(true); refreshFPS(); }, 		[&]{ setLimitFPS(false); refreshFPS(); });
+		gfx.create<i::Slider>("max fps",	[&]{ return toStr(getMaxFPS()); },	[&]{ setMaxFPS(getClamped(getMaxFPS() + 5, 30u, 120u)); refreshFPS(); }, [&]{ setMaxFPS(getClamped(getMaxFPS() - 5, 30u, 120u)); refreshFPS(); });
+		gfx.create<i::Toggle>("show fps",	[&]{ return getShowFPS(); },			[&]{ setShowFPS(true); }, 		[&]{ setShowFPS(false); });
+
 		gfx.create<i::Goto>("back", main);
 
 		sfx.create<i::Toggle>("sounds",	[&]{ return !getNoSound(); }, 	[&]{ setNoSound(false); }, 	[&]{ setNoSound(true); });
@@ -230,6 +235,12 @@ namespace hg
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
 
 		refreshScores();
+	}
+
+	void MenuGame::refreshFPS()
+	{
+		window.setVsync(getVsync());
+		if(getLimitFPS()) window.setFPSLimit(getMaxFPS());
 	}
 
 	void MenuGame::refreshScores()
@@ -384,9 +395,6 @@ namespace hg
 		currentCreditsId += mFrameTime;
 		creditsBar2.setTexture(assets().get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
 
-//		if(wasOverloaded == true && Online::isFree()) { wasOverloaded = false; refreshScores(); }
-		//refreshScores();
-
 		if(state == States::Logging)
 		{
 			if(Online::getLoginStatus() == Online::LoginStat::Logged)
@@ -502,8 +510,6 @@ namespace hg
 			Text& lbest = renderText(lbestStr, cProfText, {20.f, getGlobalBottom(pack) - 7.f}, 18);
 			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), cProfText, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
 
-			//if(wasOverloaded || Online::isOverloaded()) { leaderboardString = friendsString = "too many requests, wait..."; }
-
 			renderText(leaderboardString, cProfText, {20.f, getGlobalBottom(lbest)}, 15);
 			Text& smsg = renderText("server message: " + Online::getServerMessage(), levelAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
 			friendsText.setOrigin({getLocalWidth(friendsText), 0.f});
@@ -612,6 +618,4 @@ namespace hg
 	}
 
 	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
-
-	GameState& MenuGame::getGame() { return game; }
 }
