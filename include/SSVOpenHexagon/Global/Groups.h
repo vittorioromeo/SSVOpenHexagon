@@ -9,8 +9,10 @@
 
 namespace hg
 {
-	sses::Group getGWall();
-	void initGroups(sses::Manager& mManager);
+	enum HGGroup : unsigned int
+	{
+		Wall = 0
+	};
 }
 
 #endif

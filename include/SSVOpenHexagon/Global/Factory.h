@@ -28,7 +28,7 @@ namespace hg
 			inline sses::Entity& createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{}, float mHueMod = 0)
 			{
 				auto& result(manager.createEntity());
-				result.addGroup(getGWall());
+				result.addGroup(HGGroup::Wall);
 				auto& wall(result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeed, mCurve));
 				wall.setHueMod(mHueMod);
 				return result;
