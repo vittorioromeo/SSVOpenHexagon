@@ -34,7 +34,7 @@
 	"show_fps" : false,
 	"show_messages" : true,
 	"show_tracked_variables" : true,
-	"sound_volume" : 60,
+	"sound_volume" : 75,
 	"static_frametime" : false,
 	"static_frametime_value" : 1.0,
 	"t_exit" : 

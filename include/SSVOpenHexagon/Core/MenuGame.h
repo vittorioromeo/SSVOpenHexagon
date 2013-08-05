@@ -20,8 +20,7 @@ namespace hg
 	class MenuGame
 	{
 		private:
-			using Predicate = std::function<bool()>;
-			std::vector<std::pair<ssvms::ItemBase&, Predicate>> menuController;
+			ssvms::MenuController menuController;
 
 			HGAssets& assets;
 
@@ -62,8 +61,7 @@ namespace hg
 			void refreshCamera();
 			void refreshFPS();
 			void initAssets();
-			void initWelcomeMenu();
-			void initOptionsMenu();
+			void initMenus();
 			void initInput();
 			void update(float mFrameTime);
 			void draw();
@@ -76,11 +74,20 @@ namespace hg
 			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
 			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, const sf::Color& mColor, unsigned int mSize = 0);
 			void setIndex(int mIndex);
-			void refreshScores();
 			void updateLeaderboard();
 			void updateFriends();
 
-			bool isEnteringText() { return state == States::LRUser || state == States::LRPass|| state == States::LREmail || state == States::LocalProfileNew || state == States::FriendAdd; }
+			inline bool isEnteringText() { return state == States::LRUser || state == States::LRPass || state == States::LREmail || state == States::LocalProfileNew || state == States::FriendAdd; }
+			inline ssvms::Menu* getCurrentMenu()
+			{
+				switch(state)
+				{
+					case States::Welcome: return &welcomeMenu;
+					case States::Options: return &optionsMenu;
+					default: return nullptr;
+				}
+			}
+			inline bool isInMenu() { return getCurrentMenu() != nullptr; }
 
 		public:
 			MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);

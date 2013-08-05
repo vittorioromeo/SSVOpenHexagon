@@ -193,7 +193,11 @@ namespace hg
 		LoginStat getLoginStatus()			{ return loginStatus; }
 		string getCurrentUsername()			{ return loginStatus == LoginStat::Logged ? currentUsername : "NULL"; }
 
-		void logout() { trySendFunc([=]{ client->send(buildCPacket<FromClient::Logout>(currentUsername)); }); }
+		void logout()
+		{
+			if(loginStatus != LoginStat::Logged) return;
+			trySendFunc([=]{ client->send(buildCPacket<FromClient::Logout>(currentUsername)); });
+		}
 
 		void invalidateCurrentLeaderboard() { currentLeaderboard = "NULL"; }
 		void invalidateCurrentFriendsScores() { currentFriendScores = ssvuj::Value{}; }
