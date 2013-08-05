@@ -5,8 +5,7 @@
 #ifndef HG_STYLEDATA
 #define HG_STYLEDATA
 
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVStart/SSVStart.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 
 namespace hg
 {

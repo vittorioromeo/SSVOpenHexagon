@@ -5,9 +5,7 @@
 #ifndef HG_ONLINE_PACKETHANDLER
 #define HG_ONLINE_PACKETHANDLER
 
-#include <SSVUtils/SSVUtils.h>
-#include <SFML/Network.hpp>
-#include <unordered_map>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg

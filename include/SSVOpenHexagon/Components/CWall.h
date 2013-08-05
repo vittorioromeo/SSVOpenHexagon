@@ -5,8 +5,7 @@
 #ifndef HG_CWALL
 #define HG_CWALL
 
-#include <SFML/Graphics.hpp>
-#include <SSVEntitySystem/SSVEntitySystem.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 
 namespace hg
 {

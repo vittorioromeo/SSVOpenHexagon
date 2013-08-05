@@ -5,8 +5,6 @@
 #ifndef HG_GLOBAL_TYPEDEFS
 #define HG_GLOBAL_TYPEDEFS
 
-#include <memory>
-
 namespace hg
 {
 	template<typename T> using Uptr = std::unique_ptr<T>;

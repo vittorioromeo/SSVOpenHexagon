@@ -4,9 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVStart/SSVStart.h>
-#include <SFML/Network.hpp>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/PacketHandler.h"
 #include "SSVOpenHexagon/Online/Server.h"
 #include "SSVOpenHexagon/Online/Online.h"

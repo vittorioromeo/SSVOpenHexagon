@@ -5,10 +5,7 @@
 #ifndef HG_ONLINE_MANAGEDSOCKET
 #define HG_ONLINE_MANAGEDSOCKET
 
-#include <chrono>
-#include <thread>
-#include <SSVUtils/SSVUtils.h>
-#include <SFML/Network.hpp>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/Utils.h"
 #include "SSVOpenHexagon/Online/PacketHandler.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"

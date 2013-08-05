@@ -5,11 +5,7 @@
 #ifndef HG_MENUGAME
 #define HG_MENUGAME
 
-#include <vector>
-#include <functional>
-#include <SFML/Graphics.hpp>
-#include <SSVStart/SSVStart.h>
-#include <SSVMenuSystem/SSVMenuSystem.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
 #include "SSVOpenHexagon/Data/StyleData.h"
 #include "SSVOpenHexagon/Global/Assets.h"

@@ -5,9 +5,7 @@
 #ifndef HG_MUSICDATA
 #define HG_MUSICDATA
 
-#include <SFML/Audio.hpp>
-#include <string>
-#include <vector>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 
 namespace hg
 {

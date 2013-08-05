@@ -5,12 +5,7 @@
 #ifndef HG_ONLINE
 #define HG_ONLINE
 
-#include <string>
-#include <future>
-#include <unordered_map>
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVStart/SSVStart.h>
-#include <SFML/Network.hpp>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/Compression.h"
 
 namespace hg

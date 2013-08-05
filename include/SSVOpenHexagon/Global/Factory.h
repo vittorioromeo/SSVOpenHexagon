@@ -5,8 +5,7 @@
 #ifndef HG_FACTORY
 #define HG_FACTORY
 
-#include <SSVStart/SSVStart.h>
-#include <SSVEntitySystem/SSVEntitySystem.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Components/CWall.h"
 #include "SSVOpenHexagon/Components/CPlayer.h"
 #include "SSVOpenHexagon/Utils/Utils.h"

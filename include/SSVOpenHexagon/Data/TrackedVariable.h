@@ -5,8 +5,6 @@
 #ifndef HG_TRACKEDVARIABLE
 #define HG_TRACKEDVARIABLE
 
-#include <string>
-
 namespace hg
 {
 	struct TrackedVariable

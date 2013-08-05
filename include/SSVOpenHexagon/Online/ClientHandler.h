@@ -5,10 +5,7 @@
 #ifndef HG_ONLINE_CLIENTHANDLER
 #define HG_ONLINE_CLIENTHANDLER
 
-#include <chrono>
-#include <thread>
-#include <SSVUtils/SSVUtils.h>
-#include <SFML/Network.hpp>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/ManagedSocket.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 

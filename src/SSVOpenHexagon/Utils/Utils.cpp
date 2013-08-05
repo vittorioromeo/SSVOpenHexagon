@@ -5,8 +5,6 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <fstream>
-#include <SSVUtils/SSVUtils.h>
-#include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Global/Config.h"
 

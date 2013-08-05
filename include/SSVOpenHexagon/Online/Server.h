@@ -9,8 +9,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
-#include <SSVUtils/SSVUtils.h>
-#include <SFML/Network.hpp>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/ClientHandler.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 #include "SSVOpenHexagon/Online/Utils.h"

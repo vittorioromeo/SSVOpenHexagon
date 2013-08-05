@@ -5,10 +5,8 @@
 #ifndef HG_PACKDATA
 #define HG_PACKDATA
 
-#include <string>
-
 namespace hg
-{ 
+{
 	struct PackData
 	{
 		std::string id, name, hash; float priority;

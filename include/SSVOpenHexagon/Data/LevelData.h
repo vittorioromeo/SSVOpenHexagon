@@ -5,10 +5,7 @@
 #ifndef HG_LEVELDATA
 #define HG_LEVELDATA
 
-#include <vector>
-#include <string>
-#include <SSVUtils/SSVUtils.h>
-#include <SSVUtilsJson/SSVUtilsJson.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Data/TrackedVariable.h"
 
 namespace hg

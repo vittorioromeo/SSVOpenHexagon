@@ -2,13 +2,6 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <SFML/Graphics.hpp>
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVUtils/SSVUtils.h>
-#include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Online/Definitions.h"

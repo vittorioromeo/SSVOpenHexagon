@@ -5,11 +5,8 @@
 #ifndef HG_ONLINE_UTILS
 #define HG_ONLINE_UTILS
 
-#include <string>
 #include <future>
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVStart/SSVStart.h>
-#include <SFML/Network.hpp>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/Compression.h"
 
 namespace hg

@@ -5,8 +5,7 @@
 #ifndef HG_CPLAYER
 #define HG_CPLAYER
 
-#include <SFML/Graphics.hpp>
-#include <SSVEntitySystem/SSVEntitySystem.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Global/Config.h"
 
 namespace hg

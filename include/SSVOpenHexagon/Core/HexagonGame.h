@@ -5,17 +5,7 @@
 #ifndef HG_HEXAGONGAME
 #define HG_HEXAGONGAME
 
-#include <vector>
-#include <queue>
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVUtils/SSVUtils.h>
-#include <SSVStart/SSVStart.h>
-#include <SSVEntitySystem/SSVEntitySystem.h>
-#include <SSVLuaWrapper/SSVLuaWrapper.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Core/HGStatus.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
 #include "SSVOpenHexagon/Data/MusicData.h"

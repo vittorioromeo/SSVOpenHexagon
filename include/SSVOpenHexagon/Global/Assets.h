@@ -5,12 +5,7 @@
 #ifndef HG_ASSETS
 #define HG_ASSETS
 
-#include <unordered_map>
-#include <map>
-#include <string>
-#include <memory>
-#include <SSVStart/SSVStart.h>
-#include <SFML/Audio.hpp>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
 #include "SSVOpenHexagon/Data/MusicData.h"
 #include "SSVOpenHexagon/Data/PackData.h"

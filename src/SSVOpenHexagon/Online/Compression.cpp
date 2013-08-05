@@ -2,11 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <cstring>
-#include <stdexcept>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/Compression.h"
 
 using namespace std;
@@ -33,7 +29,7 @@ namespace hg
 
 			if(outstring.size() < zs.total_out) outstring.append(outbuffer, zs.total_out - outstring.size());
 		}
-		while (ret == Z_OK);
+		while(ret == Z_OK);
 
 		deflateEnd(&zs);
 
@@ -67,11 +63,11 @@ namespace hg
 
 			if(outstring.size() < zs.total_out) outstring.append(outbuffer, zs.total_out - outstring.size());
 		}
-		while (ret == Z_OK);
+		while(ret == Z_OK);
 
 		inflateEnd(&zs);
 
-		if (ret != Z_STREAM_END)
+		if(ret != Z_STREAM_END)
 		{
 			ostringstream oss;
 			oss << "Exception during zlib decompression: (" << ret << ") " << zs.msg;

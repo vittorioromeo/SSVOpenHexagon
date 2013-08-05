@@ -5,7 +5,7 @@
 #ifndef HG_GLOBAL_GROUPS
 #define HG_GLOBAL_GROUPS
 
-#include <SSVEntitySystem/SSVEntitySystem.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 
 namespace hg
 {

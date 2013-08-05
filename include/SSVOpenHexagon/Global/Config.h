@@ -5,11 +5,7 @@
 #ifndef HG_CONFIG
 #define HG_CONFIG
 
-#include <string>
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVUtils/SSVUtils.h>
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SSVStart/SSVStart.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 
 namespace hg
 {
