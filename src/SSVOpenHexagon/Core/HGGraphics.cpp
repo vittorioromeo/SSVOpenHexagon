@@ -20,12 +20,12 @@ namespace hg
 		styleData.computeColors();
 
 		window.clear(Color::Black);
-		if(!getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); }
-		if(get3D())
+		if(!Config::getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); }
+		if(Config::get3D())
 		{
 			status.drawing3D = true;
 
-			float effect{styleData._3dSkew * get3DMultiplier() * status.pulse3D};
+			float effect{styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
 			Vec2f skew{1.f, 1.f + effect};
 			backgroundCamera.setSkew(skew);
 
@@ -51,7 +51,7 @@ namespace hg
 		backgroundCamera.apply(); manager.draw();
 		overlayCamera.apply(); drawText();
 
-		if(getFlash()) render(flashPolygon);
+		if(Config::getFlash()) render(flashPolygon);
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
@@ -61,25 +61,28 @@ namespace hg
 	{
 		flashPolygon.clear();
 		flashPolygon.append({{-100.f, -100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{getWidth() + 100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{-100.f, getHeight() + 100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{Config::getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{Config::getWidth() + 100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.append({{-100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0}});
 	}
 
 	void HexagonGame::drawText()
 	{
 		ostringstream s;
 		s << "time: " << toStr(status.currentTime).substr(0, 5) << endl;
-		if(levelStatus.tutorialMode) s << "tutorial mode" << endl; else if(getOfficial()) s << "official mode" << endl;
-		if(getDebug()) s << "debug mode" << endl;
+
+		if(levelStatus.tutorialMode) s << "tutorial mode" << endl;
+		else if(Config::getOfficial()) s << "official mode" << endl;
+
+		if(Config::getDebug()) s << "debug mode" << endl;
 		if(levelStatus.swapEnabled) s << "swap enabled" << endl;
-		if(getInvincible()) s << "invincibility on" << endl;
+		if(Config::getInvincible()) s << "invincibility on" << endl;
 		if(status.scoreInvalid) s << "score invalidated (performance issues)" << endl;
 		if(status.hasDied) s << "press r to restart" << endl;
-		if(getShowFPS()) s << "FPS: " << window.getFPS() << endl;
+		if(Config::getShowFPS()) s << "FPS: " << window.getFPS() << endl;
 
 		const auto& trackedVariables(levelStatus.trackedVariables);
-		if(getShowTrackedVariables() && !trackedVariables.empty())
+		if(Config::getShowTrackedVariables() && !trackedVariables.empty())
 		{
 			s << endl;
 			for(const auto& t : trackedVariables)
@@ -94,9 +97,9 @@ namespace hg
 		vector<Vec2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 		Color offsetColor{getColor(1)};
-		if(getBlackAndWhite()) offsetColor = Color::Black;
+		if(Config::getBlackAndWhite()) offsetColor = Color::Black;
 		text.setString(s.str());
-		text.setCharacterSize(25 / getZoomFactor());
+		text.setCharacterSize(25 / Config::getZoomFactor());
 		text.setOrigin(0, 0);
 
 		text.setColor(offsetColor);
@@ -110,7 +113,7 @@ namespace hg
 
 		messageText.setOrigin(messageText.getGlobalBounds().width / 2, 0);
 		messageText.setColor(offsetColor);
-		for(const auto& o : offsets) { messageText.setPosition(Vec2f{getWidth() / 2.f, getHeight() / 6.f} + o); render(messageText); }
+		for(const auto& o : offsets) { messageText.setPosition(Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f} + o); render(messageText); }
 
 		messageText.setColor(getColorMain());
 		render(messageText);

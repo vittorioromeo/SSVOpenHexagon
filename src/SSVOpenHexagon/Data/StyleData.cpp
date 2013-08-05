@@ -92,7 +92,7 @@ namespace hg
 		{
 			float angle{div * i};
 			Color currentColor{colors[i % colors.size()]};
-			if(getBlackAndWhite()) currentColor = Color::Black;
+			if(Config::getBlackAndWhite()) currentColor = Color::Black;
 
 			if(i % 2 == 0) if(i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 

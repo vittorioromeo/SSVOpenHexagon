@@ -19,7 +19,7 @@ namespace hg
 {
 	void HexagonGame::update(float mFrameTime)
 	{
-		if(!assets.pIsPlayingLocally() && isEligibleForScore())
+		if(!assets.pIsPlayingLocally() && Config::isEligibleForScore())
 		{
 			assets.playedSeconds += mFrameTime / 60.0f;
 			if(assets.playedSeconds >= 60.f)
@@ -40,24 +40,23 @@ namespace hg
 			updateIncrement();
 			if(mustChangeSides && !manager.hasEntity(HGGroup::Wall)) sideChange(getRnd(levelStatus.sidesMin, levelStatus.sidesMax + 1));
 			updateLevel(mFrameTime);
-			if(getBeatPulse()) updateBeatPulse(mFrameTime);
-			if(getPulse()) updatePulse(mFrameTime);
-			if(!getBlackAndWhite()) styleData.update(mFrameTime, pow(difficultyMult, 0.8f));
+			if(Config::getBeatPulse()) updateBeatPulse(mFrameTime);
+			if(Config::getPulse()) updatePulse(mFrameTime);
+			if(!Config::getBlackAndWhite()) styleData.update(mFrameTime, pow(difficultyMult, 0.8f));
 		}
 		else levelStatus.rotationSpeed *= 0.99f;
 
-		if(get3D()) update3D(mFrameTime);
-		if(!getNoRotation()) updateRotation(mFrameTime);
+		if(Config::get3D()) update3D(mFrameTime);
+		if(!Config::getNoRotation()) updateRotation(mFrameTime);
 
 		if(status.mustRestart)
 		{
 			changeLevel(restartId, restartFirstTime);
-			if(!assets.pIsPlayingLocally() && isEligibleForScore()) { Online::trySendRestart(); }
+			if(!assets.pIsPlayingLocally() && Config::isEligibleForScore()) { Online::trySendRestart(); }
 		}
-		if(!status.scoreInvalid && getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
+		if(!status.scoreInvalid && Config::getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
 
 		fpsWatcher.update();
-		//window.setTitle(toStr(window.getFPS()));
 	}
 	void HexagonGame::updateEvents(float mFrameTime)
 	{
@@ -107,7 +106,7 @@ namespace hg
 			float pulseAdd{status.pulseDirection > 0 ? levelStatus.pulseSpeed : -levelStatus.pulseSpeedR};
 			float pulseLimit{status.pulseDirection > 0 ? levelStatus.pulseMax : levelStatus.pulseMin};
 
-			status.pulse += pulseAdd * mFrameTime * (getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f);
+			status.pulse += pulseAdd * mFrameTime * getMusicDMSyncFactor();
 			if((status.pulseDirection > 0 && status.pulse >= pulseLimit) || (status.pulseDirection < 0 && status.pulse <= pulseLimit))
 			{
 				status.pulse = pulseLimit;
@@ -122,7 +121,7 @@ namespace hg
 
 		float p{status.pulse / levelStatus.pulseMin};
 		float rotation{backgroundCamera.getRotation()};
-		backgroundCamera.setView({{0, 0}, {(getWidth() * getZoomFactor()) * p, (getHeight() * getZoomFactor()) * p}});
+		backgroundCamera.setView({{0, 0}, {(Config::getWidth() * Config::getZoomFactor()) * p, (Config::getHeight() * Config::getZoomFactor()) * p}});
 		backgroundCamera.setRotation(rotation);
 	}
 	void HexagonGame::updateBeatPulse(float mFrameTime)
@@ -132,11 +131,11 @@ namespace hg
 			status.beatPulse = levelStatus.beatPulseMax;
 			status.beatPulseDelay = levelStatus.beatPulseDelayMax;
 		}
-		else status.beatPulseDelay -= 1 * mFrameTime * (getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f);
+		else status.beatPulseDelay -= 1 * mFrameTime * getMusicDMSyncFactor();
 
-		if(status.beatPulse > 0) status.beatPulse -= 2.f * mFrameTime * (getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f);
+		if(status.beatPulse > 0) status.beatPulse -= 2.f * mFrameTime * getMusicDMSyncFactor();
 
-		float radiusMin{getBeatPulse() ? levelStatus.radiusMin : 75};
+		float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
 		status.radius = radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
 	}
 	void HexagonGame::updateRotation(float mFrameTime)

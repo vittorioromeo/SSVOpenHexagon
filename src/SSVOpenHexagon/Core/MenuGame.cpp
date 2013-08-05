@@ -69,6 +69,17 @@ namespace hg
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
 
 	}
+
+	template<typename TFuncGet, typename TFuncSet> ItemBase& createMI_Toggle(Category& mCategory, const std::string& mLabel, TFuncGet mFuncGet, TFuncSet mFuncSet)
+	{
+		return mCategory.create<ssvms::Items::Toggle>(mLabel, [=]{ return mFuncGet(); }, [=]{ mFuncSet(true); }, [=]{ mFuncSet(false); });
+	}
+	template<typename T, typename TFuncGet, typename TFuncSet> ItemBase& createMI_Slider(Category& mCategory, const std::string& mLabel, TFuncGet mFuncGet, TFuncSet mFuncSet, T mMin, T mMax, T mIncrement)
+	{
+		return mCategory.create<ssvms::Items::Slider>(mLabel, [=]{ return toStr(mFuncGet()); },	[=]{ mFuncSet(getClamped(mFuncGet() + mIncrement, mMin, mMax)); }, [=]{ mFuncSet(getClamped(mFuncGet() - mIncrement, mMin, mMax)); });
+	}
+
+
 	void MenuGame::initOptionsMenu()
 	{
 		namespace i = ssvms::Items;
@@ -97,57 +108,55 @@ namespace hg
 		main.create<i::Goto>("audio", sfx);
 
 		auto& bDebug = main.create<i::Goto>("debug", debug);
-		menuController.emplace_back(bDebug, [&]{ return !getOfficial(); });
+		menuController.emplace_back(bDebug, [&]{ return !Config::getOfficial(); });
 
-		main.create<i::Toggle>("online", [&]{ return getOnline(); }, [&]{ setOnline(true); }, [&]{ setOnline(false); });
-		main.create<i::Toggle>("official mode", [&]{ return getOfficial(); }, [&]{ setOfficial(true); }, [&]{ setOfficial(false); });
+		createMI_Toggle(main, "online", &Config::getOnline, &Config::setOnline);
+		createMI_Toggle(main, "official mode", &Config::getOfficial, &Config::setOfficial);
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
 		main.create<i::Single>("back", [&]{ state = States::Main; });
 
-		resolution.create<i::Single>("auto", [&]{ setCurrentResolutionAuto(window); });
+		resolution.create<i::Single>("auto", [&]{ Config::setCurrentResolutionAuto(window); });
 		for(const auto& vm : VideoMode::getFullscreenModes())
 			if(vm.bitsPerPixel == 32)
-				resolution.create<i::Single>(toStr(vm.width) + "x" + toStr(vm.height), [&]{ setCurrentResolution(window, vm.width, vm.height); refreshCamera(); });
-		resolution.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
-		resolution.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
+				resolution.create<i::Single>(toStr(vm.width) + "x" + toStr(vm.height), [&]{ Config::setCurrentResolution(window, vm.width, vm.height); refreshCamera(); });
+		resolution.create<i::Single>("go windowed", 	[&]{ Config::setFullscreen(window, false); });
+		resolution.create<i::Single>("go fullscreen", 	[&]{ Config::setFullscreen(window, true); });
 		resolution.create<i::Goto>("back", main);
 
-		auto& bOO1 = gfx.create<i::Toggle>("rotation",	[&]{ return !getNoRotation(); }, 	[&]{ setNoRotation(false); }, 	[&]{ setNoRotation(true); });
-		menuController.emplace_back(bOO1, [&]{ return !getOfficial(); });
+		createMI_Toggle(gfx, "3D effects", &Config::get3D, &Config::set3D);
 
-		auto& bOO2 = gfx.create<i::Toggle>("background",	[&]{ return !getNoBackground(); }, 	[&]{ setNoBackground(false); }, [&]{ setNoBackground(true); });
-		menuController.emplace_back(bOO2, [&]{ return !getOfficial(); });
+		auto& bOO1 = createMI_Toggle(gfx, "3D effects", &Config::getNoRotation, &Config::setNoRotation);
+		menuController.emplace_back(bOO1, [&]{ return !Config::getOfficial(); });
 
-		auto& bOO3 = gfx.create<i::Toggle>("b&w colors", [&]{ return getBlackAndWhite(); }, 	[&]{ setBlackAndWhite(true); }, [&]{ setBlackAndWhite(false); });
-		menuController.emplace_back(bOO3, [&]{ return !getOfficial(); });
+		auto& bOO2 = createMI_Toggle(gfx, "no background", &Config::getNoBackground, &Config::setNoBackground);
+		menuController.emplace_back(bOO2, [&]{ return !Config::getOfficial(); });
 
-		gfx.create<i::Toggle>("3D effect",	[&]{ return get3D(); }, 			[&]{ set3D(true); }, 			[&]{ set3D(false); });
+		auto& bOO3 = createMI_Toggle(gfx, "b&w colors", &Config::getBlackAndWhite, &Config::setBlackAndWhite);
+		menuController.emplace_back(bOO3, [&]{ return !Config::getOfficial(); });
 
-		auto& bOO4 = gfx.create<i::Toggle>("pulse", 		[&]{ return getPulse(); }, 			[&]{ setPulse(true); }, 		[&]{ setPulse(false); });
-		menuController.emplace_back(bOO4, [&]{ return !getOfficial(); });
+		auto& bOO4 = createMI_Toggle(gfx, "pulse", &Config::getPulse, &Config::setPulse);
+		menuController.emplace_back(bOO4, [&]{ return !Config::getOfficial(); });
 
-		gfx.create<i::Toggle>("flash", 		[&]{ return getFlash(); }, 			[&]{ setFlash(true); }, 		[&]{ setFlash(false); });
-		gfx.create<i::Toggle>("vsync", 		[&]{ return getVsync(); }, 			[&]{ setVsync(window, true); }, 		[&]{ setVsync(window, false); });
-		gfx.create<i::Single>("go windowed", 	[&]{ setFullscreen(window, false); });
-		gfx.create<i::Single>("go fullscreen", 	[&]{ setFullscreen(window, true); });
-
-		gfx.create<i::Toggle>("limit fps",	[&]{ return getLimitFPS(); }, 			[&]{ setLimitFPS(true); refreshFPS(); }, 		[&]{ setLimitFPS(false); refreshFPS(); });
-		gfx.create<i::Slider>("max fps",	[&]{ return toStr(getMaxFPS()); },	[&]{ setMaxFPS(getClamped(getMaxFPS() + 5, 30u, 120u)); refreshFPS(); }, [&]{ setMaxFPS(getClamped(getMaxFPS() - 5, 30u, 120u)); refreshFPS(); });
-		gfx.create<i::Toggle>("show fps",	[&]{ return getShowFPS(); },			[&]{ setShowFPS(true); }, 		[&]{ setShowFPS(false); });
-
+		createMI_Toggle(gfx, "flash", &Config::getFlash, &Config::setFlash);
+		createMI_Toggle(gfx, "vsync", &Config::getVsync, [&](bool mValue){ Config::setVsync(window, mValue); });
+		gfx.create<i::Single>("go windowed", 	[&]{ Config::setFullscreen(window, false); });
+		gfx.create<i::Single>("go fullscreen", 	[&]{ Config::setFullscreen(window, true); });
+		createMI_Toggle(gfx, "limit fps", &Config::getLimitFPS, [&](bool mValue){ Config::setLimitFPS(mValue); refreshFPS(); });
+		createMI_Slider(gfx, "max fps", &Config::getMaxFPS, [&](unsigned int mValue){ Config::setMaxFPS(mValue); refreshFPS(); }, 30u, 120u, 5u);
+		createMI_Toggle(gfx, "show fps", &Config::getShowFPS, &Config::setShowFPS);
 		gfx.create<i::Goto>("back", main);
 
-		sfx.create<i::Toggle>("sounds",	[&]{ return !getNoSound(); }, 	[&]{ setNoSound(false); }, 	[&]{ setNoSound(true); });
-		sfx.create<i::Toggle>("music",	[&]{ return !getNoMusic(); },	[&]{ setNoMusic(false); }, 	[&]{ setNoMusic(true); });
-		sfx.create<i::Slider>("sounds volume", [&]{ return toStr(getSoundVolume()); }, [&]{ setSoundVolume(getClamped(getSoundVolume() + 5, 0, 100)); assets.refreshVolumes(); }, [&]{ setSoundVolume(getClamped(getSoundVolume() - 5, 0, 100)); assets.refreshVolumes(); });
-		sfx.create<i::Slider>("music volume", [&]{ return toStr(getMusicVolume()); }, [&]{ setMusicVolume(getClamped(getMusicVolume() + 5, 0, 100)); assets.refreshVolumes(); }, [&]{ setMusicVolume(getClamped(getMusicVolume() - 5, 0, 100)); assets.refreshVolumes(); });
-		sfx.create<i::Toggle>("sync music speed with difficulty",	[&]{ return getMusicSpeedDMSync(); },	[&]{ setMusicSpeedDMSync(true); }, 	[&]{ setMusicSpeedDMSync(false); });
+		createMI_Toggle(sfx, "no sound", &Config::getNoSound, &Config::setNoSound);
+		createMI_Toggle(sfx, "no music", &Config::getNoMusic, &Config::setNoMusic);
+		createMI_Slider(sfx, "sound volume", &Config::getSoundVolume, [&](unsigned int mValue){ Config::setSoundVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u);
+		createMI_Slider(sfx, "music volume", &Config::getMusicVolume, [&](unsigned int mValue){ Config::setMusicVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u);
+		createMI_Toggle(sfx, "sync music with difficulty", &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync);
 		sfx.create<i::Goto>("back", main);
 
-		play.create<i::Toggle>("autorestart", [&]{ return getAutoRestart(); }, [&]{ setAutoRestart(true); }, [&]{ setAutoRestart(false); });
+		createMI_Toggle(play, "autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
 		play.create<i::Goto>("back", main);
 
-		debug.create<i::Toggle>("invincible", [&]{ return getInvincible(); }, [&]{ setInvincible(true); }, [&]{ setInvincible(false); });
+		createMI_Toggle(debug, "invincible", &Config::getInvincible, &Config::setInvincible);
 		debug.create<i::Goto>("back", main);
 
 		friends.create<i::Single>("add friend", [&]{ if(assets.pIsPlayingLocally()) return; enteredString = ""; state = States::FriendAdd; });
@@ -159,7 +168,7 @@ namespace hg
 		using k = Keyboard::Key;
 		using t = Trigger::Type;
 		using s = States;
-		game.addInput(getTriggerRotateCCW(), [&](float)
+		game.addInput(Config::getTriggerRotateCCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::LocalProfileSelect) 		{  --profileIndex; }
@@ -167,7 +176,7 @@ namespace hg
 			else if(state == s::Options) 	{ optionsMenu.decrease(); }
 			else if(state == s::Welcome) 	{ welcomeMenu.decrease(); }
 		}, t::Single);
-		game.addInput(getTriggerRotateCW(), [&](float)
+		game.addInput(Config::getTriggerRotateCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::LocalProfileSelect) 		{ ++profileIndex; }
@@ -189,7 +198,7 @@ namespace hg
 			else if(state == s::Options)	{ optionsMenu.next(); }
 			else if(state == s::Welcome) 	{ welcomeMenu.next(); }
 		}, t::Single);
-		game.addInput(getTriggerRestart(), [&](float)
+		game.addInput(Config::getTriggerRestart(), [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::LocalProfileSelect) { assets.pSetCurrent(enteredString); state = s::Main; refreshScores(); }
@@ -213,11 +222,11 @@ namespace hg
 		{
 			assets.playSound("beep.ogg"); if(state == s::Main) { auto p(assets.getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = assets.getLevelIdsByPack(p[packIndex]); setIndex(0); }
 		}, t::Single);
-		game.addInput(getTriggerExit(), [&](float) { assets.playSound("beep.ogg"); if(state == s::Options) state = s::Main; refreshScores(); }, t::Single);
-		game.addInput(getTriggerExit(), [&](float mFrameTime) { if(state != s::Options) exitTimer += mFrameTime; });
-		game.addInput(getTriggerExit(), [&](float) { if(state == s::FriendAdd) state = s::Main; });
-		game.addInput(getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
-		game.addInput({{k::LAlt, k::Return}}, [&](float){ setFullscreen(window, !window.getFullscreen()); refreshCamera(); }, t::Single);
+		game.addInput(Config::getTriggerExit(), [&](float) { assets.playSound("beep.ogg"); if(state == s::Options) state = s::Main; refreshScores(); }, t::Single);
+		game.addInput(Config::getTriggerExit(), [&](float mFrameTime) { if(state != s::Options) exitTimer += mFrameTime; });
+		game.addInput(Config::getTriggerExit(), [&](float) { if(state == s::FriendAdd) state = s::Main; });
+		game.addInput(Config::getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
+		game.addInput({{k::LAlt, k::Return}}, [&](float){ Config::setFullscreen(window, !window.getFullscreen()); refreshCamera(); }, t::Single);
 		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredString.empty()) enteredString.erase(enteredString.end() - 1); }, t::Single);
 	}
 
@@ -239,8 +248,8 @@ namespace hg
 
 	void MenuGame::refreshFPS()
 	{
-		window.setVsync(getVsync());
-		if(getLimitFPS()) window.setFPSLimit(getMaxFPS());
+		window.setVsync(Config::getVsync());
+		if(Config::getLimitFPS()) window.setFPSLimit(Config::getMaxFPS());
 	}
 
 	void MenuGame::refreshScores()
@@ -359,17 +368,17 @@ namespace hg
 
 	void MenuGame::refreshCamera()
 	{
-		fw = (1024.f / getWidth());
-		fh = (768.f / getHeight());
+		fw = (1024.f / Config::getWidth());
+		fh = (768.f / Config::getHeight());
 		fmin = max(fw, fh);
-		w = getWidth() * fmin;
-		h = getHeight() * fmin;
+		w = Config::getWidth() * fmin;
+		h = Config::getHeight() * fmin;
 		overlayCamera.setView(View{FloatRect(0, 0, w, h)});
 		titleBar.setOrigin({0, 0});
 		titleBar.setScale({0.5f, 0.5f});
 		titleBar.setPosition({20.f, 20.f});
 
-		versionText.setString(toStr(getVersion()));
+		versionText.setString(toStr(Config::getVersion()));
 		versionText.setColor(Color::White);
 		versionText.setOrigin({getLocalRight(versionText), 0.f});
 		versionText.setPosition({getGlobalRight(titleBar) - 15.f, getGlobalTop(titleBar) + 15.f});
@@ -461,7 +470,7 @@ namespace hg
 
 		if(mText.getString() != mString) mText.setString(mString);
 
-		if(state != States::Main || getBlackAndWhite()) mText.setColor(Color::White);
+		if(state != States::Main || Config::getBlackAndWhite()) mText.setColor(Color::White);
 		else mText.setColor(styleData.getMainColor());
 
 		mText.setPosition(mPosition);
@@ -489,15 +498,15 @@ namespace hg
 		PackData packData{assets.getPackData(levelData->packPath.substr(6, levelData->packPath.size() - 7))};
 		const string& packName{packData.name};
 
-		if(getOnline())
+		if(Config::getOnline())
 		{
 			string versionMessage{"connecting to server..."};
 			float serverVersion{Online::getServerVersion()};
 
 			if(serverVersion == -1) versionMessage = "error connecting to server";
-			else if(serverVersion == getVersion()) versionMessage = "you have the latest version";
-			else if(serverVersion < getVersion()) versionMessage = "your version is newer (beta)";
-			else if(serverVersion > getVersion()) versionMessage = "update available (" + toStr(serverVersion) + ")";
+			else if(serverVersion == Config::getVersion()) versionMessage = "you have the latest version";
+			else if(serverVersion < Config::getVersion()) versionMessage = "your version is newer (beta)";
+			else if(serverVersion > Config::getVersion()) versionMessage = "update available (" + toStr(serverVersion) + ")";
 			renderText(versionMessage, cProfText, {20, 0}, 13);
 
 			Text& profile = renderText("profile: " + assets.pGetName(), cProfText, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
@@ -515,7 +524,17 @@ namespace hg
 			friendsText.setOrigin({getLocalWidth(friendsText), 0.f});
 			renderText("friends:\n" + friendsString, friendsText, {w - 20.f, getGlobalBottom(titleBar)}, 18);
 
-			if(!isEligibleForScore()) renderText("not eligible for scoring: " + getUneligibilityReason(), cProfText, {20.f, getGlobalTop(smsg) - 20.f}, 11);
+			if(!Config::isEligibleForScore()) renderText("not eligible for scoring: " + Config::getUneligibilityReason(), cProfText, {20.f, getGlobalTop(smsg) - 20.f}, 11);
+
+			if(!assets.pIsPlayingLocally() && Online::getLoginStatus() == Online::LoginStat::Logged)
+			{
+				const auto& us(Online::getUserStats());
+				string userStats;
+				userStats += "deaths: " + toStr(us.deaths) + "\n";
+				userStats += "restarts: " + toStr(us.restarts) + "\n";
+				userStats += "played: " + toStr(us.minutesSpentPlaying) + " min";
+				renderText(userStats, levelMusc, {getGlobalRight(titleBar) + 10.f, getGlobalTop(titleBar)}, 13.5f);
+			}
 		}
 		else renderText("online disabled", cProfText, {20, 0}, 13);
 
@@ -532,6 +551,8 @@ namespace hg
 		packsText.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
 		packsText.setColor(styleData.getMainColor());
 		render(packsText);
+
+
 	}
 	void MenuGame::drawProfileCreation()
 	{
@@ -580,8 +601,8 @@ namespace hg
 			renderText(name, cProfText, {20.f + currentX, getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing}, currentItems[i]->isEnabled() ? Color::White : Color{155, 155, 155, 255});
 		}
 
-		if(getOfficial()) renderText("official mode on - some options cannot be changed", cProfText, {20, h - 30.f});
-		else if(getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, h - 30.f});
+		if(Config::getOfficial()) renderText("official mode on - some options cannot be changed", cProfText, {20, h - 30.f});
+		else if(Config::getOfficial()) renderText("official mode off - your scores won't be sent to the server", cProfText, {20, h - 30.f});
 
 		if(assets.pIsPlayingLocally()) renderText("local mode on - some options cannot be changed", cProfText, {20, h - 60.f});
 	}
@@ -616,6 +637,4 @@ namespace hg
 		}
 		renderText(connectionString, cProfText, {20, h - 30.f});
 	}
-
-	void MenuGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
 }

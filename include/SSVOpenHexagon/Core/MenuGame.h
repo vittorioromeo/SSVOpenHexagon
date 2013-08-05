@@ -32,8 +32,8 @@ namespace hg
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
-			ssvs::Camera backgroundCamera{window, {{0, 0}, {getSizeX() * getZoomFactor(), getSizeY() * getZoomFactor()}}};
-			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() * getZoomFactor() / 2.f}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
+			ssvs::Camera backgroundCamera{window, {{0, 0}, {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}};
+			ssvs::Camera overlayCamera{window, {{Config::getWidth() / 2.f, Config::getHeight() * Config::getZoomFactor() / 2.f}, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}};
 			States state{States::Welcome};
 			ssvms::Menu optionsMenu, welcomeMenu;
 			std::string scoresMessage;
@@ -72,7 +72,7 @@ namespace hg
 			void drawProfileSelection();
 			void drawOptions();
 			void drawWelcome();
-			void render(sf::Drawable&);
+			inline void render(sf::Drawable& mDrawable) { window.draw(mDrawable); }
 			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
 			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, const sf::Color& mColor, unsigned int mSize = 0);
 			void setIndex(int mIndex);

@@ -20,6 +20,6 @@ namespace hg
 	int MusicData::getRandomSegment() const { return segments[getRnd(0, segments.size())]; }
 	void MusicData::playRandomSegment(HGAssets& mAssets) { if(firstPlay) { firstPlay = false; playSegment(mAssets, 0); } else playSeconds(mAssets, getRandomSegment());}
 	void MusicData::playSegment(HGAssets& mAssets, int mSegmentIndex) { playSeconds(mAssets, segments[mSegmentIndex]); }
-	void MusicData::playSeconds(HGAssets& mAssets, int mSeconds) { if(getNoMusic()) return; mAssets.playMusic(id, seconds(mSeconds)); }
+	void MusicData::playSeconds(HGAssets& mAssets, int mSeconds) { if(Config::getNoMusic()) return; mAssets.playMusic(id, seconds(mSeconds)); }
 }
 

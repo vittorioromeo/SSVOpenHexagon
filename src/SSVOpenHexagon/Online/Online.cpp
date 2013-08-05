@@ -186,6 +186,7 @@ namespace hg
 			lastLeaderboardDM = mDiffMult;
 			tryRequestLeaderboard(mLevelId, mDiffMult);
 			tryRequestFriendsScores(mLevelId, mDiffMult);
+			trySendPacket<FromClient::RequestUserStats>(currentUsername);
 		}
 
 		ConnectStat getConnectionStatus()	{ return connectionStatus; }

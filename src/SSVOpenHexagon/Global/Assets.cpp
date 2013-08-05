@@ -75,7 +75,7 @@ namespace hg
 			const auto& fileName(getNameFromPath(p, mPath + "Music/", ".ogg"));
 
 			auto& music(assetManager.load<Music>(fileName, p));
-			music.setVolume(getMusicVolume());
+			music.setVolume(Config::getMusicVolume());
 			music.setLoop(true);
 		}
 	}
@@ -121,7 +121,7 @@ namespace hg
 		if(currentProfilePtr == nullptr) return;
 
 		ssvuj::Value profileRoot;
-		profileRoot["version"] = getVersion();
+		profileRoot["version"] = Config::getVersion();
 		profileRoot["name"] = getCurrentLocalProfile().getName();
 		profileRoot["scores"] = getCurrentLocalProfile().getScores();
 		for(const auto& n : getCurrentLocalProfile().getTrackedNames()) profileRoot["trackedNames"].append(n);
@@ -157,9 +157,9 @@ namespace hg
 	}
 	string HGAssets::getFirstLocalProfileName() { return profileDataMap.begin()->second.getName(); }
 
-	void HGAssets::refreshVolumes()	{ soundPlayer.setVolume(getSoundVolume()); musicPlayer.setVolume(getMusicVolume()); }
+	void HGAssets::refreshVolumes()	{ soundPlayer.setVolume(Config::getSoundVolume()); musicPlayer.setVolume(Config::getMusicVolume()); }
 	void HGAssets::stopMusics()	{ musicPlayer.stop(); }
 	void HGAssets::stopSounds()	{ soundPlayer.stop(); }
-	void HGAssets::playSound(const string& mId, SoundPlayer::Mode mMode)	{ if(getNoSound() || !assetManager.has<SoundBuffer>(mId)) return; soundPlayer.play(assetManager.get<SoundBuffer>(mId), mMode); }
+	void HGAssets::playSound(const string& mId, SoundPlayer::Mode mMode)	{ if(Config::getNoSound() || !assetManager.has<SoundBuffer>(mId)) return; soundPlayer.play(assetManager.get<SoundBuffer>(mId), mMode); }
 	void HGAssets::playMusic(const std::string& mId, Time mPlayingOffset)	{ if(assetManager.has<Music>(mId)) musicPlayer.play(assetManager.get<Music>(mId), mPlayingOffset); }
 }

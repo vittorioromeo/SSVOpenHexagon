@@ -94,15 +94,15 @@ namespace hg
 			}
 		}
 
-		Color TransformH(const Color& in, float H)
+		Color transformHue(const Color& in, float H)
 		{
-			float U{cos(H * 3.14f / 180.f)};
-			float W{sin(H * 3.14f / 180.f)};
+			float u{cos(H * 3.14f / 180.f)};
+			float w{sin(H * 3.14f / 180.f)};
 
 			Color ret;
-			ret.r = (.701*U+.168*W)*in.r + (-.587*U+.330*W)*in.g + (-.114*U-.497*W)*in.b;
-			ret.g = (-.299*U-.328*W)*in.r + (.413*U+.035*W)*in.g + (-.114*U+.292*W)*in.b;
-			ret.b = (-.3*U+1.25*W)*in.r + (-.588*U-1.05*W)*in.g + (.886*U-.203*W)*in.b;
+			ret.r = (.701*u+.168*w)*in.r + (-.587*u+.330*w)*in.g + (-.114*u-.497*w)*in.b;
+			ret.g = (-.299*u-.328*w)*in.r + (.413*u+.035*w)*in.g + (-.114*u+.292*w)*in.b;
+			ret.b = (-.3*u+1.25*w)*in.r + (-.588*u-1.05*w)*in.g + (.886*u-.203*w)*in.b;
 			return ret;
 		}
 	}

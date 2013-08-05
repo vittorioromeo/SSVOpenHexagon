@@ -18,7 +18,7 @@ namespace hg
 			HexagonGame& hexagonGame;
 			ssvs::Vec2f pLeft, pRight, startPos, pos;
 			sf::VertexArray vertices{sf::PrimitiveType::Triangles, 3};
-			float hue{0}, angle{0}, size{getPlayerSize()}, speed{getPlayerSpeed()}, focusSpeed{getPlayerFocusSpeed()};
+			float hue{0}, angle{0}, size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()}, focusSpeed{Config::getPlayerFocusSpeed()};
 			bool dead{false};
 			float deadEffectTimer{-1}, swapTimer{40}, swapBlinkTimer{5};
 

@@ -29,8 +29,8 @@ namespace hg
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
-			ssvs::Camera backgroundCamera{window, {{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}}};
-			ssvs::Camera overlayCamera{window, {{getWidth() / 2.f, getHeight() / 2.f}, ssvs::Vec2f(getWidth(), getHeight())}};
+			ssvs::Camera backgroundCamera{window, {{0, 0}, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}};
+			ssvs::Camera overlayCamera{window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, ssvs::Vec2f(Config::getWidth(), Config::getHeight())}};
 			std::vector<ssvs::Camera> depthCameras;
 			ssvu::TimelineManager effectTimelineManager;
 			Factory factory{*this, manager, {0, 0}};
@@ -39,7 +39,7 @@ namespace hg
 			MusicData musicData;
 			StyleData styleData;
 			ssvu::Timeline timeline, eventTimeline, messageTimeline;
-			sf::Text messageText{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(38.f / getZoomFactor())};
+			sf::Text messageText{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(38.f / Config::getZoomFactor())};
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
 			bool firstPlay{true}, restartFirstTime{true}, inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false}, mustChangeSides{false};
 			HexagonGameStatus status;
@@ -48,7 +48,7 @@ namespace hg
 			int inputMovement{0};
 
 			FPSWatcher fpsWatcher;
-			sf::Text text{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / getZoomFactor())};
+			sf::Text text{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / Config::getZoomFactor())};
 
 			// LUA-related methods
 			void initLua();
@@ -138,6 +138,7 @@ namespace hg
 			inline LevelStatus& getLevelStatus()					{ return levelStatus; }
 			inline HGAssets& getAssets()							{ return assets; }
 			sf::Color getColorMain() const;
+			inline float getMusicDMSyncFactor()						{ return Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f; }
 
 			// Input
 			inline bool getInputFocused() const	{ return inputFocused; }

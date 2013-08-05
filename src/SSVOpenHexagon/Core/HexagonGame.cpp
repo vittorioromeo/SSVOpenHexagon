@@ -26,13 +26,13 @@ namespace hg
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
 
-		add3StateInput(game, getTriggerRotateCCW(), getTriggerRotateCW(), inputMovement);
-		add2StateInput(game, getTriggerFocus(), inputFocused);
-		add2StateInput(game, getTriggerSwap(), inputSwap);
-		game.addInput(getTriggerExit(),			[&](float){ goToMenu(); });
-		game.addInput(getTriggerForceRestart(),	[&](float){ status.mustRestart = true; });
-		game.addInput(getTriggerRestart(),		[&](float){ if(status.hasDied) status.mustRestart = true; });
-		game.addInput(getTriggerScreenshot(),	[&](float){ mustTakeScreenshot = true; }, Input::Trigger::Type::Single);
+		add3StateInput(game, Config::getTriggerRotateCCW(), Config::getTriggerRotateCW(), inputMovement);
+		add2StateInput(game, Config::getTriggerFocus(), inputFocused);
+		add2StateInput(game, Config::getTriggerSwap(), inputSwap);
+		game.addInput(Config::getTriggerExit(),			[&](float){ goToMenu(); });
+		game.addInput(Config::getTriggerForceRestart(),	[&](float){ status.mustRestart = true; });
+		game.addInput(Config::getTriggerRestart(),		[&](float){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput(Config::getTriggerScreenshot(),	[&](float){ mustTakeScreenshot = true; }, Input::Trigger::Type::Single);
 	}
 
 	void HexagonGame::newGame(const string& mId, bool mFirstPlay, float mDifficultyMult)
@@ -45,7 +45,7 @@ namespace hg
 		assets.stopSounds(); stopLevelMusic();
 		assets.playSound("go.ogg"); playLevelMusic();
 
-		if(getMusicSpeedDMSync())
+		if(Config::getMusicSpeedDMSync())
 		{
 			auto current(assets.getMusicPlayer().getCurrent());
 			if(current != nullptr) current->setPitch(pow(difficultyMult, 0.12f));
@@ -67,7 +67,7 @@ namespace hg
 
 		// FPSWatcher reset
 		fpsWatcher.reset();
-		if(getOfficial()) fpsWatcher.enable();
+		if(Config::getOfficial()) fpsWatcher.enable();
 
 		// LUA context and game statuscleanup
 		status = HexagonGameStatus{};
@@ -82,14 +82,14 @@ namespace hg
 		setSides(levelStatus.sides);
 
 		// Reset zoom
-		overlayCamera.setView({{getWidth() / 2.f, getHeight() / 2.f}, ssvs::Vec2f(getWidth(), getHeight())});
-		backgroundCamera.setView({{0, 0}, {getWidth() * getZoomFactor(), getHeight() * getZoomFactor()}});
+		overlayCamera.setView({{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, ssvs::Vec2f(Config::getWidth(), Config::getHeight())});
+		backgroundCamera.setView({{0, 0}, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}});
 		backgroundCamera.setRotation(0);
 
 		// 3D Cameras cleanup
 		depthCameras.clear();
 		unsigned int depth(styleData._3dDepth);
-		if(depth > get3DMaxDepth()) depth = get3DMaxDepth();
+		if(depth > Config::get3DMaxDepth()) depth = Config::get3DMaxDepth();
 		for(unsigned int i{0}; i < depth; ++i) depthCameras.push_back({window, {}});
 	}
 	void HexagonGame::death(bool mForce)
@@ -97,10 +97,10 @@ namespace hg
 		fpsWatcher.disable();
 		assets.playSound("death.ogg", SoundPlayer::Mode::Abort);
 
-		if(!mForce && (getInvincible() || levelStatus.tutorialMode)) return;
+		if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode)) return;
 		assets.playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
-		if(!assets.pIsPlayingLocally() && isEligibleForScore()) { Online::trySendDeath(); }
+		if(!assets.pIsPlayingLocally() && Config::isEligibleForScore()) { Online::trySendDeath(); }
 
 		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
@@ -110,7 +110,7 @@ namespace hg
 		stopLevelMusic();
 		checkAndSaveScore();
 
-		if(getAutoRestart()) status.mustRestart = true;
+		if(Config::getAutoRestart()) status.mustRestart = true;
 	}
 
 	void HexagonGame::incrementDifficulty()
@@ -138,8 +138,8 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(getInvincible()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not saving score - invincibility on" << endl; return; }
-		if(status.scoreInvalid || !isEligibleForScore()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible" << endl; return; }
+		if(Config::getInvincible()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not saving score - invincibility on" << endl; return; }
+		if(status.scoreInvalid || !Config::isEligibleForScore()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible" << endl; return; }
 
 		if(assets.pIsPlayingLocally())
 		{
@@ -180,14 +180,14 @@ namespace hg
 		musicData.firstPlay = mMusicFirstPlay;
 	}
 
-	void HexagonGame::playLevelMusic() { if(!getNoMusic()) musicData.playRandomSegment(assets); }
-	void HexagonGame::stopLevelMusic() { if(!getNoMusic()) assets.stopMusics(); }
+	void HexagonGame::playLevelMusic() { if(!Config::getNoMusic()) musicData.playRandomSegment(assets); }
+	void HexagonGame::stopLevelMusic() { if(!Config::getNoMusic()) assets.stopMusics(); }
 
 	void HexagonGame::invalidateScore() { status.scoreInvalid = true; lo << lt("HexagonGame::invalidateScore") << "Too much slowdown, invalidating official game" << endl; }
 
 	Color HexagonGame::getColorMain() const
 	{
-		if(getBlackAndWhite())
+		if(Config::getBlackAndWhite())
 		{
 			if(status.drawing3D) return Color{255, 255, 255, status.overrideColor.a};
 			return Color(255, 255, 255, styleData.getMainColor().a);

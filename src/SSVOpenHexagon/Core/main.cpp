@@ -43,12 +43,12 @@ int main(int argc, char* argv[])
 	Online::initializeClient();
 	Online::tryConnectToServer();
 
-	loadConfig(overrideIds);
+	Config::loadConfig(overrideIds);
 
-	string title{"Open Hexagon " + toStr(getVersion()) + " - by vittorio romeo"};
-	GameWindow window{title, createStaticTimer(window), getWidth(), getHeight(), getPixelMultiplier(), getFullscreen()};
-	window.setVsync(getVsync());
-	if(getLimitFPS()) window.setFPSLimit(getMaxFPS());
+	string title{"Open Hexagon " + toStr(Config::getVersion()) + " - by vittorio romeo"};
+	GameWindow window{title, createStaticTimer(window), Config::getWidth(), Config::getHeight(), Config::getPixelMultiplier(), Config::getFullscreen()};
+	window.setVsync(Config::getVsync());
+	if(Config::getLimitFPS()) window.setFPSLimit(Config::getMaxFPS());
 	window.setMouseCursorVisible(false);
 
 	HGAssets assets;
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
 	if(Online::getLoginStatus() != Online::LoginStat::Logged) Online::logout();
 
-	saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
+	Config::saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
 	return 0;
 }
 

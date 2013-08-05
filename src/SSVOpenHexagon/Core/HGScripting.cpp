@@ -33,8 +33,8 @@ namespace hg
 		lua.writeVariable("u_getDelayMultDM",		[=]										{ return getDelayMultDM(); });
 
 		// Messages
-		lua.writeVariable("m_messageAdd", 			[=](string mMsg, float mDuration)		{ eventTimeline.append<Do>([=]{ if(firstPlay && getShowMessages()) addMessage(mMsg, mDuration); }); });
-		lua.writeVariable("m_messageAddImportant",	[=](string mMsg, float mDuration)		{ eventTimeline.append<Do>([=]{ if(getShowMessages()) addMessage(mMsg, mDuration); }); });
+		lua.writeVariable("m_messageAdd", 			[=](string mMsg, float mDuration)		{ eventTimeline.append<Do>([=]{ if(firstPlay && Config::getShowMessages()) addMessage(mMsg, mDuration); }); });
+		lua.writeVariable("m_messageAddImportant",	[=](string mMsg, float mDuration)		{ eventTimeline.append<Do>([=]{ if(Config::getShowMessages()) addMessage(mMsg, mDuration); }); });
 
 		// Main timeline control
 		lua.writeVariable("t_wait", 				[=](float mDuration) 					{ timeline.append<Wait>(mDuration); });

@@ -72,10 +72,21 @@
 		"ph" : "d6b8fbf77dc70012e9199481e06a1c49",
 		"st" : 
 		{
-			"dth" : 82,
-			"msp" : 5,
-			"rst" : 68,
+			"dth" : 101,
+			"msp" : 6,
+			"rst" : 84,
 			"tn" : [ "matsumoto", "tanaka", "endo", "yamasaki" ]
+		}
+	},
+	"hamda" : 
+	{
+		"em" : "dsfgsgdg",
+		"ph" : "1f8fec37539a13035b848a8d69c11393",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
 		}
 	},
 	"matsumoto" : 
@@ -88,6 +99,18 @@
 			"msp" : 1,
 			"rst" : 8,
 			"tn" : [ "tanaka" ]
+		}
+	},
+	"new_user_test" : 
+	{
+		"em" : "new_user_email@something.test",
+		"ph" : "673caf3a4f8c370de9bcdde77d068b81",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0,
+			"tn" : [ "tanaka", "matsumoto" ]
 		}
 	},
 	"newtest" : 
@@ -164,9 +187,10 @@
 		"ph" : "f5c539d07ea23a42bcd2400edc191881",
 		"st" : 
 		{
-			"dth" : 1,
-			"msp" : 0,
-			"rst" : 0
+			"dth" : 4,
+			"msp" : 1,
+			"rst" : 1,
+			"tn" : [ "endo" ]
 		}
 	}
 }

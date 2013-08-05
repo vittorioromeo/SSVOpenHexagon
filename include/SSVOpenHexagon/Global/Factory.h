@@ -29,7 +29,7 @@ namespace hg
 			{
 				auto& result(manager.createEntity());
 				result.addGroup(HGGroup::Wall);
-				auto& wall(result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, getSpawnDistance(), mSpeed, mCurve));
+				auto& wall(result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, Config::getSpawnDistance(), mSpeed, mCurve));
 				wall.setHueMod(mHueMod);
 				return result;
 			}

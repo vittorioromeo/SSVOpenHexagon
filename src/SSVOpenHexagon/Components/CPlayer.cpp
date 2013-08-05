@@ -47,7 +47,7 @@ namespace hg
 		unsigned int sides{hexagonGame.getSides()};
 		float div{360.f / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
-		if(getBlackAndWhite()) colorB = Color::Black;
+		if(Config::getBlackAndWhite()) colorB = Color::Black;
 		VertexArray vertices2{PrimitiveType::Quads, 4}, vertices3{PrimitiveType::Triangles, 3};
 
 		for(unsigned int i{0}; i < sides; ++i)
@@ -127,7 +127,7 @@ namespace hg
 			if(cwall.isOverlapping(pos))
 			{
 				deadEffectTimer = 80;
-				if(!getInvincible()) dead = true;
+				if(!Config::getInvincible()) dead = true;
 				lastPos = getMovedTowards(lastPos, {0, 0}, 5 * hexagonGame.getSpeedMultDM());
 				pos = lastPos; hexagonGame.death(); return;
 			}
