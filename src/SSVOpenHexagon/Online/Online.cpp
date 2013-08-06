@@ -73,7 +73,7 @@ namespace hg
 				newUserReg = ssvuj::as<bool>(getDecompressedPacket(mP), 0);
 				trySendInitialRequests();
 			};
-			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loginStatus = LoginStat::TimedOut; lo << lt("PacketHandler") << "Login invalid!" << endl; };
+			clientPHandler[FromServer::LoginResponseInvalid] = [](ManagedSocket&, sf::Packet&)		{ loginStatus = LoginStat::Unlogged; lo << lt("PacketHandler") << "Login invalid!" << endl; };
 			clientPHandler[FromServer::RequestInfoResponse] = [](ManagedSocket&, sf::Packet& mP)	{ ssvuj::Value r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
 			clientPHandler[FromServer::SendLeaderboard] = [](ManagedSocket&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
 			clientPHandler[FromServer::SendLeaderboardFailed] = [](ManagedSocket&, sf::Packet&)		{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard"; gettingLeaderboard = false; };
@@ -138,7 +138,7 @@ namespace hg
 			thread([=]
 			{
 				this_thread::sleep_for(std::chrono::milliseconds(80));
-				if(!retry([&]{ return connectionStatus == ConnectStat::Connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::TimedOut; return; }
+				if(!retry([&]{ return connectionStatus == ConnectStat::Connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::Unlogged; return; }
 				client->send(buildCPacket<FromClient::Login>(mUsername, mPassword));
 				currentUsername = mUsername;
 			}).detach();

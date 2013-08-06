@@ -28,7 +28,7 @@ namespace hg
 		};
 
 		enum class ConnectStat{Disconnected, Connecting, Connected};
-		enum class LoginStat{Unlogged, TimedOut, Logging, Logged, NewUserReg};
+		enum class LoginStat{Unlogged, Logging, Logged, NewUserReg};
 
 		void initalizeValidators(HGAssets& mAssets);
 		void initializeClient();
