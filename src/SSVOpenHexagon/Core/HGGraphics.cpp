@@ -111,7 +111,7 @@ namespace hg
 
 		if(messageText.getString() == "") return;
 
-		messageText.setOrigin(messageText.getGlobalBounds().width / 2, 0);
+		messageText.setOrigin(getGlobalWidth(messageText) / 2.f, 0);
 		messageText.setColor(offsetColor);
 		for(const auto& o : offsets) { messageText.setPosition(Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f} + o); render(messageText); }
 

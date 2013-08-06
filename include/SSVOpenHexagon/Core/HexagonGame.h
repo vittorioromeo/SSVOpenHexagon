@@ -39,7 +39,7 @@ namespace hg
 			MusicData musicData;
 			StyleData styleData;
 			ssvu::Timeline timeline, eventTimeline, messageTimeline;
-			sf::Text messageText{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(38.f / Config::getZoomFactor())};
+			sf::Text messageText{"", assets.get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(38.f / Config::getZoomFactor())};
 			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
 			bool firstPlay{true}, restartFirstTime{true}, inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false}, mustChangeSides{false};
 			HexagonGameStatus status;
@@ -48,7 +48,7 @@ namespace hg
 			int inputMovement{0};
 
 			FPSWatcher fpsWatcher;
-			sf::Text text{"", assets().get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / Config::getZoomFactor())};
+			sf::Text text{"", assets.get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / Config::getZoomFactor())};
 
 			// LUA-related methods
 			void initLua();

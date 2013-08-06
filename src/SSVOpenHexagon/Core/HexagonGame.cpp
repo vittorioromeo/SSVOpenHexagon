@@ -100,7 +100,7 @@ namespace hg
 		if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode)) return;
 		assets.playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
-		if(!assets.pIsPlayingLocally() && Config::isEligibleForScore()) { Online::trySendDeath(); }
+		if(!assets.pIsLocal() && Config::isEligibleForScore()) { Online::trySendDeath(); }
 
 		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
@@ -141,7 +141,7 @@ namespace hg
 		if(Config::getInvincible()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not saving score - invincibility on" << endl; return; }
 		if(status.scoreInvalid || !Config::isEligibleForScore()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible" << endl; return; }
 
-		if(assets.pIsPlayingLocally())
+		if(assets.pIsLocal())
 		{
 			string localValidator{getLocalValidator(levelData->id, difficultyMult)};
 			if(assets.getLocalScore(localValidator) < status.currentTime) assets.setLocalScore(localValidator, status.currentTime);

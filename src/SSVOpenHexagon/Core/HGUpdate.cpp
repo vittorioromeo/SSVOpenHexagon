@@ -19,7 +19,7 @@ namespace hg
 {
 	void HexagonGame::update(float mFrameTime)
 	{
-		if(!assets.pIsPlayingLocally() && Config::isEligibleForScore())
+		if(!assets.pIsLocal() && Config::isEligibleForScore())
 		{
 			assets.playedSeconds += mFrameTime / 60.0f;
 			if(assets.playedSeconds >= 60.f)
@@ -52,7 +52,7 @@ namespace hg
 		if(status.mustRestart)
 		{
 			changeLevel(restartId, restartFirstTime);
-			if(!assets.pIsPlayingLocally() && Config::isEligibleForScore()) { Online::trySendRestart(); }
+			if(!assets.pIsLocal() && Config::isEligibleForScore()) { Online::trySendRestart(); }
 		}
 		if(!status.scoreInvalid && Config::getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
 

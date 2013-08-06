@@ -13,7 +13,7 @@
 
 namespace hg
 {
-	enum class States{Welcome, LRUser, LRPass, LREmail, Logging, Main, LocalProfileNew, LocalProfileSelect, Options, FriendAdd};
+	enum class States{ETUser, ETPass, ETEmail, ETLPNew, ETFriend, SLogging, SMain, SLPSelect, MWlcm, MOpts};
 
 	class HexagonGame;
 
@@ -23,8 +23,9 @@ namespace hg
 			ssvms::MenuController menuController;
 
 			HGAssets& assets;
+			sf::Font* imagine{&assets.get<sf::Font>("imagine.ttf")};
 
-			float fw, fh, fmin, w, h;
+			float w, h;
 			std::string lrUser, lrPass, lrEmail;
 
 			HexagonGame& hexagonGame;
@@ -33,30 +34,26 @@ namespace hg
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera{window, {{0, 0}, {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{Config::getWidth() / 2.f, Config::getHeight() * Config::getZoomFactor() / 2.f}, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}};
-			States state{States::Welcome};
+			States state{States::MWlcm};
 			ssvms::Menu optionsMenu, welcomeMenu;
 			std::string scoresMessage;
 			float exitTimer{0}, currentCreditsId{0};
 			bool mustTakeScreenshot{false};
-			std::string currentLeaderboard, currentPlayerScore, enteredString, leaderboardString, friendsString;
+			std::string currentLeaderboard, currentPlayerScore, enteredStr, leaderboardString, friendsString;
 			std::vector<char> enteredChars;
 			std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "creditsBar2d.png", "creditsBar2d.png"};
 
-			sf::Sprite titleBar{assets().get<sf::Texture>("titleBar.png")}, creditsBar1{assets().get<sf::Texture>("creditsBar1.png")},
-			creditsBar2{assets().get<sf::Texture>("creditsBar2.png")}, bottomBar{assets().get<sf::Texture>("bottomBar.png")};
+			sf::Sprite titleBar{assets.get<sf::Texture>("titleBar.png")}, creditsBar1{assets.get<sf::Texture>("creditsBar1.png")},
+			creditsBar2{assets.get<sf::Texture>("creditsBar2.png")}, bottomBar{assets.get<sf::Texture>("bottomBar.png")};
 
 			std::vector<std::string> levelDataIds;
 			std::vector<float> difficultyMultipliers;
 			int currentIndex{0}, packIndex{0}, profileIndex{0}, difficultyMultIndex{0};
 
-			bool wasOverloaded{false};
-
 			const LevelData* levelData;
 			LevelStatus levelStatus;
 			StyleData styleData;
-			sf::Text versionText{"", assets().get<sf::Font>("imagine.ttf"), 40}, cProfText{"", assets().get<sf::Font>("imagine.ttf"), 21}, levelName{"", assets().get<sf::Font>("imagine.ttf"), 65},
-				levelDesc{"", assets().get<sf::Font>("imagine.ttf"), 32}, levelAuth{"", assets().get<sf::Font>("imagine.ttf"), 20}, levelMusc{"", assets().get<sf::Font>("imagine.ttf"), 20},
-				friendsText{"", assets().get<sf::Font>("imagine.ttf"), 21}, packsText{"", assets().get<sf::Font>("imagine.ttf"), 14};
+			sf::Text txtVersion{"", *imagine, 40}, txtProf{"", *imagine, 21}, txtLName{"", *imagine, 65}, txtLDesc{"", *imagine, 32}, txtLAuth{"", *imagine, 20}, txtLMus{"", *imagine, 20}, txtFriends{"", *imagine, 21}, txtPacks{"", *imagine, 14};
 
 			void refreshCamera();
 			void refreshFPS();
@@ -70,20 +67,37 @@ namespace hg
 			void drawProfileSelection();
 			void drawOptions();
 			void drawWelcome();
+			void drawMenu(const ssvms::Menu& mMenu);
 			inline void render(sf::Drawable& mDrawable) { window.draw(mDrawable); }
-			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize = 0);
-			sf::Text& renderText(const std::string& mString, sf::Text& mText, ssvs::Vec2f mPosition, const sf::Color& mColor, unsigned int mSize = 0);
+			inline sf::Text& renderTextImpl(const std::string& mStr, sf::Text& mText, ssvs::Vec2f mPosition)
+			{
+				if(mText.getString() != mStr) mText.setString(mStr);
+				mText.setPosition(mPosition); render(mText); return mText;
+			}
+			inline sf::Text& renderTextImpl(const std::string& mStr, sf::Text& mText, ssvs::Vec2f mPosition, unsigned int mSize)
+			{
+				unsigned int originalSize{mText.getCharacterSize()};
+				mText.setCharacterSize(mSize);
+				renderTextImpl(mStr, mText, mPosition);
+				mText.setCharacterSize(originalSize);
+				return mText;
+			}
+			inline const sf::Color& getTextColor() const { return (state != States::SMain || Config::getBlackAndWhite()) ? sf::Color::White : styleData.getMainColor(); }
+			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, ssvs::Vec2f mPos)													{ mText.setColor(getTextColor()); return renderTextImpl(mStr, mText, mPos); }
+			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, ssvs::Vec2f mPos, unsigned int mSize)								{ mText.setColor(getTextColor()); return renderTextImpl(mStr, mText, mPos, mSize); }
+			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, ssvs::Vec2f mPos, const sf::Color& mColor)						{ mText.setColor(mColor); return renderTextImpl(mStr, mText, mPos); }
+			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, ssvs::Vec2f mPos, const sf::Color& mColor, unsigned int mSize)	{ mText.setColor(mColor); return renderTextImpl(mStr, mText, mPos, mSize); }
 			void setIndex(int mIndex);
 			void updateLeaderboard();
 			void updateFriends();
 
-			inline bool isEnteringText() { return state == States::LRUser || state == States::LRPass || state == States::LREmail || state == States::LocalProfileNew || state == States::FriendAdd; }
+			inline bool isEnteringText() { return state == States::ETUser || state == States::ETPass || state == States::ETEmail || state == States::ETLPNew || state == States::ETFriend; }
 			inline ssvms::Menu* getCurrentMenu()
 			{
 				switch(state)
 				{
-					case States::Welcome: return &welcomeMenu;
-					case States::Options: return &optionsMenu;
+					case States::MWlcm: return &welcomeMenu;
+					case States::MOpts: return &optionsMenu;
 					default: return nullptr;
 				}
 			}
