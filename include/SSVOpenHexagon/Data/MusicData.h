@@ -6,6 +6,8 @@
 #define HG_MUSICDATA
 
 #include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Config.h"
+#include "SSVOpenHexagon/Global/Assets.h"
 
 namespace hg
 {
@@ -16,19 +18,20 @@ namespace hg
 		private:
 			std::vector<int> segments;
 
-			inline int getRandomSegment() const;
+			inline int getRandomSegment() const { return segments[ssvu::getRnd(0, segments.size())]; }
 
 		public:
 			std::string id, fileName, name, album, author;
 			bool firstPlay{true};
 
 			MusicData() = default;
-			MusicData(const std::string& mId, const std::string& mFileName, const std::string& mName, const std::string& mAlbum, const std::string& mAuthor);
+			MusicData(const std::string& mId, const std::string& mFileName, const std::string& mName, const std::string& mAlbum, const std::string& mAuthor)
+				: id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor} { }
 
 			inline void addSegment(int mSeconds) { segments.push_back(mSeconds); }
-			void playRandomSegment(HGAssets& mAssets);
-			void playSegment(HGAssets& mAssets, int mSegmentIndex);
-			void playSeconds(HGAssets& mAssets, int mSeconds);
+			inline void playRandomSegment(HGAssets& mAssets) { if(firstPlay) { firstPlay = false; playSegment(mAssets, 0); } else playSeconds(mAssets, getRandomSegment());}
+			inline void playSegment(HGAssets& mAssets, int mSegmentIndex) { playSeconds(mAssets, segments[mSegmentIndex]); }
+			inline void playSeconds(HGAssets& mAssets, int mSeconds) { if(Config::getNoMusic()) return; mAssets.playMusic(id, sf::seconds(mSeconds)); }
 	};
 }
 

@@ -7,7 +7,7 @@
 
 #include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
-#include "SSVOpenHexagon/Data/MusicData.h"
+
 #include "SSVOpenHexagon/Data/PackData.h"
 #include "SSVOpenHexagon/Data/ProfileData.h"
 #include "SSVOpenHexagon/Data/StyleData.h"
@@ -17,6 +17,8 @@
 
 namespace hg
 {
+	class MusicData;
+
 	class HGAssets
 	{
 		private:
