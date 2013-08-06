@@ -181,6 +181,17 @@
 			"tn" : [ "tanaka" ]
 		}
 	},
+	"test" : 
+	{
+		"em" : "gasdhds",
+		"ph" : "fa26088c54f04f7c3e87706cbee2171c",
+		"st" : 
+		{
+			"dth" : 2,
+			"msp" : 0,
+			"rst" : 2
+		}
+	},
 	"test_new_user_2" : 
 	{
 		"em" : "",
