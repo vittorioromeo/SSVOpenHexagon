@@ -72,9 +72,9 @@
 		"ph" : "d6b8fbf77dc70012e9199481e06a1c49",
 		"st" : 
 		{
-			"dth" : 110,
+			"dth" : 112,
 			"msp" : 6,
-			"rst" : 93,
+			"rst" : 94,
 			"tn" : [ "matsumoto", "tanaka", "endo", "yamasaki" ]
 		}
 	},
@@ -147,6 +147,17 @@
 			"tn" : [ "tanaka" ]
 		}
 	},
+	"sup_twitch.tv?" : 
+	{
+		"em" : "real_email@abcd.it",
+		"ph" : "e91a0452cef41b522798af36002d4698",
+		"st" : 
+		{
+			"dth" : 1,
+			"msp" : 0,
+			"rst" : 1
+		}
+	},
 	"tan" : 
 	{
 		"em" : "",
@@ -168,6 +179,29 @@
 			"msp" : 2,
 			"rst" : 35,
 			"tn" : [ "tanaka" ]
+		}
+	},
+	"test_new_user_2" : 
+	{
+		"em" : "",
+		"ph" : "3340f2f76cc283428819b0549964965f",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0
+		}
+	},
+	"test_new_user_3" : 
+	{
+		"em" : "totallyrealemail@test.com",
+		"ph" : "f840d08c7c6c6274e161d017c35905df",
+		"st" : 
+		{
+			"dth" : 2,
+			"msp" : 0,
+			"rst" : 3,
+			"tn" : [ "hamada" ]
 		}
 	},
 	"testemail" : 
