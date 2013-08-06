@@ -16,37 +16,35 @@ using namespace ssvuj;
 
 namespace hg
 {
-	Color StyleData::calculateColor(const ssvuj::Value& mColorRoot) const
+	Color StyleData::calculateColor(const ColorData& mColorData) const
 	{
-		Color color{as<Color>(mColorRoot, "value")};
+		Color color{mColorData.color};
 
-		if(as<bool>(mColorRoot, "dynamic"))
+		if(mColorData.dynamic)
 		{
-			Color dynamicColor{getColorFromHue((currentHue + as<float>(mColorRoot, "hue_shift")) / 360.0f)};
+			const auto& dynamicColor(getColorFromHue((currentHue + mColorData.hueShift) / 360.0f));
 
-			if(as<bool>(mColorRoot, "main")) color = dynamicColor;
-			else
+			if(!mColorData.main)
 			{
-				if(!as<bool>(mColorRoot, "dynamic_offset")) color = getColorDarkened(dynamicColor, as<float>(mColorRoot, "dynamic_darkness"));
-				else
+				if(mColorData.dynamicOffset)
 				{
-					const auto& offset(as<float>(mColorRoot, "offset"));
+					const auto& offset(mColorData.offset);
 					color.r += dynamicColor.r / offset;
 					color.g += dynamicColor.g / offset;
 					color.b += dynamicColor.b / offset;
 					color.a += dynamicColor.a;
 				}
+				else color = getColorDarkened(dynamicColor, mColorData.dynamicDarkness);
 			}
+			else color = dynamicColor;
 		}
 
-		Color pulse{as<Color>(mColorRoot, "pulse")};
+		const auto& pulse(mColorData.pulse);
 		return Color(getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f),
 					 getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f),
 					 getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f),
 					 getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f));
 	}
-
-	StyleData::StyleData(const ssvuj::Value& mRoot) : root{mRoot}, currentHue{hueMin} { }
 
 	void StyleData::update(float mFrameTime, float mMult)
 	{
@@ -66,7 +64,7 @@ namespace hg
 			else currentHue = hueMin;
 		}
 
-		pulseFactor += as<float>(root, "pulse_increment") * mFrameTime;
+		pulseFactor += pulseIncrement * mFrameTime;
 
 		if(pulseFactor < pulseMin) { pulseIncrement *= -1.f; pulseFactor = pulseMin; }
 		if(pulseFactor > pulseMax) { pulseIncrement *= -1.f; pulseFactor = pulseMax; }
@@ -74,10 +72,10 @@ namespace hg
 
 	void StyleData::computeColors()
 	{
-		currentMainColor = calculateColor(root["main"]);
-		current3DOverrideColor = has(root, "3D_override_color") ? as<Color>(root, "3D_override_color") : getMainColor();
+		currentMainColor = calculateColor(mainColorData);
+		current3DOverrideColor = _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
 		currentColors.clear();
-		for(unsigned int i{0}; i < size(root, "colors"); i++) currentColors.push_back(calculateColor(root["colors"][i]));
+		for(const auto& cd : colorDatas) currentColors.push_back(calculateColor(cd));
 		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / (maxSwapTime / 2.f), currentColors.end());
 	}
 

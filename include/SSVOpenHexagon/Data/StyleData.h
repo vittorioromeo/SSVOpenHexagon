@@ -12,13 +12,28 @@ namespace hg
 	class StyleData
 	{
 		private:
+			struct ColorData
+			{
+				ssvuj::Value root;
+				ColorData(const ssvuj::Value& mRoot) : root{mRoot} { }
+
+				bool main					{ssvuj::as<bool>(root, "main", false)};
+				bool dynamic				{ssvuj::as<bool>(root, "dynamic", false)};
+				bool dynamicOffset			{ssvuj::as<bool>(root, "dynamic_offset", false)};
+				float dynamicDarkness		{ssvuj::as<float>(root, "dynamic_darkness", 1.f)};
+				float hueShift				{ssvuj::as<float>(root, "hue_shift", 0.f)};
+				float offset				{ssvuj::as<float>(root, "offset", 0.f)};
+				sf::Color color				{ssvuj::as<sf::Color>(root, "value", sf::Color::White)};
+				sf::Color pulse				{ssvuj::as<sf::Color>(root, "pulse", sf::Color::White)};
+			};
+
 			ssvuj::Value root;
 			float currentHue, currentSwapTime{0}, pulseFactor{0};
 			std::string rootPath;
 			sf::Color currentMainColor, current3DOverrideColor;
 			std::vector<sf::Color> currentColors;
 
-			sf::Color calculateColor(const ssvuj::Value& mColorRoot) const;
+			sf::Color calculateColor(const ColorData& mColorData) const;
 
 		public:
 			std::string id						{ssvuj::as<std::string>(root, "id", "nullId")};
@@ -40,9 +55,12 @@ namespace hg
 			float _3dPulseMin					{ssvuj::as<float>(root, "3D_pulse_min", 0.f)};
 			float _3dPulseSpeed					{ssvuj::as<float>(root, "3D_pulse_speed", 0.01f)};
 			float _3dPerspectiveMult			{ssvuj::as<float>(root, "3D_perspective_multiplier", 1.f)};
+			sf::Color _3dOverrideColor			{ssvuj::as<sf::Color>(root, "3D_override_color", sf::Color{0, 0, 0, 0})};
+			ColorData mainColorData				{root["main"]};
+			std::vector<ColorData> colorDatas;
 
 			StyleData() = default;
-			StyleData(const ssvuj::Value& mRoot);
+			StyleData(const ssvuj::Value& mRoot) : root{mRoot}, currentHue{hueMin} { for(unsigned int i{0}; i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
 
 			void update(float mFrameTime, float mMult = 1.f);
 			void computeColors();
