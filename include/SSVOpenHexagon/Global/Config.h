@@ -22,7 +22,10 @@ namespace hg
 		void refreshWindowSize(unsigned int mWidth, unsigned int mHeight);
 		void setCurrentResolution(ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight);
 		void setCurrentResolutionAuto(ssvs::GameWindow& mWindow);
+
 		void setVsync(ssvs::GameWindow& mWindow, bool mValue);
+		void setLimitFPS(ssvs::GameWindow& mWindow, bool mValue);
+		void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue);
 
 		void setOnline(bool mOnline);
 		void setOfficial(bool mOfficial);
@@ -39,8 +42,6 @@ namespace hg
 		void setMusicVolume(int mVolume);
 		void setFlash(bool mFlash);
 		void setMusicSpeedDMSync(bool mValue);
-		void setLimitFPS(bool mValue);
-		void setMaxFPS(unsigned int mValue);
 		void setShowFPS(bool mValue);
 
 		bool getOnline();

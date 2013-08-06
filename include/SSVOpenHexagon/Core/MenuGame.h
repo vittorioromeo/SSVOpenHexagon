@@ -56,14 +56,13 @@ namespace hg
 			sf::Text txtVersion{"", *imagine, 40}, txtProf{"", *imagine, 21}, txtLName{"", *imagine, 65}, txtLDesc{"", *imagine, 32}, txtLAuth{"", *imagine, 20}, txtLMus{"", *imagine, 20}, txtFriends{"", *imagine, 21}, txtPacks{"", *imagine, 14};
 
 			void refreshCamera();
-			void refreshFPS();
 			void initAssets();
 			void initMenus();
 			void initInput();
 			void update(float mFrameTime);
 			void draw();
 			void drawLevelSelection();
-			void drawProfileCreation();
+			void drawEnteringText();
 			void drawProfileSelection();
 			void drawOptions();
 			void drawWelcome();

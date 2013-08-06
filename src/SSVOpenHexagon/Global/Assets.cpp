@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Online/Definitions.h"
 #include "SSVOpenHexagon/Online/Online.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
+#include "SSVOpenHexagon/Data/MusicData.h"
 
 using namespace std;
 using namespace sf;

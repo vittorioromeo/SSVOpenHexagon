@@ -108,8 +108,8 @@ namespace hg
 		gfx.create<i::Toggle>("vsync", &Config::getVsync, [&](bool mValue){ Config::setVsync(window, mValue); });
 		gfx.create<i::Single>("go windowed", 	[&]{ Config::setFullscreen(window, false); });
 		gfx.create<i::Single>("go fullscreen", 	[&]{ Config::setFullscreen(window, true); });
-		gfx.create<i::Toggle>("limit fps", &Config::getLimitFPS, [&](bool mValue){ Config::setLimitFPS(mValue); refreshFPS(); });
-		gfx.create<i::Slider>("max fps", &Config::getMaxFPS, [&](unsigned int mValue){ Config::setMaxFPS(mValue); refreshFPS(); }, 30u, 120u, 5u);
+		gfx.create<i::Toggle>("limit fps", &Config::getLimitFPS, [&](bool mValue){ Config::setLimitFPS(window, mValue); });
+		gfx.create<i::Slider>("max fps", &Config::getMaxFPS, [&](unsigned int mValue){ Config::setMaxFPS(window, mValue); }, 30u, 120u, 5u);
 		gfx.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
 		gfx.create<i::GoBack>("back");
 
@@ -213,12 +213,6 @@ namespace hg
 		styleData = assets.getStyleData(levelData->styleId);
 		difficultyMultipliers = levelData->difficultyMults;
 		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
-	}
-
-	void MenuGame::refreshFPS()
-	{
-		window.setVsync(Config::getVsync());
-		if(Config::getLimitFPS()) window.setFPSLimit(Config::getMaxFPS());
 	}
 
 	void MenuGame::updateLeaderboard()
@@ -380,7 +374,7 @@ namespace hg
 		else if(state == s::SLogging)
 		{
 			if(Online::getLoginStatus() == ols::Logged)			{ state = Online::getNewUserReg() ? s::ETEmail : s::SMain; }
-			else if(Online::getLoginStatus() == ols::TimedOut)	{ state = s::MWlcm; }
+			else if(Online::getLoginStatus() == ols::Unlogged)	{ state = s::MWlcm; }
 		}
 		else if(state == s::ETEmail && !Online::getNewUserReg()) state = s::SMain;
 
@@ -395,11 +389,11 @@ namespace hg
 		if(state == s::SMain) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelStatus.sides);
 
 		overlayCamera.apply();
-		if(state == s::SMain) { drawLevelSelection(); render(bottomBar); }
-		else if(isEnteringText()) { drawProfileCreation(); }
-		else if(state == s::SLPSelect) { drawProfileSelection(); }
-		else if(state == s::MOpts) { drawOptions(); }
-		else if(state == s::MWlcm) { drawWelcome(); }
+		if(state == s::SMain)			{ drawLevelSelection(); render(bottomBar); }
+		else if(isEnteringText())		{ drawEnteringText(); }
+		else if(state == s::SLPSelect)	{ drawProfileSelection(); }
+		else if(state == s::MOpts)		{ drawOptions(); }
+		else if(state == s::MWlcm)		{ drawWelcome(); }
 
 		render(titleBar); render(creditsBar1); render(creditsBar2); render(txtVersion);
 		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
@@ -467,7 +461,7 @@ namespace hg
 
 
 	}
-	void MenuGame::drawProfileCreation()
+	void MenuGame::drawEnteringText()
 	{
 		string title;
 		switch(state)

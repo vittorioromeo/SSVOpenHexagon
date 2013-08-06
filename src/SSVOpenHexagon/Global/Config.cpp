@@ -182,7 +182,9 @@ namespace hg
 			mWindow.setMouseCursorVisible(false);
 			recalculateSizes();
 		}
-		void setVsync(GameWindow& mWindow, bool mValue)	{ vsync = mValue; mWindow.setVsync(vsync); }
+		void setVsync(GameWindow& mWindow, bool mValue)				{ vsync = mValue; mWindow.setVsync(vsync); }
+		void setLimitFPS(GameWindow& mWindow, bool mValue)			{ limitFps = mValue; mWindow.setFPSLimit(mValue ? maxFPS : 0); }
+		void setMaxFPS(GameWindow& mWindow, unsigned int mValue)	{ maxFPS = mValue; if(getLimitFPS()) mWindow.setFPSLimit(maxFPS); }
 
 		void setOnline(bool mOnline)				{ online = mOnline; /*if(mOnline) Online::startCheckUpdates();*/ }
 		void setOfficial(bool mOfficial)			{ official = mOfficial; }
@@ -199,8 +201,6 @@ namespace hg
 		void setMusicVolume(int mVolume) 			{ musicVolume = mVolume; }
 		void setFlash(bool mFlash)					{ flashEnabled = mFlash; }
 		void setMusicSpeedDMSync(bool mValue)		{ musicSpeedDMSync = mValue; }
-		void setLimitFPS(bool mValue)				{ limitFps = mValue; }
-		void setMaxFPS(unsigned int mValue)			{ maxFPS = mValue; }
 		void setShowFPS(bool mValue)				{ showFps = mValue; }
 
 		bool getOnline()					{ return online; }
@@ -242,7 +242,7 @@ namespace hg
 		bool getDebug()						{ return debug; }
 		bool getPulse()						{ return getOfficial() ? true : pulseEnabled; }
 		bool getBeatPulse()					{ return getOfficial() ? true : beatPulse; }
-		bool getInvincible()				{ return getOfficial() ? false :invincible; }
+		bool getInvincible()				{ return getOfficial() ? false : invincible; }
 		bool get3D()						{ return _3DEnabled; }
 		float get3DMultiplier()				{ return _3DMultiplier; }
 		unsigned int get3DMaxDepth()		{ return _3DMaxDepth; }
