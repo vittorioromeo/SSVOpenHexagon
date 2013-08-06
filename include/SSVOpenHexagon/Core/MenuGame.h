@@ -20,8 +20,6 @@ namespace hg
 	class MenuGame
 	{
 		private:
-			ssvms::MenuController menuController;
-
 			HGAssets& assets;
 			sf::Font* imagine{&assets.get<sf::Font>("imagine.ttf")};
 

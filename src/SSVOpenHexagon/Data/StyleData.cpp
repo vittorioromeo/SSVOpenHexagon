@@ -90,13 +90,13 @@ namespace hg
 		{
 			float angle{div * i};
 			Color currentColor{colors[i % colors.size()]};
+
 			if(Config::getBlackAndWhite()) currentColor = Color::Black;
+			else if(i % 2 == 0 && i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 
-			if(i % 2 == 0) if(i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
-
-			vertices.append(Vertex{mCenterPos, currentColor});
-			vertices.append(Vertex{getOrbitFromDegrees(mCenterPos, angle + div * 0.5f, distance), currentColor});
-			vertices.append(Vertex{getOrbitFromDegrees(mCenterPos, angle - div * 0.5f, distance), currentColor});
+			vertices.append({mCenterPos, currentColor});
+			vertices.append({getOrbitFromDegrees(mCenterPos, angle + div * 0.5f, distance), currentColor});
+			vertices.append({getOrbitFromDegrees(mCenterPos, angle - div * 0.5f, distance), currentColor});
 		}
 
 		mRenderTarget.draw(vertices);

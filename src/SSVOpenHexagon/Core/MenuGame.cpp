@@ -44,49 +44,46 @@ namespace hg
 		refreshCamera();
 	}
 
-	void operator|(ItemBase& mLhs, const pair<MenuController&, MenuController::Predicate>& mRhs) { mRhs.first.enableItemIf(mLhs, mRhs.second); }
-
 	void MenuGame::initMenus()
 	{
 		namespace i = ssvms::Items;
 
-		auto enblIf = [&](MenuController::Predicate mPred){ return pair<MenuController&, MenuController::Predicate>(menuController, mPred); };
-		auto enblIfLocal =					enblIf([&]{ return assets.pIsLocal(); });
-		auto enblIfNotLocal =				enblIf([&]{ return !assets.pIsLocal(); });
-		auto enblIfNotOfficial =			enblIf([&]{ return Config::getOfficial(); });
-		auto enblIfDisconnected =			enblIf([&]{ return Online::getConnectionStatus() == ocs::Disconnected; });
-		auto enblIfConnectedAndUnlogged =	enblIf([&]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Unlogged; });
-		auto enblIfConnectedAndLogged =		enblIf([&]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Logged; });
-		auto enblIfUnlogged =				enblIf([&]{ return Online::getLoginStatus() == ols::Unlogged; });
-		auto enblIfSoundEnabled =			enblIf([&]{ return !Config::getNoSound(); });
-		auto enblIfMusicEnabled =			enblIf([&]{ return !Config::getNoMusic(); });
+		auto whenLocal =				[&]{ return assets.pIsLocal(); };
+		auto whenNotLocal =				[&]{ return !assets.pIsLocal(); };
+		auto whenNotOfficial =			[&]{ return Config::getOfficial(); };
+		auto whenDisconnected =			[&]{ return Online::getConnectionStatus() == ocs::Disconnected; };
+		auto whenConnectedAndUnlogged =	[&]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Unlogged; };
+		auto whenConnectedAndLogged =	[&]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Logged; };
+		auto whenUnlogged =				[&]{ return Online::getLoginStatus() == ols::Unlogged; };
+		auto whenSoundEnabled =			[&]{ return !Config::getNoSound(); };
+		auto whenMusicEnabled =			[&]{ return !Config::getNoMusic(); };
 
 		// Welcome menu
 		auto& wlcm(welcomeMenu.createCategory("welcome"));
-		wlcm.create<i::Single>("connect",		[&]{ Online::tryConnectToServer(); }) | enblIfDisconnected;
-		wlcm.create<i::Single>("login",			[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(false); enteredStr = ""; state = s::ETUser; }) | enblIfConnectedAndUnlogged;
-		wlcm.create<i::Single>("logout",		[&]{ Online::logout(); }) | enblIfConnectedAndLogged;
-		wlcm.create<i::Single>("play locally",	[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(true); enteredStr = ""; state = s::SLPSelect; }) | enblIfUnlogged;
+		wlcm.create<i::Single>("connect",		[&]{ Online::tryConnectToServer(); }) | whenDisconnected;
+		wlcm.create<i::Single>("login",			[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(false); enteredStr = ""; state = s::ETUser; }) | whenConnectedAndUnlogged;
+		wlcm.create<i::Single>("logout",		[&]{ Online::logout(); }) | whenConnectedAndLogged;
+		wlcm.create<i::Single>("play locally",	[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(true); enteredStr = ""; state = s::SLPSelect; }) | whenUnlogged;
 		wlcm.create<i::Single>("exit game",		[&]{ window.stop(); });
 
 		// Options menu
 		auto& main(optionsMenu.createCategory("options"));
+		auto& friends(optionsMenu.createCategory("friends"));
+		auto& play(optionsMenu.createCategory("gameplay"));
 		auto& resolution(optionsMenu.createCategory("resolution"));
 		auto& gfx(optionsMenu.createCategory("graphics"));
 		auto& sfx(optionsMenu.createCategory("audio"));
-		auto& play(optionsMenu.createCategory("gameplay"));
 		auto& debug(optionsMenu.createCategory("debug"));
-		auto& friends(optionsMenu.createCategory("friends"));
+		auto& localProfiles(optionsMenu.createCategory("local profiles"));
 
-		main.create<i::Goto>("friends", friends) | enblIfNotLocal ;
-		main.create<i::Single>("change local profile", [&]{ enteredStr = ""; state = s::SLPSelect; }) | enblIfLocal;
-		main.create<i::Single>("new local profile", [&]{ enteredStr = ""; state = s::SLPSelect; }) | enblIfLocal;
-		main.create<i::Single>("login screen", [&]{ state = s::MWlcm; });
+		main.create<i::Goto>("friends", friends) | whenNotLocal ;
 		main.create<i::Goto>("gameplay", play);
 		main.create<i::Goto>("resolution", resolution);
 		main.create<i::Goto>("graphics", gfx);
 		main.create<i::Goto>("audio", sfx);
-		main.create<i::Goto>("debug", debug) | enblIfNotOfficial;
+		main.create<i::Goto>("debug", debug) | whenNotOfficial;
+		main.create<i::Goto>("local profiles", localProfiles) | whenLocal;
+		main.create<i::Single>("login screen", [&]{ state = s::MWlcm; });
 		main.create<i::Toggle>("online", &Config::getOnline, &Config::setOnline);
 		main.create<i::Toggle>("official mode", &Config::getOfficial, &Config::setOfficial);
 		main.create<i::Single>("exit game", [&]{ window.stop(); });
@@ -99,10 +96,10 @@ namespace hg
 		resolution.create<i::GoBack>("back");
 
 		gfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
-		gfx.create<i::Toggle>("3D effects", &Config::getNoRotation, &Config::setNoRotation) | enblIfNotOfficial;
-		gfx.create<i::Toggle>("no background", &Config::getNoBackground, &Config::setNoBackground) | enblIfNotOfficial;
-		gfx.create<i::Toggle>("b&w colors", &Config::getBlackAndWhite, &Config::setBlackAndWhite) | enblIfNotOfficial;
-		gfx.create<i::Toggle>("pulse", &Config::getPulse, &Config::setPulse) | enblIfNotOfficial;
+		gfx.create<i::Toggle>("3D effects", &Config::getNoRotation, &Config::setNoRotation) | whenNotOfficial;
+		gfx.create<i::Toggle>("no background", &Config::getNoBackground, &Config::setNoBackground) | whenNotOfficial;
+		gfx.create<i::Toggle>("b&w colors", &Config::getBlackAndWhite, &Config::setBlackAndWhite) | whenNotOfficial;
+		gfx.create<i::Toggle>("pulse", &Config::getPulse, &Config::setPulse) | whenNotOfficial;
 
 		gfx.create<i::Toggle>("flash", &Config::getFlash, &Config::setFlash);
 		gfx.create<i::Toggle>("vsync", &Config::getVsync, [&](bool mValue){ Config::setVsync(window, mValue); });
@@ -115,13 +112,17 @@ namespace hg
 
 		sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);
 		sfx.create<i::Toggle>("no music", &Config::getNoMusic, &Config::setNoMusic);
-		sfx.create<i::Slider>("sound volume", &Config::getSoundVolume, [&](unsigned int mValue){ Config::setSoundVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | enblIfSoundEnabled;
-		sfx.create<i::Slider>("music volume", &Config::getMusicVolume, [&](unsigned int mValue){ Config::setMusicVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | enblIfMusicEnabled;
-		sfx.create<i::Toggle>("sync music with difficulty", &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync) | enblIfMusicEnabled;
+		sfx.create<i::Slider>("sound volume", &Config::getSoundVolume, [&](unsigned int mValue){ Config::setSoundVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | whenSoundEnabled;
+		sfx.create<i::Slider>("music volume", &Config::getMusicVolume, [&](unsigned int mValue){ Config::setMusicVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | whenMusicEnabled;
+		sfx.create<i::Toggle>("sync music with difficulty", &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync) | whenMusicEnabled;
 		sfx.create<i::GoBack>("back");
 
 		play.create<i::Toggle>("autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
 		play.create<i::GoBack>("back");
+
+		localProfiles.create<i::Single>("change local profile", [&]{ enteredStr = ""; state = s::SLPSelect; });
+		localProfiles.create<i::Single>("new local profile", [&]{ enteredStr = ""; state = s::SLPSelect; });
+		localProfiles.create<i::GoBack>("back");
 
 		debug.create<i::Toggle>("invincible", &Config::getInvincible, &Config::setInvincible);
 		debug.create<i::GoBack>("back");
@@ -341,7 +342,7 @@ namespace hg
 
 	void MenuGame::update(float mFrameTime)
 	{
-		menuController.update();
+		if(getCurrentMenu() != nullptr) getCurrentMenu()->update();
 
 		currentCreditsId += mFrameTime;
 		creditsBar2.setTexture(assets.get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
