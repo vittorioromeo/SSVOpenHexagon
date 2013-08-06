@@ -45,6 +45,7 @@ namespace hg
 			HGAssets(bool mLevelsOnly = false);
 
 			inline ssvs::AssetManager& operator()() { return assetManager; }
+			template<typename T> inline T& get(const std::string& mId) { return assetManager.get<T>(mId); }
 
 			inline const std::unordered_map<std::string, Uptr<LevelData>>& getLevelDatas()			{ return levelDatas; }
 			inline const LevelData& getLevelData(const std::string& mId)							{ return *levelDatas.at(mId); }
@@ -119,7 +120,7 @@ namespace hg
 				if(!playingLocally) throw;
 				createLocalProfile(mName);
 			}
-			inline bool pIsPlayingLocally() const { return playingLocally; }
+			inline bool pIsLocal() const { return playingLocally; }
 			inline void pSetPlayingLocally(bool mPlayingLocally) { playingLocally = mPlayingLocally; }
 
 
