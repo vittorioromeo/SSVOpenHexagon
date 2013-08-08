@@ -113,7 +113,7 @@ namespace hg
 			void death(bool mForce = false);
 
 			// Other methods
-			void executeEvents(ssvuj::Value& mRoot, float mTime);
+			void executeEvents(ssvuj::Obj& mRoot, float mTime);
 
 			// Graphics-related methods
 			void render(sf::Drawable&);

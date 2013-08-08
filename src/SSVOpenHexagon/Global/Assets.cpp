@@ -22,7 +22,7 @@ namespace hg
 {
 	HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
 	{
-		if(!levelsOnly) loadAssetsFromJson(assetManager, "Assets/", getRootFromFile("Assets/assets.json"));
+		if(!levelsOnly) loadAssetsFromJson(assetManager, "Assets/", readFromFile("Assets/assets.json"));
 		loadAssets();
 
 		for(auto& v : levelDataIdsByPack) sort(begin(v.second), end(v.second), [&](const string& mA, const string& mB){ return levelDatas[mA]->menuPriority < levelDatas[mB]->menuPriority; });
@@ -42,7 +42,7 @@ namespace hg
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
-			ssvuj::Value packRoot{getRootFromFile(packPath + "/pack.json")};
+			ssvuj::Obj packRoot{readFromFile(packPath + "/pack.json")};
 			auto packData(new PackData{packName, as<string>(packRoot, "name"), as<float>(packRoot, "priority"), packHash});
 			packDatas.insert(make_pair(packName, Uptr<PackData>(packData)));
 		}
@@ -84,7 +84,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".json"))
 		{
-			MusicData musicData{loadMusicFromJson(getRootFromFile(p))};
+			MusicData musicData{loadMusicFromJson(readFromFile(p))};
 			musicDataMap.insert(make_pair(musicData.id, musicData));
 		}
 	}
@@ -92,7 +92,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Styles/", ".json"))
 		{
-			StyleData styleData{getRootFromFile(p)};
+			StyleData styleData{readFromFile(p)};
 			styleData.setRootPath(p);
 			styleDataMap.insert(make_pair(styleData.id, styleData));
 		}
@@ -101,7 +101,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Levels/", ".json"))
 		{
-			auto levelData(new LevelData{getRootFromFile(p), mPath});
+			auto levelData(new LevelData{readFromFile(p), mPath});
 			levelDataIdsByPack[levelData->packPath].push_back(levelData->id);
 			levelDatas.insert(make_pair(levelData->id, Uptr<LevelData>(levelData)));
 		}
@@ -112,7 +112,7 @@ namespace hg
 		{
 			string fileName{getNameFromPath(p, "Profiles/", ".json")};
 
-			ProfileData profileData{loadProfileFromJson(getRootFromFile(p))};
+			ProfileData profileData{loadProfileFromJson(readFromFile(p))};
 			profileDataMap.insert(make_pair(profileData.getName(), profileData));
 		}
 	}
@@ -121,12 +121,12 @@ namespace hg
 	{
 		if(currentProfilePtr == nullptr) return;
 
-		ssvuj::Value profileRoot;
+		ssvuj::Obj profileRoot;
 		profileRoot["version"] = Config::getVersion();
 		profileRoot["name"] = getCurrentLocalProfile().getName();
 		profileRoot["scores"] = getCurrentLocalProfile().getScores();
 		for(const auto& n : getCurrentLocalProfile().getTrackedNames()) profileRoot["trackedNames"].append(n);
-		ssvuj::writeRootToFile(profileRoot, getCurrentLocalProfileFilePath());
+		ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
 	}
 
 	MusicData HGAssets::getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
@@ -141,10 +141,10 @@ namespace hg
 	string HGAssets::getCurrentLocalProfileFilePath() { return "Profiles/" + currentProfilePtr->getName() + ".json"; }
 	void HGAssets::createLocalProfile(const string& mName)
 	{
-		ssvuj::Value root;
+		ssvuj::Obj root;
 		root["name"] = mName;
 		root["scores"] = {};
-		ssvuj::writeRootToFile(root, "Profiles/" + mName + ".json");
+		ssvuj::writeToFile(root, "Profiles/" + mName + ".json");
 
 		profileDataMap.clear();
 		loadLocalProfiles();
@@ -156,7 +156,7 @@ namespace hg
 		for(auto& pair : profileDataMap) result.push_back(pair.second.getName());
 		return result;
 	}
-	string HGAssets::getFirstLocalProfileName() { return profileDataMap.begin()->second.getName(); }
+	string HGAssets::getFirstLocalProfileName() { return begin(profileDataMap)->second.getName(); }
 
 	void HGAssets::refreshVolumes()	{ soundPlayer.setVolume(Config::getSoundVolume()); musicPlayer.setVolume(Config::getMusicVolume()); }
 	void HGAssets::stopMusics()	{ musicPlayer.stop(); }

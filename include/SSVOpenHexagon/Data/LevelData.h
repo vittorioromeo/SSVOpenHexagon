@@ -13,7 +13,7 @@ namespace hg
 	class LevelData
 	{
 		private:
-			ssvuj::Value root;
+			ssvuj::Obj root;
 
 		public:
 			std::string packPath;
@@ -29,9 +29,9 @@ namespace hg
 			std::string luaScriptPath			{packPath + ssvuj::as<std::string>(root, "luaFile", "nullLuaPath")};
 			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "difficultyMults", {})};
 
-			LevelData(const ssvuj::Value& mRoot, const std::string& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
+			LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
 
-			std::string getRootString() const { return ssvuj::getWriteRootToString(root); }
+			std::string getRootString() const { return ssvuj::getWriteToString(root); }
 	};
 
 	struct LevelStatus

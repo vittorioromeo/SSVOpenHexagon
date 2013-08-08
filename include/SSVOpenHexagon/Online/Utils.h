@@ -18,15 +18,15 @@ namespace hg
 		namespace Internal
 		{
 			// Array-to-compress building
-			template<unsigned int TIndex, typename TArg> inline void jBuildHelper(ssvuj::Value& mP, TArg&& mArg) { ssvuj::set(mP, TIndex, mArg); }
-			template<unsigned int TIndex, typename TArg, typename... TArgs> inline void jBuildHelper(ssvuj::Value& mP, TArg&& mArg, TArgs&&... mArgs) { ssvuj::set(mP, TIndex, mArg); jBuildHelper<TIndex + 1>(mP, mArgs...); }
+			template<unsigned int TIndex, typename TArg> inline void jBuildHelper(ssvuj::Obj& mP, TArg&& mArg) { ssvuj::set(mP, TIndex, mArg); }
+			template<unsigned int TIndex, typename TArg, typename... TArgs> inline void jBuildHelper(ssvuj::Obj& mP, TArg&& mArg, TArgs&&... mArgs) { ssvuj::set(mP, TIndex, mArg); jBuildHelper<TIndex + 1>(mP, mArgs...); }
 
 			// Compression
-			template<typename... TArgs> inline ssvuj::Value buildJsonArray(TArgs&&... mArgs) { ssvuj::Value result; Internal::jBuildHelper<0>(result, mArgs...); return result; }
-			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs) { return getZLibCompress(ssvuj::getWriteRootToString(buildJsonArray(mArgs...))); }
+			template<typename... TArgs> inline ssvuj::Obj buildJsonArray(TArgs&&... mArgs) { ssvuj::Obj result; Internal::jBuildHelper<0>(result, mArgs...); return result; }
+			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs) { return getZLibCompress(ssvuj::getWriteToString(buildJsonArray(mArgs...))); }
 
 			// Decompression
-			inline ssvuj::Value getDecompressedJsonString(const std::string& mData) { return ssvuj::getRootFromString(getZLibDecompress(mData)); }
+			inline ssvuj::Obj getDecompressedJsonString(const std::string& mData) { return ssvuj::readFromString(getZLibDecompress(mData)); }
 		}
 
 		// Build compressed packet
@@ -34,7 +34,7 @@ namespace hg
 		template<unsigned int TType, typename... TArgs> inline sf::Packet buildCPacket(TArgs&&... mArgs) { sf::Packet result{buildCPacket<TType>()}; result << Internal::buildCJsonString(mArgs...); return result; }
 
 		// Decompress packet to ssvuj value
-		inline ssvuj::Value getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return Internal::getDecompressedJsonString(data); }
+		inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return Internal::getDecompressedJsonString(data); }
 
 		template<int TTimes = 5, LogMode TLM = LogMode::Quiet> inline std::future<bool> retry(std::function<bool()> mFunc, const std::chrono::duration<int, std::milli>& mDuration = std::chrono::milliseconds(1500))
 		{

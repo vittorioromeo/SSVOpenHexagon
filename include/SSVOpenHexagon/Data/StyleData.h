@@ -14,8 +14,8 @@ namespace hg
 		private:
 			struct ColorData
 			{
-				ssvuj::Value root;
-				ColorData(const ssvuj::Value& mRoot) : root{mRoot} { }
+				ssvuj::Obj root;
+				ColorData(const ssvuj::Obj& mRoot) : root{mRoot} { }
 
 				bool main					{ssvuj::as<bool>(root, "main", false)};
 				bool dynamic				{ssvuj::as<bool>(root, "dynamic", false)};
@@ -27,7 +27,7 @@ namespace hg
 				sf::Color pulse				{ssvuj::as<sf::Color>(root, "pulse", sf::Color::White)};
 			};
 
-			ssvuj::Value root;
+			ssvuj::Obj root;
 			float currentHue, currentSwapTime{0}, pulseFactor{0};
 			std::string rootPath;
 			sf::Color currentMainColor, current3DOverrideColor;
@@ -60,7 +60,7 @@ namespace hg
 			std::vector<ColorData> colorDatas;
 
 			StyleData() = default;
-			StyleData(const ssvuj::Value& mRoot) : root{mRoot}, currentHue{hueMin} { for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
+			StyleData(const ssvuj::Obj& mRoot) : root{mRoot}, currentHue{hueMin} { for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
 
 			void update(float mFrameTime, float mMult = 1.f);
 			void computeColors();

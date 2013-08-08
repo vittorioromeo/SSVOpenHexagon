@@ -23,7 +23,7 @@ namespace hg
 {
 	namespace Config
 	{
-		ssvuj::Value root{getRootFromFile("config.json")};
+		ssvuj::Obj root{readFromFile("config.json")};
 		LinkedValueManager lvm{root};
 
 		auto& online					(lvm.create<bool>("online"));
@@ -93,12 +93,12 @@ namespace hg
 				const auto& fileName(getNameFromPath(p, "ConfigOverrides/", ".json"));
 				if(contains(mOverridesIds, fileName))
 				{
-					const auto& overrideRoot(getRootFromFile(p));
+					const auto& overrideRoot(readFromFile(p));
 					for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[as<string>(itr.key())] = *itr;
 				}
 			}
 
-			lvm.syncFromRoot();
+			lvm.syncFromObj();
 
 			if(getWindowedAutoResolution()) applyAutoWindowedResolution();
 			if(getFullscreenAutoResolution()) applyAutoFullscreenResolution();
@@ -106,7 +106,7 @@ namespace hg
 			recalculateSizes();
 
 		}
-		void saveConfig() { lo << lt("::saveConfig") << "saving config" << endl; lvm.syncToRoot(); writeRootToFile(root, "config.json"); }
+		void saveConfig() { lo << lt("::saveConfig") << "saving config" << endl; lvm.syncToObj(); writeToFile(root, "config.json"); }
 
 		bool isEligibleForScore()
 		{

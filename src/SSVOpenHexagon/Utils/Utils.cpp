@@ -41,13 +41,13 @@ namespace hg
 		}
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
 
-		MusicData loadMusicFromJson(const ssvuj::Value& mRoot)
+		MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
 		{
 			MusicData result{as<string>(mRoot, "id"), as<string>(mRoot, "file_name"), as<string>(mRoot, "name"), as<string>(mRoot, "album"), as<string>(mRoot, "author")};
 			for(const auto& segment : mRoot["segments"]) result.addSegment(as<int>(segment, "time"));
 			return result;
 		}
-		ProfileData loadProfileFromJson(const ssvuj::Value& mRoot) { return {as<float>(mRoot, "version"), as<string>(mRoot, "name"), mRoot["scores"], as<vector<string>>(mRoot, "trackedNames", {})}; }
+		ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot) { return {as<float>(mRoot, "version"), as<string>(mRoot, "name"), mRoot["scores"], as<vector<string>>(mRoot, "trackedNames", {})}; }
 
 		string getLocalValidator(const string& mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
 

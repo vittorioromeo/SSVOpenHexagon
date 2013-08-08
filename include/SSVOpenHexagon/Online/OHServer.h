@@ -84,9 +84,9 @@ namespace ssvuj
 {
 	namespace Internal
 	{
-		template<> struct AsHelper<hg::Online::UserStats>
+		template<> struct FromJson<hg::Online::UserStats>
 		{
-			inline static hg::Online::UserStats as(const Impl& mValue)
+			inline static hg::Online::UserStats conv(const Obj& mValue)
 			{
 				hg::Online::UserStats result;
 				result.deaths = ssvuj::as<long>(mValue, "dth");
@@ -97,9 +97,9 @@ namespace ssvuj
 			}
 		};
 
-		template<> struct AsHelper<hg::Online::User>
+		template<> struct FromJson<hg::Online::User>
 		{
-			inline static hg::Online::User as(const Impl& mValue)
+			inline static hg::Online::User conv(const Obj& mValue)
 			{
 				hg::Online::User result;
 				result.passwordHash = ssvuj::as<std::string>(mValue, "ph");
@@ -109,9 +109,9 @@ namespace ssvuj
 			}
 		};
 
-		template<> struct AsHelper<hg::Online::UserDB>
+		template<> struct FromJson<hg::Online::UserDB>
 		{
-			inline static hg::Online::UserDB as(const Impl& mValue)
+			inline static hg::Online::UserDB conv(const Obj& mValue)
 			{
 				hg::Online::UserDB result;
 				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr) result.registerUser(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::User>(*itr));
@@ -119,9 +119,9 @@ namespace ssvuj
 			}
 		};
 
-		template<> struct AsHelper<hg::Online::LevelScoreDB>
+		template<> struct FromJson<hg::Online::LevelScoreDB>
 		{
-			inline static hg::Online::LevelScoreDB as(const Impl& mValue)
+			inline static hg::Online::LevelScoreDB conv(const Obj& mValue)
 			{
 				hg::Online::LevelScoreDB result;
 
@@ -135,53 +135,78 @@ namespace ssvuj
 			}
 		};
 
-		template<> struct AsHelper<hg::Online::ScoreDB>
+		template<> struct FromJson<hg::Online::ScoreDB>
 		{
-			inline static hg::Online::ScoreDB as(const Impl& mValue)
+			inline static hg::Online::ScoreDB conv(const Obj& mValue)
 			{
 				hg::Online::ScoreDB result;
 				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr) result.addLevel(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::LevelScoreDB>(*itr));
 				return result;
 			}
 		};
-	}
 
-	template<> inline void set<hg::Online::UserStats>(Impl& mRoot, const hg::Online::UserStats& mValueToSet)
-	{
-		set(mRoot, "dth", mValueToSet.deaths);
-		set(mRoot, "msp", mValueToSet.minutesSpentPlaying);
-		set(mRoot, "rst", mValueToSet.restarts);
-		for(auto i(0u); i < mValueToSet.trackedNames.size(); ++i) set(mRoot["tn"], i, mValueToSet.trackedNames[i]);
-	}
-
-	template<> inline void set<hg::Online::User>(Impl& mRoot, const hg::Online::User& mValueToSet)
-	{
-		set(mRoot, "ph", mValueToSet.passwordHash);
-		set(mRoot, "em", mValueToSet.email);
-		set(mRoot, "st", mValueToSet.stats);
-	}
-
-	template<> inline void set<hg::Online::UserDB>(Impl& mRoot, const hg::Online::UserDB& mValueToSet)
-	{
-		for(const auto p : mValueToSet.getUsers()) ssvuj::set(mRoot, p.first, p.second);
-	}
-
-	template<> inline void set<hg::Online::LevelScoreDB>(Impl& mRoot, const hg::Online::LevelScoreDB& mValueToSet)
-	{
-		for(const auto& s : mValueToSet.getScores())
+		template<> struct ToJson<hg::Online::UserStats>
 		{
-			auto i(0u);
-			for(const auto& r : s.second)
+			inline static Obj conv(const hg::Online::UserStats& mValue)
 			{
-				ssvuj::Value temp; ssvuj::set(temp, 0, r.first); ssvuj::set(temp, 1, r.second);
-				ssvuj::set(mRoot[ssvu::toStr(s.first)], i++, temp);
+				Obj result;
+				set(result, "dth", mValue.deaths);
+				set(result, "msp", mValue.minutesSpentPlaying);
+				set(result, "rst", mValue.restarts);
+				for(auto i(0u); i < mValue.trackedNames.size(); ++i) set(result["tn"], i, mValue.trackedNames[i]);
+				return result;
 			}
-		}
-	}
+		};
 
-	template<> inline void set<hg::Online::ScoreDB>(Impl& mRoot, const hg::Online::ScoreDB& mValueToSet)
-	{
-		for(const auto& l : mValueToSet.getLevels()) ssvuj::set(mRoot, l.first, l.second);
+		template<> struct ToJson<hg::Online::User>
+		{
+			inline static Obj conv(const hg::Online::User& mValue)
+			{
+				Obj result;
+				set(result, "ph", mValue.passwordHash);
+				set(result, "em", mValue.email);
+				set(result, "st", mValue.stats);
+				return result;
+			}
+		};
+
+		template<> struct ToJson<hg::Online::UserDB>
+		{
+			inline static Obj conv(const hg::Online::UserDB& mValue)
+			{
+				Obj result;
+				for(const auto& p : mValue.getUsers()) set(result, p.first, p.second);
+				return result;
+			}
+		};
+
+		template<> struct ToJson<hg::Online::LevelScoreDB>
+		{
+			inline static Obj conv(const hg::Online::LevelScoreDB& mValue)
+			{
+				Obj result;
+				for(const auto& s : mValue.getScores())
+				{
+					auto i(0u);
+					for(const auto& r : s.second)
+					{
+						Obj temp; set(temp, 0, r.first); set(temp, 1, r.second);
+						set(result[ssvu::toStr(s.first)], i++, temp);
+					}
+				}
+				return result;
+			}
+		};
+
+		template<> struct ToJson<hg::Online::ScoreDB>
+		{
+			inline static Obj conv(const hg::Online::ScoreDB& mValue)
+			{
+				Obj result;
+				for(const auto& l : mValue.getLevels()) set(result, l.first, l.second);
+				return result;
+			}
+		};
 	}
 }
 
@@ -194,8 +219,8 @@ namespace hg
 			const std::string usersPath{"users.json"};
 			const std::string scoresPath{"scores.json"};
 
-			UserDB users{ssvuj::as<UserDB>(ssvuj::getRootFromFile(usersPath))};
-			ScoreDB scores{ssvuj::as<ScoreDB>(ssvuj::getRootFromFile(scoresPath))};
+			UserDB users{ssvuj::as<UserDB>(ssvuj::readFromFile(usersPath))};
+			ScoreDB scores{ssvuj::as<ScoreDB>(ssvuj::readFromFile(scoresPath))};
 			PacketHandler pHandler;
 			Server server{pHandler};
 
@@ -205,8 +230,8 @@ namespace hg
 			inline bool isLoggedIn(const std::string& mUsername) { return loggedUsers.find(mUsername) != std::end(loggedUsers); }
 			inline void acceptLogin(unsigned int mUid, const std::string& mUsername) { loggedUids[mUid] = mUsername; loggedUsers.insert(mUsername); }
 
-			inline void saveUsers()	const	{ ssvuj::Value root; ssvuj::set(root, users); ssvuj::writeRootToFile(root, usersPath); }
-			inline void saveScores() const	{ ssvuj::Value root; ssvuj::set(root, scores); ssvuj::writeRootToFile(root, scoresPath); }
+			inline void saveUsers()	const	{ ssvuj::Obj root; ssvuj::set(root, users); ssvuj::writeToFile(root, usersPath); }
+			inline void saveScores() const	{ ssvuj::Obj root; ssvuj::set(root, scores); ssvuj::writeToFile(root, scoresPath); }
 
 			inline void forceLogout(unsigned int mUid)
 			{
@@ -234,7 +259,7 @@ namespace hg
 				pHandler[FromClient::Login] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
 					bool newUserRegistration{false};
-					ssvuj::Value request{getDecompressedPacket(mP)};
+					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 
 					if(isLoggedIn(username))
@@ -277,7 +302,7 @@ namespace hg
 				};
 				pHandler[FromClient::SendScore] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
-					ssvuj::Value request{getDecompressedPacket(mP)};
+					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 
 					if(!isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return; }
@@ -304,7 +329,7 @@ namespace hg
 				};
 				pHandler[FromClient::RequestLeaderboard] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
-					ssvuj::Value request{getDecompressedPacket(mP)};
+					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 
 					if(!isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
@@ -319,7 +344,7 @@ namespace hg
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, sending leaderboard" << std::endl;
 
 					const auto& sortedScores(l.getSortedScores(diffMult));
-					ssvuj::Value response;
+					ssvuj::Obj response;
 
 					auto i(0u);
 					for(auto itr(sortedScores.rbegin()); itr != sortedScores.rend(); ++itr)
@@ -333,11 +358,11 @@ namespace hg
 
 					float playerScore{l.getPlayerScore(username, diffMult)};
 					playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
-					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteRootToString(response)));
+					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteToString(response)));
 				};
 				pHandler[FromClient::NUR_Email] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
-					ssvuj::Value request{getDecompressedPacket(mP)};
+					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 					std::string email{ssvuj::as<std::string>(request, 1)};
 
@@ -351,8 +376,8 @@ namespace hg
 				pHandler[FromClient::RequestUserStats] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					ssvuj::Value response; ssvuj::set(response, users.getUser(username).stats);
-					mMS.send(buildCPacket<FromServer::SendUserStats>(ssvuj::getWriteRootToString(response)));
+					ssvuj::Obj response; ssvuj::set(response, users.getUser(username).stats);
+					mMS.send(buildCPacket<FromServer::SendUserStats>(ssvuj::getWriteToString(response)));
 				};
 
 				pHandler[FromClient::US_Death] = [&](ManagedSocket&, sf::Packet& mP)
@@ -372,7 +397,7 @@ namespace hg
 				};
 				pHandler[FromClient::US_AddFriend] = [&](ManagedSocket&, sf::Packet& mP)
 				{
-					ssvuj::Value request{getDecompressedPacket(mP)};
+					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)}, friendUsername{ssvuj::as<std::string>(request, 1)};
 					if(username == friendUsername || !users.hasUser(friendUsername)) return;
 
@@ -388,14 +413,14 @@ namespace hg
 
 				pHandler[FromClient::RequestFriendsScores] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
-					ssvuj::Value request{getDecompressedPacket(mP)};
+					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)}, levelId{ssvuj::as<std::string>(request, 1)};
 
 					if(!scores.hasLevel(levelId)) return;
 					const auto& l(scores.getLevel(levelId));
 
 					float diffMult{ssvuj::as<float>(request, 2)};
-					ssvuj::Value response;
+					ssvuj::Obj response;
 
 					for(const auto& n : users.getUser(username).stats.trackedNames)
 					{
@@ -405,12 +430,12 @@ namespace hg
 						ssvuj::set(response[n], 1, l.getPlayerPosition(n, diffMult));
 					}
 
-					mMS.send(buildCPacket<FromServer::SendFriendsScores>(ssvuj::getWriteRootToString(response)));
+					mMS.send(buildCPacket<FromServer::SendFriendsScores>(ssvuj::getWriteToString(response)));
 				};
 
 				pHandler[FromClient::Logout] = [&](ManagedSocket& mMS, sf::Packet& mP)
 				{
-					ssvuj::Value request{getDecompressedPacket(mP)};
+					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 					if(!isLoggedIn(username)) return;
 					logout(username);

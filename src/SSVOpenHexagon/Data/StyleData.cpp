@@ -76,7 +76,7 @@ namespace hg
 		current3DOverrideColor = _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
 		currentColors.clear();
 		for(const auto& cd : colorDatas) currentColors.push_back(calculateColor(cd));
-		rotate(currentColors.begin(), currentColors.begin() + currentSwapTime / (maxSwapTime / 2.f), currentColors.end());
+		rotate(begin(currentColors), begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f), end(currentColors));
 	}
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vec2f mCenterPos, int mSides)

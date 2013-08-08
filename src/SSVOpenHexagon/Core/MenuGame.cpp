@@ -213,7 +213,7 @@ namespace hg
 		//levelStatus = levelData->createStatus();
 		styleData = assets.getStyleData(levelData->styleId);
 		difficultyMultipliers = levelData->difficultyMults;
-		difficultyMultIndex = find(begin(difficultyMultipliers), end(difficultyMultipliers), 1) - begin(difficultyMultipliers);
+		difficultyMultIndex = indexOf(difficultyMultipliers, 1);
 	}
 
 	void MenuGame::updateLeaderboard()
@@ -224,7 +224,7 @@ namespace hg
 		if(currentLeaderboard == "NULL") { leaderboardString = "..."; return; }
 
 		constexpr unsigned int leaderboardRecordCount{8};
-		ssvuj::Value root{getRootFromString(currentLeaderboard)};
+		ssvuj::Obj root{readFromString(currentLeaderboard)};
 		if(as<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
 
 		currentPlayerScore = as<string>(root, "ps");
@@ -236,7 +236,7 @@ namespace hg
 
 		for(auto itr(begin(root["r"])); itr != end(root["r"]); ++itr)
 		{
-			ssvuj::Value& record(*itr);
+			ssvuj::Obj& record(*itr);
 			string name{toLower(as<string>(record, 0))};
 			float score{as<float>(record, 1)};
 			recordPairs.push_back({name, score});
@@ -256,7 +256,7 @@ namespace hg
 		{
 			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount -1)
 			{
-				ssvuj::Value playerScoreRoot{getRootFromString(currentPlayerScore)};
+				ssvuj::Obj playerScoreRoot{readFromString(currentPlayerScore)};
 				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + assets.pGetName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");
 				break;
 			}
@@ -305,7 +305,7 @@ namespace hg
 			tuples.emplace_back(pos, n, score);
 		}
 
-		sort(begin(tuples), end(tuples), [&](const ScoreTuple& mA, const ScoreTuple& mB){ return get<0>(mA) < get<0>(mB); });
+		sort(tuples, [](const ScoreTuple& mA, const ScoreTuple& mB){ return get<0>(mA) < get<0>(mB); });
 		friendsString.clear();
 		for(const auto& t : tuples) friendsString.append("(" + toStr(get<0>(t)) + ") " + get<1>(t) + ": " + toStr(get<2>(t)) + "\n");
 	}

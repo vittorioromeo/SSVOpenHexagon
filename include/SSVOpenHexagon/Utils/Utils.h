@@ -44,8 +44,8 @@ namespace hg
 		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 
-		MusicData loadMusicFromJson(const ssvuj::Value& mRoot);
-		ProfileData loadProfileFromJson(const ssvuj::Value& mRoot);
+		MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);
+		ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot);
 
 		std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 
