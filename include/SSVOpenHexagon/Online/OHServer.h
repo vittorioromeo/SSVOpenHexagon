@@ -84,127 +84,86 @@ namespace ssvuj
 {
 	namespace Internal
 	{
-		template<> struct FromJson<hg::Online::UserStats>
+		template<> struct Converter<hg::Online::UserStats>
 		{
-			inline static hg::Online::UserStats conv(const Obj& mValue)
+			using T = hg::Online::UserStats;
+			inline static void fromObj(T& mValue, const Obj& mObj)
 			{
-				hg::Online::UserStats result;
-				result.deaths = ssvuj::as<long>(mValue, "dth");
-				result.minutesSpentPlaying = ssvuj::as<long>(mValue, "msp");
-				result.restarts = ssvuj::as<long>(mValue, "rst");
-				result.trackedNames = ssvuj::as<std::vector<std::string>>(mValue, "tn");
-				return result;
+				mValue.deaths = as<long>(mObj, "dth");
+				mValue.minutesSpentPlaying = as<long>(mObj, "msp");
+				mValue.restarts = as<long>(mObj, "rst");
+				mValue.trackedNames = as<std::vector<std::string>>(mObj, "tn");
+			}
+			inline static void toObj(Obj& mObj, const T& mValue)
+			{
+				set(mObj, "dth", mValue.deaths);
+				set(mObj, "msp", mValue.minutesSpentPlaying);
+				set(mObj, "rst", mValue.restarts);
+				for(auto i(0u); i < mValue.trackedNames.size(); ++i) set(mObj["tn"], i, mValue.trackedNames[i]);
 			}
 		};
-
-		template<> struct FromJson<hg::Online::User>
+		template<> struct Converter<hg::Online::User>
 		{
-			inline static hg::Online::User conv(const Obj& mValue)
+			using T = hg::Online::User;
+			inline static void fromObj(T& mValue, const Obj& mObj)
 			{
-				hg::Online::User result;
-				result.passwordHash = ssvuj::as<std::string>(mValue, "ph");
-				result.email = ssvuj::as<std::string>(mValue, "em");
-				result.stats = ssvuj::as<hg::Online::UserStats>(mValue, "st");
-				return result;
+				mValue.passwordHash = as<std::string>(mObj, "ph");
+				mValue.email = as<std::string>(mObj, "em");
+				mValue.stats = as<hg::Online::UserStats>(mObj, "st");
+			}
+			inline static void toObj(Obj& mObj, const T& mValue)
+			{
+				set(mObj, "ph", mValue.passwordHash);
+				set(mObj, "em", mValue.email);
+				set(mObj, "st", mValue.stats);
 			}
 		};
-
-		template<> struct FromJson<hg::Online::UserDB>
+		template<> struct Converter<hg::Online::UserDB>
 		{
-			inline static hg::Online::UserDB conv(const Obj& mValue)
+			using T = hg::Online::UserDB;
+			inline static void fromObj(T& mValue, const Obj& mObj)
 			{
-				hg::Online::UserDB result;
-				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr) result.registerUser(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::User>(*itr));
-				return result;
+				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr) mValue.registerUser(as<std::string>(itr.key()), as<hg::Online::User>(*itr));
+			}
+			inline static void toObj(Obj& mObj, const T& mValue)
+			{
+				for(const auto& p : mValue.getUsers()) set(mObj, p.first, p.second);
 			}
 		};
-
-		template<> struct FromJson<hg::Online::LevelScoreDB>
+		template<> struct Converter<hg::Online::LevelScoreDB>
 		{
-			inline static hg::Online::LevelScoreDB conv(const Obj& mValue)
+			using T = hg::Online::LevelScoreDB;
+			inline static void fromObj(T& mValue, const Obj& mObj)
 			{
-				hg::Online::LevelScoreDB result;
-
-				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
+				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
 				{
-					if(ssvuj::as<std::string>(itr.key()) == "validator") continue;
-					for(auto i(0u); i < ssvuj::size(*itr); ++i) result.addScore(std::stof(ssvuj::as<std::string>(itr.key())), ssvuj::as<std::string>((*itr)[i], 0), ssvuj::as<float>((*itr)[i], 1));
+					if(as<std::string>(itr.key()) == "validator") continue;
+					for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(as<std::string>(itr.key())), as<std::string>((*itr)[i], 0), as<float>((*itr)[i], 1));
 				}
-
-				return result;
 			}
-		};
-
-		template<> struct FromJson<hg::Online::ScoreDB>
-		{
-			inline static hg::Online::ScoreDB conv(const Obj& mValue)
+			inline static void toObj(Obj& mObj, const T& mValue)
 			{
-				hg::Online::ScoreDB result;
-				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr) result.addLevel(ssvuj::as<std::string>(itr.key()), ssvuj::as<hg::Online::LevelScoreDB>(*itr));
-				return result;
-			}
-		};
-
-		template<> struct ToJson<hg::Online::UserStats>
-		{
-			inline static Obj conv(const hg::Online::UserStats& mValue)
-			{
-				Obj result;
-				set(result, "dth", mValue.deaths);
-				set(result, "msp", mValue.minutesSpentPlaying);
-				set(result, "rst", mValue.restarts);
-				for(auto i(0u); i < mValue.trackedNames.size(); ++i) set(result["tn"], i, mValue.trackedNames[i]);
-				return result;
-			}
-		};
-
-		template<> struct ToJson<hg::Online::User>
-		{
-			inline static Obj conv(const hg::Online::User& mValue)
-			{
-				Obj result;
-				set(result, "ph", mValue.passwordHash);
-				set(result, "em", mValue.email);
-				set(result, "st", mValue.stats);
-				return result;
-			}
-		};
-
-		template<> struct ToJson<hg::Online::UserDB>
-		{
-			inline static Obj conv(const hg::Online::UserDB& mValue)
-			{
-				Obj result;
-				for(const auto& p : mValue.getUsers()) set(result, p.first, p.second);
-				return result;
-			}
-		};
-
-		template<> struct ToJson<hg::Online::LevelScoreDB>
-		{
-			inline static Obj conv(const hg::Online::LevelScoreDB& mValue)
-			{
-				Obj result;
 				for(const auto& s : mValue.getScores())
 				{
 					auto i(0u);
 					for(const auto& r : s.second)
 					{
 						Obj temp; set(temp, 0, r.first); set(temp, 1, r.second);
-						set(result[ssvu::toStr(s.first)], i++, temp);
+						set(mObj[ssvu::toStr(s.first)], i++, temp);
 					}
 				}
-				return result;
 			}
 		};
-
-		template<> struct ToJson<hg::Online::ScoreDB>
+		template<> struct Converter<hg::Online::ScoreDB>
 		{
-			inline static Obj conv(const hg::Online::ScoreDB& mValue)
+			using T = hg::Online::ScoreDB;
+			inline static void fromObj(T& mValue, const Obj& mObj)
 			{
-				Obj result;
-				for(const auto& l : mValue.getLevels()) set(result, l.first, l.second);
-				return result;
+				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr) mValue.addLevel(as<std::string>(itr.key()), as<hg::Online::LevelScoreDB>(*itr));
+			}
+			inline static void toObj(Obj& mObj, const T& mValue)
+			{
+				for(const auto& l : mValue.getLevels()) set(mObj, l.first, l.second);
 			}
 		};
 	}
