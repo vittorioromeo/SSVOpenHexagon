@@ -128,7 +128,7 @@ namespace ssvuj
 				for(auto itr(std::begin(mValue)); itr != std::end(mValue); ++itr)
 				{
 					if(ssvuj::as<std::string>(itr.key()) == "validator") continue;
-					for(unsigned int i{0}; i < ssvuj::size(*itr); ++i) result.addScore(std::stof(ssvuj::as<std::string>(itr.key())), ssvuj::as<std::string>((*itr)[i], 0), ssvuj::as<float>((*itr)[i], 1));
+					for(auto i(0u); i < ssvuj::size(*itr); ++i) result.addScore(std::stof(ssvuj::as<std::string>(itr.key())), ssvuj::as<std::string>((*itr)[i], 0), ssvuj::as<float>((*itr)[i], 1));
 				}
 
 				return result;
@@ -151,7 +151,7 @@ namespace ssvuj
 		set(mRoot, "dth", mValueToSet.deaths);
 		set(mRoot, "msp", mValueToSet.minutesSpentPlaying);
 		set(mRoot, "rst", mValueToSet.restarts);
-		for(unsigned int i{0}; i < mValueToSet.trackedNames.size(); ++i) set(mRoot["tn"], i, mValueToSet.trackedNames[i]);
+		for(auto i(0u); i < mValueToSet.trackedNames.size(); ++i) set(mRoot["tn"], i, mValueToSet.trackedNames[i]);
 	}
 
 	template<> inline void set<hg::Online::User>(Impl& mRoot, const hg::Online::User& mValueToSet)
@@ -170,7 +170,7 @@ namespace ssvuj
 	{
 		for(const auto& s : mValueToSet.getScores())
 		{
-			unsigned int i{0};
+			auto i(0u);
 			for(const auto& r : s.second)
 			{
 				ssvuj::Value temp; ssvuj::set(temp, 0, r.first); ssvuj::set(temp, 1, r.second);
@@ -321,7 +321,7 @@ namespace hg
 					const auto& sortedScores(l.getSortedScores(diffMult));
 					ssvuj::Value response;
 
-					unsigned int i{0};
+					auto i(0u);
 					for(auto itr(sortedScores.rbegin()); itr != sortedScores.rend(); ++itr)
 					{
 						const auto& v(*itr);

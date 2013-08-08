@@ -243,7 +243,7 @@ namespace hg
 		}
 
 		bool foundPlayer{false};
-		for(unsigned int i{0}; i < recordPairs.size(); ++i)
+		for(auto i(0u); i < recordPairs.size(); ++i)
 		{
 			if(recordPairs[i].first != assets.pGetName()) continue;
 			playerPosition = i + 1;
@@ -252,7 +252,7 @@ namespace hg
 		}
 
 		string result;
-		for(unsigned int i{0}; i < recordPairs.size(); ++i)
+		for(auto i(0u); i < recordPairs.size(); ++i)
 		{
 			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount -1)
 			{

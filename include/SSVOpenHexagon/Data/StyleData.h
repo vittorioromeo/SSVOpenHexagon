@@ -60,7 +60,7 @@ namespace hg
 			std::vector<ColorData> colorDatas;
 
 			StyleData() = default;
-			StyleData(const ssvuj::Value& mRoot) : root{mRoot}, currentHue{hueMin} { for(unsigned int i{0}; i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
+			StyleData(const ssvuj::Value& mRoot) : root{mRoot}, currentHue{hueMin} { for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
 
 			void update(float mFrameTime, float mMult = 1.f);
 			void computeColors();

@@ -50,7 +50,7 @@ namespace hg
 		if(Config::getBlackAndWhite()) colorB = Color::Black;
 		VertexArray vertices2{PrimitiveType::Quads, 4}, vertices3{PrimitiveType::Triangles, 3};
 
-		for(unsigned int i{0}; i < sides; ++i)
+		for(auto i(0u); i < sides; ++i)
 		{
 			float angle{div * 2.f * i};
 
@@ -79,7 +79,7 @@ namespace hg
 		VertexArray verticesDeath{PrimitiveType::Quads, 4};
 		if(hue++ > 360) hue = 0;
 
-		for(unsigned int i{0}; i < hexagonGame.getSides(); ++i)
+		for(auto i(0u); i < hexagonGame.getSides(); ++i)
 		{
 			float angle{div * 2.f * i};
 

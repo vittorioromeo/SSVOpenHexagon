@@ -29,7 +29,7 @@ namespace hg
 			Vec2f skew{1.f, 1.f + effect};
 			backgroundCamera.setSkew(skew);
 
-			for(unsigned int i{0}; i < depthCameras.size(); ++i)
+			for(auto i(0u); i < depthCameras.size(); ++i)
 			{
 				Camera& depthCamera(depthCameras[i]);
 				depthCamera.setView(backgroundCamera.getView());
@@ -37,7 +37,7 @@ namespace hg
 				depthCamera.setOffset({0, styleData._3dSpacing * (i * styleData._3dPerspectiveMult) * (effect * 3.6f)});
 			}
 
-			for(unsigned int i{0}; i < depthCameras.size(); ++i)
+			for(auto i(0u); i < depthCameras.size(); ++i)
 			{
 				status.overrideColor = getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult);
 				status.overrideColor.a /= styleData._3dAlphaMult;

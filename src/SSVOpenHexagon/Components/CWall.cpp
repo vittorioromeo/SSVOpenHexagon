@@ -30,7 +30,7 @@ namespace hg
 		auto colorMain(hexagonGame.getColorMain());
 		if(hueMod != 0 && !hexagonGame.getStatus().drawing3D) colorMain = Utils::transformHue(colorMain, hueMod);
 
-		for(unsigned int i{0}; i < 4; ++i)
+		for(auto i(0u); i < 4; ++i)
 		{
 			auto& vertex(vertices[i]);
 			vertex.position = vertexPositions[i];
