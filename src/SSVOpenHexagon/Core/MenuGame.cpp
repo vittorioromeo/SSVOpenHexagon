@@ -63,7 +63,7 @@ namespace hg
 		wlcm.create<i::Single>("connect",		[&]{ Online::tryConnectToServer(); }) | whenDisconnected;
 		wlcm.create<i::Single>("login",			[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(false); enteredStr = ""; state = s::ETUser; }) | whenConnectedAndUnlogged;
 		wlcm.create<i::Single>("logout",		[&]{ Online::logout(); }) | whenConnectedAndLogged;
-		wlcm.create<i::Single>("play locally",	[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(true); enteredStr = ""; state = s::SLPSelect; }) | whenUnlogged;
+		wlcm.create<i::Single>("play locally",	[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(true); enteredStr = ""; state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : state = s::SLPSelect; }) | whenUnlogged;
 		wlcm.create<i::Single>("exit game",		[&]{ window.stop(); });
 
 		// Options menu
@@ -96,7 +96,7 @@ namespace hg
 		resolution.create<i::GoBack>("back");
 
 		gfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
-		gfx.create<i::Toggle>("3D effects", &Config::getNoRotation, &Config::setNoRotation) | whenNotOfficial;
+		gfx.create<i::Toggle>("no rotation", &Config::getNoRotation, &Config::setNoRotation) | whenNotOfficial;
 		gfx.create<i::Toggle>("no background", &Config::getNoBackground, &Config::setNoBackground) | whenNotOfficial;
 		gfx.create<i::Toggle>("b&w colors", &Config::getBlackAndWhite, &Config::setBlackAndWhite) | whenNotOfficial;
 		gfx.create<i::Toggle>("pulse", &Config::getPulse, &Config::setPulse) | whenNotOfficial;
