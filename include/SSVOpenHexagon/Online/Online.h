@@ -14,7 +14,7 @@ namespace hg
 
 	namespace Online
 	{
-		class UserStats;
+		struct UserStats;
 
 		class ValidatorDB
 		{

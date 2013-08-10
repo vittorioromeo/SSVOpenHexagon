@@ -197,7 +197,7 @@ namespace hg
 				const auto& itr(loggedUids.find(mUid));
 				if(itr == std::end(loggedUids)) return;
 				const auto& username(itr->second);
-				ssvu::lo << ssvu::lt("Forced logout") << mUid << " " << username << std::endl;
+				// ssvu::lo << ssvu::lt("Forced logout") << mUid << " " << username << std::endl;
 				loggedUsers.erase(username);
 				loggedUids.erase(itr);
 			}
@@ -205,7 +205,7 @@ namespace hg
 			{
 				loggedUsers.erase(mUsername);
 				for(auto itr(std::begin(loggedUids)); itr != std::end(loggedUids); ++itr) if(itr->second == mUsername) { loggedUids.erase(itr); break; }
-				ssvu::lo << ssvu::lt("Logout") << mUsername << std::endl;
+				// ssvu::lo << ssvu::lt("Logout") << mUsername << std::endl;
 			}
 
 			OHServer()
@@ -223,7 +223,7 @@ namespace hg
 
 					if(isLoggedIn(username))
 					{
-						ssvu::lo << ssvu::lt("PacketHandler") << "User already logged in" << std::endl;
+						// ssvu::lo << ssvu::lt("PacketHandler") << "User already logged in" << std::endl;
 						mMS.send(buildCPacket<FromServer::LoginResponseInvalid>()); return;
 					}
 
@@ -233,24 +233,24 @@ namespace hg
 					if(users.hasUser(username))
 					{
 						const auto& u(users.getUser(username));
-						ssvu::lo << ssvu::lt("PacketHandler") << "Username found" << std::endl;
+						// ssvu::lo << ssvu::lt("PacketHandler") << "Username found" << std::endl;
 
 						if(u.passwordHash == passwordHash) ssvu::lo << ssvu::lt("PacketHandler") << "Password valid" << std::endl;
 						else
 						{
-							ssvu::lo << ssvu::lt("PacketHandler") << "Password invalid" << std::endl;
+							// ssvu::lo << ssvu::lt("PacketHandler") << "Password invalid" << std::endl;
 							mMS.send(buildCPacket<FromServer::LoginResponseInvalid>()); return;
 						}
 					}
 					else
 					{
-						ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
+						// ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
 						User newUser; newUser.passwordHash = passwordHash;
 						users.registerUser(username, newUser); saveUsers();
 						newUserRegistration = true;
 					}
 
-					ssvu::lo << ssvu::lt("PacketHandler") << "Accepting user" << std::endl;
+					// ssvu::lo << ssvu::lt("PacketHandler") << "Accepting user" << std::endl;
 					acceptLogin(mMS.getCHUid(), username);
 					mMS.send(buildCPacket<FromServer::LoginResponseValid>(newUserRegistration));
 				};
@@ -271,13 +271,13 @@ namespace hg
 
 					if(!scores.hasLevel(levelId))
 					{
-						ssvu::lo << ssvu::lt("PacketHandler") << "No table for this level id, creating one" << std::endl;
+						// ssvu::lo << ssvu::lt("PacketHandler") << "No table for this level id, creating one" << std::endl;
 						scores.addLevel(levelId, {});
 					}
 
 					if(Online::getValidators().getValidator(levelId) != validator)
 					{
-						ssvu::lo << ssvu::lt("PacketHandler") << "Validator doesn't match" << std::endl;
+						// ssvu::lo << ssvu::lt("PacketHandler") << "Validator doesn't match" << std::endl;
 						mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return;
 					}
 
@@ -327,7 +327,7 @@ namespace hg
 
 					users.setEmail(username, email);
 
-					ssvu::lo << ssvu::lt("PacketHandler") << "Email accepted" << std::endl;
+					// ssvu::lo << ssvu::lt("PacketHandler") << "Email accepted" << std::endl;
 					mMS.send(buildCPacket<FromServer::NUR_EmailValid>());
 					saveUsers();
 				};
@@ -399,12 +399,16 @@ namespace hg
 					if(!isLoggedIn(username)) return;
 					logout(username);
 
-					ssvu::lo << ssvu::lt("PacketHandler") << username << " logged out" << std::endl;
+					// ssvu::lo << ssvu::lt("PacketHandler") << username << " logged out" << std::endl;
 					mMS.send(buildCPacket<FromServer::SendLogoutValid>());
 				};
 			}
 
-			inline void start() { server.start(54000); while(true) std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
+			inline void start()
+			{
+				//server.start(54000); while(true) std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				server.start(27273); while(true) std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
 		};
 	}
 }
