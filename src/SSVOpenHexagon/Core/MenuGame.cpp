@@ -50,7 +50,7 @@ namespace hg
 
 		auto whenLocal =				[&]{ return assets.pIsLocal(); };
 		auto whenNotLocal =				[&]{ return !assets.pIsLocal(); };
-		auto whenNotOfficial =			[&]{ return Config::getOfficial(); };
+		auto whenNotOfficial =			[&]{ return !Config::getOfficial(); };
 		auto whenDisconnected =			[&]{ return Online::getConnectionStatus() == ocs::Disconnected; };
 		auto whenConnectedAndUnlogged =	[&]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Unlogged; };
 		auto whenConnectedAndLogged =	[&]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Logged; };
@@ -377,7 +377,8 @@ namespace hg
 			if(Online::getLoginStatus() == ols::Logged)			{ state = Online::getNewUserReg() ? s::ETEmail : s::SMain; }
 			else if(Online::getLoginStatus() == ols::Unlogged)	{ state = s::MWlcm; }
 		}
-		else if(state == s::ETEmail && !Online::getNewUserReg()) state = s::SMain;
+
+		if(state == s::ETEmail && !Online::getNewUserReg()) state = s::SMain;
 
 		enteredChars.clear();
 	}
