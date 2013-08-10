@@ -65,12 +65,15 @@ cd ../..
 
 xcopy /s/y .\lua ..
 xcopy /s/y .\SFML ..
+xcopy /s/y .\zlib ..
 
 xcopy /s/y .\lua ..\lua
 xcopy /s/y .\SFML ..\SFML
+xcopy /s/y .\zlib ..\zlib
 
 xcopy /s/y .\lua ..\..\lua
 xcopy /s/y .\SFML ..\..\SFML
+xcopy /s/y .\zlib ..\..\zlib
 
 cd ..
 
