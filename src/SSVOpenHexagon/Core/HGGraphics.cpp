@@ -93,8 +93,8 @@ namespace hg
 			}
 		}
 
-		Vec2f pos{15, 3};
-		vector<Vec2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+		const Vec2f pos{15, 3};
+		const vector<Vec2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 		Color offsetColor{getColor(1)};
 		if(Config::getBlackAndWhite()) offsetColor = Color::Black;

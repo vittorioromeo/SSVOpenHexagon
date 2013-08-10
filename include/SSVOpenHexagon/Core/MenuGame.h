@@ -21,7 +21,7 @@ namespace hg
 	{
 		private:
 			HGAssets& assets;
-			sf::Font* imagine{&assets.get<sf::Font>("imagine.ttf")};
+			sf::Font& imagine = assets.get<sf::Font>("imagine.ttf"); // G++ bug (cannot initialize with curly braces)
 
 			float w, h;
 			std::string lrUser, lrPass, lrEmail;
@@ -51,7 +51,7 @@ namespace hg
 			const LevelData* levelData;
 			LevelStatus levelStatus;
 			StyleData styleData;
-			sf::Text txtVersion{"", *imagine, 40}, txtProf{"", *imagine, 21}, txtLName{"", *imagine, 65}, txtLDesc{"", *imagine, 32}, txtLAuth{"", *imagine, 20}, txtLMus{"", *imagine, 20}, txtFriends{"", *imagine, 21}, txtPacks{"", *imagine, 14};
+			sf::Text txtVersion{"", imagine, 40}, txtProf{"", imagine, 21}, txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32}, txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20}, txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
 
 			void refreshCamera();
 			void initAssets();
