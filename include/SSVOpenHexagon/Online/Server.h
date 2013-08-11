@@ -5,7 +5,6 @@
 #ifndef HG_ONLINE_SERVER
 #define HG_ONLINE_SERVER
 
-#include <algorithm>
 #include <vector>
 #include <chrono>
 #include <thread>
@@ -28,7 +27,7 @@ namespace hg
 
 				void growIfNeeded()
 				{
-					if(find_if(begin(clientHandlers), end(clientHandlers), [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); }) != end(clientHandlers)) return;
+					if(ssvu::containsAnyIf(clientHandlers, [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); })) return;
 
 					ssvu::lo << ssvu::lt("Server") << "Creating new client handlers" << std::endl;
 					for(int i{0}; i < 10; ++i) clientHandlers.emplace_back(new ClientHandler{packetHandler});
@@ -36,7 +35,7 @@ namespace hg
 
 				void update()
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(50));
+					std::this_thread::sleep_for(std::chrono::milliseconds(25));
 
 					growIfNeeded();
 
