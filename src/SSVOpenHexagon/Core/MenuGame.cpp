@@ -64,7 +64,7 @@ namespace hg
 		wlcm.create<i::Single>("connect",		[&]{ Online::tryConnectToServer(); }) | whenDisconnected;
 		wlcm.create<i::Single>("login",			[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(false); enteredStr = ""; state = s::ETUser; }) | whenConnectedAndUnlogged;
 		wlcm.create<i::Single>("logout",		[&]{ Online::logout(); }) | whenConnectedAndLogged;
-		wlcm.create<i::Single>("play locally",	[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(true); enteredStr = ""; state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : state = s::SLPSelect; }) | whenUnlogged;
+		wlcm.create<i::Single>("play locally",	[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(true); enteredStr = ""; state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : s::SLPSelect; }) | whenUnlogged;
 		wlcm.create<i::Single>("exit game",		[&]{ window.stop(); });
 
 		// Options menu
