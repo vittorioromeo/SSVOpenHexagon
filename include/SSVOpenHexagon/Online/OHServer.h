@@ -173,8 +173,24 @@ namespace hg
 {
 	namespace Online
 	{
+		class LoginDB
+		{
+			private:
+				ssvu::Bimap<unsigned int, std::string, std::unordered_map> logins;
+
+			public:
+				inline bool isLoggedIn(const std::string& mUsername) const					{ return logins.has(mUsername); }
+				inline void acceptLogin(unsigned int mUid, const std::string& mUsername)	{ logins.insert({mUid, mUsername}); }
+
+				inline void forceLogout(unsigned int mUid)			{ if(logins.has(mUid)) logins.erase(mUid); }
+				inline void logout(const std::string& mUsername)	{ if(logins.has(mUsername)) logins.erase(mUsername); }
+		};
+
 		struct OHServer
 		{
+			bool modifiedUsers{false};
+			bool modifiedScores{false};
+
 			const std::string usersPath{"users.json"};
 			const std::string scoresPath{"scores.json"};
 
@@ -182,37 +198,16 @@ namespace hg
 			ScoreDB scores{ssvuj::as<ScoreDB>(ssvuj::readFromFile(scoresPath))};
 			PacketHandler pHandler;
 			Server server{pHandler};
-
-			std::unordered_map<unsigned int, std::string> loggedUids;
-			std::unordered_set<std::string> loggedUsers;
-
-			inline bool isLoggedIn(const std::string& mUsername) { return loggedUsers.find(mUsername) != std::end(loggedUsers); }
-			inline void acceptLogin(unsigned int mUid, const std::string& mUsername) { loggedUids[mUid] = mUsername; loggedUsers.insert(mUsername); }
+			LoginDB loginDB; // currently logged-in users and uids
 
 			inline void saveUsers()	const	{ ssvuj::Obj root; ssvuj::set(root, users); ssvuj::writeToFile(root, usersPath); }
 			inline void saveScores() const	{ ssvuj::Obj root; ssvuj::set(root, scores); ssvuj::writeToFile(root, scoresPath); }
-
-			inline void forceLogout(unsigned int mUid)
-			{
-				const auto& itr(loggedUids.find(mUid));
-				if(itr == std::end(loggedUids)) return;
-				const auto& username(itr->second);
-				// ssvu::lo << ssvu::lt("Forced logout") << mUid << " " << username << std::endl;
-				loggedUsers.erase(username);
-				loggedUids.erase(itr);
-			}
-			inline void logout(const std::string& mUsername)
-			{
-				loggedUsers.erase(mUsername);
-				for(auto itr(std::begin(loggedUids)); itr != std::end(loggedUids); ++itr) if(itr->second == mUsername) { loggedUids.erase(itr); break; }
-				// ssvu::lo << ssvu::lt("Logout") << mUsername << std::endl;
-			}
 
 			OHServer()
 			{
 				server.onClientAccepted += [&](ClientHandler& mCH)
 				{
-					mCH.onDisconnect += [&]{ forceLogout(mCH.getUid()); };
+					mCH.onDisconnect += [&]{ loginDB.forceLogout(mCH.getUid()); };
 				};
 				pHandler[FromClient::Ping] = [](ManagedSocket&, sf::Packet&) { };
 				pHandler[FromClient::Login] = [&](ManagedSocket& mMS, sf::Packet& mP)
@@ -221,7 +216,7 @@ namespace hg
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 
-					if(isLoggedIn(username))
+					if(loginDB.isLoggedIn(username))
 					{
 						// ssvu::lo << ssvu::lt("PacketHandler") << "User already logged in" << std::endl;
 						mMS.send(buildCPacket<FromServer::LoginResponseInvalid>()); return;
@@ -246,12 +241,12 @@ namespace hg
 					{
 						// ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
 						User newUser; newUser.passwordHash = passwordHash;
-						users.registerUser(username, newUser); saveUsers();
+						users.registerUser(username, newUser); modifiedUsers = true;
 						newUserRegistration = true;
 					}
 
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Accepting user" << std::endl;
-					acceptLogin(mMS.getCHUid(), username);
+					loginDB.acceptLogin(mMS.getCHUid(), username);
 					mMS.send(buildCPacket<FromServer::LoginResponseValid>(newUserRegistration));
 				};
 				pHandler[FromClient::RequestInfo] = [](ManagedSocket& mMS, sf::Packet&)
@@ -264,7 +259,7 @@ namespace hg
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 
-					if(!isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return; }
+					if(!loginDB.isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return; }
 
 					std::string levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
 					float diffMult{ssvuj::as<float>(request, 3)}, score{ssvuj::as<float>(request, 4)};
@@ -283,7 +278,7 @@ namespace hg
 
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, inserting score" << std::endl;
 					auto& l(scores.getLevel(levelId));
-					if(l.getPlayerScore(username, diffMult) < score) { l.addScore(diffMult, username, score); saveScores(); }
+					if(l.getPlayerScore(username, diffMult) < score) { l.addScore(diffMult, username, score); modifiedScores = true; }
 					mMS.send(buildCPacket<FromServer::SendScoreResponseValid>());
 				};
 				pHandler[FromClient::RequestLeaderboard] = [&](ManagedSocket& mMS, sf::Packet& mP)
@@ -291,7 +286,7 @@ namespace hg
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
 
-					if(!isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
+					if(!loginDB.isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
 
 					std::string levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
 					float diffMult{ssvuj::as<float>(request, 3)};
@@ -329,7 +324,7 @@ namespace hg
 
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Email accepted" << std::endl;
 					mMS.send(buildCPacket<FromServer::NUR_EmailValid>());
-					saveUsers();
+					modifiedUsers = true;
 				};
 
 				pHandler[FromClient::RequestUserStats] = [&](ManagedSocket& mMS, sf::Packet& mP)
@@ -342,17 +337,17 @@ namespace hg
 				pHandler[FromClient::US_Death] = [&](ManagedSocket&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.deaths += 1; saveUsers();
+					users.getUser(username).stats.deaths += 1; modifiedUsers = true;
 				};
 				pHandler[FromClient::US_Restart] = [&](ManagedSocket&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.restarts += 1; saveUsers();
+					users.getUser(username).stats.restarts += 1; modifiedUsers = true;
 				};
 				pHandler[FromClient::US_MinutePlayed] = [&](ManagedSocket&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.minutesSpentPlaying += 1; saveUsers();
+					users.getUser(username).stats.minutesSpentPlaying += 1; modifiedUsers = true;
 				};
 				pHandler[FromClient::US_AddFriend] = [&](ManagedSocket&, sf::Packet& mP)
 				{
@@ -362,12 +357,12 @@ namespace hg
 
 					auto& tn(users.getUser(username).stats.trackedNames);
 					if(ssvu::contains(tn, friendUsername)) return;
-					tn.push_back(friendUsername); saveUsers();
+					tn.push_back(friendUsername); modifiedUsers = true;
 				};
 				pHandler[FromClient::US_ClearFriends] = [&](ManagedSocket&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.trackedNames.clear(); saveUsers();
+					users.getUser(username).stats.trackedNames.clear(); modifiedUsers = true;
 				};
 
 				pHandler[FromClient::RequestFriendsScores] = [&](ManagedSocket& mMS, sf::Packet& mP)
@@ -396,18 +391,36 @@ namespace hg
 				{
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
-					if(!isLoggedIn(username)) return;
-					logout(username);
+					if(!loginDB.isLoggedIn(username)) return;
+					loginDB.logout(username);
 
 					// ssvu::lo << ssvu::lt("PacketHandler") << username << " logged out" << std::endl;
 					mMS.send(buildCPacket<FromServer::SendLogoutValid>());
 				};
 			}
+			~OHServer() { saveIfNeeded(); }
+
+			inline void saveIfNeeded()
+			{
+				if(modifiedScores) saveScores();
+				if(modifiedUsers) saveUsers();
+			}
 
 			inline void start()
 			{
-				//server.start(54000); while(true) std::this_thread::sleep_for(std::chrono::milliseconds(10));
-				server.start(27273); while(true) std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				server.start(54000);
+				//server.start(27273);
+
+				std::thread([&]
+				{
+					std::this_thread::sleep_for(std::chrono::seconds(30));
+					saveIfNeeded();
+				}).detach();;
+
+				while(true)
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				}
 			}
 		};
 	}
