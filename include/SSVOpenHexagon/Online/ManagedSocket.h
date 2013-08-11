@@ -17,10 +17,8 @@ namespace hg
 		class ManagedSocket
 		{
 			private:
-				PacketHandler& packetHandler;
 				sf::TcpSocket socket;
-				bool busy{false}, boundToCH{false};
-				unsigned int chUid;
+				bool busy{false};
 
 				void update()
 				{
@@ -28,28 +26,24 @@ namespace hg
 					if(!busy) return;
 
 					sf::Packet packet;
-					if(retry([&]{ return socket.receive(packet) == sf::Socket::Done; }).get())
-					{
-						onPacketReceived();
-						packetHandler.handle(*this, packet);
-					}
+					if(retry([&]{ return socket.receive(packet) == sf::Socket::Done; }).get()) onPacketReceived(packet);
 				}
 
 				bool trySendPacket(sf::Packet mPacket)
 				{
 					if(!busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Couldn't send packet - not busy" << std::endl; return false; }
 
-					if(retry([&]{ return socket.send(mPacket) == sf::Socket::Done; }).get()) { onPacketSent(); return true; }
+					if(retry([&]{ return socket.send(mPacket) == sf::Socket::Done; }).get()) { onPacketSent(mPacket); return true; }
 
 					ssvu::lo << ssvu::lt("ManagedSocket") << "Couldn't send packet - disconnecting" << std::endl;
 					busy = false; return false;
 				}
 
 			public:
-				ssvu::Delegate<void()> onPacketSent;
-				ssvu::Delegate<void()> onPacketReceived;
+				ssvu::Delegate<void(sf::Packet)> onPacketSent;
+				ssvu::Delegate<void(sf::Packet)> onPacketReceived;
 
-				ManagedSocket(PacketHandler& mPacketHandler) : packetHandler(mPacketHandler)
+				ManagedSocket()
 				{
 					socket.setBlocking(false);
 					std::thread([&]{ while(true) update(); }).detach();
@@ -72,14 +66,8 @@ namespace hg
 					ssvu::lo << ssvu::lt("ManagedSocket") << "Accepted" << std::endl;
 					busy = true; return true;
 				}
-				inline bool tryAcceptCH(sf::TcpListener& mListener, unsigned int mCHUid)
-				{
-					if(tryAccept(mListener)) { chUid = mCHUid; boundToCH = true; return true; }
-					return false;
-				}
 				inline void disconnect()	{ socket.disconnect(); busy = false; }
 				inline bool isBusy() const	{ return busy; }
-				inline unsigned int getCHUid() { if(!boundToCH) throw; return chUid; }
 		};
 	}
 }

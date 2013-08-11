@@ -15,10 +15,14 @@ namespace hg
 		class Client
 		{
 			private:
+				PacketHandler<Client>& packetHandler;
 				ManagedSocket managedSocket;
 
 			public:
-				Client(PacketHandler& mPacketHandler) : managedSocket(mPacketHandler) { }
+				Client(PacketHandler<Client>& mPacketHandler) : packetHandler(mPacketHandler)
+				{
+					managedSocket.onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); };
+				}
 
 				inline bool connect(sf::IpAddress mIp, unsigned int mPort)	{ return managedSocket.connect(mIp, mPort); }
 				inline bool send(const sf::Packet& mPacket)					{ return managedSocket.send(mPacket); }

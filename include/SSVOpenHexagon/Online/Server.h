@@ -20,7 +20,7 @@ namespace hg
 		class Server
 		{
 			private:
-				PacketHandler& packetHandler;
+				PacketHandler<ClientHandler>& packetHandler;
 				sf::TcpListener listener;
 				std::vector<Uptr<ClientHandler>> clientHandlers;
 				std::thread receiveThread;
@@ -53,7 +53,7 @@ namespace hg
 			public:
 				ssvu::Delegate<void(ClientHandler&)> onClientAccepted;
 
-				Server(PacketHandler& mPacketHandler) : packetHandler(mPacketHandler)
+				Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler)
 				{
 					listener.setBlocking(false);
 					receiveThread = std::thread([&]{ while(true) update(); });

@@ -7,6 +7,7 @@
 
 #include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/ManagedSocket.h"
+#include "SSVOpenHexagon/Online/PacketHandler.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
@@ -20,17 +21,18 @@ namespace hg
 			private:
 				static unsigned int lastUid;
 				unsigned int uid;
+				PacketHandler<ClientHandler> packetHandler;
 				ManagedSocket managedSocket;
 				int untilTimeout{5};
 
 			public:
 				ssvu::Delegate<void()> onDisconnect;
 
-				ClientHandler(PacketHandler& mPacketHandler) : uid{lastUid}, managedSocket(mPacketHandler)
+				ClientHandler(PacketHandler<ClientHandler>& mPacketHandler) : uid{lastUid}, packetHandler(mPacketHandler)
 				{
+					managedSocket.onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); untilTimeout = 5; };
 					++lastUid;
 
-					managedSocket.onPacketReceived += [&]{ untilTimeout = 5; };
 					std::thread([&]
 					{
 						while(true)
@@ -45,7 +47,7 @@ namespace hg
 				}
 
 				inline bool send(const sf::Packet& mPacket)			{ return managedSocket.send(mPacket); }
-				inline bool tryAccept(sf::TcpListener& mListener)	{ return managedSocket.tryAcceptCH(mListener, uid); }
+				inline bool tryAccept(sf::TcpListener& mListener)	{ return managedSocket.tryAccept(mListener); }
 				inline bool isBusy() const							{ return managedSocket.isBusy(); }
 				inline unsigned int getUid() const					{ return uid; }
 				inline ManagedSocket& getManagedSocket()			{ return managedSocket; }

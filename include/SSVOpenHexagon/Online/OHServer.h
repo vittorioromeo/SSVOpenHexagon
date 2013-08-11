@@ -196,7 +196,7 @@ namespace hg
 
 			UserDB users{ssvuj::as<UserDB>(ssvuj::readFromFile(usersPath))};
 			ScoreDB scores{ssvuj::as<ScoreDB>(ssvuj::readFromFile(scoresPath))};
-			PacketHandler pHandler;
+			PacketHandler<ClientHandler> pHandler;
 			Server server{pHandler};
 			LoginDB loginDB; // currently logged-in users and uids
 
@@ -209,8 +209,8 @@ namespace hg
 				{
 					mCH.onDisconnect += [&]{ loginDB.forceLogout(mCH.getUid()); };
 				};
-				pHandler[FromClient::Ping] = [](ManagedSocket&, sf::Packet&) { };
-				pHandler[FromClient::Login] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				pHandler[FromClient::Ping] = [](ClientHandler&, sf::Packet&) { };
+				pHandler[FromClient::Login] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					bool newUserRegistration{false};
 					ssvuj::Obj request{getDecompressedPacket(mP)};
@@ -246,15 +246,15 @@ namespace hg
 					}
 
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Accepting user" << std::endl;
-					loginDB.acceptLogin(mMS.getCHUid(), username);
+					loginDB.acceptLogin(mMS.getUid(), username);
 					mMS.send(buildCPacket<FromServer::LoginResponseValid>(newUserRegistration));
 				};
-				pHandler[FromClient::RequestInfo] = [](ManagedSocket& mMS, sf::Packet&)
+				pHandler[FromClient::RequestInfo] = [](ClientHandler& mMS, sf::Packet&)
 				{
 					float version{2.f}; std::string message{"Welcome to Open Hexagon 2.0!"};
 					mMS.send(buildCPacket<FromServer::RequestInfoResponse>(version, message));
 				};
-				pHandler[FromClient::SendScore] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				pHandler[FromClient::SendScore] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
@@ -281,7 +281,7 @@ namespace hg
 					if(l.getPlayerScore(username, diffMult) < score) { l.addScore(diffMult, username, score); modifiedScores = true; }
 					mMS.send(buildCPacket<FromServer::SendScoreResponseValid>());
 				};
-				pHandler[FromClient::RequestLeaderboard] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				pHandler[FromClient::RequestLeaderboard] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
@@ -314,7 +314,7 @@ namespace hg
 					playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
 					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteToString(response)));
 				};
-				pHandler[FromClient::NUR_Email] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				pHandler[FromClient::NUR_Email] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};
@@ -327,29 +327,29 @@ namespace hg
 					modifiedUsers = true;
 				};
 
-				pHandler[FromClient::RequestUserStats] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				pHandler[FromClient::RequestUserStats] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
 					ssvuj::Obj response; ssvuj::set(response, users.getUser(username).stats);
 					mMS.send(buildCPacket<FromServer::SendUserStats>(ssvuj::getWriteToString(response)));
 				};
 
-				pHandler[FromClient::US_Death] = [&](ManagedSocket&, sf::Packet& mP)
+				pHandler[FromClient::US_Death] = [&](ClientHandler&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
 					users.getUser(username).stats.deaths += 1; modifiedUsers = true;
 				};
-				pHandler[FromClient::US_Restart] = [&](ManagedSocket&, sf::Packet& mP)
+				pHandler[FromClient::US_Restart] = [&](ClientHandler&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
 					users.getUser(username).stats.restarts += 1; modifiedUsers = true;
 				};
-				pHandler[FromClient::US_MinutePlayed] = [&](ManagedSocket&, sf::Packet& mP)
+				pHandler[FromClient::US_MinutePlayed] = [&](ClientHandler&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
 					users.getUser(username).stats.minutesSpentPlaying += 1; modifiedUsers = true;
 				};
-				pHandler[FromClient::US_AddFriend] = [&](ManagedSocket&, sf::Packet& mP)
+				pHandler[FromClient::US_AddFriend] = [&](ClientHandler&, sf::Packet& mP)
 				{
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)}, friendUsername{ssvuj::as<std::string>(request, 1)};
@@ -359,13 +359,13 @@ namespace hg
 					if(ssvu::contains(tn, friendUsername)) return;
 					tn.push_back(friendUsername); modifiedUsers = true;
 				};
-				pHandler[FromClient::US_ClearFriends] = [&](ManagedSocket&, sf::Packet& mP)
+				pHandler[FromClient::US_ClearFriends] = [&](ClientHandler&, sf::Packet& mP)
 				{
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
 					users.getUser(username).stats.trackedNames.clear(); modifiedUsers = true;
 				};
 
-				pHandler[FromClient::RequestFriendsScores] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				pHandler[FromClient::RequestFriendsScores] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)}, levelId{ssvuj::as<std::string>(request, 1)};
@@ -387,7 +387,7 @@ namespace hg
 					mMS.send(buildCPacket<FromServer::SendFriendsScores>(ssvuj::getWriteToString(response)));
 				};
 
-				pHandler[FromClient::Logout] = [&](ManagedSocket& mMS, sf::Packet& mP)
+				pHandler[FromClient::Logout] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					ssvuj::Obj request{getDecompressedPacket(mP)};
 					std::string username{ssvuj::as<std::string>(request, 0)};

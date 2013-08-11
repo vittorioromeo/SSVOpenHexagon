@@ -12,30 +12,29 @@ namespace hg
 {
 	namespace Online
 	{
-		class ManagedSocket;
-
-		struct PacketHandler
+		template<typename T> class PacketHandler
 		{
-			using HandlerFunc = std::function<void(ManagedSocket&, sf::Packet&)>;
+			private:
+				using HandlerFunc = std::function<void(T&, sf::Packet&)>;
+				std::unordered_map<unsigned int, HandlerFunc> functionHandlers;
 
-			std::unordered_map<unsigned int, HandlerFunc> functionHandlers;
-
-			void handle(ManagedSocket& mManagedSocket, sf::Packet& mPacket)
-			{
-				unsigned int type;
-				mPacket >> type;
-
-				auto itr(functionHandlers.find(type));
-				if(itr == end(functionHandlers))
+			public:
+				void handle(T& mCaller, sf::Packet& mPacket)
 				{
-					ssvu::lo << ssvu::lt("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
-					return;
+					unsigned int type;
+					mPacket >> type;
+
+					auto itr(functionHandlers.find(type));
+					if(itr == end(functionHandlers))
+					{
+						ssvu::lo << ssvu::lt("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
+						return;
+					}
+
+					itr->second(mCaller, mPacket);
 				}
 
-				itr->second(mManagedSocket, mPacket);
-			}
-
-			HandlerFunc& operator[](unsigned int mType) { return functionHandlers[mType]; }
+				HandlerFunc& operator[](unsigned int mType) { return functionHandlers[mType]; }
 		};
 	}
 }
