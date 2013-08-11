@@ -245,7 +245,7 @@ namespace hg
 			ssvuj::Obj& record(*itr);
 			string name{toLower(as<string>(record, 0))};
 			float score{as<float>(record, 1)};
-			recordPairs.push_back({name, score});
+			recordPairs.emplace_back(name, score);
 		}
 
 		bool foundPlayer{false};

@@ -201,7 +201,7 @@ namespace hg
 		}
 		void setAntialiasingLevel(GameWindow& mWindow, unsigned int mValue)	{ antialiasingLevel = mValue; mWindow.setAntialiasingLevel(mValue); }
 
-		void setOnline(bool mOnline)				{ online = mOnline; /*if(mOnline) Online::startCheckUpdates();*/ }
+		void setOnline(bool mOnline)				{ online = mOnline; }
 		void setOfficial(bool mOfficial)			{ official = mOfficial; }
 		void setNoRotation(bool mNoRotation)		{ noRotation = mNoRotation; }
 		void setNoBackground(bool mNoBackground)	{ noBackground = mNoBackground; }
