@@ -65,7 +65,7 @@ namespace hg
 		auto& showTrackedVariables		(lvm.create<bool>("show_tracked_variables"));
 		auto& musicSpeedDMSync			(lvm.create<bool>("music_speed_dm_sync"));
 		auto& maxFPS					(lvm.create<unsigned int>("max_fps"));
-		auto& antialiasingLevel			(lvm.create<unsigned int>("max_fps"));
+		auto& antialiasingLevel			(lvm.create<unsigned int>("antialiasing_level"));
 		auto& showFps					(lvm.create<bool>("show_fps"));
 		auto& timerStatic				(lvm.create<bool>("timer_static"));
 		auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
