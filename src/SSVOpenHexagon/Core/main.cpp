@@ -45,10 +45,15 @@ int main(int argc, char* argv[])
 
 	Config::loadConfig(overrideIds);
 
-	string title{"Open Hexagon " + toStr(Config::getVersion()) + " - by vittorio romeo"};
-	GameWindow window{title, createStaticTimer(window), Config::getWidth(), Config::getHeight(), Config::getPixelMultiplier(), Config::getFullscreen()};
+	GameWindow window;
+	window.setTitle("Open Hexagon " + toStr(Config::getVersion()) + " - by vittorio romeo");
+	Config::setTimerStatic(window, Config::getTimerStatic());
+	window.setSize(Config::getWidth(), Config::getHeight());
+	window.setPixelMult(Config::getPixelMultiplier());
+	window.setFullscreen(Config::getFullscreen());
 	window.setVsync(Config::getVsync());
-	if(Config::getLimitFPS()) window.setFPSLimit(Config::getMaxFPS());
+	window.setFPSLimited(Config::getLimitFPS());
+	window.setMaxFPS(Config::getMaxFPS());
 	window.setMouseCursorVisible(false);
 
 	HGAssets assets;
