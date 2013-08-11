@@ -16,8 +16,8 @@
 	"fullscreen_height" : 480,
 	"fullscreen_width" : 640,
 	"invincible" : false,
-	"limit_fps" : true,
-	"max_fps" : 120,
+	"limit_fps" : false,
+	"max_fps" : 3,
 	"music_speed_dm_sync" : true,
 	"music_volume" : 30,
 	"no_background" : false,
@@ -35,8 +35,6 @@
 	"show_messages" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 75,
-	"static_frametime" : false,
-	"static_frametime_value" : 1.0,
 	"t_exit" : 
 	[
 		[ "kEscape" ]
@@ -79,9 +77,10 @@
 		[ "kSpace" ],
 		[ "bMiddle" ]
 	],
+	"timer_static" : true,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 900,
-	"windowed_width" : 1440,
-	"zoom_factor" : 0.8533333539962769
+	"windowed_height" : 768,
+	"windowed_width" : 1366,
+	"zoom_factor" : 1.0
 }
