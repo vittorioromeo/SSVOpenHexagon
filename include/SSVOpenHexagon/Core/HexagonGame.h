@@ -56,9 +56,9 @@ namespace hg
 			template<typename R, typename... Args> R runLuaFunction(const std::string& variableName, const Args&... args)
 			{
 				try { return lua.callLuaFunction<R>(variableName, std::make_tuple(args...)); }
-				catch(std::runtime_error &error)
+				catch(std::runtime_error& mError)
 				{
-					std::cout << variableName << std::endl << "LUA runtime error: " << std::endl << ssvu::toStr(error.what()) << std::endl << std::endl;
+					std::cout << variableName << std::endl << "LUA runtime error: " << std::endl << ssvu::toStr(mError.what()) << std::endl << std::endl;
 				}
 
 				return R();
