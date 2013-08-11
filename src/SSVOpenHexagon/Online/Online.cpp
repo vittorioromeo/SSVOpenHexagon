@@ -228,7 +228,7 @@ namespace hg
 
 			toEncrypt = getControlStripped(toEncrypt);
 
-			return HG_ENCRYPT(getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt));
+			return getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt));
 		}
 
 		float getServerVersion()					{ return serverVersion; }
