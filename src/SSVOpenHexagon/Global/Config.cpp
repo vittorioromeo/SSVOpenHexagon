@@ -47,8 +47,6 @@ namespace hg
 		auto& playerSpeed				(lvm.create<float>("player_speed"));
 		auto& playerFocusSpeed			(lvm.create<float>("player_focus_speed"));
 		auto& playerSize				(lvm.create<float>("player_size"));
-		auto& staticFrameTime			(lvm.create<bool>("static_frametime"));
-		auto& staticFrameTimeValue		(lvm.create<float>("static_frametime_value"));
 		auto& limitFps					(lvm.create<bool>("limit_fps"));
 		auto& vsync						(lvm.create<bool>("vsync"));
 		auto& autoZoomFactor			(lvm.create<bool>("auto_zoom_factor"));
@@ -67,7 +65,9 @@ namespace hg
 		auto& showTrackedVariables		(lvm.create<bool>("show_tracked_variables"));
 		auto& musicSpeedDMSync			(lvm.create<bool>("music_speed_dm_sync"));
 		auto& maxFPS					(lvm.create<unsigned int>("max_fps"));
+		auto& antialiasingLevel			(lvm.create<unsigned int>("max_fps"));
 		auto& showFps					(lvm.create<bool>("show_fps"));
+		auto& timerStatic				(lvm.create<bool>("timer_static"));
 		auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
 		auto& triggerRotateCW			(lvm.create<Trigger>("t_rotate_cw"));
 		auto& triggerFocus				(lvm.create<Trigger>("t_focus"));
@@ -146,7 +146,7 @@ namespace hg
 
 		void setCurrentResolution(GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight)
 		{
-			if(getFullscreen())
+			if(fullscreen)
 			{
 				fullscreenAutoResolution = false;
 				fullscreenWidth = mWidth;
@@ -166,7 +166,7 @@ namespace hg
 		}
 		void setCurrentResolutionAuto(GameWindow& mWindow)
 		{
-			if(getFullscreen())
+			if(fullscreen)
 			{
 				fullscreenAutoResolution = true;
 				applyAutoFullscreenResolution();
@@ -183,8 +183,22 @@ namespace hg
 			recalculateSizes();
 		}
 		void setVsync(GameWindow& mWindow, bool mValue)				{ vsync = mValue; mWindow.setVsync(vsync); }
-		void setLimitFPS(GameWindow& mWindow, bool mValue)			{ limitFps = mValue; mWindow.setFPSLimit(mValue ? maxFPS : 0); }
-		void setMaxFPS(GameWindow& mWindow, unsigned int mValue)	{ maxFPS = mValue; if(getLimitFPS()) mWindow.setFPSLimit(maxFPS); }
+		void setLimitFPS(GameWindow& mWindow, bool mValue)			{ limitFps = mValue; mWindow.setFPSLimited(mValue); }
+		void setMaxFPS(GameWindow& mWindow, unsigned int mValue)	{ maxFPS = mValue; mWindow.setMaxFPS(mValue); }
+		void setTimerStatic(GameWindow& mWindow, bool mValue)
+		{
+			timerStatic = mValue;
+			if(timerStatic)
+			{
+				mWindow.setTimer<StaticTimer>(1.f, 1.f, 5);
+			}
+			else
+			{
+				mWindow.setTimer<DynamicTimer>();
+				setLimitFPS(mWindow, false);
+			}
+		}
+		void setAntialiasingLevel(GameWindow& mWindow, unsigned int mValue)	{ antialiasingLevel = mValue; mWindow.setAntialiasingLevel(mValue); }
 
 		void setOnline(bool mOnline)				{ online = mOnline; /*if(mOnline) Online::startCheckUpdates();*/ }
 		void setOfficial(bool mOfficial)			{ official = mOfficial; }
@@ -211,21 +225,19 @@ namespace hg
 		float getSpawnDistance() 			{ return spawnDistance; }
 		float getZoomFactor() 				{ return zoomFactor; }
 		int getPixelMultiplier() 			{ return pixelMultiplier; }
-		float getPlayerSpeed() 				{ return getOfficial() ? 9.45f : playerSpeed; }
-		float getPlayerFocusSpeed() 		{ return getOfficial() ? 4.625f : playerFocusSpeed; }
-		float getPlayerSize() 				{ return getOfficial() ? 7.3f : playerSize; }
-		bool getNoRotation() 				{ return getOfficial() ? false : noRotation; }
-		bool getNoBackground() 				{ return getOfficial() ? false : noBackground; }
-		bool getBlackAndWhite() 			{ return getOfficial() ? false : blackAndWhite; }
+		float getPlayerSpeed() 				{ return official ? 9.45f : playerSpeed; }
+		float getPlayerFocusSpeed() 		{ return official ? 4.625f : playerFocusSpeed; }
+		float getPlayerSize() 				{ return official ? 7.3f : playerSize; }
+		bool getNoRotation() 				{ return official ? false : noRotation; }
+		bool getNoBackground() 				{ return official ? false : noBackground; }
+		bool getBlackAndWhite() 			{ return official ? false : blackAndWhite; }
 		bool getNoSound()					{ return noSound; }
 		bool getNoMusic()					{ return noMusic; }
 		int getSoundVolume()  				{ return soundVolume; }
 		int getMusicVolume() 				{ return musicVolume; }
-		bool getStaticFrameTime()			{ return getOfficial() ? false : staticFrameTime; }
-		float getStaticFrameTimeValue()		{ return staticFrameTimeValue; }
 		bool getLimitFPS()					{ return limitFps; }
 		bool getVsync()						{ return vsync; }
-		bool getAutoZoomFactor()			{ return getOfficial() ? true : autoZoomFactor; }
+		bool getAutoZoomFactor()			{ return official ? true : autoZoomFactor; }
 		bool getFullscreen()				{ return fullscreen; }
 		float getVersion() 					{ return 2.00f; }
 		bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
@@ -234,15 +246,15 @@ namespace hg
 		unsigned int getFullscreenHeight() 	{ return fullscreenHeight; }
 		unsigned int getWindowedWidth()		{ return windowedWidth; }
 		unsigned int getWindowedHeight()	{ return windowedHeight; }
-		unsigned int getWidth() 			{ return getFullscreen() ? getFullscreenWidth() : getWindowedWidth(); }
-		unsigned int getHeight() 			{ return getFullscreen() ? getFullscreenHeight() : getWindowedHeight(); }
+		unsigned int getWidth() 			{ return fullscreen ? fullscreenWidth : windowedWidth; }
+		unsigned int getHeight() 			{ return fullscreen ? fullscreenHeight : windowedHeight; }
 		bool getShowMessages()				{ return showMessages; }
 		bool getChangeStyles()				{ return changeStyles; }
 		bool getChangeMusic()				{ return changeMusic; }
 		bool getDebug()						{ return debug; }
-		bool getPulse()						{ return getOfficial() ? true : pulseEnabled; }
-		bool getBeatPulse()					{ return getOfficial() ? true : beatPulse; }
-		bool getInvincible()				{ return getOfficial() ? false : invincible; }
+		bool getPulse()						{ return official ? true : pulseEnabled; }
+		bool getBeatPulse()					{ return official ? true : beatPulse; }
+		bool getInvincible()				{ return official ? false : invincible; }
 		bool get3D()						{ return _3DEnabled; }
 		float get3DMultiplier()				{ return _3DMultiplier; }
 		unsigned int get3DMaxDepth()		{ return _3DMaxDepth; }
@@ -251,7 +263,9 @@ namespace hg
 		bool getShowTrackedVariables()		{ return showTrackedVariables; }
 		bool getMusicSpeedDMSync()			{ return musicSpeedDMSync; }
 		unsigned int getMaxFPS()			{ return maxFPS; }
+		unsigned int getAntialiasingLevel()	{ return antialiasingLevel; }
 		bool getShowFPS()					{ return showFps; }
+		bool getTimerStatic()				{ return timerStatic; }
 
 		Trigger getTriggerRotateCCW()		{ return triggerRotateCCW; }
 		Trigger getTriggerRotateCW()		{ return triggerRotateCW; }
