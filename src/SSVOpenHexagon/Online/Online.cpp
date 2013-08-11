@@ -228,7 +228,9 @@ namespace hg
 
 			toEncrypt = getControlStripped(toEncrypt);
 
-			return getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SKEY1 + HG_SKEY2 + HG_SKEY3);
+			auto x = getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SKEY1 + HG_SKEY2 + HG_SKEY3);
+			lo << x << endl;
+			return x;
 			//return getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt));
 		}
 
