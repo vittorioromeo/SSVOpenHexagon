@@ -21,10 +21,9 @@ namespace hg
 {
 	HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow) : assets(mAssets), window(mGameWindow), fpsWatcher(window)
 	{
-		initFlashEffect();
-
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
+		window.onRecreation += [&]{ initFlashEffect(); };
 
 		add3StateInput(game, Config::getTriggerRotateCCW(), Config::getTriggerRotateCW(), inputMovement);
 		add2StateInput(game, Config::getTriggerFocus(), inputFocused);
@@ -37,6 +36,8 @@ namespace hg
 
 	void HexagonGame::newGame(const string& mId, bool mFirstPlay, float mDifficultyMult)
 	{
+		initFlashEffect();
+
 		firstPlay = mFirstPlay;
 		setLevelData(assets.getLevelData(mId), mFirstPlay);
 		difficultyMult = mDifficultyMult;
@@ -69,7 +70,7 @@ namespace hg
 		fpsWatcher.reset();
 		if(Config::getOfficial()) fpsWatcher.enable();
 
-		// LUA context and game statuscleanup
+		// LUA context and game status cleanup
 		status = HexagonGameStatus{};
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
