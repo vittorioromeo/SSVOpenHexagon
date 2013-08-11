@@ -136,8 +136,8 @@ namespace hg
 
 			thread([]
 			{
-				//if(client->connect(hostIp, hostPort))
-				if(client->connect("127.0.0.1", 54000))
+				if(client->connect(hostIp, hostPort))
+				//if(client->connect("127.0.0.1", 54000))
 				{
 					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
 					connectionStatus = ConnectStat::Connected; return;
