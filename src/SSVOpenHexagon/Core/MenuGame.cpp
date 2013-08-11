@@ -25,11 +25,12 @@ namespace hg
 
 	MenuGame::MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame, GameWindow& mGameWindow) : assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
 	{
-		refreshCamera(); initAssets();
+		initAssets(); refreshCamera();
 
 		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
 		game.onDraw += [&]{ draw(); };
 		game.onEvent(Event::EventType::TextEntered) += [&](const Event& mEvent){ enteredChars.push_back(mEvent.text.unicode); };
+		window.onRecreation += [&]{ refreshCamera(); };
 
 		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIndex]);
 		setIndex(0); initMenus(); initInput();
@@ -40,8 +41,6 @@ namespace hg
 	{
 		for(const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "bottomBar.png"})
 			assets.get<Texture>(t).setSmooth(true);
-
-		refreshCamera();
 	}
 
 	void MenuGame::initMenus()
@@ -57,6 +56,8 @@ namespace hg
 		auto whenUnlogged =				[&]{ return Online::getLoginStatus() == ols::Unlogged; };
 		auto whenSoundEnabled =			[&]{ return !Config::getNoSound(); };
 		auto whenMusicEnabled =			[&]{ return !Config::getNoMusic(); };
+		auto whenTimerIsStatic =		[&]{ return Config::getTimerStatic(); };
+		auto whenTimerIsDynamic =		[&]{ return !Config::getTimerStatic(); };
 
 		// Welcome menu
 		auto& wlcm(welcomeMenu.createCategory("welcome"));
@@ -90,7 +91,7 @@ namespace hg
 		main.create<i::Single>("back", [&]{ state = s::SMain; });
 
 		resolution.create<i::Single>("auto", [&]{ Config::setCurrentResolutionAuto(window); });
-		for(const auto& vm : VideoMode::getFullscreenModes()) if(vm.bitsPerPixel == 32) resolution.create<i::Single>(toStr(vm.width) + "x" + toStr(vm.height), [&]{ Config::setCurrentResolution(window, vm.width, vm.height); refreshCamera(); });
+		for(const auto& vm : VideoMode::getFullscreenModes()) if(vm.bitsPerPixel == 32) resolution.create<i::Single>(toStr(vm.width) + "x" + toStr(vm.height), [&]{ Config::setCurrentResolution(window, vm.width, vm.height); });
 		resolution.create<i::Single>("go windowed", 	[&]{ Config::setFullscreen(window, false); });
 		resolution.create<i::Single>("go fullscreen", 	[&]{ Config::setFullscreen(window, true); });
 		resolution.create<i::GoBack>("back");
@@ -105,8 +106,13 @@ namespace hg
 		gfx.create<i::Toggle>("vsync", &Config::getVsync, [&](bool mValue){ Config::setVsync(window, mValue); });
 		gfx.create<i::Single>("go windowed", 	[&]{ Config::setFullscreen(window, false); });
 		gfx.create<i::Single>("go fullscreen", 	[&]{ Config::setFullscreen(window, true); });
-		gfx.create<i::Toggle>("limit fps", &Config::getLimitFPS, [&](bool mValue){ Config::setLimitFPS(window, mValue); });
-		gfx.create<i::Slider>("max fps", &Config::getMaxFPS, [&](unsigned int mValue){ Config::setMaxFPS(window, mValue); }, 30u, 120u, 5u);
+
+		gfx.create<i::Single>("use static fps",  [&]{ Config::setTimerStatic(window, true); }) | whenTimerIsDynamic;
+		gfx.create<i::Single>("use dynamic fps",  [&]{ Config::setTimerStatic(window, false); }) | whenTimerIsStatic;
+
+		gfx.create<i::Toggle>("limit fps", &Config::getLimitFPS, [&](bool mValue){ Config::setLimitFPS(window, mValue); }) | whenTimerIsStatic;
+		gfx.create<i::Slider>("max fps", &Config::getMaxFPS, [&](unsigned int mValue){ Config::setMaxFPS(window, mValue); }, 30u, 200u, 5u) | whenTimerIsStatic;
+		gfx.create<i::Slider>("antialiasing", &Config::getAntialiasingLevel, [&](unsigned int mValue){ Config::setAntialiasingLevel(window, mValue); }, 0u, 3u, 1u);
 		gfx.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
 		gfx.create<i::GoBack>("back");
 
@@ -140,27 +146,27 @@ namespace hg
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) 	{  --profileIndex; }
-			else if(state == s::SMain)			{ setIndex(currentIndex - 1); }
-			else if(isInMenu())					{ getCurrentMenu()->decrease(); }
+			else if(state == s::SMain)	{ setIndex(currentIndex - 1); }
+			else if(isInMenu())			{ getCurrentMenu()->decrease(); }
 		}, t::Single);
 		game.addInput(Config::getTriggerRotateCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) 	{ ++profileIndex; }
-			else if(state == s::SMain)			{ setIndex(currentIndex + 1); }
-			else if(isInMenu())					{ getCurrentMenu()->increase(); }
+			else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
+			else if(isInMenu())			{ getCurrentMenu()->increase(); }
 		}, t::Single);
 		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::SMain)				{ ++difficultyMultIndex; }
-			else if(isInMenu())					{ getCurrentMenu()->previous(); }
+			if(state == s::SMain)		{ ++difficultyMultIndex; }
+			else if(isInMenu())			{ getCurrentMenu()->previous(); }
 		}, t::Single);
 		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::SMain)				{ --difficultyMultIndex; }
-			else if(isInMenu())					{ getCurrentMenu()->next(); }
+			if(state == s::SMain)		{ --difficultyMultIndex; }
+			else if(isInMenu())			{ getCurrentMenu()->next(); }
 		}, t::Single);
 		game.addInput(Config::getTriggerRestart(), [&](float)
 		{
@@ -198,7 +204,7 @@ namespace hg
 
 		game.addInput(Config::getTriggerExit(), [&](float mFrameTime) { if(state != s::MOpts) exitTimer += mFrameTime; });
 		game.addInput(Config::getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
-		game.addInput({{k::LAlt, k::Return}}, [&](float){ Config::setFullscreen(window, !window.getFullscreen()); refreshCamera(); }, t::Single);
+		game.addInput({{k::LAlt, k::Return}}, [&](float){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Single);
 		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Single);
 	}
 
