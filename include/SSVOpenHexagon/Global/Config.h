@@ -26,6 +26,8 @@ namespace hg
 		void setVsync(ssvs::GameWindow& mWindow, bool mValue);
 		void setLimitFPS(ssvs::GameWindow& mWindow, bool mValue);
 		void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue);
+		void setTimerStatic(ssvs::GameWindow& mWindow, bool mValue);
+		void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue);
 
 		void setOnline(bool mOnline);
 		void setOfficial(bool mOfficial);
@@ -62,8 +64,6 @@ namespace hg
 		bool getNoMusic();
 		int getSoundVolume();
 		int getMusicVolume();
-		bool getStaticFrameTime();
-		float getStaticFrameTimeValue();
 		bool getLimitFPS();
 		bool getVsync();
 		bool getAutoZoomFactor();
@@ -93,6 +93,8 @@ namespace hg
 		bool getMusicSpeedDMSync();
 		unsigned int getMaxFPS();
 		bool getShowFPS();
+		bool getTimerStatic();
+		unsigned int getAntialiasingLevel();
 
 		ssvs::Input::Trigger getTriggerRotateCCW();
 		ssvs::Input::Trigger getTriggerRotateCW();
