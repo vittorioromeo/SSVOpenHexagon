@@ -21,17 +21,25 @@ namespace hg
 			public:
 				void handle(T& mCaller, sf::Packet& mPacket)
 				{
-					unsigned int type;
-					mPacket >> type;
-
-					auto itr(functionHandlers.find(type));
-					if(itr == end(functionHandlers))
+					try
 					{
-						ssvu::lo << ssvu::lt("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
-						return;
-					}
+						unsigned int type;
+						mPacket >> type;
 
-					itr->second(mCaller, mPacket);
+						auto itr(functionHandlers.find(type));
+						if(itr == end(functionHandlers))
+						{
+							ssvu::lo << ssvu::lt("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
+							return;
+						}
+
+						itr->second(mCaller, mPacket);
+					}
+					catch(std::exception& mException)
+					{
+						ssvu::lo << "Exception during packet handling" << std::endl;
+						ssvu::lo << mException.what() << std::endl;
+					}
 				}
 
 				HandlerFunc& operator[](unsigned int mType) { return functionHandlers[mType]; }
