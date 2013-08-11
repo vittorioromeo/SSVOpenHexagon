@@ -35,14 +35,13 @@ namespace hg
 
 				void update()
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(25));
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 					growIfNeeded();
 
 					for(auto& c : clientHandlers)
 					{
-						if(c->isBusy()) continue;
-						if(!retry([&]{ return c->tryAccept(listener); }).get()) continue;
+						if(c->isBusy() || !c->tryAccept(listener)) continue;
 
 						onClientAccepted(*c.get());
 						c->refreshTimeout();

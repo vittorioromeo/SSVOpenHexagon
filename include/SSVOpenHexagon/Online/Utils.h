@@ -35,24 +35,6 @@ namespace hg
 
 		// Decompress packet to ssvuj value
 		inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return Internal::getDecompressedJsonString(data); }
-
-		template<int TTimes = 5, LogMode TLM = LogMode::Quiet> inline std::future<bool> retry(std::function<bool()> mFunc, const std::chrono::duration<int, std::milli>& mDuration = std::chrono::milliseconds(1500))
-		{
-			auto result(std::async(std::launch::async, [=]
-			{
-				for(int i{0}; i < TTimes; ++i)
-				{
-					if(mFunc()) return true;
-
-					if(TLM == LogMode::Verbose) ssvu::lo << ssvu::lt("asyncTry") << "Error - retrying (" << i + 1 << "/" << TTimes << ")" << std::endl;
-					std::this_thread::sleep_for(mDuration);
-				}
-
-				return false;
-			}));
-
-			return result;
-		}
 	}
 }
 

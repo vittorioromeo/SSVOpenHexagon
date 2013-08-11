@@ -12,22 +12,16 @@ namespace hg
 {
 	namespace Online
 	{
-		class Client
+		class Client : public ManagedSocket
 		{
 			private:
 				PacketHandler<Client>& packetHandler;
-				ManagedSocket managedSocket;
 
 			public:
 				Client(PacketHandler<Client>& mPacketHandler) : packetHandler(mPacketHandler)
 				{
-					managedSocket.onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); };
+					onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); };
 				}
-
-				inline bool connect(sf::IpAddress mIp, unsigned int mPort)	{ return managedSocket.connect(mIp, mPort); }
-				inline bool send(const sf::Packet& mPacket)					{ return managedSocket.send(mPacket); }
-				inline void disconnect()									{ managedSocket.disconnect(); }
-				inline ManagedSocket& getManagedSocket()					{ return managedSocket; }
 		};
 	}
 }

@@ -21,8 +21,8 @@
 #define HG_NKEY1 123456
 #endif
 
-#ifndef HG_ENCRYPTIONKEY
-#define HG_ENCRYPTIONKEY getMD5Hash(mName + mValidator + scoreString + getMD5Hash(HG_SKEY1) + getMD5Hash(HG_SKEY2) + getMD5Hash(HG_SKEY3) + getMD5Hash(toStr(HG_NKEY1)))
+#ifndef HG_ENCRYPT
+#define HG_ENCRYPT(X, Y) toStr(HG_NKEY1) + X + HG_SKEY1 + HG_SKEY2 + Y + HG_SKEY3
 #endif
 
 #endif

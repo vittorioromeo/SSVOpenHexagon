@@ -16,22 +16,19 @@ namespace hg
 	{
 		class Server;
 
-		class ClientHandler
+		class ClientHandler : public ManagedSocket
 		{
 			private:
 				static unsigned int lastUid;
-				unsigned int uid;
+				unsigned int uid{lastUid++}, untilTimeout{5};
 				PacketHandler<ClientHandler> packetHandler;
-				ManagedSocket managedSocket;
-				int untilTimeout{5};
 
 			public:
 				ssvu::Delegate<void()> onDisconnect;
 
-				ClientHandler(PacketHandler<ClientHandler>& mPacketHandler) : uid{lastUid}, packetHandler(mPacketHandler)
+				ClientHandler(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler)
 				{
-					managedSocket.onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); untilTimeout = 5; };
-					++lastUid;
+					onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); refreshTimeout(); };
 
 					std::thread([&]
 					{
@@ -41,17 +38,13 @@ namespace hg
 							if(!isBusy() || --untilTimeout > 0) continue;
 
 							ssvu::lo << ssvu::lt("ClientHandler") << "Client (" << uid << ") timed out" << std::endl;
-							onDisconnect(); managedSocket.disconnect();
+							onDisconnect(); disconnect();
 						}
 					}).detach();
 				}
 
-				inline bool send(const sf::Packet& mPacket)			{ return managedSocket.send(mPacket); }
-				inline bool tryAccept(sf::TcpListener& mListener)	{ return managedSocket.tryAccept(mListener); }
-				inline bool isBusy() const							{ return managedSocket.isBusy(); }
-				inline unsigned int getUid() const					{ return uid; }
-				inline ManagedSocket& getManagedSocket()			{ return managedSocket; }
-				inline void refreshTimeout()						{ untilTimeout = 5; }
+				inline unsigned int getUid() const { return uid; }
+				inline void refreshTimeout() { untilTimeout = 5; }
 		};
 	}
 }

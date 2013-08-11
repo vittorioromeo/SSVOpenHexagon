@@ -76,11 +76,11 @@ namespace hg
 			clientPHandler[FromServer::LoginResponseInvalid] = [](Client&, sf::Packet&)		{ loginStatus = LoginStat::Unlogged; lo << lt("PacketHandler") << "Login invalid!" << endl; };
 			clientPHandler[FromServer::RequestInfoResponse] = [](Client&, sf::Packet& mP)	{ ssvuj::Obj r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
 			clientPHandler[FromServer::SendLeaderboard] = [](Client&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
-			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, sf::Packet&)	{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard"; gettingLeaderboard = false; };
+			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, sf::Packet&)	{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard" << endl; gettingLeaderboard = false; };
 			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score"; };
 			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score - level data doesn't match server's"; };
 			clientPHandler[FromServer::SendUserStats] = [](Client&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
-			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats"; };
+			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats" << endl; };
 			clientPHandler[FromServer::SendFriendsScores] = [](Client&, sf::Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0));};
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, sf::Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, sf::Packet&)			{ newUserReg = false; };
@@ -94,7 +94,7 @@ namespace hg
 					if(connectionStatus == ConnectStat::Connected)
 					{
 						client->send(buildCPacket<FromClient::Ping>());
-						if(!client->getManagedSocket().isBusy())
+						if(!client->isBusy())
 						{
 							connectionStatus = ConnectStat::Disconnected;
 							loginStatus = LoginStat::Unlogged;
@@ -103,6 +103,26 @@ namespace hg
 					this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
 			}).detach();
+		}
+
+		bool canSendPacket() { return connectionStatus == ConnectStat::Connected && loginStatus == LoginStat::Logged && currentUsername != "NULL"; }
+
+		template<typename T> void trySendFunc(T&& mFunc)
+		{
+			if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
+			//lo << lt("hg::Online::trySendFunc") << "Sending data to server..." << endl;
+
+			thread([=]
+			{
+				if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
+				mFunc();
+			}).detach();
+		}
+
+		template<unsigned int TType, typename... TArgs> void trySendPacket(TArgs&&... mArgs)
+		{
+			const auto& packet(buildCPacket<TType>(mArgs...));
+			trySendFunc([=]{ client->send(packet); });
 		}
 
 		void tryConnectToServer()
@@ -136,35 +156,18 @@ namespace hg
 			lo << lt("hg::Online::tryLogin") << "Logging in..." << endl;
 			loginStatus = LoginStat::Logging;
 
+			if(connectionStatus != ConnectStat::Connected) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::Unlogged; return; }
+
 			thread([=]
 			{
-				//this_thread::sleep_for(std::chrono::milliseconds(80));
-				if(!retry([&]{ return connectionStatus == ConnectStat::Connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::Unlogged; return; }
 				client->send(buildCPacket<FromClient::Login>(mUsername, mPassword));
 				currentUsername = mUsername;
 			}).detach();
 		}
 
-		bool canSendPacket() { return connectionStatus == ConnectStat::Connected && loginStatus == LoginStat::Logged && currentUsername != "NULL"; }
 
-		template<typename T> void trySendFunc(T&& mFunc)
-		{
-			if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
-			lo << lt("hg::Online::trySendFunc") << "Sending data to server..." << endl;
 
-			thread([=]
-			{
-				//this_thread::sleep_for(std::chrono::milliseconds(80));
-				if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
-				mFunc();
-			}).detach();
-		}
 
-		template<unsigned int TType, typename... TArgs> void trySendPacket(TArgs&&... mArgs)
-		{
-			const auto& packet(buildCPacket<TType>(mArgs...));
-			trySendFunc([=]{ client->send(packet); });
-		}
 
 		void trySendScore(const string& mLevelId, float mDiffMult, float mScore)	{ trySendPacket<FromClient::SendScore>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult, mScore); }
 		void tryRequestLeaderboard(const string& mLevelId, float mDiffMult)			{ trySendPacket<FromClient::RequestLeaderboard>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult); }
@@ -225,7 +228,7 @@ namespace hg
 
 			toEncrypt = getControlStripped(toEncrypt);
 
-			return getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SKEY1 + HG_SKEY2 + HG_SKEY3);
+			return HG_ENCRYPT(getUrlEncoded(mLevelId), getMD5Hash(toEncrypt));
 		}
 
 		float getServerVersion()					{ return serverVersion; }
