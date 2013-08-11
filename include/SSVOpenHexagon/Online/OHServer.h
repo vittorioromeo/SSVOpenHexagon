@@ -295,6 +295,9 @@ namespace hg
 					std::string levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
 					float diffMult{ssvuj::as<float>(request, 3)};
 
+					ssvu::lo << "LEVELID: " << levelId << std::endl;
+					ssvu::lo << "VALIDATOR: " << validator << std::endl;
+
 					if(!scores.hasLevel(levelId)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
 					auto& l(scores.getLevel(levelId));
 
