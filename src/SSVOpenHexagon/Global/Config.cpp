@@ -195,7 +195,8 @@ namespace hg
 			else
 			{
 				mWindow.setTimer<DynamicTimer>();
-				setLimitFPS(mWindow, false);
+				setLimitFPS(mWindow, true);
+				setMaxFPS(mWindow, 200);
 			}
 		}
 		void setAntialiasingLevel(GameWindow& mWindow, unsigned int mValue)	{ antialiasingLevel = mValue; mWindow.setAntialiasingLevel(mValue); }
