@@ -116,8 +116,8 @@ namespace hg
 
 			thread([]
 			{
-				//if(client->connect("127.0.0.1", 54000))
-				if(client->connect(hostIp, hostPort))
+				//if(client->connect(hostIp, hostPort))
+				if(client->connect("127.0.0.1", 54000))
 				{
 					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
 					connectionStatus = ConnectStat::Connected; return;
@@ -138,7 +138,7 @@ namespace hg
 
 			thread([=]
 			{
-				this_thread::sleep_for(std::chrono::milliseconds(80));
+				//this_thread::sleep_for(std::chrono::milliseconds(80));
 				if(!retry([&]{ return connectionStatus == ConnectStat::Connected; }).get()) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::Unlogged; return; }
 				client->send(buildCPacket<FromClient::Login>(mUsername, mPassword));
 				currentUsername = mUsername;
@@ -154,7 +154,7 @@ namespace hg
 
 			thread([=]
 			{
-				this_thread::sleep_for(std::chrono::milliseconds(80));
+				//this_thread::sleep_for(std::chrono::milliseconds(80));
 				if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
 				mFunc();
 			}).detach();
