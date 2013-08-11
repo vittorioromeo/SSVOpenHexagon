@@ -272,7 +272,6 @@ namespace hg
 
 					if(Online::getValidators().getValidator(levelId) != validator)
 					{
-						ssvu::lo << ssvu::lt("PacketHandler") << "Validator doesn't match" << std::endl;
 						mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return;
 					}
 
@@ -288,22 +287,19 @@ namespace hg
 
 					if(!loginDB.isLoggedIn(username))
 					{
-						ssvu::lo << ssvu::lt("PacketHandler") << "User not logged in!" << std::endl;
+						//ssvu::lo << ssvu::lt("PacketHandler") << "User not logged in!" << std::endl;
 						mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return;
 					}
 
 					std::string levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
 					float diffMult{ssvuj::as<float>(request, 3)};
 
-					ssvu::lo << "LEVELID: " << levelId << std::endl;
-					ssvu::lo << "VALIDATOR: " << validator << std::endl;
-
 					if(!scores.hasLevel(levelId)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
 					auto& l(scores.getLevel(levelId));
 
 					if(Online::getValidators().getValidator(levelId) != validator || !l.hasDiffMult(diffMult))
 					{
-						ssvu::lo << ssvu::lt("PacketHandler") << "Validator mismatch!" << std::endl;
+						//ssvu::lo << ssvu::lt("PacketHandler") << "Validator mismatch!" << std::endl;
 						mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return;
 					}
 					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, sending leaderboard" << std::endl;
@@ -424,8 +420,11 @@ namespace hg
 
 				std::thread([&]
 				{
-					std::this_thread::sleep_for(std::chrono::seconds(30));
-					saveIfNeeded();
+					while(true)
+					{
+						std::this_thread::sleep_for(std::chrono::seconds(30));
+						saveIfNeeded();
+					}
 				}).detach();;
 
 				while(true)

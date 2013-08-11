@@ -78,7 +78,7 @@ namespace hg
 			clientPHandler[FromServer::SendLeaderboard] = [](Client&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
 			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, sf::Packet&)	{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard" << endl; gettingLeaderboard = false; };
 			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score"; };
-			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score - level data doesn't match server's"; };
+			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score"; };
 			clientPHandler[FromServer::SendUserStats] = [](Client&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats" << endl; };
 			clientPHandler[FromServer::SendFriendsScores] = [](Client&, sf::Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0));};
@@ -228,10 +228,7 @@ namespace hg
 
 			toEncrypt = getControlStripped(toEncrypt);
 
-			auto x = getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt + HG_SKEY1 + HG_SKEY2 + HG_SKEY3);
-			lo << x << endl;
-			return x;
-			//return getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt));
+			return getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt));
 		}
 
 		float getServerVersion()					{ return serverVersion; }
