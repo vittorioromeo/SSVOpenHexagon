@@ -227,7 +227,7 @@ namespace hg
 
 			toEncrypt = getControlStripped(toEncrypt);
 
-			const auto& result(getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt)));
+			const auto& result(getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt));
 
 			lo << result << endl << endl;
 
