@@ -94,4 +94,5 @@ xcopy /s/y ..\lib\lua5.1.dll ..\_RELEASE\
 xcopy /s/y ..\lib\lua51.dll ..\_RELEASE\
 xcopy /s/y ..\lib\openal32.dll ..\_RELEASE\
 
+strip ..\_RELEASE\*SSV*.dll -g -s
 upx -9 ..\_RELEASE\*SSV*
