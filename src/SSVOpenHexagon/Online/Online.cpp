@@ -216,22 +216,16 @@ namespace hg
 			string toEncrypt;
 
 			toEncrypt += mLevelId;
-			lo << "1 -> " << getMD5Hash(toEncrypt) << endl;
-
 			toEncrypt += getControlStripped(mLevelRootString);
-			lo << "2 -> " << getMD5Hash(toEncrypt) << endl;
-
 			toEncrypt += getFileContents(mStyleRootPath);
-			lo << "3 -> " << getMD5Hash(toEncrypt) << endl;
-
 			toEncrypt += luaScriptContents;
-			lo << "4 -> " << getMD5Hash(toEncrypt) << endl;
-
 			for(const auto& lsn : luaScriptNames)
 			{
+				lo << lsn << ", ";
 				string path{mPackPath + "/Scripts/" + lsn};
 				toEncrypt += getFileContents(path);
 			}
+			lo << endl;
 
 			lo << "5 -> " << getMD5Hash(toEncrypt) << endl;
 
