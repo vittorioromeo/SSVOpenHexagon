@@ -420,12 +420,12 @@ namespace hg
 			{
 				if(modifiedScores)
 				{
-					saveScores();
+					saveScores(); modifiedScores = false;
 					if(verbose) ssvu::lo << ssvu::lt("saveIfNeeded") << "Saving scores..." << std::endl;
 				}
 				if(modifiedUsers)
 				{
-					saveUsers();
+					saveUsers(); modifiedUsers = false;
 					if(verbose) ssvu::lo << ssvu::lt("saveIfNeeded") << "Saving users..." << std::endl;
 				}
 			}
