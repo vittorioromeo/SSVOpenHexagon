@@ -203,21 +203,29 @@ namespace hg
 		{
 			lo << endl;
 			lo << lt("VALIDATOR") << endl;
-			lo << "mPackPath: " << mPackPath << endl;
-			lo << "mLevelId: " << mLevelId << endl;
-			lo << "mLevelRootString: " << mLevelRootString << endl;
-			lo << "mStyleRootPath: " << mStyleRootPath << endl;
-			lo << "mLuaScriptPath: " << mLuaScriptPath << endl;
+			//lo << "mPackPath: " << mPackPath << endl;
+			//lo << "mLevelId: " << mLevelId << endl;
+			//lo << "mLevelRootString: " << mLevelRootString << endl;
+			//lo << "mStyleRootPath: " << mStyleRootPath << endl;
+			//lo << "mLuaScriptPath: " << mLuaScriptPath << endl;
 
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 			unordered_set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
 			string toEncrypt;
+
 			toEncrypt += mLevelId;
+			lo << "1 -> " << getMD5Hash(toEncrypt) << endl;
+
 			toEncrypt += getControlStripped(mLevelRootString);
+			lo << "2 -> " << getMD5Hash(toEncrypt) << endl;
+
 			toEncrypt += getFileContents(mStyleRootPath);
+			lo << "3 -> " << getMD5Hash(toEncrypt) << endl;
+
 			toEncrypt += luaScriptContents;
+			lo << "4 -> " << getMD5Hash(toEncrypt) << endl;
 
 			for(const auto& lsn : luaScriptNames)
 			{
@@ -225,7 +233,10 @@ namespace hg
 				toEncrypt += getFileContents(path);
 			}
 
+			lo << "5 -> " << getMD5Hash(toEncrypt) << endl;
+
 			toEncrypt = getControlStripped(toEncrypt);
+			lo << "6 -> " << getMD5Hash(toEncrypt) << endl;
 
 			const auto& result(getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt));
 
