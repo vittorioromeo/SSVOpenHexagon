@@ -21,9 +21,10 @@ namespace hg
 			public:
 				void handle(T& mCaller, sf::Packet& mPacket)
 				{
+					unsigned int type{0};
+
 					try
 					{
-						unsigned int type;
 						mPacket >> type;
 
 						auto itr(functionHandlers.find(type));
@@ -37,7 +38,7 @@ namespace hg
 					}
 					catch(std::exception& mException)
 					{
-						ssvu::lo << "Exception during packet handling" << std::endl;
+						ssvu::lo << "Exception during packet handling (" << type << ")" << std::endl;
 						ssvu::lo << mException.what() << std::endl;
 					}
 				}
