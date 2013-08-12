@@ -157,10 +157,6 @@ namespace hg
 			}).detach();
 		}
 
-
-
-
-
 		void trySendScore(const string& mLevelId, float mDiffMult, float mScore)	{ trySendPacket<FromClient::SendScore>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult, mScore); }
 		void tryRequestLeaderboard(const string& mLevelId, float mDiffMult)			{ trySendPacket<FromClient::RequestLeaderboard>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult); }
 		void trySendDeath()															{ trySendPacket<FromClient::US_Death>(currentUsername); }
