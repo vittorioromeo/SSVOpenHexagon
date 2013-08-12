@@ -65,7 +65,6 @@ namespace hg
 
 					receiveThread.detach();
 				}
-
 		};
 	}
 }

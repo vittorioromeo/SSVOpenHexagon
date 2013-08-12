@@ -38,7 +38,8 @@ namespace hg
 
 		for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
 		{
-			string packName{packPath.substr(6, packPath.size() - 7)}, packLua;
+			const auto& packPathStr(packPath.getStr());
+			string packName{packPathStr.substr(6, packPathStr.size() - 7)}, packLua;
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 
 			ssvuj::Obj packRoot{readFromFile(packPath + "/pack.json")};
