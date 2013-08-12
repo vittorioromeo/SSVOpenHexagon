@@ -8,8 +8,6 @@
 	"auto_zoom_factor" : true,
 	"beatpulse_enabled" : true,
 	"black_and_white" : false,
-	"change_music" : true,
-	"change_styles" : true,
 	"debug" : false,
 	"flash_enabled" : true,
 	"fullscreen" : false,
@@ -23,7 +21,7 @@
 	"music_volume" : 30,
 	"no_background" : false,
 	"no_music" : false,
-	"no_rotation" : true,
+	"no_rotation" : false,
 	"no_sound" : false,
 	"official" : true,
 	"online" : true,
@@ -81,7 +79,7 @@
 	"timer_static" : false,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 768,
-	"windowed_width" : 1366,
+	"windowed_height" : 480,
+	"windowed_width" : 640,
 	"zoom_factor" : 1.0
 }

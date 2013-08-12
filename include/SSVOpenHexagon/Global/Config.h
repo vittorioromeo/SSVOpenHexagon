@@ -78,8 +78,8 @@ namespace hg
 		unsigned int getWidth();
 		unsigned int getHeight();
 		bool getShowMessages();
-		bool getChangeStyles();
-		bool getChangeMusic();
+
+
 		bool getDebug();
 		bool getPulse();
 		bool getBeatPulse();

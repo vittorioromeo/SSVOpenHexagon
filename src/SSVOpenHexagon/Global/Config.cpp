@@ -58,8 +58,6 @@ namespace hg
 		auto& windowedWidth				(lvm.create<int>("windowed_width"));
 		auto& windowedHeight			(lvm.create<int>("windowed_height"));
 		auto& showMessages				(lvm.create<bool>("show_messages"));
-		auto& changeStyles				(lvm.create<bool>("change_styles"));
-		auto& changeMusic				(lvm.create<bool>("change_music"));
 		auto& debug						(lvm.create<bool>("debug"));
 		auto& beatPulse					(lvm.create<bool>("beatpulse_enabled"));
 		auto& showTrackedVariables		(lvm.create<bool>("show_tracked_variables"));
@@ -250,8 +248,6 @@ namespace hg
 		unsigned int getWidth() 			{ return fullscreen ? fullscreenWidth : windowedWidth; }
 		unsigned int getHeight() 			{ return fullscreen ? fullscreenHeight : windowedHeight; }
 		bool getShowMessages()				{ return showMessages; }
-		bool getChangeStyles()				{ return changeStyles; }
-		bool getChangeMusic()				{ return changeMusic; }
 		bool getDebug()						{ return debug; }
 		bool getPulse()						{ return official ? true : pulseEnabled; }
 		bool getBeatPulse()					{ return official ? true : beatPulse; }
