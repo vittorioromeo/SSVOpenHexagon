@@ -188,7 +188,7 @@ namespace hg
 
 		struct OHServer
 		{
-			bool verbose{true};
+			bool verbose{false};
 			bool modifiedUsers{false};
 			bool modifiedScores{false};
 
