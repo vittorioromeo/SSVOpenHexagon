@@ -66,10 +66,10 @@ namespace hg
 			timeline.append<Do>([&mCamera, oldCenter]{ mCamera.centerOn(oldCenter); });
 		}
 
-		unordered_set<string> getIncludedLuaFileNames(const string& mLuaScript)
+		std::set<string> getIncludedLuaFileNames(const string& mLuaScript)
 		{
 			string script{mLuaScript}, toFind{"execScript("};
-			unordered_set<string> result;
+			std::set<string> result;
 
 			size_t pos{script.find(toFind, 0)};
 			while(pos != string::npos)
