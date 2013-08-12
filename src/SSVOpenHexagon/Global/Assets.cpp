@@ -40,10 +40,9 @@ namespace hg
 		{
 			string packName{packPath.substr(6, packPath.size() - 7)}, packLua;
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
-			string packHash{Online::getMD5Hash(packLua + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
 			ssvuj::Obj packRoot{readFromFile(packPath + "/pack.json")};
-			auto packData(new PackData{packName, as<string>(packRoot, "name"), as<float>(packRoot, "priority"), packHash});
+			auto packData(new PackData{packName, as<string>(packRoot, "name"), as<float>(packRoot, "priority")});
 			packDatas.insert(make_pair(packName, Uptr<PackData>(packData)));
 		}
 

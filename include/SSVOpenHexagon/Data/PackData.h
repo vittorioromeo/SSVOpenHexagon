@@ -9,8 +9,8 @@ namespace hg
 {
 	struct PackData
 	{
-		std::string id, name, hash; float priority;
-		PackData(const std::string& mId, const std::string& mName, float mPriority, const std::string& mHash) : id{mId}, name{mName}, hash{mHash}, priority{mPriority} { }
+		std::string id, name; float priority;
+		PackData(const std::string& mId, const std::string& mName, float mPriority) : id{mId}, name{mName}, priority{mPriority} { }
 	};
 }
 
