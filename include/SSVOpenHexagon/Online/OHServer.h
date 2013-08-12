@@ -188,6 +188,7 @@ namespace hg
 
 		struct OHServer
 		{
+			bool verbose{true};
 			bool modifiedUsers{false};
 			bool modifiedScores{false};
 
@@ -218,7 +219,7 @@ namespace hg
 
 					if(loginDB.isLoggedIn(username))
 					{
-						// ssvu::lo << ssvu::lt("PacketHandler") << "User already logged in" << std::endl;
+						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "User already logged in" << std::endl;
 						mMS.send(buildCPacket<FromServer::LoginResponseInvalid>()); return;
 					}
 
@@ -228,24 +229,24 @@ namespace hg
 					if(users.hasUser(username))
 					{
 						const auto& u(users.getUser(username));
-						// ssvu::lo << ssvu::lt("PacketHandler") << "Username found" << std::endl;
+						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "Username found" << std::endl;
 
 						if(u.passwordHash == passwordHash) ssvu::lo << ssvu::lt("PacketHandler") << "Password valid" << std::endl;
 						else
 						{
-							// ssvu::lo << ssvu::lt("PacketHandler") << "Password invalid" << std::endl;
+							if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "Password invalid" << std::endl;
 							mMS.send(buildCPacket<FromServer::LoginResponseInvalid>()); return;
 						}
 					}
 					else
 					{
-						// ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
+						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "Username not found, registering" << std::endl;
 						User newUser; newUser.passwordHash = passwordHash;
 						users.registerUser(username, newUser); modifiedUsers = true;
 						newUserRegistration = true;
 					}
 
-					// ssvu::lo << ssvu::lt("PacketHandler") << "Accepting user" << std::endl;
+					if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "Accepting user" << std::endl;
 					loginDB.acceptLogin(mMS.getUid(), username);
 					mMS.send(buildCPacket<FromServer::LoginResponseValid>(newUserRegistration));
 				};
@@ -266,16 +267,17 @@ namespace hg
 
 					if(!scores.hasLevel(levelId))
 					{
-						// ssvu::lo << ssvu::lt("PacketHandler") << "No table for this level id, creating one" << std::endl;
+						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "No table for this level id, creating one" << std::endl;
 						scores.addLevel(levelId, {});
 					}
 
 					if(Online::getValidators().getValidator(levelId) != validator)
 					{
+						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "Validator mismatch!\n" << Online::getValidators().getValidator(levelId) << "\n" << validator << std::endl;
 						mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return;
 					}
 
-					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, inserting score" << std::endl;
+					if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, inserting score" << std::endl;
 					auto& l(scores.getLevel(levelId));
 					if(l.getPlayerScore(username, diffMult) < score) { l.addScore(diffMult, username, score); modifiedScores = true; }
 					mMS.send(buildCPacket<FromServer::SendScoreResponseValid>());
@@ -287,7 +289,7 @@ namespace hg
 
 					if(!loginDB.isLoggedIn(username))
 					{
-						//ssvu::lo << ssvu::lt("PacketHandler") << "User not logged in!" << std::endl;
+						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "User not logged in!" << std::endl;
 						mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return;
 					}
 
@@ -297,12 +299,19 @@ namespace hg
 					if(!scores.hasLevel(levelId)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
 					auto& l(scores.getLevel(levelId));
 
-					if(Online::getValidators().getValidator(levelId) != validator || !l.hasDiffMult(diffMult))
+					if(Online::getValidators().getValidator(levelId) != validator)
 					{
-						//ssvu::lo << ssvu::lt("PacketHandler") << "Validator mismatch!" << std::endl;
+						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "Validator mismatch!\n" << Online::getValidators().getValidator(levelId) << "\n" << validator << std::endl;
 						mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return;
 					}
-					// ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, sending leaderboard" << std::endl;
+
+					if(!l.hasDiffMult(diffMult))
+					{
+						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "No difficulty multiplier table!" << std::endl;
+						mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return;
+					}
+
+					if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "Validator matches, sending leaderboard" << std::endl;
 
 					const auto& sortedScores(l.getSortedScores(diffMult));
 					ssvuj::Obj response;
@@ -329,7 +338,7 @@ namespace hg
 
 					users.setEmail(username, email);
 
-					// ssvu::lo << ssvu::lt("PacketHandler") << "Email accepted" << std::endl;
+					if(verbose)  ssvu::lo << ssvu::lt("PacketHandler") << "Email accepted" << std::endl;
 					mMS.send(buildCPacket<FromServer::NUR_EmailValid>());
 					modifiedUsers = true;
 				};
@@ -401,7 +410,7 @@ namespace hg
 					if(!loginDB.isLoggedIn(username)) return;
 					loginDB.logout(username);
 
-					// ssvu::lo << ssvu::lt("PacketHandler") << username << " logged out" << std::endl;
+					if(verbose)  ssvu::lo << ssvu::lt("PacketHandler") << username << " logged out" << std::endl;
 					mMS.send(buildCPacket<FromServer::SendLogoutValid>());
 				};
 			}
@@ -409,8 +418,16 @@ namespace hg
 
 			inline void saveIfNeeded()
 			{
-				if(modifiedScores) saveScores();
-				if(modifiedUsers) saveUsers();
+				if(modifiedScores)
+				{
+					saveScores();
+					if(verbose) ssvu::lo << ssvu::lt("saveIfNeeded") << "Saving scores..." << std::endl;
+				}
+				if(modifiedUsers)
+				{
+					saveUsers();
+					if(verbose) ssvu::lo << ssvu::lt("saveIfNeeded") << "Saving users..." << std::endl;
+				}
 			}
 
 			inline void start()
@@ -427,10 +444,7 @@ namespace hg
 					}
 				}).detach();;
 
-				while(true)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(10));
-				}
+				while(true) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
 			}
 		};
 	}

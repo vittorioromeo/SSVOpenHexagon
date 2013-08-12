@@ -44,19 +44,12 @@ namespace hg
 		float lastLeaderboardDM;
 
 		bool newUserReg{false};
-		bool getNewUserReg() { return newUserReg; }
 
 		string currentUsername{"NULL"};
 		string currentLeaderboard{"NULL"};
 		string currentUserStatsStr{"NULL"};
 		UserStats currentUserStats;
 		ssvuj::Obj currentFriendScores;
-
-		const ssvuj::Obj& getCurrentFriendScores() { return currentFriendScores; }
-
-		const UserStats& getUserStats() { return currentUserStats; }
-
-		ValidatorDB& getValidators() { return validators; }
 
 		void refreshUserStats()
 		{
@@ -77,8 +70,8 @@ namespace hg
 			clientPHandler[FromServer::RequestInfoResponse] = [](Client&, sf::Packet& mP)	{ ssvuj::Obj r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
 			clientPHandler[FromServer::SendLeaderboard] = [](Client&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
 			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, sf::Packet&)	{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard" << endl; gettingLeaderboard = false; };
-			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score"; };
-			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score"; };
+			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score" << endl; };
+			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score" << endl; };
 			clientPHandler[FromServer::SendUserStats] = [](Client&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats" << endl; };
 			clientPHandler[FromServer::SendFriendsScores] = [](Client&, sf::Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0));};
@@ -136,8 +129,8 @@ namespace hg
 
 			thread([]
 			{
-				if(client->connect(hostIp, hostPort))
 				//if(client->connect("127.0.0.1", 54000))
+				if(client->connect(hostIp, hostPort))
 				{
 					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
 					connectionStatus = ConnectStat::Connected; return;
@@ -152,11 +145,10 @@ namespace hg
 		void tryLogin(const string& mUsername, const string& mPassword)
 		{
 			if(loginStatus != LoginStat::Unlogged) { logout(); return; }
+			if(connectionStatus != ConnectStat::Connected) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::Unlogged; return; }
 
 			lo << lt("hg::Online::tryLogin") << "Logging in..." << endl;
 			loginStatus = LoginStat::Logging;
-
-			if(connectionStatus != ConnectStat::Connected) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::Unlogged; return; }
 
 			thread([=]
 			{
@@ -179,6 +171,7 @@ namespace hg
 		void trySendClearFriends()													{ trySendPacket<FromClient::US_ClearFriends>(currentUsername); trySendInitialRequests(); }
 		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult); }
 		void trySendUserEmail(const string& mEmail)									{ trySendPacket<FromClient::NUR_Email>(currentUsername, mEmail); }
+		void logout()																{ trySendPacket<FromClient::Logout>(currentUsername); }
 
 		void requestLeaderboardIfNeeded(const string& mLevelId, float mDiffMult)
 		{
@@ -193,46 +186,54 @@ namespace hg
 			trySendPacket<FromClient::RequestUserStats>(currentUsername);
 		}
 
-		ConnectStat getConnectionStatus()	{ return connectionStatus; }
-		LoginStat getLoginStatus()			{ return loginStatus; }
-		string getCurrentUsername()			{ return loginStatus == LoginStat::Logged ? currentUsername : "NULL"; }
-
-		void logout()
-		{
-			if(loginStatus != LoginStat::Logged) return;
-			trySendFunc([=]{ client->send(buildCPacket<FromClient::Logout>(currentUsername)); });
-		}
-
-		void invalidateCurrentLeaderboard() { currentLeaderboard = "NULL"; }
-		void invalidateCurrentFriendsScores() { currentFriendScores = ssvuj::Obj{}; }
-		const string& getCurrentLeaderboard() { return currentLeaderboard; }
+		ConnectStat getConnectionStatus()			{ return connectionStatus; }
+		LoginStat getLoginStatus()					{ return loginStatus; }
+		string getCurrentUsername()					{ return loginStatus == LoginStat::Logged ? currentUsername : "NULL"; }
+		const ssvuj::Obj& getCurrentFriendScores()	{ return currentFriendScores; }
+		const UserStats& getUserStats()				{ return currentUserStats; }
+		ValidatorDB& getValidators()				{ return validators; }
+		bool getNewUserReg()						{ return newUserReg; }
+		void invalidateCurrentLeaderboard()			{ currentLeaderboard = "NULL"; }
+		void invalidateCurrentFriendsScores()		{ currentFriendScores = ssvuj::Obj{}; }
+		const string& getCurrentLeaderboard()		{ return currentLeaderboard; }
+		float getServerVersion()					{ return serverVersion; }
+		string getServerMessage()					{ return serverMessage; }
 
 		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootString, const string& mStyleRootPath, const string& mLuaScriptPath)
 		{
+			lo << endl;
+			lo << lt("VALIDATOR") << endl;
+			lo << "mPackPath: " << mPackPath << endl;
+			lo << "mLevelId: " << mLevelId << endl;
+			lo << "mLevelRootString: " << mLevelRootString << endl;
+			lo << "mStyleRootPath: " << mStyleRootPath << endl;
+			lo << "mLuaScriptPath: " << mLuaScriptPath << endl;
+
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 			unordered_set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
 			string toEncrypt;
-			toEncrypt.append(mLevelId);
-			toEncrypt.append(mLevelRootString);
-			toEncrypt.append(getFileContents(mStyleRootPath));
-			toEncrypt.append(luaScriptContents);
+			toEncrypt += mLevelId;
+			toEncrypt += getControlStripped(mLevelRootString);
+			toEncrypt += getFileContents(mStyleRootPath);
+			toEncrypt += luaScriptContents;
 
 			for(const auto& lsn : luaScriptNames)
 			{
 				string path{mPackPath + "/Scripts/" + lsn};
-				string contents{getFileContents(path)};
-				toEncrypt.append(contents);
+				toEncrypt += getFileContents(path);
 			}
 
 			toEncrypt = getControlStripped(toEncrypt);
 
-			return getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt));
+			const auto& result(getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt)));
+
+			lo << result << endl << endl;
+
+			return result;
 		}
 
-		float getServerVersion()					{ return serverVersion; }
-		string getServerMessage()					{ return serverMessage; }
 		string getMD5Hash(const string& mString)	{ return encrypt<Encryption::Type::MD5>(mString); }
 
 		void initalizeValidators(HGAssets& mAssets)
@@ -245,7 +246,7 @@ namespace hg
 				const auto& validator(getValidator(l->packPath, l->id, l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(), l->luaScriptPath));
 				validators.addValidator(p.first, validator);
 
-				//lo << lt("hg::Online::initalizeValidators") << "Added (" << p.first << "): " << validator << endl;
+				lo << lt("hg::Online::initalizeValidators") << "Added (" << p.first << "): " << validator << endl;
 			}
 		}
 	}
