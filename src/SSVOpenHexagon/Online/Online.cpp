@@ -210,7 +210,7 @@ namespace hg
 			//lo << "mLuaScriptPath: " << mLuaScriptPath << endl;
 
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
-			unordered_set<string> luaScriptNames;
+			std::set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
 			string toEncrypt;

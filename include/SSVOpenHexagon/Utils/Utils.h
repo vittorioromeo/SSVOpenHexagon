@@ -52,7 +52,7 @@ namespace hg
 		void shakeCamera(ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 
 		std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
-		void recursiveFillIncludedLuaFileNames(std::unordered_set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
+		void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
 
 		sf::Color transformHue(const sf::Color& in, float H);
 	}
