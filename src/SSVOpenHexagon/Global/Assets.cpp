@@ -61,7 +61,7 @@ namespace hg
 		}
 	}
 
-	void HGAssets::loadCustomSounds(const string& mPackName, const string& mPath)
+	void HGAssets::loadCustomSounds(const string& mPackName, const Path& mPath)
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Sounds/", ".ogg"))
 		{
@@ -69,7 +69,7 @@ namespace hg
 			assetManager.load<SoundBuffer>(mPackName + "_" + fileName, p);
 		}
 	}
-	void HGAssets::loadMusic(const string& mPath)
+	void HGAssets::loadMusic(const Path& mPath)
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".ogg"))
 		{
@@ -80,7 +80,7 @@ namespace hg
 			music.setLoop(true);
 		}
 	}
-	void HGAssets::loadMusicData(const string& mPath)
+	void HGAssets::loadMusicData(const Path& mPath)
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".json"))
 		{
@@ -88,16 +88,15 @@ namespace hg
 			musicDataMap.insert(make_pair(musicData.id, musicData));
 		}
 	}
-	void HGAssets::loadStyleData(const string& mPath)
+	void HGAssets::loadStyleData(const Path& mPath)
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Styles/", ".json"))
 		{
-			StyleData styleData{readFromFile(p)};
-			styleData.setRootPath(p);
+			StyleData styleData{readFromFile(p), p};
 			styleDataMap.insert(make_pair(styleData.id, styleData));
 		}
 	}
-	void HGAssets::loadLevelData(const string& mPath)
+	void HGAssets::loadLevelData(const Path& mPath)
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Levels/", ".json"))
 		{

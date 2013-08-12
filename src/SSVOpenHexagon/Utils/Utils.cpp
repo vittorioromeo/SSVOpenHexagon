@@ -85,7 +85,7 @@ namespace hg
 
 			return result;
 		}
-		void recursiveFillIncludedLuaFileNames(std::set<string>& mLuaScriptNames, const string& mPackPath, const string& mLuaScript)
+		void recursiveFillIncludedLuaFileNames(std::set<string>& mLuaScriptNames, const Path& mPackPath, const string& mLuaScript)
 		{
 			for(const auto& name : getIncludedLuaFileNames(mLuaScript))
 			{

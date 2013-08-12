@@ -7,6 +7,7 @@
 
 #include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Online/Compression.h"
+#include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
 {

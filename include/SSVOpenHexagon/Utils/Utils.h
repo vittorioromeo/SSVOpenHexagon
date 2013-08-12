@@ -15,6 +15,7 @@
 #include "SSVOpenHexagon/Data/ProfileData.h"
 #include "SSVOpenHexagon/Data/MusicData.h"
 #include "SSVOpenHexagon/Data/StyleData.h"
+#include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
 {
@@ -52,7 +53,7 @@ namespace hg
 		void shakeCamera(ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
 
 		std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
-		void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames, const std::string& mPackPath, const std::string& mLuaScript);
+		void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames, const Path& mPackPath, const std::string& mLuaScript);
 
 		sf::Color transformHue(const sf::Color& in, float H);
 	}

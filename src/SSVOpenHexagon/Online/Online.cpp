@@ -195,7 +195,7 @@ namespace hg
 		float getServerVersion()					{ return serverVersion; }
 		string getServerMessage()					{ return serverMessage; }
 
-		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootString, const string& mStyleRootPath, const string& mLuaScriptPath)
+		string getValidator(const Path& mPackPath, const string& mLevelId, const string& mLevelRootString, const Path& mStyleRootPath, const Path& mLuaScriptPath)
 		{
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 			std::set<string> luaScriptNames;
@@ -208,7 +208,7 @@ namespace hg
 			toEncrypt += luaScriptContents;
 			for(const auto& lsn : luaScriptNames)
 			{
-				string path{mPackPath + "/Scripts/" + lsn};
+				Path path{mPackPath + "/Scripts/" + lsn};
 				toEncrypt += getFileContents(path);
 			}
 

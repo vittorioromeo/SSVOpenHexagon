@@ -5,6 +5,7 @@
 #ifndef HG_STYLEDATA
 #define HG_STYLEDATA
 
+#include "SSVOpenHexagon/Global/Typedefs.h"
 #include "SSVOpenHexagon/Core/HGDependencies.h"
 
 namespace hg
@@ -29,7 +30,7 @@ namespace hg
 
 			ssvuj::Obj root;
 			float currentHue, currentSwapTime{0}, pulseFactor{0};
-			std::string rootPath;
+			Path rootPath;
 			sf::Color currentMainColor, current3DOverrideColor;
 			std::vector<sf::Color> currentColors;
 
@@ -60,15 +61,15 @@ namespace hg
 			std::vector<ColorData> colorDatas;
 
 			StyleData() = default;
-			StyleData(const ssvuj::Obj& mRoot) : root{mRoot}, currentHue{hueMin} { for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
+			StyleData(const ssvuj::Obj& mRoot, const Path& mPath) : root{mRoot}, currentHue{hueMin}, rootPath{mPath} { for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
 
 			void update(float mFrameTime, float mMult = 1.f);
 			void computeColors();
 			void drawBackground(sf::RenderTarget& mRenderTarget, ssvs::Vec2f mCenterPos, int mSides);
 
-			void setRootPath(const std::string& mPath) { rootPath = mPath; }
+			void setRootPath(const Path& mPath) { rootPath = mPath; }
 
-			inline const std::string& getRootPath() const	{ return rootPath; }
+			inline const Path& getRootPath() const	{ return rootPath; }
 
 
 			inline const sf::Color& getMainColor() const			{ return currentMainColor; }

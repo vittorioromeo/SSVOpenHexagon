@@ -7,6 +7,7 @@
 
 #include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Data/TrackedVariable.h"
+#include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
 {
@@ -16,9 +17,9 @@ namespace hg
 			ssvuj::Obj root;
 
 		public:
-			std::string packPath;
+			Path packPath;
 
-			std::string id						{packPath + ssvuj::as<std::string>(root, "id", "nullId")};
+			std::string id						{packPath.getStr() + ssvuj::as<std::string>(root, "id", "nullId")};
 			std::string name					{ssvuj::as<std::string>(root, "name", "nullName")};
 			std::string description				{ssvuj::as<std::string>(root, "description", "")};
 			std::string author					{ssvuj::as<std::string>(root, "author", "")};
@@ -26,10 +27,10 @@ namespace hg
 			bool selectable						{ssvuj::as<bool>(root, "selectable", true)};
 			std::string musicId					{ssvuj::as<std::string>(root, "musicId", "nullMusicId")};
 			std::string styleId					{ssvuj::as<std::string>(root, "styleId", "nullStyleId")};
-			std::string luaScriptPath			{packPath + ssvuj::as<std::string>(root, "luaFile", "nullLuaPath")};
+			Path luaScriptPath					{packPath + ssvuj::as<std::string>(root, "luaFile", "nullLuaPath")};
 			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "difficultyMults", {})};
 
-			LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
+			LevelData(const ssvuj::Obj& mRoot, const Path& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
 
 			std::string getRootString() const { return ssvuj::getWriteToString(root); }
 	};

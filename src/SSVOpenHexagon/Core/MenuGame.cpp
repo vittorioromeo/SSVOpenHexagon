@@ -410,7 +410,8 @@ namespace hg
 	void MenuGame::drawLevelSelection()
 	{
 		MusicData musicData{assets.getMusicData(levelData->musicId)};
-		PackData packData{assets.getPackData(levelData->packPath.substr(6, levelData->packPath.size() - 7))};
+		const auto& packPathStr(levelData->packPath.getStr());
+		PackData packData{assets.getPackData(packPathStr.substr(6, packPathStr.size() - 7))};
 		const string& packName{packData.name};
 
 		if(Config::getOnline())

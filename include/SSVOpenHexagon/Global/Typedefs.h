@@ -5,9 +5,12 @@
 #ifndef HG_GLOBAL_TYPEDEFS
 #define HG_GLOBAL_TYPEDEFS
 
+#include <SSVUtils/SSVUtils.h>
+
 namespace hg
 {
-	template<typename T, typename TDeleter = std::default_delete<T>> using Uptr = std::unique_ptr<T, TDeleter>;
+	using Path = ssvu::FileSystem::Path;
+	template<typename T, typename TDeleter = std::default_delete<T>> using Uptr = ssvu::Uptr<T, TDeleter>;
 }
 
 #endif
