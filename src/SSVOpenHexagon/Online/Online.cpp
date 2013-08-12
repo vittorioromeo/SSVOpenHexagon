@@ -201,42 +201,23 @@ namespace hg
 
 		string getValidator(const string& mPackPath, const string& mLevelId, const string& mLevelRootString, const string& mStyleRootPath, const string& mLuaScriptPath)
 		{
-			lo << endl;
-			lo << lt("VALIDATOR") << endl;
-			//lo << "mPackPath: " << mPackPath << endl;
-			//lo << "mLevelId: " << mLevelId << endl;
-			//lo << "mLevelRootString: " << mLevelRootString << endl;
-			//lo << "mStyleRootPath: " << mStyleRootPath << endl;
-			//lo << "mLuaScriptPath: " << mLuaScriptPath << endl;
-
 			string luaScriptContents{getFileContents(mLuaScriptPath)};
 			std::set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
 			string toEncrypt;
-
 			toEncrypt += mLevelId;
 			toEncrypt += getControlStripped(mLevelRootString);
 			toEncrypt += getFileContents(mStyleRootPath);
 			toEncrypt += luaScriptContents;
 			for(const auto& lsn : luaScriptNames)
 			{
-				lo << lsn << ", ";
 				string path{mPackPath + "/Scripts/" + lsn};
 				toEncrypt += getFileContents(path);
 			}
-			lo << endl;
-
-			lo << "5 -> " << getMD5Hash(toEncrypt) << endl;
 
 			toEncrypt = getControlStripped(toEncrypt);
-			lo << "6 -> " << getMD5Hash(toEncrypt) << endl;
-
-			const auto& result(getUrlEncoded(mLevelId) + getMD5Hash(toEncrypt));
-
-			lo << result << endl << endl;
-
-			return result;
+			return getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt));
 		}
 
 		string getMD5Hash(const string& mString)	{ return encrypt<Encryption::Type::MD5>(mString); }
@@ -251,7 +232,7 @@ namespace hg
 				const auto& validator(getValidator(l->packPath, l->id, l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(), l->luaScriptPath));
 				validators.addValidator(p.first, validator);
 
-				lo << lt("hg::Online::initalizeValidators") << "Added (" << p.first << "): " << validator << endl;
+				//lo << lt("hg::Online::initalizeValidators") << "Added (" << p.first << "): " << validator << endl;
 			}
 		}
 	}
