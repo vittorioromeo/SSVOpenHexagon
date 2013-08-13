@@ -20,10 +20,10 @@ namespace hg
 		class Server
 		{
 			private:
+				bool running{false};
 				PacketHandler<ClientHandler>& packetHandler;
 				sf::TcpListener listener;
 				std::vector<Uptr<ClientHandler>> clientHandlers;
-				std::thread receiveThread;
 
 				void growIfNeeded()
 				{
@@ -52,19 +52,22 @@ namespace hg
 			public:
 				ssvu::Delegate<void(ClientHandler&)> onClientAccepted;
 
-				Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler)
-				{
-					listener.setBlocking(false);
-					receiveThread = std::thread([&]{ while(true) update(); });
-				}
+				Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler) { listener.setBlocking(false); }
 
 				void start(unsigned int mPort)
 				{
 					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::lo << ssvu::lt("Server") << "Error initalizing listener" << std::endl; return; }
 					else ssvu::lo << ssvu::lt("Server") << "Listener initialized" << std::endl;
 
-					receiveThread.detach();
+					running = true;
+					std::thread([&]{ while(running) update(); }).detach();
 				}
+				inline void stop()
+				{
+					for(auto& ch : clientHandlers) ch->stop();
+					running = false; listener.close();
+				}
+				inline bool isRunning() const { return running; }
 		};
 	}
 }
