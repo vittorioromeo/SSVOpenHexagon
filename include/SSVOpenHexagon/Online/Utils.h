@@ -17,24 +17,16 @@ namespace hg
 
 		namespace Internal
 		{
-			// Array-to-compress building
-			template<unsigned int TIndex, typename TArg> inline void jBuildHelper(ssvuj::Obj& mP, TArg&& mArg) { ssvuj::set(mP, TIndex, mArg); }
-			template<unsigned int TIndex, typename TArg, typename... TArgs> inline void jBuildHelper(ssvuj::Obj& mP, TArg&& mArg, TArgs&&... mArgs) { ssvuj::set(mP, TIndex, mArg); jBuildHelper<TIndex + 1>(mP, mArgs...); }
-
 			// Compression
-			template<typename... TArgs> inline ssvuj::Obj buildJsonArray(TArgs&&... mArgs) { ssvuj::Obj result; Internal::jBuildHelper<0>(result, mArgs...); return result; }
-			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs) { return getZLibCompress(ssvuj::getWriteToString(buildJsonArray(mArgs...))); }
-
-			// Decompression
-			inline ssvuj::Obj getDecompressedJsonString(const std::string& mData) { return ssvuj::readFromString(getZLibDecompress(mData)); }
+			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs) { return getZLibCompress(ssvuj::getWriteToString(ssvuj::getArchived(mArgs...))); }
 		}
 
 		// Build compressed packet
 		template<unsigned int TType> inline sf::Packet buildCPacket() { sf::Packet result; result << TType; return result; }
 		template<unsigned int TType, typename... TArgs> inline sf::Packet buildCPacket(TArgs&&... mArgs) { sf::Packet result{buildCPacket<TType>()}; result << Internal::buildCJsonString(mArgs...); return result; }
 
-		// Decompress packet to ssvuj value
-		inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return Internal::getDecompressedJsonString(data); }
+		// Decompress packet to obj
+		inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return ssvuj::readFromString(getZLibDecompress(data)); }
 	}
 }
 
