@@ -20,6 +20,7 @@ namespace hg
 		{
 			private:
 				static unsigned int lastUid;
+				bool running{true};
 				unsigned int uid{lastUid++}, untilTimeout{5};
 				PacketHandler<ClientHandler> packetHandler;
 
@@ -32,7 +33,7 @@ namespace hg
 
 					std::thread([&]
 					{
-						while(true)
+						while(running)
 						{
 							std::this_thread::sleep_for(std::chrono::milliseconds(800));
 							if(!isBusy() || --untilTimeout > 0) continue;
@@ -43,6 +44,7 @@ namespace hg
 					}).detach();
 				}
 
+				inline void stop() { running = false; }
 				inline unsigned int getUid() const { return uid; }
 				inline void refreshTimeout() { untilTimeout = 5; }
 		};
