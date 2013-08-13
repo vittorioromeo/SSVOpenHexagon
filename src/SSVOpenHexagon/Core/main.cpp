@@ -19,10 +19,11 @@ using namespace hg;
 
 void createProfilesFolder()
 {
-	if(exists("Profiles/")) return;
+	Path profilesPath{"Profiles/"};
+	if(profilesPath.exists()) return;
 
 	lo << lt("::createProfilesFolder") << "Profiles folder does not exist, creating" << endl;
-	createFolder("Profiles/");
+	createFolder(profilesPath);
 }
 
 int main(int argc, char* argv[])
