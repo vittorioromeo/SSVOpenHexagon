@@ -74,7 +74,7 @@ namespace hg
 			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score" << endl; };
 			clientPHandler[FromServer::SendUserStats] = [](Client&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats" << endl; };
-			clientPHandler[FromServer::SendFriendsScores] = [](Client&, sf::Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0));};
+			clientPHandler[FromServer::SendFriendsScores] = [](Client&, sf::Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0)); };
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, sf::Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, sf::Packet&)			{ newUserReg = false; };
 
@@ -129,8 +129,8 @@ namespace hg
 
 			thread([]
 			{
-				//if(client->connect("127.0.0.1", 54000))
-				if(client->connect(hostIp, hostPort))
+				if(client->connect("127.0.0.1", 54000))
+				//if(client->connect(hostIp, hostPort))
 				{
 					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
 					connectionStatus = ConnectStat::Connected; return;
