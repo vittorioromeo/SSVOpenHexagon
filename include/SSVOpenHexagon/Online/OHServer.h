@@ -89,17 +89,19 @@ namespace ssvuj
 			using T = hg::Online::UserStats;
 			inline static void fromObj(T& mValue, const Obj& mObj)
 			{
-				mValue.deaths = as<long>(mObj, "dth");
-				mValue.minutesSpentPlaying = as<long>(mObj, "msp");
-				mValue.restarts = as<long>(mObj, "rst");
-				mValue.trackedNames = as<std::vector<std::string>>(mObj, "tn");
+				extractMap(mObj,
+					"dth", mValue.deaths,
+					"msp", mValue.minutesSpentPlaying,
+					"rst", mValue.restarts,
+					"tn", mValue.trackedNames);
 			}
 			inline static void toObj(Obj& mObj, const T& mValue)
 			{
-				set(mObj, "dth", mValue.deaths);
-				set(mObj, "msp", mValue.minutesSpentPlaying);
-				set(mObj, "rst", mValue.restarts);
-				for(auto i(0u); i < mValue.trackedNames.size(); ++i) set(mObj["tn"], i, mValue.trackedNames[i]);
+				archiveMap(mObj,
+					"dth", mValue.deaths,
+					"msp", mValue.minutesSpentPlaying,
+					"rst", mValue.restarts,
+					"tn", mValue.trackedNames);
 			}
 		};
 		template<> struct Converter<hg::Online::User>
@@ -107,15 +109,17 @@ namespace ssvuj
 			using T = hg::Online::User;
 			inline static void fromObj(T& mValue, const Obj& mObj)
 			{
-				mValue.passwordHash = as<std::string>(mObj, "ph");
-				mValue.email = as<std::string>(mObj, "em");
-				mValue.stats = as<hg::Online::UserStats>(mObj, "st");
+				extractMap(mObj,
+					"ph", mValue.passwordHash,
+					"em", mValue.email,
+					"st", mValue.stats);
 			}
 			inline static void toObj(Obj& mObj, const T& mValue)
 			{
-				set(mObj, "ph", mValue.passwordHash);
-				set(mObj, "em", mValue.email);
-				set(mObj, "st", mValue.stats);
+				archiveMap(mObj,
+					"ph", mValue.passwordHash,
+					"em", mValue.email,
+					"st", mValue.stats);
 			}
 		};
 		template<> struct Converter<hg::Online::UserDB>
@@ -184,6 +188,12 @@ namespace hg
 
 				inline void forceLogout(unsigned int mUid)			{ if(logins.has(mUid)) logins.erase(mUid); }
 				inline void logout(const std::string& mUsername)	{ if(logins.has(mUsername)) logins.erase(mUsername); }
+				inline std::vector<std::string> getLoggedUsernames() const
+				{
+					std::vector<std::string> result;
+					for(const auto& p : logins.getMap1()) result.push_back(p.second);
+					return result;
+				}
 		};
 
 		struct OHServer
@@ -214,17 +224,15 @@ namespace hg
 				pHandler[FromClient::Login] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					bool newUserRegistration{false};
-					ssvuj::Obj request{getDecompressedPacket(mP)};
-					std::string username{ssvuj::as<std::string>(request, 0)};
+
+					std::string username, password, passwordHash;
+					ssvuj::extract(getDecompressedPacket(mP), username, password, passwordHash);
 
 					if(loginDB.isLoggedIn(username))
 					{
 						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "User already logged in" << std::endl;
 						mMS.send(buildCPacket<FromServer::LoginResponseInvalid>()); return;
 					}
-
-					std::string password{ssvuj::as<std::string>(request, 1)};
-					std::string passwordHash{getMD5Hash(password + HG_SKEY1 + HG_SKEY2 + HG_SKEY3)};
 
 					if(users.hasUser(username))
 					{
@@ -257,13 +265,10 @@ namespace hg
 				};
 				pHandler[FromClient::SendScore] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					ssvuj::Obj request{getDecompressedPacket(mP)};
-					std::string username{ssvuj::as<std::string>(request, 0)};
+					std::string username, levelId, validator; float diffMult, score;
+					ssvuj::extract(getDecompressedPacket(mP), username, levelId, validator, diffMult, score);
 
 					if(!loginDB.isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return; }
-
-					std::string levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
-					float diffMult{ssvuj::as<float>(request, 3)}, score{ssvuj::as<float>(request, 4)};
 
 					if(!scores.hasLevel(levelId))
 					{
@@ -284,17 +289,14 @@ namespace hg
 				};
 				pHandler[FromClient::RequestLeaderboard] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					ssvuj::Obj request{getDecompressedPacket(mP)};
-					std::string username{ssvuj::as<std::string>(request, 0)};
+					std::string username, levelId, validator; float diffMult;
+					ssvuj::extract(getDecompressedPacket(mP), username, levelId, validator, diffMult);
 
 					if(!loginDB.isLoggedIn(username))
 					{
 						if(verbose) ssvu::lo << ssvu::lt("PacketHandler") << "User not logged in!" << std::endl;
 						mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return;
 					}
-
-					std::string levelId{ssvuj::as<std::string>(request, 1)}, validator{ssvuj::as<std::string>(request, 2)};
-					float diffMult{ssvuj::as<float>(request, 3)};
 
 					if(!scores.hasLevel(levelId)) { mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return; }
 					auto& l(scores.getLevel(levelId));
@@ -326,15 +328,15 @@ namespace hg
 					}
 					ssvuj::set(response, "id", levelId);
 
-					float playerScore{l.getPlayerScore(username, diffMult)};
-					playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
+					float playerScore{l.getPlayerScore(username, diffMult)}; playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
+					auto playerPosition(l.getPlayerPosition(username, diffMult)); playerPosition == -1 ? ssvuj::set(response, "pp", "NULL") : ssvuj::set(response, "pp", playerPosition);
+
 					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteToString(response)));
 				};
 				pHandler[FromClient::NUR_Email] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					ssvuj::Obj request{getDecompressedPacket(mP)};
-					std::string username{ssvuj::as<std::string>(request, 0)};
-					std::string email{ssvuj::as<std::string>(request, 1)};
+					std::string username, email;
+					ssvuj::extract(getDecompressedPacket(mP), username, email);
 
 					users.setEmail(username, email);
 
@@ -367,8 +369,9 @@ namespace hg
 				};
 				pHandler[FromClient::US_AddFriend] = [&](ClientHandler&, sf::Packet& mP)
 				{
-					ssvuj::Obj request{getDecompressedPacket(mP)};
-					std::string username{ssvuj::as<std::string>(request, 0)}, friendUsername{ssvuj::as<std::string>(request, 1)};
+					std::string username, friendUsername;
+					ssvuj::extract(getDecompressedPacket(mP), username, friendUsername);
+
 					if(username == friendUsername || !users.hasUser(friendUsername)) return;
 
 					auto& tn(users.getUser(username).stats.trackedNames);
@@ -383,13 +386,12 @@ namespace hg
 
 				pHandler[FromClient::RequestFriendsScores] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					ssvuj::Obj request{getDecompressedPacket(mP)};
-					std::string username{ssvuj::as<std::string>(request, 0)}, levelId{ssvuj::as<std::string>(request, 1)};
+					std::string username, levelId; float diffMult;
+					ssvuj::extract(getDecompressedPacket(mP), username, levelId, diffMult);
 
 					if(!scores.hasLevel(levelId)) return;
 					const auto& l(scores.getLevel(levelId));
 
-					float diffMult{ssvuj::as<float>(request, 2)};
 					ssvuj::Obj response;
 
 					for(const auto& n : users.getUser(username).stats.trackedNames)
@@ -405,11 +407,9 @@ namespace hg
 
 				pHandler[FromClient::Logout] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					ssvuj::Obj request{getDecompressedPacket(mP)};
-					std::string username{ssvuj::as<std::string>(request, 0)};
+					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
 					if(!loginDB.isLoggedIn(username)) return;
 					loginDB.logout(username);
-
 					if(verbose)  ssvu::lo << ssvu::lt("PacketHandler") << username << " logged out" << std::endl;
 					mMS.send(buildCPacket<FromServer::SendLogoutValid>());
 				};
@@ -432,19 +432,42 @@ namespace hg
 
 			inline void start()
 			{
-				//server.start(54000);
-				server.start(27273);
+				server.start(54000);
+				//server.start(27273);
 
+				// This thread gets user input
 				std::thread([&]
 				{
-					while(true)
+					std::string input;
+					while(server.isRunning())
 					{
-						std::this_thread::sleep_for(std::chrono::seconds(30));
-						saveIfNeeded();
+						std::cin >> input;
+						if(input == "exit")
+						{
+							ssvu::lo << "Stopping server... saving if needed" << std::endl;
+							saveIfNeeded(); server.stop();
+						}
+						else if(input == "verbose")
+						{
+							ssvu::lo << ssvu::lt("Verbose mode") << (verbose ? "off" : "on") << std::endl;
+							verbose = !verbose;
+						}
+						else if(input == "print_users")
+						{
+							for(const auto& u : users.getUsers()) ssvu::lo << u.first << std::endl;
+						}
+						else if(input == "print_logins")
+						{
+							for(const auto& l : loginDB.getLoggedUsernames()) ssvu::lo << l << std::endl;
+						}
 					}
-				}).detach();;
+				}).detach();
 
-				while(true) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
+				// This thread saves every 30 seconds, if needed
+				std::thread([&]{ while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::seconds(30)); saveIfNeeded(); }}).detach();
+
+				// This loop keeps the server alive
+				while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
 			}
 		};
 	}
