@@ -37,7 +37,7 @@ namespace hg
 			std::string scoresMessage;
 			float exitTimer{0}, currentCreditsId{0};
 			bool mustTakeScreenshot{false};
-			std::string currentLeaderboard, currentPlayerScore, enteredStr, leaderboardString, friendsString;
+			std::string currentLeaderboard, enteredStr, leaderboardString, friendsString;
 			std::vector<char> enteredChars;
 			std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "creditsBar2d.png", "creditsBar2d.png"};
 
