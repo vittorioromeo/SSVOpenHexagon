@@ -198,6 +198,8 @@ namespace hg
 
 		struct OHServer
 		{
+			ssvu::CommandLine::CmdLine cmdLine;
+
 			bool verbose{false};
 			bool modifiedUsers{false};
 			bool modifiedScores{false};
@@ -435,31 +437,17 @@ namespace hg
 				server.start(54000);
 				//server.start(27273);
 
+				initCommands();
+
 				// This thread gets user input
 				std::thread([&]
 				{
-					std::string input;
-					while(server.isRunning())
+					while(true)
 					{
-						std::cin >> input;
-						if(input == "exit")
-						{
-							ssvu::lo << "Stopping server... saving if needed" << std::endl;
-							saveIfNeeded(); server.stop();
-						}
-						else if(input == "verbose")
-						{
-							ssvu::lo << ssvu::lt("Verbose mode") << (verbose ? "off" : "on") << std::endl;
-							verbose = !verbose;
-						}
-						else if(input == "print_users")
-						{
-							for(const auto& u : users.getUsers()) ssvu::lo << u.first << std::endl;
-						}
-						else if(input == "print_logins")
-						{
-							for(const auto& l : loginDB.getLoggedUsernames()) ssvu::lo << l << std::endl;
-						}
+						std::string input;
+						try { if(std::getline(std::cin, input)) cmdLine.parseCmdLine(ssvu::getSplit(input, ' ')); }
+						catch(const std::runtime_error& mException) { ssvu::lo << ssvu::lt("CommandLine") << mException.what() << std::endl; }
+						catch(...) { }
 					}
 				}).detach();
 
@@ -468,6 +456,82 @@ namespace hg
 
 				// This loop keeps the server alive
 				while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
+			}
+
+			void initCommands()
+			{
+				// Help
+				initCmdHelp();
+
+				// Exit
+				{
+					auto& cmd(cmdLine.create({"exit", "quit", "close", "abort"}));
+					cmd.setDesc("Stops the server.");
+					cmd += [&]
+					{
+						ssvu::lo << "Stopping server... saving if needed" << std::endl;
+						saveIfNeeded(); server.stop();
+					};
+				}
+
+				// Toggle verbosity
+				{
+					auto& cmd(cmdLine.create({"verbose", "verbosity"}));
+					cmd.setDesc("Sets log verbosity.");
+
+					auto& arg(cmd.createArg<bool>());
+					arg.setName("Enable verbosity?");
+					arg.setBriefDesc("Controls whether verbosity is enabled or not.");
+
+					cmd += [&]
+					{
+						verbose = arg.get();
+						ssvu::lo << ssvu::lt("Verbose mode") << (verbose ? "on" : "off") << std::endl;
+					};
+				}
+
+				// Data printing
+				{
+					auto& cmd(cmdLine.create({"log", "print", "show"}));
+					cmd.setDesc("Logs current server data.");
+
+					auto& arg(cmd.createArg<std::string>());
+					arg.setName("What to print?");
+					arg.setBriefDesc("Possible values: 'users', 'logins'.");
+
+					cmd += [&]
+					{
+						if(arg.get() == "users")		{ for(const auto& u : users.getUsers()) ssvu::lo << u.first << std::endl; }
+						else if(arg.get() == "logins")	{ for(const auto& l : loginDB.getLoggedUsernames()) ssvu::lo << l << std::endl; }
+					};
+				}
+			}
+
+			std::string getBriefHelp(const ssvu::CommandLine::Cmd& mCmd) { return mCmd.getNamesStr() + " " + mCmd.getArgsStr() + " " + mCmd.getOptArgsStr() + " " + mCmd.getFlagsStr() + " " + mCmd.getArgPacksStr(); }
+			void initCmdHelp()
+			{
+				auto& cmd(cmdLine.create({"?", "help"}));
+				cmd.setDesc("Show help for all commands or a single command.");
+
+				auto& optArg(cmd.createOptArg<std::string>(""));
+				optArg.setName("Command name");
+				optArg.setBriefDesc("Name of the command to get help for.");
+				optArg.setDesc("Leave blank to get general help.");
+
+				auto& flagVerbose(cmd.createFlag("v", "verbose"));
+				flagVerbose.setBriefDesc("Verbose general help?");
+
+				cmd += [&]
+				{
+					if(!optArg)
+					{
+						ssvu::lo << ssvu::lt("git-ws help") << std::endl << std::endl;
+						for(const auto& c : cmdLine.getCmds()) ssvu::lo << getBriefHelp(*c) << std::endl << (flagVerbose ? c->getHelpStr() : "") << std::endl;
+					}
+
+					auto& c(cmdLine.findCmd(optArg.get()));
+					ssvu::lo << std::endl << getBriefHelp(c) << std::endl << c.getHelpStr();
+				};
 			}
 		};
 	}
