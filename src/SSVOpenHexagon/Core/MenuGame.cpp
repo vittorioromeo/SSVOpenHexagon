@@ -233,7 +233,8 @@ namespace hg
 		ssvuj::Obj root{readFromString(currentLeaderboard)};
 		if(as<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
 
-		currentPlayerScore = as<string>(root, "ps");
+		auto currentPlayerScore = as<string>(root, "ps");
+		string currentPlayerPosition = as<string>(root, "pp");
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
@@ -260,10 +261,9 @@ namespace hg
 		string result;
 		for(auto i(0u); i < recordPairs.size(); ++i)
 		{
-			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount -1)
+			if(currentPlayerScore != "NULL" && currentPlayerScore != "" && !foundPlayer && i == leaderboardRecordCount - 1)
 			{
-				ssvuj::Obj playerScoreRoot{readFromString(currentPlayerScore)};
-				result.append("...(" + toStr(as<int>(playerScoreRoot, "p")) + ") " + assets.pGetName() + ": " + toStr(as<float>(playerScoreRoot, "s")) + "\n");
+				result.append("...(" + currentPlayerPosition + ") " + assets.pGetName() + ": " + toStr(currentPlayerScore) + "\n");
 				break;
 			}
 
