@@ -188,12 +188,7 @@ namespace hg
 
 				inline void forceLogout(unsigned int mUid)			{ if(logins.has(mUid)) logins.erase(mUid); }
 				inline void logout(const std::string& mUsername)	{ if(logins.has(mUsername)) logins.erase(mUsername); }
-				inline std::vector<std::string> getLoggedUsernames() const
-				{
-					std::vector<std::string> result;
-					for(const auto& p : logins.getMap1()) result.push_back(p.second);
-					return result;
-				}
+				inline std::vector<std::string> getLoggedUsernames() const { return ssvu::getKeys(logins.getMap2()); }
 		};
 
 		struct OHServer
@@ -460,7 +455,6 @@ namespace hg
 
 			void initCommands()
 			{
-				// Help
 				initCmdHelp();
 
 				// Exit
