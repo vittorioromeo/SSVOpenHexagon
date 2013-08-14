@@ -148,26 +148,26 @@ namespace hg
 			if(state == s::SLPSelect) 	{  --profileIndex; }
 			else if(state == s::SMain)	{ setIndex(currentIndex - 1); }
 			else if(isInMenu())			{ getCurrentMenu()->decrease(); }
-		}, t::Single);
+		}, t::Once);
 		game.addInput(Config::getTriggerRotateCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) 	{ ++profileIndex; }
 			else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
 			else if(isInMenu())			{ getCurrentMenu()->increase(); }
-		}, t::Single);
+		}, t::Once);
 		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SMain)		{ ++difficultyMultIndex; }
 			else if(isInMenu())			{ getCurrentMenu()->previous(); }
-		}, t::Single);
+		}, t::Once);
 		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SMain)		{ --difficultyMultIndex; }
 			else if(isInMenu())			{ getCurrentMenu()->next(); }
-		}, t::Single);
+		}, t::Once);
 		game.addInput(Config::getTriggerRestart(), [&](float)
 		{
 			assets.playSound("beep.ogg");
@@ -183,14 +183,14 @@ namespace hg
 			else if(state == s::ETUser)		{ if(!enteredStr.empty()) { lrUser = enteredStr; state = s::ETPass; enteredStr = ""; } }
 			else if(state == s::ETPass)		{ if(!enteredStr.empty()) { lrPass = enteredStr; state = s::SLogging; enteredStr = ""; Online::tryLogin(lrUser, lrPass); } }
 			else if(state == s::ETEmail)	{ if(!enteredStr.empty()) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
-		}, t::Single);
-		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Single);
-		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Single);
-		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Single);
+		}, t::Once);
+		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Once);
+		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
+		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
 			assets.playSound("beep.ogg"); if(state == s::SMain) { auto p(assets.getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = assets.getLevelIdsByPack(p[packIndex]); setIndex(0); }
-		}, t::Single);
+		}, t::Once);
 		game.addInput(Config::getTriggerExit(), [&](float)
 		{
 			assets.playSound("beep.ogg");
@@ -200,12 +200,12 @@ namespace hg
 				else state = s::SMain;
 			}
 			else if(state == s::ETFriend || state == s::SLPSelect) state = s::SMain;
-		}, t::Single);
+		}, t::Once);
 
 		game.addInput(Config::getTriggerExit(), [&](float mFrameTime) { if(state != s::MOpts) exitTimer += mFrameTime; });
-		game.addInput(Config::getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Single);
-		game.addInput({{k::LAlt, k::Return}}, [&](float){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Single);
-		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Single);
+		game.addInput(Config::getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Once);
+		game.addInput({{k::LAlt, k::Return}}, [&](float){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Once);
+		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
 	}
 
 	void MenuGame::setIndex(int mIndex)
