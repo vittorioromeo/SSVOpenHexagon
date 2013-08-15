@@ -73,7 +73,7 @@ namespace hg
 			}
 			inline sf::Text& renderTextImpl(const std::string& mStr, sf::Text& mText, ssvs::Vec2f mPosition, float mSize)
 			{
-				unsigned int originalSize{mText.getCharacterSize()};
+				auto originalSize(mText.getCharacterSize());
 				mText.setCharacterSize(mSize);
 				renderTextImpl(mStr, mText, mPosition);
 				mText.setCharacterSize(originalSize);

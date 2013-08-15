@@ -44,7 +44,7 @@ namespace hg
 	}
 	void CPlayer::drawPivot()
 	{
-		unsigned int sides{hexagonGame.getSides()};
+		auto sides(hexagonGame.getSides());
 		float div{360.f / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
 		if(Config::getBlackAndWhite()) colorB = Color::Black;
@@ -52,12 +52,12 @@ namespace hg
 
 		for(auto i(0u); i < sides; ++i)
 		{
-			float angle{div * 2.f * i};
+			float sAngle{div * 2.f * i};
 
-			Vec2f p1{getOrbitFromDegrees(startPos, angle - div, radius)};
-			Vec2f p2{getOrbitFromDegrees(startPos, angle + div, radius)};
-			Vec2f p3{getOrbitFromDegrees(startPos, angle + div, radius + baseThickness)};
-			Vec2f p4{getOrbitFromDegrees(startPos, angle - div, radius + baseThickness)};
+			Vec2f p1{getOrbitFromDegrees(startPos, sAngle - div, radius)};
+			Vec2f p2{getOrbitFromDegrees(startPos, sAngle + div, radius)};
+			Vec2f p3{getOrbitFromDegrees(startPos, sAngle + div, radius + baseThickness)};
+			Vec2f p4{getOrbitFromDegrees(startPos, sAngle - div, radius + baseThickness)};
 
 			vertices2.append({p1, colorMain});
 			vertices2.append({p2, colorMain});
@@ -81,12 +81,12 @@ namespace hg
 
 		for(auto i(0u); i < hexagonGame.getSides(); ++i)
 		{
-			float angle{div * 2.f * i};
+			float sAngle{div * 2.f * i};
 
-			Vec2f p1{getOrbitFromDegrees(pos, angle - div, radius)};
-			Vec2f p2{getOrbitFromDegrees(pos, angle + div, radius)};
-			Vec2f p3{getOrbitFromDegrees(pos, angle + div, radius + thickness)};
-			Vec2f p4{getOrbitFromDegrees(pos, angle - div, radius + thickness)};
+			Vec2f p1{getOrbitFromDegrees(pos, sAngle - div, radius)};
+			Vec2f p2{getOrbitFromDegrees(pos, sAngle + div, radius)};
+			Vec2f p3{getOrbitFromDegrees(pos, sAngle + div, radius + thickness)};
+			Vec2f p4{getOrbitFromDegrees(pos, sAngle - div, radius + thickness)};
 
 			verticesDeath.append({p1, colorMain});
 			verticesDeath.append({p2, colorMain});

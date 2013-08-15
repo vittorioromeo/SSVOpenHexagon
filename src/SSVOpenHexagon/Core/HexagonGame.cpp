@@ -89,7 +89,7 @@ namespace hg
 
 		// 3D Cameras cleanup
 		depthCameras.clear();
-		unsigned int depth(styleData._3dDepth);
+		auto depth(styleData._3dDepth);
 		if(depth > Config::get3DMaxDepth()) depth = Config::get3DMaxDepth();
 		for(auto i(0u); i < depth; ++i) depthCameras.push_back({window, {}});
 	}
