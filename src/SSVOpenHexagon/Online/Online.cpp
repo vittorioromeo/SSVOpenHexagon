@@ -59,24 +59,24 @@ namespace hg
 
 		void initializeClient()
 		{
-			clientPHandler[FromServer::LoginResponseValid] = [](Client&, sf::Packet& mP)
+			clientPHandler[FromServer::LoginResponseValid] = [](Client&, Packet& mP)
 			{
 				lo << lt("PacketHandler") << "Successfully logged in!" << endl;
 				loginStatus = LoginStat::Logged;
 				newUserReg = ssvuj::as<bool>(getDecompressedPacket(mP), 0);
 				trySendInitialRequests();
 			};
-			clientPHandler[FromServer::LoginResponseInvalid] = [](Client&, sf::Packet&)		{ loginStatus = LoginStat::Unlogged; lo << lt("PacketHandler") << "Login invalid!" << endl; };
-			clientPHandler[FromServer::RequestInfoResponse] = [](Client&, sf::Packet& mP)	{ ssvuj::Obj r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
-			clientPHandler[FromServer::SendLeaderboard] = [](Client&, sf::Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
-			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, sf::Packet&)	{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard" << endl; gettingLeaderboard = false; };
-			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score" << endl; };
-			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, sf::Packet&)	{ lo << lt("PacketHandler") << "Server refused score" << endl; };
-			clientPHandler[FromServer::SendUserStats] = [](Client&, sf::Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
-			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, sf::Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats" << endl; };
-			clientPHandler[FromServer::SendFriendsScores] = [](Client&, sf::Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0)); };
-			clientPHandler[FromServer::SendLogoutValid] = [](Client&, sf::Packet&)			{ loginStatus = LoginStat::Unlogged; };
-			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, sf::Packet&)			{ newUserReg = false; };
+			clientPHandler[FromServer::LoginResponseInvalid] = [](Client&, Packet&)		{ loginStatus = LoginStat::Unlogged; lo << lt("PacketHandler") << "Login invalid!" << endl; };
+			clientPHandler[FromServer::RequestInfoResponse] = [](Client&, Packet& mP)	{ ssvuj::Obj r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
+			clientPHandler[FromServer::SendLeaderboard] = [](Client&, Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
+			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, Packet&)	{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard" << endl; gettingLeaderboard = false; };
+			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score" << endl; };
+			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, Packet&)	{ lo << lt("PacketHandler") << "Server refused score" << endl; };
+			clientPHandler[FromServer::SendUserStats] = [](Client&, Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
+			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats" << endl; };
+			clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0)); };
+			clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&)			{ loginStatus = LoginStat::Unlogged; };
+			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&)			{ newUserReg = false; };
 
 			client = Uptr<Client>(new Client(clientPHandler));
 
@@ -93,7 +93,7 @@ namespace hg
 							loginStatus = LoginStat::Unlogged;
 						}
 					}
-					this_thread::sleep_for(std::chrono::milliseconds(1000));
+					this_thread::sleep_for(chrono::milliseconds(1000));
 				}
 			}).detach();
 		}

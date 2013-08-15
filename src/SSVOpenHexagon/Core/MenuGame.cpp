@@ -487,7 +487,7 @@ namespace hg
 		renderText("insert text", txtProf,				{20, 768 - 375});
 		renderText("press enter when done", txtProf, 	{20, 768 - 335});
 		renderText("keep esc pressed to exit", txtProf, {20, 768 - 315});
-		renderText(state == s::ETPass ? std::string(enteredStr.size(), '*') : enteredStr, txtLName, {20, 768 - 245 - 40}, (state == s::ETEmail) ? 32 : 65);
+		renderText(state == s::ETPass ? string(enteredStr.size(), '*') : enteredStr, txtLName, {20, 768 - 245 - 40}, (state == s::ETEmail) ? 32 : 65);
 	}
 	void MenuGame::drawProfileSelection()
 	{

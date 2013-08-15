@@ -161,5 +161,5 @@ namespace hg
 	void HGAssets::stopMusics()	{ musicPlayer.stop(); }
 	void HGAssets::stopSounds()	{ soundPlayer.stop(); }
 	void HGAssets::playSound(const string& mId, SoundPlayer::Mode mMode)	{ if(Config::getNoSound() || !assetManager.has<SoundBuffer>(mId)) return; soundPlayer.play(assetManager.get<SoundBuffer>(mId), mMode); }
-	void HGAssets::playMusic(const std::string& mId, Time mPlayingOffset)	{ if(assetManager.has<Music>(mId)) musicPlayer.play(assetManager.get<Music>(mId), mPlayingOffset); }
+	void HGAssets::playMusic(const string& mId, Time mPlayingOffset)		{ if(assetManager.has<Music>(mId)) musicPlayer.play(assetManager.get<Music>(mId), mPlayingOffset); }
 }

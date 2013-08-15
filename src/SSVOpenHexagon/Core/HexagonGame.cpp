@@ -83,7 +83,7 @@ namespace hg
 		setSides(levelStatus.sides);
 
 		// Reset zoom
-		overlayCamera.setView({{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, ssvs::Vec2f(Config::getWidth(), Config::getHeight())});
+		overlayCamera.setView({{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, Vec2f(Config::getWidth(), Config::getHeight())});
 		backgroundCamera.setView({{0, 0}, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}});
 		backgroundCamera.setRotation(0);
 
