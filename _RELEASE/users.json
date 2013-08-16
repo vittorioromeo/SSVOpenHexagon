@@ -6,9 +6,21 @@
 		"ph" : "",
 		"st" : 
 		{
-			"dth" : 5,
+			"dth" : 10,
 			"msp" : 0,
-			"rst" : 15,
+			"rst" : 20,
+			"tn" : null
+		}
+	},
+	"aa" : 
+	{
+		"em" : "a",
+		"ph" : "",
+		"st" : 
+		{
+			"dth" : 1,
+			"msp" : 0,
+			"rst" : 0,
 			"tn" : null
 		}
 	},
@@ -45,6 +57,18 @@
 			"dth" : 1,
 			"msp" : 0,
 			"rst" : 0,
+			"tn" : null
+		}
+	},
+	"bb" : 
+	{
+		"em" : "bb",
+		"ph" : "",
+		"st" : 
+		{
+			"dth" : 6,
+			"msp" : 0,
+			"rst" : 5,
 			"tn" : null
 		}
 	},
@@ -202,6 +226,18 @@
 			"msp" : 0,
 			"rst" : 0,
 			"tn" : [ "tanaka", "matsumoto" ]
+		}
+	},
+	"newbro" : 
+	{
+		"em" : "newbro",
+		"ph" : "",
+		"st" : 
+		{
+			"dth" : 0,
+			"msp" : 0,
+			"rst" : 0,
+			"tn" : null
 		}
 	},
 	"newtest" : 

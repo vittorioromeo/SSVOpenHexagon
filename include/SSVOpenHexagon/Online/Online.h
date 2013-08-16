@@ -65,6 +65,7 @@ namespace hg
 		void invalidateCurrentFriendsScores();
 		const std::string& getCurrentLeaderboard();
 		const ssvuj::Obj& getCurrentFriendScores();
+		void setForceLeaderboardRefresh(bool mValue);
 
 		float getServerVersion();
 		std::string getServerMessage();
