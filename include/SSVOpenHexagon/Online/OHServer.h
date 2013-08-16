@@ -14,29 +14,21 @@ namespace hg
 {
 	namespace Online
 	{
-		struct UserStats
-		{
-			unsigned int minutesSpentPlaying{0}; // msp
-			unsigned int deaths{0}; // dth
-			unsigned int restarts{0}; // rst
-			std::vector<std::string> trackedNames; // tn
-		};
-		struct User
-		{
-			std::string passwordHash, email; // ph, em
-			UserStats stats; // st
-		};
+		struct UserStats { unsigned int minutesSpentPlaying{0}, deaths{0}, restarts{0}; std::vector<std::string> trackedNames; };
+		struct User	{ std::string passwordHash, email; UserStats stats; };
 		class UserDB
 		{
+			template<typename T> friend struct ssvuj::Internal::Converter;
+
 			private:
 				std::unordered_map<std::string, User> users;
 
 			public:
-				inline bool hasUser(const std::string& mUsername) const { return users.count(mUsername) > 0; }
-				inline User& getUser(const std::string& mUsername) { return users[mUsername]; }
-				inline void registerUser(const std::string& mUsername, const User& mUser) { users[mUsername] = mUser; }
-				inline const std::unordered_map<std::string, User>& getUsers() const { return users; }
-				inline void setEmail(const std::string& mUsername, const std::string& mEmail) { users[mUsername].email = mEmail; }
+				inline bool hasUser(const std::string& mUsername) const							{ return users.count(mUsername) > 0; }
+				inline User& getUser(const std::string& mUsername)								{ return users[mUsername]; }
+				inline void registerUser(const std::string& mUsername, const User& mUser)		{ users[mUsername] = mUser; }
+				inline const std::unordered_map<std::string, User>& getUsers() const			{ return users; }
+				inline void setEmail(const std::string& mUsername, const std::string& mEmail)	{ users[mUsername].email = mEmail; }
 		};
 		class LevelScoreDB
 		{
@@ -52,7 +44,7 @@ namespace hg
 
 					auto& ss(sortedScores[mDiffMult]);
 					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) if(itr->second == mUsername) { ss.erase(itr); break; }
-					ss.insert({mScore, mUsername});
+					ss.emplace(mScore, mUsername);
 
 					unsigned int i{1};
 					for(auto ritr(ss.rbegin()); ritr != ss.rend(); ++ritr) userPositions[mDiffMult][ritr->second] = i++;
@@ -68,6 +60,8 @@ namespace hg
 		};
 		class ScoreDB
 		{
+			template<typename T> friend struct ssvuj::Internal::Converter;
+
 			private:
 				std::unordered_map<std::string, LevelScoreDB> levels;
 
@@ -87,52 +81,20 @@ namespace ssvuj
 		template<> struct Converter<hg::Online::UserStats>
 		{
 			using T = hg::Online::UserStats;
-			inline static void fromObj(T& mValue, const Obj& mObj)
-			{
-				extractMap(mObj,
-					"dth", mValue.deaths,
-					"msp", mValue.minutesSpentPlaying,
-					"rst", mValue.restarts,
-					"tn", mValue.trackedNames);
-			}
-			inline static void toObj(Obj& mObj, const T& mValue)
-			{
-				archiveMap(mObj,
-					"dth", mValue.deaths,
-					"msp", mValue.minutesSpentPlaying,
-					"rst", mValue.restarts,
-					"tn", mValue.trackedNames);
-			}
+			inline static void fromObj(T& mValue, const Obj& mObj)	{ extractMap(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
+			inline static void toObj(Obj& mObj, const T& mValue)	{ archiveMap(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
 		};
 		template<> struct Converter<hg::Online::User>
 		{
 			using T = hg::Online::User;
-			inline static void fromObj(T& mValue, const Obj& mObj)
-			{
-				extractMap(mObj,
-					"ph", mValue.passwordHash,
-					"em", mValue.email,
-					"st", mValue.stats);
-			}
-			inline static void toObj(Obj& mObj, const T& mValue)
-			{
-				archiveMap(mObj,
-					"ph", mValue.passwordHash,
-					"em", mValue.email,
-					"st", mValue.stats);
-			}
+			inline static void fromObj(T& mValue, const Obj& mObj)	{ extractMap(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
+			inline static void toObj(Obj& mObj, const T& mValue)	{ archiveMap(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
 		};
 		template<> struct Converter<hg::Online::UserDB>
 		{
 			using T = hg::Online::UserDB;
-			inline static void fromObj(T& mValue, const Obj& mObj)
-			{
-				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr) mValue.registerUser(as<std::string>(itr.key()), as<hg::Online::User>(*itr));
-			}
-			inline static void toObj(Obj& mObj, const T& mValue)
-			{
-				for(const auto& p : mValue.getUsers()) set(mObj, p.first, p.second);
-			}
+			inline static void fromObj(T& mValue, const Obj& mObj)	{ mValue.users = as<decltype(mValue.users)>(mObj); }
+			inline static void toObj(Obj& mObj, const T& mValue)	{ set(mObj, mValue.users); } // TODO: can this be prettier?
 		};
 		template<> struct Converter<hg::Online::LevelScoreDB>
 		{
@@ -141,7 +103,7 @@ namespace ssvuj
 			{
 				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
 				{
-					if(as<std::string>(itr.key()) == "validator") continue;
+					if(as<std::string>(itr.key()) == "validator") continue; // TODO: what?
 					for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(as<std::string>(itr.key())), as<std::string>((*itr)[i], 0), as<float>((*itr)[i], 1));
 				}
 			}
@@ -161,14 +123,8 @@ namespace ssvuj
 		template<> struct Converter<hg::Online::ScoreDB>
 		{
 			using T = hg::Online::ScoreDB;
-			inline static void fromObj(T& mValue, const Obj& mObj)
-			{
-				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr) mValue.addLevel(as<std::string>(itr.key()), as<hg::Online::LevelScoreDB>(*itr));
-			}
-			inline static void toObj(Obj& mObj, const T& mValue)
-			{
-				for(const auto& l : mValue.getLevels()) set(mObj, l.first, l.second);
-			}
+			inline static void fromObj(T& mValue, const Obj& mObj)	{ mValue.levels = as<decltype(mValue.levels)>(mObj); }
+			inline static void toObj(Obj& mObj, const T& mValue)	{ set(mObj, mValue.levels); } // TODO: can this be prettier?
 		};
 	}
 }
@@ -195,9 +151,7 @@ namespace hg
 		{
 			ssvu::CommandLine::CmdLine cmdLine;
 
-			bool verbose{false};
-			bool modifiedUsers{false};
-			bool modifiedScores{false};
+			bool verbose{false}, modifiedUsers{false}, modifiedScores{false};
 
 			const std::string usersPath{"users.json"};
 			const std::string scoresPath{"scores.json"};
@@ -349,21 +303,12 @@ namespace hg
 					mMS.send(buildCPacket<FromServer::SendUserStats>(ssvuj::getWriteToString(response)));
 				};
 
-				pHandler[FromClient::US_Death] = [&](ClientHandler&, sf::Packet& mP)
-				{
-					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.deaths += 1; modifiedUsers = true;
-				};
-				pHandler[FromClient::US_Restart] = [&](ClientHandler&, sf::Packet& mP)
-				{
-					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.restarts += 1; modifiedUsers = true;
-				};
-				pHandler[FromClient::US_MinutePlayed] = [&](ClientHandler&, sf::Packet& mP)
-				{
-					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.minutesSpentPlaying += 1; modifiedUsers = true;
-				};
+				// TODO: refactor
+				pHandler[FromClient::US_Death] = [&](ClientHandler&, sf::Packet& mP)		{ std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)}; users.getUser(username).stats.deaths += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_Restart] = [&](ClientHandler&, sf::Packet& mP)		{ std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)}; users.getUser(username).stats.restarts += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_MinutePlayed] = [&](ClientHandler&, sf::Packet& mP)	{ std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)}; users.getUser(username).stats.minutesSpentPlaying += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_ClearFriends] = [&](ClientHandler&, sf::Packet& mP)	{ std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)}; users.getUser(username).stats.trackedNames.clear(); modifiedUsers = true; };
+
 				pHandler[FromClient::US_AddFriend] = [&](ClientHandler&, sf::Packet& mP)
 				{
 					std::string username, friendUsername;
@@ -374,11 +319,6 @@ namespace hg
 					auto& tn(users.getUser(username).stats.trackedNames);
 					if(ssvu::contains(tn, friendUsername)) return;
 					tn.push_back(friendUsername); modifiedUsers = true;
-				};
-				pHandler[FromClient::US_ClearFriends] = [&](ClientHandler&, sf::Packet& mP)
-				{
-					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
-					users.getUser(username).stats.trackedNames.clear(); modifiedUsers = true;
 				};
 
 				pHandler[FromClient::RequestFriendsScores] = [&](ClientHandler& mMS, sf::Packet& mP)
@@ -519,7 +459,7 @@ namespace hg
 				{
 					if(!optArg)
 					{
-						ssvu::lo << ssvu::lt("git-ws help") << std::endl << std::endl;
+						ssvu::lo << ssvu::lt("Open Hexagon server help") << std::endl << std::endl;
 						for(const auto& c : cmdLine.getCmds()) ssvu::lo << getBriefHelp(*c) << std::endl << (flagVerbose ? c->getHelpStr() : "") << std::endl;
 					}
 

@@ -36,7 +36,7 @@ namespace hg
 		setIndex(0); initMenus(); initInput();
 	}
 
-	void MenuGame::init() { assets.stopMusics(); assets.stopSounds(); assets.playSound("openHexagon.ogg"); }
+	void MenuGame::init() { assets.stopMusics(); assets.stopSounds(); assets.playSound("openHexagon.ogg"); Online::setForceLeaderboardRefresh(true); }
 	void MenuGame::initAssets()
 	{
 		for(const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png", "bottomBar.png"})

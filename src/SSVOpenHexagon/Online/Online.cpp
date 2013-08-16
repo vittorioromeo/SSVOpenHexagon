@@ -39,15 +39,13 @@ namespace hg
 		PacketHandler<Client> clientPHandler;
 		Uptr<Client> client;
 
-		bool gettingLeaderboard{false};
+		bool gettingLeaderboard{false}, forceLeaderboardRefresh{false};
 		string lastLeaderboardId;
 		float lastLeaderboardDM;
 
 		bool newUserReg{false};
 
-		string currentUsername{"NULL"};
-		string currentLeaderboard{"NULL"};
-		string currentUserStatsStr{"NULL"};
+		string currentUsername{"NULL"}, currentLeaderboard{"NULL"}, currentUserStatsStr{"NULL"};
 		UserStats currentUserStats;
 		ssvuj::Obj currentFriendScores;
 
@@ -171,7 +169,12 @@ namespace hg
 
 		void requestLeaderboardIfNeeded(const string& mLevelId, float mDiffMult)
 		{
-			if(gettingLeaderboard || (lastLeaderboardId == mLevelId && lastLeaderboardDM == mDiffMult)) return;
+			if(!forceLeaderboardRefresh)
+			{
+				if(gettingLeaderboard || (lastLeaderboardId == mLevelId && lastLeaderboardDM == mDiffMult)) return;
+			}
+			else forceLeaderboardRefresh = false;
+
 			invalidateCurrentLeaderboard();
 			invalidateCurrentFriendsScores();
 			gettingLeaderboard = true;
@@ -181,6 +184,7 @@ namespace hg
 			tryRequestFriendsScores(mLevelId, mDiffMult);
 			trySendPacket<FromClient::RequestUserStats>(currentUsername);
 		}
+		void setForceLeaderboardRefresh(bool mValue) { forceLeaderboardRefresh = mValue; }
 
 		ConnectStat getConnectionStatus()			{ return connectionStatus; }
 		LoginStat getLoginStatus()					{ return loginStatus; }
