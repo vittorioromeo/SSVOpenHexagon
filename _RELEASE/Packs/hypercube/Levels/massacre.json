@@ -8,5 +8,5 @@
 	"styleId": "massacre",
 	"musicId": "massacrev2",
 	"luaFile": "Scripts/Levels/massacre.lua",
-	"difficultyMults": [1, 1.3, 1.6, 0.3, 0.6]
+	"difficultyMults": [1.3, 1.6, 0.3, 0.6]
 }
