@@ -18,7 +18,7 @@ namespace hg
 		namespace Internal
 		{
 			// Compression
-			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs) { return getZLibCompress(ssvuj::getWriteToString(ssvuj::getArchived(mArgs...))); }
+			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs) { return getZLibCompress(ssvuj::getWriteToString(ssvuj::getArchArray(mArgs...))); }
 		}
 
 		// Build compressed packet
