@@ -81,20 +81,20 @@ namespace ssvuj
 		template<> struct Converter<hg::Online::UserStats>
 		{
 			using T = hg::Online::UserStats;
-			inline static void fromObj(T& mValue, const Obj& mObj)	{ extractMap(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
-			inline static void toObj(Obj& mObj, const T& mValue)	{ archiveMap(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
+			inline static void fromObj(T& mValue, const Obj& mObj)	{ extrObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
+			inline static void toObj(Obj& mObj, const T& mValue)	{ archObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
 		};
 		template<> struct Converter<hg::Online::User>
 		{
 			using T = hg::Online::User;
-			inline static void fromObj(T& mValue, const Obj& mObj)	{ extractMap(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
-			inline static void toObj(Obj& mObj, const T& mValue)	{ archiveMap(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
+			inline static void fromObj(T& mValue, const Obj& mObj)	{ extrObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
+			inline static void toObj(Obj& mObj, const T& mValue)	{ archObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
 		};
 		template<> struct Converter<hg::Online::UserDB>
 		{
 			using T = hg::Online::UserDB;
-			inline static void fromObj(T& mValue, const Obj& mObj)	{ mValue.users = as<decltype(mValue.users)>(mObj); }
-			inline static void toObj(Obj& mObj, const T& mValue)	{ set(mObj, mValue.users); } // TODO: can this be prettier?
+			inline static void fromObj(T& mValue, const Obj& mObj)	{ extr(mObj, mValue.users); }
+			inline static void toObj(Obj& mObj, const T& mValue)	{ arch(mObj, mValue.users); }
 		};
 		template<> struct Converter<hg::Online::LevelScoreDB>
 		{
@@ -103,7 +103,6 @@ namespace ssvuj
 			{
 				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
 				{
-					if(as<std::string>(itr.key()) == "validator") continue; // TODO: what?
 					for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(as<std::string>(itr.key())), as<std::string>((*itr)[i], 0), as<float>((*itr)[i], 1));
 				}
 			}
@@ -123,8 +122,8 @@ namespace ssvuj
 		template<> struct Converter<hg::Online::ScoreDB>
 		{
 			using T = hg::Online::ScoreDB;
-			inline static void fromObj(T& mValue, const Obj& mObj)	{ mValue.levels = as<decltype(mValue.levels)>(mObj); }
-			inline static void toObj(Obj& mObj, const T& mValue)	{ set(mObj, mValue.levels); } // TODO: can this be prettier?
+			inline static void fromObj(T& mValue, const Obj& mObj)	{ extr(mObj, mValue.levels); }
+			inline static void toObj(Obj& mObj, const T& mValue)	{ arch(mObj, mValue.levels); }
 		};
 	}
 }
@@ -177,7 +176,7 @@ namespace hg
 					bool newUserRegistration{false};
 
 					std::string username, password, passwordHash;
-					ssvuj::extract(getDecompressedPacket(mP), username, password, passwordHash);
+					ssvuj::extrArray(getDecompressedPacket(mP), username, password, passwordHash);
 
 					if(loginDB.isLoggedIn(username))
 					{
@@ -217,7 +216,7 @@ namespace hg
 				pHandler[FromClient::SendScore] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username, levelId, validator; float diffMult, score;
-					ssvuj::extract(getDecompressedPacket(mP), username, levelId, validator, diffMult, score);
+					ssvuj::extrArray(getDecompressedPacket(mP), username, levelId, validator, diffMult, score);
 
 					if(!loginDB.isLoggedIn(username)) { mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return; }
 
@@ -241,7 +240,7 @@ namespace hg
 				pHandler[FromClient::RequestLeaderboard] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username, levelId, validator; float diffMult;
-					ssvuj::extract(getDecompressedPacket(mP), username, levelId, validator, diffMult);
+					ssvuj::extrArray(getDecompressedPacket(mP), username, levelId, validator, diffMult);
 
 					if(!loginDB.isLoggedIn(username))
 					{
@@ -287,9 +286,11 @@ namespace hg
 				pHandler[FromClient::NUR_Email] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username, email;
-					ssvuj::extract(getDecompressedPacket(mP), username, email);
+					ssvuj::extrArray(getDecompressedPacket(mP), username, email);
 
 					users.setEmail(username, email);
+
+					// TODO: email validation
 
 					if(verbose)  ssvu::lo << ssvu::lt("PacketHandler") << "Email accepted" << std::endl;
 					mMS.send(buildCPacket<FromServer::NUR_EmailValid>());
@@ -303,16 +304,18 @@ namespace hg
 					mMS.send(buildCPacket<FromServer::SendUserStats>(ssvuj::getWriteToString(response)));
 				};
 
-				// TODO: refactor
-				pHandler[FromClient::US_Death] = [&](ClientHandler&, sf::Packet& mP)		{ std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)}; users.getUser(username).stats.deaths += 1; modifiedUsers = true; };
-				pHandler[FromClient::US_Restart] = [&](ClientHandler&, sf::Packet& mP)		{ std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)}; users.getUser(username).stats.restarts += 1; modifiedUsers = true; };
-				pHandler[FromClient::US_MinutePlayed] = [&](ClientHandler&, sf::Packet& mP)	{ std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)}; users.getUser(username).stats.minutesSpentPlaying += 1; modifiedUsers = true; };
-				pHandler[FromClient::US_ClearFriends] = [&](ClientHandler&, sf::Packet& mP)	{ std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)}; users.getUser(username).stats.trackedNames.clear(); modifiedUsers = true; };
+
+				// User statistics
+				auto getUserFromPacket = [&](sf::Packet& mP) -> User& { return users.getUser(ssvuj::as<std::string>(getDecompressedPacket(mP), 0)); };
+				pHandler[FromClient::US_Death] = [&](ClientHandler&, sf::Packet& mP)		{ getUserFromPacket(mP).stats.deaths += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_Restart] = [&](ClientHandler&, sf::Packet& mP)		{ getUserFromPacket(mP).stats.restarts += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_MinutePlayed] = [&](ClientHandler&, sf::Packet& mP)	{ getUserFromPacket(mP).stats.minutesSpentPlaying += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_ClearFriends] = [&](ClientHandler&, sf::Packet& mP)	{ getUserFromPacket(mP).stats.trackedNames.clear(); modifiedUsers = true; };
 
 				pHandler[FromClient::US_AddFriend] = [&](ClientHandler&, sf::Packet& mP)
 				{
 					std::string username, friendUsername;
-					ssvuj::extract(getDecompressedPacket(mP), username, friendUsername);
+					ssvuj::extrArray(getDecompressedPacket(mP), username, friendUsername);
 
 					if(username == friendUsername || !users.hasUser(friendUsername)) return;
 
@@ -324,7 +327,7 @@ namespace hg
 				pHandler[FromClient::RequestFriendsScores] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username, levelId; float diffMult;
-					ssvuj::extract(getDecompressedPacket(mP), username, levelId, diffMult);
+					ssvuj::extrArray(getDecompressedPacket(mP), username, levelId, diffMult);
 
 					if(!scores.hasLevel(levelId)) return;
 					const auto& l(scores.getLevel(levelId));
