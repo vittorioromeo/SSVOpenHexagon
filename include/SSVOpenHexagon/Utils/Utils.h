@@ -8,9 +8,7 @@
 #include <string>
 #include <sstream>
 #include <set>
-#include <SSVUtilsJson/SSVUtilsJson.h>
-#include <SFML/Graphics.hpp>
-#include <SSVStart/SSVStart.h>
+#include "SSVOpenHexagon/Core/HGDependencies.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
 #include "SSVOpenHexagon/Data/ProfileData.h"
 #include "SSVOpenHexagon/Data/MusicData.h"
@@ -56,6 +54,29 @@ namespace hg
 		void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames, const Path& mPackPath, const std::string& mLuaScript);
 
 		sf::Color transformHue(const sf::Color& in, float H);
+
+		inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
+		{
+			std::ifstream s{mFileName};
+			try { mLua.executeCode(s); }
+			catch(std::runtime_error& mError)
+			{
+				ssvu::lo << ssvu::lt("hg::Utils::runLuaFile") << "Fatal lua error" << std::endl;
+				ssvu::lo << ssvu::lt("hg::Utils::runLuaFile") << "Filename: " << mFileName << std::endl;
+				ssvu::lo << ssvu::lt("hg::Utils::runLuaFile") << "Error: " << mError.what() << std::endl;
+				ssvu::lo << std::endl;
+			}
+		}
+		template<typename R, typename... Args> inline R runLuaFunction(Lua::LuaContext& mLua, const std::string& mName, const Args&... mArgs)
+		{
+			try { return mLua.callLuaFunction<R>(mName, std::make_tuple(mArgs...)); }
+			catch(std::runtime_error& mError)
+			{
+				std::cout << mName << std::endl << "LUA runtime error: " << std::endl << ssvu::toStr(mError.what()) << std::endl << std::endl;
+			}
+
+			return R();
+		}
 	}
 }
 

@@ -103,18 +103,4 @@ namespace hg
 		lua.writeVariable("w_wallHModSpeedData",	[=](float mHMod, int mSide, float mThickness, float mSAdj, float mSAcc, float mSMin, float mSMax, bool mSPingPong)	{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax, mSPingPong}, mHMod); }); });
 		lua.writeVariable("w_wallHModCurveData",	[=](float mHMod, int mSide, float mThickness, float mCAdj, float mCAcc, float mCMin, float mCMax, bool mCPingPong)	{ timeline.append<Do>([=]{ factory.createWall(mSide, mThickness, {getSpeedMultDM()}, {mCAdj, mCAcc, mCMin, mCMax, mCPingPong}, mHMod); }); });
 	}
-	void HexagonGame::runLuaFile(const string& mFileName)
-	{
-		ifstream s(mFileName);
-		try { lua.executeCode(s); }
-		catch(runtime_error &error)
-		{
-			lo << lt("hg::HexagonGame::runLuaFile") << "Fatal error, killing the player" << endl;
-			lo << lt("hg::HexagonGame::runLuaFile") << "Filename: " << mFileName << endl;
-			lo << lt("hg::HexagonGame::runLuaFile") << "Error: " << error.what() << endl;
-			lo << endl;
-
-			death();
-		}
-	}
 }

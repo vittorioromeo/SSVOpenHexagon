@@ -14,6 +14,7 @@
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Global/Factory.h"
 #include "SSVOpenHexagon/Global/Typedefs.h"
+#include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Utils/FPSWatcher.h"
 
 namespace hg
@@ -22,6 +23,8 @@ namespace hg
 
 	class HexagonGame
 	{
+		friend class MenuGame;
+
 		private:
 			HGAssets& assets;
 			const LevelData* levelData;
@@ -52,17 +55,8 @@ namespace hg
 
 			// LUA-related methods
 			void initLua();
-			void runLuaFile(const std::string& mFileName);
-			template<typename R, typename... Args> R runLuaFunction(const std::string& variableName, const Args&... args)
-			{
-				try { return lua.callLuaFunction<R>(variableName, std::make_tuple(args...)); }
-				catch(std::runtime_error& mError)
-				{
-					std::cout << variableName << std::endl << "LUA runtime error: " << std::endl << ssvu::toStr(mError.what()) << std::endl << std::endl;
-				}
-
-				return R();
-			}
+			inline void runLuaFile(const std::string& mFileName) { try { Utils::runLuaFile(lua, mFileName); } catch(...) { death(); } }
+			template<typename R, typename... Args> inline R runLuaFunction(const std::string& mName, const Args&... mArgs) { return Utils::runLuaFunction<R, Args...>(lua, mName, mArgs...); }
 
 			void initFlashEffect();
 
