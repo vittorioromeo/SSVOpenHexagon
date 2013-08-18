@@ -120,7 +120,7 @@ namespace hg
 		Vec2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
 		Vec2f pRightCheck{getOrbitFromDegrees(tempPos, angle + 90, 0.01f)};
 
-		for(const auto& wall : getEntity().getManager().getEntities(HGGroup::Wall))
+		for(const auto& wall : getManager().getEntities(HGGroup::Wall))
 		{
 			const auto& cwall(wall->getComponent<CWall>());
 			if((movement == -1 && cwall.isOverlapping(pLeftCheck)) || (movement == 1 && cwall.isOverlapping(pRightCheck))) angle = lastAngle;
