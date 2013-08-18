@@ -216,10 +216,19 @@ namespace hg
 		else if(currentIndex < 0) currentIndex = levelDataIds.size() - 1;
 
 		levelData = &assets.getLevelData(levelDataIds[currentIndex]);
-		//levelStatus = levelData->createStatus();
+
 		styleData = assets.getStyleData(levelData->styleId);
 		difficultyMultipliers = levelData->difficultyMults;
 		difficultyMultIndex = indexOf(difficultyMultipliers, 1);
+
+		// TODO: improve
+		hexagonGame.setLevelData(assets.getLevelData(levelDataIds[currentIndex]), true);
+		hexagonGame.lua = Lua::LuaContext{};
+		hexagonGame.initLua();
+		hexagonGame.runLuaFile(levelData->luaScriptPath);
+		hexagonGame.runLuaFunction<void>("onInit");
+		hexagonGame.runLuaFunction<void>("onLoad");
+		levelStatus = hexagonGame.getLevelStatus();
 	}
 
 	void MenuGame::updateLeaderboard()
