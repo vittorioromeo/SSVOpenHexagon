@@ -163,6 +163,7 @@ namespace hg
 
 			inline void saveUsers()	const	{ ssvuj::Obj root; ssvuj::set(root, users); ssvuj::writeToFile(root, usersPath); }
 			inline void saveScores() const	{ ssvuj::Obj root; ssvuj::set(root, scores); ssvuj::writeToFile(root, scoresPath); }
+			inline User& getUserFromPacket(sf::Packet& mP) { return users.getUser(ssvuj::as<std::string>(getDecompressedPacket(mP), 0)); }
 
 			OHServer()
 			{
@@ -306,7 +307,6 @@ namespace hg
 
 
 				// User statistics
-				auto getUserFromPacket = [&](sf::Packet& mP) -> User& { return users.getUser(ssvuj::as<std::string>(getDecompressedPacket(mP), 0)); };
 				pHandler[FromClient::US_Death] = [&](ClientHandler&, sf::Packet& mP)		{ getUserFromPacket(mP).stats.deaths += 1; modifiedUsers = true; };
 				pHandler[FromClient::US_Restart] = [&](ClientHandler&, sf::Packet& mP)		{ getUserFromPacket(mP).stats.restarts += 1; modifiedUsers = true; };
 				pHandler[FromClient::US_MinutePlayed] = [&](ClientHandler&, sf::Packet& mP)	{ getUserFromPacket(mP).stats.minutesSpentPlaying += 1; modifiedUsers = true; };
