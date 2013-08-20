@@ -15,18 +15,15 @@ namespace hg
 	{
 		private:
 			ssvs::GameWindow& gameWindow;
-			bool check{false};
-			std::thread watcherThread;
 			float lostFrames{0};
-			const float maxLostFrames{20}, minFPS{20};
-			bool disabled{true}, running{true};
+			const float maxLostFrames{20.f}, minFPS{25.f};
+			bool disabled{true}, running{true}, check{false};
 
 			inline void watch()
 			{
 				while(running)
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(80));
-
 					if(disabled) continue;
 
 					if(check)
@@ -47,7 +44,7 @@ namespace hg
 			}
 
 		public:
-			FPSWatcher(ssvs::GameWindow& mGameWindow) : gameWindow(mGameWindow), watcherThread([&]{ watch(); }) { watcherThread.detach(); }
+			FPSWatcher(ssvs::GameWindow& mGameWindow) : gameWindow(mGameWindow) { std::thread([&]{ watch(); }).detach(); }
 
 			inline bool isLimitReached() const	{ return lostFrames >= maxLostFrames; }
 			inline void reset()					{ lostFrames = 0; disabled = true; check = false; }

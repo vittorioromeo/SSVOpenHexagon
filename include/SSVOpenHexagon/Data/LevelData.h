@@ -40,9 +40,7 @@ namespace hg
 		std::vector<TrackedVariable> trackedVariables;
 		float speedMult{1.f}, speedInc{0.f};
 		float rotationSpeed{0.f}, rotationSpeedInc{0.f}, rotationSpeedMax{0.f};
-		float delayMult{1.f}, delayInc{0.f};
-		float fastSpin{0.f};
-		float incTime{15.f};
+		float delayMult{1.f}, delayInc{0.f}, fastSpin{0.f}, incTime{15.f};
 		float pulseMin{75.f}, pulseMax{80.f}, pulseSpeed{0.f}, pulseSpeedR{0.f};
 		float pulseDelayMax{0.f}, pulseDelayHalfMax{0.f};
 		float beatPulseMax{0.f}, beatPulseDelayMax{0.f};
@@ -51,10 +49,7 @@ namespace hg
 		float wallAngleLeft{0.f}, wallAngleRight{0.f};
 		float _3dEffectMultiplier{1.f};
 		int sides{6}, sidesMax{6}, sidesMin{6};
-		bool swapEnabled{false};
-		bool tutorialMode{false};
-		bool incEnabled{true};
-		bool rndSideChangesEnabled{true};
+		bool swapEnabled{false}, tutorialMode{false}, incEnabled{true}, rndSideChangesEnabled{true};
 	};
 }
 

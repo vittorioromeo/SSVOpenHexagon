@@ -44,9 +44,9 @@ namespace hg
 					}).detach();
 				}
 
-				inline void stop() { running = false; }
-				inline unsigned int getUid() const { return uid; }
-				inline void refreshTimeout() { untilTimeout = 5; }
+				inline void stop()					{ running = false; }
+				inline unsigned int getUid() const	{ return uid; }
+				inline void refreshTimeout()		{ untilTimeout = 5; }
 		};
 	}
 }
