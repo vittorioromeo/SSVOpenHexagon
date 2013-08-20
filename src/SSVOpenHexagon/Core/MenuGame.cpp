@@ -208,6 +208,34 @@ namespace hg
 		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
 	}
 
+	void MenuGame::initLua(Lua::LuaContext& mLua)
+	{
+		mLua.writeVariable("u_log", 				[&](string mLog) 	{ lo << lt("lua-menu") << mLog << endl; });
+		mLua.writeVariable("u_execScript", 			[&](string mName) 	{ Utils::runLuaFile(mLua, levelData->packPath + "Scripts/" + mName); });
+		mLua.writeVariable("u_getDifficultyMult",	[&] 				{ return 1; });
+		mLua.writeVariable("u_getSpeedMultDM",		[&]					{ return 1; });
+		mLua.writeVariable("u_getDelayMultDM",		[&]					{ return 1; });
+		mLua.writeVariable("l_setRotationSpeed",	[&](float mValue)	{ levelStatus.rotationSpeed = mValue; });
+		mLua.writeVariable("l_setSides",			[&](int mValue)		{ levelStatus.sides = mValue; });
+		mLua.writeVariable("l_getRotationSpeed",	[&]					{ return levelStatus.rotationSpeed; });
+		mLua.writeVariable("l_getSides",			[&]					{ return levelStatus.sides; });
+		mLua.writeVariable("s_setPulseInc",			[&](float mValue)	{ styleData.pulseIncrement = mValue; });
+		mLua.writeVariable("s_setHueInc",			[&](float mValue)	{ styleData.hueIncrement = mValue; });
+		mLua.writeVariable("s_getHueInc",			[&]					{ return styleData.hueIncrement; });
+
+		// Unused functions
+		for(const auto& un : { "l_setSpeedMult", "l_setSpeedInc", "l_setRotationSpeedMax", "l_setRotationSpeedInc",
+			"l_setDelayInc", "l_setFastSpin", "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
+			"l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR", "l_setPulseDelayMax", "l_setBeatPulseMax",
+			"l_setBeatPulseDelayMax", "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
+			"l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
+			"l_enableRndSideChanges", "l_getSpeedMult", "l_getDelayMult", "l_addTracked", "u_playSound",
+			"u_isKeyPressed", "u_isFastSpinning", "u_forceIncrement", "u_kill", "u_eventKill", "m_messageAdd",
+			"m_messageAddImportant", "t_wait", "t_waitS", "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
+			"e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj", "w_wallAcc",
+			"w_wallHModSpeedData", "w_wallHModCurveData", "l_setDelayMult" }) mLua.writeVariable(un, []{});
+	}
+
 	void MenuGame::setIndex(int mIndex)
 	{
 		currentIndex = mIndex;
@@ -221,14 +249,10 @@ namespace hg
 		difficultyMultipliers = levelData->difficultyMults;
 		difficultyMultIndex = indexOf(difficultyMultipliers, 1);
 
-		// TODO: improve
-		hexagonGame.setLevelData(assets.getLevelData(levelDataIds[currentIndex]), true);
-		hexagonGame.lua = Lua::LuaContext{};
-		hexagonGame.initLua();
-		hexagonGame.runLuaFile(levelData->luaScriptPath);
-		hexagonGame.runLuaFunction<void>("onInit");
-		hexagonGame.runLuaFunction<void>("onLoad");
-		levelStatus = hexagonGame.getLevelStatus();
+		Lua::LuaContext lua; initLua(lua);
+		Utils::runLuaFile(lua, levelData->luaScriptPath);
+		Utils::runLuaFunction<void>(lua, "onInit");
+		Utils::runLuaFunction<void>(lua, "onLoad");
 	}
 
 	void MenuGame::updateLeaderboard()

@@ -87,6 +87,7 @@ namespace hg
 			void setIndex(int mIndex);
 			void updateLeaderboard();
 			void updateFriends();
+			void initLua(Lua::LuaContext& mLua);
 
 			inline bool isEnteringText() { return state == States::ETUser || state == States::ETPass || state == States::ETEmail || state == States::ETLPNew || state == States::ETFriend; }
 			inline ssvms::Menu* getCurrentMenu()
