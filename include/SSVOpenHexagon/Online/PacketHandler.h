@@ -41,6 +41,10 @@ namespace hg
 						ssvu::lo << "Exception during packet handling: (" << type << ")" << std::endl;
 						ssvu::lo << mException.what() << std::endl;
 					}
+					catch(...)
+					{
+						ssvu::lo << "Unknown exception during packet handling: (" << type << ")" << std::endl;
+					}
 				}
 
 				HandlerFunc& operator[](unsigned int mType) { return functionHandlers[mType]; }
