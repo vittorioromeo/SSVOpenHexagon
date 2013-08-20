@@ -276,6 +276,18 @@
 			"tn" : [ "tanaka" ]
 		}
 	},
+	"sa" : 
+	{
+		"em" : "sa",
+		"ph" : "",
+		"st" : 
+		{
+			"dth" : 26,
+			"msp" : 2,
+			"rst" : 21,
+			"tn" : [ "hamada" ]
+		}
+	},
 	"sup_twitch.tv?" : 
 	{
 		"em" : "real_email@abcd.it",
