@@ -19,7 +19,6 @@ namespace hg
 			private:
 				sf::TcpSocket socket;
 				bool busy{false};
-				std::vector<std::thread> threads;
 
 				void update()
 				{
