@@ -194,12 +194,13 @@ namespace hg
 		game.addInput(Config::getTriggerExit(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(isInMenu())
+			bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) || !assets.pIsLocal()};
+			if(isInMenu() && valid)
 			{
 				if(getCurrentMenu()->canGoBack()) getCurrentMenu()->goBack();
 				else state = s::SMain;
 			}
-			else if(state == s::ETFriend || state == s::SLPSelect) state = s::SMain;
+			else if((state == s::ETFriend || state == s::SLPSelect) && valid) state = s::SMain;
 		}, t::Once);
 
 		game.addInput(Config::getTriggerExit(), [&](float mFrameTime) { if(state != s::MOpts) exitTimer += mFrameTime; });

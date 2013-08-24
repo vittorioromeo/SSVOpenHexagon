@@ -88,6 +88,7 @@ namespace hg
 			std::vector<std::string> getLocalProfileNames();
 			std::string getFirstLocalProfileName();
 
+			inline bool pIsValidLocalProfile() { return currentProfilePtr != nullptr; }
 			inline std::string pGetName() const
 			{
 				if(!playingLocally) return Online::getCurrentUsername();
