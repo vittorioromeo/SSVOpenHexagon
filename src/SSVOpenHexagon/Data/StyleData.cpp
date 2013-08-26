@@ -28,10 +28,9 @@ namespace hg
 			{
 				if(mColorData.dynamicOffset)
 				{
-					const auto& offset(mColorData.offset);
-					color.r += dynamicColor.r / offset;
-					color.g += dynamicColor.g / offset;
-					color.b += dynamicColor.b / offset;
+					color.r += dynamicColor.r / mColorData.offset;
+					color.g += dynamicColor.g / mColorData.offset;
+					color.b += dynamicColor.b / mColorData.offset;
 					color.a += dynamicColor.a;
 				}
 				else color = getColorDarkened(dynamicColor, mColorData.dynamicDarkness);
