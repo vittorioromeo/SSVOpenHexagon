@@ -48,7 +48,7 @@ namespace hg
 
 			inline SpeedData& getSpeed() { return speed; }
 			inline SpeedData& getCurve() { return curve; }
-			inline bool isOverlapping(ssvs::Vec2f mPoint) const { return ssvs::Utils::isPointInPolygon(vertexPositions, mPoint); }
+			inline bool isOverlapping(ssvs::Vec2f mPoint) const { return ssvs::isPointInPolygon(vertexPositions, mPoint); }
 	};
 }
 
