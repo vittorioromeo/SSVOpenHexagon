@@ -63,18 +63,13 @@ namespace hg
 	void HGAssets::loadCustomSounds(const string& mPackName, const Path& mPath)
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Sounds/", ".ogg"))
-		{
-			const auto& fileName(getNameFromPath(p, mPath + "Sounds/", ""));
-			assetManager.load<SoundBuffer>(mPackName + "_" + fileName, p);
-		}
+			assetManager.load<SoundBuffer>(mPackName + "_" + p.getFileName(), p);
 	}
 	void HGAssets::loadMusic(const Path& mPath)
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".ogg"))
 		{
-			const auto& fileName(getNameFromPath(p, mPath + "Music/", ".ogg"));
-
-			auto& music(assetManager.load<Music>(fileName, p));
+			auto& music(assetManager.load<Music>(p.getFileNameNoExtensions(), p));
 			music.setVolume(Config::getMusicVolume());
 			music.setLoop(true);
 		}
@@ -108,7 +103,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("Profiles/", ".json"))
 		{
-			string fileName{getNameFromPath(p, "Profiles/", ".json")};
+			//string fileName{getNameFromPath(p, "Profiles/", ".json")};
 
 			ProfileData profileData{loadProfileFromJson(readFromFile(p))};
 			profileDataMap.insert(make_pair(profileData.getName(), profileData));

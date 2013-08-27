@@ -87,8 +87,7 @@ namespace hg
 
 			for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
 			{
-				const auto& fileName(getNameFromPath(p, "ConfigOverrides/", ".json"));
-				if(contains(mOverridesIds, fileName))
+				if(contains(mOverridesIds, p.getFileNameNoExtensions()))
 				{
 					const auto& overrideRoot(readFromFile(p));
 					for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[as<string>(itr.key())] = *itr;
