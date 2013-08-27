@@ -382,6 +382,9 @@ namespace hg
 
 	void MenuGame::update(float mFrameTime)
 	{
+		overlayCamera.update(mFrameTime);
+		backgroundCamera.update(mFrameTime);
+
 		if(getCurrentMenu() != nullptr) getCurrentMenu()->update();
 
 		currentCreditsId += mFrameTime;
@@ -404,7 +407,7 @@ namespace hg
 		else if(state == s::SMain)
 		{
 			styleData.update(mFrameTime);
-			backgroundCamera.rotate(levelStatus.rotationSpeed * 10.f * mFrameTime);
+			backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
 
 			if(!assets.pIsLocal())
 			{

@@ -11,7 +11,6 @@
 using namespace std;
 using namespace sf;
 using namespace ssvs;
-using namespace ssvs::Utils;
 using namespace hg::Utils;
 using namespace ssvuj;
 using namespace ssvu::FileSystem;
@@ -59,11 +58,11 @@ namespace hg
 
 			for(int i{s}; i > 0; --i)
 			{
-				timeline.append<Do>([&mCamera, oldCenter, i]{ mCamera.centerOn(oldCenter + Vec2f(getRnd(-i, i), getRnd(-i, i))); });
+				timeline.append<Do>([&mCamera, oldCenter, i]{ mCamera.setCenter(oldCenter + Vec2f(getRnd(-i, i), getRnd(-i, i))); });
 				timeline.append<Wait>(1); timeline.append<Go>(0, 3);
 			}
 
-			timeline.append<Do>([&mCamera, oldCenter]{ mCamera.centerOn(oldCenter); });
+			timeline.append<Do>([&mCamera, oldCenter]{ mCamera.setCenter(oldCenter); });
 		}
 
 		std::set<string> getIncludedLuaFileNames(const string& mLuaScript)

@@ -49,6 +49,10 @@ namespace hg
 		if(Config::get3D()) update3D(mFrameTime);
 		if(!Config::getNoRotation()) updateRotation(mFrameTime);
 
+		overlayCamera.update(mFrameTime);
+		backgroundCamera.update(mFrameTime);
+		for(auto& c : depthCameras) c.update(mFrameTime);
+
 		if(status.mustRestart)
 		{
 			changeLevel(restartId, restartFirstTime);
@@ -119,8 +123,7 @@ namespace hg
 		status.pulseDelay -= mFrameTime;
 		status.pulseDelayHalf -= mFrameTime;
 
-		float p{status.pulse / levelStatus.pulseMin};
-		float rotation{backgroundCamera.getRotation()};
+		float p{status.pulse / levelStatus.pulseMin}, rotation{backgroundCamera.getRotation()};
 		backgroundCamera.setView({{0, 0}, {(Config::getWidth() * Config::getZoomFactor()) * p, (Config::getHeight() * Config::getZoomFactor()) * p}});
 		backgroundCamera.setRotation(rotation);
 	}
@@ -140,14 +143,14 @@ namespace hg
 	}
 	void HexagonGame::updateRotation(float mFrameTime)
 	{
-		auto nextRotation(getRotationSpeed() * 10.f * mFrameTime);
+		auto nextRotation(getRotationSpeed() * 10.f);
 		if(status.fastSpin > 0)
 		{
-			nextRotation += abs((getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * mFrameTime * 17.0f) * getSign(nextRotation);
+			nextRotation += abs((getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * 17.0f) * getSign(nextRotation);
 			status.fastSpin -= mFrameTime;
 		}
 
-		backgroundCamera.rotate(nextRotation);
+		backgroundCamera.turn(nextRotation);
 	}
 	void HexagonGame::updateFlash(float mFrameTime)
 	{
