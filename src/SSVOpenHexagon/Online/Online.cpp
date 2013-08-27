@@ -14,7 +14,6 @@
 using namespace std;
 using namespace sf;
 using namespace ssvs;
-using namespace ssvs::Utils;
 using namespace hg::Utils;
 using namespace ssvu;
 using namespace ssvu::Encryption;

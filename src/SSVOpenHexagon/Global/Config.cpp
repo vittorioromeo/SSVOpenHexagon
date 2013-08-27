@@ -14,7 +14,6 @@ using namespace std;
 using namespace sf;
 using namespace ssvs;
 using namespace ssvs::Input;
-using namespace ssvs::Utils;
 using namespace ssvu::FileSystem;
 using namespace ssvuj;
 using namespace ssvu;
