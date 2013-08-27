@@ -120,6 +120,8 @@ for s in "${searchPaths[@]}"; do
 	cp -av "${s}"libx*.so* "${x86Folder}"
 	cp -av "${s}"libX*.so* "${x86Folder}"
 	cp -av "${s}"libSM.so* "${x86Folder}"
+	cp -av "${s}"libGL.so* "${x86Folder}"
+	cp -av "${s}"libSSV.so* "${x86Folder}"
 done
 
 mv -f "${destinationDir}/SSVOpenHexagon" "${x86Folder}"
