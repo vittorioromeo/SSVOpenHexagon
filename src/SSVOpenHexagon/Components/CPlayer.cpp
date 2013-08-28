@@ -18,7 +18,7 @@ namespace hg
 {
 	constexpr float baseThickness{5.f};
 
-	CPlayer::CPlayer(HexagonGame& mHexagonGame, Vec2f mStartPos) : hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
+	CPlayer::CPlayer(HexagonGame& mHexagonGame, const Vec2f& mStartPos) : hexagonGame(mHexagonGame), startPos{mStartPos}, pos{startPos} { }
 
 	void CPlayer::draw()
 	{

@@ -65,7 +65,7 @@ namespace hg
 
 			void update(float mFrameTime, float mMult = 1.f);
 			void computeColors();
-			void drawBackground(sf::RenderTarget& mRenderTarget, ssvs::Vec2f mCenterPos, int mSides);
+			void drawBackground(sf::RenderTarget& mRenderTarget, const ssvs::Vec2f& mCenterPos, int mSides);
 
 			void setRootPath(const Path& mPath) { rootPath = mPath; }
 

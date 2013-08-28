@@ -23,7 +23,7 @@ namespace hg
 			ssvs::Vec2f centerPos;
 
 		public:
-			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, ssvs::Vec2f mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
+			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, const ssvs::Vec2f& mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
 
 			inline sses::Entity& createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{}, float mHueMod = 0)
 			{

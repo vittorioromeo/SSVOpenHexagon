@@ -39,7 +39,7 @@ namespace hg
 			int side{0};
 
 		public:
-			CWall(HexagonGame& mHexagonGame, ssvs::Vec2f mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
+			CWall(HexagonGame& mHexagonGame, const ssvs::Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
 			void update(float mFrameTime) override;
 			void draw() override;
@@ -48,7 +48,7 @@ namespace hg
 
 			inline SpeedData& getSpeed() { return speed; }
 			inline SpeedData& getCurve() { return curve; }
-			inline bool isOverlapping(ssvs::Vec2f mPoint) const { return ssvs::isPointInPolygon(vertexPositions, mPoint); }
+			inline bool isOverlapping(const ssvs::Vec2f& mPoint) const { return ssvs::isPointInPolygon(vertexPositions, mPoint); }
 	};
 }
 

@@ -77,7 +77,7 @@ namespace hg
 		rotate(begin(currentColors), begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f), end(currentColors));
 	}
 
-	void StyleData::drawBackground(RenderTarget& mRenderTarget, Vec2f mCenterPos, int mSides)
+	void StyleData::drawBackground(RenderTarget& mRenderTarget, const Vec2f& mCenterPos, int mSides)
 	{
 		float div{360.f / mSides * 1.0001f}, distance{4500};
 
