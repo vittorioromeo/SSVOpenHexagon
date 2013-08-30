@@ -98,9 +98,9 @@ namespace hg
 
 	void CPlayer::update(float mFrameTime)
 	{
-		swapBlinkTimer(mFrameTime);
-		if(deadEffectTimer(mFrameTime) && hexagonGame.getLevelStatus().tutorialMode) deadEffectTimer.stop();
-		if(hexagonGame.getLevelStatus().swapEnabled) if(swapTimer(mFrameTime)) swapTimer.stop();
+		swapBlinkTimer.update(mFrameTime);
+		if(deadEffectTimer.update(mFrameTime) && hexagonGame.getLevelStatus().tutorialMode) deadEffectTimer.stop();
+		if(hexagonGame.getLevelStatus().swapEnabled) if(swapTimer.update(mFrameTime)) swapTimer.stop();
 
 		Vec2f lastPos{pos};
 		float currentSpeed{speed}, lastAngle{angle}, radius{hexagonGame.getRadius()};
