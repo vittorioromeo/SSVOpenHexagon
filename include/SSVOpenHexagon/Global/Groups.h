@@ -9,10 +9,7 @@
 
 namespace hg
 {
-	enum HGGroup : unsigned int
-	{
-		Wall = 0
-	};
+	enum HGGroup : unsigned int {Wall};
 }
 
 #endif
