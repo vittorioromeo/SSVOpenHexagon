@@ -25,7 +25,7 @@ namespace hg
 		drawPivot();
 		const auto& isDrawing3D(hexagonGame.getStatus().drawing3D);
 
-		if(!isDrawing3D && deadEffectTimer > 0) drawDeathEffect();
+		if(!isDrawing3D && deadEffectTimer.isEnabled()) drawDeathEffect();
 
 		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f)};
 
@@ -36,7 +36,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		if(swapTimer <= 0 && !isDrawing3D) colorMain = getColorFromHue((swapBlinkTimer * 15) / 255.0f);
+		if(swapTimer.isEnabled() && !isDrawing3D) colorMain = getColorFromHue((swapBlinkTimer.getCurrent() * 15) / 255.0f);
 		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);
@@ -98,9 +98,9 @@ namespace hg
 
 	void CPlayer::update(float mFrameTime)
 	{
-		swapBlinkTimer -= mFrameTime; if(swapBlinkTimer < 0) swapBlinkTimer = 5;
-		if(hexagonGame.getLevelStatus().swapEnabled && swapTimer > 0) { swapTimer -= mFrameTime; }
-		if(hexagonGame.getLevelStatus().tutorialMode && deadEffectTimer > 0) deadEffectTimer -= mFrameTime;
+		swapBlinkTimer(mFrameTime);
+		if(deadEffectTimer(mFrameTime) && hexagonGame.getLevelStatus().tutorialMode) deadEffectTimer.stop();
+		if(hexagonGame.getLevelStatus().swapEnabled) if(swapTimer(mFrameTime)) swapTimer.stop();
 
 		Vec2f lastPos{pos};
 		float currentSpeed{speed}, lastAngle{angle}, radius{hexagonGame.getRadius()};
@@ -109,10 +109,10 @@ namespace hg
 
 		angle += currentSpeed * movement * mFrameTime;
 
-		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer <= 0)
+		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && !swapTimer.isEnabled())
 		{
 			hexagonGame.getAssets().playSound("swap.ogg");
-			swapTimer = 37; angle += 180;
+			swapTimer.restart(); angle += 180;
 		}
 
 		Vec2f tempPos{getOrbitFromDegrees(startPos, angle, radius)};
@@ -125,7 +125,7 @@ namespace hg
 			if((movement == -1 && cwall.isOverlapping(pLeftCheck)) || (movement == 1 && cwall.isOverlapping(pRightCheck))) angle = lastAngle;
 			if(cwall.isOverlapping(pos))
 			{
-				deadEffectTimer = 80;
+				deadEffectTimer.restart();
 				if(!Config::getInvincible()) dead = true;
 				lastPos = getMovedTowards(lastPos, {0, 0}, 5 * hexagonGame.getSpeedMultDM());
 				pos = lastPos; hexagonGame.death(); return;
