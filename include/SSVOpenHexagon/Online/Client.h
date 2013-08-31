@@ -20,8 +20,9 @@ namespace hg
 			public:
 				Client(PacketHandler<Client>& mPacketHandler) : packetHandler(mPacketHandler)
 				{
-					onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); };
+					onPacketReceived += [this](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); };
 				}
+				~Client() { disconnect(); ssvu::lo << "Client destroyed" << std::endl; }
 		};
 	}
 }

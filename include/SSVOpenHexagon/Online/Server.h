@@ -24,6 +24,7 @@ namespace hg
 				PacketHandler<ClientHandler>& packetHandler;
 				sf::TcpListener listener;
 				std::vector<Uptr<ClientHandler>> clientHandlers;
+				std::future<void> updateFuture;
 
 				void growIfNeeded()
 				{
@@ -53,6 +54,7 @@ namespace hg
 				ssvu::Delegate<void(ClientHandler&)> onClientAccepted;
 
 				Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler) { listener.setBlocking(false); }
+				~Server() { running = false; ssvu::lo << "Server destroyed" << std::endl; }
 
 				void start(unsigned int mPort)
 				{
@@ -60,7 +62,7 @@ namespace hg
 					else ssvu::lo << ssvu::lt("Server") << "Listener initialized" << std::endl;
 
 					running = true;
-					std::thread([&]{ while(running) update(); }).detach();
+					updateFuture = std::async(std::launch::async, [this]{ while(running) update(); });
 				}
 				inline void stop()
 				{

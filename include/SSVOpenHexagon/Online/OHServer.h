@@ -161,6 +161,8 @@ namespace hg
 			Server server{pHandler};
 			LoginDB loginDB; // currently logged-in users and uids
 
+			std::future<void> inputFuture, saveFuture;
+
 			inline void saveUsers()	const	{ ssvuj::Obj root; ssvuj::set(root, users); ssvuj::writeToFile(root, usersPath); }
 			inline void saveScores() const	{ ssvuj::Obj root; ssvuj::set(root, scores); ssvuj::writeToFile(root, scoresPath); }
 			inline User& getUserFromPacket(sf::Packet& mP) { return users.getUser(ssvuj::as<std::string>(getDecompressedPacket(mP), 0)); }
@@ -354,7 +356,7 @@ namespace hg
 					mMS.send(buildCPacket<FromServer::SendLogoutValid>());
 				};
 			}
-			~OHServer() { saveIfNeeded(); }
+			~OHServer() { saveIfNeeded(); ssvu::lo << "OHServer destroyed" << std::endl; }
 
 			inline void saveIfNeeded()
 			{
@@ -375,22 +377,20 @@ namespace hg
 				server.start(54000);
 				//server.start(27273);
 
-				initCommands();
-
-				// This thread gets user input
-				std::thread([&]
+				inputFuture = std::async(std::launch::async, [this]
 				{
-					while(true)
+					while(server.isRunning())
 					{
 						std::string input;
 						try { if(std::getline(std::cin, input)) cmdLine.parseCmdLine(ssvu::getSplit(input, ' ')); }
 						catch(const std::runtime_error& mException) { ssvu::lo << ssvu::lt("CommandLine") << mException.what() << std::endl; }
 						catch(...) { }
 					}
-				}).detach();
+				});
 
-				// This thread saves every 30 seconds, if needed
-				std::thread([&]{ while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::seconds(30)); saveIfNeeded(); }}).detach();
+				saveFuture = std::async(std::launch::async, [this]{ while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::seconds(3)); saveIfNeeded(); }});
+
+				initCommands();
 
 				// This loop keeps the server alive
 				while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
@@ -407,7 +407,8 @@ namespace hg
 					cmd += [&]
 					{
 						ssvu::lo << "Stopping server... saving if needed" << std::endl;
-						saveIfNeeded(); server.stop();
+						saveIfNeeded();
+						server.stop();
 					};
 				}
 
@@ -465,9 +466,11 @@ namespace hg
 						ssvu::lo << ssvu::lt("Open Hexagon server help") << std::endl << std::endl;
 						for(const auto& c : cmdLine.getCmds()) ssvu::lo << getBriefHelp(*c) << std::endl << (flagVerbose ? c->getHelpStr() : "") << std::endl;
 					}
-
-					auto& c(cmdLine.findCmd(optArg.get()));
-					ssvu::lo << std::endl << getBriefHelp(c) << std::endl << c.getHelpStr();
+					else
+					{
+						auto& c(cmdLine.findCmd(optArg.get()));
+						ssvu::lo << std::endl << getBriefHelp(c) << std::endl << c.getHelpStr();
+					}
 				};
 			}
 		};

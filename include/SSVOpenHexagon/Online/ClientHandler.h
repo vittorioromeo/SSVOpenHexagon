@@ -23,6 +23,7 @@ namespace hg
 				bool running{true};
 				unsigned int uid{lastUid++}, untilTimeout{5};
 				PacketHandler<ClientHandler> packetHandler;
+				std::future<void> timeoutFuture;
 
 			public:
 				ssvu::Delegate<void()> onDisconnect;
@@ -30,19 +31,20 @@ namespace hg
 				ClientHandler(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler)
 				{
 					onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); refreshTimeout(); };
-
-					std::thread([&]
+					timeoutFuture = std::async(std::launch::async, [this]
 					{
 						while(running)
 						{
 							std::this_thread::sleep_for(std::chrono::milliseconds(800));
+
 							if(!isBusy() || --untilTimeout > 0) continue;
 
 							ssvu::lo << ssvu::lt("ClientHandler") << "Client (" << uid << ") timed out" << std::endl;
 							onDisconnect(); disconnect();
 						}
-					}).detach();
+					});
 				}
+				~ClientHandler() { running = false; ssvu::lo << "ClientHandler destroyed" << std::endl; }
 
 				inline void stop()					{ running = false; }
 				inline unsigned int getUid() const	{ return uid; }
