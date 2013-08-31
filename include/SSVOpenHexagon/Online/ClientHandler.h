@@ -30,7 +30,7 @@ namespace hg
 
 				ClientHandler(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler)
 				{
-					onPacketReceived += [&](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); refreshTimeout(); };
+					onPacketReceived += [this](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); refreshTimeout(); };
 					timeoutFuture = std::async(std::launch::async, [this]
 					{
 						while(running)
