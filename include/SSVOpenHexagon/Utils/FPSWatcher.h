@@ -18,6 +18,7 @@ namespace hg
 			float lostFrames{0};
 			const float maxLostFrames{20.f}, minFPS{25.f};
 			bool disabled{true}, running{true}, check{false};
+			std::future<void> watchFuture{std::async(std::launch::async, [this]{ watch(); })};
 
 			inline void watch()
 			{
@@ -44,7 +45,8 @@ namespace hg
 			}
 
 		public:
-			FPSWatcher(ssvs::GameWindow& mGameWindow) : gameWindow(mGameWindow) { std::thread([&]{ watch(); }).detach(); }
+			FPSWatcher(ssvs::GameWindow& mGameWindow) : gameWindow(mGameWindow) { }
+			~FPSWatcher() { running = false; }
 
 			inline bool isLimitReached() const	{ return lostFrames >= maxLostFrames; }
 			inline void reset()					{ lostFrames = 0; disabled = true; check = false; }
