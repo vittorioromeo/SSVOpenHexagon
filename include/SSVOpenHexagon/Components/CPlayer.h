@@ -20,7 +20,7 @@ namespace hg
 			sf::VertexArray vertices{sf::PrimitiveType::Triangles, 3};
 			float hue{0}, angle{0}, size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()}, focusSpeed{Config::getPlayerFocusSpeed()};
 			bool dead{false};
-			ssvu::Ticker swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{80.f, false};
+			ssvs::Ticker swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{80.f, false};
 
 			void drawPivot();
 			void drawDeathEffect();
