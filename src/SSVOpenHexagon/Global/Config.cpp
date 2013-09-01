@@ -124,7 +124,7 @@ namespace hg
 			sizeX = sizeY = max(getWidth(), getHeight()) * 1.3f;
 			if(!getAutoZoomFactor()) return;
 
-			float factorX(1024.0f / static_cast<float>(getWidth())), factorY(768.0f / static_cast<float>(getHeight()));
+			float factorX(1024.f / static_cast<float>(getWidth())), factorY(768.f / static_cast<float>(getHeight()));
 			zoomFactor = max(factorX, factorY);
 		}
 		void setFullscreen(GameWindow& mWindow, bool mFullscreen)

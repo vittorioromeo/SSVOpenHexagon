@@ -21,7 +21,7 @@ namespace hg
 
 		if(mColorData.dynamic)
 		{
-			const auto& dynamicColor(getColorFromHue((currentHue + mColorData.hueShift) / 360.0f));
+			const auto& dynamicColor(getColorFromHue((currentHue + mColorData.hueShift) / 360.f));
 
 			if(!mColorData.main)
 			{

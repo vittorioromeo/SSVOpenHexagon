@@ -21,7 +21,7 @@ namespace hg
 	{
 		if(!assets.pIsLocal() && Config::isEligibleForScore())
 		{
-			assets.playedSeconds += mFrameTime / 60.0f;
+			assets.playedSeconds += mFrameTime / 60.f;
 			if(assets.playedSeconds >= 60.f)
 			{
 				assets.playedSeconds = 0;
@@ -74,8 +74,8 @@ namespace hg
 	{
 		if(status.timeStop <= 0)
 		{
-			status.currentTime += mFrameTime / 60.0f;
-			status.incrementTime += mFrameTime / 60.0f;
+			status.currentTime += mFrameTime / 60.f;
+			status.incrementTime += mFrameTime / 60.f;
 		}
 		else status.timeStop -= mFrameTime;
 	}
@@ -146,7 +146,7 @@ namespace hg
 		auto nextRotation(getRotationSpeed() * 10.f);
 		if(status.fastSpin > 0)
 		{
-			nextRotation += abs((getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * 17.0f) * getSign(nextRotation);
+			nextRotation += abs((getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) / 3.5f) * 17.f) * getSign(nextRotation);
 			status.fastSpin -= mFrameTime;
 		}
 

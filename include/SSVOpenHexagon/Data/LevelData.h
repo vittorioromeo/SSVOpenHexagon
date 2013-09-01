@@ -30,7 +30,7 @@ namespace hg
 			Path luaScriptPath					{packPath + ssvuj::as<std::string>(root, "luaFile", "nullLuaPath")};
 			std::vector<float> difficultyMults	{ssvuj::as<std::vector<float>>(root, "difficultyMults", {})};
 
-			LevelData(const ssvuj::Obj& mRoot, const Path& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.0f); ssvu::sort(difficultyMults); }
+			LevelData(const ssvuj::Obj& mRoot, const Path& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.f); ssvu::sort(difficultyMults); }
 
 			std::string getRootString() const { return ssvuj::getWriteToString(root); }
 	};

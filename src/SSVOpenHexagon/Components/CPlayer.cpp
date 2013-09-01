@@ -27,7 +27,7 @@ namespace hg
 
 		if(!isDrawing3D && deadEffectTimer.isEnabled()) drawDeathEffect();
 
-		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.0f)};
+		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.f)};
 
 		pLeft = getOrbitFromDegrees(pos, angle - 100, size + 3);
 		pRight = getOrbitFromDegrees(pos, angle + 100, size + 3);
@@ -36,7 +36,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		if(!swapTimer.isEnabled() && !isDrawing3D) colorMain = getColorFromHue((swapBlinkTimer.getCurrent() * 15) / 255.0f);
+		if(!swapTimer.isEnabled() && !isDrawing3D) colorMain = getColorFromHue((swapBlinkTimer.getCurrent() * 15) / 255.f);
 		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);
@@ -74,7 +74,7 @@ namespace hg
 	void CPlayer::drawDeathEffect()
 	{
 		float div{360.f / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
-		Color colorMain{getColorFromHue((360 - hue) / 255.0f)};
+		Color colorMain{getColorFromHue((360 - hue) / 255.f)};
 		VertexArray verticesDeath{PrimitiveType::Quads, 4};
 		if(hue++ > 360) hue = 0;
 

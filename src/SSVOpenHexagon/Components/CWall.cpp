@@ -52,7 +52,7 @@ namespace hg
 			if(abs(vp.x - centerPos.x) < radius && abs(vp.y - centerPos.y) < radius) pointsOnCenter++;
 			else
 			{
-				moveTowards(vp, centerPos, speed.speed * 5.0f * mFrameTime);
+				moveTowards(vp, centerPos, speed.speed * 5.f * mFrameTime);
 				rotateAroundCenter(vp, centerPos, curve.speed / 60.f * mFrameTime);
 			}
 		}
