@@ -15,7 +15,7 @@ namespace hg
 		template<typename T> class PacketHandler
 		{
 			private:
-				using HandlerFunc = std::function<void(T&, sf::Packet&)>;
+				using HandlerFunc = ssvu::Func<void(T&, sf::Packet&)>;
 				std::unordered_map<unsigned int, HandlerFunc> functionHandlers;
 
 			public:
