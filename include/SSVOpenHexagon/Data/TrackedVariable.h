@@ -10,7 +10,7 @@ namespace hg
 	struct TrackedVariable
 	{
 		std::string variableName, displayName;
-		TrackedVariable(const std::string& mVariableName, const std::string& mDisplayName) : variableName{mVariableName}, displayName{mDisplayName} { }
+		TrackedVariable(std::string mVariableName, std::string mDisplayName) : variableName{std::move(mVariableName)}, displayName{std::move(mDisplayName)} { }
 	};
 }
 
