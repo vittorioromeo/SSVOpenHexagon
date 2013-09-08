@@ -103,7 +103,7 @@ namespace ssvuj
 			{
 				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
 				{
-					for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(as<std::string>(itr.key())), as<std::string>((*itr)[i], 0), as<float>((*itr)[i], 1));
+					for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(getKey(itr)), as<std::string>((*itr)[i], 0), as<float>((*itr)[i], 1));
 				}
 			}
 			inline static void toObj(Obj& mObj, const T& mValue)
