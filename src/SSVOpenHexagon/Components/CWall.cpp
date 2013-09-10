@@ -53,7 +53,7 @@ namespace hg
 			else
 			{
 				moveTowards(vp, centerPos, speed.speed * 5.f * mFrameTime);
-				rotateAroundCenter(vp, centerPos, curve.speed / 60.f * mFrameTime);
+				rotateRadiansAroundCenter(vp, centerPos, curve.speed / 60.f * mFrameTime);
 			}
 		}
 
