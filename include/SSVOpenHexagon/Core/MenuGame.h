@@ -84,7 +84,7 @@ namespace hg
 			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const ssvs::Vec2f& mPos, float mSize)							{ mText.setColor(getTextColor()); return renderTextImpl(mStr, mText, mPos, mSize); }
 			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const ssvs::Vec2f& mPos, const sf::Color& mColor)				{ mText.setColor(mColor); return renderTextImpl(mStr, mText, mPos); }
 			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const ssvs::Vec2f& mPos, const sf::Color& mColor, float mSize)	{ mText.setColor(mColor); return renderTextImpl(mStr, mText, mPos, mSize); }
-			void setIndex(int mIndex);
+			void setIndex(int mIdx);
 			void updateLeaderboard();
 			void updateFriends();
 			void initLua(Lua::LuaContext& mLua);

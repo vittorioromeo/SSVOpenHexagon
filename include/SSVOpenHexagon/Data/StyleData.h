@@ -74,7 +74,7 @@ namespace hg
 
 			inline const sf::Color& getMainColor() const			{ return currentMainColor; }
 			inline const std::vector<sf::Color>& getColors() const	{ return currentColors; }
-			inline const sf::Color& getColor(int mIndex) const		{ return currentColors[mIndex]; }
+			inline const sf::Color& getColor(int mIdx) const		{ return currentColors[mIdx]; }
 
 			inline float getCurrentHue() const 			{ return currentHue; }
 			inline float getCurrentSwapTime() const		{ return currentSwapTime; }

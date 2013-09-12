@@ -237,9 +237,9 @@ namespace hg
 			"w_wallHModSpeedData", "w_wallHModCurveData", "l_setDelayMult" }) mLua.writeVariable(un, []{});
 	}
 
-	void MenuGame::setIndex(int mIndex)
+	void MenuGame::setIndex(int mIdx)
 	{
-		currentIndex = mIndex;
+		currentIndex = mIdx;
 
 		if(currentIndex > (int)(levelDataIds.size() - 1)) currentIndex = 0;
 		else if(currentIndex < 0) currentIndex = levelDataIds.size() - 1;

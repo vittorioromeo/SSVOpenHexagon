@@ -118,7 +118,7 @@ namespace hg
 			// Getters
 			inline ssvs::GameState& getGame()						{ return game; }
 			inline float getRadius() const							{ return status.radius; }
-			inline const sf::Color& getColor(int mIndex) const		{ return styleData.getColor(mIndex); }
+			inline const sf::Color& getColor(int mIdx) const		{ return styleData.getColor(mIdx); }
 			inline float getSpeedMultDM() const						{ return levelStatus.speedMult * (pow(difficultyMult, 0.65f)); }
 			inline float getDelayMultDM() const						{ return levelStatus.delayMult / (pow(difficultyMult, 0.10f)); }
 			inline float getRotationSpeed() const					{ return levelStatus.rotationSpeed; }
