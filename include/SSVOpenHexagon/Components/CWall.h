@@ -18,7 +18,7 @@ namespace hg
 
 		SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f, float mMax = 0.f, bool mPingPong = false) : speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{mPingPong} { }
 
-		void update(float mFrameTime)
+		inline void update(float mFrameTime)
 		{
 			if(accel == 0) return;
 			speed += accel * mFrameTime;
