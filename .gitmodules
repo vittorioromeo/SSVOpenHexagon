@@ -16,6 +16,3 @@
 [submodule "extlibs/SSVLuaWrapper"]
 	path = extlibs/SSVLuaWrapper
 	url = https://github.com/SuperV1234/SSVLuaWrapper.git
-[submodule "extlibs/SSVJsonCpp"]
-	path = extlibs/SSVJsonCpp
-	url = https://github.com/SuperV1234/SSVJsonCpp.git
