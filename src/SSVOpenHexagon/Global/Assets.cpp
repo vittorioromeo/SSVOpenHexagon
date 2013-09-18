@@ -33,7 +33,7 @@ namespace hg
 
 	void HGAssets::loadAssets()
 	{
-		lo << lt("::loadAssets") << "loading local profiles" << endl; loadLocalProfiles();
+		lo("::loadAssets") << "loading local profiles" << endl; loadLocalProfiles();
 
 		for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
 		{
@@ -52,11 +52,11 @@ namespace hg
 			string packId{pd->id}, packPath{"Packs/" + packId + "/"};
 			packIds.push_back(packId);
 			packPaths.push_back(packPath);
-			if(!levelsOnly) {	lo << lt("::loadAssets") << "loading " << packId << " music" << endl;			loadMusic(packPath); }
-			if(!levelsOnly) {	lo << lt("::loadAssets") << "loading " << packId << " music data" << endl;		loadMusicData(packPath); }
-								lo << lt("::loadAssets") << "loading " << packId << " style data" << endl;		loadStyleData(packPath);
-								lo << lt("::loadAssets") << "loading " << packId << " level data" << endl;		loadLevelData(packPath);
-			if(!levelsOnly) {	lo << lt("::loadAssets") << "loading " << packId << " custom sounds" << endl;	loadCustomSounds(packId, packPath); }
+			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music" << endl;			loadMusic(packPath); }
+			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music data" << endl;		loadMusicData(packPath); }
+								lo("::loadAssets") << "loading " << packId << " style data" << endl;		loadStyleData(packPath);
+								lo("::loadAssets") << "loading " << packId << " level data" << endl;		loadLevelData(packPath);
+			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " custom sounds" << endl;	loadCustomSounds(packId, packPath); }
 		}
 	}
 

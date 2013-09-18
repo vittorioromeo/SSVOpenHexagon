@@ -24,7 +24,7 @@ namespace hg
 
 				void update()
 				{
-					if(!busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Update failed - not busy" << std::endl; return; }
+					if(!busy) { ssvu::lo("ManagedSocket") << "Update failed - not busy" << std::endl; return; }
 
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 					sf::Packet packet;
@@ -38,7 +38,7 @@ namespace hg
 
 				bool trySendPacket(sf::Packet mPacket)
 				{
-					if(!busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Couldn't send packet - not busy" << std::endl; return false; }
+					if(!busy) { ssvu::lo("ManagedSocket") << "Couldn't send packet - not busy" << std::endl; return false; }
 
 					for(int i{0}; i < 5; ++i)
 					{
@@ -46,7 +46,7 @@ namespace hg
 						std::this_thread::sleep_for(std::chrono::milliseconds(50));
 					}
 
-					ssvu::lo << ssvu::lt("ManagedSocket") << "Couldn't send packet - disconnecting" << std::endl;
+					ssvu::lo("ManagedSocket") << "Couldn't send packet - disconnecting" << std::endl;
 					disconnect();
 					//handlerThread.join();
 					return false;
@@ -61,7 +61,7 @@ namespace hg
 				inline bool send(const sf::Packet& mPacket) { return trySendPacket(mPacket); }
 				inline bool connect(sf::IpAddress mIp, unsigned int mPort)
 				{
-					if(busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Error: already connected" << std::endl; return false; }
+					if(busy) { ssvu::lo("ManagedSocket") << "Error: already connected" << std::endl; return false; }
 
 					for(int i{0}; i < 5; ++i)
 					{
@@ -74,16 +74,16 @@ namespace hg
 					succeed:
 					if(!busy)
 					{
-						ssvu::lo << ssvu::lt("ManagedSocket") << "Connecting..." << std::endl;
+						ssvu::lo("ManagedSocket") << "Connecting..." << std::endl;
 						busy = true;
 						handlerFuture = std::async(std::launch::async, [this]{ while(busy) update(); });
 					}
-					ssvu::lo << ssvu::lt("ManagedSocket") << "Connected to " << mIp.toString() << ":" << mPort << std::endl;
+					ssvu::lo("ManagedSocket") << "Connected to " << mIp.toString() << ":" << mPort << std::endl;
 					return true;
 				}
 				inline bool tryAccept(sf::TcpListener& mListener)
 				{
-					if(busy) { ssvu::lo << ssvu::lt("ManagedSocket") << "Error: already connected" << std::endl; return false; }
+					if(busy) { ssvu::lo("ManagedSocket") << "Error: already connected" << std::endl; return false; }
 
 					for(int i{0}; i < 5; ++i)
 					{
@@ -96,11 +96,11 @@ namespace hg
 					succeed:
 					if(!busy)
 					{
-						ssvu::lo << ssvu::lt("ManagedSocket") << "Accepting..." << std::endl;
+						ssvu::lo("ManagedSocket") << "Accepting..." << std::endl;
 						busy = true;
 						handlerFuture = std::async(std::launch::async, [this]{ while(busy) update(); });
 					}
-					ssvu::lo << ssvu::lt("ManagedSocket") << "Accepted" << std::endl;
+					ssvu::lo("ManagedSocket") << "Accepted" << std::endl;
 					return true;
 				}
 				inline void disconnect()	{ socket.disconnect(); busy = false; }

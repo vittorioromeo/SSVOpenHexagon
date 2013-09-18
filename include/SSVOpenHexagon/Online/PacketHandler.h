@@ -30,7 +30,7 @@ namespace hg
 						auto itr(functionHandlers.find(type));
 						if(itr == end(functionHandlers))
 						{
-							ssvu::lo << ssvu::lt("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
+							ssvu::lo("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
 							return;
 						}
 

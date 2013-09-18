@@ -22,7 +22,7 @@ void createProfilesFolder()
 	Path profilesPath{"Profiles/"};
 	if(profilesPath.exists()) return;
 
-	lo << lt("::createProfilesFolder") << "Profiles folder does not exist, creating" << endl;
+	lo("::createProfilesFolder") << "Profiles folder does not exist, creating" << endl;
 	createFolder(profilesPath);
 }
 

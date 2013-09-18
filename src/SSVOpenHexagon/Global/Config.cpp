@@ -83,7 +83,7 @@ namespace hg
 
 		void loadConfig(const vector<string>& mOverridesIds)
 		{
-			lo << lt("::loadConfig") << "loading config" << endl;
+			lo("::loadConfig") << "loading config" << endl;
 
 			for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
 			{
@@ -102,7 +102,7 @@ namespace hg
 			recalculateSizes();
 
 		}
-		void saveConfig() { lo << lt("::saveConfig") << "saving config" << endl; lvm.syncToObj(); writeToFile(root, "config.json"); }
+		void saveConfig() { lo("::saveConfig") << "saving config" << endl; lvm.syncToObj(); writeToFile(root, "config.json"); }
 
 		bool isEligibleForScore()
 		{

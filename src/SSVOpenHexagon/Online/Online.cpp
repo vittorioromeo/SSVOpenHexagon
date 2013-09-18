@@ -58,19 +58,19 @@ namespace hg
 		{
 			clientPHandler[FromServer::LoginResponseValid] = [](Client&, Packet& mP)
 			{
-				lo << lt("PacketHandler") << "Successfully logged in!" << endl;
+				lo("PacketHandler") << "Successfully logged in!" << endl;
 				loginStatus = LoginStat::Logged;
 				newUserReg = ssvuj::as<bool>(getDecompressedPacket(mP), 0);
 				trySendInitialRequests();
 			};
-			clientPHandler[FromServer::LoginResponseInvalid] = [](Client&, Packet&)		{ loginStatus = LoginStat::Unlogged; lo << lt("PacketHandler") << "Login invalid!" << endl; };
+			clientPHandler[FromServer::LoginResponseInvalid] = [](Client&, Packet&)		{ loginStatus = LoginStat::Unlogged; lo("PacketHandler") << "Login invalid!" << endl; };
 			clientPHandler[FromServer::RequestInfoResponse] = [](Client&, Packet& mP)	{ ssvuj::Obj r{getDecompressedPacket(mP)}; serverVersion = ssvuj::as<float>(r, 0); serverMessage = ssvuj::as<string>(r, 1); };
 			clientPHandler[FromServer::SendLeaderboard] = [](Client&, Packet& mP)		{ currentLeaderboard = ssvuj::as<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
-			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, Packet&)	{ currentLeaderboard = "NULL"; lo << lt("PacketHandler") << "Server failed sending leaderboard" << endl; gettingLeaderboard = false; };
-			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, Packet&)	{ lo << lt("PacketHandler") << "Server successfully accepted score" << endl; };
-			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, Packet&)	{ lo << lt("PacketHandler") << "Server refused score" << endl; };
+			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, Packet&)	{ currentLeaderboard = "NULL"; lo("PacketHandler") << "Server failed sending leaderboard" << endl; gettingLeaderboard = false; };
+			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, Packet&)	{ lo("PacketHandler") << "Server successfully accepted score" << endl; };
+			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, Packet&)	{ lo("PacketHandler") << "Server refused score" << endl; };
 			clientPHandler[FromServer::SendUserStats] = [](Client&, Packet& mP)			{ currentUserStatsStr = ssvuj::as<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
-			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, Packet&)		{ currentUserStatsStr = "NULL"; lo << lt("PacketHandler") << "Server failed sending user stats" << endl; };
+			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, Packet&)		{ currentUserStatsStr = "NULL"; lo("PacketHandler") << "Server failed sending user stats" << endl; };
 			clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::as<string>(getDecompressedPacket(mP), 0)); };
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&)			{ newUserReg = false; };
@@ -99,12 +99,12 @@ namespace hg
 
 		template<typename T> void trySendFunc(T&& mFunc)
 		{
-			if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
-			//lo << lt("hg::Online::trySendFunc") << "Sending data to server..." << endl;
+			if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
+			//lo("hg::Online::trySendFunc") << "Sending data to server..." << endl;
 
 			thread([=]
 			{
-				if(!canSendPacket()) { lo << lt("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
+				if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
 				mFunc();
 			}).detach();
 		}
@@ -117,10 +117,10 @@ namespace hg
 
 		void tryConnectToServer()
 		{
-			if(connectionStatus == ConnectStat::Connecting)	{ lo << lt("hg::Online::connectToServer") << "Already connecting" << endl; return; }
-			if(connectionStatus == ConnectStat::Connected)	{ lo << lt("hg::Online::connectToServer") << "Already connected" << endl; return; }
+			if(connectionStatus == ConnectStat::Connecting)	{ lo("hg::Online::connectToServer") << "Already connecting" << endl; return; }
+			if(connectionStatus == ConnectStat::Connected)	{ lo("hg::Online::connectToServer") << "Already connected" << endl; return; }
 
-			lo << lt("hg::Online::connectToServer") << "Connecting to server..." << endl;
+			lo("hg::Online::connectToServer") << "Connecting to server..." << endl;
 			client->disconnect();
 			connectionStatus = ConnectStat::Connecting;
 
@@ -129,11 +129,11 @@ namespace hg
 				if(client->connect("127.0.0.1", 54000))
 				//if(client->connect(hostIp, hostPort))
 				{
-					lo << lt("hg::Online::connectToServer") << "Connected to server!" << endl;
+					lo("hg::Online::connectToServer") << "Connected to server!" << endl;
 					connectionStatus = ConnectStat::Connected; return;
 				}
 
-				lo << lt("hg::Online::connectToServer") << "Failed to connect" << endl;
+				lo("hg::Online::connectToServer") << "Failed to connect" << endl;
 				connectionStatus = ConnectStat::Disconnected;
 				client->disconnect();
 			}).detach();
@@ -142,9 +142,9 @@ namespace hg
 		void tryLogin(const string& mUsername, const string& mPassword)
 		{
 			if(loginStatus != LoginStat::Unlogged) { logout(); return; }
-			if(connectionStatus != ConnectStat::Connected) { lo << lt("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::Unlogged; return; }
+			if(connectionStatus != ConnectStat::Connected) { lo("hg::Online::tryLogin") << "Client not connected - aborting" << endl; loginStatus = LoginStat::Unlogged; return; }
 
-			lo << lt("hg::Online::tryLogin") << "Logging in..." << endl;
+			lo("hg::Online::tryLogin") << "Logging in..." << endl;
 			loginStatus = LoginStat::Logging;
 
 			thread([=]
@@ -223,7 +223,7 @@ namespace hg
 
 		void initalizeValidators(HGAssets& mAssets)
 		{
-			lo << lt("hg::Online::initalizeValidators") << "Initializing validators..." << endl;
+			lo("hg::Online::initalizeValidators") << "Initializing validators..." << endl;
 
 			for(const auto& p : mAssets.getLevelDatas())
 			{
@@ -231,7 +231,7 @@ namespace hg
 				const auto& validator(getValidator(l->packPath, l->id, l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(), l->luaScriptPath));
 				validators.addValidator(p.first, validator);
 
-				//lo << lt("hg::Online::initalizeValidators") << "Added (" << p.first << "): " << validator << endl;
+				//lo("hg::Online::initalizeValidators") << "Added (" << p.first << "): " << validator << endl;
 			}
 		}
 	}

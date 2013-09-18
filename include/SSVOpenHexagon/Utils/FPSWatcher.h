@@ -41,7 +41,7 @@ namespace hg
 			{
 				if(lostFrames > maxLostFrames) return;
 				++lostFrames;
-				ssvu::lo << ssvu::lt("FPSWatcher::watch") << "Slowdown " << lostFrames << "/" << maxLostFrames << std::endl;
+				ssvu::lo("FPSWatcher::watch") << "Slowdown " << lostFrames << "/" << maxLostFrames << std::endl;
 			}
 
 		public:

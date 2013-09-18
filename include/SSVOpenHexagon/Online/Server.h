@@ -30,7 +30,7 @@ namespace hg
 				{
 					if(ssvu::containsAnyIf(clientHandlers, [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); })) return;
 
-					ssvu::lo << ssvu::lt("Server") << "Creating new client handlers" << std::endl;
+					ssvu::lo("Server") << "Creating new client handlers" << std::endl;
 					for(int i{0}; i < 10; ++i) clientHandlers.emplace_back(new ClientHandler{packetHandler});
 				}
 
@@ -46,7 +46,7 @@ namespace hg
 
 						onClientAccepted(*c.get());
 						c->refreshTimeout();
-						ssvu::lo << ssvu::lt("Server") << "Accepted client (" << c->getUid() << ")" << std::endl;
+						ssvu::lo("Server") << "Accepted client (" << c->getUid() << ")" << std::endl;
 					}
 				}
 
@@ -58,8 +58,8 @@ namespace hg
 
 				void start(unsigned int mPort)
 				{
-					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::lo << ssvu::lt("Server") << "Error initalizing listener" << std::endl; return; }
-					else ssvu::lo << ssvu::lt("Server") << "Listener initialized" << std::endl;
+					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::lo("Server") << "Error initalizing listener" << std::endl; return; }
+					else ssvu::lo("Server") << "Listener initialized" << std::endl;
 
 					running = true;
 					updateFuture = std::async(std::launch::async, [this]{ while(running) update(); });

@@ -39,7 +39,7 @@ namespace hg
 
 							if(!isBusy() || --untilTimeout > 0) continue;
 
-							ssvu::lo << ssvu::lt("ClientHandler") << "Client (" << uid << ") timed out" << std::endl;
+							ssvu::lo("ClientHandler") << "Client (" << uid << ") timed out" << std::endl;
 							onDisconnect(); disconnect();
 						}
 					});

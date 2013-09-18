@@ -138,8 +138,8 @@ namespace hg
 
 	void HexagonGame::checkAndSaveScore()
 	{
-		if(Config::getInvincible()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not saving score - invincibility on" << endl; return; }
-		if(status.scoreInvalid || !Config::isEligibleForScore()) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible" << endl; return; }
+		if(Config::getInvincible()) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not saving score - invincibility on" << endl; return; }
+		if(status.scoreInvalid || !Config::isEligibleForScore()) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible" << endl; return; }
 
 		if(assets.pIsLocal())
 		{
@@ -149,7 +149,7 @@ namespace hg
 		}
 		else
 		{
-			if(status.currentTime < 1) { lo << lt("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
+			if(status.currentTime < 1) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
 			Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
 		}
 	}
@@ -183,7 +183,7 @@ namespace hg
 	void HexagonGame::playLevelMusic() { if(!Config::getNoMusic()) musicData.playRandomSegment(assets); }
 	void HexagonGame::stopLevelMusic() { if(!Config::getNoMusic()) assets.stopMusics(); }
 
-	void HexagonGame::invalidateScore() { status.scoreInvalid = true; lo << lt("HexagonGame::invalidateScore") << "Too much slowdown, invalidating official game" << endl; }
+	void HexagonGame::invalidateScore() { status.scoreInvalid = true; lo("HexagonGame::invalidateScore") << "Too much slowdown, invalidating official game" << endl; }
 
 	Color HexagonGame::getColorMain() const
 	{
