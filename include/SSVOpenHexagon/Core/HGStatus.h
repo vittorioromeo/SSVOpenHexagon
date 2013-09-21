@@ -22,7 +22,7 @@ namespace hg
 		bool hasDied{false}, mustRestart{false};
 		bool drawing3D{false};
 		bool scoreInvalid{false};
-		sf::Color overrideColor{0, 0, 0, 0};
+		sf::Color overrideColor{sf::Color::Transparent};
 		ssvu::ObfuscatedValue<float> lostFrames{0};
 	};
 }

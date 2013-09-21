@@ -56,7 +56,7 @@ namespace hg
 			float _3dPulseMin					{ssvuj::as<float>(root, "3D_pulse_min", 0.f)};
 			float _3dPulseSpeed					{ssvuj::as<float>(root, "3D_pulse_speed", 0.01f)};
 			float _3dPerspectiveMult			{ssvuj::as<float>(root, "3D_perspective_multiplier", 1.f)};
-			sf::Color _3dOverrideColor			{ssvuj::as<sf::Color>(root, "3D_override_color", sf::Color{0, 0, 0, 0})};
+			sf::Color _3dOverrideColor			{ssvuj::as<sf::Color>(root, "3D_override_color", sf::Color::Transparent)};
 			ColorData mainColorData				{root["main"]};
 			std::vector<ColorData> colorDatas;
 
