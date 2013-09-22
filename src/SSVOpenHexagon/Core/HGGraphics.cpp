@@ -20,7 +20,7 @@ namespace hg
 		styleData.computeColors();
 
 		window.clear(Color::Black);
-		if(!Config::getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window.getRenderWindow(), {0, 0}, getSides()); }
+		if(!Config::getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window, {0, 0}, getSides()); }
 		if(Config::get3D())
 		{
 			status.drawing3D = true;
@@ -52,7 +52,7 @@ namespace hg
 		overlayCamera.apply(); drawText();
 
 		if(Config::getFlash()) render(flashPolygon);
-		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
+		if(mustTakeScreenshot) { window.saveScreenshot("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
 	void HexagonGame::render(Drawable &mDrawable) { window.draw(mDrawable); }

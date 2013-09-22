@@ -431,7 +431,7 @@ namespace hg
 		window.clear(state != s::SMain ? Color::Black : styleData.getColors()[0]);
 
 		backgroundCamera.apply();
-		if(state == s::SMain) styleData.drawBackground(window.getRenderWindow(), {0, 0}, levelStatus.sides);
+		if(state == s::SMain) styleData.drawBackground(window, {0, 0}, levelStatus.sides);
 
 		overlayCamera.apply();
 		if(state == s::SMain)			{ drawLevelSelection(); render(bottomBar); }
@@ -441,7 +441,7 @@ namespace hg
 		else if(state == s::MWlcm)		{ drawWelcome(); }
 
 		render(titleBar); render(creditsBar1); render(creditsBar2); render(txtVersion);
-		if(mustTakeScreenshot) { window.getRenderWindow().capture().saveToFile("screenshot.png"); mustTakeScreenshot = false; }
+		if(mustTakeScreenshot) { window.saveScreenshot("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
 	void MenuGame::drawLevelSelection()
