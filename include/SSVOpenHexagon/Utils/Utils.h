@@ -61,9 +61,9 @@ namespace hg
 			try { mLua.executeCode(s); }
 			catch(std::runtime_error& mError)
 			{
-				ssvu::lo("hg::Utils::runLuaFile") << "Fatal lua error" << std::endl
-					<< ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << std::endl
-					<< ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << std::endl << std::endl;
+				ssvu::lo("hg::Utils::runLuaFile") << "Fatal lua error" << "\n"
+					<< ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n"
+					<< ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << "\n" << std::endl;
 			}
 		}
 		template<typename R, typename... Args> inline R runLuaFunction(Lua::LuaContext& mLua, const std::string& mName, const Args&... mArgs)
@@ -71,7 +71,7 @@ namespace hg
 			try { return mLua.callLuaFunction<R>(mName, std::make_tuple(mArgs...)); }
 			catch(std::runtime_error& mError)
 			{
-				std::cout << mName << std::endl << "LUA runtime error: " << std::endl << ssvu::toStr(mError.what()) << std::endl << std::endl;
+				std::cout << mName << "\n" << "LUA runtime error: " << "\n" << ssvu::toStr(mError.what()) << "\n" << std::endl;
 			}
 
 			return R();
