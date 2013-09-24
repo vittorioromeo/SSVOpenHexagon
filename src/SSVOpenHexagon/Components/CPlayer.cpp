@@ -25,7 +25,7 @@ namespace hg
 		drawPivot();
 		const auto& isDrawing3D(hexagonGame.getStatus().drawing3D);
 
-		if(!isDrawing3D && deadEffectTimer.isEnabled()) drawDeathEffect();
+		if(!isDrawing3D && deadEffectTimer.isRunning()) drawDeathEffect();
 
 		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.f)};
 
@@ -36,7 +36,7 @@ namespace hg
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
-		if(!swapTimer.isEnabled() && !isDrawing3D) colorMain = getColorFromHue((swapBlinkTimer.getCurrent() * 15) / 255.f);
+		if(!swapTimer.isRunning() && !isDrawing3D) colorMain = getColorFromHue((swapBlinkTimer.getCurrent() * 15) / 255.f);
 		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
 		hexagonGame.render(vertices);
@@ -109,7 +109,7 @@ namespace hg
 
 		angle += currentSpeed * movement * mFrameTime;
 
-		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && !swapTimer.isEnabled())
+		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer.isStopped())
 		{
 			hexagonGame.getAssets().playSound("swap.ogg");
 			swapTimer.restart(); angle += 180;
