@@ -96,18 +96,18 @@ namespace hg
 		hexagonGame.render(verticesDeath);
 	}
 
-	void CPlayer::update(float mFrameTime)
+	void CPlayer::update(float mFT)
 	{
-		swapBlinkTimer.update(mFrameTime);
-		if(deadEffectTimer.update(mFrameTime) && hexagonGame.getLevelStatus().tutorialMode) deadEffectTimer.stop();
-		if(hexagonGame.getLevelStatus().swapEnabled) if(swapTimer.update(mFrameTime)) swapTimer.stop();
+		swapBlinkTimer.update(mFT);
+		if(deadEffectTimer.update(mFT) && hexagonGame.getLevelStatus().tutorialMode) deadEffectTimer.stop();
+		if(hexagonGame.getLevelStatus().swapEnabled) if(swapTimer.update(mFT)) swapTimer.stop();
 
 		Vec2f lastPos{pos};
 		float currentSpeed{speed}, lastAngle{angle}, radius{hexagonGame.getRadius()};
 		int movement{hexagonGame.getInputMovement()};
 		if(hexagonGame.getInputFocused()) currentSpeed = focusSpeed;
 
-		angle += currentSpeed * movement * mFrameTime;
+		angle += currentSpeed * movement * mFT;
 
 		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer.isStopped())
 		{

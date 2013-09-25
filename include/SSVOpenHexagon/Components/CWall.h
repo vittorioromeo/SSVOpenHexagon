@@ -18,10 +18,10 @@ namespace hg
 
 		SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f, float mMax = 0.f, bool mPingPong = false) : speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{mPingPong} { }
 
-		inline void update(float mFrameTime)
+		inline void update(float mFT)
 		{
 			if(accel == 0) return;
-			speed += accel * mFrameTime;
+			speed += accel * mFT;
 			if(speed > max)	{ speed = max; if(pingPong) accel *= -1; }
 			else if(speed < min) { speed = min; if(pingPong) accel *= -1; }
 		}
@@ -41,7 +41,7 @@ namespace hg
 		public:
 			CWall(HexagonGame& mHexagonGame, const ssvs::Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
-			void update(float mFrameTime) override;
+			void update(float mFT) override;
 			void draw() override;
 
 			inline void setHueMod(float mHueMod) { hueMod = mHueMod; }

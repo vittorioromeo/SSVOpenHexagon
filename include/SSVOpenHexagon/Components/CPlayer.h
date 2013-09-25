@@ -28,7 +28,7 @@ namespace hg
 		public:
 			CPlayer(HexagonGame& mHexagonGame, const ssvs::Vec2f& mStartPos);
 
-			void update(float mFrameTime) override;
+			void update(float mFT) override;
 			void draw() override;
 	};
 }

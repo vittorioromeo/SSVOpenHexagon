@@ -27,7 +27,7 @@ namespace hg
 	{
 		initAssets(); refreshCamera();
 
-		game.onUpdate += [&](float mFrameTime) { update(mFrameTime); };
+		game.onUpdate += [&](float mFT) { update(mFT); };
 		game.onDraw += [&]{ draw(); };
 		game.onEvent(Event::EventType::TextEntered) += [&](const Event& mEvent){ enteredChars.push_back(mEvent.text.unicode); };
 		window.onRecreation += [&]{ refreshCamera(); };
@@ -203,7 +203,7 @@ namespace hg
 			else if((state == s::ETFriend || state == s::SLPSelect) && valid) state = s::SMain;
 		}, t::Once);
 
-		game.addInput(Config::getTriggerExit(), [&](float mFrameTime) { if(state != s::MOpts) exitTimer += mFrameTime; });
+		game.addInput(Config::getTriggerExit(), [&](float mFT) { if(state != s::MOpts) exitTimer += mFT; });
 		game.addInput(Config::getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Once);
 		game.addInput({{k::LAlt, k::Return}}, [&](float){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Once);
 		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
@@ -380,14 +380,14 @@ namespace hg
 		bottomBar.setPosition(Vec2f(0, h));
 	}
 
-	void MenuGame::update(float mFrameTime)
+	void MenuGame::update(float mFT)
 	{
-		overlayCamera.update(mFrameTime);
-		backgroundCamera.update(mFrameTime);
+		overlayCamera.update(mFT);
+		backgroundCamera.update(mFT);
 
 		if(getCurrentMenu() != nullptr) getCurrentMenu()->update();
 
-		currentCreditsId += mFrameTime;
+		currentCreditsId += mFT;
 		creditsBar2.setTexture(assets.get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
 
 		// If connection is lost, kick the player back into welcome screen
@@ -406,7 +406,7 @@ namespace hg
 		else if(state == s::SLPSelect) { enteredStr = assets.getLocalProfileNames()[profileIndex % assets.getLocalProfileNames().size()]; }
 		else if(state == s::SMain)
 		{
-			styleData.update(mFrameTime);
+			styleData.update(mFT);
 			backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
 
 			if(!assets.pIsLocal())

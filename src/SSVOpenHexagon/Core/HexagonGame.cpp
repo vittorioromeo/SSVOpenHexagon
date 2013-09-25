@@ -20,7 +20,7 @@ namespace hg
 {
 	HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow) : assets(mAssets), window(mGameWindow), fpsWatcher(window)
 	{
-		game.onUpdate += [this](float mFrameTime) { update(mFrameTime); };
+		game.onUpdate += [this](float mFT) { update(mFT); };
 		game.onDraw += [this]{ draw(); };
 		window.onRecreation += [this]{ initFlashEffect(); };
 

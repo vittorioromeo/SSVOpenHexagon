@@ -61,16 +61,16 @@ namespace hg
 			void initFlashEffect();
 
 			// Update methods
-			void update(float mFrameTime);
-			void updateTimeStop(float mFrameTime);
+			void update(float mFT);
+			void updateTimeStop(float mFT);
 			void updateIncrement();
-			void updateEvents(float mFrameTime);
-			void updateLevel(float mFrameTime);
-			void updatePulse(float mFrameTime);
-			void updateBeatPulse(float mFrameTime);
-			void updateRotation(float mFrameTime);
-			void updateFlash(float mFrameTime);
-			void update3D(float mFrameTime);
+			void updateEvents(float mFT);
+			void updateLevel(float mFT);
+			void updatePulse(float mFT);
+			void updateBeatPulse(float mFT);
+			void updateRotation(float mFT);
+			void updateFlash(float mFT);
+			void update3D(float mFT);
 
 			// Draw methods
 			void draw();

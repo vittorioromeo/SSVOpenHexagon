@@ -63,7 +63,7 @@ namespace hg
 			StyleData() = default;
 			StyleData(const ssvuj::Obj& mRoot, const Path& mPath) : root{mRoot}, currentHue{hueMin}, rootPath{mPath} { for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
 
-			void update(float mFrameTime, float mMult = 1.f);
+			void update(float mFT, float mMult = 1.f);
 			void computeColors();
 			void drawBackground(sf::RenderTarget& mRenderTarget, const ssvs::Vec2f& mCenterPos, int mSides);
 

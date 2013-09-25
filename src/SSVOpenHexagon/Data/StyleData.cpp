@@ -44,12 +44,12 @@ namespace hg
 					 getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f));
 	}
 
-	void StyleData::update(float mFrameTime, float mMult)
+	void StyleData::update(float mFT, float mMult)
 	{
-		currentSwapTime += mFrameTime * mMult;
+		currentSwapTime += mFT * mMult;
 		if(currentSwapTime > maxSwapTime) currentSwapTime = 0;
 
-		currentHue += hueIncrement * mFrameTime * mMult;
+		currentHue += hueIncrement * mFT * mMult;
 
 		if(currentHue < hueMin)
 		{
@@ -62,7 +62,7 @@ namespace hg
 			else currentHue = hueMin;
 		}
 
-		pulseFactor += pulseIncrement * mFrameTime;
+		pulseFactor += pulseIncrement * mFT;
 
 		if(pulseFactor < pulseMin) { pulseIncrement *= -1.f; pulseFactor = pulseMin; }
 		if(pulseFactor > pulseMax) { pulseIncrement *= -1.f; pulseFactor = pulseMax; }
