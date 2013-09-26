@@ -38,7 +38,7 @@ namespace hg
 
 		public:
 			std::string id						{ssvuj::as<std::string>(root, "id", "nullId")};
-			float hueMin						{ssvuj::as<float>(root, "hue_min", 0.f)};
+			float hueMin;
 			float hueMax						{ssvuj::as<float>(root, "hue_max", 360.f)};
 			float hueIncrement					{ssvuj::as<float>(root, "hue_increment", 0.f)};
 			float pulseMin						{ssvuj::as<float>(root, "pulse_min", 0.f)};
@@ -61,7 +61,7 @@ namespace hg
 			std::vector<ColorData> colorDatas;
 
 			StyleData() = default;
-			StyleData(const ssvuj::Obj& mRoot, const Path& mPath) : root{mRoot}, currentHue{hueMin}, rootPath{mPath} { for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
+			StyleData(const ssvuj::Obj& mRoot, const Path& mPath) : root{mRoot}, hueMin{ssvuj::as<float>(root, "hue_min", 0.f)}, currentHue{hueMin}, rootPath{mPath} { for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]); }
 
 			void update(float mFT, float mMult = 1.f);
 			void computeColors();
