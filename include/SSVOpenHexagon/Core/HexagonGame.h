@@ -32,11 +32,11 @@ namespace hg
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
-			ssvs::Camera backgroundCamera{window, {{0, 0}, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}};
+			ssvs::Camera backgroundCamera{window, {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, ssvs::Vec2f(Config::getWidth(), Config::getHeight())}};
 			std::vector<ssvs::Camera> depthCameras;
 			ssvu::TimelineManager effectTimelineManager;
-			Factory factory{*this, manager, {0, 0}};
+			Factory factory{*this, manager, ssvs::zeroVec2f};
 			Lua::LuaContext	lua;
 			LevelStatus levelStatus;
 			MusicData musicData;

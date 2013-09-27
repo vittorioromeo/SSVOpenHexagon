@@ -124,7 +124,7 @@ namespace hg
 		status.pulseDelayHalf -= mFT;
 
 		float p{status.pulse / levelStatus.pulseMin}, rotation{backgroundCamera.getRotation()};
-		backgroundCamera.setView({{0, 0}, {(Config::getWidth() * Config::getZoomFactor()) * p, (Config::getHeight() * Config::getZoomFactor()) * p}});
+		backgroundCamera.setView({ssvs::zeroVec2f, {(Config::getWidth() * Config::getZoomFactor()) * p, (Config::getHeight() * Config::getZoomFactor()) * p}});
 		backgroundCamera.setRotation(rotation);
 	}
 	void HexagonGame::updateBeatPulse(float mFT)

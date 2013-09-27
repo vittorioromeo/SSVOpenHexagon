@@ -83,7 +83,7 @@ namespace hg
 
 		// Reset zoom
 		overlayCamera.setView({{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, Vec2f(Config::getWidth(), Config::getHeight())});
-		backgroundCamera.setView({{0, 0}, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}});
+		backgroundCamera.setView({ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}});
 		backgroundCamera.setRotation(0);
 
 		// 3D Cameras cleanup

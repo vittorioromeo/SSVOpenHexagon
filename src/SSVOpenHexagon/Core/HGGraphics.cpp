@@ -20,7 +20,7 @@ namespace hg
 		styleData.computeColors();
 
 		window.clear(Color::Black);
-		if(!Config::getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window, {0, 0}, getSides()); }
+		if(!Config::getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window, ssvs::zeroVec2f, getSides()); }
 		if(Config::get3D())
 		{
 			status.drawing3D = true;

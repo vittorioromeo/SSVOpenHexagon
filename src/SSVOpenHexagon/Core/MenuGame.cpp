@@ -357,7 +357,7 @@ namespace hg
 		w = Config::getWidth() * fmax;
 		h = Config::getHeight() * fmax;
 		overlayCamera.setView(View{FloatRect(0, 0, w, h)});
-		titleBar.setOrigin({0, 0});
+		titleBar.setOrigin(ssvs::zeroVec2f);
 		titleBar.setScale({0.5f, 0.5f});
 		titleBar.setPosition({20.f, 20.f});
 
@@ -431,7 +431,7 @@ namespace hg
 		window.clear(state != s::SMain ? Color::Black : styleData.getColors()[0]);
 
 		backgroundCamera.apply();
-		if(state == s::SMain) styleData.drawBackground(window, {0, 0}, levelStatus.sides);
+		if(state == s::SMain) styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus.sides);
 
 		overlayCamera.apply();
 		if(state == s::SMain)			{ drawLevelSelection(); render(bottomBar); }

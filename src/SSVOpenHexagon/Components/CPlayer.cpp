@@ -127,7 +127,7 @@ namespace hg
 			{
 				deadEffectTimer.restart();
 				if(!Config::getInvincible()) dead = true;
-				lastPos = getMovedTowards(lastPos, {0, 0}, 5 * hexagonGame.getSpeedMultDM());
+				lastPos = getMovedTowards(lastPos, ssvs::zeroVec2f, 5 * hexagonGame.getSpeedMultDM());
 				pos = lastPos; hexagonGame.death(); return;
 			}
 		}

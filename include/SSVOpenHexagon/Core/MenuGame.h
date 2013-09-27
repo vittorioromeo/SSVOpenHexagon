@@ -30,7 +30,7 @@ namespace hg
 			ssvs::GameState game;
 			ssvs::GameWindow& window;
 			sses::Manager manager;
-			ssvs::Camera backgroundCamera{window, {{0, 0}, {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}};
+			ssvs::Camera backgroundCamera{window, {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(), Config::getSizeY() * Config::getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{Config::getWidth() / 2.f, Config::getHeight() * Config::getZoomFactor() / 2.f}, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}};
 			States state{States::MWlcm};
 			ssvms::Menu optionsMenu, welcomeMenu;
