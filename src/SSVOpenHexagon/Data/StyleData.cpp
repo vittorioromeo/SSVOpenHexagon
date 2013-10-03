@@ -93,8 +93,8 @@ namespace hg
 			else if(i % 2 == 0 && i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 
 			vertices.append({mCenterPos, currentColor});
-			vertices.append({getOrbitFromDegrees(mCenterPos, angle + div * 0.5f, distance), currentColor});
-			vertices.append({getOrbitFromDegrees(mCenterPos, angle - div * 0.5f, distance), currentColor});
+			vertices.append({getOrbitFromDeg(mCenterPos, angle + div * 0.5f, distance), currentColor});
+			vertices.append({getOrbitFromDeg(mCenterPos, angle - div * 0.5f, distance), currentColor});
 		}
 
 		mRenderTarget.draw(vertices);

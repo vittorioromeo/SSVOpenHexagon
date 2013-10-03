@@ -248,7 +248,7 @@ namespace hg
 
 		styleData = assets.getStyleData(levelData->styleId);
 		difficultyMultipliers = levelData->difficultyMults;
-		difficultyMultIndex = indexOf(difficultyMultipliers, 1);
+		difficultyMultIndex = idxOf(difficultyMultipliers, 1);
 
 		Lua::LuaContext lua; initLua(lua);
 		Utils::runLuaFile(lua, levelData->luaScriptPath);
@@ -547,7 +547,7 @@ namespace hg
 			currentY += 19;
 			if(i != 0 && i % 21 == 0) { currentY = 0; currentX += 180; }
 			string name, itemName{currentItems[i]->getName()};
-			if(i == mMenu.getIndex()) name.append(">> ");
+			if(i == mMenu.getIdx()) name.append(">> ");
 			name.append(itemName);
 
 			int extraSpacing{0};

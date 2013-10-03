@@ -69,9 +69,9 @@ namespace hg
 
 		float getServerVersion();
 		std::string getServerMessage();
-		std::string getMD5Hash(const std::string& mString);
-		inline std::string getControlStripped(const std::string& mString)	{ std::string result; for(const auto& c : mString) if(!std::iscntrl(c)) result += c; return result; }
-		inline std::string getUrlEncoded(const std::string& mString) 		{ std::string result; for(const auto& c : mString) if(std::isalnum(c)) result += c; return getControlStripped(result); }
+		std::string getMD5Hash(const std::string& mStr);
+		inline std::string getControlStripped(const std::string& mStr)	{ std::string result; for(const auto& c : mStr) if(!std::iscntrl(c)) result += c; return result; }
+		inline std::string getUrlEncoded(const std::string& mStr) 		{ std::string result; for(const auto& c : mStr) if(std::isalnum(c)) result += c; return getControlStripped(result); }
 
 		bool getNewUserReg();
 

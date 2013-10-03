@@ -29,10 +29,10 @@ namespace hg
 
 		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.f)};
 
-		pLeft = getOrbitFromDegrees(pos, angle - 100, size + 3);
-		pRight = getOrbitFromDegrees(pos, angle + 100, size + 3);
+		pLeft = getOrbitFromDeg(pos, angle - 100, size + 3);
+		pRight = getOrbitFromDeg(pos, angle + 100, size + 3);
 
-		vertices[0].position = getOrbitFromDegrees(pos, angle, size);
+		vertices[0].position = getOrbitFromDeg(pos, angle, size);
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
@@ -53,10 +53,10 @@ namespace hg
 		{
 			float sAngle{div * 2.f * i};
 
-			Vec2f p1{getOrbitFromDegrees(startPos, sAngle - div, radius)};
-			Vec2f p2{getOrbitFromDegrees(startPos, sAngle + div, radius)};
-			Vec2f p3{getOrbitFromDegrees(startPos, sAngle + div, radius + baseThickness)};
-			Vec2f p4{getOrbitFromDegrees(startPos, sAngle - div, radius + baseThickness)};
+			Vec2f p1{getOrbitFromDeg(startPos, sAngle - div, radius)};
+			Vec2f p2{getOrbitFromDeg(startPos, sAngle + div, radius)};
+			Vec2f p3{getOrbitFromDeg(startPos, sAngle + div, radius + baseThickness)};
+			Vec2f p4{getOrbitFromDeg(startPos, sAngle - div, radius + baseThickness)};
 
 			vertices2.append({p1, colorMain});
 			vertices2.append({p2, colorMain});
@@ -82,10 +82,10 @@ namespace hg
 		{
 			float sAngle{div * 2.f * i};
 
-			Vec2f p1{getOrbitFromDegrees(pos, sAngle - div, radius)};
-			Vec2f p2{getOrbitFromDegrees(pos, sAngle + div, radius)};
-			Vec2f p3{getOrbitFromDegrees(pos, sAngle + div, radius + thickness)};
-			Vec2f p4{getOrbitFromDegrees(pos, sAngle - div, radius + thickness)};
+			Vec2f p1{getOrbitFromDeg(pos, sAngle - div, radius)};
+			Vec2f p2{getOrbitFromDeg(pos, sAngle + div, radius)};
+			Vec2f p3{getOrbitFromDeg(pos, sAngle + div, radius + thickness)};
+			Vec2f p4{getOrbitFromDeg(pos, sAngle - div, radius + thickness)};
 
 			verticesDeath.append({p1, colorMain});
 			verticesDeath.append({p2, colorMain});
@@ -115,9 +115,9 @@ namespace hg
 			swapTimer.restart(); angle += 180;
 		}
 
-		Vec2f tempPos{getOrbitFromDegrees(startPos, angle, radius)};
-		Vec2f pLeftCheck{getOrbitFromDegrees(tempPos, angle - 90, 0.01f)};
-		Vec2f pRightCheck{getOrbitFromDegrees(tempPos, angle + 90, 0.01f)};
+		Vec2f tempPos{getOrbitFromDeg(startPos, angle, radius)};
+		Vec2f pLeftCheck{getOrbitFromDeg(tempPos, angle - 90, 0.01f)};
+		Vec2f pRightCheck{getOrbitFromDeg(tempPos, angle + 90, 0.01f)};
 
 		for(const auto& wall : getManager().getEntities(HGGroup::Wall))
 		{
@@ -132,6 +132,6 @@ namespace hg
 			}
 		}
 
-		pos = getOrbitFromDegrees(startPos, angle, radius);
+		pos = getOrbitFromDeg(startPos, angle, radius);
 	}
 }

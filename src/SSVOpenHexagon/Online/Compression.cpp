@@ -9,14 +9,14 @@ using namespace std;
 
 namespace hg
 {
-	string getZLibCompress(const string& mString, int mCompressionlevel)
+	string getZLibCompress(const string& mStr, int mCompressionlevel)
 	{
 		z_stream zs; memset(&zs, 0, sizeof(zs));
 
 		if(deflateInit(&zs, mCompressionlevel) != Z_OK) throw(runtime_error("deflateInit failed while compressing."));
 
-		zs.next_in = (Bytef*)mString.data();
-		zs.avail_in = mString.size();
+		zs.next_in = (Bytef*)mStr.data();
+		zs.avail_in = mStr.size();
 
 		int ret; char outbuffer[32768]; string outstring;
 
@@ -43,14 +43,14 @@ namespace hg
 		return outstring;
 	}
 
-	string getZLibDecompress(const string& mString)
+	string getZLibDecompress(const string& mStr)
 	{
 		z_stream zs; memset(&zs, 0, sizeof(zs));
 
 		if(inflateInit(&zs) != Z_OK) throw(runtime_error("inflateInit failed while decompressing."));
 
-		zs.next_in = (Bytef*)mString.data();
-		zs.avail_in = mString.size();
+		zs.next_in = (Bytef*)mStr.data();
+		zs.avail_in = mStr.size();
 
 		int ret; char outbuffer[32768]; string outstring;
 

@@ -219,7 +219,7 @@ namespace hg
 			return getUrlEncoded(mLevelId) + getMD5Hash(HG_ENCRYPT(toEncrypt));
 		}
 
-		string getMD5Hash(const string& mString)	{ return encrypt<Encryption::Type::MD5>(mString); }
+		string getMD5Hash(const string& mStr)	{ return encrypt<Encryption::Type::MD5>(mStr); }
 
 		void initalizeValidators(HGAssets& mAssets)
 		{
