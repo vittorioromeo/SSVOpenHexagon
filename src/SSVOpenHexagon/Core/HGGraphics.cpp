@@ -55,15 +55,13 @@ namespace hg
 		if(mustTakeScreenshot) { window.saveScreenshot("screenshot.png"); mustTakeScreenshot = false; }
 	}
 
-	void HexagonGame::render(Drawable &mDrawable) { window.draw(mDrawable); }
-
 	void HexagonGame::initFlashEffect()
 	{
 		flashPolygon.clear();
-		flashPolygon.append({{-100.f, -100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{Config::getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{Config::getWidth() + 100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0}});
-		flashPolygon.append({{-100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0}});
+		flashPolygon.emplace_back(Vec2f{-100.f, -100.f}, Color{255, 255, 255, 0});
+		flashPolygon.emplace_back(Vec2f{Config::getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0});
+		flashPolygon.emplace_back(Vec2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0});
+		flashPolygon.emplace_back(Vec2f{-100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0});
 	}
 
 	void HexagonGame::drawText()

@@ -81,7 +81,7 @@ namespace hg
 	{
 		float div{360.f / mSides * 1.0001f}, distance{4500};
 
-		VertexArray vertices{PrimitiveType::Triangles, 3};
+		ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
 		const auto& colors(getColors());
 
 		for(int i{0}; i < mSides; ++i)
@@ -92,9 +92,9 @@ namespace hg
 			if(Config::getBlackAndWhite()) currentColor = Color::Black;
 			else if(i % 2 == 0 && i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 
-			vertices.append({mCenterPos, currentColor});
-			vertices.append({getOrbitFromDeg(mCenterPos, angle + div * 0.5f, distance), currentColor});
-			vertices.append({getOrbitFromDeg(mCenterPos, angle - div * 0.5f, distance), currentColor});
+			vertices.emplace_back(mCenterPos, currentColor);
+			vertices.emplace_back(getOrbitFromDeg(mCenterPos, angle + div * 0.5f, distance), currentColor);
+			vertices.emplace_back(getOrbitFromDeg(mCenterPos, angle - div * 0.5f, distance), currentColor);
 		}
 
 		mRenderTarget.draw(vertices);

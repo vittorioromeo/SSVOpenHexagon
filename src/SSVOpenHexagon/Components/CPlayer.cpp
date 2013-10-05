@@ -47,7 +47,8 @@ namespace hg
 		float div{360.f / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
 		if(Config::getBlackAndWhite()) colorB = Color::Black;
-		VertexArray vertices2{PrimitiveType::Quads, 4}, vertices3{PrimitiveType::Triangles, 3};
+		ssvs::VertexVector<sf::PrimitiveType::Quads> vertices2(4);
+		ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices3(3);
 
 		for(auto i(0u); i < sides; ++i)
 		{
@@ -58,14 +59,14 @@ namespace hg
 			Vec2f p3{getOrbitFromDeg(startPos, sAngle + div, radius + baseThickness)};
 			Vec2f p4{getOrbitFromDeg(startPos, sAngle - div, radius + baseThickness)};
 
-			vertices2.append({p1, colorMain});
-			vertices2.append({p2, colorMain});
-			vertices2.append({p3, colorMain});
-			vertices2.append({p4, colorMain});
+			vertices2.emplace_back(p1, colorMain);
+			vertices2.emplace_back(p2, colorMain);
+			vertices2.emplace_back(p3, colorMain);
+			vertices2.emplace_back(p4, colorMain);
 
-			vertices3.append({p1, colorB});
-			vertices3.append({p2, colorB});
-			vertices3.append({startPos, colorB});
+			vertices3.emplace_back(p1, colorB);
+			vertices3.emplace_back(p2, colorB);
+			vertices3.emplace_back(startPos, colorB);
 		}
 
 		if(!hexagonGame.getStatus().drawing3D) hexagonGame.render(vertices3);
@@ -75,7 +76,7 @@ namespace hg
 	{
 		float div{360.f / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
 		Color colorMain{getColorFromHue((360 - hue) / 255.f)};
-		VertexArray verticesDeath{PrimitiveType::Quads, 4};
+		ssvs::VertexVector<sf::PrimitiveType::Quads> verticesDeath(4);
 		if(hue++ > 360) hue = 0;
 
 		for(auto i(0u); i < hexagonGame.getSides(); ++i)
@@ -87,10 +88,10 @@ namespace hg
 			Vec2f p3{getOrbitFromDeg(pos, sAngle + div, radius + thickness)};
 			Vec2f p4{getOrbitFromDeg(pos, sAngle - div, radius + thickness)};
 
-			verticesDeath.append({p1, colorMain});
-			verticesDeath.append({p2, colorMain});
-			verticesDeath.append({p3, colorMain});
-			verticesDeath.append({p4, colorMain});
+			verticesDeath.emplace_back(p1, colorMain);
+			verticesDeath.emplace_back(p2, colorMain);
+			verticesDeath.emplace_back(p3, colorMain);
+			verticesDeath.emplace_back(p4, colorMain);
 		}
 
 		hexagonGame.render(verticesDeath);

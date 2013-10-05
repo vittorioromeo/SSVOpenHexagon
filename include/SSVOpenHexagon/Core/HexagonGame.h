@@ -43,7 +43,7 @@ namespace hg
 			StyleData styleData;
 			ssvu::Timeline timeline, eventTimeline, messageTimeline;
 			sf::Text messageText{"", assets.get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(38.f / Config::getZoomFactor())};
-			sf::VertexArray flashPolygon{sf::PrimitiveType::Quads, 4};
+			ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
 			bool firstPlay{true}, restartFirstTime{true}, inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false}, mustChangeSides{false};
 			HexagonGameStatus status;
 			std::string restartId;
@@ -110,7 +110,7 @@ namespace hg
 			void executeEvents(ssvuj::Obj& mRoot, float mTime);
 
 			// Graphics-related methods
-			void render(sf::Drawable&);
+			inline void render(sf::Drawable& mDrawable) { window.draw(mDrawable); }
 
 			// Setters
 			void setSides(unsigned int mSides);

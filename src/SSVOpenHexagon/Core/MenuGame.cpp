@@ -77,7 +77,7 @@ namespace hg
 		auto& debug(optionsMenu.createCategory("debug"));
 		auto& localProfiles(optionsMenu.createCategory("local profiles"));
 
-		main.create<i::Goto>("friends", friends) | whenNotLocal ;
+		main.create<i::Goto>("friends", friends) | whenNotLocal;
 		main.create<i::Goto>("gameplay", play);
 		main.create<i::Goto>("resolution", resolution);
 		main.create<i::Goto>("graphics", gfx);
