@@ -33,7 +33,6 @@ namespace hg
 			HexagonGame& hexagonGame;
 			ssvs::Vec2f centerPos;
 			std::vector<ssvs::Vec2f> vertexPositions{4};
-			ssvs::VertexVector<sf::PrimitiveType::Quads> vertices{4}; // TODO: put in game, like particles in ob
 			SpeedData speed, curve;
 			float distance{0}, thickness{0}, hueMod{0};
 			int side{0};

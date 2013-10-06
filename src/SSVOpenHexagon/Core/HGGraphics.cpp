@@ -17,6 +17,7 @@ namespace hg
 {
 	void HexagonGame::draw()
 	{
+		wallQuads.clear();
 		styleData.computeColors();
 
 		window.clear(Color::Black);
@@ -48,8 +49,13 @@ namespace hg
 			}
 			status.drawing3D = false;
 		}
-		backgroundCamera.apply(); manager.draw();
-		overlayCamera.apply(); drawText();
+
+		backgroundCamera.apply();
+		manager.draw();
+		render(wallQuads);
+
+		overlayCamera.apply();
+		drawText();
 
 		if(Config::getFlash()) render(flashPolygon);
 		if(mustTakeScreenshot) { window.saveScreenshot("screenshot.png"); mustTakeScreenshot = false; }

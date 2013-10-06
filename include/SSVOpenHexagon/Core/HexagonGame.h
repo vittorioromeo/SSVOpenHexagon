@@ -50,6 +50,7 @@ namespace hg
 			float difficultyMult{1};
 			int inputMovement{0};
 
+
 			FPSWatcher fpsWatcher;
 			sf::Text text{"", assets.get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / Config::getZoomFactor())};
 
@@ -98,6 +99,7 @@ namespace hg
 			void invalidateScore();
 
 		public:
+			ssvs::VertexVector<sf::PrimitiveType::Quads> wallQuads;
 			MenuGame* mgPtr;
 
 			HexagonGame(HGAssets& mAssets, ssvs::GameWindow& mGameWindow);

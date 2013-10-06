@@ -29,14 +29,7 @@ namespace hg
 		auto colorMain(hexagonGame.getColorMain());
 		if(hueMod != 0 && !hexagonGame.getStatus().drawing3D) colorMain = Utils::transformHue(colorMain, hueMod);
 
-		for(auto i(0u); i < 4; ++i)
-		{
-			auto& vertex(vertices[i]);
-			vertex.position = vertexPositions[i];
-			vertex.color = colorMain;
-		}
-
-		hexagonGame.render(vertices);
+		for(auto i(0u); i < 4; ++i) hexagonGame.wallQuads.emplace_back(vertexPositions[i], colorMain);
 	}
 
 	void CWall::update(float mFT)
