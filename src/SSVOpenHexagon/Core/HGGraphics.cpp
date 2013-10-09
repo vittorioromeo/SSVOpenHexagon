@@ -46,6 +46,7 @@ namespace hg
 
 				depthCameras[i].apply();
 				manager.draw();
+				render(wallQuads);
 			}
 			status.drawing3D = false;
 		}
