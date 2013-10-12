@@ -18,7 +18,7 @@ namespace hg
 		struct User	{ std::string passwordHash, email; UserStats stats; };
 		class UserDB
 		{
-			template<typename T> friend struct ssvuj::Internal::Converter;
+			template<typename T> friend struct ssvuj::Converter;
 
 			private:
 				std::unordered_map<std::string, User> users;
@@ -60,7 +60,7 @@ namespace hg
 		};
 		class ScoreDB
 		{
-			template<typename T> friend struct ssvuj::Internal::Converter;
+			template<typename T> friend struct ssvuj::Converter;
 
 			private:
 				std::unordered_map<std::string, LevelScoreDB> levels;
@@ -76,56 +76,53 @@ namespace hg
 
 namespace ssvuj
 {
-	namespace Internal
+	template<> struct Converter<hg::Online::UserStats>
 	{
-		template<> struct Converter<hg::Online::UserStats>
+		using T = hg::Online::UserStats;
+		inline static void fromObj(T& mValue, const Obj& mObj)	{ extrObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
+		inline static void toObj(Obj& mObj, const T& mValue)	{ archObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
+	};
+	template<> struct Converter<hg::Online::User>
+	{
+		using T = hg::Online::User;
+		inline static void fromObj(T& mValue, const Obj& mObj)	{ extrObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
+		inline static void toObj(Obj& mObj, const T& mValue)	{ archObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
+	};
+	template<> struct Converter<hg::Online::UserDB>
+	{
+		using T = hg::Online::UserDB;
+		inline static void fromObj(T& mValue, const Obj& mObj)	{ extr(mObj, mValue.users); }
+		inline static void toObj(Obj& mObj, const T& mValue)	{ arch(mObj, mValue.users); }
+	};
+	template<> struct Converter<hg::Online::LevelScoreDB>
+	{
+		using T = hg::Online::LevelScoreDB;
+		inline static void fromObj(T& mValue, const Obj& mObj)
 		{
-			using T = hg::Online::UserStats;
-			inline static void fromObj(T& mValue, const Obj& mObj)	{ extrObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
-			inline static void toObj(Obj& mObj, const T& mValue)	{ archObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
-		};
-		template<> struct Converter<hg::Online::User>
-		{
-			using T = hg::Online::User;
-			inline static void fromObj(T& mValue, const Obj& mObj)	{ extrObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
-			inline static void toObj(Obj& mObj, const T& mValue)	{ archObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
-		};
-		template<> struct Converter<hg::Online::UserDB>
-		{
-			using T = hg::Online::UserDB;
-			inline static void fromObj(T& mValue, const Obj& mObj)	{ extr(mObj, mValue.users); }
-			inline static void toObj(Obj& mObj, const T& mValue)	{ arch(mObj, mValue.users); }
-		};
-		template<> struct Converter<hg::Online::LevelScoreDB>
-		{
-			using T = hg::Online::LevelScoreDB;
-			inline static void fromObj(T& mValue, const Obj& mObj)
+			for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
 			{
-				for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
+				for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(getKey(itr)), as<std::string>((*itr)[i], 0), as<float>((*itr)[i], 1));
+			}
+		}
+		inline static void toObj(Obj& mObj, const T& mValue)
+		{
+			for(const auto& s : mValue.getScores())
+			{
+				auto i(0u);
+				for(const auto& r : s.second)
 				{
-					for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(getKey(itr)), as<std::string>((*itr)[i], 0), as<float>((*itr)[i], 1));
+					Obj temp; set(temp, 0, r.first); set(temp, 1, r.second);
+					set(mObj[ssvu::toStr(s.first)], i++, temp);
 				}
 			}
-			inline static void toObj(Obj& mObj, const T& mValue)
-			{
-				for(const auto& s : mValue.getScores())
-				{
-					auto i(0u);
-					for(const auto& r : s.second)
-					{
-						Obj temp; set(temp, 0, r.first); set(temp, 1, r.second);
-						set(mObj[ssvu::toStr(s.first)], i++, temp);
-					}
-				}
-			}
-		};
-		template<> struct Converter<hg::Online::ScoreDB>
-		{
-			using T = hg::Online::ScoreDB;
-			inline static void fromObj(T& mValue, const Obj& mObj)	{ extr(mObj, mValue.levels); }
-			inline static void toObj(Obj& mObj, const T& mValue)	{ arch(mObj, mValue.levels); }
-		};
-	}
+		}
+	};
+	template<> struct Converter<hg::Online::ScoreDB>
+	{
+		using T = hg::Online::ScoreDB;
+		inline static void fromObj(T& mValue, const Obj& mObj)	{ extr(mObj, mValue.levels); }
+		inline static void toObj(Obj& mObj, const T& mValue)	{ arch(mObj, mValue.levels); }
+	};
 }
 
 namespace hg
