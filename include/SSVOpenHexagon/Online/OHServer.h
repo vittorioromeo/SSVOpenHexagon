@@ -47,7 +47,7 @@ namespace hg
 					ss.emplace(mScore, mUsername);
 
 					unsigned int i{1};
-					for(auto ritr(ss.rbegin()); ritr != ss.rend(); ++ritr) userPositions[mDiffMult][ritr->second] = i++;
+					for(auto ritr(std::rbegin(ss)); ritr != std::rend(ss); ++ritr) userPositions[mDiffMult][ritr->second] = i++;
 				}
 
 				inline bool hasDiffMult(float mDiffMult) const { return scores.count(mDiffMult) > 0; }
@@ -269,7 +269,7 @@ namespace hg
 					ssvuj::Obj response;
 
 					auto i(0u);
-					for(auto itr(sortedScores.rbegin()); itr != sortedScores.rend(); ++itr)
+					for(auto itr(std::rbegin(sortedScores)); itr != std::rend(sortedScores); ++itr)
 					{
 						const auto& v(*itr);
 						ssvuj::set(response["r"][i], 0, v.second); ssvuj::set(response["r"][i], 1, v.first);
