@@ -349,7 +349,7 @@ namespace hg
 					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
 					if(!loginDB.isLoggedIn(username)) return;
 					loginDB.logout(username);
-					if(verbose)  ssvu::lo("PacketHandler") << username << " logged out" << std::endl;
+					if(verbose) ssvu::lo("PacketHandler") << username << " logged out" << std::endl;
 					mMS.send(buildCPacket<FromServer::SendLogoutValid>());
 				};
 			}
@@ -460,13 +460,14 @@ namespace hg
 				{
 					if(!optArg)
 					{
-						ssvu::lo("Open Hexagon server help") << std::endl << std::endl;
-						for(const auto& c : cmdLine.getCmds()) ssvu::lo << getBriefHelp(*c) << std::endl << (flagVerbose ? c->getHelpStr() : "") << std::endl;
+						ssvu::lo("Open Hexagon server help") << "\n\n";
+						for(const auto& c : cmdLine.getCmds()) ssvu::lo << getBriefHelp(*c) << "\n" << (flagVerbose ? c->getHelpStr() : "") << std::endl;
 					}
 					else
 					{
 						auto& c(cmdLine.findCmd(optArg.get()));
-						ssvu::lo << std::endl << getBriefHelp(c) << std::endl << c.getHelpStr();
+						ssvu::lo << "\n" << getBriefHelp(c) << "\n" << c.getHelpStr();
+						ssvu::lo.flush();
 					}
 				};
 			}

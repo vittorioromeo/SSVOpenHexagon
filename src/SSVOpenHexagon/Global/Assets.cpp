@@ -52,11 +52,13 @@ namespace hg
 			string packId{pd->id}, packPath{"Packs/" + packId + "/"};
 			packIds.push_back(packId);
 			packPaths.push_back(packPath);
-			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music" << endl;			loadMusic(packPath); }
-			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music data" << endl;		loadMusicData(packPath); }
-								lo("::loadAssets") << "loading " << packId << " style data" << endl;		loadStyleData(packPath);
-								lo("::loadAssets") << "loading " << packId << " level data" << endl;		loadLevelData(packPath);
-			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " custom sounds" << endl;	loadCustomSounds(packId, packPath); }
+			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music\n";			loadMusic(packPath); }
+			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music data\n";		loadMusicData(packPath); }
+								lo("::loadAssets") << "loading " << packId << " style data\n";		loadStyleData(packPath);
+								lo("::loadAssets") << "loading " << packId << " level data\n";		loadLevelData(packPath);
+			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " custom sounds\n";	loadCustomSounds(packId, packPath); }
+
+			lo.flush();
 		}
 	}
 

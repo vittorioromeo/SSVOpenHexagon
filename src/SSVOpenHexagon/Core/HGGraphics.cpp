@@ -74,29 +74,31 @@ namespace hg
 	void HexagonGame::drawText()
 	{
 		ostringstream s;
-		s << "time: " << toStr(status.currentTime).substr(0, 5) << endl;
+		s << "time: " << toStr(status.currentTime).substr(0, 5) << "\n";
 
-		if(levelStatus.tutorialMode) s << "tutorial mode" << endl;
-		else if(Config::getOfficial()) s << "official mode" << endl;
+		if(levelStatus.tutorialMode) s << "tutorial mode" << "\n";
+		else if(Config::getOfficial()) s << "official mode" << "\n";
 
-		if(Config::getDebug()) s << "debug mode" << endl;
-		if(levelStatus.swapEnabled) s << "swap enabled" << endl;
-		if(Config::getInvincible()) s << "invincibility on" << endl;
-		if(status.scoreInvalid) s << "score invalidated (performance issues)" << endl;
-		if(status.hasDied) s << "press r to restart" << endl;
-		if(Config::getShowFPS()) s << "FPS: " << window.getFPS() << endl;
+		if(Config::getDebug()) s << "debug mode" << "\n";
+		if(levelStatus.swapEnabled) s << "swap enabled" << "\n";
+		if(Config::getInvincible()) s << "invincibility on" << "\n";
+		if(status.scoreInvalid) s << "score invalidated (performance issues)" << "\n";
+		if(status.hasDied) s << "press r to restart" << "\n";
+		if(Config::getShowFPS()) s << "FPS: " << window.getFPS() << "\n";
 
 		const auto& trackedVariables(levelStatus.trackedVariables);
 		if(Config::getShowTrackedVariables() && !trackedVariables.empty())
 		{
-			s << endl;
+			s << "\n";
 			for(const auto& t : trackedVariables)
 			{
 				if(!lua.doesVariableExist(t.variableName)) continue;
 				string var{lua.readVariable<string>(t.variableName)};
-				s << t.displayName << ": " << var << endl;
+				s << t.displayName << ": " << var << "\n";
 			}
 		}
+
+		s.flush();
 
 		const Vec2f pos{15, 3};
 		const vector<Vec2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
