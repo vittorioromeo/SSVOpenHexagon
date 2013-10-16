@@ -13,7 +13,6 @@ absolutePath=$(readlink -f ${1})
 
 projectName="SSVOpenHexagon"
 buildType="Release"
-buildSharedLibs="True"
 makeJobs="4"
 destinationDir="${absolutePath}/"
 cmakePrefixPath="${absolutePath}/temp"
@@ -38,7 +37,7 @@ fi
 
 rm -Rf "${destinationDir}"*
 
-dependencies=("SSVJsonCpp" "SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
+dependencies=("SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
 
 export DESTDIR="${cmakePrefixPath}"
 
@@ -60,7 +59,7 @@ function buildLib
   	mkdir "build"; cd "build" # Create and move to the build directory
 
 	# Run CMake, make and make install
-	cmake ../ "-DBUILD_SHARED_LIB=${buildSharedLibs} ${cmakeFlags}" || die 1 "cmake failed"
+	cmake ../ "${cmakeFlags}" || die 1 "cmake failed"
 
 	make "-j${makeJobs}" || die 1 "make failed"
 	make install "-j${makeJobs}" || die 1 "make install failed"
