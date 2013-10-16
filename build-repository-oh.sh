@@ -5,7 +5,6 @@
 
 projectName="SSVOpenHexagon"
 buildType="Release"
-buildSharedLibs="True"
 makeJobs="4"
 cmakeFlags="-DCMAKE_BUILD_TYPE=${buildType}"
 
@@ -18,7 +17,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-dependencies=("SSVJsonCpp" "SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
+dependencies=("SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
 
 function warn() {
 	echo "Error occured in: `pwd`"; echo "Error was: "$@
@@ -38,7 +37,7 @@ function buildLib
   	mkdir "build"; cd "build" # Create and move to the build directory
 
 	# Run CMake, make and make install
-	cmake ../ "-DBUILD_SHARED_LIB=${buildSharedLibs} ${cmakeFlags}" || die 1 "cmake failed"
+	cmake ../ "${cmakeFlags}" || die 1 "cmake failed"
 
 	make "-j${makeJobs}" || die 1 "make failed"
 	make install "-j${makeJobs}" || die 1 "make install failed"
