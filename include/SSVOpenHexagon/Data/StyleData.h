@@ -72,12 +72,11 @@ namespace hg
 
 			void setRootPath(const Path& mPath) { rootPath = mPath; }
 
-			inline const Path& getRootPath() const	{ return rootPath; }
-
+			inline const Path& getRootPath() const { return rootPath; }
 
 			inline const sf::Color& getMainColor() const			{ return currentMainColor; }
 			inline const std::vector<sf::Color>& getColors() const	{ return currentColors; }
-			inline const sf::Color& getColor(int mIdx) const		{ return currentColors[mIdx]; }
+			inline const sf::Color& getColor(int mIdx) const		{ return currentColors[ssvu::getWrapIdx(mIdx, currentColors.size())]; }
 
 			inline float getCurrentHue() const 			{ return currentHue; }
 			inline float getCurrentSwapTime() const		{ return currentSwapTime; }

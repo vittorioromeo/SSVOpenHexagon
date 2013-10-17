@@ -45,8 +45,8 @@ namespace hg
 			creditsBar2{assets.get<sf::Texture>("creditsBar2.png")}, bottomBar{assets.get<sf::Texture>("bottomBar.png")};
 
 			std::vector<std::string> levelDataIds;
-			std::vector<float> difficultyMultipliers;
-			int currentIndex{0}, packIndex{0}, profileIndex{0}, difficultyMultIndex{0};
+			std::vector<float> diffMults;
+			int currentIndex{0}, packIdx{0}, profileIdx{0}, diffMultIdx{0};
 
 			const LevelData* levelData;
 			LevelStatus levelStatus;

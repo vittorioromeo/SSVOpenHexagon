@@ -87,7 +87,7 @@ namespace hg
 		for(int i{0}; i < mSides; ++i)
 		{
 			float angle{div * i};
-			Color currentColor{colors[i % colors.size()]};
+			Color currentColor{ssvu::getByWrapIdx(colors, i)};
 
 			if(Config::getBlackAndWhite()) currentColor = Color::Black;
 			else if(i % 2 == 0 && i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);

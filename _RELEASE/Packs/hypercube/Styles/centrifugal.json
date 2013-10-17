@@ -22,7 +22,6 @@
 	"3D_alpha_falloff": 66.0,
 	"3D_override_color": [166, 166, 166, 25],
 	
-
 	// Main color
 	"main": { "main": true, "dynamic": true, "value": [190, 190, 190, 225], "pulse": [99, 30, 165, 0] },
 

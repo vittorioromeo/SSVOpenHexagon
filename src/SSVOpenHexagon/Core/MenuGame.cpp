@@ -32,7 +32,7 @@ namespace hg
 		game.onEvent(Event::EventType::TextEntered) += [&](const Event& mEvent){ enteredChars.push_back(mEvent.text.unicode); };
 		window.onRecreation += [&]{ refreshCamera(); };
 
-		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIndex]);
+		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIdx]);
 		setIndex(0); initMenus(); initInput();
 	}
 
@@ -145,27 +145,27 @@ namespace hg
 		game.addInput(Config::getTriggerRotateCCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::SLPSelect) 	{  --profileIndex; }
+			if(state == s::SLPSelect) 	{  --profileIdx; }
 			else if(state == s::SMain)	{ setIndex(currentIndex - 1); }
 			else if(isInMenu())			{ getCurrentMenu()->decrease(); }
 		}, t::Once);
 		game.addInput(Config::getTriggerRotateCW(), [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::SLPSelect) 	{ ++profileIndex; }
+			if(state == s::SLPSelect) 	{ ++profileIdx; }
 			else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
 			else if(isInMenu())			{ getCurrentMenu()->increase(); }
 		}, t::Once);
 		game.addInput({{k::Up}, {k::W}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::SMain)		{ ++difficultyMultIndex; }
+			if(state == s::SMain)		{ ++diffMultIdx; }
 			else if(isInMenu())			{ getCurrentMenu()->previous(); }
 		}, t::Once);
 		game.addInput({{k::Down}, {k::S}}, [&](float)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::SMain)		{ --difficultyMultIndex; }
+			if(state == s::SMain)		{ --diffMultIdx; }
 			else if(isInMenu())			{ getCurrentMenu()->next(); }
 		}, t::Once);
 		game.addInput(Config::getTriggerRestart(), [&](float)
@@ -175,7 +175,7 @@ namespace hg
 			else if(state == s::SMain)
 			{
 				window.setGameState(hexagonGame.getGame());
-				hexagonGame.newGame(levelDataIds[currentIndex], true, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]);
+				hexagonGame.newGame(levelDataIds[currentIndex], true, ssvu::getByWrapIdx(diffMults, diffMultIdx));
 			}
 			else if(isInMenu())				{ getCurrentMenu()->exec(); }
 			else if(state == s::ETLPNew)	{ if(!enteredStr.empty()) { assets.pCreate(enteredStr); assets.pSetCurrent(enteredStr); state = s::SMain; enteredStr = ""; } }
@@ -189,7 +189,7 @@ namespace hg
 		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
 		game.addInput({{k::F4}, {k::L}}, [&](float)
 		{
-			assets.playSound("beep.ogg"); if(state == s::SMain) { auto p(assets.getPackPaths()); packIndex = (packIndex + 1) % p.size(); levelDataIds = assets.getLevelIdsByPack(p[packIndex]); setIndex(0); }
+			assets.playSound("beep.ogg"); if(state == s::SMain) { auto p(assets.getPackPaths()); packIdx = ssvu::getWrapIdx(packIdx + 1, p.size()); levelDataIds = assets.getLevelIdsByPack(p[packIdx]); setIndex(0); }
 		}, t::Once);
 		game.addInput(Config::getTriggerExit(), [&](float)
 		{
@@ -247,8 +247,8 @@ namespace hg
 		levelData = &assets.getLevelData(levelDataIds[currentIndex]);
 
 		styleData = assets.getStyleData(levelData->styleId);
-		difficultyMultipliers = levelData->difficultyMults;
-		difficultyMultIndex = idxOf(difficultyMultipliers, 1);
+		diffMults = levelData->difficultyMults;
+		diffMultIdx = idxOf(diffMults, 1);
 
 		Lua::LuaContext lua; initLua(lua);
 		Utils::runLuaFile(lua, levelData->luaScriptPath);
@@ -388,7 +388,7 @@ namespace hg
 		if(getCurrentMenu() != nullptr) getCurrentMenu()->update();
 
 		currentCreditsId += mFT;
-		creditsBar2.setTexture(assets.get<Texture>(creditsIds[static_cast<int>(currentCreditsId / 100) % creditsIds.size()]));
+		creditsBar2.setTexture(assets.get<Texture>(ssvu::getByWrapIdx(creditsIds, static_cast<int>(currentCreditsId / 100))));
 
 		// If connection is lost, kick the player back into welcome screen
 		if(!assets.pIsLocal() && Online::getConnectionStatus() != ocs::Connected) state = s::MWlcm;
@@ -403,7 +403,7 @@ namespace hg
 			unsigned int limit{state == s::ETEmail ? 40u : 18u};
 			for(const auto& c : enteredChars) if(enteredStr.size() < limit && (isalnum(c) || ispunct(c))) { assets.playSound("beep.ogg"); enteredStr.append(toStr(c)); }
 		}
-		else if(state == s::SLPSelect) { enteredStr = assets.getLocalProfileNames()[profileIndex % assets.getLocalProfileNames().size()]; }
+		else if(state == s::SLPSelect) { enteredStr = ssvu::getByWrapIdx(assets.getLocalProfileNames(), profileIdx); }
 		else if(state == s::SMain)
 		{
 			styleData.update(mFT);
@@ -411,7 +411,7 @@ namespace hg
 
 			if(!assets.pIsLocal())
 			{
-				float diffMult{difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]};
+				float diffMult{ssvu::getByWrapIdx(diffMults, diffMultIdx)};
 				Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
 			}
 		}
@@ -463,14 +463,14 @@ namespace hg
 			renderText(versionMessage, txtProf, {20, 0}, 13);
 
 			Text& profile = renderText("profile: " + assets.pGetName(), txtProf, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
-			Text& pack = renderText("pack: " + packName + " (" + toStr(packIndex + 1) + "/" + toStr(assets.getPackPaths().size()) + ")", txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
+			Text& pack = renderText("pack: " + packName + " (" + toStr(packIdx + 1) + "/" + toStr(assets.getPackPaths().size()) + ")", txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
 			string lbestStr;
-			if(assets.pIsLocal()) lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()])));
+			if(assets.pIsLocal()) lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, diffMults[diffMultIdx % diffMults.size()])));
 			else { lbestStr = Online::getLoginStatus() == ols::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
 
 			Text& lbest = renderText(lbestStr, txtProf, {20.f, getGlobalBottom(pack) - 7.f}, 18);
-			if(difficultyMultipliers.size() > 1) renderText("difficulty: " + toStr(difficultyMultipliers[difficultyMultIndex % difficultyMultipliers.size()]), txtProf, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
+			if(diffMults.size() > 1) renderText("difficulty: " + toStr(ssvu::getByWrapIdx(diffMults, diffMultIdx)), txtProf, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
 
 			renderText(leaderboardString, txtProf, {20.f, getGlobalBottom(lbest)}, 15);
 			Text& smsg = renderText("server message: " + Online::getServerMessage(), txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
