@@ -5,7 +5,7 @@
 #ifndef HG_CPLAYER
 #define HG_CPLAYER
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Global/Config.h"
 
 namespace hg
@@ -16,7 +16,7 @@ namespace hg
 	{
 		private:
 			HexagonGame& hexagonGame;
-			ssvs::Vec2f pLeft, pRight, startPos, pos;
+			Vec2f pLeft, pRight, startPos, pos;
 			ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices{3};
 			float hue{0}, angle{0}, size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()}, focusSpeed{Config::getPlayerFocusSpeed()};
 			bool dead{false};
@@ -26,7 +26,7 @@ namespace hg
 			void drawDeathEffect();
 
 		public:
-			CPlayer(HexagonGame& mHexagonGame, const ssvs::Vec2f& mStartPos);
+			CPlayer(HexagonGame& mHexagonGame, const Vec2f& mStartPos);
 
 			void update(float mFT) override;
 			void draw() override;

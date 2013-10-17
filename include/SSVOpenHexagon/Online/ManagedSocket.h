@@ -5,10 +5,9 @@
 #ifndef HG_ONLINE_MANAGEDSOCKET
 #define HG_ONLINE_MANAGEDSOCKET
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Online/Utils.h"
 #include "SSVOpenHexagon/Online/PacketHandler.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
 {

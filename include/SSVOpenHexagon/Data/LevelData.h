@@ -5,9 +5,8 @@
 #ifndef HG_LEVELDATA
 #define HG_LEVELDATA
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Data/TrackedVariable.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
 {

@@ -6,7 +6,7 @@
 #define HG_ONLINE_CLIENT
 
 #include "SSVOpenHexagon/Online/ManagedSocket.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 namespace hg
 {

@@ -5,8 +5,7 @@
 #ifndef HG_STYLEDATA
 #define HG_STYLEDATA
 
-#include "SSVOpenHexagon/Global/Typedefs.h"
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 namespace hg
 {
@@ -69,7 +68,7 @@ namespace hg
 
 			void update(float mFT, float mMult = 1.f);
 			void computeColors();
-			void drawBackground(sf::RenderTarget& mRenderTarget, const ssvs::Vec2f& mCenterPos, int mSides);
+			void drawBackground(sf::RenderTarget& mRenderTarget, const Vec2f& mCenterPos, int mSides);
 
 			void setRootPath(const Path& mPath) { rootPath = mPath; }
 

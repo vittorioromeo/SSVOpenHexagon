@@ -5,8 +5,7 @@
 #ifndef HG_ONLINE_PACKETHANDLER
 #define HG_ONLINE_PACKETHANDLER
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 namespace hg
 {

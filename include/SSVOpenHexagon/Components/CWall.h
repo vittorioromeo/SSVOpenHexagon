@@ -5,7 +5,7 @@
 #ifndef HG_CWALL
 #define HG_CWALL
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 namespace hg
 {
@@ -31,14 +31,14 @@ namespace hg
 	{
 		private:
 			HexagonGame& hexagonGame;
-			ssvs::Vec2f centerPos;
-			std::vector<ssvs::Vec2f> vertexPositions{4};
+			Vec2f centerPos;
+			std::vector<Vec2f> vertexPositions{4};
 			SpeedData speed, curve;
 			float distance{0}, thickness{0}, hueMod{0};
 			int side{0};
 
 		public:
-			CWall(HexagonGame& mHexagonGame, const ssvs::Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
+			CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
 			void update(float mFT) override;
 			void draw() override;
@@ -47,7 +47,7 @@ namespace hg
 
 			inline SpeedData& getSpeed() { return speed; }
 			inline SpeedData& getCurve() { return curve; }
-			inline bool isOverlapping(const ssvs::Vec2f& mPoint) const { return ssvs::isPointInPolygon(vertexPositions, mPoint); }
+			inline bool isOverlapping(const Vec2f& mPoint) const { return ssvs::isPointInPolygon(vertexPositions, mPoint); }
 	};
 }
 

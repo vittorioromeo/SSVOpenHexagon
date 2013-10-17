@@ -5,11 +5,10 @@
 #ifndef HG_FACTORY
 #define HG_FACTORY
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Components/CWall.h"
 #include "SSVOpenHexagon/Components/CPlayer.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
-#include "SSVOpenHexagon/Global/Groups.h"
 
 namespace hg
 {
@@ -20,10 +19,10 @@ namespace hg
 		private:
 			HexagonGame& hexagonGame;
 			sses::Manager& manager;
-			ssvs::Vec2f centerPos;
+			Vec2f centerPos;
 
 		public:
-			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, const ssvs::Vec2f& mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
+			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, const Vec2f& mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
 
 			inline sses::Entity& createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{}, float mHueMod = 0)
 			{

@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Online/PacketHandler.h"
 #include "SSVOpenHexagon/Online/Server.h"
 #include "SSVOpenHexagon/Online/Online.h"

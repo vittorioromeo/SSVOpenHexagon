@@ -6,7 +6,7 @@
 #include "SSVOpenHexagon/Components/CPlayer.h"
 #include "SSVOpenHexagon/Components/CWall.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
-#include "SSVOpenHexagon/Global/Groups.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 using namespace std;
 using namespace sf;

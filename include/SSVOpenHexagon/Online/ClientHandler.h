@@ -5,10 +5,9 @@
 #ifndef HG_ONLINE_CLIENTHANDLER
 #define HG_ONLINE_CLIENTHANDLER
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Online/ManagedSocket.h"
 #include "SSVOpenHexagon/Online/PacketHandler.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
 {

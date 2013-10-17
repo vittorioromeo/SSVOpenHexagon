@@ -5,7 +5,7 @@
 #ifndef HG_STATUS
 #define HG_STATUS
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 namespace hg
 {

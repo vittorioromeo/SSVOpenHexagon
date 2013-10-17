@@ -8,9 +8,8 @@
 #include <vector>
 #include <chrono>
 #include <thread>
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Online/ClientHandler.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
 #include "SSVOpenHexagon/Online/Utils.h"
 
 namespace hg

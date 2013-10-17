@@ -5,9 +5,8 @@
 #ifndef HG_ONLINE
 #define HG_ONLINE
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Online/Compression.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
 {

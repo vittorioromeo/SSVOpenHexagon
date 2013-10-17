@@ -5,7 +5,7 @@
 #ifndef HG_MUSICDATA
 #define HG_MUSICDATA
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Global/Assets.h"
 

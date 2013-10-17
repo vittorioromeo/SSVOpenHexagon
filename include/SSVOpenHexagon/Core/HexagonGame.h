@@ -5,7 +5,7 @@
 #ifndef HG_HEXAGONGAME
 #define HG_HEXAGONGAME
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Core/HGStatus.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
 #include "SSVOpenHexagon/Data/MusicData.h"
@@ -13,7 +13,6 @@
 #include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Global/Config.h"
 #include "SSVOpenHexagon/Global/Factory.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Utils/FPSWatcher.h"
 
@@ -33,7 +32,7 @@ namespace hg
 			ssvs::GameWindow& window;
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera{window, {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}};
-			ssvs::Camera overlayCamera{window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, ssvs::Vec2f(Config::getWidth(), Config::getHeight())}};
+			ssvs::Camera overlayCamera{window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, Vec2f(Config::getWidth(), Config::getHeight())}};
 			std::vector<ssvs::Camera> depthCameras;
 			ssvu::TimelineManager effectTimelineManager;
 			Factory factory{*this, manager, ssvs::zeroVec2f};

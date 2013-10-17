@@ -8,12 +8,11 @@
 #include <string>
 #include <sstream>
 #include <set>
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Data/LevelData.h"
 #include "SSVOpenHexagon/Data/ProfileData.h"
 #include "SSVOpenHexagon/Data/MusicData.h"
 #include "SSVOpenHexagon/Data/StyleData.h"
-#include "SSVOpenHexagon/Global/Typedefs.h"
 
 namespace hg
 {

@@ -3,7 +3,7 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.h"
-#include "SSVOpenHexagon/Global/Groups.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Core/HexagonGame.h"
 #include "SSVOpenHexagon/Core/MenuGame.h"
 #include "SSVOpenHexagon/Online/Online.h"

@@ -5,7 +5,7 @@
 #ifndef HG_PROFILEDATA
 #define HG_PROFILEDATA
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 namespace hg
 {

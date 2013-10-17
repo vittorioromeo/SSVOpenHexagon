@@ -6,7 +6,7 @@
 #define HG_ONLINE_UTILS
 
 #include <future>
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 #include "SSVOpenHexagon/Online/Compression.h"
 
 namespace hg

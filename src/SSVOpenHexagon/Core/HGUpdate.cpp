@@ -6,7 +6,7 @@
 #include <SSVUtilsJson/SSVUtilsJson.h>
 #include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Core/HexagonGame.h"
-#include "SSVOpenHexagon/Global/Groups.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 using namespace std;
 using namespace sf;

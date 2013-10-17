@@ -5,7 +5,7 @@
 #ifndef HG_CONFIG
 #define HG_CONFIG
 
-#include "SSVOpenHexagon/Core/HGDependencies.h"
+#include "SSVOpenHexagon/Global/Common.h"
 
 namespace hg
 {
