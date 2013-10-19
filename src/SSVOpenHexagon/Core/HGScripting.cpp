@@ -11,6 +11,7 @@
 
 using namespace std;
 using namespace sf;
+using namespace ssvs;
 using namespace sses;
 using namespace ssvu;
 using namespace ssvuj;
@@ -23,7 +24,7 @@ namespace hg
 		lua.writeVariable("u_log", 					[=](string mLog) 						{ lo("lua") << mLog << endl; });
 		lua.writeVariable("u_execScript", 			[=](string mName) 						{ runLuaFile(levelData->packPath + "Scripts/" + mName); });
 		lua.writeVariable("u_playSound", 			[=](string mId) 						{ assets.playSound(mId); });
-		lua.writeVariable("u_isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((Keyboard::Key) mKey); });
+		lua.writeVariable("u_isKeyPressed",			[=](int mKey) 							{ return window.isKeyPressed((KKey) mKey); });
 		lua.writeVariable("u_isFastSpinning",		[=] 									{ return status.fastSpin > 0; });
 		lua.writeVariable("u_forceIncrement", 		[=]				 						{ incrementDifficulty(); });
 		lua.writeVariable("u_kill",					[=]										{ timeline.append<Do>([=]{ death(true); }); });
