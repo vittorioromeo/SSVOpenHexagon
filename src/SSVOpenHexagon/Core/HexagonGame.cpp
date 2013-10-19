@@ -45,11 +45,8 @@ namespace hg
 		assets.stopSounds(); stopLevelMusic();
 		assets.playSound("go.ogg"); playLevelMusic();
 
-		if(Config::getMusicSpeedDMSync())
-		{
-			auto current(assets.getMusicPlayer().getCurrent());
-			if(current != nullptr) current->setPitch(pow(difficultyMult, 0.12f));
-		}
+		auto current(assets.getMusicPlayer().getCurrent());
+		if(current != nullptr) current->setPitch(Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f);
 
 		// Events cleanup
 		messageText.setString("");
@@ -139,7 +136,6 @@ namespace hg
 	void HexagonGame::checkAndSaveScore()
 	{
 		if(Config::getInvincible()) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not saving score - invincibility on" << endl; return; }
-		if(status.scoreInvalid || !Config::isEligibleForScore()) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible" << endl; return; }
 
 		if(assets.pIsLocal())
 		{
@@ -149,6 +145,7 @@ namespace hg
 		}
 		else
 		{
+			if(status.scoreInvalid || !Config::isEligibleForScore()) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible" << endl; return; }
 			if(status.currentTime < 1) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
 			Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
 		}
