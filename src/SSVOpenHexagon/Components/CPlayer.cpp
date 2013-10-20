@@ -110,7 +110,7 @@ namespace hg
 
 		angle += currentSpeed * movement * mFT;
 
-		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && swapTimer.isStopped())
+		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && !swapTimer.isRunning())
 		{
 			hexagonGame.getAssets().playSound("swap.ogg");
 			swapTimer.restart(); angle += 180;
