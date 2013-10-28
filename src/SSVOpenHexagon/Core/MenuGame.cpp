@@ -140,7 +140,7 @@ namespace hg
 	void MenuGame::initInput()
 	{
 		using k = KKey;
-		using t = TriggerType;
+		using t = Type;
 
 		game.addInput(Config::getTriggerRotateCCW(), [&](float)
 		{

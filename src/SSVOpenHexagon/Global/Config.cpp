@@ -85,7 +85,7 @@ namespace hg
 		{
 			lo("::loadConfig") << "loading config" << endl;
 
-			for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>("ConfigOverrides/", ".json"))
+			for(const auto& p : getScan<FileSystem::Mode::Single, FileSystem::Type::File, FileSystem::Pick::ByExt>("ConfigOverrides/", ".json"))
 			{
 				if(contains(mOverridesIds, p.getFileNameNoExtensions()))
 				{

@@ -30,7 +30,7 @@ namespace hg
 		game.addInput(Config::getTriggerExit(),			[this](float){ goToMenu(); });
 		game.addInput(Config::getTriggerForceRestart(),	[this](float){ status.mustRestart = true; });
 		game.addInput(Config::getTriggerRestart(),		[this](float){ if(status.hasDied) status.mustRestart = true; });
-		game.addInput(Config::getTriggerScreenshot(),	[this](float){ mustTakeScreenshot = true; }, Input::TriggerType::Once);
+		game.addInput(Config::getTriggerScreenshot(),	[this](float){ mustTakeScreenshot = true; }, Input::Type::Once);
 	}
 
 	void HexagonGame::newGame(const string& mId, bool mFirstPlay, float mDifficultyMult)
