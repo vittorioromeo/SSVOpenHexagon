@@ -18,10 +18,10 @@ namespace hg
 	{
 		float div{360.f / hexagonGame.getSides() * 0.5f}, angle{div * 2 * side};
 
-		vertexPositions[0] = getOrbitFromDeg(centerPos, angle - div, distance);
-		vertexPositions[1] = getOrbitFromDeg(centerPos, angle + div, distance);
-		vertexPositions[2] = getOrbitFromDeg(centerPos, angle + div + hexagonGame.getWallAngleLeft(), distance + thickness + hexagonGame.getWallSkewLeft());
-		vertexPositions[3] = getOrbitFromDeg(centerPos, angle - div + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
+		vertexPositions[0] = getOrbitDeg(centerPos, angle - div, distance);
+		vertexPositions[1] = getOrbitDeg(centerPos, angle + div, distance);
+		vertexPositions[2] = getOrbitDeg(centerPos, angle + div + hexagonGame.getWallAngleLeft(), distance + thickness + hexagonGame.getWallSkewLeft());
+		vertexPositions[3] = getOrbitDeg(centerPos, angle - div + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
 	}
 
 	void CWall::draw()
