@@ -186,11 +186,11 @@ namespace hg
 			timerStatic = mValue;
 			if(timerStatic)
 			{
-				mWindow.setTimer<StaticTimer>(1.f, 1.f, 5);
+				mWindow.setTimer<TimerStatic>(1.f, 1.f, 5);
 			}
 			else
 			{
-				mWindow.setTimer<DynamicTimer>();
+				mWindow.setTimer<TimerDynamic>();
 				setLimitFPS(mWindow, true);
 				setMaxFPS(mWindow, 200);
 			}
