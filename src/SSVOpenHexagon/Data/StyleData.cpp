@@ -79,7 +79,7 @@ namespace hg
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, const Vec2f& mCenterPos, int mSides)
 	{
-		float div{360.f / mSides * 1.0001f}, distance{4500};
+		float div{ssvu::pi * 2.f / mSides * 1.0001f}, distance{4500};
 
 		ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
 		const auto& colors(getColors());
@@ -93,8 +93,8 @@ namespace hg
 			else if(i % 2 == 0 && i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
 
 			vertices.emplace_back(mCenterPos, currentColor);
-			vertices.emplace_back(getOrbitDeg(mCenterPos, angle + div * 0.5f, distance), currentColor);
-			vertices.emplace_back(getOrbitDeg(mCenterPos, angle - div * 0.5f, distance), currentColor);
+			vertices.emplace_back(getOrbitRad(mCenterPos, angle + div * 0.5f, distance), currentColor);
+			vertices.emplace_back(getOrbitRad(mCenterPos, angle - div * 0.5f, distance), currentColor);
 		}
 
 		mRenderTarget.draw(vertices);

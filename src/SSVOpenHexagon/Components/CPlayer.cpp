@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace sf;
+using namespace ssvu;
 using namespace sses;
 using namespace ssvs;
 using namespace hg::Utils;
@@ -29,10 +30,10 @@ namespace hg
 
 		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : getColorFromHue(hue / 255.f)};
 
-		pLeft = getOrbitDeg(pos, angle - 100, size + 3);
-		pRight = getOrbitDeg(pos, angle + 100, size + 3);
+		pLeft = getOrbitRad(pos, angle - toRad(100.f), size + 3);
+		pRight = getOrbitRad(pos, angle + toRad(100.f), size + 3);
 
-		vertices[0].position = getOrbitDeg(pos, angle, size);
+		vertices[0].position = getOrbitRad(pos, angle, size);
 		vertices[1].position = pLeft;
 		vertices[2].position = pRight;
 
@@ -44,7 +45,7 @@ namespace hg
 	void CPlayer::drawPivot()
 	{
 		auto sides(hexagonGame.getSides());
-		float div{360.f / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
+		float div{ssvu::pi * 2.f / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
 		if(Config::getBlackAndWhite()) colorB = Color::Black;
 		ssvs::VertexVector<sf::PrimitiveType::Quads> vertices2(4);
@@ -54,10 +55,10 @@ namespace hg
 		{
 			float sAngle{div * 2.f * i};
 
-			Vec2f p1{getOrbitDeg(startPos, sAngle - div, radius)};
-			Vec2f p2{getOrbitDeg(startPos, sAngle + div, radius)};
-			Vec2f p3{getOrbitDeg(startPos, sAngle + div, radius + baseThickness)};
-			Vec2f p4{getOrbitDeg(startPos, sAngle - div, radius + baseThickness)};
+			Vec2f p1{getOrbitRad(startPos, sAngle - div, radius)};
+			Vec2f p2{getOrbitRad(startPos, sAngle + div, radius)};
+			Vec2f p3{getOrbitRad(startPos, sAngle + div, radius + baseThickness)};
+			Vec2f p4{getOrbitRad(startPos, sAngle - div, radius + baseThickness)};
 
 			vertices2.emplace_back(p1, colorMain);
 			vertices2.emplace_back(p2, colorMain);
@@ -74,7 +75,7 @@ namespace hg
 	}
 	void CPlayer::drawDeathEffect()
 	{
-		float div{360.f / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
+		float div{ssvu::pi * 2.f / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
 		Color colorMain{getColorFromHue((360 - hue) / 255.f)};
 		ssvs::VertexVector<sf::PrimitiveType::Quads> verticesDeath(4);
 		if(hue++ > 360) hue = 0;
@@ -83,10 +84,10 @@ namespace hg
 		{
 			float sAngle{div * 2.f * i};
 
-			Vec2f p1{getOrbitDeg(pos, sAngle - div, radius)};
-			Vec2f p2{getOrbitDeg(pos, sAngle + div, radius)};
-			Vec2f p3{getOrbitDeg(pos, sAngle + div, radius + thickness)};
-			Vec2f p4{getOrbitDeg(pos, sAngle - div, radius + thickness)};
+			Vec2f p1{getOrbitRad(pos, sAngle - div, radius)};
+			Vec2f p2{getOrbitRad(pos, sAngle + div, radius)};
+			Vec2f p3{getOrbitRad(pos, sAngle + div, radius + thickness)};
+			Vec2f p4{getOrbitRad(pos, sAngle - div, radius + thickness)};
 
 			verticesDeath.emplace_back(p1, colorMain);
 			verticesDeath.emplace_back(p2, colorMain);
@@ -108,17 +109,17 @@ namespace hg
 		int movement{hexagonGame.getInputMovement()};
 		if(hexagonGame.getInputFocused()) currentSpeed = focusSpeed;
 
-		angle += currentSpeed * movement * mFT;
+		angle += toRad(currentSpeed * movement * mFT);
 
 		if(hexagonGame.getLevelStatus().swapEnabled && hexagonGame.getInputSwap() && !swapTimer.isRunning())
 		{
 			hexagonGame.getAssets().playSound("swap.ogg");
-			swapTimer.restart(); angle += 180;
+			swapTimer.restart(); angle += ssvu::pi;
 		}
 
-		Vec2f tempPos{getOrbitDeg(startPos, angle, radius)};
-		Vec2f pLeftCheck{getOrbitDeg(tempPos, angle - 90, 0.01f)};
-		Vec2f pRightCheck{getOrbitDeg(tempPos, angle + 90, 0.01f)};
+		Vec2f tempPos{getOrbitRad(startPos, angle, radius)};
+		Vec2f pLeftCheck{getOrbitRad(tempPos, angle - ssvu::pi / 2.f, 0.01f)};
+		Vec2f pRightCheck{getOrbitRad(tempPos, angle + ssvu::pi / 2.f, 0.01f)};
 
 		for(const auto& wall : getManager().getEntities(HGGroup::Wall))
 		{
@@ -128,11 +129,11 @@ namespace hg
 			{
 				deadEffectTimer.restart();
 				if(!Config::getInvincible()) dead = true;
-				lastPos = getMovedTowards(lastPos, ssvs::zeroVec2f, 5 * hexagonGame.getSpeedMultDM());
+				moveTowards(lastPos, ssvs::zeroVec2f, 5 * hexagonGame.getSpeedMultDM());
 				pos = lastPos; hexagonGame.death(); return;
 			}
 		}
 
-		pos = getOrbitDeg(startPos, angle, radius);
+		pos = getOrbitRad(startPos, angle, radius);
 	}
 }

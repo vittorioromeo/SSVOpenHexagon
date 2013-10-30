@@ -16,12 +16,12 @@ namespace hg
 	CWall::CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve) : hexagonGame(mHexagonGame), centerPos{mCenterPos},
 		speed{mSpeed}, curve{mCurve}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
-		float div{360.f / hexagonGame.getSides() * 0.5f}, angle{div * 2 * side};
+		float div{ssvu::pi * 2.f / hexagonGame.getSides() * 0.5f}, angle{div * 2.f * side};
 
-		vertexPositions[0] = getOrbitDeg(centerPos, angle - div, distance);
-		vertexPositions[1] = getOrbitDeg(centerPos, angle + div, distance);
-		vertexPositions[2] = getOrbitDeg(centerPos, angle + div + hexagonGame.getWallAngleLeft(), distance + thickness + hexagonGame.getWallSkewLeft());
-		vertexPositions[3] = getOrbitDeg(centerPos, angle - div + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
+		vertexPositions[0] = getOrbitRad(centerPos, angle - div, distance);
+		vertexPositions[1] = getOrbitRad(centerPos, angle + div, distance);
+		vertexPositions[2] = getOrbitRad(centerPos, angle + div + hexagonGame.getWallAngleLeft(), distance + thickness + hexagonGame.getWallSkewLeft());
+		vertexPositions[3] = getOrbitRad(centerPos, angle - div + hexagonGame.getWallAngleRight(), distance + thickness + hexagonGame.getWallSkewRight());
 	}
 
 	void CWall::draw()
@@ -42,7 +42,7 @@ namespace hg
 
 		for(auto& vp : vertexPositions)
 		{
-			if(abs(vp.x - centerPos.x) < radius && abs(vp.y - centerPos.y) < radius) pointsOnCenter++;
+			if(std::abs(vp.x - centerPos.x) < radius && std::abs(vp.y - centerPos.y) < radius) ++pointsOnCenter;
 			else
 			{
 				moveTowards(vp, centerPos, speed.speed * 5.f * mFT);
