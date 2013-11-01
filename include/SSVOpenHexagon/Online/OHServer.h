@@ -371,8 +371,8 @@ namespace hg
 
 			inline void start()
 			{
-				server.start(54000);
-				//server.start(27273);
+				//server.start(54000);
+				server.start(27273);
 
 				inputFuture = std::async(std::launch::async, [this]
 				{

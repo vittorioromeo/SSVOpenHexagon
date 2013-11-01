@@ -24,7 +24,7 @@ namespace hg
 {
 	namespace Online
 	{
-		const IpAddress hostIp{"209.236.124.147"};
+		const IpAddress hostIp{"46.4.172.228"};
 		const unsigned short hostPort{27273};
 
 		ConnectStat connectionStatus{ConnectStat::Disconnected};
@@ -126,8 +126,8 @@ namespace hg
 
 			thread([]
 			{
-				if(client->connect("127.0.0.1", 54000))
-				//if(client->connect(hostIp, hostPort))
+				//if(client->connect("127.0.0.1", 54000))
+				if(client->connect(hostIp, hostPort))
 				{
 					lo("hg::Online::connectToServer") << "Connected to server!" << endl;
 					connectionStatus = ConnectStat::Connected; return;
