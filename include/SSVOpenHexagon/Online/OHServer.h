@@ -166,6 +166,8 @@ namespace hg
 
 			OHServer()
 			{
+				ssvu::lo << "OHServer constructed" << std::endl;
+
 				server.onClientAccepted += [&](ClientHandler& mCH)
 				{
 					mCH.onDisconnect += [&]{ loginDB.forceLogout(mCH.getUid()); };
