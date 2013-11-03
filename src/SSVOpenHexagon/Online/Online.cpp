@@ -227,7 +227,7 @@ namespace hg
 
 			for(const auto& p : mAssets.getLevelDatas())
 			{
-				lo("hg::Online::initalizeValidators") << "Adding (" << p.first << "): " << validator << endl;
+				lo("hg::Online::initalizeValidators") << "Adding (" << p.first << ") validator" << endl;
 
 				const auto& l(p.second);
 				const auto& validator(getValidator(l->packPath, l->id, l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(), l->luaScriptPath));
