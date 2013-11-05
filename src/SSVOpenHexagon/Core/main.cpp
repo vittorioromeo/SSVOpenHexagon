@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	if(contains(overrideIds, "server"))
 	{
 		HGAssets levelOnlyAssets{true};
-		Online::initalizeValidators(levelOnlyAssets);
+		Online::initializeValidators(levelOnlyAssets);
 		Online::OHServer ohServer;
 		ohServer.start();
 		return 0;
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 	window.setMouseCursorVisible(false);
 
 	HGAssets assets;
-	Online::initalizeValidators(assets);
+	Online::initializeValidators(assets);
 	HexagonGame hg{assets, window};
 	MenuGame mg{assets, hg, window};
 	hg.mgPtr = &mg;

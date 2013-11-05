@@ -221,22 +221,22 @@ namespace hg
 
 		string getMD5Hash(const string& mStr)	{ return encrypt<Encryption::Type::MD5>(mStr); }
 
-		void initalizeValidators(HGAssets& mAssets)
+		void initializeValidators(HGAssets& mAssets)
 		{
-			lo("hg::Online::initalizeValidators") << "Initializing validators..." << endl;
+			// lo("hg::Online::initializeValidators") << "Initializing validators..." << endl;
 
 			for(const auto& p : mAssets.getLevelDatas())
 			{
-				lo("hg::Online::initalizeValidators") << "Adding (" << p.first << ") validator" << endl;
+				// lo("hg::Online::initializeValidators") << "Adding (" << p.first << ") validator" << endl;
 
 				const auto& l(p.second);
 				const auto& validator(getValidator(l->packPath, l->id, l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(), l->luaScriptPath));
 				validators.addValidator(p.first, validator);
 
-				lo("hg::Online::initalizeValidators") << "Added (" << p.first << "): " << validator << endl;
+				// lo("hg::Online::initializeValidators") << "Added (" << p.first << "): " << validator << endl;
 			}
 
-			lo("hg::Online::initalizeValidators") << "Finished initializing validators..." << endl;
+			lo("hg::Online::initializeValidators") << "Finished initializing validators..." << endl;
 		}
 	}
 }

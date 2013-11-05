@@ -292,8 +292,6 @@ namespace hg
 
 					users.setEmail(username, email);
 
-					// TODO: email validation
-
 					if(verbose)  ssvu::lo("PacketHandler") << "Email accepted" << std::endl;
 					mMS.send(buildCPacket<FromServer::NUR_EmailValid>());
 					modifiedUsers = true;
