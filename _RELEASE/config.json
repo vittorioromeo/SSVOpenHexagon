@@ -1,4 +1,3 @@
-
 {
 	"3D_enabled" : true,
 	"3D_max_depth" : 100,
@@ -81,5 +80,5 @@
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 480,
 	"windowed_width" : 640,
-	"zoom_factor" : 1.600000023841858
+	"zoom_factor" : 1.6
 }
