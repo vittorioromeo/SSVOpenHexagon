@@ -24,11 +24,11 @@ namespace hg
 				std::unordered_map<std::string, User> users;
 
 			public:
-				inline bool hasUser(const std::string& mUsername) const							{ return users.count(mUsername) > 0; }
-				inline User& getUser(const std::string& mUsername)								{ return users[mUsername]; }
-				inline void registerUser(const std::string& mUsername, const User& mUser)		{ users[mUsername] = mUser; }
-				inline const std::unordered_map<std::string, User>& getUsers() const			{ return users; }
-				inline void setEmail(const std::string& mUsername, const std::string& mEmail)	{ users[mUsername].email = mEmail; }
+				inline bool hasUser(const std::string& mUsername) const						{ return users.count(mUsername) > 0; }
+				inline User& getUser(const std::string& mUsername)							{ return users[mUsername]; }
+				inline void registerUser(const std::string& mUsername, const User& mUser)	{ users[mUsername] = mUser; }
+				inline const std::unordered_map<std::string, User>& getUsers() const		{ return users; }
+				inline void setEmail(const std::string& mUsername, std::string mEmail)		{ users[mUsername].email = std::move(mEmail); }
 		};
 		class LevelScoreDB
 		{
