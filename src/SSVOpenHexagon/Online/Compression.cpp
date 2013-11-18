@@ -2,8 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Common.h"
-#include "SSVOpenHexagon/Online/Compression.h"
+#include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Online/Compression.hpp"
 
 using namespace std;
 

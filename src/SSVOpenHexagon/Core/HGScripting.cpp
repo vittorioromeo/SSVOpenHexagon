@@ -4,10 +4,10 @@
 
 #include <fstream>
 #include <SSVUtilsJson/SSVUtilsJson.hpp>
-#include "SSVOpenHexagon/Global/Assets.h"
-#include "SSVOpenHexagon/Utils/Utils.h"
-#include "SSVOpenHexagon/Core/HexagonGame.h"
-#include "SSVOpenHexagon/Components/CWall.h"
+#include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
 
 using namespace std;
 using namespace sf;

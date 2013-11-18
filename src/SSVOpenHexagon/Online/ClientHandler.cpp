@@ -1,4 +1,4 @@
-#include "SSVOpenHexagon/Online/ClientHandler.h"
+#include "SSVOpenHexagon/Online/ClientHandler.hpp"
 
 namespace hg
 {

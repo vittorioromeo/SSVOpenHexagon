@@ -5,8 +5,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <fstream>
-#include "SSVOpenHexagon/Utils/Utils.h"
-#include "SSVOpenHexagon/Global/Config.h"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 
 using namespace std;
 using namespace sf;

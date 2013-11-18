@@ -4,9 +4,9 @@
 
 #include <SSVUtils/SSVUtils.hpp>
 #include <SSVUtilsJson/SSVUtilsJson.hpp>
-#include "SSVOpenHexagon/Utils/Utils.h"
-#include "SSVOpenHexagon/Core/HexagonGame.h"
-#include "SSVOpenHexagon/Global/Common.h"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Global/Common.hpp"
 
 using namespace std;
 using namespace sf;

@@ -2,9 +2,9 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Assets.h"
-#include "SSVOpenHexagon/Utils/Utils.h"
-#include "SSVOpenHexagon/Core/HexagonGame.h"
+#include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 using namespace std;
 using namespace sf;

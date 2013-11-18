@@ -5,10 +5,10 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
-#include "SSVOpenHexagon/Global/Config.h"
-#include "SSVOpenHexagon/Global/Assets.h"
-#include "SSVOpenHexagon/Utils/Utils.h"
-#include "SSVOpenHexagon/Online/Online.h"
+#include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Online/Online.hpp"
 
 using namespace std;
 using namespace sf;
