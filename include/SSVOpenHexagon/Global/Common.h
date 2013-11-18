@@ -10,8 +10,8 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Network.hpp>
-#include <SSVUtils/SSVUtils.h>
-#include <SSVUtilsJson/SSVUtilsJson.h>
+#include <SSVUtils/SSVUtils.hpp>
+#include <SSVUtilsJson/SSVUtilsJson.hpp>
 #include <SSVStart/SSVStart.h>
 #include <SSVEntitySystem/SSVEntitySystem.h>
 #include <SSVMenuSystem/SSVMenuSystem.h>

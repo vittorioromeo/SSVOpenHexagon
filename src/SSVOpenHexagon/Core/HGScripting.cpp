@@ -3,7 +3,7 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include <fstream>
-#include <SSVUtilsJson/SSVUtilsJson.h>
+#include <SSVUtilsJson/SSVUtilsJson.hpp>
 #include "SSVOpenHexagon/Global/Assets.h"
 #include "SSVOpenHexagon/Utils/Utils.h"
 #include "SSVOpenHexagon/Core/HexagonGame.h"
