@@ -12,7 +12,7 @@
 #include <SFML/Network.hpp>
 #include <SSVUtils/SSVUtils.hpp>
 #include <SSVUtilsJson/SSVUtilsJson.hpp>
-#include <SSVStart/SSVStart.h>
+#include <SSVStart/SSVStart.hpp>
 #include <SSVEntitySystem/SSVEntitySystem.h>
 #include <SSVMenuSystem/SSVMenuSystem.h>
 #include <SSVLuaWrapper/SSVLuaWrapper.h>

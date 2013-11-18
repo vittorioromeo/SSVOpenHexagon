@@ -7,7 +7,7 @@
 
 #include <thread>
 #include <chrono>
-#include <SSVStart/SSVStart.h>
+#include <SSVStart/SSVStart.hpp>
 
 namespace hg
 {
