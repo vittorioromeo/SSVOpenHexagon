@@ -16,7 +16,7 @@ namespace hg
 	CWall::CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve) : hexagonGame(mHexagonGame), centerPos{mCenterPos},
 		speed{mSpeed}, curve{mCurve}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
-		float div{ssvu::pi * 2.f / hexagonGame.getSides() * 0.5f}, angle{div * 2.f * side};
+		float div{ssvu::tau / hexagonGame.getSides() * 0.5f}, angle{div * 2.f * side};
 
 		vertexPositions[0] = getOrbitRad(centerPos, angle - div, distance);
 		vertexPositions[1] = getOrbitRad(centerPos, angle + div, distance);

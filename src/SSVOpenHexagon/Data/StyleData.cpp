@@ -79,7 +79,7 @@ namespace hg
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, const Vec2f& mCenterPos, int mSides)
 	{
-		float div{ssvu::pi * 2.f / mSides * 1.0001f}, distance{4500};
+		float div{ssvu::tau / mSides * 1.0001f}, distance{4500};
 
 		ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
 		const auto& colors(getColors());

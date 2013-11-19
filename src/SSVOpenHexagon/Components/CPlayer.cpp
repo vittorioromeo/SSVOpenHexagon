@@ -45,7 +45,7 @@ namespace hg
 	void CPlayer::drawPivot()
 	{
 		auto sides(hexagonGame.getSides());
-		float div{ssvu::pi * 2.f / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
+		float div{ssvu::tau / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
 		if(Config::getBlackAndWhite()) colorB = Color::Black;
 		ssvs::VertexVector<sf::PrimitiveType::Quads> vertices2(4);
@@ -75,7 +75,7 @@ namespace hg
 	}
 	void CPlayer::drawDeathEffect()
 	{
-		float div{ssvu::pi * 2.f / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
+		float div{ssvu::tau / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
 		Color colorMain{getColorFromHue((360 - hue) / 255.f)};
 		ssvs::VertexVector<sf::PrimitiveType::Quads> verticesDeath(4);
 		if(hue++ > 360) hue = 0;
@@ -118,8 +118,8 @@ namespace hg
 		}
 
 		Vec2f tempPos{getOrbitRad(startPos, angle, radius)};
-		Vec2f pLeftCheck{getOrbitRad(tempPos, angle - ssvu::pi / 2.f, 0.01f)};
-		Vec2f pRightCheck{getOrbitRad(tempPos, angle + ssvu::pi / 2.f, 0.01f)};
+		Vec2f pLeftCheck{getOrbitRad(tempPos, angle - ssvu::piHalf, 0.01f)};
+		Vec2f pRightCheck{getOrbitRad(tempPos, angle + ssvu::piHalf, 0.01f)};
 
 		for(const auto& wall : getManager().getEntities(HGGroup::Wall))
 		{
