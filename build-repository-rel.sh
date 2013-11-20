@@ -135,4 +135,12 @@ echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./x86/; ./x86/SSVOpenHexagon' >> "
 find "${x86Folder}" -name SSV*'.so' | xargs strip -s -g
 find "${x86Folder}" -name 'SSVOpenHexagon'* | xargs strip -s -g
 
+find "${x86Folder}" -name SSV*'.so' | xargs upx -9
+find "${x86Folder}" -name 'SSVOpenHexagon'* | xargs upx -9
+
+rm "${destinationDir}/log.txt"
+rm "${destinationDir}/scores.json"
+rm "${destinationDir}/users.json"
+rm "${destinationDir}/Profiles/*.json"
+
 echo "Successfully finished building ${projectName}."

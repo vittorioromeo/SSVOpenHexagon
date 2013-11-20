@@ -1,14 +1,5 @@
 cd extlibs
 
-cd SSVJsonCpp
-mkdir lib
-cd lib
-cmake .. -G "MinGW Makefiles"
-mingw32-make -j4
-mingw32-make install -j4
-xcopy /y ..\lib\libSSVJsonCpp.dll ..\..\..\_RELEASE\
-cd ../..
-
 cd SSVUtils
 mkdir lib
 cd lib
@@ -93,6 +84,7 @@ xcopy /s/y ..\lib\libsndfile-1.dll ..\_RELEASE\
 xcopy /s/y ..\lib\lua5.1.dll ..\_RELEASE\
 xcopy /s/y ..\lib\lua51.dll ..\_RELEASE\
 xcopy /s/y ..\lib\openal32.dll ..\_RELEASE\
+xcopy /s/y ..\lib\zlib.dll ..\_RELEASE\
 
 strip ..\_RELEASE\*SSV*.dll -g -s
 upx -9 ..\_RELEASE\*SSV*

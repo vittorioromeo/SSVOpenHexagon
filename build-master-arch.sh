@@ -1,6 +1,6 @@
 #!/bin/bash
 pacman -Syyuu --noconfirm
-pacman -S --noconfirm --needed base-devel git gcc cmake sfml lua51 zlib
+pacman -S --noconfirm --needed base-devel git gcc cmake sfml lua51 zlib upx
 pacman -Scc --noconfirm
 
 git clone https://github.com/SuperV1234/SSVOpenHexagon
