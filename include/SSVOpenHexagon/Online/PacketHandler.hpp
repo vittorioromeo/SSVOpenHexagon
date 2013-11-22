@@ -15,7 +15,7 @@ namespace hg
 		{
 			private:
 				using HandlerFunc = ssvu::Func<void(T&, sf::Packet&)>;
-				std::unordered_map<unsigned int, HandlerFunc> functionHandlers;
+				std::unordered_map<unsigned int, HandlerFunc> funcs;
 
 			public:
 				inline void handle(T& mCaller, sf::Packet& mPacket)
@@ -26,8 +26,8 @@ namespace hg
 					{
 						mPacket >> type;
 
-						auto itr(functionHandlers.find(type));
-						if(itr == end(functionHandlers))
+						auto itr(funcs.find(type));
+						if(itr == end(funcs))
 						{
 							ssvu::lo("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
 							return;
@@ -45,7 +45,7 @@ namespace hg
 					}
 				}
 
-				HandlerFunc& operator[](unsigned int mType) { return functionHandlers[mType]; }
+				HandlerFunc& operator[](unsigned int mType) { return funcs[mType]; }
 		};
 	}
 }
