@@ -13,8 +13,6 @@ namespace hg
 {
 	namespace Online
 	{
-		enum class LogMode{Quiet, Verbose};
-
 		namespace Internal
 		{
 			// Compression

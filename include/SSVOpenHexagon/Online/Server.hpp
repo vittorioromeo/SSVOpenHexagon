@@ -25,7 +25,7 @@ namespace hg
 				std::vector<Uptr<ClientHandler>> clientHandlers;
 				std::future<void> updateFuture;
 
-				void growIfNeeded()
+				inline void growIfNeeded()
 				{
 					if(ssvu::containsAnyIf(clientHandlers, [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); })) return;
 
@@ -33,7 +33,7 @@ namespace hg
 					for(int i{0}; i < 10; ++i) clientHandlers.emplace_back(new ClientHandler{packetHandler});
 				}
 
-				void update()
+				inline void update()
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
@@ -55,7 +55,7 @@ namespace hg
 				Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler) { listener.setBlocking(false); }
 				~Server() { running = false; ssvu::lo << "Server destroyed" << std::endl; }
 
-				void start(unsigned int mPort)
+				inline void start(unsigned int mPort)
 				{
 					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::lo("Server") << "Error initalizing listener" << std::endl; return; }
 					else ssvu::lo("Server") << "Listener initialized" << std::endl;

@@ -47,7 +47,6 @@ namespace hg
 
 					ssvu::lo("ManagedSocket") << "Couldn't send packet - disconnecting" << std::endl;
 					disconnect();
-					//handlerThread.join();
 					return false;
 				}
 

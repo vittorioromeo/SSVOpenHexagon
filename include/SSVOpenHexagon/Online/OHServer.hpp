@@ -147,7 +147,7 @@ namespace hg
 		{
 			ssvu::CommandLine::CmdLine cmdLine;
 
-			bool verbose{false}, modifiedUsers{false}, modifiedScores{false};
+			bool verbose{true}, modifiedUsers{false}, modifiedScores{false};
 
 			const std::string usersPath{"users.json"};
 			const std::string scoresPath{"scores.json"};

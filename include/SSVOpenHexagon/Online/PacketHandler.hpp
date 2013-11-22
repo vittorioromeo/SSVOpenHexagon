@@ -18,7 +18,7 @@ namespace hg
 				std::unordered_map<unsigned int, HandlerFunc> functionHandlers;
 
 			public:
-				void handle(T& mCaller, sf::Packet& mPacket)
+				inline void handle(T& mCaller, sf::Packet& mPacket)
 				{
 					unsigned int type{0};
 
