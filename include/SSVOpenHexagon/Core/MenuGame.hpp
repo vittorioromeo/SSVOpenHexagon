@@ -57,7 +57,7 @@ namespace hg
 			void initAssets();
 			void initMenus();
 			void initInput();
-			void update(float mFT);
+			void update(FT mFT);
 			void draw();
 			void drawLevelSelection();
 			void drawEnteringText();

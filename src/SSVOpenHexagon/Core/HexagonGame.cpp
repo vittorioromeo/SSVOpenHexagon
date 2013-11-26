@@ -20,17 +20,17 @@ namespace hg
 {
 	HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow) : assets(mAssets), window(mGameWindow), fpsWatcher(window)
 	{
-		game.onUpdate += [this](float mFT) { update(mFT); };
+		game.onUpdate += [this](FT mFT) { update(mFT); };
 		game.onDraw += [this]{ draw(); };
 		window.onRecreation += [this]{ initFlashEffect(); };
 
 		add3StateInput(game, Config::getTriggerRotateCCW(), Config::getTriggerRotateCW(), inputMovement);
 		add2StateInput(game, Config::getTriggerFocus(), inputFocused);
 		add2StateInput(game, Config::getTriggerSwap(), inputSwap);
-		game.addInput(Config::getTriggerExit(),			[this](float){ goToMenu(); });
-		game.addInput(Config::getTriggerForceRestart(),	[this](float){ status.mustRestart = true; });
-		game.addInput(Config::getTriggerRestart(),		[this](float){ if(status.hasDied) status.mustRestart = true; });
-		game.addInput(Config::getTriggerScreenshot(),	[this](float){ mustTakeScreenshot = true; }, Input::Type::Once);
+		game.addInput(Config::getTriggerExit(),			[this](FT){ goToMenu(); });
+		game.addInput(Config::getTriggerForceRestart(),	[this](FT){ status.mustRestart = true; });
+		game.addInput(Config::getTriggerRestart(),		[this](FT){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput(Config::getTriggerScreenshot(),	[this](FT){ mustTakeScreenshot = true; }, Input::Type::Once);
 	}
 
 	void HexagonGame::newGame(const string& mId, bool mFirstPlay, float mDifficultyMult)

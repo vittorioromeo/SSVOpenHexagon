@@ -66,7 +66,7 @@ namespace hg
 				for(auto i(0u); i < ssvuj::size(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]);
 			}
 
-			void update(float mFT, float mMult = 1.f);
+			void update(FT mFT, float mMult = 1.f);
 			void computeColors();
 			void drawBackground(sf::RenderTarget& mRenderTarget, const Vec2f& mCenterPos, int mSides);
 

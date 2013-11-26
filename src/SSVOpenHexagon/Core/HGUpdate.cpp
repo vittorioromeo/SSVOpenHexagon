@@ -17,7 +17,7 @@ using namespace hg::Utils;
 
 namespace hg
 {
-	void HexagonGame::update(float mFT)
+	void HexagonGame::update(FT mFT)
 	{
 		if(!assets.pIsLocal() && Config::isEligibleForScore())
 		{
@@ -62,7 +62,7 @@ namespace hg
 
 		fpsWatcher.update();
 	}
-	void HexagonGame::updateEvents(float mFT)
+	void HexagonGame::updateEvents(FT mFT)
 	{
 		eventTimeline.update(mFT);
 		if(eventTimeline.isFinished()) { eventTimeline.clear(); eventTimeline.reset(); }
@@ -70,7 +70,7 @@ namespace hg
 		messageTimeline.update(mFT);
 		if(messageTimeline.isFinished()) { messageTimeline.clear(); messageTimeline.reset(); }
 	}
-	void HexagonGame::updateTimeStop(float mFT)
+	void HexagonGame::updateTimeStop(FT mFT)
 	{
 		if(status.timeStop <= 0)
 		{
@@ -89,7 +89,7 @@ namespace hg
 
 		mustChangeSides = true;
 	}
-	void HexagonGame::updateLevel(float mFT)
+	void HexagonGame::updateLevel(FT mFT)
 	{
 		if(status.timeStop > 0) return;
 
@@ -103,7 +103,7 @@ namespace hg
 			timeline.reset();
 		}
 	}
-	void HexagonGame::updatePulse(float mFT)
+	void HexagonGame::updatePulse(FT mFT)
 	{
 		if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
 		{
@@ -127,7 +127,7 @@ namespace hg
 		backgroundCamera.setView({ssvs::zeroVec2f, {(Config::getWidth() * Config::getZoomFactor()) * p, (Config::getHeight() * Config::getZoomFactor()) * p}});
 		backgroundCamera.setRotation(rotation);
 	}
-	void HexagonGame::updateBeatPulse(float mFT)
+	void HexagonGame::updateBeatPulse(FT mFT)
 	{
 		if(status.beatPulseDelay <= 0)
 		{
@@ -141,7 +141,7 @@ namespace hg
 		float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
 		status.radius = radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
 	}
-	void HexagonGame::updateRotation(float mFT)
+	void HexagonGame::updateRotation(FT mFT)
 	{
 		auto nextRotation(getRotationSpeed() * 10.f);
 		if(status.fastSpin > 0)
@@ -152,13 +152,13 @@ namespace hg
 
 		backgroundCamera.turn(nextRotation);
 	}
-	void HexagonGame::updateFlash(float mFT)
+	void HexagonGame::updateFlash(FT mFT)
 	{
 		if(status.flashEffect > 0) status.flashEffect -= 3 * mFT;
 		status.flashEffect = getClamped(status.flashEffect, 0.f, 255.f);
 		for(int i{0}; i < 4; ++i) flashPolygon[i].color.a = status.flashEffect;
 	}
-	void HexagonGame::update3D(float mFT)
+	void HexagonGame::update3D(FT mFT)
 	{
 		status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
 		if(status.pulse3D > styleData._3dPulseMax) status.pulse3DDirection = -1;

@@ -18,7 +18,7 @@ namespace hg
 
 		SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f, float mMax = 0.f, bool mPingPong = false) : speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{mPingPong} { }
 
-		inline void update(float mFT)
+		inline void update(FT mFT)
 		{
 			if(accel == 0) return;
 			speed += accel * mFT;
@@ -40,7 +40,7 @@ namespace hg
 		public:
 			CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
-			void update(float mFT) override;
+			void update(FT mFT) override;
 			void draw() override;
 
 			inline void setHueMod(float mHueMod) { hueMod = mHueMod; }

@@ -32,7 +32,7 @@ namespace hg
 		for(auto i(0u); i < 4; ++i) hexagonGame.wallQuads.emplace_back(vertexPositions[i], colorMain);
 	}
 
-	void CWall::update(float mFT)
+	void CWall::update(FT mFT)
 	{
 		speed.update(mFT);
 		curve.update(mFT);

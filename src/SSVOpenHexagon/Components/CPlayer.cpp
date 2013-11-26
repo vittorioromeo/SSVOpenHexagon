@@ -98,7 +98,7 @@ namespace hg
 		hexagonGame.render(verticesDeath);
 	}
 
-	void CPlayer::update(float mFT)
+	void CPlayer::update(FT mFT)
 	{
 		swapBlinkTimer.update(mFT);
 		if(deadEffectTimer.update(mFT) && hexagonGame.getLevelStatus().tutorialMode) deadEffectTimer.stop();

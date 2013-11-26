@@ -44,7 +44,7 @@ namespace hg
 					 getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f));
 	}
 
-	void StyleData::update(float mFT, float mMult)
+	void StyleData::update(FT mFT, float mMult)
 	{
 		currentSwapTime += mFT * mMult;
 		if(currentSwapTime > maxSwapTime) currentSwapTime = 0;

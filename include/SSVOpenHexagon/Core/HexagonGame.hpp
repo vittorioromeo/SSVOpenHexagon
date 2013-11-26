@@ -61,16 +61,16 @@ namespace hg
 			void initFlashEffect();
 
 			// Update methods
-			void update(float mFT);
-			void updateTimeStop(float mFT);
+			void update(FT mFT);
+			void updateTimeStop(FT mFT);
 			void updateIncrement();
-			void updateEvents(float mFT);
-			void updateLevel(float mFT);
-			void updatePulse(float mFT);
-			void updateBeatPulse(float mFT);
-			void updateRotation(float mFT);
-			void updateFlash(float mFT);
-			void update3D(float mFT);
+			void updateEvents(FT mFT);
+			void updateLevel(FT mFT);
+			void updatePulse(FT mFT);
+			void updateBeatPulse(FT mFT);
+			void updateRotation(FT mFT);
+			void updateFlash(FT mFT);
+			void update3D(FT mFT);
 
 			// Draw methods
 			void draw();
@@ -117,23 +117,23 @@ namespace hg
 			void setSides(unsigned int mSides);
 
 			// Getters
-			inline ssvs::GameState& getGame()						{ return game; }
-			inline float getRadius() const							{ return status.radius; }
-			inline const sf::Color& getColor(int mIdx) const		{ return styleData.getColor(mIdx); }
-			inline float getSpeedMultDM() const						{ return levelStatus.speedMult * (pow(difficultyMult, 0.65f)); }
-			inline float getDelayMultDM() const						{ return levelStatus.delayMult / (pow(difficultyMult, 0.10f)); }
-			inline float getRotationSpeed() const					{ return levelStatus.rotationSpeed; }
-			inline unsigned int getSides() const					{ return levelStatus.sides; }
-			inline float getWallSkewLeft() const					{ return levelStatus.wallSkewLeft; }
-			inline float getWallSkewRight() const					{ return levelStatus.wallSkewRight; }
-			inline float getWallAngleLeft() const					{ return levelStatus.wallAngleLeft; }
-			inline float getWallAngleRight() const					{ return levelStatus.wallAngleRight; }
-			inline float get3DEffectMult() const					{ return levelStatus._3dEffectMultiplier; }
-			inline HexagonGameStatus& getStatus()					{ return status; }
-			inline LevelStatus& getLevelStatus()					{ return levelStatus; }
-			inline HGAssets& getAssets()							{ return assets; }
+			inline ssvs::GameState& getGame()					{ return game; }
+			inline float getRadius() const						{ return status.radius; }
+			inline const sf::Color& getColor(int mIdx) const	{ return styleData.getColor(mIdx); }
+			inline float getSpeedMultDM() const					{ return levelStatus.speedMult * (pow(difficultyMult, 0.65f)); }
+			inline float getDelayMultDM() const					{ return levelStatus.delayMult / (pow(difficultyMult, 0.10f)); }
+			inline float getRotationSpeed() const				{ return levelStatus.rotationSpeed; }
+			inline unsigned int getSides() const				{ return levelStatus.sides; }
+			inline float getWallSkewLeft() const				{ return levelStatus.wallSkewLeft; }
+			inline float getWallSkewRight() const				{ return levelStatus.wallSkewRight; }
+			inline float getWallAngleLeft() const				{ return levelStatus.wallAngleLeft; }
+			inline float getWallAngleRight() const				{ return levelStatus.wallAngleRight; }
+			inline float get3DEffectMult() const				{ return levelStatus._3dEffectMultiplier; }
+			inline HexagonGameStatus& getStatus()				{ return status; }
+			inline LevelStatus& getLevelStatus()				{ return levelStatus; }
+			inline HGAssets& getAssets()						{ return assets; }
 			sf::Color getColorMain() const;
-			inline float getMusicDMSyncFactor()						{ return Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f; }
+			inline float getMusicDMSyncFactor()					{ return Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f; }
 
 			// Input
 			inline bool getInputFocused() const	{ return inputFocused; }

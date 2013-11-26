@@ -27,7 +27,7 @@ namespace hg
 	{
 		initAssets(); refreshCamera();
 
-		game.onUpdate += [&](float mFT) { update(mFT); };
+		game.onUpdate += [&](FT mFT) { update(mFT); };
 		game.onDraw += [&]{ draw(); };
 		game.onEvent(Event::EventType::TextEntered) += [&](const Event& mEvent){ if(mEvent.text.unicode < 128) enteredChars.push_back(static_cast<char>(mEvent.text.unicode)); };
 		window.onRecreation += [&]{ refreshCamera(); };
@@ -142,33 +142,33 @@ namespace hg
 		using k = KKey;
 		using t = Type;
 
-		game.addInput(Config::getTriggerRotateCCW(), [&](float)
+		game.addInput(Config::getTriggerRotateCCW(), [&](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) 	{  --profileIdx; }
 			else if(state == s::SMain)	{ setIndex(currentIndex - 1); }
 			else if(isInMenu())			{ getCurrentMenu()->decrease(); }
 		}, t::Once);
-		game.addInput(Config::getTriggerRotateCW(), [&](float)
+		game.addInput(Config::getTriggerRotateCW(), [&](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) 	{ ++profileIdx; }
 			else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
 			else if(isInMenu())			{ getCurrentMenu()->increase(); }
 		}, t::Once);
-		game.addInput({{k::Up}, {k::W}}, [&](float)
+		game.addInput({{k::Up}, {k::W}}, [&](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SMain)		{ ++diffMultIdx; }
 			else if(isInMenu())			{ getCurrentMenu()->previous(); }
 		}, t::Once);
-		game.addInput({{k::Down}, {k::S}}, [&](float)
+		game.addInput({{k::Down}, {k::S}}, [&](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SMain)		{ --diffMultIdx; }
 			else if(isInMenu())			{ getCurrentMenu()->next(); }
 		}, t::Once);
-		game.addInput(Config::getTriggerRestart(), [&](float)
+		game.addInput(Config::getTriggerRestart(), [&](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) { assets.pSetCurrent(enteredStr); state = s::SMain; }
@@ -184,14 +184,14 @@ namespace hg
 			else if(state == s::ETPass)		{ if(!enteredStr.empty()) { lrPass = enteredStr; state = s::SLogging; enteredStr = ""; Online::tryLogin(lrUser, lrPass); } }
 			else if(state == s::ETEmail)	{ if(!enteredStr.empty() && ssvu::contains(lrEmail, '@')) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
 		}, t::Once);
-		game.addInput({{k::F1}}, [&](float)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Once);
-		game.addInput({{k::F2}, {k::J}}, [&](float) { assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
-		game.addInput({{k::F3}, {k::K}}, [&](float) { assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
-		game.addInput({{k::F4}, {k::L}}, [&](float)
+		game.addInput({{k::F1}}, [&](FT)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Once);
+		game.addInput({{k::F2}, {k::J}}, [&](FT) { assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
+		game.addInput({{k::F3}, {k::K}}, [&](FT) { assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
+		game.addInput({{k::F4}, {k::L}}, [&](FT)
 		{
 			assets.playSound("beep.ogg"); if(state == s::SMain) { auto p(assets.getPackPaths()); packIdx = ssvu::getWrapIdx(packIdx + 1, p.size()); levelDataIds = assets.getLevelIdsByPack(p[packIdx]); setIndex(0); }
 		}, t::Once);
-		game.addInput(Config::getTriggerExit(), [&](float)
+		game.addInput(Config::getTriggerExit(), [&](FT)
 		{
 			assets.playSound("beep.ogg");
 			bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) || !assets.pIsLocal()};
@@ -203,10 +203,10 @@ namespace hg
 			else if((state == s::ETFriend || state == s::SLPSelect) && valid) state = s::SMain;
 		}, t::Once);
 
-		game.addInput(Config::getTriggerExit(), [&](float mFT) { if(state != s::MOpts) exitTimer += mFT; });
-		game.addInput(Config::getTriggerScreenshot(), [&](float){ mustTakeScreenshot = true; }, t::Once);
-		game.addInput({{k::LAlt, k::Return}}, [&](float){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Once);
-		game.addInput({{k::BackSpace}}, [&](float){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
+		game.addInput(Config::getTriggerExit(), [&](FT mFT) { if(state != s::MOpts) exitTimer += mFT; });
+		game.addInput(Config::getTriggerScreenshot(), [&](FT){ mustTakeScreenshot = true; }, t::Once);
+		game.addInput({{k::LAlt, k::Return}}, [&](FT){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Once);
+		game.addInput({{k::BackSpace}}, [&](FT){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
 	}
 
 	void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -380,7 +380,7 @@ namespace hg
 		bottomBar.setPosition(Vec2f(0, h));
 	}
 
-	void MenuGame::update(float mFT)
+	void MenuGame::update(FT mFT)
 	{
 		overlayCamera.update(mFT);
 		backgroundCamera.update(mFT);
