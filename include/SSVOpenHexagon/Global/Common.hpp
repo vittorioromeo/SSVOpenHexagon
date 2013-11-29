@@ -20,7 +20,7 @@
 namespace hg
 {
 	// Typedefs
-	using Path = ssvu::FileSystem::Path;
+	using Path = ssvufs::Path;
 	template<typename T> using Vec2 = ssvs::Vec2<T>;
 	template<typename T, typename TDeleter = std::default_delete<T>> using Uptr = ssvs::Uptr<T, TDeleter>;
 	using Vec2i = ssvs::Vec2i;
