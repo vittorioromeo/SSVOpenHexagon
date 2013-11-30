@@ -76,7 +76,7 @@
 		[ "kSpace" ],
 		[ "bMiddle" ]
 	],
-	"timer_static" : false,
+	"timer_static" : true,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 480,
