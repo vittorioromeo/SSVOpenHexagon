@@ -466,7 +466,11 @@ namespace hg
 			Text& pack = renderText("pack: " + packName + " (" + toStr(packIdx + 1) + "/" + toStr(assets.getPackPaths().size()) + ")", txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
 			string lbestStr;
-			if(assets.pIsLocal()) lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, diffMults[diffMultIdx % diffMults.size()])));
+			if(assets.pIsLocal())
+			{
+				assert(diffMults.size() != 0);
+				lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, diffMults[diffMultIdx % diffMults.size()])));
+			}
 			else { lbestStr = Online::getLoginStatus() == ols::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
 
 			Text& lbest = renderText(lbestStr, txtProf, {20.f, getGlobalBottom(pack) - 7.f}, 18);

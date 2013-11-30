@@ -27,6 +27,8 @@ namespace hg
 			{
 				if(mColorData.dynamicOffset)
 				{
+					assert(mColorData.offset != 0);
+
 					color.r += dynamicColor.r / mColorData.offset;
 					color.g += dynamicColor.g / mColorData.offset;
 					color.b += dynamicColor.b / mColorData.offset;
@@ -74,6 +76,8 @@ namespace hg
 		current3DOverrideColor = _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
 		currentColors.clear();
 		for(const auto& cd : colorDatas) currentColors.push_back(calculateColor(cd));
+
+		// TODO: ssvu rotate
 		rotate(begin(currentColors), begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f), end(currentColors));
 	}
 
