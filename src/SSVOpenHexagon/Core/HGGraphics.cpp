@@ -17,11 +17,12 @@ namespace hg
 {
 	void HexagonGame::draw()
 	{
-		wallQuads.clear();
 		styleData.computeColors();
 
 		window.clear(Color::Black);
+
 		if(!Config::getNoBackground()) { backgroundCamera.apply(); styleData.drawBackground(window, ssvs::zeroVec2f, getSides()); }
+
 		if(Config::get3D())
 		{
 			status.drawing3D = true;
@@ -35,25 +36,23 @@ namespace hg
 				Camera& depthCamera(depthCameras[i]);
 				depthCamera.setView(backgroundCamera.getView());
 				depthCamera.setSkew(skew);
-				depthCamera.setOffset({0, styleData._3dSpacing * (i * styleData._3dPerspectiveMult) * (effect * 3.6f)});
-			}
+				depthCamera.setOffset({0, styleData._3dSpacing * (float(i + 1.f) * styleData._3dPerspectiveMult) * (effect * 3.6f)});
 
-			for(auto i(0u); i < depthCameras.size(); ++i)
-			{
 				status.overrideColor = getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult);
 				status.overrideColor.a /= styleData._3dAlphaMult;
 				status.overrideColor.a -= i * styleData._3dAlphaFalloff;
 
-				depthCameras[i].apply();
-				manager.draw();
-				render(wallQuads);
+				depthCamera.apply();
+				wallQuads.clear(); playerTris.clear(); manager.draw();
+				render(wallQuads); render(playerTris);
 			}
+
 			status.drawing3D = false;
 		}
 
 		backgroundCamera.apply();
-		manager.draw();
-		render(wallQuads);
+		wallQuads.clear(); playerTris.clear(); manager.draw();
+		render(wallQuads); render(playerTris);
 
 		overlayCamera.apply();
 		drawText();

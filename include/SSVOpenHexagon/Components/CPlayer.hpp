@@ -17,7 +17,6 @@ namespace hg
 		private:
 			HexagonGame& hexagonGame;
 			Vec2f pLeft, pRight, startPos, pos;
-			ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices{3};
 			float hue{0}, angle{0}, size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()}, focusSpeed{Config::getPlayerFocusSpeed()};
 			bool dead{false};
 			ssvs::Ticker swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{80.f, false};

@@ -33,14 +33,11 @@ namespace hg
 		pLeft = getOrbitRad(pos, angle - toRad(100.f), size + 3);
 		pRight = getOrbitRad(pos, angle + toRad(100.f), size + 3);
 
-		vertices[0].position = getOrbitRad(pos, angle, size);
-		vertices[1].position = pLeft;
-		vertices[2].position = pRight;
-
 		if(!swapTimer.isRunning() && !isDrawing3D) colorMain = getColorFromHue((swapBlinkTimer.getCurrent() * 15) / 255.f);
-		for(int i{0}; i < 3; ++i) vertices[i].color = colorMain;
 
-		hexagonGame.render(vertices);
+		hexagonGame.playerTris.emplace_back(getOrbitRad(pos, angle, size), colorMain);
+		hexagonGame.playerTris.emplace_back(pLeft, colorMain);
+		hexagonGame.playerTris.emplace_back(pRight, colorMain);
 	}
 	void CPlayer::drawPivot()
 	{
@@ -48,8 +45,6 @@ namespace hg
 		float div{ssvu::tau / sides * 0.5f}, radius{hexagonGame.getRadius() * 0.75f};
 		Color colorMain{hexagonGame.getColorMain()}, colorB{hexagonGame.getColor(1)};
 		if(Config::getBlackAndWhite()) colorB = Color::Black;
-		ssvs::VertexVector<sf::PrimitiveType::Quads> vertices2(4);
-		ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices3(3);
 
 		for(auto i(0u); i < sides; ++i)
 		{
@@ -60,24 +55,21 @@ namespace hg
 			Vec2f p3{getOrbitRad(startPos, sAngle + div, radius + baseThickness)};
 			Vec2f p4{getOrbitRad(startPos, sAngle - div, radius + baseThickness)};
 
-			vertices2.emplace_back(p1, colorMain);
-			vertices2.emplace_back(p2, colorMain);
-			vertices2.emplace_back(p3, colorMain);
-			vertices2.emplace_back(p4, colorMain);
+			hexagonGame.wallQuads.emplace_back(p1, colorMain);
+			hexagonGame.wallQuads.emplace_back(p2, colorMain);
+			hexagonGame.wallQuads.emplace_back(p3, colorMain);
+			hexagonGame.wallQuads.emplace_back(p4, colorMain);
 
-			vertices3.emplace_back(p1, colorB);
-			vertices3.emplace_back(p2, colorB);
-			vertices3.emplace_back(startPos, colorB);
+			if(hexagonGame.getStatus().drawing3D) continue;
+			hexagonGame.playerTris.emplace_back(p1, colorB);
+			hexagonGame.playerTris.emplace_back(p2, colorB);
+			hexagonGame.playerTris.emplace_back(startPos, colorB);
 		}
-
-		if(!hexagonGame.getStatus().drawing3D) hexagonGame.render(vertices3);
-		hexagonGame.render(vertices2);
 	}
 	void CPlayer::drawDeathEffect()
 	{
 		float div{ssvu::tau / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
 		Color colorMain{getColorFromHue((360 - hue) / 255.f)};
-		ssvs::VertexVector<sf::PrimitiveType::Quads> verticesDeath(4);
 		if(hue++ > 360) hue = 0;
 
 		for(auto i(0u); i < hexagonGame.getSides(); ++i)
@@ -89,13 +81,11 @@ namespace hg
 			Vec2f p3{getOrbitRad(pos, sAngle + div, radius + thickness)};
 			Vec2f p4{getOrbitRad(pos, sAngle - div, radius + thickness)};
 
-			verticesDeath.emplace_back(p1, colorMain);
-			verticesDeath.emplace_back(p2, colorMain);
-			verticesDeath.emplace_back(p3, colorMain);
-			verticesDeath.emplace_back(p4, colorMain);
+			hexagonGame.wallQuads.emplace_back(p1, colorMain);
+			hexagonGame.wallQuads.emplace_back(p2, colorMain);
+			hexagonGame.wallQuads.emplace_back(p3, colorMain);
+			hexagonGame.wallQuads.emplace_back(p4, colorMain);
 		}
-
-		hexagonGame.render(verticesDeath);
 	}
 
 	void CPlayer::update(FT mFT)

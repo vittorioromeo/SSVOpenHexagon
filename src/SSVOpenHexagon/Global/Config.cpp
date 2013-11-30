@@ -186,7 +186,7 @@ namespace hg
 			timerStatic = mValue;
 			if(timerStatic)
 			{
-				mWindow.setTimer<TimerStatic>(1.f, 1.f, 5);
+				mWindow.setTimer<TimerStatic>(0.5f, 0.5f);
 			}
 			else
 			{
