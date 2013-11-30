@@ -46,9 +46,9 @@ namespace hg
 			try { mLua.executeCode(s); }
 			catch(std::runtime_error& mError)
 			{
-				ssvu::lo("hg::Utils::runLuaFile") << "Fatal lua error" << "\n"
-					<< ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n"
-					<< ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << "\n" << std::endl;
+				ssvu::lo("hg::Utils::runLuaFile") << "Fatal lua error" << "\n";
+				ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n";
+				ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << "\n" << std::endl;
 			}
 		}
 		template<typename R, typename... Args> inline R runLuaFunction(Lua::LuaContext& mLua, const std::string& mName, const Args&... mArgs)

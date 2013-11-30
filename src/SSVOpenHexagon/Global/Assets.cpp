@@ -58,7 +58,7 @@ namespace hg
 								lo("::loadAssets") << "loading " << packId << " level data\n";		loadLevelData(packPath);
 			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " custom sounds\n";	loadCustomSounds(packId, packPath); }
 
-			lo.flush();
+			lo().flush();
 		}
 	}
 

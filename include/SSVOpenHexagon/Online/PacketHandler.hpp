@@ -37,11 +37,11 @@ namespace hg
 					}
 					catch(std::exception& mException)
 					{
-						ssvu::lo << "Exception during packet handling: (" << type << ")\n" << mException.what() << std::endl;
+						ssvu::lo() << "Exception during packet handling: (" << type << ")\n" << mException.what() << std::endl;
 					}
 					catch(...)
 					{
-						ssvu::lo << "Unknown exception during packet handling: (" << type << ")" << std::endl;
+						ssvu::lo() << "Unknown exception during packet handling: (" << type << ")" << std::endl;
 					}
 				}
 

@@ -53,7 +53,7 @@ namespace hg
 				ssvu::Delegate<void(ClientHandler&)> onClientAccepted;
 
 				Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler) { listener.setBlocking(false); }
-				~Server() { running = false; ssvu::lo << "Server destroyed" << std::endl; }
+				~Server() { running = false; ssvu::lo() << "Server destroyed" << std::endl; }
 
 				inline void start(unsigned int mPort)
 				{

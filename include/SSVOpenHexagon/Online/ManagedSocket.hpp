@@ -54,7 +54,7 @@ namespace hg
 				ssvu::Delegate<void(sf::Packet)> onPacketSent, onPacketReceived;
 
 				ManagedSocket() { socket.setBlocking(false); }
-				~ManagedSocket() { disconnect(); ssvu::lo << "ManagedSocket destroyed" << std::endl; }
+				~ManagedSocket() { disconnect(); ssvu::lo() << "ManagedSocket destroyed" << std::endl; }
 
 				inline bool send(const sf::Packet& mPacket) { return trySendPacket(mPacket); }
 				inline bool connect(sf::IpAddress mIp, unsigned int mPort)

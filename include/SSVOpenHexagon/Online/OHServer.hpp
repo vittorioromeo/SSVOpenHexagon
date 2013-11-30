@@ -166,7 +166,7 @@ namespace hg
 
 			OHServer()
 			{
-				ssvu::lo << "OHServer constructed" << std::endl;
+				ssvu::lo() << "OHServer constructed" << std::endl;
 
 				server.onClientAccepted += [&](ClientHandler& mCH)
 				{
@@ -353,7 +353,7 @@ namespace hg
 					mMS.send(buildCPacket<FromServer::SendLogoutValid>());
 				};
 			}
-			~OHServer() { saveIfNeeded(); ssvu::lo << "OHServer destroyed" << std::endl; }
+			~OHServer() { saveIfNeeded(); ssvu::lo() << "OHServer destroyed" << std::endl; }
 
 			inline void saveIfNeeded()
 			{
@@ -403,7 +403,7 @@ namespace hg
 					cmd.setDesc("Stops the server.");
 					cmd += [&]
 					{
-						ssvu::lo << "Stopping server... saving if needed" << std::endl;
+						ssvu::lo() << "Stopping server... saving if needed" << std::endl;
 						saveIfNeeded();
 						server.stop();
 					};
@@ -436,8 +436,8 @@ namespace hg
 
 					cmd += [&]
 					{
-						if(arg.get() == "users")		{ for(const auto& u : users.getUsers()) ssvu::lo << u.first << std::endl; }
-						else if(arg.get() == "logins")	{ for(const auto& l : loginDB.getLoggedUsernames()) ssvu::lo << l << std::endl; }
+						if(arg.get() == "users")		{ for(const auto& u : users.getUsers()) ssvu::lo() << u.first << std::endl; }
+						else if(arg.get() == "logins")	{ for(const auto& l : loginDB.getLoggedUsernames()) ssvu::lo() << l << std::endl; }
 					};
 				}
 			}
@@ -461,13 +461,13 @@ namespace hg
 					if(!optArg)
 					{
 						ssvu::lo("Open Hexagon server help") << "\n\n";
-						for(const auto& c : cmdLine.getCmds()) ssvu::lo << getBriefHelp(*c) << "\n" << (flagVerbose ? c->getHelpStr() : "") << std::endl;
+						for(const auto& c : cmdLine.getCmds()) ssvu::lo() << getBriefHelp(*c) << "\n" << (flagVerbose ? c->getHelpStr() : "") << std::endl;
 					}
 					else
 					{
 						auto& c(cmdLine.findCmd(optArg.get()));
-						ssvu::lo << "\n" << getBriefHelp(c) << "\n" << c.getHelpStr();
-						ssvu::lo.flush();
+						ssvu::lo() << "\n" << getBriefHelp(c) << "\n" << c.getHelpStr();
+						ssvu::lo().flush();
 					}
 				};
 			}
