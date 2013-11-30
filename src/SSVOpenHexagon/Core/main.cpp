@@ -28,6 +28,8 @@ void createProfilesFolder()
 
 int main(int argc, char* argv[])
 {
+	SSVU_TEST_RUN_ALL();
+
 	vector<string> overrideIds; for(int i{0}; i < argc; ++i) overrideIds.emplace_back(argv[i]);
 
 	if(contains(overrideIds, "server"))
@@ -72,4 +74,3 @@ int main(int argc, char* argv[])
 	Config::saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
 	return 0;
 }
-
