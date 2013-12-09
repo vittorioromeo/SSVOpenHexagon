@@ -79,7 +79,6 @@ namespace hg
 		unsigned int getHeight();
 		bool getShowMessages();
 
-
 		bool getDebug();
 		bool getPulse();
 		bool getBeatPulse();
