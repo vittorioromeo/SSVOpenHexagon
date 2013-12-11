@@ -101,7 +101,7 @@ namespace ssvuj
 		{
 			for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
 			{
-				for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(getKey(itr)), as<std::string>((*itr)[i], 0), as<float>((*itr)[i], 1));
+				for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(getKey(itr)), getAs<std::string>((*itr)[i], 0), getAs<float>((*itr)[i], 1));
 			}
 		}
 		inline static void toObj(Obj& mObj, const T& mValue)
@@ -152,8 +152,8 @@ namespace hg
 			const std::string usersPath{"users.json"};
 			const std::string scoresPath{"scores.json"};
 
-			UserDB users{ssvuj::as<UserDB>(ssvuj::readFromFile(usersPath))};
-			ScoreDB scores{ssvuj::as<ScoreDB>(ssvuj::readFromFile(scoresPath))};
+			UserDB users{ssvuj::getAs<UserDB>(ssvuj::readFromFile(usersPath))};
+			ScoreDB scores{ssvuj::getAs<ScoreDB>(ssvuj::readFromFile(scoresPath))};
 			PacketHandler<ClientHandler> pHandler;
 			Server server{pHandler};
 			LoginDB loginDB; // currently logged-in users and uids
@@ -162,7 +162,7 @@ namespace hg
 
 			inline void saveUsers()	const	{ ssvuj::Obj root; ssvuj::set(root, users); ssvuj::writeToFile(root, usersPath); }
 			inline void saveScores() const	{ ssvuj::Obj root; ssvuj::set(root, scores); ssvuj::writeToFile(root, scoresPath); }
-			inline User& getUserFromPacket(sf::Packet& mP) { return users.getUser(ssvuj::as<std::string>(getDecompressedPacket(mP), 0)); }
+			inline User& getUserFromPacket(sf::Packet& mP) { return users.getUser(ssvuj::getAs<std::string>(getDecompressedPacket(mP), 0)); }
 
 			OHServer()
 			{
@@ -299,7 +299,7 @@ namespace hg
 
 				pHandler[FromClient::RequestUserStats] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
+					std::string username{ssvuj::getAs<std::string>(getDecompressedPacket(mP), 0)};
 					ssvuj::Obj response; ssvuj::set(response, users.getUser(username).stats);
 					mMS.send(buildCPacket<FromServer::SendUserStats>(ssvuj::getWriteToString(response)));
 				};
@@ -346,7 +346,7 @@ namespace hg
 
 				pHandler[FromClient::Logout] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					std::string username{ssvuj::as<std::string>(getDecompressedPacket(mP), 0)};
+					std::string username{ssvuj::getAs<std::string>(getDecompressedPacket(mP), 0)};
 					if(!loginDB.isLoggedIn(username)) return;
 					loginDB.logout(username);
 					if(verbose) ssvu::lo("PacketHandler") << username << " logged out" << std::endl;

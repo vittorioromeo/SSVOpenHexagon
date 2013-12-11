@@ -42,7 +42,7 @@ namespace hg
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 
 			ssvuj::Obj packRoot{readFromFile(packPath + "/pack.json")};
-			auto packData(new PackData{packName, as<string>(packRoot, "name"), as<float>(packRoot, "priority")});
+			auto packData(new PackData{packName, getAs<string>(packRoot, "name"), getAs<float>(packRoot, "priority")});
 			packDatas.insert(make_pair(packName, Uptr<PackData>(packData)));
 		}
 

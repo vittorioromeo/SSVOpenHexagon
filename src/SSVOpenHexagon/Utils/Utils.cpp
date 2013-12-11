@@ -42,11 +42,11 @@ namespace hg
 
 		MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
 		{
-			MusicData result{as<string>(mRoot, "id"), as<string>(mRoot, "file_name"), as<string>(mRoot, "name"), as<string>(mRoot, "album"), as<string>(mRoot, "author")};
-			for(const auto& segment : mRoot["segments"]) result.addSegment(as<int>(segment, "time"));
+			MusicData result{getAs<string>(mRoot, "id"), getAs<string>(mRoot, "file_name"), getAs<string>(mRoot, "name"), getAs<string>(mRoot, "album"), getAs<string>(mRoot, "author")};
+			for(const auto& segment : mRoot["segments"]) result.addSegment(getAs<int>(segment, "time"));
 			return result;
 		}
-		ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot) { return {as<float>(mRoot, "version"), as<string>(mRoot, "name"), mRoot["scores"], as<vector<string>>(mRoot, "trackedNames", {})}; }
+		ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot) { return {getAs<float>(mRoot, "version"), getAs<string>(mRoot, "name"), mRoot["scores"], getAs<vector<string>>(mRoot, "trackedNames", {})}; }
 
 		string getLocalValidator(const string& mId, float mDifficultyMult) { return mId + "_m_" + toStr(mDifficultyMult); }
 

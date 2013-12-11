@@ -265,10 +265,10 @@ namespace hg
 
 		constexpr unsigned int leaderboardRecordCount{8};
 		ssvuj::Obj root{readFromString(currentLeaderboard)};
-		if(as<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
+		if(getAs<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
 
-		auto currentPlayerScore = as<string>(root, "ps");
-		string currentPlayerPosition = as<string>(root, "pp");
+		auto currentPlayerScore = getAs<string>(root, "ps");
+		string currentPlayerPosition = getAs<string>(root, "pp");
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
@@ -278,8 +278,8 @@ namespace hg
 		for(auto itr(begin(root["r"])); itr != end(root["r"]); ++itr)
 		{
 			ssvuj::Obj& record(*itr);
-			string name{toLower(as<string>(record, 0))};
-			float score{as<float>(record, 1)};
+			string name{toLower(getAs<string>(record, 0))};
+			float score{getAs<float>(record, 1)};
 			recordPairs.emplace_back(name, score);
 		}
 
@@ -338,8 +338,8 @@ namespace hg
 		{
 			if(!ssvuj::has(fs, n)) continue;
 
-			const auto& score(ssvuj::as<float>(fs[n], 0));
-			const auto& pos(ssvuj::as<unsigned int>(fs[n], 1));
+			const auto& score(ssvuj::getAs<float>(fs[n], 0));
+			const auto& pos(ssvuj::getAs<unsigned int>(fs[n], 1));
 
 			if(pos == 0) continue;
 			tuples.emplace_back(pos, n, score);
