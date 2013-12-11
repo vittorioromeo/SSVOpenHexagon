@@ -22,7 +22,7 @@ namespace hg
 {
 	namespace Config
 	{
-		ssvuj::Obj root{readFromFile("config.json")};
+		ssvuj::Obj root{getFromFile("config.json")};
 		LinkedValueManager lvm{root};
 
 		auto& online					(lvm.create<bool>("online"));
@@ -89,7 +89,7 @@ namespace hg
 			{
 				if(contains(mOverridesIds, p.getFileNameNoExtensions()))
 				{
-					const auto& overrideRoot(readFromFile(p));
+					const auto& overrideRoot(getFromFile(p));
 					for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr) root[getKey(itr)] = *itr;
 				}
 			}

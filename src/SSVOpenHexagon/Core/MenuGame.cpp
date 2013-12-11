@@ -264,7 +264,7 @@ namespace hg
 		if(currentLeaderboard == "NULL") { leaderboardString = "..."; return; }
 
 		constexpr unsigned int leaderboardRecordCount{8};
-		ssvuj::Obj root{readFromString(currentLeaderboard)};
+		ssvuj::Obj root{getFromString(currentLeaderboard)};
 		if(getAs<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
 
 		auto currentPlayerScore = getAs<string>(root, "ps");

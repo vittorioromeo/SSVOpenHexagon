@@ -152,8 +152,8 @@ namespace hg
 			const std::string usersPath{"users.json"};
 			const std::string scoresPath{"scores.json"};
 
-			UserDB users{ssvuj::getAs<UserDB>(ssvuj::readFromFile(usersPath))};
-			ScoreDB scores{ssvuj::getAs<ScoreDB>(ssvuj::readFromFile(scoresPath))};
+			UserDB users{ssvuj::getAs<UserDB>(ssvuj::getFromFile(usersPath))};
+			ScoreDB scores{ssvuj::getAs<ScoreDB>(ssvuj::getFromFile(scoresPath))};
 			PacketHandler<ClientHandler> pHandler;
 			Server server{pHandler};
 			LoginDB loginDB; // currently logged-in users and uids

@@ -24,7 +24,7 @@ namespace hg
 		template<unsigned int TType, typename... TArgs> inline sf::Packet buildCPacket(TArgs&&... mArgs) { sf::Packet result{buildCPacket<TType>()}; result << Internal::buildCJsonString(mArgs...); return result; }
 
 		// Decompress packet to obj
-		inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return ssvuj::readFromString(getZLibDecompress(data)); }
+		inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return ssvuj::getFromString(getZLibDecompress(data)); }
 	}
 }
 

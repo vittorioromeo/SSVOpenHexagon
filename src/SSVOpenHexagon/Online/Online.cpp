@@ -50,7 +50,7 @@ namespace hg
 
 		void refreshUserStats()
 		{
-			ssvuj::Obj root{readFromString(currentUserStatsStr)};
+			ssvuj::Obj root{getFromString(currentUserStatsStr)};
 			currentUserStats = ssvuj::getAs<UserStats>(root);
 		}
 
@@ -71,7 +71,7 @@ namespace hg
 			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, Packet&)	{ lo("PacketHandler") << "Server refused score" << endl; };
 			clientPHandler[FromServer::SendUserStats] = [](Client&, Packet& mP)			{ currentUserStatsStr = ssvuj::getAs<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, Packet&)		{ currentUserStatsStr = "NULL"; lo("PacketHandler") << "Server failed sending user stats" << endl; };
-			clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP)		{ currentFriendScores = ssvuj::readFromString(ssvuj::getAs<string>(getDecompressedPacket(mP), 0)); };
+			clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP)		{ currentFriendScores = ssvuj::getFromString(ssvuj::getAs<string>(getDecompressedPacket(mP), 0)); };
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&)			{ newUserReg = false; };
 

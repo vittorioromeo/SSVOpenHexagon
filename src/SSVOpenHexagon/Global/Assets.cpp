@@ -21,7 +21,7 @@ namespace hg
 {
 	HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
 	{
-		if(!levelsOnly) loadAssetsFromJson(assetManager, "Assets/", readFromFile("Assets/assets.json"));
+		if(!levelsOnly) loadAssetsFromJson(assetManager, "Assets/", getFromFile("Assets/assets.json"));
 		loadAssets();
 
 		for(auto& v : levelDataIdsByPack) sort(begin(v.second), end(v.second), [&](const string& mA, const string& mB){ return levelDatas[mA]->menuPriority < levelDatas[mB]->menuPriority; });
@@ -41,7 +41,7 @@ namespace hg
 			string packName{packPathStr.substr(6, packPathStr.size() - 7)}, packLua;
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 
-			ssvuj::Obj packRoot{readFromFile(packPath + "/pack.json")};
+			ssvuj::Obj packRoot{getFromFile(packPath + "/pack.json")};
 			auto packData(new PackData{packName, getAs<string>(packRoot, "name"), getAs<float>(packRoot, "priority")});
 			packDatas.insert(make_pair(packName, Uptr<PackData>(packData)));
 		}
@@ -80,7 +80,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Music/", ".json"))
 		{
-			MusicData musicData{loadMusicFromJson(readFromFile(p))};
+			MusicData musicData{loadMusicFromJson(getFromFile(p))};
 			musicDataMap.insert(make_pair(musicData.id, musicData));
 		}
 	}
@@ -88,7 +88,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Styles/", ".json"))
 		{
-			StyleData styleData{readFromFile(p), p};
+			StyleData styleData{getFromFile(p), p};
 			styleDataMap.insert(make_pair(styleData.id, styleData));
 		}
 	}
@@ -96,7 +96,7 @@ namespace hg
 	{
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Levels/", ".json"))
 		{
-			auto levelData(new LevelData{readFromFile(p), mPath});
+			auto levelData(new LevelData{getFromFile(p), mPath});
 			levelDataIdsByPack[levelData->packPath].push_back(levelData->id);
 			levelDatas.insert(make_pair(levelData->id, Uptr<LevelData>(levelData)));
 		}
@@ -107,7 +107,7 @@ namespace hg
 		{
 			//string fileName{getNameFromPath(p, "Profiles/", ".json")};
 
-			ProfileData profileData{loadProfileFromJson(readFromFile(p))};
+			ProfileData profileData{loadProfileFromJson(getFromFile(p))};
 			profileDataMap.insert(make_pair(profileData.getName(), profileData));
 		}
 	}
