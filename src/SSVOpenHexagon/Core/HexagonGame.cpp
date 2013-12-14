@@ -87,7 +87,7 @@ namespace hg
 		depthCameras.clear();
 		auto depth(styleData._3dDepth);
 		if(depth > Config::get3DMaxDepth()) depth = Config::get3DMaxDepth();
-		for(auto i(0u); i < depth; ++i) depthCameras.push_back({window, {}});
+		for(auto i(0u); i < depth; ++i) depthCameras.emplace_back(window, 1.f);
 	}
 	void HexagonGame::death(bool mForce)
 	{
