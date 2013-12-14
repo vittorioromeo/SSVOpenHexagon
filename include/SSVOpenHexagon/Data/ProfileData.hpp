@@ -22,11 +22,11 @@ namespace hg
 
 			inline float getVersion() const									{ return version; }
 			inline const std::string& getName() const						{ return name; }
-			inline const ssvuj::Obj& getScores() const					{ return scores; }
+			inline const ssvuj::Obj& getScores() const						{ return scores; }
 			inline const std::vector<std::string>& getTrackedNames() const	{ return trackedNames; }
 
-			inline void setScore(const std::string& mId, float mScore)	{ ssvuj::set(scores, mId, mScore); }
-			inline float getScore(const std::string& mId) const			{ return ssvuj::getAs<float>(scores, mId); }
+			inline void setScore(const std::string& mId, float mScore)	{ ssvuj::arch(scores, mId, mScore); }
+			inline float getScore(const std::string& mId) const			{ return ssvuj::getExtr<float>(scores, mId); }
 
 			inline void addTrackedName(const std::string& mTrackedName)	{ trackedNames.push_back(ssvu::toLower(mTrackedName)); }
 			inline void clearTrackedNames()								{ trackedNames.clear(); }

@@ -76,32 +76,19 @@ namespace hg
 
 namespace ssvuj
 {
-	template<> struct Converter<hg::Online::UserStats>
-	{
-		using T = hg::Online::UserStats;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ extrObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ archObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); }
-	};
-	template<> struct Converter<hg::Online::User>
-	{
-		using T = hg::Online::User;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ extrObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ archObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); }
-	};
-	template<> struct Converter<hg::Online::UserDB>
-	{
-		using T = hg::Online::UserDB;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ extr(mObj, mValue.users); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ arch(mObj, mValue.users); }
-	};
+	template<> SSVUJ_CNV_SIMPLE(hg::Online::UserStats, mObj, mValue)	{ ssvuj::convertObj(mObj, "dth", mValue.deaths, "msp", mValue.minutesSpentPlaying, "rst", mValue.restarts, "tn", mValue.trackedNames); } SSVUJ_CNV_SIMPLE_END();
+	template<> SSVUJ_CNV_SIMPLE(hg::Online::User, mObj, mValue)			{ ssvuj::convertObj(mObj, "ph", mValue.passwordHash, "em", mValue.email, "st", mValue.stats); } SSVUJ_CNV_SIMPLE_END();
+	template<> SSVUJ_CNV_SIMPLE(hg::Online::UserDB, mObj, mValue)		{ ssvuj::convert(mObj, mValue.users); } SSVUJ_CNV_SIMPLE_END();
+	template<> SSVUJ_CNV_SIMPLE(hg::Online::ScoreDB, mObj, mValue)		{ ssvuj::convert(mObj, mValue.levels); } SSVUJ_CNV_SIMPLE_END();
+
 	template<> struct Converter<hg::Online::LevelScoreDB>
 	{
 		using T = hg::Online::LevelScoreDB;
-		inline static void fromObj(T& mValue, const Obj& mObj)
+		inline static void fromObj(const Obj& mObj, T& mValue)
 		{
 			for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
 			{
-				for(auto i(0u); i < size(*itr); ++i) mValue.addScore(std::stof(getKey(itr)), getAs<std::string>((*itr)[i], 0), getAs<float>((*itr)[i], 1));
+				for(auto i(0u); i < getObjSize(*itr); ++i) mValue.addScore(std::stof(getKey(itr)), getExtr<std::string>((*itr)[i], 0), getExtr<float>((*itr)[i], 1));
 			}
 		}
 		inline static void toObj(Obj& mObj, const T& mValue)
@@ -111,17 +98,11 @@ namespace ssvuj
 				auto i(0u);
 				for(const auto& r : s.second)
 				{
-					Obj temp; set(temp, 0, r.first); set(temp, 1, r.second);
-					set(mObj[ssvu::toStr(s.first)], i++, temp);
+					Obj temp; arch(temp, 0, r.first); arch(temp, 1, r.second);
+					arch(mObj[ssvu::toStr(s.first)], i++, temp);
 				}
 			}
 		}
-	};
-	template<> struct Converter<hg::Online::ScoreDB>
-	{
-		using T = hg::Online::ScoreDB;
-		inline static void fromObj(T& mValue, const Obj& mObj)	{ extr(mObj, mValue.levels); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ arch(mObj, mValue.levels); }
 	};
 }
 
@@ -152,17 +133,17 @@ namespace hg
 			const std::string usersPath{"users.json"};
 			const std::string scoresPath{"scores.json"};
 
-			UserDB users{ssvuj::getAs<UserDB>(ssvuj::getFromFile(usersPath))};
-			ScoreDB scores{ssvuj::getAs<ScoreDB>(ssvuj::getFromFile(scoresPath))};
+			UserDB users{ssvuj::getExtr<UserDB>(ssvuj::getFromFile(usersPath))};
+			ScoreDB scores{ssvuj::getExtr<ScoreDB>(ssvuj::getFromFile(scoresPath))};
 			PacketHandler<ClientHandler> pHandler;
 			Server server{pHandler};
 			LoginDB loginDB; // currently logged-in users and uids
 
 			std::future<void> inputFuture, saveFuture;
 
-			inline void saveUsers()	const	{ ssvuj::Obj root; ssvuj::set(root, users); ssvuj::writeToFile(root, usersPath); }
-			inline void saveScores() const	{ ssvuj::Obj root; ssvuj::set(root, scores); ssvuj::writeToFile(root, scoresPath); }
-			inline User& getUserFromPacket(sf::Packet& mP) { return users.getUser(ssvuj::getAs<std::string>(getDecompressedPacket(mP), 0)); }
+			inline void saveUsers()	const	{ ssvuj::Obj root; ssvuj::arch(root, users); ssvuj::writeToFile(root, usersPath); }
+			inline void saveScores() const	{ ssvuj::Obj root; ssvuj::arch(root, scores); ssvuj::writeToFile(root, scoresPath); }
+			inline User& getUserFromPacket(sf::Packet& mP) { return users.getUser(ssvuj::getExtr<std::string>(getDecompressedPacket(mP), 0)); }
 
 			OHServer()
 			{
@@ -274,14 +255,14 @@ namespace hg
 					for(auto itr(std::rbegin(sortedScores)); itr != std::rend(sortedScores); ++itr)
 					{
 						const auto& v(*itr);
-						ssvuj::set(response["r"][i], 0, v.second); ssvuj::set(response["r"][i], 1, v.first);
+						ssvuj::arch(response["r"][i], 0, v.second); ssvuj::arch(response["r"][i], 1, v.first);
 						++i;
 						if(i > ssvu::getClamped(8u, 0u, static_cast<unsigned int>(sortedScores.size()))) break;
 					}
-					ssvuj::set(response, "id", levelId);
+					ssvuj::arch(response, "id", levelId);
 
-					float playerScore{l.getPlayerScore(username, diffMult)}; playerScore == -1 ? ssvuj::set(response, "ps", "NULL") : ssvuj::set(response, "ps", playerScore);
-					auto playerPosition(l.getPlayerPosition(username, diffMult)); playerPosition == -1 ? ssvuj::set(response, "pp", "NULL") : ssvuj::set(response, "pp", playerPosition);
+					float playerScore{l.getPlayerScore(username, diffMult)}; playerScore == -1 ? ssvuj::arch(response, "ps", "NULL") : ssvuj::arch(response, "ps", playerScore);
+					auto playerPosition(l.getPlayerPosition(username, diffMult)); playerPosition == -1 ? ssvuj::arch(response, "pp", "NULL") : ssvuj::arch(response, "pp", playerPosition);
 
 					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteToString(response)));
 				};
@@ -299,8 +280,8 @@ namespace hg
 
 				pHandler[FromClient::RequestUserStats] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					std::string username{ssvuj::getAs<std::string>(getDecompressedPacket(mP), 0)};
-					ssvuj::Obj response; ssvuj::set(response, users.getUser(username).stats);
+					std::string username{ssvuj::getExtr<std::string>(getDecompressedPacket(mP), 0)};
+					ssvuj::Obj response; ssvuj::arch(response, users.getUser(username).stats);
 					mMS.send(buildCPacket<FromServer::SendUserStats>(ssvuj::getWriteToString(response)));
 				};
 
@@ -337,8 +318,8 @@ namespace hg
 					{
 						const auto& score(l.getPlayerScore(n, diffMult));
 						if(score == -1.f) continue;
-						ssvuj::set(response[n], 0, score);
-						ssvuj::set(response[n], 1, l.getPlayerPosition(n, diffMult));
+						ssvuj::arch(response[n], 0, score);
+						ssvuj::arch(response[n], 1, l.getPlayerPosition(n, diffMult));
 					}
 
 					mMS.send(buildCPacket<FromServer::SendFriendsScores>(ssvuj::getWriteToString(response)));
@@ -346,7 +327,7 @@ namespace hg
 
 				pHandler[FromClient::Logout] = [&](ClientHandler& mMS, sf::Packet& mP)
 				{
-					std::string username{ssvuj::getAs<std::string>(getDecompressedPacket(mP), 0)};
+					std::string username{ssvuj::getExtr<std::string>(getDecompressedPacket(mP), 0)};
 					if(!loginDB.isLoggedIn(username)) return;
 					loginDB.logout(username);
 					if(verbose) ssvu::lo("PacketHandler") << username << " logged out" << std::endl;

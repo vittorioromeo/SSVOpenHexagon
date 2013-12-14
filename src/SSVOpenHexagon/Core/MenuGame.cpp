@@ -265,10 +265,10 @@ namespace hg
 
 		constexpr unsigned int leaderboardRecordCount{8};
 		ssvuj::Obj root{getFromString(currentLeaderboard)};
-		if(getAs<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
+		if(getExtr<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
 
-		auto currentPlayerScore = getAs<string>(root, "ps");
-		string currentPlayerPosition = getAs<string>(root, "pp");
+		auto currentPlayerScore = getExtr<string>(root, "ps");
+		string currentPlayerPosition = getExtr<string>(root, "pp");
 
 		using RecordPair = pair<string, float>;
 		vector<RecordPair> recordPairs;
@@ -278,8 +278,8 @@ namespace hg
 		for(auto itr(begin(root["r"])); itr != end(root["r"]); ++itr)
 		{
 			ssvuj::Obj& record(*itr);
-			string name{toLower(getAs<string>(record, 0))};
-			float score{getAs<float>(record, 1)};
+			string name{toLower(getExtr<string>(record, 0))};
+			float score{getExtr<float>(record, 1)};
 			recordPairs.emplace_back(name, score);
 		}
 
@@ -325,7 +325,7 @@ namespace hg
 
 		const auto& fs(Online::getCurrentFriendScores());
 
-		if(ssvuj::size(fs) == 0)
+		if(ssvuj::getObjSize(fs) == 0)
 		{
 			friendsString = "";
 			for(const auto& n : assets.pGetTrackedNames()) friendsString.append("(?)" + n + "\n");
@@ -336,18 +336,18 @@ namespace hg
 		vector<ScoreTuple> tuples;
 		for(const auto& n : assets.pGetTrackedNames())
 		{
-			if(!ssvuj::has(fs, n)) continue;
+			if(!ssvuj::hasObj(fs, n)) continue;
 
-			const auto& score(ssvuj::getAs<float>(fs[n], 0));
-			const auto& pos(ssvuj::getAs<unsigned int>(fs[n], 1));
+			const auto& score(ssvuj::getExtr<float>(fs[n], 0));
+			const auto& pos(ssvuj::getExtr<unsigned int>(fs[n], 1));
 
 			if(pos == 0) continue;
 			tuples.emplace_back(pos, n, score);
 		}
 
-		sort(tuples, [](const ScoreTuple& mA, const ScoreTuple& mB){ return get<0>(mA) < get<0>(mB); });
+		sort(tuples, [](const ScoreTuple& mA, const ScoreTuple& mB){ return std::get<0>(mA) < std::get<0>(mB); });
 		friendsString.clear();
-		for(const auto& t : tuples) friendsString.append("(" + toStr(get<0>(t)) + ") " + get<1>(t) + ": " + toStr(get<2>(t)) + "\n");
+		for(const auto& t : tuples) friendsString.append("(" + toStr(std::get<0>(t)) + ") " + std::get<1>(t) + ": " + toStr(std::get<2>(t)) + "\n");
 	}
 
 	void MenuGame::refreshCamera()

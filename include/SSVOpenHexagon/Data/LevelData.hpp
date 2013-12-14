@@ -18,16 +18,16 @@ namespace hg
 		public:
 			Path packPath;
 
-			std::string id						{packPath.getStr() + ssvuj::getAs<std::string>(root, "id", "nullId")};
-			std::string name					{ssvuj::getAs<std::string>(root, "name", "nullName")};
-			std::string description				{ssvuj::getAs<std::string>(root, "description", "")};
-			std::string author					{ssvuj::getAs<std::string>(root, "author", "")};
-			int menuPriority					{ssvuj::getAs<int>(root, "menuPriority", 0)};
-			bool selectable						{ssvuj::getAs<bool>(root, "selectable", true)};
-			std::string musicId					{ssvuj::getAs<std::string>(root, "musicId", "nullMusicId")};
-			std::string styleId					{ssvuj::getAs<std::string>(root, "styleId", "nullStyleId")};
-			Path luaScriptPath					{packPath + ssvuj::getAs<std::string>(root, "luaFile", "nullLuaPath")};
-			std::vector<float> difficultyMults	{ssvuj::getAs<std::vector<float>>(root, "difficultyMults", {})};
+			std::string id						{packPath.getStr() + ssvuj::getExtr<std::string>(root, "id", "nullId")};
+			std::string name					{ssvuj::getExtr<std::string>(root, "name", "nullName")};
+			std::string description				{ssvuj::getExtr<std::string>(root, "description", "")};
+			std::string author					{ssvuj::getExtr<std::string>(root, "author", "")};
+			int menuPriority					{ssvuj::getExtr<int>(root, "menuPriority", 0)};
+			bool selectable						{ssvuj::getExtr<bool>(root, "selectable", true)};
+			std::string musicId					{ssvuj::getExtr<std::string>(root, "musicId", "nullMusicId")};
+			std::string styleId					{ssvuj::getExtr<std::string>(root, "styleId", "nullStyleId")};
+			Path luaScriptPath					{packPath + ssvuj::getExtr<std::string>(root, "luaFile", "nullLuaPath")};
+			std::vector<float> difficultyMults	{ssvuj::getExtr<std::vector<float>>(root, "difficultyMults", {})};
 
 			LevelData(const ssvuj::Obj& mRoot, const Path& mPackPath) : root{mRoot}, packPath{mPackPath} { difficultyMults.push_back(1.f); ssvu::sort(difficultyMults); }
 

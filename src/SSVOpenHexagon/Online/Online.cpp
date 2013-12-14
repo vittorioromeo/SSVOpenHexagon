@@ -51,7 +51,7 @@ namespace hg
 		void refreshUserStats()
 		{
 			ssvuj::Obj root{getFromString(currentUserStatsStr)};
-			currentUserStats = ssvuj::getAs<UserStats>(root);
+			currentUserStats = ssvuj::getExtr<UserStats>(root);
 		}
 
 		void initializeClient()
@@ -60,18 +60,18 @@ namespace hg
 			{
 				lo("PacketHandler") << "Successfully logged in!" << endl;
 				loginStatus = LoginStat::Logged;
-				newUserReg = ssvuj::getAs<bool>(getDecompressedPacket(mP), 0);
+				newUserReg = ssvuj::getExtr<bool>(getDecompressedPacket(mP), 0);
 				trySendInitialRequests();
 			};
 			clientPHandler[FromServer::LoginResponseInvalid] = [](Client&, Packet&)		{ loginStatus = LoginStat::Unlogged; lo("PacketHandler") << "Login invalid!" << endl; };
-			clientPHandler[FromServer::RequestInfoResponse] = [](Client&, Packet& mP)	{ ssvuj::Obj r{getDecompressedPacket(mP)}; serverVersion = ssvuj::getAs<float>(r, 0); serverMessage = ssvuj::getAs<string>(r, 1); };
-			clientPHandler[FromServer::SendLeaderboard] = [](Client&, Packet& mP)		{ currentLeaderboard = ssvuj::getAs<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
+			clientPHandler[FromServer::RequestInfoResponse] = [](Client&, Packet& mP)	{ ssvuj::Obj r{getDecompressedPacket(mP)}; serverVersion = ssvuj::getExtr<float>(r, 0); serverMessage = ssvuj::getExtr<string>(r, 1); };
+			clientPHandler[FromServer::SendLeaderboard] = [](Client&, Packet& mP)		{ currentLeaderboard = ssvuj::getExtr<string>(getDecompressedPacket(mP), 0); gettingLeaderboard = false; };
 			clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, Packet&)	{ currentLeaderboard = "NULL"; lo("PacketHandler") << "Server failed sending leaderboard" << endl; gettingLeaderboard = false; };
 			clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, Packet&)	{ lo("PacketHandler") << "Server successfully accepted score" << endl; };
 			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, Packet&)	{ lo("PacketHandler") << "Server refused score" << endl; };
-			clientPHandler[FromServer::SendUserStats] = [](Client&, Packet& mP)			{ currentUserStatsStr = ssvuj::getAs<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
+			clientPHandler[FromServer::SendUserStats] = [](Client&, Packet& mP)			{ currentUserStatsStr = ssvuj::getExtr<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, Packet&)		{ currentUserStatsStr = "NULL"; lo("PacketHandler") << "Server failed sending user stats" << endl; };
-			clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP)		{ currentFriendScores = ssvuj::getFromString(ssvuj::getAs<string>(getDecompressedPacket(mP), 0)); };
+			clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP)		{ currentFriendScores = ssvuj::getFromString(ssvuj::getExtr<string>(getDecompressedPacket(mP), 0)); };
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&)			{ newUserReg = false; };
 
