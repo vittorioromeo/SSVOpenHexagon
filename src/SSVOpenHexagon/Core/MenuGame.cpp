@@ -182,7 +182,7 @@ namespace hg
 			else if(state == s::ETFriend)	{ if(!enteredStr.empty() && !contains(assets.pGetTrackedNames(), enteredStr)) { assets.pAddTrackedName(enteredStr); state = s::SMain; enteredStr = ""; } }
 			else if(state == s::ETUser)		{ if(!enteredStr.empty()) { lrUser = enteredStr; state = s::ETPass; enteredStr = ""; } }
 			else if(state == s::ETPass)		{ if(!enteredStr.empty()) { lrPass = enteredStr; state = s::SLogging; enteredStr = ""; Online::tryLogin(lrUser, lrPass); } }
-			else if(state == s::ETEmail)	{ if(!enteredStr.empty() && ssvu::contains(lrEmail, '@')) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
+			else if(state == s::ETEmail)	{ if(!enteredStr.empty() && ssvu::contains(enteredStr, '@')) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
 		}, t::Once);
 		game.addInput({{k::F1}}, [&](FT)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Once);
 		game.addInput({{k::F2}, {k::J}}, [&](FT) { assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
