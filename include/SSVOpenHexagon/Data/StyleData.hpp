@@ -14,17 +14,21 @@ namespace hg
 		private:
 			struct ColorData
 			{
-				ssvuj::Obj root;
-				ColorData(const ssvuj::Obj& mRoot) : root{mRoot} { }
+				bool main, dynamic, dynamicOffset;
+				float dynamicDarkness, hueShift, offset;
+				sf::Color color, pulse;
 
-				bool main					{ssvuj::getExtr<bool>(root, "main", false)};
-				bool dynamic				{ssvuj::getExtr<bool>(root, "dynamic", false)};
-				bool dynamicOffset			{ssvuj::getExtr<bool>(root, "dynamic_offset", false)};
-				float dynamicDarkness		{ssvuj::getExtr<float>(root, "dynamic_darkness", 1.f)};
-				float hueShift				{ssvuj::getExtr<float>(root, "hue_shift", 0.f)};
-				float offset				{ssvuj::getExtr<float>(root, "offset", 0.f)};
-				sf::Color color				{ssvuj::getExtr<sf::Color>(root, "value", sf::Color::White)};
-				sf::Color pulse				{ssvuj::getExtr<sf::Color>(root, "pulse", sf::Color::White)};
+				inline ColorData() = default;
+				inline ColorData(const ssvuj::Obj& mRoot) :
+					main			{ssvuj::getExtr<bool>(mRoot, "main", false)},
+					dynamic			{ssvuj::getExtr<bool>(mRoot, "dynamic", false)},
+					dynamicOffset	{ssvuj::getExtr<bool>(mRoot, "dynamic_offset", false)},
+					dynamicDarkness	{ssvuj::getExtr<float>(mRoot, "dynamic_darkness", 1.f)},
+					hueShift		{ssvuj::getExtr<float>(mRoot, "hue_shift", 0.f)},
+					offset			{ssvuj::getExtr<float>(mRoot, "offset", 0.f)},
+					color			{ssvuj::getExtr<sf::Color>(mRoot, "value", sf::Color::White)},
+					pulse			{ssvuj::getExtr<sf::Color>(mRoot, "pulse", sf::Color::White)}
+				{ }
 			};
 
 			ssvuj::Obj root;
@@ -36,34 +40,45 @@ namespace hg
 			sf::Color calculateColor(const ColorData& mColorData) const;
 
 		public:
-			std::string id						{ssvuj::getExtr<std::string>(root, "id", "nullId")};
-			float hueMin						{ssvuj::getExtr<float>(root, "hue_min", 0.f)};
-			float hueMax						{ssvuj::getExtr<float>(root, "hue_max", 360.f)};
-			float hueIncrement					{ssvuj::getExtr<float>(root, "hue_increment", 0.f)};
-			float pulseMin						{ssvuj::getExtr<float>(root, "pulse_min", 0.f)};
-			float pulseMax						{ssvuj::getExtr<float>(root, "pulse_max", 0.f)};
-			float pulseIncrement				{ssvuj::getExtr<float>(root, "pulse_increment", 0.f)};
-			bool huePingPong					{ssvuj::getExtr<bool>(root, "hue_ping_pong", false)};
-			float maxSwapTime					{ssvuj::getExtr<float>(root, "max_swap_time", 100.f)};
-			float _3dDepth						{ssvuj::getExtr<float>(root, "3D_depth", 15.f)};
-			float _3dSkew						{ssvuj::getExtr<float>(root, "3D_skew", 0.18f)};
-			float _3dSpacing					{ssvuj::getExtr<float>(root, "3D_spacing", 1.f)};
-			float _3dDarkenMult					{ssvuj::getExtr<float>(root, "3D_darken_multiplier", 1.5f)};
-			float _3dAlphaMult					{ssvuj::getExtr<float>(root, "3D_alpha_multiplier", 0.5f)};
-			float _3dAlphaFalloff				{ssvuj::getExtr<float>(root, "3D_alpha_falloff", 3.f)};
-			float _3dPulseMax					{ssvuj::getExtr<float>(root, "3D_pulse_max", 3.2f)};
-			float _3dPulseMin					{ssvuj::getExtr<float>(root, "3D_pulse_min", 0.f)};
-			float _3dPulseSpeed					{ssvuj::getExtr<float>(root, "3D_pulse_speed", 0.01f)};
-			float _3dPerspectiveMult			{ssvuj::getExtr<float>(root, "3D_perspective_multiplier", 1.f)};
-			sf::Color _3dOverrideColor			{ssvuj::getExtr<sf::Color>(root, "3D_override_color", sf::Color::Transparent)};
-			ColorData mainColorData				{root["main"]};
+			std::string id;
+			float hueMin, hueMax, hueIncrement, pulseMin, pulseMax, pulseIncrement;
+			bool huePingPong;
+			float maxSwapTime, _3dDepth, _3dSkew, _3dSpacing, _3dDarkenMult, _3dAlphaMult, _3dAlphaFalloff, _3dPulseMax, _3dPulseMin, _3dPulseSpeed, _3dPerspectiveMult;
+			sf::Color _3dOverrideColor;
+			ColorData mainColorData;
 			std::vector<ColorData> colorDatas;
 
 			StyleData() = default;
-			StyleData(const ssvuj::Obj& mRoot, const Path& mPath) : root{mRoot}, rootPath{mPath}
+			StyleData(const ssvuj::Obj& mRoot, const Path& mPath) :
+				rootPath			{mPath},
+				id					{ssvuj::getExtr<std::string>(mRoot, "id", "nullId")},
+				hueMin				{ssvuj::getExtr<float>(mRoot, "hue_min", 0.f)},
+				hueMax				{ssvuj::getExtr<float>(mRoot, "hue_max", 360.f)},
+				hueIncrement		{ssvuj::getExtr<float>(mRoot, "hue_increment", 0.f)},
+				pulseMin			{ssvuj::getExtr<float>(mRoot, "pulse_min", 0.f)},
+				pulseMax			{ssvuj::getExtr<float>(mRoot, "pulse_max", 0.f)},
+				pulseIncrement		{ssvuj::getExtr<float>(mRoot, "pulse_increment", 0.f)},
+				huePingPong			{ssvuj::getExtr<bool>(mRoot, "hue_ping_pong", false)},
+				maxSwapTime			{ssvuj::getExtr<float>(mRoot, "max_swap_time", 100.f)},
+				_3dDepth			{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
+				_3dSkew				{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
+				_3dSpacing			{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
+				_3dDarkenMult		{ssvuj::getExtr<float>(mRoot, "3D_darken_multiplier", 1.5f)},
+				_3dAlphaMult		{ssvuj::getExtr<float>(mRoot, "3D_alpha_multiplier", 0.5f)},
+				_3dAlphaFalloff		{ssvuj::getExtr<float>(mRoot, "3D_alpha_falloff", 3.f)},
+				_3dPulseMax			{ssvuj::getExtr<float>(mRoot, "3D_pulse_max", 3.2f)},
+				_3dPulseMin			{ssvuj::getExtr<float>(mRoot, "3D_pulse_min", 0.f)},
+				_3dPulseSpeed		{ssvuj::getExtr<float>(mRoot, "3D_pulse_speed", 0.01f)},
+				_3dPerspectiveMult	{ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
+				_3dOverrideColor	{ssvuj::getExtr<sf::Color>(mRoot, "3D_override_color", sf::Color::Transparent)},
+				mainColorData		{ssvuj::getObj(mRoot, "main")}
 			{
 				currentHue = hueMin;
-				for(auto i(0u); i < ssvuj::getObjSize(root, "colors"); i++) colorDatas.emplace_back(root["colors"][i]);
+
+				const auto& objColors(ssvuj::getObj(mRoot, "colors"));
+				const auto& colorCount(ssvuj::getObjSize(objColors));
+
+				for(auto i(0u); i < colorCount; i++) colorDatas.emplace_back(ssvuj::getObj(objColors, i));
 			}
 
 			void update(FT mFT, float mMult = 1.f);

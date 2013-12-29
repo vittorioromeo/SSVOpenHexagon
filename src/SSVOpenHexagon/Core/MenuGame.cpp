@@ -401,7 +401,7 @@ namespace hg
 		if(isEnteringText())
 		{
 			unsigned int limit{state == s::ETEmail ? 40u : 18u};
-			for(const auto& c : enteredChars) if(enteredStr.size() < limit && (isalnum(c) || ispunct(c))) { assets.playSound("beep.ogg"); enteredStr.append(toStr(c)); }
+			for(const auto& c : enteredChars) if(enteredStr.size() < limit && (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c))) { assets.playSound("beep.ogg"); enteredStr.append(toStr(c)); }
 		}
 		else if(state == s::SLPSelect) { enteredStr = ssvu::getByWrapIdx(assets.getLocalProfileNames(), profileIdx); }
 		else if(state == s::SMain)
