@@ -77,7 +77,7 @@ namespace hg
 		currentColors.clear();
 		for(const auto& cd : colorDatas) currentColors.push_back(calculateColor(cd));
 
-		ssvu::rotate(currentColors, begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
+		if(currentColors.size() > 1) ssvu::rotate(currentColors, begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
 	}
 
 	void StyleData::drawBackground(RenderTarget& mRenderTarget, const Vec2f& mCenterPos, int mSides)
