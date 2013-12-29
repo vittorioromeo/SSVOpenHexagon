@@ -124,8 +124,8 @@ namespace hg
 		ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
 	}
 
-	MusicData HGAssets::getMusicData(const string& mId) 		{ return musicDataMap.find(mId)->second; }
-	StyleData HGAssets::getStyleData(const string& mId) 		{ return styleDataMap.find(mId)->second; }
+	MusicData HGAssets::getMusicData(const string& mId) { return musicDataMap.find(mId)->second; }
+	StyleData HGAssets::getStyleData(const string& mId) { return styleDataMap.find(mId)->second; }
 
 	float HGAssets::getLocalScore(const string& mId) 				{ return getCurrentLocalProfile().getScore(mId); }
 	void HGAssets::setLocalScore(const string& mId, float mScore)	{ getCurrentLocalProfile().setScore(mId, mScore); }
