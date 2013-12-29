@@ -31,7 +31,6 @@ namespace hg
 				{ }
 			};
 
-			ssvuj::Obj root;
 			float currentHue, currentSwapTime{0}, pulseFactor{0};
 			Path rootPath;
 			sf::Color currentMainColor, current3DOverrideColor;
