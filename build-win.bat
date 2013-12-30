@@ -63,8 +63,8 @@ xcopy /s/y ..\..\SFML\lib\sfml-network-2.dll ..\_RELEASE\
 xcopy /s/y ..\..\SFML\lib\sfml-system-2.dll ..\_RELEASE\
 xcopy /s/y ..\..\SFML\lib\sfml-window-2.dll ..\_RELEASE\
 xcopy /s/y ..\..\SFML\lib\libsndfile-1.dll ..\_RELEASE\
-xcopy /s/y ..\..\lua\lib\lua5.1.dll ..\_RELEASE\
-xcopy /s/y ..\..\lua\lib\lua51.dll ..\_RELEASE\
+xcopy /s/y ..\..\lua\lib\lua5.2.dll ..\_RELEASE\
+xcopy /s/y ..\..\lua\lib\lua52.dll ..\_RELEASE\
 xcopy /s/y ..\..\SFML\lib\openal32.dll ..\_RELEASE\
 xcopy /s/y ..\..\zlib\lib\zlib.dll ..\_RELEASE\
 

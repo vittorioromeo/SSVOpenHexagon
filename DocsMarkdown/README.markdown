@@ -1,4 +1,4 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 1.92 #
+# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 2.0 RC - readme WIP #
 ## [by Vittorio Romeo](http://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>

@@ -29,7 +29,7 @@ cd SSVOpenHexagon
 
 3. Install dependencies
 ```bash
-sudo apt-get install liblua5.1-dev zlib1g-dev
+sudo apt-get install liblua5.2-dev zlib1g-dev
 ```
 
 4. Build dependencies and Open Hexagon
@@ -94,7 +94,7 @@ cd SSVOpenHexagon
 ./init-repository.sh`
 ```
 
-4. Get [SFML2.1](http://sfml-dev.org/), [Lua5.1 binaries](http://sourceforge.net/projects/luabinaries/files/5.1.4/Executables/lua5_1_4_Win32_bin.zip/download), [Lua5.1 includes](http://sourceforge.net/projects/luabinaries/files/5.1.4/Executables/lua5_1_4_Win32_bin.zip/download), [Zlib](http://www.zlib.net/) and extract in `SSVOpenHexagon/extlibs/`, manually adjusting paths to have the result shown below
+4. Get [SFML2.1](http://sfml-dev.org/), [Lua5.2 binaries](http://sourceforge.net/projects/luabinaries/files/), [Lua5.2 includes](http://sourceforge.net/projects/luabinaries/files/), [Zlib](http://www.zlib.net/) and extract in `SSVOpenHexagon/extlibs/`, manually adjusting paths to have the result shown below
 ```
 extlibs/SSV*/
 	...

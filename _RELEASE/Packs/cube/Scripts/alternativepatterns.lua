@@ -6,7 +6,7 @@ function pAltMirrorSpiral(mTimes, mExtra)
 	delay = getPerfectDelay(THICKNESS)
 	startSide = getRandomSide()
 	loopDir = getRandomDir()	
-	for k = 1, table.getn(mTimes) do
+	for k = 1, #mTimes do
 		for i = 1, mTimes[k] do
 			rWallEx(startSide, mExtra)
 			if (k % 2) == 0 then
@@ -69,7 +69,7 @@ function pLadder(mTimes,mArray,myThickness)
 
 	local eArray = {}
 	l = 1
-	s = table.getn(mArray)/l_getSides()
+	s = #mArray/l_getSides()
 	t = math.random(0,100)
 
 	for i = 1, mTimes do
@@ -106,7 +106,7 @@ function patternizer(mArray,myThickness)
 	delay = getPerfectDelay(myThickness)
 	eArray = cycle(l_getSides())
 
-	j = math.floor(table.getn(mArray) / l_getSides())
+	j = math.floor((#mArray) / l_getSides())
 	
 	for i = 1, j do
 		for k = 1, l_getSides() do
