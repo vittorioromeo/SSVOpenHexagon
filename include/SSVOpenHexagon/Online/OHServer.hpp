@@ -255,7 +255,10 @@ namespace hg
 					for(auto itr(std::rbegin(sortedScores)); itr != std::rend(sortedScores); ++itr)
 					{
 						const auto& v(*itr);
-						ssvuj::arch(response["r"][i], 0, v.second); ssvuj::arch(response["r"][i], 1, v.first);
+						auto& responseObj(ssvuj::getObj(response, "r"));
+						auto& arrayObj(ssvuj::getObj(responseObj, i));
+
+						ssvuj::arch(arrayObj, 0, v.second); ssvuj::arch(arrayObj, 1, v.first);
 						++i;
 						if(i > ssvu::getClamped(8u, 0u, static_cast<unsigned int>(sortedScores.size()))) break;
 					}

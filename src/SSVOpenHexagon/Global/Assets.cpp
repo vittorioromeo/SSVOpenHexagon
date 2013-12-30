@@ -117,9 +117,9 @@ namespace hg
 		if(currentProfilePtr == nullptr) return;
 
 		ssvuj::Obj profileRoot;
-		profileRoot["version"] = Config::getVersion();
-		profileRoot["name"] = getCurrentLocalProfile().getName();
-		profileRoot["scores"] = getCurrentLocalProfile().getScores();
+		ssvuj::arch(profileRoot, "version", Config::getVersion());
+		ssvuj::arch(profileRoot, "name", getCurrentLocalProfile().getName());
+		ssvuj::arch(profileRoot, "scores", getCurrentLocalProfile().getScores());
 		for(const auto& n : getCurrentLocalProfile().getTrackedNames()) profileRoot["trackedNames"].append(n);
 		ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
 	}
@@ -137,8 +137,8 @@ namespace hg
 	void HGAssets::createLocalProfile(const string& mName)
 	{
 		ssvuj::Obj root;
-		root["name"] = mName;
-		root["scores"] = {};
+		ssvuj::arch(root, "name", mName);
+		ssvuj::arch(root, "scores", ssvuj::Obj{});
 		ssvuj::writeToFile(root, "Profiles/" + mName + ".json");
 
 		profileDataMap.clear();

@@ -275,9 +275,8 @@ namespace hg
 
 		int playerPosition{-1};
 
-		for(auto itr(begin(root["r"])); itr != end(root["r"]); ++itr)
+		for(auto& record : ssvuj::getObj(root, "r"))
 		{
-			ssvuj::Obj& record(*itr);
 			string name{toLower(getExtr<string>(record, 0))};
 			float score{getExtr<float>(record, 1)};
 			recordPairs.emplace_back(name, score);
