@@ -74,5 +74,3 @@ int main(int argc, char* argv[])
 	Config::saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
 	return 0;
 }
-
-// TODO: investigate crash on centrifugal force
