@@ -75,7 +75,7 @@ namespace hg
 		currentMainColor = calculateColor(mainColorData);
 		current3DOverrideColor = _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
 		currentColors.clear();
-		for(const auto& cd : colorDatas) currentColors.push_back(calculateColor(cd));
+		for(const auto& cd : colorDatas) currentColors.emplace_back(calculateColor(cd));
 
 		if(currentColors.size() > 1) ssvu::rotate(currentColors, begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
 	}

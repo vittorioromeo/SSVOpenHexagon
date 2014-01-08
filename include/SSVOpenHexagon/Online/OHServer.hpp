@@ -304,7 +304,7 @@ namespace hg
 
 					auto& tn(users.getUser(username).stats.trackedNames);
 					if(ssvu::contains(tn, friendUsername)) return;
-					tn.push_back(friendUsername); modifiedUsers = true;
+					tn.emplace_back(friendUsername); modifiedUsers = true;
 				};
 
 				pHandler[FromClient::RequestFriendsScores] = [&](ClientHandler& mMS, sf::Packet& mP)

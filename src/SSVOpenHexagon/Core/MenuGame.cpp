@@ -29,7 +29,7 @@ namespace hg
 
 		game.onUpdate += [&](FT mFT) { update(mFT); };
 		game.onDraw += [&]{ draw(); };
-		game.onEvent(Event::EventType::TextEntered) += [&](const Event& mEvent){ if(mEvent.text.unicode < 128) enteredChars.push_back(static_cast<char>(mEvent.text.unicode)); };
+		game.onEvent(Event::EventType::TextEntered) += [&](const Event& mEvent){ if(mEvent.text.unicode < 128) enteredChars.emplace_back(static_cast<char>(mEvent.text.unicode)); };
 		window.onRecreation += [&]{ refreshCamera(); };
 
 		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIdx]);

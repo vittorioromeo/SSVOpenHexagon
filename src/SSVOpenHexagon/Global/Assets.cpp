@@ -50,8 +50,8 @@ namespace hg
 		{
 			const auto& pd(p.second);
 			string packId{pd->id}, packPath{"Packs/" + packId + "/"};
-			packIds.push_back(packId);
-			packPaths.push_back(packPath);
+			packIds.emplace_back(packId);
+			packPaths.emplace_back(packPath);
 			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music\n";			loadMusic(packPath); }
 			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music data\n";		loadMusicData(packPath); }
 								lo("::loadAssets") << "loading " << packId << " style data\n";		loadStyleData(packPath);
@@ -97,7 +97,7 @@ namespace hg
 		for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(mPath + "Levels/", ".json"))
 		{
 			auto levelData(new LevelData{getFromFile(p), mPath});
-			levelDataIdsByPack[levelData->packPath].push_back(levelData->id);
+			levelDataIdsByPack[levelData->packPath].emplace_back(levelData->id);
 			levelDatas.insert(make_pair(levelData->id, Uptr<LevelData>(levelData)));
 		}
 	}
@@ -148,7 +148,7 @@ namespace hg
 	vector<string> HGAssets::getLocalProfileNames()
 	{
 		vector<string> result;
-		for(auto& pair : profileDataMap) result.push_back(pair.second.getName());
+		for(auto& pair : profileDataMap) result.emplace_back(pair.second.getName());
 		return result;
 	}
 	string HGAssets::getFirstLocalProfileName() { return begin(profileDataMap)->second.getName(); }
