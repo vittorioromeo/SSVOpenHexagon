@@ -241,7 +241,7 @@ namespace hg
 	{
 		currentIndex = mIdx;
 
-		if(currentIndex > (int)(levelDataIds.size() - 1)) currentIndex = 0;
+		if(currentIndex > int(levelDataIds.size() - 1)) currentIndex = 0;
 		else if(currentIndex < 0) currentIndex = levelDataIds.size() - 1;
 
 		levelData = &assets.getLevelData(levelDataIds[currentIndex]);
