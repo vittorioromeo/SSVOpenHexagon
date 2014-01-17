@@ -179,7 +179,7 @@ namespace hg
 			}
 			else if(isInMenu())				{ getCurrentMenu()->exec(); }
 			else if(state == s::ETLPNew)	{ if(!enteredStr.empty()) { assets.pCreate(enteredStr); assets.pSetCurrent(enteredStr); state = s::SMain; enteredStr = ""; } }
-			else if(state == s::ETFriend)	{ if(!enteredStr.empty() && !contains(assets.pGetTrackedNames(), enteredStr)) { assets.pAddTrackedName(enteredStr); state = s::SMain; enteredStr = ""; } }
+			else if(state == s::ETFriend)	{ if(!enteredStr.empty() && !ssvu::contains(assets.pGetTrackedNames(), enteredStr)) { assets.pAddTrackedName(enteredStr); state = s::SMain; enteredStr = ""; } }
 			else if(state == s::ETUser)		{ if(!enteredStr.empty()) { lrUser = enteredStr; state = s::ETPass; enteredStr = ""; } }
 			else if(state == s::ETPass)		{ if(!enteredStr.empty()) { lrPass = enteredStr; state = s::SLogging; enteredStr = ""; Online::tryLogin(lrUser, lrPass); } }
 			else if(state == s::ETEmail)	{ if(!enteredStr.empty() && ssvu::contains(enteredStr, '@')) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
