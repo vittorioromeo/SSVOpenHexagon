@@ -30,6 +30,9 @@ int main(int argc, char* argv[])
 {
 	SSVU_TEST_RUN_ALL();
 
+	Online::GlobalThreadManager gtm;
+	Online::setCurrentGtm(gtm);
+
 	vector<string> overrideIds; for(int i{0}; i < argc; ++i) overrideIds.emplace_back(argv[i]);
 
 	if(contains(overrideIds, "server"))
@@ -49,7 +52,7 @@ int main(int argc, char* argv[])
 	Config::loadConfig(overrideIds);
 
 	GameWindow window;
-	window.setTitle("Open Hexagon " + toStr(Config::getVersion()) + " - by vittorio romeo");
+	window.setTitle("Open Hexagon " + toStr(Config::getVersion()) + " - by vittorio romeo - http://vittorioromeo.info");
 	Config::setTimerStatic(window, Config::getTimerStatic());
 	window.setSize(Config::getWidth(), Config::getHeight());
 	window.setPixelMult(Config::getPixelMultiplier());
@@ -72,5 +75,7 @@ int main(int argc, char* argv[])
 	if(Online::getLoginStatus() != Online::LoginStat::Logged) Online::logout();
 
 	Config::saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
+	Online::cleanup();
+
 	return 0;
 }

@@ -185,8 +185,8 @@ namespace hg
 			else if(state == s::ETEmail)	{ if(!enteredStr.empty() && ssvu::contains(enteredStr, '@')) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
 		}, t::Once);
 		game.addInput({{k::F1}}, [&](FT)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Once);
-		game.addInput({{k::F2}, {k::J}}, [&](FT) { assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
-		game.addInput({{k::F3}, {k::K}}, [&](FT) { assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
+		game.addInput({{k::F2}, {k::J}}, [&](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
+		game.addInput({{k::F3}, {k::K}}, [&](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
 		game.addInput({{k::F4}, {k::L}}, [&](FT)
 		{
 			assets.playSound("beep.ogg"); if(state == s::SMain) { auto p(assets.getPackPaths()); packIdx = ssvu::getWrapIdx(packIdx + 1, p.size()); levelDataIds = assets.getLevelIdsByPack(p[packIdx]); setIndex(0); }

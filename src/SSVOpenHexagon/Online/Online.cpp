@@ -29,6 +29,7 @@ namespace hg
 
 		ConnectStat connectionStatus{ConnectStat::Disconnected};
 		LoginStat loginStatus{LoginStat::Unlogged};
+		Online::GlobalThreadManager* currentGtm{nullptr};
 
 		float serverVersion{-1};
 		string serverMessage;
@@ -42,7 +43,7 @@ namespace hg
 		string lastLeaderboardId;
 		float lastLeaderboardDM;
 
-		bool newUserReg{false};
+		bool newUserReg{false}, needsCleanup{false};
 
 		string currentUsername{"NULL"}, currentLeaderboard{"NULL"}, currentUserStatsStr{"NULL"};
 		UserStats currentUserStats;
@@ -53,6 +54,8 @@ namespace hg
 			ssvuj::Obj root{getFromString(currentUserStatsStr)};
 			currentUserStats = ssvuj::getExtr<UserStats>(root);
 		}
+
+		void setCurrentGtm(GlobalThreadManager& mGtm) { currentGtm = &mGtm; }
 
 		void initializeClient()
 		{
@@ -77,7 +80,7 @@ namespace hg
 
 			client = Uptr<Client>(new Client(clientPHandler));
 
-			thread([]
+			currentGtm->start([]
 			{
 				while(true)
 				{
@@ -90,23 +93,24 @@ namespace hg
 							loginStatus = LoginStat::Unlogged;
 						}
 					}
+					if(needsCleanup) return;
 					this_thread::sleep_for(chrono::milliseconds(1000));
 				}
-			}).detach();
+			});
 		}
 
 		bool canSendPacket() { return connectionStatus == ConnectStat::Connected && loginStatus == LoginStat::Logged && currentUsername != "NULL"; }
 
-		template<typename T> void trySendFunc(T&& mFunc)
+		template<typename T> void trySendFunc(const T& mFunc)
 		{
 			if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
 			//lo("hg::Online::trySendFunc") << "Sending data to server..." << endl;
 
-			thread([=]
+			currentGtm->start([&mFunc]
 			{
 				if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
 				mFunc();
-			}).detach();
+			});
 		}
 
 		template<unsigned int TType, typename... TArgs> void trySendPacket(TArgs&&... mArgs)
@@ -124,7 +128,7 @@ namespace hg
 			client->disconnect();
 			connectionStatus = ConnectStat::Connecting;
 
-			thread([]
+			currentGtm->start([]
 			{
 				//if(client->connect("127.0.0.1", 54000))
 				if(client->connect(hostIp, hostPort))
@@ -136,7 +140,7 @@ namespace hg
 				lo("hg::Online::connectToServer") << "Failed to connect" << endl;
 				connectionStatus = ConnectStat::Disconnected;
 				client->disconnect();
-			}).detach();
+			});
 		}
 
 		void tryLogin(const string& mUsername, const string& mPassword)
@@ -147,11 +151,18 @@ namespace hg
 			lo("hg::Online::tryLogin") << "Logging in..." << endl;
 			loginStatus = LoginStat::Logging;
 
-			thread([=]
+			currentGtm->start([&mUsername, &mPassword]
 			{
 				client->send(buildCPacket<FromClient::Login>(mUsername, mPassword));
 				currentUsername = mUsername;
-			}).detach();
+
+				std::this_thread::sleep_for(std::chrono::seconds(6));
+
+				if(loginStatus == LoginStat::Logging)
+				{
+					lo("hg::Online::tryLogin") << "Failed to login - aborting" << endl; loginStatus = LoginStat::Unlogged; return;
+				}
+			});
 		}
 
 		void trySendScore(const string& mLevelId, float mDiffMult, float mScore)	{ trySendPacket<FromClient::SendScore>(currentUsername, mLevelId, validators.getValidator(mLevelId), mDiffMult, mScore); }
@@ -165,6 +176,8 @@ namespace hg
 		void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)		{ trySendPacket<FromClient::RequestFriendsScores>(currentUsername, mLevelId, mDiffMult); }
 		void trySendUserEmail(const string& mEmail)									{ trySendPacket<FromClient::NUR_Email>(currentUsername, mEmail); }
 		void logout()																{ trySendPacket<FromClient::Logout>(currentUsername); }
+
+		void cleanup() { needsCleanup = true; }
 
 		void requestLeaderboardIfNeeded(const string& mLevelId, float mDiffMult)
 		{

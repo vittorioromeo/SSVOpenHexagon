@@ -14,6 +14,12 @@ namespace hg
 
 	namespace Online
 	{
+		struct GlobalThreadManager
+		{
+			std::vector<std::future<void>> runningThreads;
+			template<typename TFunc> inline void start(const TFunc& mFunc) { runningThreads.emplace_back(std::async(std::launch::async, mFunc)); }
+		};
+
 		struct UserStats;
 
 		class ValidatorDB
@@ -32,6 +38,7 @@ namespace hg
 
 		void initializeValidators(HGAssets& mAssets);
 		void initializeClient();
+		void setCurrentGtm(GlobalThreadManager&);
 
 		void tryConnectToServer();
 		void tryLogin(const std::string& mUsername, const std::string& mPassword);
@@ -53,6 +60,7 @@ namespace hg
 		LoginStat getLoginStatus();
 
 		void logout();
+		void cleanup();
 
 		ValidatorDB& getValidators();
 
