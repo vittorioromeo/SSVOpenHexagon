@@ -28,8 +28,8 @@ namespace hg
 		add2StateInput(game, Config::getTriggerFocus(), inputFocused);
 		add2StateInput(game, Config::getTriggerSwap(), inputSwap);
 		game.addInput(Config::getTriggerExit(),			[this](FT){ goToMenu(); });
-		game.addInput(Config::getTriggerForceRestart(),	[this](FT){ status.mustRestart = true; });
-		game.addInput(Config::getTriggerRestart(),		[this](FT){ if(status.hasDied) status.mustRestart = true; });
+		game.addInput(Config::getTriggerForceRestart(),	[this](FT){ status.mustRestart = true; }, Input::Type::Once);
+		game.addInput(Config::getTriggerRestart(),		[this](FT){ if(status.hasDied) status.mustRestart = true; }, Input::Type::Once);
 		game.addInput(Config::getTriggerScreenshot(),	[this](FT){ mustTakeScreenshot = true; }, Input::Type::Once);
 	}
 
