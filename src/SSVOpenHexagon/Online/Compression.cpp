@@ -15,7 +15,7 @@ namespace hg
 
 		if(deflateInit(&zs, mCompressionlevel) != Z_OK) throw(runtime_error("deflateInit failed while compressing."));
 
-		zs.next_in = (Bytef*)mStr.data();
+		zs.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(mStr.data()));
 		zs.avail_in = mStr.size();
 
 		int ret; char outbuffer[32768]; string outstring;
@@ -49,7 +49,7 @@ namespace hg
 
 		if(inflateInit(&zs) != Z_OK) throw(runtime_error("inflateInit failed while decompressing."));
 
-		zs.next_in = (Bytef*)mStr.data();
+		zs.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(mStr.data()));
 		zs.avail_in = mStr.size();
 
 		int ret; char outbuffer[32768]; string outstring;
