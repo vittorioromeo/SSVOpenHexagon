@@ -50,6 +50,9 @@ namespace hg
 			status.drawing3D = false;
 		}
 
+		// TODO: figure out a way to apply transformations to the points before adding them to a single array
+		// and drawing everything with a single draw call
+
 		backgroundCamera.apply();
 		wallQuads.clear(); playerTris.clear(); manager.draw();
 		render(wallQuads); render(playerTris);
