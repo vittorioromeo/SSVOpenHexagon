@@ -32,7 +32,7 @@ namespace hg
 		private:
 			HexagonGame& hexagonGame;
 			Vec2f centerPos;
-			std::vector<Vec2f> vertexPositions{4};
+			std::array<Vec2f, 4> vertexPositions;
 			SpeedData speed, curve;
 			float distance{0}, thickness{0}, hueMod{0};
 			int side{0};
