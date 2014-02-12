@@ -149,12 +149,12 @@ namespace hg
 			{
 				ssvu::lo() << "OHServer constructed" << std::endl;
 
-				server.onClientAccepted += [&](ClientHandler& mCH)
+				server.onClientAccepted += [this](ClientHandler& mCH)
 				{
-					mCH.onDisconnect += [&]{ loginDB.forceLogout(mCH.getUid()); };
+					mCH.onDisconnect += [this, &mCH]{ loginDB.forceLogout(mCH.getUid()); };
 				};
 				pHandler[FromClient::Ping] = [](ClientHandler&, sf::Packet&) { };
-				pHandler[FromClient::Login] = [&](ClientHandler& mMS, sf::Packet& mP)
+				pHandler[FromClient::Login] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{
 					bool newUserRegistration{false};
 
@@ -196,7 +196,7 @@ namespace hg
 					float version{2.f}; std::string message{"Welcome to Open Hexagon 2.0!"};
 					mMS.send(buildCPacket<FromServer::RequestInfoResponse>(version, message));
 				};
-				pHandler[FromClient::SendScore] = [&](ClientHandler& mMS, sf::Packet& mP)
+				pHandler[FromClient::SendScore] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username, levelId, validator; float diffMult, score;
 					ssvuj::extrArray(getDecompressedPacket(mP), username, levelId, validator, diffMult, score);
@@ -220,7 +220,7 @@ namespace hg
 					if(l.getPlayerScore(username, diffMult) < score) { l.addScore(diffMult, username, score); modifiedScores = true; }
 					mMS.send(buildCPacket<FromServer::SendScoreResponseValid>());
 				};
-				pHandler[FromClient::RequestLeaderboard] = [&](ClientHandler& mMS, sf::Packet& mP)
+				pHandler[FromClient::RequestLeaderboard] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username, levelId, validator; float diffMult;
 					ssvuj::extrArray(getDecompressedPacket(mP), username, levelId, validator, diffMult);
@@ -269,7 +269,7 @@ namespace hg
 
 					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteToString(response)));
 				};
-				pHandler[FromClient::NUR_Email] = [&](ClientHandler& mMS, sf::Packet& mP)
+				pHandler[FromClient::NUR_Email] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username, email;
 					ssvuj::extrArray(getDecompressedPacket(mP), username, email);
@@ -281,7 +281,7 @@ namespace hg
 					modifiedUsers = true;
 				};
 
-				pHandler[FromClient::RequestUserStats] = [&](ClientHandler& mMS, sf::Packet& mP)
+				pHandler[FromClient::RequestUserStats] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username{ssvuj::getExtr<std::string>(getDecompressedPacket(mP), 0)};
 					ssvuj::Obj response; ssvuj::arch(response, users.getUser(username).stats);
@@ -290,12 +290,12 @@ namespace hg
 
 
 				// User statistics
-				pHandler[FromClient::US_Death] = [&](ClientHandler&, sf::Packet& mP)		{ getUserFromPacket(mP).stats.deaths += 1; modifiedUsers = true; };
-				pHandler[FromClient::US_Restart] = [&](ClientHandler&, sf::Packet& mP)		{ getUserFromPacket(mP).stats.restarts += 1; modifiedUsers = true; };
-				pHandler[FromClient::US_MinutePlayed] = [&](ClientHandler&, sf::Packet& mP)	{ getUserFromPacket(mP).stats.minutesSpentPlaying += 1; modifiedUsers = true; };
-				pHandler[FromClient::US_ClearFriends] = [&](ClientHandler&, sf::Packet& mP)	{ getUserFromPacket(mP).stats.trackedNames.clear(); modifiedUsers = true; };
+				pHandler[FromClient::US_Death] = [this](ClientHandler&, sf::Packet& mP)			{ getUserFromPacket(mP).stats.deaths += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_Restart] = [this](ClientHandler&, sf::Packet& mP)		{ getUserFromPacket(mP).stats.restarts += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_MinutePlayed] = [this](ClientHandler&, sf::Packet& mP)	{ getUserFromPacket(mP).stats.minutesSpentPlaying += 1; modifiedUsers = true; };
+				pHandler[FromClient::US_ClearFriends] = [this](ClientHandler&, sf::Packet& mP)	{ getUserFromPacket(mP).stats.trackedNames.clear(); modifiedUsers = true; };
 
-				pHandler[FromClient::US_AddFriend] = [&](ClientHandler&, sf::Packet& mP)
+				pHandler[FromClient::US_AddFriend] = [this](ClientHandler&, sf::Packet& mP)
 				{
 					std::string username, friendUsername;
 					ssvuj::extrArray(getDecompressedPacket(mP), username, friendUsername);
@@ -307,7 +307,7 @@ namespace hg
 					tn.emplace_back(friendUsername); modifiedUsers = true;
 				};
 
-				pHandler[FromClient::RequestFriendsScores] = [&](ClientHandler& mMS, sf::Packet& mP)
+				pHandler[FromClient::RequestFriendsScores] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username, levelId; float diffMult;
 					ssvuj::extrArray(getDecompressedPacket(mP), username, levelId, diffMult);
@@ -328,7 +328,7 @@ namespace hg
 					mMS.send(buildCPacket<FromServer::SendFriendsScores>(ssvuj::getWriteToString(response)));
 				};
 
-				pHandler[FromClient::Logout] = [&](ClientHandler& mMS, sf::Packet& mP)
+				pHandler[FromClient::Logout] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{
 					std::string username{ssvuj::getExtr<std::string>(getDecompressedPacket(mP), 0)};
 					if(!loginDB.isLoggedIn(username)) return;
@@ -385,7 +385,7 @@ namespace hg
 				{
 					auto& cmd(cmdLine.create({"exit", "quit", "close", "abort"}));
 					cmd.setDesc("Stops the server.");
-					cmd += [&]
+					cmd += [this]
 					{
 						ssvu::lo() << "Stopping server... saving if needed" << std::endl;
 						saveIfNeeded();
@@ -402,7 +402,7 @@ namespace hg
 					arg.setName("Enable verbosity?");
 					arg.setBriefDesc("Controls whether verbosity is enabled or not.");
 
-					cmd += [&]
+					cmd += [this, &arg]
 					{
 						verbose = arg.get();
 						ssvu::lo("Verbose mode") << (verbose ? "on" : "off") << std::endl;
@@ -418,7 +418,7 @@ namespace hg
 					arg.setName("What to print?");
 					arg.setBriefDesc("Possible values: 'users', 'logins'.");
 
-					cmd += [&]
+					cmd += [this, &arg]
 					{
 						if(arg.get() == "users")		{ for(const auto& u : users.getUsers()) ssvu::lo() << u.first << std::endl; }
 						else if(arg.get() == "logins")	{ for(const auto& l : loginDB.getLoggedUsernames()) ssvu::lo() << l << std::endl; }
@@ -440,7 +440,7 @@ namespace hg
 				auto& flagVerbose(cmd.createFlag("v", "verbose"));
 				flagVerbose.setBriefDesc("Verbose general help?");
 
-				cmd += [&]
+				cmd += [this, &optArg, &flagVerbose]
 				{
 					if(!optArg)
 					{

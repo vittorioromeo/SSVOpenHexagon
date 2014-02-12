@@ -47,17 +47,17 @@ namespace hg
 	{
 		namespace i = ssvms::Items;
 
-		auto whenLocal =				[&]{ return assets.pIsLocal(); };
-		auto whenNotLocal =				[&]{ return !assets.pIsLocal(); };
-		auto whenNotOfficial =			[&]{ return !Config::getOfficial(); };
-		auto whenDisconnected =			[&]{ return Online::getConnectionStatus() == ocs::Disconnected; };
-		auto whenConnectedAndUnlogged =	[&]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Unlogged; };
-		auto whenConnectedAndLogged =	[&]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Logged; };
-		auto whenUnlogged =				[&]{ return Online::getLoginStatus() == ols::Unlogged; };
-		auto whenSoundEnabled =			[&]{ return !Config::getNoSound(); };
-		auto whenMusicEnabled =			[&]{ return !Config::getNoMusic(); };
-		auto whenTimerIsStatic =		[&]{ return Config::getTimerStatic(); };
-		auto whenTimerIsDynamic =		[&]{ return !Config::getTimerStatic(); };
+		auto whenLocal =				[this]{ return assets.pIsLocal(); };
+		auto whenNotLocal =				[this]{ return !assets.pIsLocal(); };
+		auto whenNotOfficial =			[]{ return !Config::getOfficial(); };
+		auto whenDisconnected =			[]{ return Online::getConnectionStatus() == ocs::Disconnected; };
+		auto whenConnectedAndUnlogged =	[]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Unlogged; };
+		auto whenConnectedAndLogged =	[]{ return Online::getConnectionStatus() == ocs::Connected && Online::getLoginStatus() == ols::Logged; };
+		auto whenUnlogged =				[]{ return Online::getLoginStatus() == ols::Unlogged; };
+		auto whenSoundEnabled =			[]{ return !Config::getNoSound(); };
+		auto whenMusicEnabled =			[]{ return !Config::getNoMusic(); };
+		auto whenTimerIsStatic =		[]{ return Config::getTimerStatic(); };
+		auto whenTimerIsDynamic =		[]{ return !Config::getTimerStatic(); };
 
 		// Welcome menu
 		auto& wlcm(welcomeMenu.createCategory("welcome"));
