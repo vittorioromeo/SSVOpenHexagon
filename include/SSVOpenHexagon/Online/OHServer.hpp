@@ -113,15 +113,16 @@ namespace hg
 		class LoginDB
 		{
 			private:
-				ssvu::Bimap<unsigned int, std::string, std::unordered_map> logins;
+				ssvu::Bimap<std::string, unsigned int, std::unordered_map> logins;
 
 			public:
 				inline bool isLoggedIn(const std::string& mUsername) const					{ return logins.has(mUsername); }
-				inline void acceptLogin(unsigned int mUid, const std::string& mUsername)	{ logins.insert({mUid, mUsername}); }
+				inline void acceptLogin(unsigned int mUid, const std::string& mUsername)	{ logins.emplace(mUsername, mUid); }
 
 				inline void forceLogout(unsigned int mUid)			{ if(logins.has(mUid)) logins.erase(mUid); }
 				inline void logout(const std::string& mUsername)	{ if(logins.has(mUsername)) logins.erase(mUsername); }
-				inline std::vector<std::string> getLoggedUsernames() const { return ssvu::getKeys(logins.getMap2()); }
+
+				inline std::vector<std::string> getLoggedUsernames() const { return ssvu::getKeys(logins.getMap1()); }
 		};
 
 		struct OHServer
