@@ -30,7 +30,7 @@ namespace hg
 					if(ssvu::containsAnyIf(clientHandlers, [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); })) return;
 
 					ssvu::lo("Server") << "Creating new client handlers" << std::endl;
-					for(int i{0}; i < 10; ++i) clientHandlers.emplace_back(new ClientHandler{packetHandler});
+					for(int i{0}; i < 10; ++i) clientHandlers.emplace_back(std::make_unique<ClientHandler>(packetHandler));
 				}
 
 				inline void update()
