@@ -19,6 +19,18 @@ namespace hg
 {
 	void HexagonGame::update(FT mFT)
 	{
+		if(inputImplCW && !inputImplCCW) inputMovement = 1;
+		else if(!inputImplCW && inputImplCCW) inputMovement = -1;
+		else if(inputImplCW && inputImplCCW)
+		{
+			if(!inputImplBothCWCCW)
+			{
+				if(inputMovement == 1 && inputImplLastMovement == 1) inputMovement = -1;
+				else if(inputMovement == -1 && inputImplLastMovement == -1) inputMovement = 1;
+			}
+		}
+		else inputMovement = 0;
+
 		if(!assets.pIsLocal() && Config::isEligibleForScore())
 		{
 			assets.playedSeconds += mFT / 60.f;

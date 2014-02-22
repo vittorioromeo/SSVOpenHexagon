@@ -20,11 +20,17 @@ namespace hg
 {
 	HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow) : assets(mAssets), window(mGameWindow), fpsWatcher(window)
 	{
-		game.onUpdate += [this](FT mFT) { update(mFT); };
+		game.onUpdate += [this](FT mFT){ update(mFT); };
+		game.onPostUpdate += [this]
+		{
+			inputImplLastMovement = inputMovement;
+			inputImplBothCWCCW = inputImplCW && inputImplCCW;
+		};
 		game.onDraw += [this]{ draw(); };
 		window.onRecreation += [this]{ initFlashEffect(); };
 
-		add3StateInput(game, Config::getTriggerRotateCCW(), Config::getTriggerRotateCW(), inputMovement);
+		add2StateInput(game, Config::getTriggerRotateCW(), inputImplCW);
+		add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW);
 		add2StateInput(game, Config::getTriggerFocus(), inputFocused);
 		add2StateInput(game, Config::getTriggerSwap(), inputSwap);
 		game.addInput(Config::getTriggerExit(),			[this](FT){ goToMenu(); });

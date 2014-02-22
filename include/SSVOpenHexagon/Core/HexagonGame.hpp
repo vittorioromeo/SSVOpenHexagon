@@ -47,7 +47,8 @@ namespace hg
 			HexagonGameStatus status;
 			std::string restartId;
 			float difficultyMult{1};
-			int inputMovement{0};
+			int inputImplLastMovement, inputMovement{0};
+			bool inputImplCW{false}, inputImplCCW{false}, inputImplBothCWCCW{false};
 
 			FPSWatcher fpsWatcher;
 			sf::Text text{"", assets.get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / Config::getZoomFactor())};
