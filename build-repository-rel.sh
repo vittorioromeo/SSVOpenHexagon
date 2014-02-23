@@ -1,43 +1,96 @@
 #!/bin/bash
 
 # This bash script, called in a repository with submodules, builds and installs all submodules then the project itself
-# RELEASE MODE, SKIPS RPATH
 # Takes $1 destination directory parameter
+# Takes $2 superuser '-s' optional flag parameter
+# Takes $3 release '-r' optional flag parameter (RELEASE MODE, SKIPS RPATH)
 
-if [ -z "${1}" ]; then
-	echo "This script the installation path as an argument!"
+function askContinue() {
+	read -p "Continue? [Y/N] " -n 1
+	if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+	    exit 1
+	else
+		echo ""
+	fi
+}
+
+if [[ "$#" == "0" ]]; then
+  	echo "This script requires at least one argument."
+  	echo "1) Installation path"
+	echo "2) Optional flag '-s' - requires superuser permissions"
 	exit 1
 fi
 
 absolutePath=$(readlink -f ${1})
+echo "Installation path: ${absolutePath}"
+
+flagSuperuser=false
+flagRelease=false
+
+if [[ "$2" == "-s" ]] || [[ "$3" == "-s" ]]; then
+	flagSuperuser=true
+fi
+
+if [[ "$2" == "-r" ]] || [[ "$3" == "-r" ]]; then
+	flagRelease=true
+fi	
+
+if [[ "$flagRelease" == true ]]; then
+	echo "Release mode activated - RPATH will be skipped"
+else
+	echo "Non-release mode activated - RPATH will not be skipped"
+fi
+
+if [[ "$flagSuperuser" == true ]]; then
+	echo "Superuser mode activated - SSV libraries will be installed"
+else
+	echo "Normal user mode activated - SSV libraries will be compiled in a temp folder"
+fi
+
+askContinue
 
 projectName="SSVOpenHexagon"
 buildType="Release"
 makeJobs="4"
 destinationDir="${absolutePath}/"
 cmakePrefixPath="${absolutePath}/temp"
-cmakeFlags="-DCMAKE_BUILD_TYPE=${buildType} -DCMAKE_SKIP_BUILD_RPATH=True"
+cmakeFlags="-DCMAKE_BUILD_TYPE=${buildType}"
 
-if [ ! -d "${destinationDir}" ]; then
+if [[ "$flagRelease" == true ]]; then
+	cmakeFlags="$cmakeFlags -DCMAKE_SKIP_BUILD_RPATH=True"
+fi
+
+echo "projectName: $projectName"
+echo "buildType: $buildType"
+echo "makeJobs: $makeJobs"
+echo "destinationDir: $destinationDir"
+echo "cmakePrefixPath: $cmakePrefixPath"
+echo "cmakeFlags: $cmakeFlags"
+
+askContinue
+
+if [[ ! -d "${destinationDir}" ]]; then
   	echo "${destinationDir} does not exist!"
-  	exit 1
+  	echo "Create ${destinationDir} with mkdir?"
+
+	askContinue
+
+	mkdir -p "${destinationDir}"
+	if [[ $? -ne 0 ]] ; then
+	    echo "Could not create $destinationDir"
+	    exit 1
+	fi
 fi
 
-echo "Building a release (distribution) version of ${projectName}"
-echo "cmakeFlags: ${cmakeFlags}"
-echo "cmakePrefixPath: ${cmakePrefixPath}"
-echo "destinationDir: ${destinationDir}"
-echo "All files in ${destinationDir} will be removed"
 echo "Building ${projectName} requires a C++11 compiler (like clang++-3.2 or g++-4.7.2)"
+echo "All files in ${destinationDir} will be removed"
 
-read -p "Continue? [Y/N] " -n 1
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    exit 1
-fi
+askContinue
 
 rm -Rf "${destinationDir}"*
 
-dependencies=("SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
+# List of extlibs to build in order
+dependencies=("SSVUtils" "SSVUtilsJson" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") 
 
 export DESTDIR="${cmakePrefixPath}"
 
@@ -49,6 +102,8 @@ function die() {
 	status=$1; shift; warn "$@" >&2; exit $status
 }
 
+dependenciesIncludeDirs=()
+
 # Builds a lib, with name $1 - calls CMake, make -j and make install -j
 function buildLib
 {
@@ -58,11 +113,21 @@ function buildLib
   	cd "${libName}" # Enter lib main directory (where CMakeLists.txt is)
   	mkdir "build"; cd "build" # Create and move to the build directory
 
-	# Run CMake, make and make install
+	# Run CMake, make and (optionally) sudo make install
 	cmake ../ "${cmakeFlags}" || die 1 "cmake failed"
-
 	make "-j${makeJobs}" || die 1 "make failed"
-	make install "-j${makeJobs}" || die 1 "make install failed"
+
+	if [ "$flagSuperuser" == true ]; then
+		sudo make install "-j${makeJobs}" || die 1 "make install failed"
+	else	
+		cd ../
+		dependenciesIncludeDirs+=("$PWD")
+		echo "Added $PWD to dependencies include directories"
+
+		cd ./include
+		dependenciesIncludeDirs+=("$PWD")
+		echo "Added $PWD to dependencies include directories"		
+	fi
 
 	cd ../.. # Go back to extlibs directory
 	echo "Finished building ${libName}..."
@@ -73,6 +138,18 @@ for l in "${dependencies[@]}"; do buildLib "${l}"; done
 cd ".." # Now we are in the main folder
 echo "Building ${projectName}..."
 mkdir "build"; cd "build" # Create and move to the build directory
+echo "Setting additional CMake flags..."
+
+if [[ "$flagSuperuser" == false ]]; then
+	cmakeFlags="$cmakeFlags -DCMAKE_INCLUDE_PATH="
+	for i in "${dependenciesIncludeDirs[@]}"; do
+	   	cmakeFlags="${cmakeFlags}${i}:"
+	done
+fi
+
+echo "final cmakeFlags: $cmakeFlags"
+
+askContinue
 
 ## Run CMake, make and make install
 cmake ../ "${cmakeFlags}"
@@ -189,5 +266,3 @@ rm "${destinationDir}/users.json"
 rm "${destinationDir}/Profiles/*.json"
 
 echo "Successfully finished building ${projectName}."
-
-
