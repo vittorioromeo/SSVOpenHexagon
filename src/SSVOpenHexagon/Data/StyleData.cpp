@@ -27,7 +27,7 @@ namespace hg
 			{
 				if(mColorData.dynamicOffset)
 				{
-					assert(mColorData.offset != 0);
+					SSVU_ASSERT(mColorData.offset != 0);
 
 					color.r += dynamicColor.r / mColorData.offset;
 					color.g += dynamicColor.g / mColorData.offset;

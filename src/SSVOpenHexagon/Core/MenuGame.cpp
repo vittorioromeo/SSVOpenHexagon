@@ -467,7 +467,7 @@ namespace hg
 			string lbestStr;
 			if(assets.pIsLocal())
 			{
-				assert(diffMults.size() != 0);
+				SSVU_ASSERT(diffMults.size() != 0);
 				lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, diffMults[diffMultIdx % diffMults.size()])));
 			}
 			else { lbestStr = Online::getLoginStatus() == ols::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
