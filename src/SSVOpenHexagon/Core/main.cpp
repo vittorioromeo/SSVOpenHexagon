@@ -28,7 +28,7 @@ void createProfilesFolder()
 
 int main(int argc, char* argv[])
 {
-	SSVU_TEST_RUN_ALL();
+	SSVUT_RUN();
 
 	Online::GlobalThreadManager gtm;
 	Online::setCurrentGtm(gtm);
