@@ -394,7 +394,6 @@ namespace hg
 
 		updateLeaderboard(); updateFriends();
 
-		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
 		if(isEnteringText())
