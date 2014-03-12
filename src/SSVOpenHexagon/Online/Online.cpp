@@ -24,7 +24,9 @@ namespace hg
 {
 	namespace Online
 	{
+		const IpAddress localIp{"127.0.0.1"};
 		const IpAddress hostIp{"46.4.172.228"};
+		const unsigned short localPort{54000};
 		const unsigned short hostPort{27273};
 
 		ConnectStat connectionStatus{ConnectStat::Disconnected};
@@ -101,12 +103,14 @@ namespace hg
 
 		bool canSendPacket() { return connectionStatus == ConnectStat::Connected && loginStatus == LoginStat::Logged && currentUsername != "NULL"; }
 
-		template<typename T> void trySendFunc(const T& mFunc)
+		template<typename T> void trySendFunc(T mFunc)
 		{
 			if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
-			//lo("hg::Online::trySendFunc") << "Sending data to server..." << endl;
+			if(Config::getServerVerbose()) lo("hg::Online::trySendFunc") << "Sending data to server..." << endl;
 
-			currentGtm->start([&mFunc]
+			// TODO FIX: EMAIL IS NOT SENT
+
+			currentGtm->start([mFunc]
 			{
 				if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
 				mFunc();
@@ -115,8 +119,8 @@ namespace hg
 
 		template<unsigned int TType, typename... TArgs> void trySendPacket(TArgs&&... mArgs)
 		{
-			const auto& packet(buildCPacket<TType>(mArgs...));
-			trySendFunc([=]{ client->send(packet); });
+			auto packet(buildCPacket<TType>(mArgs...));
+			trySendFunc([packet]{ client->send(packet); });
 		}
 
 		void tryConnectToServer()
@@ -130,8 +134,7 @@ namespace hg
 
 			currentGtm->start([]
 			{
-				//if(client->connect("127.0.0.1", 54000))
-				if(client->connect(hostIp, hostPort))
+				if(client->connect(getCurrentIpAddress(), getCurrentPort()))
 				{
 					lo("hg::Online::connectToServer") << "Connected to server!" << endl;
 					connectionStatus = ConnectStat::Connected; return;
@@ -236,21 +239,24 @@ namespace hg
 
 		void initializeValidators(HGAssets& mAssets)
 		{
-			// lo("hg::Online::initializeValidators") << "Initializing validators..." << endl;
+			if(Config::getServerVerbose()) lo("hg::Online::initializeValidators") << "Initializing validators..." << endl;
 
 			for(const auto& p : mAssets.getLevelDatas())
 			{
-				// lo("hg::Online::initializeValidators") << "Adding (" << p.first << ") validator" << endl;
+				if(Config::getServerVerbose()) lo("hg::Online::initializeValidators") << "Adding (" << p.first << ") validator" << endl;
 
 				const auto& l(p.second);
 				const auto& validator(getValidator(l->packPath, l->id, l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(), l->luaScriptPath));
 				validators.addValidator(p.first, validator);
 
-				// lo("hg::Online::initializeValidators") << "Added (" << p.first << "): " << validator << endl;
+				if(Config::getServerVerbose()) lo("hg::Online::initializeValidators") << "Added (" << p.first << "): " << validator << endl;
 			}
 
 			lo("hg::Online::initializeValidators") << "Finished initializing validators..." << endl;
 		}
+
+		const sf::IpAddress& getCurrentIpAddress()	{ return Config::getServerLocal() ? localIp : hostIp; }
+		unsigned short getCurrentPort()				{ return Config::getServerLocal() ? localPort : hostPort; }
 	}
 }
 

@@ -30,6 +30,8 @@
 	"player_size" : 7.300000190734863,
 	"player_speed" : 9.449999809265137,
 	"pulse_enabled" : true,
+	"server_local" : false,
+	"server_verbose" : false,
 	"show_fps" : true,
 	"show_messages" : true,
 	"show_tracked_variables" : true,

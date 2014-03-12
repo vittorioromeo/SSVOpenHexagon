@@ -65,6 +65,8 @@ namespace hg
 		auto& antialiasingLevel			(lvm.create<unsigned int>("antialiasing_level"));
 		auto& showFps					(lvm.create<bool>("show_fps"));
 		auto& timerStatic				(lvm.create<bool>("timer_static"));
+		auto& serverLocal				(lvm.create<bool>("server_local"));
+		auto& serverVerbose				(lvm.create<bool>("server_verbose"));
 		auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
 		auto& triggerRotateCW			(lvm.create<Trigger>("t_rotate_cw"));
 		auto& triggerFocus				(lvm.create<Trigger>("t_focus"));
@@ -213,6 +215,8 @@ namespace hg
 		void setFlash(bool mFlash)					{ flashEnabled = mFlash; }
 		void setMusicSpeedDMSync(bool mValue)		{ musicSpeedDMSync = mValue; }
 		void setShowFPS(bool mValue)				{ showFps = mValue; }
+		void setServerLocal(bool mValue)			{ serverLocal = mValue; }
+		void setServerVerbose(bool mValue)			{ serverVerbose = mValue; }
 
 		bool getOnline()					{ return online; }
 		bool getOfficial()					{ return official; }
@@ -261,6 +265,8 @@ namespace hg
 		unsigned int getAntialiasingLevel()	{ return antialiasingLevel; }
 		bool getShowFPS()					{ return showFps; }
 		bool getTimerStatic()				{ return timerStatic; }
+		bool getServerLocal()				{ return serverLocal; }
+		bool getServerVerbose()				{ return serverVerbose; }
 
 		Trigger getTriggerRotateCCW()		{ return triggerRotateCCW; }
 		Trigger getTriggerRotateCW()		{ return triggerRotateCW; }

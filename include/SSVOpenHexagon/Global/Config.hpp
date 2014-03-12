@@ -45,6 +45,8 @@ namespace hg
 		void setFlash(bool mFlash);
 		void setMusicSpeedDMSync(bool mValue);
 		void setShowFPS(bool mValue);
+		void setServerLocal(bool mValue);
+		void setServerVerbose(bool mValue);
 
 		bool getOnline();
 		bool getOfficial();
@@ -94,6 +96,8 @@ namespace hg
 		bool getShowFPS();
 		bool getTimerStatic();
 		unsigned int getAntialiasingLevel();
+		bool getServerLocal();
+		bool getServerVerbose();
 
 		ssvs::Input::Trigger getTriggerRotateCCW();
 		ssvs::Input::Trigger getTriggerRotateCW();

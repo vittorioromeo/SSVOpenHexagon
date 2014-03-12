@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
 
 	if(contains(overrideIds, "server"))
 	{
+		Config::loadConfig(overrideIds);
 		HGAssets levelOnlyAssets{true};
 		Online::initializeValidators(levelOnlyAssets);
 		Online::OHServer ohServer;
@@ -50,6 +51,8 @@ int main(int argc, char* argv[])
 	Online::tryConnectToServer();
 
 	Config::loadConfig(overrideIds);
+
+	if(Config::getServerLocal()) ssvu::lo("Server") << "LOCAL MODE ON" << std::endl;
 
 	GameWindow window;
 	window.setTitle("Open Hexagon " + toStr(Config::getVersion()) + " - by vittorio romeo - http://vittorioromeo.info");

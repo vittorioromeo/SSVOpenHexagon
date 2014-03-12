@@ -151,7 +151,11 @@ namespace hg
 		}
 		else
 		{
-			if(status.scoreInvalid || !Config::isEligibleForScore()) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible" << endl; return; }
+			if(status.scoreInvalid || !Config::isEligibleForScore())
+			{
+				lo("hg::HexagonGame::checkAndSaveScore()") << "Not sending/saving score - not eligible\n" << Config::getUneligibilityReason() << endl;
+				return;
+			}
 			if(status.currentTime < 8) { lo("hg::HexagonGame::checkAndSaveScore()") << "Not sending score - less than 8 seconds" << endl; return; }
 			Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
 		}

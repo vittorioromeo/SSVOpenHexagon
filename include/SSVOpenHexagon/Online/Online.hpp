@@ -117,11 +117,10 @@ namespace hg
 			SendLogoutValid,
 			NUR_EmailValid
 		};
+
+		const sf::IpAddress& getCurrentIpAddress();
+		unsigned short getCurrentPort();
 	}
 }
-
-
-
-
 
 #endif

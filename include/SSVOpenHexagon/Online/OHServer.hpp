@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/PacketHandler.hpp"
 #include "SSVOpenHexagon/Online/Server.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
@@ -113,7 +114,7 @@ namespace hg
 		class LoginDB
 		{
 			private:
-				ssvu::Bimap<std::string, unsigned int, std::unordered_map> logins;
+				ssvu::Bimap<std::string, unsigned int> logins;
 
 			public:
 				inline bool isLoggedIn(const std::string& mUsername) const					{ return logins.has(mUsername); }
@@ -122,7 +123,12 @@ namespace hg
 				inline void forceLogout(unsigned int mUid)			{ if(logins.has(mUid)) logins.erase(mUid); }
 				inline void logout(const std::string& mUsername)	{ if(logins.has(mUsername)) logins.erase(mUsername); }
 
-				inline std::vector<std::string> getLoggedUsernames() const { return ssvu::getKeys(logins.getMap1()); }
+				inline std::vector<std::string> getLoggedUsernames() const
+				{
+					std::vector<std::string> result;
+					for(const auto& p : logins) result.emplace_back(p->first);
+					return result;
+				}
 		};
 
 		struct OHServer
@@ -272,12 +278,14 @@ namespace hg
 				};
 				pHandler[FromClient::NUR_Email] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{
+					ssvu::lo("PacketHandler") << "Received email packet" << std::endl;
+					if(verbose) ssvu::lo("PacketHandler") << "Received email packet" << std::endl;
 					std::string username, email;
 					ssvuj::extrArray(getDecompressedPacket(mP), username, email);
 
 					users.setEmail(username, email);
 
-					if(verbose)  ssvu::lo("PacketHandler") << "Email accepted" << std::endl;
+					if(verbose) ssvu::lo("PacketHandler") << "Email accepted" << std::endl;
 					mMS.send(buildCPacket<FromServer::NUR_EmailValid>());
 					modifiedUsers = true;
 				};
@@ -356,8 +364,7 @@ namespace hg
 
 			inline void start()
 			{
-				//server.start(54000);
-				server.start(27273);
+				server.start(Online::getCurrentPort());
 
 				inputFuture = std::async(std::launch::async, [this]
 				{
