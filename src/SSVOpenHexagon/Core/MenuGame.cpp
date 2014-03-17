@@ -203,7 +203,7 @@ namespace hg
 			else if((state == s::ETFriend || state == s::SLPSelect) && valid) state = s::SMain;
 		}, t::Once);
 
-		game.addInput(Config::getTriggerExit(), [&](FT mFT) { if(state != s::MOpts) exitTimer += mFT; });
+		game.addInput(Config::getTriggerExit(), [&](FT mFT) { if(state != s::MOpts) exitTimer += mFT; }, [this](FT){ exitTimer = 0; });
 		game.addInput(Config::getTriggerScreenshot(), [&](FT){ mustTakeScreenshot = true; }, t::Once);
 		game.addInput({{k::LAlt, k::Return}}, [&](FT){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Once);
 		game.addInput({{k::BackSpace}}, [&](FT){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
@@ -394,7 +394,6 @@ namespace hg
 
 		updateLeaderboard(); updateFriends();
 
-		if(!window.isKeyPressed(Keyboard::Escape)) exitTimer = 0;
 		if(exitTimer > 20) window.stop();
 
 		if(isEnteringText())

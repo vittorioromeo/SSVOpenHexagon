@@ -108,8 +108,6 @@ namespace hg
 			if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
 			if(Config::getServerVerbose()) lo("hg::Online::trySendFunc") << "Sending data to server..." << endl;
 
-			// TODO FIX: EMAIL IS NOT SENT
-
 			currentGtm->start([mFunc]
 			{
 				if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Client not connected - aborting" << endl; return; }
