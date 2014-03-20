@@ -40,8 +40,8 @@ namespace hg
 		void set3D(bool m3D);
 		void setInvincible(bool mInvincible);
 		void setAutoRestart(bool mAutoRestart);
-		void setSoundVolume(int mVolume);
-		void setMusicVolume(int mVolume);
+		void setSoundVolume(float mVolume);
+		void setMusicVolume(float mVolume);
 		void setFlash(bool mFlash);
 		void setMusicSpeedDMSync(bool mValue);
 		void setShowFPS(bool mValue);
@@ -64,8 +64,8 @@ namespace hg
 		bool getBlackAndWhite();
 		bool getNoSound();
 		bool getNoMusic();
-		int getSoundVolume();
-		int getMusicVolume();
+		float getSoundVolume();
+		float getMusicVolume();
 		bool getLimitFPS();
 		bool getVsync();
 		bool getAutoZoomFactor();
