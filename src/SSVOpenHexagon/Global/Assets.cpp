@@ -42,8 +42,7 @@ namespace hg
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 
 			ssvuj::Obj packRoot{getFromFile(packPath + "/pack.json")};
-			auto packData(new PackData{packName, getExtr<string>(packRoot, "name"), getExtr<float>(packRoot, "priority")});
-			packDatas.insert(make_pair(packName, Uptr<PackData>(packData)));
+			ssvu::getEmplaceUptrMap<PackData>(packDatas, packName, packName, getExtr<string>(packRoot, "name"), getExtr<float>(packRoot, "priority"));
 		}
 
 		for(auto& p : packDatas)
@@ -144,7 +143,7 @@ namespace hg
 		profileDataMap.clear();
 		loadLocalProfiles();
 	}
-	int HGAssets::getLocalProfilesSize() { return profileDataMap.size(); }
+	std::size_t HGAssets::getLocalProfilesSize() { return profileDataMap.size(); }
 	vector<string> HGAssets::getLocalProfileNames()
 	{
 		vector<string> result;
