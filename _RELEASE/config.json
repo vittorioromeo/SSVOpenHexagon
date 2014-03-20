@@ -18,7 +18,7 @@
 	"limit_fps" : true,
 	"max_fps" : 200,
 	"music_speed_dm_sync" : true,
-	"music_volume" : 30,
+	"music_volume" : 30.0,
 	"no_background" : false,
 	"no_music" : false,
 	"no_rotation" : false,
@@ -35,7 +35,7 @@
 	"show_fps" : true,
 	"show_messages" : true,
 	"show_tracked_variables" : true,
-	"sound_volume" : 75,
+	"sound_volume" : 75.0,
 	"t_exit" : 
 	[
 		[ "kEscape" ]
