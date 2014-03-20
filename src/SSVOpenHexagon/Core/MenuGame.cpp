@@ -27,10 +27,10 @@ namespace hg
 	{
 		initAssets(); refreshCamera();
 
-		game.onUpdate += [&](FT mFT) { update(mFT); };
-		game.onDraw += [&]{ draw(); };
-		game.onEvent(Event::EventType::TextEntered) += [&](const Event& mEvent){ if(mEvent.text.unicode < 128) enteredChars.emplace_back(static_cast<char>(mEvent.text.unicode)); };
-		window.onRecreation += [&]{ refreshCamera(); };
+		game.onUpdate += [this](FT mFT) { update(mFT); };
+		game.onDraw += [this]{ draw(); };
+		game.onEvent(Event::EventType::TextEntered) += [this](const Event& mEvent){ if(mEvent.text.unicode < 128) enteredChars.emplace_back(static_cast<char>(mEvent.text.unicode)); };
+		window.onRecreation += [this]{ refreshCamera(); };
 
 		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIdx]);
 		setIndex(0); initMenus(); initInput();
@@ -61,11 +61,11 @@ namespace hg
 
 		// Welcome menu
 		auto& wlcm(welcomeMenu.createCategory("welcome"));
-		wlcm.create<i::Single>("connect",		[&]{ Online::tryConnectToServer(); }) | whenDisconnected;
-		wlcm.create<i::Single>("login",			[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(false); enteredStr = ""; state = s::ETUser; }) | whenConnectedAndUnlogged;
-		wlcm.create<i::Single>("logout",		[&]{ Online::logout(); }) | whenConnectedAndLogged;
-		wlcm.create<i::Single>("play locally",	[&]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(true); enteredStr = ""; state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : s::SLPSelect; }) | whenUnlogged;
-		wlcm.create<i::Single>("exit game",		[&]{ window.stop(); });
+		wlcm.create<i::Single>("connect",		[this]{ Online::tryConnectToServer(); }) | whenDisconnected;
+		wlcm.create<i::Single>("login",			[this]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(false); enteredStr = ""; state = s::ETUser; }) | whenConnectedAndUnlogged;
+		wlcm.create<i::Single>("logout",		[this]{ Online::logout(); }) | whenConnectedAndLogged;
+		wlcm.create<i::Single>("play locally",	[this]{ assets.pSaveCurrent(); assets.pSetPlayingLocally(true); enteredStr = ""; state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : s::SLPSelect; }) | whenUnlogged;
+		wlcm.create<i::Single>("exit game",		[this]{ window.stop(); });
 
 		// Options menu
 		auto& main(optionsMenu.createCategory("options"));
@@ -84,16 +84,20 @@ namespace hg
 		main.create<i::Goto>("audio", sfx);
 		main.create<i::Goto>("debug", debug) | whenNotOfficial;
 		main.create<i::Goto>("local profiles", localProfiles) | whenLocal;
-		main.create<i::Single>("login screen", [&]{ state = s::MWlcm; });
+		main.create<i::Single>("login screen", [this]{ state = s::MWlcm; });
 		main.create<i::Toggle>("online", &Config::getOnline, &Config::setOnline);
 		main.create<i::Toggle>("official mode", &Config::getOfficial, &Config::setOfficial);
-		main.create<i::Single>("exit game", [&]{ window.stop(); });
-		main.create<i::Single>("back", [&]{ state = s::SMain; });
+		main.create<i::Single>("exit game", [this]{ window.stop(); });
+		main.create<i::Single>("back", [this]{ state = s::SMain; });
 
-		resolution.create<i::Single>("auto", [&]{ Config::setCurrentResolutionAuto(window); });
-		for(const auto& vm : VideoMode::getFullscreenModes()) if(vm.bitsPerPixel == 32) resolution.create<i::Single>(toStr(vm.width) + "x" + toStr(vm.height), [&]{ Config::setCurrentResolution(window, vm.width, vm.height); });
-		resolution.create<i::Single>("go windowed", 	[&]{ Config::setFullscreen(window, false); });
-		resolution.create<i::Single>("go fullscreen", 	[&]{ Config::setFullscreen(window, true); });
+		resolution.create<i::Single>("auto", [this]{ Config::setCurrentResolutionAuto(window); });
+
+		for(const auto& vm : VideoMode::getFullscreenModes())
+			if(vm.bitsPerPixel == 32)
+				resolution.create<i::Single>(toStr(vm.width) + "x" + toStr(vm.height), [this, &vm]{ Config::setCurrentResolution(window, vm.width, vm.height); });
+
+		resolution.create<i::Single>("go windowed", 	[this]{ Config::setFullscreen(window, false); });
+		resolution.create<i::Single>("go fullscreen", 	[this]{ Config::setFullscreen(window, true); });
 		resolution.create<i::GoBack>("back");
 
 		gfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
@@ -103,38 +107,38 @@ namespace hg
 		gfx.create<i::Toggle>("pulse", &Config::getPulse, &Config::setPulse) | whenNotOfficial;
 
 		gfx.create<i::Toggle>("flash", &Config::getFlash, &Config::setFlash);
-		gfx.create<i::Toggle>("vsync", &Config::getVsync, [&](bool mValue){ Config::setVsync(window, mValue); });
-		gfx.create<i::Single>("go windowed", 	[&]{ Config::setFullscreen(window, false); });
-		gfx.create<i::Single>("go fullscreen", 	[&]{ Config::setFullscreen(window, true); });
+		gfx.create<i::Toggle>("vsync", &Config::getVsync, [this](bool mValue){ Config::setVsync(window, mValue); });
+		gfx.create<i::Single>("go windowed", 	[this]{ Config::setFullscreen(window, false); });
+		gfx.create<i::Single>("go fullscreen", 	[this]{ Config::setFullscreen(window, true); });
 
-		gfx.create<i::Single>("use static fps",  [&]{ Config::setTimerStatic(window, true); }) | whenTimerIsDynamic;
-		gfx.create<i::Single>("use dynamic fps",  [&]{ Config::setTimerStatic(window, false); }) | whenTimerIsStatic;
+		gfx.create<i::Single>("use static fps",  [this]{ Config::setTimerStatic(window, true); }) | whenTimerIsDynamic;
+		gfx.create<i::Single>("use dynamic fps",  [this]{ Config::setTimerStatic(window, false); }) | whenTimerIsStatic;
 
-		gfx.create<i::Toggle>("limit fps", &Config::getLimitFPS, [&](bool mValue){ Config::setLimitFPS(window, mValue); }) | whenTimerIsStatic;
-		gfx.create<i::Slider>("max fps", &Config::getMaxFPS, [&](unsigned int mValue){ Config::setMaxFPS(window, mValue); }, 30u, 200u, 5u) | whenTimerIsStatic;
-		gfx.create<i::Slider>("antialiasing", &Config::getAntialiasingLevel, [&](unsigned int mValue){ Config::setAntialiasingLevel(window, mValue); }, 0u, 3u, 1u);
+		gfx.create<i::Toggle>("limit fps", &Config::getLimitFPS, [this](bool mValue){ Config::setLimitFPS(window, mValue); }) | whenTimerIsStatic;
+		gfx.create<i::Slider>("max fps", &Config::getMaxFPS, [this](unsigned int mValue){ Config::setMaxFPS(window, mValue); }, 30u, 200u, 5u) | whenTimerIsStatic;
+		gfx.create<i::Slider>("antialiasing", &Config::getAntialiasingLevel, [this](unsigned int mValue){ Config::setAntialiasingLevel(window, mValue); }, 0u, 3u, 1u);
 		gfx.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
 		gfx.create<i::GoBack>("back");
 
 		sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);
 		sfx.create<i::Toggle>("no music", &Config::getNoMusic, &Config::setNoMusic);
-		sfx.create<i::Slider>("sound volume", &Config::getSoundVolume, [&](unsigned int mValue){ Config::setSoundVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | whenSoundEnabled;
-		sfx.create<i::Slider>("music volume", &Config::getMusicVolume, [&](unsigned int mValue){ Config::setMusicVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | whenMusicEnabled;
+		sfx.create<i::Slider>("sound volume", &Config::getSoundVolume, [this](unsigned int mValue){ Config::setSoundVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | whenSoundEnabled;
+		sfx.create<i::Slider>("music volume", &Config::getMusicVolume, [this](unsigned int mValue){ Config::setMusicVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | whenMusicEnabled;
 		sfx.create<i::Toggle>("sync music with difficulty", &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync) | whenMusicEnabled;
 		sfx.create<i::GoBack>("back");
 
 		play.create<i::Toggle>("autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
 		play.create<i::GoBack>("back");
 
-		localProfiles.create<i::Single>("change local profile", [&]{ enteredStr = ""; state = s::SLPSelect; });
-		localProfiles.create<i::Single>("new local profile", [&]{ enteredStr = ""; state = s::SLPSelect; });
+		localProfiles.create<i::Single>("change local profile", [this]{ enteredStr = ""; state = s::SLPSelect; });
+		localProfiles.create<i::Single>("new local profile", [this]{ enteredStr = ""; state = s::SLPSelect; });
 		localProfiles.create<i::GoBack>("back");
 
 		debug.create<i::Toggle>("invincible", &Config::getInvincible, &Config::setInvincible);
 		debug.create<i::GoBack>("back");
 
-		friends.create<i::Single>("add friend", [&]{ enteredStr = ""; state = s::ETFriend; });
-		friends.create<i::Single>("clear friends", [&]{ assets.pClearTrackedNames(); });
+		friends.create<i::Single>("add friend", [this]{ enteredStr = ""; state = s::ETFriend; });
+		friends.create<i::Single>("clear friends", [this]{ assets.pClearTrackedNames(); });
 		friends.create<i::GoBack>("back");
 	}
 	void MenuGame::initInput()
@@ -142,33 +146,33 @@ namespace hg
 		using k = KKey;
 		using t = Type;
 
-		game.addInput(Config::getTriggerRotateCCW(), [&](FT)
+		game.addInput(Config::getTriggerRotateCCW(), [this](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) 	{  --profileIdx; }
 			else if(state == s::SMain)	{ setIndex(currentIndex - 1); }
 			else if(isInMenu())			{ getCurrentMenu()->decrease(); }
 		}, t::Once);
-		game.addInput(Config::getTriggerRotateCW(), [&](FT)
+		game.addInput(Config::getTriggerRotateCW(), [this](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) 	{ ++profileIdx; }
 			else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
 			else if(isInMenu())			{ getCurrentMenu()->increase(); }
 		}, t::Once);
-		game.addInput({{k::Up}, {k::W}}, [&](FT)
+		game.addInput({{k::Up}, {k::W}}, [this](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SMain)		{ ++diffMultIdx; }
 			else if(isInMenu())			{ getCurrentMenu()->previous(); }
 		}, t::Once);
-		game.addInput({{k::Down}, {k::S}}, [&](FT)
+		game.addInput({{k::Down}, {k::S}}, [this](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SMain)		{ --diffMultIdx; }
 			else if(isInMenu())			{ getCurrentMenu()->next(); }
 		}, t::Once);
-		game.addInput(Config::getTriggerRestart(), [&](FT)
+		game.addInput(Config::getTriggerRestart(), [this](FT)
 		{
 			assets.playSound("beep.ogg");
 			if(state == s::SLPSelect) { assets.pSetCurrent(enteredStr); state = s::SMain; }
@@ -184,14 +188,14 @@ namespace hg
 			else if(state == s::ETPass)		{ if(!enteredStr.empty()) { lrPass = enteredStr; state = s::SLogging; enteredStr = ""; Online::tryLogin(lrUser, lrPass); } }
 			else if(state == s::ETEmail)	{ if(!enteredStr.empty() && ssvu::contains(enteredStr, '@')) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
 		}, t::Once);
-		game.addInput({{k::F1}}, [&](FT)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Once);
-		game.addInput({{k::F2}, {k::J}}, [&](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
-		game.addInput({{k::F3}, {k::K}}, [&](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
-		game.addInput({{k::F4}, {k::L}}, [&](FT)
+		game.addInput({{k::F1}}, [this](FT)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Once);
+		game.addInput({{k::F2}, {k::J}}, [this](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
+		game.addInput({{k::F3}, {k::K}}, [this](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
+		game.addInput({{k::F4}, {k::L}}, [this](FT)
 		{
 			assets.playSound("beep.ogg"); if(state == s::SMain) { auto p(assets.getPackPaths()); packIdx = ssvu::getWrapIdx(packIdx + 1, p.size()); levelDataIds = assets.getLevelIdsByPack(p[packIdx]); setIndex(0); }
 		}, t::Once);
-		game.addInput(Config::getTriggerExit(), [&](FT)
+		game.addInput(Config::getTriggerExit(), [this](FT)
 		{
 			assets.playSound("beep.ogg");
 			bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) || !assets.pIsLocal()};
@@ -203,26 +207,26 @@ namespace hg
 			else if((state == s::ETFriend || state == s::SLPSelect) && valid) state = s::SMain;
 		}, t::Once);
 
-		game.addInput(Config::getTriggerExit(), [&](FT mFT) { if(state != s::MOpts) exitTimer += mFT; }, [this](FT){ exitTimer = 0; });
-		game.addInput(Config::getTriggerScreenshot(), [&](FT){ mustTakeScreenshot = true; }, t::Once);
-		game.addInput({{k::LAlt, k::Return}}, [&](FT){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Once);
-		game.addInput({{k::BackSpace}}, [&](FT){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
+		game.addInput(Config::getTriggerExit(), [this](FT mFT) { if(state != s::MOpts) exitTimer += mFT; }, [this](FT){ exitTimer = 0; });
+		game.addInput(Config::getTriggerScreenshot(), [this](FT){ mustTakeScreenshot = true; }, t::Once);
+		game.addInput({{k::LAlt, k::Return}}, [this](FT){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Once);
+		game.addInput({{k::BackSpace}}, [this](FT){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
 	}
 
 	void MenuGame::initLua(Lua::LuaContext& mLua)
 	{
-		mLua.writeVariable("u_log", 				[&](string mLog) 	{ lo("lua-menu") << mLog << endl; });
-		mLua.writeVariable("u_execScript", 			[&](string mName) 	{ Utils::runLuaFile(mLua, levelData->packPath + "Scripts/" + mName); });
-		mLua.writeVariable("u_getDifficultyMult",	[&] 				{ return 1; });
-		mLua.writeVariable("u_getSpeedMultDM",		[&]					{ return 1; });
-		mLua.writeVariable("u_getDelayMultDM",		[&]					{ return 1; });
-		mLua.writeVariable("l_setRotationSpeed",	[&](float mValue)	{ levelStatus.rotationSpeed = mValue; });
-		mLua.writeVariable("l_setSides",			[&](int mValue)		{ levelStatus.sides = mValue; });
-		mLua.writeVariable("l_getRotationSpeed",	[&]					{ return levelStatus.rotationSpeed; });
-		mLua.writeVariable("l_getSides",			[&]					{ return levelStatus.sides; });
-		mLua.writeVariable("s_setPulseInc",			[&](float mValue)	{ styleData.pulseIncrement = mValue; });
-		mLua.writeVariable("s_setHueInc",			[&](float mValue)	{ styleData.hueIncrement = mValue; });
-		mLua.writeVariable("s_getHueInc",			[&]					{ return styleData.hueIncrement; });
+		mLua.writeVariable("u_log", 				[this](string mLog)			{ lo("lua-menu") << mLog << endl; });
+		mLua.writeVariable("u_execScript", 			[this, &mLua](string mName)	{ Utils::runLuaFile(mLua, levelData->packPath + "Scripts/" + mName); });
+		mLua.writeVariable("u_getDifficultyMult",	[this]						{ return 1; });
+		mLua.writeVariable("u_getSpeedMultDM",		[this]						{ return 1; });
+		mLua.writeVariable("u_getDelayMultDM",		[this]						{ return 1; });
+		mLua.writeVariable("l_setRotationSpeed",	[this](float mValue)		{ levelStatus.rotationSpeed = mValue; });
+		mLua.writeVariable("l_setSides",			[this](unsigned int mValue)	{ levelStatus.sides = mValue; });
+		mLua.writeVariable("l_getRotationSpeed",	[this]						{ return levelStatus.rotationSpeed; });
+		mLua.writeVariable("l_getSides",			[this]						{ return levelStatus.sides; });
+		mLua.writeVariable("s_setPulseInc",			[this](float mValue)		{ styleData.pulseIncrement = mValue; });
+		mLua.writeVariable("s_setHueInc",			[this](float mValue)		{ styleData.hueIncrement = mValue; });
+		mLua.writeVariable("s_getHueInc",			[this]						{ return styleData.hueIncrement; });
 
 		// Unused functions
 		for(const auto& un : { "l_setSpeedMult", "l_setSpeedInc", "l_setRotationSpeedMax", "l_setRotationSpeedInc",
@@ -241,8 +245,8 @@ namespace hg
 	{
 		currentIndex = mIdx;
 
-		if(currentIndex > int(levelDataIds.size() - 1)) currentIndex = 0;
-		else if(currentIndex < 0) currentIndex = levelDataIds.size() - 1;
+		if(currentIndex > static_cast<int>(levelDataIds.size() - 1)) currentIndex = 0;
+		else if(currentIndex < 0) currentIndex = static_cast<int>(levelDataIds.size()) - 1;
 
 		levelData = &assets.getLevelData(levelDataIds[currentIndex]);
 
@@ -286,7 +290,7 @@ namespace hg
 		for(auto i(0u); i < recordPairs.size(); ++i)
 		{
 			if(recordPairs[i].first != assets.pGetName()) continue;
-			playerPosition = i + 1;
+			playerPosition = static_cast<int>(i) + 1;
 			foundPlayer = true;
 			break;
 		}
@@ -467,7 +471,7 @@ namespace hg
 			if(assets.pIsLocal())
 			{
 				SSVU_ASSERT(diffMults.size() != 0);
-				lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, diffMults[diffMultIdx % diffMults.size()])));
+				lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, ssvu::getByWrapIdx(diffMults, diffMultIdx))));
 			}
 			else { lbestStr = Online::getLoginStatus() == ols::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
 
@@ -488,7 +492,7 @@ namespace hg
 				userStats += "deaths: " + toStr(us.deaths) + "\n";
 				userStats += "restarts: " + toStr(us.restarts) + "\n";
 				userStats += "played: " + toStr(us.minutesSpentPlaying) + " min";
-				renderText(userStats, txtLMus, {getGlobalRight(titleBar) + 10.f, getGlobalTop(titleBar)}, 13.5f);
+				renderText(userStats, txtLMus, {getGlobalRight(titleBar) + 10.f, getGlobalTop(titleBar)}, 13);
 			}
 		}
 		else renderText("online disabled", txtProf, {20, 0}, 13);
