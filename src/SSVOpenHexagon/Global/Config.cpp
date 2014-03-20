@@ -35,11 +35,11 @@ namespace hg
 		auto& pulseEnabled				(lvm.create<bool>("pulse_enabled"));
 		auto& _3DEnabled				(lvm.create<bool>("3D_enabled"));
 		auto& _3DMultiplier				(lvm.create<float>("3D_multiplier"));
-		auto& _3DMaxDepth				(lvm.create<int>("3D_max_depth"));
+		auto& _3DMaxDepth				(lvm.create<unsigned int>("3D_max_depth"));
 		auto& invincible				(lvm.create<bool>("invincible"));
 		auto& autoRestart				(lvm.create<bool>("auto_restart"));
-		auto& soundVolume				(lvm.create<int>("sound_volume"));
-		auto& musicVolume				(lvm.create<int>("music_volume"));
+		auto& soundVolume				(lvm.create<float>("sound_volume"));
+		auto& musicVolume				(lvm.create<float>("music_volume"));
 		auto& flashEnabled				(lvm.create<bool>("flash_enabled"));
 		auto& zoomFactor				(lvm.create<float>("zoom_factor"));
 		auto& pixelMultiplier			(lvm.create<int>("pixel_multiplier"));
@@ -52,10 +52,10 @@ namespace hg
 		auto& fullscreen				(lvm.create<bool>("fullscreen"));
 		auto& windowedAutoResolution	(lvm.create<bool>("windowed_auto_resolution"));
 		auto& fullscreenAutoResolution	(lvm.create<bool>("fullscreen_auto_resolution"));
-		auto& fullscreenWidth			(lvm.create<int>("fullscreen_width"));
-		auto& fullscreenHeight			(lvm.create<int>("fullscreen_height"));
-		auto& windowedWidth				(lvm.create<int>("windowed_width"));
-		auto& windowedHeight			(lvm.create<int>("windowed_height"));
+		auto& fullscreenWidth			(lvm.create<unsigned int>("fullscreen_width"));
+		auto& fullscreenHeight			(lvm.create<unsigned int>("fullscreen_height"));
+		auto& windowedWidth				(lvm.create<unsigned int>("windowed_width"));
+		auto& windowedHeight			(lvm.create<unsigned int>("windowed_height"));
 		auto& showMessages				(lvm.create<bool>("show_messages"));
 		auto& debug						(lvm.create<bool>("debug"));
 		auto& beatPulse					(lvm.create<bool>("beatpulse_enabled"));
@@ -210,8 +210,8 @@ namespace hg
 		void set3D(bool m3D)						{ _3DEnabled = m3D; }
 		void setInvincible(bool mInvincible)		{ invincible = mInvincible; }
 		void setAutoRestart(bool mAutoRestart) 		{ autoRestart = mAutoRestart; }
-		void setSoundVolume(int mVolume) 			{ soundVolume = mVolume; }
-		void setMusicVolume(int mVolume) 			{ musicVolume = mVolume; }
+		void setSoundVolume(float mVolume)			{ soundVolume = mVolume; }
+		void setMusicVolume(float mVolume)			{ musicVolume = mVolume; }
 		void setFlash(bool mFlash)					{ flashEnabled = mFlash; }
 		void setMusicSpeedDMSync(bool mValue)		{ musicSpeedDMSync = mValue; }
 		void setShowFPS(bool mValue)				{ showFps = mValue; }
@@ -234,8 +234,8 @@ namespace hg
 		bool getBlackAndWhite() 			{ return official ? false : blackAndWhite; }
 		bool getNoSound()					{ return noSound; }
 		bool getNoMusic()					{ return noMusic; }
-		int getSoundVolume()  				{ return soundVolume; }
-		int getMusicVolume() 				{ return musicVolume; }
+		float getSoundVolume()				{ return soundVolume; }
+		float getMusicVolume()				{ return musicVolume; }
 		bool getLimitFPS()					{ return limitFps; }
 		bool getVsync()						{ return vsync; }
 		bool getAutoZoomFactor()			{ return official ? true : autoZoomFactor; }
