@@ -80,7 +80,7 @@ namespace hg
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&)			{ newUserReg = false; };
 
-			client = Uptr<Client>(new Client(clientPHandler));
+			client = std::make_unique<Client>(clientPHandler);
 
 			currentGtm->start([]
 			{
