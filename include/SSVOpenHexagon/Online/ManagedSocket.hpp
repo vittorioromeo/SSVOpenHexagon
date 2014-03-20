@@ -57,7 +57,7 @@ namespace hg
 				~ManagedSocket() { disconnect(); ssvu::lo() << "ManagedSocket destroyed" << std::endl; }
 
 				inline bool send(const sf::Packet& mPacket) { return trySendPacket(mPacket); }
-				inline bool connect(sf::IpAddress mIp, unsigned int mPort)
+				inline bool connect(sf::IpAddress mIp, unsigned short mPort)
 				{
 					if(busy) { ssvu::lo("ManagedSocket") << "Error: already connected" << std::endl; return false; }
 

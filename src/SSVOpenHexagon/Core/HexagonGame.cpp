@@ -129,8 +129,10 @@ namespace hg
 		status.fastSpin = levelStatus.fastSpin;
 	}
 
-	void HexagonGame::sideChange(int mSideNumber)
+	void HexagonGame::sideChange(unsigned int mSideNumber)
 	{
+		SSVU_ASSERT(mSideNumber > 0 && mSideNumber < 1000);
+
 		runLuaFunction<void>("onIncrement");
 		levelStatus.speedMult += levelStatus.speedInc;
 		levelStatus.delayMult += levelStatus.delayInc;

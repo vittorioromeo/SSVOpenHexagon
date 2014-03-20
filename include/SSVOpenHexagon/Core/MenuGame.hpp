@@ -71,7 +71,7 @@ namespace hg
 				if(mText.getString() != mStr) mText.setString(mStr);
 				mText.setPosition(mPosition); render(mText); return mText;
 			}
-			inline sf::Text& renderTextImpl(const std::string& mStr, sf::Text& mText, const Vec2f& mPosition, float mSize)
+			inline sf::Text& renderTextImpl(const std::string& mStr, sf::Text& mText, const Vec2f& mPosition, unsigned int mSize)
 			{
 				auto originalSize(mText.getCharacterSize());
 				mText.setCharacterSize(mSize);
@@ -80,10 +80,10 @@ namespace hg
 				return mText;
 			}
 			inline const sf::Color& getTextColor() const { return (state != States::SMain || Config::getBlackAndWhite()) ? sf::Color::White : styleData.getMainColor(); }
-			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const Vec2f& mPos)											{ mText.setColor(getTextColor()); return renderTextImpl(mStr, mText, mPos); }
-			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const Vec2f& mPos, float mSize)							{ mText.setColor(getTextColor()); return renderTextImpl(mStr, mText, mPos, mSize); }
-			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const Vec2f& mPos, const sf::Color& mColor)				{ mText.setColor(mColor); return renderTextImpl(mStr, mText, mPos); }
-			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const Vec2f& mPos, const sf::Color& mColor, float mSize)	{ mText.setColor(mColor); return renderTextImpl(mStr, mText, mPos, mSize); }
+			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const Vec2f& mPos)												{ mText.setColor(getTextColor()); return renderTextImpl(mStr, mText, mPos); }
+			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const Vec2f& mPos, unsigned int mSize)							{ mText.setColor(getTextColor()); return renderTextImpl(mStr, mText, mPos, mSize); }
+			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const Vec2f& mPos, const sf::Color& mColor)						{ mText.setColor(mColor); return renderTextImpl(mStr, mText, mPos); }
+			inline sf::Text& renderText(const std::string& mStr, sf::Text& mText, const Vec2f& mPos, const sf::Color& mColor, unsigned int mSize)	{ mText.setColor(mColor); return renderTextImpl(mStr, mText, mPos, mSize); }
 			void setIndex(int mIdx);
 			void updateLeaderboard();
 			void updateFriends();

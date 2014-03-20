@@ -47,7 +47,7 @@ namespace hg
 					for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr) if(itr->second == mUsername) { ss.erase(itr); break; }
 					ss.emplace(mScore, mUsername);
 
-					unsigned int i{1};
+					int i{1};
 					for(auto ritr(std::rbegin(ss)); ritr != std::rend(ss); ++ritr) userPositions[mDiffMult][ritr->second] = i++;
 				}
 

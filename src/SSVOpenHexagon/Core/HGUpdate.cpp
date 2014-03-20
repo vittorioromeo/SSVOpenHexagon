@@ -168,7 +168,7 @@ namespace hg
 	{
 		if(status.flashEffect > 0) status.flashEffect -= 3 * mFT;
 		status.flashEffect = getClamped(status.flashEffect, 0.f, 255.f);
-		for(int i{0}; i < 4; ++i) flashPolygon[i].color.a = status.flashEffect;
+		for(auto i(0u); i < 4; ++i) flashPolygon[i].color.a = status.flashEffect;
 	}
 	void HexagonGame::update3D(FT mFT)
 	{

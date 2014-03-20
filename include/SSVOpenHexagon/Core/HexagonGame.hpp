@@ -77,7 +77,7 @@ namespace hg
 
 			// Gameplay methods
 			void incrementDifficulty();
-			void sideChange(int mSideNumber);
+			void sideChange(unsigned int mSideNumber);
 
 			// Draw methods
 			void drawText();
@@ -122,8 +122,8 @@ namespace hg
 			inline ssvs::GameState& getGame()					{ return game; }
 			inline float getRadius() const						{ return status.radius; }
 			inline const sf::Color& getColor(int mIdx) const	{ return styleData.getColor(mIdx); }
-			inline float getSpeedMultDM() const					{ return levelStatus.speedMult * (pow(difficultyMult, 0.65f)); }
-			inline float getDelayMultDM() const					{ return levelStatus.delayMult / (pow(difficultyMult, 0.10f)); }
+			inline float getSpeedMultDM() const					{ return levelStatus.speedMult * (std::pow(difficultyMult, 0.65f)); }
+			inline float getDelayMultDM() const					{ return levelStatus.delayMult / (std::pow(difficultyMult, 0.10f)); }
 			inline float getRotationSpeed() const				{ return levelStatus.rotationSpeed; }
 			inline unsigned int getSides() const				{ return levelStatus.sides; }
 			inline float getWallSkewLeft() const				{ return levelStatus.wallSkewLeft; }
@@ -135,7 +135,7 @@ namespace hg
 			inline LevelStatus& getLevelStatus()				{ return levelStatus; }
 			inline HGAssets& getAssets()						{ return assets; }
 			sf::Color getColorMain() const;
-			inline float getMusicDMSyncFactor()					{ return Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f; }
+			inline float getMusicDMSyncFactor()					{ return Config::getMusicSpeedDMSync() ? std::pow(difficultyMult, 0.12f) : 1.f; }
 
 			// Input
 			inline bool getInputFocused() const	{ return inputFocused; }

@@ -82,7 +82,7 @@ namespace hg
 
 			void update(FT mFT, float mMult = 1.f);
 			void computeColors();
-			void drawBackground(sf::RenderTarget& mRenderTarget, const Vec2f& mCenterPos, int mSides);
+			void drawBackground(sf::RenderTarget& mRenderTarget, const Vec2f& mCenterPos, unsigned int mSides);
 
 			void setRootPath(const Path& mPath) { rootPath = mPath; }
 

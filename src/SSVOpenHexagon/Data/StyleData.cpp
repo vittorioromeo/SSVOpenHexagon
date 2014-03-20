@@ -40,10 +40,10 @@ namespace hg
 		}
 
 		const auto& pulse(mColorData.pulse);
-		return Color(getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f),
-					 getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f),
-					 getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f),
-					 getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f));
+		return Color(static_cast<sf::Uint8>(getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f)),
+					 static_cast<sf::Uint8>(getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f)),
+					 static_cast<sf::Uint8>(getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f)),
+					 static_cast<sf::Uint8>(getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
 	}
 
 	void StyleData::update(FT mFT, float mMult)
@@ -80,14 +80,14 @@ namespace hg
 		if(currentColors.size() > 1) ssvu::rotate(currentColors, begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
 	}
 
-	void StyleData::drawBackground(RenderTarget& mRenderTarget, const Vec2f& mCenterPos, int mSides)
+	void StyleData::drawBackground(RenderTarget& mRenderTarget, const Vec2f& mCenterPos, unsigned int mSides)
 	{
 		float div{ssvu::tau / mSides * 1.0001f}, distance{4500};
 
 		ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
 		const auto& colors(getColors());
 
-		for(int i{0}; i < mSides; ++i)
+		for(auto i(0u); i < mSides; ++i)
 		{
 			float angle{div * i};
 			Color currentColor{ssvu::getByWrapIdx(colors, i)};

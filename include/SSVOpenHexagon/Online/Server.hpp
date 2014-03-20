@@ -55,7 +55,7 @@ namespace hg
 				Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler) { listener.setBlocking(false); }
 				~Server() { running = false; ssvu::lo() << "Server destroyed" << std::endl; }
 
-				inline void start(unsigned int mPort)
+				inline void start(unsigned short mPort)
 				{
 					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::lo("Server") << "Error initalizing listener" << std::endl; return; }
 					else ssvu::lo("Server") << "Listener initialized" << std::endl;

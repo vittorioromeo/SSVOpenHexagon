@@ -30,7 +30,7 @@ namespace hg
 
 			inline void addSegment(int mSeconds) { segments.emplace_back(mSeconds); }
 			inline void playRandomSegment(HGAssets& mAssets) { if(firstPlay) { firstPlay = false; playSegment(mAssets, 0); } else playSeconds(mAssets, getRandomSegment());}
-			inline void playSegment(HGAssets& mAssets, int mSegmentIndex) { playSeconds(mAssets, segments[mSegmentIndex]); }
+			inline void playSegment(HGAssets& mAssets, std::size_t mIdx) { playSeconds(mAssets, segments[mIdx]); }
 			inline void playSeconds(HGAssets& mAssets, int mSeconds) { if(Config::getNoMusic()) return; mAssets.playMusic(id, sf::seconds(mSeconds)); }
 	};
 }

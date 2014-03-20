@@ -108,7 +108,7 @@ namespace hg
 		Color offsetColor{getColor(1)};
 		if(Config::getBlackAndWhite()) offsetColor = Color::Black;
 		text.setString(s.str());
-		text.setCharacterSize(25 / Config::getZoomFactor());
+		text.setCharacterSize(static_cast<unsigned int>(25.f / Config::getZoomFactor()));
 		text.setOrigin(0, 0);
 
 		text.setColor(offsetColor);

@@ -66,9 +66,9 @@ namespace hg
 		lua.writeVariable("l_setDelayMult",			[=](float mValue)						{ levelStatus.delayMult = mValue; });
 		lua.writeVariable("l_setDelayInc",			[=](float mValue)						{ levelStatus.delayInc = mValue; });
 		lua.writeVariable("l_setFastSpin",			[=](float mValue)						{ levelStatus.fastSpin = mValue; });
-		lua.writeVariable("l_setSides",				[=](int mValue)							{ levelStatus.sides = mValue; });
-		lua.writeVariable("l_setSidesMin",			[=](int mValue)							{ levelStatus.sidesMin = mValue; });
-		lua.writeVariable("l_setSidesMax",			[=](int mValue)							{ levelStatus.sidesMax = mValue; });
+		lua.writeVariable("l_setSides",				[=](unsigned int mValue)				{ levelStatus.sides = mValue; });
+		lua.writeVariable("l_setSidesMin",			[=](unsigned int mValue)				{ levelStatus.sidesMin = mValue; });
+		lua.writeVariable("l_setSidesMax",			[=](unsigned int mValue)				{ levelStatus.sidesMax = mValue; });
 		lua.writeVariable("l_setIncTime",			[=](float mValue)						{ levelStatus.incTime = mValue; });
 		lua.writeVariable("l_setPulseMin",			[=](float mValue)						{ levelStatus.pulseMin = mValue; });
 		lua.writeVariable("l_setPulseMax",			[=](float mValue)						{ levelStatus.pulseMax = mValue; });

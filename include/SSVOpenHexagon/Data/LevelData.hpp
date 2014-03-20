@@ -47,7 +47,7 @@ namespace hg
 		float wallSkewLeft{0.f}, wallSkewRight{0.f};
 		float wallAngleLeft{0.f}, wallAngleRight{0.f};
 		float _3dEffectMultiplier{1.f};
-		int sides{6}, sidesMax{6}, sidesMin{6};
+		unsigned int sides{6}, sidesMax{6}, sidesMin{6};
 		bool swapEnabled{false}, tutorialMode{false}, incEnabled{true}, rndSideChangesEnabled{true};
 	};
 }
