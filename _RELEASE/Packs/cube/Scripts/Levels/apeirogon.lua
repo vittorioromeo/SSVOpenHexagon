@@ -26,12 +26,12 @@ index = 0
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-	l_setSpeedMult(2.9)
+	l_setSpeedMult(3.05)
 	l_setSpeedInc(0.7)
 	l_setRotationSpeed(0.3)
 	l_setRotationSpeedMax(0.4)
 	l_setRotationSpeedInc(0.04)
-	l_setDelayMult(1.1)
+	l_setDelayMult(1.07)
 	l_setDelayInc(0.0)
 	l_setFastSpin(71.0)
 	l_setSides(6)
