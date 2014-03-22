@@ -89,6 +89,10 @@ namespace hg
 		backgroundCamera.setView({ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}});
 		backgroundCamera.setRotation(0);
 
+		// Reset skew
+		overlayCamera.setSkew(ssvs::Vec2f{1.f, 1.f});
+		backgroundCamera.setSkew(ssvs::Vec2f{1.f, 1.f});
+
 		// 3D Cameras cleanup
 		depthCameras.clear();
 		auto depth(styleData._3dDepth);
