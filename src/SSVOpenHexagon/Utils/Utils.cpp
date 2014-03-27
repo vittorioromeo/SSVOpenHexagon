@@ -23,7 +23,7 @@ namespace hg
 		Color getColorFromHue(double mHue)
 		{
 			double s{1}, v{1}, r{0}, g{0}, b{0};
-			int i(floor(mHue * 6));
+			int i(std::floor(mHue * 6));
 			double f{mHue * 6 - i}, p{v * (1 - s)}, q{v * (1 - f * s)}, t{v * (1 - (1 - f) * s)};
 
 			switch(i % 6)
