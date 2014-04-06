@@ -51,11 +51,23 @@ namespace hg
 			string packId{pd->id}, packPath{"Packs/" + packId + "/"};
 			packIds.emplace_back(packId);
 			packPaths.emplace_back(packPath);
-			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music\n";			loadMusic(packPath); }
-			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music data\n";		loadMusicData(packPath); }
-								lo("::loadAssets") << "loading " << packId << " style data\n";		loadStyleData(packPath);
-								lo("::loadAssets") << "loading " << packId << " level data\n";		loadLevelData(packPath);
-			if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " custom sounds\n";	loadCustomSounds(packId, packPath); }
+
+			try
+			{
+				if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music\n";			loadMusic(packPath); }
+				if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music data\n";		loadMusicData(packPath); }
+									lo("::loadAssets") << "loading " << packId << " style data\n";		loadStyleData(packPath);
+									lo("::loadAssets") << "loading " << packId << " level data\n";		loadLevelData(packPath);
+				if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " custom sounds\n";	loadCustomSounds(packId, packPath); }
+			}
+			catch(const std::runtime_error& mEx)
+			{
+				ssvu::lo("FATAL ERROR") << "Exception during asset loading: " << mEx.what() << std::endl;
+			}
+			catch(...)
+			{
+				ssvu::lo("FATAL ERROR") << "Exception during asset loading: unknown." << std::endl;
+			}
 
 			lo().flush();
 		}
