@@ -13,6 +13,8 @@ endif()
 set(FIND_SFML_PATHS
     ${SFML_ROOT}
     $ENV{SFML_ROOT}
+    "${PROJECT_SOURCE_DIR}/extlibs/sfml/"
+    "${PROJECT_SOURCE_DIR}/extlibs/SFML/"
     ~/Library/Frameworks
     /Library/Frameworks
     /usr/local

@@ -1,6 +1,6 @@
 FIND_PATH(ZLIB_INCLUDE_DIR ./zlib.h
-  PATHS "${PROJECT_SOURCE_DIR}/../zlib/"
   PATH_SUFFIXES include/ zlib/ zlib/include/ ./
+  PATHS "${PROJECT_SOURCE_DIR}/../zlib/"
   "${PROJECT_SOURCE_DIR}/extlibs/zlib/"
   ${ZLIB_ROOT}
   $ENV{ZLIB_ROOT}
@@ -15,9 +15,9 @@ FIND_PATH(ZLIB_INCLUDE_DIR ./zlib.h
 message("\nFound Lua include at: ${ZLIB_INCLUDE_DIR}.\n")
 
 FIND_LIBRARY(ZLIB_LIBRARY
-  NAMES zlib.lib zlib libzlib
-  PATHS "${PROJECT_SOURCE_DIR}/../zlib/"
+  NAMES zlib.lib zlib libzlib zdll zlib1
   PATH_SUFFIXES lib/ lib/x86_64-linux-gnu/ lib64/ lua/ lua/lib/ lua/lib64/ ./
+  PATHS "${PROJECT_SOURCE_DIR}/../zlib/"
   "${PROJECT_SOURCE_DIR}/extlibs/zlib/"
   ${ZLIB_ROOT}
   $ENV{ZLIB_ROOT}

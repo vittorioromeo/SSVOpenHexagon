@@ -15,7 +15,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/extlibs/SSVEntit
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/extlibs/SSVStart/cmake/modules/")
 
 set(SFML_STATIC_LIBRARIES FALSE CACHE BOOL "Look for static SFML libraries.")
-find_package(SFML 2.1 COMPONENTS audio graphics window system network)
+find_package(SFML COMPONENTS audio graphics window system network)
 if(NOT SFML_FOUND)
 	set(SFML_INCLUDE_DIR "" CACHE STRING "SFML2 include directory")
 	set(SFML_SYSTEM_LIBRARY "" CACHE STRING "SFML2 System library file")
