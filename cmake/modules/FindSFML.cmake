@@ -78,14 +78,14 @@ foreach(FIND_SFML_COMPONENT ${SFML_FIND_COMPONENTS})
 
     # debug library
     find_library(SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_DEBUG
-                 NAMES ${FIND_SFML_COMPONENT_NAME}-d
-                 PATH_SUFFIXES lib64 lib
+                 NAMES ${FIND_SFML_COMPONENT_NAME}-d ${FIND_SFML_COMPONENT_NAME}-d-2 ${FIND_SFML_COMPONENT_NAME}-2-d
+                 PATH_SUFFIXES lib64 lib bin
                  PATHS ${FIND_SFML_PATHS})
 
     # release library
     find_library(SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_RELEASE
-                 NAMES ${FIND_SFML_COMPONENT_NAME}
-                 PATH_SUFFIXES lib64 lib
+                 NAMES ${FIND_SFML_COMPONENT_NAME} ${FIND_SFML_COMPONENT_NAME}-2
+                 PATH_SUFFIXES lib64 lib bin
                  PATHS ${FIND_SFML_PATHS})
 
     if (SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_DEBUG OR SFML_${FIND_SFML_COMPONENT_UPPER}_LIBRARY_RELEASE)
