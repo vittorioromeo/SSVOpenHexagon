@@ -272,11 +272,22 @@ namespace hg
 					ssvuj::arch(response, "id", levelId);
 
 					float playerScore{l.getPlayerScore(username, diffMult)};
-					playerScore == -1 ? ssvuj::arch(response, "ps", "NULL") : ssvuj::arch(response, "ps", playerScore);
-					int playerPosition(l.getPlayerPosition(username, diffMult));
-					playerPosition == -1 ? ssvuj::arch(response, "pp", "NULL") : ssvuj::arch(response, "pp", playerPosition);
 
-					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteToString(response)));
+					if(playerScore == -1.f) ssvuj::arch(response, "ps", "NULL");
+					else ssvuj::arch(response, "ps", playerScore);
+
+					int playerPosition(l.getPlayerPosition(username, diffMult));
+
+					if(playerPosition == -1) ssvuj::arch(response, "pp", "NULL");
+					else ssvuj::arch(response, "pp", playerPosition);
+
+					// TODO
+					ssvu::lo("ps") << ssvuj::getExtr<std::string>(response, "ps") << std::endl;
+					ssvu::lo("pp") << ssvuj::getExtr<std::string>(response, "pp") << std::endl;
+					auto responseStr(ssvuj::getWriteToString(response));
+					ssvu::lo("rstr") << responseStr << std::endl;
+
+					mMS.send(buildCPacket<FromServer::SendLeaderboard>(responseStr));
 				};
 				pHandler[FromClient::NUR_Email] = [this](ClientHandler& mMS, sf::Packet& mP)
 				{

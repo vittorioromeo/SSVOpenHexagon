@@ -58,7 +58,12 @@ namespace hg
 				if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " music data\n";		loadMusicData(packPath); }
 									lo("::loadAssets") << "loading " << packId << " style data\n";		loadStyleData(packPath);
 									lo("::loadAssets") << "loading " << packId << " level data\n";		loadLevelData(packPath);
-				if(!levelsOnly) {	lo("::loadAssets") << "loading " << packId << " custom sounds\n";	loadCustomSounds(packId, packPath); }
+
+				if(!levelsOnly && Path(packPath + "Sounds/").existsAsFolder())
+				{
+					lo("::loadAssets") << "loading " << packId << " custom sounds\n";
+					loadCustomSounds(packId, packPath);
+				}
 			}
 			catch(const std::runtime_error& mEx)
 			{
