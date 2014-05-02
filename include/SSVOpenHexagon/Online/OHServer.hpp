@@ -271,8 +271,10 @@ namespace hg
 					}
 					ssvuj::arch(response, "id", levelId);
 
-					float playerScore{l.getPlayerScore(username, diffMult)}; playerScore == -1 ? ssvuj::arch(response, "ps", "NULL") : ssvuj::arch(response, "ps", playerScore);
-					auto playerPosition(l.getPlayerPosition(username, diffMult)); playerPosition == -1 ? ssvuj::arch(response, "pp", "NULL") : ssvuj::arch(response, "pp", playerPosition);
+					float playerScore{l.getPlayerScore(username, diffMult)};
+					playerScore == -1 ? ssvuj::arch(response, "ps", "NULL") : ssvuj::arch(response, "ps", playerScore);
+					int playerPosition(l.getPlayerPosition(username, diffMult));
+					playerPosition == -1 ? ssvuj::arch(response, "pp", "NULL") : ssvuj::arch(response, "pp", playerPosition);
 
 					mMS.send(buildCPacket<FromServer::SendLeaderboard>(ssvuj::getWriteToString(response)));
 				};

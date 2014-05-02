@@ -43,7 +43,7 @@ namespace hg
 						}
 					});
 				}
-				~ClientHandler() { running = false; ssvu::lo() << "ClientHandler destroyed" << std::endl; }
+				~ClientHandler() { running = false; /*ssvu::lo() << "ClientHandler destroyed" << std::endl;*/ }
 
 				inline void stop()					{ running = false; }
 				inline unsigned int getUid() const	{ return uid; }

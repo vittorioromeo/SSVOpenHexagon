@@ -22,7 +22,7 @@ namespace hg
 				{
 					onPacketReceived += [this](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); };
 				}
-				~Client() { disconnect(); ssvu::lo() << "Client destroyed" << std::endl; }
+				~Client() { disconnect(); /*ssvu::lo() << "Client destroyed" << std::endl;*/ }
 		};
 	}
 }
