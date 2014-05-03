@@ -395,7 +395,7 @@ namespace hg
 				initCommands();
 
 				// This loop keeps the server alive
-				while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }
+				while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::seconds(2)); }
 			}
 
 			void initCommands()
