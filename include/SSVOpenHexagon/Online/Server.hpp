@@ -30,13 +30,20 @@ namespace hg
 					if(ssvu::containsAnyIf(clientHandlers, [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); })) return;
 
 					ssvu::lo("Server") << "Creating new client handlers" << std::endl;
-					for(int i{0}; i < 10; ++i) clientHandlers.emplace_back(std::make_unique<ClientHandler>(packetHandler));
+					for(int i{0}; i < 10; ++i) ssvu::getEmplaceUptr<ClientHandler>(clientHandlers, packetHandler);
+				}
+
+				inline void updateImpl()
+				{
+					while(running)
+					{
+						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+						update();
+					}
 				}
 
 				inline void update()
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
 					growIfNeeded();
 
 					for(auto& c : clientHandlers)
@@ -61,7 +68,7 @@ namespace hg
 					else ssvu::lo("Server") << "Listener initialized" << std::endl;
 
 					running = true;
-					updateFuture = std::async(std::launch::async, [this]{ while(running) update(); });
+					updateFuture = std::async(std::launch::async, [this]{ updateImpl(); });
 				}
 				inline void stop()
 				{

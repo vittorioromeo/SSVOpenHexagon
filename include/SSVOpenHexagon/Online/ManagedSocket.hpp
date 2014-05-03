@@ -21,11 +21,19 @@ namespace hg
 
 				std::future<void> handlerFuture;
 
+				inline void updateImpl()
+				{
+					while(busy)
+					{
+						update();
+						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+					}
+				}
+
 				void update()
 				{
 					if(!busy) { ssvu::lo("ManagedSocket") << "Update failed - not busy" << std::endl; return; }
 
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 					sf::Packet packet;
 
 					for(int i{0}; i < 5; ++i)
@@ -64,7 +72,7 @@ namespace hg
 					for(int i{0}; i < 5; ++i)
 					{
 						if(!busy && socket.connect(mIp, mPort) == sf::Socket::Done) goto succeed;
-						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+						std::this_thread::sleep_for(std::chrono::milliseconds(60));
 					}
 
 					return false;
@@ -74,7 +82,7 @@ namespace hg
 					{
 						ssvu::lo("ManagedSocket") << "Connecting..." << std::endl;
 						busy = true;
-						handlerFuture = std::async(std::launch::async, [this]{ while(busy) update(); });
+						handlerFuture = std::async(std::launch::async, [this]{ updateImpl(); });
 					}
 					ssvu::lo("ManagedSocket") << "Connected to " << mIp.toString() << ":" << mPort << std::endl;
 					return true;
@@ -86,7 +94,7 @@ namespace hg
 					for(int i{0}; i < 5; ++i)
 					{
 						if(!busy && mListener.accept(socket) == sf::Socket::Done) goto succeed;
-						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+						std::this_thread::sleep_for(std::chrono::milliseconds(60));
 					}
 
 					return false;
@@ -96,7 +104,7 @@ namespace hg
 					{
 						ssvu::lo("ManagedSocket") << "Accepting..." << std::endl;
 						busy = true;
-						handlerFuture = std::async(std::launch::async, [this]{ while(busy) update(); });
+						handlerFuture = std::async(std::launch::async, [this]{ updateImpl(); });
 					}
 					ssvu::lo("ManagedSocket") << "Accepted" << std::endl;
 					return true;
