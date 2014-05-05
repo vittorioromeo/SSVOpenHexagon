@@ -11,8 +11,8 @@ namespace hg
 {
 	struct HexagonGameStatus
 	{
-		ssvu::ObfuscatedValue<float> currentTime{0};
-		float incrementTime{0}, timeStop{50};
+		ssvu::ObfuscatedValue<float> currentTime{0.f};
+		float incrementTime{0}, timeStop{100};
 		float pulse{75}, pulseDirection{1}, pulseDelay{0}, pulseDelayHalf{0};
 		float beatPulse{0}, beatPulseDelay{0};
 		float pulse3D{1.f}, pulse3DDirection{1};
