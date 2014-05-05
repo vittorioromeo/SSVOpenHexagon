@@ -75,6 +75,8 @@ namespace hg
 		auto& triggerRestart			(lvm.create<Trigger>("t_restart"));
 		auto& triggerScreenshot			(lvm.create<Trigger>("t_screenshot"));
 		auto& triggerSwap				(lvm.create<Trigger>("t_swap"));
+		auto& triggerUp					(lvm.create<Trigger>("t_up"));
+		auto& triggerDown				(lvm.create<Trigger>("t_down"));
 
 		float sizeX{1500}, sizeY{1500};
 		constexpr float spawnDistance{1600};
@@ -276,5 +278,7 @@ namespace hg
 		Trigger getTriggerRestart()			{ return triggerRestart; }
 		Trigger getTriggerScreenshot()		{ return triggerScreenshot; }
 		Trigger getTriggerSwap()			{ return triggerSwap; }
+		Trigger getTriggerUp()				{ return triggerUp; }
+		Trigger getTriggerDown()			{ return triggerDown; }
 	}
 }

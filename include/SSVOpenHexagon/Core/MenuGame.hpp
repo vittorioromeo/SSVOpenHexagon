@@ -23,6 +23,8 @@ namespace hg
 			HGAssets& assets;
 			sf::Font& imagine = assets.get<sf::Font>("imagine.ttf"); // G++ bug (cannot initialize with curly braces)
 
+			float wheelProgress{0.f};
+
 			float w, h;
 			std::string lrUser, lrPass, lrEmail;
 
@@ -52,6 +54,9 @@ namespace hg
 			LevelStatus levelStatus;
 			StyleData styleData;
 			sf::Text txtVersion{"", imagine, 40}, txtProf{"", imagine, 21}, txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32}, txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20}, txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
+
+			void upAction();
+			void downAction();
 
 			void refreshCamera();
 			void initAssets();

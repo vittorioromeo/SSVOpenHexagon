@@ -30,12 +30,17 @@
 	"player_size" : 7.300000190734863,
 	"player_speed" : 9.449999809265137,
 	"pulse_enabled" : true,
-	"server_local" : false,
-	"server_verbose" : false,
+	"server_local" : true,
+	"server_verbose" : true,
 	"show_fps" : true,
 	"show_messages" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 75.0,
+	"t_down" : 
+	[
+		[ "kDown" ],
+		[ "kS" ]
+	],
 	"t_exit" : 
 	[
 		[ "kEscape" ]
@@ -77,6 +82,11 @@
 	[
 		[ "kSpace" ],
 		[ "bMiddle" ]
+	],
+	"t_up" : 
+	[
+		[ "kUp" ],
+		[ "kW" ]
 	],
 	"timer_static" : true,
 	"vsync" : false,

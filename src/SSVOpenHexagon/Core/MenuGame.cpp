@@ -30,6 +30,20 @@ namespace hg
 		game.onUpdate += [this](FT mFT) { update(mFT); };
 		game.onDraw += [this]{ draw(); };
 		game.onEvent(Event::EventType::TextEntered) += [this](const Event& mEvent){ if(mEvent.text.unicode < 128) enteredChars.emplace_back(static_cast<char>(mEvent.text.unicode)); };
+		game.onEvent(Event::EventType::MouseWheelMoved) += [this](const Event& mEvent)
+		{
+			wheelProgress += mEvent.mouseWheel.delta;
+			if(wheelProgress > 2.0f)
+			{
+				wheelProgress = 0.f;
+				upAction();
+			}
+			else if(wheelProgress < -2.0f)
+			{
+				wheelProgress = 0.f;
+				downAction();
+			}
+		};
 		window.onRecreation += [this]{ refreshCamera(); };
 
 		levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIdx]);
@@ -141,6 +155,20 @@ namespace hg
 		friends.create<i::Single>("clear friends", [this]{ assets.pClearTrackedNames(); });
 		friends.create<i::GoBack>("back");
 	}
+
+	void MenuGame::upAction()
+	{
+		assets.playSound("beep.ogg");
+		if(state == s::SMain)		{ ++diffMultIdx; }
+		else if(isInMenu())			{ getCurrentMenu()->previous(); }
+	}
+	void MenuGame::downAction()
+	{
+		assets.playSound("beep.ogg");
+		if(state == s::SMain)		{ --diffMultIdx; }
+		else if(isInMenu())			{ getCurrentMenu()->next(); }
+	}
+
 	void MenuGame::initInput()
 	{
 		using k = KKey;
@@ -160,18 +188,8 @@ namespace hg
 			else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
 			else if(isInMenu())			{ getCurrentMenu()->increase(); }
 		}, t::Once);
-		game.addInput({{k::Up}, {k::W}}, [this](FT)
-		{
-			assets.playSound("beep.ogg");
-			if(state == s::SMain)		{ ++diffMultIdx; }
-			else if(isInMenu())			{ getCurrentMenu()->previous(); }
-		}, t::Once);
-		game.addInput({{k::Down}, {k::S}}, [this](FT)
-		{
-			assets.playSound("beep.ogg");
-			if(state == s::SMain)		{ --diffMultIdx; }
-			else if(isInMenu())			{ getCurrentMenu()->next(); }
-		}, t::Once);
+		game.addInput(Config::getTriggerUp(), [this](FT){ upAction(); }, t::Once);
+		game.addInput(Config::getTriggerDown(), [this](FT){ downAction(); }, t::Once);
 		game.addInput(Config::getTriggerRestart(), [this](FT)
 		{
 			assets.playSound("beep.ogg");
