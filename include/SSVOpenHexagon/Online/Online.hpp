@@ -17,7 +17,7 @@ namespace hg
 		struct GlobalThreadManager
 		{
 			std::vector<std::future<void>> runningThreads;
-			template<typename TFunc> inline void start(const TFunc& mFunc) { runningThreads.emplace_back(std::async(std::launch::async, mFunc)); }
+			template<typename TFunc> inline void start(TFunc mFunc) { runningThreads.emplace_back(std::async(std::launch::async, mFunc)); }
 		};
 
 		struct UserStats;
