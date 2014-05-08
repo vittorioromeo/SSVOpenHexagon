@@ -46,7 +46,7 @@ namespace hg
 			else
 			{
 				moveTowards(vp, centerPos, speed.speed * 5.f * mFT);
-				rotateRadAroundCenter(vp, centerPos, curve.speed / 60.f * mFT);
+				rotateRadAround(vp, centerPos, curve.speed / 60.f * mFT);
 			}
 		}
 
