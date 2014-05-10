@@ -19,7 +19,7 @@ namespace hg
 			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs)
 			{
 				const auto& packetStr(ssvuj::getWriteToString(ssvuj::getArchArray(std::forward<TArgs>(mArgs)...)));
-				ssvu::lo() << packetStr << std::endl;
+				// ssvu::lo() << packetStr << std::endl; // TODO:
 				return getZLibCompress(packetStr);
 			}
 		}
