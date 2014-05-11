@@ -82,3 +82,8 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
+
+// TODO: feedback:
+// * experiment with "pushing" rotating walls
+// * add a parameter to disable mouse pointer
+// * add a way to disable voice sound files (or allow their removal)
