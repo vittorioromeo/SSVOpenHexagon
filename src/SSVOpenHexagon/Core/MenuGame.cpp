@@ -197,7 +197,7 @@ namespace hg
 			else if(state == s::SMain)
 			{
 				window.setGameState(hexagonGame.getGame());
-				hexagonGame.newGame(levelDataIds[currentIndex], true, ssvu::getByWrapIdx(diffMults, diffMultIdx));
+				hexagonGame.newGame(levelDataIds[currentIndex], true, ssvu::getByModIdx(diffMults, diffMultIdx));
 			}
 			else if(isInMenu())				{ getCurrentMenu()->exec(); }
 			else if(state == s::ETLPNew)	{ if(!enteredStr.empty()) { assets.pCreate(enteredStr); assets.pSetCurrent(enteredStr); state = s::SMain; enteredStr = ""; } }
@@ -211,7 +211,7 @@ namespace hg
 		game.addInput({{k::F3}, {k::K}}, [this](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
 		game.addInput({{k::F4}, {k::L}}, [this](FT)
 		{
-			assets.playSound("beep.ogg"); if(state == s::SMain) { auto p(assets.getPackPaths()); packIdx = ssvu::getWrapIdx(packIdx + 1, p.size()); levelDataIds = assets.getLevelIdsByPack(p[packIdx]); setIndex(0); }
+			assets.playSound("beep.ogg"); if(state == s::SMain) { auto p(assets.getPackPaths()); packIdx = ssvu::getMod(packIdx + 1, p.size()); levelDataIds = assets.getLevelIdsByPack(p[packIdx]); setIndex(0); }
 		}, t::Once);
 		game.addInput(Config::getTriggerExit(), [this](FT)
 		{
@@ -411,7 +411,7 @@ namespace hg
 		if(getCurrentMenu() != nullptr) getCurrentMenu()->update();
 
 		currentCreditsId += mFT;
-		creditsBar2.setTexture(assets.get<Texture>(ssvu::getByWrapIdx(creditsIds, static_cast<int>(currentCreditsId / 100))));
+		creditsBar2.setTexture(assets.get<Texture>(ssvu::getByModIdx(creditsIds, static_cast<int>(currentCreditsId / 100))));
 
 		// If connection is lost, kick the player back into welcome screen
 		if(!assets.pIsLocal() && Online::getConnectionStatus() != ocs::Connected) state = s::MWlcm;
@@ -425,7 +425,7 @@ namespace hg
 			unsigned int limit{state == s::ETEmail ? 40u : 18u};
 			for(const auto& c : enteredChars) if(enteredStr.size() < limit && (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c))) { assets.playSound("beep.ogg"); enteredStr.append(toStr(c)); }
 		}
-		else if(state == s::SLPSelect) { enteredStr = ssvu::getByWrapIdx(assets.getLocalProfileNames(), profileIdx); }
+		else if(state == s::SLPSelect) { enteredStr = ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx); }
 		else if(state == s::SMain)
 		{
 			styleData.update(mFT);
@@ -433,7 +433,7 @@ namespace hg
 
 			if(!assets.pIsLocal())
 			{
-				float diffMult{ssvu::getByWrapIdx(diffMults, diffMultIdx)};
+				float diffMult{ssvu::getByModIdx(diffMults, diffMultIdx)};
 				Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
 			}
 		}
@@ -491,12 +491,12 @@ namespace hg
 			if(assets.pIsLocal())
 			{
 				SSVU_ASSERT(diffMults.size() != 0);
-				lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, ssvu::getByWrapIdx(diffMults, diffMultIdx))));
+				lbestStr = "local best: " + toStr(assets.getLocalScore(getLocalValidator(levelData->id, ssvu::getByModIdx(diffMults, diffMultIdx))));
 			}
 			else { lbestStr = Online::getLoginStatus() == ols::Logged ? "logged in as: " + Online::getCurrentUsername() : "logging in..."; }
 
 			Text& lbest = renderText(lbestStr, txtProf, {20.f, getGlobalBottom(pack) - 7.f}, 18);
-			if(diffMults.size() > 1) renderText("difficulty: " + toStr(ssvu::getByWrapIdx(diffMults, diffMultIdx)), txtProf, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
+			if(diffMults.size() > 1) renderText("difficulty: " + toStr(ssvu::getByModIdx(diffMults, diffMultIdx)), txtProf, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
 
 			renderText(leaderboardString, txtProf, {20.f, getGlobalBottom(lbest)}, 15);
 			Text& smsg = renderText("server message: " + Online::getServerMessage(), txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);

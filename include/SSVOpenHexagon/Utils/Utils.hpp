@@ -25,7 +25,6 @@ namespace hg
 			return x * x * x * (x * (x * 6 - 15) + 10);
 		}
 
-		sf::Color getColorFromHue(double mHue);
 		sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 
 		MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);

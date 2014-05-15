@@ -20,24 +20,6 @@ namespace hg
 {
 	namespace Utils
 	{
-		Color getColorFromHue(double mHue)
-		{
-			double s{1}, v{1}, r{0}, g{0}, b{0};
-			int i(std::floor(mHue * 6));
-			double f{mHue * 6 - i}, p{v * (1 - s)}, q{v * (1 - f * s)}, t{v * (1 - (1 - f) * s)};
-
-			switch(i % 6)
-			{
-				case 0: r = v, g = t, b = p; break;
-				case 1: r = q, g = v, b = p; break;
-				case 2: r = p, g = v, b = t; break;
-				case 3: r = p, g = q, b = v; break;
-				case 4: r = t, g = p, b = v; break;
-				case 5: r = v, g = p, b = q; break;
-			}
-
-			return Color(r * 255, g * 255, b * 255, 255);
-		}
 		Color getColorDarkened(Color mColor, float mMultiplier) { mColor.r /= mMultiplier; mColor.b /= mMultiplier; mColor.g /= mMultiplier; return mColor; }
 
 		MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)

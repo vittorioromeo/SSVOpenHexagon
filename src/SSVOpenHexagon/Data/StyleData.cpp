@@ -21,7 +21,7 @@ namespace hg
 
 		if(mColorData.dynamic)
 		{
-			const auto& dynamicColor(getColorFromHue((currentHue + mColorData.hueShift) / 360.f));
+			const auto& dynamicColor(ssvs::getColorFromHSV((currentHue + mColorData.hueShift) / 360.f, 1, 1));
 
 			if(!mColorData.main)
 			{
@@ -90,7 +90,7 @@ namespace hg
 		for(auto i(0u); i < mSides; ++i)
 		{
 			float angle{div * i};
-			Color currentColor{ssvu::getByWrapIdx(colors, i)};
+			Color currentColor{ssvu::getByModIdx(colors, i)};
 
 			if(Config::getBlackAndWhite()) currentColor = Color::Black;
 			else if(i % 2 == 0 && i == mSides - 1) currentColor = getColorDarkened(currentColor, 1.4f);
