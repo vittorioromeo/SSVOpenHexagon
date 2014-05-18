@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 	window.setVsync(Config::getVsync());
 	window.setFPSLimited(Config::getLimitFPS());
 	window.setMaxFPS(Config::getMaxFPS());
-	window.setMouseCursorVisible(false);
+	window.setMouseCursorVisible(Config::getMouseVisible());
 
 	HGAssets assets;
 	Online::initializeValidators(assets);
@@ -85,5 +85,4 @@ int main(int argc, char* argv[])
 
 // TODO: feedback:
 // * experiment with "pushing" rotating walls
-// * add a parameter to disable mouse pointer
 // * add a way to disable voice sound files (or allow their removal)

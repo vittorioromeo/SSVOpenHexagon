@@ -22,7 +22,7 @@ namespace hg
 
 	class HexagonGame
 	{
-		friend class MenuGame;
+		friend MenuGame;
 
 		private:
 			HGAssets& assets;

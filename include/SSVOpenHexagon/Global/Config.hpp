@@ -47,6 +47,7 @@ namespace hg
 		void setShowFPS(bool mValue);
 		void setServerLocal(bool mValue);
 		void setServerVerbose(bool mValue);
+		void setMouseVisible(bool mValue);
 
 		bool getOnline();
 		bool getOfficial();
@@ -98,6 +99,7 @@ namespace hg
 		unsigned int getAntialiasingLevel();
 		bool getServerLocal();
 		bool getServerVerbose();
+		bool getMouseVisible();
 
 		ssvs::Input::Trigger getTriggerRotateCCW();
 		ssvs::Input::Trigger getTriggerRotateCW();

@@ -67,6 +67,7 @@ namespace hg
 		auto& timerStatic				(lvm.create<bool>("timer_static"));
 		auto& serverLocal				(lvm.create<bool>("server_local"));
 		auto& serverVerbose				(lvm.create<bool>("server_verbose"));
+		auto& mouseVisible				(lvm.create<bool>("mouse_visible"));
 		auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
 		auto& triggerRotateCW			(lvm.create<Trigger>("t_rotate_cw"));
 		auto& triggerFocus				(lvm.create<Trigger>("t_focus"));
@@ -137,7 +138,7 @@ namespace hg
 
 			mWindow.setSize(getWidth(), getHeight());
 			mWindow.setFullscreen(getFullscreen());
-			mWindow.setMouseCursorVisible(false);
+			mWindow.setMouseCursorVisible(Config::getMouseVisible());
 
 			recalculateSizes();
 		}
@@ -161,7 +162,7 @@ namespace hg
 
 			mWindow.setSize(getWidth(), getHeight());
 			mWindow.setFullscreen(getFullscreen());
-			mWindow.setMouseCursorVisible(false);
+			mWindow.setMouseCursorVisible(Config::getMouseVisible());
 			recalculateSizes();
 		}
 		void setCurrentResolutionAuto(GameWindow& mWindow)
@@ -179,7 +180,7 @@ namespace hg
 
 			mWindow.setSize(getWidth(), getHeight());
 			mWindow.setFullscreen(getFullscreen());
-			mWindow.setMouseCursorVisible(false);
+			mWindow.setMouseCursorVisible(Config::getMouseVisible());
 			recalculateSizes();
 		}
 		void setVsync(GameWindow& mWindow, bool mValue)				{ vsync = mValue; mWindow.setVsync(vsync); }
@@ -219,6 +220,7 @@ namespace hg
 		void setShowFPS(bool mValue)				{ showFps = mValue; }
 		void setServerLocal(bool mValue)			{ serverLocal = mValue; }
 		void setServerVerbose(bool mValue)			{ serverVerbose = mValue; }
+		void setMouseVisible(bool mValue)			{ mouseVisible = mValue; }
 
 		bool getOnline()					{ return online; }
 		bool getOfficial()					{ return official; }
@@ -269,6 +271,7 @@ namespace hg
 		bool getTimerStatic()				{ return timerStatic; }
 		bool getServerLocal()				{ return serverLocal; }
 		bool getServerVerbose()				{ return serverVerbose; }
+		bool getMouseVisible()				{ return mouseVisible; }
 
 		Trigger getTriggerRotateCCW()		{ return triggerRotateCCW; }
 		Trigger getTriggerRotateCW()		{ return triggerRotateCW; }
