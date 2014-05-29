@@ -22,7 +22,7 @@ namespace hg
 				bool running{false};
 				PacketHandler<ClientHandler>& packetHandler;
 				sf::TcpListener listener;
-				std::vector<Uptr<ClientHandler>> clientHandlers;
+				ssvu::VecUptr<ClientHandler> clientHandlers;
 				std::future<void> updateFuture;
 
 				inline void growIfNeeded()
