@@ -50,15 +50,15 @@ namespace hg
 				ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << "\n" << std::endl;
 			}
 		}
-		template<typename R, typename... Args> inline R runLuaFunction(Lua::LuaContext& mLua, const std::string& mName, const Args&... mArgs)
+		template<typename T, typename... TArgs> inline T runLuaFunction(Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
 		{
-			try { return mLua.callLuaFunction<R>(mName, std::make_tuple(mArgs...)); }
+			try { return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...)); }
 			catch(std::runtime_error& mError)
 			{
 				std::cout << mName << "\n" << "LUA runtime error: " << "\n" << ssvu::toStr(mError.what()) << "\n" << std::endl;
 			}
 
-			return R();
+			return T();
 		}
 	}
 }
