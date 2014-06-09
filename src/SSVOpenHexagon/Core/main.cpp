@@ -86,3 +86,5 @@ int main(int argc, char* argv[])
 // TODO: feedback:
 // * experiment with "pushing" rotating walls
 // * add a way to disable voice sound files (or allow their removal)
+
+// TODO: investigate crash upon close
