@@ -24,9 +24,9 @@ namespace hg
 		lua.writeVariable("u_log", 					[=](string mLog) 						{ lo("lua") << mLog << endl; });
 		lua.writeVariable("u_execScript", 			[=](string mName) 						{ runLuaFile(levelData->packPath + "Scripts/" + mName); });
 		lua.writeVariable("u_playSound", 			[=](string mId) 						{ assets.playSound(mId); });
-		lua.writeVariable("u_isKeyPressed",			[=](int mKey) 							{ return window.getInputState().isKeyPressed(KKey(mKey)); });
+		lua.writeVariable("u_isKeyPressed",			[=](int mKey)							{ return window.getInputState().isKeyPressed(KKey(mKey)); });
 		lua.writeVariable("u_isFastSpinning",		[=] 									{ return status.fastSpin > 0; });
-		lua.writeVariable("u_forceIncrement", 		[=]				 						{ incrementDifficulty(); });
+		lua.writeVariable("u_forceIncrement", 		[=]										{ incrementDifficulty(); });
 		lua.writeVariable("u_kill",					[=]										{ timeline.append<Do>([=]{ death(true); }); });
 		lua.writeVariable("u_eventKill",			[=]										{ eventTimeline.append<Do>([=]{ death(true); }); });
 		lua.writeVariable("u_getDifficultyMult",	[=] 									{ return difficultyMult; });
