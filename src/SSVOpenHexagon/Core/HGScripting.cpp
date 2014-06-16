@@ -21,37 +21,37 @@ namespace hg
 	void HexagonGame::initLua()
 	{
 		// Utils
-		lua.writeVariable("u_log", 					[=](string mLog) 						{ lo("lua") << mLog << endl; });
-		lua.writeVariable("u_execScript", 			[=](string mName) 						{ runLuaFile(levelData->packPath + "Scripts/" + mName); });
-		lua.writeVariable("u_playSound", 			[=](string mId) 						{ assets.playSound(mId); });
+		lua.writeVariable("u_log",					[=](string mLog)						{ lo("lua") << mLog << endl; });
+		lua.writeVariable("u_execScript",			[=](string mName)						{ runLuaFile(levelData->packPath + "Scripts/" + mName); });
+		lua.writeVariable("u_playSound",			[=](string mId)							{ assets.playSound(mId); });
 		lua.writeVariable("u_isKeyPressed",			[=](int mKey)							{ return window.getInputState().isKeyPressed(KKey(mKey)); });
-		lua.writeVariable("u_isFastSpinning",		[=] 									{ return status.fastSpin > 0; });
-		lua.writeVariable("u_forceIncrement", 		[=]										{ incrementDifficulty(); });
+		lua.writeVariable("u_isFastSpinning",		[=]										{ return status.fastSpin > 0; });
+		lua.writeVariable("u_forceIncrement",		[=]										{ incrementDifficulty(); });
 		lua.writeVariable("u_kill",					[=]										{ timeline.append<Do>([=]{ death(true); }); });
 		lua.writeVariable("u_eventKill",			[=]										{ eventTimeline.append<Do>([=]{ death(true); }); });
-		lua.writeVariable("u_getDifficultyMult",	[=] 									{ return difficultyMult; });
+		lua.writeVariable("u_getDifficultyMult",	[=]										{ return difficultyMult; });
 		lua.writeVariable("u_getSpeedMultDM",		[=]										{ return getSpeedMultDM(); });
 		lua.writeVariable("u_getDelayMultDM",		[=]										{ return getDelayMultDM(); });
 
 		// Messages
-		lua.writeVariable("m_messageAdd", 			[=](string mMsg, float mDuration)		{ eventTimeline.append<Do>([=]{ if(firstPlay && Config::getShowMessages()) addMessage(mMsg, mDuration); }); });
+		lua.writeVariable("m_messageAdd",			[=](string mMsg, float mDuration)		{ eventTimeline.append<Do>([=]{ if(firstPlay && Config::getShowMessages()) addMessage(mMsg, mDuration); }); });
 		lua.writeVariable("m_messageAddImportant",	[=](string mMsg, float mDuration)		{ eventTimeline.append<Do>([=]{ if(Config::getShowMessages()) addMessage(mMsg, mDuration); }); });
 
 		// Main timeline control
-		lua.writeVariable("t_wait", 				[=](float mDuration) 					{ timeline.append<Wait>(mDuration); });
-		lua.writeVariable("t_waitS", 				[=](float mDuration) 					{ timeline.append<Wait>(mDuration * 60.f); });
-		lua.writeVariable("t_waitUntilS", 			[=](float mDuration)
+		lua.writeVariable("t_wait",					[=](float mDuration)					{ timeline.append<Wait>(mDuration); });
+		lua.writeVariable("t_waitS",				[=](float mDuration)					{ timeline.append<Wait>(mDuration * 60.f); });
+		lua.writeVariable("t_waitUntilS",			[=](float mDuration)
 		{
 			timeline.append<Wait>(10);
 			timeline.append<Do>([=]{ if(status.currentTime < mDuration) timeline.jumpTo(timeline.getCurrentIndex() - 2); });
 		});
 
 		// Event timeline control
-		lua.writeVariable("e_eventStopTime",		[=](float mDuration) 					{ eventTimeline.append<Do>([=]{ status.timeStop = mDuration; }); });
-		lua.writeVariable("e_eventStopTimeS",		[=](float mDuration) 					{ eventTimeline.append<Do>([=]{ status.timeStop = mDuration * 60.f; }); });
-		lua.writeVariable("e_eventWait",			[=](float mDuration) 					{ eventTimeline.append<Wait>(mDuration); });
-		lua.writeVariable("e_eventWaitS", 			[=](float mDuration) 					{ eventTimeline.append<Wait>(mDuration * 60.f); });
-		lua.writeVariable("e_eventWaitUntilS", 		[=](float mDuration)
+		lua.writeVariable("e_eventStopTime",		[=](float mDuration)					{ eventTimeline.append<Do>([=]{ status.timeStop = mDuration; }); });
+		lua.writeVariable("e_eventStopTimeS",		[=](float mDuration)					{ eventTimeline.append<Do>([=]{ status.timeStop = mDuration * 60.f; }); });
+		lua.writeVariable("e_eventWait",			[=](float mDuration)					{ eventTimeline.append<Wait>(mDuration); });
+		lua.writeVariable("e_eventWaitS",			[=](float mDuration)					{ eventTimeline.append<Wait>(mDuration * 60.f); });
+		lua.writeVariable("e_eventWaitUntilS",		[=](float mDuration)
 		{
 			eventTimeline.append<Wait>(10);
 			eventTimeline.append<Do>([=]{ if(status.currentTime < mDuration) eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2); });

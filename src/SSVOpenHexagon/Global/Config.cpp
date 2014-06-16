@@ -209,10 +209,10 @@ namespace hg
 		void setBlackAndWhite(bool mBlackAndWhite)	{ blackAndWhite = mBlackAndWhite; }
 		void setNoSound(bool mNoSound)				{ noSound = mNoSound; }
 		void setNoMusic(bool mNoMusic)				{ noMusic = mNoMusic; }
-		void setPulse(bool mPulse) 					{ pulseEnabled = mPulse; }
+		void setPulse(bool mPulse)					{ pulseEnabled = mPulse; }
 		void set3D(bool m3D)						{ _3DEnabled = m3D; }
 		void setInvincible(bool mInvincible)		{ invincible = mInvincible; }
-		void setAutoRestart(bool mAutoRestart) 		{ autoRestart = mAutoRestart; }
+		void setAutoRestart(bool mAutoRestart)		{ autoRestart = mAutoRestart; }
 		void setSoundVolume(float mVolume)			{ soundVolume = mVolume; }
 		void setMusicVolume(float mVolume)			{ musicVolume = mVolume; }
 		void setFlash(bool mFlash)					{ flashEnabled = mFlash; }
@@ -224,18 +224,18 @@ namespace hg
 
 		bool getOnline()					{ return online; }
 		bool getOfficial()					{ return official; }
-		string getUneligibilityReason()  	{ return uneligibilityReason; }
-		float getSizeX() 					{ return sizeX; }
-		float getSizeY() 					{ return sizeY; }
-		float getSpawnDistance() 			{ return spawnDistance; }
-		float getZoomFactor() 				{ return zoomFactor; }
-		int getPixelMultiplier() 			{ return pixelMultiplier; }
-		float getPlayerSpeed() 				{ return official ? 9.45f : playerSpeed; }
-		float getPlayerFocusSpeed() 		{ return official ? 4.625f : playerFocusSpeed; }
-		float getPlayerSize() 				{ return official ? 7.3f : playerSize; }
-		bool getNoRotation() 				{ return official ? false : noRotation; }
-		bool getNoBackground() 				{ return official ? false : noBackground; }
-		bool getBlackAndWhite() 			{ return official ? false : blackAndWhite; }
+		string getUneligibilityReason() 	{ return uneligibilityReason; }
+		float getSizeX()					{ return sizeX; }
+		float getSizeY()					{ return sizeY; }
+		float getSpawnDistance()			{ return spawnDistance; }
+		float getZoomFactor()				{ return zoomFactor; }
+		int getPixelMultiplier()			{ return pixelMultiplier; }
+		float getPlayerSpeed()				{ return official ? 9.45f : playerSpeed; }
+		float getPlayerFocusSpeed()			{ return official ? 4.625f : playerFocusSpeed; }
+		float getPlayerSize()				{ return official ? 7.3f : playerSize; }
+		bool getNoRotation()				{ return official ? false : noRotation; }
+		bool getNoBackground()				{ return official ? false : noBackground; }
+		bool getBlackAndWhite()				{ return official ? false : blackAndWhite; }
 		bool getNoSound()					{ return noSound; }
 		bool getNoMusic()					{ return noMusic; }
 		float getSoundVolume()				{ return soundVolume; }
@@ -244,15 +244,15 @@ namespace hg
 		bool getVsync()						{ return vsync; }
 		bool getAutoZoomFactor()			{ return official ? true : autoZoomFactor; }
 		bool getFullscreen()				{ return fullscreen; }
-		float getVersion() 					{ return 2.00f; }
+		float getVersion()					{ return 2.00f; }
 		bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
-		bool getFullscreenAutoResolution() 	{ return fullscreenAutoResolution; }
+		bool getFullscreenAutoResolution()	{ return fullscreenAutoResolution; }
 		unsigned int getFullscreenWidth()	{ return fullscreenWidth; }
-		unsigned int getFullscreenHeight() 	{ return fullscreenHeight; }
+		unsigned int getFullscreenHeight()	{ return fullscreenHeight; }
 		unsigned int getWindowedWidth()		{ return windowedWidth; }
 		unsigned int getWindowedHeight()	{ return windowedHeight; }
-		unsigned int getWidth() 			{ return fullscreen ? fullscreenWidth : windowedWidth; }
-		unsigned int getHeight() 			{ return fullscreen ? fullscreenHeight : windowedHeight; }
+		unsigned int getWidth()				{ return fullscreen ? fullscreenWidth : windowedWidth; }
+		unsigned int getHeight()			{ return fullscreen ? fullscreenHeight : windowedHeight; }
 		bool getShowMessages()				{ return showMessages; }
 		bool getDebug()						{ return debug; }
 		bool getPulse()						{ return official ? true : pulseEnabled; }
@@ -262,7 +262,7 @@ namespace hg
 		float get3DMultiplier()				{ return _3DMultiplier; }
 		unsigned int get3DMaxDepth()		{ return _3DMaxDepth; }
 		bool getAutoRestart()				{ return autoRestart; }
-		bool getFlash() 					{ return flashEnabled; }
+		bool getFlash()						{ return flashEnabled; }
 		bool getShowTrackedVariables()		{ return showTrackedVariables; }
 		bool getMusicSpeedDMSync()			{ return musicSpeedDMSync; }
 		unsigned int getMaxFPS()			{ return maxFPS; }

@@ -110,8 +110,8 @@ namespace hg
 			if(vm.bitsPerPixel == 32)
 				resolution.create<i::Single>(toStr(vm.width) + "x" + toStr(vm.height), [this, &vm]{ Config::setCurrentResolution(window, vm.width, vm.height); });
 
-		resolution.create<i::Single>("go windowed", 	[this]{ Config::setFullscreen(window, false); });
-		resolution.create<i::Single>("go fullscreen", 	[this]{ Config::setFullscreen(window, true); });
+		resolution.create<i::Single>("go windowed",		[this]{ Config::setFullscreen(window, false); });
+		resolution.create<i::Single>("go fullscreen",	[this]{ Config::setFullscreen(window, true); });
 		resolution.create<i::GoBack>("back");
 
 		gfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
@@ -122,11 +122,11 @@ namespace hg
 
 		gfx.create<i::Toggle>("flash", &Config::getFlash, &Config::setFlash);
 		gfx.create<i::Toggle>("vsync", &Config::getVsync, [this](bool mValue){ Config::setVsync(window, mValue); });
-		gfx.create<i::Single>("go windowed", 	[this]{ Config::setFullscreen(window, false); });
-		gfx.create<i::Single>("go fullscreen", 	[this]{ Config::setFullscreen(window, true); });
+		gfx.create<i::Single>("go windowed",	[this]{ Config::setFullscreen(window, false); });
+		gfx.create<i::Single>("go fullscreen",	[this]{ Config::setFullscreen(window, true); });
 
-		gfx.create<i::Single>("use static fps",  [this]{ Config::setTimerStatic(window, true); }) | whenTimerIsDynamic;
-		gfx.create<i::Single>("use dynamic fps",  [this]{ Config::setTimerStatic(window, false); }) | whenTimerIsStatic;
+		gfx.create<i::Single>("use static fps",		[this]{ Config::setTimerStatic(window, true); }) | whenTimerIsDynamic;
+		gfx.create<i::Single>("use dynamic fps",	[this]{ Config::setTimerStatic(window, false); }) | whenTimerIsStatic;
 
 		gfx.create<i::Toggle>("limit fps", &Config::getLimitFPS, [this](bool mValue){ Config::setLimitFPS(window, mValue); }) | whenTimerIsStatic;
 		gfx.create<i::Slider>("max fps", &Config::getMaxFPS, [this](unsigned int mValue){ Config::setMaxFPS(window, mValue); }, 30u, 200u, 5u) | whenTimerIsStatic;
@@ -177,14 +177,14 @@ namespace hg
 		game.addInput(Config::getTriggerRotateCCW(), [this](FT)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::SLPSelect) 	{  --profileIdx; }
+			if(state == s::SLPSelect)	{  --profileIdx; }
 			else if(state == s::SMain)	{ setIndex(currentIndex - 1); }
 			else if(isInMenu())			{ getCurrentMenu()->decrease(); }
 		}, t::Once);
 		game.addInput(Config::getTriggerRotateCW(), [this](FT)
 		{
 			assets.playSound("beep.ogg");
-			if(state == s::SLPSelect) 	{ ++profileIdx; }
+			if(state == s::SLPSelect)	{ ++profileIdx; }
 			else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
 			else if(isInMenu())			{ getCurrentMenu()->increase(); }
 		}, t::Once);
@@ -233,8 +233,8 @@ namespace hg
 
 	void MenuGame::initLua(Lua::LuaContext& mLua)
 	{
-		mLua.writeVariable("u_log", 				[this](string mLog)			{ lo("lua-menu") << mLog << endl; });
-		mLua.writeVariable("u_execScript", 			[this, &mLua](string mName)	{ Utils::runLuaFile(mLua, levelData->packPath + "Scripts/" + mName); });
+		mLua.writeVariable("u_log",					[this](string mLog)			{ lo("lua-menu") << mLog << endl; });
+		mLua.writeVariable("u_execScript",			[this, &mLua](string mName)	{ Utils::runLuaFile(mLua, levelData->packPath + "Scripts/" + mName); });
 		mLua.writeVariable("u_getDifficultyMult",	[this]						{ return 1; });
 		mLua.writeVariable("u_getSpeedMultDM",		[this]						{ return 1; });
 		mLua.writeVariable("u_getDelayMultDM",		[this]						{ return 1; });
@@ -548,18 +548,18 @@ namespace hg
 
 		renderText(title, txtProf,						{20, 768 - 395});
 		renderText("insert text", txtProf,				{20, 768 - 375});
-		renderText("press enter when done", txtProf, 	{20, 768 - 335});
+		renderText("press enter when done", txtProf,	{20, 768 - 335});
 		renderText("keep esc pressed to exit", txtProf, {20, 768 - 315});
 		renderText(state == s::ETPass ? string(enteredStr.size(), '*') : enteredStr, txtLName, {20, 768 - 245 - 40}, (state == s::ETEmail) ? 32 : 65);
 	}
 	void MenuGame::drawProfileSelection()
 	{
 		if(!assets.pIsLocal()) throw;
-		renderText("local profile selection", txtProf, 				{20, 768 - 395});
-		renderText("press left/right to browse profiles", txtProf, 	{20, 768 - 375});
-		renderText("press enter to select profile", txtProf, 		{20, 768 - 355});
-		renderText("press f1 to create a new profile", txtProf, 	{20, 768 - 335});
-		renderText(enteredStr, txtLName, 							{20, 768 - 245 - 40});
+		renderText("local profile selection", txtProf,				{20, 768 - 395});
+		renderText("press left/right to browse profiles", txtProf,	{20, 768 - 375});
+		renderText("press enter to select profile", txtProf,		{20, 768 - 355});
+		renderText("press f1 to create a new profile", txtProf,		{20, 768 - 335});
+		renderText(enteredStr, txtLName,							{20, 768 - 245 - 40});
 	}
 
 	void MenuGame::drawMenu(const Menu& mMenu)
