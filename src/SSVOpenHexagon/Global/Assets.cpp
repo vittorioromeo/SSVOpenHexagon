@@ -143,7 +143,7 @@ namespace hg
 	MusicData HGAssets::getMusicData(const string& mId) { return musicDataMap.find(mId)->second; }
 	StyleData HGAssets::getStyleData(const string& mId) { return styleDataMap.find(mId)->second; }
 
-	float HGAssets::getLocalScore(const string& mId) 				{ return getCurrentLocalProfile().getScore(mId); }
+	float HGAssets::getLocalScore(const string& mId)				{ return getCurrentLocalProfile().getScore(mId); }
 	void HGAssets::setLocalScore(const string& mId, float mScore)	{ getCurrentLocalProfile().setScore(mId, mScore); }
 
 	void HGAssets::setCurrentLocalProfile(const string& mName) { currentProfilePtr = &profileDataMap.find(mName)->second; }

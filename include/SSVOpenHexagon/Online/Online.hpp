@@ -78,7 +78,7 @@ namespace hg
 		std::string getServerMessage();
 		std::string getMD5Hash(const std::string& mStr);
 		inline std::string getControlStripped(const std::string& mStr)	{ std::string result; for(const auto& c : mStr) if(!ssvu::isControl(c)) result += c; return result; }
-		inline std::string getUrlEncoded(const std::string& mStr) 		{ std::string result; for(const auto& c : mStr) if(ssvu::isAlphanumeric(c)) result += c; return getControlStripped(result); }
+		inline std::string getUrlEncoded(const std::string& mStr)		{ std::string result; for(const auto& c : mStr) if(ssvu::isAlphanumeric(c)) result += c; return getControlStripped(result); }
 
 		bool getNewUserReg();
 
