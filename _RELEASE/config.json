@@ -54,7 +54,6 @@
 	"t_force_restart" : 
 	[
 		[ "kR" ],
-		[ "kUp" ],
 		[ "bXButton2" ]
 	],
 	"t_restart" : 
