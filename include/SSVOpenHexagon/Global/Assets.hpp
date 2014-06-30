@@ -71,8 +71,8 @@ namespace hg
 
 			void saveCurrentLocalProfile();
 
-			MusicData getMusicData(const std::string& mId);
-			StyleData getStyleData(const std::string& mId);
+			const MusicData& getMusicData(const std::string& mId);
+			const StyleData& getStyleData(const std::string& mId);
 
 
 			float getLocalScore(const std::string& mId);
