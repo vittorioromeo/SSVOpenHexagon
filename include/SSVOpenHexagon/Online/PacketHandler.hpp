@@ -6,6 +6,7 @@
 #define HG_ONLINE_PACKETHANDLER
 
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Online/Utils.hpp"
 
 namespace hg
 {
@@ -27,9 +28,9 @@ namespace hg
 						mPacket >> type;
 
 						auto itr(funcs.find(type));
-						if(itr == end(funcs))
+						if(itr == std::end(funcs))
 						{
-							ssvu::lo("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
+							HG_LO_VERBOSE("PacketHandler") << "Can't handle packet of type: " << type << std::endl;
 							return;
 						}
 
@@ -37,11 +38,11 @@ namespace hg
 					}
 					catch(std::exception& mException)
 					{
-						ssvu::lo() << "Exception during packet handling: (" << type << ")\n" << mException.what() << std::endl;
+						HG_LO_VERBOSE("PacketHandler") << "Exception during packet handling: (" << type << ")\n" << mException.what() << std::endl;
 					}
 					catch(...)
 					{
-						ssvu::lo() << "Unknown exception during packet handling: (" << type << ")" << std::endl;
+						HG_LO_VERBOSE("PacketHandler") << "Unknown exception during packet handling: (" << type << ")\n";
 					}
 				}
 

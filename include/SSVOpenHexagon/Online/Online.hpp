@@ -7,6 +7,7 @@
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Compression.hpp"
+#include "SSVOpenHexagon/Online/Utils.hpp"
 
 namespace hg
 {

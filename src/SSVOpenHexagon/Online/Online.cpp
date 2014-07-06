@@ -106,7 +106,7 @@ namespace hg
 		template<typename T> void trySendFunc(T mFunc)
 		{
 			if(!canSendPacket()) { lo("hg::Online::trySendFunc") << "Can't send data to server: not connected / not logged in" << endl; return; }
-			if(Config::getServerVerbose()) lo("hg::Online::trySendFunc") << "Sending data to server..." << endl;
+			HG_LO_VERBOSE("hg::Online::trySendFunc") << "Sending data to server..." << endl;
 
 			currentGtm->start([mFunc]
 			{
@@ -237,20 +237,20 @@ namespace hg
 
 		void initializeValidators(HGAssets& mAssets)
 		{
-			if(Config::getServerVerbose()) lo("hg::Online::initializeValidators") << "Initializing validators..." << endl;
+			HG_LO_VERBOSE("hg::Online::initializeValidators") << "Initializing validators...\n";
 
 			for(const auto& p : mAssets.getLevelDatas())
 			{
-				if(Config::getServerVerbose()) lo("hg::Online::initializeValidators") << "Adding (" << p.first << ") validator" << endl;
+				HG_LO_VERBOSE("hg::Online::initializeValidators") << "Adding (" << p.first << ") validator\n";
 
 				const auto& l(p.second);
 				const auto& validator(getValidator(l->packPath, l->id, l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(), l->luaScriptPath));
 				validators.addValidator(p.first, validator);
 
-				if(Config::getServerVerbose()) lo("hg::Online::initializeValidators") << "Added (" << p.first << "): " << validator << endl;
+				HG_LO_VERBOSE("hg::Online::initializeValidators") << "Added (" << p.first << "): " << validator << "\n";
 			}
 
-			lo("hg::Online::initializeValidators") << "Finished initializing validators..." << endl;
+			HG_LO_VERBOSE("hg::Online::initializeValidators") << "Finished initializing validators..." << endl;
 		}
 
 		const sf::IpAddress& getCurrentIpAddress()	{ return Config::getServerLocal() ? localIp : hostIp; }

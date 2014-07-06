@@ -6,6 +6,8 @@
 #define HG_ONLINE_CLIENTHANDLER
 
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Online/Utils.hpp"
 #include "SSVOpenHexagon/Online/ManagedSocket.hpp"
 #include "SSVOpenHexagon/Online/PacketHandler.hpp"
 
@@ -27,7 +29,7 @@ namespace hg
 			public:
 				ssvu::Delegate<void()> onDisconnect;
 
-				ClientHandler(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler)
+				inline ClientHandler(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler)
 				{
 					onPacketReceived += [this](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); refreshTimeout(); };
 					timeoutFuture = std::async(std::launch::async, [this]
@@ -38,12 +40,12 @@ namespace hg
 
 							if(!isBusy() || --untilTimeout > 0) continue;
 
-							ssvu::lo("ClientHandler") << "Client (" << uid << ") timed out" << std::endl;
+							HG_LO_VERBOSE("ClientHandler") << "Client (" << uid << ") timed out\n";
 							onDisconnect(); disconnect();
 						}
 					});
 				}
-				~ClientHandler() { running = false; /*ssvu::lo() << "ClientHandler destroyed" << std::endl;*/ }
+				inline ~ClientHandler() { running = false; }
 
 				inline void stop()					{ running = false; }
 				inline unsigned int getUid() const	{ return uid; }

@@ -285,8 +285,6 @@ namespace hg
 		currentLeaderboard = Online::getCurrentLeaderboard();
 		if(currentLeaderboard == "NULL") { leaderboardString = "..."; return; }
 
-		ssvu::lo("LB") << currentLeaderboard << std::endl;
-
 		constexpr unsigned int leaderboardRecordCount{8};
 		ssvuj::Obj root{getFromString(currentLeaderboard)};
 		if(getExtr<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }

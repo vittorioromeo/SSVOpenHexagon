@@ -7,7 +7,10 @@
 
 #include <future>
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/Compression.hpp"
+
+#define HG_LO_VERBOSE(...) if(Config::getServerVerbose()) ssvu::lo(__VA_ARGS__)
 
 namespace hg
 {
@@ -19,7 +22,6 @@ namespace hg
 			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs)
 			{
 				const auto& packetStr(ssvuj::getWriteToString(ssvuj::getArchArray(std::forward<TArgs>(mArgs)...)));
-				// ssvu::lo() << packetStr << std::endl; // TODO:
 				return getZLibCompress(packetStr);
 			}
 		}

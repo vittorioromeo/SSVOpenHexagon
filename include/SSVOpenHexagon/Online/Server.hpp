@@ -9,6 +9,7 @@
 #include <chrono>
 #include <thread>
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/ClientHandler.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
 
@@ -25,14 +26,6 @@ namespace hg
 				ssvu::VecUptr<ClientHandler> clientHandlers;
 				std::future<void> updateFuture;
 
-				inline void growIfNeeded()
-				{
-					if(ssvu::containsAnyIf(clientHandlers, [](const Uptr<ClientHandler>& mCH){ return !mCH->isBusy(); })) return;
-
-					ssvu::lo("Server") << "Creating new client handlers" << std::endl;
-					for(int i{0}; i < 10; ++i) ssvu::getEmplaceUptr<ClientHandler>(clientHandlers, packetHandler);
-				}
-
 				inline void updateImpl()
 				{
 					while(running)
@@ -44,28 +37,41 @@ namespace hg
 
 				inline void update()
 				{
-					growIfNeeded();
+					bool foundNonBusy{false};
 
-					for(auto& c : clientHandlers)
+					for(auto i(0u); true; ++i)
 					{
-						if(c->isBusy() || !c->tryAccept(listener)) continue;
+						if(i >= clientHandlers.size())
+						{
+							if(foundNonBusy) return;
 
+							HG_LO_VERBOSE("Server") << "Creating new client handlers\n";
+							for(auto k(0u); k < 10; ++k) ssvu::getEmplaceUptr<ClientHandler>(clientHandlers, packetHandler);
+						}
+
+						auto& c(clientHandlers[i]);
+
+						if(c->isBusy()) continue;
+						foundNonBusy = true;
+
+						if(!c->tryAccept(listener)) continue;
 						onClientAccepted(*c.get());
 						c->refreshTimeout();
-						ssvu::lo("Server") << "Accepted client (" << c->getUid() << ")" << std::endl;
+						HG_LO_VERBOSE("Server") << "Accepted client (" << c->getUid() << ")\n";
+						return;
 					}
 				}
 
 			public:
 				ssvu::Delegate<void(ClientHandler&)> onClientAccepted;
 
-				Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler) { listener.setBlocking(false); }
-				~Server() { running = false; ssvu::lo() << "Server destroyed" << std::endl; }
+				inline Server(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler) { listener.setBlocking(false); }
+				inline ~Server() { running = false; }
 
 				inline void start(unsigned short mPort)
 				{
-					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::lo("Server") << "Error initalizing listener" << std::endl; return; }
-					else ssvu::lo("Server") << "Listener initialized" << std::endl;
+					if(listener.listen(mPort) != sf::Socket::Done) { ssvu::lo("Server") << "Error initalizing listener\n"; return; }
+					else ssvu::lo("Server") << "Listener initialized\n";
 
 					running = true;
 					updateFuture = std::async(std::launch::async, [this]{ updateImpl(); });

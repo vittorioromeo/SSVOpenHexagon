@@ -5,6 +5,7 @@
 #ifndef HG_ONLINE_CLIENT
 #define HG_ONLINE_CLIENT
 
+#include "SSVOpenHexagon/Online/Utils.hpp"
 #include "SSVOpenHexagon/Online/ManagedSocket.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
 
@@ -18,11 +19,10 @@ namespace hg
 				PacketHandler<Client>& packetHandler;
 
 			public:
-				Client(PacketHandler<Client>& mPacketHandler) : packetHandler(mPacketHandler)
+				inline Client(PacketHandler<Client>& mPacketHandler) : packetHandler(mPacketHandler)
 				{
 					onPacketReceived += [this](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); };
 				}
-				~Client() { disconnect(); /*ssvu::lo() << "Client destroyed" << std::endl;*/ }
 		};
 	}
 }
