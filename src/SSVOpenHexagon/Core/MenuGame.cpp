@@ -227,7 +227,10 @@ namespace hg
 
 		game.addInput(Config::getTriggerExit(), [this](FT mFT) { if(state != s::MOpts) exitTimer += mFT; }, [this](FT){ exitTimer = 0; });
 		game.addInput(Config::getTriggerScreenshot(), [this](FT){ mustTakeScreenshot = true; }, t::Once);
-		game.addInput({{k::LAlt, k::Return}}, [this](FT){ Config::setFullscreen(window, !window.getFullscreen()); }, t::Once);
+		game.addInput({{k::LAlt, k::Return}}, [this](FT) {
+			if(sf::Keyboard::isKeyPressed(k::LAlt) && sf::Keyboard::isKeyPressed(k::Return))
+				Config::setFullscreen(window, !window.getFullscreen());
+		}, t::Once);
 		game.addInput({{k::BackSpace}}, [this](FT){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
 	}
 
