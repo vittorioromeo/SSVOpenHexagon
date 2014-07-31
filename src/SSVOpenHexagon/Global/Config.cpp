@@ -46,7 +46,7 @@ namespace hg
 		auto& playerSpeed				(lvm.create<float>("player_speed"));
 		auto& playerFocusSpeed			(lvm.create<float>("player_focus_speed"));
 		auto& playerSize				(lvm.create<float>("player_size"));
-		auto& limitFps					(lvm.create<bool>("limit_fps"));
+		auto& limitFPS					(lvm.create<bool>("limit_fps"));
 		auto& vsync						(lvm.create<bool>("vsync"));
 		auto& autoZoomFactor			(lvm.create<bool>("auto_zoom_factor"));
 		auto& fullscreen				(lvm.create<bool>("fullscreen"));
@@ -63,7 +63,7 @@ namespace hg
 		auto& musicSpeedDMSync			(lvm.create<bool>("music_speed_dm_sync"));
 		auto& maxFPS					(lvm.create<unsigned int>("max_fps"));
 		auto& antialiasingLevel			(lvm.create<unsigned int>("antialiasing_level"));
-		auto& showFps					(lvm.create<bool>("show_fps"));
+		auto& showFPS					(lvm.create<bool>("show_fps"));
 		auto& timerStatic				(lvm.create<bool>("timer_static"));
 		auto& serverLocal				(lvm.create<bool>("server_local"));
 		auto& serverVerbose				(lvm.create<bool>("server_verbose"));
@@ -184,7 +184,7 @@ namespace hg
 			recalculateSizes();
 		}
 		void setVsync(GameWindow& mWindow, bool mValue)				{ vsync = mValue; mWindow.setVsync(vsync); }
-		void setLimitFPS(GameWindow& mWindow, bool mValue)			{ limitFps = mValue; mWindow.setFPSLimited(mValue); }
+		void setLimitFPS(GameWindow& mWindow, bool mValue)			{ limitFPS = mValue; mWindow.setFPSLimited(mValue); }
 		void setMaxFPS(GameWindow& mWindow, unsigned int mValue)	{ maxFPS = mValue; mWindow.setMaxFPS(mValue); }
 		void setTimerStatic(GameWindow& mWindow, bool mValue)
 		{
@@ -217,7 +217,7 @@ namespace hg
 		void setMusicVolume(float mVolume)			{ musicVolume = mVolume; }
 		void setFlash(bool mFlash)					{ flashEnabled = mFlash; }
 		void setMusicSpeedDMSync(bool mValue)		{ musicSpeedDMSync = mValue; }
-		void setShowFPS(bool mValue)				{ showFps = mValue; }
+		void setShowFPS(bool mValue)				{ showFPS = mValue; }
 		void setServerLocal(bool mValue)			{ serverLocal = mValue; }
 		void setServerVerbose(bool mValue)			{ serverVerbose = mValue; }
 		void setMouseVisible(bool mValue)			{ mouseVisible = mValue; }
@@ -240,7 +240,7 @@ namespace hg
 		bool getNoMusic()					{ return noMusic; }
 		float getSoundVolume()				{ return soundVolume; }
 		float getMusicVolume()				{ return musicVolume; }
-		bool getLimitFPS()					{ return limitFps; }
+		bool getLimitFPS()					{ return limitFPS; }
 		bool getVsync()						{ return vsync; }
 		bool getAutoZoomFactor()			{ return official ? true : autoZoomFactor; }
 		bool getFullscreen()				{ return fullscreen; }
@@ -267,7 +267,7 @@ namespace hg
 		bool getMusicSpeedDMSync()			{ return musicSpeedDMSync; }
 		unsigned int getMaxFPS()			{ return maxFPS; }
 		unsigned int getAntialiasingLevel()	{ return antialiasingLevel; }
-		bool getShowFPS()					{ return showFps; }
+		bool getShowFPS()					{ return showFPS; }
 		bool getTimerStatic()				{ return timerStatic; }
 		bool getServerLocal()				{ return serverLocal; }
 		bool getServerVerbose()				{ return serverVerbose; }
