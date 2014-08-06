@@ -225,16 +225,13 @@ namespace hg
 			else if((state == s::ETFriend || state == s::SLPSelect) && valid) state = s::SMain;
 		}, t::Once);
 
-		game.addInput(Config::getTriggerExit(), [this](FT mFT) { if(state != s::MOpts) exitTimer += mFT; }, [this](FT){ exitTimer = 0; });
+		game.addInput(Config::getTriggerExit(), [this](FT mFT){ if(state != s::MOpts) exitTimer += mFT; }, [this](FT){ exitTimer = 0; });
 		game.addInput(Config::getTriggerScreenshot(), [this](FT){ mustTakeScreenshot = true; }, t::Once);
 		game.addInput({{k::LAlt, k::Return}}, [this](FT)
 		{
-			// TODO: investigate why this needs to be added
-			if(sf::Keyboard::isKeyPressed(k::LAlt) && sf::Keyboard::isKeyPressed(k::Return))
-			{
-				Config::setFullscreen(window, !window.getFullscreen());
-			}
-		}, t::Once);
+			Config::setFullscreen(window, !window.getFullscreen());
+			game.ignoreNextInputs();
+		}, t::Once).setPriorityUser(-1000);
 		game.addInput({{k::BackSpace}}, [this](FT){ if(isEnteringText() && !enteredStr.empty()) enteredStr.erase(enteredStr.end() - 1); }, t::Once);
 	}
 
