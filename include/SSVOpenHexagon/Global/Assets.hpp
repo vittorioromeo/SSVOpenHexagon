@@ -28,10 +28,10 @@ namespace hg
 			ssvs::SoundPlayer soundPlayer;
 			ssvs::MusicPlayer musicPlayer;
 
-			std::unordered_map<std::string, Uptr<LevelData>> levelDatas;
+			std::unordered_map<std::string, UPtr<LevelData>> levelDatas;
 			std::unordered_map<std::string, std::vector<std::string>> levelDataIdsByPack;
 
-			std::unordered_map<std::string, Uptr<PackData>> packDatas;
+			std::unordered_map<std::string, UPtr<PackData>> packDatas;
 			std::vector<std::string> packIds;
 			std::vector<Path> packPaths;
 
@@ -48,7 +48,7 @@ namespace hg
 			inline ssvs::AssetManager& operator()() { return assetManager; }
 			template<typename T> inline T& get(const std::string& mId) { return assetManager.get<T>(mId); }
 
-			inline const std::unordered_map<std::string, Uptr<LevelData>>& getLevelDatas()	{ return levelDatas; }
+			inline const std::unordered_map<std::string, UPtr<LevelData>>& getLevelDatas()	{ return levelDatas; }
 			inline const LevelData& getLevelData(const std::string& mId)					{ return *levelDatas.at(mId); }
 			inline const std::vector<std::string>& getLevelIdsByPack(const Path& mPackPath)	{ return levelDataIdsByPack.at(mPackPath); }
 

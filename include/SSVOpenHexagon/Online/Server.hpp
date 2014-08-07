@@ -23,7 +23,7 @@ namespace hg
 				bool running{false};
 				PacketHandler<ClientHandler>& packetHandler;
 				sf::TcpListener listener;
-				ssvu::VecUptr<ClientHandler> clientHandlers;
+				ssvu::VecUPtr<ClientHandler> clientHandlers;
 				std::future<void> updateFuture;
 
 				inline void updateImpl()
@@ -46,7 +46,7 @@ namespace hg
 							if(foundNonBusy) return;
 
 							HG_LO_VERBOSE("Server") << "Creating new client handlers\n";
-							for(auto k(0u); k < 10; ++k) ssvu::getEmplaceUptr<ClientHandler>(clientHandlers, packetHandler);
+							for(auto k(0u); k < 10; ++k) ssvu::getEmplaceUPtr<ClientHandler>(clientHandlers, packetHandler);
 						}
 
 						auto& c(clientHandlers[i]);

@@ -42,7 +42,7 @@ namespace hg
 			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
 
 			ssvuj::Obj packRoot{getFromFile(packPath + "/pack.json")};
-			ssvu::getEmplaceUptrMap<PackData>(packDatas, packName, packName, getExtr<string>(packRoot, "name"), getExtr<float>(packRoot, "priority"));
+			ssvu::getEmplaceUPtrMap<PackData>(packDatas, packName, packName, getExtr<string>(packRoot, "name"), getExtr<float>(packRoot, "priority"));
 		}
 
 		for(auto& p : packDatas)
@@ -114,7 +114,7 @@ namespace hg
 		{
 			auto levelData(new LevelData{getFromFile(p), mPath});
 			levelDataIdsByPack[levelData->packPath].emplace_back(levelData->id);
-			levelDatas.insert(make_pair(levelData->id, Uptr<LevelData>(levelData)));
+			levelDatas.insert(make_pair(levelData->id, UPtr<LevelData>(levelData)));
 		}
 	}
 	void HGAssets::loadLocalProfiles()

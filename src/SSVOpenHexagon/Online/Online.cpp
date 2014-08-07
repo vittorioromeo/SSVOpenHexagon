@@ -39,7 +39,7 @@ namespace hg
 		ValidatorDB validators;
 
 		PacketHandler<Client> clientPHandler;
-		Uptr<Client> client;
+		UPtr<Client> client;
 
 		bool gettingLeaderboard{false}, forceLeaderboardRefresh{false};
 		string lastLeaderboardId;
@@ -80,7 +80,7 @@ namespace hg
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&)			{ newUserReg = false; };
 
-			client = ssvu::makeUptr<Client>(clientPHandler);
+			client = ssvu::makeUPtr<Client>(clientPHandler);
 
 			currentGtm->start([]
 			{
