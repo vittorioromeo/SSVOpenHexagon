@@ -27,6 +27,7 @@ namespace hg
 	using Vec2f = ssvs::Vec2f;
 	using Vec2u = ssvs::Vec2u;
 	using FT = ssvu::FT;
+	using Ticker = ssvs::Ticker;
 
 	// Game enums
 	enum HGGroup{Wall};

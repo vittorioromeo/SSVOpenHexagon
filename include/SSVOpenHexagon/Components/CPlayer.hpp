@@ -19,7 +19,7 @@ namespace hg
 			Vec2f pLeft, pRight, startPos, pos;
 			float hue{0}, angle{0}, size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()}, focusSpeed{Config::getPlayerFocusSpeed()};
 			bool dead{false};
-			ssvs::Ticker swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{80.f, false};
+			Ticker swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{80.f, false};
 
 			void drawPivot();
 			void drawDeathEffect();

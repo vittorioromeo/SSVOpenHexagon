@@ -39,7 +39,7 @@ namespace hg
 
 		// Main timeline control
 		lua.writeVariable("t_wait",					[=](float mDuration)					{ timeline.append<Wait>(mDuration); });
-		lua.writeVariable("t_waitS",				[=](float mDuration)					{ timeline.append<Wait>(mDuration * 60.f); });
+		lua.writeVariable("t_waitS",				[=](float mDuration)					{ timeline.append<Wait>(ssvu::getSecondsToFT(mDuration)); });
 		lua.writeVariable("t_waitUntilS",			[=](float mDuration)
 		{
 			timeline.append<Wait>(10);
@@ -48,9 +48,9 @@ namespace hg
 
 		// Event timeline control
 		lua.writeVariable("e_eventStopTime",		[=](float mDuration)					{ eventTimeline.append<Do>([=]{ status.timeStop = mDuration; }); });
-		lua.writeVariable("e_eventStopTimeS",		[=](float mDuration)					{ eventTimeline.append<Do>([=]{ status.timeStop = mDuration * 60.f; }); });
+		lua.writeVariable("e_eventStopTimeS",		[=](float mDuration)					{ eventTimeline.append<Do>([=]{ status.timeStop = ssvu::getSecondsToFT(mDuration); }); });
 		lua.writeVariable("e_eventWait",			[=](float mDuration)					{ eventTimeline.append<Wait>(mDuration); });
-		lua.writeVariable("e_eventWaitS",			[=](float mDuration)					{ eventTimeline.append<Wait>(mDuration * 60.f); });
+		lua.writeVariable("e_eventWaitS",			[=](float mDuration)					{ eventTimeline.append<Wait>(ssvu::getSecondsToFT(mDuration)); });
 		lua.writeVariable("e_eventWaitUntilS",		[=](float mDuration)
 		{
 			eventTimeline.append<Wait>(10);

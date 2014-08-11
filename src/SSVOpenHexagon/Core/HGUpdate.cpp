@@ -33,7 +33,7 @@ namespace hg
 
 		if(!assets.pIsLocal() && Config::isEligibleForScore())
 		{
-			assets.playedSeconds += mFT / 60.f;
+			assets.playedSeconds += ssvu::getFTToSeconds(mFT);
 			if(assets.playedSeconds >= 60.f)
 			{
 				assets.playedSeconds = 0;
@@ -86,8 +86,8 @@ namespace hg
 	{
 		if(status.timeStop <= 0)
 		{
-			status.currentTime += mFT / 60.f;
-			status.incrementTime += mFT / 60.f;
+			status.currentTime += ssvu::getFTToSeconds(mFT);
+			status.incrementTime += ssvu::getFTToSeconds(mFT);
 		}
 		else status.timeStop -= mFT;
 	}
