@@ -21,7 +21,7 @@ namespace hg
 			// Compression
 			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs)
 			{
-				const auto& packetStr(ssvuj::getWriteToString(ssvuj::getArchArray(std::forward<TArgs>(mArgs)...)));
+				const auto& packetStr(ssvuj::getWriteToString(ssvuj::getArchArray(ssvu::fwd<TArgs>(mArgs)...)));
 				return getZLibCompress(packetStr);
 			}
 		}
