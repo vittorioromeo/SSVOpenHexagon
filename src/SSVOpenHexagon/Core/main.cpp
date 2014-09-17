@@ -20,7 +20,7 @@ using namespace hg;
 void createProfilesFolder()
 {
 	Path profilesPath{"Profiles/"};
-	if(profilesPath.exists()) return;
+	if(profilesPath.exists<ssvufs::Type::Folder>()) return;
 
 	lo("::createProfilesFolder") << "Profiles folder does not exist, creating" << endl;
 	createFolder(profilesPath);

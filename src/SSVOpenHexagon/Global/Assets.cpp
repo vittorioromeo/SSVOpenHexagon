@@ -39,7 +39,7 @@ namespace hg
 		{
 			const auto& packPathStr(packPath.getStr());
 			string packName{packPathStr.substr(6, packPathStr.size() - 7)}, packLua;
-			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(getFileContents(p));
+			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(p.getContentsAsString());
 
 			ssvuj::Obj packRoot{getFromFile(packPath + "/pack.json")};
 			ssvu::getEmplaceUPtrMap<PackData>(packDatas, packName, packName, getExtr<string>(packRoot, "name"), getExtr<float>(packRoot, "priority"));
@@ -59,7 +59,7 @@ namespace hg
 									lo("::loadAssets") << "loading " << packId << " style data\n";		loadStyleData(packPath);
 									lo("::loadAssets") << "loading " << packId << " level data\n";		loadLevelData(packPath);
 
-				if(!levelsOnly && Path(packPath + "Sounds/").existsAsFolder())
+				if(!levelsOnly && Path(packPath + "Sounds/").exists<ssvufs::Type::Folder>())
 				{
 					lo("::loadAssets") << "loading " << packId << " custom sounds\n";
 					loadCustomSounds(packId, packPath);

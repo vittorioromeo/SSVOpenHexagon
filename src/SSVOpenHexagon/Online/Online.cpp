@@ -214,19 +214,19 @@ namespace hg
 
 		string getValidator(const Path& mPackPath, const string& mLevelId, const string& mLevelRootString, const Path& mStyleRootPath, const Path& mLuaScriptPath)
 		{
-			string luaScriptContents{getFileContents(mLuaScriptPath)};
+			string luaScriptContents{mLuaScriptPath.getContentsAsString()};
 			std::set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
 			string toEncrypt;
 			toEncrypt += mLevelId;
 			toEncrypt += getControlStripped(mLevelRootString);
-			toEncrypt += getFileContents(mStyleRootPath);
+			toEncrypt += mStyleRootPath.getContentsAsString();
 			toEncrypt += luaScriptContents;
 			for(const auto& lsn : luaScriptNames)
 			{
 				Path path{mPackPath + "/Scripts/" + lsn};
-				toEncrypt += getFileContents(path);
+				toEncrypt += path.getContentsAsString();
 			}
 
 			toEncrypt = getControlStripped(toEncrypt);
