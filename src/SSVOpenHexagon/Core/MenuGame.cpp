@@ -370,7 +370,7 @@ namespace hg
 			tuples.emplace_back(pos, n, score);
 		}
 
-		sort(tuples, [](const ScoreTuple& mA, const ScoreTuple& mB){ return std::get<0>(mA) < std::get<0>(mB); });
+		sort(tuples, [](const auto& mA, const auto& mB){ return std::get<0>(mA) < std::get<0>(mB); });
 		friendsString.clear();
 		for(const auto& t : tuples) friendsString.append("(" + toStr(std::get<0>(t)) + ") " + std::get<1>(t) + ": " + toStr(std::get<2>(t)) + "\n");
 	}

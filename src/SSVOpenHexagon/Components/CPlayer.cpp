@@ -28,12 +28,12 @@ namespace hg
 
 		if(!isDrawing3D && deadEffectTimer.isRunning()) drawDeathEffect();
 
-		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : ssvs::getColorFromHSV(hue / 255.f, 1, 1)};
+		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
 
 		pLeft = getOrbitRad(pos, angle - toRad(100.f), size + 3);\
 		pRight = getOrbitRad(pos, angle + toRad(100.f), size + 3);
 
-		if(!swapTimer.isRunning() && !isDrawing3D) colorMain = ssvs::getColorFromHSV((swapBlinkTimer.getCurrent() * 15) / 255.f, 1, 1);
+		if(!swapTimer.isRunning() && !isDrawing3D) colorMain = ssvs::getColorFromHSV((swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
 
 		hexagonGame.playerTris.emplace_back(getOrbitRad(pos, angle, size), colorMain);
 		hexagonGame.playerTris.emplace_back(pLeft, colorMain);
@@ -68,9 +68,9 @@ namespace hg
 	}
 	void CPlayer::drawDeathEffect()
 	{
-		float div{ssvu::tau / hexagonGame.getSides() * 0.5f}, radius{hue / 8}, thickness{hue / 20};
-		Color colorMain{ssvs::getColorFromHSV((360 - hue) / 255.f, 1, 1)};
-		if(hue++ > 360) hue = 0;
+		float div{ssvu::tau / hexagonGame.getSides() * 0.5f}, radius{hue / 8.f}, thickness{hue / 20.f};
+		Color colorMain{ssvs::getColorFromHSV((360.f - hue) / 360.f, 1.f, 1.f)};
+		if(++hue > 360.f) hue = 0.f;
 
 		for(auto i(0u); i < hexagonGame.getSides(); ++i)
 		{

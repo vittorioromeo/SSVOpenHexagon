@@ -24,8 +24,8 @@ namespace hg
 		if(!levelsOnly) loadAssetsFromJson(assetManager, "Assets/", getFromFile("Assets/assets.json"));
 		loadAssets();
 
-		for(auto& v : levelDataIdsByPack) sort(begin(v.second), end(v.second), [&](const string& mA, const string& mB){ return levelDatas[mA]->menuPriority < levelDatas[mB]->menuPriority; });
-		sort(begin(packIds), end(packIds), [&](const string& mA, const string& mB){ return packDatas[mA]->priority < packDatas[mB]->priority; });
+		for(auto& v : levelDataIdsByPack) ssvu::sort(v.second, [&](const auto& mA, const auto& mB){ return levelDatas[mA]->menuPriority < levelDatas[mB]->menuPriority; });
+		ssvu::sort(packIds, [&](const auto& mA, const auto& mB){ return packDatas[mA]->priority < packDatas[mB]->priority; });
 	}
 
 

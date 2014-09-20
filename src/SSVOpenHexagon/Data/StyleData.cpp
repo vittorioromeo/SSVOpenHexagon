@@ -21,7 +21,7 @@ namespace hg
 
 		if(mColorData.dynamic)
 		{
-			const auto& dynamicColor(ssvs::getColorFromHSV((currentHue + mColorData.hueShift) / 360.f, 1, 1));
+			const auto& dynamicColor(ssvs::getColorFromHSV((currentHue + mColorData.hueShift) / 360.f, 1.f, 1.f));
 
 			if(!mColorData.main)
 			{
