@@ -56,7 +56,6 @@ int main(int argc, char* argv[])
 
 	GameWindow window;
 	window.setTitle("Open Hexagon " + toStr(Config::getVersion()) + " - by vittorio romeo - http://vittorioromeo.info");
-	Config::setTimerStatic(window, Config::getTimerStatic());
 	window.setSize(Config::getWidth(), Config::getHeight());
 	window.setPixelMult(Config::getPixelMultiplier());
 	window.setFullscreen(Config::getFullscreen());
@@ -64,6 +63,8 @@ int main(int argc, char* argv[])
 	window.setFPSLimited(Config::getLimitFPS());
 	window.setMaxFPS(Config::getMaxFPS());
 	window.setMouseCursorVisible(Config::getMouseVisible());
+
+	Config::setTimerStatic(window, Config::getTimerStatic());
 
 	HGAssets assets;
 	Online::initializeValidators(assets);
