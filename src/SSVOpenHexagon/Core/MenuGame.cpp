@@ -484,9 +484,9 @@ namespace hg
 			else if(serverVersion == Config::getVersion()) versionMessage = "you have the latest version";
 			else if(serverVersion < Config::getVersion()) versionMessage = "your version is newer (beta)";
 			else if(serverVersion > Config::getVersion()) versionMessage = "update available (" + toStr(serverVersion) + ")";
-			renderText(versionMessage, txtProf, {20, 0}, 13);
+			renderText(versionMessage, txtProf, {20, 4}, 13);
 
-			Text& profile = renderText("profile: " + assets.pGetName(), txtProf, Vec2f{20.f, getGlobalBottom(titleBar)}, 18);
+			Text& profile = renderText("profile: " + assets.pGetName(), txtProf, Vec2f{20.f, getGlobalBottom(titleBar) + 8}, 18);
 			Text& pack = renderText("pack: " + packName + " (" + toStr(packIdx + 1) + "/" + toStr(assets.getPackPaths().size()) + ")", txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
 			string lbestStr;
@@ -503,7 +503,7 @@ namespace hg
 			renderText(leaderboardString, txtProf, {20.f, getGlobalBottom(lbest)}, 15);
 			Text& smsg = renderText("server message: " + Online::getServerMessage(), txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
 			txtFriends.setOrigin({getLocalWidth(txtFriends), 0.f});
-			renderText("friends:\n" + friendsString, txtFriends, {w - 20.f, getGlobalBottom(titleBar)}, 18);
+			renderText("friends:\n" + friendsString, txtFriends, {w - 20.f, getGlobalBottom(titleBar) + 8}, 18);
 
 			if(!Config::isEligibleForScore()) renderText("not eligible for scoring: " + Config::getUneligibilityReason(), txtProf, {20.f, getGlobalTop(smsg) - 20.f}, 11);
 
@@ -520,7 +520,7 @@ namespace hg
 		else renderText("online disabled", txtProf, {20, 0}, 13);
 
 		Text& lname = renderText(levelData->name, txtLName, {20.f, h / 2.f});
-		Text& ldesc = renderText(levelData->description, txtLDesc, {20.f, getGlobalBottom(lname) - 5.f});
+		Text& ldesc = renderText(levelData->description, txtLDesc, {20.f, getGlobalBottom(lname) + 2.f});
 		Text& lauth = renderText("author: " + levelData->author, txtLAuth, {20.f, getGlobalBottom(ldesc) + 25.f});
 		renderText("music: " + musicData.name + " by " + musicData.author + " (" + musicData.album + ")", txtLMus, {20.f, getGlobalBottom(lauth) - 5.f});
 		renderText("(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")", txtLMus, {20.f, getGlobalTop(lname) - 25.f});
