@@ -24,16 +24,16 @@ namespace hg
 			{
 				while(running)
 				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(80));
+					std::this_thread::sleep_for(80ms);
 					if(disabled) continue;
 
 					if(check)
 					{
 						check = false;
-						std::this_thread::sleep_for(std::chrono::milliseconds(50));
-						while(check == false) { loseFrame(); std::this_thread::sleep_for(std::chrono::milliseconds(12)); }
+						std::this_thread::sleep_for(50ms);
+						while(check == false) { loseFrame(); std::this_thread::sleep_for(12ms); }
 					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(80));
+					std::this_thread::sleep_for(80ms);
 					if(gameWindow.getFPS() < minFPS) loseFrame();
 				}
 			}

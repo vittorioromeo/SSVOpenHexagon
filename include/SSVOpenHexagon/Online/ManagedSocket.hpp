@@ -26,7 +26,7 @@ namespace hg
 					while(busy)
 					{
 						update();
-						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+						std::this_thread::sleep_for(50ms);
 					}
 				}
 
@@ -43,7 +43,7 @@ namespace hg
 					for(int i{0}; i < 5; ++i)
 					{
 						if(busy && socket.receive(packet) == sf::Socket::Done) onPacketReceived(packet);
-						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+						std::this_thread::sleep_for(50ms);
 					}
 				}
 
@@ -58,7 +58,7 @@ namespace hg
 					for(int i{0}; i < 5; ++i)
 					{
 						if(busy && socket.send(mPacket) == sf::Socket::Done) { onPacketSent(mPacket); return true; }
-						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+						std::this_thread::sleep_for(50ms);
 					}
 
 					HG_LO_VERBOSE("ManagedSocket") << "Couldn't send packet - disconnecting\n";
@@ -84,7 +84,7 @@ namespace hg
 					for(int i{0}; i < 5; ++i)
 					{
 						if(!busy && socket.connect(mIp, mPort) == sf::Socket::Done) goto succeed;
-						std::this_thread::sleep_for(std::chrono::milliseconds(60));
+						std::this_thread::sleep_for(60ms);
 					}
 
 					return false;
@@ -110,7 +110,7 @@ namespace hg
 					for(int i{0}; i < 5; ++i)
 					{
 						if(!busy && mListener.accept(socket) == sf::Socket::Done) goto succeed;
-						std::this_thread::sleep_for(std::chrono::milliseconds(60));
+						std::this_thread::sleep_for(60ms);
 					}
 
 					return false;

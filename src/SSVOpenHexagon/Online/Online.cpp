@@ -96,7 +96,7 @@ namespace hg
 						}
 					}
 					if(needsCleanup) return;
-					this_thread::sleep_for(chrono::milliseconds(1000));
+					this_thread::sleep_for(1s);
 				}
 			});
 		}
@@ -157,7 +157,7 @@ namespace hg
 				client->send(buildCPacket<FromClient::Login>(mUsername, mPassword));
 				currentUsername = mUsername;
 
-				std::this_thread::sleep_for(std::chrono::seconds(6));
+				std::this_thread::sleep_for(6s);
 
 				if(loginStatus == LoginStat::Logging)
 				{

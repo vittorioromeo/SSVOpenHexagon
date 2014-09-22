@@ -386,12 +386,12 @@ namespace hg
 					}
 				});
 
-				saveFuture = std::async(std::launch::async, [this]{ while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::seconds(5)); saveIfNeeded(); }});
+				saveFuture = std::async(std::launch::async, [this]{ while(server.isRunning()) { std::this_thread::sleep_for(5s); saveIfNeeded(); }});
 
 				initCommands();
 
 				// This loop keeps the server alive
-				while(server.isRunning()) { std::this_thread::sleep_for(std::chrono::seconds(10)); }
+				while(server.isRunning()) { std::this_thread::sleep_for(10s); }
 			}
 
 			void initCommands()
