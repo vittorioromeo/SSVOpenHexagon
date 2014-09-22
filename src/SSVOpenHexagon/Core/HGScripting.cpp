@@ -21,7 +21,7 @@ namespace hg
 	void HexagonGame::initLua()
 	{
 		// Utils
-		lua.writeVariable("u_log",					[=](string mLog)						{ lo("lua") << mLog << endl; });
+		lua.writeVariable("u_log",					[=](string mLog)						{ lo("lua") << mLog << "\n"; });
 		lua.writeVariable("u_execScript",			[=](string mName)						{ runLuaFile(levelData->packPath + "Scripts/" + mName); });
 		lua.writeVariable("u_playSound",			[=](string mId)							{ assets.playSound(mId); });
 		lua.writeVariable("u_isKeyPressed",			[=](int mKey)							{ return window.getInputState()[KKey(mKey)]; });

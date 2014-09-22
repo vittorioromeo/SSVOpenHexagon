@@ -33,7 +33,7 @@ namespace hg
 
 	void HGAssets::loadAssets()
 	{
-		lo("::loadAssets") << "loading local profiles" << endl; loadLocalProfiles();
+		lo("::loadAssets") << "loading local profiles\n"; loadLocalProfiles();
 
 		for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
 		{

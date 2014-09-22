@@ -22,7 +22,7 @@ void createProfilesFolder()
 	Path profilesPath{"Profiles/"};
 	if(profilesPath.exists<ssvufs::Type::Folder>()) return;
 
-	lo("::createProfilesFolder") << "Profiles folder does not exist, creating" << endl;
+	lo("::createProfilesFolder") << "Profiles folder does not exist, creating\n";
 	createFolder(profilesPath);
 }
 
@@ -77,6 +77,8 @@ int main(int argc, char* argv[])
 	window.run();
 
 	if(Online::getLoginStatus() != Online::LoginStat::Logged) Online::logout();
+
+	ssvu::lo().flush();
 
 	Config::saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
 	Online::cleanup();
