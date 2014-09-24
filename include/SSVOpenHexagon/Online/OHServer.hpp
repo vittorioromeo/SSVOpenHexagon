@@ -380,9 +380,23 @@ namespace hg
 					{
 						ssvu::lo().flush();
 						std::string input;
-						try { if(std::getline(std::cin, input)) ctx.process(ssvu::getSplit(input, ' ')); }
-						catch(const std::runtime_error& mEx) { ssvu::lo("CmdLine") << mEx.what() << std::endl; }
-						catch(...) { }
+
+						try
+						{
+							if(std::getline(std::cin, input)) ctx.process(ssvu::getSplit(input, ' '));
+						}
+						catch(const ssvucl::Exception::Base& mEx)
+						{
+							ssvu::lo(mEx.getTitle()) << mEx.what() << std::endl;
+						}
+						catch(const std::runtime_error& mEx)
+						{
+							ssvu::lo("Runtime error") << mEx.what() << std::endl;
+						}
+						catch(...)
+						{
+
+						}
 					}
 				});
 
