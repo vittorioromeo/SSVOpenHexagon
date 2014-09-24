@@ -134,7 +134,7 @@ namespace hg
 
 		struct OHServer
 		{
-			ssvu::CommandLine::CmdLine cmdLine;
+			ssvu::CmdLine::Ctx ctx;
 
 			bool modifiedUsers{false}, modifiedScores{false};
 
@@ -380,8 +380,8 @@ namespace hg
 					{
 						ssvu::lo().flush();
 						std::string input;
-						try { if(std::getline(std::cin, input)) cmdLine.parseCmdLine(ssvu::getSplit(input, ' ')); }
-						catch(const std::runtime_error& mException) { ssvu::lo("CommandLine") << mException.what() << std::endl; }
+						try { if(std::getline(std::cin, input)) ctx.process(ssvu::getSplit(input, ' ')); }
+						catch(const std::runtime_error& mEx) { ssvu::lo("CmdLine") << mEx.what() << std::endl; }
 						catch(...) { }
 					}
 				});
@@ -400,7 +400,7 @@ namespace hg
 
 				// Exit
 				{
-					auto& cmd(cmdLine.create({"exit", "quit", "close", "abort"}));
+					auto& cmd(ctx.create({"exit", "quit", "close", "abort"}));
 					cmd.setDesc("Stops the server.");
 					cmd += [this]
 					{
@@ -412,7 +412,7 @@ namespace hg
 
 				// Toggle verbosity
 				{
-					auto& cmd(cmdLine.create({"verbose", "verbosity"}));
+					auto& cmd(ctx.create({"verbose", "verbosity"}));
 					cmd.setDesc("Sets log verbosity.");
 
 					auto& arg(cmd.createArg<bool>());
@@ -428,7 +428,7 @@ namespace hg
 
 				// Data printing
 				{
-					auto& cmd(cmdLine.create({"log", "print", "show"}));
+					auto& cmd(ctx.create({"log", "print", "show"}));
 					cmd.setDesc("Logs current server data.");
 
 					auto& arg(cmd.createArg<std::string>());
@@ -443,30 +443,30 @@ namespace hg
 				}
 			}
 
-			std::string getBriefHelp(const ssvu::CommandLine::Cmd& mCmd) { return mCmd.getNamesStr() + " " + mCmd.getArgsStr() + " " + mCmd.getOptArgsStr() + " " + mCmd.getFlagsStr() + " " + mCmd.getArgPacksStr(); }
+			std::string getBriefHelp(const ssvu::CmdLine::Cmd& mCmd) { return mCmd.getNamesStr() + " " + mCmd.getArgsStr() + " " + mCmd.getArgsOptStr() + " " + mCmd.getFlagsStr() + " " + mCmd.getArgPacksStr(); }
 			void initCmdHelp()
 			{
-				auto& cmd(cmdLine.create({"?", "help"}));
+				auto& cmd(ctx.create({"?", "help"}));
 				cmd.setDesc("Show help for all commands or a single command.");
 
-				auto& optArg(cmd.createOptArg<std::string>(""));
-				optArg.setName("Command name");
-				optArg.setBriefDesc("Name of the command to get help for.");
-				optArg.setDesc("Leave blank to get general help.");
+				auto& argOpt(cmd.createArgOpt<std::string>(""));
+				argOpt.setName("Command name");
+				argOpt.setBriefDesc("Name of the command to get help for.");
+				argOpt.setDesc("Leave blank to get general help.");
 
 				auto& flagVerbose(cmd.createFlag("v", "verbose"));
 				flagVerbose.setBriefDesc("Verbose general help?");
 
-				cmd += [this, &optArg, &flagVerbose]
+				cmd += [this, &argOpt, &flagVerbose]
 				{
-					if(!optArg)
+					if(!argOpt)
 					{
 						ssvu::lo("Open Hexagon server help") << "\n\n";
-						for(const auto& c : cmdLine.getCmds()) ssvu::lo() << getBriefHelp(*c) << "\n" << (flagVerbose ? c->getHelpStr() : "") << std::endl;
+						for(const auto& c : ctx.getCmds()) ssvu::lo() << getBriefHelp(*c) << "\n" << (flagVerbose ? c->getHelpStr() : "") << std::endl;
 					}
 					else
 					{
-						auto& c(cmdLine.findCmd(optArg.get()));
+						auto& c(ctx.findCmd(argOpt.get()));
 						ssvu::lo() << "\n" << getBriefHelp(c) << "\n" << c.getHelpStr();
 						ssvu::lo().flush();
 					}

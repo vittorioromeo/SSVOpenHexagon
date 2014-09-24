@@ -36,9 +36,9 @@ namespace hg
 
 						itr->second(mCaller, mPacket);
 					}
-					catch(std::exception& mException)
+					catch(std::exception& mEx)
 					{
-						HG_LO_VERBOSE("PacketHandler") << "Exception during packet handling: (" << type << ")\n" << mException.what() << std::endl;
+						HG_LO_VERBOSE("PacketHandler") << "Exception during packet handling: (" << type << ")\n" << mEx.what() << std::endl;
 					}
 					catch(...)
 					{
