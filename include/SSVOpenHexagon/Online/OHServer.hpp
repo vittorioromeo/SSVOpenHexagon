@@ -134,7 +134,7 @@ namespace hg
 
 		struct OHServer
 		{
-			ssvu::CmdLine::Ctx ctx;
+			ssvucl::Ctx ctx;
 
 			bool modifiedUsers{false}, modifiedScores{false};
 
@@ -415,7 +415,7 @@ namespace hg
 					auto& cmd(ctx.create({"verbose", "verbosity"}));
 					cmd.setDesc("Sets log verbosity.");
 
-					auto& arg(cmd.createArg<bool>());
+					auto& arg(cmd.create<ssvucl::Arg<bool>>());
 					arg.setName("Enable verbosity?");
 					arg.setBriefDesc("Controls whether verbosity is enabled or not.");
 
@@ -431,7 +431,7 @@ namespace hg
 					auto& cmd(ctx.create({"log", "print", "show"}));
 					cmd.setDesc("Logs current server data.");
 
-					auto& arg(cmd.createArg<std::string>());
+					auto& arg(cmd.create<ssvucl::Arg<std::string>>());
 					arg.setName("What to print?");
 					arg.setBriefDesc("Possible values: 'users', 'logins'.");
 
@@ -443,18 +443,22 @@ namespace hg
 				}
 			}
 
-			std::string getBriefHelp(const ssvu::CmdLine::Cmd& mCmd) { return mCmd.getNamesStr() + " " + mCmd.getArgsStr() + " " + mCmd.getArgsOptStr() + " " + mCmd.getFlagsStr() + " " + mCmd.getArgPacksStr(); }
+			std::string getBriefHelp(const ssvucl::Cmd& mCmd)
+			{
+				using namespace ssvucl;
+				return mCmd.getNamesStr() + " " + mCmd.getStr<EType::Arg>() + " " + mCmd.getStr<EType::ArgOpt>() + " " + mCmd.getStr<EType::Flag>() + " " + mCmd.getStr<EType::ArgPack>();
+			}
 			void initCmdHelp()
 			{
 				auto& cmd(ctx.create({"?", "help"}));
 				cmd.setDesc("Show help for all commands or a single command.");
 
-				auto& argOpt(cmd.createArgOpt<std::string>(""));
+				auto& argOpt(cmd.create<ssvucl::ArgOpt<std::string>>(""));
 				argOpt.setName("Command name");
 				argOpt.setBriefDesc("Name of the command to get help for.");
 				argOpt.setDesc("Leave blank to get general help.");
 
-				auto& flagVerbose(cmd.createFlag("v", "verbose"));
+				auto& flagVerbose(cmd.create<ssvucl::Flag>("v", "verbose"));
 				flagVerbose.setBriefDesc("Verbose general help?");
 
 				cmd += [this, &argOpt, &flagVerbose]
