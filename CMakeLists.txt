@@ -15,6 +15,10 @@ SSVCMake_findExtlib(SSVLuaWrapper)
 SSVCMake_findExtlib(SSVEntitySystem)
 SSVCMake_findExtlib(SSVStart)
 
+if(WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--stack,4194304 -fpermissive")
+endif()
+
 include_directories(${LUA_INCLUDE_DIR})
 include_directories(${ZLIB_INCLUDE_DIR})
 add_executable(${PROJECT_NAME} ${SRC_LIST})
