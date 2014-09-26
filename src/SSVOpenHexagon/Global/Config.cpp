@@ -68,6 +68,7 @@ namespace hg
 		auto& serverLocal				(lvm.create<bool>("server_local"));
 		auto& serverVerbose				(lvm.create<bool>("server_verbose"));
 		auto& mouseVisible				(lvm.create<bool>("mouse_visible"));
+		auto& musicSpeedMult			(lvm.create<float>("music_speed_mult"));
 		auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
 		auto& triggerRotateCW			(lvm.create<Trigger>("t_rotate_cw"));
 		auto& triggerFocus				(lvm.create<Trigger>("t_focus"));
@@ -221,6 +222,7 @@ namespace hg
 		void setServerLocal(bool mValue)			{ serverLocal = mValue; }
 		void setServerVerbose(bool mValue)			{ serverVerbose = mValue; }
 		void setMouseVisible(bool mValue)			{ mouseVisible = mValue; }
+		void setMusicSpeedMult(float mValue)		{ musicSpeedMult = mValue; }
 
 		bool getOnline()					{ return online; }
 		bool getOfficial()					{ return official; }
@@ -272,6 +274,7 @@ namespace hg
 		bool getServerLocal()				{ return serverLocal; }
 		bool getServerVerbose()				{ return serverVerbose; }
 		bool getMouseVisible()				{ return mouseVisible; }
+		float getMusicSpeedMult()			{ return musicSpeedMult; }
 
 		Trigger getTriggerRotateCCW()		{ return triggerRotateCCW; }
 		Trigger getTriggerRotateCW()		{ return triggerRotateCW; }

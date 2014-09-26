@@ -139,6 +139,7 @@ namespace hg
 		sfx.create<i::Slider>("sound volume", &Config::getSoundVolume, [this](unsigned int mValue){ Config::setSoundVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | whenSoundEnabled;
 		sfx.create<i::Slider>("music volume", &Config::getMusicVolume, [this](unsigned int mValue){ Config::setMusicVolume(mValue); assets.refreshVolumes(); }, 0u, 100u, 5u) | whenMusicEnabled;
 		sfx.create<i::Toggle>("sync music with difficulty", &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync) | whenMusicEnabled;
+		sfx.create<i::Slider>("music speed multipler", &Config::getMusicSpeedMult, [this](float mValue){ Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f, 0.05f) | whenMusicEnabled;
 		sfx.create<i::GoBack>("back");
 
 		play.create<i::Toggle>("autorestart", &Config::getAutoRestart, &Config::setAutoRestart);

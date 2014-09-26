@@ -19,6 +19,7 @@
 	"max_fps" : 200,
 	"mouse_visible" : false,
 	"music_speed_dm_sync" : true,
+	"music_speed_mult" : 1.0,
 	"music_volume" : 30.0,
 	"no_background" : false,
 	"no_music" : false,
