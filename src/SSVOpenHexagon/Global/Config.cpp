@@ -226,7 +226,7 @@ namespace hg
 
 		bool getOnline()					{ return online; }
 		bool getOfficial()					{ return official; }
-		string getUneligibilityReason() 	{ return uneligibilityReason; }
+		string getUneligibilityReason()		{ return uneligibilityReason; }
 		float getSizeX()					{ return sizeX; }
 		float getSizeY()					{ return sizeY; }
 		float getSpawnDistance()			{ return spawnDistance; }
