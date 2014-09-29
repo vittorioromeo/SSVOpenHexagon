@@ -88,3 +88,5 @@ int main(int argc, char* argv[])
 
 // TODO: feedback:
 // * add a way to disable voice sound files (or allow their removal)
+
+// TODO: BUG: some levels such as apeirogon don't stop increasing their difficulty
