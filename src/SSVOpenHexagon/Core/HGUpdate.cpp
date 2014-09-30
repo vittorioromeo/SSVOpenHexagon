@@ -96,8 +96,13 @@ namespace hg
 		if(!levelStatus.incEnabled) return;
 		if(status.incrementTime < levelStatus.incTime) return;
 
+		if(!levelStatus.shouldIncrement())
+		{
+			++levelStatus.currentIncrements;
+			incrementDifficulty();
+		}
+
 		status.incrementTime = 0;
-		incrementDifficulty();
 
 		mustChangeSides = true;
 	}

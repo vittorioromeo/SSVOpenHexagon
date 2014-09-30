@@ -46,6 +46,7 @@ function onInit()
 	l_setSidesMin(4)
 	l_setSidesMax(4)
 	l_setIncTime(10)
+	l_setMaxInc(10)
 
 	l_setWallSkewLeft(-15)
 

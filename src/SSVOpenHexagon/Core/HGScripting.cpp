@@ -85,12 +85,14 @@ namespace hg
 		lua.writeVariable("l_setSwapEnabled",		[=](bool mValue)						{ levelStatus.swapEnabled = mValue; });
 		lua.writeVariable("l_setTutorialMode",		[=](bool mValue)						{ levelStatus.tutorialMode = mValue; });
 		lua.writeVariable("l_setIncEnabled",		[=](bool mValue)						{ levelStatus.incEnabled = mValue; });
+		lua.writeVariable("l_setMaxInc",			[=](std::size_t mValue)					{ levelStatus.maxIncrements = mValue; });
 		lua.writeVariable("l_addTracked",			[=](string mVar, string mName)			{ levelStatus.trackedVariables.emplace_back(mVar, mName); });
 		lua.writeVariable("l_enableRndSideChanges", [=](bool mValue)						{ levelStatus.rndSideChangesEnabled = mValue; });
 		lua.writeVariable("l_getRotationSpeed",		[=]										{ return levelStatus.rotationSpeed; });
 		lua.writeVariable("l_getSides",				[=]										{ return levelStatus.sides; });
 		lua.writeVariable("l_getSpeedMult",			[=]										{ return levelStatus.speedMult; });
 		lua.writeVariable("l_getDelayMult",			[=]										{ return levelStatus.delayMult; });
+		lua.writeVariable("l_getMaxInc",			[=]										{ return levelStatus.maxIncrements; });
 
 		// Style control
 		lua.writeVariable("s_setPulseInc",			[=](float mValue)						{ styleData.pulseIncrement = mValue; });

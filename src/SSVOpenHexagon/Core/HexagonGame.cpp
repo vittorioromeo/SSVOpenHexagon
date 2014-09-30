@@ -124,7 +124,10 @@ namespace hg
 	{
 		assets.playSound("levelUp.ogg");
 
-		levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
+		if(levelStatus.shouldIncrement())
+		{
+			levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
+		}
 		levelStatus.rotationSpeed *= -1.f;
 
 		const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
@@ -138,8 +141,12 @@ namespace hg
 		SSVU_ASSERT(mSideNumber > 0 && mSideNumber < 1000);
 
 		runLuaFunction<void>("onIncrement");
-		levelStatus.speedMult += levelStatus.speedInc;
-		levelStatus.delayMult += levelStatus.delayInc;
+
+		if(levelStatus.shouldIncrement())
+		{
+			levelStatus.speedMult += levelStatus.speedInc;
+			levelStatus.delayMult += levelStatus.delayInc;
+		}
 
 		if(levelStatus.rndSideChangesEnabled) setSides(mSideNumber);
 		mustChangeSides = false;

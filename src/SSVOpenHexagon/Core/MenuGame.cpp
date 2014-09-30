@@ -261,7 +261,7 @@ namespace hg
 			"u_isKeyPressed", "u_isFastSpinning", "u_forceIncrement", "u_kill", "u_eventKill", "m_messageAdd",
 			"m_messageAddImportant", "t_wait", "t_waitS", "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
 			"e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj", "w_wallAcc",
-			"w_wallHModSpeedData", "w_wallHModCurveData", "l_setDelayMult" }) mLua.writeVariable(un, []{});
+			"w_wallHModSpeedData", "w_wallHModCurveData", "l_setDelayMult", "l_setMaxInc" }) mLua.writeVariable(un, []{});
 	}
 
 	void MenuGame::setIndex(int mIdx)
