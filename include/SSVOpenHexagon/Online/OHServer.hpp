@@ -49,7 +49,7 @@ namespace hg
 					ss.emplace(mScore, mUsername);
 
 					int i{1};
-					for(const auto& p : ssvu::makeRangeReverse(ss)) userPositions[mDiffMult][p.second] = i++;
+					for(const auto& p : ssvu::asRangeReverse(ss)) userPositions[mDiffMult][p.second] = i++;
 				}
 
 				inline bool hasDiffMult(float mDiffMult) const { return scores.count(mDiffMult) > 0; }
@@ -263,7 +263,7 @@ namespace hg
 					ssvuj::Obj response;
 
 					auto i(0u);
-					for(const auto& v : ssvu::makeRangeReverse(sortedScores))
+					for(const auto& v : ssvu::asRangeReverse(sortedScores))
 					{
 						auto& responseObj(ssvuj::getObj(response, "r"));
 						auto& arrayObj(ssvuj::getObj(responseObj, i));
