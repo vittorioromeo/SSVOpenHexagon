@@ -102,7 +102,7 @@ namespace hg
 
 		s.flush();
 
-		const Vec2f pos{15, 3};
+		const Vec2f pos{8, 8};
 		const vector<Vec2f> offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 		Color offsetColor{getColor(1)};
