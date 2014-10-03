@@ -33,12 +33,12 @@ namespace hg
 		game.onEvent(Event::EventType::MouseWheelMoved) += [this](const Event& mEvent)
 		{
 			wheelProgress += mEvent.mouseWheel.delta;
-			if(wheelProgress > 2.0f)
+			if(wheelProgress > 2.f)
 			{
 				wheelProgress = 0.f;
 				upAction();
 			}
-			else if(wheelProgress < -2.0f)
+			else if(wheelProgress < -2.f)
 			{
 				wheelProgress = 0.f;
 				downAction();

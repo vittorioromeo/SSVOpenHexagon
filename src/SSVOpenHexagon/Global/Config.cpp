@@ -246,7 +246,7 @@ namespace hg
 		bool getVsync()						{ return vsync; }
 		bool getAutoZoomFactor()			{ return official ? true : autoZoomFactor; }
 		bool getFullscreen()				{ return fullscreen; }
-		float getVersion()					{ return 2.00f; }
+		float getVersion()					{ return 2.f; }
 		bool getWindowedAutoResolution()	{ return windowedAutoResolution; }
 		bool getFullscreenAutoResolution()	{ return fullscreenAutoResolution; }
 		unsigned int getFullscreenWidth()	{ return fullscreenWidth; }
