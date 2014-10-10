@@ -52,8 +52,7 @@ namespace hg
 			string script{mLuaScript}, toFind{"execScript("};
 			std::set<string> result;
 
-			size_t pos{script.find(toFind, 0)};
-			while(pos != string::npos)
+			for(auto pos(script.find(toFind, 0)); pos != string::npos; pos = script.find(toFind, pos + 1))
 			{
 				size_t startPos{pos};
 				string untilEnd{script.substr(startPos + toFind.size() + 1, script.size() - startPos)};
@@ -61,7 +60,6 @@ namespace hg
 				string luaFileName{untilEnd.substr(0, lastPos)};
 
 				result.insert(luaFileName);
-				pos = script.find(toFind, pos + 1);
 			}
 
 			return result;
