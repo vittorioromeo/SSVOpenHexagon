@@ -222,7 +222,7 @@ namespace hg
 
 					if(Online::getValidators().getValidator(levelId) != validator)
 					{
-						HG_LO_VERBOSE("PacketHandler") << "Validator mismatch!\n" << Online::getValidators().getValidator(levelId) << "\n" << validator << std::endl;
+						HG_LO_VERBOSE("PacketHandler") << "Validator mismatch!\n" << Online::getValidators().getValidator(levelId) << "\n" << validator << "\n";
 						mMS.send(buildCPacket<FromServer::SendScoreResponseInvalid>()); return;
 					}
 
@@ -247,7 +247,7 @@ namespace hg
 
 					if(Online::getValidators().getValidator(levelId) != validator)
 					{
-						HG_LO_VERBOSE("PacketHandler") << "Validator mismatch!\n" << Online::getValidators().getValidator(levelId) << "\n" << validator << std::endl;
+						HG_LO_VERBOSE("PacketHandler") << "Validator mismatch!\n" << Online::getValidators().getValidator(levelId) << "\n" << validator << "\n";
 						mMS.send(buildCPacket<FromServer::SendLeaderboardFailed>()); return;
 					}
 
@@ -435,7 +435,7 @@ namespace hg
 					cmd += [this, &arg]
 					{
 						Config::setServerVerbose(arg.get());
-						ssvu::lo("Verbose mode") << (Config::getServerVerbose() ? "on" : "off") << std::endl;
+						ssvu::lo("Verbose mode") << (Config::getServerVerbose() ? "on" : "off") << "\n";
 					};
 				}
 
@@ -450,8 +450,10 @@ namespace hg
 
 					cmd += [this, &arg]
 					{
-						if(arg.get() == "users")		{ for(const auto& u : users.getUsers()) ssvu::lo() << u.first << std::endl; }
-						else if(arg.get() == "logins")	{ for(const auto& l : loginDB.getLoggedUsernames()) ssvu::lo() << l << std::endl; }
+						if(arg.get() == "users")		{ for(const auto& u : users.getUsers()) ssvu::lo() << u.first << "\n"; }
+						else if(arg.get() == "logins")	{ for(const auto& l : loginDB.getLoggedUsernames()) ssvu::lo() << l << "\n"; }
+
+						ssvu::lo().flush();
 					};
 				}
 			}
@@ -479,14 +481,15 @@ namespace hg
 					if(!argOpt)
 					{
 						ssvu::lo("Open Hexagon server help") << "\n\n";
-						for(const auto& c : ctx.getCmds()) ssvu::lo() << getBriefHelp(*c) << "\n" << (flagVerbose ? c->getHelpStr() : "") << std::endl;
+						for(const auto& c : ctx.getCmds()) ssvu::lo() << getBriefHelp(*c) << "\n" << (flagVerbose ? c->getHelpStr() : "") << "\n";
 					}
 					else
 					{
 						auto& c(ctx.findCmd(argOpt.get()));
 						ssvu::lo() << "\n" << getBriefHelp(c) << "\n" << c.getHelpStr();
-						ssvu::lo().flush();
 					}
+
+					ssvu::lo().flush();
 				};
 			}
 		};
