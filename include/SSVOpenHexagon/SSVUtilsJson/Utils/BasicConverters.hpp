@@ -48,7 +48,7 @@ namespace ssvuj
 			inline static void toObj(Obj& mObj, const T& mValue) { mObj = mValue; }
 		};
 
-		template<std::size_t I, typename TTpl> using TplArg = ssvu::TupleElem<I, ssvu::RemoveConst<ssvu::RemoveRef<TTpl>>>;
+		template<std::size_t I, typename TTpl> using TplArg = ssvu::TplElem<I, ssvu::RemoveConst<ssvu::RemoveRef<TTpl>>>;
 
 		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I == sizeof...(TArgs)> toTpl(const Obj&, std::tuple<TArgs...>&) { }
 		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I < sizeof...(TArgs)> toTpl(const Obj& mObj, std::tuple<TArgs...>& mTpl)
