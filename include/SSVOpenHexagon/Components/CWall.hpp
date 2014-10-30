@@ -38,7 +38,7 @@ namespace hg
 			int side{0};
 
 		public:
-			CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
+			CWall(sses::Entity& mE, HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
 			void update(FT mFT) override;
 			void draw() override;

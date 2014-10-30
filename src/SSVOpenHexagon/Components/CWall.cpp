@@ -13,8 +13,8 @@ using namespace ssvs;
 
 namespace hg
 {
-	CWall::CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve) : hexagonGame(mHexagonGame), centerPos{mCenterPos},
-		speed{mSpeed}, curve{mCurve}, distance{mDistance}, thickness{mThickness}, side{mSide}
+	CWall::CWall(Entity& mE, HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide, float mThickness, float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve)
+		: Component{mE}, hexagonGame(mHexagonGame), centerPos{mCenterPos}, speed{mSpeed}, curve{mCurve}, distance{mDistance}, thickness{mThickness}, side{mSide}
 	{
 		float div{ssvu::tau / hexagonGame.getSides() * 0.5f}, angle{div * 2.f * side};
 
