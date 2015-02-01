@@ -146,55 +146,55 @@ namespace ssvuj
 		template<Idx TIdx, typename TArg> inline void extrArrayHelper(const Obj& mArray, TArg& mArg) { extr(mArray, TIdx, mArg); }
 		template<Idx TIdx, typename TArg, typename... TArgs> inline void extrArrayHelper(const Obj& mArray, TArg& mArg, TArgs&... mArgs)
 		{
-			extrArrayHelper<TIdx>(mArray, mArg); extrArrayHelper<TIdx + 1>(mArray, ssvu::fwd<TArgs&>(mArgs)...);
+			extrArrayHelper<TIdx>(mArray, mArg); extrArrayHelper<TIdx + 1>(mArray, SSVU_FWD(mArgs)...);
 		}
 
 		template<Idx TIdx, typename TArg> inline void archArrayHelper(Obj& mArray, const TArg& mArg) { arch(mArray, TIdx, mArg); }
 		template<Idx TIdx, typename TArg, typename... TArgs> inline void archArrayHelper(Obj& mArray, const TArg& mArg, const TArgs&... mArgs)
 		{
-			archArrayHelper<TIdx>(mArray, mArg); archArrayHelper<TIdx + 1>(mArray, ssvu::fwd<const TArgs&>(mArgs)...);
+			archArrayHelper<TIdx>(mArray, mArg); archArrayHelper<TIdx + 1>(mArray, SSVU_FWD(mArgs)...);
 		}
 
 		template<typename TArg> inline void extrObjHelper(const Obj& mObj, const Key& mKey, TArg& mArg) { extr(mObj, mKey, mArg); }
 		template<typename TArg, typename... TArgs> inline void extrObjHelper(const Obj& mObj, const Key& mKey, TArg& mArg, TArgs&... mArgs)
 		{
-			extrObjHelper(mObj, mKey, mArg); extrObjHelper(mObj, ssvu::fwd<TArgs&>(mArgs)...);
+			extrObjHelper(mObj, mKey, mArg); extrObjHelper(mObj, SSVU_FWD(mArgs)...);
 		}
 
 		template<typename TArg> inline void archObjHelper(Obj& mObj, const Key& mKey, const TArg& mArg) { arch(mObj, mKey, mArg); }
 		template<typename TArg, typename... TArgs> inline void archObjHelper(Obj& mObj, const Key& mKey, TArg&& mArg, const TArgs&... mArgs)
 		{
-			archObjHelper(mObj, mKey, mArg); archObjHelper(mObj, ssvu::fwd<const TArgs&>(mArgs)...);
+			archObjHelper(mObj, mKey, mArg); archObjHelper(mObj, SSVU_FWD(mArgs)...);
 		}
 	}
 
 	/// @brief Extracts a JSON array into value references.
 	/// @param mArray Array to extract.
 	/// @param mArgs References to be assigned after the extraction.
-	template<typename... TArgs> inline void extrArray(const Obj& mArray, TArgs&... mArgs) { Internal::extrArrayHelper<0>(mArray, ssvu::fwd<TArgs&>(mArgs)...); }
+	template<typename... TArgs> inline void extrArray(const Obj& mArray, TArgs&... mArgs) { Internal::extrArrayHelper<0>(mArray, SSVU_FWD(mArgs)...); }
 
 	/// @brief Archives any number of values into a JSON array.
 	/// @param mArray Array to archive the values in.
 	/// @param mArgs Const references to the values to archive.
-	template<typename... TArgs> inline void archArray(Obj& mArray, const TArgs&... mArgs) { Internal::archArrayHelper<0>(mArray, ssvu::fwd<const TArgs&>(mArgs)...); }
+	template<typename... TArgs> inline void archArray(Obj& mArray, const TArgs&... mArgs) { Internal::archArrayHelper<0>(mArray, SSVU_FWD(mArgs)...); }
 
 	/// @brief Returns a new JSON array instance with any number of values archived in it.
 	/// @param mArgs Const references to the values to archive.
-	template<typename... TArgs> inline Obj getArchArray(const TArgs&... mArgs) { Obj result; archArray(result, ssvu::fwd<const TArgs&>(mArgs)...); return result; }
+	template<typename... TArgs> inline Obj getArchArray(const TArgs&... mArgs) { Obj result; archArray(result, SSVU_FWD(mArgs)...); return result; }
 
 	/// @brief Extracts any number of values from a JSON Obj.
 	/// @param mObj Object to extract the values from.
 	/// @param mArgs For every value extracted, pass a key and a reference to the value.
-	template<typename... TArgs> inline void extrObj(const Obj& mObj, TArgs&... mArgs) { Internal::extrObjHelper(mObj, ssvu::fwd<TArgs&>(mArgs)...); }
+	template<typename... TArgs> inline void extrObj(const Obj& mObj, TArgs&... mArgs) { Internal::extrObjHelper(mObj, SSVU_FWD(mArgs)...); }
 
 	/// @brief Archives any number of values into a JSON Obj.
 	/// @param mObj Object to archive the values in.
 	/// @param mArgs For every value archived, pass a key and a const reference to the value.
-	template<typename... TArgs> inline void archObj(Obj& mObj, const TArgs&... mArgs) { Internal::archObjHelper(mObj, ssvu::fwd<const TArgs&>(mArgs)...); }
+	template<typename... TArgs> inline void archObj(Obj& mObj, const TArgs&... mArgs) { Internal::archObjHelper(mObj, SSVU_FWD(mArgs)...); }
 
 	/// @brief Returns a new JSON Obj instance with any number of values archived in it.
 	/// @param mArgs For every value archived, pass a key and a const reference to the value.
-	template<typename... TArgs> inline Obj getArchObj(const TArgs&... mArgs) { Obj result; archObj(result, ssvu::fwd<const TArgs&>(mArgs)...); return result; }
+	template<typename... TArgs> inline Obj getArchObj(const TArgs&... mArgs) { Obj result; archObj(result, SSVU_FWD(mArgs)...); return result; }
 
 	/// @brief Archives/extracts a value into/from a JSON Obj, depending from the constness.
 	/// @param mObj Object to extract.
@@ -209,22 +209,22 @@ namespace ssvuj
 	/// @brief Archives/extracts any number of values into/from a JSON array, depending from the constness.
 	/// @param mObj Object to extract.
 	/// @param mArgs Values to extract.
-	template<typename... TArgs> inline void convertArray(const Obj& mObj, TArgs&... mArgs) { extrArray(mObj, ssvu::fwd<TArgs&>(mArgs)...); }
+	template<typename... TArgs> inline void convertArray(const Obj& mObj, TArgs&... mArgs) { extrArray(mObj, SSVU_FWD(mArgs)...); }
 
 	/// @brief Archives/extracts any number of values into/from a JSON array, depending from the constness.
 	/// @param mObj Object to archive.
 	/// @param mArgs Values to archive.
-	template<typename... TArgs> inline void convertArray(Obj& mObj, const TArgs&... mArgs) { archArray(mObj, ssvu::fwd<const TArgs&>(mArgs)...); }
+	template<typename... TArgs> inline void convertArray(Obj& mObj, const TArgs&... mArgs) { archArray(mObj, SSVU_FWD(mArgs)...); }
 
 	/// @brief Archives/extracts any number of values into/from a JSON Obj, depending from the constness.
 	/// @param mObj Object to extract.
 	/// @param mArgs For every value extracted, pass a key and a reference to the value.
-	template<typename... TArgs> inline void convertObj(const Obj& mObj, TArgs&... mArgs) { extrObj(mObj, ssvu::fwd<TArgs&>(mArgs)...); }
+	template<typename... TArgs> inline void convertObj(const Obj& mObj, TArgs&... mArgs) { extrObj(mObj, SSVU_FWD(mArgs)...); }
 
 	/// @brief Archives/extracts any number of values into/from a JSON Obj, depending from the constness.
 	/// @param mObj Object to archive.
 	/// @param mArgs For every value archived, pass a key and a const reference to the value.
-	template<typename... TArgs> inline void convertObj(Obj& mObj, const TArgs&... mArgs) { archObj(mObj, ssvu::fwd<const TArgs&>(mArgs)...); }
+	template<typename... TArgs> inline void convertObj(Obj& mObj, const TArgs&... mArgs) { archObj(mObj, SSVU_FWD(mArgs)...); }
 }
 
 #endif
