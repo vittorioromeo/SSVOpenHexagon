@@ -51,8 +51,8 @@ namespace ssvs
 		for(const auto& f : getExtr<vector<string>>(mObj, "textures"))			mAssetManager.load<sf::Texture>(f, mRootPath + f);
 		for(const auto& f : getExtr<vector<string>>(mObj, "soundBuffers"))		mAssetManager.load<sf::SoundBuffer>(f, mRootPath + f);
 		for(const auto& f : getExtr<vector<string>>(mObj, "musics"))			mAssetManager.load<sf::Music>(f, mRootPath + f);
-		for(const auto& f : getExtr<vector<string>>(mObj, "shadersVertex"))		mAssetManager.load<sf::Shader>(f, mRootPath + f, sf::Shader::Type::Vertex, Internal::ShaderFromPath{});
-		for(const auto& f : getExtr<vector<string>>(mObj, "shadersFragment"))	mAssetManager.load<sf::Shader>(f, mRootPath + f, sf::Shader::Type::Fragment, Internal::ShaderFromPath{});
+		for(const auto& f : getExtr<vector<string>>(mObj, "shadersVertex"))		mAssetManager.load<sf::Shader>(f, mRootPath + f, sf::Shader::Type::Vertex, Impl::ShaderFromPath{});
+		for(const auto& f : getExtr<vector<string>>(mObj, "shadersFragment"))	mAssetManager.load<sf::Shader>(f, mRootPath + f, sf::Shader::Type::Fragment, Impl::ShaderFromPath{});
 
 		const auto& bfs(getObj(mObj, "bitmapFonts"));
 			for(auto itr(begin(bfs)); itr != end(bfs); ++itr)

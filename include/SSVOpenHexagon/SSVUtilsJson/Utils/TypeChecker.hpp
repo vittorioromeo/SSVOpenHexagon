@@ -7,7 +7,7 @@
 
 namespace ssvuj
 {
-	namespace Internal
+	namespace Impl
 	{
 		template<typename T> inline bool isObjType(const Obj& mObj) noexcept;
 

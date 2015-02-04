@@ -16,7 +16,7 @@ namespace hg
 {
 	namespace Online
 	{
-		namespace Internal
+		namespace Impl
 		{
 			// Compression
 			template<typename... TArgs> inline std::string buildCJsonString(TArgs&&... mArgs)
@@ -31,7 +31,7 @@ namespace hg
 		template<unsigned int TType, typename... TArgs> inline sf::Packet buildCPacket(TArgs&&... mArgs)
 		{
 			sf::Packet result{buildCPacket<TType>()};
-			result << Internal::buildCJsonString(mArgs...);
+			result << Impl::buildCJsonString(mArgs...);
 			return result;
 		}
 

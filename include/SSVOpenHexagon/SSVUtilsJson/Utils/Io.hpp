@@ -7,7 +7,7 @@
 
 namespace ssvuj
 {
-	namespace Internal
+	namespace Impl
 	{
 		inline bool tryParse(Obj& mObj, Reader& mReader, const std::string& mSrc)
 		{
@@ -17,8 +17,8 @@ namespace ssvuj
 		}
 	}
 
-	inline void readFromString(Obj& mObj, const std::string& mStr)	{ Reader reader; Internal::tryParse(mObj, reader, mStr); }
-	inline void readFromFile(Obj& mObj, const Path& mPath)			{ Reader reader; Internal::tryParse(mObj, reader, mPath.getContentsAsString()); }
+	inline void readFromString(Obj& mObj, const std::string& mStr)	{ Reader reader; Impl::tryParse(mObj, reader, mStr); }
+	inline void readFromFile(Obj& mObj, const Path& mPath)			{ Reader reader; Impl::tryParse(mObj, reader, mPath.getContentsAsString()); }
 
 	inline Obj getFromString(const std::string& mStr)	{ Obj result; readFromString(result, mStr); return result; }
 	inline Obj getFromFile(const Path& mPath)			{ Obj result; readFromFile(result, mPath); return result; }

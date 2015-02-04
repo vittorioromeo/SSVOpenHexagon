@@ -7,7 +7,7 @@
 
 namespace ssvuj
 {
-	namespace Internal
+	namespace Impl
 	{
 		class LinkedValueBase
 		{
@@ -23,13 +23,13 @@ namespace ssvuj
 		};
 	}
 
-	template<typename T> class LinkedValue final : public Internal::LinkedValueBase
+	template<typename T> class LinkedValue final : public Impl::LinkedValueBase
 	{
 		private:
 			T value;
 
 		public:
-			inline LinkedValue(std::string mLinkedName) : Internal::LinkedValueBase{std::move(mLinkedName)} { }
+			inline LinkedValue(std::string mLinkedName) : Impl::LinkedValueBase{std::move(mLinkedName)} { }
 
 			inline operator T() const noexcept { return value; }
 			inline auto& operator=(const T& mValue) { value = mValue; return *this; }
@@ -41,7 +41,7 @@ namespace ssvuj
 	class LinkedValueManager
 	{
 		private:
-			using Container = ssvu::VecUPtr<Internal::LinkedValueBase>;
+			using Container = ssvu::VecUPtr<Impl::LinkedValueBase>;
 			Obj& obj;
 			Container values;
 

@@ -13,7 +13,7 @@
 
 /// @macro Defines a simple converter template specialization to convert classes that do not require special behavior.
 #define SSVUJ_CNV_SIMPLE(mType, mObjName, mValueName) \
-	struct Converter<mType> final : ssvuj::Internal::ConverterSimpleImpl<mType> \
+	struct Converter<mType> final : ssvuj::Impl::ConverterSimpleImpl<mType> \
 	{ \
 		template<typename TObj, typename TValue> inline static void impl(TObj mObjName, TValue mValueName)
 
@@ -35,7 +35,7 @@ namespace ssvuj
 		}
 	};
 
-	namespace Internal
+	namespace Impl
 	{
 		template<typename T> struct ConverterSimpleImpl
 		{
@@ -64,7 +64,7 @@ namespace ssvuj
 	}
 
 	#define SSVUJ_IMPL_CNV_BASE(mType) \
-		template<> struct Converter<mType> final : ssvuj::Internal::ConverterBaseImpl<mType> \
+		template<> struct Converter<mType> final : ssvuj::Impl::ConverterBaseImpl<mType> \
 		{ \
 			using T = mType; \
 			inline static void fromObj(const Obj& mObj, T& mValue)
@@ -132,21 +132,21 @@ namespace ssvuj
 		using T = std::pair<T1, T2>;
 		inline static void fromObj(const Obj& mObj, T& mValue)
 		{
-			extr<Internal::TplArg<0, T>>(mObj, 0, std::get<0>(mValue));
-			extr<Internal::TplArg<1, T>>(mObj, 1, std::get<1>(mValue));
+			extr<Impl::TplArg<0, T>>(mObj, 0, std::get<0>(mValue));
+			extr<Impl::TplArg<1, T>>(mObj, 1, std::get<1>(mValue));
 		}
 		inline static void toObj(Obj& mObj, const T& mValue)
 		{
-			arch<Internal::TplArg<0, T>>(mObj, 0, std::get<0>(mValue));
-			arch<Internal::TplArg<1, T>>(mObj, 1, std::get<1>(mValue));
+			arch<Impl::TplArg<0, T>>(mObj, 0, std::get<0>(mValue));
+			arch<Impl::TplArg<1, T>>(mObj, 1, std::get<1>(mValue));
 		}
 	};
 
 	template<typename... TArgs> struct Converter<std::tuple<TArgs...>>
 	{
 		using T = std::tuple<TArgs...>;
-		inline static void fromObj(const Obj& mObj, T& mValue)	{ Internal::toTpl(mObj, mValue); }
-		inline static void toObj(Obj& mObj, const T& mValue)	{ Internal::fromTpl(mObj, mValue); }
+		inline static void fromObj(const Obj& mObj, T& mValue)	{ Impl::toTpl(mObj, mValue); }
+		inline static void toObj(Obj& mObj, const T& mValue)	{ Impl::fromTpl(mObj, mValue); }
 	};
 
 	template<typename TItem, std::size_t TN> struct Converter<TItem[TN]>
