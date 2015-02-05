@@ -50,14 +50,14 @@ namespace ssvuj
 
 		template<std::size_t I, typename TTpl> using TplArg = ssvu::TplElem<I, ssvu::RemoveConst<ssvu::RemoveRef<TTpl>>>;
 
-		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I == sizeof...(TArgs)> toTpl(const Obj&, std::tuple<TArgs...>&) { }
-		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I < sizeof...(TArgs)> toTpl(const Obj& mObj, std::tuple<TArgs...>& mTpl)
+		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I == sizeof...(TArgs)> toTpl(const Obj&, ssvu::Tpl<TArgs...>&) { }
+		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I < sizeof...(TArgs)> toTpl(const Obj& mObj, ssvu::Tpl<TArgs...>& mTpl)
 		{
 			Converter<TplArg<I, decltype(mTpl)>>::fromObj(mObj[Idx(I)], std::get<I>(mTpl)); toTpl<I + 1, TArgs...>(mObj, mTpl);
 		}
 
-		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I == sizeof...(TArgs)> fromTpl(Obj&, const std::tuple<TArgs...>&) { }
-		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I < sizeof...(TArgs)> fromTpl(Obj& mObj, const std::tuple<TArgs...>& mTpl)
+		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I == sizeof...(TArgs)> fromTpl(Obj&, const ssvu::Tpl<TArgs...>&) { }
+		template<std::size_t I = 0, typename... TArgs> inline ssvu::EnableIf<I < sizeof...(TArgs)> fromTpl(Obj& mObj, const ssvu::Tpl<TArgs...>& mTpl)
 		{
 			Converter<TplArg<I, decltype(mTpl)>>::toObj(mObj[Idx(I)], std::get<I>(mTpl)); fromTpl<I + 1, TArgs...>(mObj, mTpl);
 		}
