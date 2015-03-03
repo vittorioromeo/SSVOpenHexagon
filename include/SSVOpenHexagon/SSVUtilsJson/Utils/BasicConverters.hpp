@@ -142,9 +142,9 @@ namespace ssvuj
 		}
 	};
 
-	template<typename... TArgs> struct Converter<std::tuple<TArgs...>>
+	template<typename... TArgs> struct Converter<ssvu::Tpl<TArgs...>>
 	{
-		using T = std::tuple<TArgs...>;
+		using T = ssvu::Tpl<TArgs...>;
 		inline static void fromObj(const Obj& mObj, T& mValue)	{ Impl::toTpl(mObj, mValue); }
 		inline static void toObj(Obj& mObj, const T& mValue)	{ Impl::fromTpl(mObj, mValue); }
 	};
