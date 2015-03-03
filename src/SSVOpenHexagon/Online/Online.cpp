@@ -80,7 +80,7 @@ namespace hg
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&)			{ newUserReg = false; };
 
-			client = ssvu::makeUPtr<Client>(clientPHandler);
+			client = ssvu::mkUPtr<Client>(clientPHandler);
 
 			currentGtm->start([]
 			{
