@@ -19,8 +19,6 @@
 
 namespace ssvs
 {
-	class AssetManager;
-
 	inline auto getAnimationFromJson(const Tileset& mTileset, const ssvuj::Obj& mObj)
 	{
 		Animation::Type type{Animation::Type::Loop};
@@ -41,26 +39,26 @@ namespace ssvs
 		result.setSpeed(ssvuj::getExtr<float>(mObj, "speed", 1.f));
 		return result;
 	}
-	inline void loadAssetsFromJson(AssetManager& mAssetManager, const Path& mRootPath, const ssvuj::Obj& mObj)
+	template<typename TM> inline void loadAssetsFromJson(TM& mAM, const Path& mRootPath, const ssvuj::Obj& mObj)
 	{
 		using namespace std;
 		using namespace ssvuj;
 
-		for(const auto& f : getExtr<vector<string>>(mObj, "fonts"))				mAssetManager.load<sf::Font>(f, mRootPath + f);
-		for(const auto& f : getExtr<vector<string>>(mObj, "images"))			mAssetManager.load<sf::Image>(f, mRootPath + f);
-		for(const auto& f : getExtr<vector<string>>(mObj, "textures"))			mAssetManager.load<sf::Texture>(f, mRootPath + f);
-		for(const auto& f : getExtr<vector<string>>(mObj, "soundBuffers"))		mAssetManager.load<sf::SoundBuffer>(f, mRootPath + f);
-		for(const auto& f : getExtr<vector<string>>(mObj, "musics"))			mAssetManager.load<sf::Music>(f, mRootPath + f);
-		for(const auto& f : getExtr<vector<string>>(mObj, "shadersVertex"))		mAssetManager.load<sf::Shader>(f, mRootPath + f, sf::Shader::Type::Vertex, Impl::ShaderFromPath{});
-		for(const auto& f : getExtr<vector<string>>(mObj, "shadersFragment"))	mAssetManager.load<sf::Shader>(f, mRootPath + f, sf::Shader::Type::Fragment, Impl::ShaderFromPath{});
-
+		for(const auto& f : getExtr<vector<string>>(mObj, "fonts"))				mAM.template load<sf::Font>(f, mRootPath + f);
+		for(const auto& f : getExtr<vector<string>>(mObj, "images"))			mAM.template load<sf::Image>(f, mRootPath + f);
+		for(const auto& f : getExtr<vector<string>>(mObj, "textures"))			mAM.template load<sf::Texture>(f, mRootPath + f);
+		for(const auto& f : getExtr<vector<string>>(mObj, "soundBuffers"))		mAM.template load<sf::SoundBuffer>(f, mRootPath + f);
+		for(const auto& f : getExtr<vector<string>>(mObj, "musics"))			mAM.template load<sf::Music>(f, mRootPath + f);
+		for(const auto& f : getExtr<vector<string>>(mObj, "shadersVertex"))		mAM.template load<sf::Shader>(f, mRootPath + f, sf::Shader::Type::Vertex, Impl::ShaderFromPath{});
+		for(const auto& f : getExtr<vector<string>>(mObj, "shadersFragment"))	mAM.template load<sf::Shader>(f, mRootPath + f, sf::Shader::Type::Fragment, Impl::ShaderFromPath{});
+\
 		const auto& bfs(getObj(mObj, "bitmapFonts"));
 			for(auto itr(begin(bfs)); itr != end(bfs); ++itr)
-				mAssetManager.load<BitmapFont>(ssvuj::getKey(itr), mAssetManager.get<sf::Texture>(getExtr<string>(*itr, 0)), getExtr<BitmapFontData>(getFromFile(mRootPath + getExtr<string>(*itr, 1))));
+				mAM.template load<BitmapFont>(ssvuj::getKey(itr), mAM.template get<sf::Texture>(getExtr<string>(*itr, 0)), getExtr<BitmapFontData>(getFromFile(mRootPath + getExtr<string>(*itr, 1))));
 
 		const auto& tilesets(getObj(mObj, "tilesets"));
 			for(auto itr(begin(tilesets)); itr != end(tilesets); ++itr)
-				mAssetManager.load<Tileset>(ssvuj::getKey(itr), ssvuj::getExtr<ssvs::Tileset>(ssvuj::getFromFile("Data/" + getExtr<string>(*itr))));
+				mAM.template load<Tileset>(ssvuj::getKey(itr), ssvuj::getExtr<ssvs::Tileset>(ssvuj::getFromFile("Data/" + getExtr<string>(*itr))));
 	}
 }
 

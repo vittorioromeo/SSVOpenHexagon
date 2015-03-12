@@ -24,7 +24,7 @@ namespace hg
 
 			bool levelsOnly{false};
 
-			ssvs::AssetManager assetManager;
+			ssvs::AssetManager<> assetManager;
 			ssvs::SoundPlayer soundPlayer;
 			ssvs::MusicPlayer musicPlayer;
 
@@ -45,7 +45,7 @@ namespace hg
 
 			HGAssets(bool mLevelsOnly = false);
 
-			inline ssvs::AssetManager& operator()() { return assetManager; }
+			inline auto& operator()() { return assetManager; }
 			template<typename T> inline T& get(const std::string& mId) { return assetManager.get<T>(mId); }
 
 			inline const std::unordered_map<std::string, UPtr<LevelData>>& getLevelDatas()	{ return levelDatas; }
