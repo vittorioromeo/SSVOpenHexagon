@@ -33,7 +33,6 @@ namespace hg
 			sses::Manager manager;
 			ssvs::Camera backgroundCamera{window, {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(), Config::getHeight() * Config::getZoomFactor()}}};
 			ssvs::Camera overlayCamera{window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f}, Vec2f(Config::getWidth(), Config::getHeight())}};
-			std::vector<ssvs::Camera> depthCameras;
 			ssvu::TimelineManager effectTimelineManager;
 			Factory factory{*this, manager, ssvs::zeroVec2f};
 			Lua::LuaContext	lua;
@@ -49,9 +48,13 @@ namespace hg
 			float difficultyMult{1};
 			int inputImplLastMovement, inputMovement{0};
 			bool inputImplCW{false}, inputImplCCW{false}, inputImplBothCWCCW{false};
+			std::ostringstream os;
 
 			FPSWatcher fpsWatcher;
 			sf::Text text{"", assets.get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / Config::getZoomFactor())};
+
+			const Vec2f txt_pos{8, 8};
+			const std::vector<Vec2f> txt_offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 			// LUA-related methods
 			void initLua();
@@ -71,6 +74,7 @@ namespace hg
 			void updateRotation(FT mFT);
 			void updateFlash(FT mFT);
 			void update3D(FT mFT);
+			void updateText();
 
 			// Draw methods
 			void draw();

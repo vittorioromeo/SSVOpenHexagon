@@ -20,8 +20,8 @@ namespace hg
 		float radius{75};
 		float fastSpin{0};
 		bool hasDied{false}, mustRestart{false};
-		bool drawing3D{false};
 		bool scoreInvalid{false};
+		bool started{false};
 		sf::Color overrideColor{sf::Color::Transparent};
 		ssvu::ObfuscatedValue<float> lostFrames{0};
 	};

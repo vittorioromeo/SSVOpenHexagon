@@ -49,6 +49,7 @@ namespace hg
 		void setServerVerbose(bool mValue);
 		void setMouseVisible(bool mValue);
 		void setMusicSpeedMult(float mValue);
+		void setDrawTextOutlines(bool mX);
 
 		bool getOnline();
 		bool getOfficial();
@@ -102,6 +103,7 @@ namespace hg
 		bool getServerVerbose();
 		bool getMouseVisible();
 		float getMusicSpeedMult();
+		bool getDrawTextOutlines();
 
 		ssvs::Input::Trigger getTriggerRotateCCW();
 		ssvs::Input::Trigger getTriggerRotateCW();

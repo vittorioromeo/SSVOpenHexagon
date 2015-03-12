@@ -46,7 +46,7 @@ namespace ssvuj
 	/// @brief Checks whether a JSON Obj array has a certain member.
 	/// @param mObj Obj to check.
 	/// @param mIdx Index of the child.
-	inline bool hasObj(const Obj& mArray, Idx mIdx) noexcept { return getObjSize(mArray) > mIdx; }
+	inline bool hasObj(const Obj& mArray, Idx mIdx) noexcept { return mArray.isValidIndex(mIdx); }
 
 	/// @brief Checks if a JSON Obj is an array.
 	/// @param mObj Obj to check.

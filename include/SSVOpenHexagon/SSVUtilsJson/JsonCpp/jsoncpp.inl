@@ -1179,8 +1179,9 @@ namespace Json
 
 	inline bool Value::isMember(const char* key) const
 	{
-		const Value* value = &((*this)[key]);
-		return value != &nullJsonValue;
+		CZString actualKey(key, CZString::noDuplication);
+		auto it = value_.map_->find(actualKey);
+		return it != value_.map_->end();
 	}
 	inline bool Value::isMember(const std::string& key) const { return isMember(key.c_str()); }
 

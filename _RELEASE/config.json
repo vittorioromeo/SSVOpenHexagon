@@ -9,6 +9,7 @@
 	"beatpulse_enabled" : true,
 	"black_and_white" : false,
 	"debug" : false,
+	"draw_text_outlines" : true,
 	"flash_enabled" : true,
 	"fullscreen" : false,
 	"fullscreen_auto_resolution" : false,

@@ -19,6 +19,18 @@ namespace hg
 {
 	void HexagonGame::update(FT mFT)
 	{
+		updateText();
+		updateFlash(mFT);
+		effectTimelineManager.update(mFT);
+
+		if(!status.started && (inputImplCCW || inputImplCW || inputImplBothCWCCW))
+		{
+			status.started = true;
+			assets.playSound("go.ogg");
+			assets.musicPlayer.resume();
+			if(Config::getOfficial()) fpsWatcher.enable();
+		}
+
 		if(inputImplCW && !inputImplCCW) inputMovement = 1;
 		else if(!inputImplCW && inputImplCCW) inputMovement = -1;
 		else if(inputImplCW && inputImplCCW)
@@ -31,48 +43,51 @@ namespace hg
 		}
 		else inputMovement = 0;
 
-		if(!assets.pIsLocal() && Config::isEligibleForScore())
+		if(status.started)
 		{
-			assets.playedSeconds += ssvu::getFTToSeconds(mFT);
-			if(assets.playedSeconds >= 60.f)
+			if(!assets.pIsLocal() && Config::isEligibleForScore())
 			{
-				assets.playedSeconds = 0;
-				Online::trySendMinutePlayed();
+				assets.playedSeconds += ssvu::getFTToSeconds(mFT);
+				if(assets.playedSeconds >= 60.f)
+				{
+					assets.playedSeconds = 0;
+					Online::trySendMinutePlayed();
+				}
 			}
+
+			if(!status.hasDied)
+			{
+				manager.update(mFT);
+				updateEvents(mFT);
+				updateTimeStop(mFT);
+				updateIncrement();
+				if(mustChangeSides && !manager.hasEntity(HGGroup::Wall)) sideChange(getRnd(levelStatus.sidesMin, levelStatus.sidesMax + 1));
+				updateLevel(mFT);
+				if(Config::getBeatPulse()) updateBeatPulse(mFT);
+				if(Config::getPulse()) updatePulse(mFT);
+				if(!Config::getBlackAndWhite()) styleData.update(mFT, pow(difficultyMult, 0.8f));
+			}
+			else levelStatus.rotationSpeed *= 0.99f;
+
+			if(Config::get3D()) update3D(mFT);
+			if(!Config::getNoRotation()) updateRotation(mFT);
 		}
-
-		updateFlash(mFT);
-		effectTimelineManager.update(mFT);
-
-		if(!status.hasDied)
-		{
-			manager.update(mFT);
-			updateEvents(mFT);
-			updateTimeStop(mFT);
-			updateIncrement();
-			if(mustChangeSides && !manager.hasEntity(HGGroup::Wall)) sideChange(getRnd(levelStatus.sidesMin, levelStatus.sidesMax + 1));
-			updateLevel(mFT);
-			if(Config::getBeatPulse()) updateBeatPulse(mFT);
-			if(Config::getPulse()) updatePulse(mFT);
-			if(!Config::getBlackAndWhite()) styleData.update(mFT, pow(difficultyMult, 0.8f));
-		}
-		else levelStatus.rotationSpeed *= 0.99f;
-
-		if(Config::get3D()) update3D(mFT);
-		if(!Config::getNoRotation()) updateRotation(mFT);
 
 		overlayCamera.update(mFT);
 		backgroundCamera.update(mFT);
-		for(auto& c : depthCameras) c.update(mFT);
 
-		if(status.mustRestart)
+		if(status.started)
 		{
-			changeLevel(restartId, restartFirstTime);
-			if(!assets.pIsLocal() && Config::isEligibleForScore()) { Online::trySendRestart(); }
-		}
-		if(!status.scoreInvalid && Config::getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
+			if(status.mustRestart)
+			{
+				fpsWatcher.disable();
+				changeLevel(restartId, restartFirstTime);
+				if(!assets.pIsLocal() && Config::isEligibleForScore()) { Online::trySendRestart(); }
+			}
+			if(!status.scoreInvalid && Config::getOfficial() && fpsWatcher.isLimitReached()) invalidateScore();
 
-		fpsWatcher.update();
+			fpsWatcher.update();
+		}
 	}
 	void HexagonGame::updateEvents(FT mFT)
 	{

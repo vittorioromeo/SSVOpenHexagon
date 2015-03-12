@@ -24,16 +24,15 @@ namespace hg
 	void CPlayer::draw()
 	{
 		drawPivot();
-		const auto& isDrawing3D(hexagonGame.getStatus().drawing3D);
 
-		if(!isDrawing3D && deadEffectTimer.isRunning()) drawDeathEffect();
+		if(deadEffectTimer.isRunning()) drawDeathEffect();
 
-		Color colorMain{!dead || isDrawing3D ? hexagonGame.getColorMain() : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
+		Color colorMain{!dead ? hexagonGame.getColorMain() : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
 
 		pLeft = getOrbitRad(pos, angle - toRad(100.f), size + 3);\
 		pRight = getOrbitRad(pos, angle + toRad(100.f), size + 3);
 
-		if(!swapTimer.isRunning() && !isDrawing3D) colorMain = ssvs::getColorFromHSV((swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
+		if(!swapTimer.isRunning()) colorMain = ssvs::getColorFromHSV((swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
 
 		hexagonGame.playerTris.emplace_back(getOrbitRad(pos, angle, size), colorMain);
 		hexagonGame.playerTris.emplace_back(pLeft, colorMain);
@@ -60,7 +59,6 @@ namespace hg
 			hexagonGame.wallQuads.emplace_back(p3, colorMain);
 			hexagonGame.wallQuads.emplace_back(p4, colorMain);
 
-			if(hexagonGame.getStatus().drawing3D) continue;
 			hexagonGame.playerTris.emplace_back(p1, colorB);
 			hexagonGame.playerTris.emplace_back(p2, colorB);
 			hexagonGame.playerTris.emplace_back(startPos, colorB);

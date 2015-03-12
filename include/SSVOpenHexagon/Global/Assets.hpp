@@ -26,8 +26,11 @@ namespace hg
 
 			ssvs::AssetManager<> assetManager;
 			ssvs::SoundPlayer soundPlayer;
+
+		public:
 			ssvs::MusicPlayer musicPlayer;
 
+		private:
 			std::unordered_map<std::string, UPtr<LevelData>> levelDatas;
 			std::unordered_map<std::string, std::vector<std::string>> levelDataIdsByPack;
 

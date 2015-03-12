@@ -49,7 +49,9 @@ namespace hg
 
 		// Audio cleanup
 		assets.stopSounds(); stopLevelMusic();
-		assets.playSound("go.ogg"); playLevelMusic();
+		//assets.playSound("go.ogg");
+		playLevelMusic();
+		assets.musicPlayer.pause();
 
 		auto current(assets.getMusicPlayer().getCurrent());
 		if(current != nullptr) current->setPitch((Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f) * Config::getMusicSpeedMult());
@@ -70,9 +72,10 @@ namespace hg
 
 		// FPSWatcher reset
 		fpsWatcher.reset();
-		if(Config::getOfficial()) fpsWatcher.enable();
+		//if(Config::getOfficial()) fpsWatcher.enable();
 
 		// LUA context and game status cleanup
+		inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
 		status = HexagonGameStatus{};
 		if(!mFirstPlay) runLuaFunction<void>("onUnload");
 		lua = Lua::LuaContext{};
@@ -92,12 +95,6 @@ namespace hg
 		// Reset skew
 		overlayCamera.setSkew(ssvs::Vec2f{1.f, 1.f});
 		backgroundCamera.setSkew(ssvs::Vec2f{1.f, 1.f});
-
-		// 3D Cameras cleanup
-		depthCameras.clear();
-		auto depth(styleData._3dDepth);
-		if(depth > Config::get3DMaxDepth()) depth = Config::get3DMaxDepth();
-		for(auto i(0u); i < depth; ++i) depthCameras.emplace_back(window, 1.f);
 	}
 	void HexagonGame::death(bool mForce)
 	{
@@ -112,7 +109,7 @@ namespace hg
 		status.flashEffect = 255;
 		shakeCamera(effectTimelineManager, overlayCamera);
 		shakeCamera(effectTimelineManager, backgroundCamera);
-		for(auto& depthCamera : depthCameras) shakeCamera(effectTimelineManager, depthCamera);
+
 		status.hasDied = true;
 		stopLevelMusic();
 		checkAndSaveScore();
@@ -209,10 +206,10 @@ namespace hg
 	{
 		if(Config::getBlackAndWhite())
 		{
-			if(status.drawing3D) return Color{255, 255, 255, status.overrideColor.a};
+//			if(status.drawing3D) return Color{255, 255, 255, status.overrideColor.a};
 			return Color(255, 255, 255, styleData.getMainColor().a);
 		}
-		else if(status.drawing3D) return status.overrideColor;
+	//	else if(status.drawing3D) return status.overrideColor;
 		else return styleData.getMainColor();
 	}
 	void HexagonGame::setSides(unsigned int mSides)
