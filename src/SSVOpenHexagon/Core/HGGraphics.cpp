@@ -102,6 +102,7 @@ namespace hg
 		os.str("");
 
 		if(Config::getShowFPS()) os << "FPS: " << window.getFPS() << "\n";
+		if(status.started) os << "time: " << toStr(status.currentTime).substr(0, 5) << "\n";
 
 		if(levelStatus.tutorialMode) os << "tutorial mode\n";
 		else if(Config::getOfficial()) os << "official mode\n";
@@ -110,8 +111,6 @@ namespace hg
 
 		if(status.started)
 		{
-			os << "time: " << toStr(status.currentTime).substr(0, 5) << "\n";
-
 			if(levelStatus.swapEnabled) os << "swap enabled\n";
 			if(Config::getInvincible()) os << "invincibility on\n";
 			if(status.scoreInvalid) os << "score invalidated (performance issues)\n";

@@ -135,8 +135,6 @@ namespace hg
 
 	void HexagonGame::sideChange(unsigned int mSideNumber)
 	{
-		SSVU_ASSERT(mSideNumber > 0 && mSideNumber < 1000);
-
 		runLuaFunction<void>("onIncrement");
 
 		if(levelStatus.shouldIncrement())
