@@ -132,6 +132,7 @@ namespace hg
 		gfx.create<i::Slider>("max fps", &Config::getMaxFPS, [this](unsigned int mValue){ Config::setMaxFPS(window, mValue); }, 30u, 200u, 5u) | whenTimerIsStatic;
 		gfx.create<i::Slider>("antialiasing", &Config::getAntialiasingLevel, [this](unsigned int mValue){ Config::setAntialiasingLevel(window, mValue); }, 0u, 3u, 1u);
 		gfx.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
+		gfx.create<i::Toggle>("text outlines", &Config::getDrawTextOutlines, &Config::setDrawTextOutlines);
 		gfx.create<i::GoBack>("back");
 
 		sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);
@@ -143,6 +144,7 @@ namespace hg
 		sfx.create<i::GoBack>("back");
 
 		play.create<i::Toggle>("autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
+		play.create<i::Toggle>("rotate to start", &Config::getRotateToStart, &Config::setRotateToStart);
 		play.create<i::GoBack>("back");
 
 		localProfiles.create<i::Single>("change local profile", [this]{ enteredStr = ""; state = s::SLPSelect; });

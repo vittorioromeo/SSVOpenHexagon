@@ -23,9 +23,10 @@ namespace hg
 		updateFlash(mFT);
 		effectTimelineManager.update(mFT);
 
-		if(!status.started && (inputImplCCW || inputImplCW || inputImplBothCWCCW))
+		if(!status.started && (!Config::getRotateToStart() || inputImplCCW || inputImplCW || inputImplBothCWCCW))
 		{
 			status.started = true;
+			messageText.setString("");
 			assets.playSound("go.ogg");
 			assets.musicPlayer.resume();
 			if(Config::getOfficial()) fpsWatcher.enable();
@@ -61,7 +62,7 @@ namespace hg
 				updateEvents(mFT);
 				updateTimeStop(mFT);
 				updateIncrement();
-				if(mustChangeSides && !manager.hasEntity(HGGroup::Wall)) sideChange(getRnd(levelStatus.sidesMin, levelStatus.sidesMax + 1));
+				if(mustChangeSides && !manager.hasEntity(HGGroup::Wall)) sideChange(getRndI(levelStatus.sidesMin, levelStatus.sidesMax + 1));
 				updateLevel(mFT);
 				if(Config::getBeatPulse()) updateBeatPulse(mFT);
 				if(Config::getPulse()) updatePulse(mFT);

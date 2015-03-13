@@ -132,6 +132,7 @@ namespace hg
 		else
 		{
 			os << "rotate to start\n";
+			messageText.setString("rotate to start");
 		}
 
 		os.flush();

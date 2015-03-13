@@ -40,7 +40,7 @@ namespace hg
 
 			for(int i{s}; i > 0; --i)
 			{
-				timeline.append<Do>([&mCamera, oldCenter, i]{ mCamera.setCenter(oldCenter + Vec2f(getRnd(-i, i), getRnd(-i, i))); });
+				timeline.append<Do>([&mCamera, oldCenter, i]{ mCamera.setCenter(oldCenter + Vec2f(getRndI(-i, i), getRndI(-i, i))); });
 				timeline.append<Wait>(1); timeline.append<Go>(0, 3);
 			}
 

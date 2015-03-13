@@ -86,7 +86,4 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-// TODO: feedback:
-// * add a way to disable voice sound files (or allow their removal)
-
 // TODO: BUG: debug stack overflow

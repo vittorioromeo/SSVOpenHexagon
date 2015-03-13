@@ -50,6 +50,7 @@ namespace hg
 		void setMouseVisible(bool mValue);
 		void setMusicSpeedMult(float mValue);
 		void setDrawTextOutlines(bool mX);
+		void setRotateToStart(bool mX);
 
 		bool getOnline();
 		bool getOfficial();
@@ -83,6 +84,7 @@ namespace hg
 		unsigned int getWidth();
 		unsigned int getHeight();
 		bool getShowMessages();
+		bool getRotateToStart();
 
 		bool getDebug();
 		bool getPulse();

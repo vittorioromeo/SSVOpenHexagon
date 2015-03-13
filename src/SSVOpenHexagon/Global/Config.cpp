@@ -70,6 +70,7 @@ namespace hg
 		auto& mouseVisible				(lvm.create<bool>("mouse_visible"));
 		auto& musicSpeedMult			(lvm.create<float>("music_speed_mult"));
 		auto& drawTextOutlines			(lvm.create<bool>("draw_text_outlines"));
+		auto& rotateToStart				(lvm.create<bool>("rotate_to_start"));
 		auto& triggerRotateCCW			(lvm.create<Trigger>("t_rotate_ccw"));
 		auto& triggerRotateCW			(lvm.create<Trigger>("t_rotate_cw"));
 		auto& triggerFocus				(lvm.create<Trigger>("t_focus"));
@@ -225,6 +226,7 @@ namespace hg
 		void setMouseVisible(bool mValue)			{ mouseVisible = mValue; }
 		void setMusicSpeedMult(float mValue)		{ musicSpeedMult = mValue; }
 		void setDrawTextOutlines(bool mX)			{ drawTextOutlines = mX; }
+		void setRotateToStart(bool mX)				{ rotateToStart = mX; }
 
 		bool getOnline()					{ return online; }
 		bool getOfficial()					{ return official; }
@@ -278,6 +280,7 @@ namespace hg
 		bool getMouseVisible()				{ return mouseVisible; }
 		float getMusicSpeedMult()			{ return musicSpeedMult; }
 		bool getDrawTextOutlines()			{ return drawTextOutlines; }
+		bool getRotateToStart()				{ return rotateToStart; }
 
 		Trigger getTriggerRotateCCW()		{ return triggerRotateCCW; }
 		Trigger getTriggerRotateCW()		{ return triggerRotateCW; }

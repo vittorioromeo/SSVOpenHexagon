@@ -18,7 +18,7 @@ namespace hg
 		private:
 			std::vector<int> segments;
 
-			inline int getRandomSegment() const { return segments[ssvu::getRnd(std::size_t(0), segments.size())]; }
+			inline int getRandomSegment() const { return segments[ssvu::getRndI(std::size_t(0), segments.size())]; }
 
 		public:
 			std::string id, fileName, name, album, author;

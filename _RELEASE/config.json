@@ -33,6 +33,7 @@
 	"player_size" : 7.300000190734863,
 	"player_speed" : 9.449999809265137,
 	"pulse_enabled" : true,
+	"rotate_to_start" : true,
 	"server_local" : true,
 	"server_verbose" : true,
 	"show_fps" : true,
@@ -92,8 +93,8 @@
 	],
 	"timer_static" : true,
 	"vsync" : false,
-	"windowed_auto_resolution" : false,
-	"windowed_height" : 480,
-	"windowed_width" : 640,
-	"zoom_factor" : 1.600000023841858
+	"windowed_auto_resolution" : true,
+	"windowed_height" : 768,
+	"windowed_width" : 1366,
+	"zoom_factor" : 1.0
 }
