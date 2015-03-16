@@ -1,5 +1,5 @@
 FIND_PATH(LUA_INCLUDE_DIR lua.hpp
-  PATH_SUFFIXES include/ lua/ lua/include/ ./ lua5.2/ lua5.2/include/
+  PATH_SUFFIXES include/ lua/ lua/include/ ./ lua5.2/ lua5.2/include/ src/ lua/src/ lua5.2/src/
   PATHS "${PROJECT_SOURCE_DIR}/../lua/"
   "${PROJECT_SOURCE_DIR}/extlibs/lua/"
   ${LUA_ROOT}

@@ -1,25 +1,46 @@
-WS_DIR="C:/OHWorkspace"
+#!/bin/bash
+
+WS_DIR=$(readlink -f ${1})
+INIT="${2}"
 
 function getAndBuildZlib
 {
 	(
-		cd "${WS_DIR}"
-		mkdir ./zlib; cd ./zlib
-		curl http://zlib.net/zlib128-dll.zip > ./zlib.zip
-		unzip ./zlib.zip
+		if [ -f "${WS_DIR}/zlib/zlib1.dll" ]; then
+			echo "ZLib already present"			
+		else
+			cd "${WS_DIR}"
+			mkdir ./zlib; cd ./zlib
+			curl http://zlib.net/zlib128-dll.zip > ./zlib.zip
+			unzip ./zlib.zip
+		fi
 	)
 }
 
 function getAndBuildLua
 {
 	(
-		cd "${WS_DIR}"
-		mkdir ./lua; cd ./lua
-		curl http://joedf.users.sourceforge.net/luabuilds/lua-5.2.3_Win32_bin.zip > ./lua.zip
-		unzip ./lua.zip
-		curl http://downloads.sourceforge.net/project/luabinaries/5.2.3/Docs%20and%20Sources/lua-5.2.3_Sources.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fluabinaries%2Ffiles%2F5.2.3%2FDocs%2520and%2520Sources%2F&ts=1411687832&use_mirror=softlayer-ams > ./luasrc.zip
-		unzip ./luasrc.zip
-		mv ./lua52/include ./
+		if [ -f "${WS_DIR}/lua/lua52.dll" ]; then
+			echo "Lua binaries already present"			
+		else			
+			cd "${WS_DIR}"
+			mkdir ./lua; cd ./lua
+			curl http://joedf.users.sourceforge.net/luabuilds/lua-5.2.3_Win32_bin.zip > ./lua.zip
+			unzip ./lua.zip
+		fi
+
+		if [ -f "${WS_DIR}/lua/src/lua.h" ]; then
+			echo "Lua sources already present"			
+		else
+			cd "${WS_DIR}"
+			mkdir ./lua; cd ./lua			
+			curl http://www.lua.org/ftp/lua-5.2.4.tar.gz > ./lua.tar.gz
+			tar -xvf ./lua.tar.gz
+			cd ./lua-5.2.4/
+			cp -R ./* ../
+			cd ..
+			cp -R ./src/ ./include/
+		fi		
 	)   
 }
 
@@ -61,7 +82,7 @@ function buildAllExtlibs
 		for dir in ./*; do
 			if [ -d "${dir}" ]; then 
 				echo ""
-				# git stash 
+				git reset HEAD --hard 
 				git pull origin master
 			fi
 		done
@@ -75,9 +96,11 @@ function buildAllExtlibs
 	)
 }
 
-getAndBuildZlib 
-getAndBuildLua
-getAndBuildSFML
+if [ "$INIT" = true ]; then
+	getAndBuildZlib 
+	getAndBuildLua
+	getAndBuildSFML
+fi
 
 (
 	SFML_DIR="${WS_DIR}/SFML"
@@ -85,11 +108,17 @@ getAndBuildSFML
 	ZLIB_DIR="${WS_DIR}/zlib"
 
 	cd "${WS_DIR}"
-	git clone https://github.com/SuperV1234/SSVOpenHexagon.git
+	
+	if [ "$INIT" = true ]; then
+		git clone https://github.com/SuperV1234/SSVOpenHexagon.git
+	fi
+
 	cd ./SSVOpenHexagon
 
-	./init-repository.sh
-	buildAllExtlibs
+	if [ "$INIT" = true ]; then
+		./init-repository.sh
+		buildAllExtlibs
+	fi
 
 	mkdir ./build; cd ./build
 	cmake .. -G "MinGW Makefiles" \
