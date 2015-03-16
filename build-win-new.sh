@@ -120,7 +120,7 @@ fi
 		buildAllExtlibs
 	fi
 
-	mkdir ./build; cd ./build
+	mkdir ./build; cd ./build && rm ./CMakeCache*
 	cmake .. -G "MinGW Makefiles" \
 		-DCMAKE_MAKE_PROGRAM="C:/MinGW/bin/mingw32-make.exe" \
 		-DCMAKE_C_COMPILER="C:/MinGW/bin/gcc.exe" \
