@@ -160,7 +160,7 @@ namespace hg
 		profileDataMap.clear();
 		loadLocalProfiles();
 	}
-	std::size_t HGAssets::getLocalProfilesSize() { return profileDataMap.size(); }
+	SizeT HGAssets::getLocalProfilesSize() { return profileDataMap.size(); }
 	vector<string> HGAssets::getLocalProfileNames()
 	{
 		vector<string> result;

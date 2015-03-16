@@ -18,7 +18,7 @@ namespace hg
 		private:
 			std::vector<int> segments;
 
-			inline int getRandomSegment() const { return segments[ssvu::getRndI(std::size_t(0), segments.size())]; }
+			inline int getRandomSegment() const { return segments[ssvu::getRndI(SizeT(0), segments.size())]; }
 
 		public:
 			std::string id, fileName, name, album, author;
@@ -30,7 +30,7 @@ namespace hg
 
 			inline void addSegment(int mSeconds) { segments.emplace_back(mSeconds); }
 			inline void playRandomSegment(HGAssets& mAssets) { if(firstPlay) { firstPlay = false; playSegment(mAssets, 0); } else playSeconds(mAssets, getRandomSegment());}
-			inline void playSegment(HGAssets& mAssets, std::size_t mIdx) { playSeconds(mAssets, segments[mIdx]); }
+			inline void playSegment(HGAssets& mAssets, SizeT mIdx) { playSeconds(mAssets, segments[mIdx]); }
 			inline void playSeconds(HGAssets& mAssets, int mSeconds) { if(Config::getNoMusic()) return; mAssets.playMusic(id, sf::seconds(mSeconds)); }
 	};
 }

@@ -40,10 +40,10 @@ namespace hg
 		}
 
 		const auto& pulse(mColorData.pulse);
-		return Color(static_cast<sf::Uint8>(getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f)),
-					 static_cast<sf::Uint8>(getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f)),
-					 static_cast<sf::Uint8>(getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f)),
-					 static_cast<sf::Uint8>(getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
+		return Color(toNum<Uint8>(getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f)),
+					 toNum<Uint8>(getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f)),
+					 toNum<Uint8>(getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f)),
+					 toNum<Uint8>(getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
 	}
 
 	void StyleData::update(FT mFT, float mMult)

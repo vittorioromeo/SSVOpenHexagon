@@ -29,7 +29,7 @@ namespace hg
 
 		game.onUpdate += [this](FT mFT) { update(mFT); };
 		game.onDraw += [this]{ draw(); };
-		game.onEvent(Event::EventType::TextEntered) += [this](const Event& mEvent){ if(mEvent.text.unicode < 128) enteredChars.emplace_back(static_cast<char>(mEvent.text.unicode)); };
+		game.onEvent(Event::EventType::TextEntered) += [this](const Event& mEvent){ if(mEvent.text.unicode < 128) enteredChars.emplace_back(toNum<char>(mEvent.text.unicode)); };
 		game.onEvent(Event::EventType::MouseWheelMoved) += [this](const Event& mEvent)
 		{
 			wheelProgress += mEvent.mouseWheel.delta;
@@ -270,8 +270,8 @@ namespace hg
 	{
 		currentIndex = mIdx;
 
-		if(currentIndex > static_cast<int>(levelDataIds.size() - 1)) currentIndex = 0;
-		else if(currentIndex < 0) currentIndex = static_cast<int>(levelDataIds.size()) - 1;
+		if(currentIndex > ssvu::toInt(levelDataIds.size() - 1)) currentIndex = 0;
+		else if(currentIndex < 0) currentIndex = ssvu::toInt(levelDataIds.size()) - 1;
 
 		levelData = &assets.getLevelData(levelDataIds[currentIndex]);
 
@@ -315,7 +315,7 @@ namespace hg
 		for(auto i(0u); i < recordPairs.size(); ++i)
 		{
 			if(recordPairs[i].first != assets.pGetName()) continue;
-			playerPosition = static_cast<int>(i) + 1;
+			playerPosition = ssvu::toInt(i) + 1;
 			foundPlayer = true;
 			break;
 		}
@@ -416,7 +416,7 @@ namespace hg
 		if(getCurrentMenu() != nullptr) getCurrentMenu()->update();
 
 		currentCreditsId += mFT;
-		creditsBar2.setTexture(assets.get<Texture>(ssvu::getByModIdx(creditsIds, static_cast<int>(currentCreditsId / 100))));
+		creditsBar2.setTexture(assets.get<Texture>(ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100))));
 
 		// If connection is lost, kick the player back into welcome screen
 		if(!assets.pIsLocal() && Online::getConnectionStatus() != ocs::Connected) state = s::MWlcm;
@@ -573,7 +573,7 @@ namespace hg
 
 		float currentX{0.f}, currentY{0.f};
 		auto& currentItems(mMenu.getItems());
-		for(int i{0}; i < static_cast<int>(currentItems.size()); ++i)
+		for(int i{0}; i < ssvu::toInt(currentItems.size()); ++i)
 		{
 			currentY += 19;
 			if(i != 0 && i % 21 == 0) { currentY = 0; currentX += 180; }

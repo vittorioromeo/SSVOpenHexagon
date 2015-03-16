@@ -40,7 +40,7 @@ namespace hg
 			MusicData musicData;
 			StyleData styleData;
 			ssvu::Timeline timeline, eventTimeline, messageTimeline;
-			sf::Text messageText{"", assets.get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(38.f / Config::getZoomFactor())};
+			sf::Text messageText{"", assets.get<sf::Font>("imagine.ttf"), ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
 			ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
 			bool firstPlay{true}, restartFirstTime{true}, inputFocused{false}, inputSwap{false}, mustTakeScreenshot{false}, mustChangeSides{false};
 			HexagonGameStatus status;
@@ -51,7 +51,7 @@ namespace hg
 			std::ostringstream os;
 
 			FPSWatcher fpsWatcher;
-			sf::Text text{"", assets.get<sf::Font>("imagine.ttf"), static_cast<unsigned int>(25.f / Config::getZoomFactor())};
+			sf::Text text{"", assets.get<sf::Font>("imagine.ttf"), ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
 			const Vec2f txt_pos{8, 8};
 			const std::vector<Vec2f> txt_offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};

@@ -93,7 +93,7 @@
 	],
 	"timer_static" : true,
 	"vsync" : false,
-	"windowed_auto_resolution" : true,
+	"windowed_auto_resolution" : false,
 	"windowed_height" : 768,
 	"windowed_width" : 1366,
 	"zoom_factor" : 1.0

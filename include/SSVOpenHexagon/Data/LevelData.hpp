@@ -49,7 +49,7 @@ namespace hg
 		float _3dEffectMultiplier{1.f};
 		unsigned int sides{6}, sidesMax{6}, sidesMin{6};
 		bool swapEnabled{false}, tutorialMode{false}, incEnabled{true}, rndSideChangesEnabled{true};
-		std::size_t currentIncrements{0u}, maxIncrements{std::numeric_limits<std::size_t>::max()};
+		SizeT currentIncrements{0u}, maxIncrements{std::numeric_limits<SizeT>::max()};
 
 		inline bool shouldIncrement() const noexcept { return currentIncrements < maxIncrements; }
 	};

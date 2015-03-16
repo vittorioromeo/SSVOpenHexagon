@@ -85,7 +85,7 @@ namespace hg
 			const ProfileData& getCurrentLocalProfile() const;
 			std::string getCurrentLocalProfileFilePath();
 			void createLocalProfile(const std::string& mName);
-			std::size_t getLocalProfilesSize();
+			SizeT getLocalProfilesSize();
 			std::vector<std::string> getLocalProfileNames();
 			std::string getFirstLocalProfileName();
 

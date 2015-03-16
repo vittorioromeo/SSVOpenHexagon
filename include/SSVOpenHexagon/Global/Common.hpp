@@ -21,14 +21,15 @@
 namespace hg
 {
 	// Typedefs
-	using Path = ssvufs::Path;
-	template<typename T> using Vec2 = ssvs::Vec2<T>;
-	template<typename T, typename TD = ssvu::DefDel<T>> using UPtr = ssvs::UPtr<T, TD>;
-	using Vec2i = ssvs::Vec2i;
-	using Vec2f = ssvs::Vec2f;
-	using Vec2u = ssvs::Vec2u;
-	using FT = ssvu::FT;
-	using Ticker = ssvu::Ticker;
+	using ssvufs::Path;
+	using ssvs::Vec2;
+	using ssvs::UPtr;
+	using ssvs::Vec2i;
+	using ssvs::Vec2f;
+	using ssvs::Vec2u;
+	using ssvu::FT;
+	using ssvu::Ticker;
+	using ssvu::SizeT;
 
 	// Game enums
 	enum HGGroup{Wall};

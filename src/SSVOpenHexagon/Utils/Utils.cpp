@@ -54,9 +54,9 @@ namespace hg
 
 			for(auto pos(script.find(toFind, 0)); pos != string::npos; pos = script.find(toFind, pos + 1))
 			{
-				size_t startPos{pos};
+				SizeT startPos{pos};
 				string untilEnd{script.substr(startPos + toFind.size() + 1, script.size() - startPos)};
-				size_t lastPos{untilEnd.find("\"", 0)};
+				SizeT lastPos{untilEnd.find("\"", 0)};
 				string luaFileName{untilEnd.substr(0, lastPos)};
 
 				result.insert(luaFileName);

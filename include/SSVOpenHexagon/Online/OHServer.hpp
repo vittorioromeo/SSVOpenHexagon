@@ -270,7 +270,7 @@ namespace hg
 
 						ssvuj::arch(arrayObj, 0, v.second); ssvuj::arch(arrayObj, 1, v.first);
 						++i;
-						if(i > ssvu::getClamped(8u, 0u, static_cast<unsigned int>(sortedScores.size()))) break;
+						if(i > ssvu::getClamped(8u, 0u, ssvu::toNum<unsigned int>(sortedScores.size()))) break;
 					}
 					ssvuj::arch(response, "id", levelId);
 

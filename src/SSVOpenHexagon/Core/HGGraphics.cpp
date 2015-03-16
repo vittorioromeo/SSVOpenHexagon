@@ -137,7 +137,7 @@ namespace hg
 		os.flush();
 
 		text.setString(os.str());
-		text.setCharacterSize(static_cast<unsigned int>(25.f / Config::getZoomFactor()));
+		text.setCharacterSize(ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
 		text.setOrigin(0, 0);
 
 		messageText.setOrigin(getGlobalWidth(messageText) / 2.f, 0);
