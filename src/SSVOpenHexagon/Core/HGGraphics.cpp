@@ -160,7 +160,7 @@ namespace hg
 
 
 
-		if(messageText.getString().empty()) return;
+		if(messageText.getString() == "") return;
 
 		if(Config::getDrawTextOutlines())
 		{
