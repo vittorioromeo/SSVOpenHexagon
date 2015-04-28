@@ -293,7 +293,7 @@ namespace hg
 		if(currentLeaderboard == "NULL") { leaderboardString = "..."; return; }
 
 		constexpr unsigned int leaderboardRecordCount{8};
-		ssvuj::Obj root{getFromString(currentLeaderboard)};
+		ssvuj::Obj root{getFromStr(currentLeaderboard)};
 		if(getExtr<string>(root, "id") != levelData->id) { leaderboardString = "..."; return; }
 
 		auto currentPlayerScore = getExtr<string>(root, "ps");

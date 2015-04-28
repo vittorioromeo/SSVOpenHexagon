@@ -69,7 +69,7 @@ namespace hg
 			for(const auto& name : getIncludedLuaFileNames(mLuaScript))
 			{
 				mLuaScriptNames.insert(name);
-				recursiveFillIncludedLuaFileNames(mLuaScriptNames, mPackPath, ssvufs::Path{mPackPath + "/Scripts/" + name}.getContentsAsString());
+				recursiveFillIncludedLuaFileNames(mLuaScriptNames, mPackPath, ssvufs::Path{mPackPath + "/Scripts/" + name}.getContentsAsStr());
 			}
 		}
 

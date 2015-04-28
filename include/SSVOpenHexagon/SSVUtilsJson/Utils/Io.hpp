@@ -18,9 +18,9 @@ namespace ssvuj
 	}
 
 	inline void readFromString(Obj& mObj, const std::string& mStr)	{ Reader reader; Impl::tryParse(mObj, reader, mStr); }
-	inline void readFromFile(Obj& mObj, const Path& mPath)			{ Reader reader; Impl::tryParse(mObj, reader, mPath.getContentsAsString()); }
+	inline void readFromFile(Obj& mObj, const Path& mPath)			{ Reader reader; Impl::tryParse(mObj, reader, mPath.getContentsAsStr()); }
 
-	inline Obj getFromString(const std::string& mStr)	{ Obj result; readFromString(result, mStr); return result; }
+	inline Obj getFromStr(const std::string& mStr)	{ Obj result; readFromString(result, mStr); return result; }
 	inline Obj getFromFile(const Path& mPath)			{ Obj result; readFromFile(result, mPath); return result; }
 
 	inline void writeToStream(const Obj& mObj, std::ostream& mStream)	{ Writer writer; writer.write(mStream, mObj); mStream.flush(); }

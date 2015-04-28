@@ -53,7 +53,7 @@ namespace hg
 
 		void refreshUserStats()
 		{
-			ssvuj::Obj root{getFromString(currentUserStatsStr)};
+			ssvuj::Obj root{getFromStr(currentUserStatsStr)};
 			currentUserStats = ssvuj::getExtr<UserStats>(root);
 		}
 
@@ -76,7 +76,7 @@ namespace hg
 			clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&, Packet&)	{ lo("PacketHandler") << "Server refused score\n"; };
 			clientPHandler[FromServer::SendUserStats] = [](Client&, Packet& mP)			{ currentUserStatsStr = ssvuj::getExtr<string>(getDecompressedPacket(mP), 0); refreshUserStats(); };
 			clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, Packet&)		{ currentUserStatsStr = "NULL"; lo("PacketHandler") << "Server failed sending user stats\n"; };
-			clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP)		{ currentFriendScores = ssvuj::getFromString(ssvuj::getExtr<string>(getDecompressedPacket(mP), 0)); };
+			clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP)		{ currentFriendScores = ssvuj::getFromStr(ssvuj::getExtr<string>(getDecompressedPacket(mP), 0)); };
 			clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&)			{ loginStatus = LoginStat::Unlogged; };
 			clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&)			{ newUserReg = false; };
 
@@ -214,19 +214,19 @@ namespace hg
 
 		string getValidator(const Path& mPackPath, const string& mLevelId, const string& mLevelRootString, const Path& mStyleRootPath, const Path& mLuaScriptPath)
 		{
-			string luaScriptContents{mLuaScriptPath.getContentsAsString()};
+			string luaScriptContents{mLuaScriptPath.getContentsAsStr()};
 			std::set<string> luaScriptNames;
 			recursiveFillIncludedLuaFileNames(luaScriptNames, mPackPath, luaScriptContents);
 
 			string toEncrypt;
 			toEncrypt += mLevelId;
 			toEncrypt += getControlStripped(mLevelRootString);
-			toEncrypt += mStyleRootPath.getContentsAsString();
+			toEncrypt += mStyleRootPath.getContentsAsStr();
 			toEncrypt += luaScriptContents;
 			for(const auto& lsn : luaScriptNames)
 			{
 				Path path{mPackPath + "/Scripts/" + lsn};
-				toEncrypt += path.getContentsAsString();
+				toEncrypt += path.getContentsAsStr();
 			}
 
 			toEncrypt = getControlStripped(toEncrypt);

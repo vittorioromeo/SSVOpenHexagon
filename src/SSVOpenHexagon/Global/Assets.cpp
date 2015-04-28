@@ -39,7 +39,7 @@ namespace hg
 		{
 			const auto& packPathStr(packPath.getStr());
 			string packName{packPathStr.substr(6, packPathStr.size() - 7)}, packLua;
-			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(p.getContentsAsString());
+			for(const auto& p : getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua")) packLua.append(p.getContentsAsStr());
 
 			ssvuj::Obj packRoot{getFromFile(packPath + "/pack.json")};
 			ssvu::getEmplaceUPtrMap<PackData>(packDatas, packName, packName, getExtr<string>(packRoot, "name"), getExtr<float>(packRoot, "priority"));

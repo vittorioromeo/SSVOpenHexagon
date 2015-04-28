@@ -36,7 +36,7 @@ namespace hg
 		}
 
 		// Decompress packet to obj
-		inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return ssvuj::getFromString(getZLibDecompress(data)); }
+		inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket) { std::string data; mPacket >> data; return ssvuj::getFromStr(getZLibDecompress(data)); }
 	}
 }
 
