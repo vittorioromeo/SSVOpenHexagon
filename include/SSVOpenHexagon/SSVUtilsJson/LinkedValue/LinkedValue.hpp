@@ -15,7 +15,7 @@ namespace ssvuj
 				std::string name;
 
 			public:
-				inline LinkedValueBase(std::string mLinkedName) : name{std::move(mLinkedName)} { }
+				inline LinkedValueBase(std::string mLinkedName) : name{ssvu::mv(mLinkedName)} { }
 				inline virtual ~LinkedValueBase() { }
 
 				virtual void syncFrom(const Obj& mRoot) = 0;
@@ -29,7 +29,7 @@ namespace ssvuj
 			T value;
 
 		public:
-			inline LinkedValue(std::string mLinkedName) : Impl::LinkedValueBase{std::move(mLinkedName)} { }
+			inline LinkedValue(std::string mLinkedName) : Impl::LinkedValueBase{ssvu::mv(mLinkedName)} { }
 
 			inline operator T() const noexcept { return value; }
 			inline auto& operator=(const T& mValue) { value = mValue; return *this; }
@@ -48,7 +48,7 @@ namespace ssvuj
 		public:
 			inline LinkedValueManager(Obj& mObj) : obj(mObj) { }
 
-			template<typename T> inline auto& create(std::string mName) { return ssvu::getEmplaceUPtr<LinkedValue<T>>(values, std::move(mName)); }
+			template<typename T> inline auto& create(std::string mName) { return ssvu::getEmplaceUPtr<LinkedValue<T>>(values, ssvu::mv(mName)); }
 
 			inline void syncFromObj()		{ for(auto& lv : values) lv->syncFrom(obj); }
 			inline void syncToObj()	const	{ for(const auto& lv : values) lv->syncTo(obj); }
