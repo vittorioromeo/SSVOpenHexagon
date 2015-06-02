@@ -51,6 +51,16 @@ function onInit()
 	l_setIncEnabled(false)
 end
 
+swappedOnce = false
+
+-- onCursorSwap is executed whenever the player executes a successful 180° swap
+function onCursorSwap()
+	if swappedOnce == false then
+		u_log("swap detected!")
+		swappedOnce = true
+	end
+end
+
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
 	m_messageAddImportant("welcome to the evolution tutorial", 120)

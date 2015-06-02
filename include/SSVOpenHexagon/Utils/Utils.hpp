@@ -60,6 +60,13 @@ namespace hg
 
 			return T();
 		}
+
+		template<typename T, typename... TArgs> inline void runLuaFunctionIfExists(Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
+		{
+			if(!mLua.doesVariableExist(mName)) return;
+
+			runLuaFunction<T>(mLua, mName, mArgs...);
+		}
 	}
 }
 

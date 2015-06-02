@@ -103,6 +103,7 @@ namespace hg
 		{
 			hexagonGame.getAssets().playSound("swap.ogg");
 			swapTimer.restart(); angle += ssvu::pi;
+			hexagonGame.runLuaFunctionIfExists<void>("onCursorSwap");
 		}
 
 		Vec2f tempPos{getOrbitRad(startPos, angle, radius)};

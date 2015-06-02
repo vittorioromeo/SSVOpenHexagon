@@ -1,5 +1,5 @@
 FIND_PATH(LUA_INCLUDE_DIR lua.hpp
-  PATH_SUFFIXES include/ lua/ lua/include/ ./ lua5.2/ lua5.2/include/ src/ lua/src/ lua5.2/src/
+  PATH_SUFFIXES include/ lua/ lua/include/ ./ lua5.3/ lua5.3/include/ src/ lua/src/ lua5.3/src/
   PATHS "${PROJECT_SOURCE_DIR}/../lua/"
   "${PROJECT_SOURCE_DIR}/extlibs/lua/"
   ${LUA_ROOT}
@@ -15,7 +15,7 @@ FIND_PATH(LUA_INCLUDE_DIR lua.hpp
 message("\nFound Lua include at: ${LUA_INCLUDE_DIR}.\n")
 
 FIND_LIBRARY(LUA_LIBRARY
-  NAMES liblua5.2 lua5.2 lua liblua
+  NAMES liblua5.3 lua5.3 lua liblua
   PATH_SUFFIXES lib/ lib/x86_64-linux-gnu/ lib64/ lua/ lua/lib/ lua/lib64/ ./
   PATHS "${PROJECT_SOURCE_DIR}/../lua/"
   "${PROJECT_SOURCE_DIR}/extlibs/lua/"

@@ -59,8 +59,12 @@ namespace hg
 			// LUA-related methods
 			void initLua();
 			inline void runLuaFile(const std::string& mFileName) { try { Utils::runLuaFile(lua, mFileName); } catch(...) { death(); } }
-			template<typename T, typename... TArgs> inline T runLuaFunction(const std::string& mName, const TArgs&... mArgs) { return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...); }
 
+		public:
+			template<typename T, typename... TArgs> inline T runLuaFunction(const std::string& mName, const TArgs&... mArgs) { return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...); }
+			template<typename T, typename... TArgs> inline void runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs) { Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...); }
+
+		private:
 			void initFlashEffect();
 
 			// Update methods
