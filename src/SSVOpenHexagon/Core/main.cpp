@@ -66,24 +66,23 @@ int main(int argc, char* argv[])
 
 	Config::setTimerStatic(window, Config::getTimerStatic());
 
-	HGAssets assets;
-	Online::initializeValidators(assets);
-	HexagonGame hg{assets, window};
-	MenuGame mg{assets, hg, window};
-	hg.mgPtr = &mg;
+	auto assets(mkUPtr<HGAssets>());
+	Online::initializeValidators(*assets);
+	auto hg(mkUPtr<HexagonGame>(*assets, window));
+	auto mg(mkUPtr<MenuGame>(*assets, *hg, window));
+	hg->mgPtr = mg.get();
 
-	assets.refreshVolumes();
-	window.setGameState(mg.getGame()); mg.init();
+	assets->refreshVolumes();
+	window.setGameState(mg->getGame());
+	mg->init();
 	window.run();
 
 	if(Online::getLoginStatus() != Online::LoginStat::Logged) Online::logout();
 
 	ssvu::lo().flush();
 
-	Config::saveConfig(); assets.pSaveCurrent(); saveLogToFile("log.txt");
+	Config::saveConfig(); assets->pSaveCurrent(); saveLogToFile("log.txt");
 	Online::cleanup();
 
 	return 0;
 }
-
-// TODO: BUG: debug stack overflow
