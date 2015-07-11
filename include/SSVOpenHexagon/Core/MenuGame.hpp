@@ -55,8 +55,13 @@ namespace hg
 			StyleData styleData;
 			sf::Text txtVersion{"", imagine, 40}, txtProf{"", imagine, 21}, txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32}, txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20}, txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
 
+			void leftAction();
+			void rightAction();
 			void upAction();
 			void downAction();
+			void okAction();
+
+			float touchDelay{0.f};
 
 			void refreshCamera();
 			void initAssets();

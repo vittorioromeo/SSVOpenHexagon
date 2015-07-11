@@ -32,6 +32,13 @@ namespace hg
 			if(Config::getOfficial()) fpsWatcher.enable();
 		}
 
+		// Naive touch controls
+		for(const auto& p : window.getFingerDownPositions())
+		{
+			if(p.x < window.getWidth() / 2.f) inputImplCCW = 1;
+			else inputImplCW = 1;
+		}
+
 		if(inputImplCW && !inputImplCCW) inputMovement = 1;
 		else if(!inputImplCW && inputImplCCW) inputMovement = -1;
 		else if(inputImplCW && inputImplCCW)

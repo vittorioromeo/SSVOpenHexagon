@@ -159,17 +159,58 @@ namespace hg
 		friends.create<i::GoBack>("back");
 	}
 
+	void MenuGame::leftAction()
+	{
+		assets.playSound("beep.ogg");
+		touchDelay = 50.f;
+
+		if(state == s::SLPSelect)	{  --profileIdx; }
+		else if(state == s::SMain)	{ setIndex(currentIndex - 1); }
+		else if(isInMenu())			{ getCurrentMenu()->decrease(); }
+	}
+
+	void MenuGame::rightAction()
+	{
+		assets.playSound("beep.ogg");
+		touchDelay = 50.f;
+
+		if(state == s::SLPSelect)	{ ++profileIdx; }
+		else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
+		else if(isInMenu())			{ getCurrentMenu()->increase(); }
+	}
 	void MenuGame::upAction()
 	{
 		assets.playSound("beep.ogg");
+		touchDelay = 50.f;
+
 		if(state == s::SMain)		{ ++diffMultIdx; }
 		else if(isInMenu())			{ getCurrentMenu()->previous(); }
 	}
 	void MenuGame::downAction()
 	{
 		assets.playSound("beep.ogg");
+		touchDelay = 50.f;
+
 		if(state == s::SMain)		{ --diffMultIdx; }
 		else if(isInMenu())			{ getCurrentMenu()->next(); }
+	}
+	void MenuGame::okAction()
+	{
+		assets.playSound("beep.ogg");
+		touchDelay = 50.f;
+
+		if(state == s::SLPSelect) { assets.pSetCurrent(enteredStr); state = s::SMain; }
+		else if(state == s::SMain)
+		{
+			window.setGameState(hexagonGame.getGame());
+			hexagonGame.newGame(levelDataIds[currentIndex], true, ssvu::getByModIdx(diffMults, diffMultIdx));
+		}
+		else if(isInMenu())				{ getCurrentMenu()->exec(); }
+		else if(state == s::ETLPNew)	{ if(!enteredStr.empty()) { assets.pCreate(enteredStr); assets.pSetCurrent(enteredStr); state = s::SMain; enteredStr = ""; } }
+		else if(state == s::ETFriend)	{ if(!enteredStr.empty() && !ssvu::contains(assets.pGetTrackedNames(), enteredStr)) { assets.pAddTrackedName(enteredStr); state = s::SMain; enteredStr = ""; } }
+		else if(state == s::ETUser)		{ if(!enteredStr.empty()) { lrUser = enteredStr; state = s::ETPass; enteredStr = ""; } }
+		else if(state == s::ETPass)		{ if(!enteredStr.empty()) { lrPass = enteredStr; state = s::SLogging; enteredStr = ""; Online::tryLogin(lrUser, lrPass); } }
+		else if(state == s::ETEmail)	{ if(!enteredStr.empty() && ssvu::contains(enteredStr, '@')) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
 	}
 
 	void MenuGame::initInput()
@@ -177,38 +218,11 @@ namespace hg
 		using k = KKey;
 		using t = Type;
 
-		game.addInput(Config::getTriggerRotateCCW(), [this](FT)
-		{
-			assets.playSound("beep.ogg");
-			if(state == s::SLPSelect)	{  --profileIdx; }
-			else if(state == s::SMain)	{ setIndex(currentIndex - 1); }
-			else if(isInMenu())			{ getCurrentMenu()->decrease(); }
-		}, t::Once);
-		game.addInput(Config::getTriggerRotateCW(), [this](FT)
-		{
-			assets.playSound("beep.ogg");
-			if(state == s::SLPSelect)	{ ++profileIdx; }
-			else if(state == s::SMain)	{ setIndex(currentIndex + 1); }
-			else if(isInMenu())			{ getCurrentMenu()->increase(); }
-		}, t::Once);
+		game.addInput(Config::getTriggerRotateCCW(), [this](FT){ leftAction(); }, t::Once);
+		game.addInput(Config::getTriggerRotateCW(), [this](FT){ rightAction(); }, t::Once);
 		game.addInput(Config::getTriggerUp(), [this](FT){ upAction(); }, t::Once);
 		game.addInput(Config::getTriggerDown(), [this](FT){ downAction(); }, t::Once);
-		game.addInput(Config::getTriggerRestart(), [this](FT)
-		{
-			assets.playSound("beep.ogg");
-			if(state == s::SLPSelect) { assets.pSetCurrent(enteredStr); state = s::SMain; }
-			else if(state == s::SMain)
-			{
-				window.setGameState(hexagonGame.getGame());
-				hexagonGame.newGame(levelDataIds[currentIndex], true, ssvu::getByModIdx(diffMults, diffMultIdx));
-			}
-			else if(isInMenu())				{ getCurrentMenu()->exec(); }
-			else if(state == s::ETLPNew)	{ if(!enteredStr.empty()) { assets.pCreate(enteredStr); assets.pSetCurrent(enteredStr); state = s::SMain; enteredStr = ""; } }
-			else if(state == s::ETFriend)	{ if(!enteredStr.empty() && !ssvu::contains(assets.pGetTrackedNames(), enteredStr)) { assets.pAddTrackedName(enteredStr); state = s::SMain; enteredStr = ""; } }
-			else if(state == s::ETUser)		{ if(!enteredStr.empty()) { lrUser = enteredStr; state = s::ETPass; enteredStr = ""; } }
-			else if(state == s::ETPass)		{ if(!enteredStr.empty()) { lrPass = enteredStr; state = s::SLogging; enteredStr = ""; Online::tryLogin(lrUser, lrPass); } }
-			else if(state == s::ETEmail)	{ if(!enteredStr.empty() && ssvu::contains(enteredStr, '@')) { lrEmail = enteredStr; enteredStr = ""; Online::trySendUserEmail(lrEmail); } }
-		}, t::Once);
+		game.addInput(Config::getTriggerRestart(), [this](FT){ okAction(); }, t::Once);
 		game.addInput({{k::F1}}, [this](FT)			{ assets.playSound("beep.ogg"); if(!assets.pIsLocal()) { state = s::MWlcm; return; } if(state == s::SLPSelect) { enteredStr = ""; state = s::ETLPNew; } }, t::Once);
 		game.addInput({{k::F2}, {k::J}}, [this](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; if(!assets.pIsLocal()) { state = s::MWlcm; return; } enteredStr = ""; state = s::SLPSelect; }, t::Once);
 		game.addInput({{k::F3}, {k::K}}, [this](FT)	{ assets.playSound("beep.ogg"); if(state != s::SMain) return; state = s::MOpts; }, t::Once);
@@ -410,6 +424,46 @@ namespace hg
 
 	void MenuGame::update(FT mFT)
 	{
+		if(touchDelay > 0.f) touchDelay -= mFT;
+
+		if(window.getFingerDownCount() == 1)
+		{
+			auto wThird = window.getWidth() / 3.f;
+			auto wLT = window.getWidth() - wThird;
+			auto hThird = window.getHeight() / 3.f;
+			auto hLT = window.getHeight() - hThird;
+
+			for(const auto& p : window.getFingerDownPositions())
+			{
+				if(p.y > hThird && p.y < hLT)
+				{
+					if(p.x > 0.f && p.x < wThird)
+					{
+						leftAction();
+					}
+					else if(p.x < window.getWidth() && p.x > wLT)
+					{
+						rightAction();
+					}
+					else if(p.x > wThird && p.x < wLT)
+					{
+						okAction();
+					}
+				}
+				else
+				{
+					if(p.y < hThird)
+					{
+						upAction();
+					}
+					else if(p.y > hLT)
+					{
+						downAction();
+					}
+				}
+			}
+		}
+
 		overlayCamera.update(mFT);
 		backgroundCamera.update(mFT);
 
