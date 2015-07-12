@@ -28,7 +28,14 @@ void createProfilesFolder()
 
 int main(int argc, char* argv[])
 {
+	#define LOSIZ(x) ssvu::lo(#x) << sizeof(x) << std::endl
+
 	SSVUT_RUN();
+
+	// LOSIZ(Online::GlobalThreadManager);
+	// LOSIZ(HGAssets);
+	// LOSIZ(Online::OHServer);
+	// LOSIZ(GameWindow);
 
 	Online::GlobalThreadManager gtm;
 	Online::setCurrentGtm(gtm);
@@ -38,10 +45,10 @@ int main(int argc, char* argv[])
 	if(contains(overrideIds, "server"))
 	{
 		Config::loadConfig(overrideIds);
-		HGAssets levelOnlyAssets{true};
-		Online::initializeValidators(levelOnlyAssets);
-		Online::OHServer ohServer;
-		ohServer.start();
+		auto levelOnlyAssets(mkUPtr<HGAssets>(true));
+		Online::initializeValidators(*levelOnlyAssets);
+		auto ohServer(mkUPtr<Online::OHServer>());
+		ohServer->start();
 		return 0;
 	}
 

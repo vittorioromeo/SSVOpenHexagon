@@ -441,7 +441,7 @@ namespace hg
 					{
 						leftAction();
 					}
-					else if(p.x < window.getWidth() && p.x > wLT)
+					else if(p.x < toNum<int>(window.getWidth()) && p.x > wLT)
 					{
 						rightAction();
 					}
