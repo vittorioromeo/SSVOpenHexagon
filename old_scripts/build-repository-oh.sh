@@ -37,7 +37,7 @@ function buildLib
   	mkdir "build"; cd "build" # Create and move to the build directory
 
 	# Run CMake, make and make install
-	cmake ../ "${cmakeFlags}" || die 1 "cmake failed"
+	cmake ../ ${cmakeFlags} || die 1 "cmake failed"
 
 	make "-j${makeJobs}" || die 1 "make failed"
 	make install "-j${makeJobs}" || die 1 "make install failed"
@@ -53,7 +53,7 @@ echo "Building ${projectName}..."
 mkdir "build"; cd "build" # Create and move to the build directory
 
 ## Run CMake, make and make install
-cmake ../ "${cmakeFlags}"
+cmake ../ ${cmakeFlags}
 make "-j${makeJobs}"; make install "-j${makeJobs}"
 
 echo "Successfully finished building ${projectName}."

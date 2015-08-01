@@ -114,7 +114,7 @@ function buildLib
   	mkdir "build"; cd "build" # Create and move to the build directory
 
 	# Run CMake, make and (optionally) sudo make install
-	cmake ../ "${cmakeFlags}" || die 1 "cmake failed"
+	cmake ../ ${cmakeFlags} || die 1 "cmake failed"
 	make "-j${makeJobs}" || die 1 "make failed"
 
 	if [ "$flagSuperuser" == true ]; then
@@ -152,7 +152,7 @@ echo "final cmakeFlags: $cmakeFlags"
 askContinue
 
 ## Run CMake, make and make install
-cmake ../ "${cmakeFlags}"
+cmake ../ ${cmakeFlags}
 make "-j${makeJobs}"; make install "-j${makeJobs}"
 
 cd ".."
