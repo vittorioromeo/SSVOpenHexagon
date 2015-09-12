@@ -17,7 +17,7 @@ namespace hg
 		{
 			private:
 				sf::TcpSocket socket;
-				bool busy{false};
+				std::atomic<bool> busy{false};
 
 				std::future<void> handlerFuture;
 
