@@ -16,3 +16,6 @@
 [submodule "extlibs/SSVCMake"]
 	path = extlibs/SSVCMake
 	url = https://github.com/SuperV1234/SSVCMake.git
+[submodule "extlibs/vrm_pp"]
+	path = extlibs/vrm_pp
+	url = https://github.com/SuperV1234/vrm_pp.git
