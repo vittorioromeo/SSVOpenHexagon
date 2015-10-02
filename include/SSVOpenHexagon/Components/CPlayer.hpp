@@ -10,26 +10,28 @@
 
 namespace hg
 {
-	class HexagonGame;
+class HexagonGame;
 
-	class CPlayer : public sses::Component
-	{
-		private:
-			HexagonGame& hexagonGame;
-			Vec2f pLeft, pRight, startPos, pos;
-			float hue{0}, angle{0}, size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()}, focusSpeed{Config::getPlayerFocusSpeed()};
-			bool dead{false};
-			Ticker swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{80.f, false};
+class CPlayer : public sses::Component
+{
+private:
+    HexagonGame& hexagonGame;
+    Vec2f pLeft, pRight, startPos, pos;
+    float hue{0}, angle{0}, size{Config::getPlayerSize()},
+    speed{Config::getPlayerSpeed()}, focusSpeed{Config::getPlayerFocusSpeed()};
+    bool dead{false};
+    Ticker swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{80.f, false};
 
-			void drawPivot();
-			void drawDeathEffect();
+    void drawPivot();
+    void drawDeathEffect();
 
-		public:
-			CPlayer(sses::Entity& mE, HexagonGame& mHexagonGame, const Vec2f& mStartPos);
+public:
+    CPlayer(
+    sses::Entity& mE, HexagonGame& mHexagonGame, const Vec2f& mStartPos);
 
-			void update(FT mFT) override;
-			void draw() override;
-	};
+    void update(FT mFT) override;
+    void draw() override;
+};
 }
 
 #endif

@@ -12,34 +12,41 @@
 
 namespace hg
 {
-	class HexagonGame;
+class HexagonGame;
 
-	class Factory
-	{
-		private:
-			HexagonGame& hexagonGame;
-			sses::Manager& manager;
-			Vec2f centerPos;
+class Factory
+{
+private:
+    HexagonGame& hexagonGame;
+    sses::Manager& manager;
+    Vec2f centerPos;
 
-		public:
-			Factory(HexagonGame& mHexagonGame, sses::Manager& mManager, const Vec2f& mCenterPos) : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos} { }
+public:
+    Factory(
+    HexagonGame& mHexagonGame, sses::Manager& mManager, const Vec2f& mCenterPos)
+        : hexagonGame(mHexagonGame), manager(mManager), centerPos{mCenterPos}
+    {
+    }
 
-			inline sses::Entity& createWall(int mSide, float mThickness, const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{}, float mHueMod = 0)
-			{
-				auto& result(manager.createEntity());
-				result.addGroups(HGGroup::Wall);
-				auto& wall(result.createComponent<CWall>(hexagonGame, centerPos, mSide, mThickness, Config::getSpawnDistance(), mSpeed, mCurve));
-				wall.setHueMod(mHueMod);
-				return result;
-			}
-			inline sses::Entity& createPlayer()
-			{
-				auto& result(manager.createEntity());
-				result.createComponent<CPlayer>(hexagonGame, centerPos);
-				result.setDrawPriority(-1);
-				return result;
-			}
-	};
+    inline sses::Entity& createWall(int mSide, float mThickness,
+    const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{},
+    float mHueMod = 0)
+    {
+        auto& result(manager.createEntity());
+        result.addGroups(HGGroup::Wall);
+        auto& wall(result.createComponent<CWall>(hexagonGame, centerPos, mSide,
+        mThickness, Config::getSpawnDistance(), mSpeed, mCurve));
+        wall.setHueMod(mHueMod);
+        return result;
+    }
+    inline sses::Entity& createPlayer()
+    {
+        auto& result(manager.createEntity());
+        result.createComponent<CPlayer>(hexagonGame, centerPos);
+        result.setDrawPriority(-1);
+        return result;
+    }
+};
 }
 
 #endif

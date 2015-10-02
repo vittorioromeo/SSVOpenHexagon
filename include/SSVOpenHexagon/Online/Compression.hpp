@@ -12,8 +12,9 @@
 
 namespace hg
 {
-	std::string getZLibCompress(const std::string& mStr, int mCompressionlevel = Z_BEST_COMPRESSION);
-	std::string getZLibDecompress(const std::string& mStr);
+std::string getZLibCompress(
+const std::string& mStr, int mCompressionlevel = Z_BEST_COMPRESSION);
+std::string getZLibDecompress(const std::string& mStr);
 }
 
 #endif

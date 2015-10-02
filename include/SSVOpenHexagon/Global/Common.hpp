@@ -20,19 +20,22 @@
 
 namespace hg
 {
-	// Typedefs
-	using ssvufs::Path;
-	using ssvs::Vec2;
-	using ssvs::UPtr;
-	using ssvs::Vec2i;
-	using ssvs::Vec2f;
-	using ssvs::Vec2u;
-	using ssvu::FT;
-	using ssvu::Ticker;
-	using ssvu::SizeT;
+// Typedefs
+using ssvufs::Path;
+using ssvs::Vec2;
+using ssvs::UPtr;
+using ssvs::Vec2i;
+using ssvs::Vec2f;
+using ssvs::Vec2u;
+using ssvu::FT;
+using ssvu::Ticker;
+using ssvu::SizeT;
 
-	// Game enums
-	enum HGGroup{Wall};
+// Game enums
+enum HGGroup
+{
+    Wall
+};
 }
 
 #endif

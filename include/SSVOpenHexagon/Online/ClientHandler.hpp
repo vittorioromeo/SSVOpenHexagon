@@ -13,45 +13,51 @@
 
 namespace hg
 {
-	namespace Online
-	{
-		class Server;
+namespace Online
+{
+    class Server;
 
-		class ClientHandler : public ManagedSocket
-		{
-			private:
-				static unsigned int lastUid;
-				bool running{true};
-				unsigned int uid{lastUid++}, untilTimeout{5};
-				PacketHandler<ClientHandler> packetHandler;
-				std::future<void> timeoutFuture;
+    class ClientHandler : public ManagedSocket
+    {
+    private:
+        static unsigned int lastUid;
+        bool running{true};
+        unsigned int uid{lastUid++}, untilTimeout{5};
+        PacketHandler<ClientHandler> packetHandler;
+        std::future<void> timeoutFuture;
 
-			public:
-				ssvu::Delegate<void()> onDisconnect;
+    public:
+        ssvu::Delegate<void()> onDisconnect;
 
-				inline ClientHandler(PacketHandler<ClientHandler>& mPacketHandler) : packetHandler(mPacketHandler)
-				{
-					onPacketReceived += [this](sf::Packet mPacket){ packetHandler.handle(*this, mPacket); refreshTimeout(); };
-					timeoutFuture = std::async(std::launch::async, [this]
-					{
-						while(running)
-						{
-							std::this_thread::sleep_for(800ms);
+        inline ClientHandler(PacketHandler<ClientHandler>& mPacketHandler)
+            : packetHandler(mPacketHandler)
+        {
+            onPacketReceived += [this](sf::Packet mPacket)
+            {
+                packetHandler.handle(*this, mPacket);
+                refreshTimeout();
+            };
+            timeoutFuture = std::async(std::launch::async, [this]
+            {
+                while(running) {
+                    std::this_thread::sleep_for(800ms);
 
-							if(!isBusy() || --untilTimeout > 0) continue;
+                    if(!isBusy() || --untilTimeout > 0) continue;
 
-							HG_LO_VERBOSE("ClientHandler") << "Client (" << uid << ") timed out\n";
-							onDisconnect(); disconnect();
-						}
-					});
-				}
-				inline ~ClientHandler() { running = false; }
+                    HG_LO_VERBOSE("ClientHandler") << "Client (" << uid
+                                                   << ") timed out\n";
+                    onDisconnect();
+                    disconnect();
+                }
+            });
+        }
+        inline ~ClientHandler() { running = false; }
 
-				inline void stop()					{ running = false; }
-				inline unsigned int getUid() const	{ return uid; }
-				inline void refreshTimeout()		{ untilTimeout = 5; }
-		};
-	}
+        inline void stop() { running = false; }
+        inline unsigned int getUid() const { return uid; }
+        inline void refreshTimeout() { untilTimeout = 5; }
+    };
+}
 }
 
 #endif

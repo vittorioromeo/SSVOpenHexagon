@@ -7,11 +7,15 @@
 
 namespace hg
 {
-	struct TrackedVariable
-	{
-		std::string variableName, displayName;
-		TrackedVariable(std::string mVariableName, std::string mDisplayName) : variableName{ssvu::mv(mVariableName)}, displayName{ssvu::mv(mDisplayName)} { }
-	};
+struct TrackedVariable
+{
+    std::string variableName, displayName;
+    TrackedVariable(std::string mVariableName, std::string mDisplayName)
+        : variableName{ssvu::mv(mVariableName)},
+          displayName{ssvu::mv(mDisplayName)}
+    {
+    }
+};
 }
 
 #endif
