@@ -10,50 +10,52 @@
 
 namespace hg
 {
-namespace Online
-{
-    template <typename T>
-    class PacketHandler
+    namespace Online
     {
-    private:
-        using HandlerFunc = ssvu::Func<void(T&, sf::Packet&)>;
-        std::unordered_map<unsigned int, HandlerFunc> funcs;
-
-    public:
-        inline void handle(T& mCaller, sf::Packet& mPacket)
+        template <typename T>
+        class PacketHandler
         {
-            unsigned int type{0};
+        private:
+            using HandlerFunc = ssvu::Func<void(T&, sf::Packet&)>;
+            std::unordered_map<unsigned int, HandlerFunc> funcs;
 
-            try
+        public:
+            inline void handle(T& mCaller, sf::Packet& mPacket)
             {
-                mPacket >> type;
+                unsigned int type{0};
 
-                auto itr(funcs.find(type));
-                if(itr == std::end(funcs)) {
-                    HG_LO_VERBOSE("PacketHandler")
-                    << "Can't handle packet of type: " << type << std::endl;
-                    return;
+                try
+                {
+                    mPacket >> type;
+
+                    auto itr(funcs.find(type));
+                    if(itr == std::end(funcs))
+                    {
+                        HG_LO_VERBOSE("PacketHandler")
+                            << "Can't handle packet of type: " << type
+                            << std::endl;
+                        return;
+                    }
+
+                    itr->second(mCaller, mPacket);
                 }
+                catch(std::exception& mEx)
+                {
+                    HG_LO_VERBOSE("PacketHandler")
+                        << "Exception during packet handling: (" << type
+                        << ")\n" << mEx.what() << std::endl;
+                }
+                catch(...)
+                {
+                    HG_LO_VERBOSE("PacketHandler")
+                        << "Unknown exception during packet handling: (" << type
+                        << ")\n";
+                }
+            }
 
-                itr->second(mCaller, mPacket);
-            }
-            catch(std::exception& mEx)
-            {
-                HG_LO_VERBOSE("PacketHandler")
-                << "Exception during packet handling: (" << type << ")\n"
-                << mEx.what() << std::endl;
-            }
-            catch(...)
-            {
-                HG_LO_VERBOSE("PacketHandler")
-                << "Unknown exception during packet handling: (" << type
-                << ")\n";
-            }
-        }
-
-        HandlerFunc& operator[](unsigned int mType) { return funcs[mType]; }
-    };
-}
+            HandlerFunc& operator[](unsigned int mType) { return funcs[mType]; }
+        };
+    }
 }
 
 #endif

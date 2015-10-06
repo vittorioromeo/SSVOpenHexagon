@@ -11,24 +11,24 @@
 
 namespace hg
 {
-namespace Online
-{
-    class Client : public ManagedSocket
+    namespace Online
     {
-    private:
-        PacketHandler<Client>& packetHandler;
-
-    public:
-        inline Client(PacketHandler<Client>& mPacketHandler)
-            : packetHandler(mPacketHandler)
+        class Client : public ManagedSocket
         {
-            onPacketReceived += [this](sf::Packet mPacket)
+        private:
+            PacketHandler<Client>& packetHandler;
+
+        public:
+            inline Client(PacketHandler<Client>& mPacketHandler)
+                : packetHandler(mPacketHandler)
             {
-                packetHandler.handle(*this, mPacket);
-            };
-        }
-    };
-}
+                onPacketReceived += [this](sf::Packet mPacket)
+                {
+                    packetHandler.handle(*this, mPacket);
+                };
+            }
+        };
+    }
 }
 
 #endif

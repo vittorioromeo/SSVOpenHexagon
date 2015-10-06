@@ -23,7 +23,7 @@ void createProfilesFolder()
     if(profilesPath.exists<ssvufs::Type::Folder>()) return;
 
     lo("::createProfilesFolder")
-    << "Profiles folder does not exist, creating\n";
+        << "Profiles folder does not exist, creating\n";
     createFolder(profilesPath);
 }
 
@@ -44,7 +44,8 @@ int main(int argc, char* argv[])
     vector<string> overrideIds;
     for(int i{0}; i < argc; ++i) overrideIds.emplace_back(argv[i]);
 
-    if(contains(overrideIds, "server")) {
+    if(contains(overrideIds, "server"))
+    {
         Config::loadConfig(overrideIds);
         auto levelOnlyAssets(mkUPtr<HGAssets>(true));
         Online::initializeValidators(*levelOnlyAssets);

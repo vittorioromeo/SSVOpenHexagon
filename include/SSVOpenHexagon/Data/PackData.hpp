@@ -7,15 +7,16 @@
 
 namespace hg
 {
-struct PackData
-{
-    std::string id, name;
-    float priority;
-    PackData(const std::string& mId, const std::string& mName, float mPriority)
-        : id{mId}, name{mName}, priority{mPriority}
+    struct PackData
     {
-    }
-};
+        std::string id, name;
+        float priority;
+        PackData(
+            const std::string& mId, const std::string& mName, float mPriority)
+            : id{mId}, name{mName}, priority{mPriority}
+        {
+        }
+    };
 }
 
 #endif

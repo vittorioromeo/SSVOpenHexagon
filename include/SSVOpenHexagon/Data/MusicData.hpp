@@ -11,51 +11,55 @@
 
 namespace hg
 {
-class HGAssets;
+    class HGAssets;
 
-class MusicData
-{
-private:
-    std::vector<int> segments;
-
-    inline int getRandomSegment() const
+    class MusicData
     {
-        return segments[ssvu::getRndI(SizeT(0), segments.size())];
-    }
+    private:
+        std::vector<int> segments;
 
-public:
-    std::string id, fileName, name, album, author;
-    bool firstPlay{true};
-
-    MusicData() = default;
-    MusicData(const std::string& mId, const std::string& mFileName,
-    const std::string& mName, const std::string& mAlbum,
-    const std::string& mAuthor)
-        : id{mId}, fileName{mFileName}, name{mName}, album{mAlbum},
-          author{mAuthor}
-    {
-    }
-
-    inline void addSegment(int mSeconds) { segments.emplace_back(mSeconds); }
-    inline void playRandomSegment(HGAssets& mAssets)
-    {
-        if(firstPlay) {
-            firstPlay = false;
-            playSegment(mAssets, 0);
+        inline int getRandomSegment() const
+        {
+            return segments[ssvu::getRndI(SizeT(0), segments.size())];
         }
-        else
-            playSeconds(mAssets, getRandomSegment());
-    }
-    inline void playSegment(HGAssets& mAssets, SizeT mIdx)
-    {
-        playSeconds(mAssets, segments[mIdx]);
-    }
-    inline void playSeconds(HGAssets& mAssets, int mSeconds)
-    {
-        if(Config::getNoMusic()) return;
-        mAssets.playMusic(id, sf::seconds(mSeconds));
-    }
-};
+
+    public:
+        std::string id, fileName, name, album, author;
+        bool firstPlay{true};
+
+        MusicData() = default;
+        MusicData(const std::string& mId, const std::string& mFileName,
+            const std::string& mName, const std::string& mAlbum,
+            const std::string& mAuthor)
+            : id{mId}, fileName{mFileName}, name{mName}, album{mAlbum},
+              author{mAuthor}
+        {
+        }
+
+        inline void addSegment(int mSeconds)
+        {
+            segments.emplace_back(mSeconds);
+        }
+        inline void playRandomSegment(HGAssets& mAssets)
+        {
+            if(firstPlay)
+            {
+                firstPlay = false;
+                playSegment(mAssets, 0);
+            }
+            else
+                playSeconds(mAssets, getRandomSegment());
+        }
+        inline void playSegment(HGAssets& mAssets, SizeT mIdx)
+        {
+            playSeconds(mAssets, segments[mIdx]);
+        }
+        inline void playSeconds(HGAssets& mAssets, int mSeconds)
+        {
+            if(Config::getNoMusic()) return;
+            mAssets.playMusic(id, sf::seconds(mSeconds));
+        }
+    };
 }
 
 #endif

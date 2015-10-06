@@ -13,51 +13,52 @@
 
 namespace hg
 {
-namespace Online
-{
-    class Server;
-
-    class ClientHandler : public ManagedSocket
+    namespace Online
     {
-    private:
-        static unsigned int lastUid;
-        bool running{true};
-        unsigned int uid{lastUid++}, untilTimeout{5};
-        PacketHandler<ClientHandler> packetHandler;
-        std::future<void> timeoutFuture;
+        class Server;
 
-    public:
-        ssvu::Delegate<void()> onDisconnect;
-
-        inline ClientHandler(PacketHandler<ClientHandler>& mPacketHandler)
-            : packetHandler(mPacketHandler)
+        class ClientHandler : public ManagedSocket
         {
-            onPacketReceived += [this](sf::Packet mPacket)
+        private:
+            static unsigned int lastUid;
+            bool running{true};
+            unsigned int uid{lastUid++}, untilTimeout{5};
+            PacketHandler<ClientHandler> packetHandler;
+            std::future<void> timeoutFuture;
+
+        public:
+            ssvu::Delegate<void()> onDisconnect;
+
+            inline ClientHandler(PacketHandler<ClientHandler>& mPacketHandler)
+                : packetHandler(mPacketHandler)
             {
-                packetHandler.handle(*this, mPacket);
-                refreshTimeout();
-            };
-            timeoutFuture = std::async(std::launch::async, [this]
-            {
-                while(running) {
-                    std::this_thread::sleep_for(800ms);
+                onPacketReceived += [this](sf::Packet mPacket)
+                {
+                    packetHandler.handle(*this, mPacket);
+                    refreshTimeout();
+                };
+                timeoutFuture = std::async(std::launch::async, [this]
+                    {
+                        while(running)
+                        {
+                            std::this_thread::sleep_for(800ms);
 
-                    if(!isBusy() || --untilTimeout > 0) continue;
+                            if(!isBusy() || --untilTimeout > 0) continue;
 
-                    HG_LO_VERBOSE("ClientHandler") << "Client (" << uid
-                                                   << ") timed out\n";
-                    onDisconnect();
-                    disconnect();
-                }
-            });
-        }
-        inline ~ClientHandler() { running = false; }
+                            HG_LO_VERBOSE("ClientHandler") << "Client (" << uid
+                                                           << ") timed out\n";
+                            onDisconnect();
+                            disconnect();
+                        }
+                    });
+            }
+            inline ~ClientHandler() { running = false; }
 
-        inline void stop() { running = false; }
-        inline unsigned int getUid() const { return uid; }
-        inline void refreshTimeout() { untilTimeout = 5; }
-    };
-}
+            inline void stop() { running = false; }
+            inline unsigned int getUid() const { return uid; }
+            inline void refreshTimeout() { untilTimeout = 5; }
+        };
+    }
 }
 
 #endif

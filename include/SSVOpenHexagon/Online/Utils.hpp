@@ -15,44 +15,44 @@
 
 namespace hg
 {
-namespace Online
-{
-    namespace Impl
+    namespace Online
     {
-        // Compression
-        template <typename... TArgs>
-        inline std::string buildCJsonString(TArgs&&... mArgs)
+        namespace Impl
         {
-            const auto& packetStr(
-            ssvuj::getWriteToString(ssvuj::getArchArray(FWD(mArgs)...)));
-            return getZLibCompress(packetStr);
+            // Compression
+            template <typename... TArgs>
+            inline std::string buildCJsonString(TArgs&&... mArgs)
+            {
+                const auto& packetStr(ssvuj::getWriteToString(
+                    ssvuj::getArchArray(FWD(mArgs)...)));
+                return getZLibCompress(packetStr);
+            }
+        }
+
+        // Build compressed packet
+        template <unsigned int TType>
+        inline sf::Packet buildCPacket()
+        {
+            sf::Packet result;
+            result << TType;
+            return result;
+        }
+        template <unsigned int TType, typename... TArgs>
+        inline sf::Packet buildCPacket(TArgs&&... mArgs)
+        {
+            sf::Packet result{buildCPacket<TType>()};
+            result << Impl::buildCJsonString(mArgs...);
+            return result;
+        }
+
+        // Decompress packet to obj
+        inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket)
+        {
+            std::string data;
+            mPacket >> data;
+            return ssvuj::getFromStr(getZLibDecompress(data));
         }
     }
-
-    // Build compressed packet
-    template <unsigned int TType>
-    inline sf::Packet buildCPacket()
-    {
-        sf::Packet result;
-        result << TType;
-        return result;
-    }
-    template <unsigned int TType, typename... TArgs>
-    inline sf::Packet buildCPacket(TArgs&&... mArgs)
-    {
-        sf::Packet result{buildCPacket<TType>()};
-        result << Impl::buildCJsonString(mArgs...);
-        return result;
-    }
-
-    // Decompress packet to obj
-    inline ssvuj::Obj getDecompressedPacket(sf::Packet& mPacket)
-    {
-        std::string data;
-        mPacket >> data;
-        return ssvuj::getFromStr(getZLibDecompress(data));
-    }
-}
 }
 
 #endif
