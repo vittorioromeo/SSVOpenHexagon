@@ -6,7 +6,7 @@ echo "Initializing all submodules..."
 git submodule update --init
 
 echo "Discarding all submodule changes..."
-git submodule foreach "git fetch --depth=1 --all; git reset --hard origin/master"
+git submodule foreach "git checkout . ; git reset --hard origin/master"
 
 echo "Recursively pulling all submodules..."
-git submodule foreach git pull --depth=1 origin master
+git submodule foreach "git pull origin master"
