@@ -6,11 +6,9 @@
 
 ---
 
-## A C++11 compiler is required!
+## A C++14 compiler is required!
 
-* `g++ 4.7.2` and `clang++ 3.2` should work properly.
-
-* `g++ 4.8.1` and `clang++ 3.4` will give the best results.
+* `g++ 5.1` and `clang++ 3.4` should work properly.
 
 ---
 
