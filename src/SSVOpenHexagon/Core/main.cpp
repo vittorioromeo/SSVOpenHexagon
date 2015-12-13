@@ -31,8 +31,6 @@ int main(int argc, char* argv[])
 {
 #define LOSIZ(x) ssvu::lo(#x) << sizeof(x) << std::endl
 
-    SSVUT_RUN();
-
     // LOSIZ(Online::GlobalThreadManager);
     // LOSIZ(HGAssets);
     // LOSIZ(Online::OHServer);
