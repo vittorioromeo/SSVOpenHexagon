@@ -5,6 +5,9 @@
 #ifndef SSVUJ_OH_JSONCPP
 #define SSVUJ_OH_JSONCPP
 
+// Include as system header to suppress jsoncpp warnings.
+#pragma GCC system_header
+
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/jsoncpp.inl"
 

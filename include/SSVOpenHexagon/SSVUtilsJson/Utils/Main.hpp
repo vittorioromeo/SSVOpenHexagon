@@ -46,7 +46,7 @@ namespace ssvuj
     }
 
     /// @brief Gets the size of a JSON Obj.
-    /// @param mObj Source Obj.
+    /// @param mArray Source Obj.
     /// @param mIdx Index of the target child Obj.
     inline auto getObjSize(const Obj& mArray, Idx mIdx) noexcept
     {
@@ -62,7 +62,7 @@ namespace ssvuj
     }
 
     /// @brief Checks whether a JSON Obj array has a certain member.
-    /// @param mObj Obj to check.
+    /// @param mArray Obj to check.
     /// @param mIdx Index of the child.
     inline bool hasObj(const Obj& mArray, Idx mIdx) noexcept
     {
@@ -105,7 +105,7 @@ namespace ssvuj
     }
 
     /// @brief Sets a JSON Obj to a certain value.
-    /// @param mObj Source Obj array.
+    /// @param mArray Source Obj array.
     /// @param mIdx Index of the target child Obj.
     /// @param mValue Value to set.
     template <typename T>
@@ -137,7 +137,7 @@ namespace ssvuj
 
     /// @brief Sets a value from a JSON Obj.
     /// @details By default, this does not call the value's constructor.
-    /// @param mObj Source Obj array.
+    /// @param mArray Source Obj array.
     /// @param mIdx Index of the target child Obj.
     /// @param mValue Value to be set.
     template <typename T>
@@ -166,7 +166,7 @@ namespace ssvuj
     }
 
     /// @brief Converts and return an instance of a JSON Obj's value.
-    /// @param mObj Parent Obj array.
+    /// @param mArray Parent Obj array.
     /// @param mIdx Index of the child Obj to convert.
     template <typename T>
     inline T getExtr(const Obj& mArray, Idx mIdx)
@@ -187,7 +187,7 @@ namespace ssvuj
     }
 
     /// @brief Converts and return an instance of a JSON Obj's value.
-    /// @param mObj Parent Obj array.
+    /// @param mArray Parent Obj array.
     /// @param mIdx Index of the child Obj to convert.
     /// @param mDefault Default value to use, in case the Obj hasn't got the
     /// desired

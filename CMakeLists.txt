@@ -1,10 +1,17 @@
-cmake_minimum_required(VERSION 2.8)
-project(SSVOpenHexagon)
+cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../SSVCMake/cmake/modules/;${CMAKE_SOURCE_DIR}/extlibs/SSVCMake/cmake/modules/;${CMAKE_MODULE_PATH}")
+# Include SSVCmake.
+list(APPEND CMAKE_MODULE_PATH
+    "${CMAKE_SOURCE_DIR}/../SSVCMake/cmake/modules/"
+    "${CMAKE_SOURCE_DIR}/extlibs/SSVCMake/cmake/modules/")
+
 include(SSVCMake)
 
+vrm_cmake_init_project(SSVOpenHexagon)
+
 SSVCMake_setDefaults()
+vrm_cmake_add_common_compiler_flags()
+
 SSVCMake_findSFML()
 find_package(LUA REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -16,7 +23,7 @@ SSVCMake_findExtlib(SSVEntitySystem)
 SSVCMake_findExtlib(SSVStart)
 
 if(WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--stack,4194304 -fpermissive")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--stack,4194304 -fpermissive")
 endif()
 
 include_directories(${LUA_INCLUDE_DIR})
