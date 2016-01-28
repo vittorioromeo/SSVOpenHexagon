@@ -271,21 +271,24 @@ function hmcDefSpinnerSpiral()
 	t_wait(getPerfectDelayDM(THICKNESS) * 5)
 end
 
-function getRndMinDM(mNum)
-	return math.random(mNum - u_getDifficultyMult() ^ 3, mNum)
+function getRndMinDM(mNum)	
+	return math.random(math.floor(mNum - (u_getDifficultyMult() ^ 3)), math.ceil(mNum))
 end
 
 function getRndMaxDM(mNum)
-	return math.random(mNum, mNum + u_getDifficultyMult() ^ 2.25)
+	return math.random(math.floor(mNum), math.ceil(mNum + (u_getDifficultyMult() ^ 2.25)))
 end
 
 function hmcDefSpinnerSpiralAcc()
 	t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
 	t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
 	side = getRandomSide()
+
 	acc = math.random(getRndMinDM(50), getRndMaxDM(100)) / 1000.0 * getRandomDir()
 	min = math.random(getRndMinDM(12), getRndMaxDM(28)) / 10.0 * -1
 	max = math.random(getRndMinDM(12), getRndMaxDM(28)) / 10.0
+
+	
 
 	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 
