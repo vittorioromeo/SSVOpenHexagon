@@ -285,6 +285,10 @@ namespace hg
             {
                 return levelStatus.maxIncrements;
             });
+        lua.writeVariable("l_getLevelTime", [=]
+            {
+                return (float)status.currentTime;
+            });
 
         // Style control
         lua.writeVariable("s_setPulseInc", [=](float mValue)
@@ -298,6 +302,14 @@ namespace hg
         lua.writeVariable("s_getHueInc", [=]
             {
                 return styleData.hueIncrement;
+            });
+        lua.writeVariable("s_setCameraShake", [=](int mValue)
+            {
+                levelStatus.cameraShake = mValue;
+            });
+        lua.writeVariable("s_getCameraShake", [=]
+            {
+                return levelStatus.cameraShake;
             });
 
         // Wall creation
