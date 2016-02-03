@@ -184,11 +184,11 @@ namespace hg
         ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
     }
 
-    const MusicData& HGAssets::getMusicData(const string& mId)
+    const MusicData& SSVU_ATTRIBUTE(pure) HGAssets::getMusicData(const string& mId)
     {
         return musicDataMap.find(mId)->second;
     }
-    const StyleData& HGAssets::getStyleData(const string& mId)
+    const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(const string& mId)
     {
         return styleDataMap.find(mId)->second;
     }

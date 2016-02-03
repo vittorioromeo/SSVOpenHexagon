@@ -316,68 +316,137 @@ namespace hg
         void setDrawTextOutlines(bool mX) { drawTextOutlines = mX; }
         void setRotateToStart(bool mX) { rotateToStart = mX; }
 
-        bool getOnline() { return online; }
-        bool getOfficial() { return official; }
-        string getUneligibilityReason() { return uneligibilityReason; }
-        float getSizeX() { return sizeX; }
-        float getSizeY() { return sizeY; }
-        float getSpawnDistance() { return spawnDistance; }
-        float getZoomFactor() { return zoomFactor; }
-        int getPixelMultiplier() { return pixelMultiplier; }
-        float getPlayerSpeed() { return official ? 9.45f : playerSpeed; }
-        float getPlayerFocusSpeed()
+        bool SSVU_ATTRIBUTE(pure) getOnline() { return online; }
+        bool SSVU_ATTRIBUTE(pure) getOfficial() { return official; }
+        string SSVU_ATTRIBUTE(pure) getUneligibilityReason()
+        {
+            return uneligibilityReason;
+        }
+        float SSVU_ATTRIBUTE(pure) getSizeX() { return sizeX; }
+        float SSVU_ATTRIBUTE(pure) getSizeY() { return sizeY; }
+        float SSVU_ATTRIBUTE(pure) getSpawnDistance() { return spawnDistance; }
+        float SSVU_ATTRIBUTE(pure) getZoomFactor() { return zoomFactor; }
+        int SSVU_ATTRIBUTE(pure) getPixelMultiplier()
+        {
+            return pixelMultiplier;
+        }
+        float SSVU_ATTRIBUTE(pure) getPlayerSpeed()
+        {
+            return official ? 9.45f : playerSpeed;
+        }
+        float SSVU_ATTRIBUTE(pure) getPlayerFocusSpeed()
         {
             return official ? 4.625f : playerFocusSpeed;
         }
-        float getPlayerSize() { return official ? 7.3f : playerSize; }
-        bool getNoRotation() { return official ? false : noRotation; }
-        bool getNoBackground() { return official ? false : noBackground; }
-        bool getBlackAndWhite() { return official ? false : blackAndWhite; }
-        bool getNoSound() { return noSound; }
-        bool getNoMusic() { return noMusic; }
-        float getSoundVolume() { return soundVolume; }
-        float getMusicVolume() { return musicVolume; }
-        bool getLimitFPS() { return limitFPS; }
-        bool getVsync() { return vsync; }
-        bool getAutoZoomFactor() { return official ? true : autoZoomFactor; }
-        bool getFullscreen() { return fullscreen; }
-        float getVersion() { return 2.f; }
-        bool getWindowedAutoResolution() { return windowedAutoResolution; }
-        bool getFullscreenAutoResolution() { return fullscreenAutoResolution; }
-        unsigned int getFullscreenWidth() { return fullscreenWidth; }
-        unsigned int getFullscreenHeight() { return fullscreenHeight; }
-        unsigned int getWindowedWidth() { return windowedWidth; }
-        unsigned int getWindowedHeight() { return windowedHeight; }
-        unsigned int getWidth()
+        float SSVU_ATTRIBUTE(pure) getPlayerSize()
+        {
+            return official ? 7.3f : playerSize;
+        }
+        bool SSVU_ATTRIBUTE(pure) getNoRotation()
+        {
+            return official ? false : noRotation;
+        }
+        bool SSVU_ATTRIBUTE(pure) getNoBackground()
+        {
+            return official ? false : noBackground;
+        }
+        bool SSVU_ATTRIBUTE(pure) getBlackAndWhite()
+        {
+            return official ? false : blackAndWhite;
+        }
+        bool SSVU_ATTRIBUTE(pure) getNoSound() { return noSound; }
+        bool SSVU_ATTRIBUTE(pure) getNoMusic() { return noMusic; }
+        float SSVU_ATTRIBUTE(pure) getSoundVolume() { return soundVolume; }
+        float SSVU_ATTRIBUTE(pure) getMusicVolume() { return musicVolume; }
+        bool SSVU_ATTRIBUTE(pure) getLimitFPS() { return limitFPS; }
+        bool SSVU_ATTRIBUTE(pure) getVsync() { return vsync; }
+        bool SSVU_ATTRIBUTE(pure) getAutoZoomFactor()
+        {
+            return official ? true : autoZoomFactor;
+        }
+        bool SSVU_ATTRIBUTE(pure) getFullscreen() { return fullscreen; }
+        float SSVU_ATTRIBUTE(pure) getVersion() { return 2.f; }
+        bool SSVU_ATTRIBUTE(pure) getWindowedAutoResolution()
+        {
+            return windowedAutoResolution;
+        }
+        bool SSVU_ATTRIBUTE(pure) getFullscreenAutoResolution()
+        {
+            return fullscreenAutoResolution;
+        }
+        unsigned int SSVU_ATTRIBUTE(pure) getFullscreenWidth()
+        {
+            return fullscreenWidth;
+        }
+        unsigned int SSVU_ATTRIBUTE(pure) getFullscreenHeight()
+        {
+            return fullscreenHeight;
+        }
+        unsigned int SSVU_ATTRIBUTE(pure) getWindowedWidth()
+        {
+            return windowedWidth;
+        }
+        unsigned int SSVU_ATTRIBUTE(pure) getWindowedHeight()
+        {
+            return windowedHeight;
+        }
+        unsigned int SSVU_ATTRIBUTE(pure) getWidth()
         {
             return fullscreen ? fullscreenWidth : windowedWidth;
         }
-        unsigned int getHeight()
+        unsigned int SSVU_ATTRIBUTE(pure) getHeight()
         {
             return fullscreen ? fullscreenHeight : windowedHeight;
         }
-        bool getShowMessages() { return showMessages; }
-        bool getDebug() { return debug; }
-        bool getPulse() { return official ? true : pulseEnabled; }
-        bool getBeatPulse() { return official ? true : beatPulse; }
-        bool getInvincible() { return official ? false : invincible; }
-        bool get3D() { return _3DEnabled; }
-        float get3DMultiplier() { return _3DMultiplier; }
-        unsigned int get3DMaxDepth() { return _3DMaxDepth; }
-        bool getAutoRestart() { return autoRestart; }
-        bool getFlash() { return flashEnabled; }
-        bool getShowTrackedVariables() { return showTrackedVariables; }
-        bool getMusicSpeedDMSync() { return musicSpeedDMSync; }
-        unsigned int getMaxFPS() { return maxFPS; }
-        unsigned int getAntialiasingLevel() { return antialiasingLevel; }
-        bool getShowFPS() { return showFPS; }
-        bool getTimerStatic() { return timerStatic; }
-        bool getServerLocal() { return serverLocal; }
-        bool getServerVerbose() { return serverVerbose; }
-        bool getMouseVisible() { return mouseVisible; }
-        float getMusicSpeedMult() { return musicSpeedMult; }
-        bool getDrawTextOutlines() { return drawTextOutlines; }
-        bool getRotateToStart() { return rotateToStart; }
+        bool SSVU_ATTRIBUTE(pure) getShowMessages() { return showMessages; }
+        bool SSVU_ATTRIBUTE(pure) getDebug() { return debug; }
+        bool SSVU_ATTRIBUTE(pure) getPulse()
+        {
+            return official ? true : pulseEnabled;
+        }
+        bool SSVU_ATTRIBUTE(pure) getBeatPulse()
+        {
+            return official ? true : beatPulse;
+        }
+        bool SSVU_ATTRIBUTE(pure) getInvincible()
+        {
+            return official ? false : invincible;
+        }
+        bool SSVU_ATTRIBUTE(pure) get3D() { return _3DEnabled; }
+        float SSVU_ATTRIBUTE(pure) get3DMultiplier() { return _3DMultiplier; }
+        unsigned int SSVU_ATTRIBUTE(pure) get3DMaxDepth()
+        {
+            return _3DMaxDepth;
+        }
+        bool SSVU_ATTRIBUTE(pure) getAutoRestart() { return autoRestart; }
+        bool SSVU_ATTRIBUTE(pure) getFlash() { return flashEnabled; }
+        bool SSVU_ATTRIBUTE(pure) getShowTrackedVariables()
+        {
+            return showTrackedVariables;
+        }
+        bool SSVU_ATTRIBUTE(pure) getMusicSpeedDMSync()
+        {
+            return musicSpeedDMSync;
+        }
+        unsigned int SSVU_ATTRIBUTE(pure) getMaxFPS() { return maxFPS; }
+        unsigned int SSVU_ATTRIBUTE(pure) getAntialiasingLevel()
+        {
+            return antialiasingLevel;
+        }
+        bool SSVU_ATTRIBUTE(pure) getShowFPS() { return showFPS; }
+        bool SSVU_ATTRIBUTE(pure) getTimerStatic() { return timerStatic; }
+        bool SSVU_ATTRIBUTE(pure) getServerLocal() { return serverLocal; }
+        bool SSVU_ATTRIBUTE(pure) getServerVerbose() { return serverVerbose; }
+        bool SSVU_ATTRIBUTE(pure) getMouseVisible() { return mouseVisible; }
+        float SSVU_ATTRIBUTE(pure) getMusicSpeedMult()
+        {
+            return musicSpeedMult;
+        }
+        bool SSVU_ATTRIBUTE(pure) getDrawTextOutlines()
+        {
+            return drawTextOutlines;
+        }
+        bool SSVU_ATTRIBUTE(pure) getRotateToStart() { return rotateToStart; }
 
         Trigger getTriggerRotateCCW() { return triggerRotateCCW; }
         Trigger getTriggerRotateCW() { return triggerRotateCW; }

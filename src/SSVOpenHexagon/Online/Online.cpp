@@ -342,27 +342,30 @@ namespace hg
             forceLeaderboardRefresh = mValue;
         }
 
-        ConnectStat getConnectionStatus() { return connectionStatus; }
-        LoginStat getLoginStatus() { return loginStatus; }
+        ConnectStat SSVU_ATTRIBUTE(pure) getConnectionStatus() { return connectionStatus; }
+        LoginStat SSVU_ATTRIBUTE(pure) getLoginStatus() { return loginStatus; }
         string getCurrentUsername()
         {
             return loginStatus == LoginStat::Logged ? currentUsername : "NULL";
         }
-        const ssvuj::Obj& getCurrentFriendScores()
+        const ssvuj::Obj&  SSVU_ATTRIBUTE(pure) getCurrentFriendScores()
         {
             return currentFriendScores;
         }
-        const UserStats& getUserStats() { return currentUserStats; }
-        ValidatorDB& getValidators() { return validators; }
+        const UserStats& SSVU_ATTRIBUTE(pure) getUserStats() { return currentUserStats; }
+        ValidatorDB& SSVU_ATTRIBUTE(pure) getValidators() { return validators; }
         bool getNewUserReg() { return newUserReg; }
         void invalidateCurrentLeaderboard() { currentLeaderboard = "NULL"; }
         void invalidateCurrentFriendsScores()
         {
             currentFriendScores = ssvuj::Obj{};
         }
-        const string& getCurrentLeaderboard() { return currentLeaderboard; }
-        float getServerVersion() { return serverVersion; }
-        string getServerMessage() { return serverMessage; }
+        const string& SSVU_ATTRIBUTE(pure) getCurrentLeaderboard()
+        {
+            return currentLeaderboard;
+        }
+        float SSVU_ATTRIBUTE(pure) getServerVersion() { return serverVersion; }
+        string SSVU_ATTRIBUTE(pure) getServerMessage() { return serverMessage; }
 
         string getValidator(const Path& mPackPath, const string& mLevelId,
             const string& mLevelRootString, const Path& mStyleRootPath,
