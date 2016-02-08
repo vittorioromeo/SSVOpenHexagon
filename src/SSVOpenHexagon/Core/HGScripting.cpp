@@ -33,6 +33,13 @@ namespace hg
             {
                 assets.playSound(mId);
             });
+        lua.writeVariable("u_setMusic", [=](string mId)
+            {
+                musicData = assets.getMusicData(mId);
+                musicData.firstPlay = true;
+                stopLevelMusic();
+                playLevelMusic();
+            });
         lua.writeVariable("u_isKeyPressed", [=](int mKey)
             {
                 return window.getInputState()[KKey(mKey)];
@@ -289,6 +296,12 @@ namespace hg
             {
                 return (float)status.currentTime;
             });
+        lua.writeVariable("l_setLevel", [=](string mId)
+            {
+                HexagonGame::setLevelData(assets.getLevelData(mId), true);
+                HexagonGame::stopLevelMusic();
+                HexagonGame::playLevelMusic();
+            });
 
         // Style control
         lua.writeVariable("s_setPulseInc", [=](float mValue)
@@ -310,6 +323,10 @@ namespace hg
         lua.writeVariable("s_getCameraShake", [=]
             {
                 return levelStatus.cameraShake;
+            });
+        lua.writeVariable("s_setStyle", [=](string mId)
+            {
+                styleData = assets.getStyleData(mId);
             });
 
         // Wall creation
