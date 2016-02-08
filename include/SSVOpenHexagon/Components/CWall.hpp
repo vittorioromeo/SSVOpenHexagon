@@ -40,7 +40,7 @@ namespace hg
         }
     };
 
-    class CWall : public sses::Component
+    class CWall final : public sses::Component
     {
     private:
         HexagonGame& hexagonGame;
@@ -55,8 +55,8 @@ namespace hg
             const Vec2f& mCenterPos, int mSide, float mThickness,
             float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
-        void update(FT mFT) override;
-        void draw() override;
+        void update(FT mFT) final override;
+        void draw() final override;
 
         inline void setHueMod(float mHueMod) { hueMod = mHueMod; }
 

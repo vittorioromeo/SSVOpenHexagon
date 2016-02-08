@@ -324,7 +324,7 @@ namespace hg
         }
         float SSVU_ATTRIBUTE(pure) getSizeX() { return sizeX; }
         float SSVU_ATTRIBUTE(pure) getSizeY() { return sizeY; }
-        float SSVU_ATTRIBUTE(pure) getSpawnDistance() { return spawnDistance; }
+        float SSVU_ATTRIBUTE(const) getSpawnDistance() { return spawnDistance; }
         float SSVU_ATTRIBUTE(pure) getZoomFactor() { return zoomFactor; }
         int SSVU_ATTRIBUTE(pure) getPixelMultiplier()
         {
@@ -365,7 +365,7 @@ namespace hg
             return official ? true : autoZoomFactor;
         }
         bool SSVU_ATTRIBUTE(pure) getFullscreen() { return fullscreen; }
-        float SSVU_ATTRIBUTE(pure) getVersion() { return 2.f; }
+        float SSVU_ATTRIBUTE(const) getVersion() { return 2.f; }
         bool SSVU_ATTRIBUTE(pure) getWindowedAutoResolution()
         {
             return windowedAutoResolution;
