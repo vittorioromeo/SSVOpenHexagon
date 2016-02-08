@@ -12,7 +12,7 @@ namespace hg
 {
     class HexagonGame;
 
-    class CPlayer : public sses::Component
+    class CPlayer final : public sses::Component
     {
     private:
         HexagonGame& hexagonGame;
@@ -31,8 +31,8 @@ namespace hg
         CPlayer(sses::Entity& mE, HexagonGame& mHexagonGame,
             const Vec2f& mStartPos);
 
-        void update(FT mFT) override;
-        void draw() override;
+        void update(FT mFT) final override;
+        void draw() final override;
     };
 }
 

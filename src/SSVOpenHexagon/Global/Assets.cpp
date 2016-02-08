@@ -184,11 +184,13 @@ namespace hg
         ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
     }
 
-    const MusicData& HGAssets::getMusicData(const string& mId)
+    const MusicData& SSVU_ATTRIBUTE(pure) HGAssets::getMusicData(
+        const string& mId)
     {
         return musicDataMap.find(mId)->second;
     }
-    const StyleData& HGAssets::getStyleData(const string& mId)
+    const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(
+        const string& mId)
     {
         return styleDataMap.find(mId)->second;
     }
@@ -206,11 +208,12 @@ namespace hg
     {
         currentProfilePtr = &profileDataMap.find(mName)->second;
     }
-    ProfileData& HGAssets::getCurrentLocalProfile()
+    ProfileData& SSVU_ATTRIBUTE(pure) HGAssets::getCurrentLocalProfile()
     {
         return *currentProfilePtr;
     }
-    const ProfileData& HGAssets::getCurrentLocalProfile() const
+    const ProfileData& SSVU_ATTRIBUTE(
+        pure) HGAssets::getCurrentLocalProfile() const
     {
         return *currentProfilePtr;
     }
@@ -228,7 +231,7 @@ namespace hg
         profileDataMap.clear();
         loadLocalProfiles();
     }
-    SizeT HGAssets::getLocalProfilesSize() { return profileDataMap.size(); }
+    SizeT SSVU_ATTRIBUTE(pure) HGAssets::getLocalProfilesSize() { return profileDataMap.size(); }
     vector<string> HGAssets::getLocalProfileNames()
     {
         vector<string> result;

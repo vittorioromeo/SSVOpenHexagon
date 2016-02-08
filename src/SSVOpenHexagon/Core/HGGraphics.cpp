@@ -21,19 +21,24 @@ namespace hg
 
         window.clear(Color::Black);
 
-        if(!status.hasDied) {
-            if(levelStatus.cameraShake > 0) {
+        if(!status.hasDied)
+        {
+            if(levelStatus.cameraShake > 0)
+            {
                 int x{0 + getRndI(-levelStatus.cameraShake,
-                    levelStatus.cameraShake)};
+                              levelStatus.cameraShake)};
                 int y{0 + getRndI(-levelStatus.cameraShake,
-                    levelStatus.cameraShake)};
+                              levelStatus.cameraShake)};
                 backgroundCamera.setCenter(Vec2f(x, y));
-                overlayCamera.setCenter(Vec2f(x, y) +
+                overlayCamera.setCenter(
+                    Vec2f(x, y) +
                     Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
-            } else {
+            }
+            else
+            {
                 backgroundCamera.setCenter(ssvs::zeroVec2f);
-                overlayCamera.setCenter(Vec2f{Config::getWidth() / 2.f,
-                    Config::getHeight() / 2.f});
+                overlayCamera.setCenter(
+                    Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
             }
         }
 
