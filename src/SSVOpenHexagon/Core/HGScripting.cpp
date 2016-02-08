@@ -298,9 +298,9 @@ namespace hg
             });
         lua.writeVariable("l_setLevel", [=](string mId)
             {
-                HexagonGame::setLevelData(assets.getLevelData(mId), true);
-                HexagonGame::stopLevelMusic();
-                HexagonGame::playLevelMusic();
+                setLevelData(assets.getLevelData(mId), true);
+                stopLevelMusic();
+                playLevelMusic();
             });
 
         // Style control
