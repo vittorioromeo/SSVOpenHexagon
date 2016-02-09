@@ -276,6 +276,14 @@ namespace hg
             {
                 return levelStatus.rotationSpeed;
             });
+        lua.writeVariable("l_setRotation", [=](float mValue)
+            {
+                backgroundCamera.setRotation(mValue);
+            });
+        lua.writeVariable("l_getRotation", [=]
+            {
+                return backgroundCamera.getRotation();
+            });
         lua.writeVariable("l_getSides", [=]
             {
                 return levelStatus.sides;
