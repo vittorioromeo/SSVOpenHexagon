@@ -354,7 +354,7 @@ namespace hg
         }
         const UserStats& SSVU_ATTRIBUTE(pure) getUserStats() { return currentUserStats; }
         ValidatorDB& SSVU_ATTRIBUTE(pure) getValidators() { return validators; }
-        bool getNewUserReg() { return newUserReg; }
+        bool SSVU_ATTRIBUTE(pure) getNewUserReg() { return newUserReg; }
         void invalidateCurrentLeaderboard() { currentLeaderboard = "NULL"; }
         void invalidateCurrentFriendsScores()
         {
