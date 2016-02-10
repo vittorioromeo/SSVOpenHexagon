@@ -33,6 +33,13 @@ namespace hg
             {
                 assets.playSound(mId);
             });
+        lua.writeVariable("u_setMusic", [=](string mId)
+            {
+                musicData = assets.getMusicData(mId);
+                musicData.firstPlay = true;
+                stopLevelMusic();
+                playLevelMusic();
+            });
         lua.writeVariable("u_isKeyPressed", [=](int mKey)
             {
                 return window.getInputState()[KKey(mKey)];
@@ -269,6 +276,14 @@ namespace hg
             {
                 return levelStatus.rotationSpeed;
             });
+        lua.writeVariable("l_setRotation", [=](float mValue)
+            {
+                backgroundCamera.setRotation(mValue);
+            });
+        lua.writeVariable("l_getRotation", [=]
+            {
+                return backgroundCamera.getRotation();
+            });
         lua.writeVariable("l_getSides", [=]
             {
                 return levelStatus.sides;
@@ -288,6 +303,12 @@ namespace hg
         lua.writeVariable("l_getLevelTime", [=]
             {
                 return (float)status.currentTime;
+            });
+        lua.writeVariable("l_setLevel", [=](string mId)
+            {
+                setLevelData(assets.getLevelData(mId), true);
+                stopLevelMusic();
+                playLevelMusic();
             });
 
         // Style control
@@ -310,6 +331,10 @@ namespace hg
         lua.writeVariable("s_getCameraShake", [=]
             {
                 return levelStatus.cameraShake;
+            });
+        lua.writeVariable("s_setStyle", [=](string mId)
+            {
+                styleData = assets.getStyleData(mId);
             });
 
         // Wall creation
