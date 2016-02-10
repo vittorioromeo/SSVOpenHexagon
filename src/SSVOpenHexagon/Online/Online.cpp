@@ -385,6 +385,7 @@ namespace hg
         {
             string luaScriptContents{mLuaScriptPath.getContentsAsStr()};
             std::set<string> luaScriptNames;
+
             recursiveFillIncludedLuaFileNames(
                 luaScriptNames, mPackPath, luaScriptContents);
 
