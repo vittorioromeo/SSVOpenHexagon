@@ -707,7 +707,9 @@ namespace hg
                 "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
                 "e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall",
                 "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
-                "w_wallHModCurveData", "l_setDelayMult", "l_setMaxInc"})
+                "w_wallHModCurveData", "l_setDelayMult", "l_setMaxInc",
+                "s_setStyle", "u_setMusic", "l_getRotation", "l_setRotation",
+                "s_getCameraShake", "s_setCameraShake", "l_getOfficial"})
             mLua.writeVariable(un, []
                 {
                 });

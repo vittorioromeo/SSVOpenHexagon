@@ -304,12 +304,20 @@ namespace hg
             {
                 return (float)status.currentTime;
             });
+        lua.writeVariable("l_getOfficial", [=]
+            {
+                return Config::getOfficial();
+            });
+
+        // TODO: test and consider re-enabling
+        /*
         lua.writeVariable("l_setLevel", [=](string mId)
             {
                 setLevelData(assets.getLevelData(mId), true);
                 stopLevelMusic();
                 playLevelMusic();
             });
+        */
 
         // Style control
         lua.writeVariable("s_setPulseInc", [=](float mValue)
