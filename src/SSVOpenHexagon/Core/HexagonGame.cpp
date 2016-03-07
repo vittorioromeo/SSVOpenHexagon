@@ -152,6 +152,10 @@ namespace hg
         }
 
         status.flashEffect = 255;
+        overlayCamera.setView(
+            {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                Vec2f(Config::getWidth(), Config::getHeight())});
+        backgroundCamera.setCenter(ssvs::zeroVec2f);
         shakeCamera(effectTimelineManager, overlayCamera);
         shakeCamera(effectTimelineManager, backgroundCamera);
 
