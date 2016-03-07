@@ -16,9 +16,9 @@ namespace hg
     class MusicData
     {
     private:
-        std::vector<int> segments;
+        std::vector<float> segments;
 
-        inline int getRandomSegment() const
+        inline float getRandomSegment() const
         {
             return segments[ssvu::getRndI(SizeT(0), segments.size())];
         }
@@ -36,7 +36,7 @@ namespace hg
         {
         }
 
-        inline void addSegment(int mSeconds)
+        inline void addSegment(float mSeconds)
         {
             segments.emplace_back(mSeconds);
         }
@@ -54,7 +54,7 @@ namespace hg
         {
             playSeconds(mAssets, segments[mIdx]);
         }
-        inline void playSeconds(HGAssets& mAssets, int mSeconds)
+        inline void playSeconds(HGAssets& mAssets, float mSeconds)
         {
             if(Config::getNoMusic()) return;
             mAssets.playMusic(id, sf::seconds(mSeconds));
