@@ -75,19 +75,54 @@ namespace hg
 
         std::set<string> getIncludedLuaFileNames(const string& mLuaScript)
         {
-            string script{mLuaScript}, toFind{"execScript("};
             std::set<string> result;
+            std::size_t currI(0);
 
-            for(auto pos(script.find(toFind, 0)); pos != string::npos;
-                pos = script.find(toFind, pos + 1))
+            auto findNext = [&currI, &mLuaScript](const auto& x)
             {
-                SizeT startPos{pos};
-                string untilEnd{script.substr(
-                    startPos + toFind.size() + 1, script.size() - startPos)};
-                SizeT lastPos{untilEnd.find("\"", 0)};
-                string luaFileName{untilEnd.substr(0, lastPos)};
+                auto f = mLuaScript.find(x, currI);
+                currI = f;
+            };
 
-                result.insert(luaFileName);
+            while(true)
+            {
+                if(currI >= mLuaScript.size()) break;
+
+                findNext("u_execScript");
+                if(currI >= mLuaScript.size()) break;
+                if(currI == std::string::npos) break;
+
+                findNext("(");
+                if(currI == std::string::npos)
+                {
+                    throw std::runtime_error(
+                        "Expected `(` after `u_execScript`");
+                }
+
+                findNext("\"");
+                if(currI == std::string::npos)
+                {
+                    throw std::runtime_error(
+                        "Expected `\"` after `u_execScript(`");
+                }
+
+                // beginning of script name
+                auto startI(currI + 1);
+                ++currI;
+
+                findNext("\"");
+                if(currI == std::string::npos)
+                {
+                    throw std::runtime_error(
+                        "Expected `\"` after `u_execScript(\"...`");
+                }
+
+                // end of script name
+                auto leng = currI - startI;
+                auto scriptName = mLuaScript.substr(startI, leng);
+
+                result.insert(scriptName);
+                ++currI;
             }
 
             return result;
@@ -98,10 +133,31 @@ namespace hg
         {
             for(const auto& name : getIncludedLuaFileNames(mLuaScript))
             {
+                ssvufs::Path p{mPackPath + "/Scripts/" + name};
+
+                if(!p.exists<ssvufs::Type::File>())
+                {
+                    throw std::runtime_error(
+                        "\nCould not find script file:\n" + p.getStr() + "\n");
+                }
+
                 mLuaScriptNames.insert(name);
-                recursiveFillIncludedLuaFileNames(mLuaScriptNames, mPackPath,
-                    ssvufs::Path{mPackPath + "/Scripts/" + name}
-                        .getContentsAsStr());
+
+                try
+                {
+                    recursiveFillIncludedLuaFileNames(
+                        mLuaScriptNames, mPackPath, p.getContentsAsStr());
+                }
+                catch(const std::runtime_error& re)
+                {
+                    std::string s;
+                    s += re.what();
+                    s += "...from...";
+                    s += p.getStr();
+                    s += "\n";
+
+                    throw std::runtime_error(s);
+                }
             }
         }
 
