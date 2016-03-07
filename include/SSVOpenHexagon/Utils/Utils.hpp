@@ -41,6 +41,7 @@ namespace hg
 
         std::set<std::string> getIncludedLuaFileNames(
             const std::string& mLuaScript);
+
         void recursiveFillIncludedLuaFileNames(
             std::set<std::string>& mLuaScriptNames, const Path& mPackPath,
             const std::string& mLuaScript);

@@ -106,7 +106,7 @@ namespace hg
         void setForceLeaderboardRefresh(bool mValue);
 
         float getServerVersion();
-        std::string getServerMessage();
+        const std::string& getServerMessage();
         std::string getMD5Hash(const std::string& mStr);
         inline std::string getControlStripped(const std::string& mStr)
         {

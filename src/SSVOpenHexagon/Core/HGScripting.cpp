@@ -308,7 +308,6 @@ namespace hg
             {
                 return Config::getOfficial();
             });
-
         // TODO: test and consider re-enabling
         /*
         lua.writeVariable("l_setLevel", [=](string mId)
