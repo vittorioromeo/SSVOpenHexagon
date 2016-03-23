@@ -35,7 +35,7 @@ namespace hg
                 getExtr<string>(mRoot, "name"), getExtr<string>(mRoot, "album"),
                 getExtr<string>(mRoot, "author")};
             for(const auto& segment : ssvuj::getObj(mRoot, "segments"))
-                result.addSegment(getExtr<int>(segment, "time"));
+                result.addSegment(getExtr<float>(segment, "time"));
             return result;
         }
         ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
