@@ -5,6 +5,8 @@
 #ifndef HG_GLOBAL_COMMON
 #define HG_GLOBAL_COMMON
 
+
+
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>

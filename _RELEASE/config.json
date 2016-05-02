@@ -1,6 +1,6 @@
 
 {
-	"3D_enabled" : true,
+	"3D_enabled" : false,
 	"3D_max_depth" : 100,
 	"3D_multiplier" : 1.0,
 	"antialiasing_level" : 3,
@@ -9,9 +9,9 @@
 	"beatpulse_enabled" : true,
 	"black_and_white" : false,
 	"debug" : false,
-	"draw_text_outlines" : true,
+	"draw_text_outlines" : false,
 	"flash_enabled" : true,
-	"fullscreen" : false,
+	"fullscreen" : true,
 	"fullscreen_auto_resolution" : false,
 	"fullscreen_height" : 480,
 	"fullscreen_width" : 640,
@@ -94,7 +94,7 @@
 	"timer_static" : true,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 768,
-	"windowed_width" : 1366,
-	"zoom_factor" : 1.0
+	"windowed_height" : 1080,
+	"windowed_width" : 1920,
+	"zoom_factor" : 1.600000023841858
 }

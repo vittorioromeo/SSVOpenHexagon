@@ -1,0 +1,1 @@
+SSVOpenHexagon.exe debug windowed

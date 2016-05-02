@@ -1,0 +1,1 @@
+SSVOpenHexagon.exe fullscreen no3D

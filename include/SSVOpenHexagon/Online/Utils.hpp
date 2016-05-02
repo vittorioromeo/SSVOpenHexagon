@@ -5,7 +5,7 @@
 #ifndef HG_ONLINE_UTILS
 #define HG_ONLINE_UTILS
 
-#include <future>
+//#include <future>
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/Compression.hpp"

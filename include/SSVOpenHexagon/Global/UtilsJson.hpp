@@ -5,7 +5,7 @@
 #ifndef SSVS_OH_JSON_UTILSJSON
 #define SSVS_OH_JSON_UTILSJSON
 
-#include <future>
+//#include <future>
 #include <SFML/System.hpp>
 #include <SSVUtils/Core/Core.hpp>
 #include "SSVStart/Tileset/Tileset.hpp"
