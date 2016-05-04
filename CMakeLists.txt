@@ -13,9 +13,11 @@ SSVCMake_setDefaults()
 vrm_cmake_add_common_compiler_flags()
 
 SSVCMake_findSFML()
+
 if(MINGW)
     find_package(boost)
 endif()
+
 find_package(LUA REQUIRED)
 find_package(ZLIB REQUIRED)
 SSVCMake_findExtlib(vrm_pp)
@@ -35,9 +37,11 @@ add_executable(${PROJECT_NAME} ${SRC_LIST})
 SSVCMake_linkSFML()
 target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARY})
 target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARY})
+
 if(MINGW)
     target_link_libraries(${PROJECT_NAME} boost_system boost_thread)
 endif()
+
 if(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} pthread)
 endif()
