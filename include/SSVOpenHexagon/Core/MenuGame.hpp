@@ -103,7 +103,10 @@ namespace hg
         void drawOptions();
         void drawWelcome();
         void drawMenu(const ssvms::Menu& mMenu);
-        inline void render(sf::Drawable& mDrawable) { window.draw(mDrawable); }
+        inline void render(sf::Drawable& mDrawable)
+        {
+            window.draw(mDrawable);
+        }
         inline sf::Text& renderTextImpl(
             const std::string& mStr, sf::Text& mText, const Vec2f& mPosition)
         {
@@ -162,7 +165,7 @@ namespace hg
                    state == States::ETEmail || state == States::ETLPNew ||
                    state == States::ETFriend;
         }
-        inline ssvms::Menu* getCurrentMenu()
+        inline ssvms::Menu* getCurrentMenu() noexcept
         {
             switch(state)
             {
@@ -171,13 +174,19 @@ namespace hg
                 default: return nullptr;
             }
         }
-        inline bool isInMenu() { return getCurrentMenu() != nullptr; }
+        inline bool isInMenu() noexcept
+        {
+            return getCurrentMenu() != nullptr;
+        }
 
     public:
         MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame,
             ssvs::GameWindow& mGameWindow);
         void init();
-        inline ssvs::GameState& getGame() { return game; }
+        inline ssvs::GameState& getGame() noexcept
+        {
+            return game;
+        }
     };
 }
 

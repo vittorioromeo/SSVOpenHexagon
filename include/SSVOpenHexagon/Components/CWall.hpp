@@ -17,13 +17,16 @@ namespace hg
         bool pingPong;
 
         SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f,
-            float mMax = 0.f, bool mPingPong = false)
-            : speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax},
+            float mMax = 0.f, bool mPingPong = false) noexcept
+            : speed{mSpeed},
+              accel{mAccel},
+              min{mMin},
+              max{mMax},
               pingPong{mPingPong}
         {
         }
 
-        inline void update(FT mFT)
+        inline void update(FT mFT) noexcept
         {
             if(accel == 0) return;
             speed += accel * mFT;
@@ -58,11 +61,20 @@ namespace hg
         void update(FT mFT) final override;
         void draw() final override;
 
-        inline void setHueMod(float mHueMod) { hueMod = mHueMod; }
+        inline void setHueMod(float mHueMod) noexcept
+        {
+            hueMod = mHueMod;
+        }
 
-        inline SpeedData& getSpeed() { return speed; }
-        inline SpeedData& getCurve() { return curve; }
-        inline bool isOverlapping(const Vec2f& mPoint) const
+        inline SpeedData& getSpeed() noexcept
+        {
+            return speed;
+        }
+        inline SpeedData& getCurve() noexcept
+        {
+            return curve;
+        }
+        inline bool isOverlapping(const Vec2f& mPoint) const noexcept
         {
             return ssvs::isPointInPolygon(vertexPositions, mPoint);
         }

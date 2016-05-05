@@ -49,7 +49,10 @@ namespace hg
 
         HGAssets(bool mLevelsOnly = false);
 
-        inline auto& operator()() { return assetManager; }
+        inline auto& operator()()
+        {
+            return assetManager;
+        }
         template <typename T>
         inline T& get(const std::string& mId)
         {
@@ -75,8 +78,14 @@ namespace hg
         {
             return *packDatas.at(mId);
         }
-        inline const std::vector<Path>& getPackPaths() { return packPaths; }
-        inline const std::vector<std::string>& getPackIds() { return packIds; }
+        inline const std::vector<Path>& getPackPaths()
+        {
+            return packPaths;
+        }
+        inline const std::vector<std::string>& getPackIds()
+        {
+            return packIds;
+        }
 
 
 
@@ -153,7 +162,10 @@ namespace hg
             if(!playingLocally) throw;
             createLocalProfile(mName);
         }
-        inline bool pIsLocal() const { return playingLocally; }
+        inline bool pIsLocal() const
+        {
+            return playingLocally;
+        }
         inline void pSetPlayingLocally(bool mPlayingLocally)
         {
             playingLocally = mPlayingLocally;
@@ -168,8 +180,14 @@ namespace hg
             ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
         void playMusic(
             const std::string& mId, sf::Time mPlayingOffset = sf::seconds(0));
-        inline ssvs::SoundPlayer& getSoundPlayer() { return soundPlayer; }
-        inline ssvs::MusicPlayer& getMusicPlayer() { return musicPlayer; }
+        inline ssvs::SoundPlayer& getSoundPlayer() noexcept
+        {
+            return soundPlayer;
+        }
+        inline ssvs::MusicPlayer& getMusicPlayer() noexcept
+        {
+            return musicPlayer;
+        }
     };
 }
 

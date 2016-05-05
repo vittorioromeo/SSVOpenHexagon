@@ -150,54 +150,75 @@ namespace hg
         void executeEvents(ssvuj::Obj& mRoot, float mTime);
 
         // Graphics-related methods
-        inline void render(sf::Drawable& mDrawable) { window.draw(mDrawable); }
+        inline void render(sf::Drawable& mDrawable)
+        {
+            window.draw(mDrawable);
+        }
 
         // Setters
         void setSides(unsigned int mSides);
 
         // Getters
-        inline ssvs::GameState& getGame() { return game; }
-        inline float getRadius() const { return status.radius; }
-        inline const sf::Color& getColor(int mIdx) const
+        inline ssvs::GameState& getGame() noexcept
+        {
+            return game;
+        }
+        inline float getRadius() const noexcept
+        {
+            return status.radius;
+        }
+        inline const sf::Color& getColor(int mIdx) const noexcept
         {
             return styleData.getColor(mIdx);
         }
-        inline float getSpeedMultDM() const
+        inline float getSpeedMultDM() const noexcept
         {
             return levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
         }
-        inline float getDelayMultDM() const
+        inline float getDelayMultDM() const noexcept
         {
             return levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
         }
-        inline float getRotationSpeed() const
+        inline float getRotationSpeed() const noexcept
         {
             return levelStatus.rotationSpeed;
         }
-        inline unsigned int getSides() const { return levelStatus.sides; }
-        inline float getWallSkewLeft() const
+        inline unsigned int getSides() const noexcept
+        {
+            return levelStatus.sides;
+        }
+        inline float getWallSkewLeft() const noexcept
         {
             return levelStatus.wallSkewLeft;
         }
-        inline float getWallSkewRight() const
+        inline float getWallSkewRight() const noexcept
         {
             return levelStatus.wallSkewRight;
         }
-        inline float getWallAngleLeft() const
+        inline float getWallAngleLeft() const noexcept
         {
             return levelStatus.wallAngleLeft;
         }
-        inline float getWallAngleRight() const
+        inline float getWallAngleRight() const noexcept
         {
             return levelStatus.wallAngleRight;
         }
-        inline float get3DEffectMult() const
+        inline float get3DEffectMult() const noexcept
         {
             return levelStatus._3dEffectMultiplier;
         }
-        inline HexagonGameStatus& getStatus() { return status; }
-        inline LevelStatus& getLevelStatus() { return levelStatus; }
-        inline HGAssets& getAssets() { return assets; }
+        inline HexagonGameStatus& getStatus()
+        {
+            return status;
+        }
+        inline LevelStatus& getLevelStatus()
+        {
+            return levelStatus;
+        }
+        inline HGAssets& getAssets()
+        {
+            return assets;
+        }
         sf::Color getColorMain() const;
         inline float getMusicDMSyncFactor()
         {
@@ -207,9 +228,18 @@ namespace hg
         }
 
         // Input
-        inline bool getInputFocused() const { return inputFocused; }
-        inline bool getInputSwap() const { return inputSwap; }
-        inline int getInputMovement() const { return inputMovement; }
+        inline bool getInputFocused() const
+        {
+            return inputFocused;
+        }
+        inline bool getInputSwap() const
+        {
+            return inputSwap;
+        }
+        inline int getInputMovement() const
+        {
+            return inputMovement;
+        }
     };
 }
 

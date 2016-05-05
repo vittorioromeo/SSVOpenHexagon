@@ -53,22 +53,37 @@ namespace hg
         }
 
     public:
-        FPSWatcher(ssvs::GameWindow& mGameWindow) : gameWindow(mGameWindow) {}
-        ~FPSWatcher() { running = false; }
+        FPSWatcher(ssvs::GameWindow& mGameWindow) noexcept
+            : gameWindow(mGameWindow)
+        {
+        }
+        ~FPSWatcher() noexcept
+        {
+            running = false;
+        }
 
-        inline bool isLimitReached() const
+        inline bool isLimitReached() const noexcept
         {
             return lostFrames >= maxLostFrames;
         }
-        inline void reset()
+        inline void reset() noexcept
         {
             lostFrames = 0;
             disabled = true;
             check = false;
         }
-        inline void update() { check = true; }
-        inline void enable() { disabled = false; }
-        inline void disable() { disabled = true; }
+        inline void update() noexcept
+        {
+            check = true;
+        }
+        inline void enable() noexcept
+        {
+            disabled = false;
+        }
+        inline void disable() noexcept
+        {
+            disabled = true;
+        }
     };
 }
 
