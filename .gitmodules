@@ -19,3 +19,6 @@
 [submodule "extlibs/vrm_pp"]
 	path = extlibs/vrm_pp
 	url = https://github.com/SuperV1234/vrm_pp.git
+[submodule "extlibs/mingw-std-threads"]
+	path = extlibs/mingw-std-threads
+	url = git://github.com/meganz/mingw-std-threads.git
