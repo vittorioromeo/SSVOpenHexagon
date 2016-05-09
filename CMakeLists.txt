@@ -43,6 +43,7 @@ if(MINGW)
 
     # TODO: find_package for mingw std threads
     include_directories("${CMAKE_SOURCE_DIR}/extlibs/mingw-std-threads")
+    find_package(Boost 1.36.0 COMPONENTS thread)
     target_link_libraries(${PROJECT_NAME} boost_system boost_thread)
 endif()
 
