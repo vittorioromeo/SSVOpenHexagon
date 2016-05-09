@@ -39,6 +39,10 @@ target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARY})
 target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARY})
 
 if(MINGW)
+    add_definitions(-DSSVOPENHEXAGON_MINGW_STD_THREADS)
+
+    # TODO: find_package for mingw std threads
+    include_directories("${CMAKE_SOURCE_DIR}/extlibs/mingw-std-threads")
     target_link_libraries(${PROJECT_NAME} boost_system boost_thread)
 endif()
 
