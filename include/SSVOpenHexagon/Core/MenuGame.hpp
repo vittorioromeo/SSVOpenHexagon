@@ -171,7 +171,11 @@ namespace hg
             {
                 case States::MWlcm: return &welcomeMenu;
                 case States::MOpts: return &optionsMenu;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnull-dereference"
                 default: return nullptr;
+#pragma GCC diagnostic pop
             }
         }
         inline bool isInMenu() noexcept
