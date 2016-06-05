@@ -13,12 +13,12 @@
 [submodule "extlibs/SSVLuaWrapper"]
 	path = extlibs/SSVLuaWrapper
 	url = https://github.com/SuperV1234/SSVLuaWrapper.git
-[submodule "extlibs/SSVCMake"]
-	path = extlibs/SSVCMake
-	url = https://github.com/SuperV1234/SSVCMake.git
 [submodule "extlibs/vrm_pp"]
 	path = extlibs/vrm_pp
 	url = https://github.com/SuperV1234/vrm_pp.git
 [submodule "extlibs/mingw-std-threads"]
 	path = extlibs/mingw-std-threads
 	url = git://github.com/meganz/mingw-std-threads.git
+[submodule "extlibs/vrm_cmake"]
+	path = extlibs/vrm_cmake
+	url = https://github.com/SuperV1234/vrm_cmake.git
