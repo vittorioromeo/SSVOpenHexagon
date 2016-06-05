@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-# Include SSVCmake.
+# Include `vrm_cmake`.
 list(APPEND CMAKE_MODULE_PATH
-    "${CMAKE_SOURCE_DIR}/../SSVCMake/cmake/modules/"
-    "${CMAKE_SOURCE_DIR}/extlibs/SSVCMake/cmake/modules/")
+    "${CMAKE_SOURCE_DIR}/../vrm_cmake/cmake/"
+    "${CMAKE_SOURCE_DIR}/extlibs/vrm_cmake/cmake/")
 
-include(SSVCMake)
+include(vrm_cmake)
 
 vrm_cmake_init_project(SSVOpenHexagon)
 
