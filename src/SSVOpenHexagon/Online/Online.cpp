@@ -16,7 +16,7 @@ using namespace sf;
 using namespace ssvs;
 using namespace hg::Utils;
 using namespace ssvu;
-using namespace ssvu::Encryption;
+using namespace ssvu::Encoding;
 using namespace ssvuj;
 using namespace ssvu::FileSystem;
 
@@ -406,7 +406,7 @@ namespace hg
 
         string getMD5Hash(const string& mStr)
         {
-            return encrypt<Encryption::Type::MD5>(mStr);
+            return encode<Encoding::Type::MD5>(mStr);
         }
 
         void initializeValidators(HGAssets& mAssets)

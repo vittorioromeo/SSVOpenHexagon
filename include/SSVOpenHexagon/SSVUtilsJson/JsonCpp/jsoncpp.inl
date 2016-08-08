@@ -622,7 +622,10 @@ namespace Json
         addError(message, token);
         return recoverFromError(skipUntilToken);
     }
-    inline Value& Reader::currentValue() { return *(nodes_.top()); }
+    inline Value& Reader::currentValue()
+    {
+        return *(nodes_.top());
+    }
     inline char Reader::getNextChar()
     {
         if(current_ == end_) return 0;
@@ -772,16 +775,27 @@ namespace Json
         unsigned int objectsPerPage_;
     };
 
-    inline ValueIteratorBase::ValueIteratorBase() : current_(), isNull_(true) {}
+    inline ValueIteratorBase::ValueIteratorBase() : current_(), isNull_(true)
+    {
+    }
     inline ValueIteratorBase::ValueIteratorBase(
         const Value::ObjectValues::iterator& current)
         : current_(current), isNull_(false)
     {
     }
 
-    inline Value& ValueIteratorBase::deref() const { return current_->second; }
-    inline void ValueIteratorBase::increment() { ++current_; }
-    inline void ValueIteratorBase::decrement() { --current_; }
+    inline Value& ValueIteratorBase::deref() const
+    {
+        return current_->second;
+    }
+    inline void ValueIteratorBase::increment()
+    {
+        ++current_;
+    }
+    inline void ValueIteratorBase::decrement()
+    {
+        --current_;
+    }
     inline ValueIteratorBase::difference_type
     ValueIteratorBase::computeDistance(const SelfType& other) const
     {
@@ -822,7 +836,9 @@ namespace Json
         const char* name = (*current_).first.c_str();
         return name ? name : "";
     }
-    inline ValueConstIterator::ValueConstIterator() {}
+    inline ValueConstIterator::ValueConstIterator()
+    {
+    }
     inline ValueConstIterator::ValueConstIterator(
         const Value::ObjectValues::iterator& current)
         : ValueIteratorBase(current)
@@ -835,7 +851,9 @@ namespace Json
         copy(other);
         return *this;
     }
-    inline ValueIterator::ValueIterator() {}
+    inline ValueIterator::ValueIterator()
+    {
+    }
     inline ValueIterator::ValueIterator(
         const Value::ObjectValues::iterator& current)
         : ValueIteratorBase(current)
@@ -944,8 +962,14 @@ namespace Json
         if(cstr_ != nullptr) return std::strcmp(cstr_, other.cstr_) == 0;
         return index_ == other.index_;
     }
-    inline ArrayIndex Value::CZString::index() const { return index_; }
-    inline const char* Value::CZString::c_str() const { return cstr_; }
+    inline ArrayIndex Value::CZString::index() const
+    {
+        return index_;
+    }
+    inline const char* Value::CZString::c_str() const
+    {
+        return cstr_;
+    }
     inline bool Value::CZString::isStaticString() const
     {
         return index_ == noDuplication;
@@ -1364,7 +1388,10 @@ namespace Json
         if(isNull() || isArray() || isObject()) return size() == 0u;
         return false;
     }
-    inline bool Value::operator!() const { return isNull(); }
+    inline bool Value::operator!() const
+    {
+        return isNull();
+    }
     inline void Value::clear()
     {
         SSVU_ASSERT(
@@ -1529,8 +1556,14 @@ namespace Json
         double integral_part;
         return modf(d, &integral_part) == 0.0;
     }
-    inline bool Value::isNull() const { return type_ == nullValue; }
-    inline bool Value::isBool() const { return type_ == booleanValue; }
+    inline bool Value::isNull() const
+    {
+        return type_ == nullValue;
+    }
+    inline bool Value::isBool() const
+    {
+        return type_ == booleanValue;
+    }
     inline bool Value::isInt() const
     {
         switch(type_)
@@ -1603,10 +1636,22 @@ namespace Json
     {
         return type_ == realValue || isIntegral();
     }
-    inline bool Value::isNumeric() const { return isIntegral() || isDouble(); }
-    inline bool Value::isString() const { return type_ == stringValue; }
-    inline bool Value::isArray() const { return type_ == arrayValue; }
-    inline bool Value::isObject() const { return type_ == objectValue; }
+    inline bool Value::isNumeric() const
+    {
+        return isIntegral() || isDouble();
+    }
+    inline bool Value::isString() const
+    {
+        return type_ == stringValue;
+    }
+    inline bool Value::isArray() const
+    {
+        return type_ == arrayValue;
+    }
+    inline bool Value::isObject() const
+    {
+        return type_ == objectValue;
+    }
     inline void Value::setComment(
         const char* comment, CommentPlacement placement)
     {
@@ -1680,7 +1725,9 @@ namespace Json
         }
         return iterator();
     }
-    inline PathArgument::PathArgument() : key_(), index_(), kind_(kindNone) {}
+    inline PathArgument::PathArgument() : key_(), index_(), kind_(kindNone)
+    {
+    }
     inline PathArgument::PathArgument(ArrayIndex index)
         : key_(), index_(index), kind_(kindIndex)
     {
@@ -1755,7 +1802,9 @@ namespace Json
         else
             args_.emplace_back(**itInArg);
     }
-    inline void Path::invalidPath(const std::string&, int) {}
+    inline void Path::invalidPath(const std::string&, int)
+    {
+    }
     inline const Value& Path::resolve(const Value& root) const
     {
         const Value* node = &root;
@@ -1910,7 +1959,9 @@ namespace Json
         result += "\"";
         return result;
     }
-    inline Writer::~Writer() {}
+    inline Writer::~Writer()
+    {
+    }
     inline FastWriter::FastWriter()
         : yamlCompatiblityEnabled_(false), dropNullPlaceholders_(false)
     {
@@ -2357,7 +2408,10 @@ namespace Json
         writeIndent();
         *document_ << value;
     }
-    inline void StyledStreamWriter::indent() { indentString_ += indentation_; }
+    inline void StyledStreamWriter::indent()
+    {
+        indentString_ += indentation_;
+    }
     inline void StyledStreamWriter::unindent()
     {
         SSVU_ASSERT(indentString_.size() >= indentation_.size());
