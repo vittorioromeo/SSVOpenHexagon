@@ -876,7 +876,7 @@ namespace hg
         titleBar.setPosition({20.f, 20.f});
 
         txtVersion.setString(toStr(Config::getVersion()));
-        txtVersion.setColor(Color::White);
+        txtVersion.setFillColor(Color::White);
         txtVersion.setOrigin({getLocalRight(txtVersion), 0.f});
         txtVersion.setPosition(
             {getGlobalRight(titleBar) - 15.f, getGlobalTop(titleBar) + 15.f});
@@ -1150,7 +1150,7 @@ namespace hg
         txtPacks.setString(packNames);
         txtPacks.setOrigin(getGlobalWidth(txtPacks), getGlobalHeight(txtPacks));
         txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
-        txtPacks.setColor(styleData.getMainColor());
+        txtPacks.setFillColor(styleData.getMainColor());
         render(txtPacks);
     }
     void MenuGame::drawEnteringText()

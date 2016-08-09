@@ -133,25 +133,25 @@ namespace hg
         inline sf::Text& renderText(
             const std::string& mStr, sf::Text& mText, const Vec2f& mPos)
         {
-            mText.setColor(getTextColor());
+            mText.setFillColor(getTextColor());
             return renderTextImpl(mStr, mText, mPos);
         }
         inline sf::Text& renderText(const std::string& mStr, sf::Text& mText,
             const Vec2f& mPos, unsigned int mSize)
         {
-            mText.setColor(getTextColor());
+            mText.setFillColor(getTextColor());
             return renderTextImpl(mStr, mText, mPos, mSize);
         }
         inline sf::Text& renderText(const std::string& mStr, sf::Text& mText,
             const Vec2f& mPos, const sf::Color& mColor)
         {
-            mText.setColor(mColor);
+            mText.setFillColor(mColor);
             return renderTextImpl(mStr, mText, mPos);
         }
         inline sf::Text& renderText(const std::string& mStr, sf::Text& mText,
             const Vec2f& mPos, const sf::Color& mColor, unsigned int mSize)
         {
-            mText.setColor(mColor);
+            mText.setFillColor(mColor);
             return renderTextImpl(mStr, mText, mPos, mSize);
         }
         void setIndex(int mIdx);

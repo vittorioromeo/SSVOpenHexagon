@@ -196,7 +196,7 @@ namespace hg
 
         if(Config::getDrawTextOutlines())
         {
-            text.setColor(offsetColor);
+            text.setFillColor(offsetColor);
             for(const auto& o : txt_offsets)
             {
                 text.setPosition(txt_pos + o);
@@ -204,7 +204,7 @@ namespace hg
             }
         }
 
-        text.setColor(getColorMain());
+        text.setFillColor(getColorMain());
         text.setPosition(txt_pos);
         render(text);
 
@@ -214,7 +214,7 @@ namespace hg
 
         if(Config::getDrawTextOutlines())
         {
-            messageText.setColor(offsetColor);
+            messageText.setFillColor(offsetColor);
             for(const auto& o : txt_offsets)
             {
                 messageText.setPosition(
@@ -226,7 +226,7 @@ namespace hg
 
         messageText.setPosition(
             Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f});
-        messageText.setColor(getColorMain());
+        messageText.setFillColor(getColorMain());
         render(messageText);
     }
 }
