@@ -5,36 +5,8 @@
 #ifndef HG_GLOBAL_COMMON
 #define HG_GLOBAL_COMMON
 
-// TODO: move mingw stuff to separate header and include
-#ifdef SSVOPENHEXAGON_MINGW_STD_THREADS
-
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-
-// https://github.com/meganz/mingw-std-threads
-#include <mingw.thread.h>
-#include <mingw.mutex.h>
-#include <mingw.condition_variable.h>
-
-#define BOOST_THREAD_PROVIDES_FUTURE 1
-#include <boost/thread/future.hpp>
-
-namespace std
-{
-    using boost::future;
-    using boost::launch;
-
-    template <typename... Ts>
-    auto async(Ts&&... xs)
-    {
-        return boost::async(std::forward<Ts>(xs)...);
-    }
-}
-
-#define _GLIBCXX_FUTURE 1
-
-#endif
+// MinGW-related threading fixes.
+#include "SSVOpenHexagon/Global/MinGW.hpp"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
