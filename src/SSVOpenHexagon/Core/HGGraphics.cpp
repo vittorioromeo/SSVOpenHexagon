@@ -54,6 +54,8 @@ namespace hg
         playerTris.clear();
         manager.draw();
 
+        for (auto& w : walls) w.draw();
+
         if(Config::get3D())
         {
             auto origWQ = wallQuads;

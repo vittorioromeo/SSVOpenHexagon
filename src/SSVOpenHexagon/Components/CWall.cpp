@@ -13,33 +13,33 @@ using namespace ssvs;
 
 namespace hg
 {
-    CWall::CWall(Entity& mE, HexagonGame& mHexagonGame, const Vec2f& mCenterPos,
+    CWall::CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos,
         int mSide, float mThickness, float mDistance, const SpeedData& mSpeed,
         const SpeedData& mCurve)
-        : Component{mE}, hexagonGame(mHexagonGame), centerPos{mCenterPos},
+        :  hexagonGame(&mHexagonGame), centerPos{mCenterPos},
           speed{mSpeed}, curve{mCurve}, distance{mDistance},
           thickness{mThickness}, side{mSide}
     {
-        float div{ssvu::tau / hexagonGame.getSides() * 0.5f},
+        float div{ssvu::tau / hexagonGame->getSides() * 0.5f},
             angle{div * 2.f * side};
 
         vertexPositions[0] = getOrbitRad(centerPos, angle - div, distance);
         vertexPositions[1] = getOrbitRad(centerPos, angle + div, distance);
         vertexPositions[2] =
-            getOrbitRad(centerPos, angle + div + hexagonGame.getWallAngleLeft(),
-                distance + thickness + hexagonGame.getWallSkewLeft());
+            getOrbitRad(centerPos, angle + div + hexagonGame->getWallAngleLeft(),
+                distance + thickness + hexagonGame->getWallSkewLeft());
         vertexPositions[3] = getOrbitRad(centerPos,
-            angle - div + hexagonGame.getWallAngleRight(),
-            distance + thickness + hexagonGame.getWallSkewRight());
+            angle - div + hexagonGame->getWallAngleRight(),
+            distance + thickness + hexagonGame->getWallSkewRight());
     }
 
     void CWall::draw()
     {
-        auto colorMain(hexagonGame.getColorMain());
+        auto colorMain(hexagonGame->getColorMain());
         if(hueMod != 0) colorMain = Utils::transformHue(colorMain, hueMod);
 
         for(auto i(0u); i < 4; ++i)
-            hexagonGame.wallQuads.emplace_back(vertexPositions[i], colorMain);
+            hexagonGame->wallQuads.emplace_back(vertexPositions[i], colorMain);
     }
 
     void CWall::update(FT mFT)
@@ -47,7 +47,7 @@ namespace hg
         speed.update(mFT);
         curve.update(mFT);
 
-        float radius{hexagonGame.getRadius() * 0.65f};
+        float radius{hexagonGame->getRadius() * 0.65f};
         int pointsOnCenter{0};
 
         for(auto& vp : vertexPositions)
@@ -62,6 +62,6 @@ namespace hg
             }
         }
 
-        if(pointsOnCenter > 3) getEntity().destroy();
+        if(pointsOnCenter > 3) killed=true;
     }
 }

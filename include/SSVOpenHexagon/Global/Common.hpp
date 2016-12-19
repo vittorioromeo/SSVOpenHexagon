@@ -33,12 +33,6 @@ namespace hg
     using ssvu::FT;
     using ssvu::Ticker;
     using ssvu::SizeT;
-
-    // Game enums
-    enum HGGroup
-    {
-        Wall
-    };
 }
 
 #endif

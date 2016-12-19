@@ -130,13 +130,12 @@ namespace hg
         Vec2f pLeftCheck{getOrbitRad(tempPos, angle - ssvu::piHalf, 0.01f)};
         Vec2f pRightCheck{getOrbitRad(tempPos, angle + ssvu::piHalf, 0.01f)};
 
-        for(const auto& wall : getManager().getEntities(HGGroup::Wall))
+        for(const auto& wall : hexagonGame.walls)
         {
-            const auto& cwall(wall->getComponent<CWall>());
-            if((movement == -1 && cwall.isOverlapping(pLeftCheck)) ||
-                (movement == 1 && cwall.isOverlapping(pRightCheck)))
+            if((movement == -1 && wall.isOverlapping(pLeftCheck)) ||
+                (movement == 1 && wall.isOverlapping(pRightCheck)))
                 angle = lastAngle;
-            if(cwall.isOverlapping(pos))
+            if(wall.isOverlapping(pos))
             {
                 deadEffectTimer.restart();
                 if(!Config::getInvincible()) dead = true;

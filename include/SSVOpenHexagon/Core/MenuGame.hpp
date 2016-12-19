@@ -44,7 +44,6 @@ namespace hg
         HexagonGame& hexagonGame;
         ssvs::GameState game;
         ssvs::GameWindow& window;
-        sses::Manager manager;
         ssvs::Camera backgroundCamera{
             window, {ssvs::zeroVec2f,
                         {Config::getSizeX() * Config::getZoomFactor(),

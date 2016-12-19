@@ -29,17 +29,10 @@ namespace hg
         {
         }
 
-        inline sses::Entity& createWall(int mSide, float mThickness,
+        void createWall(int mSide, float mThickness,
             const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{},
-            float mHueMod = 0)
-        {
-            auto& result(manager.createEntity());
-            result.addGroups(HGGroup::Wall);
-            auto& wall(result.createComponent<CWall>(hexagonGame, centerPos,
-                mSide, mThickness, Config::getSpawnDistance(), mSpeed, mCurve));
-            wall.setHueMod(mHueMod);
-            return result;
-        }
+            float mHueMod = 0);
+
         inline sses::Entity& createPlayer()
         {
             auto& result(manager.createEntity());
@@ -48,6 +41,7 @@ namespace hg
             return result;
         }
     };
+    
 }
 
 #endif
