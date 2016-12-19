@@ -55,6 +55,8 @@ namespace hg
         for (auto& w : walls) w.draw();
         if(status.started) player.draw();
 
+        // TODO: FIX 3D DRAWING
+
         if(Config::get3D())
         {
             const auto owqSz(wallQuads.size());
@@ -110,8 +112,12 @@ namespace hg
             }
         }
 
-        render(wallQuads);
+        // TODO: FIX 3D DRAWING
+
         render(playerTris);
+        render(wallQuads);
+
+        // TODO: FIX 3D DRAWING
 
         overlayCamera.apply();
         drawText();
