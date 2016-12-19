@@ -73,12 +73,19 @@ namespace hg
             if(!status.hasDied)
             {
                 manager.update(mFT);
+                
+                for(auto& w : walls) w.update(mFT);
+                ssvu::eraseRemoveIf(walls, [](const auto& w){ return w.killed; });
+
                 updateEvents(mFT);
                 updateTimeStop(mFT);
                 updateIncrement();
-                if(mustChangeSides && !manager.hasEntity(HGGroup::Wall))
+                
+                if(mustChangeSides && walls.empty())
                     sideChange(getRndI(
                         levelStatus.sidesMin, levelStatus.sidesMax + 1));
+
+
                 updateLevel(mFT);
                 if(Config::getBeatPulse()) updateBeatPulse(mFT);
                 if(Config::getPulse()) updatePulse(mFT);

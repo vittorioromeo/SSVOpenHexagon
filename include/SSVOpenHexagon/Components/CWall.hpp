@@ -43,10 +43,10 @@ namespace hg
         }
     };
 
-    class CWall final : public sses::Component
+    class CWall final
     {
     private:
-        HexagonGame& hexagonGame;
+        HexagonGame* hexagonGame;
         Vec2f centerPos;
         std::array<Vec2f, 4> vertexPositions;
         SpeedData speed, curve;
@@ -54,12 +54,14 @@ namespace hg
         int side{0};
 
     public:
-        CWall(sses::Entity& mE, HexagonGame& mHexagonGame,
+        bool killed{false};
+
+        CWall(HexagonGame& mHexagonGame,
             const Vec2f& mCenterPos, int mSide, float mThickness,
             float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
-        void update(FT mFT) final override;
-        void draw() final override;
+        void update(FT mFT);
+        void draw();
 
         inline void setHueMod(float mHueMod) noexcept
         {

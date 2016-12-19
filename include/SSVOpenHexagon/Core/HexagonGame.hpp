@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Factory.hpp"
@@ -31,6 +32,10 @@ namespace hg
         ssvs::GameState game;
         ssvs::GameWindow& window;
         sses::Manager manager;
+    public:
+        std::vector<CWall> walls;
+
+    private:
         ssvs::Camera backgroundCamera{
             window, {ssvs::zeroVec2f,
                         {Config::getWidth() * Config::getZoomFactor(),

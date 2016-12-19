@@ -17,6 +17,14 @@ using namespace ssvuj;
 
 namespace hg
 {
+    inline void Factory::createWall(int mSide, float mThickness,
+    const SpeedData& mSpeed, const SpeedData& mCurve,
+    float mHueMod)
+    {
+        hexagonGame.walls.emplace_back(hexagonGame, centerPos, mSide, mThickness, Config::getSpawnDistance(), mSpeed, mCurve);
+        hexagonGame.walls.back().setHueMod(mHueMod);
+    }
+
     void HexagonGame::initLua()
     {
         // Utils
