@@ -1,6 +1,3 @@
-[submodule "extlibs/SSVEntitySystem"]
-	path = extlibs/SSVEntitySystem
-	url = https://github.com/SuperV1234/SSVEntitySystem.git
 [submodule "extlibs/SSVMenuSystem"]
 	path = extlibs/SSVMenuSystem
 	url = https://github.com/SuperV1234/SSVMenuSystem.git

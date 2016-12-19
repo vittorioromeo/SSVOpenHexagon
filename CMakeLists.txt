@@ -30,7 +30,6 @@ vrm_cmake_find_extlib(vrm_pp)
 vrm_cmake_find_extlib(SSVUtils)
 vrm_cmake_find_extlib(SSVMenuSystem)
 vrm_cmake_find_extlib(SSVLuaWrapper)
-vrm_cmake_find_extlib(SSVEntitySystem)
 vrm_cmake_find_extlib(SSVStart)
 
 if(WIN32)

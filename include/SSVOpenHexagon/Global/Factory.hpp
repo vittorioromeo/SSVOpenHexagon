@@ -7,7 +7,6 @@
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
-#include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
 namespace hg
@@ -18,13 +17,12 @@ namespace hg
     {
     private:
         HexagonGame& hexagonGame;
-        sses::Manager& manager;
         Vec2f centerPos;
 
     public:
-        Factory(HexagonGame& mHexagonGame, sses::Manager& mManager,
+        Factory(HexagonGame& mHexagonGame,
             const Vec2f& mCenterPos)
-            : hexagonGame(mHexagonGame), manager(mManager),
+            : hexagonGame(mHexagonGame),
               centerPos{mCenterPos}
         {
         }
@@ -32,14 +30,6 @@ namespace hg
         void createWall(int mSide, float mThickness,
             const SpeedData& mSpeed, const SpeedData& mCurve = SpeedData{},
             float mHueMod = 0);
-
-        inline sses::Entity& createPlayer()
-        {
-            auto& result(manager.createEntity());
-            result.createComponent<CPlayer>(hexagonGame, centerPos);
-            result.setDrawPriority(-1);
-            return result;
-        }
     };
     
 }

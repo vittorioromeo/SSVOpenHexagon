@@ -12,10 +12,10 @@ namespace hg
 {
     class HexagonGame;
 
-    class CPlayer final : public sses::Component
+    class CPlayer final
     {
     private:
-        HexagonGame& hexagonGame;
+        HexagonGame* hexagonGame;
         Vec2f pLeft, pRight, startPos, pos;
         float hue{0}, angle{0}, size{Config::getPlayerSize()},
             speed{Config::getPlayerSpeed()},
@@ -28,11 +28,11 @@ namespace hg
         void drawDeathEffect();
 
     public:
-        CPlayer(sses::Entity& mE, HexagonGame& mHexagonGame,
+        CPlayer(HexagonGame& mHexagonGame,
             const Vec2f& mStartPos);
 
-        void update(FT mFT) final override;
-        void draw() final override;
+        void update(FT mFT);
+        void draw();
     };
 }
 

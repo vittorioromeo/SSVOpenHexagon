@@ -91,7 +91,6 @@ function buildAllExtlibs
 		buildExtlib SSVUtilsJson
 		buildExtlib SSVStart
 		buildExtlib SSVMenuSystem
-		buildExtlib SSVEntitySystem
 		buildExtlib SSVLuaWrapper
 	)
 }

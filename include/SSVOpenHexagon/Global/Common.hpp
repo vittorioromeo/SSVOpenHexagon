@@ -17,7 +17,6 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include <SSVStart/SSVStart.hpp>
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include <SSVEntitySystem/SSVEntitySystem.hpp>
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 #include <SSVLuaWrapper/SSVLuaWrapper.hpp>
 
