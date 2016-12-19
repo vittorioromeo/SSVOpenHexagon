@@ -90,7 +90,7 @@ askContinue
 rm -Rf "${destinationDir}"*
 
 # List of extlibs to build in order
-dependencies=("SSVUtils" "SSVMenuSystem" "SSVEntitySystem" "SSVLuaWrapper" "SSVStart") 
+dependencies=("SSVUtils" "SSVMenuSystem" "SSVLuaWrapper" "SSVStart") 
 
 export DESTDIR="${cmakePrefixPath}"
 

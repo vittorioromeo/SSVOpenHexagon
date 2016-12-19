@@ -11,7 +11,6 @@ using namespace std;
 using namespace sf;
 using namespace ssvs;
 using namespace ssvu;
-using namespace sses;
 using namespace hg::Utils;
 
 namespace hg
@@ -72,7 +71,7 @@ namespace hg
 
             if(!status.hasDied)
             {
-                manager.update(mFT);
+                player.update(mFT);
                 
                 for(auto& w : walls) w.update(mFT);
                 ssvu::eraseRemoveIf(walls, [](const auto& w){ return w.killed; });

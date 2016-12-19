@@ -13,7 +13,6 @@ using namespace std;
 using namespace sf;
 using namespace ssvu;
 using namespace ssvs;
-using namespace sses;
 using namespace hg::Utils;
 
 namespace hg
@@ -27,7 +26,7 @@ namespace hg
     }
 
     HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow)
-        : assets(mAssets), window(mGameWindow), fpsWatcher(window)
+        : assets(mAssets), window(mGameWindow), player{*this, ssvs::zeroVec2f}, fpsWatcher(window) 
     {
         game.onUpdate += [this](FT mFT)
         {
@@ -107,8 +106,8 @@ namespace hg
 
         // Manager cleanup
         walls.clear();
-        manager.clear();
-        factory.createPlayer();
+        player = CPlayer{*this, ssvs::zeroVec2f};
+        
 
         // Timeline cleanup
         timeline.clear();

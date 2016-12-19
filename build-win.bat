@@ -24,14 +24,6 @@ mingw32-make -j4
 mingw32-make install -j4
 cd ../..
 
-cd SSVEntitySystem
-mkdir lib
-cd lib
-cmake .. -G "MinGW Makefiles"
-mingw32-make -j4
-mingw32-make install -j4
-cd ../..
-
 cd SSVStart
 mkdir lib
 cd lib

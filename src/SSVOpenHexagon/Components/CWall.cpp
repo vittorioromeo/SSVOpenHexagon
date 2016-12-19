@@ -8,7 +8,6 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
 using namespace sf;
-using namespace sses;
 using namespace ssvs;
 
 namespace hg

@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
@@ -31,8 +32,8 @@ namespace hg
 
         ssvs::GameState game;
         ssvs::GameWindow& window;
-        sses::Manager manager;
     public:
+        CPlayer player;
         std::vector<CWall> walls;
 
     private:
@@ -44,7 +45,7 @@ namespace hg
             window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
                         Vec2f(Config::getWidth(), Config::getHeight())}};
         ssvu::TimelineManager effectTimelineManager;
-        Factory factory{*this, manager, ssvs::zeroVec2f};
+        Factory factory{*this, ssvs::zeroVec2f};
         Lua::LuaContext lua;
         LevelStatus levelStatus;
         MusicData musicData;

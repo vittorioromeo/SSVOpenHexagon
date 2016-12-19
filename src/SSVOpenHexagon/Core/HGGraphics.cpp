@@ -9,7 +9,6 @@
 using namespace std;
 using namespace sf;
 using namespace ssvs;
-using namespace sses;
 using namespace hg::Utils;
 using namespace ssvu;
 
@@ -52,14 +51,16 @@ namespace hg
 
         wallQuads.clear();
         playerTris.clear();
-        manager.draw();
 
         for (auto& w : walls) w.draw();
+        if(status.started) player.draw();
 
         if(Config::get3D())
         {
-            auto origWQ = wallQuads;
-            auto origPT = playerTris;
+            const auto owqSz(wallQuads.size());
+            const auto optSz(playerTris.size());
+            wallQuads.reserve(owqSz * styleData._3dDepth);
+            playerTris.reserve(optSz * styleData._3dDepth);
 
             float effect{
                 styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
@@ -72,13 +73,10 @@ namespace hg
             auto sinRot(std::sin(radRot));
             auto cosRot(std::cos(radRot));
 
-            auto owqSz(origWQ.size());
-            auto optSz(origPT.size());
-
             for(auto v(0u); v < owqSz * styleData._3dDepth; ++v)
-                wallQuads.emplace_back(origWQ[v % owqSz]);
+                wallQuads.emplace_back(wallQuads[v % owqSz]);
             for(auto v(0u); v < optSz * styleData._3dDepth; ++v)
-                playerTris.emplace_back(origPT[v % optSz]);
+                playerTris.emplace_back(playerTris[v % optSz]);
 
             int lastWQ(0);
             int lastPT(0);
