@@ -19,3 +19,6 @@
 [submodule "extlibs/vrm_cmake"]
 	path = extlibs/vrm_cmake
 	url = https://github.com/SuperV1234/vrm_cmake.git
+[submodule "extlibs/SFML"]
+	path = extlibs/SFML
+	url = https://github.com/LaurentGomila/SFML.git
