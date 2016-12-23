@@ -149,15 +149,12 @@ namespace hg
     {
         if(!levelStatus.incEnabled) return;
         if(status.incrementTime < levelStatus.incTime) return;
-
-        if(!levelStatus.shouldIncrement())
-        {
-            ++levelStatus.currentIncrements;
-            incrementDifficulty();
-        }
-
+        if(!levelStatus.shouldIncrement()) return;
+        
+        ++levelStatus.currentIncrements;
+        incrementDifficulty();
+    
         status.incrementTime = 0;
-
         mustChangeSides = true;
     }
     void HexagonGame::updateLevel(FT mFT)

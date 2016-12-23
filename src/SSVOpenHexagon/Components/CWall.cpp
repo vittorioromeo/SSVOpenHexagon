@@ -19,7 +19,7 @@ namespace hg
           speed{mSpeed}, curve{mCurve}, distance{mDistance},
           thickness{mThickness}, side{mSide}
     {
-        float div{ssvu::tau / hexagonGame->getSides() * 0.5f},
+        const float div{ssvu::tau / hexagonGame->getSides() * 0.5f},
             angle{div * 2.f * side};
 
         vertexPositions[0] = getOrbitRad(centerPos, angle - div, distance);
