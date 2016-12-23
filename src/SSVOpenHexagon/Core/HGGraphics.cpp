@@ -51,11 +51,10 @@ namespace hg
 
         wallQuads.clear();
         playerTris.clear();
+        capTris.clear();
 
         for (auto& w : walls) w.draw();
         if(status.started) player.draw();
-
-        // TODO: FIX 3D DRAWING
 
         if(Config::get3D())
         {
@@ -70,10 +69,10 @@ namespace hg
             Vec2f skew{1.f, 1.f + effect};
             backgroundCamera.setSkew(skew);
 
-            auto radRot(
+            const auto radRot(
                 ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
-            auto sinRot(std::sin(radRot));
-            auto cosRot(std::cos(radRot));
+            const auto sinRot(std::sin(radRot));
+            const auto cosRot(std::cos(radRot));
 
             for(auto v(0u); v < owqSz * styleData._3dDepth; ++v)
                 wallQuads.emplace_back(wallQuads[v % owqSz]);
@@ -112,12 +111,9 @@ namespace hg
             }
         }
 
-        // TODO: FIX 3D DRAWING
-
-        render(playerTris);
         render(wallQuads);
-
-        // TODO: FIX 3D DRAWING
+        render(playerTris);
+        render(capTris);
 
         overlayCamera.apply();
         drawText();

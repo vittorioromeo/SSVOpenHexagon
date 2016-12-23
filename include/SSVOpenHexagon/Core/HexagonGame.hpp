@@ -142,6 +142,7 @@ namespace hg
     public:
         ssvs::VertexVector<sf::PrimitiveType::Quads> wallQuads;
         ssvs::VertexVector<sf::PrimitiveType::Triangles> playerTris;
+        ssvs::VertexVector<sf::PrimitiveType::Triangles> capTris;
 
         MenuGame* mgPtr;
 

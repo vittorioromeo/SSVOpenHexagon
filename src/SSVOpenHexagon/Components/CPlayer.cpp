@@ -48,21 +48,22 @@ namespace hg
     void CPlayer::drawPivot()
     {
         auto sides(hexagonGame->getSides());
-        float div{ssvu::tau / sides * 0.5f},
+        const float div{ssvu::tau / sides * 0.5f},
             radius{hexagonGame->getRadius() * 0.75f};
-        Color colorMain{hexagonGame->getColorMain()},
-            colorB{hexagonGame->getColor(1)};
-        if(Config::getBlackAndWhite()) colorB = Color::Black;
+        const Color colorMain{hexagonGame->getColorMain()},
+            colorB{Config::getBlackAndWhite() ? Color::Black : hexagonGame->getColor(1)};
+        const Color colorDarkened{getColorDarkened(colorMain, 1.4f)};
+        
 
         for(auto i(0u); i < sides; ++i)
         {
-            float sAngle{div * 2.f * i};
+            const float sAngle{div * 2.f * i};
 
-            Vec2f p1{getOrbitRad(startPos, sAngle - div, radius)};
-            Vec2f p2{getOrbitRad(startPos, sAngle + div, radius)};
-            Vec2f p3{
+            const Vec2f p1{getOrbitRad(startPos, sAngle - div, radius)};
+            const Vec2f p2{getOrbitRad(startPos, sAngle + div, radius)};
+            const Vec2f p3{
                 getOrbitRad(startPos, sAngle + div, radius + baseThickness)};
-            Vec2f p4{
+            const Vec2f p4{
                 getOrbitRad(startPos, sAngle - div, radius + baseThickness)};
 
             hexagonGame->wallQuads.emplace_back(p1, colorMain);
@@ -70,9 +71,9 @@ namespace hg
             hexagonGame->wallQuads.emplace_back(p3, colorMain);
             hexagonGame->wallQuads.emplace_back(p4, colorMain);
 
-            hexagonGame->playerTris.emplace_back(p1, colorB);
-            hexagonGame->playerTris.emplace_back(p2, colorB);
-            hexagonGame->playerTris.emplace_back(startPos, colorB);
+            hexagonGame->capTris.emplace_back(p1, colorDarkened);
+            hexagonGame->capTris.emplace_back(p2, colorDarkened);
+            hexagonGame->capTris.emplace_back(startPos, colorDarkened);
         }
     }
     void CPlayer::drawDeathEffect()

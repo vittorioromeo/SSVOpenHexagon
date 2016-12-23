@@ -117,11 +117,13 @@ namespace hg
         float div{ssvu::tau / mSides * 1.0001f}, distance{4500};
 
         ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
+        vertices.reserve(mSides * 3);
+
         const auto& colors(getColors());
 
         for(auto i(0u); i < mSides; ++i)
         {
-            float angle{div * i};
+            const float angle{div * i};
             Color currentColor{ssvu::getByModIdx(colors, i)};
 
             if(Config::getBlackAndWhite())
