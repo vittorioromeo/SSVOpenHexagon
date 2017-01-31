@@ -177,10 +177,10 @@ struct Converter<unsigned long>
         mObj = Json::UInt64(mValue);
     }
 };
-template <typename TItem>
-struct Converter<std::vector<TItem>>
+template <typename TItem, typename TAlloc>
+struct Converter<std::vector<TItem, TAlloc>>
 {
-    using T = std::vector<TItem>;
+    using T = std::vector<TItem, TAlloc>;
     inline static void fromObj(const Obj& mObj, T& mValue)
     {
         const auto& size(getObjSize(mObj));
@@ -192,11 +192,29 @@ struct Converter<std::vector<TItem>>
         for(auto i(0u); i < mValue.size(); ++i) arch(mObj, i, mValue[i]);
     }
 };
-template <typename TKey, typename TValue,
-    template <typename, typename, typename...> class TMap>
-struct Converter<TMap<TKey, TValue>>
+template <typename TKey, typename TValue,typename TComp, typename TAlloc>
+struct Converter<std::map<TKey, TValue, TComp, TAlloc>>
 {
-    using T = TMap<TKey, TValue>;
+    using T = std::map<TKey, TValue, TComp, TAlloc>;
+    inline static void fromObj(const Obj& mObj, T& mValue)
+    {
+        for(auto& p : mObj)
+        {
+            const auto& valueKey(getExtr<TKey>(p, 0));
+            extr(p, 1, mValue[valueKey]);
+        }
+    }
+    inline static void toObj(Obj& mObj, const T& mValue)
+    {
+        Idx idx{0};
+        for(const auto& p : mValue)
+            arch<std::pair<TKey, TValue>>(getObj(mObj, idx++), p);
+    }
+};
+template <typename TKey, typename TValue, typename THash, typename TKeyEqual, typename TAlloc>
+struct Converter<std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>>
+{
+    using T = std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>;
     inline static void fromObj(const Obj& mObj, T& mValue)
     {
         for(auto& p : mObj)

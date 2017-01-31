@@ -24,7 +24,7 @@ if(MINGW)
     find_package(boost REQUIRED)
 endif()
 
-find_package(SFML 2 COMPONENTS system window graphics audio network REQUIRED)
+find_package(SFML COMPONENTS system window graphics audio network REQUIRED)
 find_package(LUA REQUIRED)
 find_package(ZLIB REQUIRED)
 vrm_cmake_find_extlib(vrm_pp)
