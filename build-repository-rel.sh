@@ -23,7 +23,7 @@ fi
 
 absolutePath=$(readlink -f ${1})
 
-if [ -z "$absoutePath" ]
+if [ -z "$absolutePath" ]
 	echo "The destination path must not be empty."
 	exit 1
 fi
