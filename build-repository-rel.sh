@@ -22,6 +22,12 @@ if [[ "$#" == "0" ]]; then
 fi
 
 absolutePath=$(readlink -f ${1})
+
+if [ -z "$absoutePath" ]
+	echo "The destination path must not be empty."
+	exit 1
+fi
+
 echo "Installation path: ${absolutePath}"
 
 flagSuperuser=false
