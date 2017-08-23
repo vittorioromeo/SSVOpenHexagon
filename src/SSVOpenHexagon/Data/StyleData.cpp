@@ -21,8 +21,10 @@ namespace hg
 
         if(mColorData.dynamic)
         {
+            const auto hue = (currentHue + mColorData.hueShift) / 360.f;
+
             const auto& dynamicColor(ssvs::getColorFromHSV(
-                (currentHue + mColorData.hueShift) / 360.f, 1.f, 1.f));
+                getClamped(hue, 0.f, 1.f), 1.f, 1.f));
 
             if(!mColorData.main)
             {
