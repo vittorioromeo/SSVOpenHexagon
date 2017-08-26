@@ -23,7 +23,7 @@ cd SSVOpenHexagon
 ./init-repository.sh
 ```
 
-2. If your distribution packages SFML 2 you can install it through your package manager otherwise build and install it [manually](http://sfmlcoder.wordpress.com/2011/08/16/building-sfml-2-0-with-make-for-gcc/) - you can also try the [Ubuntu PPA](https://github.com/SFML/ubuntu-sfml/wiki) or the [official binaries](http://sfml-dev.org/download/sfml/2.0/)
+2. If your distribution packages SFML 2 you can install it through your package manager otherwise build and install it [manually](https://www.sfml-dev.org/tutorials/2.4/compile-with-cmake.php) - you can also try the [Ubuntu PPA](https://github.com/SFML/ubuntu-sfml/wiki) or the [official binaries](http://sfml-dev.org/download/sfml/2.0/)
 
 3. Install dependencies
 ```bash
