@@ -1,8 +1,8 @@
-## [Open Hexagon 2.0](http://www.facebook.com/OpenHexagon) - [by Vittorio Romeo](http://vittorioromeo.info) 
+## [Open Hexagon 2.0](http://www.facebook.com/OpenHexagon) - [by Vittorio Romeo](http://vittorioromeo.info)
 
 ---
 
-### [Official README](http://vittorioromeo.info/Downloads/OpenHexagon/README.html)  
+### [Official README](http://vittorioromeo.info/Downloads/OpenHexagon/README.html)
 
 ---
 
@@ -14,7 +14,7 @@
 
 ## How to build on Linux (debian derivatives)
 
-Tested on `Linux Mint 15 x64` and `Linux Mint 15 x86`.  
+Tested on `Linux Mint 15 x64` and `Linux Mint 15 x86`.
 
 1. Clone this repository and initialize it
 ```bash
@@ -40,6 +40,8 @@ sudo apt-get install liblua5.2-dev zlib1g-dev
 ./wget-assets.sh ./_RELEASE/
 ```
 
+*(or clone [SSVOpenHexagonAssets](https://github.com/SuperV1234/SSVOpenHexagonAssets))*
+
 ---
 
 ## How to build on Arch Linux
@@ -53,7 +55,7 @@ cd SSVOpenHexagon
 ./init-repository.sh
 ```
 
-2. Install dependencies 
+2. Install dependencies
 ```bash
 sudo pacman -S sfml lua51 zlib
 ```
@@ -66,13 +68,15 @@ cd SSVOpenHexagon
 
 4. You may have to append `/usr/local/lib` to the `$PATH` or `$LD_LIBRARY_PATH` environment variables to allow Open Hexagon to find the required libraries - if that doesn't work, try:
 ```bash
-sudo ldconfig /usr/local/lib  
+sudo ldconfig /usr/local/lib
 ```
 
 5. Download assets
 ```bash
 ./wget-assets.sh ./_RELEASE/
 ```
+
+*(or clone [SSVOpenHexagonAssets](https://github.com/SuperV1234/SSVOpenHexagonAssets))*
 
 ---
 
