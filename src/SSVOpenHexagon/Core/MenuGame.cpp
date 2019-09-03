@@ -638,7 +638,7 @@ namespace hg
 
     void MenuGame::initLua(Lua::LuaContext& mLua)
     {
-        mLua.writeVariable("u_log", [this](string mLog)
+        mLua.writeVariable("u_log", [](string mLog)
             {
                 lo("lua-menu") << mLog << "\n";
             });
@@ -647,15 +647,15 @@ namespace hg
                 Utils::runLuaFile(
                     mLua, levelData->packPath + "Scripts/" + mName);
             });
-        mLua.writeVariable("u_getDifficultyMult", [this]
+        mLua.writeVariable("u_getDifficultyMult", []
             {
                 return 1;
             });
-        mLua.writeVariable("u_getSpeedMultDM", [this]
+        mLua.writeVariable("u_getSpeedMultDM", []
             {
                 return 1;
             });
-        mLua.writeVariable("u_getDelayMultDM", [this]
+        mLua.writeVariable("u_getDelayMultDM", []
             {
                 return 1;
             });
