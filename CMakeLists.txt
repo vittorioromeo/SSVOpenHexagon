@@ -1,7 +1,60 @@
 cmake_minimum_required(VERSION 3.0)
 
+# -----------------------------------------------------------------------------
+# CPM
+set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM.cmake")
+set(CPM_DOWNLOAD_VERSION 0.25.1)
+
+if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION} AND CPM_VERSION STREQUAL CPM_DOWNLOAD_VERSION))
+  message(STATUS "Downloading CPM.cmake")
+  file(DOWNLOAD https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake ${CPM_DOWNLOAD_LOCATION})
+endif()
+
+include(${CPM_DOWNLOAD_LOCATION})
+# -----------------------------------------------------------------------------
+
+CPMAddPackage(
+  NAME SFML
+  GITHUB_REPOSITORY SFML/SFML
+  VERSION 2.5.1
+  GIT_TAG 2f11710abc5aa478503a7ff3f9e654bd2078ebab
+)
+
+# -----------------------------------------------------------------------------
+
+CPMAddPackage(
+  NAME lua
+  GIT_REPOSITORY https://github.com/lua/lua.git
+  VERSION 5.3.5
+  DOWNLOAD_ONLY YES
+)
+
+if (lua_ADDED)
+  # lua has no CMake support, so we create our own target
+
+  FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
+  add_library(lua STATIC ${lua_sources})
+
+  target_include_directories(lua
+    PUBLIC
+      $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
+  )
+endif()
+
+# -----------------------------------------------------------------------------
+
+CPMAddPackage(
+  NAME zlib
+  GITHUB_REPOSITORY madler/zlib
+  VERSION 1.2.11
+  GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f
+)
+
+# -----------------------------------------------------------------------------
+
 # Include `vrm_cmake`.
 list(APPEND CMAKE_MODULE_PATH
+    "${CMAKE_SOURCE_DIR}/cmake/"
     "${CMAKE_SOURCE_DIR}/cmake/modules/"
     "${CMAKE_SOURCE_DIR}/../vrm_cmake/cmake/"
     "${CMAKE_SOURCE_DIR}/extlibs/vrm_cmake/cmake/")
@@ -34,16 +87,22 @@ vrm_cmake_find_extlib(SSVLuaWrapper)
 vrm_cmake_find_extlib(SSVStart)
 
 if(WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--stack,4194304 -fpermissive")
+    if(MSVC)
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:4194304")
+    else()
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack,4194304 -fpermissive")
+    endif()
 endif()
 
-include_directories(${SFML_INCLUDE_DIR})
-include_directories(${LUA_INCLUDE_DIR})
-include_directories(${ZLIB_INCLUDE_DIR})
 add_executable(${PROJECT_NAME} ${SRC_LIST})
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${SFML_SOURCE_DIR}/include)
+
+set(SFML_LIBRARIES sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
+
 target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARY})
-target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARY})
+target_link_libraries(${PROJECT_NAME} lua)
+target_link_libraries(${PROJECT_NAME} zlib)
 
 if(MINGW)
     add_definitions(-DSSVOPENHEXAGON_MINGW_STD_THREADS)
