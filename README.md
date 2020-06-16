@@ -1,10 +1,4 @@
-## [Open Hexagon 2.0](http://www.facebook.com/OpenHexagon) - [by Vittorio Romeo](http://vittorioromeo.info)
-
----
-
-### [Official README](http://vittorioromeo.info/Downloads/OpenHexagon/README.html)
-
----
+# [Open Hexagon 2.0](http://www.facebook.com/OpenHexagon) - [by Vittorio Romeo](http://vittorioromeo.info)
 
 ## How to build on Windows
 
@@ -14,7 +8,7 @@
 
 3. Run `open_distro_window.bat` from your MinGW installation to open a shell.
 
-4. Clone this repository and initialize it.
+4. Clone this repository and initialize it:
 
     ```bash
     git clone git://github.com/SuperV1234/SSVOpenHexagon.git
@@ -49,9 +43,17 @@
     cp ./SSVOpenHexagon.exe ../_RELEASE
     ```
 
-8. Download assets
+8. Run the game:
 
     ```bash
+    cd ../_RELEASE
+    ./SSVOpenHexagon.exe
+    ```
+
+9. (Optional) Download assets:
+
+    ```bash
+    # (from repository root)
     ./wget-assets.sh ./_RELEASE/
     ```
 
