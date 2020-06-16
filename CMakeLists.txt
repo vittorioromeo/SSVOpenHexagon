@@ -90,13 +90,6 @@ file(GLOB_RECURSE SRC_LIST "${INC_DIR}/*" "${SRC_DIR}/*")
 
 vrm_cmake_add_common_compiler_flags()
 
-if(MINGW)
-    find_package(boost REQUIRED)
-endif()
-
-find_package(SFML COMPONENTS system window graphics audio network REQUIRED)
-find_package(LUA REQUIRED)
-find_package(ZLIB REQUIRED)
 vrm_cmake_find_extlib(vrm_pp)
 vrm_cmake_find_extlib(SSVUtils)
 vrm_cmake_find_extlib(SSVMenuSystem)
