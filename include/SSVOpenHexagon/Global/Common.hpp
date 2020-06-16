@@ -5,9 +5,6 @@
 #ifndef HG_GLOBAL_COMMON
 #define HG_GLOBAL_COMMON
 
-// MinGW-related threading fixes.
-#include "SSVOpenHexagon/Global/MinGW.hpp"
-
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
