@@ -38,7 +38,7 @@
     cp ./_deps/sfml-build/lib/sfml-network-2.dll ../_RELEASE
     cp ./_deps/sfml-build/lib/sfml-system-2.dll ../_RELEASE
     cp ./_deps/sfml-build/lib/sfml-window-2.dll ../_RELEASE
-    cp ./_deps/sfml-src/extlibs/bin/x86/openal32.dll ../_RELEASE
+    cp ./_deps/sfml-src/extlibs/bin/x64/openal32.dll ../_RELEASE
     cp ./_deps/zlib-build/libzlib1.dll ../_RELEASE
     cp ./SSVOpenHexagon.exe ../_RELEASE
     ```
