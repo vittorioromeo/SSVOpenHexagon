@@ -92,7 +92,7 @@
 		[ "kW" ]
 	],
 	"timer_static" : true,
-	"vsync" : true,
+	"vsync" : false,
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 1080,
 	"windowed_width" : 1920,
