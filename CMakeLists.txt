@@ -61,7 +61,24 @@ list(APPEND CMAKE_MODULE_PATH
 
 include(vrm_cmake)
 
-vrm_cmake_init_project(SSVOpenHexagon)
+message(STATUS "setting required C++ standard to 17")
+
+set(CMAKE_CXX_STANDARD "17")
+set(CMAKE_CXX_STANDARD_REQUIRED on)
+
+project(SSVOpenHexagon CXX C)
+enable_testing()
+
+set(PROJECT_NAME_UPPER "")
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+
+set("${PROJECT_NAME_UPPER}_SOURCE_DIR" "${CMAKE_CURRENT_SOURCE_DIR}")
+
+list(APPEND CMAKE_MODULE_PATH
+"${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+"${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+
+message(STATUS "initialized project ${PROJECT_NAME}")
 
 set(INC_DIR "include" CACHE STRING "")
 set(SRC_DIR "src" CACHE STRING "")
@@ -96,22 +113,13 @@ endif()
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${SFML_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
 
 set(SFML_LIBRARIES sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 
 target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} lua)
 target_link_libraries(${PROJECT_NAME} zlib)
-
-if(MINGW)
-    add_definitions(-DSSVOPENHEXAGON_MINGW_STD_THREADS)
-
-    # TODO: find_package for mingw std threads
-    include_directories("${CMAKE_SOURCE_DIR}/extlibs/mingw-std-threads")
-    find_package(Boost 1.36.0 COMPONENTS thread REQUIRED)
-    target_link_libraries(${PROJECT_NAME} boost_system boost_thread)
-endif()
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} pthread)
