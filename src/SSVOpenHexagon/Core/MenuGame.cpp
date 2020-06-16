@@ -294,6 +294,9 @@ namespace hg
             "show fps", &Config::getShowFPS, &Config::setShowFPS);
         gfx.create<i::Toggle>("text outlines", &Config::getDrawTextOutlines,
             &Config::setDrawTextOutlines);
+        gfx.create<i::Toggle>("darken uneven background chunk",
+            &Config::getDarkenUnevenBackgroundChunk,
+            &Config::setDarkenUnevenBackgroundChunk);
         gfx.create<i::GoBack>("back");
 
         sfx.create<i::Toggle>(
@@ -319,7 +322,7 @@ namespace hg
         sfx.create<i::Toggle>("sync music with difficulty",
             &Config::getMusicSpeedDMSync, &Config::setMusicSpeedDMSync) |
             whenMusicEnabled;
-        sfx.create<i::Slider>("music speed multipler",
+        sfx.create<i::Slider>("music speed multiplier",
             &Config::getMusicSpeedMult,
             [this](float mValue)
             {
@@ -699,7 +702,8 @@ namespace hg
                 "l_setWallSkewRight", "l_setWallAngleLeft",
                 "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
                 "l_setTutorialMode", "l_setIncEnabled",
-                "l_enableRndSideChanges", "l_getSpeedMult", "l_getDelayMult",
+                "l_enableRndSideChanges", "l_darkenUnevenBackgroundChunk",
+                "l_getSpeedMult", "l_getDelayMult",
                 "l_addTracked", "u_playSound", "u_isKeyPressed",
                 "u_isFastSpinning", "u_forceIncrement", "u_kill", "u_eventKill",
                 "m_messageAdd", "m_messageAddImportant", "t_wait", "t_waitS",
@@ -1008,7 +1012,7 @@ namespace hg
         backgroundCamera.apply();
         if(state == s::SMain)
             styleData.drawBackground(
-                window, ssvs::zeroVec2f, levelStatus.sides);
+                window, ssvs::zeroVec2f, levelStatus);
 
         overlayCamera.apply();
         if(state == s::SMain)

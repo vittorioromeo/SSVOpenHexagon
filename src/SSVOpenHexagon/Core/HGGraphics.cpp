@@ -44,7 +44,7 @@ namespace hg
         if(!Config::getNoBackground())
         {
             backgroundCamera.apply();
-            styleData.drawBackground(window, ssvs::zeroVec2f, getSides());
+            styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus);
         }
 
         backgroundCamera.apply();

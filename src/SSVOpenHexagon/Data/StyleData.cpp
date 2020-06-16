@@ -114,23 +114,30 @@ namespace hg
     }
 
     void StyleData::drawBackground(RenderTarget& mRenderTarget,
-        const Vec2f& mCenterPos, unsigned int mSides)
+        const Vec2f& mCenterPos, const LevelStatus& levelStatus)
     {
-        float div{ssvu::tau / mSides * 1.0001f}, distance{4500};
+        const auto sides = levelStatus.sides;
+
+        float div{ssvu::tau / sides * 1.0001f}, distance{4500};
 
         ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
-        vertices.reserve(mSides * 3);
+        vertices.reserve(sides * 3);
 
         const auto& colors(getColors());
 
-        for(auto i(0u); i < mSides; ++i)
+        for(auto i(0u); i < sides; ++i)
         {
             const float angle{div * i};
             Color currentColor{ssvu::getByModIdx(colors, i)};
 
+            const bool darkenUnevenBackgroundChunk =
+                (i % 2 == 0 && i == sides - 1) &&
+                Config::getDarkenUnevenBackgroundChunk() &&
+                levelStatus.darkenUnevenBackgroundChunk;
+
             if(Config::getBlackAndWhite())
                 currentColor = Color::Black;
-            else if(i % 2 == 0 && i == mSides - 1)
+            else if(darkenUnevenBackgroundChunk)
                 currentColor = getColorDarkened(currentColor, 1.4f);
 
             vertices.emplace_back(mCenterPos, currentColor);
