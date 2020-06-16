@@ -72,6 +72,8 @@ namespace hg
         auto& mouseVisible(lvm.create<bool>("mouse_visible"));
         auto& musicSpeedMult(lvm.create<float>("music_speed_mult"));
         auto& drawTextOutlines(lvm.create<bool>("draw_text_outlines"));
+        auto& darkenUnevenBackgroundChunk(
+            lvm.create<bool>("darken_uneven_background_chunk"));
         auto& rotateToStart(lvm.create<bool>("rotate_to_start"));
         auto& triggerRotateCCW(lvm.create<Trigger>("t_rotate_ccw"));
         auto& triggerRotateCW(lvm.create<Trigger>("t_rotate_cw"));
@@ -314,6 +316,10 @@ namespace hg
         void setMouseVisible(bool mValue) { mouseVisible = mValue; }
         void setMusicSpeedMult(float mValue) { musicSpeedMult = mValue; }
         void setDrawTextOutlines(bool mX) { drawTextOutlines = mX; }
+        void setDarkenUnevenBackgroundChunk(bool mX)
+        {
+            darkenUnevenBackgroundChunk = mX;
+        }
         void setRotateToStart(bool mX) { rotateToStart = mX; }
 
         bool SSVU_ATTRIBUTE(pure) getOnline() { return online; }
@@ -445,6 +451,10 @@ namespace hg
         bool SSVU_ATTRIBUTE(pure) getDrawTextOutlines()
         {
             return drawTextOutlines;
+        }
+        bool SSVU_ATTRIBUTE(pure) getDarkenUnevenBackgroundChunk()
+        {
+            return darkenUnevenBackgroundChunk;
         }
         bool SSVU_ATTRIBUTE(pure) getRotateToStart() { return rotateToStart; }
 

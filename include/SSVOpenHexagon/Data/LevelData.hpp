@@ -64,7 +64,7 @@ namespace hg
         int cameraShake{0};
         unsigned int sides{6}, sidesMax{6}, sidesMin{6};
         bool swapEnabled{false}, tutorialMode{false}, incEnabled{true},
-            rndSideChangesEnabled{true};
+            rndSideChangesEnabled{true}, darkenUnevenBackgroundChunk{true};
         SizeT currentIncrements{0u},
             maxIncrements{ssvu::NumLimits<SizeT>::max()};
 

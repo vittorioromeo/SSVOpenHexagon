@@ -8,6 +8,7 @@
 	"auto_zoom_factor" : true,
 	"beatpulse_enabled" : true,
 	"black_and_white" : false,
+	"darken_uneven_background_chunk" : true,
 	"debug" : false,
 	"draw_text_outlines" : false,
 	"flash_enabled" : true,

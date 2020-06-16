@@ -52,6 +52,7 @@ namespace hg
         void setMouseVisible(bool mValue);
         void setMusicSpeedMult(float mValue);
         void setDrawTextOutlines(bool mX);
+        void setDarkenUnevenBackgroundChunk(bool mX);
         void setRotateToStart(bool mX);
 
         bool getOnline();
@@ -108,6 +109,7 @@ namespace hg
         bool getMouseVisible();
         float getMusicSpeedMult();
         bool getDrawTextOutlines();
+        bool getDarkenUnevenBackgroundChunk();
 
         ssvs::Input::Trigger getTriggerRotateCCW();
         ssvs::Input::Trigger getTriggerRotateCW();
