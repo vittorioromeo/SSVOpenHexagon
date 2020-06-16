@@ -278,6 +278,10 @@ namespace hg
             {
                 levelStatus.rndSideChangesEnabled = mValue;
             });
+        lua.writeVariable("l_darkenUnevenBackgroundChunk", [=](bool mValue)
+            {
+                levelStatus.darkenUnevenBackgroundChunk = mValue;
+            });
         lua.writeVariable("l_getRotationSpeed", [=]
             {
                 return levelStatus.rotationSpeed;

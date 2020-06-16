@@ -9,6 +9,7 @@
 
 namespace hg
 {
+    class LevelStatus;
     class StyleData
     {
     private:
@@ -98,7 +99,7 @@ namespace hg
         void update(FT mFT, float mMult = 1.f);
         void computeColors();
         void drawBackground(sf::RenderTarget& mRenderTarget,
-            const Vec2f& mCenterPos, unsigned int mSides);
+            const Vec2f& mCenterPos, const LevelStatus& levelStatus);
 
         void setRootPath(const Path& mPath) { rootPath = mPath; }
 
