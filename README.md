@@ -58,3 +58,49 @@
     ```
 
     *(or clone [SSVOpenHexagonAssets](https://github.com/SuperV1234/SSVOpenHexagonAssets))*
+
+## How to build on Linux
+
+1. Clone this repository and initialize it:
+
+    ```bash
+    git clone git://github.com/SuperV1234/SSVOpenHexagon.git
+    cd SSVOpenHexagon
+    ./init-repository.sh
+    ```
+
+2. Create a build directory and `cd` into it:
+
+    ```bash
+    mkdir build
+    cd build
+    ```
+
+3. Run CMake and build:
+
+    ```bash
+    cmake ..
+    make -j
+    ```
+    
+4. Install to `_RELEASE` folder and copy dependencies:
+
+    ```bash
+    sudo make install
+    ```
+    
+5. Run the game:
+
+    ```bash
+    cd ../_RELEASE
+    ./SSVOpenHexagon
+    ```
+
+6. (Optional) Download assets:
+
+    ```bash
+    # (from repository root)
+    ./wget-assets.sh ./_RELEASE/
+    ```
+
+    *(or clone [SSVOpenHexagonAssets](https://github.com/SuperV1234/SSVOpenHexagonAssets))*
