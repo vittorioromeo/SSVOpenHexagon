@@ -119,12 +119,18 @@ public:
     }
     std::string pGetName() const
     {
-        if(!playingLocally) return Online::getCurrentUsername();
+        if(!playingLocally)
+        {
+            return Online::getCurrentUsername();
+        }
         return getCurrentLocalProfile().getName();
     }
     const std::vector<std::string>& pGetTrackedNames() const
     {
-        if(!playingLocally) return Online::getUserStats().trackedNames;
+        if(!playingLocally)
+        {
+            return Online::getUserStats().trackedNames;
+        }
         return getCurrentLocalProfile().getTrackedNames();
     }
     void pClearTrackedNames()
@@ -147,17 +153,26 @@ public:
     }
     void pSaveCurrent()
     {
-        if(!playingLocally) return;
+        if(!playingLocally)
+        {
+            return;
+        }
         saveCurrentLocalProfile();
     }
     void pSetCurrent(const std::string& mName)
     {
-        if(!playingLocally) throw;
+        if(!playingLocally)
+        {
+            throw;
+        }
         setCurrentLocalProfile(mName);
     }
     void pCreate(const std::string& mName)
     {
-        if(!playingLocally) throw;
+        if(!playingLocally)
+        {
+            throw;
+        }
         createLocalProfile(mName);
     }
     bool pIsLocal() const
