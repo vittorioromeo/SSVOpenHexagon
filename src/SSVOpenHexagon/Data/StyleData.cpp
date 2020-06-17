@@ -38,11 +38,15 @@ Color StyleData::calculateColor(const ColorData& mColorData) const
                 color.a += dynamicColor.a;
             }
             else
+            {
                 color =
                     getColorDarkened(dynamicColor, mColorData.dynamicDarkness);
+            }
         }
         else
+        {
             color = dynamicColor;
+        }
     }
 
     const auto& pulse(mColorData.pulse);
@@ -56,7 +60,10 @@ Color StyleData::calculateColor(const ColorData& mColorData) const
 void StyleData::update(FT mFT, float mMult)
 {
     currentSwapTime += mFT * mMult;
-    if(currentSwapTime > maxSwapTime) currentSwapTime = 0;
+    if(currentSwapTime > maxSwapTime)
+    {
+        currentSwapTime = 0;
+    }
 
     currentHue += hueIncrement * mFT * mMult;
 
@@ -68,8 +75,11 @@ void StyleData::update(FT mFT, float mMult)
             hueIncrement *= -1.f;
         }
         else
+        {
             currentHue = hueMax;
+        }
     }
+
     if(currentHue > hueMax)
     {
         if(huePingPong)
@@ -78,7 +88,9 @@ void StyleData::update(FT mFT, float mMult)
             hueIncrement *= -1.f;
         }
         else
+        {
             currentHue = hueMin;
+        }
     }
 
     pulseFactor += pulseIncrement * mFT;
@@ -102,19 +114,24 @@ void StyleData::computeColors()
         _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
     currentColors.clear();
     for(const auto& cd : colorDatas)
+    {
         currentColors.emplace_back(calculateColor(cd));
+    }
 
     if(currentColors.size() > 1)
+    {
         ssvu::rotate(currentColors,
             begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
+    }
 }
 
 void StyleData::drawBackground(RenderTarget& mRenderTarget,
-    const Vec2f& mCenterPos, const LevelStatus& levelStatus)
+    const Vec2f& mCenterPos, const LevelStatus& levelStatus) const
 {
     const auto sides = levelStatus.sides;
 
-    float div{ssvu::tau / sides * 1.0001f}, distance{4500};
+    float div{ssvu::tau / sides * 1.0001f};
+    float distance{4500};
 
     ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
     vertices.reserve(sides * 3);
@@ -132,9 +149,13 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
             levelStatus.darkenUnevenBackgroundChunk;
 
         if(Config::getBlackAndWhite())
+        {
             currentColor = Color::Black;
+        }
         else if(darkenUnevenBackgroundChunk)
+        {
             currentColor = getColorDarkened(currentColor, 1.4f);
+        }
 
         vertices.emplace_back(mCenterPos, currentColor);
         vertices.emplace_back(

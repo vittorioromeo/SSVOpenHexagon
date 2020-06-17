@@ -22,14 +22,20 @@ namespace hg
 HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
 {
     if(!levelsOnly)
+    {
         loadAssetsFromJson(
             assetManager, "Assets/", getFromFile("Assets/assets.json"));
+    }
+
     loadAssets();
 
     for(auto& v : levelDataIdsByPack)
+    {
         ssvu::sort(v.second, [&](const auto& mA, const auto& mB) {
             return levelDatas[mA]->menuPriority < levelDatas[mB]->menuPriority;
         });
+    }
+
     ssvu::sort(packIds, [&](const auto& mA, const auto& mB) {
         return packDatas[mA]->priority < packDatas[mB]->priority;
     });
@@ -45,10 +51,14 @@ void HGAssets::loadAssets()
     for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
     {
         const auto& packPathStr(packPath.getStr());
-        string packName{packPathStr.substr(6, packPathStr.size() - 7)}, packLua;
+        string packName{packPathStr.substr(6, packPathStr.size() - 7)};
+
+        string packLua;
         for(const auto& p :
             getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua"))
+        {
             packLua.append(p.getContentsAsStr());
+        }
 
         ssvuj::Obj packRoot{getFromFile(packPath + "/pack.json")};
         ssvu::getEmplaceUPtrMap<PackData>(packDatas, packName, packName,
@@ -59,7 +69,9 @@ void HGAssets::loadAssets()
     for(auto& p : packDatas)
     {
         const auto& pd(p.second);
-        string packId{pd->id}, packPath{"Packs/" + packId + "/"};
+        string packId{pd->id};
+
+        string packPath{"Packs/" + packId + "/"};
         packIds.emplace_back(packId);
         packPaths.emplace_back(packPath);
 
@@ -108,7 +120,9 @@ void HGAssets::loadCustomSounds(const string& mPackName, const Path& mPath)
 {
     for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(
             mPath + "Sounds/", ".ogg"))
+    {
         assetManager.load<SoundBuffer>(mPackName + "_" + p.getFileName(), p);
+    }
 }
 void HGAssets::loadMusic(const Path& mPath)
 {
@@ -143,7 +157,7 @@ void HGAssets::loadLevelData(const Path& mPath)
     for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(
             mPath + "Levels/", ".json"))
     {
-        auto levelData(new LevelData{getFromFile(p), mPath});
+        auto* levelData(new LevelData{getFromFile(p), mPath});
         levelDataIdsByPack[levelData->packPath].emplace_back(levelData->id);
         levelDatas.insert(make_pair(levelData->id, UPtr<LevelData>(levelData)));
     }
@@ -162,14 +176,19 @@ void HGAssets::loadLocalProfiles()
 
 void HGAssets::saveCurrentLocalProfile()
 {
-    if(currentProfilePtr == nullptr) return;
+    if(currentProfilePtr == nullptr)
+    {
+        return;
+    }
 
     ssvuj::Obj profileRoot;
     ssvuj::arch(profileRoot, "version", Config::getVersion());
     ssvuj::arch(profileRoot, "name", getCurrentLocalProfile().getName());
     ssvuj::arch(profileRoot, "scores", getCurrentLocalProfile().getScores());
     for(const auto& n : getCurrentLocalProfile().getTrackedNames())
+    {
         profileRoot["trackedNames"].append(n);
+    }
     ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
 }
 
@@ -224,7 +243,10 @@ SizeT SSVU_ATTRIBUTE(pure) HGAssets::getLocalProfilesSize()
 vector<string> HGAssets::getLocalProfileNames()
 {
     vector<string> result;
-    for(auto& pair : profileDataMap) result.emplace_back(pair.second.getName());
+    for(auto& pair : profileDataMap)
+    {
+        result.emplace_back(pair.second.getName());
+    }
     return result;
 }
 string HGAssets::getFirstLocalProfileName()
@@ -247,12 +269,17 @@ void HGAssets::stopSounds()
 }
 void HGAssets::playSound(const string& mId, SoundPlayer::Mode mMode)
 {
-    if(Config::getNoSound() || !assetManager.has<SoundBuffer>(mId)) return;
+    if(Config::getNoSound() || !assetManager.has<SoundBuffer>(mId))
+    {
+        return;
+    }
     soundPlayer.play(assetManager.get<SoundBuffer>(mId), mMode);
 }
 void HGAssets::playMusic(const string& mId, Time mPlayingOffset)
 {
     if(assetManager.has<Music>(mId))
+    {
         musicPlayer.play(assetManager.get<Music>(mId), mPlayingOffset);
+    }
 }
 } // namespace hg
