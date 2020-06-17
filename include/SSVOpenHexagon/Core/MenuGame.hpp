@@ -108,7 +108,11 @@ private:
     sf::Text& renderTextImpl(
         const std::string& mStr, sf::Text& mText, const Vec2f& mPosition)
     {
-        if(mText.getString() != mStr) mText.setString(mStr);
+        if(mText.getString() != mStr)
+        {
+            mText.setString(mStr);
+        }
+
         mText.setPosition(mPosition);
         render(mText);
         return mText;
