@@ -20,6 +20,7 @@ inline float getSaturated(float mValue)
 {
     return std::max(0.f, std::min(1.f, mValue));
 }
+
 inline float getSmootherStep(float edge0, float edge1, float x)
 {
     x = getSaturated((x - edge0) / (edge1 - edge0));
@@ -59,6 +60,7 @@ inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
                                           << std::endl;
     }
 }
+
 template <typename T, typename... TArgs>
 T runLuaFunction(
     Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
@@ -83,7 +85,10 @@ template <typename T, typename... TArgs>
 void runLuaFunctionIfExists(
     Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
 {
-    if(!mLua.doesVariableExist(mName)) return;
+    if(!mLua.doesVariableExist(mName))
+    {
+        return;
+    }
 
     runLuaFunction<T>(mLua, mName, mArgs...);
 }

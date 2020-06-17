@@ -26,26 +26,39 @@ private:
         while(running)
         {
             std::this_thread::sleep_for(80ms);
-            if(disabled) continue;
+            if(disabled)
+            {
+                continue;
+            }
 
             if(check)
             {
                 check = false;
                 std::this_thread::sleep_for(50ms);
-                while(check == false)
+                while(!check)
                 {
                     loseFrame();
                     std::this_thread::sleep_for(12ms);
                 }
             }
+
             std::this_thread::sleep_for(80ms);
-            if(gameWindow.getFPS() < minFPS) loseFrame();
+            if(gameWindow.getFPS() < minFPS)
+            {
+                loseFrame();
+            }
         }
     }
+
     void loseFrame()
     {
-        if(lostFrames > maxLostFrames) return;
+        if(lostFrames > maxLostFrames)
+        {
+            return;
+        }
+
         ++lostFrames;
+
         ssvu::lo("FPSWatcher::watch")
             << "Slowdown " << lostFrames << "/" << maxLostFrames << "\n";
     }
@@ -54,29 +67,34 @@ public:
     FPSWatcher(ssvs::GameWindow& mGameWindow) noexcept : gameWindow(mGameWindow)
     {
     }
+
     ~FPSWatcher() noexcept
     {
         running = false;
     }
 
-    bool isLimitReached() const noexcept
+    [[nodiscard]] bool isLimitReached() const noexcept
     {
         return lostFrames >= maxLostFrames;
     }
+
     void reset() noexcept
     {
         lostFrames = 0;
         disabled = true;
         check = false;
     }
+
     void update() noexcept
     {
         check = true;
     }
+
     void enable() noexcept
     {
         disabled = false;
     }
+
     void disable() noexcept
     {
         disabled = true;
