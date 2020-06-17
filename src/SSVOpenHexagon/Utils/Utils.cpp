@@ -16,9 +16,7 @@ using namespace ssvuj;
 using namespace ssvu::FileSystem;
 using namespace ssvu;
 
-namespace hg
-{
-namespace Utils
+namespace hg::Utils
 {
 Color getColorDarkened(Color mColor, float mMultiplier)
 {
@@ -34,7 +32,9 @@ MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
         getExtr<string>(mRoot, "file_name"), getExtr<string>(mRoot, "name"),
         getExtr<string>(mRoot, "album"), getExtr<string>(mRoot, "author")};
     for(const auto& segment : ssvuj::getObj(mRoot, "segments"))
+    {
         result.addSegment(getExtr<float>(segment, "time"));
+    }
     return result;
 }
 ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
@@ -81,11 +81,20 @@ std::set<string> getIncludedLuaFileNames(const string& mLuaScript)
 
     while(true)
     {
-        if(currI >= mLuaScript.size()) break;
+        if(currI >= mLuaScript.size())
+        {
+            break;
+        }
 
         findNext("u_execScript");
-        if(currI >= mLuaScript.size()) break;
-        if(currI == std::string::npos) break;
+        if(currI >= mLuaScript.size())
+        {
+            break;
+        }
+        if(currI == std::string::npos)
+        {
+            break;
+        }
 
         findNext("(");
         if(currI == std::string::npos)
@@ -167,5 +176,4 @@ Color transformHue(const Color& in, float H)
             (.886 * u - .203 * w) * in.b;
     return ret;
 }
-} // namespace Utils
-} // namespace hg
+} // namespace hg::Utils

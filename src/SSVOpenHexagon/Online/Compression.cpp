@@ -15,7 +15,9 @@ string getZLibCompress(const string& mStr, int mCompressionlevel)
     memset(&zs, 0, sizeof(zs));
 
     if(deflateInit(&zs, mCompressionlevel) != Z_OK)
+    {
         throw(runtime_error("deflateInit failed while compressing."));
+    }
 
     zs.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(mStr.data()));
     zs.avail_in = mStr.size();
@@ -32,7 +34,9 @@ string getZLibCompress(const string& mStr, int mCompressionlevel)
         ret = deflate(&zs, Z_FINISH);
 
         if(outstring.size() < zs.total_out)
+        {
             outstring.append(outbuffer, zs.total_out - outstring.size());
+        }
     } while(ret == Z_OK);
 
     deflateEnd(&zs);
@@ -53,7 +57,9 @@ string getZLibDecompress(const string& mStr)
     memset(&zs, 0, sizeof(zs));
 
     if(inflateInit(&zs) != Z_OK)
+    {
         throw(runtime_error("inflateInit failed while decompressing."));
+    }
 
     zs.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(mStr.data()));
     zs.avail_in = mStr.size();
@@ -70,7 +76,9 @@ string getZLibDecompress(const string& mStr)
         ret = inflate(&zs, 0);
 
         if(outstring.size() < zs.total_out)
+        {
             outstring.append(outbuffer, zs.total_out - outstring.size());
+        }
     } while(ret == Z_OK);
 
     inflateEnd(&zs);

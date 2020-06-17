@@ -1,9 +1,8 @@
 #include "SSVOpenHexagon/Online/ClientHandler.hpp"
 
-namespace hg
+namespace hg::Online
 {
-namespace Online
-{
+
 unsigned int ClientHandler::lastUid{0};
-}
-} // namespace hg
+
+} // namespace hg::Online

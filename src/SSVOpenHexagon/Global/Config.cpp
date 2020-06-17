@@ -18,9 +18,7 @@ using namespace ssvu::FileSystem;
 using namespace ssvuj;
 using namespace ssvu;
 
-namespace hg
-{
-namespace Config
+namespace hg::Config
 {
 ssvuj::Obj root{getFromFile("config.json")};
 LinkedValueManager lvm{root};
@@ -113,14 +111,23 @@ void loadConfig(const vector<string>& mOverridesIds)
         {
             const auto& overrideRoot(getFromFile(p));
             for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr)
+            {
                 root[getKey(itr)] = *itr;
+            }
         }
     }
 
     lvm.syncFromObj();
 
-    if(getWindowedAutoResolution()) applyAutoWindowedResolution();
-    if(getFullscreenAutoResolution()) applyAutoFullscreenResolution();
+    if(getWindowedAutoResolution())
+    {
+        applyAutoWindowedResolution();
+    }
+
+    if(getFullscreenAutoResolution())
+    {
+        applyAutoFullscreenResolution();
+    }
 
     recalculateSizes();
 }
@@ -189,10 +196,13 @@ bool isEligibleForScore()
 void recalculateSizes()
 {
     sizeX = sizeY = max(getWidth(), getHeight()) * 1.3f;
-    if(!getAutoZoomFactor()) return;
+    if(!getAutoZoomFactor())
+    {
+        return;
+    }
 
-    float factorX(1024.f / ssvu::toFloat(getWidth())),
-        factorY(768.f / ssvu::toFloat(getHeight()));
+    float factorX(1024.f / ssvu::toFloat(getWidth()));
+    float factorY(768.f / ssvu::toFloat(getHeight()));
     zoomFactor = max(factorX, factorY);
 }
 void setFullscreen(GameWindow& mWindow, bool mFullscreen)
@@ -636,5 +646,4 @@ Trigger getTriggerDown()
 {
     return triggerDown;
 }
-} // namespace Config
-} // namespace hg
+} // namespace hg::Config

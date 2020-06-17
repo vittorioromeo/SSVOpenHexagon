@@ -20,10 +20,9 @@ using namespace ssvu::Encoding;
 using namespace ssvuj;
 using namespace ssvu::FileSystem;
 
-namespace hg
+namespace hg::Online
 {
-namespace Online
-{
+
 const IpAddress localIp{"127.0.0.1"};
 const IpAddress hostIp{"46.4.172.228"};
 const unsigned short localPort{54000};
@@ -65,57 +64,66 @@ void setCurrentGtm(GlobalThreadManager& mGtm)
 
 void initializeClient()
 {
-    clientPHandler[FromServer::LoginResponseValid] = [](Client&, Packet& mP) {
+    clientPHandler[FromServer::LoginResponseValid] = [](Client& /*unused*/,
+                                                         Packet& mP) {
         lo("PacketHandler") << "Successfully logged in!\n";
         loginStatus = LoginStat::Logged;
         newUserReg = ssvuj::getExtr<bool>(getDecompressedPacket(mP), 0);
         trySendInitialRequests();
     };
-    clientPHandler[FromServer::LoginResponseInvalid] = [](Client&, Packet&) {
+    clientPHandler[FromServer::LoginResponseInvalid] = [](Client& /*unused*/,
+                                                           Packet& /*unused*/) {
         loginStatus = LoginStat::Unlogged;
         lo("PacketHandler") << "Login invalid!\n";
     };
-    clientPHandler[FromServer::RequestInfoResponse] = [](Client&, Packet& mP) {
+    clientPHandler[FromServer::RequestInfoResponse] = [](Client& /*unused*/,
+                                                          Packet& mP) {
         ssvuj::Obj r{getDecompressedPacket(mP)};
         serverVersion = ssvuj::getExtr<float>(r, 0);
         serverMessage = ssvuj::getExtr<string>(r, 1);
     };
-    clientPHandler[FromServer::SendLeaderboard] = [](Client&, Packet& mP) {
+    clientPHandler[FromServer::SendLeaderboard] = [](Client& /*unused*/,
+                                                      Packet& mP) {
         currentLeaderboard =
             ssvuj::getExtr<string>(getDecompressedPacket(mP), 0);
         gettingLeaderboard = false;
     };
-    clientPHandler[FromServer::SendLeaderboardFailed] = [](Client&, Packet&) {
-        currentLeaderboard = "NULL";
-        lo("PacketHandler") << "Server failed sending leaderboard\n";
-        gettingLeaderboard = false;
-    };
-    clientPHandler[FromServer::SendScoreResponseValid] = [](Client&, Packet&) {
-        lo("PacketHandler") << "Server successfully accepted score\n";
-    };
-    clientPHandler[FromServer::SendScoreResponseInvalid] = [](Client&,
-                                                               Packet&) {
-        lo("PacketHandler") << "Server refused score\n";
-    };
-    clientPHandler[FromServer::SendUserStats] = [](Client&, Packet& mP) {
+    clientPHandler[FromServer::SendLeaderboardFailed] =
+        [](Client& /*unused*/, Packet& /*unused*/) {
+            currentLeaderboard = "NULL";
+            lo("PacketHandler") << "Server failed sending leaderboard\n";
+            gettingLeaderboard = false;
+        };
+    clientPHandler[FromServer::SendScoreResponseValid] =
+        [](Client& /*unused*/, Packet& /*unused*/) {
+            lo("PacketHandler") << "Server successfully accepted score\n";
+        };
+    clientPHandler[FromServer::SendScoreResponseInvalid] =
+        [](Client& /*unused*/, Packet& /*unused*/) {
+            lo("PacketHandler") << "Server refused score\n";
+        };
+    clientPHandler[FromServer::SendUserStats] = [](Client& /*unused*/,
+                                                    Packet& mP) {
         currentUserStatsStr =
             ssvuj::getExtr<string>(getDecompressedPacket(mP), 0);
         refreshUserStats();
     };
-    clientPHandler[FromServer::SendUserStatsFailed] = [](Client&, Packet&) {
+    clientPHandler[FromServer::SendUserStatsFailed] = [](Client& /*unused*/,
+                                                          Packet& /*unused*/) {
         currentUserStatsStr = "NULL";
         lo("PacketHandler") << "Server failed sending user stats\n";
     };
-    clientPHandler[FromServer::SendFriendsScores] = [](Client&, Packet& mP) {
+    clientPHandler[FromServer::SendFriendsScores] = [](Client& /*unused*/,
+                                                        Packet& mP) {
         currentFriendScores = ssvuj::getFromStr(
             ssvuj::getExtr<string>(getDecompressedPacket(mP), 0));
     };
-    clientPHandler[FromServer::SendLogoutValid] = [](Client&, Packet&) {
+    clientPHandler[FromServer::SendLogoutValid] = [](Client& /*unused*/,
+                                                      Packet& /*unused*/) {
         loginStatus = LoginStat::Unlogged;
     };
-    clientPHandler[FromServer::NUR_EmailValid] = [](Client&, Packet&) {
-        newUserReg = false;
-    };
+    clientPHandler[FromServer::NUR_EmailValid] =
+        [](Client& /*unused*/, Packet& /*unused*/) { newUserReg = false; };
 
     client = ssvu::mkUPtr<Client>(clientPHandler);
 
@@ -131,7 +139,10 @@ void initializeClient()
                     loginStatus = LoginStat::Unlogged;
                 }
             }
-            if(needsCleanup) return;
+            if(needsCleanup)
+            {
+                return;
+            }
             this_thread::sleep_for(1s);
         }
     });
@@ -298,10 +309,14 @@ void requestLeaderboardIfNeeded(const string& mLevelId, float mDiffMult)
     {
         if(gettingLeaderboard ||
             (lastLeaderboardId == mLevelId && lastLeaderboardDM == mDiffMult))
+        {
             return;
+        }
     }
     else
+    {
         forceLeaderboardRefresh = false;
+    }
 
     invalidateCurrentLeaderboard();
     invalidateCurrentFriendsScores();
@@ -428,5 +443,5 @@ unsigned short getCurrentPort()
 {
     return Config::getServerLocal() ? localPort : hostPort;
 }
-} // namespace Online
-} // namespace hg
+
+} // namespace hg::Online
