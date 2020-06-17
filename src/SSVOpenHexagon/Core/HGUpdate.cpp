@@ -29,34 +29,51 @@ void HexagonGame::update(FT mFT)
         messageText.setString("");
         assets.playSound("go.ogg");
         assets.musicPlayer.resume();
-        if(Config::getOfficial()) fpsWatcher.enable();
+        if(Config::getOfficial())
+        {
+            fpsWatcher.enable();
+        }
     }
 
     // Naive touch controls
     for(const auto& p : window.getFingerDownPositions())
     {
         if(p.x < window.getWidth() / 2.f)
+        {
             inputImplCCW = 1;
+        }
         else
+        {
             inputImplCW = 1;
+        }
     }
 
     if(inputImplCW && !inputImplCCW)
+    {
         inputMovement = 1;
+    }
     else if(!inputImplCW && inputImplCCW)
+    {
         inputMovement = -1;
+    }
     else if(inputImplCW && inputImplCCW)
     {
         if(!inputImplBothCWCCW)
         {
             if(inputMovement == 1 && inputImplLastMovement == 1)
+            {
                 inputMovement = -1;
+            }
             else if(inputMovement == -1 && inputImplLastMovement == -1)
+            {
                 inputMovement = 1;
+            }
         }
     }
     else
+    {
         inputMovement = 0;
+    }
 
     if(status.started)
     {
@@ -74,7 +91,10 @@ void HexagonGame::update(FT mFT)
         {
             player.update(mFT);
 
-            for(auto& w : walls) w.update(mFT);
+            for(auto& w : walls)
+            {
+                w.update(mFT);
+            }
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
 
             updateEvents(mFT);
@@ -82,21 +102,39 @@ void HexagonGame::update(FT mFT)
             updateIncrement();
 
             if(mustChangeSides && walls.empty())
+            {
                 sideChange(
                     getRndI(levelStatus.sidesMin, levelStatus.sidesMax + 1));
+            }
 
 
             updateLevel(mFT);
-            if(Config::getBeatPulse()) updateBeatPulse(mFT);
-            if(Config::getPulse()) updatePulse(mFT);
+            if(Config::getBeatPulse())
+            {
+                updateBeatPulse(mFT);
+            }
+            if(Config::getPulse())
+            {
+                updatePulse(mFT);
+            }
             if(!Config::getBlackAndWhite())
+            {
                 styleData.update(mFT, pow(difficultyMult, 0.8f));
+            }
         }
         else
+        {
             levelStatus.rotationSpeed *= 0.99f;
+        }
 
-        if(Config::get3D()) update3D(mFT);
-        if(!Config::getNoRotation()) updateRotation(mFT);
+        if(Config::get3D())
+        {
+            update3D(mFT);
+        }
+        if(!Config::getNoRotation())
+        {
+            updateRotation(mFT);
+        }
     }
 
     overlayCamera.update(mFT);
@@ -115,7 +153,9 @@ void HexagonGame::update(FT mFT)
         }
         if(!status.scoreInvalid && Config::getOfficial() &&
             fpsWatcher.isLimitReached())
+        {
             invalidateScore();
+        }
 
         fpsWatcher.update();
     }
@@ -144,13 +184,24 @@ void HexagonGame::updateTimeStop(FT mFT)
         status.incrementTime += ssvu::getFTToSeconds(mFT);
     }
     else
+    {
         status.timeStop -= mFT;
+    }
 }
 void HexagonGame::updateIncrement()
 {
-    if(!levelStatus.incEnabled) return;
-    if(status.incrementTime < levelStatus.incTime) return;
-    if(!levelStatus.shouldIncrement()) return;
+    if(!levelStatus.incEnabled)
+    {
+        return;
+    }
+    if(status.incrementTime < levelStatus.incTime)
+    {
+        return;
+    }
+    if(!levelStatus.shouldIncrement())
+    {
+        return;
+    }
 
     ++levelStatus.currentIncrements;
     incrementDifficulty();
@@ -160,7 +211,10 @@ void HexagonGame::updateIncrement()
 }
 void HexagonGame::updateLevel(FT mFT)
 {
-    if(status.timeStop > 0) return;
+    if(status.timeStop > 0)
+    {
+        return;
+    }
 
     runLuaFunction<float>("onUpdate", mFT);
     timeline.update(mFT);
@@ -189,15 +243,17 @@ void HexagonGame::updatePulse(FT mFT)
             status.pulseDirection *= -1;
             status.pulseDelayHalf = levelStatus.pulseDelayHalfMax;
             if(status.pulseDirection < 0)
+            {
                 status.pulseDelay = levelStatus.pulseDelayMax;
+            }
         }
     }
 
     status.pulseDelay -= mFT;
     status.pulseDelayHalf -= mFT;
 
-    float p{status.pulse / levelStatus.pulseMin},
-        rotation{backgroundCamera.getRotation()};
+    float p{status.pulse / levelStatus.pulseMin};
+    float rotation{backgroundCamera.getRotation()};
     backgroundCamera.setView({ssvs::zeroVec2f,
         {(Config::getWidth() * Config::getZoomFactor()) * p,
             (Config::getHeight() * Config::getZoomFactor()) * p}});
@@ -211,10 +267,14 @@ void HexagonGame::updateBeatPulse(FT mFT)
         status.beatPulseDelay = levelStatus.beatPulseDelayMax;
     }
     else
+    {
         status.beatPulseDelay -= 1 * mFT * getMusicDMSyncFactor();
+    }
 
     if(status.beatPulse > 0)
+    {
         status.beatPulse -= 2.f * mFT * getMusicDMSyncFactor();
+    }
 
     float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
     status.radius =
@@ -237,16 +297,27 @@ void HexagonGame::updateRotation(FT mFT)
 }
 void HexagonGame::updateFlash(FT mFT)
 {
-    if(status.flashEffect > 0) status.flashEffect -= 3 * mFT;
+    if(status.flashEffect > 0)
+    {
+        status.flashEffect -= 3 * mFT;
+    }
     status.flashEffect = getClamped(status.flashEffect, 0.f, 255.f);
-    for(auto i(0u); i < 4; ++i) flashPolygon[i].color.a = status.flashEffect;
+    for(auto i(0u); i < 4; ++i)
+    {
+        flashPolygon[i].color.a = status.flashEffect;
+    }
 }
 void HexagonGame::update3D(FT mFT)
 {
     status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
     if(status.pulse3D > styleData._3dPulseMax)
+    {
         status.pulse3DDirection = -1;
+    }
     else if(status.pulse3D < styleData._3dPulseMin)
+    {
         status.pulse3DDirection = 1;
+    }
 }
+
 } // namespace hg

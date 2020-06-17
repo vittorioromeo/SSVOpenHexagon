@@ -53,8 +53,15 @@ void HexagonGame::draw()
     playerTris.clear();
     capTris.clear();
 
-    for(auto& w : walls) w.draw();
-    if(status.started) player.draw();
+    for(auto& w : walls)
+    {
+        w.draw();
+    }
+
+    if(status.started)
+    {
+        player.draw();
+    }
 
     if(Config::get3D())
     {
@@ -75,9 +82,14 @@ void HexagonGame::draw()
         const auto cosRot(std::cos(radRot));
 
         for(auto v(0u); v < owqSz * styleData._3dDepth; ++v)
+        {
             wallQuads.emplace_back(wallQuads[v % owqSz]);
+        }
+
         for(auto v(0u); v < optSz * styleData._3dDepth; ++v)
+        {
             playerTris.emplace_back(playerTris[v % optSz]);
+        }
 
         int lastWQ(0);
         int lastPT(0);
@@ -118,7 +130,10 @@ void HexagonGame::draw()
     overlayCamera.apply();
     drawText();
 
-    if(Config::getFlash()) render(flashPolygon);
+    if(Config::getFlash())
+    {
+        render(flashPolygon);
+    }
     if(mustTakeScreenshot)
     {
         window.saveScreenshot("screenshot.png");
@@ -143,24 +158,47 @@ void HexagonGame::updateText()
 {
     os.str("");
 
-    if(Config::getShowFPS()) os << "FPS: " << window.getFPS() << "\n";
+    if(Config::getShowFPS())
+    {
+        os << "FPS: " << window.getFPS() << "\n";
+    }
     if(status.started)
+    {
         os << "time: " << toStr(status.currentTime).substr(0, 5) << "\n";
+    }
 
     if(levelStatus.tutorialMode)
+    {
         os << "tutorial mode\n";
+    }
     else if(Config::getOfficial())
+    {
         os << "official mode\n";
+    }
 
-    if(Config::getDebug()) os << "debug mode\n";
+    if(Config::getDebug())
+    {
+        os << "debug mode\n";
+    }
 
     if(status.started)
     {
-        if(levelStatus.swapEnabled) os << "swap enabled\n";
-        if(Config::getInvincible()) os << "invincibility on\n";
+        if(levelStatus.swapEnabled)
+        {
+            os << "swap enabled\n";
+        }
+        if(Config::getInvincible())
+        {
+            os << "invincibility on\n";
+        }
         if(status.scoreInvalid)
+        {
             os << "score invalidated (performance issues)\n";
-        if(status.hasDied) os << "press r to restart\n";
+        }
+        if(status.hasDied)
+        {
+            os << "press r to restart\n";
+        }
 
         const auto& trackedVariables(levelStatus.trackedVariables);
         if(Config::getShowTrackedVariables() && !trackedVariables.empty())
@@ -168,7 +206,10 @@ void HexagonGame::updateText()
             os << "\n";
             for(const auto& t : trackedVariables)
             {
-                if(!lua.doesVariableExist(t.variableName)) continue;
+                if(!lua.doesVariableExist(t.variableName))
+                {
+                    continue;
+                }
                 string var{lua.readVariable<string>(t.variableName)};
                 os << t.displayName << ": " << var << "\n";
             }
@@ -193,7 +234,10 @@ void HexagonGame::updateText()
 void HexagonGame::drawText()
 {
     Color offsetColor{getColor(1)};
-    if(Config::getBlackAndWhite()) offsetColor = Color::Black;
+    if(Config::getBlackAndWhite())
+    {
+        offsetColor = Color::Black;
+    }
 
     if(Config::getDrawTextOutlines())
     {
@@ -211,7 +255,10 @@ void HexagonGame::drawText()
 
 
 
-    if(messageText.getString() == "") return;
+    if(messageText.getString() == "")
+    {
+        return;
+    }
 
     if(Config::getDrawTextOutlines())
     {

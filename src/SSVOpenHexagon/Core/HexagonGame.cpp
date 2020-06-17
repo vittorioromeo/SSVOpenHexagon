@@ -41,19 +41,25 @@ HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow)
     add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW);
     add2StateInput(game, Config::getTriggerFocus(), inputFocused);
     add2StateInput(game, Config::getTriggerSwap(), inputSwap);
-    game.addInput(Config::getTriggerExit(), [this](FT) { goToMenu(); });
+    game.addInput(
+        Config::getTriggerExit(), [this](FT /*unused*/) { goToMenu(); });
     game.addInput(
         Config::getTriggerForceRestart(),
-        [this](FT) { status.mustRestart = true; }, Input::Type::Once);
+        [this](FT /*unused*/) { status.mustRestart = true; },
+        Input::Type::Once);
     game.addInput(
         Config::getTriggerRestart(),
-        [this](FT) {
-            if(status.hasDied) status.mustRestart = true;
+        [this](FT /*unused*/) {
+            if(status.hasDied)
+            {
+                status.mustRestart = true;
+            }
         },
         Input::Type::Once);
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](FT) { mustTakeScreenshot = true; }, Input::Type::Once);
+        [this](FT /*unused*/) { mustTakeScreenshot = true; },
+        Input::Type::Once);
 }
 
 void HexagonGame::newGame(
@@ -72,11 +78,13 @@ void HexagonGame::newGame(
     playLevelMusic();
     assets.musicPlayer.pause();
 
-    auto current(assets.getMusicPlayer().getCurrent());
+    auto* current(assets.getMusicPlayer().getCurrent());
     if(current != nullptr)
+    {
         current->setPitch(
             (Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f) *
             Config::getMusicSpeedMult());
+    }
 
     // Events cleanup
     messageText.setString("");
@@ -103,7 +111,10 @@ void HexagonGame::newGame(
     // LUA context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
     status = HexagonGameStatus{};
-    if(!mFirstPlay) runLuaFunction<void>("onUnload");
+    if(!mFirstPlay)
+    {
+        runLuaFunction<void>("onUnload");
+    }
     lua = Lua::LuaContext{};
     initLua();
     runLuaFile(levelData->luaScriptPath);
@@ -131,7 +142,10 @@ void HexagonGame::death(bool mForce)
     fpsWatcher.disable();
     assets.playSound("death.ogg", SoundPlayer::Mode::Abort);
 
-    if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode)) return;
+    if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
+    {
+        return;
+    }
     assets.playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
 
     if(!assets.pIsLocal() && Config::isEligibleForScore())
@@ -151,7 +165,10 @@ void HexagonGame::death(bool mForce)
     stopLevelMusic();
     checkAndSaveScore();
 
-    if(Config::getAutoRestart()) status.mustRestart = true;
+    if(Config::getAutoRestart())
+    {
+        status.mustRestart = true;
+    }
 }
 
 void HexagonGame::incrementDifficulty()
@@ -167,8 +184,10 @@ void HexagonGame::incrementDifficulty()
 
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
     if(status.fastSpin < 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
+    {
         levelStatus.rotationSpeed =
             rotationSpeedMax * getSign(levelStatus.rotationSpeed);
+    }
 
     status.fastSpin = levelStatus.fastSpin;
 }
@@ -183,7 +202,10 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         levelStatus.delayMult += levelStatus.delayInc;
     }
 
-    if(levelStatus.rndSideChangesEnabled) setSides(mSideNumber);
+    if(levelStatus.rndSideChangesEnabled)
+    {
+        setSides(mSideNumber);
+    }
     mustChangeSides = false;
 }
 
@@ -200,7 +222,9 @@ void HexagonGame::checkAndSaveScore()
     {
         string localValidator{getLocalValidator(levelData->id, difficultyMult)};
         if(assets.getLocalScore(localValidator) < status.currentTime)
+        {
             assets.setLocalScore(localValidator, status.currentTime);
+        }
         assets.saveCurrentLocalProfile();
     }
     else
@@ -227,7 +251,10 @@ void HexagonGame::goToMenu(bool mSendScores)
     assets.playSound("beep.ogg");
     fpsWatcher.disable();
 
-    if(mSendScores && !status.hasDied) checkAndSaveScore();
+    if(mSendScores && !status.hasDied)
+    {
+        checkAndSaveScore();
+    }
     runLuaFunction<void>("onUnload");
     window.setGameState(mgPtr->getGame());
     mgPtr->init();
@@ -257,11 +284,17 @@ void HexagonGame::setLevelData(
 
 void HexagonGame::playLevelMusic()
 {
-    if(!Config::getNoMusic()) musicData.playRandomSegment(assets);
+    if(!Config::getNoMusic())
+    {
+        musicData.playRandomSegment(assets);
+    }
 }
 void HexagonGame::stopLevelMusic()
 {
-    if(!Config::getNoMusic()) assets.stopMusics();
+    if(!Config::getNoMusic())
+    {
+        assets.stopMusics();
+    }
 }
 
 void HexagonGame::invalidateScore()
@@ -271,7 +304,7 @@ void HexagonGame::invalidateScore()
         << "Too much slowdown, invalidating official game\n";
 }
 
-Color HexagonGame::getColorMain() const
+auto HexagonGame::getColorMain() const -> Color
 {
     if(Config::getBlackAndWhite())
     {
@@ -280,13 +313,17 @@ Color HexagonGame::getColorMain() const
         return Color(255, 255, 255, styleData.getMainColor().a);
     }
     //	else if(status.drawing3D) return status.overrideColor;
-    else
+    {
         return styleData.getMainColor();
+    }
 }
 void HexagonGame::setSides(unsigned int mSides)
 {
     assets.playSound("beep.ogg");
-    if(mSides < 3) mSides = 3;
+    if(mSides < 3)
+    {
+        mSides = 3;
+    }
     levelStatus.sides = mSides;
 }
 } // namespace hg
