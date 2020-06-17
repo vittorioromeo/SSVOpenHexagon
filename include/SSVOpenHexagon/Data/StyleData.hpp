@@ -89,7 +89,9 @@ public:
         const auto& colorCount(ssvuj::getObjSize(objColors));
 
         for(auto i(0u); i < colorCount; i++)
+        {
             colorDatas.emplace_back(ssvuj::getObj(objColors, i));
+        }
     }
 
     void update(FT mFT, float mMult = 1.f);
@@ -111,10 +113,12 @@ public:
     {
         return currentMainColor;
     }
+
     const std::vector<sf::Color>& getColors() const
     {
         return currentColors;
     }
+
     const sf::Color& getColor(int mIdx) const
     {
         return currentColors[ssvu::getMod(mIdx, currentColors.size())];

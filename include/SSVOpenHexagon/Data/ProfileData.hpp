@@ -25,19 +25,22 @@ public:
     {
     }
 
-    float getVersion() const
+    [[nodiscard]] float getVersion() const
     {
         return version;
     }
-    const std::string& getName() const
+
+    [[nodiscard]] const std::string& getName() const
     {
         return name;
     }
-    const ssvuj::Obj& getScores() const
+
+    [[nodiscard]] const ssvuj::Obj& getScores() const
     {
         return scores;
     }
-    const std::vector<std::string>& getTrackedNames() const
+
+    [[nodiscard]] const std::vector<std::string>& getTrackedNames() const
     {
         return trackedNames;
     }
@@ -46,7 +49,8 @@ public:
     {
         ssvuj::arch(scores, mId, mScore);
     }
-    float getScore(const std::string& mId) const
+
+    [[nodiscard]] float getScore(const std::string& mId) const
     {
         return ssvuj::getExtr<float>(scores, mId);
     }
@@ -55,6 +59,7 @@ public:
     {
         trackedNames.emplace_back(ssvu::toLower(mTrackedName));
     }
+
     void clearTrackedNames()
     {
         trackedNames.clear();
