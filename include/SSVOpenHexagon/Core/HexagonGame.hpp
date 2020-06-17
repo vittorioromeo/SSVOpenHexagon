@@ -167,64 +167,80 @@ public:
     {
         return game;
     }
+
     float getRadius() const noexcept
     {
         return status.radius;
     }
+
     const sf::Color& getColor(int mIdx) const noexcept
     {
         return styleData.getColor(mIdx);
     }
+
     float getSpeedMultDM() const noexcept
     {
         return levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
     }
+
     float getDelayMultDM() const noexcept
     {
         return levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
     }
+
     float getRotationSpeed() const noexcept
     {
         return levelStatus.rotationSpeed;
     }
+
     unsigned int getSides() const noexcept
     {
         return levelStatus.sides;
     }
+
     float getWallSkewLeft() const noexcept
     {
         return levelStatus.wallSkewLeft;
     }
+
     float getWallSkewRight() const noexcept
     {
         return levelStatus.wallSkewRight;
     }
+
     float getWallAngleLeft() const noexcept
     {
         return levelStatus.wallAngleLeft;
     }
+
     float getWallAngleRight() const noexcept
     {
         return levelStatus.wallAngleRight;
     }
+
     float get3DEffectMult() const noexcept
     {
         return levelStatus._3dEffectMultiplier;
     }
+
     HexagonGameStatus& getStatus()
     {
         return status;
     }
+
     LevelStatus& getLevelStatus()
     {
         return levelStatus;
     }
+
     HGAssets& getAssets()
     {
         return assets;
     }
+
     sf::Color getColorMain() const;
-    float getMusicDMSyncFactor()
+
+    float getMusicDMSyncFactor() const
     {
         return Config::getMusicSpeedDMSync() ? std::pow(difficultyMult, 0.12f)
                                              : 1.f;
@@ -235,10 +251,12 @@ public:
     {
         return inputFocused;
     }
+
     bool getInputSwap() const
     {
         return inputSwap;
     }
+
     int getInputMovement() const
     {
         return inputMovement;

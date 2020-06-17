@@ -25,17 +25,27 @@ struct SpeedData
 
     void update(FT mFT) noexcept
     {
-        if(accel == 0) return;
+        if(accel == 0)
+        {
+            return;
+        }
+
         speed += accel * mFT;
         if(speed > max)
         {
             speed = max;
-            if(pingPong) accel *= -1;
+            if(pingPong)
+            {
+                accel *= -1;
+            }
         }
         else if(speed < min)
         {
             speed = min;
-            if(pingPong) accel *= -1;
+            if(pingPong)
+            {
+                accel *= -1;
+            }
         }
     }
 };
@@ -69,11 +79,13 @@ public:
     {
         return speed;
     }
+
     SpeedData& getCurve() noexcept
     {
         return curve;
     }
-    bool isOverlapping(const Vec2f& mPoint) const noexcept
+
+    [[nodiscard]] bool isOverlapping(const Vec2f& mPoint) const noexcept
     {
         return ssvs::isPointInPolygon(vertexPositions, mPoint);
     }
