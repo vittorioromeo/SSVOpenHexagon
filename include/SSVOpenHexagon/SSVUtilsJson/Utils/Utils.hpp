@@ -8,5 +8,3 @@
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/BasicConverters.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Io.hpp"
-
-

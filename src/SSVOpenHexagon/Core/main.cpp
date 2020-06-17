@@ -20,8 +20,10 @@ using namespace hg;
 void createProfilesFolder()
 {
     Path profilesPath{"Profiles/"};
-    if(profilesPath.exists<ssvufs::Type::Folder>()) { return;
-}
+    if(profilesPath.exists<ssvufs::Type::Folder>())
+    {
+        return;
+    }
 
     lo("::createProfilesFolder")
         << "Profiles folder does not exist, creating\n";
@@ -34,8 +36,10 @@ auto main(int argc, char* argv[]) -> int
     Online::setCurrentGtm(gtm);
 
     vector<string> overrideIds;
-    for(int i{0}; i < argc; ++i) { overrideIds.emplace_back(argv[i]);
-}
+    for(int i{0}; i < argc; ++i)
+    {
+        overrideIds.emplace_back(argv[i]);
+    }
 
     if(contains(overrideIds, "server"))
     {
@@ -54,9 +58,10 @@ auto main(int argc, char* argv[]) -> int
 
     Config::loadConfig(overrideIds);
 
-    if(Config::getServerLocal()) {
+    if(Config::getServerLocal())
+    {
         ssvu::lo("Server") << "LOCAL MODE ON" << std::endl;
-}
+    }
 
     GameWindow window;
     window.setTitle("Open Hexagon " + toStr(Config::getVersion()) +
@@ -82,8 +87,10 @@ auto main(int argc, char* argv[]) -> int
     mg->init();
     window.run();
 
-    if(Online::getLoginStatus() != Online::LoginStat::Logged) { Online::logout();
-}
+    if(Online::getLoginStatus() != Online::LoginStat::Logged)
+    {
+        Online::logout();
+    }
 
     ssvu::lo().flush();
 
