@@ -25,11 +25,17 @@ inline auto getAnimationFromJson(
 
     std::string jsonType{ssvuj::getExtr<std::string>(mObj, "type", "")};
     if(jsonType == "once")
+    {
         type = Animation::Type::Once;
+    }
     else if(jsonType == "loop")
+    {
         type = Animation::Type::Loop;
+    }
     else if(jsonType == "pingpong")
+    {
         type = Animation::Type::PingPong;
+    }
 
     Animation result{type};
 
