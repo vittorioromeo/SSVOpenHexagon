@@ -66,7 +66,7 @@ struct LevelStatus
         rndSideChangesEnabled{true}, darkenUnevenBackgroundChunk{true};
     SizeT currentIncrements{0u}, maxIncrements{ssvu::NumLimits<SizeT>::max()};
 
-    bool shouldIncrement() const noexcept
+    [[nodiscard]] bool shouldIncrement() const noexcept
     {
         return currentIncrements < maxIncrements;
     }

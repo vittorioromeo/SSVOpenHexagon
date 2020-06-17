@@ -18,7 +18,7 @@ class MusicData
 private:
     std::vector<float> segments;
 
-    float getRandomSegment() const
+    [[nodiscard]] float getRandomSegment() const
     {
         return segments[ssvu::getRndI(SizeT(0), segments.size())];
     }
@@ -40,6 +40,7 @@ public:
     {
         segments.emplace_back(mSeconds);
     }
+
     void playRandomSegment(HGAssets& mAssets)
     {
         if(firstPlay)
@@ -48,15 +49,22 @@ public:
             playSegment(mAssets, 0);
         }
         else
+        {
             playSeconds(mAssets, getRandomSegment());
+        }
     }
+
     void playSegment(HGAssets& mAssets, SizeT mIdx)
     {
         playSeconds(mAssets, segments[mIdx]);
     }
-    void playSeconds(HGAssets& mAssets, float mSeconds)
+
+    void playSeconds(HGAssets& mAssets, float mSeconds) const
     {
-        if(Config::getNoMusic()) return;
+        if(Config::getNoMusic())
+        {
+            return;
+        }
         mAssets.playMusic(id, sf::seconds(mSeconds));
     }
 };
