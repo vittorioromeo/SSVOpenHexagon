@@ -21,7 +21,6 @@ class HGAssets
 {
 private:
     bool playingLocally{true};
-
     bool levelsOnly{false};
 
     ssvs::AssetManager<> assetManager;
@@ -31,11 +30,11 @@ public:
     ssvs::MusicPlayer musicPlayer;
 
 private:
-    std::unordered_map<std::string, UPtr<LevelData>> levelDatas;
+    std::unordered_map<std::string, LevelData> levelDatas;
     std::unordered_map<std::string, std::vector<std::string>>
         levelDataIdsByPack;
 
-    std::unordered_map<std::string, UPtr<PackData>> packDatas;
+    std::unordered_map<std::string, PackData> packDatas;
     std::vector<std::string> packIds;
     std::vector<Path> packPaths;
 
@@ -53,20 +52,23 @@ public:
     {
         return assetManager;
     }
+
     template <typename T>
     T& get(const std::string& mId)
     {
         return assetManager.get<T>(mId);
     }
 
-    const std::unordered_map<std::string, UPtr<LevelData>>& getLevelDatas()
+    const std::unordered_map<std::string, LevelData>& getLevelDatas()
     {
         return levelDatas;
     }
+
     const LevelData& getLevelData(const std::string& mId)
     {
-        return *levelDatas.at(mId);
+        return levelDatas.at(mId);
     }
+
     const std::vector<std::string>& getLevelIdsByPack(const Path& mPackPath)
     {
         return levelDataIdsByPack.at(mPackPath);
@@ -74,18 +76,18 @@ public:
 
     const PackData& getPackData(const std::string& mId)
     {
-        return *packDatas.at(mId);
+        return packDatas.at(mId);
     }
+
     const std::vector<Path>& getPackPaths()
     {
         return packPaths;
     }
+
     const std::vector<std::string>& getPackIds()
     {
         return packIds;
     }
-
-
 
     void loadAssets();
 
@@ -100,7 +102,6 @@ public:
 
     const MusicData& getMusicData(const std::string& mId);
     const StyleData& getStyleData(const std::string& mId);
-
 
     float getLocalScore(const std::string& mId);
     void setLocalScore(const std::string& mId, float mScore);
@@ -117,22 +118,27 @@ public:
     {
         return currentProfilePtr != nullptr;
     }
+
     std::string pGetName() const
     {
         if(!playingLocally)
         {
             return Online::getCurrentUsername();
         }
+
         return getCurrentLocalProfile().getName();
     }
+
     const std::vector<std::string>& pGetTrackedNames() const
     {
         if(!playingLocally)
         {
             return Online::getUserStats().trackedNames;
         }
+
         return getCurrentLocalProfile().getTrackedNames();
     }
+
     void pClearTrackedNames()
     {
         if(!playingLocally)
@@ -140,8 +146,10 @@ public:
             Online::trySendClearFriends();
             return;
         }
+
         getCurrentLocalProfile().clearTrackedNames();
     }
+
     void pAddTrackedName(const std::string& mName)
     {
         if(!playingLocally)
@@ -149,54 +157,65 @@ public:
             Online::trySendAddFriend(mName);
             return;
         }
+
         getCurrentLocalProfile().addTrackedName(mName);
     }
+
     void pSaveCurrent()
     {
         if(!playingLocally)
         {
             return;
         }
+
         saveCurrentLocalProfile();
     }
+
     void pSetCurrent(const std::string& mName)
     {
         if(!playingLocally)
         {
             throw;
         }
+
         setCurrentLocalProfile(mName);
     }
+
     void pCreate(const std::string& mName)
     {
         if(!playingLocally)
         {
             throw;
         }
+
         createLocalProfile(mName);
     }
+
     bool pIsLocal() const
     {
         return playingLocally;
     }
+
     void pSetPlayingLocally(bool mPlayingLocally)
     {
         playingLocally = mPlayingLocally;
     }
 
-
-
     void refreshVolumes();
     void stopMusics();
     void stopSounds();
+
     void playSound(const std::string& mId,
         ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
+
     void playMusic(
         const std::string& mId, sf::Time mPlayingOffset = sf::seconds(0));
+
     ssvs::SoundPlayer& getSoundPlayer() noexcept
     {
         return soundPlayer;
     }
+
     ssvs::MusicPlayer& getMusicPlayer() noexcept
     {
         return musicPlayer;

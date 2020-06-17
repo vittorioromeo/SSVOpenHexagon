@@ -145,51 +145,61 @@ bool isEligibleForScore()
         uneligibilityReason = "official mode off";
         return false;
     }
+
     if(getDebug())
     {
         uneligibilityReason = "debug mode on";
         return false;
     }
+
     if(!getAutoZoomFactor())
     {
         uneligibilityReason = "modified zoom factor";
         return false;
     }
+
     if(getPlayerSpeed() != 9.45f)
     {
         uneligibilityReason = "player speed modified";
         return false;
     }
+
     if(getPlayerFocusSpeed() != 4.625f)
     {
         uneligibilityReason = "player focus speed modified";
         return false;
     }
+
     if(getPlayerSize() != 7.3f)
     {
         uneligibilityReason = "player size modified";
         return false;
     }
+
     if(getInvincible())
     {
         uneligibilityReason = "invincibility on";
         return false;
     }
+
     if(getNoRotation())
     {
         uneligibilityReason = "rotation off";
         return false;
     }
+
     if(Online::getServerVersion() == -1)
     {
         uneligibilityReason = "connection error";
         return false;
     }
+
     if(Online::getServerVersion() > getVersion())
     {
         uneligibilityReason = "version mismatch";
         return false;
     }
+
     return true;
 }
 
@@ -201,8 +211,8 @@ void recalculateSizes()
         return;
     }
 
-    float factorX(1024.f / ssvu::toFloat(getWidth()));
-    float factorY(768.f / ssvu::toFloat(getHeight()));
+    const float factorX(1024.f / ssvu::toFloat(getWidth()));
+    const float factorY(768.f / ssvu::toFloat(getHeight()));
     zoomFactor = max(factorX, factorY);
 }
 void setFullscreen(GameWindow& mWindow, bool mFullscreen)
@@ -279,6 +289,7 @@ void setMaxFPS(GameWindow& mWindow, unsigned int mValue)
 void setTimerStatic(GameWindow& mWindow, bool mValue)
 {
     timerStatic = mValue;
+
     if(timerStatic)
     {
         mWindow.setTimer<TimerStatic>(0.5f, 0.5f);
@@ -290,6 +301,7 @@ void setTimerStatic(GameWindow& mWindow, bool mValue)
         setMaxFPS(mWindow, 200);
     }
 }
+
 void setAntialiasingLevel(GameWindow& mWindow, unsigned int mValue)
 {
     antialiasingLevel = mValue;
@@ -300,90 +312,112 @@ void setOnline(bool mOnline)
 {
     online = mOnline;
 }
+
 void setOfficial(bool mOfficial)
 {
     official = mOfficial;
 }
+
 void setNoRotation(bool mNoRotation)
 {
     noRotation = mNoRotation;
 }
+
 void setNoBackground(bool mNoBackground)
 {
     noBackground = mNoBackground;
 }
+
 void setBlackAndWhite(bool mBlackAndWhite)
 {
     blackAndWhite = mBlackAndWhite;
 }
+
 void setNoSound(bool mNoSound)
 {
     noSound = mNoSound;
 }
+
 void setNoMusic(bool mNoMusic)
 {
     noMusic = mNoMusic;
 }
+
 void setPulse(bool mPulse)
 {
     pulseEnabled = mPulse;
 }
+
 void set3D(bool m3D)
 {
     _3DEnabled = m3D;
 }
+
 void setInvincible(bool mInvincible)
 {
     invincible = mInvincible;
 }
+
 void setAutoRestart(bool mAutoRestart)
 {
     autoRestart = mAutoRestart;
 }
+
 void setSoundVolume(float mVolume)
 {
     soundVolume = mVolume;
 }
+
 void setMusicVolume(float mVolume)
 {
     musicVolume = mVolume;
 }
+
 void setFlash(bool mFlash)
 {
     flashEnabled = mFlash;
 }
+
 void setMusicSpeedDMSync(bool mValue)
 {
     musicSpeedDMSync = mValue;
 }
+
 void setShowFPS(bool mValue)
 {
     showFPS = mValue;
 }
+
 void setServerLocal(bool mValue)
 {
     serverLocal = mValue;
 }
+
 void setServerVerbose(bool mValue)
 {
     serverVerbose = mValue;
 }
+
 void setMouseVisible(bool mValue)
 {
     mouseVisible = mValue;
 }
+
 void setMusicSpeedMult(float mValue)
 {
     musicSpeedMult = mValue;
 }
+
 void setDrawTextOutlines(bool mX)
 {
     drawTextOutlines = mX;
 }
+
 void setDarkenUnevenBackgroundChunk(bool mX)
 {
     darkenUnevenBackgroundChunk = mX;
 }
+
 void setRotateToStart(bool mX)
 {
     rotateToStart = mX;

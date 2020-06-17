@@ -16,12 +16,23 @@ class CPlayer final
 {
 private:
     HexagonGame* hexagonGame;
-    Vec2f pLeft, pRight, startPos, pos;
-    float hue{0}, angle{0}, size{Config::getPlayerSize()},
-        speed{Config::getPlayerSpeed()},
-        focusSpeed{Config::getPlayerFocusSpeed()};
+
+    Vec2f pLeft;
+    Vec2f pRight;
+    Vec2f startPos;
+    Vec2f pos;
+
+    float hue{0};
+    float angle{0};
+    float size{Config::getPlayerSize()};
+    float speed{Config::getPlayerSpeed()};
+    float focusSpeed{Config::getPlayerFocusSpeed()};
+
     bool dead{false};
-    Ticker swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{80.f, false};
+
+    Ticker swapTimer{36.f};
+    Ticker swapBlinkTimer{5.f};
+    Ticker deadEffectTimer{80.f, false};
 
     void drawPivot();
     void drawDeathEffect();

@@ -50,6 +50,7 @@ void CPlayer::draw()
     hexagonGame->playerTris.emplace_back(pLeft, colorMain);
     hexagonGame->playerTris.emplace_back(pRight, colorMain);
 }
+
 void CPlayer::drawPivot()
 {
     auto sides(hexagonGame->getSides());
@@ -82,6 +83,7 @@ void CPlayer::drawPivot()
         hexagonGame->capTris.emplace_back(startPos, colorDarkened);
     }
 }
+
 void CPlayer::drawDeathEffect()
 {
     float div{ssvu::tau / hexagonGame->getSides() * 0.5f};
@@ -157,6 +159,7 @@ void CPlayer::update(FT mFT)
         {
             angle = lastAngle;
         }
+
         if(wall.isOverlapping(pos))
         {
             deadEffectTimer.restart();
@@ -164,10 +167,12 @@ void CPlayer::update(FT mFT)
             {
                 dead = true;
             }
+
             moveTowards(
                 lastPos, ssvs::zeroVec2f, 5 * hexagonGame->getSpeedMultDM());
             pos = lastPos;
             hexagonGame->death();
+
             return;
         }
     }

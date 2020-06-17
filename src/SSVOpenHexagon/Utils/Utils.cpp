@@ -18,6 +18,7 @@ using namespace ssvu;
 
 namespace hg::Utils
 {
+
 Color getColorDarkened(Color mColor, float mMultiplier)
 {
     mColor.r /= mMultiplier;
@@ -37,6 +38,7 @@ MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
     }
     return result;
 }
+
 ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
 {
     return {getExtr<float>(mRoot, "version"), getExtr<string>(mRoot, "name"),
@@ -129,6 +131,7 @@ std::set<string> getIncludedLuaFileNames(const string& mLuaScript)
 
     return result;
 }
+
 void recursiveFillIncludedLuaFileNames(std::set<string>& mLuaScriptNames,
     const Path& mPackPath, const string& mLuaScript)
 {
@@ -176,4 +179,5 @@ Color transformHue(const Color& in, float H)
             (.886 * u - .203 * w) * in.b;
     return ret;
 }
+
 } // namespace hg::Utils

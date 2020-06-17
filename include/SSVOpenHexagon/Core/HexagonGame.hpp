@@ -40,26 +40,45 @@ private:
     ssvs::Camera backgroundCamera{window,
         {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
                               Config::getHeight() * Config::getZoomFactor()}}};
+
     ssvs::Camera overlayCamera{
         window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
                     Vec2f(Config::getWidth(), Config::getHeight())}};
+
     ssvu::TimelineManager effectTimelineManager;
+
     Factory factory{*this, ssvs::zeroVec2f};
+
     Lua::LuaContext lua;
+
     LevelStatus levelStatus;
     MusicData musicData;
     StyleData styleData;
-    ssvu::Timeline timeline, eventTimeline, messageTimeline;
+
+    ssvu::Timeline timeline;
+    ssvu::Timeline eventTimeline;
+    ssvu::Timeline messageTimeline;
+
     sf::Text messageText{"", assets.get<sf::Font>("imagine.ttf"),
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
+
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
-    bool firstPlay{true}, restartFirstTime{true}, inputFocused{false},
-        inputSwap{false}, mustTakeScreenshot{false}, mustChangeSides{false};
+
+    bool firstPlay{true};
+    bool restartFirstTime{true};
+    bool inputFocused{false};
+    bool inputSwap{false};
+    bool mustTakeScreenshot{false};
+    bool mustChangeSides{false};
+
     HexagonGameStatus status;
     std::string restartId;
     float difficultyMult{1};
-    int inputImplLastMovement, inputMovement{0};
-    bool inputImplCW{false}, inputImplCCW{false}, inputImplBothCWCCW{false};
+    int inputImplLastMovement;
+    int inputMovement{0};
+    bool inputImplCW{false};
+    bool inputImplCCW{false};
+    bool inputImplBothCWCCW{false};
     std::ostringstream os;
 
     FPSWatcher fpsWatcher;
@@ -89,6 +108,7 @@ public:
     {
         return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...);
     }
+
     template <typename T, typename... TArgs>
     void runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
     {

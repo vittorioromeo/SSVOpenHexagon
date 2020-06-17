@@ -50,21 +50,45 @@ public:
 struct LevelStatus
 {
     std::vector<TrackedVariable> trackedVariables;
-    float speedMult{1.f}, speedInc{0.f};
-    float rotationSpeed{0.f}, rotationSpeedInc{0.f}, rotationSpeedMax{0.f};
-    float delayMult{1.f}, delayInc{0.f}, fastSpin{0.f}, incTime{15.f};
-    float pulseMin{75.f}, pulseMax{80.f}, pulseSpeed{0.f}, pulseSpeedR{0.f};
-    float pulseDelayMax{0.f}, pulseDelayHalfMax{0.f};
-    float beatPulseMax{0.f}, beatPulseDelayMax{0.f};
+
+    float speedMult{1.f};
+    float speedInc{0.f};
+    float rotationSpeed{0.f};
+    float rotationSpeedInc{0.f};
+    float rotationSpeedMax{0.f};
+    float delayMult{1.f};
+    float delayInc{0.f};
+    float fastSpin{0.f};
+    float incTime{15.f};
+    float pulseMin{75.f};
+    float pulseMax{80.f};
+    float pulseSpeed{0.f};
+    float pulseSpeedR{0.f};
+    float pulseDelayMax{0.f};
+    float pulseDelayHalfMax{0.f};
+    float beatPulseMax{0.f};
+    float beatPulseDelayMax{0.f};
     float radiusMin{72.f};
-    float wallSkewLeft{0.f}, wallSkewRight{0.f};
-    float wallAngleLeft{0.f}, wallAngleRight{0.f};
+    float wallSkewLeft{0.f};
+    float wallSkewRight{0.f};
+    float wallAngleLeft{0.f};
+    float wallAngleRight{0.f};
     float _3dEffectMultiplier{1.f};
+
     int cameraShake{0};
-    unsigned int sides{6}, sidesMax{6}, sidesMin{6};
-    bool swapEnabled{false}, tutorialMode{false}, incEnabled{true},
-        rndSideChangesEnabled{true}, darkenUnevenBackgroundChunk{true};
-    SizeT currentIncrements{0u}, maxIncrements{ssvu::NumLimits<SizeT>::max()};
+
+    unsigned int sides{6};
+    unsigned int sidesMax{6};
+    unsigned int sidesMin{6};
+
+    bool swapEnabled{false};
+    bool tutorialMode{false};
+    bool incEnabled{true};
+    bool rndSideChangesEnabled{true};
+    bool darkenUnevenBackgroundChunk{true};
+
+    SizeT currentIncrements{0u};
+    SizeT maxIncrements{ssvu::NumLimits<SizeT>::max()};
 
     [[nodiscard]] bool shouldIncrement() const noexcept
     {
