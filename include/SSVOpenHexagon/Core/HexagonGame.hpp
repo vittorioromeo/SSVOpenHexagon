@@ -86,7 +86,15 @@ private:
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
     const Vec2f txt_pos{8, 8};
-    const std::vector<Vec2f> txt_offsets{{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+
+    struct CExprVec2f
+    {
+        float x;
+        float y;
+    };
+
+    static constexpr std::array txt_offsets{CExprVec2f{-1, -1},
+        CExprVec2f{-1, 1}, CExprVec2f{1, -1}, CExprVec2f{1, 1}};
 
     // LUA-related methods
     void initLua();
