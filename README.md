@@ -59,8 +59,14 @@
 
     *(or clone [SSVOpenHexagonAssets](https://github.com/SuperV1234/SSVOpenHexagonAssets))*
 
-## How to build on Linux
+## How to build on Arch Linux
 
+0. Install dependencies
+
+    ```bash
+    sudo pacman -S git make cmake gcc sfml
+    ```
+    
 1. Clone this repository and initialize it:
 
     ```bash
