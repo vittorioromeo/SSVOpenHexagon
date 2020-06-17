@@ -39,7 +39,10 @@ public:
             {
                 std::this_thread::sleep_for(800ms);
 
-                if(!isBusy() || --untilTimeout > 0) continue;
+                if(!isBusy() || --untilTimeout > 0)
+                {
+                    continue;
+                }
 
                 HG_LO_VERBOSE("ClientHandler")
                     << "Client (" << uid << ") timed out\n";

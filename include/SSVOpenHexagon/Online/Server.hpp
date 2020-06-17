@@ -41,21 +41,34 @@ private:
         {
             if(i >= clientHandlers.size())
             {
-                if(foundNonBusy) return;
+                if(foundNonBusy)
+                {
+                    return;
+                }
 
                 HG_LO_VERBOSE("Server") << "Creating new client handlers\n";
                 for(auto k(0u); k < 10; ++k)
+                {
                     ssvu::getEmplaceUPtr<ClientHandler>(
                         clientHandlers, packetHandler);
+                }
             }
 
             auto& c(clientHandlers[i]);
 
-            if(c->isBusy()) continue;
+            if(c->isBusy())
+            {
+                continue;
+            }
+
             foundNonBusy = true;
 
-            if(!c->tryAccept(listener)) continue;
-            onClientAccepted(*c.get());
+            if(!c->tryAccept(listener))
+            {
+                continue;
+            }
+
+            onClientAccepted(*c);
             c->refreshTimeout();
             HG_LO_VERBOSE("Server")
                 << "Accepted client (" << c->getUid() << ")\n";
@@ -71,6 +84,7 @@ public:
     {
         listener.setBlocking(false);
     }
+
     ~Server()
     {
         running = false;
@@ -83,19 +97,25 @@ public:
             ssvu::lo("Server") << "Error initalizing listener\n";
             return;
         }
-        else
-            ssvu::lo("Server") << "Listener initialized\n";
+
+        ssvu::lo("Server") << "Listener initialized\n";
 
         running = true;
         updateFuture = std::async(std::launch::async, [this] { updateImpl(); });
     }
+
     void stop()
     {
-        for(auto& ch : clientHandlers) ch->stop();
+        for(auto& ch : clientHandlers)
+        {
+            ch->stop();
+        }
+
         running = false;
         listener.close();
     }
-    bool isRunning() const
+
+    [[nodiscard]] bool isRunning() const
     {
         return running;
     }

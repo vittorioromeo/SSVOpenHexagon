@@ -21,5 +21,5 @@
 #endif
 
 #ifndef HG_ENCRYPT
-#define HG_ENCRYPT(X) toStr(HG_NKEY1) + X + HG_SKEY1 + HG_SKEY2 + HG_SKEY3
+#define HG_ENCRYPT(X) toStr(HG_NKEY1) + (X) + HG_SKEY1 + HG_SKEY2 + HG_SKEY3
 #endif

@@ -41,7 +41,9 @@ private:
         for(int i{0}; i < 5; ++i)
         {
             if(busy && socket.receive(packet) == sf::Socket::Done)
+            {
                 onPacketReceived(packet);
+            }
             std::this_thread::sleep_for(50ms);
         }
     }
@@ -78,6 +80,7 @@ public:
     {
         socket.setBlocking(false);
     }
+
     ~ManagedSocket()
     {
         disconnect();
@@ -87,6 +90,7 @@ public:
     {
         return trySendPacket(mPacket);
     }
+
     bool connect(sf::IpAddress mIp, unsigned short mPort)
     {
         if(busy)
@@ -98,7 +102,9 @@ public:
         for(int i{0}; i < 5; ++i)
         {
             if(!busy && socket.connect(mIp, mPort) == sf::Socket::Done)
+            {
                 goto succeed;
+            }
             std::this_thread::sleep_for(60ms);
         }
 
@@ -116,6 +122,7 @@ public:
             << "Connected to " << mIp.toString() << ":" << mPort << "\n";
         return true;
     }
+
     bool tryAccept(sf::TcpListener& mListener)
     {
         if(busy)
@@ -127,7 +134,9 @@ public:
         for(int i{0}; i < 5; ++i)
         {
             if(!busy && mListener.accept(socket) == sf::Socket::Done)
+            {
                 goto succeed;
+            }
             std::this_thread::sleep_for(60ms);
         }
 
@@ -144,12 +153,14 @@ public:
         HG_LO_VERBOSE("ManagedSocket") << "Accepted\n";
         return true;
     }
+
     void disconnect()
     {
         socket.disconnect();
         busy = false;
     }
-    bool isBusy() const
+
+    [[nodiscard]] bool isBusy() const
     {
         return busy;
     }
