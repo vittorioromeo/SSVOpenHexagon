@@ -2,60 +2,58 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef HG_ONLINE_PACKETHANDLER
-#define HG_ONLINE_PACKETHANDLER
+#pragma once
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
 
-namespace hg
+namespace hg::Online
 {
-    namespace Online
+
+template <typename T>
+class PacketHandler
+{
+private:
+    using HandlerFunc = ssvu::Func<void(T&, sf::Packet&)>;
+    std::unordered_map<unsigned int, HandlerFunc> funcs;
+
+public:
+    void handle(T& mCaller, sf::Packet& mPacket)
     {
-        template <typename T>
-        class PacketHandler
+        unsigned int type{0};
+
+        try
         {
-        private:
-            using HandlerFunc = ssvu::Func<void(T&, sf::Packet&)>;
-            std::unordered_map<unsigned int, HandlerFunc> funcs;
+            mPacket >> type;
 
-        public:
-            inline void handle(T& mCaller, sf::Packet& mPacket)
+            auto itr(funcs.find(type));
+            if(itr == std::end(funcs))
             {
-                unsigned int type{0};
-
-                try
-                {
-                    mPacket >> type;
-
-                    auto itr(funcs.find(type));
-                    if(itr == std::end(funcs))
-                    {
-                        HG_LO_VERBOSE("PacketHandler")
-                            << "Can't handle packet of type: " << type
-                            << std::endl;
-                        return;
-                    }
-
-                    itr->second(mCaller, mPacket);
-                }
-                catch(std::exception& mEx)
-                {
-                    HG_LO_VERBOSE("PacketHandler")
-                        << "Exception during packet handling: (" << type
-                        << ")\n" << mEx.what() << std::endl;
-                }
-                catch(...)
-                {
-                    HG_LO_VERBOSE("PacketHandler")
-                        << "Unknown exception during packet handling: (" << type
-                        << ")\n";
-                }
+                HG_LO_VERBOSE("PacketHandler")
+                    << "Can't handle packet of type: " << type << std::endl;
+                return;
             }
 
-            HandlerFunc& operator[](unsigned int mType) { return funcs[mType]; }
-        };
+            itr->second(mCaller, mPacket);
+        }
+        catch(std::exception& mEx)
+        {
+            HG_LO_VERBOSE("PacketHandler")
+                << "Exception during packet handling: (" << type << ")\n"
+                << mEx.what() << std::endl;
+        }
+        catch(...)
+        {
+            HG_LO_VERBOSE("PacketHandler")
+                << "Unknown exception during packet handling: (" << type
+                << ")\n";
+        }
     }
-}
 
-#endif
+    HandlerFunc& operator[](unsigned int mType)
+    {
+        return funcs[mType];
+    }
+};
+
+} // namespace hg::Online

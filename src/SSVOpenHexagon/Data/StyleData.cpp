@@ -15,140 +15,136 @@ using namespace ssvuj;
 
 namespace hg
 {
-    Color StyleData::calculateColor(const ColorData& mColorData) const
+Color StyleData::calculateColor(const ColorData& mColorData) const
+{
+    Color color{mColorData.color};
+
+    if(mColorData.dynamic)
     {
-        Color color{mColorData.color};
+        const auto hue = (currentHue + mColorData.hueShift) / 360.f;
 
-        if(mColorData.dynamic)
+        const auto& dynamicColor(
+            ssvs::getColorFromHSV(getClamped(hue, 0.f, 1.f), 1.f, 1.f));
+
+        if(!mColorData.main)
         {
-            const auto hue = (currentHue + mColorData.hueShift) / 360.f;
-
-            const auto& dynamicColor(ssvs::getColorFromHSV(
-                getClamped(hue, 0.f, 1.f), 1.f, 1.f));
-
-            if(!mColorData.main)
+            if(mColorData.dynamicOffset)
             {
-                if(mColorData.dynamicOffset)
-                {
-                    SSVU_ASSERT(mColorData.offset != 0);
+                SSVU_ASSERT(mColorData.offset != 0);
 
-                    color.r += dynamicColor.r / mColorData.offset;
-                    color.g += dynamicColor.g / mColorData.offset;
-                    color.b += dynamicColor.b / mColorData.offset;
-                    color.a += dynamicColor.a;
-                }
-                else
-                    color = getColorDarkened(
-                        dynamicColor, mColorData.dynamicDarkness);
+                color.r += dynamicColor.r / mColorData.offset;
+                color.g += dynamicColor.g / mColorData.offset;
+                color.b += dynamicColor.b / mColorData.offset;
+                color.a += dynamicColor.a;
             }
             else
-                color = dynamicColor;
+                color =
+                    getColorDarkened(dynamicColor, mColorData.dynamicDarkness);
         }
-
-        const auto& pulse(mColorData.pulse);
-        return Color(
-            toNum<Uint8>(
-                getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f)),
-            toNum<Uint8>(
-                getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f)),
-            toNum<Uint8>(
-                getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f)),
-            toNum<Uint8>(
-                getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
+        else
+            color = dynamicColor;
     }
 
-    void StyleData::update(FT mFT, float mMult)
+    const auto& pulse(mColorData.pulse);
+    return Color(
+        toNum<Uint8>(getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f)),
+        toNum<Uint8>(getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f)),
+        toNum<Uint8>(getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f)),
+        toNum<Uint8>(getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
+}
+
+void StyleData::update(FT mFT, float mMult)
+{
+    currentSwapTime += mFT * mMult;
+    if(currentSwapTime > maxSwapTime) currentSwapTime = 0;
+
+    currentHue += hueIncrement * mFT * mMult;
+
+    if(currentHue < hueMin)
     {
-        currentSwapTime += mFT * mMult;
-        if(currentSwapTime > maxSwapTime) currentSwapTime = 0;
-
-        currentHue += hueIncrement * mFT * mMult;
-
-        if(currentHue < hueMin)
+        if(huePingPong)
         {
-            if(huePingPong)
-            {
-                currentHue = hueMin;
-                hueIncrement *= -1.f;
-            }
-            else
-                currentHue = hueMax;
+            currentHue = hueMin;
+            hueIncrement *= -1.f;
         }
-        if(currentHue > hueMax)
+        else
+            currentHue = hueMax;
+    }
+    if(currentHue > hueMax)
+    {
+        if(huePingPong)
         {
-            if(huePingPong)
-            {
-                currentHue = hueMax;
-                hueIncrement *= -1.f;
-            }
-            else
-                currentHue = hueMin;
+            currentHue = hueMax;
+            hueIncrement *= -1.f;
         }
-
-        pulseFactor += pulseIncrement * mFT;
-
-        if(pulseFactor < pulseMin)
-        {
-            pulseIncrement *= -1.f;
-            pulseFactor = pulseMin;
-        }
-        if(pulseFactor > pulseMax)
-        {
-            pulseIncrement *= -1.f;
-            pulseFactor = pulseMax;
-        }
+        else
+            currentHue = hueMin;
     }
 
-    void StyleData::computeColors()
-    {
-        currentMainColor = calculateColor(mainColorData);
-        current3DOverrideColor =
-            _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
-        currentColors.clear();
-        for(const auto& cd : colorDatas)
-            currentColors.emplace_back(calculateColor(cd));
+    pulseFactor += pulseIncrement * mFT;
 
-        if(currentColors.size() > 1)
-            ssvu::rotate(currentColors,
-                begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
+    if(pulseFactor < pulseMin)
+    {
+        pulseIncrement *= -1.f;
+        pulseFactor = pulseMin;
     }
-
-    void StyleData::drawBackground(RenderTarget& mRenderTarget,
-        const Vec2f& mCenterPos, const LevelStatus& levelStatus)
+    if(pulseFactor > pulseMax)
     {
-        const auto sides = levelStatus.sides;
-
-        float div{ssvu::tau / sides * 1.0001f}, distance{4500};
-
-        ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
-        vertices.reserve(sides * 3);
-
-        const auto& colors(getColors());
-
-        for(auto i(0u); i < sides; ++i)
-        {
-            const float angle{div * i};
-            Color currentColor{ssvu::getByModIdx(colors, i)};
-
-            const bool darkenUnevenBackgroundChunk =
-                (i % 2 == 0 && i == sides - 1) &&
-                Config::getDarkenUnevenBackgroundChunk() &&
-                levelStatus.darkenUnevenBackgroundChunk;
-
-            if(Config::getBlackAndWhite())
-                currentColor = Color::Black;
-            else if(darkenUnevenBackgroundChunk)
-                currentColor = getColorDarkened(currentColor, 1.4f);
-
-            vertices.emplace_back(mCenterPos, currentColor);
-            vertices.emplace_back(
-                getOrbitRad(mCenterPos, angle + div * 0.5f, distance),
-                currentColor);
-            vertices.emplace_back(
-                getOrbitRad(mCenterPos, angle - div * 0.5f, distance),
-                currentColor);
-        }
-
-        mRenderTarget.draw(vertices);
+        pulseIncrement *= -1.f;
+        pulseFactor = pulseMax;
     }
 }
+
+void StyleData::computeColors()
+{
+    currentMainColor = calculateColor(mainColorData);
+    current3DOverrideColor =
+        _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
+    currentColors.clear();
+    for(const auto& cd : colorDatas)
+        currentColors.emplace_back(calculateColor(cd));
+
+    if(currentColors.size() > 1)
+        ssvu::rotate(currentColors,
+            begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
+}
+
+void StyleData::drawBackground(RenderTarget& mRenderTarget,
+    const Vec2f& mCenterPos, const LevelStatus& levelStatus)
+{
+    const auto sides = levelStatus.sides;
+
+    float div{ssvu::tau / sides * 1.0001f}, distance{4500};
+
+    ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
+    vertices.reserve(sides * 3);
+
+    const auto& colors(getColors());
+
+    for(auto i(0u); i < sides; ++i)
+    {
+        const float angle{div * i};
+        Color currentColor{ssvu::getByModIdx(colors, i)};
+
+        const bool darkenUnevenBackgroundChunk =
+            (i % 2 == 0 && i == sides - 1) &&
+            Config::getDarkenUnevenBackgroundChunk() &&
+            levelStatus.darkenUnevenBackgroundChunk;
+
+        if(Config::getBlackAndWhite())
+            currentColor = Color::Black;
+        else if(darkenUnevenBackgroundChunk)
+            currentColor = getColorDarkened(currentColor, 1.4f);
+
+        vertices.emplace_back(mCenterPos, currentColor);
+        vertices.emplace_back(
+            getOrbitRad(mCenterPos, angle + div * 0.5f, distance),
+            currentColor);
+        vertices.emplace_back(
+            getOrbitRad(mCenterPos, angle - div * 0.5f, distance),
+            currentColor);
+    }
+
+    mRenderTarget.draw(vertices);
+}
+} // namespace hg

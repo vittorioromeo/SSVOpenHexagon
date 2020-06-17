@@ -2,8 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef HG_MUSICDATA
-#define HG_MUSICDATA
+#pragma once
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
@@ -11,55 +10,55 @@
 
 namespace hg
 {
-    class HGAssets;
 
-    class MusicData
+class HGAssets;
+
+class MusicData
+{
+private:
+    std::vector<float> segments;
+
+    float getRandomSegment() const
     {
-    private:
-        std::vector<float> segments;
+        return segments[ssvu::getRndI(SizeT(0), segments.size())];
+    }
 
-        inline float getRandomSegment() const
-        {
-            return segments[ssvu::getRndI(SizeT(0), segments.size())];
-        }
+public:
+    std::string id, fileName, name, album, author;
+    bool firstPlay{true};
 
-    public:
-        std::string id, fileName, name, album, author;
-        bool firstPlay{true};
+    MusicData() = default;
+    MusicData(const std::string& mId, const std::string& mFileName,
+        const std::string& mName, const std::string& mAlbum,
+        const std::string& mAuthor)
+        : id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{
+                                                                        mAuthor}
+    {
+    }
 
-        MusicData() = default;
-        MusicData(const std::string& mId, const std::string& mFileName,
-            const std::string& mName, const std::string& mAlbum,
-            const std::string& mAuthor)
-            : id{mId}, fileName{mFileName}, name{mName}, album{mAlbum},
-              author{mAuthor}
+    void addSegment(float mSeconds)
+    {
+        segments.emplace_back(mSeconds);
+    }
+    void playRandomSegment(HGAssets& mAssets)
+    {
+        if(firstPlay)
         {
+            firstPlay = false;
+            playSegment(mAssets, 0);
         }
+        else
+            playSeconds(mAssets, getRandomSegment());
+    }
+    void playSegment(HGAssets& mAssets, SizeT mIdx)
+    {
+        playSeconds(mAssets, segments[mIdx]);
+    }
+    void playSeconds(HGAssets& mAssets, float mSeconds)
+    {
+        if(Config::getNoMusic()) return;
+        mAssets.playMusic(id, sf::seconds(mSeconds));
+    }
+};
 
-        inline void addSegment(float mSeconds)
-        {
-            segments.emplace_back(mSeconds);
-        }
-        inline void playRandomSegment(HGAssets& mAssets)
-        {
-            if(firstPlay)
-            {
-                firstPlay = false;
-                playSegment(mAssets, 0);
-            }
-            else
-                playSeconds(mAssets, getRandomSegment());
-        }
-        inline void playSegment(HGAssets& mAssets, SizeT mIdx)
-        {
-            playSeconds(mAssets, segments[mIdx]);
-        }
-        inline void playSeconds(HGAssets& mAssets, float mSeconds)
-        {
-            if(Config::getNoMusic()) return;
-            mAssets.playMusic(id, sf::seconds(mSeconds));
-        }
-    };
-}
-
-#endif
+} // namespace hg

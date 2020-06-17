@@ -2,8 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef HG_UTILS_FPSWATCHER
-#define HG_UTILS_FPSWATCHER
+#pragma once
 
 #include <thread>
 #include <chrono>
@@ -11,80 +10,77 @@
 
 namespace hg
 {
-    class FPSWatcher
+
+class FPSWatcher
+{
+private:
+    ssvs::GameWindow& gameWindow;
+    float lostFrames{0};
+    const float maxLostFrames{20.f}, minFPS{25.f};
+    bool disabled{true}, running{true}, check{false};
+    std::future<void> watchFuture{
+        std::async(std::launch::async, [this] { watch(); })};
+
+    void watch()
     {
-    private:
-        ssvs::GameWindow& gameWindow;
-        float lostFrames{0};
-        const float maxLostFrames{20.f}, minFPS{25.f};
-        bool disabled{true}, running{true}, check{false};
-        std::future<void> watchFuture{std::async(std::launch::async, [this]
-            {
-                watch();
-            })};
-
-        inline void watch()
+        while(running)
         {
-            while(running)
-            {
-                std::this_thread::sleep_for(80ms);
-                if(disabled) continue;
+            std::this_thread::sleep_for(80ms);
+            if(disabled) continue;
 
-                if(check)
+            if(check)
+            {
+                check = false;
+                std::this_thread::sleep_for(50ms);
+                while(check == false)
                 {
-                    check = false;
-                    std::this_thread::sleep_for(50ms);
-                    while(check == false)
-                    {
-                        loseFrame();
-                        std::this_thread::sleep_for(12ms);
-                    }
+                    loseFrame();
+                    std::this_thread::sleep_for(12ms);
                 }
-                std::this_thread::sleep_for(80ms);
-                if(gameWindow.getFPS() < minFPS) loseFrame();
             }
+            std::this_thread::sleep_for(80ms);
+            if(gameWindow.getFPS() < minFPS) loseFrame();
         }
-        inline void loseFrame()
-        {
-            if(lostFrames > maxLostFrames) return;
-            ++lostFrames;
-            ssvu::lo("FPSWatcher::watch") << "Slowdown " << lostFrames << "/"
-                                          << maxLostFrames << "\n";
-        }
+    }
+    void loseFrame()
+    {
+        if(lostFrames > maxLostFrames) return;
+        ++lostFrames;
+        ssvu::lo("FPSWatcher::watch")
+            << "Slowdown " << lostFrames << "/" << maxLostFrames << "\n";
+    }
 
-    public:
-        FPSWatcher(ssvs::GameWindow& mGameWindow) noexcept
-            : gameWindow(mGameWindow)
-        {
-        }
-        ~FPSWatcher() noexcept
-        {
-            running = false;
-        }
+public:
+    FPSWatcher(ssvs::GameWindow& mGameWindow) noexcept : gameWindow(mGameWindow)
+    {
+    }
+    ~FPSWatcher() noexcept
+    {
+        running = false;
+    }
 
-        inline bool isLimitReached() const noexcept
-        {
-            return lostFrames >= maxLostFrames;
-        }
-        inline void reset() noexcept
-        {
-            lostFrames = 0;
-            disabled = true;
-            check = false;
-        }
-        inline void update() noexcept
-        {
-            check = true;
-        }
-        inline void enable() noexcept
-        {
-            disabled = false;
-        }
-        inline void disable() noexcept
-        {
-            disabled = true;
-        }
-    };
-}
+    bool isLimitReached() const noexcept
+    {
+        return lostFrames >= maxLostFrames;
+    }
+    void reset() noexcept
+    {
+        lostFrames = 0;
+        disabled = true;
+        check = false;
+    }
+    void update() noexcept
+    {
+        check = true;
+    }
+    void enable() noexcept
+    {
+        disabled = false;
+    }
+    void disable() noexcept
+    {
+        disabled = true;
+    }
+};
 
-#endif
+} // namespace hg
