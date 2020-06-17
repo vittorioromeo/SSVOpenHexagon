@@ -88,6 +88,8 @@ include_directories("./${INC_DIR}")
 
 file(GLOB_RECURSE SRC_LIST "${INC_DIR}/*" "${SRC_DIR}/*")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS true)
+
 vrm_cmake_add_common_compiler_flags()
 
 vrm_cmake_find_extlib(vrm_pp)

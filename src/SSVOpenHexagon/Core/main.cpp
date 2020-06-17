@@ -29,13 +29,6 @@ void createProfilesFolder()
 
 int main(int argc, char* argv[])
 {
-#define LOSIZ(x) ssvu::lo(#x) << sizeof(x) << std::endl
-
-    // LOSIZ(Online::GlobalThreadManager);
-    // LOSIZ(HGAssets);
-    // LOSIZ(Online::OHServer);
-    // LOSIZ(GameWindow);
-
     Online::GlobalThreadManager gtm;
     Online::setCurrentGtm(gtm);
 
