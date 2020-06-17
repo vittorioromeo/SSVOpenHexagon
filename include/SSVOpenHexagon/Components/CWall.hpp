@@ -13,7 +13,11 @@ class HexagonGame;
 
 struct SpeedData
 {
-    float speed, accel, min, max;
+    float speed;
+    float accel;
+    float min;
+    float max;
+
     bool pingPong;
 
     SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f,
@@ -54,10 +58,18 @@ class CWall final
 {
 private:
     HexagonGame* hexagonGame;
+
     Vec2f centerPos;
+
     std::array<Vec2f, 4> vertexPositions;
-    SpeedData speed, curve;
-    float distance{0}, thickness{0}, hueMod{0};
+
+    SpeedData speed;
+    SpeedData curve;
+
+    float distance{0};
+    float thickness{0};
+    float hueMod{0};
+
     int side{0};
 
 public:

@@ -4,18 +4,16 @@
 
 #pragma once
 
+#include <string>
+
 namespace hg
 {
 
-
 struct PackData
 {
-    std::string id, name;
+    std::string id;
+    std::string name;
     float priority;
-    PackData(const std::string& mId, const std::string& mName, float mPriority)
-        : id{mId}, name{mName}, priority{mPriority}
-    {
-    }
 };
 
 } // namespace hg

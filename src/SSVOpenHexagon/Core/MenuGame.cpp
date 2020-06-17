@@ -958,7 +958,7 @@ void MenuGame::drawLevelSelection()
 {
     MusicData musicData{assets.getMusicData(levelData->musicId)};
     const auto& packPathStr(levelData->packPath.getStr());
-    PackData packData{
+    const PackData& packData{
         assets.getPackData(packPathStr.substr(6, packPathStr.size() - 7))};
     const string& packName{packData.name};
 

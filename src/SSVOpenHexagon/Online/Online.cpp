@@ -422,9 +422,8 @@ void initializeValidators(HGAssets& mAssets)
             << "Adding (" << p.first << ") validator\n";
 
         const auto& l(p.second);
-        const auto& validator(getValidator(l->packPath, l->id,
-            l->getRootString(), mAssets.getStyleData(l->styleId).getRootPath(),
-            l->luaScriptPath));
+        const auto& validator(getValidator(l.packPath, l.id, l.getRootString(),
+            mAssets.getStyleData(l.styleId).getRootPath(), l.luaScriptPath));
         validators.addValidator(p.first, validator);
 
         HG_LO_VERBOSE("hg::Online::initializeValidators")
@@ -439,6 +438,7 @@ const sf::IpAddress& getCurrentIpAddress()
 {
     return Config::getServerLocal() ? localIp : hostIp;
 }
+
 unsigned short getCurrentPort()
 {
     return Config::getServerLocal() ? localPort : hostPort;

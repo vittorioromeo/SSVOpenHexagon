@@ -24,7 +24,11 @@ private:
     }
 
 public:
-    std::string id, fileName, name, album, author;
+    std::string id;
+    std::string fileName;
+    std::string name;
+    std::string album;
+    std::string author;
     bool firstPlay{true};
 
     MusicData() = default;
@@ -65,6 +69,7 @@ public:
         {
             return;
         }
+
         mAssets.playMusic(id, sf::seconds(mSeconds));
     }
 };

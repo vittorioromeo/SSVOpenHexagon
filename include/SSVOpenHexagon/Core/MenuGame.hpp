@@ -101,10 +101,12 @@ private:
     void drawOptions();
     void drawWelcome();
     void drawMenu(const ssvms::Menu& mMenu);
+
     void render(sf::Drawable& mDrawable)
     {
         window.draw(mDrawable);
     }
+
     sf::Text& renderTextImpl(
         const std::string& mStr, sf::Text& mText, const Vec2f& mPosition)
     {
@@ -117,6 +119,7 @@ private:
         render(mText);
         return mText;
     }
+
     sf::Text& renderTextImpl(const std::string& mStr, sf::Text& mText,
         const Vec2f& mPosition, unsigned int mSize)
     {
@@ -126,36 +129,42 @@ private:
         mText.setCharacterSize(originalSize);
         return mText;
     }
+
     const sf::Color& getTextColor() const
     {
         return (state != States::SMain || Config::getBlackAndWhite())
                    ? sf::Color::White
                    : styleData.getMainColor();
     }
+
     sf::Text& renderText(
         const std::string& mStr, sf::Text& mText, const Vec2f& mPos)
     {
         mText.setFillColor(getTextColor());
         return renderTextImpl(mStr, mText, mPos);
     }
+
     sf::Text& renderText(const std::string& mStr, sf::Text& mText,
         const Vec2f& mPos, unsigned int mSize)
     {
         mText.setFillColor(getTextColor());
         return renderTextImpl(mStr, mText, mPos, mSize);
     }
+
     sf::Text& renderText(const std::string& mStr, sf::Text& mText,
         const Vec2f& mPos, const sf::Color& mColor)
     {
         mText.setFillColor(mColor);
         return renderTextImpl(mStr, mText, mPos);
     }
+
     sf::Text& renderText(const std::string& mStr, sf::Text& mText,
         const Vec2f& mPos, const sf::Color& mColor, unsigned int mSize)
     {
         mText.setFillColor(mColor);
         return renderTextImpl(mStr, mText, mPos, mSize);
     }
+
     void setIndex(int mIdx);
     void updateLeaderboard();
     void updateFriends();
@@ -167,6 +176,7 @@ private:
                state == States::ETEmail || state == States::ETLPNew ||
                state == States::ETFriend;
     }
+
     ssvms::Menu* getCurrentMenu() noexcept
     {
         switch(state)
@@ -180,6 +190,7 @@ private:
 #pragma GCC diagnostic pop
         }
     }
+
     bool isInMenu() noexcept
     {
         return getCurrentMenu() != nullptr;
@@ -188,7 +199,9 @@ private:
 public:
     MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame,
         ssvs::GameWindow& mGameWindow);
+
     void init();
+
     ssvs::GameState& getGame() noexcept
     {
         return game;
