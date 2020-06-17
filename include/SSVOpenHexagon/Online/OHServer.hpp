@@ -73,16 +73,20 @@ public:
 
         auto& ss(sortedScores[mDiffMult]);
         for(auto itr(std::begin(ss)); itr != std::end(ss); ++itr)
+        {
             if(itr->second == mUsername)
             {
                 ss.erase(itr);
                 break;
             }
+        }
         ss.emplace(mScore, mUsername);
 
         int i{1};
         for(const auto& p : ssvu::asRangeReverse(ss))
+        {
             userPositions[mDiffMult][p.second] = i++;
+        }
     }
 
     bool hasDiffMult(float mDiffMult) const
@@ -107,14 +111,18 @@ public:
     {
         if(scores.count(mDiffMult) == 0 ||
             scores.at(mDiffMult).count(mUsername) == 0)
+        {
             return -1.f;
+        }
         return scores.at(mDiffMult).at(mUsername);
     }
     int getPlayerPosition(const std::string& mUsername, float mDiffMult) const
     {
         if(userPositions.count(mDiffMult) == 0 ||
             userPositions.at(mDiffMult).count(mUsername) == 0)
+        {
             return -1;
+        }
         return userPositions.at(mDiffMult).at(mUsername);
     }
 };
@@ -188,9 +196,11 @@ struct Converter<hg::Online::LevelScoreDB>
         for(auto itr(std::begin(mObj)); itr != std::end(mObj); ++itr)
         {
             for(auto i(0u); i < getObjSize(*itr); ++i)
+            {
                 mValue.addScore(ssvu::sToFloat(getKey(itr)),
                     getExtr<std::string>((*itr)[i], 0),
                     getExtr<float>((*itr)[i], 1));
+            }
         }
     }
     static void toObj(Obj& mObj, const T& mValue)
@@ -219,10 +229,11 @@ private:
     ssvu::Bimap<std::string, unsigned int> logins;
 
 public:
-    bool isLoggedIn(const std::string& mUsername) const
+    [[nodiscard]] bool isLoggedIn(const std::string& mUsername) const
     {
         return logins.has(mUsername);
     }
+
     void acceptLogin(unsigned int mUid, const std::string& mUsername)
     {
         logins.emplace(mUsername, mUid);
@@ -230,17 +241,27 @@ public:
 
     void forceLogout(unsigned int mUid)
     {
-        if(logins.has(mUid)) logins.erase(mUid);
-    }
-    void logout(const std::string& mUsername)
-    {
-        if(logins.has(mUsername)) logins.erase(mUsername);
+        if(logins.has(mUid))
+        {
+            logins.erase(mUid);
+        }
     }
 
-    std::vector<std::string> getLoggedUsernames() const
+    void logout(const std::string& mUsername)
+    {
+        if(logins.has(mUsername))
+        {
+            logins.erase(mUsername);
+        }
+    }
+
+    [[nodiscard]] std::vector<std::string> getLoggedUsernames() const
     {
         std::vector<std::string> result;
-        for(const auto& p : logins) result.emplace_back(p->first);
+        for(const auto& p : logins)
+        {
+            result.emplace_back(p->first);
+        }
         return result;
     }
 };
@@ -288,12 +309,15 @@ struct OHServer
             mCH.onDisconnect +=
                 [this, &mCH] { loginDB.forceLogout(mCH.getUid()); };
         };
-        pHandler[FromClient::Ping] = [](ClientHandler&, sf::Packet&) {};
+        pHandler[FromClient::Ping] = [](ClientHandler& /*unused*/,
+                                         sf::Packet& /*unused*/) {};
         pHandler[FromClient::Login] = [this](
                                           ClientHandler& mMS, sf::Packet& mP) {
             bool newUserRegistration{false};
 
-            std::string username, password, passwordHash;
+            std::string username;
+            std::string password;
+            std::string passwordHash;
             ssvuj::extrArray(
                 getDecompressedPacket(mP), username, password, passwordHash);
 
@@ -337,7 +361,7 @@ struct OHServer
                 newUserRegistration));
         };
         pHandler[FromClient::RequestInfo] = [](ClientHandler& mMS,
-                                                sf::Packet&) {
+                                                sf::Packet& /*unused*/) {
             float version{2.f};
             std::string message{"Welcome to Open Hexagon 2.0!"};
             mMS.send(buildCPacket<FromServer::RequestInfoResponse>(
@@ -345,8 +369,11 @@ struct OHServer
         };
         pHandler[FromClient::SendScore] = [this](ClientHandler& mMS,
                                               sf::Packet& mP) {
-            std::string username, levelId, validator;
-            float diffMult, score;
+            std::string username;
+            std::string levelId;
+            std::string validator;
+            float diffMult;
+            float score;
             ssvuj::extrArray(getDecompressedPacket(mP), username, levelId,
                 validator, diffMult, score);
 
@@ -385,7 +412,9 @@ struct OHServer
         };
         pHandler[FromClient::RequestLeaderboard] = [this](ClientHandler& mMS,
                                                        sf::Packet& mP) {
-            std::string username, levelId, validator;
+            std::string username;
+            std::string levelId;
+            std::string validator;
             float diffMult;
             ssvuj::extrArray(getDecompressedPacket(mP), username, levelId,
                 validator, diffMult);
@@ -439,7 +468,9 @@ struct OHServer
                 ++i;
                 if(i > ssvu::getClamped(8u, 0u,
                            ssvu::toNum<unsigned int>(sortedScores.size())))
+                {
                     break;
+                }
             }
             ssvuj::arch(response, "id", levelId);
 
@@ -456,7 +487,8 @@ struct OHServer
                                               sf::Packet& mP) {
             ssvu::lo("PacketHandler") << "Received email packet\n";
             HG_LO_VERBOSE("PacketHandler") << "Received email packet\n";
-            std::string username, email;
+            std::string username;
+            std::string email;
             ssvuj::extrArray(getDecompressedPacket(mP), username, email);
 
             users.setEmail(username, email);
@@ -478,50 +510,60 @@ struct OHServer
 
 
         // User statistics
-        pHandler[FromClient::US_Death] = [this](
-                                             ClientHandler&, sf::Packet& mP) {
+        pHandler[FromClient::US_Death] = [this](ClientHandler& /*unused*/,
+                                             sf::Packet& mP) {
             getUserFromPacket(mP).stats.deaths += 1;
             modifiedUsers = true;
         };
-        pHandler[FromClient::US_Restart] = [this](
-                                               ClientHandler&, sf::Packet& mP) {
+        pHandler[FromClient::US_Restart] = [this](ClientHandler& /*unused*/,
+                                               sf::Packet& mP) {
             getUserFromPacket(mP).stats.restarts += 1;
             modifiedUsers = true;
         };
-        pHandler[FromClient::US_MinutePlayed] = [this](ClientHandler&,
-                                                    sf::Packet& mP) {
-            getUserFromPacket(mP).stats.minutesSpentPlaying += 1;
-            modifiedUsers = true;
-        };
-        pHandler[FromClient::US_ClearFriends] = [this](ClientHandler&,
-                                                    sf::Packet& mP) {
-            getUserFromPacket(mP).stats.trackedNames.clear();
-            modifiedUsers = true;
-        };
+        pHandler[FromClient::US_MinutePlayed] =
+            [this](ClientHandler& /*unused*/, sf::Packet& mP) {
+                getUserFromPacket(mP).stats.minutesSpentPlaying += 1;
+                modifiedUsers = true;
+            };
+        pHandler[FromClient::US_ClearFriends] =
+            [this](ClientHandler& /*unused*/, sf::Packet& mP) {
+                getUserFromPacket(mP).stats.trackedNames.clear();
+                modifiedUsers = true;
+            };
 
-        pHandler[FromClient::US_AddFriend] = [this](ClientHandler&,
+        pHandler[FromClient::US_AddFriend] = [this](ClientHandler& /*unused*/,
                                                  sf::Packet& mP) {
-            std::string username, friendUsername;
+            std::string username;
+            std::string friendUsername;
             ssvuj::extrArray(
                 getDecompressedPacket(mP), username, friendUsername);
 
             if(username == friendUsername || !users.hasUser(friendUsername))
+            {
                 return;
+            }
 
             auto& tn(users.getUser(username).stats.trackedNames);
-            if(ssvu::contains(tn, friendUsername)) return;
+            if(ssvu::contains(tn, friendUsername))
+            {
+                return;
+            }
             tn.emplace_back(friendUsername);
             modifiedUsers = true;
         };
 
         pHandler[FromClient::RequestFriendsScores] = [this](ClientHandler& mMS,
                                                          sf::Packet& mP) {
-            std::string username, levelId;
+            std::string username;
+            std::string levelId;
             float diffMult;
             ssvuj::extrArray(
                 getDecompressedPacket(mP), username, levelId, diffMult);
 
-            if(!scores.hasLevel(levelId)) return;
+            if(!scores.hasLevel(levelId))
+            {
+                return;
+            }
             const auto& l(scores.getLevel(levelId));
 
             ssvuj::Obj response;
@@ -529,7 +571,10 @@ struct OHServer
             for(const auto& n : users.getUser(username).stats.trackedNames)
             {
                 const auto& score(l.getPlayerScore(n, diffMult));
-                if(score == -1.f) continue;
+                if(score == -1.f)
+                {
+                    continue;
+                }
                 ssvuj::arch(response[n], 0, score);
                 ssvuj::arch(response[n], 1, l.getPlayerPosition(n, diffMult));
             }
@@ -542,7 +587,10 @@ struct OHServer
                                            ClientHandler& mMS, sf::Packet& mP) {
             std::string username{
                 ssvuj::getExtr<std::string>(getDecompressedPacket(mP), 0)};
-            if(!loginDB.isLoggedIn(username)) return;
+            if(!loginDB.isLoggedIn(username))
+            {
+                return;
+            }
             loginDB.logout(username);
             HG_LO_VERBOSE("PacketHandler") << username << " logged out\n";
             mMS.send(buildCPacket<FromServer::SendLogoutValid>());
@@ -583,7 +631,9 @@ struct OHServer
                 try
                 {
                     if(std::getline(std::cin, input))
+                    {
                         ctx.process(ssvu::getSplit(input, ' '));
+                    }
                 }
                 catch(const ssvucl::Exception::Base& mEx)
                 {
@@ -640,7 +690,7 @@ struct OHServer
             arg.setName("Enable verbosity?");
             arg.setBriefDesc("Controls whether verbosity is enabled or not.");
 
-            cmd += [this, &arg] {
+            cmd += [&arg] {
                 Config::setServerVerbose(arg.get());
                 ssvu::lo("Verbose mode")
                     << (Config::getServerVerbose() ? "on" : "off") << "\n";
@@ -660,12 +710,16 @@ struct OHServer
                 if(arg.get() == "users")
                 {
                     for(const auto& u : users.getUsers())
+                    {
                         ssvu::lo() << u.first << "\n";
+                    }
                 }
                 else if(arg.get() == "logins")
                 {
                     for(const auto& l : loginDB.getLoggedUsernames())
+                    {
                         ssvu::lo() << l << "\n";
+                    }
                 }
 
                 ssvu::lo().flush();
@@ -673,7 +727,7 @@ struct OHServer
         }
     }
 
-    std::string getBriefHelp(const ssvucl::Cmd& mCmd)
+    static std::string getBriefHelp(const ssvucl::Cmd& mCmd)
     {
         using namespace ssvucl;
         return mCmd.getNamesStr() + " " + mCmd.getStr<EType::Arg>() + " " +
@@ -698,8 +752,10 @@ struct OHServer
             {
                 ssvu::lo("Open Hexagon server help") << "\n\n";
                 for(const auto& c : ctx.getCmds())
+                {
                     ssvu::lo() << getBriefHelp(*c) << "\n"
                                << (flagVerbose ? c->getHelpStr() : "") << "\n";
+                }
             }
             else
             {
