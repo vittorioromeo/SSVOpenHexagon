@@ -15,6 +15,7 @@ using namespace hg::Utils;
 
 namespace hg
 {
+
 void HexagonGame::update(FT mFT)
 {
     updateText();
