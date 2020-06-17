@@ -12,14 +12,15 @@ using namespace ssvs;
 
 namespace hg
 {
+
 CWall::CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide,
     float mThickness, float mDistance, const SpeedData& mSpeed,
     const SpeedData& mCurve)
     : hexagonGame(&mHexagonGame), centerPos{mCenterPos}, speed{mSpeed},
       curve{mCurve}, distance{mDistance}, thickness{mThickness}, side{mSide}
 {
-    const float div{ssvu::tau / hexagonGame->getSides() * 0.5f},
-        angle{div * 2.f * side};
+    const float div{ssvu::tau / hexagonGame->getSides() * 0.5f};
+    const float angle{div * 2.f * side};
 
     vertexPositions[0] = getOrbitRad(centerPos, angle - div, distance);
     vertexPositions[1] = getOrbitRad(centerPos, angle + div, distance);
@@ -34,10 +35,15 @@ CWall::CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide,
 void CWall::draw()
 {
     auto colorMain(hexagonGame->getColorMain());
-    if(hueMod != 0) colorMain = Utils::transformHue(colorMain, hueMod);
+    if(hueMod != 0)
+    {
+        colorMain = Utils::transformHue(colorMain, hueMod);
+    }
 
     for(auto i(0u); i < 4; ++i)
+    {
         hexagonGame->wallQuads.emplace_back(vertexPositions[i], colorMain);
+    }
 }
 
 void CWall::update(FT mFT)
@@ -52,7 +58,9 @@ void CWall::update(FT mFT)
     {
         if(std::abs(vp.x - centerPos.x) < radius &&
             std::abs(vp.y - centerPos.y) < radius)
+        {
             ++pointsOnCenter;
+        }
         else
         {
             moveTowards(vp, centerPos, speed.speed * 5.f * mFT);
@@ -60,6 +68,10 @@ void CWall::update(FT mFT)
         }
     }
 
-    if(pointsOnCenter > 3) killed = true;
+    if(pointsOnCenter > 3)
+    {
+        killed = true;
+    }
 }
+
 } // namespace hg
