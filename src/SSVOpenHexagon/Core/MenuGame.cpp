@@ -33,7 +33,9 @@ MenuGame::MenuGame(
     game.onDraw += [this] { draw(); };
     game.onEvent(Event::EventType::TextEntered) += [this](const Event& mEvent) {
         if(mEvent.text.unicode < 128)
+        {
             enteredChars.emplace_back(toNum<char>(mEvent.text.unicode));
+        }
     };
     game.onEvent(Event::EventType::MouseWheelMoved) +=
         [this](const Event& mEvent) {
@@ -69,7 +71,9 @@ void MenuGame::initAssets()
     for(const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png",
             "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png",
             "bottomBar.png"})
+    {
         assets.get<Texture>(t).setSmooth(true);
+    }
 }
 
 void MenuGame::initMenus()
@@ -100,16 +104,15 @@ void MenuGame::initMenus()
 
     // Welcome menu
     auto& wlcm(welcomeMenu.createCategory("welcome"));
-    wlcm.create<i::Single>("connect", [this] {
-        Online::tryConnectToServer();
-    }) | whenDisconnected;
+    wlcm.create<i::Single>("connect", [] { Online::tryConnectToServer(); }) |
+        whenDisconnected;
     wlcm.create<i::Single>("login", [this] {
         assets.pSaveCurrent();
         assets.pSetPlayingLocally(false);
         enteredStr = "";
         state = s::ETUser;
     }) | whenConnectedAndUnlogged;
-    wlcm.create<i::Single>("logout", [this] { Online::logout(); }) |
+    wlcm.create<i::Single>("logout", [] { Online::logout(); }) |
         whenConnectedAndLogged;
     wlcm.create<i::Single>("play locally", [this] {
         assets.pSaveCurrent();
@@ -147,11 +150,15 @@ void MenuGame::initMenus()
         "auto", [this] { Config::setCurrentResolutionAuto(window); });
 
     for(const auto& vm : VideoMode::getFullscreenModes())
+    {
         if(vm.bitsPerPixel == 32)
+        {
             resolution.create<i::Single>(
                 toStr(vm.width) + "x" + toStr(vm.height), [this, &vm] {
                     Config::setCurrentResolution(window, vm.width, vm.height);
                 });
+        }
+    }
 
     resolution.create<i::Single>(
         "go windowed", [this] { Config::setFullscreen(window, false); });
@@ -232,7 +239,7 @@ void MenuGame::initMenus()
         whenMusicEnabled;
     sfx.create<i::Slider>(
         "music speed multiplier", &Config::getMusicSpeedMult,
-        [this](float mValue) { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f,
+        [](float mValue) { Config::setMusicSpeedMult(mValue); }, 0.7f, 1.3f,
         0.05f) |
         whenMusicEnabled;
     sfx.create<i::GoBack>("back");
@@ -407,18 +414,22 @@ void MenuGame::initInput()
     using t = Type;
 
     game.addInput(
-        Config::getTriggerRotateCCW(), [this](FT) { leftAction(); }, t::Once);
+        Config::getTriggerRotateCCW(), [this](FT /*unused*/) { leftAction(); },
+        t::Once);
     game.addInput(
-        Config::getTriggerRotateCW(), [this](FT) { rightAction(); }, t::Once);
+        Config::getTriggerRotateCW(), [this](FT /*unused*/) { rightAction(); },
+        t::Once);
     game.addInput(
-        Config::getTriggerUp(), [this](FT) { upAction(); }, t::Once);
+        Config::getTriggerUp(), [this](FT /*unused*/) { upAction(); }, t::Once);
     game.addInput(
-        Config::getTriggerDown(), [this](FT) { downAction(); }, t::Once);
+        Config::getTriggerDown(), [this](FT /*unused*/) { downAction(); },
+        t::Once);
     game.addInput(
-        Config::getTriggerRestart(), [this](FT) { okAction(); }, t::Once);
+        Config::getTriggerRestart(), [this](FT /*unused*/) { okAction(); },
+        t::Once);
     game.addInput(
         {{k::F1}},
-        [this](FT) {
+        [this](FT /*unused*/) {
             assets.playSound("beep.ogg");
             if(!assets.pIsLocal())
             {
@@ -434,9 +445,12 @@ void MenuGame::initInput()
         t::Once);
     game.addInput(
         {{k::F2}, {k::J}},
-        [this](FT) {
+        [this](FT /*unused*/) {
             assets.playSound("beep.ogg");
-            if(state != s::SMain) return;
+            if(state != s::SMain)
+            {
+                return;
+            }
             if(!assets.pIsLocal())
             {
                 state = s::MWlcm;
@@ -448,15 +462,18 @@ void MenuGame::initInput()
         t::Once);
     game.addInput(
         {{k::F3}, {k::K}},
-        [this](FT) {
+        [this](FT /*unused*/) {
             assets.playSound("beep.ogg");
-            if(state != s::SMain) return;
+            if(state != s::SMain)
+            {
+                return;
+            }
             state = s::MOpts;
         },
         t::Once);
     game.addInput(
         {{k::F4}, {k::L}},
-        [this](FT) {
+        [this](FT /*unused*/) {
             assets.playSound("beep.ogg");
             if(state == s::SMain)
             {
@@ -469,34 +486,43 @@ void MenuGame::initInput()
         t::Once);
     game.addInput(
         Config::getTriggerExit(),
-        [this](FT) {
+        [this](FT /*unused*/) {
             assets.playSound("beep.ogg");
             bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
                        !assets.pIsLocal()};
             if(isInMenu() && valid)
             {
                 if(getCurrentMenu()->canGoBack())
+                {
                     getCurrentMenu()->goBack();
+                }
                 else
+                {
                     state = s::SMain;
+                }
             }
             else if((state == s::ETFriend || state == s::SLPSelect) && valid)
+            {
                 state = s::SMain;
+            }
         },
         t::Once);
 
     game.addInput(
         Config::getTriggerExit(),
         [this](FT mFT) {
-            if(state != s::MOpts) exitTimer += mFT;
+            if(state != s::MOpts)
+            {
+                exitTimer += mFT;
+            }
         },
-        [this](FT) { exitTimer = 0; });
+        [this](FT /*unused*/) { exitTimer = 0; });
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](FT) { mustTakeScreenshot = true; }, t::Once);
+        [this](FT /*unused*/) { mustTakeScreenshot = true; }, t::Once);
     game.addInput(
             {{k::LAlt, k::Return}},
-            [this](FT) {
+            [this](FT /*unused*/) {
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
@@ -504,9 +530,11 @@ void MenuGame::initInput()
         .setPriorityUser(-1000);
     game.addInput(
         {{k::BackSpace}},
-        [this](FT) {
+        [this](FT /*unused*/) {
             if(isEnteringText() && !enteredStr.empty())
+            {
                 enteredStr.erase(enteredStr.end() - 1);
+            }
         },
         t::Once);
 }
@@ -554,7 +582,9 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "w_wallHModCurveData", "l_setDelayMult", "l_setMaxInc",
             "s_setStyle", "u_setMusic", "l_getRotation", "l_setRotation",
             "s_getCameraShake", "s_setCameraShake", "l_getOfficial"})
+    {
         mLua.writeVariable(un, [] {});
+    }
 }
 
 void MenuGame::setIndex(int mIdx)
@@ -562,9 +592,13 @@ void MenuGame::setIndex(int mIdx)
     currentIndex = mIdx;
 
     if(currentIndex > ssvu::toInt(levelDataIds.size() - 1))
+    {
         currentIndex = 0;
+    }
     else if(currentIndex < 0)
+    {
         currentIndex = ssvu::toInt(levelDataIds.size()) - 1;
+    }
 
     levelData = &assets.getLevelData(levelDataIds[currentIndex]);
 
@@ -603,7 +637,7 @@ void MenuGame::updateLeaderboard()
     }
 
     auto currentPlayerScore = getExtr<string>(root, "ps");
-    string currentPlayerPosition = getExtr<string>(root, "pp");
+    auto currentPlayerPosition = getExtr<string>(root, "pp");
 
     using RecordPair = pair<string, float>;
     vector<RecordPair> recordPairs;
@@ -620,7 +654,10 @@ void MenuGame::updateLeaderboard()
     bool foundPlayer{false};
     for(auto i(0u); i < recordPairs.size(); ++i)
     {
-        if(recordPairs[i].first != assets.pGetName()) continue;
+        if(recordPairs[i].first != assets.pGetName())
+        {
+            continue;
+        }
         playerPosition = ssvu::toInt(i) + 1;
         foundPlayer = true;
         break;
@@ -629,7 +666,7 @@ void MenuGame::updateLeaderboard()
     string result;
     for(auto i(0u); i < recordPairs.size(); ++i)
     {
-        if(currentPlayerScore != "NULL" && currentPlayerScore != "" &&
+        if(currentPlayerScore != "NULL" && !currentPlayerScore.empty() &&
             !foundPlayer && i == leaderboardRecordCount - 1)
         {
             result.append("...(" + currentPlayerPosition + ") " +
@@ -643,13 +680,18 @@ void MenuGame::updateLeaderboard()
             if(playerPosition == -1 || i < leaderboardRecordCount)
             {
                 auto& recordPair(recordPairs[i]);
-                if(recordPair.first == assets.pGetName()) result.append(" >> ");
+                if(recordPair.first == assets.pGetName())
+                {
+                    result.append(" >> ");
+                }
                 result.append("(" + toStr(i + 1) + ") " + recordPair.first +
                               ": " + toStr(recordPair.second) + "\n");
             }
         }
         else
+        {
             break;
+        }
     }
 
     leaderboardString = result;
@@ -657,7 +699,10 @@ void MenuGame::updateLeaderboard()
 
 void MenuGame::updateFriends()
 {
-    if(state != s::SMain) return;
+    if(state != s::SMain)
+    {
+        return;
+    }
 
     if(assets.pIsLocal())
     {
@@ -676,7 +721,9 @@ void MenuGame::updateFriends()
     {
         friendsString = "";
         for(const auto& n : assets.pGetTrackedNames())
+        {
             friendsString.append("(?)" + n + "\n");
+        }
         return;
     }
 
@@ -684,12 +731,18 @@ void MenuGame::updateFriends()
     vector<ScoreTuple> tuples;
     for(const auto& n : assets.pGetTrackedNames())
     {
-        if(!ssvuj::hasObj(fs, n)) continue;
+        if(!ssvuj::hasObj(fs, n))
+        {
+            continue;
+        }
 
         const auto& score(ssvuj::getExtr<float>(fs[n], 0));
         const auto& pos(ssvuj::getExtr<unsigned int>(fs[n], 1));
 
-        if(pos == 0) continue;
+        if(pos == 0)
+        {
+            continue;
+        }
         tuples.emplace_back(pos, n, score);
     }
 
@@ -698,14 +751,17 @@ void MenuGame::updateFriends()
     });
     friendsString.clear();
     for(const auto& t : tuples)
+    {
         friendsString.append("(" + toStr(std::get<0>(t)) + ") " +
                              std::get<1>(t) + ": " + toStr(std::get<2>(t)) +
                              "\n");
+    }
 }
 
 void MenuGame::refreshCamera()
 {
-    float fw{1024.f / Config::getWidth()}, fh{768.f / Config::getHeight()};
+    float fw{1024.f / Config::getWidth()};
+    float fh{768.f / Config::getHeight()};
     float fmax{max(fw, fh)};
     w = Config::getWidth() * fmax;
     h = Config::getHeight() * fmax;
@@ -736,7 +792,10 @@ void MenuGame::refreshCamera()
 
 void MenuGame::update(FT mFT)
 {
-    if(touchDelay > 0.f) touchDelay -= mFT;
+    if(touchDelay > 0.f)
+    {
+        touchDelay -= mFT;
+    }
 
     if(window.getFingerDownCount() == 1)
     {
@@ -779,7 +838,10 @@ void MenuGame::update(FT mFT)
     overlayCamera.update(mFT);
     backgroundCamera.update(mFT);
 
-    if(getCurrentMenu() != nullptr) getCurrentMenu()->update();
+    if(getCurrentMenu() != nullptr)
+    {
+        getCurrentMenu()->update();
+    }
 
     currentCreditsId += mFT;
     creditsBar2.setTexture(assets.get<Texture>(
@@ -787,23 +849,30 @@ void MenuGame::update(FT mFT)
 
     // If connection is lost, kick the player back into welcome screen
     if(!assets.pIsLocal() && Online::getConnectionStatus() != ocs::Connected)
+    {
         state = s::MWlcm;
+    }
 
     updateLeaderboard();
     updateFriends();
 
-    if(exitTimer > 20) window.stop();
+    if(exitTimer > 20)
+    {
+        window.stop();
+    }
 
     if(isEnteringText())
     {
         unsigned int limit{state == s::ETEmail ? 40u : 18u};
         for(const auto& c : enteredChars)
+        {
             if(enteredStr.size() < limit &&
                 (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
             {
                 assets.playSound("beep.ogg");
                 enteredStr.append(toStr(c));
             }
+        }
     }
     else if(state == s::SLPSelect)
     {
@@ -833,7 +902,10 @@ void MenuGame::update(FT mFT)
         }
     }
 
-    if(state == s::ETEmail && !Online::getNewUserReg()) state = s::SMain;
+    if(state == s::ETEmail && !Online::getNewUserReg())
+    {
+        state = s::SMain;
+    }
 
     enteredChars.clear();
 }
@@ -844,7 +916,9 @@ void MenuGame::draw()
 
     backgroundCamera.apply();
     if(state == s::SMain)
+    {
         styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus);
+    }
 
     overlayCamera.apply();
     if(state == s::SMain)
@@ -894,13 +968,21 @@ void MenuGame::drawLevelSelection()
         float serverVersion{Online::getServerVersion()};
 
         if(serverVersion == -1)
+        {
             versionMessage = "error connecting to server";
+        }
         else if(serverVersion == Config::getVersion())
+        {
             versionMessage = "you have the latest version";
+        }
         else if(serverVersion < Config::getVersion())
+        {
             versionMessage = "your version is newer (beta)";
+        }
         else if(serverVersion > Config::getVersion())
+        {
             versionMessage = "update available (" + toStr(serverVersion) + ")";
+        }
         renderText(versionMessage, txtProf, {20, 4}, 13);
 
         Text& profile = renderText("profile: " + assets.pGetName(), txtProf,
@@ -913,7 +995,7 @@ void MenuGame::drawLevelSelection()
         string lbestStr;
         if(assets.pIsLocal())
         {
-            SSVU_ASSERT(diffMults.size() != 0);
+            SSVU_ASSERT(!diffMults.empty());
             lbestStr =
                 "local best: " +
                 toStr(assets.getLocalScore(getLocalValidator(
@@ -929,9 +1011,11 @@ void MenuGame::drawLevelSelection()
         Text& lbest = renderText(
             lbestStr, txtProf, {20.f, getGlobalBottom(pack) - 7.f}, 18);
         if(diffMults.size() > 1)
+        {
             renderText("difficulty: " +
                            toStr(ssvu::getByModIdx(diffMults, diffMultIdx)),
                 txtProf, {20.f, getGlobalBottom(lbest) - 7.f}, 18);
+        }
 
         renderText(
             leaderboardString, txtProf, {20.f, getGlobalBottom(lbest)}, 15);
@@ -942,9 +1026,11 @@ void MenuGame::drawLevelSelection()
             {w - 20.f, getGlobalBottom(titleBar) + 8}, 18);
 
         if(!Config::isEligibleForScore())
+        {
             renderText(
                 "not eligible for scoring: " + Config::getUneligibilityReason(),
                 txtProf, {20.f, getGlobalTop(smsg) - 20.f}, 11);
+        }
 
         if(!assets.pIsLocal() && Online::getLoginStatus() == ols::Logged)
         {
@@ -958,7 +1044,9 @@ void MenuGame::drawLevelSelection()
         }
     }
     else
+    {
         renderText("online disabled", txtProf, {20, 0}, 13);
+    }
 
     Text& lname = renderText(levelData->name, txtLName, {20.f, h / 2.f});
     Text& ldesc = renderText(
@@ -975,7 +1063,10 @@ void MenuGame::drawLevelSelection()
     string packNames{"Installed packs:\n"};
     for(const auto& n : assets.getPackIds())
     {
-        if(packData.id == n) packNames += ">>> ";
+        if(packData.id == n)
+        {
+            packNames += ">>> ";
+        }
         packNames.append(n + "\n");
     }
     txtPacks.setString(packNames);
@@ -1006,7 +1097,10 @@ void MenuGame::drawEnteringText()
 }
 void MenuGame::drawProfileSelection()
 {
-    if(!assets.pIsLocal()) throw;
+    if(!assets.pIsLocal())
+    {
+        throw;
+    }
     renderText("local profile selection", txtProf, {20, 768 - 395});
     renderText("press left/right to browse profiles", txtProf, {20, 768 - 375});
     renderText("press enter to select profile", txtProf, {20, 768 - 355});
@@ -1019,8 +1113,9 @@ void MenuGame::drawMenu(const Menu& mMenu)
     renderText(mMenu.getCategory().getName(), txtLDesc,
         {20.f, getGlobalBottom(titleBar)});
 
-    float currentX{0.f}, currentY{0.f};
-    auto& currentItems(mMenu.getItems());
+    float currentX{0.f};
+    float currentY{0.f};
+    const auto& currentItems(mMenu.getItems());
     for(int i{0}; i < ssvu::toInt(currentItems.size()); ++i)
     {
         currentY += 19;
@@ -1029,12 +1124,19 @@ void MenuGame::drawMenu(const Menu& mMenu)
             currentY = 0;
             currentX += 180;
         }
-        string name, itemName{currentItems[i]->getName()};
-        if(i == mMenu.getIdx()) name.append(">> ");
+        string name;
+        string itemName{currentItems[i]->getName()};
+        if(i == mMenu.getIdx())
+        {
+            name.append(">> ");
+        }
         name.append(itemName);
 
         int extraSpacing{0};
-        if(itemName == "back") extraSpacing = 20;
+        if(itemName == "back")
+        {
+            extraSpacing = 20;
+        }
         renderText(name, txtProf,
             {20.f + currentX,
                 getGlobalBottom(titleBar) + 20.f + currentY + extraSpacing},
@@ -1048,15 +1150,21 @@ void MenuGame::drawOptions()
     drawMenu(optionsMenu);
 
     if(Config::getOfficial())
+    {
         renderText("official mode on - some options cannot be changed", txtProf,
             {20, h - 30.f});
+    }
     else
+    {
         renderText("official mode off - not eligible for scoring", txtProf,
             {20, h - 30.f});
+    }
 
     if(assets.pIsLocal())
+    {
         renderText("local mode on - some options cannot be changed", txtProf,
             {20, h - 60.f});
+    }
 }
 
 void MenuGame::drawWelcome()
