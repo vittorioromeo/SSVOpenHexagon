@@ -2,8 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef SSVUJ_OH_UTILS_BASICCONVERTERS
-#define SSVUJ_OH_UTILS_BASICCONVERTERS
+#pragma once
 
 /// @macro Class mixin that allows SSVUJ converters to access the current
 /// class's private members.
@@ -20,119 +19,142 @@
 #define SSVUJ_CNV_SIMPLE(mType, mObjName, mValueName)                       \
     struct Converter<mType> final : ssvuj::Impl::ConverterSimpleImpl<mType> \
     {                                                                       \
-    template <typename TObj, typename TValue>                               \
-    inline static void impl(TObj mObjName, TValue mValueName)
+        template <typename TObj, typename TValue>                           \
+        static void impl(TObj mObjName, TValue mValueName)
 
 /// @macro End macro, required after defining a simple converter.
 #define SSVUJ_CNV_SIMPLE_END() }
 
 namespace ssvuj
 {
-    // Convert enums
-    template <typename T>
-    struct Converter
+// Convert enums
+template <typename T>
+struct Converter
+{
+    inline static void fromObj(const Obj& mObj, T& mValue,
+        ssvu::EnableIf<ssvu::isEnum<T>()>* = nullptr)
     {
-        inline static void fromObj(const Obj& mObj, T& mValue,
-            ssvu::EnableIf<ssvu::isEnum<T>()>* = nullptr)
-        {
-            mValue = T(getExtr<ssvu::Underlying<T>>(mObj));
-        }
-        inline static void toObj(Obj& mObj, const T& mValue,
-            ssvu::EnableIf<ssvu::isEnum<T>()>* = nullptr)
-        {
-            arch<ssvu::Underlying<T>>(mObj, ssvu::Underlying<T>(mValue));
-        }
-    };
-
-    namespace Impl
-    {
-        template <typename T>
-        struct ConverterSimpleImpl
-        {
-            inline static void fromObj(const Obj& mObjName, T& mValueName)
-            {
-                Converter<T>::template impl<const Obj&, T&>(
-                    mObjName, mValueName);
-            }
-            inline static void toObj(Obj& mObjName, const T& mValueName)
-            {
-                Converter<T>::template impl<Obj&, const T&>(
-                    mObjName, mValueName);
-            }
-        };
-
-        template <typename T>
-        struct ConverterBaseImpl
-        {
-            inline static void toObj(Obj& mObj, const T& mValue)
-            {
-                mObj = mValue;
-            }
-        };
-
-        template <SizeT I, typename TTpl>
-        using TplArg = ssvu::TplElem<I, ssvu::RmConst<ssvu::RmRef<TTpl>>>;
-
-        template <SizeT I = 0, typename... TArgs>
-        inline ssvu::EnableIf<I == sizeof...(TArgs)> toTpl(
-            const Obj&, ssvu::Tpl<TArgs...>&)
-        {
-        }
-        template <SizeT I = 0, typename... TArgs>
-            inline ssvu::EnableIf < I<sizeof...(TArgs)> toTpl(const Obj& mObj,
-                                        ssvu::Tpl<TArgs...>& mTpl)
-        {
-            Converter<TplArg<I, decltype(mTpl)>>::fromObj(
-                mObj[Idx(I)], std::get<I>(mTpl));
-            toTpl<I + 1, TArgs...>(mObj, mTpl);
-        }
-
-        template <SizeT I = 0, typename... TArgs>
-        inline ssvu::EnableIf<I == sizeof...(TArgs)> fromTpl(
-            Obj&, const ssvu::Tpl<TArgs...>&)
-        {
-        }
-        template <SizeT I = 0, typename... TArgs>
-            inline ssvu::EnableIf < I<sizeof...(TArgs)> fromTpl(Obj& mObj,
-                                        const ssvu::Tpl<TArgs...>& mTpl)
-        {
-            Converter<TplArg<I, decltype(mTpl)>>::toObj(
-                mObj[Idx(I)], std::get<I>(mTpl));
-            fromTpl<I + 1, TArgs...>(mObj, mTpl);
-        }
+        mValue = T(getExtr<ssvu::Underlying<T>>(mObj));
     }
+    inline static void toObj(Obj& mObj, const T& mValue,
+        ssvu::EnableIf<ssvu::isEnum<T>()>* = nullptr)
+    {
+        arch<ssvu::Underlying<T>>(mObj, ssvu::Underlying<T>(mValue));
+    }
+};
+
+namespace Impl
+{
+template <typename T>
+struct ConverterSimpleImpl
+{
+    inline static void fromObj(const Obj& mObjName, T& mValueName)
+    {
+        Converter<T>::template impl<const Obj&, T&>(mObjName, mValueName);
+    }
+    inline static void toObj(Obj& mObjName, const T& mValueName)
+    {
+        Converter<T>::template impl<Obj&, const T&>(mObjName, mValueName);
+    }
+};
+
+template <typename T>
+struct ConverterBaseImpl
+{
+    inline static void toObj(Obj& mObj, const T& mValue)
+    {
+        mObj = mValue;
+    }
+};
+
+template <SizeT I, typename TTpl>
+using TplArg = ssvu::TplElem<I, ssvu::RmConst<ssvu::RmRef<TTpl>>>;
+
+template <SizeT I = 0, typename... TArgs>
+ssvu::EnableIf<I == sizeof...(TArgs)> toTpl(const Obj&, ssvu::Tpl<TArgs...>&)
+{
+}
+template <SizeT I = 0, typename... TArgs>
+    ssvu::EnableIf <
+    I<sizeof...(TArgs)> toTpl(const Obj& mObj, ssvu::Tpl<TArgs...>& mTpl)
+{
+    Converter<TplArg<I, decltype(mTpl)>>::fromObj(
+        mObj[Idx(I)], std::get<I>(mTpl));
+    toTpl<I + 1, TArgs...>(mObj, mTpl);
+}
+
+template <SizeT I = 0, typename... TArgs>
+ssvu::EnableIf<I == sizeof...(TArgs)> fromTpl(Obj&, const ssvu::Tpl<TArgs...>&)
+{
+}
+template <SizeT I = 0, typename... TArgs>
+    ssvu::EnableIf <
+    I<sizeof...(TArgs)> fromTpl(Obj& mObj, const ssvu::Tpl<TArgs...>& mTpl)
+{
+    Converter<TplArg<I, decltype(mTpl)>>::toObj(
+        mObj[Idx(I)], std::get<I>(mTpl));
+    fromTpl<I + 1, TArgs...>(mObj, mTpl);
+}
+} // namespace Impl
 
 #define SSVUJ_IMPL_CNV_BASE(mType)                                        \
     template <>                                                           \
     struct Converter<mType> final : ssvuj::Impl::ConverterBaseImpl<mType> \
     {                                                                     \
         using T = mType;                                                  \
-    inline static void fromObj(const Obj& mObj, T& mValue)
+        inline static void fromObj(const Obj& mObj, T& mValue)
 
-    SSVUJ_IMPL_CNV_BASE(Obj) { mValue = mObj; }
-};
-SSVUJ_IMPL_CNV_BASE(char) { mValue = T(mObj.asInt()); }
+SSVUJ_IMPL_CNV_BASE(Obj)
+{
+    mValue = mObj;
+}
+}; // namespace ssvuj
+SSVUJ_IMPL_CNV_BASE(char)
+{
+    mValue = T(mObj.asInt());
+}
 }
 ;
-SSVUJ_IMPL_CNV_BASE(unsigned char) { mValue = T(mObj.asInt()); }
+SSVUJ_IMPL_CNV_BASE(unsigned char)
+{
+    mValue = T(mObj.asInt());
+}
 }
 ;
-SSVUJ_IMPL_CNV_BASE(int) { mValue = mObj.asInt(); }
+SSVUJ_IMPL_CNV_BASE(int)
+{
+    mValue = mObj.asInt();
+}
 }
 ;
-SSVUJ_IMPL_CNV_BASE(float) { mValue = mObj.asFloat(); }
+SSVUJ_IMPL_CNV_BASE(float)
+{
+    mValue = mObj.asFloat();
+}
 }
 ;
-SSVUJ_IMPL_CNV_BASE(double) { mValue = mObj.asDouble(); }
+SSVUJ_IMPL_CNV_BASE(double)
+{
+    mValue = mObj.asDouble();
+}
 }
 ;
-SSVUJ_IMPL_CNV_BASE(bool) { mValue = mObj.asBool(); }
+SSVUJ_IMPL_CNV_BASE(bool)
+{
+    mValue = mObj.asBool();
+}
 }
 ;
-SSVUJ_IMPL_CNV_BASE(std::string) { mValue = mObj.asString(); }
+SSVUJ_IMPL_CNV_BASE(std::string)
+{
+    mValue = mObj.asString();
+}
 }
 ;
-SSVUJ_IMPL_CNV_BASE(const char*) { mValue = mObj.asCString(); }
+SSVUJ_IMPL_CNV_BASE(const char*)
+{
+    mValue = mObj.asCString();
+}
 }
 ;
 
@@ -192,7 +214,7 @@ struct Converter<std::vector<TItem, TAlloc>>
         for(auto i(0u); i < mValue.size(); ++i) arch(mObj, i, mValue[i]);
     }
 };
-template <typename TKey, typename TValue,typename TComp, typename TAlloc>
+template <typename TKey, typename TValue, typename TComp, typename TAlloc>
 struct Converter<std::map<TKey, TValue, TComp, TAlloc>>
 {
     using T = std::map<TKey, TValue, TComp, TAlloc>;
@@ -211,7 +233,8 @@ struct Converter<std::map<TKey, TValue, TComp, TAlloc>>
             arch<std::pair<TKey, TValue>>(getObj(mObj, idx++), p);
     }
 };
-template <typename TKey, typename TValue, typename THash, typename TKeyEqual, typename TAlloc>
+template <typename TKey, typename TValue, typename THash, typename TKeyEqual,
+    typename TAlloc>
 struct Converter<std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>>
 {
     using T = std::unordered_map<TKey, TValue, THash, TKeyEqual, TAlloc>;
@@ -275,5 +298,3 @@ struct Converter<TItem[TN]>
     }
 };
 }
-
-#endif

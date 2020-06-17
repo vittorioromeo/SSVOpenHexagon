@@ -2,8 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#ifndef HG_GLOBAL_COMMON
-#define HG_GLOBAL_COMMON
+#pragma once
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
@@ -19,16 +18,15 @@
 
 namespace hg
 {
-    // Typedefs
-    using ssvufs::Path;
-    using ssvs::Vec2;
-    using ssvs::UPtr;
-    using ssvs::Vec2i;
-    using ssvs::Vec2f;
-    using ssvs::Vec2u;
-    using ssvu::FT;
-    using ssvu::Ticker;
-    using ssvu::SizeT;
-}
 
-#endif
+using ssvs::UPtr;
+using ssvs::Vec2;
+using ssvs::Vec2f;
+using ssvs::Vec2i;
+using ssvs::Vec2u;
+using ssvu::FT;
+using ssvu::SizeT;
+using ssvu::Ticker;
+using ssvufs::Path;
+
+} // namespace hg
