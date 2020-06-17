@@ -9,4 +9,3 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/json.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/jsoncpp.inl"
-
