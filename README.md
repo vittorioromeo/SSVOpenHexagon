@@ -8,12 +8,11 @@
 
 3. Run `open_distro_window.bat` from your MinGW installation to open a shell.
 
-4. Clone this repository and initialize it:
+4. Clone this repository with submodules:
 
     ```bash
-    git clone git://github.com/SuperV1234/SSVOpenHexagon.git
+    git clone --recurse-submodules --remote-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
     cd SSVOpenHexagon
-    ./init-repository.sh
     ```
 
 5. Create a build directory and `cd` into it:
@@ -67,12 +66,11 @@
     sudo pacman -S git make cmake gcc sfml
     ```
     
-1. Clone this repository and initialize it:
+1. Clone this repository with submodules:
 
     ```bash
-    git clone git://github.com/SuperV1234/SSVOpenHexagon.git
+    git clone --recurse-submodules --remote-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
     cd SSVOpenHexagon
-    ./init-repository.sh
     ```
 
 2. Create a build directory and `cd` into it:
