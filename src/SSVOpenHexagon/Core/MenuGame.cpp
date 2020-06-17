@@ -909,6 +909,7 @@ void MenuGame::update(FT mFT)
 
     enteredChars.clear();
 }
+
 void MenuGame::draw()
 {
     styleData.computeColors();

@@ -244,7 +244,7 @@ void HexagonGame::drawText()
         text.setFillColor(offsetColor);
         for(const auto& o : txt_offsets)
         {
-            text.setPosition(txt_pos + o);
+            text.setPosition(txt_pos + Vec2f{o.x, o.y});
             render(text);
         }
     }
@@ -252,8 +252,6 @@ void HexagonGame::drawText()
     text.setFillColor(getColorMain());
     text.setPosition(txt_pos);
     render(text);
-
-
 
     if(messageText.getString() == "")
     {
@@ -266,7 +264,8 @@ void HexagonGame::drawText()
         for(const auto& o : txt_offsets)
         {
             messageText.setPosition(
-                Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f} + o);
+                Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f} +
+                Vec2f{o.x, o.y});
             render(messageText);
         }
     }

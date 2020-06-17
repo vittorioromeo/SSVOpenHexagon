@@ -8,7 +8,9 @@
 
 namespace hg
 {
-class LevelStatus;
+
+struct LevelStatus;
+
 class StyleData
 {
 private:

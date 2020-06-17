@@ -15,6 +15,7 @@ using namespace ssvuj;
 
 namespace hg
 {
+
 Color StyleData::calculateColor(const ColorData& mColorData) const
 {
     Color color{mColorData.color};
@@ -110,9 +111,12 @@ void StyleData::update(FT mFT, float mMult)
 void StyleData::computeColors()
 {
     currentMainColor = calculateColor(mainColorData);
+
     current3DOverrideColor =
         _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
+
     currentColors.clear();
+
     for(const auto& cd : colorDatas)
     {
         currentColors.emplace_back(calculateColor(cd));
