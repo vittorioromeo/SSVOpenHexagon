@@ -40,6 +40,10 @@ private:
 public:
     CPlayer(HexagonGame& mHexagonGame, const Vec2f& mStartPos);
 
+    // NOTE: When we refer to playerPosition, we mean the angle of the position around the polygon, not the literal Vector2 position.
+    float getPlayerPosition();
+    void setPlayerPosition(float newPos);
+
     void update(FT mFT);
     void draw();
 };

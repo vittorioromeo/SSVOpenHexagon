@@ -24,6 +24,16 @@ CPlayer::CPlayer(HexagonGame& mHexagonGame, const Vec2f& mStartPos)
 {
 }
 
+float CPlayer::getPlayerPosition()
+{
+    return angle;
+}
+
+void CPlayer::setPlayerPosition(float newPos)
+{
+    angle = newPos;
+}
+
 void CPlayer::draw()
 {
     drawPivot();
