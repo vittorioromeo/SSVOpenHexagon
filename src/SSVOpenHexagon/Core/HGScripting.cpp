@@ -34,11 +34,13 @@ void HexagonGame::initLua_Utils()
     lua.writeVariable("u_isKeyPressed",
         [=](int mKey) { return window.getInputState()[KKey(mKey)]; });
 
+    lua.writeVariable(
+        "u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
+    lua.writeVariable("u_setPlayerAngle",
+        [=](float newAng) { player.setPlayerAngle(newAng); });
+
     lua.writeVariable("u_isMouseButtonPressed",
         [=](int mKey) { return window.getInputState()[MBtn(mKey)]; });
-
-    lua.writeVariable("u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
-    lua.writeVariable("u_setPlayerAngle", [=] (float newAng) {player.setPlayerAngle(newAng); });
 
     lua.writeVariable("u_isFastSpinning", [=] { return status.fastSpin > 0; });
     lua.writeVariable("u_forceIncrement", [=] { incrementDifficulty(); });

@@ -24,7 +24,6 @@ CPlayer::CPlayer(const Vec2f& mStartPos) noexcept
 {
 }
 
-
 float CPlayer::getPlayerAngle()
 {
     return angle;
