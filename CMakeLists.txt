@@ -6,58 +6,58 @@ set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM.cmake")
 set(CPM_DOWNLOAD_VERSION 0.25.1)
 
 if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION} AND CPM_VERSION STREQUAL CPM_DOWNLOAD_VERSION))
-  message(STATUS "Downloading CPM.cmake")
-  file(DOWNLOAD https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake ${CPM_DOWNLOAD_LOCATION})
+    message(STATUS "Downloading CPM.cmake")
+    file(DOWNLOAD https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake ${CPM_DOWNLOAD_LOCATION})
 endif()
 
 include(${CPM_DOWNLOAD_LOCATION})
 # -----------------------------------------------------------------------------
 
 CPMAddPackage(
-  NAME SFML
-  GITHUB_REPOSITORY SFML/SFML
-  VERSION 2.5.1
-  GIT_TAG 2f11710abc5aa478503a7ff3f9e654bd2078ebab
+        NAME SFML
+        GITHUB_REPOSITORY SFML/SFML
+        VERSION 2.5.1
+        GIT_TAG 2f11710abc5aa478503a7ff3f9e654bd2078ebab
 )
 
 # -----------------------------------------------------------------------------
 
 CPMAddPackage(
-  NAME lua
-  GIT_REPOSITORY https://github.com/lua/lua.git
-  VERSION 5.3.5
-  DOWNLOAD_ONLY YES
+        NAME lua
+        GIT_REPOSITORY https://github.com/lua/lua.git
+        VERSION 5.3.5
+        DOWNLOAD_ONLY YES
 )
 
 if (lua_ADDED)
-  # lua has no CMake support, so we create our own target
+    # lua has no CMake support, so we create our own target
 
-  FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
-  add_library(lua STATIC ${lua_sources})
+    FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
+    add_library(lua STATIC ${lua_sources})
 
-  target_include_directories(lua
-    PUBLIC
-      $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
-  )
+    target_include_directories(lua
+            PUBLIC
+            $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
+            )
 endif()
 
 # -----------------------------------------------------------------------------
 
 CPMAddPackage(
-  NAME zlib
-  GITHUB_REPOSITORY madler/zlib
-  VERSION 1.2.11
-  GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f
+        NAME zlib
+        GITHUB_REPOSITORY madler/zlib
+        VERSION 1.2.11
+        GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f
 )
 
 # -----------------------------------------------------------------------------
 
 # Include `vrm_cmake`.
 list(APPEND CMAKE_MODULE_PATH
-    "${CMAKE_SOURCE_DIR}/cmake/"
-    "${CMAKE_SOURCE_DIR}/cmake/modules/"
-    "${CMAKE_SOURCE_DIR}/../vrm_cmake/cmake/"
-    "${CMAKE_SOURCE_DIR}/extlibs/vrm_cmake/cmake/")
+        "${CMAKE_SOURCE_DIR}/cmake/"
+        "${CMAKE_SOURCE_DIR}/cmake/modules/"
+        "${CMAKE_SOURCE_DIR}/../vrm_cmake/cmake/"
+        "${CMAKE_SOURCE_DIR}/extlibs/vrm_cmake/cmake/")
 
 include(vrm_cmake)
 
@@ -75,8 +75,8 @@ string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 set("${PROJECT_NAME_UPPER}_SOURCE_DIR" "${CMAKE_CURRENT_SOURCE_DIR}")
 
 list(APPEND CMAKE_MODULE_PATH
-"${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-"${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 message(STATUS "initialized project ${PROJECT_NAME}")
 
@@ -109,6 +109,9 @@ endif()
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
+#For CLion support includes zlib manualy:
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
 
 set(SFML_LIBRARIES sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 
