@@ -46,11 +46,24 @@ private:
 
 public:
     std::string id;
-    float hueMin, hueMax, hueIncrement, pulseMin, pulseMax, pulseIncrement;
+    float hueMin;
+    float hueMax;
+    float hueIncrement;
+    float pulseMin;
+    float pulseMax;
+    float pulseIncrement;
     bool huePingPong;
-    float maxSwapTime, _3dDepth, _3dSkew, _3dSpacing, _3dDarkenMult,
-        _3dAlphaMult, _3dAlphaFalloff, _3dPulseMax, _3dPulseMin, _3dPulseSpeed,
-        _3dPerspectiveMult;
+    float maxSwapTime;
+    float _3dDepth;
+    float _3dSkew;
+    float _3dSpacing;
+    float _3dDarkenMult;
+    float _3dAlphaMult;
+    float _3dAlphaFalloff;
+    float _3dPulseMax;
+    float _3dPulseMin;
+    float _3dPulseSpeed;
+    float _3dPerspectiveMult;
     sf::Color _3dOverrideColor;
     ColorData mainColorData;
     std::vector<ColorData> colorDatas;
