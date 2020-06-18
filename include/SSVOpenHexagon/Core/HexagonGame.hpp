@@ -97,6 +97,14 @@ private:
         CExprVec2f{-1, 1}, CExprVec2f{1, -1}, CExprVec2f{1, 1}};
 
     // LUA-related methods
+    void initLua_Utils();
+    void initLua_Messages();
+    void initLua_MainTimeline();
+    void initLua_EventTimeline();
+    void initLua_LevelControl();
+    void initLua_StyleControl();
+    void initLua_WallCreation();
+
     void initLua();
     void runLuaFile(const std::string& mFileName)
     {
