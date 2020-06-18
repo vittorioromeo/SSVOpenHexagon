@@ -16,12 +16,12 @@
 namespace hg::Utils
 {
 
-inline float getSaturated(float mValue)
+[[gnu::const]] inline float getSaturated(float mValue)
 {
     return std::max(0.f, std::min(1.f, mValue));
 }
 
-inline float getSmootherStep(float edge0, float edge1, float x)
+[[gnu::const]] inline float getSmootherStep(float edge0, float edge1, float x)
 {
     x = getSaturated((x - edge0) / (edge1 - edge0));
     return x * x * x * (x * (x * 6 - 15) + 10);
@@ -42,11 +42,12 @@ std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
 void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
     const Path& mPackPath, const std::string& mLuaScript);
 
-sf::Color transformHue(const sf::Color& in, float H);
+[[gnu::const]] sf::Color transformHue(const sf::Color& in, float H);
 
 inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
 {
     std::ifstream s{mFileName};
+
     try
     {
         mLua.executeCode(s);

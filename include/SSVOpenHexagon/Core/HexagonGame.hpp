@@ -13,7 +13,6 @@
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Global/Factory.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/FPSWatcher.hpp"
 
@@ -47,7 +46,7 @@ private:
 
     ssvu::TimelineManager effectTimelineManager;
 
-    Factory factory{*this, ssvs::zeroVec2f};
+    const Vec2f centerPos{ssvs::zeroVec2f};
 
     Lua::LuaContext lua;
 
@@ -109,6 +108,10 @@ private:
             death();
         }
     }
+
+    // Wall creation
+    void createWall(int mSide, float mThickness, const SpeedData& mSpeed,
+        const SpeedData& mCurve = SpeedData{}, float mHueMod = 0);
 
 public:
     template <typename T, typename... TArgs>

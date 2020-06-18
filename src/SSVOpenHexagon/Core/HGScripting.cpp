@@ -34,9 +34,13 @@ void HexagonGame::initLua()
     });
     lua.writeVariable("u_isKeyPressed",
         [=](int mKey) { return window.getInputState()[KKey(mKey)]; });
-    lua.writeVariable("u_isMouseButtonPressed", [=] (int mKey) { return window.getInputState()[MBtn(mKey)]; });
+
     lua.writeVariable("u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
     lua.writeVariable("u_setPlayerAngle", [=] (float newAng) {player.setPlayerAngle(newAng); });
+
+    lua.writeVariable("u_isMouseButtonPressed",
+        [=](int mKey) { return window.getInputState()[MBtn(mKey)]; });
+
     lua.writeVariable("u_isFastSpinning", [=] { return status.fastSpin > 0; });
     lua.writeVariable("u_forceIncrement", [=] { incrementDifficulty(); });
     lua.writeVariable(
@@ -208,19 +212,19 @@ void HexagonGame::initLua()
     // Wall creation
     lua.writeVariable("w_wall", [=](int mSide, float mThickness) {
         timeline.append<Do>(
-            [=] { factory.createWall(mSide, mThickness, {getSpeedMultDM()}); });
+            [=] { createWall(mSide, mThickness, {getSpeedMultDM()}); });
     });
-    lua.writeVariable("w_wallAdj", [=](int mSide, float mThickness,
-                                       float mSpeedAdj) {
-        timeline.append<Do>([=] {
-            factory.createWall(mSide, mThickness, mSpeedAdj * getSpeedMultDM());
+    lua.writeVariable(
+        "w_wallAdj", [=](int mSide, float mThickness, float mSpeedAdj) {
+            timeline.append<Do>([=] {
+                createWall(mSide, mThickness, mSpeedAdj * getSpeedMultDM());
+            });
         });
-    });
     lua.writeVariable("w_wallAcc",
         [=](int mSide, float mThickness, float mSpeedAdj, float mAcceleration,
             float mMinSpeed, float mMaxSpeed) {
             timeline.append<Do>([=] {
-                factory.createWall(mSide, mThickness,
+                createWall(mSide, mThickness,
                     {mSpeedAdj * getSpeedMultDM(), mAcceleration,
                         mMinSpeed * getSpeedMultDM(),
                         mMaxSpeed * getSpeedMultDM()});
@@ -230,7 +234,7 @@ void HexagonGame::initLua()
         [=](float mHMod, int mSide, float mThickness, float mSAdj, float mSAcc,
             float mSMin, float mSMax, bool mSPingPong) {
             timeline.append<Do>([=] {
-                factory.createWall(mSide, mThickness,
+                createWall(mSide, mThickness,
                     {mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax, mSPingPong},
                     mHMod);
             });
@@ -239,7 +243,7 @@ void HexagonGame::initLua()
         [=](float mHMod, int mSide, float mThickness, float mCAdj, float mCAcc,
             float mCMin, float mCMax, bool mCPingPong) {
             timeline.append<Do>([=] {
-                factory.createWall(mSide, mThickness, {getSpeedMultDM()},
+                createWall(mSide, mThickness, {getSpeedMultDM()},
                     {mCAdj, mCAcc, mCMin, mCMax, mCPingPong}, mHMod);
             });
         });
