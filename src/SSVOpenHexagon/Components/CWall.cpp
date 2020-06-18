@@ -40,10 +40,10 @@ void CWall::draw(HexagonGame& mHexagonGame)
         colorMain = Utils::transformHue(colorMain, hueMod);
     }
 
-    mHexagonGame.wallQuads.emplace_back(vertexPositions[0], colorMain);
-    mHexagonGame.wallQuads.emplace_back(vertexPositions[1], colorMain);
-    mHexagonGame.wallQuads.emplace_back(vertexPositions[2], colorMain);
-    mHexagonGame.wallQuads.emplace_back(vertexPositions[3], colorMain);
+    mHexagonGame.wallQuads.reserve_more(4);
+    mHexagonGame.wallQuads.batch_unsafe_emplace_back(colorMain,
+        vertexPositions[0], vertexPositions[1], vertexPositions[2],
+        vertexPositions[3]);
 }
 
 void CWall::update(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, FT mFT)
