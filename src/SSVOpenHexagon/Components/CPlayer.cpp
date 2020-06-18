@@ -55,10 +55,9 @@ void CPlayer::draw(HexagonGame& mHexagonGame)
             (swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
     }
 
-    mHexagonGame.playerTris.emplace_back(
-        getOrbitRad(pos, angle, size), colorMain);
-    mHexagonGame.playerTris.emplace_back(pLeft, colorMain);
-    mHexagonGame.playerTris.emplace_back(pRight, colorMain);
+    mHexagonGame.playerTris.reserve_more(3);
+    mHexagonGame.playerTris.batch_unsafe_emplace_back(
+        colorMain, getOrbitRad(pos, angle, size), pLeft, pRight);
 }
 
 void CPlayer::drawPivot(HexagonGame& mHexagonGame)
@@ -82,14 +81,13 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame)
         const Vec2f p4{
             getOrbitRad(startPos, sAngle - div, radius + baseThickness)};
 
-        mHexagonGame.wallQuads.emplace_back(p1, colorMain);
-        mHexagonGame.wallQuads.emplace_back(p2, colorMain);
-        mHexagonGame.wallQuads.emplace_back(p3, colorMain);
-        mHexagonGame.wallQuads.emplace_back(p4, colorMain);
+        mHexagonGame.wallQuads.reserve_more(4);
+        mHexagonGame.wallQuads.batch_unsafe_emplace_back(
+            colorMain, p1, p2, p3, p4);
 
-        mHexagonGame.capTris.emplace_back(p1, colorDarkened);
-        mHexagonGame.capTris.emplace_back(p2, colorDarkened);
-        mHexagonGame.capTris.emplace_back(startPos, colorDarkened);
+        mHexagonGame.capTris.reserve_more(3);
+        mHexagonGame.capTris.batch_unsafe_emplace_back(
+            colorDarkened, p1, p2, startPos);
     }
 }
 
@@ -115,10 +113,9 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
         Vec2f p3{getOrbitRad(pos, sAngle + div, radius + thickness)};
         Vec2f p4{getOrbitRad(pos, sAngle - div, radius + thickness)};
 
-        mHexagonGame.wallQuads.emplace_back(p1, colorMain);
-        mHexagonGame.wallQuads.emplace_back(p2, colorMain);
-        mHexagonGame.wallQuads.emplace_back(p3, colorMain);
-        mHexagonGame.wallQuads.emplace_back(p4, colorMain);
+        mHexagonGame.wallQuads.reserve_more(4);
+        mHexagonGame.wallQuads.batch_unsafe_emplace_back(
+            colorMain, p1, p2, p3, p4);
     }
 }
 
