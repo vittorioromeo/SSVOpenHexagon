@@ -109,7 +109,7 @@ endif()
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
-#For CLion support includes zlib manualy:
+#For CLion support, includes zlib manualy:
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
 
