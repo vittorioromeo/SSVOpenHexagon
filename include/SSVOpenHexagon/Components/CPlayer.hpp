@@ -15,8 +15,6 @@ class HexagonGame;
 class CPlayer final
 {
 private:
-    HexagonGame* hexagonGame;
-
     Vec2f pLeft;
     Vec2f pRight;
     Vec2f startPos;
@@ -34,14 +32,17 @@ private:
     Ticker swapBlinkTimer{5.f};
     Ticker deadEffectTimer{80.f, false};
 
-    void drawPivot();
-    void drawDeathEffect();
+    void drawPivot(HexagonGame& mHexagonGame);
+    void drawDeathEffect(HexagonGame& mHexagonGame);
 
 public:
-    CPlayer(HexagonGame& mHexagonGame, const Vec2f& mStartPos);
+    CPlayer(const Vec2f& mStartPos) noexcept;
 
-    void update(FT mFT);
-    void draw();
+    float getPlayerAngle();
+    void setPlayerAngle(float newAng);
+
+    void update(HexagonGame& mHexagonGame, FT mFT);
+    void draw(HexagonGame& mHexagonGame);
 };
 
 } // namespace hg

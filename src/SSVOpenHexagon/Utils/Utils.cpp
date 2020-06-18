@@ -165,7 +165,7 @@ void recursiveFillIncludedLuaFileNames(std::set<string>& mLuaScriptNames,
     }
 }
 
-Color transformHue(const Color& in, float H)
+[[gnu::const]] Color transformHue(const Color& in, float H)
 {
     float u{cos(H * 3.14f / 180.f)};
     float w{sin(H * 3.14f / 180.f)};

@@ -53,14 +53,14 @@ void HexagonGame::draw()
     playerTris.clear();
     capTris.clear();
 
-    for(auto& w : walls)
+    for(CWall& w : walls)
     {
-        w.draw();
+        w.draw(*this);
     }
 
     if(status.started)
     {
-        player.draw();
+        player.draw(*this);
     }
 
     if(Config::get3D())
