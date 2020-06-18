@@ -34,6 +34,7 @@ void HexagonGame::initLua()
     });
     lua.writeVariable("u_isKeyPressed",
         [=](int mKey) { return window.getInputState()[KKey(mKey)]; });
+    lua.writeVariable("u_isButtonPressed", [=] (int mKey) { return window.getInputState()[MBtn(mKey)]; });
     lua.writeVariable("u_isFastSpinning", [=] { return status.fastSpin > 0; });
     lua.writeVariable("u_forceIncrement", [=] { incrementDifficulty(); });
     lua.writeVariable(
