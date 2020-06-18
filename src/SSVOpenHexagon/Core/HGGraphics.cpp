@@ -24,14 +24,13 @@ void HexagonGame::draw()
     {
         if(levelStatus.cameraShake > 0)
         {
-            int x{
-                0 + getRndI(-levelStatus.cameraShake, levelStatus.cameraShake)};
-            int y{
-                0 + getRndI(-levelStatus.cameraShake, levelStatus.cameraShake)};
-            backgroundCamera.setCenter(Vec2f(x, y));
-            overlayCamera.setCenter(
-                Vec2f(x, y) +
-                Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
+            const Vec2f shake(
+                getRndI(-levelStatus.cameraShake, levelStatus.cameraShake),
+                getRndI(-levelStatus.cameraShake, levelStatus.cameraShake));
+
+            backgroundCamera.setCenter(shake);
+            overlayCamera.setCenter(shake + Vec2f{Config::getWidth() / 2.f,
+                                                Config::getHeight() / 2.f});
         }
         else
         {
@@ -65,15 +64,17 @@ void HexagonGame::draw()
 
     if(Config::get3D())
     {
-        const auto owqSz(wallQuads.size());
-        const auto optSz(playerTris.size());
-        wallQuads.reserve(owqSz * styleData._3dDepth);
-        playerTris.reserve(optSz * styleData._3dDepth);
+        const auto depth(styleData._3dDepth);
+        const auto numWallQuads(wallQuads.size());
+        const auto numPlayerTris(playerTris.size());
 
-        float effect{
+        wallQuads.reserve(numWallQuads * depth);
+        playerTris.reserve(numPlayerTris * depth);
+
+        const float effect{
             styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
 
-        Vec2f skew{1.f, 1.f + effect};
+        const Vec2f skew{1.f, 1.f + effect};
         backgroundCamera.setSkew(skew);
 
         const auto radRot(
@@ -81,25 +82,30 @@ void HexagonGame::draw()
         const auto sinRot(std::sin(radRot));
         const auto cosRot(std::cos(radRot));
 
-        for(auto v(0u); v < owqSz * styleData._3dDepth; ++v)
+        for(std::size_t i = 0; i < depth; ++i)
         {
-            wallQuads.emplace_back(wallQuads[v % owqSz]);
+            for(std::size_t j = 0; j < numWallQuads; ++j)
+            {
+                wallQuads.emplace_back(wallQuads[j]);
+            }
         }
 
-        for(auto v(0u); v < optSz * styleData._3dDepth; ++v)
+        for(std::size_t i = 0; i < depth; ++i)
         {
-            playerTris.emplace_back(playerTris[v % optSz]);
+            for(std::size_t j = 0; j < numPlayerTris; ++j)
+            {
+                playerTris.emplace_back(playerTris[j]);
+            }
         }
 
-        int lastWQ(0);
-        int lastPT(0);
-
-        for(auto j(0); j < styleData._3dDepth; ++j)
+        for(auto j(0); j < depth; ++j)
         {
-            auto i(styleData._3dDepth - j - 1);
-            auto offset(styleData._3dSpacing *
-                        (float(i + 1.f) * styleData._3dPerspectiveMult) *
-                        (effect * 3.6f) * 1.4f);
+            const float i(depth - j - 1);
+
+            const float offset(styleData._3dSpacing *
+                               (float(i + 1.f) * styleData._3dPerspectiveMult) *
+                               (effect * 3.6f) * 1.4f);
+
             Vec2f newPos(offset * cosRot, offset * sinRot);
 
             status.overrideColor = getColorDarkened(
@@ -107,18 +113,18 @@ void HexagonGame::draw()
             status.overrideColor.a /= styleData._3dAlphaMult;
             status.overrideColor.a -= i * styleData._3dAlphaFalloff;
 
-            for(auto k(0u); k < owqSz; ++k)
+            for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
+                ++k)
             {
-                auto& x(wallQuads[lastWQ++]);
-                x.position += newPos;
-                x.color = status.overrideColor;
+                wallQuads[k].position += newPos;
+                wallQuads[k].color = status.overrideColor;
             }
 
-            for(auto k(0u); k < optSz; ++k)
+            for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
+                ++k)
             {
-                auto& x(playerTris[lastPT++]);
-                x.position += newPos;
-                x.color = status.overrideColor;
+                playerTris[k].position += newPos;
+                playerTris[k].color = status.overrideColor;
             }
         }
     }
