@@ -57,20 +57,12 @@ struct SpeedData
 class CWall final
 {
 private:
-    HexagonGame* hexagonGame;
-
-    Vec2f centerPos;
-
     std::array<Vec2f, 4> vertexPositions;
 
     SpeedData speed;
     SpeedData curve;
 
-    float distance{0};
-    float thickness{0};
     float hueMod{0};
-
-    int side{0};
 
 public:
     bool killed{false};
@@ -79,20 +71,20 @@ public:
         float mThickness, float mDistance, const SpeedData& mSpeed,
         const SpeedData& mCurve);
 
-    void update(FT mFT);
-    void draw();
+    void update(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, FT mFT);
+    void draw(HexagonGame& mHexagonGame);
 
     void setHueMod(float mHueMod) noexcept
     {
         hueMod = mHueMod;
     }
 
-    SpeedData& getSpeed() noexcept
+    [[nodiscard]] SpeedData& getSpeed() noexcept
     {
         return speed;
     }
 
-    SpeedData& getCurve() noexcept
+    [[nodiscard]] SpeedData& getCurve() noexcept
     {
         return curve;
     }
