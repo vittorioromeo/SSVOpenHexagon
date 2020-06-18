@@ -12,7 +12,7 @@
 	"debug" : false,
 	"draw_text_outlines" : false,
 	"flash_enabled" : true,
-	"fullscreen" : true,
+	"fullscreen" : false,
 	"fullscreen_auto_resolution" : false,
 	"fullscreen_height" : 1080,
 	"fullscreen_width" : 1920,
