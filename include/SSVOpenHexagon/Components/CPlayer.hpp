@@ -38,6 +38,9 @@ private:
 public:
     CPlayer(const Vec2f& mStartPos) noexcept;
 
+    float getPlayerAngle();
+    void setPlayerAngle(float newAng);
+
     void update(HexagonGame& mHexagonGame, FT mFT);
     void draw(HexagonGame& mHexagonGame);
 };
