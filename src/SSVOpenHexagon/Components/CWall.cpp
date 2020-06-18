@@ -16,55 +16,55 @@ namespace hg
 CWall::CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide,
     float mThickness, float mDistance, const SpeedData& mSpeed,
     const SpeedData& mCurve)
-    : hexagonGame(&mHexagonGame), centerPos{mCenterPos}, speed{mSpeed},
-      curve{mCurve}, distance{mDistance}, thickness{mThickness}, side{mSide}
+    : speed{mSpeed}, curve{mCurve}
 {
-    const float div{ssvu::tau / hexagonGame->getSides() * 0.5f};
-    const float angle{div * 2.f * side};
+    const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
+    const float angle{div * 2.f * mSide};
 
-    vertexPositions[0] = getOrbitRad(centerPos, angle - div, distance);
-    vertexPositions[1] = getOrbitRad(centerPos, angle + div, distance);
+    vertexPositions[0] = getOrbitRad(mCenterPos, angle - div, mDistance);
+    vertexPositions[1] = getOrbitRad(mCenterPos, angle + div, mDistance);
     vertexPositions[2] =
-        getOrbitRad(centerPos, angle + div + hexagonGame->getWallAngleLeft(),
-            distance + thickness + hexagonGame->getWallSkewLeft());
+        getOrbitRad(mCenterPos, angle + div + mHexagonGame.getWallAngleLeft(),
+            mDistance + mThickness + mHexagonGame.getWallSkewLeft());
     vertexPositions[3] =
-        getOrbitRad(centerPos, angle - div + hexagonGame->getWallAngleRight(),
-            distance + thickness + hexagonGame->getWallSkewRight());
+        getOrbitRad(mCenterPos, angle - div + mHexagonGame.getWallAngleRight(),
+            mDistance + mThickness + mHexagonGame.getWallSkewRight());
 }
 
-void CWall::draw()
+void CWall::draw(HexagonGame& mHexagonGame)
 {
-    auto colorMain(hexagonGame->getColorMain());
+    Color colorMain(mHexagonGame.getColorMain());
+
     if(hueMod != 0)
     {
         colorMain = Utils::transformHue(colorMain, hueMod);
     }
 
-    for(auto i(0u); i < 4; ++i)
-    {
-        hexagonGame->wallQuads.emplace_back(vertexPositions[i], colorMain);
-    }
+    mHexagonGame.wallQuads.emplace_back(vertexPositions[0], colorMain);
+    mHexagonGame.wallQuads.emplace_back(vertexPositions[1], colorMain);
+    mHexagonGame.wallQuads.emplace_back(vertexPositions[2], colorMain);
+    mHexagonGame.wallQuads.emplace_back(vertexPositions[3], colorMain);
 }
 
-void CWall::update(FT mFT)
+void CWall::update(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);
 
-    float radius{hexagonGame->getRadius() * 0.65f};
+    const float radius{mHexagonGame.getRadius() * 0.65f};
     int pointsOnCenter{0};
 
-    for(auto& vp : vertexPositions)
+    for(Vec2f& vp : vertexPositions)
     {
-        if(std::abs(vp.x - centerPos.x) < radius &&
-            std::abs(vp.y - centerPos.y) < radius)
+        if(std::abs(vp.x - mCenterPos.x) < radius &&
+            std::abs(vp.y - mCenterPos.y) < radius)
         {
             ++pointsOnCenter;
         }
         else
         {
-            moveTowards(vp, centerPos, speed.speed * 5.f * mFT);
-            rotateRadAround(vp, centerPos, curve.speed / 60.f * mFT);
+            moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
+            rotateRadAround(vp, mCenterPos, curve.speed / 60.f * mFT);
         }
     }
 
