@@ -168,6 +168,7 @@ void HexagonGame::updateText()
     {
         os << "FPS: " << window.getFPS() << "\n";
     }
+
     if(status.started)
     {
         os << "time: " << toStr(status.currentTime).substr(0, 5) << "\n";
