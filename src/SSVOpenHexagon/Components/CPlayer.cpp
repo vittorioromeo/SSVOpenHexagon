@@ -24,14 +24,14 @@ CPlayer::CPlayer(HexagonGame& mHexagonGame, const Vec2f& mStartPos)
 {
 }
 
-float CPlayer::getPlayerPosition()
+float CPlayer::getPlayerAngle()
 {
     return angle;
 }
 
-void CPlayer::setPlayerPosition(float newPos)
+void CPlayer::setPlayerAngle(float newAng)
 {
-    angle = newPos;
+    angle = newAng;
 }
 
 void CPlayer::draw()
