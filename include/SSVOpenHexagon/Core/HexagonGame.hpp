@@ -18,6 +18,7 @@
 
 namespace hg
 {
+
 class MenuGame;
 
 class HexagonGame
@@ -176,9 +177,11 @@ private:
     void invalidateScore();
 
 public:
-    ssvs::VertexVector<sf::PrimitiveType::Quads> wallQuads;
-    ssvs::VertexVector<sf::PrimitiveType::Triangles> playerTris;
-    ssvs::VertexVector<sf::PrimitiveType::Triangles> capTris;
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTris;
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads3D;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris3D;
 
     MenuGame* mgPtr;
 

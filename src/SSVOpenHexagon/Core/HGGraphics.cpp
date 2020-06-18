@@ -14,6 +14,7 @@ using namespace ssvu;
 
 namespace hg
 {
+
 void HexagonGame::draw()
 {
     styleData.computeColors();
@@ -48,6 +49,8 @@ void HexagonGame::draw()
 
     backgroundCamera.apply();
 
+    wallQuads3D.clear();
+    playerTris3D.clear();
     wallQuads.clear();
     playerTris.clear();
     capTris.clear();
@@ -68,8 +71,8 @@ void HexagonGame::draw()
         const auto numWallQuads(wallQuads.size());
         const auto numPlayerTris(playerTris.size());
 
-        wallQuads.reserve(numWallQuads * depth);
-        playerTris.reserve(numPlayerTris * depth);
+        wallQuads3D.reserve(numWallQuads * depth);
+        playerTris3D.reserve(numPlayerTris * depth);
 
         const float effect{
             styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
@@ -84,18 +87,12 @@ void HexagonGame::draw()
 
         for(std::size_t i = 0; i < depth; ++i)
         {
-            for(std::size_t j = 0; j < numWallQuads; ++j)
-            {
-                wallQuads.emplace_back(wallQuads[j]);
-            }
+            wallQuads3D.unsafe_emplace_other(wallQuads);
         }
 
         for(std::size_t i = 0; i < depth; ++i)
         {
-            for(std::size_t j = 0; j < numPlayerTris; ++j)
-            {
-                playerTris.emplace_back(playerTris[j]);
-            }
+            playerTris3D.unsafe_emplace_other(playerTris);
         }
 
         for(auto j(0); j < depth; ++j)
@@ -116,19 +113,21 @@ void HexagonGame::draw()
             for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
                 ++k)
             {
-                wallQuads[k].position += newPos;
-                wallQuads[k].color = status.overrideColor;
+                wallQuads3D[k].position += newPos;
+                wallQuads3D[k].color = status.overrideColor;
             }
 
             for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
                 ++k)
             {
-                playerTris[k].position += newPos;
-                playerTris[k].color = status.overrideColor;
+                playerTris3D[k].position += newPos;
+                playerTris3D[k].color = status.overrideColor;
             }
         }
     }
 
+    render(wallQuads3D);
+    render(playerTris3D);
     render(wallQuads);
     render(playerTris);
     render(capTris);
@@ -140,6 +139,7 @@ void HexagonGame::draw()
     {
         render(flashPolygon);
     }
+
     if(mustTakeScreenshot)
     {
         window.saveScreenshot("screenshot.png");
@@ -193,14 +193,17 @@ void HexagonGame::updateText()
         {
             os << "swap enabled\n";
         }
+
         if(Config::getInvincible())
         {
             os << "invincibility on\n";
         }
+
         if(status.scoreInvalid)
         {
             os << "score invalidated (performance issues)\n";
         }
+
         if(status.hasDied)
         {
             os << "press r to restart\n";
@@ -281,4 +284,5 @@ void HexagonGame::drawText()
     messageText.setFillColor(getColorMain());
     render(messageText);
 }
+
 } // namespace hg

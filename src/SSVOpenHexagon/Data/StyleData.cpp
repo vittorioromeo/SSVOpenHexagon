@@ -137,7 +137,9 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
     float div{ssvu::tau / sides * 1.0001f};
     float distance{4500};
 
-    ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
+    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
+
+    vertices.clear();
     vertices.reserve(sides * 3);
 
     const auto& colors(getColors());
@@ -161,15 +163,12 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
             currentColor = getColorDarkened(currentColor, 1.4f);
         }
 
-        vertices.emplace_back(mCenterPos, currentColor);
-        vertices.emplace_back(
+        vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
             getOrbitRad(mCenterPos, angle + div * 0.5f, distance),
-            currentColor);
-        vertices.emplace_back(
-            getOrbitRad(mCenterPos, angle - div * 0.5f, distance),
-            currentColor);
+            getOrbitRad(mCenterPos, angle - div * 0.5f, distance));
     }
 
     mRenderTarget.draw(vertices);
 }
+
 } // namespace hg
