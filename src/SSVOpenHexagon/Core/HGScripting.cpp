@@ -17,9 +17,8 @@ using namespace ssvuj;
 namespace hg
 {
 
-void HexagonGame::initLua()
+void HexagonGame::initLua_Utils()
 {
-    // Utils
     lua.writeVariable("u_log", [=](string mLog) { lo("lua") << mLog << "\n"; });
     lua.writeVariable("u_execScript", [=](string mName) {
         runLuaFile(levelData->packPath + "Scripts/" + mName);
@@ -52,8 +51,10 @@ void HexagonGame::initLua()
     lua.writeVariable("u_getDifficultyMult", [=] { return difficultyMult; });
     lua.writeVariable("u_getSpeedMultDM", [=] { return getSpeedMultDM(); });
     lua.writeVariable("u_getDelayMultDM", [=] { return getDelayMultDM(); });
+}
 
-    // Messages
+void HexagonGame::initLua_Messages()
+{
     lua.writeVariable("m_messageAdd", [=](string mMsg, float mDuration) {
         eventTimeline.append<Do>([=] {
             if(firstPlay && Config::getShowMessages())
@@ -62,6 +63,7 @@ void HexagonGame::initLua()
             }
         });
     });
+
     lua.writeVariable(
         "m_messageAddImportant", [=](string mMsg, float mDuration) {
             eventTimeline.append<Do>([=] {
@@ -71,13 +73,17 @@ void HexagonGame::initLua()
                 }
             });
         });
+}
 
-    // Main timeline control
+void HexagonGame::initLua_MainTimeline()
+{
     lua.writeVariable(
         "t_wait", [=](float mDuration) { timeline.append<Wait>(mDuration); });
+
     lua.writeVariable("t_waitS", [=](float mDuration) {
         timeline.append<Wait>(ssvu::getSecondsToFT(mDuration));
     });
+
     lua.writeVariable("t_waitUntilS", [=](float mDuration) {
         timeline.append<Wait>(10);
         timeline.append<Do>([=] {
@@ -87,20 +93,26 @@ void HexagonGame::initLua()
             }
         });
     });
+}
 
-    // Event timeline control
+void HexagonGame::initLua_EventTimeline()
+{
     lua.writeVariable("e_eventStopTime", [=](float mDuration) {
         eventTimeline.append<Do>([=] { status.timeStop = mDuration; });
     });
+
     lua.writeVariable("e_eventStopTimeS", [=](float mDuration) {
         eventTimeline.append<Do>(
             [=] { status.timeStop = ssvu::getSecondsToFT(mDuration); });
     });
+
     lua.writeVariable("e_eventWait",
         [=](float mDuration) { eventTimeline.append<Wait>(mDuration); });
+
     lua.writeVariable("e_eventWaitS", [=](float mDuration) {
         eventTimeline.append<Wait>(ssvu::getSecondsToFT(mDuration));
     });
+
     lua.writeVariable("e_eventWaitUntilS", [=](float mDuration) {
         eventTimeline.append<Wait>(10);
         eventTimeline.append<Do>([=] {
@@ -110,84 +122,73 @@ void HexagonGame::initLua()
             }
         });
     });
+}
 
-    // Level control
-    lua.writeVariable("l_setSpeedMult",
-        [=](float mValue) { levelStatus.speedMult = mValue; });
-    lua.writeVariable(
-        "l_setSpeedInc", [=](float mValue) { levelStatus.speedInc = mValue; });
-    lua.writeVariable("l_setRotationSpeed",
-        [=](float mValue) { levelStatus.rotationSpeed = mValue; });
-    lua.writeVariable("l_setRotationSpeedMax",
-        [=](float mValue) { levelStatus.rotationSpeedMax = mValue; });
-    lua.writeVariable("l_setRotationSpeedInc",
-        [=](float mValue) { levelStatus.rotationSpeedInc = mValue; });
-    lua.writeVariable("l_setDelayMult",
-        [=](float mValue) { levelStatus.delayMult = mValue; });
-    lua.writeVariable(
-        "l_setDelayInc", [=](float mValue) { levelStatus.delayInc = mValue; });
-    lua.writeVariable(
-        "l_setFastSpin", [=](float mValue) { levelStatus.fastSpin = mValue; });
-    lua.writeVariable(
-        "l_setSides", [=](unsigned int mValue) { levelStatus.sides = mValue; });
-    lua.writeVariable("l_setSidesMin",
-        [=](unsigned int mValue) { levelStatus.sidesMin = mValue; });
-    lua.writeVariable("l_setSidesMax",
-        [=](unsigned int mValue) { levelStatus.sidesMax = mValue; });
-    lua.writeVariable(
-        "l_setIncTime", [=](float mValue) { levelStatus.incTime = mValue; });
-    lua.writeVariable(
-        "l_setPulseMin", [=](float mValue) { levelStatus.pulseMin = mValue; });
-    lua.writeVariable(
-        "l_setPulseMax", [=](float mValue) { levelStatus.pulseMax = mValue; });
-    lua.writeVariable("l_setPulseSpeed",
-        [=](float mValue) { levelStatus.pulseSpeed = mValue; });
-    lua.writeVariable("l_setPulseSpeedR",
-        [=](float mValue) { levelStatus.pulseSpeedR = mValue; });
-    lua.writeVariable("l_setPulseDelayMax",
-        [=](float mValue) { levelStatus.pulseDelayMax = mValue; });
-    lua.writeVariable("l_setBeatPulseMax",
-        [=](float mValue) { levelStatus.beatPulseMax = mValue; });
-    lua.writeVariable("l_setBeatPulseDelayMax",
-        [=](float mValue) { levelStatus.beatPulseDelayMax = mValue; });
-    lua.writeVariable("l_setWallSkewLeft",
-        [=](float mValue) { levelStatus.wallSkewLeft = mValue; });
-    lua.writeVariable("l_setWallSkewRight",
-        [=](float mValue) { levelStatus.wallSkewRight = mValue; });
-    lua.writeVariable("l_setWallAngleLeft",
-        [=](float mValue) { levelStatus.wallAngleLeft = mValue; });
-    lua.writeVariable("l_setWallAngleRight",
-        [=](float mValue) { levelStatus.wallAngleRight = mValue; });
-    lua.writeVariable("l_setRadiusMin",
-        [=](float mValue) { levelStatus.radiusMin = mValue; });
-    lua.writeVariable("l_setSwapEnabled",
-        [=](bool mValue) { levelStatus.swapEnabled = mValue; });
-    lua.writeVariable("l_setTutorialMode",
-        [=](bool mValue) { levelStatus.tutorialMode = mValue; });
-    lua.writeVariable("l_setIncEnabled",
-        [=](bool mValue) { levelStatus.incEnabled = mValue; });
-    lua.writeVariable("l_setMaxInc",
-        [=](SizeT mValue) { levelStatus.maxIncrements = mValue; });
+void HexagonGame::initLua_LevelControl()
+{
+
+    const auto lsVar = [this](const std::string& name, auto pmd) {
+        using Type = std::decay_t<decltype(levelStatus.*pmd)>;
+
+        lua.writeVariable(std::string{"l_get"} + name,
+            [this, pmd]() -> Type { return levelStatus.*pmd; });
+
+        lua.writeVariable(std::string{"l_set"} + name,
+            [this, pmd](Type mValue) { levelStatus.*pmd = mValue; });
+    };
+
+    lsVar("SpeedMult", &LevelStatus::speedMult);
+    lsVar("SpeedInc", &LevelStatus::speedInc);
+    lsVar("RotationSpeed", &LevelStatus::rotationSpeed);
+    lsVar("RotationSpeedInc", &LevelStatus::rotationSpeedInc);
+    lsVar("RotationSpeedMax", &LevelStatus::rotationSpeedMax);
+    lsVar("DelayMult", &LevelStatus::delayMult);
+    lsVar("DelayInc", &LevelStatus::delayInc);
+    lsVar("FastSpin", &LevelStatus::fastSpin);
+    lsVar("IncTime", &LevelStatus::incTime);
+    lsVar("PulseMin", &LevelStatus::pulseMin);
+    lsVar("PulseMax", &LevelStatus::pulseMax);
+    lsVar("PulseSpeed", &LevelStatus::pulseSpeed);
+    lsVar("PulseSpeedR", &LevelStatus::pulseSpeedR);
+    lsVar("PulseDelayMax", &LevelStatus::pulseDelayMax);
+    lsVar("PulseDelayHalfMax", &LevelStatus::pulseDelayHalfMax);
+    lsVar("BeatPulseMax", &LevelStatus::beatPulseMax);
+    lsVar("BeatPulseDelayMax", &LevelStatus::beatPulseDelayMax);
+    lsVar("RadiusMin", &LevelStatus::radiusMin);
+    lsVar("WallSkewLeft", &LevelStatus::wallSkewLeft);
+    lsVar("WallSkewRight", &LevelStatus::wallSkewRight);
+    lsVar("WallAngleLeft", &LevelStatus::wallAngleLeft);
+    lsVar("WallAngleRight", &LevelStatus::wallAngleRight);
+    lsVar("3dEffectMultiplier", &LevelStatus::_3dEffectMultiplier);
+    lsVar("CameraShake", &LevelStatus::cameraShake);
+    lsVar("Sides", &LevelStatus::sides);
+    lsVar("SidesMax", &LevelStatus::sidesMax);
+    lsVar("SidesMin", &LevelStatus::sidesMin);
+    lsVar("SwapEnabled", &LevelStatus::swapEnabled);
+    lsVar("TutorialMode", &LevelStatus::tutorialMode);
+    lsVar("IncEnabled", &LevelStatus::incEnabled);
+    lsVar("RndSideChangesEnabled", &LevelStatus::rndSideChangesEnabled);
+    lsVar("DarkenUnevenBackgroundChunk",
+        &LevelStatus::darkenUnevenBackgroundChunk);
+    lsVar("CurrentIncrements", &LevelStatus::currentIncrements);
+    lsVar("MaxInc", &LevelStatus::maxIncrements); // backwards-compatible
+    lsVar("MaxIncrements", &LevelStatus::maxIncrements);
+
     lua.writeVariable("l_addTracked", [=](string mVar, string mName) {
         levelStatus.trackedVariables.emplace_back(mVar, mName);
     });
-    lua.writeVariable("l_enableRndSideChanges",
-        [=](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; });
-    lua.writeVariable("l_darkenUnevenBackgroundChunk",
-        [=](bool mValue) { levelStatus.darkenUnevenBackgroundChunk = mValue; });
-    lua.writeVariable(
-        "l_getRotationSpeed", [=] { return levelStatus.rotationSpeed; });
+
     lua.writeVariable("l_setRotation",
         [=](float mValue) { backgroundCamera.setRotation(mValue); });
+
     lua.writeVariable(
         "l_getRotation", [=] { return backgroundCamera.getRotation(); });
-    lua.writeVariable("l_getSides", [=] { return levelStatus.sides; });
-    lua.writeVariable("l_getSpeedMult", [=] { return levelStatus.speedMult; });
-    lua.writeVariable("l_getDelayMult", [=] { return levelStatus.delayMult; });
-    lua.writeVariable("l_getMaxInc", [=] { return levelStatus.maxIncrements; });
+
     lua.writeVariable(
         "l_getLevelTime", [=] { return (float)status.currentTime; });
+
     lua.writeVariable("l_getOfficial", [=] { return Config::getOfficial(); });
+
     // TODO: test and consider re-enabling
     /*
     lua.writeVariable("l_setLevel", [=](string mId)
@@ -197,31 +198,67 @@ void HexagonGame::initLua()
             playLevelMusic();
         });
     */
+}
 
-    // Style control
-    lua.writeVariable("s_setPulseInc",
-        [=](float mValue) { styleData.pulseIncrement = mValue; });
-    lua.writeVariable(
-        "s_setHueInc", [=](float mValue) { styleData.hueIncrement = mValue; });
-    lua.writeVariable("s_getHueInc", [=] { return styleData.hueIncrement; });
-    lua.writeVariable("s_setCameraShake",
-        [=](int mValue) { levelStatus.cameraShake = mValue; });
-    lua.writeVariable(
-        "s_getCameraShake", [=] { return levelStatus.cameraShake; });
+void HexagonGame::initLua_StyleControl()
+{
+    const auto sdVar = [this](const std::string& name, auto pmd) {
+        using Type = std::decay_t<decltype(styleData.*pmd)>;
+
+        lua.writeVariable(std::string{"s_get"} + name,
+            [this, pmd]() -> Type { return styleData.*pmd; });
+
+        lua.writeVariable(std::string{"s_set"} + name,
+            [this, pmd](Type mValue) { styleData.*pmd = mValue; });
+    };
+
+    sdVar("HueMin", &StyleData::hueMin);
+    sdVar("HueMax", &StyleData::hueMax);
+    sdVar("HueInc", &StyleData::hueIncrement); // backwards-compatible
+    sdVar("HueIncrement", &StyleData::hueIncrement);
+    sdVar("PulseMin", &StyleData::pulseMin);
+    sdVar("PulseMax", &StyleData::pulseMax);
+    sdVar("PulseInc", &StyleData::pulseIncrement); // backwards-compatible
+    sdVar("PulseIncrement", &StyleData::pulseIncrement);
+    sdVar("HuePingPong", &StyleData::huePingPong);
+    sdVar("MaxSwapTime", &StyleData::maxSwapTime);
+    sdVar("3dDepth", &StyleData::_3dDepth);
+    sdVar("3dSkew", &StyleData::_3dSkew);
+    sdVar("3dSpacing", &StyleData::_3dSpacing);
+    sdVar("3dDarkenMult", &StyleData::_3dDarkenMult);
+    sdVar("3dAlphaMult", &StyleData::_3dAlphaMult);
+    sdVar("3dAlphaFalloff", &StyleData::_3dAlphaFalloff);
+    sdVar("3dPulseMax", &StyleData::_3dPulseMax);
+    sdVar("3dPulseMin", &StyleData::_3dPulseMin);
+    sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed);
+    sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
+
     lua.writeVariable("s_setStyle",
         [=](string mId) { styleData = assets.getStyleData(mId); });
 
-    // Wall creation
+    // backwards-compatible
+    lua.writeVariable("s_setCameraShake",
+        [=](int mValue) { levelStatus.cameraShake = mValue; });
+
+    // backwards-compatible
+    lua.writeVariable(
+        "s_getCameraShake", [=] { return levelStatus.cameraShake; });
+}
+
+void HexagonGame::initLua_WallCreation()
+{
     lua.writeVariable("w_wall", [=](int mSide, float mThickness) {
         timeline.append<Do>(
             [=] { createWall(mSide, mThickness, {getSpeedMultDM()}); });
     });
+
     lua.writeVariable(
         "w_wallAdj", [=](int mSide, float mThickness, float mSpeedAdj) {
             timeline.append<Do>([=] {
                 createWall(mSide, mThickness, mSpeedAdj * getSpeedMultDM());
             });
         });
+
     lua.writeVariable("w_wallAcc",
         [=](int mSide, float mThickness, float mSpeedAdj, float mAcceleration,
             float mMinSpeed, float mMaxSpeed) {
@@ -232,6 +269,7 @@ void HexagonGame::initLua()
                         mMaxSpeed * getSpeedMultDM()});
             });
         });
+
     lua.writeVariable("w_wallHModSpeedData",
         [=](float mHMod, int mSide, float mThickness, float mSAdj, float mSAcc,
             float mSMin, float mSMax, bool mSPingPong) {
@@ -241,6 +279,7 @@ void HexagonGame::initLua()
                     mHMod);
             });
         });
+
     lua.writeVariable("w_wallHModCurveData",
         [=](float mHMod, int mSide, float mThickness, float mCAdj, float mCAcc,
             float mCMin, float mCMax, bool mCPingPong) {
@@ -250,4 +289,16 @@ void HexagonGame::initLua()
             });
         });
 }
+
+void HexagonGame::initLua()
+{
+    initLua_Utils();
+    initLua_Messages();
+    initLua_MainTimeline();
+    initLua_EventTimeline();
+    initLua_LevelControl();
+    initLua_StyleControl();
+    initLua_WallCreation();
+}
+
 } // namespace hg
