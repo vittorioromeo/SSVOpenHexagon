@@ -238,6 +238,8 @@ void HexagonGame::updateText()
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
     text.setOrigin(0, 0);
 
+    messageText.setCharacterSize(
+        ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor()));
     messageText.setOrigin(getGlobalWidth(messageText) / 2.f, 0);
 }
 
