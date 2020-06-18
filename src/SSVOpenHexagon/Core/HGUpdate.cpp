@@ -89,12 +89,13 @@ void HexagonGame::update(FT mFT)
 
         if(!status.hasDied)
         {
-            player.update(mFT);
+            player.update(*this, mFT);
 
-            for(auto& w : walls)
+            for(CWall& w : walls)
             {
-                w.update(mFT);
+                w.update(*this, centerPos, mFT);
             }
+
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
 
             updateEvents(mFT);

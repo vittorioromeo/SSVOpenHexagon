@@ -17,16 +17,18 @@ using namespace hg::Utils;
 
 namespace hg
 {
-void Factory::createWall(int mSide, float mThickness, const SpeedData& mSpeed,
-    const SpeedData& mCurve, float mHueMod)
+
+void HexagonGame::createWall(int mSide, float mThickness,
+    const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
-    hexagonGame.walls.emplace_back(hexagonGame, centerPos, mSide, mThickness,
+    walls.emplace_back(*this, centerPos, mSide, mThickness,
         Config::getSpawnDistance(), mSpeed, mCurve);
-    hexagonGame.walls.back().setHueMod(mHueMod);
+
+    walls.back().setHueMod(mHueMod);
 }
 
 HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow)
-    : assets(mAssets), window(mGameWindow), player{*this, ssvs::zeroVec2f},
+    : assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
       fpsWatcher(window)
 {
     game.onUpdate += [this](FT mFT) { update(mFT); };
@@ -95,7 +97,7 @@ void HexagonGame::newGame(
 
     // Manager cleanup
     walls.clear();
-    player = CPlayer{*this, ssvs::zeroVec2f};
+    player = CPlayer{ssvs::zeroVec2f};
 
 
     // Timeline cleanup
