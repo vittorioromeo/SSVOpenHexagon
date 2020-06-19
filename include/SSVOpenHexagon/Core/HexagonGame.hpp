@@ -172,7 +172,7 @@ private:
     void stopLevelMusic();
 
     // Message-related methods
-    void addMessage(const std::string& mMessage, float mDuration);
+    void addMessage(const std::string& mMessage, float mDuration, bool mSoundToggle);
     void clearMessages();
 
     // Level/menu loading/unloading/changing
