@@ -291,6 +291,15 @@ void HexagonGame::playLevelMusic()
         musicData.playRandomSegment(assets);
     }
 }
+
+void HexagonGame::playLevelMusicAtTime(float mSeconds)
+{
+    if(!Config::getNoMusic())
+    {
+        musicData.playSeconds(assets, mSeconds);
+    }
+}
+
 void HexagonGame::stopLevelMusic()
 {
     if(!Config::getNoMusic())
