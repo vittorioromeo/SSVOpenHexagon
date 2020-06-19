@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Data/CapColor.hpp"
 
 namespace hg
 {
@@ -66,6 +67,8 @@ public:
     float _3dPerspectiveMult;
     sf::Color _3dOverrideColor;
     ColorData mainColorData;
+    CapColor capColor;
+
     std::vector<ColorData> colorDatas;
 
     StyleData() = default;
@@ -96,7 +99,8 @@ public:
               ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
           _3dOverrideColor{ssvuj::getExtr<sf::Color>(
               mRoot, "3D_override_color", sf::Color::Transparent)},
-          mainColorData{ssvuj::getObj(mRoot, "main")}
+          mainColorData{ssvuj::getObj(mRoot, "main")}, //
+          capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
     {
         currentHue = hueMin;
 
@@ -119,39 +123,52 @@ public:
         rootPath = mPath;
     }
 
-    const Path& getRootPath() const
+    const Path& getRootPath() const noexcept
     {
         return rootPath;
     }
 
-    const sf::Color& getMainColor() const
+    const sf::Color& getMainColor() const noexcept
     {
         return currentMainColor;
     }
 
-    const std::vector<sf::Color>& getColors() const
+    const std::vector<sf::Color>& getColors() const noexcept
     {
         return currentColors;
     }
 
-    const sf::Color& getColor(int mIdx) const
+    const sf::Color& getColor(int mIdx) const noexcept
     {
         return currentColors[ssvu::getMod(mIdx, currentColors.size())];
     }
 
-    float getCurrentHue() const
+    float getCurrentHue() const noexcept
     {
         return currentHue;
     }
-    float getCurrentSwapTime() const
+
+    float getCurrentSwapTime() const noexcept
     {
         return currentSwapTime;
     }
 
-    const sf::Color& get3DOverrideColor() const
+    const sf::Color& get3DOverrideColor() const noexcept
     {
         return current3DOverrideColor;
     }
+
+    CapColor& getCapColor() noexcept
+    {
+        return capColor;
+    }
+
+    const CapColor& getCapColor() const noexcept
+    {
+        return capColor;
+    }
+
+    sf::Color getCapColorResult() const noexcept;
 };
 
 } // namespace hg

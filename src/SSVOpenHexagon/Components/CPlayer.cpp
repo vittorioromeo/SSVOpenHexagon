@@ -6,6 +6,7 @@
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
 
 using namespace std;
@@ -34,9 +35,9 @@ void CPlayer::setPlayerAngle(float newAng)
     angle = newAng;
 }
 
-void CPlayer::draw(HexagonGame& mHexagonGame)
+void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 {
-    drawPivot(mHexagonGame);
+    drawPivot(mHexagonGame, mCapColor);
 
     if(deadEffectTimer.isRunning())
     {
@@ -60,7 +61,7 @@ void CPlayer::draw(HexagonGame& mHexagonGame)
         colorMain, getOrbitRad(pos, angle, size), pLeft, pRight);
 }
 
-void CPlayer::drawPivot(HexagonGame& mHexagonGame)
+void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 {
     const auto sides(mHexagonGame.getSides());
     const float div{ssvu::tau / sides * 0.5f};
@@ -87,7 +88,7 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame)
 
         mHexagonGame.capTris.reserve_more(3);
         mHexagonGame.capTris.batch_unsafe_emplace_back(
-            colorDarkened, p1, p2, startPos);
+            mCapColor, p1, p2, startPos);
     }
 }
 
