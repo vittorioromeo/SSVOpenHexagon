@@ -282,6 +282,11 @@ void HexagonGame::addMessage(const string& mMessage, float mDuration, bool mSoun
     messageTimeline.append<Do>([=] { messageText.setString(""); });
 }
 
+void HexagonGame::clearMessages() 
+{
+    messageTimeline.clear();
+}
+
 void HexagonGame::setLevelData(
     const LevelData& mLevelData, bool mMusicFirstPlay)
 {
@@ -297,6 +302,14 @@ void HexagonGame::playLevelMusic()
     if(!Config::getNoMusic())
     {
         musicData.playRandomSegment(assets);
+    }
+}
+
+void HexagonGame::playLevelMusicAtTime(float mSeconds)
+{
+    if(!Config::getNoMusic())
+    {
+        musicData.playSeconds(assets, mSeconds);
     }
 }
 
