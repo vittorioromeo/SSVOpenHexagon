@@ -168,10 +168,12 @@ private:
     // Data-related methods
     void setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay);
     void playLevelMusic();
+    void playLevelMusicAtTime(float mSeconds);
     void stopLevelMusic();
 
     // Message-related methods
     void addMessage(const std::string& mMessage, float mDuration);
+    void clearMessages();
 
     // Level/menu loading/unloading/changing
     void checkAndSaveScore();
