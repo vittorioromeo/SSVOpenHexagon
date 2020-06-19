@@ -139,6 +139,7 @@ void HexagonGame::newGame(
     restartFirstTime = false;
     setSides(levelStatus.sides);
 }
+
 void HexagonGame::death(bool mForce)
 {
     fpsWatcher.disable();
@@ -248,6 +249,7 @@ void HexagonGame::checkAndSaveScore()
         Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
     }
 }
+
 void HexagonGame::goToMenu(bool mSendScores)
 {
     assets.stopSounds();
@@ -262,10 +264,12 @@ void HexagonGame::goToMenu(bool mSendScores)
     window.setGameState(mgPtr->getGame());
     mgPtr->init();
 }
+
 void HexagonGame::changeLevel(const string& mId, bool mFirstTime)
 {
     newGame(mId, mFirstTime, difficultyMult);
 }
+
 void HexagonGame::addMessage(const string& mMessage, float mDuration)
 {
     messageTimeline.append<Do>([&, mMessage] {
@@ -275,6 +279,7 @@ void HexagonGame::addMessage(const string& mMessage, float mDuration)
     messageTimeline.append<Wait>(mDuration);
     messageTimeline.append<Do>([=] { messageText.setString(""); });
 }
+
 void HexagonGame::setLevelData(
     const LevelData& mLevelData, bool mMusicFirstPlay)
 {
@@ -292,6 +297,7 @@ void HexagonGame::playLevelMusic()
         musicData.playRandomSegment(assets);
     }
 }
+
 void HexagonGame::stopLevelMusic()
 {
     if(!Config::getNoMusic())
@@ -320,6 +326,7 @@ auto HexagonGame::getColorMain() const -> Color
         return styleData.getMainColor();
     }
 }
+
 void HexagonGame::setSides(unsigned int mSides)
 {
     assets.playSound("beep.ogg");
@@ -329,4 +336,5 @@ void HexagonGame::setSides(unsigned int mSides)
     }
     levelStatus.sides = mSides;
 }
+
 } // namespace hg
