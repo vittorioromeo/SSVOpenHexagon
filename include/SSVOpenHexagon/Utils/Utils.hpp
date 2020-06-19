@@ -11,7 +11,6 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
-#include "SSVOpenHexagon/Data/StyleData.hpp"
 
 namespace hg::Utils
 {
@@ -110,8 +109,6 @@ public:
     x = getSaturated((x - edge0) / (edge1 - edge0));
     return x * x * x * (x * (x * 6 - 15) + 10);
 }
-
-sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 
 MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);
 ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot);
