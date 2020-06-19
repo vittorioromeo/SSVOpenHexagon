@@ -108,7 +108,7 @@ private:
     }
 
     sf::Text& renderTextImpl(
-        const std::string& mStr, sf::Text& mText, const Vec2f& mPosition)
+        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPosition)
     {
         if(mText.getString() != mStr)
         {
@@ -121,7 +121,7 @@ private:
     }
 
     sf::Text& renderTextImpl(const std::string& mStr, sf::Text& mText,
-        const Vec2f& mPosition, unsigned int mSize)
+        const sf::Vector2f& mPosition, unsigned int mSize)
     {
         auto originalSize(mText.getCharacterSize());
         mText.setCharacterSize(mSize);
@@ -138,28 +138,28 @@ private:
     }
 
     sf::Text& renderText(
-        const std::string& mStr, sf::Text& mText, const Vec2f& mPos)
+        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
     {
         mText.setFillColor(getTextColor());
         return renderTextImpl(mStr, mText, mPos);
     }
 
     sf::Text& renderText(const std::string& mStr, sf::Text& mText,
-        const Vec2f& mPos, unsigned int mSize)
+        const sf::Vector2f& mPos, unsigned int mSize)
     {
         mText.setFillColor(getTextColor());
         return renderTextImpl(mStr, mText, mPos, mSize);
     }
 
     sf::Text& renderText(const std::string& mStr, sf::Text& mText,
-        const Vec2f& mPos, const sf::Color& mColor)
+        const sf::Vector2f& mPos, const sf::Color& mColor)
     {
         mText.setFillColor(mColor);
         return renderTextImpl(mStr, mText, mPos);
     }
 
     sf::Text& renderText(const std::string& mStr, sf::Text& mText,
-        const Vec2f& mPos, const sf::Color& mColor, unsigned int mSize)
+        const sf::Vector2f& mPos, const sf::Color& mColor, unsigned int mSize)
     {
         mText.setFillColor(mColor);
         return renderTextImpl(mStr, mText, mPos, mSize);

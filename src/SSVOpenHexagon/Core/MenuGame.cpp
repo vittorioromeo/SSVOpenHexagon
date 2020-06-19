@@ -787,7 +787,7 @@ void MenuGame::refreshCamera()
     float scaleFactor{w / 1024.f};
     bottomBar.setOrigin({0, 56.f});
     bottomBar.setScale({scaleFactor, scaleFactor});
-    bottomBar.setPosition(Vec2f(0, h));
+    bottomBar.setPosition(sf::Vector2f(0, h));
 }
 
 void MenuGame::update(FT mFT)
@@ -987,7 +987,7 @@ void MenuGame::drawLevelSelection()
         renderText(versionMessage, txtProf, {20, 4}, 13);
 
         Text& profile = renderText("profile: " + assets.pGetName(), txtProf,
-            Vec2f{20.f, getGlobalBottom(titleBar) + 8}, 18);
+            sf::Vector2f{20.f, getGlobalBottom(titleBar) + 8}, 18);
         Text& pack =
             renderText("pack: " + packName + " (" + toStr(packIdx + 1) + "/" +
                            toStr(assets.getPackPaths().size()) + ")",

@@ -132,7 +132,7 @@ void StyleData::computeColors()
 }
 
 void StyleData::drawBackground(RenderTarget& mRenderTarget,
-    const Vec2f& mCenterPos, const LevelStatus& levelStatus) const
+    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const
 {
     const auto sides = levelStatus.sides;
 

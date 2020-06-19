@@ -38,7 +38,7 @@ string serverMessage;
 ValidatorDB validators;
 
 PacketHandler<Client> clientPHandler;
-UPtr<Client> client;
+std::unique_ptr<Client> client;
 
 bool gettingLeaderboard{false}, forceLeaderboardRefresh{false};
 string lastLeaderboardId;
@@ -125,7 +125,7 @@ void initializeClient()
     clientPHandler[FromServer::NUR_EmailValid] =
         [](Client& /*unused*/, Packet& /*unused*/) { newUserReg = false; };
 
-    client = ssvu::mkUPtr<Client>(clientPHandler);
+    client = std::make_unique<Client>(clientPHandler);
 
     currentGtm->start([] {
         while(true)

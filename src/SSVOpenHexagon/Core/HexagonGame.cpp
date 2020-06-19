@@ -129,15 +129,15 @@ void HexagonGame::newGame(
     // Reset zoom
     overlayCamera.setView(
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            Vec2f(Config::getWidth(), Config::getHeight())});
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
     backgroundCamera.setView(
         {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
                               Config::getHeight() * Config::getZoomFactor()}});
     backgroundCamera.setRotation(0);
 
     // Reset skew
-    overlayCamera.setSkew(ssvs::Vec2f{1.f, 1.f});
-    backgroundCamera.setSkew(ssvs::Vec2f{1.f, 1.f});
+    overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
+    backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
 }
 void HexagonGame::death(bool mForce)
 {
@@ -158,7 +158,7 @@ void HexagonGame::death(bool mForce)
     status.flashEffect = 255;
     overlayCamera.setView(
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            Vec2f(Config::getWidth(), Config::getHeight())});
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
     backgroundCamera.setCenter(ssvs::zeroVec2f);
     shakeCamera(effectTimelineManager, overlayCamera);
     shakeCamera(effectTimelineManager, backgroundCamera);

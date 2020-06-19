@@ -54,14 +54,14 @@ string getLocalValidator(const string& mId, float mDifficultyMult)
 void shakeCamera(TimelineManager& mTimelineManager, Camera& mCamera)
 {
     int s{7};
-    Vec2f oldCenter{mCamera.getCenter()};
+    sf::Vector2f oldCenter{mCamera.getCenter()};
     Timeline& timeline(mTimelineManager.create());
 
     for(int i{s}; i > 0; --i)
     {
         timeline.append<Do>([&mCamera, oldCenter, i] {
             mCamera.setCenter(
-                oldCenter + Vec2f(getRndI(-i, i), getRndI(-i, i)));
+                oldCenter + sf::Vector2f(getRndI(-i, i), getRndI(-i, i)));
         });
         timeline.append<Wait>(1);
         timeline.append<Go>(0, 3);

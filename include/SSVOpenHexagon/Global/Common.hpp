@@ -19,11 +19,6 @@
 namespace hg
 {
 
-using ssvs::UPtr;
-using ssvs::Vec2;
-using ssvs::Vec2f;
-using ssvs::Vec2i;
-using ssvs::Vec2u;
 using ssvu::FT;
 using ssvu::SizeT;
 using ssvu::Ticker;

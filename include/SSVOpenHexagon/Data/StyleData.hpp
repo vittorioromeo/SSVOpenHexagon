@@ -116,7 +116,7 @@ public:
     void update(FT mFT, float mMult = 1.f);
     void computeColors();
     void drawBackground(sf::RenderTarget& mRenderTarget,
-        const Vec2f& mCenterPos, const LevelStatus& levelStatus) const;
+        const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const;
 
     void setRootPath(const Path& mPath)
     {

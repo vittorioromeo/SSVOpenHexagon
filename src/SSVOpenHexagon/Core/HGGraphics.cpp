@@ -26,19 +26,19 @@ void HexagonGame::draw()
     {
         if(levelStatus.cameraShake > 0)
         {
-            const Vec2f shake(
+            const sf::Vector2f shake(
                 getRndI(-levelStatus.cameraShake, levelStatus.cameraShake),
                 getRndI(-levelStatus.cameraShake, levelStatus.cameraShake));
 
             backgroundCamera.setCenter(shake);
-            overlayCamera.setCenter(shake + Vec2f{Config::getWidth() / 2.f,
+            overlayCamera.setCenter(shake + sf::Vector2f{Config::getWidth() / 2.f,
                                                 Config::getHeight() / 2.f});
         }
         else
         {
             backgroundCamera.setCenter(ssvs::zeroVec2f);
             overlayCamera.setCenter(
-                Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
+                sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
         }
     }
 
@@ -78,7 +78,7 @@ void HexagonGame::draw()
         const float effect{
             styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
 
-        const Vec2f skew{1.f, 1.f + effect};
+        const sf::Vector2f skew{1.f, 1.f + effect};
         backgroundCamera.setSkew(skew);
 
         const auto radRot(
@@ -104,7 +104,7 @@ void HexagonGame::draw()
                                (float(i + 1.f) * styleData._3dPerspectiveMult) *
                                (effect * 3.6f) * 1.4f);
 
-            Vec2f newPos(offset * cosRot, offset * sinRot);
+            sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
             status.overrideColor = getColorDarkened(
                 styleData.get3DOverrideColor(), styleData._3dDarkenMult);
@@ -151,14 +151,14 @@ void HexagonGame::draw()
 void HexagonGame::initFlashEffect()
 {
     flashPolygon.clear();
-    flashPolygon.emplace_back(Vec2f{-100.f, -100.f}, Color{255, 255, 255, 0});
+    flashPolygon.emplace_back(sf::Vector2f{-100.f, -100.f}, Color{255, 255, 255, 0});
     flashPolygon.emplace_back(
-        Vec2f{Config::getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0});
+        sf::Vector2f{Config::getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0});
     flashPolygon.emplace_back(
-        Vec2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f},
+        sf::Vector2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f},
         Color{255, 255, 255, 0});
     flashPolygon.emplace_back(
-        Vec2f{-100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0});
+        sf::Vector2f{-100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0});
 }
 
 void HexagonGame::updateText()
@@ -257,7 +257,7 @@ void HexagonGame::drawText()
         text.setFillColor(offsetColor);
         for(const auto& o : txt_offsets)
         {
-            text.setPosition(txt_pos + Vec2f{o.x, o.y});
+            text.setPosition(txt_pos + sf::Vector2f{o.x, o.y});
             render(text);
         }
     }
@@ -277,14 +277,14 @@ void HexagonGame::drawText()
         for(const auto& o : txt_offsets)
         {
             messageText.setPosition(
-                Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f} +
-                Vec2f{o.x, o.y});
+                sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f} +
+                sf::Vector2f{o.x, o.y});
             render(messageText);
         }
     }
 
     messageText.setPosition(
-        Vec2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f});
+        sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f});
     messageText.setFillColor(getColorMain());
     render(messageText);
 }
