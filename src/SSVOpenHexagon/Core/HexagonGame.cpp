@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2015 Vittorio Romeo
+// Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
@@ -110,6 +110,19 @@ void HexagonGame::newGame(
     fpsWatcher.reset();
     // if(Config::getOfficial()) fpsWatcher.enable();
 
+    // Reset zoom
+    overlayCamera.setView(
+        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
+    backgroundCamera.setView(
+        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
+                              Config::getHeight() * Config::getZoomFactor()}});
+    backgroundCamera.setRotation(0);
+
+    // Reset skew
+    overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
+    backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
+
     // LUA context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
     status = HexagonGameStatus{};
@@ -125,20 +138,8 @@ void HexagonGame::newGame(
     restartId = mId;
     restartFirstTime = false;
     setSides(levelStatus.sides);
-
-    // Reset zoom
-    overlayCamera.setView(
-        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            Vec2f(Config::getWidth(), Config::getHeight())});
-    backgroundCamera.setView(
-        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
-                              Config::getHeight() * Config::getZoomFactor()}});
-    backgroundCamera.setRotation(0);
-
-    // Reset skew
-    overlayCamera.setSkew(ssvs::Vec2f{1.f, 1.f});
-    backgroundCamera.setSkew(ssvs::Vec2f{1.f, 1.f});
 }
+
 void HexagonGame::death(bool mForce)
 {
     fpsWatcher.disable();
@@ -158,7 +159,7 @@ void HexagonGame::death(bool mForce)
     status.flashEffect = 255;
     overlayCamera.setView(
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            Vec2f(Config::getWidth(), Config::getHeight())});
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
     backgroundCamera.setCenter(ssvs::zeroVec2f);
     shakeCamera(effectTimelineManager, overlayCamera);
     shakeCamera(effectTimelineManager, backgroundCamera);
@@ -182,6 +183,7 @@ void HexagonGame::incrementDifficulty()
         levelStatus.rotationSpeed +=
             levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
     }
+
     levelStatus.rotationSpeed *= -1.f;
 
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
@@ -247,6 +249,7 @@ void HexagonGame::checkAndSaveScore()
         Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
     }
 }
+
 void HexagonGame::goToMenu(bool mSendScores)
 {
     assets.stopSounds();
@@ -261,10 +264,12 @@ void HexagonGame::goToMenu(bool mSendScores)
     window.setGameState(mgPtr->getGame());
     mgPtr->init();
 }
+
 void HexagonGame::changeLevel(const string& mId, bool mFirstTime)
 {
     newGame(mId, mFirstTime, difficultyMult);
 }
+
 void HexagonGame::addMessage(const string& mMessage, float mDuration)
 {
     messageTimeline.append<Do>([&, mMessage] {
@@ -274,10 +279,12 @@ void HexagonGame::addMessage(const string& mMessage, float mDuration)
     messageTimeline.append<Wait>(mDuration);
     messageTimeline.append<Do>([=] { messageText.setString(""); });
 }
+
 void HexagonGame::clearMessages() 
 {
     messageTimeline.clear();
 }
+
 void HexagonGame::setLevelData(
     const LevelData& mLevelData, bool mMusicFirstPlay)
 {
@@ -332,6 +339,7 @@ auto HexagonGame::getColorMain() const -> Color
         return styleData.getMainColor();
     }
 }
+
 void HexagonGame::setSides(unsigned int mSides)
 {
     assets.playSound("beep.ogg");
@@ -341,4 +349,5 @@ void HexagonGame::setSides(unsigned int mSides)
     }
     levelStatus.sides = mSides;
 }
+
 } // namespace hg

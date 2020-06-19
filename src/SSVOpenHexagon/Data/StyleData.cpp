@@ -1,9 +1,11 @@
-// Copyright (c) 2013-2015 Vittorio Romeo
+// Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Match.hpp"
+#include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 using namespace std;
@@ -130,14 +132,16 @@ void StyleData::computeColors()
 }
 
 void StyleData::drawBackground(RenderTarget& mRenderTarget,
-    const Vec2f& mCenterPos, const LevelStatus& levelStatus) const
+    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const
 {
     const auto sides = levelStatus.sides;
 
     float div{ssvu::tau / sides * 1.0001f};
     float distance{4500};
 
-    ssvs::VertexVector<sf::PrimitiveType::Triangles> vertices;
+    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
+
+    vertices.clear();
     vertices.reserve(sides * 3);
 
     const auto& colors(getColors());
@@ -161,15 +165,24 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
             currentColor = getColorDarkened(currentColor, 1.4f);
         }
 
-        vertices.emplace_back(mCenterPos, currentColor);
-        vertices.emplace_back(
+        vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
             getOrbitRad(mCenterPos, angle + div * 0.5f, distance),
-            currentColor);
-        vertices.emplace_back(
-            getOrbitRad(mCenterPos, angle - div * 0.5f, distance),
-            currentColor);
+            getOrbitRad(mCenterPos, angle - div * 0.5f, distance));
     }
 
     mRenderTarget.draw(vertices);
 }
+
+sf::Color StyleData::getCapColorResult() const noexcept
+{
+    return Utils::match(
+        capColor,                                              //
+        [this](CapColorMode::Main) { return getMainColor(); }, //
+        [this](CapColorMode::MainDarkened) {
+            return Utils::getColorDarkened(getMainColor(), 1.4f);
+        },                                                            //
+        [this](CapColorMode::ByIndex x) { return getColor(x.index); } //
+    );
+}
+
 } // namespace hg

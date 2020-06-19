@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2015 Vittorio Romeo
+// Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
@@ -54,10 +54,10 @@ struct SpeedData
     }
 };
 
-class CWall final
+class CWall
 {
 private:
-    std::array<Vec2f, 4> vertexPositions;
+    std::array<sf::Vector2f, 4> vertexPositions;
 
     SpeedData speed;
     SpeedData curve;
@@ -67,11 +67,11 @@ private:
 public:
     bool killed{false};
 
-    CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide,
+    CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, int mSide,
         float mThickness, float mDistance, const SpeedData& mSpeed,
         const SpeedData& mCurve);
 
-    void update(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, FT mFT);
+    void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT);
     void draw(HexagonGame& mHexagonGame);
 
     void setHueMod(float mHueMod) noexcept
@@ -89,7 +89,7 @@ public:
         return curve;
     }
 
-    [[nodiscard]] bool isOverlapping(const Vec2f& mPoint) const noexcept
+    [[nodiscard]] bool isOverlapping(const sf::Vector2f& mPoint) const noexcept
     {
         return ssvs::isPointInPolygon(vertexPositions, mPoint);
     }

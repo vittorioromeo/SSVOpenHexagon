@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2015 Vittorio Romeo
+// Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
@@ -18,6 +18,7 @@ using namespace ssvuj;
 
 namespace hg
 {
+
 using s = States;
 using ocs = Online::ConnectStat;
 using ols = Online::LoginStat;
@@ -791,7 +792,7 @@ void MenuGame::refreshCamera()
     float scaleFactor{w / 1024.f};
     bottomBar.setOrigin({0, 56.f});
     bottomBar.setScale({scaleFactor, scaleFactor});
-    bottomBar.setPosition(Vec2f(0, h));
+    bottomBar.setPosition(sf::Vector2f(0, h));
 }
 
 void MenuGame::update(FT mFT)
@@ -991,7 +992,7 @@ void MenuGame::drawLevelSelection()
         renderText(versionMessage, txtProf, {20, 4}, 13);
 
         Text& profile = renderText("profile: " + assets.pGetName(), txtProf,
-            Vec2f{20.f, getGlobalBottom(titleBar) + 8}, 18);
+            sf::Vector2f{20.f, getGlobalBottom(titleBar) + 8}, 18);
         Text& pack =
             renderText("pack: " + packName + " (" + toStr(packIdx + 1) + "/" +
                            toStr(assets.getPackPaths().size()) + ")",
@@ -1190,4 +1191,5 @@ void MenuGame::drawWelcome()
     }
     renderText(connStatus, txtProf, {20, h - 30.f});
 }
+
 } // namespace hg
