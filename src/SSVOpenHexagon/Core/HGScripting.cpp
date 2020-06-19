@@ -31,6 +31,16 @@ void HexagonGame::initLua_Utils()
         stopLevelMusic();
         playLevelMusic();
     });
+    lua.writeVariable("u_setMusicSegment", [=](string mId, int segment) {
+        musicData = assets.getMusicData(mId);
+        stopLevelMusic();
+        playLevelMusicAtTime(musicData.getSegment[segment]);
+    });
+    lua.writeVariable("u_setMusicSeconds", [=](string mId, float mTime) {
+        musicData = assets.getMusicData(mId);
+        stopLevelMusic();
+        playLevelMusicAtTime(mTime);
+    });
     lua.writeVariable("u_isKeyPressed",
         [=](int mKey) { return window.getInputState()[KKey(mKey)]; });
 
