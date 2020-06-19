@@ -274,6 +274,10 @@ void HexagonGame::addMessage(const string& mMessage, float mDuration)
     messageTimeline.append<Wait>(mDuration);
     messageTimeline.append<Do>([=] { messageText.setString(""); });
 }
+void HexagonGame::clearMessages() 
+{
+    messageTimeline.clear();
+}
 void HexagonGame::setLevelData(
     const LevelData& mLevelData, bool mMusicFirstPlay)
 {

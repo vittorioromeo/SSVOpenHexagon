@@ -168,6 +168,7 @@ private:
 
     // Message-related methods
     void addMessage(const std::string& mMessage, float mDuration);
+    void clearMessages();
 
     // Level/menu loading/unloading/changing
     void checkAndSaveScore();
