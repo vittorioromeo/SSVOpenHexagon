@@ -4,6 +4,8 @@
 
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Match.hpp"
+#include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 using namespace std;
@@ -169,6 +171,18 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
     }
 
     mRenderTarget.draw(vertices);
+}
+
+sf::Color StyleData::getCapColorResult() const noexcept
+{
+    return Utils::match(
+        capColor,                                              //
+        [this](CapColorMode::Main) { return getMainColor(); }, //
+        [this](CapColorMode::MainDarkened) {
+            return Utils::getColorDarkened(getMainColor(), 1.4f);
+        },                                                            //
+        [this](CapColorMode::ByIndex x) { return getColor(x.index); } //
+    );
 }
 
 } // namespace hg

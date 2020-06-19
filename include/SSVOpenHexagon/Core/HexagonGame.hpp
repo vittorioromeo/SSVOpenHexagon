@@ -16,6 +16,7 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/FPSWatcher.hpp"
 
+
 namespace hg
 {
 
@@ -86,6 +87,9 @@ private:
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
     const Vec2f txt_pos{8, 8};
+
+    // Color of the polygon in the center.
+    CapColor capColor;
 
     struct CExprVec2f
     {

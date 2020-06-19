@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 using namespace std;
@@ -62,7 +63,7 @@ void HexagonGame::draw()
 
     if(status.started)
     {
-        player.draw(*this);
+        player.draw(*this, styleData.getCapColorResult());
     }
 
     if(Config::get3D())
