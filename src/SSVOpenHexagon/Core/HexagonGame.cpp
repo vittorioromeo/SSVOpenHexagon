@@ -110,6 +110,19 @@ void HexagonGame::newGame(
     fpsWatcher.reset();
     // if(Config::getOfficial()) fpsWatcher.enable();
 
+    // Reset zoom
+    overlayCamera.setView(
+        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
+    backgroundCamera.setView(
+        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
+                              Config::getHeight() * Config::getZoomFactor()}});
+    backgroundCamera.setRotation(0);
+
+    // Reset skew
+    overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
+    backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
+
     // LUA context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
     status = HexagonGameStatus{};
@@ -125,19 +138,6 @@ void HexagonGame::newGame(
     restartId = mId;
     restartFirstTime = false;
     setSides(levelStatus.sides);
-
-    // Reset zoom
-    overlayCamera.setView(
-        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vector2f(Config::getWidth(), Config::getHeight())});
-    backgroundCamera.setView(
-        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
-                              Config::getHeight() * Config::getZoomFactor()}});
-    backgroundCamera.setRotation(0);
-
-    // Reset skew
-    overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
-    backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
 }
 void HexagonGame::death(bool mForce)
 {
