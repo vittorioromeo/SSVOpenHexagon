@@ -44,9 +44,9 @@ auto main(int argc, char* argv[]) -> int
     if(contains(overrideIds, "server"))
     {
         Config::loadConfig(overrideIds);
-        auto levelOnlyAssets(mkUPtr<HGAssets>(true));
+        auto levelOnlyAssets(std::make_unique<HGAssets>(true));
         Online::initializeValidators(*levelOnlyAssets);
-        auto ohServer(mkUPtr<Online::OHServer>());
+        auto ohServer(std::make_unique<Online::OHServer>());
         ohServer->start();
         return 0;
     }
@@ -76,10 +76,10 @@ auto main(int argc, char* argv[]) -> int
 
     Config::setTimerStatic(window, Config::getTimerStatic());
 
-    auto assets(mkUPtr<HGAssets>());
+    auto assets(std::make_unique<HGAssets>());
     Online::initializeValidators(*assets);
-    auto hg(mkUPtr<HexagonGame>(*assets, window));
-    auto mg(mkUPtr<MenuGame>(*assets, *hg, window));
+    auto hg(std::make_unique<HexagonGame>(*assets, window));
+    auto mg(std::make_unique<MenuGame>(*assets, *hg, window));
     hg->mgPtr = mg.get();
 
     assets->refreshVolumes();
