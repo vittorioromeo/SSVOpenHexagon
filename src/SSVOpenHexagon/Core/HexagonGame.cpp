@@ -270,10 +270,12 @@ void HexagonGame::changeLevel(const string& mId, bool mFirstTime)
     newGame(mId, mFirstTime, difficultyMult);
 }
 
-void HexagonGame::addMessage(const string& mMessage, float mDuration, bool mSoundToggle)
+void HexagonGame::addMessage(
+    const string& mMessage, float mDuration, bool mSoundToggle)
 {
     messageTimeline.append<Do>([&, mMessage] {
-        if (mSoundToggle) {
+        if(mSoundToggle)
+        {
             assets.playSound("beep.ogg");
         }
         messageText.setString(mMessage);
@@ -282,7 +284,7 @@ void HexagonGame::addMessage(const string& mMessage, float mDuration, bool mSoun
     messageTimeline.append<Do>([=] { messageText.setString(""); });
 }
 
-void HexagonGame::clearMessages() 
+void HexagonGame::clearMessages()
 {
     messageTimeline.clear();
 }

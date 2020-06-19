@@ -40,7 +40,7 @@ public:
     {
     }
 
-    float getSegment(int index) 
+    float getSegment(int index)
     {
         return segments[index];
     }

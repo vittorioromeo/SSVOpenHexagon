@@ -31,14 +31,15 @@ void HexagonGame::draw()
                 getRndI(-levelStatus.cameraShake, levelStatus.cameraShake));
 
             backgroundCamera.setCenter(shake);
-            overlayCamera.setCenter(shake + sf::Vector2f{Config::getWidth() / 2.f,
-                                                Config::getHeight() / 2.f});
+            overlayCamera.setCenter(
+                shake + sf::Vector2f{Config::getWidth() / 2.f,
+                            Config::getHeight() / 2.f});
         }
         else
         {
             backgroundCamera.setCenter(ssvs::zeroVec2f);
-            overlayCamera.setCenter(
-                sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
+            overlayCamera.setCenter(sf::Vector2f{
+                Config::getWidth() / 2.f, Config::getHeight() / 2.f});
         }
     }
 
@@ -151,14 +152,15 @@ void HexagonGame::draw()
 void HexagonGame::initFlashEffect()
 {
     flashPolygon.clear();
-    flashPolygon.emplace_back(sf::Vector2f{-100.f, -100.f}, Color{255, 255, 255, 0});
     flashPolygon.emplace_back(
-        sf::Vector2f{Config::getWidth() + 100.f, -100.f}, Color{255, 255, 255, 0});
+        sf::Vector2f{-100.f, -100.f}, Color{255, 255, 255, 0});
+    flashPolygon.emplace_back(sf::Vector2f{Config::getWidth() + 100.f, -100.f},
+        Color{255, 255, 255, 0});
     flashPolygon.emplace_back(
         sf::Vector2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f},
         Color{255, 255, 255, 0});
-    flashPolygon.emplace_back(
-        sf::Vector2f{-100.f, Config::getHeight() + 100.f}, Color{255, 255, 255, 0});
+    flashPolygon.emplace_back(sf::Vector2f{-100.f, Config::getHeight() + 100.f},
+        Color{255, 255, 255, 0});
 }
 
 void HexagonGame::updateText()
@@ -276,9 +278,9 @@ void HexagonGame::drawText()
         messageText.setFillColor(offsetColor);
         for(const auto& o : txt_offsets)
         {
-            messageText.setPosition(
-                sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f} +
-                sf::Vector2f{o.x, o.y});
+            messageText.setPosition(sf::Vector2f{Config::getWidth() / 2.f,
+                                        Config::getHeight() / 6.f} +
+                                    sf::Vector2f{o.x, o.y});
             render(messageText);
         }
     }
