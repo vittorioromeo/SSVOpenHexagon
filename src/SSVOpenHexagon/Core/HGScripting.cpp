@@ -34,7 +34,7 @@ void HexagonGame::initLua_Utils()
     lua.writeVariable("u_setMusicSegment", [=](string mId, int segment) {
         musicData = assets.getMusicData(mId);
         stopLevelMusic();
-        playLevelMusicAtTime(musicData.getSegment[segment]);
+        playLevelMusicAtTime(musicData.getSegment(segment));
     });
     lua.writeVariable("u_setMusicSeconds", [=](string mId, float mTime) {
         musicData = assets.getMusicData(mId);
@@ -49,7 +49,7 @@ void HexagonGame::initLua_Utils()
     lua.writeVariable("u_timelineWait", [=] (float mDuration) {
         timeline.append<Wait>(mDuration);
     });
-    lua.writeVairable("u_clearTimeline", [=] { timeline.clear(); timeline.reset();});
+    lua.writeVariable("u_clearTimeline", [=] { timeline.clear(); timeline.reset();});
     lua.writeVariable("u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
     lua.writeVariable("u_setPlayerAngle",[=](float newAng) { player.setPlayerAngle(newAng); });
     lua.writeVariable("u_isMouseButtonPressed",[=](int mKey) { return window.getInputState()[MBtn(mKey)]; });
