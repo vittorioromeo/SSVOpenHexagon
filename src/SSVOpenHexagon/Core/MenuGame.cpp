@@ -18,6 +18,7 @@ using namespace ssvuj;
 
 namespace hg
 {
+
 using s = States;
 using ocs = Online::ConnectStat;
 using ols = Online::LoginStat;
@@ -1186,4 +1187,5 @@ void MenuGame::drawWelcome()
     }
     renderText(connStatus, txtProf, {20, h - 30.f});
 }
+
 } // namespace hg
