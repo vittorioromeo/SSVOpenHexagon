@@ -83,6 +83,8 @@ void HexagonGame::initLua_Messages()
                 }
             });
         });
+
+    lua.writeVariable("m_clearMessages", [=] { clearMessages();});
 }
 
 void HexagonGame::initLua_MainTimeline()
