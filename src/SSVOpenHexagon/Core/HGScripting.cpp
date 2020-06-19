@@ -32,17 +32,30 @@ void HexagonGame::initLua_Utils()
         stopLevelMusic();
         playLevelMusic();
     });
+    lua.writeVariable("u_setMusicSegment", [=](string mId, int segment) {
+        musicData = assets.getMusicData(mId);
+        stopLevelMusic();
+        playLevelMusicAtTime(musicData.getSegment(segment));
+    });
+    lua.writeVariable("u_setMusicSeconds", [=](string mId, float mTime) {
+        musicData = assets.getMusicData(mId);
+        stopLevelMusic();
+        playLevelMusicAtTime(mTime);
+    });
     lua.writeVariable("u_isKeyPressed",
-        [this](int mKey) { return window.getInputState()[KKey(mKey)]; });
-
-    lua.writeVariable(
-        "u_getPlayerAngle", [this] { return player.getPlayerAngle(); });
-    lua.writeVariable("u_setPlayerAngle",
-        [this](float newAng) { player.setPlayerAngle(newAng); });
-
-    lua.writeVariable("u_isMouseButtonPressed",
-        [this](int mKey) { return window.getInputState()[MBtn(mKey)]; });
-
+        [=](int mKey) { return window.getInputState()[KKey(mKey)]; });
+    lua.writeVariable("u_haltTime", [=] (float mDuration) {
+        status.timeStop = mDuration;
+    });
+    lua.writeVariable("u_timelineWait", [=] (float mDuration) {
+        timeline.append<Wait>(mDuration);
+    });
+    lua.writeVariable("u_clearWalls", [=] { walls.clear()});
+    lua.writeVariable("u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
+    lua.writeVariable("u_setPlayerAngle",[=](float newAng) { player.setPlayerAngle(newAng); });
+    lua.writeVariable("u_isMouseButtonPressed",[=](int mKey) { return window.getInputState()[MBtn(mKey)]; });
+    lua.writeVariable("u_isFastSpinning", [=] { return status.fastSpin > 0; });
+    lua.writeVariable("u_forceIncrement", [=] { incrementDifficulty(); });
     lua.writeVariable(
         "u_isFastSpinning", [this] { return status.fastSpin > 0; });
     lua.writeVariable("u_forceIncrement", [this] { incrementDifficulty(); });
@@ -75,6 +88,8 @@ void HexagonGame::initLua_Messages()
                 }
             });
         });
+
+    lua.writeVariable("m_clearMessages", [=] { clearMessages();});
 }
 
 void HexagonGame::initLua_MainTimeline()
