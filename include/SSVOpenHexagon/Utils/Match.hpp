@@ -38,4 +38,4 @@ constexpr decltype(auto) match(Variant&& v, Fs&&... fs)
         make_overload_set(std::forward<Fs>(fs)...), std::forward<Variant>(v));
 }
 
-}
+} // namespace hg::Utils

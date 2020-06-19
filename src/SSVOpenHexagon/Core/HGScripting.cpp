@@ -44,16 +44,17 @@ void HexagonGame::initLua_Utils()
     });
     lua.writeVariable("u_isKeyPressed",
         [=](int mKey) { return window.getInputState()[KKey(mKey)]; });
-    lua.writeVariable("u_haltTime", [=] (float mDuration) {
-        status.timeStop = mDuration;
-    });
-    lua.writeVariable("u_timelineWait", [=] (float mDuration) {
-        timeline.append<Wait>(mDuration);
-    });
-    lua.writeVariable("u_clearWalls", [=] { walls.clear()});
-    lua.writeVariable("u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
-    lua.writeVariable("u_setPlayerAngle",[=](float newAng) { player.setPlayerAngle(newAng); });
-    lua.writeVariable("u_isMouseButtonPressed",[=](int mKey) { return window.getInputState()[MBtn(mKey)]; });
+    lua.writeVariable(
+        "u_haltTime", [=](float mDuration) { status.timeStop = mDuration; });
+    lua.writeVariable("u_timelineWait",
+        [=](float mDuration) { timeline.append<Wait>(mDuration); });
+    lua.writeVariable("u_clearWalls", [=] { walls.clear() });
+    lua.writeVariable(
+        "u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
+    lua.writeVariable("u_setPlayerAngle",
+        [=](float newAng) { player.setPlayerAngle(newAng); });
+    lua.writeVariable("u_isMouseButtonPressed",
+        [=](int mKey) { return window.getInputState()[MBtn(mKey)]; });
     lua.writeVariable("u_isFastSpinning", [=] { return status.fastSpin > 0; });
     lua.writeVariable("u_forceIncrement", [=] { incrementDifficulty(); });
     lua.writeVariable(
@@ -98,7 +99,7 @@ void HexagonGame::initLua_Messages()
             });
         });
 
-    lua.writeVariable("m_clearMessages", [=] { clearMessages();});
+    lua.writeVariable("m_clearMessages", [=] { clearMessages(); });
 }
 
 void HexagonGame::initLua_MainTimeline()
