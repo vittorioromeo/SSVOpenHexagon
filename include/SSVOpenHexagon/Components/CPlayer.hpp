@@ -32,7 +32,7 @@ private:
     Ticker swapBlinkTimer{5.f};
     Ticker deadEffectTimer{80.f, false};
 
-    void drawPivot(HexagonGame& mHexagonGame);
+    void drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
     void drawDeathEffect(HexagonGame& mHexagonGame);
 
 public:
@@ -42,7 +42,7 @@ public:
     void setPlayerAngle(float newAng);
 
     void update(HexagonGame& mHexagonGame, FT mFT);
-    void draw(HexagonGame& mHexagonGame);
+    void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 };
 
 } // namespace hg
