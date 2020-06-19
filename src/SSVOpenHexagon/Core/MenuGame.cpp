@@ -549,6 +549,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
     mLua.writeVariable("u_getDifficultyMult", [] { return 1; });
     mLua.writeVariable("u_getSpeedMultDM", [] { return 1; });
     mLua.writeVariable("u_getDelayMultDM", [] { return 1; });
+    mLua.writeVariable("u_getPlayerAngle", [] { return 0; });
     mLua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
     mLua.writeVariable("l_setSides",
@@ -574,8 +575,11 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
             "l_enableRndSideChanges", "l_darkenUnevenBackgroundChunk",
             "l_getSpeedMult", "l_getDelayMult", "l_addTracked", "u_playSound",
-            "u_isKeyPressed", "u_isFastSpinning", "u_forceIncrement", "u_kill",
-            "u_eventKill", "m_messageAdd", "m_messageAddImportant", "t_wait",
+            "u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning", 
+            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setMusic",
+            "u_setMusicSegment", "u_setMusicSeconds",
+            "m_messageAdd", "m_messageAddImportant", "m_clearMessages", "t_wait",
             "t_waitS", "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
             "e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall",
             "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
