@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2015 Vittorio Romeo
+// Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
@@ -13,7 +13,7 @@ using namespace ssvs;
 namespace hg
 {
 
-CWall::CWall(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, int mSide,
+CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, int mSide,
     float mThickness, float mDistance, const SpeedData& mSpeed,
     const SpeedData& mCurve)
     : speed{mSpeed}, curve{mCurve}
@@ -40,13 +40,13 @@ void CWall::draw(HexagonGame& mHexagonGame)
         colorMain = Utils::transformHue(colorMain, hueMod);
     }
 
-    mHexagonGame.wallQuads.emplace_back(vertexPositions[0], colorMain);
-    mHexagonGame.wallQuads.emplace_back(vertexPositions[1], colorMain);
-    mHexagonGame.wallQuads.emplace_back(vertexPositions[2], colorMain);
-    mHexagonGame.wallQuads.emplace_back(vertexPositions[3], colorMain);
+    mHexagonGame.wallQuads.reserve_more(4);
+    mHexagonGame.wallQuads.batch_unsafe_emplace_back(colorMain,
+        vertexPositions[0], vertexPositions[1], vertexPositions[2],
+        vertexPositions[3]);
 }
 
-void CWall::update(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, FT mFT)
+void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);
@@ -54,7 +54,7 @@ void CWall::update(HexagonGame& mHexagonGame, const Vec2f& mCenterPos, FT mFT)
     const float radius{mHexagonGame.getRadius() * 0.65f};
     int pointsOnCenter{0};
 
-    for(Vec2f& vp : vertexPositions)
+    for(sf::Vector2f& vp : vertexPositions)
     {
         if(std::abs(vp.x - mCenterPos.x) < radius &&
             std::abs(vp.y - mCenterPos.y) < radius)

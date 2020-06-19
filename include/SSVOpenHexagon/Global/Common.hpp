@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2015 Vittorio Romeo
+// Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
@@ -19,11 +19,6 @@
 namespace hg
 {
 
-using ssvs::UPtr;
-using ssvs::Vec2;
-using ssvs::Vec2f;
-using ssvs::Vec2i;
-using ssvs::Vec2u;
 using ssvu::FT;
 using ssvu::SizeT;
 using ssvu::Ticker;

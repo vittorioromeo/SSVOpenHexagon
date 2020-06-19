@@ -4,16 +4,11 @@
 
 #pragma once
 
-#include <string>
+#include <SFML/Graphics.hpp>
 
-namespace hg
+namespace hg::Utils
 {
 
-struct PackData
-{
-    std::string id;
-    std::string name;
-    float priority;
-};
+sf::Color getColorDarkened(sf::Color mColor, float mMultiplier);
 
-} // namespace hg
+} // namespace hg::Utils

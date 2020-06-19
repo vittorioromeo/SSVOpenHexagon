@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2015 Vittorio Romeo
+// Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
@@ -11,93 +11,99 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
-using namespace std;
-using namespace ssvs;
-using namespace ssvu;
-using namespace ssvu::FileSystem;
-using namespace hg;
-
-void createProfilesFolder()
+static void createProfilesFolder()
 {
-    Path profilesPath{"Profiles/"};
+    const ssvu::FileSystem::Path profilesPath{"Profiles/"};
+
     if(profilesPath.exists<ssvufs::Type::Folder>())
     {
         return;
     }
 
-    lo("::createProfilesFolder")
+    ssvu::lo("::createProfilesFolder")
         << "Profiles folder does not exist, creating\n";
+
     createFolder(profilesPath);
 }
 
-auto main(int argc, char* argv[]) -> int
+int main(int argc, char* argv[])
 {
-    Online::GlobalThreadManager gtm;
-    Online::setCurrentGtm(gtm);
+    hg::Online::GlobalThreadManager gtm;
+    hg::Online::setCurrentGtm(gtm);
 
-    vector<string> overrideIds;
-    for(int i{0}; i < argc; ++i)
-    {
-        overrideIds.emplace_back(argv[i]);
-    }
+    const auto overrideIds = [&] {
+        std::vector<std::string> result;
+        for(int i{0}; i < argc; ++i)
+        {
+            result.emplace_back(argv[i]);
+        }
+        return result;
+    }();
 
-    if(contains(overrideIds, "server"))
+    if(ssvu::contains(overrideIds, "server"))
     {
-        Config::loadConfig(overrideIds);
-        auto levelOnlyAssets(mkUPtr<HGAssets>(true));
-        Online::initializeValidators(*levelOnlyAssets);
-        auto ohServer(mkUPtr<Online::OHServer>());
+        hg::Config::loadConfig(overrideIds);
+
+        auto levelOnlyAssets =
+            std::make_unique<hg::HGAssets>(true /* mLevelsOnly */);
+        hg::Online::initializeValidators(*levelOnlyAssets);
+
+        auto ohServer = std::make_unique<hg::Online::OHServer>();
         ohServer->start();
+
         return 0;
     }
 
     createProfilesFolder();
 
-    Online::initializeClient();
-    Online::tryConnectToServer();
+    hg::Online::initializeClient();
+    hg::Online::tryConnectToServer();
 
-    Config::loadConfig(overrideIds);
+    hg::Config::loadConfig(overrideIds);
 
-    if(Config::getServerLocal())
+    if(hg::Config::getServerLocal())
     {
-        ssvu::lo("Server") << "LOCAL MODE ON" << std::endl;
+        ssvu::lo("Server") << "LOCAL MODE ON\n";
     }
 
-    GameWindow window;
-    window.setTitle("Open Hexagon " + toStr(Config::getVersion()) +
+    ssvs::GameWindow window;
+    window.setTitle("Open Hexagon " + ssvu::toStr(hg::Config::getVersion()) +
                     " - by vittorio romeo - http://vittorioromeo.info");
-    window.setSize(Config::getWidth(), Config::getHeight());
-    window.setPixelMult(Config::getPixelMultiplier());
-    window.setFullscreen(Config::getFullscreen());
-    window.setVsync(Config::getVsync());
-    window.setFPSLimited(Config::getLimitFPS());
-    window.setMaxFPS(Config::getMaxFPS());
-    window.setMouseCursorVisible(Config::getMouseVisible());
+    window.setSize(hg::Config::getWidth(), hg::Config::getHeight());
+    window.setPixelMult(hg::Config::getPixelMultiplier());
+    window.setFullscreen(hg::Config::getFullscreen());
+    window.setVsync(hg::Config::getVsync());
+    window.setFPSLimited(hg::Config::getLimitFPS());
+    window.setMaxFPS(hg::Config::getMaxFPS());
+    window.setMouseCursorVisible(hg::Config::getMouseVisible());
 
-    Config::setTimerStatic(window, Config::getTimerStatic());
+    hg::Config::setTimerStatic(window, hg::Config::getTimerStatic());
 
-    auto assets(mkUPtr<HGAssets>());
-    Online::initializeValidators(*assets);
-    auto hg(mkUPtr<HexagonGame>(*assets, window));
-    auto mg(mkUPtr<MenuGame>(*assets, *hg, window));
+    auto assets = std::make_unique<hg::HGAssets>();
+    hg::Online::initializeValidators(*assets);
+
+    auto hg = std::make_unique<hg::HexagonGame>(*assets, window);
+    auto mg = std::make_unique<hg::MenuGame>(*assets, *hg, window);
     hg->mgPtr = mg.get();
 
     assets->refreshVolumes();
     window.setGameState(mg->getGame());
     mg->init();
+
     window.run();
 
-    if(Online::getLoginStatus() != Online::LoginStat::Logged)
+    if(hg::Online::getLoginStatus() != hg::Online::LoginStat::Logged)
     {
-        Online::logout();
+        hg::Online::logout();
     }
 
     ssvu::lo().flush();
 
-    Config::saveConfig();
+    hg::Config::saveConfig();
     assets->pSaveCurrent();
-    saveLogToFile("log.txt");
-    Online::cleanup();
+
+    ssvu::saveLogToFile("log.txt");
+    hg::Online::cleanup();
 
     return 0;
 }

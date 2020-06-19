@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2015 Vittorio Romeo
+// Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
@@ -16,8 +16,10 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/FPSWatcher.hpp"
 
+
 namespace hg
 {
+
 class MenuGame;
 
 class HexagonGame
@@ -42,11 +44,11 @@ private:
 
     ssvs::Camera overlayCamera{
         window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                    Vec2f(Config::getWidth(), Config::getHeight())}};
+                    sf::Vector2f(Config::getWidth(), Config::getHeight())}};
 
     ssvu::TimelineManager effectTimelineManager;
 
-    const Vec2f centerPos{ssvs::zeroVec2f};
+    const sf::Vector2f centerPos{ssvs::zeroVec2f};
 
     Lua::LuaContext lua;
 
@@ -84,7 +86,10 @@ private:
     sf::Text text{"", assets.get<sf::Font>("imagine.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
-    const Vec2f txt_pos{8, 8};
+    const sf::Vector2f txt_pos{8, 8};
+
+    // Color of the polygon in the center.
+    CapColor capColor;
 
     struct CExprVec2f
     {
@@ -178,9 +183,11 @@ private:
     void invalidateScore();
 
 public:
-    ssvs::VertexVector<sf::PrimitiveType::Quads> wallQuads;
-    ssvs::VertexVector<sf::PrimitiveType::Triangles> playerTris;
-    ssvs::VertexVector<sf::PrimitiveType::Triangles> capTris;
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTris;
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads3D;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris3D;
 
     MenuGame* mgPtr;
 
