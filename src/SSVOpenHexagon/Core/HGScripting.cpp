@@ -61,17 +61,17 @@ void HexagonGame::initLua_Messages()
         eventTimeline.append<Do>([=, this] {
             if(firstPlay && Config::getShowMessages())
             {
-                addMessage(mMsg, mDuration);
+                addMessage(mMsg, mDuration, true);
             }
         });
     });
 
     lua.writeVariable(
-        "m_messageAddImportant", [this](string mMsg, float mDuration) {
+        "m_messageAddImportant", [this](string mMsg, float mDuration, bool mSoundTog) {
             eventTimeline.append<Do>([=, this] {
                 if(Config::getShowMessages())
                 {
-                    addMessage(mMsg, mDuration);
+                    addMessage(mMsg, mDuration, mSoundTog);
                 }
             });
         });
