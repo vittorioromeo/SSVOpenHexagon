@@ -197,7 +197,7 @@ void HexagonGame::initLua_LevelControl()
             stopLevelMusic();
             playLevelMusic();
         });
-    */
+    //*/
 }
 
 void HexagonGame::initLua_StyleControl()
