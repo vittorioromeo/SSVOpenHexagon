@@ -183,8 +183,14 @@ void HexagonGame::initLua_LevelControl()
     lua.writeVariable("l_setRotation",
         [this](float mValue) { backgroundCamera.setRotation(mValue); });
 
-    lua.writeVariable(
-        "l_getRotation", [this] { return backgroundCamera.getRotation(); });
+    lua.writeVariable("l_getRotation",
+        [this] { return backgroundCamera.getRotation(); });
+
+    lua.writeVariable("l_setCameraPos",
+        [this](float mX, float mY) { levelStatus.camPos = {mX, mY}; });
+
+    lua.writeVariable("l_getCameraPos",
+        [this] { return std::make_tuple(levelStatus.camPos.x, levelStatus.camPos.y); });
 
     lua.writeVariable(
         "l_getLevelTime", [this] { return (float)status.currentTime; });
@@ -235,6 +241,8 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPulseMin", &StyleData::_3dPulseMin);
     sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed);
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
+    sdVar("ColorPosOffset", &StyleData::colorPosOffset);
+    sdVar("BGTileRadius", &StyleData::BGTileRadius);
 
     lua.writeVariable("s_setStyle",
         [this](string mId) { styleData = assets.getStyleData(mId); });

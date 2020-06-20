@@ -139,7 +139,9 @@ void HexagonGame::update(FT mFT)
     }
 
     overlayCamera.update(mFT);
+    backgroundCamera.setCenter(Vec2f(0, 0));
     backgroundCamera.update(mFT);
+    backgroundCamera.setCenter(Vec2f(0, 200));
 
     if(status.started)
     {
