@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <variant>
@@ -25,7 +27,8 @@ struct ByIndex      { int index; };
 using CapColor = std::variant<  //
     CapColorMode::Main,         //
     CapColorMode::MainDarkened, //
-    CapColorMode::ByIndex       //
+    CapColorMode::ByIndex,       //
+    ColorData
     >;
 
 [[nodiscard]] CapColor parseCapColor(const ssvuj::Obj& obj) noexcept;
