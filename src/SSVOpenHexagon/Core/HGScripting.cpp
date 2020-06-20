@@ -48,7 +48,7 @@ void HexagonGame::initLua_Utils()
         "u_haltTime", [=](float mDuration) { status.timeStop = mDuration; });
     lua.writeVariable("u_timelineWait",
         [=](float mDuration) { timeline.append<Wait>(mDuration); });
-    lua.writeVariable("u_clearWalls", [=] { walls.clear() });
+    lua.writeVariable("u_clearWalls", [=] { walls.clear(); });
     lua.writeVariable(
         "u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
     lua.writeVariable("u_setPlayerAngle",
