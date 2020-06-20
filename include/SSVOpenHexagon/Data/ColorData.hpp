@@ -22,5 +22,17 @@ struct ColorData
           offset{ssvuj::getExtr<float>(mRoot, "offset", 0.f)},
           color{
               ssvuj::getExtr<sf::Color>(mRoot, "value", sf::Color::White)},
-          pulse{ssvuj::getExtr<sf::Color>(mRoot, "pulse", sf::Color::White)}
+          pulse{ssvuj::getExtr<sf::Color>(mRoot, "pulse", sf::Color::White)};
+
+    ColorData(const bool mMain, const bool mDynamic, const bool mDynamicOffset,
+                const float mDynamicDarkness, const float mHueShift, const float mOffset,
+                sf::Color mColor, sf::Color mPulse)
+                : main{mMain},
+                dynamic{mDynamic},
+                dynamicOffset{mDynamicOffset},
+                dynamicDarkness{mDynamicDarkness},
+                hueShift{mHueShift},
+                offset{mOffset},
+                color{mColor},
+                pulse{mPulse};
 };
