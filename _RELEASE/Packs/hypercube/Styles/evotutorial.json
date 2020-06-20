@@ -23,6 +23,7 @@
 	
 	// Main color
 	"main": { "main": true, "dynamic": false, "value": [45, 25, 25, 255], "pulse": [25, 25, 50, 0] },
+	"cap_color": {"legacy": true, "index": 0},
 
 	// Background colors
 	"colors":
