@@ -183,7 +183,7 @@ sf::Color StyleData::getCapColorResult() const noexcept
         },                                                            //
         [this](CapColorMode::ByIndex x) { return getColor(x.index); }, //
         [this](ColorData data) {
-            return getColor(data);
+            return calculateColor(data);
         }
     );
 }
