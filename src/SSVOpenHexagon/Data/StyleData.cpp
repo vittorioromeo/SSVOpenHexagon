@@ -110,7 +110,7 @@ void StyleData::update(FT mFT, float mMult)
     }
 }
 
-void StyleData::computeColors()
+void StyleData::computeColors(LevelStatus& levelStatus)
 {
     currentMainColor = calculateColor(mainColorData);
 
@@ -126,18 +126,19 @@ void StyleData::computeColors()
 
     if(currentColors.size() > 1)
     {
-        ssvu::rotate(currentColors,
-            begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
+        ssvu::rotate(currentColors, begin(currentColors) + currentSwapTime /
+                    (maxSwapTime / 2.f) + colorPosOffset % levelStatus.sides);
     }
 }
 
 void StyleData::drawBackground(RenderTarget& mRenderTarget,
-    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const
+    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
+                               const StyleData& styleData) const
 {
     const auto sides = levelStatus.sides;
 
     float div{ssvu::tau / sides * 1.0001f};
-    float distance{4500};
+    float distance{styleData.BGTileRadius};
 
     static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
 

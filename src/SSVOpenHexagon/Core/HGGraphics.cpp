@@ -18,7 +18,7 @@ namespace hg
 
 void HexagonGame::draw()
 {
-    styleData.computeColors();
+    styleData.computeColors(levelStatus);
 
     window.clear(Color::Black);
 
@@ -30,22 +30,21 @@ void HexagonGame::draw()
                 getRndI(-levelStatus.cameraShake, levelStatus.cameraShake),
                 getRndI(-levelStatus.cameraShake, levelStatus.cameraShake));
 
-            backgroundCamera.setCenter(shake);
-            overlayCamera.setCenter(shake + sf::Vector2f{Config::getWidth() / 2.f,
-                                                Config::getHeight() / 2.f});
+            //backgroundCamera.setCenter(shake);
+            overlayCamera.setCenter(sf::Vector2f{Config::getWidth() / 2.f,
+                                                 Config::getHeight() / 2.f});
         }
         else
         {
-            backgroundCamera.setCenter(ssvs::zeroVec2f);
-            overlayCamera.setCenter(
-                sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
+            //backgroundCamera.setCenter(ssvs::zeroVec2f);
+            overlayCamera.setCenter(sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
         }
     }
 
     if(!Config::getNoBackground())
     {
         backgroundCamera.apply();
-        styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus);
+        styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus, styleData);
     }
 
     backgroundCamera.apply();

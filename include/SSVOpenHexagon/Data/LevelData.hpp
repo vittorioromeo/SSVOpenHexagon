@@ -74,6 +74,7 @@ struct LevelStatus
     float wallAngleLeft{0.f};
     float wallAngleRight{0.f};
     float _3dEffectMultiplier{1.f};
+    sf::Vector2f camPos{0.f, 0.f};
 
     int cameraShake{0};
 
