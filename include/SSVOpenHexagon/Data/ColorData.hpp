@@ -2,6 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
+#pragma once
+
 #include "SSVOpenHexagon/Global/Common.hpp"
 
 struct ColorData
