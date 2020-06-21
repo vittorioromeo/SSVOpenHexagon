@@ -215,6 +215,8 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 void HexagonGame::checkAndSaveScore()
 {
+    float time = status.getTimeSeconds();
+
     if(Config::getInvincible())
     {
         lo("hg::HexagonGame::checkAndSaveScore()")
@@ -225,9 +227,9 @@ void HexagonGame::checkAndSaveScore()
     if(assets.pIsLocal())
     {
         string localValidator{getLocalValidator(levelData->id, difficultyMult)};
-        if(assets.getLocalScore(localValidator) < status.currentTime)
+        if(assets.getLocalScore(localValidator) < time)
         {
-            assets.setLocalScore(localValidator, status.currentTime);
+            assets.setLocalScore(localValidator, time);
         }
         assets.saveCurrentLocalProfile();
     }
@@ -240,13 +242,13 @@ void HexagonGame::checkAndSaveScore()
                 << Config::getUneligibilityReason() << "\n";
             return;
         }
-        if(status.currentTime < 8)
+        if(time < 8)
         {
             lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - less than 8 seconds\n";
             return;
         }
-        Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
+        Online::trySendScore(levelData->id, difficultyMult, time);
     }
 }
 

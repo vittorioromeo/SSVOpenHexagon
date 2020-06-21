@@ -45,7 +45,7 @@ void HexagonGame::initLua_Utils()
     lua.writeVariable("u_isKeyPressed",
         [this](int mKey) { return window.getInputState()[KKey(mKey)]; });
     lua.writeVariable(
-        "u_haltTime", [this](float mDuration) { status.timeStop = mDuration; });
+        "u_haltTime", [this](float mDuration) { status.pauseTime(mDuration); });
     lua.writeVariable("u_timelineWait",
         [this](float mDuration) { timeline.append<Wait>(mDuration); });
     lua.writeVariable("u_clearWalls", [this] { walls.clear(); });
@@ -115,7 +115,7 @@ void HexagonGame::initLua_MainTimeline()
     lua.writeVariable("t_waitUntilS", [this](float mDuration) {
         timeline.append<Wait>(10);
         timeline.append<Do>([=, this] {
-            if(status.currentTime < mDuration)
+            if(status.getTimeSeconds() < mDuration)
             {
                 timeline.jumpTo(timeline.getCurrentIndex() - 2);
             }
@@ -126,12 +126,12 @@ void HexagonGame::initLua_MainTimeline()
 void HexagonGame::initLua_EventTimeline()
 {
     lua.writeVariable("e_eventStopTime", [this](float mDuration) {
-        eventTimeline.append<Do>([=, this] { status.timeStop = mDuration; });
+        eventTimeline.append<Do>([=, this] { status.pauseTime(mDuration); });
     });
 
     lua.writeVariable("e_eventStopTimeS", [this](float mDuration) {
         eventTimeline.append<Do>(
-            [=, this] { status.timeStop = ssvu::getSecondsToFT(mDuration); });
+            [=, this] { status.pauseTime(ssvu::getSecondsToFT(mDuration)); });
     });
 
     lua.writeVariable("e_eventWait",
@@ -144,7 +144,7 @@ void HexagonGame::initLua_EventTimeline()
     lua.writeVariable("e_eventWaitUntilS", [this](float mDuration) {
         eventTimeline.append<Wait>(10);
         eventTimeline.append<Do>([=, this] {
-            if(status.currentTime < mDuration)
+            if(status.getTimeSeconds() < mDuration)
             {
                 eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2);
             }
@@ -219,7 +219,7 @@ void HexagonGame::initLua_LevelControl()
         "l_getRotation", [this] { return backgroundCamera.getRotation(); });
 
     lua.writeVariable(
-        "l_getLevelTime", [this] { return (float)status.currentTime; });
+        "l_getLevelTime", [this] { return (float)status.getTimeSeconds(); });
 
     lua.writeVariable(
         "l_getOfficial", [this] { return Config::getOfficial(); });

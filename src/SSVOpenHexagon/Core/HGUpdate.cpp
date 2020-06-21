@@ -101,7 +101,7 @@ void HexagonGame::update(FT mFT)
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
 
             updateEvents(mFT);
-            updateTimeStop(mFT);
+            status.updateTime();
             updateIncrement();
 
             if(mustChangeSides && walls.empty())
@@ -179,24 +179,13 @@ void HexagonGame::updateEvents(FT mFT)
         messageTimeline.reset();
     }
 }
-void HexagonGame::updateTimeStop(FT mFT)
-{
-    if(status.timeStop <= 0)
-    {
-        status.updateTime();
-    }
-    else
-    {
-        status.timeStop -= mFT;
-    }
-}
 void HexagonGame::updateIncrement()
 {
     if(!levelStatus.incEnabled)
     {
         return;
     }
-    if(status.incrementTime < levelStatus.incTime)
+    if(status.getIncrementTimeSeconds() < levelStatus.incTime)
     {
         return;
     }
@@ -207,14 +196,12 @@ void HexagonGame::updateIncrement()
 
     ++levelStatus.currentIncrements;
     incrementDifficulty();
-
-    status.incrementTime = 0;
+    status.resetIncrementTime();
     mustChangeSides = true;
 }
 void HexagonGame::updateLevel(FT mFT)
 {
-    if(status.timeStop > 0)
-    {
+    if(status.isTimePaused()) {
         return;
     }
 
