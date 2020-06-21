@@ -194,12 +194,13 @@ void HexagonGame::initLua_LevelControl()
     lsVar("SwapEnabled", &LevelStatus::swapEnabled);
     lsVar("TutorialMode", &LevelStatus::tutorialMode);
     lsVar("IncEnabled", &LevelStatus::incEnabled);
-    lsVar("RndSideChangesEnabled", &LevelStatus::rndSideChangesEnabled);
     lsVar("DarkenUnevenBackgroundChunk",
         &LevelStatus::darkenUnevenBackgroundChunk);
     lsVar("CurrentIncrements", &LevelStatus::currentIncrements);
     lsVar("MaxInc", &LevelStatus::maxIncrements); // backwards-compatible
     lsVar("MaxIncrements", &LevelStatus::maxIncrements);
+
+	lua.writeVariable("l_enableRndSideChanges", [=](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; });
 
     lua.writeVariable("l_addTracked", [this](string mVar, string mName) {
         levelStatus.trackedVariables.emplace_back(mVar, mName);
