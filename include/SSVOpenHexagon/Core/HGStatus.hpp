@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <sys/time.h>
+#include <chrono>
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 
@@ -13,13 +13,19 @@ namespace hg
 struct HexagonGameStatus
 {
 private:
-    ssvu::ObfuscatedValue<uint64_t> globalTms{0};
-    ssvu::ObfuscatedValue<uint64_t> incrementTms{0};
+    // Timestamp at which we started playing the level, and for how long we did
+    std::chrono::time_point<std::chrono::steady_clock> startTms;
+
+    // Timestamp of the last increment, and duration since then
+    std::chrono::time_point<std::chrono::steady_clock> incrementTms;
+
+    // The timestamp at which the timer was paused, and how long we should pause it
+    std::chrono::time_point<std::chrono::steady_clock> pauseTms;
+    std::chrono::milliseconds pauseLength{100};
+
+    std::chrono::time_point<std::chrono::steady_clock> lastTickTms;
 
 public:
-    ssvu::ObfuscatedValue<float> currentTime{0.f};
-    float incrementTime{0};
-    float timeStop{100};
     float pulse{75};
     float pulseDirection{1};
     float pulseDelay{0};
@@ -38,27 +44,18 @@ public:
     ssvu::ObfuscatedValue<float> lostFrames{0};
 
     HexagonGameStatus() {
-        struct timeval time;
-        gettimeofday(&time, NULL);
-        globalTms = time.tv_sec * 1000000 + time.tv_usec;
-        incrementTms = globalTms;
+        lastTickTms = std::chrono::steady_clock::now();
+        startTms = lastTickTms;
+        incrementTms = lastTickTms;
+        pauseTms = lastTickTms;
     }
 
-    void resetIncrementTime() {
-        struct timeval time;
-        gettimeofday(&time, NULL);
-        incrementTms = time.tv_sec * 1000000 + time.tv_usec;
-        incrementTime = 0.f;
-    }
-
-    void updateTime() {
-        struct timeval time;
-        gettimeofday(&time, NULL);
-        uint64_t currentTms = time.tv_sec * 1000000 + time.tv_usec;
-
-        currentTime = (float)(currentTms - globalTms) / 1000000.f;
-        incrementTime = (float)(currentTms - incrementTms) / 1000000.f;
-    }
+    float getIncrementTimeSeconds();
+    float getTimeSeconds();
+    bool isTimePaused();
+    void pauseTime(float seconds);
+    void resetIncrementTime();
+    void updateTime();
 };
 
 } // namespace hg

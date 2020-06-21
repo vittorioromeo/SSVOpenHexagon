@@ -144,7 +144,6 @@ private:
 
     // Update methods
     void update(FT mFT);
-    void updateTimeStop(FT mFT);
     void updateIncrement();
     void updateEvents(FT mFT);
     void updateLevel(FT mFT);

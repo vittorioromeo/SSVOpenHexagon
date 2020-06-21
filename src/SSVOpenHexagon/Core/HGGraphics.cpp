@@ -174,7 +174,7 @@ void HexagonGame::updateText()
 
     if(status.started)
     {
-        os << "time: " << toStr(status.currentTime).substr(0, 5) << "\n";
+        os << "time: " << toStr(status.getTimeSeconds()).substr(0, 5) << "\n";
     }
 
     if(levelStatus.tutorialMode)
