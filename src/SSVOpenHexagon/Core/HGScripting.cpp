@@ -32,31 +32,32 @@ void HexagonGame::initLua_Utils()
         stopLevelMusic();
         playLevelMusic();
     });
-    lua.writeVariable("u_setMusicSegment", [=](string mId, int segment) {
+    lua.writeVariable("u_setMusicSegment", [this](string mId, int segment) {
         musicData = assets.getMusicData(mId);
         stopLevelMusic();
         playLevelMusicAtTime(musicData.getSegment(segment));
     });
-    lua.writeVariable("u_setMusicSeconds", [=](string mId, float mTime) {
+    lua.writeVariable("u_setMusicSeconds", [this](string mId, float mTime) {
         musicData = assets.getMusicData(mId);
         stopLevelMusic();
         playLevelMusicAtTime(mTime);
     });
     lua.writeVariable("u_isKeyPressed",
-        [=](int mKey) { return window.getInputState()[KKey(mKey)]; });
+        [this](int mKey) { return window.getInputState()[KKey(mKey)]; });
     lua.writeVariable(
-        "u_haltTime", [=](float mDuration) { status.timeStop = mDuration; });
+        "u_haltTime", [this](float mDuration) { status.timeStop = mDuration; });
     lua.writeVariable("u_timelineWait",
-        [=](float mDuration) { timeline.append<Wait>(mDuration); });
-    lua.writeVariable("u_clearWalls", [=] { walls.clear(); });
+        [this](float mDuration) { timeline.append<Wait>(mDuration); });
+    lua.writeVariable("u_clearWalls", [this] { walls.clear(); });
     lua.writeVariable(
-        "u_getPlayerAngle", [=] { return player.getPlayerAngle(); });
+        "u_getPlayerAngle", [this] { return player.getPlayerAngle(); });
     lua.writeVariable("u_setPlayerAngle",
-        [=](float newAng) { player.setPlayerAngle(newAng); });
+        [this](float newAng) { player.setPlayerAngle(newAng); });
     lua.writeVariable("u_isMouseButtonPressed",
-        [=](int mKey) { return window.getInputState()[MBtn(mKey)]; });
-    lua.writeVariable("u_isFastSpinning", [=] { return status.fastSpin > 0; });
-    lua.writeVariable("u_forceIncrement", [=] { incrementDifficulty(); });
+        [this](int mKey) { return window.getInputState()[MBtn(mKey)]; });
+    lua.writeVariable(
+        "u_isFastSpinning", [this] { return status.fastSpin > 0; });
+    lua.writeVariable("u_forceIncrement", [this] { incrementDifficulty(); });
     lua.writeVariable(
         "u_isFastSpinning", [this] { return status.fastSpin > 0; });
     lua.writeVariable("u_forceIncrement", [this] { incrementDifficulty(); });
@@ -99,7 +100,7 @@ void HexagonGame::initLua_Messages()
             });
         });
 
-    lua.writeVariable("m_clearMessages", [=] { clearMessages(); });
+    lua.writeVariable("m_clearMessages", [this] { clearMessages(); });
 }
 
 void HexagonGame::initLua_MainTimeline()
@@ -200,7 +201,12 @@ void HexagonGame::initLua_LevelControl()
     lsVar("MaxInc", &LevelStatus::maxIncrements); // backwards-compatible
     lsVar("MaxIncrements", &LevelStatus::maxIncrements);
 
-	lua.writeVariable("l_enableRndSideChanges", [=](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; });
+    lua.writeVariable("l_enableRndSideChanges",
+        [this](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; });
+
+    lua.writeVariable("l_darkenUnevenBackgroundChunk", [this](bool mValue) {
+        levelStatus.darkenUnevenBackgroundChunk = mValue;
+    });
 
     lua.writeVariable("l_addTracked", [this](string mVar, string mName) {
         levelStatus.trackedVariables.emplace_back(mVar, mName);
