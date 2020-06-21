@@ -2,6 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
+#include <sys/time.h>
+
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -181,8 +183,7 @@ void HexagonGame::updateTimeStop(FT mFT)
 {
     if(status.timeStop <= 0)
     {
-        status.currentTime += ssvu::getFTToSeconds(mFT);
-        status.incrementTime += ssvu::getFTToSeconds(mFT);
+        status.updateTime();
     }
     else
     {
