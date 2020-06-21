@@ -180,12 +180,9 @@ sf::Color StyleData::getCapColorResult() const noexcept
         [this](CapColorMode::Main) { return getMainColor(); }, //
         [this](CapColorMode::MainDarkened) {
             return Utils::getColorDarkened(getMainColor(), 1.4f);
-        },                                                            //
+        },                                                             //
         [this](CapColorMode::ByIndex x) { return getColor(x.index); }, //
-        [this](ColorData data) {
-            return calculateColor(data);
-        }
-    );
+        [this](ColorData data) { return calculateColor(data); });
 }
 
 } // namespace hg
