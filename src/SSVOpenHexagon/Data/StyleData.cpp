@@ -181,7 +181,10 @@ sf::Color StyleData::getCapColorResult() const noexcept
         [this](CapColorMode::MainDarkened) {
             return Utils::getColorDarkened(getMainColor(), 1.4f);
         },                                                            //
-        [this](CapColorMode::ByIndex x) { return getColor(x.index); } //
+        [this](CapColorMode::ByIndex x) { return getColor(x.index); }, //
+        [this](ColorData data) {
+            return calculateColor(data);
+        }
     );
 }
 
