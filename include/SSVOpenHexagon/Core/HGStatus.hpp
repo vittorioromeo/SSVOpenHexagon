@@ -4,12 +4,19 @@
 
 #pragma once
 
+#include <sys/time.h>
+
 #include "SSVOpenHexagon/Global/Common.hpp"
 
 namespace hg
 {
 struct HexagonGameStatus
 {
+private:
+    ssvu::ObfuscatedValue<uint64_t> globalTms{0};
+    ssvu::ObfuscatedValue<uint64_t> incrementTms{0};
+
+public:
     ssvu::ObfuscatedValue<float> currentTime{0.f};
     float incrementTime{0};
     float timeStop{100};
@@ -29,6 +36,29 @@ struct HexagonGameStatus
     bool started{false};
     sf::Color overrideColor{sf::Color::Transparent};
     ssvu::ObfuscatedValue<float> lostFrames{0};
+
+    HexagonGameStatus() {
+        struct timeval time;
+        gettimeofday(&time, NULL);
+        globalTms = time.tv_sec * 1000000 + time.tv_usec;
+        incrementTms = globalTms;
+    }
+
+    void resetIncrementTime() {
+        struct timeval time;
+        gettimeofday(&time, NULL);
+        incrementTms = time.tv_sec * 1000000 + time.tv_usec;
+        incrementTime = 0.f;
+    }
+
+    void updateTime() {
+        struct timeval time;
+        gettimeofday(&time, NULL);
+        uint64_t currentTms = time.tv_sec * 1000000 + time.tv_usec;
+
+        currentTime = (float)(currentTms - globalTms) / 1000000.f;
+        incrementTime = (float)(currentTms - incrementTms) / 1000000.f;
+    }
 };
 
 } // namespace hg
