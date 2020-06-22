@@ -206,6 +206,12 @@ public:
         window.draw(mDrawable);
     }
 
+    // Player methods
+    void playerSwap(bool mSoundTog){
+        player.swap(*this, mSoundTog);
+    }
+
+
     // Setters
     void setSides(unsigned int mSides);
 

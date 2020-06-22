@@ -52,6 +52,7 @@ void HexagonGame::initLua_Utils()
     lua.writeVariable("u_getDifficultyMult", [this] { return difficultyMult; });
     lua.writeVariable("u_getSpeedMultDM", [this] { return getSpeedMultDM(); });
     lua.writeVariable("u_getDelayMultDM", [this] { return getDelayMultDM(); });
+    lua.writeVariable("u_swapPlayer", [this]() { playerSwap(false); });
 }
 
 void HexagonGame::initLua_Messages()
