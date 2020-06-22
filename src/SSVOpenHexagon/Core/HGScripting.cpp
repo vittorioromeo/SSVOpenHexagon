@@ -34,17 +34,16 @@ void HexagonGame::initLua_Utils()
     });
     lua.writeVariable("u_isKeyPressed",
         [this](int mKey) { return window.getInputState()[KKey(mKey)]; });
-
     lua.writeVariable(
         "u_getPlayerAngle", [this] { return player.getPlayerAngle(); });
     lua.writeVariable("u_setPlayerAngle",
         [this](float newAng) { player.setPlayerAngle(newAng); });
-
     lua.writeVariable("u_isMouseButtonPressed",
         [this](int mKey) { return window.getInputState()[MBtn(mKey)]; });
-
     lua.writeVariable(
         "u_isFastSpinning", [this] { return status.fastSpin > 0; });
+    lua.writeVariable(
+        "u_isCameraFastSpinning", [this] { return status.camFastSpin > 0; });
     lua.writeVariable("u_forceIncrement", [this] { incrementDifficulty(); });
     lua.writeVariable(
         "u_kill", [this] { timeline.append<Do>([this] { death(true); }); });
@@ -141,12 +140,20 @@ void HexagonGame::initLua_LevelControl()
 
     lsVar("SpeedMult", &LevelStatus::speedMult);
     lsVar("SpeedInc", &LevelStatus::speedInc);
+
+    lsVar("CameraRotationSpeed", &LevelStatus::cameraRotationSpeed);
+    lsVar("CameraRotationSpeedInc", &LevelStatus::cameraRotationSpeedInc);
+    lsVar("CameraRotationSpeedMax", &LevelStatus::cameraRotationSpeedMax);
+    lsVar("CameraFastSpin", &LevelStatus::cameraFastSpin);
+
+    lsVar("Rotation", &LevelStatus::rotation);
     lsVar("RotationSpeed", &LevelStatus::rotationSpeed);
     lsVar("RotationSpeedInc", &LevelStatus::rotationSpeedInc);
     lsVar("RotationSpeedMax", &LevelStatus::rotationSpeedMax);
+    lsVar("FastSpin", &LevelStatus::fastSpin);
+
     lsVar("DelayMult", &LevelStatus::delayMult);
     lsVar("DelayInc", &LevelStatus::delayInc);
-    lsVar("FastSpin", &LevelStatus::fastSpin);
     lsVar("IncTime", &LevelStatus::incTime);
     lsVar("PulseMin", &LevelStatus::pulseMin);
     lsVar("PulseMax", &LevelStatus::pulseMax);
@@ -180,17 +187,31 @@ void HexagonGame::initLua_LevelControl()
         levelStatus.trackedVariables.emplace_back(mVar, mName);
     });
 
-    lua.writeVariable("l_setRotation",
+    lua.writeVariable("l_setCameraRotation",
         [this](float mValue) { backgroundCamera.setRotation(mValue); });
+
+    lua.writeVariable("l_getCameraRotation",
+        [this] { return backgroundCamera.getRotation(); });
+
+    /*
+    lua.writeVariable("l_setRotation",
+        [this](float mValue) { levelStatus.rotationSpeed(mValue); });
 
     lua.writeVariable("l_getRotation",
         [this] { return backgroundCamera.getRotation(); });
+    */
 
     lua.writeVariable("l_setCameraPos",
         [this](float mX, float mY) { levelStatus.camPos = {mX, mY}; });
 
     lua.writeVariable("l_getCameraPos",
         [this] { return std::make_tuple(levelStatus.camPos.x, levelStatus.camPos.y); });
+
+    lua.writeVariable("l_setFieldPos",
+        [this](float mX, float mY) { levelStatus.fieldPos = {mX, mY}; });
+
+    lua.writeVariable("l_getFieldPos",
+        [this] { return std::make_tuple(levelStatus.fieldPos.x, levelStatus.fieldPos.y); });
 
     lua.writeVariable(
         "l_getLevelTime", [this] { return (float)status.currentTime; });
@@ -243,6 +264,7 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
     sdVar("ColorPosOffset", &StyleData::colorPosOffset);
     sdVar("BGTileRadius", &StyleData::BGTileRadius);
+    sdVar("BGRotationOffset", &StyleData::BGRotOff);
 
     lua.writeVariable("s_setStyle",
         [this](string mId) { styleData = assets.getStyleData(mId); });

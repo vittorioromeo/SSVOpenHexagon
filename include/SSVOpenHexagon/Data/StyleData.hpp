@@ -57,6 +57,7 @@ public:
     float maxSwapTime;
     int   colorPosOffset;
     float BGTileRadius;
+    float BGRotOff;
     float _3dDepth;
     float _3dSkew;
     float _3dSpacing;
@@ -119,7 +120,7 @@ public:
     void update(FT mFT, float mMult = 1.f);
     void computeColors(LevelStatus& levelStatus);
     void drawBackground(sf::RenderTarget& mRenderTarget,
-        const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
+        const sf::Vector2f& mCenterPos, LevelStatus& levelStatus,
                         const StyleData& styleData) const;
 
     void setRootPath(const Path& mPath)

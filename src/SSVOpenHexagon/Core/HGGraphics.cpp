@@ -30,13 +30,13 @@ void HexagonGame::draw()
                 getRndI(-levelStatus.cameraShake, levelStatus.cameraShake),
                 getRndI(-levelStatus.cameraShake, levelStatus.cameraShake));
 
-            //backgroundCamera.setCenter(shake);
+            backgroundCamera.setCenter(levelStatus.camPos+shake);
             overlayCamera.setCenter(sf::Vector2f{Config::getWidth() / 2.f,
                                                  Config::getHeight() / 2.f});
         }
         else
         {
-            //backgroundCamera.setCenter(ssvs::zeroVec2f);
+            backgroundCamera.setCenter(levelStatus.camPos);
             overlayCamera.setCenter(sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
         }
     }
@@ -62,7 +62,7 @@ void HexagonGame::draw()
 
     if(status.started)
     {
-        player.draw(*this, styleData.getCapColorResult());
+        player.draw(*this, styleData.getCapColorResult(), levelStatus, styleData);
     }
 
     if(Config::get3D())

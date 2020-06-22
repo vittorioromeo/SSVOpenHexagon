@@ -132,7 +132,7 @@ void StyleData::computeColors(LevelStatus& levelStatus)
 }
 
 void StyleData::drawBackground(RenderTarget& mRenderTarget,
-    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
+    const sf::Vector2f& mCenterPos, LevelStatus& levelStatus,
                                const StyleData& styleData) const
 {
     const auto sides = levelStatus.sides;
@@ -146,6 +146,8 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
     vertices.reserve(sides * 3);
 
     const auto& colors(getColors());
+
+    auto fieldAngle = styleData.BGRotOff+(3.14159f/180.f)*levelStatus.rotation;
 
     for(auto i(0u); i < sides; ++i)
     {
@@ -167,8 +169,8 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
         }
 
         vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
-            getOrbitRad(mCenterPos, angle + div * 0.5f, distance),
-            getOrbitRad(mCenterPos, angle - div * 0.5f, distance));
+            getOrbitRad(mCenterPos, fieldAngle + angle + div * 0.5f, distance),
+            getOrbitRad(mCenterPos, fieldAngle + angle - div * 0.5f, distance));
     }
 
     mRenderTarget.draw(vertices);

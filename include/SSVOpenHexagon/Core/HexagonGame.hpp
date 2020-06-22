@@ -39,16 +39,17 @@ public:
 
 private:
     ssvs::Camera backgroundCamera{window,
-        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
-                              Config::getHeight() * Config::getZoomFactor()}}};
+                                  {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
+                                                     Config::getHeight() * Config::getZoomFactor()}}};
 
     ssvs::Camera overlayCamera{
-        window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                    sf::Vector2f(Config::getWidth(), Config::getHeight())}};
+            window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                     sf::Vector2f(Config::getWidth(), Config::getHeight())}};
 
     ssvu::TimelineManager effectTimelineManager;
 
-    const sf::Vector2f centerPos{ssvs::zeroVec2f};
+    //const sf::Vector2f centerPos{ssvs::zeroVec2f};
+    const sf::Vector2f centerPos{levelStatus.fieldPos};
 
     Lua::LuaContext lua;
 
@@ -237,6 +238,11 @@ public:
     float getRotationSpeed() const noexcept
     {
         return levelStatus.rotationSpeed;
+    }
+
+    float getCameraRotationSpeed() const noexcept
+    {
+        return levelStatus.cameraRotationSpeed;
     }
 
     unsigned int getSides() const noexcept
