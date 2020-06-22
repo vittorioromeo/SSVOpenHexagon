@@ -32,8 +32,23 @@ void HexagonGame::initLua_Utils()
         stopLevelMusic();
         playLevelMusic();
     });
+    lua.writeVariable("u_setMusicSegment", [this](string mId, int segment) {
+        musicData = assets.getMusicData(mId);
+        stopLevelMusic();
+        playLevelMusicAtTime(musicData.getSegment(segment));
+    });
+    lua.writeVariable("u_setMusicSeconds", [this](string mId, float mTime) {
+        musicData = assets.getMusicData(mId);
+        stopLevelMusic();
+        playLevelMusicAtTime(mTime);
+    });
     lua.writeVariable("u_isKeyPressed",
         [this](int mKey) { return window.getInputState()[KKey(mKey)]; });
+    lua.writeVariable(
+        "u_haltTime", [this](float mDuration) { status.timeStop = mDuration; });
+    lua.writeVariable("u_timelineWait",
+        [this](float mDuration) { timeline.append<Wait>(mDuration); });
+    lua.writeVariable("u_clearWalls", [this] { walls.clear(); });
     lua.writeVariable(
         "u_getPlayerAngle", [this] { return player.getPlayerAngle(); });
     lua.writeVariable("u_setPlayerAngle",
@@ -61,7 +76,7 @@ void HexagonGame::initLua_Messages()
         eventTimeline.append<Do>([=, this] {
             if(firstPlay && Config::getShowMessages())
             {
-                addMessage(mMsg, mDuration);
+                addMessage(mMsg, mDuration, true);
             }
         });
     });
@@ -71,10 +86,21 @@ void HexagonGame::initLua_Messages()
             eventTimeline.append<Do>([=, this] {
                 if(Config::getShowMessages())
                 {
-                    addMessage(mMsg, mDuration);
+                    addMessage(mMsg, mDuration, true);
                 }
             });
         });
+    lua.writeVariable(
+        "m_messageAddImportantSilent", [this](string mMsg, float mDuration) {
+            eventTimeline.append<Do>([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, false);
+                }
+            });
+        });
+
+    lua.writeVariable("m_clearMessages", [this] { clearMessages(); });
 }
 
 void HexagonGame::initLua_MainTimeline()
@@ -177,12 +203,18 @@ void HexagonGame::initLua_LevelControl()
     lsVar("SwapEnabled", &LevelStatus::swapEnabled);
     lsVar("TutorialMode", &LevelStatus::tutorialMode);
     lsVar("IncEnabled", &LevelStatus::incEnabled);
-    lsVar("RndSideChangesEnabled", &LevelStatus::rndSideChangesEnabled);
     lsVar("DarkenUnevenBackgroundChunk",
         &LevelStatus::darkenUnevenBackgroundChunk);
     lsVar("CurrentIncrements", &LevelStatus::currentIncrements);
     lsVar("MaxInc", &LevelStatus::maxIncrements); // backwards-compatible
     lsVar("MaxIncrements", &LevelStatus::maxIncrements);
+
+    lua.writeVariable("l_enableRndSideChanges",
+        [this](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; });
+
+    lua.writeVariable("l_darkenUnevenBackgroundChunk", [this](bool mValue) {
+        levelStatus.darkenUnevenBackgroundChunk = mValue;
+    });
 
     lua.writeVariable("l_addTracked", [this](string mVar, string mName) {
         levelStatus.trackedVariables.emplace_back(mVar, mName);
@@ -202,17 +234,21 @@ void HexagonGame::initLua_LevelControl()
         [this] { return backgroundCamera.getRotation(); });
     */
 
-    lua.writeVariable("l_setCameraPos",
-        [this](float mX, float mY) { levelStatus.camPos = {mX, mY}; });
+    lua.writeVariable("l_setCameraPos", [this](float mX, float mY) {
+        levelStatus.camPos = {mX, mY};
+    });
 
-    lua.writeVariable("l_getCameraPos",
-        [this] { return std::make_tuple(levelStatus.camPos.x, levelStatus.camPos.y); });
+    lua.writeVariable("l_getCameraPos", [this] {
+        return std::make_tuple(levelStatus.camPos.x, levelStatus.camPos.y);
+    });
 
-    lua.writeVariable("l_setFieldPos",
-        [this](float mX, float mY) { levelStatus.fieldPos = {mX, mY}; });
+    lua.writeVariable("l_setFieldPos", [this](float mX, float mY) {
+        levelStatus.fieldPos = {mX, mY};
+    });
 
-    lua.writeVariable("l_getFieldPos",
-        [this] { return std::make_tuple(levelStatus.fieldPos.x, levelStatus.fieldPos.y); });
+    lua.writeVariable("l_getFieldPos", [this] {
+        return std::make_tuple(levelStatus.fieldPos.x, levelStatus.fieldPos.y);
+    });
 
     lua.writeVariable(
         "l_getLevelTime", [this] { return (float)status.currentTime; });
