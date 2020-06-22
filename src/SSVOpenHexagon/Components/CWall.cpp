@@ -13,16 +13,17 @@ using namespace ssvs;
 namespace hg
 {
 
-CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, int mSide,
-    float mThickness, float mDistance,
-    const StyleData& styleData, const LevelStatus& levelStatus,
-    const SpeedData& mSpeed, const SpeedData& mCurve)
+CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
+    int mSide, float mThickness, float mDistance, const StyleData& styleData,
+    const LevelStatus& levelStatus, const SpeedData& mSpeed,
+    const SpeedData& mCurve)
     : speed{mSpeed}, curve{mCurve}
 {
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
     const float angle{div * 2.f * mSide};
 
-    //auto fieldAngle = styleData.BGRotOff+(3.14159f/180.f)*levelStatus.rotation;
+    // auto fieldAngle =
+    // styleData.BGRotOff+(3.14159f/180.f)*levelStatus.rotation;
 
     vertexPositions[0] = getOrbitRad(mCenterPos, angle - div, mDistance);
     vertexPositions[1] = getOrbitRad(mCenterPos, angle + div, mDistance);
@@ -49,7 +50,8 @@ void CWall::draw(HexagonGame& mHexagonGame)
         vertexPositions[3]);
 }
 
-void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT)
+void CWall::update(
+    HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);

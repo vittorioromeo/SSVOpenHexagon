@@ -30,8 +30,22 @@ namespace hg
 
     if(ssvuj::isObj(obj))
     {
-        const int index = ssvuj::getExtr<int>(obj, "index", 0);
-        return CapColorMode::ByIndex{index};
+        const bool legacy = ssvuj::getExtr<bool>(obj, "legacy", true);
+        if(legacy)
+        {
+            const int index = ssvuj::getExtr<int>(obj, "index", 0);
+            return CapColorMode::ByIndex{index};
+        }
+        else
+        {
+            return ColorData{false, ssvuj::getExtr<bool>(obj, "dynamic", false),
+                ssvuj::getExtr<bool>(obj, "dynamic_offset", false),
+                ssvuj::getExtr<float>(obj, "dynamic_darkness", 1.f),
+                ssvuj::getExtr<float>(obj, "hue_shift", 0.f),
+                ssvuj::getExtr<float>(obj, "offset", 0.f),
+                ssvuj::getExtr<sf::Color>(obj, "value", sf::Color::White),
+                ssvuj::getExtr<sf::Color>(obj, "pulse", sf::Color::White)};
+        }
     }
 
     // Fallback case:
