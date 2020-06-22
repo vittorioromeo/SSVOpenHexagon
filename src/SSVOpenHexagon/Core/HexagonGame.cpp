@@ -291,7 +291,7 @@ void HexagonGame::addMessage(
         messageText.setString(mMessage);
     });
     messageTimeline.append<Wait>(mDuration);
-    messageTimeline.append<Do>([=] { messageText.setString(""); });
+    messageTimeline.append<Do>([this] { messageText.setString(""); });
 }
 
 void HexagonGame::clearMessages()
