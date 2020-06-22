@@ -953,7 +953,8 @@ void MenuGame::update(FT mFT)
 void MenuGame::draw()
 {
     styleData.computeColors(levelStatus);
-    window.clear(state != s::SMain ? Color::Black : styleData.getColors()[0]);
+    //Maybe could be replaced with custom color type
+    window.clear(Color::Black);
 
     backgroundCamera.setCenter(levelStatus.camPos);
     backgroundCamera.apply();
