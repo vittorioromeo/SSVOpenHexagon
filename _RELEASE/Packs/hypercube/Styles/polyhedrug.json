@@ -23,6 +23,7 @@
 
 	// Main color
 	"main": { "main": true, "dynamic": true, "value": [255, 0, 0, 255], "pulse": [-80, 75, 65, 0] },
+	"cap_color": "main",
 
 	// Background colors
 	"colors":
