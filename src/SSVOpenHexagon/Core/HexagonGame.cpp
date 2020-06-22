@@ -21,8 +21,10 @@ namespace hg
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
-    walls.emplace_back(*this, centerPos, mSide, mThickness,
-        Config::getSpawnDistance(), mSpeed, mCurve);
+    walls.emplace_back(*this, centerPos, mSide,
+            mThickness, Config::getSpawnDistance(),
+            styleData, levelStatus,
+            mSpeed, mCurve);
 
     walls.back().setHueMod(mHueMod);
 }
@@ -180,19 +182,27 @@ void HexagonGame::incrementDifficulty()
 
     if(levelStatus.shouldIncrement())
     {
-        levelStatus.rotationSpeed +=
-            levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
+        levelStatus.cameraRotationSpeed += levelStatus.cameraRotationSpeedInc * getSign(levelStatus.cameraRotationSpeed);
+        levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
     }
 
+    levelStatus.cameraRotationSpeed *= -1.f;
     levelStatus.rotationSpeed *= -1.f;
 
+    const auto& CameraRotationSpeedMax(levelStatus.cameraRotationSpeedMax);
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
-    if(status.fastSpin < 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
+    if(status.camFastSpin <= 0 && abs(levelStatus.cameraRotationSpeed) > CameraRotationSpeedMax)
+    {
+        levelStatus.cameraRotationSpeed =
+            CameraRotationSpeedMax * getSign(levelStatus.cameraRotationSpeed);
+    }
+    if(status.fastSpin <= 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed =
             rotationSpeedMax * getSign(levelStatus.rotationSpeed);
     }
 
+    status.camFastSpin = levelStatus.cameraFastSpin;
     status.fastSpin = levelStatus.fastSpin;
 }
 
@@ -336,5 +346,4 @@ void HexagonGame::setSides(unsigned int mSides)
     }
     levelStatus.sides = mSides;
 }
-
 } // namespace hg

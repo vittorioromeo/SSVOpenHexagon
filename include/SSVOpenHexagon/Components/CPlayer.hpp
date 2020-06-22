@@ -37,7 +37,8 @@ private:
     ssvu::Ticker swapBlinkTimer{5.f};
     ssvu::Ticker deadEffectTimer{80.f, false};
 
-    void drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
+    void drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
+                    const LevelStatus& levelStatus, const StyleData& styleData);
     void drawDeathEffect(HexagonGame& mHexagonGame);
 
 public:
@@ -47,7 +48,8 @@ public:
     void setPlayerAngle(float newAng);
 
     void update(HexagonGame& mHexagonGame, FT mFT);
-    void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
+    void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
+              const LevelStatus& levelStatus, const StyleData& styleData);
 };
 
 } // namespace hg

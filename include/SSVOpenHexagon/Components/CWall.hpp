@@ -68,8 +68,9 @@ public:
     bool killed{false};
 
     CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, int mSide,
-        float mThickness, float mDistance, const SpeedData& mSpeed,
-        const SpeedData& mCurve);
+          float mThickness, float mDistance,
+          const StyleData& styleData, const LevelStatus& levelStatus,
+          const SpeedData& mSpeed, const SpeedData& mCurve);
 
     void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT);
     void draw(HexagonGame& mHexagonGame);

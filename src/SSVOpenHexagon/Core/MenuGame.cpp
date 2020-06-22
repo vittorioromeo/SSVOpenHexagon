@@ -550,25 +550,17 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
     mLua.writeVariable("u_getDifficultyMult", [] { return 1; });
     mLua.writeVariable("u_getSpeedMultDM", [] { return 1; });
     mLua.writeVariable("u_getDelayMultDM", [] { return 1; });
-    mLua.writeVariable("l_setRotationSpeed",
-        [this](float mValue) {
-            HG_LO_VERBOSE("menuDebug") << "Setting rot val: " << mValue << "\n";
-            levelStatus.rotationSpeed = mValue;
-        });
-    mLua.writeVariable(
-        "l_getRotationSpeed", [this] {
-        HG_LO_VERBOSE("menuDebug") << "Getting rot val: " << levelStatus.rotationSpeed << "\n";
-        return levelStatus.rotationSpeed;
-    });
+
     mLua.writeVariable("l_setSides",
         [this](unsigned int mValue) { levelStatus.sides = mValue; });
-    mLua.writeVariable("l_getSides", [this] { return levelStatus.sides; });
+    mLua.writeVariable("l_getSides",
+        [this] { return levelStatus.sides; });
     mLua.writeVariable("s_setPulseInc",
         [this](float mValue) { styleData.pulseIncrement = mValue; });
     mLua.writeVariable("s_setHueInc",
         [this](float mValue) { styleData.hueIncrement = mValue; });
-    mLua.writeVariable(
-        "s_getHueInc", [this] { return styleData.hueIncrement; });
+    mLua.writeVariable("s_getHueInc",
+        [this] { return styleData.hueIncrement; });
     mLua.writeVariable("s_setMaxSwapTime",
         [this](float mValue) { styleData.maxSwapTime = mValue; });
     mLua.writeVariable("s_getMaxSwapTime",
@@ -581,11 +573,33 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
          [this](float mValue) { styleData.BGTileRadius = mValue; });
     mLua.writeVariable("s_getBGTileRadius",
          [this] { return styleData.BGTileRadius; });
+
     mLua.writeVariable("l_setCameraPos",
          [this](float mX, float mY) { levelStatus.camPos = {mX, mY}; });
     mLua.writeVariable("l_getCameraPos",
          [this] { return std::make_tuple(levelStatus.camPos.x, levelStatus.camPos.y); });
+    mLua.writeVariable("l_setFieldPos",
+         [this](float mX, float mY) { levelStatus.fieldPos = {mX, mY}; });
+    mLua.writeVariable("l_getFieldPos",
+         [this] { return std::make_tuple(levelStatus.fieldPos.x, levelStatus.fieldPos.y); });
 
+    mLua.writeVariable("l_setRotationSpeed",
+         [this](float mValue) {levelStatus.rotationSpeed = mValue;});
+    mLua.writeVariable("l_getRotationSpeed",
+         [this] {return levelStatus.rotationSpeed;});
+    mLua.writeVariable("l_getRotation",
+         [this](float mValue) { levelStatus.rotation = mValue; });
+    mLua.writeVariable("l_setRotation",
+         [this] { return levelStatus.rotation; });
+
+    mLua.writeVariable("l_setCameraRotationSpeed",
+         [this](float mValue) { levelStatus.cameraRotationSpeed = mValue; });
+    mLua.writeVariable("l_getCameraRotationSpeed",
+         [this] { return levelStatus.cameraRotationSpeed; });
+    mLua.writeVariable("l_getCameraRotation",
+         [this](float mValue) { levelStatus.rotation = mValue; });
+    mLua.writeVariable("l_setCameraRotation",
+         [this] { return levelStatus.rotation; });
     // Unused functions
     for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc",
             "l_setRotationSpeedMax", "l_setRotationSpeedInc", "l_setDelayInc",
@@ -603,7 +617,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall",
             "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
             "w_wallHModCurveData", "l_setDelayMult", "l_setMaxInc",
-            "s_setStyle", "u_setMusic", "l_getRotation", "l_setRotation",
+            "s_setStyle", "u_setMusic",
             "s_getCameraShake", "s_setCameraShake", "l_getOfficial",
             "s_setColorPosOffset", "s_getColorPosOffset"})
     {
@@ -908,7 +922,7 @@ void MenuGame::update(FT mFT)
     else if(state == s::SMain)
     {
         styleData.update(mFT);
-        backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
+        backgroundCamera.turn(levelStatus.cameraRotationSpeed * 10.f);
 
         if(!assets.pIsLocal())
         {
@@ -940,11 +954,13 @@ void MenuGame::draw()
 {
     styleData.computeColors(levelStatus);
     window.clear(state != s::SMain ? Color::Black : styleData.getColors()[0]);
+
     backgroundCamera.setCenter(levelStatus.camPos);
     backgroundCamera.apply();
     if(state == s::SMain)
     {
-        styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus, styleData);
+        //styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus, styleData);
+        styleData.drawBackground(window, levelStatus.fieldPos, levelStatus, styleData);
     }
 
     overlayCamera.apply();

@@ -51,14 +51,22 @@ struct LevelStatus
 {
     std::vector<TrackedVariable> trackedVariables;
 
-    float speedMult{1.f};
-    float speedInc{0.f};
+    sf::Vector2f camPos{0.f, 0.f};
+    float cameraFastSpin{0.f};
+    float cameraRotationSpeed{0.f};
+    float cameraRotationSpeedInc{0.f};
+    float cameraRotationSpeedMax{0.f};
+    sf::Vector2f fieldPos{0.f, 0.f};
+    float fastSpin{0.f};
+    float rotation{0.f};
     float rotationSpeed{0.f};
     float rotationSpeedInc{0.f};
     float rotationSpeedMax{0.f};
+
+    float speedMult{1.f};
+    float speedInc{0.f};
     float delayMult{1.f};
     float delayInc{0.f};
-    float fastSpin{0.f};
     float incTime{15.f};
     float pulseMin{75.f};
     float pulseMax{80.f};
@@ -74,13 +82,12 @@ struct LevelStatus
     float wallAngleLeft{0.f};
     float wallAngleRight{0.f};
     float _3dEffectMultiplier{1.f};
-    sf::Vector2f camPos{0.f, 0.f};
 
     int cameraShake{0};
 
     unsigned int sides{6};
-    unsigned int sidesMax{6};
-    unsigned int sidesMin{6};
+    unsigned int sidesMax{sides};
+    unsigned int sidesMin{sides};
 
     bool swapEnabled{false};
     bool tutorialMode{false};

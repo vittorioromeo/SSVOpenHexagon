@@ -126,6 +126,7 @@ void HexagonGame::update(FT mFT)
         else
         {
             levelStatus.rotationSpeed *= 0.99f;
+            levelStatus.cameraRotationSpeed *= 0.99f;
         }
 
         if(Config::get3D())
@@ -137,11 +138,11 @@ void HexagonGame::update(FT mFT)
             updateRotation(mFT);
         }
     }
+    levelStatus.rotation += levelStatus.rotationSpeed;
+    backgroundCamera.setRotation(levelStatus.cameraRotationSpeed);
 
     overlayCamera.update(mFT);
-    backgroundCamera.setCenter(Vec2f(0, 0));
     backgroundCamera.update(mFT);
-    backgroundCamera.setCenter(Vec2f(0, 200));
 
     if(status.started)
     {
@@ -285,18 +286,34 @@ void HexagonGame::updateBeatPulse(FT mFT)
 }
 void HexagonGame::updateRotation(FT mFT)
 {
+    auto nextCamRotation(getCameraRotationSpeed() * 10.f);
+    if(status.camFastSpin > 0)
+    {
+        nextCamRotation +=
+            abs((getSmootherStep(0, levelStatus.cameraFastSpin, status.camFastSpin) /
+                    3.5f) *
+                17.f) *
+            getSign(nextCamRotation);
+        status.camFastSpin -= mFT;
+    }
+    //TODO:
     auto nextRotation(getRotationSpeed() * 10.f);
     if(status.fastSpin > 0)
     {
         nextRotation +=
             abs((getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) /
-                    3.5f) *
+                 3.5f) *
                 17.f) *
             getSign(nextRotation);
         status.fastSpin -= mFT;
     }
-
-    backgroundCamera.turn(nextRotation);
+    levelStatus.rotation += nextRotation;
+    if(levelStatus.rotation > 359.f){
+        levelStatus.rotation -= 360.f;
+    }else if(levelStatus.rotation < 0.f){
+        levelStatus.rotation += 360.f;
+    }
+    backgroundCamera.turn(nextCamRotation);
 }
 void HexagonGame::updateFlash(FT mFT)
 {

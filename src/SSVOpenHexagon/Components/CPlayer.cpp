@@ -37,9 +37,10 @@ void CPlayer::setPlayerAngle(float newAng)
     angle = newAng;
 }
 
-void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
+void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
+                   const LevelStatus& levelStatus, const StyleData& styleData)
 {
-    drawPivot(mHexagonGame, mCapColor);
+    drawPivot(mHexagonGame, mCapColor, levelStatus, styleData);
 
     if(deadEffectTimer.isRunning())
     {
@@ -63,7 +64,8 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
         colorMain, ssvs::getOrbitRad(pos, angle, size), pLeft, pRight);
 }
 
-void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
+void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
+                        const LevelStatus& levelStatus, const StyleData& styleData)
 {
     const auto sides(mHexagonGame.getSides());
     const float div{ssvu::tau / sides * 0.5f};
@@ -77,18 +79,20 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 
     const sf::Color colorDarkened{Utils::getColorDarkened(colorMain, 1.4f)};
 
+
+    auto fieldAngle = styleData.BGRotOff+(3.14159f/180.f)*levelStatus.rotation;
     for(auto i(0u); i < sides; ++i)
     {
         const float sAngle{div * 2.f * i};
 
         const sf::Vector2f p1{
-            ssvs::getOrbitRad(startPos, sAngle - div, radius)};
+            ssvs::getOrbitRad(startPos, fieldAngle + sAngle - div, radius)};
         const sf::Vector2f p2{
-            ssvs::getOrbitRad(startPos, sAngle + div, radius)};
+            ssvs::getOrbitRad(startPos, fieldAngle + sAngle + div, radius)};
         const sf::Vector2f p3{
-            ssvs::getOrbitRad(startPos, sAngle + div, radius + baseThickness)};
+            ssvs::getOrbitRad(startPos, fieldAngle + sAngle + div, radius + baseThickness)};
         const sf::Vector2f p4{
-            ssvs::getOrbitRad(startPos, sAngle - div, radius + baseThickness)};
+            ssvs::getOrbitRad(startPos, fieldAngle + sAngle - div, radius + baseThickness)};
 
         mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
