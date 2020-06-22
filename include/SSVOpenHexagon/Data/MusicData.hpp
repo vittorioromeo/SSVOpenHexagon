@@ -40,6 +40,11 @@ public:
     {
     }
 
+    float getSegment(int index)
+    {
+        return segments[index];
+    }
+
     void addSegment(float mSeconds)
     {
         segments.emplace_back(mSeconds);

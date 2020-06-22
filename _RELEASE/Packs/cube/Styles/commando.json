@@ -24,6 +24,7 @@
 
 	// Main color
 	"main": { "main": true, "dynamic": false, "value": [28, 20, 13, 225], "pulse": [0, 0, 0, 0] },
+	"cap_color": {"legacy": true, "index": 0},
 
 	// Background colors
 	"colors":
