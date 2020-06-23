@@ -1,45 +1,53 @@
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
-
+#include <iostream>
 using namespace hg;
-typedef std::chrono::duration<float> duration;
 
 float HexagonGameStatus::getIncrementTimeSeconds() {
     if(isTimePaused()) {
-        return duration(pauseTms - incrementTms).count();
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(pauseTp - incrementTp);
+        return static_cast<float>(ms.count()) / 1000.f;
     } else {
-        return duration(lastTickTms - incrementTms).count();
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(lastTp - incrementTp);
+        return static_cast<float>(ms.count()) / 1000.f;
     }
 }
 
 float HexagonGameStatus::getTimeSeconds() {
     if(isTimePaused()) {
-        return duration(pauseTms - startTms).count();
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(pauseTp - startTp);
+        return static_cast<float>(ms.count()) / 1000.f;
     } else {
-        return duration(lastTickTms - startTms).count();
+        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(lastTp - startTp);
+        return static_cast<float>(ms.count()) / 1000.f;
     }
 }
 
 bool HexagonGameStatus::isTimePaused() {
-    return std::chrono::steady_clock::now() - pauseTms < pauseLength;
+    return pauseDuration > (lastTp - pauseTp);
 }
 
 void HexagonGameStatus::pauseTime(float seconds) {
     if(!isTimePaused()) {
-        pauseTms = lastTickTms;
+        pauseTp = lastTp;
     }
-    pauseLength = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::duration<float>(seconds));
+    pauseDuration = std::chrono::milliseconds(static_cast<int>(seconds * 1000.f));
 }
 
 void HexagonGameStatus::resetIncrementTime() {
-    incrementTms = lastTickTms;
+    if(isTimePaused()) {
+        incrementTp = pauseTp;
+    } else {
+        incrementTp = lastTp;
+    }
 }
 
 void HexagonGameStatus::updateTime() {
     bool wasPaused = isTimePaused();
 
-    lastTickTms = std::chrono::steady_clock::now();
+    lastTp = std::chrono::steady_clock::now();
     if(wasPaused && !isTimePaused()) {
-        startTms += pauseLength;
-        pauseTms = startTms;
+        startTp += pauseDuration;
+        pauseTp = startTp;
+        pauseDuration = 0ms;
     }
 }

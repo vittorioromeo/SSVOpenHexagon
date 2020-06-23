@@ -13,17 +13,18 @@ namespace hg
 struct HexagonGameStatus
 {
 private:
-    // Timestamp at which we started playing the level, and for how long we did
-    std::chrono::time_point<std::chrono::steady_clock> startTms;
+    // Time point of the current game loop
+    std::chrono::time_point<std::chrono::steady_clock> lastTp;
 
-    // Timestamp of the last increment, and duration since then
-    std::chrono::time_point<std::chrono::steady_clock> incrementTms;
+    // When we started playing the level
+    std::chrono::time_point<std::chrono::steady_clock> startTp;
 
-    // The timestamp at which the timer was paused, and how long we should pause it
-    std::chrono::time_point<std::chrono::steady_clock> pauseTms;
-    std::chrono::milliseconds pauseLength{100};
+    // When the last increment happened
+    std::chrono::time_point<std::chrono::steady_clock> incrementTp;
 
-    std::chrono::time_point<std::chrono::steady_clock> lastTickTms;
+    // When the timer was last paused, and for how long
+    std::chrono::time_point<std::chrono::steady_clock> pauseTp;
+    std::chrono::milliseconds pauseDuration{1000ms};
 
 public:
     float pulse{75};
@@ -44,10 +45,10 @@ public:
     ssvu::ObfuscatedValue<float> lostFrames{0};
 
     HexagonGameStatus() {
-        lastTickTms = std::chrono::steady_clock::now();
-        startTms = lastTickTms;
-        incrementTms = lastTickTms;
-        pauseTms = lastTickTms;
+        lastTp = std::chrono::steady_clock::now();
+        startTp = lastTp;
+        incrementTp = lastTp;
+        pauseTp = lastTp;
     }
 
     float getIncrementTimeSeconds();
