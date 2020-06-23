@@ -24,7 +24,7 @@ private:
 
     // When the timer was last paused, and for how long
     std::chrono::time_point<std::chrono::steady_clock> pauseTp;
-    std::chrono::milliseconds pauseDuration{1000ms};
+    std::chrono::milliseconds pauseDuration{100ms};
 
 public:
     float pulse{75};
@@ -44,11 +44,12 @@ public:
     sf::Color overrideColor{sf::Color::Transparent};
     ssvu::ObfuscatedValue<float> lostFrames{0};
 
-    HexagonGameStatus() {
+    void start() {
         lastTp = std::chrono::steady_clock::now();
         startTp = lastTp;
         incrementTp = lastTp;
         pauseTp = lastTp;
+        started = true;
     }
 
     float getIncrementTimeSeconds();
