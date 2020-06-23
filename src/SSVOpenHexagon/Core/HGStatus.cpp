@@ -1,5 +1,5 @@
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
-#include <iostream>
+
 using namespace hg;
 
 float HexagonGameStatus::getIncrementTimeSeconds() {
