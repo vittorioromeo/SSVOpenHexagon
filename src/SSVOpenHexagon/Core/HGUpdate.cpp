@@ -27,7 +27,7 @@ void HexagonGame::update(FT mFT)
     if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
                               inputImplCW || inputImplBothCWCCW))
     {
-        status.started = true;
+        status.start();
         messageText.setString("");
         assets.playSound("go.ogg");
         assets.musicPlayer.resume();
