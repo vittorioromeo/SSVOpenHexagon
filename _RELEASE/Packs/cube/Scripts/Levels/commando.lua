@@ -2,19 +2,19 @@
 u_execScript("utils.lua")
 u_execScript("common.lua")
 u_execScript("commonpatterns.lua")
-            
+
 extra = 0
 level = 1
 incrementTime = 5
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
-function onLoad()	
+function onLoad()
 	m_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	rWallEx(getRandomSide(), extra)
 	t_wait(getPerfectDelayDM(THICKNESS) * 6)
 end
@@ -42,23 +42,27 @@ function onInit()
 
 	l_setBeatPulseMax(17)
 	l_setBeatPulseDelayMax(23.8)
-	
+
 	l_addTracked("level", "level")
 	l_enableRndSideChanges(false)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
-function onIncrement()	
+function onIncrement()
 	u_playSound("beep.ogg")
 	u_playSound("VeeEndurance_test.ogg")
-	
+
 	extra = extra + 1
 	level = extra + 1
 	incrementTime = incrementTime + 2
-	
+
+	if level == 8 then
+		steam_unlockAchievement("a5_commando")
+	end
+
 	l_setSides(l_getSides() + 2)
 	l_setIncTime(incrementTime)
-		
+
 	m_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
