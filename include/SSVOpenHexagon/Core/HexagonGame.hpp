@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
@@ -27,6 +28,8 @@ class HexagonGame
     friend MenuGame;
 
 private:
+    Steam::steam_manager& steamManager;
+
     HGAssets& assets;
     const LevelData* levelData;
 
@@ -108,6 +111,7 @@ private:
     void initLua_LevelControl();
     void initLua_StyleControl();
     void initLua_WallCreation();
+    void initLua_Steam();
 
     void initLua();
     void runLuaFile(const std::string& mFileName)
@@ -192,7 +196,8 @@ public:
 
     MenuGame* mgPtr;
 
-    HexagonGame(HGAssets& mAssets, ssvs::GameWindow& mGameWindow);
+    HexagonGame(
+        Steam::steam_manager& mSteamManager, HGAssets& mAssets, ssvs::GameWindow& mGameWindow);
 
     // Gameplay methods
     void newGame(

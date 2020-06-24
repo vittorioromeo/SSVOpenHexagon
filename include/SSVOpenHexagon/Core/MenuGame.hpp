@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
@@ -32,6 +33,7 @@ class HexagonGame;
 class MenuGame
 {
 private:
+    Steam::steam_manager& steamManager;
     HGAssets& assets;
     sf::Font& imagine = assets.get<sf::Font>(
         "imagine.ttf"); // G++ bug (cannot initialize with curly braces)
@@ -52,7 +54,10 @@ private:
                      Config::getHeight() * Config::getZoomFactor() / 2.f},
                     {Config::getWidth() * Config::getZoomFactor(),
                         Config::getHeight() * Config::getZoomFactor()}}};
+
+    // TODO: change this to MWlcm when leaderboards are enabled
     States state{States::MWlcm};
+
     ssvms::Menu optionsMenu, welcomeMenu;
     std::string scoresMessage;
     float exitTimer{0}, currentCreditsId{0};
@@ -80,6 +85,8 @@ private:
         txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32},
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
         txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
+
+    void playLocally();
 
     void leftAction();
     void rightAction();
@@ -197,8 +204,8 @@ private:
     }
 
 public:
-    MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame,
-        ssvs::GameWindow& mGameWindow);
+    MenuGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
+        HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
     void init();
 

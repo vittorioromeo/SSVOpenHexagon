@@ -18,6 +18,8 @@ namespace hg
 
 void HexagonGame::update(FT mFT)
 {
+    steamManager.run_callbacks();
+
     updateText();
     updateFlash(mFT);
     effectTimelineManager.update(mFT);

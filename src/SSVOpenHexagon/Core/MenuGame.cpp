@@ -23,9 +23,10 @@ using s = States;
 using ocs = Online::ConnectStat;
 using ols = Online::LoginStat;
 
-MenuGame::MenuGame(
-    HGAssets& mAssets, HexagonGame& mHexagonGame, GameWindow& mGameWindow)
-    : assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
+MenuGame::MenuGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
+    HexagonGame& mHexagonGame, GameWindow& mGameWindow)
+    : steamManager(mSteamManager), assets(mAssets), hexagonGame(mHexagonGame),
+      window(mGameWindow)
 {
     initAssets();
     refreshCamera();
@@ -58,6 +59,9 @@ MenuGame::MenuGame(
     setIndex(0);
     initMenus();
     initInput();
+
+    // TODO: remove when welcome screen is implemented
+    playLocally();
 }
 
 void MenuGame::init()
@@ -67,6 +71,7 @@ void MenuGame::init()
     assets.playSound("openHexagon.ogg");
     Online::setForceLeaderboardRefresh(true);
 }
+
 void MenuGame::initAssets()
 {
     for(const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png",
@@ -75,6 +80,14 @@ void MenuGame::initAssets()
     {
         assets.get<Texture>(t).setSmooth(true);
     }
+}
+
+void MenuGame::playLocally()
+{
+    assets.pSaveCurrent();
+    assets.pSetPlayingLocally(true);
+    enteredStr = "";
+    state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : s::SLPSelect;
 }
 
 void MenuGame::initMenus()
@@ -115,12 +128,8 @@ void MenuGame::initMenus()
     }) | whenConnectedAndUnlogged;
     wlcm.create<i::Single>("logout", [] { Online::logout(); }) |
         whenConnectedAndLogged;
-    wlcm.create<i::Single>("play locally", [this] {
-        assets.pSaveCurrent();
-        assets.pSetPlayingLocally(true);
-        enteredStr = "";
-        state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : s::SLPSelect;
-    }) | whenUnlogged;
+    wlcm.create<i::Single>("play locally", [this] { playLocally(); }) |
+        whenUnlogged;
     wlcm.create<i::Single>("exit game", [this] { window.stop(); });
 
     // Options menu
@@ -566,27 +575,28 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueInc", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc",
-            "l_setRotationSpeedMax", "l_setRotationSpeedInc", "l_setDelayInc",
-            "l_setFastSpin", "l_setSidesMin", "l_setSidesMax", "l_setIncTime",
-            "l_setPulseMin", "l_setPulseMax", "l_setPulseSpeed",
-            "l_setPulseSpeedR", "l_setPulseDelayMax", "l_setBeatPulseMax",
-            "l_setBeatPulseDelayMax", "l_setWallSkewLeft", "l_setWallSkewRight",
-            "l_setWallAngleLeft", "l_setWallAngleRight", "l_setRadiusMin",
-            "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
-            "l_enableRndSideChanges", "l_darkenUnevenBackgroundChunk",
-            "l_getSpeedMult", "l_getDelayMult", "l_addTracked", "u_playSound",
-            "u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
-            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
-            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setMusic",
-            "u_setMusicSegment", "u_setMusicSeconds", "m_messageAdd",
-            "m_messageAddImportant", "m_clearMessages", "t_wait", "t_waitS",
-            "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
-            "e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall",
-            "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
-            "w_wallHModCurveData", "l_setDelayMult", "l_setMaxInc",
-            "s_setStyle", "u_setMusic", "l_getRotation", "l_setRotation",
-            "s_getCameraShake", "s_setCameraShake", "l_getOfficial"})
+    for(const auto& un :
+        {"l_setSpeedMult", "l_setSpeedInc", "l_setRotationSpeedMax",
+            "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
+            "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
+            "l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR",
+            "l_setPulseDelayMax", "l_setBeatPulseMax", "l_setBeatPulseDelayMax",
+            "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
+            "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
+            "l_setTutorialMode", "l_setIncEnabled", "l_enableRndSideChanges",
+            "l_darkenUnevenBackgroundChunk", "l_getSpeedMult", "l_getDelayMult",
+            "l_addTracked", "u_playSound", "u_isKeyPressed",
+            "u_isMouseButtonPressed", "u_isFastSpinning", "u_setPlayerAngle",
+            "u_forceIncrement", "u_kill", "u_eventKill", "u_haltTime",
+            "u_timelineWait", "u_clearWalls", "u_setMusic", "u_setMusicSegment",
+            "u_setMusicSeconds", "m_messageAdd", "m_messageAddImportant",
+            "m_clearMessages", "t_wait", "t_waitS", "t_waitUntilS",
+            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
+            "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
+            "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
+            "l_setDelayMult", "l_setMaxInc", "s_setStyle", "u_setMusic",
+            "l_getRotation", "l_setRotation", "s_getCameraShake",
+            "s_setCameraShake", "l_getOfficial", "steam_unlockAchievement"})
     {
         mLua.writeVariable(un, [] {});
     }
@@ -797,6 +807,8 @@ void MenuGame::refreshCamera()
 
 void MenuGame::update(FT mFT)
 {
+    steamManager.run_callbacks();
+
     if(touchDelay > 0.f)
     {
         touchDelay -= mFT;
