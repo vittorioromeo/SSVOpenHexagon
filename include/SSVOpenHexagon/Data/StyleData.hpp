@@ -38,6 +38,7 @@ public:
     float BGRotOff;
     float _3dDepth;
     float _3dSkew;
+    float _skew;
     float _3dSpacing;
     float _3dDarkenMult;
     float _3dAlphaMult;

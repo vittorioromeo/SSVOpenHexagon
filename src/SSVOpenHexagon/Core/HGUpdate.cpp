@@ -93,7 +93,7 @@ void HexagonGame::update(FT mFT)
 
             for(CWall& w : walls)
             {
-                w.update(*this, centerPos, mFT);
+                w.update(*this, getFieldPos(), mFT);
             }
 
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
@@ -258,7 +258,7 @@ void HexagonGame::updatePulse(FT mFT)
 
     float p{status.pulse / levelStatus.pulseMin};
     float rotation{backgroundCamera.getRotation()};
-    backgroundCamera.setView({ssvs::zeroVec2f,
+    backgroundCamera.setView({levelStatus.camPos,
         {(Config::getWidth() * Config::getZoomFactor()) * p,
             (Config::getHeight() * Config::getZoomFactor()) * p}});
     backgroundCamera.setRotation(rotation);
@@ -308,7 +308,7 @@ void HexagonGame::updateRotation(FT mFT)
         status.fastSpin -= mFT;
     }
     levelStatus.rotation += nextRotation;
-    if(levelStatus.rotation > 359.f){
+    if(levelStatus.rotation >= 360.f){
         levelStatus.rotation -= 360.f;
     }else if(levelStatus.rotation < 0.f){
         levelStatus.rotation += 360.f;

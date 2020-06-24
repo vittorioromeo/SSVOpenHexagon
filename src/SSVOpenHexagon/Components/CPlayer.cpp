@@ -86,13 +86,13 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
         const float sAngle{div * 2.f * i};
 
         const sf::Vector2f p1{
-            ssvs::getOrbitRad(startPos, fieldAngle + sAngle - div, radius)};
+            ssvs::getOrbitRad(mHexagonGame.getFieldPos(), fieldAngle + sAngle - div, radius)};
         const sf::Vector2f p2{
-            ssvs::getOrbitRad(startPos, fieldAngle + sAngle + div, radius)};
+            ssvs::getOrbitRad(mHexagonGame.getFieldPos(), fieldAngle + sAngle + div, radius)};
         const sf::Vector2f p3{
-            ssvs::getOrbitRad(startPos, fieldAngle + sAngle + div, radius + baseThickness)};
+            ssvs::getOrbitRad(mHexagonGame.getFieldPos(), fieldAngle + sAngle + div, radius + baseThickness)};
         const sf::Vector2f p4{
-            ssvs::getOrbitRad(startPos, fieldAngle + sAngle - div, radius + baseThickness)};
+            ssvs::getOrbitRad(mHexagonGame.getFieldPos(), fieldAngle + sAngle - div, radius + baseThickness)};
 
         mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
@@ -100,7 +100,7 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
 
         mHexagonGame.capTris.reserve_more(3);
         mHexagonGame.capTris.batch_unsafe_emplace_back(
-            mCapColor, p1, p2, startPos);
+            mCapColor, p1, p2, mHexagonGame.getFieldPos());
     }
 }
 
@@ -135,6 +135,12 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
     }
 }
 
+void CPlayer::swap(HexagonGame& mHexagonGame, bool mSoundTog){
+    angle += ssvu::pi;
+    mHexagonGame.runLuaFunctionIfExists<void>("onCursorSwap");
+    if (mSoundTog) {mHexagonGame.getAssets().playSound("swap.ogg");}
+}
+
 void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
 {
     swapBlinkTimer.update(mFT);
@@ -145,12 +151,9 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
         deadEffectTimer.stop();
     }
 
-    if(mHexagonGame.getLevelStatus().swapEnabled)
+    if(mHexagonGame.getLevelStatus().swapEnabled && swapTimer.update(mFT))
     {
-        if(swapTimer.update(mFT))
-        {
-            swapTimer.stop();
-        }
+        swapTimer.stop();
     }
 
     sf::Vector2f lastPos{pos};
@@ -170,10 +173,9 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
     if(mHexagonGame.getLevelStatus().swapEnabled &&
         mHexagonGame.getInputSwap() && !swapTimer.isRunning())
     {
-        mHexagonGame.getAssets().playSound("swap.ogg");
+        swap(mHexagonGame, true);
         swapTimer.restart();
-        angle += ssvu::pi;
-        mHexagonGame.runLuaFunctionIfExists<void>("onCursorSwap");
+
     }
 
     const sf::Vector2f tempPos{ssvs::getOrbitRad(startPos, angle, radius)};
@@ -209,7 +211,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
         }
     }
 
-    pos = ssvs::getOrbitRad(startPos, angle, radius);
+    pos = ssvs::getOrbitRad(mHexagonGame.getFieldPos(), angle, radius);
 }
 
 } // namespace hg
