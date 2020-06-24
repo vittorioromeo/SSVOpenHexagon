@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
 
 using namespace std;
@@ -418,6 +419,60 @@ void MenuGame::okAction()
     }
 }
 
+void MenuGame::createProfileAction()
+{
+    assets.playSound("beep.ogg");
+    if(!assets.pIsLocal())
+    {
+        state = s::MWlcm;
+        return;
+    }
+    if(state == s::SLPSelect)
+    {
+        enteredStr = "";
+        state = s::ETLPNew;
+    }
+}
+
+void MenuGame::selectProfileAction()
+{
+    assets.playSound("beep.ogg");
+    if(state != s::SMain)
+    {
+        return;
+    }
+    if(!assets.pIsLocal())
+    {
+        state = s::MWlcm;
+        return;
+    }
+    enteredStr = "";
+    state = s::SLPSelect;
+}
+
+void MenuGame::openOptionsAction()
+{
+    assets.playSound("beep.ogg");
+    if(state != s::SMain)
+    {
+        return;
+    }
+    state = s::MOpts;
+}
+
+void MenuGame::selectPackAction()
+{
+    assets.playSound("beep.ogg");
+    if(state == s::SMain)
+    {
+        auto p(assets.getPackPaths());
+        packIdx = ssvu::getMod(packIdx + 1, p.size());
+        levelDataIds = assets.getLevelIdsByPack(p[packIdx]);
+        setIndex(0);
+    }
+}
+
+
 void MenuGame::initInput()
 {
     using k = KKey;
@@ -438,61 +493,15 @@ void MenuGame::initInput()
         Config::getTriggerRestart(), [this](FT /*unused*/) { okAction(); },
         t::Once);
     game.addInput(
-        {{k::F1}},
-        [this](FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(!assets.pIsLocal())
-            {
-                state = s::MWlcm;
-                return;
-            }
-            if(state == s::SLPSelect)
-            {
-                enteredStr = "";
-                state = s::ETLPNew;
-            }
-        },
+        {{k::F1}}, [this](FT /*unused*/) { createProfileAction(); }, t::Once);
+    game.addInput(
+        {{k::F2}, {k::J}}, [this](FT /*unused*/) { selectProfileAction(); },
         t::Once);
     game.addInput(
-        {{k::F2}, {k::J}},
-        [this](FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(state != s::SMain)
-            {
-                return;
-            }
-            if(!assets.pIsLocal())
-            {
-                state = s::MWlcm;
-                return;
-            }
-            enteredStr = "";
-            state = s::SLPSelect;
-        },
+        {{k::F3}, {k::K}}, [this](FT /*unused*/) { openOptionsAction(); },
         t::Once);
     game.addInput(
-        {{k::F3}, {k::K}},
-        [this](FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(state != s::SMain)
-            {
-                return;
-            }
-            state = s::MOpts;
-        },
-        t::Once);
-    game.addInput(
-        {{k::F4}, {k::L}},
-        [this](FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(state == s::SMain)
-            {
-                auto p(assets.getPackPaths());
-                packIdx = ssvu::getMod(packIdx + 1, p.size());
-                levelDataIds = assets.getLevelIdsByPack(p[packIdx]);
-                setIndex(0);
-            }
-        },
+        {{k::F4}, {k::L}}, [this](FT /*unused*/) { selectPackAction(); },
         t::Once);
     game.addInput(
         Config::getTriggerExit(),
@@ -808,6 +817,41 @@ void MenuGame::refreshCamera()
 void MenuGame::update(FT mFT)
 {
     steamManager.run_callbacks();
+    hg::Joystick::update();
+
+    if(hg::Joystick::leftRisingEdge())
+    {
+        leftAction();
+    }
+    else if(hg::Joystick::rightRisingEdge())
+    {
+        rightAction();
+    }
+    else if(hg::Joystick::upRisingEdge())
+    {
+        upAction();
+    }
+    else if(hg::Joystick::downRisingEdge())
+    {
+        downAction();
+    }
+
+    if(hg::Joystick::aRisingEdge())
+    {
+        okAction();
+    }
+    else if(hg::Joystick::bRisingEdge())
+    {
+        createProfileAction();
+    }
+    else if(hg::Joystick::selectRisingEdge())
+    {
+        selectPackAction();
+    }
+    else if(hg::Joystick::startRisingEdge())
+    {
+        openOptionsAction();
+    }
 
     if(touchDelay > 0.f)
     {
