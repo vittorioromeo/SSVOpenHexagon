@@ -11,6 +11,8 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
+#include <cctype>
+
 namespace hg
 {
 
@@ -36,7 +38,7 @@ private:
     Steam::steam_manager& steamManager;
     HGAssets& assets;
     sf::Font& imagine = assets.get<sf::Font>(
-        "imagine.ttf"); // G++ bug (cannot initialize with curly braces)
+        "forcedsquare.ttf"); // G++ bug (cannot initialize with curly braces)
 
     float wheelProgress{0.f};
 
@@ -65,9 +67,8 @@ private:
     std::string currentLeaderboard, enteredStr, leaderboardString,
         friendsString;
     std::vector<char> enteredChars;
-    std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png",
-        "creditsBar2c.png", "creditsBar2d.png", "creditsBar2d.png",
-        "creditsBar2d.png"};
+    std::vector<std::string> creditsIds{
+        "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png"};
 
     sf::Sprite titleBar{assets.get<sf::Texture>("titleBar.png")},
         creditsBar1{assets.get<sf::Texture>("creditsBar1.png")},
@@ -119,8 +120,10 @@ private:
     }
 
     sf::Text& renderTextImpl(
-        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPosition)
+        std::string mStr, sf::Text& mText, const sf::Vector2f& mPosition)
     {
+        Utils::uppercasify(mStr);
+
         if(mText.getString() != mStr)
         {
             mText.setString(mStr);
