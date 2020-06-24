@@ -108,13 +108,18 @@ endif()
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
+set(STEAMWORKS_INCLUDE_DIRS "public")
+
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${STEAMWORKS_INCLUDE_DIRS})
 
 set(SFML_LIBRARIES sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
+set(STEAMWORKS_LIBRARIES "C:/OHWorkspace/SSVOpenHexagon/_RELEASE/steam_api64.dll")
 
 target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} lua)
 target_link_libraries(${PROJECT_NAME} zlib)
+target_link_libraries(${PROJECT_NAME} ${STEAMWORKS_LIBRARIES})
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} pthread)

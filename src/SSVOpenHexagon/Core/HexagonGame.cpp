@@ -27,8 +27,9 @@ void HexagonGame::createWall(int mSide, float mThickness,
     walls.back().setHueMod(mHueMod);
 }
 
-HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow)
-    : assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
+HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
+    GameWindow& mGameWindow)
+    : steamManager(mSteamManager), assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
       fpsWatcher(window)
 {
     game.onUpdate += [this](FT mFT) { update(mFT); };
@@ -281,7 +282,7 @@ void HexagonGame::addMessage(
         messageText.setString(mMessage);
     });
     messageTimeline.append<Wait>(mDuration);
-    messageTimeline.append<Do>([=] { messageText.setString(""); });
+    messageTimeline.append<Do>([this] { messageText.setString(""); });
 }
 
 void HexagonGame::clearMessages()
