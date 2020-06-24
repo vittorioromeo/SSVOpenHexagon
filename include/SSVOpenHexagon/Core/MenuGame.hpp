@@ -93,6 +93,10 @@ private:
     void upAction();
     void downAction();
     void okAction();
+    void createProfileAction();
+    void selectProfileAction();
+    void openOptionsAction();
+    void selectPackAction();
 
     float touchDelay{0.f};
 

@@ -61,8 +61,7 @@ list(APPEND CMAKE_MODULE_PATH
 
 include(vrm_cmake)
 
-message(STATUS "setting required C++ standard to 17")
-
+message(STATUS "setting required C++ standard to 20")
 set(CMAKE_CXX_STANDARD "20")
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 
