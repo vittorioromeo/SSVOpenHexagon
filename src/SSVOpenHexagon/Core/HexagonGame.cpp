@@ -6,6 +6,7 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
@@ -29,8 +30,8 @@ void HexagonGame::createWall(int mSide, float mThickness,
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
     GameWindow& mGameWindow)
-    : steamManager(mSteamManager), assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
-      fpsWatcher(window)
+    : steamManager(mSteamManager), assets(mAssets),
+      window(mGameWindow), player{ssvs::zeroVec2f}, fpsWatcher(window)
 {
     game.onUpdate += [this](FT mFT) { update(mFT); };
     game.onPostUpdate += [this] {
@@ -353,6 +354,11 @@ void HexagonGame::setSides(unsigned int mSides)
         mSides = 3;
     }
     levelStatus.sides = mSides;
+}
+
+bool HexagonGame::getInputSwap() const
+{
+    return inputSwap || hg::Joystick::aRisingEdge();
 }
 
 } // namespace hg
