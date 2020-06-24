@@ -48,9 +48,6 @@ private:
 
     ssvu::TimelineManager effectTimelineManager;
 
-    //const sf::Vector2f centerPos{ssvs::zeroVec2f};
-    const sf::Vector2f centerPos{levelStatus.fieldPos};
-
     Lua::LuaContext lua;
 
     LevelStatus levelStatus;
@@ -222,6 +219,10 @@ public:
     ssvs::GameState& getGame() noexcept
     {
         return game;
+    }
+
+    sf::Vector2f getFieldPos() const noexcept {
+        return levelStatus.fieldPos;
     }
 
     float getRadius() const noexcept

@@ -21,7 +21,7 @@ namespace hg
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
-    walls.emplace_back(*this, centerPos, mSide,
+    walls.emplace_back(*this, getFieldPos(), mSide,
             mThickness, Config::getSpawnDistance(),
             styleData, levelStatus,
             mSpeed, mCurve);

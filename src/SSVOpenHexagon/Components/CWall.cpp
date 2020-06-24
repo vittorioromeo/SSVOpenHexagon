@@ -22,16 +22,15 @@ CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
     const float angle{div * 2.f * mSide};
 
-    // auto fieldAngle =
-    // styleData.BGRotOff+(3.14159f/180.f)*levelStatus.rotation;
+    auto fieldAngle = styleData.BGRotOff+(3.14159f/180.f)*levelStatus.rotation;
 
-    vertexPositions[0] = getOrbitRad(mCenterPos, angle - div, mDistance);
-    vertexPositions[1] = getOrbitRad(mCenterPos, angle + div, mDistance);
+    vertexPositions[0] = getOrbitRad(mCenterPos, fieldAngle + angle - div, mDistance);
+    vertexPositions[1] = getOrbitRad(mCenterPos, fieldAngle + angle + div, mDistance);
     vertexPositions[2] =
-        getOrbitRad(mCenterPos, angle + div + mHexagonGame.getWallAngleLeft(),
+        getOrbitRad(mCenterPos, fieldAngle + angle + div + mHexagonGame.getWallAngleLeft(),
             mDistance + mThickness + mHexagonGame.getWallSkewLeft());
     vertexPositions[3] =
-        getOrbitRad(mCenterPos, angle - div + mHexagonGame.getWallAngleRight(),
+        getOrbitRad(mCenterPos, fieldAngle + angle - div + mHexagonGame.getWallAngleRight(),
             mDistance + mThickness + mHexagonGame.getWallSkewRight());
 }
 

@@ -46,7 +46,7 @@ void HexagonGame::draw()
     {
         backgroundCamera.apply();
         styleData.drawBackground(
-            window, ssvs::zeroVec2f, levelStatus, styleData);
+            window, getFieldPos(), levelStatus, styleData);
     }
 
     backgroundCamera.apply();
