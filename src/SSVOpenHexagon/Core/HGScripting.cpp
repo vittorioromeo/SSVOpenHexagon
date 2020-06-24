@@ -44,8 +44,9 @@ void HexagonGame::initLua_Utils()
     });
     lua.writeVariable("u_isKeyPressed",
         [this](int mKey) { return window.getInputState()[KKey(mKey)]; });
-    lua.writeVariable(
-        "u_haltTime", [this](float mDuration) { status.pauseTime(mDuration); });
+    lua.writeVariable("u_haltTime", [this](float mDuration) {
+        status.pauseTime(ssvu::getSecondsToFT(mDuration));
+    });
     lua.writeVariable("u_timelineWait",
         [this](float mDuration) { timeline.append<Wait>(mDuration); });
     lua.writeVariable("u_clearWalls", [this] { walls.clear(); });
@@ -126,7 +127,8 @@ void HexagonGame::initLua_MainTimeline()
 void HexagonGame::initLua_EventTimeline()
 {
     lua.writeVariable("e_eventStopTime", [this](float mDuration) {
-        eventTimeline.append<Do>([=, this] { status.pauseTime(mDuration); });
+        eventTimeline.append<Do>(
+            [=, this] { status.pauseTime(ssvu::getSecondsToFT(mDuration)); });
     });
 
     lua.writeVariable("e_eventStopTimeS", [this](float mDuration) {
