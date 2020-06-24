@@ -63,7 +63,7 @@ private:
     ssvu::Timeline eventTimeline;
     ssvu::Timeline messageTimeline;
 
-    sf::Text messageText{"", assets.get<sf::Font>("imagine.ttf"),
+    sf::Text messageText{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
 
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
@@ -86,7 +86,7 @@ private:
     std::ostringstream os;
 
     FPSWatcher fpsWatcher;
-    sf::Text text{"", assets.get<sf::Font>("imagine.ttf"),
+    sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
     const sf::Vector2f txt_pos{8, 8};
@@ -176,8 +176,7 @@ private:
     void stopLevelMusic();
 
     // Message-related methods
-    void addMessage(
-        const std::string& mMessage, float mDuration, bool mSoundToggle);
+    void addMessage(std::string mMessage, float mDuration, bool mSoundToggle);
     void clearMessages();
 
     // Level/menu loading/unloading/changing

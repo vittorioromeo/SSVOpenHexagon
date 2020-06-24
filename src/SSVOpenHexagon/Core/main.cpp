@@ -72,7 +72,8 @@ int main(int argc, char* argv[])
     }
 
     ssvs::GameWindow window;
-    window.setTitle("Open Hexagon " + ssvu::toStr(hg::Config::getVersion()) +
+    window.setTitle("Open Hexagon " +
+                    std::string{hg::Config::getVersionString()} +
                     " - by vittorio romeo - http://vittorioromeo.info");
     window.setSize(hg::Config::getWidth(), hg::Config::getHeight());
     window.setPixelMult(hg::Config::getPixelMultiplier());

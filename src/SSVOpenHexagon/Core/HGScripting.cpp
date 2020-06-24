@@ -338,7 +338,7 @@ void HexagonGame::initLua_WallCreation()
 void HexagonGame::initLua_Steam()
 {
     lua.writeVariable("steam_unlockAchievement",
-        [this](string mId) { steamManager.unlock_achievement(mId); });
+        [this](string mId) { steamManager.unlock_achievement(mId);});
 }
 
 void HexagonGame::initLua()

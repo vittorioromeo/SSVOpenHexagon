@@ -794,7 +794,7 @@ void MenuGame::refreshCamera()
     titleBar.setScale({0.5f, 0.5f});
     titleBar.setPosition({20.f, 20.f});
 
-    txtVersion.setString(toStr(Config::getVersion()));
+    txtVersion.setString(Config::getVersionString());
     txtVersion.setFillColor(Color::White);
     txtVersion.setOrigin({getLocalRight(txtVersion), 0.f});
     txtVersion.setPosition(
@@ -1045,7 +1045,9 @@ void MenuGame::drawLevelSelection()
         {
             versionMessage = "update available (" + toStr(serverVersion) + ")";
         }
-        renderText(versionMessage, txtProf, {20, 4}, 13);
+
+        // TODO: restore online capabilities
+        // renderText(versionMessage, txtProf, {20, 4}, 13);
 
         Text& profile = renderText("profile: " + assets.pGetName(), txtProf,
             sf::Vector2f{20.f, getGlobalBottom(titleBar) + 8}, 18);
@@ -1081,18 +1083,31 @@ void MenuGame::drawLevelSelection()
 
         renderText(
             leaderboardString, txtProf, {20.f, getGlobalBottom(lbest)}, 15);
-        Text& smsg = renderText("server message: " + Online::getServerMessage(),
-            txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+
+        // TODO: restore online capabilities
+        // Text& smsg = renderText("server message: " +
+        // Online::getServerMessage(),
+        //    txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+
+        Text& smsg = renderText(
+            "", txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+
+        // TODO: restore online capabilities
+        /*
         txtFriends.setOrigin({getLocalWidth(txtFriends), 0.f});
         renderText("friends:\n" + friendsString, txtFriends,
             {w - 20.f, getGlobalBottom(titleBar) + 8}, 18);
+        */
 
+        // TODO: restore online capabilities
+        /*
         if(!Config::isEligibleForScore())
         {
             renderText(
                 "not eligible for scoring: " + Config::getUneligibilityReason(),
                 txtProf, {20.f, getGlobalTop(smsg) - 20.f}, 11);
         }
+        */
 
         if(!assets.pIsLocal() && Online::getLoginStatus() == ols::Logged)
         {
@@ -1112,15 +1127,22 @@ void MenuGame::drawLevelSelection()
 
     Text& lname = renderText(levelData->name, txtLName, {20.f, h / 2.f});
     Text& ldesc = renderText(
-        levelData->description, txtLDesc, {20.f, getGlobalBottom(lname) + 2.f});
+        levelData->description, txtLDesc, {20.f, getGlobalBottom(lname) - 5.f});
     Text& lauth = renderText("author: " + levelData->author, txtLAuth,
         {20.f, getGlobalBottom(ldesc) + 25.f});
-    renderText("music: " + musicData.name + " by " + musicData.author + " (" +
-                   musicData.album + ")",
-        txtLMus, {20.f, getGlobalBottom(lauth) - 5.f});
+
+    std::string musicString =
+        "music: " + musicData.name + " by " + musicData.author;
+
+    if(!musicData.album.empty())
+    {
+        musicString += " (" + musicData.album + ")";
+    }
+
+    renderText(musicString, txtLMus, {20.f, getGlobalBottom(lauth) - 5.f});
     renderText(
         "(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")",
-        txtLMus, {20.f, getGlobalTop(lname) - 25.f});
+        txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
     string packNames{"Installed packs:\n"};
     for(const auto& n : assets.getPackIds())
@@ -1131,6 +1153,9 @@ void MenuGame::drawLevelSelection()
         }
         packNames.append(n + "\n");
     }
+
+    Utils::uppercasify(packNames);
+
     txtPacks.setString(packNames);
     txtPacks.setOrigin(getGlobalWidth(txtPacks), getGlobalHeight(txtPacks));
     txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});

@@ -273,8 +273,10 @@ void HexagonGame::changeLevel(const string& mId, bool mFirstTime)
 }
 
 void HexagonGame::addMessage(
-    const string& mMessage, float mDuration, bool mSoundToggle)
+    std::string mMessage, float mDuration, bool mSoundToggle)
 {
+    Utils::uppercasify(mMessage);
+
     messageTimeline.append<Do>([&, mMessage] {
         if(mSoundToggle)
         {

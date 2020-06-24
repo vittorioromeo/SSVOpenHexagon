@@ -12,6 +12,8 @@
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 
+#include <cctype>
+
 namespace hg::Utils
 {
 
@@ -98,6 +100,14 @@ public:
         return _data[i];
     }
 };
+
+inline void uppercasify(std::string& s)
+{
+    for(auto& c : s)
+    {
+        c = std::toupper(c);
+    }
+}
 
 [[gnu::const]] inline float getSaturated(float mValue)
 {
