@@ -2,8 +2,6 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <sys/time.h>
-
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -201,7 +199,8 @@ void HexagonGame::updateIncrement()
 }
 void HexagonGame::updateLevel(FT mFT)
 {
-    if(status.isTimePaused()) {
+    if(status.isTimePaused())
+    {
         return;
     }
 
