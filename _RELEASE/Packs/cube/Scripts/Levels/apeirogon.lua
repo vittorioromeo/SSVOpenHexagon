@@ -5,7 +5,7 @@ u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pAltBarrage(math.random(2, 3), 2) 
+		if mKey == 0 then pAltBarrage(math.random(2, 3), 2)
 	elseif mKey == 1 then pBarrageSpiral(3, 0.6, 1)
 	elseif mKey == 2 then pInverseBarrage(0)
 	elseif mKey == 3 then pTunnel(math.random(1, 3))
@@ -59,10 +59,10 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	addPattern(keys[index])
 	index = index + 1
-	
+
 	if index - 1 == #keys then
 		index = 1
 	end
@@ -88,5 +88,9 @@ function onUpdate(mFrameTime)
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 300
 		end
-	end 
+	end
+
+	if l_getLevelTime() > 60 then
+		steam_unlockAchievement("a4_apeirogon")
+	end
 end

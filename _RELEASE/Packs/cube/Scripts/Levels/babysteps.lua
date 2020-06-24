@@ -50,7 +50,7 @@ function onLoad()
 	m_messageAddImportant("well done!", 130)
 	m_messageAddImportant("now play some real levels!", 138)
 
-	steam_unlockAchievement("a0_babysteps");
+	steam_unlockAchievement("a0_babysteps")
 
 	e_eventWaitUntilS(45)
 	u_eventKill()

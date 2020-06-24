@@ -5,7 +5,7 @@ u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pAltBarrage(math.random(2, 4), 2) 
+		if mKey == 0 then pAltBarrage(math.random(2, 4), 2)
 	elseif mKey == 1 then pMirrorSpiral(math.random(3, 6), 0)
 	elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
 	elseif mKey == 3 then pBarrageSpiral(math.random(0, 2), 1.2, 2)
@@ -57,10 +57,10 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	addPattern(keys[index])
 	index = index + 1
- 	
+
 	if index - 1 == #keys then
 		index = 1
 	end
@@ -76,4 +76,7 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	if l_getLevelTime() > 90 then
+		steam_unlockAchievement("a2_flattering")
+	end
 end
