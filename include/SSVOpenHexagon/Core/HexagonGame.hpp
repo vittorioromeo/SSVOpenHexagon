@@ -196,8 +196,8 @@ public:
 
     MenuGame* mgPtr;
 
-    HexagonGame(
-        Steam::steam_manager& mSteamManager, HGAssets& mAssets, ssvs::GameWindow& mGameWindow);
+    HexagonGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
+        ssvs::GameWindow& mGameWindow);
 
     // Gameplay methods
     void newGame(
@@ -306,10 +306,7 @@ public:
         return inputFocused;
     }
 
-    bool getInputSwap() const
-    {
-        return inputSwap;
-    }
+    bool getInputSwap() const;
 
     int getInputMovement() const
     {
