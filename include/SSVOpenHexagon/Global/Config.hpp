@@ -75,6 +75,7 @@ bool getVsync();
 bool getAutoZoomFactor();
 bool getFullscreen();
 float getVersion();
+const char* getVersionString();
 bool getWindowedAutoResolution();
 bool getFullscreenAutoResolution();
 unsigned int getFullscreenWidth();

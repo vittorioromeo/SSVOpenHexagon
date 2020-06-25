@@ -27,8 +27,8 @@ struct ByIndex      { int index; };
 using CapColor = std::variant<  //
     CapColorMode::Main,         //
     CapColorMode::MainDarkened, //
-    CapColorMode::ByIndex,       //
-    ColorData
+    CapColorMode::ByIndex,      //
+    ColorData                   //
     >;
 
 [[nodiscard]] CapColor parseCapColor(const ssvuj::Obj& obj) noexcept;

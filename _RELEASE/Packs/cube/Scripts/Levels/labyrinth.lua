@@ -6,9 +6,10 @@ u_execScript("commonpatterns.lua")
 level = 0
 levelTracked = 1
 incrementTime = 3
+achievementUnlocked = false
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
-function onLoad()	
+function onLoad()
 	m_messageAddImportant("level: "..(level + 1).." / time: "..incrementTime, 170)
 end
 
@@ -51,17 +52,22 @@ function onInit()
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
-function onIncrement()	
+function onIncrement()
 	u_playSound("beep.ogg")
 	u_playSound("VeeEndurance_test.ogg")
-	
+
 	level = level + 1
 	levelTracked = level + 1
 	incrementTime = incrementTime + 2
-	
+
+	if not achievementUnlocked and levelTracked == 8 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a8_lab")
+		achievementUnlocked = true
+	end
+
 	l_setSides(l_getSides() + 1)
 	l_setIncTime(incrementTime)
-		
+
 	m_messageAddImportant("level: "..(level + 1).." / time: "..incrementTime, 170)
 end
 

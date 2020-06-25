@@ -336,6 +336,16 @@ void HexagonGame::initLua_WallCreation()
         });
 }
 
+void HexagonGame::initLua_Steam()
+{
+    lua.writeVariable("steam_unlockAchievement", [this](string mId) {
+        if(Config::getOfficial())
+        {
+            steamManager.unlock_achievement(mId);
+        }
+    });
+}
+
 void HexagonGame::initLua()
 {
     initLua_Utils();
@@ -345,6 +355,7 @@ void HexagonGame::initLua()
     initLua_LevelControl();
     initLua_StyleControl();
     initLua_WallCreation();
+    initLua_Steam();
 }
 
 } // namespace hg
