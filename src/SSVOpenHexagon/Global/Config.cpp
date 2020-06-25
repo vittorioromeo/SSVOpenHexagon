@@ -515,6 +515,10 @@ float SSVU_ATTRIBUTE(const) getVersion()
 {
     return 2.f;
 }
+const char* SSVU_ATTRIBUTE(const) getVersionString()
+{
+    return "2.0";
+}
 bool SSVU_ATTRIBUTE(pure) getWindowedAutoResolution()
 {
     return windowedAutoResolution;

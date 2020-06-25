@@ -6,6 +6,9 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
@@ -27,8 +30,11 @@ void HexagonGame::createWall(int mSide, float mThickness,
     walls.back().setHueMod(mHueMod);
 }
 
-HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow)
-    : assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
+HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
+    Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
+    GameWindow& mGameWindow)
+    : steamManager(mSteamManager), discordManager(mDiscordManager),
+      assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
       fpsWatcher(window)
 {
     game.onUpdate += [this](FT mFT) { update(mFT); };
@@ -273,8 +279,10 @@ void HexagonGame::changeLevel(const string& mId, bool mFirstTime)
 }
 
 void HexagonGame::addMessage(
-    const string& mMessage, float mDuration, bool mSoundToggle)
+    std::string mMessage, float mDuration, bool mSoundToggle)
 {
+    Utils::uppercasify(mMessage);
+
     messageTimeline.append<Do>([&, mMessage] {
         if(mSoundToggle)
         {
@@ -283,7 +291,7 @@ void HexagonGame::addMessage(
         messageText.setString(mMessage);
     });
     messageTimeline.append<Wait>(mDuration);
-    messageTimeline.append<Do>([=, this] { messageText.setString(""); });
+    messageTimeline.append<Do>([this] { messageText.setString(""); });
 }
 
 void HexagonGame::clearMessages()
@@ -354,6 +362,11 @@ void HexagonGame::setSides(unsigned int mSides)
         mSides = 3;
     }
     levelStatus.sides = mSides;
+}
+
+bool HexagonGame::getInputSwap() const
+{
+    return inputSwap || hg::Joystick::aRisingEdge();
 }
 
 } // namespace hg

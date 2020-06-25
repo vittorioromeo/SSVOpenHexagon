@@ -5,7 +5,7 @@ u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pAltBarrage(math.random(2, 4), 2) 
+		if mKey == 0 then pAltBarrage(math.random(2, 4), 2)
 	elseif mKey == 1 then pMirrorSpiral(math.random(2, 5), getHalfSides() - 3)
 	elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
 	elseif mKey == 3 then pInverseBarrage(0)
@@ -18,6 +18,7 @@ end
 keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -56,10 +57,10 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	addPattern(keys[index])
 	index = index + 1
-	
+
 	if index - 1 == #keys then
 		index = 1
 	end
@@ -75,4 +76,8 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	if not achievementUnlocked and l_getLevelTime() > 120 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a1_pointless")
+		achievementUnlocked = true
+	end
 end
