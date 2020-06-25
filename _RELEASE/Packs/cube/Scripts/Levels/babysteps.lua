@@ -16,6 +16,7 @@ end
 keys = { 0, 1, 2 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -50,7 +51,6 @@ function onLoad()
 	m_messageAddImportant("well done!", 130)
 	m_messageAddImportant("now play some real levels!", 138)
 
-	steam_unlockAchievement("a0_babysteps")
 
 	e_eventWaitUntilS(45)
 	u_eventKill()
@@ -77,4 +77,8 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	if not achievementUnlocked and l_getLevelTime() > 40 then
+		steam_unlockAchievement("a0_babysteps")
+		achievementUnlocked = true
+	end
 end

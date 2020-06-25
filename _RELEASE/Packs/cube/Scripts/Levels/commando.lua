@@ -6,6 +6,7 @@ u_execScript("commonpatterns.lua")
 extra = 0
 level = 1
 incrementTime = 5
+achievementUnlocked = false
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
@@ -56,8 +57,9 @@ function onIncrement()
 	level = extra + 1
 	incrementTime = incrementTime + 2
 
-	if level == 8 and u_getDifficultyMult() >= 1 then
+	if not achievementUnlocked and level == 8 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a5_commando")
+		achievementUnlocked = true
 	end
 
 	l_setSides(l_getSides() + 2)

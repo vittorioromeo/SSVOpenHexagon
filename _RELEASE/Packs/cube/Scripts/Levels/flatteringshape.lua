@@ -21,6 +21,7 @@ end
 keys = { 0, 0, 1, 1, 2, 2, 3, 4, 5, 5, 6, 7, 7 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -76,7 +77,8 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
-	if l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
+	if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a2_flattering")
+		achievementUnlocked = true
 	end
 end

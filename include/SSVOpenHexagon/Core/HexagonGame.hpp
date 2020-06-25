@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
@@ -29,6 +30,7 @@ class HexagonGame
 
 private:
     Steam::steam_manager& steamManager;
+    Discord::discord_manager& discordManager;
 
     HGAssets& assets;
     const LevelData* levelData;
@@ -195,7 +197,8 @@ public:
 
     MenuGame* mgPtr;
 
-    HexagonGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
+    HexagonGame(Steam::steam_manager& mSteamManager,
+        Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         ssvs::GameWindow& mGameWindow);
 
     // Gameplay methods
