@@ -44,6 +44,9 @@ public:
     bool run_callbacks();
 
     bool unlock_achievement(std::string_view name);
+
+    bool set_rich_presence_in_menu();
+    bool set_rich_presence_in_game(std::string_view level_name, float time);
 };
 
 } // namespace hg::Steam

@@ -19,6 +19,8 @@ namespace hg
 
 void HexagonGame::update(FT mFT)
 {
+    steamManager.set_rich_presence_in_game(levelData->name, status.currentTime);
+
     steamManager.run_callbacks();
     hg::Joystick::update();
 

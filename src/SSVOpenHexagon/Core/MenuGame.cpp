@@ -68,6 +68,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
 
 void MenuGame::init()
 {
+    steamManager.set_rich_presence_in_menu();
+
     assets.stopMusics();
     assets.stopSounds();
     assets.playSound("openHexagon.ogg");

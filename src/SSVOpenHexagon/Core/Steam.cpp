@@ -8,6 +8,9 @@
 
 #include "steam/steam_api.h"
 
+#include <array>
+#include <charconv>
+
 namespace hg::Steam
 {
 
@@ -134,6 +137,30 @@ bool steam_manager::unlock_achievement(std::string_view name)
     }
 
     return store_stats();
+}
+
+bool steam_manager::set_rich_presence_in_menu()
+{
+    if(!_initialized)
+    {
+        return false;
+    }
+
+    return SteamFriends()->SetRichPresence("steam_display", "#InMenu");
+}
+
+bool steam_manager::set_rich_presence_in_game(
+    std::string_view level_name, float time)
+{
+    if(!_initialized)
+    {
+        return false;
+    }
+
+    return SteamFriends()->SetRichPresence("levelname", level_name.data()) &&
+           SteamFriends()->SetRichPresence(
+               "time", std::to_string(time).data()) &&
+           SteamFriends()->SetRichPresence("steam_display", "#InGame");
 }
 
 } // namespace hg::Steam
