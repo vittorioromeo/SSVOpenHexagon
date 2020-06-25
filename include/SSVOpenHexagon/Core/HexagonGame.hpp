@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
@@ -27,6 +29,9 @@ class HexagonGame
     friend MenuGame;
 
 private:
+    Steam::steam_manager& steamManager;
+    Discord::discord_manager& discordManager;
+
     HGAssets& assets;
     const LevelData* levelData;
 
@@ -60,7 +65,7 @@ private:
     ssvu::Timeline eventTimeline;
     ssvu::Timeline messageTimeline;
 
-    sf::Text messageText{"", assets.get<sf::Font>("imagine.ttf"),
+    sf::Text messageText{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
 
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
@@ -83,7 +88,7 @@ private:
     std::ostringstream os;
 
     FPSWatcher fpsWatcher;
-    sf::Text text{"", assets.get<sf::Font>("imagine.ttf"),
+    sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
     const sf::Vector2f txt_pos{8, 8};
@@ -108,6 +113,7 @@ private:
     void initLua_LevelControl();
     void initLua_StyleControl();
     void initLua_WallCreation();
+    void initLua_Steam();
 
     void initLua();
     void runLuaFile(const std::string& mFileName)
@@ -172,8 +178,7 @@ private:
     void stopLevelMusic();
 
     // Message-related methods
-    void addMessage(
-        const std::string& mMessage, float mDuration, bool mSoundToggle);
+    void addMessage(std::string mMessage, float mDuration, bool mSoundToggle);
     void clearMessages();
 
     // Level/menu loading/unloading/changing
@@ -192,7 +197,9 @@ public:
 
     MenuGame* mgPtr;
 
-    HexagonGame(HGAssets& mAssets, ssvs::GameWindow& mGameWindow);
+    HexagonGame(Steam::steam_manager& mSteamManager,
+        Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
+        ssvs::GameWindow& mGameWindow);
 
     // Gameplay methods
     void newGame(
@@ -301,10 +308,7 @@ public:
         return inputFocused;
     }
 
-    bool getInputSwap() const
-    {
-        return inputSwap;
-    }
+    bool getInputSwap() const;
 
     int getInputMovement() const
     {

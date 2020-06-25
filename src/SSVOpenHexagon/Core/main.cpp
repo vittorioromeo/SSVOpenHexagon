@@ -8,6 +8,8 @@
 #include "SSVOpenHexagon/Online/OHServer.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
@@ -26,8 +28,16 @@ static void createProfilesFolder()
     createFolder(profilesPath);
 }
 
+
 int main(int argc, char* argv[])
 {
+    // Steam integration
+    hg::Steam::steam_manager steamManager;
+    steamManager.request_stats_and_achievements();
+
+    // Discord integration
+    hg::Discord::discord_manager discordManager;
+
     hg::Online::GlobalThreadManager gtm;
     hg::Online::setCurrentGtm(gtm);
 
@@ -67,7 +77,8 @@ int main(int argc, char* argv[])
     }
 
     ssvs::GameWindow window;
-    window.setTitle("Open Hexagon " + ssvu::toStr(hg::Config::getVersion()) +
+    window.setTitle("Open Hexagon " +
+                    std::string{hg::Config::getVersionString()} +
                     " - by vittorio romeo - http://vittorioromeo.info");
     window.setSize(hg::Config::getWidth(), hg::Config::getHeight());
     window.setPixelMult(hg::Config::getPixelMultiplier());
@@ -82,8 +93,12 @@ int main(int argc, char* argv[])
     auto assets = std::make_unique<hg::HGAssets>();
     hg::Online::initializeValidators(*assets);
 
-    auto hg = std::make_unique<hg::HexagonGame>(*assets, window);
-    auto mg = std::make_unique<hg::MenuGame>(*assets, *hg, window);
+    auto hg = std::make_unique<hg::HexagonGame>(
+        steamManager, discordManager, *assets, window);
+
+    auto mg = std::make_unique<hg::MenuGame>(
+        steamManager, discordManager, *assets, *hg, window);
+
     hg->mgPtr = mg.get();
 
     assets->refreshVolumes();

@@ -61,8 +61,7 @@ list(APPEND CMAKE_MODULE_PATH
 
 include(vrm_cmake)
 
-message(STATUS "setting required C++ standard to 17")
-
+message(STATUS "setting required C++ standard to 20")
 set(CMAKE_CXX_STANDARD "20")
 set(CMAKE_CXX_STANDARD_REQUIRED on)
 
@@ -86,7 +85,7 @@ set(SRC_DIR "src" CACHE STRING "")
 include_directories("./")
 include_directories("./${INC_DIR}")
 
-file(GLOB_RECURSE SRC_LIST "${INC_DIR}/*" "${SRC_DIR}/*")
+file(GLOB_RECURSE SRC_LIST "${INC_DIR}/*" "${SRC_DIR}/*" "public/discord/*")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
@@ -108,13 +107,20 @@ endif()
 
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
+set(PUBLIC_INCLUDE_DIRS "public")
+
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
 
 set(SFML_LIBRARIES sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
+set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
 
 target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} lua)
 target_link_libraries(${PROJECT_NAME} zlib)
+target_link_libraries(${PROJECT_NAME} ${PUBLIC_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} pthread)
