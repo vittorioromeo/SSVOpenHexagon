@@ -6,6 +6,7 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
 
 using namespace std;
 using namespace sf;
@@ -18,12 +19,25 @@ namespace hg
 
 void HexagonGame::update(FT mFT)
 {
+    steamManager.set_rich_presence_in_game(levelData->name, status.currentTime);
+    steamManager.run_callbacks();
+
+    discordManager.set_rich_presence_in_game(
+        levelData->name, status.currentTime);
+    discordManager.run_callbacks();
+
+    hg::Joystick::update();
+
     updateText();
     updateFlash(mFT);
     effectTimelineManager.update(mFT);
 
+    // Joystick support
+    const bool jCW = hg::Joystick::rightPressed();
+    const bool jCCW = hg::Joystick::leftPressed();
+
     if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
-                              inputImplCW || inputImplBothCWCCW))
+                              inputImplCW || inputImplBothCWCCW || jCW || jCCW))
     {
         status.started = true;
         messageText.setString("");
@@ -73,6 +87,46 @@ void HexagonGame::update(FT mFT)
     else
     {
         inputMovement = 0;
+
+        // Joystick support
+        {
+            if(jCW && !jCCW)
+            {
+                inputMovement = 1;
+            }
+            else if(!jCW && jCCW)
+            {
+                inputMovement = -1;
+            }
+            else if(jCW && jCCW)
+            {
+                if(!inputImplBothCWCCW)
+                {
+                    if(inputMovement == 1 && inputImplLastMovement == 1)
+                    {
+                        inputMovement = -1;
+                    }
+                    else if(inputMovement == -1 && inputImplLastMovement == -1)
+                    {
+                        inputMovement = 1;
+                    }
+                }
+            }
+            else
+            {
+                inputMovement = 0;
+            }
+        }
+    }
+
+    // Joystick support
+    if(hg::Joystick::selectRisingEdge())
+    {
+        goToMenu();
+    }
+    else if(hg::Joystick::startRisingEdge())
+    {
+        status.mustRestart = true;
     }
 
     if(status.started)

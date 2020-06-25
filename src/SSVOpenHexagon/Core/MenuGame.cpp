@@ -5,6 +5,9 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
 
 using namespace std;
@@ -23,9 +26,11 @@ using s = States;
 using ocs = Online::ConnectStat;
 using ols = Online::LoginStat;
 
-MenuGame::MenuGame(
-    HGAssets& mAssets, HexagonGame& mHexagonGame, GameWindow& mGameWindow)
-    : assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
+MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
+    Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
+    HexagonGame& mHexagonGame, GameWindow& mGameWindow)
+    : steamManager(mSteamManager), discordManager(mDiscordManager),
+      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
 {
     initAssets();
     refreshCamera();
@@ -54,19 +59,29 @@ MenuGame::MenuGame(
         };
     window.onRecreation += [this] { refreshCamera(); };
 
-    levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIdx]);
+    levelDataIds =
+        assets.getLevelIdsByPack(assets.getPackInfos()[packIdx].path);
     setIndex(0);
     initMenus();
     initInput();
+
+    // TODO: remove when welcome screen is implemented
+    playLocally();
 }
 
 void MenuGame::init()
 {
+    steamManager.set_rich_presence_in_menu();
+    steamManager.update_hardcoded_achievements();
+
+    discordManager.set_rich_presence_in_menu();
+
     assets.stopMusics();
     assets.stopSounds();
     assets.playSound("openHexagon.ogg");
     Online::setForceLeaderboardRefresh(true);
 }
+
 void MenuGame::initAssets()
 {
     for(const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png",
@@ -75,6 +90,14 @@ void MenuGame::initAssets()
     {
         assets.get<Texture>(t).setSmooth(true);
     }
+}
+
+void MenuGame::playLocally()
+{
+    assets.pSaveCurrent();
+    assets.pSetPlayingLocally(true);
+    enteredStr = "";
+    state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : s::SLPSelect;
 }
 
 void MenuGame::initMenus()
@@ -115,12 +138,8 @@ void MenuGame::initMenus()
     }) | whenConnectedAndUnlogged;
     wlcm.create<i::Single>("logout", [] { Online::logout(); }) |
         whenConnectedAndLogged;
-    wlcm.create<i::Single>("play locally", [this] {
-        assets.pSaveCurrent();
-        assets.pSetPlayingLocally(true);
-        enteredStr = "";
-        state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : s::SLPSelect;
-    }) | whenUnlogged;
+    wlcm.create<i::Single>("play locally", [this] { playLocally(); }) |
+        whenUnlogged;
     wlcm.create<i::Single>("exit game", [this] { window.stop(); });
 
     // Options menu
@@ -409,6 +428,60 @@ void MenuGame::okAction()
     }
 }
 
+void MenuGame::createProfileAction()
+{
+    assets.playSound("beep.ogg");
+    if(!assets.pIsLocal())
+    {
+        state = s::MWlcm;
+        return;
+    }
+    if(state == s::SLPSelect)
+    {
+        enteredStr = "";
+        state = s::ETLPNew;
+    }
+}
+
+void MenuGame::selectProfileAction()
+{
+    assets.playSound("beep.ogg");
+    if(state != s::SMain)
+    {
+        return;
+    }
+    if(!assets.pIsLocal())
+    {
+        state = s::MWlcm;
+        return;
+    }
+    enteredStr = "";
+    state = s::SLPSelect;
+}
+
+void MenuGame::openOptionsAction()
+{
+    assets.playSound("beep.ogg");
+    if(state != s::SMain)
+    {
+        return;
+    }
+    state = s::MOpts;
+}
+
+void MenuGame::selectPackAction()
+{
+    assets.playSound("beep.ogg");
+    if(state == s::SMain)
+    {
+        auto p(assets.getPackInfos());
+        packIdx = ssvu::getMod(packIdx + 1, p.size());
+        levelDataIds = assets.getLevelIdsByPack(p[packIdx].path);
+        setIndex(0);
+    }
+}
+
+
 void MenuGame::initInput()
 {
     using k = KKey;
@@ -429,61 +502,15 @@ void MenuGame::initInput()
         Config::getTriggerRestart(), [this](FT /*unused*/) { okAction(); },
         t::Once);
     game.addInput(
-        {{k::F1}},
-        [this](FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(!assets.pIsLocal())
-            {
-                state = s::MWlcm;
-                return;
-            }
-            if(state == s::SLPSelect)
-            {
-                enteredStr = "";
-                state = s::ETLPNew;
-            }
-        },
+        {{k::F1}}, [this](FT /*unused*/) { createProfileAction(); }, t::Once);
+    game.addInput(
+        {{k::F2}, {k::J}}, [this](FT /*unused*/) { selectProfileAction(); },
         t::Once);
     game.addInput(
-        {{k::F2}, {k::J}},
-        [this](FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(state != s::SMain)
-            {
-                return;
-            }
-            if(!assets.pIsLocal())
-            {
-                state = s::MWlcm;
-                return;
-            }
-            enteredStr = "";
-            state = s::SLPSelect;
-        },
+        {{k::F3}, {k::K}}, [this](FT /*unused*/) { openOptionsAction(); },
         t::Once);
     game.addInput(
-        {{k::F3}, {k::K}},
-        [this](FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(state != s::SMain)
-            {
-                return;
-            }
-            state = s::MOpts;
-        },
-        t::Once);
-    game.addInput(
-        {{k::F4}, {k::L}},
-        [this](FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(state == s::SMain)
-            {
-                auto p(assets.getPackPaths());
-                packIdx = ssvu::getMod(packIdx + 1, p.size());
-                levelDataIds = assets.getLevelIdsByPack(p[packIdx]);
-                setIndex(0);
-            }
-        },
+        {{k::F4}, {k::L}}, [this](FT /*unused*/) { selectPackAction(); },
         t::Once);
     game.addInput(
         Config::getTriggerExit(),
@@ -566,27 +593,28 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueInc", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc",
-            "l_setRotationSpeedMax", "l_setRotationSpeedInc", "l_setDelayInc",
-            "l_setFastSpin", "l_setSidesMin", "l_setSidesMax", "l_setIncTime",
-            "l_setPulseMin", "l_setPulseMax", "l_setPulseSpeed",
-            "l_setPulseSpeedR", "l_setPulseDelayMax", "l_setBeatPulseMax",
-            "l_setBeatPulseDelayMax", "l_setWallSkewLeft", "l_setWallSkewRight",
-            "l_setWallAngleLeft", "l_setWallAngleRight", "l_setRadiusMin",
-            "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
-            "l_enableRndSideChanges", "l_darkenUnevenBackgroundChunk",
-            "l_getSpeedMult", "l_getDelayMult", "l_addTracked", "u_playSound",
-            "u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
-            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
-            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setMusic",
-            "u_setMusicSegment", "u_setMusicSeconds", "m_messageAdd",
-            "m_messageAddImportant", "m_clearMessages", "t_wait", "t_waitS",
-            "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
-            "e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall",
-            "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
-            "w_wallHModCurveData", "l_setDelayMult", "l_setMaxInc",
-            "s_setStyle", "u_setMusic", "l_getRotation", "l_setRotation",
-            "s_getCameraShake", "s_setCameraShake", "l_getOfficial"})
+    for(const auto& un :
+        {"l_setSpeedMult", "l_setSpeedInc", "l_setRotationSpeedMax",
+            "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
+            "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
+            "l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR",
+            "l_setPulseDelayMax", "l_setBeatPulseMax", "l_setBeatPulseDelayMax",
+            "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
+            "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
+            "l_setTutorialMode", "l_setIncEnabled", "l_enableRndSideChanges",
+            "l_darkenUnevenBackgroundChunk", "l_getSpeedMult", "l_getDelayMult",
+            "l_addTracked", "u_playSound", "u_isKeyPressed",
+            "u_isMouseButtonPressed", "u_isFastSpinning", "u_setPlayerAngle",
+            "u_forceIncrement", "u_kill", "u_eventKill", "u_haltTime",
+            "u_timelineWait", "u_clearWalls", "u_setMusic", "u_setMusicSegment",
+            "u_setMusicSeconds", "m_messageAdd", "m_messageAddImportant",
+            "m_clearMessages", "t_wait", "t_waitS", "t_waitUntilS",
+            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
+            "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
+            "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
+            "l_setDelayMult", "l_setMaxInc", "s_setStyle", "u_setMusic",
+            "l_getRotation", "l_setRotation", "s_getCameraShake",
+            "s_setCameraShake", "l_getOfficial", "steam_unlockAchievement"})
     {
         mLua.writeVariable(un, [] {});
     }
@@ -775,7 +803,7 @@ void MenuGame::refreshCamera()
     titleBar.setScale({0.5f, 0.5f});
     titleBar.setPosition({20.f, 20.f});
 
-    txtVersion.setString(toStr(Config::getVersion()));
+    txtVersion.setString(Config::getVersionString());
     txtVersion.setFillColor(Color::White);
     txtVersion.setOrigin({getLocalRight(txtVersion), 0.f});
     txtVersion.setPosition(
@@ -797,6 +825,45 @@ void MenuGame::refreshCamera()
 
 void MenuGame::update(FT mFT)
 {
+    steamManager.run_callbacks();
+    discordManager.run_callbacks();
+
+    hg::Joystick::update();
+
+    if(hg::Joystick::leftRisingEdge())
+    {
+        leftAction();
+    }
+    else if(hg::Joystick::rightRisingEdge())
+    {
+        rightAction();
+    }
+    else if(hg::Joystick::upRisingEdge())
+    {
+        upAction();
+    }
+    else if(hg::Joystick::downRisingEdge())
+    {
+        downAction();
+    }
+
+    if(hg::Joystick::aRisingEdge())
+    {
+        okAction();
+    }
+    else if(hg::Joystick::bRisingEdge())
+    {
+        createProfileAction();
+    }
+    else if(hg::Joystick::selectRisingEdge())
+    {
+        selectPackAction();
+    }
+    else if(hg::Joystick::startRisingEdge())
+    {
+        openOptionsAction();
+    }
+
     if(touchDelay > 0.f)
     {
         touchDelay -= mFT;
@@ -989,13 +1056,15 @@ void MenuGame::drawLevelSelection()
         {
             versionMessage = "update available (" + toStr(serverVersion) + ")";
         }
-        renderText(versionMessage, txtProf, {20, 4}, 13);
+
+        // TODO: restore online capabilities
+        // renderText(versionMessage, txtProf, {20, 4}, 13);
 
         Text& profile = renderText("profile: " + assets.pGetName(), txtProf,
             sf::Vector2f{20.f, getGlobalBottom(titleBar) + 8}, 18);
         Text& pack =
             renderText("pack: " + packName + " (" + toStr(packIdx + 1) + "/" +
-                           toStr(assets.getPackPaths().size()) + ")",
+                           toStr(assets.getPackInfos().size()) + ")",
                 txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
         string lbestStr;
@@ -1025,18 +1094,31 @@ void MenuGame::drawLevelSelection()
 
         renderText(
             leaderboardString, txtProf, {20.f, getGlobalBottom(lbest)}, 15);
-        Text& smsg = renderText("server message: " + Online::getServerMessage(),
-            txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+
+        // TODO: restore online capabilities
+        // Text& smsg = renderText("server message: " +
+        // Online::getServerMessage(),
+        //    txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+
+        Text& smsg = renderText(
+            "", txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+
+        // TODO: restore online capabilities
+        /*
         txtFriends.setOrigin({getLocalWidth(txtFriends), 0.f});
         renderText("friends:\n" + friendsString, txtFriends,
             {w - 20.f, getGlobalBottom(titleBar) + 8}, 18);
+        */
 
+        // TODO: restore online capabilities
+        /*
         if(!Config::isEligibleForScore())
         {
             renderText(
                 "not eligible for scoring: " + Config::getUneligibilityReason(),
                 txtProf, {20.f, getGlobalTop(smsg) - 20.f}, 11);
         }
+        */
 
         if(!assets.pIsLocal() && Online::getLoginStatus() == ols::Logged)
         {
@@ -1056,25 +1138,35 @@ void MenuGame::drawLevelSelection()
 
     Text& lname = renderText(levelData->name, txtLName, {20.f, h / 2.f});
     Text& ldesc = renderText(
-        levelData->description, txtLDesc, {20.f, getGlobalBottom(lname) + 2.f});
+        levelData->description, txtLDesc, {20.f, getGlobalBottom(lname) - 5.f});
     Text& lauth = renderText("author: " + levelData->author, txtLAuth,
         {20.f, getGlobalBottom(ldesc) + 25.f});
-    renderText("music: " + musicData.name + " by " + musicData.author + " (" +
-                   musicData.album + ")",
-        txtLMus, {20.f, getGlobalBottom(lauth) - 5.f});
+
+    std::string musicString =
+        "music: " + musicData.name + " by " + musicData.author;
+
+    if(!musicData.album.empty())
+    {
+        musicString += " (" + musicData.album + ")";
+    }
+
+    renderText(musicString, txtLMus, {20.f, getGlobalBottom(lauth) - 5.f});
     renderText(
         "(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")",
-        txtLMus, {20.f, getGlobalTop(lname) - 25.f});
+        txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
     string packNames{"Installed packs:\n"};
-    for(const auto& n : assets.getPackIds())
+    for(const auto& n : assets.getPackInfos())
     {
-        if(packData.id == n)
+        if(packData.id == n.id)
         {
             packNames += ">>> ";
         }
-        packNames.append(n + "\n");
+        packNames.append(n.id + "\n");
     }
+
+    Utils::uppercasify(packNames);
+
     txtPacks.setString(packNames);
     txtPacks.setOrigin(getGlobalWidth(txtPacks), getGlobalHeight(txtPacks));
     txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
