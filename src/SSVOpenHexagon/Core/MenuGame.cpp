@@ -56,7 +56,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
         };
     window.onRecreation += [this] { refreshCamera(); };
 
-    levelDataIds = assets.getLevelIdsByPack(assets.getPackPaths()[packIdx]);
+    levelDataIds =
+        assets.getLevelIdsByPack(assets.getPackInfos()[packIdx].path);
     setIndex(0);
     initMenus();
     initInput();
@@ -465,9 +466,9 @@ void MenuGame::selectPackAction()
     assets.playSound("beep.ogg");
     if(state == s::SMain)
     {
-        auto p(assets.getPackPaths());
+        auto p(assets.getPackInfos());
         packIdx = ssvu::getMod(packIdx + 1, p.size());
-        levelDataIds = assets.getLevelIdsByPack(p[packIdx]);
+        levelDataIds = assets.getLevelIdsByPack(p[packIdx].path);
         setIndex(0);
     }
 }
@@ -1053,7 +1054,7 @@ void MenuGame::drawLevelSelection()
             sf::Vector2f{20.f, getGlobalBottom(titleBar) + 8}, 18);
         Text& pack =
             renderText("pack: " + packName + " (" + toStr(packIdx + 1) + "/" +
-                           toStr(assets.getPackPaths().size()) + ")",
+                           toStr(assets.getPackInfos().size()) + ")",
                 txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
         string lbestStr;
@@ -1145,13 +1146,13 @@ void MenuGame::drawLevelSelection()
         txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
     string packNames{"Installed packs:\n"};
-    for(const auto& n : assets.getPackIds())
+    for(const auto& n : assets.getPackInfos())
     {
-        if(packData.id == n)
+        if(packData.id == n.id)
         {
             packNames += ">>> ";
         }
-        packNames.append(n + "\n");
+        packNames.append(n.id + "\n");
     }
 
     Utils::uppercasify(packNames);

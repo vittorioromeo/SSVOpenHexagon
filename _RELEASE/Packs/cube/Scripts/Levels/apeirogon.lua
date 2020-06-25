@@ -90,7 +90,7 @@ function onUpdate(mFrameTime)
 		end
 	end
 
-	if l_getLevelTime() > 60 then
+	if l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a4_apeirogon")
 	end
 end
