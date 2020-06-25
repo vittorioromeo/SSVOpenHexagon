@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
@@ -30,8 +31,12 @@ static void createProfilesFolder()
 
 int main(int argc, char* argv[])
 {
+    // Steam integration
     hg::Steam::steam_manager steamManager;
     steamManager.request_stats_and_achievements();
+
+    // Discord integration
+    hg::Discord::discord_manager discordManager;
 
     hg::Online::GlobalThreadManager gtm;
     hg::Online::setCurrentGtm(gtm);
@@ -88,9 +93,12 @@ int main(int argc, char* argv[])
     auto assets = std::make_unique<hg::HGAssets>();
     hg::Online::initializeValidators(*assets);
 
-    auto hg = std::make_unique<hg::HexagonGame>(steamManager, *assets, window);
-    auto mg =
-        std::make_unique<hg::MenuGame>(steamManager, *assets, *hg, window);
+    auto hg = std::make_unique<hg::HexagonGame>(
+        steamManager, discordManager, *assets, window);
+
+    auto mg = std::make_unique<hg::MenuGame>(
+        steamManager, discordManager, *assets, *hg, window);
+
     hg->mgPtr = mg.get();
 
     assets->refreshVolumes();

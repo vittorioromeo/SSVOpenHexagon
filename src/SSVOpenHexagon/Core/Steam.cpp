@@ -39,14 +39,16 @@ void steam_manager::on_user_stats_received(UserStatsReceived_t* data)
 {
     (void)data;
 
-    ssvu::lo("Steam") << "Received user stats\n";
+    ssvu::lo("Steam") << "Received user stats (rc: " << data->m_eResult
+                      << ")\n";
+
+    _got_stats = true;
 }
 
 void steam_manager::on_user_stats_stored(UserStatsStored_t* data)
 {
     (void)data;
 
-    _got_stats = true;
     ssvu::lo("Steam") << "Stored user stats\n";
 }
 
@@ -110,7 +112,7 @@ bool steam_manager::store_stats()
 
     if(!_got_stats)
     {
-        ssvu::lo("Steam") << "Attempted to unlock achievement without stats\n";
+        ssvu::lo("Steam") << "Attempted to store stat without stats\n";
         return false;
     }
 
@@ -136,12 +138,18 @@ bool steam_manager::unlock_achievement(std::string_view name)
         return false;
     }
 
+    if(_unlocked_achievements.contains(std::string(name)))
+    {
+        return false;
+    }
+
     if(!SteamUserStats()->SetAchievement(name.data()))
     {
         ssvu::lo("Steam") << "Failed to unlock achievement " << name << '\n';
         return false;
     }
 
+    _unlocked_achievements.emplace(name);
     return store_stats();
 }
 
@@ -215,7 +223,7 @@ bool steam_manager::set_and_store_stat(std::string_view name, int data)
 
     if(!SteamUserStats()->GetStat(name.data(), out))
     {
-        ssvu::lo("Steam") << "Error getting stat " << name << '\n';
+        ssvu::lo("Steam") << "Error getting stat " << name.data() << '\n';
         return false;
     }
 

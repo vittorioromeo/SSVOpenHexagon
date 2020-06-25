@@ -6,6 +6,8 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
 
 using namespace std;
@@ -24,10 +26,11 @@ using s = States;
 using ocs = Online::ConnectStat;
 using ols = Online::LoginStat;
 
-MenuGame::MenuGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
+MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
+    Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     HexagonGame& mHexagonGame, GameWindow& mGameWindow)
-    : steamManager(mSteamManager), assets(mAssets), hexagonGame(mHexagonGame),
-      window(mGameWindow)
+    : steamManager(mSteamManager), discordManager(mDiscordManager),
+      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
 {
     initAssets();
     refreshCamera();
@@ -70,6 +73,8 @@ void MenuGame::init()
 {
     steamManager.set_rich_presence_in_menu();
     steamManager.update_hardcoded_achievements();
+
+    discordManager.set_rich_presence_in_menu();
 
     assets.stopMusics();
     assets.stopSounds();
@@ -821,6 +826,8 @@ void MenuGame::refreshCamera()
 void MenuGame::update(FT mFT)
 {
     steamManager.run_callbacks();
+    discordManager.run_callbacks();
+
     hg::Joystick::update();
 
     if(hg::Joystick::leftRisingEdge())

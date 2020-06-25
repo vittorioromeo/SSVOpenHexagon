@@ -36,6 +36,8 @@ class MenuGame
 {
 private:
     Steam::steam_manager& steamManager;
+    Discord::discord_manager& discordManager;
+
     HGAssets& assets;
     sf::Font& imagine = assets.get<sf::Font>(
         "forcedsquare.ttf"); // G++ bug (cannot initialize with curly braces)
@@ -211,7 +213,8 @@ private:
     }
 
 public:
-    MenuGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
+    MenuGame(Steam::steam_manager& mSteamManager,
+        Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
     void init();

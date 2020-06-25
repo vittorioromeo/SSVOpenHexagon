@@ -9,6 +9,7 @@
 #include "steam/steam_api.h"
 
 #include <string_view>
+#include <unordered_set>
 
 namespace hg::Steam
 {
@@ -18,6 +19,8 @@ class steam_manager
 private:
     bool _initialized;
     bool _got_stats;
+
+    std::unordered_set<std::string> _unlocked_achievements;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
