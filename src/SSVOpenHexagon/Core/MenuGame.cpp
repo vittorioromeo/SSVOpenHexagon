@@ -69,6 +69,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager, HGAssets& mAssets,
 void MenuGame::init()
 {
     steamManager.set_rich_presence_in_menu();
+    steamManager.update_hardcoded_achievements();
 
     assets.stopMusics();
     assets.stopSounds();

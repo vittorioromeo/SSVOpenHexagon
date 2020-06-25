@@ -27,8 +27,6 @@ private:
         steam_manager, on_user_achievement_stored, UserAchievementStored_t);
 #pragma GCC diagnostic pop
 
-    bool store_stats();
-
 public:
     steam_manager();
     ~steam_manager();
@@ -43,10 +41,17 @@ public:
 
     bool run_callbacks();
 
+    bool store_stats();
     bool unlock_achievement(std::string_view name);
 
     bool set_rich_presence_in_menu();
     bool set_rich_presence_in_game(std::string_view level_name, float time);
+
+    bool set_and_store_stat(std::string_view name, int data);
+    [[nodiscard]] bool get_achievement(bool* out, std::string_view name);
+    [[nodiscard]] bool get_stat(int* out, std::string_view name);
+
+    bool update_hardcoded_achievements();
 };
 
 } // namespace hg::Steam
