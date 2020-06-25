@@ -14,7 +14,7 @@ namespace hg::Discord
 [[nodiscard]] static bool initialize_discord(discord::Core** core)
 {
     const auto result = discord::Core::Create(
-        725763266110029964, DiscordCreateFlags_Default, core);
+        725763266110029964, DiscordCreateFlags_NoRequireDiscord, core);
 
     if(result != discord::Result::Ok)
     {
@@ -28,6 +28,11 @@ namespace hg::Discord
 
 discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
 {
+    if(!_initialized)
+    {
+        return;
+    }
+
     _core->SetLogHook(discord::LogLevel::Debug,
         [](discord::LogLevel level, const char* message) {
             ssvu::lo("Discord")
