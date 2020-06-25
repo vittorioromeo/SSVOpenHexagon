@@ -38,8 +38,8 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
         });
     }
 
-    ssvu::sort(packIds, [&](const auto& mA, const auto& mB) {
-        return packDatas.at(mA).priority < packDatas.at(mB).priority;
+    ssvu::sort(packInfos, [&](const auto& mA, const auto& mB) {
+        return packDatas.at(mA.id).priority < packDatas.at(mB.id).priority;
     });
 }
 
@@ -72,8 +72,7 @@ void HGAssets::loadAssets()
         const string& packId{pd.id};
 
         string packPath{"Packs/" + packId + "/"};
-        packIds.emplace_back(packId);
-        packPaths.emplace_back(packPath);
+        packInfos.emplace_back(PackInfo{packId, packPath});
 
         try
         {

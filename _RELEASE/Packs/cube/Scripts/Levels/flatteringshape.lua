@@ -76,7 +76,7 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
-	if l_getLevelTime() > 90 then
+	if l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a2_flattering")
 	end
 end

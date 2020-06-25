@@ -56,7 +56,7 @@ function onIncrement()
 	level = extra + 1
 	incrementTime = incrementTime + 2
 
-	if level == 8 then
+	if level == 8 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a5_commando")
 	end
 

@@ -1,6 +1,6 @@
 
 {
-	"3D_enabled" : false,
+	"3D_enabled" : true,
 	"3D_max_depth" : 100,
 	"3D_multiplier" : 1.0,
 	"antialiasing_level" : 3,
@@ -14,8 +14,8 @@
 	"flash_enabled" : true,
 	"fullscreen" : false,
 	"fullscreen_auto_resolution" : false,
-	"fullscreen_height" : 480,
-	"fullscreen_width" : 640,
+	"fullscreen_height" : 900,
+	"fullscreen_width" : 1440,
 	"invincible" : false,
 	"limit_fps" : true,
 	"max_fps" : 200,
@@ -41,53 +41,53 @@
 	"show_messages" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 75.0,
-	"t_down" : 
+	"t_down" :
 	[
 		[ "kDown" ],
 		[ "kS" ]
 	],
-	"t_exit" : 
+	"t_exit" :
 	[
 		[ "kEscape" ]
 	],
-	"t_focus" : 
+	"t_focus" :
 	[
 		[ "kLShift" ],
 		[ "bXButton1" ]
 	],
-	"t_force_restart" : 
+	"t_force_restart" :
 	[
 		[ "kR" ],
 		[ "bXButton2" ]
 	],
-	"t_restart" : 
+	"t_restart" :
 	[
 		[ "kReturn" ],
 		[ "kSpace" ],
 		[ "bMiddle" ]
 	],
-	"t_rotate_ccw" : 
+	"t_rotate_ccw" :
 	[
 		[ "kLeft" ],
 		[ "kA" ],
 		[ "bLeft" ]
 	],
-	"t_rotate_cw" : 
+	"t_rotate_cw" :
 	[
 		[ "kRight" ],
 		[ "kD" ],
 		[ "bRight" ]
 	],
-	"t_screenshot" : 
+	"t_screenshot" :
 	[
 		[ "kF12" ]
 	],
-	"t_swap" : 
+	"t_swap" :
 	[
 		[ "kSpace" ],
 		[ "bMiddle" ]
 	],
-	"t_up" : 
+	"t_up" :
 	[
 		[ "kUp" ],
 		[ "kW" ]
