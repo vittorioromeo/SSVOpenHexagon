@@ -112,8 +112,14 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/incl
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
 
 set(SFML_LIBRARIES sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
-set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll"
-                     "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
+
+if(WIN32)
+    set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll"
+                         "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
+else()
+    set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
+                         "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so")
+endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
