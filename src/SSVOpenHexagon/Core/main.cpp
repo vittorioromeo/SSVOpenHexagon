@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
     // Discord integration
     hg::Discord::discord_manager discordManager;
 
-    auto gtm = std::make_unique<hg::Online::GlobalThreadManager>();
-    hg::Online::setCurrentGtm(std::move(gtm));
+    hg::Online::setCurrentGtm(
+        std::make_unique<hg::Online::GlobalThreadManager>());
 
     const auto overrideIds = [&] {
         std::vector<std::string> result;
