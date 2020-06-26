@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
 #include <cctype>
 
@@ -68,7 +69,7 @@ public:
     template <typename... Ts>
     [[gnu::always_inline]] void unsafe_emplace_back(Ts&&... xs)
     {
-        SSVU_ASSERT(_size < _capacity);
+        SSVU_ASSERT(_size <= _capacity);
         new(&_data[_size++]) sf::Vertex{std::forward<Ts>(xs)...};
     }
 
@@ -76,7 +77,7 @@ public:
     [[gnu::always_inline]] void batch_unsafe_emplace_back(
         const sf::Color& color, Ts&&... positions)
     {
-        SSVU_ASSERT(_size + sizeof...(positions) < _capacity);
+        SSVU_ASSERT(_size + sizeof...(positions) <= _capacity);
         ((new(&_data[_size++]) sf::Vertex{positions, color}), ...);
     }
 

@@ -8,10 +8,8 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 
-using namespace std;
 using namespace sf;
 using namespace ssvs;
-using namespace ssvu;
 using namespace ssvuj;
 
 namespace hg
@@ -19,150 +17,298 @@ namespace hg
 
 void HexagonGame::initLua_Utils()
 {
-    lua.writeVariable(
-        "u_log", [this](string mLog) { lo("lua") << mLog << "\n"; });
-    lua.writeVariable("u_execScript", [this](string mName) {
-        runLuaFile(levelData->packPath + "Scripts/" + mName);
-    });
-    lua.writeVariable(
-        "u_playSound", [this](string mId) { assets.playSound(mId); });
-    lua.writeVariable("u_setMusic", [this](string mId) {
-        musicData = assets.getMusicData(mId);
-        musicData.firstPlay = true;
-        stopLevelMusic();
-        playLevelMusic();
-    });
-    lua.writeVariable("u_setMusicSegment", [this](string mId, int segment) {
-        musicData = assets.getMusicData(mId);
-        stopLevelMusic();
-        playLevelMusicAtTime(musicData.getSegment(segment));
-    });
-    lua.writeVariable("u_setMusicSeconds", [this](string mId, float mTime) {
-        musicData = assets.getMusicData(mId);
-        stopLevelMusic();
-        playLevelMusicAtTime(mTime);
-    });
-    lua.writeVariable("u_isKeyPressed",
-        [this](int mKey) { return window.getInputState()[KKey(mKey)]; });
-    lua.writeVariable(
-        "u_haltTime", [this](float mDuration) { status.timeStop = mDuration; });
-    lua.writeVariable("u_timelineWait",
-        [this](float mDuration) { timeline.append<Wait>(mDuration); });
-    lua.writeVariable("u_clearWalls", [this] { walls.clear(); });
-    lua.writeVariable(
-        "u_getPlayerAngle", [this] { return player.getPlayerAngle(); });
-    lua.writeVariable("u_setPlayerAngle",
-        [this](float newAng) { player.setPlayerAngle(newAng); });
-    lua.writeVariable("u_isMouseButtonPressed",
-        [this](int mKey) { return window.getInputState()[MBtn(mKey)]; });
-    lua.writeVariable(
-        "u_isFastSpinning", [this] { return status.fastSpin > 0; });
-    lua.writeVariable("u_forceIncrement", [this] { incrementDifficulty(); });
-    lua.writeVariable(
-        "u_isFastSpinning", [this] { return status.fastSpin > 0; });
-    lua.writeVariable("u_forceIncrement", [this] { incrementDifficulty(); });
-    lua.writeVariable(
-        "u_kill", [this] { timeline.append<Do>([this] { death(true); }); });
-    lua.writeVariable("u_eventKill",
-        [this] { eventTimeline.append<Do>([this] { death(true); }); });
-    lua.writeVariable("u_getDifficultyMult", [this] { return difficultyMult; });
-    lua.writeVariable("u_getSpeedMultDM", [this] { return getSpeedMultDM(); });
-    lua.writeVariable("u_getDelayMultDM", [this] { return getDelayMultDM(); });
+    addLuaFn("u_log", //
+        [this](std::string mLog) { ssvu::lo("lua") << mLog << "\n"; })
+        .arg("message")
+        .doc("Print out `$0` to the console.");
+
+    addLuaFn("u_execScript", //
+        [this](std::string mName) {
+            runLuaFile(levelData->packPath + "Scripts/" + mName);
+        })
+        .arg("scriptFilename")
+        .doc("Execute the script located at `<pack>/Scripts/$0`.");
+
+    addLuaFn("u_playSound", //
+        [this](std::string mId) { assets.playSound(mId); })
+        .arg("soundId")
+        .doc(
+            "Play the sound with id `$0`. The id must be registered in "
+            "`assets.json`, under `\"soundBuffers\"`.");
+
+    addLuaFn("u_setMusic", //
+        [this](std::string mId) {
+            musicData = assets.getMusicData(mId);
+            musicData.firstPlay = true;
+            stopLevelMusic();
+            playLevelMusic();
+        })
+        .arg("musicId")
+        .doc(
+            "Stop the current music and play the music with id `$0`. The id is "
+            "defined in the music `.json` file, under `\"id\"`.");
+
+    addLuaFn("u_setMusicSegment", //
+        [this](std::string mId, int segment) {
+            musicData = assets.getMusicData(mId);
+            stopLevelMusic();
+            playLevelMusicAtTime(musicData.getSegment(segment));
+        })
+        .arg("musicId")
+        .arg("segment")
+        .doc(
+            "Stop the current music and play the music with id `$0`, starting "
+            "at segment `$1`. Segments are defined in the music `.json` file, "
+            "under `\"segments\"`.");
+
+    addLuaFn("u_setMusicSeconds", //
+        [this](std::string mId, float mTime) {
+            musicData = assets.getMusicData(mId);
+            stopLevelMusic();
+            playLevelMusicAtTime(mTime);
+        })
+        .arg("musicId")
+        .arg("time")
+        .doc(
+            "Stop the current music and play the music with id `$0`, starting "
+            "at time `$1` (in seconds).");
+
+    addLuaFn("u_isKeyPressed",
+        [this](int mKey) { return window.getInputState()[KKey(mKey)]; })
+        .arg("keyCode")
+        .doc(
+            "Return `true` if the keyboard key with code `$0` is being "
+            "pressed, `false` otherwise. The key code must match the "
+            "definition of the SFML `sf::Keyboard::Key` enumeration.");
+
+    addLuaFn("u_haltTime", //
+        [this](float mDuration) { status.timeStop = mDuration; })
+        .arg("duration")
+        .doc("Pause the game timer for `$0` seconds.");
+
+    addLuaFn("u_timelineWait",
+        [this](float mDuration) { timeline.append<ssvu::Wait>(mDuration); })
+        .arg("duration")
+        .doc("*Add to the main timeline*: wait for `$0` seconds.");
+
+    addLuaFn("u_clearWalls", //
+        [this] { walls.clear(); })
+        .doc("Remove all existing walls.");
+
+    addLuaFn("u_getPlayerAngle", //
+        [this] { return player.getPlayerAngle(); })
+        .doc("Return the current angle of the player, in radians.");
+
+    addLuaFn("u_setPlayerAngle",
+        [this](float newAng) { player.setPlayerAngle(newAng); })
+        .arg("angle")
+        .doc("Set the current angle of the player to `$0`, in radians.");
+
+    addLuaFn("u_isMouseButtonPressed",
+        [this](int mKey) { return window.getInputState()[MBtn(mKey)]; })
+        .arg("buttonCode")
+        .doc(
+            "Return `true` if the mouse button with code `$0` is being "
+            "pressed, `false` otherwise. The button code must match the "
+            "definition of the SFML `sf::Mouse::Button` enumeration.");
+
+    addLuaFn("u_isFastSpinning", //
+        [this] { return status.fastSpin > 0; })
+        .doc(
+            "Return `true` if the camera is currently \"fast spinning\", "
+            "`false` otherwise.");
+
+    addLuaFn("u_forceIncrement", //
+        [this] { incrementDifficulty(); })
+        .doc(
+            "Immediately force a difficulty increment, regardless of the "
+            "chosen automatic increment parameters.");
+
+    addLuaFn("u_kill", //
+        [this] { timeline.append<ssvu::Do>([this] { death(true); }); })
+        .doc("*Add to the main timeline*: kill the player.");
+
+    addLuaFn("u_eventKill", //
+        [this] { eventTimeline.append<ssvu::Do>([this] { death(true); }); })
+        .doc("*Add to the event timeline*: kill the player.");
+
+    addLuaFn("u_getDifficultyMult", //
+        [this] { return difficultyMult; })
+        .doc("Return the current difficulty multiplier.");
+
+    addLuaFn("u_getSpeedMultDM", //
+        [this] { return getSpeedMultDM(); })
+        .doc(
+            "Return the current speed multiplier, adjusted for the chosen "
+            "difficulty multiplier.");
+
+    addLuaFn("u_getDelayMultDM", //
+        [this] { return getDelayMultDM(); })
+        .doc(
+            "Return the current delay multiplier, adjusted for the chosen "
+            "difficulty multiplier.");
 }
 
 void HexagonGame::initLua_Messages()
 {
-    lua.writeVariable("m_messageAdd", [this](string mMsg, float mDuration) {
-        eventTimeline.append<Do>([=, this] {
-            if(firstPlay && Config::getShowMessages())
-            {
-                addMessage(mMsg, mDuration, true);
-            }
-        });
-    });
-
-    lua.writeVariable(
-        "m_messageAddImportant", [this](string mMsg, float mDuration) {
-            eventTimeline.append<Do>([=, this] {
-                if(Config::getShowMessages())
+    addLuaFn("m_messageAdd", //
+        [this](std::string mMsg, float mDuration) {
+            eventTimeline.append<ssvu::Do>([=, this] {
+                if(firstPlay && Config::getShowMessages())
                 {
-                    addMessage(mMsg, mDuration, true);
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
                 }
             });
-        });
-    lua.writeVariable(
-        "m_messageAddImportantSilent", [this](string mMsg, float mDuration) {
-            eventTimeline.append<Do>([=, this] {
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during the first "
+            "run of the level.");
+
+    addLuaFn("m_messageAddImportant", //
+        [this](std::string mMsg, float mDuration) {
+            eventTimeline.append<ssvu::Do>([=, this] {
                 if(Config::getShowMessages())
                 {
-                    addMessage(mMsg, mDuration, false);
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
                 }
             });
-        });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will be printed during every run of the "
+            "level.");
 
-    lua.writeVariable("m_clearMessages", [this] { clearMessages(); });
+
+    addLuaFn("m_messageAddImportantSilent",
+        [this](std::string mMsg, float mDuration) {
+            eventTimeline.append<ssvu::Do>([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during the first "
+            "run of the level, and will not produce any sound.");
+
+
+    addLuaFn("m_clearMessages", //
+        [this] { clearMessages(); })
+        .doc("Remove all previously scheduled messages.");
 }
 
 void HexagonGame::initLua_MainTimeline()
 {
-    lua.writeVariable("t_wait",
-        [this](float mDuration) { timeline.append<Wait>(mDuration); });
+    addLuaFn("t_wait",
+        [this](float mDuration) { timeline.append<ssvu::Wait>(mDuration); })
+        .arg("duration")
+        .doc("*Add to the main timeline*: wait for `$0` sixths of a second.");
 
-    lua.writeVariable("t_waitS", [this](float mDuration) {
-        timeline.append<Wait>(ssvu::getSecondsToFT(mDuration));
-    });
+    addLuaFn("t_waitS", //
+        [this](float mDuration) {
+            timeline.append<ssvu::Wait>(ssvu::getSecondsToFT(mDuration));
+        })
+        .arg("duration")
+        .doc("*Add to the main timeline*: wait for `$0` seconds.");
 
-    lua.writeVariable("t_waitUntilS", [this](float mDuration) {
-        timeline.append<Wait>(10);
-        timeline.append<Do>([=, this] {
-            if(status.currentTime < mDuration)
-            {
-                timeline.jumpTo(timeline.getCurrentIndex() - 2);
-            }
-        });
-    });
+    addLuaFn("t_waitUntilS", //
+        [this](float mDuration) {
+            timeline.append<ssvu::Wait>(10);
+            timeline.append<ssvu::Do>([=, this] {
+                if(status.currentTime < mDuration)
+                {
+                    timeline.jumpTo(timeline.getCurrentIndex() - 2);
+                }
+            });
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the main timeline*: wait until the timer reaches `$0` "
+            "seconds.");
 }
 
 void HexagonGame::initLua_EventTimeline()
 {
-    lua.writeVariable("e_eventStopTime", [this](float mDuration) {
-        eventTimeline.append<Do>([=, this] { status.timeStop = mDuration; });
-    });
+    addLuaFn("e_eventStopTime", //
+        [this](float mDuration) {
+            eventTimeline.append<ssvu::Do>(
+                [=, this] { status.timeStop = mDuration; });
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: pause the game timer for `$0` sixths "
+            "of a second.");
 
-    lua.writeVariable("e_eventStopTimeS", [this](float mDuration) {
-        eventTimeline.append<Do>(
-            [=, this] { status.timeStop = ssvu::getSecondsToFT(mDuration); });
-    });
+    addLuaFn("e_eventStopTimeS", //
+        [this](float mDuration) {
+            eventTimeline.append<ssvu::Do>([=, this] {
+                status.timeStop = ssvu::getSecondsToFT(mDuration);
+            });
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: pause the game timer for `$0` "
+            "seconds.");
 
-    lua.writeVariable("e_eventWait",
-        [this](float mDuration) { eventTimeline.append<Wait>(mDuration); });
+    addLuaFn("e_eventWait",
+        [this](
+            float mDuration) { eventTimeline.append<ssvu::Wait>(mDuration); })
+        .arg("duration")
+        .doc("*Add to the event timeline*: wait for `$0` sixths of a second.");
 
-    lua.writeVariable("e_eventWaitS", [this](float mDuration) {
-        eventTimeline.append<Wait>(ssvu::getSecondsToFT(mDuration));
-    });
+    addLuaFn("e_eventWaitS", //
+        [this](float mDuration) {
+            eventTimeline.append<ssvu::Wait>(ssvu::getSecondsToFT(mDuration));
+        })
+        .arg("duration")
+        .doc("*Add to the event timeline*: wait for `$0` seconds.");
 
-    lua.writeVariable("e_eventWaitUntilS", [this](float mDuration) {
-        eventTimeline.append<Wait>(10);
-        eventTimeline.append<Do>([=, this] {
-            if(status.currentTime < mDuration)
-            {
-                eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2);
-            }
-        });
-    });
+    addLuaFn("e_eventWaitUntilS", //
+        [this](float mDuration) {
+            eventTimeline.append<ssvu::Wait>(10);
+            eventTimeline.append<ssvu::Do>([=, this] {
+                if(status.currentTime < mDuration)
+                {
+                    eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2);
+                }
+            });
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: wait until the timer reaches `$0` "
+            "seconds.");
 }
 
 void HexagonGame::initLua_LevelControl()
 {
-
     const auto lsVar = [this](const std::string& name, auto pmd) {
         using Type = std::decay_t<decltype(levelStatus.*pmd)>;
 
-        lua.writeVariable(std::string{"l_get"} + name,
-            [this, pmd]() -> Type { return levelStatus.*pmd; });
+        std::string getDocString = "Return the `";
+        getDocString += name;
+        getDocString += "` field of the level status.";
 
-        lua.writeVariable(std::string{"l_set"} + name,
-            [this, pmd](Type mValue) { levelStatus.*pmd = mValue; });
+        std::string setDocString = "Set the `";
+        setDocString += name;
+        setDocString += "` field of the level status to `$0`";
+
+        addLuaFn(std::string{"l_get"} + name, //
+            [this, pmd]() -> Type { return levelStatus.*pmd; })
+            .doc(getDocString);
+
+        addLuaFn(std::string{"l_set"} + name, //
+            [this, pmd](Type mValue) { levelStatus.*pmd = mValue; })
+            .arg("value")
+            .doc(setDocString);
     };
 
     lsVar("SpeedMult", &LevelStatus::speedMult);
@@ -201,32 +347,53 @@ void HexagonGame::initLua_LevelControl()
     lsVar("MaxInc", &LevelStatus::maxIncrements); // backwards-compatible
     lsVar("MaxIncrements", &LevelStatus::maxIncrements);
 
-    lua.writeVariable("l_enableRndSideChanges",
-        [this](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; });
+    addLuaFn("l_enableRndSideChanges", //
+        [this](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; })
+        .arg("enabled")
+        .doc("Set random side changes to `$0`.");
 
-    lua.writeVariable("l_darkenUnevenBackgroundChunk", [this](bool mValue) {
-        levelStatus.darkenUnevenBackgroundChunk = mValue;
-    });
+    addLuaFn("l_darkenUnevenBackgroundChunk", //
+        [this](
+            bool mValue) { levelStatus.darkenUnevenBackgroundChunk = mValue; })
+        .arg("enabled")
+        .doc(
+            "If `$0` is true, one of the background's chunks will be darkened "
+            "in case there is an uneven number of sides.");
 
-    lua.writeVariable("l_addTracked", [this](string mVar, string mName) {
-        levelStatus.trackedVariables.emplace_back(mVar, mName);
-    });
+    addLuaFn("l_addTracked", //
+        [this](std::string mVar, std::string mName) {
+            levelStatus.trackedVariables.emplace_back(mVar, mName);
+        })
+        .arg("variable")
+        .arg("name")
+        .doc(
+            "Add the variable `$0` to the list of tracked variables, with name "
+            "`$1`. Tracked variables are displayed in game, below the game "
+            "timer.");
 
-    lua.writeVariable("l_setRotation",
-        [this](float mValue) { backgroundCamera.setRotation(mValue); });
+    addLuaFn("l_setRotation", //
+        [this](float mValue) { backgroundCamera.setRotation(mValue); })
+        .arg("angle")
+        .doc("Set the background camera rotation to `$0` radians.");
 
-    lua.writeVariable(
-        "l_getRotation", [this] { return backgroundCamera.getRotation(); });
+    addLuaFn("l_getRotation", //
+        [this] { return backgroundCamera.getRotation(); })
+        .doc("Return the background camera rotation, in radians.");
 
-    lua.writeVariable(
-        "l_getLevelTime", [this] { return (float)status.currentTime; });
+    addLuaFn("l_getLevelTime", //
+        [this] { return (float)status.currentTime; })
+        .doc("Get the current game timer value, in seconds.");
 
-    lua.writeVariable(
-        "l_getOfficial", [this] { return Config::getOfficial(); });
+    addLuaFn("l_getOfficial", //
+        [this] { return Config::getOfficial(); })
+        .doc(
+            "Return `true` if \"official mode\" is enabled, `false` "
+            "otherwise.");
 
     // TODO: test and consider re-enabling
     /*
-    lua.writeVariable("l_setLevel", [this](string mId)
+    addLuaFn("l_setLevel",
+     [this](std::string mId)
         {
             setLevelData(assets.getLevelData(mId), true);
             stopLevelMusic();
@@ -240,11 +407,23 @@ void HexagonGame::initLua_StyleControl()
     const auto sdVar = [this](const std::string& name, auto pmd) {
         using Type = std::decay_t<decltype(styleData.*pmd)>;
 
-        lua.writeVariable(std::string{"s_get"} + name,
-            [this, pmd]() -> Type { return styleData.*pmd; });
+        std::string getDocString = "Return the `";
+        getDocString += name;
+        getDocString += "` field of the style data.";
 
-        lua.writeVariable(std::string{"s_set"} + name,
-            [this, pmd](Type mValue) { styleData.*pmd = mValue; });
+        std::string setDocString = "Set the `";
+        setDocString += name;
+        setDocString += "` field of the style data to `$0`";
+
+        addLuaFn(std::string{"s_get"} + name, //
+            [this, pmd]() -> Type { return styleData.*pmd; })
+            .doc(getDocString);
+
+        addLuaFn(std::string{"s_set"} + name, //
+            [this, pmd](Type mValue) { styleData.*pmd = mValue; })
+            .arg("value")
+            .doc(setDocString);
+        ;
     };
 
     sdVar("HueMin", &StyleData::hueMin);
@@ -268,81 +447,166 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed);
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
 
-    lua.writeVariable("s_setStyle",
-        [this](string mId) { styleData = assets.getStyleData(mId); });
+    addLuaFn("s_setStyle", //
+        [this](std::string mId) { styleData = assets.getStyleData(mId); })
+        .arg("styleId")
+        .doc(
+            "Set the currently active style to the style with id `$0`. Styles "
+            "can be defined as `.json` files in the `<pack>/Styles/` folder.");
 
     // backwards-compatible
-    lua.writeVariable("s_setCameraShake",
-        [this](int mValue) { levelStatus.cameraShake = mValue; });
+    addLuaFn("s_setCameraShake", //
+        [this](int mValue) { levelStatus.cameraShake = mValue; })
+        .arg("value")
+        .doc("Start a camera shake with intensity `$0`.");
 
     // backwards-compatible
-    lua.writeVariable(
-        "s_getCameraShake", [this] { return levelStatus.cameraShake; });
+    addLuaFn("s_getCameraShake", //
+        [this] { return levelStatus.cameraShake; })
+        .doc("Return the current camera shake intensity.");
 
-    lua.writeVariable("s_setCapColorMain",
-        [this] { styleData.capColor = CapColorMode::Main{}; });
+    addLuaFn("s_setCapColorMain", //
+        [this] { styleData.capColor = CapColorMode::Main{}; })
+        .doc(
+            "Set the color of the center polygon to match the main style "
+            "color.");
 
-    lua.writeVariable("s_setCapColorMainDarkened",
-        [this] { styleData.capColor = CapColorMode::MainDarkened{}; });
+    addLuaFn("s_setCapColorMainDarkened", //
+        [this] { styleData.capColor = CapColorMode::MainDarkened{}; })
+        .doc(
+            "Set the color of the center polygon to match the main style "
+            "color, darkened.");
 
-    lua.writeVariable("s_setCapColorByIndex", [this](int mIndex) {
-        styleData.capColor = CapColorMode::ByIndex{mIndex};
-    });
+    addLuaFn("s_setCapColorByIndex", //
+        [this](
+            int mIndex) { styleData.capColor = CapColorMode::ByIndex{mIndex}; })
+        .arg("index")
+        .doc(
+            "Set the color of the center polygon to match the  style "
+            "color with index `$0`.");
 }
 
 void HexagonGame::initLua_WallCreation()
 {
-    lua.writeVariable("w_wall", [this](int mSide, float mThickness) {
-        timeline.append<Do>(
-            [=, this] { createWall(mSide, mThickness, {getSpeedMultDM()}); });
-    });
+    addLuaFn("w_wall", //
+        [this](int mSide, float mThickness) {
+            timeline.append<ssvu::Do>([=, this] {
+                createWall(mSide, mThickness, {getSpeedMultDM()});
+            });
+        })
+        .arg("side")
+        .arg("thickness")
+        .doc(
+            "Create a new wall at side `$0`, with thickness `$1`. The speed of "
+            "the wall will be calculated by using the speed multiplier, "
+            "adjusted for the current difficulty multiplier.");
 
-    lua.writeVariable(
-        "w_wallAdj", [this](int mSide, float mThickness, float mSpeedAdj) {
-            timeline.append<Do>([=, this] {
+    addLuaFn("w_wallAdj", //
+        [this](int mSide, float mThickness, float mSpeedAdj) {
+            timeline.append<ssvu::Do>([=, this] {
                 createWall(mSide, mThickness, mSpeedAdj * getSpeedMultDM());
             });
-        });
+        })
+        .arg("side")
+        .arg("thickness")
+        .arg("speedMult")
+        .doc(
+            "Create a new wall at side `$0`, with thickness `$1`. The speed of "
+            "the wall will be calculated by using the speed multiplier, "
+            "adjusted for the current difficulty multiplier, and finally "
+            "multiplied by `$2`.");
 
-    lua.writeVariable("w_wallAcc",
+    addLuaFn("w_wallAcc", //
         [this](int mSide, float mThickness, float mSpeedAdj,
             float mAcceleration, float mMinSpeed, float mMaxSpeed) {
-            timeline.append<Do>([=, this] {
+            timeline.append<ssvu::Do>([=, this] {
                 createWall(mSide, mThickness,
                     {mSpeedAdj * getSpeedMultDM(), mAcceleration,
                         mMinSpeed * getSpeedMultDM(),
                         mMaxSpeed * getSpeedMultDM()});
             });
-        });
+        })
+        .arg("side")
+        .arg("thickness")
+        .arg("speedMult")
+        .arg("acceleration")
+        .arg("minSpeed")
+        .arg("maxSpeed")
+        .doc(
+            "Create a new wall at side `$0`, with thickness `$1`. The speed of "
+            "the wall will be calculated by using the speed multiplier, "
+            "adjusted for the current difficulty multiplier, and finally "
+            "multiplied by `$2`. The wall will have a speed acceleration value "
+            "of `$3`. The minimum and maximum speed of the wall are bounded by "
+            "`$4` and `$5`, adjusted  for the current difficulty multiplier.");
 
-    lua.writeVariable("w_wallHModSpeedData",
+    addLuaFn("w_wallHModSpeedData", //
         [this](float mHMod, int mSide, float mThickness, float mSAdj,
             float mSAcc, float mSMin, float mSMax, bool mSPingPong) {
-            timeline.append<Do>([=, this] {
+            timeline.append<ssvu::Do>([=, this] {
                 createWall(mSide, mThickness,
                     {mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax, mSPingPong},
                     mHMod);
             });
-        });
+        })
+        .arg("hueModifier")
+        .arg("side")
+        .arg("thickness")
+        .arg("speedMult")
+        .arg("acceleration")
+        .arg("minSpeed")
+        .arg("maxSpeed")
+        .arg("pingPong")
+        .doc(
+            "Create a new wall at side `$1`, with thickness `$2`. The speed of "
+            "the wall will be calculated by using the speed multiplier, "
+            "adjusted for the current difficulty multiplier, and finally "
+            "multiplied by `$3`. The wall will have a speed acceleration value "
+            "of `$4`. The minimum and maximum speed of the wall are bounded by "
+            "`$5` and `$6`, adjusted  for the current difficulty multiplier. "
+            "The hue of the wall will be adjusted by `$0`. If `$7` is enabled, "
+            "the wall will accelerate back and forth between its minimum and "
+            "maximum speed.");
 
-    lua.writeVariable("w_wallHModCurveData",
+    addLuaFn("w_wallHModCurveData", //
         [this](float mHMod, int mSide, float mThickness, float mCAdj,
             float mCAcc, float mCMin, float mCMax, bool mCPingPong) {
-            timeline.append<Do>([=, this] {
+            timeline.append<ssvu::Do>([=, this] {
                 createWall(mSide, mThickness, {getSpeedMultDM()},
                     {mCAdj, mCAcc, mCMin, mCMax, mCPingPong}, mHMod);
             });
-        });
+        })
+        .arg("hueModifier")
+        .arg("side")
+        .arg("thickness")
+        .arg("curveSpeedMult")
+        .arg("curveAcceleration")
+        .arg("curveMinSpeed")
+        .arg("curveMaxSpeed")
+        .arg("pingPong")
+        .doc(
+            "Create a new curving wall at side `$1`, with thickness `$2`. The "
+            "curving speed of the wall will be calculated by using the speed "
+            "multiplier, adjusted for the current difficulty multiplier, and "
+            "finally multiplied by `$3`. The wall will have a curving speed "
+            "acceleration value of `$4`. The minimum and maximum curving speed "
+            "of the wall are bounded by `$5` and `$6`, adjusted  for the "
+            "current difficulty multiplier. The hue of the wall will be "
+            "adjusted by `$0`. If `$7` is enabled, the wall will accelerate "
+            "back and forth between its minimum and maximum speed.");
 }
 
 void HexagonGame::initLua_Steam()
 {
-    lua.writeVariable("steam_unlockAchievement", [this](string mId) {
-        if(Config::getOfficial())
-        {
-            steamManager.unlock_achievement(mId);
-        }
-    });
+    addLuaFn("steam_unlockAchievement", //
+        [this](std::string mId) {
+            if(Config::getOfficial())
+            {
+                steamManager.unlock_achievement(mId);
+            }
+        })
+        .arg("achievementId")
+        .doc("Unlock the Steam achievement with id `$0`.");
 }
 
 void HexagonGame::initLua()
@@ -355,6 +619,15 @@ void HexagonGame::initLua()
     initLua_StyleControl();
     initLua_WallCreation();
     initLua_Steam();
+
+    // TODO: refactor this doc stuff and have a command line option to print
+    // this:
+    /*
+    ssvu::lo("hg::HexagonGame::initLua") << "Printing Lua Markdown docs\n\n";
+    printLuaDocs();
+    std::cout << "\n\n";
+    ssvu::lo("hg::HexagonGame::initLua") << "Done\n";
+    */
 }
 
 } // namespace hg
