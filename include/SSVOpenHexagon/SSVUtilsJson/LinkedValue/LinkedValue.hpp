@@ -42,6 +42,7 @@ public:
     {
         return value;
     }
+
     auto& operator=(const T& mValue)
     {
         value = mValue;
@@ -52,6 +53,7 @@ public:
     {
         extr(mObj, name, value);
     }
+
     void syncTo(Obj& mObj) const override
     {
         arch(mObj, name, value);
