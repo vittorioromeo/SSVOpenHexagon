@@ -286,7 +286,7 @@ void HexagonGame::addMessage(
 {
     Utils::uppercasify(mMessage);
 
-    messageTimeline.append<Do>([&, mMessage] {
+    messageTimeline.append<Do>([this, mSoundToggle, mMessage] {
         if(mSoundToggle)
         {
             assets.playSound("beep.ogg");

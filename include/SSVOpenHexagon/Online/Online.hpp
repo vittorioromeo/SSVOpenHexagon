@@ -21,10 +21,16 @@ namespace hg::Online
 struct GlobalThreadManager
 {
     std::vector<std::future<void>> runningThreads;
+
     template <typename TFunc>
     void start(TFunc mFunc)
     {
         runningThreads.emplace_back(std::async(std::launch::async, mFunc));
+    }
+
+    void join()
+    {
+        runningThreads.clear();
     }
 };
 

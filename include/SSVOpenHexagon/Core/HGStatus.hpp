@@ -15,21 +15,28 @@ namespace hg
 
 struct HexagonGameStatus
 {
+public:
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = std::chrono::time_point<Clock>;
+
 private:
     // Current time of the level
-    std::chrono::time_point<std::chrono::steady_clock> lastTp;
+    TimePoint currentTp;
 
     // When we started playing the level
-    std::chrono::time_point<std::chrono::steady_clock> levelStartTp;
+    TimePoint levelStartTp;
 
     // When the last increment happened
-    std::chrono::time_point<std::chrono::steady_clock> lastIncrementTp;
+    TimePoint lastIncrementTp;
 
     // When the timer was last paused, and for how long
-    std::chrono::time_point<std::chrono::steady_clock> lastTimerPauseTp;
+    TimePoint lastTimerPauseTp;
+
+    // Duration of the current timer pause
     std::chrono::milliseconds pauseDuration{100ms};
 
 public:
+    float pulse{75};
     float pulseDirection{1};
     float pulseDelay{0};
     float pulseDelayHalf{0};
@@ -46,20 +53,26 @@ public:
     sf::Color overrideColor{sf::Color::Transparent};
     ssvu::ObfuscatedValue<float> lostFrames{0};
 
-    void start() {
-        lastTp = std::chrono::steady_clock::now();
-        startTp = lastTp;
-        incrementTp = lastTp;
-        pauseTp = lastTp;
-        started = true;
-    }
+    // Reset all the time points and signal that we started
+    void start() noexcept;
 
-    [[nodiscard]] float getIncrementTimeSeconds();
-    [[nodiscard]] float getTimeSeconds();
-    [[nodiscard]] bool isTimePaused();
-    void pauseTime(float seconds);
-    void resetIncrementTime();
-    void updateTime();
+    // Number of seconds that have passed since last increment
+    [[nodiscard]] double getIncrementTimeSeconds() noexcept;
+
+    // Game timer, in seconds
+    [[nodiscard]] double getTimeSeconds() noexcept;
+
+    // `true` if we are currently paused
+    [[nodiscard]] bool isTimePaused() noexcept;
+
+    // Start a new pause or extend the current pause by `seconds`
+    void pauseTime(const double seconds) noexcept;
+
+    // Reset the increment time to the last non-pause time point
+    void resetIncrementTime() noexcept;
+
+    // Update the timer (called every frame)
+    void updateTime() noexcept;
 };
 
 } // namespace hg
