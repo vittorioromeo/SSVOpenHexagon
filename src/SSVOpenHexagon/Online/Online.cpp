@@ -30,7 +30,7 @@ const unsigned short hostPort{27273};
 
 ConnectStat connectionStatus{ConnectStat::Disconnected};
 LoginStat loginStatus{LoginStat::Unlogged};
-Online::GlobalThreadManager* currentGtm{nullptr};
+std::unique_ptr<Online::GlobalThreadManager> currentGtm{nullptr};
 
 float serverVersion{-1};
 string serverMessage;
@@ -57,13 +57,18 @@ void refreshUserStats()
     currentUserStats = ssvuj::getExtr<UserStats>(root);
 }
 
-void setCurrentGtm(GlobalThreadManager& mGtm)
+void setCurrentGtm(std::unique_ptr<GlobalThreadManager> mGtm)
 {
-    currentGtm = &mGtm;
+    currentGtm = std::move(mGtm);
 }
 
 void initializeClient()
 {
+    if(!Config::getOnline())
+    {
+        return;
+    }
+
     clientPHandler[FromServer::LoginResponseValid] = [](Client& /*unused*/,
                                                          Packet& mP) {
         lo("PacketHandler") << "Successfully logged in!\n";
@@ -71,57 +76,68 @@ void initializeClient()
         newUserReg = ssvuj::getExtr<bool>(getDecompressedPacket(mP), 0);
         trySendInitialRequests();
     };
+
     clientPHandler[FromServer::LoginResponseInvalid] = [](Client& /*unused*/,
                                                            Packet& /*unused*/) {
         loginStatus = LoginStat::Unlogged;
         lo("PacketHandler") << "Login invalid!\n";
     };
+
     clientPHandler[FromServer::RequestInfoResponse] = [](Client& /*unused*/,
                                                           Packet& mP) {
         ssvuj::Obj r{getDecompressedPacket(mP)};
         serverVersion = ssvuj::getExtr<float>(r, 0);
         serverMessage = ssvuj::getExtr<string>(r, 1);
     };
+
     clientPHandler[FromServer::SendLeaderboard] = [](Client& /*unused*/,
                                                       Packet& mP) {
         currentLeaderboard =
             ssvuj::getExtr<string>(getDecompressedPacket(mP), 0);
         gettingLeaderboard = false;
     };
+
     clientPHandler[FromServer::SendLeaderboardFailed] =
         [](Client& /*unused*/, Packet& /*unused*/) {
             currentLeaderboard = "NULL";
             lo("PacketHandler") << "Server failed sending leaderboard\n";
             gettingLeaderboard = false;
         };
+
     clientPHandler[FromServer::SendScoreResponseValid] =
         [](Client& /*unused*/, Packet& /*unused*/) {
             lo("PacketHandler") << "Server successfully accepted score\n";
         };
+
     clientPHandler[FromServer::SendScoreResponseInvalid] =
         [](Client& /*unused*/, Packet& /*unused*/) {
             lo("PacketHandler") << "Server refused score\n";
         };
+
     clientPHandler[FromServer::SendUserStats] = [](Client& /*unused*/,
                                                     Packet& mP) {
         currentUserStatsStr =
             ssvuj::getExtr<string>(getDecompressedPacket(mP), 0);
         refreshUserStats();
     };
+
     clientPHandler[FromServer::SendUserStatsFailed] = [](Client& /*unused*/,
                                                           Packet& /*unused*/) {
         currentUserStatsStr = "NULL";
         lo("PacketHandler") << "Server failed sending user stats\n";
     };
+
     clientPHandler[FromServer::SendFriendsScores] = [](Client& /*unused*/,
                                                         Packet& mP) {
         currentFriendScores = ssvuj::getFromStr(
             ssvuj::getExtr<string>(getDecompressedPacket(mP), 0));
     };
+
     clientPHandler[FromServer::SendLogoutValid] = [](Client& /*unused*/,
                                                       Packet& /*unused*/) {
         loginStatus = LoginStat::Unlogged;
     };
+
     clientPHandler[FromServer::NUR_EmailValid] =
         [](Client& /*unused*/, Packet& /*unused*/) { newUserReg = false; };
 
@@ -139,11 +155,13 @@ void initializeClient()
                     loginStatus = LoginStat::Unlogged;
                 }
             }
+
             if(needsCleanup)
             {
                 return;
             }
-            this_thread::sleep_for(1s);
+
+            std::this_thread::sleep_for(1s);
         }
     });
 }
@@ -157,6 +175,11 @@ bool canSendPacket()
 template <typename T>
 void trySendFunc(T mFunc)
 {
+    if(!Config::getOnline())
+    {
+        return;
+    }
+
     if(!canSendPacket())
     {
         lo("hg::Online::trySendFunc") << "Can't send data to server: "
@@ -164,6 +187,7 @@ void trySendFunc(T mFunc)
                                          "in\n";
         return;
     }
+
     HG_LO_VERBOSE("hg::Online::trySendFunc") << "Sending data to server...\n";
 
     currentGtm->start([mFunc] {
@@ -180,17 +204,28 @@ void trySendFunc(T mFunc)
 template <unsigned int TType, typename... TArgs>
 void trySendPacket(TArgs&&... mArgs)
 {
+    if(!Config::getOnline())
+    {
+        return;
+    }
+
     auto packet(buildCPacket<TType>(mArgs...));
     trySendFunc([packet] { client->send(packet); });
 }
 
 void tryConnectToServer()
 {
+    if(!Config::getOnline())
+    {
+        return;
+    }
+
     if(connectionStatus == ConnectStat::Connecting)
     {
         lo("hg::Online::connectToServer") << "Already connecting\n";
         return;
     }
+
     if(connectionStatus == ConnectStat::Connected)
     {
         lo("hg::Online::connectToServer") << "Already connected\n";
@@ -217,11 +252,17 @@ void tryConnectToServer()
 
 void tryLogin(const string& mUsername, const string& mPassword)
 {
+    if(!Config::getOnline())
+    {
+        return;
+    }
+
     if(loginStatus != LoginStat::Unlogged)
     {
         logout();
         return;
     }
+
     if(connectionStatus != ConnectStat::Connected)
     {
         lo("hg::Online::tryLogin") << "Client not connected - aborting\n";
@@ -252,47 +293,57 @@ void trySendScore(const string& mLevelId, float mDiffMult, float mScore)
     trySendPacket<FromClient::SendScore>(currentUsername, mLevelId,
         validators.getValidator(mLevelId), mDiffMult, mScore);
 }
+
 void tryRequestLeaderboard(const string& mLevelId, float mDiffMult)
 {
     trySendPacket<FromClient::RequestLeaderboard>(currentUsername, mLevelId,
         validators.getValidator(mLevelId), mDiffMult);
 }
+
 void trySendDeath()
 {
     trySendPacket<FromClient::US_Death>(currentUsername);
 }
+
 void trySendMinutePlayed()
 {
     trySendPacket<FromClient::US_MinutePlayed>(currentUsername);
 }
+
 void trySendRestart()
 {
     trySendPacket<FromClient::US_Restart>(currentUsername);
 }
+
 void trySendInitialRequests()
 {
     trySendPacket<FromClient::RequestInfo>();
     trySendPacket<FromClient::RequestUserStats>(currentUsername);
 }
+
 void trySendAddFriend(const string& mFriendName)
 {
     trySendPacket<FromClient::US_AddFriend>(currentUsername, mFriendName);
     trySendInitialRequests();
 }
+
 void trySendClearFriends()
 {
     trySendPacket<FromClient::US_ClearFriends>(currentUsername);
     trySendInitialRequests();
 }
+
 void tryRequestFriendsScores(const string& mLevelId, float mDiffMult)
 {
     trySendPacket<FromClient::RequestFriendsScores>(
         currentUsername, mLevelId, mDiffMult);
 }
+
 void trySendUserEmail(const string& mEmail)
 {
     trySendPacket<FromClient::NUR_Email>(currentUsername, mEmail);
 }
+
 void logout()
 {
     trySendPacket<FromClient::Logout>(currentUsername);
@@ -306,6 +357,9 @@ void cleanup()
     {
         currentGtm->join();
     }
+
+    currentGtm.reset();
+    client.reset();
 }
 
 void requestLeaderboardIfNeeded(const string& mLevelId, float mDiffMult)
@@ -332,6 +386,7 @@ void requestLeaderboardIfNeeded(const string& mLevelId, float mDiffMult)
     tryRequestFriendsScores(mLevelId, mDiffMult);
     trySendPacket<FromClient::RequestUserStats>(currentUsername);
 }
+
 void setForceLeaderboardRefresh(bool mValue)
 {
     forceLeaderboardRefresh = mValue;
@@ -341,46 +396,57 @@ ConnectStat SSVU_ATTRIBUTE(pure) getConnectionStatus()
 {
     return connectionStatus;
 }
+
 LoginStat SSVU_ATTRIBUTE(pure) getLoginStatus()
 {
     return loginStatus;
 }
+
 string getCurrentUsername()
 {
     return loginStatus == LoginStat::Logged ? currentUsername : "NULL";
 }
+
 const ssvuj::Obj& SSVU_ATTRIBUTE(const) getCurrentFriendScores()
 {
     return currentFriendScores;
 }
+
 const UserStats& SSVU_ATTRIBUTE(const) getUserStats()
 {
     return currentUserStats;
 }
+
 ValidatorDB& SSVU_ATTRIBUTE(const) getValidators()
 {
     return validators;
 }
+
 bool SSVU_ATTRIBUTE(pure) getNewUserReg()
 {
     return newUserReg;
 }
+
 void invalidateCurrentLeaderboard()
 {
     currentLeaderboard = "NULL";
 }
+
 void invalidateCurrentFriendsScores()
 {
     currentFriendScores = ssvuj::Obj{};
 }
+
 const string& SSVU_ATTRIBUTE(const) getCurrentLeaderboard()
 {
     return currentLeaderboard;
 }
+
 float SSVU_ATTRIBUTE(pure) getServerVersion()
 {
     return serverVersion;
 }
+
 const string& SSVU_ATTRIBUTE(const) getServerMessage()
 {
     return serverMessage;

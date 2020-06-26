@@ -71,7 +71,7 @@ enum class LoginStat
 
 void initializeValidators(HGAssets& mAssets);
 void initializeClient();
-void setCurrentGtm(GlobalThreadManager&);
+void setCurrentGtm(std::unique_ptr<GlobalThreadManager> mGtm);
 
 void tryConnectToServer();
 void tryLogin(const std::string& mUsername, const std::string& mPassword);
