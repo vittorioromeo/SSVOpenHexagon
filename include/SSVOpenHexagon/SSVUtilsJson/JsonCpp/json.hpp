@@ -6,6 +6,13 @@
 #ifndef SSVUJ_OH_JSONCPP_JSON
 #define SSVUJ_OH_JSONCPP_JSON
 
+#include <vector>
+#include <string>
+#include <sstream>
+#include <map>
+#include <deque>
+#include <stack>
+
 #define JSON_FAIL_MESSAGE(message) throw std::runtime_error(message);
 #define JSON_ASSERT_MESSAGE(condition, message) \
     if(!(condition))                            \
