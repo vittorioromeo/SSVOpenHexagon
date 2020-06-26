@@ -1,9 +1,6 @@
 [submodule "extlibs/SSVMenuSystem"]
 	path = extlibs/SSVMenuSystem
 	url = https://github.com/SuperV1234/SSVMenuSystem.git
-[submodule "extlibs/SSVStart"]
-	path = extlibs/SSVStart
-	url = https://github.com/SuperV1234/SSVStart.git
 [submodule "extlibs/SSVUtils"]
 	path = extlibs/SSVUtils
 	url = https://github.com/SuperV1234/SSVUtils.git
@@ -22,3 +19,6 @@
 [submodule "extlibs/SFML"]
 	path = extlibs/SFML
 	url = https://github.com/LaurentGomila/SFML.git
+[submodule "extlibs/SSVStart"]
+	path = extlibs/SSVStart
+	url = https://github.com/SuperV1234/SSVStart
