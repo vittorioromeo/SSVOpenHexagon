@@ -484,6 +484,11 @@ string getMD5Hash(const string& mStr)
 
 void initializeValidators(HGAssets& mAssets)
 {
+    if(!Config::getOnline())
+    {
+        return;
+    }
+
     HG_LO_VERBOSE("hg::Online::initializeValidators")
         << "Initializing validators...\n";
 

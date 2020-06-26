@@ -158,6 +158,7 @@ void loadConfig(const vector<string>& mOverridesIds)
 
     recalculateSizes();
 }
+
 void saveConfig()
 {
     lo("::saveConfig") << "saving config\n";
