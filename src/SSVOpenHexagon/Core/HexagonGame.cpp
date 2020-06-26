@@ -13,8 +13,6 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-
-
 using namespace std;
 using namespace sf;
 using namespace ssvu;

@@ -20,7 +20,9 @@ using namespace ssvu;
 
 namespace hg::Config
 {
+
 ssvuj::Obj root{getFromFile("config.json")};
+
 LinkedValueManager lvm{root};
 
 auto& online(lvm.create<bool>("online"));

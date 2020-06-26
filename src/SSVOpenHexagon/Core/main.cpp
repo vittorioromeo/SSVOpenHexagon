@@ -28,7 +28,6 @@ static void createProfilesFolder()
     createFolder(profilesPath);
 }
 
-
 int main(int argc, char* argv[])
 {
     // Steam integration
@@ -38,8 +37,8 @@ int main(int argc, char* argv[])
     // Discord integration
     hg::Discord::discord_manager discordManager;
 
-    hg::Online::GlobalThreadManager gtm;
-    hg::Online::setCurrentGtm(gtm);
+    auto gtm = std::make_unique<hg::Online::GlobalThreadManager>();
+    hg::Online::setCurrentGtm(std::move(gtm));
 
     const auto overrideIds = [&] {
         std::vector<std::string> result;

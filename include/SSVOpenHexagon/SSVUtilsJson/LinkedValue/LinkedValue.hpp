@@ -80,6 +80,7 @@ public:
     {
         for(auto& lv : values) lv->syncFrom(obj);
     }
+
     void syncToObj() const
     {
         for(const auto& lv : values) lv->syncTo(obj);
