@@ -16,17 +16,17 @@ namespace hg
 struct HexagonGameStatus
 {
 private:
-    // Time point of the current game loop
+    // Current time of the level
     std::chrono::time_point<std::chrono::steady_clock> lastTp;
 
     // When we started playing the level
-    std::chrono::time_point<std::chrono::steady_clock> startTp;
+    std::chrono::time_point<std::chrono::steady_clock> levelStartTp;
 
     // When the last increment happened
-    std::chrono::time_point<std::chrono::steady_clock> incrementTp;
+    std::chrono::time_point<std::chrono::steady_clock> lastIncrementTp;
 
     // When the timer was last paused, and for how long
-    std::chrono::time_point<std::chrono::steady_clock> pauseTp;
+    std::chrono::time_point<std::chrono::steady_clock> lastTimerPauseTp;
     std::chrono::milliseconds pauseDuration{100ms};
 
 public:
@@ -54,9 +54,9 @@ public:
         started = true;
     }
 
-    float getIncrementTimeSeconds();
-    float getTimeSeconds();
-    bool isTimePaused();
+    [[nodiscard]] float getIncrementTimeSeconds();
+    [[nodiscard]] float getTimeSeconds();
+    [[nodiscard]] bool isTimePaused();
     void pauseTime(float seconds);
     void resetIncrementTime();
     void updateTime();
