@@ -296,6 +296,7 @@ void HexagonGame::updateRotation(FT mFT)
             getSign(nextCamRotation);
         status.camFastSpin -= mFT;
     }
+
     //TODO:
     auto nextRotation(getRotationSpeed() * 10.f);
     if(status.fastSpin > 0)

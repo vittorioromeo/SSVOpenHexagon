@@ -6,6 +6,7 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 
 using namespace std;
 using namespace sf;
@@ -45,8 +46,7 @@ void HexagonGame::draw()
     if(!Config::getNoBackground())
     {
         backgroundCamera.apply();
-        styleData.drawBackground(
-            window, getFieldPos(), levelStatus, styleData);
+        styleData.drawBackground(status, window, getFieldPos(), levelStatus, styleData);
     }
 
     backgroundCamera.apply();
@@ -54,8 +54,11 @@ void HexagonGame::draw()
     wallQuads3D.clear();
     playerTris3D.clear();
     wallQuads.clear();
+    wallDebugQuads.clear();
     playerTris.clear();
+    playerDebugTris.clear();
     capTris.clear();
+    //capTrisBorder.clear();
 
     for(CWall& w : walls)
     {
@@ -77,16 +80,18 @@ void HexagonGame::draw()
         wallQuads3D.reserve(numWallQuads * depth);
         playerTris3D.reserve(numPlayerTris * depth);
 
-        const float effect{
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+        const sf::Vector2f skewEffect{
+                styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
+                styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
+        };
 
-        const sf::Vector2f skew{1.f, 1.f + effect};
-        backgroundCamera.setSkew(skew);
+        const sf::Vector2f skew{1.f, skewEffect.y};
+        //backgroundCamera.setSkew(skew);
 
-        const auto radRot(
-            ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
-        const auto sinRot(std::sin(radRot));
+        //const auto radRot(ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
+        const auto radRot(ssvu::pi / 2.f);
         const auto cosRot(std::cos(radRot));
+        const auto sinRot(std::sin(radRot));
 
         for(std::size_t i = 0; i < depth; ++i)
         {
@@ -104,7 +109,7 @@ void HexagonGame::draw()
 
             const float offset(styleData._3dSpacing *
                                (float(i + 1.f) * styleData._3dPerspectiveMult) *
-                               (effect * 3.6f) * 1.4f);
+                               (skewEffect.y * 3.6f) * 1.4f);
 
             sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
@@ -134,7 +139,13 @@ void HexagonGame::draw()
     render(wallQuads);
     render(playerTris);
     render(capTris);
+    //render(capTrisBorder);
 
+    //For debugging collisions
+    if(Config::getDebug()){
+        render(wallDebugQuads);
+        render(playerDebugTris);
+    }
     overlayCamera.apply();
     drawText();
 

@@ -57,7 +57,13 @@ struct SpeedData
 class CWall
 {
 private:
+    std::array<sf::Vector2f, 4> Collisions_vertexPositions;
     std::array<sf::Vector2f, 4> vertexPositions;
+
+    unsigned int initialSides;
+    unsigned int side;
+    float distance;
+    float thickness;
 
     SpeedData speed;
     SpeedData curve;
@@ -93,7 +99,7 @@ public:
 
     [[nodiscard]] bool isOverlapping(const sf::Vector2f& mPoint) const noexcept
     {
-        return ssvs::isPointInPolygon(vertexPositions, mPoint);
+        return ssvs::isPointInPolygon(Collisions_vertexPositions, mPoint);
     }
 };
 

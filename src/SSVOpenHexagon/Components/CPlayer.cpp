@@ -44,29 +44,68 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
 
     if(deadEffectTimer.isRunning())
     {
-        drawDeathEffect(mHexagonGame);
+        drawDeathEffect(mHexagonGame, styleData);
     }
 
     sf::Color colorMain{!dead ? mHexagonGame.getColorMain()
                               : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
 
-    pLeft = ssvs::getOrbitRad(pos, angle - ssvu::toRad(100.f), size + 3);
-    pRight = ssvs::getOrbitRad(pos, angle + ssvu::toRad(100.f), size + 3);
-
     if(!swapTimer.isRunning())
     {
         colorMain = ssvs::getColorFromHSV(
-            (swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
+                (swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
+    }
+    /*
+    pTip = ssvs::getOrbitRad(pos, angle, size);
+    pLeft = ssvs::getOrbitRad(pos, angle - ssvu::toRad(100.f), size + 3);
+    pRight = ssvs::getOrbitRad(pos, angle + ssvu::toRad(100.f), size + 3);
+    */
+    const auto status{mHexagonGame.getStatus()};
+    const sf::Vector2f skewEffect{
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
+    };
+    const sf::Vector2f skew{1.f, 1.f+skewEffect.y};
+    auto fieldAngle = ssvu::toRad(levelStatus.rotation);
+    const auto _angle = angle + fieldAngle;
+    pTip   = {_pos.x + std::cos(_angle) * size,
+              _pos.y + std::sin(_angle) * (size/skew.y)};
+    pLeft  = {_pos.x + std::cos(_angle - ssvu::toRad(100.f)) * (size+3),
+              _pos.y + std::sin(_angle - ssvu::toRad(100.f)) * ((size+3)/skew.y)};
+    pRight = {_pos.x + std::cos(_angle + ssvu::toRad(100.f)) * (size+3),
+              _pos.y + std::sin(_angle + ssvu::toRad(100.f)) * ((size+3)/skew.y)};
+
+    pDTip   = {pos.x + std::cos(angle) * size,
+               pos.y + std::sin(angle) * size};
+    pDLeft  = {pos.x + std::cos(angle - ssvu::toRad(100.f)) * (size+3),
+               pos.y + std::sin(angle - ssvu::toRad(100.f)) * (size+3)};
+    pDRight = {pos.x + std::cos(angle + ssvu::toRad(100.f)) * (size+3),
+               pos.y + std::sin(angle + ssvu::toRad(100.f)) * (size+3)};
+
+    //Debug Player itself
+    if (Config::getDebug()) {
+        sf::Color colorDebug(0, 0, 255, 150);
+        mHexagonGame.playerDebugTris.reserve_more(3);
+        mHexagonGame.playerDebugTris.batch_unsafe_emplace_back(
+            colorDebug,
+            pDTip,
+            pDLeft,
+            pDRight);
     }
 
+    //Player itself
     mHexagonGame.playerTris.reserve_more(3);
     mHexagonGame.playerTris.batch_unsafe_emplace_back(
-        colorMain, ssvs::getOrbitRad(pos, angle, size), pLeft, pRight);
+        colorMain,
+        pTip,
+        pLeft,
+        pRight);
 }
 
 void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
                         const LevelStatus& levelStatus, const StyleData& styleData)
 {
+    const auto status{mHexagonGame.getStatus()};
     const auto sides(mHexagonGame.getSides());
     const float div{ssvu::tau / sides * 0.5f};
     const float radius{mHexagonGame.getRadius() * 0.75f};
@@ -80,31 +119,44 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     const sf::Color colorDarkened{Utils::getColorDarkened(colorMain, 1.4f)};
 
 
-    auto fieldAngle = styleData.BGRotOff+(3.14159f/180.f)*levelStatus.rotation;
+    auto fieldAngle = ssvu::toRad(levelStatus.rotation);
+    const sf::Vector2f skewEffect{
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
+    };
+    const sf::Vector2f skew{1.f, 1.f+skewEffect.y};
+    //Cap Borders
     for(auto i(0u); i < sides; ++i)
     {
-        const float sAngle{div * 2.f * i};
+        const float sAngle{fieldAngle + div * 2.f * i};
 
-        const sf::Vector2f p1{
-            ssvs::getOrbitRad(mHexagonGame.getFieldPos(), fieldAngle + sAngle - div, radius)};
-        const sf::Vector2f p2{
-            ssvs::getOrbitRad(mHexagonGame.getFieldPos(), fieldAngle + sAngle + div, radius)};
-        const sf::Vector2f p3{
-            ssvs::getOrbitRad(mHexagonGame.getFieldPos(), fieldAngle + sAngle + div, radius + baseThickness)};
-        const sf::Vector2f p4{
-            ssvs::getOrbitRad(mHexagonGame.getFieldPos(), fieldAngle + sAngle - div, radius + baseThickness)};
+        const sf::Vector2f p1{mHexagonGame.getFieldPos().x + std::cos(sAngle - div) * radius,
+                              mHexagonGame.getFieldPos().y + std::sin(sAngle - div) * (radius/skew.y)};
+        const sf::Vector2f p2{mHexagonGame.getFieldPos().x + std::cos(sAngle + div) * radius,
+                              mHexagonGame.getFieldPos().y + std::sin(sAngle + div) * (radius/skew.y)};
+        const sf::Vector2f p3{mHexagonGame.getFieldPos().x + std::cos(sAngle + div) * (radius + baseThickness),
+                              mHexagonGame.getFieldPos().y + std::sin(sAngle + div) * ((radius + baseThickness)/skew.y)};
+        const sf::Vector2f p4{mHexagonGame.getFieldPos().x + std::cos(sAngle - div) * (radius + baseThickness),
+                              mHexagonGame.getFieldPos().y + std::sin(sAngle - div) * ((radius + baseThickness)/skew.y)};
 
         mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
-            colorMain, p1, p2, p3, p4);
+            colorMain,
+            p1,
+            p2,
+            p3,
+            p4);
 
         mHexagonGame.capTris.reserve_more(3);
         mHexagonGame.capTris.batch_unsafe_emplace_back(
-            mCapColor, p1, p2, mHexagonGame.getFieldPos());
+            mCapColor,
+            mHexagonGame.getFieldPos(),
+            p1,
+            p2);
     }
 }
 
-void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
+void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleData)
 {
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
     const float radius{hue / 8.f};
@@ -118,16 +170,25 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
         hue = 0.f;
     }
 
+    const auto status{mHexagonGame.getStatus()};
+    const sf::Vector2f skewEffect{
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
+    };
+    const sf::Vector2f skew{1.f, 1.f+skewEffect.y};
+
     for(auto i(0u); i < mHexagonGame.getSides(); ++i)
     {
         const float sAngle{div * 2.f * i};
 
-        sf::Vector2f p1{ssvs::getOrbitRad(pos, sAngle - div, radius)};
-        sf::Vector2f p2{ssvs::getOrbitRad(pos, sAngle + div, radius)};
-        sf::Vector2f p3{
-            ssvs::getOrbitRad(pos, sAngle + div, radius + thickness)};
-        sf::Vector2f p4{
-            ssvs::getOrbitRad(pos, sAngle - div, radius + thickness)};
+        sf::Vector2f p1{_pos.x + std::cos(sAngle - div) * radius,
+                        _pos.y + std::sin(sAngle - div) * (radius/skew.y)};
+        sf::Vector2f p2{_pos.x + std::cos(sAngle + div) * radius,
+                        _pos.y + std::sin(sAngle + div) * (radius/skew.y)};
+        sf::Vector2f p3{_pos.x + std::cos(sAngle + div) * (radius + thickness),
+                        _pos.y + std::sin(sAngle + div) * ((radius + thickness)/skew.y)};
+        sf::Vector2f p4{_pos.x + std::cos(sAngle - div) * (radius + thickness),
+                        _pos.y + std::sin(sAngle - div) * ((radius + thickness)/skew.y)};
 
         mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
@@ -179,11 +240,10 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
     }
 
     const sf::Vector2f tempPos{ssvs::getOrbitRad(startPos, angle, radius)};
-    const sf::Vector2f pLeftCheck{
-        ssvs::getOrbitRad(tempPos, angle - ssvu::piHalf, 0.01f)};
-    const sf::Vector2f pRightCheck{
-        ssvs::getOrbitRad(tempPos, angle + ssvu::piHalf, 0.01f)};
+    const sf::Vector2f pLeftCheck{ssvs::getOrbitRad(tempPos, angle - ssvu::piHalf, 0.01f)};
+    const sf::Vector2f pRightCheck{ssvs::getOrbitRad(tempPos, angle + ssvu::piHalf, 0.01f)};
 
+    //Collisions
     for(const auto& wall : mHexagonGame.walls)
     {
         if((movement == -1 && wall.isOverlapping(pLeftCheck)) ||
@@ -201,8 +261,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
                 dead = true;
             }
 
-            ssvs::moveTowards(
-                lastPos, ssvs::zeroVec2f, 5 * mHexagonGame.getSpeedMultDM());
+            ssvs::moveTowards(lastPos, ssvs::zeroVec2f, 5 * mHexagonGame.getSpeedMultDM());
 
             pos = lastPos;
             mHexagonGame.death();
@@ -211,7 +270,24 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
         }
     }
 
+    const auto status{mHexagonGame.getStatus()};
+    const auto levelStatus{mHexagonGame.getLevelStatus()};
+    const auto styleData{mHexagonGame.getStyleData()};
+
+    const sf::Vector2f skewEffect{
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
+    };
+    const sf::Vector2f skew{1.f, 1.f+skewEffect.y};
+    auto fieldAngle = ssvu::toRad(levelStatus.rotation);
+
+    //For collisions check
     pos = ssvs::getOrbitRad(mHexagonGame.getFieldPos(), angle, radius);
+
+    //For Drawing
+    _pos = {mHexagonGame.getFieldPos().x + std::cos(fieldAngle + angle) * radius,
+            mHexagonGame.getFieldPos().y + std::sin(fieldAngle + angle) * (radius/skew.y)};
+
 }
 
 } // namespace hg

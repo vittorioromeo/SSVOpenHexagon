@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Core/HGStatus.hpp"
 
 using namespace std;
 using namespace sf;
@@ -42,8 +43,7 @@ Color StyleData::calculateColor(const ColorData& mColorData) const
             }
             else
             {
-                color =
-                    getColorDarkened(dynamicColor, mColorData.dynamicDarkness);
+                color = getColorDarkened(dynamicColor, mColorData.dynamicDarkness);
             }
         }
         else
@@ -131,9 +131,9 @@ void StyleData::computeColors(LevelStatus& levelStatus)
     }
 }
 
-void StyleData::drawBackground(RenderTarget& mRenderTarget,
-    const sf::Vector2f& mCenterPos, LevelStatus& levelStatus,
-                               const StyleData& styleData) const
+void StyleData::drawBackground(HexagonGameStatus& status,
+    RenderTarget& mRenderTarget,const sf::Vector2f& mCenterPos,
+    LevelStatus& levelStatus, const StyleData& styleData) const
 {
     const auto sides = levelStatus.sides;
 
@@ -147,7 +147,14 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
 
     const auto& colors(getColors());
 
-    auto fieldAngle = styleData.BGRotOff+(3.14159f/180.f)*levelStatus.rotation;
+    auto fieldAngle = ssvu::toRad(styleData.BGRotOff+levelStatus.rotation);
+
+    const sf::Vector2f skewEffect{
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
+            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
+    };
+    const sf::Vector2f skew{1.f, 1.f+skewEffect.y};
+
 
     for(auto i(0u); i < sides; ++i)
     {
@@ -168,9 +175,21 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
             currentColor = getColorDarkened(currentColor, 1.4f);
         }
 
-        vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
-            getOrbitRad(mCenterPos, fieldAngle + angle + div * 0.5f, distance),
-            getOrbitRad(mCenterPos, fieldAngle + angle - div * 0.5f, distance));
+        /*
+        vertices.batch_unsafe_emplace_back(currentColor,
+            mCenterPos,
+            getOrbitRad(mCenterPos, fieldAngle + angle + div * 0.5f, distance/50),
+            getOrbitRad(mCenterPos, fieldAngle + angle - div * 0.5f, distance/50));
+        */
+        const sf::Vector2 pos2{mCenterPos.x + std::cos(fieldAngle + angle + div * 0.5f) * distance,
+                               mCenterPos.y + std::sin(fieldAngle + angle + div * 0.5f) * distance/skew.y};
+        const sf::Vector2 pos3{mCenterPos.x + std::cos(fieldAngle + angle - div * 0.5f) * distance,
+                               mCenterPos.y + std::sin(fieldAngle + angle - div * 0.5f) * distance/skew.y};
+        vertices.batch_unsafe_emplace_back(
+            currentColor,
+            mCenterPos,
+            pos3,
+            pos2);
     }
 
     mRenderTarget.draw(vertices);

@@ -99,7 +99,8 @@ void HexagonGame::newGame(
 
     // Manager cleanup
     walls.clear();
-    player = CPlayer{ssvs::zeroVec2f};
+    //player = CPlayer{ssvs::zeroVec2f};
+    player = CPlayer{getFieldPos()};
 
 
     // Timeline cleanup
