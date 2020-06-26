@@ -10,7 +10,6 @@ namespace ssvuj
 template <typename T>
 struct Converter;
 
-using ssvu::SizeT;
 using Obj = Json::Value;
 using Key = std::string;
 using Idx = unsigned int;

@@ -17,7 +17,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-dependencies=("SSVUtils" "SSVMenuSystem" "SSVLuaWrapper" "SSVStart") # List of extlibs to build in order
+dependencies=("SSVUtils" "SSVMenuSystem" "SSVStart") # List of extlibs to build in order
 
 function warn() {
 	echo "Error occured in: `pwd`"; echo "Error was: "$@

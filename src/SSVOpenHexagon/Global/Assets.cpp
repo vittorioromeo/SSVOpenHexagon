@@ -242,7 +242,7 @@ void HGAssets::createLocalProfile(const string& mName)
     loadLocalProfiles();
 }
 
-SizeT SSVU_ATTRIBUTE(pure) HGAssets::getLocalProfilesSize()
+std::size_t SSVU_ATTRIBUTE(pure) HGAssets::getLocalProfilesSize()
 {
     return profileDataMap.size();
 }

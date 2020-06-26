@@ -39,7 +39,7 @@ fi
 
 if [[ "$2" == "-r" ]] || [[ "$3" == "-r" ]]; then
 	flagRelease=true
-fi	
+fi
 
 if [[ "$flagRelease" == true ]]; then
 	echo "Release mode activated - RPATH will be skipped"
@@ -96,7 +96,7 @@ askContinue
 rm -Rf "${destinationDir}"*
 
 # List of extlibs to build in order
-dependencies=("SSVUtils" "SSVMenuSystem" "SSVLuaWrapper" "SSVStart") 
+dependencies=("SSVUtils" "SSVMenuSystem" "SSVStart")
 
 export DESTDIR="${cmakePrefixPath}"
 
@@ -125,14 +125,14 @@ function buildLib
 
 	if [ "$flagSuperuser" == true ]; then
 		sudo make install "-j${makeJobs}" || die 1 "make install failed"
-	else	
+	else
 		cd ../
 		dependenciesIncludeDirs+=("$PWD")
 		echo "Added $PWD to dependencies include directories"
 
 		cd ./include
 		dependenciesIncludeDirs+=("$PWD")
-		echo "Added $PWD to dependencies include directories"		
+		echo "Added $PWD to dependencies include directories"
 	fi
 
 	cd ../.. # Go back to extlibs directory

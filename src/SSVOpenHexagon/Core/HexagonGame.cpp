@@ -11,6 +11,9 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+
+
 
 using namespace std;
 using namespace sf;
