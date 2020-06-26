@@ -215,6 +215,13 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         levelStatus.delayMult += levelStatus.delayInc;
     }
 
+    // Cap speed at speed max. If speed max is zero, disregard the cap.
+    const auto& speedMax(levelStatus.speedMax);
+    if (levelStatus.speedMult > speedMax && speedMax > 0.f)
+    {
+        levelStatus.speedMult = speedMax;
+    }
+
     if(levelStatus.rndSideChangesEnabled)
     {
         setSides(mSideNumber);
