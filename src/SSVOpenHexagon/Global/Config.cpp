@@ -573,74 +573,92 @@ bool SSVU_ATTRIBUTE(pure) getInvincible()
 {
     return official ? false : invincible;
 }
+
 bool SSVU_ATTRIBUTE(pure) get3D()
 {
     return _3DEnabled;
 }
+
 float SSVU_ATTRIBUTE(pure) get3DMultiplier()
 {
     return _3DMultiplier;
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) get3DMaxDepth()
 {
     return _3DMaxDepth;
 }
+
 bool SSVU_ATTRIBUTE(pure) getAutoRestart()
 {
     return autoRestart;
 }
+
 bool SSVU_ATTRIBUTE(pure) getFlash()
 {
     return flashEnabled;
 }
+
 bool SSVU_ATTRIBUTE(pure) getShowTrackedVariables()
 {
     return showTrackedVariables;
 }
+
 bool SSVU_ATTRIBUTE(pure) getMusicSpeedDMSync()
 {
     return musicSpeedDMSync;
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getMaxFPS()
 {
     return maxFPS;
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getAntialiasingLevel()
 {
     return antialiasingLevel;
 }
+
 bool SSVU_ATTRIBUTE(pure) getShowFPS()
 {
     return showFPS;
 }
+
 bool SSVU_ATTRIBUTE(pure) getTimerStatic()
 {
     return timerStatic;
 }
+
 bool SSVU_ATTRIBUTE(pure) getServerLocal()
 {
     return serverLocal;
 }
+
 bool SSVU_ATTRIBUTE(pure) getServerVerbose()
 {
     return serverVerbose;
 }
+
 bool SSVU_ATTRIBUTE(pure) getMouseVisible()
 {
     return mouseVisible;
 }
+
 float SSVU_ATTRIBUTE(pure) getMusicSpeedMult()
 {
     return musicSpeedMult;
 }
+
 bool SSVU_ATTRIBUTE(pure) getDrawTextOutlines()
 {
     return drawTextOutlines;
 }
+
 bool SSVU_ATTRIBUTE(pure) getDarkenUnevenBackgroundChunk()
 {
     return darkenUnevenBackgroundChunk;
 }
+
 bool SSVU_ATTRIBUTE(pure) getRotateToStart()
 {
     return rotateToStart;
@@ -650,40 +668,50 @@ Trigger getTriggerRotateCCW()
 {
     return triggerRotateCCW;
 }
+
 Trigger getTriggerRotateCW()
 {
     return triggerRotateCW;
 }
+
 Trigger getTriggerFocus()
 {
     return triggerFocus;
 }
+
 Trigger getTriggerExit()
 {
     return triggerExit;
 }
+
 Trigger getTriggerForceRestart()
 {
     return triggerForceRestart;
 }
+
 Trigger getTriggerRestart()
 {
     return triggerRestart;
 }
+
 Trigger getTriggerScreenshot()
 {
     return triggerScreenshot;
 }
+
 Trigger getTriggerSwap()
 {
     return triggerSwap;
 }
+
 Trigger getTriggerUp()
 {
     return triggerUp;
 }
+
 Trigger getTriggerDown()
 {
     return triggerDown;
 }
+
 } // namespace hg::Config
