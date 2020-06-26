@@ -186,12 +186,9 @@ void HexagonGame::death(bool mForce)
 void HexagonGame::incrementDifficulty()
 {
     assets.playSound("levelUp.ogg");
-
-    if(levelStatus.shouldIncrement())
-    {
-        levelStatus.rotationSpeed +=
-            levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
-    }
+    
+    levelStatus.rotationSpeed +=
+        levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
 
     levelStatus.rotationSpeed *= -1.f;
 
@@ -209,11 +206,8 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 {
     runLuaFunction<void>("onIncrement");
 
-    if(levelStatus.shouldIncrement())
-    {
-        levelStatus.speedMult += levelStatus.speedInc;
-        levelStatus.delayMult += levelStatus.delayInc;
-    }
+    levelStatus.speedMult += levelStatus.speedInc;
+    levelStatus.delayMult += levelStatus.delayInc;
 
     // Cap speed at speed max. If speed max is zero, disregard the cap.
     const auto& speedMax(levelStatus.speedMax);
