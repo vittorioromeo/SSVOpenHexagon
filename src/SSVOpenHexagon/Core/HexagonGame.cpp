@@ -224,7 +224,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 void HexagonGame::checkAndSaveScore()
 {
-    float time = status.getTimeSeconds();
+    const float time = status.getTimeSeconds();
 
     if(Config::getInvincible())
     {
