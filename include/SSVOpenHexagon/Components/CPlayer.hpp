@@ -20,10 +20,17 @@ class HexagonGame;
 class CPlayer
 {
 private:
+    sf::Vector2f pTip;
     sf::Vector2f pLeft;
     sf::Vector2f pRight;
+
+    sf::Vector2f pDTip;
+    sf::Vector2f pDLeft;
+    sf::Vector2f pDRight;
+
     sf::Vector2f startPos;
     sf::Vector2f pos;
+    sf::Vector2f _pos;
 
     float hue{0};
     float angle{0};
@@ -39,7 +46,7 @@ private:
 
     void drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
                     const LevelStatus& levelStatus, const StyleData& styleData);
-    void drawDeathEffect(HexagonGame& mHexagonGame);
+    void drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleData);
 
 public:
     CPlayer(const sf::Vector2f& mStartPos) noexcept;

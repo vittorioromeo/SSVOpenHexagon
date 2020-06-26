@@ -967,8 +967,7 @@ void MenuGame::draw()
     {
         // styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus,
         // styleData);
-        styleData.drawBackground(
-            window, levelStatus.fieldPos, levelStatus, styleData);
+        styleData.drawBackground(hexagonGame.getStatus(), window, levelStatus.fieldPos, levelStatus, styleData);
     }
 
     overlayCamera.apply();

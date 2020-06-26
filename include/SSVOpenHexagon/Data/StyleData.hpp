@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
+#include "SSVOpenHexagon/Core/HGStatus.hpp"
 
 namespace hg
 {
@@ -38,7 +39,7 @@ public:
     float BGRotOff;
     float _3dDepth;
     float _3dSkew;
-    float _skew;
+    //sf::Vector2f skewEffect;
     float _3dSpacing;
     float _3dDarkenMult;
     float _3dAlphaMult;
@@ -98,9 +99,9 @@ public:
 
     void update(FT mFT, float mMult = 1.f);
     void computeColors(LevelStatus& levelStatus);
-    void drawBackground(sf::RenderTarget& mRenderTarget,
-        const sf::Vector2f& mCenterPos, LevelStatus& levelStatus,
-                        const StyleData& styleData) const;
+    void drawBackground(HexagonGameStatus& status,
+        sf::RenderTarget& mRenderTarget, const sf::Vector2f& mCenterPos,
+        LevelStatus& levelStatus, const StyleData& styleData) const;
 
     void setRootPath(const Path& mPath)
     {

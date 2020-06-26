@@ -183,8 +183,11 @@ private:
 
 public:
     Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallDebugQuads;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerDebugTris;
     Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
     Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTris;
+    //Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTrisBorder;
     Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads3D;
     Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris3D;
 
@@ -228,6 +231,11 @@ public:
     float getRadius() const noexcept
     {
         return status.radius;
+    }
+
+    const StyleData& getStyleData() const noexcept
+    {
+        return styleData;
     }
 
     const sf::Color& getColor(int mIdx) const noexcept
