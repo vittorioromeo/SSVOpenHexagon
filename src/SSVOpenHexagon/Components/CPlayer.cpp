@@ -8,11 +8,11 @@
 
 #include "SSVOpenHexagon/Global/Config.hpp"
 
-#include "SSVStart/Utils/SFML.hpp"
-#include "SSVStart/Utils/Vector2.hpp"
+#include <SSVStart/Utils/SFML.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
 
-#include "SSVUtils/Core/Common/Frametime.hpp"
-#include "SSVUtils/Core/Utils/Math.hpp"
+#include <SSVUtils/Core/Common/Frametime.hpp>
+#include <SSVUtils/Core/Utils/Math.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <SSVUtils/Core/Core.hpp>
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonCpp.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Utils.hpp"
