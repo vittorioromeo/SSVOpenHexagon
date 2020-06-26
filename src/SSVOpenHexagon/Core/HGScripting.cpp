@@ -313,6 +313,7 @@ void HexagonGame::initLua_LevelControl()
 
     lsVar("SpeedMult", &LevelStatus::speedMult);
     lsVar("SpeedInc", &LevelStatus::speedInc);
+    lsVar("SpeedMax", &LevelStatus::speedMax);
     lsVar("RotationSpeed", &LevelStatus::rotationSpeed);
     lsVar("RotationSpeedInc", &LevelStatus::rotationSpeedInc);
     lsVar("RotationSpeedMax", &LevelStatus::rotationSpeedMax);
@@ -344,8 +345,6 @@ void HexagonGame::initLua_LevelControl()
     lsVar("DarkenUnevenBackgroundChunk",
         &LevelStatus::darkenUnevenBackgroundChunk);
     lsVar("CurrentIncrements", &LevelStatus::currentIncrements);
-    lsVar("MaxInc", &LevelStatus::maxIncrements); // backwards-compatible
-    lsVar("MaxIncrements", &LevelStatus::maxIncrements);
 
     addLuaFn("l_enableRndSideChanges", //
         [this](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; })
