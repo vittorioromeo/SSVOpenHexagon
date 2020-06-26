@@ -4,13 +4,16 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
+#include <SFML/Graphics/Color.hpp>
+
+#include "SSVOpenHexagon/Utils/ObfuscatedValue.hpp"
 
 namespace hg
 {
+
 struct HexagonGameStatus
 {
-    ssvu::ObfuscatedValue<float> currentTime{0.f};
+    ObfuscatedValue<float> currentTime{0.f};
     float incrementTime{0};
     float timeStop{100};
     float pulse{75};
@@ -28,7 +31,7 @@ struct HexagonGameStatus
     bool scoreInvalid{false};
     bool started{false};
     sf::Color overrideColor{sf::Color::Transparent};
-    ssvu::ObfuscatedValue<float> lostFrames{0};
+    ObfuscatedValue<float> lostFrames{0};
 };
 
 } // namespace hg

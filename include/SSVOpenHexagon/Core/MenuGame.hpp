@@ -10,6 +10,9 @@
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+
+#include <SSVMenuSystem/SSVMenuSystem.hpp>
 
 #include <cctype>
 
@@ -62,7 +65,9 @@ private:
     // TODO: change this to MWlcm when leaderboards are enabled
     States state{States::MWlcm};
 
-    ssvms::Menu optionsMenu, welcomeMenu;
+    ssvms::Menu optionsMenu;
+    ssvms::Menu welcomeMenu;
+
     std::string scoresMessage;
     float exitTimer{0}, currentCreditsId{0};
     bool mustTakeScreenshot{false};

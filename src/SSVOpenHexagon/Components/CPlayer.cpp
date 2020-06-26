@@ -4,13 +4,13 @@
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
+#include "SSVOpenHexagon/Utils/Ticker.hpp"
 
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 #include "SSVStart/Utils/SFML.hpp"
 #include "SSVStart/Utils/Vector2.hpp"
 
-#include "SSVUtils/Ticker/Ticker.hpp"
 #include "SSVUtils/Core/Common/Frametime.hpp"
 #include "SSVUtils/Core/Utils/Math.hpp"
 
@@ -20,19 +20,22 @@
 namespace hg
 {
 
-constexpr float baseThickness{5.f};
+inline constexpr float baseThickness{5.f};
 
 CPlayer::CPlayer(const sf::Vector2f& mStartPos) noexcept
-    : startPos{mStartPos}, pos{startPos}
+    : startPos{mStartPos}, pos{startPos}, hue{0}, angle{0},
+      size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
+      focusSpeed{Config::getPlayerFocusSpeed()}, dead{false}, swapTimer{36.f},
+      swapBlinkTimer{5.f}, deadEffectTimer{80.f, false}
 {
 }
 
-float CPlayer::getPlayerAngle()
+[[nodiscard]] float CPlayer::getPlayerAngle() const
 {
     return angle;
 }
 
-void CPlayer::setPlayerAngle(float newAng)
+void CPlayer::setPlayerAngle(const float newAng)
 {
     angle = newAng;
 }

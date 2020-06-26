@@ -20,7 +20,7 @@ private:
 
     [[nodiscard]] float getRandomSegment() const
     {
-        return segments[ssvu::getRndI(SizeT(0), segments.size())];
+        return segments[ssvu::getRndI(std::size_t(0), segments.size())];
     }
 
 public:
@@ -63,7 +63,7 @@ public:
         }
     }
 
-    void playSegment(HGAssets& mAssets, SizeT mIdx)
+    void playSegment(HGAssets& mAssets, std::size_t mIdx)
     {
         playSeconds(mAssets, segments[mIdx]);
     }

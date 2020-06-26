@@ -9,6 +9,9 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+
+#include <SSVMenuSystem/SSVMenuSystem.hpp>
 
 using namespace std;
 using namespace sf;
@@ -571,24 +574,36 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 {
     mLua.writeVariable(
         "u_log", [](string mLog) { lo("lua-menu") << mLog << "\n"; });
+
     mLua.writeVariable("u_execScript", [this, &mLua](string mName) {
         Utils::runLuaFile(mLua, levelData->packPath + "Scripts/" + mName);
     });
+
     mLua.writeVariable("u_getDifficultyMult", [] { return 1; });
+
     mLua.writeVariable("u_getSpeedMultDM", [] { return 1; });
+
     mLua.writeVariable("u_getDelayMultDM", [] { return 1; });
+
     mLua.writeVariable("u_getPlayerAngle", [] { return 0; });
+
     mLua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
+
     mLua.writeVariable("l_setSides",
         [this](unsigned int mValue) { levelStatus.sides = mValue; });
+
     mLua.writeVariable(
         "l_getRotationSpeed", [this] { return levelStatus.rotationSpeed; });
+
     mLua.writeVariable("l_getSides", [this] { return levelStatus.sides; });
+
     mLua.writeVariable("s_setPulseInc",
         [this](float mValue) { styleData.pulseIncrement = mValue; });
+
     mLua.writeVariable("s_setHueInc",
         [this](float mValue) { styleData.hueIncrement = mValue; });
+
     mLua.writeVariable(
         "s_getHueInc", [this] { return styleData.hueIncrement; });
 
