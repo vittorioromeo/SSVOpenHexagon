@@ -253,10 +253,7 @@ void HexagonGame::updateIncrement()
     {
         return;
     }
-    if(!levelStatus.shouldIncrement())
-    {
-        return;
-    }
+    
 
     ++levelStatus.currentIncrements;
     incrementDifficulty();

@@ -89,12 +89,6 @@ struct LevelStatus
     bool darkenUnevenBackgroundChunk{true};
 
     std::size_t currentIncrements{0u};
-    std::size_t maxIncrements{std::numeric_limits<std::size_t>::max()};
-
-    [[nodiscard]] bool shouldIncrement() const noexcept
-    {
-        return currentIncrements < maxIncrements;
-    }
 };
 
 } // namespace hg
