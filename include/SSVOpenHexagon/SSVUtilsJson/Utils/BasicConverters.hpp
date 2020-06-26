@@ -67,14 +67,14 @@ struct ConverterBaseImpl
     }
 };
 
-template <SizeT I, typename TTpl>
+template <std::size_t I, typename TTpl>
 using TplArg = ssvu::TplElem<I, ssvu::RmConst<ssvu::RmRef<TTpl>>>;
 
-template <SizeT I = 0, typename... TArgs>
+template <std::size_t I = 0, typename... TArgs>
 ssvu::EnableIf<I == sizeof...(TArgs)> toTpl(const Obj&, ssvu::Tpl<TArgs...>&)
 {
 }
-template <SizeT I = 0, typename... TArgs>
+template <std::size_t I = 0, typename... TArgs>
     ssvu::EnableIf <
     I<sizeof...(TArgs)> toTpl(const Obj& mObj, ssvu::Tpl<TArgs...>& mTpl)
 {
@@ -83,11 +83,11 @@ template <SizeT I = 0, typename... TArgs>
     toTpl<I + 1, TArgs...>(mObj, mTpl);
 }
 
-template <SizeT I = 0, typename... TArgs>
+template <std::size_t I = 0, typename... TArgs>
 ssvu::EnableIf<I == sizeof...(TArgs)> fromTpl(Obj&, const ssvu::Tpl<TArgs...>&)
 {
 }
-template <SizeT I = 0, typename... TArgs>
+template <std::size_t I = 0, typename... TArgs>
     ssvu::EnableIf <
     I<sizeof...(TArgs)> fromTpl(Obj& mObj, const ssvu::Tpl<TArgs...>& mTpl)
 {
@@ -284,7 +284,7 @@ struct Converter<ssvu::Tpl<TArgs...>>
     }
 };
 
-template <typename TItem, SizeT TN>
+template <typename TItem, std::size_t TN>
 struct Converter<TItem[TN]>
 {
     using T = TItem[TN];
@@ -297,4 +297,5 @@ struct Converter<TItem[TN]>
         for(auto i(0u); i < TN; ++i) arch(mObj, i, mValue[i]);
     }
 };
+
 }

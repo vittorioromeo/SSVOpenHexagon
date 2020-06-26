@@ -4,12 +4,15 @@
 
 #pragma once
 
-#include <chrono>
+#include "SSVOpenHexagon/Utils/ObfuscatedValue.hpp"
 
-#include "SSVOpenHexagon/Global/Common.hpp"
+#include <SFML/Graphics/Color.hpp>
+
+#include <chrono>
 
 namespace hg
 {
+
 struct HexagonGameStatus
 {
 private:
@@ -27,7 +30,6 @@ private:
     std::chrono::milliseconds pauseDuration{100ms};
 
 public:
-    float pulse{75};
     float pulseDirection{1};
     float pulseDelay{0};
     float pulseDelayHalf{0};

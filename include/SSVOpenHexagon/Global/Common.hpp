@@ -8,20 +8,15 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/Network.hpp>
 #include <SSVUtils/SSVUtils.hpp>
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include <SSVStart/SSVStart.hpp>
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include <SSVMenuSystem/SSVMenuSystem.hpp>
-#include <SSVLuaWrapper/SSVLuaWrapper.hpp>
 
 namespace hg
 {
 
 using ssvu::FT;
-using ssvu::SizeT;
-using ssvu::Ticker;
 using ssvufs::Path;
 
 } // namespace hg
