@@ -1,80 +1,98 @@
+// Copyright (c) 2013-2020 Vittorio Romeo
+// License: Academic Free License ("AFL") v. 3.0
+// AFL License page: http://opensource.org/licenses/AFL-3.0
+
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 
-namespace hg {
+#include <chrono>
 
-float HexagonGameStatus::getIncrementTimeSeconds()
+namespace hg
 {
+
+template <typename Duration>
+[[nodiscard]] static auto toMilliseconds(const Duration d) noexcept
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(d);
+}
+
+void HexagonGameStatus::start() noexcept
+{
+    // Reset everything to the current time:
+    currentTp = Clock::now();
+    levelStartTp = currentTp;
+    lastIncrementTp = currentTp;
+    lastTimerPauseTp = currentTp;
+
+    // Signal that we started:
+    started = true;
+}
+
+[[nodiscard]] double HexagonGameStatus::getIncrementTimeSeconds() noexcept
+{
+    // If we are paused, do not count passing time towards an increment:
+    const auto ms =
+        toMilliseconds(isTimePaused() ? lastTimerPauseTp - lastIncrementTp
+                                      : currentTp - lastIncrementTp);
+
+    return static_cast<double>(ms.count()) / 1000.0;
+}
+
+[[nodiscard]] double HexagonGameStatus::getTimeSeconds() noexcept
+{
+    // If we are paused, do not count passing time as significant:
+    const auto ms =
+        toMilliseconds(isTimePaused() ? lastTimerPauseTp - levelStartTp
+                                      : currentTp - levelStartTp);
+
+    return static_cast<double>(ms.count()) / 1000.0;
+}
+
+[[nodiscard]] bool HexagonGameStatus::isTimePaused() noexcept
+{
+    return pauseDuration > (currentTp - lastTimerPauseTp);
+}
+
+void HexagonGameStatus::pauseTime(const double seconds) noexcept
+{
+    const auto ms =
+        std::chrono::milliseconds(static_cast<int>(seconds * 1000.0));
+
+    // If we are paused, add to the current (in progress) pause duration:
     if(isTimePaused())
     {
-        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-            pauseTp - incrementTp);
-        return static_cast<float>(ms.count()) / 1000.f;
+        pauseDuration += ms;
+        return;
     }
-    else
-    {
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-            lastTp - incrementTp);
-        return static_cast<float>(ms.count()) / 1000.f;
-    }
+
+    // Otherwise, start a new pause:
+    lastTimerPauseTp = currentTp;
+    pauseDuration = ms;
 }
 
-float HexagonGameStatus::getTimeSeconds()
+void HexagonGameStatus::resetIncrementTime() noexcept
 {
-    if(isTimePaused())
-    {
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-            pauseTp - startTp);
-        return static_cast<float>(ms.count()) / 1000.f;
-    }
-    else
-    {
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-            lastTp - startTp);
-        return static_cast<float>(ms.count()) / 1000.f;
-    }
+    // If we are paused, use the last time point before pausing as our next
+    // starting point for an increment. Otherwise, use the current time:
+    lastIncrementTp = isTimePaused() ? lastTimerPauseTp : currentTp;
 }
 
-bool HexagonGameStatus::isTimePaused()
-{
-    return pauseDuration > (lastTp - pauseTp);
-}
-
-void HexagonGameStatus::pauseTime(float seconds)
-{
-    if(isTimePaused())
-    {
-        pauseDuration +=
-            std::chrono::milliseconds(static_cast<int>(seconds * 1000.f));
-    }
-    else
-    {
-        pauseTp = lastTp;
-        pauseDuration =
-            std::chrono::milliseconds(static_cast<int>(seconds * 1000.f));
-    }
-}
-
-void HexagonGameStatus::resetIncrementTime()
-{
-    if(isTimePaused())
-    {
-        incrementTp = pauseTp;
-    }
-    else
-    {
-        incrementTp = lastTp;
-    }
-}
-
-void HexagonGameStatus::updateTime()
+void HexagonGameStatus::updateTime() noexcept
 {
     const bool wasPaused = isTimePaused();
 
-    lastTp = std::chrono::steady_clock::now();
+    currentTp = HexagonGameStatus::Clock::now();
+
+    // If we were paused on last frame, but we just stopped being paused...
     if(wasPaused && !isTimePaused())
     {
-        startTp += pauseDuration;
-        pauseTp = startTp;
+        // ...subtract the pause duration from the total time, so that the time
+        // returned by `getTimeSeconds()` is still correct:
+        levelStartTp += pauseDuration;
+
+        // ...signal that we are not in a pause anymore:
+        lastTimerPauseTp = levelStartTp;
         pauseDuration = 0ms;
     }
 }
+
+} // namespace hg

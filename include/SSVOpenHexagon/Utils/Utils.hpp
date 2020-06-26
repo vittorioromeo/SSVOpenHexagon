@@ -50,7 +50,7 @@ public:
     [[gnu::always_inline]] void unsafe_emplace_other(
         const FastVertexVector& rhs) noexcept
     {
-        SSVU_ASSERT(_size + rhs._size < _capacity);
+        SSVU_ASSERT(_size + rhs._size <= _capacity);
         std::memcpy(_data.get() + _size, rhs._data.get(),
             sizeof(sf::Vertex) * rhs._size);
         _size += rhs._size;

@@ -280,9 +280,21 @@ private:
             {
                 return "float";
             }
+            else if constexpr(std::is_same_v<T, double>)
+            {
+                return "double";
+            }
             else if constexpr(std::is_same_v<T, std::string>)
             {
                 return "string";
+            }
+            else if constexpr(std::is_same_v<T, unsigned int>)
+            {
+                return "unsigned int";
+            }
+            else if constexpr(std::is_same_v<T, std::size_t>)
+            {
+                return "size_t";
             }
             else
             {

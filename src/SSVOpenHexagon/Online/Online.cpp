@@ -301,6 +301,11 @@ void logout()
 void cleanup()
 {
     needsCleanup = true;
+
+    if(currentGtm != nullptr)
+    {
+        currentGtm->join();
+    }
 }
 
 void requestLeaderboardIfNeeded(const string& mLevelId, float mDiffMult)

@@ -224,7 +224,7 @@ void HexagonGame::initLua_MainTimeline()
         [this](float mDuration) {
             timeline.append<ssvu::Wait>(10);
             timeline.append<ssvu::Do>([=, this] {
-                
+
             if(status.getTimeSeconds() < mDuration)
                 {
                     timeline.jumpTo(timeline.getCurrentIndex() - 2);
@@ -277,7 +277,7 @@ void HexagonGame::initLua_EventTimeline()
         [this](float mDuration) {
             eventTimeline.append<ssvu::Wait>(10);
             eventTimeline.append<ssvu::Do>([=, this] {
-                if(status.currentTime < mDuration)
+                if(status.getTimeSeconds() < mDuration)
                 {
                     eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2);
                 }

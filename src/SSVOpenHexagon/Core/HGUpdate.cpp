@@ -19,11 +19,14 @@ namespace hg
 
 void HexagonGame::update(FT mFT)
 {
-    steamManager.set_rich_presence_in_game(levelData->name, status.currentTime);
+    // TODO: refactor to avoid repetition, and truncate floating point number
+    // TODO: also show best record (here) and last run + best record (in menu)
+    steamManager.set_rich_presence_in_game(
+        levelData->name, status.getTimeSeconds());
     steamManager.run_callbacks();
 
     discordManager.set_rich_presence_in_game(
-        levelData->name, status.currentTime);
+        levelData->name, status.getTimeSeconds());
     discordManager.run_callbacks();
 
     hg::Joystick::update();
@@ -237,10 +240,12 @@ void HexagonGame::updateIncrement()
     {
         return;
     }
+
     if(status.getIncrementTimeSeconds() < levelStatus.incTime)
     {
         return;
     }
+
     if(!levelStatus.shouldIncrement())
     {
         return;
