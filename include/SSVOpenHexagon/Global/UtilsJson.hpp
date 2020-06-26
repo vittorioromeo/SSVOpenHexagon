@@ -4,24 +4,23 @@
 
 #pragma once
 
-#include <SFML/System.hpp>
-
-#include <SSVUtils/Core/Log/Log.hpp>
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVStart/Tileset/Tileset.hpp>
-#include <SSVStart/Animation/Animation.hpp>
+#include <SSVStart/Input/Enums.hpp>
 #include <SSVStart/Input/Combo.hpp>
 #include <SSVStart/Input/Trigger.hpp>
-#include <SSVStart/BitmapText/Impl/BitmapFont.hpp>
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Global/Typedefs.hpp>
 #include <SSVStart/Assets/AssetManager.hpp>
 
+#include <SSVUtils/Core/Log/Log.hpp>
+
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
+
 namespace ssvs
 {
-
-[[nodiscard]] Animation getAnimationFromJson(
-    const Tileset& mTileset, const ssvuj::Obj& mObj);
 
 void loadAssetsFromJson(
     ssvs::AssetManager<>& mAM, const Path& mRootPath, const ssvuj::Obj& mObj);
@@ -32,17 +31,9 @@ namespace ssvuj
 {
 
 template <typename T>
-SSVUJ_CNV_SIMPLE(ssvs::Vec2<T>, mObj, mV)
+SSVUJ_CNV_SIMPLE(sf::Vector2<T>, mObj, mV)
 {
     ssvuj::convertArray(mObj, mV.x, mV.y);
-}
-SSVUJ_CNV_SIMPLE_END();
-
-template <>
-SSVUJ_CNV_SIMPLE(ssvs::BitmapFontData, mObj, mV)
-{
-    ssvuj::convertArray(
-        mObj, mV.cellColumns, mV.cellWidth, mV.cellHeight, mV.cellStart);
 }
 SSVUJ_CNV_SIMPLE_END();
 
@@ -122,31 +113,6 @@ struct Converter<ssvs::Input::Combo>
         for(auto j(0u); j < ssvs::mBtnCount; ++j)
             if(ssvs::getBtnBit(btns, ssvs::MBtn(j)))
                 arch(mObj, i++, ssvs::MBtn(j));
-    }
-};
-
-template <>
-struct Converter<ssvs::Tileset>
-{
-    using T = ssvs::Tileset;
-
-    inline static void fromObj(const Obj& mObj, T& mValue)
-    {
-        const auto& labels(getObj(mObj, "labels"));
-        for(auto iY(0u); iY < getObjSize(labels); ++iY)
-            for(auto iX(0u); iX < getObjSize(labels[iY]); ++iX)
-                mValue.setLabel(getExtr<std::string>(labels[iY][iX]), {iX, iY});
-
-        mValue.setTileSize(getExtr<ssvs::Vec2u>(mObj, "tileSize"));
-    }
-
-    inline static void toObj(Obj& mObj, const T& mValue)
-    {
-        arch(mObj, "tileSize", mValue.getTileSize());
-
-        auto& labels(getObj(mObj, "labels"));
-        for(const auto& l : mValue.getLabels())
-            arch(getObj(labels, l.second.y), l.second.x, l.first);
     }
 };
 

@@ -6,6 +6,7 @@
 
 #include <type_traits>
 #include <tuple>
+#include <unordered_map>
 
 /// @macro Class mixin that allows SSVUJ converters to access the current
 /// class's private members.

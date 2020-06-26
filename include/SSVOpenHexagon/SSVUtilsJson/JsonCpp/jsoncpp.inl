@@ -5,6 +5,12 @@
 #ifndef SSVUJ_OH_JSONCPP_INL
 #define SSVUJ_OH_JSONCPP_INL
 
+#include <SSVUtils/Core/Assert/Assert.hpp>
+
+#include <cstring>
+#include <cmath>
+#include <iomanip>
+
 #define JSON_ASSERT_UNREACHABLE SSVU_ASSERT(false)
 
 namespace Json
