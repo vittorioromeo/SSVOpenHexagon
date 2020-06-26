@@ -82,7 +82,7 @@ void HexagonGame::initLua_Utils()
             "definition of the SFML `sf::Keyboard::Key` enumeration.");
 
     addLuaFn("u_haltTime", //
-        [this](float mDuration) { status.timeStop = mDuration; })
+        [this](float mDuration) { status.pauseTime(ssvu::getFTToSeconds(mDuration)); })
         .arg("duration")
         .doc("Pause the game timer for `$0` seconds.");
 
@@ -224,7 +224,8 @@ void HexagonGame::initLua_MainTimeline()
         [this](float mDuration) {
             timeline.append<ssvu::Wait>(10);
             timeline.append<ssvu::Do>([=, this] {
-                if(status.currentTime < mDuration)
+
+            if(status.getTimeSeconds() < mDuration)
                 {
                     timeline.jumpTo(timeline.getCurrentIndex() - 2);
                 }
@@ -241,7 +242,7 @@ void HexagonGame::initLua_EventTimeline()
     addLuaFn("e_eventStopTime", //
         [this](float mDuration) {
             eventTimeline.append<ssvu::Do>(
-                [=, this] { status.timeStop = mDuration; });
+                [=, this] { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
         })
         .arg("duration")
         .doc(
@@ -251,7 +252,7 @@ void HexagonGame::initLua_EventTimeline()
     addLuaFn("e_eventStopTimeS", //
         [this](float mDuration) {
             eventTimeline.append<ssvu::Do>([=, this] {
-                status.timeStop = ssvu::getSecondsToFT(mDuration);
+                status.pauseTime(mDuration);
             });
         })
         .arg("duration")
@@ -276,7 +277,7 @@ void HexagonGame::initLua_EventTimeline()
         [this](float mDuration) {
             eventTimeline.append<ssvu::Wait>(10);
             eventTimeline.append<ssvu::Do>([=, this] {
-                if(status.currentTime < mDuration)
+                if(status.getTimeSeconds() < mDuration)
                 {
                     eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2);
                 }
@@ -381,7 +382,7 @@ void HexagonGame::initLua_LevelControl()
         .doc("Return the background camera rotation, in radians.");
 
     addLuaFn("l_getLevelTime", //
-        [this] { return (float)status.currentTime; })
+        [this] { return status.getTimeSeconds(); })
         .doc("Get the current game timer value, in seconds.");
 
     addLuaFn("l_getOfficial", //

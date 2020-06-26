@@ -182,7 +182,6 @@ private:
 
     // Update methods
     void update(FT mFT);
-    void updateTimeStop(FT mFT);
     void updateIncrement();
     void updateEvents(FT mFT);
     void updateLevel(FT mFT);
@@ -281,9 +280,21 @@ private:
             {
                 return "float";
             }
+            else if constexpr(std::is_same_v<T, double>)
+            {
+                return "double";
+            }
             else if constexpr(std::is_same_v<T, std::string>)
             {
                 return "string";
+            }
+            else if constexpr(std::is_same_v<T, unsigned int>)
+            {
+                return "unsigned int";
+            }
+            else if constexpr(std::is_same_v<T, std::size_t>)
+            {
+                return "size_t";
             }
             else
             {
