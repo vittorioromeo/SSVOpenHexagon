@@ -4,8 +4,11 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Data/TrackedVariable.hpp"
+
+#include <string>
+#include <vector>
 
 namespace hg
 {

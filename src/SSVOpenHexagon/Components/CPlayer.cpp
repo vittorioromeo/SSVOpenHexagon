@@ -3,16 +3,18 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
+#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 
 #include "SSVOpenHexagon/Global/Config.hpp"
 
-#include "SSVStart/Utils/SFML.hpp"
-#include "SSVStart/Utils/Vector2.hpp"
+#include <SSVStart/Utils/SFML.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
 
-#include "SSVUtils/Core/Common/Frametime.hpp"
-#include "SSVUtils/Core/Utils/Math.hpp"
+#include <SSVUtils/Core/Common/Frametime.hpp>
+#include <SSVUtils/Core/Utils/Math.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -134,7 +136,7 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
     }
 }
 
-void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
+void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
     swapBlinkTimer.update(mFT);
 
@@ -181,8 +183,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
     const sf::Vector2f pRightCheck{
         ssvs::getOrbitRad(tempPos, angle + ssvu::piHalf, 0.01f)};
 
-    for(const auto& wall : mHexagonGame.walls)
-    {
+    const auto doCollision = [&](const auto& wall) {
         if((movement == -1 && wall.isOverlapping(pLeftCheck)) ||
             (movement == 1 && wall.isOverlapping(pRightCheck)))
         {
@@ -204,9 +205,35 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
             pos = lastPos;
             mHexagonGame.death();
 
+            return true;
+        }
+
+        return false;
+    };
+
+    for(const CWall& wall : mHexagonGame.walls)
+    {
+        if(doCollision(wall))
+        {
             return;
         }
     }
+
+    const bool customWallCollision =
+        mHexagonGame.anyCustomWall([&](const CCustomWall& customWall) {
+            if(doCollision(customWall))
+            {
+                return true;
+            }
+
+            return false;
+        });
+
+    if(customWallCollision)
+    {
+        return;
+    }
+
 
     pos = ssvs::getOrbitRad(startPos, angle, radius);
 }

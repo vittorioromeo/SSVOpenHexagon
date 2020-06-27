@@ -62,6 +62,8 @@ void HexagonGame::draw()
         w.draw(*this);
     }
 
+    cwManager.draw(*this);
+
     if(status.started)
     {
         player.draw(*this, styleData.getCapColorResult());
@@ -174,7 +176,7 @@ void HexagonGame::updateText()
 
     if(status.started)
     {
-        os << "TIME: " << toStr(status.currentTime).substr(0, 5) << "\n";
+        os << "TIME: " << toStr(status.getTimeSeconds()).substr(0, 5) << "\n";
     }
 
     if(levelStatus.tutorialMode)

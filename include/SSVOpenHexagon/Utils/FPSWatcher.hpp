@@ -6,7 +6,7 @@
 
 #include <thread>
 #include <chrono>
-#include <SSVStart/SSVStart.hpp>
+#include <SSVStart/GameSystem/GameWindow.hpp>
 
 namespace hg
 {

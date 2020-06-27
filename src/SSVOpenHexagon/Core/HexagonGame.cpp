@@ -13,12 +13,6 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-
-
-using namespace std;
-using namespace sf;
-using namespace ssvu;
-using namespace ssvs;
 using namespace hg::Utils;
 
 namespace hg
@@ -35,7 +29,7 @@ void HexagonGame::createWall(int mSide, float mThickness,
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-    GameWindow& mGameWindow)
+    ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
       fpsWatcher(window)
@@ -57,7 +51,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     game.addInput(
         Config::getTriggerForceRestart(),
         [this](FT /*unused*/) { status.mustRestart = true; },
-        Input::Type::Once);
+        ssvs::Input::Type::Once);
     game.addInput(
         Config::getTriggerRestart(),
         [this](FT /*unused*/) {
@@ -66,15 +60,15 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
                 status.mustRestart = true;
             }
         },
-        Input::Type::Once);
+        ssvs::Input::Type::Once);
     game.addInput(
         Config::getTriggerScreenshot(),
         [this](FT /*unused*/) { mustTakeScreenshot = true; },
-        Input::Type::Once);
+        ssvs::Input::Type::Once);
 }
 
 void HexagonGame::newGame(
-    const string& mId, bool mFirstPlay, float mDifficultyMult)
+    const std::string& mId, bool mFirstPlay, float mDifficultyMult)
 {
     initFlashEffect();
 
@@ -106,6 +100,7 @@ void HexagonGame::newGame(
 
     // Manager cleanup
     walls.clear();
+    cwManager.clear();
     player = CPlayer{ssvs::zeroVec2f};
 
 
@@ -152,13 +147,13 @@ void HexagonGame::newGame(
 void HexagonGame::death(bool mForce)
 {
     fpsWatcher.disable();
-    assets.playSound("death.ogg", SoundPlayer::Mode::Abort);
+    assets.playSound("death.ogg", ssvs::SoundPlayer::Mode::Abort);
 
     if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
     {
         return;
     }
-    assets.playSound("gameOver.ogg", SoundPlayer::Mode::Abort);
+    assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
 
     if(!assets.pIsLocal() && Config::isEligibleForScore())
     {
@@ -186,7 +181,7 @@ void HexagonGame::death(bool mForce)
 void HexagonGame::incrementDifficulty()
 {
     assets.playSound("levelUp.ogg");
-    
+
     levelStatus.rotationSpeed +=
         levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
 
@@ -196,7 +191,7 @@ void HexagonGame::incrementDifficulty()
     if(status.fastSpin < 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed =
-            rotationSpeedMax * getSign(levelStatus.rotationSpeed);
+            rotationSpeedMax * ssvu::getSign(levelStatus.rotationSpeed);
     }
 
     status.fastSpin = levelStatus.fastSpin;
@@ -233,19 +228,22 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 void HexagonGame::checkAndSaveScore()
 {
+    const float time = status.getTimeSeconds();
+
     if(Config::getInvincible())
     {
-        lo("hg::HexagonGame::checkAndSaveScore()")
+        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
             << "Not saving score - invincibility on\n";
         return;
     }
 
     if(assets.pIsLocal())
     {
-        string localValidator{getLocalValidator(levelData->id, difficultyMult)};
-        if(assets.getLocalScore(localValidator) < status.currentTime)
+        std::string localValidator{
+            getLocalValidator(levelData->id, difficultyMult)};
+        if(assets.getLocalScore(localValidator) < time)
         {
-            assets.setLocalScore(localValidator, status.currentTime);
+            assets.setLocalScore(localValidator, time);
         }
         assets.saveCurrentLocalProfile();
     }
@@ -253,18 +251,18 @@ void HexagonGame::checkAndSaveScore()
     {
         if(status.scoreInvalid || !Config::isEligibleForScore())
         {
-            lo("hg::HexagonGame::checkAndSaveScore()")
+            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending/saving score - not eligible\n"
                 << Config::getUneligibilityReason() << "\n";
             return;
         }
-        if(status.currentTime < 8)
+        if(time < 8)
         {
-            lo("hg::HexagonGame::checkAndSaveScore()")
+            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - less than 8 seconds\n";
             return;
         }
-        Online::trySendScore(levelData->id, difficultyMult, status.currentTime);
+        Online::trySendScore(levelData->id, difficultyMult, time);
     }
 }
 
@@ -283,7 +281,7 @@ void HexagonGame::goToMenu(bool mSendScores)
     mgPtr->init();
 }
 
-void HexagonGame::changeLevel(const string& mId, bool mFirstTime)
+void HexagonGame::changeLevel(const std::string& mId, bool mFirstTime)
 {
     newGame(mId, mFirstTime, difficultyMult);
 }
@@ -293,15 +291,15 @@ void HexagonGame::addMessage(
 {
     Utils::uppercasify(mMessage);
 
-    messageTimeline.append<Do>([&, mMessage] {
+    messageTimeline.append<ssvu::Do>([this, mSoundToggle, mMessage] {
         if(mSoundToggle)
         {
             assets.playSound("beep.ogg");
         }
         messageText.setString(mMessage);
     });
-    messageTimeline.append<Wait>(mDuration);
-    messageTimeline.append<Do>([this] { messageText.setString(""); });
+    messageTimeline.append<ssvu::Wait>(mDuration);
+    messageTimeline.append<ssvu::Do>([this] { messageText.setString(""); });
 }
 
 void HexagonGame::clearMessages()
@@ -346,17 +344,17 @@ void HexagonGame::stopLevelMusic()
 void HexagonGame::invalidateScore()
 {
     status.scoreInvalid = true;
-    lo("HexagonGame::invalidateScore")
+    ssvu::lo("HexagonGame::invalidateScore")
         << "Too much slowdown, invalidating official game\n";
 }
 
-auto HexagonGame::getColorMain() const -> Color
+auto HexagonGame::getColorMain() const -> sf::Color
 {
     if(Config::getBlackAndWhite())
     {
         //			if(status.drawing3D) return Color{255, 255, 255,
         // status.overrideColor.a};
-        return Color(255, 255, 255, styleData.getMainColor().a);
+        return sf::Color(255, 255, 255, styleData.getMainColor().a);
     }
     //	else if(status.drawing3D) return status.overrideColor;
     {

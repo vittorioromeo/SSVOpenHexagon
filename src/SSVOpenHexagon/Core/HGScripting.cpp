@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
+#include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
+#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 
 using namespace sf;
 using namespace ssvs;
@@ -82,7 +84,9 @@ void HexagonGame::initLua_Utils()
             "definition of the SFML `sf::Keyboard::Key` enumeration.");
 
     addLuaFn("u_haltTime", //
-        [this](float mDuration) { status.timeStop = mDuration; })
+        [this](float mDuration) {
+            status.pauseTime(ssvu::getFTToSeconds(mDuration));
+        })
         .arg("duration")
         .doc("Pause the game timer for `$0` seconds.");
 
@@ -224,7 +228,7 @@ void HexagonGame::initLua_MainTimeline()
         [this](float mDuration) {
             timeline.append<ssvu::Wait>(10);
             timeline.append<ssvu::Do>([=, this] {
-                if(status.currentTime < mDuration)
+                if(status.getTimeSeconds() < mDuration)
                 {
                     timeline.jumpTo(timeline.getCurrentIndex() - 2);
                 }
@@ -240,8 +244,9 @@ void HexagonGame::initLua_EventTimeline()
 {
     addLuaFn("e_eventStopTime", //
         [this](float mDuration) {
-            eventTimeline.append<ssvu::Do>(
-                [=, this] { status.timeStop = mDuration; });
+            eventTimeline.append<ssvu::Do>([=, this] {
+                status.pauseTime(ssvu::getFTToSeconds(mDuration));
+            });
         })
         .arg("duration")
         .doc(
@@ -250,9 +255,8 @@ void HexagonGame::initLua_EventTimeline()
 
     addLuaFn("e_eventStopTimeS", //
         [this](float mDuration) {
-            eventTimeline.append<ssvu::Do>([=, this] {
-                status.timeStop = ssvu::getSecondsToFT(mDuration);
-            });
+            eventTimeline.append<ssvu::Do>(
+                [=, this] { status.pauseTime(mDuration); });
         })
         .arg("duration")
         .doc(
@@ -276,7 +280,7 @@ void HexagonGame::initLua_EventTimeline()
         [this](float mDuration) {
             eventTimeline.append<ssvu::Wait>(10);
             eventTimeline.append<ssvu::Do>([=, this] {
-                if(status.currentTime < mDuration)
+                if(status.getTimeSeconds() < mDuration)
                 {
                     eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2);
                 }
@@ -382,7 +386,7 @@ void HexagonGame::initLua_LevelControl()
         .doc("Return the background camera rotation, in radians.");
 
     addLuaFn("l_getLevelTime", //
-        [this] { return (float)status.currentTime; })
+        [this] { return status.getTimeSeconds(); })
         .doc("Get the current game timer value, in seconds.");
 
     addLuaFn("l_getOfficial", //
@@ -610,6 +614,77 @@ void HexagonGame::initLua_Steam()
         .doc("Unlock the Steam achievement with id `$0`.");
 }
 
+void HexagonGame::initLua_CustomWalls()
+{
+    addLuaFn("cw_create", //
+        [this]() -> CCustomWallHandle { return cwManager.create(); })
+        .doc("Create a new custom wall and return a integer handle to it.");
+
+    addLuaFn("cw_destroy", //
+        [this](CCustomWallHandle cwHandle) { cwManager.destroy(cwHandle); })
+        .arg("cwHandle")
+        .doc("Destroy the custom wall represented by `$0`.");
+
+    addLuaFn("cw_setVertexPos", //
+        [this](CCustomWallHandle cwHandle, int vertexIndex, float x, float y) {
+            cwManager.setVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y});
+        })
+        .arg("cwHandle")
+        .arg("vertexIndex")
+        .arg("x")
+        .arg("y")
+        .doc(
+            "Given the custom wall represented by `$0`, set the position of "
+            "its vertex with index `$1` to `{$2, $3}`.");
+
+    addLuaFn("cw_setVertexColor", //
+        [this](CCustomWallHandle cwHandle, int vertexIndex, int r, int g, int b,
+            int a) {
+            cwManager.setVertexColor(
+                cwHandle, vertexIndex, sf::Color(r, g, b, a));
+        })
+        .arg("cwHandle")
+        .arg("vertexIndex")
+        .arg("r")
+        .arg("g")
+        .arg("b")
+        .arg("a")
+        .doc(
+            "Given the custom wall represented by `$0`, set the color of "
+            "its vertex with index `$1` to `{$2, $3, $4, $5}`.");
+
+    addLuaFn("cw_getVertexPos", //
+        [this](CCustomWallHandle cwHandle,
+            int vertexIndex) -> std::tuple<float, float> {
+            const sf::Vector2f pos =
+                cwManager.getVertexPos(cwHandle, vertexIndex);
+            return std::tuple{pos.x, pos.y};
+        })
+        .arg("cwHandle")
+        .arg("vertexIndex")
+        .arg("x")
+        .arg("y")
+        .doc(
+            "Given the custom wall represented by `$0`, set the position of "
+            "its vertex with index `$1` to `{$2, $3}`.");
+
+    // TODO:
+    /*
+    addLuaFn("cw_isOverlappingPlayer", //
+        [this](CCustomWallHandle cwHandle) -> bool {
+            return cwManager.isOverlappingPlayer(cwHandle);
+        })
+        .arg("cwHandle")
+        .doc(
+            "Return `true` if the custom wall represented by `$0` is "
+            "overlapping the player, `false` otherwise.");
+    */
+
+    addLuaFn("cw_clear", //
+        [this] { cwManager.clear(); })
+        .doc("Remove all existing custom walls.");
+}
+
 void HexagonGame::initLua()
 {
     initLua_Utils();
@@ -620,6 +695,7 @@ void HexagonGame::initLua()
     initLua_StyleControl();
     initLua_WallCreation();
     initLua_Steam();
+    initLua_CustomWalls();
 
     // TODO: refactor this doc stuff and have a command line option to print
     // this:
