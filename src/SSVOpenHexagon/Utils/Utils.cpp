@@ -8,18 +8,10 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
-using namespace std;
-using namespace sf;
-using namespace ssvs;
-using namespace hg::Utils;
-using namespace ssvuj;
-using namespace ssvu::FileSystem;
-using namespace ssvu;
-
 namespace hg::Utils
 {
 
-Color getColorDarkened(Color mColor, float mMultiplier)
+sf::Color getColorDarkened(sf::Color mColor, float mMultiplier)
 {
     mColor.r /= mMultiplier;
     mColor.b /= mMultiplier;
@@ -29,51 +21,54 @@ Color getColorDarkened(Color mColor, float mMultiplier)
 
 MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
 {
-    MusicData result{getExtr<string>(mRoot, "id"),
-        getExtr<string>(mRoot, "file_name"), getExtr<string>(mRoot, "name"),
-        getExtr<string>(mRoot, "album"), getExtr<string>(mRoot, "author")};
+    MusicData result{ssvuj::getExtr<std::string>(mRoot, "id"),
+        ssvuj::getExtr<std::string>(mRoot, "file_name"),
+        ssvuj::getExtr<std::string>(mRoot, "name"),
+        ssvuj::getExtr<std::string>(mRoot, "album"),
+        ssvuj::getExtr<std::string>(mRoot, "author")};
     for(const auto& segment : ssvuj::getObj(mRoot, "segments"))
     {
-        result.addSegment(getExtr<float>(segment, "time"));
+        result.addSegment(ssvuj::getExtr<float>(segment, "time"));
     }
     return result;
 }
 
 ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
 {
-    return {getExtr<float>(mRoot, "version"), getExtr<string>(mRoot, "name"),
+    return {ssvuj::getExtr<float>(mRoot, "version"),
+        ssvuj::getExtr<std::string>(mRoot, "name"),
         ssvuj::getObj(mRoot, "scores"),
-        getExtr<vector<string>>(mRoot, "trackedNames", {})};
+        ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {})};
 }
 
-string getLocalValidator(const string& mId, float mDifficultyMult)
+std::string getLocalValidator(const std::string& mId, float mDifficultyMult)
 {
-    return mId + "_m_" + toStr(mDifficultyMult);
+    return mId + "_m_" + ssvu::toStr(mDifficultyMult);
 }
 
-void shakeCamera(TimelineManager& mTimelineManager, Camera& mCamera)
+void shakeCamera(ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera)
 {
     int s{7};
     sf::Vector2f oldCenter{mCamera.getCenter()};
-    Timeline& timeline(mTimelineManager.create());
+    ssvu::Timeline& timeline(mTimelineManager.create());
 
     for(int i{s}; i > 0; --i)
     {
-        timeline.append<Do>([&mCamera, oldCenter, i] {
-            mCamera.setCenter(
-                oldCenter + sf::Vector2f(getRndI(-i, i), getRndI(-i, i)));
+        timeline.append<ssvu::Do>([&mCamera, oldCenter, i] {
+            mCamera.setCenter(oldCenter + sf::Vector2f(ssvu::getRndI(-i, i),
+                                              ssvu::getRndI(-i, i)));
         });
-        timeline.append<Wait>(1);
-        timeline.append<Go>(0, 3);
+        timeline.append<ssvu::Wait>(1);
+        timeline.append<ssvu::Go>(0, 3);
     }
 
-    timeline.append<Do>(
+    timeline.append<ssvu::Do>(
         [&mCamera, oldCenter] { mCamera.setCenter(oldCenter); });
 }
 
-std::set<string> getIncludedLuaFileNames(const string& mLuaScript)
+std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript)
 {
-    std::set<string> result;
+    std::set<std::string> result;
     std::size_t currI(0);
 
     auto findNext = [&currI, &mLuaScript](const auto& x) {
@@ -132,8 +127,8 @@ std::set<string> getIncludedLuaFileNames(const string& mLuaScript)
     return result;
 }
 
-void recursiveFillIncludedLuaFileNames(std::set<string>& mLuaScriptNames,
-    const Path& mPackPath, const string& mLuaScript)
+void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
+    const Path& mPackPath, const std::string& mLuaScript)
 {
     for(const auto& name : getIncludedLuaFileNames(mLuaScript))
     {
@@ -165,12 +160,12 @@ void recursiveFillIncludedLuaFileNames(std::set<string>& mLuaScriptNames,
     }
 }
 
-[[gnu::const]] Color transformHue(const Color& in, float H)
+[[gnu::const]] sf::Color transformHue(const sf::Color& in, float H)
 {
-    float u{cos(H * 3.14f / 180.f)};
-    float w{sin(H * 3.14f / 180.f)};
+    const float u{std::cos(H * 3.14f / 180.f)};
+    const float w{std::sin(H * 3.14f / 180.f)};
 
-    Color ret;
+    sf::Color ret;
     ret.r = (.701 * u + .168 * w) * in.r + (-.587 * u + .330 * w) * in.g +
             (-.114 * u - .497 * w) * in.b;
     ret.g = (-.299 * u - .328 * w) * in.r + (.413 * u + .035 * w) * in.g +

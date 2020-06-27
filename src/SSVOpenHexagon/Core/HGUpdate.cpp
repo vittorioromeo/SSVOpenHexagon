@@ -19,11 +19,14 @@ namespace hg
 
 void HexagonGame::update(FT mFT)
 {
-    steamManager.set_rich_presence_in_game(levelData->name, status.currentTime);
+    // TODO: refactor to avoid repetition, and truncate floating point number
+    // TODO: also show best record (here) and last run + best record (in menu)
+    steamManager.set_rich_presence_in_game(
+        levelData->name, status.getTimeSeconds());
     steamManager.run_callbacks();
 
     discordManager.set_rich_presence_in_game(
-        levelData->name, status.currentTime);
+        levelData->name, status.getTimeSeconds());
     discordManager.run_callbacks();
 
     hg::Joystick::update();
@@ -39,7 +42,7 @@ void HexagonGame::update(FT mFT)
     if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
                               inputImplCW || inputImplBothCWCCW || jCW || jCCW))
     {
-        status.started = true;
+        status.start();
         messageText.setString("");
         assets.playSound("go.ogg");
         assets.musicPlayer.resume();
@@ -151,9 +154,10 @@ void HexagonGame::update(FT mFT)
             }
 
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
+            cwManager.cleanup();
 
             updateEvents(mFT);
-            updateTimeStop(mFT);
+            status.updateTime();
             updateIncrement();
 
             if(mustChangeSides && walls.empty())
@@ -162,16 +166,18 @@ void HexagonGame::update(FT mFT)
                     getRndI(levelStatus.sidesMin, levelStatus.sidesMax + 1));
             }
 
-
             updateLevel(mFT);
+
             if(Config::getBeatPulse())
             {
                 updateBeatPulse(mFT);
             }
+
             if(Config::getPulse())
             {
                 updatePulse(mFT);
             }
+
             if(!Config::getBlackAndWhite())
             {
                 styleData.update(mFT, pow(difficultyMult, 0.8f));
@@ -231,39 +237,26 @@ void HexagonGame::updateEvents(FT mFT)
         messageTimeline.reset();
     }
 }
-void HexagonGame::updateTimeStop(FT mFT)
-{
-    if(status.timeStop <= 0)
-    {
-        status.currentTime += ssvu::getFTToSeconds(mFT);
-        status.incrementTime += ssvu::getFTToSeconds(mFT);
-    }
-    else
-    {
-        status.timeStop -= mFT;
-    }
-}
 void HexagonGame::updateIncrement()
 {
     if(!levelStatus.incEnabled)
     {
         return;
     }
-    if(status.incrementTime < levelStatus.incTime)
+
+    if(status.getIncrementTimeSeconds() < levelStatus.incTime)
     {
         return;
     }
-    
 
     ++levelStatus.currentIncrements;
     incrementDifficulty();
-
-    status.incrementTime = 0;
+    status.resetIncrementTime();
     mustChangeSides = true;
 }
 void HexagonGame::updateLevel(FT mFT)
 {
-    if(status.timeStop > 0)
+    if(status.isTimePaused())
     {
         return;
     }

@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SFML/Graphics/Color.hpp>
 
 struct ColorData
 {
@@ -13,6 +15,7 @@ struct ColorData
     sf::Color color, pulse;
 
     ColorData() = default;
+
     ColorData(const ssvuj::Obj& mRoot)
         : main{ssvuj::getExtr<bool>(mRoot, "main", false)},
           dynamic{ssvuj::getExtr<bool>(mRoot, "dynamic", false)},
