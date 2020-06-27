@@ -182,11 +182,8 @@ void HexagonGame::incrementDifficulty()
 {
     assets.playSound("levelUp.ogg");
 
-    if(levelStatus.shouldIncrement())
-    {
-        levelStatus.rotationSpeed += levelStatus.rotationSpeedInc *
-                                     ssvu::getSign(levelStatus.rotationSpeed);
-    }
+    levelStatus.rotationSpeed +=
+        levelStatus.rotationSpeedInc * ssvu::getSign(levelStatus.rotationSpeed);
 
     levelStatus.rotationSpeed *= -1.f;
 
@@ -204,10 +201,26 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 {
     runLuaFunction<void>("onIncrement");
 
-    if(levelStatus.shouldIncrement())
+    levelStatus.speedMult += levelStatus.speedInc;
+    levelStatus.delayMult += levelStatus.delayInc;
+
+    // Cap speed at speed max (with difficulty in mind). If speed max is zero, disregard the cap.
+    const auto& speedMax(levelStatus.speedMax);
+    if (levelStatus.speedMult * difficultyMult > speedMax && speedMax > 0.f)
     {
-        levelStatus.speedMult += levelStatus.speedInc;
-        levelStatus.delayMult += levelStatus.delayInc;
+        levelStatus.speedMult = speedMax;
+    }
+
+    // Clamp delay between `delayMin` and `delayMax` if they're non-zero.
+    const auto& delayMin(levelStatus.delayMin);
+    const auto& delayMax(levelStatus.delayMax);
+    if (levelStatus.delayMult > delayMax && delayMax > 0.f) 
+    {
+        levelStatus.delayMult = delayMax;
+    }
+    else if (levelStatus.delayMult < delayMin && delayMin > 0.f)
+    {
+        levelStatus.delayMult = delayMin;
     }
 
     if(levelStatus.rndSideChangesEnabled)

@@ -609,7 +609,9 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     // Unused functions
     for(const auto& un :
-        {"l_setSpeedMult", "l_setSpeedInc", "l_setRotationSpeedMax",
+        {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax", "l_getSpeedMax",
+            "l_getDelayMin", "l_setDelayMin", "l_setDelayMax", 
+            "l_getDelayMax", "l_setRotationSpeedMax",
             "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
             "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
             "l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR",
@@ -627,7 +629,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
             "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
             "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
-            "l_setDelayMult", "l_setMaxInc", "s_setStyle", "u_setMusic",
+            "l_setDelayMult", "s_setStyle", "u_setMusic",
             "l_getRotation", "l_setRotation", "s_getCameraShake",
             "s_setCameraShake", "l_getOfficial", "steam_unlockAchievement",
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
