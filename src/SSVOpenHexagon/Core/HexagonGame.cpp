@@ -211,7 +211,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         levelStatus.speedMult = speedMax;
     }
 
-    // Clamp delay between delayMin and delayMax
+    // Clamp delay between `delayMin` and `delayMax` if they're non-zero.
     const auto& delayMin(levelStatus.delayMin);
     const auto& delayMax(levelStatus.delayMax);
     if (levelStatus.delayMult > delayMax && delayMax > 0.f) 
