@@ -5,7 +5,7 @@
 #ifndef SSVUJ_OH_JSONCPP_INL
 #define SSVUJ_OH_JSONCPP_INL
 
-#include <SSVUtils/Core/Assert/Assert.hpp>
+#include <SSVUtils/Core/Core.hpp>
 
 #include <cstring>
 #include <cmath>

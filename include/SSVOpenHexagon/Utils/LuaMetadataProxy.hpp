@@ -61,6 +61,10 @@ private:
         {
             return "size_t";
         }
+        else if constexpr(std::is_same_v<T, std::tuple<float, float>>)
+        {
+            return "tuple<float, float>";
+        }
         else
         {
             struct fail;

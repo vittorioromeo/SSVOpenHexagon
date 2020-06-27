@@ -6,7 +6,7 @@
 
 #include <SFML/System.hpp>
 
-#include <SSVUtils/Core/Log/Log.hpp>
+#include <SSVUtils/Core/Core.hpp>
 
 #include <SSVStart/Tileset/Tileset.hpp>
 #include <SSVStart/Input/Enums.hpp>
