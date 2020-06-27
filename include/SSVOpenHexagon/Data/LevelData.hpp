@@ -56,11 +56,14 @@ struct LevelStatus
 
     float speedMult{1.f};
     float speedInc{0.f};
+    float speedMax{0.f};
     float rotationSpeed{0.f};
     float rotationSpeedInc{0.f};
     float rotationSpeedMax{0.f};
     float delayMult{1.f};
     float delayInc{0.f};
+    float delayMin{0.f};
+    float delayMax{0.f};
     float fastSpin{0.f};
     float incTime{15.f};
     float pulseMin{75.f};
@@ -91,12 +94,6 @@ struct LevelStatus
     bool darkenUnevenBackgroundChunk{true};
 
     std::size_t currentIncrements{0u};
-    std::size_t maxIncrements{std::numeric_limits<std::size_t>::max()};
-
-    [[nodiscard]] bool shouldIncrement() const noexcept
-    {
-        return currentIncrements < maxIncrements;
-    }
 };
 
 } // namespace hg
