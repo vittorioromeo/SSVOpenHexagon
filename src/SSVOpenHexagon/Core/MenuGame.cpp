@@ -609,7 +609,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     // Unused functions
     for(const auto& un :
-        {"l_setSpeedMult", "l_setSpeedInc", "l_setRotationSpeedMax",
+        {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax", "l_setRotationSpeedMax",
             "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
             "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
             "l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR",
