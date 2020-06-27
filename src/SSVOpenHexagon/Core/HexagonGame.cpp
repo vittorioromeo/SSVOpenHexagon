@@ -215,9 +215,13 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     const auto& delayMin(levelStatus.delayMin);
     const auto& delayMax(levelStatus.delayMax);
     if (levelStatus.delayMult > delayMax && delayMax > 0.f) 
+    {
         levelStatus.delayMult = delayMax;
+    }
     else if (levelStatus.delayMult < delayMin && delayMin > 0.f)
+    {
         levelStatus.delayMult = delayMin;
+    }
 
     if(levelStatus.rndSideChangesEnabled)
     {
