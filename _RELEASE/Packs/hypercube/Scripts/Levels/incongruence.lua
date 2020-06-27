@@ -24,8 +24,9 @@ upperBound = 6
 function onInit()
 	l_setSpeedMult(2.7)
 	l_setSpeedInc(0.11)
+	l_setSpeedMax(3.14) -- A lot of the difficulty is coming from the changing sides. Speed isn't too important here.
 	l_setRotationSpeed(0.27)
-	l_setRotationSpeedMax(0.4)
+	l_setRotationSpeedMax(0.5)
 	l_setRotationSpeedInc(0.045)
 	l_setDelayMult(1.1)
 	l_setDelayInc(-0.04)
@@ -34,7 +35,6 @@ function onInit()
 	l_setSidesMin(0)
 	l_setSidesMax(0)
 	l_setIncTime(15)
-	l_setMaxInc(4)
 
 	l_setPulseMin(64)
 	l_setPulseMax(84)
