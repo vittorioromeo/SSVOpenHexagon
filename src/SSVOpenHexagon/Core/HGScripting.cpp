@@ -319,6 +319,8 @@ void HexagonGame::initLua_LevelControl()
     lsVar("RotationSpeedMax", &LevelStatus::rotationSpeedMax);
     lsVar("DelayMult", &LevelStatus::delayMult);
     lsVar("DelayInc", &LevelStatus::delayInc);
+    lsVar("DelayMin", &LevelStatus::delayMin);
+    lsVar("DelayMax", &LevelStatus::delayMax);
     lsVar("FastSpin", &LevelStatus::fastSpin);
     lsVar("IncTime", &LevelStatus::incTime);
     lsVar("PulseMin", &LevelStatus::pulseMin);

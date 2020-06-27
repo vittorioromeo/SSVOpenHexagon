@@ -59,6 +59,8 @@ struct LevelStatus
     float rotationSpeedMax{0.f};
     float delayMult{1.f};
     float delayInc{0.f};
+    float delayMin{0.f};
+    float delayMax{0.f};
     float fastSpin{0.f};
     float incTime{15.f};
     float pulseMin{75.f};
