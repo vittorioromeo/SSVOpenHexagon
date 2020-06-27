@@ -13,7 +13,7 @@
 	"draw_text_outlines" : false,
 	"flash_enabled" : true,
 	"fullscreen" : true,
-	"fullscreen_auto_resolution" : false,
+	"fullscreen_auto_resolution" : true,
 	"fullscreen_height" : 480,
 	"fullscreen_width" : 640,
 	"invincible" : false,
