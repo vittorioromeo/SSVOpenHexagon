@@ -154,6 +154,7 @@ void HexagonGame::update(FT mFT)
             }
 
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
+            cwManager.cleanup();
 
             updateEvents(mFT);
             status.updateTime();
@@ -165,16 +166,18 @@ void HexagonGame::update(FT mFT)
                     getRndI(levelStatus.sidesMin, levelStatus.sidesMax + 1));
             }
 
-
             updateLevel(mFT);
+
             if(Config::getBeatPulse())
             {
                 updateBeatPulse(mFT);
             }
+
             if(Config::getPulse())
             {
                 updatePulse(mFT);
             }
+
             if(!Config::getBlackAndWhite())
             {
                 styleData.update(mFT, pow(difficultyMult, 0.8f));

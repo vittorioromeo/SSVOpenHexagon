@@ -21,6 +21,7 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
+#include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
 namespace hg
 {
@@ -44,6 +45,7 @@ private:
 public:
     CPlayer player;
     std::vector<CWall> walls;
+    CCustomWallManager cwManager;
 
 private:
     ssvs::Camera backgroundCamera{window,
@@ -119,6 +121,7 @@ private:
     void initLua_StyleControl();
     void initLua_WallCreation();
     void initLua_Steam();
+    void initLua_CustomWalls();
 
     void initLua();
     void runLuaFile(const std::string& mFileName)
@@ -336,6 +339,12 @@ public:
     [[nodiscard]] int getInputMovement() const
     {
         return inputMovement;
+    }
+
+    template <typename F>
+    [[nodiscard]] bool anyCustomWall(F&& f)
+    {
+        return cwManager.anyCustomWall(std::forward<F>(f));
     }
 };
 

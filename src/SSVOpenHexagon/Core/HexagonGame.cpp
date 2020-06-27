@@ -100,6 +100,7 @@ void HexagonGame::newGame(
 
     // Manager cleanup
     walls.clear();
+    cwManager.clear();
     player = CPlayer{ssvs::zeroVec2f};
 
 

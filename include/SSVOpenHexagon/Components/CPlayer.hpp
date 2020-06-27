@@ -6,7 +6,7 @@
 
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 
-#include "SSVUtils/Core/Common/Frametime.hpp"
+#include <SSVUtils/Core/Common/Frametime.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -45,7 +45,7 @@ public:
     [[nodiscard]] float getPlayerAngle() const;
     void setPlayerAngle(const float newAng);
 
-    void update(HexagonGame& mHexagonGame, FT mFT);
+    void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 };
 
