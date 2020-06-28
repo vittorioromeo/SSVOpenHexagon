@@ -71,7 +71,7 @@ function pMirrorSpiralDouble(mTimes, mExtra)
     t_wait(delay * 0.9)
     
     for i = 0, mTimes + 1 do
-        rWallEx(currentSide + j, mExtra)
+        rWallEx(startSide + j, mExtra)
         j = j - loopDir
         t_wait(delay)
     end
