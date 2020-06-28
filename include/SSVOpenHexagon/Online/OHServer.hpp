@@ -55,7 +55,7 @@ public:
     }
     void setEmail(const std::string& mUsername, std::string mEmail)
     {
-        users[mUsername].email = ssvu::mv(mEmail);
+        users[mUsername].email = std::move(mEmail);
     }
 };
 class LevelScoreDB

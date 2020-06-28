@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <string>
+#include <utility>
+
 namespace hg
 {
 
@@ -11,8 +14,8 @@ struct TrackedVariable
 {
     std::string variableName, displayName;
     TrackedVariable(std::string mVariableName, std::string mDisplayName)
-        : variableName{ssvu::mv(mVariableName)}, displayName{
-                                                     ssvu::mv(mDisplayName)}
+        : variableName{std::move(mVariableName)}, displayName{
+                                                     std::move(mDisplayName)}
     {
     }
 };
