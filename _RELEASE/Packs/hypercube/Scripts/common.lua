@@ -32,8 +32,7 @@ end
 
 -- getRandomDir: returns either 1 or -1
 function getRandomDir()
-	if math.random(0, 100) > 50 then return 1 end
-	return -1
+	return math.random(1, 2) * 2 - 3
 end
 
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
