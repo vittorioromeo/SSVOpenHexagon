@@ -12,6 +12,26 @@ function pAltBarrage(mTimes, mStep)
 	t_wait(delay)
 end
 
+-- pSpiral: spawns a spiral of cWall
+function pSpiral(mTimes, mExtra)
+	oldThickness = THICKNESS
+	THICKNESS = getPerfectThickness(THICKNESS)
+	delay = getPerfectDelay(THICKNESS)
+	startSide = getRandomSide()
+	loopDir = getRandomDir()	
+	j = 0
+	
+	for i = 0, mTimes do
+		cWall(startSide + j, mExtra)
+		j = j + loopDir
+		t_wait(delay)
+	end
+	
+	THICKNESS = oldThickness
+	
+	t_wait(getPerfectDelayDM(THICKNESS) * 6.5)
+end
+
 -- pMirrorSpiral: spawns a spiral of rWallEx
 function pMirrorSpiral(mTimes, mExtra)
 	oldThickness = THICKNESS
