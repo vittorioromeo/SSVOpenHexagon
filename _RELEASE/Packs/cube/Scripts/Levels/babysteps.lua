@@ -8,12 +8,13 @@ function addPattern(mKey)
 	if mKey == 0 then pBarrageSpiral(math.random(1, 2), 1, 1)
 	elseif mKey == 1 then pInverseBarrage(0)
 	elseif mKey == 2 then pAltBarrage(math.random(1, 3), 2)
+	elseif mKey == 3 then pSpiral(12, 0)
 	end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 1, 2 }
+keys = { 0, 1, 2, 3 }
 keys = shuffle(keys)
 index = 0
 achievementUnlocked = false
@@ -42,7 +43,8 @@ function onLoad()
 	m_messageAddImportant("avoid the walls!", 130)
 	e_eventStopTimeS(6) e_eventWaitS(6)
 
-	e_eventStopTimeS(3) e_eventWaitUntilS(12)
+	e_eventWaitUntilS(10) 
+	e_eventStopTimeS(5) 
 	m_messageAddImportant("great job!", 130)
 	m_messageAddImportant("after a while, things get harder", 130)
 	m_messageAddImportant("get to 45 seconds to win!", 130)
@@ -64,6 +66,7 @@ function onStep()
 
 	if index - 1 == #keys then
 		index = 1
+		keys = shuffle(keys)
 	end
 end
 

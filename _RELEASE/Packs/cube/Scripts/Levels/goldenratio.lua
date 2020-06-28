@@ -8,12 +8,13 @@ function addPattern(mKey)
 	if mKey == 0 then pBarrageSpiral(math.random(5, 9), 0.41, 1)
 	elseif mKey == 1 then pMirrorSpiralDouble(math.random(8, 10), 0)
 	elseif mKey == 2 then pMirrorSpiral(math.random(2, 5), 0)
+	elseif mKey == 3 then pSpiral(l_getSides() * math.random(1, 3), 0)
 	end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 0, 1, 1, 2 }
+keys = { 0, 0, 1, 1, 2, 3 }
 keys = shuffle(keys)
 index = 0
 achievementUnlocked = false
@@ -23,7 +24,7 @@ function onInit()
 	l_setSpeedMult(1.7)
 	l_setSpeedInc(0.1)
 	l_setSpeedMax(3.1) -- I would do pi, but I think there will be some cases that may be impossible
-	l_setRotationSpeed(0.001)
+	l_setRotationSpeed(0.0001)
 	l_setRotationSpeedMax(1)
 	l_setRotationSpeedInc(0.1)
 	l_setDelayMult(1.0)
@@ -35,10 +36,10 @@ function onInit()
 	l_setIncTime(10)
 
 	l_setPulseMin(60)
-	l_setPulseMax(87)
-	l_setPulseSpeed(1.2)
-	l_setPulseSpeedR(1)
-	l_setPulseDelayMax(12.9)
+	-- l_setPulseMax(87)
+	-- l_setPulseSpeed(1.2)
+	-- l_setPulseSpeedR(1)
+	-- l_setPulseDelayMax(12.9)
 
 	l_setBeatPulseMax(17)
 	l_setBeatPulseDelayMax(26.2)
@@ -58,6 +59,7 @@ function onStep()
 
 	if index - 1 == #keys then
 		index = 1
+		keys = shuffle(keys)
 	end
 end
 
