@@ -43,7 +43,7 @@ function onLoad()
 	m_messageAddImportant("avoid the walls!", 130)
 	e_eventStopTimeS(6) e_eventWaitS(6)
 
-	e_eventStopTimeS(3) e_eventWaitUntilS(12)
+	e_eventWaitUntilS(10) e_eventStopTimeS(5) 
 	m_messageAddImportant("great job!", 130)
 	m_messageAddImportant("after a while, things get harder", 130)
 	m_messageAddImportant("get to 45 seconds to win!", 130)
