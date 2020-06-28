@@ -8,12 +8,13 @@ function addPattern(mKey)
 	if mKey == 0 then pBarrageSpiral(math.random(1, 2), 1, 1)
 	elseif mKey == 1 then pInverseBarrage(0)
 	elseif mKey == 2 then pAltBarrage(math.random(1, 3), 2)
+	elseif mKey == 3 then pSpiral(12, 0)
 	end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 1, 2 }
+keys = { 0, 1, 2, 3 }
 keys = shuffle(keys)
 index = 0
 achievementUnlocked = false
