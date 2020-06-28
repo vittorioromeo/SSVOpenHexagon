@@ -10,12 +10,13 @@ function addPattern(mKey)
 	elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
 	elseif mKey == 3 then pInverseBarrage(0)
 	elseif mKey == 4 then pTunnel(math.random(1, 3))
+	elseif mKey == 5 then pSpiral(l_getSides() * math.random(1, 2), 0)
 	end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4 }
+keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5 }
 keys = shuffle(keys)
 index = 0
 achievementUnlocked = false
@@ -63,6 +64,7 @@ function onStep()
 
 	if index - 1 == #keys then
 		index = 1
+		keys = shuffle(keys)
 	end
 end
 

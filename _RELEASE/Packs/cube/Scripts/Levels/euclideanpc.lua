@@ -16,12 +16,13 @@ function addPattern(mKey)
 	elseif mKey ==  8 then pWallExVortex(0, 1, 1)
 	elseif mKey ==  9 then pDMBarrageSpiral(math.random(4, 7), 0.4, 1)
 	elseif mKey == 10 then pRandomBarrage(math.random(2, 4), 2.25)
+	elseif mKey == 11 then pMirrorSpiralDouble(math.random(4, 8), 0)
 	end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 7, 7, 8, 9, 10, 10, 10 }
+keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 7, 7, 8, 9, 10, 10, 10, 11, 11 }
 keys = shuffle(keys)
 index = 0
 achievementUnlocked = false
@@ -71,6 +72,7 @@ function onStep()
 
 	if index - 1 == #keys then
 		index = 1
+		keys = shuffle(keys)
 	end
 end
 
