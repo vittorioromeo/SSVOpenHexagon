@@ -268,7 +268,7 @@ public:
 
     [[nodiscard]] float getDelayMultDM() const noexcept
     {
-        const auto res = levelStatus.speedMult / (std::pow(difficultyMult, 0.10f));
+        const auto res = levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
         return std::clamp(res, levelStatus.delayMin, levelStatus.delayMax);
     }
 
