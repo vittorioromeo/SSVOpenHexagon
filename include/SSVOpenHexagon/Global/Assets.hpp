@@ -90,7 +90,7 @@ public:
         return packInfos;
     }
 
-    void loadAssets();
+    [[nodiscard]] bool loadAssets();
 
     void loadMusic(const Path& mPath);
     void loadMusicData(const Path& mPath);
