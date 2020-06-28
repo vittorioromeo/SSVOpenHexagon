@@ -78,6 +78,7 @@ function onStep()
  	
 		if index - 1 == #keys then
 			index = 1
+			keys = shuffle(keys)
 		end
 	elseif special == "cage" then
 		addPattern(11)
