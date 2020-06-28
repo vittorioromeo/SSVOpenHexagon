@@ -262,12 +262,14 @@ public:
 
     [[nodiscard]] float getSpeedMultDM() const noexcept
     {
-        return levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
+        const auto res = levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
+        return res < levelStatus.speedMax ? res : levelStatus.speedMax;
     }
 
     [[nodiscard]] float getDelayMultDM() const noexcept
     {
-        return levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
+        const auto res = levelStatus.speedMult / (std::pow(difficultyMult, 0.10f))
+        return std::clamp(res, levelStatus.delayMin, levelStatus.delaxMax);
     }
 
     [[nodiscard]] float getRotationSpeed() const noexcept
