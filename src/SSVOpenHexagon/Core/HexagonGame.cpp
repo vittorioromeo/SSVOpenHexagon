@@ -204,10 +204,6 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     levelStatus.speedMult += levelStatus.speedInc;
     levelStatus.delayMult += levelStatus.delayInc;
 
-    // Call these functions to apply SpeedMax, delayMin, and delayMax.
-    levelStatus.speedMult = getSpeedMultDM();
-    LevelStatus.delayMult = getDelayMultDM();
-
     if(levelStatus.rndSideChangesEnabled)
     {
         setSides(mSideNumber);
