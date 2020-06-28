@@ -54,37 +54,30 @@ end
 
 -- pMirrorSpiralDouble: spawns a spiral of rWallEx where you need to change direction
 function pMirrorSpiralDouble(mTimes, mExtra)
-	oldThickness = THICKNESS
-	THICKNESS = getPerfectThickness(THICKNESS)
-	delay = getPerfectDelayDM(THICKNESS)
-	startSide = getRandomSide()
-	currentSide = startSide
-	loopDir = getRandomDir()	
-	j = 0
-	
-	for i = 0, mTimes do
-		rWallEx(startSide + j, mExtra)
-		j = j + loopDir
-		t_wait(delay)
-	end
-	
-	rWallEx(startSide + j, mExtra)
-	t_wait(delay * 0.9)
-	
-	rWallEx(startSide + j, mExtra)
-	t_wait(delay * 0.9)
-	
-	loopDir = loopDir * -1
-	
-	for i = 0, mTimes + 1 do
-		currentSide = currentSide + loopDir;
-		rWallEx(currentSide + j - 1, mExtra)
-		j = j + loopDir
-		t_wait(delay)
-	end
-	
-	THICKNESS = oldThickness
-	t_wait(getPerfectDelayDM(THICKNESS) * 7.5)
+    oldThickness = THICKNESS
+    THICKNESS = getPerfectThickness(THICKNESS)
+    delay = getPerfectDelayDM(THICKNESS)
+    startSide = getRandomSide()
+    loopDir = getRandomDir()    
+    j = 0
+    
+    for i = 0, mTimes do
+        rWallEx(startSide + j, mExtra)
+        j = j + loopDir
+        t_wait(delay)
+    end
+    
+    rWallEx(startSide + j, mExtra)
+    t_wait(delay * 0.9)
+    
+    for i = 0, mTimes + 1 do
+        rWallEx(currentSide + j, mExtra)
+        j = j - loopDir
+        t_wait(delay)
+    end
+    
+    THICKNESS = oldThickness
+    t_wait(getPerfectDelayDM(THICKNESS) * 7.5)
 end
 
 -- pBarrageSpiral: spawns a spiral of cBarrage
