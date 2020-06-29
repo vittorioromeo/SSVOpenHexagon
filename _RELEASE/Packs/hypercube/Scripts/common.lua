@@ -32,8 +32,7 @@ end
 
 -- getRandomDir: returns either 1 or -1
 function getRandomDir()
-	if math.random(0, 100) > 50 then return 1 end
-	return -1
+	return math.random(1, 2) * 2 - 3
 end
 
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
@@ -47,24 +46,11 @@ function getPerfectThickness(mThickness) return mThickness * u_getSpeedMultDM() 
 
 -- getSideDistance: returns shortest distance from a side to another
 function getSideDistance(mSide1, mSide2)
-	start = mSide1	
-	rightSteps = 0
-	while start ~= mSide2 do
-		rightSteps = rightSteps + 1
-		start = start + 1
-		if start > l_getSides() - 1 then start = 0 end
+	local dist = math.abs(mSide2 % l_getSides() - mSide1 % l_getSides());
+	if (dist > getHalfSides()) then
+		dist = dist - (dist - getHalfSides());
 	end
-	
-	start = mSide1	
-	leftSteps = 0
-	while start ~= mSide2 do
-		leftSteps = leftSteps + 1
-		start = start - 1
-		if start < 0 then start = l_getSides() - 1 end
-	end
-	
-	if rightSteps < leftSteps then return rightSteps end
-	return leftSteps
+	return dist;
 end
 
 -- cWall: creates a wall with the common THICKNESS

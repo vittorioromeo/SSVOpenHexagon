@@ -4,55 +4,16 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Components/SpeedData.hpp"
+
+#include <SFML/System/Vector2.hpp>
+
+#include <array>
 
 namespace hg
 {
 
 class HexagonGame;
-
-struct SpeedData
-{
-    float speed;
-    float accel;
-    float min;
-    float max;
-
-    bool pingPong;
-
-    SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f,
-        float mMax = 0.f, bool mPingPong = false) noexcept
-        : speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{
-                                                                  mPingPong}
-    {
-    }
-
-    void update(FT mFT) noexcept
-    {
-        if(accel == 0)
-        {
-            return;
-        }
-
-        speed += accel * mFT;
-        if(speed > max)
-        {
-            speed = max;
-            if(pingPong)
-            {
-                accel *= -1;
-            }
-        }
-        else if(speed < min)
-        {
-            speed = min;
-            if(pingPong)
-            {
-                accel *= -1;
-            }
-        }
-    }
-};
 
 class CWall
 {
@@ -79,8 +40,8 @@ public:
           float mThickness, float mDistance,
           const SpeedData& mSpeed, const SpeedData& mCurve);
 
-    void update(
-        HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT);
+    void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
+        ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame);
 
     void setHueMod(float mHueMod) noexcept

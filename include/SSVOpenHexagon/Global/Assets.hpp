@@ -35,8 +35,14 @@ private:
         levelDataIdsByPack;
 
     std::unordered_map<std::string, PackData> packDatas;
-    std::vector<std::string> packIds;
-    std::vector<Path> packPaths;
+
+    struct PackInfo
+    {
+        std::string id;
+        Path path;
+    };
+
+    std::vector<PackInfo> packInfos;
 
     std::map<std::string, MusicData> musicDataMap;
     std::map<std::string, StyleData> styleDataMap;
@@ -79,17 +85,12 @@ public:
         return packDatas.at(mId);
     }
 
-    const std::vector<Path>& getPackPaths()
+    const std::vector<PackInfo>& getPackInfos()
     {
-        return packPaths;
+        return packInfos;
     }
 
-    const std::vector<std::string>& getPackIds()
-    {
-        return packIds;
-    }
-
-    void loadAssets();
+    [[nodiscard]] bool loadAssets();
 
     void loadMusic(const Path& mPath);
     void loadMusicData(const Path& mPath);
@@ -110,7 +111,7 @@ public:
     const ProfileData& getCurrentLocalProfile() const;
     std::string getCurrentLocalProfileFilePath();
     void createLocalProfile(const std::string& mName);
-    SizeT getLocalProfilesSize();
+    std::size_t getLocalProfilesSize();
     std::vector<std::string> getLocalProfileNames();
     std::string getFirstLocalProfileName();
 

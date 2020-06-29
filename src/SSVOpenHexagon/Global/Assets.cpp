@@ -9,26 +9,31 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 
-using namespace std;
-using namespace sf;
-using namespace ssvs;
-using namespace hg::Utils;
-using namespace ssvu;
-using namespace ssvuj;
-using namespace ssvu::FileSystem;
-
 namespace hg
 {
+
+[[nodiscard]] static auto scanSingleByExt(
+    const ssvufs::Path& path, const std::string& extension)
+{
+    return ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
+        ssvufs::Pick::ByExt>(path, extension);
+}
 
 HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
 {
     if(!levelsOnly)
     {
         loadAssetsFromJson(
-            assetManager, "Assets/", getFromFile("Assets/assets.json"));
+            assetManager, "Assets/", ssvuj::getFromFile("Assets/assets.json"));
     }
 
-    loadAssets();
+    if(!loadAssets())
+    {
+        ssvu::lo("FATAL ERROR")
+            << "Error loading assets, exiting." << std::endl;
+
+        std::terminate();
+    }
 
     for(auto& v : levelDataIdsByPack)
     {
@@ -38,64 +43,74 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
         });
     }
 
-    ssvu::sort(packIds, [&](const auto& mA, const auto& mB) {
-        return packDatas.at(mA).priority < packDatas.at(mB).priority;
+    ssvu::sort(packInfos, [&](const auto& mA, const auto& mB) {
+        return packDatas.at(mA.id).priority < packDatas.at(mB.id).priority;
     });
 }
 
-void HGAssets::loadAssets()
+[[nodiscard]] bool HGAssets::loadAssets()
 {
-    lo("::loadAssets") << "loading local profiles\n";
+    ssvu::lo("::loadAssets") << "loading local profiles\n";
     loadLocalProfiles();
 
-    for(const auto& packPath : getScan<Mode::Single, Type::Folder>("Packs/"))
+    for(const auto& packPath :
+        ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::Folder>("Packs/"))
     {
         const auto& packPathStr(packPath.getStr());
-        string packName{packPathStr.substr(6, packPathStr.size() - 7)};
+        std::string packName{packPathStr.substr(6, packPathStr.size() - 7)};
 
-        string packLua;
-        for(const auto& p :
-            getScan<Mode::Recurse, Type::File, Pick::ByExt>(packPath, ".lua"))
+        std::string packLua;
+        for(const auto& p : ssvufs::getScan<ssvufs::Mode::Recurse,
+                ssvufs::Type::File, ssvufs::Pick::ByExt>(packPath, ".lua"))
         {
             packLua.append(p.getContentsAsStr());
         }
 
-        ssvuj::Obj packRoot{getFromFile(packPath + "/pack.json")};
-        packDatas.emplace(
-            packName, PackData{packName, getExtr<string>(packRoot, "name"),
-                          getExtr<float>(packRoot, "priority")});
+        ssvuj::Obj packRoot{ssvuj::getFromFile(packPath + "/pack.json")};
+        packDatas.emplace(packName,
+            PackData{packName, ssvuj::getExtr<std::string>(packRoot, "name"),
+                ssvuj::getExtr<float>(packRoot, "priority")});
     }
 
     for(auto& p : packDatas)
     {
         const auto& pd(p.second);
-        const string& packId{pd.id};
+        const std::string& packId{pd.id};
 
-        string packPath{"Packs/" + packId + "/"};
-        packIds.emplace_back(packId);
-        packPaths.emplace_back(packPath);
+        std::string packPath{"Packs/" + packId + "/"};
+        packInfos.emplace_back(PackInfo{packId, packPath});
 
         try
         {
-            if(!levelsOnly)
+            const bool hasMusicFolder = ssvufs::Path{packPath + "Music/"}
+                                            .exists<ssvufs::Type::Folder>();
+
+            if(!hasMusicFolder)
             {
-                lo("::loadAssets") << "loading " << packId << " music\n";
+                ssvu::lo("::loadAssets")
+                    << "Warning - " << packId << " has no 'Music' folder\n";
+            }
+
+            if(!levelsOnly && hasMusicFolder)
+            {
+                ssvu::lo("::loadAssets") << "loading " << packId << " music\n";
                 loadMusic(packPath);
 
-                lo("::loadAssets") << "loading " << packId << " music data\n";
+                ssvu::lo("::loadAssets")
+                    << "loading " << packId << " music data\n";
                 loadMusicData(packPath);
             }
 
-            lo("::loadAssets") << "loading " << packId << " style data\n";
+            ssvu::lo("::loadAssets") << "loading " << packId << " style data\n";
             loadStyleData(packPath);
 
-            lo("::loadAssets") << "loading " << packId << " level data\n";
+            ssvu::lo("::loadAssets") << "loading " << packId << " level data\n";
             loadLevelData(packPath);
 
             if(!levelsOnly &&
                 Path(packPath + "Sounds/").exists<ssvufs::Type::Folder>())
             {
-                lo("::loadAssets")
+                ssvu::lo("::loadAssets")
                     << "loading " << packId << " custom sounds\n";
                 loadCustomSounds(packId, packPath);
             }
@@ -105,69 +120,70 @@ void HGAssets::loadAssets()
             ssvu::lo("FATAL ERROR")
                 << "Exception during asset loading: " << mEx.what()
                 << std::endl;
+
+            return false;
         }
         catch(...)
         {
             ssvu::lo("FATAL ERROR")
                 << "Exception during asset loading: unknown." << std::endl;
-        }
 
-        lo().flush();
+            return false;
+        }
     }
+
+    return true;
 }
 
-void HGAssets::loadCustomSounds(const string& mPackName, const Path& mPath)
+void HGAssets::loadCustomSounds(const std::string& mPackName, const Path& mPath)
 {
-    for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(
-            mPath + "Sounds/", ".ogg"))
+    for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
     {
-        assetManager.load<SoundBuffer>(mPackName + "_" + p.getFileName(), p);
+        assetManager.load<sf::SoundBuffer>(
+            mPackName + "_" + p.getFileName(), p);
     }
 }
 void HGAssets::loadMusic(const Path& mPath)
 {
-    for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(
-            mPath + "Music/", ".ogg"))
+    for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
     {
-        auto& music(assetManager.load<Music>(p.getFileNameNoExtensions(), p));
+        auto& music(
+            assetManager.load<sf::Music>(p.getFileNameNoExtensions(), p));
         music.setVolume(Config::getMusicVolume());
         music.setLoop(true);
     }
 }
 void HGAssets::loadMusicData(const Path& mPath)
 {
-    for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(
-            mPath + "Music/", ".json"))
+    for(const auto& p : scanSingleByExt(mPath + "Music/", ".json"))
     {
-        MusicData musicData{loadMusicFromJson(getFromFile(p))};
+        MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
         musicDataMap.emplace(musicData.id, std::move(musicData));
     }
 }
 void HGAssets::loadStyleData(const Path& mPath)
 {
-    for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(
-            mPath + "Styles/", ".json"))
+    for(const auto& p : scanSingleByExt(mPath + "Styles/", ".json"))
     {
-        StyleData styleData{getFromFile(p), p};
+        StyleData styleData{ssvuj::getFromFile(p), p};
         styleDataMap.emplace(styleData.id, std::move(styleData));
     }
 }
 void HGAssets::loadLevelData(const Path& mPath)
 {
-    for(const auto& p : getScan<Mode::Single, Type::File, Pick::ByExt>(
-            mPath + "Levels/", ".json"))
+    for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
     {
-        LevelData levelData{getFromFile(p), mPath};
+        LevelData levelData{ssvuj::getFromFile(p), mPath};
         levelDataIdsByPack[levelData.packPath].emplace_back(levelData.id);
         levelDatas.emplace(levelData.id, std::move(levelData));
     }
 }
 void HGAssets::loadLocalProfiles()
 {
-    for(const auto& p :
-        getScan<Mode::Single, Type::File, Pick::ByExt>("Profiles/", ".json"))
+    for(const auto& p : scanSingleByExt("Profiles/", ".json"))
     {
-        ProfileData profileData{loadProfileFromJson(getFromFile(p))};
+        ProfileData profileData{
+            Utils::loadProfileFromJson(ssvuj::getFromFile(p))};
         profileDataMap.emplace(profileData.getName(), std::move(profileData));
     }
 }
@@ -192,27 +208,29 @@ void HGAssets::saveCurrentLocalProfile()
     ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
 }
 
-const MusicData& SSVU_ATTRIBUTE(pure) HGAssets::getMusicData(const string& mId)
+const MusicData& SSVU_ATTRIBUTE(pure) HGAssets::getMusicData(
+    const std::string& mId)
 {
     return musicDataMap.find(mId)->second;
 }
 
-const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(const string& mId)
+const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(
+    const std::string& mId)
 {
     return styleDataMap.find(mId)->second;
 }
 
-float HGAssets::getLocalScore(const string& mId)
+float HGAssets::getLocalScore(const std::string& mId)
 {
     return getCurrentLocalProfile().getScore(mId);
 }
 
-void HGAssets::setLocalScore(const string& mId, float mScore)
+void HGAssets::setLocalScore(const std::string& mId, float mScore)
 {
     getCurrentLocalProfile().setScore(mId, mScore);
 }
 
-void HGAssets::setCurrentLocalProfile(const string& mName)
+void HGAssets::setCurrentLocalProfile(const std::string& mName)
 {
     currentProfilePtr = &profileDataMap.find(mName)->second;
 }
@@ -227,12 +245,12 @@ const ProfileData& SSVU_ATTRIBUTE(pure) HGAssets::getCurrentLocalProfile() const
     return *currentProfilePtr;
 }
 
-string HGAssets::getCurrentLocalProfileFilePath()
+std::string HGAssets::getCurrentLocalProfileFilePath()
 {
     return "Profiles/" + currentProfilePtr->getName() + ".json";
 }
 
-void HGAssets::createLocalProfile(const string& mName)
+void HGAssets::createLocalProfile(const std::string& mName)
 {
     ssvuj::Obj root;
     ssvuj::arch(root, "name", mName);
@@ -243,14 +261,14 @@ void HGAssets::createLocalProfile(const string& mName)
     loadLocalProfiles();
 }
 
-SizeT SSVU_ATTRIBUTE(pure) HGAssets::getLocalProfilesSize()
+std::size_t SSVU_ATTRIBUTE(pure) HGAssets::getLocalProfilesSize()
 {
     return profileDataMap.size();
 }
 
-vector<string> HGAssets::getLocalProfileNames()
+std::vector<std::string> HGAssets::getLocalProfileNames()
 {
-    vector<string> result;
+    std::vector<std::string> result;
     for(auto& pair : profileDataMap)
     {
         result.emplace_back(pair.second.getName());
@@ -258,7 +276,7 @@ vector<string> HGAssets::getLocalProfileNames()
     return result;
 }
 
-string HGAssets::getFirstLocalProfileName()
+std::string HGAssets::getFirstLocalProfileName()
 {
     return begin(profileDataMap)->second.getName();
 }
@@ -279,21 +297,21 @@ void HGAssets::stopSounds()
     soundPlayer.stop();
 }
 
-void HGAssets::playSound(const string& mId, SoundPlayer::Mode mMode)
+void HGAssets::playSound(const std::string& mId, ssvs::SoundPlayer::Mode mMode)
 {
-    if(Config::getNoSound() || !assetManager.has<SoundBuffer>(mId))
+    if(Config::getNoSound() || !assetManager.has<sf::SoundBuffer>(mId))
     {
         return;
     }
 
-    soundPlayer.play(assetManager.get<SoundBuffer>(mId), mMode);
+    soundPlayer.play(assetManager.get<sf::SoundBuffer>(mId), mMode);
 }
 
-void HGAssets::playMusic(const string& mId, Time mPlayingOffset)
+void HGAssets::playMusic(const std::string& mId, sf::Time mPlayingOffset)
 {
-    if(assetManager.has<Music>(mId))
+    if(assetManager.has<sf::Music>(mId))
     {
-        musicPlayer.play(assetManager.get<Music>(mId), mPlayingOffset);
+        musicPlayer.play(assetManager.get<sf::Music>(mId), mPlayingOffset);
     }
 }
 

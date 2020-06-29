@@ -7,7 +7,7 @@ function getAndBuildZlib
 {
 	(
 		if [ -f "${WS_DIR}/zlib/zlib1.dll" ]; then
-			echo "ZLib already present"			
+			echo "ZLib already present"
 		else
 			cd "${WS_DIR}"
 			mkdir ./zlib; cd ./zlib
@@ -21,8 +21,8 @@ function getAndBuildLua
 {
 	(
 		if [ -f "${WS_DIR}/lua/lua52.dll" ]; then
-			echo "Lua binaries already present"			
-		else			
+			echo "Lua binaries already present"
+		else
 			cd "${WS_DIR}"
 			mkdir ./lua; cd ./lua
 			curl http://joedf.users.sourceforge.net/luabuilds/lua-5.2.3_Win32_bin.zip > ./lua.zip
@@ -30,18 +30,18 @@ function getAndBuildLua
 		fi
 
 		if [ -f "${WS_DIR}/lua/src/lua.h" ]; then
-			echo "Lua sources already present"			
+			echo "Lua sources already present"
 		else
 			cd "${WS_DIR}"
-			mkdir ./lua; cd ./lua			
+			mkdir ./lua; cd ./lua
 			curl http://www.lua.org/ftp/lua-5.2.4.tar.gz > ./lua.tar.gz
 			tar -xvf ./lua.tar.gz
 			cd ./lua-5.2.4/
 			cp -R ./* ../
 			cd ..
 			cp -R ./src/ ./include/
-		fi		
-	)   
+		fi
+	)
 }
 
 function getAndBuildSFML
@@ -57,12 +57,12 @@ function getAndBuildSFML
 		mingw32-make -j2 && mingw32-make install -j2
 		mkdir "${WS_DIR}/SFML/bin"
 		cp "C:/Program Files (x86)/SFML/bin/"sfml-*.dll "${WS_DIR}/SFML/bin"
-	)   
+	)
 }
 
-function buildExtlib 
+function buildExtlib
 {
-	( 
+	(
 		echo "${1}"
 		cd ./"${1}"
 		mkdir ./build; cd ./build
@@ -78,11 +78,11 @@ function buildAllExtlibs
 {
 	(
 		cd ./extlibs
- 
+
 		for dir in ./*; do
-			if [ -d "${dir}" ]; then 
+			if [ -d "${dir}" ]; then
 				echo ""
-				git reset HEAD --hard 
+				git reset HEAD --hard
 				git pull origin master
 			fi
 		done
@@ -91,12 +91,11 @@ function buildAllExtlibs
 		buildExtlib SSVUtilsJson
 		buildExtlib SSVStart
 		buildExtlib SSVMenuSystem
-		buildExtlib SSVLuaWrapper
 	)
 }
 
 if [ "$INIT" = true ]; then
-	getAndBuildZlib 
+	getAndBuildZlib
 	getAndBuildLua
 	getAndBuildSFML
 fi
@@ -107,7 +106,7 @@ fi
 	ZLIB_DIR="${WS_DIR}/zlib"
 
 	cd "${WS_DIR}"
-	
+
 	if [ "$INIT" = true ]; then
 		git clone https://github.com/SuperV1234/SSVOpenHexagon.git
 	fi
@@ -134,7 +133,7 @@ fi
 		-DZLIB_LIBRARY="${ZLIB_DIR}/zlib1.dll" \
 		-DCMAKE_CXX_FLAGS="-std=c++1y -w -fpermissive -O3 -DNDEBUG -lz -Wl,--stack,8194304" \
 		-DCMAKE_CXX_FLAGS_RELEASE=""
- 
+
 	mingw32-make -j2 && mingw32-make install -j2
 	cp ./SSVOpenHexagon.exe ../_RELEASE/
 )

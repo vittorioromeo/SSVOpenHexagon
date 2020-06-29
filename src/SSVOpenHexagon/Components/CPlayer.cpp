@@ -3,17 +3,19 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
+#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Ticker.hpp"
 
 #include "SSVOpenHexagon/Global/Config.hpp"
 
-#include "SSVStart/Utils/SFML.hpp"
-#include "SSVStart/Utils/Vector2.hpp"
+#include <SSVStart/Utils/SFML.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
 
-#include "SSVUtils/Ticker/Ticker.hpp"
-#include "SSVUtils/Core/Common/Frametime.hpp"
-#include "SSVUtils/Core/Utils/Math.hpp"
+#include <SSVUtils/Core/Common/Frametime.hpp>
+#include <SSVUtils/Core/Utils/Math.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -21,17 +23,14 @@
 namespace hg
 {
 
-constexpr float baseThickness{5.f};
+inline constexpr float baseThickness{5.f};
 
-CPlayer::CPlayer() noexcept{}
-
-
-float CPlayer::getPlayerAngle()
+[[nodiscard]] float CPlayer::getPlayerAngle() const
 {
     return angle;
 }
 
-void CPlayer::setPlayerAngle(float newAng)
+void CPlayer::setPlayerAngle(const float newAng)
 {
     angle = newAng;
 }
@@ -184,7 +183,7 @@ void CPlayer::swap(HexagonGame& mHexagonGame, bool mSoundTog){
     if (mSoundTog) {mHexagonGame.getAssets().playSound("swap.ogg");}
 }
 
-void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
+void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
     startPos = mHexagonGame.getFieldPos();
     sf::Vector2f lastPos{pos};
@@ -226,8 +225,8 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
     const sf::Vector2f tempPos{ssvs::getOrbitRad(startPos, angle, radius)};
     const sf::Vector2f pLeftCheck{ssvs::getOrbitRad(tempPos, angle - ssvu::piHalf, 0.01f)};
     const sf::Vector2f pRightCheck{ssvs::getOrbitRad(tempPos, angle + ssvu::piHalf, 0.01f)};
-    for(const auto& wall : mHexagonGame.walls)
-    {
+
+    const auto doCollision = [&](const auto& wall) {
         if((movement == -1 && wall.isOverlapping(pLeftCheck)) ||
             (movement == 1 && wall.isOverlapping(pRightCheck)))
         {
@@ -249,10 +248,37 @@ void CPlayer::update(HexagonGame& mHexagonGame, FT mFT)
             pos = lastPos;
             mHexagonGame.death();
 
+            return true;
+        }
+
+        return false;
+    };
+
+    for(const CWall& wall : mHexagonGame.walls)
+    {
+        if(doCollision(wall))
+        {
             return;
         }
     }
 
+    const bool customWallCollision =
+        mHexagonGame.anyCustomWall([&](const CCustomWall& customWall) {
+            if(doCollision(customWall))
+            {
+                return true;
+            }
+
+            return false;
+        });
+
+    if(customWallCollision)
+    {
+        return;
+    }
+
+
+    pos = ssvs::getOrbitRad(startPos, angle, radius);
 }
 
 } // namespace hg

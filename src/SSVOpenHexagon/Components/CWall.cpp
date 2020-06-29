@@ -3,26 +3,25 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
-#include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
-using namespace sf;
-using namespace ssvs;
-
 namespace hg
 {
+
 
 CWall::CWall(HexagonGame& mHexagonGame,
     unsigned int mSide, float mThickness, float mDistance,
     const SpeedData& mSpeed, const SpeedData& mCurve)
-    : initialSides{mHexagonGame.getSides()}, side{(mHexagonGame.getSides()+(mSide%mHexagonGame.getSides()))%mHexagonGame.getSides()}, distance{mDistance},
+    : initialSides{mHexagonGame.getSides()}, 
+      side{(mHexagonGame.getSides()+(mSide%mHexagonGame.getSides()))%mHexagonGame.getSides()}, 
+      distance{mDistance},
       thickness{mThickness}, speed{mSpeed}, curve{mCurve}{}
 
 void CWall::draw(HexagonGame& mHexagonGame)
 {
-    Color colorMain(mHexagonGame.getColorMain());
+    sf::Color colorMain(mHexagonGame.getColorMain());
 
     if(hueMod != 0)
     {
@@ -78,6 +77,7 @@ void CWall::draw(HexagonGame& mHexagonGame)
         vertexPositions[3]);
 }
 
+
 void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT)
 {
     speed.update(mFT);
@@ -101,6 +101,27 @@ void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT
     {
         killed = true;
     }
+}
+
+void CWall::setHueMod(float mHueMod) noexcept
+{
+    hueMod = mHueMod;
+}
+
+[[nodiscard]] SpeedData& CWall::getSpeed() noexcept
+{
+    return speed;
+}
+
+[[nodiscard]] SpeedData& CWall::getCurve() noexcept
+{
+    return curve;
+}
+
+[[nodiscard]] bool CWall::isOverlapping(
+    const sf::Vector2f& mPoint) const noexcept
+{
+    return ssvs::isPointInPolygon(vertexPositions, mPoint);
 }
 
 } // namespace hg

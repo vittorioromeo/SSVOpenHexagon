@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 using namespace std;
 using namespace sf;
@@ -20,16 +21,16 @@ using namespace ssvuj;
 namespace hg
 {
 
-Color StyleData::calculateColor(const ColorData& mColorData) const
+sf::Color StyleData::calculateColor(const ColorData& mColorData) const
 {
-    Color color{mColorData.color};
+    sf::Color color{mColorData.color};
 
     if(mColorData.dynamic)
     {
         const auto hue = (currentHue + mColorData.hueShift) / 360.f;
 
         const auto& dynamicColor(
-            ssvs::getColorFromHSV(getClamped(hue, 0.f, 1.f), 1.f, 1.f));
+            ssvs::getColorFromHSV(ssvu::getClamped(hue, 0.f, 1.f), 1.f, 1.f));
 
         if(!mColorData.main)
         {
@@ -44,7 +45,8 @@ Color StyleData::calculateColor(const ColorData& mColorData) const
             }
             else
             {
-                color = getColorDarkened(dynamicColor, mColorData.dynamicDarkness);
+                color = Utils::getColorDarkened(
+                    dynamicColor, mColorData.dynamicDarkness);
             }
         }
         else
@@ -54,11 +56,14 @@ Color StyleData::calculateColor(const ColorData& mColorData) const
     }
 
     const auto& pulse(mColorData.pulse);
-    return Color(
-        toNum<Uint8>(getClamped(color.r + pulse.r * pulseFactor, 0.f, 255.f)),
-        toNum<Uint8>(getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f)),
-        toNum<Uint8>(getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f)),
-        toNum<Uint8>(getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
+    return sf::Color(ssvu::toNum<sf::Uint8>(ssvu::getClamped(
+                         color.r + pulse.r * pulseFactor, 0.f, 255.f)),
+        ssvu::toNum<sf::Uint8>(
+            ssvu::getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f)),
+        ssvu::toNum<sf::Uint8>(
+            ssvu::getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f)),
+        ssvu::toNum<sf::Uint8>(
+            ssvu::getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
 }
 
 void StyleData::update(FT mFT, HexagonGameStatus& status, float mMult)
@@ -154,7 +159,7 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,const sf::Vector2f& m
     for(auto i(0u); i < sides; ++i)
     {
         const float angle{fieldAngle + div * i};
-        Color currentColor{ssvu::getByModIdx(colors, i)};
+        sf::Color currentColor{ssvu::getByModIdx(colors, i)};
 
         const bool darkenUnevenBackgroundChunk =
             (i % 2 == 0 && i == sides - 1) &&
@@ -163,11 +168,11 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,const sf::Vector2f& m
 
         if(Config::getBlackAndWhite())
         {
-            currentColor = Color::Black;
+            currentColor = sf::Color::Black;
         }
         else if(darkenUnevenBackgroundChunk)
         {
-            currentColor = getColorDarkened(currentColor, 1.4f);
+            currentColor = Utils::getColorDarkened(currentColor, 1.4f);
         }
 
         const sf::Vector2 pos2{Utils::getSkewedOrbitRad(mCenterPos, angle + div * 0.5f, distance, styleData.skew)};

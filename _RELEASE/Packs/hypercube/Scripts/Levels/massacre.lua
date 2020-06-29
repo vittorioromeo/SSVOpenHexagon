@@ -39,6 +39,7 @@ special = "none"
 function onInit()
 	l_setSpeedMult(2.7)
 	l_setSpeedInc(0.04)
+	l_setSpeedMax(3)
 	l_setRotationSpeed(0.25)
 	l_setRotationSpeedMax(0.4)
 	l_setRotationSpeedInc(0.015)
@@ -49,7 +50,6 @@ function onInit()
 	l_setSidesMin(6)
 	l_setSidesMax(6)
 	l_setIncTime(10)
-	l_setMaxInc(2)
 
 	l_setPulseMin(61)
 	l_setPulseMax(80)
@@ -78,6 +78,7 @@ function onStep()
  	
 		if index - 1 == #keys then
 			index = 1
+			keys = shuffle(keys)
 		end
 	elseif special == "cage" then
 		addPattern(11)

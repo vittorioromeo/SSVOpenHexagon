@@ -18,69 +18,96 @@ using namespace ssvu::FileSystem;
 using namespace ssvuj;
 using namespace ssvu;
 
+#define X_LINKEDVALUES                                                     \
+    X(online, bool, "online")                                              \
+    X(official, bool, "official")                                          \
+    X(noRotation, bool, "no_rotation")                                     \
+    X(noBackground, bool, "no_background")                                 \
+    X(noSound, bool, "no_sound")                                           \
+    X(noMusic, bool, "no_music")                                           \
+    X(blackAndWhite, bool, "black_and_white")                              \
+    X(pulseEnabled, bool, "pulse_enabled")                                 \
+    X(_3DEnabled, bool, "3D_enabled")                                      \
+    X(_3DMultiplier, float, "3D_multiplier")                               \
+    X(_3DMaxDepth, unsigned int, "3D_max_depth")                           \
+    X(invincible, bool, "invincible")                                      \
+    X(autoRestart, bool, "auto_restart")                                   \
+    X(soundVolume, float, "sound_volume")                                  \
+    X(musicVolume, float, "music_volume")                                  \
+    X(flashEnabled, bool, "flash_enabled")                                 \
+    X(zoomFactor, float, "zoom_factor")                                    \
+    X(pixelMultiplier, int, "pixel_multiplier")                            \
+    X(playerSpeed, float, "player_speed")                                  \
+    X(playerFocusSpeed, float, "player_focus_speed")                       \
+    X(playerSize, float, "player_size")                                    \
+    X(limitFPS, bool, "limit_fps")                                         \
+    X(vsync, bool, "vsync")                                                \
+    X(autoZoomFactor, bool, "auto_zoom_factor")                            \
+    X(fullscreen, bool, "fullscreen")                                      \
+    X(windowedAutoResolution, bool, "windowed_auto_resolution")            \
+    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution")        \
+    X(fullscreenWidth, unsigned int, "fullscreen_width")                   \
+    X(fullscreenHeight, unsigned int, "fullscreen_height")                 \
+    X(windowedWidth, unsigned int, "windowed_width")                       \
+    X(windowedHeight, unsigned int, "windowed_height")                     \
+    X(showMessages, bool, "show_messages")                                 \
+    X(debug, bool, "debug")                                                \
+    X(beatPulse, bool, "beatpulse_enabled")                                \
+    X(showTrackedVariables, bool, "show_tracked_variables")                \
+    X(musicSpeedDMSync, bool, "music_speed_dm_sync")                       \
+    X(maxFPS, unsigned int, "max_fps")                                     \
+    X(antialiasingLevel, unsigned int, "antialiasing_level")               \
+    X(showFPS, bool, "show_fps")                                           \
+    X(timerStatic, bool, "timer_static")                                   \
+    X(serverLocal, bool, "server_local")                                   \
+    X(serverVerbose, bool, "server_verbose")                               \
+    X(mouseVisible, bool, "mouse_visible")                                 \
+    X(musicSpeedMult, float, "music_speed_mult")                           \
+    X(drawTextOutlines, bool, "draw_text_outlines")                        \
+    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk") \
+    X(rotateToStart, bool, "rotate_to_start")                              \
+    X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
+    X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
+    X(triggerFocus, Trigger, "t_focus")                                    \
+    X(triggerExit, Trigger, "t_exit")                                      \
+    X(triggerForceRestart, Trigger, "t_force_restart")                     \
+    X(triggerRestart, Trigger, "t_restart")                                \
+    X(triggerScreenshot, Trigger, "t_screenshot")                          \
+    X(triggerSwap, Trigger, "t_swap")                                      \
+    X(triggerUp, Trigger, "t_up")                                          \
+    X(triggerDown, Trigger, "t_down")
+
 namespace hg::Config
 {
-ssvuj::Obj root{getFromFile("config.json")};
-LinkedValueManager lvm{root};
 
-auto& online(lvm.create<bool>("online"));
-auto& official(lvm.create<bool>("official"));
-auto& noRotation(lvm.create<bool>("no_rotation"));
-auto& noBackground(lvm.create<bool>("no_background"));
-auto& noSound(lvm.create<bool>("no_sound"));
-auto& noMusic(lvm.create<bool>("no_music"));
-auto& blackAndWhite(lvm.create<bool>("black_and_white"));
-auto& pulseEnabled(lvm.create<bool>("pulse_enabled"));
-auto& _3DEnabled(lvm.create<bool>("3D_enabled"));
-auto& _3DMultiplier(lvm.create<float>("3D_multiplier"));
-auto& _3DMaxDepth(lvm.create<unsigned int>("3D_max_depth"));
-auto& invincible(lvm.create<bool>("invincible"));
-auto& autoRestart(lvm.create<bool>("auto_restart"));
-auto& soundVolume(lvm.create<float>("sound_volume"));
-auto& musicVolume(lvm.create<float>("music_volume"));
-auto& flashEnabled(lvm.create<bool>("flash_enabled"));
-auto& zoomFactor(lvm.create<float>("zoom_factor"));
-auto& pixelMultiplier(lvm.create<int>("pixel_multiplier"));
-auto& playerSpeed(lvm.create<float>("player_speed"));
-auto& playerFocusSpeed(lvm.create<float>("player_focus_speed"));
-auto& playerSize(lvm.create<float>("player_size"));
-auto& limitFPS(lvm.create<bool>("limit_fps"));
-auto& vsync(lvm.create<bool>("vsync"));
-auto& autoZoomFactor(lvm.create<bool>("auto_zoom_factor"));
-auto& fullscreen(lvm.create<bool>("fullscreen"));
-auto& windowedAutoResolution(lvm.create<bool>("windowed_auto_resolution"));
-auto& fullscreenAutoResolution(lvm.create<bool>("fullscreen_auto_resolution"));
-auto& fullscreenWidth(lvm.create<unsigned int>("fullscreen_width"));
-auto& fullscreenHeight(lvm.create<unsigned int>("fullscreen_height"));
-auto& windowedWidth(lvm.create<unsigned int>("windowed_width"));
-auto& windowedHeight(lvm.create<unsigned int>("windowed_height"));
-auto& showMessages(lvm.create<bool>("show_messages"));
-auto& debug(lvm.create<bool>("debug"));
-auto& beatPulse(lvm.create<bool>("beatpulse_enabled"));
-auto& showTrackedVariables(lvm.create<bool>("show_tracked_variables"));
-auto& musicSpeedDMSync(lvm.create<bool>("music_speed_dm_sync"));
-auto& maxFPS(lvm.create<unsigned int>("max_fps"));
-auto& antialiasingLevel(lvm.create<unsigned int>("antialiasing_level"));
-auto& showFPS(lvm.create<bool>("show_fps"));
-auto& timerStatic(lvm.create<bool>("timer_static"));
-auto& serverLocal(lvm.create<bool>("server_local"));
-auto& serverVerbose(lvm.create<bool>("server_verbose"));
-auto& mouseVisible(lvm.create<bool>("mouse_visible"));
-auto& musicSpeedMult(lvm.create<float>("music_speed_mult"));
-auto& drawTextOutlines(lvm.create<bool>("draw_text_outlines"));
-auto& darkenUnevenBackgroundChunk(
-    lvm.create<bool>("darken_uneven_background_chunk"));
-auto& rotateToStart(lvm.create<bool>("rotate_to_start"));
-auto& triggerRotateCCW(lvm.create<Trigger>("t_rotate_ccw"));
-auto& triggerRotateCW(lvm.create<Trigger>("t_rotate_cw"));
-auto& triggerFocus(lvm.create<Trigger>("t_focus"));
-auto& triggerExit(lvm.create<Trigger>("t_exit"));
-auto& triggerForceRestart(lvm.create<Trigger>("t_force_restart"));
-auto& triggerRestart(lvm.create<Trigger>("t_restart"));
-auto& triggerScreenshot(lvm.create<Trigger>("t_screenshot"));
-auto& triggerSwap(lvm.create<Trigger>("t_swap"));
-auto& triggerUp(lvm.create<Trigger>("t_up"));
-auto& triggerDown(lvm.create<Trigger>("t_down"));
+[[nodiscard]] static ssvuj::Obj& root() noexcept
+{
+    static auto res = getFromFile("config.json");
+    return res;
+}
+
+#define X(name, type, key)                                 \
+    [[nodiscard]] static auto& name() noexcept             \
+    {                                                      \
+        static auto res = ::ssvuj::LinkedValue<type>(key); \
+        return res;                                        \
+    }
+X_LINKEDVALUES
+#undef X
+
+static void syncAllFromObj()
+{
+#define X(name, type, key) name().syncFrom(root());
+    X_LINKEDVALUES
+#undef X
+}
+
+static void syncAllToObj()
+{
+#define X(name, type, key) name().syncTo(root());
+    X_LINKEDVALUES
+#undef X
+}
 
 float sizeX{1500}, sizeY{1500};
 constexpr float spawnDistance{1600};
@@ -89,35 +116,35 @@ string uneligibilityReason;
 void applyAutoWindowedResolution()
 {
     auto d(VideoMode::getDesktopMode());
-    windowedWidth = d.width;
-    windowedHeight = d.height;
+    windowedWidth() = d.width;
+    windowedHeight() = d.height;
 }
 void applyAutoFullscreenResolution()
 {
     auto d(VideoMode::getDesktopMode());
-    fullscreenWidth = d.width;
-    fullscreenHeight = d.height;
+    fullscreenWidth() = d.width;
+    fullscreenHeight() = d.height;
 }
 
 void loadConfig(const vector<string>& mOverridesIds)
 {
     lo("::loadConfig") << "loading config\n";
 
-    for(const auto& p :
+    for(const auto p :
         getScan<ssvufs::Mode::Single, ssvufs::Type::File, ssvufs::Pick::ByExt>(
             "ConfigOverrides/", ".json"))
     {
         if(contains(mOverridesIds, p.getFileNameNoExtensions()))
         {
-            const auto& overrideRoot(getFromFile(p));
+            const auto overrideRoot(getFromFile(p));
             for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr)
             {
-                root[getKey(itr)] = *itr;
+                root()[getKey(itr)] = *itr;
             }
         }
     }
 
-    lvm.syncFromObj();
+    syncAllFromObj();
 
     if(getWindowedAutoResolution())
     {
@@ -131,11 +158,12 @@ void loadConfig(const vector<string>& mOverridesIds)
 
     recalculateSizes();
 }
+
 void saveConfig()
 {
     lo("::saveConfig") << "saving config\n";
-    lvm.syncToObj();
-    writeToFile(root, "config.json");
+    syncAllToObj();
+    writeToFile(root(), "config.json");
 }
 
 bool isEligibleForScore()
@@ -213,11 +241,11 @@ void recalculateSizes()
 
     const float factorX(1024.f / ssvu::toFloat(getWidth()));
     const float factorY(768.f / ssvu::toFloat(getHeight()));
-    zoomFactor = max(factorX, factorY);
+    zoomFactor() = max(factorX, factorY);
 }
 void setFullscreen(GameWindow& mWindow, bool mFullscreen)
 {
-    fullscreen = mFullscreen;
+    fullscreen() = mFullscreen;
 
     mWindow.setSize(getWidth(), getHeight());
     mWindow.setFullscreen(getFullscreen());
@@ -228,24 +256,24 @@ void setFullscreen(GameWindow& mWindow, bool mFullscreen)
 
 void refreshWindowSize(unsigned int mWidth, unsigned int mHeight)
 {
-    windowedWidth = mWidth;
-    windowedHeight = mHeight;
+    windowedWidth() = mWidth;
+    windowedHeight() = mHeight;
 }
 
 void setCurrentResolution(
     GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight)
 {
-    if(fullscreen)
+    if(fullscreen())
     {
-        fullscreenAutoResolution = false;
-        fullscreenWidth = mWidth;
-        fullscreenHeight = mHeight;
+        fullscreenAutoResolution() = false;
+        fullscreenWidth() = mWidth;
+        fullscreenHeight() = mHeight;
     }
     else
     {
-        windowedAutoResolution = false;
-        windowedWidth = mWidth;
-        windowedHeight = mHeight;
+        windowedAutoResolution() = false;
+        windowedWidth() = mWidth;
+        windowedHeight() = mHeight;
     }
 
     mWindow.setSize(getWidth(), getHeight());
@@ -255,14 +283,14 @@ void setCurrentResolution(
 }
 void setCurrentResolutionAuto(GameWindow& mWindow)
 {
-    if(fullscreen)
+    if(fullscreen())
     {
-        fullscreenAutoResolution = true;
+        fullscreenAutoResolution() = true;
         applyAutoFullscreenResolution();
     }
     else
     {
-        windowedAutoResolution = true;
+        windowedAutoResolution() = true;
         applyAutoWindowedResolution();
     }
 
@@ -273,24 +301,24 @@ void setCurrentResolutionAuto(GameWindow& mWindow)
 }
 void setVsync(GameWindow& mWindow, bool mValue)
 {
-    vsync = mValue;
-    mWindow.setVsync(vsync);
+    vsync() = mValue;
+    mWindow.setVsync(vsync());
 }
 void setLimitFPS(GameWindow& mWindow, bool mValue)
 {
-    limitFPS = mValue;
+    limitFPS() = mValue;
     mWindow.setFPSLimited(mValue);
 }
 void setMaxFPS(GameWindow& mWindow, unsigned int mValue)
 {
-    maxFPS = mValue;
+    maxFPS() = mValue;
     mWindow.setMaxFPS(mValue);
 }
 void setTimerStatic(GameWindow& mWindow, bool mValue)
 {
-    timerStatic = mValue;
+    timerStatic() = mValue;
 
-    if(timerStatic)
+    if(timerStatic())
     {
         mWindow.setTimer<TimerStatic>(0.5f, 0.5f);
     }
@@ -304,380 +332,450 @@ void setTimerStatic(GameWindow& mWindow, bool mValue)
 
 void setAntialiasingLevel(GameWindow& mWindow, unsigned int mValue)
 {
-    antialiasingLevel = mValue;
+    antialiasingLevel() = mValue;
     mWindow.setAntialiasingLevel(mValue);
 }
 
 void setOnline(bool mOnline)
 {
-    online = mOnline;
+    online() = mOnline;
 }
 
 void setOfficial(bool mOfficial)
 {
-    official = mOfficial;
+    official() = mOfficial;
 }
 
 void setNoRotation(bool mNoRotation)
 {
-    noRotation = mNoRotation;
+    noRotation() = mNoRotation;
 }
 
 void setNoBackground(bool mNoBackground)
 {
-    noBackground = mNoBackground;
+    noBackground() = mNoBackground;
 }
 
 void setBlackAndWhite(bool mBlackAndWhite)
 {
-    blackAndWhite = mBlackAndWhite;
+    blackAndWhite() = mBlackAndWhite;
 }
 
 void setNoSound(bool mNoSound)
 {
-    noSound = mNoSound;
+    noSound() = mNoSound;
 }
 
 void setNoMusic(bool mNoMusic)
 {
-    noMusic = mNoMusic;
+    noMusic() = mNoMusic;
 }
 
 void setPulse(bool mPulse)
 {
-    pulseEnabled = mPulse;
+    pulseEnabled() = mPulse;
 }
 
 void set3D(bool m3D)
 {
-    _3DEnabled = m3D;
+    _3DEnabled() = m3D;
 }
 
 void setInvincible(bool mInvincible)
 {
-    invincible = mInvincible;
+    invincible() = mInvincible;
 }
 
 void setAutoRestart(bool mAutoRestart)
 {
-    autoRestart = mAutoRestart;
+    autoRestart() = mAutoRestart;
 }
 
 void setSoundVolume(float mVolume)
 {
-    soundVolume = mVolume;
+    soundVolume() = mVolume;
 }
 
 void setMusicVolume(float mVolume)
 {
-    musicVolume = mVolume;
+    musicVolume() = mVolume;
 }
 
 void setFlash(bool mFlash)
 {
-    flashEnabled = mFlash;
+    flashEnabled() = mFlash;
 }
 
 void setMusicSpeedDMSync(bool mValue)
 {
-    musicSpeedDMSync = mValue;
+    musicSpeedDMSync() = mValue;
 }
 
 void setShowFPS(bool mValue)
 {
-    showFPS = mValue;
+    showFPS() = mValue;
 }
 
 void setServerLocal(bool mValue)
 {
-    serverLocal = mValue;
+    serverLocal() = mValue;
 }
 
 void setServerVerbose(bool mValue)
 {
-    serverVerbose = mValue;
+    serverVerbose() = mValue;
 }
 
 void setMouseVisible(bool mValue)
 {
-    mouseVisible = mValue;
+    mouseVisible() = mValue;
 }
 
 void setMusicSpeedMult(float mValue)
 {
-    musicSpeedMult = mValue;
+    musicSpeedMult() = mValue;
 }
 
 void setDrawTextOutlines(bool mX)
 {
-    drawTextOutlines = mX;
+    drawTextOutlines() = mX;
 }
 
 void setDarkenUnevenBackgroundChunk(bool mX)
 {
-    darkenUnevenBackgroundChunk = mX;
+    darkenUnevenBackgroundChunk() = mX;
 }
 
 void setRotateToStart(bool mX)
 {
-    rotateToStart = mX;
+    rotateToStart() = mX;
 }
 
 bool SSVU_ATTRIBUTE(pure) getOnline()
 {
-    return online;
+    return online();
 }
+
 bool SSVU_ATTRIBUTE(pure) getOfficial()
 {
-    return official;
+    return official();
 }
+
 string SSVU_ATTRIBUTE(pure) getUneligibilityReason()
 {
     return uneligibilityReason;
 }
+
 float SSVU_ATTRIBUTE(pure) getSizeX()
 {
     return sizeX;
 }
+
 float SSVU_ATTRIBUTE(pure) getSizeY()
 {
     return sizeY;
 }
+
 float SSVU_ATTRIBUTE(const) getSpawnDistance()
 {
     return spawnDistance;
 }
+
 float SSVU_ATTRIBUTE(pure) getZoomFactor()
 {
-    return zoomFactor;
+    return zoomFactor();
 }
+
 int SSVU_ATTRIBUTE(pure) getPixelMultiplier()
 {
-    return pixelMultiplier;
+    return pixelMultiplier();
 }
+
 float SSVU_ATTRIBUTE(pure) getPlayerSpeed()
 {
-    return official ? 9.45f : playerSpeed;
+    return getOfficial() ? 9.45f : playerSpeed();
 }
+
 float SSVU_ATTRIBUTE(pure) getPlayerFocusSpeed()
 {
-    return official ? 4.625f : playerFocusSpeed;
+    return getOfficial() ? 4.625f : playerFocusSpeed();
 }
+
 float SSVU_ATTRIBUTE(pure) getPlayerSize()
 {
-    return official ? 7.3f : playerSize;
+    return getOfficial() ? 7.3f : playerSize();
 }
+
 bool SSVU_ATTRIBUTE(pure) getNoRotation()
 {
-    return official ? false : noRotation;
+    return getOfficial() ? false : noRotation();
 }
+
 bool SSVU_ATTRIBUTE(pure) getNoBackground()
 {
-    return official ? false : noBackground;
+    return getOfficial() ? false : noBackground();
 }
+
 bool SSVU_ATTRIBUTE(pure) getBlackAndWhite()
 {
-    return official ? false : blackAndWhite;
+    return getOfficial() ? false : blackAndWhite();
 }
+
 bool SSVU_ATTRIBUTE(pure) getNoSound()
 {
-    return noSound;
+    return noSound();
 }
+
 bool SSVU_ATTRIBUTE(pure) getNoMusic()
 {
-    return noMusic;
+    return noMusic();
 }
+
 float SSVU_ATTRIBUTE(pure) getSoundVolume()
 {
-    return soundVolume;
+    return soundVolume();
 }
+
 float SSVU_ATTRIBUTE(pure) getMusicVolume()
 {
-    return musicVolume;
+    return musicVolume();
 }
+
 bool SSVU_ATTRIBUTE(pure) getLimitFPS()
 {
-    return limitFPS;
+    return limitFPS();
 }
+
 bool SSVU_ATTRIBUTE(pure) getVsync()
 {
-    return vsync;
+    return vsync();
 }
+
 bool SSVU_ATTRIBUTE(pure) getAutoZoomFactor()
 {
-    return official ? true : autoZoomFactor;
+    return getOfficial() ? true : autoZoomFactor();
 }
+
 bool SSVU_ATTRIBUTE(pure) getFullscreen()
 {
-    return fullscreen;
+    return fullscreen();
 }
+
 float SSVU_ATTRIBUTE(const) getVersion()
 {
     return 2.f;
 }
+
+const char* SSVU_ATTRIBUTE(const) getVersionString()
+{
+    return "2.0";
+}
+
 bool SSVU_ATTRIBUTE(pure) getWindowedAutoResolution()
 {
-    return windowedAutoResolution;
+    return windowedAutoResolution();
 }
+
 bool SSVU_ATTRIBUTE(pure) getFullscreenAutoResolution()
 {
-    return fullscreenAutoResolution;
+    return fullscreenAutoResolution();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getFullscreenWidth()
 {
-    return fullscreenWidth;
+    return fullscreenWidth();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getFullscreenHeight()
 {
-    return fullscreenHeight;
+    return fullscreenHeight();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getWindowedWidth()
 {
-    return windowedWidth;
+    return windowedWidth();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getWindowedHeight()
 {
-    return windowedHeight;
+    return windowedHeight();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getWidth()
 {
-    return fullscreen ? fullscreenWidth : windowedWidth;
+    return getFullscreen() ? getFullscreenWidth() : getWindowedWidth();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getHeight()
 {
-    return fullscreen ? fullscreenHeight : windowedHeight;
+    return getFullscreen() ? getFullscreenHeight() : getWindowedHeight();
 }
+
 bool SSVU_ATTRIBUTE(pure) getShowMessages()
 {
-    return showMessages;
+    return showMessages();
 }
+
 bool SSVU_ATTRIBUTE(pure) getDebug()
 {
-    return debug;
+    return debug();
 }
+
 bool SSVU_ATTRIBUTE(pure) getPulse()
 {
-    return official ? true : pulseEnabled;
+    return getOfficial() ? true : pulseEnabled();
 }
+
 bool SSVU_ATTRIBUTE(pure) getBeatPulse()
 {
-    return official ? true : beatPulse;
+    return getOfficial() ? true : beatPulse();
 }
+
 bool SSVU_ATTRIBUTE(pure) getInvincible()
 {
-    return official ? false : invincible;
+    return getOfficial() ? false : invincible();
 }
+
 bool SSVU_ATTRIBUTE(pure) get3D()
 {
-    return _3DEnabled;
+    return _3DEnabled();
 }
+
 float SSVU_ATTRIBUTE(pure) get3DMultiplier()
 {
-    return _3DMultiplier;
+    return _3DMultiplier();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) get3DMaxDepth()
 {
-    return _3DMaxDepth;
+    return _3DMaxDepth();
 }
+
 bool SSVU_ATTRIBUTE(pure) getAutoRestart()
 {
-    return autoRestart;
+    return autoRestart();
 }
+
 bool SSVU_ATTRIBUTE(pure) getFlash()
 {
-    return flashEnabled;
+    return flashEnabled();
 }
+
 bool SSVU_ATTRIBUTE(pure) getShowTrackedVariables()
 {
-    return showTrackedVariables;
+    return showTrackedVariables();
 }
+
 bool SSVU_ATTRIBUTE(pure) getMusicSpeedDMSync()
 {
-    return musicSpeedDMSync;
+    return musicSpeedDMSync();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getMaxFPS()
 {
-    return maxFPS;
+    return maxFPS();
 }
+
 unsigned int SSVU_ATTRIBUTE(pure) getAntialiasingLevel()
 {
-    return antialiasingLevel;
+    return antialiasingLevel();
 }
+
 bool SSVU_ATTRIBUTE(pure) getShowFPS()
 {
-    return showFPS;
+    return showFPS();
 }
+
 bool SSVU_ATTRIBUTE(pure) getTimerStatic()
 {
-    return timerStatic;
+    return timerStatic();
 }
+
 bool SSVU_ATTRIBUTE(pure) getServerLocal()
 {
-    return serverLocal;
+    return serverLocal();
 }
+
 bool SSVU_ATTRIBUTE(pure) getServerVerbose()
 {
-    return serverVerbose;
+    return serverVerbose();
 }
+
 bool SSVU_ATTRIBUTE(pure) getMouseVisible()
 {
-    return mouseVisible;
+    return mouseVisible();
 }
+
 float SSVU_ATTRIBUTE(pure) getMusicSpeedMult()
 {
-    return musicSpeedMult;
+    return musicSpeedMult();
 }
+
 bool SSVU_ATTRIBUTE(pure) getDrawTextOutlines()
 {
-    return drawTextOutlines;
+    return drawTextOutlines();
 }
+
 bool SSVU_ATTRIBUTE(pure) getDarkenUnevenBackgroundChunk()
 {
-    return darkenUnevenBackgroundChunk;
+    return darkenUnevenBackgroundChunk();
 }
+
 bool SSVU_ATTRIBUTE(pure) getRotateToStart()
 {
-    return rotateToStart;
+    return rotateToStart();
 }
 
 Trigger getTriggerRotateCCW()
 {
-    return triggerRotateCCW;
+    return triggerRotateCCW();
 }
+
 Trigger getTriggerRotateCW()
 {
-    return triggerRotateCW;
+    return triggerRotateCW();
 }
+
 Trigger getTriggerFocus()
 {
-    return triggerFocus;
+    return triggerFocus();
 }
+
 Trigger getTriggerExit()
 {
-    return triggerExit;
+    return triggerExit();
 }
+
 Trigger getTriggerForceRestart()
 {
-    return triggerForceRestart;
+    return triggerForceRestart();
 }
+
 Trigger getTriggerRestart()
 {
-    return triggerRestart;
+    return triggerRestart();
 }
+
 Trigger getTriggerScreenshot()
 {
-    return triggerScreenshot;
+    return triggerScreenshot();
 }
+
 Trigger getTriggerSwap()
 {
-    return triggerSwap;
+    return triggerSwap();
 }
+
 Trigger getTriggerUp()
 {
-    return triggerUp;
+    return triggerUp();
 }
+
 Trigger getTriggerDown()
 {
-    return triggerDown;
+    return triggerDown();
 }
+
 } // namespace hg::Config
+
+#undef X_LINKEDVALUES

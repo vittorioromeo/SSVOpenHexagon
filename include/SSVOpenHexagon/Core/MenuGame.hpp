@@ -4,11 +4,17 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+
+#include <SSVMenuSystem/SSVMenuSystem.hpp>
+
+#include <cctype>
 
 namespace hg
 {
@@ -32,9 +38,12 @@ class HexagonGame;
 class MenuGame
 {
 private:
+    Steam::steam_manager& steamManager;
+    Discord::discord_manager& discordManager;
+
     HGAssets& assets;
     sf::Font& imagine = assets.get<sf::Font>(
-        "imagine.ttf"); // G++ bug (cannot initialize with curly braces)
+        "forcedsquare.ttf"); // G++ bug (cannot initialize with curly braces)
 
     float wheelProgress{0.f};
 
@@ -52,17 +61,21 @@ private:
                      Config::getHeight() * Config::getZoomFactor() / 2.f},
                     {Config::getWidth() * Config::getZoomFactor(),
                         Config::getHeight() * Config::getZoomFactor()}}};
+
+    // TODO: change this to MWlcm when leaderboards are enabled
     States state{States::MWlcm};
-    ssvms::Menu optionsMenu, welcomeMenu;
+
+    ssvms::Menu optionsMenu;
+    ssvms::Menu welcomeMenu;
+
     std::string scoresMessage;
     float exitTimer{0}, currentCreditsId{0};
     bool mustTakeScreenshot{false};
     std::string currentLeaderboard, enteredStr, leaderboardString,
         friendsString;
     std::vector<char> enteredChars;
-    std::vector<std::string> creditsIds{"creditsBar2.png", "creditsBar2b.png",
-        "creditsBar2c.png", "creditsBar2d.png", "creditsBar2d.png",
-        "creditsBar2d.png"};
+    std::vector<std::string> creditsIds{
+        "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png"};
 
     sf::Sprite titleBar{assets.get<sf::Texture>("titleBar.png")},
         creditsBar1{assets.get<sf::Texture>("creditsBar1.png")},
@@ -81,11 +94,17 @@ private:
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
         txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
 
+    void playLocally();
+
     void leftAction();
     void rightAction();
     void upAction();
     void downAction();
     void okAction();
+    void createProfileAction();
+    void selectProfileAction();
+    void openOptionsAction();
+    void selectPackAction();
 
     float touchDelay{0.f};
 
@@ -108,8 +127,10 @@ private:
     }
 
     sf::Text& renderTextImpl(
-        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPosition)
+        std::string mStr, sf::Text& mText, const sf::Vector2f& mPosition)
     {
+        Utils::uppercasify(mStr);
+
         if(mText.getString() != mStr)
         {
             mText.setString(mStr);
@@ -197,8 +218,9 @@ private:
     }
 
 public:
-    MenuGame(HGAssets& mAssets, HexagonGame& mHexagonGame,
-        ssvs::GameWindow& mGameWindow);
+    MenuGame(Steam::steam_manager& mSteamManager,
+        Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
+        HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
     void init();
 

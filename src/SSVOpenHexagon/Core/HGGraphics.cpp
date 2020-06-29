@@ -65,6 +65,8 @@ void HexagonGame::draw()
         w.draw(*this);
     }
 
+    cwManager.draw(*this);
+
     if(status.started)
     {
         player.draw(
@@ -176,43 +178,43 @@ void HexagonGame::updateText()
 
     if(status.started)
     {
-        os << "time: " << toStr(status.currentTime).substr(0, 5) << "\n";
+        os << "TIME: " << toStr(status.getTimeSeconds()).substr(0, 5) << "\n";
     }
 
     if(levelStatus.tutorialMode)
     {
-        os << "tutorial mode\n";
+        os << "TUTORIAL MODE\n";
     }
     else if(Config::getOfficial())
     {
-        os << "official mode\n";
+        os << "OFFICIAL MODE\n";
     }
 
     if(Config::getDebug())
     {
-        os << "debug mode\n";
+        os << "DEBUG MODE\n";
     }
 
     if(status.started)
     {
         if(levelStatus.swapEnabled)
         {
-            os << "swap enabled\n";
+            os << "SWAP ENABLED\n";
         }
 
         if(Config::getInvincible())
         {
-            os << "invincibility on\n";
+            os << "INVINCIBILITY ON\n";
         }
 
         if(status.scoreInvalid)
         {
-            os << "score invalidated (performance issues)\n";
+            os << "SCORE INVALIDATED (PERFORMANCE ISSUES)\n";
         }
 
         if(status.hasDied)
         {
-            os << "press r to restart\n";
+            os << "PRESS R TO RESTART\n";
         }
 
         const auto& trackedVariables(levelStatus.trackedVariables);
@@ -225,15 +227,18 @@ void HexagonGame::updateText()
                 {
                     continue;
                 }
+                string name{t.displayName};
                 string var{lua.readVariable<string>(t.variableName)};
-                os << t.displayName << ": " << var << "\n";
+                Utils::uppercasify(name);
+                Utils::uppercasify(var);
+                os << name << ": " << var << "\n";
             }
         }
     }
     else
     {
-        os << "rotate to start\n";
-        messageText.setString("rotate to start");
+        os << "ROTATE TO START\n";
+        messageText.setString("ROTATE TO START");
     }
 
     os.flush();
@@ -241,7 +246,7 @@ void HexagonGame::updateText()
     text.setString(os.str());
     text.setCharacterSize(
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
-    text.setOrigin(0, 0);
+    text.setOrigin(-8, 8);
 
     messageText.setCharacterSize(
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor()));

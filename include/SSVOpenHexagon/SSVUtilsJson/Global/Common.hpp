@@ -4,19 +4,20 @@
 
 #pragma once
 
+#include <SSVUtils/Core/Core.hpp>
+
 namespace ssvuj
 {
 
 template <typename T>
 struct Converter;
 
-using ssvu::SizeT;
 using Obj = Json::Value;
 using Key = std::string;
 using Idx = unsigned int;
 using Writer = Json::StyledStreamWriter;
 using Reader = Json::Reader;
-using Path = ssvufs::Path;
+using Path = ssvu::FileSystem::Path;
 using Iterator = typename Json::Value::iterator;
 using ConstIterator = typename Json::Value::const_iterator;
 
