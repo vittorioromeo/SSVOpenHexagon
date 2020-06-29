@@ -175,4 +175,17 @@ void runLuaFunctionIfExists(
     runLuaFunction<T>(mLua, mName, mArgs...);
 }
 
+template <typename T1, typename T2, typename T3>
+inline auto getSkewedVecFromRad(const T1& mRad, const T2& mMag, const T3& mSkew)
+{
+    return ssvs::Vec2<ssvs::CT<T1, T2>>(std::cos(mRad) * (mMag/mSkew.x), std::sin(mRad) * (mMag/mSkew.y));
+}
+
+template <typename T1, typename T2, typename T3, typename T4>
+inline auto getSkewedOrbitRad(const ssvs::Vec2<T1>& mVec, const T2& mRad, const T3& mRadius, const T4& mSkew)
+{
+    return ssvs::Vec2<ssvs::CT<T1, T2, T3>>(mVec) + getSkewedVecFromRad(mRad, mRadius, mSkew);
+}
+
+
 } // namespace hg::Utils

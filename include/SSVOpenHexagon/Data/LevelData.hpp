@@ -52,10 +52,6 @@ struct LevelStatus
     std::vector<TrackedVariable> trackedVariables;
 
     sf::Vector2f camPos{0.f, 0.f};
-    float cameraFastSpin{0.f};
-    float cameraRotationSpeed{0.f};
-    float cameraRotationSpeedInc{0.f};
-    float cameraRotationSpeedMax{0.f};
     sf::Vector2f fieldPos{0.f, 0.f};
     float fastSpin{0.f};
     float rotation{0.f};

@@ -573,12 +573,6 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
     mLua.writeVariable(
         "s_getBGTileRadius", [this] { return styleData.BGTileRadius; });
 
-    mLua.writeVariable("l_setCameraPos", [this](float mX, float mY) {
-        levelStatus.camPos = {mX, mY};
-    });
-    mLua.writeVariable("l_getCameraPos", [this] {
-        return std::make_tuple(levelStatus.camPos.x, levelStatus.camPos.y);
-    });
     mLua.writeVariable("l_setFieldPos", [this](float mX, float mY) {
         levelStatus.fieldPos = {mX, mY};
     });
@@ -588,21 +582,13 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
-    mLua.writeVariable(
-        "l_getRotationSpeed", [this] { return levelStatus.rotationSpeed; });
+    mLua.writeVariable("l_getRotationSpeed",
+        [this] { return levelStatus.rotationSpeed; });
     mLua.writeVariable("l_getRotation",
         [this](float mValue) { levelStatus.rotation = mValue; });
-    mLua.writeVariable(
-        "l_setRotation", [this] { return levelStatus.rotation; });
+    mLua.writeVariable("l_setRotation",
+        [this] { return levelStatus.rotation; });
 
-    mLua.writeVariable("l_setCameraRotationSpeed",
-        [this](float mValue) { levelStatus.cameraRotationSpeed = mValue; });
-    mLua.writeVariable("l_getCameraRotationSpeed",
-        [this] { return levelStatus.cameraRotationSpeed; });
-    mLua.writeVariable("l_getCameraRotation",
-        [this](float mValue) { levelStatus.rotation = mValue; });
-    mLua.writeVariable(
-        "l_setCameraRotation", [this] { return levelStatus.rotation; });
     // Unused functions
     for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc",
             "l_setRotationSpeedMax", "l_setRotationSpeedInc", "l_setDelayInc",
@@ -624,7 +610,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
             "w_wallHModCurveData", "l_setDelayMult", "l_setMaxInc",
             "s_setStyle", "u_setMusic", "s_getCameraShake", "s_setCameraShake",
-            "l_getOfficial", "s_setColorPosOffset", "s_getColorPosOffset"})
+            "l_getOfficial", "s_setColorPosOffset", "s_getColorPosOffset", "s_set3dSkew",
+            "s_setSkew", "s_getSkew"})
     {
         mLua.writeVariable(un, [] {});
     }
@@ -926,8 +913,10 @@ void MenuGame::update(FT mFT)
     }
     else if(state == s::SMain)
     {
-        styleData.update(mFT);
-        backgroundCamera.turn(levelStatus.cameraRotationSpeed * 10.f);
+        //TODO:Rotation preview
+        //backgroundCamera.turn(levelStatus.cameraRotationSpeed * 10.f);
+        hexagonGame.updateRotation(mFT);
+        styleData.update(mFT, hexagonGame.getStatus());
 
         if(!assets.pIsLocal())
         {
@@ -967,7 +956,7 @@ void MenuGame::draw()
     {
         // styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus,
         // styleData);
-        styleData.drawBackground(hexagonGame.getStatus(), window, levelStatus.fieldPos, levelStatus, styleData);
+        styleData.drawBackground(window, levelStatus.fieldPos, levelStatus, styleData);
     }
 
     overlayCamera.apply();

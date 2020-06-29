@@ -46,7 +46,7 @@ void HexagonGame::draw()
     if(!Config::getNoBackground())
     {
         backgroundCamera.apply();
-        styleData.drawBackground(status, window, getFieldPos(), levelStatus, styleData);
+        styleData.drawBackground(window, getFieldPos(), levelStatus, styleData);
     }
 
     backgroundCamera.apply();
@@ -80,17 +80,8 @@ void HexagonGame::draw()
         wallQuads3D.reserve(numWallQuads * depth);
         playerTris3D.reserve(numPlayerTris * depth);
 
-        const sf::Vector2f skewEffect{
-                styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
-                styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
-        };
-
-        const sf::Vector2f skew{1.f, skewEffect.y};
-        //backgroundCamera.setSkew(skew);
-
-        //const auto radRot(ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
         const auto radRot(ssvu::pi / 2.f);
-        const auto cosRot(std::cos(radRot));
+        //const auto cosRot(std::cos(radRot));
         const auto sinRot(std::sin(radRot));
 
         for(std::size_t i = 0; i < depth; ++i)
@@ -107,28 +98,27 @@ void HexagonGame::draw()
         {
             const float i(depth - j - 1);
 
-            const float offset(styleData._3dSpacing *
-                               (float(i + 1.f) * styleData._3dPerspectiveMult) *
-                               (skewEffect.y * 3.6f) * 1.4f);
-
-            sf::Vector2f newPos(offset * cosRot, offset * sinRot);
-
             status.overrideColor = getColorDarkened(
                 styleData.get3DOverrideColor(), styleData._3dDarkenMult);
             status.overrideColor.a /= styleData._3dAlphaMult;
             status.overrideColor.a -= i * styleData._3dAlphaFalloff;
 
+
+            const float offset(styleData._3dSpacing * (float(i + 1.f) * styleData._3dPerspectiveMult) * 3.6f * 1.4f);
+            sf::Vector2f newPos((styleData.skew.x-1.f) * offset * sinRot, (styleData.skew.y-1.f) * offset * sinRot);
+
             for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
                 ++k)
             {
-                wallQuads3D[k].position += newPos;
+                wallQuads3D[k].position.x += newPos.x;
+                wallQuads3D[k].position.y += newPos.y;
                 wallQuads3D[k].color = status.overrideColor;
             }
-
             for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
                 ++k)
             {
-                playerTris3D[k].position += newPos;
+                playerTris3D[k].position.x += newPos.x;
+                playerTris3D[k].position.y += newPos.y;
                 playerTris3D[k].color = status.overrideColor;
             }
         }
