@@ -4,6 +4,10 @@
 
 #pragma once
 
+#include <type_traits>
+#include <tuple>
+#include <unordered_map>
+
 /// @macro Class mixin that allows SSVUJ converters to access the current
 /// class's private members.
 #define SSVUJ_CNV_FRIEND() \
@@ -32,14 +36,15 @@ template <typename T>
 struct Converter
 {
     inline static void fromObj(const Obj& mObj, T& mValue,
-        ssvu::EnableIf<ssvu::isEnum<T>()>* = nullptr)
+        std::enable_if_t<std::is_enum_v<T>>* = nullptr)
     {
-        mValue = T(getExtr<ssvu::Underlying<T>>(mObj));
+        mValue = T(getExtr<std::underlying_type_t<T>>(mObj));
     }
     inline static void toObj(Obj& mObj, const T& mValue,
-        ssvu::EnableIf<ssvu::isEnum<T>()>* = nullptr)
+        std::enable_if_t<std::is_enum_v<T>>* = nullptr)
     {
-        arch<ssvu::Underlying<T>>(mObj, ssvu::Underlying<T>(mValue));
+        arch<std::underlying_type_t<T>>(
+            mObj, std::underlying_type_t<T>(mValue));
     }
 };
 
@@ -67,29 +72,31 @@ struct ConverterBaseImpl
     }
 };
 
-template <SizeT I, typename TTpl>
-using TplArg = ssvu::TplElem<I, ssvu::RmConst<ssvu::RmRef<TTpl>>>;
+template <std::size_t I, typename TTpl>
+using TplArg =
+    std::tuple_element_t<I, std::remove_const_t<std::remove_reference_t<TTpl>>>;
 
-template <SizeT I = 0, typename... TArgs>
-ssvu::EnableIf<I == sizeof...(TArgs)> toTpl(const Obj&, ssvu::Tpl<TArgs...>&)
+template <std::size_t I = 0, typename... TArgs>
+std::enable_if_t<I == sizeof...(TArgs)> toTpl(const Obj&, std::tuple<TArgs...>&)
 {
 }
-template <SizeT I = 0, typename... TArgs>
-    ssvu::EnableIf <
-    I<sizeof...(TArgs)> toTpl(const Obj& mObj, ssvu::Tpl<TArgs...>& mTpl)
+template <std::size_t I = 0, typename... TArgs>
+    std::enable_if_t <
+    I<sizeof...(TArgs)> toTpl(const Obj& mObj, std::tuple<TArgs...>& mTpl)
 {
     Converter<TplArg<I, decltype(mTpl)>>::fromObj(
         mObj[Idx(I)], std::get<I>(mTpl));
     toTpl<I + 1, TArgs...>(mObj, mTpl);
 }
 
-template <SizeT I = 0, typename... TArgs>
-ssvu::EnableIf<I == sizeof...(TArgs)> fromTpl(Obj&, const ssvu::Tpl<TArgs...>&)
+template <std::size_t I = 0, typename... TArgs>
+std::enable_if_t<I == sizeof...(TArgs)> fromTpl(
+    Obj&, const std::tuple<TArgs...>&)
 {
 }
-template <SizeT I = 0, typename... TArgs>
-    ssvu::EnableIf <
-    I<sizeof...(TArgs)> fromTpl(Obj& mObj, const ssvu::Tpl<TArgs...>& mTpl)
+template <std::size_t I = 0, typename... TArgs>
+    std::enable_if_t <
+    I<sizeof...(TArgs)> fromTpl(Obj& mObj, const std::tuple<TArgs...>& mTpl)
 {
     Converter<TplArg<I, decltype(mTpl)>>::toObj(
         mObj[Idx(I)], std::get<I>(mTpl));
@@ -271,9 +278,9 @@ struct Converter<std::pair<T1, T2>>
 };
 
 template <typename... TArgs>
-struct Converter<ssvu::Tpl<TArgs...>>
+struct Converter<std::tuple<TArgs...>>
 {
-    using T = ssvu::Tpl<TArgs...>;
+    using T = std::tuple<TArgs...>;
     inline static void fromObj(const Obj& mObj, T& mValue)
     {
         Impl::toTpl(mObj, mValue);
@@ -284,7 +291,7 @@ struct Converter<ssvu::Tpl<TArgs...>>
     }
 };
 
-template <typename TItem, SizeT TN>
+template <typename TItem, std::size_t TN>
 struct Converter<TItem[TN]>
 {
     using T = TItem[TN];

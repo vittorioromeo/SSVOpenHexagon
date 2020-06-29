@@ -5,7 +5,7 @@ u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pAltBarrage(math.random(2, 3), 2) 
+		if mKey == 0 then pAltBarrage(math.random(2, 3), 2)
 	elseif mKey == 1 then pBarrageSpiral(3, 0.6, 1)
 	elseif mKey == 2 then pInverseBarrage(0)
 	elseif mKey == 3 then pTunnel(math.random(1, 3))
@@ -23,13 +23,15 @@ end
 keys = { 0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 6, 7, 7, 7, 8, 9, 9 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
 	l_setSpeedMult(3.05)
 	l_setSpeedInc(0.7)
+	l_setSpeedMax(3.6)
 	l_setRotationSpeed(0.3)
-	l_setRotationSpeedMax(0.4)
+	l_setRotationSpeedMax(0.9)
 	l_setRotationSpeedInc(0.04)
 	l_setDelayMult(1.07)
 	l_setDelayInc(0.0)
@@ -38,7 +40,6 @@ function onInit()
 	l_setSidesMin(5)
 	l_setSidesMax(7)
 	l_setIncTime(15)
-	l_setMaxInc(2)
 
 	l_setPulseMin(64)
 	l_setPulseMax(84)
@@ -59,12 +60,13 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	addPattern(keys[index])
 	index = index + 1
-	
+
 	if index - 1 == #keys then
 		index = 1
+		keys = shuffle(keys)
 	end
 end
 
@@ -88,5 +90,10 @@ function onUpdate(mFrameTime)
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 300
 		end
-	end 
+	end
+
+	if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a4_apeirogon")
+		achievementUnlocked = true
+	end
 end

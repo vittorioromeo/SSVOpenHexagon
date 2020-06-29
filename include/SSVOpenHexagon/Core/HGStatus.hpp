@@ -4,15 +4,38 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Utils/ObfuscatedValue.hpp"
+
+#include <SFML/Graphics/Color.hpp>
+
+#include <chrono>
 
 namespace hg
 {
+
 struct HexagonGameStatus
 {
-    ssvu::ObfuscatedValue<float> currentTime{0.f};
-    float incrementTime{0};
-    float timeStop{100};
+public:
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = std::chrono::time_point<Clock>;
+
+private:
+    // Current time of the level
+    TimePoint currentTp;
+
+    // When we started playing the level
+    TimePoint levelStartTp;
+
+    // When the last increment happened
+    TimePoint lastIncrementTp;
+
+    // When the timer was last paused, and for how long
+    TimePoint lastTimerPauseTp;
+
+    // Duration of the current timer pause
+    std::chrono::milliseconds pauseDuration{100ms};
+
+public:
     float pulse{75};
     float pulseDirection{1};
     float pulseDelay{0};
@@ -30,6 +53,27 @@ struct HexagonGameStatus
     bool started{false};
     sf::Color overrideColor{sf::Color::Transparent};
     ssvu::ObfuscatedValue<float> lostFrames{0};
+
+    // Reset all the time points and signal that we started
+    void start() noexcept;
+
+    // Number of seconds that have passed since last increment
+    [[nodiscard]] double getIncrementTimeSeconds() noexcept;
+
+    // Game timer, in seconds
+    [[nodiscard]] double getTimeSeconds() noexcept;
+
+    // `true` if we are currently paused
+    [[nodiscard]] bool isTimePaused() noexcept;
+
+    // Start a new pause or extend the current pause by `seconds`
+    void pauseTime(const double seconds) noexcept;
+
+    // Reset the increment time to the last non-pause time point
+    void resetIncrementTime() noexcept;
+
+    // Update the timer (called every frame)
+    void updateTime() noexcept;
 };
 
 } // namespace hg

@@ -1,24 +1,18 @@
 [submodule "extlibs/SSVMenuSystem"]
 	path = extlibs/SSVMenuSystem
 	url = https://github.com/SuperV1234/SSVMenuSystem.git
-[submodule "extlibs/SSVStart"]
-	path = extlibs/SSVStart
-	url = https://github.com/SuperV1234/SSVStart.git
 [submodule "extlibs/SSVUtils"]
 	path = extlibs/SSVUtils
 	url = https://github.com/SuperV1234/SSVUtils.git
-[submodule "extlibs/SSVLuaWrapper"]
-	path = extlibs/SSVLuaWrapper
-	url = https://github.com/SuperV1234/SSVLuaWrapper.git
 [submodule "extlibs/vrm_pp"]
 	path = extlibs/vrm_pp
 	url = https://github.com/SuperV1234/vrm_pp.git
-[submodule "extlibs/mingw-std-threads"]
-	path = extlibs/mingw-std-threads
-	url = git://github.com/meganz/mingw-std-threads.git
 [submodule "extlibs/vrm_cmake"]
 	path = extlibs/vrm_cmake
 	url = https://github.com/SuperV1234/vrm_cmake.git
 [submodule "extlibs/SFML"]
 	path = extlibs/SFML
 	url = https://github.com/LaurentGomila/SFML.git
+[submodule "extlibs/SSVStart"]
+	path = extlibs/SSVStart
+	url = https://github.com/SuperV1234/SSVStart

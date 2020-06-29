@@ -36,8 +36,9 @@ special = "none"
 function onInit()
 	l_setSpeedMult(2.1)
 	l_setSpeedInc(0.16)
+	l_setSpeedMax(3.9)
 	l_setRotationSpeed(0.12)
-	l_setRotationSpeedMax(0.4)
+	l_setRotationSpeedMax(0.6)
 	l_setRotationSpeedInc(0.035)
 	l_setDelayMult(1.9)
 	l_setDelayInc(0.0)
@@ -46,7 +47,6 @@ function onInit()
 	l_setSidesMin(4)
 	l_setSidesMax(4)
 	l_setIncTime(10)
-	l_setMaxInc(10)
 
 	l_setWallSkewLeft(-15)
 
@@ -97,6 +97,7 @@ function onStep()
 	
 	if index - 1 == #keys then
 		index = 1
+		keys = shuffle(keys)
 	end
 end
 

@@ -6,6 +6,7 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
 
 using namespace std;
 using namespace sf;
@@ -18,14 +19,30 @@ namespace hg
 
 void HexagonGame::update(FT mFT)
 {
+    // TODO: refactor to avoid repetition, and truncate floating point number
+    // TODO: also show best record (here) and last run + best record (in menu)
+    steamManager.set_rich_presence_in_game(
+        levelData->name, status.getTimeSeconds());
+    steamManager.run_callbacks();
+
+    discordManager.set_rich_presence_in_game(
+        levelData->name, status.getTimeSeconds());
+    discordManager.run_callbacks();
+
+    hg::Joystick::update();
+
     updateText();
     updateFlash(mFT);
     effectTimelineManager.update(mFT);
 
+    // Joystick support
+    const bool jCW = hg::Joystick::rightPressed();
+    const bool jCCW = hg::Joystick::leftPressed();
+
     if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
-                              inputImplCW || inputImplBothCWCCW))
+                              inputImplCW || inputImplBothCWCCW || jCW || jCCW))
     {
-        status.started = true;
+        status.start();
         messageText.setString("");
         assets.playSound("go.ogg");
         assets.musicPlayer.resume();
@@ -73,6 +90,46 @@ void HexagonGame::update(FT mFT)
     else
     {
         inputMovement = 0;
+
+        // Joystick support
+        {
+            if(jCW && !jCCW)
+            {
+                inputMovement = 1;
+            }
+            else if(!jCW && jCCW)
+            {
+                inputMovement = -1;
+            }
+            else if(jCW && jCCW)
+            {
+                if(!inputImplBothCWCCW)
+                {
+                    if(inputMovement == 1 && inputImplLastMovement == 1)
+                    {
+                        inputMovement = -1;
+                    }
+                    else if(inputMovement == -1 && inputImplLastMovement == -1)
+                    {
+                        inputMovement = 1;
+                    }
+                }
+            }
+            else
+            {
+                inputMovement = 0;
+            }
+        }
+    }
+
+    // Joystick support
+    if(hg::Joystick::selectRisingEdge())
+    {
+        goToMenu();
+    }
+    else if(hg::Joystick::startRisingEdge())
+    {
+        status.mustRestart = true;
     }
 
     if(status.started)
@@ -96,9 +153,10 @@ void HexagonGame::update(FT mFT)
             }
 
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
+            cwManager.cleanup();
 
             updateEvents(mFT);
-            updateTimeStop(mFT);
+            status.updateTime();
             updateIncrement();
 
             if(mustChangeSides && walls.empty())
@@ -111,10 +169,12 @@ void HexagonGame::update(FT mFT)
             {
                 updateBeatPulse(mFT);
             }
+
             if(Config::getPulse())
             {
                 updatePulse(mFT);
             }
+
             if(!Config::getBlackAndWhite())
             {
                 styleData.update(mFT, status, pow(difficultyMult, 0.8f));
@@ -176,42 +236,26 @@ void HexagonGame::updateEvents(FT mFT)
         messageTimeline.reset();
     }
 }
-void HexagonGame::updateTimeStop(FT mFT)
-{
-    if(status.timeStop <= 0)
-    {
-        status.currentTime += ssvu::getFTToSeconds(mFT);
-        status.incrementTime += ssvu::getFTToSeconds(mFT);
-    }
-    else
-    {
-        status.timeStop -= mFT;
-    }
-}
 void HexagonGame::updateIncrement()
 {
     if(!levelStatus.incEnabled)
     {
         return;
     }
-    if(status.incrementTime < levelStatus.incTime)
-    {
-        return;
-    }
-    if(!levelStatus.shouldIncrement())
+
+    if(status.getIncrementTimeSeconds() < levelStatus.incTime)
     {
         return;
     }
 
     ++levelStatus.currentIncrements;
     incrementDifficulty();
-
-    status.incrementTime = 0;
+    status.resetIncrementTime();
     mustChangeSides = true;
 }
 void HexagonGame::updateLevel(FT mFT)
 {
-    if(status.timeStop > 0)
+    if(status.isTimePaused())
     {
         return;
     }

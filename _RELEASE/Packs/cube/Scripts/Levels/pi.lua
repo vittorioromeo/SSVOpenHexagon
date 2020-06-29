@@ -19,6 +19,7 @@ end
 keys = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
@@ -26,12 +27,13 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	addPattern(keys[index])
 	index = index + 1
-	
+
 	if index - 1 == #keys then
 		index = 1
+		keys = shuffle(keys)
 	end
 end
 
@@ -39,17 +41,18 @@ end
 function onInit()
 	l_setSpeedMult(3.4)
 	l_setSpeedInc(0.10)
+	l_setSpeedMax(3.8)
 	l_setRotationSpeed(0.25)
-	l_setRotationSpeedMax(0.4)
+	l_setRotationSpeedMax(0.5)
 	l_setRotationSpeedInc(0.04)
 	l_setDelayMult(1.0)
 	l_setDelayInc(-0.01)
+	l_setDelayMin(0.9)
 	l_setFastSpin(80.0)
 	l_setSides(24)
 	l_setSidesMin(20)
 	l_setSidesMax(28)
 	l_setIncTime(15)
-	l_setMaxInc(4)
 
 	l_setPulseMin(68)
 	l_setPulseMax(80)
@@ -84,5 +87,10 @@ function onUpdate(mFrameTime)
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 100
 		end
-	end 
+	end
+
+	if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a7_pi")
+		achievementUnlocked = true
+	end
 end

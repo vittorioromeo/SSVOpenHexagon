@@ -4,8 +4,11 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Data/TrackedVariable.hpp"
+
+#include <string>
+#include <vector>
 
 namespace hg
 {
@@ -53,16 +56,20 @@ struct LevelStatus
 
     sf::Vector2f camPos{0.f, 0.f};
     sf::Vector2f fieldPos{0.f, 0.f};
+  
     float fastSpin{0.f};
     float rotation{0.f};
     float rotationSpeed{0.f};
     float rotationSpeedInc{0.f};
     float rotationSpeedMax{0.f};
-
+  
     float speedMult{1.f};
     float speedInc{0.f};
+    float speedMax{0.f};
     float delayMult{1.f};
     float delayInc{0.f};
+    float delayMin{0.f};
+    float delayMax{0.f};
     float incTime{15.f};
     float pulseMin{75.f};
     float pulseMax{80.f};
@@ -91,12 +98,16 @@ struct LevelStatus
     bool rndSideChangesEnabled{true};
     bool darkenUnevenBackgroundChunk{true};
 
-    SizeT currentIncrements{0u};
-    SizeT maxIncrements{ssvu::NumLimits<SizeT>::max()};
+    std::size_t currentIncrements{0u};
 
-    [[nodiscard]] bool shouldIncrement() const noexcept
+    [[nodiscard]] bool hasSpeedMaxLimit() const noexcept
     {
-        return currentIncrements < maxIncrements;
+        return speedMax > 0.f;
+    }
+
+    [[nodiscard]] bool hasDelayMaxLimit() const noexcept
+    {
+        return delayMax > 0.f;
     }
 };
 

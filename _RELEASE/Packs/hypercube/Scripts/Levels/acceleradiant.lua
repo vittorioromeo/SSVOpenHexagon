@@ -22,17 +22,18 @@ index = 0
 function onInit()
 	l_setSpeedMult(2.25)
 	l_setSpeedInc(0.045)
+	l_setSpeedMax(2.35);
 	l_setRotationSpeed(0.27)
-	l_setRotationSpeedMax(0.4)
+	l_setRotationSpeedMax(0.45)
 	l_setRotationSpeedInc(0.045)
 	l_setDelayMult(1.1)
 	l_setDelayInc(-0.01)
+	l_setDelayMin(1.07)
 	l_setFastSpin(71.0)
 	l_setSides(6)
 	l_setSidesMin(5)
 	l_setSidesMax(7)
 	l_setIncTime(15)
-	l_setMaxInc(4)
 
 	l_setPulseMin(64)
 	l_setPulseMax(84)
@@ -58,6 +59,7 @@ function onStep()
 	
 	if index - 1 == #keys then
 		index = 1
+		keys = shuffle(keys)
 	end
 end
 

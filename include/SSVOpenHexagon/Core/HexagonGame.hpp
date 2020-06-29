@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
@@ -15,7 +17,11 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/FPSWatcher.hpp"
-
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
+#include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
+#include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
+#include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
 namespace hg
 {
@@ -27,6 +33,9 @@ class HexagonGame
     friend MenuGame;
 
 private:
+    Steam::steam_manager& steamManager;
+    Discord::discord_manager& discordManager;
+
     HGAssets& assets;
     const LevelData* levelData;
 
@@ -36,6 +45,7 @@ private:
 public:
     CPlayer player;
     std::vector<CWall> walls;
+    CCustomWallManager cwManager;
 
 private:
     ssvs::Camera backgroundCamera{window,
@@ -58,7 +68,7 @@ private:
     ssvu::Timeline eventTimeline;
     ssvu::Timeline messageTimeline;
 
-    sf::Text messageText{"", assets.get<sf::Font>("imagine.ttf"),
+    sf::Text messageText{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
 
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
@@ -81,7 +91,7 @@ private:
     std::ostringstream os;
 
     FPSWatcher fpsWatcher;
-    sf::Text text{"", assets.get<sf::Font>("imagine.ttf"),
+    sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
     const sf::Vector2f txt_pos{8, 8};
@@ -98,6 +108,8 @@ private:
     static constexpr std::array txt_offsets{CExprVec2f{-1, -1},
         CExprVec2f{-1, 1}, CExprVec2f{1, -1}, CExprVec2f{1, 1}};
 
+    Utils::LuaMetadata luaMetadata;
+
     // LUA-related methods
     void initLua_Utils();
     void initLua_Messages();
@@ -106,6 +118,8 @@ private:
     void initLua_LevelControl();
     void initLua_StyleControl();
     void initLua_WallCreation();
+    void initLua_Steam();
+    void initLua_CustomWalls();
 
     void initLua();
     void runLuaFile(const std::string& mFileName)
@@ -142,7 +156,6 @@ private:
 
     // Update methods
     void update(FT mFT);
-    void updateTimeStop(FT mFT);
     void updateIncrement();
     void updateEvents(FT mFT);
     void updateLevel(FT mFT);
@@ -170,8 +183,7 @@ private:
     void stopLevelMusic();
 
     // Message-related methods
-    void addMessage(
-        const std::string& mMessage, float mDuration, bool mSoundToggle);
+    void addMessage(std::string mMessage, float mDuration, bool mSoundToggle);
     void clearMessages();
 
     // Level/menu loading/unloading/changing
@@ -180,6 +192,25 @@ private:
     void changeLevel(const std::string& mId, bool mFirstTime);
 
     void invalidateScore();
+
+
+    template <typename F>
+    Utils::LuaMetadataProxy addLuaFn(const std::string& name, F&& f)
+    {
+        lua.writeVariable(name, std::forward<F>(f));
+        return Utils::LuaMetadataProxy{f, luaMetadata, name};
+    }
+
+    void printLuaDocs()
+    {
+        luaMetadata.forFnEntries(
+            [](const std::string& ret, const std::string& name,
+                const std::string& args, const std::string& docs) {
+                std::cout << "* **`" << ret << " " << name << "(" << args
+                          << ")`**: " << docs << '\n';
+            });
+    }
+
 
 public:
     Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
@@ -193,7 +224,9 @@ public:
 
     MenuGame* mgPtr;
 
-    HexagonGame(HGAssets& mAssets, ssvs::GameWindow& mGameWindow);
+    HexagonGame(Steam::steam_manager& mSteamManager,
+        Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
+        ssvs::GameWindow& mGameWindow);
 
     // Gameplay methods
     void newGame(
@@ -219,7 +252,7 @@ public:
     void setSides(unsigned int mSides);
 
     // Getters
-    ssvs::GameState& getGame() noexcept
+    [[nodiscard]] ssvs::GameState& getGame() noexcept
     {
         return game;
     }
@@ -228,7 +261,7 @@ public:
         return levelStatus.fieldPos;
     }
 
-    float getRadius() const noexcept
+    [[nodiscard]] float getRadius() const noexcept
     {
         return status.radius;
     }
@@ -238,94 +271,112 @@ public:
         return styleData;
     }
 
-    const sf::Color& getColor(int mIdx) const noexcept
+    [[nodiscard]] const sf::Color& getColor(int mIdx) const noexcept
     {
         return styleData.getColor(mIdx);
     }
 
-    float getSpeedMultDM() const noexcept
+    [[nodiscard]] float getSpeedMultDM() const noexcept
     {
-        return levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
+        const auto res =
+            levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
+
+        if(!levelStatus.hasSpeedMaxLimit())
+        {
+            return res;
+        }
+
+        return (res < levelStatus.speedMax) ? res : levelStatus.speedMax;
     }
 
-    float getDelayMultDM() const noexcept
+    [[nodiscard]] float getDelayMultDM() const noexcept
     {
-        return levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
+        const auto res =
+            levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
+
+        if(!levelStatus.hasDelayMaxLimit())
+        {
+            return res;
+        }
+
+        return (res < levelStatus.delayMax) ? res : levelStatus.delayMax;
     }
 
-    float getRotationSpeed() const noexcept
+    [[nodiscard]] float getRotationSpeed() const noexcept
     {
         return levelStatus.rotationSpeed;
     }
 
-
-    unsigned int getSides() const noexcept
+    [[nodiscard]] unsigned int getSides() const noexcept
     {
         return levelStatus.sides;
     }
 
-    float getWallSkewLeft() const noexcept
+    [[nodiscard]] float getWallSkewLeft() const noexcept
     {
         return levelStatus.wallSkewLeft;
     }
 
-    float getWallSkewRight() const noexcept
+    [[nodiscard]] float getWallSkewRight() const noexcept
     {
         return levelStatus.wallSkewRight;
     }
 
-    float getWallAngleLeft() const noexcept
+    [[nodiscard]] float getWallAngleLeft() const noexcept
     {
         return levelStatus.wallAngleLeft;
     }
 
-    float getWallAngleRight() const noexcept
+    [[nodiscard]] float getWallAngleRight() const noexcept
     {
         return levelStatus.wallAngleRight;
     }
 
-    float get3DEffectMult() const noexcept
+    [[nodiscard]] float get3DEffectMult() const noexcept
     {
         return levelStatus._3dEffectMultiplier;
     }
 
-    HexagonGameStatus& getStatus()
+    [[nodiscard]] HexagonGameStatus& getStatus()
     {
         return status;
     }
 
-    LevelStatus& getLevelStatus()
+    [[nodiscard]] LevelStatus& getLevelStatus()
     {
         return levelStatus;
     }
 
-    HGAssets& getAssets()
+    [[nodiscard]] HGAssets& getAssets()
     {
         return assets;
     }
 
-    sf::Color getColorMain() const;
+    [[nodiscard]] sf::Color getColorMain() const;
 
-    float getMusicDMSyncFactor() const
+    [[nodiscard]] float getMusicDMSyncFactor() const
     {
         return Config::getMusicSpeedDMSync() ? std::pow(difficultyMult, 0.12f)
                                              : 1.f;
     }
 
     // Input
-    bool getInputFocused() const
+    [[nodiscard]] bool getInputFocused() const
     {
         return inputFocused;
     }
 
-    bool getInputSwap() const
-    {
-        return inputSwap;
-    }
+    [[nodiscard]] bool getInputSwap() const;
 
-    int getInputMovement() const
+    [[nodiscard]] int getInputMovement() const
     {
         return inputMovement;
+    }
+
+    template <typename F>
+    [[nodiscard]] bool anyCustomWall(F&& f)
+    {
+        return cwManager.anyCustomWall(std::forward<F>(f));
     }
 };
 
