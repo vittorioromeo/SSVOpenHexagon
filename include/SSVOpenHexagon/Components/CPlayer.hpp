@@ -49,7 +49,7 @@ private:
     void drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleData);
 
 public:
-    CPlayer(const sf::Vector2f& mStartPos) noexcept;
+    CPlayer() noexcept;
 
     float getPlayerAngle();
     void setPlayerAngle(float newAng);

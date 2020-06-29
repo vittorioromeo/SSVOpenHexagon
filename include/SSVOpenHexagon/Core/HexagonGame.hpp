@@ -258,10 +258,6 @@ public:
         return levelStatus.rotationSpeed;
     }
 
-    float getCameraRotationSpeed() const noexcept
-    {
-        return levelStatus.cameraRotationSpeed;
-    }
 
     unsigned int getSides() const noexcept
     {

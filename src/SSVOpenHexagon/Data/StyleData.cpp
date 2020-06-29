@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
 
 using namespace std;
 using namespace sf;
@@ -60,8 +61,10 @@ Color StyleData::calculateColor(const ColorData& mColorData) const
         toNum<Uint8>(getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
 }
 
-void StyleData::update(FT mFT, float mMult)
+void StyleData::update(FT mFT, HexagonGameStatus& status, float mMult)
 {
+    skew = {1.f, 1.f + _3dSkew * Config::get3DMultiplier() * status.pulse3D};
+
     currentSwapTime += mFT * mMult;
     if(currentSwapTime > maxSwapTime)
     {
@@ -131,8 +134,7 @@ void StyleData::computeColors(LevelStatus& levelStatus)
     }
 }
 
-void StyleData::drawBackground(HexagonGameStatus& status,
-    RenderTarget& mRenderTarget,const sf::Vector2f& mCenterPos,
+void StyleData::drawBackground(RenderTarget& mRenderTarget,const sf::Vector2f& mCenterPos,
     LevelStatus& levelStatus, const StyleData& styleData) const
 {
     const auto sides = levelStatus.sides;
@@ -149,16 +151,9 @@ void StyleData::drawBackground(HexagonGameStatus& status,
 
     auto fieldAngle = ssvu::toRad(styleData.BGRotOff+levelStatus.rotation);
 
-    const sf::Vector2f skewEffect{
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
-    };
-    const sf::Vector2f skew{1.f, 1.f+skewEffect.y};
-
-
     for(auto i(0u); i < sides; ++i)
     {
-        const float angle{div * i};
+        const float angle{fieldAngle + div * i};
         Color currentColor{ssvu::getByModIdx(colors, i)};
 
         const bool darkenUnevenBackgroundChunk =
@@ -175,21 +170,13 @@ void StyleData::drawBackground(HexagonGameStatus& status,
             currentColor = getColorDarkened(currentColor, 1.4f);
         }
 
-        /*
-        vertices.batch_unsafe_emplace_back(currentColor,
-            mCenterPos,
-            getOrbitRad(mCenterPos, fieldAngle + angle + div * 0.5f, distance/50),
-            getOrbitRad(mCenterPos, fieldAngle + angle - div * 0.5f, distance/50));
-        */
-        const sf::Vector2 pos2{mCenterPos.x + std::cos(fieldAngle + angle + div * 0.5f) * distance,
-                               mCenterPos.y + std::sin(fieldAngle + angle + div * 0.5f) * distance/skew.y};
-        const sf::Vector2 pos3{mCenterPos.x + std::cos(fieldAngle + angle - div * 0.5f) * distance,
-                               mCenterPos.y + std::sin(fieldAngle + angle - div * 0.5f) * distance/skew.y};
+        const sf::Vector2 pos2{Utils::getSkewedOrbitRad(mCenterPos, angle + div * 0.5f, distance, styleData.skew)};
+        const sf::Vector2 pos3{Utils::getSkewedOrbitRad(mCenterPos, angle - div * 0.5f, distance, styleData.skew)};
         vertices.batch_unsafe_emplace_back(
             currentColor,
             mCenterPos,
-            pos3,
-            pos2);
+            pos2,
+            pos3);
     }
 
     mRenderTarget.draw(vertices);

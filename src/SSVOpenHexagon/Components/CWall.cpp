@@ -14,14 +14,11 @@ using namespace ssvs;
 namespace hg
 {
 
-CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
-    int mSide, float mThickness, float mDistance, const StyleData& styleData,
-    const LevelStatus& levelStatus, const SpeedData& mSpeed,
-    const SpeedData& mCurve)
-    : side{mSide}, initialSides{mHexagonGame.getSides()}, speed{mSpeed}, curve{mCurve}, distance{mDistance}, thickness{mThickness}
-{
-
-}
+CWall::CWall(HexagonGame& mHexagonGame,
+    unsigned int mSide, float mThickness, float mDistance,
+    const SpeedData& mSpeed, const SpeedData& mCurve)
+    : initialSides{mHexagonGame.getSides()}, side{mSide}, distance{mDistance},
+      thickness{mThickness}, speed{mSpeed}, curve{mCurve}{}
 
 void CWall::draw(HexagonGame& mHexagonGame)
 {
@@ -37,8 +34,8 @@ void CWall::draw(HexagonGame& mHexagonGame)
     auto const levelStatus{mHexagonGame.getLevelStatus()};
     auto fieldAngle = ssvu::toRad(styleData.BGRotOff+levelStatus.rotation);
     const float div{ssvu::tau / initialSides * 0.5f};
-    const float col_angle{div * 2.f * side};
-    const float angle{fieldAngle + div * 2.f * side};
+    const float col_angle{curveOffset + div * 2.f * side};
+    const float angle{curveOffset + fieldAngle + div * 2.f * side};
 
     const sf::Vector2f skewEffect{
             styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
@@ -51,41 +48,30 @@ void CWall::draw(HexagonGame& mHexagonGame)
     const auto _distance{ssvu::getClampedMin(distance, radius)};
     const auto _distanceThiccL{ssvu::getClampedMin(distance + thickness + mHexagonGame.getWallSkewLeft(), radius)};
     const auto _distanceThiccR{ssvu::getClampedMin(distance + thickness + mHexagonGame.getWallSkewRight(), radius)};
+
     //For calculating collisions and whatever
     Color colorDebug(255, 0, 0, 150);
-    Collisions_vertexPositions[0] = {fieldPos.x + std::cos(col_angle - div) * _distance,
-                                     fieldPos.y + std::sin(col_angle - div) * _distance};
-
-    Collisions_vertexPositions[1] = {fieldPos.x + std::cos(col_angle + div) * _distance,
-                                     fieldPos.y + std::sin(col_angle + div) * _distance};
-
-    Collisions_vertexPositions[2] = {fieldPos.x + std::cos(col_angle + div + mHexagonGame.getWallAngleLeft()) * _distanceThiccL,
-                                     fieldPos.y + std::sin(col_angle + div + mHexagonGame.getWallAngleLeft()) * _distanceThiccL};
-
-    Collisions_vertexPositions[3] = {fieldPos.x + std::cos(col_angle - div + mHexagonGame.getWallAngleRight()) * _distanceThiccR,
-                                     fieldPos.y + std::sin(col_angle - div + mHexagonGame.getWallAngleRight()) * _distanceThiccR};
+    Collisions_vertexPositions[0] = getOrbitRad(fieldPos, col_angle - div, _distance);
+    Collisions_vertexPositions[1] = getOrbitRad(fieldPos, col_angle + div, _distance);
+    Collisions_vertexPositions[2] = getOrbitRad(fieldPos, col_angle + div + mHexagonGame.getWallAngleLeft(), _distanceThiccL);
+    Collisions_vertexPositions[3] = getOrbitRad(fieldPos, col_angle - div + mHexagonGame.getWallAngleRight(), _distanceThiccR);
 
     //For drawing
-    vertexPositions[0] = {fieldPos.x + std::cos(angle - div) * _distance,
-                          fieldPos.y + std::sin(angle - div) * (_distance/skew.y)};
+    vertexPositions[0] = Utils::getSkewedOrbitRad(fieldPos, angle - div, _distance, styleData.skew);
+    vertexPositions[1] = Utils::getSkewedOrbitRad(fieldPos, angle + div, _distance, styleData.skew);
+    vertexPositions[2] = Utils::getSkewedOrbitRad(fieldPos, angle + div + mHexagonGame.getWallAngleLeft(), _distanceThiccL, styleData.skew);
+    vertexPositions[3] = Utils::getSkewedOrbitRad(fieldPos, angle - div + mHexagonGame.getWallAngleRight(), _distanceThiccR, styleData.skew);
 
-    vertexPositions[1] = {fieldPos.x + std::cos(angle + div) * _distance,
-                          fieldPos.y + std::sin(angle + div) * (_distance/skew.y)};
-
-    vertexPositions[2] = {fieldPos.x + std::cos(angle + div + mHexagonGame.getWallAngleLeft()) * _distanceThiccL,
-                          fieldPos.y + std::sin(angle + div + mHexagonGame.getWallAngleLeft()) * (_distanceThiccL/skew.y)};
-
-    vertexPositions[3] = {fieldPos.x + std::cos(angle - div + mHexagonGame.getWallAngleRight()) * _distanceThiccR,
-                          fieldPos.y + std::sin(angle - div + mHexagonGame.getWallAngleRight()) * (_distanceThiccR/skew.y)};
-    //*/
     mHexagonGame.wallDebugQuads.reserve_more(4);
-    mHexagonGame.wallDebugQuads.batch_unsafe_emplace_back(colorDebug,
-                                                     Collisions_vertexPositions[0],
-                                                     Collisions_vertexPositions[1],
-                                                     Collisions_vertexPositions[2],
-                                                     Collisions_vertexPositions[3]);
+    mHexagonGame.wallDebugQuads.batch_unsafe_emplace_back(
+        colorDebug,
+        Collisions_vertexPositions[0],
+        Collisions_vertexPositions[1],
+        Collisions_vertexPositions[2],
+        Collisions_vertexPositions[3]);
     mHexagonGame.wallQuads.reserve_more(4);
-    mHexagonGame.wallQuads.batch_unsafe_emplace_back(colorMain,
+    mHexagonGame.wallQuads.batch_unsafe_emplace_back(
+        colorMain,
         vertexPositions[0],
         vertexPositions[1],
         vertexPositions[2],
@@ -100,19 +86,14 @@ void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT
     const float radius{mHexagonGame.getRadius() * 0.75f};
     int pointsOnCenter{0};
 
+    distance -= speed.speed * 5.f * mFT;
+    curveOffset += std::sin(curve.speed / 60.f * mFT);
+
     for(sf::Vector2f& vp : Collisions_vertexPositions)
     {
-        if(std::abs(vp.x - mCenterPos.x) < radius &&
-           std::abs(vp.y - mCenterPos.y) < radius)
+        if (std::abs(vp.x - mCenterPos.x) <= radius && std::abs(vp.y - mCenterPos.y) <= radius)
         {
             ++pointsOnCenter;
-        }
-        else
-        {
-            //TODO:
-            //moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
-            distance -= speed.speed * mFT;
-            //rotateRadAround(vp, mCenterPos, curve.speed / 60.f * mFT);
         }
     }
 

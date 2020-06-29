@@ -21,16 +21,15 @@ namespace hg
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
-    walls.emplace_back(*this, getFieldPos(), mSide,
+    walls.emplace_back(*this, mSide,
             mThickness, Config::getSpawnDistance(),
-            styleData, levelStatus,
             mSpeed, mCurve);
 
     walls.back().setHueMod(mHueMod);
 }
 
 HexagonGame::HexagonGame(HGAssets& mAssets, GameWindow& mGameWindow)
-    : assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
+    : assets(mAssets), window(mGameWindow), player{},
       fpsWatcher(window)
 {
     game.onUpdate += [this](FT mFT) { update(mFT); };
@@ -99,8 +98,7 @@ void HexagonGame::newGame(
 
     // Manager cleanup
     walls.clear();
-    //player = CPlayer{ssvs::zeroVec2f};
-    player = CPlayer{getFieldPos()};
+    player = CPlayer{};
 
 
     // Timeline cleanup
@@ -183,27 +181,17 @@ void HexagonGame::incrementDifficulty()
 
     if(levelStatus.shouldIncrement())
     {
-        levelStatus.cameraRotationSpeed += levelStatus.cameraRotationSpeedInc * getSign(levelStatus.cameraRotationSpeed);
         levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * getSign(levelStatus.rotationSpeed);
     }
 
-    levelStatus.cameraRotationSpeed *= -1.f;
-    levelStatus.rotationSpeed *= -1.f;
-
-    const auto& CameraRotationSpeedMax(levelStatus.cameraRotationSpeedMax);
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
-    if(status.camFastSpin <= 0 && abs(levelStatus.cameraRotationSpeed) > CameraRotationSpeedMax)
-    {
-        levelStatus.cameraRotationSpeed =
-            CameraRotationSpeedMax * getSign(levelStatus.cameraRotationSpeed);
-    }
+    levelStatus.rotationSpeed *= -1.f;
     if(status.fastSpin <= 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed =
             rotationSpeedMax * getSign(levelStatus.rotationSpeed);
     }
 
-    status.camFastSpin = levelStatus.cameraFastSpin;
     status.fastSpin = levelStatus.fastSpin;
 }
 

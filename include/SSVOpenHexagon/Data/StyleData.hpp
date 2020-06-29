@@ -39,7 +39,7 @@ public:
     float BGRotOff;
     float _3dDepth;
     float _3dSkew;
-    //sf::Vector2f skewEffect;
+    sf::Vector2f skew;
     float _3dSpacing;
     float _3dDarkenMult;
     float _3dAlphaMult;
@@ -97,9 +97,9 @@ public:
         }
     }
 
-    void update(FT mFT, float mMult = 1.f);
+    void update(FT mFT, HexagonGameStatus& status, float mMult = 1.f);
     void computeColors(LevelStatus& levelStatus);
-    void drawBackground(HexagonGameStatus& status,
+    void drawBackground(
         sf::RenderTarget& mRenderTarget, const sf::Vector2f& mCenterPos,
         LevelStatus& levelStatus, const StyleData& styleData) const;
 
