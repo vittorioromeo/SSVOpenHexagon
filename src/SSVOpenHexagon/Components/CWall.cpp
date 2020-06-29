@@ -17,7 +17,7 @@ namespace hg
 CWall::CWall(HexagonGame& mHexagonGame,
     unsigned int mSide, float mThickness, float mDistance,
     const SpeedData& mSpeed, const SpeedData& mCurve)
-    : initialSides{mHexagonGame.getSides()}, side{mSide}, distance{mDistance},
+    : initialSides{mHexagonGame.getSides()}, side{(mHexagonGame.getSides()+(mSide%mHexagonGame.getSides()))%mHexagonGame.getSides()}, distance{mDistance},
       thickness{mThickness}, speed{mSpeed}, curve{mCurve}{}
 
 void CWall::draw(HexagonGame& mHexagonGame)
