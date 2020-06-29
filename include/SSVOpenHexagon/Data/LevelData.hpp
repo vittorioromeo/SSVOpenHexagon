@@ -94,6 +94,16 @@ struct LevelStatus
     bool darkenUnevenBackgroundChunk{true};
 
     std::size_t currentIncrements{0u};
+
+    [[nodiscard]] bool hasSpeedMaxLimit() const noexcept
+    {
+        return speedMax > 0.f;
+    }
+
+    [[nodiscard]] bool hasDelayMaxLimit() const noexcept
+    {
+        return delayMax > 0.f;
+    }
 };
 
 } // namespace hg
