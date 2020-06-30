@@ -21,9 +21,8 @@ namespace hg
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
-    walls.emplace_back(*this, mSide,
-            mThickness, Config::getSpawnDistance(),
-            mSpeed, mCurve);
+    walls.emplace_back(
+        *this, mSide, mThickness, Config::getSpawnDistance(), mSpeed, mCurve);
 
     walls.back().setHueMod(mHueMod);
 }
@@ -188,7 +187,8 @@ void HexagonGame::incrementDifficulty()
 
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
     levelStatus.rotationSpeed *= -1.f;
-    if(status.fastSpin <= 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
+    if(status.fastSpin <= 0 &&
+        abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed =
             rotationSpeedMax * ssvu::getSign(levelStatus.rotationSpeed);

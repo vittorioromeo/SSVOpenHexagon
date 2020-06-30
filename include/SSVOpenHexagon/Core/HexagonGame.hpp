@@ -49,12 +49,12 @@ public:
 
 private:
     ssvs::Camera backgroundCamera{window,
-                                  {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
-                                                     Config::getHeight() * Config::getZoomFactor()}}};
+        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
+                              Config::getHeight() * Config::getZoomFactor()}}};
 
     ssvs::Camera overlayCamera{
-            window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                     sf::Vector2f(Config::getWidth(), Config::getHeight())}};
+        window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                    sf::Vector2f(Config::getWidth(), Config::getHeight())}};
 
     ssvu::TimelineManager effectTimelineManager;
 
@@ -218,7 +218,7 @@ public:
     Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerDebugTris;
     Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
     Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTris;
-    //Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTrisBorder;
+    // Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTrisBorder;
     Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads3D;
     Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris3D;
 
@@ -243,7 +243,8 @@ public:
     }
 
     // Player methods
-    void playerSwap(bool mSoundTog){
+    void playerSwap(bool mSoundTog)
+    {
         player.swap(*this, mSoundTog);
     }
 
@@ -257,7 +258,8 @@ public:
         return game;
     }
 
-    sf::Vector2f getFieldPos() const noexcept {
+    sf::Vector2f getFieldPos() const noexcept
+    {
         return levelStatus.fieldPos;
     }
 

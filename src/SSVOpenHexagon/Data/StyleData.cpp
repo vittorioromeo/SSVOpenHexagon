@@ -134,13 +134,15 @@ void StyleData::computeColors(LevelStatus& levelStatus)
 
     if(currentColors.size() > 1)
     {
-        ssvu::rotate(currentColors, begin(currentColors) + currentSwapTime /
-                    (maxSwapTime / 2.f) + colorPosOffset % levelStatus.sides);
+        ssvu::rotate(currentColors, begin(currentColors) +
+                                        currentSwapTime / (maxSwapTime / 2.f) +
+                                        colorPosOffset % levelStatus.sides);
     }
 }
 
-void StyleData::drawBackground(RenderTarget& mRenderTarget,const sf::Vector2f& mCenterPos,
-    LevelStatus& levelStatus, const StyleData& styleData) const
+void StyleData::drawBackground(RenderTarget& mRenderTarget,
+    const sf::Vector2f& mCenterPos, LevelStatus& levelStatus,
+    const StyleData& styleData) const
 {
     const auto sides = levelStatus.sides;
 
@@ -154,7 +156,7 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,const sf::Vector2f& m
 
     const auto& colors(getColors());
 
-    auto fieldAngle = ssvu::toRad(styleData.BGRotOff+levelStatus.rotation);
+    auto fieldAngle = ssvu::toRad(styleData.BGRotOff + levelStatus.rotation);
 
     for(auto i(0u); i < sides; ++i)
     {
@@ -175,13 +177,12 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,const sf::Vector2f& m
             currentColor = Utils::getColorDarkened(currentColor, 1.4f);
         }
 
-        const sf::Vector2 pos2{Utils::getSkewedOrbitRad(mCenterPos, angle + div * 0.5f, distance, styleData.skew)};
-        const sf::Vector2 pos3{Utils::getSkewedOrbitRad(mCenterPos, angle - div * 0.5f, distance, styleData.skew)};
+        const sf::Vector2 pos2{Utils::getSkewedOrbitRad(
+            mCenterPos, angle + div * 0.5f, distance, styleData.skew)};
+        const sf::Vector2 pos3{Utils::getSkewedOrbitRad(
+            mCenterPos, angle - div * 0.5f, distance, styleData.skew)};
         vertices.batch_unsafe_emplace_back(
-            currentColor,
-            mCenterPos,
-            pos2,
-            pos3);
+            currentColor, mCenterPos, pos2, pos3);
     }
 
     mRenderTarget.draw(vertices);

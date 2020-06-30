@@ -58,7 +58,7 @@ void HexagonGame::draw()
     playerTris.clear();
     playerDebugTris.clear();
     capTris.clear();
-    //capTrisBorder.clear();
+    // capTrisBorder.clear();
 
     for(CWall& w : walls)
     {
@@ -83,7 +83,7 @@ void HexagonGame::draw()
         playerTris3D.reserve(numPlayerTris * depth);
 
         const auto radRot(ssvu::pi / 2.f);
-        //const auto cosRot(std::cos(radRot));
+        // const auto cosRot(std::cos(radRot));
         const auto sinRot(std::sin(radRot));
 
         for(std::size_t i = 0; i < depth; ++i)
@@ -106,8 +106,11 @@ void HexagonGame::draw()
             status.overrideColor.a -= i * styleData._3dAlphaFalloff;
 
 
-            const float offset(styleData._3dSpacing * (float(i + 1.f) * styleData._3dPerspectiveMult) * 3.6f * 1.4f);
-            sf::Vector2f newPos((styleData.skew.x-1.f) * offset * sinRot, (styleData.skew.y-1.f) * offset * sinRot);
+            const float offset(styleData._3dSpacing *
+                               (float(i + 1.f) * styleData._3dPerspectiveMult) *
+                               3.6f * 1.4f);
+            sf::Vector2f newPos((styleData.skew.x - 1.f) * offset * sinRot,
+                (styleData.skew.y - 1.f) * offset * sinRot);
 
             for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
                 ++k)
@@ -131,10 +134,11 @@ void HexagonGame::draw()
     render(wallQuads);
     render(playerTris);
     render(capTris);
-    //render(capTrisBorder);
+    // render(capTrisBorder);
 
-    //For debugging collisions
-    if(Config::getDebug()){
+    // For debugging collisions
+    if(Config::getDebug())
+    {
         render(wallDebugQuads);
         render(playerDebugTris);
     }

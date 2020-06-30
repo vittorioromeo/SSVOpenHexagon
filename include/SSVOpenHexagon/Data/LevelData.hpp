@@ -56,13 +56,13 @@ struct LevelStatus
 
     sf::Vector2f camPos{0.f, 0.f};
     sf::Vector2f fieldPos{0.f, 0.f};
-  
+
     float fastSpin{0.f};
     float rotation{0.f};
     float rotationSpeed{0.f};
     float rotationSpeedInc{0.f};
     float rotationSpeedMax{0.f};
-  
+
     float speedMult{1.f};
     float speedInc{0.f};
     float speedMax{0.f};

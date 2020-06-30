@@ -36,9 +36,8 @@ private:
 public:
     bool killed{false};
 
-    CWall(HexagonGame& mHexagonGame, unsigned int mSide,
-          float mThickness, float mDistance,
-          const SpeedData& mSpeed, const SpeedData& mCurve);
+    CWall(HexagonGame& mHexagonGame, unsigned int mSide, float mThickness,
+        float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
     void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
         ssvu::FT mFT);
