@@ -7,12 +7,12 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
-#include "SSVOpenHexagon/Core/HGStatus.hpp"
 
 namespace hg
 {
 
 struct LevelStatus;
+struct HexagonGameStatus;
 
 class StyleData
 {
@@ -35,8 +35,8 @@ public:
     bool huePingPong;
     float maxSwapTime;
     int colorPosOffset;
-    float BGTileRadius;
-    float BGRotOff;
+    float bgTileRadius;
+    float bgRotOff;
     float _3dDepth;
     float _3dSkew;
     sf::Vector2f skew;
@@ -66,7 +66,7 @@ public:
           pulseIncrement{ssvuj::getExtr<float>(mRoot, "pulse_increment", 0.f)},
           huePingPong{ssvuj::getExtr<bool>(mRoot, "hue_ping_pong", false)},
           maxSwapTime{ssvuj::getExtr<float>(mRoot, "max_swap_time", 100.f)},
-          BGTileRadius{ssvuj::getExtr<float>(mRoot, "BG_tile_radius", 4500.f)},
+          bgTileRadius{ssvuj::getExtr<float>(mRoot, "bg_tile_radius", 4500.f)},
           _3dDepth{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
           _3dSkew{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
           _3dSpacing{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
@@ -98,9 +98,9 @@ public:
     }
 
     void update(FT mFT, HexagonGameStatus& status, float mMult = 1.f);
-    void computeColors(LevelStatus& levelStatus);
+    void computeColors(const LevelStatus& levelStatus);
     void drawBackground(sf::RenderTarget& mRenderTarget,
-        const sf::Vector2f& mCenterPos, LevelStatus& levelStatus,
+        const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
         const StyleData& styleData) const;
 
     void setRootPath(const Path& mPath)
