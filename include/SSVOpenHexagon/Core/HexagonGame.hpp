@@ -258,7 +258,7 @@ public:
         return game;
     }
 
-    sf::Vector2f getFieldPos() const noexcept
+    [[nodiscard]] const sf::Vector2f& getFieldPos() const noexcept
     {
         return levelStatus.fieldPos;
     }
@@ -268,7 +268,7 @@ public:
         return status.radius;
     }
 
-    const StyleData& getStyleData() const noexcept
+    [[nodiscard]] const StyleData& getStyleData() const noexcept
     {
         return styleData;
     }

@@ -10,7 +10,6 @@
 namespace hg
 {
 
-
 CWall::CWall(HexagonGame& mHexagonGame, unsigned int mSide, float mThickness,
     float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve)
     : initialSides{mHexagonGame.getSides()},
@@ -28,11 +27,13 @@ void CWall::draw(HexagonGame& mHexagonGame)
     {
         colorMain = Utils::transformHue(colorMain, hueMod);
     }
-    auto const fieldPos{mHexagonGame.getFieldPos()};
-    auto const status{mHexagonGame.getStatus()};
-    auto const styleData{mHexagonGame.getStyleData()};
-    auto const levelStatus{mHexagonGame.getLevelStatus()};
-    auto fieldAngle = ssvu::toRad(styleData.bgRotOff + levelStatus.rotation);
+
+    const auto fieldPos{mHexagonGame.getFieldPos()};
+    const auto status{mHexagonGame.getStatus()};
+    const auto styleData{mHexagonGame.getStyleData()};
+    const auto levelStatus{mHexagonGame.getLevelStatus()};
+    const auto fieldAngle =
+        ssvu::toRad(styleData.bgRotOff + levelStatus.rotation);
     const float div{ssvu::tau / initialSides * 0.5f};
     const float col_angle{curveOffset + div * 2.f * side};
     const float angle{curveOffset + fieldAngle + div * 2.f * side};
@@ -51,7 +52,7 @@ void CWall::draw(HexagonGame& mHexagonGame)
         distance + thickness + mHexagonGame.getWallSkewRight(), radius)};
 
     // For calculating collisions and whatever
-    sf::Color colorDebug(255, 0, 0, 150);
+    const sf::Color colorDebug(255, 0, 0, 150);
     Collisions_vertexPositions[0] =
         ssvs::getOrbitRad(fieldPos, col_angle - div, _distance);
     Collisions_vertexPositions[1] =
@@ -85,7 +86,7 @@ void CWall::draw(HexagonGame& mHexagonGame)
 
 
 void CWall::update(
-    HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT)
+    HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);

@@ -26,12 +26,12 @@ inline void uppercasify(std::string& s)
     }
 }
 
-[[gnu::const]] inline float getSaturated(float mValue)
+[[nodiscard, gnu::const]] inline float getSaturated(float mValue)
 {
     return std::max(0.f, std::min(1.f, mValue));
 }
 
-[[gnu::const]] inline float getSmootherStep(float edge0, float edge1, float x)
+[[nodiscard, gnu::const]] inline float getSmootherStep(float edge0, float edge1, float x)
 {
     x = getSaturated((x - edge0) / (edge1 - edge0));
     return x * x * x * (x * (x * 6 - 15) + 10);
@@ -103,15 +103,16 @@ void runLuaFunctionIfExists(
 }
 
 template <typename T1, typename T2, typename T3>
-inline auto getSkewedVecFromRad(const T1& mRad, const T2& mMag, const T3& mSkew)
+[[nodiscard]] auto getSkewedVecFromRad(
+    const T1& mRad, const T2& mMag, const T3& mSkew) noexcept
 {
     return ssvs::Vec2<ssvs::CT<T1, T2>>(
         std::cos(mRad) * (mMag / mSkew.x), std::sin(mRad) * (mMag / mSkew.y));
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
-inline auto getSkewedOrbitRad(const ssvs::Vec2<T1>& mVec, const T2& mRad,
-    const T3& mRadius, const T4& mSkew)
+[[nodiscard]] auto getSkewedOrbitRad(const ssvs::Vec2<T1>& mVec, const T2& mRad,
+    const T3& mRadius, const T4& mSkew) noexcept
 {
     return ssvs::Vec2<ssvs::CT<T1, T2, T3>>(mVec) +
            getSkewedVecFromRad(mRad, mRadius, mSkew);
