@@ -622,42 +622,40 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
-    mLua.writeVariable("l_getRotationSpeed",
-        [this] { return levelStatus.rotationSpeed; });
+    mLua.writeVariable(
+        "l_getRotationSpeed", [this] { return levelStatus.rotationSpeed; });
     mLua.writeVariable("l_getRotation",
         [this](float mValue) { levelStatus.rotation = mValue; });
-    mLua.writeVariable("l_setRotation",
-        [this] { return levelStatus.rotation; });
+    mLua.writeVariable(
+        "l_setRotation", [this] { return levelStatus.rotation; });
 
     // Unused functions
-    for(const auto& un :
-        {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax", "l_getSpeedMax",
-            "l_getDelayMin", "l_setDelayMin", "l_setDelayMax", 
-            "l_getDelayMax", "l_setRotationSpeedMax",
-            "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
-            "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
-            "l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR",
-            "l_setPulseDelayMax", "l_setBeatPulseMax", "l_setBeatPulseDelayMax",
-            "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
-            "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
-            "l_setTutorialMode", "l_setIncEnabled", "l_enableRndSideChanges",
-            "l_darkenUnevenBackgroundChunk", "l_getSpeedMult", "l_getDelayMult",
-            "l_addTracked", "u_playSound", "u_isKeyPressed",
-            "u_isMouseButtonPressed", "u_isFastSpinning", "u_setPlayerAngle",
-            "u_forceIncrement", "u_kill", "u_eventKill", "u_haltTime",
-            "u_timelineWait", "u_clearWalls", "u_setMusic", "u_setMusicSegment",
-            "u_setMusicSeconds", "m_messageAdd", "m_messageAddImportant",
-            "m_clearMessages", "t_wait", "t_waitS", "t_waitUntilS",
-            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
-            "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
-            "l_setDelayMult", "s_setStyle", "u_setMusic",
+    for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax",
+            "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin", "l_setDelayMax",
+            "l_getDelayMax", "l_setRotationSpeedMax", "l_setRotationSpeedInc",
+            "l_setDelayInc", "l_setFastSpin", "l_setSidesMin", "l_setSidesMax",
+            "l_setIncTime", "l_setPulseMin", "l_setPulseMax", "l_setPulseSpeed",
+            "l_setPulseSpeedR", "l_setPulseDelayMax", "l_setBeatPulseMax",
+            "l_setBeatPulseDelayMax", "l_setWallSkewLeft", "l_setWallSkewRight",
+            "l_setWallAngleLeft", "l_setWallAngleRight", "l_setRadiusMin",
+            "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
+            "l_enableRndSideChanges", "l_darkenUnevenBackgroundChunk",
+            "l_getSpeedMult", "l_getDelayMult", "l_addTracked", "u_playSound",
+            "u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
+            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setMusic",
+            "u_setMusicSegment", "u_setMusicSeconds", "m_messageAdd",
+            "m_messageAddImportant", "m_clearMessages", "t_wait", "t_waitS",
+            "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
+            "e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall",
+            "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
+            "w_wallHModCurveData", "l_setDelayMult", "s_setStyle", "u_setMusic",
             "l_getRotation", "l_setRotation", "s_getCameraShake",
-            "s_setCameraShake", "l_getOfficial", "s_setColorPosOffset", 
-            "s_getColorPosOffset", "s_set3dSkew", "s_setSkew", 
-            "s_getSkew", "steam_unlockAchievement",
-            "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-            "cw_isOverlappingPlayer", "cw_clear"})
+            "s_setCameraShake", "l_getOfficial", "s_setColorPosOffset",
+            "s_getColorPosOffset", "s_set3dSkew", "s_setSkew", "s_getSkew",
+            "steam_unlockAchievement", "cw_create", "cw_destroy",
+            "cw_setVertexPos", "cw_setVertexColor", "cw_isOverlappingPlayer",
+            "cw_clear"})
     {
         mLua.writeVariable(un, [] {});
     }
@@ -998,8 +996,8 @@ void MenuGame::update(FT mFT)
     }
     else if(state == s::SMain)
     {
-        //TODO:Rotation preview
-        //backgroundCamera.turn(levelStatus.cameraRotationSpeed * 10.f);
+        // TODO:Rotation preview
+        // backgroundCamera.turn(levelStatus.cameraRotationSpeed * 10.f);
         hexagonGame.updateRotation(mFT);
         styleData.update(mFT, hexagonGame.getStatus());
 
@@ -1041,7 +1039,8 @@ void MenuGame::draw()
     {
         // styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus,
         // styleData);
-        styleData.drawBackground(window, levelStatus.fieldPos, levelStatus, styleData);
+        styleData.drawBackground(
+            window, levelStatus.fieldPos, levelStatus, styleData);
     }
 
     overlayCamera.apply();

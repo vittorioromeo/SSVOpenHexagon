@@ -36,7 +36,7 @@ void CPlayer::setPlayerAngle(const float newAng)
 }
 
 void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
-                   const LevelStatus& levelStatus, const StyleData& styleData)
+    const LevelStatus& levelStatus, const StyleData& styleData)
 {
     drawPivot(mHexagonGame, mCapColor, levelStatus, styleData);
 
@@ -51,7 +51,7 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     if(!swapTimer.isRunning())
     {
         colorMain = ssvs::getColorFromHSV(
-                (swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
+            (swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
     }
 
     const auto fieldPos{mHexagonGame.getFieldPos()};
@@ -62,40 +62,38 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     auto fieldAngle = ssvu::toRad(levelStatus.rotation);
     const auto _angle = angle + fieldAngle;
 
-    //For Drawing
-    _pos = Utils::getSkewedOrbitRad(fieldPos, fieldAngle + angle, playerRadius, skew);
-    pTip   = Utils::getSkewedOrbitRad(_pos, _angle, size, skew);
-    pLeft  = Utils::getSkewedOrbitRad(_pos, _angle - ssvu::toRad(100.f), size+3, skew);
-    pRight = Utils::getSkewedOrbitRad(_pos, _angle + ssvu::toRad(100.f), size+3, skew);
+    // For Drawing
+    _pos = Utils::getSkewedOrbitRad(
+        fieldPos, fieldAngle + angle, playerRadius, skew);
+    pTip = Utils::getSkewedOrbitRad(_pos, _angle, size, skew);
+    pLeft = Utils::getSkewedOrbitRad(
+        _pos, _angle - ssvu::toRad(100.f), size + 3, skew);
+    pRight = Utils::getSkewedOrbitRad(
+        _pos, _angle + ssvu::toRad(100.f), size + 3, skew);
 
-    //For collisions check
+    // For collisions check
     pos = ssvs::getOrbitRad(mHexagonGame.getFieldPos(), angle, playerRadius);
-    pDTip   = ssvs::getOrbitRad(pos, angle, size);
-    pDLeft  = ssvs::getOrbitRad(pos, angle - ssvu::toRad(100.f), size+3);
-    pDRight = ssvs::getOrbitRad(pos, angle + ssvu::toRad(100.f), size+3);
+    pDTip = ssvs::getOrbitRad(pos, angle, size);
+    pDLeft = ssvs::getOrbitRad(pos, angle - ssvu::toRad(100.f), size + 3);
+    pDRight = ssvs::getOrbitRad(pos, angle + ssvu::toRad(100.f), size + 3);
 
-    //Debug Player itself
-    if (Config::getDebug()) {
+    // Debug Player itself
+    if(Config::getDebug())
+    {
         sf::Color colorDebug(0, 0, 255, 150);
         mHexagonGame.playerDebugTris.reserve_more(3);
         mHexagonGame.playerDebugTris.batch_unsafe_emplace_back(
-            colorDebug,
-            pDTip,
-            pDLeft,
-            pDRight);
+            colorDebug, pDTip, pDLeft, pDRight);
     }
 
-    //Player itself
+    // Player itself
     mHexagonGame.playerTris.reserve_more(3);
     mHexagonGame.playerTris.batch_unsafe_emplace_back(
-        colorMain,
-        pTip,
-        pLeft,
-        pRight);
+        colorMain, pTip, pLeft, pRight);
 }
 
 void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
-                        const LevelStatus& levelStatus, const StyleData& styleData)
+    const LevelStatus& levelStatus, const StyleData& styleData)
 {
     const auto status{mHexagonGame.getStatus()};
     const auto sides(mHexagonGame.getSides());
@@ -113,36 +111,36 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     const sf::Vector2f skew{styleData.skew};
     auto fieldAngle = ssvu::toRad(levelStatus.rotation);
 
-    //Cap Graphics
+    // Cap Graphics
     for(auto i(0u); i < sides; ++i)
     {
         const float sAngle{fieldAngle + div * 2.f * i};
 
-        const sf::Vector2f p1{Utils::getSkewedOrbitRad(mHexagonGame.getFieldPos(), sAngle - div, radius, skew)};
-        const sf::Vector2f p2{Utils::getSkewedOrbitRad(mHexagonGame.getFieldPos(), sAngle + div, radius, skew)};
-        const sf::Vector2f p3{Utils::getSkewedOrbitRad(mHexagonGame.getFieldPos(), sAngle + div, radius + baseThickness, skew)};
-        const sf::Vector2f p4{Utils::getSkewedOrbitRad(mHexagonGame.getFieldPos(), sAngle - div, radius + baseThickness, skew)};
+        const sf::Vector2f p1{Utils::getSkewedOrbitRad(
+            mHexagonGame.getFieldPos(), sAngle - div, radius, skew)};
+        const sf::Vector2f p2{Utils::getSkewedOrbitRad(
+            mHexagonGame.getFieldPos(), sAngle + div, radius, skew)};
+        const sf::Vector2f p3{
+            Utils::getSkewedOrbitRad(mHexagonGame.getFieldPos(), sAngle + div,
+                radius + baseThickness, skew)};
+        const sf::Vector2f p4{
+            Utils::getSkewedOrbitRad(mHexagonGame.getFieldPos(), sAngle - div,
+                radius + baseThickness, skew)};
 
-        //Cap's border
+        // Cap's border
         mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
-            colorMain,
-            p1,
-            p2,
-            p3,
-            p4);
+            colorMain, p1, p2, p3, p4);
 
-        //Cap
+        // Cap
         mHexagonGame.capTris.reserve_more(3);
         mHexagonGame.capTris.batch_unsafe_emplace_back(
-            mCapColor,
-            mHexagonGame.getFieldPos(),
-            p1,
-            p2);
+            mCapColor, mHexagonGame.getFieldPos(), p1, p2);
     }
 }
 
-void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleData)
+void CPlayer::drawDeathEffect(
+    HexagonGame& mHexagonGame, const StyleData& styleData)
 {
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
     const float radius{hue / 8.f};
@@ -166,10 +164,14 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleD
     {
         const float sAngle{fieldAngle + angle + div * 2.f * i};
 
-        sf::Vector2f p1{Utils::getSkewedOrbitRad(_pos, sAngle - div, radius, skew)};
-        sf::Vector2f p2{Utils::getSkewedOrbitRad(_pos, sAngle + div, radius, skew)};
-        sf::Vector2f p3{Utils::getSkewedOrbitRad(_pos, sAngle + div, radius + thickness, skew)};
-        sf::Vector2f p4{Utils::getSkewedOrbitRad(_pos, sAngle - div, radius + thickness, skew)};
+        sf::Vector2f p1{
+            Utils::getSkewedOrbitRad(_pos, sAngle - div, radius, skew)};
+        sf::Vector2f p2{
+            Utils::getSkewedOrbitRad(_pos, sAngle + div, radius, skew)};
+        sf::Vector2f p3{Utils::getSkewedOrbitRad(
+            _pos, sAngle + div, radius + thickness, skew)};
+        sf::Vector2f p4{Utils::getSkewedOrbitRad(
+            _pos, sAngle - div, radius + thickness, skew)};
 
         mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
@@ -177,10 +179,14 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleD
     }
 }
 
-void CPlayer::swap(HexagonGame& mHexagonGame, bool mSoundTog){
+void CPlayer::swap(HexagonGame& mHexagonGame, bool mSoundTog)
+{
     angle += ssvu::pi;
     mHexagonGame.runLuaFunctionIfExists<void>("onCursorSwap");
-    if (mSoundTog) {mHexagonGame.getAssets().playSound("swap.ogg");}
+    if(mSoundTog)
+    {
+        mHexagonGame.getAssets().playSound("swap.ogg");
+    }
 }
 
 void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
@@ -218,13 +224,14 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     {
         swap(mHexagonGame, true);
         swapTimer.restart();
-
     }
 
-    //Collisions
+    // Collisions
     const sf::Vector2f tempPos{ssvs::getOrbitRad(startPos, angle, radius)};
-    const sf::Vector2f pLeftCheck{ssvs::getOrbitRad(tempPos, angle - ssvu::piHalf, 0.01f)};
-    const sf::Vector2f pRightCheck{ssvs::getOrbitRad(tempPos, angle + ssvu::piHalf, 0.01f)};
+    const sf::Vector2f pLeftCheck{
+        ssvs::getOrbitRad(tempPos, angle - ssvu::piHalf, 0.01f)};
+    const sf::Vector2f pRightCheck{
+        ssvs::getOrbitRad(tempPos, angle + ssvu::piHalf, 0.01f)};
 
     const auto doCollision = [&](const auto& wall) {
         if((movement == -1 && wall.isOverlapping(pLeftCheck)) ||
@@ -242,8 +249,9 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
                 dead = true;
             }
 
-            //TODO:
-            //ssvs::moveTowards(lastPos, ssvs::zeroVec2f, 5 * mHexagonGame.getSpeedMultDM());
+            // TODO:
+            // ssvs::moveTowards(lastPos, ssvs::zeroVec2f, 5 *
+            // mHexagonGame.getSpeedMultDM());
 
             pos = lastPos;
             mHexagonGame.death();

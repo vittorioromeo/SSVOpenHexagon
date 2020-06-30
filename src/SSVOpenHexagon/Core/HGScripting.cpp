@@ -151,7 +151,7 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Return the current delay multiplier, adjusted for the chosen "
             "difficulty multiplier.");
-  
+
     lua.writeVariable("u_swapPlayer", [this]() { playerSwap(false); });
 }
 
@@ -320,7 +320,7 @@ void HexagonGame::initLua_LevelControl()
     lsVar("SpeedMult", &LevelStatus::speedMult);
     lsVar("SpeedInc", &LevelStatus::speedInc);
     lsVar("SpeedMax", &LevelStatus::speedMax);
-  
+
     lsVar("Rotation", &LevelStatus::rotation);
     lsVar("RotationSpeed", &LevelStatus::rotationSpeed);
     lsVar("RotationSpeedInc", &LevelStatus::rotationSpeedInc);
@@ -380,7 +380,7 @@ void HexagonGame::initLua_LevelControl()
             "Add the variable `$0` to the list of tracked variables, with name "
             "`$1`. Tracked variables are displayed in game, below the game "
             "timer.");
-  
+
     lua.writeVariable("l_setFieldPos", [this](float mX, float mY) {
         levelStatus.fieldPos = {mX, mY};
     });
@@ -456,7 +456,7 @@ void HexagonGame::initLua_StyleControl()
     sdVar("MaxSwapTime", &StyleData::maxSwapTime);
     sdVar("3dDepth", &StyleData::_3dDepth);
     sdVar("3dSkew", &StyleData::_3dSkew);
-    //sdVar("3dSkewAngle", &StyleData::_3dSkewAngle);
+    // sdVar("3dSkewAngle", &StyleData::_3dSkewAngle);
     sdVar("3dSpacing", &StyleData::_3dSpacing);
     sdVar("3dDarkenMult", &StyleData::_3dDarkenMult);
     sdVar("3dAlphaMult", &StyleData::_3dAlphaMult);
@@ -506,14 +506,13 @@ void HexagonGame::initLua_StyleControl()
         .doc(
             "Set the color of the center polygon to match the  style "
             "color with index `$0`.");
-  
+
     lua.writeVariable("s_setSkew", [this](float mX, float mY) {
         styleData.skew = {mX, mY};
     });
 
-    lua.writeVariable("s_getSkew", [this] {
-        return std::make_tuple(styleData.skew.x, styleData.skew.y);
-    });
+    lua.writeVariable("s_getSkew",
+        [this] { return std::make_tuple(styleData.skew.x, styleData.skew.y); });
 }
 
 void HexagonGame::initLua_WallCreation()

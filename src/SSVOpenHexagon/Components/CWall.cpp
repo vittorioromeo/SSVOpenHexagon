@@ -11,13 +11,14 @@ namespace hg
 {
 
 
-CWall::CWall(HexagonGame& mHexagonGame,
-    unsigned int mSide, float mThickness, float mDistance,
-    const SpeedData& mSpeed, const SpeedData& mCurve)
-    : initialSides{mHexagonGame.getSides()}, 
-      side{(mHexagonGame.getSides()+(mSide%mHexagonGame.getSides()))%mHexagonGame.getSides()}, 
-      distance{mDistance},
-      thickness{mThickness}, speed{mSpeed}, curve{mCurve}{}
+CWall::CWall(HexagonGame& mHexagonGame, unsigned int mSide, float mThickness,
+    float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve)
+    : initialSides{mHexagonGame.getSides()},
+      side{(mHexagonGame.getSides() + (mSide % mHexagonGame.getSides())) %
+           mHexagonGame.getSides()},
+      distance{mDistance}, thickness{mThickness}, speed{mSpeed}, curve{mCurve}
+{
+}
 
 void CWall::draw(HexagonGame& mHexagonGame)
 {
@@ -31,54 +32,60 @@ void CWall::draw(HexagonGame& mHexagonGame)
     auto const status{mHexagonGame.getStatus()};
     auto const styleData{mHexagonGame.getStyleData()};
     auto const levelStatus{mHexagonGame.getLevelStatus()};
-    auto fieldAngle = ssvu::toRad(styleData.BGRotOff+levelStatus.rotation);
+    auto fieldAngle = ssvu::toRad(styleData.BGRotOff + levelStatus.rotation);
     const float div{ssvu::tau / initialSides * 0.5f};
     const float col_angle{curveOffset + div * 2.f * side};
     const float angle{curveOffset + fieldAngle + div * 2.f * side};
 
     const sf::Vector2f skewEffect{
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D
-    };
-    const sf::Vector2f skew{1.f, 1.f+skewEffect.y};
+        styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D,
+        styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+    const sf::Vector2f skew{1.f, 1.f + skewEffect.y};
 
 
     const float radius{mHexagonGame.getRadius() * 0.75f};
     const auto _distance{ssvu::getClampedMin(distance, radius)};
-    const auto _distanceThiccL{ssvu::getClampedMin(distance + thickness + mHexagonGame.getWallSkewLeft(), radius)};
-    const auto _distanceThiccR{ssvu::getClampedMin(distance + thickness + mHexagonGame.getWallSkewRight(), radius)};
+    const auto _distanceThiccL{ssvu::getClampedMin(
+        distance + thickness + mHexagonGame.getWallSkewLeft(), radius)};
+    const auto _distanceThiccR{ssvu::getClampedMin(
+        distance + thickness + mHexagonGame.getWallSkewRight(), radius)};
 
-    //For calculating collisions and whatever
+    // For calculating collisions and whatever
     Color colorDebug(255, 0, 0, 150);
-    Collisions_vertexPositions[0] = getOrbitRad(fieldPos, col_angle - div, _distance);
-    Collisions_vertexPositions[1] = getOrbitRad(fieldPos, col_angle + div, _distance);
-    Collisions_vertexPositions[2] = getOrbitRad(fieldPos, col_angle + div + mHexagonGame.getWallAngleLeft(), _distanceThiccL);
-    Collisions_vertexPositions[3] = getOrbitRad(fieldPos, col_angle - div + mHexagonGame.getWallAngleRight(), _distanceThiccR);
+    Collisions_vertexPositions[0] =
+        getOrbitRad(fieldPos, col_angle - div, _distance);
+    Collisions_vertexPositions[1] =
+        getOrbitRad(fieldPos, col_angle + div, _distance);
+    Collisions_vertexPositions[2] = getOrbitRad(fieldPos,
+        col_angle + div + mHexagonGame.getWallAngleLeft(), _distanceThiccL);
+    Collisions_vertexPositions[3] = getOrbitRad(fieldPos,
+        col_angle - div + mHexagonGame.getWallAngleRight(), _distanceThiccR);
 
-    //For drawing
-    vertexPositions[0] = Utils::getSkewedOrbitRad(fieldPos, angle - div, _distance, styleData.skew);
-    vertexPositions[1] = Utils::getSkewedOrbitRad(fieldPos, angle + div, _distance, styleData.skew);
-    vertexPositions[2] = Utils::getSkewedOrbitRad(fieldPos, angle + div + mHexagonGame.getWallAngleLeft(), _distanceThiccL, styleData.skew);
-    vertexPositions[3] = Utils::getSkewedOrbitRad(fieldPos, angle - div + mHexagonGame.getWallAngleRight(), _distanceThiccR, styleData.skew);
+    // For drawing
+    vertexPositions[0] = Utils::getSkewedOrbitRad(
+        fieldPos, angle - div, _distance, styleData.skew);
+    vertexPositions[1] = Utils::getSkewedOrbitRad(
+        fieldPos, angle + div, _distance, styleData.skew);
+    vertexPositions[2] = Utils::getSkewedOrbitRad(fieldPos,
+        angle + div + mHexagonGame.getWallAngleLeft(), _distanceThiccL,
+        styleData.skew);
+    vertexPositions[3] = Utils::getSkewedOrbitRad(fieldPos,
+        angle - div + mHexagonGame.getWallAngleRight(), _distanceThiccR,
+        styleData.skew);
 
     mHexagonGame.wallDebugQuads.reserve_more(4);
-    mHexagonGame.wallDebugQuads.batch_unsafe_emplace_back(
-        colorDebug,
-        Collisions_vertexPositions[0],
-        Collisions_vertexPositions[1],
-        Collisions_vertexPositions[2],
-        Collisions_vertexPositions[3]);
+    mHexagonGame.wallDebugQuads.batch_unsafe_emplace_back(colorDebug,
+        Collisions_vertexPositions[0], Collisions_vertexPositions[1],
+        Collisions_vertexPositions[2], Collisions_vertexPositions[3]);
     mHexagonGame.wallQuads.reserve_more(4);
-    mHexagonGame.wallQuads.batch_unsafe_emplace_back(
-        colorMain,
-        vertexPositions[0],
-        vertexPositions[1],
-        vertexPositions[2],
+    mHexagonGame.wallQuads.batch_unsafe_emplace_back(colorMain,
+        vertexPositions[0], vertexPositions[1], vertexPositions[2],
         vertexPositions[3]);
 }
 
 
-void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT)
+void CWall::update(
+    HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);
@@ -91,7 +98,8 @@ void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, FT
 
     for(sf::Vector2f& vp : Collisions_vertexPositions)
     {
-        if (std::abs(vp.x - mCenterPos.x) <= radius && std::abs(vp.y - mCenterPos.y) <= radius)
+        if(std::abs(vp.x - mCenterPos.x) <= radius &&
+            std::abs(vp.y - mCenterPos.y) <= radius)
         {
             ++pointsOnCenter;
         }

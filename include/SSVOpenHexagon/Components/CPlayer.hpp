@@ -44,7 +44,7 @@ private:
     Ticker deadEffectTimer;
 
     void drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
-                    const LevelStatus& levelStatus, const StyleData& styleData);
+        const LevelStatus& levelStatus, const StyleData& styleData);
     void drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleData);
 
 public:
@@ -55,7 +55,7 @@ public:
 
     void update(HexagonGame& mHexagonGame, FT mFT);
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
-              const LevelStatus& levelStatus, const StyleData& styleData);
+        const LevelStatus& levelStatus, const StyleData& styleData);
 };
 
 } // namespace hg

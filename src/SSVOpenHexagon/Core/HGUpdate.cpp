@@ -329,15 +329,18 @@ void HexagonGame::updateRotation(FT mFT)
     {
         nextRotation +=
             abs((getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) /
-                 3.5f) *
+                    3.5f) *
                 17.f) *
             getSign(nextRotation);
         status.fastSpin -= mFT;
     }
     levelStatus.rotation += nextRotation;
-    if(levelStatus.rotation >= 360.f){
+    if(levelStatus.rotation >= 360.f)
+    {
         levelStatus.rotation -= 360.f;
-    }else if(levelStatus.rotation < 0.f){
+    }
+    else if(levelStatus.rotation < 0.f)
+    {
         levelStatus.rotation += 360.f;
     }
 }

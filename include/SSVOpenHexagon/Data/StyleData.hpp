@@ -32,9 +32,9 @@ public:
     float pulseMin;
     float pulseMax;
     float pulseIncrement;
-    bool  huePingPong;
+    bool huePingPong;
     float maxSwapTime;
-    int   colorPosOffset;
+    int colorPosOffset;
     float BGTileRadius;
     float BGRotOff;
     float _3dDepth;
@@ -99,9 +99,9 @@ public:
 
     void update(FT mFT, HexagonGameStatus& status, float mMult = 1.f);
     void computeColors(LevelStatus& levelStatus);
-    void drawBackground(
-        sf::RenderTarget& mRenderTarget, const sf::Vector2f& mCenterPos,
-        LevelStatus& levelStatus, const StyleData& styleData) const;
+    void drawBackground(sf::RenderTarget& mRenderTarget,
+        const sf::Vector2f& mCenterPos, LevelStatus& levelStatus,
+        const StyleData& styleData) const;
 
     void setRootPath(const Path& mPath)
     {
