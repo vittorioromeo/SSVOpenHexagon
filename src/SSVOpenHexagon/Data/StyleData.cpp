@@ -11,13 +11,6 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-using namespace std;
-using namespace sf;
-using namespace ssvs;
-using namespace hg::Utils;
-using namespace ssvu;
-using namespace ssvuj;
-
 namespace hg
 {
 
@@ -118,7 +111,7 @@ void StyleData::update(FT mFT, HexagonGameStatus& status, float mMult)
     }
 }
 
-void StyleData::computeColors(LevelStatus& levelStatus)
+void StyleData::computeColors(const LevelStatus& levelStatus)
 {
     currentMainColor = calculateColor(mainColorData);
 
@@ -134,20 +127,20 @@ void StyleData::computeColors(LevelStatus& levelStatus)
 
     if(currentColors.size() > 1)
     {
-        ssvu::rotate(currentColors, begin(currentColors) +
+        ssvu::rotate(currentColors, std::begin(currentColors) +
                                         currentSwapTime / (maxSwapTime / 2.f) +
                                         colorPosOffset % levelStatus.sides);
     }
 }
 
-void StyleData::drawBackground(RenderTarget& mRenderTarget,
-    const sf::Vector2f& mCenterPos, LevelStatus& levelStatus,
+void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
+    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
     const StyleData& styleData) const
 {
     const auto sides = levelStatus.sides;
 
-    float div{ssvu::tau / sides * 1.0001f};
-    float distance{styleData.BGTileRadius};
+    const float div{ssvu::tau / sides * 1.0001f};
+    const float distance{styleData.bgTileRadius};
 
     static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
 
@@ -156,7 +149,8 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
 
     const auto& colors(getColors());
 
-    auto fieldAngle = ssvu::toRad(styleData.BGRotOff + levelStatus.rotation);
+    const auto fieldAngle =
+        ssvu::toRad(styleData.bgRotOff + levelStatus.rotation);
 
     for(auto i(0u); i < sides; ++i)
     {
@@ -177,12 +171,14 @@ void StyleData::drawBackground(RenderTarget& mRenderTarget,
             currentColor = Utils::getColorDarkened(currentColor, 1.4f);
         }
 
-        const sf::Vector2 pos2{Utils::getSkewedOrbitRad(
+        const sf::Vector2 posR{Utils::getSkewedOrbitRad(
             mCenterPos, angle + div * 0.5f, distance, styleData.skew)};
-        const sf::Vector2 pos3{Utils::getSkewedOrbitRad(
+
+        const sf::Vector2 posL{Utils::getSkewedOrbitRad(
             mCenterPos, angle - div * 0.5f, distance, styleData.skew)};
+
         vertices.batch_unsafe_emplace_back(
-            currentColor, mCenterPos, pos2, pos3);
+            currentColor, mCenterPos, posR, posL);
     }
 
     mRenderTarget.draw(vertices);

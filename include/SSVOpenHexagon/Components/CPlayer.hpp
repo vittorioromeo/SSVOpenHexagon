@@ -48,7 +48,8 @@ private:
     void drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleData);
 
 public:
-    CPlayer() noexcept;
+    CPlayer(const sf::Vector2f& mStartPos) noexcept;
+
     [[nodiscard]] float getPlayerAngle() const;
     void setPlayerAngle(const float newAng);
     void swap(HexagonGame& mHexagonGame, bool mSoundTog);

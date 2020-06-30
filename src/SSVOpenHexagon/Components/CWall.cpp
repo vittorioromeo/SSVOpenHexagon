@@ -32,7 +32,7 @@ void CWall::draw(HexagonGame& mHexagonGame)
     auto const status{mHexagonGame.getStatus()};
     auto const styleData{mHexagonGame.getStyleData()};
     auto const levelStatus{mHexagonGame.getLevelStatus()};
-    auto fieldAngle = ssvu::toRad(styleData.BGRotOff + levelStatus.rotation);
+    auto fieldAngle = ssvu::toRad(styleData.bgRotOff + levelStatus.rotation);
     const float div{ssvu::tau / initialSides * 0.5f};
     const float col_angle{curveOffset + div * 2.f * side};
     const float angle{curveOffset + fieldAngle + div * 2.f * side};
@@ -51,14 +51,14 @@ void CWall::draw(HexagonGame& mHexagonGame)
         distance + thickness + mHexagonGame.getWallSkewRight(), radius)};
 
     // For calculating collisions and whatever
-    Color colorDebug(255, 0, 0, 150);
+    sf::Color colorDebug(255, 0, 0, 150);
     Collisions_vertexPositions[0] =
-        getOrbitRad(fieldPos, col_angle - div, _distance);
+        ssvs::getOrbitRad(fieldPos, col_angle - div, _distance);
     Collisions_vertexPositions[1] =
-        getOrbitRad(fieldPos, col_angle + div, _distance);
-    Collisions_vertexPositions[2] = getOrbitRad(fieldPos,
+        ssvs::getOrbitRad(fieldPos, col_angle + div, _distance);
+    Collisions_vertexPositions[2] = ssvs::getOrbitRad(fieldPos,
         col_angle + div + mHexagonGame.getWallAngleLeft(), _distanceThiccL);
-    Collisions_vertexPositions[3] = getOrbitRad(fieldPos,
+    Collisions_vertexPositions[3] = ssvs::getOrbitRad(fieldPos,
         col_angle - div + mHexagonGame.getWallAngleRight(), _distanceThiccR);
 
     // For drawing

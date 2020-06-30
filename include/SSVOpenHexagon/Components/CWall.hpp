@@ -43,25 +43,13 @@ public:
         ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame);
 
-    void setHueMod(float mHueMod) noexcept
-    {
-        hueMod = mHueMod;
-    }
+    void setHueMod(float mHueMod) noexcept;
 
-    [[nodiscard]] SpeedData& getSpeed() noexcept
-    {
-        return speed;
-    }
+    [[nodiscard]] SpeedData& getSpeed() noexcept;
 
-    [[nodiscard]] SpeedData& getCurve() noexcept
-    {
-        return curve;
-    }
+    [[nodiscard]] SpeedData& getCurve() noexcept;
 
-    [[nodiscard]] bool isOverlapping(const sf::Vector2f& mPoint) const noexcept
-    {
-        return ssvs::isPointInPolygon(Collisions_vertexPositions, mPoint);
-    }
+    [[nodiscard]] bool isOverlapping(const sf::Vector2f& mPoint) const noexcept;
 };
 
 } // namespace hg

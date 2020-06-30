@@ -25,6 +25,14 @@ namespace hg
 
 inline constexpr float baseThickness{5.f};
 
+CPlayer::CPlayer(const sf::Vector2f& mStartPos) noexcept
+    : startPos{mStartPos}, pos{startPos}, hue{0}, angle{0},
+      size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
+      focusSpeed{Config::getPlayerFocusSpeed()}, dead{false}, swapTimer{36.f},
+      swapBlinkTimer{5.f}, deadEffectTimer{80.f, false}
+{
+}
+
 [[nodiscard]] float CPlayer::getPlayerAngle() const
 {
     return angle;

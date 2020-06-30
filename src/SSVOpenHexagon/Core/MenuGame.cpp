@@ -608,10 +608,10 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         [this](float mValue) { styleData.colorPosOffset = mValue; });
     mLua.writeVariable(
         "s_getColorPosOffset", [this] { return styleData.colorPosOffset; });
-    mLua.writeVariable("s_setBGTileRadius",
-        [this](float mValue) { styleData.BGTileRadius = mValue; });
+    mLua.writeVariable("s_setBgTileRadius",
+        [this](float mValue) { styleData.bgTileRadius = mValue; });
     mLua.writeVariable(
-        "s_getBGTileRadius", [this] { return styleData.BGTileRadius; });
+        "s_getBgTileRadius", [this] { return styleData.bgTileRadius; });
 
     mLua.writeVariable("l_setFieldPos", [this](float mX, float mY) {
         levelStatus.fieldPos = {mX, mY};
