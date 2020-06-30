@@ -66,7 +66,7 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     const auto status{mHexagonGame.getStatus()};
     const float playerRadius{mHexagonGame.getRadius()};
 
-    const sf::Vector2f skew{styleData.skew};
+    const sf::Vector2f& skew{styleData.skew};
     auto fieldAngle = ssvu::toRad(levelStatus.rotation);
     const auto _angle = angle + fieldAngle;
 
@@ -116,7 +116,7 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
 
     const sf::Color colorDarkened{Utils::getColorDarkened(colorMain, 1.4f)};
 
-    const sf::Vector2f skew{styleData.skew};
+    const sf::Vector2f& skew{styleData.skew};
     auto fieldAngle = ssvu::toRad(levelStatus.rotation);
 
     // Cap Graphics
@@ -156,7 +156,7 @@ void CPlayer::drawDeathEffect(
 
     const auto status{mHexagonGame.getStatus()};
 
-    const sf::Vector2f skew{styleData.skew};
+    const sf::Vector2f& skew{styleData.skew};
 
     const auto fieldAngle = ssvu::toRad(mHexagonGame.getLevelStatus().rotation);
 
@@ -172,13 +172,13 @@ void CPlayer::drawDeathEffect(
     {
         const float sAngle{fieldAngle + angle + div * 2.f * i};
 
-        sf::Vector2f p1{
+        const sf::Vector2f p1{
             Utils::getSkewedOrbitRad(_pos, sAngle - div, radius, skew)};
-        sf::Vector2f p2{
+        const sf::Vector2f p2{
             Utils::getSkewedOrbitRad(_pos, sAngle + div, radius, skew)};
-        sf::Vector2f p3{Utils::getSkewedOrbitRad(
+        const sf::Vector2f p3{Utils::getSkewedOrbitRad(
             _pos, sAngle + div, radius + thickness, skew)};
-        sf::Vector2f p4{Utils::getSkewedOrbitRad(
+        const sf::Vector2f p4{Utils::getSkewedOrbitRad(
             _pos, sAngle - div, radius + thickness, skew)};
 
         mHexagonGame.wallQuads.reserve_more(4);
@@ -199,15 +199,15 @@ void CPlayer::swap(HexagonGame& mHexagonGame, bool mSoundTog)
 
 void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
-    startPos = mHexagonGame.getFieldPos();
-    sf::Vector2f lastPos{pos};
+    const auto startPos = mHexagonGame.getFieldPos();
+    const sf::Vector2f lastPos{pos};
     float currentSpeed{speed};
 
     const float lastAngle{angle};
     const float radius{mHexagonGame.getRadius()};
     const int movement{mHexagonGame.getInputMovement()};
 
-    angle += ssvu::toRad(currentSpeed * movement * mFT);
+
 
     swapBlinkTimer.update(mFT);
 
@@ -226,6 +226,8 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     {
         currentSpeed = focusSpeed;
     }
+
+    angle += ssvu::toRad(currentSpeed * movement * mFT);
 
     if(mHexagonGame.getLevelStatus().swapEnabled &&
         mHexagonGame.getInputSwap() && !swapTimer.isRunning())

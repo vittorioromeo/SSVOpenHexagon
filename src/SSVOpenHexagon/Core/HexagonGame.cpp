@@ -31,7 +31,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
+      assets(mAssets), window(mGameWindow), player{getFieldPos()},
       fpsWatcher(window)
 {
     game.onUpdate += [this](FT mFT) { update(mFT); };
@@ -101,7 +101,7 @@ void HexagonGame::newGame(
     // Manager cleanup
     walls.clear();
     cwManager.clear();
-    player = CPlayer{ssvs::zeroVec2f};
+    player = CPlayer{getFieldPos()};
 
 
     // Timeline cleanup
@@ -188,7 +188,7 @@ void HexagonGame::incrementDifficulty()
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
     levelStatus.rotationSpeed *= -1.f;
     if(status.fastSpin <= 0 &&
-        abs(levelStatus.rotationSpeed) > rotationSpeedMax)
+        std::abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed =
             rotationSpeedMax * ssvu::getSign(levelStatus.rotationSpeed);

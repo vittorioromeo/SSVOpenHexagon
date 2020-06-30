@@ -608,10 +608,10 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         [this](float mValue) { styleData.colorPosOffset = mValue; });
     mLua.writeVariable(
         "s_getColorPosOffset", [this] { return styleData.colorPosOffset; });
-    mLua.writeVariable("s_setBgTileRadius",
+    mLua.writeVariable("s_setBGTileRadius",
         [this](float mValue) { styleData.bgTileRadius = mValue; });
     mLua.writeVariable(
-        "s_getBgTileRadius", [this] { return styleData.bgTileRadius; });
+        "s_getBGTileRadius", [this] { return styleData.bgTileRadius; });
 
     mLua.writeVariable("l_setFieldPos", [this](float mX, float mY) {
         levelStatus.fieldPos = {mX, mY};
@@ -1030,15 +1030,13 @@ void MenuGame::update(FT mFT)
 void MenuGame::draw()
 {
     styleData.computeColors(levelStatus);
-    // Maybe could be replaced with custom color type
+    // TODO: Maybe could be replaced with custom color type
     window.clear(Color::Black);
 
     backgroundCamera.setCenter(levelStatus.camPos);
     backgroundCamera.apply();
     if(state == s::SMain)
     {
-        // styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus,
-        // styleData);
         styleData.drawBackground(
             window, levelStatus.fieldPos, levelStatus, styleData);
     }

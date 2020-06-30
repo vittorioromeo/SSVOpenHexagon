@@ -328,7 +328,8 @@ void HexagonGame::updateRotation(FT mFT)
     if(status.fastSpin > 0)
     {
         nextRotation +=
-            abs((getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) /
+            std::abs(
+                (getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) /
                     3.5f) *
                 17.f) *
             getSign(nextRotation);
@@ -368,9 +369,5 @@ void HexagonGame::update3D(FT mFT)
         status.pulse3DDirection = 1;
     }
 }
-/*
-void HexagonGame::updateSkew(FT mFT){
 
-}
-*/
 } // namespace hg

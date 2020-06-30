@@ -66,9 +66,12 @@ public:
           pulseIncrement{ssvuj::getExtr<float>(mRoot, "pulse_increment", 0.f)},
           huePingPong{ssvuj::getExtr<bool>(mRoot, "hue_ping_pong", false)},
           maxSwapTime{ssvuj::getExtr<float>(mRoot, "max_swap_time", 100.f)},
-          bgTileRadius{ssvuj::getExtr<float>(mRoot, "bg_tile_radius", 4500.f)},
+          colorPosOffset{ssvuj::getExtr<int>(mRoot, "color_pos_offset", 0)},
+          bgTileRadius{ssvuj::getExtr<float>(mRoot, "bg_tile_radius", 7500.f)},
+          bgRotOff{ssvuj::getExtr<float>(mRoot, "bg_rot_off", 0.f)},
           _3dDepth{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
           _3dSkew{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
+          skew{},
           _3dSpacing{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
           _3dDarkenMult{
               ssvuj::getExtr<float>(mRoot, "3D_darken_multiplier", 1.5f)},
