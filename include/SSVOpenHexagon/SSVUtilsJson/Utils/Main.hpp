@@ -4,6 +4,10 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+
+#include <SSVUtils/Core/Common/Aliases.hpp>
+
 namespace ssvuj
 {
 /// @brief Gets a JSON Obj from another JSON Obj.
