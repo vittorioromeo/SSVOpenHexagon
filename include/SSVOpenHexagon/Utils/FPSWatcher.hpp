@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include <SSVStart/GameSystem/GameWindow.hpp>
+
 #include <thread>
 #include <chrono>
-#include <SSVStart/GameSystem/GameWindow.hpp>
+#include <future>
 
 namespace hg
 {
@@ -25,7 +27,7 @@ private:
     {
         while(running)
         {
-            std::this_thread::sleep_for(80ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds{80});
             if(disabled)
             {
                 continue;
@@ -34,15 +36,15 @@ private:
             if(check)
             {
                 check = false;
-                std::this_thread::sleep_for(50ms);
+                std::this_thread::sleep_for(std::chrono::milliseconds{50});
                 while(!check)
                 {
                     loseFrame();
-                    std::this_thread::sleep_for(12ms);
+                    std::this_thread::sleep_for(std::chrono::milliseconds{12});
                 }
             }
 
-            std::this_thread::sleep_for(80ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds{80});
             if(gameWindow.getFPS() < minFPS)
             {
                 loseFrame();

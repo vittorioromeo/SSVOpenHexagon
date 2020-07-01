@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
+#include <SSVStart/Utils/Vector2.hpp>
+
 using namespace std;
 using namespace sf;
 using namespace ssvs;

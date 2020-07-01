@@ -15,6 +15,7 @@
 #include <SSVStart/Assets/AssetManager.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -23,7 +24,7 @@ namespace ssvs
 {
 
 void loadAssetsFromJson(
-    ssvs::AssetManager<>& mAM, const Path& mRootPath, const ssvuj::Obj& mObj);
+    ssvs::AssetManager<>& mAM, const ssvufs::Path& mRootPath, const ssvuj::Obj& mObj);
 
 } // namespace ssvs
 

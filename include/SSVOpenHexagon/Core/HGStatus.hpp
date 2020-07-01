@@ -33,7 +33,7 @@ private:
     TimePoint lastTimerPauseTp;
 
     // Duration of the current timer pause
-    std::chrono::milliseconds pauseDuration{100ms};
+    std::chrono::milliseconds pauseDuration{100};
 
 public:
     float pulse{75};

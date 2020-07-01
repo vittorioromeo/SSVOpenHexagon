@@ -6,6 +6,8 @@
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
+#include <SSVStart/Utils/Vector2.hpp>
+
 namespace hg
 {
 

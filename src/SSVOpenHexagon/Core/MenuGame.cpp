@@ -10,8 +10,14 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/Input/Input.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
 
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
+
+#include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace std;
 using namespace sf;
@@ -38,7 +44,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     initAssets();
     refreshCamera();
 
-    game.onUpdate += [this](FT mFT) { update(mFT); };
+    game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
     game.onDraw += [this] { draw(); };
     game.onEvent(Event::EventType::TextEntered) += [this](const Event& mEvent) {
         if(mEvent.text.unicode < 128)
@@ -491,33 +497,33 @@ void MenuGame::initInput()
     using t = Type;
 
     game.addInput(
-        Config::getTriggerRotateCCW(), [this](FT /*unused*/) { leftAction(); },
+        Config::getTriggerRotateCCW(), [this](ssvu::FT /*unused*/) { leftAction(); },
         t::Once);
     game.addInput(
-        Config::getTriggerRotateCW(), [this](FT /*unused*/) { rightAction(); },
+        Config::getTriggerRotateCW(), [this](ssvu::FT /*unused*/) { rightAction(); },
         t::Once);
     game.addInput(
-        Config::getTriggerUp(), [this](FT /*unused*/) { upAction(); }, t::Once);
+        Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); }, t::Once);
     game.addInput(
-        Config::getTriggerDown(), [this](FT /*unused*/) { downAction(); },
+        Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); },
         t::Once);
     game.addInput(
-        Config::getTriggerRestart(), [this](FT /*unused*/) { okAction(); },
+        Config::getTriggerRestart(), [this](ssvu::FT /*unused*/) { okAction(); },
         t::Once);
     game.addInput(
-        {{k::F1}}, [this](FT /*unused*/) { createProfileAction(); }, t::Once);
+        {{k::F1}}, [this](ssvu::FT /*unused*/) { createProfileAction(); }, t::Once);
     game.addInput(
-        {{k::F2}, {k::J}}, [this](FT /*unused*/) { selectProfileAction(); },
+        {{k::F2}, {k::J}}, [this](ssvu::FT /*unused*/) { selectProfileAction(); },
         t::Once);
     game.addInput(
-        {{k::F3}, {k::K}}, [this](FT /*unused*/) { openOptionsAction(); },
+        {{k::F3}, {k::K}}, [this](ssvu::FT /*unused*/) { openOptionsAction(); },
         t::Once);
     game.addInput(
-        {{k::F4}, {k::L}}, [this](FT /*unused*/) { selectPackAction(); },
+        {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
     game.addInput(
         Config::getTriggerExit(),
-        [this](FT /*unused*/) {
+        [this](ssvu::FT /*unused*/) {
             assets.playSound("beep.ogg");
             bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
                        !assets.pIsLocal()};
@@ -541,19 +547,19 @@ void MenuGame::initInput()
 
     game.addInput(
         Config::getTriggerExit(),
-        [this](FT mFT) {
+        [this](ssvu::FT mFT) {
             if(state != s::MOpts)
             {
                 exitTimer += mFT;
             }
         },
-        [this](FT /*unused*/) { exitTimer = 0; });
+        [this](ssvu::FT /*unused*/) { exitTimer = 0; });
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](FT /*unused*/) { mustTakeScreenshot = true; }, t::Once);
+        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; }, t::Once);
     game.addInput(
             {{k::LAlt, k::Return}},
-            [this](FT /*unused*/) {
+            [this](ssvu::FT /*unused*/) {
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
@@ -561,7 +567,7 @@ void MenuGame::initInput()
         .setPriorityUser(-1000);
     game.addInput(
         {{k::BackSpace}},
-        [this](FT /*unused*/) {
+        [this](ssvu::FT /*unused*/) {
             if(isEnteringText() && !enteredStr.empty())
             {
                 enteredStr.erase(enteredStr.end() - 1);
@@ -610,7 +616,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
     // Unused functions
     for(const auto& un :
         {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax", "l_getSpeedMax",
-            "l_getDelayMin", "l_setDelayMin", "l_setDelayMax", 
+            "l_getDelayMin", "l_setDelayMin", "l_setDelayMax",
             "l_getDelayMax", "l_setRotationSpeedMax",
             "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
             "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
@@ -842,7 +848,7 @@ void MenuGame::refreshCamera()
     bottomBar.setPosition(sf::Vector2f(0, h));
 }
 
-void MenuGame::update(FT mFT)
+void MenuGame::update(ssvu::FT mFT)
 {
     steamManager.run_callbacks();
     discordManager.run_callbacks();

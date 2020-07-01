@@ -4,7 +4,11 @@
 
 #pragma once
 
-#include <SSVUtils/Core/Core.hpp>
+#include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonCpp.hpp"
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
+#include <string>
 
 namespace ssvuj
 {

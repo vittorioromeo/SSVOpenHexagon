@@ -9,6 +9,10 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
+#include <SSVStart/Utils/Vector2.hpp>
+#include <SSVStart/Utils/SFML.hpp>
+
+
 namespace hg
 {
 
@@ -57,7 +61,7 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
             ssvu::getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
 }
 
-void StyleData::update(FT mFT, float mMult)
+void StyleData::update(ssvu::FT mFT, float mMult)
 {
     currentSwapTime += mFT * mMult;
     if(currentSwapTime > maxSwapTime)

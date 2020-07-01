@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
 
+#include <functional>
+
 namespace hg::Online
 {
 
@@ -14,7 +16,7 @@ template <typename T>
 class PacketHandler
 {
 private:
-    using HandlerFunc = ssvu::Func<void(T&, sf::Packet&)>;
+    using HandlerFunc = std::function<void(T&, sf::Packet&)>;
     std::unordered_map<unsigned int, HandlerFunc> funcs;
 
 public:

@@ -13,6 +13,8 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
+#include <SSVStart/GameSystem/GameWindow.hpp>
+
 static void createProfilesFolder()
 {
     const ssvu::FileSystem::Path profilesPath{"Profiles/"};
