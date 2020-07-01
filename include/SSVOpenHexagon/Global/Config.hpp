@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <SSVStart/GameSystem/GameWindow.hpp>
+#include <SSVStart/Input/Input.hpp>
+
 #include <vector>
 #include <string>
 

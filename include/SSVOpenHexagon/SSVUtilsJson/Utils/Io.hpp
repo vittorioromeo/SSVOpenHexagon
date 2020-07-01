@@ -4,6 +4,11 @@
 
 #pragma once
 
+#include <SSVUtils/Core/Log/Log.hpp>
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
+#include <sstream>
+
 namespace ssvuj
 {
 namespace Impl
@@ -22,7 +27,7 @@ inline void readFromString(Obj& mObj, const std::string& mStr)
     Reader reader;
     Impl::tryParse(mObj, reader, mStr);
 }
-inline void readFromFile(Obj& mObj, const Path& mPath)
+inline void readFromFile(Obj& mObj, const ssvufs::Path& mPath)
 {
     Reader reader;
     Impl::tryParse(mObj, reader, mPath.getContentsAsStr());
@@ -34,7 +39,7 @@ inline Obj getFromStr(const std::string& mStr)
     readFromString(result, mStr);
     return result;
 }
-inline Obj getFromFile(const Path& mPath)
+inline Obj getFromFile(const ssvufs::Path& mPath)
 {
     Obj result;
     readFromFile(result, mPath);
@@ -53,7 +58,7 @@ inline void writeToString(const Obj& mObj, std::string& mStr)
     writeToStream(mObj, o);
     mStr = o.str();
 }
-inline void writeToFile(const Obj& mObj, const Path& mPath)
+inline void writeToFile(const Obj& mObj, const ssvufs::Path& mPath)
 {
     std::ofstream o{mPath};
     writeToStream(mObj, o);

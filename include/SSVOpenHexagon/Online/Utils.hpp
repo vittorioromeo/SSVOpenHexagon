@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/Compression.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #define HG_LO_VERBOSE(...) \
     if(Config::getServerVerbose()) ssvu::lo(__VA_ARGS__)

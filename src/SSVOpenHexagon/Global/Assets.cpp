@@ -8,6 +8,11 @@
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 namespace hg
 {
@@ -107,8 +112,8 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
             ssvu::lo("::loadAssets") << "loading " << packId << " level data\n";
             loadLevelData(packPath);
 
-            if(!levelsOnly &&
-                Path(packPath + "Sounds/").exists<ssvufs::Type::Folder>())
+            if(!levelsOnly && ssvufs::Path(packPath + "Sounds/")
+                                  .exists<ssvufs::Type::Folder>())
             {
                 ssvu::lo("::loadAssets")
                     << "loading " << packId << " custom sounds\n";
@@ -135,7 +140,8 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
     return true;
 }
 
-void HGAssets::loadCustomSounds(const std::string& mPackName, const Path& mPath)
+void HGAssets::loadCustomSounds(
+    const std::string& mPackName, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
     {
@@ -143,7 +149,7 @@ void HGAssets::loadCustomSounds(const std::string& mPackName, const Path& mPath)
             mPackName + "_" + p.getFileName(), p);
     }
 }
-void HGAssets::loadMusic(const Path& mPath)
+void HGAssets::loadMusic(const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
     {
@@ -153,7 +159,7 @@ void HGAssets::loadMusic(const Path& mPath)
         music.setLoop(true);
     }
 }
-void HGAssets::loadMusicData(const Path& mPath)
+void HGAssets::loadMusicData(const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".json"))
     {
@@ -161,7 +167,7 @@ void HGAssets::loadMusicData(const Path& mPath)
         musicDataMap.emplace(musicData.id, std::move(musicData));
     }
 }
-void HGAssets::loadStyleData(const Path& mPath)
+void HGAssets::loadStyleData(const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Styles/", ".json"))
     {
@@ -169,7 +175,7 @@ void HGAssets::loadStyleData(const Path& mPath)
         styleDataMap.emplace(styleData.id, std::move(styleData));
     }
 }
-void HGAssets::loadLevelData(const Path& mPath)
+void HGAssets::loadLevelData(const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
     {

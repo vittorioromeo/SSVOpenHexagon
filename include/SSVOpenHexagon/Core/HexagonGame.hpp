@@ -22,6 +22,17 @@
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/GameSystem/GameSystem.hpp>
+#include <SSVStart/Camera/Camera.hpp>
+#include <SSVStart/VertexVector/VertexVector.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
+
+#include <SSVUtils/Core/Common/Frametime.hpp>
+#include <SSVUtils/Timeline/Timeline.hpp>
+
+#include <sstream>
 
 namespace hg
 {
@@ -157,15 +168,15 @@ private:
     void initFlashEffect();
 
     // Update methods
-    void update(FT mFT);
+    void update(ssvu::FT mFT);
     void updateIncrement();
-    void updateEvents(FT mFT);
-    void updateLevel(FT mFT);
-    void updatePulse(FT mFT);
-    void updateBeatPulse(FT mFT);
-    void updateRotation(FT mFT);
-    void updateFlash(FT mFT);
-    void update3D(FT mFT);
+    void updateEvents(ssvu::FT mFT);
+    void updateLevel(ssvu::FT mFT);
+    void updatePulse(ssvu::FT mFT);
+    void updateBeatPulse(ssvu::FT mFT);
+    void updateRotation(ssvu::FT mFT);
+    void updateFlash(ssvu::FT mFT);
+    void update3D(ssvu::FT mFT);
     void updateText();
 
     // Draw methods

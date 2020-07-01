@@ -13,8 +13,12 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-using namespace hg::Utils;
+#include <SSVStart/Utils/Vector2.hpp>
+#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
+#include <SSVUtils/Core/Common/Frametime.hpp>
+
+using namespace hg::Utils;
 namespace hg
 {
 
@@ -34,7 +38,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
       assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
       fpsWatcher(window)
 {
-    game.onUpdate += [this](FT mFT) { update(mFT); };
+    game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
     game.onPostUpdate += [this] {
         inputImplLastMovement = inputMovement;
         inputImplBothCWCCW = inputImplCW && inputImplCCW;
@@ -47,14 +51,14 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     add2StateInput(game, Config::getTriggerFocus(), inputFocused);
     add2StateInput(game, Config::getTriggerSwap(), inputSwap);
     game.addInput(
-        Config::getTriggerExit(), [this](FT /*unused*/) { goToMenu(); });
+        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); });
     game.addInput(
         Config::getTriggerForceRestart(),
-        [this](FT /*unused*/) { status.mustRestart = true; },
+        [this](ssvu::FT /*unused*/) { status.mustRestart = true; },
         ssvs::Input::Type::Once);
     game.addInput(
         Config::getTriggerRestart(),
-        [this](FT /*unused*/) {
+        [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {
                 status.mustRestart = true;
@@ -63,7 +67,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once);
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](FT /*unused*/) { mustTakeScreenshot = true; },
+        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
         ssvs::Input::Type::Once);
 }
 

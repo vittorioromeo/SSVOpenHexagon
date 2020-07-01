@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
 #include <SFML/Graphics/Color.hpp>
 

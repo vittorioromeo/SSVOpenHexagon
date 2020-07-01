@@ -6,6 +6,10 @@
 
 #include <type_traits>
 #include <tuple>
+#include <utility>
+#include <vector>
+#include <map>
+#include <string>
 #include <unordered_map>
 
 /// @macro Class mixin that allows SSVUJ converters to access the current

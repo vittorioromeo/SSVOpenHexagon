@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 namespace hg
 {

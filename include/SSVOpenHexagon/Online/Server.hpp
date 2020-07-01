@@ -4,13 +4,16 @@
 
 #pragma once
 
-#include <vector>
-#include <chrono>
-#include <thread>
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/ClientHandler.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
+
+#include <vector>
+#include <chrono>
+#include <thread>
+#include <future>
+#include <memory>
 
 namespace hg::Online
 {
@@ -21,14 +24,14 @@ private:
     bool running{false};
     PacketHandler<ClientHandler>& packetHandler;
     sf::TcpListener listener;
-    ssvu::VecUPtr<ClientHandler> clientHandlers;
+    std::vector<std::unique_ptr<ClientHandler>> clientHandlers;
     std::future<void> updateFuture;
 
     void updateImpl()
     {
         while(running)
         {
-            std::this_thread::sleep_for(50ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds{50});
             update();
         }
     }

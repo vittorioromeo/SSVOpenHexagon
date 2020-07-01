@@ -10,6 +10,9 @@
 #include "SSVOpenHexagon/Online/ManagedSocket.hpp"
 #include "SSVOpenHexagon/Online/PacketHandler.hpp"
 
+#include <future>
+#include <chrono>
+
 namespace hg::Online
 {
 
@@ -37,6 +40,7 @@ public:
         timeoutFuture = std::async(std::launch::async, [this] {
             while(running)
             {
+                using namespace std::chrono_literals;
                 std::this_thread::sleep_for(800ms);
 
                 if(!isBusy() || --untilTimeout > 0)

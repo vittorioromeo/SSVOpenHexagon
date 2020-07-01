@@ -91,7 +91,7 @@ void HexagonGameStatus::updateTime() noexcept
 
         // ...signal that we are not in a pause anymore:
         lastTimerPauseTp = levelStartTp;
-        pauseDuration = 0ms;
+        pauseDuration = std::chrono::milliseconds{0};
     }
 }
 
