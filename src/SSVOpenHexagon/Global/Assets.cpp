@@ -53,6 +53,90 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
     });
 }
 
+[[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)
+{
+    const auto& packPathStr(packPath.getStr());
+
+    // TODO: get name properly, both here and in menugame
+    std::string packName{packPathStr.substr(6, packPathStr.size() - 7)};
+
+    // TODO: unused?
+    /*
+    std::string packLua;
+    for(const auto& p : ssvufs::getScan<ssvufs::Mode::Recurse,
+            ssvufs::Type::File, ssvufs::Pick::ByExt>(packPath, ".lua"))
+    {
+        packLua.append(p.getContentsAsStr());
+    }
+    */
+
+    ssvuj::Obj packRoot{ssvuj::getFromFile(packPath + "/pack.json")};
+    packDatas.emplace(packName,
+        PackData{packName, ssvuj::getExtr<std::string>(packRoot, "name"),
+            ssvuj::getExtr<float>(packRoot, "priority")});
+
+    return true;
+}
+
+[[nodiscard]] bool HGAssets::loadPackInfo(const PackData& packData)
+{
+    const std::string& packId{packData.id};
+
+    std::string packPath{"Packs/" + packId + "/"};
+    packInfos.emplace_back(PackInfo{packId, packPath});
+
+    try
+    {
+        const bool hasMusicFolder =
+            ssvufs::Path{packPath + "Music/"}.exists<ssvufs::Type::Folder>();
+
+        if(!hasMusicFolder)
+        {
+            ssvu::lo("::loadAssets")
+                << "Warning - " << packId << " has no 'Music' folder\n";
+        }
+
+        if(!levelsOnly && hasMusicFolder)
+        {
+            ssvu::lo("::loadAssets") << "loading " << packId << " music\n";
+            loadMusic(packPath);
+
+            ssvu::lo("::loadAssets") << "loading " << packId << " music data\n";
+            loadMusicData(packPath);
+        }
+
+        ssvu::lo("::loadAssets") << "loading " << packId << " style data\n";
+        loadStyleData(packPath);
+
+        ssvu::lo("::loadAssets") << "loading " << packId << " level data\n";
+        loadLevelData(packPath);
+
+        if(!levelsOnly &&
+            ssvufs::Path(packPath + "Sounds/").exists<ssvufs::Type::Folder>())
+        {
+            ssvu::lo("::loadAssets")
+                << "loading " << packId << " custom sounds\n";
+            loadCustomSounds(packId, packPath);
+        }
+    }
+    catch(const std::runtime_error& mEx)
+    {
+        ssvu::lo("FATAL ERROR")
+            << "Exception during asset loading: " << mEx.what() << std::endl;
+
+        return false;
+    }
+    catch(...)
+    {
+        ssvu::lo("FATAL ERROR")
+            << "Exception during asset loading: unknown." << std::endl;
+
+        return false;
+    }
+
+    return true;
+}
+
 [[nodiscard]] bool HGAssets::loadAssets()
 {
     ssvu::lo("::loadAssets") << "loading local profiles\n";
@@ -61,79 +145,21 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
     for(const auto& packPath :
         ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::Folder>("Packs/"))
     {
-        const auto& packPathStr(packPath.getStr());
-        std::string packName{packPathStr.substr(6, packPathStr.size() - 7)};
-
-        std::string packLua;
-        for(const auto& p : ssvufs::getScan<ssvufs::Mode::Recurse,
-                ssvufs::Type::File, ssvufs::Pick::ByExt>(packPath, ".lua"))
+        if(!loadPackData(packPath))
         {
-            packLua.append(p.getContentsAsStr());
+            ssvu::lo("::loadAssets")
+                << "Error loading pack data '" << packPath << "'\n";
         }
-
-        ssvuj::Obj packRoot{ssvuj::getFromFile(packPath + "/pack.json")};
-        packDatas.emplace(packName,
-            PackData{packName, ssvuj::getExtr<std::string>(packRoot, "name"),
-                ssvuj::getExtr<float>(packRoot, "priority")});
     }
+
+    // TODO: load steam packs here
 
     for(auto& p : packDatas)
     {
-        const auto& pd(p.second);
-        const std::string& packId{pd.id};
-
-        std::string packPath{"Packs/" + packId + "/"};
-        packInfos.emplace_back(PackInfo{packId, packPath});
-
-        try
+        if(!loadPackInfo(p.second))
         {
-            const bool hasMusicFolder = ssvufs::Path{packPath + "Music/"}
-                                            .exists<ssvufs::Type::Folder>();
-
-            if(!hasMusicFolder)
-            {
-                ssvu::lo("::loadAssets")
-                    << "Warning - " << packId << " has no 'Music' folder\n";
-            }
-
-            if(!levelsOnly && hasMusicFolder)
-            {
-                ssvu::lo("::loadAssets") << "loading " << packId << " music\n";
-                loadMusic(packPath);
-
-                ssvu::lo("::loadAssets")
-                    << "loading " << packId << " music data\n";
-                loadMusicData(packPath);
-            }
-
-            ssvu::lo("::loadAssets") << "loading " << packId << " style data\n";
-            loadStyleData(packPath);
-
-            ssvu::lo("::loadAssets") << "loading " << packId << " level data\n";
-            loadLevelData(packPath);
-
-            if(!levelsOnly && ssvufs::Path(packPath + "Sounds/")
-                                  .exists<ssvufs::Type::Folder>())
-            {
-                ssvu::lo("::loadAssets")
-                    << "loading " << packId << " custom sounds\n";
-                loadCustomSounds(packId, packPath);
-            }
-        }
-        catch(const std::runtime_error& mEx)
-        {
-            ssvu::lo("FATAL ERROR")
-                << "Exception during asset loading: " << mEx.what()
-                << std::endl;
-
-            return false;
-        }
-        catch(...)
-        {
-            ssvu::lo("FATAL ERROR")
-                << "Exception during asset loading: unknown." << std::endl;
-
-            return false;
+            ssvu::lo("::loadAssets")
+                << "Error loading pack info '" << p.first << "'\n";
         }
     }
 

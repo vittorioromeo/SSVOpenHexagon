@@ -227,18 +227,20 @@ void HexagonGame::update(ssvu::FT mFT)
 }
 void HexagonGame::updateEvents(ssvu::FT mFT)
 {
-    eventTimeline.update(mFT);
-    if(eventTimeline.isFinished())
+    if(const auto o =
+            eventTimelineRunner.update(eventTimeline, status.getTimeTP());
+        o == hg::Utils::timeline2_runner::outcome::finished)
     {
         eventTimeline.clear();
-        eventTimeline.reset();
+        eventTimelineRunner = {};
     }
 
-    messageTimeline.update(mFT);
-    if(messageTimeline.isFinished())
+    if(const auto o =
+            messageTimelineRunner.update(messageTimeline, status.getTimeTP());
+        o == hg::Utils::timeline2_runner::outcome::finished)
     {
         messageTimeline.clear();
-        messageTimeline.reset();
+        messageTimelineRunner = {};
     }
 }
 void HexagonGame::updateIncrement()
@@ -266,13 +268,14 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
     }
 
     runLuaFunction<float>("onUpdate", mFT);
-    timeline.update(mFT);
 
-    if(timeline.isFinished() && !mustChangeSides)
+    const auto o = timelineRunner.update(timeline, status.getTimeTP());
+
+    if(o == hg::Utils::timeline2_runner::outcome::finished && !mustChangeSides)
     {
         timeline.clear();
         runLuaFunction<void>("onStep");
-        timeline.reset();
+        timelineRunner = {};
     }
 }
 void HexagonGame::updatePulse(ssvu::FT mFT)

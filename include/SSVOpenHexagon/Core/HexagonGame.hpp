@@ -21,6 +21,7 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
+#include "SSVOpenHexagon/Utils/Timeline2.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
@@ -77,9 +78,14 @@ private:
     MusicData musicData;
     StyleData styleData;
 
-    ssvu::Timeline timeline;
-    ssvu::Timeline eventTimeline;
-    ssvu::Timeline messageTimeline;
+    Utils::timeline2 timeline;
+    Utils::timeline2_runner timelineRunner;
+
+    Utils::timeline2 eventTimeline;
+    Utils::timeline2_runner eventTimelineRunner;
+
+    Utils::timeline2 messageTimeline;
+    Utils::timeline2_runner messageTimelineRunner;
 
     sf::Text messageText{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
@@ -196,7 +202,7 @@ private:
     void stopLevelMusic();
 
     // Message-related methods
-    void addMessage(std::string mMessage, float mDuration, bool mSoundToggle);
+    void addMessage(std::string mMessage, double mDuration, bool mSoundToggle);
     void clearMessages();
 
     // Level/menu loading/unloading/changing
