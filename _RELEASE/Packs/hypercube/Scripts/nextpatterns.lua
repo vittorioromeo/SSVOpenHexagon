@@ -145,13 +145,13 @@ end
 function pACBarrageMultiAltDir()
 	currentSides = l_getSides()
 	delay = getPerfectDelayDM(THICKNESS) * 4
-	mdiff = 1 + math.abs(1 - u_getDifficultyMult())
+	mdiff = u_getDifficultyMult() / (u_getDifficultyMult()^1.6)
 	startSide = math.random(0, 10)
 	loopDir = getRandomDir()
 	for i = 0, currentSides + getHalfSides() do
 		currentSide = startSide + i * loopDir
 		wallSAcc(currentSide, 10, -1.095, 0.40, 10)
-		t_wait((delay / 2.21) * (mdiff * 1.29))
+		t_wait((delay / 2.21) / mdiff)
 		wallSAcc(currentSide + (getHalfSides() * loopDir), 0, 0.128, 0, 1.4)
 	end
 	t_wait(delay * 8)
