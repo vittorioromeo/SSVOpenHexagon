@@ -104,6 +104,10 @@ private:
     std::ostringstream os;
 
     FPSWatcher fpsWatcher;
+    sf::Text fpsText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
+		ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
+	sf::Text timeText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
+		ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())};
     sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
