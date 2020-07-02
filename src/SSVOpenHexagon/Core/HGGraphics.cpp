@@ -171,16 +171,6 @@ void HexagonGame::updateText()
 {
     os.str("");
 
-    if(Config::getShowFPS())
-    {
-        os << "FPS: " << window.getFPS() << "\n";
-    }
-
-    if(status.started)
-    {
-        os << "TIME: " << toStr(status.getTimeSeconds()).substr(0, 5) << "\n";
-    }
-
     if(levelStatus.tutorialMode)
     {
         os << "TUTORIAL MODE\n";
@@ -243,10 +233,31 @@ void HexagonGame::updateText()
 
     os.flush();
 
+    // Set in game timer text
+    if (status.started)
+	{
+		timeText.setString(toStr(status.getTimeSeconds()).substr(0, 5));
+	} else {
+		timeText.setString("0");
+	}
+    timeText.setCharacterSize(
+		ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor()));
+	timeText.setOrigin(-16, ssvu::toNum<int>(17.f / Config::getZoomFactor()));
+
+    // Set information text
     text.setString(os.str());
     text.setCharacterSize(
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
     text.setOrigin(-8, 8);
+
+    // Set FPS Text, if option is enabled.
+    if(Config::getShowFPS())
+    {
+		fpsText.setString(toStr(window.getFPS()));
+		fpsText.setCharacterSize(
+			ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
+		fpsText.setOrigin(-8, -ssvu::toNum<int>(735.f / Config::getZoomFactor()) + 8);
+	}
 
     messageText.setCharacterSize(
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor()));
@@ -271,9 +282,20 @@ void HexagonGame::drawText()
         }
     }
 
+    timeText.setFillColor(getColorMain());
+	text.setPosition(tl_txt_pos);
+	render(timeText);
+
     text.setFillColor(getColorMain());
     text.setPosition(tl_txt_pos);
     render(text);
+
+    if(Config::getShowFPS()) 
+	{
+		fpsText.setFillColor(getColorMain());
+		fpsText.setPosition(tl_txt_pos);
+		render(fpsText);
+	}
 
     if(messageText.getString() == "")
     {
