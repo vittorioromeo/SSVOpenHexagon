@@ -31,12 +31,12 @@ public:
     float hueIncrement;
     float pulseMin;
     float pulseMax;
-    float pulseIncrement;
-    bool huePingPong;
-    float maxSwapTime;
-    int colorPosOffset;
-    float bgTileRadius;
-    float bgRotOff;
+    float pulseIncrement{0.f};
+    bool huePingPong{false};
+    float maxSwapTime{0.f};
+    int colorPosOffset{0};
+    float bgTileRadius{4500.f};
+    float bgRotOff{0.f};
     float _3dDepth;
     float _3dSkew;
     sf::Vector2f skew;

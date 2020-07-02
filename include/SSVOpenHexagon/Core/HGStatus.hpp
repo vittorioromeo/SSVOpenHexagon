@@ -47,7 +47,6 @@ public:
     float flashEffect{0};
     float radius{75};
     float fastSpin{0};
-    float camFastSpin{0};
     bool hasDied{false}, mustRestart{false};
     bool scoreInvalid{false};
     bool started{false};

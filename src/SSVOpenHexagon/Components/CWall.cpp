@@ -130,7 +130,7 @@ void CWall::setHueMod(float mHueMod) noexcept
 [[nodiscard]] bool CWall::isOverlapping(
     const sf::Vector2f& mPoint) const noexcept
 {
-    return ssvs::isPointInPolygon(vertexPositions, mPoint);
+    return ssvs::isPointInPolygon(Collisions_vertexPositions, mPoint);
 }
 
 } // namespace hg

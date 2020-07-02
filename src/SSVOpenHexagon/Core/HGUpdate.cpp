@@ -324,7 +324,8 @@ void HexagonGame::updateBeatPulse(FT mFT)
 }
 void HexagonGame::updateRotation(FT mFT)
 {
-    auto nextRotation(getRotationSpeed() * 10.f);
+    auto nextRotation(getRotationSpeed()*10.f);
+
     if(status.fastSpin > 0)
     {
         nextRotation +=
@@ -335,15 +336,16 @@ void HexagonGame::updateRotation(FT mFT)
             getSign(nextRotation);
         status.fastSpin -= mFT;
     }
+
+    //Capping rotation and rotationSpeed between 0 and 360
+    if (abs(nextRotation/360.f) >= 1) {
+        for (int i = 0; i<round(abs(nextRotation/360.f)); i++){
+            nextRotation -= 360.f*getSign(nextRotation);
+        }
+    }
     levelStatus.rotation += nextRotation;
-    if(levelStatus.rotation >= 360.f)
-    {
-        levelStatus.rotation -= 360.f;
-    }
-    else if(levelStatus.rotation < 0.f)
-    {
-        levelStatus.rotation += 360.f;
-    }
+    levelStatus.rotation = abs(levelStatus.rotation/360.f) >= 1 ?
+            levelStatus.rotation-(360.f*getSign(nextRotation)) : levelStatus.rotation;
 }
 void HexagonGame::updateFlash(FT mFT)
 {
