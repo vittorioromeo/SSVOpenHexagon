@@ -523,7 +523,8 @@ void HexagonGame::initLua_WallCreation()
             float mAcceleration, float mMinSpeed, float mMaxSpeed) {
             timeline.append_do([=, this] {
                 createWall(mSide, mThickness,
-                    {mSpeedAdj * getSpeedMultDM(), mAcceleration,
+                    {mSpeedAdj * getSpeedMultDM(), 
+                        mAcceleration / difficultyMult,
                         mMinSpeed * getSpeedMultDM(),
                         mMaxSpeed * getSpeedMultDM()});
             });
