@@ -236,7 +236,7 @@ void HexagonGame::updateText()
     // Set in game timer text
     if (status.started)
 	{
-		timeText.setString(toStr(status.getTimeSeconds()).substr(0, 5));
+		timeText.setString(toStr(std::floor(status.getTimeSeconds() * 1000) / 1000.f));
 	} else {
 		timeText.setString("0");
 	}
