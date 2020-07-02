@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVStart/Input/Input.hpp>
+#include <SSVStart/GameSystem/GameWindow.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -70,6 +71,7 @@ using namespace ssvu;
     X(drawTextOutlines, bool, "draw_text_outlines")                        \
     X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk") \
     X(rotateToStart, bool, "rotate_to_start")                              \
+    X(joystickDeadzone, float, "joystick_deadzone")                        \
     X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
     X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
     X(triggerFocus, Trigger, "t_focus")                                    \
@@ -455,6 +457,11 @@ void setRotateToStart(bool mX)
     rotateToStart() = mX;
 }
 
+void setJoystickDeadzone(float mX)
+{
+    joystickDeadzone() = mX;
+}
+
 bool SSVU_ATTRIBUTE(pure) getOnline()
 {
     return online();
@@ -728,6 +735,11 @@ bool SSVU_ATTRIBUTE(pure) getDarkenUnevenBackgroundChunk()
 bool SSVU_ATTRIBUTE(pure) getRotateToStart()
 {
     return rotateToStart();
+}
+
+float SSVU_ATTRIBUTE(pure) getJoystickDeadzone()
+{
+    return joystickDeadzone();
 }
 
 Trigger getTriggerRotateCCW()

@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <SSVStart/GameSystem/GameWindow.hpp>
-#include <SSVStart/Input/Input.hpp>
-
 #include <vector>
 #include <string>
 
@@ -65,6 +62,7 @@ void setMusicSpeedMult(float mValue);
 void setDrawTextOutlines(bool mX);
 void setDarkenUnevenBackgroundChunk(bool mX);
 void setRotateToStart(bool mX);
+void setJoystickDeadzone(float mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -122,6 +120,7 @@ void setRotateToStart(bool mX);
 [[nodiscard]] float getMusicSpeedMult();
 [[nodiscard]] bool getDrawTextOutlines();
 [[nodiscard]] bool getDarkenUnevenBackgroundChunk();
+[[nodiscard]] float getJoystickDeadzone();
 
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();

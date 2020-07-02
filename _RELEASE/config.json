@@ -17,6 +17,7 @@
 	"fullscreen_height" : 1080,
 	"fullscreen_width" : 1920,
 	"invincible" : false,
+	"joystick_deadzone" : 5.0,
 	"limit_fps" : true,
 	"max_fps" : 200,
 	"mouse_visible" : false,
