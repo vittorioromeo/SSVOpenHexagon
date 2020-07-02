@@ -60,6 +60,9 @@ private:
     std::map<std::string, ProfileData> profileDataMap;
     ProfileData* currentProfilePtr{nullptr};
 
+    [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
+    [[nodiscard]] bool loadPackInfo(const PackData& packData);
+
 public:
     float playedSeconds{0};
 
@@ -86,7 +89,8 @@ public:
         return levelDatas.at(mId);
     }
 
-    const std::vector<std::string>& getLevelIdsByPack(const ssvufs::Path& mPackPath)
+    const std::vector<std::string>& getLevelIdsByPack(
+        const ssvufs::Path& mPackPath)
     {
         return levelDataIdsByPack.at(mPackPath);
     }
@@ -107,7 +111,8 @@ public:
     void loadMusicData(const ssvufs::Path& mPath);
     void loadStyleData(const ssvufs::Path& mPath);
     void loadLevelData(const ssvufs::Path& mPath);
-    void loadCustomSounds(const std::string& mPackName, const ssvufs::Path& mPath);
+    void loadCustomSounds(
+        const std::string& mPackName, const ssvufs::Path& mPath);
     void loadLocalProfiles();
 
     void saveCurrentLocalProfile();
