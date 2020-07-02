@@ -277,6 +277,10 @@ void MenuGame::initMenus()
         "autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
     play.create<i::Toggle>("rotate to start", &Config::getRotateToStart,
         &Config::setRotateToStart);
+    play.create<i::Slider>(
+        "joystick deadzone", &Config::getJoystickDeadzone,
+        [](float mValue) { Config::setJoystickDeadzone(mValue); }, 0.f, 100.f,
+        1.f);
     play.create<i::GoBack>("back");
 
     localProfiles.create<i::Single>("change local profile", [this] {
@@ -497,24 +501,26 @@ void MenuGame::initInput()
     using t = Type;
 
     game.addInput(
-        Config::getTriggerRotateCCW(), [this](ssvu::FT /*unused*/) { leftAction(); },
-        t::Once);
+        Config::getTriggerRotateCCW(),
+        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once);
     game.addInput(
-        Config::getTriggerRotateCW(), [this](ssvu::FT /*unused*/) { rightAction(); },
-        t::Once);
+        Config::getTriggerRotateCW(),
+        [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once);
     game.addInput(
-        Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); }, t::Once);
+        Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); },
+        t::Once);
     game.addInput(
         Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); },
         t::Once);
     game.addInput(
-        Config::getTriggerRestart(), [this](ssvu::FT /*unused*/) { okAction(); },
+        Config::getTriggerRestart(),
+        [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
+    game.addInput(
+        {{k::F1}}, [this](ssvu::FT /*unused*/) { createProfileAction(); },
         t::Once);
     game.addInput(
-        {{k::F1}}, [this](ssvu::FT /*unused*/) { createProfileAction(); }, t::Once);
-    game.addInput(
-        {{k::F2}, {k::J}}, [this](ssvu::FT /*unused*/) { selectProfileAction(); },
-        t::Once);
+        {{k::F2}, {k::J}},
+        [this](ssvu::FT /*unused*/) { selectProfileAction(); }, t::Once);
     game.addInput(
         {{k::F3}, {k::K}}, [this](ssvu::FT /*unused*/) { openOptionsAction(); },
         t::Once);
@@ -614,28 +620,26 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueInc", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un :
-        {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax", "l_getSpeedMax",
-            "l_getDelayMin", "l_setDelayMin", "l_setDelayMax",
-            "l_getDelayMax", "l_setRotationSpeedMax",
-            "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
-            "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
-            "l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR",
-            "l_setPulseDelayMax", "l_setBeatPulseMax", "l_setBeatPulseDelayMax",
-            "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
-            "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
-            "l_setTutorialMode", "l_setIncEnabled", "l_enableRndSideChanges",
-            "l_darkenUnevenBackgroundChunk", "l_getSpeedMult", "l_getDelayMult",
-            "l_addTracked", "u_playSound", "u_isKeyPressed",
-            "u_isMouseButtonPressed", "u_isFastSpinning", "u_setPlayerAngle",
-            "u_forceIncrement", "u_kill", "u_eventKill", "u_haltTime",
-            "u_timelineWait", "u_clearWalls", "u_setMusic", "u_setMusicSegment",
-            "u_setMusicSeconds", "m_messageAdd", "m_messageAddImportant",
-            "m_clearMessages", "t_wait", "t_waitS", "t_waitUntilS",
-            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
-            "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
-            "l_setDelayMult", "s_setStyle", "u_setMusic",
+    for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax",
+            "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin", "l_setDelayMax",
+            "l_getDelayMax", "l_setRotationSpeedMax", "l_setRotationSpeedInc",
+            "l_setDelayInc", "l_setFastSpin", "l_setSidesMin", "l_setSidesMax",
+            "l_setIncTime", "l_setPulseMin", "l_setPulseMax", "l_setPulseSpeed",
+            "l_setPulseSpeedR", "l_setPulseDelayMax", "l_setBeatPulseMax",
+            "l_setBeatPulseDelayMax", "l_setWallSkewLeft", "l_setWallSkewRight",
+            "l_setWallAngleLeft", "l_setWallAngleRight", "l_setRadiusMin",
+            "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
+            "l_enableRndSideChanges", "l_darkenUnevenBackgroundChunk",
+            "l_getSpeedMult", "l_getDelayMult", "l_addTracked", "u_playSound",
+            "u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
+            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setMusic",
+            "u_setMusicSegment", "u_setMusicSeconds", "m_messageAdd",
+            "m_messageAddImportant", "m_clearMessages", "t_wait", "t_waitS",
+            "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
+            "e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall",
+            "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
+            "w_wallHModCurveData", "l_setDelayMult", "s_setStyle", "u_setMusic",
             "l_getRotation", "l_setRotation", "s_getCameraShake",
             "s_setCameraShake", "l_getOfficial", "steam_unlockAchievement",
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",

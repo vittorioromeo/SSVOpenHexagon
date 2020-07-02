@@ -8,6 +8,10 @@
 #include "SSVOpenHexagon/Online/Utils.hpp"
 #include "SSVOpenHexagon/Online/PacketHandler.hpp"
 
+#include <SSVUtils/Delegate/Delegate.hpp>
+
+#include <SFML/Network.hpp>
+
 #include <future>
 #include <atomic>
 #include <chrono>
