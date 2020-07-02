@@ -107,7 +107,7 @@ private:
     sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
-    const sf::Vector2f txt_pos{8, 8};
+    const sf::Vector2f tl_txt_pos{8, 8};
 
     // Color of the polygon in the center.
     CapColor capColor;

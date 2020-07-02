@@ -266,13 +266,13 @@ void HexagonGame::drawText()
         text.setFillColor(offsetColor);
         for(const auto& o : txt_offsets)
         {
-            text.setPosition(txt_pos + sf::Vector2f{o.x, o.y});
+            text.setPosition(tl_txt_pos + sf::Vector2f{o.x, o.y});
             render(text);
         }
     }
 
     text.setFillColor(getColorMain());
-    text.setPosition(txt_pos);
+    text.setPosition(tl_txt_pos);
     render(text);
 
     if(messageText.getString() == "")
