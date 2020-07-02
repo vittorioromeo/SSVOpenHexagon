@@ -8,6 +8,10 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 
+#include <SSVStart/Utils/Vector2.hpp>
+
+#include <SSVUtils/Core/Common/Frametime.hpp>
+
 using namespace std;
 using namespace sf;
 using namespace ssvs;
@@ -17,7 +21,7 @@ using namespace hg::Utils;
 namespace hg
 {
 
-void HexagonGame::update(FT mFT)
+void HexagonGame::update(ssvu::FT mFT)
 {
     // TODO: refactor to avoid repetition, and truncate floating point number
     // TODO: also show best record (here) and last run + best record (in menu)
@@ -220,20 +224,22 @@ void HexagonGame::update(FT mFT)
         fpsWatcher.update();
     }
 }
-void HexagonGame::updateEvents(FT mFT)
+void HexagonGame::updateEvents(ssvu::FT mFT)
 {
-    eventTimeline.update(mFT);
-    if(eventTimeline.isFinished())
+    if(const auto o =
+            eventTimelineRunner.update(eventTimeline, status.getTimeTP());
+        o == hg::Utils::timeline2_runner::outcome::finished)
     {
         eventTimeline.clear();
-        eventTimeline.reset();
+        eventTimelineRunner = {};
     }
 
-    messageTimeline.update(mFT);
-    if(messageTimeline.isFinished())
+    if(const auto o =
+            messageTimelineRunner.update(messageTimeline, status.getTimeTP());
+        o == hg::Utils::timeline2_runner::outcome::finished)
     {
         messageTimeline.clear();
-        messageTimeline.reset();
+        messageTimelineRunner = {};
     }
 }
 void HexagonGame::updateIncrement()
@@ -253,7 +259,7 @@ void HexagonGame::updateIncrement()
     status.resetIncrementTime();
     mustChangeSides = true;
 }
-void HexagonGame::updateLevel(FT mFT)
+void HexagonGame::updateLevel(ssvu::FT mFT)
 {
     if(status.isTimePaused())
     {
@@ -261,16 +267,17 @@ void HexagonGame::updateLevel(FT mFT)
     }
 
     runLuaFunction<float>("onUpdate", mFT);
-    timeline.update(mFT);
 
-    if(timeline.isFinished() && !mustChangeSides)
+    const auto o = timelineRunner.update(timeline, status.getTimeTP());
+
+    if(o == hg::Utils::timeline2_runner::outcome::finished && !mustChangeSides)
     {
         timeline.clear();
         runLuaFunction<void>("onStep");
-        timeline.reset();
+        timelineRunner = {};
     }
 }
-void HexagonGame::updatePulse(FT mFT)
+void HexagonGame::updatePulse(ssvu::FT mFT)
 {
     if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
     {
@@ -301,7 +308,7 @@ void HexagonGame::updatePulse(FT mFT)
         {(Config::getWidth() * Config::getZoomFactor()) * p,
             (Config::getHeight() * Config::getZoomFactor()) * p}});
 }
-void HexagonGame::updateBeatPulse(FT mFT)
+void HexagonGame::updateBeatPulse(ssvu::FT mFT)
 {
     if(status.beatPulseDelay <= 0)
     {
@@ -322,7 +329,7 @@ void HexagonGame::updateBeatPulse(FT mFT)
     status.radius =
         radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
 }
-void HexagonGame::updateRotation(FT mFT)
+void HexagonGame::updateRotation(ssvu::FT mFT)
 {
     auto nextRotation(getRotationSpeed()*10.f);
 
@@ -347,7 +354,7 @@ void HexagonGame::updateRotation(FT mFT)
     levelStatus.rotation = abs(levelStatus.rotation/360.f) >= 1 ?
             levelStatus.rotation-(360.f*getSign(nextRotation)) : levelStatus.rotation;
 }
-void HexagonGame::updateFlash(FT mFT)
+void HexagonGame::updateFlash(ssvu::FT mFT)
 {
     if(status.flashEffect > 0)
     {
@@ -359,7 +366,7 @@ void HexagonGame::updateFlash(FT mFT)
         flashPolygon[i].color.a = status.flashEffect;
     }
 }
-void HexagonGame::update3D(FT mFT)
+void HexagonGame::update3D(ssvu::FT mFT)
 {
     status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
     if(status.pulse3D > styleData._3dPulseMax)

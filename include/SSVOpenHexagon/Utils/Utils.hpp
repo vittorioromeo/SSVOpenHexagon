@@ -9,6 +9,12 @@
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/Camera/Camera.hpp>
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+#include <SSVUtils/Timeline/Timeline.hpp>
 
 #include <string>
 #include <sstream>
@@ -31,7 +37,9 @@ inline void uppercasify(std::string& s)
     return std::max(0.f, std::min(1.f, mValue));
 }
 
-[[nodiscard, gnu::const]] inline float getSmootherStep(float edge0, float edge1, float x)
+
+[[nodiscard, gnu::const]] inline float getSmootherStep(
+    float edge0, float edge1, float x)
 {
     x = getSaturated((x - edge0) / (edge1 - edge0));
     return x * x * x * (x * (x * 6 - 15) + 10);
@@ -48,7 +56,7 @@ void shakeCamera(
 std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
 
 void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
-    const Path& mPackPath, const std::string& mLuaScript);
+    const ssvufs::Path& mPackPath, const std::string& mLuaScript);
 
 [[gnu::const]] sf::Color transformHue(const sf::Color& in, float H);
 
@@ -76,7 +84,7 @@ T runLuaFunction(
 {
     try
     {
-        return mLua.callLuaFunction<T>(mName, ssvu::mkTpl(mArgs...));
+        return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...));
     }
     catch(std::runtime_error& mError)
     {

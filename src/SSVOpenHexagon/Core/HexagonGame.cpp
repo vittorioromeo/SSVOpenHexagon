@@ -13,8 +13,12 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
-using namespace hg::Utils;
+#include <SSVStart/Utils/Vector2.hpp>
+#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
+#include <SSVUtils/Core/Common/Frametime.hpp>
+
+using namespace hg::Utils;
 namespace hg
 {
 
@@ -34,7 +38,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
       assets(mAssets), window(mGameWindow), player{getFieldPos()},
       fpsWatcher(window)
 {
-    game.onUpdate += [this](FT mFT) { update(mFT); };
+    game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
     game.onPostUpdate += [this] {
         inputImplLastMovement = inputMovement;
         inputImplBothCWCCW = inputImplCW && inputImplCCW;
@@ -47,14 +51,14 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     add2StateInput(game, Config::getTriggerFocus(), inputFocused);
     add2StateInput(game, Config::getTriggerSwap(), inputSwap);
     game.addInput(
-        Config::getTriggerExit(), [this](FT /*unused*/) { goToMenu(); });
+        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); });
     game.addInput(
         Config::getTriggerForceRestart(),
-        [this](FT /*unused*/) { status.mustRestart = true; },
+        [this](ssvu::FT /*unused*/) { status.mustRestart = true; },
         ssvs::Input::Type::Once);
     game.addInput(
         Config::getTriggerRestart(),
-        [this](FT /*unused*/) {
+        [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {
                 status.mustRestart = true;
@@ -63,7 +67,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once);
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](FT /*unused*/) { mustTakeScreenshot = true; },
+        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
         ssvs::Input::Type::Once);
 }
 
@@ -93,20 +97,24 @@ void HexagonGame::newGame(
 
     // Events cleanup
     messageText.setString("");
+
+    // Event timeline cleanup
     eventTimeline.clear();
-    eventTimeline.reset();
+    eventTimelineRunner = {};
+
+    // Message timeline cleanup
     messageTimeline.clear();
-    messageTimeline.reset();
+    messageTimelineRunner = {};
 
     // Manager cleanup
     walls.clear();
     cwManager.clear();
     player = CPlayer{getFieldPos()};
 
-
     // Timeline cleanup
     timeline.clear();
-    timeline.reset();
+    timelineRunner = {};
+
     effectTimelineManager.clear();
     mustChangeSides = false;
 
@@ -272,19 +280,20 @@ void HexagonGame::changeLevel(const std::string& mId, bool mFirstTime)
 }
 
 void HexagonGame::addMessage(
-    std::string mMessage, float mDuration, bool mSoundToggle)
+    std::string mMessage, double mDuration, bool mSoundToggle)
 {
     Utils::uppercasify(mMessage);
 
-    messageTimeline.append<ssvu::Do>([this, mSoundToggle, mMessage] {
+    messageTimeline.append_do([this, mSoundToggle, mMessage] {
         if(mSoundToggle)
         {
             assets.playSound("beep.ogg");
         }
         messageText.setString(mMessage);
     });
-    messageTimeline.append<ssvu::Wait>(mDuration);
-    messageTimeline.append<ssvu::Do>([this] { messageText.setString(""); });
+
+    messageTimeline.append_wait_for_sixths(mDuration);
+    messageTimeline.append_do([this] { messageText.setString(""); });
 }
 
 void HexagonGame::clearMessages()

@@ -10,6 +10,10 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Online/OHServer.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+#include <SSVUtils/Encoding/Encoding.hpp>
 
 using namespace std;
 using namespace sf;
@@ -161,7 +165,7 @@ void initializeClient()
                 return;
             }
 
-            std::this_thread::sleep_for(1s);
+            std::this_thread::sleep_for(std::chrono::seconds{1});
         }
     });
 }
@@ -277,7 +281,7 @@ void tryLogin(const string& mUsername, const string& mPassword)
         client->send(buildCPacket<FromClient::Login>(mUsername, mPassword));
         currentUsername = mUsername;
 
-        std::this_thread::sleep_for(6s);
+        std::this_thread::sleep_for(std::chrono::seconds{6});
 
         if(loginStatus == LoginStat::Logging)
         {
@@ -452,9 +456,9 @@ const string& SSVU_ATTRIBUTE(const) getServerMessage()
     return serverMessage;
 }
 
-string getValidator(const Path& mPackPath, const string& mLevelId,
-    const string& mLevelRootString, const Path& mStyleRootPath,
-    const Path& mLuaScriptPath)
+string getValidator(const ssvufs::Path& mPackPath, const string& mLevelId,
+    const string& mLevelRootString, const ssvufs::Path& mStyleRootPath,
+    const ssvufs::Path& mLuaScriptPath)
 {
     string luaScriptContents{mLuaScriptPath.getContentsAsStr()};
     std::set<string> luaScriptNames;

@@ -3,6 +3,7 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 
 #include <SFML/Window.hpp>
 
@@ -94,7 +95,7 @@ enum class AxisDir : int
 [[nodiscard]] static AxisDir axisPressed(
     const unsigned int joyId, const sf::Joystick::Axis axis)
 {
-    constexpr float deadzone = 5.f;
+    const float deadzone = Config::getJoystickDeadzone();
     const auto pos = sf::Joystick::getAxisPosition(joyId, axis);
 
     if(pos < -deadzone)

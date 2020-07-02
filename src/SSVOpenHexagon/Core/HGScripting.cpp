@@ -84,16 +84,17 @@ void HexagonGame::initLua_Utils()
             "definition of the SFML `sf::Keyboard::Key` enumeration.");
 
     addLuaFn("u_haltTime", //
-        [this](float mDuration) {
+        [this](double mDuration) {
             status.pauseTime(ssvu::getFTToSeconds(mDuration));
         })
         .arg("duration")
         .doc("Pause the game timer for `$0` seconds.");
 
     addLuaFn("u_timelineWait",
-        [this](float mDuration) { timeline.append<ssvu::Wait>(mDuration); })
+        [this](
+            double mDuration) { timeline.append_wait_for_sixths(mDuration); })
         .arg("duration")
-        .doc("*Add to the main timeline*: wait for `$0` seconds.");
+        .doc("*Add to the main timeline*: wait for `$0` sixths of a second.");
 
     addLuaFn("u_clearWalls", //
         [this] { walls.clear(); })
@@ -129,11 +130,11 @@ void HexagonGame::initLua_Utils()
             "chosen automatic increment parameters.");
 
     addLuaFn("u_kill", //
-        [this] { timeline.append<ssvu::Do>([this] { death(true); }); })
+        [this] { timeline.append_do([this] { death(true); }); })
         .doc("*Add to the main timeline*: kill the player.");
 
     addLuaFn("u_eventKill", //
-        [this] { eventTimeline.append<ssvu::Do>([this] { death(true); }); })
+        [this] { eventTimeline.append_do([this] { death(true); }); })
         .doc("*Add to the event timeline*: kill the player.");
 
     addLuaFn("u_getDifficultyMult", //
@@ -158,8 +159,8 @@ void HexagonGame::initLua_Utils()
 void HexagonGame::initLua_Messages()
 {
     addLuaFn("m_messageAdd", //
-        [this](std::string mMsg, float mDuration) {
-            eventTimeline.append<ssvu::Do>([=, this] {
+        [this](std::string mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
                 if(firstPlay && Config::getShowMessages())
                 {
                     addMessage(mMsg, mDuration, /* mSoundToggle */ true);
@@ -174,8 +175,8 @@ void HexagonGame::initLua_Messages()
             "run of the level.");
 
     addLuaFn("m_messageAddImportant", //
-        [this](std::string mMsg, float mDuration) {
-            eventTimeline.append<ssvu::Do>([=, this] {
+        [this](std::string mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
                 if(Config::getShowMessages())
                 {
                     addMessage(mMsg, mDuration, /* mSoundToggle */ true);
@@ -191,8 +192,8 @@ void HexagonGame::initLua_Messages()
 
 
     addLuaFn("m_messageAddImportantSilent",
-        [this](std::string mMsg, float mDuration) {
-            eventTimeline.append<ssvu::Do>([=, this] {
+        [this](std::string mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
                 if(Config::getShowMessages())
                 {
                     addMessage(mMsg, mDuration, /* mSoundToggle */ false);
@@ -215,25 +216,23 @@ void HexagonGame::initLua_Messages()
 void HexagonGame::initLua_MainTimeline()
 {
     addLuaFn("t_wait",
-        [this](float mDuration) { timeline.append<ssvu::Wait>(mDuration); })
+        [this](
+            double mDuration) { timeline.append_wait_for_sixths(mDuration); })
         .arg("duration")
         .doc("*Add to the main timeline*: wait for `$0` sixths of a second.");
 
     addLuaFn("t_waitS", //
-        [this](float mDuration) {
-            timeline.append<ssvu::Wait>(ssvu::getSecondsToFT(mDuration));
-        })
+        [this](
+            double mDuration) { timeline.append_wait_for_seconds(mDuration); })
         .arg("duration")
         .doc("*Add to the main timeline*: wait for `$0` seconds.");
 
     addLuaFn("t_waitUntilS", //
-        [this](float mDuration) {
-            timeline.append<ssvu::Wait>(10);
-            timeline.append<ssvu::Do>([=, this] {
-                if(status.getTimeSeconds() < mDuration)
-                {
-                    timeline.jumpTo(timeline.getCurrentIndex() - 2);
-                }
+        [this](double mDuration) {
+            timeline.append_wait_until_fn([this, mDuration] {
+                return status.getLevelStartTP() +
+                       std::chrono::milliseconds(
+                           static_cast<int>(mDuration * 1000.0));
             });
         })
         .arg("duration")
@@ -245,8 +244,8 @@ void HexagonGame::initLua_MainTimeline()
 void HexagonGame::initLua_EventTimeline()
 {
     addLuaFn("e_eventStopTime", //
-        [this](float mDuration) {
-            eventTimeline.append<ssvu::Do>([=, this] {
+        [this](double mDuration) {
+            eventTimeline.append_do([=, this] {
                 status.pauseTime(ssvu::getFTToSeconds(mDuration));
             });
         })
@@ -256,9 +255,8 @@ void HexagonGame::initLua_EventTimeline()
             "of a second.");
 
     addLuaFn("e_eventStopTimeS", //
-        [this](float mDuration) {
-            eventTimeline.append<ssvu::Do>(
-                [=, this] { status.pauseTime(mDuration); });
+        [this](double mDuration) {
+            eventTimeline.append_do([=, this] { status.pauseTime(mDuration); });
         })
         .arg("duration")
         .doc(
@@ -266,26 +264,25 @@ void HexagonGame::initLua_EventTimeline()
             "seconds.");
 
     addLuaFn("e_eventWait",
-        [this](
-            float mDuration) { eventTimeline.append<ssvu::Wait>(mDuration); })
+        [this](double mDuration) {
+            eventTimeline.append_wait_for_sixths(mDuration);
+        })
         .arg("duration")
         .doc("*Add to the event timeline*: wait for `$0` sixths of a second.");
 
     addLuaFn("e_eventWaitS", //
-        [this](float mDuration) {
-            eventTimeline.append<ssvu::Wait>(ssvu::getSecondsToFT(mDuration));
+        [this](double mDuration) {
+            eventTimeline.append_wait_for_seconds(mDuration);
         })
         .arg("duration")
         .doc("*Add to the event timeline*: wait for `$0` seconds.");
 
     addLuaFn("e_eventWaitUntilS", //
-        [this](float mDuration) {
-            eventTimeline.append<ssvu::Wait>(10);
-            eventTimeline.append<ssvu::Do>([=, this] {
-                if(status.getTimeSeconds() < mDuration)
-                {
-                    eventTimeline.jumpTo(eventTimeline.getCurrentIndex() - 2);
-                }
+        [this](double mDuration) {
+            eventTimeline.append_wait_until_fn([this, mDuration] {
+                return status.getLevelStartTP() +
+                       std::chrono::milliseconds(
+                           static_cast<int>(mDuration * 1000.0));
             });
         })
         .arg("duration")
@@ -519,7 +516,7 @@ void HexagonGame::initLua_WallCreation()
 {
     addLuaFn("w_wall", //
         [this](int mSide, float mThickness) {
-            timeline.append<ssvu::Do>([=, this] {
+            timeline.append_do([=, this] {
                 createWall(mSide, mThickness, {getSpeedMultDM()});
             });
         })
@@ -532,7 +529,7 @@ void HexagonGame::initLua_WallCreation()
 
     addLuaFn("w_wallAdj", //
         [this](int mSide, float mThickness, float mSpeedAdj) {
-            timeline.append<ssvu::Do>([=, this] {
+            timeline.append_do([=, this] {
                 createWall(mSide, mThickness, mSpeedAdj * getSpeedMultDM());
             });
         })
@@ -548,7 +545,7 @@ void HexagonGame::initLua_WallCreation()
     addLuaFn("w_wallAcc", //
         [this](int mSide, float mThickness, float mSpeedAdj,
             float mAcceleration, float mMinSpeed, float mMaxSpeed) {
-            timeline.append<ssvu::Do>([=, this] {
+            timeline.append_do([=, this] {
                 createWall(mSide, mThickness,
                     {mSpeedAdj * getSpeedMultDM(), mAcceleration,
                         mMinSpeed * getSpeedMultDM(),
@@ -572,7 +569,7 @@ void HexagonGame::initLua_WallCreation()
     addLuaFn("w_wallHModSpeedData", //
         [this](float mHMod, int mSide, float mThickness, float mSAdj,
             float mSAcc, float mSMin, float mSMax, bool mSPingPong) {
-            timeline.append<ssvu::Do>([=, this] {
+            timeline.append_do([=, this] {
                 createWall(mSide, mThickness,
                     {mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax, mSPingPong},
                     mHMod);
@@ -600,7 +597,7 @@ void HexagonGame::initLua_WallCreation()
     addLuaFn("w_wallHModCurveData", //
         [this](float mHMod, int mSide, float mThickness, float mCAdj,
             float mCAcc, float mCMin, float mCMax, bool mCPingPong) {
-            timeline.append<ssvu::Do>([=, this] {
+            timeline.append_do([=, this] {
                 createWall(mSide, mThickness, {getSpeedMultDM()},
                     {mCAdj, mCAcc, mCMin, mCMax, mCPingPong}, mHMod);
             });

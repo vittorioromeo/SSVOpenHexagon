@@ -2,13 +2,18 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <iostream>
-#include <fstream>
-#include <memory>
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/Input/Input.hpp>
+#include <SSVStart/GameSystem/GameWindow.hpp>
+
+#include <iostream>
+#include <fstream>
+#include <memory>
 
 using namespace std;
 using namespace sf;
@@ -66,6 +71,7 @@ using namespace ssvu;
     X(drawTextOutlines, bool, "draw_text_outlines")                        \
     X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk") \
     X(rotateToStart, bool, "rotate_to_start")                              \
+    X(joystickDeadzone, float, "joystick_deadzone")                        \
     X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
     X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
     X(triggerFocus, Trigger, "t_focus")                                    \
@@ -451,6 +457,11 @@ void setRotateToStart(bool mX)
     rotateToStart() = mX;
 }
 
+void setJoystickDeadzone(float mX)
+{
+    joystickDeadzone() = mX;
+}
+
 bool SSVU_ATTRIBUTE(pure) getOnline()
 {
     return online();
@@ -724,6 +735,11 @@ bool SSVU_ATTRIBUTE(pure) getDarkenUnevenBackgroundChunk()
 bool SSVU_ATTRIBUTE(pure) getRotateToStart()
 {
     return rotateToStart();
+}
+
+float SSVU_ATTRIBUTE(pure) getJoystickDeadzone()
+{
+    return joystickDeadzone();
 }
 
 Trigger getTriggerRotateCCW()

@@ -7,6 +7,9 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 namespace hg
 {
@@ -18,7 +21,7 @@ class StyleData
 {
 private:
     float currentHue, currentSwapTime{0}, pulseFactor{0};
-    Path rootPath;
+    ssvufs::Path rootPath;
     sf::Color currentMainColor, current3DOverrideColor;
     std::vector<sf::Color> currentColors;
 
@@ -55,7 +58,7 @@ public:
     std::vector<ColorData> colorDatas;
 
     StyleData() = default;
-    StyleData(const ssvuj::Obj& mRoot, const Path& mPath)
+    StyleData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPath)
         : rootPath{mPath}, id{ssvuj::getExtr<std::string>(
                                mRoot, "id", "nullId")},
           hueMin{ssvuj::getExtr<float>(mRoot, "hue_min", 0.f)},
@@ -100,18 +103,19 @@ public:
         }
     }
 
-    void update(FT mFT, HexagonGameStatus& status, float mMult = 1.f);
-    void computeColors(const LevelStatus& levelStatus);
+
+    void update(ssvu::FT mFT, float mMult = 1.f);
+    void computeColors();
     void drawBackground(sf::RenderTarget& mRenderTarget,
         const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
         const StyleData& styleData) const;
 
-    void setRootPath(const Path& mPath)
+    void setRootPath(const ssvufs::Path& mPath)
     {
         rootPath = mPath;
     }
 
-    const Path& getRootPath() const noexcept
+    const ssvufs::Path& getRootPath() const noexcept
     {
         return rootPath;
     }
