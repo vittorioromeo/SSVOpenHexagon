@@ -524,7 +524,7 @@ void HexagonGame::initLua_WallCreation()
             timeline.append_do([=, this] {
                 createWall(mSide, mThickness,
                     {mSpeedAdj * getSpeedMultDM(), 
-                        mAcceleration / difficultyMult,
+                        mAcceleration / (std::pow(difficultyMult, 0.65f)),
                         mMinSpeed * getSpeedMultDM(),
                         mMaxSpeed * getSpeedMultDM()});
             });
