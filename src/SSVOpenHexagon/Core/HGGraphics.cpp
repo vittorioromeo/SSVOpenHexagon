@@ -266,7 +266,7 @@ void HexagonGame::updateText()
 
 void HexagonGame::drawText()
 {
-    Color offsetColor{getColor(1)};
+    Color offsetColor{getColor(0)};
     if(Config::getBlackAndWhite())
     {
         offsetColor = Color::Black;
@@ -274,13 +274,18 @@ void HexagonGame::drawText()
 
     if(Config::getDrawTextOutlines())
     {
-        text.setFillColor(offsetColor);
-        for(const auto& o : txt_offsets)
-        {
-            text.setPosition(tl_txt_pos + sf::Vector2f{o.x, o.y});
-            render(text);
-        }
-    }
+		timeText.setOutlineColor(offsetColor);
+        text.setOutlineColor(offsetColor);
+		fpsText.setOutlineColor(offsetColor);
+        
+		timeText.setOutlineThickness(2.f);
+		text.setOutlineThickness(1.f);
+		fpsText.setOutlineThickness(1.f);
+    } else {
+		timeText.setOutlineThickness(0.f);
+		text.setOutlineThickness(0.f);
+		fpsText.setOutlineThickness(0.f);
+	}
 
     timeText.setFillColor(getColorMain());
 	text.setPosition(tl_txt_pos);
@@ -304,14 +309,10 @@ void HexagonGame::drawText()
 
     if(Config::getDrawTextOutlines())
     {
-        messageText.setFillColor(offsetColor);
-        for(const auto& o : txt_offsets)
-        {
-            messageText.setPosition(sf::Vector2f{Config::getWidth() / 2.f,
-                                        Config::getHeight() / 6.f} +
-                                    sf::Vector2f{o.x, o.y});
-            render(messageText);
-        }
+        messageText.setOutlineColor(offsetColor);
+        messageText.setOutlineThickness(1.f);
+    } else {
+        messageText.setOutlineThickness(0.f);
     }
 
     messageText.setPosition(
