@@ -122,9 +122,6 @@ private:
         float y;
     };
 
-    static constexpr std::array txt_offsets{CExprVec2f{-1, -1},
-        CExprVec2f{-1, 1}, CExprVec2f{1, -1}, CExprVec2f{1, 1}};
-
     Utils::LuaMetadata luaMetadata;
 
     // LUA-related methods
