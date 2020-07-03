@@ -44,7 +44,7 @@ void CWall::draw(HexagonGame& mHexagonGame)
     const sf::Vector2f skew{1.f, 1.f + skewEffect.y};
 
 
-    const float radius{mHexagonGame.getRadius() * 0.75f};
+    const float radius{abs(mHexagonGame.getRadius() * 0.75f)};
     const auto _distance{ssvu::getClampedMin(distance, radius)};
     const auto _distanceThiccL{ssvu::getClampedMin(
         distance + thickness + mHexagonGame.getWallSkewLeft(), radius)};
@@ -91,7 +91,7 @@ void CWall::update(
     speed.update(mFT);
     curve.update(mFT);
 
-    const float radius{mHexagonGame.getRadius() * 0.75f};
+    const float radius{abs(mHexagonGame.getRadius() * 0.75f)};
     int pointsOnCenter{0};
 
     distance -= speed.speed * 5.f * mFT;

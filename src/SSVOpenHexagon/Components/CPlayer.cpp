@@ -73,17 +73,17 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     // For Drawing
     _pos = Utils::getSkewedOrbitRad(
         fieldPos, fieldAngle + angle, playerRadius, skew);
-    pTip = Utils::getSkewedOrbitRad(_pos, _angle, size, skew);
+    pTip = Utils::getSkewedOrbitRad(_pos, _angle, size*ssvu::getSign(playerRadius), skew);
     pLeft = Utils::getSkewedOrbitRad(
-        _pos, _angle - ssvu::toRad(100.f), size + 3, skew);
+        _pos, _angle - ssvu::toRad(100.f), (size + 3)*ssvu::getSign(playerRadius), skew);
     pRight = Utils::getSkewedOrbitRad(
-        _pos, _angle + ssvu::toRad(100.f), size + 3, skew);
+        _pos, _angle + ssvu::toRad(100.f), (size + 3)*ssvu::getSign(playerRadius), skew);
 
     // For collisions check
     pos = ssvs::getOrbitRad(mHexagonGame.getFieldPos(), angle, playerRadius);
-    pDTip = ssvs::getOrbitRad(pos, angle, size);
-    pDLeft = ssvs::getOrbitRad(pos, angle - ssvu::toRad(100.f), size + 3);
-    pDRight = ssvs::getOrbitRad(pos, angle + ssvu::toRad(100.f), size + 3);
+    pDTip = ssvs::getOrbitRad(pos, angle, size*ssvu::getSign(playerRadius));
+    pDLeft = ssvs::getOrbitRad(pos, angle - ssvu::toRad(100.f), (size + 3)*ssvu::getSign(playerRadius));
+    pDRight = ssvs::getOrbitRad(pos, angle + ssvu::toRad(100.f), (size + 3)*ssvu::getSign(playerRadius));
 
     // Debug Player itself
     if(Config::getDebug())
@@ -106,7 +106,7 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     const auto status{mHexagonGame.getStatus()};
     const auto sides(mHexagonGame.getSides());
     const float div{ssvu::tau / sides * 0.5f};
-    const float radius{mHexagonGame.getRadius() * 0.75f};
+    const float radius{abs(mHexagonGame.getRadius() * 0.75f)};
 
     const sf::Color colorMain{mHexagonGame.getColorMain()};
 
@@ -204,7 +204,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     float currentSpeed{speed};
 
     const float lastAngle{angle};
-    const float radius{mHexagonGame.getRadius()};
+    const float radius{abs(mHexagonGame.getRadius())};
     const int movement{mHexagonGame.getInputMovement()};
 
 
