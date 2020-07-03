@@ -6,8 +6,6 @@
 
 #include <SFML/System.hpp>
 
-#include <SSVUtils/Core/Core.hpp>
-
 #include <SSVStart/Tileset/Tileset.hpp>
 #include <SSVStart/Input/Enums.hpp>
 #include <SSVStart/Input/Combo.hpp>
@@ -16,11 +14,13 @@
 #include <SSVStart/Global/Typedefs.hpp>
 #include <SSVStart/Assets/AssetManager.hpp>
 
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
 namespace ssvs
 {
 
 void loadAssetsFromJson(
-    ssvs::AssetManager<>& mAM, const Path& mRootPath, const ssvuj::Obj& mObj)
+    ssvs::AssetManager<>& mAM, const ssvufs::Path& mRootPath, const ssvuj::Obj& mObj)
 {
     using namespace std;
     using namespace ssvuj;

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <SSVUtils\Core\Common\Frametime.hpp>
+#include <SSVUtils/Core/Common/Frametime.hpp>
 
 namespace hg
 {

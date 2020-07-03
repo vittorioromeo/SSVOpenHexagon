@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/PacketHandler.hpp"
@@ -14,6 +11,15 @@
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Online/Definitions.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVUtils/Bimap/Bimap.hpp>
+#include <SSVUtils/CmdLine/CmdLine.hpp>
+
+#include <future>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace hg::Online
 {
@@ -652,7 +658,7 @@ struct OHServer
         saveFuture = std::async(std::launch::async, [this] {
             while(server.isRunning())
             {
-                std::this_thread::sleep_for(5s);
+                std::this_thread::sleep_for(std::chrono::seconds{5});
                 saveIfNeeded();
             }
         });
@@ -662,7 +668,7 @@ struct OHServer
         // This loop keeps the server alive
         while(server.isRunning())
         {
-            std::this_thread::sleep_for(10s);
+            std::this_thread::sleep_for(std::chrono::seconds{10});
         }
     }
 

@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
+#include <SSVStart/Utils/Vector2.hpp>
+
 namespace hg
 {
 

@@ -8,6 +8,14 @@
 #include "SSVOpenHexagon/Online/Utils.hpp"
 #include "SSVOpenHexagon/Online/PacketHandler.hpp"
 
+#include <SSVUtils/Delegate/Delegate.hpp>
+
+#include <SFML/Network.hpp>
+
+#include <future>
+#include <atomic>
+#include <chrono>
+
 namespace hg::Online
 {
 
@@ -24,7 +32,7 @@ private:
         while(busy)
         {
             update();
-            std::this_thread::sleep_for(50ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds{50});
         }
     }
 
@@ -44,7 +52,7 @@ private:
             {
                 onPacketReceived(packet);
             }
-            std::this_thread::sleep_for(50ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds{50});
         }
     }
 
@@ -64,7 +72,7 @@ private:
                 onPacketSent(mPacket);
                 return true;
             }
-            std::this_thread::sleep_for(50ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds{50});
         }
 
         HG_LO_VERBOSE("ManagedSocket")
@@ -105,7 +113,7 @@ public:
             {
                 goto succeed;
             }
-            std::this_thread::sleep_for(60ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds{60});
         }
 
         return false;
@@ -137,7 +145,7 @@ public:
             {
                 goto succeed;
             }
-            std::this_thread::sleep_for(60ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds{60});
         }
 
         return false;

@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "SSVUtils/Encoding/Encoding.hpp"
-#include "SSVUtils/Core/String/Utils.hpp"
+#include <SSVUtils/Encoding/Encoding.hpp>
+#include <SSVUtils/Core/String/Utils.hpp>
+#include <SSVUtils/Core/Assert/Assert.hpp>
 
 #include <type_traits>
 #include <string>

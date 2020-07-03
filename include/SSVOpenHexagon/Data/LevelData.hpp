@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Data/TrackedVariable.hpp"
 
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
 #include <string>
 #include <vector>
 
@@ -18,7 +20,7 @@ private:
     ssvuj::Obj root;
 
 public:
-    Path packPath;
+    ssvufs::Path packPath;
 
     std::string id{
         packPath.getStr() + ssvuj::getExtr<std::string>(root, "id", "nullId")};
@@ -32,12 +34,12 @@ public:
         ssvuj::getExtr<std::string>(root, "musicId", "nullMusicId")};
     std::string styleId{
         ssvuj::getExtr<std::string>(root, "styleId", "nullStyleId")};
-    Path luaScriptPath{
+    ssvufs::Path luaScriptPath{
         packPath + ssvuj::getExtr<std::string>(root, "luaFile", "nullLuaPath")};
     std::vector<float> difficultyMults{
         ssvuj::getExtr<std::vector<float>>(root, "difficultyMults", {})};
 
-    LevelData(const ssvuj::Obj& mRoot, const Path& mPackPath)
+    LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath)
         : root{mRoot}, packPath{mPackPath}
     {
         difficultyMults.emplace_back(1.f);

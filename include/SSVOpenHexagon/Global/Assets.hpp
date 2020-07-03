@@ -12,6 +12,17 @@
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Online/OHServer.hpp"
 
+#include <SSVStart/Assets/Assets.hpp>
+#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
+#include <SSVStart/MusicPlayer/MusicPlayer.hpp>
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
+#include <unordered_map>
+#include <map>
+#include <vector>
+#include <string>
+
 namespace hg
 {
 
@@ -39,7 +50,7 @@ private:
     struct PackInfo
     {
         std::string id;
-        Path path;
+        ssvufs::Path path;
     };
 
     std::vector<PackInfo> packInfos;
@@ -48,6 +59,9 @@ private:
     std::map<std::string, StyleData> styleDataMap;
     std::map<std::string, ProfileData> profileDataMap;
     ProfileData* currentProfilePtr{nullptr};
+
+    [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
+    [[nodiscard]] bool loadPackInfo(const PackData& packData);
 
 public:
     float playedSeconds{0};
@@ -75,7 +89,8 @@ public:
         return levelDatas.at(mId);
     }
 
-    const std::vector<std::string>& getLevelIdsByPack(const Path& mPackPath)
+    const std::vector<std::string>& getLevelIdsByPack(
+        const ssvufs::Path& mPackPath)
     {
         return levelDataIdsByPack.at(mPackPath);
     }
@@ -92,11 +107,12 @@ public:
 
     [[nodiscard]] bool loadAssets();
 
-    void loadMusic(const Path& mPath);
-    void loadMusicData(const Path& mPath);
-    void loadStyleData(const Path& mPath);
-    void loadLevelData(const Path& mPath);
-    void loadCustomSounds(const std::string& mPackName, const Path& mPath);
+    void loadMusic(const ssvufs::Path& mPath);
+    void loadMusicData(const ssvufs::Path& mPath);
+    void loadStyleData(const ssvufs::Path& mPath);
+    void loadLevelData(const ssvufs::Path& mPath);
+    void loadCustomSounds(
+        const std::string& mPackName, const ssvufs::Path& mPath);
     void loadLocalProfiles();
 
     void saveCurrentLocalProfile();
