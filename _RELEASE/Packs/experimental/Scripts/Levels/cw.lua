@@ -85,6 +85,8 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	e_eventWaitUntilS(2)
+	m_messageAddImportant("test", 130)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

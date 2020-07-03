@@ -33,7 +33,7 @@ private:
     TimePoint lastTimerPauseTp;
 
     // Duration of the current timer pause
-    std::chrono::milliseconds pauseDuration{100ms};
+    std::chrono::milliseconds pauseDuration{100};
 
 public:
     float pulse{75};
@@ -61,6 +61,12 @@ public:
 
     // Game timer, in seconds
     [[nodiscard]] double getTimeSeconds() noexcept;
+
+    // Game timer, as time point
+    [[nodiscard]] TimePoint getTimeTP() noexcept;
+
+    // Level start, as time point
+    [[nodiscard]] TimePoint getLevelStartTP() noexcept;
 
     // `true` if we are currently paused
     [[nodiscard]] bool isTimePaused() noexcept;

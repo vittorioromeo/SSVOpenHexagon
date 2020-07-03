@@ -5,6 +5,9 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Compression.hpp"
 
+#include <sstream>
+#include <cstring>
+
 using namespace std;
 
 namespace hg
@@ -12,7 +15,7 @@ namespace hg
 string getZLibCompress(const string& mStr, int mCompressionlevel)
 {
     z_stream zs;
-    memset(&zs, 0, sizeof(zs));
+    std::memset(&zs, 0, sizeof(zs));
 
     if(deflateInit(&zs, mCompressionlevel) != Z_OK)
     {
@@ -54,7 +57,7 @@ string getZLibCompress(const string& mStr, int mCompressionlevel)
 string getZLibDecompress(const string& mStr)
 {
     z_stream zs;
-    memset(&zs, 0, sizeof(zs));
+    std::memset(&zs, 0, sizeof(zs));
 
     if(inflateInit(&zs) != Z_OK)
     {

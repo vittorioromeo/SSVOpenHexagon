@@ -47,6 +47,20 @@ void HexagonGameStatus::start() noexcept
     return static_cast<double>(ms.count()) / 1000.0;
 }
 
+[[nodiscard]] HexagonGameStatus::TimePoint
+HexagonGameStatus::getTimeTP() noexcept
+{
+    // If we are paused, do not count passing time as significant:
+    return isTimePaused() ? lastTimerPauseTp : currentTp;
+}
+
+[[nodiscard]] HexagonGameStatus::TimePoint
+HexagonGameStatus::getLevelStartTP() noexcept
+{
+    // If we are paused, do not count passing time as significant:
+    return levelStartTp;
+}
+
 [[nodiscard]] bool HexagonGameStatus::isTimePaused() noexcept
 {
     return pauseDuration > (currentTp - lastTimerPauseTp);
@@ -91,7 +105,7 @@ void HexagonGameStatus::updateTime() noexcept
 
         // ...signal that we are not in a pause anymore:
         lastTimerPauseTp = levelStartTp;
-        pauseDuration = 0ms;
+        pauseDuration = std::chrono::milliseconds{0};
     }
 }
 

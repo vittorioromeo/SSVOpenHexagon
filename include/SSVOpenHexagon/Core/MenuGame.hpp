@@ -12,7 +12,14 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
+#include <SSVStart/GameSystem/GameSystem.hpp>
+#include <SSVStart/Camera/Camera.hpp>
+#include <SSVStart/VertexVector/VertexVector.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
+
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
+
+#include <SSVUtils/Core/Common/Frametime.hpp>
 
 #include <cctype>
 
@@ -112,7 +119,7 @@ private:
     void initAssets();
     void initMenus();
     void initInput();
-    void update(FT mFT);
+    void update(ssvu::FT mFT);
     void draw();
     void drawLevelSelection();
     void drawEnteringText();

@@ -2,11 +2,18 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include <dirent.h>
-#include <sys/stat.h>
-#include <fstream>
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/Camera/Camera.hpp>
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
+#include <fstream>
+
+#include <dirent.h>
+#include <sys/stat.h>
 
 namespace hg::Utils
 {
@@ -128,7 +135,7 @@ std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript)
 }
 
 void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
-    const Path& mPackPath, const std::string& mLuaScript)
+    const ssvufs::Path& mPackPath, const std::string& mLuaScript)
 {
     for(const auto& name : getIncludedLuaFileNames(mLuaScript))
     {

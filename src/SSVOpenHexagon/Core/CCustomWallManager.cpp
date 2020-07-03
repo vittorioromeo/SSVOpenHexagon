@@ -4,7 +4,8 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
-#include <SSVUtils/Core/Core.hpp>
+#include <SSVUtils/Core/Log/Log.hpp>
+#include <SSVUtils/Core/Utils/Containers.hpp>
 
 namespace hg
 {
