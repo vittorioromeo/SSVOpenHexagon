@@ -85,7 +85,7 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     pDLeft = ssvs::getOrbitRad(pos, angle - ssvu::toRad(100.f), (size + 3)*ssvu::getSign(playerRadius));
     pDRight = ssvs::getOrbitRad(pos, angle + ssvu::toRad(100.f), (size + 3)*ssvu::getSign(playerRadius));
 
-    // Debug Player itself
+    // Debug Player itself.
     if(Config::getDebug())
     {
         sf::Color colorDebug(0, 0, 255, 150);

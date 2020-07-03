@@ -53,7 +53,7 @@ void CWall::draw(HexagonGame& mHexagonGame)
     const auto _distanceThiccR{ssvu::getClampedMin(
         distance + thickness + mHexagonGame.getWallSkewRight(), radius)};
 
-    // For calculating collisions and whatever
+    // For calculating collisions and whatever.
     const sf::Color colorDebug(255, 0, 0, 150);
     Collisions_vertexPositions[0] =
         ssvs::getOrbitRad(fieldPos, col_angle - div, _distance);
