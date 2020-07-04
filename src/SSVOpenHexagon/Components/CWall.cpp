@@ -87,12 +87,12 @@ void CWall::draw(HexagonGame& mHexagonGame)
 }
 
 
-void CWall::update(
-    HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
+void CWall::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);
 
+    const auto mCenterPos{mHexagonGame.getFieldPos()};
     const float radius{abs(mHexagonGame.getRadius() * 0.75f)};
     int pointsOnCenter{0};
 

@@ -43,14 +43,17 @@ void CPlayer::setPlayerAngle(const float newAng)
     angle = newAng;
 }
 
-void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
-    const LevelStatus& levelStatus, const StyleData& styleData)
+void CPlayer::draw(HexagonGame& mHexagonGame)
 {
-    drawPivot(mHexagonGame, mCapColor, levelStatus, styleData);
+    const auto levelStatus{mHexagonGame.getLevelStatus()};
+    const auto styleData{mHexagonGame.getStyleData()};
+    const auto mCapColor{styleData.getCapColorResult()};
+
+    drawPivot(mHexagonGame);
 
     if(deadEffectTimer.isRunning())
     {
-        drawDeathEffect(mHexagonGame, styleData);
+        drawDeathEffect(mHexagonGame);
     }
 
     sf::Color colorMain{!dead ? mHexagonGame.getColorMain()
@@ -100,9 +103,11 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
         colorMain, pTip, pLeft, pRight);
 }
 
-void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
-    const LevelStatus& levelStatus, const StyleData& styleData)
+void CPlayer::drawPivot(HexagonGame& mHexagonGame)
 {
+    const auto levelStatus{mHexagonGame.getLevelStatus()};
+    const auto styleData{mHexagonGame.getStyleData()};
+    const auto mCapColor{styleData.getCapColorResult()};
     const auto status{mHexagonGame.getStatus()};
     const auto sides(mHexagonGame.getSides());
     const float div{ssvu::tau / sides * 0.5f};
@@ -147,8 +152,7 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
     }
 }
 
-void CPlayer::drawDeathEffect(
-    HexagonGame& mHexagonGame, const StyleData& styleData)
+void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
 {
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
     const float radius{hue / 8.f};
@@ -156,7 +160,7 @@ void CPlayer::drawDeathEffect(
 
     const auto status{mHexagonGame.getStatus()};
 
-    const sf::Vector2f& skew{styleData.skew};
+    const sf::Vector2f& skew{mHexagonGame.getStyleData().skew};
 
     const auto fieldAngle = ssvu::toRad(mHexagonGame.getLevelStatus().rotation);
 
@@ -207,8 +211,6 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     const float radius{abs(mHexagonGame.getRadius())};
     const int movement{mHexagonGame.getInputMovement()};
 
-
-
     swapBlinkTimer.update(mFT);
 
     if(deadEffectTimer.update(mFT) &&
@@ -258,10 +260,6 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
             {
                 dead = true;
             }
-
-            // TODO:
-            // ssvs::moveTowards(lastPos, ssvs::zeroVec2f, 5 *
-            // mHexagonGame.getSpeedMultDM());
 
             pos = lastPos;
             mHexagonGame.death();

@@ -104,8 +104,8 @@ public:
     }
 
 
-    void update(ssvu::FT mFT, float mMult = 1.f);
-    void computeColors();
+    void update(ssvu::FT mFT, HexagonGameStatus& status, float mMult = 1.f);
+    void computeColors(const LevelStatus& levelStatus);
     void drawBackground(sf::RenderTarget& mRenderTarget,
         const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
         const StyleData& styleData) const;

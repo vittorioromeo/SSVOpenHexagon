@@ -43,9 +43,8 @@ private:
     Ticker swapBlinkTimer;
     Ticker deadEffectTimer;
 
-    void drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
-        const LevelStatus& levelStatus, const StyleData& styleData);
-    void drawDeathEffect(HexagonGame& mHexagonGame, const StyleData& styleData);
+    void drawPivot(HexagonGame& mHexagonGame);
+    void drawDeathEffect(HexagonGame& mHexagonGame);
 
 public:
     CPlayer(const sf::Vector2f& mStartPos) noexcept;
@@ -54,9 +53,8 @@ public:
     void setPlayerAngle(const float newAng);
     void swap(HexagonGame& mHexagonGame, bool mSoundTog);
 
-    void update(HexagonGame& mHexagonGame, FT mFT);
-    void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor,
-        const LevelStatus& levelStatus, const StyleData& styleData);
+    void update(HexagonGame& mHexagonGame, ssvs::FT mFT);
+    void draw(HexagonGame& mHexagonGame);
 };
 
 } // namespace hg

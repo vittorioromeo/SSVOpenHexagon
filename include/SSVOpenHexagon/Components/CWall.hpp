@@ -39,8 +39,7 @@ public:
     CWall(HexagonGame& mHexagonGame, unsigned int mSide, float mThickness,
         float mDistance, const SpeedData& mSpeed, const SpeedData& mCurve);
 
-    void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
-        ssvu::FT mFT);
+    void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame);
 
     void setHueMod(float mHueMod) noexcept;

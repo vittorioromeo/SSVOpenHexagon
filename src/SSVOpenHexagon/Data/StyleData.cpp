@@ -64,7 +64,7 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
 }
 
 
-void StyleData::update(ssvu::FT mFT, float mMult)
+void StyleData::update(ssvu::FT mFT, HexagonGameStatus& status, float mMult)
 {
     skew = {1.f, 1.f + _3dSkew * Config::get3DMultiplier() * status.pulse3D};
 

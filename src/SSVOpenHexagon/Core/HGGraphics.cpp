@@ -71,8 +71,7 @@ void HexagonGame::draw()
 
     if(status.started)
     {
-        player.draw(
-            *this, styleData.getCapColorResult(), levelStatus, styleData);
+        player.draw(*this);
     }
 
     if(Config::get3D())

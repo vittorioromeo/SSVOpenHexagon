@@ -174,7 +174,7 @@ private:
     // Update methods
     void update(ssvu::FT mFT);
     void updateIncrement();
-    void updateEvents(ssvu::FT mFT);
+    void updateEvents();
     void updateLevel(ssvu::FT mFT);
     void updatePulse(ssvu::FT mFT);
     void updateBeatPulse(ssvu::FT mFT);

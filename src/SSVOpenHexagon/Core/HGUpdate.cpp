@@ -153,13 +153,13 @@ void HexagonGame::update(ssvu::FT mFT)
             player.update(*this, mFT);
             for(CWall& w : walls)
             {
-                w.update(*this, getFieldPos(), mFT);
+                w.update(*this, mFT);
             }
 
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
             cwManager.cleanup();
 
-            updateEvents(mFT);
+            updateEvents();
             status.updateTime();
             updateIncrement();
 
@@ -181,7 +181,7 @@ void HexagonGame::update(ssvu::FT mFT)
 
             if(!Config::getBlackAndWhite())
             {
-                styleData.update(mFT, status, pow(difficultyMult, 0.8f));
+                styleData.update(mFT, getStatus(), pow(difficultyMult, 0.8f));
             }
             updateLevel(mFT);
         }
@@ -224,7 +224,7 @@ void HexagonGame::update(ssvu::FT mFT)
         fpsWatcher.update();
     }
 }
-void HexagonGame::updateEvents(ssvu::FT mFT)
+void HexagonGame::updateEvents()
 {
     if(const auto o =
             eventTimelineRunner.update(eventTimeline, status.getTimeTP());
