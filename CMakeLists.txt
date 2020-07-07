@@ -85,7 +85,7 @@ set(SRC_DIR "src" CACHE STRING "")
 include_directories("./")
 include_directories("./${INC_DIR}")
 
-file(GLOB_RECURSE SRC_LIST "${INC_DIR}/*" "${SRC_DIR}/*" "public/discord/*")
+file(GLOB_RECURSE SRC_LIST "${INC_DIR}/SSVOpenHexagon/*" "${SRC_DIR}/SSVOpenHexagon/*" "public/discord/*")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
@@ -135,3 +135,22 @@ if(UNIX AND NOT APPLE)
 endif()
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/)
+
+# -----------------------------------------------------------------------------
+# Workshop uploader tool
+if(WIN32)
+    set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll")
+else()
+    set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so")
+endif()
+
+add_executable(OHWorkshopUploader "${CMAKE_CURRENT_SOURCE_DIR}/src/OHWorkshopUploader/main.cpp")
+target_include_directories(OHWorkshopUploader SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
+target_link_libraries(OHWorkshopUploader ${STEAM_LIBRARIES})
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(OHWorkshopUploader pthread)
+endif()
+
+install(TARGETS OHWorkshopUploader RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/)
+
