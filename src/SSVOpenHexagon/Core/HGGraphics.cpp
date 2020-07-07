@@ -243,39 +243,34 @@ void HexagonGame::updateText()
     {
         timeText.setString("0");
     }
-    timeText.setCharacterSize(
-        ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor()));
-    timeText.setOrigin(-16, ssvu::toNum<int>(17.f / Config::getZoomFactor()));
+
+    const auto getScaledCharacterSize = [&](const float size) {
+        return ssvu::toNum<unsigned int>(
+            size / Config::getZoomFactor() * Config::getTextScaling());
+    };
+
+    timeText.setCharacterSize(getScaledCharacterSize(70.f));
+    timeText.setOrigin(0, 0);
 
     // Set information text
     text.setString(os.str());
-    text.setCharacterSize(
-        ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
-    text.setOrigin(-8, 8);
+    text.setCharacterSize(getScaledCharacterSize(25.f));
+    text.setOrigin(0, 0);
 
     // Set FPS Text, if option is enabled.
     if(Config::getShowFPS())
     {
         fpsText.setString(toStr(window.getFPS()));
-        fpsText.setCharacterSize(
-            ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
-        fpsText.setOrigin(
-            -8, -ssvu::toNum<int>(735.f / Config::getZoomFactor()) + 8);
+        fpsText.setCharacterSize(getScaledCharacterSize(25.f));
+        // fpsText.setOrigin(0, 0);
     }
 
-    messageText.setCharacterSize(
-        ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor()));
+    messageText.setCharacterSize(getScaledCharacterSize(38.f));
     messageText.setOrigin(getGlobalWidth(messageText) / 2.f, 0);
 }
 
-void HexagonGame::drawText()
+void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
 {
-    Color offsetColor{getColor(0)};
-    if(Config::getBlackAndWhite())
-    {
-        offsetColor = Color::Black;
-    }
-
     if(Config::getDrawTextOutlines())
     {
         timeText.setOutlineColor(offsetColor);
@@ -293,21 +288,30 @@ void HexagonGame::drawText()
         fpsText.setOutlineThickness(0.f);
     }
 
+    const float padding = Config::getTextPadding() * Config::getTextScaling();
+    const float offsetRatio = Config::getHeight() / 720.f;
+
     timeText.setFillColor(getColorMain());
-    text.setPosition(tl_txt_pos);
+    timeText.setPosition(
+        sf::Vector2f{padding, -22.f * offsetRatio * Config::getTextScaling()});
     render(timeText);
 
     text.setFillColor(getColorMain());
-    text.setPosition(tl_txt_pos);
+    text.setPosition(sf::Vector2f{padding, ssvs::getGlobalBottom(timeText)});
     render(text);
 
     if(Config::getShowFPS())
     {
         fpsText.setFillColor(getColorMain());
-        fpsText.setPosition(tl_txt_pos);
+        fpsText.setOrigin(0, ssvs::getGlobalHeight(fpsText));
+        fpsText.setPosition(sf::Vector2f{
+            padding, Config::getHeight() - (8.f * (2.f * offsetRatio))});
         render(fpsText);
     }
+}
 
+void HexagonGame::drawText_Message(const sf::Color& offsetColor)
+{
     if(messageText.getString() == "")
     {
         return;
@@ -327,6 +331,16 @@ void HexagonGame::drawText()
         sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f});
     messageText.setFillColor(getColorMain());
     render(messageText);
+}
+
+
+void HexagonGame::drawText()
+{
+    const sf::Color offsetColor{
+        Config::getBlackAndWhite() ? Color::Black : getColor(0)};
+
+    drawText_TimeAndStatus(offsetColor);
+    drawText_Message(offsetColor);
 }
 
 } // namespace hg

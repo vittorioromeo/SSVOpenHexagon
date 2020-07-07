@@ -136,6 +136,16 @@ private:
     sf::Text& renderTextImpl(
         std::string mStr, sf::Text& mText, const sf::Vector2f& mPosition)
     {
+        if(Config::getDrawTextOutlines())
+        {
+            mText.setOutlineColor(styleData.getColor(0));
+            mText.setOutlineThickness(1.f);
+        }
+        else
+        {
+            mText.setOutlineThickness(0.f);
+        }
+
         Utils::uppercasify(mStr);
 
         if(mText.getString() != mStr)

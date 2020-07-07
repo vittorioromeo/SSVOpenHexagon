@@ -63,6 +63,8 @@ void setDrawTextOutlines(bool mX);
 void setDarkenUnevenBackgroundChunk(bool mX);
 void setRotateToStart(bool mX);
 void setJoystickDeadzone(float mX);
+void setTextPadding(float mX);
+void setTextScaling(float mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -121,6 +123,8 @@ void setJoystickDeadzone(float mX);
 [[nodiscard]] bool getDrawTextOutlines();
 [[nodiscard]] bool getDarkenUnevenBackgroundChunk();
 [[nodiscard]] float getJoystickDeadzone();
+[[nodiscard]] float getTextPadding();
+[[nodiscard]] float getTextScaling();
 
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();

@@ -21,8 +21,8 @@ achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-	l_setSpeedMult(1.55)
-	l_setSpeedInc(0.25)
+	l_setSpeedMult(1.30)
+	l_setSpeedInc(0.30)
 	l_setRotationSpeed(0.04)
 	l_setRotationSpeedMax(0.4)
 	l_setRotationSpeedInc(0.04)
@@ -41,7 +41,8 @@ function onLoad()
 	m_messageAddImportant("welcome to open hexagon 2", 130)
 	m_messageAddImportant("use left/right to rotate", 130)
 	m_messageAddImportant("avoid the walls!", 130)
-	e_eventStopTimeS(6) e_eventWaitS(6)
+	e_eventStopTimeS(6)
+	e_eventWaitS(6)
 
 	e_eventWaitUntilS(10)
 	e_eventStopTimeS(5)
@@ -52,7 +53,6 @@ function onLoad()
 	e_eventWaitUntilS(42)
 	m_messageAddImportant("well done!", 130)
 	m_messageAddImportant("now play some real levels!", 138)
-
 
 	e_eventWaitUntilS(45)
 	u_eventKill()
