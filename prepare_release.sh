@@ -31,4 +31,6 @@ cp ./_RELEASE/fullscreen_no3D.bat ./_PREPARED_RELEASE
 cp ./_RELEASE/highfps.bat ./_PREPARED_RELEASE
 cp ./_RELEASE/noaudio.bat ./_PREPARED_RELEASE
 
+cp ./_RELEASE/OHWorkshopUploader.exe ./_PREPARED_RELEASE
+
 cp -r ./_PREPARED_RELEASE ./_PREPARED_RELEASE_TEST
