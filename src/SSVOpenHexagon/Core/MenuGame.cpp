@@ -243,6 +243,14 @@ void MenuGame::initMenus()
     gfx.create<i::Toggle>("darken uneven background chunk",
         &Config::getDarkenUnevenBackgroundChunk,
         &Config::setDarkenUnevenBackgroundChunk);
+    gfx.create<i::Slider>(
+        "text padding", &Config::getTextPadding,
+        [this](float mValue) { Config::setTextPadding(mValue); }, 0.f, 64.f,
+        1.f);
+    gfx.create<i::Slider>(
+        "text scaling", &Config::getTextScaling,
+        [this](float mValue) { Config::setTextScaling(mValue); }, 0.1f, 4.f,
+        0.05f);
     gfx.create<i::GoBack>("back");
 
     sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);

@@ -72,6 +72,8 @@ using namespace ssvu;
     X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk") \
     X(rotateToStart, bool, "rotate_to_start")                              \
     X(joystickDeadzone, float, "joystick_deadzone")                        \
+    X(textPadding, float, "text_padding")                                  \
+    X(textScaling, float, "text_scaling")                                  \
     X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
     X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
     X(triggerFocus, Trigger, "t_focus")                                    \
@@ -462,6 +464,16 @@ void setJoystickDeadzone(float mX)
     joystickDeadzone() = mX;
 }
 
+void setTextPadding(float mX)
+{
+    textPadding() = mX;
+}
+
+void setTextScaling(float mX)
+{
+    textScaling() = mX;
+}
+
 bool SSVU_ATTRIBUTE(pure) getOnline()
 {
     return online();
@@ -740,6 +752,16 @@ bool SSVU_ATTRIBUTE(pure) getRotateToStart()
 float SSVU_ATTRIBUTE(pure) getJoystickDeadzone()
 {
     return joystickDeadzone();
+}
+
+float SSVU_ATTRIBUTE(pure) getTextPadding()
+{
+    return textPadding();
+}
+
+float SSVU_ATTRIBUTE(pure) getTextScaling()
+{
+    return textScaling();
 }
 
 Trigger getTriggerRotateCCW()

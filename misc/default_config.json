@@ -10,7 +10,7 @@
 	"black_and_white" : false,
 	"darken_uneven_background_chunk" : true,
 	"debug" : false,
-	"draw_text_outlines" : false,
+	"draw_text_outlines" : true,
 	"flash_enabled" : true,
 	"fullscreen" : false,
 	"fullscreen_auto_resolution" : false,
@@ -93,6 +93,8 @@
 		[ "kUp" ],
 		[ "kW" ]
 	],
+	"text_padding" : 8.0,
+	"text_scaling" : 1.0,
 	"timer_static" : true,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
