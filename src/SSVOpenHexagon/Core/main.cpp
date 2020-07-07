@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
     {
         hg::Config::loadConfig(overrideIds);
 
-        auto levelOnlyAssets =
-            std::make_unique<hg::HGAssets>(true /* mLevelsOnly */);
+        auto levelOnlyAssets = std::make_unique<hg::HGAssets>(
+            steamManager, true /* mLevelsOnly */);
         hg::Online::initializeValidators(*levelOnlyAssets);
 
         auto ohServer = std::make_unique<hg::Online::OHServer>();
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 
     hg::Config::setTimerStatic(window, hg::Config::getTimerStatic());
 
-    auto assets = std::make_unique<hg::HGAssets>();
+    auto assets = std::make_unique<hg::HGAssets>(steamManager);
     hg::Online::initializeValidators(*assets);
 
     auto hg = std::make_unique<hg::HexagonGame>(

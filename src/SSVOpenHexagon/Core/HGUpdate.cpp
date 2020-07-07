@@ -225,7 +225,7 @@ void HexagonGame::update(ssvu::FT mFT)
         fpsWatcher.update();
     }
 }
-void HexagonGame::updateEvents(ssvu::FT mFT)
+void HexagonGame::updateEvents(ssvu::FT)
 {
     if(const auto o =
             eventTimelineRunner.update(eventTimeline, status.getTimeTP());

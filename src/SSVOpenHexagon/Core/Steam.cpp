@@ -73,7 +73,7 @@ steam_manager::steam_manager()
         constexpr std::size_t folderBufSize = 512;
         char folderBuf[folderBufSize];
 
-        for(auto id : subscribedItemsIds)
+        for(PublishedFileId_t id : subscribedItemsIds)
         {
             ssvu::lo("Steam") << "Workshop subscribed item id: " << id << '\n';
 
@@ -89,6 +89,8 @@ steam_manager::steam_manager()
                     << "Workshop id " << id << " is installed, with size "
                     << itemDiskSize << " at folder " << std::string{folderBuf}
                     << '\n';
+
+                _workshop_pack_folders.emplace(std::string{folderBuf});
             }
         }
     }
@@ -315,6 +317,20 @@ bool steam_manager::update_hardcoded_achievements()
     }
 
     return true;
+}
+
+void steam_manager::for_workshop_pack_folders(
+    const std::function<void(const std::string&)>& f) const
+{
+    if(!_initialized)
+    {
+        return;
+    }
+
+    for(const std::string& s : _workshop_pack_folders)
+    {
+        f(s);
+    }
 }
 
 } // namespace hg::Steam
