@@ -171,16 +171,6 @@ void HexagonGame::updateText()
 {
     os.str("");
 
-    if(Config::getShowFPS())
-    {
-        os << "FPS: " << window.getFPS() << "\n";
-    }
-
-    if(status.started)
-    {
-        os << "TIME: " << toStr(status.getTimeSeconds()).substr(0, 5) << "\n";
-    }
-
     if(levelStatus.tutorialMode)
     {
         os << "TUTORIAL MODE\n";
@@ -243,10 +233,31 @@ void HexagonGame::updateText()
 
     os.flush();
 
+    // Set in game timer text
+    if (status.started)
+	{
+		timeText.setString(toStr(std::floor(status.getTimeSeconds() * 1000) / 1000.f));
+	} else {
+		timeText.setString("0");
+	}
+    timeText.setCharacterSize(
+		ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor()));
+	timeText.setOrigin(-16, ssvu::toNum<int>(17.f / Config::getZoomFactor()));
+
+    // Set information text
     text.setString(os.str());
     text.setCharacterSize(
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
     text.setOrigin(-8, 8);
+
+    // Set FPS Text, if option is enabled.
+    if(Config::getShowFPS())
+    {
+		fpsText.setString(toStr(window.getFPS()));
+		fpsText.setCharacterSize(
+			ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor()));
+		fpsText.setOrigin(-8, -ssvu::toNum<int>(735.f / Config::getZoomFactor()) + 8);
+	}
 
     messageText.setCharacterSize(
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor()));
@@ -255,7 +266,7 @@ void HexagonGame::updateText()
 
 void HexagonGame::drawText()
 {
-    Color offsetColor{getColor(1)};
+    Color offsetColor{getColor(0)};
     if(Config::getBlackAndWhite())
     {
         offsetColor = Color::Black;
@@ -263,17 +274,33 @@ void HexagonGame::drawText()
 
     if(Config::getDrawTextOutlines())
     {
-        text.setFillColor(offsetColor);
-        for(const auto& o : txt_offsets)
-        {
-            text.setPosition(txt_pos + sf::Vector2f{o.x, o.y});
-            render(text);
-        }
-    }
+		timeText.setOutlineColor(offsetColor);
+        text.setOutlineColor(offsetColor);
+		fpsText.setOutlineColor(offsetColor);
+        
+		timeText.setOutlineThickness(2.f);
+		text.setOutlineThickness(1.f);
+		fpsText.setOutlineThickness(1.f);
+    } else {
+		timeText.setOutlineThickness(0.f);
+		text.setOutlineThickness(0.f);
+		fpsText.setOutlineThickness(0.f);
+	}
+
+    timeText.setFillColor(getColorMain());
+	text.setPosition(tl_txt_pos);
+	render(timeText);
 
     text.setFillColor(getColorMain());
-    text.setPosition(txt_pos);
+    text.setPosition(tl_txt_pos);
     render(text);
+
+    if(Config::getShowFPS()) 
+	{
+		fpsText.setFillColor(getColorMain());
+		fpsText.setPosition(tl_txt_pos);
+		render(fpsText);
+	}
 
     if(messageText.getString() == "")
     {
@@ -282,14 +309,10 @@ void HexagonGame::drawText()
 
     if(Config::getDrawTextOutlines())
     {
-        messageText.setFillColor(offsetColor);
-        for(const auto& o : txt_offsets)
-        {
-            messageText.setPosition(sf::Vector2f{Config::getWidth() / 2.f,
-                                        Config::getHeight() / 6.f} +
-                                    sf::Vector2f{o.x, o.y});
-            render(messageText);
-        }
+        messageText.setOutlineColor(offsetColor);
+        messageText.setOutlineThickness(1.f);
+    } else {
+        messageText.setOutlineThickness(0.f);
     }
 
     messageText.setPosition(
