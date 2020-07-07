@@ -1,4 +1,7 @@
 {
+	"disambiguator": "ohvrvanilla",
 	"name": "hypercube",
+	"author": "vittorio romeo",
+	"version": 1,
 	"priority": 1
 }

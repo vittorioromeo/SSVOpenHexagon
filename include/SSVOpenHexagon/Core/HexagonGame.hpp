@@ -111,9 +111,9 @@ private:
 
     FPSWatcher fpsWatcher;
     sf::Text fpsText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
-		ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
-	sf::Text timeText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
-		ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())};
+        ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
+    sf::Text timeText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
+        ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())};
     sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
 
@@ -209,7 +209,8 @@ private:
     // Level/menu loading/unloading/changing
     void checkAndSaveScore();
     void goToMenu(bool mSendScores = true);
-    void changeLevel(const std::string& mId, bool mFirstTime);
+    void changeLevel(
+        const std::string& mPackId, const std::string& mId, bool mFirstTime);
 
     void invalidateScore();
 
@@ -246,8 +247,8 @@ public:
         ssvs::GameWindow& mGameWindow);
 
     // Gameplay methods
-    void newGame(
-        const std::string& mId, bool mFirstPlay, float mDifficultyMult);
+    void newGame(const std::string& mPackId, const std::string& mId,
+        bool mFirstPlay, float mDifficultyMult);
     void death(bool mForce = false);
 
     // Other methods
@@ -380,6 +381,8 @@ public:
     {
         return cwManager.anyCustomWall(std::forward<F>(f));
     }
+
+    [[nodiscard]] const std::string& getPackId() const;
 };
 
 } // namespace hg

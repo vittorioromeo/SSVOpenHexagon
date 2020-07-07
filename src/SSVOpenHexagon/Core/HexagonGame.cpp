@@ -71,8 +71,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once);
 }
 
-void HexagonGame::newGame(
-    const std::string& mId, bool mFirstPlay, float mDifficultyMult)
+void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
+    bool mFirstPlay, float mDifficultyMult)
 {
     initFlashEffect();
 
@@ -274,9 +274,10 @@ void HexagonGame::goToMenu(bool mSendScores)
     mgPtr->init();
 }
 
-void HexagonGame::changeLevel(const std::string& mId, bool mFirstTime)
+void HexagonGame::changeLevel(
+    const std::string& mPackId, const std::string& mId, bool mFirstTime)
 {
-    newGame(mId, mFirstTime, difficultyMult);
+    newGame(mPackId, mId, mFirstTime, difficultyMult);
 }
 
 void HexagonGame::addMessage(
@@ -306,16 +307,21 @@ void HexagonGame::setLevelData(
 {
     levelData = &mLevelData;
     levelStatus = LevelStatus{};
-    styleData = assets.getStyleData(levelData->styleId);
-    musicData = assets.getMusicData(levelData->musicId);
+    styleData = assets.getStyleData(levelData->packId, levelData->styleId);
+    musicData = assets.getMusicData(levelData->packId, levelData->musicId);
     musicData.firstPlay = mMusicFirstPlay;
+}
+
+[[nodiscard]] const std::string& HexagonGame::getPackId() const
+{
+    return levelData->packId;
 }
 
 void HexagonGame::playLevelMusic()
 {
     if(!Config::getNoMusic())
     {
-        musicData.playRandomSegment(assets);
+        musicData.playRandomSegment(getPackId(), assets);
     }
 }
 
@@ -323,7 +329,7 @@ void HexagonGame::playLevelMusicAtTime(float mSeconds)
 {
     if(!Config::getNoMusic())
     {
-        musicData.playSeconds(assets, mSeconds);
+        musicData.playSeconds(getPackId(), assets, mSeconds);
     }
 }
 

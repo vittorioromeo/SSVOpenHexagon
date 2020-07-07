@@ -12,7 +12,7 @@
 	"debug" : false,
 	"draw_text_outlines" : true,
 	"flash_enabled" : true,
-	"fullscreen" : true,
+	"fullscreen" : false,
 	"fullscreen_auto_resolution" : true,
 	"fullscreen_height" : 1080,
 	"fullscreen_width" : 1920,
@@ -100,5 +100,5 @@
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 900,
 	"windowed_width" : 1440,
-	"zoom_factor" : 0.7111111283302307
+	"zoom_factor" : 0.8533333539962769
 }

@@ -6,7 +6,7 @@
 	"menuPriority": 10,
 	"selectable": true,
 	"styleId": "cw",
-	"musicId": "dischipo",
+	"musicId": "jackRussel",
 	"luaFile": "Scripts/Levels/cw.lua",
 	"difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
 }
