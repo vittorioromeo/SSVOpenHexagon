@@ -599,7 +599,7 @@ private:
             return true;
         }
 
-        if(choice == 1)
+        if(choice == 2)
         {
             set_preview_image_of_existing_workshop_item();
             return true;
