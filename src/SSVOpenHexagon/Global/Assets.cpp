@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
 
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
@@ -24,7 +25,8 @@ namespace hg
         ssvufs::Pick::ByExt>(path, extension);
 }
 
-HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
+HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
+    : steamManager{mSteamManager}, levelsOnly{mLevelsOnly}
 {
     if(!levelsOnly)
     {
@@ -70,6 +72,17 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
     }
     */
 
+    const bool hasPackJson =
+        ssvufs::Path{packPath + "/pack.json"}.exists<ssvufs::Type::File>();
+
+    if(!hasPackJson)
+    {
+        ssvu::lo("::loadAssets")
+            << "Warning - " << packPath << " has no 'pack.json' file\n";
+
+        return false;
+    }
+
     ssvuj::Obj packRoot{ssvuj::getFromFile(packPath + "/pack.json")};
     packDatas.emplace(packName,
         PackData{packName, ssvuj::getExtr<std::string>(packRoot, "name"),
@@ -105,11 +118,33 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
             loadMusicData(packPath);
         }
 
-        ssvu::lo("::loadAssets") << "loading " << packId << " style data\n";
-        loadStyleData(packPath);
+        const bool hasStylesFolder =
+            ssvufs::Path{packPath + "Styles/"}.exists<ssvufs::Type::Folder>();
 
-        ssvu::lo("::loadAssets") << "loading " << packId << " level data\n";
-        loadLevelData(packPath);
+        if(!hasStylesFolder)
+        {
+            ssvu::lo("::loadAssets")
+                << "Warning - " << packId << " has no 'Styles' folder\n";
+        }
+        else
+        {
+            ssvu::lo("::loadAssets") << "loading " << packId << " style data\n";
+            loadStyleData(packPath);
+        }
+
+        const bool hasLevelsFolder =
+            ssvufs::Path{packPath + "Levels/"}.exists<ssvufs::Type::Folder>();
+
+        if(!hasLevelsFolder)
+        {
+            ssvu::lo("::loadAssets")
+                << "Warning - " << packId << " has no 'Levels' folder\n";
+        }
+        else
+        {
+            ssvu::lo("::loadAssets") << "loading " << packId << " level data\n";
+            loadLevelData(packPath);
+        }
 
         if(!levelsOnly &&
             ssvufs::Path(packPath + "Sounds/").exists<ssvufs::Type::Folder>())
@@ -142,6 +177,8 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
     ssvu::lo("::loadAssets") << "loading local profiles\n";
     loadLocalProfiles();
 
+    // ------------------------------------------------------------------------
+    // Load packs from `Packs/` folder.
     for(const auto& packPath :
         ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::Folder>("Packs/"))
     {
@@ -152,8 +189,20 @@ HGAssets::HGAssets(bool mLevelsOnly) : levelsOnly{mLevelsOnly}
         }
     }
 
-    // TODO: load steam packs here
+    // ------------------------------------------------------------------------
+    // Load packs from Steam workshop.
+    steamManager.for_workshop_pack_folders([&](const std::string& folderPath) {
+        const ssvufs::Path packPath{folderPath};
 
+        if(!loadPackData(packPath))
+        {
+            ssvu::lo("::loadAssets")
+                << "Error loading pack data '" << packPath << "'\n";
+        }
+    });
+
+    // ------------------------------------------------------------------------
+    // Load pack infos.
     for(auto& p : packDatas)
     {
         if(!loadPackInfo(p.second))

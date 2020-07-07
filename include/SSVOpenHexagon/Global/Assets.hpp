@@ -26,11 +26,18 @@
 namespace hg
 {
 
+    namespace Steam
+    {
+        class steam_manager;
+    }
+
 class MusicData;
 
 class HGAssets
 {
 private:
+    Steam::steam_manager& steamManager;
+
     bool playingLocally{true};
     bool levelsOnly{false};
 
@@ -66,7 +73,7 @@ private:
 public:
     float playedSeconds{0};
 
-    HGAssets(bool mLevelsOnly = false);
+    HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly = false);
 
     auto& operator()()
     {

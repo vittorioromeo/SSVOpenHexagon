@@ -19,8 +19,8 @@
 namespace ssvs
 {
 
-void loadAssetsFromJson(
-    ssvs::AssetManager<>& mAM, const ssvufs::Path& mRootPath, const ssvuj::Obj& mObj)
+void loadAssetsFromJson(ssvs::AssetManager<>& mAM,
+    const ssvufs::Path& mRootPath, const ssvuj::Obj& mObj)
 {
     using namespace std;
     using namespace ssvuj;

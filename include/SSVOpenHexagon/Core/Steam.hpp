@@ -21,6 +21,7 @@ private:
     bool _got_stats;
 
     std::unordered_set<std::string> _unlocked_achievements;
+    std::unordered_set<std::string> _workshop_pack_folders;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
@@ -55,6 +56,9 @@ public:
     [[nodiscard]] bool get_stat(int* out, std::string_view name);
 
     bool update_hardcoded_achievements();
+
+    void for_workshop_pack_folders(
+        const std::function<void(const std::string&)>& f) const;
 };
 
 } // namespace hg::Steam
