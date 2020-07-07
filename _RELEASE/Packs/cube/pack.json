@@ -1,4 +1,7 @@
 {
+	"disambiguator": "ohvrvanilla",
 	"name": "cube",
+	"author": "vittorio romeo",
+	"version": 1,
 	"priority": 0
 }

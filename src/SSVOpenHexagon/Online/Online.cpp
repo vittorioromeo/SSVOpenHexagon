@@ -488,30 +488,35 @@ string getMD5Hash(const string& mStr)
 
 void initializeValidators(HGAssets& mAssets)
 {
-    if(!Config::getOnline())
-    {
-        return;
-    }
+    // TODO:
+    return;
 
-    HG_LO_VERBOSE("hg::Online::initializeValidators")
-        << "Initializing validators...\n";
-
-    for(const auto& p : mAssets.getLevelDatas())
-    {
-        HG_LO_VERBOSE("hg::Online::initializeValidators")
-            << "Adding (" << p.first << ") validator\n";
-
-        const auto& l(p.second);
-        const auto& validator(getValidator(l.packPath, l.id, l.getRootString(),
-            mAssets.getStyleData(l.styleId).getRootPath(), l.luaScriptPath));
-        validators.addValidator(p.first, validator);
+    /*
+        if(!Config::getOnline())
+        {
+            return;
+        }
 
         HG_LO_VERBOSE("hg::Online::initializeValidators")
-            << "Added (" << p.first << "): " << validator << "\n";
-    }
+            << "Initializing validators...\n";
 
-    HG_LO_VERBOSE("hg::Online::initializeValidators")
-        << "Finished initializing validators...\n";
+        for(const auto& p : mAssets.getLevelDatas())
+        {
+            HG_LO_VERBOSE("hg::Online::initializeValidators")
+                << "Adding (" << p.first << ") validator\n";
+
+            const auto& l(p.second);
+            const auto& validator(getValidator(l.packPath, l.id,
+       l.getRootString(), mAssets.getStyleData(l.styleId).getRootPath(),
+       l.luaScriptPath)); validators.addValidator(p.first, validator);
+
+            HG_LO_VERBOSE("hg::Online::initializeValidators")
+                << "Added (" << p.first << "): " << validator << "\n";
+        }
+
+        HG_LO_VERBOSE("hg::Online::initializeValidators")
+            << "Finished initializing validators...\n";
+    */
 }
 
 const sf::IpAddress& getCurrentIpAddress()

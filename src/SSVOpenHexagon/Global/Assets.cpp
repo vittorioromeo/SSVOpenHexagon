@@ -51,16 +51,13 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     }
 
     ssvu::sort(packInfos, [&](const auto& mA, const auto& mB) {
-        return packDatas.at(mA.id).priority < packDatas.at(mB.id).priority;
+        return getPackData(mA.id).priority < getPackData(mB.id).priority;
     });
 }
 
 [[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)
 {
     const auto& packPathStr(packPath.getStr());
-
-    // TODO: get name properly, both here and in menugame
-    std::string packName{packPathStr.substr(6, packPathStr.size() - 7)};
 
     // TODO: unused?
     /*
@@ -84,18 +81,62 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     }
 
     ssvuj::Obj packRoot{ssvuj::getFromFile(packPath + "/pack.json")};
-    packDatas.emplace(packName,
-        PackData{packName, ssvuj::getExtr<std::string>(packRoot, "name"),
-            ssvuj::getExtr<float>(packRoot, "priority")});
+
+    const auto packDisambiguator =
+        ssvuj::getExtr<std::string>(packRoot, "disambiguator", "");
+
+    const auto packName =
+        ssvuj::getExtr<std::string>(packRoot, "name", "unknown name");
+
+    const auto packAuthor =
+        ssvuj::getExtr<std::string>(packRoot, "author", "unknown author");
+
+    const auto packDescription =
+        ssvuj::getExtr<std::string>(packRoot, "description", "no description");
+
+    const auto packVersion = ssvuj::getExtr<int>(packRoot, "version", 0);
+
+    const auto packPriority = ssvuj::getExtr<float>(packRoot, "priority", 100);
+
+    const auto packId = [&] {
+        const auto spaceToUnderscore = [](std::string x) {
+            for(char& c : x)
+            {
+                if(c == ' ' || c == '\n' || c == '\t')
+                {
+                    c = '_';
+                }
+            }
+
+            return x;
+        };
+
+        std::string result;
+
+        result += spaceToUnderscore(packDisambiguator);
+        result += "_";
+        result += spaceToUnderscore(packAuthor);
+        result += "_";
+        result += spaceToUnderscore(packName);
+        result += "_";
+        result += spaceToUnderscore(std::to_string(packVersion));
+
+        return result;
+    }();
+
+    const PackData packData{packPathStr, packId, packDisambiguator, packName,
+        packAuthor, packDescription, packVersion, packPriority};
+
+    packDatas.emplace(packId, packData);
 
     return true;
 }
 
 [[nodiscard]] bool HGAssets::loadPackInfo(const PackData& packData)
 {
+    const std::string& packPath{packData.folderPath};
     const std::string& packId{packData.id};
 
-    std::string packPath{"Packs/" + packId + "/"};
     packInfos.emplace_back(PackInfo{packId, packPath});
 
     try
@@ -112,10 +153,10 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
         if(!levelsOnly && hasMusicFolder)
         {
             ssvu::lo("::loadAssets") << "loading " << packId << " music\n";
-            loadMusic(packPath);
+            loadMusic(packId, packPath);
 
             ssvu::lo("::loadAssets") << "loading " << packId << " music data\n";
-            loadMusicData(packPath);
+            loadMusicData(packId, packPath);
         }
 
         const bool hasStylesFolder =
@@ -129,7 +170,7 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
         else
         {
             ssvu::lo("::loadAssets") << "loading " << packId << " style data\n";
-            loadStyleData(packPath);
+            loadStyleData(packId, packPath);
         }
 
         const bool hasLevelsFolder =
@@ -143,7 +184,7 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
         else
         {
             ssvu::lo("::loadAssets") << "loading " << packId << " level data\n";
-            loadLevelData(packPath);
+            loadLevelData(packId, packPath);
         }
 
         if(!levelsOnly &&
@@ -216,47 +257,54 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 }
 
 void HGAssets::loadCustomSounds(
-    const std::string& mPackName, const ssvufs::Path& mPath)
+    const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
     {
-        assetManager.load<sf::SoundBuffer>(
-            mPackName + "_" + p.getFileName(), p);
+        assetManager.load<sf::SoundBuffer>(mPackId + "_" + p.getFileName(), p);
     }
 }
-void HGAssets::loadMusic(const ssvufs::Path& mPath)
+void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
     {
-        auto& music(
-            assetManager.load<sf::Music>(p.getFileNameNoExtensions(), p));
+        auto& music(assetManager.load<sf::Music>(
+            mPackId + "_" + p.getFileNameNoExtensions(), p));
+
         music.setVolume(Config::getMusicVolume());
         music.setLoop(true);
     }
 }
-void HGAssets::loadMusicData(const ssvufs::Path& mPath)
+void HGAssets::loadMusicData(
+    const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".json"))
     {
         MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
-        musicDataMap.emplace(musicData.id, std::move(musicData));
+        musicDataMap.emplace(
+            mPackId + "_" + musicData.id, std::move(musicData));
     }
 }
-void HGAssets::loadStyleData(const ssvufs::Path& mPath)
+void HGAssets::loadStyleData(
+    const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Styles/", ".json"))
     {
         StyleData styleData{ssvuj::getFromFile(p), p};
-        styleDataMap.emplace(styleData.id, std::move(styleData));
+        styleDataMap.emplace(
+            mPackId + "_" + styleData.id, std::move(styleData));
     }
 }
-void HGAssets::loadLevelData(const ssvufs::Path& mPath)
+void HGAssets::loadLevelData(
+    const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
     {
-        LevelData levelData{ssvuj::getFromFile(p), mPath};
-        levelDataIdsByPack[levelData.packPath].emplace_back(levelData.id);
-        levelDatas.emplace(levelData.id, std::move(levelData));
+        LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
+
+        const std::string assetId = mPackId + "_" + levelData.id;
+        levelDataIdsByPack[mPackId].emplace_back(assetId);
+        levelDatas.emplace(assetId, std::move(levelData));
     }
 }
 void HGAssets::loadLocalProfiles()
@@ -290,15 +338,37 @@ void HGAssets::saveCurrentLocalProfile()
 }
 
 const MusicData& SSVU_ATTRIBUTE(pure) HGAssets::getMusicData(
-    const std::string& mId)
+    const std::string& mPackId, const std::string& mId)
 {
-    return musicDataMap.find(mId)->second;
+    const std::string assetId = mPackId + "_" + mId;
+
+    const auto it = musicDataMap.find(assetId);
+    if(it == musicDataMap.end())
+    {
+        ssvu::lo("getMusicData") << "Asset '" << assetId << "' not found\n";
+
+        SSVU_ASSERT(!musicDataMap.empty());
+        return musicDataMap.begin()->second;
+    }
+
+    return it->second;
 }
 
 const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(
-    const std::string& mId)
+    const std::string& mPackId, const std::string& mId)
 {
-    return styleDataMap.find(mId)->second;
+    const std::string assetId = mPackId + "_" + mId;
+
+    const auto it = styleDataMap.find(assetId);
+    if(it == styleDataMap.end())
+    {
+        ssvu::lo("getStyleData") << "Asset '" << assetId << "' not found\n";
+
+        SSVU_ASSERT(!styleDataMap.empty());
+        return styleDataMap.begin()->second;
+    }
+
+    return it->second;
 }
 
 float HGAssets::getLocalScore(const std::string& mId)
@@ -378,21 +448,41 @@ void HGAssets::stopSounds()
     soundPlayer.stop();
 }
 
+
 void HGAssets::playSound(const std::string& mId, ssvs::SoundPlayer::Mode mMode)
 {
-    if(Config::getNoSound() || !assetManager.has<sf::SoundBuffer>(mId))
+    const auto assetId = mId;
+
+    if(Config::getNoSound() || !assetManager.has<sf::SoundBuffer>(assetId))
     {
         return;
     }
 
-    soundPlayer.play(assetManager.get<sf::SoundBuffer>(mId), mMode);
+    soundPlayer.play(assetManager.get<sf::SoundBuffer>(assetId), mMode);
 }
 
-void HGAssets::playMusic(const std::string& mId, sf::Time mPlayingOffset)
+
+void HGAssets::playPackSound(const std::string& mPackId, const std::string& mId,
+    ssvs::SoundPlayer::Mode mMode)
 {
-    if(assetManager.has<sf::Music>(mId))
+    const auto assetId = mPackId + "_" + mId;
+
+    if(Config::getNoSound() || !assetManager.has<sf::SoundBuffer>(assetId))
     {
-        musicPlayer.play(assetManager.get<sf::Music>(mId), mPlayingOffset);
+        return;
+    }
+
+    soundPlayer.play(assetManager.get<sf::SoundBuffer>(assetId), mMode);
+}
+
+void HGAssets::playMusic(
+    const std::string& mPackId, const std::string& mId, sf::Time mPlayingOffset)
+{
+    const auto assetId = mPackId + "_" + mId;
+
+    if(assetManager.has<sf::Music>(assetId))
+    {
+        musicPlayer.play(assetManager.get<sf::Music>(assetId), mPlayingOffset);
     }
 }
 

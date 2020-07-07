@@ -210,7 +210,7 @@ void HexagonGame::update(ssvu::FT mFT)
         if(status.mustRestart)
         {
             fpsWatcher.disable();
-            changeLevel(restartId, restartFirstTime);
+            changeLevel(getPackId(), restartId, restartFirstTime);
             if(!assets.pIsLocal() && Config::isEligibleForScore())
             {
                 Online::trySendRestart();

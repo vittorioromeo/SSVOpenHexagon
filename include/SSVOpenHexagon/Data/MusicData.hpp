@@ -8,6 +8,8 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 
+#include <string>
+
 namespace hg
 {
 
@@ -50,32 +52,34 @@ public:
         segments.emplace_back(mSeconds);
     }
 
-    void playRandomSegment(HGAssets& mAssets)
+    void playRandomSegment(const std::string& mPackId, HGAssets& mAssets)
     {
         if(firstPlay)
         {
             firstPlay = false;
-            playSegment(mAssets, 0);
+            playSegment(mPackId, mAssets, 0);
         }
         else
         {
-            playSeconds(mAssets, getRandomSegment());
+            playSeconds(mPackId, mAssets, getRandomSegment());
         }
     }
 
-    void playSegment(HGAssets& mAssets, std::size_t mIdx)
+    void playSegment(
+        const std::string& mPackId, HGAssets& mAssets, std::size_t mIdx)
     {
-        playSeconds(mAssets, segments[mIdx]);
+        playSeconds(mPackId, mAssets, segments[mIdx]);
     }
 
-    void playSeconds(HGAssets& mAssets, float mSeconds) const
+    void playSeconds(
+        const std::string& mPackId, HGAssets& mAssets, float mSeconds) const
     {
         if(Config::getNoMusic())
         {
             return;
         }
 
-        mAssets.playMusic(id, sf::seconds(mSeconds));
+        mAssets.playMusic(mPackId, id, sf::seconds(mSeconds));
     }
 };
 

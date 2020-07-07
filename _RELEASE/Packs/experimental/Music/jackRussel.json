@@ -1,0 +1,21 @@
+{
+	// Music data id
+	"id": "jackRussel",
+
+	// Music file
+	"file_name": "jackRussel.ogg",
+
+	// Music information
+	"name": "Jack Russel",
+	"album": "Caps On, Hats Off",
+	"author": "BOSSFIGHT",
+	
+	// Segments
+	"segments":
+	[
+		{ "time": 32 },
+		{ "time": 47 },
+		{ "time": 98 },
+		{ "time": 125 }
+	]
+}

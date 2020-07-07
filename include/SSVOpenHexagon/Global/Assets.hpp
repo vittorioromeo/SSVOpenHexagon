@@ -16,6 +16,7 @@
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 #include <SSVStart/MusicPlayer/MusicPlayer.hpp>
 
+#include <SSVUtils/Core/Assert/Assert.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 #include <unordered_map>
@@ -26,10 +27,10 @@
 namespace hg
 {
 
-    namespace Steam
-    {
-        class steam_manager;
-    }
+namespace Steam
+{
+class steam_manager;
+}
 
 class MusicData;
 
@@ -91,20 +92,38 @@ public:
         return levelDatas;
     }
 
-    const LevelData& getLevelData(const std::string& mId)
+    const LevelData& getLevelData(const std::string& mAssetId)
     {
-        return levelDatas.at(mId);
+        const auto it = levelDatas.find(mAssetId);
+        if(it == levelDatas.end())
+        {
+            ssvu::lo("getLevelData")
+                << "Asset '" << mAssetId << "' not found\n";
+
+            SSVU_ASSERT(!levelDatas.empty());
+            return levelDatas.begin()->second;
+        }
+
+        return it->second;
+    }
+
+    const LevelData& getLevelData(
+        const std::string& mPackId, const std::string& mId)
+    {
+        return getLevelData(mPackId + "_" + mId);
     }
 
     const std::vector<std::string>& getLevelIdsByPack(
-        const ssvufs::Path& mPackPath)
+        const std::string& mPackId)
     {
-        return levelDataIdsByPack.at(mPackPath);
+        SSVU_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
+        return levelDataIdsByPack.at(mPackId);
     }
 
-    const PackData& getPackData(const std::string& mId)
+    const PackData& getPackData(const std::string& mPackId)
     {
-        return packDatas.at(mId);
+        SSVU_ASSERT(packDatas.count(mPackId) > 0);
+        return packDatas.at(mPackId);
     }
 
     const std::vector<PackInfo>& getPackInfos()
@@ -114,18 +133,20 @@ public:
 
     [[nodiscard]] bool loadAssets();
 
-    void loadMusic(const ssvufs::Path& mPath);
-    void loadMusicData(const ssvufs::Path& mPath);
-    void loadStyleData(const ssvufs::Path& mPath);
-    void loadLevelData(const ssvufs::Path& mPath);
+    void loadMusic(const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadMusicData(const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadStyleData(const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadLevelData(const std::string& mPackId, const ssvufs::Path& mPath);
     void loadCustomSounds(
-        const std::string& mPackName, const ssvufs::Path& mPath);
+        const std::string& mPackId, const ssvufs::Path& mPath);
     void loadLocalProfiles();
 
     void saveCurrentLocalProfile();
 
-    const MusicData& getMusicData(const std::string& mId);
-    const StyleData& getStyleData(const std::string& mId);
+    const MusicData& getMusicData(
+        const std::string& mPackId, const std::string& mId);
+    const StyleData& getStyleData(
+        const std::string& mPackId, const std::string& mId);
 
     float getLocalScore(const std::string& mId);
     void setLocalScore(const std::string& mId, float mScore);
@@ -232,8 +253,11 @@ public:
     void playSound(const std::string& mId,
         ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
 
-    void playMusic(
-        const std::string& mId, sf::Time mPlayingOffset = sf::seconds(0));
+    void playPackSound(const std::string& mPackId, const std::string& mId,
+        ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
+
+    void playMusic(const std::string& mPackId, const std::string& mId,
+        sf::Time mPlayingOffset = sf::seconds(0));
 
     ssvs::SoundPlayer& getSoundPlayer() noexcept
     {

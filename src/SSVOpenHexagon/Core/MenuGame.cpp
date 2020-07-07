@@ -69,7 +69,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     window.onRecreation += [this] { refreshCamera(); };
 
     levelDataIds =
-        assets.getLevelIdsByPack(assets.getPackInfos()[packIdx].path);
+        assets.getLevelIdsByPack(assets.getPackInfos().at(packIdx).id);
+
     setIndex(0);
     initMenus();
     initInput();
@@ -88,6 +89,7 @@ void MenuGame::init()
     assets.stopMusics();
     assets.stopSounds();
     assets.playSound("openHexagon.ogg");
+
     Online::setForceLeaderboardRefresh(true);
 }
 
@@ -392,7 +394,10 @@ void MenuGame::okAction()
     else if(state == s::SMain)
     {
         window.setGameState(hexagonGame.getGame());
-        hexagonGame.newGame(levelDataIds[currentIndex], true,
+
+        const std::string& packId = assets.getPackInfos().at(packIdx).id;
+
+        hexagonGame.newGame(packId, levelDataIds.at(currentIndex), true,
             ssvu::getByModIdx(diffMults, diffMultIdx));
     }
     else if(isInMenu())
@@ -495,9 +500,9 @@ void MenuGame::selectPackAction()
     assets.playSound("beep.ogg");
     if(state == s::SMain)
     {
-        auto p(assets.getPackInfos());
+        const auto& p(assets.getPackInfos());
         packIdx = ssvu::getMod(packIdx + 1, p.size());
-        levelDataIds = assets.getLevelIdsByPack(p[packIdx].path);
+        levelDataIds = assets.getLevelIdsByPack(p.at(packIdx).id);
         setIndex(0);
     }
 }
@@ -670,9 +675,9 @@ void MenuGame::setIndex(int mIdx)
         currentIndex = ssvu::toInt(levelDataIds.size()) - 1;
     }
 
-    levelData = &assets.getLevelData(levelDataIds[currentIndex]);
+    levelData = &assets.getLevelData(levelDataIds.at(currentIndex));
 
-    styleData = assets.getStyleData(levelData->styleId);
+    styleData = assets.getStyleData(levelData->packId, levelData->styleId);
     diffMults = levelData->difficultyMults;
     diffMultIdx = idxOf(diffMults, 1);
 
@@ -1066,13 +1071,11 @@ void MenuGame::draw()
 
 void MenuGame::drawLevelSelection()
 {
-    MusicData musicData{assets.getMusicData(levelData->musicId)};
+    MusicData musicData{
+        assets.getMusicData(levelData->packId, levelData->musicId)};
 
-    // TODO: get name properly, both here and in assets
-    const auto& packPathStr(levelData->packPath.getStr());
-    const PackData& packData{
-        assets.getPackData(packPathStr.substr(6, packPathStr.size() - 7))};
-    const string& packName{packData.name};
+    const PackData& packData{assets.getPackData(levelData->packId)};
+    const std::string& packName{packData.name};
 
     if(Config::getOnline())
     {
@@ -1194,14 +1197,24 @@ void MenuGame::drawLevelSelection()
         "(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")",
         txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
-    string packNames{"Installed packs:\n"};
+    std::string packNames{"Installed packs:\n"};
     for(const auto& n : assets.getPackInfos())
     {
+        packNames += "  ";
+
         if(packData.id == n.id)
         {
             packNames += ">>> ";
         }
-        packNames.append(n.id + "\n");
+        else
+        {
+            packNames += "    ";
+        }
+
+        const PackData& nPD{assets.getPackData(n.id)};
+
+        packNames.append(nPD.name + " (by " + nPD.author + ") [v" +
+                         std::to_string(nPD.version) + "]\n");
     }
 
     Utils::uppercasify(packNames);

@@ -1,4 +1,7 @@
 {
+	"disambiguator": "ohvrvanilla",
 	"name": "experimental",
+	"author": "vittorio romeo",
+	"version": 1,
 	"priority": -2
 }

@@ -40,7 +40,7 @@ void HexagonGame::initLua_Utils()
 
     addLuaFn("u_setMusic", //
         [this](std::string mId) {
-            musicData = assets.getMusicData(mId);
+            musicData = assets.getMusicData(levelData->packId, mId);
             musicData.firstPlay = true;
             stopLevelMusic();
             playLevelMusic();
@@ -52,7 +52,7 @@ void HexagonGame::initLua_Utils()
 
     addLuaFn("u_setMusicSegment", //
         [this](std::string mId, int segment) {
-            musicData = assets.getMusicData(mId);
+            musicData = assets.getMusicData(levelData->packId, mId);
             stopLevelMusic();
             playLevelMusicAtTime(musicData.getSegment(segment));
         })
@@ -65,7 +65,7 @@ void HexagonGame::initLua_Utils()
 
     addLuaFn("u_setMusicSeconds", //
         [this](std::string mId, float mTime) {
-            musicData = assets.getMusicData(mId);
+            musicData = assets.getMusicData(levelData->packId, mId);
             stopLevelMusic();
             playLevelMusicAtTime(mTime);
         })
@@ -450,7 +450,9 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
 
     addLuaFn("s_setStyle", //
-        [this](std::string mId) { styleData = assets.getStyleData(mId); })
+        [this](std::string mId) {
+            styleData = assets.getStyleData(levelData->packId, mId);
+        })
         .arg("styleId")
         .doc(
             "Set the currently active style to the style with id `$0`. Styles "

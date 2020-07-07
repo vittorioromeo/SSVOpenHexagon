@@ -21,9 +21,9 @@ private:
 
 public:
     ssvufs::Path packPath;
+    std::string packId;
 
-    std::string id{
-        packPath.getStr() + ssvuj::getExtr<std::string>(root, "id", "nullId")};
+    std::string id{ssvuj::getExtr<std::string>(root, "id", "nullId")};
     std::string name{ssvuj::getExtr<std::string>(root, "name", "nullName")};
     std::string description{
         ssvuj::getExtr<std::string>(root, "description", "")};
@@ -39,8 +39,9 @@ public:
     std::vector<float> difficultyMults{
         ssvuj::getExtr<std::vector<float>>(root, "difficultyMults", {})};
 
-    LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath)
-        : root{mRoot}, packPath{mPackPath}
+    LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath,
+        const std::string& mPackId)
+        : root{mRoot}, packPath{mPackPath}, packId{mPackId}
     {
         difficultyMults.emplace_back(1.f);
         ssvu::sort(difficultyMults);

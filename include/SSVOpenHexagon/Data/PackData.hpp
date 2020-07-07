@@ -11,8 +11,13 @@ namespace hg
 
 struct PackData
 {
+    std::string folderPath;
     std::string id;
+    std::string disambiguator;
     std::string name;
+    std::string author;
+    std::string description;
+    int version;
     float priority;
 };
 

@@ -38,7 +38,8 @@ public:
     void setVertexPos(const int vertexIndex, const sf::Vector2f& pos) noexcept;
     void setVertexColor(const int vertexIndex, const sf::Color& color) noexcept;
 
-    [[nodiscard]] sf::Vector2f getVertexPos(const int vertexIndex) const noexcept;
+    [[nodiscard]] sf::Vector2f getVertexPos(
+        const int vertexIndex) const noexcept;
 };
 
 } // namespace hg
