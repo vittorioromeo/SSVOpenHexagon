@@ -855,8 +855,8 @@ void MenuGame::refreshCamera()
     creditsBar2.setPosition({w - 20.f, 17.f + getGlobalBottom(creditsBar1)});
 
     float scaleFactor{w / 1024.f};
-    bottomBar.setOrigin({0, 56.f});
-    bottomBar.setScale({scaleFactor, scaleFactor});
+    bottomBar.setOrigin({0, 56.f * 2.f});
+    bottomBar.setScale({scaleFactor / 2.f, scaleFactor / 2.f});
     bottomBar.setPosition(sf::Vector2f(0, h));
 }
 
