@@ -578,7 +578,10 @@ private:
 
     [[nodiscard]] bool main_menu() noexcept
     {
-        std::cout << R"(Enter one of the following options:
+        std::cout << R"(Welcome! Please visit the following webpage for more information:
+http://openhexagon.org/workshop
+
+Enter one of the following options:
 0. Create a new workshop item.
 1. Upload contents of an existing workshop item.
 2. Set preview image of an existing workshop item.
