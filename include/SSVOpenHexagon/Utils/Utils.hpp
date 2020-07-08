@@ -81,20 +81,7 @@ template <typename T, typename... TArgs>
 T runLuaFunction(
     Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
 {
-    try
-    {
-        return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...));
-    }
-    catch(std::runtime_error& mError)
-    {
-        std::cout << mName << "\n"
-                  << "LUA runtime error: "
-                  << "\n"
-                  << ssvu::toStr(mError.what()) << "\n"
-                  << std::endl;
-    }
-
-    return T();
+    return mLua.callLuaFunction<T>(mName, std::make_tuple(mArgs...));
 }
 
 template <typename T, typename... TArgs>

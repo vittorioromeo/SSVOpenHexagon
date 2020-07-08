@@ -160,13 +160,34 @@ public:
     template <typename T, typename... TArgs>
     T runLuaFunction(const std::string& mName, const TArgs&... mArgs)
     {
-        return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...);
+        try {
+            return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...);
+        } 
+        catch(std::runtime_error& mError)
+        {
+            std::cout << mName << "\n"
+                      << "[Lua] Runtime error: "
+                      << "\n"
+                      << ssvu::toStr(mError.what()) << "\n"
+                      << std::endl;
+        }
+        return T();
     }
 
     template <typename T, typename... TArgs>
     void runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
     {
-        Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
+        try {
+            Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
+        }
+        catch(std::runtime_error& mError)
+        {
+            std::cout << mName << "\n"
+                      << "[Lua] Runtime error on optional function: "
+                      << "\n"
+                      << ssvu::toStr(mError.what()) << "\n"
+                      << std::endl;
+        }
     }
 
 private:
