@@ -236,7 +236,7 @@ void HexagonGame::updateEvents(ssvu::FT)
     }
 
     if(const auto o =
-            messageTimelineRunner.update(messageTimeline, status.getTimeTP());
+            messageTimelineRunner.update(messageTimeline, status.getCurrentTP());
         o == hg::Utils::timeline2_runner::outcome::finished)
     {
         messageTimeline.clear();

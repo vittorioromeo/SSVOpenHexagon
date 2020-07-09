@@ -62,6 +62,9 @@ public:
     // Game timer, in seconds
     [[nodiscard]] double getTimeSeconds() noexcept;
 
+    // Absolute time, as time point
+    [[nodiscard]] TimePoint getCurrentTP() noexcept;
+
     // Game timer, as time point
     [[nodiscard]] TimePoint getTimeTP() noexcept;
 
