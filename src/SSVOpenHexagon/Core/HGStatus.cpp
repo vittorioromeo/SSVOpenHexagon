@@ -48,6 +48,12 @@ void HexagonGameStatus::start() noexcept
 }
 
 [[nodiscard]] HexagonGameStatus::TimePoint
+HexagonGameStatus::getCurrentTP() noexcept
+{
+    return currentTp;
+}
+
+[[nodiscard]] HexagonGameStatus::TimePoint
 HexagonGameStatus::getTimeTP() noexcept
 {
     // If we are paused, do not count passing time as significant:
