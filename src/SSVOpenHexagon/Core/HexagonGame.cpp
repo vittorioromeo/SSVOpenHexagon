@@ -190,8 +190,10 @@ void HexagonGame::incrementDifficulty()
 {
     assets.playSound("levelUp.ogg");
 
+    const int signMult = ssvu::getSign(levelStatus.rotationSpeed) == 0 ? 1 : ssvu::getSign(levelStatus.rotationSpeed);
+
     levelStatus.rotationSpeed +=
-        levelStatus.rotationSpeedInc * ssvu::getSign(levelStatus.rotationSpeed);
+        levelStatus.rotationSpeedInc * signMult;
 
     levelStatus.rotationSpeed *= -1.f;
 
