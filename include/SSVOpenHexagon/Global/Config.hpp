@@ -41,6 +41,7 @@ void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue);
 
 void setOnline(bool mOnline);
 void setOfficial(bool mOfficial);
+void setDebug(bool mDebug);
 void setNoRotation(bool mNoRotation);
 void setNoBackground(bool mNoBackground);
 void setBlackAndWhite(bool mBlackAndWhite);
