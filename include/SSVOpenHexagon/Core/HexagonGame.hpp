@@ -165,8 +165,9 @@ public:
         } 
         catch(std::runtime_error& mError)
         {
-            std::cout << mName << "\n"
-                      << "[Lua] Runtime error with level \""
+            std::cout << "[Lua] Runtime error on \""
+                      << mName
+                      << "\" with level \""
                       << levelData -> name
                       << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
@@ -187,8 +188,9 @@ public:
         }
         catch(std::runtime_error& mError)
         {
-            std::cout << mName << "\n"
-                      << "[Lua] Runtime error on optional function with level \""
+            std::cout << "[Lua] Runtime error on \""
+                      << mName
+                      << "\" (optional function) with level \""
                       << levelData -> name
                       << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
