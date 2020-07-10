@@ -6,9 +6,9 @@
 
 2. Get [CMake](https://cmake.org/download/) and install it.
 
-3a. Run `open_distro_window.bat` from your MinGW installation to open a shell. (Alternatively, you can do this in [Git Bash](https://gitforwindows.org/) if you have all the necessary libraries)
+3. Run `open_distro_window.bat` from your MinGW installation to open a shell. (Alternatively, you can do this in [Git Bash](https://gitforwindows.org/) if you have all the necessary libraries)
 
-3b. If you are using the command prompt, make sure that you are running bash by typing in ``bash.exe``
+    * If you are using the command prompt, make sure that you are running bash by typing in `bash.exe`
 
 4. Clone this repository with submodules:
 
@@ -17,7 +17,7 @@
     cd SSVOpenHexagon
     ```
     
-**Note:** Not all gits can recognize ``--remote-submodules``. If you are cloning this git simply just to compile, you can omit this and you'll be fine. Most IDEs and the MinGW library offered in step 1 should be able to recognize ``--remote-submodules``
+    **Note:** Not all `git` versions can recognize `--remote-submodules`. If you are cloning this git simply just to compile, you can omit this and you'll be fine. Most IDEs and the MinGW library offered in step 1 should be able to recognize `--remote-submodules`
 
 5. `cd` into the build folder:
 
