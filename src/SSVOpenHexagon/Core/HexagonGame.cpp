@@ -208,8 +208,6 @@ void HexagonGame::incrementDifficulty()
 
 void HexagonGame::sideChange(unsigned int mSideNumber)
 {
-    runLuaFunction<void>("onIncrement");
-
     levelStatus.speedMult += levelStatus.speedInc;
     levelStatus.delayMult += levelStatus.delayInc;
 
@@ -218,6 +216,8 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         setSides(mSideNumber);
     }
     mustChangeSides = false;
+    
+    runLuaFunction<void>("onIncrement");
 }
 
 void HexagonGame::checkAndSaveScore()
