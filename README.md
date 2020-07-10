@@ -31,9 +31,10 @@
     cmake .. -G"MinGW Makefiles"
     make -j8
     ```
-**Note 1:** If your bash is not recognizing CMake, check your environment variables to make sure that CMake is in there. If you still can't get it to work with bash, you can use ``cmd.exe`` and it should work just fine
+    
+    **Note 1:** If your bash is not recognizing CMake, check your environment variables to make sure that CMake is in there. If you still can't get it to work with bash, you can use ``cmd.exe`` and it should work just fine
 
-**Note 2:** Only use ``-j8`` if you are confident your PC is powerful enough to compile the instructions on multiple threads. If you have a lower end PC, lower the number of threads or remove the flag entirely. This will result in longer compiling times but will ensure you aren't overworking your PC.
+    **Note 2:** Only use ``-j8`` if you are confident your PC is powerful enough to compile the instructions on multiple threads. If you have a lower end PC, lower the number of threads or remove the flag entirely. This will result in longer compiling times but will ensure you aren't overworking your PC.
 
 7. Copy build artifacts to `_RELEASE` folder (You will have to use bash to do this):
 
@@ -65,7 +66,7 @@
 
     *(or clone [SSVOpenHexagonAssets](https://github.com/SuperV1234/SSVOpenHexagonAssets))*
     
-**Note:** If this file is producing errors, make sure the file is using UNIX line endings and not Windows Line Endings. Bash recognizes files primarily with UNIX Line Endings.
+    **Note:** If this file is producing errors, make sure the file is using UNIX line endings and not Windows Line Endings. Bash recognizes files primarily with UNIX Line Endings.
 
 ## How to build on Arch Linux
 
