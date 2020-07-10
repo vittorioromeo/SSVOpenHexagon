@@ -162,6 +162,7 @@ void HexagonGame::death(bool mForce)
         return;
     }
     assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
+    runLuaFunctionIfExists<void>("onDeath");
 
     if(!assets.pIsLocal() && Config::isEligibleForScore())
     {
