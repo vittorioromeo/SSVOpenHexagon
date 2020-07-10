@@ -310,6 +310,8 @@ void MenuGame::initMenus()
     localProfiles.create<i::GoBack>("back");
 
     debug.create<i::Toggle>(
+        "debug mode", &Config::getDebug, &Config::setDebug);
+    debug.create<i::Toggle>(
         "invincible", &Config::getInvincible, &Config::setInvincible);
     debug.create<i::GoBack>("back");
 
