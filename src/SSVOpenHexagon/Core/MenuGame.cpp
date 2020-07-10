@@ -696,14 +696,14 @@ void MenuGame::setIndex(int mIdx)
         Utils::runLuaFunction<void>(lua, "onInit");
         Utils::runLuaFunction<void>(lua, "onLoad");
     } catch (std::runtime_error& mError) {
-        std::cout << "[Lua] Runtime error on menu (onInit/onLoad): "
-                    << "\n"
+        std::cout << "[Lua] Runtime error on menu (onInit/onLoad) with level \""
+                    << levelData -> name
+                    << "\": \n"
                     << ssvu::toStr(mError.what()) << "\n"
                     << std::endl;
         if (!Config::getDebug())
         {
             assets.playSound("error.ogg");
-            // TODO: Lock the level so it cannot be played
         }
     }
 }
