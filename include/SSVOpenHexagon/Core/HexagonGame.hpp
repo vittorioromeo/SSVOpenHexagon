@@ -170,6 +170,11 @@ public:
                       << "\n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
+            if (!Config::getDebug())
+            {
+                assets.playSound("error.ogg");
+                goToMenu(false, true);
+            }
         }
         return T();
     }
@@ -187,6 +192,11 @@ public:
                       << "\n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
+            if (!Config::getDebug())
+            {
+                assets.playSound("error.ogg");
+                goToMenu(false, true);
+            }
         }
     }
 
@@ -229,7 +239,7 @@ private:
 
     // Level/menu loading/unloading/changing
     void checkAndSaveScore();
-    void goToMenu(bool mSendScores = true);
+    void goToMenu(bool mSendScores = true, bool mError = false);
     void changeLevel(
         const std::string& mPackId, const std::string& mId, bool mFirstTime);
 

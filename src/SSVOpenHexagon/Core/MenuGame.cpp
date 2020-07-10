@@ -79,7 +79,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     playLocally();
 }
 
-void MenuGame::init()
+void MenuGame::init(bool error)
 {
     steamManager.set_rich_presence_in_menu();
     steamManager.update_hardcoded_achievements();
@@ -88,7 +88,13 @@ void MenuGame::init()
 
     assets.stopMusics();
     assets.stopSounds();
-    assets.playSound("openHexagon.ogg");
+    if (!error)
+    {
+        assets.playSound("openHexagon.ogg");
+    } else
+    {
+        assets.playSound("error.ogg");
+    }
 
     Online::setForceLeaderboardRefresh(true);
 }

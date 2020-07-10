@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 
     assets->refreshVolumes();
     window.setGameState(mg->getGame());
-    mg->init();
+    mg->init(false);
 
     window.run();
 
