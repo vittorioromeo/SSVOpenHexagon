@@ -692,8 +692,20 @@ void MenuGame::setIndex(int mIdx)
     Lua::LuaContext lua;
     initLua(lua);
     Utils::runLuaFile(lua, levelData->luaScriptPath);
-    Utils::runLuaFunction<void>(lua, "onInit");
-    Utils::runLuaFunction<void>(lua, "onLoad");
+    try {
+        Utils::runLuaFunction<void>(lua, "onInit");
+        Utils::runLuaFunction<void>(lua, "onLoad");
+    } catch (std::runtime_error& mError) {
+        std::cout << "[Lua] Runtime error on menu (onInit/onLoad): "
+                    << "\n"
+                    << ssvu::toStr(mError.what()) << "\n"
+                    << std::endl;
+        if (!Config::getDebug())
+        {
+            assets.playSound("error.ogg");
+            // TODO: Lock the level so it cannot be played
+        }
+    }
 }
 
 void MenuGame::updateLeaderboard()
