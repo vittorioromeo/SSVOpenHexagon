@@ -12,7 +12,7 @@ function pAltBarrage(mTimes, mStep)
 	t_wait(delay)
 end
 
--- pSpiral: spawns a spiral of cWall
+-- pSpiral: spawns a spiral of cWallEx
 function pSpiral(mTimes, mExtra)
 	local oldThickness = THICKNESS
 	THICKNESS = getPerfectThickness(THICKNESS)
@@ -22,7 +22,7 @@ function pSpiral(mTimes, mExtra)
 	local j = 0
 	
 	for i = 0, mTimes do
-		cWall(startSide + j, mExtra)
+		cWallEx(startSide + j, mExtra)
 		j = j + loopDir
 		t_wait(delay)
 	end
