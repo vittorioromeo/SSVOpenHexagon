@@ -166,13 +166,13 @@ public:
         catch(std::runtime_error& mError)
         {
             std::cout << mName << "\n"
-                      << "[Lua] Runtime error: "
-                      << "\n"
+                      << "[Lua] Runtime error with level \""
+                      << levelData -> name
+                      << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
             if (!Config::getDebug())
             {
-                assets.playSound("error.ogg");
                 goToMenu(false, true);
             }
         }
@@ -188,13 +188,13 @@ public:
         catch(std::runtime_error& mError)
         {
             std::cout << mName << "\n"
-                      << "[Lua] Runtime error on optional function: "
-                      << "\n"
+                      << "[Lua] Runtime error on optional function with level \""
+                      << levelData -> name
+                      << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
             if (!Config::getDebug())
             {
-                assets.playSound("error.ogg");
                 goToMenu(false, true);
             }
         }
