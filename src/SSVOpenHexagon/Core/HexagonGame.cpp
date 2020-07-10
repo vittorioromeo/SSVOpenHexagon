@@ -201,7 +201,7 @@ void HexagonGame::incrementDifficulty()
     if(status.fastSpin < 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed =
-            rotationSpeedMax * ssvu::getSign(levelStatus.rotationSpeed);
+            rotationSpeedMax * signMult;
     }
 
     status.fastSpin = levelStatus.fastSpin;
