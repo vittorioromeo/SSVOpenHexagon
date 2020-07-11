@@ -197,7 +197,7 @@ public:
                       << std::endl;
             if (!Config::getDebug())
             {
-                goToMenu(false, true);
+                goToMenu(false /* mSendScores */, true /* mError */);
             }
         }
     }
