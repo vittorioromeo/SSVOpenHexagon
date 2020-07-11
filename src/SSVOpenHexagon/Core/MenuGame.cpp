@@ -696,7 +696,7 @@ void MenuGame::setIndex(int mIdx)
         Utils::runLuaFunction<void>(lua, "onInit");
         Utils::runLuaFunction<void>(lua, "onLoad");
     } catch (std::runtime_error& mError) {
-        std::cout << "[Lua] Runtime error on menu (onInit/onLoad) with level \""
+        std::cout << "[MenuGame::init] Runtime Lua error on menu (onInit/onLoad) with level \""
                     << levelData -> name
                     << "\": \n"
                     << ssvu::toStr(mError.what()) << "\n"
