@@ -24,7 +24,7 @@ function onInit()
 	l_setSpeedMult(1.7)
 	l_setSpeedInc(0.1)
 	l_setSpeedMax(3.1) -- I would do pi, but I think there will be some cases that may be impossible
-	l_setRotationSpeed(0.0001)
+	l_setRotationSpeed(0)
 	l_setRotationSpeedMax(1)
 	l_setRotationSpeedInc(0.1)
 	l_setDelayMult(1.0)
