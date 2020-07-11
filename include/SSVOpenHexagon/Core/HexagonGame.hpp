@@ -160,13 +160,46 @@ public:
     template <typename T, typename... TArgs>
     T runLuaFunction(const std::string& mName, const TArgs&... mArgs)
     {
-        return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...);
+        try {
+            return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...);
+        } 
+        catch(const std::runtime_error& mError)
+        {
+            std::cout << "[runLuaFunction] Runtime error on \""
+                      << mName
+                      << "\" with level \""
+                      << levelData->name
+                      << "\": \n"
+                      << ssvu::toStr(mError.what()) << "\n"
+                      << std::endl;
+            if (!Config::getDebug())
+            {
+                goToMenu(false /* mSendScores */, true /* mError */);
+            }
+        }
+        return T();
     }
 
     template <typename T, typename... TArgs>
     void runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
     {
-        Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
+        try {
+            Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
+        }
+        catch(std::runtime_error& mError)
+        {
+            std::cout << "[runLuaFunctionIfExists] Runtime error on \""
+                      << mName
+                      << "\" with level \""
+                      << levelData -> name
+                      << "\": \n"
+                      << ssvu::toStr(mError.what()) << "\n"
+                      << std::endl;
+            if (!Config::getDebug())
+            {
+                goToMenu(false /* mSendScores */, true /* mError */);
+            }
+        }
     }
 
 private:
@@ -208,7 +241,7 @@ private:
 
     // Level/menu loading/unloading/changing
     void checkAndSaveScore();
-    void goToMenu(bool mSendScores = true);
+    void goToMenu(bool mSendScores = true, bool mError = false);
     void changeLevel(
         const std::string& mPackId, const std::string& mId, bool mFirstTime);
 

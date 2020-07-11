@@ -262,19 +262,22 @@ void HexagonGame::checkAndSaveScore()
     }
 }
 
-void HexagonGame::goToMenu(bool mSendScores)
+void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     assets.stopSounds();
-    assets.playSound("beep.ogg");
+    if (!mError) 
+    {
+        assets.playSound("beep.ogg");
+    }
     fpsWatcher.disable();
 
-    if(mSendScores && !status.hasDied)
+    if(mSendScores && !status.hasDied && !mError)
     {
         checkAndSaveScore();
     }
     runLuaFunction<void>("onUnload");
     window.setGameState(mgPtr->getGame());
-    mgPtr->init();
+    mgPtr->init(mError);
 }
 
 void HexagonGame::changeLevel(

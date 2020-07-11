@@ -239,7 +239,7 @@ public:
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
-    void init();
+    void init(bool mErrored);
 
     ssvs::GameState& getGame() noexcept
     {
