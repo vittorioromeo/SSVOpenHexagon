@@ -160,19 +160,17 @@ public:
     template <typename T, typename... TArgs>
     T runLuaFunction(const std::string& mName, const TArgs&... mArgs)
     {
-        try {
+        try
+        {
             return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...);
-        } 
+        }
         catch(const std::runtime_error& mError)
         {
-            std::cout << "[runLuaFunction] Runtime error on \""
-                      << mName
-                      << "\" with level \""
-                      << levelData->name
-                      << "\": \n"
+            std::cout << "[runLuaFunction] Runtime error on \"" << mName
+                      << "\" with level \"" << levelData->name << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
-            if (!Config::getDebug())
+            if(!Config::getDebug())
             {
                 goToMenu(false /* mSendScores */, true /* mError */);
             }
@@ -183,19 +181,17 @@ public:
     template <typename T, typename... TArgs>
     void runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
     {
-        try {
+        try
+        {
             Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
         }
         catch(std::runtime_error& mError)
         {
-            std::cout << "[runLuaFunctionIfExists] Runtime error on \""
-                      << mName
-                      << "\" with level \""
-                      << levelData -> name
-                      << "\": \n"
+            std::cout << "[runLuaFunctionIfExists] Runtime error on \"" << mName
+                      << "\" with level \"" << levelData->name << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
-            if (!Config::getDebug())
+            if(!Config::getDebug())
             {
                 goToMenu(false /* mSendScores */, true /* mError */);
             }
