@@ -354,6 +354,11 @@ void setOfficial(bool mOfficial)
     official() = mOfficial;
 }
 
+void setDebug(bool mDebug)
+{
+    debug() = mDebug;
+}
+
 void setNoRotation(bool mNoRotation)
 {
     noRotation() = mNoRotation;
@@ -641,7 +646,7 @@ bool SSVU_ATTRIBUTE(pure) getShowMessages()
 
 bool SSVU_ATTRIBUTE(pure) getDebug()
 {
-    return debug();
+    return getOfficial() ? false : debug();
 }
 
 bool SSVU_ATTRIBUTE(pure) getPulse()
