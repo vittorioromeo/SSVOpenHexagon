@@ -1,11 +1,11 @@
 u_execScript("common.lua")
 
 function pAltMirrorSpiral(mTimes, mExtra)
-	oldThickness = THICKNESS
+	local oldThickness = THICKNESS
 	THICKNESS = getPerfectThickness(THICKNESS)
-	delay = getPerfectDelay(THICKNESS)
-	startSide = getRandomSide()
-	loopDir = getRandomDir()	
+	local delay = getPerfectDelay(THICKNESS)
+	local startSide = getRandomSide()
+	local loopDir = getRandomDir()	
 	for k = 1, #mTimes do
 		for i = 1, mTimes[k] do
 			rWallEx(startSide, mExtra)
@@ -24,7 +24,7 @@ function pAltMirrorSpiral(mTimes, mExtra)
 end
 
 function randomArray(mNumber,mLower,mUpper)
-	a = {}
+	local a = {}
 	for k = 1, mNumber do
 		a[k] = math.random(mLower,mUpper)
 	end
@@ -32,11 +32,11 @@ function randomArray(mNumber,mLower,mUpper)
 end
 
 function pAltTunnel(mTimes,mFree)
-	oldThickness = THICKNESS
-	myThickness = getPerfectThickness(THICKNESS)
-	delay = getPerfectDelay(myThickness) * 5
-	startSide = getRandomSide()
-	loopDir = getRandomDir()
+	local oldThickness = THICKNESS
+	local myThickness = getPerfectThickness(THICKNESS)
+	local delay = getPerfectDelay(myThickness) * 5
+	local startSide = getRandomSide()
+	local loopDir = getRandomDir()
 	
 	THICKNESS = myThickness
 	
@@ -55,8 +55,8 @@ function pAltTunnel(mTimes,mFree)
 end
 
 function cycle(mSides)
-	eArray = {}
-	j = getRandomSide()
+	local eArray = {}
+	local j = getRandomSide()
 	for i = 1, mSides do 
 		eArray[i] = (i + j) % mSides + 1
 	end
@@ -65,15 +65,15 @@ end
 
 function pLadder(mTimes,mArray,myThickness)
 
-	delay = getPerfectDelay(myThickness)
+	local delay = getPerfectDelay(myThickness)
 
 	local eArray = {}
-	l = 1
-	s = #mArray/l_getSides()
-	t = math.random(0,100)
+	local l = 1
+	local s = #mArray/l_getSides()
+	local t = math.random(0,100)
 
 	for i = 1, mTimes do
-		q = (i+t) % s + 1
+		local q = (i+t) % s + 1
 		for k = 1, l_getSides() do
 			if(mArray[(q-1)*l_getSides() + k] ~= 0) then
 				eArray[l] = 1
@@ -103,10 +103,10 @@ function pLadder(mTimes,mArray,myThickness)
 end
 
 function patternizer(mArray,myThickness)
-	delay = getPerfectDelay(myThickness)
-	eArray = cycle(l_getSides())
+	local delay = getPerfectDelay(myThickness)
+	local eArray = cycle(l_getSides())
 
-	j = math.floor((#mArray) / l_getSides())
+	local j = math.floor((#mArray) / l_getSides())
 	
 	for i = 1, j do
 		for k = 1, l_getSides() do
