@@ -168,7 +168,7 @@ public:
             std::cout << "[Lua] Runtime error on \""
                       << mName
                       << "\" with level \""
-                      << levelData -> name
+                      << levelData->name
                       << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
