@@ -94,7 +94,7 @@
 		[ "kW" ]
 	],
 	"text_padding" : 8.0,
-	"text_scaling" : 1.0,
+	"text_scaling" : 0.9999999403953552,
 	"timer_static" : true,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
