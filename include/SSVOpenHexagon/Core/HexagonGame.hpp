@@ -188,9 +188,9 @@ public:
         }
         catch(std::runtime_error& mError)
         {
-            std::cout << "[Lua] Runtime error on \""
+            std::cout << "[runLuaFunctionIfExists] Runtime error on \""
                       << mName
-                      << "\" (optional function) with level \""
+                      << "\" with level \""
                       << levelData -> name
                       << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
