@@ -88,10 +88,11 @@ void MenuGame::init(bool error)
 
     assets.stopMusics();
     assets.stopSounds();
-    if (!error)
+    if(!error)
     {
         assets.playSound("openHexagon.ogg");
-    } else
+    }
+    else
     {
         assets.playSound("error.ogg");
     }
@@ -309,8 +310,7 @@ void MenuGame::initMenus()
     });
     localProfiles.create<i::GoBack>("back");
 
-    debug.create<i::Toggle>(
-        "debug mode", &Config::getDebug, &Config::setDebug);
+    debug.create<i::Toggle>("debug mode", &Config::getDebug, &Config::setDebug);
     debug.create<i::Toggle>(
         "invincible", &Config::getInvincible, &Config::setInvincible);
     debug.create<i::GoBack>("back");
@@ -692,16 +692,19 @@ void MenuGame::setIndex(int mIdx)
     Lua::LuaContext lua;
     initLua(lua);
     Utils::runLuaFile(lua, levelData->luaScriptPath);
-    try {
+    try
+    {
         Utils::runLuaFunction<void>(lua, "onInit");
         Utils::runLuaFunction<void>(lua, "onLoad");
-    } catch (std::runtime_error& mError) {
-        std::cout << "[MenuGame::init] Runtime Lua error on menu (onInit/onLoad) with level \""
-                    << levelData -> name
-                    << "\": \n"
-                    << ssvu::toStr(mError.what()) << "\n"
-                    << std::endl;
-        if (!Config::getDebug())
+    }
+    catch(std::runtime_error& mError)
+    {
+        std::cout << "[MenuGame::init] Runtime Lua error on menu "
+                     "(onInit/onLoad) with level \""
+                  << levelData->name << "\": \n"
+                  << ssvu::toStr(mError.what()) << "\n"
+                  << std::endl;
+        if(!Config::getDebug())
         {
             assets.playSound("error.ogg");
         }

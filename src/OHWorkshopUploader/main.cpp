@@ -578,7 +578,8 @@ private:
 
     [[nodiscard]] bool main_menu() noexcept
     {
-        std::cout << R"(Welcome! Please visit the following webpage for more information:
+        std::cout
+            << R"(Welcome! Please visit the following webpage for more information:
 http://openhexagon.org/workshop
 
 Enter one of the following options:

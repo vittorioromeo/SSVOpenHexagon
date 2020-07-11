@@ -193,16 +193,14 @@ void HexagonGame::incrementDifficulty()
 
     const float signMult = (levelStatus.rotationSpeed > 0.f) ? 1.f : -1.f;
 
-    levelStatus.rotationSpeed +=
-        levelStatus.rotationSpeedInc * signMult;
+    levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * signMult;
 
     levelStatus.rotationSpeed *= -1.f;
 
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
     if(status.fastSpin < 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
-        levelStatus.rotationSpeed =
-            rotationSpeedMax * signMult;
+        levelStatus.rotationSpeed = rotationSpeedMax * signMult;
     }
 
     status.fastSpin = levelStatus.fastSpin;
@@ -218,7 +216,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
         setSides(mSideNumber);
     }
     mustChangeSides = false;
-    
+
     runLuaFunction<void>("onIncrement");
 }
 
@@ -265,7 +263,7 @@ void HexagonGame::checkAndSaveScore()
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     assets.stopSounds();
-    if (!mError) 
+    if(!mError)
     {
         assets.playSound("beep.ogg");
     }
