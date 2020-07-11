@@ -163,7 +163,7 @@ public:
         try {
             return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...);
         } 
-        catch(std::runtime_error& mError)
+        catch(const std::runtime_error& mError)
         {
             std::cout << "[Lua] Runtime error on \""
                       << mName
