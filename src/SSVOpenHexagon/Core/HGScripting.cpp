@@ -337,6 +337,7 @@ void HexagonGame::initLua_LevelControl()
     lsVar("WallSkewRight", &LevelStatus::wallSkewRight);
     lsVar("WallAngleLeft", &LevelStatus::wallAngleLeft);
     lsVar("WallAngleRight", &LevelStatus::wallAngleRight);
+    lsVar("3dRequired", &LevelStatus::_3DRequired);
     lsVar("3dEffectMultiplier", &LevelStatus::_3dEffectMultiplier);
     lsVar("CameraShake", &LevelStatus::cameraShake);
     lsVar("Sides", &LevelStatus::sides);
