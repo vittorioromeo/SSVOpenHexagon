@@ -224,11 +224,19 @@ void HexagonGame::checkAndSaveScore()
 {
     const float time = status.getTimeSeconds();
 
-    if(Config::getInvincible())
+    // These are requirements that need to be met for a score to be valid
+    if(status.scoreInvalid || !Config::isEligibleForScore())
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-            << "Not saving score - invincibility on\n";
+            << "Not sending/saving score - not eligible\n"
+            << Config::getUneligibilityReason() << "\n";
         return;
+    }
+
+    if (levelStatus.3DRequired && !Config::get3D())
+    {
+        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+            << "Not saving score - 3D not enabled on a 3D Required level\n";
     }
 
     if(assets.pIsLocal())
@@ -243,23 +251,12 @@ void HexagonGame::checkAndSaveScore()
     }
     else
     {
-        if(status.scoreInvalid || !Config::isEligibleForScore())
-        {
-            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-                << "Not sending/saving score - not eligible\n"
-                << Config::getUneligibilityReason() << "\n";
-            return;
-        }
+        // These are requirements that need to be met for a score to be sent online
         if(time < 8)
         {
             ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - less than 8 seconds\n";
             return;
-        }
-        if (levelStatus.3DRequired && !Config::get3D())
-        {
-            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-                << "Not saving score - 3D not enabled on a 3D Required level\n";
         }
         Online::trySendScore(levelData->id, difficultyMult, time);
     }
