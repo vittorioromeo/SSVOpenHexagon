@@ -219,9 +219,10 @@ void HexagonGame::update(ssvu::FT mFT)
         if(!status.scoreInvalid && Config::getOfficial() &&
             fpsWatcher.isLimitReached())
         {
-            invalidateScore();
+            invalidateScore("PERFORMANCE ISSUES");
+        } else if (!status.scoreInvalid && !Config::get3D() && levelStatus._3DRequired) {
+            invalidateScore("3D REQUIRED");
         }
-
         fpsWatcher.update();
     }
 }

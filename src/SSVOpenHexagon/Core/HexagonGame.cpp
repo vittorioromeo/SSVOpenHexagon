@@ -225,7 +225,7 @@ void HexagonGame::checkAndSaveScore()
     const float time = status.getTimeSeconds();
 
     // These are requirements that need to be met for a score to be valid
-    if(status.scoreInvalid || !Config::isEligibleForScore())
+    if(!Config::isEligibleForScore())
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
             << "Not saving score - not eligible - "
@@ -233,10 +233,10 @@ void HexagonGame::checkAndSaveScore()
         return;
     }
 
-    if (levelStatus._3DRequired && !Config::get3D())
+    if (status.scoreInvalid)
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-            << "Not saving score - 3D disabled on 3D Required level\n";
+            << "Not saving score - score invalidated\n";
     }
 
     if(assets.pIsLocal())
@@ -359,11 +359,14 @@ void HexagonGame::stopLevelMusic()
     }
 }
 
-void HexagonGame::invalidateScore()
+void HexagonGame::invalidateScore(std::string mReason)
 {
     status.scoreInvalid = true;
+    status.invalidReason = mReason;
     ssvu::lo("HexagonGame::invalidateScore")
-        << "Too much slowdown, invalidating official game\n";
+        << "Invalidating official game ("
+        << mReason
+        << ")\n";
 }
 
 auto HexagonGame::getColorMain() const -> sf::Color
