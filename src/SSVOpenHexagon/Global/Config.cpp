@@ -224,18 +224,6 @@ bool isEligibleForScore()
         return false;
     }
 
-    if(Online::getServerVersion() == -1)
-    {
-        uneligibilityReason = "connection error";
-        return false;
-    }
-
-    if(Online::getServerVersion() > getVersion())
-    {
-        uneligibilityReason = "version mismatch";
-        return false;
-    }
-
     return true;
 }
 
