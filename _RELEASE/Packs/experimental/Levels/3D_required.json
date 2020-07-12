@@ -1,0 +1,12 @@
+{
+	"id": "ThreeDimensions-Required-test",
+	"name": "3D Required",
+	"description": "You have to play this level with 3D enabled\nfor your score to count",
+	"author": "Morxemplum",
+	"menuPriority": 20,
+	"selectable": true,
+	"styleId": "cw",
+	"musicId": "theresnomusicsorry",
+	"luaFile": "Scripts/Levels/3D_required.lua",
+	"difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
+}
