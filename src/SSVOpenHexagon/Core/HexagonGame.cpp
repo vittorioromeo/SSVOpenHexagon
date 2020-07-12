@@ -256,6 +256,11 @@ void HexagonGame::checkAndSaveScore()
                 << "Not sending score - less than 8 seconds\n";
             return;
         }
+        if (levelStatus.3DRequired && !Config::get3D())
+        {
+            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+                << "Not saving score - 3D not enabled on a 3D Required level\n";
+        }
         Online::trySendScore(levelData->id, difficultyMult, time);
     }
 }

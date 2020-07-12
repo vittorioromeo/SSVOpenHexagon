@@ -92,9 +92,11 @@ struct LevelStatus
 
     bool swapEnabled{false};
     bool tutorialMode{false};
+    bool 3DRequired{false};
     bool incEnabled{true};
     bool rndSideChangesEnabled{true};
     bool darkenUnevenBackgroundChunk{true};
+    
 
     std::size_t currentIncrements{0u};
 
