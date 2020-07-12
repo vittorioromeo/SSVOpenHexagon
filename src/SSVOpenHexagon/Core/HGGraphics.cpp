@@ -199,7 +199,9 @@ void HexagonGame::updateText()
 
         if(status.scoreInvalid)
         {
-            os << "SCORE INVALIDATED (PERFORMANCE ISSUES)\n";
+            os << "SCORE INVALIDATED ("
+               << status.invalidReason
+               << ")\n";
         }
 
         if(status.hasDied)

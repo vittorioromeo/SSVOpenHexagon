@@ -49,6 +49,7 @@ public:
     float fastSpin{0};
     bool hasDied{false}, mustRestart{false};
     bool scoreInvalid{false};
+    std::string invalidReason{""};
     bool started{false};
     sf::Color overrideColor{sf::Color::Transparent};
     ssvu::ObfuscatedValue<float> lostFrames{0};

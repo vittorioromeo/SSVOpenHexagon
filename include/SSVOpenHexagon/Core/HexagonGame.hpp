@@ -241,7 +241,7 @@ private:
     void changeLevel(
         const std::string& mPackId, const std::string& mId, bool mFirstTime);
 
-    void invalidateScore();
+    void invalidateScore(std::string mReason);
 
 
     template <typename F>
