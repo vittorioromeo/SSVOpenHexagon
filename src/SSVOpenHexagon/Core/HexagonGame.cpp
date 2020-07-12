@@ -228,7 +228,7 @@ void HexagonGame::checkAndSaveScore()
     if(status.scoreInvalid || !Config::isEligibleForScore())
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-            << "Not sending/saving score - not eligible\n"
+            << "Not saving score - not eligible - "
             << Config::getUneligibilityReason() << "\n";
         return;
     }
@@ -236,7 +236,7 @@ void HexagonGame::checkAndSaveScore()
     if (levelStatus._3DRequired && !Config::get3D())
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-            << "Not saving score - 3D not enabled on a 3D Required level\n";
+            << "Not saving score - 3D disabled on 3D Required level\n";
     }
 
     if(assets.pIsLocal())
@@ -258,6 +258,18 @@ void HexagonGame::checkAndSaveScore()
                 << "Not sending score - less than 8 seconds\n";
             return;
         }
+		if(Online::getServerVersion() == -1)
+		{
+			ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+                << "Not sending score - connection error\n";
+			return;
+		}
+		if(Online::getServerVersion() > Config::getVersion())
+		{
+			ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+                << "Not sending score - version mismatch\n";
+			return;
+		}
         Online::trySendScore(levelData->id, difficultyMult, time);
     }
 }
