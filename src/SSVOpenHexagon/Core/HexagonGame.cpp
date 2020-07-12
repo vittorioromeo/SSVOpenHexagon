@@ -233,7 +233,7 @@ void HexagonGame::checkAndSaveScore()
         return;
     }
 
-    if (levelStatus.3DRequired && !Config::get3D())
+    if (levelStatus._3DRequired && !Config::get3D())
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
             << "Not saving score - 3D not enabled on a 3D Required level\n";
