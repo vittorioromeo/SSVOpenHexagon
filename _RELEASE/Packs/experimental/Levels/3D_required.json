@@ -6,7 +6,7 @@
 	"menuPriority": 20,
 	"selectable": true,
 	"styleId": "cw",
-	"musicId": "theresnomusicsorry",
+	"musicId": "jackRussel",
 	"luaFile": "Scripts/Levels/3D_required.lua",
 	"difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
 }
