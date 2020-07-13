@@ -22,6 +22,7 @@ cp ./_RELEASE/sfml-network-2.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/sfml-system-2.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/sfml-window-2.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/steam_api64.dll ./_PREPARED_RELEASE
+cp ./_RELEASE/discord_game_sdk.dll ./_PREPARED_RELEASE
 cp ./misc/default_config.json ./_PREPARED_RELEASE/config.json
 cp ./_RELEASE/steam_appid.txt ./_PREPARED_RELEASE
 cp ./_RELEASE/windowed.bat ./_PREPARED_RELEASE
