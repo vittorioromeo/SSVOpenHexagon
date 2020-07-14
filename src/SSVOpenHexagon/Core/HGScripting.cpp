@@ -300,7 +300,7 @@ void HexagonGame::initLua_LevelControl()
 
         std::string setDocString = "Set the `";
         setDocString += name;
-        setDocString += "` field of the level status to `$0`";
+        setDocString += "` field of the level status to `$0`.";
 
         addLuaFn(std::string{"l_get"} + name, //
             [this, pmd]() -> Type { return levelStatus.*pmd; })
@@ -415,7 +415,7 @@ void HexagonGame::initLua_StyleControl()
 
         std::string setDocString = "Set the `";
         setDocString += name;
-        setDocString += "` field of the style data to `$0`";
+        setDocString += "` field of the style data to `$0`.";
 
         addLuaFn(std::string{"s_get"} + name, //
             [this, pmd]() -> Type { return styleData.*pmd; })
@@ -697,14 +697,13 @@ void HexagonGame::initLua()
     initLua_Steam();
     initLua_CustomWalls();
 
-    // TODO: refactor this doc stuff and have a command line option to print
-    // this:
-    /*
+    // TODO: refactor doc stuff and have a command line option to print this:
+#if 0
     ssvu::lo("hg::HexagonGame::initLua") << "Printing Lua Markdown docs\n\n";
     printLuaDocs();
     std::cout << "\n\n";
     ssvu::lo("hg::HexagonGame::initLua") << "Done\n";
-    */
+#endif
 }
 
 } // namespace hg
