@@ -30,7 +30,7 @@ Open Hexagon custom content is organized in the following hierarchy:
   - **Scripts** *(folder containing `.lua` scripts)*
     - **`mylevel.lua`**
   - **Styles** *(folder containing visual style JSON metadata files)*
-    - **`mystyle.lua`**
+    - **`mystyle.json`**
 
 Therefore, the main unit of work that can be published and installed is a **pack**. Inside a pack, you can have an arbitrary number of **levels**, **musics**, **scripts**, and **styles**. A completed level requires a **level `.json` metadata file**, **music `.ogg` file**, **music `.json` metadata file**, **level `.lua` script**, and a **style `.json` file**. All the separate files are linked together by **textual identifiers**, specified in the `.json` metadata files.
 
