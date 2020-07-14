@@ -1,4 +1,10 @@
-# [Open Hexagon 2.0](http://www.facebook.com/OpenHexagon) - [by Vittorio Romeo](http://vittorioromeo.info)
+<a href="https://openhexagon.org">
+    <p align="center">
+        <img src="https://vittorioromeo.info/Misc/Linked/githubohlogo.png">
+    </p>
+</a>
+
+> **Open Hexagon is a fast-paced and adrenaline-inducing paced arcade experience by [Vittorio Romeo](https://vittorioromeo.info). Designed for moddability and custom level creation.** Now available on [Steam](https://store.steampowered.com/app/1358090/)!
 
 ## How to build on Windows
 
