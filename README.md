@@ -1,4 +1,4 @@
-<a href="https://openhexagon.org">
+<a href="https://openhexagon.org" target="_blank">
     <p align="center">
         <img src="https://vittorioromeo.info/Misc/Linked/githubohlogo.png">
     </p>
