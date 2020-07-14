@@ -1,0 +1,27 @@
+{
+	// Packs must contain a `pack.json` file with the fields you see below.
+
+	// Disambiguator of the pack. This will be used to calculate a unique pack
+	// id. Every published level pack should have a totally unique id.
+	"disambiguator": "ohvrworkshopexample",
+
+	// Name of the pack. This will be displayed in the main menu and will be
+	// used to calculate a unique pack id.
+	"name": "example",
+
+	// Author of the pack. This will be displayed in the main menu and will be
+	// used to calculate a unique pack id.
+	"author": "vittorio romeo",
+
+	// Description of the pack. Currently unused, but will likely be displayed
+	// in-game in a future version of Open Hexagon.
+	"description": "Example pack for the Steam Workshop.",
+
+	// Version of the pack. This will be displayed in the main menu and will be
+	// used to calculate a unique pack id. Increment this to "invalidate" the
+	// previous unique pack id, or to signal the presence of major changes.
+	"version": 1,
+
+	// Priority of the pack in the pack selection list.
+	"priority": 0
+}

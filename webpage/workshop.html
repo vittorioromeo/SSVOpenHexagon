@@ -1,3 +1,6 @@
+<div><p align="center"><img style="width: 100%; height: auto;" src="https://vittorioromeo.info/Misc/Linked/ohworkshopheader.png"></p></div>
+
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
@@ -13,24 +16,268 @@
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
   </style>
+  <link rel="stylesheet" href="github-pandoc.css" />
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">Open Hexagon Workshop Tutorial</h1>
-</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#workshop-tutorial">Workshop Tutorial</a>
+<ul>
+<li><a href="#getting-started">Getting Started</a>
+<ul>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#content-structure">Content Structure</a></li>
+</ul></li>
+<li><a href="#creating-your-first-custom-level">Creating your First Custom Level</a></li>
+<li><a href="#uploading-to-the-steam-workshop">Uploading to the Steam Workshop</a></li>
+<li><a href="#lua-reference">Lua Reference</a></li>
+<li><a href="#where-to-get-help">Where to get Help</a></li>
+</ul></li>
+</ul>
+</nav>
 <h1 id="workshop-tutorial">Workshop Tutorial</h1>
-<p>TODO</p>
+<p>This document will guide you through the process of creating a new Open Hexagon level pack and upload it on the Steam Workshop.</p>
 <h2 id="getting-started">Getting Started</h2>
-<p>TODO</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>Open Hexagon uses <a href="http://www.lua.org/"><strong>Lua</strong></a> as the main scripting language for custom levels, alongside <a href="https://www.json.org/json-en.html"><strong>JSON</strong></a> for level metadata and configuration files.</p>
+<p>It is recommended to be somewhat familiar with both languages before diving into Open Hexagon content creation, but if you’re feeling brave and have previous programming experience you can just try to “wing it” by modifying existing levels and learning on the fly. A quick and fun way of learning the syntax of the above languages is the “Learn X in Y minutes” website:</p>
+<ul>
+<li><p><a href="https://learnxinyminutes.com/docs/lua/">Learn X in Y minutes: Lua</a></p></li>
+<li><p><a href="https://learnxinyminutes.com/docs/json/">Learn X in Y minutes: JSON</a></p></li>
+</ul>
+<h3 id="content-structure">Content Structure</h3>
+<p>Open Hexagon custom content is organized in the following hierarchy:</p>
+<ul>
+<li><strong>Level Pack</strong> <em>(folder)</em>
+<ul>
+<li><strong><code>pack.json</code></strong> <em>(main JSON metadata file)</em></li>
+<li><strong>Levels</strong> <em>(folder containing level JSON metadata files)</em>
+<ul>
+<li><strong><code>mylevel.json</code></strong></li>
+</ul></li>
+<li><strong>Music</strong> <em>(folder containing music <code>.ogg</code> and JSON metadata files)</em>
+<ul>
+<li><strong><code>mysong.ogg</code></strong></li>
+<li><strong><code>mysong.json</code></strong></li>
+</ul></li>
+<li><strong>Scripts</strong> <em>(folder containing <code>.lua</code> scripts)</em>
+<ul>
+<li><strong><code>mylevel.lua</code></strong></li>
+</ul></li>
+<li><strong>Styles</strong> <em>(folder containing visual style JSON metadata files)</em>
+<ul>
+<li><strong><code>mystyle.lua</code></strong></li>
+</ul></li>
+</ul></li>
+</ul>
+<p>Therefore, the main unit of work that can be published and installed is a <strong>pack</strong>. Inside a pack, you can have an arbitrary number of <strong>levels</strong>, <strong>musics</strong>, <strong>scripts</strong>, and <strong>styles</strong>. A completed level requires a <strong>level <code>.json</code> metadata file</strong>, <strong>music <code>.ogg</code> file</strong>, <strong>music <code>.json</code> metadata file</strong>, <strong>level <code>.lua</code> script</strong>, and a <strong>style <code>.json</code> file</strong>. All the separate files are linked together by <strong>textual identifiers</strong>, specified in the <code>.json</code> metadata files.</p>
 <h2 id="creating-your-first-custom-level">Creating your First Custom Level</h2>
-<p>TODO</p>
+<p>The easiest way to get started is to subscribe to the <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2157745755">“Example Workshop Level”</a> on the Steam Workshop, navigate to its contents (usually <code>C:/Program Files (x86)/Steam/steamapps/workshop/content/1358090/2157745755</code>), and copy-paste that folder into your <code>Open Hexagon/Packs/</code> folder<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>After that, rename the pasted <code>2157745755</code> to something else (e.g. <code>MyFirstPack</code>), and start exploring its contents with your favorite text editor (personally, I use <a href="https://code.visualstudio.com/">Visual Studio Code</a>).</p>
+<p>Delete the <code>Example Workshop Level.workshop.json</code> file (as it will be generated automatically when you upload your pack to the workshop), and the preview image <code>.png</code> file, as you will provide one yourself later.</p>
+<p>Start by taking a look at <code>pack.json</code> - there are multiple fields to change. Note that Open Hexagon expects every single level pack to have a unique id - therefore, to minimize the chance of collisions between packs made by different authors, you should specify a sufficiently unique <code>"disambiguator"</code> that is very unlikely someone else might accidentally use. Such field will not be displayed in game, so it can be completely arbitrary. The rest of the fields also participate in the calculation of the final pack id, so all of your packs can share the same <code>"disambiguator"</code>, provided that they do have different names (as they rightfully should). The <code>"version"</code> field is useful for keeping track of changes and updates of your custom level pack. You should bump it up by one whenever you make changes to your pack and re-upload it to the workshop.</p>
+<p>After that, you should explore the other folders and see how things work. The <code>.json</code> and <code>.lua</code> files are commented, so you should have enough context to figure out how things are linked together and what role they play.</p>
+<p>The level logic is stored in <code>Scripts/Levels/examplelevel.lua</code>. Please refer to the <a href="#lua-reference">Lua Reference</a> to figure out what the used functions do, and to discover new functions to play around with. You will notice a bunch of <code>u_execScript</code> calls at the top of the Lua file - these are other scripts that the level script depends on. Dependencies should always be provided as part of your pack folder<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
+<p>Now it’s up to you! Explore the dependencies, experiment with the code, add your own music<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>, and - when you’re satisfied - share your pack on the workshop and ask for feedback from other players, in order to perfect it. Keep in mind that you can join our official Discord before or during level development to ask for help and share your ideas - see <a href="#where-to-get-help">Where to get Help</a> for more information.</p>
 <h2 id="uploading-to-the-steam-workshop">Uploading to the Steam Workshop</h2>
-<p>TODO</p>
+<p>The current recommended way of uploading your level to the Steam Workshop is to use the provided <code>OHWorkshopUploader.exe</code> command-line tool available in your Open Hexagon folder<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>.</p>
+<p>When running the tool, you’ll see a few options:</p>
+<pre class="text"><code>Enter one of the following options:
+0. Create a new workshop item.
+1. Upload contents of an existing workshop item.
+2. Set preview image of an existing workshop item.
+3. Exit</code></pre>
+<p>If you intend to upload a brand new level, then write <code>0</code> and press <em>enter</em>. On success, the program will give you back a workshop item id:</p>
+<pre class="text"><code>Successfully created new workshop item: 2165863494.</code></pre>
+<p>Copy that id to your clipboard as you’re going to need it for later. Once you have finished creating and testing your custom level, you should have a folder under <code>Packs/</code> containing all its data. To upload it, write <code>1</code> and press <em>enter</em>. You will be prompted to enter the workshop item id you want to upload data to - you should now paste the id you previously copied<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
+<p>You will then be prompted to enter the path to the folder containing the data. Please insert an absolute path to the pack folder (e.g. <code>C:/MySteamLibrary/common/Open Hexagon/Packs/MyFirstPack</code>) and keep following the instructions on screen. Your data should now be uploaded to the workshop.</p>
+<p>Finally, you can write <code>2</code> and press <em>enter</em> to add a preview image to your workshop item. A 620x620 <code>.png</code> image is recommended for this task - you will need to provide an absolute path to the image similarly to what you have done in the previous step.</p>
 <h2 id="lua-reference">Lua Reference</h2>
-<p>TODO</p>
+<!-- Generated from Open Hexagon v2.01. -->
+<ul>
+<li><p><strong><code>void u_log(string message)</code></strong>: Print out <code>message</code> to the console.</p></li>
+<li><p><strong><code>void u_execScript(string scriptFilename)</code></strong>: Execute the script located at <code>&lt;pack&gt;/Scripts/scriptFilename</code>.</p></li>
+<li><p><strong><code>void u_playSound(string soundId)</code></strong>: Play the sound with id <code>soundId</code>. The id must be registered in <code>assets.json</code>, under <code>"soundBuffers"</code>.</p></li>
+<li><p><strong><code>void u_setMusic(string musicId)</code></strong>: Stop the current music and play the music with id <code>musicId</code>. The id is defined in the music <code>.json</code> file, under <code>"id"</code>.</p></li>
+<li><p><strong><code>void u_setMusicSegment(string musicId, int segment)</code></strong>: Stop the current music and play the music with id <code>musicId</code>, starting at segment <code>segment</code>. Segments are defined in the music <code>.json</code> file, under <code>"segments"</code>.</p></li>
+<li><p><strong><code>void u_setMusicSeconds(string musicId, float time)</code></strong>: Stop the current music and play the music with id <code>musicId</code>, starting at time <code>time</code> (in seconds).</p></li>
+<li><p><strong><code>bool u_isKeyPressed(int keyCode)</code></strong>: Return <code>true</code> if the keyboard key with code <code>keyCode</code> is being pressed, <code>false</code> otherwise. The key code must match the definition of the SFML <code>sf::Keyboard::Key</code> enumeration.</p></li>
+<li><p><strong><code>void u_haltTime(double duration)</code></strong>: Pause the game timer for <code>duration</code> seconds.</p></li>
+<li><p><strong><code>void u_timelineWait(double duration)</code></strong>: <em>Add to the main timeline</em>: wait for <code>duration</code> sixths of a second.</p></li>
+<li><p><strong><code>void u_clearWalls()</code></strong>: Remove all existing walls.</p></li>
+<li><p><strong><code>float u_getPlayerAngle()</code></strong>: Return the current angle of the player, in radians.</p></li>
+<li><p><strong><code>void u_setPlayerAngle(float angle)</code></strong>: Set the current angle of the player to <code>angle</code>, in radians.</p></li>
+<li><p><strong><code>bool u_isMouseButtonPressed(int buttonCode)</code></strong>: Return <code>true</code> if the mouse button with code <code>buttonCode</code> is being pressed, <code>false</code> otherwise. The button code must match the definition of the SFML <code>sf::Mouse::Button</code> enumeration.</p></li>
+<li><p><strong><code>bool u_isFastSpinning()</code></strong>: Return <code>true</code> if the camera is currently “fast spinning”, <code>false</code> otherwise.</p></li>
+<li><p><strong><code>void u_forceIncrement()</code></strong>: Immediately force a difficulty increment, regardless of the chosen automatic increment parameters.</p></li>
+<li><p><strong><code>void u_kill()</code></strong>: <em>Add to the main timeline</em>: kill the player.</p></li>
+<li><p><strong><code>void u_eventKill()</code></strong>: <em>Add to the event timeline</em>: kill the player.</p></li>
+<li><p><strong><code>float u_getDifficultyMult()</code></strong>: Return the current difficulty multiplier.</p></li>
+<li><p><strong><code>float u_getSpeedMultDM()</code></strong>: Return the current speed multiplier, adjusted for the chosen difficulty multiplier.</p></li>
+<li><p><strong><code>float u_getDelayMultDM()</code></strong>: Return the current delay multiplier, adjusted for the chosen difficulty multiplier.</p></li>
+<li><p><strong><code>void m_messageAdd(string message, double duration)</code></strong>: <em>Add to the event timeline</em>: print a message with text <code>message</code> for <code>duration</code> seconds. The message will only be printed during the first run of the level.</p></li>
+<li><p><strong><code>void m_messageAddImportant(string message, double duration)</code></strong>: <em>Add to the event timeline</em>: print a message with text <code>message</code> for <code>duration</code> seconds. The message will be printed during every run of the level.</p></li>
+<li><p><strong><code>void m_messageAddImportantSilent(string message, double duration)</code></strong>: <em>Add to the event timeline</em>: print a message with text <code>message</code> for <code>duration</code> seconds. The message will only be printed during the first run of the level, and will not produce any sound.</p></li>
+<li><p><strong><code>void m_clearMessages()</code></strong>: Remove all previously scheduled messages.</p></li>
+<li><p><strong><code>void t_wait(double duration)</code></strong>: <em>Add to the main timeline</em>: wait for <code>duration</code> sixths of a second.</p></li>
+<li><p><strong><code>void t_waitS(double duration)</code></strong>: <em>Add to the main timeline</em>: wait for <code>duration</code> seconds.</p></li>
+<li><p><strong><code>void t_waitUntilS(double duration)</code></strong>: <em>Add to the main timeline</em>: wait until the timer reaches <code>duration</code> seconds.</p></li>
+<li><p><strong><code>void e_eventStopTime(double duration)</code></strong>: <em>Add to the event timeline</em>: pause the game timer for <code>duration</code> sixths of a second.</p></li>
+<li><p><strong><code>void e_eventStopTimeS(double duration)</code></strong>: <em>Add to the event timeline</em>: pause the game timer for <code>duration</code> seconds.</p></li>
+<li><p><strong><code>void e_eventWait(double duration)</code></strong>: <em>Add to the event timeline</em>: wait for <code>duration</code> sixths of a second.</p></li>
+<li><p><strong><code>void e_eventWaitS(double duration)</code></strong>: <em>Add to the event timeline</em>: wait for <code>duration</code> seconds.</p></li>
+<li><p><strong><code>void e_eventWaitUntilS(double duration)</code></strong>: <em>Add to the event timeline</em>: wait until the timer reaches <code>duration</code> seconds.</p></li>
+<li><p><strong><code>float l_getSpeedMult()</code></strong>: Return the <code>SpeedMult</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setSpeedMult(float value)</code></strong>: Set the <code>SpeedMult</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getSpeedInc()</code></strong>: Return the <code>SpeedInc</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setSpeedInc(float value)</code></strong>: Set the <code>SpeedInc</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getSpeedMax()</code></strong>: Return the <code>SpeedMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setSpeedMax(float value)</code></strong>: Set the <code>SpeedMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getRotationSpeed()</code></strong>: Return the <code>RotationSpeed</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setRotationSpeed(float value)</code></strong>: Set the <code>RotationSpeed</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getRotationSpeedInc()</code></strong>: Return the <code>RotationSpeedInc</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setRotationSpeedInc(float value)</code></strong>: Set the <code>RotationSpeedInc</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getRotationSpeedMax()</code></strong>: Return the <code>RotationSpeedMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setRotationSpeedMax(float value)</code></strong>: Set the <code>RotationSpeedMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getDelayMult()</code></strong>: Return the <code>DelayMult</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setDelayMult(float value)</code></strong>: Set the <code>DelayMult</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getDelayInc()</code></strong>: Return the <code>DelayInc</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setDelayInc(float value)</code></strong>: Set the <code>DelayInc</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getDelayMin()</code></strong>: Return the <code>DelayMin</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setDelayMin(float value)</code></strong>: Set the <code>DelayMin</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getDelayMax()</code></strong>: Return the <code>DelayMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setDelayMax(float value)</code></strong>: Set the <code>DelayMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getFastSpin()</code></strong>: Return the <code>FastSpin</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setFastSpin(float value)</code></strong>: Set the <code>FastSpin</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getIncTime()</code></strong>: Return the <code>IncTime</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setIncTime(float value)</code></strong>: Set the <code>IncTime</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseMin()</code></strong>: Return the <code>PulseMin</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setPulseMin(float value)</code></strong>: Set the <code>PulseMin</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseMax()</code></strong>: Return the <code>PulseMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setPulseMax(float value)</code></strong>: Set the <code>PulseMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseSpeed()</code></strong>: Return the <code>PulseSpeed</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setPulseSpeed(float value)</code></strong>: Set the <code>PulseSpeed</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseSpeedR()</code></strong>: Return the <code>PulseSpeedR</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setPulseSpeedR(float value)</code></strong>: Set the <code>PulseSpeedR</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseDelayMax()</code></strong>: Return the <code>PulseDelayMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setPulseDelayMax(float value)</code></strong>: Set the <code>PulseDelayMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseDelayHalfMax()</code></strong>: Return the <code>PulseDelayHalfMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setPulseDelayHalfMax(float value)</code></strong>: Set the <code>PulseDelayHalfMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getBeatPulseMax()</code></strong>: Return the <code>BeatPulseMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setBeatPulseMax(float value)</code></strong>: Set the <code>BeatPulseMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getBeatPulseDelayMax()</code></strong>: Return the <code>BeatPulseDelayMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setBeatPulseDelayMax(float value)</code></strong>: Set the <code>BeatPulseDelayMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getRadiusMin()</code></strong>: Return the <code>RadiusMin</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setRadiusMin(float value)</code></strong>: Set the <code>RadiusMin</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getWallSkewLeft()</code></strong>: Return the <code>WallSkewLeft</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setWallSkewLeft(float value)</code></strong>: Set the <code>WallSkewLeft</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getWallSkewRight()</code></strong>: Return the <code>WallSkewRight</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setWallSkewRight(float value)</code></strong>: Set the <code>WallSkewRight</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getWallAngleLeft()</code></strong>: Return the <code>WallAngleLeft</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setWallAngleLeft(float value)</code></strong>: Set the <code>WallAngleLeft</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getWallAngleRight()</code></strong>: Return the <code>WallAngleRight</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setWallAngleRight(float value)</code></strong>: Set the <code>WallAngleRight</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>float l_get3dEffectMultiplier()</code></strong>: Return the <code>3dEffectMultiplier</code> field of the level status.</p></li>
+<li><p><strong><code>void l_set3dEffectMultiplier(float value)</code></strong>: Set the <code>3dEffectMultiplier</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>int l_getCameraShake()</code></strong>: Return the <code>CameraShake</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setCameraShake(int value)</code></strong>: Set the <code>CameraShake</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>unsigned int l_getSides()</code></strong>: Return the <code>Sides</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setSides(unsigned int value)</code></strong>: Set the <code>Sides</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>unsigned int l_getSidesMax()</code></strong>: Return the <code>SidesMax</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setSidesMax(unsigned int value)</code></strong>: Set the <code>SidesMax</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>unsigned int l_getSidesMin()</code></strong>: Return the <code>SidesMin</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setSidesMin(unsigned int value)</code></strong>: Set the <code>SidesMin</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>bool l_getSwapEnabled()</code></strong>: Return the <code>SwapEnabled</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setSwapEnabled(bool value)</code></strong>: Set the <code>SwapEnabled</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>bool l_getTutorialMode()</code></strong>: Return the <code>TutorialMode</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setTutorialMode(bool value)</code></strong>: Set the <code>TutorialMode</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>bool l_getIncEnabled()</code></strong>: Return the <code>IncEnabled</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setIncEnabled(bool value)</code></strong>: Set the <code>IncEnabled</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>bool l_getDarkenUnevenBackgroundChunk()</code></strong>: Return the <code>DarkenUnevenBackgroundChunk</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setDarkenUnevenBackgroundChunk(bool value)</code></strong>: Set the <code>DarkenUnevenBackgroundChunk</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>size_t l_getCurrentIncrements()</code></strong>: Return the <code>CurrentIncrements</code> field of the level status.</p></li>
+<li><p><strong><code>void l_setCurrentIncrements(size_t value)</code></strong>: Set the <code>CurrentIncrements</code> field of the level status to <code>value</code>.</p></li>
+<li><p><strong><code>void l_enableRndSideChanges(bool enabled)</code></strong>: Set random side changes to <code>enabled</code>.</p></li>
+<li><p><strong><code>void l_darkenUnevenBackgroundChunk(bool enabled)</code></strong>: If <code>enabled</code> is true, one of the background’s chunks will be darkened in case there is an uneven number of sides.</p></li>
+<li><p><strong><code>void l_addTracked(string variable, string name)</code></strong>: Add the variable <code>variable</code> to the list of tracked variables, with name <code>name</code>. Tracked variables are displayed in game, below the game timer.</p></li>
+<li><p><strong><code>void l_setRotation(float angle)</code></strong>: Set the background camera rotation to <code>angle</code> radians.</p></li>
+<li><p><strong><code>float l_getRotation()</code></strong>: Return the background camera rotation, in radians.</p></li>
+<li><p><strong><code>double l_getLevelTime()</code></strong>: Get the current game timer value, in seconds.</p></li>
+<li><p><strong><code>bool l_getOfficial()</code></strong>: Return <code>true</code> if “official mode” is enabled, <code>false</code> otherwise.</p></li>
+<li><p><strong><code>float s_getHueMin()</code></strong>: Return the <code>HueMin</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setHueMin(float value)</code></strong>: Set the <code>HueMin</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getHueMax()</code></strong>: Return the <code>HueMax</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setHueMax(float value)</code></strong>: Set the <code>HueMax</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getHueInc()</code></strong>: Return the <code>HueInc</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setHueInc(float value)</code></strong>: Set the <code>HueInc</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getHueIncrement()</code></strong>: Return the <code>HueIncrement</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setHueIncrement(float value)</code></strong>: Set the <code>HueIncrement</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getPulseMin()</code></strong>: Return the <code>PulseMin</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setPulseMin(float value)</code></strong>: Set the <code>PulseMin</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getPulseMax()</code></strong>: Return the <code>PulseMax</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setPulseMax(float value)</code></strong>: Set the <code>PulseMax</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getPulseInc()</code></strong>: Return the <code>PulseInc</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setPulseInc(float value)</code></strong>: Set the <code>PulseInc</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getPulseIncrement()</code></strong>: Return the <code>PulseIncrement</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setPulseIncrement(float value)</code></strong>: Set the <code>PulseIncrement</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>bool s_getHuePingPong()</code></strong>: Return the <code>HuePingPong</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setHuePingPong(bool value)</code></strong>: Set the <code>HuePingPong</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getMaxSwapTime()</code></strong>: Return the <code>MaxSwapTime</code> field of the style data.</p></li>
+<li><p><strong><code>void s_setMaxSwapTime(float value)</code></strong>: Set the <code>MaxSwapTime</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dDepth()</code></strong>: Return the <code>3dDepth</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dDepth(float value)</code></strong>: Set the <code>3dDepth</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dSkew()</code></strong>: Return the <code>3dSkew</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dSkew(float value)</code></strong>: Set the <code>3dSkew</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dSpacing()</code></strong>: Return the <code>3dSpacing</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dSpacing(float value)</code></strong>: Set the <code>3dSpacing</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dDarkenMult()</code></strong>: Return the <code>3dDarkenMult</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dDarkenMult(float value)</code></strong>: Set the <code>3dDarkenMult</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dAlphaMult()</code></strong>: Return the <code>3dAlphaMult</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dAlphaMult(float value)</code></strong>: Set the <code>3dAlphaMult</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dAlphaFalloff()</code></strong>: Return the <code>3dAlphaFalloff</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dAlphaFalloff(float value)</code></strong>: Set the <code>3dAlphaFalloff</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dPulseMax()</code></strong>: Return the <code>3dPulseMax</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dPulseMax(float value)</code></strong>: Set the <code>3dPulseMax</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dPulseMin()</code></strong>: Return the <code>3dPulseMin</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dPulseMin(float value)</code></strong>: Set the <code>3dPulseMin</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dPulseSpeed()</code></strong>: Return the <code>3dPulseSpeed</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dPulseSpeed(float value)</code></strong>: Set the <code>3dPulseSpeed</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dPerspectiveMult()</code></strong>: Return the <code>3dPerspectiveMult</code> field of the style data.</p></li>
+<li><p><strong><code>void s_set3dPerspectiveMult(float value)</code></strong>: Set the <code>3dPerspectiveMult</code> field of the style data to <code>value</code>.</p></li>
+<li><p><strong><code>void s_setStyle(string styleId)</code></strong>: Set the currently active style to the style with id <code>styleId</code>. Styles can be defined as <code>.json</code> files in the <code>&lt;pack&gt;/Styles/</code> folder.</p></li>
+<li><p><strong><code>void s_setCameraShake(int value)</code></strong>: Start a camera shake with intensity <code>value</code>.</p></li>
+<li><p><strong><code>int s_getCameraShake()</code></strong>: Return the current camera shake intensity.</p></li>
+<li><p><strong><code>void s_setCapColorMain()</code></strong>: Set the color of the center polygon to match the main style color.</p></li>
+<li><p><strong><code>void s_setCapColorMainDarkened()</code></strong>: Set the color of the center polygon to match the main style color, darkened.</p></li>
+<li><p><strong><code>void s_setCapColorByIndex(int index)</code></strong>: Set the color of the center polygon to match the style color with index <code>index</code>.</p></li>
+<li><p><strong><code>void w_wall(int side, float thickness)</code></strong>: Create a new wall at side <code>side</code>, with thickness <code>thickness</code>. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier.</p></li>
+<li><p><strong><code>void w_wallAdj(int side, float thickness, float speedMult)</code></strong>: Create a new wall at side <code>side</code>, with thickness <code>thickness</code>. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by <code>speedMult</code>.</p></li>
+<li><p><strong><code>void w_wallAcc(int side, float thickness, float speedMult, float acceleration, float minSpeed, float maxSpeed)</code></strong>: Create a new wall at side <code>side</code>, with thickness <code>thickness</code>. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by <code>speedMult</code>. The wall will have a speed acceleration value of <code>acceleration</code>. The minimum and maximum speed of the wall are bounded by <code>minSpeed</code> and <code>maxSpeed</code>, adjusted for the current difficulty multiplier.</p></li>
+<li><p><strong><code>void w_wallHModSpeedData(float hueModifier, int side, float thickness, float speedMult, float acceleration, float minSpeed, float maxSpeed, bool pingPong)</code></strong>: Create a new wall at side <code>side</code>, with thickness <code>thickness</code>. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by <code>speedMult</code>. The wall will have a speed acceleration value of <code>acceleration</code>. The minimum and maximum speed of the wall are bounded by <code>minSpeed</code> and <code>maxSpeed</code>, adjusted for the current difficulty multiplier. The hue of the wall will be adjusted by <code>hueModifier</code>. If <code>pingPong</code> is enabled, the wall will accelerate back and forth between its minimum and maximum speed.</p></li>
+<li><p><strong><code>void w_wallHModCurveData(float hueModifier, int side, float thickness, float curveSpeedMult, float curveAcceleration, float curveMinSpeed, float curveMaxSpeed, bool pingPong)</code></strong>: Create a new curving wall at side <code>side</code>, with thickness <code>thickness</code>. The curving speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by <code>curveSpeedMult</code>. The wall will have a curving speed acceleration value of <code>curveAcceleration</code>. The minimum and maximum curving speed of the wall are bounded by <code>curveMinSpeed</code> and <code>curveMaxSpeed</code>, adjusted for the current difficulty multiplier. The hue of the wall will be adjusted by <code>hueModifier</code>. If <code>pingPong</code> is enabled, the wall will accelerate back and forth between its minimum and maximum speed.</p></li>
+<li><p><strong><code>void steam_unlockAchievement(string achievementId)</code></strong>: Unlock the Steam achievement with id <code>achievementId</code>.</p></li>
+<li><p><strong><code>int cw_create()</code></strong>: Create a new custom wall and return a integer handle to it.</p></li>
+<li><p><strong><code>void cw_destroy(int cwHandle)</code></strong>: Destroy the custom wall represented by <code>cwHandle</code>.</p></li>
+<li><p><strong><code>void cw_setVertexPos(int cwHandle, int vertexIndex, float x, float y)</code></strong>: Given the custom wall represented by <code>cwHandle</code>, set the position of its vertex with index <code>vertexIndex</code> to <code>{x, y}</code>.</p></li>
+<li><p><strong><code>void cw_setVertexColor(int cwHandle, int vertexIndex, int r, int g, int b, int a)</code></strong>: Given the custom wall represented by <code>cwHandle</code>, set the color of its vertex with index <code>vertexIndex</code> to <code>{r, g, b, a}</code>.</p></li>
+<li><p><strong><code>tuple&lt;float, float&gt; cw_getVertexPos(int cwHandle, int vertexIndex)</code></strong>: Given the custom wall represented by <code>cwHandle</code>, set the position of its vertex with index <code>vertexIndex</code> to <code>{x, y}</code>.</p></li>
+<li><p><strong><code>void cw_clear()</code></strong>: Remove all existing custom walls.</p></li>
+</ul>
 <h2 id="where-to-get-help">Where to get Help</h2>
+<p>The Open Hexagon community is active on the <a href="https://discord.me/openhexagon">official Discord server</a>. The server contains many channels, including <code>#pack-dev</code> which is dedicated to level pack developers (and is the recommended place to ask for help and share your progress and ideas), and <code>#source-dev</code> which is dedicated to development on the Open Hexagon engine (which is open-source and available <a href="https://github.com/SuperV1234/SSVOpenHexagon/">on GitHub</a>).</p>
+<p>The official Discord server is also a great place to share your levels and get feedback before uploading them to the Steam Workshop.</p>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>If you are not sure where Open Hexagon is installed, you can navigate to the folder by right-clicking on Open Hexagon in your Steam library, selecting “Properties”, going to the “Local Files” tab, and then clicking on the “Browse Local Files” button.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>It is possible that in the future I will implement a solution to share dependencies between different packs, but that is not available yet and it is not a priority. For now, think of a level pack as a standalone self-contained entity.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>Please ensure that the music files you upload to the Steam Workshop are not protected by copyright laws. If they are, you should get explicit permission from the copyright owner for them to be used as a custom Open Hexagon level, and always credit the original artists as part of your workshop item description.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>If you are not sure where Open Hexagon is installed, you can navigate to the folder by right-clicking on Open Hexagon in your Steam library, selecting “Properties”, going to the “Local Files” tab, and then clicking on the “Browse Local Files” button.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p>Or any existing id for a workshop item you own, if you intend to update it rather than creating a new one.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
 </body>
 </html>

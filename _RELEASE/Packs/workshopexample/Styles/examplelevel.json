@@ -1,0 +1,57 @@
+{
+	// Style data id. This id can be used in level JSON files and inside Lua
+	// scripts to set or change the visual style of a level.
+	"id": "examplelevel",
+
+	// Hue options. Continuously changes the hue of the level colors.
+	"hue_min": 0,
+	"hue_max": 360,
+	"hue_ping_pong": false, // Does the hue cycle, or go back and forth?
+	"hue_increment": 0.7,   // How fast does the hue change?
+
+	// Pulse options. Periodically affects the level's colors, brightening and
+	// darkening them over a time interval.
+	"pulse_min": 0.0,
+	"pulse_max": 1.5,
+	"pulse_increment": 0.025,
+
+	// Pseudo-3D effects.
+	"3D_depth": 8,     // How many "copies" of the level should be rendered?
+	"3D_skew": 0.15,   // How intense is the tilt of the pseudo-3D effect?
+	"3D_spacing": 1.5, // How distant are 3D layers between each others?
+
+	// Main color.
+	"main": {
+		"main": true,
+		"dynamic": true,           // Is the color affected by the hue options?
+		"value": [255, 0, 0, 255], // RGBA values.
+		"pulse": [-80, 75, 65, 0]  // Per-channel pulse factors.
+	},
+
+	// Center polygon color. Can be one of:
+	// - "main"
+	// - "main_darkened"
+	// - { "legacy": true, "index": 0 }
+	// - { "legacy": false, "dynamic": true, "value": [...] ... }
+	"cap_color": "main_darkened",
+
+	// Background colors. Array of colors that are going to be applied to the
+	// background, in an alternate fashion.
+	"colors":
+	[
+		{
+			"dynamic": true,
+			"dynamic_offset": false,
+			"dynamic_darkness": 2.7,
+			"value": [0, 0, 0, 0],
+			"pulse": [0, 0, 0, 0]
+		},
+		{
+			"dynamic": true,
+			"dynamic_offset": false,
+			"dynamic_darkness": 3.5,
+			"value": [0, 0, 0, 0],
+			"pulse": [0, 0, 0, 0]
+		}
+	]
+}
