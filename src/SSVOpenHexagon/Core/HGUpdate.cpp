@@ -161,7 +161,7 @@ void HexagonGame::update(ssvu::FT mFT)
             cwManager.cleanup();
 
             updateEvents(mFT);
-            status.updateTime();
+            status.accumulateFrametime(mFT);
             updateIncrement();
 
             if(mustChangeSides && walls.empty())

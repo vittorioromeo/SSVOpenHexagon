@@ -85,7 +85,6 @@ private:
 
 public:
     outcome update(timeline2& timeline, const time_point tp);
-    outcome update_now(timeline2& timeline);
 };
 
 } // namespace hg::Utils
