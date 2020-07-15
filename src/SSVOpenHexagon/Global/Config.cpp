@@ -74,6 +74,7 @@ using namespace ssvu;
     X(joystickDeadzone, float, "joystick_deadzone")                        \
     X(textPadding, float, "text_padding")                                  \
     X(textScaling, float, "text_scaling")                                  \
+    X(timescale, float, "timescale")                                       \
     X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
     X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
     X(triggerFocus, Trigger, "t_focus")                                    \
@@ -479,6 +480,11 @@ void setTextScaling(float mX)
     textScaling() = mX;
 }
 
+void setTimescale(float mX)
+{
+    timescale() = mX;
+}
+
 bool SSVU_ATTRIBUTE(pure) getOnline()
 {
     return online();
@@ -767,6 +773,11 @@ float SSVU_ATTRIBUTE(pure) getTextPadding()
 float SSVU_ATTRIBUTE(pure) getTextScaling()
 {
     return textScaling();
+}
+
+float SSVU_ATTRIBUTE(pure) getTimescale()
+{
+    return getOfficial() ? 1.f : timescale();
 }
 
 Trigger getTriggerRotateCCW()

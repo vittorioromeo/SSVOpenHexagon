@@ -174,8 +174,12 @@ void MenuGame::initMenus()
     main.create<i::Goto>("audio", sfx);
     main.create<i::Goto>("debug", debug) | whenNotOfficial;
     main.create<i::Goto>("local profiles", localProfiles) | whenLocal;
-    main.create<i::Single>("login screen", [this] { state = States::MWlcm; });
-    main.create<i::Toggle>("online", &Config::getOnline, &Config::setOnline);
+
+    // TODO:
+    // main.create<i::Single>("login screen", [this] { state = States::MWlcm;
+    // });
+    // main.create<i::Toggle>("online", &Config::getOnline, &Config::setOnline);
+
     main.create<i::Toggle>(
         "official mode", &Config::getOfficial, &Config::setOfficial);
     main.create<i::Single>("exit game", [this] { window.stop(); });
@@ -291,10 +295,8 @@ void MenuGame::initMenus()
         "autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
     play.create<i::Toggle>("rotate to start", &Config::getRotateToStart,
         &Config::setRotateToStart);
-    play.create<i::Slider>(
-        "joystick deadzone", &Config::getJoystickDeadzone,
-        [](float mValue) { Config::setJoystickDeadzone(mValue); }, 0.f, 100.f,
-        1.f);
+    play.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
+        &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
     play.create<i::GoBack>("back");
 
     localProfiles.create<i::Single>("change local profile", [this] {
@@ -310,6 +312,8 @@ void MenuGame::initMenus()
     debug.create<i::Toggle>("debug mode", &Config::getDebug, &Config::setDebug);
     debug.create<i::Toggle>(
         "invincible", &Config::getInvincible, &Config::setInvincible);
+    debug.create<i::Slider>("timescale", &Config::getTimescale,
+        &Config::setTimescale, 0.1f, 2.f, 0.05f);
     debug.create<i::GoBack>("back");
 
     friends.create<i::Single>("add friend", [this] {

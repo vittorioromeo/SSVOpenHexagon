@@ -23,6 +23,8 @@ namespace hg
 
 void HexagonGame::update(ssvu::FT mFT)
 {
+    mFT *= Config::getTimescale();
+
     // TODO: refactor to avoid repetition, and truncate floating point number
     // TODO: also show best record (here) and last run + best record (in menu)
     steamManager.set_rich_presence_in_game(
