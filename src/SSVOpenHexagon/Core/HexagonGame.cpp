@@ -224,11 +224,19 @@ void HexagonGame::checkAndSaveScore()
 {
     const float time = status.getTimeSeconds();
 
-    if(Config::getInvincible())
+    // These are requirements that need to be met for a score to be valid
+    if(!Config::isEligibleForScore())
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-            << "Not saving score - invincibility on\n";
+            << "Not saving score - not eligible - "
+            << Config::getUneligibilityReason() << "\n";
         return;
+    }
+
+    if (status.scoreInvalid)
+    {
+        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+            << "Not saving score - score invalidated\n";
     }
 
     if(assets.pIsLocal())
@@ -243,19 +251,25 @@ void HexagonGame::checkAndSaveScore()
     }
     else
     {
-        if(status.scoreInvalid || !Config::isEligibleForScore())
-        {
-            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-                << "Not sending/saving score - not eligible\n"
-                << Config::getUneligibilityReason() << "\n";
-            return;
-        }
+        // These are requirements that need to be met for a score to be sent online
         if(time < 8)
         {
             ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - less than 8 seconds\n";
             return;
         }
+		if(Online::getServerVersion() == -1)
+		{
+			ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+                << "Not sending score - connection error\n";
+			return;
+		}
+		if(Online::getServerVersion() > Config::getVersion())
+		{
+			ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+                << "Not sending score - version mismatch\n";
+			return;
+		}
         Online::trySendScore(levelData->id, difficultyMult, time);
     }
 }
@@ -345,11 +359,14 @@ void HexagonGame::stopLevelMusic()
     }
 }
 
-void HexagonGame::invalidateScore()
+void HexagonGame::invalidateScore(std::string mReason)
 {
     status.scoreInvalid = true;
+    status.invalidReason = mReason;
     ssvu::lo("HexagonGame::invalidateScore")
-        << "Too much slowdown, invalidating official game\n";
+        << "Invalidating official game ("
+        << mReason
+        << ")\n";
 }
 
 auto HexagonGame::getColorMain() const -> sf::Color
