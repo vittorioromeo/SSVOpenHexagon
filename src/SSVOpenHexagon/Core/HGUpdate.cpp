@@ -161,12 +161,7 @@ void HexagonGame::update(ssvu::FT mFT)
             cwManager.cleanup();
 
             updateEvents(mFT);
-            status.updateTime();
-
-            // ----------------------------------------------------------------
-            // Accumulate played time into status:
             status.accumulateFrametime(mFT);
-
             updateIncrement();
 
             if(mustChangeSides && walls.empty())

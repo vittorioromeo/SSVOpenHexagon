@@ -20,26 +20,11 @@ public:
     using TimePoint = std::chrono::time_point<Clock>;
 
 private:
-    // Current time of the level
-    TimePoint currentTp;
-
-    // When we started playing the level
-    TimePoint levelStartTp;
-
-    // When the last increment happened
-    TimePoint lastIncrementTp;
-
-    // When the timer was last paused, and for how long
-    TimePoint lastTimerPauseTp;
-
-    // Duration of the current timer pause
-    std::chrono::milliseconds pauseDuration{100};
-
-    // Frametime accumulators
     double totalFrametimeAccumulator{};  // Total time (including pauses)
     double playedFrametimeAccumulator{}; // Played time (no pauses)
     double pausedFrametimeAccumulator{}; // Paused time (only pauses)
-    double currentPause{};               // Current pause time
+    double currentPause{0.1 * 60};       // Current pause time
+    double currentIncrementTime{};       // Time since last increment
 
 public:
     float pulse{75};
@@ -85,9 +70,6 @@ public:
 
     // Reset the increment time to the last non-pause time point
     void resetIncrementTime() noexcept;
-
-    // Update the timer (called every frame)
-    void updateTime() noexcept;
 
     // Accumulate the time spent in a frame into the total
     void accumulateFrametime(const double ft) noexcept;
