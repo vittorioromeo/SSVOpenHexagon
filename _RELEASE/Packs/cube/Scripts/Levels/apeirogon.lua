@@ -56,6 +56,10 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	if (u_getDifficultyMult() >= 1.25) then
+		m_messageAddImportant("Difficulty >= 1.25\nPentagon removed!", 120)
+		l_setSidesMin(6)
+	end
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -73,6 +77,13 @@ end
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
 	enableSwapIfSpeedGEThan(4);
+	if (u_getSpeedMultDM() >= 4.5 and l_getSidesMin() == 5) then
+		m_messageAddImportant("Speed >= 4.5\nPentagon removed!", 120)
+		if (l_getSides() == 5) then
+			l_setSides(6)
+		end
+		l_setSidesMin(6)
+	end
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
