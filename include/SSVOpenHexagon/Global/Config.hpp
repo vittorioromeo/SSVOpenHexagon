@@ -66,6 +66,7 @@ void setRotateToStart(bool mX);
 void setJoystickDeadzone(float mX);
 void setTextPadding(float mX);
 void setTextScaling(float mX);
+void setTimescale(float mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -126,6 +127,7 @@ void setTextScaling(float mX);
 [[nodiscard]] float getJoystickDeadzone();
 [[nodiscard]] float getTextPadding();
 [[nodiscard]] float getTextScaling();
+[[nodiscard]] float getTimescale();
 
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();

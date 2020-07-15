@@ -2,11 +2,11 @@
 	"id": "euclideanpc",
 	"name": "euclidean plane crash",
 	"description": "special level of difficulty",
-	"author": "vittorio romeo",	
+	"author": "vittorio romeo",
 	"menuPriority": 60,
 	"selectable": true,
 	"styleId": "euclideanpc",
 	"musicId": "steampunkWarlord",
 	"luaFile": "Scripts/Levels/euclideanpc.lua",
-	"difficultyMults": [1.25, 1.50, 1.70, 1.80, 0.75, 0.5, 0.25]
+	"difficultyMults": [1.25, 1.50, 1.80, 0.75, 0.5]
 }
