@@ -139,10 +139,4 @@ timeline2_runner::outcome timeline2_runner::update(
     return outcome::finished;
 }
 
-
-timeline2_runner::outcome timeline2_runner::update_now(timeline2& timeline)
-{
-    return update(timeline, timeline2::clock::now());
-}
-
 } // namespace hg::Utils

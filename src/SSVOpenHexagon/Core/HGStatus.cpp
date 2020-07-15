@@ -9,19 +9,14 @@
 namespace hg
 {
 
-template <typename Duration>
-[[nodiscard]] static auto toMilliseconds(const Duration d) noexcept
-{
-    return std::chrono::duration_cast<std::chrono::milliseconds>(d);
-}
-
 void HexagonGameStatus::start() noexcept
 {
     // Reset everything to the current time:
-    currentTp = Clock::now();
-    levelStartTp = currentTp;
-    lastIncrementTp = currentTp;
-    lastTimerPauseTp = currentTp;
+    totalFrametimeAccumulator = 0.0;
+    playedFrametimeAccumulator = 0.0;
+    pausedFrametimeAccumulator = 0.0;
+    currentPause = 0.1 * 60;
+    currentIncrementTime = 0.0;
 
     // Signal that we started:
     started = true;
@@ -29,90 +24,108 @@ void HexagonGameStatus::start() noexcept
 
 [[nodiscard]] double HexagonGameStatus::getIncrementTimeSeconds() noexcept
 {
-    // If we are paused, do not count passing time towards an increment:
-    const auto ms =
-        toMilliseconds(isTimePaused() ? lastTimerPauseTp - lastIncrementTp
-                                      : currentTp - lastIncrementTp);
-
-    return static_cast<double>(ms.count()) / 1000.0;
+    return currentIncrementTime / 60.0;
 }
 
 [[nodiscard]] double HexagonGameStatus::getTimeSeconds() noexcept
 {
-    // If we are paused, do not count passing time as significant:
-    const auto ms =
-        toMilliseconds(isTimePaused() ? lastTimerPauseTp - levelStartTp
-                                      : currentTp - levelStartTp);
-
-    return static_cast<double>(ms.count()) / 1000.0;
+    return getPlayedAccumulatedFrametimeInSeconds();
 }
 
 [[nodiscard]] HexagonGameStatus::TimePoint
 HexagonGameStatus::getCurrentTP() noexcept
 {
-    return currentTp;
+    return HexagonGameStatus::TimePoint{std::chrono::milliseconds{
+        (int64_t)(getTotalAccumulatedFrametimeInSeconds() * 1000.0)}};
 }
 
 [[nodiscard]] HexagonGameStatus::TimePoint
 HexagonGameStatus::getTimeTP() noexcept
 {
-    // If we are paused, do not count passing time as significant:
-    return isTimePaused() ? lastTimerPauseTp : currentTp;
+    return HexagonGameStatus::TimePoint{std::chrono::milliseconds{
+        (int64_t)(getPlayedAccumulatedFrametimeInSeconds() * 1000.0)}};
 }
 
 [[nodiscard]] HexagonGameStatus::TimePoint
 HexagonGameStatus::getLevelStartTP() noexcept
 {
-    // If we are paused, do not count passing time as significant:
-    return levelStartTp;
+    return HexagonGameStatus::TimePoint{};
 }
 
 [[nodiscard]] bool HexagonGameStatus::isTimePaused() noexcept
 {
-    return pauseDuration > (currentTp - lastTimerPauseTp);
+    return currentPause > 0.0;
 }
 
 void HexagonGameStatus::pauseTime(const double seconds) noexcept
 {
-    const auto ms =
-        std::chrono::milliseconds(static_cast<int>(seconds * 1000.0));
-
-    // If we are paused, add to the current (in progress) pause duration:
-    if(isTimePaused())
-    {
-        pauseDuration += ms;
-        return;
-    }
-
-    // Otherwise, start a new pause:
-    lastTimerPauseTp = currentTp;
-    pauseDuration = ms;
+    currentPause += seconds * 60.0;
 }
 
 void HexagonGameStatus::resetIncrementTime() noexcept
 {
-    // If we are paused, use the last time point before pausing as our next
-    // starting point for an increment. Otherwise, use the current time:
-    lastIncrementTp = isTimePaused() ? lastTimerPauseTp : currentTp;
+    currentIncrementTime = 0.0;
 }
 
-void HexagonGameStatus::updateTime() noexcept
+void HexagonGameStatus::accumulateFrametime(const double ft) noexcept
 {
-    const bool wasPaused = isTimePaused();
+    // TODO: double-check what to do with remainder
 
-    currentTp = HexagonGameStatus::Clock::now();
+    totalFrametimeAccumulator += ft;
 
-    // If we were paused on last frame, but we just stopped being paused...
-    if(wasPaused && !isTimePaused())
+    // double pauseRemainder = 0.0;
+    if(currentPause > 0.0)
     {
-        // ...subtract the pause duration from the total time, so that the time
-        // returned by `getTimeSeconds()` is still correct:
-        levelStartTp += pauseDuration;
-
-        // ...signal that we are not in a pause anymore:
-        lastTimerPauseTp = levelStartTp;
-        pauseDuration = std::chrono::milliseconds{0};
+        currentPause -= ft;
+        // if(currentPause < 0.0)
+        // {
+        //     pauseRemainder = -currentPause;
+        // }
     }
+
+    // if(currentPause <= 0.0)
+    else
+    {
+        playedFrametimeAccumulator += ft;
+        currentIncrementTime += ft;
+        // playedFrametimeAccumulator += pauseRemainder;
+    }
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getTotalAccumulatedFrametime() const noexcept
+{
+    return totalFrametimeAccumulator;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getTotalAccumulatedFrametimeInSeconds() const noexcept
+{
+    return getTotalAccumulatedFrametime() / 60.0;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getPlayedAccumulatedFrametime() const noexcept
+{
+    return playedFrametimeAccumulator;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getPlayedAccumulatedFrametimeInSeconds() const noexcept
+{
+    return getPlayedAccumulatedFrametime() / 60.0;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getPausedAccumulatedFrametime() const noexcept
+{
+    return pausedFrametimeAccumulator;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getPausedAccumulatedFrametimeInSeconds() const noexcept
+{
+    return getPausedAccumulatedFrametime() / 60.0;
 }
 
 } // namespace hg
