@@ -50,8 +50,8 @@ function onInit()
 	l_setBeatPulseMax(15)
 	l_setBeatPulseDelayMax(21.8)
 
-	enableSwapIfDMGreaterThan(1)
-	disableIncIfDMGreaterThan(1)
+	enableSwapIfDMGreaterThan(1.25)
+	disableIncIfDMGreaterThan(1.5)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -72,6 +72,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
+	enableSwapIfSpeedGEThan(4);
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted

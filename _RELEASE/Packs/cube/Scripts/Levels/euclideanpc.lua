@@ -30,9 +30,9 @@ achievementUnlocked = false
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
 	l_setSpeedMult(2.7)
-	l_setSpeedInc(0.0)
+	l_setSpeedInc(0.02)
+	l_setSpeedMax(3.5)
 	l_setRotationSpeed(0.25)
-	l_setRotationSpeedMax(0.75)
 	l_setRotationSpeedInc(0.04)
 	l_setDelayMult(1.0)
 	l_setDelayInc(0.0)
