@@ -41,9 +41,9 @@ end
 function onInit()
 	l_setSpeedMult(3.4)
 	l_setSpeedInc(0.10)
-	l_setSpeedMax(3.8)
+	l_setSpeedMax(5)
 	l_setRotationSpeed(0.25)
-	l_setRotationSpeedMax(0.5)
+	l_setRotationSpeedMax(math.pi) -- lol
 	l_setRotationSpeedInc(0.04)
 	l_setDelayMult(1.0)
 	l_setDelayInc(-0.01)
@@ -63,12 +63,13 @@ function onInit()
 	l_setBeatPulseMax(15)
 	l_setBeatPulseDelayMax(21.8)
 
-	enableSwapIfDMGreaterThan(1)
+	enableSwapIfDMGreaterThan(1.25)
 	disableIncIfDMGreaterThan(1.5)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
+	enableSwapIfSpeedGEThan(4.5);
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
