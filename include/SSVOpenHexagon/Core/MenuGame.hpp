@@ -28,6 +28,7 @@ namespace hg
 
 enum class States
 {
+    EpilepsyWarning,
     ETUser,
     ETPass,
     ETEmail,
@@ -70,7 +71,7 @@ private:
                         Config::getHeight() * Config::getZoomFactor()}}};
 
     // TODO: change this to MWlcm when leaderboards are enabled
-    States state{States::MWlcm};
+    States state{States::EpilepsyWarning};
 
     ssvms::Menu optionsMenu;
     ssvms::Menu welcomeMenu;
@@ -87,7 +88,8 @@ private:
     sf::Sprite titleBar{assets.get<sf::Texture>("titleBar.png")},
         creditsBar1{assets.get<sf::Texture>("creditsBar1.png")},
         creditsBar2{assets.get<sf::Texture>("creditsBar2.png")},
-        bottomBar{assets.get<sf::Texture>("bottomBar.png")};
+        bottomBar{assets.get<sf::Texture>("bottomBar.png")},
+        epilepsyWarning{assets.get<sf::Texture>("epilepsyWarning.png")};
 
     std::vector<std::string> levelDataIds;
     std::vector<float> diffMults;

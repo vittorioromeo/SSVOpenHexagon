@@ -8,13 +8,6 @@ function enableSwapIfDMGreaterThan(mDM)
 	end	
 end
 
-function enableSwapIfSpeedGEThan(mSpeed)
-	if (u_getSpeedMultDM() >= mSpeed and not l_getSwapEnabled()) then
-		m_messageAddImportant("Speed > "..mSpeed.."\nswap enabled!", 120)
-		l_setSwapEnabled(true)
-	end
-end
-
 function disableIncIfDMGreaterThan(mDM)
 	if(u_getDifficultyMult() > mDM) then
 		m_messageAdd(" difficulty > " ..mDM.. "\nincrement disabled!", 65)
@@ -75,10 +68,10 @@ end
 -- cWallEx: creates a wall with mExtra walls attached to it 
 function cWallEx(mSide, mExtra)
 	cWall(mSide);
-	local exLoopDir = 1;
+	loopDir = 1;
 	
-	if mExtra < 0 then exLoopDir = -1 end
-	for i = 0, mExtra, exLoopDir do cWall(mSide + i) end
+	if mExtra < 0 then loopDir = -1 end
+	for i = 0, mExtra, loopDir do cWall(mSide + i) end
 end
 
 -- oWallEx: creates a wall with mExtra walls opposite to mSide

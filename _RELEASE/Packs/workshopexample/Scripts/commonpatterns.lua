@@ -2,7 +2,7 @@ u_execScript("common.lua")
 
 -- pAltBarrage: spawns a series of cAltBarrage
 function pAltBarrage(mTimes, mStep)
-	local delay = getPerfectDelayDM(THICKNESS) * 5.6
+	delay = getPerfectDelayDM(THICKNESS) * 5.6
 	
 	for i = 0, mTimes do
 		cAltBarrage(i, mStep)
@@ -12,17 +12,17 @@ function pAltBarrage(mTimes, mStep)
 	t_wait(delay)
 end
 
--- pSpiral: spawns a spiral of cWallEx
+-- pSpiral: spawns a spiral of cWall
 function pSpiral(mTimes, mExtra)
-	local oldThickness = THICKNESS
+	oldThickness = THICKNESS
 	THICKNESS = getPerfectThickness(THICKNESS)
-	local delay = getPerfectDelay(THICKNESS)
-	local startSide = getRandomSide()
-	local loopDir = getRandomDir()	
-	local j = 0
+	delay = getPerfectDelay(THICKNESS)
+	startSide = getRandomSide()
+	loopDir = getRandomDir()	
+	j = 0
 	
 	for i = 0, mTimes do
-		cWallEx(startSide + j, mExtra)
+		cWall(startSide + j, mExtra)
 		j = j + loopDir
 		t_wait(delay)
 	end
@@ -34,11 +34,11 @@ end
 
 -- pMirrorSpiral: spawns a spiral of rWallEx
 function pMirrorSpiral(mTimes, mExtra)
-	local oldThickness = THICKNESS
+	oldThickness = THICKNESS
 	THICKNESS = getPerfectThickness(THICKNESS)
-	local delay = getPerfectDelay(THICKNESS)
-	local startSide = getRandomSide()
-	local loopDir = getRandomDir()	
+	delay = getPerfectDelay(THICKNESS)
+	startSide = getRandomSide()
+	loopDir = getRandomDir()	
 	j = 0
 	
 	for i = 0, mTimes do
@@ -54,12 +54,12 @@ end
 
 -- pMirrorSpiralDouble: spawns a spiral of rWallEx where you need to change direction
 function pMirrorSpiralDouble(mTimes, mExtra)
-    local oldThickness = THICKNESS
+    oldThickness = THICKNESS
     THICKNESS = getPerfectThickness(THICKNESS)
-    local delay = getPerfectDelayDM(THICKNESS)
-    local startSide = getRandomSide()
-    local loopDir = getRandomDir()    
-    local j = 0
+    delay = getPerfectDelayDM(THICKNESS)
+    startSide = getRandomSide()
+    loopDir = getRandomDir()    
+    j = 0
     
     for i = 0, mTimes do
         rWallEx(startSide + j, mExtra)
@@ -82,10 +82,10 @@ end
 
 -- pBarrageSpiral: spawns a spiral of cBarrage
 function pBarrageSpiral(mTimes, mDelayMult, mStep)
-	local delay = getPerfectDelayDM(THICKNESS) * 5.6 * mDelayMult
-	local startSide = getRandomSide()
-	local loopDir = mStep * getRandomDir()	
-	local j = 0
+	delay = getPerfectDelayDM(THICKNESS) * 5.6 * mDelayMult
+	startSide = getRandomSide()
+	loopDir = mStep * getRandomDir()	
+	j = 0
 	
 	for i = 0, mTimes do
 		cBarrage(startSide + j)
@@ -99,10 +99,10 @@ end
 
 -- pDMBarrageSpiral: spawns a spiral of cBarrage, with static delay
 function pDMBarrageSpiral(mTimes, mDelayMult, mStep)
-	local delay = (getPerfectDelayDM(THICKNESS) * 5.42) * (mDelayMult / (u_getDifficultyMult() ^ 0.4)) * (u_getSpeedMultDM() ^ 0.35)
-	local startSide = getRandomSide()
-	local loopDir = mStep * getRandomDir()	
-	local j = 0
+	delay = (getPerfectDelayDM(THICKNESS) * 5.42) * (mDelayMult / (u_getDifficultyMult() ^ 0.4)) * (u_getSpeedMultDM() ^ 0.35)
+	startSide = getRandomSide()
+	loopDir = mStep * getRandomDir()	
+	j = 0
 	
 	for i = 0, mTimes do
 		cBarrage(startSide + j)
@@ -116,10 +116,10 @@ end
 
 -- pWallExVortex: spawns left-left right-right spiral patters
 function pWallExVortex(mTimes, mStep, mExtraMult)
-	local delay = getPerfectDelayDM(THICKNESS) * 5.0 
-	local startSide = getRandomSide()
-	local loopDir = getRandomDir()
-	local currentSide = startSide
+	delay = getPerfectDelayDM(THICKNESS) * 5.0 
+	startSide = getRandomSide()
+	loopDir = getRandomDir()
+	currentSide = startSide
 	
 	for j = 0, mTimes do
 		for i = 0, mStep do
@@ -142,8 +142,8 @@ end
 
 -- pInverseBarrage: spawns two barrages who force you to turn 180 degrees
 function pInverseBarrage(mTimes)
-	local delay = getPerfectDelayDM(THICKNESS) * 9.9
-	local startSide = getRandomSide()
+	delay = getPerfectDelayDM(THICKNESS) * 9.9
+	startSide = getRandomSide()
 	
 	for i = 0, mTimes do
 		cBarrage(startSide)
@@ -158,8 +158,8 @@ end
 
 -- pRandomBarrage: spawns barrages with random side, and waits humanly-possible times depending on the sides distance
 function pRandomBarrage(mTimes, mDelayMult)
-	local side = getRandomSide()
-	local oldSide = 0
+	side = getRandomSide()
+	oldSide = 0
 	
 	for i = 0, mTimes do	
 		cBarrage(side)
@@ -173,8 +173,8 @@ end
 
 -- pMirrorWallStrip: spawns rWalls close to one another on the same side
 function pMirrorWallStrip(mTimes, mExtra)
-	local delay = getPerfectDelayDM(THICKNESS) * 3.65
-	local startSide = getRandomSide()
+	delay = getPerfectDelayDM(THICKNESS) * 3.65
+	startSide = getRandomSide()
 	
 	for i = 0, mTimes do
 		rWallEx(startSide, mExtra)
@@ -186,11 +186,11 @@ end
 
 -- pTunnel: forces you to circle around a very thick wall
 function pTunnel(mTimes)
-	local oldThickness = THICKNESS
-	local myThickness = getPerfectThickness(THICKNESS)
-	local delay = getPerfectDelay(myThickness) * 5
-	local startSide = getRandomSide()
-	local loopDir = getRandomDir()
+	oldThickness = THICKNESS
+	myThickness = getPerfectThickness(THICKNESS)
+	delay = getPerfectDelay(myThickness) * 5
+	startSide = getRandomSide()
+	loopDir = getRandomDir()
 	
 	THICKNESS = myThickness
 	

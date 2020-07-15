@@ -31,7 +31,6 @@ using namespace ssvuj;
 namespace hg
 {
 
-using s = States;
 using ocs = Online::ConnectStat;
 using ols = Online::LoginStat;
 
@@ -74,9 +73,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIndex(0);
     initMenus();
     initInput();
-
-    // TODO: remove when welcome screen is implemented
-    playLocally();
 }
 
 void MenuGame::init(bool error)
@@ -104,7 +100,7 @@ void MenuGame::initAssets()
 {
     for(const auto& t : {"titleBar.png", "creditsBar1.png", "creditsBar2.png",
             "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png",
-            "bottomBar.png"})
+            "bottomBar.png", "epilepsyWarning.png"})
     {
         assets.get<Texture>(t).setSmooth(true);
     }
@@ -115,7 +111,8 @@ void MenuGame::playLocally()
     assets.pSaveCurrent();
     assets.pSetPlayingLocally(true);
     enteredStr = "";
-    state = assets.getLocalProfilesSize() == 0 ? s::ETLPNew : s::SLPSelect;
+    state = assets.getLocalProfilesSize() == 0 ? States::ETLPNew
+                                               : States::SLPSelect;
 }
 
 void MenuGame::initMenus()
@@ -152,7 +149,7 @@ void MenuGame::initMenus()
         assets.pSaveCurrent();
         assets.pSetPlayingLocally(false);
         enteredStr = "";
-        state = s::ETUser;
+        state = States::ETUser;
     }) | whenConnectedAndUnlogged;
     wlcm.create<i::Single>("logout", [] { Online::logout(); }) |
         whenConnectedAndLogged;
@@ -177,12 +174,12 @@ void MenuGame::initMenus()
     main.create<i::Goto>("audio", sfx);
     main.create<i::Goto>("debug", debug) | whenNotOfficial;
     main.create<i::Goto>("local profiles", localProfiles) | whenLocal;
-    main.create<i::Single>("login screen", [this] { state = s::MWlcm; });
+    main.create<i::Single>("login screen", [this] { state = States::MWlcm; });
     main.create<i::Toggle>("online", &Config::getOnline, &Config::setOnline);
     main.create<i::Toggle>(
         "official mode", &Config::getOfficial, &Config::setOfficial);
     main.create<i::Single>("exit game", [this] { window.stop(); });
-    main.create<i::Single>("back", [this] { state = s::SMain; });
+    main.create<i::Single>("back", [this] { state = States::SMain; });
 
     resolution.create<i::Single>(
         "auto", [this] { Config::setCurrentResolutionAuto(window); });
@@ -302,11 +299,11 @@ void MenuGame::initMenus()
 
     localProfiles.create<i::Single>("change local profile", [this] {
         enteredStr = "";
-        state = s::SLPSelect;
+        state = States::SLPSelect;
     });
     localProfiles.create<i::Single>("new local profile", [this] {
         enteredStr = "";
-        state = s::SLPSelect;
+        state = States::SLPSelect;
     });
     localProfiles.create<i::GoBack>("back");
 
@@ -317,7 +314,7 @@ void MenuGame::initMenus()
 
     friends.create<i::Single>("add friend", [this] {
         enteredStr = "";
-        state = s::ETFriend;
+        state = States::ETFriend;
     });
     friends.create<i::Single>(
         "clear friends", [this] { assets.pClearTrackedNames(); });
@@ -329,11 +326,16 @@ void MenuGame::leftAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == s::SLPSelect)
+    if(state == States::EpilepsyWarning)
+    {
+        // TODO: remove when welcome screen is implemented
+        playLocally();
+    }
+    else if(state == States::SLPSelect)
     {
         --profileIdx;
     }
-    else if(state == s::SMain)
+    else if(state == States::SMain)
     {
         setIndex(currentIndex - 1);
     }
@@ -348,11 +350,16 @@ void MenuGame::rightAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == s::SLPSelect)
+    if(state == States::EpilepsyWarning)
+    {
+        // TODO: remove when welcome screen is implemented
+        playLocally();
+    }
+    else if(state == States::SLPSelect)
     {
         ++profileIdx;
     }
-    else if(state == s::SMain)
+    else if(state == States::SMain)
     {
         setIndex(currentIndex + 1);
     }
@@ -366,7 +373,12 @@ void MenuGame::upAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == s::SMain)
+    if(state == States::EpilepsyWarning)
+    {
+        // TODO: remove when welcome screen is implemented
+        playLocally();
+    }
+    else if(state == States::SMain)
     {
         ++diffMultIdx;
     }
@@ -380,7 +392,12 @@ void MenuGame::downAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == s::SMain)
+    if(state == States::EpilepsyWarning)
+    {
+        // TODO: remove when welcome screen is implemented
+        playLocally();
+    }
+    else if(state == States::SMain)
     {
         --diffMultIdx;
     }
@@ -394,12 +411,17 @@ void MenuGame::okAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == s::SLPSelect)
+    if(state == States::EpilepsyWarning)
+    {
+        // TODO: remove when welcome screen is implemented
+        playLocally();
+    }
+    else if(state == States::SLPSelect)
     {
         assets.pSetCurrent(enteredStr);
-        state = s::SMain;
+        state = States::SMain;
     }
-    else if(state == s::SMain)
+    else if(state == States::SMain)
     {
         window.setGameState(hexagonGame.getGame());
 
@@ -412,46 +434,46 @@ void MenuGame::okAction()
     {
         getCurrentMenu()->exec();
     }
-    else if(state == s::ETLPNew)
+    else if(state == States::ETLPNew)
     {
         if(!enteredStr.empty())
         {
             assets.pCreate(enteredStr);
             assets.pSetCurrent(enteredStr);
-            state = s::SMain;
+            state = States::SMain;
             enteredStr = "";
         }
     }
-    else if(state == s::ETFriend)
+    else if(state == States::ETFriend)
     {
         if(!enteredStr.empty() &&
             !ssvu::contains(assets.pGetTrackedNames(), enteredStr))
         {
             assets.pAddTrackedName(enteredStr);
-            state = s::SMain;
+            state = States::SMain;
             enteredStr = "";
         }
     }
-    else if(state == s::ETUser)
+    else if(state == States::ETUser)
     {
         if(!enteredStr.empty())
         {
             lrUser = enteredStr;
-            state = s::ETPass;
+            state = States::ETPass;
             enteredStr = "";
         }
     }
-    else if(state == s::ETPass)
+    else if(state == States::ETPass)
     {
         if(!enteredStr.empty())
         {
             lrPass = enteredStr;
-            state = s::SLogging;
+            state = States::SLogging;
             enteredStr = "";
             Online::tryLogin(lrUser, lrPass);
         }
     }
-    else if(state == s::ETEmail)
+    else if(state == States::ETEmail)
     {
         if(!enteredStr.empty() && ssvu::contains(enteredStr, '@'))
         {
@@ -467,46 +489,46 @@ void MenuGame::createProfileAction()
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
-        state = s::MWlcm;
+        state = States::MWlcm;
         return;
     }
-    if(state == s::SLPSelect)
+    if(state == States::SLPSelect)
     {
         enteredStr = "";
-        state = s::ETLPNew;
+        state = States::ETLPNew;
     }
 }
 
 void MenuGame::selectProfileAction()
 {
     assets.playSound("beep.ogg");
-    if(state != s::SMain)
+    if(state != States::SMain)
     {
         return;
     }
     if(!assets.pIsLocal())
     {
-        state = s::MWlcm;
+        state = States::MWlcm;
         return;
     }
     enteredStr = "";
-    state = s::SLPSelect;
+    state = States::SLPSelect;
 }
 
 void MenuGame::openOptionsAction()
 {
     assets.playSound("beep.ogg");
-    if(state != s::SMain)
+    if(state != States::SMain)
     {
         return;
     }
-    state = s::MOpts;
+    state = States::MOpts;
 }
 
 void MenuGame::selectPackAction()
 {
     assets.playSound("beep.ogg");
-    if(state == s::SMain)
+    if(state == States::SMain)
     {
         const auto& p(assets.getPackInfos());
         packIdx = ssvu::getMod(packIdx + 1, p.size());
@@ -562,12 +584,13 @@ void MenuGame::initInput()
                 }
                 else
                 {
-                    state = s::SMain;
+                    state = States::SMain;
                 }
             }
-            else if((state == s::ETFriend || state == s::SLPSelect) && valid)
+            else if((state == States::ETFriend || state == States::SLPSelect) &&
+                    valid)
             {
-                state = s::SMain;
+                state = States::SMain;
             }
         },
         t::Once);
@@ -575,7 +598,7 @@ void MenuGame::initInput()
     game.addInput(
         Config::getTriggerExit(),
         [this](ssvu::FT mFT) {
-            if(state != s::MOpts)
+            if(state != States::MOpts)
             {
                 exitTimer += mFT;
             }
@@ -797,7 +820,7 @@ void MenuGame::updateLeaderboard()
 
 void MenuGame::updateFriends()
 {
-    if(state != s::SMain)
+    if(state != States::SMain)
     {
         return;
     }
@@ -886,6 +909,10 @@ void MenuGame::refreshCamera()
     bottomBar.setOrigin({0, 56.f * 2.f});
     bottomBar.setScale({scaleFactor / 2.f, scaleFactor / 2.f});
     bottomBar.setPosition(sf::Vector2f(0, h));
+
+    epilepsyWarning.setOrigin(getLocalCenter(epilepsyWarning));
+    epilepsyWarning.setPosition({1024 / (2.f / scaleFactor), 768 / 2.f - 50});
+    epilepsyWarning.setScale({0.36f, 0.36f});
 }
 
 void MenuGame::update(ssvu::FT mFT)
@@ -987,7 +1014,7 @@ void MenuGame::update(ssvu::FT mFT)
     // If connection is lost, kick the player back into welcome screen
     if(!assets.pIsLocal() && Online::getConnectionStatus() != ocs::Connected)
     {
-        state = s::MWlcm;
+        state = States::MWlcm;
     }
 
     updateLeaderboard();
@@ -1000,7 +1027,7 @@ void MenuGame::update(ssvu::FT mFT)
 
     if(isEnteringText())
     {
-        unsigned int limit{state == s::ETEmail ? 40u : 18u};
+        unsigned int limit{state == States::ETEmail ? 40u : 18u};
         for(const auto& c : enteredChars)
         {
             if(enteredStr.size() < limit &&
@@ -1011,12 +1038,12 @@ void MenuGame::update(ssvu::FT mFT)
             }
         }
     }
-    else if(state == s::SLPSelect)
+    else if(state == States::SLPSelect)
     {
         enteredStr =
             ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
     }
-    else if(state == s::SMain)
+    else if(state == States::SMain)
     {
         styleData.update(mFT);
         backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
@@ -1027,21 +1054,21 @@ void MenuGame::update(ssvu::FT mFT)
             Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
         }
     }
-    else if(state == s::SLogging)
+    else if(state == States::SLogging)
     {
         if(Online::getLoginStatus() == ols::Logged)
         {
-            state = Online::getNewUserReg() ? s::ETEmail : s::SMain;
+            state = Online::getNewUserReg() ? States::ETEmail : States::SMain;
         }
         else if(Online::getLoginStatus() == ols::Unlogged)
         {
-            state = s::MWlcm;
+            state = States::MWlcm;
         }
     }
 
-    if(state == s::ETEmail && !Online::getNewUserReg())
+    if(state == States::ETEmail && !Online::getNewUserReg())
     {
-        state = s::SMain;
+        state = States::SMain;
     }
 
     enteredChars.clear();
@@ -1050,16 +1077,17 @@ void MenuGame::update(ssvu::FT mFT)
 void MenuGame::draw()
 {
     styleData.computeColors();
-    window.clear(state != s::SMain ? Color::Black : styleData.getColors()[0]);
+    window.clear(
+        state != States::SMain ? Color::Black : styleData.getColors()[0]);
 
     backgroundCamera.apply();
-    if(state == s::SMain)
+    if(state == States::SMain)
     {
         styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus);
     }
 
     overlayCamera.apply();
-    if(state == s::SMain)
+    if(state == States::SMain)
     {
         drawLevelSelection();
         render(bottomBar);
@@ -1068,17 +1096,23 @@ void MenuGame::draw()
     {
         drawEnteringText();
     }
-    else if(state == s::SLPSelect)
+    else if(state == States::SLPSelect)
     {
         drawProfileSelection();
     }
-    else if(state == s::MOpts)
+    else if(state == States::MOpts)
     {
         drawOptions();
     }
-    else if(state == s::MWlcm)
+    else if(state == States::MWlcm)
     {
         drawWelcome();
+    }
+    else if(state == States::EpilepsyWarning)
+    {
+        render(epilepsyWarning);
+        renderText("press any key to continue", txtProf, {20, 768 - 35});
+        return;
     }
 
     render(titleBar);
@@ -1253,11 +1287,11 @@ void MenuGame::drawEnteringText()
     string title;
     switch(state)
     {
-        case s::ETUser: title = "insert username"; break;
-        case s::ETPass: title = "insert password"; break;
-        case s::ETEmail: title = "insert email"; break;
-        case s::ETFriend: title = "add friend"; break;
-        case s::ETLPNew: title = "create local profile"; break;
+        case States::ETUser: title = "insert username"; break;
+        case States::ETPass: title = "insert password"; break;
+        case States::ETEmail: title = "insert email"; break;
+        case States::ETFriend: title = "add friend"; break;
+        case States::ETLPNew: title = "create local profile"; break;
         default: throw;
     }
 
@@ -1265,8 +1299,9 @@ void MenuGame::drawEnteringText()
     renderText("insert text", txtProf, {20, 768 - 375});
     renderText("press enter when done", txtProf, {20, 768 - 335});
     renderText("keep esc pressed to exit", txtProf, {20, 768 - 315});
-    renderText(state == s::ETPass ? string(enteredStr.size(), '*') : enteredStr,
-        txtLName, {20, 768 - 245 - 40}, (state == s::ETEmail) ? 32 : 65);
+    renderText(
+        state == States::ETPass ? string(enteredStr.size(), '*') : enteredStr,
+        txtLName, {20, 768 - 245 - 40}, (state == States::ETEmail) ? 32 : 65);
 }
 void MenuGame::drawProfileSelection()
 {
