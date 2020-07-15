@@ -54,7 +54,7 @@ function onLoad()
 	m_messageAddImportant("well done!", 130)
 	m_messageAddImportant("now play some real levels!", 138)
 
-	e_eventWaitUntilS(45)
+	e_eventWaitUntilS(44) -- not 45, to avoid level up
 	u_eventKill()
 end
 
