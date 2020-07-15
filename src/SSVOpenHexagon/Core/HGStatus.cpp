@@ -50,12 +50,18 @@ void HexagonGameStatus::start() noexcept
 [[nodiscard]] HexagonGameStatus::TimePoint
 HexagonGameStatus::getCurrentTP() noexcept
 {
+    return HexagonGameStatus::TimePoint{std::chrono::milliseconds{
+        (int64_t)(getTotalAccumulatedFrametimeInSeconds() * 1000.0)}};
+
     return currentTp;
 }
 
 [[nodiscard]] HexagonGameStatus::TimePoint
 HexagonGameStatus::getTimeTP() noexcept
 {
+    return HexagonGameStatus::TimePoint{std::chrono::milliseconds{
+        (int64_t)(getPlayedAccumulatedFrametimeInSeconds() * 1000.0)}};
+
     // If we are paused, do not count passing time as significant:
     return isTimePaused() ? lastTimerPauseTp : currentTp;
 }
@@ -63,6 +69,8 @@ HexagonGameStatus::getTimeTP() noexcept
 [[nodiscard]] HexagonGameStatus::TimePoint
 HexagonGameStatus::getLevelStartTP() noexcept
 {
+    return HexagonGameStatus::TimePoint{};
+
     // If we are paused, do not count passing time as significant:
     return levelStartTp;
 }
@@ -74,6 +82,8 @@ HexagonGameStatus::getLevelStartTP() noexcept
 
 void HexagonGameStatus::pauseTime(const double seconds) noexcept
 {
+    currentPause += seconds * 60.0;
+
     const auto ms =
         std::chrono::milliseconds(static_cast<int>(seconds * 1000.0));
 
@@ -113,6 +123,64 @@ void HexagonGameStatus::updateTime() noexcept
         lastTimerPauseTp = levelStartTp;
         pauseDuration = std::chrono::milliseconds{0};
     }
+}
+
+void HexagonGameStatus::accumulateFrametime(const double ft) noexcept
+{
+    totalFrametimeAccumulator += ft;
+
+    // double pauseRemainder = 0.0;
+    if(currentPause > 0.0)
+    {
+        currentPause -= ft;
+        // if(currentPause < 0.0)
+        // {
+        //     pauseRemainder = -currentPause;
+        // }
+    }
+
+    // if(currentPause <= 0.0)
+    else
+    {
+        playedFrametimeAccumulator += ft;
+        // playedFrametimeAccumulator += pauseRemainder;
+    }
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getTotalAccumulatedFrametime() const noexcept
+{
+    return totalFrametimeAccumulator;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getTotalAccumulatedFrametimeInSeconds() const noexcept
+{
+    return getTotalAccumulatedFrametime() / 60.0;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getPlayedAccumulatedFrametime() const noexcept
+{
+    return playedFrametimeAccumulator;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getPlayedAccumulatedFrametimeInSeconds() const noexcept
+{
+    return getPlayedAccumulatedFrametime() / 60.0;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getPausedAccumulatedFrametime() const noexcept
+{
+    return pausedFrametimeAccumulator;
+}
+
+[[nodiscard]] double
+HexagonGameStatus::getPausedAccumulatedFrametimeInSeconds() const noexcept
+{
+    return getPausedAccumulatedFrametime() / 60.0;
 }
 
 } // namespace hg
