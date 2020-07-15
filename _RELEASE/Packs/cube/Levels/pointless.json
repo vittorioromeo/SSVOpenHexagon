@@ -8,5 +8,5 @@
 	"styleId": "pointless",
 	"musicId": "jackRussel",
 	"luaFile": "Scripts/Levels/pointless.lua",
-	"difficultyMults": [1.5, 2, 2.5, 3, 0.5, 4]
+	"difficultyMults": [1.5, 2, 2.5, 3, 0.5, 4, 5, 6]
 }

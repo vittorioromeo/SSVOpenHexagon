@@ -10,7 +10,10 @@ function addPattern(mKey)
 	elseif mKey == 2 then pInverseBarrage(0)
 	elseif mKey == 3 then pTunnel(math.random(1, 3))
 	elseif mKey == 4 then pMirrorWallStrip(1, 0)
-	elseif mKey == 5 then pWallExVortex(0, math.random(1, 2), 1)
+	elseif mKey == 5 then 
+		if l_getSides() > 5 then
+			pWallExVortex(0, math.random(1, 2), 1)
+		end
 	elseif mKey == 6 then pDMBarrageSpiral(math.random(4, 7), 0.4, 1)
 	elseif mKey == 7 then pRandomBarrage(math.random(2, 5), 2.25)
 	elseif mKey == 8 then pMirrorSpiralDouble(math.random(4, 6), 0)
@@ -27,13 +30,13 @@ achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-	l_setSpeedMult(3.05)
-	l_setSpeedInc(0.7)
+	l_setSpeedMult(2.9)
+	l_setSpeedInc(0.13)
 	l_setSpeedMax(3.6)
 	l_setRotationSpeed(0.3)
 	l_setRotationSpeedMax(0.9)
 	l_setRotationSpeedInc(0.04)
-	l_setDelayMult(1.07)
+	l_setDelayMult(1.1)
 	l_setDelayInc(0.0)
 	l_setFastSpin(71.0)
 	l_setSides(6)
@@ -50,12 +53,16 @@ function onInit()
 	l_setBeatPulseMax(15)
 	l_setBeatPulseDelayMax(21.8)
 
-	enableSwapIfDMGreaterThan(1)
-	disableIncIfDMGreaterThan(1)
+	enableSwapIfDMGreaterThan(1.25)
+	disableIncIfDMGreaterThan(1.5)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
+	if (u_getDifficultyMult() >= 1.25) then
+		m_messageAddImportant("Difficulty >= 1.25\nPentagon removed!", 120)
+		l_setSidesMin(6)
+	end
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -72,6 +79,14 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
+	enableSwapIfSpeedGEThan(4);
+	if (u_getSpeedMultDM() >= 4.5 and l_getSidesMin() == 5) then
+		m_messageAddImportant("Speed >= 4.5\nPentagon removed!", 120)
+		if (l_getSides() == 5) then
+			l_setSides(6)
+		end
+		l_setSidesMin(6)
+	end
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
