@@ -28,13 +28,13 @@ achievementUnlocked = false
 function onInit()
 	l_setSpeedMult(1.74)
 	l_setSpeedInc(0.18)
-	l_setSpeedMax(3.0)
+	l_setSpeedMax(6.0)
 	l_setRotationSpeed(0.13)
-	l_setRotationSpeedMax(0.7)
+	l_setRotationSpeedMax(1.5)
 	l_setRotationSpeedInc(0.04)
 	l_setDelayMult(1.0)
-	l_setDelayInc(-0.03)
-	l_setDelayMin(0.82)
+	l_setDelayInc(0.0075)
+	l_setDelayMax(1.165)
 	l_setFastSpin(0.0)
 	l_setSides(6)
 	l_setSidesMin(5)
@@ -50,8 +50,8 @@ function onInit()
 	l_setBeatPulseMax(17)
 	l_setBeatPulseDelayMax(23.8)
 
-	enableSwapIfDMGreaterThan(2)
-	disableIncIfDMGreaterThan(2.5)
+	enableSwapIfDMGreaterThan(4)
+	disableIncIfDMGreaterThan(5)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -72,6 +72,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
+	enableSwapIfSpeedGEThan(5);
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
