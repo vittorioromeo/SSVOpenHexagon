@@ -183,6 +183,10 @@ void HexagonGame::updateText()
     if(Config::getDebug())
     {
         os << "DEBUG MODE\n";
+        os << toStr(
+                  std::floor(status.getPlayedAccumulatedFrametimeInSeconds() * 1000) /
+                  1000.f)
+           << '\n';
     }
 
     if(status.started)

@@ -35,6 +35,12 @@ private:
     // Duration of the current timer pause
     std::chrono::milliseconds pauseDuration{100};
 
+    // Frametime accumulators
+    double totalFrametimeAccumulator{};  // Total time (including pauses)
+    double playedFrametimeAccumulator{}; // Played time (no pauses)
+    double pausedFrametimeAccumulator{}; // Paused time (only pauses)
+    double currentPause{};               // Current pause time
+
 public:
     float pulse{75};
     float pulseDirection{1};
@@ -82,6 +88,29 @@ public:
 
     // Update the timer (called every frame)
     void updateTime() noexcept;
+
+    // Accumulate the time spent in a frame into the total
+    void accumulateFrametime(const double ft) noexcept;
+
+    // Get total accumulated frametime
+    [[nodiscard]] double getTotalAccumulatedFrametime() const noexcept;
+
+    // Get total accumulated frametime, in seconds
+    [[nodiscard]] double getTotalAccumulatedFrametimeInSeconds() const noexcept;
+
+    // Get played accumulated frametime
+    [[nodiscard]] double getPlayedAccumulatedFrametime() const noexcept;
+
+    // Get played accumulated frametime, in seconds
+    [[nodiscard]] double
+    getPlayedAccumulatedFrametimeInSeconds() const noexcept;
+
+    // Get paused accumulated frametime
+    [[nodiscard]] double getPausedAccumulatedFrametime() const noexcept;
+
+    // Get paused accumulated frametime, in seconds
+    [[nodiscard]] double
+    getPausedAccumulatedFrametimeInSeconds() const noexcept;
 };
 
 } // namespace hg
