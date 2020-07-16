@@ -96,7 +96,7 @@ struct LevelStatus
     bool incEnabled{true};
     bool rndSideChangesEnabled{true};
     bool darkenUnevenBackgroundChunk{true};
-    
+
 
     std::size_t currentIncrements{0u};
 
