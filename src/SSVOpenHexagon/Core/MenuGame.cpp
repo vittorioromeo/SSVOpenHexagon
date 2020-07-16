@@ -261,6 +261,12 @@ void MenuGame::initMenus()
         "text scaling", &Config::getTextScaling,
         [this](float mValue) { Config::setTextScaling(mValue); }, 0.1f, 4.f,
         0.05f);
+    gfx.create<i::Toggle>(
+        "show key icons", &Config::getShowKeyIcons, &Config::setShowKeyIcons);
+    gfx.create<i::Slider>(
+        "key icons scaling", &Config::getKeyIconsScale,
+        [this](float mValue) { Config::setKeyIconsScale(mValue); }, 0.1f, 4.f,
+        0.05f);
     gfx.create<i::GoBack>("back");
 
     sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);
@@ -658,7 +664,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("l_getSides", [this] { return levelStatus.sides; });
 
-    mLua.writeVariable("l_set3dRequired", [this](bool mValue) { levelStatus._3DRequired = mValue; });
+    mLua.writeVariable("l_set3dRequired",
+        [this](bool mValue) { levelStatus._3DRequired = mValue; });
 
     mLua.writeVariable("s_setPulseInc",
         [this](float mValue) { styleData.pulseIncrement = mValue; });
@@ -679,20 +686,21 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setBeatPulseDelayMax", "l_setWallSkewLeft", "l_setWallSkewRight",
             "l_setWallAngleLeft", "l_setWallAngleRight", "l_setRadiusMin",
             "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
-            "l_get3dRequired", "l_enableRndSideChanges", "l_darkenUnevenBackgroundChunk",
-            "l_getSpeedMult", "l_getDelayMult", "l_addTracked", "u_playSound",
-            "u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
-            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
-            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setMusic",
-            "u_setMusicSegment", "u_setMusicSeconds", "m_messageAdd",
-            "m_messageAddImportant", "m_clearMessages", "t_wait", "t_waitS",
-            "t_waitUntilS", "e_eventStopTime", "e_eventStopTimeS",
-            "e_eventWait", "e_eventWaitS", "e_eventWaitUntilS", "w_wall",
-            "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
-            "w_wallHModCurveData", "l_setDelayMult", "s_setStyle", "u_setMusic",
-            "l_getRotation", "l_setRotation", "s_getCameraShake",
-            "s_setCameraShake", "l_getOfficial", "steam_unlockAchievement",
-            "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
+            "l_get3dRequired", "l_enableRndSideChanges",
+            "l_darkenUnevenBackgroundChunk", "l_getSpeedMult", "l_getDelayMult",
+            "l_addTracked", "u_playSound", "u_isKeyPressed",
+            "u_isMouseButtonPressed", "u_isFastSpinning", "u_setPlayerAngle",
+            "u_forceIncrement", "u_kill", "u_eventKill", "u_haltTime",
+            "u_timelineWait", "u_clearWalls", "u_setMusic", "u_setMusicSegment",
+            "u_setMusicSeconds", "m_messageAdd", "m_messageAddImportant",
+            "m_clearMessages", "t_wait", "t_waitS", "t_waitUntilS",
+            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
+            "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
+            "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
+            "l_setDelayMult", "s_setStyle", "u_setMusic", "l_getRotation",
+            "l_setRotation", "s_getCameraShake", "s_setCameraShake",
+            "l_getOfficial", "steam_unlockAchievement", "cw_create",
+            "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
             "cw_isOverlappingPlayer", "cw_clear"})
     {
         mLua.writeVariable(un, [] {});
@@ -1336,7 +1344,7 @@ void MenuGame::drawMenu(const Menu& mMenu)
         if(i != 0 && i % 21 == 0)
         {
             currentY = 0;
-            currentX += 180;
+            currentX += 280;
         }
         string name;
         string itemName{currentItems[i]->getName()};
