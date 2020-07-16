@@ -669,12 +669,21 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("s_setPulseInc",
         [this](float mValue) { styleData.pulseIncrement = mValue; });
+    
+    mLua.writeVariable("s_setPulseIncrement",
+        [this](float mValue) { styleData.pulseIncrement = mValue; });
 
     mLua.writeVariable("s_setHueInc",
+        [this](float mValue) { styleData.hueIncrement = mValue; });
+    
+    mLua.writeVariable("s_setHueIncrement",
         [this](float mValue) { styleData.hueIncrement = mValue; });
 
     mLua.writeVariable(
         "s_getHueInc", [this] { return styleData.hueIncrement; });
+
+    mLua.writeVariable(
+        "s_getHueIncrement", [this] { return styleData.hueIncrement; });
 
     // Unused functions
     for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax",
@@ -686,20 +695,39 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setBeatPulseDelayMax", "l_setWallSkewLeft", "l_setWallSkewRight",
             "l_setWallAngleLeft", "l_setWallAngleRight", "l_setRadiusMin",
             "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
-            "l_get3dRequired", "l_enableRndSideChanges",
-            "l_darkenUnevenBackgroundChunk", "l_getSpeedMult", "l_getDelayMult",
-            "l_addTracked", "u_playSound", "u_isKeyPressed",
-            "u_isMouseButtonPressed", "u_isFastSpinning", "u_setPlayerAngle",
-            "u_forceIncrement", "u_kill", "u_eventKill", "u_haltTime",
-            "u_timelineWait", "u_clearWalls", "u_setMusic", "u_setMusicSegment",
-            "u_setMusicSeconds", "m_messageAdd", "m_messageAddImportant",
-            "m_clearMessages", "t_wait", "t_waitS", "t_waitUntilS",
-            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
-            "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
-            "l_setDelayMult", "s_setStyle", "u_setMusic", "l_getRotation",
-            "l_setRotation", "s_getCameraShake", "s_setCameraShake",
-            "s_setColorOffset", "l_getOfficial", "steam_unlockAchievement",
+            "l_get3dRequired", "l_enableRndSideChanges", "l_darkenUnevenBackgroundChunk",
+            "l_getSpeedMult", "l_getDelayMult", "l_addTracked", "l_getRotation", 
+            "l_setRotation", "l_setDelayMult", "l_getOfficial",
+            
+            "u_playSound", "u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
+            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setMusic",
+            "u_setMusicSegment", "u_setMusicSeconds",
+            
+            "m_messageAdd", "m_messageAddImportant", "m_clearMessages", 
+            
+            "t_wait", "t_waitS", "t_waitUntilS", 
+            
+            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait", "e_eventWaitS", 
+            "e_eventWaitUntilS", 
+            
+            "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
+            "w_wallHModCurveData",  
+
+            "s_getCameraShake","s_setCameraShake", "s_setStyle", "s_getHueMin",
+            "s_setHueMin", "s_getHueMax", "s_setHueMax", "s_getPulseMin", "s_setPulseMin",
+            "s_getPulseMax", "s_setPulseMax", "s_getPulseInc", "s_getPulseIncrement",
+            "s_getHuePingPing", "s_setHuePingPong", "s_getMaxSwapTime", "s_setMaxSwapTime",
+            "s_get3dDepth", "s_set3dDepth", "s_get3dSkew", "s_set3dSkew", "s_get3dSpacing",
+            "s_set3dSpacing", "s_get3dDarkenMult", "s_set3dDarkenMult", "s_get3dAlphaMult",
+            "s_set3dAlphaMult", "s_get3dAlphaFalloff", "s_set3dAlphaFalloff",
+            "s_get3dPulseMax", "s_set3dPulseMax", "s_get3dPulseMin", "s_set3dPulseMin", 
+            "s_get3dPulseSpeed", "s_set3dPulseSpeed", "s_get3dPerspectiveMult",
+            "s_set3dPerspectiveMult", "s_setCapColorMain", "s_setCapColorMainDarkened",
+            "s_setCapColorByIndex", "s_setBGColorOffset", "s_getBGColorOffset"
+
+            "steam_unlockAchievement",
+
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
             "cw_isOverlappingPlayer", "cw_clear"})
     {

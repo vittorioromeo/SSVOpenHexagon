@@ -141,16 +141,19 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     assets.stopSounds();
     stopLevelMusic();
     // assets.playSound("go.ogg");
-    playLevelMusic();
-    assets.musicPlayer.pause();
-
-    auto* current(assets.getMusicPlayer().getCurrent());
-    if(current != nullptr)
+    if (!Config::getNoMusic())
     {
-        current->setPitch(
-            (Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f) *
-            Config::getMusicSpeedMult());
-    }
+        playLevelMusic();
+        assets.musicPlayer.pause();
+	
+		auto* current(assets.getMusicPlayer().getCurrent());
+		if(current != nullptr)
+		{
+			current->setPitch(
+				(Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f) *
+				Config::getMusicSpeedMult());
+		}
+	}
 
     // Events cleanup
     messageText.setString("");
@@ -255,7 +258,7 @@ void HexagonGame::incrementDifficulty()
     levelStatus.rotationSpeed *= -1.f;
 
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
-    if(status.fastSpin < 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
+    if(abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed = rotationSpeedMax * signMult;
     }
