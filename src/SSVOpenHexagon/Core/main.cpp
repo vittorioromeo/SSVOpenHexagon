@@ -84,6 +84,7 @@ int main(int argc, char* argv[])
     window.setSize(hg::Config::getWidth(), hg::Config::getHeight());
     window.setPixelMult(hg::Config::getPixelMultiplier());
     window.setFullscreen(hg::Config::getFullscreen());
+    window.setAntialiasingLevel(hg::Config::getAntialiasingLevel());
     window.setVsync(hg::Config::getVsync());
     window.setFPSLimited(hg::Config::getLimitFPS());
     window.setMaxFPS(hg::Config::getMaxFPS());
