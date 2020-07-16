@@ -152,6 +152,10 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Return the current delay multiplier, adjusted for the chosen "
             "difficulty multiplier.");
+
+    addLuaFn("u_swapPlayer", //
+        [this] { player.swap(*this, false); })
+        .doc("Force swaps player on call.");
 }
 
 void HexagonGame::initLua_Messages()
@@ -449,7 +453,9 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPulseMin", &StyleData::_3dPulseMin);
     sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed);
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
+    sdVar("BGTileRadius", &StyleData::bgTileRadius);
     sdVar("BGColorOffset", &StyleData::BGColorOffset);
+    sdVar("BGRotationOffset", &StyleData::BGRotOff);
 
     addLuaFn("s_setStyle", //
         [this](std::string mId) {

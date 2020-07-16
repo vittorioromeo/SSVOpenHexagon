@@ -142,7 +142,7 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
     const auto sides = levelStatus.sides;
 
     float div{ssvu::tau / sides * 1.0001f};
-    float distance{4500};
+    float distance{bgTileRadius};
 
     static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
 
@@ -153,7 +153,7 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
 
     for(auto i(0u); i < sides; ++i)
     {
-        const float angle{div * i};
+        const float angle{ssvu::toRad(BGRotOff) + div * i};
         sf::Color currentColor{ssvu::getByModIdx(colors, i)};
 
         const bool darkenUnevenBackgroundChunk =
