@@ -152,6 +152,10 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Return the current delay multiplier, adjusted for the chosen "
             "difficulty multiplier.");
+
+    addLuaFn("u_swapPlayer", //
+        [this] { player.swap(*this, false); })
+        .doc("Force swaps player on call.");
 }
 
 void HexagonGame::initLua_Messages()

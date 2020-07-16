@@ -44,6 +44,7 @@ public:
 
     [[nodiscard]] float getPlayerAngle() const;
     void setPlayerAngle(const float newAng);
+    void swap(HexagonGame& mHexagonGame, bool mSoundTog);
 
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
