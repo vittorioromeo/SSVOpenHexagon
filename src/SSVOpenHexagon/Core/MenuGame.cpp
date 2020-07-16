@@ -711,13 +711,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "t_wait", "t_waitS", "t_waitUntilS",
 
             "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
-            "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
-            "l_setDelayMult", "s_setStyle", "u_setMusic", "l_getRotation",
-            "l_setRotation", "s_getCameraShake", "s_setCameraShake", "s_setColorOffset",
-            "s_setBGRotOff", "s_getBGRotOff",
-            "l_getOfficial", "steam_unlockAchievement", "cw_create",
-            "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
+
             "e_eventWaitS", "e_eventWaitUntilS",
 
             "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
@@ -736,12 +730,13 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "s_set3dPulseSpeed", "s_get3dPerspectiveMult",
             "s_set3dPerspectiveMult", "s_setCapColorMain",
             "s_setCapColorMainDarkened", "s_setCapColorByIndex",
-            "s_setBGColorOffset",
-            "s_getBGColorOffset"
-
+            "s_setBGColorOffset", "s_getBGColorOffset",
+            "s_setBGTileRadius", "s_getBGTileRadius",
+            "s_setBGRotOff", "s_getBGRotOff",
             "steam_unlockAchievement",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
+                          
             "cw_isOverlappingPlayer", "cw_clear"})
     {
         mLua.writeVariable(un, [] {});
