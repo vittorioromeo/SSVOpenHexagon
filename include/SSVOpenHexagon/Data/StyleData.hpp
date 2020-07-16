@@ -46,7 +46,9 @@ public:
     float _3dPulseMin;
     float _3dPulseSpeed;
     float _3dPerspectiveMult;
+    float bgTileRadius{4500.f};
     unsigned int BGColorOffset{0};
+
     sf::Color _3dOverrideColor;
     ColorData mainColorData;
     CapColor capColor;
