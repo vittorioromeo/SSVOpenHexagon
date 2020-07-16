@@ -198,7 +198,7 @@ void HexagonGame::incrementDifficulty()
     levelStatus.rotationSpeed *= -1.f;
 
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
-    if(status.fastSpin < 0 && abs(levelStatus.rotationSpeed) > rotationSpeedMax)
+    if(abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed = rotationSpeedMax * signMult;
     }
