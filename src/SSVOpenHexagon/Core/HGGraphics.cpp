@@ -20,7 +20,7 @@ namespace hg
 
 void HexagonGame::draw()
 {
-    styleData.computeColors();
+    styleData.computeColors(levelStatus);
 
     window.clear(Color::Black);
 
@@ -141,6 +141,11 @@ void HexagonGame::draw()
     overlayCamera.apply();
     drawText();
 
+    if(Config::getShowKeyIcons())
+    {
+        drawKeyIcons();
+    }
+
     if(Config::getFlash())
     {
         render(flashPolygon);
@@ -165,6 +170,27 @@ void HexagonGame::initFlashEffect()
         Color{255, 255, 255, 0});
     flashPolygon.emplace_back(sf::Vector2f{-100.f, Config::getHeight() + 100.f},
         Color{255, 255, 255, 0});
+}
+
+void HexagonGame::drawKeyIcons()
+{
+    constexpr sf::Uint8 offOpacity = 90;
+    constexpr sf::Uint8 onOpacity = 255;
+
+    const sf::Color c = getColorMain();
+
+    const sf::Color offColor{c.r, c.g, c.b, offOpacity};
+    const sf::Color onColor{c.r, c.g, c.b, onOpacity};
+
+    keyIconLeft.setColor((inputMovement == -1) ? onColor : offColor);
+    keyIconRight.setColor((inputMovement == 1) ? onColor : offColor);
+    keyIconFocus.setColor(inputFocused ? onColor : offColor);
+    keyIconSwap.setColor(inputSwap ? onColor : offColor);
+
+    render(keyIconLeft);
+    render(keyIconRight);
+    render(keyIconFocus);
+    render(keyIconSwap);
 }
 
 void HexagonGame::updateText()
@@ -199,9 +225,7 @@ void HexagonGame::updateText()
 
         if(status.scoreInvalid)
         {
-            os << "SCORE INVALIDATED ("
-               << status.invalidReason
-               << ")\n";
+            os << "SCORE INVALIDATED (" << status.invalidReason << ")\n";
         }
 
         if(status.hasDied)

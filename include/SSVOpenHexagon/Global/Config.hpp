@@ -67,6 +67,8 @@ void setJoystickDeadzone(float mX);
 void setTextPadding(float mX);
 void setTextScaling(float mX);
 void setTimescale(float mX);
+void setShowKeyIcons(bool mX);
+void setKeyIconsScale(float mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -128,6 +130,8 @@ void setTimescale(float mX);
 [[nodiscard]] float getTextPadding();
 [[nodiscard]] float getTextScaling();
 [[nodiscard]] float getTimescale();
+[[nodiscard]] bool getShowKeyIcons();
+[[nodiscard]] float getKeyIconsScale();
 
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();
