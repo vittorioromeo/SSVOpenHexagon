@@ -20,7 +20,7 @@ namespace hg
 
 void HexagonGame::draw()
 {
-    styleData.computeColors();
+    styleData.computeColors(levelStatus);
 
     window.clear(Color::Black);
 
