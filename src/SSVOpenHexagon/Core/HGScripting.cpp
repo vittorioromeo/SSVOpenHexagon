@@ -453,7 +453,7 @@ void HexagonGame::initLua_StyleControl()
     addLuaFn("s_setColorOffset",
         [this](int mValue) {styleData.BGColorOffset = mValue;})
         .arg("value")
-        .doc("Offsets the colors of the background tiles.");
+        .doc("Offsets the colors of the background tiles by `$0`.");
 
     addLuaFn("s_setStyle", //
         [this](std::string mId) {
