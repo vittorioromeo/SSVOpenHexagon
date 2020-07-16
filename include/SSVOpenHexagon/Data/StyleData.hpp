@@ -122,7 +122,7 @@ public:
 
     const sf::Color& getColor(int mIdx) const noexcept
     {
-        return currentColors[ssvu::getMod(mIdx, currentColors.size())];
+        return ssvu::getByModIdx(currentColors, mIdx);
     }
 
     float getCurrentHue() const noexcept
