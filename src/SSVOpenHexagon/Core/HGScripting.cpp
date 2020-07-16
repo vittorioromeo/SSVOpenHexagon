@@ -453,11 +453,6 @@ void HexagonGame::initLua_StyleControl()
     sdVar("BGColorOffset", &StyleData::BGColorOffset);
     sdVar("BGRotationOffset", &StyleData::BGRotOff);
 
-    addLuaFn("s_setColorOffset",
-        [this](int mValue) {styleData.BGColorOffset = mValue;})
-        .arg("value")
-        .doc("Offsets the colors of the background tiles by `$0`.");
-
     addLuaFn("s_setStyle", //
         [this](std::string mId) {
             styleData = assets.getStyleData(levelData->packId, mId);
