@@ -691,6 +691,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
             "w_wallHModCurveData", "l_setDelayMult", "s_setStyle", "u_setMusic",
             "l_getRotation", "l_setRotation", "s_getCameraShake",
+            "s_setBGTileRadius", "s_getBGTileRadius",
             "s_setCameraShake", "l_getOfficial", "steam_unlockAchievement",
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
             "cw_isOverlappingPlayer", "cw_clear"})

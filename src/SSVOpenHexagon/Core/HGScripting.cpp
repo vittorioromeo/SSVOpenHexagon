@@ -449,6 +449,7 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPulseMin", &StyleData::_3dPulseMin);
     sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed);
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
+    sdVar("BGTileRadius", &StyleData::bgTileRadius);
 
     addLuaFn("s_setStyle", //
         [this](std::string mId) {
