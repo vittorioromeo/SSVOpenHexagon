@@ -141,19 +141,20 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     assets.stopSounds();
     stopLevelMusic();
     // assets.playSound("go.ogg");
-    if (!Config::getNoMusic())
+    if(!Config::getNoMusic())
     {
         playLevelMusic();
         assets.musicPlayer.pause();
-	
-		auto* current(assets.getMusicPlayer().getCurrent());
-		if(current != nullptr)
-		{
-			current->setPitch(
-				(Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f) : 1.f) *
-				Config::getMusicSpeedMult());
-		}
-	}
+
+        auto* current(assets.getMusicPlayer().getCurrent());
+        if(current != nullptr)
+        {
+            current->setPitch(
+                (Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f)
+                                               : 1.f) *
+                Config::getMusicSpeedMult());
+        }
+    }
 
     // Events cleanup
     messageText.setString("");
