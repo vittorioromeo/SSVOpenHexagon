@@ -1082,7 +1082,7 @@ void MenuGame::update(ssvu::FT mFT)
 
 void MenuGame::draw()
 {
-    styleData.computeColors();
+    styleData.computeColors(levelStatus);
     window.clear(
         state != States::SMain ? Color::Black : styleData.getColors()[0]);
 

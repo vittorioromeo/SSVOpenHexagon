@@ -111,7 +111,7 @@ void StyleData::update(ssvu::FT mFT, float mMult)
     }
 }
 
-void StyleData::computeColors()
+void StyleData::computeColors(const LevelStatus& levelStatus)
 {
     currentMainColor = calculateColor(mainColorData);
 
@@ -127,8 +127,9 @@ void StyleData::computeColors()
 
     if(currentColors.size() > 1)
     {
+        const auto rotation = begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f);
         ssvu::rotate(currentColors,
-            begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f));
+                     rotation + (levelStatus.sides+(BGColorOffset % levelStatus.sides)) % levelStatus.sides);
     }
 }
 
