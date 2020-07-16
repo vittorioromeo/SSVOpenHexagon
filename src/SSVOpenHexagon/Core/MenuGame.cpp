@@ -724,7 +724,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "s_get3dPulseMax", "s_set3dPulseMax", "s_get3dPulseMin", "s_set3dPulseMin", 
             "s_get3dPulseSpeed", "s_set3dPulseSpeed", "s_get3dPerspectiveMult",
             "s_set3dPerspectiveMult", "s_setCapColorMain", "s_setCapColorMainDarkened",
-            "s_setCapColorByIndex",
+            "s_setCapColorByIndex", "s_setBGColorOffset", "s_getBGColorOffset"
 
             "steam_unlockAchievement",
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
@@ -1117,7 +1117,7 @@ void MenuGame::update(ssvu::FT mFT)
 
 void MenuGame::draw()
 {
-    styleData.computeColors();
+    styleData.computeColors(levelStatus);
     window.clear(
         state != States::SMain ? Color::Black : styleData.getColors()[0]);
 
