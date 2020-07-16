@@ -154,8 +154,10 @@ void HexagonGame::initLua_Utils()
             "difficulty multiplier.");
 
     addLuaFn("u_swapPlayer", //
-        [this] { player.swap(*this, false); })
-        .doc("Force swaps player on call.");
+        [this](bool mPlaySound) { player.playerSwap(*this, mPlaySound); })
+        .doc(
+            "Force-swaps (180 degrees) the player when invoked. If `$0` is "
+            "`true`, the swap sound will be played.");
 }
 
 void HexagonGame::initLua_Messages()
