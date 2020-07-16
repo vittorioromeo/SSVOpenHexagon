@@ -261,6 +261,12 @@ void MenuGame::initMenus()
         "text scaling", &Config::getTextScaling,
         [this](float mValue) { Config::setTextScaling(mValue); }, 0.1f, 4.f,
         0.05f);
+    gfx.create<i::Toggle>(
+        "show key icons", &Config::getShowKeyIcons, &Config::setShowKeyIcons);
+    gfx.create<i::Slider>(
+        "key icons scaling", &Config::getKeyIconsScale,
+        [this](float mValue) { Config::setKeyIconsScale(mValue); }, 0.1f, 4.f,
+        0.05f);
     gfx.create<i::GoBack>("back");
 
     sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);
@@ -658,7 +664,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("l_getSides", [this] { return levelStatus.sides; });
 
-    mLua.writeVariable("l_set3dRequired", [this](bool mValue) { levelStatus._3DRequired = mValue; });
+    mLua.writeVariable("l_set3dRequired",
+        [this](bool mValue) { levelStatus._3DRequired = mValue; });
 
     mLua.writeVariable("s_setPulseInc",
         [this](float mValue) { styleData.pulseIncrement = mValue; });
@@ -1364,7 +1371,7 @@ void MenuGame::drawMenu(const Menu& mMenu)
         if(i != 0 && i % 21 == 0)
         {
             currentY = 0;
-            currentX += 180;
+            currentX += 280;
         }
         string name;
         string itemName{currentItems[i]->getName()};

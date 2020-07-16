@@ -128,6 +128,8 @@ void HexagonGame::update(ssvu::FT mFT)
         }
     }
 
+    updateKeyIcons();
+
     // Joystick support
     if(hg::Joystick::selectRisingEdge())
     {
@@ -222,7 +224,10 @@ void HexagonGame::update(ssvu::FT mFT)
             fpsWatcher.isLimitReached())
         {
             invalidateScore("PERFORMANCE ISSUES");
-        } else if (!status.scoreInvalid && !Config::get3D() && levelStatus._3DRequired) {
+        }
+        else if(!status.scoreInvalid && !Config::get3D() &&
+                levelStatus._3DRequired)
+        {
             invalidateScore("3D REQUIRED");
         }
         fpsWatcher.update();

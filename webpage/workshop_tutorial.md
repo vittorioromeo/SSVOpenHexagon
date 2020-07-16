@@ -91,6 +91,8 @@ Finally, you can write `2` and press *enter* to add a preview image to your work
 
 ## Lua Reference {#lua-reference}
 
+<!-- TODO: Add callbacks. -->
+
 <!-- Generated from Open Hexagon v2.01. -->
 
 * **`void u_log(string message)`**: Print out `message` to the console.
