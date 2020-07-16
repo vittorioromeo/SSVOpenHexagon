@@ -698,7 +698,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "e_eventWaitS", "e_eventWaitUntilS", "w_wall", "w_wallAdj",
             "w_wallAcc", "w_wallHModSpeedData", "w_wallHModCurveData",
             "l_setDelayMult", "s_setStyle", "u_setMusic", "l_getRotation",
-            "l_setRotation", "s_getCameraShake", "s_setCameraShake",
+            "l_setRotation", "s_getCameraShake", "s_setCameraShake", "s_setColorOffset",
             "l_getOfficial", "steam_unlockAchievement", "cw_create",
             "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
             "cw_isOverlappingPlayer", "cw_clear"})
@@ -1090,7 +1090,7 @@ void MenuGame::update(ssvu::FT mFT)
 
 void MenuGame::draw()
 {
-    styleData.computeColors();
+    styleData.computeColors(levelStatus);
     window.clear(
         state != States::SMain ? Color::Black : styleData.getColors()[0]);
 
