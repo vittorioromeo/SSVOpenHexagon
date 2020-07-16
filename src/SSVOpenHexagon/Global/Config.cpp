@@ -248,8 +248,16 @@ void setFullscreen(GameWindow& mWindow, bool mFullscreen)
 
     mWindow.setSize(getWidth(), getHeight());
     mWindow.setFullscreen(getFullscreen());
-    mWindow.setMouseCursorVisible(Config::getMouseVisible());
-
+    if(getFullscreen())
+    {
+        mWindow.getRenderWindow().setMouseCursorVisible(
+            Config::getMouseVisible());
+    }
+    else
+    {
+        // Ignore the mouse setting if we are windowed.
+        mWindow.getRenderWindow().setMouseCursorVisible(true);
+    }
     recalculateSizes();
 }
 

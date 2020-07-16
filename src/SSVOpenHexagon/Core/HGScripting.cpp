@@ -456,6 +456,8 @@ void HexagonGame::initLua_StyleControl()
         .arg("value")
         .doc("Offsets the colors of the background tiles by `$0`.");
 
+    sdVar("BGColorOffset", &StyleData::BGColorOffset);
+
     addLuaFn("s_setStyle", //
         [this](std::string mId) {
             styleData = assets.getStyleData(levelData->packId, mId);
@@ -495,7 +497,6 @@ void HexagonGame::initLua_StyleControl()
         .doc(
             "Set the color of the center polygon to match the  style "
             "color with index `$0`.");
-
 }
 
 void HexagonGame::initLua_WallCreation()
