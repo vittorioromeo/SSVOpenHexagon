@@ -732,6 +732,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "s_setCapColorMainDarkened", "s_setCapColorByIndex",
             "s_setBGColorOffset", "s_getBGColorOffset",
             "s_setBGTileRadius", "s_getBGTileRadius",
+            "s_setBGRotOff", "s_getBGRotOff",
             "steam_unlockAchievement",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",

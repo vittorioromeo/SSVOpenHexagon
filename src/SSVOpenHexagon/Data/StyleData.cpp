@@ -153,7 +153,7 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
 
     for(auto i(0u); i < sides; ++i)
     {
-        const float angle{div * i};
+        const float angle{ssvu::toRad(BGRotOff) + div * i};
         sf::Color currentColor{ssvu::getByModIdx(colors, i)};
 
         const bool darkenUnevenBackgroundChunk =
