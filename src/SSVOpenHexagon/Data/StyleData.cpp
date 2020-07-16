@@ -9,9 +9,10 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
+#include <SSVUtils/Core/Utils/Math.hpp>
+
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
-
 
 namespace hg
 {
@@ -127,9 +128,11 @@ void StyleData::computeColors(const LevelStatus& levelStatus)
 
     if(currentColors.size() > 1)
     {
-        const auto rotation = begin(currentColors) + currentSwapTime / (maxSwapTime / 2.f);
+        const unsigned int rotation = currentSwapTime / (maxSwapTime / 2.f);
+
         ssvu::rotate(currentColors,
-                     rotation + (levelStatus.sides+(BGColorOffset % levelStatus.sides)) % levelStatus.sides);
+            std::begin(currentColors) +
+                ssvu::getMod(rotation + BGColorOffset, currentColors.size()));
     }
 }
 

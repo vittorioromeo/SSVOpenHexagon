@@ -73,7 +73,8 @@ void HexagonGame::updateKeyIcons()
     const float finalPadding = scaledSize + padding;
     const sf::Vector2f finalPaddingX{finalPadding, 0.f};
 
-    const sf::Vector2f bottomRight{Config::getWidth() - padding - scaledHalfSize,
+    const sf::Vector2f bottomRight{
+        Config::getWidth() - padding - scaledHalfSize,
         Config::getHeight() - padding - scaledHalfSize};
 
     keyIconSwap.setPosition(bottomRight);

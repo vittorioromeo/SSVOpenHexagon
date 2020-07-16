@@ -727,6 +727,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "s_setCapColorByIndex", "s_setBGColorOffset", "s_getBGColorOffset"
 
             "steam_unlockAchievement",
+
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
             "cw_isOverlappingPlayer", "cw_clear"})
     {
