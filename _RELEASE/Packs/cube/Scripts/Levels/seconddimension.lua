@@ -62,7 +62,7 @@ end
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
 	if (u_getDifficultyMult() >= 2.2) then
-		m_messageAddImportant("Difficulty >= 2.2\nPentagon removed!", 120)
+		m_messageAdd("Difficulty >= 2.2\nPentagon removed!", 120)
 		l_setSidesMin(6)
 	end
 	e_eventWaitS(16)
