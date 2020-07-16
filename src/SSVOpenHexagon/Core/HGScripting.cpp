@@ -451,6 +451,7 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
     sdVar("BGTileRadius", &StyleData::bgTileRadius);
     sdVar("BGColorOffset", &StyleData::BGColorOffset);
+    sdVar("BGRotationOffset", &StyleData::BGRotOff);
 
     addLuaFn("s_setStyle", //
         [this](std::string mId) {
