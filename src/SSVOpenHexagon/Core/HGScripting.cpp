@@ -450,7 +450,6 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed);
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
     sdVar("BGTileRadius", &StyleData::bgTileRadius);
-
     sdVar("BGColorOffset", &StyleData::BGColorOffset);
 
     addLuaFn("s_setStyle", //
