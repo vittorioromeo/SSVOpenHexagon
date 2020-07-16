@@ -10,7 +10,7 @@ end
 
 function enableSwapIfSpeedGEThan(mSpeed)
 	if (u_getSpeedMultDM() >= mSpeed and not l_getSwapEnabled()) then
-		m_messageAddImportant("Speed > "..mSpeed.."\nswap enabled!", 120)
+		m_messageAddImportant("Speed >= "..mSpeed.."\nswap enabled!", 120)
 		l_setSwapEnabled(true)
 	end
 end
