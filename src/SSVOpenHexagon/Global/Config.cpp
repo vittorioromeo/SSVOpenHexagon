@@ -75,6 +75,8 @@ using namespace ssvu;
     X(textPadding, float, "text_padding")                                  \
     X(textScaling, float, "text_scaling")                                  \
     X(timescale, float, "timescale")                                       \
+    X(showKeyIcons, bool, "show_key_icons")                                \
+    X(keyIconsScale, float, "key_icons_scale")                             \
     X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
     X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
     X(triggerFocus, Trigger, "t_focus")                                    \
@@ -477,6 +479,16 @@ void setTimescale(float mX)
     timescale() = mX;
 }
 
+void setShowKeyIcons(bool mX)
+{
+    showKeyIcons() = mX;
+}
+
+void setKeyIconsScale(float mX)
+{
+    keyIconsScale() = mX;
+}
+
 bool SSVU_ATTRIBUTE(pure) getOnline()
 {
     return online();
@@ -589,12 +601,12 @@ bool SSVU_ATTRIBUTE(pure) getFullscreen()
 
 float SSVU_ATTRIBUTE(const) getVersion()
 {
-    return 2.01f;
+    return 2.02f;
 }
 
 const char* SSVU_ATTRIBUTE(const) getVersionString()
 {
-    return "2.01";
+    return "2.02";
 }
 
 bool SSVU_ATTRIBUTE(pure) getWindowedAutoResolution()
@@ -770,6 +782,16 @@ float SSVU_ATTRIBUTE(pure) getTextScaling()
 float SSVU_ATTRIBUTE(pure) getTimescale()
 {
     return getOfficial() ? 1.f : timescale();
+}
+
+bool SSVU_ATTRIBUTE(pure) getShowKeyIcons()
+{
+    return showKeyIcons();
+}
+
+float SSVU_ATTRIBUTE(pure) getKeyIconsScale()
+{
+    return keyIconsScale();
 }
 
 Trigger getTriggerRotateCCW()

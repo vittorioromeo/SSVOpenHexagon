@@ -92,6 +92,11 @@ private:
 
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
 
+    sf::Sprite keyIconLeft;
+    sf::Sprite keyIconRight;
+    sf::Sprite keyIconFocus;
+    sf::Sprite keyIconSwap;
+
     bool firstPlay{true};
     bool restartFirstTime{true};
     bool inputFocused{false};
@@ -199,6 +204,7 @@ public:
     }
 
 private:
+    void initKeyIcons();
     void initFlashEffect();
 
     // Update methods
@@ -212,6 +218,7 @@ private:
     void updateFlash(ssvu::FT mFT);
     void update3D(ssvu::FT mFT);
     void updateText();
+    void updateKeyIcons();
 
     // Draw methods
     void draw();
@@ -224,6 +231,7 @@ private:
     void drawText_TimeAndStatus(const sf::Color& offsetColor);
     void drawText_Message(const sf::Color& offsetColor);
     void drawText();
+    void drawKeyIcons();
 
     // Data-related methods
     void setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay);

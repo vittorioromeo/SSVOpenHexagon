@@ -31,6 +31,57 @@ void HexagonGame::createWall(int mSide, float mThickness,
     walls.back().setHueMod(mHueMod);
 }
 
+void HexagonGame::initKeyIcons()
+{
+    for(const auto& t : {"keyArrow.png"
+                         "keyFocus.png"
+                         "keySwap.png"})
+    {
+        assets.get<sf::Texture>(t).setSmooth(true);
+    }
+
+    keyIconLeft.setTexture(assets.get<sf::Texture>("keyArrow.png"));
+    keyIconRight.setTexture(assets.get<sf::Texture>("keyArrow.png"));
+    keyIconFocus.setTexture(assets.get<sf::Texture>("keyFocus.png"));
+    keyIconSwap.setTexture(assets.get<sf::Texture>("keySwap.png"));
+
+    updateKeyIcons();
+}
+
+void HexagonGame::updateKeyIcons()
+{
+    constexpr float halfSize = 32.f;
+    constexpr float size = halfSize * 2.f;
+
+    keyIconLeft.setOrigin({halfSize, halfSize});
+    keyIconRight.setOrigin({halfSize, halfSize});
+    keyIconFocus.setOrigin({halfSize, halfSize});
+    keyIconSwap.setOrigin({halfSize, halfSize});
+
+    keyIconLeft.setRotation(180);
+
+    const float scaling = Config::getKeyIconsScale() / Config::getZoomFactor();
+
+    keyIconLeft.setScale(scaling, scaling);
+    keyIconRight.setScale(scaling, scaling);
+    keyIconFocus.setScale(scaling, scaling);
+    keyIconSwap.setScale(scaling, scaling);
+
+    const float scaledHalfSize = halfSize * scaling;
+    const float scaledSize = size * scaling;
+    const float padding = 8.f * scaling;
+    const float finalPadding = scaledSize + padding;
+    const sf::Vector2f finalPaddingX{finalPadding, 0.f};
+
+    const sf::Vector2f bottomRight{Config::getWidth() - padding - scaledHalfSize,
+        Config::getHeight() - padding - scaledHalfSize};
+
+    keyIconSwap.setPosition(bottomRight);
+    keyIconFocus.setPosition(keyIconSwap.getPosition() - finalPaddingX);
+    keyIconRight.setPosition(keyIconFocus.getPosition() - finalPaddingX);
+    keyIconLeft.setPosition(keyIconRight.getPosition() - finalPaddingX);
+}
+
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     ssvs::GameWindow& mGameWindow)
@@ -44,7 +95,10 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         inputImplBothCWCCW = inputImplCW && inputImplCCW;
     };
     game.onDraw += [this] { draw(); };
-    window.onRecreation += [this] { initFlashEffect(); };
+    window.onRecreation += [this] {
+        initFlashEffect();
+        initKeyIcons();
+    };
 
     add2StateInput(game, Config::getTriggerRotateCW(), inputImplCW);
     add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW);
@@ -69,6 +123,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
         ssvs::Input::Type::Once);
+
+    initKeyIcons();
 }
 
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
@@ -236,7 +292,7 @@ void HexagonGame::checkAndSaveScore()
         return;
     }
 
-    if (status.scoreInvalid)
+    if(status.scoreInvalid)
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
             << "Not saving score - score invalidated\n";
@@ -254,25 +310,26 @@ void HexagonGame::checkAndSaveScore()
     }
     else
     {
-        // These are requirements that need to be met for a score to be sent online
+        // These are requirements that need to be met for a score to be sent
+        // online
         if(time < 8)
         {
             ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - less than 8 seconds\n";
             return;
         }
-		if(Online::getServerVersion() == -1)
-		{
-			ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+        if(Online::getServerVersion() == -1)
+        {
+            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - connection error\n";
-			return;
-		}
-		if(Online::getServerVersion() > Config::getVersion())
-		{
-			ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+            return;
+        }
+        if(Online::getServerVersion() > Config::getVersion())
+        {
+            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - version mismatch\n";
-			return;
-		}
+            return;
+        }
         Online::trySendScore(levelData->id, difficultyMult, time);
     }
 }
@@ -367,9 +424,7 @@ void HexagonGame::invalidateScore(std::string mReason)
     status.scoreInvalid = true;
     status.invalidReason = mReason;
     ssvu::lo("HexagonGame::invalidateScore")
-        << "Invalidating official game ("
-        << mReason
-        << ")\n";
+        << "Invalidating official game (" << mReason << ")\n";
 }
 
 auto HexagonGame::getColorMain() const -> sf::Color

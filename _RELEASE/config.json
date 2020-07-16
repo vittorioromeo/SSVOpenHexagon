@@ -18,6 +18,7 @@
 	"fullscreen_width" : 1920,
 	"invincible" : true,
 	"joystick_deadzone" : 5.0,
+	"key_icons_scale" : 0.50,
 	"limit_fps" : true,
 	"max_fps" : 200,
 	"mouse_visible" : false,
@@ -39,6 +40,7 @@
 	"server_local" : true,
 	"server_verbose" : true,
 	"show_fps" : true,
+	"show_key_icons" : true,
 	"show_messages" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 75.0,
@@ -100,6 +102,6 @@
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 900,
-	"windowed_width" : 1440,
+	"windowed_width" : 1600,
 	"zoom_factor" : 0.8533333539962769
 }
