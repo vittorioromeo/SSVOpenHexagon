@@ -48,7 +48,7 @@ public:
     float _3dPerspectiveMult;
     float bgTileRadius{4500.f};
     unsigned int BGColorOffset{0};
-    float BGRotOff{0};
+    float BGRotOff{0}; // In degrees
 
     sf::Color _3dOverrideColor;
     ColorData mainColorData;
