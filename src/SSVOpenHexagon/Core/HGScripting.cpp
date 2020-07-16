@@ -451,11 +451,6 @@ void HexagonGame::initLua_StyleControl()
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
     sdVar("BGTileRadius", &StyleData::bgTileRadius);
 
-    addLuaFn("s_setColorOffset",
-        [this](int mValue) {styleData.BGColorOffset = mValue;})
-        .arg("value")
-        .doc("Offsets the colors of the background tiles by `$0`.");
-
     sdVar("BGColorOffset", &StyleData::BGColorOffset);
 
     addLuaFn("s_setStyle", //
