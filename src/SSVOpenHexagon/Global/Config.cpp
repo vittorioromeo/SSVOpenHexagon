@@ -585,12 +585,12 @@ bool SSVU_ATTRIBUTE(pure) getFullscreen()
 
 float SSVU_ATTRIBUTE(const) getVersion()
 {
-    return 2.01f;
+    return 2.02f;
 }
 
 const char* SSVU_ATTRIBUTE(const) getVersionString()
 {
-    return "2.01";
+    return "2.02";
 }
 
 bool SSVU_ATTRIBUTE(pure) getWindowedAutoResolution()
