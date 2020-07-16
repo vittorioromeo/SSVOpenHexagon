@@ -96,7 +96,7 @@ public:
     }
 
     void update(ssvu::FT mFT, float mMult = 1.f);
-    void computeColors();
+    void computeColors(const LevelStatus& levelStatus);
     void drawBackground(sf::RenderTarget& mRenderTarget,
         const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const;
 
