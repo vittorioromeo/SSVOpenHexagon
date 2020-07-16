@@ -136,11 +136,12 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
     }
 }
 
-void CPlayer::swap(HexagonGame& mHexagonGame, bool mSoundTog)
+void CPlayer::playerSwap(HexagonGame& mHexagonGame, bool mPlaySound)
 {
     angle += ssvu::pi;
-    mHexagonGame.runLuaFunctionIfExists<void>("onCursorSwap");
-    if(mSoundTog)
+    mHexagonGame.runLuaFunctionIfExists<void>("onCursorSwap"); // TODO: docs
+
+    if(mPlaySound)
     {
         mHexagonGame.getAssets().playSound("swap.ogg");
     }
@@ -181,7 +182,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     if(mHexagonGame.getLevelStatus().swapEnabled &&
         mHexagonGame.getInputSwap() && !swapTimer.isRunning())
     {
-        swap(mHexagonGame, true);
+        playerSwap(mHexagonGame, true /* mPlaySound */);
         swapTimer.restart();
     }
 
