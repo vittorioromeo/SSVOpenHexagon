@@ -10,7 +10,7 @@ incrementTime = 10
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pTrapBarrage(math.random(0, l_getSides())) 
+		if mKey == 0 then pTrapBarrage(math.random(0, l_getSides()))
 	elseif mKey == 1 then pTrapBarrageDouble(math.random(0, l_getSides()))
 	elseif mKey == 2 then pTrapBarrageInverse(math.random(0, l_getSides()))
 	elseif mKey == 3 then pTrapBarrageAlt(math.random(0, l_getSides()))
@@ -22,6 +22,7 @@ end
 keys = { 0, 0, 1, 1, 2, 2, 3, 3 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -62,10 +63,10 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	addPattern(keys[index])
 	index = index + 1
-	
+
 	if index - 1 == #keys then
 		index = 1
 		keys = shuffle(keys)
@@ -101,7 +102,12 @@ function onUpdate(mFrameTime)
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 400
 		end
-	end 
+	end
+
+	if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a17_polyhedrug")
+		achievementUnlocked = true
+	end
 
 	s_setHueInc(s_getHueInc() + hueIStep)
 	if(s_getHueInc() > hueIMax) then hueIStep = hueIStep * -1 end

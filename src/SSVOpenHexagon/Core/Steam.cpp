@@ -216,7 +216,18 @@ bool steam_manager::set_and_store_stat(std::string_view name, int data)
         return false;
     }
 
-    return SteamUserStats()->SetStat(name.data(), data) && store_stats();
+    // Steam API seems to be bugged, and always needs floats even for integer
+    // stats.
+    const float as_float = data;
+    if(!SteamUserStats()->SetStat(name.data(), as_float))
+    {
+        ssvu::lo("Steam") << "Error setting stat '" << name << "' to '"
+                          << as_float << "'\n";
+
+        return false;
+    }
+
+    return store_stats();
 }
 
 [[nodiscard]] bool steam_manager::get_achievement(
@@ -253,16 +264,20 @@ bool steam_manager::set_and_store_stat(std::string_view name, int data)
         return false;
     }
 
-    if(!SteamUserStats()->GetStat(name.data(), out))
+    // Steam API seems to be bugged, and always needs floats even for integer
+    // stats.
+    float as_float;
+    if(!SteamUserStats()->GetStat(name.data(), &as_float))
     {
         ssvu::lo("Steam") << "Error getting stat " << name.data() << '\n';
         return false;
     }
 
+    *out = as_float;
     return true;
 }
 
-bool steam_manager::update_hardcoded_achievements()
+bool steam_manager::update_hardcoded_achievement_cube_master()
 {
     if(!_initialized)
     {
@@ -317,6 +332,80 @@ bool steam_manager::update_hardcoded_achievements()
     }
 
     return true;
+}
+
+bool steam_manager::update_hardcoded_achievement_hypercube_master()
+{
+    if(!_initialized)
+    {
+        return false;
+    }
+
+    if(!_got_stats)
+    {
+        return false;
+    }
+
+    const auto unlocked = [this](const char* name) -> int {
+        bool res{false};
+        const bool rc = get_achievement(&res, name);
+
+        if(!rc)
+        {
+            return 0;
+        }
+
+        return res ? 1 : 0;
+    };
+
+    // "Hypercube Master"
+    {
+        int stat;
+        const bool rc = get_stat(&stat, "s1_packprogress_hypercube");
+
+        if(!rc)
+        {
+            return false;
+        }
+
+        const int acc = unlocked("a11_evotutorial") +      //
+                        unlocked("a12_disco") +            //
+                        unlocked("a13_acceleradiant") +    //
+                        unlocked("a14_gforce") +           //
+                        unlocked("a15_incongruence") +     //
+                        unlocked("a16_slither") +          //
+                        unlocked("a17_polyhedrug") +       //
+                        unlocked("a18_reppaws") +          //
+                        unlocked("a19_centrifugalforce") + //
+                        unlocked("a20_massacre");
+
+        if(acc > stat)
+        {
+            if(!set_and_store_stat("s1_packprogress_hypercube", acc))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool steam_manager::update_hardcoded_achievements()
+{
+    bool success = true;
+
+    if(!update_hardcoded_achievement_cube_master())
+    {
+        success = false;
+    }
+
+    if(!update_hardcoded_achievement_hypercube_master())
+    {
+        success = false;
+    }
+
+    return success;
 }
 
 void steam_manager::for_workshop_pack_folders(

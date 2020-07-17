@@ -19,6 +19,7 @@ end
 keys = { 0, 0, 0, 1, 1, 1 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -58,11 +59,11 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	addPattern(keys[index])
 
 	index = index + 1
-	
+
 	if index - 1 == #keys then
 		index = 1
 		keys = shuffle(keys)
@@ -84,4 +85,8 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a18_reppaws")
+		achievementUnlocked = true
+	end
 end

@@ -7,7 +7,7 @@ u_execScript("evolutionpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pAltBarrage(math.random(1, 3), 2) 
+		if mKey == 0 then pAltBarrage(math.random(1, 3), 2)
 	elseif mKey == 1 then pMirrorSpiral(math.random(2, 4), 0)
 	elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
 	elseif mKey == 3 then pBarrageSpiral(math.random(0, 2), 1.2, 2)
@@ -27,6 +27,7 @@ end
 keys = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 8, 8, 9, 9, 9, 9, 6, 11, 11, 10, 10 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 specials = { "cage", "spinner", "barrage" }
 special = "none"
@@ -66,11 +67,11 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	if special == "none" then
 		addPattern(keys[index])
 		index = index + 1
- 	
+
 		if index - 1 == #keys then
 			index = 1
 			keys = shuffle(keys)
@@ -103,4 +104,8 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	if not achievementUnlocked and l_getLevelTime() > 120 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a12_disco")
+		achievementUnlocked = true
+	end
 end

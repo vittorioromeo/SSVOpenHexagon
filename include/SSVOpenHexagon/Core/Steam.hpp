@@ -31,6 +31,9 @@ private:
         steam_manager, on_user_achievement_stored, UserAchievementStored_t);
 #pragma GCC diagnostic pop
 
+    bool update_hardcoded_achievement_cube_master();
+    bool update_hardcoded_achievement_hypercube_master();
+
 public:
     steam_manager();
     ~steam_manager();
