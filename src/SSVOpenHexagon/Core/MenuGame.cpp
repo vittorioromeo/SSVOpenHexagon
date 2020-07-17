@@ -694,8 +694,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setPulseSpeedR", "l_setPulseDelayMax", "l_setBeatPulseMax",
             "l_setBeatPulseDelayMax", "l_setBeatPulseInitialDelay",
             "l_setBeatPulseSpeedMult", "l_getBeatPulseInitialDelay",
-            "l_getBeatPulseSpeedMult"
-            "l_setWallSkewLeft",
+            "l_getBeatPulseSpeedMult", "l_setWallSkewLeft",
             "l_setWallSkewRight", "l_setWallAngleLeft", "l_setWallAngleRight",
             "l_setRadiusMin", "l_setSwapEnabled", "l_setTutorialMode",
             "l_setIncEnabled", "l_get3dRequired", "l_enableRndSideChanges",

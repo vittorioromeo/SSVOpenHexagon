@@ -18,6 +18,7 @@
 #include <string>
 #include <unordered_map>
 #include <filesystem>
+#include <iomanip>
 
 // ----------------------------------------------------------------------------
 // Utilities.
@@ -52,7 +53,25 @@ template <typename T>
         std::cout << "Please insert an integer.\n";
     }
 
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     return result;
+}
+
+[[nodiscard]] bool cin_getline_path(std::filesystem::path& result) noexcept
+{
+    std::string buf;
+
+    if(!std::getline(std::cin, buf))
+    {
+        return false;
+    }
+
+    std::cout << "Read '" << buf << "'\n";
+    result = buf;
+
+    return true;
 }
 
 [[nodiscard]] std::filesystem::path read_directory_path() noexcept
@@ -60,12 +79,9 @@ template <typename T>
     std::filesystem::path result;
     std::error_code ec;
 
-    while(!(std::cin >> result) || !std::filesystem::exists(result, ec) ||
+    while(!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
           !std::filesystem::is_directory(result, ec))
     {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
         std::cout << "Please insert a valid path to an existing directory. "
                      "Error code: '"
                   << ec << "'\n";
@@ -79,12 +95,9 @@ template <typename T>
     std::filesystem::path result;
     std::error_code ec;
 
-    while(!(std::cin >> result) || !std::filesystem::exists(result, ec) ||
+    while(!cin_getline_path(result) || !std::filesystem::exists(result, ec) ||
           !std::filesystem::is_regular_file(result, ec))
     {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
         std::cout
             << "Please insert a valid path to an existing file. Error code: '"
             << ec << "'\n";
@@ -97,6 +110,9 @@ template <typename T>
 {
     std::string result;
     std::cin >> result;
+
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     return result;
 }
