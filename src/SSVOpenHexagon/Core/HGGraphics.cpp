@@ -223,6 +223,11 @@ void HexagonGame::updateText()
             os << "INVINCIBILITY ON\n";
         }
 
+        if(Config::getTimescale() != 1.f)
+        {
+            os << "TIMESCALE " << Config::getTimescale() << "\n";
+        }
+
         if(status.scoreInvalid)
         {
             os << "SCORE INVALIDATED (" << status.invalidReason << ")\n";
@@ -232,6 +237,7 @@ void HexagonGame::updateText()
         {
             os << "PRESS R TO RESTART\n";
         }
+
 
         const auto& trackedVariables(levelStatus.trackedVariables);
         if(Config::getShowTrackedVariables() && !trackedVariables.empty())

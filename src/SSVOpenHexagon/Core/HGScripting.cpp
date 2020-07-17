@@ -54,7 +54,7 @@ void HexagonGame::initLua_Utils()
         [this](std::string mId, int segment) {
             musicData = assets.getMusicData(levelData->packId, mId);
             stopLevelMusic();
-            playLevelMusicAtTime(musicData.getSegment(segment));
+            playLevelMusicAtTime(musicData.getSegment(segment).time);
         })
         .arg("musicId")
         .arg("segment")
@@ -155,6 +155,7 @@ void HexagonGame::initLua_Utils()
 
     addLuaFn("u_swapPlayer", //
         [this](bool mPlaySound) { player.playerSwap(*this, mPlaySound); })
+        .arg("playSound")
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
@@ -338,6 +339,8 @@ void HexagonGame::initLua_LevelControl()
     lsVar("PulseDelayHalfMax", &LevelStatus::pulseDelayHalfMax);
     lsVar("BeatPulseMax", &LevelStatus::beatPulseMax);
     lsVar("BeatPulseDelayMax", &LevelStatus::beatPulseDelayMax);
+    lsVar("BeatPulseInitialDelay", &LevelStatus::beatPulseInitialDelay);
+    lsVar("BeatPulseSpeedMult", &LevelStatus::beatPulseSpeedMult);
     lsVar("RadiusMin", &LevelStatus::radiusMin);
     lsVar("WallSkewLeft", &LevelStatus::wallSkewLeft);
     lsVar("WallSkewRight", &LevelStatus::wallSkewRight);
