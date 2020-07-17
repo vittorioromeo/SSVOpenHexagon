@@ -692,10 +692,13 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setDelayInc", "l_setFastSpin", "l_setSidesMin", "l_setSidesMax",
             "l_setIncTime", "l_setPulseMin", "l_setPulseMax", "l_setPulseSpeed",
             "l_setPulseSpeedR", "l_setPulseDelayMax", "l_setBeatPulseMax",
-            "l_setBeatPulseDelayMax", "l_setWallSkewLeft", "l_setWallSkewRight",
-            "l_setWallAngleLeft", "l_setWallAngleRight", "l_setRadiusMin",
-            "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
-            "l_get3dRequired", "l_enableRndSideChanges",
+            "l_setBeatPulseDelayMax", "l_setBeatPulseInitialDelay",
+            "l_setBeatPulseSpeedMult", "l_getBeatPulseInitialDelay",
+            "l_getBeatPulseSpeedMult"
+            "l_setWallSkewLeft",
+            "l_setWallSkewRight", "l_setWallAngleLeft", "l_setWallAngleRight",
+            "l_setRadiusMin", "l_setSwapEnabled", "l_setTutorialMode",
+            "l_setIncEnabled", "l_get3dRequired", "l_enableRndSideChanges",
             "l_darkenUnevenBackgroundChunk", "l_getSpeedMult", "l_getDelayMult",
             "l_addTracked", "l_getRotation", "l_setRotation", "l_setDelayMult",
             "l_getOfficial",
@@ -730,13 +733,12 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "s_set3dPulseSpeed", "s_get3dPerspectiveMult",
             "s_set3dPerspectiveMult", "s_setCapColorMain",
             "s_setCapColorMainDarkened", "s_setCapColorByIndex",
-            "s_setBGColorOffset", "s_getBGColorOffset",
-            "s_setBGTileRadius", "s_getBGTileRadius",
-            "s_setBGRotOff", "s_getBGRotOff",
+            "s_setBGColorOffset", "s_getBGColorOffset", "s_setBGTileRadius",
+            "s_getBGTileRadius", "s_setBGRotOff", "s_getBGRotOff",
             "steam_unlockAchievement",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-                          
+
             "cw_isOverlappingPlayer", "cw_clear"})
     {
         mLua.writeVariable(un, [] {});
