@@ -137,6 +137,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
+    status = HexagonGameStatus{};
+
     // Audio cleanup
     assets.stopSounds();
     stopLevelMusic();
@@ -198,7 +200,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     // LUA context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
-    status = HexagonGameStatus{};
+
     if(!mFirstPlay)
     {
         runLuaFunction<void>("onUnload");
@@ -211,6 +213,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     restartId = mId;
     restartFirstTime = false;
     setSides(levelStatus.sides);
+
+    // Set initial values for some status fields from Lua
+    status.beatPulseDelay += levelStatus.beatPulseInitialDelay;
 }
 
 void HexagonGame::death(bool mForce)
@@ -401,7 +406,9 @@ void HexagonGame::playLevelMusic()
 {
     if(!Config::getNoMusic())
     {
-        musicData.playRandomSegment(getPackId(), assets);
+        const MusicData::Segment segment =
+            musicData.playRandomSegment(getPackId(), assets);
+        status.beatPulseDelay += segment.beatPulseDelayOffset;
     }
 }
 

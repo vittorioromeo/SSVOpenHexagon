@@ -46,7 +46,7 @@ public:
     float _3dPulseMin;
     float _3dPulseSpeed;
     float _3dPerspectiveMult;
-    float bgTileRadius{4500.f};
+    float bgTileRadius{10000.f};
     unsigned int BGColorOffset{0};
     float BGRotOff{0}; // In degrees
 

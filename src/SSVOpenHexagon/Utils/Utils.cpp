@@ -35,7 +35,8 @@ MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
         ssvuj::getExtr<std::string>(mRoot, "author")};
     for(const auto& segment : ssvuj::getObj(mRoot, "segments"))
     {
-        result.addSegment(ssvuj::getExtr<float>(segment, "time"));
+        result.addSegment(ssvuj::getExtr<float>(segment, "time"),
+            ssvuj::getExtr<float>(segment, "beatPulseDelayOffset", 0.f));
     }
     return result;
 }

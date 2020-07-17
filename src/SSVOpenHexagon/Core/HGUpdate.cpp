@@ -333,7 +333,8 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
 
     if(status.beatPulse > 0)
     {
-        status.beatPulse -= 2.f * mFT * getMusicDMSyncFactor();
+        status.beatPulse -= (2.f * mFT * getMusicDMSyncFactor()) *
+                            levelStatus.beatPulseSpeedMult;
     }
 
     float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
