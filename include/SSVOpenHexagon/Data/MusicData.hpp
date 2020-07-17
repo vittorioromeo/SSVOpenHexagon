@@ -17,10 +17,17 @@ class HGAssets;
 
 class MusicData
 {
-private:
-    std::vector<float> segments;
+public:
+    struct Segment
+    {
+        float time;
+        float beatPulseDelayOffset;
+    };
 
-    [[nodiscard]] float getRandomSegment() const
+private:
+    std::vector<Segment> segments;
+
+    [[nodiscard]] const Segment& getRandomSegment() const
     {
         return segments[ssvu::getRndI(std::size_t(0), segments.size())];
     }
@@ -42,33 +49,37 @@ public:
     {
     }
 
-    float getSegment(int index)
+    const Segment& getSegment(std::size_t index) const
     {
         return segments[index];
     }
 
-    void addSegment(float mSeconds)
+    void addSegment(float mSeconds, float mBeatPulseDelayOffset)
     {
-        segments.emplace_back(mSeconds);
+        segments.emplace_back(Segment{mSeconds, mBeatPulseDelayOffset});
     }
 
-    void playRandomSegment(const std::string& mPackId, HGAssets& mAssets)
+    Segment playRandomSegment(const std::string& mPackId, HGAssets& mAssets)
     {
         if(firstPlay)
         {
             firstPlay = false;
-            playSegment(mPackId, mAssets, 0);
+            return playSegment(mPackId, mAssets, 0);
         }
         else
         {
-            playSeconds(mPackId, mAssets, getRandomSegment());
+            const Segment& segment = getRandomSegment();
+            playSeconds(mPackId, mAssets, segment.time);
+            return segment;
         }
     }
 
-    void playSegment(
+    Segment playSegment(
         const std::string& mPackId, HGAssets& mAssets, std::size_t mIdx)
     {
-        playSeconds(mPackId, mAssets, segments[mIdx]);
+        const Segment& segment = segments[mIdx];
+        playSeconds(mPackId, mAssets, segment.time);
+        return segment;
     }
 
     void playSeconds(

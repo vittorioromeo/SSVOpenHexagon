@@ -75,8 +75,15 @@ struct LevelStatus
     float pulseSpeedR{0.f};
     float pulseDelayMax{0.f};
     float pulseDelayHalfMax{0.f};
-    float beatPulseMax{0.f};
-    float beatPulseDelayMax{0.f};
+
+    // ------------------------------------------------------------------------
+    // A "beat pulse" controls the size of the center polygon. It is supposed
+    // to match the beat of the music.
+    float beatPulseInitialDelay{0.f}; // Initial delay of the beat pulse.
+    float beatPulseMax{0.f};          // Max size increment of the polygon.
+    float beatPulseDelayMax{0.f};     // Delay between beat pulses.
+    float beatPulseSpeedMult{1.f};    // How fast the pulse "moves" back.
+
     float radiusMin{72.f};
     float wallSkewLeft{0.f};
     float wallSkewRight{0.f};

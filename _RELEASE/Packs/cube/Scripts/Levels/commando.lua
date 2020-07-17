@@ -42,7 +42,7 @@ function onInit()
 	l_setPulseDelayMax(0.7)
 
 	l_setBeatPulseMax(17)
-	l_setBeatPulseDelayMax(23.8)
+	l_setBeatPulseDelayMax(24) -- BPM is 144
 
 	l_addTracked("level", "level")
 	l_enableRndSideChanges(false)
