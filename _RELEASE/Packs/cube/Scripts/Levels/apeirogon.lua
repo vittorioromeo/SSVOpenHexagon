@@ -10,7 +10,7 @@ function addPattern(mKey)
 	elseif mKey == 2 then pInverseBarrage(0)
 	elseif mKey == 3 then pTunnel(math.random(1, 3))
 	elseif mKey == 4 then pMirrorWallStrip(1, 0)
-	elseif mKey == 5 then 
+	elseif mKey == 5 then
 		if l_getSides() > 5 then
 			pWallExVortex(0, math.random(1, 2), 1)
 		end
@@ -50,8 +50,9 @@ function onInit()
 	l_setPulseSpeedR(1.5)
 	l_setPulseDelayMax(9)
 
-	l_setBeatPulseMax(15)
-	l_setBeatPulseDelayMax(21.8)
+	l_setBeatPulseMax(25)
+	l_setBeatPulseDelayMax(20.28) -- BPM is 182
+	l_setBeatPulseSpeedMult(1.35) -- Slows down the center going back to normal
 
 	enableSwapIfDMGreaterThan(1.25)
 	disableIncIfDMGreaterThan(1.5)

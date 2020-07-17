@@ -48,7 +48,7 @@ function onInit()
 	l_setPulseDelayMax(9)
 
 	l_setBeatPulseMax(17)
-	l_setBeatPulseDelayMax(23.8)
+	l_setBeatPulseDelayMax(24.4) -- BPM is 148
 
 	enableSwapIfDMGreaterThan(3)
 	disableIncIfDMGreaterThan(3)
