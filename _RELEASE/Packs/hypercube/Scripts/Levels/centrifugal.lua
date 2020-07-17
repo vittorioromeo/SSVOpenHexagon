@@ -6,6 +6,7 @@ u_execScript("nextpatterns.lua")
 u_execScript("evolutionpatterns.lua")
 
 curveSpeed = 1
+achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -43,8 +44,8 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
-	hmcSimpleBarrageSNeigh(getRandomSide(), getRandomDir() * curveSpeed, 2) 
+function onStep()
+	hmcSimpleBarrageSNeigh(getRandomSide(), getRandomDir() * curveSpeed, 2)
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.22)
 end
 
@@ -63,4 +64,8 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a19_centrifugalforce")
+		achievementUnlocked = true
+	end
 end

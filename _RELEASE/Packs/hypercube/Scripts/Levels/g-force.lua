@@ -6,12 +6,12 @@ u_execScript("nextpatterns.lua")
 u_execScript("evolutionpatterns.lua")
 
 function gforceBarrage()
-	cBarrage(getRandomSide()) 
+	cBarrage(getRandomSide())
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function gforceBarrageAssault()
-	cBarrage(getRandomSide()) 
+	cBarrage(getRandomSide())
 	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 end
 
@@ -28,8 +28,9 @@ end
 keys = { 0, 1 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
-specials = { "double", "assault", "incongruence", "dizzy" } 
+specials = { "double", "assault", "incongruence", "dizzy" }
 special = "none"
 
 -- onInit is an hardcoded function that is called when the level is first loaded
@@ -69,7 +70,7 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	if special == "incongruence" then
 		l_setSides(math.random(4, 5))
 	else
@@ -94,7 +95,7 @@ function onStep()
 	end
 
 	index = index + 1
-	
+
 	if index - 1 == #keys then
 		index = 1
 		keys = shuffle(keys)
@@ -120,4 +121,8 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+	if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a14_gforce")
+		achievementUnlocked = true
+	end
 end

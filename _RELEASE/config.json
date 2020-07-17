@@ -29,7 +29,7 @@
 	"no_music" : false,
 	"no_rotation" : false,
 	"no_sound" : false,
-	"official" : false,
+	"official" : true,
 	"online" : true,
 	"pixel_multiplier" : 1,
 	"player_focus_speed" : 4.6250,

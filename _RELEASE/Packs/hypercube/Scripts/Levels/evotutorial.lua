@@ -18,6 +18,7 @@ end
 keys = { 1, 1, 2, 2 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -151,7 +152,7 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
@@ -174,5 +175,10 @@ function onUpdate(mFrameTime)
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 400
 		end
-	end 
+	end
+
+	if not achievementUnlocked and l_getLevelTime() > 69 then
+		steam_unlockAchievement("a11_evotutorial")
+		achievementUnlocked = true
+	end
 end

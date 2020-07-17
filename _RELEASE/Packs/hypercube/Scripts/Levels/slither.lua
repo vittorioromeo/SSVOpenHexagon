@@ -7,7 +7,7 @@ u_execScript("evolutionpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pAltBarrage(math.random(1, 3), 2) 
+		if mKey == 0 then pAltBarrage(math.random(1, 3), 2)
 	end
 end
 
@@ -16,6 +16,7 @@ end
 keys = { 0 }
 keys = shuffle(keys)
 index = 0
+achievementUnlocked = false
 
 smin = 2
 smax = 2
@@ -64,7 +65,7 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
-function onStep()	
+function onStep()
 	l_setSides(math.random(smin, smax) * 2)
 	hmcDefSpinnerSpiralAcc()
 end
@@ -106,5 +107,10 @@ function onUpdate(mFrameTime)
 			l_setRotationSpeed(l_getRotationSpeed() * -1.0)
 			dirChangeTime = 400
 		end
-	end 
+	end
+
+	if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
+		steam_unlockAchievement("a16_slither")
+		achievementUnlocked = true
+	end
 end
