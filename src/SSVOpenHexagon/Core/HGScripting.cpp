@@ -102,7 +102,7 @@ void HexagonGame::initLua_Utils()
         [this](
             double mDuration) { timeline.append_wait_for_sixths(mDuration); })
         .arg("duration")
-        .doc("*Add to the main timeline*: wait for `$0` sixths of a second.");
+        .doc("*Add to the main timeline*: wait for `$0` frames (assuming 60 FPS framerate).");
 
     addLuaFn("u_clearWalls", //
         [this] { walls.clear(); })
@@ -280,7 +280,7 @@ void HexagonGame::initLua_EventTimeline()
             eventTimeline.append_wait_for_sixths(mDuration);
         })
         .arg("duration")
-        .doc("*Add to the event timeline*: wait for `$0` sixths of a second.");
+        .doc("*Add to the event timeline*: wait for `$0` frames (under the assumption of a 60 FPS frame rate).");
 
     addLuaFn("e_eventWaitS", //
         [this](double mDuration) {
@@ -763,7 +763,7 @@ void HexagonGame::initLua_StyleControl()
         "be messed with to make some stylish level styles.",
         
         "Sets the rotation offset of the background panels to `$0` degrees.");
-        
+
     addLuaFn("s_setStyle", //
         [this](std::string mId) {
             styleData = assets.getStyleData(levelData->packId, mId);
@@ -773,16 +773,16 @@ void HexagonGame::initLua_StyleControl()
             "Set the currently active style to the style with id `$0`. Styles "
             "can be defined as `.json` files in the `<pack>/Styles/` folder.");
 
-    // backwards-compatible
-    addLuaFn("s_setCameraShake", //
-        [this](int mValue) { levelStatus.cameraShake = mValue; })
-        .arg("value")
-        .doc("Start a camera shake with intensity `$0`.");
+    // // backwards-compatible
+    // addLuaFn("s_setCameraShake", //
+    //     [this](int mValue) { levelStatus.cameraShake = mValue; })
+    //     .arg("value")
+    //     .doc("Start a camera shake with intensity `$0`.");
 
-    // backwards-compatible
-    addLuaFn("s_getCameraShake", //
-        [this] { return levelStatus.cameraShake; })
-        .doc("Return the current camera shake intensity.");
+    // // backwards-compatible
+    // addLuaFn("s_getCameraShake", //
+    //     [this] { return levelStatus.cameraShake; })
+    //     .doc("Return the current camera shake intensity.");
 
     addLuaFn("s_setCapColorMain", //
         [this] { styleData.capColor = CapColorMode::Main{}; })
