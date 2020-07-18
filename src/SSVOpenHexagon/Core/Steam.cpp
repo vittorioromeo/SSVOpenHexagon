@@ -204,7 +204,7 @@ bool steam_manager::set_rich_presence_in_game(
     }
 
     return SteamFriends()->SetRichPresence("levelname", level_name_format.data()) &&
-           SteamFriends()->SetRichPresence("difficulty", difficulty_mult_format.data()) &&
+           SteamFriends()->SetRichPresence("difficultymult", difficulty_mult_format.data()) &&
            SteamFriends()->SetRichPresence("time", time_format.data()) &&
            SteamFriends()->SetRichPresence("steam_display", "#InGame");
 }
