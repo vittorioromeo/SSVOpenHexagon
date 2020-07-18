@@ -217,7 +217,7 @@ void HexagonGame::initLua_Messages()
         .arg("duration")
         .doc(
             "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will only be printed during the first "
+            "`$1` seconds. The message will only be printed during every "
             "run of the level, and will not produce any sound.");
 
 
@@ -232,7 +232,7 @@ void HexagonGame::initLua_MainTimeline()
         [this](
             double mDuration) { timeline.append_wait_for_sixths(mDuration); })
         .arg("duration")
-        .doc("*Add to the main timeline*: wait for `$0` sixths of a second.");
+        .doc("*Add to the main timeline*: wait for `$0` frames (under the assumption of a 60 FPS frame rate).");
 
     addLuaFn("t_waitS", //
         [this](
@@ -264,8 +264,7 @@ void HexagonGame::initLua_EventTimeline()
         })
         .arg("duration")
         .doc(
-            "*Add to the event timeline*: pause the game timer for `$0` sixths "
-            "of a second.");
+            "*Add to the event timeline*: pause the game timer for `$0` frames (under the assumption of a 60 FPS frame rate).");
 
     addLuaFn("e_eventStopTimeS", //
         [this](double mDuration) {
@@ -306,79 +305,283 @@ void HexagonGame::initLua_EventTimeline()
 
 void HexagonGame::initLua_LevelControl()
 {
-    const auto lsVar = [this](const std::string& name, auto pmd) {
+    const auto lsVar = [this](const std::string& name, auto pmd, 
+                                const std::string& getterDesc, 
+                                const std::string& setterDesc) {
         using Type = std::decay_t<decltype(levelStatus.*pmd)>;
 
-        std::string getDocString = "Return the `";
-        getDocString += name;
-        getDocString += "` field of the level status.";
+        std::String getterString = std::string{"l_get"} + name;
+        std::String setterString = std::string{"l_set"} + name;
 
-        std::string setDocString = "Set the `";
-        setDocString += name;
-        setDocString += "` field of the level status to `$0`.";
-
-        addLuaFn(std::string{"l_get"} + name, //
+        addLuaFn(getterString, //
             [this, pmd]() -> Type { return levelStatus.*pmd; })
-            .doc(getDocString);
+            .doc(getterDesc);
 
-        addLuaFn(std::string{"l_set"} + name, //
+        addLuaFn(setterString, //
             [this, pmd](Type mValue) { levelStatus.*pmd = mValue; })
             .arg("value")
-            .doc(setDocString);
+            .doc(setterDesc);
     };
 
-    lsVar("SpeedMult", &LevelStatus::speedMult);
-    lsVar("SpeedInc", &LevelStatus::speedInc);
-    lsVar("SpeedMax", &LevelStatus::speedMax);
-    lsVar("RotationSpeed", &LevelStatus::rotationSpeed);
-    lsVar("RotationSpeedInc", &LevelStatus::rotationSpeedInc);
-    lsVar("RotationSpeedMax", &LevelStatus::rotationSpeedMax);
-    lsVar("DelayMult", &LevelStatus::delayMult);
-    lsVar("DelayInc", &LevelStatus::delayInc);
-    lsVar("DelayMin", &LevelStatus::delayMin);
-    lsVar("DelayMax", &LevelStatus::delayMax);
-    lsVar("FastSpin", &LevelStatus::fastSpin);
-    lsVar("IncTime", &LevelStatus::incTime);
-    lsVar("PulseMin", &LevelStatus::pulseMin);
-    lsVar("PulseMax", &LevelStatus::pulseMax);
-    lsVar("PulseSpeed", &LevelStatus::pulseSpeed);
-    lsVar("PulseSpeedR", &LevelStatus::pulseSpeedR);
-    lsVar("PulseDelayMax", &LevelStatus::pulseDelayMax);
-    lsVar("PulseDelayHalfMax", &LevelStatus::pulseDelayHalfMax);
-    lsVar("BeatPulseMax", &LevelStatus::beatPulseMax);
-    lsVar("BeatPulseDelayMax", &LevelStatus::beatPulseDelayMax);
-    lsVar("BeatPulseInitialDelay", &LevelStatus::beatPulseInitialDelay);
-    lsVar("BeatPulseSpeedMult", &LevelStatus::beatPulseSpeedMult);
-    lsVar("RadiusMin", &LevelStatus::radiusMin);
-    lsVar("WallSkewLeft", &LevelStatus::wallSkewLeft);
-    lsVar("WallSkewRight", &LevelStatus::wallSkewRight);
-    lsVar("WallAngleLeft", &LevelStatus::wallAngleLeft);
-    lsVar("WallAngleRight", &LevelStatus::wallAngleRight);
-    lsVar("3dRequired", &LevelStatus::_3DRequired);
-    lsVar("3dEffectMultiplier", &LevelStatus::_3dEffectMultiplier);
-    lsVar("CameraShake", &LevelStatus::cameraShake);
-    lsVar("Sides", &LevelStatus::sides);
-    lsVar("SidesMax", &LevelStatus::sidesMax);
-    lsVar("SidesMin", &LevelStatus::sidesMin);
-    lsVar("SwapEnabled", &LevelStatus::swapEnabled);
-    lsVar("TutorialMode", &LevelStatus::tutorialMode);
-    lsVar("IncEnabled", &LevelStatus::incEnabled);
+    lsVar("SpeedMult", &LevelStatus::speedMult,
+        "Gets the speed multiplier of the level. The speed multiplier is "
+        "the current speed of the walls. Is incremented by ``SpeedInc`` "
+        "every increment and caps at ``speedMax``.",
+
+        "Sets the speed multiplier of the level to `$0`. Changes do not apply to "
+        "all walls immediately, and changes apply as soon as the next wall "
+        "is created.");
+    lsVar("SpeedInc", &LevelStatus::speedInc,
+        "Gets the speed increment of the level. This is applied every level "
+        "increment to the speed multiplier. Incrementation is additive.",
+        
+        "Sets the speed increment of the level to `$0`.");
+    lsVar("SpeedMax", &LevelStatus::speedMax,
+        "Gets the maximum speed of the level. This is the highest that speed "
+        "can go; speed can not get any higher than this.",
+        
+        "Sets the maximum speed of the level to `$0`. Keep in mind that speed "
+        "keeps going past the speed max, so setting a higher speed max may "
+        "make the speed instantly increase to the max.");
+    lsVar("RotationSpeed", &LevelStatus::rotationSpeed,
+        "Gets the rotation speed of the level. Is incremented by "
+        "``RotationSpeedInc`` every increment and caps at ``RotationSpeedMax``.",
+        
+        "Sets the rotation speed of the level to `$s0`. Changes apply "
+        "immediately.");
+    lsVar("RotationSpeedInc", &LevelStatus::rotationSpeedInc,
+        "Gets the rotation speed increment of the level. This is "
+        "applied every level increment to the rotation speed. "
+        "Incrementation is additive.",
+        
+        "Sets the rotation speed increment of the level to `$0`. "
+        "Is effective on the next level increment.");
+    lsVar("RotationSpeedMax", &LevelStatus::rotationSpeedMax,
+        "Gets the maximum rotation speed of the level. This is the "
+        "highest that rotation speed can go; rotation speed can not "
+        "get any higher than this.",
+        
+        "Sets the maximum rotation speed of the level to `$0`. Keep "
+        "in mind that rotation speed keeps going past the max, so "
+        "setting a higher rotation speed max may make the rotation speed "
+        "instantly increase to the max.");
+    lsVar("DelayMult", &LevelStatus::delayMult,
+        "Gets the delay multiplier of the level. The delay multiplier "
+        "is the multiplier used to assist in spacing patterns, especially "
+        "in cases of higher / lower speeds.  Is incremented by ``DelayInc`` "
+        "every increment and is clamped between ``DelayMin`` and ``DelayMax``",
+        
+        "Sets the delay multiplier of the level to `$0`. Changes do not apply to "
+        "patterns immediately, and changes apply as soon as the next pattern "
+        "is spawned.");
+    lsVar("DelayInc", &LevelStatus::delayInc,
+        "Gets the delay increment of the level. This is applied every level "
+        "increment to the delay multiplier. Incrementation is additive.",
+        
+        "Sets the delay increment of the level to `$0`.");
+    lsVar("DelayMin", &LevelStatus::delayMin,
+        "Gets the minimum delay of the level. This is the lowest that delay "
+        "can go; delay can not get any lower than this.",
+    
+        "Sets the minimum delay of the level to `$0`. Keep in mind that delay "
+        "can go below the delay min, so setting a lower delay min may "
+        "make the delay instantly decrease to the minimum.");
+    lsVar("DelayMax", &LevelStatus::delayMax,
+        "Gets the maximum delay of the level. This is the highest that delay "
+        "can go; delay can not get any higher than this.",
+    
+        "Sets the maximum delay of the level to `$0`. Keep in mind that delay "
+        "can go above the delay max, so setting a higher delay max may "
+        "make the delay instantly increase to the maximum.");
+    lsVar("FastSpin", &LevelStatus::fastSpin,
+        "Gets the fast spin of the level. The fast spin is a brief moment that "
+        "starts at level incrementation where the rotation increases speed "
+        "drastically to try and throw off the player a bit. This speed quickly "
+        "(or slowly, depending on the value) decelerates and fades away to the "
+        " updated rotation speed.",
+    
+        "Sets the fast spin of the level to `$0`. A higher value increases "
+        "intensity and duration of the fast spin.");
+    lsVar("IncTime", &LevelStatus::incTime,
+        "Get the incrementation time (in seconds) of a level. This is the length "
+        "of a \"level\" in an Open Hexagon level (It's ambiguous but hopefully "
+        "you understand what that means), and when this duration is reached, the "
+        "level increments.",
+    
+        "Set the incrementation time (in seconds) of a level to `$0`.");
+    lsVar("PulseMin", &LevelStatus::pulseMin,
+        "Gets the minimum value the pulse can be. Pulse gives variety in "
+        "the wall speed of the level so the wall speed doesn't feel monotone. "
+        "Can also be used to help sync a level up with it's music.",
+    
+        "Sets the minimum pulse value to `$0`.");
+    lsVar("PulseMax", &LevelStatus::pulseMax,
+        "Gets the maximum value the pulse can be. Pulse gives variety in "
+        "the wall speed of the level so the wall speed doesn't feel monotone. "
+        "Can also be used to help sync a level up with it's music.",
+    
+        "Sets the maximum pulse value to `$0`.");
+    lsVar("PulseSpeed", &LevelStatus::pulseSpeed,
+        "Gets the speed the pulse goes from ``PulseMin`` to ``PulseMax``. "
+        "Can also be used to help sync a level up with it's music.",
+
+        "Gets the speed the pulse goes from ``PulseMin`` to ``PulseMax`` by "
+        "`$0`. Can also be used to help sync a level up with it's music.");
+    lsVar("PulseSpeedR", &LevelStatus::pulseSpeedR,
+        "Gets the speed the pulse goes from ``PulseMax`` to ``PulseMin``.",
+
+        "Gets the speed the pulse goes from ``PulseMax`` to ``PulseMin`` by "
+        "`$0`. Can also be used to help sync a level up with it's music.");
+    lsVar("PulseDelayMax", &LevelStatus::pulseDelayMax,
+        "Gets the delay the level has to wait before it begins another pulse cycle.",
+    
+        "Sets the delay the level has to wait before it begins another pulse cycle "
+        "with `$0`.");
+    // TODO: Repurpose PulseDelayHalfMax to do what is listed on this documentation
+    lsVar("PulseDelayHalfMax", &LevelStatus::pulseDelayHalfMax,
+        "Gets the delay the level has to wait before it begins pulsing from "
+        "``PulseMax`` to ``PulseMin``.",
+    
+        "Gets the delay the level has to wait before it begins pulsing from "
+        "``PulseMax`` to ``PulseMin`` with `$0`.");
+    lsVar("BeatPulseMax", &LevelStatus::beatPulseMax,
+        "Gets the maximum beatpulse size of the polygon in a level. This is the "
+        "highest value that the polygon will \"pulse\" in size. Useful for syncing "
+        "the level to the music.",
+    
+        "Sets the maximum beatpulse size of the polygon in a level to `$s0`. Not "
+        "to be confused with using this property to resize the polygon, which you "
+        "should be using ``RadiusMin``.");
+    lsVar("BeatPulseDelayMax", &LevelStatus::beatPulseDelayMax,
+        "Gets the delay for how fast the beatpulse pulses in frames (assuming 60 FPS "
+        "logic). This paired with ``BeatPulseMax`` will be useful to help sync a level "
+        "with the music that it's playing.",
+    
+        "Sets the delay for how fast the beatpulse pulses in `$0` frames (assuming 60 "
+        "FPS Logic).");
+    lsVar("BeatPulseInitialDelay", &LevelStatus::beatPulseInitialDelay,
+        "Gets the initial delay before beatpulse begins pulsing. This is very useful "
+        "to use at the very beginning of the level to assist syncing the beatpulse "
+        "with the song.",
+        
+        "Sets the initial delay before beatpulse begins pulsing to `$0`. Highly "
+        "discouraged to use this here. Use this in your music JSON files.");
+    lsVar("BeatPulseSpeedMult", &LevelStatus::beatPulseSpeedMult,
+        "Gets how fast the polygon pulses with the beatpulse. This is very useful "
+        "to help keep your level in sync with the music.",
+        
+        "Sets how fast the polygon pulses with beatpulse to `$0`.");
+    lsVar("RadiusMin", &LevelStatus::radiusMin,
+        "Gets the minimum radius of the polygon in a level. This is used to determine "
+        "the absolute size of the polygon in the level.",
+    
+        "Sets the minimum radius of the polygon to `$0`. Use this to set the size of "
+        "the polygon in the level, not ``BeatPulseMax``.");
+    lsVar("WallSkewLeft", &LevelStatus::wallSkewLeft,
+        "Gets the Y axis offset of the top left vertex in all walls.",
+    
+        "Sets the Y axis offset of the top left vertex to `$0` in all newly generated "
+        "walls. If you would like to have more individual control of the wall vertices, "
+        "please use the custom walls system under the prefix ``cw_``.");
+    lsVar("WallSkewRight", &LevelStatus::wallSkewRight,
+        "Gets the Y axis offset of the top right vertex in all walls.",
+    
+        "Sets the Y axis offset of the top right vertex to `$0` in all newly generated "
+        "walls. If you would like to have more individual control of the wall vertices, "
+        "please use the custom walls system under the prefix ``cw_``.");
+    lsVar("WallAngleLeft", &LevelStatus::wallAngleLeft,
+        "Gets the X axis offset of the top left vertex in all walls.",
+    
+        "Sets the X axis offset of the top left vertex to `$0` in all newly generated "
+        "walls. If you would like to have more individual control of the wall vertices, "
+        "please use the custom walls system under the prefix ``cw_``.");
+    lsVar("WallAngleRight", &LevelStatus::wallAngleRight,
+        "Gets the X axis offset of the top right vertex in all walls.",
+    
+        "Sets the X axis offset of the top right vertex to `$0` in all newly generated "
+        "walls. If you would like to have more individual control of the wall vertices, "
+        "please use the custom walls system under the prefix ``cw_``.");
+    lsVar("3dRequired", &LevelStatus::_3DRequired,
+        "Gets whether 3D must be enabled in order to have a valid score in this level. "
+        "By default, this value is ``false``.",
+    
+        "Sets whether 3D must be enabled to `$0` to have a valid score. Only set this "
+        "to ``true`` if your level relies on 3D effects to work as intended.");
+    // Commenting this one out. This property seems to have NO USE in the actual game itself.
+    // lsVar("3dEffectMultiplier", &LevelStatus::_3dEffectMultiplier);
+    lsVar("CameraShake", &LevelStatus::cameraShake,
+        "Gets the intensity of the camera shaking in a level.",
+    
+        "Sets the intensity of the camera shaking in a level to `$0`. This remains "
+        "permanent until you either set this to 0 or the player dies.");
+    lsVar("Sides", &LevelStatus::sides,
+        "Gets the current number of sides on the polygon in a level.",
+    
+        "Sets the current number of sides on the polygon to `$0`. This change happens "
+        "immediately and previously spawned walls will not adjust to the new side count.");
+    lsVar("SidesMax", &LevelStatus::sidesMax,
+        "Gets the maximum range that the number of sides can possibly be at random. "
+        "``enableRndSideChanges`` must be enabled for this property to have any use.",
+    
+        "Sets the maximum range that the number of sides can possibly be to `$0`.");
+    lsVar("SidesMin", &LevelStatus::sidesMin,
+        "Gets the minimum range that the number of sides can possibly be at random. "
+        "``enableRndSideChanges`` must be enabled for this property to have any use.",
+    
+        "Sets the minimum range that the number of sides can possibly be to `$0`.");
+    lsVar("SwapEnabled", &LevelStatus::swapEnabled,
+        "Gets whether the swap mechanic is enabled for a level. By default, this is "
+        "set to ``false``.",
+    
+        "Sets the swap mechanic's availability to `$0`.");
+    lsVar("TutorialMode", &LevelStatus::tutorialMode,
+        "Gets whether tutorial mode is enabled. In tutorial mode, players are granted "
+        "invincibility from dying to walls. This mode is typically enabled whenever a "
+        "pack developer needs to demonstrate a new concept to the player so that way "
+        "they can easily learn the new mechanic/concept. This invincibility will not "
+        "count towards invalidating a score, but it's usually not important to score "
+        "on a tutorial level. By default, this is set to ``false``.",
+    
+        "Sets tutorial mode to `$0`. Remember, only enable this if you need to demonstrate "
+        "a new concept for players to learn, or use it as a gimmick to a level.");
+    lsVar("IncEnabled", &LevelStatus::incEnabled,
+        "Gets whether the level can increment or not. This is Open Hexagon's way of "
+        "establishing a difficulty curve in the level and set a sense of progression "
+        "throughout the level. By default, this value is set to ``true``.",
+    
+        "Toggles level incrementation to `$0`. Only disable this if you feel like the "
+        "level can not benefit from incrementing in any way.");
     lsVar("DarkenUnevenBackgroundChunk",
-        &LevelStatus::darkenUnevenBackgroundChunk);
-    lsVar("CurrentIncrements", &LevelStatus::currentIncrements);
+        &LevelStatus::darkenUnevenBackgroundChunk,
+        "Gets whether the ``Nth`` panel of a polygon with ``N`` sides (assuming ``N`` "
+        "is odd) will be darkened to make styles look more balanced. By default, this "
+        "value is set to ``true``, but there can be styles where having this darkened "
+        "panel can look very unpleasing.",
+        
+        "Sets the darkened panel to `$0`.");
+    lsVar("CurrentIncrements", &LevelStatus::currentIncrements,
+        "Gets the current amount of times the level has incremented. Very useful for "
+        "keeping track of levels.",
+
+        "Sets the current amount of times the level has incremented to `$0`. This "
+        "function is utterly pointless to use unless you are tracking this variable.");
 
     addLuaFn("l_enableRndSideChanges", //
         [this](bool mValue) { levelStatus.rndSideChangesEnabled = mValue; })
         .arg("enabled")
-        .doc("Set random side changes to `$0`.");
-
-    addLuaFn("l_darkenUnevenBackgroundChunk", //
-        [this](
-            bool mValue) { levelStatus.darkenUnevenBackgroundChunk = mValue; })
-        .arg("enabled")
         .doc(
-            "If `$0` is true, one of the background's chunks will be darkened "
-            "in case there is an uneven number of sides.");
+            "Toggles random side changes to `$0`, (not) allowing sides to change "
+            "between ``SidesMin`` and ``SidesMax`` inclusively every level increment.");
+
+    // Commented out for redundancy
+    
+    // addLuaFn("l_darkenUnevenBackgroundChunk", //
+    //     [this](
+    //         bool mValue) { levelStatus.darkenUnevenBackgroundChunk = mValue; })
+    //     .arg("enabled")
+    //     .doc(
+    //         "If `$0` is true, one of the background's chunks will be darkened "
+    //         "in case there is an uneven number of sides.");
 
     addLuaFn("l_addTracked", //
         [this](std::string mVar, std::string mName) {
@@ -421,6 +624,8 @@ void HexagonGame::initLua_LevelControl()
         });
     */
 }
+
+
 
 void HexagonGame::initLua_StyleControl()
 {
