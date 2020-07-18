@@ -25,14 +25,28 @@ void HexagonGame::update(ssvu::FT mFT)
 {
     mFT *= Config::getTimescale();
 
-    // TODO: refactor to avoid repetition, and truncate floating point number
-    // TODO: also show best record (here) and last run + best record (in menu)
-    steamManager.set_rich_presence_in_game(
-        levelData->name, status.getTimeSeconds());
+    // TODO: show best record (here) and last run + best record (in menu)
+
+    // Name formatter
+    std::string nameStr = std::string(levelData->name);
+    nameStr[0] = std::toupper(nameStr[0]);
+
+    // Difficulty multipler formatter
+    std::string diffStr = std::to_string(HexagonGame::difficultyMult);
+    size_t endPos = diffStr.find_last_not_of('0');
+    diffStr.erase(endPos + 1 + (int)(diffStr[endPos] == '.'), std::string::npos); // at least 1 dp
+
+    // Time formatter
+    std::string timeStr = std::to_string(floorf(status.getTimeSeconds() * 1000) / 1000); // 3 dp
+    timeStr.erase(timeStr.find_first_of('.') + 4, std::string::npos);
+
+    // Presence formatter
+    std::string presenceStr = nameStr + " [x" + diffStr + "] - " + timeStr + "s";
+
+    steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
     steamManager.run_callbacks();
 
-    discordManager.set_rich_presence_in_game(
-        levelData->name, status.getTimeSeconds());
+    discordManager.set_rich_presence_in_game(presenceStr);
     discordManager.run_callbacks();
 
     hg::Joystick::update();
