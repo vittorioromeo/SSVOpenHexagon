@@ -629,52 +629,141 @@ void HexagonGame::initLua_LevelControl()
 
 void HexagonGame::initLua_StyleControl()
 {
-    const auto sdVar = [this](const std::string& name, auto pmd) {
-        using Type = std::decay_t<decltype(styleData.*pmd)>;
+    const auto sdVar = [this](const std::string& name, auto pmd, 
+                                const std::string& getterDesc, 
+                                const std::string& setterDesc) {
+        using Type = std::decay_t<decltype(levelStatus.*pmd)>;
 
-        std::string getDocString = "Return the `";
-        getDocString += name;
-        getDocString += "` field of the style data.";
+        std::String getterString = std::string{"s_get"} + name;
+        std::String setterString = std::string{"s_set"} + name;
 
-        std::string setDocString = "Set the `";
-        setDocString += name;
-        setDocString += "` field of the style data to `$0`.";
-
-        addLuaFn(std::string{"s_get"} + name, //
+        addLuaFn(getterString, //
             [this, pmd]() -> Type { return styleData.*pmd; })
-            .doc(getDocString);
+            .doc(getterDesc);
 
-        addLuaFn(std::string{"s_set"} + name, //
+        addLuaFn(setterString, //
             [this, pmd](Type mValue) { styleData.*pmd = mValue; })
             .arg("value")
-            .doc(setDocString);
+            .doc(setterDesc);
         ;
     };
 
-    sdVar("HueMin", &StyleData::hueMin);
-    sdVar("HueMax", &StyleData::hueMax);
-    sdVar("HueInc", &StyleData::hueIncrement); // backwards-compatible
-    sdVar("HueIncrement", &StyleData::hueIncrement);
-    sdVar("PulseMin", &StyleData::pulseMin);
-    sdVar("PulseMax", &StyleData::pulseMax);
-    sdVar("PulseInc", &StyleData::pulseIncrement); // backwards-compatible
-    sdVar("PulseIncrement", &StyleData::pulseIncrement);
-    sdVar("HuePingPong", &StyleData::huePingPong);
-    sdVar("MaxSwapTime", &StyleData::maxSwapTime);
-    sdVar("3dDepth", &StyleData::_3dDepth);
-    sdVar("3dSkew", &StyleData::_3dSkew);
-    sdVar("3dSpacing", &StyleData::_3dSpacing);
-    sdVar("3dDarkenMult", &StyleData::_3dDarkenMult);
-    sdVar("3dAlphaMult", &StyleData::_3dAlphaMult);
-    sdVar("3dAlphaFalloff", &StyleData::_3dAlphaFalloff);
-    sdVar("3dPulseMax", &StyleData::_3dPulseMax);
-    sdVar("3dPulseMin", &StyleData::_3dPulseMin);
-    sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed);
-    sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult);
-    sdVar("BGTileRadius", &StyleData::bgTileRadius);
-    sdVar("BGColorOffset", &StyleData::BGColorOffset);
-    sdVar("BGRotationOffset", &StyleData::BGRotOff);
-
+    sdVar("HueMin", &StyleData::hueMin,
+        "Gets the minimum value for the hue range of a level style. The hue attribute is an "
+        "important attribute that is dedicated specifically to all colors that have the "
+        "``dynamic`` property enabled.",
+        
+        "Sets the minimum value for the hue range to `$0`. Usually you want this value at 0 "
+        "to start off at completely red.");
+    sdVar("HueMax", &StyleData::hueMax,
+        "Gets the maximum value for the hue range of a level style. Only applies to all colors "
+        "with the ``dynamic`` property enabled.",
+        
+        "Sets the maximum value for the hue range to `$0`. Usually you want this value at 360 "
+        "to end off at red, to hopefully loop the colors around.");
+    // backwards-compatible
+    sdVar("HueInc", &StyleData::hueIncrement,
+        "Alias to ``s_getHueIncrement``. Done for backwards compatibility.",
+        
+        "Alias to ``s_setHueIncrement``. Done for backwards compatibility."); 
+    sdVar("HueIncrement", &StyleData::hueIncrement,
+        "Gets how fast the hue increments from ``HueMin`` to ``HueMax``. The hue value is "
+        "added by this value every 1/60th of a second.",
+        
+        "Sets how fast the hue increments from ``HueMin`` to ``HueMax`` by `$0`. Be careful "
+        "with high values, as this can make your style induce epileptic seizures.");
+    sdVar("PulseMin", &StyleData::pulseMin,
+        "Gets the minimum range for the multiplier of the ``pulse`` attribute in style colors. "
+        "By default, this value is set to 0.",
+        
+        "Sets the minimum range for the multiplier of the ``pulse`` attribute to `$0`.");
+    sdVar("PulseMax", &StyleData::pulseMax,
+        "Gets the maximum range for the multiplier of the ``pulse`` attribute in style colors. "
+        "By default, this value is set to 0, but ideally it should be set to 1.",
+        
+        "Sets the maximum range for the multiplier of the ``pulse`` attribute to `$0`.");
+    // backwards-compatible
+    sdVar("PulseInc", &StyleData::pulseIncrement,
+        "Alias to ``s_getPulseIncrement``. Done for backwards compatibility.",
+        
+        "Alias to ``s_setPulseIncrement``. Done for backwards compatibility."); 
+    sdVar("PulseIncrement", &StyleData::pulseIncrement,
+        "Gets how fast the pulse increments from ``PulseMin`` to ``PulseMax``. The pulse value is "
+        "added by this value every 1/60th of a second.",
+        
+        "Sets how fast the pulse increments from ``PulseMin`` to ``PulseMax`` by `$0`. Be careful "
+        "with high values, as this can make your style induce epileptic seizures.");
+    sdVar("HuePingPong", &StyleData::huePingPong,
+        "Gets whether the hue should go ``Start-End-Start-End`` or ``Start-End, Start-End`` with "
+        "the hue cycling.",
+        
+        "Toggles ping ponging in the hue cycling (``Start-End-Start-End``) with `$0`.");
+    sdVar("MaxSwapTime", &StyleData::maxSwapTime,
+        "Gets the amount of time that has to pass (in 1/100th of a second) before the background color offset alternates. "
+        "The background colors by default alternate between 0 and 1. By default, this happens every second.",
+        
+        "Sets the amount of time that has to pass (in 1/100th of a second) to `$0` before the background color alternates.");
+    sdVar("3dDepth", &StyleData::_3dDepth,
+        "Gets the current amount of 3D layers that are present in the style.",
+        
+        "Sets the amount of 3D layers in a style to `$0`.");
+    sdVar("3dSkew", &StyleData::_3dSkew,
+        "Gets the current value of where the 3D skew is in the style. The Skew is what gives the 3D effect in the first "
+        "place, showing the 3D layers and giving the illusion of 3D in the game.",
+        
+        "Sets the 3D skew at value `$0`.");
+    sdVar("3dSpacing", &StyleData::_3dSpacing,
+        "Gets the spacing that is done between 3D layers. A higher number leads to more separation between layers.",
+        
+        "Sets the spacing between 3D layers to `$0`.");
+    sdVar("3dDarkenMult", &StyleData::_3dDarkenMult,
+        "Gets the darkening multiplier applied to the 3D layers in a style. This is taken from the ``main`` color.",
+        
+        "Sets the darkening multiplier to `$0` for the 3D layers.");
+    sdVar("3dAlphaMult", &StyleData::_3dAlphaMult,
+        "Gets the alpha (transparency) multiplier applied to the 3D layers in a style. Originally references the "
+        "``main`` color.",
+        
+        "Sets the alpha multiplier to `$0` for the 3D layers. A higher value makes the layers more transparent.");
+    sdVar("3dAlphaFalloff", &StyleData::_3dAlphaFalloff,
+        "Gets the alpha (transparency) multiplier applied to the 3D layers consecutively in a style. Takes "
+        "reference from the ``main`` color.",
+        
+        "Sets the alpha multiplier to `$0` for for the 3D layers and applies them layer after layer. This "
+        "property can get finnicky.");
+    sdVar("3dPulseMax", &StyleData::_3dPulseMax,
+        "Gets the highest value that the ``3DSkew`` can go in a style.",
+        
+        "Sets the highest value the ``3DSkew`` can go to `$0`.");
+    sdVar("3dPulseMin", &StyleData::_3dPulseMin,
+        "Gets the lowest value that the ``3DSkew`` can go in a style.",
+        
+        "Sets the lowest value the ``3DSkew`` can go to `$0`.");
+    sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed,
+        "Gets how fast the ``3DSkew`` moves between ``3DPulseMin`` and ``3DPulseMax``.",
+        
+        "Sets how fast the ``3DSkew`` moves between ``3DPulseMin`` and ``3DPulseMax`` by `$0`.");
+    sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult,
+        "Gets the 3D perspective multiplier of the style. Works with the attribute ``3DSpacing`` to space out "
+        "layers.",
+        
+        "Sets the 3D perspective multiplier to `$0`.");
+    sdVar("BGTileRadius", &StyleData::bgTileRadius,
+        "Gets the distances of how far the background panels are drawn. By default, this is a big enough value "
+        "so you do not see the border. However, feel free to shrink them if you'd like.",
+        
+        "Sets how far the background panels are drawn to distance `$0`.");
+    sdVar("BGColorOffset", &StyleData::BGColorOffset,
+        "Gets the offset of the style by how much the colors shift. Usually this sits between 0 and 1, but can "
+        "easily be customized.",
+        
+        "Shifts the background colors to have an offset of `$0`.");
+    sdVar("BGRotationOffset", &StyleData::BGRotOff,
+        "Gets the literal rotation offset of the background panels in degrees. This usually stays at 0, but can "
+        "be messed with to make some stylish level styles.",
+        
+        "Sets the rotation offset of the background panels to `$0` degrees.");
+        
     addLuaFn("s_setStyle", //
         [this](std::string mId) {
             styleData = assets.getStyleData(levelData->packId, mId);
