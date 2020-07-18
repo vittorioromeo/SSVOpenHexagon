@@ -248,16 +248,7 @@ void setFullscreen(GameWindow& mWindow, bool mFullscreen)
 
     mWindow.setSize(getWidth(), getHeight());
     mWindow.setFullscreen(getFullscreen());
-    if(getFullscreen())
-    {
-        mWindow.getRenderWindow().setMouseCursorVisible(
-            Config::getMouseVisible());
-    }
-    else
-    {
-        // Ignore the mouse setting if we are windowed.
-        mWindow.getRenderWindow().setMouseCursorVisible(true);
-    }
+
     recalculateSizes();
 }
 
@@ -285,7 +276,7 @@ void setCurrentResolution(
 
     mWindow.setSize(getWidth(), getHeight());
     mWindow.setFullscreen(getFullscreen());
-    mWindow.setMouseCursorVisible(Config::getMouseVisible());
+
     recalculateSizes();
 }
 void setCurrentResolutionAuto(GameWindow& mWindow)
@@ -303,7 +294,6 @@ void setCurrentResolutionAuto(GameWindow& mWindow)
 
     mWindow.setSize(getWidth(), getHeight());
     mWindow.setFullscreen(getFullscreen());
-    mWindow.setMouseCursorVisible(Config::getMouseVisible());
     recalculateSizes();
 }
 void setVsync(GameWindow& mWindow, bool mValue)
