@@ -1175,6 +1175,14 @@ void MenuGame::draw()
         window.saveScreenshot("screenshot.png");
         mustTakeScreenshot = false;
     }
+
+    if(hg::Config::getFullscreen())
+    {
+        window.setMouseCursorVisible(false);
+    }else{
+        window.setMouseCursorVisible(hg::Config::getMouseVisible());
+    }
+
 }
 
 void MenuGame::drawLevelSelection()
