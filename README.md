@@ -31,12 +31,14 @@
     sh ./build.sh
     ```
 
-    List of arguments:
-    ```-r, --run``` Run the game after build completion.  
-    ```-d, --debug``` Runs and debugs the game after build completion.  
-    ```-g, --regenerate-cmake``` Regenerates CMake files in build folder to match current OS. This is automatic, but can be done manually if needed.  
-    ```-jN``` Executes the `make` command using N threads. Default is 1.
-    ```-h, --help``` Displays this help.  
+    List of arguments:  
+    - ```-r, --run```: Run the game after build completion.  
+    - ```-d, --debug```: Runs and debugs the game after build completion.  
+    - ```-g, --regenerate-cmake```: Regenerates CMake files in build folder to match current OS. This is automatic, but can be done manually if needed.  
+    - ```-jN```: Executes the `make` command using N threads. Default is 4.  
+    - ```--mingw-debug```: Sets `-DCMAKE_BUILD_TYPE=DEBUG` for the 'cmake' command."  
+    - ```--mingw-release```: Sets `-DCMAKE_BUILD_TYPE=RELEASE` for the 'cmake' command."  
+    - ```-h, --help```: Displays this help.  
 
 6. (Optional) Download assets:
 
@@ -110,6 +112,7 @@
     ```
 
     On Linux, SFML relies on you to install [all the dependencies](https://www.sfml-dev.org/tutorials/2.5/compile-with-cmake.php) yourself, so execute the following command below to do so:
+
     ```bash
     sudo apt-get install libxrandr-dev libopengl-dev libudev-dev libfreetype-dev libopenal-dev libvorbis-dev libflac-dev
     ```
@@ -130,12 +133,12 @@
     ```
 
     List of arguments:  
-    ```-r, --run``` Run the game after build completion.  
-    ```-d, --debug``` Runs and debugs the game after build completion.  
-    ```-v, --valgrind``` Valgrinds the game after build completion.  
-    ```-g, --regenerate-cmake``` Regenerates CMake files in build folder to match current OS. This is automatic, but can be done manually if needed.  
-    ```-jN``` Executes the `make` command using N threads. Default is 1.
-    ```-h, --help``` Displays this help.  
+    - ```-r, --run```: Run the game after build completion.  
+    - ```-d, --debug```: Runs and debugs the game after build completion.  
+    - ```-v, --valgrind```: Valgrinds the game after build completion.  
+    - ```-g, --regenerate-cmake```: Regenerates CMake files in build folder to match current OS. This is automatic, but can be done manually if needed.  
+    - ```-jN```: Executes the `make` command using N threads. Default is 4.  
+    - ```-h, --help```: Displays this help.  
     
 
 3. (Optional) Download assets:
