@@ -88,16 +88,7 @@ int main(int argc, char* argv[])
     window.setVsync(hg::Config::getVsync());
     window.setFPSLimited(hg::Config::getLimitFPS());
     window.setMaxFPS(hg::Config::getMaxFPS());
-    if(hg::Config::getFullscreen())
-    {
-        window.getRenderWindow().setMouseCursorVisible(
-            hg::Config::getMouseVisible());
-    }
-    else
-    {
-        // Ignore the mouse setting if we are windowed.
-        window.getRenderWindow().setMouseCursorVisible(true);
-    }
+
     hg::Config::setTimerStatic(window, hg::Config::getTimerStatic());
 
     auto assets = std::make_unique<hg::HGAssets>(steamManager);
