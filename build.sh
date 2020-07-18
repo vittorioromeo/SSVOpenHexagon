@@ -26,8 +26,8 @@ while [[ $# -gt 0 ]]; do
             echo "    -g, --regenerate-cmake | Regenerates CMake files in build folder to match current OS."
             echo "                              (This is automatic, but can be done manually if needed.)"
             echo "    -jN                    | Executes the 'make' command using N threads. Default is 4."
-            echo "    --mingw-debug          | Sets the -DCMAKE_BUILD_TYPE=DEBUG for the 'cmake' command. (Only for MinGW.)"
-            echo "    --mingw-release        | Sets the -DCMAKE_BUILD_TYPE=RELEASE for the 'cmake' command. (Only for MinGW.)"
+            echo "    --mingw-debug          | Sets -DCMAKE_BUILD_TYPE=DEBUG for the 'cmake' command. (Only for MinGW.)"
+            echo "    --mingw-release        | Sets -DCMAKE_BUILD_TYPE=RELEASE for the 'cmake' command. (Only for MinGW.)"
             echo "    -h, --help             | Displays this help."
             echo ""
             exit 1
