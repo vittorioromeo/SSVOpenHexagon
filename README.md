@@ -25,45 +25,22 @@
     
     **Note:** Not all `git` versions can recognize `--remote-submodules`. If you are cloning this git simply just to compile, you can omit this and you'll be fine. Most IDEs and the MinGW library offered in step 1 should be able to recognize `--remote-submodules`
 
-5. `cd` into the build folder:
+5. Execute the build script:
 
     ```bash
-    cd SSVOpenHexagon/build
+    sh ./build.sh
     ```
 
-6. Run CMake and build:
+    List of arguments:  
+    - ```-r, --run```: Run the game after build completion.  
+    - ```-d, --debug```: Runs and debugs the game after build completion.  
+    - ```-g, --regenerate-cmake```: Regenerates CMake files in build folder to match current OS. This is automatic, but can be done manually if needed.  
+    - ```-jN```: Executes the `make` command using N threads. Default is 4.  
+    - ```--mingw-debug```: Sets `-DCMAKE_BUILD_TYPE=DEBUG` for the 'cmake' command."  
+    - ```--mingw-release```: Sets `-DCMAKE_BUILD_TYPE=RELEASE` for the 'cmake' command."  
+    - ```-h, --help```: Displays this help.  
 
-    ```bash
-    cmake .. -G"MinGW Makefiles"
-    make -j8
-    ```
-    
-    **Note 1:** If your bash is not recognizing CMake, check your environment variables to make sure that CMake is in there. If you still can't get it to work with bash, you can use ``cmd.exe`` and it should work just fine
-
-    **Note 2:** Only use ``-j8`` if you are confident your PC is powerful enough to compile the instructions on multiple threads. If you have a lower end PC, lower the number of threads or remove the flag entirely. This will result in longer compiling times but will ensure you aren't overworking your PC.
-
-7. Copy build artifacts to `_RELEASE` folder (You will have to use bash to do this):
-
-    ```bash
-    cp ./_deps/sfml-build/lib/sfml-audio-2.dll ../_RELEASE
-    cp ./_deps/sfml-build/lib/sfml-graphics-2.dll ../_RELEASE
-    cp ./_deps/sfml-build/lib/sfml-network-2.dll ../_RELEASE
-    cp ./_deps/sfml-build/lib/sfml-system-2.dll ../_RELEASE
-    cp ./_deps/sfml-build/lib/sfml-window-2.dll ../_RELEASE
-    cp ./_deps/sfml-src/extlibs/bin/x64/openal32.dll ../_RELEASE
-    cp ./_deps/zlib-build/libzlib1.dll ../_RELEASE
-    cp ./OHWorkshopUploader.exe ../_RELEASE
-    cp ./SSVOpenHexagon.exe ../_RELEASE
-    ```
-
-8. Run the game:
-
-    ```bash
-    cd ../_RELEASE
-    ./SSVOpenHexagon.exe
-    ```
-
-9. (Optional) Download assets:
+6. (Optional) Download assets:
 
     ```bash
     # (from repository root)
@@ -117,6 +94,54 @@
     ```
 
 6. (Optional) Download assets:
+
+    ```bash
+    # (from repository root)
+    ./wget-assets.sh ./_RELEASE/
+    ```
+
+    *(or clone [SSVOpenHexagonAssets](https://github.com/SuperV1234/SSVOpenHexagonAssets))*
+
+
+## How to build on Debian distros
+
+0. Install dependencies
+
+    ```bash
+    sudo apt-get install git make cmake gcc g++
+    ```
+
+    On Linux, SFML relies on you to install [all the dependencies](https://www.sfml-dev.org/tutorials/2.5/compile-with-cmake.php) yourself, so execute the following command below to do so:
+
+    ```bash
+    sudo apt-get install libxrandr-dev libopengl-dev libudev-dev libfreetype-dev libopenal-dev libvorbis-dev libflac-dev
+    ```
+
+    Ensure you have the latest versions on all dependencies.
+    
+1. Clone this repository with submodules:
+
+    ```bash
+    git clone --recurse-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
+    cd SSVOpenHexagon
+    ```
+
+2. Execute the build script:
+
+    ```bash
+    ./build.sh
+    ```
+
+    List of arguments:  
+    - ```-r, --run```: Run the game after build completion.  
+    - ```-d, --debug```: Runs and debugs the game after build completion.  
+    - ```-v, --valgrind```: Valgrinds the game after build completion.  
+    - ```-g, --regenerate-cmake```: Regenerates CMake files in build folder to match current OS. This is automatic, but can be done manually if needed.  
+    - ```-jN```: Executes the `make` command using N threads. Default is 4.  
+    - ```-h, --help```: Displays this help.  
+    
+
+3. (Optional) Download assets:
 
     ```bash
     # (from repository root)
