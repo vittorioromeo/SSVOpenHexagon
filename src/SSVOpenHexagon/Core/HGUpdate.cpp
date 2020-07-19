@@ -21,24 +21,35 @@ using namespace hg::Utils;
 namespace hg
 {
 
+void nameFormat(std::string& name)
+{
+    name[0] = std::toupper(name[0]);
+}
+
+[[nodiscard]] std::string diffFormat(float diff)
+{
+    char buf[255];
+    std::snprintf(buf, sizeof(buf), "%g", diff);
+    return buf;
+}
+
+[[nodiscard]] std::string timeFormat(float time)
+{
+    char buf[255];
+    std::snprintf(buf, sizeof(buf), "%.3f", time);
+    return buf;
+}
+
 void HexagonGame::update(ssvu::FT mFT)
 {
     mFT *= Config::getTimescale();
 
     // TODO: show best record (here) and last run + best record (in menu)
 
-    // Name formatter
     std::string nameStr = levelData->name;
-    nameStr[0] = std::toupper(nameStr[0]);
-
-    // Difficulty multipler formatter
-    std::string diffStr = std::to_string(difficultyMult);
-    size_t endPos = diffStr.find_last_not_of('0');
-    diffStr.erase(endPos + 1 + (int)(diffStr[endPos] == '.'), std::string::npos); // at least 1 dp
-
-    // Time formatter
-    std::string timeStr = std::to_string(std::floor(status.getTimeSeconds() * 1000) / 1000); // 3 dp
-    timeStr.erase(timeStr.find_first_of('.') + 4, std::string::npos);
+    nameFormat(nameStr);
+    std::string diffStr = diffFormat(difficultyMult);
+    std::string timeStr = timeFormat(status.getTimeSeconds());
 
     // Presence formatter
     std::string presenceStr = nameStr + " [x" + diffStr + "] - " + timeStr + "s";
