@@ -48,8 +48,8 @@ void HexagonGame::update(ssvu::FT mFT)
 
     std::string nameStr = levelData->name;
     nameFormat(nameStr);
-    std::string diffStr = diffFormat(difficultyMult);
-    std::string timeStr = timeFormat(status.getTimeSeconds());
+    const std::string diffStr = diffFormat(difficultyMult);
+    const std::string timeStr = timeFormat(status.getTimeSeconds());
 
     // Presence formatter
     std::string presenceStr = nameStr + " [x" + diffStr + "] - " + timeStr + "s";
