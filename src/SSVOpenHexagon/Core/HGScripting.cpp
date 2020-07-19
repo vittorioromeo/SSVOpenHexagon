@@ -19,6 +19,14 @@ namespace hg
 
 void HexagonGame::initLua_Utils()
 {
+    addLuaFn("u_getRandomSeed", //
+        [this] { return rng.get_seed(); })
+        .doc(
+            "Obtain a random seed for use in Lua scripting. This function "
+            "should always be used to initialize `math.randomseed` before "
+            "generating random numbers, as it will guarantee determinism "
+            "across replays and enable score validation.");
+
     addLuaFn("u_log", //
         [this](std::string mLog) { ssvu::lo("lua") << mLog << "\n"; })
         .arg("message")

@@ -19,8 +19,16 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace hg::Utils;
+
+
 namespace hg
 {
+
+[[nodiscard]] static random_number_generator initializeRng()
+{
+    const random_number_generator::seed_type seed = ssvu::getRndEngine()();
+    return random_number_generator{seed};
+}
 
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
@@ -87,7 +95,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
+      assets(mAssets),
+      window(mGameWindow), player{ssvs::zeroVec2f}, rng{initializeRng()},
       fpsWatcher(window)
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
@@ -137,6 +146,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
+    // Initialize random number generator
+    rng = initializeRng();
     status = HexagonGameStatus{};
 
     // Audio cleanup

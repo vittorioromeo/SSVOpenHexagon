@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
@@ -104,7 +105,9 @@ private:
     bool mustTakeScreenshot{false};
     bool mustChangeSides{false};
 
+    random_number_generator rng;
     HexagonGameStatus status;
+
     std::string restartId;
     float difficultyMult{1};
     int inputImplLastMovement;
