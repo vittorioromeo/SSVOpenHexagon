@@ -1,9 +1,3 @@
--- initialize random seed
-math.randomseed(u_getRandomSeed())
-math.random()
-math.random()
-math.random()
-
 -- shuffle: shuffles an array
 function shuffle(t)
 	local iterations = #t
