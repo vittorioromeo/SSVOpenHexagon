@@ -146,8 +146,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
-    // Initialize random number generator
+    // ------------------------------------------------------------------------
+    // Initialize random number generator (generate a new seed)
     rng = initializeRng();
+
     status = HexagonGameStatus{};
 
     // Audio cleanup
@@ -216,8 +218,22 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     {
         runLuaFunction<void>("onUnload");
     }
+
     lua = Lua::LuaContext{};
     initLua();
+
+    // ------------------------------------------------------------------------
+    // Initialize Lua random seed from random generator one:
+    try
+    {
+        lua.executeCode("math.randomseed(u_getRandomSeed())");
+    }
+    catch(...)
+    {
+        ssvu::lo("HexagonGame::negGame")
+            << "Failure to initialize Lua random generator seed\n";
+    }
+
     runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
     runLuaFunction<void>("onLoad");
