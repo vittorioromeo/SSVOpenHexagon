@@ -28,7 +28,7 @@ void HexagonGame::update(ssvu::FT mFT)
     // TODO: show best record (here) and last run + best record (in menu)
 
     // Name formatter
-    std::string nameStr = std::string(levelData->name);
+    std::string nameStr = levelData->name;
     nameStr[0] = std::toupper(nameStr[0]);
 
     // Difficulty multipler formatter
