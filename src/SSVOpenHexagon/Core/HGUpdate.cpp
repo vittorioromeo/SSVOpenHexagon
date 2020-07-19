@@ -196,10 +196,7 @@ void HexagonGame::update(ssvu::FT mFT)
 
             if(mustChangeSides && walls.empty())
             {
-                // TODO: this should be changed to use the proper random seed
-
-                sideChange(
-                    getRndI(levelStatus.sidesMin, levelStatus.sidesMax + 1));
+                sideChange(rng.get_int(levelStatus.sidesMin, levelStatus.sidesMax + 1));
             }
 
             updateLevel(mFT);
