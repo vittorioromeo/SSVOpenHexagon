@@ -22,10 +22,10 @@ void HexagonGame::initLua_Utils()
     addLuaFn("u_getRandomSeed", //
         [this] { return rng.get_seed(); })
         .doc(
-            "Obtain a random seed for use in Lua scripting. This function "
-            "should always be used to initialize `math.randomseed` before "
-            "generating random numbers, as it will guarantee determinism "
-            "across replays and enable score validation.");
+            "Obtain the current random seed, automatically generated at the "
+            "beginning of the level. `math.randomseed` is automatically "
+            "initialized with the result of this function at the beginning of "
+            "a level.");
 
     addLuaFn("u_log", //
         [this](std::string mLog) { ssvu::lo("lua") << mLog << "\n"; })
