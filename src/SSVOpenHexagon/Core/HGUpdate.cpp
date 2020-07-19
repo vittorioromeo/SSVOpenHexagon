@@ -32,7 +32,7 @@ void HexagonGame::update(ssvu::FT mFT)
     nameStr[0] = std::toupper(nameStr[0]);
 
     // Difficulty multipler formatter
-    std::string diffStr = std::to_string(HexagonGame::difficultyMult);
+    std::string diffStr = std::to_string(difficultyMult);
     size_t endPos = diffStr.find_last_not_of('0');
     diffStr.erase(endPos + 1 + (int)(diffStr[endPos] == '.'), std::string::npos); // at least 1 dp
 
