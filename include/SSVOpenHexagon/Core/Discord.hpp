@@ -32,7 +32,7 @@ public:
     bool run_callbacks();
 
     bool set_rich_presence_in_menu();
-    bool set_rich_presence_in_game(std::string str_status);
+    bool set_rich_presence_in_game(const std::string& str_status);
 };
 
 } // namespace hg::Discord
