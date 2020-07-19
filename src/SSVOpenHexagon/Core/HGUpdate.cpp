@@ -21,18 +21,43 @@ using namespace hg::Utils;
 namespace hg
 {
 
+static void nameFormat(std::string& name)
+{
+    name[0] = std::toupper(name[0]);
+}
+
+[[nodiscard]] static std::string diffFormat(float diff)
+{
+    char buf[255];
+    std::snprintf(buf, sizeof(buf), "%g", diff);
+    return buf;
+}
+
+[[nodiscard]] static std::string timeFormat(float time)
+{
+    char buf[255];
+    std::snprintf(buf, sizeof(buf), "%.3f", time);
+    return buf;
+}
+
 void HexagonGame::update(ssvu::FT mFT)
 {
     mFT *= Config::getTimescale();
 
-    // TODO: refactor to avoid repetition, and truncate floating point number
-    // TODO: also show best record (here) and last run + best record (in menu)
-    steamManager.set_rich_presence_in_game(
-        levelData->name, status.getTimeSeconds());
+    // TODO: show best record (here) and last run + best record (in menu)
+
+    std::string nameStr = levelData->name;
+    nameFormat(nameStr);
+    const std::string diffStr = diffFormat(difficultyMult);
+    const std::string timeStr = timeFormat(status.getTimeSeconds());
+
+    // Presence formatter
+    const std::string presenceStr = nameStr + " [x" + diffStr + "] - " + timeStr + "s";
+
+    steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
     steamManager.run_callbacks();
 
-    discordManager.set_rich_presence_in_game(
-        levelData->name, status.getTimeSeconds());
+    discordManager.set_rich_presence_in_game(presenceStr);
     discordManager.run_callbacks();
 
     hg::Joystick::update();
