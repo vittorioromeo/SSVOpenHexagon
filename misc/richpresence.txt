@@ -4,7 +4,7 @@
     {
 	    "tokens"
 	    {
-	    	"#InGame"	"%levelname%: %time%s"
+	    	"#InGame"	"%levelname% [x%difficultymult%] - %time%s"
 	    	"#InMenu"	"In menu"
 	    }
     }

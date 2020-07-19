@@ -6,6 +6,8 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
+#include <math.h>
+
 #include "discord/discord.h"
 
 namespace hg::Discord
@@ -99,21 +101,16 @@ bool discord_manager::set_rich_presence_in_menu()
     return true;
 }
 
-bool discord_manager::set_rich_presence_in_game(
-    std::string_view level_name, float time)
+bool discord_manager::set_rich_presence_in_game(const std::string &str_status)
 {
     if(!_initialized)
     {
         return false;
     }
 
-    static std::string buf;
-    buf.clear();
-    buf = std::string(level_name) + " - " + std::to_string(time) + "s";
-
     discord::Activity activity{};
     activity.SetState("In game");
-    activity.SetDetails(buf.data());
+    activity.SetDetails(str_status.data());
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
         {
