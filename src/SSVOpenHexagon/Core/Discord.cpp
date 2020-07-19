@@ -108,9 +108,6 @@ bool discord_manager::set_rich_presence_in_game(std::string str_status)
         return false;
     }
 
-    static std::string buf;
-    buf.clear();
-    buf = str_status;
 
     discord::Activity activity{};
     activity.SetState("In game");
