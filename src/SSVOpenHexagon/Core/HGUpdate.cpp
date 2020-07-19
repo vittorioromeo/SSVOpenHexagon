@@ -52,7 +52,7 @@ void HexagonGame::update(ssvu::FT mFT)
     const std::string timeStr = timeFormat(status.getTimeSeconds());
 
     // Presence formatter
-    std::string presenceStr = nameStr + " [x" + diffStr + "] - " + timeStr + "s";
+    const std::string presenceStr = nameStr + " [x" + diffStr + "] - " + timeStr + "s";
 
     steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
     steamManager.run_callbacks();
