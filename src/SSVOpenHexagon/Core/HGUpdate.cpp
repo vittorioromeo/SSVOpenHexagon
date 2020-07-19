@@ -37,7 +37,7 @@ void HexagonGame::update(ssvu::FT mFT)
     diffStr.erase(endPos + 1 + (int)(diffStr[endPos] == '.'), std::string::npos); // at least 1 dp
 
     // Time formatter
-    std::string timeStr = std::to_string(floorf(status.getTimeSeconds() * 1000) / 1000); // 3 dp
+    std::string timeStr = std::to_string(std::floor(status.getTimeSeconds() * 1000) / 1000); // 3 dp
     timeStr.erase(timeStr.find_first_of('.') + 4, std::string::npos);
 
     // Presence formatter
