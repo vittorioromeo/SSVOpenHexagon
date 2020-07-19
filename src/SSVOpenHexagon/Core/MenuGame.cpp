@@ -1179,10 +1179,11 @@ void MenuGame::draw()
     if(hg::Config::getFullscreen())
     {
         window.setMouseCursorVisible(false);
-    }else{
+    }
+    else
+    {
         window.setMouseCursorVisible(hg::Config::getMouseVisible());
     }
-
 }
 
 void MenuGame::drawLevelSelection()
