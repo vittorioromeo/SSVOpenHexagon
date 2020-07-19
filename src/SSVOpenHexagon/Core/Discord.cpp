@@ -101,7 +101,7 @@ bool discord_manager::set_rich_presence_in_menu()
     return true;
 }
 
-bool discord_manager::set_rich_presence_in_game(const std::string &str_status)
+bool discord_manager::set_rich_presence_in_game(const std::string& str_status)
 {
     if(!_initialized)
     {
