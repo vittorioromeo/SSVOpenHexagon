@@ -103,7 +103,8 @@
     *(or clone [SSVOpenHexagonAssets](https://github.com/SuperV1234/SSVOpenHexagonAssets))*
 
 
-## How to build on Debian distros
+## How to build on Debian Distributions
+(Tested on Ubuntu 20.04 LTS and Linux Mint 20 Cinnamon)
 
 0. Install dependencies
 
@@ -118,6 +119,8 @@
     ```
 
     Ensure you have the latest versions on all dependencies.
+    
+    **Tip:** If your distribution is not able to find ``libopengl-dev``, you can install two packages: ``libglm-dev`` and ``libglew-dev``. Install both of these and it should substitute for OpenGL.
     
 1. Clone this repository with submodules:
 
