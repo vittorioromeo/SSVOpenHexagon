@@ -21,19 +21,19 @@ using namespace hg::Utils;
 namespace hg
 {
 
-void nameFormat(std::string& name)
+static void nameFormat(std::string& name)
 {
     name[0] = std::toupper(name[0]);
 }
 
-[[nodiscard]] std::string diffFormat(float diff)
+[[nodiscard]] static std::string diffFormat(float diff)
 {
     char buf[255];
     std::snprintf(buf, sizeof(buf), "%g", diff);
     return buf;
 }
 
-[[nodiscard]] std::string timeFormat(float time)
+[[nodiscard]] static std::string timeFormat(float time)
 {
     char buf[255];
     std::snprintf(buf, sizeof(buf), "%.3f", time);
