@@ -52,8 +52,8 @@ public:
     bool unlock_achievement(std::string_view name);
 
     bool set_rich_presence_in_menu();
-    bool set_rich_presence_in_game(
-        std::string_view level_name_format, std::string_view difficulty_mult_format, std::string_view time_format);
+    bool set_rich_presence_in_game(std::string_view level_name_format,
+        std::string_view difficulty_mult_format, std::string_view time_format);
 
     bool set_and_store_stat(std::string_view name, int data);
     [[nodiscard]] bool get_achievement(bool* out, std::string_view name);

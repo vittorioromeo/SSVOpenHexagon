@@ -196,15 +196,18 @@ bool steam_manager::set_rich_presence_in_menu()
 }
 
 bool steam_manager::set_rich_presence_in_game(
-    std::string_view level_name_format, std::string_view difficulty_mult_format, std::string_view time_format)
+    std::string_view level_name_format, std::string_view difficulty_mult_format,
+    std::string_view time_format)
 {
     if(!_initialized)
     {
         return false;
     }
 
-    return SteamFriends()->SetRichPresence("levelname", level_name_format.data()) &&
-           SteamFriends()->SetRichPresence("difficultymult", difficulty_mult_format.data()) &&
+    return SteamFriends()->SetRichPresence(
+               "levelname", level_name_format.data()) &&
+           SteamFriends()->SetRichPresence(
+               "difficultymult", difficulty_mult_format.data()) &&
            SteamFriends()->SetRichPresence("time", time_format.data()) &&
            SteamFriends()->SetRichPresence("steam_display", "#InGame");
 }
