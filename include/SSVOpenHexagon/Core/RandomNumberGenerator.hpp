@@ -6,6 +6,7 @@
 
 #include <SSVUtils/Internal/PCG/PCG.hpp>
 
+#include <cassert>
 #include <random>
 
 namespace hg
@@ -24,6 +25,13 @@ public:
     explicit random_number_generator(const seed_type seed) noexcept;
 
     [[nodiscard]] seed_type get_seed() const noexcept;
+
+    template <typename T>
+    [[nodiscard]] T get_int(const T min, const T max) noexcept
+    {
+        assert(min <= max);
+        return std::uniform_int_distribution<T>{min, max}(_rng);
+    }
 };
 
 } // namespace hg
