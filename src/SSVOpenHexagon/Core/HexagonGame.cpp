@@ -226,7 +226,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Initialize Lua random seed from random generator one:
     try
     {
-        lua.executeCode("math.randomseed(u_getRandomSeed())");
+        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())");
     }
     catch(...)
     {
