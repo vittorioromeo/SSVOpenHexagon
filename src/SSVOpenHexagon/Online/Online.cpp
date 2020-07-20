@@ -516,7 +516,7 @@ void initializeValidators(HGAssets& mAssets)
 
         HG_LO_VERBOSE("hg::Online::initializeValidators")
             << "Finished initializing validators...\n";
-    */
+    //*/
 }
 
 const sf::IpAddress& getCurrentIpAddress()
