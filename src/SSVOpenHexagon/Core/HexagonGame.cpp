@@ -19,8 +19,16 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace hg::Utils;
+
+
 namespace hg
 {
+
+[[nodiscard]] static random_number_generator initializeRng()
+{
+    const random_number_generator::seed_type seed = ssvu::getRndEngine()();
+    return random_number_generator{seed};
+}
 
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
@@ -87,7 +95,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), window(mGameWindow), player{ssvs::zeroVec2f},
+      assets(mAssets),
+      window(mGameWindow), player{ssvs::zeroVec2f}, rng{initializeRng()},
       fpsWatcher(window)
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
@@ -136,6 +145,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     firstPlay = mFirstPlay;
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
+
+    // ------------------------------------------------------------------------
+    // Initialize random number generator (generate a new seed)
+    rng = initializeRng();
 
     status = HexagonGameStatus{};
 
@@ -205,8 +218,22 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     {
         runLuaFunction<void>("onUnload");
     }
+
     lua = Lua::LuaContext{};
     initLua();
+
+    // ------------------------------------------------------------------------
+    // Initialize Lua random seed from random generator one:
+    try
+    {
+        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())");
+    }
+    catch(...)
+    {
+        ssvu::lo("HexagonGame::negGame")
+            << "Failure to initialize Lua random generator seed\n";
+    }
+
     runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
     runLuaFunction<void>("onLoad");

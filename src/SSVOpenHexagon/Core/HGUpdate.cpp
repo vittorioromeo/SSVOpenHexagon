@@ -196,8 +196,7 @@ void HexagonGame::update(ssvu::FT mFT)
 
             if(mustChangeSides && walls.empty())
             {
-                sideChange(
-                    getRndI(levelStatus.sidesMin, levelStatus.sidesMax + 1));
+                sideChange(rng.get_int(levelStatus.sidesMin, levelStatus.sidesMax + 1));
             }
 
             updateLevel(mFT);
