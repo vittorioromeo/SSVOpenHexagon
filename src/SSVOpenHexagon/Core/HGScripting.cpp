@@ -310,8 +310,8 @@ void HexagonGame::initLua_LevelControl()
                                 const std::string& setterDesc) {
         using Type = std::decay_t<decltype(levelStatus.*pmd)>;
 
-        std::String getterString = std::string{"l_get"} + name;
-        std::String setterString = std::string{"l_set"} + name;
+        std::string getterString = std::string{"l_get"} + name;
+        std::string setterString = std::string{"l_set"} + name;
 
         addLuaFn(getterString, //
             [this, pmd]() -> Type { return levelStatus.*pmd; })
@@ -632,10 +632,10 @@ void HexagonGame::initLua_StyleControl()
     const auto sdVar = [this](const std::string& name, auto pmd, 
                                 const std::string& getterDesc, 
                                 const std::string& setterDesc) {
-        using Type = std::decay_t<decltype(levelStatus.*pmd)>;
+        using Type = std::decay_t<decltype(styleData.*pmd)>;
 
-        std::String getterString = std::string{"s_get"} + name;
-        std::String setterString = std::string{"s_set"} + name;
+        std::string getterString = std::string{"s_get"} + name;
+        std::string setterString = std::string{"s_set"} + name;
 
         addLuaFn(getterString, //
             [this, pmd]() -> Type { return styleData.*pmd; })
