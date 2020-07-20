@@ -120,6 +120,8 @@ Below are the Core Functions, which are the base functions that help the game as
 
 Below are the utility functions, which can be identified with the "u_" prefix. These are overall functions that either help utilize the game engine, be incredibly beneficial to pack developers, or help simplify complex calculations.
 
+* **`size_t u_getAttemptRandomSeed()`**: Obtain the current random seed, automatically generated at the beginning of the level. `math.randomseed` is automatically initialized with the result of this function at the beginning of a level.
+
 * **`void u_log(string message)`**: Print out `message` to the console.
 
 * **`void u_execScript(string scriptFilename)`**: Execute the script located at `<pack>/Scripts/scriptFilename`.
