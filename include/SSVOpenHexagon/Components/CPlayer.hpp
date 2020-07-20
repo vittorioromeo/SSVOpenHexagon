@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
+#include "CWall.hpp"
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
@@ -23,9 +24,11 @@ private:
     sf::Vector2f pRight;
     sf::Vector2f startPos;
     sf::Vector2f pos;
+    sf::Vector2f lastPos;
 
     float hue;
     float angle;
+    float lastAngle;
     float size;
     float speed;
     float focusSpeed;
@@ -42,12 +45,18 @@ private:
 public:
     CPlayer(const sf::Vector2f& mStartPos) noexcept;
 
+    [[nodiscard]] sf::Vector2f getPosition() const;
+    [[nodiscard]] sf::Vector2f getStartPosition() const;
     [[nodiscard]] float getPlayerAngle() const;
     void setPlayerAngle(const float newAng);
     void playerSwap(HexagonGame& mHexagonGame, bool mPlaySound);
+    void kill(HexagonGame& mHexagonGame, bool mEffect);
 
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
+
+    void push(HexagonGame& mHexagonGame, hg::CWall& wall);
+    void wallCollide(HexagonGame& mHexagonGame, hg::CWall& wall);
 };
 
 } // namespace hg

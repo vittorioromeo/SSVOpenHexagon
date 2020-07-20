@@ -32,8 +32,11 @@ public:
         float mThickness, float mDistance, const SpeedData& mSpeed,
         const SpeedData& mCurve);
 
-    void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
-        ssvu::FT mFT);
+    void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT);
+
+    bool moveTowardsCenter(HexagonGame& mHexagonGame, ssvu::FT mFT, sf::Vector2f& vp, const sf::Vector2f& mCenterPos);
+    bool moveCurve(HexagonGame& mHexagonGame, ssvu::FT mFT, sf::Vector2f& vp, const sf::Vector2f& mCenterPos);
+
     void draw(HexagonGame& mHexagonGame);
 
     void setHueMod(float mHueMod) noexcept;
