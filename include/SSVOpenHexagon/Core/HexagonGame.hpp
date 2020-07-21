@@ -59,6 +59,7 @@ public:
     CPlayer player;
     std::vector<CWall> walls;
     CCustomWallManager cwManager;
+    float timeUntilRichPresenceUpdate = 0.f;
 
 private:
     ssvs::Camera backgroundCamera{window,
