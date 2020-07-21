@@ -274,7 +274,7 @@ private:
                 [](const std::string& ret, const std::string& name,
                     const std::string& args, const std::string& docs) {
                     std::cout << "* **`" << ret << " " << name << "(" << args
-                              << ")`**: " << docs << '\n' << std::endl;
+                              << ")`**: " << docs << "\n\n";
                 }, i);
         }
         
