@@ -112,7 +112,7 @@ public:
         fnEntries.at(category).push_back(FnEntry{fnRet, fnName, fnArgs, fnDocs});
     }
 
-    [[nodiscard]] std::size_t getNumCategories() {
+    [[nodiscard]] std::size_t getNumCategories() const noexcept {
         return NUM_CATEGORIES;
     }
 
