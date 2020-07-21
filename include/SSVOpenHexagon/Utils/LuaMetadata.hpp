@@ -26,7 +26,7 @@ private:
     std::array<std::vector<FnEntry>, NUM_CATEGORIES> fnEntries;
     constexpr static std::array<std::string_view, NUM_CATEGORIES> prefixCategories = {"u_", "m_", "t_", "e_", "l_", "s_", "w_", "cw_", "Miscellaneous"};
 
-    [[nodiscard]] std::size_t getCategoryFromName(const std::string_view fnName) 
+    [[nodiscard]] std::size_t getCategoryIndexFromName(const std::string_view fnName) 
     {
         const std::size_t underscoreIndex = fnName.find("_");
         if (underscoreIndex == std::string::npos) {
