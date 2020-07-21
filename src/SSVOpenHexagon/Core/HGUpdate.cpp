@@ -55,9 +55,10 @@ void HexagonGame::update(ssvu::FT mFT)
     timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
 
     // Presence formatter
-    const std::string presenceStr = nameStr + " [x" + diffStr + "] - " + timeStr + "s";
+    const std::string presenceStr =
+        nameStr + " [x" + diffStr + "] - " + timeStr + "s";
 
-    if (timeUntilRichPresenceUpdate <= 0.f)
+    if(timeUntilRichPresenceUpdate <= 0.f)
     {
         steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
         discordManager.set_rich_presence_in_game(presenceStr);
@@ -202,7 +203,8 @@ void HexagonGame::update(ssvu::FT mFT)
 
             if(mustChangeSides && walls.empty())
             {
-                sideChange(rng.get_int(levelStatus.sidesMin, levelStatus.sidesMax + 1));
+                sideChange(rng.get_int(
+                    levelStatus.sidesMin, levelStatus.sidesMax + 1));
             }
 
             updateLevel(mFT);
