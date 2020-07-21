@@ -266,9 +266,9 @@ private:
     {
         for (std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i) 
         {
-            std::cout << "\n" 
+            std::cout << '\n' 
                       << luaMetadata.prefixHeaders.at(i) 
-                      << "\n" << std::endl;
+                      << "\n\n";
             
             luaMetadata.forFnEntries(
                 [](const std::string& ret, const std::string& name,
