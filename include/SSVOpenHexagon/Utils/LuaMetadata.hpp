@@ -108,7 +108,7 @@ public:
     void addFnEntry(const std::string& fnRet, const std::string& fnName,
         const std::string& fnArgs, const std::string& fnDocs)
     {
-        const int category = getCategoryFromName(fnName);
+        const std::size_t categoryIndex = getCategoryIndexFromName(fnName);
         fnEntries.at(category).push_back(FnEntry{fnRet, fnName, fnArgs, fnDocs});
     }
 
