@@ -339,11 +339,13 @@ void HexagonGame::initLua_LevelControl()
         "to "
         "all walls immediately, and changes apply as soon as the next wall "
         "is created.");
+
     lsVar("SpeedInc", &LevelStatus::speedInc,
         "Gets the speed increment of the level. This is applied every level "
-        "increment to the speed multiplier. Incrementation is additive.",
+        "increment to the speed multiplier. Increments are additive.",
 
         "Sets the speed increment of the level to `$0`.");
+
     lsVar("SpeedMax", &LevelStatus::speedMax,
         "Gets the maximum speed of the level. This is the highest that speed "
         "can go; speed can not get any higher than this.",
@@ -351,20 +353,23 @@ void HexagonGame::initLua_LevelControl()
         "Sets the maximum speed of the level to `$0`. Keep in mind that speed "
         "keeps going past the speed max, so setting a higher speed max may "
         "make the speed instantly increase to the max.");
+
     lsVar("RotationSpeed", &LevelStatus::rotationSpeed,
         "Gets the rotation speed of the level. Is incremented by "
         "``RotationSpeedInc`` every increment and caps at "
         "``RotationSpeedMax``.",
 
-        "Sets the rotation speed of the level to `$s0`. Changes apply "
+        "Sets the rotation speed of the level to `$0`. Changes apply "
         "immediately.");
+
     lsVar("RotationSpeedInc", &LevelStatus::rotationSpeedInc,
         "Gets the rotation speed increment of the level. This is "
         "applied every level increment to the rotation speed. "
-        "Incrementation is additive.",
+        "Increments are additive.",
 
         "Sets the rotation speed increment of the level to `$0`. "
         "Is effective on the next level increment.");
+
     lsVar("RotationSpeedMax", &LevelStatus::rotationSpeedMax,
         "Gets the maximum rotation speed of the level. This is the "
         "highest that rotation speed can go; rotation speed can not "
@@ -374,6 +379,7 @@ void HexagonGame::initLua_LevelControl()
         "in mind that rotation speed keeps going past the max, so "
         "setting a higher rotation speed max may make the rotation speed "
         "instantly increase to the max.");
+
     lsVar("DelayMult", &LevelStatus::delayMult,
         "Gets the delay multiplier of the level. The delay multiplier "
         "is the multiplier used to assist in spacing patterns, especially "
@@ -384,11 +390,13 @@ void HexagonGame::initLua_LevelControl()
         "to "
         "patterns immediately, and changes apply as soon as the next pattern "
         "is spawned.");
+
     lsVar("DelayInc", &LevelStatus::delayInc,
         "Gets the delay increment of the level. This is applied every level "
-        "increment to the delay multiplier. Incrementation is additive.",
+        "increment to the delay multiplier. Increments are additive.",
 
         "Sets the delay increment of the level to `$0`.");
+
     lsVar("DelayMin", &LevelStatus::delayMin,
         "Gets the minimum delay of the level. This is the lowest that delay "
         "can go; delay can not get any lower than this.",
@@ -396,6 +404,7 @@ void HexagonGame::initLua_LevelControl()
         "Sets the minimum delay of the level to `$0`. Keep in mind that delay "
         "can go below the delay min, so setting a lower delay min may "
         "make the delay instantly decrease to the minimum.");
+
     lsVar("DelayMax", &LevelStatus::delayMax,
         "Gets the maximum delay of the level. This is the highest that delay "
         "can go; delay can not get any higher than this.",
@@ -403,6 +412,7 @@ void HexagonGame::initLua_LevelControl()
         "Sets the maximum delay of the level to `$0`. Keep in mind that delay "
         "can go above the delay max, so setting a higher delay max may "
         "make the delay instantly increase to the maximum.");
+
     lsVar("FastSpin", &LevelStatus::fastSpin,
         "Gets the fast spin of the level. The fast spin is a brief moment that "
         "starts at level incrementation where the rotation increases speed "
@@ -412,6 +422,7 @@ void HexagonGame::initLua_LevelControl()
 
         "Sets the fast spin of the level to `$0`. A higher value increases "
         "intensity and duration of the fast spin.");
+
     lsVar("IncTime", &LevelStatus::incTime,
         "Get the incrementation time (in seconds) of a level. This is the "
         "length "
@@ -421,29 +432,34 @@ void HexagonGame::initLua_LevelControl()
         "level increments.",
 
         "Set the incrementation time (in seconds) of a level to `$0`.");
+
     lsVar("PulseMin", &LevelStatus::pulseMin,
         "Gets the minimum value the pulse can be. Pulse gives variety in "
         "the wall speed of the level so the wall speed doesn't feel monotone. "
         "Can also be used to help sync a level up with it's music.",
 
         "Sets the minimum pulse value to `$0`.");
+
     lsVar("PulseMax", &LevelStatus::pulseMax,
         "Gets the maximum value the pulse can be. Pulse gives variety in "
         "the wall speed of the level so the wall speed doesn't feel monotone. "
         "Can also be used to help sync a level up with it's music.",
 
         "Sets the maximum pulse value to `$0`.");
+
     lsVar("PulseSpeed", &LevelStatus::pulseSpeed,
         "Gets the speed the pulse goes from ``PulseMin`` to ``PulseMax``. "
         "Can also be used to help sync a level up with it's music.",
 
         "Gets the speed the pulse goes from ``PulseMin`` to ``PulseMax`` by "
         "`$0`. Can also be used to help sync a level up with it's music.");
+
     lsVar("PulseSpeedR", &LevelStatus::pulseSpeedR,
         "Gets the speed the pulse goes from ``PulseMax`` to ``PulseMin``.",
 
         "Gets the speed the pulse goes from ``PulseMax`` to ``PulseMin`` by "
         "`$0`. Can also be used to help sync a level up with it's music.");
+
     lsVar("PulseDelayMax", &LevelStatus::pulseDelayMax,
         "Gets the delay the level has to wait before it begins another pulse "
         "cycle.",
@@ -451,14 +467,17 @@ void HexagonGame::initLua_LevelControl()
         "Sets the delay the level has to wait before it begins another pulse "
         "cycle "
         "with `$0`.");
+
     // TODO: Repurpose PulseDelayHalfMax to do what is listed on this
     // documentation
+
     lsVar("PulseDelayHalfMax", &LevelStatus::pulseDelayHalfMax,
         "Gets the delay the level has to wait before it begins pulsing from "
         "``PulseMax`` to ``PulseMin``.",
 
         "Gets the delay the level has to wait before it begins pulsing from "
         "``PulseMax`` to ``PulseMin`` with `$0`.");
+
     lsVar("BeatPulseMax", &LevelStatus::beatPulseMax,
         "Gets the maximum beatpulse size of the polygon in a level. This is "
         "the "
@@ -466,11 +485,12 @@ void HexagonGame::initLua_LevelControl()
         "syncing "
         "the level to the music.",
 
-        "Sets the maximum beatpulse size of the polygon in a level to `$s0`. "
+        "Sets the maximum beatpulse size of the polygon in a level to `$0`. "
         "Not "
         "to be confused with using this property to resize the polygon, which "
         "you "
         "should be using ``RadiusMin``.");
+
     lsVar("BeatPulseDelayMax", &LevelStatus::beatPulseDelayMax,
         "Gets the delay for how fast the beatpulse pulses in frames (assuming "
         "60 FPS "
@@ -481,6 +501,7 @@ void HexagonGame::initLua_LevelControl()
         "Sets the delay for how fast the beatpulse pulses in `$0` frames "
         "(assuming 60 "
         "FPS Logic).");
+
     lsVar("BeatPulseInitialDelay", &LevelStatus::beatPulseInitialDelay,
         "Gets the initial delay before beatpulse begins pulsing. This is very "
         "useful "
@@ -491,12 +512,14 @@ void HexagonGame::initLua_LevelControl()
         "Sets the initial delay before beatpulse begins pulsing to `$0`. "
         "Highly "
         "discouraged to use this here. Use this in your music JSON files.");
+
     lsVar("BeatPulseSpeedMult", &LevelStatus::beatPulseSpeedMult,
         "Gets how fast the polygon pulses with the beatpulse. This is very "
         "useful "
         "to help keep your level in sync with the music.",
 
         "Sets how fast the polygon pulses with beatpulse to `$0`.");
+
     lsVar("RadiusMin", &LevelStatus::radiusMin,
         "Gets the minimum radius of the polygon in a level. This is used to "
         "determine "
@@ -505,6 +528,7 @@ void HexagonGame::initLua_LevelControl()
         "Sets the minimum radius of the polygon to `$0`. Use this to set the "
         "size of "
         "the polygon in the level, not ``BeatPulseMax``.");
+
     lsVar("WallSkewLeft", &LevelStatus::wallSkewLeft,
         "Gets the Y axis offset of the top left vertex in all walls.",
 
@@ -513,6 +537,7 @@ void HexagonGame::initLua_LevelControl()
         "walls. If you would like to have more individual control of the wall "
         "vertices, "
         "please use the custom walls system under the prefix ``cw_``.");
+
     lsVar("WallSkewRight", &LevelStatus::wallSkewRight,
         "Gets the Y axis offset of the top right vertex in all walls.",
 
@@ -521,6 +546,7 @@ void HexagonGame::initLua_LevelControl()
         "walls. If you would like to have more individual control of the wall "
         "vertices, "
         "please use the custom walls system under the prefix ``cw_``.");
+
     lsVar("WallAngleLeft", &LevelStatus::wallAngleLeft,
         "Gets the X axis offset of the top left vertex in all walls.",
 
@@ -529,6 +555,7 @@ void HexagonGame::initLua_LevelControl()
         "walls. If you would like to have more individual control of the wall "
         "vertices, "
         "please use the custom walls system under the prefix ``cw_``.");
+
     lsVar("WallAngleRight", &LevelStatus::wallAngleRight,
         "Gets the X axis offset of the top right vertex in all walls.",
 
@@ -537,6 +564,7 @@ void HexagonGame::initLua_LevelControl()
         "walls. If you would like to have more individual control of the wall "
         "vertices, "
         "please use the custom walls system under the prefix ``cw_``.");
+
     lsVar("3dRequired", &LevelStatus::_3DRequired,
         "Gets whether 3D must be enabled in order to have a valid score in "
         "this level. "
@@ -545,15 +573,18 @@ void HexagonGame::initLua_LevelControl()
         "Sets whether 3D must be enabled to `$0` to have a valid score. Only "
         "set this "
         "to ``true`` if your level relies on 3D effects to work as intended.");
+
     // Commenting this one out. This property seems to have NO USE in the actual
     // game itself. lsVar("3dEffectMultiplier",
     // &LevelStatus::_3dEffectMultiplier);
+
     lsVar("CameraShake", &LevelStatus::cameraShake,
         "Gets the intensity of the camera shaking in a level.",
 
         "Sets the intensity of the camera shaking in a level to `$0`. This "
         "remains "
         "permanent until you either set this to 0 or the player dies.");
+
     lsVar("Sides", &LevelStatus::sides,
         "Gets the current number of sides on the polygon in a level.",
 
@@ -561,6 +592,7 @@ void HexagonGame::initLua_LevelControl()
         "happens "
         "immediately and previously spawned walls will not adjust to the new "
         "side count.");
+
     lsVar("SidesMax", &LevelStatus::sidesMax,
         "Gets the maximum range that the number of sides can possibly be at "
         "random. "
@@ -569,6 +601,7 @@ void HexagonGame::initLua_LevelControl()
 
         "Sets the maximum range that the number of sides can possibly be to "
         "`$0`.");
+
     lsVar("SidesMin", &LevelStatus::sidesMin,
         "Gets the minimum range that the number of sides can possibly be at "
         "random. "
@@ -577,12 +610,14 @@ void HexagonGame::initLua_LevelControl()
 
         "Sets the minimum range that the number of sides can possibly be to "
         "`$0`.");
+
     lsVar("SwapEnabled", &LevelStatus::swapEnabled,
         "Gets whether the swap mechanic is enabled for a level. By default, "
         "this is "
         "set to ``false``.",
 
         "Sets the swap mechanic's availability to `$0`.");
+
     lsVar("TutorialMode", &LevelStatus::tutorialMode,
         "Gets whether tutorial mode is enabled. In tutorial mode, players are "
         "granted "
@@ -600,6 +635,7 @@ void HexagonGame::initLua_LevelControl()
         "demonstrate "
         "a new concept for players to learn, or use it as a gimmick to a "
         "level.");
+
     lsVar("IncEnabled", &LevelStatus::incEnabled,
         "Gets whether the level can increment or not. This is Open Hexagon's "
         "way of "
@@ -610,6 +646,7 @@ void HexagonGame::initLua_LevelControl()
         "Toggles level incrementation to `$0`. Only disable this if you feel "
         "like the "
         "level can not benefit from incrementing in any way.");
+
     lsVar("DarkenUnevenBackgroundChunk",
         &LevelStatus::darkenUnevenBackgroundChunk,
         "Gets whether the ``Nth`` panel of a polygon with ``N`` sides "
@@ -621,6 +658,7 @@ void HexagonGame::initLua_LevelControl()
         "panel can look very unpleasing.",
 
         "Sets the darkened panel to `$0`.");
+
     lsVar("CurrentIncrements", &LevelStatus::currentIncrements,
         "Gets the current amount of times the level has incremented. Very "
         "useful for "
@@ -726,6 +764,7 @@ void HexagonGame::initLua_StyleControl()
         "Sets the minimum value for the hue range to `$0`. Usually you want "
         "this value at 0 "
         "to start off at completely red.");
+
     sdVar("HueMax", &StyleData::hueMax,
         "Gets the maximum value for the hue range of a level style. Only "
         "applies to all colors "
@@ -734,11 +773,13 @@ void HexagonGame::initLua_StyleControl()
         "Sets the maximum value for the hue range to `$0`. Usually you want "
         "this value at 360 "
         "to end off at red, to hopefully loop the colors around.");
+
     // backwards-compatible
     sdVar("HueInc", &StyleData::hueIncrement,
         "Alias to ``s_getHueIncrement``. Done for backwards compatibility.",
 
         "Alias to ``s_setHueIncrement``. Done for backwards compatibility.");
+
     sdVar("HueIncrement", &StyleData::hueIncrement,
         "Gets how fast the hue increments from ``HueMin`` to ``HueMax``. The "
         "hue value is "
@@ -748,6 +789,7 @@ void HexagonGame::initLua_StyleControl()
         "`$0`. Be careful "
         "with high values, as this can make your style induce epileptic "
         "seizures.");
+
     sdVar("PulseMin", &StyleData::pulseMin,
         "Gets the minimum range for the multiplier of the ``pulse`` attribute "
         "in style colors. "
@@ -755,6 +797,7 @@ void HexagonGame::initLua_StyleControl()
 
         "Sets the minimum range for the multiplier of the ``pulse`` attribute "
         "to `$0`.");
+
     sdVar("PulseMax", &StyleData::pulseMax,
         "Gets the maximum range for the multiplier of the ``pulse`` attribute "
         "in style colors. "
@@ -763,11 +806,13 @@ void HexagonGame::initLua_StyleControl()
 
         "Sets the maximum range for the multiplier of the ``pulse`` attribute "
         "to `$0`.");
+
     // backwards-compatible
     sdVar("PulseInc", &StyleData::pulseIncrement,
         "Alias to ``s_getPulseIncrement``. Done for backwards compatibility.",
 
         "Alias to ``s_setPulseIncrement``. Done for backwards compatibility.");
+
     sdVar("PulseIncrement", &StyleData::pulseIncrement,
         "Gets how fast the pulse increments from ``PulseMin`` to ``PulseMax``. "
         "The pulse value is "
@@ -777,6 +822,7 @@ void HexagonGame::initLua_StyleControl()
         "by `$0`. Be careful "
         "with high values, as this can make your style induce epileptic "
         "seizures.");
+
     sdVar("HuePingPong", &StyleData::huePingPong,
         "Gets whether the hue should go ``Start-End-Start-End`` or "
         "``Start-End, Start-End`` with "
@@ -784,6 +830,7 @@ void HexagonGame::initLua_StyleControl()
 
         "Toggles ping ponging in the hue cycling (``Start-End-Start-End``) "
         "with `$0`.");
+
     sdVar("MaxSwapTime", &StyleData::maxSwapTime,
         "Gets the amount of time that has to pass (in 1/100th of a second) "
         "before the background color offset alternates. "
@@ -792,10 +839,12 @@ void HexagonGame::initLua_StyleControl()
 
         "Sets the amount of time that has to pass (in 1/100th of a second) to "
         "`$0` before the background color alternates.");
+
     sdVar("3dDepth", &StyleData::_3dDepth,
         "Gets the current amount of 3D layers that are present in the style.",
 
         "Sets the amount of 3D layers in a style to `$0`.");
+
     sdVar("3dSkew", &StyleData::_3dSkew,
         "Gets the current value of where the 3D skew is in the style. The Skew "
         "is what gives the 3D effect in the first "
@@ -803,16 +852,19 @@ void HexagonGame::initLua_StyleControl()
         "game.",
 
         "Sets the 3D skew at value `$0`.");
+
     sdVar("3dSpacing", &StyleData::_3dSpacing,
         "Gets the spacing that is done between 3D layers. A higher number "
         "leads to more separation between layers.",
 
         "Sets the spacing between 3D layers to `$0`.");
+
     sdVar("3dDarkenMult", &StyleData::_3dDarkenMult,
         "Gets the darkening multiplier applied to the 3D layers in a style. "
         "This is taken from the ``main`` color.",
 
         "Sets the darkening multiplier to `$0` for the 3D layers.");
+
     sdVar("3dAlphaMult", &StyleData::_3dAlphaMult,
         "Gets the alpha (transparency) multiplier applied to the 3D layers in "
         "a style. Originally references the "
@@ -820,6 +872,7 @@ void HexagonGame::initLua_StyleControl()
 
         "Sets the alpha multiplier to `$0` for the 3D layers. A higher value "
         "makes the layers more transparent.");
+
     sdVar("3dAlphaFalloff", &StyleData::_3dAlphaFalloff,
         "Gets the alpha (transparency) multiplier applied to the 3D layers "
         "consecutively in a style. Takes "
@@ -828,26 +881,31 @@ void HexagonGame::initLua_StyleControl()
         "Sets the alpha multiplier to `$0` for for the 3D layers and applies "
         "them layer after layer. This "
         "property can get finnicky.");
+
     sdVar("3dPulseMax", &StyleData::_3dPulseMax,
         "Gets the highest value that the ``3DSkew`` can go in a style.",
 
         "Sets the highest value the ``3DSkew`` can go to `$0`.");
+
     sdVar("3dPulseMin", &StyleData::_3dPulseMin,
         "Gets the lowest value that the ``3DSkew`` can go in a style.",
 
         "Sets the lowest value the ``3DSkew`` can go to `$0`.");
+
     sdVar("3dPulseSpeed", &StyleData::_3dPulseSpeed,
         "Gets how fast the ``3DSkew`` moves between ``3DPulseMin`` and "
         "``3DPulseMax``.",
 
         "Sets how fast the ``3DSkew`` moves between ``3DPulseMin`` and "
         "``3DPulseMax`` by `$0`.");
+
     sdVar("3dPerspectiveMult", &StyleData::_3dPerspectiveMult,
         "Gets the 3D perspective multiplier of the style. Works with the "
         "attribute ``3DSpacing`` to space out "
         "layers.",
 
         "Sets the 3D perspective multiplier to `$0`.");
+
     sdVar("BGTileRadius", &StyleData::bgTileRadius,
         "Gets the distances of how far the background panels are drawn. By "
         "default, this is a big enough value "
@@ -855,12 +913,14 @@ void HexagonGame::initLua_StyleControl()
         "you'd like.",
 
         "Sets how far the background panels are drawn to distance `$0`.");
+
     sdVar("BGColorOffset", &StyleData::BGColorOffset,
         "Gets the offset of the style by how much the colors shift. Usually "
         "this sits between 0 and 1, but can "
         "easily be customized.",
 
         "Shifts the background colors to have an offset of `$0`.");
+
     sdVar("BGRotationOffset", &StyleData::BGRotOff,
         "Gets the literal rotation offset of the background panels in degrees. "
         "This usually stays at 0, but can "

@@ -141,8 +141,8 @@ public:
         const std::string& fnArgs, const std::string& fnDocs)
     {
         const std::size_t categoryIndex = getCategoryIndexFromName(fnName);
-        fnEntries.at(category).push_back(
-            FnEntry{fnRet, fnName, fnArgs, fnDocs});
+        fnEntries.at(categoryIndex)
+            .push_back(FnEntry{fnRet, fnName, fnArgs, fnDocs});
     }
 
     [[nodiscard]] std::size_t getNumCategories() const noexcept
