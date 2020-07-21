@@ -24,7 +24,7 @@ private:
     // There are 9 categories.
     constexpr static std::size_t NUM_CATEGORIES = 9;
     std::array<std::vector<FnEntry>, NUM_CATEGORIES> fnEntries;
-    std::array<std::string, NUM_CATEGORIES> prefixCategories = {"u_", "m_", "t_", "e_", "l_", "s_", "w_", "cw_", "Miscellaneous"};
+    constexpr static std::array<std::string_view, NUM_CATEGORIES> prefixCategories = {"u_", "m_", "t_", "e_", "l_", "s_", "w_", "cw_", "Miscellaneous"};
 
     [[nodiscard]] std::size_t getCategoryFromName(const std::string_view fnName) 
     {
