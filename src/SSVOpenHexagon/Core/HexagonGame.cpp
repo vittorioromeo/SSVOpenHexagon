@@ -243,6 +243,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     // Set initial values for some status fields from Lua
     status.beatPulseDelay += levelStatus.beatPulseInitialDelay;
+    timeUntilRichPresenceUpdate = -1.f; // immediate update
 }
 
 void HexagonGame::death(bool mForce)
