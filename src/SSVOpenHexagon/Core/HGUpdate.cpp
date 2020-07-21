@@ -60,13 +60,12 @@ void HexagonGame::update(ssvu::FT mFT)
     if (timeUntilRichPresenceUpdate <= 0.f)
     {
         steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
-        steamManager.run_callbacks();
-
         discordManager.set_rich_presence_in_game(presenceStr);
-        discordManager.run_callbacks();
-
         timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
     }
+
+    steamManager.run_callbacks();
+    discordManager.run_callbacks();
 
     hg::Joystick::update();
 
