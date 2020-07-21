@@ -22,7 +22,7 @@ private:
     };
     
     // There are 9 categories.
-    const static std::size_t NUM_CATEGORIES = 9;
+    constexpr static std::size_t NUM_CATEGORIES = 9;
     std::array<std::vector<FnEntry>, NUM_CATEGORIES> fnEntries;
     std::array<std::string, NUM_CATEGORIES> prefixCategories = {"u_", "m_", "t_", "e_", "l_", "s_", "w_", "cw_", "Miscellaneous"};
 
