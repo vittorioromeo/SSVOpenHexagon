@@ -117,7 +117,7 @@ public:
     }
 
     template <typename F>
-    void forFnEntries(F&& f, const int category)
+    void forFnEntries(F&& f, const std::size_t categoryIndex)
     {
         for(const auto& [ret, name, args, docs] : fnEntries.at(category))
         {
