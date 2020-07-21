@@ -47,7 +47,7 @@ private:
 
 public:
 
-    std::array<std::string, NUM_CATEGORIES> prefixHeaders = 
+    static constexpr std::array<std::string_view, NUM_CATEGORIES> prefixHeaders = 
         {"## Utility Functions (u_)\n\n"
 
          "Below are the utility functions, which can be identified with the \"u_\" prefix. These are overall functions "
