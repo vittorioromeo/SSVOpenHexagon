@@ -678,17 +678,6 @@ void HexagonGame::initLua_LevelControl()
             "between ``SidesMin`` and ``SidesMax`` inclusively every level "
             "increment.");
 
-    // Commented out for redundancy
-
-    // addLuaFn("l_darkenUnevenBackgroundChunk", //
-    //     [this](
-    //         bool mValue) { levelStatus.darkenUnevenBackgroundChunk = mValue;
-    //         })
-    //     .arg("enabled")
-    //     .doc(
-    //         "If `$0` is true, one of the background's chunks will be darkened
-    //         " "in case there is an uneven number of sides.");
-
     addLuaFn("l_addTracked", //
         [this](std::string mVar, std::string mName) {
             levelStatus.trackedVariables.emplace_back(mVar, mName);
