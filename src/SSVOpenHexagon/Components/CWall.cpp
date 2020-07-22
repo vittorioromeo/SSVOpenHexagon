@@ -49,7 +49,7 @@ void CWall::update(
 {
     speed.update(mFT);
     curve.update(mFT);
-
+    /*
     const float radius{mHexagonGame.getRadius() * 0.65f};
     auto& player{mHexagonGame.player};
 
@@ -78,16 +78,33 @@ void CWall::update(
     {
         killed = true;
     }
+    */
 }
 
-bool CWall::moveTowardsCenter(HexagonGame& mHexagonGame, ssvu::FT mFT, sf::Vector2f& vp, const sf::Vector2f& mCenterPos){
-    ssvs::moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
+bool CWall::moveTowardsCenter(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT){
+    const float radius{mHexagonGame.getRadius() * 0.65f};
+    int pointsOnCenter{0};
+    for(sf::Vector2f& vp : vertexPositions) {
+        if (std::abs(vp.x - mCenterPos.x) < radius &&
+            std::abs(vp.y - mCenterPos.y) < radius) {
+            ++pointsOnCenter;
+        } else {
+            ssvs::moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
+        }
+    }
+
+    if(pointsOnCenter > 3)
+    {
+        killed = true;
+    }
 
     return isOverlapping(mHexagonGame.player.getPosition());
 }
 
-bool CWall::moveCurve(HexagonGame& mHexagonGame, ssvu::FT mFT, sf::Vector2f& vp, const sf::Vector2f& mCenterPos){
-    ssvs::rotateRadAround(vp, mCenterPos, curve.speed / 60.f * mFT);
+bool CWall::moveCurve(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT){
+    for(sf::Vector2f& vp : vertexPositions) {
+        ssvs::rotateRadAround(vp, mCenterPos, curve.speed / 60.f * mFT);
+    }
 
     return isOverlapping(mHexagonGame.player.getPosition());
 }

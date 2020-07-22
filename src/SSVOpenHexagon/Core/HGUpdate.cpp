@@ -181,10 +181,7 @@ void HexagonGame::update(ssvu::FT mFT)
         if(!status.hasDied)
         {
             player.update(*this, mFT);
-            for(CWall& wall : walls)
-            {
-                wall.update(*this, centerPos, mFT);
-            }
+            updateWalls(mFT);
 
             ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
             cwManager.cleanup();
@@ -257,6 +254,23 @@ void HexagonGame::update(ssvu::FT mFT)
         fpsWatcher.update();
     }
 }
+
+void HexagonGame::updateWalls(ssvu::FT mFT){
+    const auto playerPos{player.getPosition()};
+
+    for(CWall& wall : walls) {
+        player.push(*this, wall);
+
+        if (wall.moveTowardsCenter(*this, centerPos, mFT)) {
+            player.kill(*this, true);
+        }
+
+        if (wall.moveCurve(*this, centerPos, mFT)) {
+            player.pushOnCurve(*this, wall);
+        }
+    }
+}
+
 void HexagonGame::updateEvents(ssvu::FT)
 {
     if(const auto o =
