@@ -59,6 +59,7 @@ public:
     CPlayer player;
     std::vector<CWall> walls;
     CCustomWallManager cwManager;
+    float timeUntilRichPresenceUpdate = 0.f;
 
 private:
     ssvs::Camera backgroundCamera{window,
@@ -265,12 +266,18 @@ private:
 
     void printLuaDocs()
     {
-        luaMetadata.forFnEntries(
-            [](const std::string& ret, const std::string& name,
-                const std::string& args, const std::string& docs) {
-                std::cout << "* **`" << ret << " " << name << "(" << args
-                          << ")`**: " << docs << '\n';
-            });
+        for(std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i)
+        {
+            std::cout << '\n' << luaMetadata.prefixHeaders.at(i) << "\n\n";
+
+            luaMetadata.forFnEntries(
+                [](const std::string& ret, const std::string& name,
+                    const std::string& args, const std::string& docs) {
+                    std::cout << "* **`" << ret << " " << name << "(" << args
+                              << ")`**: " << docs << "\n\n";
+                },
+                i);
+        }
     }
 
 

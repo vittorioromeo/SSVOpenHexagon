@@ -191,16 +191,6 @@ void CPlayer::push(HexagonGame& mHexagonGame, CWall& wall){
     }
 }
 
-void CPlayer::pushOnCurve(HexagonGame& mHexagonGame, CWall& wall){
-    const int curveDir = ssvu::getSign(wall.getCurve().speed);
-    const int movement{mHexagonGame.getInputMovement()};
-
-    if((curveDir > 0.f && movement > 0.f) ||
-       (curveDir < 0.f && movement < 0.f)){ return; }
-
-    push(mHexagonGame, wall);
-}
-
 void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
     swapBlinkTimer.update(mFT);

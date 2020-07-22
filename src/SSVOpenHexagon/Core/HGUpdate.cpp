@@ -51,14 +51,21 @@ void HexagonGame::update(ssvu::FT mFT)
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
 
+    constexpr float DELAY_TO_UPDATE = 5.f; // X seconds
+    timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
+
     // Presence formatter
     const std::string presenceStr =
         nameStr + " [x" + diffStr + "] - " + timeStr + "s";
 
-    steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
-    steamManager.run_callbacks();
+    if(timeUntilRichPresenceUpdate <= 0.f)
+    {
+        steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
+        discordManager.set_rich_presence_in_game(presenceStr);
+        timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
+    }
 
-    discordManager.set_rich_presence_in_game(presenceStr);
+    steamManager.run_callbacks();
     discordManager.run_callbacks();
 
     hg::Joystick::update();
@@ -192,7 +199,8 @@ void HexagonGame::update(ssvu::FT mFT)
 
             if(mustChangeSides && walls.empty())
             {
-                sideChange(rng.get_int(levelStatus.sidesMin, levelStatus.sidesMax + 1));
+                sideChange(rng.get_int(
+                    levelStatus.sidesMin, levelStatus.sidesMax + 1));
             }
 
             updateLevel(mFT);
@@ -266,7 +274,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT){
         }
 
         if (wall.moveCurve(*this, centerPos, mFT)) {
-            player.pushOnCurve(*this, wall);
+            player.push(*this, wall);
         }
     }
 }

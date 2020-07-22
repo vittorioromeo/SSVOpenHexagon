@@ -57,6 +57,22 @@ private:
         {
             return "unsigned int";
         }
+        else if constexpr(std::is_same_v<T, long>)
+        {
+            return "long";
+        }
+        else if constexpr(std::is_same_v<T, unsigned long>)
+        {
+            return "unsigned long";
+        }
+        else if constexpr(std::is_same_v<T, long long>)
+        {
+            return "long long";
+        }
+        else if constexpr(std::is_same_v<T, unsigned long long>)
+        {
+            return "unsigned long long";
+        }
         else if constexpr(std::is_same_v<T, std::size_t>)
         {
             return "size_t";
