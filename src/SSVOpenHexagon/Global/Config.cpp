@@ -296,38 +296,38 @@ void setCurrentResolutionAuto(GameWindow& mWindow)
     mWindow.setFullscreen(getFullscreen());
     recalculateSizes();
 }
-void setVsync(GameWindow& mWindow, bool mValue)
+void setVsync(ssvs::GameWindow& mWindow, bool mValue)
 {
     vsync() = mValue;
     mWindow.setVsync(vsync());
 }
-void setLimitFPS(GameWindow& mWindow, bool mValue)
+void setLimitFPS(ssvs::GameWindow& mWindow, bool mValue)
 {
     limitFPS() = mValue;
     mWindow.setFPSLimited(mValue);
 }
-void setMaxFPS(GameWindow& mWindow, unsigned int mValue)
+void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue)
 {
     maxFPS() = mValue;
     mWindow.setMaxFPS(mValue);
 }
-void setTimerStatic(GameWindow& mWindow, bool mValue)
+void setTimerStatic(ssvs::GameWindow& mWindow, bool mValue)
 {
     timerStatic() = mValue;
 
     if(timerStatic())
     {
-        mWindow.setTimer<TimerStatic>(0.5f, 0.5f);
+        mWindow.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
     }
     else
     {
-        mWindow.setTimer<TimerDynamic>();
+        mWindow.setTimer<ssvs::TimerDynamic>();
         setLimitFPS(mWindow, true);
         setMaxFPS(mWindow, 200);
     }
 }
 
-void setAntialiasingLevel(GameWindow& mWindow, unsigned int mValue)
+void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue)
 {
     antialiasingLevel() = mValue;
     mWindow.setAntialiasingLevel(mValue);

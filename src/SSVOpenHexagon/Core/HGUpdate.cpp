@@ -68,110 +68,43 @@ void HexagonGame::update(ssvu::FT mFT)
     steamManager.run_callbacks();
     discordManager.run_callbacks();
 
-    hg::Joystick::update();
-
     updateText();
     updateFlash(mFT);
     effectTimelineManager.update(mFT);
 
-    // Joystick support
-    const bool jCW = hg::Joystick::rightPressed();
-    const bool jCCW = hg::Joystick::leftPressed();
-
-    if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
-                              inputImplCW || inputImplBothCWCCW || jCW || jCCW))
+    if(!lastReplayPlayer.has_value())
     {
-        status.start();
-        messageText.setString("");
-        assets.playSound("go.ogg");
-        assets.musicPlayer.resume();
-        if(Config::getOfficial())
-        {
-            fpsWatcher.enable();
-        }
-    }
-
-    // Naive touch controls
-    for(const auto& p : window.getFingerDownPositions())
-    {
-        if(p.x < window.getWidth() / 2.f)
-        {
-            inputImplCCW = 1;
-        }
-        else
-        {
-            inputImplCW = 1;
-        }
-    }
-
-    if(inputImplCW && !inputImplCCW)
-    {
-        inputMovement = 1;
-    }
-    else if(!inputImplCW && inputImplCCW)
-    {
-        inputMovement = -1;
-    }
-    else if(inputImplCW && inputImplCCW)
-    {
-        if(!inputImplBothCWCCW)
-        {
-            if(inputMovement == 1 && inputImplLastMovement == 1)
-            {
-                inputMovement = -1;
-            }
-            else if(inputMovement == -1 && inputImplLastMovement == -1)
-            {
-                inputMovement = 1;
-            }
-        }
+        updateInput();
     }
     else
     {
-        inputMovement = 0;
-
-        // Joystick support
+        if(!status.started)
         {
-            if(jCW && !jCCW)
-            {
-                inputMovement = 1;
-            }
-            else if(!jCW && jCCW)
-            {
-                inputMovement = -1;
-            }
-            else if(jCW && jCCW)
-            {
-                if(!inputImplBothCWCCW)
-                {
-                    if(inputMovement == 1 && inputImplLastMovement == 1)
-                    {
-                        inputMovement = -1;
-                    }
-                    else if(inputMovement == -1 && inputImplLastMovement == -1)
-                    {
-                        inputMovement = 1;
-                    }
-                }
-            }
-            else
-            {
-                inputMovement = 0;
-            }
+            start();
         }
+
+        const input_bitset ib =
+            lastReplayPlayer->get_current_and_move_forward();
+
+        if(ib[static_cast<unsigned int>(input_bit::left)])
+        {
+            inputMovement = -1;
+        }
+        else if(ib[static_cast<unsigned int>(input_bit::right)])
+        {
+            inputMovement = 1;
+        }
+        else
+        {
+            inputMovement = 0;
+        }
+
+        inputSwap = ib[static_cast<unsigned int>(input_bit::swap)];
+        inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
     }
+
 
     updateKeyIcons();
-
-    // Joystick support
-    if(hg::Joystick::selectRisingEdge())
-    {
-        goToMenu();
-    }
-    else if(hg::Joystick::startRisingEdge())
-    {
-        status.mustRestart = true;
-    }
 
     if(status.started)
     {
@@ -247,7 +180,8 @@ void HexagonGame::update(ssvu::FT mFT)
         if(status.mustRestart)
         {
             fpsWatcher.disable();
-            changeLevel(getPackId(), restartId, restartFirstTime);
+            newGame(getPackId(), restartId, restartFirstTime, difficultyMult,
+                true /* executeLastReplay */);
             if(!assets.pIsLocal() && Config::isEligibleForScore())
             {
                 Online::trySendRestart();
@@ -266,6 +200,125 @@ void HexagonGame::update(ssvu::FT mFT)
         fpsWatcher.update();
     }
 }
+
+void HexagonGame::start()
+{
+    status.start();
+    messageText.setString("");
+    assets.playSound("go.ogg");
+    assets.musicPlayer.resume();
+    if(Config::getOfficial())
+    {
+        fpsWatcher.enable();
+    }
+}
+
+void HexagonGame::updateInput()
+{
+    // Joystick support
+    hg::Joystick::update();
+
+    const bool jCW = hg::Joystick::rightPressed();
+    const bool jCCW = hg::Joystick::leftPressed();
+
+    if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
+                              inputImplCW || inputImplBothCWCCW || jCW || jCCW))
+    {
+        start();
+    }
+
+    // Naive touch controls
+    for(const auto& p : window.getFingerDownPositions())
+    {
+        if(p.x < window.getWidth() / 2.f)
+        {
+            inputImplCCW = 1;
+        }
+        else
+        {
+            inputImplCW = 1;
+        }
+    }
+
+    if(inputImplCW && !inputImplCCW)
+    {
+        inputMovement = 1;
+    }
+    else if(!inputImplCW && inputImplCCW)
+    {
+        inputMovement = -1;
+    }
+    else if(inputImplCW && inputImplCCW)
+    {
+        if(!inputImplBothCWCCW)
+        {
+            if(inputMovement == 1 && inputImplLastMovement == 1)
+            {
+                inputMovement = -1;
+            }
+            else if(inputMovement == -1 && inputImplLastMovement == -1)
+            {
+                inputMovement = 1;
+            }
+        }
+    }
+    else
+    {
+        inputMovement = 0;
+
+        // Joystick support
+        {
+            if(jCW && !jCCW)
+            {
+                inputMovement = 1;
+            }
+            else if(!jCW && jCCW)
+            {
+                inputMovement = -1;
+            }
+            else if(jCW && jCCW)
+            {
+                if(!inputImplBothCWCCW)
+                {
+                    if(inputMovement == 1 && inputImplLastMovement == 1)
+                    {
+                        inputMovement = -1;
+                    }
+                    else if(inputMovement == -1 && inputImplLastMovement == -1)
+                    {
+                        inputMovement = 1;
+                    }
+                }
+            }
+            else
+            {
+                inputMovement = 0;
+            }
+        }
+    }
+
+    // Replay support
+    if(status.started)
+    {
+        const bool left = getInputMovement() == -1;
+        const bool right = getInputMovement() == 1;
+        const bool swap = getInputSwap();
+        const bool focus = getInputFocused();
+
+        lastReplay.record_input(left, right, swap, focus);
+    }
+
+    // Joystick support
+    if(hg::Joystick::selectRisingEdge())
+    {
+        goToMenu();
+    }
+    else if(hg::Joystick::startRisingEdge())
+    {
+        status.mustRestart = true;
+    }
+}
+
 void HexagonGame::updateEvents(ssvu::FT)
 {
     if(const auto o =
@@ -284,6 +337,7 @@ void HexagonGame::updateEvents(ssvu::FT)
         messageTimelineRunner = {};
     }
 }
+
 void HexagonGame::updateIncrement()
 {
     if(!levelStatus.incEnabled)
@@ -301,6 +355,7 @@ void HexagonGame::updateIncrement()
     status.resetIncrementTime();
     mustChangeSides = true;
 }
+
 void HexagonGame::updateLevel(ssvu::FT mFT)
 {
     if(status.isTimePaused())

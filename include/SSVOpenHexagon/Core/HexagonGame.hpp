@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
@@ -35,6 +36,7 @@
 #include <SSVUtils/Timeline/Timeline.hpp>
 
 #include <sstream>
+#include <optional>
 
 namespace hg
 {
@@ -108,6 +110,9 @@ private:
 
     random_number_generator rng;
     HexagonGameStatus status;
+
+    replay_data lastReplay{0};
+    std::optional<replay_player> lastReplayPlayer;
 
     std::string restartId;
     float difficultyMult{1};
@@ -208,11 +213,14 @@ public:
     }
 
 private:
+    void start();
+
     void initKeyIcons();
     void initFlashEffect();
 
     // Update methods
     void update(ssvu::FT mFT);
+    void updateInput();
     void updateIncrement();
     void updateEvents(ssvu::FT mFT);
     void updateLevel(ssvu::FT mFT);
@@ -250,8 +258,6 @@ private:
     // Level/menu loading/unloading/changing
     void checkAndSaveScore();
     void goToMenu(bool mSendScores = true, bool mError = false);
-    void changeLevel(
-        const std::string& mPackId, const std::string& mId, bool mFirstTime);
 
     void invalidateScore(std::string mReason);
 
@@ -295,7 +301,7 @@ public:
 
     // Gameplay methods
     void newGame(const std::string& mPackId, const std::string& mId,
-        bool mFirstPlay, float mDifficultyMult);
+        bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
     void death(bool mForce = false);
 
     // Other methods
@@ -411,17 +417,9 @@ public:
     }
 
     // Input
-    [[nodiscard]] bool getInputFocused() const
-    {
-        return inputFocused;
-    }
-
+    [[nodiscard]] bool getInputFocused() const;
     [[nodiscard]] bool getInputSwap() const;
-
-    [[nodiscard]] int getInputMovement() const
-    {
-        return inputMovement;
-    }
+    [[nodiscard]] int getInputMovement() const;
 
     template <typename F>
     [[nodiscard]] bool anyCustomWall(F&& f)
