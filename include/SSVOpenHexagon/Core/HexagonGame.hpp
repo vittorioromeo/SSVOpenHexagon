@@ -212,6 +212,7 @@ private:
 
     // Update methods
     void update(ssvu::FT mFT);
+    void updateWalls(ssvu::FT mFT);
     void updateIncrement();
     void updateEvents(ssvu::FT mFT);
     void updateLevel(ssvu::FT mFT);

@@ -34,8 +34,8 @@ public:
 
     void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT);
 
-    bool moveTowardsCenter(HexagonGame& mHexagonGame, ssvu::FT mFT, sf::Vector2f& vp, const sf::Vector2f& mCenterPos);
-    bool moveCurve(HexagonGame& mHexagonGame, ssvu::FT mFT, sf::Vector2f& vp, const sf::Vector2f& mCenterPos);
+    bool moveTowardsCenter(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT);
+    bool moveCurve(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT);
 
     void draw(HexagonGame& mHexagonGame);
 
