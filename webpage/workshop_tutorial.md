@@ -89,11 +89,38 @@ Finally, you can write `2` and press *enter* to add a preview image to your work
 
 
 
-## Lua Reference {#lua-reference}
+# Lua Reference {#lua-reference}
 
-<!-- TODO: Add callbacks. -->
+Below is the full reference for all of the Lua functions that you can use in the entire game.
 
+## Core Functions
+
+Below are the Core Functions, which are the base functions that help the game assemble the level together and make the level playable. Some of these functions are required and they must be implemented in order for your level to work, while others are completely optional and can be implemented to help assist you in completing certain tasks.
+
+* **`onInit()` (Required)**: A core function that is called when the level is first selected upon in the menu. The Lua function is also ran upon every attempt to reset the configuration. Use this function to initialize all of the level settings and setup some parameters for the level, such as tracking variables and setting conditions with the menu selection (such as setting difficulty multiplier thresholds).
+
+* **`onLoad()` (Required)**: A core function that is called when the level begins. Use this function for basic event handling, such as timing messages and setting an end to the level with `u_eventKill`. However, more advanced events should be handled with other Lua measures (or with the currently WIP "Events for 2.0" module). You can also initialize some values that couldn't be initialized with `onInit`.
+
+* **`onStep()` (Required)**: A core function that is called every time when the level timeline is empty. This is the core function where all of your pattern/wall spawning logic should be happening, as this is the intended design of the function. When a level increment is called, this function temporarily stops running until the level increments successfully. 
+
+* **`onIncrement()` (Required)**: A core function that is called every time the level increments. It doesn't run the moment the increment is called, as it has to wait for all of the walls to be cleared before this function can run. Use this to implement any custom incrementation logic.
+
+* **`onUnload()` (Required)**: A core function that is called every time when the player exits the level or restarts the level. This is hardly ever used in pack developing, but some uses for it can be to help run certain events only on first playthrough of the level.
+
+* **`onUpdate(float mFrameTime)` (Required)**: A core function that is called every frame throughout the level, with the argument `mFrameTime` being a float representing the time elapsed for a single frame. This function can be very useful to solve logic that would otherwise be impossible to do with other core functions, but be careful to not put too much code into this function. Putting too much code in this function (or putting faulty code) can be a contributing factor to causing lag, so be sure to use this function wisely.
+
+* **`onCursorSwap()`**: A core function that is called every time the player swaps.
+
+* **`onDeath()`**: A core function that is called when the player dies. This function does not count invincibility deaths, and they must be actual deaths for this function to be called.
+
+<!-- START GENERATED DOCS HERE -->
 <!-- Generated from Open Hexagon v2.01. -->
+<!-- TODO: Add callbacks. -->
+## Utility Functions (u_)
+
+Below are the utility functions, which can be identified with the "u_" prefix. These are overall functions that either help utilize the game engine, be incredibly beneficial to pack developers, or help simplify complex calculations.
+
+* **`size_t u_getAttemptRandomSeed()`**: Obtain the current random seed, automatically generated at the beginning of the level. `math.randomseed` is automatically initialized with the result of this function at the beginning of a level.
 
 * **`void u_log(string message)`**: Print out `message` to the console.
 
@@ -111,7 +138,7 @@ Finally, you can write `2` and press *enter* to add a preview image to your work
 
 * **`void u_haltTime(double duration)`**: Pause the game timer for `duration` seconds.
 
-* **`void u_timelineWait(double duration)`**: *Add to the main timeline*: wait for `duration` sixths of a second.
+* **`void u_timelineWait(double duration)`**: *Add to the main timeline*: wait for `duration` frames (assuming 60 FPS framerate).
 
 * **`void u_clearWalls()`**: Remove all existing walls.
 
@@ -135,173 +162,197 @@ Finally, you can write `2` and press *enter* to add a preview image to your work
 
 * **`float u_getDelayMultDM()`**: Return the current delay multiplier, adjusted for the chosen difficulty multiplier.
 
+* **`void u_swapPlayer(bool playSound)`**: Force-swaps (180 degrees) the player when invoked. If `playSound` is `true`, the swap sound will be played.
+
+
+## Message Functions (m_)
+
+Below are the message functions, which can be identified with the "m_" prefix. These functions are capable of displaying custom messages on the screen which can help pack developers communicate additional info or anything else useful (e.g Song Lyrics) to the players. For keeping track of statistics, please look at `l_addTracked`.
+
 * **`void m_messageAdd(string message, double duration)`**: *Add to the event timeline*: print a message with text `message` for `duration` seconds. The message will only be printed during the first run of the level.
 
 * **`void m_messageAddImportant(string message, double duration)`**: *Add to the event timeline*: print a message with text `message` for `duration` seconds. The message will be printed during every run of the level.
 
-* **`void m_messageAddImportantSilent(string message, double duration)`**: *Add to the event timeline*: print a message with text `message` for `duration` seconds. The message will only be printed during the first run of the level, and will not produce any sound.
+* **`void m_messageAddImportantSilent(string message, double duration)`**: *Add to the event timeline*: print a message with text `message` for `duration` seconds. The message will only be printed during every run of the level, and will not produce any sound.
 
 * **`void m_clearMessages()`**: Remove all previously scheduled messages.
 
-* **`void t_wait(double duration)`**: *Add to the main timeline*: wait for `duration` sixths of a second.
+
+## Main Timeline Functions (t_)
+
+Below are the main timeline functions, which can be identified with the "t_" prefix. These are functions that have effects on the main timeline itself, but they mainly consist of waiting functions. Using these functions helps time out your patterns and space them in the first place.
+
+* **`void t_wait(double duration)`**: *Add to the main timeline*: wait for `duration` frames (under the assumption of a 60 FPS frame rate).
 
 * **`void t_waitS(double duration)`**: *Add to the main timeline*: wait for `duration` seconds.
 
 * **`void t_waitUntilS(double duration)`**: *Add to the main timeline*: wait until the timer reaches `duration` seconds.
 
-* **`void e_eventStopTime(double duration)`**: *Add to the event timeline*: pause the game timer for `duration` sixths of a second.
+
+## Event Timeline Functions (e_)
+
+Below are the event timeline functions, which can be identified with the "e_" prefix. These are functions that are similar to the Main Timeline functions, but they instead are for the event timeline as opposed to the main timeline. Use these functions to help set up basic events for the game. More advanced events must be done with pure Lua.
+
+* **`void e_eventStopTime(double duration)`**: *Add to the event timeline*: pause the game timer for `duration` frames (under the assumption of a 60 FPS frame rate).
 
 * **`void e_eventStopTimeS(double duration)`**: *Add to the event timeline*: pause the game timer for `duration` seconds.
 
-* **`void e_eventWait(double duration)`**: *Add to the event timeline*: wait for `duration` sixths of a second.
+* **`void e_eventWait(double duration)`**: *Add to the event timeline*: wait for `duration` frames (under the assumption of a 60 FPS frame rate).
 
 * **`void e_eventWaitS(double duration)`**: *Add to the event timeline*: wait for `duration` seconds.
 
 * **`void e_eventWaitUntilS(double duration)`**: *Add to the event timeline*: wait until the timer reaches `duration` seconds.
 
-* **`float l_getSpeedMult()`**: Return the `SpeedMult` field of the level status.
 
-* **`void l_setSpeedMult(float value)`**: Set the `SpeedMult` field of the level status to `value`.
+## Level Functions (l_)
 
-* **`float l_getSpeedInc()`**: Return the `SpeedInc` field of the level status.
+Below are the level functions, which can be identified with the "l_" prefix. These are functions that have a role in altering the level mechanics themselves, including all level properties and attributes. These typically get called en masse in `onInit` to initialize properties.
 
-* **`void l_setSpeedInc(float value)`**: Set the `SpeedInc` field of the level status to `value`.
+* **`float l_getSpeedMult()`**: Gets the speed multiplier of the level. The speed multiplier is the current speed of the walls. Is incremented by ``SpeedInc`` every increment and caps at ``speedMax``.
 
-* **`float l_getSpeedMax()`**: Return the `SpeedMax` field of the level status.
+* **`void l_setSpeedMult(float value)`**: Sets the speed multiplier of the level to `value`. Changes do not apply to all walls immediately, and changes apply as soon as the next wall is created.
 
-* **`void l_setSpeedMax(float value)`**: Set the `SpeedMax` field of the level status to `value`.
+* **`float l_getSpeedInc()`**: Gets the speed increment of the level. This is applied every level increment to the speed multiplier. Incrementation is additive.
 
-* **`float l_getRotationSpeed()`**: Return the `RotationSpeed` field of the level status.
+* **`void l_setSpeedInc(float value)`**: Sets the speed increment of the level to `value`.
 
-* **`void l_setRotationSpeed(float value)`**: Set the `RotationSpeed` field of the level status to `value`.
+* **`float l_getSpeedMax()`**: Gets the maximum speed of the level. This is the highest that speed can go; speed can not get any higher than this.
 
-* **`float l_getRotationSpeedInc()`**: Return the `RotationSpeedInc` field of the level status.
+* **`void l_setSpeedMax(float value)`**: Sets the maximum speed of the level to `value`. Keep in mind that speed keeps going past the speed max, so setting a higher speed max may make the speed instantly increase to the max.
 
-* **`void l_setRotationSpeedInc(float value)`**: Set the `RotationSpeedInc` field of the level status to `value`.
+* **`float l_getRotationSpeed()`**: Gets the rotation speed of the level. Is incremented by ``RotationSpeedInc`` every increment and caps at ``RotationSpeedMax``.
 
-* **`float l_getRotationSpeedMax()`**: Return the `RotationSpeedMax` field of the level status.
+* **`float l_getRotationSpeedInc()`**: Gets the rotation speed increment of the level. This is applied every level increment to the rotation speed. Incrementation is additive.
 
-* **`void l_setRotationSpeedMax(float value)`**: Set the `RotationSpeedMax` field of the level status to `value`.
+* **`void l_setRotationSpeedInc(float value)`**: Sets the rotation speed increment of the level to `value`. Is effective on the next level increment.
 
-* **`float l_getDelayMult()`**: Return the `DelayMult` field of the level status.
+* **`float l_getRotationSpeedMax()`**: Gets the maximum rotation speed of the level. This is the highest that rotation speed can go; rotation speed can not get any higher than this.
 
-* **`void l_setDelayMult(float value)`**: Set the `DelayMult` field of the level status to `value`.
+* **`void l_setRotationSpeedMax(float value)`**: Sets the maximum rotation speed of the level to `value`. Keep in mind that rotation speed keeps going past the max, so setting a higher rotation speed max may make the rotation speed instantly increase to the max.
 
-* **`float l_getDelayInc()`**: Return the `DelayInc` field of the level status.
+* **`float l_getDelayMult()`**: Gets the delay multiplier of the level. The delay multiplier is the multiplier used to assist in spacing patterns, especially in cases of higher / lower speeds.  Is incremented by ``DelayInc`` every increment and is clamped between ``DelayMin`` and ``DelayMax``
 
-* **`void l_setDelayInc(float value)`**: Set the `DelayInc` field of the level status to `value`.
+* **`void l_setDelayMult(float value)`**: Sets the delay multiplier of the level to `value`. Changes do not apply to patterns immediately, and changes apply as soon as the next pattern is spawned.
 
-* **`float l_getDelayMin()`**: Return the `DelayMin` field of the level status.
+* **`float l_getDelayInc()`**: Gets the delay increment of the level. This is applied every level increment to the delay multiplier. Incrementation is additive.
 
-* **`void l_setDelayMin(float value)`**: Set the `DelayMin` field of the level status to `value`.
+* **`void l_setDelayInc(float value)`**: Sets the delay increment of the level to `value`.
 
-* **`float l_getDelayMax()`**: Return the `DelayMax` field of the level status.
+* **`float l_getDelayMin()`**: Gets the minimum delay of the level. This is the lowest that delay can go; delay can not get any lower than this.
 
-* **`void l_setDelayMax(float value)`**: Set the `DelayMax` field of the level status to `value`.
+* **`void l_setDelayMin(float value)`**: Sets the minimum delay of the level to `value`. Keep in mind that delay can go below the delay min, so setting a lower delay min may make the delay instantly decrease to the minimum.
 
-* **`float l_getFastSpin()`**: Return the `FastSpin` field of the level status.
+* **`float l_getDelayMax()`**: Gets the maximum delay of the level. This is the highest that delay can go; delay can not get any higher than this.
 
-* **`void l_setFastSpin(float value)`**: Set the `FastSpin` field of the level status to `value`.
+* **`void l_setDelayMax(float value)`**: Sets the maximum delay of the level to `value`. Keep in mind that delay can go above the delay max, so setting a higher delay max may make the delay instantly increase to the maximum.
 
-* **`float l_getIncTime()`**: Return the `IncTime` field of the level status.
+* **`float l_getFastSpin()`**: Gets the fast spin of the level. The fast spin is a brief moment that starts at level incrementation where the rotation increases speed drastically to try and throw off the player a bit. This speed quickly (or slowly, depending on the value) decelerates and fades away to the  updated rotation speed.
 
-* **`void l_setIncTime(float value)`**: Set the `IncTime` field of the level status to `value`.
+* **`void l_setFastSpin(float value)`**: Sets the fast spin of the level to `value`. A higher value increases intensity and duration of the fast spin.
 
-* **`float l_getPulseMin()`**: Return the `PulseMin` field of the level status.
+* **`float l_getIncTime()`**: Get the incrementation time (in seconds) of a level. This is the length of a "level" in an Open Hexagon level (It's ambiguous but hopefully you understand what that means), and when this duration is reached, the level increments.
 
-* **`void l_setPulseMin(float value)`**: Set the `PulseMin` field of the level status to `value`.
+* **`void l_setIncTime(float value)`**: Set the incrementation time (in seconds) of a level to `value`.
 
-* **`float l_getPulseMax()`**: Return the `PulseMax` field of the level status.
+* **`float l_getPulseMin()`**: Gets the minimum value the pulse can be. Pulse gives variety in the wall speed of the level so the wall speed doesn't feel monotone. Can also be used to help sync a level up with it's music.
 
-* **`void l_setPulseMax(float value)`**: Set the `PulseMax` field of the level status to `value`.
+* **`void l_setPulseMin(float value)`**: Sets the minimum pulse value to `value`.
 
-* **`float l_getPulseSpeed()`**: Return the `PulseSpeed` field of the level status.
+* **`float l_getPulseMax()`**: Gets the maximum value the pulse can be. Pulse gives variety in the wall speed of the level so the wall speed doesn't feel monotone. Can also be used to help sync a level up with it's music.
 
-* **`void l_setPulseSpeed(float value)`**: Set the `PulseSpeed` field of the level status to `value`.
+* **`void l_setPulseMax(float value)`**: Sets the maximum pulse value to `value`.
 
-* **`float l_getPulseSpeedR()`**: Return the `PulseSpeedR` field of the level status.
+* **`float l_getPulseSpeed()`**: Gets the speed the pulse goes from ``PulseMin`` to ``PulseMax``. Can also be used to help sync a level up with it's music.
 
-* **`void l_setPulseSpeedR(float value)`**: Set the `PulseSpeedR` field of the level status to `value`.
+* **`void l_setPulseSpeed(float value)`**: Gets the speed the pulse goes from ``PulseMin`` to ``PulseMax`` by `value`. Can also be used to help sync a level up with it's music.
 
-* **`float l_getPulseDelayMax()`**: Return the `PulseDelayMax` field of the level status.
+* **`float l_getPulseSpeedR()`**: Gets the speed the pulse goes from ``PulseMax`` to ``PulseMin``.
 
-* **`void l_setPulseDelayMax(float value)`**: Set the `PulseDelayMax` field of the level status to `value`.
+* **`void l_setPulseSpeedR(float value)`**: Gets the speed the pulse goes from ``PulseMax`` to ``PulseMin`` by `value`. Can also be used to help sync a level up with it's music.
 
-* **`float l_getPulseDelayHalfMax()`**: Return the `PulseDelayHalfMax` field of the level status.
+* **`float l_getPulseDelayMax()`**: Gets the delay the level has to wait before it begins another pulse cycle.
 
-* **`void l_setPulseDelayHalfMax(float value)`**: Set the `PulseDelayHalfMax` field of the level status to `value`.
+* **`void l_setPulseDelayMax(float value)`**: Sets the delay the level has to wait before it begins another pulse cycle with `value`.
 
-* **`float l_getBeatPulseMax()`**: Return the `BeatPulseMax` field of the level status.
+* **`float l_getPulseDelayHalfMax()`**: Gets the delay the level has to wait before it begins pulsing from ``PulseMax`` to ``PulseMin``.
 
-* **`void l_setBeatPulseMax(float value)`**: Set the `BeatPulseMax` field of the level status to `value`.
+* **`void l_setPulseDelayHalfMax(float value)`**: Gets the delay the level has to wait before it begins pulsing from ``PulseMax`` to ``PulseMin`` with `value`.
 
-* **`float l_getBeatPulseDelayMax()`**: Return the `BeatPulseDelayMax` field of the level status.
+* **`float l_getBeatPulseMax()`**: Gets the maximum beatpulse size of the polygon in a level. This is the highest value that the polygon will "pulse" in size. Useful for syncing the level to the music.
 
-* **`void l_setBeatPulseDelayMax(float value)`**: Set the `BeatPulseDelayMax` field of the level status to `value`.
+* **`float l_getBeatPulseDelayMax()`**: Gets the delay for how fast the beatpulse pulses in frames (assuming 60 FPS logic). This paired with ``BeatPulseMax`` will be useful to help sync a level with the music that it's playing.
 
-* **`float l_getRadiusMin()`**: Return the `RadiusMin` field of the level status.
+* **`void l_setBeatPulseDelayMax(float value)`**: Sets the delay for how fast the beatpulse pulses in `value` frames (assuming 60 FPS Logic).
 
-* **`void l_setRadiusMin(float value)`**: Set the `RadiusMin` field of the level status to `value`.
+* **`float l_getBeatPulseInitialDelay()`**: Gets the initial delay before beatpulse begins pulsing. This is very useful to use at the very beginning of the level to assist syncing the beatpulse with the song.
 
-* **`float l_getWallSkewLeft()`**: Return the `WallSkewLeft` field of the level status.
+* **`void l_setBeatPulseInitialDelay(float value)`**: Sets the initial delay before beatpulse begins pulsing to `value`. Highly discouraged to use this here. Use this in your music JSON files.
 
-* **`void l_setWallSkewLeft(float value)`**: Set the `WallSkewLeft` field of the level status to `value`.
+* **`float l_getBeatPulseSpeedMult()`**: Gets how fast the polygon pulses with the beatpulse. This is very useful to help keep your level in sync with the music.
 
-* **`float l_getWallSkewRight()`**: Return the `WallSkewRight` field of the level status.
+* **`void l_setBeatPulseSpeedMult(float value)`**: Sets how fast the polygon pulses with beatpulse to `value`.
 
-* **`void l_setWallSkewRight(float value)`**: Set the `WallSkewRight` field of the level status to `value`.
+* **`float l_getRadiusMin()`**: Gets the minimum radius of the polygon in a level. This is used to determine the absolute size of the polygon in the level.
 
-* **`float l_getWallAngleLeft()`**: Return the `WallAngleLeft` field of the level status.
+* **`void l_setRadiusMin(float value)`**: Sets the minimum radius of the polygon to `value`. Use this to set the size of the polygon in the level, not ``BeatPulseMax``.
 
-* **`void l_setWallAngleLeft(float value)`**: Set the `WallAngleLeft` field of the level status to `value`.
+* **`float l_getWallSkewLeft()`**: Gets the Y axis offset of the top left vertex in all walls.
 
-* **`float l_getWallAngleRight()`**: Return the `WallAngleRight` field of the level status.
+* **`void l_setWallSkewLeft(float value)`**: Sets the Y axis offset of the top left vertex to `value` in all newly generated walls. If you would like to have more individual control of the wall vertices, please use the custom walls system under the prefix ``cw_``.
 
-* **`void l_setWallAngleRight(float value)`**: Set the `WallAngleRight` field of the level status to `value`.
+* **`float l_getWallSkewRight()`**: Gets the Y axis offset of the top right vertex in all walls.
 
-* **`float l_get3dEffectMultiplier()`**: Return the `3dEffectMultiplier` field of the level status.
+* **`void l_setWallSkewRight(float value)`**: Sets the Y axis offset of the top right vertex to `value` in all newly generated walls. If you would like to have more individual control of the wall vertices, please use the custom walls system under the prefix ``cw_``.
 
-* **`void l_set3dEffectMultiplier(float value)`**: Set the `3dEffectMultiplier` field of the level status to `value`.
+* **`float l_getWallAngleLeft()`**: Gets the X axis offset of the top left vertex in all walls.
 
-* **`int l_getCameraShake()`**: Return the `CameraShake` field of the level status.
+* **`void l_setWallAngleLeft(float value)`**: Sets the X axis offset of the top left vertex to `value` in all newly generated walls. If you would like to have more individual control of the wall vertices, please use the custom walls system under the prefix ``cw_``.
 
-* **`void l_setCameraShake(int value)`**: Set the `CameraShake` field of the level status to `value`.
+* **`float l_getWallAngleRight()`**: Gets the X axis offset of the top right vertex in all walls.
 
-* **`unsigned int l_getSides()`**: Return the `Sides` field of the level status.
+* **`void l_setWallAngleRight(float value)`**: Sets the X axis offset of the top right vertex to `value` in all newly generated walls. If you would like to have more individual control of the wall vertices, please use the custom walls system under the prefix ``cw_``.
 
-* **`void l_setSides(unsigned int value)`**: Set the `Sides` field of the level status to `value`.
+* **`bool l_get3dRequired()`**: Gets whether 3D must be enabled in order to have a valid score in this level. By default, this value is ``false``.
 
-* **`unsigned int l_getSidesMax()`**: Return the `SidesMax` field of the level status.
+* **`void l_set3dRequired(bool value)`**: Sets whether 3D must be enabled to `value` to have a valid score. Only set this to ``true`` if your level relies on 3D effects to work as intended.
 
-* **`void l_setSidesMax(unsigned int value)`**: Set the `SidesMax` field of the level status to `value`.
+* **`int l_getCameraShake()`**: Gets the intensity of the camera shaking in a level.
 
-* **`unsigned int l_getSidesMin()`**: Return the `SidesMin` field of the level status.
+* **`void l_setCameraShake(int value)`**: Sets the intensity of the camera shaking in a level to `value`. This remains permanent until you either set this to 0 or the player dies.
 
-* **`void l_setSidesMin(unsigned int value)`**: Set the `SidesMin` field of the level status to `value`.
+* **`unsigned int l_getSides()`**: Gets the current number of sides on the polygon in a level.
 
-* **`bool l_getSwapEnabled()`**: Return the `SwapEnabled` field of the level status.
+* **`void l_setSides(unsigned int value)`**: Sets the current number of sides on the polygon to `value`. This change happens immediately and previously spawned walls will not adjust to the new side count.
 
-* **`void l_setSwapEnabled(bool value)`**: Set the `SwapEnabled` field of the level status to `value`.
+* **`unsigned int l_getSidesMax()`**: Gets the maximum range that the number of sides can possibly be at random. ``enableRndSideChanges`` must be enabled for this property to have any use.
 
-* **`bool l_getTutorialMode()`**: Return the `TutorialMode` field of the level status.
+* **`void l_setSidesMax(unsigned int value)`**: Sets the maximum range that the number of sides can possibly be to `value`.
 
-* **`void l_setTutorialMode(bool value)`**: Set the `TutorialMode` field of the level status to `value`.
+* **`unsigned int l_getSidesMin()`**: Gets the minimum range that the number of sides can possibly be at random. ``enableRndSideChanges`` must be enabled for this property to have any use.
 
-* **`bool l_getIncEnabled()`**: Return the `IncEnabled` field of the level status.
+* **`void l_setSidesMin(unsigned int value)`**: Sets the minimum range that the number of sides can possibly be to `value`.
 
-* **`void l_setIncEnabled(bool value)`**: Set the `IncEnabled` field of the level status to `value`.
+* **`bool l_getSwapEnabled()`**: Gets whether the swap mechanic is enabled for a level. By default, this is set to ``false``.
 
-* **`bool l_getDarkenUnevenBackgroundChunk()`**: Return the `DarkenUnevenBackgroundChunk` field of the level status.
+* **`void l_setSwapEnabled(bool value)`**: Sets the swap mechanic's availability to `value`.
 
-* **`void l_setDarkenUnevenBackgroundChunk(bool value)`**: Set the `DarkenUnevenBackgroundChunk` field of the level status to `value`.
+* **`bool l_getTutorialMode()`**: Gets whether tutorial mode is enabled. In tutorial mode, players are granted invincibility from dying to walls. This mode is typically enabled whenever a pack developer needs to demonstrate a new concept to the player so that way they can easily learn the new mechanic/concept. This invincibility will not count towards invalidating a score, but it's usually not important to score on a tutorial level. By default, this is set to ``false``.
 
-* **`size_t l_getCurrentIncrements()`**: Return the `CurrentIncrements` field of the level status.
+* **`void l_setTutorialMode(bool value)`**: Sets tutorial mode to `value`. Remember, only enable this if you need to demonstrate a new concept for players to learn, or use it as a gimmick to a level.
 
-* **`void l_setCurrentIncrements(size_t value)`**: Set the `CurrentIncrements` field of the level status to `value`.
+* **`bool l_getIncEnabled()`**: Gets whether the level can increment or not. This is Open Hexagon's way of establishing a difficulty curve in the level and set a sense of progression throughout the level. By default, this value is set to ``true``.
 
-* **`void l_enableRndSideChanges(bool enabled)`**: Set random side changes to `enabled`.
+* **`void l_setIncEnabled(bool value)`**: Toggles level incrementation to `value`. Only disable this if you feel like the level can not benefit from incrementing in any way.
 
-* **`void l_darkenUnevenBackgroundChunk(bool enabled)`**: If `enabled` is true, one of the background's chunks will be darkened in case there is an uneven number of sides.
+* **`bool l_getDarkenUnevenBackgroundChunk()`**: Gets whether the ``Nth`` panel of a polygon with ``N`` sides (assuming ``N`` is odd) will be darkened to make styles look more balanced. By default, this value is set to ``true``, but there can be styles where having this darkened panel can look very unpleasing.
+
+* **`void l_setDarkenUnevenBackgroundChunk(bool value)`**: Sets the darkened panel to `value`.
+
+* **`size_t l_getCurrentIncrements()`**: Gets the current amount of times the level has incremented. Very useful for keeping track of levels.
+
+* **`void l_setCurrentIncrements(size_t value)`**: Sets the current amount of times the level has incremented to `value`. This function is utterly pointless to use unless you are tracking this variable.
+
+* **`void l_enableRndSideChanges(bool enabled)`**: Toggles random side changes to `enabled`, (not) allowing sides to change between ``SidesMin`` and ``SidesMax`` inclusively every level increment.
 
 * **`void l_addTracked(string variable, string name)`**: Add the variable `variable` to the list of tracked variables, with name `name`. Tracked variables are displayed in game, below the game timer.
 
@@ -313,97 +364,115 @@ Finally, you can write `2` and press *enter* to add a preview image to your work
 
 * **`bool l_getOfficial()`**: Return `true` if "official mode" is enabled, `false` otherwise.
 
-* **`float s_getHueMin()`**: Return the `HueMin` field of the style data.
 
-* **`void s_setHueMin(float value)`**: Set the `HueMin` field of the style data to `value`.
+## Style Functions (s_)
 
-* **`float s_getHueMax()`**: Return the `HueMax` field of the style data.
+Below are the style functions, which can be identified with the "s_" prefix. These are functions that have a role in altering the attributes of the current style that is on the level. Style attributes, unlike level attributes, do not get initialized in Lua and rather are premade in a JSON file (but this is subject to change).
 
-* **`void s_setHueMax(float value)`**: Set the `HueMax` field of the style data to `value`.
+* **`float s_getHueMin()`**: Gets the minimum value for the hue range of a level style. The hue attribute is an important attribute that is dedicated specifically to all colors that have the ``dynamic`` property enabled.
 
-* **`float s_getHueInc()`**: Return the `HueInc` field of the style data.
+* **`void s_setHueMin(float value)`**: Sets the minimum value for the hue range to `value`. Usually you want this value at 0 to start off at completely red.
 
-* **`void s_setHueInc(float value)`**: Set the `HueInc` field of the style data to `value`.
+* **`float s_getHueMax()`**: Gets the maximum value for the hue range of a level style. Only applies to all colors with the ``dynamic`` property enabled.
 
-* **`float s_getHueIncrement()`**: Return the `HueIncrement` field of the style data.
+* **`void s_setHueMax(float value)`**: Sets the maximum value for the hue range to `value`. Usually you want this value at 360 to end off at red, to hopefully loop the colors around.
 
-* **`void s_setHueIncrement(float value)`**: Set the `HueIncrement` field of the style data to `value`.
+* **`float s_getHueInc()`**: Alias to ``s_getHueIncrement``. Done for backwards compatibility.
 
-* **`float s_getPulseMin()`**: Return the `PulseMin` field of the style data.
+* **`void s_setHueInc(float value)`**: Alias to ``s_setHueIncrement``. Done for backwards compatibility.
 
-* **`void s_setPulseMin(float value)`**: Set the `PulseMin` field of the style data to `value`.
+* **`float s_getHueIncrement()`**: Gets how fast the hue increments from ``HueMin`` to ``HueMax``. The hue value is added by this value every 1/60th of a second.
 
-* **`float s_getPulseMax()`**: Return the `PulseMax` field of the style data.
+* **`void s_setHueIncrement(float value)`**: Sets how fast the hue increments from ``HueMin`` to ``HueMax`` by `value`. Be careful with high values, as this can make your style induce epileptic seizures.
 
-* **`void s_setPulseMax(float value)`**: Set the `PulseMax` field of the style data to `value`.
+* **`float s_getPulseMin()`**: Gets the minimum range for the multiplier of the ``pulse`` attribute in style colors. By default, this value is set to 0.
 
-* **`float s_getPulseInc()`**: Return the `PulseInc` field of the style data.
+* **`void s_setPulseMin(float value)`**: Sets the minimum range for the multiplier of the ``pulse`` attribute to `value`.
 
-* **`void s_setPulseInc(float value)`**: Set the `PulseInc` field of the style data to `value`.
+* **`float s_getPulseMax()`**: Gets the maximum range for the multiplier of the ``pulse`` attribute in style colors. By default, this value is set to 0, but ideally it should be set to 1.
 
-* **`float s_getPulseIncrement()`**: Return the `PulseIncrement` field of the style data.
+* **`void s_setPulseMax(float value)`**: Sets the maximum range for the multiplier of the ``pulse`` attribute to `value`.
 
-* **`void s_setPulseIncrement(float value)`**: Set the `PulseIncrement` field of the style data to `value`.
+* **`float s_getPulseInc()`**: Alias to ``s_getPulseIncrement``. Done for backwards compatibility.
 
-* **`bool s_getHuePingPong()`**: Return the `HuePingPong` field of the style data.
+* **`void s_setPulseInc(float value)`**: Alias to ``s_setPulseIncrement``. Done for backwards compatibility.
 
-* **`void s_setHuePingPong(bool value)`**: Set the `HuePingPong` field of the style data to `value`.
+* **`float s_getPulseIncrement()`**: Gets how fast the pulse increments from ``PulseMin`` to ``PulseMax``. The pulse value is added by this value every 1/60th of a second.
 
-* **`float s_getMaxSwapTime()`**: Return the `MaxSwapTime` field of the style data.
+* **`void s_setPulseIncrement(float value)`**: Sets how fast the pulse increments from ``PulseMin`` to ``PulseMax`` by `value`. Be careful with high values, as this can make your style induce epileptic seizures.
 
-* **`void s_setMaxSwapTime(float value)`**: Set the `MaxSwapTime` field of the style data to `value`.
+* **`bool s_getHuePingPong()`**: Gets whether the hue should go ``Start-End-Start-End`` or ``Start-End, Start-End`` with the hue cycling.
 
-* **`float s_get3dDepth()`**: Return the `3dDepth` field of the style data.
+* **`void s_setHuePingPong(bool value)`**: Toggles ping ponging in the hue cycling (``Start-End-Start-End``) with `value`.
 
-* **`void s_set3dDepth(float value)`**: Set the `3dDepth` field of the style data to `value`.
+* **`float s_getMaxSwapTime()`**: Gets the amount of time that has to pass (in 1/100th of a second) before the background color offset alternates. The background colors by default alternate between 0 and 1. By default, this happens every second.
 
-* **`float s_get3dSkew()`**: Return the `3dSkew` field of the style data.
+* **`void s_setMaxSwapTime(float value)`**: Sets the amount of time that has to pass (in 1/100th of a second) to `value` before the background color alternates.
 
-* **`void s_set3dSkew(float value)`**: Set the `3dSkew` field of the style data to `value`.
+* **`float s_get3dDepth()`**: Gets the current amount of 3D layers that are present in the style.
 
-* **`float s_get3dSpacing()`**: Return the `3dSpacing` field of the style data.
+* **`void s_set3dDepth(float value)`**: Sets the amount of 3D layers in a style to `value`.
 
-* **`void s_set3dSpacing(float value)`**: Set the `3dSpacing` field of the style data to `value`.
+* **`float s_get3dSkew()`**: Gets the current value of where the 3D skew is in the style. The Skew is what gives the 3D effect in the first place, showing the 3D layers and giving the illusion of 3D in the game.
 
-* **`float s_get3dDarkenMult()`**: Return the `3dDarkenMult` field of the style data.
+* **`void s_set3dSkew(float value)`**: Sets the 3D skew at value `value`.
 
-* **`void s_set3dDarkenMult(float value)`**: Set the `3dDarkenMult` field of the style data to `value`.
+* **`float s_get3dSpacing()`**: Gets the spacing that is done between 3D layers. A higher number leads to more separation between layers.
 
-* **`float s_get3dAlphaMult()`**: Return the `3dAlphaMult` field of the style data.
+* **`void s_set3dSpacing(float value)`**: Sets the spacing between 3D layers to `value`.
 
-* **`void s_set3dAlphaMult(float value)`**: Set the `3dAlphaMult` field of the style data to `value`.
+* **`float s_get3dDarkenMult()`**: Gets the darkening multiplier applied to the 3D layers in a style. This is taken from the ``main`` color.
 
-* **`float s_get3dAlphaFalloff()`**: Return the `3dAlphaFalloff` field of the style data.
+* **`void s_set3dDarkenMult(float value)`**: Sets the darkening multiplier to `value` for the 3D layers.
 
-* **`void s_set3dAlphaFalloff(float value)`**: Set the `3dAlphaFalloff` field of the style data to `value`.
+* **`float s_get3dAlphaMult()`**: Gets the alpha (transparency) multiplier applied to the 3D layers in a style. Originally references the ``main`` color.
 
-* **`float s_get3dPulseMax()`**: Return the `3dPulseMax` field of the style data.
+* **`void s_set3dAlphaMult(float value)`**: Sets the alpha multiplier to `value` for the 3D layers. A higher value makes the layers more transparent.
 
-* **`void s_set3dPulseMax(float value)`**: Set the `3dPulseMax` field of the style data to `value`.
+* **`float s_get3dAlphaFalloff()`**: Gets the alpha (transparency) multiplier applied to the 3D layers consecutively in a style. Takes reference from the ``main`` color.
 
-* **`float s_get3dPulseMin()`**: Return the `3dPulseMin` field of the style data.
+* **`void s_set3dAlphaFalloff(float value)`**: Sets the alpha multiplier to `value` for for the 3D layers and applies them layer after layer. This property can get finnicky.
 
-* **`void s_set3dPulseMin(float value)`**: Set the `3dPulseMin` field of the style data to `value`.
+* **`float s_get3dPulseMax()`**: Gets the highest value that the ``3DSkew`` can go in a style.
 
-* **`float s_get3dPulseSpeed()`**: Return the `3dPulseSpeed` field of the style data.
+* **`void s_set3dPulseMax(float value)`**: Sets the highest value the ``3DSkew`` can go to `value`.
 
-* **`void s_set3dPulseSpeed(float value)`**: Set the `3dPulseSpeed` field of the style data to `value`.
+* **`float s_get3dPulseMin()`**: Gets the lowest value that the ``3DSkew`` can go in a style.
 
-* **`float s_get3dPerspectiveMult()`**: Return the `3dPerspectiveMult` field of the style data.
+* **`void s_set3dPulseMin(float value)`**: Sets the lowest value the ``3DSkew`` can go to `value`.
 
-* **`void s_set3dPerspectiveMult(float value)`**: Set the `3dPerspectiveMult` field of the style data to `value`.
+* **`float s_get3dPulseSpeed()`**: Gets how fast the ``3DSkew`` moves between ``3DPulseMin`` and ``3DPulseMax``.
+
+* **`void s_set3dPulseSpeed(float value)`**: Sets how fast the ``3DSkew`` moves between ``3DPulseMin`` and ``3DPulseMax`` by `value`.
+
+* **`float s_get3dPerspectiveMult()`**: Gets the 3D perspective multiplier of the style. Works with the attribute ``3DSpacing`` to space out layers.
+
+* **`void s_set3dPerspectiveMult(float value)`**: Sets the 3D perspective multiplier to `value`.
+
+* **`float s_getBGTileRadius()`**: Gets the distances of how far the background panels are drawn. By default, this is a big enough value so you do not see the border. However, feel free to shrink them if you'd like.
+
+* **`void s_setBGTileRadius(float value)`**: Sets how far the background panels are drawn to distance `value`.
+
+* **`unsigned int s_getBGColorOffset()`**: Gets the offset of the style by how much the colors shift. Usually this sits between 0 and 1, but can easily be customized.
+
+* **`void s_setBGColorOffset(unsigned int value)`**: Shifts the background colors to have an offset of `value`.
+
+* **`float s_getBGRotationOffset()`**: Gets the literal rotation offset of the background panels in degrees. This usually stays at 0, but can be messed with to make some stylish level styles.
+
+* **`void s_setBGRotationOffset(float value)`**: Sets the rotation offset of the background panels to `value` degrees.
 
 * **`void s_setStyle(string styleId)`**: Set the currently active style to the style with id `styleId`. Styles can be defined as `.json` files in the `<pack>/Styles/` folder.
-
-* **`void s_setCameraShake(int value)`**: Start a camera shake with intensity `value`.
-
-* **`int s_getCameraShake()`**: Return the current camera shake intensity.
 
 * **`void s_setCapColorMain()`**: Set the color of the center polygon to match the main style color.
 
 * **`void s_setCapColorMainDarkened()`**: Set the color of the center polygon to match the main style color, darkened.
 
 * **`void s_setCapColorByIndex(int index)`**: Set the color of the center polygon to match the  style color with index `index`.
+
+
+## Wall Functions (w_)
+
+Below are the basic wall functions, which can be identified with the "w_" prefix. These are the functions sole responsible for wall creation in the levels. There are a variety of walls that can be made with different degrees of complexity, all of which can be used to construct your own patterns.
 
 * **`void w_wall(int side, float thickness)`**: Create a new wall at side `side`, with thickness `thickness`. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier.
 
@@ -415,7 +484,10 @@ Finally, you can write `2` and press *enter* to add a preview image to your work
 
 * **`void w_wallHModCurveData(float hueModifier, int side, float thickness, float curveSpeedMult, float curveAcceleration, float curveMinSpeed, float curveMaxSpeed, bool pingPong)`**: Create a new curving wall at side `side`, with thickness `thickness`. The curving speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by `curveSpeedMult`. The wall will have a curving speed acceleration value of `curveAcceleration`. The minimum and maximum curving speed of the wall are bounded by `curveMinSpeed` and `curveMaxSpeed`, adjusted  for the current difficulty multiplier. The hue of the wall will be adjusted by `hueModifier`. If `pingPong` is enabled, the wall will accelerate back and forth between its minimum and maximum speed.
 
-* **`void steam_unlockAchievement(string achievementId)`**: Unlock the Steam achievement with id `achievementId`.
+
+## Custom Wall Functions (cw_)
+
+Below are the custom wall functions, which can be identified with the "cw_" prefix. These are 2.0 exclusive functions with foundations of [Object-oriented programming](https://en.wikipedia.org/wiki/Object-oriented_programming) to allow pack developers to customize individual walls and their properties and make the most out of them.
 
 * **`int cw_create()`**: Create a new custom wall and return a integer handle to it.
 
@@ -429,6 +501,12 @@ Finally, you can write `2` and press *enter* to add a preview image to your work
 
 * **`void cw_clear()`**: Remove all existing custom walls.
 
+
+## Miscellaneous Functions
+
+Below are the miscellaneous functions, which can have a variable prefix or no prefix at all. These are other functions that are listed that cannot qualify for one of the above eight categories and achieve some other purpose, with some functions not meant to be used by pack developers at all.
+
+* **`void steam_unlockAchievement(string achievementId)`**: Unlock the Steam achievement with id `achievementId`.
 
 
 ## Where to get Help {#where-to-get-help}

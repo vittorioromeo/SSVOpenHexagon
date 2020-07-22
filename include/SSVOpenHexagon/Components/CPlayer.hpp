@@ -56,7 +56,6 @@ public:
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 
     void push(HexagonGame& mHexagonGame, hg::CWall& wall);
-    void pushOnCurve(HexagonGame& mHexagonGame, hg::CWall& wall);
 };
 
 } // namespace hg

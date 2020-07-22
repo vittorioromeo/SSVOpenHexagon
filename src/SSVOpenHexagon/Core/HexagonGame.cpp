@@ -243,6 +243,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     // Set initial values for some status fields from Lua
     status.beatPulseDelay += levelStatus.beatPulseInitialDelay;
+    timeUntilRichPresenceUpdate = -1.f; // immediate update
 }
 
 void HexagonGame::death(bool mForce)
@@ -288,14 +289,13 @@ void HexagonGame::incrementDifficulty()
 
     levelStatus.rotationSpeed += levelStatus.rotationSpeedInc * signMult;
 
-    levelStatus.rotationSpeed *= -1.f;
-
     const auto& rotationSpeedMax(levelStatus.rotationSpeedMax);
     if(abs(levelStatus.rotationSpeed) > rotationSpeedMax)
     {
         levelStatus.rotationSpeed = rotationSpeedMax * signMult;
     }
 
+    levelStatus.rotationSpeed *= -1.f;
     status.fastSpin = levelStatus.fastSpin;
 }
 
