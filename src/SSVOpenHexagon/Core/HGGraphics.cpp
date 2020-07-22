@@ -182,10 +182,10 @@ void HexagonGame::drawKeyIcons()
     const sf::Color offColor{c.r, c.g, c.b, offOpacity};
     const sf::Color onColor{c.r, c.g, c.b, onOpacity};
 
-    keyIconLeft.setColor((inputMovement == -1) ? onColor : offColor);
-    keyIconRight.setColor((inputMovement == 1) ? onColor : offColor);
-    keyIconFocus.setColor(inputFocused ? onColor : offColor);
-    keyIconSwap.setColor(inputSwap ? onColor : offColor);
+    keyIconLeft.setColor((getInputMovement() == -1) ? onColor : offColor);
+    keyIconRight.setColor((getInputMovement() == 1) ? onColor : offColor);
+    keyIconFocus.setColor(getInputFocused() ? onColor : offColor);
+    keyIconSwap.setColor(getInputSwap() ? onColor : offColor);
 
     render(keyIconLeft);
     render(keyIconRight);

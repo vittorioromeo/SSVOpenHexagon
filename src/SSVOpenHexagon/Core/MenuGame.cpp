@@ -438,7 +438,8 @@ void MenuGame::okAction()
         const std::string& packId = assets.getPackInfos().at(packIdx).id;
 
         hexagonGame.newGame(packId, levelDataIds.at(currentIndex), true,
-            ssvu::getByModIdx(diffMults, diffMultIdx));
+            ssvu::getByModIdx(diffMults, diffMultIdx),
+            false /* executeLastReplay */);
     }
     else if(isInMenu())
     {

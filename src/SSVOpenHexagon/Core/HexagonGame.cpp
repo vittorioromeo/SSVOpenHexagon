@@ -138,7 +138,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 }
 
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
-    bool mFirstPlay, float mDifficultyMult)
+    bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
     initFlashEffect();
 
@@ -146,11 +146,26 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
-    // ------------------------------------------------------------------------
-    // Initialize random number generator (generate a new seed)
-    rng = initializeRng();
-
     status = HexagonGameStatus{};
+
+    if(!executeLastReplay)
+    {
+        window.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
+
+        rng = initializeRng();
+        lastReplay = replay_data{rng.get_seed()};
+
+        lastReplayPlayer.reset();
+    }
+    else // TODO: we should get rid of this, it's just for testing
+    {
+        // TODO: this can be used to speed up the replay
+        // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
+
+        rng = random_number_generator{lastReplay.get_seed()};
+
+        lastReplayPlayer.emplace(lastReplay);
+    }
 
     // Audio cleanup
     assets.stopSounds();
@@ -386,12 +401,6 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     mgPtr->init(mError);
 }
 
-void HexagonGame::changeLevel(
-    const std::string& mPackId, const std::string& mId, bool mFirstTime)
-{
-    newGame(mPackId, mId, mFirstTime, difficultyMult);
-}
-
 void HexagonGame::addMessage(
     std::string mMessage, double mDuration, bool mSoundToggle)
 {
@@ -487,9 +496,19 @@ void HexagonGame::setSides(unsigned int mSides)
     levelStatus.sides = mSides;
 }
 
-bool HexagonGame::getInputSwap() const
+[[nodiscard]] bool HexagonGame::getInputFocused() const
+{
+    return inputFocused;
+}
+
+[[nodiscard]] bool HexagonGame::getInputSwap() const
 {
     return inputSwap || hg::Joystick::aRisingEdge();
+}
+
+[[nodiscard]] int HexagonGame::getInputMovement() const
+{
+    return inputMovement;
 }
 
 } // namespace hg
