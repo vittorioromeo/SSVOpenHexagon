@@ -1,0 +1,40 @@
+name: CI
+
+# Trigger this workflow on push or pull request
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build (ubuntu-20.04)
+
+    runs-on: ubuntu-20.04
+
+    env:
+      CXXFLAGS: -I/usr/local/include/SFML -std=c++2a
+      LDFLAGS: -L/usr/local/lib
+
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: recursive
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build libsfml-dev libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev
+
+    - name: CMake configure
+      run: |
+        cd build
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE ..
+    - name: Build
+      run: ninja -C build
+
+    - name: Copy artifacts
+      run: cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: OpenHexagon-Linux
+        path: _RELEASE
