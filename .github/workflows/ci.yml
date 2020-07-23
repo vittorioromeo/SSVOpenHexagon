@@ -26,7 +26,7 @@ jobs:
     - name: CMake configure
       run: |
         cd build
-        cmake -GNinja ..
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE ..
     - name: Build
       run: ninja -C build
 
