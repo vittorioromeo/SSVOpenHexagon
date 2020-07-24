@@ -104,7 +104,7 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
-	if not achievementUnlocked and l_getLevelTime() > 120 and u_getDifficultyMult() >= 1 then
+	if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a12_disco")
 		achievementUnlocked = true
 	end
