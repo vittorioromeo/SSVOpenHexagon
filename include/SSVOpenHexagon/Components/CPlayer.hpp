@@ -49,9 +49,9 @@ public:
     [[nodiscard]] sf::Vector2f getStartPosition() const;
     [[nodiscard]] float getPlayerAngle() const;
     void setPlayerAngle(const float newAng);
-    void playerSwap(HexagonGame &mHexagonGame, bool mPlaySound);
+    void playerSwap(HexagonGame& mHexagonGame, bool mPlaySound);
 
-    void kill(HexagonGame &mHexagonGame);
+    void kill(HexagonGame& mHexagonGame);
 
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
