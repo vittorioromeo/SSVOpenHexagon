@@ -83,6 +83,7 @@ using namespace ssvu;
     X(triggerExit, Trigger, "t_exit")                                      \
     X(triggerForceRestart, Trigger, "t_force_restart")                     \
     X(triggerRestart, Trigger, "t_restart")                                \
+    X(triggerReplay, Trigger, "t_replay")                                  \
     X(triggerScreenshot, Trigger, "t_screenshot")                          \
     X(triggerSwap, Trigger, "t_swap")                                      \
     X(triggerUp, Trigger, "t_up")                                          \
@@ -816,6 +817,11 @@ Trigger getTriggerForceRestart()
 Trigger getTriggerRestart()
 {
     return triggerRestart();
+}
+
+Trigger getTriggerReplay()
+{
+    return triggerReplay();
 }
 
 Trigger getTriggerScreenshot()
