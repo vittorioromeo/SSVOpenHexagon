@@ -54,8 +54,11 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
     sf::Color colorMain{!dead ? mHexagonGame.getColorMain()
                               : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
 
-    pLeft = ssvs::getOrbitRad(pos, angle - ssvu::toRad(100.f), size + 3);
-    pRight = ssvs::getOrbitRad(pos, angle + ssvu::toRad(100.f), size + 3);
+    const float triangleWidth = mHexagonGame.getInputFocused() ? -1.5f : 3.f;
+    pLeft = ssvs::getOrbitRad(
+        pos, angle - ssvu::toRad(100.f), size + triangleWidth);
+    pRight = ssvs::getOrbitRad(
+        pos, angle + ssvu::toRad(100.f), size + triangleWidth);
 
     if(!swapTimer.isRunning())
     {
@@ -139,7 +142,7 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
 void CPlayer::playerSwap(HexagonGame& mHexagonGame, bool mPlaySound)
 {
     angle += ssvu::pi;
-    mHexagonGame.runLuaFunctionIfExists<void>("onCursorSwap"); // TODO: docs
+    mHexagonGame.runLuaFunctionIfExists<void>("onCursorSwap");
 
     if(mPlaySound)
     {
