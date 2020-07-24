@@ -54,6 +54,7 @@ void CWall::moveTowardsCenter(
     HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
 {
     const float radius{mHexagonGame.getRadius() * 0.65f};
+
     int pointsOnCenter{0};
     for(sf::Vector2f& vp : vertexPositions)
     {
