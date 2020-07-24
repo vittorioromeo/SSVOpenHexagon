@@ -31,7 +31,9 @@ jobs:
       run: ninja -C build
 
     - name: Copy artifacts
-      run: cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
+      run: |
+        cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
+        cp /usr/lib/x86_64-linux-gnu/libsfml-*.so _RELEASE
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
