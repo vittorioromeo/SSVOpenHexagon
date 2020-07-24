@@ -146,7 +146,7 @@ void HexagonGame::draw()
     overlayCamera.apply();
     drawText();
 
-    if(Config::getShowKeyIcons())
+    if(Config::getShowKeyIcons() || mustShowReplayUI())
     {
         drawKeyIcons();
     }
