@@ -33,7 +33,19 @@
 </ul></li>
 <li><a href="#creating-your-first-custom-level">Creating your First Custom Level</a></li>
 <li><a href="#uploading-to-the-steam-workshop">Uploading to the Steam Workshop</a></li>
-<li><a href="#lua-reference">Lua Reference</a></li>
+</ul></li>
+<li><a href="#lua-reference">Lua Reference</a>
+<ul>
+<li><a href="#core-functions">Core Functions</a></li>
+<li><a href="#utility-functions-u_">Utility Functions (u_)</a></li>
+<li><a href="#message-functions-m_">Message Functions (m_)</a></li>
+<li><a href="#main-timeline-functions-t_">Main Timeline Functions (t_)</a></li>
+<li><a href="#event-timeline-functions-e_">Event Timeline Functions (e_)</a></li>
+<li><a href="#level-functions-l_">Level Functions (l_)</a></li>
+<li><a href="#style-functions-s_">Style Functions (s_)</a></li>
+<li><a href="#wall-functions-w_">Wall Functions (w_)</a></li>
+<li><a href="#custom-wall-functions-cw_">Custom Wall Functions (cw_)</a></li>
+<li><a href="#miscellaneous-functions">Miscellaneous Functions</a></li>
 <li><a href="#where-to-get-help">Where to get Help</a></li>
 </ul></li>
 </ul>
@@ -95,9 +107,27 @@
 <p>Copy that id to your clipboard as you’re going to need it for later. Once you have finished creating and testing your custom level, you should have a folder under <code>Packs/</code> containing all its data. To upload it, write <code>1</code> and press <em>enter</em>. You will be prompted to enter the workshop item id you want to upload data to - you should now paste the id you previously copied<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>.</p>
 <p>You will then be prompted to enter the path to the folder containing the data. Please insert an absolute path to the pack folder (e.g. <code>C:/MySteamLibrary/common/Open Hexagon/Packs/MyFirstPack</code>) and keep following the instructions on screen. Your data should now be uploaded to the workshop.</p>
 <p>Finally, you can write <code>2</code> and press <em>enter</em> to add a preview image to your workshop item. A 620x620 <code>.png</code> image is recommended for this task - you will need to provide an absolute path to the image similarly to what you have done in the previous step.</p>
-<h2 id="lua-reference">Lua Reference</h2>
-<!-- Generated from Open Hexagon v2.01. -->
+<h1 id="lua-reference">Lua Reference</h1>
+<p>Below is the full reference for all of the Lua functions that you can use in the entire game.</p>
+<h2 id="core-functions">Core Functions</h2>
+<p>Below are the Core Functions, which are the base functions that help the game assemble the level together and make the level playable. Some of these functions are required and they must be implemented in order for your level to work, while others are completely optional and can be implemented to help assist you in completing certain tasks.</p>
 <ul>
+<li><p><strong><code>onInit()</code> (Required)</strong>: A core function that is called when the level is first selected upon in the menu. The Lua function is also ran upon every attempt to reset the configuration. Use this function to initialize all of the level settings and setup some parameters for the level, such as tracking variables and setting conditions with the menu selection (such as setting difficulty multiplier thresholds).</p></li>
+<li><p><strong><code>onLoad()</code> (Required)</strong>: A core function that is called when the level begins. Use this function for basic event handling, such as timing messages and setting an end to the level with <code>u_eventKill</code>. However, more advanced events should be handled with other Lua measures (or with the currently WIP “Events for 2.0” module). You can also initialize some values that couldn’t be initialized with <code>onInit</code>.</p></li>
+<li><p><strong><code>onStep()</code> (Required)</strong>: A core function that is called every time when the level timeline is empty. This is the core function where all of your pattern/wall spawning logic should be happening, as this is the intended design of the function. When a level increment is called, this function temporarily stops running until the level increments successfully.</p></li>
+<li><p><strong><code>onIncrement()</code> (Required)</strong>: A core function that is called every time the level increments. It doesn’t run the moment the increment is called, as it has to wait for all of the walls to be cleared before this function can run. Use this to implement any custom incrementation logic.</p></li>
+<li><p><strong><code>onUnload()</code> (Required)</strong>: A core function that is called every time when the player exits the level or restarts the level. This is hardly ever used in pack developing, but some uses for it can be to help run certain events only on first playthrough of the level.</p></li>
+<li><p><strong><code>onUpdate(float mFrameTime)</code> (Required)</strong>: A core function that is called every frame throughout the level, with the argument <code>mFrameTime</code> being a float representing the time elapsed for a single frame. This function can be very useful to solve logic that would otherwise be impossible to do with other core functions, but be careful to not put too much code into this function. Putting too much code in this function (or putting faulty code) can be a contributing factor to causing lag, so be sure to use this function wisely.</p></li>
+<li><p><strong><code>onCursorSwap()</code></strong>: A core function that is called every time the player swaps.</p></li>
+<li><p><strong><code>onDeath()</code></strong>: A core function that is called when the player dies. This function does not count invincibility deaths, and they must be actual deaths for this function to be called.</p></li>
+</ul>
+<!-- START GENERATED DOCS HERE -->
+<!-- Generated from Open Hexagon v2.01. -->
+<!-- TODO: Add callbacks. -->
+<h2 id="utility-functions-u_">Utility Functions (u_)</h2>
+<p>Below are the utility functions, which can be identified with the “u_” prefix. These are overall functions that either help utilize the game engine, be incredibly beneficial to pack developers, or help simplify complex calculations.</p>
+<ul>
+<li><p><strong><code>size_t u_getAttemptRandomSeed()</code></strong>: Obtain the current random seed, automatically generated at the beginning of the level. <code>math.randomseed</code> is automatically initialized with the result of this function at the beginning of a level.</p></li>
 <li><p><strong><code>void u_log(string message)</code></strong>: Print out <code>message</code> to the console.</p></li>
 <li><p><strong><code>void u_execScript(string scriptFilename)</code></strong>: Execute the script located at <code>&lt;pack&gt;/Scripts/scriptFilename</code>.</p></li>
 <li><p><strong><code>void u_playSound(string soundId)</code></strong>: Play the sound with id <code>soundId</code>. The id must be registered in <code>assets.json</code>, under <code>"soundBuffers"</code>.</p></li>
@@ -106,7 +136,7 @@
 <li><p><strong><code>void u_setMusicSeconds(string musicId, float time)</code></strong>: Stop the current music and play the music with id <code>musicId</code>, starting at time <code>time</code> (in seconds).</p></li>
 <li><p><strong><code>bool u_isKeyPressed(int keyCode)</code></strong>: Return <code>true</code> if the keyboard key with code <code>keyCode</code> is being pressed, <code>false</code> otherwise. The key code must match the definition of the SFML <code>sf::Keyboard::Key</code> enumeration.</p></li>
 <li><p><strong><code>void u_haltTime(double duration)</code></strong>: Pause the game timer for <code>duration</code> seconds.</p></li>
-<li><p><strong><code>void u_timelineWait(double duration)</code></strong>: <em>Add to the main timeline</em>: wait for <code>duration</code> sixths of a second.</p></li>
+<li><p><strong><code>void u_timelineWait(double duration)</code></strong>: <em>Add to the main timeline</em>: wait for <code>duration</code> frames (assuming 60 FPS framerate).</p></li>
 <li><p><strong><code>void u_clearWalls()</code></strong>: Remove all existing walls.</p></li>
 <li><p><strong><code>float u_getPlayerAngle()</code></strong>: Return the current angle of the player, in radians.</p></li>
 <li><p><strong><code>void u_setPlayerAngle(float angle)</code></strong>: Set the current angle of the player to <code>angle</code>, in radians.</p></li>
@@ -118,153 +148,191 @@
 <li><p><strong><code>float u_getDifficultyMult()</code></strong>: Return the current difficulty multiplier.</p></li>
 <li><p><strong><code>float u_getSpeedMultDM()</code></strong>: Return the current speed multiplier, adjusted for the chosen difficulty multiplier.</p></li>
 <li><p><strong><code>float u_getDelayMultDM()</code></strong>: Return the current delay multiplier, adjusted for the chosen difficulty multiplier.</p></li>
+<li><p><strong><code>void u_swapPlayer(bool playSound)</code></strong>: Force-swaps (180 degrees) the player when invoked. If <code>playSound</code> is <code>true</code>, the swap sound will be played.</p></li>
+</ul>
+<h2 id="message-functions-m_">Message Functions (m_)</h2>
+<p>Below are the message functions, which can be identified with the “m_” prefix. These functions are capable of displaying custom messages on the screen which can help pack developers communicate additional info or anything else useful (e.g Song Lyrics) to the players. For keeping track of statistics, please look at <code>l_addTracked</code>.</p>
+<ul>
 <li><p><strong><code>void m_messageAdd(string message, double duration)</code></strong>: <em>Add to the event timeline</em>: print a message with text <code>message</code> for <code>duration</code> seconds. The message will only be printed during the first run of the level.</p></li>
 <li><p><strong><code>void m_messageAddImportant(string message, double duration)</code></strong>: <em>Add to the event timeline</em>: print a message with text <code>message</code> for <code>duration</code> seconds. The message will be printed during every run of the level.</p></li>
-<li><p><strong><code>void m_messageAddImportantSilent(string message, double duration)</code></strong>: <em>Add to the event timeline</em>: print a message with text <code>message</code> for <code>duration</code> seconds. The message will only be printed during the first run of the level, and will not produce any sound.</p></li>
+<li><p><strong><code>void m_messageAddImportantSilent(string message, double duration)</code></strong>: <em>Add to the event timeline</em>: print a message with text <code>message</code> for <code>duration</code> seconds. The message will only be printed during every run of the level, and will not produce any sound.</p></li>
 <li><p><strong><code>void m_clearMessages()</code></strong>: Remove all previously scheduled messages.</p></li>
-<li><p><strong><code>void t_wait(double duration)</code></strong>: <em>Add to the main timeline</em>: wait for <code>duration</code> sixths of a second.</p></li>
+</ul>
+<h2 id="main-timeline-functions-t_">Main Timeline Functions (t_)</h2>
+<p>Below are the main timeline functions, which can be identified with the “t_” prefix. These are functions that have effects on the main timeline itself, but they mainly consist of waiting functions. Using these functions helps time out your patterns and space them in the first place.</p>
+<ul>
+<li><p><strong><code>void t_wait(double duration)</code></strong>: <em>Add to the main timeline</em>: wait for <code>duration</code> frames (under the assumption of a 60 FPS frame rate).</p></li>
 <li><p><strong><code>void t_waitS(double duration)</code></strong>: <em>Add to the main timeline</em>: wait for <code>duration</code> seconds.</p></li>
 <li><p><strong><code>void t_waitUntilS(double duration)</code></strong>: <em>Add to the main timeline</em>: wait until the timer reaches <code>duration</code> seconds.</p></li>
-<li><p><strong><code>void e_eventStopTime(double duration)</code></strong>: <em>Add to the event timeline</em>: pause the game timer for <code>duration</code> sixths of a second.</p></li>
+</ul>
+<h2 id="event-timeline-functions-e_">Event Timeline Functions (e_)</h2>
+<p>Below are the event timeline functions, which can be identified with the “e_” prefix. These are functions that are similar to the Main Timeline functions, but they instead are for the event timeline as opposed to the main timeline. Use these functions to help set up basic events for the game. More advanced events must be done with pure Lua.</p>
+<ul>
+<li><p><strong><code>void e_eventStopTime(double duration)</code></strong>: <em>Add to the event timeline</em>: pause the game timer for <code>duration</code> frames (under the assumption of a 60 FPS frame rate).</p></li>
 <li><p><strong><code>void e_eventStopTimeS(double duration)</code></strong>: <em>Add to the event timeline</em>: pause the game timer for <code>duration</code> seconds.</p></li>
-<li><p><strong><code>void e_eventWait(double duration)</code></strong>: <em>Add to the event timeline</em>: wait for <code>duration</code> sixths of a second.</p></li>
+<li><p><strong><code>void e_eventWait(double duration)</code></strong>: <em>Add to the event timeline</em>: wait for <code>duration</code> frames (under the assumption of a 60 FPS frame rate).</p></li>
 <li><p><strong><code>void e_eventWaitS(double duration)</code></strong>: <em>Add to the event timeline</em>: wait for <code>duration</code> seconds.</p></li>
 <li><p><strong><code>void e_eventWaitUntilS(double duration)</code></strong>: <em>Add to the event timeline</em>: wait until the timer reaches <code>duration</code> seconds.</p></li>
-<li><p><strong><code>float l_getSpeedMult()</code></strong>: Return the <code>SpeedMult</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setSpeedMult(float value)</code></strong>: Set the <code>SpeedMult</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getSpeedInc()</code></strong>: Return the <code>SpeedInc</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setSpeedInc(float value)</code></strong>: Set the <code>SpeedInc</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getSpeedMax()</code></strong>: Return the <code>SpeedMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setSpeedMax(float value)</code></strong>: Set the <code>SpeedMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getRotationSpeed()</code></strong>: Return the <code>RotationSpeed</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setRotationSpeed(float value)</code></strong>: Set the <code>RotationSpeed</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getRotationSpeedInc()</code></strong>: Return the <code>RotationSpeedInc</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setRotationSpeedInc(float value)</code></strong>: Set the <code>RotationSpeedInc</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getRotationSpeedMax()</code></strong>: Return the <code>RotationSpeedMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setRotationSpeedMax(float value)</code></strong>: Set the <code>RotationSpeedMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getDelayMult()</code></strong>: Return the <code>DelayMult</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setDelayMult(float value)</code></strong>: Set the <code>DelayMult</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getDelayInc()</code></strong>: Return the <code>DelayInc</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setDelayInc(float value)</code></strong>: Set the <code>DelayInc</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getDelayMin()</code></strong>: Return the <code>DelayMin</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setDelayMin(float value)</code></strong>: Set the <code>DelayMin</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getDelayMax()</code></strong>: Return the <code>DelayMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setDelayMax(float value)</code></strong>: Set the <code>DelayMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getFastSpin()</code></strong>: Return the <code>FastSpin</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setFastSpin(float value)</code></strong>: Set the <code>FastSpin</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getIncTime()</code></strong>: Return the <code>IncTime</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setIncTime(float value)</code></strong>: Set the <code>IncTime</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getPulseMin()</code></strong>: Return the <code>PulseMin</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setPulseMin(float value)</code></strong>: Set the <code>PulseMin</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getPulseMax()</code></strong>: Return the <code>PulseMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setPulseMax(float value)</code></strong>: Set the <code>PulseMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getPulseSpeed()</code></strong>: Return the <code>PulseSpeed</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setPulseSpeed(float value)</code></strong>: Set the <code>PulseSpeed</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getPulseSpeedR()</code></strong>: Return the <code>PulseSpeedR</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setPulseSpeedR(float value)</code></strong>: Set the <code>PulseSpeedR</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getPulseDelayMax()</code></strong>: Return the <code>PulseDelayMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setPulseDelayMax(float value)</code></strong>: Set the <code>PulseDelayMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getPulseDelayHalfMax()</code></strong>: Return the <code>PulseDelayHalfMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setPulseDelayHalfMax(float value)</code></strong>: Set the <code>PulseDelayHalfMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getBeatPulseMax()</code></strong>: Return the <code>BeatPulseMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setBeatPulseMax(float value)</code></strong>: Set the <code>BeatPulseMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getBeatPulseDelayMax()</code></strong>: Return the <code>BeatPulseDelayMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setBeatPulseDelayMax(float value)</code></strong>: Set the <code>BeatPulseDelayMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getRadiusMin()</code></strong>: Return the <code>RadiusMin</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setRadiusMin(float value)</code></strong>: Set the <code>RadiusMin</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getWallSkewLeft()</code></strong>: Return the <code>WallSkewLeft</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setWallSkewLeft(float value)</code></strong>: Set the <code>WallSkewLeft</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getWallSkewRight()</code></strong>: Return the <code>WallSkewRight</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setWallSkewRight(float value)</code></strong>: Set the <code>WallSkewRight</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getWallAngleLeft()</code></strong>: Return the <code>WallAngleLeft</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setWallAngleLeft(float value)</code></strong>: Set the <code>WallAngleLeft</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_getWallAngleRight()</code></strong>: Return the <code>WallAngleRight</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setWallAngleRight(float value)</code></strong>: Set the <code>WallAngleRight</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>float l_get3dEffectMultiplier()</code></strong>: Return the <code>3dEffectMultiplier</code> field of the level status.</p></li>
-<li><p><strong><code>void l_set3dEffectMultiplier(float value)</code></strong>: Set the <code>3dEffectMultiplier</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>int l_getCameraShake()</code></strong>: Return the <code>CameraShake</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setCameraShake(int value)</code></strong>: Set the <code>CameraShake</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>unsigned int l_getSides()</code></strong>: Return the <code>Sides</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setSides(unsigned int value)</code></strong>: Set the <code>Sides</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>unsigned int l_getSidesMax()</code></strong>: Return the <code>SidesMax</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setSidesMax(unsigned int value)</code></strong>: Set the <code>SidesMax</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>unsigned int l_getSidesMin()</code></strong>: Return the <code>SidesMin</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setSidesMin(unsigned int value)</code></strong>: Set the <code>SidesMin</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>bool l_getSwapEnabled()</code></strong>: Return the <code>SwapEnabled</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setSwapEnabled(bool value)</code></strong>: Set the <code>SwapEnabled</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>bool l_getTutorialMode()</code></strong>: Return the <code>TutorialMode</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setTutorialMode(bool value)</code></strong>: Set the <code>TutorialMode</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>bool l_getIncEnabled()</code></strong>: Return the <code>IncEnabled</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setIncEnabled(bool value)</code></strong>: Set the <code>IncEnabled</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>bool l_getDarkenUnevenBackgroundChunk()</code></strong>: Return the <code>DarkenUnevenBackgroundChunk</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setDarkenUnevenBackgroundChunk(bool value)</code></strong>: Set the <code>DarkenUnevenBackgroundChunk</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>size_t l_getCurrentIncrements()</code></strong>: Return the <code>CurrentIncrements</code> field of the level status.</p></li>
-<li><p><strong><code>void l_setCurrentIncrements(size_t value)</code></strong>: Set the <code>CurrentIncrements</code> field of the level status to <code>value</code>.</p></li>
-<li><p><strong><code>void l_enableRndSideChanges(bool enabled)</code></strong>: Set random side changes to <code>enabled</code>.</p></li>
-<li><p><strong><code>void l_darkenUnevenBackgroundChunk(bool enabled)</code></strong>: If <code>enabled</code> is true, one of the background’s chunks will be darkened in case there is an uneven number of sides.</p></li>
+</ul>
+<h2 id="level-functions-l_">Level Functions (l_)</h2>
+<p>Below are the level functions, which can be identified with the “l_” prefix. These are functions that have a role in altering the level mechanics themselves, including all level properties and attributes. These typically get called en masse in <code>onInit</code> to initialize properties.</p>
+<ul>
+<li><p><strong><code>float l_getSpeedMult()</code></strong>: Gets the speed multiplier of the level. The speed multiplier is the current speed of the walls. Is incremented by <code>SpeedInc</code> every increment and caps at <code>speedMax</code>.</p></li>
+<li><p><strong><code>void l_setSpeedMult(float value)</code></strong>: Sets the speed multiplier of the level to <code>value</code>. Changes do not apply to all walls immediately, and changes apply as soon as the next wall is created.</p></li>
+<li><p><strong><code>float l_getSpeedInc()</code></strong>: Gets the speed increment of the level. This is applied every level increment to the speed multiplier. Incrementation is additive.</p></li>
+<li><p><strong><code>void l_setSpeedInc(float value)</code></strong>: Sets the speed increment of the level to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getSpeedMax()</code></strong>: Gets the maximum speed of the level. This is the highest that speed can go; speed can not get any higher than this.</p></li>
+<li><p><strong><code>void l_setSpeedMax(float value)</code></strong>: Sets the maximum speed of the level to <code>value</code>. Keep in mind that speed keeps going past the speed max, so setting a higher speed max may make the speed instantly increase to the max.</p></li>
+<li><p><strong><code>float l_getRotationSpeed()</code></strong>: Gets the rotation speed of the level. Is incremented by <code>RotationSpeedInc</code> every increment and caps at <code>RotationSpeedMax</code>.</p></li>
+<li><p><strong><code>float l_getRotationSpeedInc()</code></strong>: Gets the rotation speed increment of the level. This is applied every level increment to the rotation speed. Incrementation is additive.</p></li>
+<li><p><strong><code>void l_setRotationSpeedInc(float value)</code></strong>: Sets the rotation speed increment of the level to <code>value</code>. Is effective on the next level increment.</p></li>
+<li><p><strong><code>float l_getRotationSpeedMax()</code></strong>: Gets the maximum rotation speed of the level. This is the highest that rotation speed can go; rotation speed can not get any higher than this.</p></li>
+<li><p><strong><code>void l_setRotationSpeedMax(float value)</code></strong>: Sets the maximum rotation speed of the level to <code>value</code>. Keep in mind that rotation speed keeps going past the max, so setting a higher rotation speed max may make the rotation speed instantly increase to the max.</p></li>
+<li><p><strong><code>float l_getDelayMult()</code></strong>: Gets the delay multiplier of the level. The delay multiplier is the multiplier used to assist in spacing patterns, especially in cases of higher / lower speeds. Is incremented by <code>DelayInc</code> every increment and is clamped between <code>DelayMin</code> and <code>DelayMax</code></p></li>
+<li><p><strong><code>void l_setDelayMult(float value)</code></strong>: Sets the delay multiplier of the level to <code>value</code>. Changes do not apply to patterns immediately, and changes apply as soon as the next pattern is spawned.</p></li>
+<li><p><strong><code>float l_getDelayInc()</code></strong>: Gets the delay increment of the level. This is applied every level increment to the delay multiplier. Incrementation is additive.</p></li>
+<li><p><strong><code>void l_setDelayInc(float value)</code></strong>: Sets the delay increment of the level to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getDelayMin()</code></strong>: Gets the minimum delay of the level. This is the lowest that delay can go; delay can not get any lower than this.</p></li>
+<li><p><strong><code>void l_setDelayMin(float value)</code></strong>: Sets the minimum delay of the level to <code>value</code>. Keep in mind that delay can go below the delay min, so setting a lower delay min may make the delay instantly decrease to the minimum.</p></li>
+<li><p><strong><code>float l_getDelayMax()</code></strong>: Gets the maximum delay of the level. This is the highest that delay can go; delay can not get any higher than this.</p></li>
+<li><p><strong><code>void l_setDelayMax(float value)</code></strong>: Sets the maximum delay of the level to <code>value</code>. Keep in mind that delay can go above the delay max, so setting a higher delay max may make the delay instantly increase to the maximum.</p></li>
+<li><p><strong><code>float l_getFastSpin()</code></strong>: Gets the fast spin of the level. The fast spin is a brief moment that starts at level incrementation where the rotation increases speed drastically to try and throw off the player a bit. This speed quickly (or slowly, depending on the value) decelerates and fades away to the updated rotation speed.</p></li>
+<li><p><strong><code>void l_setFastSpin(float value)</code></strong>: Sets the fast spin of the level to <code>value</code>. A higher value increases intensity and duration of the fast spin.</p></li>
+<li><p><strong><code>float l_getIncTime()</code></strong>: Get the incrementation time (in seconds) of a level. This is the length of a “level” in an Open Hexagon level (It’s ambiguous but hopefully you understand what that means), and when this duration is reached, the level increments.</p></li>
+<li><p><strong><code>void l_setIncTime(float value)</code></strong>: Set the incrementation time (in seconds) of a level to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseMin()</code></strong>: Gets the minimum value the pulse can be. Pulse gives variety in the wall speed of the level so the wall speed doesn’t feel monotone. Can also be used to help sync a level up with it’s music.</p></li>
+<li><p><strong><code>void l_setPulseMin(float value)</code></strong>: Sets the minimum pulse value to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseMax()</code></strong>: Gets the maximum value the pulse can be. Pulse gives variety in the wall speed of the level so the wall speed doesn’t feel monotone. Can also be used to help sync a level up with it’s music.</p></li>
+<li><p><strong><code>void l_setPulseMax(float value)</code></strong>: Sets the maximum pulse value to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseSpeed()</code></strong>: Gets the speed the pulse goes from <code>PulseMin</code> to <code>PulseMax</code>. Can also be used to help sync a level up with it’s music.</p></li>
+<li><p><strong><code>void l_setPulseSpeed(float value)</code></strong>: Gets the speed the pulse goes from <code>PulseMin</code> to <code>PulseMax</code> by <code>value</code>. Can also be used to help sync a level up with it’s music.</p></li>
+<li><p><strong><code>float l_getPulseSpeedR()</code></strong>: Gets the speed the pulse goes from <code>PulseMax</code> to <code>PulseMin</code>.</p></li>
+<li><p><strong><code>void l_setPulseSpeedR(float value)</code></strong>: Gets the speed the pulse goes from <code>PulseMax</code> to <code>PulseMin</code> by <code>value</code>. Can also be used to help sync a level up with it’s music.</p></li>
+<li><p><strong><code>float l_getPulseDelayMax()</code></strong>: Gets the delay the level has to wait before it begins another pulse cycle.</p></li>
+<li><p><strong><code>void l_setPulseDelayMax(float value)</code></strong>: Sets the delay the level has to wait before it begins another pulse cycle with <code>value</code>.</p></li>
+<li><p><strong><code>float l_getPulseDelayHalfMax()</code></strong>: Gets the delay the level has to wait before it begins pulsing from <code>PulseMax</code> to <code>PulseMin</code>.</p></li>
+<li><p><strong><code>void l_setPulseDelayHalfMax(float value)</code></strong>: Gets the delay the level has to wait before it begins pulsing from <code>PulseMax</code> to <code>PulseMin</code> with <code>value</code>.</p></li>
+<li><p><strong><code>float l_getBeatPulseMax()</code></strong>: Gets the maximum beatpulse size of the polygon in a level. This is the highest value that the polygon will “pulse” in size. Useful for syncing the level to the music.</p></li>
+<li><p><strong><code>float l_getBeatPulseDelayMax()</code></strong>: Gets the delay for how fast the beatpulse pulses in frames (assuming 60 FPS logic). This paired with <code>BeatPulseMax</code> will be useful to help sync a level with the music that it’s playing.</p></li>
+<li><p><strong><code>void l_setBeatPulseDelayMax(float value)</code></strong>: Sets the delay for how fast the beatpulse pulses in <code>value</code> frames (assuming 60 FPS Logic).</p></li>
+<li><p><strong><code>float l_getBeatPulseInitialDelay()</code></strong>: Gets the initial delay before beatpulse begins pulsing. This is very useful to use at the very beginning of the level to assist syncing the beatpulse with the song.</p></li>
+<li><p><strong><code>void l_setBeatPulseInitialDelay(float value)</code></strong>: Sets the initial delay before beatpulse begins pulsing to <code>value</code>. Highly discouraged to use this here. Use this in your music JSON files.</p></li>
+<li><p><strong><code>float l_getBeatPulseSpeedMult()</code></strong>: Gets how fast the polygon pulses with the beatpulse. This is very useful to help keep your level in sync with the music.</p></li>
+<li><p><strong><code>void l_setBeatPulseSpeedMult(float value)</code></strong>: Sets how fast the polygon pulses with beatpulse to <code>value</code>.</p></li>
+<li><p><strong><code>float l_getRadiusMin()</code></strong>: Gets the minimum radius of the polygon in a level. This is used to determine the absolute size of the polygon in the level.</p></li>
+<li><p><strong><code>void l_setRadiusMin(float value)</code></strong>: Sets the minimum radius of the polygon to <code>value</code>. Use this to set the size of the polygon in the level, not <code>BeatPulseMax</code>.</p></li>
+<li><p><strong><code>float l_getWallSkewLeft()</code></strong>: Gets the Y axis offset of the top left vertex in all walls.</p></li>
+<li><p><strong><code>void l_setWallSkewLeft(float value)</code></strong>: Sets the Y axis offset of the top left vertex to <code>value</code> in all newly generated walls. If you would like to have more individual control of the wall vertices, please use the custom walls system under the prefix <code>cw_</code>.</p></li>
+<li><p><strong><code>float l_getWallSkewRight()</code></strong>: Gets the Y axis offset of the top right vertex in all walls.</p></li>
+<li><p><strong><code>void l_setWallSkewRight(float value)</code></strong>: Sets the Y axis offset of the top right vertex to <code>value</code> in all newly generated walls. If you would like to have more individual control of the wall vertices, please use the custom walls system under the prefix <code>cw_</code>.</p></li>
+<li><p><strong><code>float l_getWallAngleLeft()</code></strong>: Gets the X axis offset of the top left vertex in all walls.</p></li>
+<li><p><strong><code>void l_setWallAngleLeft(float value)</code></strong>: Sets the X axis offset of the top left vertex to <code>value</code> in all newly generated walls. If you would like to have more individual control of the wall vertices, please use the custom walls system under the prefix <code>cw_</code>.</p></li>
+<li><p><strong><code>float l_getWallAngleRight()</code></strong>: Gets the X axis offset of the top right vertex in all walls.</p></li>
+<li><p><strong><code>void l_setWallAngleRight(float value)</code></strong>: Sets the X axis offset of the top right vertex to <code>value</code> in all newly generated walls. If you would like to have more individual control of the wall vertices, please use the custom walls system under the prefix <code>cw_</code>.</p></li>
+<li><p><strong><code>bool l_get3dRequired()</code></strong>: Gets whether 3D must be enabled in order to have a valid score in this level. By default, this value is <code>false</code>.</p></li>
+<li><p><strong><code>void l_set3dRequired(bool value)</code></strong>: Sets whether 3D must be enabled to <code>value</code> to have a valid score. Only set this to <code>true</code> if your level relies on 3D effects to work as intended.</p></li>
+<li><p><strong><code>int l_getCameraShake()</code></strong>: Gets the intensity of the camera shaking in a level.</p></li>
+<li><p><strong><code>void l_setCameraShake(int value)</code></strong>: Sets the intensity of the camera shaking in a level to <code>value</code>. This remains permanent until you either set this to 0 or the player dies.</p></li>
+<li><p><strong><code>unsigned int l_getSides()</code></strong>: Gets the current number of sides on the polygon in a level.</p></li>
+<li><p><strong><code>void l_setSides(unsigned int value)</code></strong>: Sets the current number of sides on the polygon to <code>value</code>. This change happens immediately and previously spawned walls will not adjust to the new side count.</p></li>
+<li><p><strong><code>unsigned int l_getSidesMax()</code></strong>: Gets the maximum range that the number of sides can possibly be at random. <code>enableRndSideChanges</code> must be enabled for this property to have any use.</p></li>
+<li><p><strong><code>void l_setSidesMax(unsigned int value)</code></strong>: Sets the maximum range that the number of sides can possibly be to <code>value</code>.</p></li>
+<li><p><strong><code>unsigned int l_getSidesMin()</code></strong>: Gets the minimum range that the number of sides can possibly be at random. <code>enableRndSideChanges</code> must be enabled for this property to have any use.</p></li>
+<li><p><strong><code>void l_setSidesMin(unsigned int value)</code></strong>: Sets the minimum range that the number of sides can possibly be to <code>value</code>.</p></li>
+<li><p><strong><code>bool l_getSwapEnabled()</code></strong>: Gets whether the swap mechanic is enabled for a level. By default, this is set to <code>false</code>.</p></li>
+<li><p><strong><code>void l_setSwapEnabled(bool value)</code></strong>: Sets the swap mechanic’s availability to <code>value</code>.</p></li>
+<li><p><strong><code>bool l_getTutorialMode()</code></strong>: Gets whether tutorial mode is enabled. In tutorial mode, players are granted invincibility from dying to walls. This mode is typically enabled whenever a pack developer needs to demonstrate a new concept to the player so that way they can easily learn the new mechanic/concept. This invincibility will not count towards invalidating a score, but it’s usually not important to score on a tutorial level. By default, this is set to <code>false</code>.</p></li>
+<li><p><strong><code>void l_setTutorialMode(bool value)</code></strong>: Sets tutorial mode to <code>value</code>. Remember, only enable this if you need to demonstrate a new concept for players to learn, or use it as a gimmick to a level.</p></li>
+<li><p><strong><code>bool l_getIncEnabled()</code></strong>: Gets whether the level can increment or not. This is Open Hexagon’s way of establishing a difficulty curve in the level and set a sense of progression throughout the level. By default, this value is set to <code>true</code>.</p></li>
+<li><p><strong><code>void l_setIncEnabled(bool value)</code></strong>: Toggles level incrementation to <code>value</code>. Only disable this if you feel like the level can not benefit from incrementing in any way.</p></li>
+<li><p><strong><code>bool l_getDarkenUnevenBackgroundChunk()</code></strong>: Gets whether the <code>Nth</code> panel of a polygon with <code>N</code> sides (assuming <code>N</code> is odd) will be darkened to make styles look more balanced. By default, this value is set to <code>true</code>, but there can be styles where having this darkened panel can look very unpleasing.</p></li>
+<li><p><strong><code>void l_setDarkenUnevenBackgroundChunk(bool value)</code></strong>: Sets the darkened panel to <code>value</code>.</p></li>
+<li><p><strong><code>size_t l_getCurrentIncrements()</code></strong>: Gets the current amount of times the level has incremented. Very useful for keeping track of levels.</p></li>
+<li><p><strong><code>void l_setCurrentIncrements(size_t value)</code></strong>: Sets the current amount of times the level has incremented to <code>value</code>. This function is utterly pointless to use unless you are tracking this variable.</p></li>
+<li><p><strong><code>void l_enableRndSideChanges(bool enabled)</code></strong>: Toggles random side changes to <code>enabled</code>, (not) allowing sides to change between <code>SidesMin</code> and <code>SidesMax</code> inclusively every level increment.</p></li>
 <li><p><strong><code>void l_addTracked(string variable, string name)</code></strong>: Add the variable <code>variable</code> to the list of tracked variables, with name <code>name</code>. Tracked variables are displayed in game, below the game timer.</p></li>
 <li><p><strong><code>void l_setRotation(float angle)</code></strong>: Set the background camera rotation to <code>angle</code> radians.</p></li>
 <li><p><strong><code>float l_getRotation()</code></strong>: Return the background camera rotation, in radians.</p></li>
 <li><p><strong><code>double l_getLevelTime()</code></strong>: Get the current game timer value, in seconds.</p></li>
 <li><p><strong><code>bool l_getOfficial()</code></strong>: Return <code>true</code> if “official mode” is enabled, <code>false</code> otherwise.</p></li>
-<li><p><strong><code>float s_getHueMin()</code></strong>: Return the <code>HueMin</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setHueMin(float value)</code></strong>: Set the <code>HueMin</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_getHueMax()</code></strong>: Return the <code>HueMax</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setHueMax(float value)</code></strong>: Set the <code>HueMax</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_getHueInc()</code></strong>: Return the <code>HueInc</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setHueInc(float value)</code></strong>: Set the <code>HueInc</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_getHueIncrement()</code></strong>: Return the <code>HueIncrement</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setHueIncrement(float value)</code></strong>: Set the <code>HueIncrement</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_getPulseMin()</code></strong>: Return the <code>PulseMin</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setPulseMin(float value)</code></strong>: Set the <code>PulseMin</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_getPulseMax()</code></strong>: Return the <code>PulseMax</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setPulseMax(float value)</code></strong>: Set the <code>PulseMax</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_getPulseInc()</code></strong>: Return the <code>PulseInc</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setPulseInc(float value)</code></strong>: Set the <code>PulseInc</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_getPulseIncrement()</code></strong>: Return the <code>PulseIncrement</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setPulseIncrement(float value)</code></strong>: Set the <code>PulseIncrement</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>bool s_getHuePingPong()</code></strong>: Return the <code>HuePingPong</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setHuePingPong(bool value)</code></strong>: Set the <code>HuePingPong</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_getMaxSwapTime()</code></strong>: Return the <code>MaxSwapTime</code> field of the style data.</p></li>
-<li><p><strong><code>void s_setMaxSwapTime(float value)</code></strong>: Set the <code>MaxSwapTime</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dDepth()</code></strong>: Return the <code>3dDepth</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dDepth(float value)</code></strong>: Set the <code>3dDepth</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dSkew()</code></strong>: Return the <code>3dSkew</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dSkew(float value)</code></strong>: Set the <code>3dSkew</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dSpacing()</code></strong>: Return the <code>3dSpacing</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dSpacing(float value)</code></strong>: Set the <code>3dSpacing</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dDarkenMult()</code></strong>: Return the <code>3dDarkenMult</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dDarkenMult(float value)</code></strong>: Set the <code>3dDarkenMult</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dAlphaMult()</code></strong>: Return the <code>3dAlphaMult</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dAlphaMult(float value)</code></strong>: Set the <code>3dAlphaMult</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dAlphaFalloff()</code></strong>: Return the <code>3dAlphaFalloff</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dAlphaFalloff(float value)</code></strong>: Set the <code>3dAlphaFalloff</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dPulseMax()</code></strong>: Return the <code>3dPulseMax</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dPulseMax(float value)</code></strong>: Set the <code>3dPulseMax</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dPulseMin()</code></strong>: Return the <code>3dPulseMin</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dPulseMin(float value)</code></strong>: Set the <code>3dPulseMin</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dPulseSpeed()</code></strong>: Return the <code>3dPulseSpeed</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dPulseSpeed(float value)</code></strong>: Set the <code>3dPulseSpeed</code> field of the style data to <code>value</code>.</p></li>
-<li><p><strong><code>float s_get3dPerspectiveMult()</code></strong>: Return the <code>3dPerspectiveMult</code> field of the style data.</p></li>
-<li><p><strong><code>void s_set3dPerspectiveMult(float value)</code></strong>: Set the <code>3dPerspectiveMult</code> field of the style data to <code>value</code>.</p></li>
+</ul>
+<h2 id="style-functions-s_">Style Functions (s_)</h2>
+<p>Below are the style functions, which can be identified with the “s_” prefix. These are functions that have a role in altering the attributes of the current style that is on the level. Style attributes, unlike level attributes, do not get initialized in Lua and rather are pre-made in a JSON file (but this is subject to change).</p>
+<ul>
+<li><p><strong><code>float s_getHueMin()</code></strong>: Gets the minimum value for the hue range of a level style. The hue attribute is an important attribute that is dedicated specifically to all colors that have the <code>dynamic</code> property enabled.</p></li>
+<li><p><strong><code>void s_setHueMin(float value)</code></strong>: Sets the minimum value for the hue range to <code>value</code>. Usually you want this value at 0 to start off at completely red.</p></li>
+<li><p><strong><code>float s_getHueMax()</code></strong>: Gets the maximum value for the hue range of a level style. Only applies to all colors with the <code>dynamic</code> property enabled.</p></li>
+<li><p><strong><code>void s_setHueMax(float value)</code></strong>: Sets the maximum value for the hue range to <code>value</code>. Usually you want this value at 360 to end off at red, to hopefully loop the colors around.</p></li>
+<li><p><strong><code>float s_getHueInc()</code></strong>: Alias to <code>s_getHueIncrement</code>. Done for backwards compatibility.</p></li>
+<li><p><strong><code>void s_setHueInc(float value)</code></strong>: Alias to <code>s_setHueIncrement</code>. Done for backwards compatibility.</p></li>
+<li><p><strong><code>float s_getHueIncrement()</code></strong>: Gets how fast the hue increments from <code>HueMin</code> to <code>HueMax</code>. The hue value is added by this value every 1/60th of a second.</p></li>
+<li><p><strong><code>void s_setHueIncrement(float value)</code></strong>: Sets how fast the hue increments from <code>HueMin</code> to <code>HueMax</code> by <code>value</code>. Be careful with high values, as this can make your style induce epileptic seizures.</p></li>
+<li><p><strong><code>float s_getPulseMin()</code></strong>: Gets the minimum range for the multiplier of the <code>pulse</code> attribute in style colors. By default, this value is set to 0.</p></li>
+<li><p><strong><code>void s_setPulseMin(float value)</code></strong>: Sets the minimum range for the multiplier of the <code>pulse</code> attribute to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getPulseMax()</code></strong>: Gets the maximum range for the multiplier of the <code>pulse</code> attribute in style colors. By default, this value is set to 0, but ideally it should be set to 1.</p></li>
+<li><p><strong><code>void s_setPulseMax(float value)</code></strong>: Sets the maximum range for the multiplier of the <code>pulse</code> attribute to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getPulseInc()</code></strong>: Alias to <code>s_getPulseIncrement</code>. Done for backwards compatibility.</p></li>
+<li><p><strong><code>void s_setPulseInc(float value)</code></strong>: Alias to <code>s_setPulseIncrement</code>. Done for backwards compatibility.</p></li>
+<li><p><strong><code>float s_getPulseIncrement()</code></strong>: Gets how fast the pulse increments from <code>PulseMin</code> to <code>PulseMax</code>. The pulse value is added by this value every 1/60th of a second.</p></li>
+<li><p><strong><code>void s_setPulseIncrement(float value)</code></strong>: Sets how fast the pulse increments from <code>PulseMin</code> to <code>PulseMax</code> by <code>value</code>. Be careful with high values, as this can make your style induce epileptic seizures.</p></li>
+<li><p><strong><code>bool s_getHuePingPong()</code></strong>: Gets whether the hue should go <code>Start-End-Start-End</code> or <code>Start-End, Start-End</code> with the hue cycling.</p></li>
+<li><p><strong><code>void s_setHuePingPong(bool value)</code></strong>: Toggles ping ponging in the hue cycling (<code>Start-End-Start-End</code>) with <code>value</code>.</p></li>
+<li><p><strong><code>float s_getMaxSwapTime()</code></strong>: Gets the amount of time that has to pass (in 1/100th of a second) before the background color offset alternates. The background colors by default alternate between 0 and 1. By default, this happens every second.</p></li>
+<li><p><strong><code>void s_setMaxSwapTime(float value)</code></strong>: Sets the amount of time that has to pass (in 1/100th of a second) to <code>value</code> before the background color alternates.</p></li>
+<li><p><strong><code>float s_get3dDepth()</code></strong>: Gets the current amount of 3D layers that are present in the style.</p></li>
+<li><p><strong><code>void s_set3dDepth(float value)</code></strong>: Sets the amount of 3D layers in a style to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dSkew()</code></strong>: Gets the current value of where the 3D skew is in the style. The Skew is what gives the 3D effect in the first place, showing the 3D layers and giving the illusion of 3D in the game.</p></li>
+<li><p><strong><code>void s_set3dSkew(float value)</code></strong>: Sets the 3D skew at value <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dSpacing()</code></strong>: Gets the spacing that is done between 3D layers. A higher number leads to more separation between layers.</p></li>
+<li><p><strong><code>void s_set3dSpacing(float value)</code></strong>: Sets the spacing between 3D layers to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dDarkenMult()</code></strong>: Gets the darkening multiplier applied to the 3D layers in a style. This is taken from the <code>main</code> color.</p></li>
+<li><p><strong><code>void s_set3dDarkenMult(float value)</code></strong>: Sets the darkening multiplier to <code>value</code> for the 3D layers.</p></li>
+<li><p><strong><code>float s_get3dAlphaMult()</code></strong>: Gets the alpha (transparency) multiplier applied to the 3D layers in a style. Originally references the <code>main</code> color.</p></li>
+<li><p><strong><code>void s_set3dAlphaMult(float value)</code></strong>: Sets the alpha multiplier to <code>value</code> for the 3D layers. A higher value makes the layers more transparent.</p></li>
+<li><p><strong><code>float s_get3dAlphaFalloff()</code></strong>: Gets the alpha (transparency) multiplier applied to the 3D layers consecutively in a style. Takes reference from the <code>main</code> color.</p></li>
+<li><p><strong><code>void s_set3dAlphaFalloff(float value)</code></strong>: Sets the alpha multiplier to <code>value</code> for for the 3D layers and applies them layer after layer. This property can get finnicky.</p></li>
+<li><p><strong><code>float s_get3dPulseMax()</code></strong>: Gets the highest value that the <code>3DSkew</code> can go in a style.</p></li>
+<li><p><strong><code>void s_set3dPulseMax(float value)</code></strong>: Sets the highest value the <code>3DSkew</code> can go to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dPulseMin()</code></strong>: Gets the lowest value that the <code>3DSkew</code> can go in a style.</p></li>
+<li><p><strong><code>void s_set3dPulseMin(float value)</code></strong>: Sets the lowest value the <code>3DSkew</code> can go to <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dPulseSpeed()</code></strong>: Gets how fast the <code>3DSkew</code> moves between <code>3DPulseMin</code> and <code>3DPulseMax</code>.</p></li>
+<li><p><strong><code>void s_set3dPulseSpeed(float value)</code></strong>: Sets how fast the <code>3DSkew</code> moves between <code>3DPulseMin</code> and <code>3DPulseMax</code> by <code>value</code>.</p></li>
+<li><p><strong><code>float s_get3dPerspectiveMult()</code></strong>: Gets the 3D perspective multiplier of the style. Works with the attribute <code>3DSpacing</code> to space out layers.</p></li>
+<li><p><strong><code>void s_set3dPerspectiveMult(float value)</code></strong>: Sets the 3D perspective multiplier to <code>value</code>.</p></li>
+<li><p><strong><code>float s_getBGTileRadius()</code></strong>: Gets the distances of how far the background panels are drawn. By default, this is a big enough value so you do not see the border. However, feel free to shrink them if you’d like.</p></li>
+<li><p><strong><code>void s_setBGTileRadius(float value)</code></strong>: Sets how far the background panels are drawn to distance <code>value</code>.</p></li>
+<li><p><strong><code>unsigned int s_getBGColorOffset()</code></strong>: Gets the offset of the style by how much the colors shift. Usually this sits between 0 and 1, but can easily be customized.</p></li>
+<li><p><strong><code>void s_setBGColorOffset(unsigned int value)</code></strong>: Shifts the background colors to have an offset of <code>value</code>.</p></li>
+<li><p><strong><code>float s_getBGRotationOffset()</code></strong>: Gets the literal rotation offset of the background panels in degrees. This usually stays at 0, but can be messed with to make some stylish level styles.</p></li>
+<li><p><strong><code>void s_setBGRotationOffset(float value)</code></strong>: Sets the rotation offset of the background panels to <code>value</code> degrees.</p></li>
 <li><p><strong><code>void s_setStyle(string styleId)</code></strong>: Set the currently active style to the style with id <code>styleId</code>. Styles can be defined as <code>.json</code> files in the <code>&lt;pack&gt;/Styles/</code> folder.</p></li>
-<li><p><strong><code>void s_setCameraShake(int value)</code></strong>: Start a camera shake with intensity <code>value</code>.</p></li>
-<li><p><strong><code>int s_getCameraShake()</code></strong>: Return the current camera shake intensity.</p></li>
 <li><p><strong><code>void s_setCapColorMain()</code></strong>: Set the color of the center polygon to match the main style color.</p></li>
 <li><p><strong><code>void s_setCapColorMainDarkened()</code></strong>: Set the color of the center polygon to match the main style color, darkened.</p></li>
 <li><p><strong><code>void s_setCapColorByIndex(int index)</code></strong>: Set the color of the center polygon to match the style color with index <code>index</code>.</p></li>
+</ul>
+<h2 id="wall-functions-w_">Wall Functions (w_)</h2>
+<p>Below are the basic wall functions, which can be identified with the “w_” prefix. These are the functions sole responsible for wall creation in the levels. There are a variety of walls that can be made with different degrees of complexity, all of which can be used to construct your own patterns.</p>
+<ul>
 <li><p><strong><code>void w_wall(int side, float thickness)</code></strong>: Create a new wall at side <code>side</code>, with thickness <code>thickness</code>. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier.</p></li>
 <li><p><strong><code>void w_wallAdj(int side, float thickness, float speedMult)</code></strong>: Create a new wall at side <code>side</code>, with thickness <code>thickness</code>. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by <code>speedMult</code>.</p></li>
 <li><p><strong><code>void w_wallAcc(int side, float thickness, float speedMult, float acceleration, float minSpeed, float maxSpeed)</code></strong>: Create a new wall at side <code>side</code>, with thickness <code>thickness</code>. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by <code>speedMult</code>. The wall will have a speed acceleration value of <code>acceleration</code>. The minimum and maximum speed of the wall are bounded by <code>minSpeed</code> and <code>maxSpeed</code>, adjusted for the current difficulty multiplier.</p></li>
 <li><p><strong><code>void w_wallHModSpeedData(float hueModifier, int side, float thickness, float speedMult, float acceleration, float minSpeed, float maxSpeed, bool pingPong)</code></strong>: Create a new wall at side <code>side</code>, with thickness <code>thickness</code>. The speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by <code>speedMult</code>. The wall will have a speed acceleration value of <code>acceleration</code>. The minimum and maximum speed of the wall are bounded by <code>minSpeed</code> and <code>maxSpeed</code>, adjusted for the current difficulty multiplier. The hue of the wall will be adjusted by <code>hueModifier</code>. If <code>pingPong</code> is enabled, the wall will accelerate back and forth between its minimum and maximum speed.</p></li>
 <li><p><strong><code>void w_wallHModCurveData(float hueModifier, int side, float thickness, float curveSpeedMult, float curveAcceleration, float curveMinSpeed, float curveMaxSpeed, bool pingPong)</code></strong>: Create a new curving wall at side <code>side</code>, with thickness <code>thickness</code>. The curving speed of the wall will be calculated by using the speed multiplier, adjusted for the current difficulty multiplier, and finally multiplied by <code>curveSpeedMult</code>. The wall will have a curving speed acceleration value of <code>curveAcceleration</code>. The minimum and maximum curving speed of the wall are bounded by <code>curveMinSpeed</code> and <code>curveMaxSpeed</code>, adjusted for the current difficulty multiplier. The hue of the wall will be adjusted by <code>hueModifier</code>. If <code>pingPong</code> is enabled, the wall will accelerate back and forth between its minimum and maximum speed.</p></li>
-<li><p><strong><code>void steam_unlockAchievement(string achievementId)</code></strong>: Unlock the Steam achievement with id <code>achievementId</code>.</p></li>
+</ul>
+<h2 id="custom-wall-functions-cw_">Custom Wall Functions (cw_)</h2>
+<p>Below are the custom wall functions, which can be identified with the “cw_” prefix. These are 2.0 exclusive functions with foundations of <a href="https://en.wikipedia.org/wiki/Object-oriented_programming">Object-oriented programming</a> to allow pack developers to customize individual walls and their properties and make the most out of them.</p>
+<ul>
 <li><p><strong><code>int cw_create()</code></strong>: Create a new custom wall and return a integer handle to it.</p></li>
 <li><p><strong><code>void cw_destroy(int cwHandle)</code></strong>: Destroy the custom wall represented by <code>cwHandle</code>.</p></li>
 <li><p><strong><code>void cw_setVertexPos(int cwHandle, int vertexIndex, float x, float y)</code></strong>: Given the custom wall represented by <code>cwHandle</code>, set the position of its vertex with index <code>vertexIndex</code> to <code>{x, y}</code>.</p></li>
 <li><p><strong><code>void cw_setVertexColor(int cwHandle, int vertexIndex, int r, int g, int b, int a)</code></strong>: Given the custom wall represented by <code>cwHandle</code>, set the color of its vertex with index <code>vertexIndex</code> to <code>{r, g, b, a}</code>.</p></li>
 <li><p><strong><code>tuple&lt;float, float&gt; cw_getVertexPos(int cwHandle, int vertexIndex)</code></strong>: Given the custom wall represented by <code>cwHandle</code>, set the position of its vertex with index <code>vertexIndex</code> to <code>{x, y}</code>.</p></li>
 <li><p><strong><code>void cw_clear()</code></strong>: Remove all existing custom walls.</p></li>
+</ul>
+<h2 id="miscellaneous-functions">Miscellaneous Functions</h2>
+<p>Below are the miscellaneous functions, which can have a variable prefix or no prefix at all. These are other functions that are listed that cannot qualify for one of the above eight categories and achieve some other purpose, with some functions not meant to be used by pack developers at all.</p>
+<ul>
+<li><strong><code>void steam_unlockAchievement(string achievementId)</code></strong>: Unlock the Steam achievement with id <code>achievementId</code>.</li>
 </ul>
 <h2 id="where-to-get-help">Where to get Help</h2>
 <p>The Open Hexagon community is active on the <a href="https://discord.me/openhexagon">official Discord server</a>. The server contains many channels, including <code>#pack-dev</code> which is dedicated to level pack developers (and is the recommended place to ask for help and share your progress and ideas), and <code>#source-dev</code> which is dedicated to development on the Open Hexagon engine (which is open-source and available <a href="https://github.com/SuperV1234/SSVOpenHexagon/">on GitHub</a>).</p>
