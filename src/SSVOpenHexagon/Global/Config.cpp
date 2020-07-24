@@ -83,6 +83,7 @@ using namespace ssvu;
     X(triggerExit, Trigger, "t_exit")                                      \
     X(triggerForceRestart, Trigger, "t_force_restart")                     \
     X(triggerRestart, Trigger, "t_restart")                                \
+    X(triggerReplay, Trigger, "t_replay")                                  \
     X(triggerScreenshot, Trigger, "t_screenshot")                          \
     X(triggerSwap, Trigger, "t_swap")                                      \
     X(triggerUp, Trigger, "t_up")                                          \
@@ -296,38 +297,38 @@ void setCurrentResolutionAuto(GameWindow& mWindow)
     mWindow.setFullscreen(getFullscreen());
     recalculateSizes();
 }
-void setVsync(GameWindow& mWindow, bool mValue)
+void setVsync(ssvs::GameWindow& mWindow, bool mValue)
 {
     vsync() = mValue;
     mWindow.setVsync(vsync());
 }
-void setLimitFPS(GameWindow& mWindow, bool mValue)
+void setLimitFPS(ssvs::GameWindow& mWindow, bool mValue)
 {
     limitFPS() = mValue;
     mWindow.setFPSLimited(mValue);
 }
-void setMaxFPS(GameWindow& mWindow, unsigned int mValue)
+void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue)
 {
     maxFPS() = mValue;
     mWindow.setMaxFPS(mValue);
 }
-void setTimerStatic(GameWindow& mWindow, bool mValue)
+void setTimerStatic(ssvs::GameWindow& mWindow, bool mValue)
 {
     timerStatic() = mValue;
 
     if(timerStatic())
     {
-        mWindow.setTimer<TimerStatic>(0.5f, 0.5f);
+        mWindow.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
     }
     else
     {
-        mWindow.setTimer<TimerDynamic>();
+        mWindow.setTimer<ssvs::TimerDynamic>();
         setLimitFPS(mWindow, true);
         setMaxFPS(mWindow, 200);
     }
 }
 
-void setAntialiasingLevel(GameWindow& mWindow, unsigned int mValue)
+void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue)
 {
     antialiasingLevel() = mValue;
     mWindow.setAntialiasingLevel(mValue);
@@ -816,6 +817,11 @@ Trigger getTriggerForceRestart()
 Trigger getTriggerRestart()
 {
     return triggerRestart();
+}
+
+Trigger getTriggerReplay()
+{
+    return triggerReplay();
 }
 
 Trigger getTriggerScreenshot()

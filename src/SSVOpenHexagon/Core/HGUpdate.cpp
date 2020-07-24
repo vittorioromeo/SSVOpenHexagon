@@ -68,27 +68,193 @@ void HexagonGame::update(ssvu::FT mFT)
     steamManager.run_callbacks();
     discordManager.run_callbacks();
 
-    hg::Joystick::update();
-
     updateText();
     updateFlash(mFT);
     effectTimelineManager.update(mFT);
 
+    if(!mustReplayInput())
+    {
+        updateInput();
+    }
+    else
+    {
+        assert(activeReplay.has_value());
+
+        if(!status.started)
+        {
+            start();
+        }
+
+        const input_bitset ib =
+            activeReplay->replayPlayer.get_current_and_move_forward();
+
+        if(ib[static_cast<unsigned int>(input_bit::left)])
+        {
+            inputMovement = -1;
+        }
+        else if(ib[static_cast<unsigned int>(input_bit::right)])
+        {
+            inputMovement = 1;
+        }
+        else
+        {
+            inputMovement = 0;
+        }
+
+        inputSwap = ib[static_cast<unsigned int>(input_bit::swap)];
+        inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
+    }
+
+
+    updateKeyIcons();
+
+    if(status.started)
+    {
+        if(!assets.pIsLocal() && Config::isEligibleForScore())
+        {
+            assets.playedSeconds += ssvu::getFTToSeconds(mFT);
+            if(assets.playedSeconds >= 60.f)
+            {
+                assets.playedSeconds = 0;
+                Online::trySendMinutePlayed();
+            }
+        }
+
+        if(!status.hasDied)
+        {
+            player.update(*this, mFT);
+            updateWalls(mFT);
+
+            ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
+            cwManager.cleanup();
+
+            updateEvents(mFT);
+            status.accumulateFrametime(mFT);
+            updateIncrement();
+
+            if(mustChangeSides && walls.empty())
+            {
+                sideChange(
+                    rng.get_int(levelStatus.sidesMin, levelStatus.sidesMax));
+            }
+
+            updateLevel(mFT);
+
+            if(Config::getBeatPulse())
+            {
+                updateBeatPulse(mFT);
+            }
+
+            if(Config::getPulse())
+            {
+                updatePulse(mFT);
+            }
+
+            if(!Config::getBlackAndWhite())
+            {
+                styleData.update(mFT, pow(difficultyMult, 0.8f));
+            }
+        }
+        else
+        {
+            levelStatus.rotationSpeed *= 0.99f;
+        }
+
+        if(Config::get3D())
+        {
+            update3D(mFT);
+        }
+        if(!Config::getNoRotation())
+        {
+            updateRotation(mFT);
+        }
+    }
+
+    overlayCamera.update(mFT);
+    backgroundCamera.update(mFT);
+
+    if(status.started)
+    {
+        if(status.mustStateChange != StateChange::None)
+        {
+            fpsWatcher.disable();
+
+            const bool executeLastReplay =
+                status.mustStateChange == StateChange::MustReplay;
+
+            newGame(getPackId(), restartId, restartFirstTime, difficultyMult,
+                executeLastReplay);
+
+            if(!assets.pIsLocal() && Config::isEligibleForScore())
+            {
+                Online::trySendRestart();
+            }
+        }
+
+        if(!status.scoreInvalid && Config::getOfficial() &&
+            fpsWatcher.isLimitReached())
+        {
+            invalidateScore("PERFORMANCE ISSUES");
+        }
+        else if(!status.scoreInvalid && !Config::get3D() &&
+                levelStatus._3DRequired)
+        {
+            invalidateScore("3D REQUIRED");
+        }
+
+        fpsWatcher.update();
+    }
+}
+
+void HexagonGame::updateWalls(ssvu::FT mFT){
+    const auto playerPos{player.getPosition()};
+
+    for(CWall& wall : walls) {
+        player.push(*this, wall);
+
+        wall.moveTowardsCenter(*this, centerPos, mFT);
+        if(wall.isOverlapping(playerPos)){
+            player.kill(*this);
+        }
+
+        wall.moveCurve(*this, centerPos, mFT);
+        if(wall.isOverlapping(playerPos)){
+            player.push(*this, wall);
+        }
+    }
+
+    const bool customWallCollision =
+            cwManager.anyCustomWall([&](const CCustomWall &customWall){
+                return customWall.isOverlapping(playerPos);
+            });
+    if(customWallCollision){ player.kill(*this); }
+}
+
+
+void HexagonGame::start()
+{
+    status.start();
+    messageText.setString("");
+    assets.playSound("go.ogg");
+    assets.musicPlayer.resume();
+    if(Config::getOfficial())
+    {
+        fpsWatcher.enable();
+    }
+}
+
+void HexagonGame::updateInput()
+{
     // Joystick support
+    hg::Joystick::update();
+
     const bool jCW = hg::Joystick::rightPressed();
     const bool jCCW = hg::Joystick::leftPressed();
 
     if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
                               inputImplCW || inputImplBothCWCCW || jCW || jCCW))
     {
-        status.start();
-        messageText.setString("");
-        assets.playSound("go.ogg");
-        assets.musicPlayer.resume();
-        if(Config::getOfficial())
-        {
-            fpsWatcher.enable();
-        }
+        start();
     }
 
     // Naive touch controls
@@ -161,7 +327,16 @@ void HexagonGame::update(ssvu::FT mFT)
         }
     }
 
-    updateKeyIcons();
+    // Replay support
+    if(status.started && !status.hasDied)
+    {
+        const bool left = getInputMovement() == -1;
+        const bool right = getInputMovement() == 1;
+        const bool swap = getInputSwap();
+        const bool focus = getInputFocused();
+
+        lastReplayData.record_input(left, right, swap, focus);
+    }
 
     // Joystick support
     if(hg::Joystick::selectRisingEdge())
@@ -170,121 +345,8 @@ void HexagonGame::update(ssvu::FT mFT)
     }
     else if(hg::Joystick::startRisingEdge())
     {
-        status.mustRestart = true;
+        status.mustStateChange = StateChange::MustRestart;
     }
-
-    if(status.started)
-    {
-        if(!assets.pIsLocal() && Config::isEligibleForScore())
-        {
-            assets.playedSeconds += ssvu::getFTToSeconds(mFT);
-            if(assets.playedSeconds >= 60.f)
-            {
-                assets.playedSeconds = 0;
-                Online::trySendMinutePlayed();
-            }
-        }
-
-        if(!status.hasDied)
-        {
-            player.update(*this, mFT);
-            updateWalls(mFT);
-
-            ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
-            cwManager.cleanup();
-
-            updateEvents(mFT);
-            status.accumulateFrametime(mFT);
-            updateIncrement();
-
-            if(mustChangeSides && walls.empty())
-            {
-                sideChange(rng.get_int(
-                    levelStatus.sidesMin, levelStatus.sidesMax + 1));
-            }
-
-            updateLevel(mFT);
-
-            if(Config::getBeatPulse())
-            {
-                updateBeatPulse(mFT);
-            }
-
-            if(Config::getPulse())
-            {
-                updatePulse(mFT);
-            }
-
-            if(!Config::getBlackAndWhite())
-            {
-                styleData.update(mFT, pow(difficultyMult, 0.8f));
-            }
-        }
-        else
-        {
-            levelStatus.rotationSpeed *= 0.99f;
-        }
-
-        if(Config::get3D())
-        {
-            update3D(mFT);
-        }
-        if(!Config::getNoRotation())
-        {
-            updateRotation(mFT);
-        }
-    }
-
-    overlayCamera.update(mFT);
-    backgroundCamera.update(mFT);
-
-    if(status.started)
-    {
-        if(status.mustRestart)
-        {
-            fpsWatcher.disable();
-            changeLevel(getPackId(), restartId, restartFirstTime);
-            if(!assets.pIsLocal() && Config::isEligibleForScore())
-            {
-                Online::trySendRestart();
-            }
-        }
-        if(!status.scoreInvalid && Config::getOfficial() &&
-            fpsWatcher.isLimitReached())
-        {
-            invalidateScore("PERFORMANCE ISSUES");
-        }
-        else if(!status.scoreInvalid && !Config::get3D() &&
-                levelStatus._3DRequired)
-        {
-            invalidateScore("3D REQUIRED");
-        }
-        fpsWatcher.update();
-    }
-}
-
-void HexagonGame::updateWalls(ssvu::FT mFT){
-    const auto playerPos{player.getPosition()};
-
-    for(CWall& wall : walls) {
-        player.push(*this, wall);
-
-        wall.moveTowardsCenter(*this, centerPos, mFT);
-        if(wall.isOverlapping(playerPos)){
-            player.kill(*this);
-        }
-
-        wall.moveCurve(*this, centerPos, mFT);
-        if(wall.isOverlapping(playerPos)){
-            player.push(*this, wall);
-        }
-    }
-
-    const bool customWallCollision =
-            cwManager.anyCustomWall([&](const CCustomWall &customWall){
-                return customWall.isOverlapping(playerPos);
-            });
-    if(customWallCollision){ player.kill(*this); }
 }
 
 void HexagonGame::updateEvents(ssvu::FT)
@@ -305,6 +367,7 @@ void HexagonGame::updateEvents(ssvu::FT)
         messageTimelineRunner = {};
     }
 }
+
 void HexagonGame::updateIncrement()
 {
     if(!levelStatus.incEnabled)
@@ -322,6 +385,7 @@ void HexagonGame::updateIncrement()
     status.resetIncrementTime();
     mustChangeSides = true;
 }
+
 void HexagonGame::updateLevel(ssvu::FT mFT)
 {
     if(status.isTimePaused())

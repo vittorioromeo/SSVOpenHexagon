@@ -85,7 +85,14 @@ set(SRC_DIR "src" CACHE STRING "")
 include_directories("./")
 include_directories("./${INC_DIR}")
 
-file(GLOB_RECURSE SRC_LIST "${INC_DIR}/SSVOpenHexagon/*" "${SRC_DIR}/SSVOpenHexagon/*" "public/discord/*")
+file(GLOB_RECURSE MAIN_FILE "${SRC_DIR}/SSVOpenHexagon/*/main.cpp")
+
+file(GLOB_RECURSE SRC_LIST
+     "${INC_DIR}/SSVOpenHexagon/*"
+     "${SRC_DIR}/SSVOpenHexagon/*"
+     "public/discord/*")
+
+list(REMOVE_ITEM SRC_LIST ${MAIN_FILE})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
@@ -104,34 +111,43 @@ if(WIN32)
     endif()
 endif()
 
-add_executable(${PROJECT_NAME} ${SRC_LIST})
+add_library(SSVOpenHexagonLib STATIC ${SRC_LIST})
+add_executable(${PROJECT_NAME} ${MAIN_FILE})
 
 set(PUBLIC_INCLUDE_DIRS "public")
-
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
 
 set(SFML_LIBRARIES sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
 
 if(WIN32)
-    set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
+set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll"
+"${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
 else()
-    set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
-                         "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so")
+set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
+"${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so")
 endif()
 
+target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
+target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
+target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${zlib_SOURCE_DIR})
+target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${zlib_BINARY_DIR})
+
+target_link_libraries(SSVOpenHexagonLib ${SFML_LIBRARIES})
+target_link_libraries(SSVOpenHexagonLib lua)
+target_link_libraries(SSVOpenHexagonLib zlib)
+target_link_libraries(SSVOpenHexagonLib ${PUBLIC_LIBRARIES})
+target_link_libraries(SSVOpenHexagonLib "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
+
+target_link_libraries(${PROJECT_NAME} SSVOpenHexagonLib)
+
+# TODO: reduce repetition of includes
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
-
-target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} lua)
-target_link_libraries(${PROJECT_NAME} zlib)
-target_link_libraries(${PROJECT_NAME} ${PUBLIC_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${lua_SOURCE_DIR})
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} pthread)
+    target_link_libraries(SSVOpenHexagonLib pthread)
 endif()
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/)
@@ -154,3 +170,7 @@ endif()
 
 install(TARGETS OHWorkshopUploader RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/)
 
+# -----------------------------------------------------------------------------
+# Tests.
+vrm_check_target()
+add_subdirectory(test)

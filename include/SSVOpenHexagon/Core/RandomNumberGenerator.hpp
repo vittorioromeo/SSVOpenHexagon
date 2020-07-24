@@ -24,7 +24,7 @@ private:
 public:
     explicit random_number_generator(const seed_type seed) noexcept;
 
-    [[nodiscard]] seed_type get_seed() const noexcept;
+    [[nodiscard]] seed_type seed() const noexcept;
 
     template <typename T>
     [[nodiscard]] T get_int(const T min, const T max) noexcept
