@@ -67,8 +67,8 @@ function hmcSimpleTwirl(mTimes, mCurve, mCurveAdd)
 	local loopDir = getRandomDir()
 	local delay = getPerfectDelayDM(THICKNESS) * 5.7
 	local j = 0
-	
-	local currentCurve = mCurve	
+
+	local currentCurve = mCurve
 
 	for i = 0, mTimes do
 		hmcSimpleBarrageS(startSide + j, currentCurve)
@@ -164,45 +164,45 @@ end
 function hmcSimpleBarrageSpiral(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
 	local delay = getPerfectDelayDM(THICKNESS) * 6.2 * mDelayMult
 	local startSide = getRandomSide()
-	local loopDir = mStep * getRandomDir()	
+	local loopDir = mStep * getRandomDir()
 	local j = 0
-	
+
 	for i = 0, mTimes do
 		hmcSimpleBarrageSNeigh(startSide + j, mCurve, mNeighbors)
 		j = j + loopDir
 		t_wait(delay)
 		if(l_getSides() < 6) then t_wait(delay * 0.7) end
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function hmcSimpleBarrageSpiralRnd(mTimes, mDelayMult, mCurve, mNeighbors)
 	local delay = getPerfectDelayDM(THICKNESS) * 6.2 * mDelayMult
 	local startSide = getRandomSide()
-	
+
 	for i = 0, mTimes do
 		hmcSimpleBarrageSNeigh(getRandomSide(), mCurve, mNeighbors)
 		t_wait(delay)
 		if(l_getSides() < 6) then t_wait(delay * 0.7) end
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
 function hmcSimpleBarrageSpiralStatic(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
 	local delay = getPerfectDelay(THICKNESS) * 5.6 * mDelayMult
 	local startSide = getRandomSide()
-	local loopDir = mStep * getRandomDir()	
+	local loopDir = mStep * getRandomDir()
 	local j = 0
-	
+
 	for i = 0, mTimes do
 		hmcSimpleBarrageSNeigh(startSide + j, mCurve, mNeighbors)
 		j = j + loopDir
 		t_wait(delay)
 		if(l_getSides() < 6) then t_wait(delay * 0.6) end
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
@@ -224,7 +224,7 @@ end
 
 function hmcDefBarrageInv()
 	t_wait(getPerfectDelayDM(THICKNESS) * 2.0)
-	local delay = getPerfectDelay(THICKNESS) * 5.6 
+	local delay = getPerfectDelay(THICKNESS) * 5.6
 	local side = getRandomSide()
 	local rndspd = math.random(10, 20) / 10.0
 	local oppositeSide = getRandomSide() + getHalfSides()
@@ -271,7 +271,7 @@ function hmcDefSpinnerSpiral()
 	t_wait(getPerfectDelayDM(THICKNESS) * 5)
 end
 
-function getRndMinDM(mNum)	
+function getRndMinDM(mNum)
 	return math.random(math.floor(mNum - (u_getDifficultyMult() ^ 3)), math.ceil(mNum))
 end
 
@@ -288,7 +288,7 @@ function hmcDefSpinnerSpiralAcc()
 	local minimum = math.random(getRndMinDM(12), getRndMaxDM(28)) / 10.0 * -1
 	local maximum = math.random(getRndMinDM(12), getRndMaxDM(28)) / 10.0
 
-	
+
 
 	t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 

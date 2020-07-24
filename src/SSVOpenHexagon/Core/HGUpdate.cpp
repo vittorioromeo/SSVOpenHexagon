@@ -208,20 +208,18 @@ void HexagonGame::update(ssvu::FT mFT)
 
 void HexagonGame::updateWalls(ssvu::FT mFT)
 {
-    const auto playerPos{player.getPosition()};
-
     for(CWall& wall : walls)
     {
         player.push(*this, wall);
 
         wall.moveTowardsCenter(*this, centerPos, mFT);
-        if(wall.isOverlapping(playerPos))
+        if(wall.isOverlapping(player.getPosition()))
         {
             player.kill(*this);
         }
 
         wall.moveCurve(*this, centerPos, mFT);
-        if(wall.isOverlapping(playerPos))
+        if(wall.isOverlapping(player.getPosition()))
         {
             player.push(*this, wall);
         }
@@ -229,8 +227,9 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 
     const bool customWallCollision =
         cwManager.anyCustomWall([&](const CCustomWall& customWall) {
-            return customWall.isOverlapping(playerPos);
+            return customWall.isOverlapping(player.getPosition());
         });
+
     if(customWallCollision)
     {
         player.kill(*this);
