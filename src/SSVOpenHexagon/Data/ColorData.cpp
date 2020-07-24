@@ -12,11 +12,18 @@ namespace hg
 {
 	[[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept
 	{
-		std::vector<int> rawPulseData = ssvuj::getExtr<std::vector<int>>(root, "pulse", {0, 0, 0, 255});
-		if (rawPulseData.size() == 4)
-		{
-			return {rawPulseData[0], rawPulseData[1], rawPulseData[2], rawPulseData[3]};
-		}
-		return {0, 0, 0, 255};
+        if(!ssvuj::hasObj(root, "pulse"))
+        {
+             return {0, 0, 0, 255};
+        }
+        
+        const auto& pulseObj = ssvuj::getObj(root, "pulse");
+
+        return {
+            ssvuj::getExtr<int>(pulseObj, 0),
+            ssvuj::getExtr<int>(pulseObj, 1),
+            ssvuj::getExtr<int>(pulseObj, 2),
+            ssvuj::getExtr<int>(pulseObj, 3)
+        };
 	}
 }
