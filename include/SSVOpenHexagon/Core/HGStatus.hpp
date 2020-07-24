@@ -13,6 +13,13 @@
 namespace hg
 {
 
+enum class StateChange
+{
+    None,
+    MustRestart,
+    MustReplay
+};
+
 struct HexagonGameStatus
 {
 public:
@@ -38,7 +45,8 @@ public:
     float flashEffect{0};
     float radius{75};
     float fastSpin{0};
-    bool hasDied{false}, mustRestart{false};
+    bool hasDied{false};
+    StateChange mustStateChange{StateChange::None};
     bool scoreInvalid{false};
     std::string invalidReason{""};
     bool started{false};
