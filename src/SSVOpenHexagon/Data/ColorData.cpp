@@ -8,22 +8,18 @@
 
 #include <string>
 
-namespace hg 
+namespace hg
 {
-	[[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept
-	{
-        if(!ssvuj::hasObj(root, "pulse"))
-        {
-             return {0, 0, 0, 255};
-        }
-        
-        const auto& pulseObj = ssvuj::getObj(root, "pulse");
+[[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept
+{
+    if(!ssvuj::hasObj(root, "pulse"))
+    {
+        return {0, 0, 0, 255};
+    }
 
-        return {
-            ssvuj::getExtr<int>(pulseObj, 0),
-            ssvuj::getExtr<int>(pulseObj, 1),
-            ssvuj::getExtr<int>(pulseObj, 2),
-            ssvuj::getExtr<int>(pulseObj, 3)
-        };
-	}
+    const auto& pulseObj = ssvuj::getObj(root, "pulse");
+
+    return {ssvuj::getExtr<int>(pulseObj, 0), ssvuj::getExtr<int>(pulseObj, 1),
+        ssvuj::getExtr<int>(pulseObj, 2), ssvuj::getExtr<int>(pulseObj, 3)};
 }
+} // namespace hg
