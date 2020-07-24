@@ -13,6 +13,7 @@
 - John Kline
 - [Zly](https://twitter.com/zly_u)
 - AlphaPromethium
+- Misa "Info Teddy" Elizabeth
 
 ### Testing
 
