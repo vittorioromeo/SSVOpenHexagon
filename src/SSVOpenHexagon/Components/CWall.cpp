@@ -14,7 +14,7 @@ namespace hg
 CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
     int mSide, float mThickness, float mDistance, const SpeedData& mSpeed,
     const SpeedData& mCurve)
-    : speed{mSpeed}, curve{mCurve}
+    : speed{mSpeed}, curve{mCurve}, hueMod{0}, killed{false}
 {
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
     const float angle{div * 2.f * mSide};
@@ -103,6 +103,11 @@ void CWall::setHueMod(float mHueMod) noexcept
     const sf::Vector2f& mPoint) const noexcept
 {
     return ssvs::isPointInPolygon(vertexPositions, mPoint);
+}
+
+[[nodiscard]] bool CWall::isDead() const noexcept
+{
+    return killed;
 }
 
 } // namespace hg
