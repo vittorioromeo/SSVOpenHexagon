@@ -44,7 +44,7 @@ struct ColorData
 
     ColorData(const bool mMain, const bool mDynamic, const bool mDynamicOffset,
         const float mDynamicDarkness, const float mHueShift,
-        const float mOffset, sf::Color mColor, PulseColor mPulse)
+        const float mOffset, sf::Color mColor, const PulseColor& mPulse)
         : main{mMain}, dynamic{mDynamic}, dynamicOffset{mDynamicOffset},
           dynamicDarkness{mDynamicDarkness}, hueShift{mHueShift},
           offset{mOffset}, color{mColor}, pulse{mPulse}
