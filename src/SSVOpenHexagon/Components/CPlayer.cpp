@@ -182,8 +182,8 @@ void CPlayer::push(HexagonGame& mHexagonGame, CWall& wall)
 
     const float radius{mHexagonGame.getRadius()};
 
-    const unsigned int maxAttempts = //
-        (curveDir != 0)
+    const unsigned int maxAttempts =
+        5 + (curveDir != 0)
             ? std::abs(curveData.speed + speed * (movement * curveDir))
             : speed;
 
