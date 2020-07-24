@@ -210,14 +210,20 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 {
     for(CWall& wall : walls)
     {
-        player.push(*this, wall);
+        // After *only* the player has moved, push in case of overlap.
+        if(wall.isOverlapping(player.getPosition()))
+        {
+            player.push(*this, wall);
+        }
 
+        // Move the wall towards the center. Overlap means sure death.
         wall.moveTowardsCenter(*this, centerPos, mFT);
         if(wall.isOverlapping(player.getPosition()))
         {
             player.kill(*this);
         }
 
+        // Curve the wall. If an overlap happens, the player must be pushed.
         wall.moveCurve(*this, centerPos, mFT);
         if(wall.isOverlapping(player.getPosition()))
         {
