@@ -139,6 +139,7 @@ void setKeyIconsScale(float mX);
 [[nodiscard]] ssvs::Input::Trigger getTriggerExit();
 [[nodiscard]] ssvs::Input::Trigger getTriggerForceRestart();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRestart();
+[[nodiscard]] ssvs::Input::Trigger getTriggerReplay();
 [[nodiscard]] ssvs::Input::Trigger getTriggerScreenshot();
 [[nodiscard]] ssvs::Input::Trigger getTriggerSwap();
 [[nodiscard]] ssvs::Input::Trigger getTriggerUp();

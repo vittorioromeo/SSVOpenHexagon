@@ -18,7 +18,7 @@ random_number_generator::random_number_generator(const seed_type seed) noexcept
 }
 
 [[nodiscard]] random_number_generator::seed_type
-random_number_generator::get_seed() const noexcept
+random_number_generator::seed() const noexcept
 {
     return _seed;
 }

@@ -18,6 +18,11 @@ using namespace ssvu;
 namespace hg
 {
 
+[[nodiscard]] static std::string formatTime(const double x)
+{
+    return ssvu::toStr(std::floor(x * 1000) / 1000.f);
+}
+
 void HexagonGame::draw()
 {
     styleData.computeColors(levelStatus);
@@ -182,15 +187,23 @@ void HexagonGame::drawKeyIcons()
     const sf::Color offColor{c.r, c.g, c.b, offOpacity};
     const sf::Color onColor{c.r, c.g, c.b, onOpacity};
 
-    keyIconLeft.setColor((inputMovement == -1) ? onColor : offColor);
-    keyIconRight.setColor((inputMovement == 1) ? onColor : offColor);
-    keyIconFocus.setColor(inputFocused ? onColor : offColor);
-    keyIconSwap.setColor(inputSwap ? onColor : offColor);
+    keyIconLeft.setColor((getInputMovement() == -1) ? onColor : offColor);
+    keyIconRight.setColor((getInputMovement() == 1) ? onColor : offColor);
+    keyIconFocus.setColor(getInputFocused() ? onColor : offColor);
+    keyIconSwap.setColor(getInputSwap() ? onColor : offColor);
 
     render(keyIconLeft);
     render(keyIconRight);
     render(keyIconFocus);
     render(keyIconSwap);
+
+    // ------------------------------------------------------------------------
+
+    if(mustShowReplayUI())
+    {
+        replayIcon.setColor(onColor);
+        render(replayIcon);
+    }
 }
 
 void HexagonGame::updateText()
@@ -236,6 +249,7 @@ void HexagonGame::updateText()
         if(status.hasDied)
         {
             os << "PRESS R TO RESTART\n";
+            os << "PRESS Y TO VIEW REPLAY\n";
         }
 
 
@@ -268,8 +282,7 @@ void HexagonGame::updateText()
     // Set in game timer text
     if(status.started)
     {
-        timeText.setString(
-            toStr(std::floor(status.getTimeSeconds() * 1000) / 1000.f));
+        timeText.setString(formatTime(status.getTimeSeconds()));
     }
     else
     {
@@ -299,6 +312,30 @@ void HexagonGame::updateText()
 
     messageText.setCharacterSize(getScaledCharacterSize(38.f));
     messageText.setOrigin(getGlobalWidth(messageText) / 2.f, 0);
+
+    // ------------------------------------------------------------------------
+    if(mustShowReplayUI())
+    {
+        const replay_file& rf = activeReplay->replayFile;
+
+        os.str("");
+
+        os << formatTime(rf._played_frametime / 60.0) << "s BY "
+           << rf._player_name << '\n';
+
+        os << activeReplay->replayPackName << " - "
+           << activeReplay->replayLevelName << " (" << rf._difficulty_mult
+           << "x)";
+
+        os.flush();
+
+        replayText.setCharacterSize(getScaledCharacterSize(20.f));
+        replayText.setString(os.str());
+    }
+    else
+    {
+        replayText.setString("");
+    }
 }
 
 void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
@@ -308,16 +345,19 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         timeText.setOutlineColor(offsetColor);
         text.setOutlineColor(offsetColor);
         fpsText.setOutlineColor(offsetColor);
+        replayText.setOutlineColor(offsetColor);
 
         timeText.setOutlineThickness(2.f);
         text.setOutlineThickness(1.f);
         fpsText.setOutlineThickness(1.f);
+        replayText.setOutlineThickness(1.f);
     }
     else
     {
         timeText.setOutlineThickness(0.f);
         text.setOutlineThickness(0.f);
         fpsText.setOutlineThickness(0.f);
+        replayText.setOutlineThickness(0.f);
     }
 
     const float padding = Config::getTextPadding() * Config::getTextScaling();
@@ -340,6 +380,19 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
             padding, Config::getHeight() - ((8.f * (2.f * offsetRatio))) *
                                                Config::getTextScaling()});
         render(fpsText);
+    }
+
+    if(mustShowReplayUI())
+    {
+        const float scaling =
+            Config::getKeyIconsScale() / Config::getZoomFactor();
+        const float padding = 8.f * scaling;
+
+        replayText.setFillColor(getColorMain());
+        replayText.setOrigin(ssvs::getLocalCenterE(replayText));
+        replayText.setPosition(
+            ssvs::getGlobalCenterW(replayIcon) - sf::Vector2f{padding, 0});
+        render(replayText);
     }
 }
 

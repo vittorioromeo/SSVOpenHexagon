@@ -63,10 +63,13 @@
 		[ "kR" ],
 		[ "bXButton2" ]
 	],
+	"t_replay" : 
+	[
+		[ "kY" ]
+	],
 	"t_restart" : 
 	[
 		[ "kReturn" ],
-		[ "kSpace" ],
 		[ "bMiddle" ]
 	],
 	"t_rotate_ccw" : 

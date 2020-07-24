@@ -66,8 +66,11 @@
 	"t_restart" :
 	[
 		[ "kReturn" ],
-		[ "kSpace" ],
 		[ "bMiddle" ]
+	],
+	"t_replay" :
+	[
+		[ "kY" ]
 	],
 	"t_rotate_ccw" :
 	[
