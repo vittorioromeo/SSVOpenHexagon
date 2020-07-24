@@ -1,0 +1,12 @@
+{
+	"id": "negative_pulse",
+	"name": "Negative Pulse",
+	"description": "Another test for negative pulses on styles",
+	"author": "Morxemplum",
+	"menuPriority": 30,
+	"selectable": true,
+	"styleId": "negative_pulse_style",
+	"musicId": "jackRussel",
+	"luaFile": "Scripts/Levels/negative_pulse.lua",
+	"difficultyMults": []
+}
