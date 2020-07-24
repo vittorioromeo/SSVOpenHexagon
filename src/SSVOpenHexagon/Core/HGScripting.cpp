@@ -20,7 +20,7 @@ namespace hg
 void HexagonGame::initLua_Utils()
 {
     addLuaFn("u_getAttemptRandomSeed", //
-        [this] { return rng.get_seed(); })
+        [this] { return rng.seed(); })
         .doc(
             "Obtain the current random seed, automatically generated at the "
             "beginning of the level. `math.randomseed` is automatically "

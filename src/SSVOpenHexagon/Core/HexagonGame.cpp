@@ -18,6 +18,8 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
+#include <cassert>
+
 using namespace hg::Utils;
 
 
@@ -41,9 +43,8 @@ void HexagonGame::createWall(int mSide, float mThickness,
 
 void HexagonGame::initKeyIcons()
 {
-    for(const auto& t : {"keyArrow.png"
-                         "keyFocus.png"
-                         "keySwap.png"})
+    for(const auto& t :
+        {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
     {
         assets.get<sf::Texture>(t).setSmooth(true);
     }
@@ -52,6 +53,7 @@ void HexagonGame::initKeyIcons()
     keyIconRight.setTexture(assets.get<sf::Texture>("keyArrow.png"));
     keyIconFocus.setTexture(assets.get<sf::Texture>("keyFocus.png"));
     keyIconSwap.setTexture(assets.get<sf::Texture>("keySwap.png"));
+    replayIcon.setTexture(assets.get<sf::Texture>("replayIcon.png"));
 
     updateKeyIcons();
 }
@@ -89,6 +91,16 @@ void HexagonGame::updateKeyIcons()
     keyIconFocus.setPosition(keyIconSwap.getPosition() - finalPaddingX);
     keyIconRight.setPosition(keyIconFocus.getPosition() - finalPaddingX);
     keyIconLeft.setPosition(keyIconRight.getPosition() - finalPaddingX);
+
+    // ------------------------------------------------------------------------
+
+    replayIcon.setOrigin({size, size});
+    replayIcon.setScale(scaling, scaling);
+
+    const sf::Vector2f topRight{
+        Config::getWidth() - padding - scaledSize, padding + scaledSize};
+
+    replayIcon.setPosition(topRight);
 }
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
@@ -118,14 +130,25 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); });
     game.addInput(
         Config::getTriggerForceRestart(),
-        [this](ssvu::FT /*unused*/) { status.mustRestart = true; },
+        [this](ssvu::FT /*unused*/) {
+            status.mustStateChange = StateChange::MustRestart;
+        },
         ssvs::Input::Type::Once);
     game.addInput(
         Config::getTriggerRestart(),
         [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {
-                status.mustRestart = true;
+                status.mustStateChange = StateChange::MustRestart;
+            }
+        },
+        ssvs::Input::Type::Once);
+    game.addInput(
+        Config::getTriggerReplay(),
+        [this](ssvu::FT /*unused*/) {
+            if(status.hasDied)
+            {
+                status.mustStateChange = StateChange::MustReplay;
             }
         },
         ssvs::Input::Type::Once);
@@ -138,7 +161,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 }
 
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
-    bool mFirstPlay, float mDifficultyMult)
+    bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
     initFlashEffect();
 
@@ -146,11 +169,51 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
-    // ------------------------------------------------------------------------
-    // Initialize random number generator (generate a new seed)
-    rng = initializeRng();
-
+    const double tempPlayedFrametime = status.getPlayedAccumulatedFrametime();
     status = HexagonGameStatus{};
+
+    if(!executeLastReplay)
+    {
+        // TODO: this can be used to restore normal speed
+        // window.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
+
+        rng = initializeRng();
+
+        // Save data for immediate replay.
+        lastSeed = rng.seed();
+        lastReplayData = replay_data{};
+
+        // Clear any existing active replay.
+        activeReplay.reset();
+    }
+    else
+    {
+        if(!activeReplay.has_value())
+        {
+            lastPlayedFrametime = tempPlayedFrametime;
+        }
+
+        // TODO: this can be used to speed up the replay
+        // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
+
+        activeReplay.emplace(replay_file{
+            ._version{0},
+            ._player_name{assets.getCurrentLocalProfile().getName()}, // TODO
+            ._seed{lastSeed},
+            ._data{lastReplayData},
+            ._pack_id{mPackId},
+            ._level_id{mId},
+            ._difficulty_mult{mDifficultyMult},
+            ._played_frametime{lastPlayedFrametime},
+        });
+
+        activeReplay->replayPackName =
+            Utils::toUppercase(assets.getPackData(mPackId).name);
+
+        activeReplay->replayLevelName = Utils::toUppercase(levelData->name);
+
+        rng = random_number_generator{activeReplay->replayFile._seed};
+    }
 
     // Audio cleanup
     assets.stopSounds();
@@ -277,7 +340,7 @@ void HexagonGame::death(bool mForce)
 
     if(Config::getAutoRestart())
     {
-        status.mustRestart = true;
+        status.mustStateChange = StateChange::MustRestart;
     }
 }
 
@@ -308,6 +371,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     {
         setSides(mSideNumber);
     }
+
     mustChangeSides = false;
 
     runLuaFunction<void>("onIncrement");
@@ -336,10 +400,12 @@ void HexagonGame::checkAndSaveScore()
     {
         std::string localValidator{
             getLocalValidator(levelData->id, difficultyMult)};
+
         if(assets.getLocalScore(localValidator) < time)
         {
             assets.setLocalScore(localValidator, time);
         }
+
         assets.saveCurrentLocalProfile();
     }
     else
@@ -352,18 +418,21 @@ void HexagonGame::checkAndSaveScore()
                 << "Not sending score - less than 8 seconds\n";
             return;
         }
+
         if(Online::getServerVersion() == -1)
         {
             ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - connection error\n";
             return;
         }
+
         if(Online::getServerVersion() > Config::getVersion())
         {
             ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - version mismatch\n";
             return;
         }
+
         Online::trySendScore(levelData->id, difficultyMult, time);
     }
 }
@@ -384,12 +453,6 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     runLuaFunction<void>("onUnload");
     window.setGameState(mgPtr->getGame());
     mgPtr->init(mError);
-}
-
-void HexagonGame::changeLevel(
-    const std::string& mPackId, const std::string& mId, bool mFirstTime)
-{
-    newGame(mPackId, mId, mFirstTime, difficultyMult);
 }
 
 void HexagonGame::addMessage(
@@ -480,16 +543,38 @@ auto HexagonGame::getColorMain() const -> sf::Color
 void HexagonGame::setSides(unsigned int mSides)
 {
     assets.playSound("beep.ogg");
+
     if(mSides < 3)
     {
         mSides = 3;
     }
+
     levelStatus.sides = mSides;
 }
 
-bool HexagonGame::getInputSwap() const
+[[nodiscard]] bool HexagonGame::getInputFocused() const
+{
+    return inputFocused;
+}
+
+[[nodiscard]] bool HexagonGame::getInputSwap() const
 {
     return inputSwap || hg::Joystick::aRisingEdge();
+}
+
+[[nodiscard]] int HexagonGame::getInputMovement() const
+{
+    return inputMovement;
+}
+
+[[nodiscard]] bool HexagonGame::mustReplayInput() const noexcept
+{
+    return activeReplay.has_value() && !activeReplay->replayPlayer.done();
+}
+
+[[nodiscard]] bool HexagonGame::mustShowReplayUI() const noexcept
+{
+    return activeReplay.has_value();
 }
 
 } // namespace hg

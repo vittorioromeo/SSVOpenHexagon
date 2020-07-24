@@ -89,7 +89,7 @@ function onUpdate(mFrameTime)
 		end
 	end
 
-	if not achievementUnlocked and l_getLevelTime() > 120 and u_getDifficultyMult() >= 1 then
+	if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a13_acceleradiant")
 		achievementUnlocked = true
 	end
