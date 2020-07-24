@@ -10,23 +10,24 @@
 #include <SFML/Graphics/Color.hpp>
 
 
-struct PulseColor {
+struct PulseColor
+{
     int r;
     int g;
     int b;
     int a;
 };
 
-namespace hg 
+namespace hg
 {
-	[[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept;
+[[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept;
 }
 
 struct ColorData
 {
     bool main, dynamic, dynamicOffset;
     float dynamicDarkness, hueShift, offset;
-    sf::Color color; 
+    sf::Color color;
     PulseColor pulse;
 
     ColorData() = default;
