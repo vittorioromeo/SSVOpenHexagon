@@ -147,7 +147,7 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${lua_SOURCE_DIR})
 
 if(UNIX AND NOT APPLE)
-    # target_link_libraries(SSVOpenHexagonLib pthread)
+    target_link_libraries(SSVOpenHexagonLib pthread)
 endif()
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/)
