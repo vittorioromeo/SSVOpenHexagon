@@ -72,19 +72,21 @@ void HexagonGame::update(ssvu::FT mFT)
     updateFlash(mFT);
     effectTimelineManager.update(mFT);
 
-    if(!lastReplayPlayer.has_value())
+    if(!mustReplayInput())
     {
         updateInput();
     }
     else
     {
+        assert(activeReplay.has_value());
+
         if(!status.started)
         {
             start();
         }
 
         const input_bitset ib =
-            lastReplayPlayer->get_current_and_move_forward();
+            activeReplay->replayPlayer.get_current_and_move_forward();
 
         if(ib[static_cast<unsigned int>(input_bit::left)])
         {
@@ -136,8 +138,8 @@ void HexagonGame::update(ssvu::FT mFT)
 
             if(mustChangeSides && walls.empty())
             {
-                sideChange(rng.get_int(
-                    levelStatus.sidesMin, levelStatus.sidesMax + 1));
+                sideChange(
+                    rng.get_int(levelStatus.sidesMin, levelStatus.sidesMax));
             }
 
             updateLevel(mFT);
@@ -177,16 +179,22 @@ void HexagonGame::update(ssvu::FT mFT)
 
     if(status.started)
     {
-        if(status.mustRestart)
+        if(status.mustStateChange != StateChange::None)
         {
             fpsWatcher.disable();
+
+            const bool executeLastReplay =
+                status.mustStateChange == StateChange::MustReplay;
+
             newGame(getPackId(), restartId, restartFirstTime, difficultyMult,
-                true /* executeLastReplay */);
+                executeLastReplay);
+
             if(!assets.pIsLocal() && Config::isEligibleForScore())
             {
                 Online::trySendRestart();
             }
         }
+
         if(!status.scoreInvalid && Config::getOfficial() &&
             fpsWatcher.isLimitReached())
         {
@@ -197,6 +205,7 @@ void HexagonGame::update(ssvu::FT mFT)
         {
             invalidateScore("3D REQUIRED");
         }
+
         fpsWatcher.update();
     }
 }
@@ -298,14 +307,14 @@ void HexagonGame::updateInput()
     }
 
     // Replay support
-    if(status.started)
+    if(status.started && !status.hasDied)
     {
         const bool left = getInputMovement() == -1;
         const bool right = getInputMovement() == 1;
         const bool swap = getInputSwap();
         const bool focus = getInputFocused();
 
-        lastReplay.record_input(left, right, swap, focus);
+        lastReplayData.record_input(left, right, swap, focus);
     }
 
     // Joystick support
@@ -315,7 +324,7 @@ void HexagonGame::updateInput()
     }
     else if(hg::Joystick::startRisingEdge())
     {
-        status.mustRestart = true;
+        status.mustStateChange = StateChange::MustRestart;
     }
 }
 

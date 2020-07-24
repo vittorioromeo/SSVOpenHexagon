@@ -100,6 +100,7 @@ private:
     sf::Sprite keyIconRight;
     sf::Sprite keyIconFocus;
     sf::Sprite keyIconSwap;
+    sf::Sprite replayIcon;
 
     bool firstPlay{true};
     bool restartFirstTime{true};
@@ -111,8 +112,24 @@ private:
     random_number_generator rng;
     HexagonGameStatus status;
 
-    replay_data lastReplay{0};
-    std::optional<replay_player> lastReplayPlayer;
+    struct ActiveReplay
+    {
+        replay_file replayFile;
+        replay_player replayPlayer;
+        std::string replayPackName;
+        std::string replayLevelName;
+
+        ActiveReplay(const replay_file& mReplayFile)
+            : replayFile{mReplayFile}, replayPlayer{replayFile._data}
+        {
+        }
+    };
+
+    std::optional<ActiveReplay> activeReplay;
+
+    random_number_generator::seed_type lastSeed;
+    replay_data lastReplayData;
+    double lastPlayedFrametime;
 
     std::string restartId;
     float difficultyMult{1};
@@ -130,6 +147,8 @@ private:
         ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())};
     sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
+    sf::Text replayText{"", assets.get<sf::Font>("forcedsquare.ttf"),
+        ssvu::toNum<unsigned int>(20.f / Config::getZoomFactor())};
 
     // Color of the polygon in the center.
     CapColor capColor;
@@ -428,6 +447,9 @@ public:
     }
 
     [[nodiscard]] const std::string& getPackId() const;
+
+    [[nodiscard]] bool mustReplayInput() const noexcept;
+    [[nodiscard]] bool mustShowReplayUI() const noexcept;
 };
 
 } // namespace hg
