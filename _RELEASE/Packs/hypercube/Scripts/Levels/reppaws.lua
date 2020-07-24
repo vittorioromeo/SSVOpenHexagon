@@ -85,7 +85,7 @@ end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
-	if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
+	if not achievementUnlocked and l_getLevelTime() > 45 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a18_reppaws")
 		achievementUnlocked = true
 	end

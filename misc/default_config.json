@@ -17,7 +17,7 @@
 	"fullscreen_height" : 600,
 	"fullscreen_width" : 800,
 	"invincible" : false,
-	"key_icons_scale": 1.0,
+	"key_icons_scale": 0.75,
 	"limit_fps" : true,
 	"max_fps" : 200,
 	"mouse_visible" : false,
