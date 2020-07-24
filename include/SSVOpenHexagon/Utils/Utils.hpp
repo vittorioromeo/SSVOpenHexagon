@@ -32,6 +32,12 @@ inline void uppercasify(std::string& s)
     }
 }
 
+[[nodiscard]] inline std::string toUppercase(std::string s)
+{
+    uppercasify(s);
+    return s;
+}
+
 [[nodiscard, gnu::const]] inline float getSaturated(float mValue)
 {
     return std::max(0.f, std::min(1.f, mValue));
