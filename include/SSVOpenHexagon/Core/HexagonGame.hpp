@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
@@ -35,6 +36,7 @@
 #include <SSVUtils/Timeline/Timeline.hpp>
 
 #include <sstream>
+#include <optional>
 
 namespace hg
 {
@@ -98,6 +100,7 @@ private:
     sf::Sprite keyIconRight;
     sf::Sprite keyIconFocus;
     sf::Sprite keyIconSwap;
+    sf::Sprite replayIcon;
 
     bool firstPlay{true};
     bool restartFirstTime{true};
@@ -108,6 +111,25 @@ private:
 
     random_number_generator rng;
     HexagonGameStatus status;
+
+    struct ActiveReplay
+    {
+        replay_file replayFile;
+        replay_player replayPlayer;
+        std::string replayPackName;
+        std::string replayLevelName;
+
+        ActiveReplay(const replay_file& mReplayFile)
+            : replayFile{mReplayFile}, replayPlayer{replayFile._data}
+        {
+        }
+    };
+
+    std::optional<ActiveReplay> activeReplay;
+
+    random_number_generator::seed_type lastSeed;
+    replay_data lastReplayData;
+    double lastPlayedFrametime;
 
     std::string restartId;
     float difficultyMult{1};
@@ -125,6 +147,8 @@ private:
         ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())};
     sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
+    sf::Text replayText{"", assets.get<sf::Font>("forcedsquare.ttf"),
+        ssvu::toNum<unsigned int>(20.f / Config::getZoomFactor())};
 
     // Color of the polygon in the center.
     CapColor capColor;
@@ -208,11 +232,14 @@ public:
     }
 
 private:
+    void start();
+
     void initKeyIcons();
     void initFlashEffect();
 
     // Update methods
     void update(ssvu::FT mFT);
+    void updateInput();
     void updateIncrement();
     void updateEvents(ssvu::FT mFT);
     void updateLevel(ssvu::FT mFT);
@@ -250,8 +277,6 @@ private:
     // Level/menu loading/unloading/changing
     void checkAndSaveScore();
     void goToMenu(bool mSendScores = true, bool mError = false);
-    void changeLevel(
-        const std::string& mPackId, const std::string& mId, bool mFirstTime);
 
     void invalidateScore(std::string mReason);
 
@@ -295,7 +320,7 @@ public:
 
     // Gameplay methods
     void newGame(const std::string& mPackId, const std::string& mId,
-        bool mFirstPlay, float mDifficultyMult);
+        bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
     void death(bool mForce = false);
 
     // Other methods
@@ -411,17 +436,9 @@ public:
     }
 
     // Input
-    [[nodiscard]] bool getInputFocused() const
-    {
-        return inputFocused;
-    }
-
+    [[nodiscard]] bool getInputFocused() const;
     [[nodiscard]] bool getInputSwap() const;
-
-    [[nodiscard]] int getInputMovement() const
-    {
-        return inputMovement;
-    }
+    [[nodiscard]] int getInputMovement() const;
 
     template <typename F>
     [[nodiscard]] bool anyCustomWall(F&& f)
@@ -430,6 +447,9 @@ public:
     }
 
     [[nodiscard]] const std::string& getPackId() const;
+
+    [[nodiscard]] bool mustReplayInput() const noexcept;
+    [[nodiscard]] bool mustShowReplayUI() const noexcept;
 };
 
 } // namespace hg
