@@ -3,7 +3,6 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
-#include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
@@ -24,7 +23,7 @@ namespace hg {
 inline constexpr float baseThickness{5.f};
 
 CPlayer::CPlayer(const sf::Vector2f &mStartPos) noexcept
-        : startPos{mStartPos}, pos{startPos}, hue{0}, angle{0},
+        : startPos{mStartPos}, pos{startPos}, lastPos{pos}, hue{0}, angle{0}, lastAngle{angle},
           size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
           focusSpeed{Config::getPlayerFocusSpeed()}, dead{false}, swapTimer{36.f},
           swapBlinkTimer{5.f}, deadEffectTimer{80.f, false} {
@@ -144,19 +143,19 @@ void CPlayer::playerSwap(HexagonGame &mHexagonGame, bool mPlaySound) {
     return startPos;
 }
 
-void CPlayer::kill(HexagonGame &mHexagonGame, bool mEffect) {
-    deadEffectTimer.restart();
+    void CPlayer::kill(HexagonGame &mHexagonGame){
+        deadEffectTimer.restart();
 
-    if (!Config::getInvincible()) { dead = true; }
-    if (mEffect) { mHexagonGame.death(); }
+        if(!Config::getInvincible()){ dead = true; }
+        mHexagonGame.death();
 
-    ssvs::moveTowards(lastPos, ssvs::zeroVec2f, 5 * mHexagonGame.getSpeedMultDM());
+        ssvs::moveTowards(lastPos, ssvs::zeroVec2f, 5 * mHexagonGame.getSpeedMultDM());
 
-    pos = lastPos;
-}
+        pos = lastPos;
+    }
 
 void CPlayer::push(HexagonGame& mHexagonGame, CWall& wall){
-    const auto curveData = wall.getCurve();
+    const auto &curveData = wall.getCurve();
     const int curveDir = ssvu::getSign(curveData.speed);
     const int movement{mHexagonGame.getInputMovement()};
 
@@ -209,7 +208,6 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
         }
     }
 
-
     lastPos = pos;
     lastAngle = angle;
     float currentSpeed{speed};
@@ -229,45 +227,6 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
         playerSwap(mHexagonGame, true /* mPlaySound */);
         swapTimer.restart();
     }
-
-    const sf::Vector2f tempPos{ssvs::getOrbitRad(startPos, angle, radius)};
-    const sf::Vector2f pLeftCheck{
-        ssvs::getOrbitRad(tempPos, angle - ssvu::piHalf, 1.01f)};
-    const sf::Vector2f pRightCheck{
-        ssvs::getOrbitRad(tempPos, angle + ssvu::piHalf, 1.01f)};
-
-    const auto doCollision = [&](const auto& wall) {
-        if((movement == -1 && wall.isOverlapping(pLeftCheck)) ||
-            (movement == 1 && wall.isOverlapping(pRightCheck)))
-        {
-            angle = lastAngle;
-        }
-
-        if(wall.isOverlapping(pos))
-        {
-            kill(mHexagonGame, true);
-
-            return true;
-        }
-
-        return false;
-    };
-
-    const bool customWallCollision =
-        mHexagonGame.anyCustomWall([&](const CCustomWall& customWall) {
-            if(doCollision(customWall))
-            {
-                return true;
-            }
-
-            return false;
-        });
-
-    if(customWallCollision)
-    {
-        return;
-    }
-
 
     pos = ssvs::getOrbitRad(startPos, angle, radius);
 }
