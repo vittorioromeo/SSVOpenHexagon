@@ -125,7 +125,9 @@ void HexagonGame::update(ssvu::FT mFT)
             player.update(*this, mFT);
             updateWalls(mFT);
 
-            ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
+            ssvu::eraseRemoveIf(
+                walls, [](const CWall& w) { return w.isDead(); });
+
             cwManager.cleanup();
 
             updateEvents(mFT);
@@ -210,6 +212,8 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 {
     for(CWall& wall : walls)
     {
+        wall.update(*this, mFT);
+
         // After *only* the player has moved, push in case of overlap.
         if(wall.isOverlapping(player.getPosition()))
         {
