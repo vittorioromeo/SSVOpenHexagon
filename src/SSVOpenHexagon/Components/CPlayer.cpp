@@ -209,7 +209,7 @@ void CPlayer::push(HexagonGame& mHexagonGame, CWall& wall)
         angle += pushDir;
         pos = ssvs::getOrbitRad(startPos, angle, radius);
 
-        attempt++;
+        ++attempt;
         if(attempt >= maxAttempts)
         {
             pos = lastPos;
