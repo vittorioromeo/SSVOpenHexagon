@@ -15,11 +15,6 @@ struct PulseColor {
     int g;
     int b;
     int a;
-
-    PulseColor() = default;
-
-    PulseColor(const int red, const int green, const int blue, const int alpha)
-        : r{red}, g{green}, b{blue}, a{alpha} {};
 };
 
 namespace hg 
