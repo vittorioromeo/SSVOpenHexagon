@@ -101,7 +101,7 @@ Below are the Core Functions, which are the base functions that help the game as
 
 * **`onLoad()` (Required)**: A core function that is called when the level begins. Use this function for basic event handling, such as timing messages and setting an end to the level with `u_eventKill`. However, more advanced events should be handled with other Lua measures (or with the currently WIP "Events for 2.0" module). You can also initialize some values that couldn't be initialized with `onInit`.
 
-* **`onStep()` (Required)**: A core function that is called every time when the level timeline is empty. This is the core function where all of your pattern/wall spawning logic should be happening, as this is the intended design of the function. When a level increment is called, this function temporarily stops running until the level increments successfully. 
+* **`onStep()` (Required)**: A core function that is called every time when the level timeline is empty. This is the core function where all of your pattern/wall spawning logic should be happening, as this is the intended design of the function. When a level increment is called, this function temporarily stops running until the level increments successfully.
 
 * **`onIncrement()` (Required)**: A core function that is called every time the level increments. It doesn't run the moment the increment is called, as it has to wait for all of the walls to be cleared before this function can run. Use this to implement any custom incrementation logic.
 
@@ -367,7 +367,7 @@ Below are the level functions, which can be identified with the "l_" prefix. The
 
 ## Style Functions (s_)
 
-Below are the style functions, which can be identified with the "s_" prefix. These are functions that have a role in altering the attributes of the current style that is on the level. Style attributes, unlike level attributes, do not get initialized in Lua and rather are premade in a JSON file (but this is subject to change).
+Below are the style functions, which can be identified with the "s_" prefix. These are functions that have a role in altering the attributes of the current style that is on the level. Style attributes, unlike level attributes, do not get initialized in Lua and rather are pre-made in a JSON file (but this is subject to change).
 
 * **`float s_getHueMin()`**: Gets the minimum value for the hue range of a level style. The hue attribute is an important attribute that is dedicated specifically to all colors that have the ``dynamic`` property enabled.
 
