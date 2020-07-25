@@ -23,17 +23,22 @@ private:
     SpeedData speed;
     SpeedData curve;
 
-    float hueMod{0};
+    float hueMod;
+    bool killed;
 
 public:
-    bool killed{false};
-
     CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, int mSide,
         float mThickness, float mDistance, const SpeedData& mSpeed,
         const SpeedData& mCurve);
 
-    void update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
+    void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
+
+    void moveTowardsCenter(HexagonGame& mHexagonGame,
+        const sf::Vector2f& mCenterPos, ssvu::FT mFT);
+
+    void moveCurve(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
         ssvu::FT mFT);
+
     void draw(HexagonGame& mHexagonGame);
 
     void setHueMod(float mHueMod) noexcept;
@@ -43,6 +48,8 @@ public:
     [[nodiscard]] SpeedData& getCurve() noexcept;
 
     [[nodiscard]] bool isOverlapping(const sf::Vector2f& mPoint) const noexcept;
+
+    [[nodiscard]] bool isDead() const noexcept;
 };
 
 } // namespace hg

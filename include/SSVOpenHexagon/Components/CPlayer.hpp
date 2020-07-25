@@ -15,17 +15,18 @@ namespace hg
 {
 
 class HexagonGame;
+class CWall;
 
 class CPlayer
 {
 private:
-    sf::Vector2f pLeft;
-    sf::Vector2f pRight;
     sf::Vector2f startPos;
     sf::Vector2f pos;
+    sf::Vector2f lastPos;
 
     float hue;
     float angle;
+    float lastAngle;
     float size;
     float speed;
     float focusSpeed;
@@ -42,12 +43,18 @@ private:
 public:
     CPlayer(const sf::Vector2f& mStartPos) noexcept;
 
-    [[nodiscard]] float getPlayerAngle() const;
-    void setPlayerAngle(const float newAng);
+    [[nodiscard]] sf::Vector2f getPosition() const noexcept;
+    [[nodiscard]] float getPlayerAngle() const noexcept;
+
+    void setPlayerAngle(const float newAng) noexcept;
     void playerSwap(HexagonGame& mHexagonGame, bool mPlaySound);
+
+    void kill(HexagonGame& mHexagonGame);
 
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
+
+    void push(HexagonGame& mHexagonGame, hg::CWall& wall);
 };
 
 } // namespace hg
