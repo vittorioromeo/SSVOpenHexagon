@@ -123,13 +123,11 @@ void HexagonGame::update(ssvu::FT mFT)
         if(!status.hasDied)
         {
             player.update(*this, mFT);
+            updateWalls(mFT);
 
-            for(CWall& w : walls)
-            {
-                w.update(*this, centerPos, mFT);
-            }
+            ssvu::eraseRemoveIf(
+                walls, [](const CWall& w) { return w.isDead(); });
 
-            ssvu::eraseRemoveIf(walls, [](const auto& w) { return w.killed; });
             cwManager.cleanup();
 
             updateEvents(mFT);
@@ -209,6 +207,45 @@ void HexagonGame::update(ssvu::FT mFT)
         fpsWatcher.update();
     }
 }
+
+void HexagonGame::updateWalls(ssvu::FT mFT)
+{
+    for(CWall& wall : walls)
+    {
+        wall.update(*this, mFT);
+
+        // After *only* the player has moved, push in case of overlap.
+        if(wall.isOverlapping(player.getPosition()))
+        {
+            player.push(*this, wall);
+        }
+
+        // Move the wall towards the center. Overlap means sure death.
+        wall.moveTowardsCenter(*this, centerPos, mFT);
+        if(wall.isOverlapping(player.getPosition()))
+        {
+            player.kill(*this);
+        }
+
+        // Curve the wall. If an overlap happens, the player must be pushed.
+        wall.moveCurve(*this, centerPos, mFT);
+        if(wall.isOverlapping(player.getPosition()))
+        {
+            player.push(*this, wall);
+        }
+    }
+
+    const bool customWallCollision =
+        cwManager.anyCustomWall([&](const CCustomWall& customWall) {
+            return customWall.isOverlapping(player.getPosition());
+        });
+
+    if(customWallCollision)
+    {
+        player.kill(*this);
+    }
+}
+
 
 void HexagonGame::start()
 {

@@ -14,7 +14,7 @@ namespace hg
 CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
     int mSide, float mThickness, float mDistance, const SpeedData& mSpeed,
     const SpeedData& mCurve)
-    : speed{mSpeed}, curve{mCurve}
+    : speed{mSpeed}, curve{mCurve}, hueMod{0}, killed{false}
 {
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
     const float angle{div * 2.f * mSide};
@@ -44,15 +44,18 @@ void CWall::draw(HexagonGame& mHexagonGame)
         vertexPositions[3]);
 }
 
-void CWall::update(
-    HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
+void CWall::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);
+}
 
+void CWall::moveTowardsCenter(
+    HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
+{
     const float radius{mHexagonGame.getRadius() * 0.65f};
-    int pointsOnCenter{0};
 
+    int pointsOnCenter{0};
     for(sf::Vector2f& vp : vertexPositions)
     {
         if(std::abs(vp.x - mCenterPos.x) < radius &&
@@ -63,13 +66,21 @@ void CWall::update(
         else
         {
             ssvs::moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
-            ssvs::rotateRadAround(vp, mCenterPos, curve.speed / 60.f * mFT);
         }
     }
 
     if(pointsOnCenter > 3)
     {
         killed = true;
+    }
+}
+
+void CWall::moveCurve(
+    HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
+{
+    for(sf::Vector2f& vp : vertexPositions)
+    {
+        ssvs::rotateRadAround(vp, mCenterPos, curve.speed / 60.f * mFT);
     }
 }
 
@@ -92,6 +103,11 @@ void CWall::setHueMod(float mHueMod) noexcept
     const sf::Vector2f& mPoint) const noexcept
 {
     return ssvs::isPointInPolygon(vertexPositions, mPoint);
+}
+
+[[nodiscard]] bool CWall::isDead() const noexcept
+{
+    return killed;
 }
 
 } // namespace hg
