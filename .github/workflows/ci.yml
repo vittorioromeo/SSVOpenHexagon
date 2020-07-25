@@ -5,7 +5,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: Build (ubuntu-20.04)
+    name: Build and test (ubuntu-20.04)
 
     runs-on: ubuntu-20.04
 
@@ -45,3 +45,6 @@ jobs:
       with:
         name: OpenHexagon-Linux
         path: _RELEASE
+
+    - name: Run tests
+      run: ninja -C build check
