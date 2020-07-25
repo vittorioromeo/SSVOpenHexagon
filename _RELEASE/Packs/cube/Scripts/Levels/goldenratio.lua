@@ -42,7 +42,7 @@ function onInit()
 	-- l_setPulseDelayMax(12.9)
 
 	l_setBeatPulseMax(17)
-	l_setBeatPulseDelayMax(26.2)
+	l_setBeatPulseDelayMax(24.1)
 
 	l_setWallSkewRight(-20)
 end
