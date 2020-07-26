@@ -450,7 +450,11 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     {
         checkAndSaveScore();
     }
-    runLuaFunction<void>("onUnload");
+    // Stop infinite feedback from occurring if the error is happening on onUnload.
+    if (!mError) 
+    {
+        runLuaFunction<void>("onUnload");
+    }
     window.setGameState(mgPtr->getGame());
     mgPtr->init(mError);
 }
