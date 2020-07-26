@@ -17,6 +17,25 @@ using namespace ssvuj;
 namespace hg
 {
 
+void HexagonGame::destroyMaliciousFunctions()
+{
+    // This destroys the "os" library completely. This library is capable of
+    // file manipulation, running shell commands, and messing up the replay
+    // system completely. os.execute(), one of the functions in this library,
+    // can be used to create malware and is capable of destroying computers.
+    lua.clearVariable("os");
+
+    // This destroys the "io" library completely. This may not be a permanent
+    // action at the moment, but this is the best solution we have at the
+    // moment. This library is dedicated to manipulating files and their
+    // contents, which can be used maliciously.
+    lua.clearVariable("io");
+
+    // This function allows pack developers to set the seed in Lua. This
+    // function breaks replays. Can be removed once this is handled properly.
+    lua.clearVariable("math.randomseed");
+}
+
 void HexagonGame::initLua_Utils()
 {
     addLuaFn("u_getAttemptRandomSeed", //
@@ -1155,6 +1174,8 @@ void HexagonGame::initLua_CustomWalls()
 
 void HexagonGame::initLua()
 {
+    destroyMaliciousFunctions();
+
     initLua_Utils();
     initLua_Messages();
     initLua_MainTimeline();
