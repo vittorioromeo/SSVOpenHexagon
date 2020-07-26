@@ -31,9 +31,22 @@ void HexagonGame::destroyMaliciousFunctions()
     // contents, which can be used maliciously.
     lua.clearVariable("io");
 
+    // This destroys the "debug" library completely. The debug library is next
+    // to useless in Open Hexagon (considering we have our own methods of
+    // debugging), and it allows people to access destroyed modules with the
+    // getregistry function.
+    lua.clearVariable("debug");
+
     // This function allows pack developers to set the seed in Lua. This
     // function breaks replays. Can be removed once this is handled properly.
     lua.clearVariable("math.randomseed");
+
+    // These functions are being deleted as they can assist in restoring
+    // destroyed modules. However, we cannot destroy the whole library as
+    // the other functions are needed for the "require" function to work
+    // properly.
+    lua.clearVariable("package.loadlib");
+    lua.clearVariable("package.searchpath");
 }
 
 void HexagonGame::initLua_Utils()
