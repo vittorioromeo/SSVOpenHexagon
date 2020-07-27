@@ -40,6 +40,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
 {
+    // TODO: check `Config::getFirstTimePlaying` and react accordingly
+    Config::setFirstTimePlaying(false);
+
     initAssets();
     refreshCamera();
 
@@ -702,13 +705,14 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setDarkenUnevenBackgroundChunk",
             "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult",
             "l_getDelayMult", "l_addTracked", "l_getRotation", "l_setRotation",
-            "l_setDelayMult", "l_getOfficial",
+            "l_setDelayMult", "l_getOfficial", "l_getSwapCooldownMult",
+            "l_setSwapCooldownMult",
 
-            "u_playSound", "u_isKeyPressed", "u_isMouseButtonPressed",
-            "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
-            "u_kill", "u_eventKill", "u_haltTime", "u_timelineWait",
-            "u_clearWalls", "u_setMusic", "u_setMusicSegment",
-            "u_setMusicSeconds",
+            "u_playSound",
+            "u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
+            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setMusic",
+            "u_setMusicSegment", "u_setMusicSeconds",
 
             "m_messageAdd", "m_messageAddImportant", "m_clearMessages",
 

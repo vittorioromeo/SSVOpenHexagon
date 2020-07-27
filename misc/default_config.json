@@ -11,6 +11,7 @@
 	"darken_uneven_background_chunk" : true,
 	"debug" : false,
 	"draw_text_outlines" : true,
+	"first_time_playing": false,
 	"flash_enabled" : true,
 	"fullscreen" : false,
 	"fullscreen_auto_resolution" : false,
@@ -104,7 +105,7 @@
 	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 900,
-	"windowed_width" : 1600,
+	"windowed_height" : 600,
+	"windowed_width" : 800,
 	"zoom_factor" : 0.8533333539962769
 }
