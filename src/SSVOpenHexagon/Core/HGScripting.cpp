@@ -17,6 +17,38 @@ using namespace ssvuj;
 namespace hg
 {
 
+void HexagonGame::destroyMaliciousFunctions()
+{
+    // This destroys the "os" library completely. This library is capable of
+    // file manipulation, running shell commands, and messing up the replay
+    // system completely. os.execute(), one of the functions in this library,
+    // can be used to create malware and is capable of destroying computers.
+    lua.clearVariable("os");
+
+    // This destroys the "io" library completely. This may not be a permanent
+    // action at the moment, but this is the best solution we have at the
+    // moment. This library is dedicated to manipulating files and their
+    // contents, which can be used maliciously.
+    lua.clearVariable("io");
+
+    // This destroys the "debug" library completely. The debug library is next
+    // to useless in Open Hexagon (considering we have our own methods of
+    // debugging), and it allows people to access destroyed modules with the
+    // getregistry function.
+    lua.clearVariable("debug");
+
+    // This function allows pack developers to set the seed in Lua. This
+    // function breaks replays. Can be removed once this is handled properly.
+    lua.clearVariable("math.randomseed");
+
+    // These functions are being deleted as they can assist in restoring
+    // destroyed modules. However, we cannot destroy the whole library as
+    // the other functions are needed for the "require" function to work
+    // properly.
+    lua.clearVariable("package.loadlib");
+    lua.clearVariable("package.searchpath");
+}
+
 void HexagonGame::initLua_Utils()
 {
     addLuaFn("u_getAttemptRandomSeed", //
@@ -1155,6 +1187,8 @@ void HexagonGame::initLua_CustomWalls()
 
 void HexagonGame::initLua()
 {
+    destroyMaliciousFunctions();
+
     initLua_Utils();
     initLua_Messages();
     initLua_MainTimeline();
