@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
+#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
@@ -33,7 +34,11 @@ public:
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame);
 
-    [[nodiscard]] bool isOverlapping(const sf::Vector2f& mPoint) const noexcept;
+    [[gnu::always_inline, nodiscard]] bool isOverlapping(
+        const sf::Vector2f& mPoint) const noexcept
+    {
+        return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
+    }
 
     void setVertexPos(const int vertexIndex, const sf::Vector2f& pos) noexcept;
     void setVertexColor(const int vertexIndex, const sf::Color& color) noexcept;

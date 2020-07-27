@@ -36,12 +36,6 @@ void CCustomWall::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     (void)mFT;
 }
 
-[[nodiscard]] bool CCustomWall::isOverlapping(
-    const sf::Vector2f& mPoint) const noexcept
-{
-    return ssvs::isPointInPolygon(vertexPositions, mPoint);
-}
-
 void CCustomWall::setVertexPos(
     const int vertexIndex, const sf::Vector2f& pos) noexcept
 {

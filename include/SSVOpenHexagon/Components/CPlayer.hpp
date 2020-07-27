@@ -44,7 +44,12 @@ private:
 public:
     CPlayer(const sf::Vector2f& mStartPos, const float swapCooldown) noexcept;
 
-    [[nodiscard]] sf::Vector2f getPosition() const noexcept;
+    [[gnu::always_inline, nodiscard]] const sf::Vector2f&
+    getPosition() const noexcept
+    {
+        return pos;
+    }
+
     [[nodiscard]] float getPlayerAngle() const noexcept;
 
     void setPlayerAngle(const float newAng) noexcept;
@@ -55,7 +60,8 @@ public:
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 
-    void push(HexagonGame& mHexagonGame, hg::CWall& wall);
+    [[nodiscard]] bool push(
+        HexagonGame& mHexagonGame, hg::CWall& wall, ssvu::FT mFT);
 
     [[nodiscard]] bool getJustSwapped() const noexcept;
 };
