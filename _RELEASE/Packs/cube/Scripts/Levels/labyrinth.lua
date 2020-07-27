@@ -60,7 +60,7 @@ function onIncrement()
 	levelTracked = level + 1
 	incrementTime = incrementTime + 2
 
-	if not achievementUnlocked and levelTracked == 8 and u_getDifficultyMult() >= 1 then
+	if not achievementUnlocked and levelTracked == 7 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a8_lab")
 		achievementUnlocked = true
 	end

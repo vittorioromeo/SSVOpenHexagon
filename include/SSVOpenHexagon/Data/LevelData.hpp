@@ -75,6 +75,7 @@ struct LevelStatus
     float pulseSpeedR{0.f};
     float pulseDelayMax{0.f};
     float pulseDelayHalfMax{0.f};
+    float swapCooldownMult{1.f};
 
     // ------------------------------------------------------------------------
     // A "beat pulse" controls the size of the center polygon. It is supposed

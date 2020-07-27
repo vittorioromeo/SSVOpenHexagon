@@ -24,12 +24,12 @@ namespace hg
 
 inline constexpr float baseThickness{5.f};
 
-CPlayer::CPlayer(const sf::Vector2f& mPos) noexcept
+CPlayer::CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept
     : startPos{mPos}, pos{mPos}, lastPos{mPos}, hue{0}, angle{0}, lastAngle{0},
       size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
       focusSpeed{Config::getPlayerFocusSpeed()}, dead{false},
-      justSwapped{false}, swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{
-                                                                    80.f, false}
+      justSwapped{false}, swapTimer{swapCooldown},
+      swapBlinkTimer{swapCooldown / 6.f}, deadEffectTimer{80.f, false}
 {
 }
 
@@ -247,7 +247,8 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
         mHexagonGame.getInputSwap() && !swapTimer.isRunning())
     {
         playerSwap(mHexagonGame, true /* mPlaySound */);
-        swapTimer.restart();
+        swapTimer.restart(mHexagonGame.getSwapCooldown());
+        swapBlinkTimer.restart(mHexagonGame.getSwapCooldown() / 6.f);
         justSwapped = true;
     }
     else

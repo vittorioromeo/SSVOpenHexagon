@@ -107,8 +107,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets),
-      window(mGameWindow), player{ssvs::zeroVec2f}, rng{initializeRng()},
+      assets(mAssets), window(mGameWindow),
+      player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()},
       fpsWatcher(window)
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
@@ -248,7 +248,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Manager cleanup
     walls.clear();
     cwManager.clear();
-    player = CPlayer{ssvs::zeroVec2f};
+    player = CPlayer{ssvs::zeroVec2f, getSwapCooldown()};
 
     // Timeline cleanup
     timeline.clear();
@@ -438,8 +438,9 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     {
         checkAndSaveScore();
     }
-    // Stop infinite feedback from occurring if the error is happening on onUnload.
-    if (!mError)
+    // Stop infinite feedback from occurring if the error is happening on
+    // onUnload.
+    if(!mError)
     {
         runLuaFunction<void>("onUnload");
     }
@@ -567,6 +568,11 @@ void HexagonGame::setSides(unsigned int mSides)
 [[nodiscard]] bool HexagonGame::mustShowReplayUI() const noexcept
 {
     return activeReplay.has_value();
+}
+
+[[nodiscard]] float HexagonGame::getSwapCooldown() const noexcept
+{
+    return std::max(36.f * levelStatus.swapCooldownMult, 8.f);
 }
 
 } // namespace hg
