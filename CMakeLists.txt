@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.9)
+
+include(CheckIPOSupported)
 
 # -----------------------------------------------------------------------------
 # CPM
@@ -109,6 +111,16 @@ if(WIN32)
     else()
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack,4194304 -fpermissive")
     endif()
+endif()
+
+check_ipo_supported(RESULT result)
+if(result)
+    if("${vrm_cmake_build_type_lower}" STREQUAL "release")
+        vrm_cmake_message("Enabling LTO")
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif()
+else()
+    vrm_cmake_message("LTO not supported")
 endif()
 
 add_library(SSVOpenHexagonLib STATIC ${SRC_LIST})
