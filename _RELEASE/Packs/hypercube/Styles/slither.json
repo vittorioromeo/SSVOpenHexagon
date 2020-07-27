@@ -7,7 +7,7 @@
 	"hue_max": 360,
 	"hue_ping_pong": true,
 	"hue_increment": 1.0,
-	
+
 	// Pulse options
 	"pulse_min": 0.0,
 	"pulse_max": 0.5,
@@ -20,10 +20,10 @@
 	"3D_darken_multiplier": 1.5,
 	"3D_alpha_multiplier": 0.5,
 	"3D_alpha_falloff": 19.0,
-	
+
 	// Main color
 	"main": { "main": true, "dynamic": false, "value": [230, 230, 230, 230], "pulse": [25, 25, 25, 0] },
-	"cap_color": "main_darkened",
+	"cap_color": { "legacy": false, "dynamic": false, "value": [25, 25, 25, 240], "pulse": [25, 25, 25, 0] },
 
 	// Background colors
 	"colors":
