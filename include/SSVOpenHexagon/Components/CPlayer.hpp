@@ -32,6 +32,7 @@ private:
     float focusSpeed;
 
     bool dead;
+    bool justSwapped;
 
     Ticker swapTimer;
     Ticker swapBlinkTimer;
@@ -55,6 +56,8 @@ public:
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 
     void push(HexagonGame& mHexagonGame, hg::CWall& wall);
+
+    [[nodiscard]] bool getJustSwapped() const noexcept;
 };
 
 } // namespace hg

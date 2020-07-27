@@ -27,8 +27,9 @@ inline constexpr float baseThickness{5.f};
 CPlayer::CPlayer(const sf::Vector2f& mPos) noexcept
     : startPos{mPos}, pos{mPos}, lastPos{mPos}, hue{0}, angle{0}, lastAngle{0},
       size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
-      focusSpeed{Config::getPlayerFocusSpeed()}, dead{false}, swapTimer{36.f},
-      swapBlinkTimer{5.f}, deadEffectTimer{80.f, false}
+      focusSpeed{Config::getPlayerFocusSpeed()}, dead{false},
+      justSwapped{false}, swapTimer{36.f}, swapBlinkTimer{5.f}, deadEffectTimer{
+                                                                    80.f, false}
 {
 }
 
@@ -167,15 +168,15 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     }
 
     mHexagonGame.death();
-
-    ssvs::moveTowards(
-        lastPos, ssvs::zeroVec2f, 5 * mHexagonGame.getSpeedMultDM());
-
-    pos = lastPos;
 }
 
 void CPlayer::push(HexagonGame& mHexagonGame, CWall& wall)
 {
+    if(dead)
+    {
+        return;
+    }
+
     const auto& curveData = wall.getCurve();
     const int curveDir = ssvu::getSign(curveData.speed);
     const int movement{mHexagonGame.getInputMovement()};
@@ -247,9 +248,19 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     {
         playerSwap(mHexagonGame, true /* mPlaySound */);
         swapTimer.restart();
+        justSwapped = true;
+    }
+    else
+    {
+        justSwapped = false;
     }
 
     pos = ssvs::getOrbitRad(startPos, angle, radius);
+}
+
+[[nodiscard]] bool CPlayer::getJustSwapped() const noexcept
+{
+    return justSwapped;
 }
 
 } // namespace hg
