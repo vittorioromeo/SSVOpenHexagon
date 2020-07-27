@@ -285,18 +285,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     lua = Lua::LuaContext{};
     initLua();
 
-    // ------------------------------------------------------------------------
-    // Initialize Lua random seed from random generator one:
-    try
-    {
-        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())");
-    }
-    catch(...)
-    {
-        ssvu::lo("HexagonGame::negGame")
-            << "Failure to initialize Lua random generator seed\n";
-    }
-
     runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
     runLuaFunction<void>("onLoad");
@@ -451,7 +439,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         checkAndSaveScore();
     }
     // Stop infinite feedback from occurring if the error is happening on onUnload.
-    if (!mError) 
+    if (!mError)
     {
         runLuaFunction<void>("onUnload");
     }

@@ -51,14 +51,6 @@ void HexagonGame::destroyMaliciousFunctions()
 
 void HexagonGame::initLua_Utils()
 {
-    addLuaFn("u_getAttemptRandomSeed", //
-        [this] { return rng.seed(); })
-        .doc(
-            "Obtain the current random seed, automatically generated at the "
-            "beginning of the level. `math.randomseed` is automatically "
-            "initialized with the result of this function at the beginning of "
-            "a level.");
-
     addLuaFn("u_log", //
         [this](std::string mLog) { ssvu::lo("lua") << mLog << "\n"; })
         .arg("message")
@@ -1187,6 +1179,30 @@ void HexagonGame::initLua_CustomWalls()
 
 void HexagonGame::initLua()
 {
+    // ------------------------------------------------------------------------
+    // Register Lua function to get random seed for the current attempt:
+    addLuaFn("u_getAttemptRandomSeed", //
+        [this] { return rng.seed(); })
+        .doc(
+            "Obtain the current random seed, automatically generated at the "
+            "beginning of the level. `math.randomseed` is automatically "
+            "initialized with the result of this function at the beginning of "
+            "a level.");
+
+    // ------------------------------------------------------------------------
+    // Initialize Lua random seed from random generator one:
+    try
+    {
+        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())");
+    }
+    catch(...)
+    {
+        ssvu::lo("HexagonGame::initLua")
+            << "Failure to initialize Lua random generator seed\n";
+    }
+
+    // ------------------------------------------------------------------------
+    // Remove potentially malicious Lua functions, including `math.randomseed`:
     destroyMaliciousFunctions();
 
     initLua_Utils();
