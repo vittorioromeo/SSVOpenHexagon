@@ -18,9 +18,9 @@ function onInit()
 	l_setDelayMult(1.35)
 	l_setDelayInc(0.0)
 	l_setFastSpin(0.0)
-	l_setSides(15)
-	l_setSidesMin(15)
-	l_setSidesMax(15)
+	l_setSides(30)
+	l_setSidesMin(30)
+	l_setSidesMax(30)
 	l_setIncTime(10)
 
 	l_setWallSkewLeft(0)
@@ -45,7 +45,7 @@ end
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()
-	hmcSimpleBarrageSNeigh(getRandomSide(), getRandomDir() * curveSpeed, 2)
+	hmcSimpleBarrageSNeigh(getRandomSide(), getRandomDir() * curveSpeed, 4)
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.22)
 end
 
