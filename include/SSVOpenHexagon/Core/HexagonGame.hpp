@@ -452,6 +452,8 @@ public:
 
     [[nodiscard]] bool mustReplayInput() const noexcept;
     [[nodiscard]] bool mustShowReplayUI() const noexcept;
+
+    [[nodiscard]] float getSwapCooldown() const noexcept;
 };
 
 } // namespace hg

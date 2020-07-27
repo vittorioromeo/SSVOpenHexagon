@@ -57,7 +57,7 @@ function onIncrement()
 	level = extra + 1
 	incrementTime = incrementTime + 2
 
-	if not achievementUnlocked and level == 8 and u_getDifficultyMult() >= 1 then
+	if not achievementUnlocked and level == 7 and u_getDifficultyMult() >= 1 then
 		steam_unlockAchievement("a5_commando")
 		achievementUnlocked = true
 	end

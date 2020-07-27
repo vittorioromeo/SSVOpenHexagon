@@ -5,7 +5,8 @@ u_execScript("commonpatterns.lua")
 u_execScript("nextpatterns.lua")
 u_execScript("evolutionpatterns.lua")
 
-gap = 6
+gap = 7
+minGap = 3
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
@@ -49,6 +50,20 @@ function onInit()
 
 	l_setSwapEnabled(true)
 	l_addTracked("gap", "gap size")
+
+	if(u_getDifficultyMult() >= 1.59) then
+		gap = 9
+		minGap = 5
+		l_setSwapCooldownMult(0.8)
+	elseif(u_getDifficultyMult() >= 1.39) then
+		gap = 8
+		minGap = 4
+		l_setSwapCooldownMult(0.9)
+	else
+		gap = 7
+		minGap = 3
+		l_setSwapCooldownMult(1.0)
+	end
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -73,7 +88,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-	if gap > 2 then
+	if gap > minGap then
 		gap = gap -1
 		m_messageAddImportant("Gap size: "..gap, 120)
 	end

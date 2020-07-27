@@ -475,13 +475,13 @@ void HexagonGame::initLua_LevelControl()
         "Gets the speed the pulse goes from ``PulseMin`` to ``PulseMax``. "
         "Can also be used to help sync a level up with it's music.",
 
-        "Gets the speed the pulse goes from ``PulseMin`` to ``PulseMax`` by "
+        "Sets the speed the pulse goes from ``PulseMin`` to ``PulseMax`` by "
         "`$0`. Can also be used to help sync a level up with it's music.");
 
     lsVar("PulseSpeedR", &LevelStatus::pulseSpeedR,
         "Gets the speed the pulse goes from ``PulseMax`` to ``PulseMin``.",
 
-        "Gets the speed the pulse goes from ``PulseMax`` to ``PulseMin`` by "
+        "Sets the speed the pulse goes from ``PulseMax`` to ``PulseMin`` by "
         "`$0`. Can also be used to help sync a level up with it's music.");
 
     lsVar("PulseDelayMax", &LevelStatus::pulseDelayMax,
@@ -499,8 +499,15 @@ void HexagonGame::initLua_LevelControl()
         "Gets the delay the level has to wait before it begins pulsing from "
         "``PulseMax`` to ``PulseMin``.",
 
-        "Gets the delay the level has to wait before it begins pulsing from "
+        "Sets the delay the level has to wait before it begins pulsing from "
         "``PulseMax`` to ``PulseMin`` with `$0`.");
+
+    lsVar("SwapCooldownMult", &LevelStatus::swapCooldownMult,
+        "Gets the multiplier that controls the cooldown for the player's 180 "
+        "degrees swap mechanic.",
+
+        "Sets the multiplier that controls the cooldown for the player's 180 "
+        "degrees swap mechanic to `$0`.");
 
     lsVar("BeatPulseMax", &LevelStatus::beatPulseMax,
         "Gets the maximum beatpulse size of the polygon in a level. This is "
