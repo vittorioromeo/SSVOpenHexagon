@@ -77,6 +77,7 @@ using namespace ssvu;
     X(timescale, float, "timescale")                                       \
     X(showKeyIcons, bool, "show_key_icons")                                \
     X(keyIconsScale, float, "key_icons_scale")                             \
+    X(firstTimePlaying, bool, "first_time_playing")                        \
     X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
     X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
     X(triggerFocus, Trigger, "t_focus")                                    \
@@ -94,7 +95,33 @@ namespace hg::Config
 
 [[nodiscard]] static ssvuj::Obj& root() noexcept
 {
-    static auto res = getFromFile("config.json");
+    static ssvuj::Obj res = [] {
+        if(ssvufs::Path{"config.json"}.exists<ssvufs::Type::File>())
+        {
+            ssvu::lo("hg::Config::root()")
+                << "User-defined `config.json` file found\n";
+
+            return ssvuj::getFromFile("config.json");
+        }
+        else if(ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
+        {
+            ssvu::lo("hg::Config::root()")
+                << "User `config.json` file not found, looking for default\n";
+
+            ssvu::lo("hg::Config::root()")
+                << "Default `default_config.json` file found\n";
+
+            return ssvuj::getFromFile("default_config.json");
+        }
+        else
+        {
+            ssvu::lo("hg::Config::root()")
+                << "FATAL ERROR: No suitable config file found\n";
+
+            std::abort();
+        }
+    }();
+
     return res;
 }
 
@@ -484,6 +511,11 @@ void setKeyIconsScale(float mX)
     keyIconsScale() = mX;
 }
 
+void setFirstTimePlaying(bool mX)
+{
+    firstTimePlaying() = mX;
+}
+
 bool SSVU_ATTRIBUTE(pure) getOnline()
 {
     return online();
@@ -787,6 +819,11 @@ bool SSVU_ATTRIBUTE(pure) getShowKeyIcons()
 float SSVU_ATTRIBUTE(pure) getKeyIconsScale()
 {
     return keyIconsScale();
+}
+
+bool SSVU_ATTRIBUTE(pure) getFirstTimePlaying()
+{
+    return firstTimePlaying();
 }
 
 Trigger getTriggerRotateCCW()
