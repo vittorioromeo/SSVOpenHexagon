@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Components/SpeedData.hpp"
+#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
 #include <SFML/System/Vector2.hpp>
 
@@ -47,7 +48,11 @@ public:
 
     [[nodiscard]] SpeedData& getCurve() noexcept;
 
-    [[nodiscard]] bool isOverlapping(const sf::Vector2f& mPoint) const noexcept;
+    [[gnu::always_inline, nodiscard]] bool isOverlapping(
+        const sf::Vector2f& mPoint) const noexcept
+    {
+        return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
+    }
 
     [[nodiscard]] bool isDead() const noexcept;
 };
