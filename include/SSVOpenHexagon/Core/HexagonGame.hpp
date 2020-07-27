@@ -161,7 +161,8 @@ private:
 
     Utils::LuaMetadata luaMetadata;
 
-    // LUA-related methods
+    // Lua related methods
+    void destroyMaliciousFunctions();
     void initLua_Utils();
     void initLua_Messages();
     void initLua_MainTimeline();
