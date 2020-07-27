@@ -69,6 +69,7 @@ void setTextScaling(float mX);
 void setTimescale(float mX);
 void setShowKeyIcons(bool mX);
 void setKeyIconsScale(float mX);
+void setFirstTimePlaying(bool mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -132,6 +133,7 @@ void setKeyIconsScale(float mX);
 [[nodiscard]] float getTimescale();
 [[nodiscard]] bool getShowKeyIcons();
 [[nodiscard]] float getKeyIconsScale();
+[[nodiscard]] bool getFirstTimePlaying();
 
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();
