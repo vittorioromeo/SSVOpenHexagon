@@ -217,7 +217,15 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         // After *only* the player has moved, push in case of overlap.
         if(wall.isOverlapping(player.getPosition()))
         {
-            player.push(*this, wall);
+            if(player.getJustSwapped())
+            {
+                player.kill(*this);
+                steamManager.unlock_achievement("a22_swapdeath");
+            }
+            else
+            {
+                player.push(*this, wall);
+            }
         }
 
         // Move the wall towards the center. Overlap means sure death.
