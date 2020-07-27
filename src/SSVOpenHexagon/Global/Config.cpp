@@ -103,7 +103,8 @@ namespace hg::Config
 
             return ssvuj::getFromFile("config.json");
         }
-        else if(ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
+        else if(ssvufs::Path{"default_config.json"}
+                    .exists<ssvufs::Type::File>())
         {
             ssvu::lo("hg::Config::root()")
                 << "User `config.json` file not found, looking for default\n";
