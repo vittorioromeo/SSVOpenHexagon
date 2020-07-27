@@ -233,6 +233,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
                 Config::getMusicSpeedMult());
         }
     }
+    else
+    {
+        assets.musicPlayer.stop();
+    }
 
     // Events cleanup
     messageText.setString("");

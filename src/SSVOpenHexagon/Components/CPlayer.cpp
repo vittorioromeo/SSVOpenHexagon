@@ -153,11 +153,6 @@ void CPlayer::playerSwap(HexagonGame& mHexagonGame, bool mPlaySound)
     }
 }
 
-[[nodiscard]] sf::Vector2f CPlayer::getPosition() const noexcept
-{
-    return pos;
-}
-
 void CPlayer::kill(HexagonGame& mHexagonGame)
 {
     deadEffectTimer.restart();
@@ -170,23 +165,22 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     mHexagonGame.death();
 }
 
-void CPlayer::push(HexagonGame& mHexagonGame, CWall& wall)
+[[nodiscard]] bool CPlayer::push(
+    HexagonGame& mHexagonGame, CWall& wall, ssvu::FT mFT)
 {
     if(dead)
     {
-        return;
+        return false;
     }
 
     const auto& curveData = wall.getCurve();
     const int curveDir = ssvu::getSign(curveData.speed);
     const int movement{mHexagonGame.getInputMovement()};
 
-    const float radius{mHexagonGame.getRadius()};
-
     const unsigned int maxAttempts =
-        5 + (curveDir != 0)
-            ? std::abs(curveData.speed + speed * (movement * curveDir))
-            : speed;
+        5 + ((curveDir != 0)
+                    ? std::abs(curveData.speed + speed * (movement * curveDir))
+                    : speed);
 
     const float pushDir = //
         (curveDir == 0 || ssvu::getSign(movement) == curveDir) ? -movement
@@ -194,7 +188,19 @@ void CPlayer::push(HexagonGame& mHexagonGame, CWall& wall)
 
     const float pushAngle = ssvu::toRad(1.f) * pushDir;
 
+    // TODO: repetition with below and with walls, for speed calcs
+    /*
+    const float currentSpeed =
+        mHexagonGame.getInputFocused() ? focusSpeed : speed;
+    const float pushAngle =
+        std::max(std::abs(ssvu::toRad(currentSpeed * movement * mFT)),
+            std::abs(curveData.speed) / 60.f * mFT) *
+        pushDir;
+    */
+
     unsigned int attempt = 0;
+    const float radius{mHexagonGame.getRadius()};
+
     while(wall.isOverlapping(pos))
     {
         angle += pushAngle;
@@ -209,9 +215,11 @@ void CPlayer::push(HexagonGame& mHexagonGame, CWall& wall)
                 angle = lastAngle;
             }
 
-            break;
+            return true;
         }
     }
+
+    return false;
 }
 
 void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)

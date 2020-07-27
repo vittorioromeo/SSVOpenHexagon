@@ -224,7 +224,10 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
             }
             else
             {
-                player.push(*this, wall);
+                if(player.push(*this, wall, mFT))
+                {
+                    player.kill(*this);
+                }
             }
         }
 
@@ -239,7 +242,19 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         wall.moveCurve(*this, centerPos, mFT);
         if(wall.isOverlapping(player.getPosition()))
         {
-            player.push(*this, wall);
+            if(player.push(*this, wall, mFT))
+            {
+                player.kill(*this);
+            }
+        }
+    }
+
+    // If there's still an overlap after collision resolution, kill the player.
+    for(const CWall& wall : walls)
+    {
+        if(wall.isOverlapping(player.getPosition()))
+        {
+            player.kill(*this);
         }
     }
 
@@ -254,13 +269,17 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     }
 }
 
-
 void HexagonGame::start()
 {
     status.start();
     messageText.setString("");
     assets.playSound("go.ogg");
-    assets.musicPlayer.resume();
+
+    if(!Config::getNoMusic())
+    {
+        assets.musicPlayer.resume();
+    }
+
     if(Config::getOfficial())
     {
         fpsWatcher.enable();

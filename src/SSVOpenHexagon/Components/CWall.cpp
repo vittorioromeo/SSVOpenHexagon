@@ -99,12 +99,6 @@ void CWall::setHueMod(float mHueMod) noexcept
     return curve;
 }
 
-[[nodiscard]] bool CWall::isOverlapping(
-    const sf::Vector2f& mPoint) const noexcept
-{
-    return ssvs::isPointInPolygon(vertexPositions, mPoint);
-}
-
 [[nodiscard]] bool CWall::isDead() const noexcept
 {
     return killed;
