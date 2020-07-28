@@ -51,27 +51,32 @@ void HexagonGame::destroyMaliciousFunctions()
 
 void HexagonGame::initLua_Utils()
 {
+    addLuaFn("u_setFlashEffect", //
+        [this](float mIntensity) { status.flashEffect = mIntensity; })
+        .arg("value")
+        .doc("Flash the screen with `$0` intensity (from 0 to 255).");
+
     addLuaFn("u_log", //
-        [this](std::string mLog) { ssvu::lo("lua") << mLog << "\n"; })
+        [this](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
         .arg("message")
         .doc("Print out `$0` to the console.");
 
     addLuaFn("u_execScript", //
-        [this](std::string mName) {
+        [this](const std::string& mName) {
             runLuaFile(levelData->packPath + "Scripts/" + mName);
         })
         .arg("scriptFilename")
         .doc("Execute the script located at `<pack>/Scripts/$0`.");
 
     addLuaFn("u_playSound", //
-        [this](std::string mId) { assets.playSound(mId); })
+        [this](const std::string& mId) { assets.playSound(mId); })
         .arg("soundId")
         .doc(
             "Play the sound with id `$0`. The id must be registered in "
             "`assets.json`, under `\"soundBuffers\"`.");
 
     addLuaFn("u_setMusic", //
-        [this](std::string mId) {
+        [this](const std::string& mId) {
             musicData = assets.getMusicData(levelData->packId, mId);
             musicData.firstPlay = true;
             stopLevelMusic();
@@ -83,7 +88,7 @@ void HexagonGame::initLua_Utils()
             "defined in the music `.json` file, under `\"id\"`.");
 
     addLuaFn("u_setMusicSegment", //
-        [this](std::string mId, int segment) {
+        [this](const std::string& mId, int segment) {
             musicData = assets.getMusicData(levelData->packId, mId);
             stopLevelMusic();
             playLevelMusicAtTime(musicData.getSegment(segment).time);
@@ -96,7 +101,7 @@ void HexagonGame::initLua_Utils()
             "under `\"segments\"`.");
 
     addLuaFn("u_setMusicSeconds", //
-        [this](std::string mId, float mTime) {
+        [this](const std::string& mId, float mTime) {
             musicData = assets.getMusicData(levelData->packId, mId);
             stopLevelMusic();
             playLevelMusicAtTime(mTime);
@@ -198,7 +203,7 @@ void HexagonGame::initLua_Utils()
 void HexagonGame::initLua_Messages()
 {
     addLuaFn("m_messageAdd", //
-        [this](std::string mMsg, double mDuration) {
+        [this](const std::string& mMsg, double mDuration) {
             eventTimeline.append_do([=, this] {
                 if(firstPlay && Config::getShowMessages())
                 {
@@ -214,7 +219,7 @@ void HexagonGame::initLua_Messages()
             "run of the level.");
 
     addLuaFn("m_messageAddImportant", //
-        [this](std::string mMsg, double mDuration) {
+        [this](const std::string& mMsg, double mDuration) {
             eventTimeline.append_do([=, this] {
                 if(Config::getShowMessages())
                 {
@@ -231,7 +236,7 @@ void HexagonGame::initLua_Messages()
 
 
     addLuaFn("m_messageAddImportantSilent",
-        [this](std::string mMsg, double mDuration) {
+        [this](const std::string& mMsg, double mDuration) {
             eventTimeline.append_do([=, this] {
                 if(Config::getShowMessages())
                 {
@@ -254,6 +259,19 @@ void HexagonGame::initLua_Messages()
 
 void HexagonGame::initLua_MainTimeline()
 {
+    addLuaFn("t_eval",
+        [this](const std::string& mCode) {
+            timeline.append_do([=, this] { lua.executeCode(mCode); });
+        })
+        .arg("code")
+        .doc(
+            "*Add to the main timeline*: evaluate the Lua code specified in "
+            "`$0`.");
+
+    addLuaFn("t_clear", [this]() {
+        timeline.clear();
+    }).doc("Clear the main timeline.");
+
     addLuaFn("t_wait",
         [this](
             double mDuration) { timeline.append_wait_for_sixths(mDuration); })
@@ -341,8 +359,8 @@ void HexagonGame::initLua_LevelControl()
                            const std::string& setterDesc) {
         using Type = std::decay_t<decltype(levelStatus.*pmd)>;
 
-        std::string getterString = std::string{"l_get"} + name;
-        std::string setterString = std::string{"l_set"} + name;
+        const std::string getterString = std::string{"l_get"} + name;
+        const std::string setterString = std::string{"l_set"} + name;
 
         addLuaFn(getterString, //
             [this, pmd]() -> Type { return levelStatus.*pmd; })
@@ -710,7 +728,7 @@ void HexagonGame::initLua_LevelControl()
             "increment.");
 
     addLuaFn("l_addTracked", //
-        [this](std::string mVar, std::string mName) {
+        [this](const std::string& mVar, std::string mName) {
             levelStatus.trackedVariables.emplace_back(mVar, mName);
         })
         .arg("variable")
@@ -723,11 +741,11 @@ void HexagonGame::initLua_LevelControl()
     addLuaFn("l_setRotation", //
         [this](float mValue) { backgroundCamera.setRotation(mValue); })
         .arg("angle")
-        .doc("Set the background camera rotation to `$0` radians.");
+        .doc("Set the background camera rotation to `$0` degrees.");
 
     addLuaFn("l_getRotation", //
         [this] { return backgroundCamera.getRotation(); })
-        .doc("Return the background camera rotation, in radians.");
+        .doc("Return the background camera rotation, in degrees.");
 
     addLuaFn("l_getLevelTime", //
         [this] { return status.getTimeSeconds(); })
@@ -742,7 +760,7 @@ void HexagonGame::initLua_LevelControl()
     // TODO: test and consider re-enabling
     /*
     addLuaFn("l_setLevel",
-     [this](std::string mId)
+     [this](const std::string& mId)
         {
             setLevelData(assets.getLevelData(mId), true);
             stopLevelMusic();
@@ -760,8 +778,8 @@ void HexagonGame::initLua_StyleControl()
                            const std::string& setterDesc) {
         using Type = std::decay_t<decltype(styleData.*pmd)>;
 
-        std::string getterString = std::string{"s_get"} + name;
-        std::string setterString = std::string{"s_set"} + name;
+        const std::string getterString = std::string{"s_get"} + name;
+        const std::string setterString = std::string{"s_set"} + name;
 
         addLuaFn(getterString, //
             [this, pmd]() -> Type { return styleData.*pmd; })
@@ -949,7 +967,7 @@ void HexagonGame::initLua_StyleControl()
         "Sets the rotation offset of the background panels to `$0` degrees.");
 
     addLuaFn("s_setStyle", //
-        [this](std::string mId) {
+        [this](const std::string& mId) {
             styleData = assets.getStyleData(levelData->packId, mId);
         })
         .arg("styleId")
@@ -1103,7 +1121,7 @@ void HexagonGame::initLua_WallCreation()
 void HexagonGame::initLua_Steam()
 {
     addLuaFn("steam_unlockAchievement", //
-        [this](std::string mId) {
+        [this](const std::string& mId) {
             if(Config::getOfficial())
             {
                 steamManager.unlock_achievement(mId);

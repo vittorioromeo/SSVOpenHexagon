@@ -59,11 +59,16 @@ template <typename T>
     return result;
 }
 
+[[nodiscard]] bool cin_getline_string(std::string& result) noexcept
+{
+    return static_cast<bool>(std::getline(std::cin, result));
+}
+
 [[nodiscard]] bool cin_getline_path(std::filesystem::path& result) noexcept
 {
     std::string buf;
 
-    if(!std::getline(std::cin, buf))
+    if(!cin_getline_string(buf))
     {
         return false;
     }
@@ -543,7 +548,12 @@ private:
         }
 
         std::cout << "Enter changelog note:\n";
-        const std::string changelog_note = read_string();
+
+        std::string changelog_note;
+        while(!cin_getline_string(changelog_note))
+        {
+            std::cout << "Error reading changelog note, please try again\n";
+        }
 
         log("CLI") << "Uploading contents to Steam servers...\n";
 
@@ -581,7 +591,12 @@ private:
         }
 
         std::cout << "Enter changelog note:\n";
-        const std::string changelog_note = read_string();
+
+        std::string changelog_note;
+        while(!cin_getline_string(changelog_note))
+        {
+            std::cout << "Error reading changelog note, please try again\n";
+        }
 
         log("CLI") << "Uploading preview image to Steam servers...\n";
 

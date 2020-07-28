@@ -23,6 +23,7 @@ class CCustomWallManager
     std::vector<CCustomWallHandle> _freeHandles;
     std::vector<bool> _handleAvailable;
     CCustomWallHandle _nextFreeHandle{0};
+    std::size_t _count{0};
 
     [[nodiscard]] bool isValidHandle(const CCustomWallHandle h) const noexcept;
 
@@ -61,6 +62,11 @@ public:
         }
 
         return false;
+    }
+
+    [[nodiscard]] std::size_t count() const noexcept
+    {
+        return _count;
     }
 };
 
