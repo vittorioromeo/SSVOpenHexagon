@@ -222,6 +222,7 @@ void HexagonGame::updateText()
     if(Config::getDebug())
     {
         os << "DEBUG MODE\n";
+        os << "CUSTOM WALLS: " << cwManager.count() << "\n";
     }
 
     if(status.started)

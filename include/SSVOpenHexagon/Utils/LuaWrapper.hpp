@@ -211,6 +211,7 @@ public:
         _load(code);
         _call<std::tuple<>>(std::tuple<>());
     }
+
     /// \brief Executes lua code from the stream and returns a value \param
     /// code A stream that lua will read its code from
     template <typename T>
@@ -219,13 +220,16 @@ public:
         _load(code);
         return _call<T>(std::tuple<>());
     }
+
     /// \brief Executes lua code given as parameter \param code A string
     /// containing code that will be executed by lua
     void executeCode(const std::string& code)
     {
-        std::istringstream str(code);
-        executeCode<void>(str);
+
+        _load(code);
+        _call<std::tuple<>>(std::tuple<>());
     }
+
     /// \brief Executes lua code given as parameter and returns a value
     /// \param code A string containing code that will be executed by lua
     template <typename T>
@@ -647,9 +651,65 @@ private:
         };
 
         // we create an instance of Reader, and we call lua_load
-        std::unique_ptr<Reader> reader(new Reader(code));
+        Reader reader(code);
         auto loadReturnValue =
-            lua_load(_state, &Reader::read, reader.get(), "chunk", nullptr);
+            lua_load(_state, &Reader::read, &reader, "chunk", nullptr);
+
+        // now we have to check return value
+        if(loadReturnValue != 0)
+        {
+            // there was an error during loading, an error message was
+            // pushed on the stack
+            const char* errorMsg = lua_tostring(_state, -1);
+            lua_pop(_state, 1);
+            if(loadReturnValue == LUA_ERRMEM)
+                throw(std::bad_alloc());
+            else if(loadReturnValue == LUA_ERRSYNTAX)
+                throw(SyntaxErrorException(std::string(errorMsg)));
+        }
+    }
+
+    void _load(const std::string& code)
+    {
+
+        // since the lua_load function requires a static function, we use
+        // this structure
+        // the Reader structure is at the same time an object storing an
+        // std::istream and a buffer,
+        // and a static function provider
+        struct SReader
+        {
+            const std::string& str;
+            bool consumed;
+
+            SReader(const std::string& s) : str(s), consumed{false}
+            {
+            }
+
+            // read function; "data" must be an instance of Reader
+            static const char* read(lua_State*, void* data, std::size_t* size)
+            {
+                assert(size != nullptr);
+                assert(data != nullptr);
+                SReader& me = *((SReader*)data);
+
+                if(me.consumed || me.str.empty())
+                {
+                    *size = 0;
+                    return nullptr;
+                }
+
+                me.consumed = true;
+
+                *size = me.str.size();
+                return me.str.data();
+            }
+        };
+
+        // we create an instance of Reader, and we call lua_load
+        SReader sReader(code);
+        auto loadReturnValue =
+            lua_load(_state, &SReader::read, &sReader, "chunk", nullptr);
 
         // now we have to check return value
         if(loadReturnValue != 0)
@@ -1238,9 +1298,8 @@ private:
         while(lua_next(_state, index - 1) != 0)
         {
             // now a key and its value are pushed on the stack
-            retValue.insert(
-                std::make_pair(_read(-2, static_cast<Key*>(nullptr)),
-                    _read(-2, static_cast<Value*>(nullptr))));
+            retValue.emplace(_read(-2, static_cast<Key*>(nullptr)),
+                _read(-2, static_cast<Value*>(nullptr)));
             lua_pop(_state, 1); // we remove the value but keep the key for
                                 // the next iteration
         }

@@ -51,6 +51,11 @@ void HexagonGame::destroyMaliciousFunctions()
 
 void HexagonGame::initLua_Utils()
 {
+    addLuaFn("u_setFlashEffect", //
+        [this](float mIntensity) { status.flashEffect = mIntensity; })
+        .arg("value")
+        .doc("Flash the screen with `$0` intensity (from 0 to 255).");
+
     addLuaFn("u_log", //
         [this](std::string mLog) { ssvu::lo("lua") << mLog << "\n"; })
         .arg("message")
@@ -254,6 +259,19 @@ void HexagonGame::initLua_Messages()
 
 void HexagonGame::initLua_MainTimeline()
 {
+    addLuaFn("t_eval",
+        [this](std::string mCode) {
+            timeline.append_do([=, this] { lua.executeCode(mCode); });
+        })
+        .arg("code")
+        .doc(
+            "*Add to the main timeline*: evaluate the Lua code specified in "
+            "`$0`.");
+
+    addLuaFn("t_clear", [this]() {
+        timeline.clear();
+    }).doc("Clear the main timeline.");
+
     addLuaFn("t_wait",
         [this](
             double mDuration) { timeline.append_wait_for_sixths(mDuration); })
@@ -723,11 +741,11 @@ void HexagonGame::initLua_LevelControl()
     addLuaFn("l_setRotation", //
         [this](float mValue) { backgroundCamera.setRotation(mValue); })
         .arg("angle")
-        .doc("Set the background camera rotation to `$0` radians.");
+        .doc("Set the background camera rotation to `$0` degrees.");
 
     addLuaFn("l_getRotation", //
         [this] { return backgroundCamera.getRotation(); })
-        .doc("Return the background camera rotation, in radians.");
+        .doc("Return the background camera rotation, in degrees.");
 
     addLuaFn("l_getLevelTime", //
         [this] { return status.getTimeSeconds(); })
