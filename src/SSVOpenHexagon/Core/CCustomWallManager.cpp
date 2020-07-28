@@ -40,6 +40,7 @@ namespace hg
 
     _freeHandles.pop_back();
     _handleAvailable[res] = false;
+    ++_count;
 
     return res;
 }
@@ -57,6 +58,7 @@ void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
     SSVU_ASSERT(isValidHandle(cwHandle));
 
     _handleAvailable[cwHandle] = true;
+    --_count;
 
     SSVU_ASSERT(!ssvu::contains(_freeHandles, cwHandle));
     _freeHandles.emplace_back(cwHandle);
@@ -177,6 +179,7 @@ void CCustomWallManager::clear()
     _customWalls.clear();
     _handleAvailable.clear();
     _nextFreeHandle = 0;
+    _count = 0;
 }
 
 void CCustomWallManager::draw(HexagonGame& hexagonGame)
