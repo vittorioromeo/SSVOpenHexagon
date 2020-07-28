@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <type_traits>
 
 namespace hg::Utils
 {
@@ -29,55 +30,57 @@ private:
     template <typename T>
     [[nodiscard]] constexpr static const char* typeToStr() noexcept
     {
-        if constexpr(std::is_same_v<T, void>)
+        using Type = std::decay_t<T>;
+
+        if constexpr(std::is_same_v<Type, void>)
         {
             return "void";
         }
-        else if constexpr(std::is_same_v<T, bool>)
+        else if constexpr(std::is_same_v<Type, bool>)
         {
             return "bool";
         }
-        else if constexpr(std::is_same_v<T, int>)
+        else if constexpr(std::is_same_v<Type, int>)
         {
             return "int";
         }
-        else if constexpr(std::is_same_v<T, float>)
+        else if constexpr(std::is_same_v<Type, float>)
         {
             return "float";
         }
-        else if constexpr(std::is_same_v<T, double>)
+        else if constexpr(std::is_same_v<Type, double>)
         {
             return "double";
         }
-        else if constexpr(std::is_same_v<T, std::string>)
+        else if constexpr(std::is_same_v<Type, std::string>)
         {
             return "string";
         }
-        else if constexpr(std::is_same_v<T, unsigned int>)
+        else if constexpr(std::is_same_v<Type, unsigned int>)
         {
             return "unsigned int";
         }
-        else if constexpr(std::is_same_v<T, long>)
+        else if constexpr(std::is_same_v<Type, long>)
         {
             return "long";
         }
-        else if constexpr(std::is_same_v<T, unsigned long>)
+        else if constexpr(std::is_same_v<Type, unsigned long>)
         {
             return "unsigned long";
         }
-        else if constexpr(std::is_same_v<T, long long>)
+        else if constexpr(std::is_same_v<Type, long long>)
         {
             return "long long";
         }
-        else if constexpr(std::is_same_v<T, unsigned long long>)
+        else if constexpr(std::is_same_v<Type, unsigned long long>)
         {
             return "unsigned long long";
         }
-        else if constexpr(std::is_same_v<T, std::size_t>)
+        else if constexpr(std::is_same_v<Type, std::size_t>)
         {
             return "size_t";
         }
-        else if constexpr(std::is_same_v<T, std::tuple<float, float>>)
+        else if constexpr(std::is_same_v<Type, std::tuple<float, float>>)
         {
             return "tuple<float, float>";
         }

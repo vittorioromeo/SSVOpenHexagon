@@ -101,7 +101,6 @@ function onStep()
 	end
 
 	cwHandle = cw_create()
-	-- u_log("Created handle " .. cwHandle)
 
 	if math.random() > 0.5 then
 		x = math.random(-600, 600)
