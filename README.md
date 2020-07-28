@@ -75,7 +75,7 @@
 1. Clone this repository with submodules:
 
     ```bash
-    git clone --recurse-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
+    git clone --recurse-submodules --remote-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
     cd SSVOpenHexagon
     ```
 
@@ -125,7 +125,7 @@
 1. Clone this repository with submodules:
 
     ```bash
-    git clone --recurse-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
+    git clone --recurse-submodules --remote-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
     cd SSVOpenHexagon
     ```
 
