@@ -406,3 +406,19 @@ function onUpdate(mFrameTime)
         fw:move(mFrameTime)
     end
 end
+
+-- just for testing!
+--[[
+function onInput(mFrameTime, mMovement, mFocus, mSwap)
+    u_log("movement: " .. tostring(mMovement))
+    u_log("focus: " .. tostring(mFocus))
+    u_log("swap: " .. tostring(mSwap))
+
+    -- prevent clockwise rotation
+    if mMovement == 1 then
+        return false
+    end
+
+    return true
+end
+]]--

@@ -271,8 +271,10 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 
     lastPos = pos;
     lastAngle = angle;
+}
 
-    const float radius{mHexagonGame.getRadius()};
+void CPlayer::updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT)
+{
     const int movement{mHexagonGame.getInputMovement()};
 
     const float currentSpeed =
@@ -292,8 +294,11 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     {
         justSwapped = false;
     }
+}
 
-    pos = ssvs::getOrbitRad(startPos, angle, radius);
+void CPlayer::updatePosition(HexagonGame& mHexagonGame, ssvu::FT mFT)
+{
+    pos = ssvs::getOrbitRad(startPos, angle, mHexagonGame.getRadius());
 }
 
 [[nodiscard]] bool CPlayer::getJustSwapped() const noexcept
