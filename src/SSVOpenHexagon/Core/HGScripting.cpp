@@ -76,7 +76,7 @@ void HexagonGame::initLua_Utils()
             "`assets.json`, under `\"soundBuffers\"`.");
 
     addLuaFn("u_playPackSound", //
-        [this](std::string fileName) {
+        [this](const std::string& fileName) {
             assets.playPackSound(getPackId(), fileName);
         })
         .arg("fileName")

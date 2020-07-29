@@ -151,6 +151,7 @@ void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle,
     _customWalls[cwHandle].setVertexColor(vertexIndex, color);
 }
 
+// TODO:
 [[nodiscard]] bool CCustomWallManager::isOverlappingPlayer(
     const CCustomWallHandle cwHandle)
 {
@@ -166,6 +167,7 @@ void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle,
 
     SSVU_ASSERT(isValidHandle(cwHandle));
 
+    // TODO:
     return false; // _customWalls[cwHandle].isOverlappingPlayer();
 }
 

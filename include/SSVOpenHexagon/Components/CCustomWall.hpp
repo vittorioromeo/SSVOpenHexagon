@@ -40,11 +40,23 @@ public:
         return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
     }
 
-    void setVertexPos(const int vertexIndex, const sf::Vector2f& pos) noexcept;
-    void setVertexColor(const int vertexIndex, const sf::Color& color) noexcept;
+    [[gnu::always_inline]] void setVertexPos(
+        const int vertexIndex, const sf::Vector2f& pos) noexcept
+    {
+        vertexPositions[vertexIndex] = pos;
+    }
 
-    [[nodiscard]] sf::Vector2f getVertexPos(
-        const int vertexIndex) const noexcept;
+    [[gnu::always_inline]] void setVertexColor(
+        const int vertexIndex, const sf::Color& color) noexcept
+    {
+        vertexColors[vertexIndex] = color;
+    }
+
+    [[gnu::always_inline, nodiscard]] const sf::Vector2f& getVertexPos(
+        const int vertexIndex) const noexcept
+    {
+        return vertexPositions[vertexIndex];
+    }
 };
 
 } // namespace hg

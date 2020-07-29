@@ -258,6 +258,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         }
     }
 
+    // TODO: fix baba's blocked level, we need to push from cw as well
     const bool customWallCollision =
         cwManager.anyCustomWall([&](const CCustomWall& customWall) {
             return customWall.isOverlapping(player.getPosition());
