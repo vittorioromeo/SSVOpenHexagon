@@ -56,7 +56,6 @@
 6. (Optional) Download assets:
 
     ```bash
-    # (from repository root)
     ./wget-assets.sh ./_RELEASE/
     ```
 
@@ -65,13 +64,14 @@
     **Note:** If this file is producing errors, make sure the file is using UNIX line endings and not Windows Line Endings. Bash recognizes files primarily with UNIX Line Endings.
 
 ## How to build on Arch Linux
+(Tested on Manjaro 20.0.3)
 
 0. Install dependencies
 
     ```bash
     sudo pacman -S git make cmake gcc sfml
     ```
-
+    
 1. Clone this repository with submodules:
 
     ```bash
@@ -79,37 +79,24 @@
     cd SSVOpenHexagon
     ```
 
-2. Create a build directory and `cd` into it:
+2. Execute the build script:
 
     ```bash
-    mkdir build
-    cd build
+    ./build.sh
     ```
 
-3. Run CMake and build:
+    List of arguments:
+    - ```-r, --run```: Run the game after build completion.
+    - ```-d, --debug```: Runs and debugs the game after build completion.
+    - ```-v, --valgrind```: Valgrinds the game after build completion.
+    - ```-g, --regenerate-cmake```: Regenerates CMake files in build folder to match current OS. This is automatic, but can be done manually if needed.
+    - ```-jN```: Executes the `make` command using N threads. Default is 4.
+    - ```-h, --help```: Displays this help.
+
+
+3. (Optional) Download assets:
 
     ```bash
-    cmake ..
-    make -j
-    ```
-
-4. Install to `_RELEASE` folder and copy dependencies:
-
-    ```bash
-    sudo make install
-    ```
-
-5. Run the game:
-
-    ```bash
-    cd ../_RELEASE
-    ./SSVOpenHexagon
-    ```
-
-6. (Optional) Download assets:
-
-    ```bash
-    # (from repository root)
     ./wget-assets.sh ./_RELEASE/
     ```
 
@@ -138,7 +125,7 @@
 1. Clone this repository with submodules:
 
     ```bash
-    git clone --recurse-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
+    git clone --recurse-submodules --remote-submodules git://github.com/SuperV1234/SSVOpenHexagon.git
     cd SSVOpenHexagon
     ```
 
@@ -160,7 +147,6 @@
 3. (Optional) Download assets:
 
     ```bash
-    # (from repository root)
     ./wget-assets.sh ./_RELEASE/
     ```
 
