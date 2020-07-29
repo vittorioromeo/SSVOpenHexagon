@@ -484,27 +484,28 @@ void HexagonGame::setLevelData(
     musicData.firstPlay = mMusicFirstPlay;
 }
 
-[[nodiscard]] const std::string& HexagonGame::getPackId() const
+[[nodiscard]] const std::string& HexagonGame::getPackId() const noexcept
 {
     return levelData->packId;
 }
 
-[[nodiscard]] std::string HexagonGame::getPackDisambiguator() const
+[[nodiscard]] const std::string&
+HexagonGame::getPackDisambiguator() const noexcept
 {
     return assets.getPackData(getPackId()).disambiguator;
 }
 
-[[nodiscard]] std::string HexagonGame::getPackAuthor() const
+[[nodiscard]] const std::string& HexagonGame::getPackAuthor() const noexcept
 {
     return assets.getPackData(getPackId()).author;
 }
 
-[[nodiscard]] std::string HexagonGame::getPackName() const
+[[nodiscard]] const std::string& HexagonGame::getPackName() const noexcept
 {
     return assets.getPackData(getPackId()).name;
 }
 
-[[nodiscard]] int HexagonGame::getPackVersion() const
+[[nodiscard]] int HexagonGame::getPackVersion() const noexcept
 {
     return assets.getPackData(getPackId()).version;
 }
@@ -535,7 +536,7 @@ void HexagonGame::stopLevelMusic()
     }
 }
 
-void HexagonGame::invalidateScore(std::string mReason)
+void HexagonGame::invalidateScore(const std::string& mReason)
 {
     status.scoreInvalid = true;
     status.invalidReason = mReason;

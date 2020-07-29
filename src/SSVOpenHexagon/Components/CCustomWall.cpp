@@ -36,22 +36,4 @@ void CCustomWall::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     (void)mFT;
 }
 
-void CCustomWall::setVertexPos(
-    const int vertexIndex, const sf::Vector2f& pos) noexcept
-{
-    vertexPositions[vertexIndex] = pos;
-}
-
-void CCustomWall::setVertexColor(
-    const int vertexIndex, const sf::Color& color) noexcept
-{
-    vertexColors[vertexIndex] = color;
-}
-
-[[nodiscard]] sf::Vector2f CCustomWall::getVertexPos(
-    const int vertexIndex) const noexcept
-{
-    return vertexPositions[vertexIndex];
-}
-
 } // namespace hg

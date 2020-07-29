@@ -280,7 +280,7 @@ private:
     void checkAndSaveScore();
     void goToMenu(bool mSendScores = true, bool mError = false);
 
-    void invalidateScore(std::string mReason);
+    void invalidateScore(const std::string& mReason);
 
 
     template <typename F>
@@ -449,11 +449,11 @@ public:
     }
 
     // Pack information
-    [[nodiscard]] const std::string& getPackId() const;
-    [[nodiscard]] std::string getPackDisambiguator() const;
-    [[nodiscard]] std::string getPackAuthor() const;
-    [[nodiscard]] std::string getPackName() const;
-    [[nodiscard]] int getPackVersion() const;
+    [[nodiscard]] const std::string& getPackId() const noexcept;
+    [[nodiscard]] const std::string& getPackDisambiguator() const noexcept;
+    [[nodiscard]] const std::string& getPackAuthor() const noexcept;
+    [[nodiscard]] const std::string& getPackName() const noexcept;
+    [[nodiscard]] int getPackVersion() const noexcept;
 
     [[nodiscard]] bool mustReplayInput() const noexcept;
     [[nodiscard]] bool mustShowReplayUI() const noexcept;
