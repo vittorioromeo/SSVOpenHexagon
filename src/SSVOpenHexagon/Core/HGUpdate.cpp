@@ -105,7 +105,6 @@ void HexagonGame::update(ssvu::FT mFT)
         inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
     }
 
-
     updateKeyIcons();
 
     if(status.started)
@@ -123,6 +122,18 @@ void HexagonGame::update(ssvu::FT mFT)
         if(!status.hasDied)
         {
             player.update(*this, mFT);
+
+            const std::optional<bool> preventPlayerInput =
+                runLuaFunctionIfExists<bool, float, int, bool, bool>("onInput",
+                    mFT, getInputMovement(), getInputFocused(), getInputSwap());
+
+            if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
+            {
+                player.updateInput(*this, mFT);
+            }
+
+            player.updatePosition(*this, mFT);
+
             updateWalls(mFT);
 
             ssvu::eraseRemoveIf(

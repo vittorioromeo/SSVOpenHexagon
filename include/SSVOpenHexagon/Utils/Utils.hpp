@@ -20,6 +20,7 @@
 #include <sstream>
 #include <set>
 #include <cctype>
+#include <optional>
 
 namespace hg::Utils
 {
@@ -83,6 +84,13 @@ inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
     }
 }
 
+struct Nothing
+{
+};
+
+template <typename T>
+using VoidToNothing = std::conditional_t<std::is_same_v<T, void>, Nothing, T>;
+
 template <typename T, typename... TArgs>
 T runLuaFunction(
     Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
@@ -91,15 +99,25 @@ T runLuaFunction(
 }
 
 template <typename T, typename... TArgs>
-void runLuaFunctionIfExists(
+auto runLuaFunctionIfExists(
     Lua::LuaContext& mLua, const std::string& mName, const TArgs&... mArgs)
 {
+    using Ret = std::optional<VoidToNothing<T>>;
+
     if(!mLua.doesVariableExist(mName))
     {
-        return;
+        return Ret{};
     }
 
-    runLuaFunction<T>(mLua, mName, mArgs...);
+    if constexpr(std::is_same_v<T, void>)
+    {
+        runLuaFunction<T>(mLua, mName, mArgs...);
+        return Ret{Nothing{}};
+    }
+    else
+    {
+        return Ret{runLuaFunction<T>(mLua, mName, mArgs...)};
+    }
 }
 
 template <typename T1, typename T2, typename T3>
