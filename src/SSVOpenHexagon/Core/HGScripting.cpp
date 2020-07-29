@@ -70,6 +70,15 @@ void HexagonGame::initLua_Utils()
             "Play the sound with id `$0`. The id must be registered in "
             "`assets.json`, under `\"soundBuffers\"`.");
 
+    addLuaFn("u_playPackSound", //
+        [this](std::string fileName) {
+            assets.playPackSound(getPackId(), fileName);
+        })
+        .arg("fileName")
+        .doc(
+            "Dives into the `Sounds` folder of the current level pack and "
+            "plays the specified file `$0`.");
+
     addLuaFn("u_setMusic", //
         [this](std::string mId) {
             musicData = assets.getMusicData(levelData->packId, mId);
