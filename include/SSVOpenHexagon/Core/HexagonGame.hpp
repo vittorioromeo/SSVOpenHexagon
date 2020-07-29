@@ -213,11 +213,12 @@ public:
     }
 
     template <typename T, typename... TArgs>
-    void runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
+    auto runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
     {
         try
         {
-            Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
+            return Utils::runLuaFunctionIfExists<T, TArgs...>(
+                lua, mName, mArgs...);
         }
         catch(std::runtime_error& mError)
         {
@@ -225,11 +226,15 @@ public:
                       << "\" with level \"" << levelData->name << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
+
             if(!Config::getDebug())
             {
                 goToMenu(false /* mSendScores */, true /* mError */);
             }
         }
+
+        return decltype(
+            Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};
     }
 
 private:

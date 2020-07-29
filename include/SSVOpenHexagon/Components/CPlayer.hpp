@@ -59,6 +59,9 @@ public:
     void kill(HexagonGame& mHexagonGame);
 
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
+    void updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT);
+    void updatePosition(HexagonGame& mHexagonGame, ssvu::FT mFT);
+
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 
     [[nodiscard]] bool push(
