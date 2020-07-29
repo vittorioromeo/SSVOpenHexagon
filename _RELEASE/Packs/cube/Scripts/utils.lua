@@ -4,14 +4,14 @@
 -- Use an enumator such as "EnumeratorName.VALUE" (e.g. KeyCode.LEFT)
 
 -- An enumerator that defines basic movement values for onInput
-local Movement = {
+Movement = {
 	LEFT = -1,
 	NONE = 0,
 	RIGHT = 1
 };
 
 -- An enumerator that defines all of the mouse buttons known by the SFML Mouse Button enumerator.
-local MouseButton = {
+MouseButton = {
 	LEFT = 0,
 	RIGHT = 1,
 	MIDDLE = 2,
@@ -22,7 +22,7 @@ local MouseButton = {
 
 -- An enumerator that defines all of the keycodes that is known by the SFML Key enumerator. 
 -- Taken from Spyro Oshisaure's Keyboard Helper. Modified by Synth Morxemplum
-local KeyCode = {
+KeyCode = {
 	UNKNOWN = -1,
 	-- Alphabet
 	A = 0, B = 1, C = 2, D = 3, E = 4, F = 5, G = 6, H = 7, I = 8, J = 9, K = 10, L = 11, 
