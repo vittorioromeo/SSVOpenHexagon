@@ -6,9 +6,6 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
-#include "SSVOpenHexagon/Components/CWall.hpp"
-#include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
-#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 
 using namespace sf;
 using namespace ssvs;
@@ -1216,23 +1213,31 @@ void HexagonGame::initLua()
     // ------------------------------------------------------------------------
     // Register Lua function to get random seed for the current attempt:
     addLuaFn("u_getAttemptRandomSeed", //
-        [this] { return rng.seed(); })
-        .doc(
-            "Obtain the current random seed, automatically generated at the "
-            "beginning of the level. `math.randomseed` is automatically "
-            "initialized with the result of this function at the beginning of "
-            "a level.");
+             [this]{ return rng.seed(); })
+            .doc(
+                    "Obtain the current random seed, automatically generated at the "
+                    "beginning of the level. `math.randomseed` is automatically "
+                    "initialized with the result of this function at the beginning of "
+                    "a level.");
+
+    // ------------------------------------------------------------------------
+    // Initialize Lua paths:
+    try{
+        lua.executeCode("package.path = package.path:sub(1, -49)..\"" + levelData->packPath + "\\Scripts\\?.lua\"");
+    }
+    catch(...){
+        ssvu::lo("HexagonGame::initLua")
+                << "Failure to initialize Lua paths\n";
+    }
 
     // ------------------------------------------------------------------------
     // Initialize Lua random seed from random generator one:
-    try
-    {
+    try{
         lua.executeCode("math.randomseed(u_getAttemptRandomSeed())");
     }
-    catch(...)
-    {
+    catch(...){
         ssvu::lo("HexagonGame::initLua")
-            << "Failure to initialize Lua random generator seed\n";
+                << "Failure to initialize Lua random generator seed\n";
     }
 
     // ------------------------------------------------------------------------
