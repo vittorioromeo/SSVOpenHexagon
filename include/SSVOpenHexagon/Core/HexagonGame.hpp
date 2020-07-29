@@ -448,7 +448,12 @@ public:
         return cwManager.anyCustomWall(std::forward<F>(f));
     }
 
+    // Pack information
     [[nodiscard]] const std::string& getPackId() const;
+    [[nodiscard]] std::string getPackDisambiguator() const;
+    [[nodiscard]] std::string getPackAuthor() const;
+    [[nodiscard]] std::string getPackName() const;
+    [[nodiscard]] int getPackVersion() const;
 
     [[nodiscard]] bool mustReplayInput() const noexcept;
     [[nodiscard]] bool mustShowReplayUI() const noexcept;
