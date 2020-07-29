@@ -245,6 +245,7 @@ private:
     void updateIncrement();
     void updateEvents(ssvu::FT mFT);
     void updateLevel(ssvu::FT mFT);
+    void updateCustomWalls(ssvu::FT mFT);
     void updatePulse(ssvu::FT mFT);
     void updateBeatPulse(ssvu::FT mFT);
     void updateRotation(ssvu::FT mFT);

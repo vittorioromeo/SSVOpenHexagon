@@ -31,7 +31,7 @@ function FloatingWall:move(mFrameTime)
         cw_setVertexPos(self.cwHandle, i, oldX + self.velocity_x * mFrameTime, oldY + self.velocity_y * mFrameTime)
 
         if self.wobbly == true then
-            self.velocity_y = self.velocity_y + self.dir * 0.05
+            self.velocity_y = self.velocity_y + (self.dir * 0.10 * mFrameTime)
 
             if self.velocity_y >= 3 or self.velocity_y <= - 3 then
                 self.dir = self.dir * -1

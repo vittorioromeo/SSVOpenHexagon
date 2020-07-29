@@ -44,9 +44,15 @@ public:
 
     void setHueMod(float mHueMod) noexcept;
 
-    [[nodiscard]] SpeedData& getSpeed() noexcept;
+    [[gnu::always_inline, nodiscard]] const SpeedData& getSpeed() const noexcept
+    {
+        return speed;
+    }
 
-    [[nodiscard]] SpeedData& getCurve() noexcept;
+    [[gnu::always_inline, nodiscard]] const SpeedData& getCurve() const noexcept
+    {
+        return curve;
+    }
 
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
         const sf::Vector2f& mPoint) const noexcept
@@ -54,7 +60,10 @@ public:
         return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
     }
 
-    [[nodiscard]] bool isDead() const noexcept;
+    [[gnu::always_inline, nodiscard]] bool isDead() const noexcept
+    {
+        return killed;
+    }
 };
 
 } // namespace hg
