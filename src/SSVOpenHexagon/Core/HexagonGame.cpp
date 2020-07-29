@@ -489,6 +489,26 @@ void HexagonGame::setLevelData(
     return levelData->packId;
 }
 
+[[nodiscard]] std::string HexagonGame::getPackDisambiguator() const
+{
+    return assets.getPackData(getPackId()).disambiguator;
+}
+
+[[nodiscard]] std::string HexagonGame::getPackAuthor() const
+{
+    return assets.getPackData(getPackId()).author;
+}
+
+[[nodiscard]] std::string HexagonGame::getPackName() const
+{
+    return assets.getPackData(getPackId()).name;
+}
+
+[[nodiscard]] int HexagonGame::getPackVersion() const
+{
+    return assets.getPackData(getPackId()).version;
+}
+
 void HexagonGame::playLevelMusic()
 {
     if(!Config::getNoMusic())
