@@ -48,6 +48,18 @@ public:
     void draw(HexagonGame& hexagonGame);
 
     template <typename F>
+    void forCustomWalls(F&& f)
+    {
+        for(CCustomWallHandle h = 0; h < (int)_customWalls.size(); ++h)
+        {
+            if(!_handleAvailable[h])
+            {
+                f(_customWalls[h]);
+            }
+        }
+    }
+
+    template <typename F>
     [[nodiscard]] bool anyCustomWall(F&& f)
     {
         for(CCustomWallHandle h = 0; h < (int)_customWalls.size(); ++h)

@@ -89,19 +89,4 @@ void CWall::setHueMod(float mHueMod) noexcept
     hueMod = mHueMod;
 }
 
-[[nodiscard]] SpeedData& CWall::getSpeed() noexcept
-{
-    return speed;
-}
-
-[[nodiscard]] SpeedData& CWall::getCurve() noexcept
-{
-    return curve;
-}
-
-[[nodiscard]] bool CWall::isDead() const noexcept
-{
-    return killed;
-}
-
 } // namespace hg

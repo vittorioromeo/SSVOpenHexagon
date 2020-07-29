@@ -16,6 +16,7 @@ namespace hg
 
 class HexagonGame;
 class CWall;
+class CCustomWall;
 
 class CPlayer
 {
@@ -61,7 +62,10 @@ public:
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 
     [[nodiscard]] bool push(
-        HexagonGame& mHexagonGame, hg::CWall& wall, ssvu::FT mFT);
+        HexagonGame& mHexagonGame, const hg::CWall& wall, ssvu::FT mFT);
+
+    [[nodiscard]] bool push(
+        HexagonGame& mHexagonGame, const hg::CCustomWall& wall, ssvu::FT mFT);
 
     [[nodiscard]] bool getJustSwapped() const noexcept;
 };

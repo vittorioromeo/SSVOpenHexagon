@@ -163,10 +163,15 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     }
 
     mHexagonGame.death();
+
+    if(!getJustSwapped())
+    {
+        pos = lastPos;
+    }
 }
 
 [[nodiscard]] bool CPlayer::push(
-    HexagonGame& mHexagonGame, CWall& wall, ssvu::FT mFT)
+    HexagonGame& mHexagonGame, const CWall& wall, ssvu::FT mFT)
 {
     if(dead)
     {
@@ -188,16 +193,6 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
 
     const float pushAngle = ssvu::toRad(1.f) * pushDir;
 
-    // TODO: repetition with below and with walls, for speed calcs
-    /*
-    const float currentSpeed =
-        mHexagonGame.getInputFocused() ? focusSpeed : speed;
-    const float pushAngle =
-        std::max(std::abs(ssvu::toRad(currentSpeed * movement * mFT)),
-            std::abs(curveData.speed) / 60.f * mFT) *
-        pushDir;
-    */
-
     unsigned int attempt = 0;
     const float radius{mHexagonGame.getRadius()};
 
@@ -214,6 +209,40 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
             {
                 angle = lastAngle;
             }
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+[[nodiscard]] bool CPlayer::push(
+    HexagonGame& mHexagonGame, const CCustomWall& wall, ssvu::FT mFT)
+{
+    if(dead)
+    {
+        return false;
+    }
+
+    const int movement{mHexagonGame.getInputMovement()};
+    const unsigned int maxAttempts = 5 + speed;
+    const float pushDir = -movement;
+
+    const float pushAngle = ssvu::toRad(1.f) * pushDir;
+
+    unsigned int attempt = 0;
+    const float radius{mHexagonGame.getRadius()};
+
+    while(wall.isOverlapping(pos))
+    {
+        angle += pushAngle;
+        pos = ssvs::getOrbitRad(startPos, angle, radius);
+
+        if(++attempt >= maxAttempts)
+        {
+            pos = lastPos;
+            angle = lastAngle;
 
             return true;
         }

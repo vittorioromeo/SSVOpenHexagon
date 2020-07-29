@@ -141,6 +141,7 @@ void HexagonGame::update(ssvu::FT mFT)
             }
 
             updateLevel(mFT);
+            updateCustomWalls(mFT);
 
             if(Config::getBeatPulse())
             {
@@ -210,6 +211,25 @@ void HexagonGame::update(ssvu::FT mFT)
 
 void HexagonGame::updateWalls(ssvu::FT mFT)
 {
+    cwManager.forCustomWalls([&](const CCustomWall& customWall) {
+        // After *only* the player has moved, push in case of overlap.
+        if(customWall.isOverlapping(player.getPosition()))
+        {
+            if(player.getJustSwapped())
+            {
+                player.kill(*this);
+                steamManager.unlock_achievement("a22_swapdeath");
+            }
+            else
+            {
+                if(player.push(*this, customWall, mFT))
+                {
+                    player.kill(*this);
+                }
+            }
+        }
+    });
+
     for(CWall& wall : walls)
     {
         wall.update(*this, mFT);
@@ -257,8 +277,11 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
             player.kill(*this);
         }
     }
+}
 
-    // TODO: fix baba's blocked level, we need to push from cw as well
+
+void HexagonGame::updateCustomWalls(ssvu::FT mFT)
+{
     const bool customWallCollision =
         cwManager.anyCustomWall([&](const CCustomWall& customWall) {
             return customWall.isOverlapping(player.getPosition());
