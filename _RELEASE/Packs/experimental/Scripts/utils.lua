@@ -1,4 +1,91 @@
---[[ UTILITY FUNCTIONS. ]]
+-- [[ ENUMERATORS ]] --
+-- These are enumerators. They translate integers into more English vocabulary, making them much
+-- easier to memorize over pure integers.
+-- Use an enumator such as "EnumeratorName.VALUE" (e.g. KeyCode.LEFT)
+
+-- An enumerator that defines basic movement values for onInput
+local Movement = {
+	LEFT = -1,
+	NONE = 0,
+	RIGHT = 1
+};
+
+-- An enumerator that defines all of the mouse buttons known by the SFML Mouse Button enumerator.
+local MouseButton = {
+	LEFT = 0,
+	RIGHT = 1,
+	MIDDLE = 2,
+	XBUTTON_ONE = 3,
+	XBUTTON_TWO = 4,
+	BUTTON_COUNT = 5
+};
+
+-- An enumerator that defines all of the keycodes that is known by the SFML Key enumerator. 
+-- Taken from Spyro Oshisaure's Keyboard Helper. Modified by Synth Morxemplum
+local KeyCode = {
+	UNKNOWN = -1,
+	-- Alphabet
+	A = 0, B = 1, C = 2, D = 3, E = 4, F = 5, G = 6, H = 7, I = 8, J = 9, K = 10, L = 11, 
+	M = 12, N = 13, O = 14, P = 15, Q = 16, R = 17, S = 18, T = 19, U = 20, V = 21, W = 22, 
+	X = 23, Y = 24, Z = 25,
+
+	-- Numbers
+	ZERO = 26, ONE = 27, TWO = 28, THREE = 29, FOUR = 30, FIVE = 31, SIX = 32, SEVEN = 33, 
+	EIGHT = 34, NINE = 35,
+
+	ESCAPE = 36,
+	LEFT_CONTROL = 37,
+	LEFT_SHIFT = 38,
+	LEFT_ALT = 39,
+	LEFT_SYSTEM = 40,
+	RIGHT_CONTROL = 41,
+	RIGHT_SHIFT = 42,
+	RIGHT_ALT = 43,
+	RIGHT_SYSTEM = 44,
+	MENU = 45,
+	LEFT_BRACKET = 46,
+	RIGHT_BRACKET = 47,
+	SEMICOLON = 48,
+	COMMA = 49,
+	PERIOD = 50,
+	QUOTE = 51,
+	SLASH = 52,
+	BACKSLASH = 53,
+	TILDE = 54,
+	EQUAL = 55,
+	DASH = 56,
+	SPACE = 57,
+	RETURN = 58, ENTER = 58,   -- Using both names just in case
+	BACKSPACE = 59,
+	TAB = 60,
+	PAGE_UP = 61,
+	PAGE_DOWN = 62,
+	END = 63,
+	HOME = 64,
+	INSERT = 65,
+	DELETE = 66,
+	ADD = 67,
+	SUBTRACT = 68,
+	MULTIPLY = 69,
+	DIVIDE = 70,
+
+	-- Arrow keys
+	LEFT = 71, RIGHT = 72, UP = 73, DOWN = 74,
+
+	-- Numpad
+	NUMPAD_ZERO = 75, NUMPAD_ONE = 76, NUMPAD_TWO = 77, NUMPAD_THREE = 78, 
+	NUMPAD_FOUR = 79, NUMPAD_FIVE = 80, NUMPAD_SIX = 81, NUMPAD_SEVEN = 82, 
+	NUMPAD_EIGHT = 83, NUMPAD_NINE = 84,
+
+	-- Function keys
+	F1 = 85, F2 = 86, F3 = 87, F4 = 88, F5 = 89, F6 = 90, F7 = 91, F8 = 92, F9 = 93, 
+	F10 = 94, F11 = 95, F12 = 96, F13 = 97, F14 = 98, F15 = 99,
+
+	PAUSE = 100,
+	KEY_COUNT = 101
+}
+
+-- [[ UTILITY FUNCTIONS ]] --
 -- Additional functions that help simplify certain calculations, including complex mathematical calculations
 -- Ordered alphabetically
 
