@@ -204,6 +204,14 @@ function halfWaveRtoL()
     halfWaveImpl(1000, -10, 1, 0)
 end
 
+function revHalfWaveLtoR()
+    halfWaveImplR(-1000, 10, 0, 1)
+end
+
+function revHalfWaveRtoL()
+    halfWaveImplR(1000, -10, 1, 0)
+end
+
 function waveLtoR()
     waveImpl(-1000, 10, 0, 1)
 end
@@ -214,22 +222,30 @@ end
 
 function pattern0()
     halfWaveLtoR()
+    t_wait(waitTime * 3)
     halfWaveRtoL()
+    t_wait(waitTime * 3)
 end
 
 function pattern1()
     waveLtoR()
+    t_wait(waitTime * 3)
     waveRtoL()
+    t_wait(waitTime * 3)
 end
 
 function pattern2()
     halfWaveRtoL()
+    t_wait(waitTime * 3)
     halfWaveLtoR()
+    t_wait(waitTime * 3)
 end
 
 function pattern3()
     waveRtoL()
+    t_wait(waitTime * 3)
     waveLtoR()
+    t_wait(waitTime * 3)
 end
 
 function pattern4()
@@ -244,27 +260,85 @@ function pattern5()
     t_wait(30)
 end
 
+function pattern6()
+    revHalfWaveRtoL()
+    t_wait(waitTime * 3)
+    revHalfWaveLtoR()
+    t_wait(waitTime * 3)
+end
+
+function pattern7()
+    halfWaveLtoR()
+    t_wait(waitTime * 3)
+    halfWaveRtoL()
+    t_wait(waitTime * 3)
+end
+
+function pattern8()
+    revHalfWaveLtoR()
+    t_wait(waitTime * 3)
+    revHalfWaveRtoL()
+    t_wait(waitTime * 3)
+end
+
+function pattern9()
+    waveLtoR()
+    waveRtoL()
+end
+
+function pattern10()
+    halfWaveLtoR()
+    t_wait(waitTime * 6)
+    revHalfWaveRtoL()
+    t_wait(waitTime * 12)
+end
+
+function pattern11()
+    revHalfWaveLtoR()
+    t_wait(waitTime * 6)
+    halfWaveRtoL()
+    t_wait(waitTime * 12)
+end
+
+function pattern12()
+    halfWaveRtoL()
+    t_wait(waitTime * 6)
+    revHalfWaveLtoR()
+    t_wait(waitTime * 12)
+end
+
+function pattern13()
+    revHalfWaveRtoL()
+    t_wait(waitTime * 6)
+    halfWaveLtoR()
+    t_wait(waitTime * 12)
+end
+
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
+    u_log("Pattern " .. tostring(mKey))
+
         if mKey == 0 then pattern0()
     elseif mKey == 1 then pattern1()
     elseif mKey == 2 then pattern2()
     elseif mKey == 3 then pattern3()
-    elseif mKey == 4 then pattern4()
-    elseif mKey == 5 then pattern5()
-    elseif mKey == 6 then hmcDefBarrageSpiral()
-    elseif mKey == 7 then pMirrorWallStrip(1, 0)
-    elseif mKey == 8 then hmcDefSpinner()
-    elseif mKey == 9 then hmcDefBarrage()
-    elseif mKey == 10 then hmcDef2Cage()
-    elseif mKey == 11 then hmcDefBarrageSpiralSpin()
+    elseif mKey == 4 then pattern4() -- swap
+    elseif mKey == 5 then pattern5() -- swap
+    elseif mKey == 6 then pattern6()
+    elseif mKey == 7 then pattern7()
+    elseif mKey == 8 then pattern8()
+    elseif mKey == 9 then pattern9()
+    elseif mKey == 10 then pattern10()
+    elseif mKey == 11 then pattern11()
+    elseif mKey == 12 then pattern12()
+    elseif mKey == 13 then pattern13()
     end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
--- keys = { 4 }
-keys = { 0, 1, 2, 3, 0, 1, 2, 3, 4, 4, 4, 5, 5, 5 }
+keys = { 0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+         0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }
 keys = shuffle(keys)
 index = 0
 
@@ -300,11 +374,13 @@ function onInit()
 
     l_setSwapEnabled(true)
 
-    if(u_getDifficultyMult() >= 1.49) then
-		l_setSwapCooldownMult(0.9)
-	elseif(u_getDifficultyMult() >= 1.99) then
+    if u_getDifficultyMult() >= 1.99 then
         l_setSwapCooldownMult(0.8)
-    elseif(u_getDifficultyMult() <= 0.51) then
+        waitTime = 2.5
+    elseif u_getDifficultyMult() >= 1.49 then
+		l_setSwapCooldownMult(0.9)
+        waitTime = 2.75
+    elseif u_getDifficultyMult() <= 0.51 then
         l_setSwapCooldownMult(0.8)
         waitTime = 6
         gapMod = 75
@@ -320,7 +396,9 @@ end
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()
-	addPattern(keys[index])
+    addPattern(keys[index])
+    t_wait(waitTime * 3)
+
 	index = index + 1
 
 	if index - 1 == #keys then
@@ -363,6 +441,7 @@ function onIncrement()
     cw_clear()
     floatingWalls = {}
     t_clear()
+    t_wait(waitTime * 3)
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
@@ -406,3 +485,19 @@ function onUpdate(mFrameTime)
         fw:move(mFrameTime)
     end
 end
+
+-- just for testing!
+--[[
+function onInput(mFrameTime, mMovement, mFocus, mSwap)
+    u_log("movement: " .. tostring(mMovement))
+    u_log("focus: " .. tostring(mFocus))
+    u_log("swap: " .. tostring(mSwap))
+
+    -- prevent clockwise rotation
+    if mMovement == 1 then
+        return false
+    end
+
+    return true
+end
+]]--
