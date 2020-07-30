@@ -157,6 +157,38 @@ static void test_replay_file_serialization_to_buffer()
     TEST_ASSERT_NS_EQ(rf_out, rf);
 }
 
+static void test_replay_file_serialization_to_file()
+{
+    hg::replay_data rd;
+
+    rd.record_input(false, false, false, false);
+    rd.record_input(false, true, false, false);
+    rd.record_input(true, false, true, false);
+    rd.record_input(false, false, false, false);
+    rd.record_input(false, true, false, false);
+    rd.record_input(true, false, false, true);
+
+    hg::replay_file rf{
+        //
+        ._version{59832},
+        ._player_name{"hello world"},
+        ._seed{12345},
+        ._data{rd},
+        ._pack_id{"totally real pack id"},
+        ._level_id{"legit level id"},
+        ._difficulty_mult{2.5f},
+        ._played_frametime{100.f}
+        //
+    };
+
+    TEST_ASSERT(rf.serialize_to_file("test.ohr"));
+
+    hg::replay_file rf_out;
+    TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
+
+    TEST_ASSERT_NS_EQ(rf_out, rf);
+}
+
 int main()
 {
     test_replay_data_basic();
@@ -166,4 +198,5 @@ int main()
     test_replay_player_basic();
 
     test_replay_file_serialization_to_buffer();
+    test_replay_file_serialization_to_file();
 }
