@@ -714,8 +714,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "u_clearWalls", "u_setMusic", "u_setMusicSegment",
             "u_setMusicSeconds",
 
-            "m_messageAdd", "m_messageAddImportant", "m_messageAddImportantSilent",
-            "m_clearMessages",
+            "m_messageAdd", "m_messageAddImportant",
+            "m_messageAddImportantSilent", "m_clearMessages",
 
             "t_wait", "t_waitS", "t_waitUntilS",
 

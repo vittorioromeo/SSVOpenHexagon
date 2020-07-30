@@ -25,8 +25,12 @@ namespace hg
 
 struct ColorData
 {
-    bool main, dynamic, dynamicOffset;
-    float dynamicDarkness, hueShift, offset;
+    bool main;
+    bool dynamic;
+    bool dynamicOffset;
+    float dynamicDarkness;
+    float hueShift;
+    float offset;
     sf::Color color;
     PulseColor pulse;
 
