@@ -39,12 +39,12 @@ inline void uppercasify(std::string& s)
     return s;
 }
 
-[[nodiscard, gnu::const]] inline float getSaturated(float mValue)
+[[nodiscard, gnu::pure]] inline float getSaturated(float mValue)
 {
     return std::max(0.f, std::min(1.f, mValue));
 }
 
-[[nodiscard, gnu::const]] inline float getSmootherStep(
+[[nodiscard, gnu::pure]] inline float getSmootherStep(
     float edge0, float edge1, float x)
 {
     x = getSaturated((x - edge0) / (edge1 - edge0));
@@ -64,7 +64,7 @@ std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
 void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
     const ssvufs::Path& mPackPath, const std::string& mLuaScript);
 
-[[gnu::const]] sf::Color transformHue(const sf::Color& in, float H);
+[[gnu::pure]] sf::Color transformHue(const sf::Color& in, float H);
 
 inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
 {
