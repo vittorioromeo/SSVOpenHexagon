@@ -5,18 +5,22 @@
 #include "SSVOpenHexagon/Core/Replay.hpp"
 
 #include <cassert>
+#include <fstream>
 
 namespace hg
 {
 
-#define SSVOH_TRY(...)       \
-    do                       \
-    {                        \
-        __VA_ARGS__;         \
-        if(!result._success) \
-        {                    \
-            return result;   \
-        }                    \
+#define SSVOH_TRY(...)                                                        \
+    do                                                                        \
+    {                                                                         \
+        __VA_ARGS__;                                                          \
+        if(!result._success)                                                  \
+        {                                                                     \
+            ::std::cerr << "Failed [de]serialization operation'" #__VA_ARGS__ \
+                           "'\n";                                             \
+                                                                              \
+            return result;                                                    \
+        }                                                                     \
     } while(false)
 
 static auto make_write(serialization_result& result, std::byte*& buffer,
@@ -222,6 +226,7 @@ replay_player::get_current_and_move_forward() noexcept
     }
 
     buffer += data_result._written_bytes;
+    result._written_bytes += data_result._written_bytes;
 
     SSVOH_TRY(write_str(_pack_id));
     SSVOH_TRY(write_str(_level_id));
@@ -275,6 +280,49 @@ replay_player::get_current_and_move_forward() noexcept
     SSVOH_TRY(read(_played_frametime));
 
     return result;
+}
+
+[[nodiscard]] bool replay_file::serialize_to_file(const std::filesystem::path p)
+{
+    constexpr std::size_t buf_size{2048};
+    std::byte buf[buf_size];
+
+    const serialization_result sr = serialize(buf, buf_size);
+    if(!sr)
+    {
+        return false;
+    }
+
+    const std::size_t written_bytes = sr.written_bytes();
+
+    std::ofstream os(p, std::ios::binary | std::ios::out);
+    os.write(reinterpret_cast<const char*>(buf), written_bytes);
+    os.flush();
+
+    return static_cast<bool>(os);
+}
+
+[[nodiscard]] bool replay_file::deserialize_from_file(
+    const std::filesystem::path p)
+{
+    constexpr std::size_t buf_size{2048};
+    std::byte buf[buf_size];
+
+    std::ifstream is(p, std::ios::binary | std::ios::in);
+
+    is.seekg(0, std::ios::end);
+    const std::size_t bytes_to_read = is.tellg();
+    is.seekg(0, std::ios::beg);
+
+    is.read(reinterpret_cast<char*>(buf), bytes_to_read);
+
+    if(!static_cast<bool>(is))
+    {
+        return false;
+    }
+
+    const deserialization_result dr = deserialize(buf, bytes_to_read);
+    return static_cast<bool>(dr);
 }
 
 } // namespace hg

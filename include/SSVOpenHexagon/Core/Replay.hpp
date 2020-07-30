@@ -12,6 +12,7 @@
 #include <cstring>
 #include <cstdint>
 #include <string>
+#include <filesystem>
 
 namespace hg
 {
@@ -129,6 +130,9 @@ struct replay_file
 
     [[nodiscard]] deserialization_result deserialize(
         const std::byte* buffer, const std::byte* const buffer_end);
+
+    [[nodiscard]] bool serialize_to_file(const std::filesystem::path p);
+    [[nodiscard]] bool deserialize_from_file(const std::filesystem::path p);
 };
 
 } // namespace hg
