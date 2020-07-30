@@ -14,7 +14,7 @@ Ticker::Ticker(ssvu::FT mTarget, bool mRunning) noexcept
 
 bool Ticker::update(ssvu::FT mFT) noexcept
 {
-    const auto increment(mFT * running);
+    const float increment = mFT * static_cast<float>(running);
 
     current += increment;
     total += increment;

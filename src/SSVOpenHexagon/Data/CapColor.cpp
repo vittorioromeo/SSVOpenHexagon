@@ -16,7 +16,7 @@ namespace hg
 {
     if(ssvuj::isObjType<std::string>(obj))
     {
-        const std::string str = ssvuj::getExtr<std::string>(obj);
+        const auto str = ssvuj::getExtr<std::string>(obj);
 
         if(str == "main")
         {

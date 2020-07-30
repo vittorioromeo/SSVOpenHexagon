@@ -66,7 +66,7 @@ function onInit()
 	l_setPulseMax(80)
 	l_setPulseSpeed(3.3)
 	l_setPulseSpeedR(1.30)
-	l_setPulseDelayMax(38)
+	l_setPulseDelayMax(69 / 2)
 
 	l_setBeatPulseMax(15)
 	l_setBeatPulseDelayMax(23.4)

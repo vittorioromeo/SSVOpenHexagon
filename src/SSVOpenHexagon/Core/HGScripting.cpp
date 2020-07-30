@@ -798,7 +798,6 @@ void HexagonGame::initLua_StyleControl()
             [this, pmd](Type mValue) { styleData.*pmd = mValue; })
             .arg("value")
             .doc(setterDesc);
-        ;
     };
 
     sdVar("HueMin", &StyleData::hueMin,
