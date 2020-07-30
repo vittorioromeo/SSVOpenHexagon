@@ -20,7 +20,9 @@ struct PulseColor
 
 namespace hg
 {
+
 [[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept;
+
 }
 
 struct ColorData
