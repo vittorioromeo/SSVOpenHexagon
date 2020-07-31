@@ -23,7 +23,7 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
 
     if(mColorData.dynamic)
     {
-        const auto hue = (currentHue + mColorData.hueShift) / 360.f;
+        const auto hue = std::fmod(currentHue + mColorData.hueShift, 360.f) / 360.f;
 
         const auto& dynamicColor(
             ssvs::getColorFromHSV(ssvu::getClamped(hue, 0.f, 1.f), 1.f, 1.f));
