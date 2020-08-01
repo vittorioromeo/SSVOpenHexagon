@@ -558,6 +558,28 @@ auto HexagonGame::getColorMain() const -> sf::Color
     }
 }
 
+auto HexagonGame::getColorPlayer() const -> sf::Color
+{
+    if(Config::getBlackAndWhite())
+    {
+        return sf::Color(255, 255, 255, styleData.getPlayerColor().a);
+    }
+    {
+        return styleData.getPlayerColor();
+    }
+}
+
+auto HexagonGame::getColorText() const -> sf::Color
+{
+    if(Config::getBlackAndWhite())
+    {
+        return sf::Color(255, 255, 255, styleData.getTextColor().a);
+    }
+    {
+        return styleData.getTextColor();
+    }
+}
+
 void HexagonGame::setSides(unsigned int mSides)
 {
     assets.playSound("beep.ogg");

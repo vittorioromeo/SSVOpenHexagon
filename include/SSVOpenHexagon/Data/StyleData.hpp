@@ -21,7 +21,8 @@ class StyleData
 private:
     float currentHue, currentSwapTime{0}, pulseFactor{0};
     ssvufs::Path rootPath;
-    sf::Color currentMainColor, current3DOverrideColor;
+    sf::Color currentMainColor, currentPlayerColor, currentTextColor,
+        current3DOverrideColor;
     std::vector<sf::Color> currentColors;
 
     sf::Color calculateColor(const ColorData& mColorData) const;
@@ -31,11 +32,13 @@ public:
     float hueMin;
     float hueMax;
     float hueIncrement;
+    bool huePingPong;
+
     float pulseMin;
     float pulseMax;
     float pulseIncrement;
-    bool huePingPong;
     float maxSwapTime;
+
     float _3dDepth;
     float _3dSkew;
     float _3dSpacing;
@@ -46,12 +49,16 @@ public:
     float _3dPulseMin;
     float _3dPulseSpeed;
     float _3dPerspectiveMult;
+
     float bgTileRadius{10000.f};
     unsigned int BGColorOffset{0};
     float BGRotOff{0}; // In degrees
 
     sf::Color _3dOverrideColor;
     ColorData mainColorData;
+    ColorData playerColor;
+    ColorData textColor;
+
     CapColor capColor;
 
     std::vector<ColorData> colorDatas;
@@ -63,11 +70,13 @@ public:
           hueMin{ssvuj::getExtr<float>(mRoot, "hue_min", 0.f)},
           hueMax{ssvuj::getExtr<float>(mRoot, "hue_max", 360.f)},
           hueIncrement{ssvuj::getExtr<float>(mRoot, "hue_increment", 0.f)},
+          huePingPong{ssvuj::getExtr<bool>(mRoot, "hue_ping_pong", false)},
+
           pulseMin{ssvuj::getExtr<float>(mRoot, "pulse_min", 0.f)},
           pulseMax{ssvuj::getExtr<float>(mRoot, "pulse_max", 0.f)},
           pulseIncrement{ssvuj::getExtr<float>(mRoot, "pulse_increment", 0.f)},
-          huePingPong{ssvuj::getExtr<bool>(mRoot, "hue_ping_pong", false)},
           maxSwapTime{ssvuj::getExtr<float>(mRoot, "max_swap_time", 100.f)},
+
           _3dDepth{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
           _3dSkew{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
           _3dSpacing{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
@@ -84,10 +93,33 @@ public:
               ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
           _3dOverrideColor{ssvuj::getExtr<sf::Color>(
               mRoot, "3D_override_color", sf::Color::Transparent)},
+
           mainColorData{ssvuj::getObj(mRoot, "main")}, //
           capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
     {
         currentHue = hueMin;
+
+        // Player color is defined with an override property, otherwise it
+        // defaults to the main color
+        if(ssvuj::hasObj(mRoot, "player_color"))
+        {
+            playerColor = ssvuj::getObj(mRoot, "player_color");
+        }
+        else
+        {
+            playerColor = mainColorData;
+        }
+        
+        // Text color is defined with an override property, otherwise it
+        // defaults to the main color
+        if(ssvuj::hasObj(mRoot, "text_color"))
+        {
+            textColor = ssvuj::getObj(mRoot, "text_color");
+        }
+        else
+        {
+            textColor = mainColorData;
+        }
 
         const auto& objColors(ssvuj::getObj(mRoot, "colors"));
         const auto& colorCount(ssvuj::getObjSize(objColors));
@@ -116,6 +148,16 @@ public:
     const sf::Color& getMainColor() const noexcept
     {
         return currentMainColor;
+    }
+
+    const sf::Color& getPlayerColor() const noexcept
+    {
+        return currentPlayerColor;
+    }
+
+    const sf::Color& getTextColor() const noexcept
+    {
+        return currentTextColor;
     }
 
     const std::vector<sf::Color>& getColors() const noexcept

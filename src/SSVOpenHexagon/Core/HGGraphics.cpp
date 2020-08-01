@@ -182,7 +182,7 @@ void HexagonGame::drawKeyIcons()
     constexpr sf::Uint8 offOpacity = 90;
     constexpr sf::Uint8 onOpacity = 255;
 
-    const sf::Color c = getColorMain();
+    const sf::Color c = getColorText();
 
     const sf::Color offColor{c.r, c.g, c.b, offOpacity};
     const sf::Color onColor{c.r, c.g, c.b, onOpacity};
@@ -364,18 +364,18 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     const float padding = Config::getTextPadding() * Config::getTextScaling();
     const float offsetRatio = Config::getHeight() / 720.f;
 
-    timeText.setFillColor(getColorMain());
+    timeText.setFillColor(getColorText());
     timeText.setPosition(
         sf::Vector2f{padding, -22.f * offsetRatio * Config::getTextScaling()});
     render(timeText);
 
-    text.setFillColor(getColorMain());
+    text.setFillColor(getColorText());
     text.setPosition(sf::Vector2f{padding, ssvs::getGlobalBottom(timeText)});
     render(text);
 
     if(Config::getShowFPS())
     {
-        fpsText.setFillColor(getColorMain());
+        fpsText.setFillColor(getColorText());
         fpsText.setOrigin(0, ssvs::getGlobalHeight(fpsText));
         fpsText.setPosition(sf::Vector2f{
             padding, Config::getHeight() - ((8.f * (2.f * offsetRatio))) *
@@ -389,7 +389,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
             Config::getKeyIconsScale() / Config::getZoomFactor();
         const float replayPadding = 8.f * scaling;
 
-        replayText.setFillColor(getColorMain());
+        replayText.setFillColor(getColorText());
         replayText.setOrigin(ssvs::getLocalCenterE(replayText));
         replayText.setPosition(ssvs::getGlobalCenterW(replayIcon) -
                                sf::Vector2f{replayPadding, 0});
@@ -416,7 +416,7 @@ void HexagonGame::drawText_Message(const sf::Color& offsetColor)
 
     messageText.setPosition(
         sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f});
-    messageText.setFillColor(getColorMain());
+    messageText.setFillColor(getColorText());
     render(messageText);
 }
 
