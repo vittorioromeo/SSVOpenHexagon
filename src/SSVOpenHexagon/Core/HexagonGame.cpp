@@ -3,7 +3,6 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
@@ -17,6 +16,8 @@
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
+
+#include <SFML/Graphics.hpp>
 
 #include <cassert>
 
@@ -160,10 +161,22 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     initKeyIcons();
 }
 
+void HexagonGame::setLastReplay(const replay_file& mReplayFile)
+{
+    lastSeed = mReplayFile._seed;
+    lastReplayData = mReplayFile._data;
+    lastPlayedFrametime = mReplayFile._played_frametime;
+
+    activeReplay.emplace(mReplayFile);
+}
+
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
     initFlashEffect();
+
+    packId = mPackId;
+    levelId = mId;
 
     firstPlay = mFirstPlay;
     setLevelData(assets.getLevelData(mId), mFirstPlay);
@@ -191,26 +204,29 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         if(!activeReplay.has_value())
         {
             lastPlayedFrametime = tempPlayedFrametime;
+
+            activeReplay.emplace(replay_file{
+                ._version{0},
+                ._player_name{
+                    assets.getCurrentLocalProfile().getName()}, // TODO
+                ._seed{lastSeed},
+                ._data{lastReplayData},
+                ._pack_id{mPackId},
+                ._level_id{mId},
+                ._difficulty_mult{mDifficultyMult},
+                ._played_frametime{lastPlayedFrametime},
+            });
         }
 
-        // TODO: this can be used to speed up the replay
-        // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
-
-        activeReplay.emplace(replay_file{
-            ._version{0},
-            ._player_name{assets.getCurrentLocalProfile().getName()}, // TODO
-            ._seed{lastSeed},
-            ._data{lastReplayData},
-            ._pack_id{mPackId},
-            ._level_id{mId},
-            ._difficulty_mult{mDifficultyMult},
-            ._played_frametime{lastPlayedFrametime},
-        });
+        activeReplay->replayPlayer.reset();
 
         activeReplay->replayPackName =
             Utils::toUppercase(assets.getPackData(mPackId).name);
 
         activeReplay->replayLevelName = Utils::toUppercase(levelData->name);
+
+        // TODO: this can be used to speed up the replay
+        // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
 
         rng = random_number_generator{activeReplay->replayFile._seed};
     }
@@ -328,11 +344,53 @@ void HexagonGame::death(bool mForce)
 
     status.hasDied = true;
     stopLevelMusic();
-    checkAndSaveScore();
+
+    if(mustShowReplayUI()) // TODO: in replay
+    {
+        return;
+    }
+
+    const bool localNewBest =
+        checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
 
     if(Config::getAutoRestart())
     {
         status.mustStateChange = StateChange::MustRestart;
+    }
+
+    // TODO:
+    if(Config::getSaveLocalBestReplayToFile()) //  && localNewBest)
+    {
+        const replay_file rf{
+            ._version{0},
+            ._player_name{assets.getCurrentLocalProfile().getName()}, // TODO
+            ._seed{lastSeed},
+            ._data{lastReplayData},
+            ._pack_id{packId},
+            ._level_id{levelId},
+            ._difficulty_mult{difficultyMult},
+            ._played_frametime{status.getPlayedAccumulatedFrametime()},
+        };
+
+        const std::string filename = rf.create_filename();
+
+        std::filesystem::create_directory("Replays/");
+
+        std::filesystem::path p;
+        p /= "Replays/";
+        p /= filename;
+
+        if(rf.serialize_to_file(p))
+        {
+            ssvu::lo("Replay")
+                << "Successfully saved new local best replay file '" << p
+                << "'\n";
+        }
+        else
+        {
+            ssvu::lo("Replay")
+                << "Failed to save new local best replay file '" << p << "'\n";
+        }
     }
 }
 
@@ -369,7 +427,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     runLuaFunction<void>("onIncrement");
 }
 
-void HexagonGame::checkAndSaveScore()
+HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 {
     const float time = status.getTimeSeconds();
 
@@ -379,13 +437,16 @@ void HexagonGame::checkAndSaveScore()
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
             << "Not saving score - not eligible - "
             << Config::getUneligibilityReason() << "\n";
-        return;
+
+        return CheckSaveScoreResult::Ineligible;
     }
 
     if(status.scoreInvalid)
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
             << "Not saving score - score invalidated\n";
+
+        return CheckSaveScoreResult::Invalid;
     }
 
     if(assets.pIsLocal())
@@ -396,37 +457,42 @@ void HexagonGame::checkAndSaveScore()
         if(assets.getLocalScore(localValidator) < time)
         {
             assets.setLocalScore(localValidator, time);
+            assets.saveCurrentLocalProfile();
+
+            return CheckSaveScoreResult::Local_NewBest;
         }
 
-        assets.saveCurrentLocalProfile();
+        return CheckSaveScoreResult::Local_NoNewBest;
     }
-    else
+
+    // These are requirements that need to be met for a score to be sent
+    // online
+    if(time < 8)
     {
-        // These are requirements that need to be met for a score to be sent
-        // online
-        if(time < 8)
-        {
-            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-                << "Not sending score - less than 8 seconds\n";
-            return;
-        }
+        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+            << "Not sending score - less than 8 seconds\n";
 
-        if(Online::getServerVersion() == -1)
-        {
-            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-                << "Not sending score - connection error\n";
-            return;
-        }
-
-        if(Online::getServerVersion() > Config::getVersion())
-        {
-            ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-                << "Not sending score - version mismatch\n";
-            return;
-        }
-
-        Online::trySendScore(levelData->id, difficultyMult, time);
+        return CheckSaveScoreResult::Online_LessThan8Secs;
     }
+
+    if(Online::getServerVersion() == -1)
+    {
+        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+            << "Not sending score - connection error\n";
+
+        return CheckSaveScoreResult::Online_ConnectionError;
+    }
+
+    if(Online::getServerVersion() > Config::getVersion())
+    {
+        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+            << "Not sending score - version mismatch\n";
+
+        return CheckSaveScoreResult::Online_VersionMismatch;
+    }
+
+    Online::trySendScore(levelData->id, difficultyMult, time);
+    return CheckSaveScoreResult::Online_Sent;
 }
 
 void HexagonGame::goToMenu(bool mSendScores, bool mError)

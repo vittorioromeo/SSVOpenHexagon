@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
@@ -15,6 +14,8 @@
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <SSVUtils/Timeline/Timeline.hpp>
+
+#include <SFML/Graphics/Color.hpp>
 
 #include <string>
 #include <sstream>

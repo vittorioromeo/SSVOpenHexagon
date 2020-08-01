@@ -78,6 +78,7 @@ using namespace ssvu;
     X(showKeyIcons, bool, "show_key_icons")                                \
     X(keyIconsScale, float, "key_icons_scale")                             \
     X(firstTimePlaying, bool, "first_time_playing")                        \
+    X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file")   \
     X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
     X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
     X(triggerFocus, Trigger, "t_focus")                                    \
@@ -517,367 +518,377 @@ void setFirstTimePlaying(bool mX)
     firstTimePlaying() = mX;
 }
 
-bool SSVU_ATTRIBUTE(pure) getOnline()
+void setSaveLocalBestReplayToFile(bool mX)
+{
+    saveLocalBestReplayToFile() = mX;
+}
+
+[[nodiscard]] bool getOnline()
 {
     return online();
 }
 
-bool SSVU_ATTRIBUTE(pure) getOfficial()
+[[nodiscard]] bool getOfficial()
 {
     return official();
 }
 
-string SSVU_ATTRIBUTE(pure) getUneligibilityReason()
+[[nodiscard]] string getUneligibilityReason()
 {
     return uneligibilityReason;
 }
 
-float SSVU_ATTRIBUTE(pure) getSizeX()
+[[nodiscard]] float getSizeX()
 {
     return sizeX;
 }
 
-float SSVU_ATTRIBUTE(pure) getSizeY()
+[[nodiscard]] float getSizeY()
 {
     return sizeY;
 }
 
-float SSVU_ATTRIBUTE(const) getSpawnDistance()
+[[nodiscard]] float getSpawnDistance()
 {
     return spawnDistance;
 }
 
-float SSVU_ATTRIBUTE(pure) getZoomFactor()
+[[nodiscard]] float getZoomFactor()
 {
     return zoomFactor();
 }
 
-int SSVU_ATTRIBUTE(pure) getPixelMultiplier()
+[[nodiscard]] int getPixelMultiplier()
 {
     return pixelMultiplier();
 }
 
-float SSVU_ATTRIBUTE(pure) getPlayerSpeed()
+[[nodiscard]] float getPlayerSpeed()
 {
     return getOfficial() ? 9.45f : playerSpeed();
 }
 
-float SSVU_ATTRIBUTE(pure) getPlayerFocusSpeed()
+[[nodiscard]] float getPlayerFocusSpeed()
 {
     return getOfficial() ? 4.625f : playerFocusSpeed();
 }
 
-float SSVU_ATTRIBUTE(pure) getPlayerSize()
+[[nodiscard]] float getPlayerSize()
 {
     return getOfficial() ? 7.3f : playerSize();
 }
 
-bool SSVU_ATTRIBUTE(pure) getNoRotation()
+[[nodiscard]] bool getNoRotation()
 {
     return getOfficial() ? false : noRotation();
 }
 
-bool SSVU_ATTRIBUTE(pure) getNoBackground()
+[[nodiscard]] bool getNoBackground()
 {
     return getOfficial() ? false : noBackground();
 }
 
-bool SSVU_ATTRIBUTE(pure) getBlackAndWhite()
+[[nodiscard]] bool getBlackAndWhite()
 {
     return getOfficial() ? false : blackAndWhite();
 }
 
-bool SSVU_ATTRIBUTE(pure) getNoSound()
+[[nodiscard]] bool getNoSound()
 {
     return noSound();
 }
 
-bool SSVU_ATTRIBUTE(pure) getNoMusic()
+[[nodiscard]] bool getNoMusic()
 {
     return noMusic();
 }
 
-float SSVU_ATTRIBUTE(pure) getSoundVolume()
+[[nodiscard]] float getSoundVolume()
 {
     return soundVolume();
 }
 
-float SSVU_ATTRIBUTE(pure) getMusicVolume()
+[[nodiscard]] float getMusicVolume()
 {
     return musicVolume();
 }
 
-bool SSVU_ATTRIBUTE(pure) getLimitFPS()
+[[nodiscard]] bool getLimitFPS()
 {
     return limitFPS();
 }
 
-bool SSVU_ATTRIBUTE(pure) getVsync()
+[[nodiscard]] bool getVsync()
 {
     return vsync();
 }
 
-bool SSVU_ATTRIBUTE(pure) getAutoZoomFactor()
+[[nodiscard]] bool getAutoZoomFactor()
 {
     return getOfficial() ? true : autoZoomFactor();
 }
 
-bool SSVU_ATTRIBUTE(pure) getFullscreen()
+[[nodiscard]] bool getFullscreen()
 {
     return fullscreen();
 }
 
-float SSVU_ATTRIBUTE(const) getVersion()
+[[nodiscard, gnu::const]] float getVersion()
 {
     return 2.03f;
 }
 
-const char* SSVU_ATTRIBUTE(const) getVersionString()
+[[nodiscard, gnu::const]] const char* getVersionString()
 {
     return "2.03";
 }
 
-bool SSVU_ATTRIBUTE(pure) getWindowedAutoResolution()
+[[nodiscard]] bool getWindowedAutoResolution()
 {
     return windowedAutoResolution();
 }
 
-bool SSVU_ATTRIBUTE(pure) getFullscreenAutoResolution()
+[[nodiscard]] bool getFullscreenAutoResolution()
 {
     return fullscreenAutoResolution();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getFullscreenWidth()
+[[nodiscard]] unsigned int getFullscreenWidth()
 {
     return fullscreenWidth();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getFullscreenHeight()
+[[nodiscard]] unsigned int getFullscreenHeight()
 {
     return fullscreenHeight();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getWindowedWidth()
+[[nodiscard]] unsigned int getWindowedWidth()
 {
     return windowedWidth();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getWindowedHeight()
+[[nodiscard]] unsigned int getWindowedHeight()
 {
     return windowedHeight();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getWidth()
+[[nodiscard]] unsigned int getWidth()
 {
     return getFullscreen() ? getFullscreenWidth() : getWindowedWidth();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getHeight()
+[[nodiscard]] unsigned int getHeight()
 {
     return getFullscreen() ? getFullscreenHeight() : getWindowedHeight();
 }
 
-bool SSVU_ATTRIBUTE(pure) getShowMessages()
+[[nodiscard]] bool getShowMessages()
 {
     return showMessages();
 }
 
-bool SSVU_ATTRIBUTE(pure) getDebug()
+[[nodiscard]] bool getDebug()
 {
     return getOfficial() ? false : debug();
 }
 
-bool SSVU_ATTRIBUTE(pure) getPulse()
+[[nodiscard]] bool getPulse()
 {
     return getOfficial() ? true : pulseEnabled();
 }
 
-bool SSVU_ATTRIBUTE(pure) getBeatPulse()
+[[nodiscard]] bool getBeatPulse()
 {
     return getOfficial() ? true : beatPulse();
 }
 
-bool SSVU_ATTRIBUTE(pure) getInvincible()
+[[nodiscard]] bool getInvincible()
 {
     return getOfficial() ? false : invincible();
 }
 
-bool SSVU_ATTRIBUTE(pure) get3D()
+[[nodiscard]] bool get3D()
 {
     return _3DEnabled();
 }
 
-float SSVU_ATTRIBUTE(pure) get3DMultiplier()
+[[nodiscard]] float get3DMultiplier()
 {
     return _3DMultiplier();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) get3DMaxDepth()
+[[nodiscard]] unsigned int get3DMaxDepth()
 {
     return _3DMaxDepth();
 }
 
-bool SSVU_ATTRIBUTE(pure) getAutoRestart()
+[[nodiscard]] bool getAutoRestart()
 {
     return autoRestart();
 }
 
-bool SSVU_ATTRIBUTE(pure) getFlash()
+[[nodiscard]] bool getFlash()
 {
     return flashEnabled();
 }
 
-bool SSVU_ATTRIBUTE(pure) getShowTrackedVariables()
+[[nodiscard]] bool getShowTrackedVariables()
 {
     return showTrackedVariables();
 }
 
-bool SSVU_ATTRIBUTE(pure) getMusicSpeedDMSync()
+[[nodiscard]] bool getMusicSpeedDMSync()
 {
     return musicSpeedDMSync();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getMaxFPS()
+[[nodiscard]] unsigned int getMaxFPS()
 {
     return maxFPS();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getAntialiasingLevel()
+[[nodiscard]] unsigned int getAntialiasingLevel()
 {
     return antialiasingLevel();
 }
 
-bool SSVU_ATTRIBUTE(pure) getShowFPS()
+[[nodiscard]] bool getShowFPS()
 {
     return showFPS();
 }
 
-bool SSVU_ATTRIBUTE(pure) getTimerStatic()
+[[nodiscard]] bool getTimerStatic()
 {
     return timerStatic();
 }
 
-bool SSVU_ATTRIBUTE(pure) getServerLocal()
+[[nodiscard]] bool getServerLocal()
 {
     return serverLocal();
 }
 
-bool SSVU_ATTRIBUTE(pure) getServerVerbose()
+[[nodiscard]] bool getServerVerbose()
 {
     return serverVerbose();
 }
 
-bool SSVU_ATTRIBUTE(pure) getMouseVisible()
+[[nodiscard]] bool getMouseVisible()
 {
     return mouseVisible();
 }
 
-float SSVU_ATTRIBUTE(pure) getMusicSpeedMult()
+[[nodiscard]] float getMusicSpeedMult()
 {
     return musicSpeedMult();
 }
 
-bool SSVU_ATTRIBUTE(pure) getDrawTextOutlines()
+[[nodiscard]] bool getDrawTextOutlines()
 {
     return drawTextOutlines();
 }
 
-bool SSVU_ATTRIBUTE(pure) getDarkenUnevenBackgroundChunk()
+[[nodiscard]] bool getDarkenUnevenBackgroundChunk()
 {
     return darkenUnevenBackgroundChunk();
 }
 
-bool SSVU_ATTRIBUTE(pure) getRotateToStart()
+[[nodiscard]] bool getRotateToStart()
 {
     return rotateToStart();
 }
 
-float SSVU_ATTRIBUTE(pure) getJoystickDeadzone()
+[[nodiscard]] float getJoystickDeadzone()
 {
     return joystickDeadzone();
 }
 
-float SSVU_ATTRIBUTE(pure) getTextPadding()
+[[nodiscard]] float getTextPadding()
 {
     return textPadding();
 }
 
-float SSVU_ATTRIBUTE(pure) getTextScaling()
+[[nodiscard]] float getTextScaling()
 {
     return textScaling();
 }
 
-float SSVU_ATTRIBUTE(pure) getTimescale()
+[[nodiscard]] float getTimescale()
 {
     return getOfficial() ? 1.f : timescale();
 }
 
-bool SSVU_ATTRIBUTE(pure) getShowKeyIcons()
+[[nodiscard]] bool getShowKeyIcons()
 {
     return showKeyIcons();
 }
 
-float SSVU_ATTRIBUTE(pure) getKeyIconsScale()
+[[nodiscard]] float getKeyIconsScale()
 {
     return keyIconsScale();
 }
 
-bool SSVU_ATTRIBUTE(pure) getFirstTimePlaying()
+[[nodiscard]] bool getFirstTimePlaying()
 {
     return firstTimePlaying();
 }
 
-Trigger getTriggerRotateCCW()
+[[nodiscard]] bool getSaveLocalBestReplayToFile()
+{
+    return saveLocalBestReplayToFile();
+}
+
+[[nodiscard]] Trigger getTriggerRotateCCW()
 {
     return triggerRotateCCW();
 }
 
-Trigger getTriggerRotateCW()
+[[nodiscard]] Trigger getTriggerRotateCW()
 {
     return triggerRotateCW();
 }
 
-Trigger getTriggerFocus()
+[[nodiscard]] Trigger getTriggerFocus()
 {
     return triggerFocus();
 }
 
-Trigger getTriggerExit()
+[[nodiscard]] Trigger getTriggerExit()
 {
     return triggerExit();
 }
 
-Trigger getTriggerForceRestart()
+[[nodiscard]] Trigger getTriggerForceRestart()
 {
     return triggerForceRestart();
 }
 
-Trigger getTriggerRestart()
+[[nodiscard]] Trigger getTriggerRestart()
 {
     return triggerRestart();
 }
 
-Trigger getTriggerReplay()
+[[nodiscard]] Trigger getTriggerReplay()
 {
     return triggerReplay();
 }
 
-Trigger getTriggerScreenshot()
+[[nodiscard]] Trigger getTriggerScreenshot()
 {
     return triggerScreenshot();
 }
 
-Trigger getTriggerSwap()
+[[nodiscard]] Trigger getTriggerSwap()
 {
     return triggerSwap();
 }
 
-Trigger getTriggerUp()
+[[nodiscard]] Trigger getTriggerUp()
 {
     return triggerUp();
 }
 
-Trigger getTriggerDown()
+[[nodiscard]] Trigger getTriggerDown()
 {
     return triggerDown();
 }

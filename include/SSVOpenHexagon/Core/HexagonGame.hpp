@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
@@ -34,6 +33,11 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Timeline/Timeline.hpp>
+
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Window.hpp>
 
 #include <sstream>
 #include <optional>
@@ -161,6 +165,9 @@ private:
 
     Utils::LuaMetadata luaMetadata;
 
+    std::string packId;
+    std::string levelId;
+
     // Lua related methods
     void destroyMaliciousFunctions();
     void initLua_Utils();
@@ -237,6 +244,8 @@ public:
             Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};
     }
 
+    void setLastReplay(const replay_file& mReplayFile);
+
 private:
     void start();
 
@@ -282,8 +291,20 @@ private:
     void addMessage(std::string mMessage, double mDuration, bool mSoundToggle);
     void clearMessages();
 
+    enum class CheckSaveScoreResult
+    {
+        Ineligible,
+        Invalid,
+        Local_NewBest,
+        Local_NoNewBest,
+        Online_LessThan8Secs,
+        Online_ConnectionError,
+        Online_VersionMismatch,
+        Online_Sent
+    };
+
     // Level/menu loading/unloading/changing
-    void checkAndSaveScore();
+    CheckSaveScoreResult checkAndSaveScore();
     void goToMenu(bool mSendScores = true, bool mError = false);
 
     void invalidateScore(const std::string& mReason);

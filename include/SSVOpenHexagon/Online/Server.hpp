@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/ClientHandler.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
+
+#include <SFML/Network.hpp>
 
 #include <vector>
 #include <chrono>

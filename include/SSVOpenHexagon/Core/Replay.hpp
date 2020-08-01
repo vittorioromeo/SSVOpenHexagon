@@ -78,13 +78,13 @@ public:
     [[nodiscard]] bool operator!=(const replay_data& rhs) const noexcept;
 
     [[nodiscard]] serialization_result serialize(
-        std::byte* buffer, const std::size_t buffer_size);
+        std::byte* buffer, const std::size_t buffer_size) const;
 
     [[nodiscard]] deserialization_result deserialize(
         const std::byte* buffer, const std::size_t buffer_size);
 
     [[nodiscard]] serialization_result serialize(
-        std::byte* buffer, const std::byte* const buffer_end);
+        std::byte* buffer, const std::byte* const buffer_end) const;
 
     [[nodiscard]] deserialization_result deserialize(
         const std::byte* buffer, const std::byte* const buffer_end);
@@ -101,6 +101,7 @@ public:
 
     [[nodiscard]] input_bitset get_current_and_move_forward() noexcept;
     [[nodiscard]] bool done() const noexcept;
+    void reset() noexcept;
 };
 
 struct replay_file
@@ -120,19 +121,21 @@ struct replay_file
     [[nodiscard]] bool operator!=(const replay_file& rhs) const noexcept;
 
     [[nodiscard]] serialization_result serialize(
-        std::byte* buffer, const std::size_t buffer_size);
+        std::byte* buffer, const std::size_t buffer_size) const;
 
     [[nodiscard]] deserialization_result deserialize(
         const std::byte* buffer, const std::size_t buffer_size);
 
     [[nodiscard]] serialization_result serialize(
-        std::byte* buffer, const std::byte* const buffer_end);
+        std::byte* buffer, const std::byte* const buffer_end) const;
 
     [[nodiscard]] deserialization_result deserialize(
         const std::byte* buffer, const std::byte* const buffer_end);
 
-    [[nodiscard]] bool serialize_to_file(const std::filesystem::path p);
+    [[nodiscard]] bool serialize_to_file(const std::filesystem::path p) const;
     [[nodiscard]] bool deserialize_from_file(const std::filesystem::path p);
+
+    [[nodiscard]] std::string create_filename() const;
 };
 
 } // namespace hg

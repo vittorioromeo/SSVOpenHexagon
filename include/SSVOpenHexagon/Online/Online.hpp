@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Compression.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SFML/Network.hpp>
 
 #include <vector>
 #include <future>

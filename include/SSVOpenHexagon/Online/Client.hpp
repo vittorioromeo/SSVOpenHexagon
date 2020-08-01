@@ -6,7 +6,8 @@
 
 #include "SSVOpenHexagon/Online/Utils.hpp"
 #include "SSVOpenHexagon/Online/ManagedSocket.hpp"
-#include "SSVOpenHexagon/Global/Common.hpp"
+
+#include <SFML/Network.hpp>
 
 namespace hg::Online
 {

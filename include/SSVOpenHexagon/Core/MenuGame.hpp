@@ -5,7 +5,6 @@
 #pragma once
 
 #include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
@@ -20,6 +19,11 @@
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
+
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Window.hpp>
 
 #include <cctype>
 

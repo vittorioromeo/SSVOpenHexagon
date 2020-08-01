@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
@@ -18,6 +17,8 @@
 
 #include <SSVUtils/Core/Assert/Assert.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
+#include <SFML/System.hpp>
 
 #include <unordered_map>
 #include <map>
