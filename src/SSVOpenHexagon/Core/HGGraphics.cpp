@@ -128,6 +128,15 @@ void HexagonGame::draw()
                 wallQuads3D[k].color = status.overrideColor;
             }
 
+            // Apply player color if no 3D override is present.
+			if (styleData.get3DOverrideColor() == styleData.getMainColor())
+			{
+				status.overrideColor = getColorDarkened(
+                styleData.getPlayerColor(), styleData._3dDarkenMult);
+				status.overrideColor.a /= styleData._3dAlphaMult;
+				status.overrideColor.a -= i * styleData._3dAlphaFalloff;
+			}
+
             for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
                 ++k)
             {
