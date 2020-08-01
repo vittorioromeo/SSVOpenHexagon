@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
-
+#include <stdint.h> // Steam API needs this.
 #include "steam/steam_api.h"
 
+#include <functional>
 #include <string_view>
 #include <unordered_set>
 

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/PacketHandler.hpp"
 #include "SSVOpenHexagon/Online/Server.hpp"
@@ -15,6 +14,8 @@
 
 #include <SSVUtils/Bimap/Bimap.hpp>
 #include <SSVUtils/CmdLine/CmdLine.hpp>
+
+#include <SFML/Network.hpp>
 
 #include <future>
 #include <string>

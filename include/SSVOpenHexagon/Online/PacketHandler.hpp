@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
+
+#include <SFML/Network.hpp>
 
 #include <functional>
 

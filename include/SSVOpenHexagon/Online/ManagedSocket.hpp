@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Utils.hpp"
 #include "SSVOpenHexagon/Online/PacketHandler.hpp"
 

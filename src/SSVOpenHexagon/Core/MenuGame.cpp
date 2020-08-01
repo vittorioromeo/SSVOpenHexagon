@@ -87,6 +87,7 @@ void MenuGame::init(bool error)
 
     assets.stopMusics();
     assets.stopSounds();
+
     if(!error)
     {
         assets.playSound("openHexagon.ogg");

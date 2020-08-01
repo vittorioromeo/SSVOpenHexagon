@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
+
+#include <SFML/System.hpp>
 
 #include <string>
 

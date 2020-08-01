@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
-
 #include "discord/discord.h"
 
 #include <string_view>

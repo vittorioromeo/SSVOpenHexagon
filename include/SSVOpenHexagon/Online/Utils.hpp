@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Online/Compression.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
@@ -12,13 +11,14 @@
 #include <SFML/Network.hpp>
 
 #define HG_LO_VERBOSE(...) \
-    if(Config::getServerVerbose()) ssvu::lo(__VA_ARGS__)
+    if(::hg::Config::getServerVerbose()) ::ssvu::lo(__VA_ARGS__)
 
 namespace hg::Online
 {
 
 namespace Impl
 {
+
 // Compression
 template <typename... TArgs>
 std::string buildCJsonString(TArgs&&... mArgs)

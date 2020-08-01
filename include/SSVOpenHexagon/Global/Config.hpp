@@ -70,6 +70,7 @@ void setTimescale(float mX);
 void setShowKeyIcons(bool mX);
 void setKeyIconsScale(float mX);
 void setFirstTimePlaying(bool mX);
+void setSaveLocalBestReplayToFile(bool mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -93,8 +94,8 @@ void setFirstTimePlaying(bool mX);
 [[nodiscard]] bool getVsync();
 [[nodiscard]] bool getAutoZoomFactor();
 [[nodiscard]] bool getFullscreen();
-[[nodiscard]] float getVersion();
-[[nodiscard]] const char* getVersionString();
+[[nodiscard, gnu::const]] float getVersion();
+[[nodiscard, gnu::const]] const char* getVersionString();
 [[nodiscard]] bool getWindowedAutoResolution();
 [[nodiscard]] bool getFullscreenAutoResolution();
 [[nodiscard]] unsigned int getFullscreenWidth();
@@ -134,6 +135,7 @@ void setFirstTimePlaying(bool mX);
 [[nodiscard]] bool getShowKeyIcons();
 [[nodiscard]] float getKeyIconsScale();
 [[nodiscard]] bool getFirstTimePlaying();
+[[nodiscard]] bool getSaveLocalBestReplayToFile();
 
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();

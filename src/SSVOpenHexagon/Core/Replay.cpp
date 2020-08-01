@@ -6,21 +6,22 @@
 
 #include <cassert>
 #include <fstream>
+#include <sstream>
 
 namespace hg
 {
 
-#define SSVOH_TRY(...)                                                        \
-    do                                                                        \
-    {                                                                         \
-        __VA_ARGS__;                                                          \
-        if(!result._success)                                                  \
-        {                                                                     \
-            ::std::cerr << "Failed [de]serialization operation'" #__VA_ARGS__ \
-                           "'\n";                                             \
-                                                                              \
-            return result;                                                    \
-        }                                                                     \
+#define SSVOH_TRY(...)                                                         \
+    do                                                                         \
+    {                                                                          \
+        __VA_ARGS__;                                                           \
+        if(!result._success)                                                   \
+        {                                                                      \
+            ::std::cerr << "Failed [de]serialization operation '" #__VA_ARGS__ \
+                           "'\n";                                              \
+                                                                               \
+            return result;                                                     \
+        }                                                                      \
     } while(false)
 
 static auto make_write(serialization_result& result, std::byte*& buffer,
@@ -91,7 +92,7 @@ void replay_data::record_input(const bool left, const bool right,
 }
 
 [[nodiscard]] serialization_result replay_data::serialize(
-    std::byte* buffer, const std::size_t buffer_size)
+    std::byte* buffer, const std::size_t buffer_size) const
 {
     return serialize(buffer, buffer + buffer_size);
 }
@@ -103,7 +104,7 @@ void replay_data::record_input(const bool left, const bool right,
 }
 
 [[nodiscard]] serialization_result replay_data::serialize(
-    std::byte* buffer, const std::byte* const buffer_end)
+    std::byte* buffer, const std::byte* const buffer_end) const
 {
     serialization_result result;
     const auto write = make_write(result, buffer, buffer_end);
@@ -113,6 +114,7 @@ void replay_data::record_input(const bool left, const bool right,
 
     for(const input_bitset& ib : _inputs)
     {
+        // TODO: optimize! only need 4 bits
         const std::uint8_t ib_byte = ib.to_ulong();
         SSVOH_TRY(write(ib_byte));
     }
@@ -163,6 +165,11 @@ replay_player::get_current_and_move_forward() noexcept
     return _current_index == _replay_data.size();
 }
 
+void replay_player::reset() noexcept
+{
+    _current_index = 0;
+}
+
 
 [[nodiscard]] bool replay_file::operator==(
     const replay_file& rhs) const noexcept
@@ -184,7 +191,7 @@ replay_player::get_current_and_move_forward() noexcept
 }
 
 [[nodiscard]] serialization_result replay_file::serialize(
-    std::byte* buffer, const std::size_t buffer_size)
+    std::byte* buffer, const std::size_t buffer_size) const
 {
     return serialize(buffer, buffer + buffer_size);
 }
@@ -196,7 +203,7 @@ replay_player::get_current_and_move_forward() noexcept
 }
 
 [[nodiscard]] serialization_result replay_file::serialize(
-    std::byte* buffer, const std::byte* const buffer_end)
+    std::byte* buffer, const std::byte* const buffer_end) const
 {
     serialization_result result;
     const auto write = make_write(result, buffer, buffer_end);
@@ -282,10 +289,12 @@ replay_player::get_current_and_move_forward() noexcept
     return result;
 }
 
-[[nodiscard]] bool replay_file::serialize_to_file(const std::filesystem::path p)
+[[nodiscard]] bool replay_file::serialize_to_file(
+    const std::filesystem::path p) const
 {
-    constexpr std::size_t buf_size{2048};
-    std::byte buf[buf_size];
+    // TODO: this buf size is small
+    constexpr std::size_t buf_size{65536};
+    static std::byte buf[buf_size];
 
     const serialization_result sr = serialize(buf, buf_size);
     if(!sr)
@@ -305,8 +314,9 @@ replay_player::get_current_and_move_forward() noexcept
 [[nodiscard]] bool replay_file::deserialize_from_file(
     const std::filesystem::path p)
 {
-    constexpr std::size_t buf_size{2048};
-    std::byte buf[buf_size];
+    // TODO: this buf size is small
+    constexpr std::size_t buf_size{65536};
+    static std::byte buf[buf_size];
 
     std::ifstream is(p, std::ios::binary | std::ios::in);
 
@@ -323,6 +333,26 @@ replay_player::get_current_and_move_forward() noexcept
 
     const deserialization_result dr = deserialize(buf, bytes_to_read);
     return static_cast<bool>(dr);
+}
+
+[[nodiscard]] std::string replay_file::create_filename() const
+{
+    std::ostringstream oss;
+
+    oss << _version          //
+        << '_'               //
+        << _player_name      //
+        << '_'               //
+        << _pack_id          //
+        << '_'               //
+        << _level_id         //
+        << '_'               //
+        << _difficulty_mult  //
+        << '_'               //
+        << _played_frametime //
+        << ".ohreplay";
+
+    return oss.str();
 }
 
 } // namespace hg
