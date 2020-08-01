@@ -1346,7 +1346,7 @@ void MenuGame::drawLevelSelection()
     txtPacks.setString(packNames);
     txtPacks.setOrigin(getGlobalWidth(txtPacks), getGlobalHeight(txtPacks));
     txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
-    txtPacks.setFillColor(styleData.getMainColor());
+    txtPacks.setFillColor(styleData.getTextColor());
     render(txtPacks);
 }
 void MenuGame::drawEnteringText()

@@ -174,7 +174,7 @@ private:
     {
         return (state != States::SMain || Config::getBlackAndWhite())
                    ? sf::Color::White
-                   : styleData.getMainColor();
+                   : styleData.getTextColor();
     }
 
     sf::Text& renderText(
