@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVStart/Input/Input.hpp>

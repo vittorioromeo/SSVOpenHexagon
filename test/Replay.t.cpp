@@ -172,7 +172,7 @@ static void test_replay_file_serialization_to_file()
         //
         ._version{59832},
         ._player_name{"hello world"},
-        ._seed{12345},
+        ._seed{1234512345},
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},

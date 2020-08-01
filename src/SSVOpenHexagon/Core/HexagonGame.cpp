@@ -8,7 +8,6 @@
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
@@ -196,6 +195,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         lastSeed = rng.seed();
         lastReplayData = replay_data{};
 
+
+        std::cout << "PLAYING SEED " << lastSeed << '\n';
+
         // Clear any existing active replay.
         activeReplay.reset();
     }
@@ -228,6 +230,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         // TODO: this can be used to speed up the replay
         // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
 
+        std::cout << "LOADING SEED " << activeReplay->replayFile._seed << '\n';
         rng = random_number_generator{activeReplay->replayFile._seed};
     }
 
@@ -319,6 +322,11 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
 void HexagonGame::death(bool mForce)
 {
+    if(status.hasDied)
+    {
+        return;
+    }
+
     fpsWatcher.disable();
     assets.playSound("death.ogg", ssvs::SoundPlayer::Mode::Abort);
 
@@ -326,13 +334,9 @@ void HexagonGame::death(bool mForce)
     {
         return;
     }
+
     assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
     runLuaFunctionIfExists<void>("onDeath");
-
-    if(!assets.pIsLocal() && Config::isEligibleForScore())
-    {
-        Online::trySendDeath();
-    }
 
     status.flashEffect = 255;
     overlayCamera.setView(
@@ -353,11 +357,6 @@ void HexagonGame::death(bool mForce)
     const bool localNewBest =
         checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
 
-    if(Config::getAutoRestart())
-    {
-        status.mustStateChange = StateChange::MustRestart;
-    }
-
     // TODO:
     if(Config::getSaveLocalBestReplayToFile()) //  && localNewBest)
     {
@@ -371,6 +370,8 @@ void HexagonGame::death(bool mForce)
             ._difficulty_mult{difficultyMult},
             ._played_frametime{status.getPlayedAccumulatedFrametime()},
         };
+
+        std::cout << "SAVING SEED " << lastSeed << '\n';
 
         const std::string filename = rf.create_filename();
 
@@ -391,6 +392,11 @@ void HexagonGame::death(bool mForce)
             ssvu::lo("Replay")
                 << "Failed to save new local best replay file '" << p << "'\n";
         }
+    }
+
+    if(Config::getAutoRestart())
+    {
+        status.mustStateChange = StateChange::MustRestart;
     }
 }
 
@@ -465,6 +471,11 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
         return CheckSaveScoreResult::Local_NoNewBest;
     }
 
+    assert(false);
+    return CheckSaveScoreResult::Local_NoNewBest;
+
+// TODO: remove
+#if 0
     // These are requirements that need to be met for a score to be sent
     // online
     if(time < 8)
@@ -493,6 +504,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 
     Online::trySendScore(levelData->id, difficultyMult, time);
     return CheckSaveScoreResult::Online_Sent;
+#endif
 }
 
 void HexagonGame::goToMenu(bool mSendScores, bool mError)

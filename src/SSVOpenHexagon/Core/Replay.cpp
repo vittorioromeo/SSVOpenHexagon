@@ -280,6 +280,7 @@ void replay_player::reset() noexcept
     }
 
     buffer += data_result._read_bytes;
+    result._read_bytes += data_result._read_bytes;
 
     SSVOH_TRY(read_str(_pack_id));
     SSVOH_TRY(read_str(_level_id));
@@ -314,15 +315,15 @@ void replay_player::reset() noexcept
 [[nodiscard]] bool replay_file::deserialize_from_file(
     const std::filesystem::path p)
 {
-    // TODO: this buf size is small
-    constexpr std::size_t buf_size{65536};
-    static std::byte buf[buf_size];
-
     std::ifstream is(p, std::ios::binary | std::ios::in);
 
     is.seekg(0, std::ios::end);
     const std::size_t bytes_to_read = is.tellg();
     is.seekg(0, std::ios::beg);
+
+    // TODO: this buf size is small
+    constexpr std::size_t buf_size{65536};
+    static std::byte buf[buf_size];
 
     is.read(reinterpret_cast<char*>(buf), bytes_to_read);
 

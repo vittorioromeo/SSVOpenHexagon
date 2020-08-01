@@ -8,8 +8,6 @@
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/Online/OHServer.hpp"
 
 #include <SSVStart/Assets/Assets.hpp>
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
@@ -73,8 +71,6 @@ private:
     [[nodiscard]] bool loadPackInfo(const PackData& packData);
 
 public:
-    float playedSeconds{0};
-
     HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly = false);
 
     auto& operator()()
@@ -167,43 +163,25 @@ public:
 
     std::string pGetName() const
     {
-        if(!playingLocally)
-        {
-            return Online::getCurrentUsername();
-        }
-
+        assert(playingLocally); // TODO
         return getCurrentLocalProfile().getName();
     }
 
     const std::vector<std::string>& pGetTrackedNames() const
     {
-        if(!playingLocally)
-        {
-            return Online::getUserStats().trackedNames;
-        }
-
+        assert(playingLocally); // TODO
         return getCurrentLocalProfile().getTrackedNames();
     }
 
     void pClearTrackedNames()
     {
-        if(!playingLocally)
-        {
-            Online::trySendClearFriends();
-            return;
-        }
-
+        assert(playingLocally); // TODO
         getCurrentLocalProfile().clearTrackedNames();
     }
 
     void pAddTrackedName(const std::string& mName)
     {
-        if(!playingLocally)
-        {
-            Online::trySendAddFriend(mName);
-            return;
-        }
-
+        assert(playingLocally); // TODO
         getCurrentLocalProfile().addTrackedName(mName);
     }
 

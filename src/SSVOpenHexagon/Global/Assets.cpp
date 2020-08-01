@@ -4,8 +4,6 @@
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Online/Definitions.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
@@ -337,7 +335,7 @@ void HGAssets::saveCurrentLocalProfile()
     ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
 }
 
-const MusicData& SSVU_ATTRIBUTE(pure) HGAssets::getMusicData(
+const MusicData& HGAssets::getMusicData(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string assetId = mPackId + "_" + mId;
@@ -354,7 +352,7 @@ const MusicData& SSVU_ATTRIBUTE(pure) HGAssets::getMusicData(
     return it->second;
 }
 
-const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(
+const StyleData& HGAssets::getStyleData(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string assetId = mPackId + "_" + mId;
@@ -386,12 +384,12 @@ void HGAssets::setCurrentLocalProfile(const std::string& mName)
     currentProfilePtr = &profileDataMap.find(mName)->second;
 }
 
-ProfileData& SSVU_ATTRIBUTE(pure) HGAssets::getCurrentLocalProfile()
+ProfileData& HGAssets::getCurrentLocalProfile()
 {
     return *currentProfilePtr;
 }
 
-const ProfileData& SSVU_ATTRIBUTE(pure) HGAssets::getCurrentLocalProfile() const
+const ProfileData& HGAssets::getCurrentLocalProfile() const
 {
     return *currentProfilePtr;
 }
@@ -412,7 +410,7 @@ void HGAssets::createLocalProfile(const std::string& mName)
     loadLocalProfiles();
 }
 
-std::size_t SSVU_ATTRIBUTE(pure) HGAssets::getLocalProfilesSize()
+std::size_t HGAssets::getLocalProfilesSize()
 {
     return profileDataMap.size();
 }
