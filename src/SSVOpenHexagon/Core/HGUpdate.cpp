@@ -107,16 +107,6 @@ void HexagonGame::update(ssvu::FT mFT)
 
     if(status.started)
     {
-        if(!assets.pIsLocal() && Config::isEligibleForScore())
-        {
-            assets.playedSeconds += ssvu::getFTToSeconds(mFT);
-            if(assets.playedSeconds >= 60.f)
-            {
-                assets.playedSeconds = 0;
-                Online::trySendMinutePlayed();
-            }
-        }
-
         if(!status.hasDied)
         {
             player.update(*this, mFT);
@@ -196,11 +186,6 @@ void HexagonGame::update(ssvu::FT mFT)
 
             newGame(getPackId(), restartId, restartFirstTime, difficultyMult,
                 executeLastReplay);
-
-            if(!assets.pIsLocal() && Config::isEligibleForScore())
-            {
-                Online::trySendRestart();
-            }
         }
 
         if(!status.scoreInvalid && Config::getOfficial() &&

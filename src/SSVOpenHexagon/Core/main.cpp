@@ -2,9 +2,6 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/Online/Server.hpp"
-#include "SSVOpenHexagon/Online/OHServer.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
@@ -87,49 +84,12 @@ int main(int argc, char* argv[])
     // Discord integration
     hg::Discord::discord_manager discordManager;
 
-// TODO: remove
-#if 0
-    hg::Online::setCurrentGtm(
-        std::make_unique<hg::Online::GlobalThreadManager>());
-#endif
-
     const std::vector<std::string> args = argsToVector(argc, argv);
-
-// TODO: remove
-#if 0
-    if(ssvu::contains(args, "server"))
-    {
-        hg::Config::loadConfig(args);
-
-        auto levelOnlyAssets = std::make_unique<hg::HGAssets>(
-            steamManager, true /* mLevelsOnly */);
-        hg::Online::initializeValidators(*levelOnlyAssets);
-
-        auto ohServer = std::make_unique<hg::Online::OHServer>();
-        ohServer->start();
-
-        return 0;
-    }
-#endif
 
     createFolderIfNonExistant("Profiles/");
     createFolderIfNonExistant("Replays/");
 
-// TODO: remove
-#if 0
-    hg::Online::initializeClient();
-    hg::Online::tryConnectToServer();
-#endif
-
     hg::Config::loadConfig(args);
-
-// TODO: remove
-#if 0
-    if(hg::Config::getServerLocal())
-    {
-        ssvu::lo("Server") << "LOCAL MODE ON\n";
-    }
-#endif
 
     ssvs::GameWindow window;
 
@@ -145,7 +105,6 @@ int main(int argc, char* argv[])
     hg::Config::setTimerStatic(window, hg::Config::getTimerStatic());
 
     auto assets = std::make_unique<hg::HGAssets>(steamManager);
-    hg::Online::initializeValidators(*assets);
 
     auto hg = std::make_unique<hg::HexagonGame>(
         steamManager, discordManager, *assets, window);
@@ -199,25 +158,12 @@ int main(int argc, char* argv[])
 
     window.run();
 
-    // TODO: remove
-#if 0
-    if(hg::Online::getLoginStatus() != hg::Online::LoginStat::Logged)
-    {
-        hg::Online::logout();
-    }
-#endif
-
     ssvu::lo().flush();
 
     hg::Config::saveConfig();
     assets->pSaveCurrent();
 
     ssvu::saveLogToFile("log.txt");
-
-    // TODO: remove
-#if 0
-    hg::Online::cleanup();
-#endif
 
     return 0;
 }

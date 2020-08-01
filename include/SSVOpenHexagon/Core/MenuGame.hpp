@@ -33,12 +33,7 @@ namespace hg
 enum class States
 {
     EpilepsyWarning,
-    ETUser,
-    ETPass,
-    ETEmail,
     ETLPNew,
-    ETFriend,
-    SLogging,
     SMain,
     SLPSelect,
     MWlcm,
@@ -216,9 +211,7 @@ private:
 
     bool isEnteringText()
     {
-        return state == States::ETUser || state == States::ETPass ||
-               state == States::ETEmail || state == States::ETLPNew ||
-               state == States::ETFriend;
+        return state == States::ETLPNew;
     }
 
     ssvms::Menu* getCurrentMenu() noexcept

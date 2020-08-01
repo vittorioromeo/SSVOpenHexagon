@@ -739,8 +739,8 @@ void HexagonGame::initLua_LevelControl()
             "increment.");
 
     addLuaFn("l_addTracked", //
-        [this](const std::string& mVar, std::string mName) {
-            levelStatus.trackedVariables.emplace_back(mVar, mName);
+        [this](const std::string& mVar, const std::string& mName) {
+            levelStatus.trackedVariables.push_back({mVar, mName});
         })
         .arg("variable")
         .arg("name")

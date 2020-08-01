@@ -5,7 +5,6 @@
 #pragma once
 
 #include <string>
-#include <utility>
 
 namespace hg
 {
@@ -13,11 +12,6 @@ namespace hg
 struct TrackedVariable
 {
     std::string variableName, displayName;
-    TrackedVariable(std::string mVariableName, std::string mDisplayName)
-        : variableName{std::move(mVariableName)}, displayName{
-                                                      std::move(mDisplayName)}
-    {
-    }
 };
 
 } // namespace hg
