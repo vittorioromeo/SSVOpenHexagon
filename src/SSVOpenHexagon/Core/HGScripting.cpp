@@ -311,6 +311,15 @@ void HexagonGame::initLua_MainTimeline()
 
 void HexagonGame::initLua_EventTimeline()
 {
+    addLuaFn("e_eval",
+        [this](const std::string& mCode) {
+            eventTimeline.append_do([=, this] { lua.executeCode(mCode); });
+        })
+        .arg("code")
+        .doc(
+            "*Add to the event timeline*: evaluate the Lua code specified in "
+            "`$0`. (This is the closest you'll get to 1.92 events)");
+
     addLuaFn("e_eventStopTime", //
         [this](double mDuration) {
             eventTimeline.append_do([=, this] {
