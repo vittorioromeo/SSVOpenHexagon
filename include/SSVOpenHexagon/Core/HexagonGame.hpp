@@ -162,6 +162,8 @@ private:
     Utils::LuaMetadata luaMetadata;
 
     // Lua related methods
+    void redefineLuaFunctions();
+
     void destroyMaliciousFunctions();
     void initLua_Utils();
     void initLua_Messages();
