@@ -18,10 +18,13 @@ namespace hg{
 
     void HexagonGame::redefineLuaFunctions(){
         try{
-            lua.executeCode("local open = io.open; io.open = function(filename) return open(filename, \"r\"); end");
+            lua.executeCode(
+                    "local open = io.open; io.open = function(filename) return "
+                    "open(filename, \"r\"); end");
         }
         catch(...){
-            ssvu::lo("HexagonGame::initLua") << "Failure to redefine Lua's io.open function\n";
+            ssvu::lo("HexagonGame::redefineLuaFunctions")
+                    << "Failure to redefine Lua's io.open function\n";
         }
     }
 
@@ -57,7 +60,7 @@ namespace hg{
         lua.clearVariable("package.loadlib");
         lua.clearVariable("package.searchpath");
 
-        //Synth Morxemplum (c) 2020
+        // Synth Morxemplum (c) 2020
     }
 
 void HexagonGame::initLua_Utils()
