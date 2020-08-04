@@ -14,21 +14,25 @@ using namespace sf;
 using namespace ssvs;
 using namespace ssvuj;
 
-namespace hg{
-
-    void HexagonGame::redefineLuaFunctions(){
-        try{
+namespace hg
+{
+    void HexagonGame::redefineLuaFunctions()
+    {
+        try
+        {
             lua.executeCode(
                     "local open = io.open; io.open = function(filename) return "
                     "open(filename, \"r\"); end");
         }
-        catch(...){
+        catch(...)
+        {
             ssvu::lo("HexagonGame::redefineLuaFunctions")
                     << "Failure to redefine Lua's io.open function\n";
         }
     }
 
-    void HexagonGame::destroyMaliciousFunctions(){
+    void HexagonGame::destroyMaliciousFunctions()
+    {
         // This destroys the "os" library completely. This library is capable of
         // file manipulation, running shell commands, and messing up the replay
         // system completely. os.execute(), one of the functions in this library,
