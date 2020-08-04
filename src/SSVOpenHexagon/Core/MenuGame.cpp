@@ -717,10 +717,9 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "m_messageAdd", "m_messageAddImportant",
             "m_messageAddImportantSilent", "m_clearMessages",
 
-            "t_wait", "t_waitS", "t_waitUntilS",
+            "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
 
-            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-
+            "e_eval", "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
             "e_eventWaitS", "e_eventWaitUntilS",
 
             "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
