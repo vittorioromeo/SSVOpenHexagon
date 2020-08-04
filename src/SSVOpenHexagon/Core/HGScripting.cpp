@@ -1231,6 +1231,7 @@ void HexagonGame::initLua_CustomWalls()
 void HexagonGame::initLua()
 {
     redefineLuaFunctions();
+    
     // ------------------------------------------------------------------------
     // Register Lua function to get random seed for the current attempt:
     addLuaFn("u_getAttemptRandomSeed", //
