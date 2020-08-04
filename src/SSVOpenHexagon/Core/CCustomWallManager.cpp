@@ -24,6 +24,7 @@ namespace hg
     {
         constexpr std::size_t reserveSize = 255;
 
+        // TODO: memory always increases after clear!
         _freeHandles.reserve(_freeHandles.capacity() + reserveSize);
         _customWalls.resize(_customWalls.capacity() + reserveSize);
         _handleAvailable.resize(_handleAvailable.capacity() + reserveSize);
