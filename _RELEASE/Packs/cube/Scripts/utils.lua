@@ -175,12 +175,21 @@ function isPrime(integer, divisor)
 	return isPrime(integer, divisor + 1); 
 end
 
+function inverseLerp(initial, final, value)
+	--[[
+	Inverse linear interpolation function. Takes two number values, initial
+	and final, and then a third number "value". Returns the percentage of
+	"value" between initial and final.
+	]]
+	return (value - initial) / (final - initial);
+end
+
 function lerp(initial, final, i) 
 	--[[
 	Linear interpolation function. Takes number value initial and returns a
 	value that is (i * 100) percent to final value.
 	
-	i is a number value between 
+	i is a number value between 0 and 1
 	
 	Thanks to Zly for showing me the "precise" method
 	]]
