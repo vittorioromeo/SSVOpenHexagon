@@ -18,6 +18,20 @@ using namespace ssvuj;
 
 namespace hg
 {
+void HexagonGame::redefineLuaFunctions()
+{
+    try
+    {
+        lua.executeCode(
+            "local open = io.open; io.open = function(filename) return "
+            "open(filename, \"r\"); end");
+    }
+    catch(...)
+    {
+        ssvu::lo("HexagonGame::redefineLuaFunctions")
+            << "Failure to redefine Lua's io.open function\n";
+    }
+}
 
 void HexagonGame::destroyMaliciousFunctions()
 {
@@ -27,11 +41,13 @@ void HexagonGame::destroyMaliciousFunctions()
     // can be used to create malware and is capable of destroying computers.
     lua.clearVariable("os");
 
-    // This destroys the "io" library completely. This may not be a permanent
-    // action at the moment, but this is the best solution we have at the
-    // moment. This library is dedicated to manipulating files and their
-    // contents, which can be used maliciously.
-    lua.clearVariable("io");
+    // This destroys some of the "io" functions completely.
+    // This library is dedicated to manipulating files and their contents,
+    // which can be used maliciously.
+    lua.clearVariable("io.popen");
+    lua.clearVariable("io.flush");
+    lua.clearVariable("io.write");
+    lua.clearVariable("io.setvbuf");
 
     // This destroys the "debug" library completely. The debug library is next
     // to useless in Open Hexagon (considering we have our own methods of
@@ -313,6 +329,15 @@ void HexagonGame::initLua_MainTimeline()
 
 void HexagonGame::initLua_EventTimeline()
 {
+    addLuaFn("e_eval",
+        [this](const std::string& mCode) {
+            eventTimeline.append_do([=, this] { lua.executeCode(mCode); });
+        })
+        .arg("code")
+        .doc(
+            "*Add to the event timeline*: evaluate the Lua code specified in "
+            "`$0`. (This is the closest you'll get to 1.92 events)");
+
     addLuaFn("e_eventStopTime", //
         [this](double mDuration) {
             eventTimeline.append_do([=, this] {
@@ -1214,6 +1239,8 @@ void HexagonGame::initLua_CustomWalls()
 
 void HexagonGame::initLua()
 {
+    redefineLuaFunctions();
+
     // ------------------------------------------------------------------------
     // Register Lua function to get random seed for the current attempt:
     addLuaFn("u_getAttemptRandomSeed", //

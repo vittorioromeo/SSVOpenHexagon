@@ -24,6 +24,8 @@
 	// Main color
 	"main": { "main": true, "dynamic": false, "value": [0, 0, 255, 255], "pulse": [25, 25, 0, 0] },
 	"cap_color": "main_darkened",
+	"player_color": {"dynamic": false, "value": [255, 0, 0, 255], "pulse": [0, 80, 0, 0] },
+	"text_color": {"dynamic": false, "value": [255, 255, 0, 255], "pulse": [0, -100, 0, 0] },
 
 	// Background colors
 	"colors":
