@@ -23,7 +23,8 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
 
     if(mColorData.dynamic)
     {
-        const auto hue = (currentHue + mColorData.hueShift) / 360.f;
+        const auto hue =
+            std::fmod(currentHue + mColorData.hueShift, 360.f) / 360.f;
 
         const auto& dynamicColor(
             ssvs::getColorFromHSV(ssvu::getClamped(hue, 0.f, 1.f), 1.f, 1.f));
@@ -115,6 +116,8 @@ void StyleData::update(ssvu::FT mFT, float mMult)
 void StyleData::computeColors(const LevelStatus& levelStatus)
 {
     currentMainColor = calculateColor(mainColorData);
+    currentPlayerColor = calculateColor(playerColor);
+    currentTextColor = calculateColor(textColor);
 
     current3DOverrideColor =
         _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();

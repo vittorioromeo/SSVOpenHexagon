@@ -129,7 +129,7 @@ function mkHalfHorizWall(mInv, mY, color, mXVel, mX)
     table.insert(floatingWalls, fw)
 end
 
-waitTime = 3
+waitTime = 3.1
 
 upOffsets   = {0,  12.5, 25, 37.5, 50,  75,  150}
 downOffsets = {50, 62.5, 75, 125,  200, 235, 270}
@@ -137,7 +137,7 @@ downOffsets = {50, 62.5, 75, 125,  200, 235, 270}
 upOffsets2   = {0,  12.5, 25, 37.5, 50,  75,  150}
 downOffsets2 = {50, 62.5, 75, 125,  200, 235, 270}
 
-gapMod = 25;
+gapMod = 28;
 
 function halfWaveImpl(spawnX, vel, colorA, colorB)
     local gap = -100 + gapMod;
