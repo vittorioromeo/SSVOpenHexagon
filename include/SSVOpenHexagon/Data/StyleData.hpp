@@ -27,6 +27,18 @@ private:
 
     sf::Color calculateColor(const ColorData& mColorData) const;
 
+    [[nodiscard]] static ColorData colorDataFromObjOrDefault(
+        const ssvuj::Obj& mRoot, const std::string& mKey,
+        const ColorData& mDefault)
+    {
+        if(ssvuj::hasObj(mRoot, mKey))
+        {
+            return ColorData{ssvuj::getObj(mRoot, mKey)};
+        }
+
+        return mDefault;
+    }
+
 public:
     std::string id;
     float hueMin;
@@ -95,35 +107,18 @@ public:
               mRoot, "3D_override_color", sf::Color::Transparent)},
 
           mainColorData{ssvuj::getObj(mRoot, "main")}, //
+          playerColor{colorDataFromObjOrDefault(
+              mRoot, "player_color", mainColorData)}, //
+          textColor{
+              colorDataFromObjOrDefault(mRoot, "text_color", mainColorData)}, //
           capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
     {
         currentHue = hueMin;
 
-        // Player color is defined with an override property, otherwise it
-        // defaults to the main color
-        if(ssvuj::hasObj(mRoot, "player_color"))
-        {
-            playerColor = ssvuj::getObj(mRoot, "player_color");
-        }
-        else
-        {
-            playerColor = mainColorData;
-        }
-        
-        // Text color is defined with an override property, otherwise it
-        // defaults to the main color
-        if(ssvuj::hasObj(mRoot, "text_color"))
-        {
-            textColor = ssvuj::getObj(mRoot, "text_color");
-        }
-        else
-        {
-            textColor = mainColorData;
-        }
-
         const auto& objColors(ssvuj::getObj(mRoot, "colors"));
         const auto& colorCount(ssvuj::getObjSize(objColors));
 
+        colorDatas.reserve(colorCount);
         for(auto i(0u); i < colorCount; i++)
         {
             colorDatas.emplace_back(ssvuj::getObj(objColors, i));

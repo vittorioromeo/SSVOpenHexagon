@@ -129,13 +129,13 @@ void HexagonGame::draw()
             }
 
             // Apply player color if no 3D override is present.
-			if (styleData.get3DOverrideColor() == styleData.getMainColor())
-			{
-				status.overrideColor = getColorDarkened(
-                styleData.getPlayerColor(), styleData._3dDarkenMult);
-				status.overrideColor.a /= styleData._3dAlphaMult;
-				status.overrideColor.a -= i * styleData._3dAlphaFalloff;
-			}
+            if(styleData.get3DOverrideColor() == styleData.getMainColor())
+            {
+                status.overrideColor = getColorDarkened(
+                    styleData.getPlayerColor(), styleData._3dDarkenMult);
+                status.overrideColor.a /= styleData._3dAlphaMult;
+                status.overrideColor.a -= i * styleData._3dAlphaFalloff;
+            }
 
             for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
                 ++k)
@@ -191,10 +191,10 @@ void HexagonGame::drawKeyIcons()
     constexpr sf::Uint8 offOpacity = 90;
     constexpr sf::Uint8 onOpacity = 255;
 
-    const sf::Color c = getColorText();
+    const sf::Color colorText = getColorText();
 
-    const sf::Color offColor{c.r, c.g, c.b, offOpacity};
-    const sf::Color onColor{c.r, c.g, c.b, onOpacity};
+    const sf::Color offColor{colorText.r, colorText.g, colorText.b, offOpacity};
+    const sf::Color onColor{colorText.r, colorText.g, colorText.b, onOpacity};
 
     keyIconLeft.setColor((getInputMovement() == -1) ? onColor : offColor);
     keyIconRight.setColor((getInputMovement() == 1) ? onColor : offColor);
@@ -373,18 +373,20 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     const float padding = Config::getTextPadding() * Config::getTextScaling();
     const float offsetRatio = Config::getHeight() / 720.f;
 
-    timeText.setFillColor(getColorText());
+    const sf::Color colorText = getColorText();
+
+    timeText.setFillColor(colorText);
     timeText.setPosition(
         sf::Vector2f{padding, -22.f * offsetRatio * Config::getTextScaling()});
     render(timeText);
 
-    text.setFillColor(getColorText());
+    text.setFillColor(colorText);
     text.setPosition(sf::Vector2f{padding, ssvs::getGlobalBottom(timeText)});
     render(text);
 
     if(Config::getShowFPS())
     {
-        fpsText.setFillColor(getColorText());
+        fpsText.setFillColor(colorText);
         fpsText.setOrigin(0, ssvs::getGlobalHeight(fpsText));
         fpsText.setPosition(sf::Vector2f{
             padding, Config::getHeight() - ((8.f * (2.f * offsetRatio))) *
@@ -398,7 +400,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
             Config::getKeyIconsScale() / Config::getZoomFactor();
         const float replayPadding = 8.f * scaling;
 
-        replayText.setFillColor(getColorText());
+        replayText.setFillColor(colorText);
         replayText.setOrigin(ssvs::getLocalCenterE(replayText));
         replayText.setPosition(ssvs::getGlobalCenterW(replayIcon) -
                                sf::Vector2f{replayPadding, 0});
