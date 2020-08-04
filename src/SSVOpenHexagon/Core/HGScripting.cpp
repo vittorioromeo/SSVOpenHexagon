@@ -64,7 +64,6 @@ namespace hg
         lua.clearVariable("package.loadlib");
         lua.clearVariable("package.searchpath");
 
-        // Synth Morxemplum (c) 2020
     }
 
 void HexagonGame::initLua_Utils()
