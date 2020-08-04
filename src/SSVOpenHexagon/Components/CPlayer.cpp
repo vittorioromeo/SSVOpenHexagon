@@ -52,7 +52,7 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
         drawDeathEffect(mHexagonGame);
     }
 
-    sf::Color colorMain{!dead ? mHexagonGame.getColorMain()
+    sf::Color colorMain{!dead ? mHexagonGame.getColorPlayer()
                               : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
 
     const float triangleWidth = mHexagonGame.getInputFocused() ? -1.5f : 3.f;
