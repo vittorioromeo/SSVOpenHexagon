@@ -170,7 +170,7 @@ private:
         return mText;
     }
 
-    const sf::Color& getTextColor() const
+    [[nodiscard]] sf::Color getTextColor() const
     {
         return (state != States::SMain || Config::getBlackAndWhite())
                    ? sf::Color::White

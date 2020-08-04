@@ -564,9 +564,8 @@ auto HexagonGame::getColorPlayer() const -> sf::Color
     {
         return sf::Color(255, 255, 255, styleData.getPlayerColor().a);
     }
-    {
-        return styleData.getPlayerColor();
-    }
+
+    return styleData.getPlayerColor();
 }
 
 auto HexagonGame::getColorText() const -> sf::Color
@@ -575,9 +574,8 @@ auto HexagonGame::getColorText() const -> sf::Color
     {
         return sf::Color(255, 255, 255, styleData.getTextColor().a);
     }
-    {
-        return styleData.getTextColor();
-    }
+
+    return styleData.getTextColor();
 }
 
 void HexagonGame::setSides(unsigned int mSides)
