@@ -102,36 +102,6 @@ function clamp(input, min_val, max_val)
 	return input
 end
 
-function easeIn(x)
-	--[[
-	Takes a value x from 0 to 1 and returns the value on a quadratic ease curve
-	that goes from 0 to 1 accelerating.
-	]]
-	x = clamp(x, 0, 1);
-	return x ^ 2;
-end
-
-function easeInOut(x) 
-	--[[
-	Takes a value x from 0 to 1 and returns the value on a quadratic ease curve
-	that goes from 0 to 1.
-	]]
-	x = clamp(x, 0, 1);
-	if (x < 0.5) then
-		return 2 * x * x;
-	end
-	return -1 + (4 - 2 * x) * x;
-end
-
-function easeOut(x)
-	--[[
-	Takes a value x from 0 to 1 and returns the value on a quadratic ease curve
-	that goes from 0 to 1 decelerating.
-	]]
-	x = clamp(x, 0, 1);
-	return x * (2 - x);
-end
-
 function getSign(number) 
 	--[[
 	Takes a number and returns it's sign value.
@@ -193,7 +163,6 @@ function lerp(initial, final, i)
 	
 	Thanks to Zly for showing me the "precise" method
 	]]
-	i = clamp(i, 0, 1);
 	return (1 - i) * initial + i * final;
 end
 
@@ -236,3 +205,245 @@ function simplifyFloat(number, places)
 	]]
 	return roundFloat(number * (10 ^ places)) / (10 ^ places);
 end
+
+--[[ EASING FUNCTIONS ]]--
+-- These are easing functions, which are a special subset of math functions that help with specific transitions.
+-- These output values from 0 to 1, and work best when paired with linear interpolation (lerp).
+-- All formulas are referenced from easings.net.
+
+-- Sine
+function easeInSine(x)
+	x = clamp(x, 0, 1);
+	return 1 - math.cos((x * math.pi) / 2);
+end
+
+function easeInOutSine(x)
+	x = clamp(x, 0, 1);
+	return -(math.cos(math.pi * x) - 1) / 2;
+end
+
+function easeOutSine(x)
+	x = clamp(x, 0, 1);
+	return math.sin((x * math.pi) / 2);
+end
+
+-- Quadratic
+function easeInQuad(x)
+	x = clamp(x, 0, 1);
+	return x ^ 2;
+end
+
+function easeInOutQuad(x) 
+	x = clamp(x, 0, 1);
+	if (x < 0.5) then
+		return 2 * x * x;
+	end
+	return 1 - (-2 * x + 2) ^ 2 / 2;
+end
+
+function easeOutQuad(x)
+	x = clamp(x, 0, 1);
+	return 1 - (1 - x) * (1 - x);
+end
+
+-- Cubic
+function easeInCubic(x)
+	x = clamp(x, 0, 1);
+	return x ^ 3;
+end
+
+function easeInOutCubic(x)
+	x = clamp(x, 0, 1);
+	if (x < 0.5) then
+		return 4 * x * x * x;
+	end
+	return 1 - (-2 * x + 2) ^ 3 / 2;
+end
+
+function easeOutCubic(x)
+	x = clamp(x, 0, 1);
+	return 1 - (1 - x) ^ 3;
+end
+
+-- Quartic
+function easeInQuart(x)
+	x = clamp(x, 0, 1);
+	return x ^ 4;
+end
+
+function easeInOutQuart(x)
+	x = clamp(x, 0, 1);
+	if (x < 0.5) then
+		return 8 * x * x * x * x;
+	end
+	return 1 - (-2 * x + 2) ^ 4 / 2; 
+end
+
+function easeOutQuart(x)
+	x = clamp(x, 0, 1);
+	return 1 - (1 - x) ^ 4;
+end
+
+-- Quintic
+function easeInQuint(x)
+	x = clamp(x, 0, 1);
+	return x ^ 4;
+end
+
+function easeInOutQuint(x)
+	x = clamp(x, 0, 1);
+	if (x < 0.5) then
+		return 16 * x * x * x * x * x;
+	end
+	return 1 - (-2 * x + 2) ^ 5 / 2;
+end
+
+function easeOutQuint(x)
+	x = clamp(x, 0, 1);
+	return 1 - (1 - x) ^ 5;
+end
+
+-- Exponential
+function easeInExpo(x)
+	x = clamp(x, 0, 1);
+	if (x == 0) then
+		return 0;
+	end
+	return 2 ^ (10 * x - 10);
+end
+
+function easeInOutExpo(x)
+	x = clamp(x, 0, 1);
+	if (x == 0) then
+		return 0;
+	elseif (x < 0.5) then
+		return 2 ^ (20 * x - 10) / 2;
+	elseif (x == 1) then
+		return 1;
+	end
+	return (2 - 2 ^ (-20 * x + 10)) / 2;
+end
+
+-- Easings.net has this formula WRONG. This is the actual formula right here.
+function easeOutExpo(x)
+	x = clamp(x, 0, 1);
+	if (x == 1) then
+		return 1;
+	end
+	return -2 ^ (-10 * x) + 1;
+end
+
+-- Circle
+function easeInCirc(x)
+	x = clamp(x, 0, 1);
+	return 1 - math.sqrt(1 - (x^2));
+end
+
+function easeInOutCirc(x)
+	x = clamp(x, 0, 1);
+	if (x < 0.5) then
+		return (1 - math.sqrt(1 - (2 * x) ^ 2)) / 2;
+	end
+	return (math.sqrt(1 - (-2 * x + 2) ^ 2) + 1) / 2;
+end
+
+function easeOutCirc(x)
+	x = clamp(x, 0, 1);
+	return math.sqrt(1 - (x - 1) ^ 2);
+end
+
+-- Back Functions
+function easeInBack(x)
+	x = clamp(x, 0, 1);
+	local CONST_ONE = 1.70158;
+	local CONST_THREE = CONST_ONE + 1;
+
+	return CONST_THREE * x * x * x - CONST_ONE * x * x
+end
+
+function easeInOutBack(x)
+	x = clamp(x, 0, 1);
+	local CONST_ONE = 1.70158;
+	local CONST_TWO = CONST_ONE * 1.525;
+
+	if (x < 0.5) then
+		return ((2 * x) ^ 2 * ((CONST_TWO + 1) * 2 * x - CONST_TWO)) / 2;
+	end
+	return ((2 * x - 2) ^ 2 * ((CONST_TWO + 1) * (x * 2 - 2) + CONST_TWO) + 2) / 2;
+end
+
+function easeOutBack(x)
+	x = clamp(x, 0, 1);
+	local CONST_ONE = 1.70158;
+	local CONST_THREE = CONST_ONE + 1;
+
+	return 1 + CONST_THREE * (x - 1) ^ 3 + 
+			CONST_ONE * (x - 1) ^ 2;
+end
+
+-- Elastic
+function easeInElastic(x)
+	x = clamp(x, 0, 1);
+	local CONST_FOUR = (2 * math.pi) / 3;
+
+	if (x == 0) then
+		return 0;
+	elseif (x == 1) then
+		return 1;
+	end
+	return -(2 ^ (10 * x - 10)) * math.sin((x * 10 - 10.75) * CONST_FOUR);
+end
+
+function easeInOutElastic(x)
+	x = clamp(x, 0, 1);
+	local CONST_FIVE = (2 * math.pi) / 4.5;
+
+	if (x == 0) then
+		return 0;
+	elseif (x == 1) then
+		return 1;
+	elseif (x < 0.5) then
+		return -(2 ^ (20 * x - 10)) * math.sin((20 * x - 11.125) * CONST_FIVE) / 2;
+	end
+	return (2 ^ (-20 * x + 10) * math.sin((20 * x - 11.125) * CONST_FIVE)) / 2 + 1;
+end
+
+function easeOutElastic(x)
+	x = clamp(x, 0, 1);
+	local CONST_FOUR = (2 * math.pi) / 3;
+
+	if (x == 0) then
+		return 0;
+	elseif (x == 1) then
+		return 1;
+	end
+	return 2 ^ (-10 * x) * math.sin((x * 10 - 0.75) * CONST_FOUR) + 1;
+end
+
+-- Bounce
+-- Okay. Easings.net has this completely wrong here. Their implementation is garbage.
+-- This is a much better implementation (Thanks Oshisaure)
+function easeInBounce(x, bounceFactor)
+	bounceFactor = bounceFactor or 1; -- Optional parameter
+	x = clamp(x, 0, 1);
+	if (x == 0) then
+		return 0;
+	end
+	return math.abs(math.cos(bounceFactor * (1 - 1/x) * math.pi) * math.sin(x * math.pi/2) ^ 2);
+end
+
+function easeInOutBounce(x)
+	x = clamp(x, 0, 1);
+	if (x < 0.5) then
+		return easeInBounce(x);
+	end
+	return easeOutBounce(x);
+end
+
+function easeOutBounce(x, bounceFactor)
+	x = clamp(x, 0, 1);
+	if (x == 1) then
+		return 1;
+	end
+	return -easeInBounce(1 - x, bounceFactor) + 1;
+end 
