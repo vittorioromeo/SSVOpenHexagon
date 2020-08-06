@@ -118,11 +118,7 @@ void MenuGame::initMenus()
     namespace i = ssvms::Items;
 
     auto whenLocal = [this] { return assets.pIsLocal(); };
-    auto whenNotLocal = [this] { return !assets.pIsLocal(); };
     auto whenNotOfficial = [] { return !Config::getOfficial(); };
-    auto whenDisconnected = [] { return true; };
-    auto whenConnectedAndUnlogged = [] { return false; };
-    auto whenConnectedAndLogged = [] { return false; };
     auto whenUnlogged = [] { return true; };
     auto whenSoundEnabled = [] { return !Config::getNoSound(); };
     auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
