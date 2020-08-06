@@ -29,7 +29,7 @@ void HexagonGame::redefineLuaFunctions()
     catch(...)
     {
         ssvu::lo("HexagonGame::redefineLuaFunctions")
-            << "Failure to redefine Lua's io.open function\n";
+            << "Failure to redefine Lua's `io.open` function\n";
     }
 }
 

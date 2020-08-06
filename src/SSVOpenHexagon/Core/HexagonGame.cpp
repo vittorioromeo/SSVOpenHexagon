@@ -112,11 +112,14 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
       fpsWatcher(window)
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
+
     game.onPostUpdate += [this] {
         inputImplLastMovement = inputMovement;
         inputImplBothCWCCW = inputImplCW && inputImplCCW;
     };
+
     game.onDraw += [this] { draw(); };
+
     window.onRecreation += [this] {
         initFlashEffect();
         initKeyIcons();
@@ -126,14 +129,17 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW);
     add2StateInput(game, Config::getTriggerFocus(), inputFocused);
     add2StateInput(game, Config::getTriggerSwap(), inputSwap);
+
     game.addInput(
         Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); });
+
     game.addInput(
         Config::getTriggerForceRestart(),
         [this](ssvu::FT /*unused*/) {
             status.mustStateChange = StateChange::MustRestart;
         },
         ssvs::Input::Type::Once);
+
     game.addInput(
         Config::getTriggerRestart(),
         [this](ssvu::FT /*unused*/) {
@@ -143,6 +149,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
             }
         },
         ssvs::Input::Type::Once);
+
     game.addInput(
         Config::getTriggerReplay(),
         [this](ssvu::FT /*unused*/) {
@@ -152,6 +159,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
             }
         },
         ssvs::Input::Type::Once);
+
     game.addInput(
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
@@ -172,6 +180,12 @@ void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
+#define PRINT(x) << #x << ": " << x << '\n'
+
+    std::cout << "STARTING NEW GAME WITH\n" PRINT(mPackId) PRINT(mId)
+            PRINT(mFirstPlay) PRINT(mDifficultyMult) PRINT(executeLastReplay);
+
+
     initFlashEffect();
 
     packId = mPackId;
