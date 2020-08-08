@@ -1,3 +1,25 @@
+-- [[ CONSTANTS ]] --
+-- These are constants. These are values that may be very useful to use to accomplish a specific task
+-- These have no direct involvement with making patterns, hence they belong here and not in "common"
+
+-- Defining some mathematical constants
+math.tau = math.pi * 2;
+math.e = 2.71828182845904523536;
+math.phi = 2 * math.sin(math.rad(54));
+SQRT_TWO = math.sqrt(2);
+SQRT_THREE = math.sqrt(3);
+
+-- Open Hexagon players, if certain things are causing issues for you please change this value
+-- to the refresh rate of your monitor.
+REFRESH_RATE = 60; 
+FPS = 60;
+
+-- Taken from Omegasphere
+-- These are constants to use when you want the rotation speed to match the horizontal speed of 
+-- curving walls.
+CURVE_ROTATION_MULTIPLIER = 10.471975
+CURVE_ROTATION_FOCUS = 2.0436
+
 -- [[ ENUMERATORS ]] --
 -- These are enumerators. They translate integers into more English vocabulary, making them much
 -- easier to memorize over pure integers.
@@ -89,10 +111,24 @@ KeyCode = {
 -- Additional functions that help simplify certain calculations, including complex mathematical calculations
 -- Ordered alphabetically
 
+function BPMtoFPB(bpm)
+	--[[
+	Converts Beats Per Minute (BPM) into period in Frames Per Beat (FPB)
+	]]
+	return (FPS * 60)/bpm;
+end
+
+function BPMtoSPB(bpm)
+	--[[
+	Converts Beats Per Minute (BPM) into period in Seconds Per Beat (SPB)
+	]]
+	return FPS/bpm;
+end
+
 function clamp(input, min_val, max_val)
 	--[[
-		Clamps a number "input" between two values. The value can not go 
-		below min_val and can not go above max_val.
+	Clamps a number "input" between two values. The value can not go 
+	below min_val and can not go above max_val.
 	]]
 	if input < min_val then
 		input = min_val
@@ -100,6 +136,54 @@ function clamp(input, min_val, max_val)
 		input = max_val
 	end
 	return input
+end
+
+local function fromHS(h, s)
+	--[[
+	Helper function for "fromHSV()", which translates from Hue and Saturation
+	to RGB values.
+	]]
+	-- Find a color from hue and saturation.
+	h = (h % 360)/60;
+	local i, f, g, t;
+	i, f = math.modf(h)
+	g = 1 - f; -- For descending gradients
+	t = 1 - s; -- Minimum color intensity based on saturation
+	f, g = s * f + t, s * g + t; -- Apply saturation
+	
+		if i == 0 then return 1, f, t;
+	elseif i == 1 then return g, 1, t;
+	elseif i == 2 then return t, 1, f;
+	elseif i == 3 then return t, g, 1;
+	elseif i == 4 then return f, t, 1;
+	elseif i == 5 then return 1, t, g; 
+	end
+	return 1, 1, 1; -- Fallback
+end
+
+function fromHSV(h, s, v)
+	--[[
+	Converts HSV color values to RGB color values in a 0 - 255 range (alpha not included).
+	]]
+	-- Saturation and Value are optional parameters
+	s = s or 1;
+	v = v or 1;
+	
+	local r, g, b = fromHS(h, s);
+	r = math.floor(r * v * 255);
+	g = math.floor(g * v * 255);
+	b = math.floor(b * v * 255);
+	return r, g, b;
+end
+
+function getAbsolutePosition(x, y)
+	--[[
+	Returns coordinates (x, y) adjusted with the level rotation using polar coordinate math.
+	Implementation by Oshisaure.
+	]]
+	local r, a = (x ^ 2 + y ^ 2) ^ 0.5, math.atan(y, x);
+	a = a + math.rad(l_getRotation());
+	return r * math.cos(a), r * math.sin(a);
 end
 
 function getSign(number) 
@@ -165,6 +249,25 @@ function lerp(initial, final, i)
 	]]
 	return (1 - i) * initial + i * final;
 end
+
+function printTable(luaTable, whitespace)
+	--[[
+	Prints a table to the console. This includes all key value pairs, and recursively prints out any 
+	tables of additional dimensions
+
+	Formatting of table contents are done with the "whitespace" character. Courtesy of Zly.
+	]]
+	whitespace = whitespace or "";
+	
+	if (type(luaTable) ~= "table") then return end;
+	
+	for k, v in pairs(luaTable) do
+		print(whitespace..tostring(k), v);
+		if (type(v) == "table" and v ~= luaTable) then
+			tablePrint(v, whitespace.."\t");
+		end
+	end
+end 
 
 function randomFloat(minimum, maximum)
 	--[[
