@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2015 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 /*
 Copyright (c) 2010, Pierre KRIEGER
@@ -429,7 +429,7 @@ private:
     // can interpret
     //   any variable name in a table form (ie. names like table.value are
     //   supported)
-    // see also http://www.lua.org/manual/5.1/manual.html#lua_getglobal
+    // see also https://www.lua.org/manual/5.1/manual.html#lua_getglobal
     // same for setGlobal <=> lua_setglobal
     // important: _setGlobal will pop the value even if it throws an
     // exception, while _getGlobal won't push the value if it throws an
