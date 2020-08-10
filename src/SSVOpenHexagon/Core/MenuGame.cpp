@@ -712,7 +712,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
             "u_kill", "u_eventKill", "u_haltTime", "u_timelineWait",
             "u_clearWalls", "u_setMusic", "u_setMusicSegment",
-            "u_setMusicSeconds",
+            "u_setMusicSeconds", "u_getVersion",
 
             "m_messageAdd", "m_messageAddImportant",
             "m_messageAddImportantSilent", "m_clearMessages",
