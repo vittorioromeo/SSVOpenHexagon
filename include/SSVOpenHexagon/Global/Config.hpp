@@ -135,6 +135,11 @@ void setFirstTimePlaying(bool mX);
 [[nodiscard]] float getKeyIconsScale();
 [[nodiscard]] bool getFirstTimePlaying();
 
+void addBindTriggerFocus(int key, int btn);
+void addBindTriggerSwap(int key, int btn);
+void clearBindTriggerFocus();
+void clearBindTriggerSwap();
+
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerFocus();
