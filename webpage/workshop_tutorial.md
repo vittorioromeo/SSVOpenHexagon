@@ -8,7 +8,7 @@ This document will guide you through the process of creating a new Open Hexagon 
 
 ### Prerequisites
 
-Open Hexagon uses [**Lua**](http://www.lua.org/) as the main scripting language for custom levels, alongside [**JSON**](https://www.json.org/json-en.html) for level metadata and configuration files.
+Open Hexagon uses [**Lua**](https://www.lua.org/) as the main scripting language for custom levels, alongside [**JSON**](https://www.json.org/json-en.html) for level metadata and configuration files.
 
 It is recommended to be somewhat familiar with both languages before diving into Open Hexagon content creation, but if you're feeling brave and have previous programming experience you can just try to "wing it" by modifying existing levels and learning on the fly. A quick and fun way of learning the syntax of the above languages is the "Learn X in Y minutes" website:
 
