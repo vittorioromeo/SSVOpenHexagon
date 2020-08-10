@@ -71,32 +71,51 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::KeyPressed) =
         [this](const Event& mEvent)
         {
-            if(isEnteringBind)
+            if(state == States::ETBind)
             {
                 KKey key = mEvent.key.code;
-                if(isValidKeyBind(key))
+                if(!isValidKeyBind(key))
                 {
-                    getCurrentMenu()->getItem().newBind(key);
-                    isEnteringBind = false;
-                    assets.playSound("beep.ogg");
-                    touchDelay = 25.f;
+                    assets.playSound("error.ogg");
                 }
                 else
                 {
-                    touchDelay = 10.f;
+                    int bindResult = getCurrentMenu()->getItem().newBind(key);
+                    if(bindResult == 1)
+                    {
+                        assets.playSound("beep.ogg");
+                        state = States::MOpts;
+                    }
+                    else
+                    {
+                        assets.playSound("error.ogg");
+                        if(bindResult == -1) state = States::MOpts;
+                    }
                 }
+                
+                touchDelay = 10.f;
             }
         };
     game.onEvent(Event::EventType::MouseButtonPressed) =
         [this](const Event& mEvent)
         {
-            if(isEnteringBind)
+            if(state == States::ETBind)
             {
                 MBtn btn = mEvent.mouseButton.button;
-                getCurrentMenu()->getItem().newBind(KKey::Unknown, btn);
-                isEnteringBind = false;
-                assets.playSound("beep.ogg");
-                touchDelay = 25.f;
+                int bindResult = getCurrentMenu()->getItem().newBind(KKey::Unknown, btn);
+                if(bindResult == 1)
+                {
+                    state = States::MOpts;
+                    assets.playSound("beep.ogg");
+                }
+                else
+                {
+                    assets.playSound("error.ogg");
+                    if(bindResult == -1)
+                        state = States::MOpts;
+                }
+                
+                touchDelay = 10.f;
             }
         };
     window.onRecreation += [this] { refreshCamera(); };
@@ -371,7 +390,7 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
-    if(isEnteringBind)
+    if(state == States::ETBind)
         return;
 
     assets.playSound("beep.ogg");
@@ -398,7 +417,7 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
-    if(isEnteringBind)
+    if(state == States::ETBind)
         return;
 
     assets.playSound("beep.ogg");
@@ -424,7 +443,7 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
-    if(isEnteringBind)
+    if(state == States::ETBind)
         return;
 
     assets.playSound("beep.ogg");
@@ -446,7 +465,7 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
-    if(isEnteringBind)
+    if(state == States::ETBind)
         return;
 
     assets.playSound("beep.ogg");
@@ -468,7 +487,7 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
-    if(isEnteringBind)
+    if(state == States::ETBind)
         return;
 
     assets.playSound("beep.ogg");
@@ -497,10 +516,10 @@ void MenuGame::okAction()
     else if(isInMenu())
     {
         getCurrentMenu()->exec();
-        if(getCurrentMenu()->getItem().isWaitingForBind())
+        if(state == States::MOpts && getCurrentMenu()->getItem().isWaitingForBind())
         {
-            isEnteringBind = true;
-            touchDelay = 25.f;
+            state = States::ETBind;
+            touchDelay = 10.f;
         }
     }
     else if(state == States::ETLPNew)
@@ -555,14 +574,20 @@ void MenuGame::okAction()
 
 void MenuGame::eraseAction()
 {
-    if(isEnteringBind)
+    if(state == States::ETBind)
         return;
 
     if(isInMenu())
     {
+        if(!getCurrentMenu()->erase())
+        {
+            assets.playSound("error.ogg");
+            touchDelay = 10.f;
+            return;
+        }
+        
         assets.playSound("beep.ogg");
         touchDelay = 50.f;
-        getCurrentMenu()->erase();
     }
 }
 
@@ -656,11 +681,10 @@ void MenuGame::initInput()
         Config::getTriggerExit(),
         [this](ssvu::FT /*unused*/) {
             assets.playSound("beep.ogg");
-            
-            if(isEnteringBind) //reverse waitingforbind state
+            if(state == States::ETBind)
             {
+                state = States::MOpts;
                 getCurrentMenu()->exec();
-                isEnteringBind = false;
             }
             else if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
                !assets.pIsLocal())
@@ -680,8 +704,6 @@ void MenuGame::initInput()
             }
         },
         t::Once);
-    
-    
     game.addInput(
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; }, t::Once);
@@ -1146,7 +1168,7 @@ void MenuGame::update(ssvu::FT mFT)
         window.stop();
     }
     
-    if(!isEnteringBind)
+    if(state != States::ETBind)
     {
         if(isEnteringText())
         {
@@ -1225,7 +1247,7 @@ void MenuGame::draw()
     {
         drawProfileSelection();
     }
-    else if(state == States::MOpts)
+    else if(state == States::MOpts || state == States::ETBind)
     {
         drawOptions();
     }

@@ -48,56 +48,79 @@
 	"t_down" :
 	[
 		[ "kDown" ],
-		[ "kS" ]
+		[ "kUnknown" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"t_exit" :
 	[
-		[ "kEscape" ]
+		[ "kEscape" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"t_focus" :
 	[
 		[ "kLShift" ],
-		[ "bXButton1" ]
+		[ "bXButton1" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"t_force_restart" :
 	[
 		[ "kR" ],
-		[ "bXButton2" ]
+		[ "bXButton2" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"t_restart" :
 	[
 		[ "kReturn" ],
-		[ "bMiddle" ]
+		[ "bMiddle" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"t_replay" :
 	[
-		[ "kY" ]
+		[ "kY" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"t_rotate_ccw" :
 	[
 		[ "kLeft" ],
 		[ "kA" ],
-		[ "bLeft" ]
+		[ "bLeft" ],
+		[ "kUnknown" ]
 	],
 	"t_rotate_cw" :
 	[
 		[ "kRight" ],
 		[ "kD" ],
-		[ "bRight" ]
+		[ "bRight" ],
+		[ "kUnknown" ]
 	],
 	"t_screenshot" :
 	[
-		[ "kF12" ]
+		[ "kF12" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"t_swap" :
 	[
 		[ "kSpace" ],
-		[ "bMiddle" ]
+		[ "bMiddle" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"t_up" :
 	[
 		[ "kUp" ],
-		[ "kW" ]
+		[ "kW" ],
+		[ "kUnknown" ],
+		[ "kUnknown" ]
 	],
 	"text_padding" : 8.0,
 	"text_scaling" : 1.0,

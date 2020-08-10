@@ -219,7 +219,6 @@ private:
                state == States::ETFriend;
     }
     
-    bool isEnteringBind{false};
     using KKey = ssvs::KKey;
     bool isValidKeyBind(KKey key)
     {
@@ -234,7 +233,9 @@ private:
         switch(state)
         {
             case States::MWlcm: return &welcomeMenu;
-            case States::MOpts: return &optionsMenu;
+            case States::MOpts:
+            case States::ETBind:
+                return &optionsMenu;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnull-dereference"

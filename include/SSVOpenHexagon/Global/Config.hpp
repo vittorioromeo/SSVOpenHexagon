@@ -135,11 +135,6 @@ void setFirstTimePlaying(bool mX);
 [[nodiscard]] float getKeyIconsScale();
 [[nodiscard]] bool getFirstTimePlaying();
 
-void addBindTriggerFocus(int key, int btn);
-void addBindTriggerSwap(int key, int btn);
-void clearBindTriggerFocus();
-void clearBindTriggerSwap();
-
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerFocus();
@@ -151,5 +146,10 @@ void clearBindTriggerSwap();
 [[nodiscard]] ssvs::Input::Trigger getTriggerSwap();
 [[nodiscard]] ssvs::Input::Trigger getTriggerUp();
 [[nodiscard]] ssvs::Input::Trigger getTriggerDown();
+
+void addBindTriggerFocus(const int key, const int btn, const int size);
+void addBindTriggerSwap(const int key, const int btn, const int size);
+void clearBindTriggerFocus(const int size);
+void clearBindTriggerSwap(const int size);
 
 } // namespace hg::Config

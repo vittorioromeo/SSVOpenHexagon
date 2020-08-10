@@ -827,62 +827,6 @@ bool SSVU_ATTRIBUTE(pure) getFirstTimePlaying()
     return firstTimePlaying();
 }
 
-void addBindTriggerFocus(int key, int btn)
-{
-    Trigger trig = getTriggerFocus();
-    KKey keyNum = static_cast<KKey>(key);
-    MBtn btnNUm = static_cast<MBtn>(btn);
-    if(keyNum > KKey::Unknown)
-    {
-        const std::initializer_list<KKey> keys = { keyNum };
-        trig.getCombos().emplace_back(Combo(keys));
-    }
-    else if(btnNUm > MBtn::Unknown)
-    {
-        const std::initializer_list<MBtn> btns = { btnNUm };
-        trig.getCombos().emplace_back(Combo(btns));
-    }
-    triggerFocus() = trig;
-}
-
-void addBindTriggerSwap(int key, int btn)
-{
-    Trigger trig = getTriggerSwap();
-    KKey keyNum = static_cast<KKey>(key);
-    MBtn btnNUm = static_cast<MBtn>(btn);
-    if(keyNum > KKey::Unknown)
-    {
-        const std::initializer_list<KKey> keys = { keyNum };
-        trig.getCombos().emplace_back(Combo(keys));
-    }
-    else if(btnNUm > MBtn::Unknown)
-    {
-        const std::initializer_list<MBtn> btns = { btnNUm };
-        trig.getCombos().emplace_back(Combo(btns));
-    }
-    triggerSwap() = trig;
-}
-
-void clearBindTriggerSwap()
-{
-    Trigger trig = getTriggerSwap();
-    int size = trig.getCombos().size();
-    if(size < 2) return; //we cannot have a function without any bind
-
-    trig.getCombos().erase(trig.getCombos().begin());
-    triggerSwap() = trig;
-}
-
-void clearBindTriggerFocus()
-{
-    Trigger trig = getTriggerFocus();
-    int size = trig.getCombos().size();
-    if(size < 2) return; //we cannot have a function without any bind
-
-    trig.getCombos().erase(trig.getCombos().begin());
-    triggerFocus() = trig;
-}
-
 Trigger getTriggerRotateCCW()
 {
     return triggerRotateCCW();
@@ -936,6 +880,40 @@ Trigger getTriggerUp()
 Trigger getTriggerDown()
 {
     return triggerDown();
+}
+
+void addBindTriggerFocus(const int key, const int btn, const int size)
+{
+    Trigger trig = getTriggerFocus();
+    if(key > -1)
+        trig.getCombos()[size].addKey(static_cast<KKey>(key));
+    else
+        trig.getCombos()[size].addBtn(static_cast<MBtn>(btn));
+    triggerFocus() = trig;
+}
+
+void addBindTriggerSwap(const int key, const int btn, const int size)
+{
+    Trigger trig = getTriggerSwap();
+    if(key > -1)
+        trig.getCombos()[size].addKey(static_cast<KKey>(key));
+    else
+        trig.getCombos()[size].addBtn(static_cast<MBtn>(btn));
+    triggerSwap() = trig;
+}
+
+void clearBindTriggerSwap(const int size)
+{
+    Trigger trig = getTriggerSwap();
+    trig.getCombos()[size - 1].clearBind();
+    triggerSwap() = trig;
+}
+
+void clearBindTriggerFocus(const int size)
+{
+    Trigger trig = getTriggerFocus();
+    trig.getCombos()[size - 1].clearBind();
+    triggerFocus() = trig;
 }
 
 } // namespace hg::Config

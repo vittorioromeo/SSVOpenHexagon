@@ -91,11 +91,16 @@ struct Converter<ssvs::Input::Combo>
 
     inline static void fromObj(const Obj& mObj, T& mValue)
     {
+        std::string str;
+        
         for(const auto& i : mObj)
         {
-            if(ssvs::isKKeyNameValid(getExtr<std::string>(i)))
+            str = getExtr<std::string>(i);
+            if(str == "")
+                mValue.addKey(ssvs::KKey::Unknown);
+            else if(ssvs::isKKeyNameValid(str))
                 mValue.addKey(getExtr<ssvs::KKey>(i));
-            else if(ssvs::isMBtnNameValid(getExtr<std::string>(i)))
+            else if(ssvs::isMBtnNameValid(str))
                 mValue.addBtn(getExtr<ssvs::MBtn>(i));
             else
                 ssvu::lo("ssvs::getInputComboFromJSON")
@@ -105,9 +110,16 @@ struct Converter<ssvs::Input::Combo>
 
     inline static void toObj(Obj& mObj, const T& mValue)
     {
+        if(mValue.isUnbound())
+        {
+            arch(mObj, 0, ssvs::KKey(-1));
+            return;
+        }
+    
         auto i(0u);
         const auto& keys(mValue.getKeys());
         const auto& btns(mValue.getBtns());
+        
         for(auto j(0u); j < ssvs::kKeyCount; ++j)
             if(ssvs::getKeyBit(keys, ssvs::KKey(j)))
                 arch(mObj, i++, ssvs::KKey(j));
