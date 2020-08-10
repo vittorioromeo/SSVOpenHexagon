@@ -34,6 +34,7 @@ enum class States
     ETEmail,
     ETLPNew,
     ETFriend,
+    ETBind,
     SLogging,
     SMain,
     SLPSelect,
@@ -110,6 +111,7 @@ private:
     void upAction();
     void downAction();
     void okAction();
+    void eraseAction();
     void createProfileAction();
     void selectProfileAction();
     void openOptionsAction();
@@ -215,6 +217,16 @@ private:
         return state == States::ETUser || state == States::ETPass ||
                state == States::ETEmail || state == States::ETLPNew ||
                state == States::ETFriend;
+    }
+    
+    bool isEnteringBind{false};
+    using KKey = ssvs::KKey;
+    bool isValidKeyBind(KKey key)
+    {
+        //do not allow keys with hardcoded behaviors
+        return key > KKey::Unknown && key <= KKey::Numpad9 &&
+               key != KKey::Escape && key != KKey::LAlt &&
+               key != KKey::Return && key != KKey::BackSpace;
     }
 
     ssvms::Menu* getCurrentMenu() noexcept

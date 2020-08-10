@@ -11,12 +11,7 @@
 		"creditsBar2b.png",
 		"creditsBar2c.png",
 		"creditsBar2d.png",
-		"titleBar.png",
-		"epilepsyWarning.png",
-		"keyArrow.png",
-		"keyFocus.png",
-		"keySwap.png",
-		"replayIcon.png"
+		"titleBar.png"
 	],
 	"soundBuffers":
 	[
@@ -26,7 +21,6 @@
 		"go.ogg",
 		"levelUp.ogg",
 		"openHexagon.ogg",
-		"error.ogg",
 		"swap.ogg"
 	]
 }

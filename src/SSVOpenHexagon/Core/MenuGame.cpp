@@ -68,6 +68,37 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 downAction();
             }
         };
+    game.onEvent(Event::EventType::KeyPressed) =
+        [this](const Event& mEvent)
+        {
+            if(isEnteringBind)
+            {
+                KKey key = mEvent.key.code;
+                if(isValidKeyBind(key))
+                {
+                    getCurrentMenu()->getItem().newBind(key);
+                    isEnteringBind = false;
+                    assets.playSound("beep.ogg");
+                    touchDelay = 25.f;
+                }
+                else
+                {
+                    touchDelay = 10.f;
+                }
+            }
+        };
+    game.onEvent(Event::EventType::MouseButtonPressed) =
+        [this](const Event& mEvent)
+        {
+            if(isEnteringBind)
+            {
+                MBtn btn = mEvent.mouseButton.button;
+                getCurrentMenu()->getItem().newBind(KKey::Unknown, btn);
+                isEnteringBind = false;
+                assets.playSound("beep.ogg");
+                touchDelay = 25.f;
+            }
+        };
     window.onRecreation += [this] { refreshCamera(); };
 
     levelDataIds =
@@ -306,6 +337,10 @@ void MenuGame::initMenus()
         &Config::setRotateToStart);
     play.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
         &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
+    play.create<i::BindControl>("swap bind", &Config::getTriggerSwap,
+        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap);
+    play.create<i::BindControl>("focus bind", &Config::getTriggerFocus,
+        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus);
     play.create<i::GoBack>("back");
 
     localProfiles.create<i::Single>("change local profile", [this] {
@@ -336,6 +371,9 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
+    if(isEnteringBind)
+        return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -360,6 +398,9 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
+    if(isEnteringBind)
+        return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -383,6 +424,9 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
+    if(isEnteringBind)
+        return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -402,6 +446,9 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
+    if(isEnteringBind)
+        return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -421,6 +468,9 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
+    if(isEnteringBind)
+        return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -447,6 +497,11 @@ void MenuGame::okAction()
     else if(isInMenu())
     {
         getCurrentMenu()->exec();
+        if(getCurrentMenu()->getItem().isWaitingForBind())
+        {
+            isEnteringBind = true;
+            touchDelay = 25.f;
+        }
     }
     else if(state == States::ETLPNew)
     {
@@ -495,6 +550,19 @@ void MenuGame::okAction()
             enteredStr = "";
             Online::trySendUserEmail(lrEmail);
         }
+    }
+}
+
+void MenuGame::eraseAction()
+{
+    if(isEnteringBind)
+        return;
+
+    if(isInMenu())
+    {
+        assets.playSound("beep.ogg");
+        touchDelay = 50.f;
+        getCurrentMenu()->erase();
     }
 }
 
@@ -588,36 +656,32 @@ void MenuGame::initInput()
         Config::getTriggerExit(),
         [this](ssvu::FT /*unused*/) {
             assets.playSound("beep.ogg");
-            bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
-                       !assets.pIsLocal()};
-            if(isInMenu() && valid)
+            
+            if(isEnteringBind) //reverse waitingforbind state
             {
-                if(getCurrentMenu()->canGoBack())
+                getCurrentMenu()->exec();
+                isEnteringBind = false;
+            }
+            else if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
+               !assets.pIsLocal())
+            {
+                if(isInMenu())
                 {
-                    getCurrentMenu()->goBack();
+                    if(getCurrentMenu()->canGoBack())
+                        getCurrentMenu()->goBack();
+                    else
+                        state = States::SMain;
                 }
-                else
+                else if(state == States::ETFriend ||
+                        state == States::SLPSelect)
                 {
                     state = States::SMain;
                 }
             }
-            else if((state == States::ETFriend || state == States::SLPSelect) &&
-                    valid)
-            {
-                state = States::SMain;
-            }
         },
         t::Once);
-
-    game.addInput(
-        Config::getTriggerExit(),
-        [this](ssvu::FT mFT) {
-            if(state != States::MOpts)
-            {
-                exitTimer += mFT;
-            }
-        },
-        [this](ssvu::FT /*unused*/) { exitTimer = 0; });
+    
+    
     game.addInput(
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; }, t::Once);
@@ -633,9 +697,9 @@ void MenuGame::initInput()
         {{k::BackSpace}},
         [this](ssvu::FT /*unused*/) {
             if(isEnteringText() && !enteredStr.empty())
-            {
                 enteredStr.erase(enteredStr.end() - 1);
-            }
+            else
+                eraseAction();
         },
         t::Once);
 }
@@ -1081,45 +1145,49 @@ void MenuGame::update(ssvu::FT mFT)
     {
         window.stop();
     }
-
-    if(isEnteringText())
+    
+    if(!isEnteringBind)
     {
-        unsigned int limit{state == States::ETEmail ? 40u : 18u};
-        for(const auto& c : enteredChars)
+        if(isEnteringText())
         {
-            if(enteredStr.size() < limit &&
-                (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
+            unsigned int limit{state == States::ETEmail ? 40u : 18u};
+            for(const auto& c : enteredChars)
             {
-                assets.playSound("beep.ogg");
-                enteredStr.append(toStr(c));
+                if(enteredStr.size() < limit &&
+                    (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
+                {
+                    assets.playSound("beep.ogg");
+                    enteredStr.append(toStr(c));
+                }
             }
         }
-    }
-    else if(state == States::SLPSelect)
-    {
-        enteredStr =
-            ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
-    }
-    else if(state == States::SMain)
-    {
-        styleData.update(mFT);
-        backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
+        else if(state == States::SLPSelect)
+        {
+            enteredStr =
+                ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
+        }
+        else if(state == States::SMain)
+        {
+            styleData.update(mFT);
+            backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
 
-        if(!assets.pIsLocal())
-        {
-            float diffMult{ssvu::getByModIdx(diffMults, diffMultIdx)};
-            Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
+            if(!assets.pIsLocal())
+            {
+                float diffMult{ssvu::getByModIdx(diffMults, diffMultIdx)};
+                Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
+            }
         }
-    }
-    else if(state == States::SLogging)
-    {
-        if(Online::getLoginStatus() == ols::Logged)
+        else if(state == States::SLogging)
         {
-            state = Online::getNewUserReg() ? States::ETEmail : States::SMain;
-        }
-        else if(Online::getLoginStatus() == ols::Unlogged)
-        {
-            state = States::MWlcm;
+            if(Online::getLoginStatus() == ols::Logged)
+            {
+                state =
+                    Online::getNewUserReg() ? States::ETEmail : States::SMain;
+            }
+            else if(Online::getLoginStatus() == ols::Unlogged)
+            {
+                state = States::MWlcm;
+            }
         }
     }
 
