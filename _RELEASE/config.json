@@ -9,17 +9,17 @@
 	"beatpulse_enabled" : true,
 	"black_and_white" : false,
 	"darken_uneven_background_chunk" : true,
-	"debug" : true,
+	"debug" : false,
 	"draw_text_outlines" : true,
 	"first_time_playing" : false,
 	"flash_enabled" : true,
 	"fullscreen" : false,
-	"fullscreen_auto_resolution" : true,
-	"fullscreen_height" : 1080,
-	"fullscreen_width" : 1920,
-	"invincible" : true,
+	"fullscreen_auto_resolution" : false,
+	"fullscreen_height" : 600,
+	"fullscreen_width" : 800,
+	"invincible" : false,
 	"joystick_deadzone" : 5.0,
-	"key_icons_scale" : 0.7500000596046448,
+	"key_icons_scale" : 0.750,
 	"limit_fps" : true,
 	"max_fps" : 200,
 	"mouse_visible" : false,
@@ -37,22 +37,23 @@
 	"player_size" : 7.300000190734863,
 	"player_speed" : 9.449999809265137,
 	"pulse_enabled" : true,
-	"rotate_to_start" : true,
+	"rotate_to_start" : false,
 	"server_local" : true,
 	"server_verbose" : true,
-	"show_fps" : true,
-	"show_key_icons" : true,
+	"show_fps" : false,
+	"show_key_icons" : false,
 	"show_messages" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 75.0,
 	"t_down" : 
 	[
-		[ "kDown" ],
-		[ "kS" ]
+		[ "kS" ],
+		[ "" ]
 	],
 	"t_exit" : 
 	[
-		[ "kEscape" ]
+		[ "kI" ],
+		[ "" ]
 	],
 	"t_focus" : 
 	[
@@ -61,33 +62,33 @@
 	],
 	"t_force_restart" : 
 	[
-		[ "kR" ],
-		[ "bXButton2" ]
+		[ "kX" ],
+		[ "" ]
 	],
 	"t_replay" : 
 	[
-		[ "kY" ]
+		[ "kY" ],
+		[ "" ]
 	],
 	"t_restart" : 
 	[
-		[ "kReturn" ],
-		[ "bMiddle" ]
+		[ "kN" ],
+		[ "" ]
 	],
 	"t_rotate_ccw" : 
 	[
 		[ "kLeft" ],
-		[ "kA" ],
-		[ "bLeft" ]
+		[ "kA" ]
 	],
 	"t_rotate_cw" : 
 	[
 		[ "kRight" ],
-		[ "kD" ],
-		[ "bRight" ]
+		[ "kD" ]
 	],
 	"t_screenshot" : 
 	[
-		[ "kF12" ]
+		[ "kF12" ],
+		[ "" ]
 	],
 	"t_swap" : 
 	[
@@ -96,16 +97,16 @@
 	],
 	"t_up" : 
 	[
-		[ "kUp" ],
-		[ "kW" ]
+		[ "kC" ],
+		[ "kN" ]
 	],
 	"text_padding" : 8.0,
-	"text_scaling" : 0.9999999403953552,
+	"text_scaling" : 1.0,
 	"timer_static" : true,
-	"timescale" : 0.7000000476837158,
+	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 900,
-	"windowed_width" : 1600,
-	"zoom_factor" : 0.8533333539962769
+	"windowed_height" : 600,
+	"windowed_width" : 800,
+	"zoom_factor" : 1.279999971389771
 }

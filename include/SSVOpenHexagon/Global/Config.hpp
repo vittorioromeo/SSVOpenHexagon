@@ -147,9 +147,30 @@ void setFirstTimePlaying(bool mX);
 [[nodiscard]] ssvs::Input::Trigger getTriggerUp();
 [[nodiscard]] ssvs::Input::Trigger getTriggerDown();
 
-void addBindTriggerFocus(const int key, const int btn, const int size);
-void addBindTriggerSwap(const int key, const int btn, const int size);
-void clearBindTriggerFocus(const int size);
-void clearBindTriggerSwap(const int size);
+void BindsSanityCheck();
+
+void addBindTriggerRotateCCW(int key, int btn, int index);
+void addBindTriggerRotateCW(int key, int btn, int index);
+void addBindTriggerFocus(int key, int btn, int index);
+void addBindTriggerExit(int key, int btn, int index);
+void addBindTriggerForceRestart(int key, int btn, int index);
+void addBindTriggerRestart(int key, int btn, int index);
+void addBindTriggerReplay(int key, int btn, int index);
+void addBindTriggerScreenshot(int key, int btn, int index);
+void addBindTriggerSwap(int key, int btn, int index);
+void addBindTriggerUp(int key, int btn, int index);
+void addBindTriggerDown(int key, int btn, int index);
+
+void clearBindTriggerRotateCCW(int index);
+void clearBindTriggerRotateCW(int index);
+void clearBindTriggerFocus(int index);
+void clearBindTriggerExit(int index);
+void clearBindTriggerForceRestart(int index);
+void clearBindTriggerRestart(int index);
+void clearBindTriggerReplay(int index);
+void clearBindTriggerScreenshot(int index);
+void clearBindTriggerSwap(int index);
+void clearBindTriggerUp(int index);
+void clearBindTriggerDown(int index);
 
 } // namespace hg::Config

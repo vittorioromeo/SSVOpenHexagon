@@ -47,80 +47,51 @@
 	"joystick_deadzone": 5.0,
 	"t_down" :
 	[
-		[ "kDown" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "kS" ]
 	],
 	"t_exit" :
 	[
-		[ "kEscape" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "" ]
 	],
 	"t_focus" :
 	[
 		[ "kLShift" ],
-		[ "bXButton1" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "bXButton1" ]
 	],
 	"t_force_restart" :
 	[
-		[ "kR" ],
-		[ "bXButton2" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "kR" ]
 	],
 	"t_restart" :
 	[
-		[ "kReturn" ],
-		[ "bMiddle" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "" ]
 	],
 	"t_replay" :
 	[
-		[ "kY" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "kY" ]
 	],
 	"t_rotate_ccw" :
 	[
 		[ "kLeft" ],
-		[ "kA" ],
-		[ "bLeft" ],
-		[ "kUnknown" ]
+		[ "kA" ]
 	],
 	"t_rotate_cw" :
 	[
 		[ "kRight" ],
-		[ "kD" ],
-		[ "bRight" ],
-		[ "kUnknown" ]
+		[ "kD" ]
 	],
 	"t_screenshot" :
 	[
-		[ "kF12" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "kF12" ]
 	],
 	"t_swap" :
 	[
 		[ "kSpace" ],
-		[ "bMiddle" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "bMiddle" ]
 	],
 	"t_up" :
 	[
-		[ "kUp" ],
-		[ "kW" ],
-		[ "kUnknown" ],
-		[ "kUnknown" ]
+		[ "kW" ]
 	],
 	"text_padding" : 8.0,
 	"text_scaling" : 1.0,

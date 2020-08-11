@@ -26,6 +26,8 @@ using namespace hg::Utils;
 namespace hg
 {
 
+using TNum = ssvs::Input::TNum;
+
 [[nodiscard]] static random_number_generator initializeRng()
 {
     const random_number_generator::seed_type seed = ssvu::getRndEngine()();
@@ -122,18 +124,24 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         initKeyIcons();
     };
 
-    add2StateInput(game, Config::getTriggerRotateCW(), inputImplCW);
-    add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW);
-    add2StateInput(game, Config::getTriggerFocus(), inputFocused);
-    add2StateInput(game, Config::getTriggerSwap(), inputSwap);
+    Config::BindsSanityCheck();
+
+    add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW, TNum::RotateCCW);
+    add2StateInput(game, Config::getTriggerRotateCW(), inputImplCW, TNum::RotateCW);
+    add2StateInput(game, Config::getTriggerFocus(), inputFocused, TNum::Focus);
+    add2StateInput(game, Config::getTriggerSwap(), inputSwap, TNum::Swap);
     game.addInput(
-        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); });
+        {{sf::Keyboard::Key::Escape}}, [this](ssvu::FT /*unused*/) { goToMenu(); }, //hardcoded
+        ssvs::Input::Type::Always, TNum::Exit);
+    game.addInput(
+        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); }, //editable
+        ssvs::Input::Type::Always, TNum::Exit);
     game.addInput(
         Config::getTriggerForceRestart(),
         [this](ssvu::FT /*unused*/) {
             status.mustStateChange = StateChange::MustRestart;
         },
-        ssvs::Input::Type::Once);
+        ssvs::Input::Type::Once, TNum::ForceRestart);
     game.addInput(
         Config::getTriggerRestart(),
         [this](ssvu::FT /*unused*/) {
@@ -142,7 +150,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
                 status.mustStateChange = StateChange::MustRestart;
             }
         },
-        ssvs::Input::Type::Once);
+        ssvs::Input::Type::Once, TNum::Restart);
     game.addInput(
         Config::getTriggerReplay(),
         [this](ssvu::FT /*unused*/) {
@@ -151,11 +159,11 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
                 status.mustStateChange = StateChange::MustReplay;
             }
         },
-        ssvs::Input::Type::Once);
+        ssvs::Input::Type::Once, TNum::Replay);
     game.addInput(
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
-        ssvs::Input::Type::Once);
+        ssvs::Input::Type::Once, TNum::Screenshot);
 
     initKeyIcons();
 }
