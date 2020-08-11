@@ -112,6 +112,7 @@ private:
     void downAction();
     void okAction();
     void eraseAction();
+    void exitAction();
     void createProfileAction();
     void selectProfileAction();
     void openOptionsAction();
@@ -223,9 +224,11 @@ private:
     bool isValidKeyBind(KKey key)
     {
         //do not allow keys with hardcoded behaviors
-        return key > KKey::Unknown && key <= KKey::Numpad9 &&
-               key != KKey::Escape && key != KKey::LAlt &&
-               key != KKey::Return && key != KKey::BackSpace;
+        return key != KKey::Unknown && key != KKey::F1 && key != KKey::F2 &&
+               key != KKey::F3 && key != KKey::F4 && key != KKey::LAlt &&
+               key != KKey::Return && key != KKey::BackSpace &&
+               key != KKey::Escape && key != KKey::J && key != KKey::K &&
+               key != KKey::L && key != KKey::Up && key != KKey::Down;
     }
 
     ssvms::Menu* getCurrentMenu() noexcept

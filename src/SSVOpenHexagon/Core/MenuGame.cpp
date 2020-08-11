@@ -80,17 +80,15 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 }
                 else
                 {
-                    int bindResult = getCurrentMenu()->getItem().newBind(key);
-                    if(bindResult == 1)
+                    ItemBase *item = &getCurrentMenu()->getItem();
+                    if(item->newBind(key))
                     {
                         assets.playSound("beep.ogg");
                         state = States::MOpts;
+                        game.refreshTrigger(item->getTrigger(), item->getTriggerID());
                     }
                     else
-                    {
                         assets.playSound("error.ogg");
-                        if(bindResult == -1) state = States::MOpts;
-                    }
                 }
                 
                 touchDelay = 10.f;
@@ -102,18 +100,15 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             if(state == States::ETBind)
             {
                 MBtn btn = mEvent.mouseButton.button;
-                int bindResult = getCurrentMenu()->getItem().newBind(KKey::Unknown, btn);
-                if(bindResult == 1)
+                ItemBase *item = &getCurrentMenu()->getItem();
+                if(item->newBind(KKey::Unknown, btn))
                 {
                     state = States::MOpts;
                     assets.playSound("beep.ogg");
+                    game.refreshTrigger(item->getTrigger(), item->getTriggerID());
                 }
                 else
-                {
                     assets.playSound("error.ogg");
-                    if(bindResult == -1)
-                        state = States::MOpts;
-                }
                 
                 touchDelay = 10.f;
             }
@@ -356,10 +351,39 @@ void MenuGame::initMenus()
         &Config::setRotateToStart);
     play.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
         &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
-    play.create<i::BindControl>("swap bind", &Config::getTriggerSwap,
-        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap);
-    play.create<i::BindControl>("focus bind", &Config::getTriggerFocus,
-        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus);
+    play.create<i::BindControl>("rotate ccw", &Config::getTriggerRotateCCW,
+        &Config::addBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW,
+        TNum::RotateCCW);
+    play.create<i::BindControl>("rotate cw", &Config::getTriggerRotateCW,
+        &Config::addBindTriggerRotateCW, &Config::clearBindTriggerRotateCW,
+        TNum::RotateCW);
+    play.create<i::BindControl>("focus", &Config::getTriggerFocus,
+        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus,
+        TNum::Focus);
+    play.create<i::BindControl>("exit", &Config::getTriggerExit,
+        &Config::addBindTriggerExit, &Config::clearBindTriggerExit,
+        TNum::Exit);
+    play.create<i::BindControl>("force restart", &Config::getTriggerForceRestart,
+        &Config::addBindTriggerForceRestart, &Config::clearBindTriggerForceRestart,
+        TNum::ForceRestart);
+    play.create<i::BindControl>("restart", &Config::getTriggerRestart,
+        &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart,
+        TNum::Restart);
+    play.create<i::BindControl>("replay", &Config::getTriggerReplay,
+        &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay,
+         TNum::Replay);
+    play.create<i::BindControl>("screenshot", &Config::getTriggerScreenshot,
+        &Config::addBindTriggerScreenshot, &Config::clearBindTriggerScreenshot,
+        TNum::Screenshot);
+    play.create<i::BindControl>("swap", &Config::getTriggerSwap,
+        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap,
+        TNum::Swap);
+    play.create<i::BindControl>("up", &Config::getTriggerUp,
+        &Config::addBindTriggerUp, &Config::clearBindTriggerUp,
+        TNum::Up);
+    play.create<i::BindControl>("down", &Config::getTriggerDown,
+        &Config::addBindTriggerDown, &Config::clearBindTriggerDown,
+        TNum::Down);
     play.create<i::GoBack>("back");
 
     localProfiles.create<i::Single>("change local profile", [this] {
@@ -518,6 +542,7 @@ void MenuGame::okAction()
         getCurrentMenu()->exec();
         if(state == States::MOpts && getCurrentMenu()->getItem().isWaitingForBind())
         {
+            printf("bind started\n");
             state = States::ETBind;
             touchDelay = 10.f;
         }
@@ -591,6 +616,29 @@ void MenuGame::eraseAction()
     }
 }
 
+void MenuGame::exitAction()
+{
+    if(state == States::ETBind)
+        return;
+
+    assets.playSound("beep.ogg");
+    if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
+        !assets.pIsLocal())
+    {
+        if(isInMenu())
+        {
+            if(getCurrentMenu()->canGoBack())
+                getCurrentMenu()->goBack();
+            else
+                state = States::SMain;
+        }
+        else if(state == States::ETFriend || state == States::SLPSelect)
+        {
+            state = States::SMain;
+        }
+    }
+}
+
 void MenuGame::createProfileAction()
 {
     assets.playSound("beep.ogg");
@@ -652,19 +700,26 @@ void MenuGame::initInput()
 
     game.addInput(
         Config::getTriggerRotateCCW(),
-        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once);
+        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, TNum::RotateCCW);
     game.addInput(
         Config::getTriggerRotateCW(),
-        [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once);
+        [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once,
+        TNum::RotateCW);
     game.addInput(
-        Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); },
+        {{k::Up}}, [this](ssvu::FT /*unused*/) { upAction(); }, //hardcoded
         t::Once);
     game.addInput(
-        Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); },
+        Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); }, //editable
+        t::Once, TNum::Up);
+    game.addInput(
+        {{k::Down}}, [this](ssvu::FT /*unused*/) { downAction(); }, //hardcoded
         t::Once);
     game.addInput(
-        Config::getTriggerRestart(),
-        [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
+        Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); }, //editable
+        t::Once, TNum::Down);
+    game.addInput(
+        {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); },
+        t::Once);
     game.addInput(
         {{k::F1}}, [this](ssvu::FT /*unused*/) { createProfileAction(); },
         t::Once);
@@ -678,35 +733,16 @@ void MenuGame::initInput()
         {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
     game.addInput(
-        Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) {
-            assets.playSound("beep.ogg");
-            if(state == States::ETBind)
-            {
-                state = States::MOpts;
-                getCurrentMenu()->exec();
-            }
-            else if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
-               !assets.pIsLocal())
-            {
-                if(isInMenu())
-                {
-                    if(getCurrentMenu()->canGoBack())
-                        getCurrentMenu()->goBack();
-                    else
-                        state = States::SMain;
-                }
-                else if(state == States::ETFriend ||
-                        state == States::SLPSelect)
-                {
-                    state = States::SMain;
-                }
-            }
-        },
+        {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, //hardcoded
         t::Once);
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; }, t::Once);
+        [this](ssvu::FT /*unused*/) {
+            if(state == States::ETBind || touchDelay > 0.f) return;
+            mustTakeScreenshot = true;
+        },
+        t::Once,
+        TNum::Screenshot);
     game.addInput(
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/) {
