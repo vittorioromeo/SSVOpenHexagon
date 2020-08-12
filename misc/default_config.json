@@ -47,10 +47,12 @@
 	"joystick_deadzone": 5.0,
 	"t_down" :
 	[
-		[ "kS" ]
+		[ "kS" ],
+		[ "" ]
 	],
 	"t_exit" :
 	[
+		[ "" ],
 		[ "" ]
 	],
 	"t_focus" :
@@ -60,15 +62,18 @@
 	],
 	"t_force_restart" :
 	[
-		[ "kR" ]
+		[ "kR" ],
+		[ "" ]
 	],
 	"t_restart" :
 	[
+		[ "" ],
 		[ "" ]
 	],
 	"t_replay" :
 	[
-		[ "kY" ]
+		[ "kY" ],
+		[ "" ]
 	],
 	"t_rotate_ccw" :
 	[
@@ -82,7 +87,8 @@
 	],
 	"t_screenshot" :
 	[
-		[ "kF12" ]
+		[ "kF12" ],
+		[ "" ]
 	],
 	"t_swap" :
 	[
@@ -91,7 +97,8 @@
 	],
 	"t_up" :
 	[
-		[ "kW" ]
+		[ "kW" ],
+		[ "" ]
 	],
 	"text_padding" : 8.0,
 	"text_scaling" : 1.0,

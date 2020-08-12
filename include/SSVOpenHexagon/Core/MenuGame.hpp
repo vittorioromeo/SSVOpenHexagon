@@ -228,7 +228,8 @@ private:
                key != KKey::F3 && key != KKey::F4 && key != KKey::LAlt &&
                key != KKey::Return && key != KKey::BackSpace &&
                key != KKey::Escape && key != KKey::J && key != KKey::K &&
-               key != KKey::L && key != KKey::Up && key != KKey::Down;
+               key != KKey::L && key != KKey::Up && key != KKey::Down &&
+               key != KKey::R && key != KKey::Y;
     }
 
     ssvms::Menu* getCurrentMenu() noexcept

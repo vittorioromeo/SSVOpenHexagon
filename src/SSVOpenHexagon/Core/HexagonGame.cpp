@@ -134,7 +134,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         {{sf::Keyboard::Key::Escape}}, [this](ssvu::FT /*unused*/) { goToMenu(); }, //hardcoded
         ssvs::Input::Type::Always);
     game.addInput(
-        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); }, //editable
+        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); },              //editable
         ssvs::Input::Type::Always, TNum::Exit);
     game.addInput(
         Config::getTriggerForceRestart(),
@@ -143,16 +143,34 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         },
         ssvs::Input::Type::Once, TNum::ForceRestart);
     game.addInput(
-        Config::getTriggerRestart(),
+        {{sf::Keyboard::Key::R}},                                                           //hardcoded
         [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {
                 status.mustStateChange = StateChange::MustRestart;
             }
         },
+        ssvs::Input::Type::Once);
+    game.addInput(
+        Config::getTriggerRestart(),                                                                //editable
+        [this](ssvu::FT /*unused*/) {
+          if(status.hasDied)
+          {
+              status.mustStateChange = StateChange::MustRestart;
+          }
+        },
         ssvs::Input::Type::Once, TNum::Restart);
     game.addInput(
-        Config::getTriggerReplay(),
+        {{sf::Keyboard::Key::Y}},                                                           //hardcoded
+        [this](ssvu::FT /*unused*/) {
+          if(status.hasDied)
+          {
+              status.mustStateChange = StateChange::MustReplay;
+          }
+        },
+        ssvs::Input::Type::Once);
+    game.addInput(
+        Config::getTriggerReplay(),                                                                 //editable
         [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {

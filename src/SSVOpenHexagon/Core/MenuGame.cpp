@@ -348,38 +348,38 @@ void MenuGame::initMenus()
     play.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
         &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
     play.create<i::BindControl>("rotate ccw", &Config::getTriggerRotateCCW,
-        &Config::addBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW, game, hexagonGame,
-        TNum::RotateCCW);
+        &Config::addBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW, game,
+        hexagonGame, TNum::RotateCCW);
     play.create<i::BindControl>("rotate cw", &Config::getTriggerRotateCW,
-        &Config::addBindTriggerRotateCW, &Config::clearBindTriggerRotateCW, game, hexagonGame,
-        TNum::RotateCW);
+        &Config::addBindTriggerRotateCW, &Config::clearBindTriggerRotateCW, game,
+        hexagonGame, TNum::RotateCW);
     play.create<i::BindControl>("focus", &Config::getTriggerFocus,
-        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus, game, hexagonGame,
-        TNum::Focus);
+        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus, game,
+        hexagonGame, TNum::Focus);
     play.create<i::BindControl>("exit", &Config::getTriggerExit,
-        &Config::addBindTriggerExit, &Config::clearBindTriggerExit, game, hexagonGame,
-        TNum::Exit);
+        &Config::addBindTriggerExit, &Config::clearBindTriggerExit, game,
+        hexagonGame, TNum::Exit);
     play.create<i::BindControl>("force restart", &Config::getTriggerForceRestart,
-        &Config::addBindTriggerForceRestart, &Config::clearBindTriggerForceRestart, game, hexagonGame,
-        TNum::ForceRestart);
+        &Config::addBindTriggerForceRestart, &Config::clearBindTriggerForceRestart, game,
+        hexagonGame, TNum::ForceRestart);
     play.create<i::BindControl>("restart", &Config::getTriggerRestart,
-        &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart, game, hexagonGame,
-        TNum::Restart);
+        &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart, game,
+        hexagonGame, TNum::Restart);
     play.create<i::BindControl>("replay", &Config::getTriggerReplay,
-        &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay, game, hexagonGame,
-         TNum::Replay);
+        &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay, game,
+        hexagonGame, TNum::Replay);
     play.create<i::BindControl>("screenshot", &Config::getTriggerScreenshot,
-        &Config::addBindTriggerScreenshot, &Config::clearBindTriggerScreenshot, game, hexagonGame,
-        TNum::Screenshot);
+        &Config::addBindTriggerScreenshot, &Config::clearBindTriggerScreenshot, game,
+        hexagonGame, TNum::Screenshot);
     play.create<i::BindControl>("swap", &Config::getTriggerSwap,
-        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap, game, hexagonGame,
-        TNum::Swap);
+        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap, game,
+        hexagonGame, TNum::Swap);
     play.create<i::BindControl>("up", &Config::getTriggerUp,
-        &Config::addBindTriggerUp, &Config::clearBindTriggerUp, game, hexagonGame,
-        TNum::Up);
+        &Config::addBindTriggerUp, &Config::clearBindTriggerUp, game,
+        hexagonGame, TNum::Up);
     play.create<i::BindControl>("down", &Config::getTriggerDown,
-        &Config::addBindTriggerDown, &Config::clearBindTriggerDown, game, hexagonGame,
-        TNum::Down);
+        &Config::addBindTriggerDown, &Config::clearBindTriggerDown, game,
+        hexagonGame, TNum::Down);
     play.create<i::GoBack>("back");
 
     localProfiles.create<i::Single>("change local profile", [this] {
@@ -601,8 +601,8 @@ void MenuGame::eraseAction()
         enteredStr.erase(enteredStr.end() - 1);
     else if(state == States::MOpts && isInMenu())
     {
-        getCurrentMenu()->erase();
-        assets.playSound("beep.ogg");
+        if(getCurrentMenu()->erase())
+            assets.playSound("beep.ogg");
         touchDelay = 10.f;
     }
 }
@@ -610,7 +610,11 @@ void MenuGame::eraseAction()
 void MenuGame::exitAction()
 {
     if(state == States::ETBind)
+    {
+        getCurrentMenu()->getItem().exec(); //turn off bind inputting
+        state = States::MOpts;
         return;
+    }
 
     assets.playSound("beep.ogg");
     if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
