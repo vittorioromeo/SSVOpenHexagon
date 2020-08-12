@@ -959,7 +959,7 @@ Trigger getTriggerDown()
 
 void BindsSanityCheck()
 {
-    ssvs::Input::Combo bindList = ssvs::Input::Combo(std::initializer_list<KKey>{KKey::Unknown}, std::initializer_list<MBtn>{MBtn::Unknown});
+    ssvs::Input::Combo bindList = ssvs::Input::Combo(std::initializer_list<KKey>{KKey::Unknown}, std::initializer_list<MBtn>{MBtn::Left});
     bindList.clearBind();
     triggerRotateCCW() = ResizeTrigger(triggerRotateCCW(), bindList);
     triggerRotateCW() = ResizeTrigger(triggerRotateCW(), bindList);
