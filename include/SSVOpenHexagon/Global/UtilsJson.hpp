@@ -104,7 +104,7 @@ struct Converter<ssvs::Input::Combo>
                 mValue.addBtn(getExtr<ssvs::MBtn>(i));
             else
                 ssvu::lo("ssvs::getInputComboFromJSON")
-                    << "<" << i << "> is not a valid input name" << std::endl;
+                    << "<" << i << "> is not a valid input name, key has been unbound" << std::endl;
         }
     }
 

@@ -123,16 +123,16 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         initFlashEffect();
         initKeyIcons();
     };
-
+    
     Config::BindsSanityCheck();
-
+    
     add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW, TNum::RotateCCW);
     add2StateInput(game, Config::getTriggerRotateCW(), inputImplCW, TNum::RotateCW);
     add2StateInput(game, Config::getTriggerFocus(), inputFocused, TNum::Focus);
     add2StateInput(game, Config::getTriggerSwap(), inputSwap, TNum::Swap);
     game.addInput(
         {{sf::Keyboard::Key::Escape}}, [this](ssvu::FT /*unused*/) { goToMenu(); }, //hardcoded
-        ssvs::Input::Type::Always, TNum::Exit);
+        ssvs::Input::Type::Always);
     game.addInput(
         Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); }, //editable
         ssvs::Input::Type::Always, TNum::Exit);
