@@ -1,112 +1,112 @@
 
 {
-	"3D_enabled" : false,
-	"3D_max_depth" : 0,
-	"3D_multiplier" : 0.0,
-	"antialiasing_level" : 0,
+	"3D_enabled" : true,
+	"3D_max_depth" : 100,
+	"3D_multiplier" : 1.0,
+	"antialiasing_level" : 3,
 	"auto_restart" : false,
-	"auto_zoom_factor" : false,
-	"beatpulse_enabled" : false,
+	"auto_zoom_factor" : true,
+	"beatpulse_enabled" : true,
 	"black_and_white" : false,
-	"darken_uneven_background_chunk" : false,
+	"darken_uneven_background_chunk" : true,
 	"debug" : false,
-	"draw_text_outlines" : false,
-	"first_time_playing" : false,
-	"flash_enabled" : false,
+	"draw_text_outlines" : true,
+	"first_time_playing": false,
+	"flash_enabled" : true,
 	"fullscreen" : false,
 	"fullscreen_auto_resolution" : false,
-	"fullscreen_height" : 0,
-	"fullscreen_width" : 0,
+	"fullscreen_height" : 600,
+	"fullscreen_width" : 800,
 	"invincible" : false,
-	"joystick_deadzone" : 0.0,
-	"key_icons_scale" : 0.0,
+	"key_icons_scale": 0.75,
 	"limit_fps" : true,
 	"max_fps" : 200,
 	"mouse_visible" : false,
-	"music_speed_dm_sync" : false,
-	"music_speed_mult" : 0.0,
-	"music_volume" : 0.0,
+	"music_speed_dm_sync" : true,
+	"music_speed_mult" : 1.0,
+	"music_volume" : 30.0,
 	"no_background" : false,
 	"no_music" : false,
 	"no_rotation" : false,
 	"no_sound" : false,
-	"official" : false,
-	"online" : false,
-	"pixel_multiplier" : 0,
-	"player_focus_speed" : 0.0,
-	"player_size" : 0.0,
-	"player_speed" : 0.0,
-	"pulse_enabled" : false,
+	"official" : true,
+	"online" : true,
+	"pixel_multiplier" : 1,
+	"player_focus_speed" : 4.6250,
+	"player_size" : 7.300000190734863,
+	"player_speed" : 9.449999809265137,
+	"pulse_enabled" : true,
 	"rotate_to_start" : false,
-	"server_local" : false,
-	"server_verbose" : false,
+	"server_local" : true,
+	"server_verbose" : true,
 	"show_fps" : false,
-	"show_key_icons" : false,
-	"show_messages" : false,
-	"show_tracked_variables" : false,
-	"sound_volume" : 0.0,
-	"t_down" : 
+	"show_messages" : true,
+	"show_key_icons": false,
+	"show_tracked_variables" : true,
+	"sound_volume" : 75.0,
+	"joystick_deadzone": 5.0,
+	"t_down" :
+	[
+		[ "kS" ],
+		[ "" ]
+	],
+	"t_exit" :
 	[
 		[ "" ],
 		[ "" ]
 	],
-	"t_exit" : 
+	"t_focus" :
+	[
+		[ "kLShift" ],
+		[ "bXButton1" ]
+	],
+	"t_force_restart" :
+	[
+		[ "kR" ],
+		[ "" ]
+	],
+	"t_restart" :
 	[
 		[ "" ],
 		[ "" ]
 	],
-	"t_focus" : 
+	"t_replay" :
 	[
-		[ "" ],
+		[ "kY" ],
 		[ "" ]
 	],
-	"t_force_restart" : 
+	"t_rotate_ccw" :
 	[
-		[ "" ],
+		[ "kLeft" ],
+		[ "kA" ]
+	],
+	"t_rotate_cw" :
+	[
+		[ "kRight" ],
+		[ "kD" ]
+	],
+	"t_screenshot" :
+	[
+		[ "kF12" ],
 		[ "" ]
 	],
-	"t_replay" : 
+	"t_swap" :
 	[
-		[ "" ],
+		[ "kSpace" ],
+		[ "bMiddle" ]
+	],
+	"t_up" :
+	[
+		[ "kW" ],
 		[ "" ]
 	],
-	"t_restart" : 
-	[
-		[ "" ],
-		[ "" ]
-	],
-	"t_rotate_ccw" : 
-	[
-		[ "" ],
-		[ "" ]
-	],
-	"t_rotate_cw" : 
-	[
-		[ "" ],
-		[ "" ]
-	],
-	"t_screenshot" : 
-	[
-		[ "" ],
-		[ "" ]
-	],
-	"t_swap" : 
-	[
-		[ "" ],
-		[ "" ]
-	],
-	"t_up" : 
-	[
-		[ "" ],
-		[ "" ]
-	],
-	"text_padding" : 0.0,
-	"text_scaling" : 0.0,
-	"timer_static" : false,
-	"timescale" : 0.0,
+	"text_padding" : 8.0,
+	"text_scaling" : 1.0,
+	"timer_static" : true,
+	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 0,
-	"windowed_width" : 0,
-	"zoom_factor" : 0.0
+	"windowed_height" : 600,
+	"windowed_width" : 800,
+	"zoom_factor" : 0.8533333539962769
 }
