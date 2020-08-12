@@ -80,12 +80,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 }
                 else
                 {
-                    ItemBase *item = &getCurrentMenu()->getItem();
-                    if(item->newBind(key))
+                    if(getCurrentMenu()->getItem().newBind(key))
                     {
                         assets.playSound("beep.ogg");
                         state = States::MOpts;
-                        game.refreshTrigger(item->getTrigger(), item->getTriggerID());
                     }
                     else
                         assets.playSound("error.ogg");
@@ -100,12 +98,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             if(state == States::ETBind)
             {
                 MBtn btn = mEvent.mouseButton.button;
-                ItemBase *item = &getCurrentMenu()->getItem();
-                if(item->newBind(KKey::Unknown, btn))
+                if(getCurrentMenu()->getItem().newBind(KKey::Unknown, btn))
                 {
                     state = States::MOpts;
                     assets.playSound("beep.ogg");
-                    game.refreshTrigger(item->getTrigger(), item->getTriggerID());
                 }
                 else
                     assets.playSound("error.ogg");
@@ -352,37 +348,37 @@ void MenuGame::initMenus()
     play.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
         &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
     play.create<i::BindControl>("rotate ccw", &Config::getTriggerRotateCCW,
-        &Config::addBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW,
+        &Config::addBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW, game,
         TNum::RotateCCW);
     play.create<i::BindControl>("rotate cw", &Config::getTriggerRotateCW,
-        &Config::addBindTriggerRotateCW, &Config::clearBindTriggerRotateCW,
+        &Config::addBindTriggerRotateCW, &Config::clearBindTriggerRotateCW, game,
         TNum::RotateCW);
     play.create<i::BindControl>("focus", &Config::getTriggerFocus,
-        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus,
+        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus, game,
         TNum::Focus);
     play.create<i::BindControl>("exit", &Config::getTriggerExit,
-        &Config::addBindTriggerExit, &Config::clearBindTriggerExit,
+        &Config::addBindTriggerExit, &Config::clearBindTriggerExit, game,
         TNum::Exit);
     play.create<i::BindControl>("force restart", &Config::getTriggerForceRestart,
-        &Config::addBindTriggerForceRestart, &Config::clearBindTriggerForceRestart,
+        &Config::addBindTriggerForceRestart, &Config::clearBindTriggerForceRestart, game,
         TNum::ForceRestart);
     play.create<i::BindControl>("restart", &Config::getTriggerRestart,
-        &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart,
+        &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart, game,
         TNum::Restart);
     play.create<i::BindControl>("replay", &Config::getTriggerReplay,
-        &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay,
+        &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay, game,
          TNum::Replay);
     play.create<i::BindControl>("screenshot", &Config::getTriggerScreenshot,
-        &Config::addBindTriggerScreenshot, &Config::clearBindTriggerScreenshot,
+        &Config::addBindTriggerScreenshot, &Config::clearBindTriggerScreenshot, game,
         TNum::Screenshot);
     play.create<i::BindControl>("swap", &Config::getTriggerSwap,
-        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap,
+        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap, game,
         TNum::Swap);
     play.create<i::BindControl>("up", &Config::getTriggerUp,
-        &Config::addBindTriggerUp, &Config::clearBindTriggerUp,
+        &Config::addBindTriggerUp, &Config::clearBindTriggerUp, game,
         TNum::Up);
     play.create<i::BindControl>("down", &Config::getTriggerDown,
-        &Config::addBindTriggerDown, &Config::clearBindTriggerDown,
+        &Config::addBindTriggerDown, &Config::clearBindTriggerDown, game,
         TNum::Down);
     play.create<i::GoBack>("back");
 
