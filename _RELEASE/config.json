@@ -47,7 +47,7 @@
 	"sound_volume" : 75.0,
 	"t_down" : 
 	[
-		[ "" ],
+		[ "kS" ],
 		[ "" ]
 	],
 	"t_exit" : 
