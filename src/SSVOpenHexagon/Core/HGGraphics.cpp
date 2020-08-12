@@ -31,11 +31,11 @@ void HexagonGame::draw()
 
     if(!status.hasDied)
     {
-        if(levelStatus.cameraShake > 0)
+        if(levelStatus.cameraShake > 0.f)
         {
             const sf::Vector2f shake(
-                getRndI(-levelStatus.cameraShake, levelStatus.cameraShake),
-                getRndI(-levelStatus.cameraShake, levelStatus.cameraShake));
+                getRndR(-levelStatus.cameraShake, levelStatus.cameraShake),
+                getRndR(-levelStatus.cameraShake, levelStatus.cameraShake));
 
             backgroundCamera.setCenter(shake);
             overlayCamera.setCenter(

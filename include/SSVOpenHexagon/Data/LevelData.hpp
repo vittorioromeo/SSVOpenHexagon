@@ -92,7 +92,7 @@ struct LevelStatus
     float wallAngleRight{0.f};
     float _3dEffectMultiplier{1.f};
 
-    int cameraShake{0};
+    float cameraShake{0};
 
     unsigned int sides{6};
     unsigned int sidesMax{6};
