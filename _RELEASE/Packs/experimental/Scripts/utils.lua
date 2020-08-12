@@ -5,7 +5,7 @@
 -- Defining some mathematical constants
 math.tau = math.pi * 2;
 math.e = 2.71828182845904523536;
-math.phi = 2 * math.sin(math.rad(54));
+math.phi = (1 + 5 ^ 0.5) / 2;
 SQRT_TWO = math.sqrt(2);
 SQRT_THREE = math.sqrt(3);
 
