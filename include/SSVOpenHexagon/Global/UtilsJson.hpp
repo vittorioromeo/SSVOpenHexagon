@@ -98,13 +98,26 @@ struct Converter<ssvs::Input::Combo>
             str = getExtr<std::string>(i);
             if(str == "")
                 mValue.addKey(ssvs::KKey::Unknown);
+            else if(ssvs::isKKeyHardcoded(str))
+            {
+                ssvu::lo("ssvs::getInputComboFromJSON")
+                    << "<" << i
+                    << "> is an hardcoded key bind, an empty bind has been put in its place"
+                    << std::endl;
+                mValue.addKey(ssvs::KKey::Unknown);
+            }
             else if(ssvs::isKKeyNameValid(str))
                 mValue.addKey(getExtr<ssvs::KKey>(i));
             else if(ssvs::isMBtnNameValid(str))
                 mValue.addBtn(getExtr<ssvs::MBtn>(i));
             else
+            {
                 ssvu::lo("ssvs::getInputComboFromJSON")
-                    << "<" << i << "> is not a valid input name, key has been unbound" << std::endl;
+                    << "<" << i
+                    << "> is not a valid input name, an empty bind has been put in its place"
+                    << std::endl;
+                mValue.addKey(ssvs::KKey::Unknown);
+            }
         }
     }
 
