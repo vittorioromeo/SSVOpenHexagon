@@ -887,37 +887,91 @@ Trigger getTriggerDown()
 
 #define MAX_BINDS 2
 
-[[nodiscard]] Trigger ResizeTrigger(Trigger trig) noexcept
+[[nodiscard]] Trigger ResizeTrigger(Trigger trig, Combo &bindList) noexcept
 {
-    int size = trig.getCombos().size();
-    if(size == MAX_BINDS) return trig; // this is fine
+    std::vector<Combo> *combos = &trig.getCombos();
+    int size = combos->size();
     
     while(size > MAX_BINDS) // if the config has more binds than are supported
     {
-        trig.getCombos().pop_back();
-        size = trig.getCombos().size();
+        combos->pop_back();
+        size = combos->size();
     }
     while(size < MAX_BINDS) // if the config has less binds fill the spots with unbound combos
     {
-        trig.getCombos().emplace_back(Combo(std::initializer_list<KKey>{KKey::Unknown}));
-        size = trig.getCombos().size();
+        combos->emplace_back(Combo(std::initializer_list<KKey>{KKey::Unknown}));
+        size = combos->size();
     }
+    
+    // now check if the keys in the combos are already assigned to another
+    // function, and if so unbind them
+    int i;
+    for(auto& b : *combos)
+    {
+        bool alreadyBound = false;
+        const std::bitset<102> *keys = &b.getKeys();
+        KKey keyBind;
+        for(i = 0; i < int(kKeyCount); ++i)
+        {
+            keyBind = KKey(i);
+            if(getKeyBit(*keys, keyBind))
+            {
+                if(getKeyBit(bindList.getKeys(), keyBind))
+                {
+                    b.clearBind();
+                    alreadyBound = true;
+                    break;
+                }
+                else
+                {
+                    bindList.addKey(keyBind);
+                    alreadyBound = true;
+                    break;
+                }
+            }
+        }
+        
+        if(alreadyBound) continue;
+    
+        const std::bitset<6> *btns = &b.getBtns();
+        MBtn btnBind;
+        for(i = 0; i < int(mBtnCount); ++i)
+        {
+            btnBind = MBtn(i);
+            if(getBtnBit(*btns, btnBind))
+            {
+                if(getBtnBit(bindList.getBtns(), btnBind))
+                {
+                    b.clearBind();
+                    break;
+                }
+                else
+                {
+                    bindList.addBtn(btnBind);
+                    break;
+                }
+            }
+        }
+    }
+    
     return trig;
 }
 
 void BindsSanityCheck()
 {
-    triggerRotateCCW() = ResizeTrigger(triggerRotateCCW());
-    triggerRotateCW() = ResizeTrigger(triggerRotateCW());
-    triggerFocus() = ResizeTrigger(triggerFocus());
-    triggerExit() = ResizeTrigger(triggerExit());
-    triggerForceRestart() = ResizeTrigger(triggerForceRestart());
-    triggerRestart() = ResizeTrigger(triggerRestart());
-    triggerReplay() = ResizeTrigger(triggerReplay());
-    triggerScreenshot() = ResizeTrigger(triggerScreenshot());
-    triggerSwap() = ResizeTrigger(triggerSwap());
-    triggerUp() = ResizeTrigger(triggerUp());
-    triggerDown() = ResizeTrigger(triggerDown());
+    ssvs::Input::Combo bindList = ssvs::Input::Combo(std::initializer_list<KKey>{KKey::Unknown}, std::initializer_list<MBtn>{MBtn::Unknown});
+    bindList.clearBind();
+    triggerRotateCCW() = ResizeTrigger(triggerRotateCCW(), bindList);
+    triggerRotateCW() = ResizeTrigger(triggerRotateCW(), bindList);
+    triggerFocus() = ResizeTrigger(triggerFocus(), bindList);
+    triggerExit() = ResizeTrigger(triggerExit(), bindList);
+    triggerForceRestart() = ResizeTrigger(triggerForceRestart(), bindList);
+    triggerRestart() = ResizeTrigger(triggerRestart(), bindList);
+    triggerReplay() = ResizeTrigger(triggerReplay(), bindList);
+    triggerScreenshot() = ResizeTrigger(triggerScreenshot(), bindList);
+    triggerSwap() = ResizeTrigger(triggerSwap(), bindList);
+    triggerUp() = ResizeTrigger(triggerUp(), bindList);
+    triggerDown() = ResizeTrigger(triggerDown(), bindList);
 }
 
 //**************************************************
@@ -925,66 +979,67 @@ void BindsSanityCheck()
 
 [[nodiscard]] Trigger RebindTrigger(Trigger trig, int key, int btn, int index) noexcept
 {
+    printf("Config.hpp rebinding with key %d btn %d, index %d\n", key, btn, index);
     if(key > -1)
-        trig.getCombos()[index].addKey(static_cast<KKey>(key));
+        trig.getCombos()[index].addKey(KKey(key));
     else
-        trig.getCombos()[index].addBtn(static_cast<MBtn>(btn));
+        trig.getCombos()[index].addBtn(MBtn(btn));
     return trig;
 }
 
 void addBindTriggerRotateCCW(int key, int btn, int index)
 {
-    triggerRotateCCW() = RebindTrigger(triggerRotateCCW(), key, btn, index);
+    triggerRotateCCW() = RebindTrigger(getTriggerRotateCCW(), key, btn, index);
 }
 
 void addBindTriggerRotateCW(int key, int btn, int index)
 {
-    triggerRotateCW() = RebindTrigger(triggerRotateCW(), key, btn, index);
+    triggerRotateCW() = RebindTrigger(getTriggerRotateCW(), key, btn, index);
 }
 
 void addBindTriggerFocus(int key, int btn, int index)
 {
-    triggerFocus() = RebindTrigger(triggerFocus(), key, btn, index);
+    triggerFocus() = RebindTrigger(getTriggerFocus(), key, btn, index);
 }
 
 void addBindTriggerExit(int key, int btn, int index)
 {
-    triggerExit() = RebindTrigger(triggerExit(), key, btn, index);
+    triggerExit() = RebindTrigger(getTriggerExit(), key, btn, index);
 }
 
 void addBindTriggerForceRestart(int key, int btn, int index)
 {
-    triggerForceRestart() = RebindTrigger(triggerForceRestart(), key, btn, index);
+    triggerForceRestart() = RebindTrigger(getTriggerForceRestart(), key, btn, index);
 }
 
 void addBindTriggerRestart(int key, int btn, int index)
 {
-    triggerRestart() = RebindTrigger(triggerRestart(), key, btn, index);
+    triggerRestart() = RebindTrigger(getTriggerRestart(), key, btn, index);
 }
 
 void addBindTriggerReplay(int key, int btn, int index)
 {
-    triggerReplay() = RebindTrigger(triggerReplay(), key, btn, index);
+    triggerReplay() = RebindTrigger(getTriggerReplay(), key, btn, index);
 }
 
 void addBindTriggerScreenshot(int key, int btn, int index)
 {
-    triggerScreenshot() = RebindTrigger(triggerScreenshot(), key, btn, index);
+    triggerScreenshot() = RebindTrigger(getTriggerScreenshot(), key, btn, index);
 }
 
 void addBindTriggerSwap(int key, int btn, int index)
 {
-    triggerSwap() = RebindTrigger(triggerSwap(), key, btn, index);
+    triggerSwap() = RebindTrigger(getTriggerSwap(), key, btn, index);
 }
 
 void addBindTriggerUp(int key, int btn, int index)
 {
-    triggerUp() = RebindTrigger(triggerUp(), key, btn, index);
+    triggerUp() = RebindTrigger(getTriggerUp(), key, btn, index);
 }
 
 void addBindTriggerDown(int key, int btn, int index)
 {
-    triggerDown() = RebindTrigger(triggerDown(), key, btn, index);
+    triggerDown() = RebindTrigger(getTriggerDown(), key, btn, index);
 }
 
 //**************************************************
@@ -998,57 +1053,57 @@ void addBindTriggerDown(int key, int btn, int index)
 
 void clearBindTriggerRotateCCW(int index)
 {
-    triggerRotateCCW() = ClearTriggerBind(triggerRotateCCW(), index);
+    triggerRotateCCW() = ClearTriggerBind(getTriggerRotateCCW(), index);
 }
 
 void clearBindTriggerRotateCW(int index)
 {
-    triggerRotateCW() = ClearTriggerBind(triggerRotateCW(), index);
+    triggerRotateCW() = ClearTriggerBind(getTriggerRotateCW(), index);
 }
 
 void clearBindTriggerFocus(int index)
 {
-    triggerFocus() = ClearTriggerBind(triggerFocus(), index);
+    triggerFocus() = ClearTriggerBind(getTriggerFocus(), index);
 }
 
 void clearBindTriggerExit(int index)
 {
-    triggerExit() = ClearTriggerBind(triggerExit(), index);
+    triggerExit() = ClearTriggerBind(getTriggerExit(), index);
 }
 
 void clearBindTriggerForceRestart(int index)
 {
-    triggerForceRestart() = ClearTriggerBind(triggerForceRestart(), index);
+    triggerForceRestart() = ClearTriggerBind(getTriggerForceRestart(), index);
 }
 
 void clearBindTriggerRestart(int index)
 {
-    triggerRestart() = ClearTriggerBind(triggerRestart(), index);
+    triggerRestart() = ClearTriggerBind(getTriggerRestart(), index);
 }
 
 void clearBindTriggerReplay(int index)
 {
-    triggerReplay() = ClearTriggerBind(triggerReplay(), index);
+    triggerReplay() = ClearTriggerBind(getTriggerReplay(), index);
 }
 
 void clearBindTriggerScreenshot(int index)
 {
-    triggerScreenshot() = ClearTriggerBind(triggerScreenshot(), index);
+    triggerScreenshot() = ClearTriggerBind(getTriggerScreenshot(), index);
 }
 
 void clearBindTriggerSwap(int index)
 {
-    triggerSwap() = ClearTriggerBind(triggerSwap(), index);
+    triggerSwap() = ClearTriggerBind(getTriggerSwap(), index);
 }
 
 void clearBindTriggerUp(int index)
 {
-    triggerUp() = ClearTriggerBind(triggerUp(), index);
+    triggerUp() = ClearTriggerBind(getTriggerUp(), index);
 }
 
 void clearBindTriggerDown(int index)
 {
-    triggerDown() = ClearTriggerBind(triggerDown(), index);
+    triggerDown() = ClearTriggerBind(getTriggerDown(), index);
 }
 
 } // namespace hg::Config

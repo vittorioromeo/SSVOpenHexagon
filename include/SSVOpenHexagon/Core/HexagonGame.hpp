@@ -326,6 +326,15 @@ public:
     HexagonGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         ssvs::GameWindow& mGameWindow);
+    
+    void refreshTrigger(ssvs::Input::Trigger trigger, ssvs::Input::TNum bindID)
+    {
+        game.refreshTrigger(trigger, bindID);
+    }
+    bool isBindAssigned(const ssvs::KKey key, const ssvs::MBtn btn)
+    {
+        return game.isBindAssigned(key, btn);
+    }
 
     // Gameplay methods
     void newGame(const std::string& mPackId, const std::string& mId,
