@@ -349,37 +349,37 @@ void MenuGame::initMenus()
         &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
     play.create<i::BindControl>("rotate ccw", &Config::getTriggerRotateCCW,
         &Config::addBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW, game,
-        hexagonGame, TNum::RotateCCW);
+        hexagonGame, Tid::RotateCCW);
     play.create<i::BindControl>("rotate cw", &Config::getTriggerRotateCW,
         &Config::addBindTriggerRotateCW, &Config::clearBindTriggerRotateCW, game,
-        hexagonGame, TNum::RotateCW);
+        hexagonGame, Tid::RotateCW);
     play.create<i::BindControl>("focus", &Config::getTriggerFocus,
         &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus, game,
-        hexagonGame, TNum::Focus);
+        hexagonGame, Tid::Focus);
     play.create<i::BindControl>("exit", &Config::getTriggerExit,
         &Config::addBindTriggerExit, &Config::clearBindTriggerExit, game,
-        hexagonGame, TNum::Exit);
+        hexagonGame, Tid::Exit);
     play.create<i::BindControl>("force restart", &Config::getTriggerForceRestart,
         &Config::addBindTriggerForceRestart, &Config::clearBindTriggerForceRestart, game,
-        hexagonGame, TNum::ForceRestart);
+        hexagonGame, Tid::ForceRestart);
     play.create<i::BindControl>("restart", &Config::getTriggerRestart,
         &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart, game,
-        hexagonGame, TNum::Restart);
+        hexagonGame, Tid::Restart);
     play.create<i::BindControl>("replay", &Config::getTriggerReplay,
         &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay, game,
-        hexagonGame, TNum::Replay);
+        hexagonGame, Tid::Replay);
     play.create<i::BindControl>("screenshot", &Config::getTriggerScreenshot,
         &Config::addBindTriggerScreenshot, &Config::clearBindTriggerScreenshot, game,
-        hexagonGame, TNum::Screenshot);
+        hexagonGame, Tid::Screenshot);
     play.create<i::BindControl>("swap", &Config::getTriggerSwap,
         &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap, game,
-        hexagonGame, TNum::Swap);
+        hexagonGame, Tid::Swap);
     play.create<i::BindControl>("up", &Config::getTriggerUp,
         &Config::addBindTriggerUp, &Config::clearBindTriggerUp, game,
-        hexagonGame, TNum::Up);
+        hexagonGame, Tid::Up);
     play.create<i::BindControl>("down", &Config::getTriggerDown,
         &Config::addBindTriggerDown, &Config::clearBindTriggerDown, game,
-        hexagonGame, TNum::Down);
+        hexagonGame, Tid::Down);
     play.create<i::GoBack>("back");
 
     localProfiles.create<i::Single>("change local profile", [this] {
@@ -695,23 +695,23 @@ void MenuGame::initInput()
 
     game.addInput(
         Config::getTriggerRotateCCW(),
-        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, TNum::RotateCCW);
+        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, Tid::RotateCCW);
     game.addInput(
         Config::getTriggerRotateCW(),
         [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once,
-        TNum::RotateCW);
+        Tid::RotateCW);
     game.addInput(
         {{k::Up}}, [this](ssvu::FT /*unused*/) { upAction(); }, //hardcoded
         t::Once);
     game.addInput(
         Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); }, //editable
-        t::Once, TNum::Up);
+        t::Once, Tid::Up);
     game.addInput(
         {{k::Down}}, [this](ssvu::FT /*unused*/) { downAction(); }, //hardcoded
         t::Once);
     game.addInput(
         Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); }, //editable
-        t::Once, TNum::Down);
+        t::Once, Tid::Down);
     game.addInput(
         {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); },
         t::Once);
@@ -737,7 +737,7 @@ void MenuGame::initInput()
             mustTakeScreenshot = true;
         },
         t::Once,
-        TNum::Screenshot);
+        Tid::Screenshot);
     game.addInput(
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/) {
