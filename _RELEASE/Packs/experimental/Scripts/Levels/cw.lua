@@ -25,7 +25,7 @@ end
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
 keys = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 10, 8, 8, 9, 9, 9, 9, 6, 11, 11, 10, 10 }
-keys = shuffle(keys)
+shuffle(keys)
 index = 0
 
 -- onInit is an hardcoded function that is called when the level is first loaded

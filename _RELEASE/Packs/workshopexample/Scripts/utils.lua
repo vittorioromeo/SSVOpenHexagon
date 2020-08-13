@@ -291,12 +291,10 @@ function shuffle(t)
 	--[[
 		"Shuffles" an array by swapping elements randomly across a table.
 	]]
-	local j
-	for i = #t, 2, -1 do
-		j = math.random(i)
+	for i = #t, 3, -1 do
+		local j = math.random(i - 1)
 		t[i], t[j] = t[j], t[i]
 	end
-	return t
 end
 
 function simplifyFloat(number, places) 
