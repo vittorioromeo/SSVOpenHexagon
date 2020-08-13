@@ -112,25 +112,19 @@ KeyCode = {
 -- Additional functions that help simplify certain calculations, including complex mathematical calculations
 -- Ordered alphabetically
 
+-- Converts Beats Per Minute (BPM) into period in Frames Per Beat (FPB)
 function BPMtoFPB(bpm)
-	--[[
-	Converts Beats Per Minute (BPM) into period in Frames Per Beat (FPB)
-	]]
 	return (FPS * 60)/bpm;
 end
 
+-- Converts Beats Per Minute (BPM) into period in Seconds Per Beat (SPB)
 function BPMtoSPB(bpm)
-	--[[
-	Converts Beats Per Minute (BPM) into period in Seconds Per Beat (SPB)
-	]]
 	return 60/bpm;
 end
 
+-- Clamps a number "input" between two values. The value can not go 
+-- below min_val and can not go above max_val.
 function clamp(input, min_val, max_val)
-	--[[
-	Clamps a number "input" between two values. The value can not go 
-	below min_val and can not go above max_val.
-	]]
 	if input < min_val then
 		input = min_val
 	elseif input > max_val then
@@ -139,11 +133,9 @@ function clamp(input, min_val, max_val)
 	return input
 end
 
+-- Helper function for "fromHSV()", which translates from Hue and Saturation
+-- to RGB values.
 local function fromHS(h, s)
-	--[[
-	Helper function for "fromHSV()", which translates from Hue and Saturation
-	to RGB values.
-	]]
 	-- Find a color from hue and saturation.
 	h = (h % 360)/60;
 	local i, f, g, t;
@@ -162,10 +154,8 @@ local function fromHS(h, s)
 	return 1, 1, 1; -- Fallback
 end
 
+-- Converts HSV color values to RGB color values in a 0 - 255 range (alpha not included).
 function fromHSV(h, s, v)
-	--[[
-	Converts HSV color values to RGB color values in a 0 - 255 range (alpha not included).
-	]]
 	-- Saturation and Value are optional parameters
 	s = s or 1;
 	v = v or 1;
@@ -177,22 +167,16 @@ function fromHSV(h, s, v)
 	return r, g, b;
 end
 
+-- Returns coordinates (x, y) adjusted with the level rotation using polar coordinate math.
 function getAbsolutePosition(x, y)
-	--[[
-	Returns coordinates (x, y) adjusted with the level rotation using polar coordinate math.
-	Implementation by Oshisaure.
-	]]
 	local r, a = (x ^ 2 + y ^ 2) ^ 0.5, math.atan(y, x);
 	a = a + math.rad(l_getRotation());
 	return r * math.cos(a), r * math.sin(a);
 end
 
+-- Takes a number and returns it's sign value.
+-- Negatives return -1, positives return 1, and zero returns 0.
 function getSign(number) 
-	--[[
-	Takes a number and returns it's sign value.
-	
-	Negatives return -1, positives return 1, and zero returns 0.
-	]]
 	if number < 0 then
 		return -1;
 	elseif number > 0 then
@@ -229,34 +213,24 @@ function isPrime(integer)
 	return true;
 end
 
+-- Inverse linear interpolation function. Takes two number values, initial
+-- and final, and then a third number "value". Returns the percentage of
+-- "value" between initial and final.
 function inverseLerp(initial, final, value)
-	--[[
-	Inverse linear interpolation function. Takes two number values, initial
-	and final, and then a third number "value". Returns the percentage of
-	"value" between initial and final.
-	]]
 	return (value - initial) / (final - initial);
 end
 
+-- Linear interpolation function. Takes number value initial and returns a
+-- value that is (i * 100) percent to final value.
+-- i is a number value between 0 and 1
 function lerp(initial, final, i) 
-	--[[
-	Linear interpolation function. Takes number value initial and returns a
-	value that is (i * 100) percent to final value.
-	
-	i is a number value between 0 and 1
-	
-	Thanks to Zly for showing me the "precise" method
-	]]
 	return (1 - i) * initial + i * final;
 end
 
+-- Prints a table to the console. This includes all key value pairs, and recursively prints out any 
+-- tables of additional dimensions
+-- Formatting of table contents are done with the "whitespace" character.
 function printTable(luaTable, whitespace)
-	--[[
-	Prints a table to the console. This includes all key value pairs, and recursively prints out any 
-	tables of additional dimensions
-
-	Formatting of table contents are done with the "whitespace" character. Courtesy of Zly.
-	]]
 	whitespace = whitespace or "";
 	
 	if (type(luaTable) ~= "table") then return end;
@@ -269,41 +243,29 @@ function printTable(luaTable, whitespace)
 	end
 end 
 
+-- Returns a random value between minimum and maximum, but is a floating point
+-- number.
 function randomFloat(minimum, maximum)
-	--[[
-	Returns a random value between minimum and maximum, but is a floating point
-	number.
-	]]
 	return math.random() * (maximum - minimum) + minimum;
 end
 
+-- Takes in a number value and follows true rounding rules.
+-- Decimals < .5 will round down, while >= .5 will round up.
 function roundFloat(floatingNumber)
-	--[[
-	Takes in a number value and follows true rounding rules.
-	Decimals < .5 will round down, while >= .5 will round up.
-	
-	Returns the rounded number value
-	]]
 	return math.floor(floatingNumber + 0.5);
 end
 
+-- "Shuffles" an array by swapping elements randomly across a table.
 function shuffle(t)
-	--[[
-		"Shuffles" an array by swapping elements randomly across a table.
-	]]
 	for i = #t, 3, -1 do
 		local j = math.random(i - 1)
 		t[i], t[j] = t[j], t[i]
 	end
 end
 
+-- Takes in a number value and rounds the number to places decimal 
+-- places. Very useful to avoid floating point error.
 function simplifyFloat(number, places) 
-	--[[
-	Takes in a number value and rounds the number to places decimal 
-	places. Very useful to avoid precision errors.
-	
-	Returns a number value (usually with a floating decimal point)
-	]]
 	return roundFloat(number * (10 ^ places)) / (10 ^ places);
 end
 
