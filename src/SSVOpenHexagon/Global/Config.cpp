@@ -890,17 +890,19 @@ Trigger getTriggerDown()
 [[nodiscard]] Trigger ResizeTrigger(Trigger trig, Combo &bindList) noexcept
 {
     std::vector<Combo> *combos = &trig.getCombos();
-    int size = combos->size();
     
-    while(size > MAX_BINDS) // if the config has more binds than are supported
-    {
+    while(combos->size() > MAX_BINDS) // if the config has more binds than are supported
         combos->pop_back();
-        size = combos->size();
-    }
-    while(size < MAX_BINDS) // if the config has less binds fill the spots with unbound combos
-    {
+    while(combos->size() < MAX_BINDS) // if the config has less binds fill the spots with unbound combos
         combos->emplace_back(Combo(std::initializer_list<KKey>{KKey::Unknown}));
-        size = combos->size();
+
+    // having the first spot unbound and the second bound may raise issues
+    Combo *firstCombo = &combos->at(0);
+    Combo *secondCombo = &combos->at(1);
+    if(firstCombo->isUnbound() && !secondCombo->isUnbound())
+    {
+        *firstCombo = *secondCombo;
+        secondCombo->clearBind();
     }
     
     // now check if the keys in the combos are already assigned to another
