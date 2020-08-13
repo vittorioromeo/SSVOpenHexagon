@@ -339,7 +339,7 @@ end
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
 keys = { 0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
          0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }
-keys = shuffle(keys)
+shuffle(keys)
 index = 0
 
 -- onInit is an hardcoded function that is called when the level is first loaded
@@ -403,7 +403,7 @@ function onStep()
 
 	if index - 1 == #keys then
 		index = 1
-		keys = shuffle(keys)
+		shuffle(keys)
 	end
 end
 

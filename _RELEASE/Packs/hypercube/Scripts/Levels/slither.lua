@@ -8,7 +8,7 @@ u_execScript("evolutionpatterns.lua")
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
 keys = { 0 }
-keys = shuffle(keys)
+shuffle(keys)
 index = 0
 achievementUnlocked = false
 
