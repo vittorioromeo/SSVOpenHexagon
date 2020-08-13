@@ -4,7 +4,7 @@
 
 -- Defining some mathematical constants
 math.tau = math.pi * 2;
-math.e = 2.71828182845904523536;
+math.e = math.exp(1);
 math.phi = (1 + 5 ^ 0.5) / 2;
 SQRT_TWO = math.sqrt(2);
 SQRT_THREE = math.sqrt(3);
@@ -19,6 +19,7 @@ FPS = 60;
 -- curving walls.
 CURVE_ROTATION_MULTIPLIER = 10.471975
 CURVE_ROTATION_FOCUS = 2.0436
+
 
 -- [[ ENUMERATORS ]] --
 -- These are enumerators. They translate integers into more English vocabulary, making them much
@@ -122,7 +123,7 @@ function BPMtoSPB(bpm)
 	--[[
 	Converts Beats Per Minute (BPM) into period in Seconds Per Beat (SPB)
 	]]
-	return FPS/bpm;
+	return 60/bpm;
 end
 
 function clamp(input, min_val, max_val)
@@ -207,26 +208,25 @@ local prime_memoization = {
 	[1] = false,
 	[2] = true
 };
-function isPrime(integer, divisor)
-	--[[
-	Determines if an integer is a prime number or not.
-	]]
-	-- Makes the divisor parameter optional. By default, it should start at 2.
-	divisor = divisor or 2; 
-
-	if (prime_memoization[integer] ~= nil) then
-    	return prime_memoization[integer];
-  	end
-	
-	if (integer % divisor == 0) then
-    	prime_memoization[integer] = false;
-		return false;
-	elseif (divisor * divisor > integer) then
-    	prime_memoization[integer] = true;
-		return true;
+-- Checks whether an integer is a prime number or not
+function isPrime(integer)
+	-- Check if our argument is an integer
+	if (integer % 1 ~= 0) then
+		return false
 	end
-	-- Make a recursive call to try other factors.
-	return isPrime(integer, divisor + 1); 
+	if (prime_memoization[integer]) then
+		return prime_memoization[integer];
+	end
+	local divisor = 2;
+	while (divisor ^ 2 <= integer) do 
+		if (integer % divisor == 0) then
+			prime_memoization[integer] = false;
+			return false;
+	  	end
+	  	divisor = divisor + 1;
+	end
+	prime_memoization[integer] = true;
+	return true;
 end
 
 function inverseLerp(initial, final, value)
