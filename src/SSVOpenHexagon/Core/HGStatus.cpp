@@ -134,7 +134,7 @@ HexagonGameStatus::getPausedAccumulatedFrametimeInSeconds() const noexcept
     return getPausedAccumulatedFrametime() / 60.0;
 }
 
-[[nodiscard]] float getCustomScore() const noexcept
+[[nodiscard]] float HexagonGameStatus::getCustomScore() const noexcept
 {
     return customScore;
 }
