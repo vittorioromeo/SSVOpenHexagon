@@ -340,8 +340,16 @@ void HexagonGame::updateText()
 
         os.str("");
 
-        os << formatTime(rf._played_frametime / 60.0) << "s BY "
-           << rf._player_name << '\n';
+        if (levelStatus.scoreOverridden)
+        {
+            os << formatTime(rf._played_score) << " BY "
+               << rf._player_name << '\n';
+        }
+        else
+        {
+            os << formatTime(rf._played_score / 60.0) << "s BY "
+               << rf._player_name << '\n';
+        }
 
         os << activeReplay->replayPackName << " - "
            << activeReplay->replayLevelName << " (" << rf._difficulty_mult

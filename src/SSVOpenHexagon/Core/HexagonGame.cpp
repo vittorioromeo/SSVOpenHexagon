@@ -169,7 +169,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
-    const double tempPlayedFrametime = status.getPlayedAccumulatedFrametime();
+    const double tempReplayScore = status.getCustomScore() != 0.f
+                                       ? status.getCustomScore()
+                                       : status.getPlayedAccumulatedFrametime();
     status = HexagonGameStatus{};
 
     if(!executeLastReplay)
@@ -190,7 +192,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     {
         if(!activeReplay.has_value())
         {
-            lastPlayedFrametime = tempPlayedFrametime;
+            lastPlayedScore = tempReplayScore;
         }
 
         // TODO: this can be used to speed up the replay
@@ -204,7 +206,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
             ._pack_id{mPackId},
             ._level_id{mId},
             ._difficulty_mult{mDifficultyMult},
-            ._played_frametime{lastPlayedFrametime},
+            ._played_score{lastPlayedScore},
         });
 
         activeReplay->replayPackName =
@@ -371,7 +373,9 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 void HexagonGame::checkAndSaveScore()
 {
-    const float score = status.getTimeSeconds();
+    const float score = levelStatus.scoreOverridden
+                            ? lua.readVariable<float>(levelStatus.scoreOverride)
+                            : status.getTimeSeconds();
 
     // These are requirements that need to be met for a score to be valid
     if(!Config::isEligibleForScore())
@@ -489,8 +493,8 @@ void HexagonGame::setLevelData(
     return levelData->packId;
 }
 
-[[nodiscard]] const std::string&
-HexagonGame::getPackDisambiguator() const noexcept
+[[nodiscard]] const std::string& HexagonGame::getPackDisambiguator() const
+    noexcept
 {
     return assets.getPackData(getPackId()).disambiguator;
 }
