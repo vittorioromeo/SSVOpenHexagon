@@ -301,10 +301,12 @@ void HGAssets::loadLevelData(
     for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
     {
         LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
-
-        const std::string assetId = mPackId + "_" + levelData.id;
-        levelDataIdsByPack[mPackId].emplace_back(assetId);
-        levelDatas.emplace(assetId, std::move(levelData));
+        if (levelData.selectable)
+        {
+            const std::string assetId = mPackId + "_" + levelData.id;
+            levelDataIdsByPack[mPackId].emplace_back(assetId);
+            levelDatas.emplace(assetId, std::move(levelData));
+        }
     }
 }
 void HGAssets::loadLocalProfiles()
