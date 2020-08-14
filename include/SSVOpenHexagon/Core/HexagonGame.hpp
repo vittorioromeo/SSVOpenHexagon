@@ -129,7 +129,7 @@ private:
 
     random_number_generator::seed_type lastSeed;
     replay_data lastReplayData;
-    double lastPlayedFrametime;
+    double lastPlayedScore;
 
     std::string restartId;
     float difficultyMult{1};

@@ -134,6 +134,11 @@ void HexagonGame::update(ssvu::FT mFT)
 
             player.updatePosition(*this, mFT);
 
+            status.accumulateFrametime(mFT);
+            if (levelStatus.scoreOverridden) 
+            {
+                status.updateCustomScore(lua.readVariable<float>(levelStatus.scoreOverride));
+            }
             updateWalls(mFT);
 
             ssvu::eraseRemoveIf(
@@ -142,7 +147,6 @@ void HexagonGame::update(ssvu::FT mFT)
             cwManager.cleanup();
 
             updateEvents(mFT);
-            status.accumulateFrametime(mFT);
             updateIncrement();
 
             if(mustChangeSides && walls.empty())
