@@ -371,7 +371,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 void HexagonGame::checkAndSaveScore()
 {
-    const float time = status.getTimeSeconds();
+    const float score = status.getTimeSeconds();
 
     // These are requirements that need to be met for a score to be valid
     if(!Config::isEligibleForScore())
@@ -393,9 +393,9 @@ void HexagonGame::checkAndSaveScore()
         std::string localValidator{
             getLocalValidator(levelData->id, difficultyMult)};
 
-        if(assets.getLocalScore(localValidator) < time)
+        if(assets.getLocalScore(localValidator) < score)
         {
-            assets.setLocalScore(localValidator, time);
+            assets.setLocalScore(localValidator, score);
         }
 
         assets.saveCurrentLocalProfile();
@@ -404,7 +404,7 @@ void HexagonGame::checkAndSaveScore()
     {
         // These are requirements that need to be met for a score to be sent
         // online
-        if(time < 8)
+        if(status.getTimeSeconds() < 8)
         {
             ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - less than 8 seconds\n";
@@ -425,7 +425,7 @@ void HexagonGame::checkAndSaveScore()
             return;
         }
 
-        Online::trySendScore(levelData->id, difficultyMult, time);
+        Online::trySendScore(levelData->id, difficultyMult, score);
     }
 }
 

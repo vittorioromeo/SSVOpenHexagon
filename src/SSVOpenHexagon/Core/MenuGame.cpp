@@ -704,9 +704,9 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setIncEnabled", "l_get3dRequired", "l_enableRndSideChanges",
             "l_setDarkenUnevenBackgroundChunk",
             "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult",
-            "l_getDelayMult", "l_addTracked", "l_getRotation", "l_setRotation",
-            "l_setDelayMult", "l_getOfficial", "l_getSwapCooldownMult",
-            "l_setSwapCooldownMult",
+            "l_getDelayMult", "l_overrideScore", "l_addTracked", "l_getRotation", 
+            "l_setRotation", "l_setDelayMult", "l_getOfficial", 
+            "l_getSwapCooldownMult", "l_setSwapCooldownMult",
 
             "u_playSound", "u_isKeyPressed", "u_isMouseButtonPressed",
             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",

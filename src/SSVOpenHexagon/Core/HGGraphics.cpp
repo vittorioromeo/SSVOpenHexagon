@@ -290,13 +290,23 @@ void HexagonGame::updateText()
     os.flush();
 
     // Set in game timer text
-    if(status.started)
+    if(!levelStatus.scoreOverridden)
     {
-        timeText.setString(formatTime(status.getTimeSeconds()));
+        // By default, use the timer for scoring
+        if(status.started)
+        {
+            timeText.setString(formatTime(status.getTimeSeconds()));
+        }
+        else
+        {
+            timeText.setString("0");
+        }
     }
     else
     {
-        timeText.setString("0");
+        // Alternative scoring
+        timeText.setString(
+            lua.readVariable<string>(levelStatus.scoreOverride));
     }
 
     const auto getScaledCharacterSize = [&](const float size) {
