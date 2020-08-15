@@ -331,10 +331,6 @@ public:
     {
         game.refreshTrigger(trigger, bindID);
     }
-    bool isBindAssigned(const ssvs::KKey key, const ssvs::MBtn btn)
-    {
-        return game.isBindAssigned(key, btn);
-    }
 
     // Gameplay methods
     void newGame(const std::string& mPackId, const std::string& mId,
@@ -349,7 +345,7 @@ public:
     {
         window.draw(mDrawable);
     }
-
+    
     // Setters
     void setSides(unsigned int mSides);
 

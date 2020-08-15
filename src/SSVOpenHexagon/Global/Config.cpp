@@ -5,15 +5,9 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
-#include <SSVStart/Input/Input.hpp>
-#include <SSVStart/GameSystem/GameWindow.hpp>
+#include "SSVOpenHexagon/Core/Joystick.hpp"
 
 #include <iostream>
-#include <fstream>
-#include <memory>
 
 using namespace std;
 using namespace sf;
@@ -23,72 +17,83 @@ using namespace ssvu::FileSystem;
 using namespace ssvuj;
 using namespace ssvu;
 
-#define X_LINKEDVALUES                                                     \
-    X(online, bool, "online")                                              \
-    X(official, bool, "official")                                          \
-    X(noRotation, bool, "no_rotation")                                     \
-    X(noBackground, bool, "no_background")                                 \
-    X(noSound, bool, "no_sound")                                           \
-    X(noMusic, bool, "no_music")                                           \
-    X(blackAndWhite, bool, "black_and_white")                              \
-    X(pulseEnabled, bool, "pulse_enabled")                                 \
-    X(_3DEnabled, bool, "3D_enabled")                                      \
-    X(_3DMultiplier, float, "3D_multiplier")                               \
-    X(_3DMaxDepth, unsigned int, "3D_max_depth")                           \
-    X(invincible, bool, "invincible")                                      \
-    X(autoRestart, bool, "auto_restart")                                   \
-    X(soundVolume, float, "sound_volume")                                  \
-    X(musicVolume, float, "music_volume")                                  \
-    X(flashEnabled, bool, "flash_enabled")                                 \
-    X(zoomFactor, float, "zoom_factor")                                    \
-    X(pixelMultiplier, int, "pixel_multiplier")                            \
-    X(playerSpeed, float, "player_speed")                                  \
-    X(playerFocusSpeed, float, "player_focus_speed")                       \
-    X(playerSize, float, "player_size")                                    \
-    X(limitFPS, bool, "limit_fps")                                         \
-    X(vsync, bool, "vsync")                                                \
-    X(autoZoomFactor, bool, "auto_zoom_factor")                            \
-    X(fullscreen, bool, "fullscreen")                                      \
-    X(windowedAutoResolution, bool, "windowed_auto_resolution")            \
-    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution")        \
-    X(fullscreenWidth, unsigned int, "fullscreen_width")                   \
-    X(fullscreenHeight, unsigned int, "fullscreen_height")                 \
-    X(windowedWidth, unsigned int, "windowed_width")                       \
-    X(windowedHeight, unsigned int, "windowed_height")                     \
-    X(showMessages, bool, "show_messages")                                 \
-    X(debug, bool, "debug")                                                \
-    X(beatPulse, bool, "beatpulse_enabled")                                \
-    X(showTrackedVariables, bool, "show_tracked_variables")                \
-    X(musicSpeedDMSync, bool, "music_speed_dm_sync")                       \
-    X(maxFPS, unsigned int, "max_fps")                                     \
-    X(antialiasingLevel, unsigned int, "antialiasing_level")               \
-    X(showFPS, bool, "show_fps")                                           \
-    X(timerStatic, bool, "timer_static")                                   \
-    X(serverLocal, bool, "server_local")                                   \
-    X(serverVerbose, bool, "server_verbose")                               \
-    X(mouseVisible, bool, "mouse_visible")                                 \
-    X(musicSpeedMult, float, "music_speed_mult")                           \
-    X(drawTextOutlines, bool, "draw_text_outlines")                        \
-    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk") \
-    X(rotateToStart, bool, "rotate_to_start")                              \
-    X(joystickDeadzone, float, "joystick_deadzone")                        \
-    X(textPadding, float, "text_padding")                                  \
-    X(textScaling, float, "text_scaling")                                  \
-    X(timescale, float, "timescale")                                       \
-    X(showKeyIcons, bool, "show_key_icons")                                \
-    X(keyIconsScale, float, "key_icons_scale")                             \
-    X(firstTimePlaying, bool, "first_time_playing")                        \
-    X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
-    X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
-    X(triggerFocus, Trigger, "t_focus")                                    \
-    X(triggerExit, Trigger, "t_exit")                                      \
-    X(triggerForceRestart, Trigger, "t_force_restart")                     \
-    X(triggerRestart, Trigger, "t_restart")                                \
-    X(triggerReplay, Trigger, "t_replay")                                  \
-    X(triggerScreenshot, Trigger, "t_screenshot")                          \
-    X(triggerSwap, Trigger, "t_swap")                                      \
-    X(triggerUp, Trigger, "t_up")                                          \
-    X(triggerDown, Trigger, "t_down")
+#define X_LINKEDVALUES                                                                  \
+    X(online,                       bool,           "online")                           \
+    X(official,                     bool,           "official")                         \
+    X(noRotation,                   bool,           "no_rotation")                      \
+    X(noBackground,                 bool,           "no_background")                    \
+    X(noSound,                      bool,           "no_sound")                         \
+    X(noMusic,                      bool,           "no_music")                         \
+    X(blackAndWhite,                bool,           "black_and_white")                  \
+    X(pulseEnabled,                 bool,           "pulse_enabled")                    \
+    X(_3DEnabled,                   bool,           "3D_enabled")                       \
+    X(_3DMultiplier,                float,          "3D_multiplier")                    \
+    X(_3DMaxDepth,                  unsigned int,   "3D_max_depth")                     \
+    X(invincible,                   bool,           "invincible")                       \
+    X(autoRestart,                  bool,           "auto_restart")                     \
+    X(soundVolume,                  float,          "sound_volume")                     \
+    X(musicVolume,                  float,          "music_volume")                     \
+    X(flashEnabled,                 bool,           "flash_enabled")                    \
+    X(zoomFactor,                   float,          "zoom_factor")                      \
+    X(pixelMultiplier,              int,            "pixel_multiplier")                 \
+    X(playerSpeed,                  float,          "player_speed")                     \
+    X(playerFocusSpeed,             float,          "player_focus_speed")               \
+    X(playerSize,                   float,          "player_size")                      \
+    X(limitFPS,                     bool,           "limit_fps")                        \
+    X(vsync,                        bool,           "vsync")                            \
+    X(autoZoomFactor,               bool,           "auto_zoom_factor")                 \
+    X(fullscreen,                   bool,           "fullscreen")                       \
+    X(windowedAutoResolution,       bool,           "windowed_auto_resolution")         \
+    X(fullscreenAutoResolution,     bool,           "fullscreen_auto_resolution")       \
+    X(fullscreenWidth,              unsigned int,   "fullscreen_width")                 \
+    X(fullscreenHeight,             unsigned int,   "fullscreen_height")                \
+    X(windowedWidth,                unsigned int,   "windowed_width")                   \
+    X(windowedHeight,               unsigned int,   "windowed_height")                  \
+    X(showMessages,                 bool,           "show_messages")                    \
+    X(debug,                        bool,           "debug")                            \
+    X(beatPulse,                    bool,           "beatpulse_enabled")                \
+    X(showTrackedVariables,         bool,           "show_tracked_variables")           \
+    X(musicSpeedDMSync,             bool,           "music_speed_dm_sync")              \
+    X(maxFPS,                       unsigned int,   "max_fps")                          \
+    X(antialiasingLevel,            unsigned int,   "antialiasing_level")               \
+    X(showFPS,                      bool,           "show_fps")                         \
+    X(timerStatic,                  bool,           "timer_static")                     \
+    X(serverLocal,                  bool,           "server_local")                     \
+    X(serverVerbose,                bool,           "server_verbose")                   \
+    X(mouseVisible,                 bool,           "mouse_visible")                    \
+    X(musicSpeedMult,               float,          "music_speed_mult")                 \
+    X(drawTextOutlines,             bool,           "draw_text_outlines")               \
+    X(darkenUnevenBackgroundChunk,  bool,           "darken_uneven_background_chunk")   \
+    X(rotateToStart,                bool,           "rotate_to_start")                  \
+    X(joystickDeadzone,             float,          "joystick_deadzone")                \
+    X(textPadding,                  float,          "text_padding")                     \
+    X(textScaling,                  float,          "text_scaling")                     \
+    X(timescale,                    float,          "timescale")                        \
+    X(showKeyIcons,                 bool,           "show_key_icons")                   \
+    X(keyIconsScale,                float,          "key_icons_scale")                  \
+    X(firstTimePlaying,             bool,           "first_time_playing")               \
+	X(joystickSelect,               unsigned int,   "j_select")                         \
+    X(joystickExit,                 unsigned int,   "j_exit")                           \
+    X(joystickFocus,                unsigned int,   "j_focus")                          \
+    X(joystickSwap,                 unsigned int,   "j_swap")                           \
+    X(joystickForceRestart,         unsigned int,   "j_force_restart")                  \
+    X(joystickRestart,              unsigned int,   "j_restart")                        \
+    X(joystickReplay,               unsigned int,   "j_replay")                         \
+    X(joystickScreenshot,           unsigned int,   "j_screenshot")                     \
+    X(joystickOptionMenu,           unsigned int,   "j_optionmenu")                     \
+    X(joystickChangePack,           unsigned int,   "j_changepack")                     \
+    X(joystickCreateProfile,        unsigned int,   "j_createprofile")					\
+    X(triggerRotateCCW,             Trigger,        "t_rotate_ccw")                     \
+    X(triggerRotateCW,              Trigger,        "t_rotate_cw")                      \
+    X(triggerFocus,                 Trigger,        "t_focus")                          \
+    X(triggerExit,                  Trigger,        "t_exit")                           \
+    X(triggerForceRestart,          Trigger,        "t_force_restart")                  \
+    X(triggerRestart,               Trigger,        "t_restart")                        \
+    X(triggerReplay,                Trigger,        "t_replay")                         \
+    X(triggerScreenshot,            Trigger,        "t_screenshot")                     \
+    X(triggerSwap,                  Trigger,        "t_swap")                           \
+    X(triggerUp,                    Trigger,        "t_up")                             \
+    X(triggerDown,                  Trigger,        "t_down")
 
 namespace hg::Config
 {
@@ -827,67 +832,18 @@ bool SSVU_ATTRIBUTE(pure) getFirstTimePlaying()
     return firstTimePlaying();
 }
 
-Trigger getTriggerRotateCCW()
-{
-    return triggerRotateCCW();
-}
-
-Trigger getTriggerRotateCW()
-{
-    return triggerRotateCW();
-}
-
-Trigger getTriggerFocus()
-{
-    return triggerFocus();
-}
-
-Trigger getTriggerExit()
-{
-    return triggerExit();
-}
-
-Trigger getTriggerForceRestart()
-{
-    return triggerForceRestart();
-}
-
-Trigger getTriggerRestart()
-{
-    return triggerRestart();
-}
-
-Trigger getTriggerReplay()
-{
-    return triggerReplay();
-}
-
-Trigger getTriggerScreenshot()
-{
-    return triggerScreenshot();
-}
-
-Trigger getTriggerSwap()
-{
-    return triggerSwap();
-}
-
-Trigger getTriggerUp()
-{
-    return triggerUp();
-}
-
-Trigger getTriggerDown()
-{
-    return triggerDown();
-}
+//***********************************************************
+//
+// KEYBOARD/MOUSE BINDS
+//
+//***********************************************************
 
 //**************************************************
-// Game start binds sanity check
+// Game start check
 
 #define MAX_BINDS 2
 
-[[nodiscard]] Trigger ResizeTrigger(Trigger trig, Combo &bindList) noexcept
+[[nodiscard]] Trigger resizeTrigger(Trigger trig, Combo &bindList) noexcept
 {
     std::vector<Combo> *combos = &trig.getCombos();
     
@@ -959,27 +915,91 @@ Trigger getTriggerDown()
     return trig;
 }
 
-void BindsSanityCheck()
+void keyboardBindsSanityCheck()
 {
     ssvs::Input::Combo bindList = ssvs::Input::Combo(std::initializer_list<KKey>{KKey::Unknown}, std::initializer_list<MBtn>{MBtn::Left});
     bindList.clearBind();
-    triggerRotateCCW() = ResizeTrigger(triggerRotateCCW(), bindList);
-    triggerRotateCW() = ResizeTrigger(triggerRotateCW(), bindList);
-    triggerFocus() = ResizeTrigger(triggerFocus(), bindList);
-    triggerExit() = ResizeTrigger(triggerExit(), bindList);
-    triggerForceRestart() = ResizeTrigger(triggerForceRestart(), bindList);
-    triggerRestart() = ResizeTrigger(triggerRestart(), bindList);
-    triggerReplay() = ResizeTrigger(triggerReplay(), bindList);
-    triggerScreenshot() = ResizeTrigger(triggerScreenshot(), bindList);
-    triggerSwap() = ResizeTrigger(triggerSwap(), bindList);
-    triggerUp() = ResizeTrigger(triggerUp(), bindList);
-    triggerDown() = ResizeTrigger(triggerDown(), bindList);
+    triggerRotateCCW() = resizeTrigger(triggerRotateCCW(), bindList);
+    triggerRotateCW() = resizeTrigger(triggerRotateCW(), bindList);
+    triggerFocus() = resizeTrigger(triggerFocus(), bindList);
+    triggerExit() = resizeTrigger(triggerExit(), bindList);
+    triggerForceRestart() = resizeTrigger(triggerForceRestart(), bindList);
+    triggerRestart() = resizeTrigger(triggerRestart(), bindList);
+    triggerReplay() = resizeTrigger(triggerReplay(), bindList);
+    triggerScreenshot() = resizeTrigger(triggerScreenshot(), bindList);
+    triggerSwap() = resizeTrigger(triggerSwap(), bindList);
+    triggerUp() = resizeTrigger(triggerUp(), bindList);
+    triggerDown() = resizeTrigger(triggerDown(), bindList);
 }
 
 //**************************************************
 // Add new key binds
 
-[[nodiscard]] Trigger RebindTrigger(Trigger trig, int key, int btn, int index) noexcept
+typedef void (*setFuncTrig) (Trigger trig);
+setFuncTrig setTrig[int(ssvs::Input::Tid::TriggersCount)] = {
+    setTriggerRotateCCW,    setTriggerRotateCW, setTriggerFocus,    setTriggerExit,
+    setTriggerForceRestart, setTriggerRestart,  setTriggerReplay,   setTriggerScreenshot,
+    setTriggerSwap,         setTriggerUp,       setTriggerDown      };
+
+[[nodiscard]] std::tuple <int, Trigger> checkTriggerReassignement(KKey key, MBtn btn)
+{
+    Trigger get[int(ssvs::Input::Tid::TriggersCount)] = {
+        triggerRotateCCW(),     triggerRotateCW(),  triggerFocus(),   triggerExit(),
+        triggerForceRestart(),  triggerRestart(),   triggerReplay(),  triggerScreenshot(),
+        triggerSwap(),          triggerUp(),        triggerDown()     };
+
+    Trigger trig;
+    std::vector<Combo> *combos = NULL;
+    Combo *combo;
+    for(int i = 0; i < int(ssvs::Input::Tid::TriggersCount); ++i)
+    {
+        trig = get[i];
+        combos = &trig.getCombos();
+        for(int j = 0; j < MAX_BINDS; ++j)
+        {
+            combo = &combos->at(j);
+            if(key > KKey::Unknown)
+            {
+                if(getKeyBit(combo->getKeys(), key))
+                {
+                    if(!j && !combos->at(j + 1).isUnbound())
+                    {
+                        Combo *secondCombo = &combos->at(j + 1);
+                        *combo = *secondCombo;
+                        secondCombo->clearBind();
+                    }
+                    else
+                        combo->clearBind();
+
+                    setTrig[i](trig);
+                    return {i, trig};
+                }
+            }
+            else
+            {
+                if(getBtnBit(combo->getBtns(), btn))
+                {
+                    if(!j && !combos->at(j + 1).isUnbound())
+                    {
+                        Combo *secondCombo = &combos->at(j + 1);
+                        *combo = *secondCombo;
+                        secondCombo->clearBind();
+                    }
+                    else
+                        combo->clearBind();
+
+                    setTrig[i](trig);
+                    return {i, trig};
+                }
+            }
+        }
+    }
+
+    // key had no previous bind
+    return {-1, get[0]};
+}
+
+[[nodiscard]] Trigger rebindTrigger(Trigger trig, int key, int btn, int index) noexcept
 {
     if(key > -1)
         trig.getCombos()[index].addKey(KKey(key));
@@ -988,123 +1008,457 @@ void BindsSanityCheck()
     return trig;
 }
 
-void addBindTriggerRotateCCW(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerRotateCCW(int key, int btn, int index)
 {
-    triggerRotateCCW() = RebindTrigger(triggerRotateCCW(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerRotateCCW() = rebindTrigger(triggerRotateCCW(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerRotateCW(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerRotateCW(int key, int btn, int index)
 {
-    triggerRotateCW() = RebindTrigger(triggerRotateCW(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerRotateCW() = rebindTrigger(triggerRotateCW(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerFocus(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerFocus(int key, int btn, int index)
 {
-    triggerFocus() = RebindTrigger(triggerFocus(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerFocus() = rebindTrigger(triggerFocus(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerExit(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerExit(int key, int btn, int index)
 {
-    triggerExit() = RebindTrigger(triggerExit(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerExit() = rebindTrigger(triggerExit(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerForceRestart(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerForceRestart(int key, int btn, int index)
 {
-    triggerForceRestart() = RebindTrigger(triggerForceRestart(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerForceRestart() = rebindTrigger(triggerForceRestart(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerRestart(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerRestart(int key, int btn, int index)
 {
-    triggerRestart() = RebindTrigger(triggerRestart(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerRestart() = rebindTrigger(triggerRestart(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerReplay(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerReplay(int key, int btn, int index)
 {
-    triggerReplay() = RebindTrigger(triggerReplay(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerReplay() = rebindTrigger(triggerReplay(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerScreenshot(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerScreenshot(int key, int btn, int index)
 {
-    triggerScreenshot() = RebindTrigger(triggerScreenshot(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerScreenshot() = rebindTrigger(triggerScreenshot(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerSwap(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerSwap(int key, int btn, int index)
 {
-    triggerSwap() = RebindTrigger(triggerSwap(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerSwap() = rebindTrigger(triggerSwap(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerUp(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerUp(int key, int btn, int index)
 {
-    triggerUp() = RebindTrigger(triggerUp(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerUp() = rebindTrigger(triggerUp(), key, btn, index);
+    return reassign;
 }
-
-void addBindTriggerDown(int key, int btn, int index)
+std::tuple <int, Trigger> reassignBindTriggerDown(int key, int btn, int index)
 {
-    triggerDown() = RebindTrigger(triggerDown(), key, btn, index);
+    std::tuple<int, Trigger> reassign = checkTriggerReassignement(KKey(key), MBtn(btn));
+    triggerDown() = rebindTrigger(triggerDown(), key, btn, index);
+    return reassign;
 }
 
 //**************************************************
 // Unbind key
 
-[[nodiscard]] Trigger ClearTriggerBind(Trigger trig, int index) noexcept
+[[nodiscard]] Trigger clearTriggerBind(Trigger trig, int index) noexcept
 {
     trig.getCombos()[index - 1].clearBind();
     return trig;
 }
-
 void clearBindTriggerRotateCCW(int index)
 {
-    triggerRotateCCW() = ClearTriggerBind(triggerRotateCCW(), index);
+    triggerRotateCCW() = clearTriggerBind(triggerRotateCCW(), index);
 }
-
 void clearBindTriggerRotateCW(int index)
 {
-    triggerRotateCW() = ClearTriggerBind(triggerRotateCW(), index);
+    triggerRotateCW() = clearTriggerBind(triggerRotateCW(), index);
 }
-
 void clearBindTriggerFocus(int index)
 {
-    triggerFocus() = ClearTriggerBind(triggerFocus(), index);
+    triggerFocus() = clearTriggerBind(triggerFocus(), index);
 }
-
 void clearBindTriggerExit(int index)
 {
-    triggerExit() = ClearTriggerBind(triggerExit(), index);
+    triggerExit() = clearTriggerBind(triggerExit(), index);
 }
-
 void clearBindTriggerForceRestart(int index)
 {
-    triggerForceRestart() = ClearTriggerBind(triggerForceRestart(), index);
+    triggerForceRestart() = clearTriggerBind(triggerForceRestart(), index);
 }
-
 void clearBindTriggerRestart(int index)
 {
-    triggerRestart() = ClearTriggerBind(triggerRestart(), index);
+    triggerRestart() = clearTriggerBind(triggerRestart(), index);
 }
-
 void clearBindTriggerReplay(int index)
 {
-    triggerReplay() = ClearTriggerBind(triggerReplay(), index);
+    triggerReplay() = clearTriggerBind(triggerReplay(), index);
 }
-
 void clearBindTriggerScreenshot(int index)
 {
-    triggerScreenshot() = ClearTriggerBind(triggerScreenshot(), index);
+    triggerScreenshot() = clearTriggerBind(triggerScreenshot(), index);
 }
-
 void clearBindTriggerSwap(int index)
 {
-    triggerSwap() = ClearTriggerBind(triggerSwap(), index);
+    triggerSwap() = clearTriggerBind(triggerSwap(), index);
 }
-
 void clearBindTriggerUp(int index)
 {
-    triggerUp() = ClearTriggerBind(triggerUp(), index);
+    triggerUp() = clearTriggerBind(triggerUp(), index);
 }
-
 void clearBindTriggerDown(int index)
 {
-    triggerDown() = ClearTriggerBind(triggerDown(), index);
+    triggerDown() = clearTriggerBind(triggerDown(), index);
+}
+
+//**************************************************
+// Get key
+
+Trigger getTriggerRotateCCW()
+{
+    return triggerRotateCCW();
+}
+Trigger getTriggerRotateCW()
+{
+    return triggerRotateCW();
+}
+Trigger getTriggerFocus()
+{
+    return triggerFocus();
+}
+Trigger getTriggerExit()
+{
+    return triggerExit();
+}
+Trigger getTriggerForceRestart()
+{
+    return triggerForceRestart();
+}
+Trigger getTriggerRestart()
+{
+    return triggerRestart();
+}
+Trigger getTriggerReplay()
+{
+    return triggerReplay();
+}
+Trigger getTriggerScreenshot()
+{
+    return triggerScreenshot();
+}
+Trigger getTriggerSwap()
+{
+    return triggerSwap();
+}
+Trigger getTriggerUp()
+{
+    return triggerUp();
+}
+Trigger getTriggerDown()
+{
+    return triggerDown();
+}
+
+//**************************************************
+// Set key
+
+void setTriggerRotateCCW(Trigger trig)
+{
+    triggerRotateCCW() = trig;
+}
+void setTriggerRotateCW(Trigger trig)
+{
+    triggerRotateCW() = trig;
+}
+void setTriggerFocus(Trigger trig)
+{
+    triggerFocus() = trig;
+}
+void setTriggerExit(Trigger trig)
+{
+    triggerExit() = trig;
+}
+void setTriggerForceRestart(Trigger trig)
+{
+    triggerForceRestart() = trig;
+}
+void setTriggerRestart(Trigger trig)
+{
+    triggerRestart() = trig;
+}
+void setTriggerReplay(Trigger trig)
+{
+    triggerReplay() = trig;
+}
+void setTriggerScreenshot(Trigger trig)
+{
+    triggerScreenshot() = trig;
+}
+void setTriggerSwap(Trigger trig)
+{
+    triggerSwap() = trig;
+}
+void setTriggerUp(Trigger trig)
+{
+    triggerUp() = trig;
+}
+void setTriggerDown(Trigger trig)
+{
+    triggerDown() = trig;
+}
+
+//***********************************************************
+//
+// JOYSTICK BINDS
+//
+//***********************************************************
+
+//**********************************************
+//Game start check
+
+[[nodiscard]] int checkJoystickButtons(int button, std::vector<int> &buttonList)
+{
+    // values lower than 0 make the game crash, 33 == unbound
+    button = std::clamp(button, 0, 33);
+    if(button == 33) return button;
+
+    // if button is already used assign button 33
+    // 33 is out of the supported buttons range so it can never be triggered
+    for(auto &b : buttonList)
+    {
+        if(b != 33 && button == b)
+        {
+            button = 33;
+            buttonList.push_back(button);
+            break;
+        }
+    }
+
+    return button;
+}
+
+void joystickBindsSanityCheck()
+{
+    std::vector<int> buttonList;
+    joystickSelect() = checkJoystickButtons(joystickSelect(), buttonList);
+    joystickExit() = checkJoystickButtons(joystickExit(), buttonList);
+    joystickFocus() = checkJoystickButtons(joystickFocus(), buttonList);
+    joystickSwap() = checkJoystickButtons(joystickSwap(), buttonList);
+    joystickForceRestart() = checkJoystickButtons(joystickForceRestart(), buttonList);
+    joystickRestart() = checkJoystickButtons(joystickRestart(), buttonList);
+    joystickReplay() = checkJoystickButtons(joystickReplay(), buttonList);
+    joystickScreenshot() = checkJoystickButtons(joystickScreenshot(), buttonList);
+    joystickOptionMenu() = checkJoystickButtons(joystickOptionMenu(), buttonList);
+    joystickChangePack() = checkJoystickButtons(joystickChangePack(), buttonList);
+    joystickCreateProfile() = checkJoystickButtons(joystickCreateProfile(), buttonList);
+}
+
+//**********************************************
+// Get bind
+
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickSelect()
+{
+    return joystickSelect();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickExit()
+{
+    return joystickExit();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickFocus()
+{
+    return joystickFocus();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickSwap()
+{
+    return joystickSwap();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickForceRestart()
+{
+    return joystickForceRestart();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickRestart()
+{
+    return joystickRestart();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickReplay()
+{
+    return joystickReplay();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickScreenshot()
+{
+    return joystickScreenshot();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickOptionMenu()
+{
+    return joystickOptionMenu();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickChangePack()
+{
+    return joystickChangePack();
+}
+unsigned int SSVU_ATTRIBUTE(pure) getJoystickCreateProfile()
+{
+    return joystickCreateProfile();
+}
+
+//**********************************************
+// Reassign bind
+
+typedef void (*setFuncJoy) (unsigned int button);
+setFuncJoy setJoy[hg::Joystick::Jid::JoystickBindsCount] =
+    {   setJoystickSelect,         setJoystickExit,         setJoystickFocus,        setJoystickSwap,
+        setJoystickForceRestart,   setJoystickRestart,      setJoystickReplay,       setJoystickScreenshot,
+        setJoystickOptionMenu,     setJoystickChangePack,   setJoystickCreateProfile };
+
+[[nodiscard]] int checkButtonReassignement(unsigned int button)
+{
+    unsigned int get[hg::Joystick::Jid::JoystickBindsCount] =
+        {   joystickSelect(),         joystickExit(),         joystickFocus(),        joystickSwap(),
+            joystickForceRestart(),   joystickRestart(),      joystickReplay(),       joystickScreenshot(),
+            joystickOptionMenu(),     joystickChangePack(),   joystickCreateProfile() };
+
+    for(int i = 0; i < hg::Joystick::Jid::JoystickBindsCount; ++i)
+    {
+        if(get[i] == button)
+        {
+            setJoy[i](33);
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int reassignToJoystickSelect(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickSelect() = button;
+    return unboundID;
+}
+int reassignToJoystickExit(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickExit() = button;
+    return unboundID;
+}
+int reassignToJoystickFocus(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickFocus() = button;
+    return unboundID;
+}
+int reassignToJoystickSwap(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickSwap() = button;
+    return unboundID;
+}
+int reassignToJoystickForceRestart(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickForceRestart() = button;
+    return unboundID;
+}
+int reassignToJoystickRestart(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickRestart() = button;
+    return unboundID;
+}
+int reassignToJoystickReplay(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickReplay() = button;
+    return unboundID;
+}
+int reassignToJoystickScreenshot(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickScreenshot() = button;
+    return unboundID;
+}
+int reassignToJoystickOptionMenu(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickOptionMenu() = button;
+    return unboundID;
+}
+int reassignToJoystickChangePack(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickChangePack() = button;
+    return unboundID;
+}
+int reassignToJoystickCreateProfile(unsigned int button)
+{
+    int unboundID = checkButtonReassignement(button);
+    joystickCreateProfile() = button;
+    return unboundID;
+}
+
+//**********************************************
+// Set bind
+
+void setJoystickSelect(unsigned int button)
+{
+    joystickSelect() = button;
+}
+void setJoystickExit(unsigned int button)
+{
+    joystickExit() = button;
+}
+void setJoystickFocus(unsigned int button)
+{
+    joystickFocus() = button;
+}
+void setJoystickSwap(unsigned int button)
+{
+    joystickSwap() = button;
+}
+void setJoystickForceRestart(unsigned int button)
+{
+    joystickForceRestart() = button;
+}
+void setJoystickRestart(unsigned int button)
+{
+    joystickRestart() = button;
+}
+void setJoystickReplay(unsigned int button)
+{
+    joystickReplay() = button;
+}
+void setJoystickScreenshot(unsigned int button)
+{
+    joystickScreenshot() = button;
+}
+void setJoystickOptionMenu(unsigned int button)
+{
+    joystickOptionMenu() = button;
+}
+void setJoystickChangePack(unsigned int button)
+{
+    joystickChangePack() = button;
+}
+void setJoystickCreateProfile(unsigned int button)
+{
+    joystickCreateProfile() = button;
 }
 
 } // namespace hg::Config

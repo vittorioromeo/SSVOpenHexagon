@@ -6,18 +6,6 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
-#include <SSVStart/Input/Input.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
-
-#include <SSVMenuSystem/SSVMenuSystem.hpp>
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace std;
 using namespace sf;
@@ -73,22 +61,23 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         {
             if(state == States::ETBind)
             {
-                KKey key = mEvent.key.code;
-                if(!isValidKeyBind(key))
+                // don't try assigning a keyboard key to a controller bind
+                if(getCurrentMenu()->getItem().isWaitingForBind() == 2)
                 {
                     assets.playSound("error.ogg");
+                    return;
                 }
+
+                KKey key = mEvent.key.code;
+                if(!isValidKeyBind(key))
+                    assets.playSound("error.ogg");
                 else
                 {
-                    if(getCurrentMenu()->getItem().newBind(key))
-                    {
-                        assets.playSound("beep.ogg");
-                        state = States::MOpts;
-                    }
-                    else
-                        assets.playSound("error.ogg");
+                    getCurrentMenu()->getItem().newBind(key);
+                    assets.playSound("beep.ogg");
+                    justBoundDelay = true;
                 }
-                
+
                 touchDelay = 10.f;
             }
         };
@@ -97,15 +86,36 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         {
             if(state == States::ETBind)
             {
-                MBtn btn = mEvent.mouseButton.button;
-                if(getCurrentMenu()->getItem().newBind(KKey::Unknown, btn))
+                // don't try assigning a keyboard key to a controller bind
+                if(getCurrentMenu()->getItem().isWaitingForBind() == 2)
                 {
-                    state = States::MOpts;
-                    assets.playSound("beep.ogg");
-                }
-                else
                     assets.playSound("error.ogg");
-                
+                    return;
+                }
+
+                getCurrentMenu()->getItem().newBind(KKey::Unknown,
+                                                    mEvent.mouseButton.button);
+                assets.playSound("beep.ogg");
+                justBoundDelay = true;
+                touchDelay = 10.f;
+            }
+        };
+    game.onEvent(Event::EventType::JoystickButtonPressed) =
+        [this](const Event& mEvent)
+        {
+            if(state == States::ETBind)
+            {
+                // don't try assigning a controller button to a keyboard bind
+                if(getCurrentMenu()->getItem().isWaitingForBind() == 1)
+                {
+                    assets.playSound("error.ogg");
+                    return;
+                }
+
+                getCurrentMenu()->getItem().newBind(KKey::Unknown, MBtn::Left,
+                                                    mEvent.joystickButton.button);
+                assets.playSound("beep.ogg");
+                justBoundDelay = true;
                 touchDelay = 10.f;
             }
         };
@@ -205,6 +215,8 @@ void MenuGame::initMenus()
     auto& main(optionsMenu.createCategory("options"));
     auto& friends(optionsMenu.createCategory("friends"));
     auto& play(optionsMenu.createCategory("gameplay"));
+    auto& keyboard(optionsMenu.createCategory("keyboard"));
+    auto& joystick(optionsMenu.createCategory("joystick"));
     auto& resolution(optionsMenu.createCategory("resolution"));
     auto& gfx(optionsMenu.createCategory("graphics"));
     auto& sfx(optionsMenu.createCategory("audio"));
@@ -229,6 +241,8 @@ void MenuGame::initMenus()
     main.create<i::Single>("exit game", [this] { window.stop(); });
     main.create<i::Single>("back", [this] { state = States::SMain; });
 
+
+    // Resolution
     resolution.create<i::Single>(
         "auto", [this] { Config::setCurrentResolutionAuto(window); });
 
@@ -249,6 +263,8 @@ void MenuGame::initMenus()
         "go fullscreen", [this] { Config::setFullscreen(window, true); });
     resolution.create<i::GoBack>("back");
 
+
+    //Graphics
     gfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
     gfx.create<i::Toggle>(
         "no rotation", &Config::getNoRotation, &Config::setNoRotation) |
@@ -313,6 +329,8 @@ void MenuGame::initMenus()
         0.05f);
     gfx.create<i::GoBack>("back");
 
+
+    //Sound
     sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);
     sfx.create<i::Toggle>("no music", &Config::getNoMusic, &Config::setNoMusic);
     sfx.create<i::Slider>(
@@ -341,47 +359,84 @@ void MenuGame::initMenus()
         whenMusicEnabled;
     sfx.create<i::GoBack>("back");
 
+
+    //Gameplay
     play.create<i::Toggle>(
         "autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
     play.create<i::Toggle>("rotate to start", &Config::getRotateToStart,
-        &Config::setRotateToStart);
-    play.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
-        &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
-    play.create<i::BindControl>("rotate ccw", &Config::getTriggerRotateCCW,
-        &Config::addBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW, game,
-        hexagonGame, Tid::RotateCCW);
-    play.create<i::BindControl>("rotate cw", &Config::getTriggerRotateCW,
-        &Config::addBindTriggerRotateCW, &Config::clearBindTriggerRotateCW, game,
-        hexagonGame, Tid::RotateCW);
-    play.create<i::BindControl>("focus", &Config::getTriggerFocus,
-        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus, game,
-        hexagonGame, Tid::Focus);
-    play.create<i::BindControl>("exit", &Config::getTriggerExit,
-        &Config::addBindTriggerExit, &Config::clearBindTriggerExit, game,
-        hexagonGame, Tid::Exit);
-    play.create<i::BindControl>("force restart", &Config::getTriggerForceRestart,
-        &Config::addBindTriggerForceRestart, &Config::clearBindTriggerForceRestart, game,
-        hexagonGame, Tid::ForceRestart);
-    play.create<i::BindControl>("restart", &Config::getTriggerRestart,
-        &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart, game,
-        hexagonGame, Tid::Restart);
-    play.create<i::BindControl>("replay", &Config::getTriggerReplay,
-        &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay, game,
-        hexagonGame, Tid::Replay);
-    play.create<i::BindControl>("screenshot", &Config::getTriggerScreenshot,
-        &Config::addBindTriggerScreenshot, &Config::clearBindTriggerScreenshot, game,
-        hexagonGame, Tid::Screenshot);
-    play.create<i::BindControl>("swap", &Config::getTriggerSwap,
-        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap, game,
-        hexagonGame, Tid::Swap);
-    play.create<i::BindControl>("up", &Config::getTriggerUp,
-        &Config::addBindTriggerUp, &Config::clearBindTriggerUp, game,
-        hexagonGame, Tid::Up);
-    play.create<i::BindControl>("down", &Config::getTriggerDown,
-        &Config::addBindTriggerDown, &Config::clearBindTriggerDown, game,
-        hexagonGame, Tid::Down);
+                            &Config::setRotateToStart);
+    play.create<i::Goto>("keyboard", keyboard);
+    play.create<i::Goto>("joystick", joystick);
     play.create<i::GoBack>("back");
 
+    //Keyboard binds
+    keyboard.create<i::BindControl>("rotate ccw", &Config::getTriggerRotateCCW,
+                                &Config::reassignBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW,
+                                game, hexagonGame, Tid::RotateCCW);
+    keyboard.create<i::BindControl>("rotate cw", &Config::getTriggerRotateCW,
+                                &Config::reassignBindTriggerRotateCW, &Config::clearBindTriggerRotateCW,
+                                game, hexagonGame, Tid::RotateCW);
+    keyboard.create<i::BindControl>("focus", &Config::getTriggerFocus,
+                                &Config::reassignBindTriggerFocus, &Config::clearBindTriggerFocus,
+                                game, hexagonGame, Tid::Focus);
+    keyboard.create<i::BindControl>("exit", &Config::getTriggerExit,
+                                &Config::reassignBindTriggerExit, &Config::clearBindTriggerExit,
+                                game, hexagonGame, Tid::Exit);
+    keyboard.create<i::BindControl>("force restart", &Config::getTriggerForceRestart,
+                                &Config::reassignBindTriggerForceRestart, &Config::clearBindTriggerForceRestart,
+                                game, hexagonGame, Tid::ForceRestart);
+    keyboard.create<i::BindControl>("restart", &Config::getTriggerRestart,
+                                &Config::reassignBindTriggerRestart, &Config::clearBindTriggerRestart,
+                                game, hexagonGame, Tid::Restart);
+    keyboard.create<i::BindControl>("replay", &Config::getTriggerReplay,
+                                &Config::reassignBindTriggerReplay, &Config::clearBindTriggerReplay,
+                                game, hexagonGame, Tid::Replay);
+    keyboard.create<i::BindControl>("screenshot", &Config::getTriggerScreenshot,
+                                &Config::reassignBindTriggerScreenshot, &Config::clearBindTriggerScreenshot,
+                                game, hexagonGame, Tid::Screenshot);
+    keyboard.create<i::BindControl>("swap", &Config::getTriggerSwap,
+                                &Config::reassignBindTriggerSwap, &Config::clearBindTriggerSwap,
+                                game, hexagonGame, Tid::Swap);
+    keyboard.create<i::BindControl>("up", &Config::getTriggerUp,
+                                &Config::reassignBindTriggerUp, &Config::clearBindTriggerUp,
+                                game, hexagonGame, Tid::Up);
+    keyboard.create<i::BindControl>("down", &Config::getTriggerDown,
+                                &Config::reassignBindTriggerDown, &Config::clearBindTriggerDown,
+                                game, hexagonGame, Tid::Down);
+    keyboard.create<i::GoBack>("back");
+
+    //Joystick binds
+    joystick.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
+                                &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
+
+    using Jid = hg::Joystick::Jid;
+
+    joystick.create<i::JoystickBindControl>("select", &Config::getJoystickSelect,
+                                            &Config::reassignToJoystickSelect, Jid::Select);
+    joystick.create<i::JoystickBindControl>("exit", &Config::getJoystickExit,
+                                            &Config::reassignToJoystickExit, Jid::Exit);
+    joystick.create<i::JoystickBindControl>("focus", &Config::getJoystickFocus,
+                                            &Config::reassignToJoystickFocus, Jid::Focus);
+    joystick.create<i::JoystickBindControl>("swap", &Config::getJoystickSwap,
+                                            &Config::reassignToJoystickSwap, Jid::Swap);
+    joystick.create<i::JoystickBindControl>("force restart", &Config::getJoystickForceRestart,
+                                            &Config::reassignToJoystickForceRestart, Jid::ForceRestart);
+    joystick.create<i::JoystickBindControl>("restart", &Config::getJoystickRestart,
+                                            &Config::reassignToJoystickRestart, Jid::Restart);
+    joystick.create<i::JoystickBindControl>("replay", &Config::getJoystickReplay,
+                                            &Config::reassignToJoystickReplay, Jid::Replay);
+    joystick.create<i::JoystickBindControl>("screenshot", &Config::getJoystickScreenshot,
+                                            &Config::reassignToJoystickScreenshot, Jid::Screenshot);
+    joystick.create<i::JoystickBindControl>("option menu", &Config::getJoystickOptionMenu,
+                                            &Config::reassignToJoystickOptionMenu, Jid::OptionMenu);
+    joystick.create<i::JoystickBindControl>("change pack", &Config::getJoystickChangePack,
+                                            &Config::reassignToJoystickChangePack, Jid::ChangePack);
+    joystick.create<i::JoystickBindControl>("create profile", &Config::getJoystickCreateProfile,
+                                            &Config::reassignToJoystickCreateProfile, Jid::CreateProfile);
+    joystick.create<i::GoBack>("back");
+
+
+    //Profile
     localProfiles.create<i::Single>("change local profile", [this] {
         enteredStr = "";
         state = States::SLPSelect;
@@ -392,6 +447,8 @@ void MenuGame::initMenus()
     });
     localProfiles.create<i::GoBack>("back");
 
+
+    //Debug
     debug.create<i::Toggle>("debug mode", &Config::getDebug, &Config::setDebug);
     debug.create<i::Toggle>(
         "invincible", &Config::getInvincible, &Config::setInvincible);
@@ -399,6 +456,8 @@ void MenuGame::initMenus()
         &Config::setTimescale, 0.1f, 2.f, 0.05f);
     debug.create<i::GoBack>("back");
 
+
+    //Friends
     friends.create<i::Single>("add friend", [this] {
         enteredStr = "";
         state = States::ETFriend;
@@ -733,7 +792,7 @@ void MenuGame::initInput()
     game.addInput(
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) {
-            if(state == States::ETBind || touchDelay > 0.f) return;
+            if(state == States::ETBind) return;
             mustTakeScreenshot = true;
         },
         t::Once,
@@ -1089,41 +1148,36 @@ void MenuGame::update(ssvu::FT mFT)
     steamManager.run_callbacks();
     discordManager.run_callbacks();
 
+    if (justBoundDelay == true && state == States::ETBind)
+    {
+        state = States::MOpts;
+        justBoundDelay = false;
+    }
+
     hg::Joystick::update();
 
     if(hg::Joystick::leftRisingEdge())
-    {
         leftAction();
-    }
     else if(hg::Joystick::rightRisingEdge())
-    {
         rightAction();
-    }
     else if(hg::Joystick::upRisingEdge())
-    {
         upAction();
-    }
     else if(hg::Joystick::downRisingEdge())
-    {
         downAction();
-    }
 
-    if(hg::Joystick::aRisingEdge())
-    {
+    if(hg::Joystick::selectRisingEdge())
         okAction();
-    }
-    else if(hg::Joystick::bRisingEdge())
-    {
+    else if(hg::Joystick::exitRisingEdge())
+        exitAction();
+    else if(hg::Joystick::createProfileRisingEdge())
         createProfileAction();
-    }
-    else if(hg::Joystick::selectRisingEdge())
-    {
+    else if(hg::Joystick::changePackRisingEdge())
         selectPackAction();
-    }
-    else if(hg::Joystick::startRisingEdge())
-    {
+    else if(hg::Joystick::optionMenuRisingEdge())
         openOptionsAction();
-    }
+
+    if(state != States::ETBind && hg::Joystick::screenshotRisingEdge())
+        mustTakeScreenshot = true;
 
     if(touchDelay > 0.f)
     {
