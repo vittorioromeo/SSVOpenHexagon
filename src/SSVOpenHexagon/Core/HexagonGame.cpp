@@ -3,20 +3,9 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-
-#include <SSVStart/Utils/Vector2.hpp>
-#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
 
 #include <cassert>
 
@@ -123,8 +112,9 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         initFlashEffect();
         initKeyIcons();
     };
-    
-    Config::BindsSanityCheck();
+
+    // keyboard binds
+    Config::keyboardBindsSanityCheck();
     
     add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW, Tid::RotateCCW);
     add2StateInput(game, Config::getTriggerRotateCW(), inputImplCW, Tid::RotateCW);
@@ -182,6 +172,21 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
         ssvs::Input::Type::Once, Tid::Screenshot);
+
+    // joystick binds
+    Config::joystickBindsSanityCheck();
+
+    hg::Joystick::setJoystickBind(Config::getJoystickSelect(),          hg::Joystick::Jid::Select);
+    hg::Joystick::setJoystickBind(Config::getJoystickExit(),            hg::Joystick::Jid::Exit);
+    hg::Joystick::setJoystickBind(Config::getJoystickFocus(),           hg::Joystick::Jid::Focus);
+    hg::Joystick::setJoystickBind(Config::getJoystickSwap(),            hg::Joystick::Jid::Swap);
+    hg::Joystick::setJoystickBind(Config::getJoystickForceRestart(),    hg::Joystick::Jid::ForceRestart);
+    hg::Joystick::setJoystickBind(Config::getJoystickRestart(),         hg::Joystick::Jid::Restart);
+    hg::Joystick::setJoystickBind(Config::getJoystickReplay(),          hg::Joystick::Jid::Replay);
+    hg::Joystick::setJoystickBind(Config::getJoystickScreenshot(),      hg::Joystick::Jid::Screenshot);
+    hg::Joystick::setJoystickBind(Config::getJoystickOptionMenu(),      hg::Joystick::Jid::OptionMenu);
+    hg::Joystick::setJoystickBind(Config::getJoystickChangePack(),      hg::Joystick::Jid::ChangePack);
+    hg::Joystick::setJoystickBind(Config::getJoystickCreateProfile(),   hg::Joystick::Jid::CreateProfile);
 
     initKeyIcons();
 }
@@ -618,12 +623,12 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
-    return inputFocused;
+    return inputFocused || hg::Joystick::focusRisingEdge();
 }
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const
 {
-    return inputSwap || hg::Joystick::aRisingEdge();
+    return inputSwap || hg::Joystick::swapRisingEdge();
 }
 
 [[nodiscard]] int HexagonGame::getInputMovement() const

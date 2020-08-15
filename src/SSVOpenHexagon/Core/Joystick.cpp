@@ -69,20 +69,54 @@ struct JoystickState
     bool selectWasPressed;
     bool selectPressed;
 
-    bool startWasPressed;
-    bool startPressed;
+    bool exitWasPressed;
+    bool exitPressed;
 
-    bool aWasPressed;
-    bool aPressed;
+    bool focusWasPressed;
+    bool focusPressed;
 
-    bool bWasPressed;
-    bool bPressed;
+    bool swapWasPressed;
+    bool swapPressed;
+
+    bool forceRestartWasPressed;
+    bool forceRestartPressed;
+
+    bool restartWasPressed;
+    bool restartPressed;
+
+    bool replayWasPressed;
+    bool replayPressed;
+
+    bool screenshotWasPressed;
+    bool screenshotPressed;
+
+    bool optionMenuWasPressed;
+    bool optionMenuPressed;
+
+    bool changePackWasPressed;
+    bool changePackPressed;
+
+    bool createProfileWasPressed;
+    bool createProfilePressed;
+
+    unsigned int joystickInputs[Jid::JoystickBindsCount];
 };
 
 [[nodiscard]] static JoystickState& getJoystickState()
 {
     static JoystickState res{};
     return res;
+}
+
+void setJoystickBind(unsigned int button, Jid buttonID)
+{
+    auto& s = getJoystickState();
+    s.joystickInputs[int(buttonID)] = button;
+}
+void unbindJoystickButton(unsigned int buttonID)
+{
+    auto& s = getJoystickState();
+    s.joystickInputs[buttonID] = 33;
 }
 
 enum class AxisDir : int
@@ -148,37 +182,66 @@ void update()
     s.downWasPressed = std::exchange(s.downPressed, yIs(AxisDir::Left));
 
     s.selectWasPressed =
-        std::exchange(s.selectPressed, sf::Joystick::isButtonPressed(joyId, 6));
+        std::exchange(s.selectPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Select]));
 
-    s.startWasPressed =
-        std::exchange(s.startPressed, sf::Joystick::isButtonPressed(joyId, 7));
+    s.exitWasPressed =
+        std::exchange(s.exitPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Exit]));
 
-    s.aWasPressed =
-        std::exchange(s.aPressed, sf::Joystick::isButtonPressed(joyId, 0));
+    s.focusWasPressed =
+        std::exchange(s.focusPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Focus]));
 
-    s.bWasPressed =
-        std::exchange(s.bPressed, sf::Joystick::isButtonPressed(joyId, 1));
+    s.swapWasPressed =
+        std::exchange(s.swapPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Swap]));
+
+    s.forceRestartWasPressed =
+        std::exchange(s.forceRestartPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::ForceRestart]));
+
+    s.restartWasPressed =
+        std::exchange(s.restartPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Restart]));
+
+    s.replayWasPressed =
+        std::exchange(s.replayPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Replay]));
+
+    s.screenshotWasPressed =
+        std::exchange(s.screenshotPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Screenshot]));
+
+    s.changePackWasPressed =
+        std::exchange(s.changePackPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::ChangePack]));
+
+    s.optionMenuWasPressed =
+        std::exchange(s.optionMenuPressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::OptionMenu]));
+
+    s.createProfileWasPressed =
+        std::exchange(s.createProfilePressed,
+            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::CreateProfile]));
 }
-
 
 
 [[nodiscard]] bool leftPressed()
 {
     return getJoystickState().leftPressed;
 }
-
 [[nodiscard]] bool leftRisingEdge()
 {
-    return getJoystickState().leftPressed && !getJoystickState().leftWasPressed;
+    return getJoystickState().leftPressed &&
+           !getJoystickState().leftWasPressed;
 }
-
 
 
 [[nodiscard]] bool rightPressed()
 {
     return getJoystickState().rightPressed;
 }
-
 [[nodiscard]] bool rightRisingEdge()
 {
     return getJoystickState().rightPressed &&
@@ -186,36 +249,32 @@ void update()
 }
 
 
-
 [[nodiscard]] bool upPressed()
 {
     return getJoystickState().upPressed;
 }
-
 [[nodiscard]] bool upRisingEdge()
 {
-    return getJoystickState().upPressed && !getJoystickState().upWasPressed;
+    return getJoystickState().upPressed &&
+           !getJoystickState().upWasPressed;
 }
-
 
 
 [[nodiscard]] bool downPressed()
 {
     return getJoystickState().downPressed;
 }
-
 [[nodiscard]] bool downRisingEdge()
 {
-    return getJoystickState().downPressed && !getJoystickState().downWasPressed;
+    return getJoystickState().downPressed &&
+           !getJoystickState().downWasPressed;
 }
-
 
 
 [[nodiscard]] bool selectPressed()
 {
     return getJoystickState().selectPressed;
 }
-
 [[nodiscard]] bool selectRisingEdge()
 {
     return getJoystickState().selectPressed &&
@@ -223,40 +282,108 @@ void update()
 }
 
 
-
-[[nodiscard]] bool startPressed()
+[[nodiscard]] bool exitPressed()
 {
-    return getJoystickState().startPressed;
+    return getJoystickState().exitPressed;
 }
-
-[[nodiscard]] bool startRisingEdge()
+[[nodiscard]] bool exitRisingEdge()
 {
-    return getJoystickState().startPressed &&
-           !getJoystickState().startWasPressed;
-}
-
-
-
-[[nodiscard]] bool aPressed()
-{
-    return getJoystickState().aPressed;
-}
-
-[[nodiscard]] bool aRisingEdge()
-{
-    return getJoystickState().aPressed && !getJoystickState().aWasPressed;
+    return getJoystickState().exitPressed &&
+           !getJoystickState().exitWasPressed;
 }
 
 
-
-[[nodiscard]] bool bPressed()
+[[nodiscard]] bool focusPressed()
 {
-    return getJoystickState().bPressed;
+    return getJoystickState().focusPressed;
+}
+[[nodiscard]] bool focusRisingEdge()
+{
+    return getJoystickState().focusPressed &&
+           !getJoystickState().focusWasPressed;
 }
 
-[[nodiscard]] bool bRisingEdge()
+
+[[nodiscard]] bool swapPressed()
 {
-    return getJoystickState().bPressed && !getJoystickState().bWasPressed;
+    return getJoystickState().swapPressed;
+}
+[[nodiscard]] bool swapRisingEdge()
+{
+    return getJoystickState().swapPressed &&
+           !getJoystickState().swapWasPressed;
+}
+
+[[nodiscard]] bool forceRestartPressed()
+{
+    return getJoystickState().forceRestartPressed;
+}
+[[nodiscard]] bool forceRestartRisingEdge()
+{
+    return getJoystickState().forceRestartPressed &&
+           !getJoystickState().forceRestartWasPressed;
+}
+
+[[nodiscard]] bool restartPressed()
+{
+    return getJoystickState().restartPressed;
+}
+[[nodiscard]] bool restartRisingEdge()
+{
+    return getJoystickState().restartPressed &&
+           !getJoystickState().restartWasPressed;
+}
+
+[[nodiscard]] bool replayPressed()
+{
+    return getJoystickState().replayPressed;
+}
+[[nodiscard]] bool replayRisingEdge()
+{
+    return getJoystickState().replayPressed &&
+           !getJoystickState().replayWasPressed;
+}
+
+[[nodiscard]] bool screenshotPressed()
+{
+    return getJoystickState().screenshotPressed;
+}
+[[nodiscard]] bool screenshotRisingEdge()
+{
+    return getJoystickState().screenshotPressed &&
+           !getJoystickState().screenshotWasPressed;
+}
+
+[[nodiscard]] bool changePackPressed()
+{
+    return getJoystickState().changePackPressed;
+}
+[[nodiscard]] bool changePackRisingEdge()
+{
+    return getJoystickState().changePackPressed &&
+           !getJoystickState().changePackWasPressed;
+}
+
+
+[[nodiscard]] bool optionMenuPressed()
+{
+    return getJoystickState().optionMenuPressed;
+}
+[[nodiscard]] bool optionMenuRisingEdge()
+{
+    return getJoystickState().optionMenuPressed &&
+           !getJoystickState().optionMenuWasPressed;
+}
+
+
+[[nodiscard]] bool createProfilePressed()
+{
+    return getJoystickState().createProfilePressed;
+}
+[[nodiscard]] bool createProfileRisingEdge()
+{
+    return getJoystickState().createProfilePressed &&
+           !getJoystickState().createProfileWasPressed;
 }
 
 } // namespace hg::Joystick

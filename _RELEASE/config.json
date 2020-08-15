@@ -4,7 +4,7 @@
 	"3D_max_depth" : 100,
 	"3D_multiplier" : 1.0,
 	"antialiasing_level" : 3,
-	"auto_restart" : false,
+	"auto_restart" : true,
 	"auto_zoom_factor" : true,
 	"beatpulse_enabled" : true,
 	"black_and_white" : false,
@@ -18,7 +18,18 @@
 	"fullscreen_height" : 600,
 	"fullscreen_width" : 800,
 	"invincible" : false,
-	"joystick_deadzone" : 5.0,
+	"j_changepack" : 10,
+	"j_createprofile" : 9,
+	"j_exit" : 1,
+	"j_focus" : 8,
+	"j_force_restart" : 7,
+	"j_optionmenu" : 6,
+	"j_replay" : 5,
+	"j_restart" : 4,
+	"j_screenshot" : 3,
+	"j_select" : 0,
+	"j_swap" : 2,
+	"joystick_deadzone" : 10.0,
 	"key_icons_scale" : 0.750,
 	"limit_fps" : true,
 	"max_fps" : 200,
@@ -37,7 +48,7 @@
 	"player_size" : 7.300000190734863,
 	"player_speed" : 9.449999809265137,
 	"pulse_enabled" : true,
-	"rotate_to_start" : false,
+	"rotate_to_start" : true,
 	"server_local" : true,
 	"server_verbose" : true,
 	"show_fps" : false,
@@ -57,8 +68,8 @@
 	],
 	"t_focus" : 
 	[
-		[ "kLShift" ],
-		[ "bXButton1" ]
+		[ "" ],
+		[ "" ]
 	],
 	"t_force_restart" : 
 	[
@@ -77,23 +88,23 @@
 	],
 	"t_rotate_ccw" : 
 	[
-		[ "kLeft" ],
-		[ "kA" ]
+		[ "kQ" ],
+		[ "" ]
 	],
 	"t_rotate_cw" : 
 	[
-		[ "kRight" ],
-		[ "kD" ]
+		[ "kA" ],
+		[ "" ]
 	],
 	"t_screenshot" : 
 	[
-		[ "kF12" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_swap" : 
 	[
 		[ "kSpace" ],
-		[ "bMiddle" ]
+		[ "" ]
 	],
 	"t_up" : 
 	[
