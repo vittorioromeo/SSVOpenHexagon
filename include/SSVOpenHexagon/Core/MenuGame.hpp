@@ -231,7 +231,7 @@ private:
                key != KKey::L && key != KKey::Up && key != KKey::Down &&
                key != KKey::R && key != KKey::Y;
     }
-    bool justBoundDelay{false};
+    float justBoundDelay{0.f};
 
     ssvms::Menu* getCurrentMenu() noexcept
     {
