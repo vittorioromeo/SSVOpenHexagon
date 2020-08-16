@@ -291,7 +291,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
-    runLuaFunction<void>("onLoad");
     restartId = mId;
     restartFirstTime = false;
     setSides(levelStatus.sides);
