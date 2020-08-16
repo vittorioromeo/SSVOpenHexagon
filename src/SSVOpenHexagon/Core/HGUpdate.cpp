@@ -319,6 +319,8 @@ void HexagonGame::start()
     {
         fpsWatcher.enable();
     }
+
+    runLuaFunction<void>("onLoad");
 }
 
 void HexagonGame::updateInput()
