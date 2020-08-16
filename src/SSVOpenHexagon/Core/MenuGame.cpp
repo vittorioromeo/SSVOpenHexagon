@@ -75,7 +75,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 {
                     getCurrentMenu()->getItem().newBind(key);
                     assets.playSound("beep.ogg");
-                    justBoundDelay = true;
+                    justBoundDelay = 10.f;
                 }
 
                 touchDelay = 10.f;
@@ -96,8 +96,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 getCurrentMenu()->getItem().newBind(KKey::Unknown,
                                                     mEvent.mouseButton.button);
                 assets.playSound("beep.ogg");
-                justBoundDelay = true;
-                touchDelay = 10.f;
+                justBoundDelay = touchDelay = 10.f;
             }
         };
     game.onEvent(Event::EventType::JoystickButtonPressed) =
@@ -115,8 +114,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 getCurrentMenu()->getItem().newBind(KKey::Unknown, MBtn::Left,
                                                     mEvent.joystickButton.button);
                 assets.playSound("beep.ogg");
-                justBoundDelay = true;
-                touchDelay = 10.f;
+                justBoundDelay = touchDelay = 10.f;
             }
         };
     window.onRecreation += [this] { refreshCamera(); };
@@ -1148,36 +1146,38 @@ void MenuGame::update(ssvu::FT mFT)
     steamManager.run_callbacks();
     discordManager.run_callbacks();
 
-    if (justBoundDelay == true)
+    if (justBoundDelay)
     {
-        state = States::MOpts;
-        justBoundDelay = false;
+        justBoundDelay -= mFT;
+        if(justBoundDelay <= 0.f) state = States::MOpts;
     }
+    else
+    {
+        hg::Joystick::update();
 
-    hg::Joystick::update();
+        if(hg::Joystick::leftRisingEdge())
+            leftAction();
+        else if(hg::Joystick::rightRisingEdge())
+            rightAction();
+        else if(hg::Joystick::upRisingEdge())
+            upAction();
+        else if(hg::Joystick::downRisingEdge())
+            downAction();
 
-    if(hg::Joystick::leftRisingEdge())
-        leftAction();
-    else if(hg::Joystick::rightRisingEdge())
-        rightAction();
-    else if(hg::Joystick::upRisingEdge())
-        upAction();
-    else if(hg::Joystick::downRisingEdge())
-        downAction();
+        if(hg::Joystick::selectRisingEdge())
+            okAction();
+        else if(hg::Joystick::exitRisingEdge())
+            exitAction();
+        else if(hg::Joystick::createProfileRisingEdge())
+            createProfileAction();
+        else if(hg::Joystick::changePackRisingEdge())
+            selectPackAction();
+        else if(hg::Joystick::optionMenuRisingEdge())
+            openOptionsAction();
 
-    if(hg::Joystick::selectRisingEdge())
-        okAction();
-    else if(hg::Joystick::exitRisingEdge())
-        exitAction();
-    else if(hg::Joystick::createProfileRisingEdge())
-        createProfileAction();
-    else if(hg::Joystick::changePackRisingEdge())
-        selectPackAction();
-    else if(hg::Joystick::optionMenuRisingEdge())
-        openOptionsAction();
-
-    if(state != States::ETBind && hg::Joystick::screenshotRisingEdge())
-        mustTakeScreenshot = true;
+        if(state != States::ETBind && hg::Joystick::screenshotRisingEdge())
+            mustTakeScreenshot = true;
+    }
 
     if(touchDelay > 0.f)
     {
