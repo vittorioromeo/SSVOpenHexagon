@@ -1148,7 +1148,7 @@ void MenuGame::update(ssvu::FT mFT)
     steamManager.run_callbacks();
     discordManager.run_callbacks();
 
-    if (justBoundDelay == true && state == States::ETBind)
+    if (justBoundDelay == true)
     {
         state = States::MOpts;
         justBoundDelay = false;
