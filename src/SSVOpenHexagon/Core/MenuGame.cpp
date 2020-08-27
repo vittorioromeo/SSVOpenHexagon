@@ -59,10 +59,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::KeyPressed) =
         [this](const Event& mEvent)
         {
-            if(state == States::ETBind)
+            if(state == States::ETBind && justBoundDelay <= 0.f)
             {
                 // don't try assigning a keyboard key to a controller bind
-                if(getCurrentMenu()->getItem().isWaitingForBind() == 2)
+                if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::JoystickBind)
                 {
                     assets.playSound("error.ogg");
                     return;
@@ -73,7 +73,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     assets.playSound("error.ogg");
                 else
                 {
-                    getCurrentMenu()->getItem().newBind(key);
+                    getCurrentMenu()->getItem().newKeyboardBind(key);
                     assets.playSound("beep.ogg");
                     justBoundDelay = 10.f;
                 }
@@ -84,17 +84,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::MouseButtonPressed) =
         [this](const Event& mEvent)
         {
-            if(state == States::ETBind)
+            if(state == States::ETBind && justBoundDelay <= 0.f)
             {
                 // don't try assigning a keyboard key to a controller bind
-                if(getCurrentMenu()->getItem().isWaitingForBind() == 2)
+                if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::JoystickBind)
                 {
                     assets.playSound("error.ogg");
                     return;
                 }
 
-                getCurrentMenu()->getItem().newBind(KKey::Unknown,
-                                                    mEvent.mouseButton.button);
+                getCurrentMenu()->getItem().newKeyboardBind(KKey::Unknown,
+                                                            mEvent.mouseButton.button);
                 assets.playSound("beep.ogg");
                 justBoundDelay = touchDelay = 10.f;
             }
@@ -102,17 +102,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::JoystickButtonPressed) =
         [this](const Event& mEvent)
         {
-            if(state == States::ETBind)
+            if(state == States::ETBind && justBoundDelay <= 0.f)
             {
                 // don't try assigning a controller button to a keyboard bind
-                if(getCurrentMenu()->getItem().isWaitingForBind() == 1)
+                if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::KeyboardBind)
                 {
                     assets.playSound("error.ogg");
                     return;
                 }
 
-                getCurrentMenu()->getItem().newBind(KKey::Unknown, MBtn::Left,
-                                                    mEvent.joystickButton.button);
+                getCurrentMenu()->getItem().newJoystickBind(mEvent.joystickButton.button);
                 assets.playSound("beep.ogg");
                 justBoundDelay = touchDelay = 10.f;
             }
