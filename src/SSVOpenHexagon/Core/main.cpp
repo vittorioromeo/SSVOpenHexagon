@@ -8,12 +8,6 @@
 #include "SSVOpenHexagon/Online/OHServer.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
-
-#include <SSVStart/GameSystem/GameWindow.hpp>
 
 static void createProfilesFolder()
 {
@@ -42,11 +36,15 @@ int main(int argc, char* argv[])
     hg::Online::setCurrentGtm(
         std::make_unique<hg::Online::GlobalThreadManager>());
 
-    const auto overrideIds = [&] {
+    const auto overrideIds = [&]
+    {
         std::vector<std::string> result;
         for(int i{0}; i < argc; ++i)
         {
-            result.emplace_back(argv[i]);
+            if(!strcmp(argv[i], "-l")) // need this later
+                i += 2;
+            else
+                result.emplace_back(argv[i]);
         }
         return result;
     }();
@@ -104,7 +102,22 @@ int main(int argc, char* argv[])
 
     assets->refreshVolumes();
     window.setGameState(mg->getGame());
-    mg->init(false /* mError */);
+
+    const std::string levelName = [&]
+    {
+      std::string levelResult;
+      for(int i{0}; i < argc; ++i)
+      {
+          if(!strcmp(argv[i], "-l"))
+          {
+              levelResult = argv[++i];
+              break;
+          }
+      }
+      return levelResult;
+    }();
+
+    mg->init(false /* mError */, levelName);
 
     window.run();
 
