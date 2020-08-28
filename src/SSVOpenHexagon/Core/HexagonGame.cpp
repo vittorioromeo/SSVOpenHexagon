@@ -3,25 +3,12 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-
-#include <SSVStart/Utils/Vector2.hpp>
-#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
-
 #include <cassert>
 
 using namespace hg::Utils;
-
 
 namespace hg
 {

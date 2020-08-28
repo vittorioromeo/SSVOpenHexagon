@@ -6,18 +6,6 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
-#include <SSVStart/Input/Input.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
-
-#include <SSVMenuSystem/SSVMenuSystem.hpp>
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace std;
 using namespace sf;
@@ -70,15 +58,70 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         };
     window.onRecreation += [this] { refreshCamera(); };
 
-    levelDataIds =
-        assets.getLevelIdsByPack(assets.getPackInfos().at(packIdx).id);
-
-    setIndex(0);
     initMenus();
     initInput();
+
+    levelDataIds =
+        assets.getLevelIdsByPack(assets.getPackInfos().at(packIdx).id);
+    setIndex(0);
 }
 
-void MenuGame::init(bool error)
+void MenuGame::loadCommandLineLevel(const std::string& level)
+{
+    // retrieve the level index location
+    int levelIndex{-1}, i;
+    const auto& p(assets.getPackInfos());
+    std::vector<std::string> levelsIDs;
+    std::string packID, levelID;
+    std::vector<string>::iterator it;
+
+    for(i = 0; i < int(p.size()); ++i)
+    {
+        packID = p.at(i).id;
+        levelID = packID + "_";
+        levelID += level;
+        levelsIDs = assets.getLevelIdsByPack(packID);
+        it = find(levelsIDs.begin(), levelsIDs.end(), levelID);
+        if(it != levelsIDs.end())
+        {
+            levelIndex = it - levelsIDs.begin();
+            break;
+        }
+    }
+    if(levelIndex == -1)
+    {
+        ssvu::lo("hg::Menugame::MenuGame()")
+            << "Invalid level ID command line parameter, aborting boot level load\n";
+        return;
+    }
+
+    // if everything's fine load the level
+    packIdx = i;
+    levelDataIds = assets.getLevelIdsByPack(packID);
+    setIndex(levelIndex);
+
+    playLocally(); // go to profile selection screen
+
+    if(state == States::ETLPNew)
+    {
+        ssvu::lo("hg::Menugame::MenuGame()")
+            << "No player profiles exist, aborting boot level load\n";
+        return;
+    }
+
+    // go to main menu
+    enteredStr = ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
+    assets.pSetCurrent(enteredStr);
+    state = States::SMain;
+
+    // start game
+    window.setGameState(hexagonGame.getGame());
+    hexagonGame.newGame(packID, levelDataIds.at(currentIndex), true,
+                        ssvu::getByModIdx(diffMults, diffMultIdx),
+                        false);
+}
+
+void MenuGame::init(bool error, const std::string& level)
 {
     steamManager.set_rich_presence_in_menu();
     steamManager.update_hardcoded_achievements();
@@ -97,6 +140,9 @@ void MenuGame::init(bool error)
     }
 
     Online::setForceLeaderboardRefresh(true);
+
+    if(!level.empty())
+        loadCommandLineLevel(level);
 }
 
 void MenuGame::initAssets()
@@ -437,9 +483,7 @@ void MenuGame::okAction()
     else if(state == States::SMain)
     {
         window.setGameState(hexagonGame.getGame());
-
         const std::string& packId = assets.getPackInfos().at(packIdx).id;
-
         hexagonGame.newGame(packId, levelDataIds.at(currentIndex), true,
             ssvu::getByModIdx(diffMults, diffMultIdx),
             false /* executeLastReplay */);
