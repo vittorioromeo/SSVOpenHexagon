@@ -59,39 +59,34 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::KeyReleased) +=
         [this](const Event& mEvent)
         {
-            if(dialogBox)
+            if(!noActions) return;
+				
+            if(!(--noActions))
             {
-                // first key release is the one that activated action prevention
-                // second one is the one that counts
-                if(!(--noActions))
-                {
-                    assets.playSound("beep.ogg");
-                    dialogBox = false;
-                }
+                assets.playSound("beep.ogg");
+                dialogBox = false;
             }
         };
     game.onEvent(Event::EventType::MouseButtonReleased) +=
         [this](const Event& mEvent)
         {
-            if(dialogBox)
+			if(!noActions) return;
+				
+            if(!(--noActions))
             {
-                if(!(--noActions))
-                {
-                    assets.playSound("beep.ogg");
-                    dialogBox = false;
-                }
+                assets.playSound("beep.ogg");
+                dialogBox = false;
             }
         };
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
         [this](const Event& mEvent)
         {
-            if(dialogBox)
+            if(!noActions) return;
+				
+            if(!(--noActions))
             {
-                if(!(--noActions))
-                {
-                    assets.playSound("beep.ogg");
-                    dialogBox = false;
-                }
+                assets.playSound("beep.ogg");
+                dialogBox = false;
             }
         };
     window.onRecreation += [this] { refreshCamera(); };
