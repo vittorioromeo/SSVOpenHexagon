@@ -56,64 +56,75 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 downAction();
             }
         };
-    game.onEvent(Event::EventType::KeyPressed) =
+    game.onEvent(Event::EventType::KeyReleased) +=
         [this](const Event& mEvent)
         {
-            if(state == States::ETBind && justBoundDelay <= 0.f)
+            if(!noActions) return;
+
+            if(!(--noActions))
             {
                 // don't try assigning a keyboard key to a controller bind
                 if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::JoystickBind)
                 {
                     assets.playSound("error.ogg");
+                    noActions = 1;
                     return;
                 }
 
                 KKey key = mEvent.key.code;
                 if(!isValidKeyBind(key))
+                {
                     assets.playSound("error.ogg");
+                    noActions = 1;
+                }
                 else
                 {
                     getCurrentMenu()->getItem().newKeyboardBind(key);
                     assets.playSound("beep.ogg");
-                    justBoundDelay = 10.f;
                 }
 
                 touchDelay = 10.f;
             }
         };
-    game.onEvent(Event::EventType::MouseButtonPressed) =
+    game.onEvent(Event::EventType::MouseButtonReleased) +=
         [this](const Event& mEvent)
         {
-            if(state == States::ETBind && justBoundDelay <= 0.f)
+            if(!noActions) return;
+
+            if(!(--noActions))
             {
                 // don't try assigning a keyboard key to a controller bind
                 if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::JoystickBind)
                 {
                     assets.playSound("error.ogg");
+                    noActions = 1;
                     return;
                 }
 
                 getCurrentMenu()->getItem().newKeyboardBind(KKey::Unknown,
                                                             mEvent.mouseButton.button);
                 assets.playSound("beep.ogg");
-                justBoundDelay = touchDelay = 10.f;
+                touchDelay = 10.f;
             }
         };
-    game.onEvent(Event::EventType::JoystickButtonPressed) =
+    game.onEvent(Event::EventType::JoystickButtonReleased) +=
         [this](const Event& mEvent)
         {
-            if(state == States::ETBind && justBoundDelay <= 0.f)
+            if(!noActions) return;
+
+            if(!(--noActions))
             {
                 // don't try assigning a controller button to a keyboard bind
                 if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::KeyboardBind)
                 {
                     assets.playSound("error.ogg");
+                    noActions = 1;
                     return;
                 }
 
                 getCurrentMenu()->getItem().newJoystickBind(mEvent.joystickButton.button);
                 assets.playSound("beep.ogg");
-                justBoundDelay = touchDelay = 10.f;
+                touchDelay = 10.f;
             }
         };
     window.onRecreation += [this] { refreshCamera(); };
@@ -466,8 +477,7 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
-    if(state == States::ETBind)
-        return;
+    if(noActions) return;
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -493,8 +503,7 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
-    if(state == States::ETBind)
-        return;
+    if(noActions) return;
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -519,8 +528,7 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
-    if(state == States::ETBind)
-        return;
+    if(noActions) return;
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -541,8 +549,7 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
-    if(state == States::ETBind)
-        return;
+    if(noActions) return;
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -563,8 +570,7 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
-    if(state == States::ETBind)
-        return;
+    if(noActions) return;
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -594,7 +600,7 @@ void MenuGame::okAction()
         getCurrentMenu()->exec();
         if(state == States::MOpts && getCurrentMenu()->getItem().isWaitingForBind())
         {
-            state = States::ETBind;
+            noActions = 2;
             touchDelay = 10.f;
         }
     }
@@ -650,8 +656,7 @@ void MenuGame::okAction()
 
 void MenuGame::eraseAction()
 {
-	if(state == States::ETBind)
-		return;
+    if(noActions) return;
 	
     if(isEnteringText() && !enteredStr.empty())
         enteredStr.erase(enteredStr.end() - 1);
@@ -665,13 +670,6 @@ void MenuGame::eraseAction()
 
 void MenuGame::exitAction()
 {
-    if(state == States::ETBind)
-    {
-        getCurrentMenu()->getItem().exec(); //turn off bind inputting
-        state = States::MOpts;
-        return;
-    }
-
     assets.playSound("beep.ogg");
     if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
         !assets.pIsLocal())
@@ -692,6 +690,8 @@ void MenuGame::exitAction()
 
 void MenuGame::createProfileAction()
 {
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
@@ -707,7 +707,8 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
-    assets.playSound("beep.ogg");
+    if(noActions) return;
+
     if(state != States::SMain)
     {
         return;
@@ -717,17 +718,20 @@ void MenuGame::selectProfileAction()
         state = States::MWlcm;
         return;
     }
+    assets.playSound("beep.ogg");
     enteredStr = "";
     state = States::SLPSelect;
 }
 
 void MenuGame::openOptionsAction()
 {
-    assets.playSound("beep.ogg");
+    if(noActions) return;
+
     if(state != States::SMain)
     {
         return;
     }
+    assets.playSound("beep.ogg");
     state = States::MOpts;
 }
 
@@ -784,12 +788,31 @@ void MenuGame::initInput()
         {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
     game.addInput(
-        {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, //hardcoded
+        {{k::Escape}},
+        [this](ssvu::FT /*unused*/) // hardcoded
+        {
+            if(noActions)
+            {
+                getCurrentMenu()->getItem().exec(); //turn off bind inputting
+                noActions = 0;
+                return;
+            }
+            exitAction();
+        },
         t::Once);
     game.addInput(
+            Config::getTriggerExit(),
+            [this](ssvu::FT /*unused*/) //editable
+            {
+                if(noActions) return;
+                exitAction();
+            },
+            t::Once, Tid::Exit);
+    game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) {
-            if(state == States::ETBind) return;
+        [this](ssvu::FT /*unused*/)
+        {
+            if(noActions) return;
             mustTakeScreenshot = true;
         },
         t::Once,
@@ -1145,38 +1168,30 @@ void MenuGame::update(ssvu::FT mFT)
     steamManager.run_callbacks();
     discordManager.run_callbacks();
 
-    if (justBoundDelay)
-    {
-        justBoundDelay -= mFT;
-        if(justBoundDelay <= 0.f) state = States::MOpts;
-    }
-    else
-    {
-        hg::Joystick::update();
+    hg::Joystick::update();
 
-        if(hg::Joystick::leftRisingEdge())
-            leftAction();
-        else if(hg::Joystick::rightRisingEdge())
-            rightAction();
-        else if(hg::Joystick::upRisingEdge())
-            upAction();
-        else if(hg::Joystick::downRisingEdge())
-            downAction();
+    if(hg::Joystick::leftRisingEdge())
+        leftAction();
+    else if(hg::Joystick::rightRisingEdge())
+        rightAction();
+    else if(hg::Joystick::upRisingEdge())
+        upAction();
+    else if(hg::Joystick::downRisingEdge())
+        downAction();
 
-        if(hg::Joystick::selectRisingEdge())
-            okAction();
-        else if(hg::Joystick::exitRisingEdge())
-            exitAction();
-        else if(hg::Joystick::createProfileRisingEdge())
-            createProfileAction();
-        else if(hg::Joystick::changePackRisingEdge())
-            selectPackAction();
-        else if(hg::Joystick::optionMenuRisingEdge())
-            openOptionsAction();
+    if(hg::Joystick::selectRisingEdge())
+        okAction();
+    else if(hg::Joystick::exitRisingEdge())
+        exitAction();
+    else if(hg::Joystick::createProfileRisingEdge())
+        createProfileAction();
+    else if(hg::Joystick::changePackRisingEdge())
+        selectPackAction();
+    else if(hg::Joystick::optionMenuRisingEdge())
+        openOptionsAction();
 
-        if(state != States::ETBind && hg::Joystick::screenshotRisingEdge())
-            mustTakeScreenshot = true;
-    }
+    if(!noActions && hg::Joystick::screenshotRisingEdge())
+        mustTakeScreenshot = true;
 
     if(touchDelay > 0.f)
     {
@@ -1246,56 +1261,49 @@ void MenuGame::update(ssvu::FT mFT)
     {
         window.stop();
     }
-    
-    if(state != States::ETBind)
-    {
-        if(isEnteringText())
-        {
-            unsigned int limit{state == States::ETEmail ? 40u : 18u};
-            for(const auto& c : enteredChars)
-            {
-                if(enteredStr.size() < limit &&
-                    (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
-                {
-                    assets.playSound("beep.ogg");
-                    enteredStr.append(toStr(c));
-                }
-            }
-        }
-        else if(state == States::SLPSelect)
-        {
-            enteredStr =
-                ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
-        }
-        else if(state == States::SMain)
-        {
-            styleData.update(mFT);
-            backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
 
-            if(!assets.pIsLocal())
+    if(isEnteringText())
+    {
+        unsigned int limit{state == States::ETEmail ? 40u : 18u};
+        for(const auto& c : enteredChars)
+        {
+            if(enteredStr.size() < limit &&
+              (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
             {
-                float diffMult{ssvu::getByModIdx(diffMults, diffMultIdx)};
-                Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
+                assets.playSound("beep.ogg");
+                enteredStr.append(toStr(c));
             }
         }
-        else if(state == States::SLogging)
+    }
+    else if(state == States::SLPSelect)
+    {
+        enteredStr = ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
+    }
+    else if(state == States::SMain)
+    {
+        styleData.update(mFT);
+        backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
+
+        if(!assets.pIsLocal())
         {
-            if(Online::getLoginStatus() == ols::Logged)
-            {
-                state =
-                    Online::getNewUserReg() ? States::ETEmail : States::SMain;
-            }
-            else if(Online::getLoginStatus() == ols::Unlogged)
-            {
-                state = States::MWlcm;
-            }
+            float diffMult{ssvu::getByModIdx(diffMults, diffMultIdx)};
+            Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
+        }
+    }
+    else if(state == States::SLogging)
+    {
+        if(Online::getLoginStatus() == ols::Logged)
+        {
+            state = Online::getNewUserReg() ? States::ETEmail : States::SMain;
+        }
+        else if(Online::getLoginStatus() == ols::Unlogged)
+        {
+            state = States::MWlcm;
         }
     }
 
     if(state == States::ETEmail && !Online::getNewUserReg())
-    {
         state = States::SMain;
-    }
 
     enteredChars.clear();
 }
@@ -1326,7 +1334,7 @@ void MenuGame::draw()
     {
         drawProfileSelection();
     }
-    else if(state == States::MOpts || state == States::ETBind)
+    else if(state == States::MOpts)
     {
         drawOptions();
     }

@@ -34,7 +34,6 @@ enum class States
     ETEmail,
     ETLPNew,
     ETFriend,
-    ETBind,
     SLogging,
     SMain,
     SLPSelect,
@@ -103,6 +102,7 @@ private:
         txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32},
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
         txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
+    int noActions{0};
 
     void playLocally();
 
@@ -231,16 +231,13 @@ private:
                key != KKey::L && key != KKey::Up && key != KKey::Down &&
                key != KKey::R && key != KKey::Y;
     }
-    float justBoundDelay{0.f};
 
     ssvms::Menu* getCurrentMenu() noexcept
     {
         switch(state)
         {
             case States::MWlcm: return &welcomeMenu;
-            case States::MOpts:
-            case States::ETBind:
-                return &optionsMenu;
+            case States::MOpts: return &optionsMenu;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnull-dereference"

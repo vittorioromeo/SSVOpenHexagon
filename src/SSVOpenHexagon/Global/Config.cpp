@@ -1242,15 +1242,18 @@ void setTriggerDown(Trigger trig)
 
     // if button is already used assign button 33
     // 33 is out of the supported buttons range so it can never be triggered
+    bool alreadyBound = false;
     for(auto &b : buttonList)
     {
         if(b != 33 && button == b)
         {
             button = 33;
-            buttonList.push_back(button);
+            alreadyBound = true;
             break;
         }
     }
+    if(!alreadyBound)
+        buttonList.push_back(button);
 
     return button;
 }
@@ -1330,12 +1333,12 @@ typedef std::tuple<setFuncJoy, unsigned int> joystickBindsConfigs;
     constexpr int funcsNum = hg::Joystick::Jid::JoystickBindsCount;
 
     joystickBindsConfigs funcs[funcsNum] = {
-        {setJoystickSelect, joystickSelect()},       {setJoystickExit, joystickExit()},
-        {setJoystickSelect, joystickFocus()},        {setJoystickExit, joystickSwap()},
-        {setJoystickSelect, joystickForceRestart()}, {setJoystickExit, joystickRestart()},
-        {setJoystickSelect, joystickReplay()},       {setJoystickExit, joystickScreenshot()},
-        {setJoystickExit,   joystickOptionMenu()},   {setJoystickSelect, joystickChangePack()},
-        {setJoystickExit,   joystickCreateProfile()}, };
+        {setJoystickSelect, joystickSelect()},              {setJoystickExit, joystickExit()},
+        {setJoystickFocus, joystickFocus()},                {setJoystickSwap, joystickSwap()},
+        {setJoystickForceRestart, joystickForceRestart()},  {setJoystickRestart, joystickRestart()},
+        {setJoystickReplay, joystickReplay()},              {setJoystickScreenshot, joystickScreenshot()},
+        {setJoystickOptionMenu, joystickOptionMenu()},      {setJoystickChangePack, joystickChangePack()},
+        {setJoystickCreateProfile, joystickCreateProfile()}, };
 
     for(int i = 0; i < funcsNum; ++i)
     {
