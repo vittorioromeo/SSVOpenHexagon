@@ -102,7 +102,9 @@ private:
         txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32},
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
         txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14},
-        txtReload{"", imagine, 32};
+        txtDialog{"", imagine, 0};
+    bool dialogBox{false};
+    int noActions{0};
 
     void playLocally();
 
@@ -238,7 +240,6 @@ private:
     }
 
     void reloadLevelAssets();
-    float reloadMessageTimer{0.f};
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
