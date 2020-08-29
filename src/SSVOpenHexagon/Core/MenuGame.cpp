@@ -6,18 +6,6 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
-#include <SSVStart/Input/Input.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
-
-#include <SSVMenuSystem/SSVMenuSystem.hpp>
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace std;
 using namespace sf;
@@ -638,6 +626,22 @@ void MenuGame::initInput()
             }
         },
         t::Once);
+    game.addInput(
+        {{k::F5}},
+        [this](ssvu::FT /*unused*/) { reloadLevelAssets(); },
+                t::Once);
+}
+
+void MenuGame::reloadLevelAssets()
+{
+    if(state != States::SMain) return;
+
+    assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
+    setIndex(currentIndex); // loads the new levelData
+    assets.reloadMusicData(levelData->packId, levelData->packPath, levelData->musicId);
+    assets.reloadStyleData(levelData->packId, levelData->packPath, levelData->styleId);
+    assets.reloadMusic(levelData->packId, levelData->packPath, levelData->musicId);
+    assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)

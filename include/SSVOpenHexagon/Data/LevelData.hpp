@@ -32,6 +32,8 @@ public:
     bool selectable{ssvuj::getExtr<bool>(root, "selectable", true)};
     std::string musicId{
         ssvuj::getExtr<std::string>(root, "musicId", "nullMusicId")};
+    std::string soundId{
+        ssvuj::getExtr<std::string>(root, "soundId", "nullSoundId")};
     std::string styleId{
         ssvuj::getExtr<std::string>(root, "styleId", "nullStyleId")};
     ssvufs::Path luaScriptPath{
