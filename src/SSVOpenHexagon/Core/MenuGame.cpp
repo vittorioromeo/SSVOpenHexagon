@@ -338,6 +338,7 @@ void MenuGame::leftAction()
     }
     else if(state == States::SMain)
     {
+        reloadMessageTimer = 0.f;
         setIndex(currentIndex - 1);
     }
     else if(isInMenu())
@@ -362,6 +363,7 @@ void MenuGame::rightAction()
     }
     else if(state == States::SMain)
     {
+        reloadMessageTimer = 0.f;
         setIndex(currentIndex + 1);
     }
     else if(isInMenu())
@@ -424,6 +426,8 @@ void MenuGame::okAction()
     }
     else if(state == States::SMain)
     {
+        reloadMessageTimer = 0.f;
+
         window.setGameState(hexagonGame.getGame());
 
         const std::string& packId = assets.getPackInfos().at(packIdx).id;
@@ -488,6 +492,8 @@ void MenuGame::okAction()
 
 void MenuGame::createProfileAction()
 {
+    reloadMessageTimer = 0.f;
+    
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
@@ -519,6 +525,8 @@ void MenuGame::selectProfileAction()
 
 void MenuGame::openOptionsAction()
 {
+    reloadMessageTimer = 0.f;
+
     assets.playSound("beep.ogg");
     if(state != States::SMain)
     {
@@ -532,6 +540,8 @@ void MenuGame::selectPackAction()
     assets.playSound("beep.ogg");
     if(state == States::SMain)
     {
+        reloadMessageTimer = 0.f;
+
         const auto& p(assets.getPackInfos());
         packIdx = ssvu::getMod(packIdx + 1, p.size());
         levelDataIds = assets.getLevelIdsByPack(p.at(packIdx).id);
@@ -636,12 +646,26 @@ void MenuGame::reloadLevelAssets()
 {
     if(state != States::SMain) return;
 
-    assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
-    setIndex(currentIndex); // loads the new levelData
-    assets.reloadMusicData(levelData->packId, levelData->packPath, levelData->musicId);
-    assets.reloadStyleData(levelData->packId, levelData->packPath, levelData->styleId);
-    assets.reloadMusic(levelData->packId, levelData->packPath, levelData->musicId);
-    assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
+    reloadMessageTimer = 60.f;
+
+    std::string reloadMessage = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
+    if(reloadMessage != "invalid level folder path\n" && reloadMessage != "no matching level data file found\n")
+    {
+        setIndex(currentIndex); // loads the new levelData
+
+        reloadMessage += assets.reloadMusicData(levelData->packId, levelData->packPath, levelData->musicId);
+        reloadMessage += assets.reloadStyleData(levelData->packId, levelData->packPath, levelData->styleId);
+
+        if(levelData->musicId != "nullMusicId")
+            reloadMessage += assets.reloadMusic(levelData->packId, levelData->packPath, levelData->musicId);
+
+        if(levelData->soundId != "nullSoundId")
+            reloadMessage += assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
+    }
+
+    Utils::uppercasify(reloadMessage);
+    txtReload.setString(reloadMessage);
+    txtReload.setPosition({(w - getGlobalWidth(txtReload)) / 2.f, h / 2.f - getGlobalHeight(txtReload)});
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -1351,6 +1375,13 @@ void MenuGame::drawLevelSelection()
     txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
     txtPacks.setFillColor(styleData.getTextColor());
     render(txtPacks);
+
+    if(reloadMessageTimer > 0.f)
+    {
+        txtReload.setFillColor(styleData.getTextColor());
+        render(txtReload);
+        reloadMessageTimer -= 0.1f;
+    }
 }
 void MenuGame::drawEnteringText()
 {

@@ -144,11 +144,11 @@ public:
     const StyleData& getStyleData(
         const std::string& mPackId, const std::string& mId);
 
-    void reloadLevelData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
-    void reloadMusicData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
-    void reloadStyleData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
-    void reloadMusic(const std::string& mPackId, const std::string& mPath, const std::string& mId);
-    void reloadCustomSounds(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    std::string reloadLevelData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    std::string reloadMusicData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    std::string reloadStyleData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    std::string reloadMusic(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    std::string reloadCustomSounds(const std::string& mPackId, const std::string& mPath, const std::string& mId);
 
     float getLocalScore(const std::string& mId);
     void setLocalScore(const std::string& mId, float mScore);

@@ -101,7 +101,8 @@ private:
     sf::Text txtVersion{"", imagine, 40}, txtProf{"", imagine, 21},
         txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32},
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
-        txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
+        txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14},
+        txtReload{"", imagine, 32};
 
     void playLocally();
 
@@ -237,6 +238,7 @@ private:
     }
 
     void reloadLevelAssets();
+    float reloadMessageTimer{0.f};
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
