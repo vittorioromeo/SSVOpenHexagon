@@ -384,7 +384,7 @@ std::string HGAssets::reloadLevelData(const std::string& mPackId, const std::str
     {
         LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
         levelDatas.find(mPackId + "_" + mId)->second = levelData;
-        return "level data successfully reloaded\n";
+        return "level data " + mId + ".json successfully loaded\n";
     }
 
     return "no matching level data file found\n";
@@ -403,7 +403,7 @@ std::string HGAssets::reloadMusicData(const std::string& mPackId, const std::str
         // get pointer to updated map pair
         MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
         musicDataMap.find(mPackId + "_" + mId)->second = musicData;
-        return "music data successfully reloaded\n";
+        return "music data " + mId + ".json successfully loaded\n";
     }
 
     return "no matching music data file found\n";
@@ -421,7 +421,8 @@ std::string HGAssets::reloadStyleData(const std::string& mPackId, const std::str
     {
         // update the value
         StyleData styleData{ssvuj::getFromFile(p), p};
-        return "style data successfully reloaded\n";
+        styleDataMap.find(mPackId + "_" + mId)->second = styleData;
+        return "style data " + mId + ".json successfully loaded\n";
     }
 
     return "no matching style data file found\n";
@@ -437,7 +438,7 @@ std::string HGAssets::reloadMusic(const std::string& mPackId, const std::string&
     // check if this music file is already loaded
     const std::string assetId = mPackId + "_" + mId;
     if(!assetManager.has<sf::SoundBuffer>(assetId))
-        return "music file is already loaded\n";
+        return "music file " + mId + ".ogg is already loaded\n";
 
     // load the new music file
     for(const auto& p : scanSingleByName(path, mId + ".ogg"))
@@ -445,7 +446,7 @@ std::string HGAssets::reloadMusic(const std::string& mPackId, const std::string&
         auto& music(assetManager.load<sf::Music>(assetId, p));
         music.setVolume(Config::getMusicVolume());
         music.setLoop(true);
-        return "new music file successfully loaded\n";
+        return "new music file " + mId + ".ogg successfully loaded\n";
     }
 
     return "no matching music file found\n";
@@ -461,12 +462,12 @@ std::string HGAssets::reloadCustomSounds(const std::string& mPackId, const std::
     // check if this custom sound file is already loaded
     const std::string assetId = mPackId + "_" + mId;
     if(!assetManager.has<sf::SoundBuffer>(assetId))
-        return "custom sound file is already loaded\n";
+        return "custom sound file " + mId + ".ogg is already loaded\n";
 
     for(const auto& p : scanSingleByName(path, mId + ".ogg"))
     {
         assetManager.load<sf::SoundBuffer>(assetId, p);
-        return "new custom sound file successfully loaded\n";
+        return "new custom sound file " + mId + ".ogg successfully loaded\n";
     }
 
     return "no matching custom sound file found\n";

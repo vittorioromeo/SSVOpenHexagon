@@ -56,6 +56,44 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 downAction();
             }
         };
+    game.onEvent(Event::EventType::KeyReleased) +=
+        [this](const Event& mEvent)
+        {
+            if(dialogBox)
+            {
+                // first key release is the one that activated action prevention
+                // second one is the one that counts
+                if(!(--noActions))
+                {
+                    assets.playSound("beep.ogg");
+                    dialogBox = false;
+                }
+            }
+        };
+    game.onEvent(Event::EventType::MouseButtonReleased) +=
+        [this](const Event& mEvent)
+        {
+            if(dialogBox)
+            {
+                if(!(--noActions))
+                {
+                    assets.playSound("beep.ogg");
+                    dialogBox = false;
+                }
+            }
+        };
+    game.onEvent(Event::EventType::JoystickButtonReleased) +=
+        [this](const Event& mEvent)
+        {
+            if(dialogBox)
+            {
+                if(!(--noActions))
+                {
+                    assets.playSound("beep.ogg");
+                    dialogBox = false;
+                }
+            }
+        };
     window.onRecreation += [this] { refreshCamera(); };
 
     levelDataIds =
@@ -324,6 +362,8 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -338,7 +378,6 @@ void MenuGame::leftAction()
     }
     else if(state == States::SMain)
     {
-        reloadMessageTimer = 0.f;
         setIndex(currentIndex - 1);
     }
     else if(isInMenu())
@@ -349,6 +388,8 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -363,7 +404,6 @@ void MenuGame::rightAction()
     }
     else if(state == States::SMain)
     {
-        reloadMessageTimer = 0.f;
         setIndex(currentIndex + 1);
     }
     else if(isInMenu())
@@ -373,6 +413,8 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -392,6 +434,8 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -411,6 +455,8 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -426,8 +472,6 @@ void MenuGame::okAction()
     }
     else if(state == States::SMain)
     {
-        reloadMessageTimer = 0.f;
-
         window.setGameState(hexagonGame.getGame());
 
         const std::string& packId = assets.getPackInfos().at(packIdx).id;
@@ -492,8 +536,8 @@ void MenuGame::okAction()
 
 void MenuGame::createProfileAction()
 {
-    reloadMessageTimer = 0.f;
-    
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
@@ -509,6 +553,8 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     if(state != States::SMain)
     {
@@ -525,7 +571,7 @@ void MenuGame::selectProfileAction()
 
 void MenuGame::openOptionsAction()
 {
-    reloadMessageTimer = 0.f;
+    if(noActions) return;
 
     assets.playSound("beep.ogg");
     if(state != States::SMain)
@@ -537,11 +583,11 @@ void MenuGame::openOptionsAction()
 
 void MenuGame::selectPackAction()
 {
+    if(noActions) return;
+
     assets.playSound("beep.ogg");
     if(state == States::SMain)
     {
-        reloadMessageTimer = 0.f;
-
         const auto& p(assets.getPackInfos());
         packIdx = ssvu::getMod(packIdx + 1, p.size());
         levelDataIds = assets.getLevelIdsByPack(p.at(packIdx).id);
@@ -584,7 +630,10 @@ void MenuGame::initInput()
         t::Once);
     game.addInput(
         Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) {
+        [this](ssvu::FT /*unused*/)
+        {
+            if(noActions) return;
+
             assets.playSound("beep.ogg");
             bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
                        !assets.pIsLocal()};
@@ -609,19 +658,25 @@ void MenuGame::initInput()
 
     game.addInput(
         Config::getTriggerExit(),
-        [this](ssvu::FT mFT) {
-            if(state != States::MOpts)
-            {
-                exitTimer += mFT;
-            }
+        [this](ssvu::FT mFT)
+        {
+            if(noActions) return;
+            if(state != States::MOpts) exitTimer += mFT;
         },
         [this](ssvu::FT /*unused*/) { exitTimer = 0; });
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; }, t::Once);
+        [this](ssvu::FT /*unused*/)
+        {
+            if(noActions) return;
+            mustTakeScreenshot = true;
+        },
+        t::Once);
     game.addInput(
             {{k::LAlt, k::Return}},
-            [this](ssvu::FT /*unused*/) {
+            [this](ssvu::FT /*unused*/)
+            {
+                if(noActions) return;
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
@@ -638,15 +693,16 @@ void MenuGame::initInput()
         t::Once);
     game.addInput(
         {{k::F5}},
-        [this](ssvu::FT /*unused*/) { reloadLevelAssets(); },
-                t::Once);
+        [this](ssvu::FT /*unused*/) { reloadLevelAssets(); },t::Once);
 }
 
 void MenuGame::reloadLevelAssets()
 {
-    if(state != States::SMain) return;
+    if(state != States::SMain || dialogBox) return;
 
-    reloadMessageTimer = 60.f;
+    game.ignoreNextInputs();
+    dialogBox = true;
+    noActions = 2;
 
     std::string reloadMessage = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
     if(reloadMessage != "invalid level folder path\n" && reloadMessage != "no matching level data file found\n")
@@ -663,9 +719,12 @@ void MenuGame::reloadLevelAssets()
             reloadMessage += assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
     }
 
+    reloadMessage += "\npress any key to close this message\n";
+
     Utils::uppercasify(reloadMessage);
-    txtReload.setString(reloadMessage);
-    txtReload.setPosition({(w - getGlobalWidth(txtReload)) / 2.f, h / 2.f - getGlobalHeight(txtReload)});
+    txtDialog.setCharacterSize(26);
+    txtDialog.setString(reloadMessage);
+    txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f, h / 2.f - getGlobalHeight(txtDialog)});
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -1218,6 +1277,12 @@ void MenuGame::draw()
     {
         window.setMouseCursorVisible(hg::Config::getMouseVisible());
     }
+
+    if(dialogBox)
+    {
+        txtDialog.setFillColor(styleData.getTextColor());
+        render(txtDialog);
+    }
 }
 
 void MenuGame::drawLevelSelection()
@@ -1375,13 +1440,6 @@ void MenuGame::drawLevelSelection()
     txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
     txtPacks.setFillColor(styleData.getTextColor());
     render(txtPacks);
-
-    if(reloadMessageTimer > 0.f)
-    {
-        txtReload.setFillColor(styleData.getTextColor());
-        render(txtReload);
-        reloadMessageTimer -= 0.1f;
-    }
 }
 void MenuGame::drawEnteringText()
 {
