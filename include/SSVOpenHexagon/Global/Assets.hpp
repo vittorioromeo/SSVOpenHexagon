@@ -137,19 +137,24 @@ public:
     void loadMusicData(const std::string& mPackId, const ssvufs::Path& mPath);
     void loadStyleData(const std::string& mPackId, const ssvufs::Path& mPath);
     void loadLevelData(const std::string& mPackId, const ssvufs::Path& mPath);
-    void loadCustomSounds(
-        const std::string& mPackId, const ssvufs::Path& mPath);
-    void loadLocalProfiles();
-
-    void saveCurrentLocalProfile();
+    void loadCustomSounds(const std::string& mPackId, const ssvufs::Path& mPath);
 
     const MusicData& getMusicData(
         const std::string& mPackId, const std::string& mId);
     const StyleData& getStyleData(
         const std::string& mPackId, const std::string& mId);
 
+    void reloadLevelData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    void reloadMusicData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    void reloadStyleData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    void reloadMusic(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    void reloadCustomSounds(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+
     float getLocalScore(const std::string& mId);
     void setLocalScore(const std::string& mId, float mScore);
+
+    void loadLocalProfiles();
+    void saveCurrentLocalProfile();
     void setCurrentLocalProfile(const std::string& mName);
     ProfileData& getCurrentLocalProfile();
     const ProfileData& getCurrentLocalProfile() const;

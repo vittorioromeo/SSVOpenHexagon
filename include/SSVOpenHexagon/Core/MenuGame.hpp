@@ -236,6 +236,8 @@ private:
         return getCurrentMenu() != nullptr;
     }
 
+    void reloadLevelAssets();
+
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
