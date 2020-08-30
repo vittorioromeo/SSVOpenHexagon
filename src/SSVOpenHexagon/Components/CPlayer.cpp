@@ -3,32 +3,18 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
-#include "SSVOpenHexagon/Components/CWall.hpp"
-#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Utils/Ticker.hpp"
-
-#include "SSVOpenHexagon/Global/Config.hpp"
-
-#include <SSVStart/Utils/SFML.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
-
-#include <SSVUtils/Core/Common/Frametime.hpp>
-#include <SSVUtils/Core/Utils/Math.hpp>
-
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Color.hpp>
 
 namespace hg
 {
 
 inline constexpr float baseThickness{5.f};
 
-CPlayer::CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept
+CPlayer::CPlayer(const sf::Vector2f& mPos, const float swapCooldown, float* mPlayerSpeedMulti) noexcept
     : startPos{mPos}, pos{mPos}, lastPos{mPos}, hue{0}, angle{0}, lastAngle{0},
       size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
-      focusSpeed{Config::getPlayerFocusSpeed()}, dead{false},
-      justSwapped{false}, swapTimer{swapCooldown},
+      focusSpeed{Config::getPlayerFocusSpeed()}, playerSpeedMult{mPlayerSpeedMulti},
+      dead{false}, justSwapped{false}, swapTimer{swapCooldown},
       swapBlinkTimer{swapCooldown / 6.f}, deadEffectTimer{80.f, false}
 {
 }
@@ -278,7 +264,7 @@ void CPlayer::updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT)
     const int movement{mHexagonGame.getInputMovement()};
 
     const float currentSpeed =
-        mHexagonGame.getInputFocused() ? focusSpeed : speed;
+        *playerSpeedMult * (mHexagonGame.getInputFocused() ? focusSpeed : speed);
 
     angle += ssvu::toRad(currentSpeed * movement * mFT);
 
