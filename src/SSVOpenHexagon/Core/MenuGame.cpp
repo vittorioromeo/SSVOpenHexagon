@@ -61,6 +61,15 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         {
             if(!noActions) return;
 
+            KKey key = mEvent.key.code;
+            if(key == KKey::Escape)
+            {
+                getCurrentMenu()->getItem().exec(); //turn off bind inputting
+                game.ignoreAllInputs(false);
+                noActions = 0;
+                return;
+            }
+
             if(!(--noActions))
             {
                 // don't try assigning a keyboard key to a controller bind
@@ -71,7 +80,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                KKey key = mEvent.key.code;
                 if(!isValidKeyBind(key))
                 {
                     assets.playSound("error.ogg");
@@ -80,6 +88,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 else
                 {
                     getCurrentMenu()->getItem().newKeyboardBind(key);
+                    game.ignoreAllInputs(false);
                     assets.playSound("beep.ogg");
                 }
 
@@ -103,6 +112,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
                 getCurrentMenu()->getItem().newKeyboardBind(KKey::Unknown,
                                                             mEvent.mouseButton.button);
+                game.ignoreAllInputs(false);
                 assets.playSound("beep.ogg");
                 touchDelay = 10.f;
             }
@@ -123,6 +133,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 }
 
                 getCurrentMenu()->getItem().newJoystickBind(mEvent.joystickButton.button);
+                game.ignoreAllInputs(false);
                 assets.playSound("beep.ogg");
                 touchDelay = 10.f;
             }
@@ -477,8 +488,6 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
-    if(noActions) return;
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -503,8 +512,6 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
-    if(noActions) return;
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -528,8 +535,6 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
-    if(noActions) return;
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -549,8 +554,6 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
-    if(noActions) return;
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -570,8 +573,6 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
-    if(noActions) return;
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -601,6 +602,7 @@ void MenuGame::okAction()
         if(state == States::MOpts && getCurrentMenu()->getItem().isWaitingForBind())
         {
             noActions = 2;
+            game.ignoreAllInputs(true);
             touchDelay = 10.f;
         }
     }
@@ -656,8 +658,6 @@ void MenuGame::okAction()
 
 void MenuGame::eraseAction()
 {
-    if(noActions) return;
-	
     if(isEnteringText() && !enteredStr.empty())
         enteredStr.erase(enteredStr.end() - 1);
     else if(state == States::MOpts && isInMenu())
@@ -690,8 +690,6 @@ void MenuGame::exitAction()
 
 void MenuGame::createProfileAction()
 {
-    if(noActions) return;
-
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
@@ -707,8 +705,6 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
-    if(noActions) return;
-
     if(state != States::SMain)
     {
         return;
@@ -725,8 +721,6 @@ void MenuGame::selectProfileAction()
 
 void MenuGame::openOptionsAction()
 {
-    if(noActions) return;
-
     if(state != States::SMain)
     {
         return;
@@ -788,35 +782,15 @@ void MenuGame::initInput()
         {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
     game.addInput(
-        {{k::Escape}},
-        [this](ssvu::FT /*unused*/) // hardcoded
-        {
-            if(noActions)
-            {
-                getCurrentMenu()->getItem().exec(); //turn off bind inputting
-                noActions = 0;
-                return;
-            }
-            exitAction();
-        },
+        {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, // hardcoded
         t::Once);
     game.addInput(
             Config::getTriggerExit(),
-            [this](ssvu::FT /*unused*/) //editable
-            {
-                if(noActions) return;
-                exitAction();
-            },
-            t::Once, Tid::Exit);
+            [this](ssvu::FT /*unused*/) { exitAction(); }, t::Once, Tid::Exit); // editable
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/)
-        {
-            if(noActions) return;
-            mustTakeScreenshot = true;
-        },
-        t::Once,
-        Tid::Screenshot);
+        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
+        t::Once, Tid::Screenshot);
     game.addInput(
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/) {
