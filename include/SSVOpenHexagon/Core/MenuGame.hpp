@@ -102,7 +102,6 @@ private:
         txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32},
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
         txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
-    int noActions{0};
 
     void playLocally();
 
@@ -231,6 +230,7 @@ private:
                key != KKey::L && key != KKey::Up && key != KKey::Down &&
                key != KKey::R && key != KKey::Y;
     }
+    int noActions{0};
 
     ssvms::Menu* getCurrentMenu() noexcept
     {
