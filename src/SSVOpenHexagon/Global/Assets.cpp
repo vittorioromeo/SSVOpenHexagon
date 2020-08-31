@@ -437,7 +437,7 @@ std::string HGAssets::reloadMusic(const std::string& mPackId, const std::string&
 
     // check if this music file is already loaded
     const std::string assetId = mPackId + "_" + mId;
-    if(!assetManager.has<sf::SoundBuffer>(assetId))
+    if(assetManager.has<sf::Music>(assetId))
         return "music file " + mId + ".ogg is already loaded\n";
 
     // load the new music file
@@ -461,7 +461,7 @@ std::string HGAssets::reloadCustomSounds(const std::string& mPackId, const std::
 
     // check if this custom sound file is already loaded
     const std::string assetId = mPackId + "_" + mId;
-    if(!assetManager.has<sf::SoundBuffer>(assetId))
+    if(assetManager.has<sf::SoundBuffer>(assetId))
         return "custom sound file " + mId + ".ogg is already loaded\n";
 
     for(const auto& p : scanSingleByName(path, mId + ".ogg"))
