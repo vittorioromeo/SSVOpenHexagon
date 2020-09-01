@@ -1320,24 +1320,22 @@ void MenuGame::drawLevelSelection()
         "(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")",
         txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
-    string packNames{"Installed packs:\n"}, longestPackName;
+    string packNames{"Installed packs:\n"}, curPack, longestPackName;
     for(const auto& n : assets.getPackInfos())
     {
         if(packData.id == n.id)
-            packNames += "  >>> ";
+            curPack = "  >>> ";
         else
-            packNames += "      ";
+            curPack = "      ";
 
         const PackData& nPD{assets.getPackData(n.id)};
-
-        string curPack = nPD.name + " (by " + nPD.author + ") [v" +
+        curPack += nPD.name + " (by " + nPD.author + ") [v" +
                   std::to_string(nPD.version) + "]\n";
         packNames.append(curPack);
 
-        // Width used to calculate origin should always be the longest pack name + ">>> "
+        // Width used to calculate origin should always be the longest pack name + "  >>> "
         // otherwise the list shifts around depending on the currently selected item
-        curPack = ">>> " + curPack;
-        if(string(curPack).length() > longestPackName.length())
+        if(curPack.length() > longestPackName.length())
             longestPackName = curPack;
     }
 
