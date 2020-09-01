@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
     ssvs::GameWindow window;
     window.setTitle("Open Hexagon " +
                     std::string{hg::Config::getVersionString()} +
-                    " - by vittorio romeo - http://vittorioromeo.info");
+                    " - by vittorio romeo - https://vittorioromeo.info");
     window.setSize(hg::Config::getWidth(), hg::Config::getHeight());
     window.setPixelMult(hg::Config::getPixelMultiplier());
     window.setFullscreen(hg::Config::getFullscreen());
