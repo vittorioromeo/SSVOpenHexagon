@@ -611,7 +611,7 @@ private:
     {
         std::cout
             << R"(Welcome! Please visit the following webpage for more information:
-http://openhexagon.org/workshop
+https://openhexagon.org/workshop
 
 Enter one of the following options:
 0. Create a new workshop item.
