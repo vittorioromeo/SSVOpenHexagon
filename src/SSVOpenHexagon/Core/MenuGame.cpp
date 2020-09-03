@@ -693,11 +693,10 @@ void MenuGame::initInput()
 
 void MenuGame::reloadLevelAssets()
 {
-    if(state != States::SMain || dialogBox) return;
-
-    game.ignoreNextInputs();
-    dialogBox = true;
+    if(state != States::SMain || dialogBox || !Config::getDebug()) return;
+    
     noActions = 2;
+    assets.playSound("beep.ogg");
 
     std::string reloadMessage = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
     if(reloadMessage != "invalid level folder path\n" && reloadMessage != "no matching level data file found\n")
@@ -716,10 +715,11 @@ void MenuGame::reloadLevelAssets()
 
     reloadMessage += "\npress any key to close this message\n";
 
+    dialogBox = true;
     Utils::uppercasify(reloadMessage);
     txtDialog.setCharacterSize(26);
     txtDialog.setString(reloadMessage);
-    txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f, h / 2.f - getGlobalHeight(txtDialog)});
+    txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f, h / 2.f - getGlobalHeight(txtDialog) + 10.f});
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
