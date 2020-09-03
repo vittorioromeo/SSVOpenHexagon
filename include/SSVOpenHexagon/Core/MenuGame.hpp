@@ -101,9 +101,12 @@ private:
     sf::Text txtVersion{"", imagine, 40}, txtProf{"", imagine, 21},
         txtLName{"", imagine, 65}, txtLDesc{"", imagine, 32},
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
-        txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14},
-        txtDialog{"", imagine, 0};
-    bool dialogBox{false};
+        txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
+
+    // dialog box
+    sf::Text txtDialog{"", imagine, 0};
+    std::string dialogText;
+    float dialogHeight{0.f};
     int noActions{0};
 
     void playLocally();

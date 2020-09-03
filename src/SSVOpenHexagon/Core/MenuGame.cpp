@@ -64,7 +64,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             if(!(--noActions))
             {
                 assets.playSound("beep.ogg");
-                dialogBox = false;
+                dialogText.clear();
             }
         };
     game.onEvent(Event::EventType::MouseButtonReleased) +=
@@ -75,7 +75,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             if(!(--noActions))
             {
                 assets.playSound("beep.ogg");
-                dialogBox = false;
+                dialogText.clear();
             }
         };
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
@@ -86,7 +86,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             if(!(--noActions))
             {
                 assets.playSound("beep.ogg");
-                dialogBox = false;
+                dialogText.clear();
             }
         };
     window.onRecreation += [this] { refreshCamera(); };
@@ -693,33 +693,33 @@ void MenuGame::initInput()
 
 void MenuGame::reloadLevelAssets()
 {
-    if(state != States::SMain || dialogBox || !Config::getDebug()) return;
+    if(state != States::SMain || !dialogText.empty() || !Config::getDebug()) return;
     
     noActions = 2;
     assets.playSound("beep.ogg");
 
-    std::string reloadMessage = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
-    if(reloadMessage != "invalid level folder path\n" && reloadMessage != "no matching level data file found\n")
+    dialogText = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
+    if(dialogText != "invalid level folder path\n" && dialogText != "no matching level data file found\n")
     {
         setIndex(currentIndex); // loads the new levelData
 
-        reloadMessage += assets.reloadMusicData(levelData->packId, levelData->packPath, levelData->musicId);
-        reloadMessage += assets.reloadStyleData(levelData->packId, levelData->packPath, levelData->styleId);
+        dialogText += assets.reloadMusicData(levelData->packId, levelData->packPath, levelData->musicId);
+        dialogText += assets.reloadStyleData(levelData->packId, levelData->packPath, levelData->styleId);
 
         if(levelData->musicId != "nullMusicId")
-            reloadMessage += assets.reloadMusic(levelData->packId, levelData->packPath, levelData->musicId);
+            dialogText += assets.reloadMusic(levelData->packId, levelData->packPath, levelData->musicId);
 
         if(levelData->soundId != "nullSoundId")
-            reloadMessage += assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
+            dialogText += assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
     }
 
-    reloadMessage += "\npress any key to close this message\n";
+    dialogText += "\n";
+    dialogText += "press any key to close this message\n";
+    Utils::uppercasify(dialogText);
 
-    dialogBox = true;
-    Utils::uppercasify(reloadMessage);
     txtDialog.setCharacterSize(26);
-    txtDialog.setString(reloadMessage);
-    txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f, h / 2.f - getGlobalHeight(txtDialog) + 10.f});
+    txtDialog.setString(dialogText);
+    dialogHeight = getGlobalHeight(txtDialog) - 10.f;
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -1273,10 +1273,29 @@ void MenuGame::draw()
         window.setMouseCursorVisible(hg::Config::getMouseVisible());
     }
 
-    if(dialogBox)
+    if(!dialogText.empty())
     {
         txtDialog.setFillColor(styleData.getTextColor());
-        render(txtDialog);
+
+        std::string lineToRender;
+        float height = 0.f, lineHeight = 0.f;
+        for(auto& c : dialogText)
+        {
+            if(c == '\n')
+            {
+                txtDialog.setString(lineToRender);
+                txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f,
+                                                  h / 2.f - dialogHeight + height});
+                render(txtDialog);
+                lineToRender.clear();
+
+                if(!lineHeight)
+                    lineHeight = getGlobalHeight(txtDialog) * 1.5f;
+                height += lineHeight;
+            }
+            else
+                lineToRender += c;
+        }
     }
 }
 
