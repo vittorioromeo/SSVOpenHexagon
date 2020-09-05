@@ -64,6 +64,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             if(!(--noActions))
             {
                 assets.playSound("beep.ogg");
+                dialogBackdrop.clear();
+                dialogFrame.clear();
                 dialogText.clear();
             }
         };
@@ -75,6 +77,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             if(!(--noActions))
             {
                 assets.playSound("beep.ogg");
+                dialogBackdrop.clear();
+                dialogFrame.clear();
                 dialogText.clear();
             }
         };
@@ -86,6 +90,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             if(!(--noActions))
             {
                 assets.playSound("beep.ogg");
+                dialogBackdrop.clear();
+                dialogFrame.clear();
                 dialogText.clear();
             }
         };
@@ -698,28 +704,44 @@ void MenuGame::reloadLevelAssets()
     noActions = 2;
     assets.playSound("beep.ogg");
 
-    dialogText = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
-    if(dialogText != "invalid level folder path\n" && dialogText != "no matching level data file found\n")
+    string reloadOutput = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
+    if(reloadOutput != "invalid level folder path\n" && reloadOutput != "no matching level data file found\n")
     {
         setIndex(currentIndex); // loads the new levelData
 
-        dialogText += assets.reloadMusicData(levelData->packId, levelData->packPath, levelData->musicId);
-        dialogText += assets.reloadStyleData(levelData->packId, levelData->packPath, levelData->styleId);
+        reloadOutput += assets.reloadMusicData(levelData->packId, levelData->packPath, levelData->musicId);
+        reloadOutput += assets.reloadStyleData(levelData->packId, levelData->packPath, levelData->styleId);
 
         if(levelData->musicId != "nullMusicId")
-            dialogText += assets.reloadMusic(levelData->packId, levelData->packPath, levelData->musicId);
+            reloadOutput += assets.reloadMusic(levelData->packId, levelData->packPath, levelData->musicId);
 
         if(levelData->soundId != "nullSoundId")
-            dialogText += assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
+            reloadOutput += assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
     }
 
-    dialogText += "\n";
-    dialogText += "press any key to close this message\n";
-    Utils::uppercasify(dialogText);
+    reloadOutput += "\n";
+    reloadOutput += "press any key to close this message\n";
+    Utils::uppercasify(reloadOutput);
 
     txtDialog.setCharacterSize(26);
-    txtDialog.setString(dialogText);
-    dialogHeight = getGlobalHeight(txtDialog) - 10.f;
+    txtDialog.setString(reloadOutput);
+    dialogWidth = getGlobalWidth(txtDialog);
+    dialogHeight = getGlobalHeight(txtDialog);
+    txtDialog.setString("A");
+    lineHeight = getGlobalHeight(txtDialog);
+    frameOffset = 10.f;
+
+    string temp;
+    for(auto& c : reloadOutput)
+    {
+        if(c == '\n')
+        {
+            dialogText.emplace_back(temp);
+            temp.clear();
+        }
+        else
+            temp += c;
+    }
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -1274,28 +1296,60 @@ void MenuGame::draw()
     }
 
     if(!dialogText.empty())
+        drawDialogBox();
+}
+
+void MenuGame::drawDialogBox()
+{
+    const sf::Color color = styleData.getTextColor();
+
+    // Alright what's this: if I apply the clean txtDialog height value to these quads there is
+    // a small extra margin on the top and bottom (right and left and perfect). Luckily the height
+    // of those margins are 0.85f of the height of one line for the top, and around 0.6f of the same
+    // line height for the bottom. Is there a better way to do it? Maybe, but I printed some
+    // txtDialog.getxxxx() values and cannot see an obvious answer.
+    const float heightDif = lineHeight * 0.85f,
+                heightDifBottom = lineHeight * 0.6f;
+
+    // outer frame (text color)
+    const float leftBorder = (w - dialogWidth) / 2.f,
+                rightBorder = (w + dialogWidth) / 2.f,
+                halfH = h / 2.f,
+                doubleOffset = frameOffset * 2.f;
+
+    dialogFrame.clear();
+    sf::Vector2f p1{leftBorder - doubleOffset, halfH - dialogHeight - doubleOffset + heightDif};  // top left
+    sf::Vector2f p2{rightBorder + doubleOffset, halfH - dialogHeight - doubleOffset + heightDif}; // top right
+    sf::Vector2f p3{rightBorder + doubleOffset, halfH + doubleOffset - heightDifBottom};          // bottom right
+    sf::Vector2f p4{leftBorder - doubleOffset, halfH + doubleOffset - heightDifBottom};           // bottom left
+    dialogFrame.reserve_more(4);
+    dialogFrame.batch_unsafe_emplace_back(color, p1, p2, p3, p4);
+    render(dialogFrame);
+
+    // text backdrop (spinning background color)
+    dialogBackdrop.clear();
+    p1 = {leftBorder - frameOffset, halfH - dialogHeight - frameOffset + heightDif};  // top left
+    p2 = {rightBorder + frameOffset, halfH - dialogHeight - frameOffset + heightDif}; // top right
+    p3 = {rightBorder + frameOffset, halfH + frameOffset - heightDifBottom};          // bottom right
+    p4 = {leftBorder - frameOffset, halfH + frameOffset - heightDifBottom};           // bottom left
+    dialogBackdrop.reserve_more(4);
+    dialogBackdrop.batch_unsafe_emplace_back(styleData.getColor(0), p1, p2, p3, p4);
+    render(dialogBackdrop);
+
+    // text
+    float heightOffsset = 0.f;
+    const float interlineSpace = lineHeight * 1.5f;
+    txtDialog.setFillColor(color);
+    for(auto& str : dialogText)
     {
-        txtDialog.setFillColor(styleData.getTextColor());
-
-        std::string lineToRender;
-        float height = 0.f, lineHeight = 0.f;
-        for(auto& c : dialogText)
+        if(!str.empty())
         {
-            if(c == '\n')
-            {
-                txtDialog.setString(lineToRender);
-                txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f,
-                                                  h / 2.f - dialogHeight + height});
-                render(txtDialog);
-                lineToRender.clear();
-
-                if(!lineHeight)
-                    lineHeight = getGlobalHeight(txtDialog) * 1.5f;
-                height += lineHeight;
-            }
-            else
-                lineToRender += c;
+            txtDialog.setString(str);
+            txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f,
+                                   h / 2.f - dialogHeight + heightOffsset});
+            render(txtDialog);
         }
+        heightOffsset += interlineSpace;
     }
 }
 
