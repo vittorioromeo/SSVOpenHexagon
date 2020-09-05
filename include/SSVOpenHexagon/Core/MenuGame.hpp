@@ -104,9 +104,12 @@ private:
         txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
 
     // dialog box
+    void drawDialogBox();
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogBackdrop;
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogFrame;
+    std::vector<std::string> dialogText;
     sf::Text txtDialog{"", imagine, 0};
-    std::string dialogText;
-    float dialogHeight{0.f};
+    float dialogHeight{0.f}, dialogWidth{0.f}, frameOffset{0.f}, lineHeight{0.f};
     int noActions{0};
 
     void playLocally();
