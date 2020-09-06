@@ -31,7 +31,6 @@ private:
     float size;
     float speed;
     float focusSpeed;
-    float* playerSpeedMult;
 
     bool dead;
     bool justSwapped;
@@ -44,7 +43,7 @@ private:
     void drawDeathEffect(HexagonGame& mHexagonGame);
 
 public:
-    CPlayer(const sf::Vector2f& mPos, const float swapCooldown, float* mPlayerSpeedMulti) noexcept;
+    CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept;
 
     [[gnu::always_inline, nodiscard]] const sf::Vector2f&
     getPosition() const noexcept

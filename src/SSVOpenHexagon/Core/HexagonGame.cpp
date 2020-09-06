@@ -108,7 +108,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), window(mGameWindow),
-      player{ssvs::zeroVec2f, getSwapCooldown(), NULL}, rng{initializeRng()},
+      player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()},
       fpsWatcher(window)
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
@@ -252,6 +252,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Manager cleanup
     walls.clear();
     cwManager.clear();
+    player = CPlayer{ssvs::zeroVec2f, getSwapCooldown()};
 
     // Timeline cleanup
     timeline.clear();
@@ -290,8 +291,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
     runLuaFunction<void>("onLoad");
-
-    player = CPlayer{ssvs::zeroVec2f, getSwapCooldown(), &levelStatus.playerSpeedMult};
 
     restartId = mId;
     restartFirstTime = false;
@@ -594,6 +593,11 @@ void HexagonGame::setSides(unsigned int mSides)
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
     return inputFocused;
+}
+
+[[nodiscard]] float HexagonGame::getPlayerSpeedMult() const
+{
+    return levelStatus.playerSpeedMult;
 }
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const
