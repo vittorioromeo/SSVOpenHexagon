@@ -1320,30 +1320,34 @@ void MenuGame::drawLevelSelection()
         "(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")",
         txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
-    std::string packNames{"Installed packs:\n"};
+    string packNames{"Installed packs:\n"}, curPack, longestPackName;
     for(const auto& n : assets.getPackInfos())
     {
-        packNames += "  ";
-
         if(packData.id == n.id)
-        {
-            packNames += ">>> ";
-        }
+            curPack = "  >>> ";
         else
-        {
-            packNames += "    ";
-        }
+            curPack = "      ";
 
         const PackData& nPD{assets.getPackData(n.id)};
+        curPack += nPD.name + " (by " + nPD.author + ") [v" +
+                  std::to_string(nPD.version) + "]\n";
+        packNames.append(curPack);
 
-        packNames.append(nPD.name + " (by " + nPD.author + ") [v" +
-                         std::to_string(nPD.version) + "]\n");
+        // Width used to calculate origin should always be the longest pack name + "  >>> "
+        // otherwise the list shifts around depending on the currently selected item
+        if(curPack.length() > longestPackName.length())
+            longestPackName = curPack;
     }
 
-    Utils::uppercasify(packNames);
+    // calculate origin offset
+    Utils::uppercasify(longestPackName);
+    txtPacks.setString(longestPackName);
+    float packsWidth = getGlobalWidth(txtPacks);
 
+    // render packs list
+    Utils::uppercasify(packNames);
     txtPacks.setString(packNames);
-    txtPacks.setOrigin(getGlobalWidth(txtPacks), getGlobalHeight(txtPacks));
+    txtPacks.setOrigin(packsWidth, getGlobalHeight(txtPacks));
     txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
     txtPacks.setFillColor(styleData.getTextColor());
     render(txtPacks);
