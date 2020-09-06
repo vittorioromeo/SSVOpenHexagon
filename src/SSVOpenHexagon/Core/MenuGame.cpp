@@ -1202,7 +1202,7 @@ void MenuGame::drawLevelSelection()
 
     if(Config::getOnline())
     {
-        string versionMessage{"connecting to server..."};
+        std::string versionMessage{"connecting to server..."};
         float serverVersion{Online::getServerVersion()};
 
         if(serverVersion == -1)
@@ -1232,7 +1232,7 @@ void MenuGame::drawLevelSelection()
                            toStr(assets.getPackInfos().size()) + ")",
                 txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
-        string lbestStr;
+        std::string lbestStr;
         if(assets.pIsLocal())
         {
             SSVU_ASSERT(!diffMults.empty());
@@ -1288,7 +1288,7 @@ void MenuGame::drawLevelSelection()
         if(!assets.pIsLocal() && Online::getLoginStatus() == ols::Logged)
         {
             const auto& us(Online::getUserStats());
-            string userStats;
+            std::string userStats;
             userStats += "deaths: " + toStr(us.deaths) + "\n";
             userStats += "restarts: " + toStr(us.restarts) + "\n";
             userStats += "played: " + toStr(us.minutesSpentPlaying) + " min";
@@ -1320,23 +1320,33 @@ void MenuGame::drawLevelSelection()
         "(" + toStr(currentIndex + 1) + "/" + toStr(levelDataIds.size()) + ")",
         txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
-    string packNames{"Installed packs:\n"}, curPack, longestPackName;
+    std::string packNames{"Installed packs:\n"};
+    std::string curPack;
+    std::string longestPackName;
+
     for(const auto& n : assets.getPackInfos())
     {
         if(packData.id == n.id)
+        {
             curPack = "  >>> ";
+        }
         else
+        {
             curPack = "      ";
+        }
 
         const PackData& nPD{assets.getPackData(n.id)};
         curPack += nPD.name + " (by " + nPD.author + ") [v" +
-                  std::to_string(nPD.version) + "]\n";
+                   std::to_string(nPD.version) + "]\n";
         packNames.append(curPack);
 
-        // Width used to calculate origin should always be the longest pack name + "  >>> "
-        // otherwise the list shifts around depending on the currently selected item
+        // Width used to calculate origin should always be the longest pack name
+        // + "  >>> " otherwise the list shifts around depending on the
+        // currently selected item
         if(curPack.length() > longestPackName.length())
+        {
             longestPackName = curPack;
+        }
     }
 
     // calculate origin offset
