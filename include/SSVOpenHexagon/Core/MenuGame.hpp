@@ -105,6 +105,7 @@ private:
 
     // dialog box
     void drawDialogBox();
+    void clearDialogBox();
     Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogBackdrop;
     Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogFrame;
     std::vector<std::string> dialogText;
@@ -251,6 +252,11 @@ public:
     MenuGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
+
+    ~MenuGame()
+    {
+        clearDialogBox();
+    }
 
     void init(bool mErrored);
 
