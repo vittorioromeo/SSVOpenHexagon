@@ -59,41 +59,20 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::KeyReleased) +=
         [this](const Event& mEvent)
         {
-            if(!noActions) return;
-				
-            if(!(--noActions))
-            {
-                assets.playSound("beep.ogg");
-                dialogBackdrop.clear();
-                dialogFrame.clear();
-                dialogText.clear();
-            }
+          if(!noActions) return;
+          if(!(--noActions)) clearDialogBox();
         };
     game.onEvent(Event::EventType::MouseButtonReleased) +=
         [this](const Event& mEvent)
         {
 			if(!noActions) return;
-				
-            if(!(--noActions))
-            {
-                assets.playSound("beep.ogg");
-                dialogBackdrop.clear();
-                dialogFrame.clear();
-                dialogText.clear();
-            }
+            if(!(--noActions)) clearDialogBox();
         };
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
         [this](const Event& mEvent)
         {
-            if(!noActions) return;
-				
-            if(!(--noActions))
-            {
-                assets.playSound("beep.ogg");
-                dialogBackdrop.clear();
-                dialogFrame.clear();
-                dialogText.clear();
-            }
+          if(!noActions) return;
+          if(!(--noActions)) clearDialogBox();
         };
     window.onRecreation += [this] { refreshCamera(); };
 
@@ -103,6 +82,14 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIndex(0);
     initMenus();
     initInput();
+}
+
+void MenuGame::clearDialogBox()
+{
+    assets.playSound("beep.ogg");
+    dialogBackdrop.clear();
+    dialogFrame.clear();
+    dialogText.clear();
 }
 
 void MenuGame::init(bool error)
