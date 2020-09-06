@@ -87,7 +87,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 void MenuGame::clearDialogBox()
 {
     assets.playSound("beep.ogg");
-    dialogBackdrop.clear();
     dialogFrame.clear();
     dialogText.clear();
 }
@@ -1311,17 +1310,14 @@ void MenuGame::drawDialogBox()
     sf::Vector2f p4{leftBorder - doubleOffset, halfH + doubleOffset - heightDifBottom};           // bottom left
     dialogFrame.reserve_more(4);
     dialogFrame.batch_unsafe_emplace_back(color, p1, p2, p3, p4);
-    render(dialogFrame);
-
     // text backdrop (spinning background color)
-    dialogBackdrop.clear();
     p1 = {leftBorder - frameOffset, halfH - dialogHeight - frameOffset + heightDif};  // top left
     p2 = {rightBorder + frameOffset, halfH - dialogHeight - frameOffset + heightDif}; // top right
     p3 = {rightBorder + frameOffset, halfH + frameOffset - heightDifBottom};          // bottom right
     p4 = {leftBorder - frameOffset, halfH + frameOffset - heightDifBottom};           // bottom left
-    dialogBackdrop.reserve_more(4);
-    dialogBackdrop.batch_unsafe_emplace_back(styleData.getColor(0), p1, p2, p3, p4);
-    render(dialogBackdrop);
+    dialogFrame.reserve_more(4);
+    dialogFrame.batch_unsafe_emplace_back(styleData.getColor(0), p1, p2, p3, p4);
+    render(dialogFrame);
 
     // text
     float heightOffsset = 0.f;
