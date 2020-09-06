@@ -10,11 +10,11 @@ namespace hg
 
 inline constexpr float baseThickness{5.f};
 
-CPlayer::CPlayer(const sf::Vector2f& mPos, const float swapCooldown, float* mPlayerSpeedMulti) noexcept
+CPlayer::CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept
     : startPos{mPos}, pos{mPos}, lastPos{mPos}, hue{0}, angle{0}, lastAngle{0},
       size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
-      focusSpeed{Config::getPlayerFocusSpeed()}, playerSpeedMult{mPlayerSpeedMulti},
-      dead{false}, justSwapped{false}, swapTimer{swapCooldown},
+      focusSpeed{Config::getPlayerFocusSpeed()}, dead{false},
+      justSwapped{false}, swapTimer{swapCooldown},
       swapBlinkTimer{swapCooldown / 6.f}, deadEffectTimer{80.f, false}
 {
 }
@@ -264,7 +264,7 @@ void CPlayer::updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT)
     const int movement{mHexagonGame.getInputMovement()};
 
     const float currentSpeed =
-        *playerSpeedMult * (mHexagonGame.getInputFocused() ? focusSpeed : speed);
+        mHexagonGame.getPlayerSpeedMult() * (mHexagonGame.getInputFocused() ? focusSpeed : speed);
 
     angle += ssvu::toRad(currentSpeed * movement * mFT);
 
