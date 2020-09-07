@@ -28,7 +28,6 @@ void update();
 
 void ignoreAllPresses(bool ignore);
 void setJoystickBind(const unsigned int button, const int buttonID);
-void unbindJoystickButton(const unsigned int buttonID);
 
 [[nodiscard]] bool leftPressed();
 [[nodiscard]] bool leftRisingEdge();

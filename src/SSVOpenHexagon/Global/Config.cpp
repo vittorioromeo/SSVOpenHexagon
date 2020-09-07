@@ -1357,7 +1357,7 @@ typedef std::pair<setFuncJoy, unsigned int> joystickBindsConfigs;
         {setJoystickOptionMenu, joystickOptionMenu()},      {setJoystickChangePack, joystickChangePack()},
         {setJoystickCreateProfile, joystickCreateProfile()}, };
 
-    for(int i = 0; i < (sizeof(funcs) / sizeof(funcs[0])); ++i)
+    for(int i = 0; i < int(sizeof(funcs) / sizeof(funcs[0])); ++i)
     {
         if(get<unsigned int>(funcs[i]) == button)
         {

@@ -118,10 +118,6 @@ void setJoystickBind(const unsigned int button, const int buttonID)
 {
     getJoystickState().joystickInputs[buttonID] = button;
 }
-void unbindJoystickButton(const unsigned int buttonID)
-{
-    getJoystickState().joystickInputs[buttonID] = 33;
-}
 
 enum class AxisDir : int
 {
