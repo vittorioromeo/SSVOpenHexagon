@@ -372,22 +372,22 @@ const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(
 //**********************************************
 // RELOAD
 
-std::string HGAssets::reloadLevelData(const std::string& mPackId, const std::string& mPath, const std::string& mId)
+std::pair<bool, std::string> HGAssets::reloadLevelData(const std::string& mPackId, const std::string& mPath, const std::string& mId)
 {
     // get the styles folder and check it exists
     const std::string path = mPath + "Levels/";
     if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
-        return "invalid level folder path\n";
+        return std::make_pair(false, "invalid level folder path\n");
 
     // reload the style data
     for(const auto& p : scanSingleByName(path, mId + ".json"))
     {
         LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
         levelDatas.find(mPackId + "_" + mId)->second = levelData;
-        return "level data " + mId + ".json successfully loaded\n";
+        return std::make_pair(true, "level data " + mId + ".json successfully loaded\n");
     }
 
-    return "no matching level data file found\n";
+    return std::make_pair(false, "no matching level data file found\n");
 }
 
 std::string HGAssets::reloadMusicData(const std::string& mPackId, const std::string& mPath, const std::string& mId)

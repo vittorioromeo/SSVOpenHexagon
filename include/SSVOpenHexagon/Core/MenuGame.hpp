@@ -26,6 +26,31 @@
 namespace hg
 {
 
+class OHDialogBox
+{
+private:
+    HGAssets& assets;
+    ssvs::GameWindow& window;
+    StyleData& styleData;
+    sf::Font& imagine = assets.get<sf::Font>(
+        "forcedsquare.ttf"); // G++ bug (cannot initialize with curly braces)
+
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogFrame;
+    std::vector<std::string> dialogText;
+    sf::Text txtDialog{"", imagine, 0};
+    float dialogHeight{0.f}, dialogWidth{0.f}, frameOffset{0.f}, lineHeight{0.f};
+
+public:
+    OHDialogBox(HGAssets& mAssets, ssvs::GameWindow& window, StyleData& styleData);
+    void createDialogBox(std::string& output, const int charSize);
+    void drawDialogBox();
+    void clearDialogBox();
+    bool empty()
+    {
+        return dialogText.empty();
+    }
+};
+
 enum class States
 {
     EpilepsyWarning,
@@ -103,14 +128,7 @@ private:
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
         txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
 
-    // dialog box
-    void drawDialogBox();
-    void clearDialogBox();
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogFrame;
-    std::vector<std::string> dialogText;
-    sf::Text txtDialog{"", imagine, 0};
-    float dialogHeight{0.f}, dialogWidth{0.f}, frameOffset{0.f}, lineHeight{0.f};
-    int noActions{0};
+    OHDialogBox dialogBox;
 
     void playLocally();
 
@@ -246,6 +264,7 @@ private:
     }
 
     void reloadLevelAssets();
+    int noActions{0};
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,

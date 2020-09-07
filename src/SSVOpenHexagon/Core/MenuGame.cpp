@@ -6,6 +6,18 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Online/Online.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/Input/Input.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
+
+#include <SSVMenuSystem/SSVMenuSystem.hpp>
+
+#include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace std;
 using namespace sf;
@@ -26,7 +38,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     HexagonGame& mHexagonGame, GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
+      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow),
+      dialogBox(mAssets,mGameWindow, styleData)
 {
     // TODO: check `Config::getFirstTimePlaying` and react accordingly
     Config::setFirstTimePlaying(false);
@@ -56,24 +69,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 downAction();
             }
         };
-    game.onEvent(Event::EventType::KeyReleased) +=
-        [this](const Event& mEvent)
-        {
-          if(!noActions) return;
-          if(!(--noActions)) clearDialogBox();
-        };
-    game.onEvent(Event::EventType::MouseButtonReleased) +=
-        [this](const Event& mEvent)
-        {
-			if(!noActions) return;
-            if(!(--noActions)) clearDialogBox();
-        };
-    game.onEvent(Event::EventType::JoystickButtonReleased) +=
-        [this](const Event& mEvent)
-        {
-          if(!noActions) return;
-          if(!(--noActions)) clearDialogBox();
-        };
+
+    const auto clearBoxIfActionNeeded = [this](const Event& mEvent)
+    {
+        // don't do anything if inputs are being processed as usual
+        if(!noActions) { return; }
+        // close dialogbox after the second key release
+        if(!(--noActions)) { dialogBox.clearDialogBox(); }
+    };
+    game.onEvent(Event::EventType::KeyReleased) += clearBoxIfActionNeeded;
+    game.onEvent(Event::EventType::MouseButtonReleased) += clearBoxIfActionNeeded;
+    game.onEvent(Event::EventType::JoystickButtonReleased) += clearBoxIfActionNeeded;
+
     window.onRecreation += [this] { refreshCamera(); };
 
     levelDataIds =
@@ -82,13 +89,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIndex(0);
     initMenus();
     initInput();
-}
-
-void MenuGame::clearDialogBox()
-{
-    assets.playSound("beep.ogg");
-    dialogFrame.clear();
-    dialogText.clear();
 }
 
 void MenuGame::init(bool error)
@@ -349,7 +349,7 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -375,7 +375,7 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -400,7 +400,7 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -421,7 +421,7 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -442,7 +442,7 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -523,7 +523,7 @@ void MenuGame::okAction()
 
 void MenuGame::createProfileAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
@@ -540,7 +540,7 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     if(state != States::SMain)
@@ -558,7 +558,7 @@ void MenuGame::selectProfileAction()
 
 void MenuGame::openOptionsAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     if(state != States::SMain)
@@ -570,7 +570,7 @@ void MenuGame::openOptionsAction()
 
 void MenuGame::selectPackAction()
 {
-    if(noActions) return;
+    if(noActions) { return; }
 
     assets.playSound("beep.ogg");
     if(state == States::SMain)
@@ -619,7 +619,7 @@ void MenuGame::initInput()
         Config::getTriggerExit(),
         [this](ssvu::FT /*unused*/)
         {
-            if(noActions) return;
+            if(noActions) { return; }
 
             assets.playSound("beep.ogg");
             bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
@@ -647,7 +647,7 @@ void MenuGame::initInput()
         Config::getTriggerExit(),
         [this](ssvu::FT mFT)
         {
-            if(noActions) return;
+            if(noActions) { return; }
             if(state != States::MOpts) exitTimer += mFT;
         },
         [this](ssvu::FT /*unused*/) { exitTimer = 0; });
@@ -655,7 +655,7 @@ void MenuGame::initInput()
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/)
         {
-            if(noActions) return;
+            if(noActions) { return; }
             mustTakeScreenshot = true;
         },
         t::Once);
@@ -663,7 +663,7 @@ void MenuGame::initInput()
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/)
             {
-                if(noActions) return;
+                if(noActions) { return; }
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
@@ -685,13 +685,16 @@ void MenuGame::initInput()
 
 void MenuGame::reloadLevelAssets()
 {
-    if(state != States::SMain || !dialogText.empty() || !Config::getDebug()) return;
-    
+    if(state != States::SMain || !dialogBox.empty() || !Config::getDebug()) return;
+
+    // needs to be two because the dialog box reacts to key releases.
+    // First key release is the one of the key press that made the dialog
+    // box pop up, the second one belongs to the key press that closes it
     noActions = 2;
     assets.playSound("beep.ogg");
 
-    string reloadOutput = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
-    if(reloadOutput != "invalid level folder path\n" && reloadOutput != "no matching level data file found\n")
+    auto[success, reloadOutput] = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
+    if(success)
     {
         setIndex(currentIndex); // loads the new levelData
 
@@ -705,29 +708,10 @@ void MenuGame::reloadLevelAssets()
             reloadOutput += assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
     }
 
-    reloadOutput += "\n";
-    reloadOutput += "press any key to close this message\n";
+    reloadOutput += "\npress any key to close this message\n";
     Utils::uppercasify(reloadOutput);
 
-    txtDialog.setCharacterSize(26);
-    txtDialog.setString(reloadOutput);
-    dialogWidth = getGlobalWidth(txtDialog);
-    dialogHeight = getGlobalHeight(txtDialog);
-    txtDialog.setString("A");
-    lineHeight = getGlobalHeight(txtDialog);
-    frameOffset = 10.f;
-
-    string temp;
-    for(auto& c : reloadOutput)
-    {
-        if(c == '\n')
-        {
-            dialogText.emplace_back(temp);
-            temp.clear();
-        }
-        else
-            temp += c;
-    }
+    dialogBox.createDialogBox(reloadOutput, 26);
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -1281,59 +1265,8 @@ void MenuGame::draw()
         window.setMouseCursorVisible(hg::Config::getMouseVisible());
     }
 
-    if(!dialogText.empty())
-        drawDialogBox();
-}
-
-void MenuGame::drawDialogBox()
-{
-    const sf::Color color = styleData.getTextColor();
-
-    // Alright what's this: if I apply the clean txtDialog height value to these quads there is
-    // a small extra margin on the top and bottom (right and left and perfect). Luckily the height
-    // of those margins are 0.85f of the height of one line for the top, and around 0.6f of the same
-    // line height for the bottom. Is there a better way to do it? Maybe, but I printed some
-    // txtDialog.getxxxx() values and cannot see an obvious answer.
-    const float heightDif = lineHeight * 0.85f,
-                heightDifBottom = lineHeight * 0.6f;
-
-    // outer frame (text color)
-    const float leftBorder = (w - dialogWidth) / 2.f,
-                rightBorder = (w + dialogWidth) / 2.f,
-                halfH = h / 2.f,
-                doubleOffset = frameOffset * 2.f;
-
-    dialogFrame.clear();
-    sf::Vector2f p1{leftBorder - doubleOffset, halfH - dialogHeight - doubleOffset + heightDif};  // top left
-    sf::Vector2f p2{rightBorder + doubleOffset, halfH - dialogHeight - doubleOffset + heightDif}; // top right
-    sf::Vector2f p3{rightBorder + doubleOffset, halfH + doubleOffset - heightDifBottom};          // bottom right
-    sf::Vector2f p4{leftBorder - doubleOffset, halfH + doubleOffset - heightDifBottom};           // bottom left
-    dialogFrame.reserve_more(4);
-    dialogFrame.batch_unsafe_emplace_back(color, p1, p2, p3, p4);
-    // text backdrop (spinning background color)
-    p1 = {leftBorder - frameOffset, halfH - dialogHeight - frameOffset + heightDif};  // top left
-    p2 = {rightBorder + frameOffset, halfH - dialogHeight - frameOffset + heightDif}; // top right
-    p3 = {rightBorder + frameOffset, halfH + frameOffset - heightDifBottom};          // bottom right
-    p4 = {leftBorder - frameOffset, halfH + frameOffset - heightDifBottom};           // bottom left
-    dialogFrame.reserve_more(4);
-    dialogFrame.batch_unsafe_emplace_back(styleData.getColor(0), p1, p2, p3, p4);
-    render(dialogFrame);
-
-    // text
-    float heightOffsset = 0.f;
-    const float interlineSpace = lineHeight * 1.5f;
-    txtDialog.setFillColor(color);
-    for(auto& str : dialogText)
-    {
-        if(!str.empty())
-        {
-            txtDialog.setString(str);
-            txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f,
-                                   h / 2.f - dialogHeight + heightOffsset});
-            render(txtDialog);
-        }
-        heightOffsset += interlineSpace;
-    }
+    if(!dialogBox.empty())
+        dialogBox.drawDialogBox();
 }
 
 void MenuGame::drawLevelSelection()
@@ -1602,6 +1535,109 @@ void MenuGame::drawWelcome()
         case ocs::Connected: connStatus = "connected to server"; break;
     }
     renderText(connStatus, txtProf, {20, h - 30.f});
+}
+
+// dialog box
+
+OHDialogBox::OHDialogBox(HGAssets& mAssets, ssvs::GameWindow& mWindow, StyleData& mStyleData) :
+                         assets{mAssets}, window{mWindow}, styleData{mStyleData}
+{
+}
+
+void OHDialogBox::createDialogBox(std::string& output, const int charSize)
+{
+    txtDialog.setCharacterSize(charSize);
+    txtDialog.setString(output);
+    dialogWidth = getGlobalWidth(txtDialog);
+    dialogHeight = getGlobalHeight(txtDialog);
+
+    // in order to properly adjust the text after the dialogText vector has been built
+    // we need to know the height of a single line. dialogHeight is the height of the entire box.
+    // So we assign an arbitrary text string and record the outputted value
+    txtDialog.setString("A");
+    lineHeight = getGlobalHeight(txtDialog);
+
+    cout << lineHeight << endl;
+
+    frameOffset = 10.f;
+
+    std::string temp;
+    for(char c : output)
+    {
+        if(c == '\n')
+        {
+            dialogText.emplace_back(temp);
+            temp.clear();
+        }
+        else
+        {
+            temp += c;
+        }
+    }
+}
+
+void OHDialogBox::drawDialogBox()
+{
+    const sf::Color color = styleData.getTextColor();
+    float fw{1024.f / Config::getWidth()};
+    float fh{768.f / Config::getHeight()};
+    float fmax{max(fw, fh)};
+    float w = Config::getWidth() * fmax;
+    float h = Config::getHeight() * fmax;
+
+    // Alright what's this: if I apply the clean txtDialog height value to these quads there is
+    // a small extra margin on the top and bottom (right and left and perfect). Luckily the height
+    // of those margins are 0.85f of the height of one line for the top, and around 0.6f of the same
+    // line height for the bottom. Is there a better way to do it? Maybe, but I printed some
+    // txtDialog.getxxxx() values and cannot see an obvious answer.
+    const float heightDif = lineHeight * 0.85f,
+        heightDifBottom = lineHeight * 0.6f;
+
+    // outer frame (text color)
+    const float leftBorder = (w - dialogWidth) / 2.f,
+        rightBorder = (w + dialogWidth) / 2.f,
+        halfH = h / 2.f,
+        doubleOffset = frameOffset * 2.f;
+
+    dialogFrame.clear();
+    sf::Vector2f p1{leftBorder - doubleOffset, halfH - dialogHeight - doubleOffset + heightDif};  // top left
+    sf::Vector2f p2{rightBorder + doubleOffset, halfH - dialogHeight - doubleOffset + heightDif}; // top right
+    sf::Vector2f p3{rightBorder + doubleOffset, halfH + doubleOffset - heightDifBottom};          // bottom right
+    sf::Vector2f p4{leftBorder - doubleOffset, halfH + doubleOffset - heightDifBottom};           // bottom left
+    dialogFrame.reserve_more(4);
+    dialogFrame.batch_unsafe_emplace_back(color, p1, p2, p3, p4);
+
+    // text backdrop (spinning background color)
+    p1 = {leftBorder - frameOffset, halfH - dialogHeight - frameOffset + heightDif};  // top left
+    p2 = {rightBorder + frameOffset, halfH - dialogHeight - frameOffset + heightDif}; // top right
+    p3 = {rightBorder + frameOffset, halfH + frameOffset - heightDifBottom};          // bottom right
+    p4 = {leftBorder - frameOffset, halfH + frameOffset - heightDifBottom};           // bottom left
+    dialogFrame.reserve_more(4);
+    dialogFrame.batch_unsafe_emplace_back(styleData.getColor(0), p1, p2, p3, p4);
+    window.draw(dialogFrame);
+
+    // text
+    float heightOffset = 0.f;
+    const float interlineSpace = lineHeight * 1.5f;
+    txtDialog.setFillColor(color);
+    for(auto& str : dialogText)
+    {
+        if(!str.empty())
+        {
+            txtDialog.setString(str);
+            txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f,
+                                   h / 2.f - dialogHeight + heightOffset});
+            window.draw(txtDialog);
+        }
+        heightOffset += interlineSpace;
+    }
+}
+
+void OHDialogBox::clearDialogBox()
+{
+    assets.playSound("beep.ogg");
+    dialogFrame.clear();
+    dialogText.clear();
 }
 
 } // namespace hg
