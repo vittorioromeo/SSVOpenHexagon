@@ -59,13 +59,15 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::KeyReleased) +=
         [this](const Event& mEvent)
         {
-            if(!noActions) return;
+            // don't do anything if inputs are being processed as usual
+            if(!noActions) { return; }
 
             KKey key = mEvent.key.code;
             if(key == KKey::Escape)
             {
                 getCurrentMenu()->getItem().exec(); //turn off bind inputting
                 game.ignoreAllInputs(false);
+                hg::Joystick::ignoreAllPresses(false);
                 noActions = 0;
                 return;
             }
@@ -89,6 +91,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 {
                     getCurrentMenu()->getItem().newKeyboardBind(key);
                     game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
                     assets.playSound("beep.ogg");
                 }
 
@@ -98,7 +101,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::MouseButtonReleased) +=
         [this](const Event& mEvent)
         {
-            if(!noActions) return;
+            if(!noActions) { return; }
 
             if(!(--noActions))
             {
@@ -113,6 +116,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 getCurrentMenu()->getItem().newKeyboardBind(KKey::Unknown,
                                                             mEvent.mouseButton.button);
                 game.ignoreAllInputs(false);
+                hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
                 touchDelay = 10.f;
             }
@@ -120,7 +124,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
         [this](const Event& mEvent)
         {
-            if(!noActions) return;
+            if(!noActions) { return; }
 
             if(!(--noActions))
             {
@@ -134,6 +138,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
                 getCurrentMenu()->getItem().newJoystickBind(mEvent.joystickButton.button);
                 game.ignoreAllInputs(false);
+                hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
                 touchDelay = 10.f;
             }
@@ -603,6 +608,7 @@ void MenuGame::okAction()
         {
             noActions = 2;
             game.ignoreAllInputs(true);
+            hg::Joystick::ignoreAllPresses(true);
             touchDelay = 10.f;
         }
     }
@@ -1145,27 +1151,47 @@ void MenuGame::update(ssvu::FT mFT)
     hg::Joystick::update();
 
     if(hg::Joystick::leftRisingEdge())
+    {
         leftAction();
+    }
     else if(hg::Joystick::rightRisingEdge())
+    {
         rightAction();
+    }
     else if(hg::Joystick::upRisingEdge())
+    {
         upAction();
+    }
     else if(hg::Joystick::downRisingEdge())
+    {
         downAction();
+    }
 
     if(hg::Joystick::selectRisingEdge())
+    {
         okAction();
+    }
     else if(hg::Joystick::exitRisingEdge())
+    {
         exitAction();
+    }
     else if(hg::Joystick::createProfileRisingEdge())
+    {
         createProfileAction();
+    }
     else if(hg::Joystick::changePackRisingEdge())
+    {
         selectPackAction();
+    }
     else if(hg::Joystick::optionMenuRisingEdge())
+    {
         openOptionsAction();
+    }
 
-    if(!noActions && hg::Joystick::screenshotRisingEdge())
+    if(hg::Joystick::screenshotRisingEdge())
+    {
         mustTakeScreenshot = true;
+    }
 
     if(touchDelay > 0.f)
     {

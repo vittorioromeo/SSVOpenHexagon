@@ -41,6 +41,23 @@ enum class States
     MOpts
 };
 
+enum Tid
+{
+    Unknown = -1,
+    RotateCCW = 0,
+    RotateCW,
+    Focus,
+    Exit,
+    ForceRestart,
+    Restart,
+    Replay,
+    Screenshot,
+    Swap,
+    Up,
+    Down,
+    TriggersCount
+};
+
 class HexagonGame;
 
 class MenuGame

@@ -151,17 +151,17 @@ void keyboardBindsSanityCheck();
 [[nodiscard]] ssvs::Input::Trigger getTriggerUp();
 [[nodiscard]] ssvs::Input::Trigger getTriggerDown();
 
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerRotateCCW(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerRotateCW(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerFocus(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerExit(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerForceRestart(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerRestart(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerReplay(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerScreenshot(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerSwap(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerUp(int key, int btn, int index);
-[[nodiscard]] std::tuple <int, ssvs::Input::Trigger> reassignBindTriggerDown(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerRotateCCW(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerRotateCW(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerFocus(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerExit(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerForceRestart(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerRestart(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerReplay(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerScreenshot(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerSwap(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerUp(int key, int btn, int index);
+[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerDown(int key, int btn, int index);
 
 void setTriggerRotateCCW(ssvs::Input::Trigger trig);
 void setTriggerRotateCW(ssvs::Input::Trigger trig);

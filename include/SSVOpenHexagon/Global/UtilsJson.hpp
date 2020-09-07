@@ -96,8 +96,10 @@ struct Converter<ssvs::Input::Combo>
         for(const auto& i : mObj)
         {
             str = getExtr<std::string>(i);
-            if(str == "")
+            if(str.empty())
+            {
                 mValue.addKey(ssvs::KKey::Unknown);
+            }
             else if(ssvs::isKKeyHardcoded(str))
             {
                 ssvu::lo("ssvs::getInputComboFromJSON")
@@ -107,9 +109,13 @@ struct Converter<ssvs::Input::Combo>
                 mValue.addKey(ssvs::KKey::Unknown);
             }
             else if(ssvs::isKKeyNameValid(str))
+            {
                 mValue.addKey(getExtr<ssvs::KKey>(i));
+            }
             else if(ssvs::isMBtnNameValid(str))
+            {
                 mValue.addBtn(getExtr<ssvs::MBtn>(i));
+            }
             else
             {
                 ssvu::lo("ssvs::getInputComboFromJSON")

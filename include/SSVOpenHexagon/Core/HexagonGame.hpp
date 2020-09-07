@@ -327,7 +327,7 @@ public:
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         ssvs::GameWindow& mGameWindow);
     
-    void refreshTrigger(ssvs::Input::Trigger trigger, ssvs::Input::Tid bindID)
+    void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
     {
         game.refreshTrigger(trigger, bindID);
     }
