@@ -339,11 +339,12 @@ void HexagonGame::updateText()
         const replay_file& rf = activeReplay->replayFile;
 
         os.str("");
-        os << formatTime(rf._played_score / 60.0);
-
+        
         if(!levelStatus.scoreOverridden)
         {
-            os << "s";
+            os << formatTime(rf._played_score / 60.0) << "s";
+        } else {
+            os << formatTime(rf._played_score);
         }
 
         os << " BY " << rf._player_name << '\n'
