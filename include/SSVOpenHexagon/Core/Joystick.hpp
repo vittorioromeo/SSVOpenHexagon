@@ -7,7 +7,7 @@
 namespace hg::Joystick
 {
 
-enum Jid : int
+enum Jid
 {
     Unknown = -1,
     Select = 0,
@@ -26,8 +26,9 @@ enum Jid : int
 
 void update();
 
-void setJoystickBind(unsigned int button, Jid buttonID);
-void unbindJoystickButton(unsigned int buttonID);
+void ignoreAllPresses(bool ignore);
+void setJoystickBind(const unsigned int button, const int buttonID);
+void unbindJoystickButton(const unsigned int buttonID);
 
 [[nodiscard]] bool leftPressed();
 [[nodiscard]] bool leftRisingEdge();

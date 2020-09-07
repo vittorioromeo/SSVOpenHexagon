@@ -15,8 +15,6 @@ using namespace hg::Utils;
 namespace hg
 {
 
-using Tid = ssvs::Input::Tid;
-
 [[nodiscard]] static random_number_generator initializeRng()
 {
     const random_number_generator::seed_type seed = ssvu::getRndEngine()();

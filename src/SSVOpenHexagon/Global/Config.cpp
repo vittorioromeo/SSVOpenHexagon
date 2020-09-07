@@ -845,68 +845,78 @@ bool SSVU_ATTRIBUTE(pure) getFirstTimePlaying()
 
 [[nodiscard]] Trigger resizeTrigger(Trigger trig, Combo &bindList) noexcept
 {
-    std::vector<Combo> *combos = &trig.getCombos();
+    std::vector<Combo>& combos = trig.getCombos();
     
-    while(combos->size() > MAX_BINDS) // if the config has more binds than are supported
-        combos->pop_back();
-    while(combos->size() < MAX_BINDS) // if the config has less binds fill the spots with unbound combos
-        combos->emplace_back(Combo({KKey::Unknown}));
+    while(combos.size() > MAX_BINDS) // if the config has more binds than are supported
+    {
+        combos.pop_back();
+    }
+    while(combos.size() < MAX_BINDS) // if the config has less binds fill the spots with unbound combos
+    {
+        combos.emplace_back(Combo({KKey::Unknown}));
+    }
 
     // having the first spot unbound and the second bound may raise issues
-    Combo *firstCombo = &combos->at(0);
-    Combo *secondCombo = &combos->at(1);
-    if(firstCombo->isUnbound() && !secondCombo->isUnbound())
+    Combo& firstCombo = combos.at(0);
+    Combo& secondCombo = combos.at(1);
+    if(firstCombo.isUnbound() && !secondCombo.isUnbound())
     {
-        *firstCombo = *secondCombo;
-        secondCombo->clearBind();
+        firstCombo = secondCombo;
+        secondCombo.clearBind();
     }
     
-    // now check if the keys in the combos are already assigned to another
-    // function, and if so unbind them
+    // now check if the keys in the combos are already assigned
+    // to another function, and if so unbind them
     int i;
-    for(auto& b : *combos)
+    KKey keyBind;
+    MBtn btnBind;
+    for(auto& b : combos)
     {
         bool alreadyBound = false;
-        const std::bitset<102> *keys = &b.getKeys();
-        KKey keyBind;
+        const std::bitset<102>& keys = b.getKeys();
         for(i = 0; i < int(kKeyCount); ++i)
         {
             keyBind = KKey(i);
-            if(getKeyBit(*keys, keyBind))
+
+            // if the key is assigned to the combo we are scanning...
+            if(getKeyBit(keys, keyBind))
             {
+                // ...but it has already been assigned to a previous combo...
                 if(getKeyBit(bindList.getKeys(), keyBind))
                 {
+                    // ...remove it from this bind
                     b.clearBind();
                     alreadyBound = true;
-                    break;
                 }
                 else
                 {
+                    // ...otherwise add it to the list for future checks
                     bindList.addKey(keyBind);
                     alreadyBound = true;
-                    break;
                 }
             }
         }
-        
-        if(alreadyBound) continue;
+
+        // A combo either has a key or a mouse button bound.
+        // If a key is already detected to be assigned there
+        // is no need to check the buttons
+        if(alreadyBound) { continue; }
     
-        const std::bitset<6> *btns = &b.getBtns();
-        MBtn btnBind;
+        const std::bitset<6>& btns = b.getBtns();
         for(i = 0; i < int(mBtnCount); ++i)
         {
             btnBind = MBtn(i);
-            if(getBtnBit(*btns, btnBind))
+
+            // same as with the keys above
+            if(getBtnBit(btns, btnBind))
             {
                 if(getBtnBit(bindList.getBtns(), btnBind))
                 {
                     b.clearBind();
-                    break;
                 }
                 else
                 {
                     bindList.addBtn(btnBind);
-                    break;
                 }
             }
         }
@@ -935,13 +945,11 @@ void keyboardBindsSanityCheck()
 // Add new key binds
 
 typedef void (*setFuncTrig) (Trigger trig);
-typedef std::tuple <setFuncTrig, Trigger> keyboardBindsConfigs;
+typedef std::pair <setFuncTrig, Trigger> keyboardBindsConfigs;
 
-[[nodiscard]] std::tuple <int, Trigger> checkTriggerReassignment(KKey key, MBtn btn)
+[[nodiscard]] std::pair<int, Trigger> checkTriggerReassignment(KKey key, MBtn btn)
 {
-    constexpr int funcNum = int(ssvs::Input::Tid::TriggersCount);
-
-    keyboardBindsConfigs funcs[funcNum] = {
+    keyboardBindsConfigs funcs[] = {
         {setTriggerRotateCCW,    triggerRotateCCW()},       {setTriggerRotateCW,   triggerRotateCW()},
         {setTriggerFocus,        triggerFocus()},           {setTriggerExit,       triggerExit()},
         {setTriggerForceRestart, triggerForceRestart()},    {setTriggerRestart,    triggerRestart()},
@@ -949,28 +957,34 @@ typedef std::tuple <setFuncTrig, Trigger> keyboardBindsConfigs;
         {setTriggerSwap,         triggerSwap()},            {setTriggerUp,         triggerUp()},
         {setTriggerDown,         triggerDown()} };
 
-    Trigger trig;
-    std::vector<Combo> *combos = NULL;
-    Combo *combo = NULL;
-    for(int i = 0; i < funcNum; ++i)
+    for(int i = 0; i < int(sizeof(funcs) / sizeof(funcs[0])); ++i)
     {
-        trig = get<Trigger>(funcs[i]);
-        combos = &trig.getCombos();
+        auto& trig = get<Trigger>(funcs[i]);
+        std::vector<Combo>& Combos = trig.getCombos();
         for(int j = 0; j < MAX_BINDS; ++j)
         {
-            combo = &combos->at(j);
+            Combo& combo = Combos.at(j);
+
+            // if key is not -1 this combo has a keyboard key assigned
             if(key > KKey::Unknown)
             {
-                if(getKeyBit(combo->getKeys(), key))
+                // if the key is the one that has just been
+                // assigned to a new trigger...
+                if(getKeyBit(combo.getKeys(), key))
                 {
-                    if(!j && !combos->at(j + 1).isUnbound())
+                    // ...if the combo after this one is not empty
+                    // move the bind to the current one
+                    if(!j && !Combos.at(j + 1).isUnbound())
                     {
-                        Combo *secondCombo = &combos->at(j + 1);
-                        *combo = *secondCombo;
-                        secondCombo->clearBind();
+                        Combo& secondCombo = Combos.at(j + 1);
+                        combo = secondCombo;
+                        secondCombo.clearBind();
                     }
                     else
-                        combo->clearBind();
+                    {
+                        // ...otherwise just clear it
+                        combo.clearBind();
+                    }
 
                     get<setFuncTrig>(funcs[i])(trig);
                     return {i, trig};
@@ -978,16 +992,19 @@ typedef std::tuple <setFuncTrig, Trigger> keyboardBindsConfigs;
             }
             else
             {
-                if(getBtnBit(combo->getBtns(), btn))
+                // Same as above except with mouse buttons
+                if(getBtnBit(combo.getBtns(), btn))
                 {
-                    if(!j && !combos->at(j + 1).isUnbound())
+                    if(!j && !Combos.at(j + 1).isUnbound())
                     {
-                        Combo *secondCombo = &combos->at(j + 1);
-                        *combo = *secondCombo;
-                        secondCombo->clearBind();
+                        Combo& secondCombo = Combos.at(j + 1);
+                        combo = secondCombo;
+                        secondCombo.clearBind();
                     }
                     else
-                        combo->clearBind();
+                    {
+                        combo.clearBind();
+                    }
 
                     get<setFuncTrig>(funcs[i])(trig);
                     return {i, trig};
@@ -1003,75 +1020,79 @@ typedef std::tuple <setFuncTrig, Trigger> keyboardBindsConfigs;
 [[nodiscard]] Trigger rebindTrigger(Trigger trig, int key, int btn, int index) noexcept
 {
     if(key > -1)
+    {
         trig.getCombos()[index].addKey(KKey(key));
+    }
     else
+    {
         trig.getCombos()[index].addBtn(MBtn(btn));
+    }
     return trig;
 }
 
-std::tuple <int, Trigger> reassignBindTriggerRotateCCW(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerRotateCCW(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerRotateCCW() = rebindTrigger(triggerRotateCCW(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerRotateCW(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerRotateCW(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerRotateCW() = rebindTrigger(triggerRotateCW(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerFocus(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerFocus(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerFocus() = rebindTrigger(triggerFocus(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerExit(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerExit(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerExit() = rebindTrigger(triggerExit(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerForceRestart(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerForceRestart(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerForceRestart() = rebindTrigger(triggerForceRestart(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerRestart(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerRestart(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerRestart() = rebindTrigger(triggerRestart(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerReplay(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerReplay(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerReplay() = rebindTrigger(triggerReplay(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerScreenshot(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerScreenshot(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerScreenshot() = rebindTrigger(triggerScreenshot(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerSwap(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerSwap(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerSwap() = rebindTrigger(triggerSwap(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerUp(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerUp(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerUp() = rebindTrigger(triggerUp(), key, btn, index);
     return reassign;
 }
-std::tuple <int, Trigger> reassignBindTriggerDown(int key, int btn, int index)
+std::pair<int, Trigger> reassignBindTriggerDown(int key, int btn, int index)
 {
-    std::tuple<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
+    std::pair<int, Trigger> reassign = checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerDown() = rebindTrigger(triggerDown(), key, btn, index);
     return reassign;
 }
@@ -1234,26 +1255,24 @@ void setTriggerDown(Trigger trig)
 //**********************************************
 //Game start check
 
-[[nodiscard]] int checkJoystickButtons(int button, std::vector<int> &buttonList)
+[[nodiscard]] int checkJoystickButtons(int button, std::vector<int>& buttonList)
 {
     // values lower than 0 make the game crash, 33 == unbound
     button = std::clamp(button, 0, 33);
-    if(button == 33) return button;
+    if(button == 33) { return button; }
 
     // if button is already used assign button 33
     // 33 is out of the supported buttons range so it can never be triggered
     bool alreadyBound = false;
-    for(auto &b : buttonList)
+    for(auto& b : buttonList)
     {
         if(b != 33 && button == b)
         {
             button = 33;
             alreadyBound = true;
-            break;
         }
     }
-    if(!alreadyBound)
-        buttonList.push_back(button);
+    if(!alreadyBound) { buttonList.push_back(button); }
 
     return button;
 }
@@ -1326,13 +1345,11 @@ unsigned int SSVU_ATTRIBUTE(pure) getJoystickCreateProfile()
 // Reassign bind
 
 typedef void (*setFuncJoy) (unsigned int button);
-typedef std::tuple<setFuncJoy, unsigned int> joystickBindsConfigs;
+typedef std::pair<setFuncJoy, unsigned int> joystickBindsConfigs;
 
 [[nodiscard]] int checkButtonReassignment(unsigned int button)
 {
-    constexpr int funcsNum = hg::Joystick::Jid::JoystickBindsCount;
-
-    joystickBindsConfigs funcs[funcsNum] = {
+    joystickBindsConfigs funcs[] = {
         {setJoystickSelect, joystickSelect()},              {setJoystickExit, joystickExit()},
         {setJoystickFocus, joystickFocus()},                {setJoystickSwap, joystickSwap()},
         {setJoystickForceRestart, joystickForceRestart()},  {setJoystickRestart, joystickRestart()},
@@ -1340,7 +1357,7 @@ typedef std::tuple<setFuncJoy, unsigned int> joystickBindsConfigs;
         {setJoystickOptionMenu, joystickOptionMenu()},      {setJoystickChangePack, joystickChangePack()},
         {setJoystickCreateProfile, joystickCreateProfile()}, };
 
-    for(int i = 0; i < funcsNum; ++i)
+    for(int i = 0; i < (sizeof(funcs) / sizeof(funcs[0])); ++i)
     {
         if(get<unsigned int>(funcs[i]) == button)
         {

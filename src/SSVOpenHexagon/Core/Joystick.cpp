@@ -54,6 +54,8 @@ namespace hg::Joystick
 
 struct JoystickState
 {
+    bool ignoreAllPresses;
+
     bool leftWasPressed;
     bool leftPressed;
 
@@ -99,7 +101,7 @@ struct JoystickState
     bool createProfileWasPressed;
     bool createProfilePressed;
 
-    unsigned int joystickInputs[Jid::JoystickBindsCount];
+    unsigned int joystickInputs[JoystickBindsCount];
 };
 
 [[nodiscard]] static JoystickState& getJoystickState()
@@ -108,15 +110,17 @@ struct JoystickState
     return res;
 }
 
-void setJoystickBind(unsigned int button, Jid buttonID)
+void ignoreAllPresses(bool ignore)
 {
-    auto& s = getJoystickState();
-    s.joystickInputs[int(buttonID)] = button;
+    getJoystickState().ignoreAllPresses = ignore;
 }
-void unbindJoystickButton(unsigned int buttonID)
+void setJoystickBind(const unsigned int button, const int buttonID)
 {
-    auto& s = getJoystickState();
-    s.joystickInputs[buttonID] = 33;
+    getJoystickState().joystickInputs[buttonID] = button;
+}
+void unbindJoystickButton(const unsigned int buttonID)
+{
+    getJoystickState().joystickInputs[buttonID] = 33;
 }
 
 enum class AxisDir : int
@@ -229,6 +233,7 @@ void update()
 
 [[nodiscard]] bool leftPressed()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().leftPressed;
 }
 [[nodiscard]] bool leftRisingEdge()
@@ -244,6 +249,7 @@ void update()
 }
 [[nodiscard]] bool rightRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().rightPressed &&
            !getJoystickState().rightWasPressed;
 }
@@ -255,6 +261,7 @@ void update()
 }
 [[nodiscard]] bool upRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().upPressed &&
            !getJoystickState().upWasPressed;
 }
@@ -277,6 +284,7 @@ void update()
 }
 [[nodiscard]] bool selectRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().selectPressed &&
            !getJoystickState().selectWasPressed;
 }
@@ -288,6 +296,7 @@ void update()
 }
 [[nodiscard]] bool exitRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().exitPressed &&
            !getJoystickState().exitWasPressed;
 }
@@ -299,6 +308,7 @@ void update()
 }
 [[nodiscard]] bool focusRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().focusPressed &&
            !getJoystickState().focusWasPressed;
 }
@@ -310,6 +320,7 @@ void update()
 }
 [[nodiscard]] bool swapRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().swapPressed &&
            !getJoystickState().swapWasPressed;
 }
@@ -320,6 +331,7 @@ void update()
 }
 [[nodiscard]] bool forceRestartRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().forceRestartPressed &&
            !getJoystickState().forceRestartWasPressed;
 }
@@ -330,6 +342,7 @@ void update()
 }
 [[nodiscard]] bool restartRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().restartPressed &&
            !getJoystickState().restartWasPressed;
 }
@@ -340,6 +353,7 @@ void update()
 }
 [[nodiscard]] bool replayRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().replayPressed &&
            !getJoystickState().replayWasPressed;
 }
@@ -350,6 +364,7 @@ void update()
 }
 [[nodiscard]] bool screenshotRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().screenshotPressed &&
            !getJoystickState().screenshotWasPressed;
 }
@@ -360,6 +375,7 @@ void update()
 }
 [[nodiscard]] bool changePackRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().changePackPressed &&
            !getJoystickState().changePackWasPressed;
 }
@@ -371,6 +387,7 @@ void update()
 }
 [[nodiscard]] bool optionMenuRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().optionMenuPressed &&
            !getJoystickState().optionMenuWasPressed;
 }
@@ -382,6 +399,7 @@ void update()
 }
 [[nodiscard]] bool createProfileRisingEdge()
 {
+    if(getJoystickState().ignoreAllPresses) { return false; }
     return getJoystickState().createProfilePressed &&
            !getJoystickState().createProfileWasPressed;
 }
