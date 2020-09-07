@@ -26,7 +26,7 @@
 namespace hg
 {
 
-class OHDialogBox
+class HexagonDialogBox // can't be named DialogBox due to a pre-existing C++ class
 {
 private:
     HGAssets& assets;
@@ -41,7 +41,7 @@ private:
     float dialogHeight{0.f}, dialogWidth{0.f}, frameOffset{0.f}, lineHeight{0.f};
 
 public:
-    OHDialogBox(HGAssets& mAssets, ssvs::GameWindow& window, StyleData& styleData);
+    HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& window, StyleData& styleData);
     void createDialogBox(std::string& output, const int charSize);
     void drawDialogBox();
     void clearDialogBox();
@@ -128,7 +128,7 @@ private:
         txtLAuth{"", imagine, 20}, txtLMus{"", imagine, 20},
         txtFriends{"", imagine, 21}, txtPacks{"", imagine, 14};
 
-    OHDialogBox dialogBox;
+    HexagonDialogBox dialogBox;
 
     void playLocally();
 
