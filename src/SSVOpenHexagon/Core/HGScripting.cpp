@@ -768,11 +768,9 @@ void HexagonGame::initLua_LevelControl()
                 levelStatus.scoreOverride = mVar;
                 levelStatus.scoreOverridden = true;
                 // Make sure we're not passing in a string
-                lua.executeCode(
-                    "if (type(" + mVar +
-                    ") ~= \"number\") then\n"
-                    "error(\"Score override must be a number value\")\n"
-                    "end");
+                lua.executeCode("if (type(" + mVar + R"( ) ~= "number") then
+								error("Score override must be a number value")
+								end)");
             }
             catch(const std::runtime_error& mError)
             {
