@@ -305,7 +305,8 @@ void HexagonGame::updateText()
     else
     {
         // Alternative scoring
-        timeText.setString(lua.readVariable<string>(levelStatus.scoreOverride));
+        timeText.setString(
+            lua.readVariable<std::string>(levelStatus.scoreOverride));
     }
 
     const auto getScaledCharacterSize = [&](const float size) {
