@@ -394,39 +394,45 @@ void MenuGame::initMenus()
     play.create<i::GoBack>("back");
 
     //Keyboard binds
+    auto callBack = [this](const Trigger& trig, const int bindID)
+    {
+        game.refreshTrigger(trig, bindID);
+        hexagonGame.refreshTrigger(trig, bindID);
+    };
+
     keyboard.create<i::BindControl>("rotate ccw", &Config::getTriggerRotateCCW,
-                                &Config::reassignBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW,
-                                game, hexagonGame, Tid::RotateCCW);
+                                    &Config::reassignBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW,
+                                    callBack, Tid::RotateCCW);
     keyboard.create<i::BindControl>("rotate cw", &Config::getTriggerRotateCW,
-                                &Config::reassignBindTriggerRotateCW, &Config::clearBindTriggerRotateCW,
-                                game, hexagonGame, Tid::RotateCW);
+                                    &Config::reassignBindTriggerRotateCW, &Config::clearBindTriggerRotateCW,
+                                    callBack, Tid::RotateCW);
     keyboard.create<i::BindControl>("focus", &Config::getTriggerFocus,
-                                &Config::reassignBindTriggerFocus, &Config::clearBindTriggerFocus,
-                                game, hexagonGame, Tid::Focus);
+                                    &Config::reassignBindTriggerFocus, &Config::clearBindTriggerFocus,
+                                    callBack, Tid::Focus);
     keyboard.create<i::BindControl>("exit", &Config::getTriggerExit,
-                                &Config::reassignBindTriggerExit, &Config::clearBindTriggerExit,
-                                game, hexagonGame, Tid::Exit);
+                                    &Config::reassignBindTriggerExit, &Config::clearBindTriggerExit,
+                                    callBack, Tid::Exit);
     keyboard.create<i::BindControl>("force restart", &Config::getTriggerForceRestart,
-                                &Config::reassignBindTriggerForceRestart, &Config::clearBindTriggerForceRestart,
-                                game, hexagonGame, Tid::ForceRestart);
+                                    &Config::reassignBindTriggerForceRestart, &Config::clearBindTriggerForceRestart,
+                                    callBack, Tid::ForceRestart);
     keyboard.create<i::BindControl>("restart", &Config::getTriggerRestart,
-                                &Config::reassignBindTriggerRestart, &Config::clearBindTriggerRestart,
-                                game, hexagonGame, Tid::Restart);
+                                    &Config::reassignBindTriggerRestart, &Config::clearBindTriggerRestart,
+                                    callBack, Tid::Restart);
     keyboard.create<i::BindControl>("replay", &Config::getTriggerReplay,
-                                &Config::reassignBindTriggerReplay, &Config::clearBindTriggerReplay,
-                                game, hexagonGame, Tid::Replay);
+                                    &Config::reassignBindTriggerReplay, &Config::clearBindTriggerReplay,
+                                    callBack, Tid::Replay);
     keyboard.create<i::BindControl>("screenshot", &Config::getTriggerScreenshot,
-                                &Config::reassignBindTriggerScreenshot, &Config::clearBindTriggerScreenshot,
-                                game, hexagonGame, Tid::Screenshot);
+                                    &Config::reassignBindTriggerScreenshot, &Config::clearBindTriggerScreenshot,
+                                    callBack, Tid::Screenshot);
     keyboard.create<i::BindControl>("swap", &Config::getTriggerSwap,
-                                &Config::reassignBindTriggerSwap, &Config::clearBindTriggerSwap,
-                                game, hexagonGame, Tid::Swap);
+                                    &Config::reassignBindTriggerSwap, &Config::clearBindTriggerSwap,
+                                    callBack, Tid::Swap);
     keyboard.create<i::BindControl>("up", &Config::getTriggerUp,
-                                &Config::reassignBindTriggerUp, &Config::clearBindTriggerUp,
-                                game, hexagonGame, Tid::Up);
+                                    &Config::reassignBindTriggerUp, &Config::clearBindTriggerUp,
+                                    callBack, Tid::Up);
     keyboard.create<i::BindControl>("down", &Config::getTriggerDown,
-                                &Config::reassignBindTriggerDown, &Config::clearBindTriggerDown,
-                                game, hexagonGame, Tid::Down);
+                                    &Config::reassignBindTriggerDown, &Config::clearBindTriggerDown,
+                                    callBack, Tid::Down);
     keyboard.create<i::GoBack>("back");
 
     //Joystick binds
@@ -435,28 +441,44 @@ void MenuGame::initMenus()
 
     using Jid = hg::Joystick::Jid;
 
+    auto JoystickCallBack = [this](const unsigned int button, const int buttonID)
+    {
+        hg::Joystick::setJoystickBind(button, buttonID);
+    };
+
     joystick.create<i::JoystickBindControl>("select", &Config::getJoystickSelect,
-                                            &Config::reassignToJoystickSelect, Jid::Select);
+                                            &Config::reassignToJoystickSelect, JoystickCallBack,
+                                            Jid::Select);
     joystick.create<i::JoystickBindControl>("exit", &Config::getJoystickExit,
-                                            &Config::reassignToJoystickExit, Jid::Exit);
+                                            &Config::reassignToJoystickExit, JoystickCallBack,
+                                            Jid::Exit);
     joystick.create<i::JoystickBindControl>("focus", &Config::getJoystickFocus,
-                                            &Config::reassignToJoystickFocus, Jid::Focus);
+                                            &Config::reassignToJoystickFocus, JoystickCallBack,
+                                            Jid::Focus);
     joystick.create<i::JoystickBindControl>("swap", &Config::getJoystickSwap,
-                                            &Config::reassignToJoystickSwap, Jid::Swap);
+                                            &Config::reassignToJoystickSwap, JoystickCallBack,
+                                            Jid::Swap);
     joystick.create<i::JoystickBindControl>("force restart", &Config::getJoystickForceRestart,
-                                            &Config::reassignToJoystickForceRestart, Jid::ForceRestart);
+                                            &Config::reassignToJoystickForceRestart, JoystickCallBack,
+                                            Jid::ForceRestart);
     joystick.create<i::JoystickBindControl>("restart", &Config::getJoystickRestart,
-                                            &Config::reassignToJoystickRestart, Jid::Restart);
+                                            &Config::reassignToJoystickRestart, JoystickCallBack,
+                                            Jid::Restart);
     joystick.create<i::JoystickBindControl>("replay", &Config::getJoystickReplay,
-                                            &Config::reassignToJoystickReplay, Jid::Replay);
+                                            &Config::reassignToJoystickReplay, JoystickCallBack,
+                                            Jid::Replay);
     joystick.create<i::JoystickBindControl>("screenshot", &Config::getJoystickScreenshot,
-                                            &Config::reassignToJoystickScreenshot, Jid::Screenshot);
+                                            &Config::reassignToJoystickScreenshot, JoystickCallBack,
+                                            Jid::Screenshot);
     joystick.create<i::JoystickBindControl>("option menu", &Config::getJoystickOptionMenu,
-                                            &Config::reassignToJoystickOptionMenu, Jid::OptionMenu);
+                                            &Config::reassignToJoystickOptionMenu, JoystickCallBack,
+                                            Jid::OptionMenu);
     joystick.create<i::JoystickBindControl>("change pack", &Config::getJoystickChangePack,
-                                            &Config::reassignToJoystickChangePack, Jid::ChangePack);
+                                            &Config::reassignToJoystickChangePack, JoystickCallBack,
+                                            Jid::ChangePack);
     joystick.create<i::JoystickBindControl>("create profile", &Config::getJoystickCreateProfile,
-                                            &Config::reassignToJoystickCreateProfile, Jid::CreateProfile);
+                                            &Config::reassignToJoystickCreateProfile, JoystickCallBack,
+                                            Jid::CreateProfile);
     joystick.create<i::GoBack>("back");
 
 
