@@ -2,6 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
