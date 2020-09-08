@@ -45,7 +45,7 @@ public:
     void createDialogBox(std::string& output, const int charSize);
     void drawDialogBox();
     void clearDialogBox();
-    bool empty()
+    [[nodiscard]] bool empty() const noexcept
     {
         return dialogText.empty();
     }
