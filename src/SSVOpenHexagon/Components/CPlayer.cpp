@@ -2,8 +2,21 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
+#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
+#include "SSVOpenHexagon/Utils/Ticker.hpp"
+
+#include "SSVOpenHexagon/Global/Config.hpp"
+
+#include <SSVStart/Utils/SFML.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
+
+#include <SSVUtils/Core/Common/Frametime.hpp>
+#include <SSVUtils/Core/Utils/Math.hpp>
+
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 namespace hg
 {
