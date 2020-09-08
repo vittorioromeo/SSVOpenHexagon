@@ -136,7 +136,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                getCurrentMenu()->getItem().newJoystickBind(mEvent.joystickButton.button);
+                getCurrentMenu()->getItem().newJoystickBind(int(mEvent.joystickButton.button));
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
