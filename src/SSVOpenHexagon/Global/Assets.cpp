@@ -3,8 +3,17 @@
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Online/Definitions.hpp"
+#include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Data/MusicData.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
+
+#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
+
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 namespace hg
 {
