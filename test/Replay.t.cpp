@@ -233,7 +233,7 @@ static void test_replay_file_serialization_to_file_randomized()
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
         ._difficulty_mult{getRndFloat(0.0f, 100000.0f)},
-        ._played_frametime{getRndFloat(0.0f, 100000.0f)}
+        ._played_score{getRndFloat(0.0f, 100000.0f)}
         //
     };
 

@@ -218,7 +218,8 @@ void MenuGame::init(
         assets.playSound("error.ogg");
     }
 
-    Online::setForceLeaderboardRefresh(true);
+    // TODO: ?
+    // Online::setForceLeaderboardRefresh(true);
 
     loadCommandLineLevel(pack, level);
 }
