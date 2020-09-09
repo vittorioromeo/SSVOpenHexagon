@@ -59,6 +59,10 @@ struct LevelStatus
 {
     std::vector<TrackedVariable> trackedVariables;
 
+    // Allows alternative scoring to be possible
+    bool scoreOverridden{false};
+    std::string scoreOverride;
+
     float speedMult{1.f};
     float playerSpeedMult{1.f};
     float speedInc{0.f};

@@ -32,6 +32,7 @@ private:
     double pausedFrametimeAccumulator{}; // Paused time (only pauses)
     double currentPause{0.1 * 60};       // Current pause time
     double currentIncrementTime{};       // Time since last increment
+    float  customScore{};                // Value for alternative scoring
 
 public:
     float pulse{75};
@@ -83,6 +84,9 @@ public:
     // Accumulate the time spent in a frame into the total
     void accumulateFrametime(const double ft) noexcept;
 
+    // Update the custom score
+    void updateCustomScore(const float score) noexcept;
+
     // Get total accumulated frametime
     [[nodiscard]] double getTotalAccumulatedFrametime() const noexcept;
 
@@ -102,6 +106,9 @@ public:
     // Get paused accumulated frametime, in seconds
     [[nodiscard]] double
     getPausedAccumulatedFrametimeInSeconds() const noexcept;
+
+    // Get custom score
+    [[nodiscard]] float getCustomScore() const noexcept;
 };
 
 } // namespace hg
