@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
@@ -278,7 +278,8 @@ void CPlayer::updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT)
     const int movement{mHexagonGame.getInputMovement()};
 
     const float currentSpeed =
-        mHexagonGame.getInputFocused() ? focusSpeed : speed;
+        mHexagonGame.getPlayerSpeedMult() *
+        (mHexagonGame.getInputFocused() ? focusSpeed : speed);
 
     angle += ssvu::toRad(currentSpeed * movement * mFT);
 

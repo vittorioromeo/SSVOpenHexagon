@@ -1,8 +1,8 @@
-# [Open Hexagon](http://www.facebook.com/OpenHexagon) - version 2.0 RC - readme WIP #
-## [by Vittorio Romeo](http://vittorioromeo.info) ##
+# [Open Hexagon](https://www.facebook.com/OpenHexagon) - version 2.0 RC - readme WIP #
+## [by Vittorio Romeo](https://vittorioromeo.info) ##
 
 A free, open source clone of **[Super Hexagon](https://itunes.apple.com/us/app/super-hexagon/id549027629?mt=8)** (by Terry Cavanagh) </br>
-Programmed by **[Vittorio Romeo](http://vittorioromeo.info)</br>**
+Programmed by **[Vittorio Romeo](https://vittorioromeo.info)</br>**
 Music by **[BOSSFIGHT](https://soundcloud.com/bossfightswe)</br>**
 
 ----------
@@ -15,17 +15,17 @@ Music by **[BOSSFIGHT](https://soundcloud.com/bossfightswe)</br>**
 ## Links and additional credits ##
 
 
-**Official page:** [http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon) </br>
+**Official page:** [https://www.facebook.com/OpenHexagon](https://www.facebook.com/OpenHexagon) </br>
 **Source code page:** [https://github.com/SuperV1234](https://github.com/SuperV1234)</br>
-**Vittorio's website**: [http://vittorioromeo.info](http://vittorioromeo.info)</br>
+**Vittorio's website**: [https://vittorioromeo.info](https://vittorioromeo.info)</br>
 
 Special thanks:</br> 
 to **BubblegumBalloon** for the announcer sounds </br>
-to **Tomaka17** for creating [LuaWrapper](http://code.google.com/p/luawrapper/)</br>
+to **Tomaka17** for creating [LuaWrapper](https://code.google.com/p/luawrapper/)</br>
 to **Ethan Lee** for the [Unix port](https://github.com/flibitijibibo/OpenHexagon-Unix)</br>
 to **Jookia** for his help with the CMake files</br>
 to **Giuseppe Vinci**, **Jordo Matt**, **Pascal Schuster**, **Sean Pek** for beta-testing</br>
-to the **SFML** [IRC channel](http://en.sfml-dev.org/forums/index.php?topic=2997.0) community for all the help
+to the **SFML** [IRC channel](https://en.sfml-dev.org/forums/index.php?topic=2997.0) community for all the help
 
 ----------
 
@@ -49,7 +49,7 @@ Please check it out and consider buying it if you like Open Hexagon!
 ## Requirements ##
 
 **Visual C++ Redistributable:**
-[http://www.microsoft.com/en-us/download/details.aspx?id=30679](http://www.microsoft.com/en-us/download/details.aspx?id=30679)
+[https://www.microsoft.com/en-us/download/details.aspx?id=30679](https://www.microsoft.com/en-us/download/details.aspx?id=30679)
 
 
 ----------
@@ -60,7 +60,7 @@ Simply extract the contents of the compressed file in a folder.</br>
 Open **SSVOpenHexagon.exe** or any of the batch files to play.
 
 *If you need further assistance post on the official page:*
-[http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon)
+[https://www.facebook.com/OpenHexagon](https://www.facebook.com/OpenHexagon)
 
 ----------
 
@@ -80,16 +80,16 @@ Avoid the walls! Press **R** to restart.</br> Press **ESC** to go back to the me
 
 ## Customization ##
 
-Customizing Open Hexagon can be very easy or very complex depending on what you're trying to do. </br>Almost everything is written in simple to edit [JSON](http://www.json.org/).
+Customizing Open Hexagon can be very easy or very complex depending on what you're trying to do. </br>Almost everything is written in simple to edit [JSON](https://www.json.org/).
 
-Patterns, however, must be created using [LUA](http://www.lua.org/) (which can also be used for other cool stuff).
+Patterns, however, must be created using [LUA](https://www.lua.org/) (which can also be used for other cool stuff).
 
 Please refer to the files in the **documentation** folder.
 
 *Keep in mind that things will change from version to version. Existing files may not work in the next version of Open Hexagon or may work differently.*
 
 *If you need further assistance post on the official page:*
-[http://www.facebook.com/OpenHexagon](http://www.facebook.com/OpenHexagon)
+[https://www.facebook.com/OpenHexagon](https://www.facebook.com/OpenHexagon)
 
 ----------
 
