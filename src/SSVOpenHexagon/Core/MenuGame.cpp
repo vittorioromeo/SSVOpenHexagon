@@ -6,6 +6,18 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Online/Online.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/Input/Input.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
+
+#include <SSVMenuSystem/SSVMenuSystem.hpp>
+
+#include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace std;
 using namespace sf;
@@ -66,39 +78,58 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIndex(0);
 }
 
-void MenuGame::loadCommandLineLevel(const std::string& level)
+void MenuGame::loadCommandLineLevel(const std::string& pack, const std::string& level)
 {
-    // retrieve the level index location
-    int levelIndex{-1}, i;
-    const auto& p(assets.getPackInfos());
-    std::vector<std::string> levelsIDs;
-    std::string packID, levelID;
-    std::vector<string>::iterator it;
-
-    for(i = 0; i < int(p.size()); ++i)
+    // first find the ID of the pack with name matching the one typed by the user.
+    // packDatas is the only vector in assets with a data type containing the name of
+    // the pack (without it being part of the id).
+    std::string packID = "";
+    for(auto& d : assets.getPacksData())
     {
-        packID = p.at(i).id;
-        levelID = packID + "_";
-        levelID += level;
-        levelsIDs = assets.getLevelIdsByPack(packID);
-        it = find(levelsIDs.begin(), levelsIDs.end(), levelID);
-        if(it != levelsIDs.end())
+        if(d.second.name == pack)
         {
-            levelIndex = it - levelsIDs.begin();
+            packID = d.second.id;
             break;
         }
     }
-    if(levelIndex == -1)
+    if(packID.empty())
     {
         ssvu::lo("hg::Menugame::MenuGame()")
-            << "Invalid level ID command line parameter, aborting boot level load\n";
+                << "Invalid pack name command line parameter, aborting boot level load\n";
         return;
     }
 
-    // if everything's fine load the level
-    packIdx = i;
-    levelDataIds = assets.getLevelIdsByPack(packID);
-    setIndex(levelIndex);
+    // now iterate through packInfos to find the menu pack index and the index of the level
+    const auto& p = assets.getPackInfos();
+    for(int i = 0; i < int(p.size()); ++i)
+    {
+        // once you find the pack index search if it contains the level
+        if(packID == p.at(i).id)
+        {
+            std::string levelID = packID + "_";
+            levelID += level;
+
+            const auto& levelsList = assets.getLevelIdsByPack(packID);
+            auto it = find(levelsList.begin(), levelsList.end(), levelID);
+            if(it != levelsList.end())
+            {
+                // Level found, initialize parameters
+                packIdx = i;
+                levelDataIds = levelsList;
+                setIndex(it - levelsList.begin());
+                break;
+            }
+            else
+            {
+                ssvu::lo("hg::Menugame::MenuGame()")
+                        << "Invalid level name command line parameter, aborting boot level load\n";
+                return;
+            }
+        }
+    }
+
+    // Do the sequence of actions user would have
+    // to do manually to get to the desired level
 
     playLocally(); // go to profile selection screen
 
@@ -121,7 +152,28 @@ void MenuGame::loadCommandLineLevel(const std::string& level)
                         false);
 }
 
-void MenuGame::init(bool error, const std::string& level)
+void MenuGame::init(bool error)
+{
+    steamManager.set_rich_presence_in_menu();
+    steamManager.update_hardcoded_achievements();
+
+    discordManager.set_rich_presence_in_menu();
+
+    assets.stopMusics();
+    assets.stopSounds();
+    if(!error)
+    {
+        assets.playSound("openHexagon.ogg");
+    }
+    else
+    {
+        assets.playSound("error.ogg");
+    }
+
+    Online::setForceLeaderboardRefresh(true);
+}
+
+void MenuGame::init(bool error, const std::string& pack, const std::string& level)
 {
     steamManager.set_rich_presence_in_menu();
     steamManager.update_hardcoded_achievements();
@@ -141,8 +193,10 @@ void MenuGame::init(bool error, const std::string& level)
 
     Online::setForceLeaderboardRefresh(true);
 
-    if(!level.empty())
-        loadCommandLineLevel(level);
+    if(!pack.empty() && !level.empty())
+    {
+        loadCommandLineLevel(pack, level);
+    }
 }
 
 void MenuGame::initAssets()

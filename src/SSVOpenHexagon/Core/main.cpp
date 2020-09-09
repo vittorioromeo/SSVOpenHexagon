@@ -41,10 +41,14 @@ int main(int argc, char* argv[])
         std::vector<std::string> result;
         for(int i{0}; i < argc; ++i)
         {
-            if(!strcmp(argv[i], "-l")) // need this later
-                i += 2;
+            if(!strcmp(argv[i], "-p") || !strcmp(argv[i], "-l")) // need these later
+            {
+                i++;
+            }
             else
+            {
                 result.emplace_back(argv[i]);
+            }
         }
         return result;
     }();
@@ -103,21 +107,26 @@ int main(int argc, char* argv[])
     assets->refreshVolumes();
     window.setGameState(mg->getGame());
 
-    const std::string levelName = [&]
+    // this occurs separately because the strings get corrupted
+    // somewhere during the execution of the functions above
+    const auto [packName, levelName] = [&]
     {
-      std::string levelResult;
-      for(int i{0}; i < argc; ++i)
-      {
-          if(!strcmp(argv[i], "-l"))
-          {
-              levelResult = argv[++i];
-              break;
-          }
-      }
-      return levelResult;
+        std::string packResult = "", levelResult = "";
+        for(int i{0}; i < argc; ++i)
+        {
+            if(!strcmp(argv[i], "-p"))
+            {
+                packResult = argv[++i];
+            }
+            else if(!strcmp(argv[i], "-l"))
+            {
+                levelResult = argv[++i];
+            }
+        }
+        return std::make_pair(packResult, levelResult);
     }();
 
-    mg->init(false /* mError */, levelName);
+    mg->init(false /* mError */, packName, levelName);
 
     window.run();
 
