@@ -102,7 +102,7 @@
 	"text_padding" : 8.0,
 	"text_scaling" : 0.9999999403953552,
 	"timer_static" : true,
-	"timescale" : 0.7000000476837158,
+	"timescale" : 1.000000119209290,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 900,
