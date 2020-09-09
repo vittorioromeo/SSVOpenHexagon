@@ -180,6 +180,7 @@ void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
+    // TODO: remove
 #define PRINT(x) << #x << ": " << x << '\n'
 
     std::cout << "STARTING NEW GAME WITH\n" PRINT(mPackId) PRINT(mId)
@@ -238,7 +239,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
         activeReplay->replayPlayer.reset();
 
-
         activeReplay->replayPackName =
             Utils::toUppercase(assets.getPackData(mPackId).name);
 
@@ -247,6 +247,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         // TODO: this can be used to speed up the replay
         // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
 
+        // TODO: remove message
         std::cout << "LOADING SEED " << activeReplay->replayFile._seed << '\n';
         rng = random_number_generator{activeReplay->replayFile._seed};
     }
