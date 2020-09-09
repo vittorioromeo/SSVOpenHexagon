@@ -32,30 +32,47 @@ static void createProfilesFolder()
 
 int main(int argc, char* argv[])
 {
+    // ------------------------------------------------------------------------
     // Steam integration
     hg::Steam::steam_manager steamManager;
     steamManager.request_stats_and_achievements();
 
+    // ------------------------------------------------------------------------
     // Discord integration
     hg::Discord::discord_manager discordManager;
 
     hg::Online::setCurrentGtm(
         std::make_unique<hg::Online::GlobalThreadManager>());
 
-    const auto overrideIds = [&]
-    {
+    // ------------------------------------------------------------------------
+    // Parse command line arguments and collect config override ids
+    std::optional<std::string> cliLevelName;
+    std::optional<std::string> cliLevelPack;
+
+    const auto overrideIds = [&] {
         std::vector<std::string> result;
-        for(int i{0}; i < argc; ++i)
+
+        for(int i = 0; i < argc; ++i)
         {
-            if(!strcmp(argv[i], "-p") || !strcmp(argv[i], "-l")) // need these later
+            // Find command-line pack name (to immediately run level)
+            if(!strcmp(argv[i], "-p") && i + 1 < argc)
             {
-                i++;
+                ++i;
+                cliLevelPack = argv[i];
+                continue;
             }
-            else
+
+            // Find command-line level name (to immediately run level)
+            if(!strcmp(argv[i], "-l") && i + 1 < argc)
             {
-                result.emplace_back(argv[i]);
+                ++i;
+                cliLevelName = argv[i];
+                continue;
             }
+
+            result.emplace_back(argv[i]);
         }
+
         return result;
     }();
 
@@ -113,29 +130,9 @@ int main(int argc, char* argv[])
     assets->refreshVolumes();
     window.setGameState(mg->getGame());
 
-    // this occurs separately because the strings get corrupted
-    // somewhere during the execution of the functions above
-    const auto [packName, levelName] = [&]
+    if(cliLevelPack.has_value() && cliLevelName.has_value())
     {
-        std::string packResult = "", levelResult = "";
-        for(int i{0}; i < argc; ++i)
-        {
-            if(!strcmp(argv[i], "-p"))
-            {
-                packResult = argv[++i];
-            }
-            else if(!strcmp(argv[i], "-l"))
-            {
-                levelResult = argv[++i];
-            }
-        }
-
-        return std::make_pair(packResult, levelResult);
-    }();
-
-    if(!packName.empty() && !levelName.empty())
-    {
-        mg->init(false /* mError */, packName, levelName);
+        mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
     }
     else
     {
