@@ -114,8 +114,8 @@ struct replay_file
     std::string _pack_id;     // Id of the selected pack.
     std::string _level_id;    // Id of the played level.
     float _difficulty_mult;   // Played difficulty multiplier.
-    double _played_score;     // Played score (This can be an overridden score or
-                              // frametime, excluding pauses).
+    double _played_score; // Played score (This can be an overridden score or
+                          // frametime, excluding pauses).
 
     [[nodiscard]] bool operator==(const replay_file& rhs) const noexcept;
     [[nodiscard]] bool operator!=(const replay_file& rhs) const noexcept;

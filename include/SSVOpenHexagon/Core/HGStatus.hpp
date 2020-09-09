@@ -32,7 +32,7 @@ private:
     double pausedFrametimeAccumulator{}; // Paused time (only pauses)
     double currentPause{0.1 * 60};       // Current pause time
     double currentIncrementTime{};       // Time since last increment
-    float  customScore{};                // Value for alternative scoring
+    float customScore{};                 // Value for alternative scoring
 
 public:
     float pulse{75};

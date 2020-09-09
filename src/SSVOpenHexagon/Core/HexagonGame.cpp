@@ -492,8 +492,8 @@ void HexagonGame::setLevelData(
     return levelData->packId;
 }
 
-[[nodiscard]] const std::string& HexagonGame::getPackDisambiguator() const
-    noexcept
+[[nodiscard]] const std::string&
+HexagonGame::getPackDisambiguator() const noexcept
 {
     return assets.getPackData(getPackId()).disambiguator;
 }

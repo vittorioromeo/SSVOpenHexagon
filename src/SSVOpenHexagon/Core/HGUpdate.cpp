@@ -135,9 +135,10 @@ void HexagonGame::update(ssvu::FT mFT)
             player.updatePosition(*this, mFT);
 
             status.accumulateFrametime(mFT);
-            if (levelStatus.scoreOverridden) 
+            if(levelStatus.scoreOverridden)
             {
-                status.updateCustomScore(lua.readVariable<float>(levelStatus.scoreOverride));
+                status.updateCustomScore(
+                    lua.readVariable<float>(levelStatus.scoreOverride));
             }
             updateWalls(mFT);
 
