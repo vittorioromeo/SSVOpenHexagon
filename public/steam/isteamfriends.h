@@ -280,7 +280,7 @@ public:
 	virtual void ActivateGameOverlayToUser( const char *pchDialog, CSteamID steamID ) = 0;
 
 	// activates game overlay web browser directly to the specified URL
-	// full address with protocol type is required, e.g. http://www.steamgames.com/
+	// full address with protocol type is required, e.g. https://www.steamgames.com/
 	virtual void ActivateGameOverlayToWebPage( const char *pchURL, EActivateGameOverlayToWebPageMode eMode = k_EActivateGameOverlayToWebPageMode_Default ) = 0;
 
 	// activates game overlay to store page for app

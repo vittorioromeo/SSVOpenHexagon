@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -122,6 +122,12 @@ void HexagonGame::update(ssvu::FT mFT)
 
             player.updatePosition(*this, mFT);
 
+            status.accumulateFrametime(mFT);
+            if(levelStatus.scoreOverridden)
+            {
+                status.updateCustomScore(
+                    lua.readVariable<float>(levelStatus.scoreOverride));
+            }
             updateWalls(mFT);
 
             ssvu::eraseRemoveIf(
@@ -130,7 +136,6 @@ void HexagonGame::update(ssvu::FT mFT)
             cwManager.cleanup();
 
             updateEvents(mFT);
-            status.accumulateFrametime(mFT);
             updateIncrement();
 
             if(mustChangeSides && walls.empty())
@@ -302,6 +307,8 @@ void HexagonGame::start()
     {
         fpsWatcher.enable();
     }
+
+    runLuaFunction<void>("onLoad");
 }
 
 void HexagonGame::updateInput()

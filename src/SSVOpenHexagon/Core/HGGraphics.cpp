@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
@@ -31,11 +31,11 @@ void HexagonGame::draw()
 
     if(!status.hasDied)
     {
-        if(levelStatus.cameraShake > 0)
+        if(levelStatus.cameraShake > 0.f)
         {
             const sf::Vector2f shake(
-                getRndI(-levelStatus.cameraShake, levelStatus.cameraShake),
-                getRndI(-levelStatus.cameraShake, levelStatus.cameraShake));
+                getRndR(-levelStatus.cameraShake, levelStatus.cameraShake),
+                getRndR(-levelStatus.cameraShake, levelStatus.cameraShake));
 
             backgroundCamera.setCenter(shake);
             overlayCamera.setCenter(
@@ -290,13 +290,23 @@ void HexagonGame::updateText()
     os.flush();
 
     // Set in game timer text
-    if(status.started)
+    if(!levelStatus.scoreOverridden)
     {
-        timeText.setString(formatTime(status.getTimeSeconds()));
+        // By default, use the timer for scoring
+        if(status.started)
+        {
+            timeText.setString(formatTime(status.getTimeSeconds()));
+        }
+        else
+        {
+            timeText.setString("0");
+        }
     }
     else
     {
-        timeText.setString("0");
+        // Alternative scoring
+        timeText.setString(
+            lua.readVariable<std::string>(levelStatus.scoreOverride));
     }
 
     const auto getScaledCharacterSize = [&](const float size) {
@@ -330,10 +340,17 @@ void HexagonGame::updateText()
 
         os.str("");
 
-        os << formatTime(rf._played_frametime / 60.0) << "s BY "
-           << rf._player_name << '\n';
+        if(!levelStatus.scoreOverridden)
+        {
+            os << formatTime(rf._played_score / 60.0) << "s";
+        }
+        else
+        {
+            os << formatTime(rf._played_score);
+        }
 
-        os << activeReplay->replayPackName << " - "
+        os << " BY " << rf._player_name << '\n'
+           << activeReplay->replayPackName << " - "
            << activeReplay->replayLevelName << " (" << rf._difficulty_mult
            << "x)";
 
