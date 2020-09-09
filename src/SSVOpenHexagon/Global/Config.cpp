@@ -5,9 +5,16 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Online/Online.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/Input/Input.hpp>
+#include <SSVStart/GameSystem/GameWindow.hpp>
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 
 #include <iostream>
+#include <fstream>
+#include <memory>
 
 using namespace std;
 using namespace sf;
