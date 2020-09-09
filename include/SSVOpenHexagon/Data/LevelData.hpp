@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #pragma once
 
@@ -93,7 +93,7 @@ struct LevelStatus
     float wallAngleRight{0.f};
     float _3dEffectMultiplier{1.f};
 
-    int cameraShake{0};
+    float cameraShake{0};
 
     unsigned int sides{6};
     unsigned int sidesMax{6};
