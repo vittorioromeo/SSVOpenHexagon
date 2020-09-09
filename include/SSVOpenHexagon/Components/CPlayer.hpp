@@ -43,7 +43,7 @@ private:
     void drawDeathEffect(HexagonGame& mHexagonGame);
 
 public:
-    CPlayer(const sf::Vector2f& mStartPos, const float swapCooldown) noexcept;
+    CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept;
 
     [[gnu::always_inline, nodiscard]] const sf::Vector2f&
     getPosition() const noexcept

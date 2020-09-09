@@ -417,9 +417,9 @@ void HexagonGame::initLua_LevelControl()
         "is created.");
 
     lsVar("PlayerSpeedMult", &LevelStatus::playerSpeedMult,
-          "Gets the speed multiplier of the player.",
+        "Gets the speed multiplier of the player.",
 
-          "Sets the speed multiplier of the player.");
+        "Sets the speed multiplier of the player.");
 
     lsVar("SpeedInc", &LevelStatus::speedInc,
         "Gets the speed increment of the level. This is applied every level "
