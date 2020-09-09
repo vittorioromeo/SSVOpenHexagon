@@ -290,13 +290,23 @@ void HexagonGame::updateText()
     os.flush();
 
     // Set in game timer text
-    if(status.started)
+    if(!levelStatus.scoreOverridden)
     {
-        timeText.setString(formatTime(status.getTimeSeconds()));
+        // By default, use the timer for scoring
+        if(status.started)
+        {
+            timeText.setString(formatTime(status.getTimeSeconds()));
+        }
+        else
+        {
+            timeText.setString("0");
+        }
     }
     else
     {
-        timeText.setString("0");
+        // Alternative scoring
+        timeText.setString(
+            lua.readVariable<std::string>(levelStatus.scoreOverride));
     }
 
     const auto getScaledCharacterSize = [&](const float size) {
@@ -329,11 +339,16 @@ void HexagonGame::updateText()
         const replay_file& rf = activeReplay->replayFile;
 
         os.str("");
+        
+        if(!levelStatus.scoreOverridden)
+        {
+            os << formatTime(rf._played_score / 60.0) << "s";
+        } else {
+            os << formatTime(rf._played_score);
+        }
 
-        os << formatTime(rf._played_frametime / 60.0) << "s BY "
-           << rf._player_name << '\n';
-
-        os << activeReplay->replayPackName << " - "
+        os << " BY " << rf._player_name << '\n'
+           << activeReplay->replayPackName << " - "
            << activeReplay->replayLevelName << " (" << rf._difficulty_mult
            << "x)";
 

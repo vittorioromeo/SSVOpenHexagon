@@ -17,6 +17,7 @@ void HexagonGameStatus::start() noexcept
     pausedFrametimeAccumulator = 0.0;
     currentPause = 0.1 * 60;
     currentIncrementTime = 0.0;
+    customScore = 0;
 
     // Signal that we started:
     started = true;
@@ -92,6 +93,11 @@ void HexagonGameStatus::accumulateFrametime(const double ft) noexcept
     }
 }
 
+void HexagonGameStatus::updateCustomScore(const float score) noexcept
+{
+    customScore = score;
+}
+
 [[nodiscard]] double
 HexagonGameStatus::getTotalAccumulatedFrametime() const noexcept
 {
@@ -126,6 +132,11 @@ HexagonGameStatus::getPausedAccumulatedFrametime() const noexcept
 HexagonGameStatus::getPausedAccumulatedFrametimeInSeconds() const noexcept
 {
     return getPausedAccumulatedFrametime() / 60.0;
+}
+
+[[nodiscard]] float HexagonGameStatus::getCustomScore() const noexcept
+{
+    return customScore;
 }
 
 } // namespace hg
