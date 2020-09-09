@@ -241,8 +241,9 @@ public:
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
-    void init(bool mErrored, const std::string& level = "");
-    void loadCommandLineLevel(const std::string& level);
+    void init(bool mErrored);
+    void init(bool mErrored, const std::string& pack, const std::string& level);
+    void loadCommandLineLevel(const std::string& pack, const std::string& level);
 
     ssvs::GameState& getGame() noexcept
     {

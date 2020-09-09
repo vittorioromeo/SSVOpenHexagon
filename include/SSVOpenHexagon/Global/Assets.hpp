@@ -120,6 +120,11 @@ public:
         return levelDataIdsByPack.at(mPackId);
     }
 
+    const std::unordered_map<std::string, PackData>& getPacksData()
+    {
+        return packDatas;
+    }
+
     const PackData& getPackData(const std::string& mPackId)
     {
         SSVU_ASSERT(packDatas.count(mPackId) > 0);
