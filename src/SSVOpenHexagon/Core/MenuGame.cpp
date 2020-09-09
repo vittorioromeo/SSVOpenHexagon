@@ -946,7 +946,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_getPlayerSpeedMult", "l_getDelayMult", "l_addTracked",
             "l_getRotation", "l_setRotation", "l_setDelayMult", "l_getOfficial",
             "l_overrideScore",
-         
+
             "l_getSwapCooldownMult", "l_setSwapCooldownMult",
 
             "u_playSound", "u_isKeyPressed", "u_isMouseButtonPressed",
