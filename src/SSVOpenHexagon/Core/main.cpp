@@ -8,6 +8,12 @@
 #include "SSVOpenHexagon/Online/OHServer.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+
+#include <SSVStart/GameSystem/GameWindow.hpp>
 
 static void createProfilesFolder()
 {
