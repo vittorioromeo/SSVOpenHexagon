@@ -381,7 +381,9 @@ const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(
 //**********************************************
 // RELOAD
 
-std::pair<bool, std::string> HGAssets::reloadLevelData(const std::string& mPackId, const std::string& mPath, const std::string& mId)
+std::pair<bool, std::string> HGAssets::reloadLevelData(
+    const std::string& mPackId, const std::string& mPath,
+    const std::string& mId)
 {
     // get the styles folder and check it exists
     const std::string path = mPath + "Levels/";
@@ -393,13 +395,15 @@ std::pair<bool, std::string> HGAssets::reloadLevelData(const std::string& mPackI
     {
         LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
         levelDatas.find(mPackId + "_" + mId)->second = levelData;
-        return std::make_pair(true, "level data " + mId + ".json successfully loaded\n");
+        return std::make_pair(
+            true, "level data " + mId + ".json successfully loaded\n");
     }
 
     return std::make_pair(false, "no matching level data file found\n");
 }
 
-std::string HGAssets::reloadMusicData(const std::string& mPackId, const std::string& mPath, const std::string& mId)
+std::string HGAssets::reloadMusicData(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
 {
     // get the styles folder and check it exists
     const std::string path = mPath + "Music/";
@@ -418,7 +422,8 @@ std::string HGAssets::reloadMusicData(const std::string& mPackId, const std::str
     return "no matching music data file found\n";
 }
 
-std::string HGAssets::reloadStyleData(const std::string& mPackId, const std::string& mPath, const std::string& mId)
+std::string HGAssets::reloadStyleData(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
 {
     // get the styles folder and check it exists
     const std::string path = mPath + "Styles/";
@@ -437,7 +442,8 @@ std::string HGAssets::reloadStyleData(const std::string& mPackId, const std::str
     return "no matching style data file found\n";
 }
 
-std::string HGAssets::reloadMusic(const std::string& mPackId, const std::string& mPath, const std::string& mId)
+std::string HGAssets::reloadMusic(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
 {
     // get the music folder and check it exists
     const std::string path = mPath + "Music/";
@@ -461,7 +467,8 @@ std::string HGAssets::reloadMusic(const std::string& mPackId, const std::string&
     return "no matching music file found\n";
 }
 
-std::string HGAssets::reloadCustomSounds(const std::string& mPackId, const std::string& mPath, const std::string& mId)
+std::string HGAssets::reloadCustomSounds(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
 {
     // get the sound folder and check it exists
     const std::string path = mPath + "Sounds/";
