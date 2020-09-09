@@ -6,6 +6,18 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Online/Online.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <SSVStart/Input/Input.hpp>
+#include <SSVStart/Utils/Vector2.hpp>
+
+#include <SSVMenuSystem/SSVMenuSystem.hpp>
+
+#include <SSVUtils/Core/Common/Frametime.hpp>
 
 using namespace std;
 using namespace sf;

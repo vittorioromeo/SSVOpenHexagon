@@ -52,7 +52,7 @@
 	],
 	"t_exit" : 
 	[
-		[ "" ],
+		[ "kT" ],
 		[ "" ]
 	],
 	"t_focus" : 
@@ -62,17 +62,17 @@
 	],
 	"t_force_restart" : 
 	[
-		[ "" ],
+		[ "kG" ],
 		[ "" ]
 	],
 	"t_replay" : 
 	[
-		[ "" ],
+		[ "bMiddle" ],
 		[ "" ]
 	],
 	"t_restart" : 
 	[
-		[ "" ],
+		[ "kB" ],
 		[ "" ]
 	],
 	"t_rotate_ccw" : 
@@ -93,7 +93,7 @@
 	"t_swap" : 
 	[
 		[ "kSpace" ],
-		[ "bMiddle" ]
+		[ "" ]
 	],
 	"t_up" : 
 	[
