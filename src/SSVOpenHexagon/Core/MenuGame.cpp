@@ -797,7 +797,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueIncrement", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax",
+    for(const auto& un : {"l_setSpeedMult", "l_setPlayerSpeedMult", "l_setSpeedInc", "l_setSpeedMax",
             "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin", "l_setDelayMax",
             "l_getDelayMax", "l_setRotationSpeedMax", "l_setRotationSpeedInc",
             "l_setDelayInc", "l_setFastSpin", "l_setSidesMin", "l_setSidesMax",
@@ -810,7 +810,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setRadiusMin", "l_setSwapEnabled", "l_setTutorialMode",
             "l_setIncEnabled", "l_get3dRequired", "l_enableRndSideChanges",
             "l_setDarkenUnevenBackgroundChunk",
-            "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult",
+            "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult", "l_getPlayerSpeedMult",
             "l_getDelayMult", "l_addTracked", "l_getRotation", "l_setRotation",
             "l_setDelayMult", "l_getOfficial", "l_getSwapCooldownMult",
             "l_setSwapCooldownMult",

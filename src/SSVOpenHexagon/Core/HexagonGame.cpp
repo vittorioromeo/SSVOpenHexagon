@@ -288,9 +288,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     lua = Lua::LuaContext{};
     initLua();
-
     runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
+
     restartId = mId;
     restartFirstTime = false;
     setSides(levelStatus.sides);
@@ -592,6 +592,11 @@ void HexagonGame::setSides(unsigned int mSides)
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
     return inputFocused;
+}
+
+[[nodiscard]] float HexagonGame::getPlayerSpeedMult() const
+{
+    return levelStatus.playerSpeedMult;
 }
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const

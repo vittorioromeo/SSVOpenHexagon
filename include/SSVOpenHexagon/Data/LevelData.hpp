@@ -58,6 +58,7 @@ struct LevelStatus
     std::vector<TrackedVariable> trackedVariables;
 
     float speedMult{1.f};
+    float playerSpeedMult{1.f};
     float speedInc{0.f};
     float speedMax{0.f};
     float rotationSpeed{0.f};

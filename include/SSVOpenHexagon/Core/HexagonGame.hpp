@@ -448,6 +448,7 @@ public:
 
     // Input
     [[nodiscard]] bool getInputFocused() const;
+    [[nodiscard]] float getPlayerSpeedMult() const;
     [[nodiscard]] bool getInputSwap() const;
     [[nodiscard]] int getInputMovement() const;
 
