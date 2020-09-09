@@ -38,7 +38,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     HexagonGame& mHexagonGame, GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
+      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow),
+      dialogBox(mAssets,mGameWindow, styleData)
 {
     // TODO: check `Config::getFirstTimePlaying` and react accordingly
     Config::setFirstTimePlaying(false);
@@ -68,6 +69,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 downAction();
             }
         };
+
+    const auto clearBoxIfActionNeeded = [this](const Event& mEvent)
+    {
+        // don't do anything if inputs are being processed as usual
+        if(!noActions) { return; }
+        // close dialogbox after the second key release
+        if(!(--noActions)) { dialogBox.clearDialogBox(); }
+    };
+    game.onEvent(Event::EventType::KeyReleased) += clearBoxIfActionNeeded;
+    game.onEvent(Event::EventType::MouseButtonReleased) += clearBoxIfActionNeeded;
+    game.onEvent(Event::EventType::JoystickButtonReleased) += clearBoxIfActionNeeded;
+
     window.onRecreation += [this] { refreshCamera(); };
 
     initMenus();
@@ -445,6 +458,8 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -469,6 +484,8 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -492,6 +509,8 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -511,6 +530,8 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -530,6 +551,8 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -607,6 +630,8 @@ void MenuGame::okAction()
 
 void MenuGame::createProfileAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
@@ -622,6 +647,8 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     if(state != States::SMain)
     {
@@ -638,6 +665,8 @@ void MenuGame::selectProfileAction()
 
 void MenuGame::openOptionsAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     if(state != States::SMain)
     {
@@ -648,6 +677,8 @@ void MenuGame::openOptionsAction()
 
 void MenuGame::selectPackAction()
 {
+    if(noActions) { return; }
+
     assets.playSound("beep.ogg");
     if(state == States::SMain)
     {
@@ -693,7 +724,10 @@ void MenuGame::initInput()
         t::Once);
     game.addInput(
         Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) {
+        [this](ssvu::FT /*unused*/)
+        {
+            if(noActions) { return; }
+
             assets.playSound("beep.ogg");
             bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
                        !assets.pIsLocal()};
@@ -718,19 +752,25 @@ void MenuGame::initInput()
 
     game.addInput(
         Config::getTriggerExit(),
-        [this](ssvu::FT mFT) {
-            if(state != States::MOpts)
-            {
-                exitTimer += mFT;
-            }
+        [this](ssvu::FT mFT)
+        {
+            if(noActions) { return; }
+            if(state != States::MOpts) exitTimer += mFT;
         },
         [this](ssvu::FT /*unused*/) { exitTimer = 0; });
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; }, t::Once);
+        [this](ssvu::FT /*unused*/)
+        {
+            if(noActions) { return; }
+            mustTakeScreenshot = true;
+        },
+        t::Once);
     game.addInput(
             {{k::LAlt, k::Return}},
-            [this](ssvu::FT /*unused*/) {
+            [this](ssvu::FT /*unused*/)
+            {
+                if(noActions) { return; }
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
@@ -745,6 +785,40 @@ void MenuGame::initInput()
             }
         },
         t::Once);
+    game.addInput(
+        {{k::F5}},
+        [this](ssvu::FT /*unused*/) { reloadLevelAssets(); },t::Once);
+}
+
+void MenuGame::reloadLevelAssets()
+{
+    if(state != States::SMain || !dialogBox.empty() || !Config::getDebug()) return;
+
+    // needs to be two because the dialog box reacts to key releases.
+    // First key release is the one of the key press that made the dialog
+    // box pop up, the second one belongs to the key press that closes it
+    noActions = 2;
+    assets.playSound("beep.ogg");
+
+    auto[success, reloadOutput] = assets.reloadLevelData(levelData->packId, levelData->packPath, levelData->id);
+    if(success)
+    {
+        setIndex(currentIndex); // loads the new levelData
+
+        reloadOutput += assets.reloadMusicData(levelData->packId, levelData->packPath, levelData->musicId);
+        reloadOutput += assets.reloadStyleData(levelData->packId, levelData->packPath, levelData->styleId);
+
+        if(levelData->musicId != "nullMusicId")
+            reloadOutput += assets.reloadMusic(levelData->packId, levelData->packPath, levelData->musicId);
+
+        if(levelData->soundId != "nullSoundId")
+            reloadOutput += assets.reloadCustomSounds(levelData->packId, levelData->packPath, levelData->soundId);
+    }
+
+    reloadOutput += "\npress any key to close this message\n";
+    Utils::uppercasify(reloadOutput);
+
+    dialogBox.createDialogBox(reloadOutput, 26);
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -1297,6 +1371,9 @@ void MenuGame::draw()
     {
         window.setMouseCursorVisible(hg::Config::getMouseVisible());
     }
+
+    if(!dialogBox.empty())
+        dialogBox.drawDialogBox();
 }
 
 void MenuGame::drawLevelSelection()
@@ -1579,6 +1656,105 @@ void MenuGame::drawWelcome()
         case ocs::Connected: connStatus = "connected to server"; break;
     }
     renderText(connStatus, txtProf, {20, h - 30.f});
+}
+
+// dialog box
+
+HexagonDialogBox::HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& mWindow, StyleData& mStyleData) :
+                         assets{mAssets}, window{mWindow}, styleData{mStyleData}
+{
+}
+
+void HexagonDialogBox::createDialogBox(std::string& output, const int charSize)
+{
+    txtDialog.setCharacterSize(charSize);
+    txtDialog.setString(output);
+    dialogWidth = getGlobalWidth(txtDialog);
+    dialogHeight = getGlobalHeight(txtDialog);
+
+    // in order to properly adjust the text after the dialogText vector has been built
+    // we need to know the height of a single line. dialogHeight is the height of the entire box.
+    // So we assign an arbitrary text string and record the outputted value
+    txtDialog.setString("A");
+    lineHeight = getGlobalHeight(txtDialog);
+
+    frameOffset = 10.f;
+
+    std::string temp;
+    for(char c : output)
+    {
+        if(c == '\n')
+        {
+            dialogText.emplace_back(temp);
+            temp.clear();
+        }
+        else
+        {
+            temp += c;
+        }
+    }
+}
+
+void HexagonDialogBox::drawDialogBox()
+{
+    const sf::Color color = styleData.getTextColor();
+    const float fmax{max(1024.f / Config::getWidth(), 768.f / Config::getHeight())},
+                w = Config::getWidth() * fmax,
+                h = (Config::getHeight() * fmax) / 2.f;
+
+    // Alright what's this: if I apply the clean txtDialog height value to these quads there is
+    // a small extra margin on the top and bottom (right and left are perfect). Luckily the height
+    // of those margins are 0.85f of the height of one line for the top, and around 0.6f of the same
+    // line height for the bottom. Is there a better way to do it? Maybe, but I printed some
+    // txtDialog.getxxxx() values and cannot see an obvious answer.
+    const float heightDif = lineHeight * 0.85f,
+                heightDifBottom = lineHeight * 0.6f;
+
+    // outer frame (text color)
+    const float leftBorder = (w - dialogWidth) / 2.f,
+                rightBorder = (w + dialogWidth) / 2.f,
+                doubleOffset = frameOffset * 2.f;
+
+    dialogFrame.clear();
+    dialogFrame.reserve_more(8);
+
+    sf::Vector2f p1{leftBorder - doubleOffset, h - dialogHeight - doubleOffset + heightDif};  // top left
+    sf::Vector2f p2{rightBorder + doubleOffset, h - dialogHeight - doubleOffset + heightDif}; // top right
+    sf::Vector2f p3{rightBorder + doubleOffset, h + doubleOffset - heightDifBottom};          // bottom right
+    sf::Vector2f p4{leftBorder - doubleOffset, h + doubleOffset - heightDifBottom};           // bottom left
+    dialogFrame.batch_unsafe_emplace_back(color, p1, p2, p3, p4);
+
+    // text backdrop (spinning background color)
+    p1 = {leftBorder - frameOffset, h - dialogHeight - frameOffset + heightDif};  // top left
+    p2 = {rightBorder + frameOffset, h - dialogHeight - frameOffset + heightDif}; // top right
+    p3 = {rightBorder + frameOffset, h + frameOffset - heightDifBottom};          // bottom right
+    p4 = {leftBorder - frameOffset, h + frameOffset - heightDifBottom};           // bottom left
+    dialogFrame.batch_unsafe_emplace_back(styleData.getColor(0), p1, p2, p3, p4);
+
+    window.draw(dialogFrame);
+
+    // text
+    float heightOffset = 0.f;
+    const float interlineSpace = lineHeight * 1.5f;
+    txtDialog.setFillColor(color);
+    for(auto& str : dialogText)
+    {
+        if(!str.empty())
+        {
+            txtDialog.setString(str);
+            txtDialog.setPosition({(w - getGlobalWidth(txtDialog)) / 2.f,
+                                   h - dialogHeight + heightOffset});
+            window.draw(txtDialog);
+        }
+        heightOffset += interlineSpace;
+    }
+}
+
+void HexagonDialogBox::clearDialogBox()
+{
+    assets.playSound("beep.ogg");
+    dialogFrame.clear();
+    dialogText.clear();
 }
 
 } // namespace hg
