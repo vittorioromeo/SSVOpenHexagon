@@ -17,11 +17,9 @@
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
-
 #include <cassert>
 
 using namespace hg::Utils;
-
 
 namespace hg
 {
