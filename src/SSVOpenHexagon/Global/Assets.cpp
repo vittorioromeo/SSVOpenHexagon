@@ -388,7 +388,9 @@ std::pair<bool, std::string> HGAssets::reloadLevelData(
     // get the styles folder and check it exists
     const std::string path = mPath + "Levels/";
     if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
         return std::make_pair(false, "invalid level folder path\n");
+    }
 
     // reload the style data
     for(const auto& p : scanSingleByName(path, mId + ".json"))
@@ -408,7 +410,9 @@ std::string HGAssets::reloadMusicData(const std::string& mPackId,
     // get the styles folder and check it exists
     const std::string path = mPath + "Music/";
     if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
         return "invalid music folder path\n";
+    }
 
     // reload the specific music data
     for(const auto& p : scanSingleByName(path, mId + ".json"))
@@ -428,7 +432,9 @@ std::string HGAssets::reloadStyleData(const std::string& mPackId,
     // get the styles folder and check it exists
     const std::string path = mPath + "Styles/";
     if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
         return "invalid style folder path\n";
+    }
 
     // reload the style data
     for(const auto& p : scanSingleByName(path, mId + ".json"))
@@ -448,7 +454,9 @@ std::string HGAssets::reloadMusic(const std::string& mPackId,
     // get the music folder and check it exists
     const std::string path = mPath + "Music/";
     if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
         return "invalid music folder path\n";
+    }
 
     // check if this music file is already loaded
     const std::string assetId = mPackId + "_" + mId;
@@ -473,7 +481,9 @@ std::string HGAssets::reloadCustomSounds(const std::string& mPackId,
     // get the sound folder and check it exists
     const std::string path = mPath + "Sounds/";
     if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
         return "invalid custom sound folder path\n";
+    }
 
     // check if this custom sound file is already loaded
     const std::string assetId = mPackId + "_" + mId;
