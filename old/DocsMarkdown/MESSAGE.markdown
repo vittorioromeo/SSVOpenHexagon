@@ -1,4 +1,4 @@
-[http://veegamedev.wordpress.com/2012/11/20/apology-to-everyone-clarification-on-open-hexagon/](http://veegamedev.wordpress.com/2012/11/20/apology-to-everyone-clarification-on-open-hexagon/)
+[https://veegamedev.wordpress.com/2012/11/20/apology-to-everyone-clarification-on-open-hexagon/](https://veegamedev.wordpress.com/2012/11/20/apology-to-everyone-clarification-on-open-hexagon/)
 
 Hello everybody.
 

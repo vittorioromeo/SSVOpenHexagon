@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #pragma once
 
@@ -133,7 +133,7 @@ private:
 
     random_number_generator::seed_type lastSeed;
     replay_data lastReplayData;
-    double lastPlayedFrametime;
+    double lastPlayedScore;
 
     std::string restartId;
     float difficultyMult{1};
@@ -469,6 +469,7 @@ public:
 
     // Input
     [[nodiscard]] bool getInputFocused() const;
+    [[nodiscard]] float getPlayerSpeedMult() const;
     [[nodiscard]] bool getInputSwap() const;
     [[nodiscard]] int getInputMovement() const;
 

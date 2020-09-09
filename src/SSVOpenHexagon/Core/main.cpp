@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
@@ -34,18 +34,37 @@ static void createFolderIfNonExistant(const std::string& folderName)
     createFolder(path);
 }
 
-static std::vector<std::string> argsToVector(int argc, char* argv[])
+static auto parseArgs(int argc, char* argv[])
 {
     std::vector<std::string> result;
+    std::optional<std::string> cliLevelName;
+    std::optional<std::string> cliLevelPack;
 
     for(int i = 0; i < argc; ++i)
     {
+        // Find command-line pack name (to immediately run level)
+        if(!strcmp(argv[i], "-p") && i + 1 < argc)
+        {
+            ++i;
+            cliLevelPack = argv[i];
+            continue;
+        }
+
+        // Find command-line level name (to immediately run level)
+        if(!strcmp(argv[i], "-l") && i + 1 < argc)
+        {
+            ++i;
+            cliLevelName = argv[i];
+            continue;
+        }
+
         result.emplace_back(argv[i]);
     }
 
-    return result;
+    return std::make_tuple(result, cliLevelName, cliLevelPack);
 }
 
+<<<<<<< HEAD
 static std::string makeWindowTitle()
 {
     return "Open Hexagon " + std::string{hg::Config::getVersionString()} +
@@ -84,7 +103,7 @@ int main(int argc, char* argv[])
     // Discord integration
     hg::Discord::discord_manager discordManager;
 
-    const std::vector<std::string> args = argsToVector(argc, argv);
+    const auto [args, cliLevelName, cliLevelPack] = parseArgs(argc, argv);
 
     createFolderIfNonExistant("Profiles/");
     createFolderIfNonExistant("Replays/");
@@ -133,10 +152,21 @@ int main(int argc, char* argv[])
         window.setGameState(hg->getGame());
     };
 
+    const auto gotoCliLevel = [&] {
+        mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
+    };
+
     // TODO: cleanup
     if(!replayFilename.has_value())
     {
-        gotoMenu();
+        if(cliLevelPack.has_value() && cliLevelName.has_value())
+        {
+            gotoCliLevel();
+        }
+        else
+        {
+            gotoMenu();
+        }
     }
     else
     {
