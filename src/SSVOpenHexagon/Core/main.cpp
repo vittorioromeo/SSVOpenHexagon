@@ -64,7 +64,6 @@ static auto parseArgs(int argc, char* argv[])
     return std::make_tuple(result, cliLevelName, cliLevelPack);
 }
 
-<<<<<<< HEAD
 static std::string makeWindowTitle()
 {
     return "Open Hexagon " + std::string{hg::Config::getVersionString()} +
@@ -152,16 +151,12 @@ int main(int argc, char* argv[])
         window.setGameState(hg->getGame());
     };
 
-    const auto gotoCliLevel = [&] {
-        mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
-    };
-
     // TODO: cleanup
     if(!replayFilename.has_value())
     {
         if(cliLevelPack.has_value() && cliLevelName.has_value())
         {
-            gotoCliLevel();
+            mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
         }
         else
         {

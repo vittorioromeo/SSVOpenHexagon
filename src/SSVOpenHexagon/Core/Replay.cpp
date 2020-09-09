@@ -340,17 +340,17 @@ void replay_player::reset() noexcept
 {
     std::ostringstream oss;
 
-    oss << _version          //
-        << '_'               //
-        << _player_name      //
-        << '_'               //
-        << _pack_id          //
-        << '_'               //
-        << _level_id         //
-        << '_'               //
-        << _difficulty_mult  //
-        << '_'               //
-        << _played_frametime //
+    oss << _version         //
+        << '_'              //
+        << _player_name     //
+        << '_'              //
+        << _pack_id         //
+        << '_'              //
+        << _level_id        //
+        << '_'              //
+        << _difficulty_mult //
+        << '_'              //
+        << _played_score    //
         << ".ohreplay";
 
     return oss.str();
