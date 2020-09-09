@@ -93,7 +93,10 @@ private:
 
     std::vector<std::string> levelDataIds;
     std::vector<float> diffMults;
-    int currentIndex{0}, packIdx{0}, profileIdx{0}, diffMultIdx{0};
+    int currentIndex{0};
+    int packIdx{0};
+    int profileIdx{0};
+    int diffMultIdx{0};
 
     const LevelData* levelData;
     LevelStatus levelStatus;
@@ -210,14 +213,14 @@ private:
     void updateFriends();
     void initLua(Lua::LuaContext& mLua);
 
-    bool isEnteringText()
+    [[nodiscard]] bool isEnteringText()
     {
         return state == States::ETUser || state == States::ETPass ||
                state == States::ETEmail || state == States::ETLPNew ||
                state == States::ETFriend;
     }
 
-    ssvms::Menu* getCurrentMenu() noexcept
+    [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept
     {
         switch(state)
         {
@@ -231,7 +234,7 @@ private:
         }
     }
 
-    bool isInMenu() noexcept
+    [[nodiscard]] bool isInMenu() noexcept
     {
         return getCurrentMenu() != nullptr;
     }
@@ -243,9 +246,10 @@ public:
 
     void init(bool mErrored);
     void init(bool mErrored, const std::string& pack, const std::string& level);
-    void loadCommandLineLevel(const std::string& pack, const std::string& level);
+    bool loadCommandLineLevel(
+        const std::string& pack, const std::string& level);
 
-    ssvs::GameState& getGame() noexcept
+    [[nodiscard]] ssvs::GameState& getGame() noexcept
     {
         return game;
     }
