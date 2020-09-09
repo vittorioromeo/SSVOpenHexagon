@@ -193,10 +193,7 @@ void MenuGame::init(bool error, const std::string& pack, const std::string& leve
 
     Online::setForceLeaderboardRefresh(true);
 
-    if(!pack.empty() && !level.empty())
-    {
-        loadCommandLineLevel(pack, level);
-    }
+    loadCommandLineLevel(pack, level);
 }
 
 void MenuGame::initAssets()

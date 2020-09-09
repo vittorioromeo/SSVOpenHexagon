@@ -123,10 +123,18 @@ int main(int argc, char* argv[])
                 levelResult = argv[++i];
             }
         }
+
         return std::make_pair(packResult, levelResult);
     }();
 
-    mg->init(false /* mError */, packName, levelName);
+    if(!packName.empty() && !levelName.empty())
+    {
+        mg->init(false /* mError */, packName, levelName);
+    }
+    else
+    {
+        mg->init(false /* mError */);
+    }
 
     window.run();
 
