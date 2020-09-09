@@ -42,11 +42,19 @@ int main(int argc, char* argv[])
     hg::Online::setCurrentGtm(
         std::make_unique<hg::Online::GlobalThreadManager>());
 
-    const auto overrideIds = [&] {
+    const auto overrideIds = [&]
+    {
         std::vector<std::string> result;
         for(int i{0}; i < argc; ++i)
         {
-            result.emplace_back(argv[i]);
+            if(!strcmp(argv[i], "-p") || !strcmp(argv[i], "-l")) // need these later
+            {
+                i++;
+            }
+            else
+            {
+                result.emplace_back(argv[i]);
+            }
         }
         return result;
     }();
@@ -104,7 +112,35 @@ int main(int argc, char* argv[])
 
     assets->refreshVolumes();
     window.setGameState(mg->getGame());
-    mg->init(false /* mError */);
+
+    // this occurs separately because the strings get corrupted
+    // somewhere during the execution of the functions above
+    const auto [packName, levelName] = [&]
+    {
+        std::string packResult = "", levelResult = "";
+        for(int i{0}; i < argc; ++i)
+        {
+            if(!strcmp(argv[i], "-p"))
+            {
+                packResult = argv[++i];
+            }
+            else if(!strcmp(argv[i], "-l"))
+            {
+                levelResult = argv[++i];
+            }
+        }
+
+        return std::make_pair(packResult, levelResult);
+    }();
+
+    if(!packName.empty() && !levelName.empty())
+    {
+        mg->init(false /* mError */, packName, levelName);
+    }
+    else
+    {
+        mg->init(false /* mError */);
+    }
 
     window.run();
 

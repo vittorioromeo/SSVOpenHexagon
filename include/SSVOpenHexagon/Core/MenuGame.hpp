@@ -242,6 +242,8 @@ public:
         HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
 
     void init(bool mErrored);
+    void init(bool mErrored, const std::string& pack, const std::string& level);
+    void loadCommandLineLevel(const std::string& pack, const std::string& level);
 
     ssvs::GameState& getGame() noexcept
     {
