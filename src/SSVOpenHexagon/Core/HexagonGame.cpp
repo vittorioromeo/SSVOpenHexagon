@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
@@ -290,10 +290,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     lua = Lua::LuaContext{};
     initLua();
-
     runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
-    runLuaFunction<void>("onLoad");
+
     restartId = mId;
     restartFirstTime = false;
     setSides(levelStatus.sides);
@@ -597,6 +596,11 @@ void HexagonGame::setSides(unsigned int mSides)
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
     return inputFocused;
+}
+
+[[nodiscard]] float HexagonGame::getPlayerSpeedMult() const
+{
+    return levelStatus.playerSpeedMult;
 }
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const

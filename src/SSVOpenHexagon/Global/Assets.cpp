@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
@@ -23,6 +23,13 @@ namespace hg
 {
     return ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
         ssvufs::Pick::ByExt>(path, extension);
+}
+
+[[nodiscard]] static auto scanSingleByName(
+    const ssvufs::Path& path, const std::string& name)
+{
+    return ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
+        ssvufs::Pick::ByName>(path, name);
 }
 
 HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
@@ -141,16 +148,12 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
     try
     {
-        const bool hasMusicFolder =
-            ssvufs::Path{packPath + "Music/"}.exists<ssvufs::Type::Folder>();
-
-        if(!hasMusicFolder)
+        if(!ssvufs::Path{packPath + "Music/"}.exists<ssvufs::Type::Folder>())
         {
             ssvu::lo("::loadAssets")
                 << "Warning - " << packId << " has no 'Music' folder\n";
         }
-
-        if(!levelsOnly && hasMusicFolder)
+        else if(!levelsOnly)
         {
             ssvu::lo("::loadAssets") << "loading " << packId << " music\n";
             loadMusic(packId, packPath);
@@ -159,10 +162,7 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
             loadMusicData(packId, packPath);
         }
 
-        const bool hasStylesFolder =
-            ssvufs::Path{packPath + "Styles/"}.exists<ssvufs::Type::Folder>();
-
-        if(!hasStylesFolder)
+        if(!ssvufs::Path{packPath + "Styles/"}.exists<ssvufs::Type::Folder>())
         {
             ssvu::lo("::loadAssets")
                 << "Warning - " << packId << " has no 'Styles' folder\n";
@@ -173,10 +173,7 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
             loadStyleData(packId, packPath);
         }
 
-        const bool hasLevelsFolder =
-            ssvufs::Path{packPath + "Levels/"}.exists<ssvufs::Type::Folder>();
-
-        if(!hasLevelsFolder)
+        if(!ssvufs::Path{packPath + "Levels/"}.exists<ssvufs::Type::Folder>())
         {
             ssvu::lo("::loadAssets")
                 << "Warning - " << packId << " has no 'Levels' folder\n";
@@ -212,6 +209,9 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
     return true;
 }
+
+//**********************************************
+// LOAD
 
 [[nodiscard]] bool HGAssets::loadAssets()
 {
@@ -307,6 +307,10 @@ void HGAssets::loadLevelData(
         levelDatas.emplace(assetId, std::move(levelData));
     }
 }
+
+//**********************************************
+// PROFILE
+
 void HGAssets::loadLocalProfiles()
 {
     for(const auto& p : scanSingleByExt("Profiles/", ".json"))
@@ -336,6 +340,9 @@ void HGAssets::saveCurrentLocalProfile()
 
     ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
 }
+
+//**********************************************
+// GET
 
 const MusicData& SSVU_ATTRIBUTE(pure) HGAssets::getMusicData(
     const std::string& mPackId, const std::string& mId)
@@ -371,6 +378,130 @@ const StyleData& SSVU_ATTRIBUTE(pure) HGAssets::getStyleData(
     return it->second;
 }
 
+//**********************************************
+// RELOAD
+
+std::pair<bool, std::string> HGAssets::reloadLevelData(
+    const std::string& mPackId, const std::string& mPath,
+    const std::string& mId)
+{
+    // get the styles folder and check it exists
+    const std::string path = mPath + "Levels/";
+    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
+        return std::make_pair(false, "invalid level folder path\n");
+    }
+
+    // reload the style data
+    for(const auto& p : scanSingleByName(path, mId + ".json"))
+    {
+        LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
+        levelDatas.find(mPackId + "_" + mId)->second = levelData;
+        return std::make_pair(
+            true, "level data " + mId + ".json successfully loaded\n");
+    }
+
+    return std::make_pair(false, "no matching level data file found\n");
+}
+
+std::string HGAssets::reloadMusicData(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
+{
+    // get the styles folder and check it exists
+    const std::string path = mPath + "Music/";
+    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
+        return "invalid music folder path\n";
+    }
+
+    // reload the specific music data
+    for(const auto& p : scanSingleByName(path, mId + ".json"))
+    {
+        // get pointer to updated map pair
+        MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
+        musicDataMap.find(mPackId + "_" + mId)->second = musicData;
+        return "music data " + mId + ".json successfully loaded\n";
+    }
+
+    return "no matching music data file found\n";
+}
+
+std::string HGAssets::reloadStyleData(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
+{
+    // get the styles folder and check it exists
+    const std::string path = mPath + "Styles/";
+    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
+        return "invalid style folder path\n";
+    }
+
+    // reload the style data
+    for(const auto& p : scanSingleByName(path, mId + ".json"))
+    {
+        // update the value
+        StyleData styleData{ssvuj::getFromFile(p), p};
+        styleDataMap.find(mPackId + "_" + mId)->second = styleData;
+        return "style data " + mId + ".json successfully loaded\n";
+    }
+
+    return "no matching style data file found\n";
+}
+
+std::string HGAssets::reloadMusic(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
+{
+    // get the music folder and check it exists
+    const std::string path = mPath + "Music/";
+    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
+        return "invalid music folder path\n";
+    }
+
+    // check if this music file is already loaded
+    const std::string assetId = mPackId + "_" + mId;
+    if(assetManager.has<sf::Music>(assetId))
+        return "music file " + mId + ".ogg is already loaded\n";
+
+    // load the new music file
+    for(const auto& p : scanSingleByName(path, mId + ".ogg"))
+    {
+        auto& music(assetManager.load<sf::Music>(assetId, p));
+        music.setVolume(Config::getMusicVolume());
+        music.setLoop(true);
+        return "new music file " + mId + ".ogg successfully loaded\n";
+    }
+
+    return "no matching music file found\n";
+}
+
+std::string HGAssets::reloadCustomSounds(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
+{
+    // get the sound folder and check it exists
+    const std::string path = mPath + "Sounds/";
+    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    {
+        return "invalid custom sound folder path\n";
+    }
+
+    // check if this custom sound file is already loaded
+    const std::string assetId = mPackId + "_" + mId;
+    if(assetManager.has<sf::SoundBuffer>(assetId))
+        return "custom sound file " + mId + ".ogg is already loaded\n";
+
+    for(const auto& p : scanSingleByName(path, mId + ".ogg"))
+    {
+        assetManager.load<sf::SoundBuffer>(assetId, p);
+        return "new custom sound file " + mId + ".ogg successfully loaded\n";
+    }
+
+    return "no matching custom sound file found\n";
+}
+
+//**********************************************
+// LOCAL SCORE
+
 float HGAssets::getLocalScore(const std::string& mId)
 {
     return getCurrentLocalProfile().getScore(mId);
@@ -380,6 +511,9 @@ void HGAssets::setLocalScore(const std::string& mId, float mScore)
 {
     getCurrentLocalProfile().setScore(mId, mScore);
 }
+
+//**********************************************
+// LOCAL PROFILE
 
 void HGAssets::setCurrentLocalProfile(const std::string& mName)
 {
@@ -431,6 +565,9 @@ std::string HGAssets::getFirstLocalProfileName()
 {
     return begin(profileDataMap)->second.getName();
 }
+
+//**********************************************
+// SOUND
 
 void HGAssets::refreshVolumes()
 {

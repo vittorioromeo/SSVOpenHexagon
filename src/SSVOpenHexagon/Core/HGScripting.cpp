@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
@@ -415,6 +415,11 @@ void HexagonGame::initLua_LevelControl()
         "to "
         "all walls immediately, and changes apply as soon as the next wall "
         "is created.");
+
+    lsVar("PlayerSpeedMult", &LevelStatus::playerSpeedMult,
+        "Gets the speed multiplier of the player.",
+
+        "Sets the speed multiplier of the player.");
 
     lsVar("SpeedInc", &LevelStatus::speedInc,
         "Gets the speed increment of the level. This is applied every level "

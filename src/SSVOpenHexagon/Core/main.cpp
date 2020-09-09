@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Online/Online.hpp"
@@ -32,22 +32,47 @@ static void createProfilesFolder()
 
 int main(int argc, char* argv[])
 {
+    // ------------------------------------------------------------------------
     // Steam integration
     hg::Steam::steam_manager steamManager;
     steamManager.request_stats_and_achievements();
 
+    // ------------------------------------------------------------------------
     // Discord integration
     hg::Discord::discord_manager discordManager;
 
     hg::Online::setCurrentGtm(
         std::make_unique<hg::Online::GlobalThreadManager>());
 
+    // ------------------------------------------------------------------------
+    // Parse command line arguments and collect config override ids
+    std::optional<std::string> cliLevelName;
+    std::optional<std::string> cliLevelPack;
+
     const auto overrideIds = [&] {
         std::vector<std::string> result;
-        for(int i{0}; i < argc; ++i)
+
+        for(int i = 0; i < argc; ++i)
         {
+            // Find command-line pack name (to immediately run level)
+            if(!strcmp(argv[i], "-p") && i + 1 < argc)
+            {
+                ++i;
+                cliLevelPack = argv[i];
+                continue;
+            }
+
+            // Find command-line level name (to immediately run level)
+            if(!strcmp(argv[i], "-l") && i + 1 < argc)
+            {
+                ++i;
+                cliLevelName = argv[i];
+                continue;
+            }
+
             result.emplace_back(argv[i]);
         }
+
         return result;
     }();
 
@@ -80,7 +105,7 @@ int main(int argc, char* argv[])
     ssvs::GameWindow window;
     window.setTitle("Open Hexagon " +
                     std::string{hg::Config::getVersionString()} +
-                    " - by vittorio romeo - http://vittorioromeo.info");
+                    " - by vittorio romeo - https://vittorioromeo.info");
     window.setSize(hg::Config::getWidth(), hg::Config::getHeight());
     window.setPixelMult(hg::Config::getPixelMultiplier());
     window.setFullscreen(hg::Config::getFullscreen());
@@ -104,7 +129,15 @@ int main(int argc, char* argv[])
 
     assets->refreshVolumes();
     window.setGameState(mg->getGame());
-    mg->init(false /* mError */);
+
+    if(cliLevelPack.has_value() && cliLevelName.has_value())
+    {
+        mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
+    }
+    else
+    {
+        mg->init(false /* mError */);
+    }
 
     window.run();
 
