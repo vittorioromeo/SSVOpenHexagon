@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -70,12 +70,96 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         };
     window.onRecreation += [this] { refreshCamera(); };
 
-    levelDataIds =
-        assets.getLevelIdsByPack(assets.getPackInfos().at(packIdx).id);
-
-    setIndex(0);
     initMenus();
     initInput();
+
+    levelDataIds =
+        assets.getLevelIdsByPack(assets.getPackInfos().at(packIdx).id);
+    setIndex(0);
+}
+
+bool MenuGame::loadCommandLineLevel(
+    const std::string& pack, const std::string& level)
+{
+    // First find the ID of the pack with name matching the one typed by the
+    // user. `packDatas` is the only vector in assets with a data type
+    // containing the name of the pack (without it being part of the id).
+    std::string packID;
+    for(auto& d : assets.getPacksData())
+    {
+        if(d.second.name == pack)
+        {
+            packID = d.second.id;
+            break;
+        }
+    }
+
+    if(packID.empty())
+    {
+        ssvu::lo("hg::Menugame::MenuGame()")
+            << "Invalid pack name '" << pack
+            << "' command line parameter, aborting boot level load\n ";
+
+        return false;
+    }
+
+    // Iterate through packInfos to find the menu pack index and the index
+    // of the level.
+    const std::string levelID = packID + "_" + level;
+    const auto& p = assets.getPackInfos();
+    const auto& levelsList = assets.getLevelIdsByPack(packID);
+
+    for(int i = 0; i < int(p.size()); ++i)
+    {
+        // once you find the pack index search if it contains the level
+        if(packID != p.at(i).id)
+        {
+            continue;
+        }
+
+        auto it = std::find(levelsList.begin(), levelsList.end(), levelID);
+        if(it == levelsList.end())
+        {
+
+            ssvu::lo("hg::Menugame::MenuGame()")
+                << "Invalid level name '" << level
+                << "' command line parameter, aborting boot level load\n";
+
+            return false;
+        }
+
+        // Level found, initialize parameters
+        packIdx = i;
+        levelDataIds = levelsList;
+        setIndex(it - levelsList.begin());
+
+        break;
+    }
+
+    // Do the sequence of actions user would have
+    // to do manually to get to the desired level
+
+    playLocally(); // go to profile selection screen
+
+    if(state == States::ETLPNew)
+    {
+        ssvu::lo("hg::Menugame::MenuGame()")
+            << "No player profiles exist, aborting boot level load\n";
+
+        return false;
+    }
+
+    // Go to main menu
+    enteredStr = ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
+    assets.pSetCurrent(enteredStr);
+    state = States::SMain;
+
+    // Start game
+    window.setGameState(hexagonGame.getGame());
+    hexagonGame.newGame(packID, levelDataIds.at(currentIndex), true,
+        ssvu::getByModIdx(diffMults, diffMultIdx), false);
+
+    return true;
 }
 
 void MenuGame::init(bool error)
@@ -97,6 +181,31 @@ void MenuGame::init(bool error)
     }
 
     Online::setForceLeaderboardRefresh(true);
+}
+
+void MenuGame::init(
+    bool error, const std::string& pack, const std::string& level)
+{
+    steamManager.set_rich_presence_in_menu();
+    steamManager.update_hardcoded_achievements();
+
+    discordManager.set_rich_presence_in_menu();
+
+    assets.stopMusics();
+    assets.stopSounds();
+
+    if(!error)
+    {
+        assets.playSound("openHexagon.ogg");
+    }
+    else
+    {
+        assets.playSound("error.ogg");
+    }
+
+    Online::setForceLeaderboardRefresh(true);
+
+    loadCommandLineLevel(pack, level);
 }
 
 void MenuGame::initAssets()
@@ -437,9 +546,7 @@ void MenuGame::okAction()
     else if(state == States::SMain)
     {
         window.setGameState(hexagonGame.getGame());
-
         const std::string& packId = assets.getPackInfos().at(packIdx).id;
-
         hexagonGame.newGame(packId, levelDataIds.at(currentIndex), true,
             ssvu::getByModIdx(diffMults, diffMultIdx),
             false /* executeLastReplay */);
@@ -1202,7 +1309,7 @@ void MenuGame::drawLevelSelection()
 
     if(Config::getOnline())
     {
-        string versionMessage{"connecting to server..."};
+        std::string versionMessage{"connecting to server..."};
         float serverVersion{Online::getServerVersion()};
 
         if(serverVersion == -1)
@@ -1232,7 +1339,7 @@ void MenuGame::drawLevelSelection()
                            toStr(assets.getPackInfos().size()) + ")",
                 txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
-        string lbestStr;
+        std::string lbestStr;
         if(assets.pIsLocal())
         {
             SSVU_ASSERT(!diffMults.empty());
@@ -1288,7 +1395,7 @@ void MenuGame::drawLevelSelection()
         if(!assets.pIsLocal() && Online::getLoginStatus() == ols::Logged)
         {
             const auto& us(Online::getUserStats());
-            string userStats;
+            std::string userStats;
             userStats += "deaths: " + toStr(us.deaths) + "\n";
             userStats += "restarts: " + toStr(us.restarts) + "\n";
             userStats += "played: " + toStr(us.minutesSpentPlaying) + " min";
@@ -1321,29 +1428,43 @@ void MenuGame::drawLevelSelection()
         txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
     std::string packNames{"Installed packs:\n"};
+    std::string curPack;
+    std::string longestPackName;
+
     for(const auto& n : assets.getPackInfos())
     {
-        packNames += "  ";
-
         if(packData.id == n.id)
         {
-            packNames += ">>> ";
+            curPack = "  >>> ";
         }
         else
         {
-            packNames += "    ";
+            curPack = "      ";
         }
 
         const PackData& nPD{assets.getPackData(n.id)};
+        curPack += nPD.name + " (by " + nPD.author + ") [v" +
+                   std::to_string(nPD.version) + "]\n";
+        packNames.append(curPack);
 
-        packNames.append(nPD.name + " (by " + nPD.author + ") [v" +
-                         std::to_string(nPD.version) + "]\n");
+        // Width used to calculate origin should always be the longest pack name
+        // + "  >>> " otherwise the list shifts around depending on the
+        // currently selected item
+        if(curPack.length() > longestPackName.length())
+        {
+            longestPackName = curPack;
+        }
     }
 
-    Utils::uppercasify(packNames);
+    // calculate origin offset
+    Utils::uppercasify(longestPackName);
+    txtPacks.setString(longestPackName);
+    float packsWidth = getGlobalWidth(txtPacks);
 
+    // render packs list
+    Utils::uppercasify(packNames);
     txtPacks.setString(packNames);
-    txtPacks.setOrigin(getGlobalWidth(txtPacks), getGlobalHeight(txtPacks));
+    txtPacks.setOrigin(packsWidth, getGlobalHeight(txtPacks));
     txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
     txtPacks.setFillColor(styleData.getTextColor());
     render(txtPacks);

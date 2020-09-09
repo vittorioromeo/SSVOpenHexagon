@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
@@ -319,6 +319,8 @@ void HexagonGame::start()
     {
         fpsWatcher.enable();
     }
+
+    runLuaFunction<void>("onLoad");
 }
 
 void HexagonGame::updateInput()

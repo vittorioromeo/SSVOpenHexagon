@@ -11,7 +11,7 @@ function getAndBuildZlib
 		else
 			cd "${WS_DIR}"
 			mkdir ./zlib; cd ./zlib
-			curl http://zlib.net/zlib128-dll.zip > ./zlib.zip
+			curl https://zlib.net/zlib128-dll.zip > ./zlib.zip
 			unzip ./zlib.zip
 		fi
 	)
@@ -25,7 +25,7 @@ function getAndBuildLua
 		else
 			cd "${WS_DIR}"
 			mkdir ./lua; cd ./lua
-			curl http://joedf.users.sourceforge.net/luabuilds/lua-5.2.3_Win32_bin.zip > ./lua.zip
+			curl https://joedf.users.sourceforge.net/luabuilds/lua-5.2.3_Win32_bin.zip > ./lua.zip
 			unzip ./lua.zip
 		fi
 
@@ -34,7 +34,7 @@ function getAndBuildLua
 		else
 			cd "${WS_DIR}"
 			mkdir ./lua; cd ./lua
-			curl http://www.lua.org/ftp/lua-5.2.4.tar.gz > ./lua.tar.gz
+			curl https://www.lua.org/ftp/lua-5.2.4.tar.gz > ./lua.tar.gz
 			tar -xvf ./lua.tar.gz
 			cd ./lua-5.2.4/
 			cp -R ./* ../

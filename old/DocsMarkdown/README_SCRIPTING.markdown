@@ -2,9 +2,9 @@
 
 *Patterns and levels must be scripted using LUA. LUA is a versatile scripting language that allows the user to create any kind of pattern.*
 
-[http://www.lua.org/manual/5.1/manual.html](http://www.lua.org/manual/5.1/manual.html "LUA manual")
+[https://www.lua.org/manual/5.1/manual.html](https://www.lua.org/manual/5.1/manual.html "LUA manual")
 
-There are many LUA editors that can check your syntax and make you avoid typos: I use [http://sourceforge.net/projects/luaedit/](http://sourceforge.net/projects/luaedit/)
+There are many LUA editors that can check your syntax and make you avoid typos: I use [https://sourceforge.net/projects/luaedit/](https://sourceforge.net/projects/luaedit/)
 
 ----------
 
@@ -79,7 +79,7 @@ Adds an important message to the message queue.
 Gets the automatic difficulty variant multiplier.
 
 `isKeyPressed(mKey)` </br>
-Returns true if mKey is pressed. 0=A, 1=B, 3=C... (refer to [http://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php](http://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php))
+Returns true if mKey is pressed. 0=A, 1=B, 3=C... (refer to [https://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php](https://www.sfml-dev.org/documentation/2.0/classsf_1_1Keyboard.php))
 
 `isFastSpinning()` </br>
 Returns true if the game is currently doing a "fast spin".

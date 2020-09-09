@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #pragma once
 
@@ -118,6 +118,11 @@ public:
     {
         SSVU_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
         return levelDataIdsByPack.at(mPackId);
+    }
+
+    const std::unordered_map<std::string, PackData>& getPacksData()
+    {
+        return packDatas;
     }
 
     const PackData& getPackData(const std::string& mPackId)
