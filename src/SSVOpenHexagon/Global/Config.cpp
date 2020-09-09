@@ -1026,6 +1026,12 @@ typedef std::pair <setFuncTrig, Trigger> keyboardBindsConfigs;
 
 [[nodiscard]] Trigger rebindTrigger(Trigger trig, int key, int btn, int index) noexcept
 {
+    // if both slots are taken replace the first one
+    if(index >= MAX_BINDS)
+    {
+        index = 0;
+    }
+
     if(key > -1)
     {
         trig.getCombos()[index].addKey(KKey(key));
