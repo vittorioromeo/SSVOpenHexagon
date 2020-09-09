@@ -142,18 +142,25 @@ public:
     void loadMusicData(const std::string& mPackId, const ssvufs::Path& mPath);
     void loadStyleData(const std::string& mPackId, const ssvufs::Path& mPath);
     void loadLevelData(const std::string& mPackId, const ssvufs::Path& mPath);
-    void loadCustomSounds(const std::string& mPackId, const ssvufs::Path& mPath);
+    void loadCustomSounds(
+        const std::string& mPackId, const ssvufs::Path& mPath);
 
     const MusicData& getMusicData(
         const std::string& mPackId, const std::string& mId);
     const StyleData& getStyleData(
         const std::string& mPackId, const std::string& mId);
 
-    [[nodiscard]] std::pair<bool, std::string> reloadLevelData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
-    [[nodiscard]] std::string reloadMusicData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
-    [[nodiscard]] std::string reloadStyleData(const std::string& mPackId, const std::string& mPath, const std::string& mId);
-    [[nodiscard]] std::string reloadMusic(const std::string& mPackId, const std::string& mPath, const std::string& mId);
-    [[nodiscard]] std::string reloadCustomSounds(const std::string& mPackId, const std::string& mPath, const std::string& mId);
+    [[nodiscard]] std::pair<bool, std::string> reloadLevelData(
+        const std::string& mPackId, const std::string& mPath,
+        const std::string& mId);
+    [[nodiscard]] std::string reloadMusicData(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
+    [[nodiscard]] std::string reloadStyleData(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
+    [[nodiscard]] std::string reloadMusic(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
+    [[nodiscard]] std::string reloadCustomSounds(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
 
     float getLocalScore(const std::string& mId);
     void setLocalScore(const std::string& mId, float mScore);
