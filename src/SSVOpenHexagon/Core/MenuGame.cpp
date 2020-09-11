@@ -81,6 +81,19 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
+        // Scenario one: actions are blocked cause a dialog box is opened
+        if(!dialogBox.empty())
+        {
+            if(!(--noActions))
+            {
+                dialogBox.clearDialogBox();
+                game.ignoreAllInputs(false);
+                hg::Joystick::ignoreAllPresses(false);
+            }
+            return;
+        }
+
+        // Scenario two: actions are blocked cause we are using a Bind Menu Item
         KKey key = mEvent.key.code;
         if(getCurrentMenu() != nullptr && key == KKey::Escape)
         {
@@ -101,7 +114,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
 
             auto* bc = dynamic_cast<KeyboardBindControl*>(
-                &getCurrentMenu()->getItem());
+                    &getCurrentMenu()->getItem());
 
             // don't try assigning a keyboard key to a controller bind
             if(bc == nullptr)
@@ -135,11 +148,19 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            // close dialogbox after the second key release
+            if(!dialogBox.empty())
+            {
+                if(!(--noActions))
+                {
+                    dialogBox.clearDialogBox();
+                    game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
+                }
+                return;
+            }
+
             if(!(--noActions))
             {
-                dialogBox.clearDialogBox();
-
                 if(getCurrentMenu() == nullptr)
                 {
                     return;
@@ -171,11 +192,20 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
+            if(!dialogBox.empty())
+            {
+                if(!(--noActions))
+                {
+                    dialogBox.clearDialogBox();
+                    game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
+                }
+                return;
+            }
+
             // close dialogbox after the second key release
             if(!(--noActions))
             {
-                dialogBox.clearDialogBox();
-
                 if(getCurrentMenu() == nullptr)
                 {
                     return;
@@ -678,11 +708,6 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -707,11 +732,6 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -735,11 +755,6 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -759,11 +774,6 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -783,11 +793,6 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -884,11 +889,6 @@ void MenuGame::okAction()
 
 void MenuGame::eraseAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     if(isEnteringText() && !enteredStr.empty())
     {
         enteredStr.erase(enteredStr.end() - 1);
@@ -911,11 +911,6 @@ void MenuGame::eraseAction()
 
 void MenuGame::exitAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
 
     if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
@@ -941,11 +936,6 @@ void MenuGame::exitAction()
 
 void MenuGame::createProfileAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
@@ -961,11 +951,6 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
 
     if(state != States::SMain)
@@ -984,11 +969,6 @@ void MenuGame::selectProfileAction()
 
 void MenuGame::openOptionsAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
 
     if(state != States::SMain)
@@ -1001,11 +981,6 @@ void MenuGame::openOptionsAction()
 
 void MenuGame::selectPackAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     if(state == States::SMain)
     {
@@ -1067,14 +1042,7 @@ void MenuGame::initInput()
         {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
 
-    const auto handleExitInput = [this](ssvu::FT mFT) {
-        if(noActions)
-        {
-            return;
-        }
-
-        exitAction();
-    };
+    const auto handleExitInput = [this](ssvu::FT mFT) { exitAction(); };
 
     game.addInput(
         {{k::Escape}},
@@ -1095,24 +1063,12 @@ void MenuGame::initInput()
 
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) {
-            if(noActions)
-            {
-                return;
-            }
-
-            mustTakeScreenshot = true;
-        },
+        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
         t::Once, Tid::Screenshot);
 
     game.addInput(
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/) {
-                if(noActions)
-                {
-                    return;
-                }
-
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
@@ -1171,6 +1127,8 @@ void MenuGame::reloadLevelAssets()
     Utils::uppercasify(reloadOutput);
 
     dialogBox.createDialogBox(reloadOutput, 26);
+    game.ignoreAllInputs(true);
+    hg::Joystick::ignoreAllPresses(true);
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
