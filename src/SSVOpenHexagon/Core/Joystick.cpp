@@ -125,6 +125,7 @@ void ignoreAllPresses(bool ignore)
 
     getJoystickState().ignoreAllPresses = ignore;
 }
+
 void setJoystickBind(const unsigned int button, const int buttonID)
 {
     getJoystickState().joystickInputs[buttonID] = button;
