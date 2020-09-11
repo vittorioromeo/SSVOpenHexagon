@@ -407,13 +407,18 @@ void HexagonGame::updateInput()
     }
 
     // Joystick support
-    if(hg::Joystick::selectRisingEdge())
+    if(hg::Joystick::exitRisingEdge())
     {
         goToMenu();
     }
-    else if(hg::Joystick::startRisingEdge())
+    else if(hg::Joystick::forceRestartRisingEdge() ||
+            (status.hasDied && hg::Joystick::restartRisingEdge()))
     {
         status.mustStateChange = StateChange::MustRestart;
+    }
+    else if(status.hasDied && hg::Joystick::replayRisingEdge())
+    {
+        status.mustStateChange = StateChange::MustReplay;
     }
 }
 

@@ -125,23 +125,36 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         initKeyIcons();
     };
 
-    add2StateInput(game, Config::getTriggerRotateCW(), inputImplCW);
-    add2StateInput(game, Config::getTriggerRotateCCW(), inputImplCCW);
-    add2StateInput(game, Config::getTriggerFocus(), inputFocused);
-    add2StateInput(game, Config::getTriggerSwap(), inputSwap);
+    // ------------------------------------------------------------------------
+    // keyboard binds
+    Config::keyboardBindsSanityCheck();
+
+    add2StateInput(
+        game, Config::getTriggerRotateCCW(), inputImplCCW, Tid::RotateCCW);
+    add2StateInput(
+        game, Config::getTriggerRotateCW(), inputImplCW, Tid::RotateCW);
+    add2StateInput(game, Config::getTriggerFocus(), inputFocused, Tid::Focus);
+    add2StateInput(game, Config::getTriggerSwap(), inputSwap, Tid::Swap);
 
     game.addInput(
-        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); });
+        {{sf::Keyboard::Key::Escape}},
+        [this](ssvu::FT /*unused*/) { goToMenu(); }, // hardcoded
+        ssvs::Input::Type::Always);
+
+    game.addInput(
+        Config::getTriggerExit(),
+        [this](ssvu::FT /*unused*/) { goToMenu(); }, // editable
+        ssvs::Input::Type::Always, Tid::Exit);
 
     game.addInput(
         Config::getTriggerForceRestart(),
         [this](ssvu::FT /*unused*/) {
             status.mustStateChange = StateChange::MustRestart;
         },
-        ssvs::Input::Type::Once);
+        ssvs::Input::Type::Once, Tid::ForceRestart);
 
     game.addInput(
-        Config::getTriggerRestart(),
+        {{sf::Keyboard::Key::R}}, // hardcoded
         [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {
@@ -151,7 +164,17 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once);
 
     game.addInput(
-        Config::getTriggerReplay(),
+        Config::getTriggerRestart(), // editable
+        [this](ssvu::FT /*unused*/) {
+            if(status.hasDied)
+            {
+                status.mustStateChange = StateChange::MustRestart;
+            }
+        },
+        ssvs::Input::Type::Once, Tid::Restart);
+
+    game.addInput(
+        {{sf::Keyboard::Key::Y}}, // hardcoded
         [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {
@@ -161,10 +184,59 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once);
 
     game.addInput(
+        Config::getTriggerReplay(), // editable
+        [this](ssvu::FT /*unused*/) {
+            if(status.hasDied)
+            {
+                status.mustStateChange = StateChange::MustReplay;
+            }
+        },
+        ssvs::Input::Type::Once, Tid::Replay);
+
+    game.addInput(
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
-        ssvs::Input::Type::Once);
+        ssvs::Input::Type::Once, Tid::Screenshot);
 
+    // ------------------------------------------------------------------------
+    // joystick binds
+    Config::joystickBindsSanityCheck();
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickSelect(), hg::Joystick::Jid::Select);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickExit(), hg::Joystick::Jid::Exit);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickFocus(), hg::Joystick::Jid::Focus);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickSwap(), hg::Joystick::Jid::Swap);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickForceRestart(), hg::Joystick::Jid::ForceRestart);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickRestart(), hg::Joystick::Jid::Restart);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickReplay(), hg::Joystick::Jid::Replay);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickScreenshot(), hg::Joystick::Jid::Screenshot);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickOptionMenu(), hg::Joystick::Jid::OptionMenu);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickChangePack(), hg::Joystick::Jid::ChangePack);
+
+    hg::Joystick::setJoystickBind(
+        Config::getJoystickCreateProfile(), hg::Joystick::Jid::CreateProfile);
+
+    // ------------------------------------------------------------------------
+    // key icons
     initKeyIcons();
 }
 
@@ -695,7 +767,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
-    return inputFocused;
+    return inputFocused || hg::Joystick::focusPressed();
 }
 
 [[nodiscard]] float HexagonGame::getPlayerSpeedMult() const
@@ -705,7 +777,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const
 {
-    return inputSwap || hg::Joystick::aRisingEdge();
+    return inputSwap || hg::Joystick::swapRisingEdge();
 }
 
 [[nodiscard]] int HexagonGame::getInputMovement() const

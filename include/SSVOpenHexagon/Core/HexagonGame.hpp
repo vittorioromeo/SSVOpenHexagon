@@ -348,6 +348,11 @@ public:
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         ssvs::GameWindow& mGameWindow);
 
+    void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
+    {
+        game.refreshTrigger(trigger, bindID);
+    }
+
     // Gameplay methods
     void newGame(const std::string& mPackId, const std::string& mId,
         bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
