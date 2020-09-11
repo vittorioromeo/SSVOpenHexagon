@@ -13,33 +13,28 @@
 #include <string>
 
 
-namespace ssvms
+namespace hg
 {
 
-class Menu;
-class Category;
-
-namespace Items
-{
-
-class BindControlBase : public ItemBase
+class BindControlBase : public ssvms::ItemBase
 {
 protected:
     bool waitingForBind{false};
     int ID;
 
 public:
-    BindControlBase(Menu& mMenu, Category& mCategory, const std::string& mName,
-        const int mID)
-        : ItemBase(mMenu, mCategory, mName), ID{mID}
+    BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
+        const std::string& mName, const int mID)
+        : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
     {
     }
 
-    [[nodiscard]] inline virtual bool erase()
+    [[nodiscard]] virtual bool erase()
     {
         return false;
     }
-    [[nodiscard]] inline virtual bool isWaitingForBind()
+
+    [[nodiscard]] virtual bool isWaitingForBind()
     {
         return false;
     }
@@ -48,58 +43,65 @@ public:
 class KeyboardBindControl final : public BindControlBase
 {
 private:
-    using Combo = ssvs::Input::Combo;
-    using KKey = ssvs::KKey;
-    using MBtn = ssvs::MBtn;
     using Trigger = ssvs::Input::Trigger;
-    using TriggerGetter = std::function<Trigger()>;
+    using TriggerGetter = std::function<ssvs::Input::Trigger()>;
     using SizeGetter = std::function<int()>;
-    using BindReturn = std::function<std::pair<int, Trigger>(KKey, MBtn)>;
-    using Callback = std::function<void(const Trigger&, const int)>;
+    using BindReturn =
+        std::function<std::pair<int, Trigger>(ssvs::KKey, ssvs::MBtn)>;
+    using Callback =
+        std::function<void(const ssvs::Input::Trigger&, const int)>;
 
     TriggerGetter triggerGetter;
     SizeGetter sizeGetter;
     BindReturn addBind;
-    Action clearBind;
+    ssvms::Action clearBind;
     Callback callback;
 
-    [[nodiscard]] inline int getRealSize(const std::vector<Combo>& combos) const
+    [[nodiscard]] int getRealSize(
+        const std::vector<ssvs::Input::Combo>& combos) const
     {
-        int i, size = combos.size();
-        for(i = 0; i < size; ++i)
+        decltype(combos.size()) i = 0;
+        for(; i < combos.size(); ++i)
         {
-            if(combos[i].isUnbound()) break;
+            if(combos[i].isUnbound())
+            {
+                break;
+            }
         }
+
         return i;
     }
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncClear,
         typename TFuncCallback>
-    KeyboardBindControl(Menu& mMenu, Category& mCategory,
+    KeyboardBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
         TFuncClear mFuncClear, TFuncCallback mCallback, int mTriggerID)
         : BindControlBase{mMenu, mCategory, mName, mTriggerID},
-          triggerGetter{[=, this] { return mFuncGet(); }},
-          sizeGetter{
-              [=, this] { return getRealSize(triggerGetter().getCombos()); }},
-          addBind{[=, this](const ssvs::KKey setKey, const ssvs::MBtn setBtn) {
+          triggerGetter{mFuncGet}, sizeGetter{[this] {
+              return getRealSize(triggerGetter().getCombos());
+          }},
+          addBind{[this, mFuncSet](
+                      const ssvs::KKey setKey, const ssvs::MBtn setBtn) {
               return mFuncSet(setKey, setBtn, sizeGetter());
           }},
-          clearBind{[=, this] { mFuncClear(sizeGetter()); }}, callback{
-                                                                  mCallback}
+          clearBind{[this, mFuncClear] { mFuncClear(sizeGetter()); }},
+          callback{mCallback}
     {
     }
 
-    inline void exec() override
+    void exec() override
     {
         waitingForBind = !waitingForBind;
     }
-    inline bool isWaitingForBind() override
+
+    [[nodiscard]] bool isWaitingForBind() override
     {
         return waitingForBind;
     }
-    inline bool erase() override
+
+    [[nodiscard]] bool erase() override
     {
         const int size = sizeGetter();
         if(!size)
@@ -112,11 +114,14 @@ public:
         return true;
     }
 
-    inline void newKeyboardBind(const KKey key, const MBtn btn = MBtn::Left)
+    void newKeyboardBind(
+        const ssvs::KKey key, const ssvs::MBtn btn = ssvs::MBtn::Left)
     {
         // stop if the pressed key is already assigned to this bind
-        const std::vector<Combo>& Combos = triggerGetter().getCombos();
-        int size = sizeGetter();
+        const std::vector<ssvs::Input::Combo>& Combos =
+            triggerGetter().getCombos();
+
+        const int size = sizeGetter();
         if(key > ssvs::KKey::Unknown)
         {
             for(int i = 0; i < size; ++i)
@@ -157,46 +162,51 @@ public:
         waitingForBind = false;
     }
 
-    inline std::string getName() const override
+    std::string getName() const override
     {
-        const std::vector<Combo>& combos = triggerGetter().getCombos();
+        const std::vector<ssvs::Input::Combo>& combos =
+            triggerGetter().getCombos();
+
         const int size = sizeGetter();
         std::string bindNames;
-        std::bitset<102> keyBind;
-        std::bitset<6> btnBinds;
-        int i, j;
 
         // get binds in the order they have been entered
-        for(i = 0; i < size; ++i)
+        for(int i = 0; i < size; ++i)
         {
-            keyBind = combos[i].getKeys();
-            for(j = 0; j <= ssvs::KKey::KeyCount; ++j)
+            const auto keyBind = combos[i].getKeys();
+            for(int j = 0; j <= ssvs::KKey::KeyCount; ++j)
             {
-                if(keyBind[j])
+                if(!keyBind[j])
                 {
-                    if(!bindNames.empty())
-                    {
-                        bindNames += ", ";
-                    }
-                    bindNames += ssvs::getKKeyName(KKey(
-                        j - 1)); // names are shifted compared to the Key enum
-                    break;
+                    continue;
                 }
+
+                if(!bindNames.empty())
+                {
+                    bindNames += ", ";
+                }
+
+                // names are shifted compared to the Key enum
+                bindNames += ssvs::getKKeyName(ssvs::KKey(j - 1));
+                break;
             }
 
-            btnBinds = combos[i].getBtns();
-            for(j = 0; j <= MBtn::ButtonCount; ++j)
+            const auto btnBinds = combos[i].getBtns();
+            for(int j = 0; j <= ssvs::MBtn::ButtonCount; ++j)
             {
-                if(btnBinds[j])
+                if(!btnBinds[j])
                 {
-                    if(!bindNames.empty())
-                    {
-                        bindNames += ", ";
-                    }
-                    bindNames +=
-                        ssvs::getMBtnName(MBtn(j - 1)); // same as with keys
-                    break;
+                    continue;
                 }
+
+                if(!bindNames.empty())
+                {
+                    bindNames += ", ";
+                }
+
+                // same as with keys
+                bindNames += ssvs::getMBtnName(ssvs::MBtn(j - 1));
+                break;
             }
         }
 
@@ -227,28 +237,25 @@ private:
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncCallback>
-    JoystickBindControl(Menu& mMenu, Category& mCategory,
+    JoystickBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
         TFuncCallback mCallback, int mButtonID)
-        : BindControlBase{mMenu, mCategory, mName, mButtonID}, valueGetter{[=] {
-              return mFuncGet();
-          }},
-          setButton{[=, this](const int pressedButton) {
-              return mFuncSet(pressedButton);
-          }},
-          callback{mCallback}
+        : BindControlBase{mMenu, mCategory, mName, mButtonID},
+          valueGetter{mFuncGet}, setButton{mFuncSet}, callback{mCallback}
     {
     }
 
-    inline void exec() override
+    void exec() override
     {
         waitingForBind = !waitingForBind;
     }
-    inline bool isWaitingForBind() override
+
+    [[nodiscard]] bool isWaitingForBind() override
     {
         return waitingForBind;
     }
-    inline bool erase() override
+
+    [[nodiscard]] bool erase() override
     {
         if(valueGetter() == 33)
         {
@@ -261,7 +268,7 @@ public:
         return true;
     }
 
-    inline void newJoystickBind(const int joy)
+    void newJoystickBind(const int joy)
     {
         // stop if the pressed button is already assigned to this bind
         if(joy == valueGetter())
@@ -287,10 +294,10 @@ public:
         waitingForBind = false;
     }
 
-    inline std::string getName() const override
+    [[nodiscard]] std::string getName() const override
     {
         std::string bindNames;
-        unsigned int value = valueGetter();
+        const unsigned int value = valueGetter();
 
         if(value == 33)
         {
@@ -301,7 +308,7 @@ public:
 #define MS_VENDOR_ID 0x045E
 #define SONY_VENDOR_ID 0x54C
 
-            unsigned int vendorId =
+            const unsigned int vendorId =
                 sf::Joystick::isConnected(0)
                     ? sf::Joystick::getIdentification(0).vendorId
                     : 0;
@@ -330,5 +337,4 @@ public:
     }
 };
 
-} // namespace Items
-} // namespace ssvms
+} // namespace hg
