@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Core/BindControl.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
@@ -48,13 +49,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     refreshCamera();
 
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
+
     game.onDraw += [this] { draw(); };
+
     game.onEvent(Event::EventType::TextEntered) += [this](const Event& mEvent) {
         if(mEvent.text.unicode < 128)
         {
             enteredChars.emplace_back(toNum<char>(mEvent.text.unicode));
         }
     };
+
     game.onEvent(Event::EventType::MouseWheelMoved) +=
         [this](const Event& mEvent) {
             wheelProgress += mEvent.mouseWheel.delta;
@@ -70,23 +74,108 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
         };
 
-    const auto clearBoxIfActionNeeded = [this](const Event& mEvent) {
-        // don't do anything if inputs are being processed as usual
-        if(!noActions)
+    game.onEvent(Event::EventType::KeyReleased) +=
+        [this](const Event& mEvent)
         {
-            return;
-        }
-        // close dialogbox after the second key release
-        if(!(--noActions))
-        {
-            dialogBox.clearDialogBox();
-        }
-    };
-    game.onEvent(Event::EventType::KeyReleased) += clearBoxIfActionNeeded;
+            // don't do anything if inputs are being processed as usual
+            if(!noActions) { return; }
+
+            KKey key = mEvent.key.code;
+            if(key == KKey::Escape)
+            {
+                getCurrentMenu()->getItem().exec(); //turn off bind inputting
+                game.ignoreAllInputs(false);
+                hg::Joystick::ignoreAllPresses(false);
+                noActions = 0;
+                return;
+            }
+
+            if(!(--noActions))
+            {
+                dialogBox.clearDialogBox();
+
+                auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(&getCurrentMenu()->getItem());
+
+                // don't try assigning a keyboard key to a controller bind
+                if(bc == nullptr)
+                {
+                    assets.playSound("error.ogg");
+                    noActions = 1;
+                    return;
+                }
+
+                if(!isValidKeyBind(key))
+                {
+                    assets.playSound("error.ogg");
+                    noActions = 1;
+                }
+                else
+                {
+                    bc->newKeyboardBind(key);
+                    game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
+                    assets.playSound("beep.ogg");
+                }
+
+                touchDelay = 10.f;
+            }
+        };
+
     game.onEvent(Event::EventType::MouseButtonReleased) +=
-        clearBoxIfActionNeeded;
+        [this](const Event& mEvent)
+        {
+            if(!noActions) { return; }
+
+            // close dialogbox after the second key release
+            if(!(--noActions))
+            {
+                dialogBox.clearDialogBox();
+
+                auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(&getCurrentMenu()->getItem());
+
+                // don't try assigning a keyboard key to a controller bind
+                if(bc == nullptr)
+                {
+                    assets.playSound("error.ogg");
+                    noActions = 1;
+                    return;
+                }
+
+                bc->newKeyboardBind(KKey::Unknown, mEvent.mouseButton.button);
+                game.ignoreAllInputs(false);
+                hg::Joystick::ignoreAllPresses(false);
+                assets.playSound("beep.ogg");
+                touchDelay = 10.f;
+            }
+        };
+
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
-        clearBoxIfActionNeeded;
+        [this](const Event& mEvent)
+        {
+            if(!noActions) { return; }
+
+            // close dialogbox after the second key release
+            if(!(--noActions))
+            {
+                dialogBox.clearDialogBox();
+
+                auto* bc = dynamic_cast<ssvms::Items::JoystickBindControl*>(&getCurrentMenu()->getItem());
+
+                // don't try assigning a controller button to a keyboard bind
+                if(bc == nullptr)
+                {
+                    assets.playSound("error.ogg");
+                    noActions = 1;
+                    return;
+                }
+
+                bc->newJoystickBind(int(mEvent.joystickButton.button));
+                game.ignoreAllInputs(false);
+                hg::Joystick::ignoreAllPresses(false);
+                assets.playSound("beep.ogg");
+                touchDelay = 10.f;
+            }
+        };
 
     window.onRecreation += [this] { refreshCamera(); };
 
@@ -293,6 +382,8 @@ void MenuGame::initMenus()
     auto& main(optionsMenu.createCategory("options"));
     auto& friends(optionsMenu.createCategory("friends"));
     auto& play(optionsMenu.createCategory("gameplay"));
+    auto& keyboard(optionsMenu.createCategory("keyboard"));
+    auto& joystick(optionsMenu.createCategory("joystick"));
     auto& resolution(optionsMenu.createCategory("resolution"));
     auto& gfx(optionsMenu.createCategory("graphics"));
     auto& sfx(optionsMenu.createCategory("audio"));
@@ -317,6 +408,8 @@ void MenuGame::initMenus()
     main.create<i::Single>("exit game", [this] { window.stop(); });
     main.create<i::Single>("back", [this] { state = States::SMain; });
 
+
+    // Resolution
     resolution.create<i::Single>(
         "auto", [this] { Config::setCurrentResolutionAuto(window); });
 
@@ -337,6 +430,8 @@ void MenuGame::initMenus()
         "go fullscreen", [this] { Config::setFullscreen(window, true); });
     resolution.create<i::GoBack>("back");
 
+
+    //Graphics
     gfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
     gfx.create<i::Toggle>(
         "no rotation", &Config::getNoRotation, &Config::setNoRotation) |
@@ -401,6 +496,8 @@ void MenuGame::initMenus()
         0.05f);
     gfx.create<i::GoBack>("back");
 
+
+    //Sound
     sfx.create<i::Toggle>("no sound", &Config::getNoSound, &Config::setNoSound);
     sfx.create<i::Toggle>("no music", &Config::getNoMusic, &Config::setNoMusic);
     sfx.create<i::Slider>(
@@ -429,14 +526,106 @@ void MenuGame::initMenus()
         whenMusicEnabled;
     sfx.create<i::GoBack>("back");
 
+
+    //Gameplay
     play.create<i::Toggle>(
         "autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
     play.create<i::Toggle>("rotate to start", &Config::getRotateToStart,
-        &Config::setRotateToStart);
-    play.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
-        &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
+                            &Config::setRotateToStart);
+    play.create<i::Goto>("keyboard", keyboard);
+    play.create<i::Goto>("joystick", joystick);
     play.create<i::GoBack>("back");
 
+    //Keyboard binds
+    auto callBack = [this](const Trigger& trig, const int bindID)
+    {
+        game.refreshTrigger(trig, bindID);
+        hexagonGame.refreshTrigger(trig, bindID);
+    };
+
+    keyboard.create<i::KeyboardBindControl>("rotate ccw", &Config::getTriggerRotateCCW,
+                                            &Config::reassignBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW,
+                                            callBack, Tid::RotateCCW);
+    keyboard.create<i::KeyboardBindControl>("rotate cw", &Config::getTriggerRotateCW,
+                                            &Config::reassignBindTriggerRotateCW, &Config::clearBindTriggerRotateCW,
+                                            callBack, Tid::RotateCW);
+    keyboard.create<i::KeyboardBindControl>("focus", &Config::getTriggerFocus,
+                                            &Config::reassignBindTriggerFocus, &Config::clearBindTriggerFocus,
+                                            callBack, Tid::Focus);
+    keyboard.create<i::KeyboardBindControl>("exit", &Config::getTriggerExit,
+                                            &Config::reassignBindTriggerExit, &Config::clearBindTriggerExit,
+                                            callBack, Tid::Exit);
+    keyboard.create<i::KeyboardBindControl>("force restart", &Config::getTriggerForceRestart,
+                                            &Config::reassignBindTriggerForceRestart, &Config::clearBindTriggerForceRestart,
+                                            callBack, Tid::ForceRestart);
+    keyboard.create<i::KeyboardBindControl>("restart", &Config::getTriggerRestart,
+                                            &Config::reassignBindTriggerRestart, &Config::clearBindTriggerRestart,
+                                            callBack, Tid::Restart);
+    keyboard.create<i::KeyboardBindControl>("replay", &Config::getTriggerReplay,
+                                            &Config::reassignBindTriggerReplay, &Config::clearBindTriggerReplay,
+                                            callBack, Tid::Replay);
+    keyboard.create<i::KeyboardBindControl>("screenshot", &Config::getTriggerScreenshot,
+                                            &Config::reassignBindTriggerScreenshot, &Config::clearBindTriggerScreenshot,
+                                        callBack, Tid::Screenshot);
+    keyboard.create<i::KeyboardBindControl>("swap", &Config::getTriggerSwap,
+                                            &Config::reassignBindTriggerSwap, &Config::clearBindTriggerSwap,
+                                            callBack, Tid::Swap);
+    keyboard.create<i::KeyboardBindControl>("up", &Config::getTriggerUp,
+                                            &Config::reassignBindTriggerUp, &Config::clearBindTriggerUp,
+                                            callBack, Tid::Up);
+    keyboard.create<i::KeyboardBindControl>("down", &Config::getTriggerDown,
+                                            &Config::reassignBindTriggerDown, &Config::clearBindTriggerDown,
+                                            callBack, Tid::Down);
+    keyboard.create<i::GoBack>("back");
+
+    //Joystick binds
+    joystick.create<i::Slider>("joystick deadzone", &Config::getJoystickDeadzone,
+                                &Config::setJoystickDeadzone, 0.f, 100.f, 1.f);
+
+    using Jid = hg::Joystick::Jid;
+
+    auto JoystickCallBack = [this](const unsigned int button, const int buttonID)
+    {
+        hg::Joystick::setJoystickBind(button, buttonID);
+    };
+
+    joystick.create<i::JoystickBindControl>("select", &Config::getJoystickSelect,
+                                            &Config::reassignToJoystickSelect, JoystickCallBack,
+                                            Jid::Select);
+    joystick.create<i::JoystickBindControl>("exit", &Config::getJoystickExit,
+                                            &Config::reassignToJoystickExit, JoystickCallBack,
+                                            Jid::Exit);
+    joystick.create<i::JoystickBindControl>("focus", &Config::getJoystickFocus,
+                                            &Config::reassignToJoystickFocus, JoystickCallBack,
+                                            Jid::Focus);
+    joystick.create<i::JoystickBindControl>("swap", &Config::getJoystickSwap,
+                                            &Config::reassignToJoystickSwap, JoystickCallBack,
+                                            Jid::Swap);
+    joystick.create<i::JoystickBindControl>("force restart", &Config::getJoystickForceRestart,
+                                            &Config::reassignToJoystickForceRestart, JoystickCallBack,
+                                            Jid::ForceRestart);
+    joystick.create<i::JoystickBindControl>("restart", &Config::getJoystickRestart,
+                                            &Config::reassignToJoystickRestart, JoystickCallBack,
+                                            Jid::Restart);
+    joystick.create<i::JoystickBindControl>("replay", &Config::getJoystickReplay,
+                                            &Config::reassignToJoystickReplay, JoystickCallBack,
+                                            Jid::Replay);
+    joystick.create<i::JoystickBindControl>("screenshot", &Config::getJoystickScreenshot,
+                                            &Config::reassignToJoystickScreenshot, JoystickCallBack,
+                                            Jid::Screenshot);
+    joystick.create<i::JoystickBindControl>("option menu", &Config::getJoystickOptionMenu,
+                                            &Config::reassignToJoystickOptionMenu, JoystickCallBack,
+                                            Jid::OptionMenu);
+    joystick.create<i::JoystickBindControl>("change pack", &Config::getJoystickChangePack,
+                                            &Config::reassignToJoystickChangePack, JoystickCallBack,
+                                            Jid::ChangePack);
+    joystick.create<i::JoystickBindControl>("create profile", &Config::getJoystickCreateProfile,
+                                            &Config::reassignToJoystickCreateProfile, JoystickCallBack,
+                                            Jid::CreateProfile);
+    joystick.create<i::GoBack>("back");
+
+
+    //Profile
     localProfiles.create<i::Single>("change local profile", [this] {
         enteredStr = "";
         state = States::SLPSelect;
@@ -447,6 +636,8 @@ void MenuGame::initMenus()
     });
     localProfiles.create<i::GoBack>("back");
 
+
+    //Debug
     debug.create<i::Toggle>("debug mode", &Config::getDebug, &Config::setDebug);
     debug.create<i::Toggle>(
         "invincible", &Config::getInvincible, &Config::setInvincible);
@@ -454,6 +645,8 @@ void MenuGame::initMenus()
         &Config::setTimescale, 0.1f, 2.f, 0.05f);
     debug.create<i::GoBack>("back");
 
+
+    //Friends
     friends.create<i::Single>("add friend", [this] {
         enteredStr = "";
         state = States::ETFriend;
@@ -599,6 +792,18 @@ void MenuGame::okAction()
     else if(isInMenu())
     {
         getCurrentMenu()->exec();
+
+        if(state != States::MOpts) { return; }
+
+        // There are two Bind controllers: KeyboardBindControl and JoystickBindControl.
+        // So we cast to the common base class to not check for one and the other.
+        auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+        if(bc == nullptr || !bc->isWaitingForBind()) { return; }
+
+        noActions = 2;
+        game.ignoreAllInputs(true);
+        hg::Joystick::ignoreAllPresses(true);
+        touchDelay = 10.f;
     }
     else if(state == States::ETLPNew)
     {
@@ -650,6 +855,49 @@ void MenuGame::okAction()
     }
 }
 
+void MenuGame::eraseAction()
+{
+    if(isEnteringText() && !enteredStr.empty())
+    {
+        enteredStr.erase(enteredStr.end() - 1);
+    }
+    else if(state == States::MOpts && isInMenu())
+    {
+        auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+        if(bc == nullptr) { return; }
+
+        if(bc->erase())
+        {
+            assets.playSound("beep.ogg");
+        }
+        touchDelay = 10.f;
+    }
+}
+
+void MenuGame::exitAction()
+{
+    assets.playSound("beep.ogg");
+    if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
+        !assets.pIsLocal())
+    {
+        if(isInMenu())
+        {
+            if(getCurrentMenu()->canGoBack())
+            {
+                getCurrentMenu()->goBack();
+            }
+            else
+            {
+                state = States::SMain;
+            }
+        }
+        else if(state == States::ETFriend || state == States::SLPSelect)
+        {
+            state = States::SMain;
+        }
+    }
+}
+
 void MenuGame::createProfileAction()
 {
     if(noActions)
@@ -678,6 +926,7 @@ void MenuGame::selectProfileAction()
     }
 
     assets.playSound("beep.ogg");
+
     if(state != States::SMain)
     {
         return;
@@ -687,6 +936,7 @@ void MenuGame::selectProfileAction()
         state = States::MWlcm;
         return;
     }
+    assets.playSound("beep.ogg");
     enteredStr = "";
     state = States::SLPSelect;
 }
@@ -699,10 +949,12 @@ void MenuGame::openOptionsAction()
     }
 
     assets.playSound("beep.ogg");
+
     if(state != States::SMain)
     {
         return;
     }
+    assets.playSound("beep.ogg");
     state = States::MOpts;
 }
 
@@ -731,81 +983,71 @@ void MenuGame::initInput()
 
     game.addInput(
         Config::getTriggerRotateCCW(),
-        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once);
+        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, Tid::RotateCCW);
+  
     game.addInput(
         Config::getTriggerRotateCW(),
-        [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once);
+        [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once,
+        Tid::RotateCW);
+  
     game.addInput(
-        Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); },
+        {{k::Up}}, [this](ssvu::FT /*unused*/) { upAction(); }, //hardcoded
         t::Once);
+  
     game.addInput(
-        Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); },
+        Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); }, //editable
+        t::Once, Tid::Up);
+  
+    game.addInput(
+        {{k::Down}}, [this](ssvu::FT /*unused*/) { downAction(); }, //hardcoded
         t::Once);
+  
     game.addInput(
-        Config::getTriggerRestart(),
-        [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
+        Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); }, //editable
+        t::Once, Tid::Down);
+  
+    game.addInput(
+        {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); },
+        t::Once);
+  
     game.addInput(
         {{k::F1}}, [this](ssvu::FT /*unused*/) { createProfileAction(); },
         t::Once);
+  
     game.addInput(
         {{k::F2}, {k::J}},
         [this](ssvu::FT /*unused*/) { selectProfileAction(); }, t::Once);
     game.addInput(
         {{k::F3}, {k::K}}, [this](ssvu::FT /*unused*/) { openOptionsAction(); },
         t::Once);
+  
     game.addInput(
         {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
+  
     game.addInput(
-        Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) {
-            if(noActions)
-            {
-                return;
-            }
-
-            assets.playSound("beep.ogg");
-            bool valid{(assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
-                       !assets.pIsLocal()};
-            if(isInMenu() && valid)
-            {
-                if(getCurrentMenu()->canGoBack())
-                {
-                    getCurrentMenu()->goBack();
-                }
-                else
-                {
-                    state = States::SMain;
-                }
-            }
-            else if((state == States::ETFriend || state == States::SLPSelect) &&
-                    valid)
-            {
-                state = States::SMain;
-            }
-        },
+        {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, // hardcoded
         t::Once);
 
     game.addInput(
-        Config::getTriggerExit(),
-        [this](ssvu::FT mFT) {
-            if(noActions)
+            Config::getTriggerExit(),
+            [this](ssvu::FT /*unused*/) { if(noActions)
             {
                 return;
             }
-            if(state != States::MOpts) exitTimer += mFT;
-        },
-        [this](ssvu::FT /*unused*/) { exitTimer = 0; });
+                                         exitAction(); }, t::Once, Tid::Exit); // editable
+  
     game.addInput(
         Config::getTriggerScreenshot(),
         [this](ssvu::FT /*unused*/) {
-            if(noActions)
+          if(noActions)
             {
                 return;
             }
-            mustTakeScreenshot = true;
-        },
-        t::Once);
+          
+          mustTakeScreenshot = true; },
+        t::Once, Tid::Screenshot);
+
     game.addInput(
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/) {
@@ -813,20 +1055,18 @@ void MenuGame::initInput()
                 {
                     return;
                 }
+
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
             t::Once)
         .setPriorityUser(-1000);
+
     game.addInput(
         {{k::BackSpace}},
-        [this](ssvu::FT /*unused*/) {
-            if(isEnteringText() && !enteredStr.empty())
-            {
-                enteredStr.erase(enteredStr.end() - 1);
-            }
-        },
+        [this](ssvu::FT /*unused*/) { eraseAction(); },
         t::Once);
+
     game.addInput(
         {{k::F5}}, [this](ssvu::FT /*unused*/) { reloadLevelAssets(); },
         t::Once);
@@ -1238,21 +1478,30 @@ void MenuGame::update(ssvu::FT mFT)
         downAction();
     }
 
-    if(hg::Joystick::aRisingEdge())
+    if(hg::Joystick::selectRisingEdge())
     {
         okAction();
     }
-    else if(hg::Joystick::bRisingEdge())
+    else if(hg::Joystick::exitRisingEdge())
+    {
+        exitAction();
+    }
+    else if(hg::Joystick::createProfileRisingEdge())
     {
         createProfileAction();
     }
-    else if(hg::Joystick::selectRisingEdge())
+    else if(hg::Joystick::changePackRisingEdge())
     {
         selectPackAction();
     }
-    else if(hg::Joystick::startRisingEdge())
+    else if(hg::Joystick::optionMenuRisingEdge())
     {
         openOptionsAction();
+    }
+
+    if(hg::Joystick::screenshotRisingEdge())
+    {
+        mustTakeScreenshot = true;
     }
 
     if(touchDelay > 0.f)
@@ -1330,7 +1579,7 @@ void MenuGame::update(ssvu::FT mFT)
         for(const auto& c : enteredChars)
         {
             if(enteredStr.size() < limit &&
-                (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
+              (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
             {
                 assets.playSound("beep.ogg");
                 enteredStr.append(toStr(c));
@@ -1339,8 +1588,7 @@ void MenuGame::update(ssvu::FT mFT)
     }
     else if(state == States::SLPSelect)
     {
-        enteredStr =
-            ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
+        enteredStr = ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
     }
     else if(state == States::SMain)
     {
@@ -1366,9 +1614,7 @@ void MenuGame::update(ssvu::FT mFT)
     }
 
     if(state == States::ETEmail && !Online::getNewUserReg())
-    {
         state = States::SMain;
-    }
 
     enteredChars.clear();
 }

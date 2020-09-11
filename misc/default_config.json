@@ -11,14 +11,15 @@
 	"darken_uneven_background_chunk" : true,
 	"debug" : false,
 	"draw_text_outlines" : true,
-	"first_time_playing": false,
+	"first_time_playing" : false,
 	"flash_enabled" : true,
 	"fullscreen" : false,
 	"fullscreen_auto_resolution" : false,
 	"fullscreen_height" : 600,
 	"fullscreen_width" : 800,
 	"invincible" : false,
-	"key_icons_scale": 0.75,
+	"joystick_deadzone" : 5.0,
+	"key_icons_scale" : 0.750,
 	"limit_fps" : true,
 	"max_fps" : 200,
 	"mouse_visible" : false,
@@ -40,65 +41,76 @@
 	"server_local" : true,
 	"server_verbose" : true,
 	"show_fps" : false,
+	"show_key_icons" : false,
 	"show_messages" : true,
-	"show_key_icons": false,
 	"show_tracked_variables" : true,
 	"sound_volume" : 75.0,
-	"joystick_deadzone": 5.0,
-	"t_down" :
+	"t_down" : 
 	[
-		[ "kDown" ],
-		[ "kS" ]
+		[ "kS" ],
+		[ "" ]
 	],
-	"t_exit" :
+	"t_exit" : 
 	[
-		[ "kEscape" ]
+		[ "kT" ],
+		[ "" ]
 	],
-	"t_focus" :
+	"t_focus" : 
 	[
 		[ "kLShift" ],
 		[ "bXButton1" ]
 	],
-	"t_force_restart" :
+	"t_force_restart" : 
 	[
-		[ "kR" ],
-		[ "bXButton2" ]
+		[ "kG" ],
+		[ "" ]
 	],
-	"t_restart" :
+	"t_replay" : 
 	[
-		[ "kReturn" ],
-		[ "bMiddle" ]
+		[ "bMiddle" ],
+		[ "" ]
 	],
-	"t_replay" :
+	"t_restart" : 
 	[
-		[ "kY" ]
+		[ "kB" ],
+		[ "" ]
 	],
-	"t_rotate_ccw" :
+	"t_rotate_ccw" : 
 	[
 		[ "kLeft" ],
-		[ "kA" ],
-		[ "bLeft" ]
+		[ "kA" ]
 	],
-	"t_rotate_cw" :
+	"t_rotate_cw" : 
 	[
 		[ "kRight" ],
-		[ "kD" ],
-		[ "bRight" ]
+		[ "kD" ]
 	],
-	"t_screenshot" :
+	"t_screenshot" : 
 	[
-		[ "kF12" ]
+		[ "kF12" ],
+		[ "" ]
 	],
-	"t_swap" :
+	"t_swap" : 
 	[
 		[ "kSpace" ],
-		[ "bMiddle" ]
+		[ "" ]
 	],
-	"t_up" :
+	"t_up" : 
 	[
-		[ "kUp" ],
-		[ "kW" ]
+		[ "kW" ],
+		[ "" ]
 	],
+	"j_select" : 0,
+    "j_exit" : 1,
+    "j_focus" : 4,
+    "j_swap" : 5,
+    "j_force_restart" : 3,
+    "j_restart" : 2,
+    "j_replay" : 8,
+    "j_screenshot" : 9,
+    "j_optionmenu" : 7,
+    "j_changepack" : 6,
+    "j_createprofile" : 20,
 	"text_padding" : 8.0,
 	"text_scaling" : 1.0,
 	"timer_static" : true,
@@ -107,5 +119,5 @@
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 600,
 	"windowed_width" : 800,
-	"zoom_factor" : 0.8533333539962769
+	"zoom_factor" : 1.279999971389771
 }
