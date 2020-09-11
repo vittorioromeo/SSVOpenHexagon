@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
@@ -416,6 +416,11 @@ void HexagonGame::initLua_LevelControl()
         "all walls immediately, and changes apply as soon as the next wall "
         "is created.");
 
+    lsVar("PlayerSpeedMult", &LevelStatus::playerSpeedMult,
+        "Gets the speed multiplier of the player.",
+
+        "Sets the speed multiplier of the player.");
+
     lsVar("SpeedInc", &LevelStatus::speedInc,
         "Gets the speed increment of the level. This is applied every level "
         "increment to the speed multiplier. Increments are additive.",
@@ -761,6 +766,37 @@ void HexagonGame::initLua_LevelControl()
             "between ``SidesMin`` and ``SidesMax`` inclusively every level "
             "increment.");
 
+    addLuaFn("l_overrideScore", //
+        [this](const std::string& mVar) {
+            try
+            {
+                levelStatus.scoreOverride = mVar;
+                levelStatus.scoreOverridden = true;
+                // Make sure we're not passing in a string
+                lua.executeCode("if (type(" + mVar + R"( ) ~= "number") then
+								error("Score override must be a number value")
+								end)");
+            }
+            catch(const std::runtime_error& mError)
+            {
+                std::cout
+                    << "[l_overrideScore] Runtime error on overriding score "
+                    << "with level \"" << levelData->name << "\": \n"
+                    << ssvu::toStr(mError.what()) << "\n"
+                    << std::endl;
+                if(!Config::getDebug())
+                {
+                    goToMenu(false /* mSendScores */, true /* mError */);
+                }
+            };
+        })
+        .arg("variable")
+        .doc(
+            "Overrides the default scoring method and determines score based "
+            "off the value of `$0`. This allows for custom scoring in levels. "
+            "*Avoid using strings, otherwise scores won't sort properly. NOTE: "
+            "Your variable must be global for this to work.*");
+
     addLuaFn("l_addTracked", //
         [this](const std::string& mVar, std::string mName) {
             levelStatus.trackedVariables.emplace_back(mVar, mName);
@@ -770,7 +806,7 @@ void HexagonGame::initLua_LevelControl()
         .doc(
             "Add the variable `$0` to the list of tracked variables, with name "
             "`$1`. Tracked variables are displayed in game, below the game "
-            "timer.");
+            "timer. *NOTE: Your variable must be global for this to work.*");
 
     addLuaFn("l_setRotation", //
         [this](float mValue) { backgroundCamera.setRotation(mValue); })

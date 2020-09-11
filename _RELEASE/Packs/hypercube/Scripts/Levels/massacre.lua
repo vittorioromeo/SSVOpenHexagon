@@ -29,7 +29,7 @@ end
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
 keys = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }
-keys = shuffle(keys)
+shuffle(keys)
 index = 0
 achievementUnlocked = false
 
@@ -79,7 +79,7 @@ function onStep()
 
 		if index - 1 == #keys then
 			index = 1
-			keys = shuffle(keys)
+			shuffle(keys)
 		end
 	elseif special == "cage" then
 		addPattern(11)
@@ -101,7 +101,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-	specials = shuffle(specials)
+	shuffle(specials)
 
 	if special == "none" then
 		special = specials[1]

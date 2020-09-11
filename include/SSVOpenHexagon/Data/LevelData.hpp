@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #pragma once
 
@@ -32,6 +32,8 @@ public:
     bool selectable{ssvuj::getExtr<bool>(root, "selectable", true)};
     std::string musicId{
         ssvuj::getExtr<std::string>(root, "musicId", "nullMusicId")};
+    std::string soundId{
+        ssvuj::getExtr<std::string>(root, "soundId", "nullSoundId")};
     std::string styleId{
         ssvuj::getExtr<std::string>(root, "styleId", "nullStyleId")};
     ssvufs::Path luaScriptPath{
@@ -57,7 +59,12 @@ struct LevelStatus
 {
     std::vector<TrackedVariable> trackedVariables;
 
+    // Allows alternative scoring to be possible
+    bool scoreOverridden{false};
+    std::string scoreOverride;
+
     float speedMult{1.f};
+    float playerSpeedMult{1.f};
     float speedInc{0.f};
     float speedMax{0.f};
     float rotationSpeed{0.f};
@@ -92,7 +99,7 @@ struct LevelStatus
     float wallAngleRight{0.f};
     float _3dEffectMultiplier{1.f};
 
-    int cameraShake{0};
+    float cameraShake{0};
 
     unsigned int sides{6};
     unsigned int sidesMax{6};
