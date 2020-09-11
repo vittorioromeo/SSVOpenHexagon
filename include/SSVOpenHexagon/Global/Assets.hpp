@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #pragma once
 
@@ -120,6 +120,11 @@ public:
         return levelDataIdsByPack.at(mPackId);
     }
 
+    const std::unordered_map<std::string, PackData>& getPacksData()
+    {
+        return packDatas;
+    }
+
     const PackData& getPackData(const std::string& mPackId)
     {
         SSVU_ASSERT(packDatas.count(mPackId) > 0);
@@ -139,17 +144,29 @@ public:
     void loadLevelData(const std::string& mPackId, const ssvufs::Path& mPath);
     void loadCustomSounds(
         const std::string& mPackId, const ssvufs::Path& mPath);
-    void loadLocalProfiles();
-
-    void saveCurrentLocalProfile();
 
     const MusicData& getMusicData(
         const std::string& mPackId, const std::string& mId);
     const StyleData& getStyleData(
         const std::string& mPackId, const std::string& mId);
 
+    [[nodiscard]] std::pair<bool, std::string> reloadLevelData(
+        const std::string& mPackId, const std::string& mPath,
+        const std::string& mId);
+    [[nodiscard]] std::string reloadMusicData(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
+    [[nodiscard]] std::string reloadStyleData(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
+    [[nodiscard]] std::string reloadMusic(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
+    [[nodiscard]] std::string reloadCustomSounds(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
+
     float getLocalScore(const std::string& mId);
     void setLocalScore(const std::string& mId, float mScore);
+
+    void loadLocalProfiles();
+    void saveCurrentLocalProfile();
     void setCurrentLocalProfile(const std::string& mName);
     ProfileData& getCurrentLocalProfile();
     const ProfileData& getCurrentLocalProfile() const;

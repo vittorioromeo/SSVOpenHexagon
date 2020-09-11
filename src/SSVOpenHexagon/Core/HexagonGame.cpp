@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
@@ -207,7 +207,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
-    const double tempPlayedFrametime = status.getPlayedAccumulatedFrametime();
+    const double tempReplayScore = status.getCustomScore() != 0.f
+                                       ? status.getCustomScore()
+                                       : status.getPlayedAccumulatedFrametime();
     status = HexagonGameStatus{};
 
     if(!executeLastReplay)
@@ -228,7 +230,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     {
         if(!activeReplay.has_value())
         {
-            lastPlayedFrametime = tempPlayedFrametime;
+            lastPlayedScore = tempReplayScore;
         }
 
         // TODO: this can be used to speed up the replay
@@ -242,7 +244,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
             ._pack_id{mPackId},
             ._level_id{mId},
             ._difficulty_mult{mDifficultyMult},
-            ._played_frametime{lastPlayedFrametime},
+            ._played_score{lastPlayedScore},
         });
 
         activeReplay->replayPackName =
@@ -326,10 +328,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     lua = Lua::LuaContext{};
     initLua();
-
     runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
-    runLuaFunction<void>("onLoad");
+
     restartId = mId;
     restartFirstTime = false;
     setSides(levelStatus.sides);
@@ -409,7 +410,9 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 void HexagonGame::checkAndSaveScore()
 {
-    const float time = status.getTimeSeconds();
+    const float score = levelStatus.scoreOverridden
+                            ? lua.readVariable<float>(levelStatus.scoreOverride)
+                            : status.getTimeSeconds();
 
     // These are requirements that need to be met for a score to be valid
     if(!Config::isEligibleForScore())
@@ -431,9 +434,9 @@ void HexagonGame::checkAndSaveScore()
         std::string localValidator{
             getLocalValidator(levelData->id, difficultyMult)};
 
-        if(assets.getLocalScore(localValidator) < time)
+        if(assets.getLocalScore(localValidator) < score)
         {
-            assets.setLocalScore(localValidator, time);
+            assets.setLocalScore(localValidator, score);
         }
 
         assets.saveCurrentLocalProfile();
@@ -442,7 +445,7 @@ void HexagonGame::checkAndSaveScore()
     {
         // These are requirements that need to be met for a score to be sent
         // online
-        if(time < 8)
+        if(status.getTimeSeconds() < 8)
         {
             ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
                 << "Not sending score - less than 8 seconds\n";
@@ -463,7 +466,7 @@ void HexagonGame::checkAndSaveScore()
             return;
         }
 
-        Online::trySendScore(levelData->id, difficultyMult, time);
+        Online::trySendScore(levelData->id, difficultyMult, score);
     }
 }
 
@@ -631,6 +634,11 @@ void HexagonGame::setSides(unsigned int mSides)
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
     return inputFocused || hg::Joystick::focusRisingEdge();
+}
+
+[[nodiscard]] float HexagonGame::getPlayerSpeedMult() const
+{
+    return levelStatus.playerSpeedMult;
 }
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const

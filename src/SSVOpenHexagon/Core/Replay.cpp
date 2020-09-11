@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/Replay.hpp"
 
@@ -174,7 +174,7 @@ replay_player::get_current_and_move_forward() noexcept
            _pack_id == rhs._pack_id &&                 //
            _level_id == rhs._level_id &&               //
            _difficulty_mult == rhs._difficulty_mult && //
-           _played_frametime == rhs._played_frametime;
+           _played_score == rhs._played_score;
 }
 
 [[nodiscard]] bool replay_file::operator!=(
@@ -231,7 +231,7 @@ replay_player::get_current_and_move_forward() noexcept
     SSVOH_TRY(write_str(_pack_id));
     SSVOH_TRY(write_str(_level_id));
     SSVOH_TRY(write(_difficulty_mult));
-    SSVOH_TRY(write(_played_frametime));
+    SSVOH_TRY(write(_played_score));
 
     return result;
 }
@@ -277,7 +277,7 @@ replay_player::get_current_and_move_forward() noexcept
     SSVOH_TRY(read_str(_pack_id));
     SSVOH_TRY(read_str(_level_id));
     SSVOH_TRY(read(_difficulty_mult));
-    SSVOH_TRY(read(_played_frametime));
+    SSVOH_TRY(read(_played_score));
 
     return result;
 }

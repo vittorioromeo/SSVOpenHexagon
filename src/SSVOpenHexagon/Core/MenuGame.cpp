@@ -1,6 +1,6 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
+// AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -39,7 +39,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     HexagonGame& mHexagonGame, GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow)
+      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow),
+      dialogBox(mAssets, mGameWindow, styleData)
 {
     // TODO: check `Config::getFirstTimePlaying` and react accordingly
     Config::setFirstTimePlaying(false);
@@ -48,13 +49,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     refreshCamera();
 
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
+
     game.onDraw += [this] { draw(); };
+
     game.onEvent(Event::EventType::TextEntered) += [this](const Event& mEvent) {
         if(mEvent.text.unicode < 128)
         {
             enteredChars.emplace_back(toNum<char>(mEvent.text.unicode));
         }
     };
+
     game.onEvent(Event::EventType::MouseWheelMoved) +=
         [this](const Event& mEvent) {
             wheelProgress += mEvent.mouseWheel.delta;
@@ -69,6 +73,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 downAction();
             }
         };
+
     game.onEvent(Event::EventType::KeyReleased) +=
         [this](const Event& mEvent)
         {
@@ -87,6 +92,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!(--noActions))
             {
+                dialogBox.clearDialogBox();
+
                 auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(&getCurrentMenu()->getItem());
 
                 // don't try assigning a keyboard key to a controller bind
@@ -113,13 +120,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 touchDelay = 10.f;
             }
         };
+
     game.onEvent(Event::EventType::MouseButtonReleased) +=
         [this](const Event& mEvent)
         {
             if(!noActions) { return; }
 
+            // close dialogbox after the second key release
             if(!(--noActions))
             {
+                dialogBox.clearDialogBox();
+
                 auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(&getCurrentMenu()->getItem());
 
                 // don't try assigning a keyboard key to a controller bind
@@ -137,13 +148,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 touchDelay = 10.f;
             }
         };
+
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
         [this](const Event& mEvent)
         {
             if(!noActions) { return; }
 
+            // close dialogbox after the second key release
             if(!(--noActions))
             {
+                dialogBox.clearDialogBox();
+
                 auto* bc = dynamic_cast<ssvms::Items::JoystickBindControl*>(&getCurrentMenu()->getItem());
 
                 // don't try assigning a controller button to a keyboard bind
@@ -161,14 +176,99 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 touchDelay = 10.f;
             }
         };
+
     window.onRecreation += [this] { refreshCamera(); };
+
+    initMenus();
+    initInput();
 
     levelDataIds =
         assets.getLevelIdsByPack(assets.getPackInfos().at(packIdx).id);
-
     setIndex(0);
-    initMenus();
-    initInput();
+}
+
+bool MenuGame::loadCommandLineLevel(
+    const std::string& pack, const std::string& level)
+{
+    // First find the ID of the pack with name matching the one typed by the
+    // user. `packDatas` is the only vector in assets with a data type
+    // containing the name of the pack (without it being part of the id).
+    std::string packID;
+    for(auto& d : assets.getPacksData())
+    {
+        if(d.second.name == pack)
+        {
+            packID = d.second.id;
+            break;
+        }
+    }
+
+    if(packID.empty())
+    {
+        ssvu::lo("hg::Menugame::MenuGame()")
+            << "Invalid pack name '" << pack
+            << "' command line parameter, aborting boot level load\n ";
+
+        return false;
+    }
+
+    // Iterate through packInfos to find the menu pack index and the index
+    // of the level.
+    const std::string levelID = packID + "_" + level;
+    const auto& p = assets.getPackInfos();
+    const auto& levelsList = assets.getLevelIdsByPack(packID);
+
+    for(int i = 0; i < int(p.size()); ++i)
+    {
+        // once you find the pack index search if it contains the level
+        if(packID != p.at(i).id)
+        {
+            continue;
+        }
+
+        auto it = std::find(levelsList.begin(), levelsList.end(), levelID);
+        if(it == levelsList.end())
+        {
+
+            ssvu::lo("hg::Menugame::MenuGame()")
+                << "Invalid level name '" << level
+                << "' command line parameter, aborting boot level load\n";
+
+            return false;
+        }
+
+        // Level found, initialize parameters
+        packIdx = i;
+        levelDataIds = levelsList;
+        setIndex(it - levelsList.begin());
+
+        break;
+    }
+
+    // Do the sequence of actions user would have
+    // to do manually to get to the desired level
+
+    playLocally(); // go to profile selection screen
+
+    if(state == States::ETLPNew)
+    {
+        ssvu::lo("hg::Menugame::MenuGame()")
+            << "No player profiles exist, aborting boot level load\n";
+
+        return false;
+    }
+
+    // Go to main menu
+    enteredStr = ssvu::getByModIdx(assets.getLocalProfileNames(), profileIdx);
+    assets.pSetCurrent(enteredStr);
+    state = States::SMain;
+
+    // Start game
+    window.setGameState(hexagonGame.getGame());
+    hexagonGame.newGame(packID, levelDataIds.at(currentIndex), true,
+        ssvu::getByModIdx(diffMults, diffMultIdx), false);
+
+    return true;
 }
 
 void MenuGame::init(bool error)
@@ -190,6 +290,31 @@ void MenuGame::init(bool error)
     }
 
     Online::setForceLeaderboardRefresh(true);
+}
+
+void MenuGame::init(
+    bool error, const std::string& pack, const std::string& level)
+{
+    steamManager.set_rich_presence_in_menu();
+    steamManager.update_hardcoded_achievements();
+
+    discordManager.set_rich_presence_in_menu();
+
+    assets.stopMusics();
+    assets.stopSounds();
+
+    if(!error)
+    {
+        assets.playSound("openHexagon.ogg");
+    }
+    else
+    {
+        assets.playSound("error.ogg");
+    }
+
+    Online::setForceLeaderboardRefresh(true);
+
+    loadCommandLineLevel(pack, level);
 }
 
 void MenuGame::initAssets()
@@ -533,6 +658,11 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -557,6 +687,11 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -580,6 +715,11 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -599,6 +739,11 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -618,6 +763,11 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -634,9 +784,7 @@ void MenuGame::okAction()
     else if(state == States::SMain)
     {
         window.setGameState(hexagonGame.getGame());
-
         const std::string& packId = assets.getPackInfos().at(packIdx).id;
-
         hexagonGame.newGame(packId, levelDataIds.at(currentIndex), true,
             ssvu::getByModIdx(diffMults, diffMultIdx),
             false /* executeLastReplay */);
@@ -735,9 +883,13 @@ void MenuGame::exitAction()
         if(isInMenu())
         {
             if(getCurrentMenu()->canGoBack())
+            {
                 getCurrentMenu()->goBack();
+            }
             else
+            {
                 state = States::SMain;
+            }
         }
         else if(state == States::ETFriend || state == States::SLPSelect)
         {
@@ -748,6 +900,11 @@ void MenuGame::exitAction()
 
 void MenuGame::createProfileAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
@@ -763,6 +920,13 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
+    assets.playSound("beep.ogg");
+
     if(state != States::SMain)
     {
         return;
@@ -779,6 +943,13 @@ void MenuGame::selectProfileAction()
 
 void MenuGame::openOptionsAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
+    assets.playSound("beep.ogg");
+
     if(state != States::SMain)
     {
         return;
@@ -789,6 +960,11 @@ void MenuGame::openOptionsAction()
 
 void MenuGame::selectPackAction()
 {
+    if(noActions)
+    {
+        return;
+    }
+
     assets.playSound("beep.ogg");
     if(state == States::SMain)
     {
@@ -808,59 +984,137 @@ void MenuGame::initInput()
     game.addInput(
         Config::getTriggerRotateCCW(),
         [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, Tid::RotateCCW);
+  
     game.addInput(
         Config::getTriggerRotateCW(),
         [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once,
         Tid::RotateCW);
+  
     game.addInput(
         {{k::Up}}, [this](ssvu::FT /*unused*/) { upAction(); }, //hardcoded
         t::Once);
+  
     game.addInput(
         Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); }, //editable
         t::Once, Tid::Up);
+  
     game.addInput(
         {{k::Down}}, [this](ssvu::FT /*unused*/) { downAction(); }, //hardcoded
         t::Once);
+  
     game.addInput(
         Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); }, //editable
         t::Once, Tid::Down);
+  
     game.addInput(
         {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); },
         t::Once);
+  
     game.addInput(
         {{k::F1}}, [this](ssvu::FT /*unused*/) { createProfileAction(); },
         t::Once);
+  
     game.addInput(
         {{k::F2}, {k::J}},
         [this](ssvu::FT /*unused*/) { selectProfileAction(); }, t::Once);
     game.addInput(
         {{k::F3}, {k::K}}, [this](ssvu::FT /*unused*/) { openOptionsAction(); },
         t::Once);
+  
     game.addInput(
         {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
+  
     game.addInput(
         {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, // hardcoded
         t::Once);
+
     game.addInput(
             Config::getTriggerExit(),
-            [this](ssvu::FT /*unused*/) { exitAction(); }, t::Once, Tid::Exit); // editable
+            [this](ssvu::FT /*unused*/) { if(noActions)
+            {
+                return;
+            }
+                                         exitAction(); }, t::Once, Tid::Exit); // editable
+  
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
+        [this](ssvu::FT /*unused*/) {
+          if(noActions)
+            {
+                return;
+            }
+          
+          mustTakeScreenshot = true; },
         t::Once, Tid::Screenshot);
+
     game.addInput(
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/) {
+                if(noActions)
+                {
+                    return;
+                }
+
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
             t::Once)
         .setPriorityUser(-1000);
+
     game.addInput(
         {{k::BackSpace}},
         [this](ssvu::FT /*unused*/) { eraseAction(); },
         t::Once);
+
+    game.addInput(
+        {{k::F5}}, [this](ssvu::FT /*unused*/) { reloadLevelAssets(); },
+        t::Once);
+}
+
+void MenuGame::reloadLevelAssets()
+{
+    if(state != States::SMain || !dialogBox.empty() || !Config::getDebug())
+    {
+        return;
+    }
+
+    // needs to be two because the dialog box reacts to key releases.
+    // First key release is the one of the key press that made the dialog
+    // box pop up, the second one belongs to the key press that closes it
+    noActions = 2;
+    assets.playSound("beep.ogg");
+
+    auto [success, reloadOutput] = assets.reloadLevelData(
+        levelData->packId, levelData->packPath, levelData->id);
+
+    if(success)
+    {
+        setIndex(currentIndex); // loads the new levelData
+
+        reloadOutput += assets.reloadMusicData(
+            levelData->packId, levelData->packPath, levelData->musicId);
+
+        reloadOutput += assets.reloadStyleData(
+            levelData->packId, levelData->packPath, levelData->styleId);
+
+        if(levelData->musicId != "nullMusicId")
+        {
+            reloadOutput += assets.reloadMusic(
+                levelData->packId, levelData->packPath, levelData->musicId);
+        }
+
+        if(levelData->soundId != "nullSoundId")
+        {
+            reloadOutput += assets.reloadCustomSounds(
+                levelData->packId, levelData->packPath, levelData->soundId);
+        }
+    }
+
+    reloadOutput += "\npress any key to close this message\n";
+    Utils::uppercasify(reloadOutput);
+
+    dialogBox.createDialogBox(reloadOutput, 26);
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -913,23 +1167,27 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueIncrement", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un : {"l_setSpeedMult", "l_setSpeedInc", "l_setSpeedMax",
-            "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin", "l_setDelayMax",
-            "l_getDelayMax", "l_setRotationSpeedMax", "l_setRotationSpeedInc",
-            "l_setDelayInc", "l_setFastSpin", "l_setSidesMin", "l_setSidesMax",
-            "l_setIncTime", "l_setPulseMin", "l_setPulseMax", "l_setPulseSpeed",
-            "l_setPulseSpeedR", "l_setPulseDelayMax", "l_setBeatPulseMax",
-            "l_setBeatPulseDelayMax", "l_setBeatPulseInitialDelay",
-            "l_setBeatPulseSpeedMult", "l_getBeatPulseInitialDelay",
-            "l_getBeatPulseSpeedMult", "l_setWallSkewLeft",
-            "l_setWallSkewRight", "l_setWallAngleLeft", "l_setWallAngleRight",
-            "l_setRadiusMin", "l_setSwapEnabled", "l_setTutorialMode",
-            "l_setIncEnabled", "l_get3dRequired", "l_enableRndSideChanges",
-            "l_setDarkenUnevenBackgroundChunk",
+    for(const auto& un :
+        {"l_setSpeedMult", "l_setPlayerSpeedMult", "l_setSpeedInc",
+            "l_setSpeedMax", "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin",
+            "l_setDelayMax", "l_getDelayMax", "l_setRotationSpeedMax",
+            "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
+            "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
+            "l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR",
+            "l_setPulseDelayMax", "l_setBeatPulseMax", "l_setBeatPulseDelayMax",
+            "l_setBeatPulseInitialDelay", "l_setBeatPulseSpeedMult",
+            "l_getBeatPulseInitialDelay", "l_getBeatPulseSpeedMult",
+            "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
+            "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
+            "l_setTutorialMode", "l_setIncEnabled", "l_get3dRequired",
+            "l_enableRndSideChanges", "l_setDarkenUnevenBackgroundChunk",
             "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult",
-            "l_getDelayMult", "l_addTracked", "l_getRotation", "l_setRotation",
-            "l_setDelayMult", "l_getOfficial", "l_getSwapCooldownMult",
-            "l_setSwapCooldownMult",
+
+            "l_getPlayerSpeedMult", "l_getDelayMult", "l_addTracked",
+            "l_getRotation", "l_setRotation", "l_setDelayMult", "l_getOfficial",
+            "l_overrideScore",
+
+            "l_getSwapCooldownMult", "l_setSwapCooldownMult",
 
             "u_playSound", "u_isKeyPressed", "u_isMouseButtonPressed",
             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
@@ -1007,6 +1265,7 @@ void MenuGame::setIndex(int mIdx)
                   << levelData->name << "\": \n"
                   << ssvu::toStr(mError.what()) << "\n"
                   << std::endl;
+
         if(!Config::getDebug())
         {
             assets.playSound("error.ogg");
@@ -1419,6 +1678,11 @@ void MenuGame::draw()
     {
         window.setMouseCursorVisible(hg::Config::getMouseVisible());
     }
+
+    if(!dialogBox.empty())
+    {
+        dialogBox.drawDialogBox();
+    }
 }
 
 void MenuGame::drawLevelSelection()
@@ -1431,7 +1695,7 @@ void MenuGame::drawLevelSelection()
 
     if(Config::getOnline())
     {
-        string versionMessage{"connecting to server..."};
+        std::string versionMessage{"connecting to server..."};
         float serverVersion{Online::getServerVersion()};
 
         if(serverVersion == -1)
@@ -1461,7 +1725,7 @@ void MenuGame::drawLevelSelection()
                            toStr(assets.getPackInfos().size()) + ")",
                 txtProf, {20.f, getGlobalBottom(profile) - 7.f}, 18);
 
-        string lbestStr;
+        std::string lbestStr;
         if(assets.pIsLocal())
         {
             SSVU_ASSERT(!diffMults.empty());
@@ -1517,7 +1781,7 @@ void MenuGame::drawLevelSelection()
         if(!assets.pIsLocal() && Online::getLoginStatus() == ols::Logged)
         {
             const auto& us(Online::getUserStats());
-            string userStats;
+            std::string userStats;
             userStats += "deaths: " + toStr(us.deaths) + "\n";
             userStats += "restarts: " + toStr(us.restarts) + "\n";
             userStats += "played: " + toStr(us.minutesSpentPlaying) + " min";
@@ -1550,29 +1814,43 @@ void MenuGame::drawLevelSelection()
         txtLMus, {20.f, getGlobalTop(lname) - 30.f});
 
     std::string packNames{"Installed packs:\n"};
+    std::string curPack;
+    std::string longestPackName;
+
     for(const auto& n : assets.getPackInfos())
     {
-        packNames += "  ";
-
         if(packData.id == n.id)
         {
-            packNames += ">>> ";
+            curPack = "  >>> ";
         }
         else
         {
-            packNames += "    ";
+            curPack = "      ";
         }
 
         const PackData& nPD{assets.getPackData(n.id)};
+        curPack += nPD.name + " (by " + nPD.author + ") [v" +
+                   std::to_string(nPD.version) + "]\n";
+        packNames.append(curPack);
 
-        packNames.append(nPD.name + " (by " + nPD.author + ") [v" +
-                         std::to_string(nPD.version) + "]\n");
+        // Width used to calculate origin should always be the longest pack name
+        // + "  >>> " otherwise the list shifts around depending on the
+        // currently selected item
+        if(curPack.length() > longestPackName.length())
+        {
+            longestPackName = curPack;
+        }
     }
 
-    Utils::uppercasify(packNames);
+    // calculate origin offset
+    Utils::uppercasify(longestPackName);
+    txtPacks.setString(longestPackName);
+    float packsWidth = getGlobalWidth(txtPacks);
 
+    // render packs list
+    Utils::uppercasify(packNames);
     txtPacks.setString(packNames);
-    txtPacks.setOrigin(getGlobalWidth(txtPacks), getGlobalHeight(txtPacks));
+    txtPacks.setOrigin(packsWidth, getGlobalHeight(txtPacks));
     txtPacks.setPosition({w - 20.f, getGlobalTop(bottomBar) - 15.f});
     txtPacks.setFillColor(styleData.getTextColor());
     render(txtPacks);

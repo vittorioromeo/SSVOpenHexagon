@@ -1,7 +1,7 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
-// AFL License page: http://opensource.org/licenses/AFL-3.0
-// Fork of: http://jsoncpp.sourceforge.net/
+// AFL License page: https://opensource.org/licenses/AFL-3.0
+// Fork of: https://jsoncpp.sourceforge.net/
 
 #ifndef SSVUJ_OH_JSONCPP_JSON
 #define SSVUJ_OH_JSONCPP_JSON
