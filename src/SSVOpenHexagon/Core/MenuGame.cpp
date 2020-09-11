@@ -100,7 +100,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(
+            auto* bc = dynamic_cast<KeyboardBindControl*>(
                 &getCurrentMenu()->getItem());
 
             // don't try assigning a keyboard key to a controller bind
@@ -145,7 +145,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(
+                auto* bc = dynamic_cast<KeyboardBindControl*>(
                     &getCurrentMenu()->getItem());
 
                 // don't try assigning a keyboard key to a controller bind
@@ -181,7 +181,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                auto* bc = dynamic_cast<ssvms::Items::JoystickBindControl*>(
+                auto* bc = dynamic_cast<JoystickBindControl*>(
                     &getCurrentMenu()->getItem());
 
                 // don't try assigning a controller button to a keyboard bind
@@ -565,38 +565,38 @@ void MenuGame::initMenus()
         hexagonGame.refreshTrigger(trig, bindID);
     };
 
-    keyboard.create<i::KeyboardBindControl>("rotate ccw",
+    keyboard.create<KeyboardBindControl>("rotate ccw",
         &Config::getTriggerRotateCCW, &Config::reassignBindTriggerRotateCCW,
         &Config::clearBindTriggerRotateCCW, callBack, Tid::RotateCCW);
-    keyboard.create<i::KeyboardBindControl>("rotate cw",
+    keyboard.create<KeyboardBindControl>("rotate cw",
         &Config::getTriggerRotateCW, &Config::reassignBindTriggerRotateCW,
         &Config::clearBindTriggerRotateCW, callBack, Tid::RotateCW);
-    keyboard.create<i::KeyboardBindControl>("focus", &Config::getTriggerFocus,
+    keyboard.create<KeyboardBindControl>("focus", &Config::getTriggerFocus,
         &Config::reassignBindTriggerFocus, &Config::clearBindTriggerFocus,
         callBack, Tid::Focus);
-    keyboard.create<i::KeyboardBindControl>("exit", &Config::getTriggerExit,
+    keyboard.create<KeyboardBindControl>("exit", &Config::getTriggerExit,
         &Config::reassignBindTriggerExit, &Config::clearBindTriggerExit,
         callBack, Tid::Exit);
-    keyboard.create<i::KeyboardBindControl>("force restart",
+    keyboard.create<KeyboardBindControl>("force restart",
         &Config::getTriggerForceRestart,
         &Config::reassignBindTriggerForceRestart,
         &Config::clearBindTriggerForceRestart, callBack, Tid::ForceRestart);
-    keyboard.create<i::KeyboardBindControl>("restart",
-        &Config::getTriggerRestart, &Config::reassignBindTriggerRestart,
-        &Config::clearBindTriggerRestart, callBack, Tid::Restart);
-    keyboard.create<i::KeyboardBindControl>("replay", &Config::getTriggerReplay,
+    keyboard.create<KeyboardBindControl>("restart", &Config::getTriggerRestart,
+        &Config::reassignBindTriggerRestart, &Config::clearBindTriggerRestart,
+        callBack, Tid::Restart);
+    keyboard.create<KeyboardBindControl>("replay", &Config::getTriggerReplay,
         &Config::reassignBindTriggerReplay, &Config::clearBindTriggerReplay,
         callBack, Tid::Replay);
-    keyboard.create<i::KeyboardBindControl>("screenshot",
+    keyboard.create<KeyboardBindControl>("screenshot",
         &Config::getTriggerScreenshot, &Config::reassignBindTriggerScreenshot,
         &Config::clearBindTriggerScreenshot, callBack, Tid::Screenshot);
-    keyboard.create<i::KeyboardBindControl>("swap", &Config::getTriggerSwap,
+    keyboard.create<KeyboardBindControl>("swap", &Config::getTriggerSwap,
         &Config::reassignBindTriggerSwap, &Config::clearBindTriggerSwap,
         callBack, Tid::Swap);
-    keyboard.create<i::KeyboardBindControl>("up", &Config::getTriggerUp,
+    keyboard.create<KeyboardBindControl>("up", &Config::getTriggerUp,
         &Config::reassignBindTriggerUp, &Config::clearBindTriggerUp, callBack,
         Tid::Up);
-    keyboard.create<i::KeyboardBindControl>("down", &Config::getTriggerDown,
+    keyboard.create<KeyboardBindControl>("down", &Config::getTriggerDown,
         &Config::reassignBindTriggerDown, &Config::clearBindTriggerDown,
         callBack, Tid::Down);
     keyboard.create<i::GoBack>("back");
@@ -613,35 +613,32 @@ void MenuGame::initMenus()
         hg::Joystick::setJoystickBind(button, buttonID);
     };
 
-    joystick.create<i::JoystickBindControl>("select",
-        &Config::getJoystickSelect, &Config::reassignToJoystickSelect,
-        JoystickCallBack, Jid::Select);
-    joystick.create<i::JoystickBindControl>("exit", &Config::getJoystickExit,
+    joystick.create<JoystickBindControl>("select", &Config::getJoystickSelect,
+        &Config::reassignToJoystickSelect, JoystickCallBack, Jid::Select);
+    joystick.create<JoystickBindControl>("exit", &Config::getJoystickExit,
         &Config::reassignToJoystickExit, JoystickCallBack, Jid::Exit);
-    joystick.create<i::JoystickBindControl>("focus", &Config::getJoystickFocus,
+    joystick.create<JoystickBindControl>("focus", &Config::getJoystickFocus,
         &Config::reassignToJoystickFocus, JoystickCallBack, Jid::Focus);
-    joystick.create<i::JoystickBindControl>("swap", &Config::getJoystickSwap,
+    joystick.create<JoystickBindControl>("swap", &Config::getJoystickSwap,
         &Config::reassignToJoystickSwap, JoystickCallBack, Jid::Swap);
-    joystick.create<i::JoystickBindControl>("force restart",
+    joystick.create<JoystickBindControl>("force restart",
         &Config::getJoystickForceRestart,
         &Config::reassignToJoystickForceRestart, JoystickCallBack,
         Jid::ForceRestart);
-    joystick.create<i::JoystickBindControl>("restart",
-        &Config::getJoystickRestart, &Config::reassignToJoystickRestart,
-        JoystickCallBack, Jid::Restart);
-    joystick.create<i::JoystickBindControl>("replay",
-        &Config::getJoystickReplay, &Config::reassignToJoystickReplay,
-        JoystickCallBack, Jid::Replay);
-    joystick.create<i::JoystickBindControl>("screenshot",
+    joystick.create<JoystickBindControl>("restart", &Config::getJoystickRestart,
+        &Config::reassignToJoystickRestart, JoystickCallBack, Jid::Restart);
+    joystick.create<JoystickBindControl>("replay", &Config::getJoystickReplay,
+        &Config::reassignToJoystickReplay, JoystickCallBack, Jid::Replay);
+    joystick.create<JoystickBindControl>("screenshot",
         &Config::getJoystickScreenshot, &Config::reassignToJoystickScreenshot,
         JoystickCallBack, Jid::Screenshot);
-    joystick.create<i::JoystickBindControl>("option menu",
+    joystick.create<JoystickBindControl>("option menu",
         &Config::getJoystickOptionMenu, &Config::reassignToJoystickOptionMenu,
         JoystickCallBack, Jid::OptionMenu);
-    joystick.create<i::JoystickBindControl>("change pack",
+    joystick.create<JoystickBindControl>("change pack",
         &Config::getJoystickChangePack, &Config::reassignToJoystickChangePack,
         JoystickCallBack, Jid::ChangePack);
-    joystick.create<i::JoystickBindControl>("create profile",
+    joystick.create<JoystickBindControl>("create profile",
         &Config::getJoystickCreateProfile,
         &Config::reassignToJoystickCreateProfile, JoystickCallBack,
         Jid::CreateProfile);
@@ -824,8 +821,7 @@ void MenuGame::okAction()
         // There are two Bind controllers: KeyboardBindControl and
         // JoystickBindControl. So we cast to the common base class to not check
         // for one and the other.
-        auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(
-            &getCurrentMenu()->getItem());
+        auto* bc = dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem());
         if(bc == nullptr || !bc->isWaitingForBind())
         {
             return;
@@ -899,8 +895,7 @@ void MenuGame::eraseAction()
     }
     else if(state == States::MOpts && isInMenu())
     {
-        auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(
-            &getCurrentMenu()->getItem());
+        auto* bc = dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem());
         if(bc == nullptr)
         {
             return;

@@ -882,7 +882,7 @@ bool SSVU_ATTRIBUTE(pure) getFirstTimePlaying()
     for(auto& b : combos)
     {
         bool alreadyBound = false;
-        const std::bitset<102>& keys = b.getKeys();
+        const auto& keys = b.getKeys();
         for(i = 0; i < int(kKeyCount); ++i)
         {
             keyBind = KKey(i);
@@ -914,7 +914,7 @@ bool SSVU_ATTRIBUTE(pure) getFirstTimePlaying()
             continue;
         }
 
-        const std::bitset<6>& btns = b.getBtns();
+        const auto& btns = b.getBtns();
         for(i = 0; i < int(mBtnCount); ++i)
         {
             btnBind = MBtn(i);
