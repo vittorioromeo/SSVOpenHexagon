@@ -117,10 +117,11 @@ void ignoreAllPresses(bool ignore)
     // If xxxWasPressed values are true all new presses return false.
     // Placed here to not be reiterated every update() cycle.
     s.leftWasPressed = s.rightWasPressed = s.upWasPressed = s.downWasPressed =
-    s.selectWasPressed = s.exitWasPressed = s.focusWasPressed = s.swapWasPressed =
-    s.forceRestartWasPressed = s.restartWasPressed = s.replayWasPressed =
-    s.screenshotWasPressed = s.changePackWasPressed = s.optionMenuWasPressed =
-    s.createProfileWasPressed = ignore;
+        s.selectWasPressed = s.exitWasPressed = s.focusWasPressed =
+            s.swapWasPressed = s.forceRestartWasPressed = s.restartWasPressed =
+                s.replayWasPressed = s.screenshotWasPressed =
+                    s.changePackWasPressed = s.optionMenuWasPressed =
+                        s.createProfileWasPressed = ignore;
 
     getJoystickState().ignoreAllPresses = ignore;
 }
@@ -163,7 +164,10 @@ void update()
     auto& s = getJoystickState();
 
     // all presses are being ignored, try again later
-    if(s.ignoreAllPresses) { return; }
+    if(s.ignoreAllPresses)
+    {
+        return;
+    }
 
     const auto dpadXIs = [&](const AxisDir axisDir) {
         return axisPressed(joyId, sf::Joystick::Axis::PovX) == axisDir;
@@ -194,49 +198,43 @@ void update()
     s.upWasPressed = std::exchange(s.upPressed, yIs(AxisDir::Right));
     s.downWasPressed = std::exchange(s.downPressed, yIs(AxisDir::Left));
 
-    s.selectWasPressed =
-        std::exchange(s.selectPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Select]));
+    s.selectWasPressed = std::exchange(s.selectPressed,
+        sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Select]));
 
-    s.exitWasPressed =
-        std::exchange(s.exitPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Exit]));
+    s.exitWasPressed = std::exchange(s.exitPressed,
+        sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Exit]));
 
-    s.focusWasPressed =
-        std::exchange(s.focusPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Focus]));
+    s.focusWasPressed = std::exchange(s.focusPressed,
+        sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Focus]));
 
-    s.swapWasPressed =
-        std::exchange(s.swapPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Swap]));
+    s.swapWasPressed = std::exchange(s.swapPressed,
+        sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Swap]));
 
-    s.forceRestartWasPressed =
-        std::exchange(s.forceRestartPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::ForceRestart]));
+    s.forceRestartWasPressed = std::exchange(
+        s.forceRestartPressed, sf::Joystick::isButtonPressed(
+                                   joyId, s.joystickInputs[Jid::ForceRestart]));
 
-    s.restartWasPressed =
-        std::exchange(s.restartPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Restart]));
+    s.restartWasPressed = std::exchange(s.restartPressed,
+        sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Restart]));
 
-    s.replayWasPressed =
-        std::exchange(s.replayPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Replay]));
+    s.replayWasPressed = std::exchange(s.replayPressed,
+        sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Replay]));
 
-    s.screenshotWasPressed =
-        std::exchange(s.screenshotPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Screenshot]));
+    s.screenshotWasPressed = std::exchange(
+        s.screenshotPressed, sf::Joystick::isButtonPressed(
+                                 joyId, s.joystickInputs[Jid::Screenshot]));
 
-    s.changePackWasPressed =
-        std::exchange(s.changePackPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::ChangePack]));
+    s.changePackWasPressed = std::exchange(
+        s.changePackPressed, sf::Joystick::isButtonPressed(
+                                 joyId, s.joystickInputs[Jid::ChangePack]));
 
-    s.optionMenuWasPressed =
-        std::exchange(s.optionMenuPressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::OptionMenu]));
+    s.optionMenuWasPressed = std::exchange(
+        s.optionMenuPressed, sf::Joystick::isButtonPressed(
+                                 joyId, s.joystickInputs[Jid::OptionMenu]));
 
-    s.createProfileWasPressed =
-        std::exchange(s.createProfilePressed,
-            sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::CreateProfile]));
+    s.createProfileWasPressed = std::exchange(
+        s.createProfilePressed, sf::Joystick::isButtonPressed(joyId,
+                                    s.joystickInputs[Jid::CreateProfile]));
 }
 
 
@@ -246,8 +244,7 @@ void update()
 }
 [[nodiscard]] bool leftRisingEdge()
 {
-    return getJoystickState().leftPressed &&
-           !getJoystickState().leftWasPressed;
+    return getJoystickState().leftPressed && !getJoystickState().leftWasPressed;
 }
 
 
@@ -268,8 +265,7 @@ void update()
 }
 [[nodiscard]] bool upRisingEdge()
 {
-    return getJoystickState().upPressed &&
-           !getJoystickState().upWasPressed;
+    return getJoystickState().upPressed && !getJoystickState().upWasPressed;
 }
 
 
@@ -279,8 +275,7 @@ void update()
 }
 [[nodiscard]] bool downRisingEdge()
 {
-    return getJoystickState().downPressed &&
-           !getJoystickState().downWasPressed;
+    return getJoystickState().downPressed && !getJoystickState().downWasPressed;
 }
 
 
@@ -301,8 +296,7 @@ void update()
 }
 [[nodiscard]] bool exitRisingEdge()
 {
-    return getJoystickState().exitPressed &&
-           !getJoystickState().exitWasPressed;
+    return getJoystickState().exitPressed && !getJoystickState().exitWasPressed;
 }
 
 
@@ -323,8 +317,7 @@ void update()
 }
 [[nodiscard]] bool swapRisingEdge()
 {
-    return getJoystickState().swapPressed &&
-           !getJoystickState().swapWasPressed;
+    return getJoystickState().swapPressed && !getJoystickState().swapWasPressed;
 }
 
 [[nodiscard]] bool forceRestartPressed()

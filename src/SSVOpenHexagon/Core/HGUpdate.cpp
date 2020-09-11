@@ -425,11 +425,18 @@ void HexagonGame::updateInput()
 
     // Joystick support
     if(hg::Joystick::exitRisingEdge())
+    {
         goToMenu();
-    else if(hg::Joystick::forceRestartRisingEdge() || (status.hasDied && hg::Joystick::restartRisingEdge()))
+    }
+    else if(hg::Joystick::forceRestartRisingEdge() ||
+            (status.hasDied && hg::Joystick::restartRisingEdge()))
+    {
         status.mustStateChange = StateChange::MustRestart;
+    }
     else if(status.hasDied && hg::Joystick::replayRisingEdge())
+    {
         status.mustStateChange = StateChange::MustReplay;
+    }
 }
 
 void HexagonGame::updateEvents(ssvu::FT)
