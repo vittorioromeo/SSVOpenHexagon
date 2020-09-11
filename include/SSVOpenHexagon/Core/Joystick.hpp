@@ -7,7 +7,27 @@
 namespace hg::Joystick
 {
 
+enum Jid
+{
+    Unknown = -1,
+    Select = 0,
+    Exit,
+    Focus,
+    Swap,
+    ForceRestart,
+    Restart,
+    Replay,
+    Screenshot,
+    OptionMenu,
+    ChangePack,
+    CreateProfile,
+    JoystickBindsCount
+};
+
 void update();
+
+void ignoreAllPresses(bool ignore);
+void setJoystickBind(const unsigned int button, const int buttonID);
 
 [[nodiscard]] bool leftPressed();
 [[nodiscard]] bool leftRisingEdge();
@@ -24,13 +44,34 @@ void update();
 [[nodiscard]] bool selectPressed();
 [[nodiscard]] bool selectRisingEdge();
 
-[[nodiscard]] bool startPressed();
-[[nodiscard]] bool startRisingEdge();
+[[nodiscard]] bool exitPressed();
+[[nodiscard]] bool exitRisingEdge();
 
-[[nodiscard]] bool aPressed();
-[[nodiscard]] bool aRisingEdge();
+[[nodiscard]] bool focusPressed();
+[[nodiscard]] bool focusRisingEdge();
 
-[[nodiscard]] bool bPressed();
-[[nodiscard]] bool bRisingEdge();
+[[nodiscard]] bool swapPressed();
+[[nodiscard]] bool swapRisingEdge();
+
+[[nodiscard]] bool restartPressed();
+[[nodiscard]] bool restartRisingEdge();
+
+[[nodiscard]] bool forceRestartPressed();
+[[nodiscard]] bool forceRestartRisingEdge();
+
+[[nodiscard]] bool replayPressed();
+[[nodiscard]] bool replayRisingEdge();
+
+[[nodiscard]] bool screenshotPressed();
+[[nodiscard]] bool screenshotRisingEdge();
+
+[[nodiscard]] bool changePackPressed();
+[[nodiscard]] bool changePackRisingEdge();
+
+[[nodiscard]] bool optionMenuPressed();
+[[nodiscard]] bool optionMenuRisingEdge();
+
+[[nodiscard]] bool createProfilePressed();
+[[nodiscard]] bool createProfileRisingEdge();
 
 } // namespace hg::Joystick
