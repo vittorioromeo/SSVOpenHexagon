@@ -161,9 +161,11 @@ static void syncAllToObj()
 #undef X
 }
 
+#undef X_LINKEDVALUES
+
 float sizeX{1500}, sizeY{1500};
 constexpr float spawnDistance{1600};
-string uneligibilityReason;
+std::string uneligibilityReason;
 
 void applyAutoWindowedResolution()
 {
@@ -529,27 +531,27 @@ void setFirstTimePlaying(bool mX)
     firstTimePlaying() = mX;
 }
 
-bool SSVU_ATTRIBUTE(pure) getOnline()
+bool getOnline()
 {
     return online();
 }
 
-bool SSVU_ATTRIBUTE(pure) getOfficial()
+bool getOfficial()
 {
     return official();
 }
 
-string SSVU_ATTRIBUTE(pure) getUneligibilityReason()
+std::string getUneligibilityReason()
 {
     return uneligibilityReason;
 }
 
-float SSVU_ATTRIBUTE(pure) getSizeX()
+float getSizeX()
 {
     return sizeX;
 }
 
-float SSVU_ATTRIBUTE(pure) getSizeY()
+float getSizeY()
 {
     return sizeY;
 }
@@ -559,82 +561,82 @@ float SSVU_ATTRIBUTE(const) getSpawnDistance()
     return spawnDistance;
 }
 
-float SSVU_ATTRIBUTE(pure) getZoomFactor()
+float getZoomFactor()
 {
     return zoomFactor();
 }
 
-int SSVU_ATTRIBUTE(pure) getPixelMultiplier()
+int getPixelMultiplier()
 {
     return pixelMultiplier();
 }
 
-float SSVU_ATTRIBUTE(pure) getPlayerSpeed()
+float getPlayerSpeed()
 {
     return getOfficial() ? 9.45f : playerSpeed();
 }
 
-float SSVU_ATTRIBUTE(pure) getPlayerFocusSpeed()
+float getPlayerFocusSpeed()
 {
     return getOfficial() ? 4.625f : playerFocusSpeed();
 }
 
-float SSVU_ATTRIBUTE(pure) getPlayerSize()
+float getPlayerSize()
 {
     return getOfficial() ? 7.3f : playerSize();
 }
 
-bool SSVU_ATTRIBUTE(pure) getNoRotation()
+bool getNoRotation()
 {
     return getOfficial() ? false : noRotation();
 }
 
-bool SSVU_ATTRIBUTE(pure) getNoBackground()
+bool getNoBackground()
 {
     return getOfficial() ? false : noBackground();
 }
 
-bool SSVU_ATTRIBUTE(pure) getBlackAndWhite()
+bool getBlackAndWhite()
 {
     return getOfficial() ? false : blackAndWhite();
 }
 
-bool SSVU_ATTRIBUTE(pure) getNoSound()
+bool getNoSound()
 {
     return noSound();
 }
 
-bool SSVU_ATTRIBUTE(pure) getNoMusic()
+bool getNoMusic()
 {
     return noMusic();
 }
 
-float SSVU_ATTRIBUTE(pure) getSoundVolume()
+float getSoundVolume()
 {
     return soundVolume();
 }
 
-float SSVU_ATTRIBUTE(pure) getMusicVolume()
+float getMusicVolume()
 {
     return musicVolume();
 }
 
-bool SSVU_ATTRIBUTE(pure) getLimitFPS()
+bool getLimitFPS()
 {
     return limitFPS();
 }
 
-bool SSVU_ATTRIBUTE(pure) getVsync()
+bool getVsync()
 {
     return vsync();
 }
 
-bool SSVU_ATTRIBUTE(pure) getAutoZoomFactor()
+bool getAutoZoomFactor()
 {
     return getOfficial() ? true : autoZoomFactor();
 }
 
-bool SSVU_ATTRIBUTE(pure) getFullscreen()
+bool getFullscreen()
 {
     return fullscreen();
 }
@@ -649,192 +651,192 @@ const char* SSVU_ATTRIBUTE(const) getVersionString()
     return "2.03";
 }
 
-bool SSVU_ATTRIBUTE(pure) getWindowedAutoResolution()
+bool getWindowedAutoResolution()
 {
     return windowedAutoResolution();
 }
 
-bool SSVU_ATTRIBUTE(pure) getFullscreenAutoResolution()
+bool getFullscreenAutoResolution()
 {
     return fullscreenAutoResolution();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getFullscreenWidth()
+unsigned int getFullscreenWidth()
 {
     return fullscreenWidth();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getFullscreenHeight()
+unsigned int getFullscreenHeight()
 {
     return fullscreenHeight();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getWindowedWidth()
+unsigned int getWindowedWidth()
 {
     return windowedWidth();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getWindowedHeight()
+unsigned int getWindowedHeight()
 {
     return windowedHeight();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getWidth()
+unsigned int getWidth()
 {
     return getFullscreen() ? getFullscreenWidth() : getWindowedWidth();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getHeight()
+unsigned int getHeight()
 {
     return getFullscreen() ? getFullscreenHeight() : getWindowedHeight();
 }
 
-bool SSVU_ATTRIBUTE(pure) getShowMessages()
+bool getShowMessages()
 {
     return showMessages();
 }
 
-bool SSVU_ATTRIBUTE(pure) getDebug()
+bool getDebug()
 {
     return getOfficial() ? false : debug();
 }
 
-bool SSVU_ATTRIBUTE(pure) getPulse()
+bool getPulse()
 {
     return getOfficial() ? true : pulseEnabled();
 }
 
-bool SSVU_ATTRIBUTE(pure) getBeatPulse()
+bool getBeatPulse()
 {
     return getOfficial() ? true : beatPulse();
 }
 
-bool SSVU_ATTRIBUTE(pure) getInvincible()
+bool getInvincible()
 {
     return getOfficial() ? false : invincible();
 }
 
-bool SSVU_ATTRIBUTE(pure) get3D()
+bool get3D()
 {
     return _3DEnabled();
 }
 
-float SSVU_ATTRIBUTE(pure) get3DMultiplier()
+float get3DMultiplier()
 {
     return _3DMultiplier();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) get3DMaxDepth()
+unsigned int get3DMaxDepth()
 {
     return _3DMaxDepth();
 }
 
-bool SSVU_ATTRIBUTE(pure) getAutoRestart()
+bool getAutoRestart()
 {
     return autoRestart();
 }
 
-bool SSVU_ATTRIBUTE(pure) getFlash()
+bool getFlash()
 {
     return flashEnabled();
 }
 
-bool SSVU_ATTRIBUTE(pure) getShowTrackedVariables()
+bool getShowTrackedVariables()
 {
     return showTrackedVariables();
 }
 
-bool SSVU_ATTRIBUTE(pure) getMusicSpeedDMSync()
+bool getMusicSpeedDMSync()
 {
     return musicSpeedDMSync();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getMaxFPS()
+unsigned int getMaxFPS()
 {
     return maxFPS();
 }
 
-unsigned int SSVU_ATTRIBUTE(pure) getAntialiasingLevel()
+unsigned int getAntialiasingLevel()
 {
     return antialiasingLevel();
 }
 
-bool SSVU_ATTRIBUTE(pure) getShowFPS()
+bool getShowFPS()
 {
     return showFPS();
 }
 
-bool SSVU_ATTRIBUTE(pure) getTimerStatic()
+bool getTimerStatic()
 {
     return timerStatic();
 }
 
-bool SSVU_ATTRIBUTE(pure) getServerLocal()
+bool getServerLocal()
 {
     return serverLocal();
 }
 
-bool SSVU_ATTRIBUTE(pure) getServerVerbose()
+bool getServerVerbose()
 {
     return serverVerbose();
 }
 
-bool SSVU_ATTRIBUTE(pure) getMouseVisible()
+bool getMouseVisible()
 {
     return mouseVisible();
 }
 
-float SSVU_ATTRIBUTE(pure) getMusicSpeedMult()
+float getMusicSpeedMult()
 {
     return musicSpeedMult();
 }
 
-bool SSVU_ATTRIBUTE(pure) getDrawTextOutlines()
+bool getDrawTextOutlines()
 {
     return drawTextOutlines();
 }
 
-bool SSVU_ATTRIBUTE(pure) getDarkenUnevenBackgroundChunk()
+bool getDarkenUnevenBackgroundChunk()
 {
     return darkenUnevenBackgroundChunk();
 }
 
-bool SSVU_ATTRIBUTE(pure) getRotateToStart()
+bool getRotateToStart()
 {
     return rotateToStart();
 }
 
-float SSVU_ATTRIBUTE(pure) getJoystickDeadzone()
+float getJoystickDeadzone()
 {
     return joystickDeadzone();
 }
 
-float SSVU_ATTRIBUTE(pure) getTextPadding()
+float getTextPadding()
 {
     return textPadding();
 }
 
-float SSVU_ATTRIBUTE(pure) getTextScaling()
+float getTextScaling()
 {
     return textScaling();
 }
 
-float SSVU_ATTRIBUTE(pure) getTimescale()
+float getTimescale()
 {
     return getOfficial() ? 1.f : timescale();
 }
 
-bool SSVU_ATTRIBUTE(pure) getShowKeyIcons()
+bool getShowKeyIcons()
 {
     return showKeyIcons();
 }
 
-float SSVU_ATTRIBUTE(pure) getKeyIconsScale()
+float getKeyIconsScale()
 {
     return keyIconsScale();
 }
 
-bool SSVU_ATTRIBUTE(pure) getFirstTimePlaying()
+bool getFirstTimePlaying()
 {
     return firstTimePlaying();
 }
@@ -1345,47 +1347,47 @@ void joystickBindsSanityCheck()
 //**********************************************
 // Get bind
 
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickSelect()
+unsigned int getJoystickSelect()
 {
     return joystickSelect();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickExit()
+unsigned int getJoystickExit()
 {
     return joystickExit();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickFocus()
+unsigned int getJoystickFocus()
 {
     return joystickFocus();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickSwap()
+unsigned int getJoystickSwap()
 {
     return joystickSwap();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickForceRestart()
+unsigned int getJoystickForceRestart()
 {
     return joystickForceRestart();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickRestart()
+unsigned int getJoystickRestart()
 {
     return joystickRestart();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickReplay()
+unsigned int getJoystickReplay()
 {
     return joystickReplay();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickScreenshot()
+unsigned int getJoystickScreenshot()
 {
     return joystickScreenshot();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickOptionMenu()
+unsigned int getJoystickOptionMenu()
 {
     return joystickOptionMenu();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickChangePack()
+unsigned int getJoystickChangePack()
 {
     return joystickChangePack();
 }
-unsigned int SSVU_ATTRIBUTE(pure) getJoystickCreateProfile()
+unsigned int getJoystickCreateProfile()
 {
     return joystickCreateProfile();
 }
@@ -1393,12 +1395,12 @@ unsigned int SSVU_ATTRIBUTE(pure) getJoystickCreateProfile()
 //**********************************************
 // Reassign bind
 
-typedef void (*setFuncJoy)(unsigned int button);
-typedef std::pair<setFuncJoy, unsigned int> joystickBindsConfigs;
+using SetFuncJoy = void (*)(unsigned int button);
+using JoystickBindsConfigs = std::pair<SetFuncJoy, unsigned int>;
 
 [[nodiscard]] int checkButtonReassignment(unsigned int button)
 {
-    joystickBindsConfigs funcs[] = {
+    JoystickBindsConfigs funcs[] = {
         {setJoystickSelect, joystickSelect()},
         {setJoystickExit, joystickExit()},
         {setJoystickFocus, joystickFocus()},
@@ -1416,7 +1418,7 @@ typedef std::pair<setFuncJoy, unsigned int> joystickBindsConfigs;
     {
         if(get<unsigned int>(funcs[i]) == button)
         {
-            get<setFuncJoy>(funcs[i])(33);
+            get<SetFuncJoy>(funcs[i])(33);
             return i;
         }
     }
@@ -1426,70 +1428,81 @@ typedef std::pair<setFuncJoy, unsigned int> joystickBindsConfigs;
 
 int reassignToJoystickSelect(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickSelect() = button;
     return unboundID;
 }
+
 int reassignToJoystickExit(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickExit() = button;
     return unboundID;
 }
+
 int reassignToJoystickFocus(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickFocus() = button;
     return unboundID;
 }
+
 int reassignToJoystickSwap(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickSwap() = button;
     return unboundID;
 }
+
 int reassignToJoystickForceRestart(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickForceRestart() = button;
     return unboundID;
 }
+
 int reassignToJoystickRestart(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickRestart() = button;
     return unboundID;
 }
+
 int reassignToJoystickReplay(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickReplay() = button;
     return unboundID;
 }
+
 int reassignToJoystickScreenshot(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickScreenshot() = button;
     return unboundID;
 }
+
 int reassignToJoystickOptionMenu(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickOptionMenu() = button;
     return unboundID;
 }
+
 int reassignToJoystickChangePack(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickChangePack() = button;
     return unboundID;
 }
+
 int reassignToJoystickCreateProfile(unsigned int button)
 {
-    int unboundID = checkButtonReassignment(button);
+    const int unboundID = checkButtonReassignment(button);
     joystickCreateProfile() = button;
     return unboundID;
 }
+
 
 //**********************************************
 // Set bind
@@ -1498,47 +1511,55 @@ void setJoystickSelect(unsigned int button)
 {
     joystickSelect() = button;
 }
+
 void setJoystickExit(unsigned int button)
 {
     joystickExit() = button;
 }
+
 void setJoystickFocus(unsigned int button)
 {
     joystickFocus() = button;
 }
+
 void setJoystickSwap(unsigned int button)
 {
     joystickSwap() = button;
 }
+
 void setJoystickForceRestart(unsigned int button)
 {
     joystickForceRestart() = button;
 }
+
 void setJoystickRestart(unsigned int button)
 {
     joystickRestart() = button;
 }
+
 void setJoystickReplay(unsigned int button)
 {
     joystickReplay() = button;
 }
+
 void setJoystickScreenshot(unsigned int button)
 {
     joystickScreenshot() = button;
 }
+
 void setJoystickOptionMenu(unsigned int button)
 {
     joystickOptionMenu() = button;
 }
+
 void setJoystickChangePack(unsigned int button)
 {
     joystickChangePack() = button;
 }
+
 void setJoystickCreateProfile(unsigned int button)
 {
     joystickCreateProfile() = button;
 }
 
 } // namespace hg::Config
-
-#undef X_LINKEDVALUES
