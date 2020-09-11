@@ -20,7 +20,7 @@ end
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
 keys = { 0, 0, 1, 1, 2, 2, 3, 3 }
-keys = shuffle(keys)
+shuffle(keys)
 index = 0
 achievementUnlocked = false
 
@@ -69,7 +69,7 @@ function onStep()
 
 	if index - 1 == #keys then
 		index = 1
-		keys = shuffle(keys)
+		shuffle(keys)
 	end
 end
 
