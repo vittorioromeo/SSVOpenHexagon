@@ -275,7 +275,6 @@ private:
     }
 
     void reloadLevelAssets();
-    int noActions{0};
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,

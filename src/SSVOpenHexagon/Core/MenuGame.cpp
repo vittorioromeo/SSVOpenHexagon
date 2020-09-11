@@ -80,44 +80,55 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             // don't do anything if inputs are being processed as usual
             if(!noActions) { return; }
 
-            KKey key = mEvent.key.code;
-            if(key == KKey::Escape)
+            // Scenario one: actions are blocked cause a dialog box is opened
+            if(!dialogBox.empty())
             {
-                getCurrentMenu()->getItem().exec(); //turn off bind inputting
-                game.ignoreAllInputs(false);
-                hg::Joystick::ignoreAllPresses(false);
-                noActions = 0;
-                return;
-            }
-
-            if(!(--noActions))
-            {
-                dialogBox.clearDialogBox();
-
-                auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(&getCurrentMenu()->getItem());
-
-                // don't try assigning a keyboard key to a controller bind
-                if(bc == nullptr)
+                if(!(--noActions))
                 {
-                    assets.playSound("error.ogg");
-                    noActions = 1;
+                    dialogBox.clearDialogBox();
+                    game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
+                }
+            }
+            else  // Scenario one: actions are blocked cause we are using a Bind Menu Item
+            {
+                KKey key = mEvent.key.code;
+                if(key == KKey::Escape)
+                {
+                    getCurrentMenu()->getItem().exec(); //turn off bind inputting
+                    game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
+                    noActions = 0;
                     return;
                 }
 
-                if(!isValidKeyBind(key))
+                if(!(--noActions))
                 {
-                    assets.playSound("error.ogg");
-                    noActions = 1;
-                }
-                else
-                {
-                    bc->newKeyboardBind(key);
-                    game.ignoreAllInputs(false);
-                    hg::Joystick::ignoreAllPresses(false);
-                    assets.playSound("beep.ogg");
-                }
+                    auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(&getCurrentMenu()->getItem());
 
-                touchDelay = 10.f;
+                    // don't try assigning a keyboard key to a controller bind
+                    if(bc == nullptr)
+                    {
+                        assets.playSound("error.ogg");
+                        noActions = 1;
+                        return;
+                    }
+
+                    if(!isValidKeyBind(key))
+                    {
+                        assets.playSound("error.ogg");
+                        noActions = 1;
+                    }
+                    else
+                    {
+                        bc->newKeyboardBind(key);
+                        game.ignoreAllInputs(false);
+                        hg::Joystick::ignoreAllPresses(false);
+                        assets.playSound("beep.ogg");
+                    }
+
+                    touchDelay = 10.f;
+                }
             }
         };
 
@@ -126,8 +137,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         {
             if(!noActions) { return; }
 
-            // close dialogbox after the second key release
-            if(!(--noActions))
+            if(!dialogBox.empty())
+            {
+                if(!(--noActions))
+                {
+                    dialogBox.clearDialogBox();
+                    game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
+                }
+            }
+            else if(!(--noActions))
             {
                 dialogBox.clearDialogBox();
 
@@ -154,11 +173,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         {
             if(!noActions) { return; }
 
-            // close dialogbox after the second key release
-            if(!(--noActions))
+            if(!dialogBox.empty())
             {
-                dialogBox.clearDialogBox();
-
+                if(!(--noActions))
+                {
+                    dialogBox.clearDialogBox();
+                    game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
+                }
+            }
+            else if(!(--noActions))
+            {
                 auto* bc = dynamic_cast<ssvms::Items::JoystickBindControl*>(&getCurrentMenu()->getItem());
 
                 // don't try assigning a controller button to a keyboard bind
@@ -658,11 +683,6 @@ void MenuGame::initMenus()
 
 void MenuGame::leftAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -687,11 +707,6 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -715,11 +730,6 @@ void MenuGame::rightAction()
 }
 void MenuGame::upAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -739,11 +749,6 @@ void MenuGame::upAction()
 }
 void MenuGame::downAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -763,11 +768,6 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
@@ -900,11 +900,6 @@ void MenuGame::exitAction()
 
 void MenuGame::createProfileAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     if(!assets.pIsLocal())
     {
@@ -920,11 +915,6 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
 
     if(state != States::SMain)
@@ -943,11 +933,6 @@ void MenuGame::selectProfileAction()
 
 void MenuGame::openOptionsAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
 
     if(state != States::SMain)
@@ -960,11 +945,6 @@ void MenuGame::openOptionsAction()
 
 void MenuGame::selectPackAction()
 {
-    if(noActions)
-    {
-        return;
-    }
-
     assets.playSound("beep.ogg");
     if(state == States::SMain)
     {
@@ -1031,31 +1011,17 @@ void MenuGame::initInput()
 
     game.addInput(
             Config::getTriggerExit(),
-            [this](ssvu::FT /*unused*/) { if(noActions)
-            {
-                return;
-            }
-                                         exitAction(); }, t::Once, Tid::Exit); // editable
-  
+            [this](ssvu::FT /*unused*/) { exitAction(); },
+            t::Once, Tid::Exit); // editable
+
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) {
-          if(noActions)
-            {
-                return;
-            }
-          
-          mustTakeScreenshot = true; },
+        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
         t::Once, Tid::Screenshot);
 
     game.addInput(
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/) {
-                if(noActions)
-                {
-                    return;
-                }
-
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
@@ -1115,6 +1081,8 @@ void MenuGame::reloadLevelAssets()
     Utils::uppercasify(reloadOutput);
 
     dialogBox.createDialogBox(reloadOutput, 26);
+    game.ignoreAllInputs(true);
+    hg::Joystick::ignoreAllPresses(true);
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
