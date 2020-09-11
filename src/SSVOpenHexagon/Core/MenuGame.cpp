@@ -1038,7 +1038,7 @@ void MenuGame::initInput()
         {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
 
-    const auto handleExitInput = [this](ssvu::FT mFT) { exitAction(); };
+    const auto handleExitInput = [this](ssvu::FT /*unused*/) { exitAction(); };
 
     game.addInput(
         {{k::Escape}},
