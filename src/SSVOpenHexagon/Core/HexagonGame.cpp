@@ -673,8 +673,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
-    // TODO: should this be rising edge for joystick?
-    return inputFocused || hg::Joystick::focusRisingEdge();
+    return inputFocused || hg::Joystick::focusPressed();
 }
 
 [[nodiscard]] float HexagonGame::getPlayerSpeedMult() const

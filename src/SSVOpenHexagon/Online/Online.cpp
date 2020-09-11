@@ -396,12 +396,12 @@ void setForceLeaderboardRefresh(bool mValue)
     forceLeaderboardRefresh = mValue;
 }
 
-ConnectStat SSVU_ATTRIBUTE(pure) getConnectionStatus()
+ConnectStat getConnectionStatus()
 {
     return connectionStatus;
 }
 
-LoginStat SSVU_ATTRIBUTE(pure) getLoginStatus()
+LoginStat getLoginStatus()
 {
     return loginStatus;
 }
@@ -426,7 +426,7 @@ ValidatorDB& SSVU_ATTRIBUTE(const) getValidators()
     return validators;
 }
 
-bool SSVU_ATTRIBUTE(pure) getNewUserReg()
+bool getNewUserReg()
 {
     return newUserReg;
 }
@@ -446,7 +446,7 @@ const string& SSVU_ATTRIBUTE(const) getCurrentLeaderboard()
     return currentLeaderboard;
 }
 
-float SSVU_ATTRIBUTE(pure) getServerVersion()
+float getServerVersion()
 {
     return serverVersion;
 }
