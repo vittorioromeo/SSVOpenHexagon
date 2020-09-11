@@ -18,6 +18,17 @@
 	"fullscreen_height" : 1080,
 	"fullscreen_width" : 1920,
 	"invincible" : true,
+	"j_changepack" : 6,
+	"j_createprofile" : 20,
+	"j_exit" : 1,
+	"j_focus" : 4,
+	"j_force_restart" : 3,
+	"j_optionmenu" : 7,
+	"j_replay" : 8,
+	"j_restart" : 2,
+	"j_screenshot" : 9,
+	"j_select" : 0,
+	"j_swap" : 5,
 	"joystick_deadzone" : 5.0,
 	"key_icons_scale" : 0.7500000596046448,
 	"limit_fps" : true,
@@ -30,7 +41,7 @@
 	"no_music" : false,
 	"no_rotation" : false,
 	"no_sound" : false,
-	"official" : true,
+	"official" : false,
 	"online" : true,
 	"pixel_multiplier" : 1,
 	"player_focus_speed" : 4.6250,
@@ -48,12 +59,13 @@
 	"sound_volume" : 75.0,
 	"t_down" : 
 	[
-		[ "kDown" ],
-		[ "kS" ]
+		[ "kS" ],
+		[ "" ]
 	],
 	"t_exit" : 
 	[
-		[ "kEscape" ]
+		[ "kC" ],
+		[ "" ]
 	],
 	"t_focus" : 
 	[
@@ -62,33 +74,33 @@
 	],
 	"t_force_restart" : 
 	[
-		[ "kR" ],
-		[ "bXButton2" ]
+		[ "" ],
+		[ "" ]
 	],
 	"t_replay" : 
 	[
-		[ "kY" ]
+		[ "" ],
+		[ "" ]
 	],
 	"t_restart" : 
 	[
-		[ "kReturn" ],
-		[ "bMiddle" ]
+		[ "" ],
+		[ "" ]
 	],
 	"t_rotate_ccw" : 
 	[
 		[ "kLeft" ],
-		[ "kA" ],
-		[ "bLeft" ]
+		[ "kA" ]
 	],
 	"t_rotate_cw" : 
 	[
 		[ "kRight" ],
-		[ "kD" ],
-		[ "bRight" ]
+		[ "kD" ]
 	],
 	"t_screenshot" : 
 	[
-		[ "kF12" ]
+		[ "kF12" ],
+		[ "" ]
 	],
 	"t_swap" : 
 	[
@@ -97,8 +109,8 @@
 	],
 	"t_up" : 
 	[
-		[ "kUp" ],
-		[ "kW" ]
+		[ "kW" ],
+		[ "" ]
 	],
 	"text_padding" : 8.0,
 	"text_scaling" : 0.9999999403953552,
