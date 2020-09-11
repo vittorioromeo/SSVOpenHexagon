@@ -845,7 +845,7 @@ void MenuGame::exitAction()
                 state = States::SMain;
             }
         }
-        else if(state == States::ETFriend || state == States::SLPSelect)
+        else if(state == States::SLPSelect)
         {
             state = States::SMain;
         }
