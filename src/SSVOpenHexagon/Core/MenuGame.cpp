@@ -74,26 +74,32 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
         };
 
-    game.onEvent(Event::EventType::KeyReleased) += [this](const Event& mEvent) {
+    const auto checkCloseDialogBox = [this]()
+    {
+        if(!(--noActions))
+        {
+            dialogBox.clearDialogBox();
+            game.ignoreAllInputs(false);
+            hg::Joystick::ignoreAllPresses(false);
+        }
+    };
+
+    game.onEvent(Event::EventType::KeyReleased) +=
+        [this, checkCloseDialogBox](const Event& mEvent) {
         // don't do anything if inputs are being processed as usual
         if(!noActions)
         {
             return;
         }
 
-        // Scenario one: actions are blocked cause a dialog box is opened
+        // Scenario one: actions are blocked cause a dialog box is open
         if(!dialogBox.empty())
         {
-            if(!(--noActions))
-            {
-                dialogBox.clearDialogBox();
-                game.ignoreAllInputs(false);
-                hg::Joystick::ignoreAllPresses(false);
-            }
+            checkCloseDialogBox();
             return;
         }
 
-        // Scenario two: actions are blocked cause we are using a Bind Menu Item
+        // Scenario two: actions are blocked cause we are using a BindControl menu item
         KKey key = mEvent.key.code;
         if(getCurrentMenu() != nullptr && key == KKey::Escape)
         {
@@ -142,7 +148,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     game.onEvent(Event::EventType::MouseButtonReleased) +=
-        [this](const Event& mEvent) {
+        [this, checkCloseDialogBox](const Event& mEvent) {
             if(!noActions)
             {
                 return;
@@ -150,12 +156,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!dialogBox.empty())
             {
-                if(!(--noActions))
-                {
-                    dialogBox.clearDialogBox();
-                    game.ignoreAllInputs(false);
-                    hg::Joystick::ignoreAllPresses(false);
-                }
+                checkCloseDialogBox();
                 return;
             }
 
@@ -186,7 +187,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         };
 
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
-        [this](const Event& mEvent) {
+        [this, checkCloseDialogBox](const Event& mEvent) {
             if(!noActions)
             {
                 return;
@@ -194,12 +195,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!dialogBox.empty())
             {
-                if(!(--noActions))
-                {
-                    dialogBox.clearDialogBox();
-                    game.ignoreAllInputs(false);
-                    hg::Joystick::ignoreAllPresses(false);
-                }
+                checkCloseDialogBox();
                 return;
             }
 
