@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Core/BindControl.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
