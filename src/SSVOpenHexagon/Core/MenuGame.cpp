@@ -87,8 +87,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!(--noActions))
             {
+                auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+
                 // don't try assigning a keyboard key to a controller bind
-                if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::JoystickBind)
+                if(bc == nullptr || bc->isWaitingForBind() == ssvms::Items::JoystickBind)
                 {
                     assets.playSound("error.ogg");
                     noActions = 1;
@@ -102,7 +104,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 }
                 else
                 {
-                    getCurrentMenu()->getItem().newKeyboardBind(key);
+                    bc->newKeyboardBind(key);
                     game.ignoreAllInputs(false);
                     hg::Joystick::ignoreAllPresses(false);
                     assets.playSound("beep.ogg");
@@ -118,16 +120,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!(--noActions))
             {
+                auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+
                 // don't try assigning a keyboard key to a controller bind
-                if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::JoystickBind)
+                if(bc == nullptr || bc->isWaitingForBind() == ssvms::Items::JoystickBind)
                 {
                     assets.playSound("error.ogg");
                     noActions = 1;
                     return;
                 }
 
-                getCurrentMenu()->getItem().newKeyboardBind(KKey::Unknown,
-                                                            mEvent.mouseButton.button);
+                bc->newKeyboardBind(KKey::Unknown, mEvent.mouseButton.button);
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
@@ -141,15 +144,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!(--noActions))
             {
+                auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+
                 // don't try assigning a controller button to a keyboard bind
-                if(getCurrentMenu()->getItem().isWaitingForBind() == ssvms::Items::KeyboardBind)
+                if(bc == nullptr || bc->isWaitingForBind() == ssvms::Items::KeyboardBind)
                 {
                     assets.playSound("error.ogg");
                     noActions = 1;
                     return;
                 }
 
-                getCurrentMenu()->getItem().newJoystickBind(int(mEvent.joystickButton.button));
+                bc->newJoystickBind(int(mEvent.joystickButton.button));
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
@@ -639,13 +644,18 @@ void MenuGame::okAction()
     else if(isInMenu())
     {
         getCurrentMenu()->exec();
-        if(state == States::MOpts && getCurrentMenu()->getItem().isWaitingForBind())
-        {
-            noActions = 2;
-            game.ignoreAllInputs(true);
-            hg::Joystick::ignoreAllPresses(true);
-            touchDelay = 10.f;
-        }
+
+        if(state != States::MOpts) { return; }
+
+        // There are two Bind controllers: BindControl and JoystickBindControl.
+        // So we cast to the common base class to not check for one and the other.
+        auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+        if(bc == nullptr || !bc->isWaitingForBind()) { return; }
+
+        noActions = 2;
+        game.ignoreAllInputs(true);
+        hg::Joystick::ignoreAllPresses(true);
+        touchDelay = 10.f;
     }
     else if(state == States::ETLPNew)
     {
@@ -700,11 +710,18 @@ void MenuGame::okAction()
 void MenuGame::eraseAction()
 {
     if(isEnteringText() && !enteredStr.empty())
+    {
         enteredStr.erase(enteredStr.end() - 1);
+    }
     else if(state == States::MOpts && isInMenu())
     {
-        if(getCurrentMenu()->erase())
+        auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+        if(bc == nullptr) { return; }
+
+        if(bc->erase())
+        {
             assets.playSound("beep.ogg");
+        }
         touchDelay = 10.f;
     }
 }
