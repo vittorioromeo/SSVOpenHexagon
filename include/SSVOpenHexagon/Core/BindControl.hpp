@@ -21,12 +21,6 @@ namespace ssvms
 
 	namespace Items
 	{
-        enum BindType
-        {
-            KeyboardBind = 1,
-            JoystickBind
-        };
-
         class BindControlBase : public ItemBase
         {
         protected:
@@ -40,13 +34,11 @@ namespace ssvms
             {
             }
 
-            inline virtual bool erase() { return false; }
-            inline virtual void newKeyboardBind(const KKey key = KKey::Unknown, const MBtn btn = MBtn::Left) { (void)(key); (void)(btn); }
-            inline virtual void newJoystickBind(const int joy = -1) { (void)(joy); }
-            inline virtual int isWaitingForBind() { return 0; }
+            [[nodiscard]] inline virtual bool erase() { return false; }
+            [[nodiscard]] inline virtual bool isWaitingForBind() { return false; }
         };
 
-        class BindControl final : public BindControlBase
+        class KeyboardBindControl final : public BindControlBase
         {
         private:
             using Combo = ssvs::Input::Combo;
@@ -77,20 +69,20 @@ namespace ssvms
 
         public:
             template <typename TFuncGet, typename TFuncSet, typename TFuncClear, typename TFuncCallback>
-            BindControl(Menu& mMenu, Category& mCategory, const std::string& mName,
-                        TFuncGet mFuncGet, TFuncSet mFuncSet, TFuncClear mFuncClear,
-                        TFuncCallback mCallback, int mTriggerID)
-                : BindControlBase{mMenu, mCategory, mName, mTriggerID},
-                  triggerGetter{[=, this] { return mFuncGet(); }},
-                  sizeGetter{[=, this] { return getRealSize(triggerGetter().getCombos()); }},
-                  addBind{[=, this](const KKey setKey, const MBtn setBtn) { return mFuncSet(setKey, setBtn, sizeGetter()); }},
-                  clearBind{[=, this] { mFuncClear(sizeGetter()); }},
-                  callback{mCallback}
+            KeyboardBindControl(Menu& mMenu, Category& mCategory, const std::string& mName,
+                                TFuncGet mFuncGet, TFuncSet mFuncSet, TFuncClear mFuncClear,
+                                TFuncCallback mCallback, int mTriggerID)
+                                : BindControlBase{mMenu, mCategory, mName, mTriggerID},
+                                triggerGetter{[=, this] { return mFuncGet(); }},
+                                sizeGetter{[=, this] { return getRealSize(triggerGetter().getCombos()); }},
+                                addBind{[=, this](const KKey setKey, const MBtn setBtn) { return mFuncSet(setKey, setBtn, sizeGetter()); }},
+                                clearBind{[=, this] { mFuncClear(sizeGetter()); }},
+                                callback{mCallback}
             {
             }
 
             inline void exec() override { waitingForBind = !waitingForBind; }
-            inline int isWaitingForBind() override { return waitingForBind ? KeyboardBind : 0; }
+            inline bool isWaitingForBind() override { return waitingForBind; }
             inline bool erase() override
             {
                 const int size = sizeGetter();
@@ -101,7 +93,7 @@ namespace ssvms
                 return true;
             }
 
-            inline void newKeyboardBind(const KKey key, const MBtn btn) override
+            inline void newKeyboardBind(const KKey key, const MBtn btn = MBtn::Left)
             {
                 // stop if the pressed key is already assigned to this bind
                 const std::vector<Combo>& Combos = triggerGetter().getCombos();
@@ -212,7 +204,7 @@ namespace ssvms
             }
 
             inline void exec() override { waitingForBind = !waitingForBind; }
-            inline int isWaitingForBind() override { return waitingForBind ? JoystickBind : 0; }
+            inline bool isWaitingForBind() override { return waitingForBind; }
             inline bool erase() override
             {
                 if(valueGetter() == 33) { return false; }
@@ -223,7 +215,7 @@ namespace ssvms
                 return true;
             }
 
-            inline void newJoystickBind(const int joy) override
+            inline void newJoystickBind(const int joy)
             {
                 // stop if the pressed button is already assigned to this bind
                 if(joy == valueGetter())

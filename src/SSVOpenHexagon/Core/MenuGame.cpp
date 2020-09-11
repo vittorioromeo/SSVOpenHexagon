@@ -87,10 +87,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!(--noActions))
             {
-                auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+                auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(&getCurrentMenu()->getItem());
 
                 // don't try assigning a keyboard key to a controller bind
-                if(bc == nullptr || bc->isWaitingForBind() == ssvms::Items::JoystickBind)
+                if(bc == nullptr)
                 {
                     assets.playSound("error.ogg");
                     noActions = 1;
@@ -120,10 +120,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!(--noActions))
             {
-                auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+                auto* bc = dynamic_cast<ssvms::Items::KeyboardBindControl*>(&getCurrentMenu()->getItem());
 
                 // don't try assigning a keyboard key to a controller bind
-                if(bc == nullptr || bc->isWaitingForBind() == ssvms::Items::JoystickBind)
+                if(bc == nullptr)
                 {
                     assets.playSound("error.ogg");
                     noActions = 1;
@@ -144,10 +144,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!(--noActions))
             {
-                auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
+                auto* bc = dynamic_cast<ssvms::Items::JoystickBindControl*>(&getCurrentMenu()->getItem());
 
                 // don't try assigning a controller button to a keyboard bind
-                if(bc == nullptr || bc->isWaitingForBind() == ssvms::Items::KeyboardBind)
+                if(bc == nullptr)
                 {
                     assets.playSound("error.ogg");
                     noActions = 1;
@@ -418,39 +418,39 @@ void MenuGame::initMenus()
         hexagonGame.refreshTrigger(trig, bindID);
     };
 
-    keyboard.create<i::BindControl>("rotate ccw", &Config::getTriggerRotateCCW,
-                                    &Config::reassignBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW,
-                                    callBack, Tid::RotateCCW);
-    keyboard.create<i::BindControl>("rotate cw", &Config::getTriggerRotateCW,
-                                    &Config::reassignBindTriggerRotateCW, &Config::clearBindTriggerRotateCW,
-                                    callBack, Tid::RotateCW);
-    keyboard.create<i::BindControl>("focus", &Config::getTriggerFocus,
-                                    &Config::reassignBindTriggerFocus, &Config::clearBindTriggerFocus,
-                                    callBack, Tid::Focus);
-    keyboard.create<i::BindControl>("exit", &Config::getTriggerExit,
-                                    &Config::reassignBindTriggerExit, &Config::clearBindTriggerExit,
-                                    callBack, Tid::Exit);
-    keyboard.create<i::BindControl>("force restart", &Config::getTriggerForceRestart,
-                                    &Config::reassignBindTriggerForceRestart, &Config::clearBindTriggerForceRestart,
-                                    callBack, Tid::ForceRestart);
-    keyboard.create<i::BindControl>("restart", &Config::getTriggerRestart,
-                                    &Config::reassignBindTriggerRestart, &Config::clearBindTriggerRestart,
-                                    callBack, Tid::Restart);
-    keyboard.create<i::BindControl>("replay", &Config::getTriggerReplay,
-                                    &Config::reassignBindTriggerReplay, &Config::clearBindTriggerReplay,
-                                    callBack, Tid::Replay);
-    keyboard.create<i::BindControl>("screenshot", &Config::getTriggerScreenshot,
-                                    &Config::reassignBindTriggerScreenshot, &Config::clearBindTriggerScreenshot,
-                                    callBack, Tid::Screenshot);
-    keyboard.create<i::BindControl>("swap", &Config::getTriggerSwap,
-                                    &Config::reassignBindTriggerSwap, &Config::clearBindTriggerSwap,
-                                    callBack, Tid::Swap);
-    keyboard.create<i::BindControl>("up", &Config::getTriggerUp,
-                                    &Config::reassignBindTriggerUp, &Config::clearBindTriggerUp,
-                                    callBack, Tid::Up);
-    keyboard.create<i::BindControl>("down", &Config::getTriggerDown,
-                                    &Config::reassignBindTriggerDown, &Config::clearBindTriggerDown,
-                                    callBack, Tid::Down);
+    keyboard.create<i::KeyboardBindControl>("rotate ccw", &Config::getTriggerRotateCCW,
+                                            &Config::reassignBindTriggerRotateCCW, &Config::clearBindTriggerRotateCCW,
+                                            callBack, Tid::RotateCCW);
+    keyboard.create<i::KeyboardBindControl>("rotate cw", &Config::getTriggerRotateCW,
+                                            &Config::reassignBindTriggerRotateCW, &Config::clearBindTriggerRotateCW,
+                                            callBack, Tid::RotateCW);
+    keyboard.create<i::KeyboardBindControl>("focus", &Config::getTriggerFocus,
+                                            &Config::reassignBindTriggerFocus, &Config::clearBindTriggerFocus,
+                                            callBack, Tid::Focus);
+    keyboard.create<i::KeyboardBindControl>("exit", &Config::getTriggerExit,
+                                            &Config::reassignBindTriggerExit, &Config::clearBindTriggerExit,
+                                            callBack, Tid::Exit);
+    keyboard.create<i::KeyboardBindControl>("force restart", &Config::getTriggerForceRestart,
+                                            &Config::reassignBindTriggerForceRestart, &Config::clearBindTriggerForceRestart,
+                                            callBack, Tid::ForceRestart);
+    keyboard.create<i::KeyboardBindControl>("restart", &Config::getTriggerRestart,
+                                            &Config::reassignBindTriggerRestart, &Config::clearBindTriggerRestart,
+                                            callBack, Tid::Restart);
+    keyboard.create<i::KeyboardBindControl>("replay", &Config::getTriggerReplay,
+                                            &Config::reassignBindTriggerReplay, &Config::clearBindTriggerReplay,
+                                            callBack, Tid::Replay);
+    keyboard.create<i::KeyboardBindControl>("screenshot", &Config::getTriggerScreenshot,
+                                            &Config::reassignBindTriggerScreenshot, &Config::clearBindTriggerScreenshot,
+                                        callBack, Tid::Screenshot);
+    keyboard.create<i::KeyboardBindControl>("swap", &Config::getTriggerSwap,
+                                            &Config::reassignBindTriggerSwap, &Config::clearBindTriggerSwap,
+                                            callBack, Tid::Swap);
+    keyboard.create<i::KeyboardBindControl>("up", &Config::getTriggerUp,
+                                            &Config::reassignBindTriggerUp, &Config::clearBindTriggerUp,
+                                            callBack, Tid::Up);
+    keyboard.create<i::KeyboardBindControl>("down", &Config::getTriggerDown,
+                                            &Config::reassignBindTriggerDown, &Config::clearBindTriggerDown,
+                                            callBack, Tid::Down);
     keyboard.create<i::GoBack>("back");
 
     //Joystick binds
@@ -647,7 +647,7 @@ void MenuGame::okAction()
 
         if(state != States::MOpts) { return; }
 
-        // There are two Bind controllers: BindControl and JoystickBindControl.
+        // There are two Bind controllers: KeyboardBindControl and JoystickBindControl.
         // So we cast to the common base class to not check for one and the other.
         auto* bc = dynamic_cast<ssvms::Items::BindControlBase*>(&getCurrentMenu()->getItem());
         if(bc == nullptr || !bc->isWaitingForBind()) { return; }
