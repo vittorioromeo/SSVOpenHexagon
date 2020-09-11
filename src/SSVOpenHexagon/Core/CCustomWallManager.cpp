@@ -23,11 +23,11 @@ namespace hg
     if(_freeHandles.empty())
     {
         constexpr std::size_t reserveSize = 255;
+        const std::size_t maxHandleIndex = _nextFreeHandle + reserveSize;
 
-        // TODO: memory always increases after clear!
-        _freeHandles.reserve(_freeHandles.capacity() + reserveSize);
-        _customWalls.resize(_customWalls.capacity() + reserveSize);
-        _handleAvailable.resize(_handleAvailable.capacity() + reserveSize);
+        _freeHandles.reserve(maxHandleIndex);
+        _customWalls.resize(maxHandleIndex);
+        _handleAvailable.resize(maxHandleIndex);
 
         for(std::size_t i = 0; i < reserveSize; ++i)
         {
