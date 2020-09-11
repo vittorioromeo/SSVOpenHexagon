@@ -74,8 +74,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
         };
 
-    const auto checkCloseDialogBox = [this]()
-    {
+    const auto checkCloseDialogBox = [this]() {
         if(!(--noActions))
         {
             dialogBox.clearDialogBox();
@@ -86,66 +85,67 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     game.onEvent(Event::EventType::KeyReleased) +=
         [this, checkCloseDialogBox](const Event& mEvent) {
-        // don't do anything if inputs are being processed as usual
-        if(!noActions)
-        {
-            return;
-        }
-
-        // Scenario one: actions are blocked cause a dialog box is open
-        if(!dialogBox.empty())
-        {
-            checkCloseDialogBox();
-            return;
-        }
-
-        // Scenario two: actions are blocked cause we are using a BindControl menu item
-        KKey key = mEvent.key.code;
-        if(getCurrentMenu() != nullptr && key == KKey::Escape)
-        {
-            getCurrentMenu()->getItem().exec(); // turn off bind inputting
-            game.ignoreAllInputs(false);
-            hg::Joystick::ignoreAllPresses(false);
-            noActions = 0;
-            return;
-        }
-
-        if(!(--noActions))
-        {
-            dialogBox.clearDialogBox();
-
-            if(getCurrentMenu() == nullptr)
+            // don't do anything if inputs are being processed as usual
+            if(!noActions)
             {
                 return;
             }
 
-            auto* bc = dynamic_cast<KeyboardBindControl*>(
-                    &getCurrentMenu()->getItem());
-
-            // don't try assigning a keyboard key to a controller bind
-            if(bc == nullptr)
+            // Scenario one: actions are blocked cause a dialog box is open
+            if(!dialogBox.empty())
             {
-                assets.playSound("error.ogg");
-                noActions = 1;
+                checkCloseDialogBox();
                 return;
             }
 
-            if(!isValidKeyBind(key))
+            // Scenario two: actions are blocked cause we are using a
+            // BindControl menu item
+            KKey key = mEvent.key.code;
+            if(getCurrentMenu() != nullptr && key == KKey::Escape)
             {
-                assets.playSound("error.ogg");
-                noActions = 1;
-            }
-            else
-            {
-                bc->newKeyboardBind(key);
+                getCurrentMenu()->getItem().exec(); // turn off bind inputting
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
-                assets.playSound("beep.ogg");
+                noActions = 0;
+                return;
             }
 
-            touchDelay = 10.f;
-        }
-    };
+            if(!(--noActions))
+            {
+                dialogBox.clearDialogBox();
+
+                if(getCurrentMenu() == nullptr)
+                {
+                    return;
+                }
+
+                auto* bc = dynamic_cast<KeyboardBindControl*>(
+                    &getCurrentMenu()->getItem());
+
+                // don't try assigning a keyboard key to a controller bind
+                if(bc == nullptr)
+                {
+                    assets.playSound("error.ogg");
+                    noActions = 1;
+                    return;
+                }
+
+                if(!isValidKeyBind(key))
+                {
+                    assets.playSound("error.ogg");
+                    noActions = 1;
+                }
+                else
+                {
+                    bc->newKeyboardBind(key);
+                    game.ignoreAllInputs(false);
+                    hg::Joystick::ignoreAllPresses(false);
+                    assets.playSound("beep.ogg");
+                }
+
+                touchDelay = 10.f;
+            }
+        };
 
     game.onEvent(Event::EventType::MouseButtonReleased) +=
         [this, checkCloseDialogBox](const Event& mEvent) {
@@ -1059,8 +1059,8 @@ void MenuGame::initInput()
 
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
-        t::Once, Tid::Screenshot);
+        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; }, t::Once,
+        Tid::Screenshot);
 
     game.addInput(
             {{k::LAlt, k::Return}},
