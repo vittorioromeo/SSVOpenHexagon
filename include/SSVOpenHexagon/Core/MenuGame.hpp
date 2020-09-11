@@ -241,11 +241,12 @@ private:
                state == States::ETEmail || state == States::ETLPNew ||
                state == States::ETFriend;
     }
-    
-    using KKey = ssvs::KKey;
-    bool isValidKeyBind(KKey key)
+
+    [[nodiscard]] bool isValidKeyBind(ssvs::KKey key) const noexcept
     {
-        //do not allow keys with hardcoded behaviors
+        using KKey = ssvs::KKey;
+
+        // do not allow keys with hardcoded behaviors
         return key != KKey::Unknown && key != KKey::F1 && key != KKey::F2 &&
                key != KKey::F3 && key != KKey::F4 && key != KKey::LAlt &&
                key != KKey::Return && key != KKey::BackSpace &&
@@ -253,7 +254,6 @@ private:
                key != KKey::L && key != KKey::Up && key != KKey::Down &&
                key != KKey::R && key != KKey::Y;
     }
-    int noActions{0};
 
     [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept
     {

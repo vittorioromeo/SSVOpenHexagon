@@ -326,7 +326,7 @@ public:
     HexagonGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
         ssvs::GameWindow& mGameWindow);
-    
+
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
     {
         game.refreshTrigger(trigger, bindID);
@@ -345,7 +345,7 @@ public:
     {
         window.draw(mDrawable);
     }
-    
+
     // Setters
     void setSides(unsigned int mSides);
 

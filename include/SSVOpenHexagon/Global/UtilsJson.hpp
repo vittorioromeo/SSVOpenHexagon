@@ -92,7 +92,7 @@ struct Converter<ssvs::Input::Combo>
     inline static void fromObj(const Obj& mObj, T& mValue)
     {
         std::string str;
-        
+
         for(const auto& i : mObj)
         {
             str = getExtr<std::string>(i);
@@ -104,7 +104,8 @@ struct Converter<ssvs::Input::Combo>
             {
                 ssvu::lo("ssvs::getInputComboFromJSON")
                     << "<" << i
-                    << "> is an hardcoded key bind, an empty bind has been put in its place"
+                    << "> is an hardcoded key bind, an empty bind has been put "
+                       "in its place"
                     << std::endl;
                 mValue.addKey(ssvs::KKey::Unknown);
             }
@@ -120,7 +121,8 @@ struct Converter<ssvs::Input::Combo>
             {
                 ssvu::lo("ssvs::getInputComboFromJSON")
                     << "<" << i
-                    << "> is not a valid input name, an empty bind has been put in its place"
+                    << "> is not a valid input name, an empty bind has been "
+                       "put in its place"
                     << std::endl;
                 mValue.addKey(ssvs::KKey::Unknown);
             }
@@ -134,11 +136,11 @@ struct Converter<ssvs::Input::Combo>
             arch(mObj, 0, ssvs::KKey(-1));
             return;
         }
-    
+
         auto i(0u);
         const auto& keys(mValue.getKeys());
         const auto& btns(mValue.getBtns());
-        
+
         for(auto j(0u); j < ssvs::kKeyCount; ++j)
             if(ssvs::getKeyBit(keys, ssvs::KKey(j)))
                 arch(mObj, i++, ssvs::KKey(j));
