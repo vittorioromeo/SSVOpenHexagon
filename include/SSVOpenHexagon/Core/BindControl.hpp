@@ -27,7 +27,26 @@ namespace ssvms
             JoystickBind
         };
 
-        class BindControl final : public ItemBase
+        class BindControlBase : public ItemBase
+        {
+        protected:
+            bool waitingForBind{false};
+            int ID;
+
+        public:
+
+            BindControlBase(Menu& mMenu, Category& mCategory, const std::string& mName, const int mID)
+            : ItemBase(mMenu, mCategory, mName), ID{mID}
+            {
+            }
+
+            inline virtual bool erase() { return false; }
+            inline virtual void newKeyboardBind(const KKey key = KKey::Unknown, const MBtn btn = MBtn::Left) { (void)(key); (void)(btn); }
+            inline virtual void newJoystickBind(const int joy = -1) { (void)(joy); }
+            inline virtual int isWaitingForBind() { return 0; }
+        };
+
+        class BindControl final : public BindControlBase
         {
         private:
             using Combo = ssvs::Input::Combo;
@@ -44,9 +63,6 @@ namespace ssvms
             BindReturn addBind;
             Action clearBind;
             Callback callback;
-            int triggerID;
-
-            bool waitingForBind{false};
 
             [[nodiscard]] inline int getRealSize(const std::vector<Combo>& combos) const
             {
@@ -64,12 +80,12 @@ namespace ssvms
             BindControl(Menu& mMenu, Category& mCategory, const std::string& mName,
                         TFuncGet mFuncGet, TFuncSet mFuncSet, TFuncClear mFuncClear,
                         TFuncCallback mCallback, int mTriggerID)
-                : ItemBase{mMenu, mCategory, mName},
+                : BindControlBase{mMenu, mCategory, mName, mTriggerID},
                   triggerGetter{[=, this] { return mFuncGet(); }},
                   sizeGetter{[=, this] { return getRealSize(triggerGetter().getCombos()); }},
                   addBind{[=, this](const KKey setKey, const MBtn setBtn) { return mFuncSet(setKey, setBtn, sizeGetter()); }},
                   clearBind{[=, this] { mFuncClear(sizeGetter()); }},
-                  callback{mCallback}, triggerID{mTriggerID}
+                  callback{mCallback}
             {
             }
 
@@ -81,7 +97,7 @@ namespace ssvms
                 if(!size) { return false; }
 
                 clearBind();
-                callback(triggerGetter(), triggerID);
+                callback(triggerGetter(), ID);
                 return true;
             }
 
@@ -121,7 +137,7 @@ namespace ssvms
                 if(unboundID > -1) { callback(trig, unboundID); }
 
                 // apply the new bind in game
-                callback(triggerGetter(), triggerID);
+                callback(triggerGetter(), ID);
 
                 // finalize
                 waitingForBind = false;
@@ -168,7 +184,7 @@ namespace ssvms
             }
         };
 
-        class JoystickBindControl final : public ItemBase
+        class JoystickBindControl final : public BindControlBase
         {
         private:
             using ValueGetter = std::function<int()>;
@@ -178,9 +194,6 @@ namespace ssvms
             ValueGetter valueGetter;
             ValueSetter setButton;
             Callback callback;
-            int buttonID;
-
-            bool waitingForBind{false};
 
             const std::string buttonsNames[12][2] = {
                 { "A", "SQUARE" }, 			{ "B", "CROSS" }, 				{ "X", "CIRCLE" }, 		{ "Y", "TRIANGLE" },
@@ -191,10 +204,10 @@ namespace ssvms
             template <typename TFuncGet, typename TFuncSet, typename TFuncCallback>
             JoystickBindControl(Menu& mMenu, Category& mCategory, const std::string& mName,
                                 TFuncGet mFuncGet, TFuncSet mFuncSet, TFuncCallback mCallback, int mButtonID)
-                                : ItemBase{mMenu, mCategory, mName},
+                                : BindControlBase{mMenu, mCategory, mName, mButtonID},
                                 valueGetter{[=] { return mFuncGet(); }},
                                 setButton{[=, this](const int pressedButton) { return mFuncSet(pressedButton); }},
-                                callback{mCallback}, buttonID{mButtonID}
+                                callback{mCallback}
             {
             }
 
@@ -206,7 +219,7 @@ namespace ssvms
 
                 // clear both the config and the in game input
                 setButton(33);
-                callback(33, buttonID);
+                callback(33, ID);
                 return true;
             }
 
@@ -227,7 +240,7 @@ namespace ssvms
                 if(unboundID > -1) { callback(33, unboundID); }
 
                 // update the bind we customized
-                callback(joy, buttonID);
+                callback(joy, ID);
 
                 // finalize
                 waitingForBind = false;
