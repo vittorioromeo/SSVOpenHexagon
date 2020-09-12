@@ -361,14 +361,15 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // LUA context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
 
+    lua = Lua::LuaContext{};
+    initLua();
+    runLuaFile(levelData->luaScriptPath);
+
     if(!mFirstPlay)
     {
         runLuaFunction<void>("onUnload");
     }
-
-    lua = Lua::LuaContext{};
-    initLua();
-    runLuaFile(levelData->luaScriptPath);
+    
     runLuaFunction<void>("onInit");
 
     restartId = mId;
