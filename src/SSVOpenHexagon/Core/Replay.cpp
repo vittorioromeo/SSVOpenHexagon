@@ -173,6 +173,7 @@ replay_player::get_current_and_move_forward() noexcept
            _data == rhs._data &&                       //
            _pack_id == rhs._pack_id &&                 //
            _level_id == rhs._level_id &&               //
+           _first_play == rhs._first_play && 		   //
            _difficulty_mult == rhs._difficulty_mult && //
            _played_score == rhs._played_score;
 }
@@ -230,6 +231,7 @@ replay_player::get_current_and_move_forward() noexcept
 
     SSVOH_TRY(write_str(_pack_id));
     SSVOH_TRY(write_str(_level_id));
+    SSVOH_TRY(write(_first_play));
     SSVOH_TRY(write(_difficulty_mult));
     SSVOH_TRY(write(_played_score));
 
@@ -276,6 +278,7 @@ replay_player::get_current_and_move_forward() noexcept
 
     SSVOH_TRY(read_str(_pack_id));
     SSVOH_TRY(read_str(_level_id));
+    SSVOH_TRY(read(_first_play));
     SSVOH_TRY(read(_difficulty_mult));
     SSVOH_TRY(read(_played_score));
 
