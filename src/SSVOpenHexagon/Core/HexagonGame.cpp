@@ -295,7 +295,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         activeReplay->replayLevelName = Utils::toUppercase(levelData->name);
 
         rng = random_number_generator{activeReplay->replayFile._seed};
-		firstPlay = activeReplay->replayFile._first_play;
+        firstPlay = activeReplay->replayFile._first_play;
     }
 
     // Audio cleanup
