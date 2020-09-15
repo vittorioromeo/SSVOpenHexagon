@@ -114,6 +114,7 @@ struct replay_file
     replay_data _data;        // Input data.
     std::string _pack_id;     // Id of the selected pack.
     std::string _level_id;    // Id of the played level.
+    bool _first_play;         // If this was achieved on first level play.
     float _difficulty_mult;   // Played difficulty multiplier.
     double _played_score; // Played score (This can be an overridden score or
                           // frametime, excluding pauses).

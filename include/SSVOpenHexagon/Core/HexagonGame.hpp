@@ -133,6 +133,7 @@ private:
 
     random_number_generator::seed_type lastSeed;
     replay_data lastReplayData;
+    bool lastFirstPlay;
     double lastPlayedScore;
 
     std::string restartId;

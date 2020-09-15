@@ -1052,6 +1052,7 @@ typedef std::pair<setFuncTrig, Trigger> keyboardBindsConfigs;
     if(index >= MAX_BINDS)
     {
         index = 0;
+        trig.getCombos()[index].clearBind();
     }
 
     if(key > -1)
