@@ -213,6 +213,7 @@ public:
                       << "\" with level \"" << levelData->name << "\": \n"
                       << ssvu::toStr(mError.what()) << "\n"
                       << std::endl;
+
             if(!Config::getDebug())
             {
                 goToMenu(false /* mSendScores */, true /* mError */);
