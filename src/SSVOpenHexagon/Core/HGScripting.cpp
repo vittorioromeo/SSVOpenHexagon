@@ -777,7 +777,8 @@ void HexagonGame::initLua_LevelControl()
                 // Make sure we're not passing in a string
                 lua.executeCode("if (type(" + mVar + R"( ) ~= "number") then
 								error("Score override must be a number value")
-								end)");
+								end
+)");
             }
             catch(const std::runtime_error& mError)
             {
@@ -1291,7 +1292,7 @@ void HexagonGame::initLua()
     // Initialize Lua random seed from random generator one:
     try
     {
-        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())");
+        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())\n");
     }
     catch(...)
     {
