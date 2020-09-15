@@ -264,7 +264,15 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     packId = mPackId;
     levelId = mId;
 
-    firstPlay = mFirstPlay;
+    if(executeLastReplay && activeReplay.has_value())
+    {
+        firstPlay = activeReplay->replayFile._first_play;
+    }
+    else
+    {
+        firstPlay = mFirstPlay;
+    }
+
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
