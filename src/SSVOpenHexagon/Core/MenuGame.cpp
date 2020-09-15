@@ -339,22 +339,7 @@ void MenuGame::init(bool error)
 void MenuGame::init(
     bool error, const std::string& pack, const std::string& level)
 {
-    steamManager.set_rich_presence_in_menu();
-    steamManager.update_hardcoded_achievements();
-
-    discordManager.set_rich_presence_in_menu();
-
-    assets.stopMusics();
-    assets.stopSounds();
-
-    if(!error)
-    {
-        assets.playSound("openHexagon.ogg");
-    }
-    else
-    {
-        assets.playSound("error.ogg");
-    }
+    init(error);
 
     // TODO: ?
     // Online::setForceLeaderboardRefresh(true);

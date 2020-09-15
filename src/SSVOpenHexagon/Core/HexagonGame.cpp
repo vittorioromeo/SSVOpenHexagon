@@ -570,6 +570,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
         std::string localValidator{
             getLocalValidator(levelData->id, difficultyMult)};
 
+        // TODO: this crashes when going back to menu from replay drag and drop
         if(assets.getLocalScore(localValidator) < score)
         {
             assets.setLocalScore(localValidator, score);
@@ -620,22 +621,26 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     assets.stopSounds();
+
     if(!mError)
     {
         assets.playSound("beep.ogg");
     }
+
     fpsWatcher.disable();
 
     if(mSendScores && !status.hasDied && !mError)
     {
         checkAndSaveScore();
     }
+
     // Stop infinite feedback from occurring if the error is happening on
     // onUnload.
     if(!mError)
     {
         runLuaFunction<void>("onUnload");
     }
+
     window.setGameState(mgPtr->getGame());
     mgPtr->init(mError);
 }
