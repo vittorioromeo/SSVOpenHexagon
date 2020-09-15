@@ -283,6 +283,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         // Save data for immediate replay.
         lastSeed = rng.seed();
         lastReplayData = replay_data{};
+        lastFirstPlay = mFirstPlay;
 
 
         std::cout << "PLAYING SEED " << lastSeed << '\n';
@@ -304,6 +305,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
                 ._data{lastReplayData},
                 ._pack_id{mPackId},
                 ._level_id{mId},
+                ._first_play{lastFirstPlay},
                 ._difficulty_mult{mDifficultyMult},
                 ._played_score{lastPlayedScore},
             });
@@ -322,6 +324,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         // TODO: remove message
         std::cout << "LOADING SEED " << activeReplay->replayFile._seed << '\n';
         rng = random_number_generator{activeReplay->replayFile._seed};
+        firstPlay = activeReplay->replayFile._first_play;
     }
 
     // Audio cleanup
@@ -390,14 +393,15 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // LUA context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
 
-    if(!mFirstPlay)
+    lua = Lua::LuaContext{};
+    initLua();
+    runLuaFile(levelData->luaScriptPath);
+
+    if(!firstPlay)
     {
         runLuaFunction<void>("onUnload");
     }
 
-    lua = Lua::LuaContext{};
-    initLua();
-    runLuaFile(levelData->luaScriptPath);
     runLuaFunction<void>("onInit");
 
     restartId = mId;

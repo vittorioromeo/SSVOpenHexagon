@@ -143,6 +143,7 @@ static void test_replay_file_serialization_to_buffer()
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
+        ._first_play{false},
         ._difficulty_mult{2.5f},
         ._played_score{100.f}
         //
@@ -178,6 +179,7 @@ static void test_replay_file_serialization_to_file()
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
+        ._first_play{false},
         ._difficulty_mult{2.5f},
         ._played_score{100.f}
         //
