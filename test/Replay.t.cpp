@@ -179,7 +179,7 @@ static void test_replay_file_serialization_to_file()
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
-        ._first_play{false},
+        ._first_play{true},
         ._difficulty_mult{2.5f},
         ._played_score{100.f}
         //
@@ -193,7 +193,7 @@ static void test_replay_file_serialization_to_file()
     TEST_ASSERT_NS_EQ(rf_out, rf);
 }
 
-static auto& getRng()
+[[nodiscard]] static auto& getRng()
 {
     static std::random_device rd;
     static std::mt19937 rng(rd());
@@ -201,26 +201,27 @@ static auto& getRng()
     return rng;
 }
 
-static float getRndFloat(float min, float max)
+[[nodiscard]] static float getRndFloat(float min, float max)
 {
     return std::uniform_real_distribution<float>{min, max}(getRng());
 }
 
-static int getRndInt(int min, int max)
+template <typename T>
+[[nodiscard]] static T getRndInt(T min, T max)
 {
-    return std::uniform_int_distribution<int>{min, max}(getRng());
+    return std::uniform_int_distribution<T>{min, max}(getRng());
 }
 
-static bool getRndBool()
+[[nodiscard]] static bool getRndBool()
 {
-    return getRndInt(0, 10) > 5;
+    return getRndInt<int>(0, 10) > 5;
 }
 
 static void test_replay_file_serialization_to_file_randomized()
 {
     hg::replay_data rd;
 
-    const int nInputs = getRndInt(0, 4096);
+    const int nInputs = getRndInt<int>(0, 4096);
     for(int i = 0; i < nInputs; ++i)
     {
         rd.record_input(getRndBool(), getRndBool(), getRndBool(), getRndBool());
@@ -228,9 +229,9 @@ static void test_replay_file_serialization_to_file_randomized()
 
     hg::replay_file rf{
         //
-        ._version{getRndInt(0, 1000000)},
+        ._version{getRndInt<std::uint32_t>(0, 1000000)},
         ._player_name{"hello world"},
-        ._seed{getRndInt(0, 1000000)},
+        ._seed{getRndInt<hg::replay_file::seed_type>(0, 1000000)},
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
