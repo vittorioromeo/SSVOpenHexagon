@@ -466,6 +466,7 @@ void HexagonGame::death(bool mForce)
             ._data{lastReplayData},
             ._pack_id{packId},
             ._level_id{levelId},
+            ._first_play{firstPlay},
             ._difficulty_mult{difficultyMult},
             ._played_score{tempReplayScore},
         };

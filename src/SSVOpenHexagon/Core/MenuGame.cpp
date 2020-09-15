@@ -1662,7 +1662,8 @@ void MenuGame::drawLevelSelection()
         // Online::getServerMessage(),
         //    txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
 
-        Text& smsg = renderText(
+        // Text& smsg =
+        renderText(
             "", txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
 
         // TODO: restore online capabilities
