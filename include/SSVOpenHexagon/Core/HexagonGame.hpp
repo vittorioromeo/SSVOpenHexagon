@@ -138,7 +138,7 @@ private:
 
     std::string restartId;
     float difficultyMult{1};
-    int inputImplLastMovement;
+    int inputImplLastMovement{0};
     int inputMovement{0};
     bool inputImplCW{false};
     bool inputImplCCW{false};
@@ -335,7 +335,6 @@ private:
                 i);
         }
     }
-
 
 public:
     Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;

@@ -244,6 +244,7 @@ void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 {
     lastSeed = mReplayFile._seed;
     lastReplayData = mReplayFile._data;
+    lastFirstPlay = mReplayFile._first_play;
     lastPlayedScore = mReplayFile._played_score;
 
     activeReplay.emplace(mReplayFile);
@@ -253,16 +254,25 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
     // TODO: remove
-#define PRINT(x) << #x << ": " << x << '\n'
+#define PRINT(x) << " - " #x << ": " << x << '\n'
+
+    if(executeLastReplay)
+    {
+        fpsWatcher.disable();
+    }
+
 
     std::cout << "STARTING NEW GAME WITH\n" PRINT(mPackId) PRINT(mId)
-            PRINT(mFirstPlay) PRINT(mDifficultyMult) PRINT(executeLastReplay);
+            PRINT(mFirstPlay) PRINT(mDifficultyMult) PRINT(executeLastReplay)
+                PRINT(firstPlay) PRINT(lastFirstPlay) PRINT(lastSeed)
+                    PRINT(activeReplay.has_value());
 
 
     initFlashEffect();
 
     packId = mPackId;
     levelId = mId;
+
 
     if(executeLastReplay && activeReplay.has_value())
     {
@@ -292,7 +302,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         lastSeed = rng.seed();
         lastReplayData = replay_data{};
         lastFirstPlay = mFirstPlay;
-
 
         std::cout << "PLAYING SEED " << lastSeed << '\n';
 
@@ -785,6 +794,8 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
+    // TODO: the joystick thing should be in updateInput, this should be a blind
+    // getter
     return inputFocused || hg::Joystick::focusPressed();
 }
 
@@ -795,6 +806,8 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const
 {
+    // TODO: the joystick thing should be in updateInput, this should be a blind
+    // getter
     return inputSwap || hg::Joystick::swapRisingEdge();
 }
 

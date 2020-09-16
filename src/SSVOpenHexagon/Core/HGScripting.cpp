@@ -1194,6 +1194,8 @@ void HexagonGame::initLua_Steam()
 {
     addLuaFn("steam_unlockAchievement", //
         [this](const std::string& mId) {
+            // TODO: check if inside replay!
+
             if(Config::getOfficial())
             {
                 steamManager.unlock_achievement(mId);
@@ -1276,7 +1278,38 @@ void HexagonGame::initLua_CustomWalls()
 
 void HexagonGame::initLua()
 {
+    // TODO: eww, but seems to fix. consider exposing functions and deprecating
+    // `math.random`
+    addLuaFn("goodrandom", [this](int mode, int lower, int upper) -> float {
+        if(mode == 0)
+        {
+            return rng.get_real<float>(0, 1);
+        }
+        else if(mode == 1)
+        {
+            return rng.get_int<int>(1, upper);
+        }
+        else if(mode == 2)
+        {
+            return rng.get_int<int>(lower, upper);
+        }
+
+        assert(false);
+        return 0;
+    });
+
     redefineLuaFunctions();
+
+    lua.executeCode(R"(math.random = function(a, b)
+    if a == nil and b == nil then
+        return goodrandom(0, 0, 0)
+    elseif b == nil then
+        return goodrandom(1, 0, a)
+    else
+        return goodrandom(2, a, b)
+    end
+end
+)");
 
     // ------------------------------------------------------------------------
     // Register Lua function to get random seed for the current attempt:
@@ -1288,11 +1321,19 @@ void HexagonGame::initLua()
             "initialized with the result of this function at the beginning of "
             "a level.");
 
+    addLuaFn("u_logtest", //
+        [this](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
+        .arg("message")
+        .doc("Print out `$0` to the console.");
+
     // ------------------------------------------------------------------------
     // Initialize Lua random seed from random generator one:
     try
     {
-        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())\n");
+        lua.executeCode(
+            "u_logtest(\"LUA "
+            "SEED\")\nu_logtest(tostring(u_getAttemptRandomSeed()))\nmath."
+            "randomseed(u_getAttemptRandomSeed())\n");
     }
     catch(...)
     {

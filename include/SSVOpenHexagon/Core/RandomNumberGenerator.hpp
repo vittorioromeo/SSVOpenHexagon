@@ -32,6 +32,13 @@ public:
         assert(min <= max);
         return std::uniform_int_distribution<T>{min, max}(_rng);
     }
+
+    template <typename T>
+    [[nodiscard]] T get_real(const T min, const T max) noexcept
+    {
+        assert(min <= max);
+        return std::uniform_real_distribution<T>{min, max}(_rng);
+    }
 };
 
 } // namespace hg
