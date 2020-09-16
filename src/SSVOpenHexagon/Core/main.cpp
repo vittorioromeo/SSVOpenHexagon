@@ -144,6 +144,7 @@ int main(int argc, char* argv[])
 
     const auto gotoGameReplay = [&](const hg::replay_file& replayFile) {
         hg->setLastReplay(replayFile);
+
         hg->newGame(replayFile._pack_id, replayFile._level_id,
             replayFile._first_play, replayFile._difficulty_mult,
             /* mExecuteLastReplay */ true);

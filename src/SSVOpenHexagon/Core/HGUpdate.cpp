@@ -294,6 +294,9 @@ void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 
 void HexagonGame::start()
 {
+    // TODO: remove
+    std::cout << "HEXAGONGAME START\n";
+
     status.start();
     messageText.setString("");
     assets.playSound("go.ogg");
