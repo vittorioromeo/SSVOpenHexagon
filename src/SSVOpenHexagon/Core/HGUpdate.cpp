@@ -42,8 +42,6 @@ void HexagonGame::update(ssvu::FT mFT)
 {
     mFT *= Config::getTimescale();
 
-    // TODO: show best record (here) and last run + best record (in menu)
-
     std::string nameStr = levelData->name;
     nameFormat(nameStr);
     const std::string diffStr = diffFormat(difficultyMult);
@@ -52,6 +50,7 @@ void HexagonGame::update(ssvu::FT mFT)
     constexpr float DELAY_TO_UPDATE = 5.f; // X seconds
     timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
 
+    // TODO: show best record (here) and last run + best record (in menu)
     // Presence formatter
     const std::string presenceStr =
         nameStr + " [x" + diffStr + "] - " + timeStr + "s";
@@ -294,9 +293,6 @@ void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 
 void HexagonGame::start()
 {
-    // TODO: remove
-    std::cout << "HEXAGONGAME START\n";
-
     status.start();
     messageText.setString("");
     assets.playSound("go.ogg");
