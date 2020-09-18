@@ -294,10 +294,9 @@ void replay_player::reset() noexcept
 }
 
 [[nodiscard]] bool replay_file::serialize_to_file(
-    const std::filesystem::path p) const
+    const std::filesystem::path& p) const
 {
-    // TODO: this buf size is small
-    constexpr std::size_t buf_size{65536};
+    constexpr std::size_t buf_size{2097152}; // 2MB
     static std::byte buf[buf_size];
 
     const serialization_result sr = serialize(buf, buf_size);
@@ -316,7 +315,7 @@ void replay_player::reset() noexcept
 }
 
 [[nodiscard]] bool replay_file::deserialize_from_file(
-    const std::filesystem::path p)
+    const std::filesystem::path& p)
 {
     std::ifstream is(p, std::ios::binary | std::ios::in);
 
@@ -324,8 +323,7 @@ void replay_player::reset() noexcept
     const std::size_t bytes_to_read = is.tellg();
     is.seekg(0, std::ios::beg);
 
-    // TODO: this buf size is small
-    constexpr std::size_t buf_size{65536};
+    constexpr std::size_t buf_size{2097152}; // 2MB
     static std::byte buf[buf_size];
 
     is.read(reinterpret_cast<char*>(buf), bytes_to_read);

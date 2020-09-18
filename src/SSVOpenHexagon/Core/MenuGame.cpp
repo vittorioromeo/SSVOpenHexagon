@@ -1666,20 +1666,6 @@ void MenuGame::drawLevelSelection()
                 txtProf, {20.f, getGlobalTop(smsg) - 20.f}, 11);
         }
         */
-
-        // TODO: remove
-#if 0
-        if(!assets.pIsLocal() && Online::getLoginStatus() == ols::Logged)
-        {
-            const auto& us(Online::getUserStats());
-            std::string userStats;
-            userStats += "deaths: " + toStr(us.deaths) + "\n";
-            userStats += "restarts: " + toStr(us.restarts) + "\n";
-            userStats += "played: " + toStr(us.minutesSpentPlaying) + " min";
-            renderText(userStats, txtLMus,
-                {getGlobalRight(titleBar) + 10.f, getGlobalTop(titleBar)}, 13);
-        }
-#endif
     }
     else
     {

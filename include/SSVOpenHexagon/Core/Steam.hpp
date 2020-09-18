@@ -34,6 +34,8 @@ private:
     bool update_hardcoded_achievement_cube_master();
     bool update_hardcoded_achievement_hypercube_master();
 
+    void load_workshop_data();
+
 public:
     steam_manager();
     ~steam_manager();

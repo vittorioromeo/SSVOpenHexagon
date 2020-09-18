@@ -548,8 +548,7 @@ void HexagonGame::initLua_LevelControl()
         "cycle.",
 
         "Sets the delay the level has to wait before it begins another pulse "
-        "cycle "
-        "with `$0`.");
+        "cycle with `$0`.");
 
     // TODO: Repurpose PulseDelayHalfMax to do what is listed on this
     // documentation
@@ -570,16 +569,12 @@ void HexagonGame::initLua_LevelControl()
 
     lsVar("BeatPulseMax", &LevelStatus::beatPulseMax,
         "Gets the maximum beatpulse size of the polygon in a level. This is "
-        "the "
-        "highest value that the polygon will \"pulse\" in size. Useful for "
-        "syncing "
-        "the level to the music.",
+        "the highest value that the polygon will \"pulse\" in size. Useful for "
+        "syncing the level to the music.",
 
         "Sets the maximum beatpulse size of the polygon in a level to `$0`. "
-        "Not "
-        "to be confused with using this property to resize the polygon, which "
-        "you "
-        "should be using ``RadiusMin``.");
+        "Not to be confused with using this property to resize the polygon, "
+        "which you should be using ``RadiusMin``.");
 
     lsVar("BeatPulseDelayMax", &LevelStatus::beatPulseDelayMax,
         "Gets the delay for how fast the beatpulse pulses in frames (assuming "

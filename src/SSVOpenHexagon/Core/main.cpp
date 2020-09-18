@@ -19,7 +19,10 @@
 #include <filesystem>
 #include <string_view>
 
-static void createFolderIfNonExistant(const std::string& folderName)
+namespace
+{
+
+void createFolderIfNonExistant(const std::string& folderName)
 {
     const ssvu::FileSystem::Path path{folderName};
 
@@ -34,11 +37,16 @@ static void createFolderIfNonExistant(const std::string& folderName)
     createFolder(path);
 }
 
-static auto parseArgs(int argc, char* argv[])
+struct ParsedArgs
 {
-    std::vector<std::string> result;
+    std::vector<std::string> args;
     std::optional<std::string> cliLevelName;
     std::optional<std::string> cliLevelPack;
+};
+
+ParsedArgs parseArgs(int argc, char* argv[])
+{
+    ParsedArgs result;
 
     for(int i = 0; i < argc; ++i)
     {
@@ -46,7 +54,7 @@ static auto parseArgs(int argc, char* argv[])
         if(!strcmp(argv[i], "-p") && i + 1 < argc)
         {
             ++i;
-            cliLevelPack = argv[i];
+            result.cliLevelPack = argv[i];
             continue;
         }
 
@@ -54,23 +62,23 @@ static auto parseArgs(int argc, char* argv[])
         if(!strcmp(argv[i], "-l") && i + 1 < argc)
         {
             ++i;
-            cliLevelName = argv[i];
+            result.cliLevelName = argv[i];
             continue;
         }
 
-        result.emplace_back(argv[i]);
+        result.args.emplace_back(argv[i]);
     }
 
-    return std::make_tuple(result, cliLevelName, cliLevelPack);
+    return result;
 }
 
-static std::string makeWindowTitle()
+std::string makeWindowTitle()
 {
     return "Open Hexagon " + std::string{hg::Config::getVersionString()} +
            " - by vittorio romeo - http://vittorioromeo.info";
 }
 
-static std::optional<std::string> getFirstReplayFilenameFromArgs(
+std::optional<std::string> getFirstReplayFilenameFromArgs(
     const std::vector<std::string>& args)
 {
     for(const std::string& arg : args)
@@ -84,6 +92,8 @@ static std::optional<std::string> getFirstReplayFilenameFromArgs(
     return std::nullopt;
 }
 
+} // namespace
+
 int main(int argc, char* argv[])
 {
     if(argc < 1)
@@ -92,23 +102,31 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    // ------------------------------------------------------------------------
     // Set working directory to current executable location
     std::filesystem::current_path(std::filesystem::path{argv[0]}.parent_path());
 
+    // ------------------------------------------------------------------------
     // Steam integration
     hg::Steam::steam_manager steamManager;
     steamManager.request_stats_and_achievements();
 
+    // ------------------------------------------------------------------------
     // Discord integration
     hg::Discord::discord_manager discordManager;
 
-    const auto [args, cliLevelName, cliLevelPack] = parseArgs(argc, argv);
-
+    // ------------------------------------------------------------------------
+    // Create game folders if needed
     createFolderIfNonExistant("Profiles/");
     createFolderIfNonExistant("Replays/");
 
+    // ------------------------------------------------------------------------
+    // Parse arguments and load configuration (and overrides)
+    const auto [args, cliLevelName, cliLevelPack] = parseArgs(argc, argv);
     hg::Config::loadConfig(args);
 
+    // ------------------------------------------------------------------------
+    // Create the game window
     ssvs::GameWindow window;
 
     window.setTitle(makeWindowTitle());
@@ -122,6 +140,8 @@ int main(int argc, char* argv[])
 
     hg::Config::setTimerStatic(window, hg::Config::getTimerStatic());
 
+    // ------------------------------------------------------------------------
+    // Create the game and menu states
     auto assets = std::make_unique<hg::HGAssets>(steamManager);
 
     auto hg = std::make_unique<hg::HexagonGame>(
@@ -134,6 +154,8 @@ int main(int argc, char* argv[])
 
     assets->refreshVolumes();
 
+    // ------------------------------------------------------------------------
+    // Load drag & drop replay, if any -- otherwise run game as normal
     const std::optional<std::string> replayFilename =
         getFirstReplayFilenameFromArgs(args);
 
@@ -152,7 +174,6 @@ int main(int argc, char* argv[])
         window.setGameState(hg->getGame());
     };
 
-    // TODO: cleanup
     if(!replayFilename.has_value())
     {
         if(cliLevelPack.has_value() && cliLevelName.has_value())
@@ -182,8 +203,12 @@ int main(int argc, char* argv[])
         }
     }
 
+    // ------------------------------------------------------------------------
+    // Run the game!
     window.run();
 
+    // ------------------------------------------------------------------------
+    // Flush output, save configuration and log
     ssvu::lo().flush();
 
     hg::Config::saveConfig();

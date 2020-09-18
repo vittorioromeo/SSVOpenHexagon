@@ -20,7 +20,6 @@
 namespace hg::Utils
 {
 
-// TODO: move
 template <sf::PrimitiveType TPrimitive>
 struct FastVertexVector : public sf::Drawable
 {
