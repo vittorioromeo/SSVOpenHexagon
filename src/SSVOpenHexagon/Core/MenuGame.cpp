@@ -734,7 +734,7 @@ void MenuGame::downAction()
 }
 void MenuGame::okAction()
 {
-    assets.playSound("beep.ogg");
+    assets.playSound("select.ogg");
     touchDelay = 50.f;
 
     if(state == States::EpilepsyWarning)
@@ -854,8 +854,6 @@ void MenuGame::createProfileAction()
 
 void MenuGame::selectProfileAction()
 {
-    assets.playSound("beep.ogg");
-
     if(state != States::SMain)
     {
         return;
@@ -865,20 +863,18 @@ void MenuGame::selectProfileAction()
         state = States::MWlcm;
         return;
     }
-    assets.playSound("beep.ogg");
+    assets.playSound("select.ogg");
     enteredStr = "";
     state = States::SLPSelect;
 }
 
 void MenuGame::openOptionsAction()
 {
-    assets.playSound("beep.ogg");
-
     if(state != States::SMain)
     {
         return;
     }
-    assets.playSound("beep.ogg");
+    assets.playSound("select.ogg");
     state = States::MOpts;
 }
 
