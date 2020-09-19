@@ -26,6 +26,18 @@ using namespace hg::Utils;
 namespace hg
 {
 
+namespace
+{
+
+[[nodiscard]] double getReplayScore(const HexagonGameStatus& status)
+{
+    return status.getCustomScore() != 0.f
+               ? status.getCustomScore()
+               : status.getPlayedAccumulatedFrametime();
+}
+
+} // namespace
+
 [[nodiscard]] static random_number_generator initializeRng()
 {
     const random_number_generator::seed_type seed = ssvu::getRndEngine()();
@@ -253,26 +265,15 @@ void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
-    // TODO: remove
-#define PRINT(x) << " - " #x << ": " << x << '\n'
-
     if(executeLastReplay)
     {
         fpsWatcher.disable();
     }
 
-
-    std::cout << "STARTING NEW GAME WITH\n" PRINT(mPackId) PRINT(mId)
-            PRINT(mFirstPlay) PRINT(mDifficultyMult) PRINT(executeLastReplay)
-                PRINT(firstPlay) PRINT(lastFirstPlay) PRINT(lastSeed)
-                    PRINT(activeReplay.has_value());
-
-
     initFlashEffect();
 
     packId = mPackId;
     levelId = mId;
-
 
     if(executeLastReplay && activeReplay.has_value())
     {
@@ -286,9 +287,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setLevelData(assets.getLevelData(mId), mFirstPlay);
     difficultyMult = mDifficultyMult;
 
-    const double tempReplayScore = status.getCustomScore() != 0.f
-                                       ? status.getCustomScore()
-                                       : status.getPlayedAccumulatedFrametime();
+    const double tempReplayScore = getReplayScore(status);
     status = HexagonGameStatus{};
 
     if(!executeLastReplay)
@@ -302,8 +301,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         lastSeed = rng.seed();
         lastReplayData = replay_data{};
         lastFirstPlay = mFirstPlay;
-
-        std::cout << "PLAYING SEED " << lastSeed << '\n';
 
         // Clear any existing active replay.
         activeReplay.reset();
@@ -338,8 +335,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         // TODO: this can be used to speed up the replay
         // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
 
-        // TODO: remove message
-        std::cout << "LOADING SEED " << activeReplay->replayFile._seed << '\n';
         rng = random_number_generator{activeReplay->replayFile._seed};
         firstPlay = activeReplay->replayFile._first_play;
     }
@@ -459,23 +454,18 @@ void HexagonGame::death(bool mForce)
     status.hasDied = true;
     stopLevelMusic();
 
-    if(mustShowReplayUI()) // TODO: in replay
+    if(inReplay())
     {
+        // Do not save scores if watching a replay.
         return;
     }
 
     const bool localNewBest =
         checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
 
-    // TODO:
-    if(Config::getSaveLocalBestReplayToFile()) //  && localNewBest)
+    // TODO: more options? Always save replay? Prompt?
+    if(Config::getSaveLocalBestReplayToFile() && localNewBest)
     {
-        // TODO: repetition
-        const double tempReplayScore =
-            status.getCustomScore() != 0.f
-                ? status.getCustomScore()
-                : status.getPlayedAccumulatedFrametime();
-
         const replay_file rf{
             ._version{0},
             ._player_name{assets.getCurrentLocalProfile().getName()}, // TODO
@@ -485,10 +475,8 @@ void HexagonGame::death(bool mForce)
             ._level_id{levelId},
             ._first_play{firstPlay},
             ._difficulty_mult{difficultyMult},
-            ._played_score{tempReplayScore},
+            ._played_score{getReplayScore(status)},
         };
-
-        std::cout << "SAVING SEED " << lastSeed << '\n';
 
         const std::string filename = rf.create_filename();
 
@@ -593,38 +581,6 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 
     assert(false);
     return CheckSaveScoreResult::Local_NoNewBest;
-
-// TODO: remove
-#if 0
-    // These are requirements that need to be met for a score to be sent
-    // online
-    if(time < 8)
-    {
-        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-            << "Not sending score - less than 8 seconds\n";
-
-        return CheckSaveScoreResult::Online_LessThan8Secs;
-    }
-
-    if(Online::getServerVersion() == -1)
-    {
-        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-            << "Not sending score - connection error\n";
-
-        return CheckSaveScoreResult::Online_ConnectionError;
-    }
-
-    if(Online::getServerVersion() > Config::getVersion())
-    {
-        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
-            << "Not sending score - version mismatch\n";
-
-        return CheckSaveScoreResult::Online_VersionMismatch;
-    }
-
-    Online::trySendScore(levelData->id, difficultyMult, time);
-    return CheckSaveScoreResult::Online_Sent;
-#endif
 }
 
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
@@ -796,7 +752,7 @@ void HexagonGame::setSides(unsigned int mSides)
 {
     // TODO: the joystick thing should be in updateInput, this should be a blind
     // getter
-    return inputFocused || hg::Joystick::focusPressed();
+    return inputFocused || (!inReplay() && hg::Joystick::focusPressed());
 }
 
 [[nodiscard]] float HexagonGame::getPlayerSpeedMult() const
@@ -808,7 +764,7 @@ void HexagonGame::setSides(unsigned int mSides)
 {
     // TODO: the joystick thing should be in updateInput, this should be a blind
     // getter
-    return inputSwap || hg::Joystick::swapRisingEdge();
+    return inputSwap || (!inReplay() && hg::Joystick::swapPressed());
 }
 
 [[nodiscard]] int HexagonGame::getInputMovement() const
@@ -816,14 +772,19 @@ void HexagonGame::setSides(unsigned int mSides)
     return inputMovement;
 }
 
+[[nodiscard]] bool HexagonGame::inReplay() const noexcept
+{
+    return activeReplay.has_value();
+}
+
 [[nodiscard]] bool HexagonGame::mustReplayInput() const noexcept
 {
-    return activeReplay.has_value() && !activeReplay->replayPlayer.done();
+    return inReplay() && !activeReplay->replayPlayer.done();
 }
 
 [[nodiscard]] bool HexagonGame::mustShowReplayUI() const noexcept
 {
-    return activeReplay.has_value();
+    return inReplay();
 }
 
 [[nodiscard]] float HexagonGame::getSwapCooldown() const noexcept

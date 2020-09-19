@@ -1189,7 +1189,11 @@ void HexagonGame::initLua_Steam()
 {
     addLuaFn("steam_unlockAchievement", //
         [this](const std::string& mId) {
-            // TODO: check if inside replay!
+            if(!inReplay())
+            {
+                // Do not unlock achievements while watching a replay.
+                return;
+            }
 
             if(Config::getOfficial())
             {
@@ -1273,35 +1277,67 @@ void HexagonGame::initLua_CustomWalls()
 
 void HexagonGame::initLua()
 {
+    const auto rndReal = [this]() -> float {
+        return rng.get_real<float>(0, 1);
+    };
+
+    const auto rndIntUpper = [this](int upper) -> float {
+        return rng.get_int<int>(1, upper);
+    };
+
+    const auto rndInt = [this](int lower, int upper) -> float {
+        return rng.get_int<int>(lower, upper);
+    };
+
+    addLuaFn("u_rndReal", rndReal)
+        .doc("Return a random real number in the [0; 1] range.");
+
+    addLuaFn("u_rndIntUpper", rndIntUpper)
+        .arg("upper")
+        .doc("Return a random real number in the [1; `$0`] range.");
+
+    addLuaFn("u_rndInt", rndInt)
+        .arg("lower")
+        .doc("Return a random real number in the [lower; `$0`] range.");
+
     // TODO: eww, but seems to fix. consider exposing functions and deprecating
     // `math.random`
-    addLuaFn("goodrandom", [this](int mode, int lower, int upper) -> float {
-        if(mode == 0)
-        {
-            return rng.get_real<float>(0, 1);
-        }
-        else if(mode == 1)
-        {
-            return rng.get_int<int>(1, upper);
-        }
-        else if(mode == 2)
-        {
-            return rng.get_int<int>(lower, upper);
-        }
+    addLuaFn("u_rndSwitch",
+        [this, rndReal, rndIntUpper, rndInt](
+            int mode, int lower, int upper) -> float {
+            if(mode == 0)
+            {
+                return rndReal();
+            }
+            else if(mode == 1)
+            {
+                return rndIntUpper(upper);
+            }
+            else if(mode == 2)
+            {
+                return rndInt(lower, upper);
+            }
 
-        assert(false);
-        return 0;
-    });
+            assert(false);
+            return 0;
+        })
+        .arg("mode")
+        .arg("lower")
+        .arg("upper")
+        .doc(
+            "Internal replacement for `math.random`. Calls `u_rndReal()` with "
+            "`$0 == 0`, `u_rndUpper($2)` with `$0 == 1`, and `u_rndInt($1, "
+            "$2)` with `$0 == 2`.");
 
     redefineLuaFunctions();
 
     lua.executeCode(R"(math.random = function(a, b)
     if a == nil and b == nil then
-        return goodrandom(0, 0, 0)
+        return u_rndSwitch(0, 0, 0)
     elseif b == nil then
-        return goodrandom(1, 0, a)
+        return u_rndSwitch(1, 0, a)
     else
-        return goodrandom(2, a, b)
+        return u_rndSwitch(2, a, b)
     end
 end
 )");
