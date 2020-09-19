@@ -8,7 +8,6 @@
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Core/BindControl.hpp"
@@ -31,9 +30,6 @@ using namespace ssvuj;
 
 namespace hg
 {
-
-using ocs = Online::ConnectStat;
-using ols = Online::LoginStat;
 
 MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
@@ -329,6 +325,7 @@ void MenuGame::init(bool error)
 
     assets.stopMusics();
     assets.stopSounds();
+
     if(!error)
     {
         assets.playSound("openHexagon.ogg");
@@ -337,31 +334,15 @@ void MenuGame::init(bool error)
     {
         assets.playSound("error.ogg");
     }
-
-    Online::setForceLeaderboardRefresh(true);
 }
 
 void MenuGame::init(
     bool error, const std::string& pack, const std::string& level)
 {
-    steamManager.set_rich_presence_in_menu();
-    steamManager.update_hardcoded_achievements();
+    init(error);
 
-    discordManager.set_rich_presence_in_menu();
-
-    assets.stopMusics();
-    assets.stopSounds();
-
-    if(!error)
-    {
-        assets.playSound("openHexagon.ogg");
-    }
-    else
-    {
-        assets.playSound("error.ogg");
-    }
-
-    Online::setForceLeaderboardRefresh(true);
+    // TODO: ?
+    // Online::setForceLeaderboardRefresh(true);
 
     loadCommandLineLevel(pack, level);
 }
@@ -390,22 +371,8 @@ void MenuGame::initMenus()
     namespace i = ssvms::Items;
 
     auto whenLocal = [this] { return assets.pIsLocal(); };
-    auto whenNotLocal = [this] { return !assets.pIsLocal(); };
     auto whenNotOfficial = [] { return !Config::getOfficial(); };
-    auto whenDisconnected = [] {
-        return Online::getConnectionStatus() == ocs::Disconnected;
-    };
-    auto whenConnectedAndUnlogged = [] {
-        return Online::getConnectionStatus() == ocs::Connected &&
-               Online::getLoginStatus() == ols::Unlogged;
-    };
-    auto whenConnectedAndLogged = [] {
-        return Online::getConnectionStatus() == ocs::Connected &&
-               Online::getLoginStatus() == ols::Logged;
-    };
-    auto whenUnlogged = [] {
-        return Online::getLoginStatus() == ols::Unlogged;
-    };
+    auto whenUnlogged = [] { return true; };
     auto whenSoundEnabled = [] { return !Config::getNoSound(); };
     auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
     auto whenTimerIsStatic = [] { return Config::getTimerStatic(); };
@@ -413,23 +380,12 @@ void MenuGame::initMenus()
 
     // Welcome menu
     auto& wlcm(welcomeMenu.createCategory("welcome"));
-    wlcm.create<i::Single>("connect", [] { Online::tryConnectToServer(); }) |
-        whenDisconnected;
-    wlcm.create<i::Single>("login", [this] {
-        assets.pSaveCurrent();
-        assets.pSetPlayingLocally(false);
-        enteredStr = "";
-        state = States::ETUser;
-    }) | whenConnectedAndUnlogged;
-    wlcm.create<i::Single>("logout", [] { Online::logout(); }) |
-        whenConnectedAndLogged;
     wlcm.create<i::Single>("play locally", [this] { playLocally(); }) |
         whenUnlogged;
     wlcm.create<i::Single>("exit game", [this] { window.stop(); });
 
     // Options menu
     auto& main(optionsMenu.createCategory("options"));
-    auto& friends(optionsMenu.createCategory("friends"));
     auto& play(optionsMenu.createCategory("gameplay"));
     auto& keyboard(optionsMenu.createCategory("keyboard"));
     auto& joystick(optionsMenu.createCategory("joystick"));
@@ -439,7 +395,6 @@ void MenuGame::initMenus()
     auto& debug(optionsMenu.createCategory("debug"));
     auto& localProfiles(optionsMenu.createCategory("local profiles"));
 
-    main.create<i::Goto>("friends", friends) | whenNotLocal;
     main.create<i::Goto>("gameplay", play);
     main.create<i::Goto>("resolution", resolution);
     main.create<i::Goto>("graphics", gfx);
@@ -690,16 +645,6 @@ void MenuGame::initMenus()
     debug.create<i::Slider>("timescale", &Config::getTimescale,
         &Config::setTimescale, 0.1f, 2.f, 0.05f);
     debug.create<i::GoBack>("back");
-
-
-    // Friends
-    friends.create<i::Single>("add friend", [this] {
-        enteredStr = "";
-        state = States::ETFriend;
-    });
-    friends.create<i::Single>(
-        "clear friends", [this] { assets.pClearTrackedNames(); });
-    friends.create<i::GoBack>("back");
 }
 
 void MenuGame::leftAction()
@@ -843,44 +788,6 @@ void MenuGame::okAction()
             enteredStr = "";
         }
     }
-    else if(state == States::ETFriend)
-    {
-        if(!enteredStr.empty() &&
-            !ssvu::contains(assets.pGetTrackedNames(), enteredStr))
-        {
-            assets.pAddTrackedName(enteredStr);
-            state = States::SMain;
-            enteredStr = "";
-        }
-    }
-    else if(state == States::ETUser)
-    {
-        if(!enteredStr.empty())
-        {
-            lrUser = enteredStr;
-            state = States::ETPass;
-            enteredStr = "";
-        }
-    }
-    else if(state == States::ETPass)
-    {
-        if(!enteredStr.empty())
-        {
-            lrPass = enteredStr;
-            state = States::SLogging;
-            enteredStr = "";
-            Online::tryLogin(lrUser, lrPass);
-        }
-    }
-    else if(state == States::ETEmail)
-    {
-        if(!enteredStr.empty() && ssvu::contains(enteredStr, '@'))
-        {
-            lrEmail = enteredStr;
-            enteredStr = "";
-            Online::trySendUserEmail(lrEmail);
-        }
-    }
 }
 
 void MenuGame::eraseAction()
@@ -923,7 +830,7 @@ void MenuGame::exitAction()
                 state = States::SMain;
             }
         }
-        else if(state == States::ETFriend || state == States::SLPSelect)
+        else if(state == States::SLPSelect)
         {
             state = States::SMain;
         }
@@ -1287,6 +1194,8 @@ void MenuGame::updateLeaderboard()
         return;
     }
 
+// TODO: remove
+#if 0
     currentLeaderboard = Online::getCurrentLeaderboard();
     if(currentLeaderboard == "NULL")
     {
@@ -1361,6 +1270,7 @@ void MenuGame::updateLeaderboard()
     }
 
     leaderboardString = result;
+#endif
 }
 
 void MenuGame::updateFriends()
@@ -1375,6 +1285,9 @@ void MenuGame::updateFriends()
         friendsString = "playing locally";
         return;
     }
+
+    // TODO: remove
+#if 0
     if(assets.pGetTrackedNames().empty())
     {
         friendsString = "you have no friends! :(\nadd them in the options menu";
@@ -1422,6 +1335,7 @@ void MenuGame::updateFriends()
                              std::get<1>(t) + ": " + toStr(std::get<2>(t)) +
                              "\n");
     }
+#endif
 }
 
 void MenuGame::refreshCamera()
@@ -1565,11 +1479,14 @@ void MenuGame::update(ssvu::FT mFT)
     creditsBar2.setTexture(assets.get<Texture>(
         ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100))));
 
+// TODO: remove
+#if 0
     // If connection is lost, kick the player back into welcome screen
     if(!assets.pIsLocal() && Online::getConnectionStatus() != ocs::Connected)
     {
         state = States::MWlcm;
     }
+#endif
 
     updateLeaderboard();
     updateFriends();
@@ -1581,7 +1498,7 @@ void MenuGame::update(ssvu::FT mFT)
 
     if(isEnteringText())
     {
-        unsigned int limit{state == States::ETEmail ? 40u : 18u};
+        unsigned int limit{18u};
         for(const auto& c : enteredChars)
         {
             if(enteredStr.size() < limit &&
@@ -1601,27 +1518,7 @@ void MenuGame::update(ssvu::FT mFT)
     {
         styleData.update(mFT);
         backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
-
-        if(!assets.pIsLocal())
-        {
-            float diffMult{ssvu::getByModIdx(diffMults, diffMultIdx)};
-            Online::requestLeaderboardIfNeeded(levelData->id, diffMult);
-        }
     }
-    else if(state == States::SLogging)
-    {
-        if(Online::getLoginStatus() == ols::Logged)
-        {
-            state = Online::getNewUserReg() ? States::ETEmail : States::SMain;
-        }
-        else if(Online::getLoginStatus() == ols::Unlogged)
-        {
-            state = States::MWlcm;
-        }
-    }
-
-    if(state == States::ETEmail && !Online::getNewUserReg())
-        state = States::SMain;
 
     enteredChars.clear();
 }
@@ -1702,25 +1599,7 @@ void MenuGame::drawLevelSelection()
 
     if(Config::getOnline())
     {
-        std::string versionMessage{"connecting to server..."};
-        float serverVersion{Online::getServerVersion()};
-
-        if(serverVersion == -1)
-        {
-            versionMessage = "error connecting to server";
-        }
-        else if(serverVersion == Config::getVersion())
-        {
-            versionMessage = "you have the latest version";
-        }
-        else if(serverVersion < Config::getVersion())
-        {
-            versionMessage = "your version is newer (beta)";
-        }
-        else if(serverVersion > Config::getVersion())
-        {
-            versionMessage = "update available (" + toStr(serverVersion) + ")";
-        }
+        string versionMessage{""};
 
         // TODO: restore online capabilities
         // renderText(versionMessage, txtProf, {20, 4}, 13);
@@ -1743,13 +1622,12 @@ void MenuGame::drawLevelSelection()
         }
         else
         {
-            lbestStr = Online::getLoginStatus() == ols::Logged
-                           ? "logged in as: " + Online::getCurrentUsername()
-                           : "logging in...";
+            // TODO
         }
 
         Text& lbest = renderText(
             lbestStr, txtProf, {20.f, getGlobalBottom(pack) - 7.f}, 18);
+
         if(diffMults.size() > 1)
         {
             renderText("difficulty: " +
@@ -1765,8 +1643,8 @@ void MenuGame::drawLevelSelection()
         // Online::getServerMessage(),
         //    txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
 
-        Text& smsg = renderText(
-            "", txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
+        // Text& smsg =
+        renderText("", txtLAuth, {20.f, getGlobalTop(bottomBar) - 20.f}, 14);
 
         // TODO: restore online capabilities
         /*
@@ -1784,17 +1662,6 @@ void MenuGame::drawLevelSelection()
                 txtProf, {20.f, getGlobalTop(smsg) - 20.f}, 11);
         }
         */
-
-        if(!assets.pIsLocal() && Online::getLoginStatus() == ols::Logged)
-        {
-            const auto& us(Online::getUserStats());
-            std::string userStats;
-            userStats += "deaths: " + toStr(us.deaths) + "\n";
-            userStats += "restarts: " + toStr(us.restarts) + "\n";
-            userStats += "played: " + toStr(us.minutesSpentPlaying) + " min";
-            renderText(userStats, txtLMus,
-                {getGlobalRight(titleBar) + 10.f, getGlobalTop(titleBar)}, 13);
-        }
     }
     else
     {
@@ -1867,10 +1734,6 @@ void MenuGame::drawEnteringText()
     string title;
     switch(state)
     {
-        case States::ETUser: title = "insert username"; break;
-        case States::ETPass: title = "insert password"; break;
-        case States::ETEmail: title = "insert email"; break;
-        case States::ETFriend: title = "add friend"; break;
         case States::ETLPNew: title = "create local profile"; break;
         default: throw;
     }
@@ -1879,9 +1742,7 @@ void MenuGame::drawEnteringText()
     renderText("insert text", txtProf, {20, 768 - 375});
     renderText("press enter when done", txtProf, {20, 768 - 335});
     renderText("keep esc pressed to exit", txtProf, {20, 768 - 315});
-    renderText(
-        state == States::ETPass ? string(enteredStr.size(), '*') : enteredStr,
-        txtLName, {20, 768 - 245 - 40}, (state == States::ETEmail) ? 32 : 65);
+    renderText(enteredStr, txtLName, {20, 768 - 245 - 40}, 65);
 }
 void MenuGame::drawProfileSelection()
 {
@@ -1889,6 +1750,7 @@ void MenuGame::drawProfileSelection()
     {
         throw;
     }
+
     renderText("local profile selection", txtProf, {20, 768 - 395});
     renderText("press left/right to browse profiles", txtProf, {20, 768 - 375});
     renderText("press enter to select profile", txtProf, {20, 768 - 355});
@@ -1958,20 +1820,6 @@ void MenuGame::drawOptions()
 void MenuGame::drawWelcome()
 {
     drawMenu(welcomeMenu);
-
-    renderText(Online::getLoginStatus() == ols::Logged
-                   ? "logged in as: " + Online::getCurrentUsername()
-                   : "not logged in",
-        txtProf, {20, h - 50.f});
-
-    string connStatus;
-    switch(Online::getConnectionStatus())
-    {
-        case ocs::Disconnected: connStatus = "not connected to server"; break;
-        case ocs::Connecting: connStatus = "connecting to server..."; break;
-        case ocs::Connected: connStatus = "connected to server"; break;
-    }
-    renderText(connStatus, txtProf, {20, h - 30.f});
 }
 
 } // namespace hg

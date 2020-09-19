@@ -2,36 +2,110 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Common.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
-#include "SSVOpenHexagon/Online/Server.hpp"
-#include "SSVOpenHexagon/Online/OHServer.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
-static void createProfilesFolder()
-{
-    const ssvu::FileSystem::Path profilesPath{"Profiles/"};
+#include <string>
+#include <optional>
+#include <vector>
+#include <memory>
+#include <filesystem>
+#include <string_view>
 
-    if(profilesPath.exists<ssvufs::Type::Folder>())
+namespace
+{
+
+void createFolderIfNonExistant(const std::string& folderName)
+{
+    const ssvu::FileSystem::Path path{folderName};
+
+    if(path.exists<ssvufs::Type::Folder>())
     {
         return;
     }
 
-    ssvu::lo("::createProfilesFolder")
-        << "Profiles folder does not exist, creating\n";
+    ssvu::lo("::createFolderIfNonExistant")
+        << "'" << folderName << "' folder does not exist, creating\n";
 
-    createFolder(profilesPath);
+    createFolder(path);
 }
+
+struct ParsedArgs
+{
+    std::vector<std::string> args;
+    std::optional<std::string> cliLevelName;
+    std::optional<std::string> cliLevelPack;
+};
+
+ParsedArgs parseArgs(int argc, char* argv[])
+{
+    ParsedArgs result;
+
+    for(int i = 0; i < argc; ++i)
+    {
+        // Find command-line pack name (to immediately run level)
+        if(!strcmp(argv[i], "-p") && i + 1 < argc)
+        {
+            ++i;
+            result.cliLevelPack = argv[i];
+            continue;
+        }
+
+        // Find command-line level name (to immediately run level)
+        if(!strcmp(argv[i], "-l") && i + 1 < argc)
+        {
+            ++i;
+            result.cliLevelName = argv[i];
+            continue;
+        }
+
+        result.args.emplace_back(argv[i]);
+    }
+
+    return result;
+}
+
+std::string makeWindowTitle()
+{
+    return "Open Hexagon " + std::string{hg::Config::getVersionString()} +
+           " - by vittorio romeo - http://vittorioromeo.info";
+}
+
+std::optional<std::string> getFirstReplayFilenameFromArgs(
+    const std::vector<std::string>& args)
+{
+    for(const std::string& arg : args)
+    {
+        if(arg.find(".ohreplay") != std::string::npos)
+        {
+            return arg;
+        }
+    }
+
+    return std::nullopt;
+}
+
+} // namespace
 
 int main(int argc, char* argv[])
 {
+    if(argc < 1)
+    {
+        std::cerr << "Fatal error: no executable specified" << std::endl;
+        return -1;
+    }
+
+    // ------------------------------------------------------------------------
+    // Set working directory to current executable location
+    std::filesystem::current_path(std::filesystem::path{argv[0]}.parent_path());
+
     // ------------------------------------------------------------------------
     // Steam integration
     hg::Steam::steam_manager steamManager;
@@ -41,71 +115,21 @@ int main(int argc, char* argv[])
     // Discord integration
     hg::Discord::discord_manager discordManager;
 
-    hg::Online::setCurrentGtm(
-        std::make_unique<hg::Online::GlobalThreadManager>());
+    // ------------------------------------------------------------------------
+    // Create game folders if needed
+    createFolderIfNonExistant("Profiles/");
+    createFolderIfNonExistant("Replays/");
 
     // ------------------------------------------------------------------------
-    // Parse command line arguments and collect config override ids
-    std::optional<std::string> cliLevelName;
-    std::optional<std::string> cliLevelPack;
+    // Parse arguments and load configuration (and overrides)
+    const auto [args, cliLevelName, cliLevelPack] = parseArgs(argc, argv);
+    hg::Config::loadConfig(args);
 
-    const auto overrideIds = [&] {
-        std::vector<std::string> result;
-
-        for(int i = 0; i < argc; ++i)
-        {
-            // Find command-line pack name (to immediately run level)
-            if(!strcmp(argv[i], "-p") && i + 1 < argc)
-            {
-                ++i;
-                cliLevelPack = argv[i];
-                continue;
-            }
-
-            // Find command-line level name (to immediately run level)
-            if(!strcmp(argv[i], "-l") && i + 1 < argc)
-            {
-                ++i;
-                cliLevelName = argv[i];
-                continue;
-            }
-
-            result.emplace_back(argv[i]);
-        }
-
-        return result;
-    }();
-
-    if(ssvu::contains(overrideIds, "server"))
-    {
-        hg::Config::loadConfig(overrideIds);
-
-        auto levelOnlyAssets = std::make_unique<hg::HGAssets>(
-            steamManager, true /* mLevelsOnly */);
-        hg::Online::initializeValidators(*levelOnlyAssets);
-
-        auto ohServer = std::make_unique<hg::Online::OHServer>();
-        ohServer->start();
-
-        return 0;
-    }
-
-    createProfilesFolder();
-
-    hg::Online::initializeClient();
-    hg::Online::tryConnectToServer();
-
-    hg::Config::loadConfig(overrideIds);
-
-    if(hg::Config::getServerLocal())
-    {
-        ssvu::lo("Server") << "LOCAL MODE ON\n";
-    }
-
+    // ------------------------------------------------------------------------
+    // Create the game window
     ssvs::GameWindow window;
-    window.setTitle("Open Hexagon " +
-                    std::string{hg::Config::getVersionString()} +
-                    " - by vittorio romeo - https://vittorioromeo.info");
+
+    window.setTitle(makeWindowTitle());
     window.setSize(hg::Config::getWidth(), hg::Config::getHeight());
     window.setPixelMult(hg::Config::getPixelMultiplier());
     window.setFullscreen(hg::Config::getFullscreen());
@@ -116,8 +140,9 @@ int main(int argc, char* argv[])
 
     hg::Config::setTimerStatic(window, hg::Config::getTimerStatic());
 
+    // ------------------------------------------------------------------------
+    // Create the game and menu states
     auto assets = std::make_unique<hg::HGAssets>(steamManager);
-    hg::Online::initializeValidators(*assets);
 
     auto hg = std::make_unique<hg::HexagonGame>(
         steamManager, discordManager, *assets, window);
@@ -128,31 +153,68 @@ int main(int argc, char* argv[])
     hg->mgPtr = mg.get();
 
     assets->refreshVolumes();
-    window.setGameState(mg->getGame());
 
-    if(cliLevelPack.has_value() && cliLevelName.has_value())
+    // ------------------------------------------------------------------------
+    // Load drag & drop replay, if any -- otherwise run game as normal
+    const std::optional<std::string> replayFilename =
+        getFirstReplayFilenameFromArgs(args);
+
+    const auto gotoMenu = [&] {
+        window.setGameState(mg->getGame());
+        mg->init(false /* mError */);
+    };
+
+    const auto gotoGameReplay = [&](const hg::replay_file& replayFile) {
+        hg->setLastReplay(replayFile);
+
+        hg->newGame(replayFile._pack_id, replayFile._level_id,
+            replayFile._first_play, replayFile._difficulty_mult,
+            /* mExecuteLastReplay */ true);
+
+        window.setGameState(hg->getGame());
+    };
+
+    if(!replayFilename.has_value())
     {
-        mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
+        if(cliLevelPack.has_value() && cliLevelName.has_value())
+        {
+            mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
+        }
+        else
+        {
+            gotoMenu();
+        }
     }
     else
     {
-        mg->init(false /* mError */);
+        if(hg::replay_file rf; rf.deserialize_from_file(*replayFilename))
+        {
+            ssvu::lo("Replay")
+                << "Playing replay file '" << *replayFilename << "'\n";
+
+            gotoGameReplay(rf);
+        }
+        else
+        {
+            ssvu::lo("Replay") << "Failed to read replay file '"
+                               << replayFilename.value() << "'\n";
+
+            gotoMenu();
+        }
     }
 
+    // ------------------------------------------------------------------------
+    // Run the game!
     window.run();
 
-    if(hg::Online::getLoginStatus() != hg::Online::LoginStat::Logged)
-    {
-        hg::Online::logout();
-    }
-
+    // ------------------------------------------------------------------------
+    // Flush output, save configuration and log
     ssvu::lo().flush();
 
     hg::Config::saveConfig();
     assets->pSaveCurrent();
 
     ssvu::saveLogToFile("log.txt");
-    hg::Online::cleanup();
 
     return 0;
 }

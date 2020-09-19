@@ -241,7 +241,6 @@ public:
     /// containing code that will be executed by lua
     void executeCode(const std::string& code)
     {
-
         _load(code);
         _call<std::tuple<>>(std::tuple<>());
     }

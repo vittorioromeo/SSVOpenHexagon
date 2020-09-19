@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Core/Steam.hpp"
+
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
 #include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
@@ -22,6 +23,11 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Window.hpp>
+
 #include <cctype>
 
 namespace hg
@@ -30,12 +36,7 @@ namespace hg
 enum class States
 {
     EpilepsyWarning,
-    ETUser,
-    ETPass,
-    ETEmail,
     ETLPNew,
-    ETFriend,
-    SLogging,
     SMain,
     SLPSelect,
     MWlcm,
@@ -237,9 +238,7 @@ private:
 
     [[nodiscard]] bool isEnteringText()
     {
-        return state == States::ETUser || state == States::ETPass ||
-               state == States::ETEmail || state == States::ETLPNew ||
-               state == States::ETFriend;
+        return state == States::ETLPNew;
     }
 
     [[nodiscard]] bool isValidKeyBind(ssvs::KKey key) const noexcept

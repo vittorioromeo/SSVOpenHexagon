@@ -59,41 +59,46 @@ void steam_manager::on_user_achievement_stored(UserAchievementStored_t* data)
     ssvu::lo("Steam") << "Stored user achievement\n";
 }
 
+void steam_manager::load_workshop_data()
+{
+    const auto nSubscribedItems = SteamUGC()->GetNumSubscribedItems();
+    std::vector<PublishedFileId_t> subscribedItemsIds(nSubscribedItems);
+    SteamUGC()->GetSubscribedItems(subscribedItemsIds.data(), nSubscribedItems);
+
+    constexpr std::size_t folderBufSize = 512;
+    char folderBuf[folderBufSize];
+
+    for(PublishedFileId_t id : subscribedItemsIds)
+    {
+        ssvu::lo("Steam") << "Workshop subscribed item id: " << id << '\n';
+
+        uint64 itemDiskSize;
+        uint32 lastUpdateTimestamp;
+
+        const bool installed = SteamUGC()->GetItemInstallInfo(
+            id, &itemDiskSize, folderBuf, folderBufSize, &lastUpdateTimestamp);
+
+        if(installed)
+        {
+            ssvu::lo("Steam")
+                << "Workshop id " << id << " is installed, with size "
+                << itemDiskSize << " at folder " << std::string{folderBuf}
+                << '\n';
+
+            _workshop_pack_folders.emplace(std::string{folderBuf});
+        }
+    }
+}
+
 steam_manager::steam_manager()
     : _initialized{initialize_steamworks()}, _got_stats{false}
 {
-    // TODO: refactor
-    if(_initialized)
+    if(!_initialized)
     {
-        const auto nSubscribedItems = SteamUGC()->GetNumSubscribedItems();
-        std::vector<PublishedFileId_t> subscribedItemsIds(nSubscribedItems);
-        SteamUGC()->GetSubscribedItems(
-            subscribedItemsIds.data(), nSubscribedItems);
-
-        constexpr std::size_t folderBufSize = 512;
-        char folderBuf[folderBufSize];
-
-        for(PublishedFileId_t id : subscribedItemsIds)
-        {
-            ssvu::lo("Steam") << "Workshop subscribed item id: " << id << '\n';
-
-            uint64 itemDiskSize;
-            uint32 lastUpdateTimestamp;
-
-            const bool installed = SteamUGC()->GetItemInstallInfo(id,
-                &itemDiskSize, folderBuf, folderBufSize, &lastUpdateTimestamp);
-
-            if(installed)
-            {
-                ssvu::lo("Steam")
-                    << "Workshop id " << id << " is installed, with size "
-                    << itemDiskSize << " at folder " << std::string{folderBuf}
-                    << '\n';
-
-                _workshop_pack_folders.emplace(std::string{folderBuf});
-            }
-        }
+        return;
     }
+
+    load_workshop_data();
 }
 
 steam_manager::~steam_manager()

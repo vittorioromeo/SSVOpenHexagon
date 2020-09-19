@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/Online/Online.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVStart/Input/Input.hpp>
@@ -79,6 +78,7 @@ using namespace ssvu;
     X(showKeyIcons, bool, "show_key_icons")                                \
     X(keyIconsScale, float, "key_icons_scale")                             \
     X(firstTimePlaying, bool, "first_time_playing")                        \
+    X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file")   \
     X(joystickSelect, unsigned int, "j_select")                            \
     X(joystickExit, unsigned int, "j_exit")                                \
     X(joystickFocus, unsigned int, "j_focus")                              \
@@ -531,314 +531,324 @@ void setFirstTimePlaying(bool mX)
     firstTimePlaying() = mX;
 }
 
-bool getOnline()
+void setSaveLocalBestReplayToFile(bool mX)
+{
+    saveLocalBestReplayToFile() = mX;
+}
+
+[[nodiscard]] bool getOnline()
 {
     return online();
 }
 
-bool getOfficial()
+[[nodiscard]] bool getOfficial()
 {
     return official();
 }
 
-std::string getUneligibilityReason()
+[[nodiscard]] string getUneligibilityReason()
 {
     return uneligibilityReason;
 }
 
-float getSizeX()
+[[nodiscard]] float getSizeX()
 {
     return sizeX;
 }
 
-float getSizeY()
+[[nodiscard]] float getSizeY()
 {
     return sizeY;
 }
 
-float SSVU_ATTRIBUTE(const) getSpawnDistance()
+[[nodiscard]] float getSpawnDistance()
 {
     return spawnDistance;
 }
 
-float getZoomFactor()
+[[nodiscard]] float getZoomFactor()
 {
     return zoomFactor();
 }
 
-int getPixelMultiplier()
+[[nodiscard]] int getPixelMultiplier()
 {
     return pixelMultiplier();
 }
 
-float getPlayerSpeed()
+[[nodiscard]] float getPlayerSpeed()
 {
     return getOfficial() ? 9.45f : playerSpeed();
 }
 
-float getPlayerFocusSpeed()
+[[nodiscard]] float getPlayerFocusSpeed()
 {
     return getOfficial() ? 4.625f : playerFocusSpeed();
 }
 
-float getPlayerSize()
+[[nodiscard]] float getPlayerSize()
 {
     return getOfficial() ? 7.3f : playerSize();
 }
 
-bool getNoRotation()
+[[nodiscard]] bool getNoRotation()
 {
     return getOfficial() ? false : noRotation();
 }
 
-bool getNoBackground()
+[[nodiscard]] bool getNoBackground()
 {
     return getOfficial() ? false : noBackground();
 }
 
-bool getBlackAndWhite()
+[[nodiscard]] bool getBlackAndWhite()
 {
     return getOfficial() ? false : blackAndWhite();
 }
 
-bool getNoSound()
+[[nodiscard]] bool getNoSound()
 {
     return noSound();
 }
 
-bool getNoMusic()
+[[nodiscard]] bool getNoMusic()
 {
     return noMusic();
 }
 
-float getSoundVolume()
+[[nodiscard]] float getSoundVolume()
 {
     return soundVolume();
 }
 
-float getMusicVolume()
+[[nodiscard]] float getMusicVolume()
 {
     return musicVolume();
 }
 
-bool getLimitFPS()
+[[nodiscard]] bool getLimitFPS()
 {
     return limitFPS();
 }
 
-bool getVsync()
+[[nodiscard]] bool getVsync()
 {
     return vsync();
 }
 
-bool getAutoZoomFactor()
+[[nodiscard]] bool getAutoZoomFactor()
 {
     return getOfficial() ? true : autoZoomFactor();
 }
 
-bool getFullscreen()
+[[nodiscard]] bool getFullscreen()
 {
     return fullscreen();
 }
 
-float SSVU_ATTRIBUTE(const) getVersion()
+[[nodiscard, gnu::const]] float getVersion()
 {
     return 2.03f;
 }
 
-const char* SSVU_ATTRIBUTE(const) getVersionString()
+[[nodiscard, gnu::const]] const char* getVersionString()
 {
     return "2.03";
 }
 
-bool getWindowedAutoResolution()
+[[nodiscard]] bool getWindowedAutoResolution()
 {
     return windowedAutoResolution();
 }
 
-bool getFullscreenAutoResolution()
+[[nodiscard]] bool getFullscreenAutoResolution()
 {
     return fullscreenAutoResolution();
 }
 
-unsigned int getFullscreenWidth()
+[[nodiscard]] unsigned int getFullscreenWidth()
 {
     return fullscreenWidth();
 }
 
-unsigned int getFullscreenHeight()
+[[nodiscard]] unsigned int getFullscreenHeight()
 {
     return fullscreenHeight();
 }
 
-unsigned int getWindowedWidth()
+[[nodiscard]] unsigned int getWindowedWidth()
 {
     return windowedWidth();
 }
 
-unsigned int getWindowedHeight()
+[[nodiscard]] unsigned int getWindowedHeight()
 {
     return windowedHeight();
 }
 
-unsigned int getWidth()
+[[nodiscard]] unsigned int getWidth()
 {
     return getFullscreen() ? getFullscreenWidth() : getWindowedWidth();
 }
 
-unsigned int getHeight()
+[[nodiscard]] unsigned int getHeight()
 {
     return getFullscreen() ? getFullscreenHeight() : getWindowedHeight();
 }
 
-bool getShowMessages()
+[[nodiscard]] bool getShowMessages()
 {
     return showMessages();
 }
 
-bool getDebug()
+[[nodiscard]] bool getDebug()
 {
     return getOfficial() ? false : debug();
 }
 
-bool getPulse()
+[[nodiscard]] bool getPulse()
 {
     return getOfficial() ? true : pulseEnabled();
 }
 
-bool getBeatPulse()
+[[nodiscard]] bool getBeatPulse()
 {
     return getOfficial() ? true : beatPulse();
 }
 
-bool getInvincible()
+[[nodiscard]] bool getInvincible()
 {
     return getOfficial() ? false : invincible();
 }
 
-bool get3D()
+[[nodiscard]] bool get3D()
 {
     return _3DEnabled();
 }
 
-float get3DMultiplier()
+[[nodiscard]] float get3DMultiplier()
 {
     return _3DMultiplier();
 }
 
-unsigned int get3DMaxDepth()
+[[nodiscard]] unsigned int get3DMaxDepth()
 {
     return _3DMaxDepth();
 }
 
-bool getAutoRestart()
+[[nodiscard]] bool getAutoRestart()
 {
     return autoRestart();
 }
 
-bool getFlash()
+[[nodiscard]] bool getFlash()
 {
     return flashEnabled();
 }
 
-bool getShowTrackedVariables()
+[[nodiscard]] bool getShowTrackedVariables()
 {
     return showTrackedVariables();
 }
 
-bool getMusicSpeedDMSync()
+[[nodiscard]] bool getMusicSpeedDMSync()
 {
     return musicSpeedDMSync();
 }
 
-unsigned int getMaxFPS()
+[[nodiscard]] unsigned int getMaxFPS()
 {
     return maxFPS();
 }
 
-unsigned int getAntialiasingLevel()
+[[nodiscard]] unsigned int getAntialiasingLevel()
 {
     return antialiasingLevel();
 }
 
-bool getShowFPS()
+[[nodiscard]] bool getShowFPS()
 {
     return showFPS();
 }
 
-bool getTimerStatic()
+[[nodiscard]] bool getTimerStatic()
 {
     return timerStatic();
 }
 
-bool getServerLocal()
+[[nodiscard]] bool getServerLocal()
 {
     return serverLocal();
 }
 
-bool getServerVerbose()
+[[nodiscard]] bool getServerVerbose()
 {
     return serverVerbose();
 }
 
-bool getMouseVisible()
+[[nodiscard]] bool getMouseVisible()
 {
     return mouseVisible();
 }
 
-float getMusicSpeedMult()
+[[nodiscard]] float getMusicSpeedMult()
 {
     return musicSpeedMult();
 }
 
-bool getDrawTextOutlines()
+[[nodiscard]] bool getDrawTextOutlines()
 {
     return drawTextOutlines();
 }
 
-bool getDarkenUnevenBackgroundChunk()
+[[nodiscard]] bool getDarkenUnevenBackgroundChunk()
 {
     return darkenUnevenBackgroundChunk();
 }
 
-bool getRotateToStart()
+[[nodiscard]] bool getRotateToStart()
 {
     return rotateToStart();
 }
 
-float getJoystickDeadzone()
+[[nodiscard]] float getJoystickDeadzone()
 {
     return joystickDeadzone();
 }
 
-float getTextPadding()
+[[nodiscard]] float getTextPadding()
 {
     return textPadding();
 }
 
-float getTextScaling()
+[[nodiscard]] float getTextScaling()
 {
     return textScaling();
 }
 
-float getTimescale()
+[[nodiscard]] float getTimescale()
 {
     return getOfficial() ? 1.f : timescale();
 }
 
-bool getShowKeyIcons()
+[[nodiscard]] bool getShowKeyIcons()
 {
     return showKeyIcons();
 }
 
-float getKeyIconsScale()
+[[nodiscard]] float getKeyIconsScale()
 {
     return keyIconsScale();
 }
 
-bool getFirstTimePlaying()
+[[nodiscard]] bool getFirstTimePlaying()
 {
     return firstTimePlaying();
+}
+
+[[nodiscard]] bool getSaveLocalBestReplayToFile()
+{
+    return saveLocalBestReplayToFile();
 }
 
 //***********************************************************
