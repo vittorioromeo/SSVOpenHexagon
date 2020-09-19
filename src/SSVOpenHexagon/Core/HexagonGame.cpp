@@ -412,6 +412,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     if(!firstPlay)
     {
         runLuaFunction<void>("onUnload");
+        assets.playSound("restart.ogg");
+    } else {
+        assets.playSound("select.ogg");
     }
 
     runLuaFunction<void>("onInit");
@@ -535,6 +538,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     mustChangeSides = false;
 
+    assets.playSound("increment.ogg");
     runLuaFunction<void>("onIncrement");
 }
 
