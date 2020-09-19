@@ -119,7 +119,7 @@ void HexagonDialogBox::drawDialogBox()
 
 void HexagonDialogBox::clearDialogBox()
 {
-    assets.playSound("beep.ogg");
+    assets.playSound("select.ogg");
     dialogFrame.clear();
     dialogText.clear();
 }
