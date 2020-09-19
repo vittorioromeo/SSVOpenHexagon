@@ -492,6 +492,7 @@ public:
     [[nodiscard]] const std::string& getPackName() const noexcept;
     [[nodiscard]] int getPackVersion() const noexcept;
 
+    [[nodiscard]] bool inReplay() const noexcept;
     [[nodiscard]] bool mustReplayInput() const noexcept;
     [[nodiscard]] bool mustShowReplayUI() const noexcept;
 
