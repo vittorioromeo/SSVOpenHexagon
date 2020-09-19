@@ -413,7 +413,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     {
         runLuaFunction<void>("onUnload");
         assets.playSound("restart.ogg");
-    } else {
+    }
+    else
+    {
         assets.playSound("select.ogg");
     }
 
