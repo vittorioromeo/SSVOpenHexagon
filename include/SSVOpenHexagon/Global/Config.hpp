@@ -144,6 +144,7 @@ void keyboardBindsSanityCheck();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerFocus();
+[[nodiscard]] ssvs::Input::Trigger getTriggerSelect();
 [[nodiscard]] ssvs::Input::Trigger getTriggerExit();
 [[nodiscard]] ssvs::Input::Trigger getTriggerForceRestart();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRestart();
@@ -153,32 +154,23 @@ void keyboardBindsSanityCheck();
 [[nodiscard]] ssvs::Input::Trigger getTriggerUp();
 [[nodiscard]] ssvs::Input::Trigger getTriggerDown();
 
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerRotateCCW(
-    int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerRotateCW(
-    int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerFocus(
-    int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerExit(
-    int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger>
-reassignBindTriggerForceRestart(int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerRestart(
-    int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerReplay(
-    int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger>
-reassignBindTriggerScreenshot(int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerSwap(
-    int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerUp(
-    int key, int btn, int index);
-[[nodiscard]] std::pair<int, ssvs::Input::Trigger> reassignBindTriggerDown(
-    int key, int btn, int index);
+void addBindTriggerRotateCCW(int key, int btn, int index);
+void addBindTriggerRotateCW(int key, int btn, int index);
+void addBindTriggerFocus(int key, int btn, int index);
+void addBindTriggerSelect(int key, int btn, int index);
+void addBindTriggerExit(int key, int btn, int index);
+void addBindTriggerForceRestart(int key, int btn, int index);
+void addBindTriggerRestart(int key, int btn, int index);
+void addBindTriggerReplay(int key, int btn, int index);
+void addBindTriggerScreenshot(int key, int btn, int index);
+void addBindTriggerSwap(int key, int btn, int index);
+void addBindTriggerUp(int key, int btn, int index);
+void addBindTriggerDown(int key, int btn, int index);
 
 void setTriggerRotateCCW(ssvs::Input::Trigger trig);
 void setTriggerRotateCW(ssvs::Input::Trigger trig);
 void setTriggerFocus(ssvs::Input::Trigger trig);
+void setTriggerSelect(ssvs::Input::Trigger trig);
 void setTriggerExit(ssvs::Input::Trigger trig);
 void setTriggerForceRestart(ssvs::Input::Trigger trig);
 void setTriggerRestart(ssvs::Input::Trigger trig);
@@ -191,6 +183,7 @@ void setTriggerDown(ssvs::Input::Trigger trig);
 void clearBindTriggerRotateCCW(int index);
 void clearBindTriggerRotateCW(int index);
 void clearBindTriggerFocus(int index);
+void clearBindTriggerSelect(int index);
 void clearBindTriggerExit(int index);
 void clearBindTriggerForceRestart(int index);
 void clearBindTriggerRestart(int index);
