@@ -1277,6 +1277,7 @@ void HexagonGame::initLua_CustomWalls()
 
 void HexagonGame::initLua()
 {
+    // TODO: cleanup/refactor
     const auto rndReal = [this]() -> float {
         return rng.get_real<float>(0, 1);
     };
@@ -1298,7 +1299,8 @@ void HexagonGame::initLua()
 
     addLuaFn("u_rndInt", rndInt)
         .arg("lower")
-        .doc("Return a random real number in the [lower; `$0`] range.");
+        .arg("upper")
+        .doc("Return a random real number in the [`$0`; `$1`] range.");
 
     // TODO: eww, but seems to fix. consider exposing functions and deprecating
     // `math.random`
