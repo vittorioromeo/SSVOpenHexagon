@@ -35,19 +35,24 @@ private:
     using Trigger = ssvs::Input::Trigger;
     using TriggerGetter = std::function<ssvs::Input::Trigger()>;
     using SizeGetter = std::function<int()>;
-    using BindReturn =
-        std::function<std::pair<int, Trigger>(ssvs::KKey, ssvs::MBtn)>;
+    using AddBind =
+        std::function<void(ssvs::KKey, ssvs::MBtn)>;
     using Callback =
         std::function<void(const ssvs::Input::Trigger&, const int)>;
 
     TriggerGetter triggerGetter;
     SizeGetter sizeGetter;
-    BindReturn addBind;
+    AddBind addBind;
     ssvms::Action clearBind;
     Callback callback;
 
     [[nodiscard]] int getRealSize(
         const std::vector<ssvs::Input::Combo>& combos) const;
+
+    [[nodiscard]] std::string bindToHumanReadableName(const std::string_view s) const
+    {
+        return std::string(s.substr(1, s.length() - 1));
+    }
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncClear,
@@ -61,7 +66,7 @@ public:
           }},
           addBind{[this, mFuncSet](
                       const ssvs::KKey setKey, const ssvs::MBtn setBtn) {
-              return mFuncSet(setKey, setBtn, sizeGetter());
+              mFuncSet(setKey, setBtn, sizeGetter());
           }},
           clearBind{[this, mFuncClear] { mFuncClear(sizeGetter()); }},
           callback{mCallback}

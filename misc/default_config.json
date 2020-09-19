@@ -49,56 +49,85 @@
 	"t_down" : 
 	[
 		[ "kS" ],
+		[ "" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_exit" : 
 	[
 		[ "kT" ],
+		[ "" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_focus" : 
 	[
 		[ "kLShift" ],
-		[ "bXButton1" ]
+		[ "bXButton1" ],
+		[ "" ],
+		[ "" ]
 	],
 	"t_force_restart" : 
 	[
-		[ "kG" ],
+		[ "kUp" ],
+		[ "kR" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_replay" : 
 	[
-		[ "bMiddle" ],
+		[ "kY" ],
+		[ "" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_restart" : 
 	[
-		[ "kB" ],
+		[ "bMiddle" ],
+		[ "kSpace" ],
+		[ "kReturn" ],
 		[ "" ]
 	],
 	"t_rotate_ccw" : 
 	[
+		[ "kA" ],
 		[ "kLeft" ],
-		[ "kA" ]
+		[ "bLeft" ],
+		[ "" ]
 	],
 	"t_rotate_cw" : 
 	[
+		[ "kD" ],
 		[ "kRight" ],
-		[ "kD" ]
+		[ "bRight" ],
+		[ "" ]
 	],
 	"t_screenshot" : 
 	[
 		[ "kF12" ],
+		[ "" ],
+		[ "" ],
+		[ "" ]
+	],
+	"t_select" : 
+	[
+		[ "kSpace" ],
+		[ "bMiddle" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_swap" : 
 	[
+		[ "bMiddle" ],
 		[ "kSpace" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_up" : 
 	[
 		[ "kW" ],
+		[ "" ],
+		[ "" ],
 		[ "" ]
 	],
 	"j_select" : 0,

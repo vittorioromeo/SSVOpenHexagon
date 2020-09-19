@@ -66,7 +66,8 @@ struct Converter<ssvs::KKey>
     {
         if(mValue == T::Unknown)
         {
-            arch(mObj, "");
+            std::string empty;
+            arch(mObj, empty);
             return;
         }
 
@@ -105,16 +106,6 @@ struct Converter<ssvs::Input::Combo>
 
             if(str.empty())
             {
-                mValue.addKey(ssvs::KKey::Unknown);
-            }
-            else if(ssvs::isKKeyHardcoded(str))
-            {
-                ssvu::lo("ssvs::getInputComboFromJSON")
-                    << "<" << i
-                    << "> is an hardcoded key bind, an empty bind has been put "
-                       "in its place"
-                    << std::endl;
-
                 mValue.addKey(ssvs::KKey::Unknown);
             }
             else if(ssvs::isKKeyNameValid(str))
