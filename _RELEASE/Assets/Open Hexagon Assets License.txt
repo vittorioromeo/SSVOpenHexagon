@@ -1,0 +1,9 @@
+OPEN HEXAGON SOUND LICENSE | © 2020 LukeMans (https://lukemans.carrd.co/)
+
+The sound effects beep.ogg, death.ogg, error.ogg, increment.ogg, restart.ogg, select.ogg, and swap.ogg
+are created by Luuk Zellenrath (known as LukeMans) and hereby grants irrevokable rights of the sounds 
+to be used for the game Open Hexagon. The sounds listed shall only be used by Open Hexagon, and cannot 
+be used in commercial content, including but not limited to, games, videos, music, etc. These sound 
+effects are allowed on video streaming sites, including but not limited to YouTube, Twitch, etc. under 
+17 U.S. Code § 107. Reuploads of the sound effects are prohibited and will be requested to be taken 
+down. 
