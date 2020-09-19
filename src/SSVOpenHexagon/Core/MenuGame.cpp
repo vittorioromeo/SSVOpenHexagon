@@ -816,6 +816,12 @@ void MenuGame::exitAction()
 {
     assets.playSound("beep.ogg");
 
+    if(state == States::EpilepsyWarning)
+    {
+        // TODO: remove when welcome screen is implemented
+        playLocally();
+    }
+
     if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
         !assets.pIsLocal())
     {
