@@ -6,6 +6,8 @@
 
 #include "TestUtils.hpp"
 
+#include <random>
+
 static void test_replay_data_basic()
 {
     hg::replay_data rd;
@@ -173,13 +175,68 @@ static void test_replay_file_serialization_to_file()
         //
         ._version{59832},
         ._player_name{"hello world"},
-        ._seed{12345},
+        ._seed{1234512345},
         ._data{rd},
         ._pack_id{"totally real pack id"},
         ._level_id{"legit level id"},
-        ._first_play{false},
+        ._first_play{true},
         ._difficulty_mult{2.5f},
         ._played_score{100.f}
+        //
+    };
+
+    TEST_ASSERT(rf.serialize_to_file("test.ohr"));
+
+    hg::replay_file rf_out;
+    TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
+
+    TEST_ASSERT_NS_EQ(rf_out, rf);
+}
+
+[[nodiscard]] static auto& getRng()
+{
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
+
+    return rng;
+}
+
+[[nodiscard]] static float getRndFloat(float min, float max)
+{
+    return std::uniform_real_distribution<float>{min, max}(getRng());
+}
+
+template <typename T>
+[[nodiscard]] static T getRndInt(T min, T max)
+{
+    return std::uniform_int_distribution<T>{min, max}(getRng());
+}
+
+[[nodiscard]] static bool getRndBool()
+{
+    return getRndInt<int>(0, 10) > 5;
+}
+
+static void test_replay_file_serialization_to_file_randomized()
+{
+    hg::replay_data rd;
+
+    const int nInputs = getRndInt<int>(0, 4096);
+    for(int i = 0; i < nInputs; ++i)
+    {
+        rd.record_input(getRndBool(), getRndBool(), getRndBool(), getRndBool());
+    }
+
+    hg::replay_file rf{
+        //
+        ._version{getRndInt<std::uint32_t>(0, 1000000)},
+        ._player_name{"hello world"},
+        ._seed{getRndInt<hg::replay_file::seed_type>(0, 1000000)},
+        ._data{rd},
+        ._pack_id{"totally real pack id"},
+        ._level_id{"legit level id"},
+        ._difficulty_mult{getRndFloat(0.0f, 100000.0f)},
+        ._played_score{getRndFloat(0.0f, 100000.0f)}
         //
     };
 
@@ -201,4 +258,9 @@ int main()
 
     test_replay_file_serialization_to_buffer();
     test_replay_file_serialization_to_file();
+
+    for(int i = 0; i < 256; ++i)
+    {
+        test_replay_file_serialization_to_file_randomized();
+    }
 }

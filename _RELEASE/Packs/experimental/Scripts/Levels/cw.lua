@@ -145,7 +145,6 @@ end
 function onUnload()
 end
 
--- TODO: move to utils
 -- From: https://stackoverflow.com/questions/12394841/
 function ArrayRemove(t, fnRemove)
     local j, n = 1, #t;

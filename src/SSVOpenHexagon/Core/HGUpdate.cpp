@@ -2,10 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 
 #include <SSVStart/Utils/Vector2.hpp>
@@ -44,8 +42,6 @@ void HexagonGame::update(ssvu::FT mFT)
 {
     mFT *= Config::getTimescale();
 
-    // TODO: show best record (here) and last run + best record (in menu)
-
     std::string nameStr = levelData->name;
     nameFormat(nameStr);
     const std::string diffStr = diffFormat(difficultyMult);
@@ -54,6 +50,7 @@ void HexagonGame::update(ssvu::FT mFT)
     constexpr float DELAY_TO_UPDATE = 5.f; // X seconds
     timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
 
+    // TODO: show best record (here) and last run + best record (in menu)
     // Presence formatter
     const std::string presenceStr =
         nameStr + " [x" + diffStr + "] - " + timeStr + "s";
@@ -109,16 +106,6 @@ void HexagonGame::update(ssvu::FT mFT)
 
     if(status.started)
     {
-        if(!assets.pIsLocal() && Config::isEligibleForScore())
-        {
-            assets.playedSeconds += ssvu::getFTToSeconds(mFT);
-            if(assets.playedSeconds >= 60.f)
-            {
-                assets.playedSeconds = 0;
-                Online::trySendMinutePlayed();
-            }
-        }
-
         if(!status.hasDied)
         {
             player.update(*this, mFT);
@@ -203,11 +190,6 @@ void HexagonGame::update(ssvu::FT mFT)
 
             newGame(getPackId(), restartId, restartFirstTime, difficultyMult,
                 executeLastReplay);
-
-            if(!assets.pIsLocal() && Config::isEligibleForScore())
-            {
-                Online::trySendRestart();
-            }
         }
 
         if(!status.scoreInvalid && Config::getOfficial() &&

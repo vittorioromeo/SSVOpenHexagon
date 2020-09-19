@@ -46,6 +46,8 @@ void CWall::draw(HexagonGame& mHexagonGame)
 
 void CWall::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
+    (void)mHexagonGame; // Currently unused.
+
     speed.update(mFT);
     curve.update(mFT);
 }
@@ -78,6 +80,8 @@ void CWall::moveTowardsCenter(
 void CWall::moveCurve(
     HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
 {
+    (void)mHexagonGame; // Currently unused.
+
     for(sf::Vector2f& vp : vertexPositions)
     {
         ssvs::rotateRadAround(vp, mCenterPos, curve.speed / 60.f * mFT);

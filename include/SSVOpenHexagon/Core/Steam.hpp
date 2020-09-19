@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
-
+#include <stdint.h> // Steam API needs this.
 #include "steam/steam_api.h"
 
+#include <functional>
 #include <string_view>
 #include <unordered_set>
 
@@ -33,6 +33,8 @@ private:
 
     bool update_hardcoded_achievement_cube_master();
     bool update_hardcoded_achievement_hypercube_master();
+
+    void load_workshop_data();
 
 public:
     steam_manager();

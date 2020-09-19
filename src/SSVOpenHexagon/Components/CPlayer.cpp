@@ -220,6 +220,8 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
 [[nodiscard]] bool CPlayer::push(
     HexagonGame& mHexagonGame, const CCustomWall& wall, ssvu::FT mFT)
 {
+    (void)mFT; // Currently unused.
+
     if(dead)
     {
         return false;
@@ -299,6 +301,8 @@ void CPlayer::updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT)
 
 void CPlayer::updatePosition(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
+    (void)mFT; // Currently unused.
+
     pos = ssvs::getOrbitRad(startPos, angle, mHexagonGame.getRadius());
 }
 

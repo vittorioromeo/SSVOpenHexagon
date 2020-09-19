@@ -2,13 +2,15 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
+
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 
 using namespace sf;
 using namespace ssvs;
@@ -27,7 +29,7 @@ void HexagonGame::redefineLuaFunctions()
     catch(...)
     {
         ssvu::lo("HexagonGame::redefineLuaFunctions")
-            << "Failure to redefine Lua's io.open function\n";
+            << "Failure to redefine Lua's `io.open` function\n";
     }
 }
 
@@ -546,8 +548,7 @@ void HexagonGame::initLua_LevelControl()
         "cycle.",
 
         "Sets the delay the level has to wait before it begins another pulse "
-        "cycle "
-        "with `$0`.");
+        "cycle with `$0`.");
 
     // TODO: Repurpose PulseDelayHalfMax to do what is listed on this
     // documentation
@@ -568,16 +569,12 @@ void HexagonGame::initLua_LevelControl()
 
     lsVar("BeatPulseMax", &LevelStatus::beatPulseMax,
         "Gets the maximum beatpulse size of the polygon in a level. This is "
-        "the "
-        "highest value that the polygon will \"pulse\" in size. Useful for "
-        "syncing "
-        "the level to the music.",
+        "the highest value that the polygon will \"pulse\" in size. Useful for "
+        "syncing the level to the music.",
 
         "Sets the maximum beatpulse size of the polygon in a level to `$0`. "
-        "Not "
-        "to be confused with using this property to resize the polygon, which "
-        "you "
-        "should be using ``RadiusMin``.");
+        "Not to be confused with using this property to resize the polygon, "
+        "which you should be using ``RadiusMin``.");
 
     lsVar("BeatPulseDelayMax", &LevelStatus::beatPulseDelayMax,
         "Gets the delay for how fast the beatpulse pulses in frames (assuming "
@@ -775,7 +772,8 @@ void HexagonGame::initLua_LevelControl()
                 // Make sure we're not passing in a string
                 lua.executeCode("if (type(" + mVar + R"( ) ~= "number") then
 								error("Score override must be a number value")
-								end)");
+								end
+)");
             }
             catch(const std::runtime_error& mError)
             {
@@ -798,8 +796,8 @@ void HexagonGame::initLua_LevelControl()
             "Your variable must be global for this to work.*");
 
     addLuaFn("l_addTracked", //
-        [this](const std::string& mVar, std::string mName) {
-            levelStatus.trackedVariables.emplace_back(mVar, mName);
+        [this](const std::string& mVar, const std::string& mName) {
+            levelStatus.trackedVariables.push_back({mVar, mName});
         })
         .arg("variable")
         .arg("name")
@@ -1191,6 +1189,12 @@ void HexagonGame::initLua_Steam()
 {
     addLuaFn("steam_unlockAchievement", //
         [this](const std::string& mId) {
+            if(!inReplay())
+            {
+                // Do not unlock achievements while watching a replay.
+                return;
+            }
+
             if(Config::getOfficial())
             {
                 steamManager.unlock_achievement(mId);
@@ -1273,7 +1277,72 @@ void HexagonGame::initLua_CustomWalls()
 
 void HexagonGame::initLua()
 {
+    // TODO: cleanup/refactor
+    const auto rndReal = [this]() -> float {
+        return rng.get_real<float>(0, 1);
+    };
+
+    const auto rndIntUpper = [this](int upper) -> float {
+        return rng.get_int<int>(1, upper);
+    };
+
+    const auto rndInt = [this](int lower, int upper) -> float {
+        return rng.get_int<int>(lower, upper);
+    };
+
+    addLuaFn("u_rndReal", rndReal)
+        .doc("Return a random real number in the [0; 1] range.");
+
+    addLuaFn("u_rndIntUpper", rndIntUpper)
+        .arg("upper")
+        .doc("Return a random real number in the [1; `$0`] range.");
+
+    addLuaFn("u_rndInt", rndInt)
+        .arg("lower")
+        .arg("upper")
+        .doc("Return a random real number in the [`$0`; `$1`] range.");
+
+    // TODO: eww, but seems to fix. consider exposing functions and deprecating
+    // `math.random`
+    addLuaFn("u_rndSwitch",
+        [this, rndReal, rndIntUpper, rndInt](
+            int mode, int lower, int upper) -> float {
+            if(mode == 0)
+            {
+                return rndReal();
+            }
+            else if(mode == 1)
+            {
+                return rndIntUpper(upper);
+            }
+            else if(mode == 2)
+            {
+                return rndInt(lower, upper);
+            }
+
+            assert(false);
+            return 0;
+        })
+        .arg("mode")
+        .arg("lower")
+        .arg("upper")
+        .doc(
+            "Internal replacement for `math.random`. Calls `u_rndReal()` with "
+            "`$0 == 0`, `u_rndUpper($2)` with `$0 == 1`, and `u_rndInt($1, "
+            "$2)` with `$0 == 2`.");
+
     redefineLuaFunctions();
+
+    lua.executeCode(R"(math.random = function(a, b)
+    if a == nil and b == nil then
+        return u_rndSwitch(0, 0, 0)
+    elseif b == nil then
+        return u_rndSwitch(1, 0, a)
+    else
+        return u_rndSwitch(2, a, b)
+    end
+end
+)");
 
     // ------------------------------------------------------------------------
     // Register Lua function to get random seed for the current attempt:
@@ -1285,11 +1354,19 @@ void HexagonGame::initLua()
             "initialized with the result of this function at the beginning of "
             "a level.");
 
+    addLuaFn("u_logtest", //
+        [this](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
+        .arg("message")
+        .doc("Print out `$0` to the console.");
+
     // ------------------------------------------------------------------------
     // Initialize Lua random seed from random generator one:
     try
     {
-        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())");
+        lua.executeCode(
+            "u_logtest(\"LUA "
+            "SEED\")\nu_logtest(tostring(u_getAttemptRandomSeed()))\nmath."
+            "randomseed(u_getAttemptRandomSeed())\n");
     }
     catch(...)
     {

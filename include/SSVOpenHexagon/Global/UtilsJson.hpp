@@ -64,6 +64,11 @@ struct Converter<ssvs::KKey>
 
     inline static void toObj(Obj& mObj, const T& mValue)
     {
+        if(mValue == T::Unknown)
+        {
+            return;
+        }
+
         arch(mObj, ssvs::getKKeyName(mValue));
     }
 };
