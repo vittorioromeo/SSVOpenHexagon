@@ -57,15 +57,16 @@ struct Converter<ssvs::KKey>
 {
     using T = ssvs::KKey;
 
-    inline static void fromObj(const Obj& mObj, T& mValue)
+    static void fromObj(const Obj& mObj, T& mValue)
     {
         mValue = ssvs::getKKey(getExtr<std::string>(mObj));
     }
 
-    inline static void toObj(Obj& mObj, const T& mValue)
+    static void toObj(Obj& mObj, const T& mValue)
     {
         if(mValue == T::Unknown)
         {
+            arch(mObj, "");
             return;
         }
 
@@ -78,12 +79,12 @@ struct Converter<ssvs::MBtn>
 {
     using T = ssvs::MBtn;
 
-    inline static void fromObj(const Obj& mObj, T& mValue)
+    static void fromObj(const Obj& mObj, T& mValue)
     {
         mValue = ssvs::getMBtn(getExtr<std::string>(mObj));
     }
 
-    inline static void toObj(Obj& mObj, const T& mValue)
+    static void toObj(Obj& mObj, const T& mValue)
     {
         arch(mObj, ssvs::getMBtnName(mValue));
     }
@@ -94,13 +95,14 @@ struct Converter<ssvs::Input::Combo>
 {
     using T = ssvs::Input::Combo;
 
-    inline static void fromObj(const Obj& mObj, T& mValue)
+    static void fromObj(const Obj& mObj, T& mValue)
     {
         std::string str;
 
         for(const auto& i : mObj)
         {
             str = getExtr<std::string>(i);
+
             if(str.empty())
             {
                 mValue.addKey(ssvs::KKey::Unknown);
@@ -112,6 +114,7 @@ struct Converter<ssvs::Input::Combo>
                     << "> is an hardcoded key bind, an empty bind has been put "
                        "in its place"
                     << std::endl;
+
                 mValue.addKey(ssvs::KKey::Unknown);
             }
             else if(ssvs::isKKeyNameValid(str))
@@ -129,12 +132,13 @@ struct Converter<ssvs::Input::Combo>
                     << "> is not a valid input name, an empty bind has been "
                        "put in its place"
                     << std::endl;
+
                 mValue.addKey(ssvs::KKey::Unknown);
             }
         }
     }
 
-    inline static void toObj(Obj& mObj, const T& mValue)
+    static void toObj(Obj& mObj, const T& mValue)
     {
         if(mValue.isUnbound())
         {
@@ -147,11 +151,20 @@ struct Converter<ssvs::Input::Combo>
         const auto& btns(mValue.getBtns());
 
         for(auto j(0u); j < ssvs::kKeyCount; ++j)
+        {
             if(ssvs::getKeyBit(keys, ssvs::KKey(j)))
+            {
                 arch(mObj, i++, ssvs::KKey(j));
+            }
+        }
+
         for(auto j(0u); j < ssvs::mBtnCount; ++j)
+        {
             if(ssvs::getBtnBit(btns, ssvs::MBtn(j)))
+            {
                 arch(mObj, i++, ssvs::MBtn(j));
+            }
+        }
     }
 };
 

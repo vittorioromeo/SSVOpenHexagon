@@ -1354,19 +1354,12 @@ end
             "initialized with the result of this function at the beginning of "
             "a level.");
 
-    addLuaFn("u_logtest", //
-        [this](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
-        .arg("message")
-        .doc("Print out `$0` to the console.");
-
     // ------------------------------------------------------------------------
     // Initialize Lua random seed from random generator one:
     try
     {
-        lua.executeCode(
-            "u_logtest(\"LUA "
-            "SEED\")\nu_logtest(tostring(u_getAttemptRandomSeed()))\nmath."
-            "randomseed(u_getAttemptRandomSeed())\n");
+        // TODO: likely not needed anymore
+        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())\n");
     }
     catch(...)
     {

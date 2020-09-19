@@ -316,8 +316,6 @@ end
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-    u_log("Pattern " .. tostring(mKey))
-
         if mKey == 0 then pattern0()
     elseif mKey == 1 then pattern1()
     elseif mKey == 2 then pattern2()
