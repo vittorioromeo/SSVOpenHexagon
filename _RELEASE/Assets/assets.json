@@ -22,11 +22,14 @@
 	[
 		"beep.ogg",
 		"death.ogg",
+		"error.ogg",
 		"gameOver.ogg",
 		"go.ogg",
+		"increment.ogg",
 		"levelUp.ogg",
 		"openHexagon.ogg",
-		"error.ogg",
+		"restart.ogg",
+		"select.ogg",
 		"swap.ogg"
 	]
 }
