@@ -880,7 +880,8 @@ void setSaveLocalBestReplayToFile(bool mX)
 
     // Agglomerate binds close to each other, leave empty
     // spots at the end
-    for(auto it1 = combos.begin(), it2 = it1 + 1; it1 != combos.end() - 1; ++it1, it2 = it1 + 1)
+    for(auto it1 = combos.begin(), it2 = it1 + 1; it1 != combos.end() - 1;
+        ++it1, it2 = it1 + 1)
     {
         if(!it1->isUnbound())
         {
@@ -964,7 +965,8 @@ void addBindTriggerExit(int key, int btn, int index)
 }
 void addBindTriggerForceRestart(int key, int btn, int index)
 {
-    triggerForceRestart() = rebindTrigger(triggerForceRestart(), key, btn, index);
+    triggerForceRestart() =
+        rebindTrigger(triggerForceRestart(), key, btn, index);
 }
 void addBindTriggerRestart(int key, int btn, int index)
 {

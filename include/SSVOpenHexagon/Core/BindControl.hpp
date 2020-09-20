@@ -35,8 +35,7 @@ private:
     using Trigger = ssvs::Input::Trigger;
     using TriggerGetter = std::function<ssvs::Input::Trigger()>;
     using SizeGetter = std::function<int()>;
-    using AddBind =
-        std::function<void(ssvs::KKey, ssvs::MBtn)>;
+    using AddBind = std::function<void(ssvs::KKey, ssvs::MBtn)>;
     using Callback =
         std::function<void(const ssvs::Input::Trigger&, const int)>;
 
@@ -49,9 +48,29 @@ private:
     [[nodiscard]] int getRealSize(
         const std::vector<ssvs::Input::Combo>& combos) const;
 
-    [[nodiscard]] std::string bindToHumanReadableName(const std::string_view s) const
+    [[nodiscard]] std::string bindToHumanReadableName(std::string s) const
     {
-        return std::string(s.substr(1, s.length() - 1));
+        if(s.starts_with('k'))
+        {
+            return s.substr(1);
+        }
+
+        if(s == "bLeft")
+        {
+            return "LMB";
+        }
+
+        if(s == "bRight")
+        {
+            return "RMB";
+        }
+
+        if(s == "bMiddle")
+        {
+            return "MMB";
+        }
+
+        return s;
     }
 
 public:
