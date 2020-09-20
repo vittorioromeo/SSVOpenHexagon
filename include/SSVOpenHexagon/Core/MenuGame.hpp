@@ -261,8 +261,7 @@ private:
         return getCurrentMenu() != nullptr;
     }
 
-    void reloadLevelAssets();
-    void reloadPackAssets();
+    void reloadAssets(const bool pack);
     int noActions{0};
 
 public:
