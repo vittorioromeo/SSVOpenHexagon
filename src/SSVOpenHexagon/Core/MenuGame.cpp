@@ -70,6 +70,23 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
         };
 
+    // To make the epilepsy warning go away with
+    // any key press
+    noActions = 1;
+    game.ignoreAllInputs(true);
+    hg::Joystick::ignoreAllPresses(true);
+
+    const auto checkCloseEpilepsyWarning = [this]() {
+        if(!(--noActions))
+        {
+            // TODO: remove when welcome screen is implemented
+            playLocally();
+            assets.playSound("select.ogg");
+            game.ignoreAllInputs(false);
+            hg::Joystick::ignoreAllPresses(false);
+      }
+    };
+
     const auto checkCloseDialogBox = [this]() {
         if(!(--noActions))
         {
@@ -80,21 +97,29 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     game.onEvent(Event::EventType::KeyReleased) +=
-        [this, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
             // don't do anything if inputs are being processed as usual
             if(!noActions)
             {
                 return;
             }
 
-            // Scenario one: actions are blocked cause a dialog box is open
+            // Scenario one: epilepsy warning is being drawn and user
+            // must close it with any key press
+            if(state == States::EpilepsyWarning)
+            {
+                checkCloseEpilepsyWarning();
+                return;
+            }
+
+            // Scenario two: actions are blocked cause a dialog box is open
             if(!dialogBox.empty())
             {
                 checkCloseDialogBox();
                 return;
             }
 
-            // Scenario two: actions are blocked cause we are using a
+            // Scenario three: actions are blocked cause we are using a
             // BindControl menu item
             KKey key = mEvent.key.code;
             if(getCurrentMenu() != nullptr && key == KKey::Escape)
@@ -136,9 +161,15 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         };
 
     game.onEvent(Event::EventType::MouseButtonReleased) +=
-        [this, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
             if(!noActions)
             {
+                return;
+            }
+
+            if(state == States::EpilepsyWarning)
+            {
+                checkCloseEpilepsyWarning();
                 return;
             }
 
@@ -175,9 +206,15 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         };
 
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
-        [this, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
             if(!noActions)
             {
+                return;
+            }
+
+            if(state == States::EpilepsyWarning)
+            {
+                checkCloseEpilepsyWarning();
                 return;
             }
 
@@ -647,12 +684,7 @@ void MenuGame::leftAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SLPSelect)
+    if(state == States::SLPSelect)
     {
         --profileIdx;
     }
@@ -671,12 +703,7 @@ void MenuGame::rightAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SLPSelect)
+    if(state == States::SLPSelect)
     {
         ++profileIdx;
     }
@@ -694,12 +721,7 @@ void MenuGame::upAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SMain)
+    if(state == States::SMain)
     {
         ++diffMultIdx;
     }
@@ -713,12 +735,7 @@ void MenuGame::downAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SMain)
+    if(state == States::SMain)
     {
         --diffMultIdx;
     }
@@ -732,12 +749,7 @@ void MenuGame::okAction()
     assets.playSound("select.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SLPSelect)
+    if(state == States::SLPSelect)
     {
         assets.pSetCurrent(enteredStr);
         state = States::SMain;
@@ -810,12 +822,6 @@ void MenuGame::eraseAction()
 void MenuGame::exitAction()
 {
     assets.playSound("beep.ogg");
-
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
 
     if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
         !assets.pIsLocal())
