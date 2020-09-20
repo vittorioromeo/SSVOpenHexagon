@@ -104,14 +104,7 @@ void KeyboardBindControl::newKeyboardBind(
     }
 
     // assign the pressed key to the config value
-    auto [unboundID, trig] = addBind(key, btn);
-
-    // key was assigned to another function and was unbound.
-    // This trigger must be refreshed as well
-    if(unboundID > -1)
-    {
-        callback(trig, unboundID);
-    }
+    addBind(key, btn);
 
     // apply the new bind in game
     callback(triggerGetter(), ID);
@@ -144,7 +137,7 @@ void KeyboardBindControl::newKeyboardBind(
             }
 
             // names are shifted compared to the Key enum
-            bindNames += ssvs::getKKeyName(ssvs::KKey(j - 1));
+            bindNames += bindToHumanReadableName(ssvs::getKKeyName(ssvs::KKey(j - 1)));
             break;
         }
 
@@ -162,7 +155,7 @@ void KeyboardBindControl::newKeyboardBind(
             }
 
             // same as with keys
-            bindNames += ssvs::getMBtnName(ssvs::MBtn(j - 1));
+            bindNames += bindToHumanReadableName(ssvs::getMBtnName(ssvs::MBtn(j - 1)));
             break;
         }
     }

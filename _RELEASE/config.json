@@ -60,56 +60,85 @@
 	"t_down" : 
 	[
 		[ "kS" ],
+		[ "" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_exit" : 
 	[
-		[ "kC" ],
+		[ "kT" ],
+		[ "" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_focus" : 
 	[
 		[ "kLShift" ],
-		[ "bXButton1" ]
+		[ "bXButton1" ],
+		[ "" ],
+		[ "" ]
 	],
 	"t_force_restart" : 
 	[
+		[ "kUp" ],
+		[ "kR" ],
 		[ "" ],
 		[ "" ]
 	],
 	"t_replay" : 
 	[
+		[ "kY" ],
+		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
 	"t_restart" : 
 	[
-		[ "" ],
+		[ "bMiddle" ],
+		[ "kSpace" ],
+		[ "kReturn" ],
 		[ "" ]
 	],
 	"t_rotate_ccw" : 
 	[
+		[ "kA" ],
 		[ "kLeft" ],
-		[ "kA" ]
+		[ "bLeft" ],
+		[ "" ]
 	],
 	"t_rotate_cw" : 
 	[
+		[ "kD" ],
 		[ "kRight" ],
-		[ "kD" ]
+		[ "bRight" ],
+		[ "" ]
 	],
 	"t_screenshot" : 
 	[
 		[ "kF12" ],
+		[ "" ],
+		[ "" ],
+		[ "" ]
+	],
+	"t_select" : 
+	[
+		[ "kSpace" ],
+		[ "bMiddle" ],
+		[ "" ],
 		[ "" ]
 	],
 	"t_swap" : 
 	[
+		[ "bMiddle" ],
 		[ "kSpace" ],
-		[ "bMiddle" ]
+		[ "" ],
+		[ "" ]
 	],
 	"t_up" : 
 	[
 		[ "kW" ],
+		[ "" ],
+		[ "" ],
 		[ "" ]
 	],
 	"text_padding" : 8.0,

@@ -166,16 +166,6 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once, Tid::ForceRestart);
 
     game.addInput(
-        {{sf::Keyboard::Key::R}}, // hardcoded
-        [this](ssvu::FT /*unused*/) {
-            if(status.hasDied)
-            {
-                status.mustStateChange = StateChange::MustRestart;
-            }
-        },
-        ssvs::Input::Type::Once);
-
-    game.addInput(
         Config::getTriggerRestart(), // editable
         [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
@@ -184,16 +174,6 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
             }
         },
         ssvs::Input::Type::Once, Tid::Restart);
-
-    game.addInput(
-        {{sf::Keyboard::Key::Y}}, // hardcoded
-        [this](ssvu::FT /*unused*/) {
-            if(status.hasDied)
-            {
-                status.mustStateChange = StateChange::MustReplay;
-            }
-        },
-        ssvs::Input::Type::Once);
 
     game.addInput(
         Config::getTriggerReplay(), // editable

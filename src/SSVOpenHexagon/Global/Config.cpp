@@ -93,6 +93,7 @@ using namespace ssvu;
     X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
     X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
     X(triggerFocus, Trigger, "t_focus")                                    \
+    X(triggerSelect, Trigger, "t_select")                                  \
     X(triggerExit, Trigger, "t_exit")                                      \
     X(triggerForceRestart, Trigger, "t_force_restart")                     \
     X(triggerRestart, Trigger, "t_restart")                                \
@@ -860,9 +861,9 @@ void setSaveLocalBestReplayToFile(bool mX)
 //**************************************************
 // Game start check
 
-#define MAX_BINDS 2
+#define MAX_BINDS 4
 
-[[nodiscard]] Trigger resizeTrigger(Trigger trig, Combo& bindList) noexcept
+[[nodiscard]] Trigger resizeTrigger(Trigger trig) noexcept
 {
     std::vector<Combo>& combos = trig.getCombos();
 
@@ -877,73 +878,25 @@ void setSaveLocalBestReplayToFile(bool mX)
         combos.emplace_back(Combo({KKey::Unknown}));
     }
 
-    // having the first spot unbound and the second bound may raise issues
-    Combo& firstCombo = combos.at(0);
-    Combo& secondCombo = combos.at(1);
-    if(firstCombo.isUnbound() && !secondCombo.isUnbound())
+    // Agglomerate binds close to each other, leave empty
+    // spots at the end
+    for(auto it1 = combos.begin(), it2 = it1 + 1; it1 != combos.end() - 1; ++it1, it2 = it1 + 1)
     {
-        firstCombo = secondCombo;
-        secondCombo.clearBind();
-    }
-
-    // now check if the keys in the combos are already assigned
-    // to another function, and if so unbind them
-    int i;
-    KKey keyBind;
-    MBtn btnBind;
-    for(auto& b : combos)
-    {
-        bool alreadyBound = false;
-        const auto& keys = b.getKeys();
-        for(i = 0; i < int(kKeyCount); ++i)
-        {
-            keyBind = KKey(i);
-
-            // if the key is assigned to the combo we are scanning...
-            if(getKeyBit(keys, keyBind))
-            {
-                // ...but it has already been assigned to a previous combo...
-                if(getKeyBit(bindList.getKeys(), keyBind))
-                {
-                    // ...remove it from this bind
-                    b.clearBind();
-                    alreadyBound = true;
-                }
-                else
-                {
-                    // ...otherwise add it to the list for future checks
-                    bindList.addKey(keyBind);
-                    alreadyBound = true;
-                }
-            }
-        }
-
-        // A combo either has a key or a mouse button bound.
-        // If a key is already detected to be assigned there
-        // is no need to check the buttons
-        if(alreadyBound)
+        if(!it1->isUnbound())
         {
             continue;
         }
 
-        const auto& btns = b.getBtns();
-        for(i = 0; i < int(mBtnCount); ++i)
-        {
-            btnBind = MBtn(i);
+        while(it2->isUnbound() && it2++ != combos.end())
+            ;
 
-            // same as with the keys above
-            if(getBtnBit(btns, btnBind))
-            {
-                if(getBtnBit(bindList.getBtns(), btnBind))
-                {
-                    b.clearBind();
-                }
-                else
-                {
-                    bindList.addBtn(btnBind);
-                }
-            }
+        if(it2 == combos.end())
+        {
+            break;
         }
+
+        *it1 = *it2;
+        it2->clearBind();
     }
 
     return trig;
@@ -951,99 +904,22 @@ void setSaveLocalBestReplayToFile(bool mX)
 
 void keyboardBindsSanityCheck()
 {
-    ssvs::Input::Combo bindList =
-        ssvs::Input::Combo({KKey::Unknown}, {MBtn::Left});
-    triggerRotateCCW() = resizeTrigger(triggerRotateCCW(), bindList);
-    triggerRotateCW() = resizeTrigger(triggerRotateCW(), bindList);
-    triggerFocus() = resizeTrigger(triggerFocus(), bindList);
-    triggerExit() = resizeTrigger(triggerExit(), bindList);
-    triggerForceRestart() = resizeTrigger(triggerForceRestart(), bindList);
-    triggerRestart() = resizeTrigger(triggerRestart(), bindList);
-    triggerReplay() = resizeTrigger(triggerReplay(), bindList);
-    triggerScreenshot() = resizeTrigger(triggerScreenshot(), bindList);
-    triggerSwap() = resizeTrigger(triggerSwap(), bindList);
-    triggerUp() = resizeTrigger(triggerUp(), bindList);
-    triggerDown() = resizeTrigger(triggerDown(), bindList);
+    triggerRotateCCW() = resizeTrigger(triggerRotateCCW());
+    triggerRotateCW() = resizeTrigger(triggerRotateCW());
+    triggerFocus() = resizeTrigger(triggerFocus());
+    triggerSelect() = resizeTrigger(triggerSelect());
+    triggerExit() = resizeTrigger(triggerExit());
+    triggerForceRestart() = resizeTrigger(triggerForceRestart());
+    triggerRestart() = resizeTrigger(triggerRestart());
+    triggerReplay() = resizeTrigger(triggerReplay());
+    triggerScreenshot() = resizeTrigger(triggerScreenshot());
+    triggerSwap() = resizeTrigger(triggerSwap());
+    triggerUp() = resizeTrigger(triggerUp());
+    triggerDown() = resizeTrigger(triggerDown());
 }
 
 //**************************************************
 // Add new key binds
-
-typedef void (*setFuncTrig)(Trigger trig);
-typedef std::pair<setFuncTrig, Trigger> keyboardBindsConfigs;
-
-[[nodiscard]] std::pair<int, Trigger> checkTriggerReassignment(
-    KKey key, MBtn btn)
-{
-    keyboardBindsConfigs funcs[] = {{setTriggerRotateCCW, triggerRotateCCW()},
-        {setTriggerRotateCW, triggerRotateCW()},
-        {setTriggerFocus, triggerFocus()}, {setTriggerExit, triggerExit()},
-        {setTriggerForceRestart, triggerForceRestart()},
-        {setTriggerRestart, triggerRestart()},
-        {setTriggerReplay, triggerReplay()},
-        {setTriggerScreenshot, triggerScreenshot()},
-        {setTriggerSwap, triggerSwap()}, {setTriggerUp, triggerUp()},
-        {setTriggerDown, triggerDown()}};
-
-    for(int i = 0; i < int(sizeof(funcs) / sizeof(funcs[0])); ++i)
-    {
-        auto& trig = get<Trigger>(funcs[i]);
-        std::vector<Combo>& Combos = trig.getCombos();
-        for(int j = 0; j < MAX_BINDS; ++j)
-        {
-            Combo& combo = Combos.at(j);
-
-            // if key is not -1 this combo has a keyboard key assigned
-            if(key > KKey::Unknown)
-            {
-                // if the key is the one that has just been
-                // assigned to a new trigger...
-                if(getKeyBit(combo.getKeys(), key))
-                {
-                    // ...if the combo after this one is not empty
-                    // move the bind to the current one
-                    if(!j && !Combos.at(j + 1).isUnbound())
-                    {
-                        Combo& secondCombo = Combos.at(j + 1);
-                        combo = secondCombo;
-                        secondCombo.clearBind();
-                    }
-                    else
-                    {
-                        // ...otherwise just clear it
-                        combo.clearBind();
-                    }
-
-                    get<setFuncTrig>(funcs[i])(trig);
-                    return {i, trig};
-                }
-            }
-            else
-            {
-                // Same as above except with mouse buttons
-                if(getBtnBit(combo.getBtns(), btn))
-                {
-                    if(!j && !Combos.at(j + 1).isUnbound())
-                    {
-                        Combo& secondCombo = Combos.at(j + 1);
-                        combo = secondCombo;
-                        secondCombo.clearBind();
-                    }
-                    else
-                    {
-                        combo.clearBind();
-                    }
-
-                    get<setFuncTrig>(funcs[i])(trig);
-                    return {i, trig};
-                }
-            }
-        }
-    }
-
-    // key had no previous bind, second returned value does not matter
-    return {-1, get<Trigger>(funcs[0])};
-}
 
 [[nodiscard]] Trigger rebindTrigger(
     Trigger trig, int key, int btn, int index) noexcept
@@ -1066,86 +942,53 @@ typedef std::pair<setFuncTrig, Trigger> keyboardBindsConfigs;
     return trig;
 }
 
-std::pair<int, Trigger> reassignBindTriggerRotateCCW(
-    int key, int btn, int index)
+void addBindTriggerRotateCCW(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerRotateCCW() = rebindTrigger(triggerRotateCCW(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerRotateCW(int key, int btn, int index)
+void addBindTriggerRotateCW(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerRotateCW() = rebindTrigger(triggerRotateCW(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerFocus(int key, int btn, int index)
+void addBindTriggerFocus(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerFocus() = rebindTrigger(triggerFocus(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerExit(int key, int btn, int index)
+void addBindTriggerSelect(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
+    triggerSelect() = rebindTrigger(triggerSelect(), key, btn, index);
+}
+void addBindTriggerExit(int key, int btn, int index)
+{
     triggerExit() = rebindTrigger(triggerExit(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerForceRestart(
-    int key, int btn, int index)
+void addBindTriggerForceRestart(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
-    triggerForceRestart() =
-        rebindTrigger(triggerForceRestart(), key, btn, index);
-    return reassign;
+    triggerForceRestart() = rebindTrigger(triggerForceRestart(), key, btn, index);
 }
-std::pair<int, Trigger> reassignBindTriggerRestart(int key, int btn, int index)
+void addBindTriggerRestart(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerRestart() = rebindTrigger(triggerRestart(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerReplay(int key, int btn, int index)
+void addBindTriggerReplay(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerReplay() = rebindTrigger(triggerReplay(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerScreenshot(
-    int key, int btn, int index)
+void addBindTriggerScreenshot(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerScreenshot() = rebindTrigger(triggerScreenshot(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerSwap(int key, int btn, int index)
+void addBindTriggerSwap(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerSwap() = rebindTrigger(triggerSwap(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerUp(int key, int btn, int index)
+void addBindTriggerUp(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerUp() = rebindTrigger(triggerUp(), key, btn, index);
-    return reassign;
 }
-std::pair<int, Trigger> reassignBindTriggerDown(int key, int btn, int index)
+void addBindTriggerDown(int key, int btn, int index)
 {
-    std::pair<int, Trigger> reassign =
-        checkTriggerReassignment(KKey(key), MBtn(btn));
     triggerDown() = rebindTrigger(triggerDown(), key, btn, index);
-    return reassign;
 }
 
 //**************************************************
@@ -1167,6 +1010,10 @@ void clearBindTriggerRotateCW(int index)
 void clearBindTriggerFocus(int index)
 {
     triggerFocus() = clearTriggerBind(triggerFocus(), index);
+}
+void clearBindTriggerSelect(int index)
+{
+    triggerSelect() = clearTriggerBind(triggerSelect(), index);
 }
 void clearBindTriggerExit(int index)
 {
@@ -1216,6 +1063,10 @@ Trigger getTriggerFocus()
 {
     return triggerFocus();
 }
+Trigger getTriggerSelect()
+{
+    return triggerSelect();
+}
 Trigger getTriggerExit()
 {
     return triggerExit();
@@ -1263,6 +1114,10 @@ void setTriggerRotateCW(Trigger trig)
 void setTriggerFocus(Trigger trig)
 {
     triggerFocus() = trig;
+}
+void setTriggerSelect(Trigger trig)
+{
+    triggerSelect() = trig;
 }
 void setTriggerExit(Trigger trig)
 {
