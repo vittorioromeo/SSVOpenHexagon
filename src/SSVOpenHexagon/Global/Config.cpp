@@ -880,18 +880,23 @@ void setSaveLocalBestReplayToFile(bool mX)
 
     // Agglomerate binds close to each other, leave empty
     // spots at the end
-    decltype(combos.size()) i = combos.size() - 1;
-    Combo *firstCombo, *secondCombo;
-    for(; i > 0; --i)
+    for(auto it1 = combos.begin(), it2 = it1 + 1; it1 != combos.end() - 1; ++it1, it2 = it1 + 1)
     {
-        firstCombo = &combos.at(i - 1);
-        secondCombo = &combos.at(i);
-
-        if(firstCombo->isUnbound() && !secondCombo->isUnbound())
+        if(!it1->isUnbound())
         {
-            *firstCombo = *secondCombo;
-            secondCombo->clearBind();
+            continue;
         }
+
+        while(it2->isUnbound() && it2++ != combos.end())
+            ;
+
+        if(it2 == combos.end())
+        {
+            break;
+        }
+
+        *it1 = *it2;
+        it2->clearBind();
     }
 
     return trig;
