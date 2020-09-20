@@ -70,6 +70,23 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
         };
 
+    // To make the epilepsy warning go away with
+    // any key press
+    noActions = 1;
+    game.ignoreAllInputs(true);
+    hg::Joystick::ignoreAllPresses(true);
+
+    const auto checkCloseEpilepsyWarning = [this]() {
+        if(!(--noActions))
+        {
+            // TODO: remove when welcome screen is implemented
+            playLocally();
+            assets.playSound("select.ogg");
+            game.ignoreAllInputs(false);
+            hg::Joystick::ignoreAllPresses(false);
+      }
+    };
+
     const auto checkCloseDialogBox = [this]() {
         if(!(--noActions))
         {
@@ -80,21 +97,29 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     game.onEvent(Event::EventType::KeyReleased) +=
-        [this, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
             // don't do anything if inputs are being processed as usual
             if(!noActions)
             {
                 return;
             }
 
-            // Scenario one: actions are blocked cause a dialog box is open
+            // Scenario one: epilepsy warning is being drawn and user
+            // must close it with any key press
+            if(state == States::EpilepsyWarning)
+            {
+                checkCloseEpilepsyWarning();
+                return;
+            }
+
+            // Scenario two: actions are blocked cause a dialog box is open
             if(!dialogBox.empty())
             {
                 checkCloseDialogBox();
                 return;
             }
 
-            // Scenario two: actions are blocked cause we are using a
+            // Scenario three: actions are blocked cause we are using a
             // BindControl menu item
             KKey key = mEvent.key.code;
             if(getCurrentMenu() != nullptr && key == KKey::Escape)
@@ -126,27 +151,25 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                if(!isValidKeyBind(key))
-                {
-                    assets.playSound("error.ogg");
-                    noActions = 1;
-                }
-                else
-                {
-                    bc->newKeyboardBind(key);
-                    game.ignoreAllInputs(false);
-                    hg::Joystick::ignoreAllPresses(false);
-                    assets.playSound("beep.ogg");
-                }
+                bc->newKeyboardBind(key);
+                game.ignoreAllInputs(false);
+                hg::Joystick::ignoreAllPresses(false);
+                assets.playSound("beep.ogg");
 
                 touchDelay = 10.f;
             }
         };
 
     game.onEvent(Event::EventType::MouseButtonReleased) +=
-        [this, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
             if(!noActions)
             {
+                return;
+            }
+
+            if(state == States::EpilepsyWarning)
+            {
+                checkCloseEpilepsyWarning();
                 return;
             }
 
@@ -183,9 +206,15 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         };
 
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
-        [this, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
             if(!noActions)
             {
+                return;
+            }
+
+            if(state == States::EpilepsyWarning)
+            {
+                checkCloseEpilepsyWarning();
                 return;
             }
 
@@ -547,38 +576,41 @@ void MenuGame::initMenus()
     };
 
     keyboard.create<KeyboardBindControl>("rotate ccw",
-        &Config::getTriggerRotateCCW, &Config::reassignBindTriggerRotateCCW,
+        &Config::getTriggerRotateCCW, &Config::addBindTriggerRotateCCW,
         &Config::clearBindTriggerRotateCCW, callBack, Tid::RotateCCW);
     keyboard.create<KeyboardBindControl>("rotate cw",
-        &Config::getTriggerRotateCW, &Config::reassignBindTriggerRotateCW,
+        &Config::getTriggerRotateCW, &Config::addBindTriggerRotateCW,
         &Config::clearBindTriggerRotateCW, callBack, Tid::RotateCW);
     keyboard.create<KeyboardBindControl>("focus", &Config::getTriggerFocus,
-        &Config::reassignBindTriggerFocus, &Config::clearBindTriggerFocus,
+        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus,
         callBack, Tid::Focus);
+    keyboard.create<KeyboardBindControl>("select", &Config::getTriggerSelect,
+        &Config::addBindTriggerSelect, &Config::clearBindTriggerSelect,
+        callBack, Tid::Select);
     keyboard.create<KeyboardBindControl>("exit", &Config::getTriggerExit,
-        &Config::reassignBindTriggerExit, &Config::clearBindTriggerExit,
+        &Config::addBindTriggerExit, &Config::clearBindTriggerExit,
         callBack, Tid::Exit);
     keyboard.create<KeyboardBindControl>("force restart",
         &Config::getTriggerForceRestart,
-        &Config::reassignBindTriggerForceRestart,
+        &Config::addBindTriggerForceRestart,
         &Config::clearBindTriggerForceRestart, callBack, Tid::ForceRestart);
     keyboard.create<KeyboardBindControl>("restart", &Config::getTriggerRestart,
-        &Config::reassignBindTriggerRestart, &Config::clearBindTriggerRestart,
+        &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart,
         callBack, Tid::Restart);
     keyboard.create<KeyboardBindControl>("replay", &Config::getTriggerReplay,
-        &Config::reassignBindTriggerReplay, &Config::clearBindTriggerReplay,
+        &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay,
         callBack, Tid::Replay);
     keyboard.create<KeyboardBindControl>("screenshot",
-        &Config::getTriggerScreenshot, &Config::reassignBindTriggerScreenshot,
+        &Config::getTriggerScreenshot, &Config::addBindTriggerScreenshot,
         &Config::clearBindTriggerScreenshot, callBack, Tid::Screenshot);
     keyboard.create<KeyboardBindControl>("swap", &Config::getTriggerSwap,
-        &Config::reassignBindTriggerSwap, &Config::clearBindTriggerSwap,
+        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap,
         callBack, Tid::Swap);
     keyboard.create<KeyboardBindControl>("up", &Config::getTriggerUp,
-        &Config::reassignBindTriggerUp, &Config::clearBindTriggerUp, callBack,
+        &Config::addBindTriggerUp, &Config::clearBindTriggerUp, callBack,
         Tid::Up);
     keyboard.create<KeyboardBindControl>("down", &Config::getTriggerDown,
-        &Config::reassignBindTriggerDown, &Config::clearBindTriggerDown,
+        &Config::addBindTriggerDown, &Config::clearBindTriggerDown,
         callBack, Tid::Down);
     keyboard.create<i::GoBack>("back");
 
@@ -652,12 +684,7 @@ void MenuGame::leftAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SLPSelect)
+    if(state == States::SLPSelect)
     {
         --profileIdx;
     }
@@ -676,12 +703,7 @@ void MenuGame::rightAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SLPSelect)
+    if(state == States::SLPSelect)
     {
         ++profileIdx;
     }
@@ -699,12 +721,7 @@ void MenuGame::upAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SMain)
+    if(state == States::SMain)
     {
         ++diffMultIdx;
     }
@@ -718,12 +735,7 @@ void MenuGame::downAction()
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SMain)
+    if(state == States::SMain)
     {
         --diffMultIdx;
     }
@@ -737,12 +749,7 @@ void MenuGame::okAction()
     assets.playSound("select.ogg");
     touchDelay = 50.f;
 
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
-    else if(state == States::SLPSelect)
+    if(state == States::SLPSelect)
     {
         assets.pSetCurrent(enteredStr);
         state = States::SMain;
@@ -815,12 +822,6 @@ void MenuGame::eraseAction()
 void MenuGame::exitAction()
 {
     assets.playSound("beep.ogg");
-
-    if(state == States::EpilepsyWarning)
-    {
-        // TODO: remove when welcome screen is implemented
-        playLocally();
-    }
 
     if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
         !assets.pIsLocal())
@@ -903,12 +904,20 @@ void MenuGame::initInput()
     using t = Type;
 
     game.addInput(
-        Config::getTriggerRotateCCW(),
+        Config::getTriggerRotateCCW(), //editable
         [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, Tid::RotateCCW);
 
     game.addInput(
-        Config::getTriggerRotateCW(),
+        {{k::Left}}, // hardcoded
+        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once);
+
+    game.addInput(
+        Config::getTriggerRotateCW(), //editable
         [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once, Tid::RotateCW);
+
+    game.addInput(
+        {{k::Right}}, // hardcoded
+        [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once);
 
     game.addInput(
         {{k::Up}}, [this](ssvu::FT /*unused*/) { upAction(); }, // hardcoded
@@ -929,6 +938,10 @@ void MenuGame::initInput()
         t::Once, Tid::Down);
 
     game.addInput(
+        Config::getTriggerSelect(), [this](ssvu::FT /*unused*/) { okAction(); },
+        t::Once, Tid::Select);
+
+    game.addInput(
         {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
 
     game.addInput(
@@ -947,8 +960,6 @@ void MenuGame::initInput()
         {{k::F4}, {k::L}}, [this](ssvu::FT /*unused*/) { selectPackAction(); },
         t::Once);
 
-    const auto handleExitInput = [this](ssvu::FT /*unused*/) { exitAction(); };
-
     game.addInput(
         {{k::Escape}},
         [this](ssvs::FT mFT) {
@@ -956,8 +967,10 @@ void MenuGame::initInput()
             {
                 exitTimer += mFT;
             }
-        }, // hardcoded
+        },
         [this](ssvu::FT /*unused*/) { exitTimer = 0; }, t::Always);
+
+    const auto handleExitInput = [this](ssvu::FT /*unused*/) { exitAction(); };
 
     game.addInput({{k::Escape}},
         handleExitInput, // hardcoded
