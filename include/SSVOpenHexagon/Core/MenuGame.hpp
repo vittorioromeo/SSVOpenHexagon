@@ -262,6 +262,7 @@ private:
     }
 
     void reloadLevelAssets();
+    void reloadPackAssets();
     int noActions{0};
 
 public:

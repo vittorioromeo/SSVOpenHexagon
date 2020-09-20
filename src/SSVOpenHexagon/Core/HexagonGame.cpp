@@ -155,7 +155,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 
     game.addInput(
         Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) { goToMenu(); }, // editable
+        [this](ssvu::FT /*unused*/) { goToMenu(); },
         ssvs::Input::Type::Always, Tid::Exit);
 
     game.addInput(
@@ -176,7 +176,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once, Tid::Restart);
 
     game.addInput(
-        Config::getTriggerReplay(), // editable
+        Config::getTriggerReplay(),
         [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {

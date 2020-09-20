@@ -379,122 +379,310 @@ const StyleData& HGAssets::getStyleData(
 //**********************************************
 // RELOAD
 
-std::pair<bool, std::string> HGAssets::reloadLevelData(
+std::string HGAssets::reloadPack(const std::string& mPackId, const std::string& mPath)
+{
+    std::string temp, output;
+
+    // Levels, if there is not folder cancel everything
+    temp = mPath + "Levels/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    {
+        return "invalid level folder path\n";
+    }
+    for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
+    {
+        LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
+        temp = mPackId + "_" + levelData.id;
+
+        auto it = levelDatas.find(temp);
+        if(it == levelDatas.end())
+        {
+            levelDataIdsByPack[mPackId].emplace_back(temp);
+            levelDatas.emplace(temp, std::move(levelData));
+        }
+        else
+        {
+            it->second = levelData;
+        }
+    }
+    output += "Levels successfully reloaded\n";
+
+    // Styles
+    temp = mPath + "Styles/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    {
+        output += "invalid style folder path\n";
+    }
+    else
+    {
+        for(const auto& p : scanSingleByExt(mPath + "Styles/", ".json"))
+        {
+            StyleData styleData{ssvuj::getFromFile(p), p};
+            temp = mPackId + "_" + styleData.id;
+
+            auto it = styleDataMap.find(temp);
+            if(it == styleDataMap.end())
+            {
+                styleDataMap.emplace(temp, std::move(styleData));
+            }
+            else
+            {
+                it->second = styleData;
+            }
+        }
+		output += "Styles successfully reloaded\n";
+    }
+
+    // Music data
+    temp = mPath + "Music/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    {
+        output += "invalid music data folder path\n";
+    }
+    else
+    {
+        for(const auto& p : scanSingleByExt(mPath + "Music/", ".json"))
+        {
+            MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
+            temp = mPackId + "_" + musicData.id;
+
+            auto it = musicDataMap.find(temp);
+            if(it == musicDataMap.end())
+            {
+                musicDataMap.emplace(temp, std::move(musicData));
+            }
+            else
+            {
+                it->second = musicData;
+            }
+        }
+        output += "Music data successfully reloaded\n";
+    }
+
+    // Music
+    temp = mPath + "Music/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    {
+        output += "invalid music folder path\n";
+    }
+    else
+    {
+        for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
+        {
+            temp = mPackId + "_" + p.getFileNameNoExtensions();
+            if(!assetManager.has<sf::Music>(temp))
+            {
+                auto& music(assetManager.load<sf::Music>(temp, p));
+                music.setVolume(Config::getMusicVolume());
+                music.setLoop(true);
+            }
+        }
+        output += "Music files successfully reloaded\n";
+    }
+
+    // Custom sounds
+    temp = mPath + "Sounds/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    {
+        output += "invalid custom sound folder path\n";
+    }
+    else
+    {
+        for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
+        {
+            temp = mPackId + "_" + p.getFileName();
+            if(!assetManager.has<sf::SoundBuffer>(temp))
+            {
+                assetManager.load<sf::SoundBuffer>(temp, p);
+            }
+        }
+        output += "Custom sound files successfully reloaded\n";
+    }
+
+    return output;
+}
+
+std::string HGAssets::reloadLevel(
     const std::string& mPackId, const std::string& mPath,
     const std::string& mId)
 {
-    // get the styles folder and check it exists
-    const std::string path = mPath + "Levels/";
-    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
-    {
-        return std::make_pair(false, "invalid level folder path\n");
-    }
+    std::string temp, output;
+    std::optional<LevelData> levelDataOut;
 
-    // reload the style data
-    for(const auto& p : scanSingleByName(path, mId + ".json"))
+    // Check the level folder exists
+    temp = mPath + "Levels/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    {
+        return "invalid level folder path\n";
+    }
+    for(const auto& p : scanSingleByName(temp, mId + ".json"))
     {
         LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
-        levelDatas.find(mPackId + "_" + mId)->second = levelData;
-        return std::make_pair(
-            true, "level data " + mId + ".json successfully loaded\n");
+        temp = mPackId + "_" + mId;
+
+        auto it = levelDatas.find(temp);
+        if(it == levelDatas.end())
+        {
+            levelDataIdsByPack[mPackId].emplace_back(temp);
+            levelDatas.emplace(temp, std::move(levelData));
+        }
+        else
+        {
+            it->second = levelData;
+        }
+
+        levelDataOut = levelData;
     }
-
-    return std::make_pair(false, "no matching level data file found\n");
-}
-
-std::string HGAssets::reloadMusicData(const std::string& mPackId,
-    const std::string& mPath, const std::string& mId)
-{
-    // get the styles folder and check it exists
-    const std::string path = mPath + "Music/";
-    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    // there is no level abort
+    if(!levelDataOut.has_value())
     {
-        return "invalid music folder path\n";
+        return "no matching level data file found\n";
     }
-
-    // reload the specific music data
-    for(const auto& p : scanSingleByName(path, mId + ".json"))
+    else
     {
-        // get pointer to updated map pair
-        MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
-        musicDataMap.find(mPackId + "_" + mId)->second = musicData;
-        return "music data " + mId + ".json successfully loaded\n";
+        output = "level data " + mId + ".json successfully loaded\n";
     }
 
-    return "no matching music data file found\n";
-}
-
-std::string HGAssets::reloadStyleData(const std::string& mPackId,
-    const std::string& mPath, const std::string& mId)
-{
-    // get the styles folder and check it exists
-    const std::string path = mPath + "Styles/";
-    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    // Style
+    temp = mPath + "Styles/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
     {
-        return "invalid style folder path\n";
+        output += "invalid style folder path\n";
     }
-
-    // reload the style data
-    for(const auto& p : scanSingleByName(path, mId + ".json"))
+    else
     {
-        // update the value
-        StyleData styleData{ssvuj::getFromFile(p), p};
-        styleDataMap.find(mPackId + "_" + mId)->second = styleData;
-        return "style data " + mId + ".json successfully loaded\n";
+        auto styleFile = scanSingleByName(temp, levelDataOut->styleId + ".json");
+        if(styleFile.empty())
+        {
+            output += "no matching style file found\n";
+        }
+        else
+        {
+            // There is only one file, so we can just subscript index 0
+            StyleData styleData{ssvuj::getFromFile(styleFile[0]), styleFile[0]};
+            temp = mPackId + "_" + levelDataOut->styleId;
+
+            auto it = styleDataMap.find(temp);
+            if(it == styleDataMap.end())
+            {
+                styleDataMap.emplace(temp, std::move(styleData));
+            }
+            else
+            {
+                it->second = styleData;
+            }
+
+            output += "style data " +
+                      levelDataOut->styleId + ".json successfully loaded\n";
+        }
     }
 
-    return "no matching style data file found\n";
-}
-
-std::string HGAssets::reloadMusic(const std::string& mPackId,
-    const std::string& mPath, const std::string& mId)
-{
-    // get the music folder and check it exists
-    const std::string path = mPath + "Music/";
-    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    // Music data
+    temp = mPath + "Music/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
     {
-        return "invalid music folder path\n";
+        output += "invalid music folder path\n";
     }
-
-    // check if this music file is already loaded
-    const std::string assetId = mPackId + "_" + mId;
-    if(assetManager.has<sf::Music>(assetId))
-        return "music file " + mId + ".ogg is already loaded\n";
-
-    // load the new music file
-    for(const auto& p : scanSingleByName(path, mId + ".ogg"))
+    else
     {
-        auto& music(assetManager.load<sf::Music>(assetId, p));
-        music.setVolume(Config::getMusicVolume());
-        music.setLoop(true);
-        return "new music file " + mId + ".ogg successfully loaded\n";
+        auto musicDataFile = scanSingleByName(temp, levelDataOut->musicId + ".json");
+        if(musicDataFile.empty())
+        {
+            output += "no matching music data file found\n";
+        }
+        else
+        {
+            MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(musicDataFile[0]))};
+            temp = mPackId + "_" + levelDataOut->musicId;
+
+            auto it = musicDataMap.find(temp);
+            if(it == musicDataMap.end())
+            {
+                musicDataMap.emplace(temp, std::move(musicData));
+            }
+            else
+            {
+                it->second = musicData;
+            }
+
+            output += "music data " +
+                      levelDataOut->musicId + ".json successfully loaded\n";
+        }
     }
 
-    return "no matching music file found\n";
-}
-
-std::string HGAssets::reloadCustomSounds(const std::string& mPackId,
-    const std::string& mPath, const std::string& mId)
-{
-    // get the sound folder and check it exists
-    const std::string path = mPath + "Sounds/";
-    if(!ssvufs::Path{path}.exists<ssvufs::Type::Folder>())
+    // Music files
+    std::string assetId;
+    temp = mPath + "Music/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
     {
-        return "invalid custom sound folder path\n";
+        output += "invalid music folder path\n";
+    }
+    else if(levelDataOut->musicId != "nullMusicId")
+    {
+        assetId = mPackId + "_" + levelDataOut->musicId;
+        if(assetManager.has<sf::Music>(assetId))
+        {
+            output += "music file " +
+                      levelDataOut->musicId + ".ogg is already loaded\n";
+        }
+        else
+        {
+            auto musicFile = scanSingleByName(temp, levelDataOut->musicId + ".ogg");
+            if(musicFile.empty())
+            {
+                output += "no matching music file found\n";
+            }
+            else
+            {
+                auto& music(assetManager.load<sf::Music>(assetId, musicFile[0]));
+                music.setVolume(Config::getMusicVolume());
+                music.setLoop(true);
+                output += "new music file " +
+                          levelDataOut->musicId + ".ogg successfully loaded\n";
+            }
+        }
     }
 
-    // check if this custom sound file is already loaded
-    const std::string assetId = mPackId + "_" + mId;
+    // no need to keep going if sound id is null
+    if(levelDataOut->soundId == "nullSoundId")
+    {
+        return output;
+    }
+
+    // Sound files
+    if(levelDataOut->soundId == "nullSoundId")
+    {
+        // no need to keep going if sound id is null
+        return output;
+    }
+
+    temp = mPath + "Sounds/";
+    if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
+    {
+        output += "invalid custom sound folder path\n";
+        return output;
+    }
+
+    // Check if this custom sound file is already loaded
+    assetId = mPackId + "_" + levelDataOut->soundId;
     if(assetManager.has<sf::SoundBuffer>(assetId))
-        return "custom sound file " + mId + ".ogg is already loaded\n";
-
-    for(const auto& p : scanSingleByName(path, mId + ".ogg"))
     {
-        assetManager.load<sf::SoundBuffer>(assetId, p);
-        return "new custom sound file " + mId + ".ogg successfully loaded\n";
+        output += "custom sound file " + levelDataOut->soundId + ".ogg is already loaded\n";
+        return output;
     }
 
-    return "no matching custom sound file found\n";
+    auto soundFile = scanSingleByName(temp, levelDataOut->soundId + ".ogg");
+    if(soundFile.empty())
+    {
+        output += "no matching custom sound file found\n";
+        return output;
+    }
+
+    assetManager.load<sf::SoundBuffer>(assetId, soundFile[0]);
+    output += "new custom sound file "
+              + levelDataOut->soundId + ".ogg successfully loaded\n";
+
+    return output;
 }
 
 //**********************************************
