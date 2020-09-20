@@ -993,15 +993,15 @@ void MenuGame::initInput()
         t::Once);
 
     game.addInput(
-        {{k::F5}}, [this](ssvu::FT /*unused*/) { reloadLevelAssets(); },
+        {{k::F5}}, [this](ssvu::FT /*unused*/) { reloadAssets(false); },
         t::Once);
 
     game.addInput(
-        {{k::F6}}, [this](ssvu::FT /*unused*/) { reloadPackAssets(); },
+        {{k::F6}}, [this](ssvu::FT /*unused*/) { reloadAssets(true); },
         t::Once);
 }
 
-void MenuGame::reloadLevelAssets()
+void MenuGame::reloadAssets(const bool pack)
 {
     if(state != States::SMain || !dialogBox.empty() || !Config::getDebug())
     {
@@ -1014,33 +1014,20 @@ void MenuGame::reloadLevelAssets()
     noActions = 2;
     assets.playSound("select.ogg");
 
-    std::string reloadOutput = assets.reloadLevel(
-        levelData->packId, levelData->packPath, levelData->id);
+    std::string reloadOutput;
 
-    setIndex(currentIndex); // loads the new levelData
-
-    reloadOutput += "\npress any key to close this message\n";
-    Utils::uppercasify(reloadOutput);
-
-    dialogBox.createDialogBox(reloadOutput, 26);
-    game.ignoreAllInputs(true);
-    hg::Joystick::ignoreAllPresses(true);
-}
-
-void MenuGame::reloadPackAssets()
-{
-    if(state != States::SMain || !dialogBox.empty() || !Config::getDebug())
+    if(pack)
     {
-        return;
+        reloadOutput = assets.reloadPack(
+            levelData->packId, levelData->packPath);
+    }
+    else
+    {
+        reloadOutput = assets.reloadLevel(levelData->packId,
+            levelData->packPath, levelData->id);
     }
 
-    noActions = 2;
-    assets.playSound("select.ogg");
-
-    std::string reloadOutput = assets.reloadPack(
-        levelData->packId, levelData->packPath);
-
-    setIndex(currentIndex);
+    setIndex(currentIndex); // loads the new levelData
 
     reloadOutput += "\npress any key to close this message\n";
     Utils::uppercasify(reloadOutput);
