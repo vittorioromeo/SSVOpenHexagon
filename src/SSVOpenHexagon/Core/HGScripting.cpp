@@ -225,6 +225,10 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
+
+    addLuaFn("u_getVersion", //
+        [this] { return std::string{Config::getVersionString()}; })
+        .doc("Returns the string representing the current version of the game");
 }
 
 void HexagonGame::initLua_Messages()

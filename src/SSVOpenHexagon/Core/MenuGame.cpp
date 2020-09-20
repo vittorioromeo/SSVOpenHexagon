@@ -1053,6 +1053,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
+    mLua.writeVariable("u_getVersion", [this] { return Config::getVersionString(); });
+
     mLua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
 
