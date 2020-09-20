@@ -646,14 +646,17 @@ void setSaveLocalBestReplayToFile(bool mX)
     return fullscreen();
 }
 
-[[nodiscard, gnu::const]] float getVersion()
+[[nodiscard, gnu::const]] Version getVersion()
 {
-    return 2.03f;
+    return GAME_VERSION;
 }
 
 [[nodiscard, gnu::const]] const char* getVersionString()
 {
-    return "2.03";
+    return (std::to_string(GAME_VERSION.major) + "." +
+            std::to_string(GAME_VERSION.minor) + "." +
+            std::to_string(GAME_VERSION.micro))
+        .c_str();
 }
 
 [[nodiscard]] bool getWindowedAutoResolution()

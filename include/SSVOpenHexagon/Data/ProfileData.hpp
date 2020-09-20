@@ -11,13 +11,13 @@ namespace hg
 class ProfileData
 {
 private:
-    float version;
+    std::string version;
     std::string name;
     ssvuj::Obj scores;
     std::vector<std::string> trackedNames;
 
 public:
-    ProfileData(float mVersion, const std::string& mName,
+    ProfileData(std::string mVersion, const std::string& mName,
         const ssvuj::Obj& mScores,
         const std::vector<std::string>& mTrackedNames)
         : version{mVersion}, name{mName}, scores{mScores}, trackedNames{
@@ -25,7 +25,7 @@ public:
     {
     }
 
-    [[nodiscard]] float getVersion() const
+    [[nodiscard]] std::string getVersion() const
     {
         return version;
     }
