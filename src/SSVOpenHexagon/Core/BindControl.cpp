@@ -137,7 +137,8 @@ void KeyboardBindControl::newKeyboardBind(
             }
 
             // names are shifted compared to the Key enum
-            bindNames += bindToHumanReadableName(ssvs::getKKeyName(ssvs::KKey(j - 1)));
+            bindNames +=
+                bindToHumanReadableName(ssvs::getKKeyName(ssvs::KKey(j - 1)));
             break;
         }
 
@@ -155,7 +156,8 @@ void KeyboardBindControl::newKeyboardBind(
             }
 
             // same as with keys
-            bindNames += bindToHumanReadableName(ssvs::getMBtnName(ssvs::MBtn(j - 1)));
+            bindNames +=
+                bindToHumanReadableName(ssvs::getMBtnName(ssvs::MBtn(j - 1)));
             break;
         }
     }

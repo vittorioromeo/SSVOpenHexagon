@@ -67,7 +67,7 @@ struct Converter<ssvs::KKey>
         if(mValue == T::Unknown)
         {
             std::string empty;
-            arch(mObj, empty);  // TODO: using `""` seems to be bugged
+            arch(mObj, empty); // TODO: using `""` seems to be bugged
             return;
         }
 

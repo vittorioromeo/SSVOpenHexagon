@@ -84,7 +84,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             assets.playSound("select.ogg");
             game.ignoreAllInputs(false);
             hg::Joystick::ignoreAllPresses(false);
-      }
+        }
     };
 
     const auto checkCloseDialogBox = [this]() {
@@ -97,7 +97,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     game.onEvent(Event::EventType::KeyReleased) +=
-        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](
+            const Event& mEvent) {
             // don't do anything if inputs are being processed as usual
             if(!noActions)
             {
@@ -161,7 +162,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         };
 
     game.onEvent(Event::EventType::MouseButtonReleased) +=
-        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](
+            const Event& mEvent) {
             if(!noActions)
             {
                 return;
@@ -206,7 +208,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         };
 
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
-        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](const Event& mEvent) {
+        [this, checkCloseEpilepsyWarning, checkCloseDialogBox](
+            const Event& mEvent) {
             if(!noActions)
             {
                 return;
@@ -416,7 +419,7 @@ void MenuGame::initMenus()
     // Options menu
     auto& main(optionsMenu.createCategory("options"));
     auto& play(optionsMenu.createCategory("gameplay"));
-    auto& keyboard(optionsMenu.createCategory("keyboard"));
+    auto& keyboard(optionsMenu.createCategory("keyboard and mouse"));
     auto& joystick(optionsMenu.createCategory("joystick"));
     auto& resolution(optionsMenu.createCategory("resolution"));
     auto& gfx(optionsMenu.createCategory("graphics"));
@@ -565,7 +568,7 @@ void MenuGame::initMenus()
         "autorestart", &Config::getAutoRestart, &Config::setAutoRestart);
     play.create<i::Toggle>("rotate to start", &Config::getRotateToStart,
         &Config::setRotateToStart);
-    play.create<i::Goto>("keyboard", keyboard);
+    play.create<i::Goto>("keyboard and mouse", keyboard);
     play.create<i::Goto>("joystick", joystick);
     play.create<i::GoBack>("back");
 
@@ -582,17 +585,16 @@ void MenuGame::initMenus()
         &Config::getTriggerRotateCW, &Config::addBindTriggerRotateCW,
         &Config::clearBindTriggerRotateCW, callBack, Tid::RotateCW);
     keyboard.create<KeyboardBindControl>("focus", &Config::getTriggerFocus,
-        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus,
-        callBack, Tid::Focus);
+        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus, callBack,
+        Tid::Focus);
     keyboard.create<KeyboardBindControl>("select", &Config::getTriggerSelect,
         &Config::addBindTriggerSelect, &Config::clearBindTriggerSelect,
         callBack, Tid::Select);
     keyboard.create<KeyboardBindControl>("exit", &Config::getTriggerExit,
-        &Config::addBindTriggerExit, &Config::clearBindTriggerExit,
-        callBack, Tid::Exit);
+        &Config::addBindTriggerExit, &Config::clearBindTriggerExit, callBack,
+        Tid::Exit);
     keyboard.create<KeyboardBindControl>("force restart",
-        &Config::getTriggerForceRestart,
-        &Config::addBindTriggerForceRestart,
+        &Config::getTriggerForceRestart, &Config::addBindTriggerForceRestart,
         &Config::clearBindTriggerForceRestart, callBack, Tid::ForceRestart);
     keyboard.create<KeyboardBindControl>("restart", &Config::getTriggerRestart,
         &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart,
@@ -604,14 +606,14 @@ void MenuGame::initMenus()
         &Config::getTriggerScreenshot, &Config::addBindTriggerScreenshot,
         &Config::clearBindTriggerScreenshot, callBack, Tid::Screenshot);
     keyboard.create<KeyboardBindControl>("swap", &Config::getTriggerSwap,
-        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap,
-        callBack, Tid::Swap);
+        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap, callBack,
+        Tid::Swap);
     keyboard.create<KeyboardBindControl>("up", &Config::getTriggerUp,
         &Config::addBindTriggerUp, &Config::clearBindTriggerUp, callBack,
         Tid::Up);
     keyboard.create<KeyboardBindControl>("down", &Config::getTriggerDown,
-        &Config::addBindTriggerDown, &Config::clearBindTriggerDown,
-        callBack, Tid::Down);
+        &Config::addBindTriggerDown, &Config::clearBindTriggerDown, callBack,
+        Tid::Down);
     keyboard.create<i::GoBack>("back");
 
     // Joystick binds
@@ -904,7 +906,7 @@ void MenuGame::initInput()
     using t = Type;
 
     game.addInput(
-        Config::getTriggerRotateCCW(), //editable
+        Config::getTriggerRotateCCW(), // editable
         [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, Tid::RotateCCW);
 
     game.addInput(
@@ -912,7 +914,7 @@ void MenuGame::initInput()
         [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once);
 
     game.addInput(
-        Config::getTriggerRotateCW(), //editable
+        Config::getTriggerRotateCW(), // editable
         [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once, Tid::RotateCW);
 
     game.addInput(
