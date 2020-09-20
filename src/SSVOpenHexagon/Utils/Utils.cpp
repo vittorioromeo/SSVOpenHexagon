@@ -43,7 +43,7 @@ MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
 
 ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
 {
-    return {ssvuj::getExtr<float>(mRoot, "version"),
+    return {ssvuj::getExtr<std::string>(mRoot, "version"),
         ssvuj::getExtr<std::string>(mRoot, "name"),
         ssvuj::getObj(mRoot, "scores"),
         ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {})};

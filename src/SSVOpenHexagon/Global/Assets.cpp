@@ -327,7 +327,7 @@ void HGAssets::saveCurrentLocalProfile()
     }
 
     ssvuj::Obj profileRoot;
-    ssvuj::arch(profileRoot, "version", Config::getVersion());
+    ssvuj::arch(profileRoot, "version", Config::getVersionString());
     ssvuj::arch(profileRoot, "name", getCurrentLocalProfile().getName());
     ssvuj::arch(profileRoot, "scores", getCurrentLocalProfile().getScores());
 

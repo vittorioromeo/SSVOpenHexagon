@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
 #include <string>
 
 namespace ssvs
@@ -19,6 +20,39 @@ class Trigger;
 
 namespace hg::Config
 {
+struct Version
+{
+    int major;
+    int minor;
+    int micro;
+
+    Version& operator=(const Version& o)
+    {
+        major = o.major;
+        minor = o.minor;
+        micro = o.micro;
+        return *this;
+    }
+
+    auto operator<(const Version& rhs) const
+    {
+        return std::tie(major, minor, micro) <
+               std::tie(rhs.major, rhs.minor, rhs.micro);
+    }
+
+    auto operator>(const Version& rhs) const
+    {
+        return std::tie(major, minor, micro) >
+               std::tie(rhs.major, rhs.minor, rhs.micro);
+    }
+
+    bool operator==(Version other) const
+    {
+        return (major == other.major) && (minor == other.minor) &&
+               (micro == other.micro);
+    }
+};
+const Version GAME_VERSION = Version{2, 0, 3};
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
 void saveConfig();
@@ -94,7 +128,7 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] bool getVsync();
 [[nodiscard]] bool getAutoZoomFactor();
 [[nodiscard]] bool getFullscreen();
-[[nodiscard, gnu::const]] float getVersion();
+[[nodiscard, gnu::const]] Version getVersion();
 [[nodiscard, gnu::const]] const char* getVersionString();
 [[nodiscard]] bool getWindowedAutoResolution();
 [[nodiscard]] bool getFullscreenAutoResolution();
