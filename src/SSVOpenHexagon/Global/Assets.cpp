@@ -507,42 +507,39 @@ std::string HGAssets::reloadLevel(
     const std::string& mId)
 {
     std::string temp, output;
-    std::optional<LevelData> levelDataOut;
 
-    // Check the level folder exists
+    //*******************************************
+    // Level
     temp = mPath + "Levels/";
     if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
     {
         return "invalid level folder path\n";
     }
-    for(const auto& p : scanSingleByName(temp, mId + ".json"))
-    {
-        LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
-        temp = mPackId + "_" + mId;
 
-        auto it = levelDatas.find(temp);
-        if(it == levelDatas.end())
-        {
-            levelDataIdsByPack[mPackId].emplace_back(temp);
-            levelDatas.emplace(temp, std::move(levelData));
-        }
-        else
-        {
-            it->second = levelData;
-        }
-
-        levelDataOut = levelData;
-    }
-    // there is no level abort
-    if(!levelDataOut.has_value())
+    auto levelFile = scanSingleByName(temp, mId + ".json");
+    if(levelFile.empty())
     {
         return "no matching level data file found\n";
     }
+
+    // There is only one file, so we can just subscript index 0.
+    // Same goes for all other files below
+    LevelData levelData{ssvuj::getFromFile(levelFile[0]), mPath, mPackId};
+    temp = mPackId + "_" + mId;
+
+    auto it = levelDatas.find(temp);
+    if(it == levelDatas.end())
+    {
+        levelDataIdsByPack[mPackId].emplace_back(temp);
+        levelDatas.emplace(temp, std::move(levelData));
+    }
     else
     {
-        output = "level data " + mId + ".json successfully loaded\n";
+        it->second = levelData;
     }
+    output = "level data " + mId + ".json successfully loaded\n";
 
+    //*******************************************
     // Style
     temp = mPath + "Styles/";
     if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
@@ -551,16 +548,15 @@ std::string HGAssets::reloadLevel(
     }
     else
     {
-        auto styleFile = scanSingleByName(temp, levelDataOut->styleId + ".json");
+        auto styleFile = scanSingleByName(temp, levelData.styleId + ".json");
         if(styleFile.empty())
         {
             output += "no matching style file found\n";
         }
         else
         {
-            // There is only one file, so we can just subscript index 0
             StyleData styleData{ssvuj::getFromFile(styleFile[0]), styleFile[0]};
-            temp = mPackId + "_" + levelDataOut->styleId;
+            temp = mPackId + "_" + levelData.styleId;
 
             auto it = styleDataMap.find(temp);
             if(it == styleDataMap.end())
@@ -573,10 +569,11 @@ std::string HGAssets::reloadLevel(
             }
 
             output += "style data " +
-                      levelDataOut->styleId + ".json successfully loaded\n";
+                      levelData.styleId + ".json successfully loaded\n";
         }
     }
 
+    //*******************************************
     // Music data
     temp = mPath + "Music/";
     if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
@@ -585,7 +582,7 @@ std::string HGAssets::reloadLevel(
     }
     else
     {
-        auto musicDataFile = scanSingleByName(temp, levelDataOut->musicId + ".json");
+        auto musicDataFile = scanSingleByName(temp, levelData.musicId + ".json");
         if(musicDataFile.empty())
         {
             output += "no matching music data file found\n";
@@ -593,7 +590,7 @@ std::string HGAssets::reloadLevel(
         else
         {
             MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(musicDataFile[0]))};
-            temp = mPackId + "_" + levelDataOut->musicId;
+            temp = mPackId + "_" + levelData.musicId;
 
             auto it = musicDataMap.find(temp);
             if(it == musicDataMap.end())
@@ -606,10 +603,11 @@ std::string HGAssets::reloadLevel(
             }
 
             output += "music data " +
-                      levelDataOut->musicId + ".json successfully loaded\n";
+                      levelData.musicId + ".json successfully loaded\n";
         }
     }
 
+    //*******************************************
     // Music files
     std::string assetId;
     temp = mPath + "Music/";
@@ -617,17 +615,17 @@ std::string HGAssets::reloadLevel(
     {
         output += "invalid music folder path\n";
     }
-    else if(levelDataOut->musicId != "nullMusicId")
+    else if(levelData.musicId != "nullMusicId")
     {
-        assetId = mPackId + "_" + levelDataOut->musicId;
+        assetId = mPackId + "_" + levelData.musicId;
         if(assetManager.has<sf::Music>(assetId))
         {
             output += "music file " +
-                      levelDataOut->musicId + ".ogg is already loaded\n";
+                      levelData.musicId + ".ogg is already loaded\n";
         }
         else
         {
-            auto musicFile = scanSingleByName(temp, levelDataOut->musicId + ".ogg");
+            auto musicFile = scanSingleByName(temp, levelData.musicId + ".ogg");
             if(musicFile.empty())
             {
                 output += "no matching music file found\n";
@@ -638,19 +636,14 @@ std::string HGAssets::reloadLevel(
                 music.setVolume(Config::getMusicVolume());
                 music.setLoop(true);
                 output += "new music file " +
-                          levelDataOut->musicId + ".ogg successfully loaded\n";
+                          levelData.musicId + ".ogg successfully loaded\n";
             }
         }
     }
 
-    // no need to keep going if sound id is null
-    if(levelDataOut->soundId == "nullSoundId")
-    {
-        return output;
-    }
-
+    //*******************************************
     // Sound files
-    if(levelDataOut->soundId == "nullSoundId")
+    if(levelData.soundId == "nullSoundId")
     {
         // no need to keep going if sound id is null
         return output;
@@ -664,14 +657,14 @@ std::string HGAssets::reloadLevel(
     }
 
     // Check if this custom sound file is already loaded
-    assetId = mPackId + "_" + levelDataOut->soundId;
+    assetId = mPackId + "_" + levelData.soundId;
     if(assetManager.has<sf::SoundBuffer>(assetId))
     {
-        output += "custom sound file " + levelDataOut->soundId + ".ogg is already loaded\n";
+        output += "custom sound file " + levelData.soundId + ".ogg is already loaded\n";
         return output;
     }
 
-    auto soundFile = scanSingleByName(temp, levelDataOut->soundId + ".ogg");
+    auto soundFile = scanSingleByName(temp, levelData.soundId + ".ogg");
     if(soundFile.empty())
     {
         output += "no matching custom sound file found\n";
@@ -680,7 +673,7 @@ std::string HGAssets::reloadLevel(
 
     assetManager.load<sf::SoundBuffer>(assetId, soundFile[0]);
     output += "new custom sound file "
-              + levelDataOut->soundId + ".ogg successfully loaded\n";
+              + levelData.soundId + ".ogg successfully loaded\n";
 
     return output;
 }
