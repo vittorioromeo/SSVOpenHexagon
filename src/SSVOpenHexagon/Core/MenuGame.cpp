@@ -86,11 +86,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     const auto checkCloseDialogBox = [this]() {
-        if(!(--ignoreInputs))
+        if(!ignoreInputs)
         {
             dialogBox.clearDialogBox();
             game.ignoreAllInputs(false);
             hg::Joystick::ignoreAllPresses(false);
+
+            // Reset keys to the "no specific press required"
+            // state
+            dBoxCloseKey = -1;
+            dBoxCloseMouse = -1;
+            dBoxCloseJoystick = -1;
         }
     };
 
@@ -112,15 +118,21 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
 
             // Scenario two: actions are blocked cause a dialog box is open
+            KKey key = mEvent.key.code;
             if(!dialogBox.empty())
             {
+                // no particular key has been picked to close the box
+                if((dBoxCloseKey == -1 && dBoxCloseMouse == -1 &&
+                    dBoxCloseJoystick == -1) || dBoxCloseKey == int(key))
+                {
+                    ignoreInputs--;
+                }
                 checkCloseDialogBox();
                 return;
             }
 
             // Scenario three: actions are blocked cause we are using a
             // BindControl menu item
-            KKey key = mEvent.key.code;
             if(getCurrentMenu() != nullptr && key == KKey::Escape)
             {
                 getCurrentMenu()->getItem().exec(); // turn off bind inputting
@@ -173,8 +185,14 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
+            MBtn btn = mEvent.mouseButton.button;
             if(!dialogBox.empty())
             {
+                if((dBoxCloseKey == -1 && dBoxCloseMouse == -1 &&
+                    dBoxCloseJoystick == -1) || dBoxCloseMouse == int(btn))
+                {
+                    ignoreInputs--;
+                }
                 checkCloseDialogBox();
                 return;
             }
@@ -197,7 +215,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                bc->newKeyboardBind(KKey::Unknown, mEvent.mouseButton.button);
+                bc->newKeyboardBind(KKey::Unknown, btn);
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
@@ -219,8 +237,14 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
+            unsigned int joy = mEvent.joystickButton.button;
             if(!dialogBox.empty())
             {
+                if((dBoxCloseKey == -1 && dBoxCloseMouse == -1 &&
+                   dBoxCloseJoystick == -1) || dBoxCloseJoystick == int(joy))
+                {
+                    ignoreInputs--;
+                }
                 checkCloseDialogBox();
                 return;
             }
@@ -244,7 +268,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                bc->newJoystickBind(int(mEvent.joystickButton.button));
+                bc->newJoystickBind(joy);
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");

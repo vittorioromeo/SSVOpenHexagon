@@ -262,8 +262,14 @@ private:
     }
 
     void reloadLevelAssets();
+
     void setIgnoreInputs(const int keyPresses);
     int ignoreInputs{0};
+
+    // Specific keys to close the dialog box
+    int dBoxCloseKey{-1};
+    int dBoxCloseMouse{-1};
+    int dBoxCloseJoystick{-1};
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
