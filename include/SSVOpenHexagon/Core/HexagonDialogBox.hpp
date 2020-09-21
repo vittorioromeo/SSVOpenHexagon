@@ -17,6 +17,13 @@ namespace hg
 class HGAssets;
 class StyleData;
 
+enum DBoxDraw
+{
+    regular = 0,
+    centered,
+    levelReload
+};
+
 class HexagonDialogBox
 {
 private:
@@ -31,15 +38,22 @@ private:
 
     float dialogHeight{0.f};
     float dialogWidth{0.f};
-    float frameOffset{0.f};
+    float frameSize{0.f};
+    float doubleFrameSize{0.f};
     float lineHeight{0.f};
+
+    int drawMode{0};
+    float xPos{0.f};
+    float yPos{0.f};
 
 public:
     HexagonDialogBox(
         HGAssets& mAssets, ssvs::GameWindow& window, StyleData& styleData);
 
-    void createDialogBox(const std::string& output, const int charSize);
+    void createDialogBox(const std::string& output, const int charSize,
+        const float frameSize, const int mDrawMode, const float xPos = 0.f, const float yPos = 0.f);
     void drawDialogBox();
+    void drawDialogBoxCentered();
     void clearDialogBox();
 
     [[nodiscard]] bool empty() const noexcept

@@ -12,27 +12,24 @@ namespace hg
 HexagonDialogBox::HexagonDialogBox(
     HGAssets& mAssets, ssvs::GameWindow& mWindow, StyleData& mStyleData)
     : assets{mAssets}, window{mWindow}, styleData{mStyleData},
-      imagine{assets.get<sf::Font>("forcedsquare.ttf")}, txtDialog{
-                                                             "", imagine, 0}
+      imagine{assets.get<sf::Font>("forcedsquare.ttf")},
+      txtDialog{"", imagine, 0}
 {
 }
 
-void HexagonDialogBox::createDialogBox(
-    const std::string& output, const int charSize)
+void HexagonDialogBox::createDialogBox(const std::string& output, const int charSize,
+    const float mFrameSize, const int mDrawMode, const float mXPos, const float mYPos)
 {
     txtDialog.setCharacterSize(charSize);
     txtDialog.setString(output);
     dialogWidth = ssvs::getGlobalWidth(txtDialog);
     dialogHeight = ssvs::getGlobalHeight(txtDialog);
 
-    // in order to properly adjust the text after the dialogText vector has been
-    // built we need to know the height of a single line. dialogHeight is the
-    // height of the entire box. So we assign an arbitrary text string and
-    // record the outputted value
     txtDialog.setString("A");
     lineHeight = ssvs::getGlobalHeight(txtDialog);
 
-    frameOffset = 10.f;
+    frameSize = mFrameSize;
+    doubleFrameSize = 2.f * frameSize;
 
     std::string temp;
     for(char c : output)
@@ -47,17 +44,19 @@ void HexagonDialogBox::createDialogBox(
             temp += c;
         }
     }
+
+    drawMode = mDrawMode;
+    xPos = mXPos;
+    yPos = mYPos;
 }
 
 void HexagonDialogBox::drawDialogBox()
 {
-    const sf::Color color = styleData.getTextColor();
-
-    const float fmax =
-        std::max(1024.f / Config::getWidth(), 768.f / Config::getHeight());
-
-    const float w = Config::getWidth() * fmax;
-    const float h = (Config::getHeight() * fmax) / 2.f;
+    if(drawMode)
+    {
+        drawDialogBoxCentered();
+        return;
+    }
 
     // Alright what's this: if I apply the clean txtDialog height value to these
     // quads there is a small extra margin on the top and bottom (right and left
@@ -69,34 +68,28 @@ void HexagonDialogBox::drawDialogBox()
                 heightDifBottom = lineHeight * 0.6f;
 
     // outer frame (text color)
-    const float leftBorder = (w - dialogWidth) / 2.f,
-                rightBorder = (w + dialogWidth) / 2.f,
-                doubleOffset = frameOffset * 2.f;
+    sf::Color color = styleData.getTextColor();
+    // minimum transparency for readability
+    if(color.a < 225)
+    {
+        color.a = 225;
+    }
 
     dialogFrame.clear();
     dialogFrame.reserve_more(8);
 
-    sf::Vector2f p1{leftBorder - doubleOffset,
-        h - dialogHeight - doubleOffset + heightDif}; // top left
-    sf::Vector2f p2{rightBorder + doubleOffset,
-        h - dialogHeight - doubleOffset + heightDif}; // top right
-    sf::Vector2f p3{rightBorder + doubleOffset,
-        h + doubleOffset - heightDifBottom}; // bottom right
-    sf::Vector2f p4{leftBorder - doubleOffset,
-        h + doubleOffset - heightDifBottom}; // bottom left
+    sf::Vector2f p1{xPos - doubleFrameSize,                 yPos - doubleFrameSize + heightDif}; // top left
+    sf::Vector2f p2{xPos + dialogWidth + doubleFrameSize,   yPos - doubleFrameSize + heightDif}; // top right
+    sf::Vector2f p3{xPos + dialogWidth + doubleFrameSize,   yPos + dialogHeight + doubleFrameSize - heightDifBottom}; // bottom right
+    sf::Vector2f p4{xPos - doubleFrameSize,                 yPos + dialogHeight + doubleFrameSize - heightDifBottom}; // bottom left
     dialogFrame.batch_unsafe_emplace_back(color, p1, p2, p3, p4);
 
     // text backdrop (spinning background color)
-    p1 = {leftBorder - frameOffset,
-        h - dialogHeight - frameOffset + heightDif}; // top left
-    p2 = {rightBorder + frameOffset,
-        h - dialogHeight - frameOffset + heightDif}; // top right
-    p3 = {rightBorder + frameOffset,
-        h + frameOffset - heightDifBottom}; // bottom right
-    p4 = {leftBorder - frameOffset,
-        h + frameOffset - heightDifBottom}; // bottom left
-    dialogFrame.batch_unsafe_emplace_back(
-        styleData.getColor(0), p1, p2, p3, p4);
+    p1 = {xPos - frameSize,                 yPos - frameSize + heightDif}; // top left
+    p2 = {xPos + dialogWidth + frameSize,   yPos - frameSize + heightDif}; // top right
+    p3 = {xPos + dialogWidth + frameSize,   yPos + dialogHeight + frameSize - heightDifBottom}; // bottom right
+    p4 = {xPos - frameSize,                 yPos + dialogHeight + frameSize - heightDifBottom}; // bottom left
+    dialogFrame.batch_unsafe_emplace_back(styleData.getColor(0), p1, p2, p3, p4);
 
     window.draw(dialogFrame);
 
@@ -109,8 +102,76 @@ void HexagonDialogBox::drawDialogBox()
         if(!str.empty())
         {
             txtDialog.setString(str);
-            txtDialog.setPosition({(w - ssvs::getGlobalWidth(txtDialog)) / 2.f,
-                h - dialogHeight + heightOffset});
+            txtDialog.setPosition(
+                {xPos + (dialogWidth - ssvs::getGlobalWidth(txtDialog)) / 2.f,
+                yPos + heightOffset});
+            window.draw(txtDialog);
+        }
+        heightOffset += interlineSpace;
+    }
+}
+
+void HexagonDialogBox::drawDialogBoxCentered()
+{
+    const float fmax =
+        std::max(1024.f / Config::getWidth(), 768.f / Config::getHeight()),
+                w = Config::getWidth() * fmax,
+                h = (Config::getHeight() * fmax) / 2.f + yPos;
+
+    const float heightDif = lineHeight * 0.85f,
+        heightDifBottom = lineHeight * 0.6f;
+
+    // outer frame (text color)
+    sf::Color color = styleData.getTextColor();
+    // minimum transparency for readability
+    if(color.a < 225)
+    {
+        color.a = 225;
+    }
+
+    const float leftBorder = (w - dialogWidth) / 2.f + xPos,
+                rightBorder = (w + dialogWidth) / 2.f;
+
+    float heightOffsetTop, heightOffsetBottom;
+    if(drawMode == 2)
+    {
+        heightOffsetTop = dialogHeight;
+        heightOffsetBottom = 0.f;
+    }
+    else
+    {
+        heightOffsetTop = heightOffsetBottom = dialogHeight / 2.f;
+    }
+
+    dialogFrame.clear();
+    dialogFrame.reserve_more(8);
+
+    sf::Vector2f p1{leftBorder - doubleFrameSize,   h - heightOffsetTop - doubleFrameSize + heightDif}; // top left
+    sf::Vector2f p2{rightBorder + doubleFrameSize,  h - heightOffsetTop - doubleFrameSize + heightDif}; // top right
+    sf::Vector2f p3{rightBorder + doubleFrameSize,  h + heightOffsetBottom + doubleFrameSize - heightDifBottom}; // bottom right
+    sf::Vector2f p4{leftBorder - doubleFrameSize,   h + heightOffsetBottom + doubleFrameSize - heightDifBottom}; // bottom left
+    dialogFrame.batch_unsafe_emplace_back(color, p1, p2, p3, p4);
+
+    // text backdrop (spinning background color)
+    p1 = {leftBorder - frameSize,   h - heightOffsetTop - frameSize + heightDif}; // top left
+    p2 = {rightBorder + frameSize,  h - heightOffsetTop - frameSize + heightDif}; // top right
+    p3 = {rightBorder + frameSize,  h + heightOffsetBottom + frameSize - heightDifBottom}; // bottom right
+    p4 = {leftBorder - frameSize,   h + heightOffsetBottom + frameSize - heightDifBottom}; // bottom left
+    dialogFrame.batch_unsafe_emplace_back(styleData.getColor(0), p1, p2, p3, p4);
+
+    window.draw(dialogFrame);
+
+    // text
+    float heightOffset = 0.f;
+    const float interlineSpace = lineHeight * 1.5f;
+    txtDialog.setFillColor(color);
+    for(auto& str : dialogText)
+    {
+        if(!str.empty())
+        {
+            txtDialog.setString(str);
+            txtDialog.setPosition( {(w - ssvs::getGlobalWidth(txtDialog)) / 2.f,
+                    h + heightOffset - heightOffsetTop});
             window.draw(txtDialog);
         }
         heightOffset += interlineSpace;
