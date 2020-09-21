@@ -262,6 +262,7 @@ private:
     }
 
     void reloadLevelAssets();
+    void refreshBinds();
     int noActions{0};
 
 public:

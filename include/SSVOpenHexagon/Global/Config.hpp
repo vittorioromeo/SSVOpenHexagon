@@ -21,6 +21,8 @@ namespace hg::Config
 {
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
+void resetConfigToDefaults();
+void resetBindsToDefaults();
 void saveConfig();
 
 [[nodiscard]] bool isEligibleForScore();
