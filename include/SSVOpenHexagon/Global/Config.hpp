@@ -209,17 +209,17 @@ void joystickBindsSanityCheck();
 [[nodiscard]] unsigned int getJoystickChangePack();
 [[nodiscard]] unsigned int getJoystickCreateProfile();
 
-[[nodiscard]] int reassignToJoystickSelect(unsigned int button);
-[[nodiscard]] int reassignToJoystickExit(unsigned int button);
-[[nodiscard]] int reassignToJoystickFocus(unsigned int button);
-[[nodiscard]] int reassignToJoystickSwap(unsigned int button);
-[[nodiscard]] int reassignToJoystickForceRestart(unsigned int button);
-[[nodiscard]] int reassignToJoystickRestart(unsigned int button);
-[[nodiscard]] int reassignToJoystickReplay(unsigned int button);
-[[nodiscard]] int reassignToJoystickScreenshot(unsigned int button);
-[[nodiscard]] int reassignToJoystickOptionMenu(unsigned int button);
-[[nodiscard]] int reassignToJoystickChangePack(unsigned int button);
-[[nodiscard]] int reassignToJoystickCreateProfile(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickSelect(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickExit(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickFocus(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickSwap(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickForceRestart(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickRestart(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickReplay(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickScreenshot(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickOptionMenu(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickChangePack(unsigned int button);
+[[nodiscard]] unsigned int reassignToJoystickCreateProfile(unsigned int button);
 
 void setJoystickSelect(unsigned int button);
 void setJoystickExit(unsigned int button);

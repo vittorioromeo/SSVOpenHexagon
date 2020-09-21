@@ -867,6 +867,19 @@ void setSaveLocalBestReplayToFile(bool mX)
 {
     std::vector<Combo>& combos = trig.getCombos();
 
+    // Remove empty slots to agglomerate all binds
+    // close to each other
+    for(auto it = combos.begin(); it != combos.end();)
+    {
+        if(it->isUnbound())
+        {
+            combos.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
     while(combos.size() >
           MAX_BINDS) // if the config has more binds than are supported
     {
@@ -876,28 +889,6 @@ void setSaveLocalBestReplayToFile(bool mX)
                                      // spots with unbound combos
     {
         combos.emplace_back(Combo({KKey::Unknown}));
-    }
-
-    // Agglomerate binds close to each other, leave empty
-    // spots at the end
-    for(auto it1 = combos.begin(), it2 = it1 + 1; it1 != combos.end() - 1;
-        ++it1, it2 = it1 + 1)
-    {
-        if(!it1->isUnbound())
-        {
-            continue;
-        }
-
-        while(it2->isUnbound() && it2++ != combos.end())
-            ;
-
-        if(it2 == combos.end())
-        {
-            break;
-        }
-
-        *it1 = *it2;
-        it2->clearBind();
     }
 
     return trig;
@@ -1294,77 +1285,77 @@ using JoystickBindsConfigs = std::pair<SetFuncJoy, unsigned int>;
     return -1;
 }
 
-int reassignToJoystickSelect(unsigned int button)
+unsigned int reassignToJoystickSelect(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickSelect() = button;
     return unboundID;
 }
 
-int reassignToJoystickExit(unsigned int button)
+unsigned int reassignToJoystickExit(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickExit() = button;
     return unboundID;
 }
 
-int reassignToJoystickFocus(unsigned int button)
+unsigned int reassignToJoystickFocus(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickFocus() = button;
     return unboundID;
 }
 
-int reassignToJoystickSwap(unsigned int button)
+unsigned int reassignToJoystickSwap(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickSwap() = button;
     return unboundID;
 }
 
-int reassignToJoystickForceRestart(unsigned int button)
+unsigned int reassignToJoystickForceRestart(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickForceRestart() = button;
     return unboundID;
 }
 
-int reassignToJoystickRestart(unsigned int button)
+unsigned int reassignToJoystickRestart(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickRestart() = button;
     return unboundID;
 }
 
-int reassignToJoystickReplay(unsigned int button)
+unsigned int reassignToJoystickReplay(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickReplay() = button;
     return unboundID;
 }
 
-int reassignToJoystickScreenshot(unsigned int button)
+unsigned int reassignToJoystickScreenshot(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickScreenshot() = button;
     return unboundID;
 }
 
-int reassignToJoystickOptionMenu(unsigned int button)
+unsigned int reassignToJoystickOptionMenu(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickOptionMenu() = button;
     return unboundID;
 }
 
-int reassignToJoystickChangePack(unsigned int button)
+unsigned int reassignToJoystickChangePack(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickChangePack() = button;
     return unboundID;
 }
 
-int reassignToJoystickCreateProfile(unsigned int button)
+unsigned int reassignToJoystickCreateProfile(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickCreateProfile() = button;
