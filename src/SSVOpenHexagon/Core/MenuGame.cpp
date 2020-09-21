@@ -442,6 +442,10 @@ void MenuGame::initMenus()
     main.create<i::Toggle>(
         "official mode", &Config::getOfficial, &Config::setOfficial);
     main.create<i::Single>("exit game", [this] { window.stop(); });
+    main.create<i::Single>("reset configs to default", [this]{
+        Config::resetConfigToDefaults();
+        refreshBinds();
+    });
     main.create<i::Single>("back", [this] { state = States::SMain; });
 
 
@@ -570,6 +574,10 @@ void MenuGame::initMenus()
         &Config::setRotateToStart);
     play.create<i::Goto>("keyboard and mouse", keyboard);
     play.create<i::Goto>("joystick", joystick);
+    play.create<i::Single>("reset binds to defaults",[this]{
+        Config::resetBindsToDefaults();
+        refreshBinds();
+    });
     play.create<i::GoBack>("back");
 
     // Keyboard binds
@@ -679,6 +687,41 @@ void MenuGame::initMenus()
     debug.create<i::Slider>("timescale", &Config::getTimescale,
         &Config::setTimescale, 0.1f, 2.f, 0.05f);
     debug.create<i::GoBack>("back");
+}
+
+void MenuGame::refreshBinds()
+{
+    // Keyboard-mouse
+    Trigger triggers[] = {
+        Config::getTriggerRotateCCW(), Config::getTriggerRotateCW(),
+        Config::getTriggerFocus(), Config::getTriggerSelect(),
+        Config::getTriggerExit(), Config::getTriggerForceRestart(),
+        Config::getTriggerRestart(), Config::getTriggerReplay(),
+        Config::getTriggerScreenshot(), Config::getTriggerSwap(),
+        Config::getTriggerUp(), Config::getTriggerDown()
+    };
+
+    size_t i;
+    for(i = 0; i < sizeof(triggers) / sizeof(triggers[0]); ++i)
+    {
+        game.refreshTrigger(triggers[i], i);
+        hexagonGame.refreshTrigger(triggers[i], i);
+    }
+
+    // Joystick
+    unsigned int buttons[] = {
+        Config::getJoystickSelect(), Config::getJoystickExit(),
+        Config::getJoystickFocus(), Config::getJoystickSwap(),
+        Config::getJoystickForceRestart(), Config::getJoystickRestart(),
+        Config::getJoystickReplay(), Config::getJoystickScreenshot(),
+        Config::getJoystickOptionMenu(), Config::getJoystickChangePack(),
+        Config::getJoystickCreateProfile()
+    };
+
+    for(i = 0; i < sizeof(buttons) / sizeof(buttons[0]); ++i)
+    {
+        hg::Joystick::setJoystickBind(buttons[i], i);
+    }
 }
 
 void MenuGame::leftAction()

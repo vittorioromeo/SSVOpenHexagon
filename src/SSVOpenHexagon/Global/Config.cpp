@@ -23,6 +23,31 @@ using namespace ssvu::FileSystem;
 using namespace ssvuj;
 using namespace ssvu;
 
+#define X_BINDSLINKEDVALUES                                                \
+    X(joystickSelect, unsigned int, "j_select")                            \
+    X(joystickExit, unsigned int, "j_exit")                                \
+    X(joystickFocus, unsigned int, "j_focus")                              \
+    X(joystickSwap, unsigned int, "j_swap")                                \
+    X(joystickForceRestart, unsigned int, "j_force_restart")               \
+    X(joystickRestart, unsigned int, "j_restart")                          \
+    X(joystickReplay, unsigned int, "j_replay")                            \
+    X(joystickScreenshot, unsigned int, "j_screenshot")                    \
+    X(joystickOptionMenu, unsigned int, "j_optionmenu")                    \
+    X(joystickChangePack, unsigned int, "j_changepack")                    \
+    X(joystickCreateProfile, unsigned int, "j_createprofile")              \
+    X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
+    X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
+    X(triggerFocus, Trigger, "t_focus")                                    \
+    X(triggerSelect, Trigger, "t_select")                                  \
+    X(triggerExit, Trigger, "t_exit")                                      \
+    X(triggerForceRestart, Trigger, "t_force_restart")                     \
+    X(triggerRestart, Trigger, "t_restart")                                \
+    X(triggerReplay, Trigger, "t_replay")                                  \
+    X(triggerScreenshot, Trigger, "t_screenshot")                          \
+    X(triggerSwap, Trigger, "t_swap")                                      \
+    X(triggerUp, Trigger, "t_up")                                          \
+    X(triggerDown, Trigger, "t_down")
+
 #define X_LINKEDVALUES                                                     \
     X(online, bool, "online")                                              \
     X(official, bool, "official")                                          \
@@ -79,29 +104,7 @@ using namespace ssvu;
     X(keyIconsScale, float, "key_icons_scale")                             \
     X(firstTimePlaying, bool, "first_time_playing")                        \
     X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file")   \
-    X(joystickSelect, unsigned int, "j_select")                            \
-    X(joystickExit, unsigned int, "j_exit")                                \
-    X(joystickFocus, unsigned int, "j_focus")                              \
-    X(joystickSwap, unsigned int, "j_swap")                                \
-    X(joystickForceRestart, unsigned int, "j_force_restart")               \
-    X(joystickRestart, unsigned int, "j_restart")                          \
-    X(joystickReplay, unsigned int, "j_replay")                            \
-    X(joystickScreenshot, unsigned int, "j_screenshot")                    \
-    X(joystickOptionMenu, unsigned int, "j_optionmenu")                    \
-    X(joystickChangePack, unsigned int, "j_changepack")                    \
-    X(joystickCreateProfile, unsigned int, "j_createprofile")              \
-    X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
-    X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
-    X(triggerFocus, Trigger, "t_focus")                                    \
-    X(triggerSelect, Trigger, "t_select")                                  \
-    X(triggerExit, Trigger, "t_exit")                                      \
-    X(triggerForceRestart, Trigger, "t_force_restart")                     \
-    X(triggerRestart, Trigger, "t_restart")                                \
-    X(triggerReplay, Trigger, "t_replay")                                  \
-    X(triggerScreenshot, Trigger, "t_screenshot")                          \
-    X(triggerSwap, Trigger, "t_swap")                                      \
-    X(triggerUp, Trigger, "t_up")                                          \
-    X(triggerDown, Trigger, "t_down")
+    X_BINDSLINKEDVALUES
 
 namespace hg::Config
 {
@@ -162,7 +165,22 @@ static void syncAllToObj()
 #undef X
 }
 
+static void resetAllFromObj()
+{
+#define X(name, type, key) name().syncFrom(ssvuj::getFromFile("../misc/default_config.json"));
+    X_LINKEDVALUES
+#undef X
+}
+
+static void resetBindsFromObj()
+{
+#define X(name, type, key) name().syncFrom(ssvuj::getFromFile("../misc/default_config.json"));
+    X_BINDSLINKEDVALUES
+#undef X
+}
+
 #undef X_LINKEDVALUES
+#undef X_BINDSLINKEDVALUES
 
 float sizeX{1500}, sizeY{1500};
 constexpr float spawnDistance{1600};
@@ -212,6 +230,46 @@ void loadConfig(const vector<string>& mOverridesIds)
     }
 
     recalculateSizes();
+}
+
+void resetConfigToDefaults()
+{
+    lo("::resetConfigToDefaults") << "resetting configs\n";
+
+    if(!ssvufs::Path{"../misc/default_config.json"}.exists<ssvufs::Type::File>())
+    {
+        ssvu::lo("hg::Config::resetConfigToDefaults()")
+            << "`default_config.json` file not found, config reset aborted\n";
+        return;
+    }
+
+    resetAllFromObj();
+
+    if(getWindowedAutoResolution())
+    {
+        applyAutoWindowedResolution();
+    }
+
+    if(getFullscreenAutoResolution())
+    {
+        applyAutoFullscreenResolution();
+    }
+
+    recalculateSizes();
+}
+
+void resetBindsToDefaults()
+{
+    lo("::resetBindsToDefaults") << "resetting binds to defaults\n";
+
+    if(!ssvufs::Path{"../misc/default_config.json"}.exists<ssvufs::Type::File>())
+    {
+        ssvu::lo("hg::Config::resetBindsToDefaults()")
+            << "`default_config.json` file not found, config reset aborted\n";
+        return;
+    }
+
+    resetBindsFromObj();
 }
 
 void saveConfig()
@@ -1282,7 +1340,7 @@ using JoystickBindsConfigs = std::pair<SetFuncJoy, unsigned int>;
         {setJoystickCreateProfile, joystickCreateProfile()},
     };
 
-    for(int i = 0; i < int(sizeof(funcs) / sizeof(funcs[0])); ++i)
+    for(size_t i = 0; i < sizeof(funcs) / sizeof(funcs[0]); ++i)
     {
         if(get<unsigned int>(funcs[i]) == button)
         {
