@@ -19,7 +19,7 @@ class StyleData;
 
 enum DBoxDraw
 {
-    regular = 0,
+    topLeft = 0,
     centered,
     levelReload
 };

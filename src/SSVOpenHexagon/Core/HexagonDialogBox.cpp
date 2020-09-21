@@ -132,13 +132,8 @@ void HexagonDialogBox::drawDialogBoxCentered()
     const float leftBorder = (w - dialogWidth) / 2.f + xPos,
                 rightBorder = (w + dialogWidth) / 2.f;
 
-    float heightOffsetTop, heightOffsetBottom;
-    if(drawMode == 2)
-    {
-        heightOffsetTop = dialogHeight;
-        heightOffsetBottom = 0.f;
-    }
-    else
+    float heightOffsetTop = dialogHeight, heightOffsetBottom = 0.f;
+    if(drawMode == DBoxDraw::centered)
     {
         heightOffsetTop = heightOffsetBottom = dialogHeight / 2.f;
     }
