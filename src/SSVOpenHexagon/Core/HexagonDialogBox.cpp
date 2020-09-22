@@ -50,6 +50,14 @@ void HexagonDialogBox::createDialogBox(const std::string& output, const int char
     yPos = mYPos;
 }
 
+void HexagonDialogBox::createDialogBox(const std::string& output, const int charSize,
+    const float mFrameSize, const int mDrawMode, const KKey mKeyToClose,
+    const float mXPos, const float mYPos)
+{
+    createDialogBox(output, charSize, mFrameSize, mDrawMode, mXPos, mYPos);
+    keyToClose = mKeyToClose;
+}
+
 void HexagonDialogBox::drawDialogBox()
 {
     if(drawMode)
@@ -178,6 +186,7 @@ void HexagonDialogBox::clearDialogBox()
     assets.playSound("select.ogg");
     dialogFrame.clear();
     dialogText.clear();
+    keyToClose = KKey::Unknown;
 }
 
 } // namespace hg
