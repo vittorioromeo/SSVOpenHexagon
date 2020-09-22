@@ -20,8 +20,8 @@ class StyleData;
 enum DBoxDraw
 {
     topLeft = 0,
-    centered,
-    centeredUpperHalf
+    center,
+    centerUpperHalf
 };
 
 class HexagonDialogBox
@@ -29,6 +29,7 @@ class HexagonDialogBox
 private:
     using KKey = sf::Keyboard::Key;
     using Color = sf::Color;
+    using Vector2 = sf::Vector2f;
 
     HGAssets& assets;
     ssvs::GameWindow& window;
@@ -53,19 +54,22 @@ private:
     KKey keyToClose{KKey::Unknown};
 
     void drawText(const Color& txtColor, const float xOffset, const float yOffset);
-    void drawCentered(const Color& txtColor, const Color& backdropColor);
-    void drawCenteredUpperHalf(const Color& txtColor, const Color& backdropColor);
+    void drawBox(const Color& frameColor, const float x1, const float x2,
+        const float y1, const float y2);
+    void drawCenter(const Color& txtColor, const Color& backdropColor);
+    void drawCenterUpperHalf(const Color& txtColor, const Color& backdropColor);
     void drawTopLeft(const Color& txtColor, const Color& backdropColor);
 
 public:
     HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& window, StyleData& styleData);
 
-    void createDialogBox(const std::string& output, const int charSize,
+    void create(const std::string& output, const int charSize,
         const float mFrameSize, const int mDrawMode,
         const float xPos = 0.f, const float yPos = 0.f);
-    void createDialogBox(const std::string& output, const int charSize,
+    void create(const std::string& output, const int charSize,
         const float mFrameSize, const int mDrawMode,
-        const KKey mKeyToClose, const float mXPos = 0.f, const float mYPos = 0.f);
+        const KKey mKeyToClose, const float mXPos = 0.f,
+        const float mYPos = 0.f);
 
     void draw(const Color& txtColor, const Color& backdropColor);
     void clearDialogBox();
