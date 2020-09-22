@@ -91,12 +91,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             dialogBox.clearDialogBox();
             game.ignoreAllInputs(false);
             hg::Joystick::ignoreAllPresses(false);
-
-            // Reset keys to the "no specific press required"
-            // state
-            dBoxCloseKey = -1;
-            dBoxCloseMouse = -1;
-            dBoxCloseJoystick = -1;
         }
     };
 
@@ -121,9 +115,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             KKey key = mEvent.key.code;
             if(!dialogBox.empty())
             {
-                // no particular key has been picked to close the box
-                if((dBoxCloseKey == -1 && dBoxCloseMouse == -1 &&
-                    dBoxCloseJoystick == -1) || dBoxCloseKey == int(key))
+                if(dialogBox.getKeyToClose() == KKey::Unknown ||
+                    key == dialogBox.getKeyToClose())
                 {
                     ignoreInputs--;
                 }
@@ -185,14 +178,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            MBtn btn = mEvent.mouseButton.button;
             if(!dialogBox.empty())
             {
-                if((dBoxCloseKey == -1 && dBoxCloseMouse == -1 &&
-                    dBoxCloseJoystick == -1) || dBoxCloseMouse == int(btn))
+                if(dialogBox.getKeyToClose() != KKey::Unknown)
                 {
-                    ignoreInputs--;
+                    return;
                 }
+                ignoreInputs--;
                 checkCloseDialogBox();
                 return;
             }
@@ -215,7 +207,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                bc->newKeyboardBind(KKey::Unknown, btn);
+                bc->newKeyboardBind(KKey::Unknown, mEvent.mouseButton.button);
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
@@ -237,19 +229,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            unsigned int joy = mEvent.joystickButton.button;
             if(!dialogBox.empty())
             {
-                if((dBoxCloseKey == -1 && dBoxCloseMouse == -1 &&
-                   dBoxCloseJoystick == -1) || dBoxCloseJoystick == int(joy))
+                if(dialogBox.getKeyToClose() != KKey::Unknown)
                 {
-                    ignoreInputs--;
+                    return;
                 }
+                ignoreInputs--;
                 checkCloseDialogBox();
                 return;
             }
 
-            // close dialogbox after the second key release
             if(!(--ignoreInputs))
             {
                 if(getCurrentMenu() == nullptr)
@@ -268,7 +258,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                bc->newJoystickBind(joy);
+                bc->newJoystickBind(mEvent.joystickButton.button);
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
