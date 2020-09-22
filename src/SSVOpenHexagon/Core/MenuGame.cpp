@@ -1059,7 +1059,8 @@ void MenuGame::reloadLevelAssets()
 
 	assets.playSound("select.ogg");
     setIgnoreInputs(2);
-    dialogBox.createDialogBox(reloadOutput, 26, 10.f, DBoxDraw::levelReload);
+    dialogBox.createDialogBox(reloadOutput, 26, 10.f,
+        DBoxDraw::centeredUpperHalf);
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -1617,7 +1618,7 @@ void MenuGame::draw()
 
     if(!dialogBox.empty())
     {
-        dialogBox.drawDialogBox();
+        dialogBox.draw(styleData.getTextColor(), styleData.getColor(0));
     }
 }
 
