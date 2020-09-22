@@ -1285,77 +1285,77 @@ using JoystickBindsConfigs = std::pair<SetFuncJoy, unsigned int>;
     return -1;
 }
 
-unsigned int reassignToJoystickSelect(unsigned int button)
+int reassignToJoystickSelect(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickSelect() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickExit(unsigned int button)
+int reassignToJoystickExit(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickExit() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickFocus(unsigned int button)
+int reassignToJoystickFocus(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickFocus() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickSwap(unsigned int button)
+int reassignToJoystickSwap(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickSwap() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickForceRestart(unsigned int button)
+int reassignToJoystickForceRestart(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickForceRestart() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickRestart(unsigned int button)
+int reassignToJoystickRestart(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickRestart() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickReplay(unsigned int button)
+int reassignToJoystickReplay(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickReplay() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickScreenshot(unsigned int button)
+int reassignToJoystickScreenshot(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickScreenshot() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickOptionMenu(unsigned int button)
+int reassignToJoystickOptionMenu(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickOptionMenu() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickChangePack(unsigned int button)
+int reassignToJoystickChangePack(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickChangePack() = button;
     return unboundID;
 }
 
-unsigned int reassignToJoystickCreateProfile(unsigned int button)
+int reassignToJoystickCreateProfile(unsigned int button)
 {
     const int unboundID = checkButtonReassignment(button);
     joystickCreateProfile() = button;
