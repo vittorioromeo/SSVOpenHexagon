@@ -17,7 +17,7 @@ HexagonDialogBox::HexagonDialogBox(
 {
 }
 
-void HexagonDialogBox::createDialogBox(const std::string& output, const int charSize,
+void HexagonDialogBox::create(const std::string& output, const int charSize,
     const float mFrameSize, const int mDrawMode, const float mXPos, const float mYPos)
 {
     txtDialog.setCharacterSize(charSize);
@@ -39,15 +39,15 @@ void HexagonDialogBox::createDialogBox(const std::string& output, const int char
         };
         break;
 
-    case DBoxDraw::centered:
+    case DBoxDraw::center:
         drawFunc = [this](const Color& txtColor, const Color& backdropColor) {
-            drawCentered(txtColor, backdropColor);
+            drawCenter(txtColor, backdropColor);
         };
         break;
 
-    case DBoxDraw::centeredUpperHalf:
+    case DBoxDraw::centerUpperHalf:
         drawFunc = [this](const Color& txtColor, const Color& backdropColor) {
-          drawCenteredUpperHalf(txtColor, backdropColor);
+          drawCenterUpperHalf(txtColor, backdropColor);
         };
         break;
     }
@@ -70,11 +70,11 @@ void HexagonDialogBox::createDialogBox(const std::string& output, const int char
     }
 }
 
-void HexagonDialogBox::createDialogBox(const std::string& output, const int charSize,
+void HexagonDialogBox::create(const std::string& output, const int charSize,
     const float mFrameSize, const int mDrawMode, const KKey mKeyToClose,
     const float mXPos, const float mYPos)
 {
-    createDialogBox(output, charSize, mFrameSize, mDrawMode, mXPos, mYPos);
+    create(output, charSize, mFrameSize, mDrawMode, mXPos, mYPos);
     keyToClose = mKeyToClose;
 }
 
@@ -83,9 +83,18 @@ void HexagonDialogBox::draw(const Color& txtColor, const Color& backdropColor)
     drawFunc(txtColor, backdropColor);
 }
 
+void HexagonDialogBox::drawBox(const Color& frameColor, const float x1,
+    const float x2, const float y1, const float y2)
+{
+    sf::Vector2f p1{x1, y1}; // top left
+    sf::Vector2f p2{x2, y1}; // top right
+    sf::Vector2f p3{x2, y2}; // bottom right
+    sf::Vector2f p4{x1, y2}; // bottom left
+    dialogFrame.batch_unsafe_emplace_back(frameColor, p1, p2, p3, p4);
+}
+
 void HexagonDialogBox::drawText(const Color& txtColor, const float xOffset, const float yOffset)
 {
-    // text
     float heightOffset = 0.f;
     const float interlineSpace = lineHeight * 1.5f;
     txtDialog.setFillColor(txtColor);
@@ -113,30 +122,26 @@ void HexagonDialogBox::drawTopLeft(const Color& txtColor, const Color& backdropC
     const float heightDif = lineHeight * 0.85f,
                 heightDifBottom = lineHeight * 0.6f;
 
-    // outer frame (text color)
     dialogFrame.clear();
     dialogFrame.reserve_more(8);
 
-    sf::Vector2f p1{xPos - doubleFrameSize,                 yPos - doubleFrameSize + heightDif}; // top left
-    sf::Vector2f p2{xPos + dialogWidth + doubleFrameSize,   yPos - doubleFrameSize + heightDif}; // top right
-    sf::Vector2f p3{xPos + dialogWidth + doubleFrameSize,   yPos + dialogHeight + doubleFrameSize - heightDifBottom}; // bottom right
-    sf::Vector2f p4{xPos - doubleFrameSize,                 yPos + dialogHeight + doubleFrameSize - heightDifBottom}; // bottom left
-    dialogFrame.batch_unsafe_emplace_back(txtColor, p1, p2, p3, p4);
+    // outer frame
+    drawBox(txtColor, xPos, xPos + 2.f * doubleFrameSize + dialogWidth,
+        yPos, yPos + 2.f * doubleFrameSize + dialogHeight - heightDifBottom - heightDif);
 
-    // text backdrop (spinning background color)
-    p1 = {xPos - frameSize,                 yPos - frameSize + heightDif}; // top left
-    p2 = {xPos + dialogWidth + frameSize,   yPos - frameSize + heightDif}; // top right
-    p3 = {xPos + dialogWidth + frameSize,   yPos + dialogHeight + frameSize - heightDifBottom}; // bottom right
-    p4 = {xPos - frameSize,                 yPos + dialogHeight + frameSize - heightDifBottom}; // bottom left
-    dialogFrame.batch_unsafe_emplace_back(backdropColor, p1, p2, p3, p4);
+    // text backdrop
+    drawBox(backdropColor, xPos + frameSize,
+        xPos + doubleFrameSize + frameSize + dialogWidth, yPos + frameSize,
+        yPos + doubleFrameSize + frameSize + dialogHeight - heightDifBottom - heightDif);
 
     window.draw(dialogFrame);
 
     // Text
-    drawText(txtColor, xPos + dialogWidth / 2.f, yPos);
+    drawText(txtColor, xPos + doubleFrameSize + dialogWidth / 2.f,
+        yPos + doubleFrameSize - heightDif);
 }
 
-void HexagonDialogBox::drawCentered(const Color& txtColor, const Color& backdropColor)
+void HexagonDialogBox::drawCenter(const Color& txtColor, const Color& backdropColor)
 {
     const float fmax =
         std::max(1024.f / Config::getWidth(), 768.f / Config::getHeight()),
@@ -144,30 +149,24 @@ void HexagonDialogBox::drawCentered(const Color& txtColor, const Color& backdrop
         h = (Config::getHeight() * fmax) / 2.f + yPos;
 
     const float heightDifTop = lineHeight * 0.85f,
-        heightDifBottom = lineHeight * 0.6f;
-
-    // outer frame (text color)
-    const float leftBorder = (w - dialogWidth) / 2.f + xPos,
-        rightBorder = (w + dialogWidth) / 2.f;
-
-    const float heightOffsetTop = dialogHeight / 2.f,
-        heightOffsetBottom = heightOffsetTop;
+                heightDifBottom = lineHeight * 0.6f,
+                leftBorder = (w - dialogWidth) / 2.f + xPos,
+                rightBorder = (w + dialogWidth) / 2.f,
+                heightOffsetTop = dialogHeight / 2.f,
+                heightOffsetBottom = heightOffsetTop;
 
     dialogFrame.clear();
     dialogFrame.reserve_more(8);
 
-    sf::Vector2f p1{leftBorder - doubleFrameSize,   h - heightOffsetTop - doubleFrameSize + heightDifTop}; // top left
-    sf::Vector2f p2{rightBorder + doubleFrameSize,  h - heightOffsetTop - doubleFrameSize + heightDifTop}; // top right
-    sf::Vector2f p3{rightBorder + doubleFrameSize,  h + heightOffsetBottom + doubleFrameSize - heightDifBottom}; // bottom right
-    sf::Vector2f p4{leftBorder - doubleFrameSize,   h + heightOffsetBottom + doubleFrameSize - heightDifBottom}; // bottom left
-    dialogFrame.batch_unsafe_emplace_back(txtColor, p1, p2, p3, p4);
+    // outer frame
+    drawBox(txtColor, leftBorder - doubleFrameSize, rightBorder + doubleFrameSize,
+            h - heightOffsetTop - doubleFrameSize + heightDifTop,
+            h + heightOffsetBottom + doubleFrameSize - heightDifBottom);
 
-    // text backdrop (spinning background color)
-    p1 = {leftBorder - frameSize,   h - heightOffsetTop - frameSize + heightDifTop}; // top left
-    p2 = {rightBorder + frameSize,  h - heightOffsetTop - frameSize + heightDifTop}; // top right
-    p3 = {rightBorder + frameSize,  h + heightOffsetBottom + frameSize - heightDifBottom}; // bottom right
-    p4 = {leftBorder - frameSize,   h + heightOffsetBottom + frameSize - heightDifBottom}; // bottom left
-    dialogFrame.batch_unsafe_emplace_back(backdropColor, p1, p2, p3, p4);
+    // text backdrop
+    drawBox(backdropColor, leftBorder - frameSize, rightBorder + frameSize,
+            h - heightOffsetTop - frameSize + heightDifTop,
+            h + heightOffsetBottom + frameSize - heightDifBottom);
 
     window.draw(dialogFrame);
 
@@ -175,7 +174,7 @@ void HexagonDialogBox::drawCentered(const Color& txtColor, const Color& backdrop
     drawText(txtColor, w / 2.f, h - heightOffsetTop);
 }
 
-void HexagonDialogBox::drawCenteredUpperHalf(const Color& txtColor, const Color& backdropColor)
+void HexagonDialogBox::drawCenterUpperHalf(const Color& txtColor, const Color& backdropColor)
 {
     const float fmax =
         std::max(1024.f / Config::getWidth(), 768.f / Config::getHeight()),
@@ -183,27 +182,22 @@ void HexagonDialogBox::drawCenteredUpperHalf(const Color& txtColor, const Color&
                 h = (Config::getHeight() * fmax) / 2.f + yPos;
 
     const float heightDifTop = lineHeight * 0.85f,
-                heightDifBottom = lineHeight * 0.6f;
-
-    // outer frame (text color)
-    const float leftBorder = (w - dialogWidth) / 2.f + xPos,
+                heightDifBottom = lineHeight * 0.6f,
+                leftBorder = (w - dialogWidth) / 2.f + xPos,
                 rightBorder = (w + dialogWidth) / 2.f;
 
     dialogFrame.clear();
     dialogFrame.reserve_more(8);
 
-    sf::Vector2f p1{leftBorder - doubleFrameSize,   h - dialogHeight - doubleFrameSize + heightDifTop}; // top left
-    sf::Vector2f p2{rightBorder + doubleFrameSize,  h - dialogHeight - doubleFrameSize + heightDifTop}; // top right
-    sf::Vector2f p3{rightBorder + doubleFrameSize,  h + doubleFrameSize - heightDifBottom}; // bottom right
-    sf::Vector2f p4{leftBorder - doubleFrameSize,   h + doubleFrameSize - heightDifBottom}; // bottom left
-    dialogFrame.batch_unsafe_emplace_back(txtColor, p1, p2, p3, p4);
+    // outer frame (text color)
+    drawBox(txtColor, leftBorder - doubleFrameSize, rightBorder + doubleFrameSize,
+            h - dialogHeight - doubleFrameSize + heightDifTop,
+            h + doubleFrameSize - heightDifBottom);
 
     // text backdrop (spinning background color)
-    p1 = {leftBorder - frameSize,   h - dialogHeight - frameSize + heightDifTop}; // top left
-    p2 = {rightBorder + frameSize,  h - dialogHeight - frameSize + heightDifTop}; // top right
-    p3 = {rightBorder + frameSize,  h + frameSize - heightDifBottom}; // bottom right
-    p4 = {leftBorder - frameSize,   h + frameSize - heightDifBottom}; // bottom left
-    dialogFrame.batch_unsafe_emplace_back(backdropColor, p1, p2, p3, p4);
+    drawBox(backdropColor, leftBorder - frameSize, rightBorder + frameSize,
+            h - dialogHeight - frameSize + heightDifTop,
+            h + frameSize - heightDifBottom);
 
     window.draw(dialogFrame);
 
