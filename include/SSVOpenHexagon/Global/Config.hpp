@@ -39,7 +39,7 @@ struct Version
                std::tie(rhs.major, rhs.minor, rhs.micro);
     }
 
-    bool operator==(Version other) const
+    [[nodiscard]] bool operator==(Version other) const
     {
         return (major == other.major) && (minor == other.minor) &&
                (micro == other.micro);
