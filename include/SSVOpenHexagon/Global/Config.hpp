@@ -26,13 +26,6 @@ struct Version
     int minor;
     int micro;
 
-    Version& operator=(const Version& o)
-    {
-        major = o.major;
-        minor = o.minor;
-        micro = o.micro;
-        return *this;
-    }
 
     auto operator<(const Version& rhs) const
     {
