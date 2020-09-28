@@ -167,14 +167,14 @@ static void syncAllToObj()
 
 static void resetAllFromObj()
 {
-#define X(name, type, key) name().syncFrom(ssvuj::getFromFile("../misc/default_config.json"));
+#define X(name, type, key) name().syncFrom(ssvuj::getFromFile("default_config.json"));
     X_LINKEDVALUES
 #undef X
 }
 
 static void resetBindsFromObj()
 {
-#define X(name, type, key) name().syncFrom(ssvuj::getFromFile("../misc/default_config.json"));
+#define X(name, type, key) name().syncFrom(ssvuj::getFromFile("default_config.json"));
     X_BINDSLINKEDVALUES
 #undef X
 }
@@ -236,7 +236,7 @@ void resetConfigToDefaults()
 {
     lo("::resetConfigToDefaults") << "resetting configs\n";
 
-    if(!ssvufs::Path{"../misc/default_config.json"}.exists<ssvufs::Type::File>())
+    if(!ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
     {
         ssvu::lo("hg::Config::resetConfigToDefaults()")
             << "`default_config.json` file not found, config reset aborted\n";
@@ -262,7 +262,7 @@ void resetBindsToDefaults()
 {
     lo("::resetBindsToDefaults") << "resetting binds to defaults\n";
 
-    if(!ssvufs::Path{"../misc/default_config.json"}.exists<ssvufs::Type::File>())
+    if(!ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
     {
         ssvu::lo("hg::Config::resetBindsToDefaults()")
             << "`default_config.json` file not found, config reset aborted\n";
