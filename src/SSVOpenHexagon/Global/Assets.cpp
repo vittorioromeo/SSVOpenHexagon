@@ -420,15 +420,7 @@ std::string HGAssets::reloadPack(const std::string& mPackId, const std::string& 
             StyleData styleData{ssvuj::getFromFile(p), p};
             temp = mPackId + "_" + styleData.id;
 
-            auto it = styleDataMap.find(temp);
-            if(it == styleDataMap.end())
-            {
-                styleDataMap.emplace(temp, std::move(styleData));
-            }
-            else
-            {
-                it->second = styleData;
-            }
+            styleDataMap[temp] = std::move(styleData);
         }
 		output += "Styles successfully reloaded\n";
     }
@@ -446,15 +438,7 @@ std::string HGAssets::reloadPack(const std::string& mPackId, const std::string& 
             MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
             temp = mPackId + "_" + musicData.id;
 
-            auto it = musicDataMap.find(temp);
-            if(it == musicDataMap.end())
-            {
-                musicDataMap.emplace(temp, std::move(musicData));
-            }
-            else
-            {
-                it->second = musicData;
-            }
+            musicDataMap[temp] = std::move(musicData);
         }
         output += "Music data successfully reloaded\n";
     }
@@ -558,15 +542,7 @@ std::string HGAssets::reloadLevel(
             StyleData styleData{ssvuj::getFromFile(styleFile[0]), styleFile[0]};
             temp = mPackId + "_" + levelData.styleId;
 
-            auto it = styleDataMap.find(temp);
-            if(it == styleDataMap.end())
-            {
-                styleDataMap.emplace(temp, std::move(styleData));
-            }
-            else
-            {
-                it->second = styleData;
-            }
+            styleDataMap[temp] = std::move(styleData);
 
             output += "style data " +
                       levelData.styleId + ".json successfully loaded\n";
@@ -592,15 +568,7 @@ std::string HGAssets::reloadLevel(
             MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(musicDataFile[0]))};
             temp = mPackId + "_" + levelData.musicId;
 
-            auto it = musicDataMap.find(temp);
-            if(it == musicDataMap.end())
-            {
-                musicDataMap.emplace(temp, std::move(musicData));
-            }
-            else
-            {
-                it->second = musicData;
-            }
+            musicDataMap[temp] = std::move(musicData);
 
             output += "music data " +
                       levelData.musicId + ".json successfully loaded\n";

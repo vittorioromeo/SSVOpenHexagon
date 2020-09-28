@@ -1001,7 +1001,7 @@ void MenuGame::initInput()
         t::Once);
 }
 
-void MenuGame::reloadAssets(const bool pack)
+void MenuGame::reloadAssets(const bool reloadEntirePack)
 {
     if(state != States::SMain || !dialogBox.empty() || !Config::getDebug())
     {
@@ -1016,7 +1016,7 @@ void MenuGame::reloadAssets(const bool pack)
 
     std::string reloadOutput;
 
-    if(pack)
+    if(reloadEntirePack)
     {
         reloadOutput = assets.reloadPack(
             levelData->packId, levelData->packPath);
