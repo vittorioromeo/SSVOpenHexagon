@@ -18,7 +18,7 @@ HexagonDialogBox::HexagonDialogBox(
 }
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
-    const float mFrameSize, const int mDrawMode, const float mXPos, const float mYPos)
+    const float mFrameSize, const DBoxDraw mDrawMode, const float mXPos, const float mYPos)
 {
     txtDialog.setCharacterSize(charSize);
     txtDialog.setString(output);
@@ -31,26 +31,7 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
     frameSize = mFrameSize;
     doubleFrameSize = 2.f * frameSize;
 
-    switch(mDrawMode)
-    {
-    case DBoxDraw::topLeft:
-        drawFunc = [this](const Color& txtColor, const Color& backdropColor) {
-            drawTopLeft(txtColor, backdropColor);
-        };
-        break;
-
-    case DBoxDraw::center:
-        drawFunc = [this](const Color& txtColor, const Color& backdropColor) {
-            drawCenter(txtColor, backdropColor);
-        };
-        break;
-
-    case DBoxDraw::centerUpperHalf:
-        drawFunc = [this](const Color& txtColor, const Color& backdropColor) {
-          drawCenterUpperHalf(txtColor, backdropColor);
-        };
-        break;
-    }
+    drawFunc = drawModeToDrawFunc(mDrawMode);
 
     xPos = mXPos;
     yPos = mYPos;
@@ -71,11 +52,33 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
 }
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
-    const float mFrameSize, const int mDrawMode, const KKey mKeyToClose,
+    const float mFrameSize, const DBoxDraw mDrawMode, const KKey mKeyToClose,
     const float mXPos, const float mYPos)
 {
     create(output, charSize, mFrameSize, mDrawMode, mXPos, mYPos);
     keyToClose = mKeyToClose;
+}
+
+HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(DBoxDraw drawMode)
+{
+    switch(drawMode)
+    {
+        case DBoxDraw::topLeft:
+            return [this](const Color& txtColor, const Color& backdropColor) {
+                drawTopLeft(txtColor, backdropColor);
+            };
+
+        case DBoxDraw::center:
+            return [this](const Color& txtColor, const Color& backdropColor) {
+                drawCenter(txtColor, backdropColor);
+            };
+
+        default:
+            assert(drawMode == DBoxDraw::centerUpperHalf);
+            return [this](const Color& txtColor, const Color& backdropColor) {
+                drawCenterUpperHalf(txtColor, backdropColor);
+            };
+    }
 }
 
 void HexagonDialogBox::draw(const Color& txtColor, const Color& backdropColor)
@@ -86,11 +89,12 @@ void HexagonDialogBox::draw(const Color& txtColor, const Color& backdropColor)
 void HexagonDialogBox::drawBox(const Color& frameColor, const float x1,
     const float x2, const float y1, const float y2)
 {
-    sf::Vector2f p1{x1, y1}; // top left
-    sf::Vector2f p2{x2, y1}; // top right
-    sf::Vector2f p3{x2, y2}; // bottom right
-    sf::Vector2f p4{x1, y2}; // bottom left
-    dialogFrame.batch_unsafe_emplace_back(frameColor, p1, p2, p3, p4);
+    sf::Vector2f topLeft{x1, y1};
+    sf::Vector2f topRight{x2, y1};
+    sf::Vector2f bottomRight{x2, y2};
+    sf::Vector2f bottomLeft{x1, y2};
+    dialogFrame.batch_unsafe_emplace_back(frameColor,
+        topLeft, topRight, bottomRight, bottomLeft);
 }
 
 void HexagonDialogBox::drawText(const Color& txtColor, const float xOffset, const float yOffset)

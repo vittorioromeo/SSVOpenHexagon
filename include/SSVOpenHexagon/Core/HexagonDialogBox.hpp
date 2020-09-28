@@ -17,7 +17,7 @@ namespace hg
 class HGAssets;
 class StyleData;
 
-enum DBoxDraw
+enum class DBoxDraw
 {
     topLeft = 0,
     center,
@@ -29,14 +29,14 @@ class HexagonDialogBox
 private:
     using KKey = sf::Keyboard::Key;
     using Color = sf::Color;
-    using Vector2 = sf::Vector2f;
+    using DrawFunc = std::function<void(const Color&, const Color&)>;
 
     HGAssets& assets;
     ssvs::GameWindow& window;
     StyleData& styleData;
     sf::Font& imagine;
 
-    std::function<void(const Color&, const Color&)> drawFunc;
+    DrawFunc drawFunc;
 
     Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogFrame;
     std::vector<std::string> dialogText;
@@ -53,6 +53,8 @@ private:
 
     KKey keyToClose{KKey::Unknown};
 
+    [[nodiscard]] DrawFunc drawModeToDrawFunc(DBoxDraw drawMode);
+
     void drawText(const Color& txtColor, const float xOffset, const float yOffset);
     void drawBox(const Color& frameColor, const float x1, const float x2,
         const float y1, const float y2);
@@ -64,10 +66,10 @@ public:
     HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& window, StyleData& styleData);
 
     void create(const std::string& output, const int charSize,
-        const float mFrameSize, const int mDrawMode,
+        const float mFrameSize, const DBoxDraw mDrawMode,
         const float xPos = 0.f, const float yPos = 0.f);
     void create(const std::string& output, const int charSize,
-        const float mFrameSize, const int mDrawMode,
+        const float mFrameSize, const DBoxDraw mDrawMode,
         const KKey mKeyToClose, const float mXPos = 0.f,
         const float mYPos = 0.f);
 
