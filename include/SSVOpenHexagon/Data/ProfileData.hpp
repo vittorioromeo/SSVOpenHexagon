@@ -25,7 +25,7 @@ public:
     {
     }
 
-    [[nodiscard]] std::string getVersion() const
+    [[nodiscard]] const std::string& getVersion() const
     {
         return version;
     }
