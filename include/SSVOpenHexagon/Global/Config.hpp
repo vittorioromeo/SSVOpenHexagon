@@ -45,7 +45,7 @@ struct Version
                (micro == other.micro);
     }
 };
-const Version GAME_VERSION = Version{2, 0, 3};
+constexpr Version GAME_VERSION{2, 0, 3};
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
 void saveConfig();
