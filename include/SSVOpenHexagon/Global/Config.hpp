@@ -27,7 +27,7 @@ struct Version
     int micro;
 
 
-    auto operator<(const Version& rhs) const
+    [[nodiscard]] bool operator<(const Version& rhs) const
     {
         return std::tie(major, minor, micro) <
                std::tie(rhs.major, rhs.minor, rhs.micro);
