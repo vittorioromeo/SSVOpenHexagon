@@ -646,7 +646,7 @@ void setSaveLocalBestReplayToFile(bool mX)
     return fullscreen();
 }
 
-[[nodiscard, gnu::const]] Version getVersion()
+[[nodiscard, gnu::const]] constexpr Version getVersion()
 {
     return GAME_VERSION;
 }
