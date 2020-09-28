@@ -17,7 +17,7 @@ private:
     std::vector<std::string> trackedNames;
 
 public:
-    ProfileData(std::string mVersion, const std::string& mName,
+    ProfileData(const std::string& mVersion, const std::string& mName,
         const ssvuj::Obj& mScores,
         const std::vector<std::string>& mTrackedNames)
         : version{mVersion}, name{mName}, scores{mScores}, trackedNames{
