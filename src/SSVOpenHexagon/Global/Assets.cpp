@@ -379,7 +379,8 @@ const StyleData& HGAssets::getStyleData(
 //**********************************************
 // RELOAD
 
-std::string HGAssets::reloadPack(const std::string& mPackId, const std::string& mPath)
+std::string HGAssets::reloadPack(
+    const std::string& mPackId, const std::string& mPath)
 {
     std::string temp, output;
 
@@ -422,7 +423,7 @@ std::string HGAssets::reloadPack(const std::string& mPackId, const std::string& 
 
             styleDataMap[temp] = std::move(styleData);
         }
-		output += "Styles successfully reloaded\n";
+        output += "Styles successfully reloaded\n";
     }
 
     // Music data
@@ -435,7 +436,8 @@ std::string HGAssets::reloadPack(const std::string& mPackId, const std::string& 
     {
         for(const auto& p : scanSingleByExt(mPath + "Music/", ".json"))
         {
-            MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
+            MusicData musicData{
+                Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
             temp = mPackId + "_" + musicData.id;
 
             musicDataMap[temp] = std::move(musicData);
@@ -486,9 +488,8 @@ std::string HGAssets::reloadPack(const std::string& mPackId, const std::string& 
     return output;
 }
 
-std::string HGAssets::reloadLevel(
-    const std::string& mPackId, const std::string& mPath,
-    const std::string& mId)
+std::string HGAssets::reloadLevel(const std::string& mPackId,
+    const std::string& mPath, const std::string& mId)
 {
     std::string temp, output;
 
@@ -544,8 +545,8 @@ std::string HGAssets::reloadLevel(
 
             styleDataMap[temp] = std::move(styleData);
 
-            output += "style data " +
-                      levelData.styleId + ".json successfully loaded\n";
+            output += "style data " + levelData.styleId +
+                      ".json successfully loaded\n";
         }
     }
 
@@ -558,20 +559,22 @@ std::string HGAssets::reloadLevel(
     }
     else
     {
-        auto musicDataFile = scanSingleByName(temp, levelData.musicId + ".json");
+        auto musicDataFile =
+            scanSingleByName(temp, levelData.musicId + ".json");
         if(musicDataFile.empty())
         {
             output += "no matching music data file found\n";
         }
         else
         {
-            MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(musicDataFile[0]))};
+            MusicData musicData{
+                Utils::loadMusicFromJson(ssvuj::getFromFile(musicDataFile[0]))};
             temp = mPackId + "_" + levelData.musicId;
 
             musicDataMap[temp] = std::move(musicData);
 
-            output += "music data " +
-                      levelData.musicId + ".json successfully loaded\n";
+            output += "music data " + levelData.musicId +
+                      ".json successfully loaded\n";
         }
     }
 
@@ -588,8 +591,8 @@ std::string HGAssets::reloadLevel(
         assetId = mPackId + "_" + levelData.musicId;
         if(assetManager.has<sf::Music>(assetId))
         {
-            output += "music file " +
-                      levelData.musicId + ".ogg is already loaded\n";
+            output +=
+                "music file " + levelData.musicId + ".ogg is already loaded\n";
         }
         else
         {
@@ -600,11 +603,12 @@ std::string HGAssets::reloadLevel(
             }
             else
             {
-                auto& music(assetManager.load<sf::Music>(assetId, musicFile[0]));
+                auto& music(
+                    assetManager.load<sf::Music>(assetId, musicFile[0]));
                 music.setVolume(Config::getMusicVolume());
                 music.setLoop(true);
-                output += "new music file " +
-                          levelData.musicId + ".ogg successfully loaded\n";
+                output += "new music file " + levelData.musicId +
+                          ".ogg successfully loaded\n";
             }
         }
     }
@@ -628,7 +632,8 @@ std::string HGAssets::reloadLevel(
     assetId = mPackId + "_" + levelData.soundId;
     if(assetManager.has<sf::SoundBuffer>(assetId))
     {
-        output += "custom sound file " + levelData.soundId + ".ogg is already loaded\n";
+        output += "custom sound file " + levelData.soundId +
+                  ".ogg is already loaded\n";
         return output;
     }
 
@@ -640,8 +645,8 @@ std::string HGAssets::reloadLevel(
     }
 
     assetManager.load<sf::SoundBuffer>(assetId, soundFile[0]);
-    output += "new custom sound file "
-              + levelData.soundId + ".ogg successfully loaded\n";
+    output += "new custom sound file " + levelData.soundId +
+              ".ogg successfully loaded\n";
 
     return output;
 }

@@ -154,8 +154,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Always);
 
     game.addInput(
-        Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) { goToMenu(); },
+        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); },
         ssvs::Input::Type::Always, Tid::Exit);
 
     game.addInput(

@@ -149,9 +149,8 @@ public:
 
     [[nodiscard]] std::string reloadPack(
         const std::string& mPackId, const std::string& mPath);
-    [[nodiscard]] std::string reloadLevel(
-        const std::string& mPackId, const std::string& mPath,
-        const std::string& mId);
+    [[nodiscard]] std::string reloadLevel(const std::string& mPackId,
+        const std::string& mPath, const std::string& mId);
 
     float getLocalScore(const std::string& mId);
     void setLocalScore(const std::string& mId, float mScore);
