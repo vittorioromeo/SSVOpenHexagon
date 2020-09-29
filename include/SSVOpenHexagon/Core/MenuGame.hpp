@@ -262,7 +262,7 @@ private:
     }
 
     void reloadLevelAssets();
-
+    void refreshBinds();
     void setIgnoreInputs(const int keyPresses);
     int ignoreInputs{0};
 
