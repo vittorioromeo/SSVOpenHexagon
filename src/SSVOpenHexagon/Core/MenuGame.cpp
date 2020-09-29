@@ -72,12 +72,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     // To make the epilepsy warning go away with
     // any key press
-    noActions = 1;
-    game.ignoreAllInputs(true);
-    hg::Joystick::ignoreAllPresses(true);
+    setIgnoreInputs(1);
 
     const auto checkCloseEpilepsyWarning = [this]() {
-        if(!(--noActions))
+        if(!(--ignoreInputs))
         {
             // TODO: remove when welcome screen is implemented
             playLocally();
@@ -88,7 +86,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     const auto checkCloseDialogBox = [this]() {
-        if(!(--noActions))
+        if(!ignoreInputs)
         {
             dialogBox.clearDialogBox();
             game.ignoreAllInputs(false);
@@ -100,7 +98,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         [this, checkCloseEpilepsyWarning, checkCloseDialogBox](
             const Event& mEvent) {
             // don't do anything if inputs are being processed as usual
-            if(!noActions)
+            if(!ignoreInputs)
             {
                 return;
             }
@@ -114,25 +112,30 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
 
             // Scenario two: actions are blocked cause a dialog box is open
+            KKey key = mEvent.key.code;
             if(!dialogBox.empty())
             {
+                if(dialogBox.getKeyToClose() == KKey::Unknown ||
+                    key == dialogBox.getKeyToClose())
+                {
+                    ignoreInputs--;
+                }
                 checkCloseDialogBox();
                 return;
             }
 
             // Scenario three: actions are blocked cause we are using a
             // BindControl menu item
-            KKey key = mEvent.key.code;
             if(getCurrentMenu() != nullptr && key == KKey::Escape)
             {
                 getCurrentMenu()->getItem().exec(); // turn off bind inputting
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
-                noActions = 0;
+                ignoreInputs = 0;
                 return;
             }
 
-            if(!(--noActions))
+            if(!(--ignoreInputs))
             {
                 dialogBox.clearDialogBox();
 
@@ -148,7 +151,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 if(bc == nullptr)
                 {
                     assets.playSound("error.ogg");
-                    noActions = 1;
+                    ignoreInputs = 1;
                     return;
                 }
 
@@ -164,7 +167,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::MouseButtonReleased) +=
         [this, checkCloseEpilepsyWarning, checkCloseDialogBox](
             const Event& mEvent) {
-            if(!noActions)
+            if(!ignoreInputs)
             {
                 return;
             }
@@ -177,11 +180,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!dialogBox.empty())
             {
+                if(dialogBox.getKeyToClose() != KKey::Unknown)
+                {
+                    return;
+                }
+                ignoreInputs--;
                 checkCloseDialogBox();
                 return;
             }
 
-            if(!(--noActions))
+            if(!(--ignoreInputs))
             {
                 if(getCurrentMenu() == nullptr)
                 {
@@ -195,7 +203,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 if(bc == nullptr)
                 {
                     assets.playSound("error.ogg");
-                    noActions = 1;
+                    ignoreInputs = 1;
                     return;
                 }
 
@@ -210,7 +218,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(Event::EventType::JoystickButtonReleased) +=
         [this, checkCloseEpilepsyWarning, checkCloseDialogBox](
             const Event& mEvent) {
-            if(!noActions)
+            if(!ignoreInputs)
             {
                 return;
             }
@@ -223,12 +231,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
             if(!dialogBox.empty())
             {
+                if(dialogBox.getKeyToClose() != KKey::Unknown)
+                {
+                    return;
+                }
+                ignoreInputs--;
                 checkCloseDialogBox();
                 return;
             }
 
-            // close dialogbox after the second key release
-            if(!(--noActions))
+            if(!(--ignoreInputs))
             {
                 if(getCurrentMenu() == nullptr)
                 {
@@ -242,11 +254,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 if(bc == nullptr)
                 {
                     assets.playSound("error.ogg");
-                    noActions = 1;
+                    ignoreInputs = 1;
                     return;
                 }
 
-                bc->newJoystickBind(int(mEvent.joystickButton.button));
+                bc->newJoystickBind(mEvent.joystickButton.button);
                 game.ignoreAllInputs(false);
                 hg::Joystick::ignoreAllPresses(false);
                 assets.playSound("beep.ogg");
@@ -262,6 +274,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     levelDataIds =
         assets.getLevelIdsByPack(assets.getPackInfos().at(packIdx).id);
     setIndex(0);
+}
+
+void MenuGame::setIgnoreInputs(const int keyPresses)
+{
+    ignoreInputs = keyPresses;
+    game.ignoreAllInputs(true);
+    hg::Joystick::ignoreAllPresses(true);
 }
 
 bool MenuGame::loadCommandLineLevel(
@@ -782,9 +801,7 @@ void MenuGame::okAction()
             return;
         }
 
-        noActions = 2;
-        game.ignoreAllInputs(true);
-        hg::Joystick::ignoreAllPresses(true);
+        setIgnoreInputs(2);
         touchDelay = 10.f;
     }
     else if(state == States::ETLPNew)
@@ -1011,12 +1028,6 @@ void MenuGame::reloadLevelAssets()
         return;
     }
 
-    // needs to be two because the dialog box reacts to key releases.
-    // First key release is the one of the key press that made the dialog
-    // box pop up, the second one belongs to the key press that closes it
-    noActions = 2;
-    assets.playSound("beep.ogg");
-
     auto [success, reloadOutput] = assets.reloadLevelData(
         levelData->packId, levelData->packPath, levelData->id);
 
@@ -1046,9 +1057,9 @@ void MenuGame::reloadLevelAssets()
     reloadOutput += "\npress any key to close this message\n";
     Utils::uppercasify(reloadOutput);
 
-    dialogBox.createDialogBox(reloadOutput, 26);
-    game.ignoreAllInputs(true);
-    hg::Joystick::ignoreAllPresses(true);
+	assets.playSound("select.ogg");
+    setIgnoreInputs(2);
+    dialogBox.create(reloadOutput, 26, 10.f, DBoxDraw::centerUpperHalf);
 }
 
 void MenuGame::initLua(Lua::LuaContext& mLua)
@@ -1606,7 +1617,7 @@ void MenuGame::draw()
 
     if(!dialogBox.empty())
     {
-        dialogBox.drawDialogBox();
+        dialogBox.draw(styleData.getTextColor(), styleData.getColor(0));
     }
 }
 
