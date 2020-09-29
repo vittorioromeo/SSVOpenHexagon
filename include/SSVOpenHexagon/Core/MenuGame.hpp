@@ -262,7 +262,9 @@ private:
     }
 
     void reloadAssets(const bool reloadEntirePack);
-    int noActions{0};
+    void refreshBinds();
+    void setIgnoreInputs(const int keyPresses);
+    int ignoreInputs{0};
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
