@@ -925,6 +925,19 @@ void setSaveLocalBestReplayToFile(bool mX)
 {
     std::vector<Combo>& combos = trig.getCombos();
 
+    // Remove empty slots to agglomerate all binds
+    // close to each other
+    for(auto it = combos.begin(); it != combos.end();)
+    {
+        if(it->isUnbound())
+        {
+            combos.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
     while(combos.size() >
           MAX_BINDS) // if the config has more binds than are supported
     {
@@ -934,28 +947,6 @@ void setSaveLocalBestReplayToFile(bool mX)
                                      // spots with unbound combos
     {
         combos.emplace_back(Combo({KKey::Unknown}));
-    }
-
-    // Agglomerate binds close to each other, leave empty
-    // spots at the end
-    for(auto it1 = combos.begin(), it2 = it1 + 1; it1 != combos.end() - 1;
-        ++it1, it2 = it1 + 1)
-    {
-        if(!it1->isUnbound())
-        {
-            continue;
-        }
-
-        while(it2->isUnbound() && it2++ != combos.end())
-            ;
-
-        if(it2 == combos.end())
-        {
-            break;
-        }
-
-        *it1 = *it2;
-        it2->clearBind();
     }
 
     return trig;

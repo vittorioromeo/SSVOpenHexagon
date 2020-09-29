@@ -193,7 +193,7 @@ void JoystickBindControl::exec()
     return true;
 }
 
-void JoystickBindControl::newJoystickBind(const int joy)
+void JoystickBindControl::newJoystickBind(const unsigned int joy)
 {
     // stop if the pressed button is already assigned to this bind
     if(joy == valueGetter())
