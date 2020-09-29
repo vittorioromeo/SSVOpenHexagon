@@ -651,12 +651,15 @@ void setSaveLocalBestReplayToFile(bool mX)
     return GAME_VERSION;
 }
 
-[[nodiscard, gnu::const]] const char* getVersionString()
+[[nodiscard, gnu::const]] const std::string& getVersionString()
 {
-    return (std::to_string(GAME_VERSION.major) + "." +
-            std::to_string(GAME_VERSION.minor) + "." +
-            std::to_string(GAME_VERSION.micro))
-        .c_str();
+    static std::string result{
+        std::to_string(GAME_VERSION.major) + "." +
+        std::to_string(GAME_VERSION.minor) + "." +
+        std::to_string(GAME_VERSION.micro)
+    };
+
+    return result;
 }
 
 [[nodiscard]] bool getWindowedAutoResolution()

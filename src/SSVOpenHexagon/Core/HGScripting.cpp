@@ -227,7 +227,7 @@ void HexagonGame::initLua_Utils()
             "`true`, the swap sound will be played.");
 
     addLuaFn("u_getVersion", //
-        [this] { return std::string{Config::getVersionString()}; })
+        [this] { return Config::getVersionString(); })
         .doc("Returns the string representing the current version of the game");
 }
 
