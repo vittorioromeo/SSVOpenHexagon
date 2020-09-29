@@ -74,7 +74,7 @@ ParsedArgs parseArgs(int argc, char* argv[])
 
 std::string makeWindowTitle()
 {
-    return "Open Hexagon " + std::string{hg::Config::getVersionString()} +
+    return "Open Hexagon " + hg::Config::getVersionString() +
            " - by Vittorio Romeo - https://vittorioromeo.info";
 }
 

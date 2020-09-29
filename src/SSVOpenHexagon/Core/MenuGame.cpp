@@ -1358,7 +1358,7 @@ void MenuGame::refreshCamera()
     titleBar.setScale({0.5f, 0.5f});
     titleBar.setPosition({20.f, 20.f});
 
-    txtVersion.setString(std::string{Config::getVersionString()});
+    txtVersion.setString(Config::getVersionString());
     txtVersion.setFillColor(Color::White);
     txtVersion.setOrigin({getLocalRight(txtVersion), 0.f});
     txtVersion.setPosition(
