@@ -261,7 +261,7 @@ private:
         return getCurrentMenu() != nullptr;
     }
 
-    void reloadLevelAssets();
+    void reloadAssets(const bool reloadEntirePack);
     void refreshBinds();
     void setIgnoreInputs(const int keyPresses);
     int ignoreInputs{0};

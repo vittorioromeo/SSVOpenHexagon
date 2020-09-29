@@ -938,13 +938,14 @@ void setSaveLocalBestReplayToFile(bool mX)
             ++it;
         }
     }
-    while(combos.size() >
-          MAX_BINDS) // if the config has more binds than are supported
+    // if the config has more binds than are supported
+    while(combos.size() > MAX_BINDS)
     {
         combos.pop_back();
     }
-    while(combos.size() < MAX_BINDS) // if the config has less binds fill the
-                                     // spots with unbound combos
+    // if the config has less binds fill the
+    // spots with unbound combos
+    while(combos.size() < MAX_BINDS)
     {
         combos.emplace_back(Combo({KKey::Unknown}));
     }

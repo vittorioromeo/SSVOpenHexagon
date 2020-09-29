@@ -970,16 +970,9 @@ void MenuGame::initInput()
         [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, Tid::RotateCCW);
 
     game.addInput(
-        {{k::Left}}, // hardcoded
-        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once);
-
-    game.addInput(
         Config::getTriggerRotateCW(), // editable
         [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once, Tid::RotateCW);
 
-    game.addInput(
-        {{k::Right}}, // hardcoded
-        [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once);
 
     game.addInput(
         {{k::Up}}, [this](ssvu::FT /*unused*/) { upAction(); }, // hardcoded
@@ -1060,47 +1053,46 @@ void MenuGame::initInput()
         t::Once);
 
     game.addInput(
-        {{k::F5}}, [this](ssvu::FT /*unused*/) { reloadLevelAssets(); },
+        {{k::F5}}, [this](ssvu::FT /*unused*/) { reloadAssets(false); },
+        t::Once);
+
+    game.addInput(
+        {{k::F6}}, [this](ssvu::FT /*unused*/) { reloadAssets(true); },
         t::Once);
 }
 
-void MenuGame::reloadLevelAssets()
+void MenuGame::reloadAssets(const bool reloadEntirePack)
 {
     if(state != States::SMain || !dialogBox.empty() || !Config::getDebug())
     {
         return;
     }
 
-    auto [success, reloadOutput] = assets.reloadLevelData(
-        levelData->packId, levelData->packPath, levelData->id);
+    // needs to be two because the dialog box reacts to key releases.
+    // First key release is the one of the key press that made the dialog
+    // box pop up, the second one belongs to the key press that closes it
+    noActions = 2;
+    assets.playSound("select.ogg");
 
-    if(success)
+    std::string reloadOutput;
+
+    if(reloadEntirePack)
     {
-        setIndex(currentIndex); // loads the new levelData
-
-        reloadOutput += assets.reloadMusicData(
-            levelData->packId, levelData->packPath, levelData->musicId);
-
-        reloadOutput += assets.reloadStyleData(
-            levelData->packId, levelData->packPath, levelData->styleId);
-
-        if(levelData->musicId != "nullMusicId")
-        {
-            reloadOutput += assets.reloadMusic(
-                levelData->packId, levelData->packPath, levelData->musicId);
-        }
-
-        if(levelData->soundId != "nullSoundId")
-        {
-            reloadOutput += assets.reloadCustomSounds(
-                levelData->packId, levelData->packPath, levelData->soundId);
-        }
+        reloadOutput = assets.reloadPack(
+            levelData->packId, levelData->packPath);
     }
+    else
+    {
+        reloadOutput = assets.reloadLevel(levelData->packId,
+            levelData->packPath, levelData->id);
+    }
+
+    setIndex(currentIndex); // loads the new levelData
 
     reloadOutput += "\npress any key to close this message\n";
     Utils::uppercasify(reloadOutput);
 
-	assets.playSound("select.ogg");
+  	assets.playSound("select.ogg");
     setIgnoreInputs(2);
     dialogBox.create(reloadOutput, 26, 10.f, DBoxDraw::centerUpperHalf);
 }
