@@ -106,9 +106,9 @@ public:
 class JoystickBindControl final : public BindControlBase
 {
 private:
-    using ValueGetter = std::function<int()>;
-    using ValueSetter = std::function<int(const int)>;
-    using Callback = std::function<void(const unsigned int, const int)>;
+    using ValueGetter = std::function<unsigned int()>;
+    using ValueSetter = std::function<int(const unsigned int)>;
+    using Callback = std::function<void(const unsigned int, const unsigned int)>;
 
     ValueGetter valueGetter;
     ValueSetter setButton;
@@ -129,7 +129,7 @@ public:
     [[nodiscard]] bool isWaitingForBind() override;
     [[nodiscard]] bool erase() override;
 
-    void newJoystickBind(const int joy);
+    void newJoystickBind(const unsigned int joy);
 
     [[nodiscard]] std::string getName() const override;
 };

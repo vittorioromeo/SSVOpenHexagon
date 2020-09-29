@@ -262,7 +262,9 @@ private:
     }
 
     void reloadLevelAssets();
-    int noActions{0};
+
+    void setIgnoreInputs(const int keyPresses);
+    int ignoreInputs{0};
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
