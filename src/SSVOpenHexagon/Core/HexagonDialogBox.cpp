@@ -12,13 +12,14 @@ namespace hg
 HexagonDialogBox::HexagonDialogBox(
     HGAssets& mAssets, ssvs::GameWindow& mWindow, StyleData& mStyleData)
     : assets{mAssets}, window{mWindow}, styleData{mStyleData},
-      imagine{assets.get<sf::Font>("forcedsquare.ttf")},
-      txtDialog{"", imagine, 0}
+      imagine{assets.get<sf::Font>("forcedsquare.ttf")}, txtDialog{
+                                                             "", imagine, 0}
 {
 }
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
-    const float mFrameSize, const DBoxDraw mDrawMode, const float mXPos, const float mYPos)
+    const float mFrameSize, const DBoxDraw mDrawMode, const float mXPos,
+    const float mYPos)
 {
     txtDialog.setCharacterSize(charSize);
     txtDialog.setString(output);
@@ -59,7 +60,8 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
     keyToClose = mKeyToClose;
 }
 
-HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(DBoxDraw drawMode)
+HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(
+    DBoxDraw drawMode)
 {
     switch(drawMode)
     {
@@ -93,11 +95,12 @@ void HexagonDialogBox::drawBox(const Color& frameColor, const float x1,
     sf::Vector2f topRight{x2, y1};
     sf::Vector2f bottomRight{x2, y2};
     sf::Vector2f bottomLeft{x1, y2};
-    dialogFrame.batch_unsafe_emplace_back(frameColor,
-        topLeft, topRight, bottomRight, bottomLeft);
+    dialogFrame.batch_unsafe_emplace_back(
+        frameColor, topLeft, topRight, bottomRight, bottomLeft);
 }
 
-void HexagonDialogBox::drawText(const Color& txtColor, const float xOffset, const float yOffset)
+void HexagonDialogBox::drawText(
+    const Color& txtColor, const float xOffset, const float yOffset)
 {
     float heightOffset = 0.f;
     const float interlineSpace = lineHeight * 1.5f;
@@ -107,15 +110,17 @@ void HexagonDialogBox::drawText(const Color& txtColor, const float xOffset, cons
         if(!str.empty())
         {
             txtDialog.setString(str);
-            txtDialog.setPosition({xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
-                yOffset + heightOffset});
+            txtDialog.setPosition(
+                {xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
+                    yOffset + heightOffset});
             window.draw(txtDialog);
         }
         heightOffset += interlineSpace;
     }
 }
 
-void HexagonDialogBox::drawTopLeft(const Color& txtColor, const Color& backdropColor)
+void HexagonDialogBox::drawTopLeft(
+    const Color& txtColor, const Color& backdropColor)
 {
     // Alright what's this: if I apply the clean txtDialog height value to these
     // quads there is a small extra margin on the top and bottom (right and left
@@ -130,13 +135,15 @@ void HexagonDialogBox::drawTopLeft(const Color& txtColor, const Color& backdropC
     dialogFrame.reserve_more(8);
 
     // outer frame
-    drawBox(txtColor, xPos, xPos + 2.f * doubleFrameSize + dialogWidth,
-        yPos, yPos + 2.f * doubleFrameSize + dialogHeight - heightDifBottom - heightDif);
+    drawBox(txtColor, xPos, xPos + 2.f * doubleFrameSize + dialogWidth, yPos,
+        yPos + 2.f * doubleFrameSize + dialogHeight - heightDifBottom -
+            heightDif);
 
     // text backdrop
     drawBox(backdropColor, xPos + frameSize,
         xPos + doubleFrameSize + frameSize + dialogWidth, yPos + frameSize,
-        yPos + doubleFrameSize + frameSize + dialogHeight - heightDifBottom - heightDif);
+        yPos + doubleFrameSize + frameSize + dialogHeight - heightDifBottom -
+            heightDif);
 
     window.draw(dialogFrame);
 
@@ -145,12 +152,13 @@ void HexagonDialogBox::drawTopLeft(const Color& txtColor, const Color& backdropC
         yPos + doubleFrameSize - heightDif);
 }
 
-void HexagonDialogBox::drawCenter(const Color& txtColor, const Color& backdropColor)
+void HexagonDialogBox::drawCenter(
+    const Color& txtColor, const Color& backdropColor)
 {
-    const float fmax =
-        std::max(1024.f / Config::getWidth(), 768.f / Config::getHeight()),
-        w = Config::getWidth() * fmax,
-        h = (Config::getHeight() * fmax) / 2.f + yPos;
+    const float fmax = std::max(
+                    1024.f / Config::getWidth(), 768.f / Config::getHeight()),
+                w = Config::getWidth() * fmax,
+                h = (Config::getHeight() * fmax) / 2.f + yPos;
 
     const float heightDifTop = lineHeight * 0.85f,
                 heightDifBottom = lineHeight * 0.6f,
@@ -163,14 +171,15 @@ void HexagonDialogBox::drawCenter(const Color& txtColor, const Color& backdropCo
     dialogFrame.reserve_more(8);
 
     // outer frame
-    drawBox(txtColor, leftBorder - doubleFrameSize, rightBorder + doubleFrameSize,
-            h - heightOffsetTop - doubleFrameSize + heightDifTop,
-            h + heightOffsetBottom + doubleFrameSize - heightDifBottom);
+    drawBox(txtColor, leftBorder - doubleFrameSize,
+        rightBorder + doubleFrameSize,
+        h - heightOffsetTop - doubleFrameSize + heightDifTop,
+        h + heightOffsetBottom + doubleFrameSize - heightDifBottom);
 
     // text backdrop
     drawBox(backdropColor, leftBorder - frameSize, rightBorder + frameSize,
-            h - heightOffsetTop - frameSize + heightDifTop,
-            h + heightOffsetBottom + frameSize - heightDifBottom);
+        h - heightOffsetTop - frameSize + heightDifTop,
+        h + heightOffsetBottom + frameSize - heightDifBottom);
 
     window.draw(dialogFrame);
 
@@ -178,10 +187,11 @@ void HexagonDialogBox::drawCenter(const Color& txtColor, const Color& backdropCo
     drawText(txtColor, w / 2.f, h - heightOffsetTop);
 }
 
-void HexagonDialogBox::drawCenterUpperHalf(const Color& txtColor, const Color& backdropColor)
+void HexagonDialogBox::drawCenterUpperHalf(
+    const Color& txtColor, const Color& backdropColor)
 {
-    const float fmax =
-        std::max(1024.f / Config::getWidth(), 768.f / Config::getHeight()),
+    const float fmax = std::max(
+                    1024.f / Config::getWidth(), 768.f / Config::getHeight()),
                 w = Config::getWidth() * fmax,
                 h = (Config::getHeight() * fmax) / 2.f + yPos;
 
@@ -194,14 +204,15 @@ void HexagonDialogBox::drawCenterUpperHalf(const Color& txtColor, const Color& b
     dialogFrame.reserve_more(8);
 
     // outer frame (text color)
-    drawBox(txtColor, leftBorder - doubleFrameSize, rightBorder + doubleFrameSize,
-            h - dialogHeight - doubleFrameSize + heightDifTop,
-            h + doubleFrameSize - heightDifBottom);
+    drawBox(txtColor, leftBorder - doubleFrameSize,
+        rightBorder + doubleFrameSize,
+        h - dialogHeight - doubleFrameSize + heightDifTop,
+        h + doubleFrameSize - heightDifBottom);
 
     // text backdrop (spinning background color)
     drawBox(backdropColor, leftBorder - frameSize, rightBorder + frameSize,
-            h - dialogHeight - frameSize + heightDifTop,
-            h + frameSize - heightDifBottom);
+        h - dialogHeight - frameSize + heightDifTop,
+        h + frameSize - heightDifBottom);
 
     window.draw(dialogFrame);
 

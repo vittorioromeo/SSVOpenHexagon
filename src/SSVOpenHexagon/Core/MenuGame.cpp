@@ -461,7 +461,7 @@ void MenuGame::initMenus()
     main.create<i::Toggle>(
         "official mode", &Config::getOfficial, &Config::setOfficial);
     main.create<i::Single>("exit game", [this] { window.stop(); });
-    main.create<i::Single>("reset configs to default", [this]{
+    main.create<i::Single>("reset configs to default", [this] {
         Config::resetConfigToDefaults();
         refreshBinds();
     });
@@ -593,7 +593,7 @@ void MenuGame::initMenus()
         &Config::setRotateToStart);
     play.create<i::Goto>("keyboard and mouse", keyboard);
     play.create<i::Goto>("joystick", joystick);
-    play.create<i::Single>("reset binds to defaults",[this]{
+    play.create<i::Single>("reset binds to defaults", [this] {
         Config::resetBindsToDefaults();
         refreshBinds();
     });
@@ -711,14 +711,13 @@ void MenuGame::initMenus()
 void MenuGame::refreshBinds()
 {
     // Keyboard-mouse
-    Trigger triggers[] = {
-        Config::getTriggerRotateCCW(), Config::getTriggerRotateCW(),
-        Config::getTriggerFocus(), Config::getTriggerSelect(),
-        Config::getTriggerExit(), Config::getTriggerForceRestart(),
-        Config::getTriggerRestart(), Config::getTriggerReplay(),
-        Config::getTriggerScreenshot(), Config::getTriggerSwap(),
-        Config::getTriggerUp(), Config::getTriggerDown()
-    };
+    Trigger triggers[] = {Config::getTriggerRotateCCW(),
+        Config::getTriggerRotateCW(), Config::getTriggerFocus(),
+        Config::getTriggerSelect(), Config::getTriggerExit(),
+        Config::getTriggerForceRestart(), Config::getTriggerRestart(),
+        Config::getTriggerReplay(), Config::getTriggerScreenshot(),
+        Config::getTriggerSwap(), Config::getTriggerUp(),
+        Config::getTriggerDown()};
 
     size_t i;
     for(i = 0; i < sizeof(triggers) / sizeof(triggers[0]); ++i)
@@ -728,14 +727,12 @@ void MenuGame::refreshBinds()
     }
 
     // Joystick
-    unsigned int buttons[] = {
-        Config::getJoystickSelect(), Config::getJoystickExit(),
-        Config::getJoystickFocus(), Config::getJoystickSwap(),
-        Config::getJoystickForceRestart(), Config::getJoystickRestart(),
-        Config::getJoystickReplay(), Config::getJoystickScreenshot(),
-        Config::getJoystickOptionMenu(), Config::getJoystickChangePack(),
-        Config::getJoystickCreateProfile()
-    };
+    unsigned int buttons[] = {Config::getJoystickSelect(),
+        Config::getJoystickExit(), Config::getJoystickFocus(),
+        Config::getJoystickSwap(), Config::getJoystickForceRestart(),
+        Config::getJoystickRestart(), Config::getJoystickReplay(),
+        Config::getJoystickScreenshot(), Config::getJoystickOptionMenu(),
+        Config::getJoystickChangePack(), Config::getJoystickCreateProfile()};
 
     for(i = 0; i < sizeof(buttons) / sizeof(buttons[0]); ++i)
     {
@@ -1071,20 +1068,20 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     // needs to be two because the dialog box reacts to key releases.
     // First key release is the one of the key press that made the dialog
     // box pop up, the second one belongs to the key press that closes it
-    noActions = 2;
+    ignoreInputs = 2;
     assets.playSound("select.ogg");
 
     std::string reloadOutput;
 
     if(reloadEntirePack)
     {
-        reloadOutput = assets.reloadPack(
-            levelData->packId, levelData->packPath);
+        reloadOutput =
+            assets.reloadPack(levelData->packId, levelData->packPath);
     }
     else
     {
-        reloadOutput = assets.reloadLevel(levelData->packId,
-            levelData->packPath, levelData->id);
+        reloadOutput = assets.reloadLevel(
+            levelData->packId, levelData->packPath, levelData->id);
     }
 
     setIndex(currentIndex); // loads the new levelData
@@ -1092,7 +1089,7 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     reloadOutput += "\npress any key to close this message\n";
     Utils::uppercasify(reloadOutput);
 
-  	assets.playSound("select.ogg");
+    assets.playSound("select.ogg");
     setIgnoreInputs(2);
     dialogBox.create(reloadOutput, 26, 10.f, DBoxDraw::centerUpperHalf);
 }
