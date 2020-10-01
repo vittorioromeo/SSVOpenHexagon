@@ -646,11 +646,6 @@ void setSaveLocalBestReplayToFile(bool mX)
     return fullscreen();
 }
 
-[[nodiscard, gnu::const]] constexpr GameVersion getVersion()
-{
-    return GAME_VERSION;
-}
-
 [[nodiscard, gnu::const]] const std::string& getVersionString()
 {
     static std::string result{

@@ -231,11 +231,11 @@ void HexagonGame::initLua_Utils()
         .doc("Returns the major of the current version of the game");
 
     addLuaFn("u_getVersionMinor", //
-        [this] { return Config::getVersion().major; })
+        [this] { return Config::getVersion().minor; })
         .doc("Returns the minor of the current version of the game");
     
     addLuaFn("u_getVersionMicro", //
-        [this] { return Config::getVersion().major; })
+        [this] { return Config::getVersion().micro; })
         .doc("Returns the micro of the current version of the game");
 
     addLuaFn("u_getVersionString", //

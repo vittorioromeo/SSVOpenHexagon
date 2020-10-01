@@ -97,8 +97,6 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] bool getVsync();
 [[nodiscard]] bool getAutoZoomFactor();
 [[nodiscard]] bool getFullscreen();
-[[nodiscard, gnu::const]] constexpr GameVersion getVersion();
-[[nodiscard, gnu::const]] const std::string& getVersionString();
 [[nodiscard]] bool getWindowedAutoResolution();
 [[nodiscard]] bool getFullscreenAutoResolution();
 [[nodiscard]] unsigned int getFullscreenWidth();
@@ -109,6 +107,12 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] unsigned int getHeight();
 [[nodiscard]] bool getShowMessages();
 [[nodiscard]] bool getRotateToStart();
+
+[[nodiscard, gnu::const]] constexpr GameVersion getVersion()
+{
+    return GAME_VERSION;
+}
+[[nodiscard, gnu::const]] const std::string& getVersionString();
 
 [[nodiscard]] bool getDebug();
 [[nodiscard]] bool getPulse();
