@@ -258,10 +258,9 @@ void HexagonGame::updateText()
 
         if(status.hasDied)
         {
-            os << "PRESS R TO RESTART\n";
-            os << "PRESS Y TO VIEW REPLAY\n";
+            os << status.restartInput;
+            os << status.replayInput;
         }
-
 
         const auto& trackedVariables(levelStatus.trackedVariables);
         if(Config::getShowTrackedVariables() && !trackedVariables.empty())

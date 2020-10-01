@@ -53,6 +53,8 @@ public:
     bool started{false};
     sf::Color overrideColor{sf::Color::Transparent};
     ssvu::ObfuscatedValue<float> lostFrames{0};
+    std::string restartInput;
+    std::string replayInput;
 
     // Reset all the time points and signal that we started
     void start() noexcept;

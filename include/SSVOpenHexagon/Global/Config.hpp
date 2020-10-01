@@ -140,9 +140,9 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] bool getSaveLocalBestReplayToFile();
 
 // keyboard binds
-
 void keyboardBindsSanityCheck();
 
+[[nodiscard]] const std::string getKeyboardBindNames(const int bindID);
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerFocus();
@@ -155,6 +155,8 @@ void keyboardBindsSanityCheck();
 [[nodiscard]] ssvs::Input::Trigger getTriggerSwap();
 [[nodiscard]] ssvs::Input::Trigger getTriggerUp();
 [[nodiscard]] ssvs::Input::Trigger getTriggerDown();
+[[nodiscard]] ssvs::Input::Trigger getTriggerNextPack();
+[[nodiscard]] ssvs::Input::Trigger getTriggerPreviousPack();
 
 void addBindTriggerRotateCCW(int key, int btn, int index);
 void addBindTriggerRotateCW(int key, int btn, int index);
@@ -168,6 +170,8 @@ void addBindTriggerScreenshot(int key, int btn, int index);
 void addBindTriggerSwap(int key, int btn, int index);
 void addBindTriggerUp(int key, int btn, int index);
 void addBindTriggerDown(int key, int btn, int index);
+void addBindTriggerNextPack(int key, int btn, int index);
+void addBindTriggerPreviousPack(int key, int btn, int index);
 
 void setTriggerRotateCCW(ssvs::Input::Trigger trig);
 void setTriggerRotateCW(ssvs::Input::Trigger trig);
@@ -181,6 +185,8 @@ void setTriggerScreenshot(ssvs::Input::Trigger trig);
 void setTriggerSwap(ssvs::Input::Trigger trig);
 void setTriggerUp(ssvs::Input::Trigger trig);
 void setTriggerDown(ssvs::Input::Trigger trig);
+void setTriggerNextPack(ssvs::Input::Trigger trig);
+void setTriggerPreviousPack(ssvs::Input::Trigger trig);
 
 void clearBindTriggerRotateCCW(int index);
 void clearBindTriggerRotateCW(int index);
@@ -194,11 +200,14 @@ void clearBindTriggerScreenshot(int index);
 void clearBindTriggerSwap(int index);
 void clearBindTriggerUp(int index);
 void clearBindTriggerDown(int index);
+void clearBindTriggerNextPack(int index);
+void clearBindTriggerPreviousPack(int index);
 
 // joystick binds
 
 void joystickBindsSanityCheck();
 
+[[nodiscard]] const std::string getJoystickBindNames(const int bindID);
 [[nodiscard]] unsigned int getJoystickSelect();
 [[nodiscard]] unsigned int getJoystickExit();
 [[nodiscard]] unsigned int getJoystickFocus();
@@ -207,9 +216,8 @@ void joystickBindsSanityCheck();
 [[nodiscard]] unsigned int getJoystickRestart();
 [[nodiscard]] unsigned int getJoystickReplay();
 [[nodiscard]] unsigned int getJoystickScreenshot();
-[[nodiscard]] unsigned int getJoystickOptionMenu();
-[[nodiscard]] unsigned int getJoystickChangePack();
-[[nodiscard]] unsigned int getJoystickCreateProfile();
+[[nodiscard]] unsigned int getJoystickNextPack();
+[[nodiscard]] unsigned int getJoystickPreviousPack();
 
 [[nodiscard]] int reassignToJoystickSelect(unsigned int button);
 [[nodiscard]] int reassignToJoystickExit(unsigned int button);
@@ -219,9 +227,8 @@ void joystickBindsSanityCheck();
 [[nodiscard]] int reassignToJoystickRestart(unsigned int button);
 [[nodiscard]] int reassignToJoystickReplay(unsigned int button);
 [[nodiscard]] int reassignToJoystickScreenshot(unsigned int button);
-[[nodiscard]] int reassignToJoystickOptionMenu(unsigned int button);
-[[nodiscard]] int reassignToJoystickChangePack(unsigned int button);
-[[nodiscard]] int reassignToJoystickCreateProfile(unsigned int button);
+[[nodiscard]] int reassignToJoystickNextPack(unsigned int button);
+[[nodiscard]] int reassignToJoystickPreviousPack(unsigned int button);
 
 void setJoystickSelect(unsigned int button);
 void setJoystickExit(unsigned int button);
@@ -231,8 +238,7 @@ void setJoystickForceRestart(unsigned int button);
 void setJoystickRestart(unsigned int button);
 void setJoystickReplay(unsigned int button);
 void setJoystickScreenshot(unsigned int button);
-void setJoystickOptionMenu(unsigned int button);
-void setJoystickChangePack(unsigned int button);
-void setJoystickCreateProfile(unsigned int button);
+void setJoystickNextPack(unsigned int button);
+void setJoystickPreviousPack(unsigned int button);
 
 } // namespace hg::Config

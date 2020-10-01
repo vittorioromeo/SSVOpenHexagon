@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/BindControl.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 
 #include <SSVMenuSystem/Global/Typedefs.hpp>
 #include <SSVMenuSystem/Menu/ItemBase.hpp>
@@ -115,52 +116,7 @@ void KeyboardBindControl::newKeyboardBind(
 
 [[nodiscard]] std::string KeyboardBindControl::getName() const
 {
-    const std::vector<ssvs::Input::Combo>& combos = triggerGetter().getCombos();
-
-    const int size = sizeGetter();
-    std::string bindNames;
-
-    // get binds in the order they have been entered
-    for(int i = 0; i < size; ++i)
-    {
-        const auto keyBind = combos[i].getKeys();
-        for(int j = 0; j <= ssvs::KKey::KeyCount; ++j)
-        {
-            if(!keyBind[j])
-            {
-                continue;
-            }
-
-            if(!bindNames.empty())
-            {
-                bindNames += ", ";
-            }
-
-            // names are shifted compared to the Key enum
-            bindNames +=
-                bindToHumanReadableName(ssvs::getKKeyName(ssvs::KKey(j - 1)));
-            break;
-        }
-
-        const auto btnBinds = combos[i].getBtns();
-        for(int j = 0; j <= ssvs::MBtn::ButtonCount; ++j)
-        {
-            if(!btnBinds[j])
-            {
-                continue;
-            }
-
-            if(!bindNames.empty())
-            {
-                bindNames += ", ";
-            }
-
-            // same as with keys
-            bindNames +=
-                bindToHumanReadableName(ssvs::getMBtnName(ssvs::MBtn(j - 1)));
-            break;
-        }
-    }
+    std::string bindNames = Config::getKeyboardBindNames(ID);
 
     if(waitingForBind)
     {
@@ -221,49 +177,14 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
 
 [[nodiscard]] std::string JoystickBindControl::getName() const
 {
-    static const std::string buttonsNames[12][2] = {{"A", "SQUARE"},
-        {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"}, {"LB", "L1"},
-        {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"}, {"LEFT STICK", "SELECT"},
-        {"RIGHT STICK", "START"}, {"LT", "LEFT STICK"}, {"RT", "RIGHT STICK"}};
-
-    std::string bindNames;
-    const unsigned int value = valueGetter();
-
-    if(value == 33)
-    {
-        bindNames = "";
-    }
-    else
-    {
-#define MS_VENDOR_ID 0x045E
-#define SONY_VENDOR_ID 0x54C
-
-        const unsigned int vendorId =
-            sf::Joystick::isConnected(0)
-                ? sf::Joystick::getIdentification(0).vendorId
-                : 0;
-
-        switch(vendorId)
-        {
-            case MS_VENDOR_ID:
-                bindNames = value >= 12 ? "" : buttonsNames[value][0];
-                break;
-            case SONY_VENDOR_ID:
-                bindNames = value >= 12 ? "" : buttonsNames[value][1];
-                break;
-            default: bindNames = ssvu::toStr(value); break;
-        }
-
-#undef MS_VENDOR_ID
-#undef SONY_VENDOR_ID
-    }
+    std::string bindName = Config::getJoystickBindNames(ID);
 
     if(waitingForBind)
     {
-        bindNames += "_";
+        bindName += "_";
     }
 
-    return name + ": " + bindNames;
+    return name + ": " + bindName;
 }
 
 } // namespace hg
