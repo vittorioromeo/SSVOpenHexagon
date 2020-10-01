@@ -114,23 +114,10 @@ KeyCode = {
 
 -- Checks to see if the current version of the game is equal to or greater than the version specified
 -- Useful if you are developing a level in a beta branch or GitHub build.
-function atRequiredVersion(mMinimumVersion)
-	local currentVersionData = {}
-	local minimumVersionData = {}
-	
-	for digit in string.gmatch(u_getVersion(), "([^.]+)") do
-		currentVersionData[#currentVersionData + 1] = tonumber(digit);
-	end
-	for digit in string.gmatch(mMinimumVersion, "([^.]+)") do
-		minimumVersionData[#minimumVersionData + 1] = tonumber(digit);
-	end
-	
-	for i = 1, #currentVersionData do
-		if (currentVersionData[i] < minimumVersionData[i]) then
-			return false;
-		end
-	end
-	return true;
+function atRequiredVersion(mMinimumMajor, mMinimumMinor, mMinimumMicro)
+	return u_getVersionMajor() >= mMinimumMajor and 
+			u_getVersionMinor() >= mMinimumMinor and 
+			u_getVersionMicro() >= mMinimumMicro;
 end
 
 -- Converts Beats Per Minute (BPM) into period in Frames Per Beat (FPB)
