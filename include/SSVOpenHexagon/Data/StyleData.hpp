@@ -4,11 +4,10 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
-#include <SFML/Graphics.hpp>
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -128,6 +127,9 @@ public:
 
     void update(ssvu::FT mFT, float mMult = 1.f);
     void computeColors(const LevelStatus& levelStatus);
+    void drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
+        const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
+        const bool fourByThree) const;
     void drawBackground(sf::RenderTarget& mRenderTarget,
         const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const;
 

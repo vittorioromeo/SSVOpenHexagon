@@ -115,8 +115,6 @@ void StyleData::update(ssvu::FT mFT, float mMult)
 
 void StyleData::computeColors(const LevelStatus& levelStatus)
 {
-    (void)levelStatus; // Currently unused.
-
     currentMainColor = calculateColor(mainColorData);
     currentPlayerColor = calculateColor(playerColor);
     currentTextColor = calculateColor(textColor);
@@ -146,15 +144,20 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
 {
     const auto sides = levelStatus.sides;
 
-    float div{ssvu::tau / sides * 1.0001f};
-    float distance{bgTileRadius};
+    const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
+                distance{bgTileRadius};
 
     static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
+    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> hexagon;
 
     vertices.clear();
+    hexagon.clear();
     vertices.reserve(sides * 3);
+    hexagon.reserve(sides * 6);
 
     const auto& colors(getColors());
+    const sf::Color colorMain{getMainColor()};
+    const sf::Color colorCap{getCapColorResult()};
 
     for(auto i(0u); i < sides; ++i)
     {
@@ -176,11 +179,70 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
         }
 
         vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
-            ssvs::getOrbitRad(mCenterPos, angle + div * 0.5f, distance),
-            ssvs::getOrbitRad(mCenterPos, angle - div * 0.5f, distance));
+            ssvs::getOrbitRad(mCenterPos, angle + halfDiv, distance),
+            ssvs::getOrbitRad(mCenterPos, angle - halfDiv, distance));
     }
 
     mRenderTarget.draw(vertices);
+    mRenderTarget.draw(hexagon);
+}
+
+void StyleData::drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
+    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
+    const bool fourByThree) const
+{
+    const auto sides = levelStatus.sides;
+
+    const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
+                distance{bgTileRadius},
+                hexagonRadius{fourByThree ? 75.f : 100.f};
+
+    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
+    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> hexagon;
+
+    vertices.clear();
+    hexagon.clear();
+    vertices.reserve(sides * 3);
+    hexagon.reserve(sides * 6);
+
+    const auto& colors(getColors());
+    const sf::Color colorMain{getMainColor()};
+    const sf::Color colorCap{getCapColorResult()};
+
+    for(auto i(0u); i < sides; ++i)
+    {
+        const float angle{ssvu::toRad(BGRotOff) + div * i};
+        sf::Color currentColor{ssvu::getByModIdx(colors, i)};
+
+        const bool darkenUnevenBackgroundChunk =
+            (i % 2 == 0 && i == sides - 1) &&
+            Config::getDarkenUnevenBackgroundChunk() &&
+            levelStatus.darkenUnevenBackgroundChunk;
+
+        if(Config::getBlackAndWhite())
+        {
+            currentColor = sf::Color::Black;
+        }
+        else if(darkenUnevenBackgroundChunk)
+        {
+            currentColor = Utils::getColorDarkened(currentColor, 1.4f);
+        }
+
+        vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
+            ssvs::getOrbitRad(mCenterPos, angle + halfDiv, distance),
+            ssvs::getOrbitRad(mCenterPos, angle - halfDiv, distance));
+
+        hexagon.batch_unsafe_emplace_back(colorMain, mCenterPos,
+            ssvs::getOrbitRad(mCenterPos, angle + halfDiv, hexagonRadius + 10.f),
+            ssvs::getOrbitRad(mCenterPos, angle - halfDiv, hexagonRadius + 10.f));
+
+        hexagon.batch_unsafe_emplace_back(colorCap, mCenterPos,
+            ssvs::getOrbitRad(mCenterPos, angle + halfDiv, hexagonRadius),
+            ssvs::getOrbitRad(mCenterPos, angle - halfDiv, hexagonRadius));
+    }
+
+    mRenderTarget.draw(vertices);
+    mRenderTarget.draw(hexagon);
 }
 
 sf::Color StyleData::getCapColorResult() const noexcept

@@ -34,19 +34,19 @@ private:
     HGAssets& assets;
     ssvs::GameWindow& window;
     StyleData& styleData;
-    sf::Font& imagine;
 
     DrawFunc drawFunc;
 
     Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogFrame;
     std::vector<std::string> dialogText;
+    sf::Font& imagine;
     sf::Text txtDialog;
 
-    float dialogHeight{0.f};
     float dialogWidth{0.f};
     float frameSize{0.f};
     float doubleFrameSize{0.f};
     float lineHeight{0.f};
+    float totalHeight{0.f};
 
     float xPos{0.f};
     float yPos{0.f};

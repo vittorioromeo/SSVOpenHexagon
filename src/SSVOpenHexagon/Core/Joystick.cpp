@@ -92,14 +92,11 @@ struct JoystickState
     bool screenshotWasPressed;
     bool screenshotPressed;
 
-    bool optionMenuWasPressed;
-    bool optionMenuPressed;
+    bool nextPackWasPressed;
+    bool nextPackPressed;
 
-    bool changePackWasPressed;
-    bool changePackPressed;
-
-    bool createProfileWasPressed;
-    bool createProfilePressed;
+    bool previousPackWasPressed;
+    bool previousPackPressed;
 
     unsigned int joystickInputs[JoystickBindsCount];
 };
@@ -119,9 +116,8 @@ void ignoreAllPresses(bool ignore)
     s.leftWasPressed = s.rightWasPressed = s.upWasPressed = s.downWasPressed =
         s.selectWasPressed = s.exitWasPressed = s.focusWasPressed =
             s.swapWasPressed = s.forceRestartWasPressed = s.restartWasPressed =
-                s.replayWasPressed = s.screenshotWasPressed =
-                    s.changePackWasPressed = s.optionMenuWasPressed =
-                        s.createProfileWasPressed = ignore;
+                s.replayWasPressed = s.screenshotWasPressed = s.nextPackWasPressed =
+                    s.previousPackWasPressed = ignore;
 
     getJoystickState().ignoreAllPresses = ignore;
 }
@@ -225,17 +221,13 @@ void update()
         s.screenshotPressed, sf::Joystick::isButtonPressed(
                                  joyId, s.joystickInputs[Jid::Screenshot]));
 
-    s.changePackWasPressed = std::exchange(
-        s.changePackPressed, sf::Joystick::isButtonPressed(
-                                 joyId, s.joystickInputs[Jid::ChangePack]));
+    s.nextPackWasPressed = std::exchange(
+        s.nextPackPressed, sf::Joystick::isButtonPressed(
+            joyId, s.joystickInputs[Jid::NextPack]));
 
-    s.optionMenuWasPressed = std::exchange(
-        s.optionMenuPressed, sf::Joystick::isButtonPressed(
-                                 joyId, s.joystickInputs[Jid::OptionMenu]));
-
-    s.createProfileWasPressed = std::exchange(
-        s.createProfilePressed, sf::Joystick::isButtonPressed(joyId,
-                                    s.joystickInputs[Jid::CreateProfile]));
+    s.previousPackWasPressed = std::exchange(
+        s.previousPackPressed, sf::Joystick::isButtonPressed(
+            joyId, s.joystickInputs[Jid::PreviousPack]));
 }
 
 
@@ -361,36 +353,24 @@ void update()
            !getJoystickState().screenshotWasPressed;
 }
 
-[[nodiscard]] bool changePackPressed()
+[[nodiscard]] bool nextPackPressed()
 {
-    return getJoystickState().changePackPressed;
+    return getJoystickState().nextPackPressed;
 }
-[[nodiscard]] bool changePackRisingEdge()
+[[nodiscard]] bool nextPackRisingEdge()
 {
-    return getJoystickState().changePackPressed &&
-           !getJoystickState().changePackWasPressed;
-}
-
-
-[[nodiscard]] bool optionMenuPressed()
-{
-    return getJoystickState().optionMenuPressed;
-}
-[[nodiscard]] bool optionMenuRisingEdge()
-{
-    return getJoystickState().optionMenuPressed &&
-           !getJoystickState().optionMenuWasPressed;
+    return getJoystickState().nextPackPressed &&
+           !getJoystickState().nextPackWasPressed;
 }
 
-
-[[nodiscard]] bool createProfilePressed()
+[[nodiscard]] bool previousPackPressed()
 {
-    return getJoystickState().createProfilePressed;
+    return getJoystickState().nextPackPressed;
 }
-[[nodiscard]] bool createProfileRisingEdge()
+[[nodiscard]] bool previousPackRisingEdge()
 {
-    return getJoystickState().createProfilePressed &&
-           !getJoystickState().createProfileWasPressed;
+    return getJoystickState().previousPackPressed &&
+           !getJoystickState().previousPackWasPressed;
 }
 
 } // namespace hg::Joystick

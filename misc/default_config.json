@@ -33,9 +33,9 @@
 	"official" : true,
 	"online" : true,
 	"pixel_multiplier" : 1,
-	"player_focus_speed" : 4.6250,
-	"player_size" : 7.300000190734863,
-	"player_speed" : 9.449999809265137,
+	"player_focus_speed" : 4.625,
+	"player_size" : 7.3,
+	"player_speed" : 9.45,
 	"pulse_enabled" : true,
 	"rotate_to_start" : false,
 	"save_local_best_replay_to_file": true,
@@ -71,6 +71,20 @@
 	[
 		[ "kUp" ],
 		[ "kR" ],
+		[ "" ],
+		[ "" ]
+	],
+	"t_next" : 
+	[
+		[ "" ],
+		[ "" ],
+		[ "" ],
+		[ "" ]
+	],
+	"t_previous" : 
+	[
+		[ "" ],
+		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
@@ -135,12 +149,11 @@
     "j_focus" : 4,
     "j_swap" : 5,
     "j_force_restart" : 3,
+	"j_next" : 10,
+	"j_previous" : 11,
     "j_restart" : 2,
     "j_replay" : 8,
     "j_screenshot" : 9,
-    "j_optionmenu" : 7,
-    "j_changepack" : 6,
-    "j_createprofile" : 20,
 	"text_padding" : 8.0,
 	"text_scaling" : 1.0,
 	"timer_static" : true,
