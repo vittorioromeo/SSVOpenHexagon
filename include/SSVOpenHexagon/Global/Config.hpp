@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Version.hpp"
+
 #include <vector>
-#include <tuple>
 #include <string>
 
 namespace ssvs
@@ -20,32 +21,7 @@ class Trigger;
 
 namespace hg::Config
 {
-struct Version
-{
-    int major;
-    int minor;
-    int micro;
-
-
-    [[nodiscard]] bool operator<(const Version& rhs) const
-    {
-        return std::tie(major, minor, micro) <
-               std::tie(rhs.major, rhs.minor, rhs.micro);
-    }
-
-    [[nodiscard]] bool operator>(const Version& rhs) const
-    {
-        return std::tie(major, minor, micro) >
-               std::tie(rhs.major, rhs.minor, rhs.micro);
-    }
-
-    [[nodiscard]] bool operator==(Version other) const
-    {
-        return (major == other.major) && (minor == other.minor) &&
-               (micro == other.micro);
-    }
-};
-constexpr Version GAME_VERSION{2, 0, 3};
+constexpr GameVersion GAME_VERSION{2, 0, 3};
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
 void saveConfig();
@@ -121,7 +97,7 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] bool getVsync();
 [[nodiscard]] bool getAutoZoomFactor();
 [[nodiscard]] bool getFullscreen();
-[[nodiscard, gnu::const]] constexpr Version getVersion();
+[[nodiscard, gnu::const]] constexpr GameVersion getVersion();
 [[nodiscard, gnu::const]] const std::string& getVersionString();
 [[nodiscard]] bool getWindowedAutoResolution();
 [[nodiscard]] bool getFullscreenAutoResolution();
