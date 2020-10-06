@@ -102,43 +102,6 @@ void HexagonGame::initLua_Utils()
             "Dives into the `Sounds` folder of the current level pack and "
             "plays the specified file `$0`.");
 
-    addLuaFn("u_setMusic", //
-        [this](const std::string& mId) {
-            musicData = assets.getMusicData(levelData->packId, mId);
-            musicData.firstPlay = true;
-            stopLevelMusic();
-            playLevelMusic();
-        })
-        .arg("musicId")
-        .doc(
-            "Stop the current music and play the music with id `$0`. The id is "
-            "defined in the music `.json` file, under `\"id\"`.");
-
-    addLuaFn("u_setMusicSegment", //
-        [this](const std::string& mId, int segment) {
-            musicData = assets.getMusicData(levelData->packId, mId);
-            stopLevelMusic();
-            playLevelMusicAtTime(musicData.getSegment(segment).time);
-        })
-        .arg("musicId")
-        .arg("segment")
-        .doc(
-            "Stop the current music and play the music with id `$0`, starting "
-            "at segment `$1`. Segments are defined in the music `.json` file, "
-            "under `\"segments\"`.");
-
-    addLuaFn("u_setMusicSeconds", //
-        [this](const std::string& mId, float mTime) {
-            musicData = assets.getMusicData(levelData->packId, mId);
-            stopLevelMusic();
-            playLevelMusicAtTime(mTime);
-        })
-        .arg("musicId")
-        .arg("time")
-        .doc(
-            "Stop the current music and play the music with id `$0`, starting "
-            "at time `$1` (in seconds).");
-
     addLuaFn("u_isKeyPressed",
         [this](int mKey) { return window.getInputState()[KKey(mKey)]; })
         .arg("keyCode")
@@ -225,6 +188,46 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
+}
+
+void HexagonGame::initLua_MusicControl()
+{
+    addLuaFn("m_setMusic", //
+        [this](const std::string& mId) {
+            musicData = assets.getMusicData(levelData->packId, mId);
+            musicData.firstPlay = true;
+            stopLevelMusic();
+            playLevelMusic();
+        })
+        .arg("musicId")
+        .doc(
+            "Stop the current music and play the music with id `$0`. The id is "
+            "defined in the music `.json` file, under `\"id\"`.");
+
+    addLuaFn("m_setMusicSegment", //
+        [this](const std::string& mId, int segment) {
+            musicData = assets.getMusicData(levelData->packId, mId);
+            stopLevelMusic();
+            playLevelMusicAtTime(musicData.getSegment(segment).time);
+        })
+        .arg("musicId")
+        .arg("segment")
+        .doc(
+            "Stop the current music and play the music with id `$0`, starting "
+            "at segment `$1`. Segments are defined in the music `.json` file, "
+            "under `\"segments\"`.");
+
+    addLuaFn("m_setMusicSeconds", //
+        [this](const std::string& mId, float mTime) {
+            musicData = assets.getMusicData(levelData->packId, mId);
+            stopLevelMusic();
+            playLevelMusicAtTime(mTime);
+        })
+        .arg("musicId")
+        .arg("time")
+        .doc(
+            "Stop the current music and play the music with id `$0`, starting "
+            "at time `$1` (in seconds).");
 }
 
 void HexagonGame::initLua_MainTimeline()
@@ -1367,6 +1370,7 @@ end
     destroyMaliciousFunctions();
 
     initLua_Utils();
+    initLua_MusicControl();
     initLua_MainTimeline();
     initLua_EventTimeline();
     initLua_LevelControl();
