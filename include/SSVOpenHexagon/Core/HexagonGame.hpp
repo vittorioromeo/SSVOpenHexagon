@@ -173,7 +173,6 @@ private:
     void redefineLuaFunctions();
     void destroyMaliciousFunctions();
     void initLua_Utils();
-    void initLua_Messages();
     void initLua_MainTimeline();
     void initLua_EventTimeline();
     void initLua_LevelControl();

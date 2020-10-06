@@ -227,63 +227,6 @@ void HexagonGame::initLua_Utils()
             "`true`, the swap sound will be played.");
 }
 
-void HexagonGame::initLua_Messages()
-{
-    addLuaFn("m_messageAdd", //
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(firstPlay && Config::getShowMessages())
-                {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                }
-            });
-        })
-        .arg("message")
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will only be printed during the first "
-            "run of the level.");
-
-    addLuaFn("m_messageAddImportant", //
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(Config::getShowMessages())
-                {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                }
-            });
-        })
-        .arg("message")
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will be printed during every run of the "
-            "level.");
-
-
-    addLuaFn("m_messageAddImportantSilent",
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(Config::getShowMessages())
-                {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
-                }
-            });
-        })
-        .arg("message")
-        .arg("duration")
-        .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will only be printed during every "
-            "run of the level, and will not produce any sound.");
-
-
-    addLuaFn("m_clearMessages", //
-        [this] { clearMessages(); })
-        .doc("Remove all previously scheduled messages.");
-}
-
 void HexagonGame::initLua_MainTimeline()
 {
     addLuaFn("t_eval",
@@ -386,6 +329,58 @@ void HexagonGame::initLua_EventTimeline()
         .doc(
             "*Add to the event timeline*: wait until the timer reaches `$0` "
             "seconds.");
+    
+    addLuaFn("e_messageAdd", //
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(firstPlay && Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during the first "
+            "run of the level.");
+
+    addLuaFn("e_messageAddImportant", //
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will be printed during every run of the "
+            "level.");
+
+    addLuaFn("e_messageAddImportantSilent",
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during every "
+            "run of the level, and will not produce any sound.");
+
+    addLuaFn("e_clearMessages", //
+        [this] { clearMessages(); })
+        .doc("Remove all previously scheduled messages.");
 }
 
 void HexagonGame::initLua_LevelControl()
@@ -1372,7 +1367,6 @@ end
     destroyMaliciousFunctions();
 
     initLua_Utils();
-    initLua_Messages();
     initLua_MainTimeline();
     initLua_EventTimeline();
     initLua_LevelControl();
