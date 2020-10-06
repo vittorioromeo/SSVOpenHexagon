@@ -46,7 +46,7 @@ struct ColorData
               ssvuj::getExtr<float>(mRoot, "dynamic_darkness", 1.f)},
           hueShift{ssvuj::getExtr<float>(mRoot, "hue_shift", 0.f)},
           offset{ssvuj::getExtr<float>(mRoot, "offset", 0.f)},
-          color{ssvuj::getExtr<sf::Color>(mRoot, "value", sf::Color::White)},
+          color{ssvuj::getExtr<sf::Color>(mRoot, "value", sf::Color::Black)},
           pulse{hg::pulse_from_json(mRoot)} {};
 
     ColorData(const bool mMain, const bool mDynamic, const bool mDynamicOffset,
