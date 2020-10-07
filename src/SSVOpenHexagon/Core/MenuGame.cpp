@@ -1144,12 +1144,13 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueIncrement", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un : {"u_playSound", "u_isKeyPressed",
-            "u_isMouseButtonPressed", "u_isFastSpinning", "u_setPlayerAngle",
-            "u_forceIncrement", "u_kill", "u_eventKill", "u_haltTime",
-            "u_timelineWait", "u_clearWalls",
+    for(const auto& un :
+        {"u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
+            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+            "u_haltTime", "u_timelineWait", "u_clearWalls",
 
-            "m_setMusic", "m_setMusicSegment", "m_setMusicSeconds",
+            "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
+            "a_playSound", "a_playPackSound",
 
             "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
 
