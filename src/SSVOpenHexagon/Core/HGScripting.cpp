@@ -101,13 +101,15 @@ void HexagonGame::initLua_Utils()
         .arg("duration")
         .doc("Pause the game timer for `$0` seconds.");
 
-    addLuaFn("u_timelineWait",
-        [this](
-            double mDuration) { timeline.append_wait_for_sixths(mDuration); })
-        .arg("duration")
-        .doc(
-            "*Add to the main timeline*: wait for `$0` frames (under the "
-            "assumption of a 60 FPS frame rate).");
+    // Redundant function. Refer to t_wait
+
+    // addLuaFn("u_timelineWait",
+    //     [this](
+    //         double mDuration) { timeline.append_wait_for_sixths(mDuration); })
+    //     .arg("duration")
+    //     .doc(
+    //         "*Add to the main timeline*: wait for `$0` frames (under the "
+    //         "assumption of a 60 FPS frame rate).");
 
     addLuaFn("u_clearWalls", //
         [this] { walls.clear(); })

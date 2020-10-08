@@ -58,7 +58,7 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	m_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
+	e_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -80,7 +80,7 @@ function onIncrement()
 	incrementTime = incrementTime + 5
 	l_setSides(l_getSides() + 1)
 	l_setIncTime(incrementTime)
-	m_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
+	e_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
