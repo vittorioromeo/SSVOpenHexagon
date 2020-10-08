@@ -69,7 +69,7 @@ end
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
 	syncCurveWithRotationSpeed(0, 0)
-	m_messageAdd("remember, swap with spacebar!", 120)
+	e_messageAdd("remember, swap with spacebar!", 120)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -90,7 +90,7 @@ end
 function onIncrement()
 	if gap > minGap then
 		gap = gap -1
-		m_messageAddImportant("Gap size: "..gap, 120)
+		e_messageAddImportant("Gap size: "..gap, 120)
 	end
 end
 

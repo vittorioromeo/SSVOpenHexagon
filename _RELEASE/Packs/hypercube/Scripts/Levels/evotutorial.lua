@@ -64,18 +64,18 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	m_messageAddImportant("welcome to the evolution tutorial", 120)
-	m_messageAddImportant("today you'll be introduced to...", 120)
-	m_messageAddImportant("1. swapping!", 100)
-	m_messageAddImportant("2. curving walls!", 100)
-	m_messageAddImportant("", 120)
-	m_messageAddImportant("press space or middle mouse button\nto swap", 250)
-	m_messageAddImportant("it allows you to rotate 180 degrees!", 200)
-	m_messageAddImportant("", 120)
+	e_messageAddImportant("welcome to the evolution tutorial", 120)
+	e_messageAddImportant("today you'll be introduced to...", 120)
+	e_messageAddImportant("1. swapping!", 100)
+	e_messageAddImportant("2. curving walls!", 100)
+	e_messageAddImportant("", 120)
+	e_messageAddImportant("press space or middle mouse button\nto swap", 250)
+	e_messageAddImportant("it allows you to rotate 180 degrees!", 200)
+	e_messageAddImportant("", 120)
 
-	m_messageAddImportant("now: curving walls", 120)
-	m_messageAddImportant("they can be simple...", 120)
-	m_messageAddImportant("", 120 * 3 + 80)
+	e_messageAddImportant("now: curving walls", 120)
+	e_messageAddImportant("they can be simple...", 120)
+	e_messageAddImportant("", 120 * 3 + 80)
 
 	t_wait(135 * 8)
 	hmcSimpleBarrage(1)
@@ -91,16 +91,16 @@ function onLoad()
 	hmcSimpleBarrage(3)
 
 	t_wait(50)
-	m_messageAddImportant("...in various patterns...", 130)
-	m_messageAddImportant("", 120 * 5 + 80)
+	e_messageAddImportant("...in various patterns...", 130)
+	e_messageAddImportant("", 120 * 5 + 80)
 	t_wait(130)
 
 	hmcSimpleTwirl(5, 1, 0)
 	t_wait(50)
 	hmcSimpleTwirl(5, -2.5, 0.3)
 
-	m_messageAddImportant("...or can accellerate!", 130)
-	m_messageAddImportant("", 120 * 4 + 40)
+	e_messageAddImportant("...or can accellerate!", 130)
+	e_messageAddImportant("", 120 * 4 + 40)
 	t_wait(130)
 
 	hmcBarrage(0, 0.05, -1.5, 3, true)
@@ -112,8 +112,8 @@ function onLoad()
 	hmcBarrage(0, 0.1, -3, 3, true)
 	t_wait(200)
 
-	m_messageAddImportant("they can also do crazy stuff!", 130)
-	m_messageAddImportant("", 120 * 8 + 50)
+	e_messageAddImportant("they can also do crazy stuff!", 130)
+	e_messageAddImportant("", 120 * 8 + 50)
 
 	hmcSimpleCage(2.5, 1)
 	t_wait(80)
@@ -144,8 +144,8 @@ function onLoad()
 	hmcSimpleSpinner(-1.2)
 	t_wait(700)
 
-	m_messageAddImportant("well done!", 130)
-	m_messageAddImportant("now play some real levels!", 138)
+	e_messageAddImportant("well done!", 130)
+	e_messageAddImportant("now play some real levels!", 138)
 
 	u_kill()
 end
