@@ -105,7 +105,8 @@ void HexagonGame::initLua_Utils()
 
     // addLuaFn("u_timelineWait",
     //     [this](
-    //         double mDuration) { timeline.append_wait_for_sixths(mDuration); })
+    //         double mDuration) { timeline.append_wait_for_sixths(mDuration);
+    //         })
     //     .arg("duration")
     //     .doc(
     //         "*Add to the main timeline*: wait for `$0` frames (under the "
@@ -214,7 +215,7 @@ void HexagonGame::initLua_AudioControl()
         .doc(
             "Stop the current music and play the music with id `$0`, starting "
             "at time `$1` (in seconds).");
-    
+
     addLuaFn("a_playSound", //
         [this](const std::string& mId) { assets.playSound(mId); })
         .arg("soundId")
@@ -334,7 +335,7 @@ void HexagonGame::initLua_EventTimeline()
         .doc(
             "*Add to the event timeline*: wait until the timer reaches `$0` "
             "seconds.");
-    
+
     addLuaFn("e_messageAdd", //
         [this](const std::string& mMsg, double mDuration) {
             eventTimeline.append_do([=, this] {
@@ -1275,6 +1276,72 @@ void HexagonGame::initLua_CustomWalls()
         .doc("Remove all existing custom walls.");
 }
 
+// These are all deprecated functions that are only being kept for the sake of lessening the impact
+// of incompatibility. Pack Developers have time to change to the new functions before they get
+// removed permanently
+void HexagonGame::initLua_Deprecated()
+{
+    addLuaFn("m_messageAdd", //
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(firstPlay && Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during the first "
+            "run of the level. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_messageAdd instead!**");
+
+    addLuaFn("m_messageAddImportant", //
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will be printed during every run of the "
+            "level. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_messageAddImportant instead!**");
+
+    addLuaFn("m_messageAddImportantSilent",
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during every "
+            "run of the level, and will not produce any sound. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_messageAddImportantSilent instead!**");
+
+    addLuaFn("m_clearMessages", //
+        [this] { clearMessages(); })
+        .doc("Remove all previously scheduled messages. "
+             "**This function is deprecated and will be removed in a future "
+             "version. Please use e_clearMessages instead!**");
+}
+
 void HexagonGame::initLua()
 {
     // TODO: cleanup/refactor
@@ -1380,6 +1447,7 @@ end
     initLua_WallCreation();
     initLua_Steam();
     initLua_CustomWalls();
+    initLua_Deprecated();
 
     // TODO: refactor doc stuff and have a command line option to print this:
 #if 0
