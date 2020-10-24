@@ -181,6 +181,7 @@ private:
     void initLua_WallCreation();
     void initLua_Steam();
     void initLua_CustomWalls();
+    void initLua_Deprecated();
 
     void initLua();
     void runLuaFile(const std::string& mFileName)
