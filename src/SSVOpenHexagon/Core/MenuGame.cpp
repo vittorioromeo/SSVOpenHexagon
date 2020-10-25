@@ -1111,6 +1111,11 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
+    mLua.writeVariable("l_getPulseMin", [] { return levelStatus.pulseMin; });
+    mLua.writeVariable("l_getPulseMax", [] { return levelStatus.pulseMax; });
+    mLua.writeVariable("l_getPulseSpeed", [] { return levelStatus.pulseSpeed; });
+    mLua.writeVariable("l_getPulseSpeedR", [] { return levelStatus.pulseSpeedR; });
+
     mLua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
 
@@ -1200,7 +1205,10 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "w_wallHModCurveData",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-            "cw_isOverlappingPlayer", "cw_clear", "steam_unlockAchievement"})
+            "cw_isOverlappingPlayer", "cw_clear", "steam_unlockAchievement",
+
+            "m_messageAdd", "m_messageAddImportant",
+            "m_messageAddImportantSilent", "m_clearMessages"})
     {
         mLua.writeVariable(un, [] {});
     }

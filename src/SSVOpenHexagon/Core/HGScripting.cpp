@@ -1276,13 +1276,17 @@ void HexagonGame::initLua_CustomWalls()
         .doc("Remove all existing custom walls.");
 }
 
-// These are all deprecated functions that are only being kept for the sake of lessening the impact
-// of incompatibility. Pack Developers have time to change to the new functions before they get
-// removed permanently
+// These are all deprecated functions that are only being kept for the sake of
+// lessening the impact of incompatibility. Pack Developers have time to change
+// to the new functions before they get removed permanently
 void HexagonGame::initLua_Deprecated()
 {
     addLuaFn("m_messageAdd", //
         [this](const std::string& mMsg, double mDuration) {
+            raiseWarning("m_messageAdd",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_messageAdd\" in your level files and common.lua.");
             eventTimeline.append_do([=, this] {
                 if(firstPlay && Config::getShowMessages())
                 {
@@ -1301,6 +1305,11 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn("m_messageAddImportant", //
         [this](const std::string& mMsg, double mDuration) {
+            raiseWarning("m_messageAddImportant",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_messageAddImportant\" in your level files and "
+                "common.lua.");
             eventTimeline.append_do([=, this] {
                 if(Config::getShowMessages())
                 {
@@ -1319,6 +1328,10 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn("m_messageAddImportantSilent",
         [this](const std::string& mMsg, double mDuration) {
+            raiseWarning("m_messageAddImportantSilent",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_messageAddImportantSilent\" in your level files.");
             eventTimeline.append_do([=, this] {
                 if(Config::getShowMessages())
                 {
@@ -1336,10 +1349,17 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_messageAddImportantSilent instead!**");
 
     addLuaFn("m_clearMessages", //
-        [this] { clearMessages(); })
-        .doc("Remove all previously scheduled messages. "
-             "**This function is deprecated and will be removed in a future "
-             "version. Please use e_clearMessages instead!**");
+        [this] {
+            raiseWarning("m_clearMessages",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_clearMessages\" in your level files.");
+            clearMessages();
+        })
+        .doc(
+            "Remove all previously scheduled messages. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_clearMessages instead!**");
 }
 
 void HexagonGame::initLua()
