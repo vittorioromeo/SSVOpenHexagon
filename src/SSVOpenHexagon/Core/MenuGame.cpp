@@ -1111,10 +1111,10 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
-    mLua.writeVariable("l_getPulseMin", [] { return levelStatus.pulseMin; });
-    mLua.writeVariable("l_getPulseMax", [] { return levelStatus.pulseMax; });
-    mLua.writeVariable("l_getPulseSpeed", [] { return levelStatus.pulseSpeed; });
-    mLua.writeVariable("l_getPulseSpeedR", [] { return levelStatus.pulseSpeedR; });
+    mLua.writeVariable("l_getPulseMin", [this] { return levelStatus.pulseMin; });
+    mLua.writeVariable("l_getPulseMax", [this] { return levelStatus.pulseMax; });
+    mLua.writeVariable("l_getPulseSpeed", [this] { return levelStatus.pulseSpeed; });
+    mLua.writeVariable("l_getPulseSpeedR", [this] { return levelStatus.pulseSpeedR; });
 
     mLua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
