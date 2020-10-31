@@ -112,6 +112,14 @@ KeyCode = {
 -- Additional functions that help simplify certain calculations, including complex mathematical calculations
 -- Ordered alphabetically
 
+-- Checks to see if the current version of the game is equal to or greater than the version specified
+-- Useful if you are developing a level in a beta branch or GitHub build.
+function atRequiredVersion(mMinimumMajor, mMinimumMinor, mMinimumMicro)
+	return u_getVersionMajor() >= mMinimumMajor and 
+			u_getVersionMinor() >= mMinimumMinor and 
+			u_getVersionMicro() >= mMinimumMicro;
+end
+
 -- Converts Beats Per Minute (BPM) into period in Frames Per Beat (FPB)
 function BPMtoFPB(bpm)
 	return (FPS * 60)/bpm;
