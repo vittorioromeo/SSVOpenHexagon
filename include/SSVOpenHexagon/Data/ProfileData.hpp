@@ -9,6 +9,7 @@
 
 namespace hg
 {
+
 class ProfileData
 {
 private:
@@ -26,22 +27,23 @@ public:
     {
     }
 
-    [[nodiscard]] constexpr GameVersion getVersion() const
+    [[nodiscard]] constexpr GameVersion getVersion() const noexcept
     {
         return version;
     }
 
-    [[nodiscard]] const std::string& getName() const
+    [[nodiscard]] const std::string& getName() const noexcept
     {
         return name;
     }
 
-    [[nodiscard]] const ssvuj::Obj& getScores() const
+    [[nodiscard]] const ssvuj::Obj& getScores() const noexcept
     {
         return scores;
     }
 
-    [[nodiscard]] const std::vector<std::string>& getTrackedNames() const
+    [[nodiscard]] const std::vector<std::string>&
+    getTrackedNames() const noexcept
     {
         return trackedNames;
     }

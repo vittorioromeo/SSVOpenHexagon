@@ -6,30 +6,33 @@
 
 #include <tuple>
 
-namespace hg 
+namespace hg
 {
-	// Allow us to represent the game's version in a major.minor.micro format
-	struct GameVersion
-	{
-		int major;
-		int minor;
-		int micro;
 
-		auto operator<(const GameVersion& rhs) const 
-		{
-			return std::tie(major, minor, micro) < std::tie(rhs.major, rhs.minor, rhs.micro);
-		}
-		
-		auto operator>(const GameVersion& rhs) const 
-		{
-			return std::tie(major, minor, micro) > std::tie(rhs.major, rhs.minor, rhs.micro);
-		}
-		
-		bool operator==(GameVersion other) const
-		{
-			return (major == other.major)  &&
-					(minor == other.minor) &&
-					(micro == other.micro);
-		}
-	};
-} // namespace hg;
+// Allow us to represent the game's version in a major.minor.micro format
+struct GameVersion
+{
+    int major;
+    int minor;
+    int micro;
+
+    constexpr bool operator<(const GameVersion& rhs) const noexcept
+    {
+        return std::tie(major, minor, micro) <
+               std::tie(rhs.major, rhs.minor, rhs.micro);
+    }
+
+    constexpr bool operator>(const GameVersion& rhs) const noexcept
+    {
+        return std::tie(major, minor, micro) >
+               std::tie(rhs.major, rhs.minor, rhs.micro);
+    }
+
+    constexpr bool operator==(GameVersion other) const noexcept
+    {
+        return (major == other.major) && (minor == other.minor) &&
+               (micro == other.micro);
+    }
+};
+
+} // namespace hg
