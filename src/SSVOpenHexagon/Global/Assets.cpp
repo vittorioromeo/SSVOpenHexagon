@@ -327,11 +327,11 @@ void HGAssets::saveCurrentLocalProfile()
     }
 
     ssvuj::Obj profileRoot;
-	ssvuj::Obj currentVersion;
-	
-	ssvuj::arch(currentVersion, "major", Config::GAME_VERSION.major);
-	ssvuj::arch(currentVersion, "minor", Config::GAME_VERSION.minor);
-	ssvuj::arch(currentVersion, "micro", Config::GAME_VERSION.micro);
+    ssvuj::Obj currentVersion;
+
+    ssvuj::arch(currentVersion, "major", Config::GAME_VERSION.major);
+    ssvuj::arch(currentVersion, "minor", Config::GAME_VERSION.minor);
+    ssvuj::arch(currentVersion, "micro", Config::GAME_VERSION.micro);
 
     ssvuj::arch(profileRoot, "version", currentVersion);
     ssvuj::arch(profileRoot, "name", getCurrentLocalProfile().getName());

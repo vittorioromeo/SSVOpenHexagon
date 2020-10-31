@@ -21,7 +21,8 @@ class Trigger;
 
 namespace hg::Config
 {
-constexpr GameVersion GAME_VERSION{2, 0, 3};
+
+inline constexpr GameVersion GAME_VERSION{2, 0, 3};
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
 void resetConfigToDefaults();
@@ -110,11 +111,12 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] bool getShowMessages();
 [[nodiscard]] bool getRotateToStart();
 
-[[nodiscard, gnu::const]] constexpr GameVersion getVersion()
+[[nodiscard, gnu::const]] inline constexpr GameVersion getVersion()
 {
     return GAME_VERSION;
 }
-[[nodiscard, gnu::const]] const std::string& getVersionString();
+
+[[nodiscard]] const std::string& getVersionString();
 
 [[nodiscard]] bool getDebug();
 [[nodiscard]] bool getPulse();

@@ -707,13 +707,11 @@ void setSaveLocalBestReplayToFile(bool mX)
     return fullscreen();
 }
 
-[[nodiscard, gnu::const]] const std::string& getVersionString()
+[[nodiscard]] const std::string& getVersionString()
 {
-    static std::string result{
-        std::to_string(GAME_VERSION.major) + "." +
-        std::to_string(GAME_VERSION.minor) + "." +
-        std::to_string(GAME_VERSION.micro)
-    };
+    static std::string result{std::to_string(GAME_VERSION.major) + "." +
+                              std::to_string(GAME_VERSION.minor) + "." +
+                              std::to_string(GAME_VERSION.micro)};
 
     return result;
 }
