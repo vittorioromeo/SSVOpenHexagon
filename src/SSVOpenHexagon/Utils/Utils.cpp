@@ -41,12 +41,26 @@ MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
     return result;
 }
 
+GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot)
+{
+    return {
+		ssvuj::getExtr<int>(mRoot, "major"), 
+		ssvuj::getExtr<int>(mRoot, "minor"),
+		ssvuj::getExtr<int>(mRoot, "micro")
+    };
+}
+
 ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
 {
-    return {ssvuj::getExtr<float>(mRoot, "version"),
-        ssvuj::getExtr<std::string>(mRoot, "name"),
-        ssvuj::getObj(mRoot, "scores"),
-        ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {})};
+	GameVersion version{-1, 0, 0};
+	if (ssvuj::isObj("version"))
+	{
+		version = loadVersionFromJson(ssvuj::getObj(mRoot, "version"));
+	}
+	return {version,
+		ssvuj::getExtr<std::string>(mRoot, "name"),
+		ssvuj::getObj(mRoot, "scores"),
+		ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {})};
 }
 
 std::string getLocalValidator(const std::string& mId, float mDifficultyMult)

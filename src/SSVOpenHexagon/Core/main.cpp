@@ -74,8 +74,8 @@ ParsedArgs parseArgs(int argc, char* argv[])
 
 std::string makeWindowTitle()
 {
-    return "Open Hexagon " + std::string{hg::Config::getVersionString()} +
-           " - by vittorio romeo - http://vittorioromeo.info";
+    return "Open Hexagon " + hg::Config::getVersionString() +
+           " - by Vittorio Romeo - https://vittorioromeo.info";
 }
 
 std::optional<std::string> getFirstReplayFilenameFromArgs(
