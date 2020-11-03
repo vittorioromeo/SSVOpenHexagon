@@ -1281,6 +1281,36 @@ void HexagonGame::initLua_CustomWalls()
 // to the new functions before they get removed permanently
 void HexagonGame::initLua_Deprecated()
 {
+    addLuaFn("u_playSound", //
+        [this](const std::string& mId) {
+            raiseWarning("u_playSound",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"a_playSound\" in your level files.");
+            assets.playSound(mId);
+        })
+        .arg("soundId")
+        .doc(
+            "Play the sound with id `$0`. The id must be registered in "
+            "`assets.json`, under `\"soundBuffers\"`. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use a_playSound instead!**");
+
+    addLuaFn("u_playPackSound", //
+        [this](const std::string& fileName) {
+            raiseWarning("u_playPackSound",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"a_playPackSound\" in your level files.");
+            assets.playPackSound(getPackId(), fileName);
+        })
+        .arg("fileName")
+        .doc(
+            "Dives into the `Sounds` folder of the current level pack and "
+            "plays the specified file `$0`. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use a_playPackSound instead!**");
+
     addLuaFn("m_messageAdd", //
         [this](const std::string& mMsg, double mDuration) {
             raiseWarning("m_messageAdd",
