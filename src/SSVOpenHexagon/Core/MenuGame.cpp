@@ -1111,6 +1111,11 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     mLua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
+    mLua.writeVariable("l_getPulseMin", [this] { return levelStatus.pulseMin; });
+    mLua.writeVariable("l_getPulseMax", [this] { return levelStatus.pulseMax; });
+    mLua.writeVariable("l_getPulseSpeed", [this] { return levelStatus.pulseSpeed; });
+    mLua.writeVariable("l_getPulseSpeedR", [this] { return levelStatus.pulseSpeedR; });
+
     mLua.writeVariable(
         "u_getVersionMajor", [this] { return Config::getVersion().major; });
     mLua.writeVariable(
@@ -1154,7 +1159,21 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
     // Unused functions
     for(const auto& un :
-        {"l_setSpeedMult", "l_setPlayerSpeedMult", "l_setSpeedInc",
+        {"u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
+            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+            "u_haltTime", "u_timelineWait", "u_clearWalls",
+
+            "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
+            "a_playSound", "a_playPackSound",
+
+            "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
+
+            "e_eval", "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
+            "e_eventWaitS", "e_eventWaitUntilS", "e_messageAdd",
+            "e_messageAddImportant", "e_messageAddImportantSilent",
+            "e_clearMessages",
+
+            "l_setSpeedMult", "l_setPlayerSpeedMult", "l_setSpeedInc",
             "l_setSpeedMax", "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin",
             "l_setDelayMax", "l_getDelayMax", "l_setRotationSpeedMax",
             "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
@@ -1175,23 +1194,6 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
             "l_getSwapCooldownMult", "l_setSwapCooldownMult",
 
-            "u_playSound", "u_isKeyPressed", "u_isMouseButtonPressed",
-            "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
-            "u_kill", "u_eventKill", "u_haltTime", "u_timelineWait",
-            "u_clearWalls", "u_setMusic", "u_setMusicSegment",
-            "u_setMusicSeconds",
-
-            "m_messageAdd", "m_messageAddImportant",
-            "m_messageAddImportantSilent", "m_clearMessages",
-
-            "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
-
-            "e_eval", "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS",
-
-            "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
-            "w_wallHModCurveData",
-
             "s_getCameraShake", "s_setCameraShake", "s_setStyle", "s_getHueMin",
             "s_setHueMin", "s_getHueMax", "s_setHueMax", "s_getPulseMin",
             "s_setPulseMin", "s_getPulseMax", "s_setPulseMax", "s_getPulseInc",
@@ -1207,11 +1209,15 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "s_setCapColorMainDarkened", "s_setCapColorByIndex",
             "s_setBGColorOffset", "s_getBGColorOffset", "s_setBGTileRadius",
             "s_getBGTileRadius", "s_setBGRotOff", "s_getBGRotOff",
-            "steam_unlockAchievement",
+
+            "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
+            "w_wallHModCurveData",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
+            "cw_isOverlappingPlayer", "cw_clear", "steam_unlockAchievement",
 
-            "cw_isOverlappingPlayer", "cw_clear"})
+            "m_messageAdd", "m_messageAddImportant",
+            "m_messageAddImportantSilent", "m_clearMessages"})
     {
         mLua.writeVariable(un, [] {});
     }

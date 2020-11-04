@@ -10,7 +10,7 @@ achievementUnlocked = false
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	m_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
+	e_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -50,8 +50,8 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-	u_playSound("beep.ogg")
-	u_playSound("VeeEndurance_test.ogg")
+	a_playSound("beep.ogg")
+	a_playSound("VeeEndurance_test.ogg")
 
 	extra = extra + 1
 	level = extra + 1
@@ -65,7 +65,7 @@ function onIncrement()
 	l_setSides(l_getSides() + 2)
 	l_setIncTime(incrementTime)
 
-	m_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
+	e_messageAddImportant("level: "..(extra + 1).." / time: "..incrementTime, 170)
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted

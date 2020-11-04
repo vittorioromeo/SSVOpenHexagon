@@ -26,7 +26,7 @@ private:
     std::array<std::vector<FnEntry>, NUM_CATEGORIES> fnEntries;
     constexpr static std::array<std::string_view, NUM_CATEGORIES>
         prefixCategories = {
-            "u_", "m_", "t_", "e_", "l_", "s_", "w_", "cw_", "Miscellaneous"};
+            "u_", "a_", "t_", "e_", "l_", "s_", "w_", "cw_", "Miscellaneous"};
 
     [[nodiscard]] std::size_t getCategoryIndexFromName(
         const std::string_view fnName)
@@ -62,24 +62,21 @@ public:
             "beneficial to pack developers, or help simplify complex "
             "calculations.",
 
-            "## Message Functions (m_)\n\n"
+            "## Audio Functions (a_)\n\n"
 
-            "Below are the message functions, which can be identified with the "
-            "\"m_\" prefix. These functions are capable "
-            "of displaying custom messages on the screen which can help pack "
-            "developers communicate additional info or "
-            "anything else useful (e.g Song Lyrics) to the players. For "
-            "keeping track of statistics, please look at "
-            "`l_addTracked`.",
+            "Below are the audio functions, which can be identified with the "
+            "\"a_\" prefix. This library is capable of controlling everything "
+            "audio with the game, including the level music and sounds. Set "
+            "the music, play a specific sound, all of this is in the domain of "
+            "this prefix.",
 
             "## Main Timeline Functions (t_)\n\n"
 
             "Below are the main timeline functions, which can be identified "
-            "with the \"t_\" prefix. These are functions "
-            "that have effects on the main timeline itself, but they mainly "
-            "consist of waiting functions. Using these "
-            "functions helps time out your patterns and space them in the "
-            "first place.",
+            "with the \"t_\" prefix. These are functions that have effects on "
+            "the main timeline itself, but they mainly consist of waiting "
+            "functions. Using these functions helps time out your patterns and "
+            "space them in the first place.",
 
             "## Event Timeline Functions (e_)\n\n"
 
@@ -88,8 +85,8 @@ public:
             "that are similar to the Main Timeline functions, but they instead "
             "are for the event timeline as opposed to "
             "the main timeline. Use these functions to help set up basic "
-            "events for the game. More advanced events must "
-            "be done with pure Lua.",
+            "events for the game, such as handling messages. Use ``e_eval`` to "
+            "do more advanced events.",
 
             "## Level Functions (l_)\n\n"
 
