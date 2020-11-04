@@ -8,6 +8,7 @@
 #include "steam/steam_api.h"
 
 #include <functional>
+#include <string>
 #include <string_view>
 #include <unordered_set>
 

@@ -175,6 +175,22 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
+
+    addLuaFn("u_getVersionMajor", //
+        [this] { return Config::getVersion().major; })
+        .doc("Returns the major of the current version of the game");
+
+    addLuaFn("u_getVersionMinor", //
+        [this] { return Config::getVersion().minor; })
+        .doc("Returns the minor of the current version of the game");
+
+    addLuaFn("u_getVersionMicro", //
+        [this] { return Config::getVersion().micro; })
+        .doc("Returns the micro of the current version of the game");
+
+    addLuaFn("u_getVersionString", //
+        [this] { return Config::getVersionString(); })
+        .doc("Returns the string representing the current version of the game");
 }
 
 void HexagonGame::initLua_AudioControl()

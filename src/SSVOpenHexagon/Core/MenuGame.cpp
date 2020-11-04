@@ -1116,6 +1116,15 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
     mLua.writeVariable("l_getPulseSpeed", [this] { return levelStatus.pulseSpeed; });
     mLua.writeVariable("l_getPulseSpeedR", [this] { return levelStatus.pulseSpeedR; });
 
+    mLua.writeVariable(
+        "u_getVersionMajor", [this] { return Config::getVersion().major; });
+    mLua.writeVariable(
+        "u_getVersionMinor", [this] { return Config::getVersion().minor; });
+    mLua.writeVariable(
+        "u_getVersionMicro", [this] { return Config::getVersion().micro; });
+    mLua.writeVariable(
+        "u_getVersionString", [this] { return Config::getVersionString(); });
+
     mLua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
 

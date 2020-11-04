@@ -4,20 +4,22 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 namespace hg
 {
+
 class ProfileData
 {
 private:
-    float version;
+    GameVersion version;
     std::string name;
     ssvuj::Obj scores;
     std::vector<std::string> trackedNames;
 
 public:
-    ProfileData(float mVersion, const std::string& mName,
+    ProfileData(const GameVersion mVersion, const std::string& mName,
         const ssvuj::Obj& mScores,
         const std::vector<std::string>& mTrackedNames)
         : version{mVersion}, name{mName}, scores{mScores}, trackedNames{
@@ -25,22 +27,23 @@ public:
     {
     }
 
-    [[nodiscard]] float getVersion() const
+    [[nodiscard]] constexpr GameVersion getVersion() const noexcept
     {
         return version;
     }
 
-    [[nodiscard]] const std::string& getName() const
+    [[nodiscard]] const std::string& getName() const noexcept
     {
         return name;
     }
 
-    [[nodiscard]] const ssvuj::Obj& getScores() const
+    [[nodiscard]] const ssvuj::Obj& getScores() const noexcept
     {
         return scores;
     }
 
-    [[nodiscard]] const std::vector<std::string>& getTrackedNames() const
+    [[nodiscard]] const std::vector<std::string>&
+    getTrackedNames() const noexcept
     {
         return trackedNames;
     }
