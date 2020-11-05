@@ -86,59 +86,6 @@ void HexagonGame::initLua_Utils()
         .arg("scriptFilename")
         .doc("Execute the script located at `<pack>/Scripts/$0`.");
 
-    addLuaFn("u_playSound", //
-        [this](const std::string& mId) { assets.playSound(mId); })
-        .arg("soundId")
-        .doc(
-            "Play the sound with id `$0`. The id must be registered in "
-            "`assets.json`, under `\"soundBuffers\"`.");
-
-    addLuaFn("u_playPackSound", //
-        [this](const std::string& fileName) {
-            assets.playPackSound(getPackId(), fileName);
-        })
-        .arg("fileName")
-        .doc(
-            "Dives into the `Sounds` folder of the current level pack and "
-            "plays the specified file `$0`.");
-
-    addLuaFn("u_setMusic", //
-        [this](const std::string& mId) {
-            musicData = assets.getMusicData(levelData->packId, mId);
-            musicData.firstPlay = true;
-            stopLevelMusic();
-            playLevelMusic();
-        })
-        .arg("musicId")
-        .doc(
-            "Stop the current music and play the music with id `$0`. The id is "
-            "defined in the music `.json` file, under `\"id\"`.");
-
-    addLuaFn("u_setMusicSegment", //
-        [this](const std::string& mId, int segment) {
-            musicData = assets.getMusicData(levelData->packId, mId);
-            stopLevelMusic();
-            playLevelMusicAtTime(musicData.getSegment(segment).time);
-        })
-        .arg("musicId")
-        .arg("segment")
-        .doc(
-            "Stop the current music and play the music with id `$0`, starting "
-            "at segment `$1`. Segments are defined in the music `.json` file, "
-            "under `\"segments\"`.");
-
-    addLuaFn("u_setMusicSeconds", //
-        [this](const std::string& mId, float mTime) {
-            musicData = assets.getMusicData(levelData->packId, mId);
-            stopLevelMusic();
-            playLevelMusicAtTime(mTime);
-        })
-        .arg("musicId")
-        .arg("time")
-        .doc(
-            "Stop the current music and play the music with id `$0`, starting "
-            "at time `$1` (in seconds).");
-
     addLuaFn("u_isKeyPressed",
         [this](int mKey) { return window.getInputState()[KKey(mKey)]; })
         .arg("keyCode")
@@ -154,13 +101,16 @@ void HexagonGame::initLua_Utils()
         .arg("duration")
         .doc("Pause the game timer for `$0` seconds.");
 
-    addLuaFn("u_timelineWait",
-        [this](
-            double mDuration) { timeline.append_wait_for_sixths(mDuration); })
-        .arg("duration")
-        .doc(
-            "*Add to the main timeline*: wait for `$0` frames (under the "
-            "assumption of a 60 FPS frame rate).");
+    // Redundant function. Refer to t_wait
+
+    // addLuaFn("u_timelineWait",
+    //     [this](
+    //         double mDuration) { timeline.append_wait_for_sixths(mDuration);
+    //         })
+    //     .arg("duration")
+    //     .doc(
+    //         "*Add to the main timeline*: wait for `$0` frames (under the "
+    //         "assumption of a 60 FPS frame rate).");
 
     addLuaFn("u_clearWalls", //
         [this] { walls.clear(); })
@@ -225,63 +175,78 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
             "`true`, the swap sound will be played.");
+
+    addLuaFn("u_getVersionMajor", //
+        [this] { return Config::getVersion().major; })
+        .doc("Returns the major of the current version of the game");
+
+    addLuaFn("u_getVersionMinor", //
+        [this] { return Config::getVersion().minor; })
+        .doc("Returns the minor of the current version of the game");
+
+    addLuaFn("u_getVersionMicro", //
+        [this] { return Config::getVersion().micro; })
+        .doc("Returns the micro of the current version of the game");
+
+    addLuaFn("u_getVersionString", //
+        [this] { return Config::getVersionString(); })
+        .doc("Returns the string representing the current version of the game");
 }
 
-void HexagonGame::initLua_Messages()
+void HexagonGame::initLua_AudioControl()
 {
-    addLuaFn("m_messageAdd", //
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(firstPlay && Config::getShowMessages())
-                {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                }
-            });
+    addLuaFn("a_setMusic", //
+        [this](const std::string& mId) {
+            musicData = assets.getMusicData(levelData->packId, mId);
+            musicData.firstPlay = true;
+            stopLevelMusic();
+            playLevelMusic();
         })
-        .arg("message")
-        .arg("duration")
+        .arg("musicId")
         .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will only be printed during the first "
-            "run of the level.");
+            "Stop the current music and play the music with id `$0`. The id is "
+            "defined in the music `.json` file, under `\"id\"`.");
 
-    addLuaFn("m_messageAddImportant", //
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(Config::getShowMessages())
-                {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                }
-            });
+    addLuaFn("a_setMusicSegment", //
+        [this](const std::string& mId, int segment) {
+            musicData = assets.getMusicData(levelData->packId, mId);
+            stopLevelMusic();
+            playLevelMusicAtTime(musicData.getSegment(segment).time);
         })
-        .arg("message")
-        .arg("duration")
+        .arg("musicId")
+        .arg("segment")
         .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will be printed during every run of the "
-            "level.");
+            "Stop the current music and play the music with id `$0`, starting "
+            "at segment `$1`. Segments are defined in the music `.json` file, "
+            "under `\"segments\"`.");
 
-
-    addLuaFn("m_messageAddImportantSilent",
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(Config::getShowMessages())
-                {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
-                }
-            });
+    addLuaFn("a_setMusicSeconds", //
+        [this](const std::string& mId, float mTime) {
+            musicData = assets.getMusicData(levelData->packId, mId);
+            stopLevelMusic();
+            playLevelMusicAtTime(mTime);
         })
-        .arg("message")
-        .arg("duration")
+        .arg("musicId")
+        .arg("time")
         .doc(
-            "*Add to the event timeline*: print a message with text `$0` for "
-            "`$1` seconds. The message will only be printed during every "
-            "run of the level, and will not produce any sound.");
+            "Stop the current music and play the music with id `$0`, starting "
+            "at time `$1` (in seconds).");
 
+    addLuaFn("a_playSound", //
+        [this](const std::string& mId) { assets.playSound(mId); })
+        .arg("soundId")
+        .doc(
+            "Play the sound with id `$0`. The id must be registered in "
+            "`assets.json`, under `\"soundBuffers\"`.");
 
-    addLuaFn("m_clearMessages", //
-        [this] { clearMessages(); })
-        .doc("Remove all previously scheduled messages.");
+    addLuaFn("a_playPackSound", //
+        [this](const std::string& fileName) {
+            assets.playPackSound(getPackId(), fileName);
+        })
+        .arg("fileName")
+        .doc(
+            "Dives into the `Sounds` folder of the current level pack and "
+            "plays the specified file `$0`.");
 }
 
 void HexagonGame::initLua_MainTimeline()
@@ -386,6 +351,58 @@ void HexagonGame::initLua_EventTimeline()
         .doc(
             "*Add to the event timeline*: wait until the timer reaches `$0` "
             "seconds.");
+
+    addLuaFn("e_messageAdd", //
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(firstPlay && Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during the first "
+            "run of the level.");
+
+    addLuaFn("e_messageAddImportant", //
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will be printed during every run of the "
+            "level.");
+
+    addLuaFn("e_messageAddImportantSilent",
+        [this](const std::string& mMsg, double mDuration) {
+            eventTimeline.append_do([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during every "
+            "run of the level, and will not produce any sound.");
+
+    addLuaFn("e_clearMessages", //
+        [this] { clearMessages(); })
+        .doc("Remove all previously scheduled messages.");
 }
 
 void HexagonGame::initLua_LevelControl()
@@ -1275,6 +1292,122 @@ void HexagonGame::initLua_CustomWalls()
         .doc("Remove all existing custom walls.");
 }
 
+// These are all deprecated functions that are only being kept for the sake of
+// lessening the impact of incompatibility. Pack Developers have time to change
+// to the new functions before they get removed permanently
+void HexagonGame::initLua_Deprecated()
+{
+    addLuaFn("u_playSound", //
+        [this](const std::string& mId) {
+            raiseWarning("u_playSound",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"a_playSound\" in your level files.");
+            assets.playSound(mId);
+        })
+        .arg("soundId")
+        .doc(
+            "Play the sound with id `$0`. The id must be registered in "
+            "`assets.json`, under `\"soundBuffers\"`. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use a_playSound instead!**");
+
+    addLuaFn("u_playPackSound", //
+        [this](const std::string& fileName) {
+            raiseWarning("u_playPackSound",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"a_playPackSound\" in your level files.");
+            assets.playPackSound(getPackId(), fileName);
+        })
+        .arg("fileName")
+        .doc(
+            "Dives into the `Sounds` folder of the current level pack and "
+            "plays the specified file `$0`. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use a_playPackSound instead!**");
+
+    addLuaFn("m_messageAdd", //
+        [this](const std::string& mMsg, double mDuration) {
+            raiseWarning("m_messageAdd",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_messageAdd\" in your level files and common.lua.");
+            eventTimeline.append_do([=, this] {
+                if(firstPlay && Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during the first "
+            "run of the level. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_messageAdd instead!**");
+
+    addLuaFn("m_messageAddImportant", //
+        [this](const std::string& mMsg, double mDuration) {
+            raiseWarning("m_messageAddImportant",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_messageAddImportant\" in your level files and "
+                "common.lua.");
+            eventTimeline.append_do([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will be printed during every run of the "
+            "level. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_messageAddImportant instead!**");
+
+    addLuaFn("m_messageAddImportantSilent",
+        [this](const std::string& mMsg, double mDuration) {
+            raiseWarning("m_messageAddImportantSilent",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_messageAddImportantSilent\" in your level files.");
+            eventTimeline.append_do([=, this] {
+                if(Config::getShowMessages())
+                {
+                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
+                }
+            });
+        })
+        .arg("message")
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: print a message with text `$0` for "
+            "`$1` seconds. The message will only be printed during every "
+            "run of the level, and will not produce any sound. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_messageAddImportantSilent instead!**");
+
+    addLuaFn("m_clearMessages", //
+        [this] {
+            raiseWarning("m_clearMessages",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_clearMessages\" in your level files.");
+            clearMessages();
+        })
+        .doc(
+            "Remove all previously scheduled messages. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_clearMessages instead!**");
+}
+
 void HexagonGame::initLua()
 {
     // TODO: cleanup/refactor
@@ -1372,7 +1505,7 @@ end
     destroyMaliciousFunctions();
 
     initLua_Utils();
-    initLua_Messages();
+    initLua_AudioControl();
     initLua_MainTimeline();
     initLua_EventTimeline();
     initLua_LevelControl();
@@ -1380,6 +1513,7 @@ end
     initLua_WallCreation();
     initLua_Steam();
     initLua_CustomWalls();
+    initLua_Deprecated();
 
     // TODO: refactor doc stuff and have a command line option to print this:
 #if 0

@@ -54,8 +54,8 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	m_messageAdd("tutorials are over", 130)
-	m_messageAdd("good luck getting high scores!", 130)
+	e_messageAdd("tutorials are over", 130)
+	e_messageAdd("good luck getting high scores!", 130)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

@@ -38,21 +38,21 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	m_messageAddImportant("welcome to open hexagon 2", 130)
-	m_messageAddImportant("use left/right to rotate", 130)
-	m_messageAddImportant("avoid the walls!", 130)
+	e_messageAddImportant("welcome to open hexagon 2", 130)
+	e_messageAddImportant("use left/right to rotate", 130)
+	e_messageAddImportant("avoid the walls!", 130)
 	e_eventStopTimeS(6)
 	e_eventWaitS(6)
 
 	e_eventWaitUntilS(10)
 	e_eventStopTimeS(5)
-	m_messageAddImportant("great job!", 130)
-	m_messageAddImportant("after a while, things get harder", 130)
-	m_messageAddImportant("get to 45 seconds to win!", 130)
+	e_messageAddImportant("great job!", 130)
+	e_messageAddImportant("after a while, things get harder", 130)
+	e_messageAddImportant("get to 45 seconds to win!", 130)
 
 	e_eventWaitUntilS(42)
-	m_messageAddImportant("well done!", 130)
-	m_messageAddImportant("now play some real levels!", 138)
+	e_messageAddImportant("well done!", 130)
+	e_messageAddImportant("now play some real levels!", 138)
 
 	e_eventWaitUntilS(44) -- not 45, to avoid level up
 	u_eventKill()

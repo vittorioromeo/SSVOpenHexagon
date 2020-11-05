@@ -56,7 +56,7 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	m_messageAddImportant("Sides ("..lowerBound.." / "..upperBound..")", 170)
+	e_messageAddImportant("Sides ("..lowerBound.." / "..upperBound..")", 170)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -76,7 +76,7 @@ end
 function onIncrement()
 	lowerBound = math.random(4, 6)
 	upperBound = lowerBound + math.random(1, 3)
-	m_messageAddImportant("Sides ("..lowerBound.." / "..upperBound..")", 170)
+	e_messageAddImportant("Sides ("..lowerBound.." / "..upperBound..")", 170)
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted

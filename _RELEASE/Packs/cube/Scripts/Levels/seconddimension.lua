@@ -63,13 +63,13 @@ end
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
 	if (u_getDifficultyMult() >= 2.2) then
-		m_messageAdd("Difficulty >= 2.2\nPentagon removed!", 120)
+		e_messageAdd("Difficulty >= 2.2\nPentagon removed!", 120)
 		l_setSidesMin(6)
 	end
 	e_eventWaitS(16)
-	m_messageAdd("whoa!", 120)
+	e_messageAdd("whoa!", 120)
 	e_eventWaitS(45)
-	m_messageAddImportant("may the mayhem begin!", 130)
+	e_messageAddImportant("may the mayhem begin!", 130)
 	s_setPulseInc(0.15)
 end
 
@@ -89,7 +89,7 @@ end
 function onIncrement()
 	enableSwapIfSpeedGEThan(4);
 	if (u_getSpeedMultDM() >= 4.5 and l_getSidesMin() == 5) then
-		m_messageAddImportant("Speed >= 4.5\nPentagon removed!", 120)
+		e_messageAddImportant("Speed >= 4.5\nPentagon removed!", 120)
 		if (l_getSides() == 5) then
 			l_setSides(6)
 		end

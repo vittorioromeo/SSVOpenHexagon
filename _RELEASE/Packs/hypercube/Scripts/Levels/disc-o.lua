@@ -92,7 +92,7 @@ function onIncrement()
 
 	if special == "none" then
 		special = specials[1]
-		m_messageAddImportant("Special: "..special, 120)
+		e_messageAddImportant("Special: "..special, 120)
 	else
 		special = "none"
 	end

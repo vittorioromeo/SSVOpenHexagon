@@ -262,6 +262,16 @@ void HexagonGame::updateText()
             os << status.replayInput;
         }
 
+        if(calledDeprecatedFunctions.size() > 1)
+        {
+            os << calledDeprecatedFunctions.size()
+               << " WARNINGS RAISED (CHECK CONSOLE)\n";
+        }
+        else if(calledDeprecatedFunctions.size() > 0)
+        {
+            os << "1 WARNING RAISED (CHECK CONSOLE)\n";
+        }
+
         const auto& trackedVariables(levelStatus.trackedVariables);
         if(Config::getShowTrackedVariables() && !trackedVariables.empty())
         {

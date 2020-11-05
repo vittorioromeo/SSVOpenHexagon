@@ -79,7 +79,7 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	m_messageAdd("remember, you can focus with lshift!", 150)
+	e_messageAdd("remember, you can focus with lshift!", 150)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -94,7 +94,7 @@ end
 function onIncrement()
 	level = level + 1
 	incrementTime = incrementTime + 5
-	m_messageAddImportant("level: "..(level).." / time: "..incrementTime, 150)
+	e_messageAddImportant("level: "..(level).." / time: "..incrementTime, 150)
 
 	if smax < 4 then
 		smax = smax + 1;
@@ -104,7 +104,7 @@ function onIncrement()
 	end
 
 	range = "("..(smin * 2).."/"..(smax * 2).."]"
-	m_messageAddImportant("Range: "..range, 100)
+	e_messageAddImportant("Range: "..range, 100)
 
 	l_setSides(l_getSides() + 2)
 	l_setIncTime(incrementTime)

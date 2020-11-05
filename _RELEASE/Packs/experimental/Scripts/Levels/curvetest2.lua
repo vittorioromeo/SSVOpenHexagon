@@ -36,7 +36,7 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	m_messageAdd("remember, swap with spacebar!", 120)
+	e_messageAdd("remember, swap with spacebar!", 120)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
