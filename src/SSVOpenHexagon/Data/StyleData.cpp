@@ -115,6 +115,8 @@ void StyleData::update(ssvu::FT mFT, float mMult)
 
 void StyleData::computeColors(const LevelStatus& levelStatus)
 {
+    (void)levelStatus;
+
     currentMainColor = calculateColor(mainColorData);
     currentPlayerColor = calculateColor(playerColor);
     currentTextColor = calculateColor(textColor);

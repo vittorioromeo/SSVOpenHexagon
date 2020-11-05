@@ -173,6 +173,8 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
 [[nodiscard]] bool CPlayer::push(
     HexagonGame& mHexagonGame, const CWall& wall, ssvu::FT mFT)
 {
+    (void)mFT;
+
     if(dead)
     {
         return false;
