@@ -280,6 +280,8 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 
 void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 {
+    (void)mFT;
+
     const bool customWallCollision =
         cwManager.anyCustomWall([&](const CCustomWall& customWall) {
             return customWall.isOverlapping(player.getPosition());

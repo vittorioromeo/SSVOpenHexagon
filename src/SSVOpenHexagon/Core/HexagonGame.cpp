@@ -377,6 +377,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
 
     lua = Lua::LuaContext{};
+    calledDeprecatedFunctions.clear();
     initLua();
     runLuaFile(levelData->luaScriptPath);
 
@@ -621,6 +622,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         assets.playSound("beep.ogg");
     }
 
+    calledDeprecatedFunctions.clear();
     fpsWatcher.disable();
 
     if(mSendScores && !status.hasDied && !mError)
@@ -638,6 +640,20 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     window.setGameState(mgPtr->getGame());
     mgPtr->returnToLevelSelection();
     mgPtr->init(mError);
+}
+
+void HexagonGame::raiseWarning(
+    const std::string& mFunctionName, const std::string& mAdditionalInfo)
+{
+    // Only raise the warning once to avoid redundancy
+    if(!calledDeprecatedFunctions.contains(mFunctionName))
+    {
+        calledDeprecatedFunctions.emplace(mFunctionName);
+        // Raise warning to the console
+        std::cout << "[Lua] WARNING: The function \"" << mFunctionName
+                  << "\" (used in level \"" << levelData->name
+                  << "\") is deprecated. " << mAdditionalInfo << std::endl;
+    }
 }
 
 void HexagonGame::addMessage(

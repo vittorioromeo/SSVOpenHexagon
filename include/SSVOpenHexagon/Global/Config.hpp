@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Version.hpp"
+
 #include <vector>
 #include <string>
 
@@ -19,6 +21,8 @@ class Trigger;
 
 namespace hg::Config
 {
+
+inline constexpr GameVersion GAME_VERSION{2, 0, 3};
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
 void resetConfigToDefaults();
@@ -96,8 +100,6 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] bool getVsync();
 [[nodiscard]] bool getAutoZoomFactor();
 [[nodiscard]] bool getFullscreen();
-[[nodiscard, gnu::const]] float getVersion();
-[[nodiscard, gnu::const]] const char* getVersionString();
 [[nodiscard]] bool getWindowedAutoResolution();
 [[nodiscard]] bool getFullscreenAutoResolution();
 [[nodiscard]] unsigned int getFullscreenWidth();
@@ -108,6 +110,13 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] unsigned int getHeight();
 [[nodiscard]] bool getShowMessages();
 [[nodiscard]] bool getRotateToStart();
+
+[[nodiscard, gnu::const]] inline constexpr GameVersion getVersion()
+{
+    return GAME_VERSION;
+}
+
+[[nodiscard]] const std::string& getVersionString();
 
 [[nodiscard]] bool getDebug();
 [[nodiscard]] bool getPulse();

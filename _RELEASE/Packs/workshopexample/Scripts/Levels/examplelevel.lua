@@ -56,8 +56,8 @@ end
 -- `onLoad` is an hardcoded function that is called when the level is started
 -- or restarted.
 function onLoad()
-	m_messageAdd("welcome to the example level", 130)
-	m_messageAdd("look at the level's files and edit them!", 150)
+	e_messageAdd("welcome to the example level", 130)
+	e_messageAdd("look at the level's files and edit them!", 150)
 end
 
 -- `onStep` is an hardcoded function that is called when the level "timeline"

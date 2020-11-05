@@ -40,6 +40,7 @@
 #include <SFML/Window.hpp>
 
 #include <sstream>
+#include <unordered_set>
 #include <optional>
 
 namespace hg
@@ -81,6 +82,7 @@ private:
     const sf::Vector2f centerPos{ssvs::zeroVec2f};
 
     Lua::LuaContext lua;
+    std::unordered_set<std::string> calledDeprecatedFunctions;
 
     LevelStatus levelStatus;
     MusicData musicData;
@@ -173,7 +175,7 @@ private:
     void redefineLuaFunctions();
     void destroyMaliciousFunctions();
     void initLua_Utils();
-    void initLua_Messages();
+    void initLua_AudioControl();
     void initLua_MainTimeline();
     void initLua_EventTimeline();
     void initLua_LevelControl();
@@ -181,6 +183,7 @@ private:
     void initLua_WallCreation();
     void initLua_Steam();
     void initLua_CustomWalls();
+    void initLua_Deprecated();
 
     void initLua();
     void runLuaFile(const std::string& mFileName)
@@ -247,6 +250,8 @@ public:
             Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};
     }
 
+    void raiseWarning(
+        const std::string& mFunctionName, const std::string& mAdditionalInfo);
     void setLastReplay(const replay_file& mReplayFile);
 
 private:

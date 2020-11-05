@@ -54,7 +54,7 @@ end
 function onIncrement()
 	if curveSpeed < 3 then
 		curveSpeed = curveSpeed + 0.4
-		m_messageAddImportant("Curve speed: "..curveSpeed, 120)
+		e_messageAddImportant("Curve speed: "..curveSpeed, 120)
 	end
 end
 
