@@ -14,6 +14,7 @@
 - Zly | [@zly_u](https://twitter.com/zly_u)
 - AlphaPromethium
 - Misa "Info Teddy" Elizabeth | [@Info__Teddy](https://twitter.com/Info__Teddy)
+- Ivory Duke
 
 ### Testing
 
