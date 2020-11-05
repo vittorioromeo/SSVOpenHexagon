@@ -3098,8 +3098,8 @@ void MenuGame::scrollName(std::string& text, float& scroller)
     text.erase(text.begin(), it);
     text += charsToMove;
 }
-inline void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
-    sf::Text& font, float& scroller, float border)
+inline void MenuGame::scrollNameRightBorder(std::string& text,
+    const std::string key, sf::Text& font, float& scroller, float border)
 {
     // Store length of the key
     font.setString(key);
@@ -3126,8 +3126,8 @@ inline void MenuGame::scrollNameRightBorder(std::string& text, const std::string
     }
     text = key + text;
 }
-inline void MenuGame::scrollNameRightBorder(std::string& text, sf::Text& font,
-    float& scroller, float border)
+inline void MenuGame::scrollNameRightBorder(
+    std::string& text, sf::Text& font, float& scroller, float border)
 {
     Utils::uppercasify(text);
     font.setString(text);
@@ -3491,8 +3491,8 @@ void MenuGame::drawLevelSelection(
     // Level name
 
     tempString = levelDataTemp->name;
-    scrollNameRightBorder(tempString, txtSelectionBig,
-        namesScroll[LEVEL_NAME], quadsIndent - 2.f * quadBorder);
+    scrollNameRightBorder(tempString, txtSelectionBig, namesScroll[LEVEL_NAME],
+        quadsIndent - 2.f * quadBorder);
     renderText(tempString, txtSelectionBig,
         {textYPos, height - txtBigHeight * FONT_TOP_BORDER});
 
@@ -3625,20 +3625,20 @@ void MenuGame::drawLevelSelection(
     menuQuads.reserve_more(8 * 5);
 
     // Favorite is not implemented yet so it is greyed out in the meantime
-    const Color grey = { 175, 175, 175, menuQuadColor.a };
+    const Color grey = {175, 175, 175, menuQuadColor.a};
 
     // Frame
-    createQuad(grey, LINE_THICKNESS - panelOffset, width,
-        height, height + LINE_THICKNESS);
-    createQuad(grey, -panelOffset, LINE_THICKNESS - panelOffset,
-        height, tempFloat);
+    createQuad(grey, LINE_THICKNESS - panelOffset, width, height,
+        height + LINE_THICKNESS);
+    createQuad(
+        grey, -panelOffset, LINE_THICKNESS - panelOffset, height, tempFloat);
     createQuad(grey, width, width, height, tempFloat);
     createQuad(grey, LINE_THICKNESS - panelOffset, width,
         tempFloat - LINE_THICKNESS, tempFloat);
     // Backdrop
-    createQuad({ 125, 125, 125, menuSelectionColor.a },
-        LINE_THICKNESS - panelOffset, width,
-        height + LINE_THICKNESS, tempFloat - LINE_THICKNESS);
+    createQuad({125, 125, 125, menuSelectionColor.a},
+        LINE_THICKNESS - panelOffset, width, height + LINE_THICKNESS,
+        tempFloat - LINE_THICKNESS);
 
     // Also renders all previous quads
     render(menuQuads);
