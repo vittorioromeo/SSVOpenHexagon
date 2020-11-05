@@ -287,9 +287,12 @@ private:
     };
     enum
     {
-        LEVEL,
-        PACK,
-        AUTHOR,
+        LEVEL_NAME,
+        PACK_NAME,
+        PACK_AUTHOR,
+        MUSIC_NAME,
+        MUSIC_AUTHOR,
+        MUSIC_ALBUM,
         SCROLLS_SIZE
     };
 
@@ -310,9 +313,11 @@ private:
     inline float getFrameSize();
     inline float getLevelListHeight();
     inline void calcLevelChangeScroll();
-    inline void scrollName(sf::Text& font, float& scroller, std::string& name);
-    inline void scrollNameRightBorder(
-        sf::Text& font, float& scroller, std::string& name, const float border);
+    inline void scrollName(std::string& text, float& scroller);
+    inline void scrollNameRightBorder(std::string& text, const std::string key,
+        sf::Text& font, float& scroller, float border);
+    inline void scrollNameRightBorder(std::string& text, sf::Text& font,
+        float& scroller, float border);
     inline void resetNamesScrolls();
     void drawLevelSelection(
         const unsigned int charSize, const bool revertOffset);
