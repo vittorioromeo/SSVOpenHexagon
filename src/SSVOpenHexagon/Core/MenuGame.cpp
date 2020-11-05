@@ -1173,6 +1173,8 @@ void MenuGame::returnToLevelSelection()
 {
     adjustLevelsOffset();
     levelSelectionXOffset = 0.f;
+    focusHeld = sf::Keyboard::isKeyPressed(KKey::LShift) ||
+                        sf::Keyboard::isKeyPressed(KKey::RShift) ? true : false;
     setIgnoreAllInputs(1); // otherwise you go back to the main menu
 }
 
