@@ -1260,7 +1260,11 @@ void MenuGame::upAction()
             calcLevelChangeScroll();
         }
 
-        namesScroll[LEVEL] = namesScroll[AUTHOR] = 0.f;
+        namesScroll[LEVEL_NAME] = 0.f;
+        for(int i = MUSIC_NAME; i < SCROLLS_SIZE; ++i)
+        {
+            namesScroll[i] = 0.f;
+        }
         assets.playSound("beep.ogg");
         touchDelay = 50.f;
         return;
@@ -1327,7 +1331,11 @@ void MenuGame::downAction()
             calcLevelChangeScroll();
         }
 
-        namesScroll[LEVEL] = namesScroll[AUTHOR] = 0.f;
+        namesScroll[LEVEL_NAME] = 0.f;
+        for(int i = MUSIC_NAME; i < SCROLLS_SIZE; ++i)
+        {
+            namesScroll[i] = 0.f;
+        }
         assets.playSound("beep.ogg");
         touchDelay = 50.f;
         return;
@@ -3077,30 +3085,64 @@ inline float MenuGame::getLevelListHeight()
 {
     return getLevelLabelHeight() * levelDataIds.size() + getFrameSize();
 }
-void MenuGame::scrollName(sf::Text& font, float& scroller, std::string& name)
+void MenuGame::scrollName(std::string& text, float& scroller)
 {
     // FPS consistent scrolling
     scroller += getFPSMult();
-    name += "  ";
+    text += "  ";
 
     auto it{std::next(
-        name.begin(), ssvu::getMod(toInt(scroller / 100.f), name.length()))};
+        text.begin(), ssvu::getMod(toInt(scroller / 100.f), text.length()))};
     std::string charsToMove;
-    std::move(name.begin(), it, std::back_inserter(charsToMove));
-    name.erase(name.begin(), it);
-    name += charsToMove;
-
-    font.setString(name);
+    std::move(text.begin(), it, std::back_inserter(charsToMove));
+    text.erase(text.begin(), it);
+    text += charsToMove;
 }
-inline void MenuGame::scrollNameRightBorder(
-    sf::Text& font, float& scroller, std::string& name, const float border)
+inline void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
+    sf::Text& font, float& scroller, float border)
 {
-    scrollName(font, scroller, name);
+    // Store length of the key
+    font.setString(key);
+    const float keyWidth = getGlobalWidth(font);
 
-    while(getGlobalWidth(font) > border && name.length() > 1)
+    Utils::uppercasify(text);
+    font.setString(text);
+
+    // If the text is already within border format and return
+    border -= keyWidth;
+    if(getGlobalWidth(font) <= border)
     {
-        name.pop_back();
-        font.setString(name);
+        text = key + text;
+        return;
+    }
+
+    // Scroll the name and shrink it to the required length
+    scrollName(text, scroller);
+    font.setString(text);
+    while(getGlobalWidth(font) > border && text.length() > 1)
+    {
+        text.pop_back();
+        font.setString(text);
+    }
+    text = key + text;
+}
+inline void MenuGame::scrollNameRightBorder(std::string& text, sf::Text& font,
+    float& scroller, float border)
+{
+    Utils::uppercasify(text);
+    font.setString(text);
+
+    if(getGlobalWidth(font) <= border)
+    {
+        return;
+    }
+
+    scrollName(text, scroller);
+    font.setString(text);
+    while(getGlobalWidth(font) > border && text.length() > 1)
+    {
+        text.pop_back();
+        font.setString(text);
     }
 }
 void MenuGame::resetNamesScrolls()
@@ -3426,51 +3468,45 @@ void MenuGame::drawLevelSelection(
                        (smallLeftInterline - txtSmallLeftHeight) -
                        txtSmallLeftHeight * FONT_TOP_BORDER},
         preLineSpace{txtMediumHeight / 2.f +
-                     txtSmallLeftHeight * (1.f + FONT_TOP_BORDER)};
+                     txtSmallLeftHeight * (1.f + FONT_TOP_BORDER)},
+        textYPos = quadBorder - panelOffset;
 
     quadsIndent = w * 0.33f;
     width = quadsIndent - panelOffset;
-
-    //-------------------------------------
-    // Backdrop
-
-    menuQuads.clear();
-    menuQuads.reserve(4);
-    createQuad(alphaTextColor, 0, width, 0, h);
-    render(menuQuads);
-    menuQuads.clear();
 
     levelDataTemp = &assets.getLevelData(levelDataIds.at(currentIndex));
     height = quadBorder;
 
     //-------------------------------------
+    // Backdrop - Right border
+
+    menuQuads.clear();
+    menuQuads.reserve(8);
+    createQuad(alphaTextColor, 0, width, 0, h);
+    createQuad(menuQuadColor, width, width + LINE_THICKNESS, 0, h);
+    render(menuQuads);
+    menuQuads.clear();
+
+    //-------------------------------------
     // Level name
 
     tempString = levelDataTemp->name;
-    Utils::uppercasify(tempString);
-    txtSelectionBig.setString(tempString);
+    scrollNameRightBorder(tempString, txtSelectionBig,
+        namesScroll[LEVEL_NAME], quadsIndent - 2.f * quadBorder);
+    renderText(tempString, txtSelectionBig,
+        {textYPos, height - txtBigHeight * FONT_TOP_BORDER});
 
-    tempFloat = quadsIndent - 2.f * quadBorder;
-    if(getGlobalWidth(txtSelectionBig) > tempFloat)
-    {
-        scrollNameRightBorder(
-            txtSelectionBig, namesScroll[LEVEL], tempString, tempFloat);
-    }
-
-    txtSelectionBig.setPosition(
-        {quadBorder - panelOffset, height - txtBigHeight * FONT_TOP_BORDER});
-    render(txtSelectionBig);
-
-    // Level description, interline cannot be trusted when drawing
+    //-------------------------------------
+    // Level description
+    // Interline cannot be trusted when drawing
     // multiple lines of text, so I have to break it into lines
     // and draw them with my defined interline
-    tempFloat = quadBorder - panelOffset;
     height += txtBigHeight + quadBorder - txtSmallHeight * 0.7f;
 
     tempString = levelDataTemp->description;
     Utils::uppercasify(tempString);
-    // Add endline for safety, if there is one more than needed it doesn't
-    // matter
+    // Add endline for safety, if there is one more than needed
+    // it doesn't matter
     tempString += "\n";
 
     i = 0;
@@ -3478,16 +3514,15 @@ void MenuGame::drawLevelSelection(
     while((j = tempString.find('\n')) != std::string::npos && i < 7)
     {
         renderText(
-            tempString.substr(0, j), txtSelectionSmall, {tempFloat, height});
+            tempString.substr(0, j), txtSelectionSmall, {textYPos, height});
         tempString.erase(0, j);
 
         height += i == 6 ? txtSmallHeight : smallInterline;
         i++;
     }
-
     for(; i < 7; ++i)
     {
-        renderText("\n", txtSelectionSmall, {tempFloat, height});
+        renderText("\n", txtSelectionSmall, {textYPos, height});
         height += i == 6 ? txtSmallHeight : smallInterline;
     }
 
@@ -3510,7 +3545,7 @@ void MenuGame::drawLevelSelection(
                 ? "< " + toStr(ssvu::getByModIdx(diffMults, diffMultIdx)) + " >"
                 : "NONE");
     renderText(tempString, txtSelectionMedium,
-        {tempFloat, height - txtMediumHeight}, menuQuadColor);
+        {textYPos, height - txtMediumHeight}, menuQuadColor);
 
     // Bottom line
     height += txtMediumHeight * 1.5f;
@@ -3527,48 +3562,23 @@ void MenuGame::drawLevelSelection(
 
     // Pack name
     height += postTitleSpace;
-    txtSelectionLSmall.setString("NAME: ");
-    float keyWidth = getGlobalWidth(txtSelectionLSmall);
-
     tempString = curPack.name;
-    Utils::uppercasify(tempString);
-    txtSelectionLSmall.setString(tempString);
-
-    tempFloat = quadsIndent - 2.f * quadBorder - keyWidth;
-    if(getGlobalWidth(txtSelectionLSmall) > tempFloat)
-    {
-        scrollNameRightBorder(
-            txtSelectionLSmall, namesScroll[PACK], tempString, tempFloat);
-    }
-
-    tempFloat = quadBorder - panelOffset;
-    renderText("NAME: " + tempString, txtSelectionLSmall, {tempFloat, height});
+    scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall,
+        namesScroll[PACK_NAME], quadsIndent - 2.f * quadBorder);
+    renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Pack author
     height += smallLeftInterline;
-    txtSelectionLSmall.setString("AUTHOR: ");
-    keyWidth = getGlobalWidth(txtSelectionLSmall);
-
     tempString = curPack.author;
-    Utils::uppercasify(tempString);
-    txtSelectionLSmall.setString(tempString);
-
-    tempFloat = quadsIndent - 2.f * quadBorder - keyWidth;
-    if(getGlobalWidth(txtSelectionLSmall) > tempFloat)
-    {
-        scrollNameRightBorder(
-            txtSelectionLSmall, namesScroll[AUTHOR], tempString, tempFloat);
-    }
-
-    tempFloat = quadBorder - panelOffset;
-    renderText(
-        "AUTHOR: " + tempString, txtSelectionLSmall, {tempFloat, height});
+    scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall,
+        namesScroll[PACK_AUTHOR], quadsIndent - 2.f * quadBorder);
+    renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Version
     height += smallLeftInterline;
     tempString = "VERSION: " + toStr(curPack.version);
     Utils::uppercasify(tempString);
-    renderText(tempString, txtSelectionLSmall, {tempFloat, height});
+    renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Bottom line
     menuQuads.reserve_more(4);
@@ -3588,22 +3598,24 @@ void MenuGame::drawLevelSelection(
     const MusicData& musicDataTemp =
         assets.getMusicData(levelDataTemp->packId, levelDataTemp->musicId);
     height += postTitleSpace;
-    tempString = "NAME: " + musicDataTemp.name;
-    Utils::uppercasify(tempString);
-    renderText(tempString, txtSelectionLSmall, {tempFloat, height});
+    tempString = musicDataTemp.name;
+    scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall,
+        namesScroll[MUSIC_NAME], quadsIndent - 2.f * quadBorder);
+    renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Track author
     height += smallLeftInterline;
-    tempString = "AUTHOR: " + musicDataTemp.author;
-    Utils::uppercasify(tempString);
-    renderText(tempString, txtSelectionLSmall, {tempFloat, height});
+    tempString = musicDataTemp.author;
+    scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall,
+        namesScroll[MUSIC_AUTHOR], quadsIndent - 2.f * quadBorder);
+    renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Album name
     height += smallLeftInterline;
-    tempString = "ALBUM: " +
-                 (!musicDataTemp.album.empty() ? musicDataTemp.album : "NONE");
-    Utils::uppercasify(tempString);
-    renderText(tempString, txtSelectionLSmall, {tempFloat, height});
+    tempString = !musicDataTemp.album.empty() ? musicDataTemp.album : "NONE";
+    scrollNameRightBorder(tempString, "ALBUM: ", txtSelectionLSmall,
+        namesScroll[MUSIC_ALBUM], quadsIndent - 2.f * quadBorder);
+    renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     //-------------------------------------
     // Favorite "button"
@@ -3612,24 +3624,28 @@ void MenuGame::drawLevelSelection(
     tempFloat = height + 3.f * txtMediumHeight;
     menuQuads.reserve_more(8 * 5);
 
+    // Favorite is not implemented yet so it is greyed out in the meantime
+    const Color grey = { 175, 175, 175, menuQuadColor.a };
+
     // Frame
-    createQuad(menuQuadColor, frameSize - panelOffset, width - frameSize,
-        height, height + frameSize);
-    createQuad(menuQuadColor, -panelOffset, frameSize - panelOffset, height,
-        tempFloat);
-    createQuad(menuQuadColor, width - frameSize, width, height, tempFloat);
-    createQuad(menuQuadColor, frameSize - panelOffset, width - frameSize,
-        tempFloat - frameSize, tempFloat);
+    createQuad(grey, LINE_THICKNESS - panelOffset, width,
+        height, height + LINE_THICKNESS);
+    createQuad(grey, -panelOffset, LINE_THICKNESS - panelOffset,
+        height, tempFloat);
+    createQuad(grey, width, width, height, tempFloat);
+    createQuad(grey, LINE_THICKNESS - panelOffset, width,
+        tempFloat - LINE_THICKNESS, tempFloat);
     // Backdrop
-    createQuad(menuSelectionColor, frameSize - panelOffset, width - frameSize,
-        height + frameSize, tempFloat - frameSize);
+    createQuad({ 125, 125, 125, menuSelectionColor.a },
+        LINE_THICKNESS - panelOffset, width,
+        height + LINE_THICKNESS, tempFloat - LINE_THICKNESS);
 
     // Also renders all previous quads
     render(menuQuads);
     menuQuads.clear();
 
     renderTextCenteredOffset("FAVORITE - F7", txtSelectionMedium,
-        {quadsIndent / 2.f, height}, -panelOffset);
+        {quadsIndent / 2.f, height}, -panelOffset, grey);
 
     height = tempFloat;
 
@@ -3651,7 +3667,8 @@ void MenuGame::drawLevelSelection(
     // Personal best
     height += txtMediumHeight / 2.f;
     renderText("PERSONAL BEST", txtSelectionMedium,
-        {quadBorder - panelOffset, height - txtMediumHeight * FONT_TOP_BORDER});
+        {quadBorder - panelOffset, height - txtMediumHeight * FONT_TOP_BORDER},
+        menuQuadColor);
 
     height += txtMediumHeight + txtSmallHeight;
     tempFloat = getFontHeight(txtSelectionScore);
