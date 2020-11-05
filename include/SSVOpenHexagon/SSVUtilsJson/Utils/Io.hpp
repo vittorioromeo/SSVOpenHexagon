@@ -32,6 +32,21 @@ inline void readFromFile(Obj& mObj, const ssvufs::Path& mPath)
     Reader reader;
     Impl::tryParse(mObj, reader, mPath.getContentsAsStr());
 }
+inline void readFromFile(
+    Obj& mObj, const ssvufs::Path& mPath, std::string& mError)
+{
+    Reader reader;
+    Impl::tryParse(mObj, reader, mPath.getContentsAsStr());
+    if(reader.getFormattedErrorMessages().empty())
+    {
+        mError = "";
+    }
+    else
+    {
+        mError = reader.getFormattedErrorMessages() + " in file " +
+                 mPath.getFileName();
+    }
+}
 
 inline Obj getFromStr(const std::string& mStr)
 {
@@ -44,6 +59,14 @@ inline Obj getFromFile(const ssvufs::Path& mPath)
     Obj result;
     readFromFile(result, mPath);
     return result;
+}
+inline std::pair<Obj, std::string> getFromFileWithErrors(
+    const ssvufs::Path& mPath)
+{
+    Obj result;
+    std::string error;
+    readFromFile(result, mPath, error);
+    return std::make_pair(result, error);
 }
 
 inline void writeToStream(const Obj& mObj, std::ostream& mStream)

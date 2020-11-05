@@ -258,8 +258,8 @@ void HexagonGame::updateText()
 
         if(status.hasDied)
         {
-            os << "PRESS R TO RESTART\n";
-            os << "PRESS Y TO VIEW REPLAY\n";
+            os << status.restartInput;
+            os << status.replayInput;
         }
 
         if(calledDeprecatedFunctions.size() > 1)
@@ -271,7 +271,6 @@ void HexagonGame::updateText()
         {
             os << "1 WARNING RAISED (CHECK CONSOLE)\n";
         }
-
 
         const auto& trackedVariables(levelStatus.trackedVariables);
         if(Config::getShowTrackedVariables() && !trackedVariables.empty())

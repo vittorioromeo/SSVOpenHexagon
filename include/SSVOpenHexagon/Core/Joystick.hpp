@@ -18,9 +18,8 @@ enum Jid
     Restart,
     Replay,
     Screenshot,
-    OptionMenu,
-    ChangePack,
-    CreateProfile,
+    NextPack,
+    PreviousPack,
     JoystickBindsCount
 };
 
@@ -65,13 +64,10 @@ void setJoystickBind(const unsigned int button, const int buttonID);
 [[nodiscard]] bool screenshotPressed();
 [[nodiscard]] bool screenshotRisingEdge();
 
-[[nodiscard]] bool changePackPressed();
-[[nodiscard]] bool changePackRisingEdge();
+[[nodiscard]] bool nextPackPressed();
+[[nodiscard]] bool nextPackRisingEdge();
 
-[[nodiscard]] bool optionMenuPressed();
-[[nodiscard]] bool optionMenuRisingEdge();
-
-[[nodiscard]] bool createProfilePressed();
-[[nodiscard]] bool createProfileRisingEdge();
+[[nodiscard]] bool previousPackPressed();
+[[nodiscard]] bool previousPackRisingEdge();
 
 } // namespace hg::Joystick

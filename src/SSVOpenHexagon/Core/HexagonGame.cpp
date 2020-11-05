@@ -154,7 +154,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Always);
 
     game.addInput(
-        Config::getTriggerExit(), [this](ssvu::FT /*unused*/) { goToMenu(); },
+        Config::getTriggerExit(),
+        [this](ssvu::FT /*unused*/) { goToMenu(); }, // editable
         ssvs::Input::Type::Always, Tid::Exit);
 
     game.addInput(
@@ -165,7 +166,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once, Tid::ForceRestart);
 
     game.addInput(
-        Config::getTriggerRestart(), // editable
+        Config::getTriggerRestart(),
         [this](ssvu::FT /*unused*/) {
             if(status.hasDied)
             {
@@ -216,15 +217,6 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 
     hg::Joystick::setJoystickBind(
         Config::getJoystickScreenshot(), hg::Joystick::Jid::Screenshot);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickOptionMenu(), hg::Joystick::Jid::OptionMenu);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickChangePack(), hg::Joystick::Jid::ChangePack);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickCreateProfile(), hg::Joystick::Jid::CreateProfile);
 
     // ------------------------------------------------------------------------
     // key icons
@@ -408,6 +400,62 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Set initial values for some status fields from Lua
     status.beatPulseDelay += levelStatus.beatPulseInitialDelay;
     timeUntilRichPresenceUpdate = -1.f; // immediate update
+
+    // Store the keys/buttons to be pressed to replay and restart after you die.
+    status.restartInput = Config::getKeyboardBindNames(Tid::Restart);
+    status.replayInput = Config::getKeyboardBindNames(Tid::Replay);
+
+    // Format strings to only show the first key to avoid extremely long
+    // messages
+    int commaPos = status.restartInput.find(',');
+    if(commaPos > 0)
+    {
+        status.restartInput.erase(commaPos);
+    }
+    commaPos = status.replayInput.find(',');
+    if(commaPos > 0)
+    {
+        status.replayInput.erase(commaPos);
+    }
+
+    // Add joystick buttons if any and finalize message
+    std::string joystickButton =
+        Config::getJoystickBindNames(Joystick::Jid::Restart);
+    if(!status.restartInput.empty())
+    {
+        if(!joystickButton.empty())
+        {
+            status.restartInput += " OR JOYSTICK " + joystickButton;
+        }
+        status.restartInput = "PRESS " + status.restartInput + " TO RESTART\n";
+    }
+    else if(!joystickButton.empty())
+    {
+        status.restartInput =
+            "PRESS JOYSTICK " + joystickButton + " TO RESTART\n";
+    }
+    else
+    {
+        status.restartInput = "NO RESTART BUTTON SET\n";
+    }
+    joystickButton = Config::getJoystickBindNames(Joystick::Jid::Replay);
+    if(!status.replayInput.empty())
+    {
+        if(!joystickButton.empty())
+        {
+            status.replayInput += " OR JOYSTICK " + joystickButton;
+        }
+        status.replayInput = "PRESS " + status.replayInput + " TO REPLAY\n";
+    }
+    else if(!joystickButton.empty())
+    {
+        status.replayInput =
+            "PRESS JOYSTICK " + joystickButton + " TO REPLAY\n";
+    }
+    else
+    {
+        status.replayInput = "NO REPLAY BUTTON SET\n";
+    }
 }
 
 void HexagonGame::death(bool mForce)
@@ -594,6 +642,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     }
 
     window.setGameState(mgPtr->getGame());
+    mgPtr->returnToLevelSelection();
     mgPtr->init(mError);
 }
 

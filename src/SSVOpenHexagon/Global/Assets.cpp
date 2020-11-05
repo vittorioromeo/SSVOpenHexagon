@@ -35,16 +35,25 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 {
     if(!levelsOnly)
     {
-        loadAssetsFromJson(
-            assetManager, "Assets/", ssvuj::getFromFile("Assets/assets.json"));
+        if(!ssvufs::Path{"Assets/"}.exists<ssvufs::Type::Folder>())
+        {
+            ssvu::lo("FATAL ERROR")
+                << "Folder Assets/ does not exist" << std::endl;
+            std::terminate();
+        }
+        else
+        {
+            auto [object, error] =
+                ssvuj::getFromFileWithErrors("Assets/assets.json");
+            loadAssetsFromJson(assetManager, "Assets/", object);
+            loadInfo.addFormattedError(error);
+        }
     }
 
     if(!loadAssets())
     {
-        ssvu::lo("FATAL ERROR")
-            << "Error loading assets, exiting." << std::endl;
-
-        std::terminate();
+        ssvu::lo("FATAL ERROR") << "Folder Packs/ does not exist" << std::endl;
+        return;
     }
 
     for(auto& v : levelDataIdsByPack)
@@ -58,6 +67,10 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     ssvu::sort(packInfos, [&](const auto& mA, const auto& mB) {
         return getPackData(mA.id).priority < getPackData(mB.id).priority;
     });
+
+    // this will not be used for the rest of the game
+    // shrink it to fit the actually used size
+    loadInfo.errorMessages.shrink_to_fit();
 }
 
 [[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)
@@ -74,18 +87,14 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     }
     */
 
-    const bool hasPackJson =
-        ssvufs::Path{packPath + "/pack.json"}.exists<ssvufs::Type::File>();
-
-    if(!hasPackJson)
+    if(!ssvufs::Path{packPath + "/pack.json"}.exists<ssvufs::Type::File>())
     {
-        ssvu::lo("::loadAssets")
-            << "Warning - " << packPath << " has no 'pack.json' file\n";
-
         return false;
     }
 
-    ssvuj::Obj packRoot{ssvuj::getFromFile(packPath + "/pack.json")};
+    auto [packRoot, error] =
+        ssvuj::getFromFileWithErrors(packPath + "/pack.json");
+    loadInfo.addFormattedError(error);
 
     const auto packDisambiguator =
         ssvuj::getExtr<std::string>(packRoot, "disambiguator", "");
@@ -144,12 +153,16 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
     packInfos.emplace_back(PackInfo{packId, packPath});
 
+    std::string errorMessage;
+
     try
     {
         if(!ssvufs::Path{packPath + "Music/"}.exists<ssvufs::Type::Folder>())
         {
-            ssvu::lo("::loadAssets")
-                << "Warning - " << packId << " has no 'Music' folder\n";
+            errorMessage = "Warning - " + packId + " has no 'Music' folder\n";
+            loadInfo.errorMessages.emplace_back(errorMessage);
+
+            ssvu::lo("::loadAssets") << errorMessage;
         }
         else if(!levelsOnly)
         {
@@ -162,8 +175,10 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
         if(!ssvufs::Path{packPath + "Styles/"}.exists<ssvufs::Type::Folder>())
         {
-            ssvu::lo("::loadAssets")
-                << "Warning - " << packId << " has no 'Styles' folder\n";
+            errorMessage = "Warning - " + packId + " has no 'Styles' folder\n";
+            loadInfo.errorMessages.emplace_back(errorMessage);
+
+            ssvu::lo("::loadAssets") << errorMessage;
         }
         else
         {
@@ -173,8 +188,10 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
         if(!ssvufs::Path{packPath + "Levels/"}.exists<ssvufs::Type::Folder>())
         {
-            ssvu::lo("::loadAssets")
-                << "Warning - " << packId << " has no 'Levels' folder\n";
+            errorMessage = "Warning - " + packId + " has no 'Levels' folder\n";
+            loadInfo.errorMessages.emplace_back(errorMessage);
+
+            ssvu::lo("::loadAssets") << errorMessage;
         }
         else
         {
@@ -192,15 +209,20 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     }
     catch(const std::runtime_error& mEx)
     {
-        ssvu::lo("FATAL ERROR")
-            << "Exception during asset loading: " << mEx.what() << std::endl;
+        errorMessage =
+            "Exception during asset loading: " + std::string(mEx.what()) + "\n";
+        loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
+
+        ssvu::lo("FATAL ERROR") << errorMessage;
 
         return false;
     }
     catch(...)
     {
-        ssvu::lo("FATAL ERROR")
-            << "Exception during asset loading: unknown." << std::endl;
+        errorMessage = "Exception during asset loading: unknown.\n";
+        loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
+
+        ssvu::lo("FATAL ERROR") << errorMessage;
 
         return false;
     }
@@ -216,6 +238,13 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     ssvu::lo("::loadAssets") << "loading local profiles\n";
     loadLocalProfiles();
 
+    if(!ssvufs::Path{"Packs/"}.exists<ssvufs::Type::Folder>())
+    {
+        return false;
+    }
+
+    std::string errorMessage;
+
     // ------------------------------------------------------------------------
     // Load packs from `Packs/` folder.
     for(const auto& packPath :
@@ -223,8 +252,14 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     {
         if(!loadPackData(packPath))
         {
-            ssvu::lo("::loadAssets")
-                << "Error loading pack data '" << packPath << "'\n";
+            errorMessage =
+                "Error loading pack data '" + packPath.getStr() + "'\n";
+            loadInfo.errorMessages.emplace_back(errorMessage);
+            ssvu::lo("::loadAssets") << errorMessage;
+        }
+        else
+        {
+            loadInfo.packs++;
         }
     }
 
@@ -235,8 +270,15 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
         if(!loadPackData(packPath))
         {
+            errorMessage =
+                "Error loading pack data '" + packPath.getStr() + "'\n";
+            loadInfo.errorMessages.emplace_back(errorMessage);
             ssvu::lo("::loadAssets")
                 << "Error loading pack data '" << packPath << "'\n";
+        }
+        else
+        {
+            loadInfo.packs++;
         }
     });
 
@@ -246,6 +288,8 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     {
         if(!loadPackInfo(p.second))
         {
+            errorMessage = "Error loading pack info '" + p.first + "'\n";
+            loadInfo.errorMessages.emplace_back(errorMessage);
             ssvu::lo("::loadAssets")
                 << "Error loading pack info '" << p.first << "'\n";
         }
@@ -260,6 +304,8 @@ void HGAssets::loadCustomSounds(
     for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
     {
         assetManager.load<sf::SoundBuffer>(mPackId + "_" + p.getFileName(), p);
+
+        loadInfo.assets++;
     }
 }
 void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
@@ -271,6 +317,8 @@ void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
 
         music.setVolume(Config::getMusicVolume());
         music.setLoop(true);
+
+        loadInfo.assets++;
     }
 }
 void HGAssets::loadMusicData(
@@ -278,9 +326,14 @@ void HGAssets::loadMusicData(
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".json"))
     {
-        MusicData musicData{Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
+        auto [object, error] = ssvuj::getFromFileWithErrors(p);
+        loadInfo.addFormattedError(error);
+
+        MusicData musicData{Utils::loadMusicFromJson(object)};
         musicDataMap.emplace(
             mPackId + "_" + musicData.id, std::move(musicData));
+
+        loadInfo.assets++;
     }
 }
 void HGAssets::loadStyleData(
@@ -288,9 +341,14 @@ void HGAssets::loadStyleData(
 {
     for(const auto& p : scanSingleByExt(mPath + "Styles/", ".json"))
     {
-        StyleData styleData{ssvuj::getFromFile(p), p};
+        auto [object, error] = ssvuj::getFromFileWithErrors(p);
+        loadInfo.addFormattedError(error);
+
+        StyleData styleData{object, p};
         styleDataMap.emplace(
             mPackId + "_" + styleData.id, std::move(styleData));
+
+        loadInfo.assets++;
     }
 }
 void HGAssets::loadLevelData(
@@ -298,11 +356,17 @@ void HGAssets::loadLevelData(
 {
     for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
     {
-        LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
+        auto [object, error] = ssvuj::getFromFileWithErrors(p);
+        loadInfo.addFormattedError(error);
+
+        LevelData levelData{object, mPath, mPackId};
 
         const std::string assetId = mPackId + "_" + levelData.id;
+        std::cout << assetId << std::endl;
         levelDataIdsByPack[mPackId].emplace_back(assetId);
         levelDatas.emplace(assetId, std::move(levelData));
+
+        loadInfo.levels++;
     }
 }
 
@@ -313,8 +377,10 @@ void HGAssets::loadLocalProfiles()
 {
     for(const auto& p : scanSingleByExt("Profiles/", ".json"))
     {
-        ProfileData profileData{
-            Utils::loadProfileFromJson(ssvuj::getFromFile(p))};
+        auto [object, error] = ssvuj::getFromFileWithErrors(p);
+        loadInfo.addFormattedError(error);
+
+        ProfileData profileData{Utils::loadProfileFromJson(object)};
         profileDataMap.emplace(profileData.getName(), std::move(profileData));
     }
 }
@@ -683,9 +749,20 @@ ProfileData& HGAssets::getCurrentLocalProfile()
     return *currentProfilePtr;
 }
 
+ProfileData* HGAssets::getLocalProfileByName(const std::string& mName)
+{
+    return &profileDataMap.find(mName)->second;
+}
+
 const ProfileData& HGAssets::getCurrentLocalProfile() const
 {
     return *currentProfilePtr;
+}
+
+const ProfileData* HGAssets::getLocalProfileByName(
+    const std::string& mName) const
+{
+    return &profileDataMap.find(mName)->second;
 }
 
 std::string HGAssets::getCurrentLocalProfileFilePath()
