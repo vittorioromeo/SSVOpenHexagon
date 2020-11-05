@@ -1134,7 +1134,6 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
         ssvu::lo("::pickRandomMainMenuBackgroundStyle")
             << "File Assets/menubackgrounds.json does not exist" << std::endl;
         return std::make_pair(0, 0);
-        ;
     }
 
     std::vector<std::string> levelIDs;
