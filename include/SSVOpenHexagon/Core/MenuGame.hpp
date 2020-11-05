@@ -316,8 +316,8 @@ private:
     inline void scrollName(std::string& text, float& scroller);
     inline void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);
-    inline void scrollNameRightBorder(std::string& text, sf::Text& font,
-        float& scroller, float border);
+    inline void scrollNameRightBorder(
+        std::string& text, sf::Text& font, float& scroller, float border);
     inline void resetNamesScrolls();
     void drawLevelSelection(
         const unsigned int charSize, const bool revertOffset);
