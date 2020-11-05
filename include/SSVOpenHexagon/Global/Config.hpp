@@ -151,7 +151,7 @@ void setSaveLocalBestReplayToFile(bool mX);
 // keyboard binds
 void keyboardBindsSanityCheck();
 
-[[nodiscard]] const std::string getKeyboardBindNames(const int bindID);
+[[nodiscard]] std::string getKeyboardBindNames(const int bindID);
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerRotateCW();
 [[nodiscard]] ssvs::Input::Trigger getTriggerFocus();

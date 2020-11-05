@@ -22,11 +22,16 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
-#include <cctype>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
+
+#include <cctype>
+#include <array>
+#include <utility>
+#include <string>
+#include <vector>
 
 namespace hg
 {
@@ -100,12 +105,13 @@ private:
     //---------------------------------------
     // Assets
 
-    std::vector<std::string> creditsIds{
+    static constexpr std::array<const char*, 3> creditsIds{
         "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png"};
-    sf::Sprite titleBar{assets.get<sf::Texture>("titleBar.png")},
-        creditsBar1{assets.get<sf::Texture>("creditsBar1.png")},
-        creditsBar2{assets.get<sf::Texture>("creditsBar2.png")},
-        epilepsyWarning{assets.get<sf::Texture>("epilepsyWarning.png")};
+    sf::Sprite titleBar{assets.get<sf::Texture>("titleBar.png")};
+    sf::Sprite creditsBar1{assets.get<sf::Texture>("creditsBar1.png")};
+    sf::Sprite creditsBar2{assets.get<sf::Texture>("creditsBar2.png")};
+    sf::Sprite epilepsyWarning{assets.get<sf::Texture>("epilepsyWarning.png")};
+
     sf::Font& imagine = assets.get<sf::Font>(
         "forcedsquare.ttf"); // G++ bug (cannot initialize with curly braces)
 
@@ -114,7 +120,8 @@ private:
 
     std::string lrUser, lrPass, lrEmail;
     std::vector<char> enteredChars;
-    [[nodiscard]] bool isEnteringText()
+
+    [[nodiscard]] bool isEnteringText() const noexcept
     {
         return state <= States::ETLPNewBoot || state == States::ETLPNew;
     }
@@ -173,6 +180,7 @@ private:
 #pragma GCC diagnostic pop
         }
     }
+
     [[nodiscard]] bool isInMenu() noexcept
     {
         return getCurrentMenu() != nullptr;
@@ -197,7 +205,7 @@ private:
 
     float w, h;
     int scrollbarOffset{0};
-    bool four_by_three{false};
+    bool fourByThree{false};
     ssvms::Menu welcomeMenu;
     ssvms::Menu mainMenu;
     ssvms::Menu optionsMenu;
@@ -205,14 +213,20 @@ private:
     const LevelData* levelData;
     StyleData styleData;
 
-    sf::Text txtVersion{"", imagine, 40}, txtProf{"", imagine, 21},
-        txtMenuBig{"", imagine, 80}, txtMenuSmall{"", imagine},
-        txtProfile{"", imagine, 70}, txtInstructionsBig{"", imagine, 50},
-        txtRandomTip{"", imagine, 40}, txtInstructionsMedium{"", imagine},
-        txtInstructionsSmall{"", imagine, 24}, txtSelectionBig{"", imagine, 40},
-        txtSelectionMedium{"", imagine, 32},
-        txtSelectionLSmall{"", imagine, 24}, txtSelectionSmall{"", imagine, 16},
-        txtSelectionScore{"", imagine, 50};
+    sf::Text txtVersion{"", imagine, 40};
+    sf::Text txtProf{"", imagine, 21};
+    sf::Text txtMenuBig{"", imagine, 80};
+    sf::Text txtMenuSmall{"", imagine};
+    sf::Text txtProfile{"", imagine, 70};
+    sf::Text txtInstructionsBig{"", imagine, 50};
+    sf::Text txtRandomTip{"", imagine, 40};
+    sf::Text txtInstructionsMedium{"", imagine};
+    sf::Text txtInstructionsSmall{"", imagine, 24};
+    sf::Text txtSelectionBig{"", imagine, 40};
+    sf::Text txtSelectionMedium{"", imagine, 32};
+    sf::Text txtSelectionLSmall{"", imagine, 24};
+    sf::Text txtSelectionSmall{"", imagine, 16};
+    sf::Text txtSelectionScore{"", imagine, 50};
     sf::Color menuTextColor;
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
@@ -225,29 +239,28 @@ private:
     }
 
     // Helper functions
-    inline float getFPSMult();
-    inline void drawGraphics();
+    float getFPSMult();
+    void drawGraphics();
 
-    inline void adjustMenuOffset(const bool resetMenuOffset);
-    inline float calcMenuOffset(float& offset, float maxOffset,
-        bool revertOffset, bool speedUp = false);
-    inline void calcMenuItemOffset(float& offset, bool selected);
+    void adjustMenuOffset(const bool resetMenuOffset);
+    float calcMenuOffset(float& offset, float maxOffset, bool revertOffset,
+        bool speedUp = false);
+    void calcMenuItemOffset(float& offset, bool selected);
 
-    inline void createQuad(
+    void createQuad(
         const sf::Color& color, float x1, float x2, float y1, float y2);
-    inline void createQuadTrapezoid(const sf::Color& color, float x1, float x2,
+    void createQuadTrapezoid(const sf::Color& color, float x1, float x2,
         float x3, float y1, float y2, bool left);
 
-    inline std::pair<int, int> getScrollbarNotches(
-        const int size, const int maxSize);
-    inline void drawScrollbar(const float totalHeight, const int size,
+    std::pair<int, int> getScrollbarNotches(const int size, const int maxSize);
+    void drawScrollbar(const float totalHeight, const int size,
         const int notches, const float x, const float y,
         const sf::Color& color);
 
-    inline void drawMainSubmenus(
+    void drawMainSubmenus(
         const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
         float indent, unsigned int charSize);
-    inline void drawSubmenusSmall(
+    void drawSubmenusSmall(
         const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
         float indent, unsigned int charSize);
 
@@ -279,46 +292,47 @@ private:
     void drawEnteringTextBoot(unsigned int charSize);
 
     // Level selection menu
-    enum
+    enum class PackChange
     {
-        PACK_CHANGE_REST,
-        PACK_CHANGE_FOLDING,
-        PACK_CHANGE_STRETCHING
+        Rest,
+        Folding,
+        Stretching
     };
-    enum
+
+    enum class Label
     {
-        LEVEL_NAME,
-        PACK_NAME,
-        PACK_AUTHOR,
-        MUSIC_NAME,
-        MUSIC_AUTHOR,
-        MUSIC_ALBUM,
-        SCROLLS_SIZE
+        LevelName,
+        PackName,
+        PackAuthor,
+        MusicName,
+        MusicAuthor,
+        MusicAlbum,
+        ScrollsSize
     };
 
     bool firstLevelSelection{true};
-    unsigned int packChangeState{PACK_CHANGE_REST};
-    float namesScroll[SCROLLS_SIZE]{0};
+    PackChange packChangeState{PackChange::Rest};
+    float namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
     float levelSelectionTotalHeight{0.f};
     float levelSelectionXOffset{0.f}; // to make the menu slide in/out
     float levelSelectionYOffset{0.f}; // to scroll up and down the menu
-    float levelYScrollTo{
-        0.f}; // height list must scroll to show current item
-    float packChangeOffset{0.f};      // level list yOffset when being fold
+    float levelYScrollTo{0.f};   // height list must scroll to show current item
+    float packChangeOffset{0.f}; // level list yOffset when being fold
     std::vector<float> levelsOffsets; // xOffset of the single level labels
-    inline void adjustLevelsOffset();
-    inline float getPackLabelHeight();
-    inline float getLevelLabelHeight();
-    inline float getQuadBorder();
-    inline float getFrameSize();
-    inline float getLevelListHeight();
-    inline void calcLevelChangeScroll();
-    inline void scrollName(std::string& text, float& scroller);
-    inline void scrollNameRightBorder(std::string& text, const std::string key,
+
+    void adjustLevelsOffset();
+    float getPackLabelHeight();
+    float getLevelLabelHeight();
+    float getQuadBorder();
+    float getFrameSize();
+    float getLevelListHeight();
+    void calcLevelChangeScroll();
+    void scrollName(std::string& text, float& scroller);
+    void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);
-    inline void scrollNameRightBorder(
+    void scrollNameRightBorder(
         std::string& text, sf::Text& font, float& scroller, float border);
-    inline void resetNamesScrolls();
+    void resetNamesScrolls();
     void drawLevelSelection(
         const unsigned int charSize, const bool revertOffset);
 
@@ -425,47 +439,3 @@ public:
 };
 
 } // namespace hg
-
-/*
-    sf::Text& renderTextImpl(
-        std::string mStr, sf::Text& mText, const sf::Vector2f& mPosition)
-    {
-        if(Config::getDrawTextOutlines() && state == States::SMain)
-        {
-            mText.setOutlineColor(styleData.getColor(0));
-            mText.setOutlineThickness(1.f);
-        }
-        else
-        {
-            mText.setOutlineThickness(0.f);
-        }
-
-        Utils::uppercasify(mStr);
-
-        if(mText.getString() != mStr)
-        {
-            mText.setString(mStr);
-        }
-
-        mText.setPosition(mPosition);
-        render(mText);
-        return mText;
-    }
-
-    sf::Text& renderTextImpl(const std::string& mStr, sf::Text& mText,
-        const sf::Vector2f& mPosition, unsigned int mSize)
-    {
-        auto originalSize(mText.getCharacterSize());
-        mText.setCharacterSize(mSize);
-        renderTextImpl(mStr, mText, mPosition);
-        mText.setCharacterSize(originalSize);
-        return mText;
-    }
-
-    [[nodiscard]] sf::Color getTextColor() const
-    {
-        return (state != States::SMain || Config::getBlackAndWhite())
-                   ? sf::Color::White
-                   : styleData.getTextColor();
-    }
- */

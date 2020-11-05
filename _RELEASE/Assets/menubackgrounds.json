@@ -1,13 +1,13 @@
-
 {
-	"_comment": "level IDs are built like this: pack disambiguator + _ + author name + _ + pack name + _ + version + level name",
-	"_comment2": "replace spaces with _",
-	"ids":
-	[
-		"ohvrvanilla_vittorio_romeo_cube_1_seconddimension",
-		"ohvrvanilla_vittorio_romeo_cube_1_babysteps",
+    // level IDs are built like this: `pack disambiguator + _ + author name + _ + pack name + _ + version + level name`
+    // replace spaces with `_`
+
+    "ids":
+    [
+        "ohvrvanilla_vittorio_romeo_cube_1_seconddimension",
+        "ohvrvanilla_vittorio_romeo_cube_1_babysteps",
         "ohvrvanilla_vittorio_romeo_cube_1_pointless",
         "ohvrvanilla_vittorio_romeo_cube_1_apeirogon",
-		"ohvrvanilla_vittorio_romeo_hypercube_1_massacre"
-	]
+        "ohvrvanilla_vittorio_romeo_hypercube_1_massacre"
+    ]
 }

@@ -119,7 +119,7 @@ void HexagonDialogBox::drawText(
     }
 }
 
-#define FONT_HEIGHT_DIFFERENTIAL 0.9f
+inline constexpr float fontHeightDifferential = 0.9f;
 
 void HexagonDialogBox::drawTopLeft(
     const Color& txtColor, const Color& backdropColor)
@@ -140,7 +140,7 @@ void HexagonDialogBox::drawTopLeft(
 
     // Text
     drawText(txtColor, xPos + doubleFrameSize + dialogWidth / 2.f,
-        yPos - lineHeight * FONT_HEIGHT_DIFFERENTIAL + doubleFrameSize);
+        yPos - lineHeight * fontHeightDifferential + doubleFrameSize);
 }
 
 void HexagonDialogBox::drawCenter(
@@ -170,8 +170,7 @@ void HexagonDialogBox::drawCenter(
 
     // Text
     drawText(txtColor, w / 2.f,
-        h - halfHeight - lineHeight * FONT_HEIGHT_DIFFERENTIAL +
-            doubleFrameSize);
+        h - halfHeight - lineHeight * fontHeightDifferential + doubleFrameSize);
 }
 
 void HexagonDialogBox::drawCenterUpperHalf(
@@ -200,11 +199,9 @@ void HexagonDialogBox::drawCenterUpperHalf(
 
     // Text
     drawText(txtColor, w / 2.f,
-        h - totalHeight - lineHeight * FONT_HEIGHT_DIFFERENTIAL +
+        h - totalHeight - lineHeight * fontHeightDifferential +
             doubleFrameSize);
 }
-
-#undef FONT_HEIGHT_DIFFERENTIAL
 
 void HexagonDialogBox::clearDialogBox()
 {

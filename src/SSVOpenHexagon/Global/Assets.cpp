@@ -751,6 +751,7 @@ ProfileData& HGAssets::getCurrentLocalProfile()
 
 ProfileData* HGAssets::getLocalProfileByName(const std::string& mName)
 {
+    assert(profileDataMap.contains(mName));
     return &profileDataMap.find(mName)->second;
 }
 
@@ -762,6 +763,7 @@ const ProfileData& HGAssets::getCurrentLocalProfile() const
 const ProfileData* HGAssets::getLocalProfileByName(
     const std::string& mName) const
 {
+    assert(profileDataMap.contains(mName));
     return &profileDataMap.find(mName)->second;
 }
 
