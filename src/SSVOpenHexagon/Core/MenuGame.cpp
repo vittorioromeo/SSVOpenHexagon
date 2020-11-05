@@ -3461,6 +3461,9 @@ void MenuGame::drawLevelSelection(
     const PackData& curPack = assets.getPackData(infos[packIdx].id);
     txtSelectionLSmall.setCharacterSize(charSize);
 
+    quadsIndent = w * 0.33f;
+    width = quadsIndent - panelOffset;
+
     const float smallInterline{txtSmallHeight * 1.5f},
         txtSmallLeftHeight{getFontHeight(txtSelectionLSmall)},
         smallLeftInterline{txtSmallLeftHeight * 1.5f},
@@ -3469,7 +3472,8 @@ void MenuGame::drawLevelSelection(
                        txtSmallLeftHeight * FONT_TOP_BORDER},
         preLineSpace{txtMediumHeight / 2.f +
                      txtSmallLeftHeight * (1.f + FONT_TOP_BORDER)},
-        textYPos = quadBorder - panelOffset;
+        textYPos{quadBorder - panelOffset},
+        textRightBorder{quadsIndent - 2.f * quadBorder};
 
     quadsIndent = w * 0.33f;
     width = quadsIndent - panelOffset;
@@ -3492,7 +3496,7 @@ void MenuGame::drawLevelSelection(
 
     tempString = levelDataTemp->name;
     scrollNameRightBorder(tempString, txtSelectionBig, namesScroll[LEVEL_NAME],
-        quadsIndent - 2.f * quadBorder);
+        textRightBorder);
     renderText(tempString, txtSelectionBig,
         {textYPos, height - txtBigHeight * FONT_TOP_BORDER});
 
@@ -3564,14 +3568,14 @@ void MenuGame::drawLevelSelection(
     height += postTitleSpace;
     tempString = curPack.name;
     scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall,
-        namesScroll[PACK_NAME], quadsIndent - 2.f * quadBorder);
+        namesScroll[PACK_NAME], textRightBorder);
     renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Pack author
     height += smallLeftInterline;
     tempString = curPack.author;
     scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall,
-        namesScroll[PACK_AUTHOR], quadsIndent - 2.f * quadBorder);
+        namesScroll[PACK_AUTHOR], textRightBorder);
     renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Version
@@ -3600,21 +3604,21 @@ void MenuGame::drawLevelSelection(
     height += postTitleSpace;
     tempString = musicDataTemp.name;
     scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall,
-        namesScroll[MUSIC_NAME], quadsIndent - 2.f * quadBorder);
+        namesScroll[MUSIC_NAME], textRightBorder);
     renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Track author
     height += smallLeftInterline;
     tempString = musicDataTemp.author;
     scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall,
-        namesScroll[MUSIC_AUTHOR], quadsIndent - 2.f * quadBorder);
+        namesScroll[MUSIC_AUTHOR], textRightBorder);
     renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     // Album name
     height += smallLeftInterline;
     tempString = !musicDataTemp.album.empty() ? musicDataTemp.album : "NONE";
     scrollNameRightBorder(tempString, "ALBUM: ", txtSelectionLSmall,
-        namesScroll[MUSIC_ALBUM], quadsIndent - 2.f * quadBorder);
+        namesScroll[MUSIC_ALBUM], textRightBorder);
     renderText(tempString, txtSelectionLSmall, {textYPos, height});
 
     //-------------------------------------
