@@ -71,8 +71,50 @@ private:
     [[nodiscard]] bool loadPackInfo(const PackData& packData);
 
 public:
+    struct LoadInfo
+    {
+        unsigned int packs{0};
+        unsigned int levels{0};
+        unsigned int assets{0};
+        std::vector<std::string> errorMessages;
+
+        void addFormattedError(std::string& error)
+        {
+            if(error.empty())
+            {
+                return;
+            }
+
+            // Remove the first two characters
+            error.erase(0, 2);
+
+            // Replace first newline with '-', place a space before it,
+            // and remove a space after it.
+            size_t i = error.find('\n');
+            error.insert(i, " ");
+            error[++i] = '-';
+            error.erase(++i, 1);
+
+            // Remove all other newlines.
+            while((i = error.find('\n', i)) != std::string::npos)
+            {
+                error.erase(i, 1);
+            }
+
+            errorMessages.emplace_back(error);
+        }
+    };
+
+private:
+    LoadInfo loadInfo;
+
+public:
     HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly = false);
 
+    LoadInfo& getLoadResults()
+    {
+        return loadInfo;
+    }
     auto& operator()()
     {
         return assetManager;
@@ -161,6 +203,8 @@ public:
     ProfileData& getCurrentLocalProfile();
     const ProfileData& getCurrentLocalProfile() const;
     std::string getCurrentLocalProfileFilePath();
+    ProfileData* getLocalProfileByName(const std::string& mName);
+    const ProfileData* getLocalProfileByName(const std::string& mName) const;
     void createLocalProfile(const std::string& mName);
     std::size_t getLocalProfilesSize();
     std::vector<std::string> getLocalProfileNames();

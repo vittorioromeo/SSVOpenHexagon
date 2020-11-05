@@ -48,31 +48,6 @@ private:
     [[nodiscard]] int getRealSize(
         const std::vector<ssvs::Input::Combo>& combos) const;
 
-    [[nodiscard]] std::string bindToHumanReadableName(std::string s) const
-    {
-        if(s.starts_with('k'))
-        {
-            return s.substr(1);
-        }
-
-        if(s == "bLeft")
-        {
-            return "LMB";
-        }
-
-        if(s == "bRight")
-        {
-            return "RMB";
-        }
-
-        if(s == "bMiddle")
-        {
-            return "MMB";
-        }
-
-        return s;
-    }
-
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncClear,
         typename TFuncCallback>
@@ -108,8 +83,7 @@ class JoystickBindControl final : public BindControlBase
 private:
     using ValueGetter = std::function<unsigned int()>;
     using ValueSetter = std::function<int(const unsigned int)>;
-    using Callback =
-        std::function<void(const unsigned int, const unsigned int)>;
+    using Callback = std::function<void(const unsigned int, const int)>;
 
     ValueGetter valueGetter;
     ValueSetter setButton;

@@ -41,6 +41,19 @@ inline void uppercasify(std::string& s)
     return s;
 }
 
+inline float getFontHeight(sf::Text& font)
+{
+    font.setString("A");
+    return ssvs::getGlobalHeight(font);
+}
+
+inline float getFontHeight(sf::Text& font, const unsigned int charSize)
+{
+    font.setCharacterSize(charSize);
+    font.setString("A");
+    return ssvs::getGlobalHeight(font);
+}
+
 [[nodiscard, gnu::pure]] inline float getSaturated(float mValue)
 {
     return std::max(0.f, std::min(1.f, mValue));
