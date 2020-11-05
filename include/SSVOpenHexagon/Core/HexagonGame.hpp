@@ -40,7 +40,7 @@
 #include <SFML/Window.hpp>
 
 #include <sstream>
-#include <set>
+#include <unordered_set>
 #include <optional>
 
 namespace hg
@@ -82,7 +82,7 @@ private:
     const sf::Vector2f centerPos{ssvs::zeroVec2f};
 
     Lua::LuaContext lua;
-    std::set<std::string> calledDeprecatedFunctions;
+    std::unordered_set<std::string> calledDeprecatedFunctions;
 
     LevelStatus levelStatus;
     MusicData musicData;
@@ -250,8 +250,8 @@ public:
             Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};
     }
 
-    void raiseWarning(const std::string& mFunctionName,
-        const std::string& additionalInfo = "");
+    void raiseWarning(
+        const std::string& mFunctionName, const std::string& mAdditionalInfo);
     void setLastReplay(const replay_file& mReplayFile);
 
 private:
