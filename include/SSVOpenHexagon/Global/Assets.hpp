@@ -71,7 +71,6 @@ private:
     [[nodiscard]] bool loadPackInfo(const PackData& packData);
 
 public:
-
     struct LoadInfo
     {
         unsigned int packs{0};
@@ -107,11 +106,9 @@ public:
     };
 
 private:
-
     LoadInfo loadInfo;
 
 public:
-
     HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly = false);
 
     LoadInfo& getLoadResults()

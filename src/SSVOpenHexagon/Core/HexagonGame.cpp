@@ -32,8 +32,8 @@ namespace
 [[nodiscard]] double getReplayScore(const HexagonGameStatus& status)
 {
     return status.getCustomScore() != 0.f
-           ? status.getCustomScore()
-           : status.getPlayedAccumulatedFrametime();
+               ? status.getCustomScore()
+               : status.getPlayedAccumulatedFrametime();
 }
 
 } // namespace
@@ -363,10 +363,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Reset zoom
     overlayCamera.setView(
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-         sf::Vector2f(Config::getWidth(), Config::getHeight())});
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
     backgroundCamera.setView(
         {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
-                           Config::getHeight() * Config::getZoomFactor()}});
+                              Config::getHeight() * Config::getZoomFactor()}});
     backgroundCamera.setRotation(0);
 
     // Reset skew
@@ -405,7 +405,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     status.restartInput = Config::getKeyboardBindNames(Tid::Restart);
     status.replayInput = Config::getKeyboardBindNames(Tid::Replay);
 
-    // Format strings to only show the first key to avoid extremely long messages
+    // Format strings to only show the first key to avoid extremely long
+    // messages
     int commaPos = status.restartInput.find(',');
     if(commaPos > 0)
     {
@@ -418,7 +419,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
 
     // Add joystick buttons if any and finalize message
-    std::string joystickButton = Config::getJoystickBindNames(Joystick::Jid::Restart);
+    std::string joystickButton =
+        Config::getJoystickBindNames(Joystick::Jid::Restart);
     if(!status.restartInput.empty())
     {
         if(!joystickButton.empty())
@@ -429,7 +431,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
     else if(!joystickButton.empty())
     {
-        status.restartInput = "PRESS JOYSTICK " + joystickButton + " TO RESTART\n";
+        status.restartInput =
+            "PRESS JOYSTICK " + joystickButton + " TO RESTART\n";
     }
     else
     {
@@ -446,7 +449,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
     else if(!joystickButton.empty())
     {
-        status.replayInput = "PRESS JOYSTICK " + joystickButton + " TO REPLAY\n";
+        status.replayInput =
+            "PRESS JOYSTICK " + joystickButton + " TO REPLAY\n";
     }
     else
     {
@@ -475,7 +479,7 @@ void HexagonGame::death(bool mForce)
     status.flashEffect = 255;
     overlayCamera.setView(
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-         sf::Vector2f(Config::getWidth(), Config::getHeight())});
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
     backgroundCamera.setCenter(ssvs::zeroVec2f);
     shakeCamera(effectTimelineManager, overlayCamera);
     shakeCamera(effectTimelineManager, backgroundCamera);
@@ -571,8 +575,8 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 {
     const float score = levelStatus.scoreOverridden
-                        ? lua.readVariable<float>(levelStatus.scoreOverride)
-                        : status.getTimeSeconds();
+                            ? lua.readVariable<float>(levelStatus.scoreOverride)
+                            : status.getTimeSeconds();
 
     // These are requirements that need to be met for a score to be valid
     if(!Config::isEligibleForScore())

@@ -23,30 +23,30 @@ using namespace ssvu::FileSystem;
 using namespace ssvuj;
 using namespace ssvu;
 
-#define X_BINDSLINKEDVALUES                                                \
-    X(joystickSelect, unsigned int, "j_select")                            \
-    X(joystickExit, unsigned int, "j_exit")                                \
-    X(joystickFocus, unsigned int, "j_focus")                              \
-    X(joystickSwap, unsigned int, "j_swap")                                \
-    X(joystickForceRestart, unsigned int, "j_force_restart")               \
-    X(joystickRestart, unsigned int, "j_restart")                          \
-    X(joystickReplay, unsigned int, "j_replay")                            \
-    X(joystickScreenshot, unsigned int, "j_screenshot")                    \
-    X(joystickNextPack, unsigned int, "j_next")                            \
-    X(joystickPreviousPack, unsigned int, "j_previous")                    \
-    X(triggerRotateCCW, Trigger, "t_rotate_ccw")                           \
-    X(triggerRotateCW, Trigger, "t_rotate_cw")                             \
-    X(triggerFocus, Trigger, "t_focus")                                    \
-    X(triggerSelect, Trigger, "t_select")                                  \
-    X(triggerExit, Trigger, "t_exit")                                      \
-    X(triggerForceRestart, Trigger, "t_force_restart")                     \
-    X(triggerRestart, Trigger, "t_restart")                                \
-    X(triggerReplay, Trigger, "t_replay")                                  \
-    X(triggerScreenshot, Trigger, "t_screenshot")                          \
-    X(triggerSwap, Trigger, "t_swap")                                      \
-    X(triggerUp, Trigger, "t_up")                                          \
-    X(triggerDown, Trigger, "t_down")                                      \
-    X(triggerNextPack, Trigger, "t_next")                                  \
+#define X_BINDSLINKEDVALUES                                  \
+    X(joystickSelect, unsigned int, "j_select")              \
+    X(joystickExit, unsigned int, "j_exit")                  \
+    X(joystickFocus, unsigned int, "j_focus")                \
+    X(joystickSwap, unsigned int, "j_swap")                  \
+    X(joystickForceRestart, unsigned int, "j_force_restart") \
+    X(joystickRestart, unsigned int, "j_restart")            \
+    X(joystickReplay, unsigned int, "j_replay")              \
+    X(joystickScreenshot, unsigned int, "j_screenshot")      \
+    X(joystickNextPack, unsigned int, "j_next")              \
+    X(joystickPreviousPack, unsigned int, "j_previous")      \
+    X(triggerRotateCCW, Trigger, "t_rotate_ccw")             \
+    X(triggerRotateCW, Trigger, "t_rotate_cw")               \
+    X(triggerFocus, Trigger, "t_focus")                      \
+    X(triggerSelect, Trigger, "t_select")                    \
+    X(triggerExit, Trigger, "t_exit")                        \
+    X(triggerForceRestart, Trigger, "t_force_restart")       \
+    X(triggerRestart, Trigger, "t_restart")                  \
+    X(triggerReplay, Trigger, "t_replay")                    \
+    X(triggerScreenshot, Trigger, "t_screenshot")            \
+    X(triggerSwap, Trigger, "t_swap")                        \
+    X(triggerUp, Trigger, "t_up")                            \
+    X(triggerDown, Trigger, "t_down")                        \
+    X(triggerNextPack, Trigger, "t_next")                    \
     X(triggerPreviousPack, Trigger, "t_previous")
 
 #define X_LINKEDVALUES                                                     \
@@ -116,12 +116,12 @@ namespace hg::Config
         if(ssvufs::Path{"config.json"}.exists<ssvufs::Type::File>())
         {
             ssvu::lo("hg::Config::root()")
-              << "User-defined `config.json` file found\n";
+                << "User-defined `config.json` file found\n";
 
             return ssvuj::getFromFile("config.json");
         }
         else if(ssvufs::Path{"default_config.json"}
-            .exists<ssvufs::Type::File>())
+                    .exists<ssvufs::Type::File>())
         {
             ssvu::lo("hg::Config::root()")
                 << "User `config.json` file not found, looking for default\n";
@@ -168,14 +168,16 @@ static void syncAllToObj()
 
 static void resetAllFromObj()
 {
-#define X(name, type, key) name().syncFrom(ssvuj::getFromFile("default_config.json"));
+#define X(name, type, key) \
+    name().syncFrom(ssvuj::getFromFile("default_config.json"));
     X_LINKEDVALUES
 #undef X
 }
 
 static void resetBindsFromObj()
 {
-#define X(name, type, key) name().syncFrom(ssvuj::getFromFile("default_config.json"));
+#define X(name, type, key) \
+    name().syncFrom(ssvuj::getFromFile("default_config.json"));
     X_BINDSLINKEDVALUES
 #undef X
 }
@@ -999,10 +1001,19 @@ std::string bindToHumanReadableName(std::string s)
 
 using triggerGetter = Trigger (*)();
 const triggerGetter keyboardGetterFuncs[] = {
-    getTriggerRotateCCW, getTriggerRotateCW, getTriggerFocus,
-    getTriggerSelect, getTriggerExit, getTriggerForceRestart,
-    getTriggerRestart, getTriggerReplay, getTriggerScreenshot,
-    getTriggerSwap, getTriggerUp, getTriggerDown, getTriggerNextPack,
+    getTriggerRotateCCW,
+    getTriggerRotateCW,
+    getTriggerFocus,
+    getTriggerSelect,
+    getTriggerExit,
+    getTriggerForceRestart,
+    getTriggerRestart,
+    getTriggerReplay,
+    getTriggerScreenshot,
+    getTriggerSwap,
+    getTriggerUp,
+    getTriggerDown,
+    getTriggerNextPack,
     getTriggerPreviousPack,
 };
 
@@ -1140,7 +1151,8 @@ void addBindTriggerNextPack(int key, int btn, int index)
 }
 void addBindTriggerPreviousPack(int key, int btn, int index)
 {
-    triggerPreviousPack() = rebindTrigger(triggerPreviousPack(), key, btn, index);
+    triggerPreviousPack() =
+        rebindTrigger(triggerPreviousPack(), key, btn, index);
 }
 
 //**************************************************
@@ -1384,21 +1396,17 @@ void joystickBindsSanityCheck()
 // Get binds names
 
 using buttonGetter = unsigned int (*)();
-const buttonGetter joystickGetterFuncs[] = {
-    getJoystickSelect, getJoystickExit, getJoystickFocus,
-    getJoystickSwap, getJoystickForceRestart, getJoystickRestart,
-    getJoystickReplay, getJoystickScreenshot, getJoystickNextPack,
-    getJoystickPreviousPack
-};
+const buttonGetter joystickGetterFuncs[] = {getJoystickSelect, getJoystickExit,
+    getJoystickFocus, getJoystickSwap, getJoystickForceRestart,
+    getJoystickRestart, getJoystickReplay, getJoystickScreenshot,
+    getJoystickNextPack, getJoystickPreviousPack};
 
 const std::string getJoystickBindNames(const int bindID)
 {
-    static const std::string buttonsNames[12][2] = {
-        {"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"},
-        {"LB", "L1"}, {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"},
-        {"LEFT STICK", "SELECT"}, {"RIGHT STICK", "START"}, {"LT", "LEFT STICK"},
-        {"RT", "RIGHT STICK"}
-    };
+    static const std::string buttonsNames[12][2] = {{"A", "SQUARE"},
+        {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"}, {"LB", "L1"},
+        {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"}, {"LEFT STICK", "SELECT"},
+        {"RIGHT STICK", "START"}, {"LT", "LEFT STICK"}, {"RT", "RIGHT STICK"}};
 
     std::string bindName;
     const unsigned int value = joystickGetterFuncs[bindID]();
@@ -1414,8 +1422,8 @@ const std::string getJoystickBindNames(const int bindID)
 
         const unsigned int vendorId =
             sf::Joystick::isConnected(0)
-            ? sf::Joystick::getIdentification(0).vendorId
-            : 0;
+                ? sf::Joystick::getIdentification(0).vendorId
+                : 0;
 
         switch(vendorId)
         {
@@ -1425,8 +1433,7 @@ const std::string getJoystickBindNames(const int bindID)
             case SONY_VENDOR_ID:
                 bindName = value >= 12 ? "" : buttonsNames[value][1];
                 break;
-            default: bindName = ssvu::toStr(value);
-				break;
+            default: bindName = ssvu::toStr(value); break;
         }
 
 #undef MS_VENDOR_ID
@@ -1485,16 +1492,15 @@ unsigned int getJoystickPreviousPack()
 // Reassign bind
 
 using buttonsetter = void (*)(unsigned int button);
-const buttonsetter joystickSetterFuncs[] = {
-    setJoystickSelect, setJoystickExit, setJoystickFocus,
-    setJoystickSwap, setJoystickForceRestart, setJoystickRestart,
-    setJoystickReplay, setJoystickScreenshot, setJoystickNextPack,
-    setJoystickPreviousPack
-};
+const buttonsetter joystickSetterFuncs[] = {setJoystickSelect, setJoystickExit,
+    setJoystickFocus, setJoystickSwap, setJoystickForceRestart,
+    setJoystickRestart, setJoystickReplay, setJoystickScreenshot,
+    setJoystickNextPack, setJoystickPreviousPack};
 
 [[nodiscard]] int checkButtonReassignment(unsigned int button)
 {
-    for(size_t i = 0; i < sizeof(joystickSetterFuncs) / sizeof(joystickSetterFuncs[0]); ++i)
+    for(size_t i = 0;
+        i < sizeof(joystickSetterFuncs) / sizeof(joystickSetterFuncs[0]); ++i)
     {
         if(joystickGetterFuncs[i]() == button)
         {

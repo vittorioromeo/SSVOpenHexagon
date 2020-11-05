@@ -145,7 +145,7 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
     const auto sides = levelStatus.sides;
 
     const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
-                distance{bgTileRadius};
+        distance{bgTileRadius};
 
     static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
     static Utils::FastVertexVector<sf::PrimitiveType::Triangles> hexagon;
@@ -194,8 +194,7 @@ void StyleData::drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
     const auto sides = levelStatus.sides;
 
     const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
-                distance{bgTileRadius},
-                hexagonRadius{fourByThree ? 75.f : 100.f};
+        distance{bgTileRadius}, hexagonRadius{fourByThree ? 75.f : 100.f};
 
     static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
     static Utils::FastVertexVector<sf::PrimitiveType::Triangles> hexagon;
@@ -233,8 +232,10 @@ void StyleData::drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
             ssvs::getOrbitRad(mCenterPos, angle - halfDiv, distance));
 
         hexagon.batch_unsafe_emplace_back(colorMain, mCenterPos,
-            ssvs::getOrbitRad(mCenterPos, angle + halfDiv, hexagonRadius + 10.f),
-            ssvs::getOrbitRad(mCenterPos, angle - halfDiv, hexagonRadius + 10.f));
+            ssvs::getOrbitRad(
+                mCenterPos, angle + halfDiv, hexagonRadius + 10.f),
+            ssvs::getOrbitRad(
+                mCenterPos, angle - halfDiv, hexagonRadius + 10.f));
 
         hexagon.batch_unsafe_emplace_back(colorCap, mCenterPos,
             ssvs::getOrbitRad(mCenterPos, angle + halfDiv, hexagonRadius),

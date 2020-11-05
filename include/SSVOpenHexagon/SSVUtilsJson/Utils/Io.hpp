@@ -32,8 +32,8 @@ inline void readFromFile(Obj& mObj, const ssvufs::Path& mPath)
     Reader reader;
     Impl::tryParse(mObj, reader, mPath.getContentsAsStr());
 }
-inline void readFromFile(Obj& mObj, const ssvufs::Path& mPath,
-    std::string& mError)
+inline void readFromFile(
+    Obj& mObj, const ssvufs::Path& mPath, std::string& mError)
 {
     Reader reader;
     Impl::tryParse(mObj, reader, mPath.getContentsAsStr());
@@ -60,7 +60,8 @@ inline Obj getFromFile(const ssvufs::Path& mPath)
     readFromFile(result, mPath);
     return result;
 }
-inline std::pair<Obj, std::string> getFromFileWithErrors(const ssvufs::Path& mPath)
+inline std::pair<Obj, std::string> getFromFileWithErrors(
+    const ssvufs::Path& mPath)
 {
     Obj result;
     std::string error;
