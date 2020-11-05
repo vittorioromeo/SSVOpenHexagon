@@ -75,7 +75,6 @@ class HexagonGame;
 class MenuGame
 {
 private:
-
     //---------------------------------------
     // Classes
 
@@ -95,7 +94,8 @@ private:
     void initLua(Lua::LuaContext& mLua);
     void initMenus();
     void playLocally();
-    std::pair<const unsigned int, const unsigned int> pickRandomMainMenuBackgroundStyle();
+    std::pair<const unsigned int, const unsigned int>
+    pickRandomMainMenuBackgroundStyle();
 
     //---------------------------------------
     // Assets
@@ -210,8 +210,9 @@ private:
         txtProfile{"", imagine, 70}, txtInstructionsBig{"", imagine, 50},
         txtRandomTip{"", imagine, 40}, txtInstructionsMedium{"", imagine},
         txtInstructionsSmall{"", imagine, 24}, txtSelectionBig{"", imagine, 40},
-        txtSelectionMedium{"", imagine, 32}, txtSelectionLSmall{"", imagine, 24},
-        txtSelectionSmall{"", imagine, 16}, txtSelectionScore{"", imagine, 50};
+        txtSelectionMedium{"", imagine, 32},
+        txtSelectionLSmall{"", imagine, 24}, txtSelectionSmall{"", imagine, 16},
+        txtSelectionScore{"", imagine, 50};
     sf::Color menuTextColor;
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
@@ -232,15 +233,16 @@ private:
         bool revertOffset, bool speedUp = false);
     inline void calcMenuItemOffset(float& offset, bool selected);
 
-    inline void createQuad(const sf::Color& color, float x1,
-        float x2, float y1, float y2);
-    inline void createQuadTrapezoid(const sf::Color& color, float x1,
-        float x2, float x3, float y1, float y2, bool left);
+    inline void createQuad(
+        const sf::Color& color, float x1, float x2, float y1, float y2);
+    inline void createQuadTrapezoid(const sf::Color& color, float x1, float x2,
+        float x3, float y1, float y2, bool left);
 
-    inline std::pair<int, int> getScrollbarNotches(const int size,
-        const int maxSize);
+    inline std::pair<int, int> getScrollbarNotches(
+        const int size, const int maxSize);
     inline void drawScrollbar(const float totalHeight, const int size,
-        const int notches, const float x, const float y, const sf::Color& color);
+        const int notches, const float x, const float y,
+        const sf::Color& color);
 
     inline void drawMainSubmenus(
         const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
@@ -266,13 +268,14 @@ private:
 
     // Profiles Menu
     void drawProfileSelection(float xOffset, float frameSize,
-        unsigned int charSize, float minWidth, float minHeight, bool revertOffset);
+        unsigned int charSize, float minWidth, float minHeight,
+        bool revertOffset);
     void drawProfileSelectionBoot(unsigned int charSize);
 
     // Entering text menu
     float enteringTextOffset{0.f};
-    void drawEnteringText(float xOffset, float frameSize,
-        unsigned int charSize, float minWidth, bool revertOffset);
+    void drawEnteringText(float xOffset, float frameSize, unsigned int charSize,
+        float minWidth, bool revertOffset);
     void drawEnteringTextBoot(unsigned int charSize);
 
     // Level selection menu
@@ -296,7 +299,8 @@ private:
     float levelSelectionTotalHeight{0.f};
     float levelSelectionXOffset{0.f}; // to make the menu slide in/out
     float levelSelectionYOffset{0.f}; // to scroll up and down the menu
-    float levelYScrollTo{0.f};        // height list must scroll to to show current item
+    float levelYScrollTo{
+        0.f}; // height list must scroll to to show current item
     float packChangeOffset{0.f};      // level list yOffset when being fold
     std::vector<float> levelsOffsets; // xOffset of the single level labels
     inline void adjustLevelsOffset();
@@ -306,17 +310,16 @@ private:
     inline float getFrameSize();
     inline float getLevelListHeight();
     inline void calcLevelChangeScroll();
-    inline void scrollName(sf::Text& font, float& scroller,
-        std::string& name);
-    inline void scrollNameRightBorder(sf::Text& font, float& scroller,
-        std::string& name, const float border);
+    inline void scrollName(sf::Text& font, float& scroller, std::string& name);
+    inline void scrollNameRightBorder(
+        sf::Text& font, float& scroller, std::string& name, const float border);
     inline void resetNamesScrolls();
-    void drawLevelSelection(const unsigned int charSize,
-        const bool revertOffset);
+    void drawLevelSelection(
+        const unsigned int charSize, const bool revertOffset);
 
     // Text rendering
-    void renderText(const std::string& mStr, sf::Text& mText,
-        const sf::Vector2f& mPos)
+    void renderText(
+        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
     {
         mText.setString(mStr);
         mText.setPosition(mPos);
@@ -344,8 +347,8 @@ private:
     }
 
     // Text rendering centered
-    void renderTextCentered(const std::string& mStr, sf::Text& mText,
-        const sf::Vector2f& mPos)
+    void renderTextCentered(
+        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
     {
         mText.setString(mStr);
         mText.setPosition(mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
@@ -377,7 +380,8 @@ private:
         const sf::Vector2f& mPos, const float xOffset)
     {
         mText.setString(mStr);
-        mText.setPosition(xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
+        mText.setPosition(
+            xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
         render(mText);
     }
     void renderTextCenteredOffset(const std::string& mStr, sf::Text& mText,

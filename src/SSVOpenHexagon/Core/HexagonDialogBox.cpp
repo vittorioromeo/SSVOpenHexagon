@@ -13,8 +13,8 @@ namespace hg
 HexagonDialogBox::HexagonDialogBox(
     HGAssets& mAssets, ssvs::GameWindow& mWindow, StyleData& mStyleData)
     : assets{mAssets}, window{mWindow}, styleData{mStyleData},
-      imagine{assets.get<sf::Font>("forcedsquare.ttf")},
-      txtDialog{"", imagine, 0}
+      imagine{assets.get<sf::Font>("forcedsquare.ttf")}, txtDialog{
+                                                             "", imagine, 0}
 {
 }
 
@@ -98,8 +98,8 @@ void HexagonDialogBox::drawBox(const Color& frameColor, const float x1,
         frameColor, topLeft, topRight, bottomRight, bottomLeft);
 }
 
-void HexagonDialogBox::drawText(const Color& txtColor,
-    const float xOffset, const float yOffset)
+void HexagonDialogBox::drawText(
+    const Color& txtColor, const float xOffset, const float yOffset)
 {
     float heightOffset = 0.f;
     const float interline = lineHeight * 1.5f;
@@ -112,7 +112,7 @@ void HexagonDialogBox::drawText(const Color& txtColor,
             txtDialog.setString(str);
             txtDialog.setPosition(
                 {xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
-                 yOffset + heightOffset});
+                    yOffset + heightOffset});
             window.draw(txtDialog);
         }
         heightOffset += interline;
@@ -133,8 +133,8 @@ void HexagonDialogBox::drawTopLeft(
 
     // text backdrop
     drawBox(backdropColor, frameSize + xPos,
-        doubleFrameSize + frameSize + dialogWidth + xPos,
-        frameSize + yPos, totalHeight - frameSize + yPos);
+        doubleFrameSize + frameSize + dialogWidth + xPos, frameSize + yPos,
+        totalHeight - frameSize + yPos);
 
     window.draw(dialogFrame);
 
@@ -160,18 +160,18 @@ void HexagonDialogBox::drawCenter(
 
     // outer frame
     drawBox(txtColor, leftBorder - doubleFrameSize,
-        rightBorder + doubleFrameSize,
-        h - halfHeight, h + halfHeight);
+        rightBorder + doubleFrameSize, h - halfHeight, h + halfHeight);
 
     // text backdrop
     drawBox(backdropColor, leftBorder - frameSize, rightBorder + frameSize,
-            h - halfHeight + frameSize, h + halfHeight - frameSize);
+        h - halfHeight + frameSize, h + halfHeight - frameSize);
 
     window.draw(dialogFrame);
 
     // Text
     drawText(txtColor, w / 2.f,
-        h - halfHeight - lineHeight * FONT_HEIGHT_DIFFERENTIAL + doubleFrameSize);
+        h - halfHeight - lineHeight * FONT_HEIGHT_DIFFERENTIAL +
+            doubleFrameSize);
 }
 
 void HexagonDialogBox::drawCenterUpperHalf(
@@ -200,7 +200,8 @@ void HexagonDialogBox::drawCenterUpperHalf(
 
     // Text
     drawText(txtColor, w / 2.f,
-        h - totalHeight - lineHeight * FONT_HEIGHT_DIFFERENTIAL + doubleFrameSize);
+        h - totalHeight - lineHeight * FONT_HEIGHT_DIFFERENTIAL +
+            doubleFrameSize);
 }
 
 #undef FONT_HEIGHT_DIFFERENTIAL

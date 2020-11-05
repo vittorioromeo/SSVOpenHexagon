@@ -116,8 +116,8 @@ void ignoreAllPresses(bool ignore)
     s.leftWasPressed = s.rightWasPressed = s.upWasPressed = s.downWasPressed =
         s.selectWasPressed = s.exitWasPressed = s.focusWasPressed =
             s.swapWasPressed = s.forceRestartWasPressed = s.restartWasPressed =
-                s.replayWasPressed = s.screenshotWasPressed = s.nextPackWasPressed =
-                    s.previousPackWasPressed = ignore;
+                s.replayWasPressed = s.screenshotWasPressed =
+                    s.nextPackWasPressed = s.previousPackWasPressed = ignore;
 
     getJoystickState().ignoreAllPresses = ignore;
 }
@@ -221,13 +221,12 @@ void update()
         s.screenshotPressed, sf::Joystick::isButtonPressed(
                                  joyId, s.joystickInputs[Jid::Screenshot]));
 
-    s.nextPackWasPressed = std::exchange(
-        s.nextPackPressed, sf::Joystick::isButtonPressed(
-            joyId, s.joystickInputs[Jid::NextPack]));
+    s.nextPackWasPressed = std::exchange(s.nextPackPressed,
+        sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::NextPack]));
 
     s.previousPackWasPressed = std::exchange(
         s.previousPackPressed, sf::Joystick::isButtonPressed(
-            joyId, s.joystickInputs[Jid::PreviousPack]));
+                                   joyId, s.joystickInputs[Jid::PreviousPack]));
 }
 
 

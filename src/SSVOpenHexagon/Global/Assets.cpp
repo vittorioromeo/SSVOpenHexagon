@@ -59,8 +59,8 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     for(auto& v : levelDataIdsByPack)
     {
         ssvu::sort(v.second, [&](const auto& mA, const auto& mB) {
-          return levelDatas.at(mA).menuPriority <
-                 levelDatas.at(mB).menuPriority;
+            return levelDatas.at(mA).menuPriority <
+                   levelDatas.at(mB).menuPriority;
         });
     }
 
@@ -139,7 +139,7 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     }();
 
     const PackData packData{packPathStr, packId, packDisambiguator, packName,
-                            packAuthor, packDescription, packVersion, packPriority};
+        packAuthor, packDescription, packVersion, packPriority};
 
     packDatas.emplace(packId, packData);
 
@@ -200,7 +200,7 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
         }
 
         if(!levelsOnly &&
-           ssvufs::Path(packPath + "Sounds/").exists<ssvufs::Type::Folder>())
+            ssvufs::Path(packPath + "Sounds/").exists<ssvufs::Type::Folder>())
         {
             ssvu::lo("::loadAssets")
                 << "loading " << packId << " custom sounds\n";
@@ -209,7 +209,8 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     }
     catch(const std::runtime_error& mEx)
     {
-        errorMessage = "Exception during asset loading: " + std::string(mEx.what()) + "\n";
+        errorMessage =
+            "Exception during asset loading: " + std::string(mEx.what()) + "\n";
         loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
 
         ssvu::lo("FATAL ERROR") << errorMessage;
@@ -251,8 +252,8 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     {
         if(!loadPackData(packPath))
         {
-            errorMessage = "Error loading pack data '" +
-                           packPath.getStr() + "'\n";
+            errorMessage =
+                "Error loading pack data '" + packPath.getStr() + "'\n";
             loadInfo.errorMessages.emplace_back(errorMessage);
             ssvu::lo("::loadAssets") << errorMessage;
         }
@@ -265,20 +266,20 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     // ------------------------------------------------------------------------
     // Load packs from Steam workshop.
     steamManager.for_workshop_pack_folders([&](const std::string& folderPath) {
-      const ssvufs::Path packPath{folderPath};
+        const ssvufs::Path packPath{folderPath};
 
-      if(!loadPackData(packPath))
-      {
-          errorMessage = "Error loading pack data '" +
-                         packPath.getStr() + "'\n";
-          loadInfo.errorMessages.emplace_back(errorMessage);
-          ssvu::lo("::loadAssets")
-              << "Error loading pack data '" << packPath << "'\n";
-      }
-      else
-      {
-          loadInfo.packs++;
-      }
+        if(!loadPackData(packPath))
+        {
+            errorMessage =
+                "Error loading pack data '" + packPath.getStr() + "'\n";
+            loadInfo.errorMessages.emplace_back(errorMessage);
+            ssvu::lo("::loadAssets")
+                << "Error loading pack data '" << packPath << "'\n";
+        }
+        else
+        {
+            loadInfo.packs++;
+        }
     });
 
     // ------------------------------------------------------------------------
@@ -758,7 +759,8 @@ const ProfileData& HGAssets::getCurrentLocalProfile() const
     return *currentProfilePtr;
 }
 
-const ProfileData* HGAssets::getLocalProfileByName(const std::string& mName) const
+const ProfileData* HGAssets::getLocalProfileByName(
+    const std::string& mName) const
 {
     return &profileDataMap.find(mName)->second;
 }
@@ -833,7 +835,7 @@ void HGAssets::playSound(const std::string& mId, ssvs::SoundPlayer::Mode mMode)
 
 
 void HGAssets::playPackSound(const std::string& mPackId, const std::string& mId,
-                             ssvs::SoundPlayer::Mode mMode)
+    ssvs::SoundPlayer::Mode mMode)
 {
     const auto assetId = mPackId + "_" + mId;
 
