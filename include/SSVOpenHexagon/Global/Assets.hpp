@@ -22,6 +22,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <cstddef>
 
 namespace hg
 {
@@ -90,7 +91,7 @@ public:
 
             // Replace first newline with '-', place a space before it,
             // and remove a space after it.
-            size_t i = error.find('\n');
+            std::size_t i = error.find('\n');
             error.insert(i, " ");
             error[++i] = '-';
             error.erase(++i, 1);
@@ -115,6 +116,7 @@ public:
     {
         return loadInfo;
     }
+
     auto& operator()()
     {
         return assetManager;

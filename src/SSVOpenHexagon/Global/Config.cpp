@@ -1017,7 +1017,7 @@ const triggerGetter keyboardGetterFuncs[] = {
     getTriggerPreviousPack,
 };
 
-const std::string getKeyboardBindNames(const int bindID)
+[[nodiscard]] std::string getKeyboardBindNames(const int bindID)
 {
     int j;
     std::string bindNames;
@@ -1417,8 +1417,8 @@ const std::string getJoystickBindNames(const int bindID)
     }
     else
     {
-#define MS_VENDOR_ID 0x045E
-#define SONY_VENDOR_ID 0x54C
+        constexpr unsigned int msVendorId = 0x045E;
+        constexpr unsigned int sonyVendorId = 0x54C;
 
         const unsigned int vendorId =
             sf::Joystick::isConnected(0)
@@ -1427,17 +1427,14 @@ const std::string getJoystickBindNames(const int bindID)
 
         switch(vendorId)
         {
-            case MS_VENDOR_ID:
+            case msVendorId:
                 bindName = value >= 12 ? "" : buttonsNames[value][0];
                 break;
-            case SONY_VENDOR_ID:
+            case sonyVendorId:
                 bindName = value >= 12 ? "" : buttonsNames[value][1];
                 break;
             default: bindName = ssvu::toStr(value); break;
         }
-
-#undef MS_VENDOR_ID
-#undef SONY_VENDOR_ID
     }
 
     Utils::uppercasify(bindName);

@@ -9,6 +9,8 @@
 #include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
+#include <SFML/Graphics.hpp>
+
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 namespace hg

@@ -66,7 +66,7 @@ inline std::pair<Obj, std::string> getFromFileWithErrors(
     Obj result;
     std::string error;
     readFromFile(result, mPath, error);
-    return std::make_pair(result, error);
+    return {result, error};
 }
 
 inline void writeToStream(const Obj& mObj, std::ostream& mStream)
