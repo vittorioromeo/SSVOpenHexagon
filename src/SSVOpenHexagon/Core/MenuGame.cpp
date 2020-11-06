@@ -1385,16 +1385,7 @@ void MenuGame::changePack(const int direction)
     assets.playSound("beep.ogg");
     changePack();
     adjustLevelsOffset();
-
-    // Check if the pack we switched to plus a few levels is within the
-    // boundaries of the screen, if not push it in
-    const float height =
-        getPackLabelHeight() * (packIdx + 1) + getLevelLabelHeight();
-
-    if(height > h)
-    {
-        levelSelectionYOffset = h - height;
-    }
+    levelSelectionYOffset = -getPackLabelHeight() * packIdx;
 }
 
 void MenuGame::changePackAction(const int direction)
@@ -1878,7 +1869,7 @@ void MenuGame::update(ssvu::FT mFT)
 
                     // Change the pack
                     changePack();
-                    // Set the new fold info
+                    // Set the stretch info
                     packChangeOffset = getLevelListHeight();
                     packChangeState = PackChange::Stretching;
                     return;
@@ -1891,8 +1882,8 @@ void MenuGame::update(ssvu::FT mFT)
                     }
 
                     packChangeOffset = 0.f;
+                    calcPackChangeScroll();
                     adjustLevelsOffset();
-                    calcLevelChangeScroll();
                     packChangeState = PackChange::Rest;
                     return;
             }
@@ -3147,8 +3138,8 @@ void MenuGame::calcLevelChangeScroll()
 {
     const float frameSize{getFrameSize()},
         levelLabelHeight{getLevelLabelHeight()},
-        curLevelTop = getPackLabelHeight() * (packIdx + 1) + frameSize +
-                      levelLabelHeight * currentIndex + levelSelectionYOffset,
+        curLevelTop{getPackLabelHeight() * (packIdx + 1) + frameSize +
+                    levelLabelHeight * currentIndex + levelSelectionYOffset},
         curLevelBottom{curLevelTop + levelLabelHeight + frameSize};
 
     if(curLevelBottom > h)
@@ -3158,6 +3149,38 @@ void MenuGame::calcLevelChangeScroll()
     else if(curLevelTop < 0.f)
     {
         levelYScrollTo = levelSelectionYOffset - curLevelTop;
+    }
+}
+void MenuGame::calcPackChangeScroll()
+{
+    // The element selected is the last one of the pack,
+    // so we must scroll to that. It is equal to regular
+    // calcLevelChangeScroll().
+    if(packChangeDirection == -2)
+    {
+        calcLevelChangeScroll();
+        return;
+    }
+
+    // The list is shifted to try fit all levels in the pack.
+    // If that is not possible just include the pack label
+    // + whatever amount of levels it's possible to fit on screen.
+    const float levelLabelHeight{getLevelLabelHeight()},
+        packLabelHeight{getPackLabelHeight()},
+        levelsListHeight{std::min(
+        packLabelHeight + 2.f * getFrameSize() +
+        levelLabelHeight * levelDataIds.size(), h) - levelLabelHeight},
+        scrollTop{packLabelHeight * packIdx + levelSelectionYOffset +
+                  levelsListHeight},
+        scrollBottom{scrollTop + levelLabelHeight};
+
+    if(scrollBottom > h)
+    {
+        levelYScrollTo = levelSelectionYOffset + h - scrollBottom;
+    }
+    else if(scrollTop < 0.f)
+    {
+        levelYScrollTo = levelSelectionYOffset - scrollTop;
     }
 }
 
