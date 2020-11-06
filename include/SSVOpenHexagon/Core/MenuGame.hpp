@@ -327,6 +327,7 @@ private:
     float getFrameSize();
     float getLevelListHeight();
     void calcLevelChangeScroll();
+    void calcPackChangeScroll();
     void scrollName(std::string& text, float& scroller);
     void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);
