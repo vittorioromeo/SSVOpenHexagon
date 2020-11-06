@@ -77,22 +77,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
         }
 
-        if(state == States::LevelSelection)
+        if(state == States::LevelSelection && focusHeld)
         {
-            if(focusHeld)
-            {
-                changePack(mEvent.mouseWheel.delta > 0 ? -1 : 1);
-                return;
-            }
-
-            if(levelSelectionTotalHeight <= h)
-            {
-                return;
-            }
-
-            levelSelectionYOffset -= 20 * mEvent.mouseWheel.delta;
-            levelSelectionYOffset = std::clamp(
-                levelSelectionYOffset, h - levelSelectionTotalHeight, 0.f);
+            changePack(mEvent.mouseWheel.delta > 0 ? -1 : 1);
             return;
         }
 
@@ -3384,9 +3371,6 @@ void MenuGame::drawLevelSelection(
                 menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
             render(menuQuads);
-
-            // Since this is the last label that will be drawn there is not
-            // need to do the closing height += operation as below.
         }
         else
         {
@@ -3478,9 +3462,6 @@ void MenuGame::drawLevelSelection(
             txtMediumHeight / 2.f + txtSmallLeftHeight * (1.f + fontTopBorder)},
         textYPos{quadBorder - panelOffset},
         textRightBorder{quadsIndent - 2.f * quadBorder};
-
-    quadsIndent = w * 0.33f;
-    width = quadsIndent - panelOffset;
 
     levelDataTemp = &assets.getLevelData(levelDataIds.at(currentIndex));
     height = quadBorder;
@@ -3680,7 +3661,8 @@ void MenuGame::drawLevelSelection(
 
     height += txtMediumHeight + txtSmallHeight;
     tempFloat = getFontHeight(txtSelectionScore);
-    tempString = getLocalValidator(levelData->id, diffMultIdx);
+    tempString = getLocalValidator(levelData->id,
+        ssvu::getByModIdx(diffMults, diffMultIdx));
     renderText(toStr(assets.getCurrentLocalProfile().getScore(tempString)),
         txtSelectionScore,
         {quadBorder - panelOffset, height - tempFloat * fontTopBorder});
