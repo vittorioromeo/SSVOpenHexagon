@@ -161,7 +161,7 @@ private:
     void exitAction();
     int packChangeDirection{0};
     void changePack();
-    void changePack(const int direction);
+    void changePackQuick(const int direction);
     void changePackAction(const int direction);
 
     [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept

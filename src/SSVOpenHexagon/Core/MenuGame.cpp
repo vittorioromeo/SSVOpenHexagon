@@ -79,7 +79,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
         if(state == States::LevelSelection && focusHeld)
         {
-            changePack(mEvent.mouseWheel.delta > 0 ? -1 : 1);
+            changePackQuick(mEvent.mouseWheel.delta > 0 ? -1 : 1);
             return;
         }
 
@@ -1234,7 +1234,7 @@ void MenuGame::upAction()
 
         if(focusHeld)
         {
-            changePack(-1);
+            changePackQuick(-1);
             return;
         }
 
@@ -1308,7 +1308,7 @@ void MenuGame::downAction()
 
         if(focusHeld)
         {
-            changePack(1);
+            changePackQuick(1);
             return;
         }
 
@@ -1379,13 +1379,13 @@ void MenuGame::changePack()
     resetNamesScrolls();
 }
 
-void MenuGame::changePack(const int direction)
+void MenuGame::changePackQuick(const int direction)
 {
     packChangeDirection = direction;
     assets.playSound("beep.ogg");
     changePack();
     adjustLevelsOffset();
-    levelSelectionYOffset = -getPackLabelHeight() * packIdx;
+    levelSelectionYOffset = - getPackLabelHeight() * packIdx;
 }
 
 void MenuGame::changePackAction(const int direction)
@@ -1838,7 +1838,7 @@ void MenuGame::update(ssvu::FT mFT)
             {
                 if(levelSelectionYOffset < levelYScrollTo)
                 {
-                    levelSelectionYOffset += mFT * 15.f;
+                    levelSelectionYOffset += mFT * 30.f;
                     if(levelSelectionYOffset >= levelYScrollTo)
                     {
                         levelSelectionYOffset = levelYScrollTo;
@@ -1847,7 +1847,7 @@ void MenuGame::update(ssvu::FT mFT)
                 }
                 else
                 {
-                    levelSelectionYOffset -= mFT * 15.f;
+                    levelSelectionYOffset -= mFT * 30.f;
                     if(levelSelectionYOffset <= levelYScrollTo)
                     {
                         levelSelectionYOffset = levelYScrollTo;
@@ -3039,25 +3039,21 @@ float MenuGame::getQuadBorder()
 {
     return getFontHeight(txtSelectionMedium) * frameSizeMulti;
 }
-
 float MenuGame::getFrameSize()
 {
     return getQuadBorder() * 0.3f;
 }
-
 float MenuGame::getPackLabelHeight()
 {
     return getFontHeight(txtSelectionMedium) + 2.f * getQuadBorder() +
            getFrameSize();
 }
-
 float MenuGame::getLevelLabelHeight()
 {
     return getFontHeight(txtSelectionBig) +           // level name
            getFontHeight(txtSelectionSmall) * 1.75f + // author + interspace
            2.f * getQuadBorder() - getFrameSize();    // top and bottom spaces
 }
-
 float MenuGame::getLevelListHeight()
 {
     return getLevelLabelHeight() * levelDataIds.size() + getFrameSize();
@@ -3076,7 +3072,6 @@ void MenuGame::scrollName(std::string& text, float& scroller)
     text.erase(text.begin(), it);
     text += charsToMove;
 }
-
 void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
     sf::Text& font, float& scroller, float border)
 {
@@ -3105,7 +3100,6 @@ void MenuGame::scrollNameRightBorder(std::string& text, const std::string key,
     }
     text = key + text;
 }
-
 void MenuGame::scrollNameRightBorder(
     std::string& text, sf::Text& font, float& scroller, float border)
 {
@@ -3781,21 +3775,21 @@ void MenuGame::draw()
     switch(state)
     {
         case States::LoadingScreen:
-        {
-            drawLoadResults();
-            const float fontHeight = getFontHeight(txtProf);
-            renderText("PRESS ANY KEY TO CONTINUE", txtProf,
-                {fontHeight, h - fontHeight * 2.7f});
-        }
+            {
+                drawLoadResults();
+                const float fontHeight = getFontHeight(txtProf);
+                renderText("PRESS ANY KEY TO CONTINUE", txtProf,
+                    {fontHeight, h - fontHeight * 2.7f});
+            }
             return;
 
         case States::EpilepsyWarning:
-        {
-            render(epilepsyWarning);
-            const float fontHeight = getFontHeight(txtProf);
-            renderText("PRESS ANY KEY TO CONTINUE", txtProf,
-                {fontHeight, h - fontHeight * 2.7f});
-        }
+            {
+                render(epilepsyWarning);
+                const float fontHeight = getFontHeight(txtProf);
+                renderText("PRESS ANY KEY TO CONTINUE", txtProf,
+                    {fontHeight, h - fontHeight * 2.7f});
+            }
             return;
 
         case States::ETLPNewBoot:
