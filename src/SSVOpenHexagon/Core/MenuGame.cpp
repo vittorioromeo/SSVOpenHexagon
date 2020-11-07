@@ -3760,13 +3760,14 @@ void MenuGame::draw()
             sf::Vector2f{20.f, getGlobalBottom(titleBar) + 8});
     }
 
-    float indentBig{400.f}, indentSmall{540.f};
+    float indentBig{400.f}, indentSmall{540.f}, profileIndent{-100.f};
     unsigned int txtSizeBig{45}, txtSizeSmall{30}, txtSizeLSmall{24};
     // We need different values to fit menus in 4:3
     if(fourByThree)
     {
         indentBig = 280.f;
         indentSmall = 410.f;
+        profileIndent = -75.f;
         txtSizeBig = 33;
         txtSizeSmall = 20;
         txtSizeLSmall = 16;
@@ -3811,13 +3812,12 @@ void MenuGame::draw()
             }
             if(profileSelectionMenu.getCategory().getOffset() != 0.f)
             {
-                drawProfileSelection(-(fourByThree ? 75.f : 100.f), 10.f, 35,
-                    400.f, 360.f, true);
+                drawProfileSelection(profileIndent, 10.f, 35, 400.f,
+                    360.f, true);
             }
             if(enteringTextOffset != 0.f)
             {
-                drawEnteringText(
-                    -(fourByThree ? 75.f : 100.f), 10.f, 60, 200.f, true);
+                drawEnteringText(profileIndent, 10.f, 60, 200.f, true);
             }
             if(levelSelectionXOffset != 0.f)
             {
@@ -3850,16 +3850,14 @@ void MenuGame::draw()
         case States::ETLPNew:
             drawMainMenu(mainMenu.getCategoryByName("local profiles"),
                 w - indentBig, txtSizeBig, false);
-            drawEnteringText(
-                -(fourByThree ? 75.f : 100.f), 10.f, 60, 200.f, false);
+            drawEnteringText(profileIndent, 10.f, 60, 200.f, false);
             drawGraphics();
             break;
 
         case States::SLPSelect:
             drawMainMenu(mainMenu.getCategoryByName("local profiles"),
                 w - indentBig, txtSizeBig, false);
-            drawProfileSelection(
-                -(fourByThree ? 75.f : 100.f), 10.f, 35, 400.f, 360.f, false);
+            drawProfileSelection(profileIndent, 10.f, 35, 400.f, 360.f, false);
             drawGraphics();
             break;
 
