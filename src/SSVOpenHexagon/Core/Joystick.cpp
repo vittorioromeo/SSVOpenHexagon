@@ -192,8 +192,8 @@ void update()
 
     s.leftWasPressed = std::exchange(s.leftPressed, xIs(AxisDir::Left));
     s.rightWasPressed = std::exchange(s.rightPressed, xIs(AxisDir::Right));
-    s.upWasPressed = std::exchange(s.upPressed, yIs(AxisDir::Right));
-    s.downWasPressed = std::exchange(s.downPressed, yIs(AxisDir::Left));
+    s.upWasPressed = std::exchange(s.upPressed, yIs(AxisDir::Left));
+    s.downWasPressed = std::exchange(s.downPressed, yIs(AxisDir::Right));
 
     s.selectWasPressed = std::exchange(s.selectPressed,
         sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Select]));
