@@ -134,6 +134,11 @@ enum class AxisDir : int
     Right = 1
 };
 
+inline AxisDir operator-(AxisDir dir)
+{
+    return static_cast<AxisDir>(- static_cast<int>(dir));
+}
+
 [[nodiscard]] static AxisDir axisPressed(
     const unsigned int joyId, const sf::Joystick::Axis axis)
 {
@@ -187,13 +192,13 @@ void update()
     };
 
     const auto yIs = [&](const AxisDir axisDir) {
-        return dpadYIs(axisDir) || leftStickYIs(axisDir);
+        return dpadYIs(axisDir) || leftStickYIs(- axisDir);
     };
 
     s.leftWasPressed = std::exchange(s.leftPressed, xIs(AxisDir::Left));
     s.rightWasPressed = std::exchange(s.rightPressed, xIs(AxisDir::Right));
-    s.upWasPressed = std::exchange(s.upPressed, yIs(AxisDir::Left));
-    s.downWasPressed = std::exchange(s.downPressed, yIs(AxisDir::Right));
+    s.upWasPressed = std::exchange(s.upPressed, yIs(AxisDir::Right));
+    s.downWasPressed = std::exchange(s.downPressed, yIs(AxisDir::Left));
 
     s.selectWasPressed = std::exchange(s.selectPressed,
         sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Select]));
