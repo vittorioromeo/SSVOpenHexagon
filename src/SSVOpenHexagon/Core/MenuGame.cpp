@@ -130,21 +130,9 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    game.onEvent(Event::EventType::KeyPressed) += [this](const Event& mEvent) {
-        if(mEvent.key.code == KKey::LShift || mEvent.key.code == KKey::RShift)
-        {
-            focusHeld = true;
-        }
-    };
-
     game.onEvent(Event::EventType::KeyReleased) += [this, checkCloseBootScreens,
                                                        checkCloseDialogBox](
                                                        const Event& mEvent) {
-        if(mEvent.key.code == KKey::LShift)
-        {
-            focusHeld = false;
-        }
-
         // don't do anything if inputs are being processed as usual
         if(!ignoreInputs)
         {
@@ -1160,8 +1148,6 @@ void MenuGame::returnToLevelSelection()
 {
     adjustLevelsOffset();
     levelSelectionXOffset = 0.f;
-    focusHeld = sf::Keyboard::isKeyPressed(KKey::LShift) ||
-                        sf::Keyboard::isKeyPressed(KKey::RShift) ? true : false;
     setIgnoreAllInputs(1); // otherwise you go back to the main menu
 }
 
@@ -1834,6 +1820,9 @@ void MenuGame::update(ssvu::FT mFT)
         case States::LoadingScreen: hexagonRotation += mFT / 100.f; return;
 
         case States::LevelSelection:
+            focusHeld = sf::Keyboard::isKeyPressed(KKey::LShift) ||
+                        sf::Keyboard::isKeyPressed(KKey::RShift);
+            
             if(levelYScrollTo != 0.f)
             {
                 if(levelSelectionYOffset < levelYScrollTo)
@@ -1898,6 +1887,7 @@ void MenuGame::setIndex(const int mIdx)
     currentIndex = mIdx;
 
     levelData = &assets.getLevelData(levelDataIds.at(currentIndex));
+    formatLevelDescription();
 
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
     styleData.computeColors(levelStatus);
@@ -3178,6 +3168,101 @@ void MenuGame::calcPackChangeScroll()
     }
 }
 
+float MenuGame::getMaximumTextWidth()
+{
+    return w * 0.33f - 2.f * getQuadBorder();
+}
+
+constexpr int descLines = 7;
+
+void MenuGame::formatLevelDescription()
+{
+    levelDescription.clear();
+    std::string desc{
+        assets.getLevelData(levelDataIds.at(currentIndex)).description};
+
+    if(desc.empty())
+    {
+        return;
+    }
+    uppercasify(desc);
+
+    // Split description into words.
+    desc += '\n'; // Add a safety newline
+    size_t i{0}, j{0};
+    std::vector<std::string> words;
+    for(; i < desc.size(); ++i)
+    {
+        if(desc[i] == '\n')
+        {
+            words.emplace_back(desc.substr(j, ++i - j)); // include the newline.
+            j = i;
+        }
+        else if(desc[i] == ' ')
+        {
+            words.emplace_back(desc.substr(j, i - j));
+            j = ++i; // skip the space.
+        }
+    }
+
+    // Group words into lines depending on wherever
+    // they fit within the maximum width.
+    size_t size = words.size();
+    const float maxWidth{getMaximumTextWidth()};
+    std::string candidate, temp;
+    for(i = 0; i < size && levelDescription.size() < descLines; ++i)
+    {
+        if(!candidate.empty())
+        {
+            temp = " " + words[i];
+            txtSelectionSmall.setString(candidate + temp);
+        }
+        else
+        {
+            temp = words[i];
+            txtSelectionSmall.setString(temp);
+        }
+
+        // If last character is a newline...
+        if(temp[temp.size() - 1] == '\n')
+        {
+            // ...if it all fits add to the vector as a single line...
+            if(getGlobalWidth(txtSelectionSmall) < maxWidth)
+            {
+                candidate += temp;
+                levelDescription.push_back(candidate);
+            }
+            else
+            {
+                // ...otherwise add "candidate" to the vector and add the new
+                // word on its own.
+                levelDescription.push_back(candidate);
+                levelDescription.push_back(words[i]);
+            }
+            candidate.clear();
+            continue;
+        }
+
+        // If there is no newline check if the line fits...
+        if(getGlobalWidth(txtSelectionSmall) < maxWidth)
+        {
+            candidate += temp;
+            continue;
+        }
+
+        // ...if it doesn't add to the vector "candidate" and set it to be
+        // just the overflowing word.
+        levelDescription.push_back(candidate);
+        candidate = words[i];
+    }
+
+    // Add whatever is left if it fits.
+    if(levelDescription.size() < descLines)
+    {
+        levelDescription.push_back(candidate);
+    }
+}
+
 void MenuGame::drawLevelSelection(
     const unsigned int charSize, const bool revertOffset)
 {
@@ -3189,10 +3274,10 @@ void MenuGame::drawLevelSelection(
     // Calculate coordinates
     const float packLabelHeight{getPackLabelHeight()},
         quadBorder{getQuadBorder()}, frameSize{getFrameSize()},
-        outerFrame{quadBorder + frameSize};
-    const float levelLabelHeight{getLevelLabelHeight()};
-    float quadsIndent{w * 0.66f}, txtIndent{w * 0.83f};
-    const float levelIndent{quadsIndent + quadBorder};
+        outerFrame{quadBorder + frameSize},
+        levelLabelHeight{getLevelLabelHeight()}, sidepanelIndent{w * 0.33f},
+        quadsIndent{w - sidepanelIndent}, txtIndent{w - sidepanelIndent / 2.f},
+        levelIndent{quadsIndent + quadBorder};
 
     // Offset
     float panelOffset{
@@ -3446,13 +3531,6 @@ void MenuGame::drawLevelSelection(
             levelYScrollTo = 0.f;
             levelSelectionYOffset = tempFloat;
         }
-        else
-        {
-            // Scrolling clamp (similar code is also in
-            // mouse wheel scroll for better results).
-            levelSelectionYOffset =
-                std::clamp(levelSelectionYOffset, tempFloat, 0.f);
-        }
     }
 
     //**********************************************************************//
@@ -3466,8 +3544,7 @@ void MenuGame::drawLevelSelection(
     const PackData& curPack = assets.getPackData(infos[packIdx].id);
     txtSelectionLSmall.setCharacterSize(charSize);
 
-    quadsIndent = w * 0.33f;
-    width = quadsIndent - panelOffset;
+    width = sidepanelIndent - panelOffset;
 
     const float smallInterline{txtSmallHeight * 1.5f},
         txtSmallLeftHeight{getFontHeight(txtSelectionLSmall)},
@@ -3478,7 +3555,7 @@ void MenuGame::drawLevelSelection(
         preLineSpace{
             txtMediumHeight / 2.f + txtSmallLeftHeight * (1.f + fontTopBorder)},
         textYPos{quadBorder - panelOffset},
-        textRightBorder{quadsIndent - 2.f * quadBorder};
+        textRightBorder{getMaximumTextWidth()};
 
     levelDataTemp = &assets.getLevelData(levelDataIds.at(currentIndex));
     height = quadBorder;
@@ -3504,32 +3581,18 @@ void MenuGame::drawLevelSelection(
 
     //-------------------------------------
     // Level description
-    // Interline cannot be trusted when drawing
-    // multiple lines of text, so I have to break it into lines
-    // and draw them with my defined interline
     height += txtBigHeight + quadBorder - txtSmallHeight * 0.7f;
 
-    tempString = levelDataTemp->description;
-    Utils::uppercasify(tempString);
-    // Add endline for safety, if there is one more than needed
-    // it doesn't matter
-    tempString += "\n";
-
-    i = 0;
-    size_t j;
-    while((j = tempString.find('\n')) != std::string::npos && i < 7)
+    for(i = 0; i < int(levelDescription.size()); ++i)
     {
         renderText(
-            tempString.substr(0, j), txtSelectionSmall, {textYPos, height});
-        tempString.erase(0, j);
-
-        height += i == 6 ? txtSmallHeight : smallInterline;
-        i++;
+            levelDescription[i], txtSelectionSmall, {textYPos, height});
+        height += i == descLines - 1 ? txtSmallHeight : smallInterline;
     }
-    for(; i < 7; ++i)
+    if(i != descLines)
     {
-        renderText("\n", txtSelectionSmall, {textYPos, height});
-        height += i == 6 ? txtSmallHeight : smallInterline;
+        height +=
+            smallInterline * std::max(0, descLines - 1 - i) + txtSmallHeight;
     }
 
     height += quadBorder + txtSmallHeight * 0.7f;
@@ -3651,7 +3714,7 @@ void MenuGame::drawLevelSelection(
     menuQuads.clear();
 
     renderTextCenteredOffset("FAVORITE - F7", txtSelectionMedium,
-        {quadsIndent / 2.f, height}, -panelOffset, grey);
+        {sidepanelIndent / 2.f, height}, -panelOffset, grey);
 
     height = tempFloat;
 
@@ -3661,7 +3724,7 @@ void MenuGame::drawLevelSelection(
     // "LEADERBOARDS"
     height += quadBorder;
     renderTextCenteredOffset("LEADERBOARDS", txtSelectionBig,
-        {quadsIndent / 2.f, height - txtBigHeight * fontTopBorder},
+        {sidepanelIndent / 2.f, height - txtBigHeight * fontTopBorder},
         -panelOffset);
 
     // Line
@@ -3693,7 +3756,7 @@ void MenuGame::drawLevelSelection(
     // "GLOBAL"
     height += txtSmallHeight / 2.f;
     renderTextCenteredOffset("<< GLOBAL >>", txtSelectionMedium,
-        {quadsIndent / 2.f, height - txtMediumHeight}, -panelOffset);
+        {sidepanelIndent / 2.f, height - txtMediumHeight}, -panelOffset);
 
     // Line
     height += txtSmallHeight / 2.f + txtMediumHeight;
@@ -3702,7 +3765,7 @@ void MenuGame::drawLevelSelection(
     height += lineThickness;
 
     // "USERNAME" and "TIME"
-    tempFloat = quadsIndent * 0.6f;
+    tempFloat = sidepanelIndent * 0.6f;
     menuQuads.reserve_more(4);
     createQuad(menuQuadColor, tempFloat - lineThickness / 2.f - panelOffset,
         tempFloat + lineThickness / 2.f - panelOffset, height, h);
@@ -3712,7 +3775,7 @@ void MenuGame::drawLevelSelection(
         {tempFloat / 2.f, height - txtMediumHeight}, -panelOffset);
 
     renderTextCenteredOffset("TIME", txtSelectionMedium,
-        {tempFloat + quadsIndent * 0.2f, height - txtMediumHeight},
+        {tempFloat + sidepanelIndent * 0.2f, height - txtMediumHeight},
         -panelOffset);
 
     // Line
