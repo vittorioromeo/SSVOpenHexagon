@@ -2151,11 +2151,12 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     }
 
     setIndex(currentIndex); // loads the new levelData
+    formatLevelDescription();
 
     reloadOutput += "\npress any key to close this message\n";
     uppercasify(reloadOutput);
 
-    // needs to be two because the dialog box reacts to key releases.
+    // Needs to be two because the dialog box reacts to key releases.
     // First key release is the one of the key press that made the dialog
     // box pop up, the second one belongs to the key press that closes it
     setIgnoreAllInputs(2);
