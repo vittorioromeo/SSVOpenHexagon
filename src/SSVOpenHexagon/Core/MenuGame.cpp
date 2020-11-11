@@ -1688,6 +1688,16 @@ void MenuGame::update(ssvu::FT mFT)
 
     hg::Joystick::update();
 
+    if(hg::Joystick::nextPackRisingEdge())
+    {
+        changePackAction(1);
+    }
+    else if(hg::Joystick::previousPackRisingEdge())
+    {
+        changePackAction(-1);
+    }
+    focusHeld = hg::Joystick::focusPressed();
+
     if(hg::Joystick::leftRisingEdge())
     {
         leftAction();
@@ -1712,15 +1722,6 @@ void MenuGame::update(ssvu::FT mFT)
     else if(hg::Joystick::exitRisingEdge())
     {
         exitAction();
-    }
-
-    if(hg::Joystick::nextPackRisingEdge())
-    {
-        changePackAction(1);
-    }
-    else if(hg::Joystick::previousPackRisingEdge())
-    {
-        changePackAction(-1);
     }
 
     if(hg::Joystick::screenshotRisingEdge())
