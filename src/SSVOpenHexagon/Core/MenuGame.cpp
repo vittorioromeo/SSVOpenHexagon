@@ -1371,7 +1371,7 @@ void MenuGame::changePackQuick(const int direction)
     assets.playSound("beep.ogg");
     changePack();
     adjustLevelsOffset();
-    levelSelectionYOffset = - getPackLabelHeight() * packIdx;
+    levelSelectionYOffset = -getPackLabelHeight() * packIdx;
 }
 
 void MenuGame::changePackAction(const int direction)
@@ -1822,7 +1822,7 @@ void MenuGame::update(ssvu::FT mFT)
         case States::LevelSelection:
             focusHeld = sf::Keyboard::isKeyPressed(KKey::LShift) ||
                         sf::Keyboard::isKeyPressed(KKey::RShift);
-            
+
             if(levelYScrollTo != 0.f)
             {
                 if(levelSelectionYOffset < levelYScrollTo)
@@ -2233,7 +2233,7 @@ void MenuGame::refreshBinds()
         Config::getTriggerSwap(), Config::getTriggerUp(),
         Config::getTriggerDown()};
 
-    size_t i;
+    std::size_t i;
     for(i = 0; i < sizeof(triggers) / sizeof(triggers[0]); ++i)
     {
         game.refreshTrigger(triggers[i], i);
@@ -3152,9 +3152,10 @@ void MenuGame::calcPackChangeScroll()
     // + whatever amount of levels it's possible to fit on screen.
     const float levelLabelHeight{getLevelLabelHeight()},
         packLabelHeight{getPackLabelHeight()},
-        levelsListHeight{std::min(
-        packLabelHeight + 2.f * getFrameSize() +
-        levelLabelHeight * levelDataIds.size(), h) - levelLabelHeight},
+        levelsListHeight{std::min(packLabelHeight + 2.f * getFrameSize() +
+                                      levelLabelHeight * levelDataIds.size(),
+                             h) -
+                         levelLabelHeight},
         scrollTop{packLabelHeight * packIdx + levelSelectionYOffset +
                   levelsListHeight},
         scrollBottom{scrollTop + levelLabelHeight};
@@ -3190,7 +3191,7 @@ void MenuGame::formatLevelDescription()
 
     // Split description into words.
     desc += '\n'; // Add a safety newline
-    size_t i{0}, j{0};
+    std::size_t i{0}, j{0};
     std::vector<std::string> words;
     for(; i < desc.size(); ++i)
     {
@@ -3208,7 +3209,7 @@ void MenuGame::formatLevelDescription()
 
     // Group words into lines depending on wherever
     // they fit within the maximum width.
-    size_t size = words.size();
+    std::size_t size = words.size();
     const float maxWidth{getMaximumTextWidth()};
     std::string candidate, temp;
     for(i = 0; i < size && levelDescription.size() < descLines; ++i)
@@ -3586,8 +3587,7 @@ void MenuGame::drawLevelSelection(
 
     for(i = 0; i < int(levelDescription.size()); ++i)
     {
-        renderText(
-            levelDescription[i], txtSelectionSmall, {textYPos, height});
+        renderText(levelDescription[i], txtSelectionSmall, {textYPos, height});
         height += i == descLines - 1 ? txtSmallHeight : smallInterline;
     }
     if(i != descLines)
@@ -3742,8 +3742,8 @@ void MenuGame::drawLevelSelection(
 
     height += txtMediumHeight + txtSmallHeight;
     tempFloat = getFontHeight(txtSelectionScore);
-    tempString = getLocalValidator(levelData->id,
-        ssvu::getByModIdx(diffMults, diffMultIdx));
+    tempString = getLocalValidator(
+        levelData->id, ssvu::getByModIdx(diffMults, diffMultIdx));
     renderText(toStr(assets.getCurrentLocalProfile().getScore(tempString)),
         txtSelectionScore,
         {quadBorder - panelOffset, height - tempFloat * fontTopBorder});
@@ -3840,21 +3840,21 @@ void MenuGame::draw()
     switch(state)
     {
         case States::LoadingScreen:
-            {
-                drawLoadResults();
-                const float fontHeight = getFontHeight(txtProf);
-                renderText("PRESS ANY KEY TO CONTINUE", txtProf,
-                    {fontHeight, h - fontHeight * 2.7f});
-            }
+        {
+            drawLoadResults();
+            const float fontHeight = getFontHeight(txtProf);
+            renderText("PRESS ANY KEY TO CONTINUE", txtProf,
+                {fontHeight, h - fontHeight * 2.7f});
+        }
             return;
 
         case States::EpilepsyWarning:
-            {
-                render(epilepsyWarning);
-                const float fontHeight = getFontHeight(txtProf);
-                renderText("PRESS ANY KEY TO CONTINUE", txtProf,
-                    {fontHeight, h - fontHeight * 2.7f});
-            }
+        {
+            render(epilepsyWarning);
+            const float fontHeight = getFontHeight(txtProf);
+            renderText("PRESS ANY KEY TO CONTINUE", txtProf,
+                {fontHeight, h - fontHeight * 2.7f});
+        }
             return;
 
         case States::ETLPNewBoot:
@@ -3876,8 +3876,8 @@ void MenuGame::draw()
             }
             if(profileSelectionMenu.getCategory().getOffset() != 0.f)
             {
-                drawProfileSelection(profileIndent, 10.f, 35, 400.f,
-                    360.f, true);
+                drawProfileSelection(
+                    profileIndent, 10.f, 35, 400.f, 360.f, true);
             }
             if(enteringTextOffset != 0.f)
             {
