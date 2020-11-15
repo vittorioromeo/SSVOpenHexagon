@@ -134,7 +134,7 @@ enum class AxisDir : int
     Right = 1
 };
 
-inline AxisDir operator-(AxisDir dir)
+[[nodiscard]] AxisDir operator-(AxisDir dir)
 {
     return static_cast<AxisDir>(- static_cast<int>(dir));
 }
