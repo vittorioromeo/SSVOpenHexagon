@@ -1696,6 +1696,7 @@ void MenuGame::update(ssvu::FT mFT)
     {
         changePackAction(-1);
     }
+    
     focusHeld = hg::Joystick::focusPressed();
 
     if(hg::Joystick::leftRisingEdge())
