@@ -433,6 +433,8 @@ void MenuGame::initInput()
         [this](ssvu::FT /*unused*/) { changePackAction(-1); }, t::Once,
         Tid::PreviousPack);
 
+    add2StateInput(game, Config::getTriggerFocus(), focusHeld, Tid::Focus);
+
     game.addInput(
         {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
 
@@ -1686,6 +1688,17 @@ void MenuGame::update(ssvu::FT mFT)
 
     hg::Joystick::update();
 
+    if(hg::Joystick::nextPackRisingEdge())
+    {
+        changePackAction(1);
+    }
+    else if(hg::Joystick::previousPackRisingEdge())
+    {
+        changePackAction(-1);
+    }
+    
+    focusHeld = hg::Joystick::focusPressed();
+
     if(hg::Joystick::leftRisingEdge())
     {
         leftAction();
@@ -1710,15 +1723,6 @@ void MenuGame::update(ssvu::FT mFT)
     else if(hg::Joystick::exitRisingEdge())
     {
         exitAction();
-    }
-
-    if(hg::Joystick::nextPackRisingEdge())
-    {
-        changePackAction(1);
-    }
-    else if(hg::Joystick::previousPackRisingEdge())
-    {
-        changePackAction(-1);
     }
 
     if(hg::Joystick::screenshotRisingEdge())
@@ -1820,9 +1824,6 @@ void MenuGame::update(ssvu::FT mFT)
         case States::LoadingScreen: hexagonRotation += mFT / 100.f; return;
 
         case States::LevelSelection:
-            focusHeld = sf::Keyboard::isKeyPressed(KKey::LShift) ||
-                        sf::Keyboard::isKeyPressed(KKey::RShift);
-
             if(levelYScrollTo != 0.f)
             {
                 if(levelSelectionYOffset < levelYScrollTo)
@@ -2151,7 +2152,6 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     }
 
     setIndex(currentIndex); // loads the new levelData
-    formatLevelDescription();
 
     reloadOutput += "\npress any key to close this message\n";
     uppercasify(reloadOutput);
@@ -2231,7 +2231,8 @@ void MenuGame::refreshBinds()
         Config::getTriggerForceRestart(), Config::getTriggerRestart(),
         Config::getTriggerReplay(), Config::getTriggerScreenshot(),
         Config::getTriggerSwap(), Config::getTriggerUp(),
-        Config::getTriggerDown()};
+        Config::getTriggerDown(), Config::getTriggerNextPack(),
+        Config::getTriggerPreviousPack()};
 
     std::size_t i;
     for(i = 0; i < sizeof(triggers) / sizeof(triggers[0]); ++i)
@@ -2245,7 +2246,8 @@ void MenuGame::refreshBinds()
         Config::getJoystickExit(), Config::getJoystickFocus(),
         Config::getJoystickSwap(), Config::getJoystickForceRestart(),
         Config::getJoystickRestart(), Config::getJoystickReplay(),
-        Config::getJoystickScreenshot()};
+        Config::getJoystickScreenshot(), Config::getJoystickNextPack(),
+        Config::getJoystickPreviousPack()};
 
     for(i = 0; i < sizeof(buttons) / sizeof(buttons[0]); ++i)
     {
@@ -3209,10 +3211,9 @@ void MenuGame::formatLevelDescription()
 
     // Group words into lines depending on wherever
     // they fit within the maximum width.
-    std::size_t size = words.size();
     const float maxWidth{getMaximumTextWidth()};
     std::string candidate, temp;
-    for(i = 0; i < size && levelDescription.size() < descLines; ++i)
+    for(i = 0; i < words.size() && levelDescription.size() < descLines; ++i)
     {
         if(!candidate.empty())
         {
@@ -3239,7 +3240,10 @@ void MenuGame::formatLevelDescription()
                 // ...otherwise add "candidate" to the vector and add the new
                 // word on its own.
                 levelDescription.push_back(candidate);
-                levelDescription.push_back(words[i]);
+                if(levelDescription.size() < descLines)
+                {
+                    levelDescription.push_back(words[i]);
+                }
             }
             candidate.clear();
             continue;
@@ -3252,8 +3256,8 @@ void MenuGame::formatLevelDescription()
             continue;
         }
 
-        // ...if it doesn't add to the vector "candidate" and set it to be
-        // just the overflowing word.
+        // ...if it doesn't add to the vector "candidate" and then set it to be
+        // just the overflowing word, to be checked upon in the next cycles.
         levelDescription.push_back(candidate);
         candidate = words[i];
     }
