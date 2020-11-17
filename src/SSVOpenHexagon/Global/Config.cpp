@@ -921,7 +921,7 @@ void setSaveLocalBestReplayToFile(bool mX)
 //**************************************************
 // Game start check
 
-#define MAX_BINDS 4
+constexpr int maxBinds = 4;
 
 [[nodiscard]] Trigger resizeTrigger(Trigger trig) noexcept
 {
@@ -941,13 +941,13 @@ void setSaveLocalBestReplayToFile(bool mX)
         }
     }
     // if the config has more binds than are supported
-    while(combos.size() > MAX_BINDS)
+    while(combos.size() > maxBinds)
     {
         combos.pop_back();
     }
     // if the config has less binds fill the
     // spots with unbound combos
-    while(combos.size() < MAX_BINDS)
+    while(combos.size() < maxBinds)
     {
         combos.emplace_back(Combo({KKey::Unknown}));
     }
@@ -1079,7 +1079,7 @@ const triggerGetter keyboardGetterFuncs[] = {
     Trigger trig, int key, int btn, int index) noexcept
 {
     // if both slots are taken replace the first one
-    if(index >= MAX_BINDS)
+    if(index >= maxBinds)
     {
         index = 0;
         trig.getCombos()[index].clearBind();
