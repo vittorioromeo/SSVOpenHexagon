@@ -247,6 +247,32 @@ void HexagonGame::initLua_AudioControl()
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
             "plays the specified file `$0`.");
+
+    addLuaFn("a_syncMusicToDM", //
+        [this](bool value) {
+            levelStatus.syncMusicToDM = value;
+
+            auto* current(assets.getMusicPlayer().getCurrent());
+            setMusicPitch(current);
+        })
+        .arg("value")
+        .doc(
+            "This function, when called, overrides the user's preference of "
+            "adjusting the music's pitch to the difficulty multiplier. Useful "
+            "for levels that rely on the music to time events.");
+
+    addLuaFn("a_setMusicPitch", //
+        [this](float mPitch) {
+            levelStatus.musicPitch = mPitch;
+
+            auto* current(assets.getMusicPlayer().getCurrent());
+            setMusicPitch(current);
+        })
+        .arg("pitch")
+        .doc(
+            "Manually adjusts the pitch of the music by multiplying it by "
+            "`$0`. The amount the pitch shifts may change on DM multiplication "
+            "and user's preference of the music pitch.");
 }
 
 void HexagonGame::initLua_MainTimeline()

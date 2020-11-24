@@ -322,10 +322,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         auto* current(assets.getMusicPlayer().getCurrent());
         if(current != nullptr)
         {
-            current->setPitch(
-                (Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f)
-                                               : 1.f) *
-                Config::getMusicSpeedMult());
+            setMusicPitch(current);
         }
     }
     else

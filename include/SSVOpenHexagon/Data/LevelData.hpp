@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Data/TrackedVariable.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -62,6 +63,10 @@ struct LevelStatus
     // Allows alternative scoring to be possible
     bool scoreOverridden{false};
     std::string scoreOverride;
+
+    // Music and sound related attributes
+    bool syncMusicToDM = Config::getMusicSpeedDMSync();
+    float musicPitch{1.f};
 
     float speedMult{1.f};
     float playerSpeedMult{1.f};
