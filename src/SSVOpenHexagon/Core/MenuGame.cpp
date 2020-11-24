@@ -567,7 +567,9 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
             "a_playSound", "a_playPackSound", "a_syncMusicToDM",
-            "a_setMusicPitch",
+            "a_setMusicPitch", "a_overrideBeepSound",
+            "a_overrideIncrementSound", "a_overrideSwapSound",
+            "a_overrideDeathSound",
 
             "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
 
