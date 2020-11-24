@@ -67,6 +67,10 @@ struct LevelStatus
     // Music and sound related attributes
     bool syncMusicToDM = Config::getMusicSpeedDMSync();
     float musicPitch{1.f};
+    std::string beepSound{"beep.ogg"};
+    std::string levelUpSound{"increment.ogg"};
+    std::string swapSound{"swap.ogg"};
+    std::string deathSound{"death.ogg"};
 
     float speedMult{1.f};
     float playerSpeedMult{1.f};
