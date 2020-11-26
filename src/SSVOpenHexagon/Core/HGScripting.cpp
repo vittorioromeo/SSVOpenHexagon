@@ -252,8 +252,13 @@ void HexagonGame::initLua_AudioControl()
         [this](bool value) {
             levelStatus.syncMusicToDM = value;
 
-            auto* current(assets.getMusicPlayer().getCurrent());
-            setMusicPitch(current);
+            sf::Music* current(assets.getMusicPlayer().getCurrent());
+            if (current == nullptr)
+            {
+                return:
+            }
+            
+            setMusicPitch(*current);
         })
         .arg("value")
         .doc(
