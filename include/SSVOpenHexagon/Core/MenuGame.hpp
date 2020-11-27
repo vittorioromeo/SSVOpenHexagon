@@ -186,6 +186,12 @@ private:
         return getCurrentMenu() != nullptr;
     }
 
+
+    //---------------------------------------
+    // State changes
+
+    void changeStateTo(const States mState);
+
     //---------------------------------------
     // Update
 
@@ -219,7 +225,7 @@ private:
     sf::Text txtMenuSmall{"", imagine};
     sf::Text txtProfile{"", imagine, 70};
     sf::Text txtInstructionsBig{"", imagine, 50};
-    sf::Text txtRandomTip{"", imagine, 40};
+    sf::Text txtRandomTip{"", imagine, 38};
     sf::Text txtInstructionsMedium{"", imagine};
     sf::Text txtInstructionsSmall{"", imagine, 24};
     sf::Text txtSelectionBig{"", imagine, 40};
@@ -320,6 +326,12 @@ private:
     float levelYScrollTo{0.f};   // height list must scroll to show current item
     float packChangeOffset{0.f}; // level list yOffset when being fold
     std::vector<float> levelsOffsets; // xOffset of the single level labels
+
+    // First timer tips
+    bool showFirstTimeTips{false};
+    bool mustShowFTTMainMenu{true};
+    bool mustShowFTTLevelSelect{true};
+    float dialogBoxDelay{0.f};
 
     void adjustLevelsOffset();
     float getPackLabelHeight();

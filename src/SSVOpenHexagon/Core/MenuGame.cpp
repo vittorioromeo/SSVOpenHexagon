@@ -19,6 +19,8 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
+#include <utility>
+
 using namespace std;
 using namespace sf;
 using namespace ssvs;
@@ -47,8 +49,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       dialogBox(mAssets, mGameWindow, styleData),
       loadInfo(mAssets.getLoadResults())
 {
-    // TODO: check `Config::getFirstTimePlaying` and react accordingly
-    Config::setFirstTimePlaying(false);
+    if(Config::getFirstTimePlaying())
+    {
+        showFirstTimeTips = true;
+        Config::setFirstTimePlaying(false);
+    }
 
     initAssets();
     refreshCamera();
@@ -104,7 +109,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         {
             if(state == States::LoadingScreen)
             {
-                state = States::EpilepsyWarning;
+                changeStateTo(States::EpilepsyWarning);
                 setIgnoreAllInputs(1);
                 scrollbarOffset = 0;
             }
@@ -122,7 +127,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    const auto checkCloseDialogBox = [this]() {
+    const auto checkCloseDialogBox = [this] {
         if(!ignoreInputs)
         {
             dialogBox.clearDialogBox();
@@ -148,13 +153,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
 
         // Scenario two: actions are blocked cause a dialog box is open
+        if(dialogBoxDelay > 0.f)
+        {
+            return;
+        }
+
         KKey key{mEvent.key.code};
         if(!dialogBox.empty())
         {
             if(dialogBox.getKeyToClose() == KKey::Unknown ||
                 key == dialogBox.getKeyToClose())
             {
-                ignoreInputs--;
+                --ignoreInputs;
             }
             checkCloseDialogBox();
             return;
@@ -211,13 +221,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
+            if(dialogBoxDelay > 0.f)
+            {
+                return;
+            }
+
             if(!dialogBox.empty())
             {
                 if(dialogBox.getKeyToClose() != KKey::Unknown)
                 {
                     return;
                 }
-                ignoreInputs--;
+                --ignoreInputs;
                 checkCloseDialogBox();
                 return;
             }
@@ -263,13 +278,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
+            if(dialogBoxDelay > 0.f)
+            {
+                return;
+            }
+
             if(!dialogBox.empty())
             {
                 if(dialogBox.getKeyToClose() != KKey::Unknown)
                 {
                     return;
                 }
-                ignoreInputs--;
+                --ignoreInputs;
                 checkCloseDialogBox();
                 return;
             }
@@ -385,6 +405,60 @@ void MenuGame::initAssets()
             "bottomBar.png", "epilepsyWarning.png"})
     {
         assets.get<Texture>(t).setSmooth(true);
+    }
+}
+
+void MenuGame::changeStateTo(const States mState)
+{
+    const States prevState = state;
+    state = mState;
+
+    if(prevState == state)
+    {
+        // Not a state transition.
+        return;
+    }
+
+    if(!showFirstTimeTips)
+    {
+        // Not the first time playing.
+        return;
+    }
+
+    const auto mustShowTip = [&](const States s, bool& flag) {
+        return state == s && std::exchange(flag, false);
+    };
+
+    const auto showTip = [&](const char* str) {
+        assets.playSound("beep.ogg");
+
+        dialogBox.create(str, 26, 10.f, DBoxDraw::center);
+        setIgnoreAllInputs(1);
+
+        // Prevent dialog box from being closed immediately:
+        dialogBoxDelay = 64.f;
+    };
+
+    if(mustShowTip(States::SMain, mustShowFTTMainMenu))
+    {
+        showTip(
+            "WELCOME TO OPEN HEXAGON!\n\n"
+            "YOU CAN NAVIGATE THE MAIN MENU WITH THE UP/DOWN ARROW KEYS\n"
+            "OR THE DPAD/THUMBSTICK ON YOUR CONTROLLER\n\n"
+            "REMEMBER TO CHECK OUT THE OPTIONS MENU\n\n"
+            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+    }
+    else if(mustShowTip(States::LevelSelection, mustShowFTTLevelSelect))
+    {
+        showTip(
+            "THIS IS WHERE YOU CAN SELECT A LEVEL TO PLAY\n\n"
+            "LEVELS ARE ORGANIZED IN 'LEVEL PACKS'\n"
+            "TO BROWSE LEVELS AND LEVEL PACKS, NAVIGATE UP/DOWN\n"
+            "TO CHANGE THE DIFFICULTY OF A LEVEL, NAVIGATE LEFT/RIGHT\n\n"
+            "IT IS RECOMMENDED TO PLAY THE 'CUBE' LEVELS IN ORDER\n"
+            "YOU CAN GET NEW LEVELS ON THE STEAM WORKSHOP\n"
+            "HAVE FUN!\n\n"
+            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
     }
 }
 
@@ -672,7 +746,8 @@ void MenuGame::initMenus()
     });
 
     // TODO:
-    // options.create<i::Single>("login screen", [this] { state = States::MWlcm;
+    // options.create<i::Single>("login screen", [this] {
+    // changeStateTo(States::MWlcm);
     // });
     // options.create<i::Toggle>("online", &Config::getOnline,
     // &Config::setOnline);
@@ -957,7 +1032,7 @@ void MenuGame::initMenus()
 
     friends.create<i::Single>("add friend", [this] {
         enteredStr = "";
-        state = States::ETFriend;
+        changeStateTo(States::ETFriend);
     });
     friends.create<i::Single>(
         "clear friends", [this] { assets.pClearTrackedNames(); });
@@ -970,7 +1045,7 @@ void MenuGame::initMenus()
     auto& main{mainMenu.createCategory("main")};
     auto& localProfiles{mainMenu.createCategory("local profiles")};
     main.create<i::Single>("LEVEL SELECT", [this] {
-        state = States::LevelSelection;
+        changeStateTo(States::LevelSelection);
         if(firstLevelSelection)
         {
             packIdx = diffMultIdx = 0;
@@ -982,7 +1057,7 @@ void MenuGame::initMenus()
         assets.playSound("select.ogg");
     });
     main.create<i::Goto>("LOCAL PROFILES", localProfiles) | whenLocal;
-    main.create<i::Single>("OPTIONS", [this] { state = States::MOpts; });
+    main.create<i::Single>("OPTIONS", [this] { changeStateTo(States::MOpts); });
     main.create<i::Single>("EXIT", [this] { window.stop(); });
 
     //--------------------------------
@@ -990,9 +1065,9 @@ void MenuGame::initMenus()
     //--------------------------------
 
     localProfiles.create<i::Single>(
-        "CHOOSE PROFILE", [this] { state = States::SLPSelect; });
+        "CHOOSE PROFILE", [this] { changeStateTo(States::SLPSelect); });
     localProfiles.create<i::Single>("NEW PROFILE", [this] {
-        state = States::ETLPNew;
+        changeStateTo(States::ETLPNew);
         enteredStr = "";
         assets.playSound("select.ogg");
     });
@@ -1087,7 +1162,7 @@ bool MenuGame::loadCommandLineLevel(
     // Go to main menu
     enteredStr = assets.getLocalProfileNames()[0];
     assets.pSetCurrent(enteredStr);
-    state = States::SMain;
+    changeStateTo(States::SMain);
 
     // Start game
     window.setGameState(hexagonGame.getGame());
@@ -1416,8 +1491,8 @@ void MenuGame::okAction()
                         assets.playSound("error.ogg");
                         dialogBox.create(
                             "A PROFILE WITH THE SAME NAME ALREADY EXISTS\n"
-                            "PLEASE ENTER ANOTHER NAME\n"
-                            "PRESS ANY KEY TO CLOSE THIS MESSAGE\n",
+                            "PLEASE ENTER ANOTHER NAME\n\n"
+                            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
                             26, 10.f, DBoxDraw::center);
                         setIgnoreAllInputs(2);
                         return;
@@ -1438,17 +1513,17 @@ void MenuGame::okAction()
                 if(state == States::ETLPNewBoot)
                 {
                     assets.playSound("openHexagon.ogg");
-                    state = States::SMain;
+                    changeStateTo(States::SMain);
                     return;
                 }
-                state = States::SMain;
+                changeStateTo(States::SMain);
             }
             break;
 
         case States::SLPSelectBoot:
             assets.playSound("openHexagon.ogg");
             getCurrentMenu()->exec();
-            state = States::SMain;
+            changeStateTo(States::SMain);
             return;
 
         case States::SMain:
@@ -1525,7 +1600,7 @@ void MenuGame::okAction()
             !ssvu::contains(assets.pGetTrackedNames(), enteredStr))
             {
                 assets.pAddTrackedName(enteredStr);
-                state = States::SMain;
+                changeStateTo(States::SMain);
                 enteredStr = "";
             }
             break;
@@ -1534,7 +1609,7 @@ void MenuGame::okAction()
             if(!enteredStr.empty())
             {
                 lrUser = enteredStr;
-                state = States::ETPass;
+                changeStateTo(States::ETPass);
                 enteredStr = "";
             }
             break;
@@ -1543,7 +1618,7 @@ void MenuGame::okAction()
             if(!enteredStr.empty())
             {
                 lrPass = enteredStr;
-                state = States::SLogging;
+                changeStateTo(States::SLogging);
                 enteredStr = "";
                 //Online::tryLogin(lrUser, lrPass);
             }
@@ -1587,8 +1662,8 @@ void MenuGame::eraseAction()
         {
             assets.playSound("error.ogg");
             dialogBox.create(
-                "YOU CANNOT ERASE THE ONLY REMAINING PROFILE\n"
-                "PRESS ANY KEY TO CLOSE THIS MESSAGE\n",
+                "YOU CANNOT ERASE THE ONLY REMAINING PROFILE\n\n"
+                "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
                 26, 10.f, DBoxDraw::center);
             setIgnoreAllInputs(2);
             return;
@@ -1597,8 +1672,8 @@ void MenuGame::eraseAction()
         {
             assets.playSound("error.ogg");
             dialogBox.create(
-                "YOU CANNOT ERASE THE CURRENTLY IN USE PROFILE\n"
-                "PRESS ANY KEY TO CLOSE THIS MESSAGE\n",
+                "YOU CANNOT ERASE THE CURRENTLY IN USE PROFILE\n\n"
+                "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
                 26, 10.f, DBoxDraw::center);
             setIgnoreAllInputs(2);
             return;
@@ -1644,13 +1719,13 @@ void MenuGame::exitAction()
 
     if(state == States::SLPSelectBoot)
     {
-        state = States::ETLPNewBoot;
+        changeStateTo(States::ETLPNewBoot);
         return;
     }
 
     if(state == States::LevelSelection)
     {
-        state = States::SMain;
+        changeStateTo(States::SMain);
         resetNamesScrolls();
         adjustMenuOffset(false);
         return;
@@ -1668,12 +1743,12 @@ void MenuGame::exitAction()
             }
             else
             {
-                state = States::SMain;
+                changeStateTo(States::SMain);
             }
         }
         else if(isEnteringText())
         {
-            state = States::SMain;
+            changeStateTo(States::SMain);
         }
     }
 }
@@ -1738,6 +1813,11 @@ void MenuGame::update(ssvu::FT mFT)
         touchDelay -= mFT;
     }
 
+    if(dialogBoxDelay > 0.f)
+    {
+        dialogBoxDelay -= mFT;
+    }
+
     if(window.getFingerDownCount() == 1)
     {
         auto wThird{window.getWidth() / 3.f};
@@ -1792,7 +1872,7 @@ void MenuGame::update(ssvu::FT mFT)
     // If connection is lost, kick the player back into welcome screen
     if(!assets.pIsLocal() && Online::getConnectionStatus() != ocs::Connected)
     {
-        state = States::MWlcm;
+        changeStateTo(States::MWlcm);
     }
      */
 
@@ -2156,7 +2236,7 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
 
     setIndex(currentIndex); // loads the new levelData
 
-    reloadOutput += "\npress any key to close this message\n";
+    reloadOutput += "\nPRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n";
     uppercasify(reloadOutput);
 
     // Needs to be two because the dialog box reacts to key releases.
@@ -2750,7 +2830,7 @@ void MenuGame::drawProfileSelectionBoot(const unsigned int charSize)
         height - 2.f * instructionsHeight, getGlobalBottom(titleBar) + 40.f);
 
     const std::string instructions[] = {
-        "Select local profile", "Press Esc to create a new profile"};
+        "SELECT LOCAL PROFILE", "PRESS ESC TO CREATE A NEW PROFILE"};
     for(auto& s : instructions)
     {
         renderTextCentered(s, txtInstructionsBig, {w / 2.f, height});
@@ -2866,7 +2946,7 @@ void MenuGame::drawEnteringText(float xOffset, const float frameSize,
 
     // Draw instructions text above the quads
     const std::string instructions[] = {
-        "Insert text", "Press Enter when done", "Press Esc to abort"};
+        "INSERT TEXT", "PRESS ENTER WHEN DONE", "PRESS ESC TO ABORT"};
     const float instructionsHeight{
         getGlobalHeight(txtInstructionsMedium) * 1.5f};
     txtHeight -= frameSize + instructionsHeight * 3.f;
@@ -2889,7 +2969,7 @@ void MenuGame::drawEnteringTextBoot(unsigned int charSize)
     const float instructionsHeight{getFontHeight(txtInstructionsBig) * 1.5f};
     height -= instructionsHeight * 2.f;
     const std::string instructions[] = {
-        "Profile creation", "Please type a name and press Enter"};
+        "PROFILE CREATION", "PLEASE TYPE A NAME AND PRESS ENTER"};
     for(auto& s : instructions)
     {
         renderTextCentered(s, txtInstructionsBig, {w / 2.f, height});
@@ -2984,7 +3064,8 @@ void MenuGame::drawLoadResults()
     float height{h - tipInterline * 2.f};
     for(i = randomSize - 1; i >= 0; --i)
     {
-        renderTextCentered(randomTip[i], txtRandomTip, {w / 2.f, height});
+        renderTextCentered(
+            randomTip[i], txtRandomTip, {w / 2.f, height - tipInterline});
         height -= tipInterline;
     }
 
@@ -3850,7 +3931,7 @@ void MenuGame::draw()
         {
             drawLoadResults();
             const float fontHeight = getFontHeight(txtProf);
-            renderText("PRESS ANY KEY TO CONTINUE", txtProf,
+            renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf,
                 {fontHeight, h - fontHeight * 2.7f});
         }
             return;
@@ -3859,7 +3940,7 @@ void MenuGame::draw()
         {
             render(epilepsyWarning);
             const float fontHeight = getFontHeight(txtProf);
-            renderText("PRESS ANY KEY TO CONTINUE", txtProf,
+            renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf,
                 {fontHeight, h - fontHeight * 2.7f});
         }
             return;
