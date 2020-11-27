@@ -52,8 +52,9 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
         drawDeathEffect(mHexagonGame);
     }
 
-    sf::Color colorMain{!dead ? mHexagonGame.getColorPlayer()
-                              : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
+    sf::Color colorMain{!deadEffectTimer.isRunning()
+                            ? mHexagonGame.getColorPlayer()
+                            : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
 
     const float triangleWidth = mHexagonGame.getInputFocused() ? -1.5f : 3.f;
 
@@ -63,7 +64,7 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
     const sf::Vector2f pRight = ssvs::getOrbitRad(
         pos, angle + ssvu::toRad(100.f), size + triangleWidth);
 
-    if(!swapTimer.isRunning())
+    if(!swapTimer.isRunning() && !dead)
     {
         colorMain = ssvs::getColorFromHSV(
             (swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
@@ -149,7 +150,8 @@ void CPlayer::playerSwap(HexagonGame& mHexagonGame, bool mPlaySound)
 
     if(mPlaySound)
     {
-        mHexagonGame.getAssets().playSound("swap.ogg");
+        mHexagonGame.getAssets().playSound(
+            mHexagonGame.getLevelStatus().swapSound);
     }
 }
 
@@ -157,7 +159,7 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
 {
     deadEffectTimer.restart();
 
-    if(!Config::getInvincible())
+    if(!Config::getInvincible() && !mHexagonGame.getLevelStatus().tutorialMode)
     {
         dead = true;
     }
@@ -259,8 +261,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
     swapBlinkTimer.update(mFT);
 
-    if(deadEffectTimer.update(mFT) &&
-        mHexagonGame.getLevelStatus().tutorialMode)
+    if(deadEffectTimer.update(mFT) && !dead)
     {
         deadEffectTimer.stop();
     }
