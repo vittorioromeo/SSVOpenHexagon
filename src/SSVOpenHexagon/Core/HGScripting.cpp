@@ -247,6 +247,82 @@ void HexagonGame::initLua_AudioControl()
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
             "plays the specified file `$0`.");
+
+    addLuaFn("a_syncMusicToDM", //
+        [this](bool value) {
+            levelStatus.syncMusicToDM = value;
+
+            sf::Music* current(assets.getMusicPlayer().getCurrent());
+            if (current == nullptr)
+            {
+                return;
+            }
+            
+            setMusicPitch(*current);
+        })
+        .arg("value")
+        .doc(
+            "This function, when called, overrides the user's preference of "
+            "adjusting the music's pitch to the difficulty multiplier. Useful "
+            "for levels that rely on the music to time events.");
+
+    addLuaFn("a_setMusicPitch", //
+        [this](float mPitch) {
+            levelStatus.musicPitch = mPitch;
+
+            sf::Music* current(assets.getMusicPlayer().getCurrent());
+            if (current == nullptr)
+            {
+                return;
+            }
+        })
+        .arg("pitch")
+        .doc(
+            "Manually adjusts the pitch of the music by multiplying it by "
+            "`$0`. The amount the pitch shifts may change on DM multiplication "
+            "and user's preference of the music pitch. **Negative values will "
+            "not work!**");
+
+    addLuaFn("a_overrideBeepSound", //
+        [this](const std::string& mId) {
+            levelStatus.beepSound = getPackId() + "_" + mId;
+        })
+        .arg("fileName")
+        .doc(
+            "Dives into the `Sounds` folder of the current level pack and "
+            "sets the specified file `$0` to be the new beep sound. This only "
+            "applies to the particular level where this function is called.");
+
+    addLuaFn("a_overrideIncrementSound", //
+        [this](const std::string& mId) {
+            levelStatus.levelUpSound = getPackId() + "_" + mId;
+        })
+        .arg("fileName")
+        .doc(
+            "Dives into the `Sounds` folder of the current level pack and "
+            "sets the specified file `$0` to be the new increment sound. This "
+            "only "
+            "applies to the particular level where this function is called.");
+
+    addLuaFn("a_overrideSwapSound", //
+        [this](const std::string& mId) {
+            levelStatus.swapSound = getPackId() + "_" + mId;
+        })
+        .arg("fileName")
+        .doc(
+            "Dives into the `Sounds` folder of the current level pack and "
+            "sets the specified file `$0` to be the new swap sound. This only "
+            "applies to the particular level where this function is called.");
+
+    addLuaFn("a_overrideDeathSound", //
+        [this](const std::string& mId) {
+            levelStatus.deathSound = getPackId() + "_" + mId;
+        })
+        .arg("fileName")
+        .doc(
+            "Dives into the `Sounds` folder of the current level pack and "
+            "sets the specified file `$0` to be the new death sound. This only "
+            "applies to the particular level where this function is called.");
 }
 
 void HexagonGame::initLua_MainTimeline()

@@ -566,7 +566,10 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "u_haltTime", "u_timelineWait", "u_clearWalls",
 
             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
-            "a_playSound", "a_playPackSound",
+            "a_playSound", "a_playPackSound", "a_syncMusicToDM",
+            "a_setMusicPitch", "a_overrideBeepSound",
+            "a_overrideIncrementSound", "a_overrideSwapSound",
+            "a_overrideDeathSound",
 
             "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
 
@@ -1696,7 +1699,7 @@ void MenuGame::update(ssvu::FT mFT)
     {
         changePackAction(-1);
     }
-    
+
     focusHeld = hg::Joystick::focusPressed();
 
     if(hg::Joystick::leftRisingEdge())
