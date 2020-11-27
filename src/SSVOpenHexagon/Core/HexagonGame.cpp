@@ -480,7 +480,8 @@ void HexagonGame::death(bool mForce)
     nameFormat(nameStr);
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
-	discordManager.set_rich_presence_in_game(nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
+    discordManager.set_rich_presence_in_game(
+        nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
 
     status.flashEffect = 255;
     overlayCamera.setView(

@@ -150,8 +150,7 @@ void CPlayer::playerSwap(HexagonGame& mHexagonGame, bool mPlaySound)
 
     if(mPlaySound)
     {
-        mHexagonGame.getAssets().playSound(
-            mHexagonGame.getLevelStatus().swapSound);
+        mHexagonGame.getAssets().playSound("swap.ogg");
     }
 }
 

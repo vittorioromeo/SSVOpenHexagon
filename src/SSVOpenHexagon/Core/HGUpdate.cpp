@@ -27,24 +27,48 @@ void HexagonGame::update(ssvu::FT mFT)
     nameFormat(nameStr);
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
-	
+
     constexpr float DELAY_TO_UPDATE = 5.f; // X seconds
     timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
-
-    // TODO: show best record (here) and last run + best record (in menu)
-    // Presence formatter
-    const std::string presenceStr =
-        nameStr + " [x" + diffStr + "] - " + timeStr + "s";
 
     if(timeUntilRichPresenceUpdate <= 0.f)
     {
         steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
-        
+
         timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
     }
 
-    steamManager.run_callbacks();
-    discordManager.run_callbacks();
+    // Update Steam Rich Presence
+    if(!steamHung)
+    {
+        if(!steamManager.run_callbacks())
+        {
+            steamAttempt += 1;
+            if(steamAttempt > 20)
+            {
+                steamHung = true;
+                ssvu::lo("Steam") << "Too many failed callbacks. Stopping "
+                                     "Rich Presence updates."
+                                  << "\n";
+            }
+        }
+    }
+
+    // Update Discord Rich Presence
+    if(!discordHung)
+    {
+        if(!discordManager.run_callbacks())
+        {
+            discordAttempt += 1;
+            if(discordAttempt > 20)
+            {
+                discordHung = true;
+                ssvu::lo("Discord") << "Too many failed callbacks. Stopping "
+                                       "Rich Presence updates."
+                                    << "\n";
+            }
+        }
+    }
 
     updateText();
     updateFlash(mFT);
@@ -192,7 +216,8 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 {
     cwManager.forCustomWalls([&](const CCustomWall& customWall) {
         // After *only* the player has moved, push in case of overlap.
-        if(customWall.isOverlapping(player.getPosition()) && customWall.getCanCollide())
+        if(customWall.isOverlapping(player.getPosition()) &&
+            customWall.getCanCollide())
         {
             if(player.getJustSwapped())
             {
@@ -265,7 +290,8 @@ void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 
     const bool customWallCollision =
         cwManager.anyCustomWall([&](const CCustomWall& customWall) {
-            return customWall.isOverlapping(player.getPosition()) && customWall.getCanCollide();
+            return customWall.isOverlapping(player.getPosition()) &&
+                   customWall.getCanCollide();
         });
 
     if(customWallCollision)
@@ -279,20 +305,22 @@ void HexagonGame::start()
     status.start();
     messageText.setString("");
     assets.playSound("go.ogg");
-	
-	if (!mustReplayInput()) 
-	{
-		std::string nameStr = levelData->name;
-		std::string packStr = getPackName();
-		nameFormat(nameStr);
-		nameFormat(packStr);
-		const std::string diffStr = diffFormat(difficultyMult);
-	
-		discordManager.set_rich_presence_in_game(nameStr + " [x" + diffStr + "]", packStr);
-	} else
-	{	
-		discordManager.set_rich_presence_on_replay();
-	}
+
+    if(!mustReplayInput())
+    {
+        std::string nameStr = levelData->name;
+        std::string packStr = getPackName();
+        nameFormat(nameStr);
+        nameFormat(packStr);
+        const std::string diffStr = diffFormat(difficultyMult);
+
+        discordManager.set_rich_presence_in_game(
+            nameStr + " [x" + diffStr + "]", packStr);
+    }
+    else
+    {
+        discordManager.set_rich_presence_on_replay();
+    }
 
     if(!Config::getNoMusic())
     {

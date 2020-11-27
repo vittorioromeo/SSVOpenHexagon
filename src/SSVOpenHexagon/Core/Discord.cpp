@@ -91,8 +91,10 @@ bool discord_manager::set_rich_presence_in_menu()
     discord::Activity activity{};
     activity.SetState("Selecting Level");
     activity.SetDetails("");
-	discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
-	currentTimestamp.SetStart(static_cast<int64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000000));
+    discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+    currentTimestamp.SetStart(static_cast<int64_t>(
+        std::chrono::high_resolution_clock::now().time_since_epoch().count() /
+        1000000000));
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
         {
@@ -113,8 +115,8 @@ bool discord_manager::set_rich_presence_on_replay()
     discord::Activity activity{};
     activity.SetState("Watching Replay");
     activity.SetDetails("");
-	discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
-	currentTimestamp.SetStart(0);
+    discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+    currentTimestamp.SetStart(0);
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
         {
@@ -125,7 +127,8 @@ bool discord_manager::set_rich_presence_on_replay()
     return true;
 }
 
-bool discord_manager::set_rich_presence_in_game(const std::string& level_info, const std::string& second_info, bool dead)
+bool discord_manager::set_rich_presence_in_game(
+    const std::string& level_info, const std::string& second_info, bool dead)
 {
     if(!_initialized)
     {
@@ -133,18 +136,25 @@ bool discord_manager::set_rich_presence_in_game(const std::string& level_info, c
     }
 
     discord::Activity activity{};
-	activity.SetDetails(("Playing " + level_info).data());
-	activity.SetState(second_info.data());
-	discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
-	if (!dead)
-	{
-		//ssvu::lo("Debug") << "The current time: " << static_cast<int64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000000) << "\n";
-		currentTimestamp.SetStart(static_cast<int64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000000));
-    } else 
-	{
-		currentTimestamp.SetStart(0);
-	}
-	_core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
+    activity.SetDetails(("Playing " + level_info).data());
+    activity.SetState(second_info.data());
+    discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+    if(!dead)
+    {
+        // ssvu::lo("Debug") << "The current time: " <<
+        // static_cast<int64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count()
+        // / 1000000000) << "\n";
+        currentTimestamp.SetStart(
+            static_cast<int64_t>(std::chrono::high_resolution_clock::now()
+                                     .time_since_epoch()
+                                     .count() /
+                                 1000000000));
+    }
+    else
+    {
+        currentTimestamp.SetStart(0);
+    }
+    _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
         {
             ssvu::lo("Discord") << "Fail\n";
