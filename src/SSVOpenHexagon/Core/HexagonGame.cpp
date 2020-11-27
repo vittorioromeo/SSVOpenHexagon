@@ -319,10 +319,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         playLevelMusic();
         assets.musicPlayer.pause();
 
-        auto* current(assets.getMusicPlayer().getCurrent());
+        sf::Music* current(assets.getMusicPlayer().getCurrent());
         if(current != nullptr)
         {
-            setMusicPitch(current);
+            setMusicPitch(*current);
         }
     }
     else
