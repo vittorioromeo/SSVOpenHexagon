@@ -616,7 +616,10 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "w_wallHModCurveData",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-            "cw_isOverlappingPlayer", "cw_clear", "steam_unlockAchievement",
+            "cw_setCollision", "cw_getVertexPos", "cw_isOverlappingPlayer",
+            "cw_clear",
+
+            "steam_unlockAchievement",
 
             "m_messageAdd", "m_messageAddImportant",
             "m_messageAddImportantSilent", "m_clearMessages"})
@@ -1696,7 +1699,7 @@ void MenuGame::update(ssvu::FT mFT)
     {
         changePackAction(-1);
     }
-    
+
     focusHeld = hg::Joystick::focusPressed();
 
     if(hg::Joystick::leftRisingEdge())
