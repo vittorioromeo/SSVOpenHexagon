@@ -1260,6 +1260,18 @@ void HexagonGame::initLua_CustomWalls()
             "Given the custom wall represented by `$0`, set the color of "
             "its vertex with index `$1` to `{$2, $3, $4, $5}`.");
 
+    addLuaFn("cw_setCollision", //
+		[this](CCustomWallHandle cwHandle, bool collision) {
+			cwManager.setCanCollide(cwHandle, collision);
+		})
+		.arg("cwHandle")
+		.arg("collision")
+		.doc(
+			"Given the custom wall represented by `$0`, set the collision "
+			"of the custom wall to `$1`. If false, the player can not die "
+			"from this wall and can move through the wall. By default, all "
+			"custom walls can collide with the player.");
+            
     addLuaFn("cw_getVertexPos", //
         [this](CCustomWallHandle cwHandle,
             int vertexIndex) -> std::tuple<float, float> {
