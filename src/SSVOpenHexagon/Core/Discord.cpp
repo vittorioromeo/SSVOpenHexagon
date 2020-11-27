@@ -1,12 +1,12 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
-
 #include "SSVOpenHexagon/Core/Discord.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <math.h>
+#include <chrono>
 
 #include "discord/discord.h"
 
@@ -89,19 +89,21 @@ bool discord_manager::set_rich_presence_in_menu()
     }
 
     discord::Activity activity{};
-    activity.SetState("In menu");
-    activity.SetDetails("...");
+    activity.SetState("Selecting Level");
+    activity.SetDetails("");
+	discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+	currentTimestamp.SetStart(static_cast<int64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000000));
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
         {
-            ssvu::lo("Discord") << "FAil\n";
+            ssvu::lo("Discord") << "Fail\n";
         }
     });
 
     return true;
 }
 
-bool discord_manager::set_rich_presence_in_game(const std::string& str_status)
+bool discord_manager::set_rich_presence_on_replay()
 {
     if(!_initialized)
     {
@@ -109,12 +111,43 @@ bool discord_manager::set_rich_presence_in_game(const std::string& str_status)
     }
 
     discord::Activity activity{};
-    activity.SetState("In game");
-    activity.SetDetails(str_status.data());
+    activity.SetState("Watching Replay");
+    activity.SetDetails("");
+	discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+	currentTimestamp.SetStart(0);
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
         {
-            ssvu::lo("Discord") << "FAil\n";
+            ssvu::lo("Discord") << "Fail\n";
+        }
+    });
+
+    return true;
+}
+
+bool discord_manager::set_rich_presence_in_game(const std::string& level_info, const std::string& second_info, bool dead)
+{
+    if(!_initialized)
+    {
+        return false;
+    }
+
+    discord::Activity activity{};
+	activity.SetDetails(("Playing " + level_info).data());
+	activity.SetState(second_info.data());
+	discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+	if (!dead)
+	{
+		//ssvu::lo("Debug") << "The current time: " << static_cast<int64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000000) << "\n";
+		currentTimestamp.SetStart(static_cast<int64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count() / 1000000000));
+    } else 
+	{
+		currentTimestamp.SetStart(0);
+	}
+	_core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
+        if(r != discord::Result::Ok)
+        {
+            ssvu::lo("Discord") << "Fail\n";
         }
     });
 

@@ -476,6 +476,12 @@ void HexagonGame::death(bool mForce)
     assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
     runLuaFunctionIfExists<void>("onDeath");
 
+    std::string nameStr = levelData->name;
+    nameFormat(nameStr);
+    const std::string diffStr = diffFormat(difficultyMult);
+    const std::string timeStr = timeFormat(status.getTimeSeconds());
+	discordManager.set_rich_presence_in_game(nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
+
     status.flashEffect = 255;
     overlayCamera.setView(
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
