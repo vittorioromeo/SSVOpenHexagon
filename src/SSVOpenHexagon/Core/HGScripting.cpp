@@ -270,8 +270,11 @@ void HexagonGame::initLua_AudioControl()
         [this](float mPitch) {
             levelStatus.musicPitch = mPitch;
 
-            auto* current(assets.getMusicPlayer().getCurrent());
-            setMusicPitch(current);
+            sf::Music* current(assets.getMusicPlayer().getCurrent());
+            if (current == nullptr)
+            {
+                return:
+            }
         })
         .arg("pitch")
         .doc(
