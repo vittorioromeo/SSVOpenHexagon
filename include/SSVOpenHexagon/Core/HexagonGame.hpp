@@ -55,6 +55,10 @@ class HexagonGame
 private:
     Steam::steam_manager& steamManager;
     Discord::discord_manager& discordManager;
+    bool discordHung{false};
+    bool steamHung{false};
+    int8_t discordAttempt{1};
+    int8_t steamAttempt{1};
 
     HGAssets& assets;
     const LevelData* levelData;
@@ -342,23 +346,23 @@ private:
     }
 
     static void nameFormat(std::string& name)
-	{
-		name[0] = std::toupper(name[0]);
-	}
+    {
+        name[0] = std::toupper(name[0]);
+    }
 
-	[[nodiscard]] static std::string diffFormat(float diff)
-	{
-		char buf[255];
-		std::snprintf(buf, sizeof(buf), "%g", diff);
-		return buf;
-	}
-	
-	[[nodiscard]] static std::string timeFormat(float time)
-	{
-		char buf[255];
-		std::snprintf(buf, sizeof(buf), "%.3f", time);
-		return buf;
-	}
+    [[nodiscard]] static std::string diffFormat(float diff)
+    {
+        char buf[255];
+        std::snprintf(buf, sizeof(buf), "%g", diff);
+        return buf;
+    }
+
+    [[nodiscard]] static std::string timeFormat(float time)
+    {
+        char buf[255];
+        std::snprintf(buf, sizeof(buf), "%.3f", time);
+        return buf;
+    }
 
 public:
     Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
