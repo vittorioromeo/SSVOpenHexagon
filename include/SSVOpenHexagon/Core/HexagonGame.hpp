@@ -480,7 +480,7 @@ public:
 
     void setMusicPitch(sf::Music& current)
     {
-        current->setPitch((getMusicDMSyncFactor()) *
+        current.setPitch((getMusicDMSyncFactor()) *
                           Config::getMusicSpeedMult() * levelStatus.musicPitch);
     }
 
