@@ -474,8 +474,14 @@ public:
 
     [[nodiscard]] float getMusicDMSyncFactor() const
     {
-        return Config::getMusicSpeedDMSync() ? std::pow(difficultyMult, 0.12f)
-                                             : 1.f;
+        return levelStatus.syncMusicToDM ? std::pow(difficultyMult, 0.12f)
+                                         : 1.f;
+    }
+
+    void setMusicPitch(sf::Music& current)
+    {
+        current.setPitch((getMusicDMSyncFactor()) *
+                          Config::getMusicSpeedMult() * levelStatus.musicPitch);
     }
 
     // Input
