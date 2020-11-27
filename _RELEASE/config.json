@@ -56,98 +56,98 @@
 	"show_messages" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 75.0,
-	"t_down" : 
+	"t_down" :
 	[
 		[ "kS" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_exit" : 
+	"t_exit" :
 	[
 		[ "kT" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_focus" : 
+	"t_focus" :
 	[
 		[ "kLShift" ],
 		[ "bXButton1" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_force_restart" : 
+	"t_force_restart" :
 	[
 		[ "kUp" ],
 		[ "kR" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_next" : 
+	"t_next" :
 	[
 		[ "kPageDown" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_previous" : 
+	"t_previous" :
 	[
 		[ "kPageUp" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_replay" : 
+	"t_replay" :
 	[
 		[ "kY" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_restart" : 
+	"t_restart" :
 	[
 		[ "bMiddle" ],
 		[ "kSpace" ],
 		[ "kReturn" ],
 		[ "" ]
 	],
-	"t_rotate_ccw" : 
+	"t_rotate_ccw" :
 	[
 		[ "kA" ],
 		[ "kLeft" ],
 		[ "bLeft" ],
 		[ "" ]
 	],
-	"t_rotate_cw" : 
+	"t_rotate_cw" :
 	[
 		[ "kD" ],
 		[ "kRight" ],
 		[ "bRight" ],
 		[ "" ]
 	],
-	"t_screenshot" : 
+	"t_screenshot" :
 	[
 		[ "kF12" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_select" : 
+	"t_select" :
 	[
 		[ "kSpace" ],
 		[ "bMiddle" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_swap" : 
+	"t_swap" :
 	[
 		[ "bMiddle" ],
 		[ "kSpace" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_up" : 
+	"t_up" :
 	[
 		[ "kW" ],
 		[ "" ],
@@ -161,6 +161,6 @@
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 900,
-	"windowed_width" : 1440,
+	"windowed_width" : 1600,
 	"zoom_factor" : 0.8533333539962769
 }
