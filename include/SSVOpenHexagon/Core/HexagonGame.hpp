@@ -341,6 +341,25 @@ private:
         }
     }
 
+    static void nameFormat(std::string& name)
+	{
+		name[0] = std::toupper(name[0]);
+	}
+
+	[[nodiscard]] static std::string diffFormat(float diff)
+	{
+		char buf[255];
+		std::snprintf(buf, sizeof(buf), "%g", diff);
+		return buf;
+	}
+	
+	[[nodiscard]] static std::string timeFormat(float time)
+	{
+		char buf[255];
+		std::snprintf(buf, sizeof(buf), "%.3f", time);
+		return buf;
+	}
+
 public:
     Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
     Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
