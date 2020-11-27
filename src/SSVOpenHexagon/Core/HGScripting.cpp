@@ -255,7 +255,7 @@ void HexagonGame::initLua_AudioControl()
             sf::Music* current(assets.getMusicPlayer().getCurrent());
             if (current == nullptr)
             {
-                return:
+                return;
             }
             
             setMusicPitch(*current);
@@ -273,7 +273,7 @@ void HexagonGame::initLua_AudioControl()
             sf::Music* current(assets.getMusicPlayer().getCurrent());
             if (current == nullptr)
             {
-                return:
+                return;
             }
         })
         .arg("pitch")
