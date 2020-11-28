@@ -560,20 +560,18 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueIncrement", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un :
-        {"u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
-            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+    for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
+            "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
             "u_haltTime", "u_timelineWait", "u_clearWalls",
 
             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
             "a_playSound", "a_playPackSound",
 
-            "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
+            "t_eval", "t_kill", "t_wait", "t_waitS", "t_waitUntilS",
 
-            "e_eval", "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS", "e_messageAdd",
-            "e_messageAddImportant", "e_messageAddImportantSilent",
-            "e_clearMessages",
+            "e_eval", "e_kill", "e_stopTime", "e_stopTimeS", "e_wait",
+            "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
+            "e_messageAddImportantSilent", "e_clearMessages",
 
             "l_setSpeedMult", "l_setPlayerSpeedMult", "l_setSpeedInc",
             "l_setSpeedMax", "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin",
@@ -622,8 +620,11 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
 
             "steam_unlockAchievement",
 
-            "m_messageAdd", "m_messageAddImportant",
-            "m_messageAddImportantSilent", "m_clearMessages"})
+            "u_kill", "u_eventKill", "u_playSound", "u_playPackSound",
+            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
+            "e_eventWaitS", "e_eventWaitUntilS", "m_messageAdd",
+            "m_messageAddImportant", "m_messageAddImportantSilent",
+            "m_clearMessages"})
     {
         mLua.writeVariable(un, [] {});
     }
