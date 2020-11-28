@@ -477,6 +477,14 @@ void HexagonGame::death(bool mForce)
     runLuaFunctionIfExists<void>("onDeath");
 
     std::string nameStr = levelData->name;
+    std::string pbStr = "(";
+	if (status.getTimeSeconds() > assets.getLocalScore(getLocalValidator(levelData->id, difficultyMult))) 
+	{
+		pbStr += "New PB!)";
+	} else 
+	{
+		pbStr += "PB: " + timeFormat(assets.getLocalScore(getLocalValidator(levelData->id, difficultyMult))) + "s)";
+	}
     nameFormat(nameStr);
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
