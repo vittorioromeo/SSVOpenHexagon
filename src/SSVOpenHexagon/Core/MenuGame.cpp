@@ -104,7 +104,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     // To close the load results with any key
     setIgnoreAllInputs(1);
 
-    const auto checkCloseBootScreens = [this]() {
+    const auto checkCloseBootScreens = [this] {
         if(!(--ignoreInputs))
         {
             if(state == States::LoadingScreen)
@@ -454,6 +454,7 @@ void MenuGame::changeStateTo(const States mState)
             "THIS IS WHERE YOU CAN SELECT A LEVEL TO PLAY\n\n"
             "LEVELS ARE ORGANIZED IN 'LEVEL PACKS'\n"
             "TO BROWSE LEVELS AND LEVEL PACKS, NAVIGATE UP/DOWN\n"
+            "HOLD SHIFT (FOCUS) TO QUICKLY BROWSE PACKS\n"
             "TO CHANGE THE DIFFICULTY OF A LEVEL, NAVIGATE LEFT/RIGHT\n\n"
             "IT IS RECOMMENDED TO PLAY THE 'CUBE' LEVELS IN ORDER\n"
             "YOU CAN GET NEW LEVELS ON THE STEAM WORKSHOP\n"
@@ -1241,7 +1242,7 @@ void MenuGame::leftAction()
 {
     if(state == States::LevelSelection)
     {
-        diffMultIdx--;
+        --diffMultIdx;
         assets.playSound("beep.ogg");
         touchDelay = 50.f;
         return;
@@ -1266,7 +1267,7 @@ void MenuGame::rightAction()
 {
     if(state == States::LevelSelection)
     {
-        diffMultIdx++;
+        ++diffMultIdx;
         assets.playSound("beep.ogg");
         touchDelay = 50.f;
         return;
@@ -1331,7 +1332,7 @@ void MenuGame::upAction()
     {
         if(scrollbarOffset != 0)
         {
-            scrollbarOffset--;
+            --scrollbarOffset;
             assets.playSound("beep.ogg");
             touchDelay = 50.f;
         }
@@ -1404,7 +1405,7 @@ void MenuGame::downAction()
         if(scrollbarOffset <
             int(loadInfo.errorMessages.size()) - maxErrorsOnScreen)
         {
-            scrollbarOffset++;
+            ++scrollbarOffset;
             assets.playSound("beep.ogg");
             touchDelay = 50.f;
         }
@@ -1775,7 +1776,19 @@ void MenuGame::update(ssvu::FT mFT)
         changePackAction(-1);
     }
 
+    wasFocusHeld = false;
+
+    if(focusHeld)
+    {
+        wasFocusHeld = true;
+    }
+
     focusHeld = hg::Joystick::focusPressed();
+
+    if(focusHeld)
+    {
+        wasFocusHeld = true;
+    }
 
     if(hg::Joystick::leftRisingEdge())
     {
@@ -3370,12 +3383,13 @@ void MenuGame::drawLevelSelection(
         levelIndent{quadsIndent + quadBorder};
 
     // Offset
-    float panelOffset{
+    const float panelOffset{
         calcMenuOffset(levelSelectionXOffset, w - quadsIndent, revertOffset)};
 
     // Loop setup
     const auto& infos{assets.getPackInfos()};
-    const int packsSize = infos.size(), levelsSize = levelDataIds.size();
+    const int packsSize = infos.size();
+    const int levelsSize = wasFocusHeld ? 1 : levelDataIds.size();
     const LevelData* levelDataTemp;
     std::string tempString;
     float prevLevelIndent{0.f}, height{0.f}, indent, width, tempFloat;
@@ -3464,7 +3478,7 @@ void MenuGame::drawLevelSelection(
         tempFloat = indent + panelOffset;
         height += quadBorder;
 
-        tempString = levelDataTemp->name;
+        tempString = wasFocusHeld ? "..." : levelDataTemp->name;
         uppercasify(tempString);
         renderText(tempString, txtSelectionBig,
             {tempFloat, height - txtBigHeight * fontTopBorder});
@@ -3473,7 +3487,7 @@ void MenuGame::drawLevelSelection(
         // Author
         height += txtBigHeight + txtSmallHeight * 0.75f;
 
-        tempString = levelDataTemp->author;
+        tempString = wasFocusHeld ? "..." : levelDataTemp->author;
         uppercasify(tempString);
         renderText(tempString, txtSelectionSmall,
             {tempFloat, height - txtSmallHeight * 0.7f});
@@ -3802,8 +3816,11 @@ void MenuGame::drawLevelSelection(
     render(menuQuads);
     menuQuads.clear();
 
+    // TODO: implement favorite system
+    /*
     renderTextCenteredOffset("FAVORITE - F7", txtSelectionMedium,
         {sidepanelIndent / 2.f, height}, -panelOffset, grey);
+    */
 
     height = tempFloat;
 
@@ -3842,8 +3859,12 @@ void MenuGame::drawLevelSelection(
     createQuad(menuQuadColor, 0, width, height, height + lineThickness);
     height += lineThickness;
 
+    // TODO: uncomment when online is available
+    /*
+
     // "GLOBAL"
     height += txtSmallHeight / 2.f;
+
     renderTextCenteredOffset("<< GLOBAL >>", txtSelectionMedium,
         {sidepanelIndent / 2.f, height - txtMediumHeight}, -panelOffset);
 
@@ -3881,6 +3902,7 @@ void MenuGame::drawLevelSelection(
     height += (h - height) / 2.f;
     renderTextCenteredOffset("ONLINE DISABLED", txtSelectionLSmall,
         {tempFloat / 2.f, height - txtMediumHeight * 1.5f}, -panelOffset);
+    */
 
     render(menuQuads);
 }

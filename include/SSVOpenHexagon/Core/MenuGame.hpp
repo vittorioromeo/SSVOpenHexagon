@@ -141,6 +141,7 @@ private:
     // Navigation
 
     bool focusHeld{false};
+    bool wasFocusHeld{false};
     float wheelProgress{0.f};
     float touchDelay{0.f};
     // TODO: change this to MWlcm when leaderboards are enabled

@@ -136,7 +136,7 @@ enum class AxisDir : int
 
 [[nodiscard]] AxisDir operator-(AxisDir dir)
 {
-    return static_cast<AxisDir>(- static_cast<int>(dir));
+    return static_cast<AxisDir>(-static_cast<int>(dir));
 }
 
 [[nodiscard]] static AxisDir axisPressed(
@@ -192,7 +192,7 @@ void update()
     };
 
     const auto yIs = [&](const AxisDir axisDir) {
-        return dpadYIs(axisDir) || leftStickYIs(- axisDir);
+        return dpadYIs(axisDir) || leftStickYIs(-axisDir);
     };
 
     s.leftWasPressed = std::exchange(s.leftPressed, xIs(AxisDir::Left));
