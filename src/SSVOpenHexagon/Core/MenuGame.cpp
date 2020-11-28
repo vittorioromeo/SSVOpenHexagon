@@ -1169,7 +1169,7 @@ void MenuGame::leftAction()
     if(state == States::LevelSelection)
     {
         diffMultIdx--;
-        assets.playSound("beep.ogg");
+        assets.playSound("difficultyMultDown.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1194,7 +1194,7 @@ void MenuGame::rightAction()
     if(state == States::LevelSelection)
     {
         diffMultIdx++;
-        assets.playSound("beep.ogg");
+        assets.playSound("difficultyMultUp.ogg");
         touchDelay = 50.f;
         return;
     }
