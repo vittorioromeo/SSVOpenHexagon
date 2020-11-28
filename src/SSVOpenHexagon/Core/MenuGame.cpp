@@ -1688,14 +1688,14 @@ void MenuGame::exitAction()
 void MenuGame::update(ssvu::FT mFT)
 {
     // Update Steam Rich Presence
-    if(!steamHung)
+    if(!hexagonGame.steamHung)
     {
         if(!steamManager.run_callbacks())
         {
-            steamAttempt += 1;
-            if(steamAttempt > 20)
+            hexagonGame.steamAttempt += 1;
+            if(hexagonGame.steamAttempt > 20)
             {
-                steamHung = true;
+                hexagonGame.steamHung = true;
                 ssvu::lo("Steam") << "Too many failed callbacks. Stopping "
                                      "Rich Presence updates."
                                   << "\n";
@@ -1704,14 +1704,14 @@ void MenuGame::update(ssvu::FT mFT)
     }
 
     // Update Discord Rich Presence
-    if(!discordHung)
+    if(!hexagonGame.discordHung)
     {
         if(!discordManager.run_callbacks())
         {
-            discordAttempt += 1;
-            if(discordAttempt > 20)
+            hexagonGame.discordAttempt += 1;
+            if(hexagonGame.discordAttempt > 20)
             {
-                discordHung = true;
+                hexagonGame.discordHung = true;
                 ssvu::lo("Discord") << "Too many failed callbacks. Stopping "
                                        "Rich Presence updates."
                                     << "\n";

@@ -824,14 +824,17 @@ void HexagonGame::initLua_LevelControl()
             "timer. *NOTE: Your variable must be global for this to work.*");
 
     addLuaFn("l_setWallSpawnDistance", //
-		[this](float mValue) {
+        [this](float mValue) {
             levelStatus.wallSpawnDistance = mValue;
-			levelStatus.wallAccSpawnDistance = mValue;
+            levelStatus.wallAccSpawnDistance = mValue;
         })
-		.arg("distance")
-		.doc("Sets how far away the walls can spawn from the center. Higher values "
-			"make walls spawn farther away, and will increase the player's wait for "
-			"incoming walls.");
+        .arg("distance")
+        .doc(
+            "Sets how far away the walls can spawn from the center. Higher "
+            "values "
+            "make walls spawn farther away, and will increase the player's "
+            "wait for "
+            "incoming walls.");
 
     addLuaFn("l_setRotation", //
         [this](float mValue) { backgroundCamera.setRotation(mValue); })
@@ -1271,17 +1274,17 @@ void HexagonGame::initLua_CustomWalls()
             "its vertex with index `$1` to `{$2, $3, $4, $5}`.");
 
     addLuaFn("cw_setCollision", //
-		[this](CCustomWallHandle cwHandle, bool collision) {
-			cwManager.setCanCollide(cwHandle, collision);
-		})
-		.arg("cwHandle")
-		.arg("collision")
-		.doc(
-			"Given the custom wall represented by `$0`, set the collision "
-			"of the custom wall to `$1`. If false, the player can not die "
-			"from this wall and can move through the wall. By default, all "
-			"custom walls can collide with the player.");
-            
+        [this](CCustomWallHandle cwHandle, bool collision) {
+            cwManager.setCanCollide(cwHandle, collision);
+        })
+        .arg("cwHandle")
+        .arg("collision")
+        .doc(
+            "Given the custom wall represented by `$0`, set the collision "
+            "of the custom wall to `$1`. If false, the player can not die "
+            "from this wall and can move through the wall. By default, all "
+            "custom walls can collide with the player.");
+
     addLuaFn("cw_getVertexPos", //
         [this](CCustomWallHandle cwHandle,
             int vertexIndex) -> std::tuple<float, float> {
