@@ -322,13 +322,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         playLevelMusic();
         assets.musicPlayer.pause();
 
-        auto* current(assets.getMusicPlayer().getCurrent());
+        sf::Music* current(assets.getMusicPlayer().getCurrent());
         if(current != nullptr)
         {
-            current->setPitch(
-                (Config::getMusicSpeedDMSync() ? pow(difficultyMult, 0.12f)
-                                               : 1.f) *
-                Config::getMusicSpeedMult());
+            setMusicPitch(*current);
         }
     }
     else
@@ -469,7 +466,7 @@ void HexagonGame::death(bool mForce)
     }
 
     fpsWatcher.disable();
-    assets.playSound("death.ogg", ssvs::SoundPlayer::Mode::Abort);
+    assets.playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);
 
     if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
     {
@@ -591,7 +588,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     mustChangeSides = false;
 
-    assets.playSound("increment.ogg");
+    assets.playSound(levelStatus.levelUpSound);
     runLuaFunction<void>("onIncrement");
 }
 
@@ -691,7 +688,7 @@ void HexagonGame::addMessage(
     messageTimeline.append_do([this, mSoundToggle, mMessage] {
         if(mSoundToggle)
         {
-            assets.playSound("beep.ogg");
+            assets.playSound(levelStatus.beepSound);
         }
         messageText.setString(mMessage);
     });
@@ -811,7 +808,7 @@ auto HexagonGame::getColorText() const -> sf::Color
 
 void HexagonGame::setSides(unsigned int mSides)
 {
-    assets.playSound("beep.ogg");
+    assets.playSound(levelStatus.beepSound);
 
     if(mSides < 3)
     {

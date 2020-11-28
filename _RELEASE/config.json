@@ -161,6 +161,6 @@
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 900,
-	"windowed_width" : 1440,
+	"windowed_width" : 1600,
 	"zoom_factor" : 0.8533333539962769
 }
