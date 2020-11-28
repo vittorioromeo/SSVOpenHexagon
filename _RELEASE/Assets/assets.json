@@ -22,6 +22,8 @@
 	[
 		"beep.ogg",
 		"death.ogg",
+		"difficultyMultDown.ogg",
+		"difficultyMultUp.ogg",
 		"error.ogg",
 		"gameOver.ogg",
 		"go.ogg",
