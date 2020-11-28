@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Data/TrackedVariable.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
