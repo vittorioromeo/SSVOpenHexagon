@@ -585,9 +585,10 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setBeatPulseInitialDelay", "l_setBeatPulseSpeedMult",
             "l_getBeatPulseInitialDelay", "l_getBeatPulseSpeedMult",
             "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
-            "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
-            "l_setTutorialMode", "l_setIncEnabled", "l_get3dRequired",
-            "l_enableRndSideChanges", "l_setDarkenUnevenBackgroundChunk",
+            "l_setWallAngleRight", "l_setWallSpawnDistance", "l_setRadiusMin",
+            "l_setSwapEnabled", "l_setTutorialMode", "l_setIncEnabled",
+            "l_get3dRequired", "l_enableRndSideChanges",
+            "l_setDarkenUnevenBackgroundChunk",
             "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult",
 
             "l_getPlayerSpeedMult", "l_getDelayMult", "l_addTracked",
