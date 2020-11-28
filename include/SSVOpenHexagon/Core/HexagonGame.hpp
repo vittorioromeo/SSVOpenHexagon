@@ -55,10 +55,6 @@ class HexagonGame
 private:
     Steam::steam_manager& steamManager;
     Discord::discord_manager& discordManager;
-    bool discordHung{false};
-    bool steamHung{false};
-    int8_t discordAttempt{1};
-    int8_t steamAttempt{1};
 
     HGAssets& assets;
     const LevelData* levelData;
@@ -67,6 +63,11 @@ private:
     ssvs::GameWindow& window;
 
 public:
+    bool discordHung{false};
+    bool steamHung{false};
+    int8_t discordAttempt{1};
+    int8_t steamAttempt{1};
+
     CPlayer player;
     std::vector<CWall> walls;
     CCustomWallManager cwManager;
