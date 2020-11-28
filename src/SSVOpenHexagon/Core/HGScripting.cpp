@@ -145,14 +145,6 @@ void HexagonGame::initLua_Utils()
             "Immediately force a difficulty increment, regardless of the "
             "chosen automatic increment parameters.");
 
-    addLuaFn("u_kill", //
-        [this] { timeline.append_do([this] { death(true); }); })
-        .doc("*Add to the main timeline*: kill the player.");
-
-    addLuaFn("u_eventKill", //
-        [this] { eventTimeline.append_do([this] { death(true); }); })
-        .doc("*Add to the event timeline*: kill the player.");
-
     addLuaFn("u_getDifficultyMult", //
         [this] { return difficultyMult; })
         .doc("Return the current difficulty multiplier.");
@@ -264,6 +256,10 @@ void HexagonGame::initLua_MainTimeline()
         timeline.clear();
     }).doc("Clear the main timeline.");
 
+    addLuaFn("t_kill", //
+        [this] { timeline.append_do([this] { death(true); }); })
+        .doc("*Add to the main timeline*: kill the player.");
+
     addLuaFn("t_wait",
         [this](
             double mDuration) { timeline.append_wait_for_sixths(mDuration); })
@@ -303,7 +299,11 @@ void HexagonGame::initLua_EventTimeline()
             "*Add to the event timeline*: evaluate the Lua code specified in "
             "`$0`. (This is the closest you'll get to 1.92 events)");
 
-    addLuaFn("e_eventStopTime", //
+    addLuaFn("e_kill", //
+        [this] { eventTimeline.append_do([this] { death(true); }); })
+        .doc("*Add to the event timeline*: kill the player.");
+
+    addLuaFn("e_stopTime", //
         [this](double mDuration) {
             eventTimeline.append_do([=, this] {
                 status.pauseTime(ssvu::getFTToSeconds(mDuration));
@@ -314,7 +314,7 @@ void HexagonGame::initLua_EventTimeline()
             "*Add to the event timeline*: pause the game timer for `$0` frames "
             "(under the assumption of a 60 FPS frame rate).");
 
-    addLuaFn("e_eventStopTimeS", //
+    addLuaFn("e_stopTimeS", //
         [this](double mDuration) {
             eventTimeline.append_do([=, this] { status.pauseTime(mDuration); });
         })
@@ -323,7 +323,7 @@ void HexagonGame::initLua_EventTimeline()
             "*Add to the event timeline*: pause the game timer for `$0` "
             "seconds.");
 
-    addLuaFn("e_eventWait",
+    addLuaFn("e_wait",
         [this](double mDuration) {
             eventTimeline.append_wait_for_sixths(mDuration);
         })
@@ -332,14 +332,14 @@ void HexagonGame::initLua_EventTimeline()
             "*Add to the event timeline*: wait for `$0` frames (under the "
             "assumption of a 60 FPS frame rate).");
 
-    addLuaFn("e_eventWaitS", //
+    addLuaFn("e_waitS", //
         [this](double mDuration) {
             eventTimeline.append_wait_for_seconds(mDuration);
         })
         .arg("duration")
         .doc("*Add to the event timeline*: wait for `$0` seconds.");
 
-    addLuaFn("e_eventWaitUntilS", //
+    addLuaFn("e_waitUntilS", //
         [this](double mDuration) {
             eventTimeline.append_wait_until_fn([this, mDuration] {
                 return status.getLevelStartTP() +
@@ -1322,6 +1322,32 @@ void HexagonGame::initLua_CustomWalls()
 // to the new functions before they get removed permanently
 void HexagonGame::initLua_Deprecated()
 {
+    addLuaFn("u_kill", //
+        [this] {
+            raiseWarning("u_kill",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"t_kill\" in your level files.");
+            timeline.append_do([this] { death(true); });
+        })
+        .doc(
+            "*Add to the main timeline*: kill the player. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use t_kill instead!**");
+
+    addLuaFn("u_eventKill", //
+        [this] {
+            raiseWarning("u_eventKill",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_kill\" in your level files.");
+            eventTimeline.append_do([this] { death(true); });
+        })
+        .doc(
+            "*Add to the event timeline*: kill the player. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_kill instead!**");
+
     addLuaFn("u_playSound", //
         [this](const std::string& mId) {
             raiseWarning("u_playSound",
@@ -1351,6 +1377,86 @@ void HexagonGame::initLua_Deprecated()
             "plays the specified file `$0`. "
             "**This function is deprecated and will be removed in a future "
             "version. Please use a_playPackSound instead!**");
+
+    addLuaFn("e_eventStopTime", //
+        [this](double mDuration) {
+            raiseWarning("u_eventStopTime",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_stopTime\" in your level files.");
+            eventTimeline.append_do([=, this] {
+                status.pauseTime(ssvu::getFTToSeconds(mDuration));
+            });
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: pause the game timer for `$0` frames "
+            "(under the assumption of a 60 FPS frame rate). "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_stopTime instead!**");
+
+    addLuaFn("e_eventStopTimeS", //
+        [this](double mDuration) {
+            raiseWarning("u_eventStopTimeS",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_stopTimeS\" in your level files.");
+            eventTimeline.append_do([=, this] { status.pauseTime(mDuration); });
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: pause the game timer for `$0` "
+            "seconds. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_stopTimeS instead!**");
+
+    addLuaFn("e_eventWait",
+        [this](double mDuration) {
+            raiseWarning("u_eventWait",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_wait\" in your level files.");
+            eventTimeline.append_wait_for_sixths(mDuration);
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: wait for `$0` frames (under the "
+            "assumption of a 60 FPS frame rate). "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_wait instead!**");
+
+    addLuaFn("e_eventWaitS", //
+        [this](double mDuration) {
+            raiseWarning("u_eventWaitS",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_waitS\" in your level files.");
+            eventTimeline.append_wait_for_seconds(mDuration);
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: wait for `$0` seconds. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_waitS instead!**");
+
+    addLuaFn("e_eventWaitUntilS", //
+        [this](double mDuration) {
+            raiseWarning("u_eventWaitUntilS",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace all occurrences of this function with "
+                "\"e_waitUntilS\" in your level files.");
+            eventTimeline.append_wait_until_fn([this, mDuration] {
+                return status.getLevelStartTP() +
+                       std::chrono::milliseconds(
+                           static_cast<int>(mDuration * 1000.0));
+            });
+        })
+        .arg("duration")
+        .doc(
+            "*Add to the event timeline*: wait until the timer reaches `$0` "
+            "seconds. "
+            "**This function is deprecated and will be removed in a future "
+            "version. Please use e_waitUntilS instead!**");
 
     addLuaFn("m_messageAdd", //
         [this](const std::string& mMsg, double mDuration) {

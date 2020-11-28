@@ -41,21 +41,22 @@ function onLoad()
 	e_messageAddImportant("welcome to open hexagon 2", 130)
 	e_messageAddImportant("use left/right to rotate", 130)
 	e_messageAddImportant("avoid the walls!", 130)
-	e_eventStopTimeS(6)
-	e_eventWaitS(6)
+	e_stopTimeS(6)
+	e_waitS(6)
 
-	e_eventWaitUntilS(10)
-	e_eventStopTimeS(5)
+	e_waitUntilS(10)
+	e_stopTimeS(5)
 	e_messageAddImportant("great job!", 130)
 	e_messageAddImportant("after a while, things get harder", 130)
 	e_messageAddImportant("get to 45 seconds to win!", 130)
 
-	e_eventWaitUntilS(42)
+	e_waitUntilS(42)
+	e_eval([[l_setIncEnabled(false);]])
 	e_messageAddImportant("well done!", 130)
 	e_messageAddImportant("now play some real levels!", 138)
 
-	e_eventWaitUntilS(44) -- not 45, to avoid level up
-	u_eventKill()
+	e_waitUntilS(45)
+	e_kill()
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
