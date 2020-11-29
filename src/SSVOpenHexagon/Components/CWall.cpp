@@ -80,7 +80,7 @@ void CWall::moveTowardsCenter(
         }
     }
 
-    if((pointsOnCenter > 3 || pointsOutOfBounds > 3) || (pointsOnCenter == 2 && pointsOutOfBounds == 2))
+    if(pointsOnCenter > 3 || pointsOutOfBounds > 3)
     {
         killed = true;
     }
