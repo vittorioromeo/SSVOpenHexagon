@@ -645,7 +645,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "a_overrideIncrementSound", "a_overrideSwapSound",
             "a_overrideDeathSound",
 
-            "t_eval", "t_kill", "t_wait", "t_waitS", "t_waitUntilS",
+            "t_eval", "t_kill", "t_clear", "t_wait", "t_waitS", "t_waitUntilS",
 
             "e_eval", "e_kill", "e_stopTime", "e_stopTimeS", "e_wait",
             "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
