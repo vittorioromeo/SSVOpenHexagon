@@ -743,6 +743,13 @@ void HexagonGame::initLua_LevelControl()
         "vertices, "
         "please use the custom walls system under the prefix ``cw_``.");
 
+    lsVar("WallSpawnDistance", &LevelStatus::wallSpawnDistance,
+        "Gets the distance at which standard walls spawn.",
+
+        "Sets how far away the walls can spawn from the center. Higher "
+        "values make walls spawn farther away, and will increase the "
+        "player's wait for incoming walls.");
+
     lsVar("3dRequired", &LevelStatus::_3DRequired,
         "Gets whether 3D must be enabled in order to have a valid score in "
         "this level. "
@@ -898,14 +905,6 @@ void HexagonGame::initLua_LevelControl()
             "Add the variable `$0` to the list of tracked variables, with name "
             "`$1`. Tracked variables are displayed in game, below the game "
             "timer. *NOTE: Your variable must be global for this to work.*");
-
-    addLuaFn("l_setWallSpawnDistance", //
-        [this](float mValue) { levelStatus.wallSpawnDistance = mValue; })
-        .arg("distance")
-        .doc(
-            "Sets how far away the walls can spawn from the center. Higher "
-            "values make walls spawn farther away, and will increase the "
-            "player's wait for incoming walls.");
 
     addLuaFn("l_setRotation", //
         [this](float mValue) { backgroundCamera.setRotation(mValue); })
