@@ -114,8 +114,10 @@ bool discord_manager::set_rich_presence_on_replay()
 
     discord::Activity activity{};
     activity.SetState("Watching Replay");
+    // Make sure this line doesn't show up.
     activity.SetDetails("");
     discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+    // Remove any existing timestamp
     currentTimestamp.SetStart(0);
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
@@ -136,14 +138,18 @@ bool discord_manager::set_rich_presence_in_game(
     }
 
     discord::Activity activity{};
-    activity.SetDetails(("Playing " + level_info).data());
+    // First line of Discord Rich Presence. Show the level we're playing.
+    // These functions take in character arrays, so we have to convert the
+    // strings to character arrays through .data()
+    activity.SetDetails(level_info.data());
+    // Second line of Discord Rich Presence. This can either be the pack name or
+    // how long the user survived, depending on the situation.
     activity.SetState(second_info.data());
     discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
     if(!dead)
     {
-        // ssvu::lo("Debug") << "The current time: " <<
-        // static_cast<int64_t>(std::chrono::high_resolution_clock::now().time_since_epoch().count()
-        // / 1000000000) << "\n";
+        // Update the timestamp to show how long the current attempt is. This is
+        // shown by "MM:SS elapsed".
         currentTimestamp.SetStart(
             static_cast<int64_t>(std::chrono::high_resolution_clock::now()
                                      .time_since_epoch()
@@ -152,6 +158,8 @@ bool discord_manager::set_rich_presence_in_game(
     }
     else
     {
+        // Remove the timestamp from the rich presence if the player is dead.
+        // It's unnecessary information.
         currentTimestamp.SetStart(0);
     }
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {

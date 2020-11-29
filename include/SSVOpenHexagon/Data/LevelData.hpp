@@ -107,9 +107,7 @@ struct LevelStatus
     float wallSkewRight{0.f};
     float wallAngleLeft{0.f};
     float wallAngleRight{0.f};
-    float wallSpawnDistance{1350.f};
-    float wallAccSpawnDistance{
-        Config::getSpawnDistance()}; // Attribute for compatibility
+    float wallSpawnDistance{Config::getSpawnDistance()};
     float _3dEffectMultiplier{1.f};
 
     float cameraShake{0};

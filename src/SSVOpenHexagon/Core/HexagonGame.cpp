@@ -47,11 +47,8 @@ namespace
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
-    float spawnDistance = (mSpeed.accel == 0.f)
-                              ? levelStatus.wallSpawnDistance
-                              : levelStatus.wallAccSpawnDistance;
-    walls.emplace_back(
-        *this, centerPos, mSide, mThickness, spawnDistance, mSpeed, mCurve);
+    walls.emplace_back(*this, centerPos, mSide, mThickness,
+        levelStatus.wallSpawnDistance, mSpeed, mCurve);
 
     walls.back().setHueMod(mHueMod);
 }
@@ -234,6 +231,39 @@ void HexagonGame::setLastReplay(const replay_file& mReplayFile)
     lastPlayedScore = mReplayFile._played_score;
 
     activeReplay.emplace(mReplayFile);
+}
+
+void HexagonGame::updateRichPresenceCallbacks()
+{
+    // Update Steam Rich Presence
+    if(!steamHung)
+    {
+        if(!steamManager.run_callbacks())
+        {
+            steamAttempt += 1;
+            if(steamAttempt > 20)
+            {
+                steamHung = true;
+                ssvu::lo("Steam") << "Too many failed callbacks. Stopping "
+                                     "Steam callbacks.\n";
+            }
+        }
+    }
+
+    // Update Discord Rich Presence
+    if(!discordHung)
+    {
+        if(!discordManager.run_callbacks())
+        {
+            discordAttempt += 1;
+            if(discordAttempt > 20)
+            {
+                discordHung = true;
+                ssvu::lo("Discord") << "Too many failed callbacks. Stopping "
+                                       "Discord callbacks.\n";
+            }
+        }
+    }
 }
 
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
@@ -476,7 +506,7 @@ void HexagonGame::death(bool mForce)
     assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
     runLuaFunctionIfExists<void>("onDeath");
 
-    std::string nameStr = levelData->name;
+    // Gather player's Personal Best
     std::string pbStr = "(";
     if(status.getTimeSeconds() >
         assets.getLocalScore(getLocalValidator(levelData->id, difficultyMult)))
@@ -490,6 +520,8 @@ void HexagonGame::death(bool mForce)
                      getLocalValidator(levelData->id, difficultyMult))) +
                  "s)";
     }
+
+    std::string nameStr = levelData->name;
     nameFormat(nameStr);
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());

@@ -28,7 +28,8 @@ private:
     std::array<sf::Vector2f, 4> vertexPositions;
     std::array<sf::Color, 4> vertexColors;
     bool canCollide{true};
-    int8_t renderOrder{1};
+    // TODO: Implement this in drawing logic
+    // int8_t renderOrder{1};
 
 public:
     CCustomWall();
@@ -59,10 +60,10 @@ public:
         canCollide = collide;
     }
 
-    [[gnu::always_inline]] void setRenderOrder(const int8_t order) noexcept
-    {
-        renderOrder = order;
-    }
+    // [[gnu::always_inline]] void setRenderOrder(const int8_t order) noexcept
+    // {
+    //     renderOrder = order;
+    // }
 
     [[gnu::always_inline, nodiscard]] const sf::Vector2f& getVertexPos(
         const int vertexIndex) const noexcept

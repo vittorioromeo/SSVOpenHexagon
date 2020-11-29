@@ -39,6 +39,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 
+#include <cstdint>
 #include <sstream>
 #include <unordered_set>
 #include <optional>
@@ -55,6 +56,10 @@ class HexagonGame
 private:
     Steam::steam_manager& steamManager;
     Discord::discord_manager& discordManager;
+    bool discordHung{false};
+    bool steamHung{false};
+    std::int8_t discordAttempt{1};
+    std::int8_t steamAttempt{1};
 
     HGAssets& assets;
     const LevelData* levelData;
@@ -63,11 +68,6 @@ private:
     ssvs::GameWindow& window;
 
 public:
-    bool discordHung{false};
-    bool steamHung{false};
-    int8_t discordAttempt{1};
-    int8_t steamAttempt{1};
-
     CPlayer player;
     std::vector<CWall> walls;
     CCustomWallManager cwManager;
@@ -390,6 +390,7 @@ public:
 
     // Other methods
     void executeEvents(ssvuj::Obj& mRoot, float mTime);
+    void updateRichPresenceCallbacks();
 
     // Graphics-related methods
     void render(sf::Drawable& mDrawable)
