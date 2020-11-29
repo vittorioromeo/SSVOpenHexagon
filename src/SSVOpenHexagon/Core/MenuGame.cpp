@@ -1767,37 +1767,7 @@ void MenuGame::exitAction()
 
 void MenuGame::update(ssvu::FT mFT)
 {
-    // Update Steam Rich Presence
-    if(!hexagonGame.steamHung)
-    {
-        if(!steamManager.run_callbacks())
-        {
-            hexagonGame.steamAttempt += 1;
-            if(hexagonGame.steamAttempt > 20)
-            {
-                hexagonGame.steamHung = true;
-                ssvu::lo("Steam") << "Too many failed callbacks. Stopping "
-                                     "Rich Presence updates."
-                                  << "\n";
-            }
-        }
-    }
-
-    // Update Discord Rich Presence
-    if(!hexagonGame.discordHung)
-    {
-        if(!discordManager.run_callbacks())
-        {
-            hexagonGame.discordAttempt += 1;
-            if(hexagonGame.discordAttempt > 20)
-            {
-                hexagonGame.discordHung = true;
-                ssvu::lo("Discord") << "Too many failed callbacks. Stopping "
-                                       "Rich Presence updates."
-                                    << "\n";
-            }
-        }
-    }
+    hexagonGame.updateRichPresenceCallbacks();
 
     hg::Joystick::update();
 

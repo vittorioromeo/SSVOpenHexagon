@@ -900,17 +900,12 @@ void HexagonGame::initLua_LevelControl()
             "timer. *NOTE: Your variable must be global for this to work.*");
 
     addLuaFn("l_setWallSpawnDistance", //
-        [this](float mValue) {
-            levelStatus.wallSpawnDistance = mValue;
-            levelStatus.wallAccSpawnDistance = mValue;
-        })
+        [this](float mValue) { levelStatus.wallSpawnDistance = mValue; })
         .arg("distance")
         .doc(
             "Sets how far away the walls can spawn from the center. Higher "
-            "values "
-            "make walls spawn farther away, and will increase the player's "
-            "wait for "
-            "incoming walls.");
+            "values make walls spawn farther away, and will increase the "
+            "player's wait for incoming walls.");
 
     addLuaFn("l_setRotation", //
         [this](float mValue) { backgroundCamera.setRotation(mValue); })

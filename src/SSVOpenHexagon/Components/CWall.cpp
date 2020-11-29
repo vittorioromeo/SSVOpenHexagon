@@ -56,11 +56,9 @@ void CWall::moveTowardsCenter(
     HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
 {
     const float wallSpawnDist{mHexagonGame.getLevelStatus().wallSpawnDistance};
-    const float wallAccSpawnDist{mHexagonGame.getLevelStatus().wallAccSpawnDistance};
 
     const float radius{mHexagonGame.getRadius() * 0.65f};
-    const float outerBounds =
-        (wallSpawnDist == wallAccSpawnDist) ? wallSpawnDist * 0.5f : 800.f;
+    const float outerBounds = wallSpawnDist * 0.5f;
 
     int pointsOnCenter{0};
     int pointsOutOfBounds{0};

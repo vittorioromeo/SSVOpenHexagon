@@ -38,38 +38,7 @@ void HexagonGame::update(ssvu::FT mFT)
         timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
     }
 
-    // Update Steam Rich Presence
-    if(!steamHung)
-    {
-        if(!steamManager.run_callbacks())
-        {
-            steamAttempt += 1;
-            if(steamAttempt > 20)
-            {
-                steamHung = true;
-                ssvu::lo("Steam") << "Too many failed callbacks. Stopping "
-                                     "Rich Presence updates."
-                                  << "\n";
-            }
-        }
-    }
-
-    // Update Discord Rich Presence
-    if(!discordHung)
-    {
-        if(!discordManager.run_callbacks())
-        {
-            discordAttempt += 1;
-            if(discordAttempt > 20)
-            {
-                discordHung = true;
-                ssvu::lo("Discord") << "Too many failed callbacks. Stopping "
-                                       "Rich Presence updates."
-                                    << "\n";
-            }
-        }
-    }
-
+    updateRichPresenceCallbacks();
     updateText();
     updateFlash(mFT);
     effectTimelineManager.update(mFT);

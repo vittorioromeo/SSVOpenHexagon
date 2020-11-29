@@ -112,23 +112,23 @@ void CCustomWallManager::setCanCollide(
     _customWalls[cwHandle].setCanCollide(collide);
 }
 
-void CCustomWallManager::setRenderOrder(
-    const CCustomWallHandle cwHandle, const int8_t order)
-{
-    if(_handleAvailable[cwHandle])
-    {
-        ssvu::lo("CustomWallManager")
-            << "Attempted to set render order of invalid custom wall "
-            << cwHandle << '\n';
+// void CCustomWallManager::setRenderOrder(
+//     const CCustomWallHandle cwHandle, const int8_t order)
+// {
+//     if(_handleAvailable[cwHandle])
+//     {
+//         ssvu::lo("CustomWallManager")
+//             << "Attempted to set render order of invalid custom wall "
+//             << cwHandle << '\n';
 
-        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
-        return;
-    }
+//         SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+//         return;
+//     }
 
-    SSVU_ASSERT(isValidHandle(cwHandle));
+//     SSVU_ASSERT(isValidHandle(cwHandle));
 
-    _customWalls[cwHandle].setRenderOrder(order);
-}
+//     _customWalls[cwHandle].setRenderOrder(order);
+// }
 
 [[nodiscard]] sf::Vector2f CCustomWallManager::getVertexPos(
     const CCustomWallHandle cwHandle, const int vertexIndex)
