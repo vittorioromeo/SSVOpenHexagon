@@ -58,7 +58,7 @@ void CWall::moveTowardsCenter(
     const float wallSpawnDist{mHexagonGame.getLevelStatus().wallSpawnDistance};
 
     const float radius{mHexagonGame.getRadius() * 0.65f};
-    const float outerBounds = wallSpawnDist * 0.7f;
+    const float outerBounds = wallSpawnDist * 1.1f;
 
     int pointsOnCenter{0};
     int pointsOutOfBounds{0};
@@ -71,7 +71,7 @@ void CWall::moveTowardsCenter(
         } 
         else
         {
-			if(std::abs(vp.x - mCenterPos.x) > outerBounds &&
+			if(std::abs(vp.x - mCenterPos.x) > outerBounds ||
                 std::abs(vp.y - mCenterPos.y) > outerBounds)
 			{
 				++pointsOutOfBounds;
