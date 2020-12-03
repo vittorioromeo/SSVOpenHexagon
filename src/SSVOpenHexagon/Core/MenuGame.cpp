@@ -3296,13 +3296,13 @@ void MenuGame::formatLevelDescription()
     {
         if(desc[i] == '\n')
         {
-            words.emplace_back(desc.substr(j, ++i - j)); // include the newline.
-            j = i;
+            words.emplace_back(desc.substr(j, i - j + 1)); // include the newline.
+            j = i + 1;
         }
         else if(desc[i] == ' ')
         {
             words.emplace_back(desc.substr(j, i - j));
-            j = ++i; // skip the space.
+            j = i + 1; // skip the space.
         }
     }
 
