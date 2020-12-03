@@ -1923,19 +1923,28 @@ void MenuGame::update(ssvu::FT mFT)
 
         case States::LevelSelection:
             {
-                float temp;
-
                 // This handles the smooth scrolling of the level list
                 // when we change level, and the now selected level
                 // is not within the boundaries of the window.
                 if(levelYScrollTo != 0.f)
                 {
-                    temp = (levelSelectionYOffset < levelYScrollTo ? 30.f : -30.f) * mFT;
-                    levelSelectionYOffset += temp;
-                    if(abs(levelSelectionYOffset - levelYScrollTo) <= temp)
+                    if(levelSelectionYOffset < levelYScrollTo)
                     {
-                        levelSelectionYOffset = levelYScrollTo;
-                        levelYScrollTo = 0.f;
+                        levelSelectionYOffset += mFT * 30.f;
+                        if(levelSelectionYOffset >= levelYScrollTo)
+                        {
+                            levelSelectionYOffset = levelYScrollTo;
+                            levelYScrollTo = 0.f;
+                        }
+                    }
+                    else
+                    {
+                        levelSelectionYOffset -= mFT * 30.f;
+                        if(levelSelectionYOffset <= levelYScrollTo)
+                        {
+                            levelSelectionYOffset = levelYScrollTo;
+                            levelYScrollTo = 0.f;
+                        }
                     }
                 }
 
@@ -1991,7 +2000,7 @@ void MenuGame::update(ssvu::FT mFT)
                 }
                 else
                 {
-                    temp = h - levelSelectionTotalHeight;
+                    float temp = h - levelSelectionTotalHeight;
                     if(levelSelectionYOffset <= temp)
                     {
                         levelSelectionYOffset = temp;
@@ -3256,7 +3265,7 @@ void MenuGame::calcLevelChangeScroll()
     const float frameSize{getFrameSize()},
         levelLabelHeight{getLevelLabelHeight()},
         curLevelTop{getPackLabelHeight() * (packIdx + 1) + frameSize +
-                    levelLabelHeight * currentIndex + levelSelectionYOffset},
+            levelLabelHeight * currentIndex + levelSelectionYOffset},
         curLevelBottom{curLevelTop + levelLabelHeight + frameSize};
 
     if(curLevelBottom > h)
