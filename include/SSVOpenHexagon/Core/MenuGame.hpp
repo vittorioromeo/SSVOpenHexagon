@@ -321,7 +321,6 @@ private:
     PackChange packChangeState{PackChange::Rest};
     float namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
     std::vector<std::string> levelDescription;
-    float levelSelectionTotalHeight{0.f};
     float levelSelectionXOffset{0.f}; // to make the menu slide in/out
     float levelSelectionYOffset{0.f}; // to scroll up and down the menu
     float levelYScrollTo{0.f};   // height list must scroll to show current item
@@ -341,6 +340,7 @@ private:
     float getFrameSize();
     float getMaximumTextWidth();
     float getLevelListHeight();
+    float getLevelSelectionHeight();
     void calcLevelChangeScroll();
     void calcPackChangeScroll();
     void scrollName(std::string& text, float& scroller);
