@@ -1917,65 +1917,91 @@ void MenuGame::update(ssvu::FT mFT)
 
     switch(state)
     {
-        case States::LoadingScreen: hexagonRotation += mFT / 100.f; return;
+        case States::LoadingScreen:
+            hexagonRotation += mFT / 100.f;
+            return;
 
         case States::LevelSelection:
-            if(levelYScrollTo != 0.f)
             {
-                if(levelSelectionYOffset < levelYScrollTo)
+                float temp;
+
+                // This handles the smooth scrolling of the level list
+                // when we change level, and the now selected level
+                // is not within the boundaries of the window.
+                if(levelYScrollTo != 0.f)
                 {
-                    levelSelectionYOffset += mFT * 30.f;
-                    if(levelSelectionYOffset >= levelYScrollTo)
+                    temp = (levelSelectionYOffset < levelYScrollTo ? 30.f : -30.f) * mFT;
+                    levelSelectionYOffset += temp;
+                    if(abs(levelSelectionYOffset - levelYScrollTo) <= temp)
                     {
                         levelSelectionYOffset = levelYScrollTo;
                         levelYScrollTo = 0.f;
                     }
+                }
+
+                // This handles the folding animation of the level list
+                // when we change pack.
+                switch(packChangeState)
+                {
+                    case PackChange::Rest: break;
+
+                    case PackChange::Folding:
+                        packChangeOffset += mFT * 45.f;
+                        if(packChangeOffset < getLevelListHeight())
+                        {
+                            break;
+                        }
+
+                        // Change the pack
+                        changePack();
+                        // Set the stretch info
+                        packChangeOffset = getLevelListHeight();
+                        packChangeState = PackChange::Stretching;
+                        break;
+
+                    case PackChange::Stretching:
+                        packChangeOffset -= mFT * 45.f;
+                        if(packChangeOffset > 0.f)
+                        {
+                            break;
+                        }
+
+                        packChangeOffset = 0.f;
+                        calcPackChangeScroll();
+                        adjustLevelsOffset();
+                        packChangeState = PackChange::Rest;
+                        break;
+                }
+
+                // This handles the very top and bottom of the level list.
+                // If the height of the list is smaller than the window height
+                // the offset of the list is always 0.
+                // On the other hand, if the list is higher than the screen
+                // make sure there is no empty space between the bottom of
+                // the list and the bottom of the window.
+                // It is placed after the pack change scroll because updated
+                // "packChangeOffset" is essential to accurately calculate the
+                // height of the list.
+                const float levelSelectionTotalHeight =
+                    getLevelSelectionHeight();
+
+                if(levelSelectionTotalHeight < h)
+                {
+                    levelSelectionYOffset = 0.f;
                 }
                 else
                 {
-                    levelSelectionYOffset -= mFT * 30.f;
-                    if(levelSelectionYOffset <= levelYScrollTo)
+                    temp = h - levelSelectionTotalHeight;
+                    if(levelSelectionYOffset <= temp)
                     {
-                        levelSelectionYOffset = levelYScrollTo;
-                        levelYScrollTo = 0.f;
+                        levelSelectionYOffset = temp;
                     }
                 }
             }
-
-            switch(packChangeState)
-            {
-                case PackChange::Rest: return;
-
-                case PackChange::Folding:
-                    packChangeOffset += mFT * 45.f;
-                    if(packChangeOffset < getLevelListHeight())
-                    {
-                        return;
-                    }
-
-                    // Change the pack
-                    changePack();
-                    // Set the stretch info
-                    packChangeOffset = getLevelListHeight();
-                    packChangeState = PackChange::Stretching;
-                    return;
-
-                case PackChange::Stretching:
-                    packChangeOffset -= mFT * 45.f;
-                    if(packChangeOffset > 0.f)
-                    {
-                        return;
-                    }
-
-                    packChangeOffset = 0.f;
-                    calcPackChangeScroll();
-                    adjustLevelsOffset();
-                    packChangeState = PackChange::Rest;
-                    return;
-            }
             return;
 
-        default: return;
+        default:
+            return;
     }
 }
 
@@ -3148,6 +3174,13 @@ float MenuGame::getLevelListHeight()
 {
     return getLevelLabelHeight() * levelDataIds.size() + getFrameSize();
 }
+float MenuGame::getLevelSelectionHeight()
+{
+    return getPackLabelHeight() * assets.getPackInfos().size() +
+        getLevelLabelHeight() * (wasFocusHeld ? 1 : levelDataIds.size()) -
+        packChangeOffset +
+        (packIdx != int(assets.getPackInfos().size()) - 1 ? 3.f : 2.f) * getFrameSize();
+}
 
 void MenuGame::scrollName(std::string& text, float& scroller)
 {
@@ -3252,11 +3285,9 @@ void MenuGame::calcPackChangeScroll()
     const float levelLabelHeight{getLevelLabelHeight()},
         packLabelHeight{getPackLabelHeight()},
         levelsListHeight{std::min(packLabelHeight + 2.f * getFrameSize() +
-                                      levelLabelHeight * levelDataIds.size(),
-                             h) -
-                         levelLabelHeight},
+            levelLabelHeight * levelDataIds.size(), h) - levelLabelHeight},
         scrollTop{packLabelHeight * packIdx + levelSelectionYOffset +
-                  levelsListHeight},
+            levelsListHeight},
         scrollBottom{scrollTop + levelLabelHeight};
 
     if(scrollBottom > h)
@@ -3394,13 +3425,6 @@ void MenuGame::drawLevelSelection(
     std::string tempString;
     float prevLevelIndent{0.f}, height{0.f}, indent, width, tempFloat;
     sf::Vector2f topLeft, topRight, bottomRight, bottomLeft;
-
-    // Needed for the vertical scrolling. I have no idea why the third line
-    // requires that condition, but it works perfectly so I am not going to
-    // spend hours trying to figure it out
-    levelSelectionTotalHeight =
-        packLabelHeight * packsSize + levelLabelHeight * levelsSize -
-        packChangeOffset + (packIdx != packsSize - 1 ? 3.f : 2.f) * frameSize;
 
     //**********************************************************************//
     //                                                                      //
@@ -3617,25 +3641,6 @@ void MenuGame::drawLevelSelection(
             height = levelSelectionYOffset;
         }
     } while(i != ssvu::getMod(packIdx + 1, packsSize));
-
-    //----------------------------------------
-    // LIST SCROLLING
-
-    if(levelSelectionTotalHeight < h)
-    {
-        levelSelectionYOffset = 0.f;
-    }
-    else
-    {
-        tempFloat = h - levelSelectionTotalHeight;
-
-        // Failsafe for the automated level list scrolling
-        if(levelSelectionYOffset <= tempFloat)
-        {
-            levelYScrollTo = 0.f;
-            levelSelectionYOffset = tempFloat;
-        }
-    }
 
     //**********************************************************************//
     //                                                                      //
