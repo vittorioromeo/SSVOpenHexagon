@@ -1314,7 +1314,7 @@ void MenuGame::upAction()
         else
         {
             setIndex(currentIndex - 1);
-            calcLevelChangeScroll();
+            calcLevelChangeScroll(-2);
         }
 
         namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
@@ -1386,7 +1386,7 @@ void MenuGame::downAction()
         else
         {
             setIndex(currentIndex + 1);
-            calcLevelChangeScroll();
+            calcLevelChangeScroll(2);
         }
 
         namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
@@ -1924,8 +1924,7 @@ void MenuGame::update(ssvu::FT mFT)
         case States::LevelSelection:
             {
                 // This handles the smooth scrolling of the level list
-                // when we change level, and the now selected level
-                // is not within the boundaries of the window.
+                // when we change level.
                 if(levelYScrollTo != 0.f)
                 {
                     if(levelSelectionYOffset < levelYScrollTo)
@@ -3260,12 +3259,12 @@ void MenuGame::resetNamesScrolls()
     }
 }
 
-void MenuGame::calcLevelChangeScroll()
+void MenuGame::calcLevelChangeScroll(const int dir)
 {
     const float frameSize{getFrameSize()},
         levelLabelHeight{getLevelLabelHeight()},
         curLevelTop{getPackLabelHeight() * (packIdx + 1) + frameSize +
-            levelLabelHeight * currentIndex + levelSelectionYOffset},
+            levelLabelHeight * (currentIndex + dir) + levelSelectionYOffset},
         curLevelBottom{curLevelTop + levelLabelHeight + frameSize};
 
     if(curLevelBottom > h)
@@ -3281,10 +3280,10 @@ void MenuGame::calcPackChangeScroll()
 {
     // The element selected is the last one of the pack,
     // so we must scroll to that. It is equal to regular
-    // calcLevelChangeScroll().
+    // calcLevelChangeScroll(0).
     if(packChangeDirection == -2)
     {
-        calcLevelChangeScroll();
+        calcLevelChangeScroll(0);
         return;
     }
 
