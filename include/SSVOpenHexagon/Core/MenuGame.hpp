@@ -325,6 +325,7 @@ private:
     float levelSelectionYOffset{0.f}; // to scroll up and down the menu
     float levelYScrollTo{0.f};   // height list must scroll to show current item
     float packChangeOffset{0.f}; // level list yOffset when being fold
+    float scrollSpeed{0.f};
     std::vector<float> levelsOffsets; // xOffset of the single level labels
 
     // First timer tips
@@ -343,6 +344,7 @@ private:
     float getLevelSelectionHeight();
     void calcLevelChangeScroll(const int dir);
     void calcPackChangeScroll();
+    void calcPackChangeScrollSpeed();
     void scrollName(std::string& text, float& scroller);
     void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);

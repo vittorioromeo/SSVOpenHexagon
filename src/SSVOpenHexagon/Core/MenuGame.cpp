@@ -1465,6 +1465,7 @@ void MenuGame::changePackAction(const int direction)
     levelYScrollTo = 0.f;
     packChangeState = PackChange::Folding;
     packChangeDirection = direction;
+    calcPackChangeScrollSpeed();
 
     touchDelay = 50.f;
     assets.playSound("beep.ogg");
@@ -1929,7 +1930,7 @@ void MenuGame::update(ssvu::FT mFT)
                 {
                     if(levelSelectionYOffset < levelYScrollTo)
                     {
-                        levelSelectionYOffset += mFT * 30.f;
+                        levelSelectionYOffset += mFT * scrollSpeed;
                         if(levelSelectionYOffset >= levelYScrollTo)
                         {
                             levelSelectionYOffset = levelYScrollTo;
@@ -1938,7 +1939,7 @@ void MenuGame::update(ssvu::FT mFT)
                     }
                     else
                     {
-                        levelSelectionYOffset -= mFT * 30.f;
+                        levelSelectionYOffset -= mFT * scrollSpeed;
                         if(levelSelectionYOffset <= levelYScrollTo)
                         {
                             levelSelectionYOffset = levelYScrollTo;
@@ -1954,7 +1955,7 @@ void MenuGame::update(ssvu::FT mFT)
                     case PackChange::Rest: break;
 
                     case PackChange::Folding:
-                        packChangeOffset += mFT * 45.f;
+                        packChangeOffset += mFT * scrollSpeed;
                         if(packChangeOffset < getLevelListHeight())
                         {
                             break;
@@ -1964,18 +1965,19 @@ void MenuGame::update(ssvu::FT mFT)
                         changePack();
                         // Set the stretch info
                         packChangeOffset = getLevelListHeight();
+                        calcPackChangeScrollSpeed();
                         packChangeState = PackChange::Stretching;
                         break;
 
                     case PackChange::Stretching:
-                        packChangeOffset -= mFT * 45.f;
+                        packChangeOffset -= mFT * scrollSpeed;
+                        calcPackChangeScroll();
                         if(packChangeOffset > 0.f)
                         {
                             break;
                         }
 
                         packChangeOffset = 0.f;
-                        calcPackChangeScroll();
                         adjustLevelsOffset();
                         packChangeState = PackChange::Rest;
                         break;
@@ -3275,6 +3277,12 @@ void MenuGame::calcLevelChangeScroll(const int dir)
     {
         levelYScrollTo = levelSelectionYOffset - curLevelTop;
     }
+
+    if(packChangeDirection == -2)
+    {
+        return;
+    }
+    scrollSpeed = 45.f;
 }
 void MenuGame::calcPackChangeScroll()
 {
@@ -3306,6 +3314,11 @@ void MenuGame::calcPackChangeScroll()
     {
         levelYScrollTo = levelSelectionYOffset - scrollTop;
     }
+}
+void MenuGame::calcPackChangeScrollSpeed()
+{
+    // Only speed up the animation if there are more than 12 levels.
+    scrollSpeed = 45.f * std::max(levelDataIds.size() / 12.f, 1.f);
 }
 
 float MenuGame::getMaximumTextWidth()
