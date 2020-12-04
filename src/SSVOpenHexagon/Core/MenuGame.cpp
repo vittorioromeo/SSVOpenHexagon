@@ -1462,7 +1462,7 @@ void MenuGame::changePackAction(const int direction)
         return;
     }
 
-    levelYScrollTo = 0.f;
+    levelYScrollTo = 0.f; // stop scrolling for safety
     packChangeState = PackChange::Folding;
     packChangeDirection = direction;
     calcPackChangeScrollSpeed();
@@ -1924,32 +1924,7 @@ void MenuGame::update(ssvu::FT mFT)
 
         case States::LevelSelection:
             {
-                // This handles the smooth scrolling of the level list
-                // when we change level.
-                if(levelYScrollTo != 0.f)
-                {
-                    if(levelSelectionYOffset < levelYScrollTo)
-                    {
-                        levelSelectionYOffset += mFT * scrollSpeed;
-                        if(levelSelectionYOffset >= levelYScrollTo)
-                        {
-                            levelSelectionYOffset = levelYScrollTo;
-                            levelYScrollTo = 0.f;
-                        }
-                    }
-                    else
-                    {
-                        levelSelectionYOffset -= mFT * scrollSpeed;
-                        if(levelSelectionYOffset <= levelYScrollTo)
-                        {
-                            levelSelectionYOffset = levelYScrollTo;
-                            levelYScrollTo = 0.f;
-                        }
-                    }
-                }
-
-                // This handles the folding animation of the level list
-                // when we change pack.
+                // Folding animation of the level list when we change pack.
                 switch(packChangeState)
                 {
                     case PackChange::Rest: break;
@@ -1983,24 +1958,44 @@ void MenuGame::update(ssvu::FT mFT)
                         break;
                 }
 
-                // This handles the very top and bottom of the level list.
-                // If the height of the list is smaller than the window height
-                // the offset of the list is always 0.
-                // On the other hand, if the list is higher than the screen
-                // make sure there is no empty space between the bottom of
-                // the list and the bottom of the window.
-                // It is placed after the pack change scroll because updated
-                // "packChangeOffset" is essential to accurately calculate the
-                // height of the list.
                 const float levelSelectionTotalHeight =
                     getLevelSelectionHeight();
 
                 if(levelSelectionTotalHeight < h)
                 {
-                    levelSelectionYOffset = 0.f;
+                    // If the height of the list is smaller than the window
+                    // height the offset of the list is always 0.
+                    levelSelectionYOffset = levelYScrollTo = 0.f;
                 }
                 else
                 {
+                    // This handles the smooth scrolling of the level list
+                    // when we change level.
+                    if(levelYScrollTo != 0.f)
+                    {
+                        if(levelSelectionYOffset < levelYScrollTo)
+                        {
+                            levelSelectionYOffset += mFT * scrollSpeed;
+                            if(levelSelectionYOffset >= levelYScrollTo)
+                            {
+                                levelSelectionYOffset = levelYScrollTo;
+                                levelYScrollTo = 0.f;
+                            }
+                        }
+                        else
+                        {
+                            levelSelectionYOffset -= mFT * scrollSpeed;
+                            if(levelSelectionYOffset <= levelYScrollTo)
+                            {
+                                levelSelectionYOffset = levelYScrollTo;
+                                levelYScrollTo = 0.f;
+                            }
+                        }
+                    }
+
+                    // If the list is higher than the screen make sure
+                    // there is no empty space between the bottom of
+                    // the list and the bottom of the window.
                     float temp = h - levelSelectionTotalHeight;
                     if(levelSelectionYOffset <= temp)
                     {
@@ -3261,6 +3256,8 @@ void MenuGame::resetNamesScrolls()
     }
 }
 
+constexpr float baseScrollSpeed = 45.f;
+
 void MenuGame::calcLevelChangeScroll(const int dir)
 {
     const float frameSize{getFrameSize()},
@@ -3278,33 +3275,35 @@ void MenuGame::calcLevelChangeScroll(const int dir)
         levelYScrollTo = levelSelectionYOffset - curLevelTop;
     }
 
-    if(packChangeDirection == -2)
-    {
-        return;
-    }
-    scrollSpeed = 45.f;
+    scrollSpeed = baseScrollSpeed;
 }
 void MenuGame::calcPackChangeScroll()
 {
-    // The element selected is the last one of the pack,
-    // so we must scroll to that. It is equal to regular
-    // calcLevelChangeScroll(0).
+    const float frameSize{getFrameSize()},
+        levelLabelHeight{getLevelLabelHeight()},
+        packLabelHeight{getPackLabelHeight()};
+
+    float scrollTop, scrollBottom;
     if(packChangeDirection == -2)
     {
-        calcLevelChangeScroll(0);
-        return;
+        // Handles switching from the first level of a pack to the last
+        // level of the previous packs. Show the level + the two next
+        // pack labels (if they exist).
+        scrollTop = packLabelHeight * (packIdx + 1 + 2) + frameSize +
+            levelLabelHeight * currentIndex + levelSelectionYOffset;
+        scrollBottom = scrollTop + levelLabelHeight + frameSize * 2;
     }
-
-    // The list is shifted to try fit all levels in the pack.
-    // If that is not possible just include the pack label
-    // + whatever amount of levels it's possible to fit on screen.
-    const float levelLabelHeight{getLevelLabelHeight()},
-        packLabelHeight{getPackLabelHeight()},
-        levelsListHeight{std::min(packLabelHeight + 2.f * getFrameSize() +
-            levelLabelHeight * levelDataIds.size(), h) - levelLabelHeight},
-        scrollTop{packLabelHeight * packIdx + levelSelectionYOffset +
-            levelsListHeight},
-        scrollBottom{scrollTop + levelLabelHeight};
+    else
+    {
+        // The list is shifted to try fit all levels in the pack.
+        // If that is not possible just include the pack label
+        // + whatever amount of levels it's possible to fit on screen.
+        const float levelsListHeight{std::min(packLabelHeight + 2.f * getFrameSize() +
+            levelLabelHeight * levelDataIds.size(), h) - levelLabelHeight};
+        scrollTop = packLabelHeight * packIdx + levelSelectionYOffset +
+            levelsListHeight;
+        scrollBottom = scrollTop + levelLabelHeight;
+    }
 
     if(scrollBottom > h)
     {
@@ -3318,7 +3317,7 @@ void MenuGame::calcPackChangeScroll()
 void MenuGame::calcPackChangeScrollSpeed()
 {
     // Only speed up the animation if there are more than 12 levels.
-    scrollSpeed = 45.f * std::max(levelDataIds.size() / 12.f, 1.f);
+    scrollSpeed = baseScrollSpeed * std::max(levelDataIds.size() / 12.f, 1.f);
 }
 
 float MenuGame::getMaximumTextWidth()
