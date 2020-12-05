@@ -273,7 +273,7 @@ private:
 
     // Load menu
     const hg::HGAssets::LoadInfo& loadInfo;
-    std::vector<std::string> randomTip;
+    std::string randomTip[2];
     float hexagonRotation{0.f};
     void drawLoadResults();
 
@@ -321,6 +321,10 @@ private:
     PackChange packChangeState{PackChange::Rest};
     float namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
     std::vector<std::string> levelDescription;
+    float textToQuadBorder{0.f};
+    float frameSize{0.f};
+    float packLabelHeight{0.f};
+    float levelLabelHeight{0.f};
     float levelSelectionXOffset{0.f}; // to make the menu slide in/out
     float levelSelectionYOffset{0.f}; // to scroll up and down the menu
     float levelYScrollTo{0.f};   // height list must scroll to show current item
@@ -335,10 +339,7 @@ private:
     float dialogBoxDelay{0.f};
 
     void adjustLevelsOffset();
-    float getPackLabelHeight();
-    float getLevelLabelHeight();
-    float getQuadBorder();
-    float getFrameSize();
+    void updateLevelSelectionDrawingParameters();
     float getMaximumTextWidth();
     float getLevelListHeight();
     float getLevelSelectionHeight();
