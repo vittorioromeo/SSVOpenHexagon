@@ -3166,7 +3166,8 @@ float MenuGame::getLevelSelectionHeight()
     return packLabelHeight * assets.getPackInfos().size() +
         levelLabelHeight * (wasFocusHeld ? 1 : levelDataIds.size()) -
         packChangeOffset +
-        (packIdx != int(assets.getPackInfos().size()) - 1 ? 3.f : 2.f) * frameSize;
+        (packIdx != static_cast<int>(assets.getPackInfos().size()) - 1 ?
+            3.f : 2.f) * frameSize;
 }
 
 void MenuGame::scrollName(std::string& text, float& scroller)
@@ -3485,7 +3486,11 @@ void MenuGame::drawLevelSelection(
         {
             calcMenuItemOffset(levelsOffsets[i], i == currentIndex);
         }
-        indent = quadsIndent - levelsOffsets[i];
+        indent = quadsIndent;
+        if(!wasFocusHeld)
+        {
+            indent -= levelsOffsets[i];
+        }
         tempFloat = indent + panelOffset;
 
         // Top frame
@@ -3520,7 +3525,11 @@ void MenuGame::drawLevelSelection(
         //-------------------------------------
         // Level name
 
-        indent = levelIndent - levelsOffsets[i];
+        indent = levelIndent;
+        if(!wasFocusHeld)
+        {
+            indent -= levelsOffsets[i];
+        }
         tempFloat = indent + panelOffset;
         height += textToQuadBorder;
 
