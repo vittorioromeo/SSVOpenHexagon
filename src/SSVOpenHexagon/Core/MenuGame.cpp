@@ -20,6 +20,8 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
 #include <utility>
+#include <array>
+#include <string_view>
 
 using namespace std;
 using namespace sf;
@@ -332,15 +334,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIndex(randomLevel);
 
     // Setup for the loading menu
-    static const std::string tips[][2]{
+    static constexpr std::array<std::array<std::string_view, 2>, 4> tips{{
         {"HOLDING SHIFT WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
         {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
         {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
         {"IF A LEVEL IS TOO CHALLENGING", "PRACTICE IT AT A LOWER DIFFICULTY"}
-    };
-    const int idx = ssvu::getRndI(0, sizeof(tips) / sizeof(tips[0]));
-    randomTip[0] = tips[idx][0];
-    randomTip[1] = tips[idx][1];
+    }};
+    randomTip = tips[ssvu::getRndI(0, tips.size())];
 
     txtMenuSmall.setFillColor(Color::Red);
 
@@ -1076,12 +1076,6 @@ void MenuGame::initMenus()
             [this, profileName] { assets.pSetCurrent(profileName); });
     }
     profileSelection.sortByName();
-
-    //--------------------------------
-    // LEVEL SELECTION MENU
-    //--------------------------------
-
-    updateLevelSelectionDrawingParameters();
 }
 
 bool MenuGame::loadCommandLineLevel(
@@ -3105,8 +3099,8 @@ void MenuGame::drawLoadResults()
     float height{h - tipInterline * 2.f};
     for(i = 1; i >= 0; --i) // all tips are on two lines
     {
-        renderTextCentered(
-            randomTip[i], txtRandomTip, {w / 2.f, height - tipInterline});
+        renderTextCentered(std::string(randomTip[i]), txtRandomTip,
+            {w / 2.f, height - tipInterline});
         height -= tipInterline;
     }
 

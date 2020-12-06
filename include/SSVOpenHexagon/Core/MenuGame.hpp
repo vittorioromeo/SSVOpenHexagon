@@ -32,6 +32,7 @@
 #include <utility>
 #include <string>
 #include <vector>
+#include <string_view>
 
 namespace hg
 {
@@ -273,7 +274,7 @@ private:
 
     // Load menu
     const hg::HGAssets::LoadInfo& loadInfo;
-    std::string randomTip[2];
+    std::array<std::string_view, 2> randomTip;
     float hexagonRotation{0.f};
     void drawLoadResults();
 
