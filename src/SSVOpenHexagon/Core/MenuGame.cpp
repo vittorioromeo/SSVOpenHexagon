@@ -1950,46 +1950,45 @@ void MenuGame::update(ssvu::FT mFT)
                 const float levelSelectionTotalHeight =
                     getLevelSelectionHeight();
 
+                // If the height of the list is smaller than the window
+                // height the offset of the list is always 0.
                 if(levelSelectionTotalHeight < h)
                 {
-                    // If the height of the list is smaller than the window
-                    // height the offset of the list is always 0.
                     levelSelectionYOffset = levelYScrollTo = 0.f;
+                    return;
                 }
-                else
-                {
-                    // This handles the smooth scrolling of the level list
-                    // when we change level.
-                    if(levelYScrollTo != 0.f)
-                    {
-                        if(levelSelectionYOffset < levelYScrollTo)
-                        {
-                            levelSelectionYOffset += mFT * scrollSpeed;
-                            if(levelSelectionYOffset >= levelYScrollTo)
-                            {
-                                levelSelectionYOffset = levelYScrollTo;
-                                levelYScrollTo = 0.f;
-                            }
-                        }
-                        else
-                        {
-                            levelSelectionYOffset -= mFT * scrollSpeed;
-                            if(levelSelectionYOffset <= levelYScrollTo)
-                            {
-                                levelSelectionYOffset = levelYScrollTo;
-                                levelYScrollTo = 0.f;
-                            }
-                        }
-                    }
 
-                    // If the list is higher than the screen make sure
-                    // there is no empty space between the bottom of
-                    // the list and the bottom of the window.
-                    float temp = h - levelSelectionTotalHeight;
-                    if(levelSelectionYOffset <= temp)
+                // This handles the smooth scrolling of the level list
+                // when we change level.
+                if(levelYScrollTo != 0.f)
+                {
+                    if(levelSelectionYOffset < levelYScrollTo)
                     {
-                        levelSelectionYOffset = temp;
+                        levelSelectionYOffset += mFT * scrollSpeed;
+                        if(levelSelectionYOffset >= levelYScrollTo)
+                        {
+                            levelSelectionYOffset = levelYScrollTo;
+                            levelYScrollTo = 0.f;
+                        }
                     }
+                    else
+                    {
+                        levelSelectionYOffset -= mFT * scrollSpeed;
+                        if(levelSelectionYOffset <= levelYScrollTo)
+                        {
+                            levelSelectionYOffset = levelYScrollTo;
+                            levelYScrollTo = 0.f;
+                        }
+                    }
+                }
+
+                // If the list is higher than the screen make sure
+                // there is no empty space between the bottom of
+                // the list and the bottom of the window.
+                const float temp = h - levelSelectionTotalHeight;
+                if(levelSelectionYOffset <= temp)
+                {
+                    levelSelectionYOffset = temp;
                 }
             }
             return;
@@ -3243,20 +3242,48 @@ constexpr float baseScrollSpeed = 45.f;
 
 void MenuGame::calcLevelChangeScroll(const int dir)
 {
-    const float curLevelTop{packLabelHeight * (packIdx + 1) + frameSize +
-        levelLabelHeight * (currentIndex + dir) + levelSelectionYOffset},
-        curLevelBottom{curLevelTop + levelLabelHeight + frameSize};
-
-    if(curLevelBottom > h)
-    {
-        levelYScrollTo = levelSelectionYOffset + h - curLevelBottom;
-    }
-    else if(curLevelTop < 0.f)
-    {
-        levelYScrollTo = levelSelectionYOffset - curLevelTop;
-    }
-
     scrollSpeed = baseScrollSpeed;
+
+    float scroll;
+    if(dir < 0)
+    {
+        if(currentIndex < 2)
+        {
+            scroll = packLabelHeight * (packIdx + 1 - (2 - currentIndex)) +
+                levelSelectionYOffset;
+        }
+        else
+        {
+            scroll = packLabelHeight * (packIdx + 1) +
+                levelLabelHeight * (currentIndex + dir) + frameSize +
+                levelSelectionYOffset;
+        }
+
+        if(scroll < 0.f)
+        {
+            levelYScrollTo = levelSelectionYOffset - scroll;
+        }
+        return;
+    }
+
+    const int size = levelDataIds.size();
+    if(currentIndex >= size - 2)
+    {
+        scroll =
+            packLabelHeight * (packIdx + 1 + (2 - (size - 1 - currentIndex))) +
+            levelLabelHeight * size + 3.f * frameSize + levelSelectionYOffset;
+    }
+    else
+    {
+        scroll = packLabelHeight * (packIdx + 1) +
+            levelLabelHeight * (currentIndex + dir + 1) + 2.f * frameSize +
+            levelSelectionYOffset;
+    }
+
+    if(scroll > h)
+    {
+        levelYScrollTo = levelSelectionYOffset + h - scroll;
+    }
 }
 void MenuGame::calcPackChangeScroll()
 {
