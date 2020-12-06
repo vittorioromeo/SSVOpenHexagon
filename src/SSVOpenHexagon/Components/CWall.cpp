@@ -55,23 +55,32 @@ void CWall::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 void CWall::moveTowardsCenter(
     HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, ssvu::FT mFT)
 {
+    const float wallSpawnDist{mHexagonGame.getLevelStatus().wallSpawnDistance};
+
     const float radius{mHexagonGame.getRadius() * 0.65f};
+    const float outerBounds = wallSpawnDist * 1.1f;
 
     int pointsOnCenter{0};
+    int pointsOutOfBounds{0};
     for(sf::Vector2f& vp : vertexPositions)
     {
         if(std::abs(vp.x - mCenterPos.x) < radius &&
             std::abs(vp.y - mCenterPos.y) < radius)
         {
             ++pointsOnCenter;
-        }
+        } 
         else
         {
+			if(std::abs(vp.x - mCenterPos.x) > outerBounds ||
+                std::abs(vp.y - mCenterPos.y) > outerBounds)
+			{
+				++pointsOutOfBounds;
+			}
             ssvs::moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
         }
     }
 
-    if(pointsOnCenter > 3)
+    if(pointsOnCenter > 3 || pointsOutOfBounds > 3)
     {
         killed = true;
     }

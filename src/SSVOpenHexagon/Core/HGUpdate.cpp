@@ -19,25 +19,6 @@ using namespace hg::Utils;
 namespace hg
 {
 
-static void nameFormat(std::string& name)
-{
-    name[0] = std::toupper(name[0]);
-}
-
-[[nodiscard]] static std::string diffFormat(float diff)
-{
-    char buf[255];
-    std::snprintf(buf, sizeof(buf), "%g", diff);
-    return buf;
-}
-
-[[nodiscard]] static std::string timeFormat(float time)
-{
-    char buf[255];
-    std::snprintf(buf, sizeof(buf), "%.3f", time);
-    return buf;
-}
-
 void HexagonGame::update(ssvu::FT mFT)
 {
     mFT *= Config::getTimescale();
@@ -50,21 +31,14 @@ void HexagonGame::update(ssvu::FT mFT)
     constexpr float DELAY_TO_UPDATE = 5.f; // X seconds
     timeUntilRichPresenceUpdate -= ssvu::getFTToSeconds(mFT);
 
-    // TODO: show best record (here) and last run + best record (in menu)
-    // Presence formatter
-    const std::string presenceStr =
-        nameStr + " [x" + diffStr + "] - " + timeStr + "s";
-
     if(timeUntilRichPresenceUpdate <= 0.f)
     {
         steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
-        discordManager.set_rich_presence_in_game(presenceStr);
+
         timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
     }
 
-    steamManager.run_callbacks();
-    discordManager.run_callbacks();
-
+    updateRichPresenceCallbacks();
     updateText();
     updateFlash(mFT);
     effectTimelineManager.update(mFT);
@@ -211,7 +185,8 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 {
     cwManager.forCustomWalls([&](const CCustomWall& customWall) {
         // After *only* the player has moved, push in case of overlap.
-        if(customWall.isOverlapping(player.getPosition()))
+        if(customWall.isOverlapping(player.getPosition()) &&
+            customWall.getCanCollide())
         {
             if(player.getJustSwapped())
             {
@@ -284,7 +259,8 @@ void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 
     const bool customWallCollision =
         cwManager.anyCustomWall([&](const CCustomWall& customWall) {
-            return customWall.isOverlapping(player.getPosition());
+            return customWall.isOverlapping(player.getPosition()) &&
+                   customWall.getCanCollide();
         });
 
     if(customWallCollision)
@@ -298,6 +274,22 @@ void HexagonGame::start()
     status.start();
     messageText.setString("");
     assets.playSound("go.ogg");
+
+    if(!mustReplayInput())
+    {
+        std::string nameStr = levelData->name;
+        std::string packStr = getPackName();
+        nameFormat(nameStr);
+        nameFormat(packStr);
+        const std::string diffStr = diffFormat(difficultyMult);
+
+        discordManager.set_rich_presence_in_game(
+            nameStr + " [x" + diffStr + "]", packStr);
+    }
+    else
+    {
+        discordManager.set_rich_presence_on_replay();
+    }
 
     if(!Config::getNoMusic())
     {
