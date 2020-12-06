@@ -1,12 +1,13 @@
 // Copyright (c) 2013-2020 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
-
 #include "SSVOpenHexagon/Core/Discord.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <math.h>
+#include <cstdint>
+#include <chrono>
 
 #include "discord/discord.h"
 
@@ -89,19 +90,23 @@ bool discord_manager::set_rich_presence_in_menu()
     }
 
     discord::Activity activity{};
-    activity.SetState("In menu");
-    activity.SetDetails("...");
+    activity.SetState("Selecting Level");
+    activity.SetDetails("");
+    discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+    currentTimestamp.SetStart(static_cast<std::int64_t>(
+        std::chrono::high_resolution_clock::now().time_since_epoch().count() /
+        1'000'000'000));
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
         {
-            ssvu::lo("Discord") << "FAil\n";
+            ssvu::lo("Discord") << "Fail\n";
         }
     });
 
     return true;
 }
 
-bool discord_manager::set_rich_presence_in_game(const std::string& str_status)
+bool discord_manager::set_rich_presence_on_replay()
 {
     if(!_initialized)
     {
@@ -109,12 +114,59 @@ bool discord_manager::set_rich_presence_in_game(const std::string& str_status)
     }
 
     discord::Activity activity{};
-    activity.SetState("In game");
-    activity.SetDetails(str_status.data());
+    activity.SetState("Watching Replay");
+    // Make sure this line doesn't show up.
+    activity.SetDetails("");
+    discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+    // Remove any existing timestamp
+    currentTimestamp.SetStart(0);
     _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
         if(r != discord::Result::Ok)
         {
-            ssvu::lo("Discord") << "FAil\n";
+            ssvu::lo("Discord") << "Fail\n";
+        }
+    });
+
+    return true;
+}
+
+bool discord_manager::set_rich_presence_in_game(
+    const std::string& level_info, const std::string& second_info, bool dead)
+{
+    if(!_initialized)
+    {
+        return false;
+    }
+
+    discord::Activity activity{};
+    // First line of Discord Rich Presence. Show the level we're playing.
+    // These functions take in character arrays, so we have to convert the
+    // strings to character arrays through .data()
+    activity.SetDetails(level_info.data());
+    // Second line of Discord Rich Presence. This can either be the pack name or
+    // how long the user survived, depending on the situation.
+    activity.SetState(second_info.data());
+    discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
+    if(!dead)
+    {
+        // Update the timestamp to show how long the current attempt is. This is
+        // shown by "MM:SS elapsed".
+        currentTimestamp.SetStart(
+            static_cast<std::int64_t>(std::chrono::high_resolution_clock::now()
+                                          .time_since_epoch()
+                                          .count() /
+                                      1'000'000'000));
+    }
+    else
+    {
+        // Remove the timestamp from the rich presence if the player is dead.
+        // It's unnecessary information.
+        currentTimestamp.SetStart(0);
+    }
+    _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
+        if(r != discord::Result::Ok)
+        {
+            ssvu::lo("Discord") << "Fail\n";
         }
     });
 

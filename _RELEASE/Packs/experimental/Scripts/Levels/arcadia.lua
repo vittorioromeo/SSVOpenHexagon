@@ -387,7 +387,7 @@ end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-    e_eventWaitUntilS(2)
+    e_waitUntilS(2)
     -- e_messageAddImportant("test", 130)
 end
 
