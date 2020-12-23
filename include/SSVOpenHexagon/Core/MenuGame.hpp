@@ -142,17 +142,10 @@ private:
     // Navigation
 
     bool focusHeld{false};
-    bool wasFocusHeld{false};
     float wheelProgress{0.f};
     float touchDelay{0.f};
     // TODO: change this to MWlcm when leaderboards are enabled
     States state{States::LoadingScreen};
-
-    std::vector<std::string> levelDataIds;
-    std::vector<float> diffMults;
-    int currentIndex{0};
-    int packIdx{0};
-    int diffMultIdx{0};
 
     void leftAction();
     void rightAction();
@@ -318,6 +311,34 @@ private:
         ScrollsSize
     };
 
+    // To keep data of the regular level selection and favorites
+    // separated, whilst allowing to address them by a single pointer.
+    struct LevelDrawer
+    {
+        int currentIndex{0};
+        int packIdx{0};
+        std::vector<std::string> levelDataIds;
+
+        float YOffset{0.f};   // to scroll up and down the menu
+        float YScrollTo{0.f}; // height list must scroll to show current item
+
+        bool isFavorites{false};
+    };
+
+    LevelDrawer lvlSlct, favSlct{.isFavorites = true};
+    LevelDrawer* lvlDrawer{&lvlSlct};
+
+    bool isFavoriteLevels()
+    {
+        return lvlDrawer->isFavorites;
+    }
+    size_t packsInfoSize()
+    {
+        return isFavoriteLevels() ? 1 : assets.getPackInfos().size();
+    }
+
+    int diffMultIdx{0};
+    std::vector<float> diffMults;
     bool firstLevelSelection{true};
     PackChange packChangeState{PackChange::Rest};
     float namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
@@ -327,8 +348,6 @@ private:
     float packLabelHeight{0.f};
     float levelLabelHeight{0.f};
     float levelSelectionXOffset{0.f}; // to make the menu slide in/out
-    float levelSelectionYOffset{0.f}; // to scroll up and down the menu
-    float levelYScrollTo{0.f};   // height list must scroll to show current item
     float packChangeOffset{0.f}; // level list yOffset when being fold
     float scrollSpeed{0.f};
     std::vector<float> levelsOffsets; // xOffset of the single level labels
@@ -339,6 +358,8 @@ private:
     bool mustShowFTTLevelSelect{true};
     float dialogBoxDelay{0.f};
 
+    void changeLevelFavoriteFlag();
+    void switchToFromFavoriteLevels();
     void adjustLevelsOffset();
     void updateLevelSelectionDrawingParameters();
     float getMaximumTextWidth();
@@ -457,6 +478,7 @@ public:
     }
 
     void returnToLevelSelection();
+    void saveFavoriteLevels();
 };
 
 } // namespace hg

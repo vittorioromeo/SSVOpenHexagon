@@ -23,6 +23,7 @@ private:
 public:
     ssvufs::Path packPath;
     std::string packId;
+    bool favorite{false};
 
     std::string id{ssvuj::getExtr<std::string>(root, "id", "nullId")};
     std::string name{ssvuj::getExtr<std::string>(root, "name", "nullName")};
