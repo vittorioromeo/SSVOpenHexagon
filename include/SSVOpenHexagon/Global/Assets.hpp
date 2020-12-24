@@ -143,6 +143,11 @@ public:
         return assetManager.get<T>(mId);
     }
 
+    bool checkLevelIDPurity(std::string& mAssetId)
+    {
+        return levelDatas.find(mAssetId) != levelDatas.end();
+    }
+
     const std::unordered_map<std::string, LevelData>& getLevelDatas()
     {
         return levelDatas;

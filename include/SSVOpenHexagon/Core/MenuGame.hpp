@@ -240,7 +240,7 @@ private:
     }
 
     // Helper functions
-    float getFPSMult();
+    float getFPSMult() const;
     void drawGraphics();
 
     void adjustMenuOffset(const bool resetMenuOffset);
@@ -253,7 +253,8 @@ private:
     void createQuadTrapezoid(const sf::Color& color, float x1, float x2,
         float x3, float y1, float y2, bool left);
 
-    std::pair<int, int> getScrollbarNotches(const int size, const int maxSize);
+    std::pair<int, int> getScrollbarNotches(
+        const int size, const int maxSize) const;
     void drawScrollbar(const float totalHeight, const int size,
         const int notches, const float x, const float y,
         const sf::Color& color);
@@ -315,12 +316,14 @@ private:
     // separated, whilst allowing to address them by a single pointer.
     struct LevelDrawer
     {
-        int currentIndex{0};
         int packIdx{0};
+        int currentIndex{0};
         std::vector<std::string> levelDataIds;
 
+        float XOffset{0.f};   // to make the menu slide in/out
         float YOffset{0.f};   // to scroll up and down the menu
         float YScrollTo{0.f}; // height list must scroll to show current item
+        std::vector<float> lvlOffsets; // xOffset of the single level labels
 
         bool isFavorites{false};
     };
@@ -328,11 +331,11 @@ private:
     LevelDrawer lvlSlct, favSlct{.isFavorites = true};
     LevelDrawer* lvlDrawer{&lvlSlct};
 
-    bool isFavoriteLevels()
+    bool isFavoriteLevels() const
     {
         return lvlDrawer->isFavorites;
     }
-    size_t packsInfoSize()
+    size_t getPackInfosSize() const
     {
         return isFavoriteLevels() ? 1 : assets.getPackInfos().size();
     }
@@ -347,10 +350,12 @@ private:
     float frameSize{0.f};
     float packLabelHeight{0.f};
     float levelLabelHeight{0.f};
-    float levelSelectionXOffset{0.f}; // to make the menu slide in/out
+    float slctTxtSmallHeight{0.f};
+    float slctTxtMediumHeight{0.f};
+    float slctTxtBigHeight{0.f};
     float packChangeOffset{0.f}; // level list yOffset when being fold
+    float levelDetailsOffset{0.f};
     float scrollSpeed{0.f};
-    std::vector<float> levelsOffsets; // xOffset of the single level labels
 
     // First timer tips
     bool showFirstTimeTips{false};
@@ -362,9 +367,9 @@ private:
     void switchToFromFavoriteLevels();
     void adjustLevelsOffset();
     void updateLevelSelectionDrawingParameters();
-    float getMaximumTextWidth();
-    float getLevelListHeight();
-    float getLevelSelectionHeight();
+    float getMaximumTextWidth() const;
+    float getLevelListHeight() const;
+    float getLevelSelectionHeight() const;
     void calcLevelChangeScroll(const int dir);
     void calcPackChangeScroll();
     void calcPackChangeScrollSpeed();
@@ -375,8 +380,11 @@ private:
         std::string& text, sf::Text& font, float& scroller, float border);
     void resetNamesScrolls();
     void formatLevelDescription();
-    void drawLevelSelection(
-        const unsigned int charSize, const bool revertOffset);
+    void drawLevelSelectionRightSide(
+        LevelDrawer& drawer, const bool revertOffset);
+    void drawLevelSelectionLeftSide(
+        LevelDrawer& drawer, const unsigned int charSize,
+        const bool revertOffset);
 
     // Text rendering
     void renderText(
