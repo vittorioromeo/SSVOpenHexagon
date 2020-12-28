@@ -202,7 +202,21 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            bc->newKeyboardBind(key);
+            // If user tries to bind a key that is already hardcoded ignore
+            // the input and notify it of what has happened.
+            if(!bc->newKeyboardBind(key))
+            {
+                assets.playSound("error.ogg");
+                setIgnoreAllInputs(1);
+                dialogBox.create(
+                    "THE KEY YOU ARE TRYING TO ASSIGN TO THIS ACTION\n"
+                    "IS ALREADY BOUND TO IT BY DEFAULT,\n"
+                    "YOUR LAST INPUT HAS BEEN IGNORED\n\n"
+                    "PRESS ANY KEY TO CLOSE THIS MESSAGE\n",
+                    26, 10.f, DBoxDraw::center);
+                return;
+            }
+
             assets.playSound("select.ogg");
             setIgnoreAllInputs(0);
             touchDelay = 10.f;
@@ -259,7 +273,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                bc->newKeyboardBind(KKey::Unknown, mEvent.mouseButton.button);
+                bc->newKeyboardBind(mEvent.mouseButton.button);
                 assets.playSound("select.ogg");
                 setIgnoreAllInputs(0);
                 touchDelay = 10.f;
@@ -506,14 +520,14 @@ void MenuGame::initInput()
         Config::getTriggerRotateCW(),
         [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once, Tid::RotateCW);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::Up}}, [this](ssvu::FT /*unused*/) { upAction(); }, t::Once);
 
     game.addInput(
         Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); },
         t::Once, Tid::Up);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::Down}}, [this](ssvu::FT /*unused*/) { downAction(); }, t::Once);
 
     game.addInput(
@@ -521,17 +535,9 @@ void MenuGame::initInput()
         t::Once, Tid::Down);
 
     game.addInput(
-        {{k::PageDown}}, [this](ssvu::FT /*unused*/) { changePackAction(1); },
-        t::Once);
-
-    game.addInput(
         Config::getTriggerNextPack(),
         [this](ssvu::FT /*unused*/) { changePackAction(1); }, t::Once,
         Tid::NextPack);
-
-    game.addInput(
-        {{k::PageUp}}, [this](ssvu::FT /*unused*/) { changePackAction(-1); },
-        t::Once);
 
     game.addInput(
         Config::getTriggerPreviousPack(),
@@ -540,21 +546,22 @@ void MenuGame::initInput()
 
     add2StateInput(game, Config::getTriggerFocus(), focusHeld, Tid::Focus);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::Escape}},
         [this](ssvs::FT mFT) {
             if(state != States::MOpts)
             {
                 exitTimer += mFT;
             }
-        }, // hardcoded
+        },
         [this](ssvu::FT /*unused*/) { exitTimer = 0; }, t::Always);
 
-    game.addInput(
-        {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, t::Once);
+    game.addInput( // hardcoded
+        {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); },
+        t::Once);
 
     game.addInput(
         Config::getTriggerExit(),
@@ -578,26 +585,25 @@ void MenuGame::initInput()
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
-            t::Once)
-        .setPriorityUser(-1000);
+            t::Once).setPriorityUser(-1000);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::BackSpace}}, [this](ssvu::FT /*unused*/) { eraseAction(); },
         t::Once);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::F5}}, [this](ssvu::FT /*unused*/) { reloadAssets(false); },
         t::Once);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::F6}}, [this](ssvu::FT /*unused*/) { reloadAssets(true); },
         t::Once);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::F7}}, [this](ssvu::FT /*unused*/) { changeLevelFavoriteFlag(); },
         t::Once);
 
-    game.addInput(
+    game.addInput( // hardcoded
         {{k::F8}}, [this](ssvu::FT /*unused*/) {
             switchToFromFavoriteLevels();
         },
@@ -843,7 +849,7 @@ void MenuGame::initMenus()
         Tid::Focus);
     keyboard.create<KeyboardBindControl>("exit", &Config::getTriggerExit,
         &Config::addBindTriggerExit, &Config::clearBindTriggerExit, callBack,
-        Tid::Exit);
+        Tid::Exit, KKey::Escape);
     keyboard.create<KeyboardBindControl>("force restart",
         &Config::getTriggerForceRestart, &Config::addBindTriggerForceRestart,
         &Config::clearBindTriggerForceRestart, callBack, Tid::ForceRestart);
@@ -861,10 +867,10 @@ void MenuGame::initMenus()
         Tid::Swap);
     keyboard.create<KeyboardBindControl>("up", &Config::getTriggerUp,
         &Config::addBindTriggerUp, &Config::clearBindTriggerUp, callBack,
-        Tid::Up);
+        Tid::Up, KKey::Up);
     keyboard.create<KeyboardBindControl>("down", &Config::getTriggerDown,
         &Config::addBindTriggerDown, &Config::clearBindTriggerDown, callBack,
-        Tid::Down);
+        Tid::Down, KKey::Down);
     keyboard.create<KeyboardBindControl>("next pack",
         &Config::getTriggerNextPack, &Config::addBindTriggerNextPack,
         &Config::clearBindTriggerNextPack, callBack, Tid::NextPack);
