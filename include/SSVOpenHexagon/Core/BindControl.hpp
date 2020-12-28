@@ -50,7 +50,7 @@ private:
 
     [[nodiscard]] int getRealSize(
         const std::vector<ssvs::Input::Combo>& combos) const;
-    void newKeyboardBind(const ssvs::KKey key, const ssvs::MBtn);
+    void applyBind(const ssvs::KKey key, const ssvs::MBtn);
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncClear,
