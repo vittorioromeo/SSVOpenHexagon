@@ -94,7 +94,7 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::KKey key)
         }
     }
 
-    newKeyboardBind(key, ssvs::MBtn::Left);
+    applyBind(key, ssvs::MBtn::Left);
     return true;
 }
 
@@ -112,11 +112,11 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::MBtn btn)
         }
     }
 
-    newKeyboardBind(ssvs::KKey::Unknown, btn);
+    applyBind(ssvs::KKey::Unknown, btn);
     return true;
 }
 
-void KeyboardBindControl::newKeyboardBind(const ssvs::KKey key,
+void KeyboardBindControl::applyBind(const ssvs::KKey key,
     const ssvs::MBtn btn)
 {
     // assign the pressed key to the config value

@@ -2869,6 +2869,7 @@ void MenuGame::drawProfileSelection(const float xOffset, const float frameSize,
     ProfileData* data;
     int totalSurvivalTime;
     txtHeight += frameSize / 2.f;
+    std::ostringstream survivalLine;
     for(int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
     {
         selected = i == mSubmenu.getIdx();
@@ -2893,19 +2894,33 @@ void MenuGame::drawProfileSelection(const float xOffset, const float frameSize,
             {
                 totalSurvivalTime += s.asInt();
             }
-            if(totalSurvivalTime <= 60)
+
+            survivalLine << "Total survival time ";
+            if(totalSurvivalTime < 60)
             {
-                itemName = "Total survival time " + toStr(totalSurvivalTime);
+                survivalLine <<
+                    std::setfill('0') << std::setw(2) << totalSurvivalTime;
+            }
+            else if(totalSurvivalTime < 3600)
+            {
+                survivalLine << std::setfill('0') << std::setw(2) <<
+                    totalSurvivalTime / 60 << ":" <<
+                    std::setfill('0') << std::setw(2) <<
+                    totalSurvivalTime % 60;
             }
             else
             {
-                itemName = "Total survival time " +
-                           toStr(totalSurvivalTime / 60) + ":" +
-                           toStr(totalSurvivalTime % 60);
+                survivalLine << totalSurvivalTime / 3600 << ":";
+                totalSurvivalTime %= 3600;
+                survivalLine << std::setfill('0') << std::setw(2) <<
+                    totalSurvivalTime / 60 << ":" <<
+                    std::setfill('0') << std::setw(2) <<
+                    totalSurvivalTime % 60;
             }
 
-            renderTextCentered(
-                itemName, txtProfile, {indent + textWidth / 2.f, yPos});
+            renderTextCentered(survivalLine.str(), txtProfile,
+                {indent + textWidth / 2.f, yPos});
+            survivalLine.str(std::string());
         }
 
         // Finalize
@@ -2980,8 +2995,9 @@ void MenuGame::drawProfileSelectionBoot(const unsigned int charSize)
     // Draw profile names and score
     bool selected;
     float yPos;
-    int totalSurvivalTime;
     ProfileData* data;
+    int totalSurvivalTime;
+    std::ostringstream survivalLine;
     for(int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
     {
         selected = i == mSubmenu.getIdx();
@@ -3005,17 +3021,32 @@ void MenuGame::drawProfileSelectionBoot(const unsigned int charSize)
             {
                 totalSurvivalTime += s.asInt();
             }
-            if(totalSurvivalTime <= 59)
+
+            survivalLine << "Total survival time ";
+            if(totalSurvivalTime < 60)
             {
-                itemName = "Total survival time " + toStr(totalSurvivalTime);
+                survivalLine <<
+                    std::setfill('0') << std::setw(2) << totalSurvivalTime;
+            }
+            else if(totalSurvivalTime < 3600)
+            {
+                survivalLine << std::setfill('0') << std::setw(2) <<
+                    totalSurvivalTime / 60 << ":" <<
+                    std::setfill('0') << std::setw(2) <<
+                    totalSurvivalTime % 60;
             }
             else
             {
-                itemName = "Total survival time " +
-                           toStr(totalSurvivalTime / 60) + ":" +
-                           toStr(totalSurvivalTime % 60);
+                survivalLine << totalSurvivalTime / 3600 << ":";
+                totalSurvivalTime %= 3600;
+                survivalLine << std::setfill('0') << std::setw(2) <<
+                    totalSurvivalTime / 60 << ":" <<
+                    std::setfill('0') << std::setw(2) <<
+                    totalSurvivalTime % 60;
             }
-            renderTextCentered(itemName, txtProfile, {w / 2.f, yPos});
+
+            renderTextCentered(survivalLine.str(), txtProfile, {w / 2.f, yPos});
+            survivalLine.str(std::string());
         }
 
         // Finalize
