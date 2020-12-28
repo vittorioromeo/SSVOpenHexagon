@@ -921,24 +921,23 @@ void setSaveLocalBestReplayToFile(bool mX)
 //**************************************************
 // Game start check
 
-constexpr int maxBinds = 4;
+inline constexpr int maxBinds = 4;
 
 [[nodiscard]] Trigger resizeTrigger(Trigger trig) noexcept
 {
-    std::vector<Combo>& combos = trig.getCombos();
+    std::vector<Combo>& combos{trig.getCombos()};
 
     // Remove empty slots to agglomerate all binds
     // close to each other
-    for(auto it = combos.begin(); it != combos.end();)
+    auto it{combos.begin()};
+    while(it != combos.end())
     {
         if(it->isUnbound())
         {
             combos.erase(it);
+            continue;
         }
-        else
-        {
-            ++it;
-        }
+        ++it;
     }
     // if the config has more binds than are supported
     while(combos.size() > maxBinds)
@@ -1160,7 +1159,7 @@ void addBindTriggerPreviousPack(int key, int btn, int index)
 
 [[nodiscard]] Trigger clearTriggerBind(Trigger trig, int index) noexcept
 {
-    trig.getCombos()[index - 1].clearBind();
+    trig.getCombos()[index].clearBind();
     return trig;
 }
 void clearBindTriggerRotateCCW(int index)
@@ -1283,59 +1282,59 @@ Trigger getTriggerPreviousPack()
 //**************************************************
 // Set key
 
-void setTriggerRotateCCW(Trigger trig)
+void setTriggerRotateCCW(Trigger& trig)
 {
     triggerRotateCCW() = trig;
 }
-void setTriggerRotateCW(Trigger trig)
+void setTriggerRotateCW(Trigger& trig)
 {
     triggerRotateCW() = trig;
 }
-void setTriggerFocus(Trigger trig)
+void setTriggerFocus(Trigger& trig)
 {
     triggerFocus() = trig;
 }
-void setTriggerSelect(Trigger trig)
+void setTriggerSelect(Trigger& trig)
 {
     triggerSelect() = trig;
 }
-void setTriggerExit(Trigger trig)
+void setTriggerExit(Trigger& trig)
 {
     triggerExit() = trig;
 }
-void setTriggerForceRestart(Trigger trig)
+void setTriggerForceRestart(Trigger& trig)
 {
     triggerForceRestart() = trig;
 }
-void setTriggerRestart(Trigger trig)
+void setTriggerRestart(Trigger& trig)
 {
     triggerRestart() = trig;
 }
-void setTriggerReplay(Trigger trig)
+void setTriggerReplay(Trigger& trig)
 {
     triggerReplay() = trig;
 }
-void setTriggerScreenshot(Trigger trig)
+void setTriggerScreenshot(Trigger& trig)
 {
     triggerScreenshot() = trig;
 }
-void setTriggerSwap(Trigger trig)
+void setTriggerSwap(Trigger& trig)
 {
     triggerSwap() = trig;
 }
-void setTriggerUp(Trigger trig)
+void setTriggerUp(Trigger& trig)
 {
     triggerUp() = trig;
 }
-void setTriggerDown(Trigger trig)
+void setTriggerDown(Trigger& trig)
 {
     triggerDown() = trig;
 }
-void setTriggerNextPack(Trigger trig)
+void setTriggerNextPack(Trigger& trig)
 {
     triggerNextPack() = trig;
 }
-void setTriggerPreviousPack(Trigger trig)
+void setTriggerPreviousPack(Trigger& trig)
 {
     triggerPreviousPack() = trig;
 }

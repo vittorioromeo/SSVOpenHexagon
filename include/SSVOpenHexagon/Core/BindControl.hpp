@@ -35,7 +35,7 @@ private:
     using Trigger = ssvs::Input::Trigger;
     using TriggerGetter = std::function<ssvs::Input::Trigger()>;
     using SizeGetter = std::function<int()>;
-    using AddBind = std::function<void(ssvs::KKey, ssvs::MBtn)>;
+    using AddBind = std::function<void(const ssvs::KKey, const ssvs::MBtn)>;
     using Callback =
         std::function<void(const ssvs::Input::Trigger&, const int)>;
 
@@ -44,16 +44,21 @@ private:
     AddBind addBind;
     ssvms::Action clearBind;
     Callback callback;
+    // A few actions have hardcoded keys, user should not be allowed to
+    // bind the hardcoded key a second time.
+    ssvs::KKey hardcodedKey;
 
     [[nodiscard]] int getRealSize(
         const std::vector<ssvs::Input::Combo>& combos) const;
+    void newKeyboardBind(const ssvs::KKey key, const ssvs::MBtn);
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncClear,
         typename TFuncCallback>
     KeyboardBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
-        TFuncClear mFuncClear, TFuncCallback mCallback, int mTriggerID)
+        TFuncClear mFuncClear, TFuncCallback mCallback, const int mTriggerID,
+        const ssvs::KKey mHardcodedKey = ssvs::KKey::Unknown)
         : BindControlBase{mMenu, mCategory, mName, mTriggerID},
           triggerGetter{mFuncGet}, sizeGetter{[this] {
               return getRealSize(triggerGetter().getCombos());
@@ -62,9 +67,21 @@ public:
                       const ssvs::KKey setKey, const ssvs::MBtn setBtn) {
               mFuncSet(setKey, setBtn, sizeGetter());
           }},
-          clearBind{[this, mFuncClear] { mFuncClear(sizeGetter()); }},
-          callback{mCallback}
+          clearBind{[this, mFuncClear] { mFuncClear(sizeGetter() - 1); }},
+          callback{mCallback}, hardcodedKey{mHardcodedKey}
     {
+        // If user manually added a hardcoded key to the config file
+        // sanitize the bind.
+        const std::vector<ssvs::Input::Combo>& combos{
+            triggerGetter().getCombos()};
+
+        for(int i = 0; i < static_cast<int>(combos.size()); ++i)
+        {
+            if(combos[i].getKeys()[int(hardcodedKey) + 1])
+            {
+                mFuncClear(i);
+            }
+        }
     }
 
     void exec() override;
@@ -72,8 +89,8 @@ public:
     [[nodiscard]] bool isWaitingForBind() override;
     [[nodiscard]] bool erase() override;
 
-    void newKeyboardBind(
-        const ssvs::KKey key, const ssvs::MBtn btn = ssvs::MBtn::Left);
+    bool newKeyboardBind(const ssvs::KKey key);
+    bool newKeyboardBind(const ssvs::MBtn btn);
 
     [[nodiscard]] std::string getName() const override;
 };
@@ -93,7 +110,7 @@ public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncCallback>
     JoystickBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
-        TFuncCallback mCallback, int mButtonID)
+        TFuncCallback mCallback, const int mButtonID)
         : BindControlBase{mMenu, mCategory, mName, mButtonID},
           valueGetter{mFuncGet}, setButton{mFuncSet}, callback{mCallback}
     {
