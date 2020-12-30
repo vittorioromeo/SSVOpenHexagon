@@ -214,20 +214,37 @@ private:
     const LevelData* levelData;
     StyleData styleData;
 
-    sf::Text txtVersion{"", imagine, 40};
-    sf::Text txtProf{"", imagine, 21};
-    sf::Text txtMenuBig{"", imagine, 80};
-    sf::Text txtMenuSmall{"", imagine};
-    sf::Text txtProfile{"", imagine, 70};
-    sf::Text txtInstructionsBig{"", imagine, 50};
-    sf::Text txtRandomTip{"", imagine, 38};
-    sf::Text txtInstructionsMedium{"", imagine};
-    sf::Text txtInstructionsSmall{"", imagine, 24};
-    sf::Text txtSelectionBig{"", imagine, 40};
-    sf::Text txtSelectionMedium{"", imagine, 32};
-    sf::Text txtSelectionLSmall{"", imagine, 24};
-    sf::Text txtSelectionSmall{"", imagine, 16};
-    sf::Text txtSelectionScore{"", imagine, 50};
+    // The height of the font is an important value necessary to properly
+    // draw all the menus and it only changes when the resolution does.
+    // So we only calculate it on boot and when the res changes and store it.
+    struct MenuFont
+    {
+        sf::Text font;
+        float height;
+
+        void updateHeight()
+        {
+            height = hg::Utils::getFontHeight(font);
+        }
+    };
+
+    MenuFont txtVersion{.font{"", imagine, 40}};
+    MenuFont txtProf{.font{"", imagine, 21}};
+    MenuFont txtLoadBig{.font{"", imagine, 80}};
+    MenuFont txtLoadSmall{.font{"", imagine}};
+    MenuFont txtMenuBig{.font{"", imagine, 80}};
+    MenuFont txtMenuSmall{.font{"", imagine}};
+    MenuFont txtProfile{.font{"", imagine, 35}};
+    MenuFont txtRandomTip{.font{"", imagine, 38}};
+    MenuFont txtInstructionsBig{.font{"", imagine, 50}};
+    MenuFont txtInstructionsMedium{.font{"", imagine}};
+    MenuFont txtInstructionsSmall{.font{"", imagine, 24}};
+    MenuFont txtEnteringText{.font{"", imagine, 60}};
+    MenuFont txtSelectionBig{.font{"", imagine, 40}};
+    MenuFont txtSelectionMedium{.font{"", imagine, 32}};
+    MenuFont txtSelectionLSmall{.font{"", imagine, 24}};
+    MenuFont txtSelectionSmall{.font{"", imagine, 16}};
+    MenuFont txtSelectionScore{.font{"", imagine, 50}};
     sf::Color menuTextColor;
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
@@ -244,8 +261,8 @@ private:
     void drawGraphics();
 
     void adjustMenuOffset(const bool resetMenuOffset);
-    float calcMenuOffset(float& offset, float maxOffset, bool revertOffset,
-        bool speedUp = false);
+    float calcMenuOffset(float& offset, const float maxOffset,
+        const bool revertOffset, const bool speedUp = false);
     void calcMenuItemOffset(float& offset, bool selected);
 
     void createQuad(
@@ -261,10 +278,10 @@ private:
 
     void drawMainSubmenus(
         const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
-        float indent, unsigned int charSize);
+        const float indent);
     void drawSubmenusSmall(
         const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
-        float indent, unsigned int charSize);
+        const float indent);
 
     // Load menu
     const hg::HGAssets::LoadInfo& loadInfo;
@@ -275,24 +292,21 @@ private:
     // Main menu
     float menuHalfHeight{0.f};
     void drawMainMenu(ssvms::Category& mSubMenu, float baseIndent,
-        unsigned int charSize, bool revertOffset);
+        const bool revertOffset);
 
     // Options menu
     void drawOptionsSubmenus(ssvms::Category& mSubMenu, float baseIndent,
-        unsigned int charSize, bool revertOffset);
+        const bool revertOffset);
 
     // Profiles Menu
     std::string formatSurvivalTime(ProfileData* data);
-    void drawProfileSelection(float xOffset, float frameSize,
-        unsigned int charSize, float minWidth, float minHeight,
-        bool revertOffset);
-    void drawProfileSelectionBoot(unsigned int charSize);
+    void drawProfileSelection(const float xOffset, const bool revertOffset);
+    void drawProfileSelectionBoot();
 
     // Entering text menu
     float enteringTextOffset{0.f};
-    void drawEnteringText(float xOffset, float frameSize, unsigned int charSize,
-        float minWidth, bool revertOffset);
-    void drawEnteringTextBoot(unsigned int charSize);
+    void drawEnteringText(const float xOffset, const bool revertOffset);
+    void drawEnteringTextBoot();
 
     // Level selection menu
     enum class PackChange
@@ -347,12 +361,9 @@ private:
     float namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
     std::vector<std::string> levelDescription;
     float textToQuadBorder{0.f};
-    float frameSize{0.f};
+    float slctFrameSize{0.f};
     float packLabelHeight{0.f};
     float levelLabelHeight{0.f};
-    float slctTxtSmallHeight{0.f};
-    float slctTxtMediumHeight{0.f};
-    float slctTxtBigHeight{0.f};
     float packChangeOffset{0.f}; // level list yOffset when being fold
     float levelDetailsOffset{0.f};
     float scrollSpeed{0.f};
@@ -376,14 +387,14 @@ private:
     void scrollName(std::string& text, float& scroller);
     void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);
-    void scrollNameRightBorder(
-        std::string& text, sf::Text& font, float& scroller, float border);
+    void scrollNameRightBorder(std::string& text, sf::Text& font,
+        float& scroller, const float border);
     void resetNamesScrolls();
+    void resetLevelNamesScrolls();
     void formatLevelDescription();
     void drawLevelSelectionRightSide(
         LevelDrawer& drawer, const bool revertOffset);
-    void drawLevelSelectionLeftSide(
-        LevelDrawer& drawer, const unsigned int charSize,
+    void drawLevelSelectionLeftSide(LevelDrawer& drawer,
         const bool revertOffset);
 
     // Text rendering
