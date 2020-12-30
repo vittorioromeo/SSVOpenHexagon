@@ -282,6 +282,7 @@ private:
         unsigned int charSize, bool revertOffset);
 
     // Profiles Menu
+    std::string formatSurvivalTime(ProfileData* data);
     void drawProfileSelection(float xOffset, float frameSize,
         unsigned int charSize, float minWidth, float minHeight,
         bool revertOffset);
@@ -312,8 +313,7 @@ private:
         ScrollsSize
     };
 
-    // To keep data of the regular level selection and favorites
-    // separated, whilst allowing to address them by a single pointer.
+    // To keep data of the regular level selection and favorites separated.
     struct LevelDrawer
     {
         int packIdx{0};

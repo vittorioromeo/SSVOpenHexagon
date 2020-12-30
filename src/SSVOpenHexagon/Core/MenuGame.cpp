@@ -1807,12 +1807,12 @@ void MenuGame::exitAction()
             if(getCurrentMenu()->canGoBack())
             {
                 getCurrentMenu()->goBack();
-                adjustMenuOffset(false);
             }
             else
             {
                 changeStateTo(States::SMain);
             }
+            adjustMenuOffset(false);
         }
         else if(isEnteringText())
         {
@@ -2475,11 +2475,11 @@ void MenuGame::adjustMenuOffset(const bool resetMenuOffset)
     }
 
     const auto& items{getCurrentMenu()->getItems()};
-    for(int i{0}; i < static_cast<int>(items.size()); ++i)
+    for(auto& i : items)
     {
-        items[i]->getOffset() =
-            i == getCurrentMenu()->getIdx() ? maxOffset : 0.f;
+        i->getOffset() = 0.f;
     }
+    items[getCurrentMenu()->getIdx()]->getOffset() = maxOffset;
 }
 
 void MenuGame::adjustLevelsOffset()
@@ -2770,6 +2770,40 @@ void MenuGame::drawOptionsSubmenus(ssvms::Category& mSubMenu,
     }
 }
 
+std::string MenuGame::formatSurvivalTime(ProfileData* data)
+{
+    int time{0};
+    for(auto& s : data->getScores())
+    {
+        time += s.asInt();
+    }
+
+    std::stringstream stream;
+    stream << "Total survival time ";
+    if(time < 60)
+    {
+        stream << std::setfill('0') << std::setw(2) << time;
+    }
+    else if(time < 3600)
+    {
+        stream << std::setfill('0') << std::setw(2) <<
+            time / 60 << ":" <<
+            std::setfill('0') << std::setw(2) <<
+            time % 60;
+    }
+    else
+    {
+        stream << time / 3600 << ":";
+        time %= 3600;
+        stream << std::setfill('0') << std::setw(2) <<
+            time / 60 << ":" <<
+            std::setfill('0') << std::setw(2) <<
+            time % 60;
+    }
+
+    return stream.str();
+}
+
 void MenuGame::drawProfileSelection(const float xOffset, const float frameSize,
     const unsigned int charSize, const float minWidth, const float minHeight,
     const bool revertOffset)
@@ -2787,10 +2821,9 @@ void MenuGame::drawProfileSelection(const float xOffset, const float frameSize,
         getScrollbarNotches(realSize, maxProfilesOnScreen);
 
     // Calculate the height
-    const float fontHeight{getFontHeight(txtProfile, charSize)};
     const unsigned int selectedTxtSize{charSize + 12};
-    txtProfile.setCharacterSize(selectedTxtSize);
-    const float selectedFontHeight{getGlobalHeight(txtProfile)};
+    const float fontHeight{getFontHeight(txtProfile, charSize)},
+        selectedFontHeight{getFontHeight(txtProfile, selectedTxtSize)};
 
     // check if the width of the menu should be increased
     float textWidth{minWidth};
@@ -2867,9 +2900,7 @@ void MenuGame::drawProfileSelection(const float xOffset, const float frameSize,
     float yPos;
     bool selected;
     ProfileData* data;
-    int totalSurvivalTime;
     txtHeight += frameSize / 2.f;
-    std::ostringstream survivalLine;
     for(int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
     {
         selected = i == mSubmenu.getIdx();
@@ -2888,39 +2919,8 @@ void MenuGame::drawProfileSelection(const float xOffset, const float frameSize,
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
             txtProfile.setCharacterSize(txtProfile.getCharacterSize() - 15);
-
-            totalSurvivalTime = 0.f;
-            for(auto& s : data->getScores())
-            {
-                totalSurvivalTime += s.asInt();
-            }
-
-            survivalLine << "Total survival time ";
-            if(totalSurvivalTime < 60)
-            {
-                survivalLine <<
-                    std::setfill('0') << std::setw(2) << totalSurvivalTime;
-            }
-            else if(totalSurvivalTime < 3600)
-            {
-                survivalLine << std::setfill('0') << std::setw(2) <<
-                    totalSurvivalTime / 60 << ":" <<
-                    std::setfill('0') << std::setw(2) <<
-                    totalSurvivalTime % 60;
-            }
-            else
-            {
-                survivalLine << totalSurvivalTime / 3600 << ":";
-                totalSurvivalTime %= 3600;
-                survivalLine << std::setfill('0') << std::setw(2) <<
-                    totalSurvivalTime / 60 << ":" <<
-                    std::setfill('0') << std::setw(2) <<
-                    totalSurvivalTime % 60;
-            }
-
-            renderTextCentered(survivalLine.str(), txtProfile,
+            renderTextCentered(formatSurvivalTime(data), txtProfile,
                 {indent + textWidth / 2.f, yPos});
-            survivalLine.str(std::string());
         }
 
         // Finalize
@@ -2948,10 +2948,9 @@ void MenuGame::drawProfileSelectionBoot(const unsigned int charSize)
     auto [scrollbarNotches, drawnSize] =
         getScrollbarNotches(realSize, maxProfilesOnScreen);
 
-    const float fontHeight{getFontHeight(txtProfile, charSize)};
     const unsigned int selectedTxtSize{charSize + 12};
-    txtProfile.setCharacterSize(selectedTxtSize);
-    const float selectedFontHeight{getGlobalHeight(txtProfile)};
+    const float fontHeight{getFontHeight(txtProfile, charSize)},
+        selectedFontHeight{getFontHeight(txtProfile, selectedTxtSize)};
 
     // Calculate coordinates
     const float interline{4.f * fontHeight}, totalHeight{interline * drawnSize};
@@ -2996,8 +2995,6 @@ void MenuGame::drawProfileSelectionBoot(const unsigned int charSize)
     bool selected;
     float yPos;
     ProfileData* data;
-    int totalSurvivalTime;
-    std::ostringstream survivalLine;
     for(int i{scrollbarOffset}; i < drawnSize + scrollbarOffset; ++i)
     {
         selected = i == mSubmenu.getIdx();
@@ -3015,38 +3012,8 @@ void MenuGame::drawProfileSelectionBoot(const unsigned int charSize)
         {
             yPos += (selected ? selectedFontHeight : fontHeight) * 1.75f;
             txtProfile.setCharacterSize(txtProfile.getCharacterSize() - 15);
-
-            totalSurvivalTime = 0;
-            for(auto& s : data->getScores())
-            {
-                totalSurvivalTime += s.asInt();
-            }
-
-            survivalLine << "Total survival time ";
-            if(totalSurvivalTime < 60)
-            {
-                survivalLine <<
-                    std::setfill('0') << std::setw(2) << totalSurvivalTime;
-            }
-            else if(totalSurvivalTime < 3600)
-            {
-                survivalLine << std::setfill('0') << std::setw(2) <<
-                    totalSurvivalTime / 60 << ":" <<
-                    std::setfill('0') << std::setw(2) <<
-                    totalSurvivalTime % 60;
-            }
-            else
-            {
-                survivalLine << totalSurvivalTime / 3600 << ":";
-                totalSurvivalTime %= 3600;
-                survivalLine << std::setfill('0') << std::setw(2) <<
-                    totalSurvivalTime / 60 << ":" <<
-                    std::setfill('0') << std::setw(2) <<
-                    totalSurvivalTime % 60;
-            }
-
-            renderTextCentered(survivalLine.str(), txtProfile, {w / 2.f, yPos});
-            survivalLine.str(std::string());
+            renderTextCentered(formatSurvivalTime(data),
+                txtProfile, {w / 2.f, yPos});
         }
 
         // Finalize
@@ -3896,7 +3863,6 @@ void MenuGame::drawLevelSelectionLeftSide(
     constexpr float lineThickness = 2.f;
     const PackData& curPack{
         assets.getPackData(assets.getPackInfos()[drawer.packIdx].id)};
-    txtSelectionLSmall.setCharacterSize(charSize);
 
     const float sidepanelIndent{w * 0.33f}, quadsIndent{w - sidepanelIndent},
         leftSideOffset{
@@ -3905,7 +3871,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         tempFloat;
 
     const float smallInterline{slctTxtSmallHeight * 1.5f},
-        txtSmallLeftHeight{getFontHeight(txtSelectionLSmall)},
+        txtSmallLeftHeight{getFontHeight(txtSelectionLSmall, charSize)},
         smallLeftInterline{txtSmallLeftHeight * 1.5f},
         postTitleSpace{slctTxtMediumHeight +
             (smallLeftInterline - txtSmallLeftHeight) -
