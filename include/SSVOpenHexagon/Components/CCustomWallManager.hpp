@@ -35,11 +35,17 @@ public:
     void setVertexPos(const CCustomWallHandle cwHandle, const int vertexIndex,
         const sf::Vector2f& pos);
 
+    void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);
+
+    // void setRenderOrder(const CCustomWallHandle cwHandle, const int8_t order);
+
     void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIndex,
         const sf::Color& color);
 
     [[nodiscard]] sf::Vector2f getVertexPos(
         const CCustomWallHandle cwHandle, const int vertexIndex);
+
+    [[nodiscard]] bool getCanCollide(const CCustomWallHandle cwHandle);
 
     [[nodiscard]] bool isOverlappingPlayer(const CCustomWallHandle cwHandle);
 

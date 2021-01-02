@@ -491,14 +491,24 @@ void MenuGame::changeStateTo(const States mState)
     else if(mustShowTip(States::LevelSelection, mustShowFTTLevelSelect))
     {
         showTip(
-            "THIS IS WHERE YOU CAN SELECT A LEVEL TO PLAY\n\n"
+            "THIS IS WHERE YOU CAN PICK A LEVEL TO PLAY\n\n"
             "LEVELS ARE ORGANIZED IN 'LEVEL PACKS'\n"
-            "TO BROWSE LEVELS AND LEVEL PACKS, NAVIGATE UP/DOWN\n"
-            "HOLD SHIFT (FOCUS) TO QUICKLY BROWSE PACKS\n"
-            "TO CHANGE THE DIFFICULTY OF A LEVEL, NAVIGATE LEFT/RIGHT\n\n"
-            "IT IS RECOMMENDED TO PLAY THE 'CUBE' LEVELS IN ORDER\n"
-            "YOU CAN GET NEW LEVELS ON THE STEAM WORKSHOP\n"
+            "TO BROWSE LEVELS AND LEVEL PACKS, GO UP/DOWN\n"
+            "HOLD SHIFT (FOCUS) TO QUICKLY JUMP BETWEEN PACKS\n"
+            "TO CHANGE THE DIFFICULTY OF A LEVEL, GO LEFT/RIGHT\n\n"
+            "AS A FIRST TIMER, PLAY THE 'CUBE' LEVELS IN ORDER\n"
+            "THEN YOU CAN GET NEW LEVELS ON THE STEAM WORKSHOP\n\n"
             "HAVE FUN!\n\n"
+            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+    }
+    else if(mustShowTip(States::LevelSelection, mustShowFTTDeathTips))
+    {
+        showTip(
+            "IF YOU FEEL LIKE THE GAME IS TOO HARD, TRY THESE TIPS\n\n"
+            "- DECREMENT THE DIFFICULTY BY PRESSING LEFT\n"
+            "- PLAY AN EASIER LEVEL TO BUILD UP MUSCLE MEMORY\n"
+            "- TURN ON 'INVINCIBILITY' IN 'GAMEPLAY' OPTIONS TO PRACTICE\n\n"
+            "REMEMBER THAT PRACTICE IS THE SECRET TO SUCCESS!\n\n"
             "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
     }
 }
@@ -677,9 +687,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueIncrement", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un :
-        {"u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
-            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+    for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
+            "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
             "u_haltTime", "u_timelineWait", "u_clearWalls",
 
             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
@@ -688,12 +697,11 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "a_overrideIncrementSound", "a_overrideSwapSound",
             "a_overrideDeathSound",
 
-            "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
+            "t_eval", "t_kill", "t_clear", "t_wait", "t_waitS", "t_waitUntilS",
 
-            "e_eval", "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS", "e_messageAdd",
-            "e_messageAddImportant", "e_messageAddImportantSilent",
-            "e_clearMessages",
+            "e_eval", "e_kill", "e_stopTime", "e_stopTimeS", "e_wait",
+            "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
+            "e_messageAddImportantSilent", "e_clearMessages",
 
             "l_setSpeedMult", "l_setPlayerSpeedMult", "l_setSpeedInc",
             "l_setSpeedMax", "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin",
@@ -705,7 +713,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setBeatPulseInitialDelay", "l_setBeatPulseSpeedMult",
             "l_getBeatPulseInitialDelay", "l_getBeatPulseSpeedMult",
             "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
-            "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
+            "l_setWallAngleRight", "l_getWallSpawnDistance",
+            "l_setWallSpawnDistance", "l_setRadiusMin", "l_setSwapEnabled",
             "l_setTutorialMode", "l_setIncEnabled", "l_get3dRequired",
             "l_enableRndSideChanges", "l_setDarkenUnevenBackgroundChunk",
             "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult",
@@ -736,10 +745,16 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "w_wallHModCurveData",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-            "cw_isOverlappingPlayer", "cw_clear", "steam_unlockAchievement",
+            "cw_setCollision", "cw_getVertexPos", "cw_isOverlappingPlayer",
+            "cw_clear",
 
-            "m_messageAdd", "m_messageAddImportant",
-            "m_messageAddImportantSilent", "m_clearMessages"})
+            "steam_unlockAchievement",
+
+            "u_kill", "u_eventKill", "u_playSound", "u_playPackSound",
+            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
+            "e_eventWaitS", "e_eventWaitUntilS", "m_messageAdd",
+            "m_messageAddImportant", "m_messageAddImportantSilent",
+            "m_clearMessages"})
     {
         mLua.writeVariable(un, [] {});
     }
@@ -1284,7 +1299,8 @@ void MenuGame::leftAction()
     if(state == States::LevelSelection)
     {
         --diffMultIdx;
-        assets.playSound("beep.ogg");
+        difficultyBumpEffect = difficultyBumpEffectMax;
+        assets.playSound("difficultyMultDown.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1309,7 +1325,8 @@ void MenuGame::rightAction()
     if(state == States::LevelSelection)
     {
         ++diffMultIdx;
-        assets.playSound("beep.ogg");
+        difficultyBumpEffect = difficultyBumpEffectMax;
+        assets.playSound("difficultyMultUp.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1817,8 +1834,7 @@ void MenuGame::exitAction()
 
 void MenuGame::update(ssvu::FT mFT)
 {
-    steamManager.run_callbacks();
-    discordManager.run_callbacks();
+    hexagonGame.updateRichPresenceCallbacks();
 
     hg::Joystick::update();
 
@@ -1879,6 +1895,11 @@ void MenuGame::update(ssvu::FT mFT)
     if(dialogBoxDelay > 0.f)
     {
         dialogBoxDelay -= mFT;
+    }
+
+    if(difficultyBumpEffect > 0.f)
+    {
+        difficultyBumpEffect -= mFT * 2.f;
     }
 
     if(window.getFingerDownCount() == 1)
@@ -3967,13 +3988,22 @@ void MenuGame::drawLevelSelectionLeftSide(LevelDrawer& drawer,
 
     // Text
     height += 0.5f * txtSelectionMedium.height;
+
     tempString =
-        "DIFFICULTY: " +
         (diffMults.size() > 1
             ? "< " + toStr(ssvu::getByModIdx(diffMults, diffMultIdx)) + " >"
             : "NONE");
-    renderText(tempString, txtSelectionMedium.font,
-        {textYPos, height - txtSelectionMedium.height}, menuQuadColor);
+
+    const float difficultyBumpFactor =
+        1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
+    txtSelectionMedium.setScale(difficultyBumpFactor, difficultyBumpFactor);
+
+    renderText(tempString, txtSelectionMedium,
+        {textYPos + txtSelectionMedium.getGlobalBounds().width,
+            height - txtMediumHeight},
+        menuQuadColor);
+
+    txtSelectionMedium.setScale(1.f, 1.f);
 
     // Bottom line
     height += txtSelectionMedium.height * 1.5f;

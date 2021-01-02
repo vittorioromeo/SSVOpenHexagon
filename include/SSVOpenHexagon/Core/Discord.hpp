@@ -30,7 +30,9 @@ public:
     bool run_callbacks();
 
     bool set_rich_presence_in_menu();
-    bool set_rich_presence_in_game(const std::string& str_status);
+    bool set_rich_presence_on_replay();
+    bool set_rich_presence_in_game(const std::string& level_info,
+        const std::string& second_info, bool dead = false);
 };
 
 } // namespace hg::Discord
