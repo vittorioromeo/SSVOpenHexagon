@@ -80,10 +80,10 @@ void HexagonGame::update(ssvu::FT mFT)
 
     if(status.started)
     {
+        player.update(*this, mFT);
+
         if(!status.hasDied)
         {
-            player.update(*this, mFT);
-
             const std::optional<bool> preventPlayerInput =
                 runLuaFunctionIfExists<bool, float, int, bool, bool>("onInput",
                     mFT, getInputMovement(), getInputFocused(), getInputSwap());
