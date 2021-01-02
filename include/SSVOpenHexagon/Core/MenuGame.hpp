@@ -332,7 +332,12 @@ private:
     bool showFirstTimeTips{false};
     bool mustShowFTTMainMenu{true};
     bool mustShowFTTLevelSelect{true};
+    bool mustShowFTTDeathTips{true};
     float dialogBoxDelay{0.f};
+
+    // Visual effects
+    float difficultyBumpEffect{0.f};
+    static inline constexpr float difficultyBumpEffectMax{24.f};
 
     void adjustLevelsOffset();
     float getPackLabelHeight();
