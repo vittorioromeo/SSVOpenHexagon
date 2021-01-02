@@ -451,14 +451,24 @@ void MenuGame::changeStateTo(const States mState)
     else if(mustShowTip(States::LevelSelection, mustShowFTTLevelSelect))
     {
         showTip(
-            "THIS IS WHERE YOU CAN SELECT A LEVEL TO PLAY\n\n"
+            "THIS IS WHERE YOU CAN PICK A LEVEL TO PLAY\n\n"
             "LEVELS ARE ORGANIZED IN 'LEVEL PACKS'\n"
-            "TO BROWSE LEVELS AND LEVEL PACKS, NAVIGATE UP/DOWN\n"
-            "HOLD SHIFT (FOCUS) TO QUICKLY BROWSE PACKS\n"
-            "TO CHANGE THE DIFFICULTY OF A LEVEL, NAVIGATE LEFT/RIGHT\n\n"
-            "IT IS RECOMMENDED TO PLAY THE 'CUBE' LEVELS IN ORDER\n"
-            "YOU CAN GET NEW LEVELS ON THE STEAM WORKSHOP\n"
+            "TO BROWSE LEVELS AND LEVEL PACKS, GO UP/DOWN\n"
+            "HOLD SHIFT (FOCUS) TO QUICKLY JUMP BETWEEN PACKS\n"
+            "TO CHANGE THE DIFFICULTY OF A LEVEL, GO LEFT/RIGHT\n\n"
+            "AS A FIRST TIMER, PLAY THE 'CUBE' LEVELS IN ORDER\n"
+            "THEN YOU CAN GET NEW LEVELS ON THE STEAM WORKSHOP\n\n"
             "HAVE FUN!\n\n"
+            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+    }
+    else if(mustShowTip(States::LevelSelection, mustShowFTTDeathTips))
+    {
+        showTip(
+            "IF YOU FEEL LIKE THE GAME IS TOO HARD, TRY THESE TIPS\n\n"
+            "- DECREMENT THE DIFFICULTY BY PRESSING LEFT\n"
+            "- PLAY AN EASIER LEVEL TO BUILD UP MUSCLE MEMORY\n"
+            "- TURN ON 'INVINCIBILITY' IN 'GAMEPLAY' OPTIONS TO PRACTICE\n\n"
+            "REMEMBER THAT PRACTICE IS THE SECRET TO SUCCESS!\n\n"
             "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
     }
 }
@@ -1243,6 +1253,7 @@ void MenuGame::leftAction()
     if(state == States::LevelSelection)
     {
         --diffMultIdx;
+        difficultyBumpEffect = difficultyBumpEffectMax;
         assets.playSound("beep.ogg");
         touchDelay = 50.f;
         return;
@@ -1268,6 +1279,7 @@ void MenuGame::rightAction()
     if(state == States::LevelSelection)
     {
         ++diffMultIdx;
+        difficultyBumpEffect = difficultyBumpEffectMax;
         assets.playSound("beep.ogg");
         touchDelay = 50.f;
         return;
@@ -1829,6 +1841,11 @@ void MenuGame::update(ssvu::FT mFT)
     if(dialogBoxDelay > 0.f)
     {
         dialogBoxDelay -= mFT;
+    }
+
+    if(difficultyBumpEffect > 0.f)
+    {
+        difficultyBumpEffect -= mFT * 2.f;
     }
 
     if(window.getFingerDownCount() == 1)
@@ -3711,13 +3728,26 @@ void MenuGame::drawLevelSelection(
 
     // Text
     height += 0.5f * txtMediumHeight;
+
+    tempString = "DIFFICULTY: ";
+    renderText(tempString, txtSelectionMedium,
+        {textYPos, height - txtMediumHeight}, menuQuadColor);
+
     tempString =
-        "DIFFICULTY: " +
         (diffMults.size() > 1
                 ? "< " + toStr(ssvu::getByModIdx(diffMults, diffMultIdx)) + " >"
                 : "NONE");
+
+    const float difficultyBumpFactor =
+        1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
+    txtSelectionMedium.setScale(difficultyBumpFactor, difficultyBumpFactor);
+
     renderText(tempString, txtSelectionMedium,
-        {textYPos, height - txtMediumHeight}, menuQuadColor);
+        {textYPos + txtSelectionMedium.getGlobalBounds().width,
+            height - txtMediumHeight},
+        menuQuadColor);
+
+    txtSelectionMedium.setScale(1.f, 1.f);
 
     // Bottom line
     height += txtMediumHeight * 1.5f;
