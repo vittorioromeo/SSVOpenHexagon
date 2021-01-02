@@ -121,11 +121,6 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
     const sf::Color colorMain{
         ssvs::getColorFromHSV((360.f - hue) / 360.f, 1.f, 1.f)};
 
-    if(++hue > 360.f)
-    {
-        hue = 0.f;
-    }
-
     for(auto i(0u); i < mHexagonGame.getSides(); ++i)
     {
         const float sAngle{div * 2.f * i};
@@ -259,19 +254,25 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
 
 void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
 {
-    swapBlinkTimer.update(mFT);
-
-    if(deadEffectTimer.update(mFT) && !dead)
+    if(deadEffectTimer.isRunning())
     {
-        deadEffectTimer.stop();
+        deadEffectTimer.update(mFT);
+
+        if(++hue > 360.f)
+        {
+            hue = 0.f;
+        }
+        if(dead)
+        {
+            return;
+        }
     }
 
-    if(mHexagonGame.getLevelStatus().swapEnabled)
+    swapBlinkTimer.update(mFT);
+
+    if(mHexagonGame.getLevelStatus().swapEnabled && swapTimer.update(mFT))
     {
-        if(swapTimer.update(mFT))
-        {
-            swapTimer.stop();
-        }
+        swapTimer.stop();
     }
 
     lastPos = pos;
