@@ -68,14 +68,14 @@ void CWall::moveTowardsCenter(
             std::abs(vp.y - mCenterPos.y) < radius)
         {
             ++pointsOnCenter;
-        } 
+        }
         else
         {
-			if(std::abs(vp.x - mCenterPos.x) > outerBounds ||
+            if(std::abs(vp.x - mCenterPos.x) > outerBounds ||
                 std::abs(vp.y - mCenterPos.y) > outerBounds)
-			{
-				++pointsOutOfBounds;
-			}
+            {
+                ++pointsOutOfBounds;
+            }
             ssvs::moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
         }
     }

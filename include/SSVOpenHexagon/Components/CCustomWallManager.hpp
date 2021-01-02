@@ -37,7 +37,8 @@ public:
 
     void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);
 
-    // void setRenderOrder(const CCustomWallHandle cwHandle, const int8_t order);
+    // void setRenderOrder(const CCustomWallHandle cwHandle, const int8_t
+    // order);
 
     void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIndex,
         const sf::Color& color);

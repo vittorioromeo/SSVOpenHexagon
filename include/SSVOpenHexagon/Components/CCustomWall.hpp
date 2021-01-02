@@ -71,7 +71,7 @@ public:
         return vertexPositions[vertexIndex];
     }
 
-    [[gnu::always_inline, nodiscard]] bool getCanCollide() const noexcept 
+    [[gnu::always_inline, nodiscard]] bool getCanCollide() const noexcept
     {
         return canCollide;
     }

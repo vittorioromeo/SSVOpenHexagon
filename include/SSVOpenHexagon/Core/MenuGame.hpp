@@ -291,12 +291,12 @@ private:
 
     // Main menu
     float menuHalfHeight{0.f};
-    void drawMainMenu(ssvms::Category& mSubMenu, float baseIndent,
-        const bool revertOffset);
+    void drawMainMenu(
+        ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset);
 
     // Options menu
-    void drawOptionsSubmenus(ssvms::Category& mSubMenu, float baseIndent,
-        const bool revertOffset);
+    void drawOptionsSubmenus(
+        ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset);
 
     // Profiles Menu
     std::string formatSurvivalTime(ProfileData* data);
@@ -393,15 +393,15 @@ private:
     void scrollName(std::string& text, float& scroller);
     void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);
-    void scrollNameRightBorder(std::string& text, sf::Text& font,
-        float& scroller, const float border);
+    void scrollNameRightBorder(
+        std::string& text, sf::Text& font, float& scroller, const float border);
     void resetNamesScrolls();
     void resetLevelNamesScrolls();
     void formatLevelDescription();
     void drawLevelSelectionRightSide(
         LevelDrawer& drawer, const bool revertOffset);
-    void drawLevelSelectionLeftSide(LevelDrawer& drawer,
-        const bool revertOffset);
+    void drawLevelSelectionLeftSide(
+        LevelDrawer& drawer, const bool revertOffset);
 
     // Text rendering
     void renderText(
