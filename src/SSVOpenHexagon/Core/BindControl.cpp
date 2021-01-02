@@ -74,36 +74,51 @@ void KeyboardBindControl::exec()
     return true;
 }
 
-void KeyboardBindControl::newKeyboardBind(
-    const ssvs::KKey key, const ssvs::MBtn btn)
+bool KeyboardBindControl::newKeyboardBind(const ssvs::KKey key)
+{
+    if(key == hardcodedKey)
+    {
+        waitingForBind = false;
+        return false;
+    }
+
+    // stop if the pressed key is already assigned to this bind
+    const std::vector<ssvs::Input::Combo>& combos = triggerGetter().getCombos();
+
+    for(int i = 0; i < sizeGetter(); ++i)
+    {
+        if(combos[i].getKeys()[int(key) + 1])
+        {
+            waitingForBind = false;
+            return true;
+        }
+    }
+
+    applyBind(key, ssvs::MBtn::Left);
+    return true;
+}
+
+bool KeyboardBindControl::newKeyboardBind(const ssvs::MBtn btn)
 {
     // stop if the pressed key is already assigned to this bind
-    const std::vector<ssvs::Input::Combo>& Combos = triggerGetter().getCombos();
+    const std::vector<ssvs::Input::Combo>& combos = triggerGetter().getCombos();
 
-    const int size = sizeGetter();
-    if(key > ssvs::KKey::Unknown)
+    for(int i = 0; i < sizeGetter(); ++i)
     {
-        for(int i = 0; i < size; ++i)
+        if(combos[i].getBtns()[int(btn) + 1])
         {
-            if(Combos[i].getKeys()[int(key) + 1])
-            {
-                waitingForBind = false;
-                return;
-            }
-        }
-    }
-    else
-    {
-        for(int i = 0; i < size; ++i)
-        {
-            if(Combos[i].getBtns()[int(btn) + 1])
-            {
-                waitingForBind = false;
-                return;
-            }
+            waitingForBind = false;
+            return true;
         }
     }
 
+    applyBind(ssvs::KKey::Unknown, btn);
+    return true;
+}
+
+void KeyboardBindControl::applyBind(const ssvs::KKey key,
+    const ssvs::MBtn btn)
+{
     // assign the pressed key to the config value
     addBind(key, btn);
 
