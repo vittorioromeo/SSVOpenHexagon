@@ -3987,14 +3987,15 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     const float difficultyBumpFactor =
         1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
-    txtSelectionMedium.setScale(difficultyBumpFactor, difficultyBumpFactor);
+    txtSelectionMedium.font.setScale(
+        difficultyBumpFactor, difficultyBumpFactor);
 
-    renderText(tempString, txtSelectionMedium,
-        {textYPos + txtSelectionMedium.getGlobalBounds().width,
-            height - txtMediumHeight},
+    renderText(tempString, txtSelectionMedium.font,
+        {textYPos + txtSelectionMedium.font.getGlobalBounds().width,
+            height - txtSelectionMedium.height},
         menuQuadColor);
 
-    txtSelectionMedium.setScale(1.f, 1.f);
+    txtSelectionMedium.font.setScale(1.f, 1.f);
 
     // Bottom line
     height += txtSelectionMedium.height * 1.5f;
