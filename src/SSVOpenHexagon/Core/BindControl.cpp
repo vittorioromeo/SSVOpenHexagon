@@ -116,8 +116,7 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::MBtn btn)
     return true;
 }
 
-void KeyboardBindControl::applyBind(const ssvs::KKey key,
-    const ssvs::MBtn btn)
+void KeyboardBindControl::applyBind(const ssvs::KKey key, const ssvs::MBtn btn)
 {
     // assign the pressed key to the config value
     addBind(key, btn);
