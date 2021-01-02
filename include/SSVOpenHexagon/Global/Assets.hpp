@@ -109,6 +109,21 @@ public:
 private:
     LoadInfo loadInfo;
 
+    LevelData& getEditLevelData(const std::string& mAssetId)
+    {
+        const auto it = levelDatas.find(mAssetId);
+        if(it == levelDatas.end())
+        {
+            ssvu::lo("getLevelData")
+                << "Asset '" << mAssetId << "' not found\n";
+
+            SSVU_ASSERT(!levelDatas.empty());
+            return levelDatas.begin()->second;
+        }
+
+        return it->second;
+    }
+
 public:
     HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly = false);
 
@@ -128,6 +143,11 @@ public:
         return assetManager.get<T>(mId);
     }
 
+    bool checkLevelIDPurity(std::string& mAssetId)
+    {
+        return levelDatas.find(mAssetId) != levelDatas.end();
+    }
+
     const std::unordered_map<std::string, LevelData>& getLevelDatas()
     {
         return levelDatas;
@@ -135,23 +155,18 @@ public:
 
     const LevelData& getLevelData(const std::string& mAssetId)
     {
-        const auto it = levelDatas.find(mAssetId);
-        if(it == levelDatas.end())
-        {
-            ssvu::lo("getLevelData")
-                << "Asset '" << mAssetId << "' not found\n";
-
-            SSVU_ASSERT(!levelDatas.empty());
-            return levelDatas.begin()->second;
-        }
-
-        return it->second;
+        return getEditLevelData(mAssetId);
     }
 
     const LevelData& getLevelData(
         const std::string& mPackId, const std::string& mId)
     {
         return getLevelData(mPackId + "_" + mId);
+    }
+
+    void setLevelFavoriteFlag(const std::string& mAssetId, const bool flag)
+    {
+        getEditLevelData(mAssetId).favorite = flag;
     }
 
     const std::vector<std::string>& getLevelIdsByPack(
