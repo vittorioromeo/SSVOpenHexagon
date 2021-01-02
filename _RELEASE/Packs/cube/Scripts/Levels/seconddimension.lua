@@ -66,9 +66,9 @@ function onLoad()
 		e_messageAdd("Difficulty >= 2.2\nPentagon removed!", 120)
 		l_setSidesMin(6)
 	end
-	e_eventWaitS(16)
+	e_waitS(16)
 	e_messageAdd("whoa!", 120)
-	e_eventWaitS(45)
+	e_waitS(45)
 	e_messageAddImportant("may the mayhem begin!", 130)
 	s_setPulseInc(0.15)
 end

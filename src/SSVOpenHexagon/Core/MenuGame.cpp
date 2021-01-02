@@ -645,9 +645,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
         "s_getHueIncrement", [this] { return styleData.hueIncrement; });
 
     // Unused functions
-    for(const auto& un :
-        {"u_isKeyPressed", "u_isMouseButtonPressed", "u_isFastSpinning",
-            "u_setPlayerAngle", "u_forceIncrement", "u_kill", "u_eventKill",
+    for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
+            "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
             "u_haltTime", "u_timelineWait", "u_clearWalls",
 
             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
@@ -656,12 +655,11 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "a_overrideIncrementSound", "a_overrideSwapSound",
             "a_overrideDeathSound",
 
-            "t_eval", "t_wait", "t_waitS", "t_waitUntilS",
+            "t_eval", "t_kill", "t_clear", "t_wait", "t_waitS", "t_waitUntilS",
 
-            "e_eval", "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
-            "e_eventWaitS", "e_eventWaitUntilS", "e_messageAdd",
-            "e_messageAddImportant", "e_messageAddImportantSilent",
-            "e_clearMessages",
+            "e_eval", "e_kill", "e_stopTime", "e_stopTimeS", "e_wait",
+            "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
+            "e_messageAddImportantSilent", "e_clearMessages",
 
             "l_setSpeedMult", "l_setPlayerSpeedMult", "l_setSpeedInc",
             "l_setSpeedMax", "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin",
@@ -673,7 +671,8 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "l_setBeatPulseInitialDelay", "l_setBeatPulseSpeedMult",
             "l_getBeatPulseInitialDelay", "l_getBeatPulseSpeedMult",
             "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
-            "l_setWallAngleRight", "l_setRadiusMin", "l_setSwapEnabled",
+            "l_setWallAngleRight", "l_getWallSpawnDistance",
+            "l_setWallSpawnDistance", "l_setRadiusMin", "l_setSwapEnabled",
             "l_setTutorialMode", "l_setIncEnabled", "l_get3dRequired",
             "l_enableRndSideChanges", "l_setDarkenUnevenBackgroundChunk",
             "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult",
@@ -704,10 +703,16 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "w_wallHModCurveData",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-            "cw_isOverlappingPlayer", "cw_clear", "steam_unlockAchievement",
+            "cw_setCollision", "cw_getVertexPos", "cw_isOverlappingPlayer",
+            "cw_clear",
 
-            "m_messageAdd", "m_messageAddImportant",
-            "m_messageAddImportantSilent", "m_clearMessages"})
+            "steam_unlockAchievement",
+
+            "u_kill", "u_eventKill", "u_playSound", "u_playPackSound",
+            "e_eventStopTime", "e_eventStopTimeS", "e_eventWait",
+            "e_eventWaitS", "e_eventWaitUntilS", "m_messageAdd",
+            "m_messageAddImportant", "m_messageAddImportantSilent",
+            "m_clearMessages"})
     {
         mLua.writeVariable(un, [] {});
     }
@@ -1254,7 +1259,7 @@ void MenuGame::leftAction()
     {
         --diffMultIdx;
         difficultyBumpEffect = difficultyBumpEffectMax;
-        assets.playSound("beep.ogg");
+        assets.playSound("difficultyMultDown.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1280,7 +1285,7 @@ void MenuGame::rightAction()
     {
         ++diffMultIdx;
         difficultyBumpEffect = difficultyBumpEffectMax;
-        assets.playSound("beep.ogg");
+        assets.playSound("difficultyMultUp.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1774,8 +1779,7 @@ void MenuGame::exitAction()
 
 void MenuGame::update(ssvu::FT mFT)
 {
-    steamManager.run_callbacks();
-    discordManager.run_callbacks();
+    hexagonGame.updateRichPresenceCallbacks();
 
     hg::Joystick::update();
 
@@ -1786,13 +1790,6 @@ void MenuGame::update(ssvu::FT mFT)
     else if(hg::Joystick::previousPackRisingEdge())
     {
         changePackAction(-1);
-    }
-
-    wasFocusHeld = false;
-
-    if(focusHeld)
-    {
-        wasFocusHeld = true;
     }
 
     focusHeld = hg::Joystick::focusPressed();
@@ -3313,13 +3310,13 @@ void MenuGame::formatLevelDescription()
     {
         if(desc[i] == '\n')
         {
-            words.emplace_back(desc.substr(j, ++i - j)); // include the newline.
-            j = i;
+            words.emplace_back(desc.substr(j, i - j + 1)); // include the newline.
+            j = i + 1;
         }
         else if(desc[i] == ' ')
         {
             words.emplace_back(desc.substr(j, i - j));
-            j = ++i; // skip the space.
+            j = i + 1; // skip the space.
         }
     }
 

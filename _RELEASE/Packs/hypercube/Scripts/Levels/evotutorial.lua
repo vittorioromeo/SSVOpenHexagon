@@ -147,7 +147,7 @@ function onLoad()
 	e_messageAddImportant("well done!", 130)
 	e_messageAddImportant("now play some real levels!", 138)
 
-	u_kill()
+	t_kill()
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
