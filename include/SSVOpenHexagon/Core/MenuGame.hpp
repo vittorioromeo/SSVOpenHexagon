@@ -97,11 +97,11 @@ private:
 
     void initAssets();
     void initInput();
-    void initLua(Lua::LuaContext& mLua);
+    void initLua();
     void initMenus();
     void playLocally();
     std::pair<const unsigned int, const unsigned int>
-    pickRandomMainMenuBackgroundStyle();
+        pickRandomMainMenuBackgroundStyle();
 
     //---------------------------------------
     // Assets
@@ -255,6 +255,8 @@ private:
     {
         window.draw(mDrawable);
     }
+
+    void readLuaVariablesForMenu();
 
     // Helper functions
     float getFPSMult() const;

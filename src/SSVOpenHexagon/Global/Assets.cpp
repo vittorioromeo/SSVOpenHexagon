@@ -456,7 +456,7 @@ std::string HGAssets::reloadPack(
 {
     std::string temp, output;
 
-    // Levels, if there is not folder cancel everything
+    // Levels, if there is no folder cancel everything
     temp = mPath + "Levels/";
     if(!ssvufs::Path{temp}.exists<ssvufs::Type::Folder>())
     {
