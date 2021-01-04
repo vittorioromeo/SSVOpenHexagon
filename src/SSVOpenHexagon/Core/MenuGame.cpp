@@ -22,6 +22,7 @@
 #include <utility>
 #include <array>
 #include <string_view>
+#include <regex>
 
 using namespace std;
 using namespace sf;
@@ -2182,12 +2183,15 @@ void MenuGame::readLuaVariablesForMenu()
         return;
     }
 
-    // Scroll down the file until onInit is found
+    // Scroll down the file until "function onInit()"
+    // or any whitespace variant is found.
     std::string line;
+    const std::regex initExp("function(\\s+)onInit(\\s|\\()+\\)");
+
     while(!luaFile.eof())
     {
         getline(luaFile, line);
-        if(line.find("onInit()", 0) != string::npos)
+        if(std::regex_search(line, initExp))
         {
             break;
         }
@@ -2197,45 +2201,61 @@ void MenuGame::readLuaVariablesForMenu()
     if(luaFile.eof())
     {
         ssvu::lo("hg::Menugame::setIndex()") <<
-            "No onInit() function in file " << levelData->luaScriptPath;
+            "No function onInit() in file " << levelData->luaScriptPath;
         luaFile.close();
         return;
     }
 
     // Search for the variables.
-    size_t pos;
-    int found{0};
-    using SearchItem =
-        std::pair<std::string, std::function<void(const std::string)>>;
-    std::array<SearchItem, 2> searches{
-        {{"l_setSides(",
-            [this](std::string mValue) { levelStatus.sides = std::stoi(mValue); }},
-        {"l_setRotationSpeed(",
-            [this](std::string mValue) { levelStatus.rotationSpeed = std::stof(mValue); }}}
+    struct SearchItem
+    {
+        const std::regex exp;
+        const std::function<void(const std::string&)> action;
+        bool found;
     };
+    std::array<SearchItem, 2> searches{{
+        // Search any variant of l_setSides(n)
+        {std::regex("l_setSides(?:\\s|\\()+([0-9]+)"),
+            [this](const std::string& mValue) {
+                levelStatus.sides = std::stoi(mValue);
+            }, false},
+        // Search any variant of l_setRotationSpeed(n.m)
+        {std::regex("l_setRotationSpeed(?:\\s|\\()+(([0-9]?)+(\\.?)([0-9]?)+)"),
+            [this](const std::string& mValue) {
+                levelStatus.rotationSpeed = std::stof(mValue);
+            }, false}
+    }};
+    std::smatch sm;
 
     while(!luaFile.eof())
     {
         getline(luaFile, line);
 
-        // keep the search within the onInit lua function
-        if(line.find("end", 0) != string::npos)
+        // Empty line, no need to search
+        if(line == "\n")
+        {
+            continue;
+        }
+        // keep the search within the onInit function
+        if(line.find("end") != string::npos)
         {
             break;
         }
 
-        for(auto& s : searches)
+        for(SearchItem& s : searches)
         {
-            pos = line.find(s.first, 0);
-            if(pos != string::npos)
+            // If a variable has already been found no need to look again.
+            // Check the result of regex search.
+            if(s.found || !std::regex_search(line, sm, s.exp))
             {
-                pos += s.first.length();
-                s.second(line.substr(pos, line.find(')', 0) - pos));
-                found++;
+                continue;
             }
+            s.action(sm[1]);
+            s.found = true;
+            break;
         }
 
-        if(found == searches.size())
+        if(searches[0].found && searches[1].found)
         {
             break;
         }
