@@ -22,7 +22,6 @@
 #include <utility>
 #include <array>
 #include <string_view>
-#include <regex>
 
 using namespace std;
 using namespace sf;
@@ -1988,7 +1987,7 @@ void MenuGame::update(ssvu::FT mFT)
     }
 
     styleData.update(mFT);
-    backgroundCamera.turn(levelStatus.rotationSpeed * 10.f);
+    backgroundCamera.turn(levelData->menuRotation * 10.f);
 
     if(isEnteringText())
     {
@@ -2167,101 +2166,6 @@ void MenuGame::setIndex(const int mIdx)
     // Set gameplay values
     diffMults = levelData->difficultyMults;
     diffMultIdx = idxOf(diffMults, 1);
-
-    readLuaVariablesForMenu();
-}
-
-void MenuGame::readLuaVariablesForMenu()
-{
-    // Find the lua file.
-    ifstream luaFile;
-    luaFile.open(levelData->luaScriptPath);
-    if(!luaFile.is_open())
-    {
-        ssvu::lo("hg::Menugame::setIndex()") << "No lua file " <<
-            levelData->luaScriptPath;
-        return;
-    }
-
-    // Scroll down the file until "function onInit()"
-    // or any whitespace variant is found.
-    std::string line;
-    const std::regex initExp("function(\\s+)onInit(\\s|\\()+\\)");
-
-    while(!luaFile.eof())
-    {
-        getline(luaFile, line);
-        if(std::regex_search(line, initExp))
-        {
-            break;
-        }
-    }
-
-    // If onInit() does not exist let user know.
-    if(luaFile.eof())
-    {
-        ssvu::lo("hg::Menugame::setIndex()") <<
-            "No function onInit() in file " << levelData->luaScriptPath;
-        luaFile.close();
-        return;
-    }
-
-    // Search for the variables.
-    struct SearchItem
-    {
-        const std::regex exp;
-        const std::function<void(const std::string&)> action;
-        bool found;
-    };
-    std::array<SearchItem, 2> searches{{
-        // Search any variant of l_setSides(n)
-        {std::regex("l_setSides(?:\\s|\\()+([0-9]+)"),
-            [this](const std::string& mValue) {
-                levelStatus.sides = std::stoi(mValue);
-            }, false},
-        // Search any variant of l_setRotationSpeed(n.m)
-        {std::regex("l_setRotationSpeed(?:\\s|\\()+(([0-9]?)+(\\.?)([0-9]?)+)"),
-            [this](const std::string& mValue) {
-                levelStatus.rotationSpeed = std::stof(mValue);
-            }, false}
-    }};
-    std::smatch sm;
-
-    while(!luaFile.eof())
-    {
-        getline(luaFile, line);
-
-        // Empty line, no need to search
-        if(line == "\n")
-        {
-            continue;
-        }
-        // keep the search within the onInit function
-        if(line.find("end") != string::npos)
-        {
-            break;
-        }
-
-        for(SearchItem& s : searches)
-        {
-            // If a variable has already been found no need to look again.
-            // Check the result of regex search.
-            if(s.found || !std::regex_search(line, sm, s.exp))
-            {
-                continue;
-            }
-            s.action(sm[1]);
-            s.found = true;
-            break;
-        }
-
-        if(searches[0].found && searches[1].found)
-        {
-            break;
-        }
-    }
-
-    luaFile.close();
 }
 
 void MenuGame::updateLeaderboard()
@@ -4298,7 +4202,7 @@ void MenuGame::draw()
     if(mainOrAbove)
     {
         styleData.drawBackgroundMenu(
-            window, ssvs::zeroVec2f, levelStatus, fourByThree);
+            window, ssvs::zeroVec2f, *levelData, fourByThree);
     }
     overlayCamera.apply();
     if(mainOrAbove && state != States::LevelSelection && Config::getOnline())

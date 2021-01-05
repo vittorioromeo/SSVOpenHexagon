@@ -256,8 +256,6 @@ private:
         window.draw(mDrawable);
     }
 
-    void readLuaVariablesForMenu();
-
     // Helper functions
     float getFPSMult() const;
     void drawGraphics();

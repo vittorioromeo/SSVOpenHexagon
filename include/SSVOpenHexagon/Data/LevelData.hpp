@@ -12,7 +12,9 @@
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 #include <string>
+#include <array>
 #include <vector>
+#include <regex>
 
 namespace hg
 {
@@ -21,10 +23,119 @@ class LevelData
 private:
     ssvuj::Obj root;
 
+    void readLuaVariablesForMenu()
+    {
+        // Find the lua file.
+        std::ifstream luaFile;
+        luaFile.open(luaScriptPath);
+        if(!luaFile.is_open())
+        {
+            ssvu::lo("hg::LevelData::readLuaVariablesForMenu()") <<
+                "No lua file " << luaScriptPath;
+            return;
+        }
+
+        // Scroll down the file until "function onInit()"
+        // or any whitespace uncommented variant is found.
+        std::string line;
+        const std::regex initExp(
+            "^(?:(?!--).)*function(?:\\s+)onInit(?:\\s|\\()+\\)");
+
+        while(!luaFile.eof())
+        {
+            getline(luaFile, line);
+            if(std::regex_search(line, initExp))
+            {
+                break;
+            }
+        }
+
+        // If onInit() does not exist let user know.
+        if(luaFile.eof())
+        {
+            ssvu::lo("hg::Menugame::setIndex()") <<
+                "No function onInit() in file " << luaScriptPath;
+            luaFile.close();
+            return;
+        }
+
+        // Search for the uncommented variables.
+        struct SearchItem
+        {
+            using SetValue = std::function<void(const std::string&)>;
+
+            const std::regex exp;
+            const SetValue setValue;
+            bool found{false};
+
+            SearchItem(const std::string& search, const std::string& capture,
+                const SetValue& mAction)
+                : exp{"^(?:(?!--).)*" + search + "(?:\\s|\\()+(" + capture + ")"},
+                  setValue{[this, mAction](const std::string& mValue) {
+                      mAction(mValue);
+                      found = true;
+                  }}
+            {
+            }
+        };
+
+        std::array<SearchItem, 3> searches{{
+            {"l_setSides", "[0-9]+",
+                [this](const std::string& mValue) {
+                    menuSides = std::stoi(mValue);
+                }},
+            {"l_setRotationSpeed", "(-?)([0-9]?)+(\\.?)([0-9]?)+",
+                [this](const std::string& mValue) {
+                    menuRotation = std::stof(mValue);
+                }},
+            {"l_setDarkenUnevenBackgroundChunk", "true",
+                [this](const std::string& /*unused*/) {
+                    menuDarkenUnevenBackgroundChunk = true;
+                }}
+        }};
+
+        std::smatch sm;
+        int foundResults{0};
+        while(!luaFile.eof())
+        {
+            getline(luaFile, line);
+
+            // Empty line, no need to search.
+            if(line == "\n")
+            {
+                continue;
+            }
+            // keep the search within the onInit function.
+            if(line.find("end") != std::string::npos)
+            {
+                break;
+            }
+
+            for(SearchItem& s : searches)
+            {
+                // If a variable has already been found no need to look again.
+                // Check the result of regex search.
+                if(s.found || !std::regex_search(line, sm, s.exp))
+                {
+                    continue;
+                }
+                s.setValue(sm[1]);
+                ++foundResults;
+                break; // there can only be a function per line.
+            }
+
+            if(foundResults == searches.size())
+            {
+                break;
+            }
+        }
+
+        luaFile.close();
+    }
+
 public:
     ssvufs::Path packPath;
     std::string packId;
-    bool favorite{false};
 
     std::string id{ssvuj::getExtr<std::string>(root, "id", "nullId")};
     std::string name{ssvuj::getExtr<std::string>(root, "name", "nullName")};
@@ -44,12 +155,19 @@ public:
     std::vector<float> difficultyMults{
         ssvuj::getExtr<std::vector<float>>(root, "difficultyMults", {})};
 
+    // Values that are only required in MenuGame.
+    unsigned int menuSides{6};
+    float menuRotation{0.f};
+    bool menuDarkenUnevenBackgroundChunk{false};
+    bool favorite{false};
+
     LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath,
         const std::string& mPackId)
         : root{mRoot}, packPath{mPackPath}, packId{mPackId}
     {
         difficultyMults.emplace_back(1.f);
         ssvu::sort(difficultyMults);
+        readLuaVariablesForMenu();
     }
 
     std::string getRootString() const

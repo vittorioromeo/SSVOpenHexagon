@@ -17,6 +17,7 @@ namespace hg
 {
 
 struct LevelStatus;
+struct LevelData;
 
 class StyleData
 {
@@ -130,7 +131,7 @@ public:
     void update(ssvu::FT mFT, float mMult = 1.f);
     void computeColors(const LevelStatus& levelStatus);
     void drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
-        const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
+        const sf::Vector2f& mCenterPos, const LevelData& levelData,
         const bool fourByThree) const;
     void drawBackground(sf::RenderTarget& mRenderTarget,
         const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const;

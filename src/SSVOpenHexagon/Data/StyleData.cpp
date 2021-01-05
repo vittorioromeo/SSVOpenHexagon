@@ -159,7 +159,6 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
 
     const auto& colors(getColors());
     const sf::Color colorMain{getMainColor()};
-    const sf::Color colorCap{getCapColorResult()};
 
     for(auto i(0u); i < sides; ++i)
     {
@@ -190,10 +189,10 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
 }
 
 void StyleData::drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
-    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
+    const sf::Vector2f& mCenterPos, const LevelData& levelData,
     const bool fourByThree) const
 {
-    const auto sides = levelStatus.sides;
+    const unsigned int sides = levelData.menuSides;
 
     const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
         distance{bgTileRadius}, hexagonRadius{fourByThree ? 75.f : 100.f};
@@ -218,7 +217,7 @@ void StyleData::drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
         const bool darkenUnevenBackgroundChunk =
             (i % 2 == 0 && i == sides - 1) &&
             Config::getDarkenUnevenBackgroundChunk() &&
-            levelStatus.darkenUnevenBackgroundChunk;
+                levelData.menuDarkenUnevenBackgroundChunk;
 
         if(Config::getBlackAndWhite())
         {
