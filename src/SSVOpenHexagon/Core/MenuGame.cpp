@@ -341,6 +341,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     initMenus();
     initInput();
+    initLua();
 
     //--------------------------------
     // Main menu background
@@ -613,74 +614,74 @@ void MenuGame::initInput()
         [this](ssvu::FT /*unused*/) { switchToFromFavoriteLevels(); }, t::Once);
 }
 
-void MenuGame::initLua(Lua::LuaContext& mLua)
+void MenuGame::initLua()
 {
-    mLua.writeVariable(
+    lua.writeVariable(
         "u_log", [](string mLog) { lo("lua-menu") << mLog << "\n"; });
 
-    mLua.writeVariable("u_execScript", [this, &mLua](string mName) {
-        Utils::runLuaFile(mLua, levelData->packPath + "Scripts/" + mName);
+    lua.writeVariable("u_execScript", [this](string mName) {
+        Utils::runLuaFile(lua, levelData->packPath + "Scripts/" + mName);
     });
 
-    mLua.writeVariable("u_getDifficultyMult", [] { return 1; });
+    lua.writeVariable("u_getDifficultyMult", [] { return 1; });
 
-    mLua.writeVariable("u_getSpeedMultDM", [] { return 1; });
+    lua.writeVariable("u_getSpeedMultDM", [] { return 1; });
 
-    mLua.writeVariable("u_getDelayMultDM", [] { return 1; });
+    lua.writeVariable("u_getDelayMultDM", [] { return 1; });
 
-    mLua.writeVariable("u_getPlayerAngle", [] { return 0; });
+    lua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
-    mLua.writeVariable("l_setRotationSpeed",
+    lua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
 
-    mLua.writeVariable("l_setSides",
+    lua.writeVariable("l_setSides",
         [this](unsigned int mValue) { levelStatus.sides = mValue; });
 
-    mLua.writeVariable(
+    lua.writeVariable(
         "l_getRotationSpeed", [this] { return levelStatus.rotationSpeed; });
 
-    mLua.writeVariable("l_getSides", [this] { return levelStatus.sides; });
+    lua.writeVariable("l_getSides", [this] { return levelStatus.sides; });
 
-    mLua.writeVariable("l_set3dRequired",
+    lua.writeVariable("l_set3dRequired",
         [this](bool mValue) { levelStatus._3DRequired = mValue; });
 
-    mLua.writeVariable("s_setPulseInc",
+    lua.writeVariable("s_setPulseInc",
         [this](float mValue) { styleData.pulseIncrement = mValue; });
 
-    mLua.writeVariable("s_setPulseIncrement",
+    lua.writeVariable("s_setPulseIncrement",
         [this](float mValue) { styleData.pulseIncrement = mValue; });
 
-    mLua.writeVariable("s_setHueInc",
+    lua.writeVariable("s_setHueInc",
         [this](float mValue) { styleData.hueIncrement = mValue; });
 
-    mLua.writeVariable("s_setHueIncrement",
+    lua.writeVariable("s_setHueIncrement",
         [this](float mValue) { styleData.hueIncrement = mValue; });
 
-    mLua.writeVariable(
+    lua.writeVariable(
         "l_getPulseMin", [this] { return levelStatus.pulseMin; });
-    mLua.writeVariable(
+    lua.writeVariable(
         "l_getPulseMax", [this] { return levelStatus.pulseMax; });
-    mLua.writeVariable(
+    lua.writeVariable(
         "l_getPulseSpeed", [this] { return levelStatus.pulseSpeed; });
-    mLua.writeVariable(
+    lua.writeVariable(
         "l_getPulseSpeedR", [this] { return levelStatus.pulseSpeedR; });
 
-    mLua.writeVariable(
-        "u_getVersionMajor", [this] { return Config::getVersion().major; });
-    mLua.writeVariable(
-        "u_getVersionMinor", [this] { return Config::getVersion().minor; });
-    mLua.writeVariable(
-        "u_getVersionMicro", [this] { return Config::getVersion().micro; });
-    mLua.writeVariable(
-        "u_getVersionString", [this] { return Config::getVersionString(); });
+    lua.writeVariable(
+        "u_getVersionMajor", [] { return Config::getVersion().major; });
+    lua.writeVariable(
+        "u_getVersionMinor", [] { return Config::getVersion().minor; });
+    lua.writeVariable(
+        "u_getVersionMicro", [] { return Config::getVersion().micro; });
+    lua.writeVariable(
+        "u_getVersionString", [] { return Config::getVersionString(); });
 
-    mLua.writeVariable("l_setRotationSpeed",
+    lua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
 
-    mLua.writeVariable(
+    lua.writeVariable(
         "s_getHueInc", [this] { return styleData.hueIncrement; });
 
-    mLua.writeVariable(
+    lua.writeVariable(
         "s_getHueIncrement", [this] { return styleData.hueIncrement; });
 
     // Unused functions
@@ -753,7 +754,7 @@ void MenuGame::initLua(Lua::LuaContext& mLua)
             "m_messageAddImportant", "m_messageAddImportantSilent",
             "m_clearMessages"})
     {
-        mLua.writeVariable(un, [] {});
+        lua.writeVariable(un, [] {});
     }
 }
 
@@ -2143,8 +2144,6 @@ void MenuGame::setIndex(const int mIdx)
     diffMults = levelData->difficultyMults;
     diffMultIdx = idxOf(diffMults, 1);
 
-    Lua::LuaContext lua;
-    initLua(lua);
     Utils::runLuaFile(lua, levelData->luaScriptPath);
     try
     {
@@ -3906,34 +3905,31 @@ void MenuGame::drawLevelSelectionLeftSide(
     constexpr float lineThickness = 2.f;
     const PackData& curPack{
         assets.getPackData(assets.getPackInfos()[drawer.packIdx].id)};
+    const LevelData& levelData{
+        assets.getLevelData(drawer.levelDataIds.at(drawer.currentIndex))};
 
     const float sidepanelIndent{w * 0.33f}, quadsIndent{w - sidepanelIndent},
         leftSideOffset{
-            calcMenuOffset(levelDetailsOffset, w - quadsIndent, revertOffset)};
-    float width{sidepanelIndent - leftSideOffset}, height{textToQuadBorder},
-        tempFloat;
-
-    const float smallInterline{txtSelectionSmall.height * 1.5f},
+        calcMenuOffset(levelDetailsOffset, w - quadsIndent, revertOffset)},
+        smallInterline{txtSelectionSmall.height * 1.5f},
         smallLeftInterline{txtSelectionLSmall.height * 1.5f},
         postTitleSpace{txtSelectionMedium.height +
                        (smallLeftInterline - txtSelectionLSmall.height) -
                        txtSelectionLSmall.height * fontTopBorder},
         preLineSpace{txtSelectionMedium.height / 2.f +
                      txtSelectionLSmall.height * (1.f + fontTopBorder)},
-        textYPos{textToQuadBorder - leftSideOffset},
+        textXPos{textToQuadBorder - leftSideOffset},
         textRightBorder{getMaximumTextWidth()};
-
-    const LevelData& levelData{
-        assets.getLevelData(drawer.levelDataIds.at(drawer.currentIndex))};
-    Color alphaTextColor{
-        menuTextColor.r, menuTextColor.g, menuTextColor.b, 150};
+    float width{sidepanelIndent - leftSideOffset}, height{textToQuadBorder},
+        tempFloat;
 
     //-------------------------------------
     // Backdrop - Right border
 
     menuQuads.clear();
     menuQuads.reserve(8);
-    createQuad(alphaTextColor, 0, width, 0, h);
+    createQuad({menuTextColor.r, menuTextColor.g, menuTextColor.b, 150}, 0,
+        width, 0, h);
     createQuad(menuQuadColor, width, width + lineThickness, 0, h);
     render(menuQuads);
     menuQuads.clear();
@@ -3945,7 +3941,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     scrollNameRightBorder(tempString, txtSelectionBig.font,
         namesScroll[static_cast<int>(Label::LevelName)], textRightBorder);
     renderText(tempString, txtSelectionBig.font,
-        {textYPos, height - txtSelectionBig.height * fontTopBorder});
+        {textXPos, height - txtSelectionBig.height * fontTopBorder});
 
     //-------------------------------------
     // Level description
@@ -3956,7 +3952,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     for(i = 0; i < static_cast<int>(levelDescription.size()); ++i)
     {
         renderText(
-            levelDescription[i], txtSelectionSmall.font, {textYPos, height});
+            levelDescription[i], txtSelectionSmall.font, {textXPos, height});
         height +=
             i == descLines - 1 ? txtSelectionSmall.height : smallInterline;
     }
@@ -3980,10 +3976,12 @@ void MenuGame::drawLevelSelectionLeftSide(
     // Text
     height += 0.5f * txtSelectionMedium.height;
 
-    tempString =
-        (diffMults.size() > 1
-                ? "< " + toStr(ssvu::getByModIdx(diffMults, diffMultIdx)) + " >"
-                : "NONE");
+    renderText("DIFFICULTY: ", txtSelectionMedium.font,
+        {textXPos, height - txtSelectionMedium.height}, menuQuadColor);
+
+    tempString = diffMults.size() > 1 ?
+                 "< " + toStr(ssvu::getByModIdx(diffMults, diffMultIdx)) + " >"
+                 : "NONE";
 
     const float difficultyBumpFactor =
         1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
@@ -3991,9 +3989,8 @@ void MenuGame::drawLevelSelectionLeftSide(
         difficultyBumpFactor, difficultyBumpFactor);
 
     renderText(tempString, txtSelectionMedium.font,
-        {textYPos + txtSelectionMedium.font.getGlobalBounds().width,
-            height - txtSelectionMedium.height},
-        menuQuadColor);
+        {textXPos + txtSelectionMedium.font.getGlobalBounds().width,
+            height - txtSelectionMedium.height});
 
     txtSelectionMedium.font.setScale(1.f, 1.f);
 
@@ -4016,20 +4013,20 @@ void MenuGame::drawLevelSelectionLeftSide(
     tempString = curPack.name;
     scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall.font,
         namesScroll[static_cast<int>(Label::PackName)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textYPos, height});
+    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
     // Pack author
     height += smallLeftInterline;
     tempString = curPack.author;
     scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall.font,
         namesScroll[static_cast<int>(Label::PackAuthor)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textYPos, height});
+    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
     // Version
     height += smallLeftInterline;
     tempString = "VERSION: " + toStr(curPack.version);
     Utils::uppercasify(tempString);
-    renderText(tempString, txtSelectionLSmall.font, {textYPos, height});
+    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
     // Bottom line
     menuQuads.reserve_more(4);
@@ -4053,21 +4050,21 @@ void MenuGame::drawLevelSelectionLeftSide(
     tempString = musicDataTemp.name;
     scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall.font,
         namesScroll[static_cast<int>(Label::MusicName)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textYPos, height});
+    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
     // Track author
     height += smallLeftInterline;
     tempString = musicDataTemp.author;
     scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall.font,
         namesScroll[static_cast<int>(Label::MusicAuthor)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textYPos, height});
+    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
     // Album name
     height += smallLeftInterline;
     tempString = !musicDataTemp.album.empty() ? musicDataTemp.album : "NONE";
     scrollNameRightBorder(tempString, "ALBUM: ", txtSelectionLSmall.font,
         namesScroll[static_cast<int>(Label::MusicAlbum)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textYPos, height});
+    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
     //-------------------------------------
     // Favorite "button"
@@ -4106,8 +4103,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     height += textToQuadBorder;
     renderTextCenteredOffset("LEADERBOARDS", txtSelectionBig.font,
         {sidepanelIndent / 2.f,
-            height - txtSelectionBig.height * fontTopBorder},
-        -leftSideOffset);
+            height - txtSelectionBig.height * fontTopBorder}, -leftSideOffset);
 
     // Line
     height += txtSelectionBig.height + textToQuadBorder;
@@ -4119,8 +4115,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     height += txtSelectionMedium.height / 2.f;
     renderText("PERSONAL BEST", txtSelectionMedium.font,
         {textToQuadBorder - leftSideOffset,
-            height - txtSelectionMedium.height * fontTopBorder},
-        menuQuadColor);
+            height - txtSelectionMedium.height * fontTopBorder}, menuQuadColor);
 
     height += txtSelectionMedium.height + txtSelectionSmall.height;
     tempString = getLocalValidator(
