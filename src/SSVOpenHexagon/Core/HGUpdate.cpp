@@ -196,7 +196,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     cwManager.forCustomWalls([&](const CCustomWall& customWall) {
         // After *only* the player has moved, push in case of overlap.
         if(!customWall.getCanCollide() ||
-            !customWall.isOverlapping(player.getPosition()))
+           !customWall.isOverlapping(player.getPosition()))
         {
             return;
         }
@@ -214,24 +214,13 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 
     // First round of collision check, player gets a chance to
     // escape if certain conditions are met.
-    const auto updateWall = [this](CWall& wall, const ssvu::FT& mFT) {
-        wall.update(*this, mFT);
-        wall.moveTowardsCenter(*this, centerPos, mFT);
-
-        if(wall.getCurve().speed != 0.f)
-        {
-            wall.moveCurve(*this, centerPos, mFT);
-        }
-    };
-
+    unsigned int i;
     const sf::Vector2f& pPosition{player.getPosition()};
-
-    int i;
-    const int wSize{static_cast<int>(walls.size())};
+    const unsigned int wSize{static_cast<unsigned int>(walls.size())};
 
     for(i = 0; i < wSize; ++i)
     {
-        updateWall(walls[i], mFT);
+        walls[i].update(*this, centerPos, mFT);
 
         // If there is no collision skip to the next wall.
         if(!walls[i].isOverlapping(pPosition))
@@ -253,7 +242,8 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         break;
     }
 
-    // If `i == wSize` it means there was no collision, so we can stop here.
+    // If i == wSize it means there was no collision,
+    // so we can stop here.
     if(i == wSize)
     {
         return;
@@ -265,11 +255,10 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         {
             steamManager.unlock_achievement("a22_swapdeath");
         }
-
         player.kill(*this);
     };
 
-    for(int j = 0; j < i; ++j)
+    for(unsigned int j{0}; j < i; ++j)
     {
         if(walls[j].isOverlapping(pPosition))
         {
@@ -281,7 +270,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     ++i;
     while(i < wSize)
     {
-        updateWall(walls[i], mFT);
+        walls[i].update(*this, centerPos, mFT);
 
         if(walls[i].isOverlapping(pPosition))
         {

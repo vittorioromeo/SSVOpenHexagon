@@ -282,17 +282,56 @@ private:
     void updateKeyIcons();
 
     // Draw methods
+public:
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> capQuads;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTris;
+    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads3D;
+    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris3D;
+    sf::Vector2f offset3D;
+
+    [[nodiscard]] const sf::Vector2f& get3DOffset() noexcept
+    {
+        return offset3D;
+    }
+
+private:
+    static constexpr float piAndHalf{ssvu::piHalf * 3.f};
+
+    void drawSetup();
+    void draw2D();
+    void drawProjections();
+    void draw3D();
+    void drawWrapup();
     void draw();
-
-    // Gameplay methods
-    void incrementDifficulty();
-    void sideChange(unsigned int mSideNumber);
-
-    // Draw methods
     void drawText_TimeAndStatus(const sf::Color& offsetColor);
     void drawText_Message(const sf::Color& offsetColor);
     void drawText();
     void drawKeyIcons();
+
+    std::function<void()> drawFunc;
+    void setDrawFunc()
+    {
+        if(!Config::get3D())
+        {
+            drawFunc = [this] { draw2D(); };
+            return;
+        }
+
+        if(levelData->_3DDrawingMode)
+        {
+            drawFunc = [this] { draw3D(); };
+        }
+        else
+        {
+            drawFunc = [this] { drawProjections(); };
+        }
+    }
+
+    // Gameplay methods
+    void incrementDifficulty();
+    void sideChange(unsigned int mSideNumber);
 
     // Data-related methods
     void setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay);
@@ -322,7 +361,6 @@ private:
 
     void invalidateScore(const std::string& mReason);
 
-
     template <typename F>
     Utils::LuaMetadataProxy addLuaFn(const std::string& name, F&& f)
     {
@@ -341,8 +379,7 @@ private:
                     const std::string& args, const std::string& docs) {
                     std::cout << "* **`" << ret << " " << name << "(" << args
                               << ")`**: " << docs << "\n\n";
-                },
-                i);
+                }, i);
         }
     }
 
@@ -366,11 +403,6 @@ private:
     }
 
 public:
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTris;
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads3D;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris3D;
 
     MenuGame* mgPtr;
 

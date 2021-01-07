@@ -23,47 +23,76 @@ namespace hg
     return ssvu::toStr(std::floor(x * 1000) / 1000.f);
 }
 
-void HexagonGame::draw()
+void HexagonGame::drawSetup()
 {
+    // Setup.
     styleData.computeColors(levelStatus);
+    window.clear(Color::Black);    
 
-    window.clear(Color::Black);
-
-    if(!status.hasDied)
+    // Death camera shake.
+    if(status.hasDied)
     {
-        if(levelStatus.cameraShake > 0.f)
-        {
-            const sf::Vector2f shake(
-                getRndR(-levelStatus.cameraShake, levelStatus.cameraShake),
-                getRndR(-levelStatus.cameraShake, levelStatus.cameraShake));
-
-            backgroundCamera.setCenter(shake);
-            overlayCamera.setCenter(
-                shake + sf::Vector2f{Config::getWidth() / 2.f,
-                            Config::getHeight() / 2.f});
-        }
-        else
-        {
-            backgroundCamera.setCenter(ssvs::zeroVec2f);
-            overlayCamera.setCenter(sf::Vector2f{
-                Config::getWidth() / 2.f, Config::getHeight() / 2.f});
-        }
+        return;
     }
 
-    if(!Config::getNoBackground())
+    if(levelStatus.cameraShake > 0.f)
     {
-        backgroundCamera.apply();
-        styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus);
+        const sf::Vector2f shake(
+            getRndR(-levelStatus.cameraShake, levelStatus.cameraShake),
+            getRndR(-levelStatus.cameraShake, levelStatus.cameraShake));
+
+        backgroundCamera.setCenter(shake);
+        overlayCamera.setCenter(
+            shake + sf::Vector2f{Config::getWidth() / 2.f,
+            Config::getHeight() / 2.f});
+    }
+    else
+    {
+        backgroundCamera.setCenter(ssvs::zeroVec2f);
+        overlayCamera.setCenter(sf::Vector2f{
+            Config::getWidth() / 2.f, Config::getHeight() / 2.f});
+    }
+}
+
+void HexagonGame::drawWrapup()
+{
+    // Top camera and text.
+    overlayCamera.apply();
+    drawText();
+
+    // HUD icons.
+    if(Config::getShowKeyIcons() || mustShowReplayUI())
+    {
+        drawKeyIcons();
     }
 
-    backgroundCamera.apply();
+    // Misc.
+    if(Config::getFlash())
+    {
+        render(flashPolygon);
+    }
 
-    wallQuads3D.clear();
-    playerTris3D.clear();
+    if(mustTakeScreenshot)
+    {
+        window.saveScreenshot("screenshot.png");
+        mustTakeScreenshot = false;
+    }
+}
+
+void HexagonGame::draw2D()
+{
     wallQuads.clear();
     playerTris.clear();
     capTris.clear();
+    capQuads.clear();
+    
+    if(!Config::getNoBackground())
+    {
+        backgroundCamera.apply();
+        styleData.drawBackground(window, centerPos, levelStatus);
+    }
 
+    // Draw the walls and player.
     for(CWall& w : walls)
     {
         w.draw(*this);
@@ -76,73 +105,91 @@ void HexagonGame::draw()
         player.draw(*this, styleData.getCapColorResult());
     }
 
-    if(Config::get3D())
+    render(wallQuads);
+    render(playerTris);
+    render(capTris);
+    render(capQuads);
+}
+
+void HexagonGame::drawProjections()
+{
+    wallQuads3D.clear();
+    playerTris3D.clear();
+    wallQuads.clear();
+    playerTris.clear();
+    capQuads.clear();
+    capTris.clear();
+
+    if(!Config::getNoBackground())
     {
-        const auto depth(styleData._3dDepth);
-        const auto numWallQuads(wallQuads.size());
-        const auto numPlayerTris(playerTris.size());
+        backgroundCamera.apply();
+        styleData.drawBackground(window, centerPos, levelStatus);
+    }
 
-        wallQuads3D.reserve(numWallQuads * depth);
-        playerTris3D.reserve(numPlayerTris * depth);
+    // Draw the walls and player.
+    for(CWall& w : walls)
+    {
+        w.draw(*this);
+    }
 
-        const float effect{
-            styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+    cwManager.draw(*this);
 
-        const sf::Vector2f skew{1.f, 1.f + effect};
-        backgroundCamera.setSkew(skew);
+    if(status.started)
+    {
+        player.draw(*this, styleData.getCapColorResult());
+    }
 
-        const auto radRot(
-            ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
-        const auto sinRot(std::sin(radRot));
-        const auto cosRot(std::cos(radRot));
+    // Draw the projections.
+    const float effect{
+        styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+    const sf::Vector2f skew{1.f, 1.f + effect};
+    backgroundCamera.setSkew(skew);
 
-        for(std::size_t i = 0; i < depth; ++i)
+    const float depth(styleData._3dDepth);
+    const std::size_t numWallQuads(wallQuads.size() + capQuads.size());
+    const std::size_t numPlayerTris(playerTris.size());
+
+    wallQuads3D.reserve(numWallQuads * depth);
+    playerTris3D.reserve(numPlayerTris * depth);
+
+    const float radRot(
+        ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
+    const float sinRot(std::sin(radRot));
+    const float cosRot(std::cos(radRot));
+
+    sf::Color wallColor{getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult)},
+        playerColor{styleData.get3DOverrideColor() == styleData.getMainColor() ?
+            getColorDarkened(styleData.getPlayerColor(), styleData._3dDarkenMult) :
+            wallColor};
+    wallColor.a /= styleData._3dAlphaMult;
+    playerColor.a /= styleData._3dAlphaMult;
+
+    std::size_t j;
+    sf::Vector2f newPos;
+    float depthIndex, offset;
+    const float effectMult{(effect * 3.6f) * 1.4f};
+    for(unsigned int i = 0; i < depth; ++i)
+    {
+        wallQuads3D.unsafe_emplace_other(wallQuads);
+        wallQuads3D.unsafe_emplace_other(capQuads);
+        playerTris3D.unsafe_emplace_other(playerTris);
+
+        depthIndex = depth - i - 1;
+        offset = styleData._3dSpacing *
+                ((depthIndex + 1.f) * styleData._3dPerspectiveMult) * effectMult;
+        newPos = {offset * cosRot, offset * sinRot};
+        wallColor.a -= styleData._3dAlphaFalloff;
+        playerColor.a -= styleData._3dAlphaFalloff;
+
+        for(j = i * numWallQuads; j < (i + 1) * numWallQuads; ++j)
         {
-            wallQuads3D.unsafe_emplace_other(wallQuads);
+            wallQuads3D[j].position += newPos;
+            wallQuads3D[j].color = wallColor;
         }
-
-        for(std::size_t i = 0; i < depth; ++i)
+        for(j = i * numPlayerTris; j < (i + 1) * numPlayerTris; ++j)
         {
-            playerTris3D.unsafe_emplace_other(playerTris);
-        }
-
-        for(auto j(0); j < depth; ++j)
-        {
-            const float i(depth - j - 1);
-
-            const float offset(styleData._3dSpacing *
-                               (float(i + 1.f) * styleData._3dPerspectiveMult) *
-                               (effect * 3.6f) * 1.4f);
-
-            sf::Vector2f newPos(offset * cosRot, offset * sinRot);
-
-            status.overrideColor = getColorDarkened(
-                styleData.get3DOverrideColor(), styleData._3dDarkenMult);
-            status.overrideColor.a /= styleData._3dAlphaMult;
-            status.overrideColor.a -= i * styleData._3dAlphaFalloff;
-
-            for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
-                ++k)
-            {
-                wallQuads3D[k].position += newPos;
-                wallQuads3D[k].color = status.overrideColor;
-            }
-
-            // Apply player color if no 3D override is present.
-            if(styleData.get3DOverrideColor() == styleData.getMainColor())
-            {
-                status.overrideColor = getColorDarkened(
-                    styleData.getPlayerColor(), styleData._3dDarkenMult);
-                status.overrideColor.a /= styleData._3dAlphaMult;
-                status.overrideColor.a -= i * styleData._3dAlphaFalloff;
-            }
-
-            for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
-                ++k)
-            {
-                playerTris3D[k].position += newPos;
-                playerTris3D[k].color = status.overrideColor;
-            }
+            playerTris3D[j].position += newPos;
+            playerTris3D[j].color = playerColor;
         }
     }
 
@@ -151,25 +198,70 @@ void HexagonGame::draw()
     render(wallQuads);
     render(playerTris);
     render(capTris);
+    render(capQuads);
+}
 
-    overlayCamera.apply();
-    drawText();
+void HexagonGame::draw3D()
+{
+    wallQuads3D.clear();
+    wallQuads.clear();
+    playerTris.clear();
+    capTris.clear();
+    capQuads.clear();
 
-    if(Config::getShowKeyIcons() || mustShowReplayUI())
+    // Calculate the 3D effect shift.
+    const float effect{
+        styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
+    backgroundCamera.setSkew({1.f, 1.f + effect});
+    const float offset(styleData._3dSpacing *
+                ((styleData._3dDepth + 1.f) * styleData._3dPerspectiveMult) *
+                (effect * 3.6f) * 1.4f);
+    const float radRot(ssvu::toRad(backgroundCamera.getRotation()) + ssvu::piHalf);
+    offset3D = {offset * std::cos(radRot), offset * std::sin(radRot)};
+
+    // Draw the background.
+    if(!Config::getNoBackground())
     {
-        drawKeyIcons();
+        backgroundCamera.apply();
+        styleData.drawBackground(window,
+            {ssvs::zeroVec2f.x + offset3D.x, ssvs::zeroVec2f.y + offset3D.y},
+            levelStatus);
     }
 
-    if(Config::getFlash())
+    const sf::Color wallColor{getColorDarkened(
+        styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
+
+    // Draw the custom walls.
+    cwManager.draw3D(*this, wallColor);
+
+    // Draw the regular walls.
+    for(CWall& w : walls)
     {
-        render(flashPolygon);
+        w.draw3D(*this, player, centerPos, wallColor);
     }
 
-    if(mustTakeScreenshot)
+    // Handle player and pivot.
+    if(status.started)
     {
-        window.saveScreenshot("screenshot.png");
-        mustTakeScreenshot = false;
+        player.draw3D(*this,
+            styleData.get3DOverrideColor() == styleData.getMainColor() ?
+                getColorDarkened(styleData.getPlayerColor(), styleData._3dDarkenMult) :
+                wallColor, styleData.getCapColorResult());
     }
+
+    // Render.
+    render(wallQuads3D);
+    render(wallQuads);
+    render(playerTris);
+    render(capTris);
+    render(capQuads);
+}
+
+void HexagonGame::draw()
+{
+    drawSetup();
+    drawFunc();
+    drawWrapup();
 }
 
 void HexagonGame::initFlashEffect()

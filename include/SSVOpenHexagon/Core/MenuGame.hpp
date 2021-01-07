@@ -56,26 +56,6 @@ enum class States
     ETLPNew
 };
 
-enum Tid
-{
-    Unknown = -1,
-    RotateCCW = 0,
-    RotateCW,
-    Focus,
-    Select,
-    Exit,
-    ForceRestart,
-    Restart,
-    Replay,
-    Screenshot,
-    Swap,
-    Up,
-    Down,
-    NextPack,
-    PreviousPack,
-    TriggersCount
-};
-
 class HexagonGame;
 
 class MenuGame
@@ -142,6 +122,7 @@ private:
     //---------------------------------------
     // Navigation
 
+    bool wasFocusHeld{false};
     bool focusHeld{false};
     float wheelProgress{0.f};
     float touchDelay{0.f};
@@ -379,6 +360,13 @@ private:
 
     void changeLevelFavoriteFlag();
     void switchToFromFavoriteLevels();
+    void sortFavoriteLevels()
+    {
+        std::sort(favSlct.levelDataIds.begin(), favSlct.levelDataIds.end(),
+            [this](const std::string& a, const std::string& b) -> bool {
+                return assets.getLevelData(a).name < assets.getLevelData(b).name;
+            });
+    }
 
     // Visual effects
     float difficultyBumpEffect{0.f};
@@ -386,19 +374,51 @@ private:
 
     void adjustLevelsOffset();
     void updateLevelSelectionDrawingParameters();
-    float getMaximumTextWidth() const;
-    float getLevelListHeight() const;
+
     float getLevelSelectionHeight() const;
+    float getLevelListHeight() const
+    {
+        return levelLabelHeight * lvlDrawer->levelDataIds.size() + slctFrameSize;
+    }
+
+    static inline constexpr float baseScrollSpeed{45.f};
+    void calcPackChangeScrollSpeed()
+    {
+        // Only speed up the animation if there are more than 12 levels.
+        scrollSpeed =
+            baseScrollSpeed * std::max(lvlDrawer->levelDataIds.size() / 12.f, 1.f);
+    }
     void calcLevelChangeScroll(const int dir);
     void calcPackChangeScroll();
-    void calcPackChangeScrollSpeed();
+
     void scrollName(std::string& text, float& scroller);
     void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);
     void scrollNameRightBorder(
         std::string& text, sf::Text& font, float& scroller, const float border);
-    void resetNamesScrolls();
-    void resetLevelNamesScrolls();
+
+    void resetNamesScrolls()
+    {
+        for(int i = 0; i < static_cast<int>(Label::ScrollsSize); ++i)
+        {
+            namesScroll[i] = 0;
+        }
+    }
+    void resetLevelNamesScrolls()
+    {
+        // Reset all scrolls except the ones relative to the pack.
+        namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
+        for(int i = static_cast<int>(Label::MusicName);
+            i < static_cast<int>(Label::ScrollsSize); ++i)
+        {
+            namesScroll[i] = 0.f;
+        }
+    }
+
+    float getMaximumTextWidth() const
+    {
+        return w * 0.33f - 2.f * textToQuadBorder;
+    }
     void formatLevelDescription();
     void drawLevelSelectionRightSide(
         LevelDrawer& drawer, const bool revertOffset);

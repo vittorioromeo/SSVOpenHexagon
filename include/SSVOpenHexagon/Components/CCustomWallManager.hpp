@@ -53,6 +53,7 @@ public:
     void cleanup();
     void clear();
     void draw(HexagonGame& hexagonGame);
+    void draw3D(HexagonGame& hexagonGame, const sf::Color& mColor);
 
     template <typename F>
     void forCustomWalls(F&& f)

@@ -36,6 +36,7 @@ public:
 
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame);
+    void draw3D(HexagonGame& mHexagonGame, const sf::Color& mColor);
 
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
         const sf::Vector2f& mPoint) const noexcept

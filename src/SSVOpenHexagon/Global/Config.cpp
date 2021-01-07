@@ -921,7 +921,7 @@ void setSaveLocalBestReplayToFile(bool mX)
 //**************************************************
 // Game start check
 
-inline constexpr int maxBinds = 4;
+inline constexpr int maxBinds{4};
 
 [[nodiscard]] Trigger resizeTrigger(Trigger trig) noexcept
 {
@@ -998,37 +998,27 @@ std::string bindToHumanReadableName(std::string s)
     return s;
 }
 
-using triggerGetter = Trigger (*)();
-const triggerGetter keyboardGetterFuncs[] = {
-    getTriggerRotateCCW,
-    getTriggerRotateCW,
-    getTriggerFocus,
-    getTriggerSelect,
-    getTriggerExit,
-    getTriggerForceRestart,
-    getTriggerRestart,
-    getTriggerReplay,
-    getTriggerScreenshot,
-    getTriggerSwap,
-    getTriggerUp,
-    getTriggerDown,
-    getTriggerNextPack,
-    getTriggerPreviousPack,
-};
+const std::array<KeyboardTriggerGetter, Tid::TriggersCount> keyboardTriggerGetters{{
+    getTriggerRotateCCW, getTriggerRotateCW, getTriggerFocus,
+    getTriggerSelect, getTriggerExit, getTriggerForceRestart,
+    getTriggerRestart, getTriggerReplay, getTriggerScreenshot,
+    getTriggerSwap, getTriggerUp, getTriggerDown,
+    getTriggerNextPack, getTriggerPreviousPack
+}};
 
 [[nodiscard]] std::string getKeyboardBindNames(const int bindID)
 {
     int j;
     std::string bindNames;
 
-    for(auto& c : keyboardGetterFuncs[bindID]().getCombos())
+    for(auto& c : keyboardTriggerGetters[bindID]().getCombos())
     {
         if(c.isUnbound())
         {
             break;
         }
 
-        const auto keyBind = c.getKeys();
+        const auto keyBind{c.getKeys()};
         for(j = 0; j <= ssvs::KKey::KeyCount; ++j)
         {
             if(!keyBind[j])
@@ -1047,7 +1037,7 @@ const triggerGetter keyboardGetterFuncs[] = {
             break;
         }
 
-        const auto btnBinds = c.getBtns();
+        const auto btnBinds{c.getBtns()};
         for(j = 0; j <= ssvs::MBtn::ButtonCount; ++j)
         {
             if(!btnBinds[j])
@@ -1075,7 +1065,7 @@ const triggerGetter keyboardGetterFuncs[] = {
 // Add new key binds
 
 [[nodiscard]] Trigger rebindTrigger(
-    Trigger trig, int key, int btn, int index) noexcept
+    Trigger trig, const int key, const int btn, int index) noexcept
 {
     // if both slots are taken replace the first one
     if(index >= maxBinds)
@@ -1095,60 +1085,60 @@ const triggerGetter keyboardGetterFuncs[] = {
     return trig;
 }
 
-void addBindTriggerRotateCCW(int key, int btn, int index)
+void addBindTriggerRotateCCW(const int key, const int btn, const int index)
 {
     triggerRotateCCW() = rebindTrigger(triggerRotateCCW(), key, btn, index);
 }
-void addBindTriggerRotateCW(int key, int btn, int index)
+void addBindTriggerRotateCW(const int key, const int btn, const int index)
 {
     triggerRotateCW() = rebindTrigger(triggerRotateCW(), key, btn, index);
 }
-void addBindTriggerFocus(int key, int btn, int index)
+void addBindTriggerFocus(const int key, const int btn, const int index)
 {
     triggerFocus() = rebindTrigger(triggerFocus(), key, btn, index);
 }
-void addBindTriggerSelect(int key, int btn, int index)
+void addBindTriggerSelect(const int key, const int btn, const int index)
 {
     triggerSelect() = rebindTrigger(triggerSelect(), key, btn, index);
 }
-void addBindTriggerExit(int key, int btn, int index)
+void addBindTriggerExit(const int key, const int btn, const int index)
 {
     triggerExit() = rebindTrigger(triggerExit(), key, btn, index);
 }
-void addBindTriggerForceRestart(int key, int btn, int index)
+void addBindTriggerForceRestart(const int key, const int btn, const int index)
 {
     triggerForceRestart() =
         rebindTrigger(triggerForceRestart(), key, btn, index);
 }
-void addBindTriggerRestart(int key, int btn, int index)
+void addBindTriggerRestart(const int key, const int btn, const int index)
 {
     triggerRestart() = rebindTrigger(triggerRestart(), key, btn, index);
 }
-void addBindTriggerReplay(int key, int btn, int index)
+void addBindTriggerReplay(const int key, const int btn, const int index)
 {
     triggerReplay() = rebindTrigger(triggerReplay(), key, btn, index);
 }
-void addBindTriggerScreenshot(int key, int btn, int index)
+void addBindTriggerScreenshot(const int key, const int btn, const int index)
 {
     triggerScreenshot() = rebindTrigger(triggerScreenshot(), key, btn, index);
 }
-void addBindTriggerSwap(int key, int btn, int index)
+void addBindTriggerSwap(const int key, const int btn, const int index)
 {
     triggerSwap() = rebindTrigger(triggerSwap(), key, btn, index);
 }
-void addBindTriggerUp(int key, int btn, int index)
+void addBindTriggerUp(const int key, const int btn, const int index)
 {
     triggerUp() = rebindTrigger(triggerUp(), key, btn, index);
 }
-void addBindTriggerDown(int key, int btn, int index)
+void addBindTriggerDown(const int key, const int btn, const int index)
 {
     triggerDown() = rebindTrigger(triggerDown(), key, btn, index);
 }
-void addBindTriggerNextPack(int key, int btn, int index)
+void addBindTriggerNextPack(const int key, const int btn, const int index)
 {
     triggerNextPack() = rebindTrigger(triggerNextPack(), key, btn, index);
 }
-void addBindTriggerPreviousPack(int key, int btn, int index)
+void addBindTriggerPreviousPack(const int key, const int btn, const int index)
 {
     triggerPreviousPack() =
         rebindTrigger(triggerPreviousPack(), key, btn, index);
@@ -1157,64 +1147,64 @@ void addBindTriggerPreviousPack(int key, int btn, int index)
 //**************************************************
 // Unbind key
 
-[[nodiscard]] Trigger clearTriggerBind(Trigger trig, int index) noexcept
+[[nodiscard]] Trigger clearTriggerBind(Trigger trig, const int index) noexcept
 {
     trig.getCombos()[index].clearBind();
     return trig;
 }
-void clearBindTriggerRotateCCW(int index)
+void clearBindTriggerRotateCCW(const int index)
 {
     triggerRotateCCW() = clearTriggerBind(triggerRotateCCW(), index);
 }
-void clearBindTriggerRotateCW(int index)
+void clearBindTriggerRotateCW(const int index)
 {
     triggerRotateCW() = clearTriggerBind(triggerRotateCW(), index);
 }
-void clearBindTriggerFocus(int index)
+void clearBindTriggerFocus(const int index)
 {
     triggerFocus() = clearTriggerBind(triggerFocus(), index);
 }
-void clearBindTriggerSelect(int index)
+void clearBindTriggerSelect(const int index)
 {
     triggerSelect() = clearTriggerBind(triggerSelect(), index);
 }
-void clearBindTriggerExit(int index)
+void clearBindTriggerExit(const int index)
 {
     triggerExit() = clearTriggerBind(triggerExit(), index);
 }
-void clearBindTriggerForceRestart(int index)
+void clearBindTriggerForceRestart(const int index)
 {
     triggerForceRestart() = clearTriggerBind(triggerForceRestart(), index);
 }
-void clearBindTriggerRestart(int index)
+void clearBindTriggerRestart(const int index)
 {
     triggerRestart() = clearTriggerBind(triggerRestart(), index);
 }
-void clearBindTriggerReplay(int index)
+void clearBindTriggerReplay(const int index)
 {
     triggerReplay() = clearTriggerBind(triggerReplay(), index);
 }
-void clearBindTriggerScreenshot(int index)
+void clearBindTriggerScreenshot(const int index)
 {
     triggerScreenshot() = clearTriggerBind(triggerScreenshot(), index);
 }
-void clearBindTriggerSwap(int index)
+void clearBindTriggerSwap(const int index)
 {
     triggerSwap() = clearTriggerBind(triggerSwap(), index);
 }
-void clearBindTriggerUp(int index)
+void clearBindTriggerUp(const int index)
 {
     triggerUp() = clearTriggerBind(triggerUp(), index);
 }
-void clearBindTriggerDown(int index)
+void clearBindTriggerDown(const int index)
 {
     triggerDown() = clearTriggerBind(triggerDown(), index);
 }
-void clearBindTriggerNextPack(int index)
+void clearBindTriggerNextPack(const int index)
 {
     triggerNextPack() = clearTriggerBind(triggerNextPack(), index);
 }
-void clearBindTriggerPreviousPack(int index)
+void clearBindTriggerPreviousPack(const int index)
 {
     triggerPreviousPack() = clearTriggerBind(triggerPreviousPack(), index);
 }
@@ -1350,16 +1340,16 @@ void setTriggerPreviousPack(Trigger& trig)
 
 [[nodiscard]] int checkJoystickButtons(int button, std::vector<int>& buttonList)
 {
-    // values lower than 0 make the game crash, 33 == unbound
+    // values lower than 0 make the game crash, 33 == unbound.
     button = std::clamp(button, 0, 33);
     if(button == 33)
     {
         return button;
     }
 
-    // if button is already used assign button 33
-    // 33 is out of the supported buttons range so it can never be triggered
-    bool alreadyBound = false;
+    // if button is already used assign button 33.
+    // 33 is out of the supported buttons range so it can never be triggered.
+    bool alreadyBound{false};
     for(auto& b : buttonList)
     {
         if(b != 33 && button == b)
@@ -1394,21 +1384,24 @@ void joystickBindsSanityCheck()
 //**********************************************
 // Get binds names
 
-using buttonGetter = unsigned int (*)();
-const buttonGetter joystickGetterFuncs[] = {getJoystickSelect, getJoystickExit,
-    getJoystickFocus, getJoystickSwap, getJoystickForceRestart,
-    getJoystickRestart, getJoystickReplay, getJoystickScreenshot,
-    getJoystickNextPack, getJoystickPreviousPack};
+const std::array<JoystickTriggerGetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerGetters{{
+    getJoystickSelect, getJoystickExit, getJoystickFocus,
+    getJoystickSwap, getJoystickForceRestart, getJoystickRestart,
+    getJoystickReplay, getJoystickScreenshot,
+    getJoystickNextPack, getJoystickPreviousPack
+}};
 
 const std::string getJoystickBindNames(const int bindID)
 {
-    static const std::string buttonsNames[12][2] = {{"A", "SQUARE"},
-        {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"}, {"LB", "L1"},
-        {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"}, {"LEFT STICK", "SELECT"},
-        {"RIGHT STICK", "START"}, {"LT", "LEFT STICK"}, {"RT", "RIGHT STICK"}};
+    static const std::array<std::array<std::string_view, 2>, 12> buttonsNames{{
+        {"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"},
+        {"LB", "L1"}, {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"},
+        {"LEFT STICK", "SELECT"}, {"RIGHT STICK", "START"}, {"LT", "LEFT STICK"},
+        {"RT", "RIGHT STICK"}
+    }};
 
     std::string bindName;
-    const unsigned int value = joystickGetterFuncs[bindID]();
+    const unsigned int value{joystickTriggerGetters[bindID]()};
 
     if(value == 33)
     {
@@ -1416,13 +1409,12 @@ const std::string getJoystickBindNames(const int bindID)
     }
     else
     {
-        constexpr unsigned int msVendorId = 0x045E;
-        constexpr unsigned int sonyVendorId = 0x54C;
-
-        const unsigned int vendorId =
+        constexpr unsigned int msVendorId{0x045E};
+        constexpr unsigned int sonyVendorId{0x54C};
+        const unsigned int vendorId{
             sf::Joystick::isConnected(0)
                 ? sf::Joystick::getIdentification(0).vendorId
-                : 0;
+            : 0};
 
         switch(vendorId)
         {
@@ -1432,7 +1424,9 @@ const std::string getJoystickBindNames(const int bindID)
             case sonyVendorId:
                 bindName = value >= 12 ? "" : buttonsNames[value][1];
                 break;
-            default: bindName = ssvu::toStr(value); break;
+            default:
+                bindName = ssvu::toStr(value);
+                break;
         }
     }
 
@@ -1487,20 +1481,20 @@ unsigned int getJoystickPreviousPack()
 //**********************************************
 // Reassign bind
 
-using buttonsetter = void (*)(unsigned int button);
-const buttonsetter joystickSetterFuncs[] = {setJoystickSelect, setJoystickExit,
-    setJoystickFocus, setJoystickSwap, setJoystickForceRestart,
-    setJoystickRestart, setJoystickReplay, setJoystickScreenshot,
-    setJoystickNextPack, setJoystickPreviousPack};
+using JoystickTriggerSetter = void (*)(const unsigned int button);
+const std::array<JoystickTriggerSetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerSetters{{
+    setJoystickSelect, setJoystickExit, setJoystickFocus, setJoystickSwap,
+    setJoystickForceRestart, setJoystickRestart, setJoystickReplay,
+    setJoystickScreenshot, setJoystickNextPack, setJoystickPreviousPack
+}};
 
-[[nodiscard]] int checkButtonReassignment(unsigned int button)
+[[nodiscard]] int checkButtonReassignment(const unsigned int button)
 {
-    for(size_t i = 0;
-        i < sizeof(joystickSetterFuncs) / sizeof(joystickSetterFuncs[0]); ++i)
+    for(size_t i = 0; i < joystickTriggerSetters.size(); ++i)
     {
-        if(joystickGetterFuncs[i]() == button)
+        if(joystickTriggerGetters[i]() == button)
         {
-            joystickSetterFuncs[i](33);
+            joystickTriggerSetters[i](33);
             return i;
         }
     }
@@ -1508,63 +1502,63 @@ const buttonsetter joystickSetterFuncs[] = {setJoystickSelect, setJoystickExit,
     return -1;
 }
 
-int reassignToJoystickSelect(unsigned int button)
+int reassignToJoystickSelect(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickSelect() = button;
     return unboundID;
 }
-int reassignToJoystickExit(unsigned int button)
+int reassignToJoystickExit(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickExit() = button;
     return unboundID;
 }
-int reassignToJoystickFocus(unsigned int button)
+int reassignToJoystickFocus(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickFocus() = button;
     return unboundID;
 }
-int reassignToJoystickSwap(unsigned int button)
+int reassignToJoystickSwap(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickSwap() = button;
     return unboundID;
 }
-int reassignToJoystickForceRestart(unsigned int button)
+int reassignToJoystickForceRestart(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickForceRestart() = button;
     return unboundID;
 }
-int reassignToJoystickRestart(unsigned int button)
+int reassignToJoystickRestart(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickRestart() = button;
     return unboundID;
 }
-int reassignToJoystickReplay(unsigned int button)
+int reassignToJoystickReplay(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickReplay() = button;
     return unboundID;
 }
-int reassignToJoystickScreenshot(unsigned int button)
+int reassignToJoystickScreenshot(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickScreenshot() = button;
     return unboundID;
 }
-int reassignToJoystickNextPack(unsigned int button)
+int reassignToJoystickNextPack(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickNextPack() = button;
     return unboundID;
 }
-int reassignToJoystickPreviousPack(unsigned int button)
+int reassignToJoystickPreviousPack(const unsigned int button)
 {
-    const int unboundID = checkButtonReassignment(button);
+    const int unboundID{checkButtonReassignment(button)};
     joystickPreviousPack() = button;
     return unboundID;
 }
@@ -1573,43 +1567,43 @@ int reassignToJoystickPreviousPack(unsigned int button)
 //**********************************************
 // Set bind
 
-void setJoystickSelect(unsigned int button)
+void setJoystickSelect(const unsigned int button)
 {
     joystickSelect() = button;
 }
-void setJoystickExit(unsigned int button)
+void setJoystickExit(const unsigned int button)
 {
     joystickExit() = button;
 }
-void setJoystickFocus(unsigned int button)
+void setJoystickFocus(const unsigned int button)
 {
     joystickFocus() = button;
 }
-void setJoystickSwap(unsigned int button)
+void setJoystickSwap(const unsigned int button)
 {
     joystickSwap() = button;
 }
-void setJoystickForceRestart(unsigned int button)
+void setJoystickForceRestart(const unsigned int button)
 {
     joystickForceRestart() = button;
 }
-void setJoystickRestart(unsigned int button)
+void setJoystickRestart(const unsigned int button)
 {
     joystickRestart() = button;
 }
-void setJoystickReplay(unsigned int button)
+void setJoystickReplay(const unsigned int button)
 {
     joystickReplay() = button;
 }
-void setJoystickScreenshot(unsigned int button)
+void setJoystickScreenshot(const unsigned int button)
 {
     joystickScreenshot() = button;
 }
-void setJoystickNextPack(unsigned int button)
+void setJoystickNextPack(const unsigned int button)
 {
     joystickNextPack() = button;
 }
-void setJoystickPreviousPack(unsigned int button)
+void setJoystickPreviousPack(const unsigned int button)
 {
     joystickPreviousPack() = button;
 }

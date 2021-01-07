@@ -41,8 +41,8 @@ namespace hg
 //
 //*****************************************************
 
-inline constexpr float maxOffset = 100.f;
-inline constexpr std::string_view favoritePath = "Assets/favoriteLevels.json";
+inline constexpr float maxOffset{100.f};
+inline constexpr std::string_view favoritePath{"Assets/favoriteLevels.json"};
 
 MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
@@ -352,12 +352,12 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIndex(randomLevel);
 
     // Setup for the loading menu
-    static constexpr std::array<std::array<std::string_view, 2>, 4> tips{
-        {{"HOLDING SHIFT WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
-            {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
-            {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
-            {"IF A LEVEL IS TOO CHALLENGING",
-                "PRACTICE IT AT A LOWER DIFFICULTY"}}};
+    static const std::array<std::array<std::string_view, 2>, 4> tips{{
+        {"HOLDING SHIFT WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
+        {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
+        {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
+        {"IF A LEVEL IS TOO CHALLENGING", "PRACTICE IT AT A LOWER DIFFICULTY"}
+    }};
     randomTip = tips[ssvu::getRndI(0, tips.size())];
 
     // Set size of the level offsets vector to the minimum required
@@ -401,10 +401,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         assets.setLevelFavoriteFlag(*it++, true);
     }
     // Sort levels based on the name.
-    std::sort(favSlct.levelDataIds.begin(), favSlct.levelDataIds.end(),
-        [this](const std::string& a, const std::string& b) -> bool {
-            return assets.getLevelData(a).name < assets.getLevelData(b).name;
-        });
+    sortFavoriteLevels();
     // Set size of the level offsets vector to the required amount.
     favSlct.lvlOffsets.resize(static_cast<int>(favSlct.levelDataIds.size()));
 }
@@ -457,6 +454,11 @@ void MenuGame::changeStateTo(const States mState)
     {
         // Not a state transition.
         return;
+    }
+
+    if(state == States::LevelSelection)
+    {
+        firstLevelSelection = false;
     }
 
     if(!showFirstTimeTips)
@@ -517,6 +519,7 @@ void MenuGame::initInput()
 {
     using k = KKey;
     using t = Type;
+    using Tid = Config::Tid;
 
     game.addInput(
         Config::getTriggerRotateCCW(),
@@ -858,6 +861,8 @@ void MenuGame::initMenus()
         hexagonGame.refreshTrigger(trig, bindID);
     };
 
+    using Tid = Config::Tid;
+
     keyboard.create<KeyboardBindControl>("rotate ccw",
         &Config::getTriggerRotateCCW, &Config::addBindTriggerRotateCCW,
         &Config::clearBindTriggerRotateCCW, callBack, Tid::RotateCCW);
@@ -1112,15 +1117,14 @@ void MenuGame::initMenus()
     auto& main{mainMenu.createCategory("main")};
     auto& localProfiles{mainMenu.createCategory("local profiles")};
     main.create<i::Single>("LEVEL SELECT", [this] {
-        changeStateTo(States::LevelSelection);
         if(firstLevelSelection)
         {
             lvlDrawer->packIdx = diffMultIdx = 0;
             lvlDrawer->levelDataIds =
                 assets.getLevelIdsByPack(assets.getPackInfos().at(0).id);
             setIndex(0);
-            firstLevelSelection = false;
         }
+        changeStateTo(States::LevelSelection);
         assets.playSound("select.ogg");
     });
     main.create<i::Goto>("LOCAL PROFILES", localProfiles) | whenLocal;
@@ -1233,10 +1237,10 @@ bool MenuGame::loadCommandLineLevel(
 
     // Go to level selection
     resetNamesScrolls();
-    firstLevelSelection = false;
     changeStateTo(States::LevelSelection);
 
     // Start game
+    menuQuads.clear();
     window.setGameState(hexagonGame.getGame());
     hexagonGame.newGame(packID,
         lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex), true,
@@ -1359,7 +1363,7 @@ void MenuGame::rightAction()
     touchDelay = 50.f;
 }
 
-inline constexpr int maxProfilesOnScreen = 6;
+inline constexpr int maxProfilesOnScreen{6};
 
 void MenuGame::upAction()
 {
@@ -1435,7 +1439,7 @@ void MenuGame::upAction()
     touchDelay = 50.f;
 }
 
-inline constexpr int maxErrorsOnScreen = 7;
+inline constexpr int maxErrorsOnScreen{7};
 
 void MenuGame::downAction()
 {
@@ -1547,7 +1551,7 @@ void MenuGame::changePackQuick(const int direction)
     // that to show the labels before the current one.
     if(scroll < 0.f)
     {
-        lvlDrawer->YOffset = std::min(lvlDrawer->YOffset - scroll, 0.f);
+        lvlDrawer->YOffset -= scroll;
         return;
     }
 
@@ -1696,6 +1700,7 @@ void MenuGame::okAction()
         case States::LevelSelection:
             resetNamesScrolls();
 
+            menuQuads.clear();
             window.setGameState(hexagonGame.getGame());
             hexagonGame.newGame(assets.getPackInfos().at(lvlDrawer->packIdx).id,
                 lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex), true,
@@ -1891,6 +1896,16 @@ void MenuGame::update(ssvu::FT mFT)
     {
         focusHeld = hg::Joystick::focusPressed();
     }
+
+    // When the focus key is released scroll the list to show
+    // as much of the pack as possibile like it happens with a
+    // regular pack change.
+    if(wasFocusHeld && !focusHeld)
+    {
+        calcPackChangeScrollSpeed();
+        packChangeState = PackChange::Stretching;
+    }
+    wasFocusHeld = focusHeld;
 
     if(hg::Joystick::leftRisingEdge())
     {
@@ -2096,16 +2111,12 @@ void MenuGame::update(ssvu::FT mFT)
                 }
             }
 
-            // If the list is higher than the screen make sure
-            // there is no empty space between the bottom of
-            // the list and the bottom of the window.
-            const float temp{h - levelSelectionTotalHeight};
-            if(lvlDrawer->YOffset <= temp)
-            {
-                lvlDrawer->YOffset = temp;
-            }
+            // Make sure there isn't empty space above the first element
+            // of the level list and below the last element.
+            lvlDrawer->YOffset =
+                ssvu::getClamped(lvlDrawer->YOffset, h - levelSelectionTotalHeight, 0.f);
         }
-            return;
+        return;
 
         default: return;
     }
@@ -2502,33 +2513,17 @@ void MenuGame::refreshCamera()
 void MenuGame::refreshBinds()
 {
     // Keyboard-mouse
-    Trigger triggers[] = {Config::getTriggerRotateCCW(),
-        Config::getTriggerRotateCW(), Config::getTriggerFocus(),
-        Config::getTriggerSelect(), Config::getTriggerExit(),
-        Config::getTriggerForceRestart(), Config::getTriggerRestart(),
-        Config::getTriggerReplay(), Config::getTriggerScreenshot(),
-        Config::getTriggerSwap(), Config::getTriggerUp(),
-        Config::getTriggerDown(), Config::getTriggerNextPack(),
-        Config::getTriggerPreviousPack()};
-
     std::size_t i;
-    for(i = 0; i < sizeof(triggers) / sizeof(triggers[0]); ++i)
+    for(i = 0; i < Config::keyboardTriggerGetters.size(); ++i)
     {
-        game.refreshTrigger(triggers[i], i);
-        hexagonGame.refreshTrigger(triggers[i], i);
+        game.refreshTrigger(Config::keyboardTriggerGetters[i](), i);
+        hexagonGame.refreshTrigger(Config::keyboardTriggerGetters[i](), i);
     }
 
     // Joystick
-    unsigned int buttons[] = {Config::getJoystickSelect(),
-        Config::getJoystickExit(), Config::getJoystickFocus(),
-        Config::getJoystickSwap(), Config::getJoystickForceRestart(),
-        Config::getJoystickRestart(), Config::getJoystickReplay(),
-        Config::getJoystickScreenshot(), Config::getJoystickNextPack(),
-        Config::getJoystickPreviousPack()};
-
-    for(i = 0; i < sizeof(buttons) / sizeof(buttons[0]); ++i)
+    for(i = 0; i < Config::joystickTriggerGetters.size(); ++i)
     {
-        hg::Joystick::setJoystickBind(buttons[i], i);
+        hg::Joystick::setJoystickBind(Config::joystickTriggerGetters[i](), i);
     }
 }
 
@@ -2587,8 +2582,8 @@ void MenuGame::adjustLevelsOffset()
     favSlct.lvlOffsets[favSlct.currentIndex] = maxOffset;
 }
 
-inline constexpr float offsetSpeed = 4.f;
-inline constexpr float offsetSnap = 0.25f;
+inline constexpr float offsetSpeed{4.f};
+inline constexpr float offsetSnap{0.25f};
 
 float MenuGame::getFPSMult() const
 {
@@ -2887,9 +2882,9 @@ std::string MenuGame::formatSurvivalTime(ProfileData* data)
     return stream.str();
 }
 
-inline constexpr float profFrameSize = 10.f;
-inline constexpr unsigned int profCharSize = 35;
-inline constexpr unsigned int profSelectedCharSize = 35 + 12;
+inline constexpr float profFrameSize{10.f};
+inline constexpr unsigned int profCharSize{35};
+inline constexpr unsigned int profSelectedCharSize{35 + 12};
 
 void MenuGame::drawProfileSelection(
     const float xOffset, const bool revertOffset)
@@ -2912,7 +2907,7 @@ void MenuGame::drawProfileSelection(
             getFontHeight(txtProfile.font, profSelectedCharSize)};
 
     // check if the width of the menu should be increased
-    constexpr float profMinWidth = 400.f;
+    constexpr float profMinWidth{400.f};
     float textWidth{profMinWidth};
     std::string itemName;
     for(auto& p : items)
@@ -2924,14 +2919,14 @@ void MenuGame::drawProfileSelection(
     }
 
     // Calculate horizontal coordinates
-    constexpr float profMinHeight = 360.f;
+    constexpr float profMinHeight{360.f};
     const float interline{4.f * fontHeight}, doubleBorder{profFrameSize * 2.f},
         totalHeight{std::max(
             interline * (drawnSize - 1) + doubleBorder * 2.f + fontHeight * 3.f,
             profMinHeight)};
 
     // always account for the scrollbar space
-    constexpr float scrollbarInterspace = 3.f;
+    constexpr float scrollbarInterspace{3.f};
     textWidth += doubleBorder + scrollbarInterspace * 2.f;
 
     // Make sure the box does not go out of bounds
@@ -3113,7 +3108,7 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
     // Set text parameters
     uppercasify(enteredStr);
     txtEnteringText.font.setString(enteredStr);
-    constexpr float enteringTextMinWidth = 200.f;
+    constexpr float enteringTextMinWidth{200.f};
     const float textWidth{
         std::max(enteringTextMinWidth, getGlobalWidth(txtEnteringText.font))};
 
@@ -3322,13 +3317,10 @@ void MenuGame::updateLevelSelectionDrawingParameters()
         txtSelectionMedium.height + 2.f * textToQuadBorder + slctFrameSize;
     levelLabelHeight = txtSelectionBig.height +           // level name
                        txtSelectionSmall.height * 1.75f + // author + interspace
-                       2.f * textToQuadBorder -
-                       slctFrameSize; // top and bottom spaces
+                       2.f * textToQuadBorder -           // top and bottom spaces
+                       slctFrameSize;
 }
-float MenuGame::getLevelListHeight() const
-{
-    return levelLabelHeight * lvlDrawer->levelDataIds.size() + slctFrameSize;
-}
+
 float MenuGame::getLevelSelectionHeight() const
 {
     return packLabelHeight * getPackInfosSize() +
@@ -3401,26 +3393,6 @@ void MenuGame::scrollNameRightBorder(
     }
 }
 
-void MenuGame::resetNamesScrolls()
-{
-    for(int i = 0; i < static_cast<int>(Label::ScrollsSize); ++i)
-    {
-        namesScroll[i] = 0;
-    }
-}
-void MenuGame::resetLevelNamesScrolls()
-{
-    // Reset all scrolls except the ones relative to the pack.
-    namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
-    for(int i = static_cast<int>(Label::MusicName);
-        i < static_cast<int>(Label::ScrollsSize); ++i)
-    {
-        namesScroll[i] = 0.f;
-    }
-}
-
-inline constexpr float baseScrollSpeed = 45.f;
-
 void MenuGame::calcLevelChangeScroll(const int dir)
 {
     scrollSpeed = baseScrollSpeed;
@@ -3432,8 +3404,8 @@ void MenuGame::calcLevelChangeScroll(const int dir)
         // level label and the next pack label or two previous pack labels.
         if(lvlDrawer->currentIndex < 2)
         {
-            scroll = packLabelHeight * (lvlDrawer->packIdx + 1 -
-                                           (2 - lvlDrawer->currentIndex)) +
+            scroll = packLabelHeight *
+                     (lvlDrawer->packIdx + 1 - (2 - lvlDrawer->currentIndex)) +
                      lvlDrawer->YOffset;
         }
         else
@@ -3446,21 +3418,19 @@ void MenuGame::calcLevelChangeScroll(const int dir)
 
         if(scroll < 0.f)
         {
-            // std::min prevents scrolling above the top of the list if we are
-            // in the first pack.
-            lvlDrawer->YScrollTo = std::min(lvlDrawer->YOffset - scroll, 0.f);
+            lvlDrawer->YScrollTo = lvlDrawer->YOffset - scroll;
         }
         return;
     }
 
-    const int size = lvlDrawer->levelDataIds.size();
+    const int size{static_cast<int>(lvlDrawer->levelDataIds.size())};
     // If we are approaching the bottom of the pack show either the
     // last level label and the next pack label or two next pack labels...
     if(lvlDrawer->currentIndex >= size - 2)
     {
-        scroll =
-            packLabelHeight * (lvlDrawer->packIdx + 1 +
-                                  (2 - (size - 1 - lvlDrawer->currentIndex))) +
+        scroll = packLabelHeight *
+            (lvlDrawer->packIdx + 1 +
+                (2 - (size - 1 - lvlDrawer->currentIndex))) +
             levelLabelHeight * size + 3.f * slctFrameSize + lvlDrawer->YOffset;
     }
     else
@@ -3495,9 +3465,7 @@ void MenuGame::calcPackChangeScroll()
         // If that is not possible just include the pack label
         // + whatever amount of levels it's possible to fit on screen.
         const float levelsListHeight{
-            std::min(packLabelHeight + 2.f * slctFrameSize +
-                         levelLabelHeight * lvlDrawer->levelDataIds.size(),
-                h) -
+            std::min((packLabelHeight + slctFrameSize) + getLevelListHeight(), h) -
             levelLabelHeight};
         scrollTop = packLabelHeight * lvlDrawer->packIdx + lvlDrawer->YOffset +
                     levelsListHeight;
@@ -3513,19 +3481,8 @@ void MenuGame::calcPackChangeScroll()
         lvlDrawer->YScrollTo = lvlDrawer->YOffset - scrollTop;
     }
 }
-void MenuGame::calcPackChangeScrollSpeed()
-{
-    // Only speed up the animation if there are more than 12 levels.
-    scrollSpeed =
-        baseScrollSpeed * std::max(lvlDrawer->levelDataIds.size() / 12.f, 1.f);
-}
 
-float MenuGame::getMaximumTextWidth() const
-{
-    return w * 0.33f - 2.f * textToQuadBorder;
-}
-
-inline constexpr int descLines = 7;
+inline constexpr int descLines{7};
 
 void MenuGame::formatLevelDescription()
 {
@@ -3657,13 +3614,7 @@ void MenuGame::changeLevelFavoriteFlag()
         favSlct.levelDataIds.emplace_back(levelID);
         favSlct.lvlOffsets.emplace_back(0.f);
         assets.setLevelFavoriteFlag(levelID, true);
-
-        // Sort in alphabetical order.
-        std::sort(favSlct.levelDataIds.begin(), favSlct.levelDataIds.end(),
-            [this](const std::string& a, const std::string& b) -> bool {
-                return assets.getLevelData(a).name <
-                       assets.getLevelData(b).name;
-            });
+        sortFavoriteLevels();
     }
 
     assets.playSound("select.ogg");
@@ -3966,7 +3917,7 @@ void MenuGame::drawLevelSelectionRightSide(
 void MenuGame::drawLevelSelectionLeftSide(
     LevelDrawer& drawer, const bool revertOffset)
 {
-    constexpr float lineThickness = 2.f;
+    constexpr float lineThickness{2.f};
     const PackData& curPack{
         assets.getPackData(assets.getPackInfos()[drawer.packIdx].id)};
     const LevelData& levelData{
