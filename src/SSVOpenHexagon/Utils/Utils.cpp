@@ -18,6 +18,57 @@
 namespace hg::Utils
 {
 
+bool getLinesIntersection(sf::Vector2f& mIntersection,
+    const sf::Vector2f& l1p1, const sf::Vector2f& l1p2,
+    const sf::Vector2f& l2p1, const sf::Vector2f& l2p2)
+{
+    constexpr float epsilon{1.0e-4};
+
+    // Take care of the special cases where the intersection is against a y = n line.
+    const unsigned int isVerticalOne{std::abs(l1p1.x - l1p2.x) < epsilon ? 1u : 0u};
+    const unsigned int isVerticalTwo{std::abs(l2p1.x - l2p2.x) < epsilon ? 2u : 0u};
+
+    switch(isVerticalOne + isVerticalTwo)
+    {
+        case 1u:
+            mIntersection.x = l1p1.x;
+            mIntersection.y =
+                (l2p2.y - l2p1.y) / (l2p2.x - l2p1.x) *
+                    (mIntersection.x - l2p1.x) + l2p1.y;
+            return true;
+
+        case 2u:
+            mIntersection.x = l2p1.x;
+            mIntersection.y =
+                (l1p2.y - l1p1.y) / (l1p2.x - l1p1.x) *
+                    (mIntersection.x - l1p2.x) + l1p2.y;
+            return true;
+
+        case 3u:
+            // the lines are parallel, there can be no intersection.
+            return false;
+
+        default:
+            break;
+    }
+
+    const float mOne{(l1p2.y - l1p1.y) / (l1p2.x - l1p1.x)};
+    const float mTwo{(l2p2.y - l2p1.y) / (l2p2.x - l2p1.x)};
+
+    // the lines are parallel, there can be no intersection.
+    if(std::abs(mOne - mTwo) < epsilon)
+    {
+        return false;
+    }
+
+    const float qOne{l1p2.y - mOne * l1p2.x};
+    const float qTwo{l2p2.y - mTwo * l2p2.x};
+
+    mIntersection.x = (qTwo - qOne) / (mOne - mTwo);
+    mIntersection.y = mOne * mIntersection.x + qOne;
+    return true;
+}
+
 sf::Color getColorDarkened(sf::Color mColor, float mMultiplier)
 {
     mColor.r /= mMultiplier;

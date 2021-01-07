@@ -141,6 +141,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     // keyboard binds
     Config::keyboardBindsSanityCheck();
 
+    using Tid = Config::Tid;
+
     add2StateInput(
         game, Config::getTriggerRotateCCW(), inputImplCCW, Tid::RotateCCW);
     add2StateInput(
@@ -403,6 +405,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
     backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
 
+    // Set drawing mode
+    setDrawFunc();
+
     // LUA context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
 
@@ -432,6 +437,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     timeUntilRichPresenceUpdate = -1.f; // immediate update
 
     // Store the keys/buttons to be pressed to replay and restart after you die.
+    using Tid = Config::Tid;
     status.restartInput = Config::getKeyboardBindNames(Tid::Restart);
     status.replayInput = Config::getKeyboardBindNames(Tid::Replay);
 
@@ -672,6 +678,13 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     assets.stopSounds();
+    
+    wallQuads.clear();
+    playerTris.clear();
+    capQuads.clear();
+    capTris.clear();
+    wallQuads3D.clear();
+    playerTris3D.clear();
 
     if(!mError)
     {
@@ -848,6 +861,7 @@ void HexagonGame::setSides(unsigned int mSides)
     }
 
     levelStatus.sides = mSides;
+    player.setSides(levelStatus.sides + 1);
 }
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const
