@@ -1219,6 +1219,11 @@ bool MenuGame::loadCommandLineLevel(
     assets.pSetCurrent(enteredStr);
     changeStateTo(States::SMain);
 
+    // Go to level selection
+    resetNamesScrolls();
+    firstLevelSelection = false;
+    changeStateTo(States::LevelSelection);
+
     // Start game
     window.setGameState(hexagonGame.getGame());
     hexagonGame.newGame(packID,
