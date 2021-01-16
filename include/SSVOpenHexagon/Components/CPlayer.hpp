@@ -58,17 +58,17 @@ public:
 
     void kill(HexagonGame& mHexagonGame);
 
-    void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
-    void updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT);
-    void updatePosition(HexagonGame& mHexagonGame, ssvu::FT mFT);
+    void update(HexagonGame& mHexagonGame, const ssvu::FT mFT);
+    void updateInput(HexagonGame& mHexagonGame, const ssvu::FT mFT);
+    void updatePosition(const HexagonGame& mHexagonGame, const ssvu::FT mFT);
 
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 
-    [[nodiscard]] bool push(
-        HexagonGame& mHexagonGame, const hg::CWall& wall, ssvu::FT mFT);
+    [[nodiscard]] bool push(const HexagonGame& mHexagonGame,
+        const CWall& wall, const sf::Vector2f& mCenterPos, ssvu::FT mFT);
 
-    [[nodiscard]] bool push(
-        HexagonGame& mHexagonGame, const hg::CCustomWall& wall, ssvu::FT mFT);
+    [[nodiscard]] bool push(const HexagonGame& mHexagonGame,
+        const hg::CCustomWall& wall, ssvu::FT mFT);
 
     [[nodiscard]] bool getJustSwapped() const noexcept;
 };
