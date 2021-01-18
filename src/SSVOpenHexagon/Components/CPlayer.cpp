@@ -176,27 +176,31 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     }
 
     constexpr float padding{0.025f};
+    int movement{mHexagonGame.getInputMovement()};
 
     // First of all, if it's a rotating wall push player in the direction the
-    // wall is rotating by the appropriate amount.
+    // wall is rotating by the appropriate amount, but only if the direction
+    // of the rotation is different from the direction player is moving.
     const SpeedData& curveData{wall.getCurve()};
-    if(curveData.speed != 0.f)
+    const int speedSign{ssvu::getSign(curveData.speed)};
+    if(curveData.speed != 0.f && speedSign != movement)
     {
         // This is a copy paste of CWall::moveCurve()
         ssvs::rotateRadAround(pos, mCenterPos, curveData.speed / 60.f * mFT);
+
         // Calculate angle, add a little padding, and readjust the position.
-        angle = ssvs::getRad(pos) + ssvu::getSign(curveData.speed) * padding;
+        angle = ssvs::getRad(pos) + speedSign * padding;
         updatePosition(mHexagonGame, mFT);
     }
 
     // If player is not moving calculate now.
-    const int movement{- mHexagonGame.getInputMovement()};
     if(!movement)
     {
         return wall.isOverlapping(pos);
     }
 
     // Compensate for the player movement to make it slide along the side.
+    movement = - movement;
     const float currentSpeed{mHexagonGame.getPlayerSpeedMult() *
         (mHexagonGame.getInputFocused() ? focusSpeed : speed)};
     lastAngle = angle + ssvu::toRad(currentSpeed * movement * mFT) + movement * padding;
