@@ -20,7 +20,6 @@ class CWall
 {
 private:
     std::array<sf::Vector2f, 4> vertexPositions;
-    std::array<bool, 4> vertexOnCenter;
 
     SpeedData speed;
     SpeedData curve;
