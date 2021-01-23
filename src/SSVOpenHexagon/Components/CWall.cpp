@@ -61,17 +61,19 @@ void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
 
     float xDistance, yDistance;
     int pointsOutOfBounds{0}, pointsOnCenter{0};
-    for(VertexStatus& vs : vertexStatuses)
+
+    for(std::size_t i = 0; i < 4; ++i)
     {
-        if(vs.onCenter)
+        if(vertexOnCenter[i])
         {
             ++pointsOnCenter;
             continue;
         }
 
-        ssvs::moveTowards(vs.vertex, mCenterPos, speed.speed * 5.f * mFT);
-        xDistance = std::abs(vs.vertex.x - mCenterPos.x);
-        yDistance = std::abs(vs.vertex.y - mCenterPos.y);
+        sf::Vector2f& vertex = vertexPositions[i];
+        ssvs::moveTowards(vertex, mCenterPos, speed.speed * 5.f * mFT);
+        xDistance = std::abs(vertex.x - mCenterPos.x);
+        yDistance = std::abs(vertex.y - mCenterPos.y);
 
         if(xDistance > outerBounds || yDistance > outerBounds)
         {
@@ -79,7 +81,7 @@ void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
         }
         else if(xDistance < radius && yDistance < radius)
         {
-            vs.onCenter = true;
+            vertexOnCenter[i] = true;
             ++pointsOnCenter;
         }
     }
