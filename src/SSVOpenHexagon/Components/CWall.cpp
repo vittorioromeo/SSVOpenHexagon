@@ -70,8 +70,8 @@ void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
         }
 
         ssvs::moveTowards(vs.vertex, mCenterPos, speed.speed * 5.f * mFT);
-        xDistance = std::abs(vs.vertex .x - mCenterPos.x);
-        yDistance = std::abs(vs.vertex .y - mCenterPos.y);
+        xDistance = std::abs(vs.vertex.x - mCenterPos.x);
+        yDistance = std::abs(vs.vertex.y - mCenterPos.y);
 
         if(xDistance > outerBounds || yDistance > outerBounds)
         {
