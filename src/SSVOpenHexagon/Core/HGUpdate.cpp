@@ -186,11 +186,11 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     cwManager.forCustomWalls([&](const CCustomWall& customWall) {
         // After *only* the player has moved, push in case of overlap.
         if(!customWall.getCanCollide() ||
-           !customWall.isOverlapping(player.getPosition())) 
+            !customWall.isOverlapping(player.getPosition()))
         {
             return;
         }
-        
+
         if(player.getJustSwapped())
         {
             player.kill(*this);
@@ -204,7 +204,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 
     // First round of collision check, player gets a chance to
     // escape if certain conditions are met.
-    const auto updateWall = [this] (CWall& wall, const ssvu::FT mFT) {
+    const auto updateWall = [this](CWall& wall, const ssvu::FT mFT) {
         wall.update(*this, mFT);
         wall.moveTowardsCenter(*this, centerPos, mFT);
         if(wall.getCurve().speed != 0.f)

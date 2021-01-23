@@ -36,10 +36,8 @@ private:
         {
         }
     };
-    std::array<VertexStatus, 4> vertexStatuses{{
-        {vertexPositions[0]}, {vertexPositions[1]},
-        {vertexPositions[2]}, {vertexPositions[3]}
-    }};
+    std::array<VertexStatus, 4> vertexStatuses{{{vertexPositions[0]},
+        {vertexPositions[1]}, {vertexPositions[2]}, {vertexPositions[3]}}};
 
 public:
     CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, int mSide,
@@ -60,7 +58,7 @@ public:
         }
     }
 
-    CWall& operator = (const CWall&& other)
+    CWall& operator=(const CWall&& other)
     {
         vertexPositions = other.vertexPositions;
         speed = other.speed;
@@ -81,15 +79,15 @@ public:
     void moveTowardsCenter(HexagonGame& mHexagonGame,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
 
-    void moveCurve(const HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
-        const ssvu::FT mFT);
+    void moveCurve(const HexagonGame& mHexagonGame,
+        const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
 
     void draw(HexagonGame& mHexagonGame);
 
     void setHueMod(float mHueMod) noexcept;
 
-    [[gnu::always_inline, nodiscard]]
-    const std::array<sf::Vector2f, 4>& getVertexes() const noexcept
+    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    getVertexes() const noexcept
     {
         return vertexPositions;
     }
@@ -104,8 +102,8 @@ public:
         return curve;
     }
 
-    [[gnu::always_inline, nodiscard]]
-    bool isOverlapping(const sf::Vector2f& mPoint) const noexcept
+    [[gnu::always_inline, nodiscard]] bool isOverlapping(
+        const sf::Vector2f& mPoint) const noexcept
     {
         return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
     }

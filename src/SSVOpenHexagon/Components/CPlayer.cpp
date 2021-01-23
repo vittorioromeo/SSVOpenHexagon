@@ -200,10 +200,12 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     }
 
     // Compensate for the player movement to make it slide along the side.
-    movement = - movement;
-    const float currentSpeed{mHexagonGame.getPlayerSpeedMult() *
+    movement = -movement;
+    const float currentSpeed{
+        mHexagonGame.getPlayerSpeedMult() *
         (mHexagonGame.getInputFocused() ? focusSpeed : speed)};
-    lastAngle = angle + ssvu::toRad(currentSpeed * movement * mFT) + movement * padding;
+    lastAngle =
+        angle + ssvu::toRad(currentSpeed * movement * mFT) + movement * padding;
     lastPos = ssvs::getOrbitRad(startPos, lastAngle, mHexagonGame.getRadius());
 
     // If there is overlap even after compensation kill without updating
@@ -213,13 +215,16 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
         return true;
     }
 
-    // If still alive position player right against the wall to give the illusion
-    // it is sliding along it. Since this is a standard wall we can assume the required
-    // angle is the angle of vertex 0 or 1 depending on which one is close to the player.
+    // If still alive position player right against the wall to give the
+    // illusion it is sliding along it. Since this is a standard wall we can
+    // assume the required angle is the angle of vertex 0 or 1 depending on
+    // which one is close to the player.
     const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexes()};
-    const float radZero{ssvs::getRad(wVertexes[0])}, radOne{ssvs::getRad(wVertexes[1])};
-    angle = ssvu::getDistRad(angle, radOne) > ssvu::getDistRad(angle, radZero) ?
-                radZero : radOne;
+    const float radZero{ssvs::getRad(wVertexes[0])},
+        radOne{ssvs::getRad(wVertexes[1])};
+    angle = ssvu::getDistRad(angle, radOne) > ssvu::getDistRad(angle, radZero)
+                ? radZero
+                : radOne;
     angle += movement * padding;
     updatePosition(mHexagonGame, mFT);
     return false;
@@ -312,7 +317,8 @@ void CPlayer::updateInput(HexagonGame& mHexagonGame, const ssvu::FT mFT)
     }
 }
 
-void CPlayer::updatePosition(const HexagonGame& mHexagonGame, const ssvu::FT mFT)
+void CPlayer::updatePosition(
+    const HexagonGame& mHexagonGame, const ssvu::FT mFT)
 {
     (void)mFT; // Currently unused.
 

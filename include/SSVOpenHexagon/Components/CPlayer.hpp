@@ -64,8 +64,8 @@ public:
 
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 
-    [[nodiscard]] bool push(const HexagonGame& mHexagonGame,
-        const CWall& wall, const sf::Vector2f& mCenterPos, ssvu::FT mFT);
+    [[nodiscard]] bool push(const HexagonGame& mHexagonGame, const CWall& wall,
+        const sf::Vector2f& mCenterPos, ssvu::FT mFT);
 
     [[nodiscard]] bool push(const HexagonGame& mHexagonGame,
         const hg::CCustomWall& wall, ssvu::FT mFT);
