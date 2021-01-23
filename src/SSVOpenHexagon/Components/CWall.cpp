@@ -56,34 +56,27 @@ void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
     const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
 {
     const float wallSpawnDist{mHexagonGame.getLevelStatus().wallSpawnDistance};
-    const float radius{mHexagonGame.getRadius() * 0.3f};
+    const float radius{mHexagonGame.getRadius() * 0.5f};
     const float outerBounds{wallSpawnDist * 1.1f};
 
     float xDistance, yDistance;
     int pointsOutOfBounds{0}, pointsOnCenter{0};
-
-    for(std::size_t i = 0; i < 4; ++i)
+    for(sf::Vector2f& vp : vertexPositions)
     {
-        if(vertexOnCenter[i])
+        xDistance = std::abs(vp.x - mCenterPos.x);
+        yDistance = std::abs(vp.y - mCenterPos.y);
+
+        if(xDistance < radius && yDistance < radius)
         {
             ++pointsOnCenter;
             continue;
         }
 
-        sf::Vector2f& vertex = vertexPositions[i];
-        ssvs::moveTowards(vertex, mCenterPos, speed.speed * 5.f * mFT);
-        xDistance = std::abs(vertex.x - mCenterPos.x);
-        yDistance = std::abs(vertex.y - mCenterPos.y);
-
         if(xDistance > outerBounds || yDistance > outerBounds)
         {
             ++pointsOutOfBounds;
         }
-        else if(xDistance < radius && yDistance < radius)
-        {
-            vertexOnCenter[i] = true;
-            ++pointsOnCenter;
-        }
+        ssvs::moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
     }
 
     if(pointsOnCenter == 4 || pointsOutOfBounds == 4)
