@@ -657,10 +657,8 @@ void MenuGame::initLua()
     lua.writeVariable("s_setHueIncrement",
         [this](float mValue) { styleData.hueIncrement = mValue; });
 
-    lua.writeVariable(
-        "l_getPulseMin", [this] { return levelStatus.pulseMin; });
-    lua.writeVariable(
-        "l_getPulseMax", [this] { return levelStatus.pulseMax; });
+    lua.writeVariable("l_getPulseMin", [this] { return levelStatus.pulseMin; });
+    lua.writeVariable("l_getPulseMax", [this] { return levelStatus.pulseMax; });
     lua.writeVariable(
         "l_getPulseSpeed", [this] { return levelStatus.pulseSpeed; });
     lua.writeVariable(
@@ -678,8 +676,7 @@ void MenuGame::initLua()
     lua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
 
-    lua.writeVariable(
-        "s_getHueInc", [this] { return styleData.hueIncrement; });
+    lua.writeVariable("s_getHueInc", [this] { return styleData.hueIncrement; });
 
     lua.writeVariable(
         "s_getHueIncrement", [this] { return styleData.hueIncrement; });
@@ -3915,7 +3912,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     const float sidepanelIndent{w * 0.33f}, quadsIndent{w - sidepanelIndent},
         leftSideOffset{
-        calcMenuOffset(levelDetailsOffset, w - quadsIndent, revertOffset)},
+            calcMenuOffset(levelDetailsOffset, w - quadsIndent, revertOffset)},
         smallInterline{txtSelectionSmall.height * 1.5f},
         smallLeftInterline{txtSelectionLSmall.height * 1.5f},
         postTitleSpace{txtSelectionMedium.height +
@@ -3984,9 +3981,10 @@ void MenuGame::drawLevelSelectionLeftSide(
     renderText("DIFFICULTY: ", txtSelectionMedium.font,
         {textXPos, height - txtSelectionMedium.height}, menuQuadColor);
 
-    tempString = diffMults.size() > 1 ?
-                 "< " + toStr(ssvu::getByModIdx(diffMults, diffMultIdx)) + " >"
-                 : "NONE";
+    tempString =
+        diffMults.size() > 1
+            ? "< " + toStr(ssvu::getByModIdx(diffMults, diffMultIdx)) + " >"
+            : "NONE";
 
     const float difficultyBumpFactor =
         1.f + ((difficultyBumpEffect / difficultyBumpEffectMax) * 0.25f);
@@ -4108,7 +4106,8 @@ void MenuGame::drawLevelSelectionLeftSide(
     height += textToQuadBorder;
     renderTextCenteredOffset("LEADERBOARDS", txtSelectionBig.font,
         {sidepanelIndent / 2.f,
-            height - txtSelectionBig.height * fontTopBorder}, -leftSideOffset);
+            height - txtSelectionBig.height * fontTopBorder},
+        -leftSideOffset);
 
     // Line
     height += txtSelectionBig.height + textToQuadBorder;
@@ -4120,7 +4119,8 @@ void MenuGame::drawLevelSelectionLeftSide(
     height += txtSelectionMedium.height / 2.f;
     renderText("PERSONAL BEST", txtSelectionMedium.font,
         {textToQuadBorder - leftSideOffset,
-            height - txtSelectionMedium.height * fontTopBorder}, menuQuadColor);
+            height - txtSelectionMedium.height * fontTopBorder},
+        menuQuadColor);
 
     height += txtSelectionMedium.height + txtSelectionSmall.height;
     tempString = getLocalValidator(
