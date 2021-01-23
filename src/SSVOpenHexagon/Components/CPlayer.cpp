@@ -218,7 +218,7 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     // If still alive position player right against the wall to give the
     // illusion it is sliding along it. Since this is a standard wall we can
     // assume the required angle is the angle of vertex 0 or 1 depending on
-    // which one is close to the player.
+    // which one is closer to the player.
     const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexes()};
     const float radZero{ssvs::getRad(wVertexes[0])},
         radOne{ssvs::getRad(wVertexes[1])};

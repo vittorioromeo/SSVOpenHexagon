@@ -204,7 +204,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 
     // First round of collision check, player gets a chance to
     // escape if certain conditions are met.
-    const auto updateWall = [this](CWall& wall, const ssvu::FT mFT) {
+    const auto updateWall = [this](CWall& wall, const ssvu::FT& mFT) {
         wall.update(*this, mFT);
         wall.moveTowardsCenter(*this, centerPos, mFT);
         if(wall.getCurve().speed != 0.f)
@@ -219,7 +219,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     {
         updateWall(walls[i], mFT);
 
-        // If there is not collision skip to the next wall.
+        // If there is no collision skip to the next wall.
         if(!walls[i].isOverlapping(pPosition))
         {
             continue;
