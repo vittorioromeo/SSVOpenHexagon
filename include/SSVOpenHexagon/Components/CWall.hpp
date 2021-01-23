@@ -20,6 +20,7 @@ class CWall
 {
 private:
     std::array<sf::Vector2f, 4> vertexPositions;
+    std::array<bool, 4> vertexOnCenter;
 
     SpeedData speed;
     SpeedData curve;
@@ -27,52 +28,10 @@ private:
     float hueMod;
     bool killed;
 
-    struct VertexStatus
-    {
-        sf::Vector2f& vertex;
-        bool onCenter{false};
-
-        VertexStatus(sf::Vector2f& mVertex) : vertex{mVertex}
-        {
-        }
-    };
-    std::array<VertexStatus, 4> vertexStatuses{{{vertexPositions[0]},
-        {vertexPositions[1]}, {vertexPositions[2]}, {vertexPositions[3]}}};
-
 public:
     CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos, int mSide,
         float mThickness, float mDistance, const SpeedData& mSpeed,
         const SpeedData& mCurve);
-
-    CWall(const CWall& other)
-    {
-        vertexPositions = other.vertexPositions;
-        speed = other.speed;
-        curve = other.curve;
-        hueMod = other.hueMod;
-        killed = other.killed;
-        for(int i = 0; i < 4; ++i)
-        {
-            vertexStatuses[i].vertex = other.vertexStatuses[i].vertex;
-            vertexStatuses[i].onCenter = other.vertexStatuses[i].onCenter;
-        }
-    }
-
-    CWall& operator=(const CWall&& other)
-    {
-        vertexPositions = other.vertexPositions;
-        speed = other.speed;
-        curve = other.curve;
-        hueMod = other.hueMod;
-        killed = other.killed;
-        for(int i = 0; i < 4; ++i)
-        {
-            vertexStatuses[i].vertex = other.vertexStatuses[i].vertex;
-            vertexStatuses[i].onCenter = other.vertexStatuses[i].onCenter;
-        }
-
-        return *this;
-    }
 
     void update(const HexagonGame& mHexagonGame, const ssvu::FT mFT);
 
