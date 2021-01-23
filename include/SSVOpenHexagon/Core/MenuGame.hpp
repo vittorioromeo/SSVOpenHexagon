@@ -97,7 +97,8 @@ private:
 
     void initAssets();
     void initInput();
-    void initLua(Lua::LuaContext& mLua);
+    Lua::LuaContext lua;
+    void initLua();
     void initMenus();
     void playLocally();
     std::pair<const unsigned int, const unsigned int>
