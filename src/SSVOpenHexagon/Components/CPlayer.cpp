@@ -11,7 +11,6 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 #include <SSVStart/Utils/SFML.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Math.hpp>
@@ -185,8 +184,7 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     const int speedSign{ssvu::getSign(curveData.speed)};
     if(curveData.speed != 0.f && speedSign != movement)
     {
-        // This is a copy paste of CWall::moveCurve()
-        ssvs::rotateRadAround(pos, mCenterPos, curveData.speed / 60.f * mFT);
+        wall.moveVertexAlongCurve(pos, mCenterPos, mFT);
 
         // Calculate angle, add a little padding, and readjust the position.
         angle = ssvs::getRad(pos) + speedSign * padding;
@@ -209,7 +207,7 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     lastPos = ssvs::getOrbitRad(startPos, lastAngle, mHexagonGame.getRadius());
 
     // If there is overlap even after compensation kill without updating
-    // position, as there is not benefit in doing it.
+    // position, as there is no benefit in doing it.
     if(wall.isOverlapping(lastPos))
     {
         return true;
