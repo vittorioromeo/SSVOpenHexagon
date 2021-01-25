@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Components/SpeedData.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
+#include <SSVStart/Utils/Vector2.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <array>
@@ -36,6 +37,12 @@ public:
 
     void moveTowardsCenter(HexagonGame& mHexagonGame,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
+
+    void moveVertexAlongCurve(sf::Vector2f& mVertex,
+        const sf::Vector2f& mCenterPos, const ssvu::FT mFT) const
+    {
+        ssvs::rotateRadAround(mVertex, mCenterPos, curve.speed / 60.f * mFT);
+    }
 
     void moveCurve(const HexagonGame& mHexagonGame,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT);

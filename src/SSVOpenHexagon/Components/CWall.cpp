@@ -6,8 +6,6 @@
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
-#include <SSVStart/Utils/Vector2.hpp>
-
 namespace hg
 {
 
@@ -92,7 +90,7 @@ void CWall::moveCurve(const HexagonGame& mHexagonGame,
 
     for(sf::Vector2f& vp : vertexPositions)
     {
-        ssvs::rotateRadAround(vp, mCenterPos, curve.speed / 60.f * mFT);
+        moveVertexAlongCurve(vp, mCenterPos, mFT);
     }
 }
 
