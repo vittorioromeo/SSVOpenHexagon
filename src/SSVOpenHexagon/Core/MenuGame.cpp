@@ -1533,7 +1533,29 @@ void MenuGame::changePackQuick(const int direction)
     assets.playSound("beep.ogg");
     changePack();
     adjustLevelsOffset();
-    lvlDrawer->YOffset = -packLabelHeight * lvlDrawer->packIdx;
+
+    // YOffset is 0 when the first pack is shown and gets lower
+    // the further down we have to scroll.
+
+    // Height of the top of the pack label that is one index before the current one.
+    float scroll{packLabelHeight * (lvlDrawer->packIdx - 1) + lvlDrawer->YOffset};
+
+    // If the height is lower than the offset of the level selection we must change to
+    // that to show the labels before the current one.
+    if(scroll < 0.f)
+    {
+        lvlDrawer->YOffset = std::min(lvlDrawer->YOffset - scroll, 0.f);
+        return;
+    }
+
+    // Height of the bottom of the pack label that is one index after the current one.
+    scroll = packLabelHeight * (lvlDrawer->packIdx + 2) + levelLabelHeight + 3.f * slctFrameSize + lvlDrawer->YOffset;
+
+    // If the height is outside the boundaries of the screen adjust offset to show it.
+    if(scroll > h)
+    {
+        lvlDrawer->YOffset += h - scroll;
+    }
 }
 
 void MenuGame::changePackAction(const int direction)
@@ -2037,7 +2059,7 @@ void MenuGame::update(ssvu::FT mFT)
                     break;
             }
 
-            const float levelSelectionTotalHeight = getLevelSelectionHeight();
+            const float levelSelectionTotalHeight{getLevelSelectionHeight()};
 
             // If the height of the list is smaller than the window
             // height the offset of the list is always 0.
@@ -2074,7 +2096,7 @@ void MenuGame::update(ssvu::FT mFT)
             // If the list is higher than the screen make sure
             // there is no empty space between the bottom of
             // the list and the bottom of the window.
-            const float temp = h - levelSelectionTotalHeight;
+            const float temp{h - levelSelectionTotalHeight};
             if(lvlDrawer->YOffset <= temp)
             {
                 lvlDrawer->YOffset = temp;
@@ -3688,6 +3710,11 @@ void MenuGame::drawLevelSelectionRightSide(
     // Therefore pack labels must be drawn above everything else (aka must
     // be drawn last).
 
+    renderTextCentered(
+        isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS" :
+                             "PRESS F2 TO SHOW FAVORITE LEVELS",
+        txtSelectionSmall.font, {w / 2.f, 5.f});
+
     //----------------------------------------
     // LEVELS LIST
 
@@ -4107,7 +4134,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     menuQuads.clear();
 
     renderTextCenteredOffset(
-        levelData.favorite ? "UNFAVORITE" : "FAVORITE",
+        levelData.favorite ? "UNFAVORITE - F1" : "FAVORITE - F1",
         txtSelectionMedium.font, {sidepanelIndent / 2.f, height},
         -leftSideOffset, menuQuadColor);
 
