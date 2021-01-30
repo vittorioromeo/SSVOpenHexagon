@@ -26,7 +26,7 @@ public:
         const std::string& mName, const int mID);
 
     [[nodiscard]] virtual bool erase();
-    [[nodiscard]] virtual bool isWaitingForBind();
+    [[nodiscard]] virtual bool isWaitingForBind() const;
 };
 
 class KeyboardBindControl final : public BindControlBase
@@ -86,7 +86,7 @@ public:
 
     void exec() override;
 
-    [[nodiscard]] bool isWaitingForBind() override;
+    [[nodiscard]] bool isWaitingForBind() const override;
     [[nodiscard]] bool erase() override;
 
     bool newKeyboardBind(const ssvs::KKey key);
@@ -118,7 +118,7 @@ public:
 
     void exec() override;
 
-    [[nodiscard]] bool isWaitingForBind() override;
+    [[nodiscard]] bool isWaitingForBind() const override;
     [[nodiscard]] bool erase() override;
 
     void newJoystickBind(const unsigned int joy);

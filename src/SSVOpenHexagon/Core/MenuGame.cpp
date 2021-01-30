@@ -77,7 +77,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         // Disable scroll while assigning a bind
         if(state == States::MOpts)
         {
-            auto* bc{
+            const auto* const bc{
                 dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
             if(bc != nullptr && bc->isWaitingForBind())
             {
@@ -191,7 +191,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            auto* bc{dynamic_cast<KeyboardBindControl*>(
+            auto* const bc{dynamic_cast<KeyboardBindControl*>(
                 &getCurrentMenu()->getItem())};
 
             // don't try assigning a keyboard key to a controller bind
@@ -262,7 +262,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                auto* bc{dynamic_cast<KeyboardBindControl*>(
+                auto* const bc{dynamic_cast<KeyboardBindControl*>(
                     &getCurrentMenu()->getItem())};
 
                 // don't try assigning a keyboard key to a controller bind
@@ -319,7 +319,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                auto* bc{dynamic_cast<JoystickBindControl*>(
+                auto* const bc{dynamic_cast<JoystickBindControl*>(
                     &getCurrentMenu()->getItem())};
 
                 // don't try assigning a controller button to a keyboard bind
@@ -598,20 +598,20 @@ void MenuGame::initInput()
         t::Once);
 
     game.addInput( // hardcoded
-        {{k::F5}}, [this](ssvu::FT /*unused*/) { reloadAssets(false); },
+        {{k::F1}}, [this](ssvu::FT /*unused*/) { changeLevelFavoriteFlag(); },
         t::Once);
 
     game.addInput( // hardcoded
-        {{k::F6}}, [this](ssvu::FT /*unused*/) { reloadAssets(true); },
-        t::Once);
-
-    game.addInput( // hardcoded
-        {{k::F7}}, [this](ssvu::FT /*unused*/) { changeLevelFavoriteFlag(); },
-        t::Once);
-
-    game.addInput( // hardcoded
-        {{k::F8}},
+        {{k::F2}},
         [this](ssvu::FT /*unused*/) { switchToFromFavoriteLevels(); }, t::Once);
+
+    game.addInput( // hardcoded
+        {{k::F3}}, [this](ssvu::FT /*unused*/) { reloadAssets(false); },
+        t::Once);
+
+    game.addInput( // hardcoded
+        {{k::F4}}, [this](ssvu::FT /*unused*/) { reloadAssets(true); },
+        t::Once);
 }
 
 void MenuGame::initLua()
@@ -835,6 +835,20 @@ void MenuGame::initMenus()
     controls.create<i::Single>("reset binds", [this] {
         Config::resetBindsToDefaults();
         refreshBinds();
+    });
+    controls.create<i::Single>("hardcoded keys reference", [this] {
+        dialogBox.create(
+            "UP ARROW - UP\n"
+            "DOWN ARROW - DOWN\n"
+            "RETURN - ENTER\n"
+            "BACKSPACE - REMOVE BIND\n"
+            "F1 - ADD LEVEL TO FAVORITES\n"
+            "F2 - SWITCH TO/FROM FAVORITE LEVELS\n"
+            "F3 - RELOAD LEVEL ASSETS (DEBUG MODE ONLY)\n"
+            "F4 - RELOAD PACK ASSETS (DEBUG MODE ONLY)\n\n"
+            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
+            26, 10.f, DBoxDraw::center);
+        setIgnoreAllInputs(2);
     });
     controls.create<i::GoBack>("back");
 
@@ -1635,7 +1649,7 @@ void MenuGame::okAction()
             // There are two Bind controllers: KeyboardBindControl and
             // JoystickBindControl. So we cast to the common base class to not
             // check for one and the other.
-            auto* bc{
+            const auto* const bc{
                 dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
             if(bc != nullptr && bc->isWaitingForBind())
             {
@@ -1726,8 +1740,8 @@ void MenuGame::eraseAction()
     {
         std::string name{
             profileSelectionMenu.getCategory().getItem().getName()};
-        // There must be at least one profile. don't erase currently profile in
-        // use
+        // There must be at least one profile, don't erase profile
+        // currently in use.
         if(profileSelectionMenu.getCategory().getItems().size() <= 1)
         {
             assets.playSound("error.ogg");
@@ -1764,7 +1778,7 @@ void MenuGame::eraseAction()
     }
     else if(state == States::MOpts && isInMenu())
     {
-        auto* bc{dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
+        auto* const bc{dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
         if(bc == nullptr)
         {
             return;
@@ -4093,7 +4107,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     menuQuads.clear();
 
     renderTextCenteredOffset(
-        levelData.favorite ? "UNFAVORITE - F7" : "FAVORITE - F7",
+        levelData.favorite ? "UNFAVORITE" : "FAVORITE",
         txtSelectionMedium.font, {sidepanelIndent / 2.f, height},
         -leftSideOffset, menuQuadColor);
 
