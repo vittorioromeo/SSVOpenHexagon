@@ -2135,6 +2135,9 @@ void MenuGame::setIndex(const int mIdx)
     }
     menuTextColor = colors[0];
 
+    dialogBoxTextColor = menuQuadColor;
+    dialogBoxTextColor.a = 255;
+
     if(colors.size() == 1)
     {
         menuTextColor.a = 255;
@@ -3682,9 +3685,9 @@ void MenuGame::drawLevelSelectionRightSide(
     LevelDrawer& drawer, const bool revertOffset)
 {
     const float outerFrame{textToQuadBorder + slctFrameSize},
-        sidepanelIndent{w * 0.33f}, quadsIndent{w - sidepanelIndent},
+        sidepanelIndent{w * 0.33f - outerFrame}, quadsIndent{w - sidepanelIndent},
         txtIndent{w - sidepanelIndent / 2.f},
-        levelIndent{quadsIndent + textToQuadBorder},
+        levelIndent{quadsIndent + outerFrame},
         rightSideOffset{
             calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
     const auto& infos{assets.getPackInfos()};
@@ -3820,6 +3823,8 @@ void MenuGame::drawLevelSelectionRightSide(
     {
         height = drawer.YOffset;
     }
+    
+    
 
     //----------------------------------------
     // PACKS LABELS
@@ -4396,7 +4401,7 @@ void MenuGame::draw()
 
     if(!dialogBox.empty())
     {
-        dialogBox.draw(styleData.getTextColor(), styleData.getColor(0));
+        dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
 }
 
