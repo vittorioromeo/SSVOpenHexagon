@@ -162,6 +162,16 @@ void HexagonGame::update(ssvu::FT mFT)
             const bool executeLastReplay =
                 status.mustStateChange == StateChange::MustReplay;
 
+            if(!executeLastReplay && !assets.anyLocalProfileActive())
+            {
+                // If playing a replay from file, there is no local profile
+                // active, so just go to the menu when attempting to restart the
+                // level.
+
+                goToMenu();
+                return;
+            }
+
             newGame(getPackId(), restartId, restartFirstTime, difficultyMult,
                 executeLastReplay);
         }

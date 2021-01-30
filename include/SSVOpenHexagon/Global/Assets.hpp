@@ -217,6 +217,8 @@ public:
     void loadLocalProfiles();
     void saveCurrentLocalProfile();
     void setCurrentLocalProfile(const std::string& mName);
+
+    [[nodiscard]] bool anyLocalProfileActive() const;
     ProfileData& getCurrentLocalProfile();
     const ProfileData& getCurrentLocalProfile() const;
     std::string getCurrentLocalProfileFilePath();

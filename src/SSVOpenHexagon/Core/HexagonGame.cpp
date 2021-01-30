@@ -506,6 +506,23 @@ void HexagonGame::death(bool mForce)
     assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
     runLuaFunctionIfExists<void>("onDeath");
 
+    status.flashEffect = 255;
+    overlayCamera.setView(
+        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
+    backgroundCamera.setCenter(ssvs::zeroVec2f);
+    shakeCamera(effectTimelineManager, overlayCamera);
+    shakeCamera(effectTimelineManager, backgroundCamera);
+
+    status.hasDied = true;
+    stopLevelMusic();
+
+    if(inReplay())
+    {
+        // Do not save scores or update rich presence if watching a replay.
+        return;
+    }
+
     // Gather player's Personal Best
     std::string pbStr = "(";
     if(status.getTimeSeconds() >
@@ -527,23 +544,6 @@ void HexagonGame::death(bool mForce)
     const std::string timeStr = timeFormat(status.getTimeSeconds());
     discordManager.set_rich_presence_in_game(
         nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
-
-    status.flashEffect = 255;
-    overlayCamera.setView(
-        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vector2f(Config::getWidth(), Config::getHeight())});
-    backgroundCamera.setCenter(ssvs::zeroVec2f);
-    shakeCamera(effectTimelineManager, overlayCamera);
-    shakeCamera(effectTimelineManager, backgroundCamera);
-
-    status.hasDied = true;
-    stopLevelMusic();
-
-    if(inReplay())
-    {
-        // Do not save scores if watching a replay.
-        return;
-    }
 
     const bool localNewBest =
         checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
@@ -681,7 +681,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     calledDeprecatedFunctions.clear();
     fpsWatcher.disable();
 
-    if(mSendScores && !status.hasDied && !mError)
+    if(mSendScores && !status.hasDied && !mError && !inReplay())
     {
         checkAndSaveScore();
     }
