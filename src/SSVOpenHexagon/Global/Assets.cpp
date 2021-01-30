@@ -744,8 +744,14 @@ void HGAssets::setCurrentLocalProfile(const std::string& mName)
     currentProfilePtr = &profileDataMap.find(mName)->second;
 }
 
+[[nodiscard]] bool HGAssets::anyLocalProfileActive() const
+{
+    return currentProfilePtr != nullptr;
+}
+
 ProfileData& HGAssets::getCurrentLocalProfile()
 {
+    assert(currentProfilePtr != nullptr);
     return *currentProfilePtr;
 }
 
@@ -757,6 +763,7 @@ ProfileData* HGAssets::getLocalProfileByName(const std::string& mName)
 
 const ProfileData& HGAssets::getCurrentLocalProfile() const
 {
+    assert(currentProfilePtr != nullptr);
     return *currentProfilePtr;
 }
 
