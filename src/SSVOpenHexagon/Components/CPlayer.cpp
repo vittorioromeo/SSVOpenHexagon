@@ -182,6 +182,7 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     // of the rotation is different from the direction player is moving.
     const SpeedData& curveData{wall.getCurve()};
     const int speedSign{ssvu::getSign(curveData.speed)};
+
     if(curveData.speed != 0.f && speedSign != movement)
     {
         wall.moveVertexAlongCurve(pos, mCenterPos, mFT);
@@ -202,6 +203,7 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     const float currentSpeed{
         mHexagonGame.getPlayerSpeedMult() *
         (mHexagonGame.getInputFocused() ? focusSpeed : speed)};
+
     lastAngle =
         angle + ssvu::toRad(currentSpeed * movement * mFT) + movement * padding;
     lastPos = ssvs::getOrbitRad(startPos, lastAngle, mHexagonGame.getRadius());
@@ -220,10 +222,12 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexes()};
     const float radZero{ssvs::getRad(wVertexes[0])},
         radOne{ssvs::getRad(wVertexes[1])};
+
     angle = ssvu::getDistRad(angle, radOne) > ssvu::getDistRad(angle, radZero)
                 ? radZero
                 : radOne;
     angle += movement * padding;
+
     updatePosition(mHexagonGame, mFT);
     return false;
 }

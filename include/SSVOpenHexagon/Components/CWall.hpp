@@ -38,7 +38,7 @@ public:
     void moveTowardsCenter(HexagonGame& mHexagonGame,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
 
-    void moveVertexAlongCurve(sf::Vector2f& mVertex,
+    [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vector2f& mVertex,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT) const
     {
         ssvs::rotateRadAround(mVertex, mCenterPos, curve.speed / 60.f * mFT);

@@ -207,13 +207,17 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     const auto updateWall = [this](CWall& wall, const ssvu::FT& mFT) {
         wall.update(*this, mFT);
         wall.moveTowardsCenter(*this, centerPos, mFT);
+
         if(wall.getCurve().speed != 0.f)
         {
             wall.moveCurve(*this, centerPos, mFT);
         }
     };
+
     const sf::Vector2f& pPosition{player.getPosition()};
-    int i, wSize{static_cast<int>(walls.size())};
+
+    int i;
+    const int wSize{static_cast<int>(walls.size())};
 
     for(i = 0; i < wSize; ++i)
     {
@@ -239,8 +243,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         break;
     }
 
-    // If i == wSize it means there was no collision,
-    // so we can stop here.
+    // If `i == wSize` it means there was no collision, so we can stop here.
     if(i == wSize)
     {
         return;
@@ -252,6 +255,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         {
             steamManager.unlock_achievement("a22_swapdeath");
         }
+
         player.kill(*this);
     };
 
