@@ -1380,21 +1380,6 @@ void MenuGame::upAction()
         {
             setIndex(ssvu::getMod(lvlDrawer->currentIndex - 1, 0,
                 lvlDrawer->levelDataIds.size()));
-
-            if(isFavoriteLevels())
-            {
-                const auto& p{assets.getPackInfos()};
-
-                for(int i{0}; i < static_cast<int>(p.size()); ++i)
-                {
-                    if(levelData->packId == p.at(i).id)
-                    {
-                        lvlDrawer->packIdx = i;
-                        break;
-                    }
-                }
-            }
-
             calcLevelChangeScroll(-2);
         }
         else if(lvlDrawer->currentIndex - 1 < 0)
@@ -1471,21 +1456,6 @@ void MenuGame::downAction()
         {
             setIndex(ssvu::getMod(lvlDrawer->currentIndex + 1, 0,
                 lvlDrawer->levelDataIds.size()));
-
-            if(isFavoriteLevels())
-            {
-                const auto& p{assets.getPackInfos()};
-
-                for(int i{0}; i < static_cast<int>(p.size()); ++i)
-                {
-                    if(levelData->packId == p.at(i).id)
-                    {
-                        lvlDrawer->packIdx = i;
-                        break;
-                    }
-                }
-            }
-
             calcLevelChangeScroll(2);
         }
         else if(lvlDrawer->currentIndex + 1 >
@@ -2151,6 +2121,20 @@ void MenuGame::setIndex(const int mIdx)
 
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
     styleData.computeColors(levelStatus);
+
+    if(isFavoriteLevels())
+    {
+        const auto& p{assets.getPackInfos()};
+
+        for(int i{0}; i < static_cast<int>(p.size()); ++i)
+        {
+            if(levelData->packId == p.at(i).id)
+            {
+                lvlDrawer->packIdx = i;
+                break;
+            }
+        }
+    }
 
     // Set the colors of the menus
     auto& colors{styleData.getColors()};
