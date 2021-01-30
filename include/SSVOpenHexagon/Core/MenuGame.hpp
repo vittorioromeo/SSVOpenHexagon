@@ -249,6 +249,7 @@ private:
     sf::Color menuTextColor;
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
+    sf::Color dialogBoxTextColor;
     Utils::FastVertexVector<sf::PrimitiveType::Quads> menuQuads;
 
     void draw();
