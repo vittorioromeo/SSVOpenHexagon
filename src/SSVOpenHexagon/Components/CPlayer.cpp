@@ -11,7 +11,6 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 #include <SSVStart/Utils/SFML.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Math.hpp>
@@ -167,57 +166,74 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     }
 }
 
-[[nodiscard]] bool CPlayer::push(
-    HexagonGame& mHexagonGame, const CWall& wall, ssvu::FT mFT)
+[[nodiscard]] bool CPlayer::push(const HexagonGame& mHexagonGame,
+    const CWall& wall, const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
 {
-    (void)mFT;
-
     if(dead)
     {
         return false;
     }
 
-    const auto& curveData = wall.getCurve();
-    const int curveDir = ssvu::getSign(curveData.speed);
-    const int movement{mHexagonGame.getInputMovement()};
+    constexpr float padding{0.025f};
+    int movement{mHexagonGame.getInputMovement()};
 
-    const unsigned int maxAttempts =
-        5 + ((curveDir != 0)
-                    ? std::abs(curveData.speed + speed * (movement * curveDir))
-                    : speed);
+    // First of all, if it's a rotating wall push player in the direction the
+    // wall is rotating by the appropriate amount, but only if the direction
+    // of the rotation is different from the direction player is moving.
+    const SpeedData& curveData{wall.getCurve()};
+    const int speedSign{ssvu::getSign(curveData.speed)};
 
-    const float pushDir = //
-        (curveDir == 0 || ssvu::getSign(movement) == curveDir) ? -movement
-                                                               : curveDir;
-
-    const float pushAngle = ssvu::toRad(1.f) * pushDir;
-
-    unsigned int attempt = 0;
-    const float radius{mHexagonGame.getRadius()};
-
-    while(wall.isOverlapping(pos))
+    if(curveData.speed != 0.f && speedSign != movement)
     {
-        angle += pushAngle;
-        pos = ssvs::getOrbitRad(startPos, angle, radius);
+        wall.moveVertexAlongCurve(pos, mCenterPos, mFT);
 
-        if(++attempt >= maxAttempts)
-        {
-            pos = lastPos;
-
-            if(curveDir == 0)
-            {
-                angle = lastAngle;
-            }
-
-            return true;
-        }
+        // Calculate angle, add a little padding, and readjust the position.
+        angle = ssvs::getRad(pos) + speedSign * padding;
+        updatePosition(mHexagonGame, mFT);
     }
 
+    // If player is not moving calculate now.
+    if(!movement)
+    {
+        return wall.isOverlapping(pos);
+    }
+
+    // Compensate for the player movement to make it slide along the side.
+    movement = -movement;
+    const float currentSpeed{
+        mHexagonGame.getPlayerSpeedMult() *
+        (mHexagonGame.getInputFocused() ? focusSpeed : speed)};
+
+    lastAngle =
+        angle + ssvu::toRad(currentSpeed * movement * mFT) + movement * padding;
+    lastPos = ssvs::getOrbitRad(startPos, lastAngle, mHexagonGame.getRadius());
+
+    // If there is overlap even after compensation kill without updating
+    // position, as there is no benefit in doing it.
+    if(wall.isOverlapping(lastPos))
+    {
+        return true;
+    }
+
+    // If still alive position player right against the wall to give the
+    // illusion it is sliding along it. Since this is a standard wall we can
+    // assume the required angle is the angle of vertex 0 or 1 depending on
+    // which one is closer to the player.
+    const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexes()};
+    const float radZero{ssvs::getRad(wVertexes[0])},
+        radOne{ssvs::getRad(wVertexes[1])};
+
+    angle = ssvu::getDistRad(angle, radOne) > ssvu::getDistRad(angle, radZero)
+                ? radZero
+                : radOne;
+    angle += movement * padding;
+
+    updatePosition(mHexagonGame, mFT);
     return false;
 }
 
-[[nodiscard]] bool CPlayer::push(
-    HexagonGame& mHexagonGame, const CCustomWall& wall, ssvu::FT mFT)
+[[nodiscard]] bool CPlayer::push(const HexagonGame& mHexagonGame,
+    const CCustomWall& wall, const ssvu::FT mFT)
 {
     (void)mFT; // Currently unused.
 
@@ -252,7 +268,7 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     return false;
 }
 
-void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
+void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
 {
     if(deadEffectTimer.isRunning())
     {
@@ -279,7 +295,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, ssvu::FT mFT)
     lastAngle = angle;
 }
 
-void CPlayer::updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT)
+void CPlayer::updateInput(HexagonGame& mHexagonGame, const ssvu::FT mFT)
 {
     const int movement{mHexagonGame.getInputMovement()};
 
@@ -303,7 +319,8 @@ void CPlayer::updateInput(HexagonGame& mHexagonGame, ssvu::FT mFT)
     }
 }
 
-void CPlayer::updatePosition(HexagonGame& mHexagonGame, ssvu::FT mFT)
+void CPlayer::updatePosition(
+    const HexagonGame& mHexagonGame, const ssvu::FT mFT)
 {
     (void)mFT; // Currently unused.
 

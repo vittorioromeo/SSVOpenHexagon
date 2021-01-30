@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Components/SpeedData.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
+#include <SSVStart/Utils/Vector2.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <array>
@@ -32,17 +33,29 @@ public:
         float mThickness, float mDistance, const SpeedData& mSpeed,
         const SpeedData& mCurve);
 
-    void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
+    void update(const HexagonGame& mHexagonGame, const ssvu::FT mFT);
 
     void moveTowardsCenter(HexagonGame& mHexagonGame,
-        const sf::Vector2f& mCenterPos, ssvu::FT mFT);
+        const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
 
-    void moveCurve(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
-        ssvu::FT mFT);
+    [[gnu::always_inline]] void moveVertexAlongCurve(sf::Vector2f& mVertex,
+        const sf::Vector2f& mCenterPos, const ssvu::FT mFT) const
+    {
+        ssvs::rotateRadAround(mVertex, mCenterPos, curve.speed / 60.f * mFT);
+    }
+
+    void moveCurve(const HexagonGame& mHexagonGame,
+        const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
 
     void draw(HexagonGame& mHexagonGame);
 
     void setHueMod(float mHueMod) noexcept;
+
+    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    getVertexes() const noexcept
+    {
+        return vertexPositions;
+    }
 
     [[gnu::always_inline, nodiscard]] const SpeedData& getSpeed() const noexcept
     {

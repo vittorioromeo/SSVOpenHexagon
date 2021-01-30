@@ -185,73 +185,102 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 {
     cwManager.forCustomWalls([&](const CCustomWall& customWall) {
         // After *only* the player has moved, push in case of overlap.
-        if(customWall.isOverlapping(player.getPosition()) &&
-            customWall.getCanCollide())
+        if(!customWall.getCanCollide() ||
+            !customWall.isOverlapping(player.getPosition()))
         {
-            if(player.getJustSwapped())
-            {
-                player.kill(*this);
-                steamManager.unlock_achievement("a22_swapdeath");
-            }
-            else
-            {
-                if(player.push(*this, customWall, mFT))
-                {
-                    player.kill(*this);
-                }
-            }
+            return;
+        }
+
+        if(player.getJustSwapped())
+        {
+            player.kill(*this);
+            steamManager.unlock_achievement("a22_swapdeath");
+        }
+        else if(player.push(*this, customWall, mFT))
+        {
+            player.kill(*this);
         }
     });
 
-    for(CWall& wall : walls)
-    {
+    // First round of collision check, player gets a chance to
+    // escape if certain conditions are met.
+    const auto updateWall = [this](CWall& wall, const ssvu::FT& mFT) {
         wall.update(*this, mFT);
+        wall.moveTowardsCenter(*this, centerPos, mFT);
 
-        // After *only* the player has moved, push in case of overlap.
-        if(wall.isOverlapping(player.getPosition()))
+        if(wall.getCurve().speed != 0.f)
         {
-            if(player.getJustSwapped())
-            {
-                player.kill(*this);
-                steamManager.unlock_achievement("a22_swapdeath");
-            }
-            else
-            {
-                if(player.push(*this, wall, mFT))
-                {
-                    player.kill(*this);
-                }
-            }
+            wall.moveCurve(*this, centerPos, mFT);
+        }
+    };
+
+    const sf::Vector2f& pPosition{player.getPosition()};
+
+    int i;
+    const int wSize{static_cast<int>(walls.size())};
+
+    for(i = 0; i < wSize; ++i)
+    {
+        updateWall(walls[i], mFT);
+
+        // If there is no collision skip to the next wall.
+        if(!walls[i].isOverlapping(pPosition))
+        {
+            continue;
         }
 
-        // Move the wall towards the center. Overlap means sure death.
-        wall.moveTowardsCenter(*this, centerPos, mFT);
-        if(wall.isOverlapping(player.getPosition()))
+        // Kill after a swap or if player could not be pushed out to safety.
+        if(player.getJustSwapped())
+        {
+            player.kill(*this);
+            steamManager.unlock_achievement("a22_swapdeath");
+        }
+        else if(player.push(*this, walls[i], centerPos, mFT))
         {
             player.kill(*this);
         }
 
-        // Curve the wall. If an overlap happens, the player must be pushed.
-        wall.moveCurve(*this, centerPos, mFT);
-        if(wall.isOverlapping(player.getPosition()))
+        break;
+    }
+
+    // If `i == wSize` it means there was no collision, so we can stop here.
+    if(i == wSize)
+    {
+        return;
+    }
+
+    // Recheck collision with walls that came before.
+    const auto executeDeath = [this] {
+        if(player.getJustSwapped())
         {
-            if(player.push(*this, wall, mFT))
-            {
-                player.kill(*this);
-            }
+            steamManager.unlock_achievement("a22_swapdeath");
+        }
+
+        player.kill(*this);
+    };
+
+    for(int j = 0; j < i; ++j)
+    {
+        if(walls[j].isOverlapping(pPosition))
+        {
+            executeDeath();
         }
     }
 
-    // If there's still an overlap after collision resolution, kill the player.
-    for(const CWall& wall : walls)
+    // Update and check collision on the remaining walls.
+    ++i;
+    while(i < wSize)
     {
-        if(wall.isOverlapping(player.getPosition()))
+        updateWall(walls[i], mFT);
+
+        if(walls[i].isOverlapping(pPosition))
         {
-            player.kill(*this);
+            executeDeath();
         }
+
+        ++i;
     }
 }
-
 
 void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 {
@@ -259,8 +288,8 @@ void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 
     const bool customWallCollision =
         cwManager.anyCustomWall([&](const CCustomWall& customWall) {
-            return customWall.isOverlapping(player.getPosition()) &&
-                   customWall.getCanCollide();
+            return customWall.getCanCollide() &&
+                   customWall.isOverlapping(player.getPosition());
         });
 
     if(customWallCollision)
