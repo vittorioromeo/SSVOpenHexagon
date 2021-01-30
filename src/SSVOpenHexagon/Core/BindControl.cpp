@@ -28,7 +28,7 @@ BindControlBase::BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
     return false;
 }
 
-[[nodiscard]] bool BindControlBase::isWaitingForBind()
+[[nodiscard]] bool BindControlBase::isWaitingForBind() const
 {
     return false;
 }
@@ -56,7 +56,7 @@ void KeyboardBindControl::exec()
     waitingForBind = !waitingForBind;
 }
 
-[[nodiscard]] bool KeyboardBindControl::isWaitingForBind()
+[[nodiscard]] bool KeyboardBindControl::isWaitingForBind() const
 {
     return waitingForBind;
 }
@@ -145,7 +145,7 @@ void JoystickBindControl::exec()
     waitingForBind = !waitingForBind;
 }
 
-[[nodiscard]] bool JoystickBindControl::isWaitingForBind()
+[[nodiscard]] bool JoystickBindControl::isWaitingForBind() const
 {
     return waitingForBind;
 }
