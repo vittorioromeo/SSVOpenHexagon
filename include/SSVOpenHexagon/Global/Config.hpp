@@ -5,9 +5,11 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Version.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
 
 #include <vector>
 #include <string>
+#include <array>
 
 namespace ssvs
 {
@@ -149,6 +151,27 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] bool getSaveLocalBestReplayToFile();
 
 // keyboard binds
+
+enum Tid
+{
+    Unknown = -1,
+    RotateCCW = 0,
+    RotateCW,
+    Focus,
+    Select,
+    Exit,
+    ForceRestart,
+    Restart,
+    Replay,
+    Screenshot,
+    Swap,
+    Up,
+    Down,
+    NextPack,
+    PreviousPack,
+    TriggersCount
+};
+
 void keyboardBindsSanityCheck();
 
 [[nodiscard]] std::string getKeyboardBindNames(const int bindID);
@@ -167,20 +190,23 @@ void keyboardBindsSanityCheck();
 [[nodiscard]] ssvs::Input::Trigger getTriggerNextPack();
 [[nodiscard]] ssvs::Input::Trigger getTriggerPreviousPack();
 
-void addBindTriggerRotateCCW(int key, int btn, int index);
-void addBindTriggerRotateCW(int key, int btn, int index);
-void addBindTriggerFocus(int key, int btn, int index);
-void addBindTriggerSelect(int key, int btn, int index);
-void addBindTriggerExit(int key, int btn, int index);
-void addBindTriggerForceRestart(int key, int btn, int index);
-void addBindTriggerRestart(int key, int btn, int index);
-void addBindTriggerReplay(int key, int btn, int index);
-void addBindTriggerScreenshot(int key, int btn, int index);
-void addBindTriggerSwap(int key, int btn, int index);
-void addBindTriggerUp(int key, int btn, int index);
-void addBindTriggerDown(int key, int btn, int index);
-void addBindTriggerNextPack(int key, int btn, int index);
-void addBindTriggerPreviousPack(int key, int btn, int index);
+using KeyboardTriggerGetter = ssvs::Input::Trigger (*)();
+extern const std::array<KeyboardTriggerGetter, Tid::TriggersCount> keyboardTriggerGetters;
+
+void addBindTriggerRotateCCW(const int key, const int btn, const int index);
+void addBindTriggerRotateCW(const int key, const int btn, const int index);
+void addBindTriggerFocus(const int key, const int btn, const int index);
+void addBindTriggerSelect(const int key, const int btn, const int index);
+void addBindTriggerExit(const int key, const int btn, const int index);
+void addBindTriggerForceRestart(const int key, const int btn, const int index);
+void addBindTriggerRestart(const int key, const int btn, const int index);
+void addBindTriggerReplay(const int key, const int btn, const int index);
+void addBindTriggerScreenshot(const int key, const int btn, const int index);
+void addBindTriggerSwap(const int key, const int btn, const int index);
+void addBindTriggerUp(const int key, const int btn, const int index);
+void addBindTriggerDown(const int key, const int btn, const int index);
+void addBindTriggerNextPack(const int key, const int btn, const int index);
+void addBindTriggerPreviousPack(const int key, const int btn, const int index);
 
 void setTriggerRotateCCW(ssvs::Input::Trigger& trig);
 void setTriggerRotateCW(ssvs::Input::Trigger& trig);
@@ -197,20 +223,20 @@ void setTriggerDown(ssvs::Input::Trigger& trig);
 void setTriggerNextPack(ssvs::Input::Trigger& trig);
 void setTriggerPreviousPack(ssvs::Input::Trigger& trig);
 
-void clearBindTriggerRotateCCW(int index);
-void clearBindTriggerRotateCW(int index);
-void clearBindTriggerFocus(int index);
-void clearBindTriggerSelect(int index);
-void clearBindTriggerExit(int index);
-void clearBindTriggerForceRestart(int index);
-void clearBindTriggerRestart(int index);
-void clearBindTriggerReplay(int index);
-void clearBindTriggerScreenshot(int index);
-void clearBindTriggerSwap(int index);
-void clearBindTriggerUp(int index);
-void clearBindTriggerDown(int index);
-void clearBindTriggerNextPack(int index);
-void clearBindTriggerPreviousPack(int index);
+void clearBindTriggerRotateCCW(const int index);
+void clearBindTriggerRotateCW(const int index);
+void clearBindTriggerFocus(const int index);
+void clearBindTriggerSelect(const int index);
+void clearBindTriggerExit(const int index);
+void clearBindTriggerForceRestart(const int index);
+void clearBindTriggerRestart(const int index);
+void clearBindTriggerReplay(const int index);
+void clearBindTriggerScreenshot(const int index);
+void clearBindTriggerSwap(const int index);
+void clearBindTriggerUp(const int index);
+void clearBindTriggerDown(const int index);
+void clearBindTriggerNextPack(const int index);
+void clearBindTriggerPreviousPack(const int index);
 
 // joystick binds
 
@@ -228,26 +254,29 @@ void joystickBindsSanityCheck();
 [[nodiscard]] unsigned int getJoystickNextPack();
 [[nodiscard]] unsigned int getJoystickPreviousPack();
 
-[[nodiscard]] int reassignToJoystickSelect(unsigned int button);
-[[nodiscard]] int reassignToJoystickExit(unsigned int button);
-[[nodiscard]] int reassignToJoystickFocus(unsigned int button);
-[[nodiscard]] int reassignToJoystickSwap(unsigned int button);
-[[nodiscard]] int reassignToJoystickForceRestart(unsigned int button);
-[[nodiscard]] int reassignToJoystickRestart(unsigned int button);
-[[nodiscard]] int reassignToJoystickReplay(unsigned int button);
-[[nodiscard]] int reassignToJoystickScreenshot(unsigned int button);
-[[nodiscard]] int reassignToJoystickNextPack(unsigned int button);
-[[nodiscard]] int reassignToJoystickPreviousPack(unsigned int button);
+using JoystickTriggerGetter = unsigned int (*)();
+extern const std::array<JoystickTriggerGetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerGetters;
 
-void setJoystickSelect(unsigned int button);
-void setJoystickExit(unsigned int button);
-void setJoystickFocus(unsigned int button);
-void setJoystickSwap(unsigned int button);
-void setJoystickForceRestart(unsigned int button);
-void setJoystickRestart(unsigned int button);
-void setJoystickReplay(unsigned int button);
-void setJoystickScreenshot(unsigned int button);
-void setJoystickNextPack(unsigned int button);
-void setJoystickPreviousPack(unsigned int button);
+[[nodiscard]] int reassignToJoystickSelect(const unsigned int button);
+[[nodiscard]] int reassignToJoystickExit(const unsigned int button);
+[[nodiscard]] int reassignToJoystickFocus(const unsigned int button);
+[[nodiscard]] int reassignToJoystickSwap(const unsigned int button);
+[[nodiscard]] int reassignToJoystickForceRestart(const unsigned int button);
+[[nodiscard]] int reassignToJoystickRestart(const unsigned int button);
+[[nodiscard]] int reassignToJoystickReplay(const unsigned int button);
+[[nodiscard]] int reassignToJoystickScreenshot(const unsigned int button);
+[[nodiscard]] int reassignToJoystickNextPack(const unsigned int button);
+[[nodiscard]] int reassignToJoystickPreviousPack(const unsigned int button);
+
+void setJoystickSelect(const unsigned int button);
+void setJoystickExit(const unsigned int button);
+void setJoystickFocus(const unsigned int button);
+void setJoystickSwap(const unsigned int button);
+void setJoystickForceRestart(const unsigned int button);
+void setJoystickRestart(const unsigned int button);
+void setJoystickReplay(const unsigned int button);
+void setJoystickScreenshot(const unsigned int button);
+void setJoystickNextPack(const unsigned int button);
+void setJoystickPreviousPack(const unsigned int button);
 
 } // namespace hg::Config
