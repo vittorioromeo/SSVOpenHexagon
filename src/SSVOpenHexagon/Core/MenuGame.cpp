@@ -1376,15 +1376,14 @@ void MenuGame::upAction()
             return;
         }
 
-        if(lvlDrawer->currentIndex - 1 < 0)
+        if(getPackInfosSize() == 1)
         {
-            // If just one pack, pack change
-            // should not be triggered.
-            if(getPackInfosSize() == 1)
-            {
-                return;
-            }
-
+            setIndex(ssvu::getMod(lvlDrawer->currentIndex - 1, 0,
+                lvlDrawer->levelDataIds.size()));
+            calcLevelChangeScroll(-2);
+        }
+        else if(lvlDrawer->currentIndex - 1 < 0)
+        {
             // -2 means "go to previous pack and
             // skip to the last level of the list"
             changePackAction(-2);
@@ -1429,7 +1428,8 @@ void MenuGame::upAction()
     do
     {
         getCurrentMenu()->previous();
-    } while(!getCurrentMenu()->getItem().isEnabled());
+    }
+    while(!getCurrentMenu()->getItem().isEnabled());
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -1452,13 +1452,15 @@ void MenuGame::downAction()
             return;
         }
 
-        if(lvlDrawer->currentIndex + 1 >
+        if(getPackInfosSize() == 1)
+        {
+            setIndex(ssvu::getMod(lvlDrawer->currentIndex + 1, 0,
+                lvlDrawer->levelDataIds.size()));
+            calcLevelChangeScroll(2);
+        }
+        else if(lvlDrawer->currentIndex + 1 >
             ssvu::toInt(lvlDrawer->levelDataIds.size() - 1))
         {
-            if(getPackInfosSize() == 1)
-            {
-                return;
-            }
             changePackAction(1);
         }
         else
@@ -1503,7 +1505,8 @@ void MenuGame::downAction()
     do
     {
         getCurrentMenu()->next();
-    } while(!getCurrentMenu()->getItem().isEnabled());
+    }
+    while(!getCurrentMenu()->getItem().isEnabled());
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -2118,6 +2121,20 @@ void MenuGame::setIndex(const int mIdx)
 
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
     styleData.computeColors(levelStatus);
+
+    if(isFavoriteLevels())
+    {
+        const auto& p{assets.getPackInfos()};
+
+        for(int i{0}; i < static_cast<int>(p.size()); ++i)
+        {
+            if(levelData->packId == p.at(i).id)
+            {
+                lvlDrawer->packIdx = i;
+                break;
+            }
+        }
+    }
 
     // Set the colors of the menus
     auto& colors{styleData.getColors()};
@@ -3725,7 +3742,7 @@ void MenuGame::drawLevelSelectionRightSide(
     Color alphaTextColor{
         menuTextColor.r, menuTextColor.g, menuTextColor.b, 150};
     txtSelectionMedium.font.setFillColor(menuTextColor);
-    height = packLabelHeight * (drawer.packIdx + 1) + slctFrameSize -
+    height = packLabelHeight * (isFavoriteLevels() ? 1 : drawer.packIdx + 1) + slctFrameSize -
              packChangeOffset + drawer.YOffset;
 
     for(i = 0; i < levelsSize; ++i)
@@ -3823,8 +3840,6 @@ void MenuGame::drawLevelSelectionRightSide(
     {
         height = drawer.YOffset;
     }
-    
-    
 
     //----------------------------------------
     // PACKS LABELS
@@ -3944,7 +3959,8 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             height = drawer.YOffset;
         }
-    } while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    }
+    while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
 void MenuGame::drawLevelSelectionLeftSide(
