@@ -1355,6 +1355,16 @@ void HexagonGame::initLua_CustomWalls()
             "from this wall and can move through the wall. By default, all "
             "custom walls can collide with the player.");
 
+    addLuaFn("cw_getCollision", //
+        [this](CCustomWallHandle cwHandle) -> bool {
+            return cwManager.getCanCollide(cwHandle);
+        })
+        .arg("cwHandle")
+        .arg("canCollide")
+        .doc(
+            "Given the custom wall represented by `$0`, get whever it can "
+            "collide with player or not.");
+
     addLuaFn("cw_getVertexPos", //
         [this](CCustomWallHandle cwHandle,
             int vertexIndex) -> std::tuple<float, float> {

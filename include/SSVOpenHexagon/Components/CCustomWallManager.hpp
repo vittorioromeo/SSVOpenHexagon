@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
+#include "SSVOpenHexagon/Components/CPlayer.hpp"
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -53,6 +54,9 @@ public:
     void cleanup();
     void clear();
     void draw(HexagonGame& hexagonGame);
+
+    [[nodiscard]] bool handleCollision(HexagonGame& mHexagonGame,
+        CPlayer& mPlayer, ssvu::FT mFT);
 
     template <typename F>
     void forCustomWalls(F&& f)
