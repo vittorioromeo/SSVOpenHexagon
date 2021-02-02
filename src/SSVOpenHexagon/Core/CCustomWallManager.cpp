@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
@@ -112,6 +113,42 @@ void CCustomWallManager::setCanCollide(
     _customWalls[cwHandle].setCanCollide(collide);
 }
 
+void CCustomWallManager::setDeadly(
+    const CCustomWallHandle cwHandle, const bool deadly)
+{
+    if(_handleAvailable[cwHandle])
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to set deadly status of invalid custom wall " << cwHandle
+            << '\n';
+
+        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+        return;
+    }
+
+    SSVU_ASSERT(isValidHandle(cwHandle));
+
+    _customWalls[cwHandle].setDeadly(deadly);
+}
+
+void CCustomWallManager::setForgiving(
+    const CCustomWallHandle cwHandle, const bool forgiving)
+{
+    if(_handleAvailable[cwHandle])
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to set forgiving status of invalid custom wall " << cwHandle
+            << '\n';
+
+        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+        return;
+    }
+
+    SSVU_ASSERT(isValidHandle(cwHandle));
+
+    _customWalls[cwHandle].setForgiving(forgiving);
+}
+
 // void CCustomWallManager::setRenderOrder(
 //     const CCustomWallHandle cwHandle, const int8_t order)
 // {
@@ -175,6 +212,42 @@ void CCustomWallManager::setCanCollide(
     SSVU_ASSERT(isValidHandle(cwHandle));
 
     return _customWalls[cwHandle].getCanCollide();
+}
+
+[[nodiscard]] bool CCustomWallManager::getDeadly(
+    const CCustomWallHandle cwHandle)
+{
+    if(_handleAvailable[cwHandle])
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to get deadly status of invalid custom wall " << cwHandle
+            << '\n';
+
+        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+        return false;
+    }
+
+    SSVU_ASSERT(isValidHandle(cwHandle));
+
+    return _customWalls[cwHandle].getDeadly();
+}
+
+[[nodiscard]] bool CCustomWallManager::getForgiving(
+    const CCustomWallHandle cwHandle)
+{
+    if(_handleAvailable[cwHandle])
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to get forgiving status of invalid custom wall " << cwHandle
+            << '\n';
+
+        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+        return false;
+    }
+
+    SSVU_ASSERT(isValidHandle(cwHandle));
+
+    return _customWalls[cwHandle].getForgiving();
 }
 
 void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle,
@@ -248,6 +321,83 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
             _customWalls[h].draw(hexagonGame);
         }
     }
+}
+
+[[nodiscard]] bool CCustomWallManager::handleCollision(
+    HexagonGame& mHexagonGame, CPlayer& mPlayer, ssvu::FT mFT)
+{
+    CCustomWallHandle h;
+    bool collided{false};
+    const float radiusSquared{mHexagonGame.getRadius() * mHexagonGame.getRadius()};
+    const int size{(int)_customWalls.size()};
+    const sf::Vector2f& pPos{mPlayer.getPosition()};
+
+    const auto overlap =
+    [this](const int idx, const sf::Vector2f& pos) -> bool
+    {
+        return !_handleAvailable[idx] &&
+           _customWalls[idx].getCanCollide() &&
+           _customWalls[idx].isOverlapping(pos);
+    };
+    
+    for(h = 0; h < size; ++h)
+    {
+        if(!overlap(h, pPos))
+        {
+            continue;
+        }
+
+        if(mPlayer.getJustSwapped())
+        {
+            mPlayer.kill(mHexagonGame);
+            return true;
+        }
+        if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
+        {
+            mPlayer.kill(mHexagonGame);
+            return false;
+        }
+        collided = true;
+    }
+
+    if(!collided)
+    {
+        return false;
+    }
+
+    // Recheck collision on all walls.
+    collided = false;
+    for(h = 0; h < size; ++h)
+    {
+        if(!overlap(h, pPos))
+        {
+            continue;
+        }
+
+        if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
+        {
+            mPlayer.kill(mHexagonGame);
+            return false;
+        }
+        collided = true;
+    }
+
+    if(!collided)
+    {
+        return false;
+    }
+
+    // Last round with no push.
+    for(h = 0; h < size; ++h)
+    {
+        if(overlap(h, pPos))
+        {
+            mPlayer.kill(mHexagonGame);
+            return false;
+        }
+    }
+
+    return false;
 }
 
 } // namespace hg
