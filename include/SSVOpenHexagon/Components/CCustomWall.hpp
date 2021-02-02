@@ -26,6 +26,7 @@ public:
 
 private:
     std::array<sf::Vector2f, 4> vertexPositions;
+    std::array<sf::Vector2f, 4> oldVertexPositions;
     std::array<sf::Color, 4> vertexColors;
     bool canCollide{true};
     // TODO: Implement this in drawing logic
@@ -46,6 +47,7 @@ public:
     [[gnu::always_inline]] void setVertexPos(
         const int vertexIndex, const sf::Vector2f& pos) noexcept
     {
+        oldVertexPositions[vertexIndex] = vertexPositions[vertexIndex];
         vertexPositions[vertexIndex] = pos;
     }
 
@@ -71,9 +73,26 @@ public:
         return vertexPositions[vertexIndex];
     }
 
+    [[gnu::always_inline, nodiscard]]
+    const std::array<sf::Vector2f, 4>& getVertexPositions() const noexcept
+    {
+        return vertexPositions;
+    }
+
+    [[gnu::always_inline, nodiscard]]
+    const std::array<sf::Vector2f, 4>& getOldVertexPositions() const noexcept
+    {
+        return oldVertexPositions;
+    }
+
     [[gnu::always_inline, nodiscard]] bool getCanCollide() const noexcept
     {
         return canCollide;
+    }
+
+    [[gnu::always_inline, nodiscard]] bool isCustomWall() const noexcept
+    {
+        return true;
     }
 };
 

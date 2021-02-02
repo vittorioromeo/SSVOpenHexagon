@@ -27,6 +27,8 @@
 namespace hg::Utils
 {
 
+constexpr float epsilon{1.0e-4};
+
 inline void uppercasify(std::string& s)
 {
     for(auto& c : s)
@@ -41,17 +43,24 @@ inline void uppercasify(std::string& s)
     return s;
 }
 
-inline float getFontHeight(sf::Text& font)
+[[nodiscard, gnu::pure]] inline float getFontHeight(sf::Text& font)
 {
     font.setString("A");
     return ssvs::getGlobalHeight(font);
 }
 
-inline float getFontHeight(sf::Text& font, const unsigned int charSize)
+[[nodiscard, gnu::pure]] inline float getFontHeight(sf::Text& font, const unsigned int charSize)
 {
     font.setCharacterSize(charSize);
     font.setString("A");
     return ssvs::getGlobalHeight(font);
+}
+
+[[nodiscard, gnu::pure]] inline float fastSqrt(const float &n) 
+{
+    static union{int i; float f;} u;
+    u.i = 0x5F375A86 - (*(int*)&n >> 1);
+    return (int(3) - n * u.f * u.f) * n * u.f * 0.5f;
 }
 
 [[nodiscard, gnu::pure]] inline float getSaturated(float mValue)

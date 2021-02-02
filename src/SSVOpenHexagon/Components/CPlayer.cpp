@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
+#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 
 #include "SSVOpenHexagon/Global/Config.hpp"
 
@@ -18,28 +19,20 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
+using namespace hg::Utils;
+
 namespace hg
 {
 
 inline constexpr float baseThickness{5.f};
 
 CPlayer::CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept
-    : startPos{mPos}, pos{mPos}, lastPos{mPos}, hue{0}, angle{0}, lastAngle{0},
+    : startPos{mPos}, pos{mPos}, hue{0}, angle{0}, lastAngle{0},
       size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
       focusSpeed{Config::getPlayerFocusSpeed()}, dead{false},
       justSwapped{false}, swapTimer{swapCooldown},
       swapBlinkTimer{swapCooldown / 6.f}, deadEffectTimer{80.f, false}
 {
-}
-
-[[nodiscard]] float CPlayer::getPlayerAngle() const noexcept
-{
-    return angle;
-}
-
-void CPlayer::setPlayerAngle(const float newAng) noexcept
-{
-    angle = newAng;
 }
 
 void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
@@ -78,7 +71,7 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 {
     const auto sides(mHexagonGame.getSides());
     const float div{ssvu::tau / sides * 0.5f};
-    const float radius{mHexagonGame.getRadius() * 0.75f};
+    const float pRadius{radius * 0.75f};
 
     const sf::Color colorMain{mHexagonGame.getColorMain()};
 
@@ -93,13 +86,13 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
         const float sAngle{div * 2.f * i};
 
         const sf::Vector2f p1{
-            ssvs::getOrbitRad(startPos, sAngle - div, radius)};
+            ssvs::getOrbitRad(startPos, sAngle - div, pRadius)};
         const sf::Vector2f p2{
-            ssvs::getOrbitRad(startPos, sAngle + div, radius)};
+            ssvs::getOrbitRad(startPos, sAngle + div, pRadius)};
         const sf::Vector2f p3{
-            ssvs::getOrbitRad(startPos, sAngle + div, radius + baseThickness)};
+            ssvs::getOrbitRad(startPos, sAngle + div, pRadius + baseThickness)};
         const sf::Vector2f p4{
-            ssvs::getOrbitRad(startPos, sAngle - div, radius + baseThickness)};
+            ssvs::getOrbitRad(startPos, sAngle - div, pRadius + baseThickness)};
 
         mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
@@ -114,7 +107,7 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
 {
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
-    const float radius{hue / 8.f};
+    const float dRadius{hue / 8.f};
     const float thickness{hue / 20.f};
 
     const sf::Color colorMain{
@@ -124,12 +117,12 @@ void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
     {
         const float sAngle{div * 2.f * i};
 
-        const sf::Vector2f p1{ssvs::getOrbitRad(pos, sAngle - div, radius)};
-        const sf::Vector2f p2{ssvs::getOrbitRad(pos, sAngle + div, radius)};
+        const sf::Vector2f p1{ssvs::getOrbitRad(pos, sAngle - div, dRadius)};
+        const sf::Vector2f p2{ssvs::getOrbitRad(pos, sAngle + div, dRadius)};
         const sf::Vector2f p3{
-            ssvs::getOrbitRad(pos, sAngle + div, radius + thickness)};
+            ssvs::getOrbitRad(pos, sAngle + div, dRadius + thickness)};
         const sf::Vector2f p4{
-            ssvs::getOrbitRad(pos, sAngle - div, radius + thickness)};
+            ssvs::getOrbitRad(pos, sAngle - div, dRadius + thickness)};
 
         mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
@@ -159,11 +152,93 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     }
 
     mHexagonGame.death();
+}
 
-    if(!getJustSwapped())
+inline constexpr float collisionPadding{0.05f};
+
+template <typename Wall>
+[[nodiscard]] bool CPlayer::checkWallCollisionEscape(const Wall& wall, sf::Vector2f& mPos)
+{
+    // To find the closest wall side we intersect the circumference of the possible
+    // player positions with the sides of the wall. We use the intersection closest
+    // to the player's position as post collision target.
+    // If an escape route could not be found player is killed.
+
+    bool saved{false};
+    sf::Vector2f vec1, vec2;
+    float tempDistance, safeDistance{maxSafeDistance};
+    const unsigned int vxIncrement{wall.isCustomWall() ? 1u : 2u};
+    const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexPositions()};
+
+    const auto getLineCircleIntersection = [this](sf::Vector2f& i1,
+        sf::Vector2f& i2, const sf::Vector2f& p1,
+        const sf::Vector2f& p2) -> unsigned int
     {
-        pos = lastPos;
+        const float dx{p2.x - p1.x};
+        const float dy{p2.y - p1.y};
+        const float a{dx * dx + dy * dy};
+        const float b{2.f * (dx * p1.x + dy * p1.y)};
+        const float c{p1.x * p1.x + p1.y * p1.y - radius * radius};
+        const float delta{b * b - 4.f * a * c};
+
+        // No intersections.
+        if(delta < 0.f)
+        {
+            return 0u;
+        }
+
+        float t;
+        const float twoA{2.f * a};
+        
+        // One intersection.
+        if(delta < hg::Utils::epsilon)
+        {
+            t = -b / twoA;
+            i1 = {p1.x + t * dx, p1.y + t * dy};
+            return 1u;
+        }
+
+        // Two intersections.
+        const float sqrtDelta{hg::Utils::fastSqrt(delta)};
+        t = (-b + sqrtDelta) / twoA;
+        i1 = {p1.x + t * dx, p1.y + t * dy};
+        t = (-b - sqrtDelta) / twoA;
+        i2 = {p1.x + t * dx, p1.y + t * dy};
+        return 2u;
+    };
+
+    const auto assignResult = [&]() {
+        if((tempDistance = ssvs::getMagSquared(vec1 - mPos)) < safeDistance)
+        {
+            mPos = vec1;
+            saved = true;
+            safeDistance = tempDistance;
+        }
+    };
+
+    for(unsigned int i{0u}, j{3u}; i < 4u; i += vxIncrement, j = i - 1)
+    {
+        switch(getLineCircleIntersection(vec1, vec2, wVertexes[i], wVertexes[j]))
+        {
+            case 1u:
+                assignResult();
+                break;
+
+            case 2u:
+                if(ssvs::getMagSquared(vec1 - mPos) >
+                    ssvs::getMagSquared(vec2 - mPos))
+                {
+                    vec1 = vec2;
+                }
+                assignResult();
+                break;
+
+            default:
+                break;
+        }
     }
+
+    return saved;
 }
 
 [[nodiscard]] bool CPlayer::push(const HexagonGame& mHexagonGame,
@@ -174,63 +249,50 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
         return false;
     }
 
-    constexpr float padding{0.025f};
-    int movement{mHexagonGame.getInputMovement()};
+    sf::Vector2f testPos{pos};
+    sf::Vector2f velocity{0.f, 0.f};
+    const int movement{mHexagonGame.getInputMovement()};
 
-    // First of all, if it's a rotating wall push player in the direction the
+    // If it's a rotating wall push player in the direction the
     // wall is rotating by the appropriate amount, but only if the direction
     // of the rotation is different from the direction player is moving.
+    // Save the position difference in case we need to do a second attempt
+    // at saving player.
     const SpeedData& curveData{wall.getCurve()};
-    const int speedSign{ssvu::getSign(curveData.speed)};
-
-    if(curveData.speed != 0.f && speedSign != movement)
+    if(curveData.speed != 0.f && ssvu::getSign(curveData.speed) != movement)
     {
-        wall.moveVertexAlongCurve(pos, mCenterPos, mFT);
-
-        // Calculate angle, add a little padding, and readjust the position.
-        angle = ssvs::getRad(pos) + speedSign * padding;
-        updatePosition(mHexagonGame, mFT);
+        wall.moveVertexAlongCurve(testPos, mCenterPos, mFT);
+        testPos = ssvs::getOrbitRad(startPos, ssvs::getRad(testPos), radius);
+        velocity = testPos - pos;
     }
 
-    // If player is not moving calculate now.
+    // If player is not moving calculate now...
     if(!movement)
     {
+        pos = testPos + ssvs::getNormalized(testPos - pos) * collisionPadding;
+        lastAngle = angle = ssvs::getRad(pos);
+        updatePosition(mHexagonGame, mFT);
         return wall.isOverlapping(pos);
     }
 
-    // Compensate for the player movement to make it slide along the side.
-    movement = -movement;
-    const float currentSpeed{
-        mHexagonGame.getPlayerSpeedMult() *
-        (mHexagonGame.getInputFocused() ? focusSpeed : speed)};
-
-    lastAngle =
-        angle + ssvu::toRad(currentSpeed * movement * mFT) + movement * padding;
-    lastPos = ssvs::getOrbitRad(startPos, lastAngle, mHexagonGame.getRadius());
-
-    // If there is overlap even after compensation kill without updating
-    // position, as there is no benefit in doing it.
-    if(wall.isOverlapping(lastPos))
+    // ...otherwise make testPos the position of the previous frame plus
+    // the curving wall's velocity, and check an escape on that position
+    // Using the previous frame's position is essential for levels with
+    // a really high amount of sides.
+    testPos = ssvs::getOrbitRad(startPos, lastAngle, radius) + velocity;
+    if(!checkWallCollisionEscape<CWall>(wall, testPos))
     {
         return true;
     }
 
-    // If still alive position player right against the wall to give the
-    // illusion it is sliding along it. Since this is a standard wall we can
-    // assume the required angle is the angle of vertex 0 or 1 depending on
-    // which one is closer to the player.
-    const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexes()};
-    const float radZero{ssvs::getRad(wVertexes[0])},
-        radOne{ssvs::getRad(wVertexes[1])};
-
-    angle = ssvu::getDistRad(angle, radOne) > ssvu::getDistRad(angle, radZero)
-                ? radZero
-                : radOne;
-    angle += movement * padding;
-
+    // If player survived apply test position and add a little padding.
+    pos = testPos + ssvs::getNormalized(testPos - pos) * collisionPadding;
+    lastAngle = angle = ssvs::getRad(pos);
     updatePosition(mHexagonGame, mFT);
     return false;
 }
+
+inline constexpr float sideSlideThreshold{0.8f};
 
 [[nodiscard]] bool CPlayer::push(const HexagonGame& mHexagonGame,
     const CCustomWall& wall, const ssvu::FT mFT)
@@ -242,29 +304,61 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
         return false;
     }
 
-    const int movement{mHexagonGame.getInputMovement()};
-    const unsigned int maxAttempts = 5 + speed;
-    const float pushDir = -movement;
+    sf::Vector2f lastPos{ssvs::getOrbitRad(startPos, lastAngle, radius)};
+    sf::Vector2f testPos{(pos + lastPos) / 2.f}; // I found this to give best results.
+    sf::Vector2f velocity{0.f, 0.f};
 
-    const float pushAngle = ssvu::toRad(1.f) * pushDir;
+    // A custom wall can take any shape and its sides can move however
+    // they want. To check if player should be moved like it occurs with
+    // rotating standard walls see if testPos fits within the trapezoid
+    // delimited by the wall's old and new positions of the vertexes.
+    std::array<const sf::Vector2f*, 4> collisionPolygon;
+    const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexPositions()};
+    const std::array<sf::Vector2f, 4>& wOldVertexes{wall.getOldVertexPositions()};
 
-    unsigned int attempt = 0;
-    const float radius{mHexagonGame.getRadius()};
-
-    while(wall.isOverlapping(pos))
+    for(unsigned int i{0u}, j{3u}; i < 4u; j = i++)
     {
-        angle += pushAngle;
-        pos = ssvs::getOrbitRad(startPos, angle, radius);
-
-        if(++attempt >= maxAttempts)
+        collisionPolygon =
+            {&wVertexes[i], &wOldVertexes[i], &wOldVertexes[j], &wVertexes[j]};
+        if(!pointInPolygonPointers(collisionPolygon, testPos.x, testPos.y))
         {
-            pos = lastPos;
-            angle = lastAngle;
+            continue;
+        }
 
+        // Average velocity of the vertexes.
+        velocity = 
+            ((wVertexes[i] - wOldVertexes[i]) + (wVertexes[j] - wOldVertexes[j])) / 2.f;
+
+        // Not a side player can slide against.
+        if(std::abs(ssvs::getDotProduct(ssvs::getNormalized(velocity),
+            ssvs::getNormalized(pos))) < sideSlideThreshold)
+        {
             return true;
         }
+
+        break;
     }
 
+    // If player is not moving calculate now...
+    if(!mHexagonGame.getInputMovement())
+    {
+        pos += velocity + ssvs::getNormalized(testPos - pos) * collisionPadding;
+        lastAngle = angle = ssvs::getRad(pos);
+        updatePosition(mHexagonGame, mFT);
+        return wall.isOverlapping(pos);
+    }
+
+    // ...otherwise try to find a close enough safe position.
+    testPos = lastPos + velocity;
+    if(!checkWallCollisionEscape<CCustomWall>(wall, testPos))
+    {
+        return true;
+    }
+
+    // If player survived apply test position add a little padding.
+    pos = testPos + ssvs::getNormalized(testPos - pos) * collisionPadding;
+    lastAngle = angle = ssvs::getRad(pos);
+    updatePosition(mHexagonGame, mFT);
     return false;
 }
 
@@ -291,18 +385,14 @@ void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
         swapTimer.stop();
     }
 
-    lastPos = pos;
     lastAngle = angle;
 }
 
 void CPlayer::updateInput(HexagonGame& mHexagonGame, const ssvu::FT mFT)
 {
     const int movement{mHexagonGame.getInputMovement()};
-
-    const float currentSpeed =
-        mHexagonGame.getPlayerSpeedMult() *
+    currentSpeed = mHexagonGame.getPlayerSpeedMult() *
         (mHexagonGame.getInputFocused() ? focusSpeed : speed);
-
     angle += ssvu::toRad(currentSpeed * movement * mFT);
 
     if(mHexagonGame.getLevelStatus().swapEnabled &&
@@ -323,8 +413,17 @@ void CPlayer::updatePosition(
     const HexagonGame& mHexagonGame, const ssvu::FT mFT)
 {
     (void)mFT; // Currently unused.
+    (void)mHexagonGame;
 
-    pos = ssvs::getOrbitRad(startPos, angle, mHexagonGame.getRadius());
+    pos = ssvs::getOrbitRad(startPos, angle, radius);
+}
+
+void CPlayer::updateCollisionValues(
+    const HexagonGame& mHexagonGame, const ssvu::FT mFT)
+{
+    radius = mHexagonGame.getRadius();
+    maxSafeDistance = currentSpeed * (2.f * mFT);
+    maxSafeDistance = maxSafeDistance * maxSafeDistance + 32.f;
 }
 
 [[nodiscard]] bool CPlayer::getJustSwapped() const noexcept

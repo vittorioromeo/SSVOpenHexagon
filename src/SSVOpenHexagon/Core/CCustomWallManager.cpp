@@ -250,4 +250,59 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
     }
 }
 
+[[nodiscard]] bool CCustomWallManager::handleCollision(
+    HexagonGame& mHexagonGame, CPlayer& mPlayer, ssvu::FT mFT)
+{
+    CCustomWallHandle h;
+    bool collided{false};
+    const int size{(int)_customWalls.size()};
+    const sf::Vector2f& pPos{mPlayer.getPosition()};
+
+    const auto overlap =
+    [this](const int idx, const sf::Vector2f& pos) -> bool
+    {
+        return !_handleAvailable[idx] &&
+           _customWalls[idx].getCanCollide() &&
+           _customWalls[idx].isOverlapping(pos);
+    };
+
+    for(h = 0; h < size; ++h)
+    {
+        if(!overlap(h, pPos))
+        {
+            continue;
+        }
+
+        if(mPlayer.getJustSwapped())
+        {
+            mPlayer.kill(mHexagonGame);
+            return true;
+        }
+        if(mPlayer.push(mHexagonGame, _customWalls[h], mFT))
+        {
+            mPlayer.kill(mHexagonGame);
+            return false;
+        }
+
+        collided = true;
+    }
+
+    if(!collided)
+    {
+        return false;
+    }
+
+    // Recheck collision on all walls.
+    for(h = 0; h < size; ++h)
+    {
+        if(overlap(h, pPos))
+        {
+            mPlayer.kill(mHexagonGame);
+            return false;
+        }
+    }
+
+    return false;
+}
+
 } // namespace hg

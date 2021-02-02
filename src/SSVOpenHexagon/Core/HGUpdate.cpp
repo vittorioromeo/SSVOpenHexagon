@@ -84,29 +84,12 @@ void HexagonGame::update(ssvu::FT mFT)
 
         if(!status.hasDied)
         {
-            const std::optional<bool> preventPlayerInput =
-                runLuaFunctionIfExists<bool, float, int, bool, bool>("onInput",
-                    mFT, getInputMovement(), getInputFocused(), getInputSwap());
-
-            if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
-            {
-                player.updateInput(*this, mFT);
-            }
-
-            player.updatePosition(*this, mFT);
-
             status.accumulateFrametime(mFT);
             if(levelStatus.scoreOverridden)
             {
                 status.updateCustomScore(
                     lua.readVariable<float>(levelStatus.scoreOverride));
             }
-            updateWalls(mFT);
-
-            ssvu::eraseRemoveIf(
-                walls, [](const CWall& w) { return w.isDead(); });
-
-            cwManager.cleanup();
 
             updateEvents(mFT);
             updateIncrement();
@@ -118,7 +101,6 @@ void HexagonGame::update(ssvu::FT mFT)
             }
 
             updateLevel(mFT);
-            updateCustomWalls(mFT);
 
             if(Config::getBeatPulse())
             {
@@ -134,6 +116,25 @@ void HexagonGame::update(ssvu::FT mFT)
             {
                 styleData.update(mFT, pow(difficultyMult, 0.8f));
             }
+
+            player.updateCollisionValues(*this, mFT);
+
+            const std::optional<bool> preventPlayerInput =
+                runLuaFunctionIfExists<bool, float, int, bool, bool>("onInput",
+                    mFT, getInputMovement(), getInputFocused(), getInputSwap());
+
+            if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
+            {
+                player.updateInput(*this, mFT);
+            }
+            player.updatePosition(*this, mFT);
+
+            updateWalls(mFT);
+            ssvu::eraseRemoveIf(
+                walls, [](const CWall& w) { return w.isDead(); });
+ 
+            cwManager.cleanup();
+            updateCustomWalls(mFT);
         }
         else
         {
@@ -193,48 +194,16 @@ void HexagonGame::update(ssvu::FT mFT)
 
 void HexagonGame::updateWalls(ssvu::FT mFT)
 {
-    cwManager.forCustomWalls([&](const CCustomWall& customWall) {
-        // After *only* the player has moved, push in case of overlap.
-        if(!customWall.getCanCollide() ||
-            !customWall.isOverlapping(player.getPosition()))
-        {
-            return;
-        }
+    bool collided{false};
+    const float radiusSquared{status.radius * status.radius + 8.f};
+    const sf::Vector2f& pPos{player.getPosition()};
 
-        if(player.getJustSwapped())
-        {
-            player.kill(*this);
-            steamManager.unlock_achievement("a22_swapdeath");
-        }
-        else if(player.push(*this, customWall, mFT))
-        {
-            player.kill(*this);
-        }
-    });
-
-    // First round of collision check, player gets a chance to
-    // escape if certain conditions are met.
-    const auto updateWall = [this](CWall& wall, const ssvu::FT& mFT) {
-        wall.update(*this, mFT);
-        wall.moveTowardsCenter(*this, centerPos, mFT);
-
-        if(wall.getCurve().speed != 0.f)
-        {
-            wall.moveCurve(*this, centerPos, mFT);
-        }
-    };
-
-    const sf::Vector2f& pPosition{player.getPosition()};
-
-    int i;
-    const int wSize{static_cast<int>(walls.size())};
-
-    for(i = 0; i < wSize; ++i)
+    for(CWall& w : walls)
     {
-        updateWall(walls[i], mFT);
+        w.update(*this, centerPos, mFT);
 
         // If there is no collision skip to the next wall.
-        if(!walls[i].isOverlapping(pPosition))
+        if(!w.isOverlapping(pPos, centerPos, radiusSquared))
         {
             continue;
         }
@@ -245,66 +214,40 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
             player.kill(*this);
             steamManager.unlock_achievement("a22_swapdeath");
         }
-        else if(player.push(*this, walls[i], centerPos, mFT))
+        else if(player.push(*this, w, centerPos, mFT))
         {
             player.kill(*this);
         }
 
-        break;
+        collided = true;
     }
 
-    // If `i == wSize` it means there was no collision, so we can stop here.
-    if(i == wSize)
+    // There was no collision, so we can stop here.
+    if(!collided)
     {
         return;
     }
 
-    // Recheck collision with walls that came before.
-    const auto executeDeath = [this] {
+    for(CWall& w : walls)
+    {
+        if(!w.isOverlapping(pPos))
+        {
+            continue;
+        }
+
         if(player.getJustSwapped())
         {
             steamManager.unlock_achievement("a22_swapdeath");
         }
-
         player.kill(*this);
-    };
-
-    for(int j = 0; j < i; ++j)
-    {
-        if(walls[j].isOverlapping(pPosition))
-        {
-            executeDeath();
-        }
-    }
-
-    // Update and check collision on the remaining walls.
-    ++i;
-    while(i < wSize)
-    {
-        updateWall(walls[i], mFT);
-
-        if(walls[i].isOverlapping(pPosition))
-        {
-            executeDeath();
-        }
-
-        ++i;
     }
 }
 
 void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 {
-    (void)mFT;
-
-    const bool customWallCollision =
-        cwManager.anyCustomWall([&](const CCustomWall& customWall) {
-            return customWall.getCanCollide() &&
-                   customWall.isOverlapping(player.getPosition());
-        });
-
-    if(customWallCollision)
+    if(cwManager.handleCollision(*this, player, mFT))
     {
-        player.kill(*this);
+        steamManager.unlock_achievement("a22_swapdeath");
     }
 }
 
