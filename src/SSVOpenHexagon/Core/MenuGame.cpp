@@ -912,31 +912,38 @@ void MenuGame::initMenus()
     };
 
     joystick.create<JoystickBindControl>("select", &Config::getJoystickSelect,
-        &Config::reassignToJoystickSelect, JoystickCallBack, Jid::Select);
+        &Config::setJoystickSelect, JoystickCallBack, Jid::Select);
     joystick.create<JoystickBindControl>("exit", &Config::getJoystickExit,
-        &Config::reassignToJoystickExit, JoystickCallBack, Jid::Exit);
+        &Config::setJoystickExit, JoystickCallBack, Jid::Exit);
     joystick.create<JoystickBindControl>("focus", &Config::getJoystickFocus,
-        &Config::reassignToJoystickFocus, JoystickCallBack, Jid::Focus);
+        &Config::setJoystickFocus, JoystickCallBack, Jid::Focus);
     joystick.create<JoystickBindControl>("swap", &Config::getJoystickSwap,
-        &Config::reassignToJoystickSwap, JoystickCallBack, Jid::Swap);
+        &Config::setJoystickSwap, JoystickCallBack, Jid::Swap);
     joystick.create<JoystickBindControl>("force restart",
         &Config::getJoystickForceRestart,
-        &Config::reassignToJoystickForceRestart, JoystickCallBack,
+        &Config::setJoystickForceRestart, JoystickCallBack,
         Jid::ForceRestart);
     joystick.create<JoystickBindControl>("restart", &Config::getJoystickRestart,
-        &Config::reassignToJoystickRestart, JoystickCallBack, Jid::Restart);
+        &Config::setJoystickRestart, JoystickCallBack, Jid::Restart);
     joystick.create<JoystickBindControl>("replay", &Config::getJoystickReplay,
-        &Config::reassignToJoystickReplay, JoystickCallBack, Jid::Replay);
+        &Config::setJoystickReplay, JoystickCallBack, Jid::Replay);
     joystick.create<JoystickBindControl>("screenshot",
-        &Config::getJoystickScreenshot, &Config::reassignToJoystickScreenshot,
+        &Config::getJoystickScreenshot, &Config::setJoystickScreenshot,
         JoystickCallBack, Jid::Screenshot);
     joystick.create<JoystickBindControl>("next pack",
-        &Config::getJoystickNextPack, &Config::reassignToJoystickNextPack,
+        &Config::getJoystickNextPack, &Config::setJoystickNextPack,
         JoystickCallBack, Jid::NextPack);
     joystick.create<JoystickBindControl>("previous pack",
         &Config::getJoystickPreviousPack,
-        &Config::reassignToJoystickPreviousPack, JoystickCallBack,
+        &Config::setJoystickPreviousPack, JoystickCallBack,
         Jid::PreviousPack);
+    joystick.create<JoystickBindControl>("(un)favorite level",
+        &Config::getJoystickAddToFavorites, &Config::setJoystickAddToFavorites,
+        JoystickCallBack, Jid::AddToFavorites);
+    joystick.create<JoystickBindControl>("favorites menu",
+        &Config::getJoystickFavoritesMenu,
+        &Config::setJoystickFavoritesMenu, JoystickCallBack,
+        Jid::FavoritesMenu);
     joystick.create<i::GoBack>("back");
 
     //--------------------------------
@@ -1888,6 +1895,15 @@ void MenuGame::update(ssvu::FT mFT)
         changePackAction(-1);
     }
 
+    if(hg::Joystick::addToFavoritesRisingEdge())
+    {
+        changeLevelFavoriteFlag();
+    }
+    if(hg::Joystick::favoritesMenuRisingEdge())
+    {
+        switchToFromFavoriteLevels();
+    }
+
     if(!(!isFavoriteLevels() && packChangeState == PackChange::Rest))
     {
         focusHeld = false;
@@ -2503,18 +2519,14 @@ void MenuGame::refreshCamera()
 void MenuGame::refreshBinds()
 {
     // Keyboard-mouse
-    std::size_t i;
-    for(i = 0; i < Config::keyboardTriggerGetters.size(); ++i)
+    for(std::size_t i{0u}; i < Config::keyboardTriggerGetters.size(); ++i)
     {
         game.refreshTrigger(Config::keyboardTriggerGetters[i](), i);
         hexagonGame.refreshTrigger(Config::keyboardTriggerGetters[i](), i);
     }
 
     // Joystick
-    for(i = 0; i < Config::joystickTriggerGetters.size(); ++i)
-    {
-        hg::Joystick::setJoystickBind(Config::joystickTriggerGetters[i](), i);
-    }
+    Config::loadAllJoystickBinds();
 }
 
 void MenuGame::setIgnoreAllInputs(const unsigned int presses)

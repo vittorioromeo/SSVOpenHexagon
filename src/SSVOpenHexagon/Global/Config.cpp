@@ -23,30 +23,32 @@ using namespace ssvu::FileSystem;
 using namespace ssvuj;
 using namespace ssvu;
 
-#define X_BINDSLINKEDVALUES                                  \
-    X(joystickSelect, unsigned int, "j_select")              \
-    X(joystickExit, unsigned int, "j_exit")                  \
-    X(joystickFocus, unsigned int, "j_focus")                \
-    X(joystickSwap, unsigned int, "j_swap")                  \
-    X(joystickForceRestart, unsigned int, "j_force_restart") \
-    X(joystickRestart, unsigned int, "j_restart")            \
-    X(joystickReplay, unsigned int, "j_replay")              \
-    X(joystickScreenshot, unsigned int, "j_screenshot")      \
-    X(joystickNextPack, unsigned int, "j_next")              \
-    X(joystickPreviousPack, unsigned int, "j_previous")      \
-    X(triggerRotateCCW, Trigger, "t_rotate_ccw")             \
-    X(triggerRotateCW, Trigger, "t_rotate_cw")               \
-    X(triggerFocus, Trigger, "t_focus")                      \
-    X(triggerSelect, Trigger, "t_select")                    \
-    X(triggerExit, Trigger, "t_exit")                        \
-    X(triggerForceRestart, Trigger, "t_force_restart")       \
-    X(triggerRestart, Trigger, "t_restart")                  \
-    X(triggerReplay, Trigger, "t_replay")                    \
-    X(triggerScreenshot, Trigger, "t_screenshot")            \
-    X(triggerSwap, Trigger, "t_swap")                        \
-    X(triggerUp, Trigger, "t_up")                            \
-    X(triggerDown, Trigger, "t_down")                        \
-    X(triggerNextPack, Trigger, "t_next")                    \
+#define X_BINDSLINKEDVALUES                                     \
+    X(joystickSelect, unsigned int, "j_select")                 \
+    X(joystickExit, unsigned int, "j_exit")                     \
+    X(joystickFocus, unsigned int, "j_focus")                   \
+    X(joystickSwap, unsigned int, "j_swap")                     \
+    X(joystickForceRestart, unsigned int, "j_force_restart")    \
+    X(joystickRestart, unsigned int, "j_restart")               \
+    X(joystickReplay, unsigned int, "j_replay")                 \
+    X(joystickScreenshot, unsigned int, "j_screenshot")         \
+    X(joystickNextPack, unsigned int, "j_next")                 \
+    X(joystickPreviousPack, unsigned int, "j_previous")         \
+    X(joystickAddToFavorites, unsigned int, "j_add_favorite")   \
+    X(joystickFavoritesMenu, unsigned int, "j_favorite_menu")   \
+    X(triggerRotateCCW, Trigger, "t_rotate_ccw")             	\
+    X(triggerRotateCW, Trigger, "t_rotate_cw")               	\
+    X(triggerFocus, Trigger, "t_focus")                      	\
+    X(triggerSelect, Trigger, "t_select")                    	\
+    X(triggerExit, Trigger, "t_exit")                        	\
+    X(triggerForceRestart, Trigger, "t_force_restart")       	\
+    X(triggerRestart, Trigger, "t_restart")                  	\
+    X(triggerReplay, Trigger, "t_replay")                    	\
+    X(triggerScreenshot, Trigger, "t_screenshot")            	\
+    X(triggerSwap, Trigger, "t_swap")                        	\
+    X(triggerUp, Trigger, "t_up")                            	\
+    X(triggerDown, Trigger, "t_down")                        	\
+    X(triggerNextPack, Trigger, "t_next")                    	\
     X(triggerPreviousPack, Trigger, "t_previous")
 
 #define X_LINKEDVALUES                                                     \
@@ -1336,59 +1338,14 @@ void setTriggerPreviousPack(Trigger& trig)
 //***********************************************************
 
 //**********************************************
-// Game start check
-
-[[nodiscard]] int checkJoystickButtons(int button, std::vector<int>& buttonList)
-{
-    // values lower than 0 make the game crash, 33 == unbound.
-    button = std::clamp(button, 0, 33);
-    if(button == 33)
-    {
-        return button;
-    }
-
-    // if button is already used assign button 33.
-    // 33 is out of the supported buttons range so it can never be triggered.
-    bool alreadyBound{false};
-    for(auto& b : buttonList)
-    {
-        if(b != 33 && button == b)
-        {
-            button = 33;
-            alreadyBound = true;
-        }
-    }
-    if(!alreadyBound)
-    {
-        buttonList.push_back(button);
-    }
-
-    return button;
-}
-
-void joystickBindsSanityCheck()
-{
-    std::vector<int> buttonList;
-    joystickSelect() = checkJoystickButtons(joystickSelect(), buttonList);
-    joystickExit() = checkJoystickButtons(joystickExit(), buttonList);
-    joystickFocus() = checkJoystickButtons(joystickFocus(), buttonList);
-    joystickSwap() = checkJoystickButtons(joystickSwap(), buttonList);
-    joystickForceRestart() =
-        checkJoystickButtons(joystickForceRestart(), buttonList);
-    joystickRestart() = checkJoystickButtons(joystickRestart(), buttonList);
-    joystickReplay() = checkJoystickButtons(joystickReplay(), buttonList);
-    joystickScreenshot() =
-        checkJoystickButtons(joystickScreenshot(), buttonList);
-}
-
-//**********************************************
 // Get binds names
 
 const std::array<JoystickTriggerGetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerGetters{{
     getJoystickSelect, getJoystickExit, getJoystickFocus,
     getJoystickSwap, getJoystickForceRestart, getJoystickRestart,
     getJoystickReplay, getJoystickScreenshot,
-    getJoystickNextPack, getJoystickPreviousPack
+    getJoystickNextPack, getJoystickPreviousPack,
+    getJoystickAddToFavorites, getJoystickFavoritesMenu
 }};
 
 const std::string getJoystickBindNames(const int bindID)
@@ -1414,7 +1371,7 @@ const std::string getJoystickBindNames(const int bindID)
         const unsigned int vendorId{
             sf::Joystick::isConnected(0)
                 ? sf::Joystick::getIdentification(0).vendorId
-            : 0};
+                : 0};
 
         switch(vendorId)
         {
@@ -1430,7 +1387,6 @@ const std::string getJoystickBindNames(const int bindID)
         }
     }
 
-    Utils::uppercasify(bindName);
     return bindName;
 }
 
@@ -1477,95 +1433,33 @@ unsigned int getJoystickPreviousPack()
 {
     return joystickPreviousPack();
 }
+unsigned int getJoystickAddToFavorites()
+{
+    return joystickAddToFavorites();
+}
+unsigned int getJoystickFavoritesMenu()
+{
+    return joystickFavoritesMenu();
+}
+
+void loadAllJoystickBinds()
+{
+    for(std::size_t i{0u}; i < Config::joystickTriggerGetters.size(); ++i)
+    {
+        hg::Joystick::setJoystickBind(Config::joystickTriggerGetters[i](), i);
+    }
+}
 
 //**********************************************
-// Reassign bind
+// Set bind
 
 using JoystickTriggerSetter = void (*)(const unsigned int button);
 const std::array<JoystickTriggerSetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerSetters{{
     setJoystickSelect, setJoystickExit, setJoystickFocus, setJoystickSwap,
     setJoystickForceRestart, setJoystickRestart, setJoystickReplay,
-    setJoystickScreenshot, setJoystickNextPack, setJoystickPreviousPack
+    setJoystickScreenshot, setJoystickNextPack, setJoystickPreviousPack,
+    setJoystickAddToFavorites, setJoystickFavoritesMenu
 }};
-
-[[nodiscard]] int checkButtonReassignment(const unsigned int button)
-{
-    for(size_t i = 0; i < joystickTriggerSetters.size(); ++i)
-    {
-        if(joystickTriggerGetters[i]() == button)
-        {
-            joystickTriggerSetters[i](33);
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-int reassignToJoystickSelect(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickSelect() = button;
-    return unboundID;
-}
-int reassignToJoystickExit(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickExit() = button;
-    return unboundID;
-}
-int reassignToJoystickFocus(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickFocus() = button;
-    return unboundID;
-}
-int reassignToJoystickSwap(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickSwap() = button;
-    return unboundID;
-}
-int reassignToJoystickForceRestart(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickForceRestart() = button;
-    return unboundID;
-}
-int reassignToJoystickRestart(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickRestart() = button;
-    return unboundID;
-}
-int reassignToJoystickReplay(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickReplay() = button;
-    return unboundID;
-}
-int reassignToJoystickScreenshot(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickScreenshot() = button;
-    return unboundID;
-}
-int reassignToJoystickNextPack(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickNextPack() = button;
-    return unboundID;
-}
-int reassignToJoystickPreviousPack(const unsigned int button)
-{
-    const int unboundID{checkButtonReassignment(button)};
-    joystickPreviousPack() = button;
-    return unboundID;
-}
-
-
-//**********************************************
-// Set bind
 
 void setJoystickSelect(const unsigned int button)
 {
@@ -1606,6 +1500,14 @@ void setJoystickNextPack(const unsigned int button)
 void setJoystickPreviousPack(const unsigned int button)
 {
     joystickPreviousPack() = button;
+}
+void setJoystickAddToFavorites(const unsigned int button)
+{
+    joystickAddToFavorites() = button;
+}
+void setJoystickFavoritesMenu(const unsigned int button)
+{
+    joystickFavoritesMenu() = button;
 }
 
 } // namespace hg::Config

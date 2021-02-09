@@ -253,20 +253,12 @@ void joystickBindsSanityCheck();
 [[nodiscard]] unsigned int getJoystickScreenshot();
 [[nodiscard]] unsigned int getJoystickNextPack();
 [[nodiscard]] unsigned int getJoystickPreviousPack();
+[[nodiscard]] unsigned int getJoystickAddToFavorites();
+[[nodiscard]] unsigned int getJoystickFavoritesMenu();
 
 using JoystickTriggerGetter = unsigned int (*)();
 extern const std::array<JoystickTriggerGetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerGetters;
-
-[[nodiscard]] int reassignToJoystickSelect(const unsigned int button);
-[[nodiscard]] int reassignToJoystickExit(const unsigned int button);
-[[nodiscard]] int reassignToJoystickFocus(const unsigned int button);
-[[nodiscard]] int reassignToJoystickSwap(const unsigned int button);
-[[nodiscard]] int reassignToJoystickForceRestart(const unsigned int button);
-[[nodiscard]] int reassignToJoystickRestart(const unsigned int button);
-[[nodiscard]] int reassignToJoystickReplay(const unsigned int button);
-[[nodiscard]] int reassignToJoystickScreenshot(const unsigned int button);
-[[nodiscard]] int reassignToJoystickNextPack(const unsigned int button);
-[[nodiscard]] int reassignToJoystickPreviousPack(const unsigned int button);
+void loadAllJoystickBinds();
 
 void setJoystickSelect(const unsigned int button);
 void setJoystickExit(const unsigned int button);
@@ -278,5 +270,7 @@ void setJoystickReplay(const unsigned int button);
 void setJoystickScreenshot(const unsigned int button);
 void setJoystickNextPack(const unsigned int button);
 void setJoystickPreviousPack(const unsigned int button);
+void setJoystickAddToFavorites(const unsigned int button);
+void setJoystickFavoritesMenu(const unsigned int button);
 
 } // namespace hg::Config

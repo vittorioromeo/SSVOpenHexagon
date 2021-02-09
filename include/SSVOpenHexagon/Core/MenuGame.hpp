@@ -179,7 +179,6 @@ private:
     void updateLeaderboard();
     void updateFriends();
     void refreshCamera();
-    void refreshBinds();
     void reloadAssets(const bool reloadEntirePack);
     void setIgnoreAllInputs(const unsigned int presses);
 
@@ -531,6 +530,7 @@ public:
 
     void returnToLevelSelection();
     void saveFavoriteLevels();
+    void refreshBinds();
 };
 
 } // namespace hg

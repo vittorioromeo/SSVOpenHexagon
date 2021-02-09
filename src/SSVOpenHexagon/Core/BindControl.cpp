@@ -173,14 +173,7 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
     }
 
     // save the new key in config
-    int unboundID = setButton(joy);
-
-    // if the key was bound to another function and it was reassigned
-    // make sure we also update the unbound joystick button
-    if(unboundID > -1)
-    {
-        callback(33, unboundID);
-    }
+    setButton(joy);
 
     // update the bind we customized
     callback(joy, ID);
