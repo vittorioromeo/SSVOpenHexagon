@@ -1365,6 +1365,28 @@ void HexagonGame::initLua_CustomWalls()
             "Given the custom wall represented by `$0`, get whever it can "
             "collide with player or not.");
 
+    addLuaFn("cw_setDeadly", //
+        [this](CCustomWallHandle cwHandle, bool deadly) {
+            cwManager.setCanCollide(cwHandle, deadly);
+        })
+        .arg("cwHandle")
+        .arg("deadly")
+        .doc(
+            "Given the custom wall represented by `$0`, set wherever "
+            "it instantly kills player on touch. This is a highly "
+            "recommended for custom walls that are either very small "
+            "or very thin and do not belong to a barrage.");
+
+    addLuaFn("cw_getDeadly", //
+        [this](CCustomWallHandle cwHandle) -> bool {
+            return cwManager.getCanCollide(cwHandle);
+        })
+        .arg("cwHandle")
+        .arg("isDeadly")
+        .doc(
+            "Given the custom wall represented by `$0`, get wherever it instantly "
+            "kills the player on touch");
+
     addLuaFn("cw_getVertexPos", //
         [this](CCustomWallHandle cwHandle,
             int vertexIndex) -> std::tuple<float, float> {

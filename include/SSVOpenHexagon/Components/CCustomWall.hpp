@@ -29,6 +29,7 @@ private:
     std::array<sf::Vector2f, 4> oldVertexPositions;
     std::array<sf::Color, 4> vertexColors;
     bool canCollide{true};
+    bool isDeadly{false};
     // TODO: Implement this in drawing logic
     // int8_t renderOrder{1};
 
@@ -62,6 +63,11 @@ public:
         canCollide = collide;
     }
 
+    [[gnu::always_inline]] void setDeadly(const bool deadly) noexcept
+    {
+        isDeadly = deadly;
+    }
+
     // [[gnu::always_inline]] void setRenderOrder(const int8_t order) noexcept
     // {
     //     renderOrder = order;
@@ -88,6 +94,11 @@ public:
     [[gnu::always_inline, nodiscard]] bool getCanCollide() const noexcept
     {
         return canCollide;
+    }
+
+    [[gnu::always_inline, nodiscard]] bool getDeadly() const noexcept
+    {
+        return isDeadly;
     }
 
     [[gnu::always_inline, nodiscard]] bool isCustomWall() const noexcept
