@@ -154,7 +154,7 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     mHexagonGame.death();
 }
 
-inline constexpr float collisionPadding{0.05f};
+inline constexpr float collisionPadding{0.1f};
 
 template <typename Wall>
 [[nodiscard]] bool CPlayer::checkWallCollisionEscape(const Wall& wall, sf::Vector2f& mPos)
@@ -208,7 +208,8 @@ template <typename Wall>
     };
 
     const auto assignResult = [&]() {
-        if((tempDistance = ssvs::getMagSquared(vec1 - mPos)) < safeDistance)
+        tempDistance = ssvs::getMagSquared(vec1 - mPos);
+        if(tempDistance < safeDistance)
         {
             mPos = vec1;
             saved = true;
@@ -355,7 +356,7 @@ inline constexpr float sideSlideThreshold{0.8f};
         return true;
     }
 
-    // If player survived apply test position add a little padding.
+    // If player survived apply test position and add a little padding.
     pos = testPos + ssvs::getNormalized(testPos - pos) * collisionPadding;
     lastAngle = angle = ssvs::getRad(pos);
     updatePosition(mHexagonGame, mFT);
