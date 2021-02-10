@@ -305,6 +305,12 @@ inline constexpr float sideSlideThreshold{0.8f};
         return false;
     }
 
+    // Instakill wall.
+    if(wall.getDeadly())
+    {
+        return true;
+    }
+
     sf::Vector2f lastPos{ssvs::getOrbitRad(startPos, lastAngle, radius)};
     sf::Vector2f testPos{(pos + lastPos) / 2.f}; // I found this to give best results.
     sf::Vector2f velocity{0.f, 0.f};
