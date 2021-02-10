@@ -157,29 +157,31 @@ void HexagonGame::drawProjections()
     const float sinRot(std::sin(radRot));
     const float cosRot(std::cos(radRot));
 
-    sf::Color wallColor{getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult)},
-        playerColor{styleData.get3DOverrideColor() == styleData.getMainColor() ?
+    std::size_t j;
+    sf::Vector2f newPos;
+    float depthIndex{depth - 1.f}, offset;
+    const float effectMult{(effect * 3.6f) * 1.4f};
+    
+    sf::Color wallColor{
+        getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
+    sf::Color playerColor{
+        styleData.get3DOverrideColor() == styleData.getMainColor() ?
             getColorDarkened(styleData.getPlayerColor(), styleData._3dDarkenMult) :
             wallColor};
     wallColor.a /= styleData._3dAlphaMult;
     playerColor.a /= styleData._3dAlphaMult;
+    wallColor.a -= depthIndex * styleData._3dAlphaFalloff;
+    playerColor.a -= depthIndex * styleData._3dAlphaFalloff;
 
-    std::size_t j;
-    sf::Vector2f newPos;
-    float depthIndex, offset;
-    const float effectMult{(effect * 3.6f) * 1.4f};
-    for(unsigned int i = 0; i < depth; ++i)
+    for(unsigned int i{0u}; i < depth; ++i)
     {
         wallQuads3D.unsafe_emplace_other(wallQuads);
         wallQuads3D.unsafe_emplace_other(capQuads);
         playerTris3D.unsafe_emplace_other(playerTris);
 
-        depthIndex = depth - i - 1;
         offset = styleData._3dSpacing *
-                ((depthIndex + 1.f) * styleData._3dPerspectiveMult) * effectMult;
+            ((depthIndex + 1.f) * styleData._3dPerspectiveMult) * effectMult;
         newPos = {offset * cosRot, offset * sinRot};
-        wallColor.a -= styleData._3dAlphaFalloff;
-        playerColor.a -= styleData._3dAlphaFalloff;
 
         for(j = i * numWallQuads; j < (i + 1) * numWallQuads; ++j)
         {
@@ -191,6 +193,10 @@ void HexagonGame::drawProjections()
             playerTris3D[j].position += newPos;
             playerTris3D[j].color = playerColor;
         }
+
+        wallColor.a += styleData._3dAlphaFalloff;
+        playerColor.a += styleData._3dAlphaFalloff;
+        depthIndex -= 1.f;
     }
 
     render(wallQuads3D);
