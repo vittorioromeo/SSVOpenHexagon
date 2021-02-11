@@ -293,8 +293,6 @@ template <typename Wall>
     return false;
 }
 
-inline constexpr float sideSlideThreshold{0.8f};
-
 [[nodiscard]] bool CPlayer::push(const HexagonGame& mHexagonGame,
     const CCustomWall& wall, const ssvu::FT mFT)
 {
@@ -305,58 +303,14 @@ inline constexpr float sideSlideThreshold{0.8f};
         return false;
     }
 
-    // Instakill wall.
-    if(wall.getDeadly())
+    // Couple of scenarios where it's just certain death.
+    if(wall.getDeadly() || !mHexagonGame.getInputMovement())
     {
         return true;
     }
 
-    sf::Vector2f lastPos{ssvs::getOrbitRad(startPos, lastAngle, radius)};
-    sf::Vector2f testPos{(pos + lastPos) / 2.f}; // I found this to give best results.
-    sf::Vector2f velocity{0.f, 0.f};
-
-    // A custom wall can take any shape and its sides can move however
-    // they want. To check if player should be moved like it occurs with
-    // rotating standard walls see if testPos fits within the trapezoid
-    // delimited by the wall's old and new positions of the vertexes.
-    std::array<const sf::Vector2f*, 4> collisionPolygon;
-    const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexPositions()};
-    const std::array<sf::Vector2f, 4>& wOldVertexes{wall.getOldVertexPositions()};
-
-    for(unsigned int i{0u}, j{3u}; i < 4u; j = i++)
-    {
-        collisionPolygon =
-            {&wVertexes[i], &wOldVertexes[i], &wOldVertexes[j], &wVertexes[j]};
-        if(!pointInPolygonPointers(collisionPolygon, testPos.x, testPos.y))
-        {
-            continue;
-        }
-
-        // Average velocity of the vertexes.
-        velocity = 
-            ((wVertexes[i] - wOldVertexes[i]) + (wVertexes[j] - wOldVertexes[j])) / 2.f;
-
-        // Not a side player can slide against.
-        if(std::abs(ssvs::getDotProduct(ssvs::getNormalized(velocity),
-            ssvs::getNormalized(pos))) < sideSlideThreshold)
-        {
-            return true;
-        }
-
-        break;
-    }
-
-    // If player is not moving calculate now...
-    if(!mHexagonGame.getInputMovement())
-    {
-        pos += velocity + ssvs::getNormalized(testPos - pos) * collisionPadding;
-        lastAngle = angle = ssvs::getRad(pos);
-        updatePosition(mHexagonGame, mFT);
-        return wall.isOverlapping(pos);
-    }
-
-    // ...otherwise try to find a close enough safe position.
-    testPos = lastPos + velocity;
+    // If alive try to find a close enough safe position.
+    sf::Vector2f testPos{ssvs::getOrbitRad(startPos, lastAngle, radius)};
     if(!checkWallCollisionEscape<CCustomWall>(wall, testPos))
     {
         return true;
