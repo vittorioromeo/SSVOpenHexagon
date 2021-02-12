@@ -47,20 +47,25 @@ inline void uppercasify(std::string& s)
     return ssvs::getGlobalHeight(font);
 }
 
-[[nodiscard, gnu::pure]] inline float getFontHeight(sf::Text& font, const unsigned int charSize)
+[[nodiscard, gnu::pure]] inline float getFontHeight(
+    sf::Text& font, const unsigned int charSize)
 {
     font.setCharacterSize(charSize);
     font.setString("A");
     return ssvs::getGlobalHeight(font);
 }
 
-bool getLinesIntersection(sf::Vector2f& mIntersection,
-    const sf::Vector2f& l1p1, const sf::Vector2f& l1p2,
-    const sf::Vector2f& l2p1, const sf::Vector2f& l2p2);
+bool getLinesIntersection(sf::Vector2f& mIntersection, const sf::Vector2f& l1p1,
+    const sf::Vector2f& l1p2, const sf::Vector2f& l2p1,
+    const sf::Vector2f& l2p2);
 
-[[nodiscard, gnu::pure]] inline float fastSqrt(const float &n) 
+[[nodiscard, gnu::pure]] inline float fastSqrt(const float& n)
 {
-    static union{int i; float f;} u;
+    static union
+    {
+        int i;
+        float f;
+    } u;
     u.i = 0x5F375A86 - (*(int*)&n >> 1);
     return (int(3) - n * u.f * u.f) * n * u.f * 0.5f;
 }

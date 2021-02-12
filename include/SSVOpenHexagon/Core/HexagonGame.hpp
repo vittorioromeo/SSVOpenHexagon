@@ -379,7 +379,8 @@ private:
                     const std::string& args, const std::string& docs) {
                     std::cout << "* **`" << ret << " " << name << "(" << args
                               << ")`**: " << docs << "\n\n";
-                }, i);
+                },
+                i);
         }
     }
 
@@ -403,7 +404,6 @@ private:
     }
 
 public:
-
     MenuGame* mgPtr;
 
     HexagonGame(Steam::steam_manager& mSteamManager,

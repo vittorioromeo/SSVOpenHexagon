@@ -27,7 +27,7 @@ void HexagonGame::drawSetup()
 {
     // Setup.
     styleData.computeColors(levelStatus);
-    window.clear(Color::Black);    
+    window.clear(Color::Black);
 
     // Death camera shake.
     if(status.hasDied)
@@ -42,15 +42,14 @@ void HexagonGame::drawSetup()
             getRndR(-levelStatus.cameraShake, levelStatus.cameraShake));
 
         backgroundCamera.setCenter(shake);
-        overlayCamera.setCenter(
-            shake + sf::Vector2f{Config::getWidth() / 2.f,
-            Config::getHeight() / 2.f});
+        overlayCamera.setCenter(shake + sf::Vector2f{Config::getWidth() / 2.f,
+                                            Config::getHeight() / 2.f});
     }
     else
     {
         backgroundCamera.setCenter(ssvs::zeroVec2f);
-        overlayCamera.setCenter(sf::Vector2f{
-            Config::getWidth() / 2.f, Config::getHeight() / 2.f});
+        overlayCamera.setCenter(
+            sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 2.f});
     }
 }
 
@@ -85,7 +84,7 @@ void HexagonGame::draw2D()
     playerTris.clear();
     capTris.clear();
     capQuads.clear();
-    
+
     if(!Config::getNoBackground())
     {
         backgroundCamera.apply();
@@ -161,13 +160,14 @@ void HexagonGame::drawProjections()
     sf::Vector2f newPos;
     float depthIndex{depth - 1.f}, offset;
     const float effectMult{(effect * 3.6f) * 1.4f};
-    
-    sf::Color wallColor{
-        getColorDarkened(styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
+
+    sf::Color wallColor{getColorDarkened(
+        styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
     sf::Color playerColor{
-        styleData.get3DOverrideColor() == styleData.getMainColor() ?
-            getColorDarkened(styleData.getPlayerColor(), styleData._3dDarkenMult) :
-            wallColor};
+        styleData.get3DOverrideColor() == styleData.getMainColor()
+            ? getColorDarkened(
+                  styleData.getPlayerColor(), styleData._3dDarkenMult)
+            : wallColor};
     wallColor.a /= styleData._3dAlphaMult;
     playerColor.a /= styleData._3dAlphaMult;
     wallColor.a -= depthIndex * styleData._3dAlphaFalloff;
@@ -180,7 +180,8 @@ void HexagonGame::drawProjections()
         playerTris3D.unsafe_emplace_other(playerTris);
 
         offset = styleData._3dSpacing *
-            ((depthIndex + 1.f) * styleData._3dPerspectiveMult) * effectMult;
+                 ((depthIndex + 1.f) * styleData._3dPerspectiveMult) *
+                 effectMult;
         newPos = {offset * cosRot, offset * sinRot};
 
         for(j = i * numWallQuads; j < (i + 1) * numWallQuads; ++j)
@@ -219,10 +220,12 @@ void HexagonGame::draw3D()
     const float effect{
         styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
     backgroundCamera.setSkew({1.f, 1.f + effect});
-    const float offset(styleData._3dSpacing *
-                ((styleData._3dDepth + 1.f) * styleData._3dPerspectiveMult) *
-                (effect * 3.6f) * 1.4f);
-    const float radRot(ssvu::toRad(backgroundCamera.getRotation()) + ssvu::piHalf);
+    const float offset(
+        styleData._3dSpacing *
+        ((styleData._3dDepth + 1.f) * styleData._3dPerspectiveMult) *
+        (effect * 3.6f) * 1.4f);
+    const float radRot(
+        ssvu::toRad(backgroundCamera.getRotation()) + ssvu::piHalf);
     offset3D = {offset * std::cos(radRot), offset * std::sin(radRot)};
 
     // Draw the background.
@@ -250,9 +253,11 @@ void HexagonGame::draw3D()
     if(status.started)
     {
         player.draw3D(*this,
-            styleData.get3DOverrideColor() == styleData.getMainColor() ?
-                getColorDarkened(styleData.getPlayerColor(), styleData._3dDarkenMult) :
-                wallColor, styleData.getCapColorResult());
+            styleData.get3DOverrideColor() == styleData.getMainColor()
+                ? getColorDarkened(
+                      styleData.getPlayerColor(), styleData._3dDarkenMult)
+                : wallColor,
+            styleData.getCapColorResult());
     }
 
     // Render.

@@ -364,7 +364,8 @@ private:
     {
         std::sort(favSlct.levelDataIds.begin(), favSlct.levelDataIds.end(),
             [this](const std::string& a, const std::string& b) -> bool {
-                return assets.getLevelData(a).name < assets.getLevelData(b).name;
+                return assets.getLevelData(a).name <
+                       assets.getLevelData(b).name;
             });
     }
 
@@ -378,15 +379,16 @@ private:
     float getLevelSelectionHeight() const;
     float getLevelListHeight() const
     {
-        return levelLabelHeight * lvlDrawer->levelDataIds.size() + slctFrameSize;
+        return levelLabelHeight * lvlDrawer->levelDataIds.size() +
+               slctFrameSize;
     }
 
     static inline constexpr float baseScrollSpeed{45.f};
     void calcPackChangeScrollSpeed()
     {
         // Only speed up the animation if there are more than 12 levels.
-        scrollSpeed =
-            baseScrollSpeed * std::max(lvlDrawer->levelDataIds.size() / 12.f, 1.f);
+        scrollSpeed = baseScrollSpeed *
+                      std::max(lvlDrawer->levelDataIds.size() / 12.f, 1.f);
     }
     void calcLevelChangeScroll(const int dir);
     void calcPackChangeScroll();
