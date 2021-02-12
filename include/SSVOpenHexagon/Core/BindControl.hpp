@@ -99,7 +99,7 @@ class JoystickBindControl final : public BindControlBase
 {
 private:
     using ValueGetter = std::function<unsigned int()>;
-    using ValueSetter = std::function<int(const unsigned int)>;
+    using ValueSetter = std::function<void(const unsigned int)>;
     using Callback = std::function<void(const unsigned int, const int)>;
 
     ValueGetter valueGetter;
