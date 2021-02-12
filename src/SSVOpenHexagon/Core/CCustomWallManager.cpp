@@ -250,8 +250,8 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
     }
 }
 
-void CCustomWallManager::draw3D(HexagonGame& hexagonGame,
-    const sf::Color& mColor)
+void CCustomWallManager::draw3D(
+    HexagonGame& hexagonGame, const sf::Color& mColor)
 {
     for(CCustomWallHandle h = 0; h < (int)_customWalls.size(); ++h)
     {

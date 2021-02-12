@@ -352,12 +352,12 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIndex(randomLevel);
 
     // Setup for the loading menu
-    static const std::array<std::array<std::string_view, 2>, 4> tips{{
-        {"HOLDING SHIFT WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
-        {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
-        {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
-        {"IF A LEVEL IS TOO CHALLENGING", "PRACTICE IT AT A LOWER DIFFICULTY"}
-    }};
+    static const std::array<std::array<std::string_view, 2>, 4> tips{
+        {{"HOLDING SHIFT WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
+            {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
+            {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
+            {"IF A LEVEL IS TOO CHALLENGING",
+                "PRACTICE IT AT A LOWER DIFFICULTY"}}};
     randomTip = tips[ssvu::getRndI(0, tips.size())];
 
     // Set size of the level offsets vector to the minimum required
@@ -1432,8 +1432,7 @@ void MenuGame::upAction()
     do
     {
         getCurrentMenu()->previous();
-    }
-    while(!getCurrentMenu()->getItem().isEnabled());
+    } while(!getCurrentMenu()->getItem().isEnabled());
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -1463,7 +1462,7 @@ void MenuGame::downAction()
             calcLevelChangeScroll(2);
         }
         else if(lvlDrawer->currentIndex + 1 >
-            ssvu::toInt(lvlDrawer->levelDataIds.size() - 1))
+                ssvu::toInt(lvlDrawer->levelDataIds.size() - 1))
         {
             changePackAction(1);
         }
@@ -1509,8 +1508,7 @@ void MenuGame::downAction()
     do
     {
         getCurrentMenu()->next();
-    }
-    while(!getCurrentMenu()->getItem().isEnabled());
+    } while(!getCurrentMenu()->getItem().isEnabled());
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -1544,21 +1542,26 @@ void MenuGame::changePackQuick(const int direction)
     // YOffset is 0 when the first pack is shown and gets lower
     // the further down we have to scroll.
 
-    // Height of the top of the pack label that is one index before the current one.
-    float scroll{packLabelHeight * (lvlDrawer->packIdx - 1) + lvlDrawer->YOffset};
+    // Height of the top of the pack label that is one index before the current
+    // one.
+    float scroll{
+        packLabelHeight * (lvlDrawer->packIdx - 1) + lvlDrawer->YOffset};
 
-    // If the height is lower than the offset of the level selection we must change to
-    // that to show the labels before the current one.
+    // If the height is lower than the offset of the level selection we must
+    // change to that to show the labels before the current one.
     if(scroll < 0.f)
     {
         lvlDrawer->YOffset -= scroll;
         return;
     }
 
-    // Height of the bottom of the pack label that is one index after the current one.
-    scroll = packLabelHeight * (lvlDrawer->packIdx + 2) + levelLabelHeight + 3.f * slctFrameSize + lvlDrawer->YOffset;
+    // Height of the bottom of the pack label that is one index after the
+    // current one.
+    scroll = packLabelHeight * (lvlDrawer->packIdx + 2) + levelLabelHeight +
+             3.f * slctFrameSize + lvlDrawer->YOffset;
 
-    // If the height is outside the boundaries of the screen adjust offset to show it.
+    // If the height is outside the boundaries of the screen adjust offset to
+    // show it.
     if(scroll > h)
     {
         lvlDrawer->YOffset += h - scroll;
@@ -1808,7 +1811,8 @@ void MenuGame::eraseAction()
     }
     else if(state == States::MOpts && isInMenu())
     {
-        auto* const bc{dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
+        auto* const bc{
+            dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
         if(bc == nullptr)
         {
             return;
@@ -2113,10 +2117,10 @@ void MenuGame::update(ssvu::FT mFT)
 
             // Make sure there isn't empty space above the first element
             // of the level list and below the last element.
-            lvlDrawer->YOffset =
-                ssvu::getClamped(lvlDrawer->YOffset, h - levelSelectionTotalHeight, 0.f);
+            lvlDrawer->YOffset = ssvu::getClamped(
+                lvlDrawer->YOffset, h - levelSelectionTotalHeight, 0.f);
         }
-        return;
+            return;
 
         default: return;
     }
@@ -3317,7 +3321,7 @@ void MenuGame::updateLevelSelectionDrawingParameters()
         txtSelectionMedium.height + 2.f * textToQuadBorder + slctFrameSize;
     levelLabelHeight = txtSelectionBig.height +           // level name
                        txtSelectionSmall.height * 1.75f + // author + interspace
-                       2.f * textToQuadBorder -           // top and bottom spaces
+                       2.f * textToQuadBorder - // top and bottom spaces
                        slctFrameSize;
 }
 
@@ -3404,8 +3408,8 @@ void MenuGame::calcLevelChangeScroll(const int dir)
         // level label and the next pack label or two previous pack labels.
         if(lvlDrawer->currentIndex < 2)
         {
-            scroll = packLabelHeight *
-                     (lvlDrawer->packIdx + 1 - (2 - lvlDrawer->currentIndex)) +
+            scroll = packLabelHeight * (lvlDrawer->packIdx + 1 -
+                                           (2 - lvlDrawer->currentIndex)) +
                      lvlDrawer->YOffset;
         }
         else
@@ -3428,9 +3432,9 @@ void MenuGame::calcLevelChangeScroll(const int dir)
     // last level label and the next pack label or two next pack labels...
     if(lvlDrawer->currentIndex >= size - 2)
     {
-        scroll = packLabelHeight *
-            (lvlDrawer->packIdx + 1 +
-                (2 - (size - 1 - lvlDrawer->currentIndex))) +
+        scroll =
+            packLabelHeight * (lvlDrawer->packIdx + 1 +
+                                  (2 - (size - 1 - lvlDrawer->currentIndex))) +
             levelLabelHeight * size + 3.f * slctFrameSize + lvlDrawer->YOffset;
     }
     else
@@ -3465,7 +3469,8 @@ void MenuGame::calcPackChangeScroll()
         // If that is not possible just include the pack label
         // + whatever amount of levels it's possible to fit on screen.
         const float levelsListHeight{
-            std::min((packLabelHeight + slctFrameSize) + getLevelListHeight(), h) -
+            std::min(
+                (packLabelHeight + slctFrameSize) + getLevelListHeight(), h) -
             levelLabelHeight};
         scrollTop = packLabelHeight * lvlDrawer->packIdx + lvlDrawer->YOffset +
                     levelsListHeight;
@@ -3653,8 +3658,8 @@ void MenuGame::drawLevelSelectionRightSide(
     LevelDrawer& drawer, const bool revertOffset)
 {
     const float outerFrame{textToQuadBorder + slctFrameSize},
-        sidepanelIndent{w * 0.33f - outerFrame}, quadsIndent{w - sidepanelIndent},
-        txtIndent{w - sidepanelIndent / 2.f},
+        sidepanelIndent{w * 0.33f - outerFrame},
+        quadsIndent{w - sidepanelIndent}, txtIndent{w - sidepanelIndent / 2.f},
         levelIndent{quadsIndent + outerFrame},
         rightSideOffset{
             calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
@@ -3681,9 +3686,8 @@ void MenuGame::drawLevelSelectionRightSide(
     // Therefore pack labels must be drawn above everything else (aka must
     // be drawn last).
 
-    renderTextCentered(
-        isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS" :
-                             "PRESS F2 TO SHOW FAVORITE LEVELS",
+    renderTextCentered(isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS"
+                                          : "PRESS F2 TO SHOW FAVORITE LEVELS",
         txtSelectionSmall.font, {w / 2.f, 5.f});
 
     //----------------------------------------
@@ -3693,8 +3697,8 @@ void MenuGame::drawLevelSelectionRightSide(
     Color alphaTextColor{
         menuTextColor.r, menuTextColor.g, menuTextColor.b, 150};
     txtSelectionMedium.font.setFillColor(menuTextColor);
-    height = packLabelHeight * (isFavoriteLevels() ? 1 : drawer.packIdx + 1) + slctFrameSize -
-             packChangeOffset + drawer.YOffset;
+    height = packLabelHeight * (isFavoriteLevels() ? 1 : drawer.packIdx + 1) +
+             slctFrameSize - packChangeOffset + drawer.YOffset;
 
     for(i = 0; i < levelsSize; ++i)
     {
@@ -3910,8 +3914,7 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             height = drawer.YOffset;
         }
-    }
-    while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    } while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
 void MenuGame::drawLevelSelectionLeftSide(

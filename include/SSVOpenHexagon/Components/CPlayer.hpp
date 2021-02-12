@@ -49,22 +49,22 @@ private:
     void drawPivot3D(HexagonGame& mHexagonGame, const sf::Color& mWallColor,
         const sf::Color& mCapColor);
     void drawDeathEffect(HexagonGame& mHexagonGame);
-    void drawDeathEffect3D(HexagonGame& mHexagonGame, const sf::Color& mWallColors);
+    void drawDeathEffect3D(
+        HexagonGame& mHexagonGame, const sf::Color& mWallColors);
 
 public:
-
     CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept;
 
-    [[gnu::always_inline, nodiscard]]
-    const sf::Vector2f& getPosition() const noexcept
+    [[gnu::always_inline, nodiscard]] const sf::Vector2f&
+    getPosition() const noexcept
     {
         return pos;
     }
 
     [[nodiscard]] float getPlayerAngle() const noexcept;
 
-    [[gnu::always_inline, nodiscard]]
-    const std::vector<sf::Vector2f>& getPivotVertexes() const noexcept
+    [[gnu::always_inline, nodiscard]] const std::vector<sf::Vector2f>&
+    getPivotVertexes() const noexcept
     {
         return pivotVertexes;
     }

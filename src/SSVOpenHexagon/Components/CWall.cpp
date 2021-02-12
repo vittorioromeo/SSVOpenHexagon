@@ -72,50 +72,58 @@ unsigned int CWall::getVertexScreenPortion(const sf::Vector2f& mVertex,
     return (mSides / 2 + i) % mSides;
 }
 
-void CWall::calcIntersectionPoint(const HexagonGame& mHexagonGame, sf::Vector2f& mIntersection,
-    const std::vector<sf::Vector2f>& mPivotVertexes, const sf::Vector2f& mCenterPos,
-    const sf::Vector2f& wallVertexOne, const sf::Vector2f& wallVertexTwo)
+void CWall::calcIntersectionPoint(const HexagonGame& mHexagonGame,
+    sf::Vector2f& mIntersection,
+    const std::vector<sf::Vector2f>& mPivotVertexes,
+    const sf::Vector2f& mCenterPos, const sf::Vector2f& wallVertexOne,
+    const sf::Vector2f& wallVertexTwo)
 {
     // Find which side of the polygon is intersected by the wall side.
     const unsigned int sides{mHexagonGame.getSides()};
-    const unsigned int side{getVertexScreenPortion(wallVertexOne, mCenterPos, sides)};
+    const unsigned int side{
+        getVertexScreenPortion(wallVertexOne, mCenterPos, sides)};
 
     if(!getLinesIntersection(mIntersection, wallVertexOne, wallVertexTwo,
-        mPivotVertexes[side], mPivotVertexes[(side + 1) % sides]))
+           mPivotVertexes[side], mPivotVertexes[(side + 1) % sides]))
     {
         // this function should never return false in this context.
         SSVU_ASSERT(false);
     }
 
-    // If the result intersection does not fall within the boundaries of the wall segment
-    // set it to be the original extremity of the wall.
-    if(!(std::abs(wallVertexOne.x - mIntersection.x) < std::abs(wallVertexOne.x - wallVertexTwo.x) &&
-       std::abs(wallVertexOne.y - mIntersection.y) < std::abs(wallVertexOne.y - wallVertexTwo.y)))
+    // If the result intersection does not fall within the boundaries of the
+    // wall segment set it to be the original extremity of the wall.
+    if(!(std::abs(wallVertexOne.x - mIntersection.x) <
+               std::abs(wallVertexOne.x - wallVertexTwo.x) &&
+           std::abs(wallVertexOne.y - mIntersection.y) <
+               std::abs(wallVertexOne.y - wallVertexTwo.y)))
     {
         mIntersection = wallVertexOne;
     }
 }
 
-void CWall::draw3DSide(HexagonGame& mHexagonGame, const sf::Vector2f& mOffset3D, const sf::Color& mColor,
-    const sf::Vector2f& mVertexOne, const sf::Vector2f& mVertexTwo)
+void CWall::draw3DSide(HexagonGame& mHexagonGame, const sf::Vector2f& mOffset3D,
+    const sf::Color& mColor, const sf::Vector2f& mVertexOne,
+    const sf::Vector2f& mVertexTwo)
 {
-    mHexagonGame.wallQuads3D.batch_unsafe_emplace_back(
-        mColor, mVertexOne, mVertexTwo,
+    mHexagonGame.wallQuads3D.batch_unsafe_emplace_back(mColor, mVertexOne,
+        mVertexTwo,
         sf::Vector2f{mVertexTwo.x + mOffset3D.x, mVertexTwo.y + mOffset3D.y},
         sf::Vector2f{mVertexOne.x + mOffset3D.x, mVertexOne.y + mOffset3D.y});
 }
 
-void CWall::draw3DSides(HexagonGame& mHexagonGame, const sf::Vector2f& mOffset3D,
-    const sf::Color& mColor)
+void CWall::draw3DSides(HexagonGame& mHexagonGame,
+    const sf::Vector2f& mOffset3D, const sf::Color& mColor)
 {
     mHexagonGame.wallQuads3D.reserve_more(4 * wallSides);
 
     for(unsigned int i{0}, j{wallSides - 1}; i < wallSides; j = i++)
     {
-        mHexagonGame.wallQuads3D.batch_unsafe_emplace_back(
-            mColor, vertexPositions[j], vertexPositions[i],
-            sf::Vector2f{vertexPositions[i].x + mOffset3D.x, vertexPositions[i].y + mOffset3D.y},
-            sf::Vector2f{vertexPositions[j].x + mOffset3D.x, vertexPositions[j].y + mOffset3D.y});
+        mHexagonGame.wallQuads3D.batch_unsafe_emplace_back(mColor,
+            vertexPositions[j], vertexPositions[i],
+            sf::Vector2f{vertexPositions[i].x + mOffset3D.x,
+                vertexPositions[i].y + mOffset3D.y},
+            sf::Vector2f{vertexPositions[j].x + mOffset3D.x,
+                vertexPositions[j].y + mOffset3D.y});
     }
 }
 
@@ -148,17 +156,20 @@ void CWall::draw3D(HexagonGame& mHexagonGame, const CPlayer& mPlayer,
     const std::vector<sf::Vector2f>& pivotVertexes{mPlayer.getPivotVertexes()};
 
     sf::Vector2f intersectionZero;
-    calcIntersectionPoint(mHexagonGame, intersectionZero, pivotVertexes, mCenterPos,
-        vertexPositions[0], vertexPositions[3]);
+    calcIntersectionPoint(mHexagonGame, intersectionZero, pivotVertexes,
+        mCenterPos, vertexPositions[0], vertexPositions[3]);
 
     sf::Vector2f intersectionOne;
-    calcIntersectionPoint(mHexagonGame, intersectionOne, pivotVertexes, mCenterPos,
-        vertexPositions[1], vertexPositions[2]);
+    calcIntersectionPoint(mHexagonGame, intersectionOne, pivotVertexes,
+        mCenterPos, vertexPositions[1], vertexPositions[2]);
 
     mHexagonGame.wallQuads3D.reserve_more(3 * wallSides);
-    draw3DSide(mHexagonGame, offset3D, mColor, intersectionOne, vertexPositions[2]);
-    draw3DSide(mHexagonGame, offset3D, mColor, vertexPositions[2], vertexPositions[3]);
-    draw3DSide(mHexagonGame, offset3D, mColor, vertexPositions[3], intersectionZero);
+    draw3DSide(
+        mHexagonGame, offset3D, mColor, intersectionOne, vertexPositions[2]);
+    draw3DSide(
+        mHexagonGame, offset3D, mColor, vertexPositions[2], vertexPositions[3]);
+    draw3DSide(
+        mHexagonGame, offset3D, mColor, vertexPositions[3], intersectionZero);
 
     //--------------------------------------------------------------------
     // Standard top drawing
@@ -176,8 +187,8 @@ void CWall::draw3D(HexagonGame& mHexagonGame, const CPlayer& mPlayer,
         vertexPositions[3]);
 }
 
-void CWall::update(HexagonGame& mHexagonGame,
-    const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
+void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
+    const ssvu::FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);

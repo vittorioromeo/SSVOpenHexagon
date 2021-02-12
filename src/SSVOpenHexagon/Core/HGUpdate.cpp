@@ -196,7 +196,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     cwManager.forCustomWalls([&](const CCustomWall& customWall) {
         // After *only* the player has moved, push in case of overlap.
         if(!customWall.getCanCollide() ||
-           !customWall.isOverlapping(player.getPosition()))
+            !customWall.isOverlapping(player.getPosition()))
         {
             return;
         }

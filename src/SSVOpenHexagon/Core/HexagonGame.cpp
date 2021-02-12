@@ -678,7 +678,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     assets.stopSounds();
-    
+
     wallQuads.clear();
     playerTris.clear();
     capQuads.clear();

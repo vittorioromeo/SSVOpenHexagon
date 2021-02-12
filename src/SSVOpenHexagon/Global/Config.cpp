@@ -998,13 +998,12 @@ std::string bindToHumanReadableName(std::string s)
     return s;
 }
 
-const std::array<KeyboardTriggerGetter, Tid::TriggersCount> keyboardTriggerGetters{{
-    getTriggerRotateCCW, getTriggerRotateCW, getTriggerFocus,
-    getTriggerSelect, getTriggerExit, getTriggerForceRestart,
-    getTriggerRestart, getTriggerReplay, getTriggerScreenshot,
-    getTriggerSwap, getTriggerUp, getTriggerDown,
-    getTriggerNextPack, getTriggerPreviousPack
-}};
+const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
+    keyboardTriggerGetters{{getTriggerRotateCCW, getTriggerRotateCW,
+        getTriggerFocus, getTriggerSelect, getTriggerExit,
+        getTriggerForceRestart, getTriggerRestart, getTriggerReplay,
+        getTriggerScreenshot, getTriggerSwap, getTriggerUp, getTriggerDown,
+        getTriggerNextPack, getTriggerPreviousPack}};
 
 [[nodiscard]] std::string getKeyboardBindNames(const int bindID)
 {
@@ -1384,21 +1383,19 @@ void joystickBindsSanityCheck()
 //**********************************************
 // Get binds names
 
-const std::array<JoystickTriggerGetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerGetters{{
-    getJoystickSelect, getJoystickExit, getJoystickFocus,
-    getJoystickSwap, getJoystickForceRestart, getJoystickRestart,
-    getJoystickReplay, getJoystickScreenshot,
-    getJoystickNextPack, getJoystickPreviousPack
-}};
+const std::array<JoystickTriggerGetter, hg::Joystick::Jid::JoystickBindsCount>
+    joystickTriggerGetters{{getJoystickSelect, getJoystickExit,
+        getJoystickFocus, getJoystickSwap, getJoystickForceRestart,
+        getJoystickRestart, getJoystickReplay, getJoystickScreenshot,
+        getJoystickNextPack, getJoystickPreviousPack}};
 
 const std::string getJoystickBindNames(const int bindID)
 {
-    static const std::array<std::array<std::string_view, 2>, 12> buttonsNames{{
-        {"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"},
-        {"LB", "L1"}, {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"},
-        {"LEFT STICK", "SELECT"}, {"RIGHT STICK", "START"}, {"LT", "LEFT STICK"},
-        {"RT", "RIGHT STICK"}
-    }};
+    static const std::array<std::array<std::string_view, 2>, 12> buttonsNames{
+        {{"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"}, {"Y", "TRIANGLE"},
+            {"LB", "L1"}, {"RB", "R1"}, {"BACK", "L2"}, {"START", "R2"},
+            {"LEFT STICK", "SELECT"}, {"RIGHT STICK", "START"},
+            {"LT", "LEFT STICK"}, {"RT", "RIGHT STICK"}}};
 
     std::string bindName;
     const unsigned int value{joystickTriggerGetters[bindID]()};
@@ -1414,7 +1411,7 @@ const std::string getJoystickBindNames(const int bindID)
         const unsigned int vendorId{
             sf::Joystick::isConnected(0)
                 ? sf::Joystick::getIdentification(0).vendorId
-            : 0};
+                : 0};
 
         switch(vendorId)
         {
@@ -1424,9 +1421,7 @@ const std::string getJoystickBindNames(const int bindID)
             case sonyVendorId:
                 bindName = value >= 12 ? "" : buttonsNames[value][1];
                 break;
-            default:
-                bindName = ssvu::toStr(value);
-                break;
+            default: bindName = ssvu::toStr(value); break;
         }
     }
 
@@ -1482,11 +1477,11 @@ unsigned int getJoystickPreviousPack()
 // Reassign bind
 
 using JoystickTriggerSetter = void (*)(const unsigned int button);
-const std::array<JoystickTriggerSetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerSetters{{
-    setJoystickSelect, setJoystickExit, setJoystickFocus, setJoystickSwap,
-    setJoystickForceRestart, setJoystickRestart, setJoystickReplay,
-    setJoystickScreenshot, setJoystickNextPack, setJoystickPreviousPack
-}};
+const std::array<JoystickTriggerSetter, hg::Joystick::Jid::JoystickBindsCount>
+    joystickTriggerSetters{{setJoystickSelect, setJoystickExit,
+        setJoystickFocus, setJoystickSwap, setJoystickForceRestart,
+        setJoystickRestart, setJoystickReplay, setJoystickScreenshot,
+        setJoystickNextPack, setJoystickPreviousPack}};
 
 [[nodiscard]] int checkButtonReassignment(const unsigned int button)
 {
