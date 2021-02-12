@@ -43,6 +43,7 @@ public:
         packPath + ssvuj::getExtr<std::string>(root, "luaFile", "nullLuaPath")};
     std::vector<float> difficultyMults{
         ssvuj::getExtr<std::vector<float>>(root, "difficultyMults", {})};
+    bool _3DDrawingMode{ssvuj::getExtr<bool>(root, "3DMode", false)};
 
     LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath,
         const std::string& mPackId)

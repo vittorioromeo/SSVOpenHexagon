@@ -21,8 +21,6 @@
 namespace hg
 {
 
-inline constexpr float baseThickness{5.f};
-
 CPlayer::CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept
     : startPos{mPos}, pos{mPos}, lastPos{mPos}, hue{0}, angle{0}, lastAngle{0},
       size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
@@ -42,25 +40,20 @@ void CPlayer::setPlayerAngle(const float newAng) noexcept
     angle = newAng;
 }
 
-void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
+inline constexpr unsigned int playerSides{3u};
+
+void CPlayer::drawCommon(HexagonGame& mHexagonGame)
 {
-    drawPivot(mHexagonGame, mCapColor);
-
-    if(deadEffectTimer.isRunning())
-    {
-        drawDeathEffect(mHexagonGame);
-    }
-
     sf::Color colorMain{!deadEffectTimer.isRunning()
                             ? mHexagonGame.getColorPlayer()
                             : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
 
     const float triangleWidth = mHexagonGame.getInputFocused() ? -1.5f : 3.f;
 
-    const sf::Vector2f pLeft = ssvs::getOrbitRad(
+    vertexPositions[0] = ssvs::getOrbitRad(pos, angle, size);
+    vertexPositions[1] = ssvs::getOrbitRad(
         pos, angle - ssvu::toRad(100.f), size + triangleWidth);
-
-    const sf::Vector2f pRight = ssvs::getOrbitRad(
+    vertexPositions[2] = ssvs::getOrbitRad(
         pos, angle + ssvu::toRad(100.f), size + triangleWidth);
 
     if(!swapTimer.isRunning() && !dead)
@@ -69,71 +62,180 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
             (swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
     }
 
-    mHexagonGame.playerTris.reserve_more(3);
+    mHexagonGame.playerTris.reserve_more(playerSides);
     mHexagonGame.playerTris.batch_unsafe_emplace_back(
-        colorMain, ssvs::getOrbitRad(pos, angle, size), pLeft, pRight);
+        colorMain, vertexPositions[0], vertexPositions[1], vertexPositions[2]);
+}
+
+void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
+{
+    drawPivot(mHexagonGame, mCapColor);
+    if(deadEffectTimer.isRunning())
+    {
+        drawDeathEffect(mHexagonGame);
+    }
+    drawCommon(mHexagonGame);
+}
+
+void CPlayer::draw3D(HexagonGame& mHexagonGame, const sf::Color& mWallColor,
+    const sf::Color& mCapColor)
+{
+    drawPivot3D(mHexagonGame, mWallColor, mCapColor);
+    if(deadEffectTimer.isRunning())
+    {
+        drawDeathEffect3D(mHexagonGame, mWallColor);
+    }
+    drawCommon(mHexagonGame);
+
+    mHexagonGame.wallQuads3D.reserve_more(playerSides * 4);
+    const sf::Vector2f& offset3D{mHexagonGame.get3DOffset()};
+
+    for(unsigned int i{0}, j{2}; i < playerSides; j = i++)
+    {
+        mHexagonGame.wallQuads3D.batch_unsafe_emplace_back(mWallColor,
+            vertexPositions[i], vertexPositions[j],
+            sf::Vector2f{vertexPositions[j].x + offset3D.x,
+                vertexPositions[j].y + offset3D.y},
+            sf::Vector2f{vertexPositions[i].x + offset3D.x,
+                vertexPositions[i].y + offset3D.y});
+    }
 }
 
 void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 {
-    const auto sides(mHexagonGame.getSides());
+    const unsigned int sides(mHexagonGame.getSides());
     const float div{ssvu::tau / sides * 0.5f};
-    const float radius{mHexagonGame.getRadius() * 0.75f};
-
     const sf::Color colorMain{mHexagonGame.getColorMain()};
 
-    const sf::Color colorB{Config::getBlackAndWhite()
-                               ? sf::Color::Black
-                               : mHexagonGame.getColor(1)};
+    // This value is needed by all walls in the 3D drawing mode, so add
+    // the thickness value even if it needs to be subtracted in the next lines.
+    pivotRadius = mHexagonGame.getRadius() * 0.75f + pivotBorderThickness;
 
-    const sf::Color colorDarkened{Utils::getColorDarkened(colorMain, 1.4f)};
+    /*  Unused
+        const sf::Color colorB{Config::getBlackAndWhite()
+                                   ? sf::Color::Black
+                                   : mHexagonGame.getColor(1)};
+        const sf::Color colorDarkened{Utils::getColorDarkened(colorMain, 1.4f)};
+    */
 
-    for(auto i(0u); i < sides; ++i)
+    float sAngle;
+    sf::Vector2f p1, p2, p3, p4;
+    mHexagonGame.capQuads.reserve(4 * sides);
+    mHexagonGame.capTris.reserve(3 * sides);
+
+    for(unsigned int i{0}; i < sides; ++i)
     {
-        const float sAngle{div * 2.f * i};
+        sAngle = div * 2.f * i;
+        p1 = ssvs::getOrbitRad(
+            startPos, sAngle - div, pivotRadius - pivotBorderThickness);
+        p2 = ssvs::getOrbitRad(
+            startPos, sAngle + div, pivotRadius - pivotBorderThickness);
+        p3 = ssvs::getOrbitRad(startPos, sAngle + div, pivotRadius);
+        p4 = ssvs::getOrbitRad(startPos, sAngle - div, pivotRadius);
 
-        const sf::Vector2f p1{
-            ssvs::getOrbitRad(startPos, sAngle - div, radius)};
-        const sf::Vector2f p2{
-            ssvs::getOrbitRad(startPos, sAngle + div, radius)};
-        const sf::Vector2f p3{
-            ssvs::getOrbitRad(startPos, sAngle + div, radius + baseThickness)};
-        const sf::Vector2f p4{
-            ssvs::getOrbitRad(startPos, sAngle - div, radius + baseThickness)};
-
-        mHexagonGame.wallQuads.reserve_more(4);
-        mHexagonGame.wallQuads.batch_unsafe_emplace_back(
+        mHexagonGame.capQuads.batch_unsafe_emplace_back(
             colorMain, p1, p2, p3, p4);
-
-        mHexagonGame.capTris.reserve_more(3);
         mHexagonGame.capTris.batch_unsafe_emplace_back(
             mCapColor, p1, p2, startPos);
     }
 }
 
+void CPlayer::drawPivot3D(HexagonGame& mHexagonGame,
+    const sf::Color& mWallColor, const sf::Color& mCapColor)
+{
+    const unsigned int sides(mHexagonGame.getSides());
+    const float div{ssvu::tau / sides * 0.5f};
+    pivotRadius = mHexagonGame.getRadius() * 0.75f + pivotBorderThickness;
+    const sf::Color colorMain{mHexagonGame.getColorMain()};
+
+    float sAngle;
+    sf::Vector2f p1, p2, p3;
+    mHexagonGame.capQuads.reserve(4 * sides);
+    mHexagonGame.capTris.reserve(3 * sides);
+    mHexagonGame.wallQuads3D.reserve_more(4 * sides);
+    const sf::Vector2f& offset3D{mHexagonGame.get3DOffset()};
+
+    for(unsigned int i{0}; i < sides; ++i)
+    {
+        sAngle = div * 2.f * i;
+        p1 = ssvs::getOrbitRad(
+            startPos, sAngle - div, pivotRadius - pivotBorderThickness);
+        p2 = ssvs::getOrbitRad(
+            startPos, sAngle + div, pivotRadius - pivotBorderThickness);
+        p3 = ssvs::getOrbitRad(startPos, sAngle + div, pivotRadius);
+        pivotVertexes[i] =
+            ssvs::getOrbitRad(startPos, sAngle - div, pivotRadius);
+
+        mHexagonGame.capQuads.batch_unsafe_emplace_back(
+            colorMain, p1, p2, p3, pivotVertexes[i]);
+        mHexagonGame.capTris.batch_unsafe_emplace_back(
+            mCapColor, p1, p2, startPos);
+        mHexagonGame.wallQuads3D.batch_unsafe_emplace_back(mWallColor, p3,
+            pivotVertexes[i],
+            sf::Vector2f{pivotVertexes[i].x + offset3D.x,
+                pivotVertexes[i].y + offset3D.y},
+            sf::Vector2f{p3.x + offset3D.x, p3.y + offset3D.y});
+    }
+}
+
 void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
 {
+    const unsigned int sides(mHexagonGame.getSides());
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
     const float radius{hue / 8.f};
     const float thickness{hue / 20.f};
-
     const sf::Color colorMain{
         ssvs::getColorFromHSV((360.f - hue) / 360.f, 1.f, 1.f)};
 
-    for(auto i(0u); i < mHexagonGame.getSides(); ++i)
+    float sAngle;
+    sf::Vector2f p1, p2, p3, p4;
+    mHexagonGame.wallQuads.reserve_more(4 * sides);
+
+    for(unsigned int i{0}; i < sides; ++i)
     {
-        const float sAngle{div * 2.f * i};
+        sAngle = div * 2.f * i;
+        p1 = ssvs::getOrbitRad(pos, sAngle - div, radius);
+        p2 = ssvs::getOrbitRad(pos, sAngle + div, radius);
+        p3 = ssvs::getOrbitRad(pos, sAngle + div, radius + thickness);
+        p4 = ssvs::getOrbitRad(pos, sAngle - div, radius + thickness);
 
-        const sf::Vector2f p1{ssvs::getOrbitRad(pos, sAngle - div, radius)};
-        const sf::Vector2f p2{ssvs::getOrbitRad(pos, sAngle + div, radius)};
-        const sf::Vector2f p3{
-            ssvs::getOrbitRad(pos, sAngle + div, radius + thickness)};
-        const sf::Vector2f p4{
-            ssvs::getOrbitRad(pos, sAngle - div, radius + thickness)};
-
-        mHexagonGame.wallQuads.reserve_more(4);
         mHexagonGame.wallQuads.batch_unsafe_emplace_back(
             colorMain, p1, p2, p3, p4);
+    }
+}
+
+void CPlayer::drawDeathEffect3D(
+    HexagonGame& mHexagonGame, const sf::Color& mWallColors)
+{
+    const unsigned int sides(mHexagonGame.getSides());
+    const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
+    const float radius{hue / 8.f};
+    const float thickness{hue / 20.f};
+    const sf::Color colorMain{
+        ssvs::getColorFromHSV((360.f - hue) / 360.f, 1.f, 1.f)};
+
+    float sAngle;
+    sf::Vector2f p1, p2, p3, p4;
+    mHexagonGame.wallQuads.reserve_more(4 * sides);
+    mHexagonGame.wallQuads3D.reserve_more(4 * 2 * sides);
+    const sf::Vector2f& offset3D{mHexagonGame.get3DOffset()};
+
+    for(unsigned int i{0}; i < sides; ++i)
+    {
+        sAngle = div * 2.f * i;
+        p1 = ssvs::getOrbitRad(pos, sAngle - div, radius);
+        p2 = ssvs::getOrbitRad(pos, sAngle + div, radius);
+        p3 = ssvs::getOrbitRad(pos, sAngle + div, radius + thickness);
+        p4 = ssvs::getOrbitRad(pos, sAngle - div, radius + thickness);
+
+        mHexagonGame.wallQuads.batch_unsafe_emplace_back(
+            colorMain, p1, p2, p3, p4);
+        mHexagonGame.wallQuads3D.batch_unsafe_emplace_back(mWallColors, p1, p2,
+            sf::Vector2f{p2.x + offset3D.x, p2.y + offset3D.y},
+            sf::Vector2f{p1.x + offset3D.x, p1.y + offset3D.y});
+        mHexagonGame.wallQuads3D.batch_unsafe_emplace_back(mWallColors, p3, p4,
+            sf::Vector2f{p4.x + offset3D.x, p4.y + offset3D.y},
+            sf::Vector2f{p3.x + offset3D.x, p3.y + offset3D.y});
     }
 }
 

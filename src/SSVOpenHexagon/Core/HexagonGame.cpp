@@ -383,6 +383,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
     backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
 
+    // Set drawing mode
+    setDrawFunc();
+
     // LUA context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
 
@@ -654,6 +657,13 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     assets.stopSounds();
 
+    wallQuads.clear();
+    playerTris.clear();
+    capQuads.clear();
+    capTris.clear();
+    wallQuads3D.clear();
+    playerTris3D.clear();
+
     if(!mError)
     {
         assets.playSound("beep.ogg");
@@ -829,6 +839,7 @@ void HexagonGame::setSides(unsigned int mSides)
     }
 
     levelStatus.sides = mSides;
+    player.setSides(levelStatus.sides + 1);
 }
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const

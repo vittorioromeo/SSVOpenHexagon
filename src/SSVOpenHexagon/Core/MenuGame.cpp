@@ -358,6 +358,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
             {"IF A LEVEL IS TOO CHALLENGING",
                 "PRACTICE IT AT A LOWER DIFFICULTY"}}};
+
     randomTip = tips[ssvu::getRndI(0, tips.size())];
 
     // Set size of the level offsets vector to the minimum required
@@ -1244,6 +1245,7 @@ bool MenuGame::loadCommandLineLevel(
     changeStateTo(States::LevelSelection);
 
     // Start game
+    menuQuads.clear();
     window.setGameState(hexagonGame.getGame());
     hexagonGame.newGame(packID,
         lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex), true,
@@ -1706,6 +1708,7 @@ void MenuGame::okAction()
         case States::LevelSelection:
             resetNamesScrolls();
 
+            menuQuads.clear();
             window.setGameState(hexagonGame.getGame());
             hexagonGame.newGame(assets.getPackInfos().at(lvlDrawer->packIdx).id,
                 lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex), true,
