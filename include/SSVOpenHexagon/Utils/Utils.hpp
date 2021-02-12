@@ -27,6 +27,8 @@
 namespace hg::Utils
 {
 
+constexpr float epsilon{1.0e-4};
+
 inline void uppercasify(std::string& s)
 {
     for(auto& c : s)

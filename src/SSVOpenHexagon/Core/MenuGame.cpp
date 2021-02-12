@@ -352,12 +352,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIndex(randomLevel);
 
     // Setup for the loading menu
-    static const std::array<std::array<std::string_view, 2>, 4> tips{
-        {{"HOLDING SHIFT WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
+    static constexpr std::array<std::array<std::string_view, 2>, 4> tips{
+        {{"HOLDING FOCUS WHILE CHANGING PACK", "SKIPS THE SWITCH ANIMATION"},
             {"REMEMBER TO TAKE BREAKS", "OPEN HEXAGON IS AN INTENSE GAME"},
             {"EXPERIMENT USING SWAP", "IT MAY SAVE YOUR LIFE"},
             {"IF A LEVEL IS TOO CHALLENGING",
                 "PRACTICE IT AT A LOWER DIFFICULTY"}}};
+
     randomTip = tips[ssvu::getRndI(0, tips.size())];
 
     // Set size of the level offsets vector to the minimum required
@@ -912,31 +913,35 @@ void MenuGame::initMenus()
     };
 
     joystick.create<JoystickBindControl>("select", &Config::getJoystickSelect,
-        &Config::reassignToJoystickSelect, JoystickCallBack, Jid::Select);
+        &Config::setJoystickSelect, JoystickCallBack, Jid::Select);
     joystick.create<JoystickBindControl>("exit", &Config::getJoystickExit,
-        &Config::reassignToJoystickExit, JoystickCallBack, Jid::Exit);
+        &Config::setJoystickExit, JoystickCallBack, Jid::Exit);
     joystick.create<JoystickBindControl>("focus", &Config::getJoystickFocus,
-        &Config::reassignToJoystickFocus, JoystickCallBack, Jid::Focus);
+        &Config::setJoystickFocus, JoystickCallBack, Jid::Focus);
     joystick.create<JoystickBindControl>("swap", &Config::getJoystickSwap,
-        &Config::reassignToJoystickSwap, JoystickCallBack, Jid::Swap);
+        &Config::setJoystickSwap, JoystickCallBack, Jid::Swap);
     joystick.create<JoystickBindControl>("force restart",
-        &Config::getJoystickForceRestart,
-        &Config::reassignToJoystickForceRestart, JoystickCallBack,
-        Jid::ForceRestart);
+        &Config::getJoystickForceRestart, &Config::setJoystickForceRestart,
+        JoystickCallBack, Jid::ForceRestart);
     joystick.create<JoystickBindControl>("restart", &Config::getJoystickRestart,
-        &Config::reassignToJoystickRestart, JoystickCallBack, Jid::Restart);
+        &Config::setJoystickRestart, JoystickCallBack, Jid::Restart);
     joystick.create<JoystickBindControl>("replay", &Config::getJoystickReplay,
-        &Config::reassignToJoystickReplay, JoystickCallBack, Jid::Replay);
+        &Config::setJoystickReplay, JoystickCallBack, Jid::Replay);
     joystick.create<JoystickBindControl>("screenshot",
-        &Config::getJoystickScreenshot, &Config::reassignToJoystickScreenshot,
+        &Config::getJoystickScreenshot, &Config::setJoystickScreenshot,
         JoystickCallBack, Jid::Screenshot);
     joystick.create<JoystickBindControl>("next pack",
-        &Config::getJoystickNextPack, &Config::reassignToJoystickNextPack,
+        &Config::getJoystickNextPack, &Config::setJoystickNextPack,
         JoystickCallBack, Jid::NextPack);
     joystick.create<JoystickBindControl>("previous pack",
-        &Config::getJoystickPreviousPack,
-        &Config::reassignToJoystickPreviousPack, JoystickCallBack,
-        Jid::PreviousPack);
+        &Config::getJoystickPreviousPack, &Config::setJoystickPreviousPack,
+        JoystickCallBack, Jid::PreviousPack);
+    joystick.create<JoystickBindControl>("(un)favorite level",
+        &Config::getJoystickAddToFavorites, &Config::setJoystickAddToFavorites,
+        JoystickCallBack, Jid::AddToFavorites);
+    joystick.create<JoystickBindControl>("favorites menu",
+        &Config::getJoystickFavoritesMenu, &Config::setJoystickFavoritesMenu,
+        JoystickCallBack, Jid::FavoritesMenu);
     joystick.create<i::GoBack>("back");
 
     //--------------------------------
@@ -1544,27 +1549,27 @@ void MenuGame::changePackQuick(const int direction)
 
     // Height of the top of the pack label that is one index before the current
     // one.
-    float scroll{
-        packLabelHeight * (lvlDrawer->packIdx - 1) + lvlDrawer->YOffset};
+    float scroll{packLabelHeight * (lvlDrawer->packIdx - 1)};
 
     // If the height is lower than the offset of the level selection we must
     // change to that to show the labels before the current one.
-    if(scroll < 0.f)
+    if(scroll < -lvlDrawer->YOffset)
     {
-        lvlDrawer->YOffset -= scroll;
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = -scroll;
         return;
     }
 
     // Height of the bottom of the pack label that is one index after the
     // current one.
-    scroll = packLabelHeight * (lvlDrawer->packIdx + 2) + levelLabelHeight +
-             3.f * slctFrameSize + lvlDrawer->YOffset;
+    scroll = packLabelHeight * std::min(lvlDrawer->packIdx + 2,
+                                   static_cast<int>(getPackInfosSize())) +
+             levelLabelHeight + 3.f * slctFrameSize;
 
     // If the height is outside the boundaries of the screen adjust offset to
     // show it.
-    if(scroll > h)
+    if(scroll > h - lvlDrawer->YOffset)
     {
-        lvlDrawer->YOffset += h - scroll;
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = h - scroll;
     }
 }
 
@@ -1576,7 +1581,7 @@ void MenuGame::changePackAction(const int direction)
         return;
     }
 
-    lvlDrawer->YScrollTo = 0.f; // stop scrolling for safety
+    lvlDrawer->YScrollTo = lvlDrawer->YOffset; // stop scrolling for safety
     packChangeState = PackChange::Folding;
     packChangeDirection = direction;
     calcPackChangeScrollSpeed();
@@ -1892,7 +1897,16 @@ void MenuGame::update(ssvu::FT mFT)
         changePackAction(-1);
     }
 
-    if(isFavoriteLevels())
+    if(hg::Joystick::addToFavoritesRisingEdge())
+    {
+        changeLevelFavoriteFlag();
+    }
+    if(hg::Joystick::favoritesMenuRisingEdge())
+    {
+        switchToFromFavoriteLevels();
+    }
+
+    if(!(!isFavoriteLevels() && packChangeState == PackChange::Rest))
     {
         focusHeld = false;
     }
@@ -1901,13 +1915,14 @@ void MenuGame::update(ssvu::FT mFT)
         focusHeld = hg::Joystick::focusPressed();
     }
 
-    // When the focus key is released scroll the list to show
-    // as much of the pack as possibile like it happens with a
-    // regular pack change.
-    if(wasFocusHeld && !focusHeld)
+    if(focusHeld && !wasFocusHeld)
     {
-        calcPackChangeScrollSpeed();
-        packChangeState = PackChange::Stretching;
+        setIndex(0);
+        quickPackFold();
+    }
+    else if(!focusHeld && wasFocusHeld)
+    {
+        quickPackStretch();
     }
     wasFocusHeld = focusHeld;
 
@@ -2028,7 +2043,7 @@ void MenuGame::update(ssvu::FT mFT)
 
     if(isEnteringText())
     {
-        unsigned int limit{18u};
+        constexpr unsigned int limit{18u};
         for(auto& c : enteredChars)
         {
             if(enteredStr.size() < limit &&
@@ -2043,18 +2058,34 @@ void MenuGame::update(ssvu::FT mFT)
 
     switch(state)
     {
-        case States::LoadingScreen: hexagonRotation += mFT / 100.f; return;
+        case States::LoadingScreen: hexagonRotation += mFT / 100.f; break;
 
         case States::LevelSelection:
         {
             // Folding animation of the level list when we change pack.
             switch(packChangeState)
             {
-                case PackChange::Rest: break;
+                case PackChange::Rest:
+                    // If the height of the list is smaller than the window
+                    // height the offset of the list is always 0.
+                    if(getLevelSelectionHeight() < h)
+                    {
+                        lvlDrawer->YOffset = lvlDrawer->YScrollTo = 0.f;
+                        break;
+                    }
+
+                    // This handles the smooth scrolling of the level list
+                    // when we change level.
+                    scrollLevelListToTargetY(mFT);
+                    break;
 
                 case PackChange::Folding:
-                    packChangeOffset += mFT * scrollSpeed;
-                    if(packChangeOffset < getLevelListHeight())
+                {
+                    const float listHeight{getLevelListHeight()};
+                    packChangeOffset = std::min(
+                        packChangeOffset + mFT * scrollSpeed, listHeight);
+                    calcPackChangeScrollFold(listHeight);
+                    if(packChangeOffset < listHeight)
                     {
                         break;
                     }
@@ -2065,11 +2096,13 @@ void MenuGame::update(ssvu::FT mFT)
                     packChangeOffset = getLevelListHeight();
                     calcPackChangeScrollSpeed();
                     packChangeState = PackChange::Stretching;
-                    break;
+                }
+                break;
 
                 case PackChange::Stretching:
-                    packChangeOffset -= mFT * scrollSpeed;
-                    calcPackChangeScroll();
+                    packChangeOffset =
+                        std::max(packChangeOffset - mFT * scrollSpeed, 0.f);
+                    calcPackChangeScrollStretch(getLevelListHeight());
                     if(packChangeOffset > 0.f)
                     {
                         break;
@@ -2081,48 +2114,13 @@ void MenuGame::update(ssvu::FT mFT)
                     break;
             }
 
-            const float levelSelectionTotalHeight{getLevelSelectionHeight()};
-
-            // If the height of the list is smaller than the window
-            // height the offset of the list is always 0.
-            if(levelSelectionTotalHeight < h)
-            {
-                lvlDrawer->YOffset = lvlDrawer->YScrollTo = 0.f;
-                return;
-            }
-
-            // This handles the smooth scrolling of the level list
-            // when we change level.
-            if(lvlDrawer->YScrollTo != 0.f)
-            {
-                if(lvlDrawer->YOffset < lvlDrawer->YScrollTo)
-                {
-                    lvlDrawer->YOffset += mFT * scrollSpeed;
-                    if(lvlDrawer->YOffset >= lvlDrawer->YScrollTo)
-                    {
-                        lvlDrawer->YOffset = lvlDrawer->YScrollTo;
-                        lvlDrawer->YScrollTo = 0.f;
-                    }
-                }
-                else
-                {
-                    lvlDrawer->YOffset -= mFT * scrollSpeed;
-                    if(lvlDrawer->YOffset <= lvlDrawer->YScrollTo)
-                    {
-                        lvlDrawer->YOffset = lvlDrawer->YScrollTo;
-                        lvlDrawer->YScrollTo = 0.f;
-                    }
-                }
-            }
-
-            // Make sure there isn't empty space above the first element
-            // of the level list and below the last element.
-            lvlDrawer->YOffset = ssvu::getClamped(
-                lvlDrawer->YOffset, h - levelSelectionTotalHeight, 0.f);
+            // Make sure there isn't empty space above the first
+            // element of the level list.
+            lvlDrawer->YOffset = std::min(lvlDrawer->YOffset, 0.f);
         }
-            return;
+        break;
 
-        default: return;
+        default: break;
     }
 }
 
@@ -2517,18 +2515,14 @@ void MenuGame::refreshCamera()
 void MenuGame::refreshBinds()
 {
     // Keyboard-mouse
-    std::size_t i;
-    for(i = 0; i < Config::keyboardTriggerGetters.size(); ++i)
+    for(std::size_t i{0u}; i < Config::keyboardTriggerGetters.size(); ++i)
     {
         game.refreshTrigger(Config::keyboardTriggerGetters[i](), i);
         hexagonGame.refreshTrigger(Config::keyboardTriggerGetters[i](), i);
     }
 
     // Joystick
-    for(i = 0; i < Config::joystickTriggerGetters.size(); ++i)
-    {
-        hg::Joystick::setJoystickBind(Config::joystickTriggerGetters[i](), i);
-    }
+    Config::loadAllJoystickBinds();
 }
 
 void MenuGame::setIgnoreAllInputs(const unsigned int presses)
@@ -3327,12 +3321,11 @@ void MenuGame::updateLevelSelectionDrawingParameters()
 
 float MenuGame::getLevelSelectionHeight() const
 {
-    return packLabelHeight * getPackInfosSize() +
-           levelLabelHeight * (focusHeld ? 1 : lvlDrawer->levelDataIds.size()) -
+    return packLabelHeight * getPackInfosSize() + getLevelListHeight() -
            packChangeOffset +
            (lvlDrawer->packIdx != static_cast<int>(getPackInfosSize()) - 1
-                   ? 3.f
-                   : 2.f) *
+                   ? 2.f
+                   : 1.f) *
                slctFrameSize;
 }
 
@@ -3408,21 +3401,20 @@ void MenuGame::calcLevelChangeScroll(const int dir)
         // level label and the next pack label or two previous pack labels.
         if(lvlDrawer->currentIndex < 2)
         {
-            scroll = packLabelHeight * (lvlDrawer->packIdx + 1 -
-                                           (2 - lvlDrawer->currentIndex)) +
-                     lvlDrawer->YOffset;
+            scroll = packLabelHeight *
+                     (lvlDrawer->packIdx + 1 - (2 - lvlDrawer->currentIndex));
         }
         else
         {
             //...otherwise just show the two previous level labels.
             scroll = packLabelHeight * (lvlDrawer->packIdx + 1) +
                      levelLabelHeight * (lvlDrawer->currentIndex + dir) +
-                     slctFrameSize + lvlDrawer->YOffset;
+                     slctFrameSize;
         }
 
-        if(scroll < 0.f)
+        if(scroll < -lvlDrawer->YOffset)
         {
-            lvlDrawer->YScrollTo = lvlDrawer->YOffset - scroll;
+            lvlDrawer->YScrollTo = -scroll;
         }
         return;
     }
@@ -3430,60 +3422,167 @@ void MenuGame::calcLevelChangeScroll(const int dir)
     const int size{static_cast<int>(lvlDrawer->levelDataIds.size())};
     // If we are approaching the bottom of the pack show either the
     // last level label and the next pack label or two next pack labels...
-    if(lvlDrawer->currentIndex >= size - 2)
+    if(lvlDrawer->currentIndex >= size - 2 &&
+        lvlDrawer->packIdx != static_cast<int>(getPackInfosSize()) - 1)
     {
         scroll =
             packLabelHeight * (lvlDrawer->packIdx + 1 +
                                   (2 - (size - 1 - lvlDrawer->currentIndex))) +
-            levelLabelHeight * size + 3.f * slctFrameSize + lvlDrawer->YOffset;
+            levelLabelHeight * size + 3.f * slctFrameSize;
     }
     else
     {
         //...otherwise just show the two next level labels.
         scroll = packLabelHeight * (lvlDrawer->packIdx + 1) +
-                 levelLabelHeight * (lvlDrawer->currentIndex + dir + 1) +
-                 2.f * slctFrameSize + lvlDrawer->YOffset;
+                 levelLabelHeight *
+                     std::min(lvlDrawer->currentIndex + dir + 1,
+                         static_cast<int>(lvlDrawer->levelDataIds.size())) +
+                 2.f * slctFrameSize;
     }
 
-    if(scroll > h)
+    if(scroll > h - lvlDrawer->YOffset)
     {
-        lvlDrawer->YScrollTo = lvlDrawer->YOffset + h - scroll;
+        lvlDrawer->YScrollTo = h - scroll;
     }
 }
-void MenuGame::calcPackChangeScroll()
+
+void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
+{
+    if(packChangeDirection == -2)
+    {
+        return;
+    }
+
+    // Make sure the last level and the two before it fit on screen.
+    const float scroll{packLabelHeight * lvlDrawer->packIdx + slctFrameSize +
+                       std::max(0.f, packLabelHeight + slctFrameSize +
+                                         mLevelListHeight - packChangeOffset)};
+
+    if(scroll < -lvlDrawer->YOffset)
+    {
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = -scroll;
+        packChangeOffset = mLevelListHeight;
+    }
+}
+
+void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
 {
     float scrollTop, scrollBottom;
     if(packChangeDirection == -2)
     {
-        // Handles switching from the first level of a pack to the last
-        // level of the previous packs. Show the level + the two next
-        // pack labels (if they exist).
-        scrollTop = packLabelHeight * (lvlDrawer->packIdx + 1 + 2) +
-                    slctFrameSize + levelLabelHeight * lvlDrawer->currentIndex +
-                    lvlDrawer->YOffset;
-        scrollBottom = scrollTop + levelLabelHeight + slctFrameSize * 2;
-    }
-    else
-    {
-        // The list is shifted to try fit all levels in the pack.
-        // If that is not possible just include the pack label
-        // + whatever amount of levels it's possible to fit on screen.
-        const float levelsListHeight{
-            std::min(
-                (packLabelHeight + slctFrameSize) + getLevelListHeight(), h) -
-            levelLabelHeight};
-        scrollTop = packLabelHeight * lvlDrawer->packIdx + lvlDrawer->YOffset +
-                    levelsListHeight;
-        scrollBottom = scrollTop + levelLabelHeight;
+        if(lvlDrawer->packIdx != static_cast<int>(getPackInfosSize()) - 1)
+        {
+            scrollTop = packLabelHeight * lvlDrawer->packIdx;
+            scrollBottom = scrollTop + 2.f * (packLabelHeight + slctFrameSize) +
+                           std::max(0.f, mLevelListHeight - packChangeOffset);
+
+            if(scrollBottom > h - lvlDrawer->YOffset)
+            {
+                if(scrollTop < -lvlDrawer->YOffset)
+                {
+                    packChangeOffset = 0.f;
+                    scrollBottom = scrollTop +
+                                   2.f * (packLabelHeight + slctFrameSize) +
+                                   std::max(0.f, mLevelListHeight);
+                }
+                lvlDrawer->YScrollTo = lvlDrawer->YOffset = h - scrollBottom;
+            }
+            else if(scrollTop < -lvlDrawer->YOffset)
+            {
+                lvlDrawer->YScrollTo = lvlDrawer->YOffset = -scrollTop;
+            }
+            return;
+        }
+
+        scrollTop = packLabelHeight * getPackInfosSize() + slctFrameSize;
+        scrollBottom =
+            scrollTop + std::max(0.f, mLevelListHeight - packChangeOffset);
+
+        if(scrollBottom > h - lvlDrawer->YOffset)
+        {
+            lvlDrawer->YScrollTo = lvlDrawer->YOffset = h - scrollBottom;
+        }
+        if(scrollTop < -lvlDrawer->YOffset) // lack of else not an oversight.
+        {
+            lvlDrawer->YScrollTo = lvlDrawer->YOffset = -scrollTop;
+        }
+        return;
     }
 
-    if(scrollBottom > h)
+    // The list is shifted to try fit all levels in the pack.
+    // If that is not possible just include the pack label
+    // + whatever amount of levels it's possible to fit on screen.
+    scrollTop = packLabelHeight * (lvlDrawer->packIdx - 1);
+    scrollBottom = scrollTop + packLabelHeight +
+                   std::min(packLabelHeight + slctFrameSize + mLevelListHeight -
+                                packChangeOffset,
+                       h);
+
+    if(scrollBottom > h - lvlDrawer->YOffset)
     {
-        lvlDrawer->YScrollTo = lvlDrawer->YOffset + h - scrollBottom;
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = h - scrollBottom;
     }
-    else if(scrollTop < 0.f)
+    if(scrollTop < -lvlDrawer->YOffset)
     {
-        lvlDrawer->YScrollTo = lvlDrawer->YOffset - scrollTop;
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = -scrollTop;
+    }
+}
+
+void MenuGame::quickPackFold()
+{
+    const float scrollTop{packLabelHeight * (lvlDrawer->packIdx - 1)};
+    const float scrollBottom{scrollTop +
+                             2.f * (packLabelHeight + slctFrameSize) +
+                             (levelLabelHeight + slctFrameSize)};
+
+    if(scrollBottom > h - lvlDrawer->YOffset)
+    {
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = h - scrollBottom;
+    }
+    if(scrollTop < -lvlDrawer->YOffset)
+    {
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = -scrollTop;
+    }
+}
+
+void MenuGame::quickPackStretch()
+{
+    const float scrollTop{packLabelHeight * (lvlDrawer->packIdx - 1)};
+    const float scrollBottom{scrollTop + 2.f * packLabelHeight + slctFrameSize +
+                             getLevelListHeight()};
+
+    if(scrollBottom > h - lvlDrawer->YOffset)
+    {
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = h - scrollBottom;
+    }
+    if(scrollTop < -lvlDrawer->YOffset)
+    {
+        lvlDrawer->YScrollTo = lvlDrawer->YOffset = -scrollTop;
+    }
+    adjustLevelsOffset();
+}
+
+void MenuGame::scrollLevelListToTargetY(ssvu::FT mFT)
+{
+    if(std::abs(lvlDrawer->YOffset - lvlDrawer->YScrollTo) <= Utils::epsilon)
+    {
+        return;
+    }
+
+    if(lvlDrawer->YOffset < lvlDrawer->YScrollTo)
+    {
+        lvlDrawer->YOffset += mFT * scrollSpeed;
+        if(lvlDrawer->YOffset >= lvlDrawer->YScrollTo)
+        {
+            lvlDrawer->YOffset = lvlDrawer->YScrollTo;
+        }
+        return;
+    }
+
+    lvlDrawer->YOffset -= mFT * scrollSpeed;
+    if(lvlDrawer->YOffset <= lvlDrawer->YScrollTo)
+    {
+        lvlDrawer->YOffset = lvlDrawer->YScrollTo;
     }
 }
 

@@ -276,12 +276,12 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
         return false;
     }
 
-    constexpr float padding{0.025f};
     int movement{mHexagonGame.getInputMovement()};
 
     // First of all, if it's a rotating wall push player in the direction the
     // wall is rotating by the appropriate amount, but only if the direction
     // of the rotation is different from the direction player is moving.
+    constexpr float padding{0.025f};
     const SpeedData& curveData{wall.getCurve()};
     const int speedSign{ssvu::getSign(curveData.speed)};
 
@@ -305,13 +305,15 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     const float currentSpeed{
         mHexagonGame.getPlayerSpeedMult() *
         (mHexagonGame.getInputFocused() ? focusSpeed : speed)};
-    lastAngle =
-        angle + ssvu::toRad(currentSpeed * movement * mFT) + movement * padding;
-    lastPos = ssvs::getOrbitRad(startPos, lastAngle, mHexagonGame.getRadius());
+
+    const float testAngle{angle + ssvu::toRad(currentSpeed * movement * mFT) +
+                          movement * padding};
+    const sf::Vector2f testPos{
+        ssvs::getOrbitRad(startPos, testAngle, mHexagonGame.getRadius())};
 
     // If there is overlap even after compensation kill without updating
     // position, as there is no benefit in doing it.
-    if(wall.isOverlapping(lastPos))
+    if(wall.isOverlapping(testPos))
     {
         return true;
     }
@@ -323,7 +325,8 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexes()};
     const float radZero{ssvs::getRad(wVertexes[0])},
         radOne{ssvs::getRad(wVertexes[1])};
-    angle = ssvu::getDistRad(angle, radOne) > ssvu::getDistRad(angle, radZero)
+    angle = ssvu::getDistRad(lastAngle, radOne) >
+                    ssvu::getDistRad(lastAngle, radZero)
                 ? radZero
                 : radOne;
     angle += movement * padding;
