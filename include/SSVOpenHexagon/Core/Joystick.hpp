@@ -20,6 +20,8 @@ enum Jid
     Screenshot,
     NextPack,
     PreviousPack,
+    AddToFavorites,
+    FavoritesMenu,
     JoystickBindsCount
 };
 
@@ -69,5 +71,11 @@ void setJoystickBind(const unsigned int button, const int buttonID);
 
 [[nodiscard]] bool previousPackPressed();
 [[nodiscard]] bool previousPackRisingEdge();
+
+[[nodiscard]] bool addToFavoritesPressed();
+[[nodiscard]] bool addToFavoritesRisingEdge();
+
+[[nodiscard]] bool favoritesMenuPressed();
+[[nodiscard]] bool favoritesMenuRisingEdge();
 
 } // namespace hg::Joystick

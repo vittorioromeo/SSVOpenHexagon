@@ -98,6 +98,12 @@ struct JoystickState
     bool previousPackWasPressed;
     bool previousPackPressed;
 
+    bool addToFavoritesWasPressed;
+    bool addToFavoritesPressed;
+
+    bool favoritesMenuWasPressed;
+    bool favoritesMenuPressed;
+
     unsigned int joystickInputs[JoystickBindsCount];
 };
 
@@ -117,7 +123,9 @@ void ignoreAllPresses(bool ignore)
         s.selectWasPressed = s.exitWasPressed = s.focusWasPressed =
             s.swapWasPressed = s.forceRestartWasPressed = s.restartWasPressed =
                 s.replayWasPressed = s.screenshotWasPressed =
-                    s.nextPackWasPressed = s.previousPackWasPressed = ignore;
+                    s.nextPackWasPressed = s.previousPackWasPressed =
+                        s.addToFavoritesWasPressed = s.favoritesMenuWasPressed =
+                            ignore;
 
     getJoystickState().ignoreAllPresses = ignore;
 }
@@ -232,6 +240,14 @@ void update()
     s.previousPackWasPressed = std::exchange(
         s.previousPackPressed, sf::Joystick::isButtonPressed(
                                    joyId, s.joystickInputs[Jid::PreviousPack]));
+
+    s.addToFavoritesWasPressed = std::exchange(
+        s.addToFavoritesPressed, sf::Joystick::isButtonPressed(joyId,
+                                     s.joystickInputs[Jid::AddToFavorites]));
+
+    s.favoritesMenuWasPressed = std::exchange(
+        s.favoritesMenuPressed, sf::Joystick::isButtonPressed(joyId,
+                                    s.joystickInputs[Jid::FavoritesMenu]));
 }
 
 
@@ -375,6 +391,26 @@ void update()
 {
     return getJoystickState().previousPackPressed &&
            !getJoystickState().previousPackWasPressed;
+}
+
+[[nodiscard]] bool addToFavoritesPressed()
+{
+    return getJoystickState().addToFavoritesPressed;
+}
+[[nodiscard]] bool addToFavoritesRisingEdge()
+{
+    return getJoystickState().addToFavoritesPressed &&
+           !getJoystickState().addToFavoritesWasPressed;
+}
+
+[[nodiscard]] bool favoritesMenuPressed()
+{
+    return getJoystickState().favoritesMenuPressed;
+}
+[[nodiscard]] bool favoritesMenuRisingEdge()
+{
+    return getJoystickState().favoritesMenuPressed &&
+           !getJoystickState().favoritesMenuWasPressed;
 }
 
 } // namespace hg::Joystick

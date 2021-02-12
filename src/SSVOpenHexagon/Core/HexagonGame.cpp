@@ -138,7 +138,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     };
 
     // ------------------------------------------------------------------------
-    // keyboard binds
+    // Keyboard binds
+
     Config::keyboardBindsSanityCheck();
 
     using Tid = Config::Tid;
@@ -193,32 +194,9 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         ssvs::Input::Type::Once, Tid::Screenshot);
 
     // ------------------------------------------------------------------------
-    // joystick binds
-    Config::joystickBindsSanityCheck();
+    // Joystick binds
 
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickSelect(), hg::Joystick::Jid::Select);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickExit(), hg::Joystick::Jid::Exit);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickFocus(), hg::Joystick::Jid::Focus);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickSwap(), hg::Joystick::Jid::Swap);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickForceRestart(), hg::Joystick::Jid::ForceRestart);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickRestart(), hg::Joystick::Jid::Restart);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickReplay(), hg::Joystick::Jid::Replay);
-
-    hg::Joystick::setJoystickBind(
-        Config::getJoystickScreenshot(), hg::Joystick::Jid::Screenshot);
+    Config::loadAllJoystickBinds();
 
     // ------------------------------------------------------------------------
     // key icons
