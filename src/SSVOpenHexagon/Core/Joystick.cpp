@@ -123,7 +123,7 @@ void ignoreAllPresses(bool ignore)
         s.selectWasPressed = s.exitWasPressed = s.focusWasPressed =
             s.swapWasPressed = s.forceRestartWasPressed = s.restartWasPressed =
                 s.replayWasPressed = s.screenshotWasPressed =
-                    s.nextPackWasPressed = s.previousPackWasPressed = 
+                    s.nextPackWasPressed = s.previousPackWasPressed =
                         s.addToFavoritesWasPressed = s.favoritesMenuWasPressed =
                             ignore;
 
@@ -222,7 +222,7 @@ void update()
 
     s.forceRestartWasPressed = std::exchange(
         s.forceRestartPressed, sf::Joystick::isButtonPressed(
-            joyId, s.joystickInputs[Jid::ForceRestart]));
+                                   joyId, s.joystickInputs[Jid::ForceRestart]));
 
     s.restartWasPressed = std::exchange(s.restartPressed,
         sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::Restart]));
@@ -232,21 +232,22 @@ void update()
 
     s.screenshotWasPressed = std::exchange(
         s.screenshotPressed, sf::Joystick::isButtonPressed(
-            joyId, s.joystickInputs[Jid::Screenshot]));
+                                 joyId, s.joystickInputs[Jid::Screenshot]));
 
     s.nextPackWasPressed = std::exchange(s.nextPackPressed,
         sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::NextPack]));
 
     s.previousPackWasPressed = std::exchange(
         s.previousPackPressed, sf::Joystick::isButtonPressed(
-            joyId, s.joystickInputs[Jid::PreviousPack]));
+                                   joyId, s.joystickInputs[Jid::PreviousPack]));
 
-    s.addToFavoritesWasPressed = std::exchange(s.addToFavoritesPressed,
-        sf::Joystick::isButtonPressed(joyId, s.joystickInputs[Jid::AddToFavorites]));
+    s.addToFavoritesWasPressed = std::exchange(
+        s.addToFavoritesPressed, sf::Joystick::isButtonPressed(joyId,
+                                     s.joystickInputs[Jid::AddToFavorites]));
 
     s.favoritesMenuWasPressed = std::exchange(
-        s.favoritesMenuPressed, sf::Joystick::isButtonPressed(
-            joyId, s.joystickInputs[Jid::FavoritesMenu]));
+        s.favoritesMenuPressed, sf::Joystick::isButtonPressed(joyId,
+                                    s.joystickInputs[Jid::FavoritesMenu]));
 }
 
 
@@ -404,7 +405,7 @@ void update()
 
 [[nodiscard]] bool favoritesMenuPressed()
 {
-    return  getJoystickState().favoritesMenuPressed;
+    return getJoystickState().favoritesMenuPressed;
 }
 [[nodiscard]] bool favoritesMenuRisingEdge()
 {

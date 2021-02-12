@@ -191,7 +191,8 @@ void keyboardBindsSanityCheck();
 [[nodiscard]] ssvs::Input::Trigger getTriggerPreviousPack();
 
 using KeyboardTriggerGetter = ssvs::Input::Trigger (*)();
-extern const std::array<KeyboardTriggerGetter, Tid::TriggersCount> keyboardTriggerGetters;
+extern const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
+    keyboardTriggerGetters;
 
 void addBindTriggerRotateCCW(const int key, const int btn, const int index);
 void addBindTriggerRotateCW(const int key, const int btn, const int index);
@@ -257,7 +258,9 @@ void joystickBindsSanityCheck();
 [[nodiscard]] unsigned int getJoystickFavoritesMenu();
 
 using JoystickTriggerGetter = unsigned int (*)();
-extern const std::array<JoystickTriggerGetter, hg::Joystick::Jid::JoystickBindsCount> joystickTriggerGetters;
+extern const std::array<JoystickTriggerGetter,
+    hg::Joystick::Jid::JoystickBindsCount>
+    joystickTriggerGetters;
 void loadAllJoystickBinds();
 
 void setJoystickSelect(const unsigned int button);

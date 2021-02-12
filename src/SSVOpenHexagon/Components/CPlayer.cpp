@@ -204,8 +204,8 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
         mHexagonGame.getPlayerSpeedMult() *
         (mHexagonGame.getInputFocused() ? focusSpeed : speed)};
 
-    const float testAngle{
-        angle + ssvu::toRad(currentSpeed * movement * mFT) + movement * padding};
+    const float testAngle{angle + ssvu::toRad(currentSpeed * movement * mFT) +
+                          movement * padding};
     const sf::Vector2f testPos{
         ssvs::getOrbitRad(startPos, testAngle, mHexagonGame.getRadius())};
 
@@ -223,7 +223,8 @@ void CPlayer::kill(HexagonGame& mHexagonGame)
     const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexes()};
     const float radZero{ssvs::getRad(wVertexes[0])},
         radOne{ssvs::getRad(wVertexes[1])};
-    angle = ssvu::getDistRad(lastAngle, radOne) > ssvu::getDistRad(lastAngle, radZero)
+    angle = ssvu::getDistRad(lastAngle, radOne) >
+                    ssvu::getDistRad(lastAngle, radZero)
                 ? radZero
                 : radOne;
     angle += movement * padding;
