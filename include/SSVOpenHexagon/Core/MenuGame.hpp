@@ -348,7 +348,8 @@ private:
     float levelLabelHeight{0.f};
     float packChangeOffset{0.f}; // level list yOffset when being fold
     float levelDetailsOffset{0.f};
-    float scrollSpeed{0.f};
+    static inline constexpr float baseScrollSpeed{30.f};
+    float scrollSpeed{baseScrollSpeed};
 
     // First timer tips
     bool showFirstTimeTips{false};
@@ -383,10 +384,9 @@ private:
                slctFrameSize;
     }
 
-    static inline constexpr float baseScrollSpeed{30.f};
-    void calcPackChangeScrollSpeed()
+    void calcScrollSpeed()
     {
-        // Only speed up the animation if there are more than 12 levels.
+        // Only speed up the animation if there are more than 16 levels.
         scrollSpeed = baseScrollSpeed *
                       std::max(lvlDrawer->levelDataIds.size() / 16.f, 1.f);
     }
