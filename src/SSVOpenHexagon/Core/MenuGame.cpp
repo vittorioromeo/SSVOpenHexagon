@@ -1325,12 +1325,8 @@ void MenuGame::leftAction()
         return;
     }
 
-    if(!isInMenu())
-    {
-        return;
-    }
-
-    if(!getCurrentMenu()->getItem().canIncrease())
+    if(!isInMenu() ||
+       !getCurrentMenu()->getItem().canIncrease())
     {
         return;
     }
@@ -1351,12 +1347,8 @@ void MenuGame::rightAction()
         return;
     }
 
-    if(!isInMenu())
-    {
-        return;
-    }
-
-    if(!getCurrentMenu()->getItem().canIncrease())
+    if(!isInMenu() ||
+       !getCurrentMenu()->getItem().canIncrease())
     {
         return;
     }
@@ -1383,13 +1375,30 @@ void MenuGame::upAction()
             return;
         }
 
+        const int prevIdx{lvlDrawer->currentIndex - 1};
         if(getPackInfosSize() == 1)
         {
-            setIndex(ssvu::getMod(lvlDrawer->currentIndex - 1, 0,
-                lvlDrawer->levelDataIds.size()));
-            calcLevelChangeScroll(-2);
+            if(prevIdx < 0)
+            {
+                // Skip to the last level label.
+                setIndex(lvlDrawer->levelDataIds.size() - 1);
+                calcScrollSpeed();
+
+                const float scroll{packLabelHeight +
+                    levelLabelHeight * (lvlDrawer->currentIndex + 1) +
+                    2.f * slctFrameSize};
+                if(scroll > h - lvlDrawer->YOffset)
+                {
+                    lvlDrawer->YScrollTo = h - scroll;
+                }
+            }
+            else
+            {
+                setIndex(prevIdx);
+                calcLevelChangeScroll(-2);
+            }
         }
-        else if(lvlDrawer->currentIndex - 1 < 0)
+        else if(prevIdx < 0)
         {
             // -2 means "go to previous pack and
             // skip to the last level of the list"
@@ -1397,7 +1406,7 @@ void MenuGame::upAction()
         }
         else
         {
-            setIndex(lvlDrawer->currentIndex - 1);
+            setIndex(prevIdx);
             calcLevelChangeScroll(-2);
         }
 
@@ -1435,7 +1444,8 @@ void MenuGame::upAction()
     do
     {
         getCurrentMenu()->previous();
-    } while(!getCurrentMenu()->getItem().isEnabled());
+    }
+    while(!getCurrentMenu()->getItem().isEnabled());
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -1458,20 +1468,29 @@ void MenuGame::downAction()
             return;
         }
 
+        const int nextIdx{lvlDrawer->currentIndex + 1};
         if(getPackInfosSize() == 1)
         {
-            setIndex(ssvu::getMod(lvlDrawer->currentIndex + 1, 0,
-                lvlDrawer->levelDataIds.size()));
-            calcLevelChangeScroll(2);
+            if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds.size() - 1))
+            {
+                // Skip to the first level label.
+                setIndex(0);
+                calcScrollSpeed();
+                lvlDrawer->YScrollTo = 0.f;
+            }
+            else
+            {
+                setIndex(nextIdx);
+                calcLevelChangeScroll(2);
+            }
         }
-        else if(lvlDrawer->currentIndex + 1 >
-                ssvu::toInt(lvlDrawer->levelDataIds.size() - 1))
+        else if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds.size() - 1))
         {
             changePackAction(1);
         }
         else
         {
-            setIndex(lvlDrawer->currentIndex + 1);
+            setIndex(nextIdx);
             calcLevelChangeScroll(2);
         }
 
@@ -1511,7 +1530,8 @@ void MenuGame::downAction()
     do
     {
         getCurrentMenu()->next();
-    } while(!getCurrentMenu()->getItem().isEnabled());
+    }
+    while(!getCurrentMenu()->getItem().isEnabled());
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -1582,7 +1602,7 @@ void MenuGame::changePackAction(const int direction)
     lvlDrawer->YScrollTo = lvlDrawer->YOffset; // stop scrolling for safety
     packChangeState = PackChange::Folding;
     packChangeDirection = direction;
-    calcPackChangeScrollSpeed();
+    calcScrollSpeed();
 
     touchDelay = 50.f;
     assets.playSound("beep.ogg");
@@ -2063,16 +2083,6 @@ void MenuGame::update(ssvu::FT mFT)
             switch(packChangeState)
             {
                 case PackChange::Rest:
-                    // If the height of the list is smaller than the window
-                    // height the offset of the list is always 0.
-                    if(getLevelSelectionHeight() < h)
-                    {
-                        lvlDrawer->YOffset = lvlDrawer->YScrollTo = 0.f;
-                        break;
-                    }
-
-                    // This handles the smooth scrolling of the level list
-                    // when we change level.
                     scrollLevelListToTargetY(mFT);
                     break;
 
@@ -2091,7 +2101,7 @@ void MenuGame::update(ssvu::FT mFT)
                     changePack();
                     // Set the stretch info
                     packChangeOffset = getLevelListHeight();
-                    calcPackChangeScrollSpeed();
+                    calcScrollSpeed();
                     packChangeState = PackChange::Stretching;
                 }
                 break;
@@ -3390,8 +3400,15 @@ void MenuGame::scrollNameRightBorder(
 void MenuGame::calcLevelChangeScroll(const int dir)
 {
     scrollSpeed = baseScrollSpeed;
-
+    
+    // When in the favorites menu the packIdx variable stores the index
+    // of the pack the currently selected level belongs to. However
+    // the favorite levels are displayed belonging to a single pack
+    // so for the purposes of this function the pack index of the
+    // favorites menu is always 0.
+    const int actualPackIdx{isFavoriteLevels() ? 0 : lvlDrawer->packIdx};
     float scroll;
+
     if(dir < 0)
     {
         // If we are approaching the top of the pack show either the first
@@ -3399,12 +3416,12 @@ void MenuGame::calcLevelChangeScroll(const int dir)
         if(lvlDrawer->currentIndex < 2)
         {
             scroll = packLabelHeight *
-                     (lvlDrawer->packIdx + 1 - (2 - lvlDrawer->currentIndex));
+                     (actualPackIdx + 1 - (2 - lvlDrawer->currentIndex));
         }
         else
         {
             //...otherwise just show the two previous level labels.
-            scroll = packLabelHeight * (lvlDrawer->packIdx + 1) +
+            scroll = packLabelHeight * (actualPackIdx + 1) +
                      levelLabelHeight * (lvlDrawer->currentIndex + dir) +
                      slctFrameSize;
         }
@@ -3420,17 +3437,17 @@ void MenuGame::calcLevelChangeScroll(const int dir)
     // If we are approaching the bottom of the pack show either the
     // last level label and the next pack label or two next pack labels...
     if(lvlDrawer->currentIndex >= size - 2 &&
-        lvlDrawer->packIdx != static_cast<int>(getPackInfosSize()) - 1)
+        actualPackIdx != static_cast<int>(getPackInfosSize()) - 1)
     {
         scroll =
-            packLabelHeight * (lvlDrawer->packIdx + 1 +
+            packLabelHeight * (actualPackIdx + 1 +
                                   (2 - (size - 1 - lvlDrawer->currentIndex))) +
             levelLabelHeight * size + 3.f * slctFrameSize;
     }
     else
     {
         //...otherwise just show the two next level labels.
-        scroll = packLabelHeight * (lvlDrawer->packIdx + 1) +
+        scroll = packLabelHeight * (actualPackIdx + 1) +
                  levelLabelHeight *
                      std::min(lvlDrawer->currentIndex + dir + 1,
                          static_cast<int>(lvlDrawer->levelDataIds.size())) +
@@ -3680,7 +3697,7 @@ void MenuGame::changeLevelFavoriteFlag()
 {
     const LevelData& data{assets.getLevelData(
         lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex))};
-    const std::string& levelID{data.packId + "_" + data.id};
+    const std::string levelID{data.packId + "_" + data.id};
 
     // Level is a favorite so remove it.
     if(data.favorite)
@@ -3706,6 +3723,16 @@ void MenuGame::changeLevelFavoriteFlag()
             // is one of the remaining ones.
             lvlDrawer->currentIndex = std::min(lvlDrawer->currentIndex,
                 static_cast<int>(favSlct.levelDataIds.size()) - 1);
+
+            // Make sure there is no empty space between the end of the list
+            // and the bottom of the window. Needed to ensure the selected
+            // level is always on screen.
+            const float scroll{packLabelHeight + 2.f * slctFrameSize +
+                levelLabelHeight * favSlct.levelDataIds.size()};
+            if(h > scroll + lvlDrawer->YOffset)
+            {
+                lvlDrawer->YScrollTo = h - scroll;
+            }
         }
         adjustLevelsOffset();
     }
@@ -3734,6 +3761,7 @@ void MenuGame::switchToFromFavoriteLevels()
         changePack();
     }
     packChangeState = PackChange::Rest;
+    lvlDrawer->YScrollTo = lvlDrawer->YOffset;
     packChangeOffset = 0.f;
 
     lvlDrawer = isFavoriteLevels() ? &lvlSlct : &favSlct;
@@ -4010,7 +4038,8 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             height = drawer.YOffset;
         }
-    } while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    }
+    while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
 void MenuGame::drawLevelSelectionLeftSide(
