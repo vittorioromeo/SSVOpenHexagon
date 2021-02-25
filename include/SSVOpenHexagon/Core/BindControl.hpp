@@ -23,10 +23,13 @@ protected:
 
 public:
     BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
-        const std::string& mName, const int mID);
+        const std::string& mName, const int mID)
+        : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
+    {
+    }
 
-    [[nodiscard]] virtual bool erase();
-    [[nodiscard]] virtual bool isWaitingForBind() const;
+    [[nodiscard]] virtual bool erase() = 0;
+    [[nodiscard]] virtual bool isWaitingForBind() const = 0;
 };
 
 class KeyboardBindControl final : public BindControlBase

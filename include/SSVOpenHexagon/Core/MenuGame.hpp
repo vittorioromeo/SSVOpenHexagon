@@ -239,8 +239,18 @@ private:
     }
 
     // Helper functions
-    float getFPSMult() const;
-    void drawGraphics();
+    float getFPSMult() const
+    {
+        // multiplier for FPS consistent drawing operations.
+        return 200.f / window.getFPS();
+    }
+    void drawGraphics()
+    {
+        render(titleBar);
+        render(creditsBar1);
+        render(creditsBar2);
+        render(txtVersion.font);
+    }
 
     void adjustMenuOffset(const bool resetMenuOffset);
     float calcMenuOffset(float& offset, const float maxOffset,
@@ -348,7 +358,8 @@ private:
     float levelLabelHeight{0.f};
     float packChangeOffset{0.f}; // level list yOffset when being fold
     float levelDetailsOffset{0.f};
-    float scrollSpeed{0.f};
+    static inline constexpr float baseScrollSpeed{30.f};
+    float scrollSpeed{baseScrollSpeed};
 
     // First timer tips
     bool showFirstTimeTips{false};
@@ -359,14 +370,6 @@ private:
 
     void changeLevelFavoriteFlag();
     void switchToFromFavoriteLevels();
-    void sortFavoriteLevels()
-    {
-        std::sort(favSlct.levelDataIds.begin(), favSlct.levelDataIds.end(),
-            [this](const std::string& a, const std::string& b) -> bool {
-                return assets.getLevelData(a).name <
-                       assets.getLevelData(b).name;
-            });
-    }
 
     // Visual effects
     float difficultyBumpEffect{0.f};
@@ -383,19 +386,37 @@ private:
                slctFrameSize;
     }
 
-    static inline constexpr float baseScrollSpeed{30.f};
-    void calcPackChangeScrollSpeed()
+    void calcScrollSpeed()
     {
-        // Only speed up the animation if there are more than 12 levels.
+        // Only speed up the animation if there are more than 16 levels.
         scrollSpeed = baseScrollSpeed *
                       std::max(lvlDrawer->levelDataIds.size() / 16.f, 1.f);
     }
     void calcLevelChangeScroll(const int dir);
     void calcPackChangeScrollFold(const float mLevelListHeight);
     void calcPackChangeScrollStretch(const float mLevelListHeight);
-    void quickPackFold();
-    void quickPackStretch();
+    void quickPackFoldStretch();
     void scrollLevelListToTargetY(ssvu::FT mFT);
+    void checkWindowTopScroll(
+        const float scroll, std::function<void(const float)> action)
+    {
+        const float target{-scroll};
+        if(target <= lvlDrawer->YOffset)
+        {
+            return;
+        }
+        action(target);
+    }
+    void checkWindowBottomScroll(
+        const float scroll, std::function<void(const float)> action)
+    {
+        const float target{h - scroll};
+        if(target >= lvlDrawer->YOffset)
+        {
+            return;
+        }
+        action(target);
+    }
 
     void scrollName(std::string& text, float& scroller);
     void scrollNameRightBorder(std::string& text, const std::string key,
@@ -508,6 +529,8 @@ private:
     //---------------------------------------
     // Misc / Unused
 
+    static constexpr std::string_view favoritePath{
+        "Assets/favoriteLevels.json"};
     std::string scoresMessage;
     float exitTimer{0}, currentCreditsId{0};
     bool mustTakeScreenshot{false};
@@ -530,8 +553,18 @@ public:
         return game;
     }
 
-    void returnToLevelSelection();
-    void saveFavoriteLevels();
+    void returnToLevelSelection()
+    {
+        adjustLevelsOffset();
+        lvlDrawer->XOffset = 0.f;
+        setIgnoreAllInputs(1); // otherwise you go back to the main menu
+    }
+    void saveFavoriteLevels()
+    {
+        ssvuj::Obj root;
+        ssvuj::arch(root, "ids", favSlct.levelDataIds);
+        ssvuj::writeToFile(root, std::string(favoritePath));
+    }
     void refreshBinds();
 };
 
