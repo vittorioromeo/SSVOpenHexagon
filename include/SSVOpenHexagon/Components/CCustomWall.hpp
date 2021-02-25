@@ -29,12 +29,12 @@ private:
     std::array<sf::Vector2f, 4> vertexPositions;
     std::array<sf::Vector2f, 4> oldVertexPositions;
     std::array<sf::Color, 4> vertexColors;
+    unsigned int killingSide{1u};
 
     enum CWFlags : unsigned int
     {
         Collision,
         Deadly,
-        Forgiving,
         CWFlagsCount
     };
     std::bitset<CWFlags::CWFlagsCount> flags{3}; // collision + deadly
@@ -77,11 +77,6 @@ public:
         flags[CWFlags::Deadly] = deadly;
     }
 
-    [[gnu::always_inline]] void setForgiving(const bool forgiving) noexcept
-    {
-        flags[CWFlags::Forgiving] = forgiving;
-    }
-
     // [[gnu::always_inline]] void setRenderOrder(const int8_t order) noexcept
     // {
     //     renderOrder = order;
@@ -115,14 +110,19 @@ public:
         return flags[CWFlags::Deadly];
     }
 
-    [[gnu::always_inline, nodiscard]] bool getForgiving() const noexcept
-    {
-        return flags[CWFlags::Forgiving];   
-    }
-
     [[gnu::always_inline, nodiscard]] bool isCustomWall() const noexcept
     {
         return true;
+    }
+
+    [[gnu::always_inline]] void setKillingSide(const unsigned int side) noexcept
+    {
+        killingSide = (side + 1) % 4;
+    }
+
+    [[gnu::always_inline, nodiscard]] unsigned int getKillingSide() const noexcept
+    {
+        return killingSide;
     }
 };
 
