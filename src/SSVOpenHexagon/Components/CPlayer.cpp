@@ -171,6 +171,11 @@ template <typename Wall>
     const unsigned int vxIncrement{wall.isCustomWall() ? 1u : 2u};
     const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexPositions()};
 
+    // This is actually useless for normal walls, but if we removed
+    // getKillingSide() for CWall we would have to write a separate
+    // function just to do without this variable,
+    const unsigned int killingSide{wall.getKillingSide()};
+
     const auto assignResult = [&]() {
         tempDistance = ssvs::getMagSquared(vec1 - mPos);
         if(tempDistance < safeDistance)
@@ -183,6 +188,11 @@ template <typename Wall>
 
     for(unsigned int i{0u}, j{3u}; i < 4u; i += vxIncrement, j = i - 1)
     {
+        if(i == killingSide)
+        {
+            continue;
+        }
+
         switch(getLineCircleIntersection(vec1, vec2, wVertexes[i], wVertexes[j], mRadiusSquared))
         {
             case 1u:
@@ -269,9 +279,6 @@ template <typename Wall>
     return false;
 }
 
-inline constexpr float killDotThreshold{0.707f}; // cosine of 45 degrees (sqrt(2) / 2)
-inline constexpr float pushDotThreshold{0.2f}; // 0.1 would be enough in most scenarios but we raise it to 0.2 for really fast walls.
-
 [[nodiscard]] bool CPlayer::push(const HexagonGame& mHexagonGame,
     const CCustomWall& wall, const float mRadiusSquared, const ssvu::FT mFT)
 {
@@ -286,93 +293,45 @@ inline constexpr float pushDotThreshold{0.2f}; // 0.1 would be enough in most sc
         return true;
     }
 
-    // Customwalls can take any shape and move in any way.
-    // Evaluate collision with each side of the trapezoid wall.
-    // Look for:
-    // - a side that is moving in a direction perpendicular to the player,
-    //   such side is a candidate for pushing it like a curving wall would do.
-    //   (lastPos is the best candidate for this check)
-    // - a side that is moving in a direction parallel to the player,
-    //   such side should kill player instantly.
-    //   (pos is the best candidate for this check)
-
+    // Look for a side that is moving in a direction perpendicular to the player,
+    // such side is a candidate for pushing it like a curving wall would do.
+    // (lastPos is the best candidate for this check).
     std::array<const sf::Vector2f*, 4> collisionPolygon;
     const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexPositions()};
     const std::array<sf::Vector2f, 4>& wOldVertexes{wall.getOldVertexPositions()};
-    sf::Vector2f pushVel{0.f, 0.f};
-    unsigned int i{0u}, j{3u};
+    sf::Vector2f pushVel{0.f, 0.f}, i1, i2;
+    const unsigned int killingSide{wall.getKillingSide()};
+    constexpr float pushDotThreshold{0.15f}; // 0.1 would be enough in most scenarios
+                                             // but we raise it to 0.15 for really fast walls.
 
-    const auto getPushVel = [&]() {
-        sf::Vector2f i1, i2;
-
-        // For a side to be an effective source of push it must have intersected
-        // the player's positions circle both now and the previous frame.
-        if(!getLineCircleClosestIntersection(
-            i1, lastPos, wOldVertexes[i], wOldVertexes[j], mRadiusSquared) ||
-           !getLineCircleClosestIntersection(
-            i2, lastPos, wVertexes[i], wVertexes[j], mRadiusSquared))
-        {
-            return;
-        }
-
-        pushVel = i2 - i1;
-        if(std::abs(ssvs::getDotProduct(ssvs::getNormalized(pushVel),
-            ssvs::getNormalized(lastPos))) > pushDotThreshold)
-        {
-            pushVel = {0.f, 0.f};
-        }
-    };
-
-    // A setting to allow easier sliding against rows of thin walls, among other possibilities.
-    if(wall.getForgiving())
+    for(unsigned int i{0u}, j{3u}; i < 4; j = i++)
     {
-        while(i < 4u)
+        if(i == killingSide)
         {
-            collisionPolygon =
-                {&wVertexes[i], &wOldVertexes[i], &wOldVertexes[j], &wVertexes[j]};
-
-            if(pointInPolygonPointers(collisionPolygon, lastPos.x, lastPos.y))
-            {
-                getPushVel();
-                break;
-            }
-
-            j = i++;
+            continue;
         }
-    }
-    else
-    {
-        while(i < 4u)
+
+        collisionPolygon =
+            {&wVertexes[i], &wOldVertexes[i], &wOldVertexes[j], &wVertexes[j]};
+
+        if(pointInPolygonPointers(collisionPolygon, lastPos.x, lastPos.y))
         {
-            collisionPolygon =
-                {&wVertexes[i], &wOldVertexes[i], &wOldVertexes[j], &wVertexes[j]};
-
-            // Check for a killing side, this takes priority.
-            if(pointInPolygonPointers(collisionPolygon, pos.x, pos.y))
+            // For a side to be an effective source of push it must have intersected
+            // the player's positions circle both now and the previous frame.
+            if(getLineCircleClosestIntersection(
+                   i1, lastPos, wOldVertexes[i], wOldVertexes[j], mRadiusSquared) &&
+               getLineCircleClosestIntersection(
+                   i2, lastPos, wVertexes[i], wVertexes[j], mRadiusSquared))
             {
-                // Average velocity of the vertexes, we cannot use
-                // getLineCircleClosestIntersection() cause this side
-                // might not have intersected the player circle in the previous frame.
-                pushVel = ((wVertexes[i] - wOldVertexes[i]) +
-                    (wVertexes[j] - wOldVertexes[j])) / 2.f;
-
-                // If wall is coming in too steep kill now.
+                pushVel = i2 - i1;
                 if(std::abs(ssvs::getDotProduct(ssvs::getNormalized(pushVel),
-                    ssvs::getNormalized(pos))) > killDotThreshold)
+                    ssvs::getNormalized(lastPos))) > pushDotThreshold)
                 {
-                    return true;
+                    pushVel = {0.f, 0.f};
                 }
             }
-
-            // Check for a pushing side.
-            if(pointInPolygonPointers(collisionPolygon, lastPos.x, lastPos.y))
-            {
-                getPushVel();
-                break;
-            }
-
-            j = i++;
-        }
+            break;
+        }   
     }
 
     // Player is not moving exit now.

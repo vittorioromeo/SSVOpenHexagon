@@ -131,13 +131,20 @@ void CCustomWallManager::setDeadly(
     _customWalls[cwHandle].setDeadly(deadly);
 }
 
-void CCustomWallManager::setForgiving(
-    const CCustomWallHandle cwHandle, const bool forgiving)
+void CCustomWallManager::setKillingSide(
+    const CCustomWallHandle cwHandle, const unsigned int side)
 {
+    if(side > 3u)
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to set killing side with invalid value " << side
+            << ', acceptable values are 0 to 3\n';
+        return;
+    }
     if(_handleAvailable[cwHandle])
     {
         ssvu::lo("CustomWallManager")
-            << "Attempted to set forgiving status of invalid custom wall " << cwHandle
+            << "Attempted to set killing side of invalid custom wall " << cwHandle
             << '\n';
 
         SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
@@ -146,7 +153,7 @@ void CCustomWallManager::setForgiving(
 
     SSVU_ASSERT(isValidHandle(cwHandle));
 
-    _customWalls[cwHandle].setForgiving(forgiving);
+    _customWalls[cwHandle].setKillingSide(side);
 }
 
 // void CCustomWallManager::setRenderOrder(
@@ -232,13 +239,13 @@ void CCustomWallManager::setForgiving(
     return _customWalls[cwHandle].getDeadly();
 }
 
-[[nodiscard]] bool CCustomWallManager::getForgiving(
+[[nodiscard]] unsigned int CCustomWallManager::getKillingSide(
     const CCustomWallHandle cwHandle)
 {
     if(_handleAvailable[cwHandle])
     {
         ssvu::lo("CustomWallManager")
-            << "Attempted to get forgiving status of invalid custom wall " << cwHandle
+            << "Attempted to get killing side of invalid custom wall " << cwHandle
             << '\n';
 
         SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
@@ -247,7 +254,7 @@ void CCustomWallManager::setForgiving(
 
     SSVU_ASSERT(isValidHandle(cwHandle));
 
-    return _customWalls[cwHandle].getForgiving();
+    return _customWalls[cwHandle].getKillingSide();
 }
 
 void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle,

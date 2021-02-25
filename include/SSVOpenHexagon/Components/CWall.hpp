@@ -107,6 +107,11 @@ public:
         return false;
     }
 
+    [[gnu::always_inline, nodiscard]] unsigned int getKillingSide() const noexcept
+    {
+        return 1u;
+    }
+
     [[gnu::always_inline, nodiscard]] bool isDead() const noexcept
     {
         return killed;

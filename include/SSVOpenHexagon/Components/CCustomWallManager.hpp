@@ -40,7 +40,7 @@ public:
 
     void setDeadly(const CCustomWallHandle cwHandle, const bool deadly);
 
-    void setForgiving(const CCustomWallHandle cwHandle, const bool forgiving);
+    void setKillingSide(const CCustomWallHandle cwHandle, const unsigned int deadly);
 
     // void setRenderOrder(const CCustomWallHandle cwHandle, const int8_t
     // order);
@@ -55,7 +55,7 @@ public:
 
     [[nodiscard]] bool getDeadly(const CCustomWallHandle cwHandle);
 
-    [[nodiscard]] bool getForgiving(const CCustomWallHandle cwHandle);
+    [[nodiscard]] unsigned int getKillingSide(const CCustomWallHandle cwHandle);
 
     [[nodiscard]] bool isOverlappingPlayer(const CCustomWallHandle cwHandle);
 
