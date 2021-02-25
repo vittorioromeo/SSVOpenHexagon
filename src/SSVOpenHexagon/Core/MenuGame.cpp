@@ -403,8 +403,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     std::sort(favSlct.levelDataIds.begin(), favSlct.levelDataIds.end(),
         [this](const std::string& a, const std::string& b) -> bool {
             return toLower(assets.getLevelData(a).name) <
-                toLower(assets.getLevelData(b).name);
-    });
+                   toLower(assets.getLevelData(b).name);
+        });
     // Set size of the level offsets vector to the required amount.
     favSlct.lvlOffsets.resize(static_cast<int>(favSlct.levelDataIds.size()));
 }
@@ -1324,8 +1324,7 @@ void MenuGame::leftAction()
     }
 
     // If there is no valid action abort.
-    if(!isInMenu() ||
-       !getCurrentMenu()->getItem().canIncrease())
+    if(!isInMenu() || !getCurrentMenu()->getItem().canIncrease())
     {
         return;
     }
@@ -1348,8 +1347,7 @@ void MenuGame::rightAction()
     }
 
     // If there is no valid action abort.
-    if(!isInMenu() ||
-       !getCurrentMenu()->getItem().canIncrease())
+    if(!isInMenu() || !getCurrentMenu()->getItem().canIncrease())
     {
         return;
     }
@@ -1390,7 +1388,8 @@ void MenuGame::upAction()
                 setIndex(lvlDrawer->levelDataIds.size() - 1);
                 calcScrollSpeed();
 
-                const float scroll{packLabelHeight +
+                const float scroll{
+                    packLabelHeight +
                     levelLabelHeight * (lvlDrawer->currentIndex + 1) +
                     2.f * slctFrameSize};
                 if(scroll > h - lvlDrawer->YOffset)
@@ -1454,8 +1453,7 @@ void MenuGame::upAction()
     do
     {
         getCurrentMenu()->previous();
-    }
-    while(!getCurrentMenu()->getItem().isEnabled());
+    } while(!getCurrentMenu()->getItem().isEnabled());
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -1540,8 +1538,7 @@ void MenuGame::downAction()
     do
     {
         getCurrentMenu()->next();
-    }
-    while(!getCurrentMenu()->getItem().isEnabled());
+    } while(!getCurrentMenu()->getItem().isEnabled());
 
     assets.playSound("beep.ogg");
     touchDelay = 50.f;
@@ -1550,7 +1547,7 @@ void MenuGame::downAction()
 void MenuGame::changePack()
 {
     const auto& p{assets.getPackInfos()};
-    
+
     // Deduce the new packIdx.
     lvlDrawer->packIdx =
         ssvu::getMod(lvlDrawer->packIdx + (packChangeDirection > 0 ? 1 : -1), 0,
@@ -1968,7 +1965,8 @@ void MenuGame::update(ssvu::FT mFT)
     }
     else if(!focusHeld && wasFocusHeld)
     {
-        // focus is now released we have to stretch the level list of the current menu.
+        // focus is now released we have to stretch the level list of the
+        // current menu.
         quickPackFoldStretch();
     }
     wasFocusHeld = focusHeld;
@@ -2112,9 +2110,7 @@ void MenuGame::update(ssvu::FT mFT)
             // Folding animation of the level list when we change pack.
             switch(packChangeState)
             {
-                case PackChange::Rest:
-                    scrollLevelListToTargetY(mFT);
-                    break;
+                case PackChange::Rest: scrollLevelListToTargetY(mFT); break;
 
                 case PackChange::Folding:
                 {
@@ -3457,7 +3453,7 @@ void MenuGame::scrollNameRightBorder(
 void MenuGame::calcLevelChangeScroll(const int dir)
 {
     scrollSpeed = baseScrollSpeed;
-    
+
     // When in the favorites menu the packIdx variable stores the index
     // of the pack the currently selected level belongs to. However
     // the favorite levels are displayed belonging to a single pack
@@ -3483,9 +3479,8 @@ void MenuGame::calcLevelChangeScroll(const int dir)
                      slctFrameSize;
         }
 
-        checkWindowTopScroll(scroll, [this](const float target) {
-            lvlDrawer->YScrollTo = target;
-        });
+        checkWindowTopScroll(scroll,
+            [this](const float target) { lvlDrawer->YScrollTo = target; });
         return;
     }
 
@@ -3510,9 +3505,8 @@ void MenuGame::calcLevelChangeScroll(const int dir)
                  2.f * slctFrameSize;
     }
 
-    checkWindowBottomScroll(scroll, [this](const float target) {
-        lvlDrawer->YScrollTo = target;
-    });
+    checkWindowBottomScroll(
+        scroll, [this](const float target) { lvlDrawer->YScrollTo = target; });
 }
 
 void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
@@ -3525,7 +3519,7 @@ void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
     // Make sure the last level and the two before it fit on screen.
     const float scroll{packLabelHeight * lvlDrawer->packIdx + slctFrameSize +
                        std::max(0.f, packLabelHeight + slctFrameSize +
-                           mLevelListHeight - packChangeOffset)};
+                                         mLevelListHeight - packChangeOffset)};
 
     // As soon as the bottom of the level list goes out of the screen
     // switch pack by setting the packChangeOffset to the height of the
@@ -3553,11 +3547,12 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
             if(scrollBottom > h - lvlDrawer->YOffset)
             {
                 // With particularly long lists it only makes sense to show
-                // the stretch animation for as long as we can see the pack label on
-                // screen. After the pack label is outside of the draw window we only see
-                // a standing still list since we no more have a point of reference and
-                // the list is programmed to keep scrollBottom inside the window.
-                // If this occurs cut the animation short.
+                // the stretch animation for as long as we can see the pack
+                // label on screen. After the pack label is outside of the draw
+                // window we only see a standing still list since we no more
+                // have a point of reference and the list is programmed to keep
+                // scrollBottom inside the window. If this occurs cut the
+                // animation short.
                 if(scrollTop < -lvlDrawer->YOffset)
                 {
                     packChangeOffset = 0.f;
@@ -3595,7 +3590,8 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
     scrollTop = packLabelHeight * (lvlDrawer->packIdx - 1);
     scrollBottom = scrollTop + packLabelHeight +
                    std::min(packLabelHeight + slctFrameSize + mLevelListHeight -
-                       packChangeOffset, h);
+                                packChangeOffset,
+                       h);
 
     checkWindowBottomScroll(scrollBottom, [this](const float target) {
         lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
@@ -3774,7 +3770,7 @@ void MenuGame::changeLevelFavoriteFlag()
             // and the bottom of the window. Needed to ensure the selected
             // level is always on screen.
             const float scroll{packLabelHeight + 2.f * slctFrameSize +
-                levelLabelHeight * favSlct.levelDataIds.size()};
+                               levelLabelHeight * favSlct.levelDataIds.size()};
             if(h > scroll + lvlDrawer->YOffset)
             {
                 lvlDrawer->YScrollTo = h - scroll;
@@ -3788,7 +3784,8 @@ void MenuGame::changeLevelFavoriteFlag()
         // in alphabetical order.
         auto it{favSlct.levelDataIds.begin()};
         const auto end{favSlct.levelDataIds.end()};
-        const std::string tweakedFavName{toLower(assets.getLevelData(levelID).name)};
+        const std::string tweakedFavName{
+            toLower(assets.getLevelData(levelID).name)};
         std::string tweakedLevelName;
 
         while(it != end)
@@ -3843,10 +3840,13 @@ void MenuGame::switchToFromFavoriteLevels()
 void MenuGame::drawLevelSelectionRightSide(
     LevelDrawer& drawer, const bool revertOffset)
 {
-    const float outerFrame{textToQuadBorder + slctFrameSize}, //total distance from the top of the text
-                                                              // to the outer border of the label.
-        packLabelOffset{w * 0.33f - outerFrame}, quadsIndent{w - packLabelOffset},
-        txtIndent{w - packLabelOffset / 2.f}, levelIndent{quadsIndent + outerFrame},
+    const float outerFrame{
+        textToQuadBorder +
+        slctFrameSize}, // total distance from the top of the text
+                        // to the outer border of the label.
+        packLabelOffset{w * 0.33f - outerFrame},
+        quadsIndent{w - packLabelOffset}, txtIndent{w - packLabelOffset / 2.f},
+        levelIndent{quadsIndent + outerFrame},
         panelOffset{
             calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
     const auto& infos{assets.getPackInfos()};
@@ -4032,8 +4032,8 @@ void MenuGame::drawLevelSelectionRightSide(
             // slctFrameSize) wide
             height +=
                 (packLabelHeight - textToQuadBorder - slctFrameSize) / 2.f;
-            tempFloat = quadsIndent + arrowWidth / 2.f + slctFrameSize +
-                        panelOffset;
+            tempFloat =
+                quadsIndent + arrowWidth / 2.f + slctFrameSize + panelOffset;
 
             topLeft = {tempFloat - arrowWidth, height};
             bottomLeft = {tempFloat - arrowWidth, height + 2.f * slctFrameSize};
@@ -4100,8 +4100,7 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             height = drawer.YOffset;
         }
-    }
-    while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    } while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
 void MenuGame::drawLevelSelectionLeftSide(
@@ -4211,8 +4210,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     // "PACK"
     height += txtSelectionMedium.height / 2.f;
     renderText("PACK", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset,
-            height - txtSelectionMedium.height});
+        {textToQuadBorder - panelOffset, height - txtSelectionMedium.height});
 
     // Pack name
     height += postTitleSpace;
@@ -4246,8 +4244,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     // "MUSIC"
     height += txtSelectionMedium.height / 2.f;
     renderText("MUSIC", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset,
-            height - txtSelectionMedium.height});
+        {textToQuadBorder - panelOffset, height - txtSelectionMedium.height});
 
     // Track name
     const MusicData& musicDataTemp =
@@ -4282,8 +4279,8 @@ void MenuGame::drawLevelSelectionLeftSide(
     // Frame
     createQuad(menuQuadColor, lineThickness - panelOffset, width, height,
         height + lineThickness);
-    createQuad(menuQuadColor, -panelOffset, lineThickness - panelOffset,
-        height, tempFloat);
+    createQuad(menuQuadColor, -panelOffset, lineThickness - panelOffset, height,
+        tempFloat);
     createQuad(menuQuadColor, width, width, height, tempFloat);
     createQuad(menuQuadColor, lineThickness - panelOffset, width,
         tempFloat - lineThickness, tempFloat);
@@ -4297,8 +4294,8 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     renderTextCenteredOffset(
         levelData.favorite ? "UNFAVORITE - F1" : "FAVORITE - F1",
-        txtSelectionMedium.font, {maxPanelOffset / 2.f, height},
-        -panelOffset, menuQuadColor);
+        txtSelectionMedium.font, {maxPanelOffset / 2.f, height}, -panelOffset,
+        menuQuadColor);
 
     height = tempFloat;
 
@@ -4308,8 +4305,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     // "LEADERBOARDS"
     height += textToQuadBorder;
     renderTextCenteredOffset("LEADERBOARDS", txtSelectionBig.font,
-        {maxPanelOffset / 2.f,
-            height - txtSelectionBig.height * fontTopBorder},
+        {maxPanelOffset / 2.f, height - txtSelectionBig.height * fontTopBorder},
         -panelOffset);
 
     // Line
@@ -4371,11 +4367,10 @@ void MenuGame::drawLevelSelectionLeftSide(
     // Line
     height += txtSmallHeight / 2.f + txtMediumHeight;
     menuQuads.reserve_more(8);
-    createQuad(menuQuadColor, 0, tempFloat - lineThickness / 2.f - maxPanelOffset,
-        height, height + lineThickness);
-    createQuad(menuQuadColor, tempFloat + lineThickness / 2.f - maxPanelOffset,
-        width, height, height + lineThickness);
-    height += lineThickness;
+    createQuad(menuQuadColor, 0, tempFloat - lineThickness / 2.f -
+    maxPanelOffset, height, height + lineThickness); createQuad(menuQuadColor,
+    tempFloat + lineThickness / 2.f - maxPanelOffset, width, height, height +
+    lineThickness); height += lineThickness;
 
     // When online will be re-enabled there will be a list of the global
     // leaderboards here
