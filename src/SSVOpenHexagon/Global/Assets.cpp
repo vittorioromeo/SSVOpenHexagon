@@ -362,7 +362,6 @@ void HGAssets::loadLevelData(
         LevelData levelData{object, mPath, mPackId};
 
         const std::string assetId = mPackId + "_" + levelData.id;
-        std::cout << assetId << std::endl;
         levelDataIdsByPack[mPackId].emplace_back(assetId);
         levelDatas.emplace(assetId, std::move(levelData));
 
