@@ -397,8 +397,8 @@ private:
     void calcPackChangeScrollStretch(const float mLevelListHeight);
     void quickPackFoldStretch();
     void scrollLevelListToTargetY(ssvu::FT mFT);
-    void checkWindowTopScroll(const float scroll,
-        std::function<void(const float)> action)
+    void checkWindowTopScroll(
+        const float scroll, std::function<void(const float)> action)
     {
         const float target{-scroll};
         if(target <= lvlDrawer->YOffset)
@@ -407,8 +407,8 @@ private:
         }
         action(target);
     }
-    void checkWindowBottomScroll(const float scroll,
-        std::function<void(const float)> action)
+    void checkWindowBottomScroll(
+        const float scroll, std::function<void(const float)> action)
     {
         const float target{h - scroll};
         if(target >= lvlDrawer->YOffset)
@@ -529,7 +529,8 @@ private:
     //---------------------------------------
     // Misc / Unused
 
-    static constexpr std::string_view favoritePath{"Assets/favoriteLevels.json"};
+    static constexpr std::string_view favoritePath{
+        "Assets/favoriteLevels.json"};
     std::string scoresMessage;
     float exitTimer{0}, currentCreditsId{0};
     bool mustTakeScreenshot{false};

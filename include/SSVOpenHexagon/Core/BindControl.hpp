@@ -23,8 +23,8 @@ protected:
 
 public:
     BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
-    const std::string& mName, const int mID)
-    : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
+        const std::string& mName, const int mID)
+        : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
     {
     }
 
