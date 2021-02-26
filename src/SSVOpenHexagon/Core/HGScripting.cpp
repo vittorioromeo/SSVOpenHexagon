@@ -1629,12 +1629,12 @@ void HexagonGame::initLua()
 
     addLuaFn("u_rndIntUpper", rndIntUpper)
         .arg("upper")
-        .doc("Return a random real number in the [1; `$0`] range.");
+        .doc("Return a random integer number in the [1; `$0`] range.");
 
     addLuaFn("u_rndInt", rndInt)
         .arg("lower")
         .arg("upper")
-        .doc("Return a random real number in the [`$0`; `$1`] range.");
+        .doc("Return a random integer number in the [`$0`; `$1`] range.");
 
     // TODO: eww, but seems to fix. consider exposing functions and deprecating
     // `math.random`
