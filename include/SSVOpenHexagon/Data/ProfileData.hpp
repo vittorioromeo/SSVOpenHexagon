@@ -10,20 +10,25 @@
 namespace hg
 {
 
+class HGAssets;
+
 class ProfileData
 {
 private:
+    HGAssets& assets;
     GameVersion version;
     std::string name;
     ssvuj::Obj scores;
     std::vector<std::string> trackedNames;
+    std::vector<std::string> favoriteLevelsDataIDs;
 
 public:
-    ProfileData(const GameVersion mVersion, const std::string& mName,
-        const ssvuj::Obj& mScores,
-        const std::vector<std::string>& mTrackedNames)
-        : version{mVersion}, name{mName}, scores{mScores}, trackedNames{
-                                                               mTrackedNames}
+    ProfileData(HGAssets& mAssets, const GameVersion mVersion,
+        const std::string& mName, const ssvuj::Obj& mScores,
+        const std::vector<std::string>& mTrackedNames,
+        const std::vector<std::string>& mFavorites)
+        : assets{mAssets}, version{mVersion}, name{mName}, scores{mScores},
+          trackedNames{mTrackedNames}, favoriteLevelsDataIDs{mFavorites}
     {
     }
 
@@ -48,6 +53,12 @@ public:
         return trackedNames;
     }
 
+    [[nodiscard]] const std::vector<std::string>&
+    getFavoriteLevelIds() const noexcept
+    {
+        return favoriteLevelsDataIDs;
+    }
+
     void setScore(const std::string& mId, float mScore)
     {
         ssvuj::arch(scores, mId, mScore);
@@ -67,6 +78,10 @@ public:
     {
         trackedNames.clear();
     }
+
+    void addFavoriteLevel(const std::string& mLevelID);
+    void removeFavoriteLevel(const std::string& mLevelID);
+    void checkFavoriteLevelsHealth();
 };
 
 } // namespace hg

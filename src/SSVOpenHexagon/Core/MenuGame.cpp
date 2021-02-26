@@ -371,9 +371,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     }
     lvlSlct.lvlOffsets.resize(maxSize);
-
-    // Set size of the level offsets vector to the required amount.
-    favSlct.lvlOffsets.resize(static_cast<int>(favSlct.levelDataIds->size()));
 }
 
 void MenuGame::init(bool error)
@@ -1129,7 +1126,10 @@ void MenuGame::initMenus()
     {
         profileName = p;
         profileSelection.create<i::Single>(profileName,
-            [this, profileName] { assets.pSetCurrent(profileName); });
+            [this, profileName] {
+                assets.pSetCurrent(profileName);
+                changeFavoriteLevelsToProfile();
+        });
     }
     profileSelection.sortByName();
 }
@@ -1621,11 +1621,15 @@ void MenuGame::okAction()
                 // All good
                 assets.pCreate(enteredStr);
                 assets.pSetCurrent(enteredStr);
+                changeFavoriteLevelsToProfile();
 
                 // Create new menu item
                 std::string name{enteredStr};
                 profiles.create<ssvms::Items::Single>(
-                    name, [this, name] { assets.pSetCurrent(name); });
+                    name, [this, name] {
+                        assets.pSetCurrent(name);
+                        changeFavoriteLevelsToProfile();
+                });
                 profiles.sortByName();
 
                 enteredStr = "";
@@ -1656,6 +1660,7 @@ void MenuGame::okAction()
             // offsets to 0.
             if(state == States::LevelSelection)
             {
+                setIndex(lvlDrawer->currentIndex);
                 adjustLevelsOffset();
                 return;
             }
@@ -3714,23 +3719,24 @@ void MenuGame::changeLevelFavoriteFlag()
         assets.removeFavoriteLevel(levelID);
         favSlct.lvlOffsets.pop_back();
 
+        // Make sure the index is within bounds.
+        ssvu::clamp(favSlct.currentIndex, 0,
+            static_cast<int>(favSlct.levelDataIds->size()) - 1);
+        if(isFavoriteLevels())
+        {
+            adjustLevelsOffset();
+        }
+
         // If the favorite levels vector is empty
         // after the removal force exit from the
         // favorites menu.
         if(favSlct.levelDataIds->empty())
         {
-            favSlct.currentIndex = 0;
             favSlct.XOffset = 0.f; // this way the menu is not drawn anymore.
             lvlDrawer = &lvlSlct;
-            setIndex(lvlSlct.currentIndex);
         }
-        else if(isFavoriteLevels())
+        else
         {
-            // If not empty make sure the selected level
-            // is one of the remaining ones.
-            setIndex(std::min(lvlDrawer->currentIndex,
-                static_cast<int>(favSlct.levelDataIds->size()) - 1));
-
             // Make sure there is no empty space between the end of the list
             // and the bottom of the window. Needed to ensure the selected
             // level is always on screen.
@@ -3738,15 +3744,21 @@ void MenuGame::changeLevelFavoriteFlag()
                                levelLabelHeight * favSlct.levelDataIds->size()};
             if(h > scroll + lvlDrawer->YOffset)
             {
-                lvlDrawer->YOffset = lvlDrawer->YScrollTo = h - scroll;
+                favSlct.YOffset = favSlct.YScrollTo = h - scroll;
             }
         }
-        adjustLevelsOffset();
+
+        // Update the looks.
+        setIndex(lvlDrawer->currentIndex);
     }
     else
     {
         assets.addFavoriteLevel(levelID);
         favSlct.lvlOffsets.emplace_back(0.f);
+
+        // Just in case.
+        ssvu::clamp(favSlct.currentIndex, 0,
+            static_cast<int>(favSlct.levelDataIds->size()) - 1);
     }
 
     assets.playSound("select.ogg");

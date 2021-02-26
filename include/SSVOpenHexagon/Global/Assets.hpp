@@ -52,7 +52,6 @@ private:
     std::unordered_map<std::string, LevelData> levelDatas;
     std::unordered_map<std::string, std::vector<std::string>>
         levelDataIdsByPack;
-    std::vector<std::string> favLevelDataIds;
 
     std::unordered_map<std::string, PackData> packDatas;
 
@@ -70,16 +69,6 @@ private:
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
     [[nodiscard]] bool loadPackInfo(const PackData& packData);
-
-    void setLevelFavoriteFlag(const std::string& mAssetId, const bool flag)
-    {
-        getEditLevelData(mAssetId).favorite = flag;
-    }
-
-    bool checkLevelIDPurity(std::string& mAssetId)
-    {
-        return levelDatas.find(mAssetId) != levelDatas.end();
-    }
 
 public:
     struct LoadInfo
@@ -171,6 +160,28 @@ public:
 
     void addFavoriteLevel(const std::string& mLevelID);
     void removeFavoriteLevel(const std::string& mLevelID);
+    void updateLevelsFavoriteFlag()
+    {
+        // Wipe all favorite flags...
+        for(auto& level : levelDatas)
+        {
+            level.second.favorite = false;
+        }
+        // ...and then enable the required ones.
+        for(const std::string& favID : getFavoriteLevelIds())
+        {
+            setLevelFavoriteFlag(favID, true);
+        }
+    }
+    void setLevelFavoriteFlag(const std::string& mAssetId, const bool flag)
+    {
+        getEditLevelData(mAssetId).favorite = flag;
+    }
+
+    bool checkLevelIDValidity(const std::string& mAssetId)
+    {
+        return levelDatas.find(mAssetId) != levelDatas.end();
+    }
 
     const std::vector<std::string>& getLevelIdsByPack(
         const std::string& mPackId)
@@ -181,7 +192,7 @@ public:
 
     const std::vector<std::string>& getFavoriteLevelIds()
     {
-        return favLevelDataIds;
+        return getCurrentLocalProfile().getFavoriteLevelIds();
     }
 
     const std::unordered_map<std::string, PackData>& getPacksData()
@@ -224,6 +235,7 @@ public:
 
     void loadLocalProfiles();
     void saveCurrentLocalProfile();
+    void saveAllProfiles();
     void setCurrentLocalProfile(const std::string& mName);
 
     [[nodiscard]] bool anyLocalProfileActive() const;
@@ -276,6 +288,16 @@ public:
         saveCurrentLocalProfile();
     }
 
+    void pSaveAll()
+    {
+        if(!playingLocally)
+        {
+            return;
+        }
+
+        saveAllProfiles();
+    }
+
     void pSetCurrent(const std::string& mName)
     {
         if(!playingLocally)
@@ -306,18 +328,7 @@ public:
         playingLocally = mPlayingLocally;
     }
 
-private:
-    static constexpr std::string_view favoritePath{
-        "Assets/favoriteLevels.json"};
-
 public:
-    void saveFavoriteLevels()
-    {
-        ssvuj::Obj root;
-        ssvuj::arch(root, "ids", favLevelDataIds);
-        ssvuj::writeToFile(root, std::string(favoritePath));
-    }
-
     void refreshVolumes();
     void stopMusics();
     void stopSounds();

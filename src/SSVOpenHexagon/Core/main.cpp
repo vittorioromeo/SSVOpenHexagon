@@ -212,8 +212,7 @@ int main(int argc, char* argv[])
     ssvu::lo().flush();
 
     hg::Config::saveConfig();
-    assets->pSaveCurrent();
-    assets->saveFavoriteLevels();
+    assets->pSaveAll();
 
     ssvu::saveLogToFile("log.txt");
 
