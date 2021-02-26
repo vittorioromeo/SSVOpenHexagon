@@ -71,6 +71,79 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     // this will not be used for the rest of the game
     // shrink it to fit the actually used size
     loadInfo.errorMessages.shrink_to_fit();
+
+    //--------------------------------
+    // Favorite levels
+
+    const std::string fp{std::string(favoritePath)};
+    if(!ssvufs::Path{fp}.exists<ssvufs::Type::File>())
+    {
+        return;
+    }
+
+    // Load the stored favorite levels IDs from file.
+    favLevelDataIds = ssvuj::getExtr<std::vector<std::string>>(
+        ssvuj::getFromFile(fp), "ids");
+    // Verify the levels with corresponding IDs actually exist.
+    // If they don't remove them.
+    auto it{favLevelDataIds.begin()};
+    while(it != favLevelDataIds.end())
+    {
+        if(!checkLevelIDPurity(*it))
+        {
+            favLevelDataIds.erase(it);
+            continue;
+        }
+        // if the level exists mark the corresponding LevelData structs as
+        // a favorite. This is needed to show wherever the current level can
+        // be added or removed from the favorites.
+        setLevelFavoriteFlag(*it++, true);
+    }
+    // Sort levels based on the name.
+    std::sort(favLevelDataIds.begin(), favLevelDataIds.end(),
+        [this](const std::string& a, const std::string& b) -> bool {
+            return ssvu::toLower(getLevelData(a).name) <
+                   ssvu::toLower(getLevelData(b).name);
+        });
+}
+
+void HGAssets::addFavoriteLevel(const std::string& mLevelID)
+{
+    // Add the level to the favorites keeping them sorted
+    // in alphabetical order.
+    auto it{favLevelDataIds.begin()};
+    const auto end{favLevelDataIds.end()};
+    const std::string tweakedFavName{
+        ssvu::toLower(getLevelData(mLevelID).name)};
+    std::string tweakedLevelName;
+
+    while(it != end)
+    {
+        tweakedLevelName = ssvu::toLower(getLevelData(*it).name);
+        if(tweakedLevelName > tweakedFavName)
+        {
+            break;
+        }
+        ++it;
+    }
+    if(it == end)
+    {
+        favLevelDataIds.emplace_back(mLevelID);
+    }
+    else
+    {
+        favLevelDataIds.insert(it, mLevelID);
+    }
+
+    // Turn off the favorite flag.
+    setLevelFavoriteFlag(mLevelID, true);
+}
+
+void HGAssets::removeFavoriteLevel(const std::string& mLevelID)
+{
+    favLevelDataIds.erase(std::find(
+        favLevelDataIds.begin(), favLevelDataIds.end(), mLevelID));
+    setLevelFavoriteFlag(mLevelID, false);
 }
 
 [[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)

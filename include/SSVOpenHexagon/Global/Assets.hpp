@@ -52,6 +52,7 @@ private:
     std::unordered_map<std::string, LevelData> levelDatas;
     std::unordered_map<std::string, std::vector<std::string>>
         levelDataIdsByPack;
+    std::vector<std::string> favLevelDataIds;
 
     std::unordered_map<std::string, PackData> packDatas;
 
@@ -60,7 +61,6 @@ private:
         std::string id;
         ssvufs::Path path;
     };
-
     std::vector<PackInfo> packInfos;
 
     std::map<std::string, MusicData> musicDataMap;
@@ -70,6 +70,16 @@ private:
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
     [[nodiscard]] bool loadPackInfo(const PackData& packData);
+
+    void setLevelFavoriteFlag(const std::string& mAssetId, const bool flag)
+    {
+        getEditLevelData(mAssetId).favorite = flag;
+    }
+
+    bool checkLevelIDPurity(std::string& mAssetId)
+    {
+        return levelDatas.find(mAssetId) != levelDatas.end();
+    }
 
 public:
     struct LoadInfo
@@ -143,11 +153,6 @@ public:
         return assetManager.get<T>(mId);
     }
 
-    bool checkLevelIDPurity(std::string& mAssetId)
-    {
-        return levelDatas.find(mAssetId) != levelDatas.end();
-    }
-
     const std::unordered_map<std::string, LevelData>& getLevelDatas()
     {
         return levelDatas;
@@ -164,16 +169,19 @@ public:
         return getLevelData(mPackId + "_" + mId);
     }
 
-    void setLevelFavoriteFlag(const std::string& mAssetId, const bool flag)
-    {
-        getEditLevelData(mAssetId).favorite = flag;
-    }
+    void addFavoriteLevel(const std::string& mLevelID);
+    void removeFavoriteLevel(const std::string& mLevelID);
 
     const std::vector<std::string>& getLevelIdsByPack(
         const std::string& mPackId)
     {
         SSVU_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
         return levelDataIdsByPack.at(mPackId);
+    }
+
+    const std::vector<std::string>& getFavoriteLevelIds()
+    {
+        return favLevelDataIds;
     }
 
     const std::unordered_map<std::string, PackData>& getPacksData()
@@ -296,6 +304,18 @@ public:
     void pSetPlayingLocally(bool mPlayingLocally)
     {
         playingLocally = mPlayingLocally;
+    }
+
+private:
+    static constexpr std::string_view favoritePath{
+        "Assets/favoriteLevels.json"};
+
+public:
+    void saveFavoriteLevels()
+    {
+        ssvuj::Obj root;
+        ssvuj::arch(root, "ids", favLevelDataIds);
+        ssvuj::writeToFile(root, std::string(favoritePath));
     }
 
     void refreshVolumes();
