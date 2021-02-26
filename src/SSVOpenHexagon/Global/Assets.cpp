@@ -71,78 +71,17 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
     // this will not be used for the rest of the game
     // shrink it to fit the actually used size
     loadInfo.errorMessages.shrink_to_fit();
-
-    //--------------------------------
-    // Favorite levels
-
-    const std::string fp{std::string(favoritePath)};
-    if(!ssvufs::Path{fp}.exists<ssvufs::Type::File>())
-    {
-        return;
-    }
-
-    // Load the stored favorite levels IDs from file.
-    favLevelDataIds = ssvuj::getExtr<std::vector<std::string>>(
-        ssvuj::getFromFile(fp), "ids");
-    // Verify the levels with corresponding IDs actually exist.
-    // If they don't remove them.
-    auto it{favLevelDataIds.begin()};
-    while(it != favLevelDataIds.end())
-    {
-        if(!checkLevelIDPurity(*it))
-        {
-            favLevelDataIds.erase(it);
-            continue;
-        }
-        // if the level exists mark the corresponding LevelData structs as
-        // a favorite. This is needed to show wherever the current level can
-        // be added or removed from the favorites.
-        setLevelFavoriteFlag(*it++, true);
-    }
-    // Sort levels based on the name.
-    std::sort(favLevelDataIds.begin(), favLevelDataIds.end(),
-        [this](const std::string& a, const std::string& b) -> bool {
-            return ssvu::toLower(getLevelData(a).name) <
-                   ssvu::toLower(getLevelData(b).name);
-        });
 }
 
 void HGAssets::addFavoriteLevel(const std::string& mLevelID)
 {
-    // Add the level to the favorites keeping them sorted
-    // in alphabetical order.
-    auto it{favLevelDataIds.begin()};
-    const auto end{favLevelDataIds.end()};
-    const std::string tweakedFavName{
-        ssvu::toLower(getLevelData(mLevelID).name)};
-    std::string tweakedLevelName;
-
-    while(it != end)
-    {
-        tweakedLevelName = ssvu::toLower(getLevelData(*it).name);
-        if(tweakedLevelName > tweakedFavName)
-        {
-            break;
-        }
-        ++it;
-    }
-    if(it == end)
-    {
-        favLevelDataIds.emplace_back(mLevelID);
-    }
-    else
-    {
-        favLevelDataIds.insert(it, mLevelID);
-    }
-
-    // Turn off the favorite flag.
+    getCurrentLocalProfile().addFavoriteLevel(mLevelID);
     setLevelFavoriteFlag(mLevelID, true);
 }
 
 void HGAssets::removeFavoriteLevel(const std::string& mLevelID)
 {
-    favLevelDataIds.erase(std::find(
-        favLevelDataIds.begin(), favLevelDataIds.end(), mLevelID));
+    getCurrentLocalProfile().removeFavoriteLevel(mLevelID);
     setLevelFavoriteFlag(mLevelID, false);
 }
 
@@ -308,9 +247,6 @@ void HGAssets::removeFavoriteLevel(const std::string& mLevelID)
 
 [[nodiscard]] bool HGAssets::loadAssets()
 {
-    ssvu::lo("::loadAssets") << "loading local profiles\n";
-    loadLocalProfiles();
-
     if(!ssvufs::Path{"Packs/"}.exists<ssvufs::Type::Folder>())
     {
         return false;
@@ -367,6 +303,11 @@ void HGAssets::removeFavoriteLevel(const std::string& mLevelID)
                 << "Error loading pack info '" << p.first << "'\n";
         }
     }
+
+    // ------------------------------------------------------------------------
+    // Load profiles.
+    ssvu::lo("::loadAssets") << "loading local profiles\n";
+    loadLocalProfiles();
 
     return true;
 }
@@ -452,7 +393,8 @@ void HGAssets::loadLocalProfiles()
         auto [object, error] = ssvuj::getFromFileWithErrors(p);
         loadInfo.addFormattedError(error);
 
-        ProfileData profileData{Utils::loadProfileFromJson(object)};
+        ProfileData profileData{Utils::loadProfileFromJson(*this, object)};
+        profileData.checkFavoriteLevelsHealth();
         profileDataMap.emplace(profileData.getName(), std::move(profileData));
     }
 }
@@ -474,6 +416,7 @@ void HGAssets::saveCurrentLocalProfile()
     ssvuj::arch(profileRoot, "version", currentVersion);
     ssvuj::arch(profileRoot, "name", getCurrentLocalProfile().getName());
     ssvuj::arch(profileRoot, "scores", getCurrentLocalProfile().getScores());
+    ssvuj::arch(profileRoot, "favorites", getCurrentLocalProfile().getFavoriteLevelIds());
 
     for(const auto& n : getCurrentLocalProfile().getTrackedNames())
     {
@@ -481,6 +424,35 @@ void HGAssets::saveCurrentLocalProfile()
     }
 
     ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
+}
+
+void HGAssets::saveAllProfiles()
+{
+    if(currentProfilePtr == nullptr)
+    {
+        return;
+    }
+
+    ssvuj::Obj currentVersion;
+    ssvuj::arch(currentVersion, "major", Config::GAME_VERSION.major);
+    ssvuj::arch(currentVersion, "minor", Config::GAME_VERSION.minor);
+    ssvuj::arch(currentVersion, "micro", Config::GAME_VERSION.micro);
+
+    for(const auto& profile : profileDataMap)
+    {
+        ssvuj::Obj profileRoot;
+        ssvuj::arch(profileRoot, "version", currentVersion);
+        ssvuj::arch(profileRoot, "name", profile.second.getName());
+        ssvuj::arch(profileRoot, "scores", profile.second.getScores());
+        ssvuj::arch(profileRoot, "favorites", profile.second.getFavoriteLevelIds());
+
+        for(const auto& n : profile.second.getTrackedNames())
+        {
+            profileRoot["trackedNames"].append(n);
+        }
+
+        ssvuj::writeToFile(profileRoot, "Profiles/" + profile.second.getName() + ".json");
+    }
 }
 
 //**********************************************
@@ -856,6 +828,7 @@ void HGAssets::createLocalProfile(const std::string& mName)
     ssvuj::Obj root;
     ssvuj::arch(root, "name", mName);
     ssvuj::arch(root, "scores", ssvuj::Obj{});
+    ssvuj::arch(root, "favorites", ssvuj::Obj{});
     ssvuj::writeToFile(root, "Profiles/" + mName + ".json");
 
     profileDataMap.clear();
