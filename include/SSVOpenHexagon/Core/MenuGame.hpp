@@ -324,7 +324,9 @@ private:
     {
         int packIdx{0};
         int currentIndex{0};
-        std::vector<std::string> levelDataIds;
+
+        // Pointer to avoid heavy copy loads.
+        const std::vector<std::string>* levelDataIds;
 
         float XOffset{0.f};   // to make the menu slide in/out
         float YOffset{0.f};   // to scroll up and down the menu
@@ -334,7 +336,8 @@ private:
         bool isFavorites{false};
     };
 
-    LevelDrawer lvlSlct, favSlct{.isFavorites = true};
+    LevelDrawer lvlSlct;
+    LevelDrawer favSlct{.levelDataIds = &assets.getFavoriteLevelIds(), .isFavorites = true};
     LevelDrawer* lvlDrawer{&lvlSlct};
 
     bool isFavoriteLevels() const
@@ -382,7 +385,7 @@ private:
     float getLevelListHeight() const
     {
         return levelLabelHeight *
-                   (focusHeld ? 1 : lvlDrawer->levelDataIds.size()) +
+                   (focusHeld ? 1 : lvlDrawer->levelDataIds->size()) +
                slctFrameSize;
     }
 
@@ -390,7 +393,7 @@ private:
     {
         // Only speed up the animation if there are more than 16 levels.
         scrollSpeed = baseScrollSpeed *
-                      std::max(lvlDrawer->levelDataIds.size() / 16.f, 1.f);
+                      std::max(lvlDrawer->levelDataIds->size() / 16.f, 1.f);
     }
     void calcLevelChangeScroll(const int dir);
     void calcPackChangeScrollFold(const float mLevelListHeight);
@@ -529,8 +532,6 @@ private:
     //---------------------------------------
     // Misc / Unused
 
-    static constexpr std::string_view favoritePath{
-        "Assets/favoriteLevels.json"};
     std::string scoresMessage;
     float exitTimer{0}, currentCreditsId{0};
     bool mustTakeScreenshot{false};
@@ -558,12 +559,6 @@ public:
         adjustLevelsOffset();
         lvlDrawer->XOffset = 0.f;
         setIgnoreAllInputs(1); // otherwise you go back to the main menu
-    }
-    void saveFavoriteLevels()
-    {
-        ssvuj::Obj root;
-        ssvuj::arch(root, "ids", favSlct.levelDataIds);
-        ssvuj::writeToFile(root, std::string(favoritePath));
     }
     void refreshBinds();
 };

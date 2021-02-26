@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 
     hg::Config::saveConfig();
     assets->pSaveCurrent();
-    mg->saveFavoriteLevels();
+    assets->saveFavoriteLevels();
 
     ssvu::saveLogToFile("log.txt");
 
