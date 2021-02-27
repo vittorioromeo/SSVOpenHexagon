@@ -188,7 +188,7 @@ template <typename Wall>
 
     for(unsigned int i{0u}, j{3u}; i < 4u; i += vxIncrement, j = i - 1)
     {
-        if(i == killingSide)
+        if(j == killingSide)
         {
             continue;
         }
@@ -306,7 +306,7 @@ template <typename Wall>
 
     for(unsigned int i{0u}, j{3u}; i < 4; j = i++)
     {
-        if(i == killingSide)
+        if(j == killingSide)
         {
             continue;
         }
