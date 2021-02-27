@@ -138,7 +138,7 @@ void CCustomWallManager::setKillingSide(
     {
         ssvu::lo("CustomWallManager")
             << "Attempted to set killing side with invalid value " << side
-            << ', acceptable values are 0 to 3\n';
+            << ", acceptable values are 0 to 3\n";
         return;
     }
     if(_handleAvailable[cwHandle])

@@ -29,7 +29,7 @@ private:
     std::array<sf::Vector2f, 4> vertexPositions;
     std::array<sf::Vector2f, 4> oldVertexPositions;
     std::array<sf::Color, 4> vertexColors;
-    unsigned int killingSide{1u};
+    unsigned int killingSide{0u};
 
     enum CWFlags : unsigned int
     {
@@ -37,7 +37,7 @@ private:
         Deadly,
         CWFlagsCount
     };
-    std::bitset<CWFlags::CWFlagsCount> flags{3}; // collision + deadly
+    std::bitset<CWFlags::CWFlagsCount> flags{1}; // collision on
 
     // TODO: Implement this in drawing logic
     // int8_t renderOrder{1};
@@ -117,7 +117,7 @@ public:
 
     [[gnu::always_inline]] void setKillingSide(const unsigned int side) noexcept
     {
-        killingSide = (side + 1) % 4;
+        killingSide = side;
     }
 
     [[gnu::always_inline, nodiscard]] unsigned int getKillingSide() const noexcept

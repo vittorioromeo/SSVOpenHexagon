@@ -746,9 +746,9 @@ void MenuGame::initLua()
             "w_wallHModCurveData",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-            "cw_setCollision", "cw_setDeadly", "cw_getVertexPos",
+            "cw_setCollision", "cw_setDeadly", "cw_setKillingSide", "cw_getVertexPos",
             "cw_isOverlappingPlayer", "cw_clear", "cw_getCollision",
-            "cw_getDeadly",
+            "cw_getDeadly", "cw_getKillingSide",
 
             "steam_unlockAchievement",
 

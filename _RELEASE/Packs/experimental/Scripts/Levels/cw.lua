@@ -101,6 +101,7 @@ function onStep()
 	end
 
 	cwHandle = cw_create()
+	cw_setDeadly(cwHandle, true)
 
 	if math.random() > 0.5 then
 		x = math.random(-600, 600)
