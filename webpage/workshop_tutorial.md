@@ -115,6 +115,8 @@ Below are the Core Functions, which are the base functions that help the game as
 
 * **`void onDeath()`**: A core function that is called when the player dies. This function does not count invincibility deaths, and they must be actual deaths for this function to be called.
 
+* **`void onPreDeath()`**: Similar to `onDeath`, but is also called if the player is invincible or if tutorial mode is enabled.
+
 <!-- START GENERATED DOCS HERE -->
 <!-- Generated from Open Hexagon v2.01. -->
 <!-- TODO: Add callbacks. -->

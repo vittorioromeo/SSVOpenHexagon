@@ -274,13 +274,22 @@ void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
     {
         deadEffectTimer.update(mFT);
 
-        if(++hue > 360.f)
+        hue += 18 * mFT;
+
+        if(hue > 360.f)
         {
             hue = 0.f;
         }
+
         if(dead)
         {
             return;
+        }
+
+        if(deadEffectTimer.getTotal() >= 100)
+        {
+            deadEffectTimer.stop();
+            deadEffectTimer.resetAll();
         }
     }
 
