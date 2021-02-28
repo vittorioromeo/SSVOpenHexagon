@@ -479,6 +479,8 @@ void HexagonGame::death(bool mForce)
     fpsWatcher.disable();
     assets.playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);
 
+    runLuaFunctionIfExists<void>("onPreDeath");
+
     if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
     {
         return;
