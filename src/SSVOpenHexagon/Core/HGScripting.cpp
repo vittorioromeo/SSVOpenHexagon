@@ -1667,7 +1667,9 @@ void HexagonGame::initLua()
 
     redefineLuaFunctions();
 
-    lua.executeCode(R"(math.random = function(a, b)
+    try
+    {
+        lua.executeCode(R"(math.random = function(a, b)
     if a == nil and b == nil then
         return u_rndSwitch(0, 0, 0)
     elseif b == nil then
@@ -1677,6 +1679,12 @@ void HexagonGame::initLua()
     end
 end
 )");
+    }
+    catch(...)
+    {
+        ssvu::lo("HexagonGame::redefineLuaFunctions")
+            << "Failure to redefine Lua's `math.random` function\n";
+    }
 
     // ------------------------------------------------------------------------
     // Register Lua function to get random seed for the current attempt:
