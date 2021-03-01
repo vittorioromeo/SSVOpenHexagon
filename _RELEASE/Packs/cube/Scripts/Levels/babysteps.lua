@@ -41,7 +41,7 @@ step1_trFocus = "nope"
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
 	l_setSpeedMult(1.00)
-	l_setSpeedInc(0.30)
+	l_setSpeedInc(0.20)
 	l_setRotationSpeed(0.04)
 	l_setRotationSpeedMax(0.4)
 	l_setRotationSpeedInc(0.04)
@@ -166,8 +166,8 @@ function onUpdate(mFrameTime)
 			e_messageAddImportant("nice try...", 110)
 		end
 
-		e_messageAddImportant("after a while, things get harder", 130)
-		e_messageAddImportant("get to 45 seconds to win!", 120)
+		e_messageAddImportant("after a while, things get harder", 120)
+		e_messageAddImportant("get to 45 seconds to complete the tutorial!", 130)
 	end
 
 	if step4 and not step5 and l_getLevelTime() > 42 then
@@ -191,7 +191,7 @@ function onUpdate(mFrameTime)
 		end
 	end
 
-	if not step6 and l_getLevelTime() > 45 then
+	if step5 and not step6 and l_getLevelTime() > 45 then
 		step6 = true
 		e_kill()
 	end
