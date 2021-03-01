@@ -345,6 +345,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     // Events cleanup
     messageText.setString("");
+    pbText.setString("");
 
     // Event timeline cleanup
     eventTimeline.clear();
@@ -365,6 +366,12 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     effectTimelineManager.clear();
     mustChangeSides = false;
+
+    // Particles cleanup
+    pbTextGrowth = 0.f;
+    mustSpawnPBParticles = false;
+    nextPBParticleSpawn = 0.f;
+    particles.clear();
 
     // FPSWatcher reset
     fpsWatcher.reset();
@@ -479,12 +486,31 @@ void HexagonGame::death(bool mForce)
     fpsWatcher.disable();
     assets.playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);
 
+    runLuaFunctionIfExists<void>("onPreDeath");
+
     if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
     {
         return;
     }
 
-    assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
+    const bool isPersonalBest =
+        !inReplay() &&
+        (status.getTimeSeconds() > assets.getLocalScore(getLocalValidator(
+                                       levelData->id, difficultyMult)));
+
+    if(isPersonalBest)
+    {
+        pbText.setString("NEW PERSONAL BEST!");
+        mustSpawnPBParticles = true;
+
+        // TODO: change sound
+        assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
+    }
+    else
+    {
+        assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
+    }
+
     runLuaFunctionIfExists<void>("onDeath");
 
     status.flashEffect = 255;
@@ -506,8 +532,7 @@ void HexagonGame::death(bool mForce)
 
     // Gather player's Personal Best
     std::string pbStr = "(";
-    if(status.getTimeSeconds() >
-        assets.getLocalScore(getLocalValidator(levelData->id, difficultyMult)))
+    if(isPersonalBest)
     {
         pbStr += "New PB!)";
     }

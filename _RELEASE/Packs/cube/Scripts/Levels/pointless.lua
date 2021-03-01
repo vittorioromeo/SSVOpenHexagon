@@ -5,6 +5,11 @@ u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
+	if mKey == 1 and l_getSides() == 5 then
+		-- mirror spiral looks bad with 5 sides
+		mKey = 5
+	end
+
 		if mKey == 0 then pAltBarrage(math.random(2, 4), 2)
 	elseif mKey == 1 then pMirrorSpiral(math.random(2, 5), getHalfSides() - 3)
 	elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
@@ -23,13 +28,19 @@ achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-	l_setSpeedMult(1.55)
+	l_setSpeedMult(1.30)
 	l_setSpeedInc(0.125)
 	l_setSpeedMax(5)
 	l_setRotationSpeed(0.07)
 	l_setRotationSpeedMax(1)
 	l_setRotationSpeedInc(0.04)
-	l_setDelayMult(1.0)
+
+	if u_getDifficultyMult() == 1 then
+		l_setDelayMult(1.4)
+	else
+		l_setDelayMult(1.0)
+	end
+
 	l_setDelayInc(0)
 	l_setFastSpin(0.0)
 	l_setSides(6)

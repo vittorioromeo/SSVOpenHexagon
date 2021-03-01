@@ -3,32 +3,32 @@ u_execScript("common.lua")
 -- pAltBarrage: spawns a series of cAltBarrage
 function pAltBarrage(mTimes, mStep)
 	delay = getPerfectDelayDM(THICKNESS) * 5.6
-	
+
 	for i = 0, mTimes do
 		cAltBarrage(i, mStep)
 		t_wait(delay)
 	end
-	
+
 	t_wait(delay)
 end
 
 -- pSpiral: spawns a spiral of cWall
 function pSpiral(mTimes, mExtra)
 	oldThickness = THICKNESS
-	THICKNESS = getPerfectThickness(THICKNESS)
-	delay = getPerfectDelay(THICKNESS)
+	THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
+	delay = getPerfectDelay(THICKNESS) / l_getDelayMult()
 	startSide = getRandomSide()
-	loopDir = getRandomDir()	
+	loopDir = getRandomDir()
 	j = 0
-	
+
 	for i = 0, mTimes do
 		cWall(startSide + j, mExtra)
 		j = j + loopDir
 		t_wait(delay)
 	end
-	
+
 	THICKNESS = oldThickness
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.5)
 end
 
@@ -38,17 +38,17 @@ function pMirrorSpiral(mTimes, mExtra)
 	THICKNESS = getPerfectThickness(THICKNESS)
 	delay = getPerfectDelay(THICKNESS)
 	startSide = getRandomSide()
-	loopDir = getRandomDir()	
+	loopDir = getRandomDir()
 	j = 0
-	
+
 	for i = 0, mTimes do
 		rWallEx(startSide + j, mExtra)
 		j = j + loopDir
 		t_wait(delay)
 	end
-	
+
 	THICKNESS = oldThickness
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.5)
 end
 
@@ -58,24 +58,24 @@ function pMirrorSpiralDouble(mTimes, mExtra)
     THICKNESS = getPerfectThickness(THICKNESS)
     delay = getPerfectDelayDM(THICKNESS)
     startSide = getRandomSide()
-    loopDir = getRandomDir()    
+    loopDir = getRandomDir()
     j = 0
-    
+
     for i = 0, mTimes do
         rWallEx(startSide + j, mExtra)
         j = j + loopDir
         t_wait(delay)
     end
-    
+
     rWallEx(startSide + j, mExtra)
     t_wait(delay * 0.9)
-    
+
     for i = 0, mTimes + 1 do
         rWallEx(startSide + j, mExtra)
         j = j - loopDir
         t_wait(delay)
     end
-    
+
     THICKNESS = oldThickness
     t_wait(getPerfectDelayDM(THICKNESS) * 7.5)
 end
@@ -84,16 +84,16 @@ end
 function pBarrageSpiral(mTimes, mDelayMult, mStep)
 	delay = getPerfectDelayDM(THICKNESS) * 5.6 * mDelayMult
 	startSide = getRandomSide()
-	loopDir = mStep * getRandomDir()	
+	loopDir = mStep * getRandomDir()
 	j = 0
-	
+
 	for i = 0, mTimes do
 		cBarrage(startSide + j)
 		j = j + loopDir
 		t_wait(delay)
 		if(l_getSides() < 6) then t_wait(delay * 0.6) end
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
 end
 
@@ -101,42 +101,42 @@ end
 function pDMBarrageSpiral(mTimes, mDelayMult, mStep)
 	delay = (getPerfectDelayDM(THICKNESS) * 5.42) * (mDelayMult / (u_getDifficultyMult() ^ 0.4)) * (u_getSpeedMultDM() ^ 0.35)
 	startSide = getRandomSide()
-	loopDir = mStep * getRandomDir()	
+	loopDir = mStep * getRandomDir()
 	j = 0
-	
+
 	for i = 0, mTimes do
 		cBarrage(startSide + j)
 		j = j + loopDir
 		t_wait(delay)
 		if(l_getSides() < 6) then t_wait(delay * 0.49) end
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * (6.7 * (u_getDifficultyMult() ^ 0.7)))
 end
 
 -- pWallExVortex: spawns left-left right-right spiral patters
 function pWallExVortex(mTimes, mStep, mExtraMult)
-	delay = getPerfectDelayDM(THICKNESS) * 5.0 
+	delay = getPerfectDelayDM(THICKNESS) * 5.0
 	startSide = getRandomSide()
 	loopDir = getRandomDir()
 	currentSide = startSide
-	
+
 	for j = 0, mTimes do
 		for i = 0, mStep do
 			currentSide = currentSide + loopDir
 			rWallEx(currentSide, loopDir * mExtraMult)
 			t_wait(delay)
 		end
-		
+
 		loopDir = loopDir * -1
-		
+
 		for i = 0, mStep + 1 do
 			currentSide = currentSide + loopDir;
 			rWallEx(currentSide, loopDir * mExtraMult)
 			t_wait(delay)
 		end
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 5.5)
 end
 
@@ -144,7 +144,7 @@ end
 function pInverseBarrage(mTimes)
 	delay = getPerfectDelayDM(THICKNESS) * 9.9
 	startSide = getRandomSide()
-	
+
 	for i = 0, mTimes do
 		cBarrage(startSide)
 		t_wait(delay)
@@ -152,7 +152,7 @@ function pInverseBarrage(mTimes)
 		cBarrage(startSide + getHalfSides())
 		t_wait(delay)
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 2.5)
 end
 
@@ -160,14 +160,14 @@ end
 function pRandomBarrage(mTimes, mDelayMult)
 	side = getRandomSide()
 	oldSide = 0
-	
-	for i = 0, mTimes do	
+
+	for i = 0, mTimes do
 		cBarrage(side)
 		oldSide = side
 		side = getRandomSide()
 		t_wait(getPerfectDelayDM(THICKNESS) * (2 + (getSideDistance(side, oldSide)*mDelayMult)))
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 5.6)
 end
 
@@ -175,12 +175,12 @@ end
 function pMirrorWallStrip(mTimes, mExtra)
 	delay = getPerfectDelayDM(THICKNESS) * 3.65
 	startSide = getRandomSide()
-	
+
 	for i = 0, mTimes do
 		rWallEx(startSide, mExtra)
 		t_wait(delay)
 	end
-	
+
 	t_wait(getPerfectDelayDM(THICKNESS) * 5.00)
 end
 
@@ -191,19 +191,19 @@ function pTunnel(mTimes)
 	delay = getPerfectDelay(myThickness) * 5
 	startSide = getRandomSide()
 	loopDir = getRandomDir()
-	
+
 	THICKNESS = myThickness
-	
+
 	for i = 0, mTimes do
 		if i < mTimes then
 			w_wall(startSide, myThickness + 5 * u_getSpeedMultDM() * delay)
 		end
-		
+
 		cBarrage(startSide + loopDir)
 		t_wait(delay)
-		
+
 		loopDir = loopDir * -1
 	end
-	
+
 	THICKNESS = oldThickness
 end

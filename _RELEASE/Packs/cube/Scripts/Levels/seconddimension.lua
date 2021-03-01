@@ -5,6 +5,16 @@ u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
+	if mKey == 1 and l_getSides() ~= 6 then
+		-- mirror spiral looks bad with odd sides
+		mKey = 5
+	end
+
+	if mKey == 7 and l_getSides() ~= 6 then
+		-- mirror wall strip looks bad with odd sides
+		mKey = 5
+	end
+
 		if mKey ==  0 then pAltBarrage(math.random(2, 4), 2)
 	elseif mKey ==  1 then pMirrorSpiral(math.random(3, 6), 0)
 	elseif mKey ==  2 then pBarrageSpiral(math.random(0, 3), 1, 1)
@@ -17,7 +27,7 @@ function addPattern(mKey)
 		if l_getSides() > 5 then
 			pWallExVortex(0, 1, 1)
 		end
-	elseif mKey ==  9 then pDMBarrageSpiral(math.random(4, 7), 0.4 * (u_getDifficultyMult() ^ 0.3), 1)
+	elseif mKey ==  9 then pDMBarrageSpiral(math.random(3, 6), 0.325 * (u_getDifficultyMult() ^ 0.56), 1)
 	elseif mKey == 10 then pRandomBarrage(math.random(2, 4), 2.25)
 	end
 end
