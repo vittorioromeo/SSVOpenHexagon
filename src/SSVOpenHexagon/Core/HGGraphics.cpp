@@ -282,6 +282,7 @@ void HexagonGame::updateText()
                 {
                     continue;
                 }
+
                 string name{t.displayName};
                 string var{lua.readVariable<string>(t.variableName)};
                 Utils::uppercasify(name);

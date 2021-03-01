@@ -83,6 +83,9 @@ public:
     // Reset the increment time to the last non-pause time point
     void resetIncrementTime() noexcept;
 
+    // Resets the current time and increment time
+    void resetTime();
+
     // Accumulate the time spent in a frame into the total
     void accumulateFrametime(const double ft) noexcept;
 
