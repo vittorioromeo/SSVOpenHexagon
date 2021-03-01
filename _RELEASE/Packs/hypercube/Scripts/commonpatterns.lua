@@ -15,8 +15,8 @@ end
 -- pSpiral: spawns a spiral of cWallEx
 function pSpiral(mTimes, mExtra)
 	local oldThickness = THICKNESS
-	THICKNESS = getPerfectThickness(THICKNESS)
-	local delay = getPerfectDelay(THICKNESS)
+	THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
+	local delay = getPerfectDelay(THICKNESS) / l_getDelayMult()
 	local startSide = getRandomSide()
 	local loopDir = getRandomDir()
 	local j = 0
@@ -35,8 +35,8 @@ end
 -- pMirrorSpiral: spawns a spiral of rWallEx
 function pMirrorSpiral(mTimes, mExtra)
 	local oldThickness = THICKNESS
-	THICKNESS = getPerfectThickness(THICKNESS)
-	local delay = getPerfectDelay(THICKNESS)
+	THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
+	local delay = getPerfectDelay(THICKNESS) / l_getDelayMult()
 	local startSide = getRandomSide()
 	local loopDir = getRandomDir()
 	j = 0
