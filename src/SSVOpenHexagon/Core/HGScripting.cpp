@@ -1299,7 +1299,7 @@ void HexagonGame::initLua_Steam()
 {
     addLuaFn("steam_unlockAchievement", //
         [this](const std::string& mId) {
-            if(!inReplay())
+            if(inReplay())
             {
                 // Do not unlock achievements while watching a replay.
                 return;
