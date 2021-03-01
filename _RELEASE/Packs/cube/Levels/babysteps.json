@@ -1,7 +1,7 @@
 {
 	"id": "babysteps",
 	"name": "baby steps",
-	"description": "learn to play openhexagon",
+	"description": "learn how to play open hexagon",
 	"author": "vittorio romeo",
 	"menuPriority": 0,
 	"selectable": true,

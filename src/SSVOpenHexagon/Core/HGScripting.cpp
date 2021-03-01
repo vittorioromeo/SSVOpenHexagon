@@ -906,6 +906,10 @@ void HexagonGame::initLua_LevelControl()
             "`$1`. Tracked variables are displayed in game, below the game "
             "timer. *NOTE: Your variable must be global for this to work.*");
 
+    addLuaFn("l_clearTracked", //
+        [this] { levelStatus.trackedVariables.clear(); })
+        .doc("Clears all tracked variables.");
+
     addLuaFn("l_setRotation", //
         [this](float mValue) { backgroundCamera.setRotation(mValue); })
         .arg("angle")
@@ -924,6 +928,12 @@ void HexagonGame::initLua_LevelControl()
         .doc(
             "Return `true` if \"official mode\" is enabled, `false` "
             "otherwise.");
+
+    addLuaFn("l_resetTime", //
+        [this] { status.resetTime(); })
+        .doc(
+            "Resets the lever time to zero, also resets increment time and "
+            "pause time.");
 
     // TODO: test and consider re-enabling
     /*
@@ -1667,7 +1677,9 @@ void HexagonGame::initLua()
 
     redefineLuaFunctions();
 
-    lua.executeCode(R"(math.random = function(a, b)
+    try
+    {
+        lua.executeCode(R"(math.random = function(a, b)
     if a == nil and b == nil then
         return u_rndSwitch(0, 0, 0)
     elseif b == nil then
@@ -1677,6 +1689,12 @@ void HexagonGame::initLua()
     end
 end
 )");
+    }
+    catch(...)
+    {
+        ssvu::lo("HexagonGame::redefineLuaFunctions")
+            << "Failure to redefine Lua's `math.random` function\n";
+    }
 
     // ------------------------------------------------------------------------
     // Register Lua function to get random seed for the current attempt:

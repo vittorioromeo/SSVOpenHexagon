@@ -9,6 +9,7 @@
 #include <SSVStart/Utils/Vector2.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
+#include <SSVUtils/Core/Utils/Containers.hpp>
 
 using namespace std;
 using namespace sf;
@@ -39,7 +40,7 @@ void HexagonGame::update(ssvu::FT mFT)
     }
 
     updateRichPresenceCallbacks();
-    updateText();
+    updateText(mFT);
     updateFlash(mFT);
     effectTimelineManager.update(mFT);
 
@@ -149,6 +150,8 @@ void HexagonGame::update(ssvu::FT mFT)
             updateRotation(mFT);
         }
     }
+
+    updateParticles(mFT);
 
     overlayCamera.update(mFT);
     backgroundCamera.update(mFT);
@@ -509,6 +512,7 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
         timelineRunner = {};
     }
 }
+
 void HexagonGame::updatePulse(ssvu::FT mFT)
 {
     if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
@@ -542,6 +546,7 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
             (Config::getHeight() * Config::getZoomFactor()) * p}});
     backgroundCamera.setRotation(rotation);
 }
+
 void HexagonGame::updateBeatPulse(ssvu::FT mFT)
 {
     if(status.beatPulseDelay <= 0)
@@ -564,6 +569,7 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
     status.radius =
         radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
 }
+
 void HexagonGame::updateRotation(ssvu::FT mFT)
 {
     auto nextRotation(getRotationSpeed() * 10.f);
@@ -579,6 +585,7 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
 
     backgroundCamera.turn(nextRotation);
 }
+
 void HexagonGame::updateFlash(ssvu::FT mFT)
 {
     if(status.flashEffect > 0)
@@ -591,6 +598,7 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
         flashPolygon[i].color.a = status.flashEffect;
     }
 }
+
 void HexagonGame::update3D(ssvu::FT mFT)
 {
     status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
@@ -601,6 +609,58 @@ void HexagonGame::update3D(ssvu::FT mFT)
     else if(status.pulse3D < styleData._3dPulseMin)
     {
         status.pulse3DDirection = 1;
+    }
+}
+
+void HexagonGame::updateParticles(ssvu::FT mFT)
+{
+    const auto isOutOfBounds = [](const Particle& p) {
+        const sf::Sprite& sp = p.sprite;
+        const sf::Vector2f& pos = sp.getPosition();
+        constexpr float padding = 256.f;
+
+        return (pos.x < 0 - padding || pos.x > Config::getWidth() + padding ||
+                pos.y < 0 - padding || pos.y > Config::getHeight() + padding);
+    };
+
+    const auto makePBParticle = [this] {
+        Particle p;
+
+        p.sprite.setTexture(assets.get<sf::Texture>("starParticle.png"));
+        p.sprite.setPosition(
+            {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
+        p.sprite.setRotation(ssvu::getRndR(0.f, 360.f));
+
+        const float scale = ssvu::getRndR(0.75f, 1.35f);
+        p.sprite.setScale({scale, scale});
+
+        sf::Color c = getColorMain();
+        c.a = ssvu::getRndI(90, 145);
+        p.sprite.setColor(c);
+
+        p.velocity = {ssvu::getRndR(-12.f, 12.f), ssvu::getRndR(4.f, 18.f)};
+        p.angularVelocity = ssvu::getRndR(-6.f, 6.f);
+
+        return p;
+    };
+
+    ssvu::eraseRemoveIf(particles, isOutOfBounds);
+
+    for(Particle& p : particles)
+    {
+        sf::Sprite& sp = p.sprite;
+        sp.setPosition(sp.getPosition() + p.velocity * mFT);
+        sp.setRotation(sp.getRotation() + p.angularVelocity * mFT);
+    }
+
+    if(mustSpawnPBParticles)
+    {
+        nextPBParticleSpawn -= mFT;
+        if(nextPBParticleSpawn <= 0.f)
+        {
+            particles.emplace_back(makePBParticle());
+            nextPBParticleSpawn = 2.75f;
+        }
     }
 }
 

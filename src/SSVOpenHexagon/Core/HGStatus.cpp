@@ -11,12 +11,8 @@ namespace hg
 
 void HexagonGameStatus::start() noexcept
 {
-    // Reset everything to the current time:
-    totalFrametimeAccumulator = 0.0;
-    playedFrametimeAccumulator = 0.0;
-    pausedFrametimeAccumulator = 0.0;
-    currentPause = 0.1 * 60;
-    currentIncrementTime = 0.0;
+    // Reset time and custom score:
+    resetTime();
     customScore = 0;
 
     // Signal that we started:
@@ -65,6 +61,15 @@ void HexagonGameStatus::pauseTime(const double seconds) noexcept
 
 void HexagonGameStatus::resetIncrementTime() noexcept
 {
+    currentIncrementTime = 0.0;
+}
+
+void HexagonGameStatus::resetTime()
+{
+    totalFrametimeAccumulator = 0.0;
+    playedFrametimeAccumulator = 0.0;
+    pausedFrametimeAccumulator = 0.0;
+    currentPause = 0.1 * 60;
     currentIncrementTime = 0.0;
 }
 
