@@ -494,7 +494,7 @@ void HexagonGame::death(bool mForce)
     }
 
     const bool isPersonalBest =
-        !inReplay() &&
+        !levelStatus.tutorialMode && !inReplay() &&
         (status.getTimeSeconds() > assets.getLocalScore(getLocalValidator(
                                        levelData->id, difficultyMult)));
 
@@ -503,8 +503,7 @@ void HexagonGame::death(bool mForce)
         pbText.setString("NEW PERSONAL BEST!");
         mustSpawnPBParticles = true;
 
-        // TODO: change sound
-        assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
+        assets.playSound("personalBest.ogg", ssvs::SoundPlayer::Mode::Abort);
     }
     else
     {

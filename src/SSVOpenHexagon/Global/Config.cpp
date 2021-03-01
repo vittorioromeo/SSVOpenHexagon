@@ -91,7 +91,6 @@ using namespace ssvu;
     X(maxFPS, unsigned int, "max_fps")                                     \
     X(antialiasingLevel, unsigned int, "antialiasing_level")               \
     X(showFPS, bool, "show_fps")                                           \
-    X(timerStatic, bool, "timer_static")                                   \
     X(serverLocal, bool, "server_local")                                   \
     X(serverVerbose, bool, "server_verbose")                               \
     X(mouseVisible, bool, "mouse_visible")                                 \
@@ -417,21 +416,6 @@ void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue)
 {
     maxFPS() = mValue;
     mWindow.setMaxFPS(mValue);
-}
-void setTimerStatic(ssvs::GameWindow& mWindow, bool mValue)
-{
-    timerStatic() = mValue;
-
-    if(timerStatic())
-    {
-        mWindow.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
-    }
-    else
-    {
-        mWindow.setTimer<ssvs::TimerDynamic>();
-        setLimitFPS(mWindow, true);
-        setMaxFPS(mWindow, 200);
-    }
 }
 
 void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue)
@@ -832,11 +816,6 @@ void setSaveLocalBestReplayToFile(bool mX)
 [[nodiscard]] bool getShowFPS()
 {
     return showFPS();
-}
-
-[[nodiscard]] bool getTimerStatic()
-{
-    return timerStatic();
 }
 
 [[nodiscard]] bool getServerLocal()

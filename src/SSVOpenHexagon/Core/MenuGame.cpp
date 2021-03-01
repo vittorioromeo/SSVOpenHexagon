@@ -770,9 +770,6 @@ void MenuGame::initMenus()
     auto whenUnlogged = [] { return true; };
     auto whenSoundEnabled = [] { return !Config::getNoSound(); };
     auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
-    auto whenTimerIsStatic = [] { return Config::getTimerStatic(); };
-    auto whenTimerIsDynamic = [] { return !Config::getTimerStatic(); };
-
 
     // Welcome menu
     auto& wlcm(welcomeMenu.createCategory("welcome"));
@@ -1031,20 +1028,12 @@ void MenuGame::initMenus()
     gfx.create<i::Goto>("fps settings", fps);
     fps.create<i::Toggle>("vsync", &Config::getVsync,
         [this](bool mValue) { Config::setVsync(window, mValue); });
-    fps.create<i::Single>("use static fps", [this] {
-        Config::setTimerStatic(window, true);
-    }) | whenTimerIsDynamic;
     fps.create<i::Toggle>("limit fps", &Config::getLimitFPS,
-        [this](bool mValue) { Config::setLimitFPS(window, mValue); }) |
-        whenTimerIsStatic;
+        [this](bool mValue) { Config::setLimitFPS(window, mValue); });
     fps.create<i::Slider>(
         "max fps", &Config::getMaxFPS,
         [this](unsigned int mValue) { Config::setMaxFPS(window, mValue); }, 30u,
-        200u, 5u) |
-        whenTimerIsStatic;
-    fps.create<i::Single>("use dynamic fps", [this] {
-        Config::setTimerStatic(window, false);
-    }) | whenTimerIsStatic;
+        200u, 5u);
     fps.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
     fps.create<i::GoBack>("back");
 
