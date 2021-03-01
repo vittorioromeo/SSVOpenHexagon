@@ -44,7 +44,6 @@ void setCurrentResolutionAuto(ssvs::GameWindow& mWindow);
 void setVsync(ssvs::GameWindow& mWindow, bool mValue);
 void setLimitFPS(ssvs::GameWindow& mWindow, bool mValue);
 void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue);
-void setTimerStatic(ssvs::GameWindow& mWindow, bool mValue);
 void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue);
 
 void setOnline(bool mOnline);
@@ -133,7 +132,6 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] bool getMusicSpeedDMSync();
 [[nodiscard]] unsigned int getMaxFPS();
 [[nodiscard]] bool getShowFPS();
-[[nodiscard]] bool getTimerStatic();
 [[nodiscard]] unsigned int getAntialiasingLevel();
 [[nodiscard]] bool getServerLocal();
 [[nodiscard]] bool getServerVerbose();
