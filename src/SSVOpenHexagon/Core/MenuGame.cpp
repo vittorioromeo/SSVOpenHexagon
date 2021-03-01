@@ -3872,9 +3872,16 @@ void MenuGame::drawLevelSelectionRightSide(
     // Therefore pack labels must be drawn above everything else (aka must
     // be drawn last).
 
-    renderTextCentered(isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS"
-                                          : "PRESS F2 TO SHOW FAVORITE LEVELS",
-        txtSelectionSmall.font, {w / 2.f, 5.f});
+    static std::string smallTextContents;
+
+    smallTextContents.clear();
+    smallTextContents += isFavoriteLevels()
+                             ? "PRESS F2 TO SHOW ALL LEVELS"
+                             : "PRESS F2 TO SHOW FAVORITE LEVELS";
+    smallTextContents += "\nHOLD FOCUS TO JUMP BETWEEN PACKS";
+
+    renderTextCentered(
+        smallTextContents, txtSelectionSmall.font, {w / 2.f, 5.f});
 
     //----------------------------------------
     // LEVELS LIST

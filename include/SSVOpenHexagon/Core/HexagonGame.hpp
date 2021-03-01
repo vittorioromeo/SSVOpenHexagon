@@ -105,7 +105,22 @@ private:
     sf::Text messageText{"", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
 
+    sf::Text pbText{"", assets.get<sf::Font>("forcedsquare.ttf"),
+        ssvu::toNum<unsigned int>(65.f / Config::getZoomFactor())};
+
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
+
+    struct Particle
+    {
+        sf::Sprite sprite;
+        sf::Vector2f velocity;
+        float angularVelocity;
+    };
+
+    std::vector<Particle> particles;
+    bool mustSpawnPBParticles{false};
+    float nextPBParticleSpawn{0.f};
+    float pbTextGrowth{0.f};
 
     sf::Sprite keyIconLeft;
     sf::Sprite keyIconRight;
@@ -278,8 +293,9 @@ private:
     void updateRotation(ssvu::FT mFT);
     void updateFlash(ssvu::FT mFT);
     void update3D(ssvu::FT mFT);
-    void updateText();
+    void updateText(ssvu::FT mFT);
     void updateKeyIcons();
+    void updateParticles(ssvu::FT mFT);
 
     // Draw methods
     void draw();
@@ -291,8 +307,10 @@ private:
     // Draw methods
     void drawText_TimeAndStatus(const sf::Color& offsetColor);
     void drawText_Message(const sf::Color& offsetColor);
+    void drawText_PersonalBest(const sf::Color& offsetColor);
     void drawText();
     void drawKeyIcons();
+    void drawParticles();
 
     // Data-related methods
     void setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay);
@@ -393,9 +411,10 @@ public:
     void updateRichPresenceCallbacks();
 
     // Graphics-related methods
-    void render(sf::Drawable& mDrawable)
+    void render(sf::Drawable& mDrawable,
+        const sf::RenderStates& mStates = sf::RenderStates::Default)
     {
-        window.draw(mDrawable);
+        window.draw(mDrawable, mStates);
     }
 
     // Setters
