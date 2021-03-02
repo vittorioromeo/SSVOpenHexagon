@@ -336,33 +336,14 @@ private:
         bool isFavorites{false};
     };
 
-    LevelDrawer lvlSlct, favSlct{.isFavorites = true};
+    bool isLevelFavorite{false};
+    std::vector<std::string> favoriteLevelDataIds;
+    LevelDrawer lvlSlct;
+    LevelDrawer favSlct{
+        .levelDataIds = &favoriteLevelDataIds, .isFavorites = true};
     LevelDrawer* lvlDrawer{&lvlSlct};
 
-    void changeFavoriteLevelsToProfile()
-    {
-        // Each profile has its own favorite levels.
-        // When we switch profile we have to point 
-        // favSlct.levelDataIds to the correct data vector,
-        // and adjust all favorite level flags to reflect
-        // the selected profile's favorites.
-
-        favSlct.levelDataIds = &assets.getFavoriteLevelIds();
-        const int sz{static_cast<int>(favSlct.levelDataIds->size())};
-        assets.updateLevelsFavoriteFlag();
-
-        // If the new current profile has no favorites force the level selection
-        // to use the regular drawer.
-        if(!sz)
-        {
-            lvlDrawer = &lvlSlct;
-        }
-
-        // Make sure the level index is within boundaries.
-        ssvu::clamp(favSlct.currentIndex, 0, sz - 1);
-        // Resize the level offset parameters.
-        favSlct.lvlOffsets.resize(sz);
-    }
+    void changeFavoriteLevelsToProfile();
     bool isFavoriteLevels() const
     {
         return lvlDrawer->isFavorites;
@@ -394,7 +375,7 @@ private:
     bool mustShowFTTDeathTips{true};
     float dialogBoxDelay{0.f};
 
-    void changeLevelFavoriteFlag();
+    void addRemoveFavoriteLevel();
     void switchToFromFavoriteLevels();
 
     // Visual effects

@@ -68,21 +68,9 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
         return getPackData(mA.id).priority < getPackData(mB.id).priority;
     });
 
-    // this will not be used for the rest of the game
-    // shrink it to fit the actually used size
+    // This will not be used for the rest of the game,
+    // so shrink it to fit the actually used size.
     loadInfo.errorMessages.shrink_to_fit();
-}
-
-void HGAssets::addFavoriteLevel(const std::string& mLevelID)
-{
-    getCurrentLocalProfile().addFavoriteLevel(mLevelID);
-    setLevelFavoriteFlag(mLevelID, true);
-}
-
-void HGAssets::removeFavoriteLevel(const std::string& mLevelID)
-{
-    getCurrentLocalProfile().removeFavoriteLevel(mLevelID);
-    setLevelFavoriteFlag(mLevelID, false);
 }
 
 [[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)
@@ -394,7 +382,6 @@ void HGAssets::loadLocalProfiles()
         loadInfo.addFormattedError(error);
 
         ProfileData profileData{Utils::loadProfileFromJson(*this, object)};
-        profileData.checkFavoriteLevelsHealth();
         profileDataMap.emplace(profileData.getName(), std::move(profileData));
     }
 }
@@ -416,7 +403,11 @@ void HGAssets::saveCurrentLocalProfile()
     ssvuj::arch(profileRoot, "version", currentVersion);
     ssvuj::arch(profileRoot, "name", getCurrentLocalProfile().getName());
     ssvuj::arch(profileRoot, "scores", getCurrentLocalProfile().getScores());
-    ssvuj::arch(profileRoot, "favorites", getCurrentLocalProfile().getFavoriteLevelIds());
+
+    const auto& favSet{getCurrentLocalProfile().getFavoriteLevelIds()};
+    std::vector<std::string> favorites;
+    std::copy(favSet.begin(), favSet.end(), std::back_inserter(favorites));
+    ssvuj::arch(profileRoot, "favorites", favorites);
 
     for(const auto& n : getCurrentLocalProfile().getTrackedNames())
     {
@@ -438,13 +429,19 @@ void HGAssets::saveAllProfiles()
     ssvuj::arch(currentVersion, "minor", Config::GAME_VERSION.minor);
     ssvuj::arch(currentVersion, "micro", Config::GAME_VERSION.micro);
 
+    std::vector<std::string> favorites;
+
     for(const auto& profile : profileDataMap)
     {
         ssvuj::Obj profileRoot;
         ssvuj::arch(profileRoot, "version", currentVersion);
         ssvuj::arch(profileRoot, "name", profile.second.getName());
         ssvuj::arch(profileRoot, "scores", profile.second.getScores());
-        ssvuj::arch(profileRoot, "favorites", profile.second.getFavoriteLevelIds());
+
+        favorites.clear();
+        const auto& favSet{profile.second.getFavoriteLevelIds()};
+        std::copy(favSet.begin(), favSet.end(), std::back_inserter(favorites));
+        ssvuj::arch(profileRoot, "favorites", favorites);
 
         for(const auto& n : profile.second.getTrackedNames())
         {

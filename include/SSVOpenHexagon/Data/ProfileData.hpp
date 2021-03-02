@@ -7,6 +7,8 @@
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
+#include <unordered_set>
+
 namespace hg
 {
 
@@ -20,7 +22,9 @@ private:
     std::string name;
     ssvuj::Obj scores;
     std::vector<std::string> trackedNames;
-    std::vector<std::string> favoriteLevelsDataIDs;
+    std::unordered_set<std::string> favoriteLevelsDataIDs;
+
+    void checkFavoriteLevelsHealth();
 
 public:
     ProfileData(HGAssets& mAssets, const GameVersion mVersion,
@@ -28,8 +32,11 @@ public:
         const std::vector<std::string>& mTrackedNames,
         const std::vector<std::string>& mFavorites)
         : assets{mAssets}, version{mVersion}, name{mName}, scores{mScores},
-          trackedNames{mTrackedNames}, favoriteLevelsDataIDs{mFavorites}
+          trackedNames{mTrackedNames}
     {
+        std::copy(mFavorites.begin(), mFavorites.end(),
+            std::inserter(favoriteLevelsDataIDs, favoriteLevelsDataIDs.end()));
+        checkFavoriteLevelsHealth();
     }
 
     [[nodiscard]] constexpr GameVersion getVersion() const noexcept
@@ -53,7 +60,7 @@ public:
         return trackedNames;
     }
 
-    [[nodiscard]] const std::vector<std::string>&
+    [[nodiscard]] const std::unordered_set<std::string>&
     getFavoriteLevelIds() const noexcept
     {
         return favoriteLevelsDataIDs;
@@ -79,9 +86,19 @@ public:
         trackedNames.clear();
     }
 
-    void addFavoriteLevel(const std::string& mLevelID);
-    void removeFavoriteLevel(const std::string& mLevelID);
-    void checkFavoriteLevelsHealth();
+    void addFavoriteLevel(const std::string& mLevelID)
+    {
+        favoriteLevelsDataIDs.insert(mLevelID);
+    }
+    void removeFavoriteLevel(const std::string& mLevelID)
+    {
+        favoriteLevelsDataIDs.erase(mLevelID);
+    }
+
+    [[nodiscard]] bool isLevelFavorite(const std::string& mLevelID)
+    {
+        return favoriteLevelsDataIDs.find(mLevelID) != favoriteLevelsDataIDs.end();
+    }
 };
 
 } // namespace hg
