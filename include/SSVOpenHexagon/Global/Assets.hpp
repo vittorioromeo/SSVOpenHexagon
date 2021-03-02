@@ -19,6 +19,7 @@
 #include <SFML/System.hpp>
 
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <vector>
 #include <string>
@@ -158,24 +159,13 @@ public:
         return getLevelData(mPackId + "_" + mId);
     }
 
-    void addFavoriteLevel(const std::string& mLevelID);
-    void removeFavoriteLevel(const std::string& mLevelID);
-    void updateLevelsFavoriteFlag()
+    void addFavoriteLevel(const std::string& mLevelID)
     {
-        // Wipe all favorite flags...
-        for(auto& level : levelDatas)
-        {
-            level.second.favorite = false;
-        }
-        // ...and then enable the required ones.
-        for(const std::string& favID : getFavoriteLevelIds())
-        {
-            setLevelFavoriteFlag(favID, true);
-        }
+        getCurrentLocalProfile().addFavoriteLevel(mLevelID);
     }
-    void setLevelFavoriteFlag(const std::string& mAssetId, const bool flag)
+    void removeFavoriteLevel(const std::string& mLevelID)
     {
-        getEditLevelData(mAssetId).favorite = flag;
+        getCurrentLocalProfile().removeFavoriteLevel(mLevelID);
     }
 
     bool checkLevelIDValidity(const std::string& mAssetId)
@@ -190,7 +180,7 @@ public:
         return levelDataIdsByPack.at(mPackId);
     }
 
-    const std::vector<std::string>& getFavoriteLevelIds()
+    const std::unordered_set<std::string>& getFavoriteLevelIds()
     {
         return getCurrentLocalProfile().getFavoriteLevelIds();
     }
