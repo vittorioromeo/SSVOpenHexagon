@@ -60,7 +60,6 @@ private:
         std::string id;
         ssvufs::Path path;
     };
-
     std::vector<PackInfo> packInfos;
 
     std::map<std::string, MusicData> musicDataMap;
@@ -143,11 +142,6 @@ public:
         return assetManager.get<T>(mId);
     }
 
-    bool checkLevelIDPurity(std::string& mAssetId)
-    {
-        return levelDatas.find(mAssetId) != levelDatas.end();
-    }
-
     const std::unordered_map<std::string, LevelData>& getLevelDatas()
     {
         return levelDatas;
@@ -164,9 +158,9 @@ public:
         return getLevelData(mPackId + "_" + mId);
     }
 
-    void setLevelFavoriteFlag(const std::string& mAssetId, const bool flag)
+    bool checkLevelIDValidity(const std::string& mAssetId)
     {
-        getEditLevelData(mAssetId).favorite = flag;
+        return levelDatas.find(mAssetId) != levelDatas.end();
     }
 
     const std::vector<std::string>& getLevelIdsByPack(
@@ -216,6 +210,7 @@ public:
 
     void loadLocalProfiles();
     void saveCurrentLocalProfile();
+    void saveAllProfiles();
     void setCurrentLocalProfile(const std::string& mName);
 
     [[nodiscard]] bool anyLocalProfileActive() const;
@@ -268,6 +263,16 @@ public:
         saveCurrentLocalProfile();
     }
 
+    void pSaveAll()
+    {
+        if(!playingLocally)
+        {
+            return;
+        }
+
+        saveAllProfiles();
+    }
+
     void pSetCurrent(const std::string& mName)
     {
         if(!playingLocally)
@@ -298,6 +303,7 @@ public:
         playingLocally = mPlayingLocally;
     }
 
+public:
     void refreshVolumes();
     void stopMusics();
     void stopSounds();

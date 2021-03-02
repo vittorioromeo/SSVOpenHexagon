@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
@@ -70,7 +71,7 @@ inline float getFontHeight(sf::Text& font, const unsigned int charSize)
 
 MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);
 GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot);
-ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot);
+ProfileData loadProfileFromJson(HGAssets& mAssets, const ssvuj::Obj& mRoot);
 
 std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 

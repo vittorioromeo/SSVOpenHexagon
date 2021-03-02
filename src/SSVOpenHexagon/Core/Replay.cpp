@@ -4,6 +4,8 @@
 
 #include "SSVOpenHexagon/Core/Replay.hpp"
 
+#include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
+
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -11,17 +13,22 @@
 namespace hg
 {
 
-#define SSVOH_TRY(...)                                                         \
-    do                                                                         \
-    {                                                                          \
-        __VA_ARGS__;                                                           \
-        if(!result._success)                                                   \
-        {                                                                      \
-            ::std::cerr << "Failed [de]serialization operation '" #__VA_ARGS__ \
-                           "'\n";                                              \
-                                                                               \
-            return result;                                                     \
-        }                                                                      \
+[[gnu::cold]] static void printTryFailure(const char* code)
+{
+    ::std::cerr << "Failed [de]serialization operation '" << code << "'\n";
+}
+
+#define SSVOH_TRY(...)                      \
+    do                                      \
+    {                                       \
+        __VA_ARGS__;                        \
+                                            \
+        if(SSVU_UNLIKELY(!result._success)) \
+        {                                   \
+            printTryFailure(#__VA_ARGS__);  \
+            return result;                  \
+        }                                   \
+                                            \
     } while(false)
 
 static auto make_write(serialization_result& result, std::byte*& buffer,
@@ -77,7 +84,6 @@ void replay_data::record_input(const bool left, const bool right,
 {
     return _inputs.size();
 }
-
 
 [[nodiscard]] bool replay_data::operator==(
     const replay_data& rhs) const noexcept
@@ -135,8 +141,12 @@ void replay_data::record_input(const bool left, const bool right,
 
     for(std::size_t i = 0; i < n_inputs; ++i)
     {
+        // TODO: gcc bug?
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         std::uint8_t ib_byte;
         SSVOH_TRY(read(ib_byte));
+#pragma GCC diagnostic pop
 
         _inputs[i] = input_bitset{static_cast<unsigned long>(ib_byte)};
     }
@@ -257,6 +267,9 @@ void replay_player::reset() noexcept
 
         s.resize(s_size);
 
+// TODO: gcc bug?
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         for(std::uint32_t i = 0; i < s_size; ++i)
         {
             char c;
@@ -264,6 +277,7 @@ void replay_player::reset() noexcept
 
             s[i] = c;
         }
+#pragma GCC diagnostic pop
 
         return result;
     };
