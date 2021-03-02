@@ -74,8 +74,9 @@ public:
           callback{mCallback}, hardcodedKey{mHardcodedKey}
     {
         // If user manually added a hardcoded key to the config file
-        // sanitize the bind.
-        const std::vector<ssvs::Input::Combo>& combos{
+        // sanitize the bind. Cannot use a reference here because
+        // `triggerGetter()` returns by value.
+        const std::vector<ssvs::Input::Combo> combos{
             triggerGetter().getCombos()};
 
         for(int i = 0; i < static_cast<int>(combos.size()); ++i)

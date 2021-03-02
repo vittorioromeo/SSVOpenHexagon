@@ -78,9 +78,9 @@ void HexagonGame::draw()
 
     if(Config::get3D())
     {
-        const auto depth(styleData._3dDepth);
-        const auto numWallQuads(wallQuads.size());
-        const auto numPlayerTris(playerTris.size());
+        const float depth(styleData._3dDepth);
+        const std::size_t numWallQuads(wallQuads.size());
+        const std::size_t numPlayerTris(playerTris.size());
 
         wallQuads3D.reserve(numWallQuads * depth);
         playerTris3D.reserve(numPlayerTris * depth);
@@ -91,10 +91,10 @@ void HexagonGame::draw()
         const sf::Vector2f skew{1.f, 1.f + effect};
         backgroundCamera.setSkew(skew);
 
-        const auto radRot(
+        const float radRot(
             ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
-        const auto sinRot(std::sin(radRot));
-        const auto cosRot(std::cos(radRot));
+        const float sinRot(std::sin(radRot));
+        const float cosRot(std::cos(radRot));
 
         for(std::size_t i = 0; i < depth; ++i)
         {
@@ -106,7 +106,7 @@ void HexagonGame::draw()
             playerTris3D.unsafe_emplace_other(playerTris);
         }
 
-        for(auto j(0); j < depth; ++j)
+        for(int j(0); j < static_cast<int>(depth); ++j)
         {
             const float i(depth - j - 1);
 

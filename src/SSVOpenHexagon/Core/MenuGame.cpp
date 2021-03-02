@@ -2883,7 +2883,9 @@ void MenuGame::drawOptionsSubmenus(
         quadHeight - txtMenuSmall.height * fontTopBorder + doubleBorder};
     for(int i{0}; i < size; ++i)
     {
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
+
         uppercasify(itemName);
         if(i == mSubMenu.getIdx())
         {
@@ -3033,10 +3035,11 @@ void MenuGame::drawProfileSelection(
         selected = i == mSubmenu.getIdx();
 
         // Draw profile name
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
-        uppercasify(itemName);
+
         yPos = txtHeight - (selected ? fontHeight * 0.75f : 0.f);
-        renderTextCentered(itemName, txtProfile.font,
+        renderTextCentered(toUppercase(itemName), txtProfile.font,
             selected ? profSelectedCharSize : profCharSize,
             {indent + textWidth / 2.f, yPos}, menuTextColor);
 
@@ -3127,10 +3130,11 @@ void MenuGame::drawProfileSelectionBoot()
         selected = i == mSubmenu.getIdx();
 
         // Draw profile name
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
-        uppercasify(itemName);
+
         yPos = height - (selected ? fontHeight * 0.75f : 0.f);
-        renderTextCentered(itemName, txtProfile.font,
+        renderTextCentered(toUppercase(itemName), txtProfile.font,
             selected ? profSelectedCharSize : profCharSize, {w / 2.f, yPos});
 
         // Add total survival time for extra flavor
