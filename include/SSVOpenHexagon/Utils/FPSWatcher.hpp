@@ -8,7 +8,6 @@
 
 #include <thread>
 #include <chrono>
-#include <future>
 
 namespace hg
 {
@@ -20,8 +19,7 @@ private:
     float lostFrames{0};
     const float maxLostFrames{20.f}, minFPS{25.f};
     bool disabled{true}, running{true}, check{false};
-    std::future<void> watchFuture{
-        std::async(std::launch::async, [this] { watch(); })};
+    std::thread watchThread{[this] { watch(); }};
 
     void watch()
     {
@@ -73,6 +71,7 @@ public:
     ~FPSWatcher() noexcept
     {
         running = false;
+        watchThread.join();
     }
 
     [[nodiscard]] bool isLimitReached() const noexcept
