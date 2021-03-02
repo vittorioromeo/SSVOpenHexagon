@@ -75,7 +75,7 @@ void HexagonGame::initLua_Utils()
         .doc("Flash the screen with `$0` intensity (from 0 to 255).");
 
     addLuaFn("u_log", //
-        [this](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
+        [](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
         .arg("message")
         .doc("Print out `$0` to the console.");
 
@@ -169,19 +169,19 @@ void HexagonGame::initLua_Utils()
             "`true`, the swap sound will be played.");
 
     addLuaFn("u_getVersionMajor", //
-        [this] { return Config::getVersion().major; })
+        [] { return Config::getVersion().major; })
         .doc("Returns the major of the current version of the game");
 
     addLuaFn("u_getVersionMinor", //
-        [this] { return Config::getVersion().minor; })
+        [] { return Config::getVersion().minor; })
         .doc("Returns the minor of the current version of the game");
 
     addLuaFn("u_getVersionMicro", //
-        [this] { return Config::getVersion().micro; })
+        [] { return Config::getVersion().micro; })
         .doc("Returns the micro of the current version of the game");
 
     addLuaFn("u_getVersionString", //
-        [this] { return Config::getVersionString(); })
+        [] { return Config::getVersionString(); })
         .doc("Returns the string representing the current version of the game");
 }
 
@@ -924,7 +924,7 @@ void HexagonGame::initLua_LevelControl()
         .doc("Get the current game timer value, in seconds.");
 
     addLuaFn("l_getOfficial", //
-        [this] { return Config::getOfficial(); })
+        [] { return Config::getOfficial(); })
         .doc(
             "Return `true` if \"official mode\" is enabled, `false` "
             "otherwise.");
@@ -1649,7 +1649,7 @@ void HexagonGame::initLua()
     // TODO: eww, but seems to fix. consider exposing functions and deprecating
     // `math.random`
     addLuaFn("u_rndSwitch",
-        [this, rndReal, rndIntUpper, rndInt](
+        [rndReal, rndIntUpper, rndInt](
             int mode, int lower, int upper) -> float {
             if(mode == 0)
             {

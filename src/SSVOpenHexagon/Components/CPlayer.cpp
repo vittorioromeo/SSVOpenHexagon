@@ -82,12 +82,6 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 
     const sf::Color colorMain{mHexagonGame.getColorMain()};
 
-    const sf::Color colorB{Config::getBlackAndWhite()
-                               ? sf::Color::Black
-                               : mHexagonGame.getColor(1)};
-
-    const sf::Color colorDarkened{Utils::getColorDarkened(colorMain, 1.4f)};
-
     for(auto i(0u); i < sides; ++i)
     {
         const float sAngle{div * 2.f * i};
