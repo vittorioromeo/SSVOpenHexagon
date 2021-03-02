@@ -65,7 +65,7 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::KKey key)
     }
 
     // stop if the pressed key is already assigned to this bind
-    const std::vector<ssvs::Input::Combo>& combos = triggerGetter().getCombos();
+    const std::vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
 
     for(int i = 0; i < sizeGetter(); ++i)
     {
@@ -83,7 +83,7 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::KKey key)
 bool KeyboardBindControl::newKeyboardBind(const ssvs::MBtn btn)
 {
     // stop if the pressed key is already assigned to this bind
-    const std::vector<ssvs::Input::Combo>& combos = triggerGetter().getCombos();
+    const std::vector<ssvs::Input::Combo> combos = triggerGetter().getCombos();
 
     for(int i = 0; i < sizeGetter(); ++i)
     {

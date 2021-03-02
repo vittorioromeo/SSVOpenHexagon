@@ -991,7 +991,8 @@ const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
     int j;
     std::string bindNames;
 
-    for(auto& c : keyboardTriggerGetters[bindID]().getCombos())
+    const auto combos = keyboardTriggerGetters[bindID]().getCombos();
+    for(const auto& c : combos)
     {
         if(c.isUnbound())
         {
