@@ -97,7 +97,8 @@ public:
 
     [[nodiscard]] bool isLevelFavorite(const std::string& mLevelID)
     {
-        return favoriteLevelsDataIDs.find(mLevelID) != favoriteLevelsDataIDs.end();
+        return favoriteLevelsDataIDs.find(mLevelID) !=
+               favoriteLevelsDataIDs.end();
     }
 };
 

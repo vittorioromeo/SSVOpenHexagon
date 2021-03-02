@@ -1114,10 +1114,9 @@ void MenuGame::initMenus()
     for(auto& p : assets.getLocalProfileNames())
     {
         profileName = p;
-        profileSelection.create<i::Single>(profileName,
-            [this, profileName] {
-                assets.pSetCurrent(profileName);
-                changeFavoriteLevelsToProfile();
+        profileSelection.create<i::Single>(profileName, [this, profileName] {
+            assets.pSetCurrent(profileName);
+            changeFavoriteLevelsToProfile();
         });
     }
     profileSelection.sortByName();
@@ -1205,9 +1204,8 @@ bool MenuGame::loadCommandLineLevel(
 
     // Start game
     window.setGameState(hexagonGame.getGame());
-    hexagonGame.newGame(packID,
-        lvlSlct.levelDataIds->at(lvlSlct.currentIndex), true,
-        ssvu::getByModIdx(diffMults, diffMultIdx), false);
+    hexagonGame.newGame(packID, lvlSlct.levelDataIds->at(lvlSlct.currentIndex),
+        true, ssvu::getByModIdx(diffMults, diffMultIdx), false);
 
     return true;
 }
@@ -1512,8 +1510,7 @@ void MenuGame::changePack()
     lvlSlct.levelDataIds =
         &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
     // Set the correct level index.
-    setIndex(
-        packChangeDirection == -2 ? lvlSlct.levelDataIds->size() - 1 : 0);
+    setIndex(packChangeDirection == -2 ? lvlSlct.levelDataIds->size() - 1 : 0);
     // Reset all text scrolling.
     resetNamesScrolls();
 }
@@ -1614,10 +1611,9 @@ void MenuGame::okAction()
 
                 // Create new menu item
                 std::string name{enteredStr};
-                profiles.create<ssvms::Items::Single>(
-                    name, [this, name] {
-                        assets.pSetCurrent(name);
-                        changeFavoriteLevelsToProfile();
+                profiles.create<ssvms::Items::Single>(name, [this, name] {
+                    assets.pSetCurrent(name);
+                    changeFavoriteLevelsToProfile();
                 });
                 profiles.sortByName();
 
@@ -2130,7 +2126,8 @@ void MenuGame::setIndex(const int mIdx)
 {
     lvlDrawer->currentIndex = mIdx;
 
-    const std::string levelID{lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)};
+    const std::string levelID{
+        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)};
     levelData = &assets.getLevelData(levelID);
     formatLevelDescription();
 
@@ -3624,7 +3621,8 @@ void MenuGame::formatLevelDescription()
 {
     levelDescription.clear();
     std::string desc{
-        assets.getLevelData(lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))
+        assets
+            .getLevelData(lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))
             .description};
 
     if(desc.empty())
@@ -3724,10 +3722,10 @@ void MenuGame::changeFavoriteLevelsToProfile()
     }
 
     std::sort(favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(),
-    [this](const std::string& a, const std::string& b) -> bool {
-        return ssvu::toLower(assets.getLevelData(a).name) <
-               ssvu::toLower(assets.getLevelData(b).name);
-    });
+        [this](const std::string& a, const std::string& b) -> bool {
+            return ssvu::toLower(assets.getLevelData(a).name) <
+                   ssvu::toLower(assets.getLevelData(b).name);
+        });
 
     const int sz{static_cast<int>(favoriteLevelDataIds.size())};
 
@@ -3743,7 +3741,7 @@ void MenuGame::changeFavoriteLevelsToProfile()
     // Resize the level offset parameters.
     favSlct.lvlOffsets.resize(sz);
 }
-    
+
 void MenuGame::addRemoveFavoriteLevel()
 {
     const LevelData& data{assets.getLevelData(

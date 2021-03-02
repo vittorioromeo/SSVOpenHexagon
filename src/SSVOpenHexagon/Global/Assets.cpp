@@ -448,7 +448,8 @@ void HGAssets::saveAllProfiles()
             profileRoot["trackedNames"].append(n);
         }
 
-        ssvuj::writeToFile(profileRoot, "Profiles/" + profile.second.getName() + ".json");
+        ssvuj::writeToFile(
+            profileRoot, "Profiles/" + profile.second.getName() + ".json");
     }
 }
 
