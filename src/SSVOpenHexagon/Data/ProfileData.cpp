@@ -10,12 +10,12 @@
 namespace hg
 {
 
-void ProfileData::checkFavoriteLevelsHealth()
+void ProfileData::checkFavoriteLevelsHealth(HGAssets& mAssets)
 {
     // Remove invalid levelIDs that might have been added to the files.
     for(const std::string& favID : favoriteLevelsDataIDs)
     {
-        if(!assets.checkLevelIDValidity(favID))
+        if(!mAssets.checkLevelIDValidity(favID))
         {
             removeFavoriteLevel(favID);
         }

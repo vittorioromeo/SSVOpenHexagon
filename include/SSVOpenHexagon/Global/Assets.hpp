@@ -19,7 +19,6 @@
 #include <SFML/System.hpp>
 
 #include <unordered_map>
-#include <unordered_set>
 #include <map>
 #include <vector>
 #include <string>
@@ -159,15 +158,6 @@ public:
         return getLevelData(mPackId + "_" + mId);
     }
 
-    void addFavoriteLevel(const std::string& mLevelID)
-    {
-        getCurrentLocalProfile().addFavoriteLevel(mLevelID);
-    }
-    void removeFavoriteLevel(const std::string& mLevelID)
-    {
-        getCurrentLocalProfile().removeFavoriteLevel(mLevelID);
-    }
-
     bool checkLevelIDValidity(const std::string& mAssetId)
     {
         return levelDatas.find(mAssetId) != levelDatas.end();
@@ -178,11 +168,6 @@ public:
     {
         SSVU_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
         return levelDataIdsByPack.at(mPackId);
-    }
-
-    const std::unordered_set<std::string>& getFavoriteLevelIds()
-    {
-        return getCurrentLocalProfile().getFavoriteLevelIds();
     }
 
     const std::unordered_map<std::string, PackData>& getPacksData()

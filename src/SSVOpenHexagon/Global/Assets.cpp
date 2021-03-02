@@ -419,11 +419,6 @@ void HGAssets::saveCurrentLocalProfile()
 
 void HGAssets::saveAllProfiles()
 {
-    if(currentProfilePtr == nullptr)
-    {
-        return;
-    }
-
     ssvuj::Obj currentVersion;
     ssvuj::arch(currentVersion, "major", Config::GAME_VERSION.major);
     ssvuj::arch(currentVersion, "minor", Config::GAME_VERSION.minor);
@@ -431,25 +426,28 @@ void HGAssets::saveAllProfiles()
 
     std::vector<std::string> favorites;
 
-    for(const auto& profile : profileDataMap)
+    for(const auto& [key, profileData] : profileDataMap)
     {
         ssvuj::Obj profileRoot;
         ssvuj::arch(profileRoot, "version", currentVersion);
-        ssvuj::arch(profileRoot, "name", profile.second.getName());
-        ssvuj::arch(profileRoot, "scores", profile.second.getScores());
+        ssvuj::arch(profileRoot, "name", profileData.getName());
+        ssvuj::arch(profileRoot, "scores", profileData.getScores());
 
         favorites.clear();
-        const auto& favSet{profile.second.getFavoriteLevelIds()};
-        std::copy(favSet.begin(), favSet.end(), std::back_inserter(favorites));
+        for(const std::string& favID : profileData.getFavoriteLevelIds())
+        {
+            favorites.emplace_back(favID);
+        }
+
         ssvuj::arch(profileRoot, "favorites", favorites);
 
-        for(const auto& n : profile.second.getTrackedNames())
+        for(const auto& n : profileData.getTrackedNames())
         {
             profileRoot["trackedNames"].append(n);
         }
 
         ssvuj::writeToFile(
-            profileRoot, "Profiles/" + profile.second.getName() + ".json");
+            profileRoot, "Profiles/" + profileData.getName() + ".json");
     }
 }
 
