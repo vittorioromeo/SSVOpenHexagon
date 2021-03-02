@@ -48,16 +48,17 @@ GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot)
         ssvuj::getExtr<int>(mRoot, "micro")};
 }
 
-ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
+ProfileData loadProfileFromJson(HGAssets& mAssets, const ssvuj::Obj& mRoot)
 {
     GameVersion version{-1, 0, 0};
     if(ssvuj::isObj("version"))
     {
         version = loadVersionFromJson(ssvuj::getObj(mRoot, "version"));
     }
-    return {version, ssvuj::getExtr<std::string>(mRoot, "name"),
+    return {mAssets, version, ssvuj::getExtr<std::string>(mRoot, "name"),
         ssvuj::getObj(mRoot, "scores"),
-        ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {})};
+        ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {}),
+        ssvuj::getExtr<std::vector<std::string>>(mRoot, "favorites", {})};
 }
 
 std::string getLocalValidator(const std::string& mId, float mDifficultyMult)
