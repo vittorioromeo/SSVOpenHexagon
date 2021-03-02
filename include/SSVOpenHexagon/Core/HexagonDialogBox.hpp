@@ -82,6 +82,7 @@ public:
     {
         return keyToClose;
     }
+
     [[nodiscard]] bool empty() const noexcept
     {
         return dialogText.empty();
