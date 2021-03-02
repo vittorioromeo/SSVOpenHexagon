@@ -75,7 +75,7 @@ void HexagonGame::initLua_Utils()
         .doc("Flash the screen with `$0` intensity (from 0 to 255).");
 
     addLuaFn("u_log", //
-        [this](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
+        [](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
         .arg("message")
         .doc("Print out `$0` to the console.");
 
@@ -169,19 +169,19 @@ void HexagonGame::initLua_Utils()
             "`true`, the swap sound will be played.");
 
     addLuaFn("u_getVersionMajor", //
-        [this] { return Config::getVersion().major; })
+        [] { return Config::getVersion().major; })
         .doc("Returns the major of the current version of the game");
 
     addLuaFn("u_getVersionMinor", //
-        [this] { return Config::getVersion().minor; })
+        [] { return Config::getVersion().minor; })
         .doc("Returns the minor of the current version of the game");
 
     addLuaFn("u_getVersionMicro", //
-        [this] { return Config::getVersion().micro; })
+        [] { return Config::getVersion().micro; })
         .doc("Returns the micro of the current version of the game");
 
     addLuaFn("u_getVersionString", //
-        [this] { return Config::getVersionString(); })
+        [] { return Config::getVersionString(); })
         .doc("Returns the string representing the current version of the game");
 }
 
@@ -906,6 +906,10 @@ void HexagonGame::initLua_LevelControl()
             "`$1`. Tracked variables are displayed in game, below the game "
             "timer. *NOTE: Your variable must be global for this to work.*");
 
+    addLuaFn("l_clearTracked", //
+        [this] { levelStatus.trackedVariables.clear(); })
+        .doc("Clears all tracked variables.");
+
     addLuaFn("l_setRotation", //
         [this](float mValue) { backgroundCamera.setRotation(mValue); })
         .arg("angle")
@@ -920,10 +924,16 @@ void HexagonGame::initLua_LevelControl()
         .doc("Get the current game timer value, in seconds.");
 
     addLuaFn("l_getOfficial", //
-        [this] { return Config::getOfficial(); })
+        [] { return Config::getOfficial(); })
         .doc(
             "Return `true` if \"official mode\" is enabled, `false` "
             "otherwise.");
+
+    addLuaFn("l_resetTime", //
+        [this] { status.resetTime(); })
+        .doc(
+            "Resets the lever time to zero, also resets increment time and "
+            "pause time.");
 
     // TODO: test and consider re-enabling
     /*
@@ -1289,7 +1299,7 @@ void HexagonGame::initLua_Steam()
 {
     addLuaFn("steam_unlockAchievement", //
         [this](const std::string& mId) {
-            if(!inReplay())
+            if(inReplay())
             {
                 // Do not unlock achievements while watching a replay.
                 return;
@@ -1629,17 +1639,17 @@ void HexagonGame::initLua()
 
     addLuaFn("u_rndIntUpper", rndIntUpper)
         .arg("upper")
-        .doc("Return a random real number in the [1; `$0`] range.");
+        .doc("Return a random integer number in the [1; `$0`] range.");
 
     addLuaFn("u_rndInt", rndInt)
         .arg("lower")
         .arg("upper")
-        .doc("Return a random real number in the [`$0`; `$1`] range.");
+        .doc("Return a random integer number in the [`$0`; `$1`] range.");
 
     // TODO: eww, but seems to fix. consider exposing functions and deprecating
     // `math.random`
     addLuaFn("u_rndSwitch",
-        [this, rndReal, rndIntUpper, rndInt](
+        [rndReal, rndIntUpper, rndInt](
             int mode, int lower, int upper) -> float {
             if(mode == 0)
             {
@@ -1667,7 +1677,9 @@ void HexagonGame::initLua()
 
     redefineLuaFunctions();
 
-    lua.executeCode(R"(math.random = function(a, b)
+    try
+    {
+        lua.executeCode(R"(math.random = function(a, b)
     if a == nil and b == nil then
         return u_rndSwitch(0, 0, 0)
     elseif b == nil then
@@ -1677,6 +1689,12 @@ void HexagonGame::initLua()
     end
 end
 )");
+    }
+    catch(...)
+    {
+        ssvu::lo("HexagonGame::redefineLuaFunctions")
+            << "Failure to redefine Lua's `math.random` function\n";
+    }
 
     // ------------------------------------------------------------------------
     // Register Lua function to get random seed for the current attempt:

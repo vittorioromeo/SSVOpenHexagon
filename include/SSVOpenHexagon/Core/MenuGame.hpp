@@ -239,11 +239,12 @@ private:
     }
 
     // Helper functions
-    float getFPSMult() const
+    [[nodiscard]] float getFPSMult() const
     {
         // multiplier for FPS consistent drawing operations.
         return 200.f / window.getFPS();
     }
+
     void drawGraphics()
     {
         render(titleBar);
@@ -385,8 +386,9 @@ private:
     void adjustLevelsOffset();
     void updateLevelSelectionDrawingParameters();
 
-    float getLevelSelectionHeight() const;
-    float getLevelListHeight() const
+    [[nodiscard]] float getLevelSelectionHeight() const;
+
+    [[nodiscard]] float getLevelListHeight() const
     {
         return levelLabelHeight *
                    (focusHeld ? 1 : lvlDrawer->levelDataIds->size()) +

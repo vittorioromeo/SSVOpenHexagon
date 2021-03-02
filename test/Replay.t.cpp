@@ -217,11 +217,12 @@ template <typename T>
     return getRndInt<int>(0, 10) > 5;
 }
 
-static void test_replay_file_serialization_to_file_randomized()
+static void test_replay_file_serialization_to_file_randomized(
+    int minInputs, int maxInputs)
 {
     hg::replay_data rd;
 
-    const int nInputs = getRndInt<int>(0, 4096);
+    const int nInputs = getRndInt<int>(minInputs, maxInputs);
     for(int i = 0; i < nInputs; ++i)
     {
         rd.record_input(getRndBool(), getRndBool(), getRndBool(), getRndBool());
@@ -259,8 +260,18 @@ int main()
     test_replay_file_serialization_to_buffer();
     test_replay_file_serialization_to_file();
 
+    test_replay_file_serialization_to_file_randomized(0, 0);
+    test_replay_file_serialization_to_file_randomized(0, 1);
+
     for(int i = 0; i < 256; ++i)
     {
-        test_replay_file_serialization_to_file_randomized();
+        test_replay_file_serialization_to_file_randomized(0, 4096);
     }
+
+    for(int i = 0; i < 16; ++i)
+    {
+        test_replay_file_serialization_to_file_randomized(65000, 250000);
+    }
+
+    test_replay_file_serialization_to_file_randomized(250000, 250000);
 }

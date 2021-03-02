@@ -734,9 +734,6 @@ void MenuGame::initMenus()
     auto whenUnlogged = [] { return true; };
     auto whenSoundEnabled = [] { return !Config::getNoSound(); };
     auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
-    auto whenTimerIsStatic = [] { return Config::getTimerStatic(); };
-    auto whenTimerIsDynamic = [] { return !Config::getTimerStatic(); };
-
 
     // Welcome menu
     auto& wlcm(welcomeMenu.createCategory("welcome"));
@@ -995,20 +992,12 @@ void MenuGame::initMenus()
     gfx.create<i::Goto>("fps settings", fps);
     fps.create<i::Toggle>("vsync", &Config::getVsync,
         [this](bool mValue) { Config::setVsync(window, mValue); });
-    fps.create<i::Single>("use static fps", [this] {
-        Config::setTimerStatic(window, true);
-    }) | whenTimerIsDynamic;
     fps.create<i::Toggle>("limit fps", &Config::getLimitFPS,
-        [this](bool mValue) { Config::setLimitFPS(window, mValue); }) |
-        whenTimerIsStatic;
+        [this](bool mValue) { Config::setLimitFPS(window, mValue); });
     fps.create<i::Slider>(
         "max fps", &Config::getMaxFPS,
         [this](unsigned int mValue) { Config::setMaxFPS(window, mValue); }, 30u,
-        200u, 5u) |
-        whenTimerIsStatic;
-    fps.create<i::Single>("use dynamic fps", [this] {
-        Config::setTimerStatic(window, false);
-    }) | whenTimerIsStatic;
+        200u, 5u);
     fps.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
     fps.create<i::GoBack>("back");
 
@@ -2877,7 +2866,9 @@ void MenuGame::drawOptionsSubmenus(
         quadHeight - txtMenuSmall.height * fontTopBorder + doubleBorder};
     for(int i{0}; i < size; ++i)
     {
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
+
         uppercasify(itemName);
         if(i == mSubMenu.getIdx())
         {
@@ -3027,10 +3018,11 @@ void MenuGame::drawProfileSelection(
         selected = i == mSubmenu.getIdx();
 
         // Draw profile name
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
-        uppercasify(itemName);
+
         yPos = txtHeight - (selected ? fontHeight * 0.75f : 0.f);
-        renderTextCentered(itemName, txtProfile.font,
+        renderTextCentered(toUppercase(itemName), txtProfile.font,
             selected ? profSelectedCharSize : profCharSize,
             {indent + textWidth / 2.f, yPos}, menuTextColor);
 
@@ -3121,10 +3113,11 @@ void MenuGame::drawProfileSelectionBoot()
         selected = i == mSubmenu.getIdx();
 
         // Draw profile name
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
-        uppercasify(itemName);
+
         yPos = height - (selected ? fontHeight * 0.75f : 0.f);
-        renderTextCentered(itemName, txtProfile.font,
+        renderTextCentered(toUppercase(itemName), txtProfile.font,
             selected ? profSelectedCharSize : profCharSize, {w / 2.f, yPos});
 
         // Add total survival time for extra flavor
@@ -3894,9 +3887,16 @@ void MenuGame::drawLevelSelectionRightSide(
     // Therefore pack labels must be drawn above everything else (aka must
     // be drawn last).
 
-    renderTextCentered(isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS"
-                                          : "PRESS F2 TO SHOW FAVORITE LEVELS",
-        txtSelectionSmall.font, {w / 2.f, 5.f});
+    static std::string smallTextContents;
+
+    smallTextContents.clear();
+    smallTextContents += isFavoriteLevels()
+                             ? "PRESS F2 TO SHOW ALL LEVELS"
+                             : "PRESS F2 TO SHOW FAVORITE LEVELS";
+    smallTextContents += "\nHOLD FOCUS TO JUMP BETWEEN PACKS";
+
+    renderTextCentered(
+        smallTextContents, txtSelectionSmall.font, {w / 2.f, 5.f});
 
     //----------------------------------------
     // LEVELS LIST

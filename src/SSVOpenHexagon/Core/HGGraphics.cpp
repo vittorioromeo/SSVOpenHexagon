@@ -78,9 +78,9 @@ void HexagonGame::draw()
 
     if(Config::get3D())
     {
-        const auto depth(styleData._3dDepth);
-        const auto numWallQuads(wallQuads.size());
-        const auto numPlayerTris(playerTris.size());
+        const float depth(styleData._3dDepth);
+        const std::size_t numWallQuads(wallQuads.size());
+        const std::size_t numPlayerTris(playerTris.size());
 
         wallQuads3D.reserve(numWallQuads * depth);
         playerTris3D.reserve(numPlayerTris * depth);
@@ -91,10 +91,10 @@ void HexagonGame::draw()
         const sf::Vector2f skew{1.f, 1.f + effect};
         backgroundCamera.setSkew(skew);
 
-        const auto radRot(
+        const float radRot(
             ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
-        const auto sinRot(std::sin(radRot));
-        const auto cosRot(std::cos(radRot));
+        const float sinRot(std::sin(radRot));
+        const float cosRot(std::cos(radRot));
 
         for(std::size_t i = 0; i < depth; ++i)
         {
@@ -106,7 +106,7 @@ void HexagonGame::draw()
             playerTris3D.unsafe_emplace_other(playerTris);
         }
 
-        for(auto j(0); j < depth; ++j)
+        for(int j(0); j < static_cast<int>(depth); ++j)
         {
             const float i(depth - j - 1);
 
@@ -153,6 +153,8 @@ void HexagonGame::draw()
     render(capTris);
 
     overlayCamera.apply();
+
+    drawParticles();
     drawText();
 
     if(Config::getShowKeyIcons() || mustShowReplayUI())
@@ -215,8 +217,18 @@ void HexagonGame::drawKeyIcons()
     }
 }
 
-void HexagonGame::updateText()
+void HexagonGame::drawParticles()
 {
+    for(Particle& p : particles)
+    {
+        render(p.sprite);
+    }
+}
+
+void HexagonGame::updateText(ssvu::FT mFT)
+{
+    pbTextGrowth += 0.08f * mFT;
+
     os.str("");
 
     if(levelStatus.tutorialMode)
@@ -282,6 +294,7 @@ void HexagonGame::updateText()
                 {
                     continue;
                 }
+
                 string name{t.displayName};
                 string var{lua.readVariable<string>(t.variableName)};
                 Utils::uppercasify(name);
@@ -341,6 +354,10 @@ void HexagonGame::updateText()
 
     messageText.setCharacterSize(getScaledCharacterSize(38.f));
     messageText.setOrigin(getGlobalWidth(messageText) / 2.f, 0);
+
+    const float growth = std::sin(pbTextGrowth);
+    pbText.setCharacterSize(getScaledCharacterSize(64.f) + growth * 10.f);
+    pbText.setOrigin(getGlobalWidth(pbText) / 2.f, 0);
 
     // ------------------------------------------------------------------------
     if(mustShowReplayUI())
@@ -434,29 +451,47 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     }
 }
 
-void HexagonGame::drawText_Message(const sf::Color& offsetColor)
+template <typename FRender>
+static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
+    const sf::Vector2f& pos, const sf::Color& color, float outlineThickness,
+    FRender&& fRender)
 {
-    if(messageText.getString() == "")
+    if(text.getString().isEmpty())
     {
         return;
     }
 
     if(Config::getDrawTextOutlines())
     {
-        messageText.setOutlineColor(offsetColor);
-        messageText.setOutlineThickness(1.f);
+        text.setOutlineColor(offsetColor);
+        text.setOutlineThickness(outlineThickness);
     }
     else
     {
-        messageText.setOutlineThickness(0.f);
+        text.setOutlineThickness(0.f);
     }
 
-    messageText.setPosition(
-        sf::Vector2f{Config::getWidth() / 2.f, Config::getHeight() / 6.f});
-    messageText.setFillColor(getColorText());
-    render(messageText);
+    text.setPosition(pos);
+    text.setFillColor(color);
+
+    fRender(text);
 }
 
+void HexagonGame::drawText_Message(const sf::Color& offsetColor)
+{
+    drawTextMessagePBImpl(messageText, offsetColor,
+        {Config::getWidth() / 2.f, Config::getHeight() / 6.f}, getColorText(),
+        1.f /* outlineThickness */, [this](sf::Text& t) { render(t); });
+}
+
+void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor)
+{
+    drawTextMessagePBImpl(pbText, offsetColor,
+        {Config::getWidth() / 2.f,
+            Config::getHeight() - Config::getHeight() / 4.f},
+        getColorText(), 4.f /* outlineThickness */,
+        [this](sf::Text& t) { render(t); });
+}
 
 void HexagonGame::drawText()
 {
@@ -465,6 +500,7 @@ void HexagonGame::drawText()
 
     drawText_TimeAndStatus(offsetColor);
     drawText_Message(offsetColor);
+    drawText_PersonalBest(offsetColor);
 }
 
 } // namespace hg

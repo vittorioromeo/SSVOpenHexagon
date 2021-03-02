@@ -5,6 +5,16 @@ u_execScript("commonpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
+	if mKey == 1 and l_getSides() == 5 then
+		-- mirror spiral looks bad with 5 sides
+		mKey = 5
+	end
+
+	if mKey == 7 and l_getSides() == 5 then
+		-- mirror wall strip looks bad with 5 sides
+		mKey = 5
+	end
+
 		if mKey == 0 then pAltBarrage(math.random(2, 4), 2)
 	elseif mKey == 1 then pMirrorSpiral(math.random(3, 6), 0)
 	elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
@@ -45,7 +55,7 @@ function onInit()
 	l_setPulseMax(91)
 	l_setPulseSpeed(1.5)
 	l_setPulseSpeedR(0.6)
-	l_setPulseDelayMax(9)
+	l_setPulseDelayMax(11)
 
 	l_setBeatPulseMax(17)
 	l_setBeatPulseDelayMax(24.4) -- BPM is 148
