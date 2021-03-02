@@ -33,6 +33,8 @@ private:
 
     HGAssets& assets;
     ssvs::GameWindow& window;
+
+    // TODO: unused
     StyleData& styleData;
 
     DrawFunc drawFunc;
