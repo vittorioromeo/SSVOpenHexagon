@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
     window.setFPSLimited(hg::Config::getLimitFPS());
     window.setMaxFPS(hg::Config::getMaxFPS());
 
-    hg::Config::setTimerStatic(window, hg::Config::getTimerStatic());
+    window.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
 
     // ------------------------------------------------------------------------
     // Create the game and menu states

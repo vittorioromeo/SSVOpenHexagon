@@ -16,19 +16,22 @@ struct GameVersion
     int minor;
     int micro;
 
-    constexpr bool operator<(const GameVersion& rhs) const noexcept
+    [[nodiscard]] constexpr bool operator<(
+        const GameVersion& rhs) const noexcept
     {
         return std::tie(major, minor, micro) <
                std::tie(rhs.major, rhs.minor, rhs.micro);
     }
 
-    constexpr bool operator>(const GameVersion& rhs) const noexcept
+    [[nodiscard]] constexpr bool operator>(
+        const GameVersion& rhs) const noexcept
     {
         return std::tie(major, minor, micro) >
                std::tie(rhs.major, rhs.minor, rhs.micro);
     }
 
-    constexpr bool operator==(GameVersion other) const noexcept
+    [[nodiscard]] constexpr bool operator==(
+        const GameVersion& other) const noexcept
     {
         return (major == other.major) && (minor == other.minor) &&
                (micro == other.micro);

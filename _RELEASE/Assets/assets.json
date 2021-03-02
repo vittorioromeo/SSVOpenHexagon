@@ -16,7 +16,8 @@
 		"keyArrow.png",
 		"keyFocus.png",
 		"keySwap.png",
-		"replayIcon.png"
+		"replayIcon.png",
+		"starParticle.png"
 	],
 	"soundBuffers":
 	[
@@ -30,6 +31,7 @@
 		"increment.ogg",
 		"levelUp.ogg",
 		"openHexagon.ogg",
+		"personalBest.ogg",
 		"restart.ogg",
 		"select.ogg",
 		"swap.ogg"
