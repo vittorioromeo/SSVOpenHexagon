@@ -29,9 +29,9 @@ private:
     bool killed;
 
     bool
-        outOfPlayerRadius; // Collision with a regular wall is checked two
-                           // times per frame each frame. If in the first check
-                           // it is determined that the wall is too far from the
+        outOfPlayerRadius; // Collision with a regular wall is checked two times
+                           // per frame each frame. If in the first check it is
+                           // determined that the wall is too far from the
                            // center to be a potential cause of collision this
                            // value is set to true, so that the second check can
                            // be quickly dismissed with a boolean comparison.
