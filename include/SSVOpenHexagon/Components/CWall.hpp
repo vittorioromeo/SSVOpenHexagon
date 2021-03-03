@@ -104,7 +104,7 @@ public:
         return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
     }
 
-    [[gnu::always_inline, nodiscard]] bool isCustomWall() const noexcept
+    [[gnu::always_inline, nodiscard]] constexpr bool isCustomWall() const noexcept
     {
         return false;
     }

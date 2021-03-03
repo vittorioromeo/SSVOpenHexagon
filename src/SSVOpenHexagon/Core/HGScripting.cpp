@@ -1385,9 +1385,8 @@ void HexagonGame::initLua_CustomWalls()
             return cwManager.getCanCollide(cwHandle);
         })
         .arg("cwHandle")
-        .arg("canCollide")
         .doc(
-            "Given the custom wall represented by `$0`, get whenever it can "
+            "Given the custom wall represented by `$0`, get whether it can "
             "collide with player or not.");
 
     addLuaFn("cw_getDeadly", //
@@ -1395,21 +1394,18 @@ void HexagonGame::initLua_CustomWalls()
             return cwManager.getDeadly(cwHandle);
         })
         .arg("cwHandle")
-        .arg("isDeadly")
         .doc(
-            "Given the custom wall represented by `$0`, get wherever it "
-            "instantly "
-            "kills the player on touch");
+            "Given the custom wall represented by `$0`, get whether it "
+            "instantly kills the player on touch or not.");
 
     addLuaFn("cw_getKillingSide", //
         [this](CCustomWallHandle cwHandle) -> unsigned int {
             return cwManager.getKillingSide(cwHandle);
         })
         .arg("cwHandle")
-        .arg("side")
         .doc(
-            "Given the custom wall represented by `$0`, get which "
-            "one of its sides always causes the death of the player.");
+            "Given the custom wall represented by `$0`, get which one of its "
+            "sides always causes the death of the player.");
 
     addLuaFn("cw_getVertexPos", //
         [this](CCustomWallHandle cwHandle,
@@ -1420,11 +1416,9 @@ void HexagonGame::initLua_CustomWalls()
         })
         .arg("cwHandle")
         .arg("vertexIndex")
-        .arg("x")
-        .arg("y")
         .doc(
-            "Given the custom wall represented by `$0`, set the position of "
-            "its vertex with index `$1` to `{$2, $3}`.");
+            "Given the custom wall represented by `$0`, return the position of "
+            "its vertex with index `$1`.");
 
     // TODO:
     /*

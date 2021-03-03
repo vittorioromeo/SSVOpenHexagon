@@ -14,7 +14,7 @@ template <typename TC, typename T>
     bool result{false};
     const auto size{mVertices.size()};
 
-    for(decltype(size) i{0}, j{size - 1}; i < size; j = i++)
+    for(decltype(mVertices.size()) i{0}, j{size - 1}; i < size; j = i++)
     {
         const auto& vI{mVertices[i]};
         const auto& vJ{mVertices[j]};
@@ -37,7 +37,7 @@ template <typename TC, typename T>
     bool result{false};
     const auto size{mVertices.size()};
 
-    for(decltype(size) i{0}, j{size - 1}; i < size; j = i++)
+    for(decltype(mVertices.size()) i{0}, j{size - 1}; i < size; j = i++)
     {
         const auto& vI{mVertices[i]};
         const auto& vJ{mVertices[j]};

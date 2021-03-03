@@ -77,11 +77,6 @@ public:
         flags[CWFlags::Deadly] = deadly;
     }
 
-    [[gnu::always_inline]] void setDeadly(const bool deadly) noexcept
-    {
-        isDeadly = deadly;
-    }
-
     // [[gnu::always_inline]] void setRenderOrder(const int8_t order) noexcept
     // {
     //     renderOrder = order;
@@ -115,7 +110,7 @@ public:
         return flags[CWFlags::Deadly];
     }
 
-    [[gnu::always_inline, nodiscard]] bool isCustomWall() const noexcept
+    [[gnu::always_inline, nodiscard]] constexpr bool isCustomWall() const noexcept
     {
         return true;
     }
@@ -129,16 +124,6 @@ public:
     getKillingSide() const noexcept
     {
         return killingSide;
-    }
-
-    [[gnu::always_inline, nodiscard]] bool getDeadly() const noexcept
-    {
-        return isDeadly;
-    }
-
-    [[gnu::always_inline, nodiscard]] bool isCustomWall() const noexcept
-    {
-        return true;
     }
 };
 
