@@ -38,6 +38,10 @@ public:
 
     void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);
 
+    void setDeadly(const CCustomWallHandle cwHandle, const bool deadly);
+
+    void setKillingSide(const CCustomWallHandle cwHandle, const unsigned int deadly);
+
     // void setRenderOrder(const CCustomWallHandle cwHandle, const int8_t
     // order);
 
@@ -48,6 +52,10 @@ public:
         const CCustomWallHandle cwHandle, const int vertexIndex);
 
     [[nodiscard]] bool getCanCollide(const CCustomWallHandle cwHandle);
+
+    [[nodiscard]] bool getDeadly(const CCustomWallHandle cwHandle);
+
+    [[nodiscard]] unsigned int getKillingSide(const CCustomWallHandle cwHandle);
 
     [[nodiscard]] bool isOverlappingPlayer(const CCustomWallHandle cwHandle);
 

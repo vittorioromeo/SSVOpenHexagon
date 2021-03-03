@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
@@ -112,6 +113,49 @@ void CCustomWallManager::setCanCollide(
     _customWalls[cwHandle].setCanCollide(collide);
 }
 
+void CCustomWallManager::setDeadly(
+    const CCustomWallHandle cwHandle, const bool deadly)
+{
+    if(_handleAvailable[cwHandle])
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to set deadly status of invalid custom wall " << cwHandle
+            << '\n';
+
+        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+        return;
+    }
+
+    SSVU_ASSERT(isValidHandle(cwHandle));
+
+    _customWalls[cwHandle].setDeadly(deadly);
+}
+
+void CCustomWallManager::setKillingSide(
+    const CCustomWallHandle cwHandle, const unsigned int side)
+{
+    if(side > 3u)
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to set killing side with invalid value " << side
+            << ", acceptable values are 0 to 3\n";
+        return;
+    }
+    if(_handleAvailable[cwHandle])
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to set killing side of invalid custom wall " << cwHandle
+            << '\n';
+
+        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+        return;
+    }
+
+    SSVU_ASSERT(isValidHandle(cwHandle));
+
+    _customWalls[cwHandle].setKillingSide(side);
+}
+
 // void CCustomWallManager::setRenderOrder(
 //     const CCustomWallHandle cwHandle, const int8_t order)
 // {
@@ -175,6 +219,42 @@ void CCustomWallManager::setCanCollide(
     SSVU_ASSERT(isValidHandle(cwHandle));
 
     return _customWalls[cwHandle].getCanCollide();
+}
+
+[[nodiscard]] bool CCustomWallManager::getDeadly(
+    const CCustomWallHandle cwHandle)
+{
+    if(_handleAvailable[cwHandle])
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to get deadly status of invalid custom wall " << cwHandle
+            << '\n';
+
+        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+        return false;
+    }
+
+    SSVU_ASSERT(isValidHandle(cwHandle));
+
+    return _customWalls[cwHandle].getDeadly();
+}
+
+[[nodiscard]] unsigned int CCustomWallManager::getKillingSide(
+    const CCustomWallHandle cwHandle)
+{
+    if(_handleAvailable[cwHandle])
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to get killing side of invalid custom wall " << cwHandle
+            << '\n';
+
+        SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
+        return false;
+    }
+
+    SSVU_ASSERT(isValidHandle(cwHandle));
+
+    return _customWalls[cwHandle].getKillingSide();
 }
 
 void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle,
@@ -255,6 +335,7 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
 {
     CCustomWallHandle h;
     bool collided{false};
+    const float radiusSquared{mHexagonGame.getRadius() * mHexagonGame.getRadius()};
     const int size{(int)_customWalls.size()};
     const sf::Vector2f& pPos{mPlayer.getPosition()};
 
@@ -278,12 +359,32 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
             mPlayer.kill(mHexagonGame);
             return true;
         }
-        if(mPlayer.push(mHexagonGame, _customWalls[h], mFT))
+
+        if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
         {
             mPlayer.kill(mHexagonGame);
             return false;
         }
 
+    if(!collided)
+    {
+        return false;
+    }
+
+    // Recheck collision on all walls.
+    collided = false;
+    for(h = 0; h < size; ++h)
+    {
+        if(!overlap(h, pPos))
+        {
+            continue;
+        }
+
+        if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
+        {
+            mPlayer.kill(mHexagonGame);
+            return false;
+        }
         collided = true;
     }
 
@@ -292,7 +393,7 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
         return false;
     }
 
-    // Recheck collision on all walls.
+    // Last round with no push.
     for(h = 0; h < size; ++h)
     {
         if(overlap(h, pPos))

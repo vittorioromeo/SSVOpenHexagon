@@ -84,6 +84,15 @@ void HexagonGame::update(ssvu::FT mFT)
 
         if(!status.hasDied)
         {
+            const std::optional<bool> preventPlayerInput =
+                runLuaFunctionIfExists<bool, float, int, bool, bool>("onInput",
+                    mFT, getInputMovement(), getInputFocused(), getInputSwap());
+
+            if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
+            {
+                player.updateInput(*this, mFT);
+            }
+
             status.accumulateFrametime(mFT);
             if(levelStatus.scoreOverridden)
             {
@@ -127,12 +136,13 @@ void HexagonGame::update(ssvu::FT mFT)
             {
                 player.updateInput(*this, mFT);
             }
+
             player.updatePosition(*this, mFT);
 
             updateWalls(mFT);
             ssvu::eraseRemoveIf(
                 walls, [](const CWall& w) { return w.isDead(); });
- 
+
             cwManager.cleanup();
             updateCustomWalls(mFT);
         }
@@ -214,7 +224,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
             player.kill(*this);
             steamManager.unlock_achievement("a22_swapdeath");
         }
-        else if(player.push(*this, w, centerPos, mFT))
+        else if(player.push(*this, w, centerPos, radiusSquared, mFT))
         {
             player.kill(*this);
         }

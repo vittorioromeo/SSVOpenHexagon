@@ -17,24 +17,6 @@
 namespace hg
 {
 
-BindControlBase::BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
-    const std::string& mName, const int mID)
-    : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
-{
-}
-
-[[nodiscard]] bool BindControlBase::erase()
-{
-    return false;
-}
-
-[[nodiscard]] bool BindControlBase::isWaitingForBind() const
-{
-    return false;
-}
-
-// ---
-
 [[nodiscard]] int KeyboardBindControl::getRealSize(
     const std::vector<ssvs::Input::Combo>& combos) const
 {
@@ -173,14 +155,7 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
     }
 
     // save the new key in config
-    int unboundID = setButton(joy);
-
-    // if the key was bound to another function and it was reassigned
-    // make sure we also update the unbound joystick button
-    if(unboundID > -1)
-    {
-        callback(33, unboundID);
-    }
+    setButton(joy);
 
     // update the bind we customized
     callback(joy, ID);

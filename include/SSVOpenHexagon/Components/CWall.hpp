@@ -28,7 +28,12 @@ private:
     float hueMod;
     bool killed;
 
-    bool outOfPlayerRadius;
+    bool outOfPlayerRadius; // Collision with a regular wall is checked two
+                            // times per frame each frame. If in the first check
+                            // it is determined that the wall is too far from the center
+                            // to be a potential cause of collision this value is
+                            // set to true, so that the second check can be quickly dismissed
+                            // with a boolean comparison.
 
     void moveTowardsCenter(HexagonGame& mHexagonGame,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
@@ -75,7 +80,8 @@ public:
         // If the wall is too far from the center is cannot cause collision.
         // If it is and both distance and pointInPolygon() calculations are executed
         // we lose performance, If not (which is the case in the vast majority of
-        // any level's runtime) we only do a much faster algorithm.
+        // any level's runtime) we only run a much faster algorithm.
+
         if(ssvs::getMagSquared((vertexPositions[0] + vertexPositions[1]) / 2.f -
             mCenterPos) > mRadiusSquared)
         {
@@ -100,6 +106,11 @@ public:
     [[gnu::always_inline, nodiscard]] bool isCustomWall() const noexcept
     {
         return false;
+    }
+
+    [[gnu::always_inline, nodiscard]] unsigned int getKillingSide() const noexcept
+    {
+        return 0u;
     }
 
     [[gnu::always_inline, nodiscard]] bool isDead() const noexcept

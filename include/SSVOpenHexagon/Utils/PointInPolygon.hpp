@@ -12,12 +12,12 @@ template <typename TC, typename T>
     const TC& mVertices, T x, T y) noexcept
 {
     bool result{false};
+    const auto size{mVertices.size()};
 
-    for(decltype(mVertices.size()) i{0}, j{mVertices.size() - 1};
-        i < mVertices.size(); j = i++)
+    for(decltype(size) i{0}, j{size - 1}; i < size; j = i++)
     {
-        const auto vI = mVertices[i];
-        const auto vJ = mVertices[j];
+        const auto& vI{mVertices[i]};
+        const auto& vJ{mVertices[j]};
 
         if(((vI.y > y) != (vJ.y > y)) &&
             (x < (vJ.x - vI.x) * (y - vI.y) / (vJ.y - vI.y) + vI.x))
@@ -29,17 +29,18 @@ template <typename TC, typename T>
     return result;
 }
 
+// TODO: code repetition
 template <typename TC, typename T>
 [[gnu::always_inline, gnu::pure, nodiscard]] inline bool pointInPolygonPointers(
     const TC& mVertices, T x, T y) noexcept
 {
     bool result{false};
+    const auto size{mVertices.size()};
 
-    for(decltype(mVertices.size()) i{0}, j{mVertices.size() - 1};
-        i < mVertices.size(); j = i++)
+    for(decltype(size) i{0}, j{size - 1}; i < size; j = i++)
     {
-        const auto vI = mVertices[i];
-        const auto vJ = mVertices[j];
+        const auto& vI{mVertices[i]};
+        const auto& vJ{mVertices[j]};
 
         if(((vI->y > y) != (vJ->y > y)) &&
             (x < (vJ->x - vI->x) * (y - vI->y) / (vJ->y - vI->y) + vI->x))

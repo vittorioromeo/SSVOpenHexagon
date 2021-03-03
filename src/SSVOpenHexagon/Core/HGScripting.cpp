@@ -1355,19 +1355,9 @@ void HexagonGame::initLua_CustomWalls()
             "from this wall and can move through the wall. By default, all "
             "custom walls can collide with the player.");
 
-    addLuaFn("cw_getCollision", //
-        [this](CCustomWallHandle cwHandle) -> bool {
-            return cwManager.getCanCollide(cwHandle);
-        })
-        .arg("cwHandle")
-        .arg("canCollide")
-        .doc(
-            "Given the custom wall represented by `$0`, get whever it can "
-            "collide with player or not.");
-
     addLuaFn("cw_setDeadly", //
         [this](CCustomWallHandle cwHandle, bool deadly) {
-            cwManager.setCanCollide(cwHandle, deadly);
+            cwManager.setDeadly(cwHandle, deadly);
         })
         .arg("cwHandle")
         .arg("deadly")
@@ -1377,15 +1367,48 @@ void HexagonGame::initLua_CustomWalls()
             "recommended for custom walls that are either very small "
             "or very thin and do not belong to a barrage.");
 
-    addLuaFn("cw_getDeadly", //
+    addLuaFn("cw_setKillingSide", //
+        [this](CCustomWallHandle cwHandle, unsigned int side) {
+            cwManager.setKillingSide(cwHandle, side);
+        })
+        .arg("cwHandle")
+        .arg("side")
+        .doc(
+            "Given the custom wall represented by `$0`, set which "
+            "one of its sides should beyond any doubts cause the "
+            "death of the player. Acceptable values are 0 to 3. "
+            "In a standard wall, side 0 is the side closer to the center. "
+            "This parameter is useless if the custom wall is deadly.");
+
+    addLuaFn("cw_getCollision", //
         [this](CCustomWallHandle cwHandle) -> bool {
             return cwManager.getCanCollide(cwHandle);
+        })
+        .arg("cwHandle")
+        .arg("canCollide")
+        .doc(
+            "Given the custom wall represented by `$0`, get whenever it can "
+            "collide with player or not.");
+
+    addLuaFn("cw_getDeadly", //
+        [this](CCustomWallHandle cwHandle) -> bool {
+            return cwManager.getDeadly(cwHandle);
         })
         .arg("cwHandle")
         .arg("isDeadly")
         .doc(
             "Given the custom wall represented by `$0`, get wherever it instantly "
             "kills the player on touch");
+
+    addLuaFn("cw_getKillingSide", //
+        [this](CCustomWallHandle cwHandle) -> unsigned int {
+            return cwManager.getKillingSide(cwHandle);
+        })
+        .arg("cwHandle")
+        .arg("side")
+        .doc(
+            "Given the custom wall represented by `$0`, get which "
+            "one of its sides always causes the death of the player.");
 
     addLuaFn("cw_getVertexPos", //
         [this](CCustomWallHandle cwHandle,

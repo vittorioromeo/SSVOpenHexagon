@@ -42,6 +42,7 @@ end
 
 function mkVertWall(mY, mYVel, mX)
     local cwHandle = cw_create()
+    cw_setDeadly(cwHandle, true)
 
     local x = mX
     local y = mY
@@ -77,6 +78,7 @@ end
 
 function mkHalfHorizWall(mInv, mY, color, mXVel, mX)
     local cwHandle = cw_create()
+    cw_setDeadly(cwHandle, true)
 
     local x = mX
     local y = mY
