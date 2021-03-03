@@ -127,7 +127,6 @@ void HexagonGame::update(ssvu::FT mFT)
                 styleData.update(mFT, pow(difficultyMult, 0.8f));
             }
 
-            player.updateCollisionValues(*this, mFT);
             player.updatePosition(*this, mFT);
 
             updateWalls(mFT);

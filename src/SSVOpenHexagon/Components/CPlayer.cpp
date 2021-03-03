@@ -19,8 +19,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-using namespace hg::Utils;
-
 namespace hg
 {
 
@@ -191,9 +189,14 @@ template <typename Wall>
         switch(getLineCircleIntersection(
             vec1, vec2, wVertexes[i], wVertexes[j], mRadiusSquared))
         {
-            case 1u: assignResult(); break;
+            case 1u:
+            {
+                assignResult();
+                break;
+            }
 
             case 2u:
+            {
                 if(ssvs::getMagSquared(vec1 - mPos) >
                     ssvs::getMagSquared(vec2 - mPos))
                 {
@@ -201,8 +204,12 @@ template <typename Wall>
                 }
                 assignResult();
                 break;
+            }
 
-            default: break;
+            default:
+            {
+                break;
+            }
         }
     }
 
@@ -312,14 +319,15 @@ template <typename Wall>
         collisionPolygon = {
             &wVertexes[i], &wOldVertexes[i], &wOldVertexes[j], &wVertexes[j]};
 
-        if(pointInPolygonPointers(collisionPolygon, lastPos.x, lastPos.y))
+        if(Utils::pointInPolygonPointers(
+               collisionPolygon, lastPos.x, lastPos.y))
         {
             // For a side to be an effective source of push it must have
             // intersected the player's positions circle both now and the
             // previous frame.
-            if(getLineCircleClosestIntersection(i1, lastPos, wOldVertexes[i],
-                   wOldVertexes[j], mRadiusSquared) &&
-                getLineCircleClosestIntersection(
+            if(Utils::getLineCircleClosestIntersection(i1, lastPos,
+                   wOldVertexes[i], wOldVertexes[j], mRadiusSquared) &&
+                Utils::getLineCircleClosestIntersection(
                     i2, lastPos, wVertexes[i], wVertexes[j], mRadiusSquared))
             {
                 pushVel = i2 - i1;

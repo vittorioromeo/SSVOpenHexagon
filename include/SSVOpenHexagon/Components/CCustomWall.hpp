@@ -37,6 +37,7 @@ private:
         Deadly,
         CWFlagsCount
     };
+
     std::bitset<CWFlags::CWFlagsCount> flags{1}; // collision on
 
     // TODO: Implement this in drawing logic
