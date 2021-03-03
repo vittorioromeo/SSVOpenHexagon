@@ -93,14 +93,14 @@ public:
         return vertexPositions[vertexIndex];
     }
 
-    [[gnu::always_inline, nodiscard]]
-    const std::array<sf::Vector2f, 4>& getVertexPositions() const noexcept
+    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    getVertexPositions() const noexcept
     {
         return vertexPositions;
     }
 
-    [[gnu::always_inline, nodiscard]]
-    const std::array<sf::Vector2f, 4>& getOldVertexPositions() const noexcept
+    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    getOldVertexPositions() const noexcept
     {
         return oldVertexPositions;
     }
@@ -125,7 +125,8 @@ public:
         killingSide = side;
     }
 
-    [[gnu::always_inline, nodiscard]] unsigned int getKillingSide() const noexcept
+    [[gnu::always_inline, nodiscard]] unsigned int
+    getKillingSide() const noexcept
     {
         return killingSide;
     }

@@ -42,8 +42,8 @@ void CWall::draw(HexagonGame& mHexagonGame)
         vertexPositions[3]);
 }
 
-void CWall::update(HexagonGame& mHexagonGame,
-    const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
+void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
+    const ssvu::FT mFT)
 {
     speed.update(mFT);
     curve.update(mFT);
@@ -91,8 +91,7 @@ void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
     }
 }
 
-void CWall::moveCurve(const sf::Vector2f& mCenterPos,
-    const ssvu::FT mFT)
+void CWall::moveCurve(const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
 {
     for(sf::Vector2f& vp : vertexPositions)
     {

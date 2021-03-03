@@ -1397,7 +1397,8 @@ void HexagonGame::initLua_CustomWalls()
         .arg("cwHandle")
         .arg("isDeadly")
         .doc(
-            "Given the custom wall represented by `$0`, get wherever it instantly "
+            "Given the custom wall represented by `$0`, get wherever it "
+            "instantly "
             "kills the player on touch");
 
     addLuaFn("cw_getKillingSide", //
