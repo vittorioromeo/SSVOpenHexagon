@@ -28,12 +28,13 @@ private:
     float hueMod;
     bool killed;
 
-    bool outOfPlayerRadius; // Collision with a regular wall is checked two
-                            // times per frame each frame. If in the first check
-                            // it is determined that the wall is too far from the center
-                            // to be a potential cause of collision this value is
-                            // set to true, so that the second check can be quickly dismissed
-                            // with a boolean comparison.
+    bool
+        outOfPlayerRadius; // Collision with a regular wall is checked two
+                           // times per frame each frame. If in the first check
+                           // it is determined that the wall is too far from the
+                           // center to be a potential cause of collision this
+                           // value is set to true, so that the second check can
+                           // be quickly dismissed with a boolean comparison.
 
     void moveTowardsCenter(HexagonGame& mHexagonGame,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
@@ -58,7 +59,7 @@ public:
     void setHueMod(float mHueMod) noexcept;
 
     [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
-        getVertexPositions() const noexcept
+    getVertexPositions() const noexcept
     {
         return vertexPositions;
     }
@@ -78,12 +79,12 @@ public:
         const float mRadiusSquared) noexcept
     {
         // If the wall is too far from the center is cannot cause collision.
-        // If it is and both distance and pointInPolygon() calculations are executed
-        // we lose performance, If not (which is the case in the vast majority of
-        // any level's runtime) we only run a much faster algorithm.
+        // If it is and both distance and pointInPolygon() calculations are
+        // executed we lose performance, If not (which is the case in the vast
+        // majority of any level's runtime) we only run a much faster algorithm.
 
         if(ssvs::getMagSquared((vertexPositions[0] + vertexPositions[1]) / 2.f -
-            mCenterPos) > mRadiusSquared)
+                               mCenterPos) > mRadiusSquared)
         {
             outOfPlayerRadius = true;
             return false;
@@ -108,7 +109,8 @@ public:
         return false;
     }
 
-    [[gnu::always_inline, nodiscard]] unsigned int getKillingSide() const noexcept
+    [[gnu::always_inline, nodiscard]] unsigned int
+    getKillingSide() const noexcept
     {
         return 0u;
     }

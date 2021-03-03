@@ -40,7 +40,8 @@ public:
 
     void setDeadly(const CCustomWallHandle cwHandle, const bool deadly);
 
-    void setKillingSide(const CCustomWallHandle cwHandle, const unsigned int deadly);
+    void setKillingSide(
+        const CCustomWallHandle cwHandle, const unsigned int deadly);
 
     // void setRenderOrder(const CCustomWallHandle cwHandle, const int8_t
     // order);
@@ -63,8 +64,8 @@ public:
     void clear();
     void draw(HexagonGame& hexagonGame);
 
-    [[nodiscard]] bool handleCollision(HexagonGame& mHexagonGame,
-        CPlayer& mPlayer, ssvu::FT mFT);
+    [[nodiscard]] bool handleCollision(
+        HexagonGame& mHexagonGame, CPlayer& mPlayer, ssvu::FT mFT);
 
     template <typename F>
     void forCustomWalls(F&& f)

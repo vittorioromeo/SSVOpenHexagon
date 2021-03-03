@@ -119,8 +119,8 @@ void CCustomWallManager::setDeadly(
     if(_handleAvailable[cwHandle])
     {
         ssvu::lo("CustomWallManager")
-            << "Attempted to set deadly status of invalid custom wall " << cwHandle
-            << '\n';
+            << "Attempted to set deadly status of invalid custom wall "
+            << cwHandle << '\n';
 
         SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
         return;
@@ -144,8 +144,8 @@ void CCustomWallManager::setKillingSide(
     if(_handleAvailable[cwHandle])
     {
         ssvu::lo("CustomWallManager")
-            << "Attempted to set killing side of invalid custom wall " << cwHandle
-            << '\n';
+            << "Attempted to set killing side of invalid custom wall "
+            << cwHandle << '\n';
 
         SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
         return;
@@ -227,8 +227,8 @@ void CCustomWallManager::setKillingSide(
     if(_handleAvailable[cwHandle])
     {
         ssvu::lo("CustomWallManager")
-            << "Attempted to get deadly status of invalid custom wall " << cwHandle
-            << '\n';
+            << "Attempted to get deadly status of invalid custom wall "
+            << cwHandle << '\n';
 
         SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
         return false;
@@ -245,8 +245,8 @@ void CCustomWallManager::setKillingSide(
     if(_handleAvailable[cwHandle])
     {
         ssvu::lo("CustomWallManager")
-            << "Attempted to get killing side of invalid custom wall " << cwHandle
-            << '\n';
+            << "Attempted to get killing side of invalid custom wall "
+            << cwHandle << '\n';
 
         SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
         return false;
@@ -335,16 +335,15 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
 {
     CCustomWallHandle h;
     bool collided{false};
-    const float radiusSquared{mHexagonGame.getRadius() * mHexagonGame.getRadius()};
+    const float radiusSquared{
+        mHexagonGame.getRadius() * mHexagonGame.getRadius()};
     const int size{(int)_customWalls.size()};
     const sf::Vector2f& pPos{mPlayer.getPosition()};
 
-    const auto overlap =
-    [this](const int idx, const sf::Vector2f& pos) -> bool
-    {
-        return !_handleAvailable[idx] &&
-           _customWalls[idx].getCanCollide() &&
-           _customWalls[idx].isOverlapping(pos);
+    const auto overlap = [this](
+                             const int idx, const sf::Vector2f& pos) -> bool {
+        return !_handleAvailable[idx] && _customWalls[idx].getCanCollide() &&
+               _customWalls[idx].isOverlapping(pos);
     };
 
     for(h = 0; h < size; ++h)
@@ -366,44 +365,44 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
             return false;
         }
 
-    if(!collided)
-    {
-        return false;
-    }
-
-    // Recheck collision on all walls.
-    collided = false;
-    for(h = 0; h < size; ++h)
-    {
-        if(!overlap(h, pPos))
+        if(!collided)
         {
-            continue;
-        }
-
-        if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
-        {
-            mPlayer.kill(mHexagonGame);
             return false;
         }
-        collided = true;
-    }
 
-    if(!collided)
-    {
-        return false;
-    }
-
-    // Last round with no push.
-    for(h = 0; h < size; ++h)
-    {
-        if(overlap(h, pPos))
+        // Recheck collision on all walls.
+        collided = false;
+        for(h = 0; h < size; ++h)
         {
-            mPlayer.kill(mHexagonGame);
+            if(!overlap(h, pPos))
+            {
+                continue;
+            }
+
+            if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
+            {
+                mPlayer.kill(mHexagonGame);
+                return false;
+            }
+            collided = true;
+        }
+
+        if(!collided)
+        {
             return false;
         }
-    }
 
-    return false;
-}
+        // Last round with no push.
+        for(h = 0; h < size; ++h)
+        {
+            if(overlap(h, pPos))
+            {
+                mPlayer.kill(mHexagonGame);
+                return false;
+            }
+        }
+
+        return false;
+    }
 
 } // namespace hg

@@ -18,36 +18,38 @@
 namespace hg::Utils
 {
 
-bool getLinesIntersection(sf::Vector2f& mIntersection,
-    const sf::Vector2f& l1p1, const sf::Vector2f& l1p2,
-    const sf::Vector2f& l2p1, const sf::Vector2f& l2p2)
+bool getLinesIntersection(sf::Vector2f& mIntersection, const sf::Vector2f& l1p1,
+    const sf::Vector2f& l1p2, const sf::Vector2f& l2p1,
+    const sf::Vector2f& l2p2)
 {
-    // Take care of the special cases where the intersection is against a y = n line.
-    const unsigned int isVerticalOne{std::abs(l1p1.x - l1p2.x) < epsilon ? 1u : 0u};
-    const unsigned int isVerticalTwo{std::abs(l2p1.x - l2p2.x) < epsilon ? 2u : 0u};
+    // Take care of the special cases where the intersection is against a y = n
+    // line.
+    const unsigned int isVerticalOne{
+        std::abs(l1p1.x - l1p2.x) < epsilon ? 1u : 0u};
+    const unsigned int isVerticalTwo{
+        std::abs(l2p1.x - l2p2.x) < epsilon ? 2u : 0u};
 
     switch(isVerticalOne + isVerticalTwo)
     {
         case 1u:
             mIntersection.x = l1p1.x;
-            mIntersection.y =
-                (l2p2.y - l2p1.y) / (l2p2.x - l2p1.x) *
-                    (mIntersection.x - l2p1.x) + l2p1.y;
+            mIntersection.y = (l2p2.y - l2p1.y) / (l2p2.x - l2p1.x) *
+                                  (mIntersection.x - l2p1.x) +
+                              l2p1.y;
             return true;
 
         case 2u:
             mIntersection.x = l2p1.x;
-            mIntersection.y =
-                (l1p2.y - l1p1.y) / (l1p2.x - l1p1.x) *
-                    (mIntersection.x - l1p2.x) + l1p2.y;
+            mIntersection.y = (l1p2.y - l1p1.y) / (l1p2.x - l1p1.x) *
+                                  (mIntersection.x - l1p2.x) +
+                              l1p2.y;
             return true;
 
         case 3u:
             // the lines are parallel, there can be no intersection.
             return false;
 
-        default:
-            break;
+        default: break;
     }
 
     const float mOne{(l1p2.y - l1p1.y) / (l1p2.x - l1p1.x)};
@@ -67,9 +69,8 @@ bool getLinesIntersection(sf::Vector2f& mIntersection,
     return true;
 }
 
-unsigned int getLineCircleIntersection(sf::Vector2f& i1,
-    sf::Vector2f& i2, const sf::Vector2f& p1,
-    const sf::Vector2f& p2, const float mRadiusSquared)
+unsigned int getLineCircleIntersection(sf::Vector2f& i1, sf::Vector2f& i2,
+    const sf::Vector2f& p1, const sf::Vector2f& p2, const float mRadiusSquared)
 {
     const float dx{p2.x - p1.x};
     const float dy{p2.y - p1.y};
@@ -86,7 +87,7 @@ unsigned int getLineCircleIntersection(sf::Vector2f& i1,
 
     float t;
     const float twoA{2.f * a};
-        
+
     // One intersection.
     if(delta < epsilon)
     {
@@ -104,22 +105,18 @@ unsigned int getLineCircleIntersection(sf::Vector2f& i1,
     return 2u;
 }
 
-bool getLineCircleClosestIntersection(
-    sf::Vector2f& mIntersection, const sf::Vector2f& mPos,
-    const sf::Vector2f& p1, const sf::Vector2f& p2,
+bool getLineCircleClosestIntersection(sf::Vector2f& mIntersection,
+    const sf::Vector2f& mPos, const sf::Vector2f& p1, const sf::Vector2f& p2,
     const float mRadiusSquared)
 {
     sf::Vector2f v1, v2;
 
     switch(getLineCircleIntersection(v1, v2, p1, p2, mRadiusSquared))
     {
-        case 1u:
-            mIntersection = v1;
-            return true;
+        case 1u: mIntersection = v1; return true;
 
         case 2u:
-            if(ssvs::getMagSquared(v1 - mPos) >
-                ssvs::getMagSquared(v2 - mPos))
+            if(ssvs::getMagSquared(v1 - mPos) > ssvs::getMagSquared(v2 - mPos))
             {
                 mIntersection = v2;
             }
@@ -129,8 +126,7 @@ bool getLineCircleClosestIntersection(
             }
             return true;
 
-        default:
-            return false;
+        default: return false;
     }
 }
 
