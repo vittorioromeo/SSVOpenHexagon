@@ -56,26 +56,6 @@ enum class States
     ETLPNew
 };
 
-enum Tid
-{
-    Unknown = -1,
-    RotateCCW = 0,
-    RotateCW,
-    Focus,
-    Select,
-    Exit,
-    ForceRestart,
-    Restart,
-    Replay,
-    Screenshot,
-    Swap,
-    Up,
-    Down,
-    NextPack,
-    PreviousPack,
-    TriggersCount
-};
-
 class HexagonGame;
 
 class MenuGame
@@ -142,6 +122,7 @@ private:
     //---------------------------------------
     // Navigation
 
+    bool wasFocusHeld{false};
     bool focusHeld{false};
     float wheelProgress{0.f};
     float touchDelay{0.f};
@@ -198,7 +179,6 @@ private:
     void updateLeaderboard();
     void updateFriends();
     void refreshCamera();
-    void refreshBinds();
     void reloadAssets(const bool reloadEntirePack);
     void setIgnoreAllInputs(const unsigned int presses);
 
@@ -259,8 +239,18 @@ private:
     }
 
     // Helper functions
-    float getFPSMult() const;
-    void drawGraphics();
+    float getFPSMult() const
+    {
+        // multiplier for FPS consistent drawing operations.
+        return 200.f / window.getFPS();
+    }
+    void drawGraphics()
+    {
+        render(titleBar);
+        render(creditsBar1);
+        render(creditsBar2);
+        render(txtVersion.font);
+    }
 
     void adjustMenuOffset(const bool resetMenuOffset);
     float calcMenuOffset(float& offset, const float maxOffset,
@@ -368,7 +358,8 @@ private:
     float levelLabelHeight{0.f};
     float packChangeOffset{0.f}; // level list yOffset when being fold
     float levelDetailsOffset{0.f};
-    float scrollSpeed{0.f};
+    static inline constexpr float baseScrollSpeed{30.f};
+    float scrollSpeed{baseScrollSpeed};
 
     // First timer tips
     bool showFirstTimeTips{false};
@@ -386,19 +377,75 @@ private:
 
     void adjustLevelsOffset();
     void updateLevelSelectionDrawingParameters();
-    float getMaximumTextWidth() const;
-    float getLevelListHeight() const;
+
     float getLevelSelectionHeight() const;
+    float getLevelListHeight() const
+    {
+        return levelLabelHeight *
+                   (focusHeld ? 1 : lvlDrawer->levelDataIds.size()) +
+               slctFrameSize;
+    }
+
+    void calcScrollSpeed()
+    {
+        // Only speed up the animation if there are more than 16 levels.
+        scrollSpeed = baseScrollSpeed *
+                      std::max(lvlDrawer->levelDataIds.size() / 16.f, 1.f);
+    }
     void calcLevelChangeScroll(const int dir);
-    void calcPackChangeScroll();
-    void calcPackChangeScrollSpeed();
+    void calcPackChangeScrollFold(const float mLevelListHeight);
+    void calcPackChangeScrollStretch(const float mLevelListHeight);
+    void quickPackFoldStretch();
+    void scrollLevelListToTargetY(ssvu::FT mFT);
+    void checkWindowTopScroll(
+        const float scroll, std::function<void(const float)> action)
+    {
+        const float target{-scroll};
+        if(target <= lvlDrawer->YOffset)
+        {
+            return;
+        }
+        action(target);
+    }
+    void checkWindowBottomScroll(
+        const float scroll, std::function<void(const float)> action)
+    {
+        const float target{h - scroll};
+        if(target >= lvlDrawer->YOffset)
+        {
+            return;
+        }
+        action(target);
+    }
+
     void scrollName(std::string& text, float& scroller);
     void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);
     void scrollNameRightBorder(
         std::string& text, sf::Text& font, float& scroller, const float border);
-    void resetNamesScrolls();
-    void resetLevelNamesScrolls();
+
+    void resetNamesScrolls()
+    {
+        for(int i = 0; i < static_cast<int>(Label::ScrollsSize); ++i)
+        {
+            namesScroll[i] = 0;
+        }
+    }
+    void resetLevelNamesScrolls()
+    {
+        // Reset all scrolls except the ones relative to the pack.
+        namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
+        for(int i = static_cast<int>(Label::MusicName);
+            i < static_cast<int>(Label::ScrollsSize); ++i)
+        {
+            namesScroll[i] = 0.f;
+        }
+    }
+
+    float getMaximumTextWidth() const
+    {
+        return w * 0.33f - 2.f * textToQuadBorder;
+    }
     void formatLevelDescription();
     void drawLevelSelectionRightSide(
         LevelDrawer& drawer, const bool revertOffset);
@@ -482,6 +529,8 @@ private:
     //---------------------------------------
     // Misc / Unused
 
+    static constexpr std::string_view favoritePath{
+        "Assets/favoriteLevels.json"};
     std::string scoresMessage;
     float exitTimer{0}, currentCreditsId{0};
     bool mustTakeScreenshot{false};
@@ -504,8 +553,19 @@ public:
         return game;
     }
 
-    void returnToLevelSelection();
-    void saveFavoriteLevels();
+    void returnToLevelSelection()
+    {
+        adjustLevelsOffset();
+        lvlDrawer->XOffset = 0.f;
+        setIgnoreAllInputs(1); // otherwise you go back to the main menu
+    }
+    void saveFavoriteLevels()
+    {
+        ssvuj::Obj root;
+        ssvuj::arch(root, "ids", favSlct.levelDataIds);
+        ssvuj::writeToFile(root, std::string(favoritePath));
+    }
+    void refreshBinds();
 };
 
 } // namespace hg

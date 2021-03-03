@@ -23,10 +23,13 @@ protected:
 
 public:
     BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
-        const std::string& mName, const int mID);
+        const std::string& mName, const int mID)
+        : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
+    {
+    }
 
-    [[nodiscard]] virtual bool erase();
-    [[nodiscard]] virtual bool isWaitingForBind() const;
+    [[nodiscard]] virtual bool erase() = 0;
+    [[nodiscard]] virtual bool isWaitingForBind() const = 0;
 };
 
 class KeyboardBindControl final : public BindControlBase
@@ -99,7 +102,7 @@ class JoystickBindControl final : public BindControlBase
 {
 private:
     using ValueGetter = std::function<unsigned int()>;
-    using ValueSetter = std::function<int(const unsigned int)>;
+    using ValueSetter = std::function<void(const unsigned int)>;
     using Callback = std::function<void(const unsigned int, const int)>;
 
     ValueGetter valueGetter;
