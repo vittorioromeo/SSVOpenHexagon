@@ -127,16 +127,6 @@ void HexagonGame::update(ssvu::FT mFT)
             }
 
             player.updateCollisionValues(*this, mFT);
-
-            const std::optional<bool> preventPlayerInput =
-                runLuaFunctionIfExists<bool, float, int, bool, bool>("onInput",
-                    mFT, getInputMovement(), getInputFocused(), getInputSwap());
-
-            if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
-            {
-                player.updateInput(*this, mFT);
-            }
-
             player.updatePosition(*this, mFT);
 
             updateWalls(mFT);
@@ -155,6 +145,7 @@ void HexagonGame::update(ssvu::FT mFT)
         {
             update3D(mFT);
         }
+
         if(!Config::getNoRotation())
         {
             updateRotation(mFT);

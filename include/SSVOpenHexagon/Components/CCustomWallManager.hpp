@@ -28,6 +28,9 @@ class CCustomWallManager
 
     [[nodiscard]] bool isValidHandle(const CCustomWallHandle h) const noexcept;
 
+    [[nodiscard]] bool checkValidHandle(
+        const CCustomWallHandle h, const char* msg);
+
 public:
     [[nodiscard]] CCustomWallHandle create();
 

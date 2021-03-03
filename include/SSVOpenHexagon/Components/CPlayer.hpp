@@ -59,10 +59,6 @@ private:
 
     float currentSpeed; // Cached player speed in the current frame.
 
-    float radius;
-    float maxSafeDistance;
-    float currentSpeed;
-
     Ticker swapTimer;
     Ticker swapBlinkTimer;
     Ticker deadEffectTimer;
