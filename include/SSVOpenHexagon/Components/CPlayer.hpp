@@ -101,8 +101,6 @@ public:
     void update(HexagonGame& mHexagonGame, const ssvu::FT mFT);
     void updateInput(HexagonGame& mHexagonGame, const ssvu::FT mFT);
     void updatePosition(const HexagonGame& mHexagonGame, const ssvu::FT mFT);
-    void updateCollisionValues(
-        const HexagonGame& mHexagonGame, const ssvu::FT mFT);
 
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
 
