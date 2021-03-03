@@ -501,6 +501,18 @@ Below are the custom wall functions, which can be identified with the "cw_" pref
 
 * **`void cw_setVertexColor(int cwHandle, int vertexIndex, int r, int g, int b, int a)`**: Given the custom wall represented by `cwHandle`, set the color of its vertex with index `vertexIndex` to `{r, g, b, a}`.
 
+* **`void cw_setCollision(int cwHandle, bool collision)`**: Given the custom wall represented by `cwhandle`, set the collision of the custom wall to `collision`. If false, the player cannot die from this wall and can move through the wall. By default, all custom walls can collide with the player.
+
+* **`bool cw_getCollision(int cwHandle)`**: Given the custom wall represented by `cwHandle`, get whether it can collide with the player or not.
+
+* **`void cw_setDeadly(int cwHandle, bool deadly)`**: Given the custom wall represented by `cwHandle`, set wherever it instantly kills player on touch. This is highly recommended for custom walls that are either very small or very thin and should definitively kill the player.
+
+* **`bool cw_getDeadly(int cwHandle)`**: Given the custom wall represented by `cwHandle`, get whether it instantly kills the player on touch or not.
+
+* **`void cw_setKillingSide(int cwHandle, unsigned int side)`**: Given the custom wall represented by `cwHandle`, set which one of its sides should beyond any doubt cause the death of the player. Acceptable values are 0 to 3, and the default value is 0. In a standard wall, side 0 is the side closer to the center. This parameter is useless if the custom wall is deadly.
+
+* **`unsigned int cw_getKillingSide(int cwHandle)`**: Given the custom wall represented by `cwHandle`, get which one of its sides always causes the death of the player.
+
 * **`tuple<float, float> cw_getVertexPos(int cwHandle, int vertexIndex)`**: Given the custom wall represented by `cwHandle`, set the position of its vertex with index `vertexIndex` to `{x, y}`.
 
 * **`void cw_clear()`**: Remove all existing custom walls.

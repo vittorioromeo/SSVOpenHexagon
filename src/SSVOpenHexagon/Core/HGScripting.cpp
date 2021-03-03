@@ -1361,7 +1361,7 @@ void HexagonGame::initLua_CustomWalls()
         .arg("collision")
         .doc(
             "Given the custom wall represented by `$0`, set the collision "
-            "of the custom wall to `$1`. If false, the player can not die "
+            "of the custom wall to `$1`. If false, the player cannot die "
             "from this wall and can move through the wall. By default, all "
             "custom walls can collide with the player.");
 
@@ -1373,9 +1373,9 @@ void HexagonGame::initLua_CustomWalls()
         .arg("deadly")
         .doc(
             "Given the custom wall represented by `$0`, set wherever "
-            "it instantly kills player on touch. This is a highly "
+            "it instantly kills player on touch. This is highly "
             "recommended for custom walls that are either very small "
-            "or very thin and do not belong to a barrage.");
+            "or very thin and should definitively kill the player.");
 
     addLuaFn("cw_setKillingSide", //
         [this](CCustomWallHandle cwHandle, unsigned int side) {
@@ -1385,7 +1385,7 @@ void HexagonGame::initLua_CustomWalls()
         .arg("side")
         .doc(
             "Given the custom wall represented by `$0`, set which "
-            "one of its sides should beyond any doubts cause the "
+            "one of its sides should beyond any doubt cause the "
             "death of the player. Acceptable values are 0 to 3. "
             "In a standard wall, side 0 is the side closer to the center. "
             "This parameter is useless if the custom wall is deadly.");
