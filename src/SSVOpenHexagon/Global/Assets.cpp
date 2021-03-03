@@ -68,8 +68,8 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
         return getPackData(mA.id).priority < getPackData(mB.id).priority;
     });
 
-    // this will not be used for the rest of the game
-    // shrink it to fit the actually used size
+    // This will not be used for the rest of the game,
+    // so shrink it to fit the actually used size.
     loadInfo.errorMessages.shrink_to_fit();
 }
 
@@ -235,9 +235,6 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
 [[nodiscard]] bool HGAssets::loadAssets()
 {
-    ssvu::lo("::loadAssets") << "loading local profiles\n";
-    loadLocalProfiles();
-
     if(!ssvufs::Path{"Packs/"}.exists<ssvufs::Type::Folder>())
     {
         return false;
@@ -294,6 +291,11 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
                 << "Error loading pack info '" << p.first << "'\n";
         }
     }
+
+    // ------------------------------------------------------------------------
+    // Load profiles.
+    ssvu::lo("::loadAssets") << "loading local profiles\n";
+    loadLocalProfiles();
 
     return true;
 }
@@ -379,7 +381,7 @@ void HGAssets::loadLocalProfiles()
         auto [object, error] = ssvuj::getFromFileWithErrors(p);
         loadInfo.addFormattedError(error);
 
-        ProfileData profileData{Utils::loadProfileFromJson(object)};
+        ProfileData profileData{Utils::loadProfileFromJson(*this, object)};
         profileDataMap.emplace(profileData.getName(), std::move(profileData));
     }
 }
@@ -402,12 +404,51 @@ void HGAssets::saveCurrentLocalProfile()
     ssvuj::arch(profileRoot, "name", getCurrentLocalProfile().getName());
     ssvuj::arch(profileRoot, "scores", getCurrentLocalProfile().getScores());
 
+    const auto& favSet{getCurrentLocalProfile().getFavoriteLevelIds()};
+    std::vector<std::string> favorites;
+    std::copy(favSet.begin(), favSet.end(), std::back_inserter(favorites));
+    ssvuj::arch(profileRoot, "favorites", favorites);
+
     for(const auto& n : getCurrentLocalProfile().getTrackedNames())
     {
         profileRoot["trackedNames"].append(n);
     }
 
     ssvuj::writeToFile(profileRoot, getCurrentLocalProfileFilePath());
+}
+
+void HGAssets::saveAllProfiles()
+{
+    ssvuj::Obj currentVersion;
+    ssvuj::arch(currentVersion, "major", Config::GAME_VERSION.major);
+    ssvuj::arch(currentVersion, "minor", Config::GAME_VERSION.minor);
+    ssvuj::arch(currentVersion, "micro", Config::GAME_VERSION.micro);
+
+    std::vector<std::string> favorites;
+
+    for(const auto& [key, profileData] : profileDataMap)
+    {
+        ssvuj::Obj profileRoot;
+        ssvuj::arch(profileRoot, "version", currentVersion);
+        ssvuj::arch(profileRoot, "name", profileData.getName());
+        ssvuj::arch(profileRoot, "scores", profileData.getScores());
+
+        favorites.clear();
+        for(const std::string& favID : profileData.getFavoriteLevelIds())
+        {
+            favorites.emplace_back(favID);
+        }
+
+        ssvuj::arch(profileRoot, "favorites", favorites);
+
+        for(const auto& n : profileData.getTrackedNames())
+        {
+            profileRoot["trackedNames"].append(n);
+        }
+
+        ssvuj::writeToFile(
+            profileRoot, "Profiles/" + profileData.getName() + ".json");
+    }
 }
 
 //**********************************************
@@ -783,6 +824,7 @@ void HGAssets::createLocalProfile(const std::string& mName)
     ssvuj::Obj root;
     ssvuj::arch(root, "name", mName);
     ssvuj::arch(root, "scores", ssvuj::Obj{});
+    ssvuj::arch(root, "favorites", ssvuj::Obj{});
     ssvuj::writeToFile(root, "Profiles/" + mName + ".json");
 
     profileDataMap.clear();

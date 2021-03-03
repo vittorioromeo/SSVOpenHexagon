@@ -91,6 +91,12 @@ private:
         }
     }
 
+    template <typename ArgT>
+    static void addTypeToStr(std::vector<std::string>& types)
+    {
+        types.emplace_back(typeToStr<ArgT>());
+    }
+
     template <typename F>
     [[nodiscard]] static std::string makeArgsString(LuaMetadataProxy* self)
     {
@@ -98,15 +104,9 @@ private:
 
         std::vector<std::string> types;
 
-        const auto addTypeToStr = [&]<typename ArgT>() {
-            types.emplace_back(typeToStr<ArgT>());
-        };
-
         [&]<std::size_t... Is>(std::index_sequence<Is...>)
         {
-            (addTypeToStr
-                    .template operator()<typename AE::template NthArg<Is>>(),
-                ...);
+            (addTypeToStr<typename AE::template NthArg<Is>>(types), ...);
         }
         (std::make_index_sequence<AE::numArgs>{});
 
