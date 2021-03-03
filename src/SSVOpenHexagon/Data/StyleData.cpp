@@ -158,8 +158,6 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
     hexagon.reserve(sides * 6);
 
     const auto& colors(getColors());
-    const sf::Color colorMain{getMainColor()};
-    const sf::Color colorCap{getCapColorResult()};
 
     for(auto i(0u); i < sides; ++i)
     {

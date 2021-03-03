@@ -7,8 +7,13 @@
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
+#include <unordered_set>
+#include <string>
+
 namespace hg
 {
+
+class HGAssets;
 
 class ProfileData
 {
@@ -17,14 +22,24 @@ private:
     std::string name;
     ssvuj::Obj scores;
     std::vector<std::string> trackedNames;
+    std::unordered_set<std::string> favoriteLevelsDataIDs;
+
+    void checkFavoriteLevelsHealth(HGAssets& assets);
 
 public:
-    ProfileData(const GameVersion mVersion, const std::string& mName,
-        const ssvuj::Obj& mScores,
-        const std::vector<std::string>& mTrackedNames)
+    ProfileData(HGAssets& mAssets, const GameVersion mVersion,
+        const std::string& mName, const ssvuj::Obj& mScores,
+        const std::vector<std::string>& mTrackedNames,
+        const std::vector<std::string>& mFavorites)
         : version{mVersion}, name{mName}, scores{mScores}, trackedNames{
                                                                mTrackedNames}
     {
+        for(const std::string& favID : mFavorites)
+        {
+            favoriteLevelsDataIDs.emplace(favID);
+        }
+
+        checkFavoriteLevelsHealth(mAssets);
     }
 
     [[nodiscard]] constexpr GameVersion getVersion() const noexcept
@@ -48,7 +63,13 @@ public:
         return trackedNames;
     }
 
-    void setScore(const std::string& mId, float mScore)
+    [[nodiscard]] const std::unordered_set<std::string>&
+    getFavoriteLevelIds() const noexcept
+    {
+        return favoriteLevelsDataIDs;
+    }
+
+    void setScore(const std::string& mId, const float mScore)
     {
         ssvuj::arch(scores, mId, mScore);
     }
@@ -66,6 +87,23 @@ public:
     void clearTrackedNames()
     {
         trackedNames.clear();
+    }
+
+    void addFavoriteLevel(const std::string& mLevelID)
+    {
+        favoriteLevelsDataIDs.emplace(mLevelID);
+    }
+
+    void removeFavoriteLevel(const std::string& mLevelID)
+    {
+        favoriteLevelsDataIDs.erase(mLevelID);
+    }
+
+    [[nodiscard]] bool isLevelFavorite(
+        const std::string& mLevelID) const noexcept
+    {
+        return favoriteLevelsDataIDs.find(mLevelID) !=
+               favoriteLevelsDataIDs.end();
     }
 };
 

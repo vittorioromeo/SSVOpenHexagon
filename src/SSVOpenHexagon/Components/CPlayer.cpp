@@ -76,12 +76,6 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 
     const sf::Color colorMain{mHexagonGame.getColorMain()};
 
-    const sf::Color colorB{Config::getBlackAndWhite()
-                               ? sf::Color::Black
-                               : mHexagonGame.getColor(1)};
-
-    const sf::Color colorDarkened{Utils::getColorDarkened(colorMain, 1.4f)};
-
     for(auto i(0u); i < sides; ++i)
     {
         const float sAngle{div * 2.f * i};
@@ -374,13 +368,22 @@ void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
     {
         deadEffectTimer.update(mFT);
 
-        if(++hue > 360.f)
+        hue += 18 * mFT;
+
+        if(hue > 360.f)
         {
             hue = 0.f;
         }
+
         if(dead)
         {
             return;
+        }
+
+        if(deadEffectTimer.getTotal() >= 100)
+        {
+            deadEffectTimer.stop();
+            deadEffectTimer.resetAll();
         }
     }
 

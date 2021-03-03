@@ -24,7 +24,7 @@ template <sf::PrimitiveType TPrimitive>
 struct FastVertexVector : public sf::Drawable
 {
 private:
-    std::unique_ptr<sf::Vertex[]> _data{};
+    std::unique_ptr<sf::Vertex[]> _data{nullptr};
     std::size_t _size{};
     std::size_t _capacity{};
 
@@ -42,9 +42,19 @@ public:
         }
 
         auto new_data = std::make_unique<sf::Vertex[]>(n);
-        std::memcpy(new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
-        _data = std::move(new_data);
 
+        if(SSVU_UNLIKELY(_data != nullptr))
+        {
+            std::memcpy(
+                new_data.get(), _data.get(), sizeof(sf::Vertex) * _size);
+        }
+        else
+        {
+            SSVU_ASSERT(_size == 0);
+            SSVU_ASSERT(_capacity == 0);
+        }
+
+        _data = std::move(new_data);
         _capacity = n;
     }
 
@@ -52,8 +62,17 @@ public:
         const FastVertexVector& rhs) noexcept
     {
         SSVU_ASSERT(_size + rhs._size <= _capacity);
+
+        if(SSVU_UNLIKELY(rhs.size() == 0))
+        {
+            return;
+        }
+
+        SSVU_ASSERT(_data != nullptr);
+
         std::memcpy(_data.get() + _size, rhs._data.get(),
             sizeof(sf::Vertex) * rhs._size);
+
         _size += rhs._size;
     }
 
@@ -71,6 +90,8 @@ public:
     [[gnu::always_inline]] void unsafe_emplace_back(Ts&&... xs)
     {
         SSVU_ASSERT(_size <= _capacity);
+        SSVU_ASSERT(_data != nullptr);
+
         new(&_data[_size++]) sf::Vertex{std::forward<Ts>(xs)...};
     }
 
@@ -79,12 +100,21 @@ public:
         const sf::Color& color, Ts&&... positions)
     {
         SSVU_ASSERT(_size + sizeof...(positions) <= _capacity);
+        SSVU_ASSERT(_data != nullptr);
+
         ((new(&_data[_size++]) sf::Vertex{positions, color}), ...);
     }
 
     void draw(sf::RenderTarget& mRenderTarget,
         sf::RenderStates mRenderStates) const override
     {
+        if(SSVU_UNLIKELY(_data == nullptr))
+        {
+            SSVU_ASSERT(_size == 0);
+            SSVU_ASSERT(_capacity == 0);
+            return;
+        }
+
         mRenderTarget.draw(_data.get(), _size, TPrimitive, mRenderStates);
     }
 
@@ -92,6 +122,8 @@ public:
         const std::size_t i) noexcept
     {
         SSVU_ASSERT(i < _size);
+        SSVU_ASSERT(_data != nullptr);
+
         return _data[i];
     }
 
@@ -99,6 +131,8 @@ public:
         const std::size_t i) const noexcept
     {
         SSVU_ASSERT(i < _size);
+        SSVU_ASSERT(_data != nullptr);
+
         return _data[i];
     }
 };

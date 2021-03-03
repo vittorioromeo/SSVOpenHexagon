@@ -50,7 +50,7 @@ public:
     {
     }
 
-    const Segment& getSegment(std::size_t index) const
+    [[nodiscard]] const Segment& getSegment(std::size_t index) const
     {
         return segments[index];
     }
@@ -60,7 +60,8 @@ public:
         segments.emplace_back(Segment{mSeconds, mBeatPulseDelayOffset});
     }
 
-    Segment playRandomSegment(const std::string& mPackId, HGAssets& mAssets)
+    [[nodiscard]] Segment playRandomSegment(
+        const std::string& mPackId, HGAssets& mAssets)
     {
         if(firstPlay)
         {
@@ -75,7 +76,7 @@ public:
         }
     }
 
-    Segment playSegment(
+    [[nodiscard]] Segment playSegment(
         const std::string& mPackId, HGAssets& mAssets, std::size_t mIdx)
     {
         const Segment& segment = segments[mIdx];

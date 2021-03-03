@@ -140,62 +140,62 @@ public:
         rootPath = mPath;
     }
 
-    const ssvufs::Path& getRootPath() const noexcept
+    [[nodiscard]] const ssvufs::Path& getRootPath() const noexcept
     {
         return rootPath;
     }
 
-    const sf::Color& getMainColor() const noexcept
+    [[nodiscard]] const sf::Color& getMainColor() const noexcept
     {
         return currentMainColor;
     }
 
-    const sf::Color& getPlayerColor() const noexcept
+    [[nodiscard]] const sf::Color& getPlayerColor() const noexcept
     {
         return currentPlayerColor;
     }
 
-    const sf::Color& getTextColor() const noexcept
+    [[nodiscard]] const sf::Color& getTextColor() const noexcept
     {
         return currentTextColor;
     }
 
-    const std::vector<sf::Color>& getColors() const noexcept
+    [[nodiscard]] const std::vector<sf::Color>& getColors() const noexcept
     {
         return currentColors;
     }
 
-    const sf::Color& getColor(int mIdx) const noexcept
+    [[nodiscard]] const sf::Color& getColor(int mIdx) const noexcept
     {
         return ssvu::getByModIdx(currentColors, mIdx);
     }
 
-    float getCurrentHue() const noexcept
+    [[nodiscard]] float getCurrentHue() const noexcept
     {
         return currentHue;
     }
 
-    float getCurrentSwapTime() const noexcept
+    [[nodiscard]] float getCurrentSwapTime() const noexcept
     {
         return currentSwapTime;
     }
 
-    const sf::Color& get3DOverrideColor() const noexcept
+    [[nodiscard]] const sf::Color& get3DOverrideColor() const noexcept
     {
         return current3DOverrideColor;
     }
 
-    CapColor& getCapColor() noexcept
+    [[nodiscard]] CapColor& getCapColor() noexcept
     {
         return capColor;
     }
 
-    const CapColor& getCapColor() const noexcept
+    [[nodiscard]] const CapColor& getCapColor() const noexcept
     {
         return capColor;
     }
 
-    sf::Color getCapColorResult() const noexcept;
+    [[nodiscard]] sf::Color getCapColorResult() const noexcept;
 };
 
 } // namespace hg

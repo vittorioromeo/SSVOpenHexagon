@@ -33,6 +33,8 @@ private:
 
     HGAssets& assets;
     ssvs::GameWindow& window;
+
+    // TODO: unused
     StyleData& styleData;
 
     DrawFunc drawFunc;
@@ -82,6 +84,7 @@ public:
     {
         return keyToClose;
     }
+
     [[nodiscard]] bool empty() const noexcept
     {
         return dialogText.empty();

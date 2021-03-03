@@ -346,8 +346,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     // Main menu background
 
     const auto [randomPack, randomLevel] = pickRandomMainMenuBackgroundStyle();
-    lvlDrawer->levelDataIds =
-        assets.getLevelIdsByPack(assets.getPackInfos().at(randomPack).id);
+    lvlSlct.levelDataIds =
+        &assets.getLevelIdsByPack(assets.getPackInfos().at(randomPack).id);
     setIndex(randomLevel);
 
     // Setup for the loading menu
@@ -371,42 +371,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     }
     lvlSlct.lvlOffsets.resize(maxSize);
-
-    //--------------------------------
-    // Favorite levels
-
-    const std::string fp{std::string(favoritePath)};
-    if(!ssvufs::Path{fp}.exists<ssvufs::Type::File>())
-    {
-        return;
-    }
-
-    // Load the stored favorite levels IDs from file.
-    favSlct.levelDataIds =
-        getExtr<std::vector<std::string>>(getFromFile(fp), "ids");
-    // Verify the levels with corresponding IDs actually exist.
-    // If they don't remove them.
-    auto it{favSlct.levelDataIds.begin()};
-    while(it != favSlct.levelDataIds.end())
-    {
-        if(!assets.checkLevelIDPurity(*it))
-        {
-            favSlct.levelDataIds.erase(it);
-            continue;
-        }
-        // if the level exists mark the corresponding LevelData structs as
-        // a favorite. This is needed to show wherever the current level can
-        // be added or removed from the favorites.
-        assets.setLevelFavoriteFlag(*it++, true);
-    }
-    // Sort levels based on the name.
-    std::sort(favSlct.levelDataIds.begin(), favSlct.levelDataIds.end(),
-        [this](const std::string& a, const std::string& b) -> bool {
-            return toLower(assets.getLevelData(a).name) <
-                   toLower(assets.getLevelData(b).name);
-        });
-    // Set size of the level offsets vector to the required amount.
-    favSlct.lvlOffsets.resize(static_cast<int>(favSlct.levelDataIds.size()));
 }
 
 void MenuGame::init(bool error)
@@ -604,7 +568,7 @@ void MenuGame::initInput()
         t::Once);
 
     game.addInput( // hardcoded
-        {{k::F1}}, [this](ssvu::FT /*unused*/) { changeLevelFavoriteFlag(); },
+        {{k::F1}}, [this](ssvu::FT /*unused*/) { addRemoveFavoriteLevel(); },
         t::Once);
 
     game.addInput( // hardcoded
@@ -771,9 +735,6 @@ void MenuGame::initMenus()
     auto whenUnlogged = [] { return true; };
     auto whenSoundEnabled = [] { return !Config::getNoSound(); };
     auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
-    auto whenTimerIsStatic = [] { return Config::getTimerStatic(); };
-    auto whenTimerIsDynamic = [] { return !Config::getTimerStatic(); };
-
 
     // Welcome menu
     auto& wlcm(welcomeMenu.createCategory("welcome"));
@@ -1032,20 +993,12 @@ void MenuGame::initMenus()
     gfx.create<i::Goto>("fps settings", fps);
     fps.create<i::Toggle>("vsync", &Config::getVsync,
         [this](bool mValue) { Config::setVsync(window, mValue); });
-    fps.create<i::Single>("use static fps", [this] {
-        Config::setTimerStatic(window, true);
-    }) | whenTimerIsDynamic;
     fps.create<i::Toggle>("limit fps", &Config::getLimitFPS,
-        [this](bool mValue) { Config::setLimitFPS(window, mValue); }) |
-        whenTimerIsStatic;
+        [this](bool mValue) { Config::setLimitFPS(window, mValue); });
     fps.create<i::Slider>(
         "max fps", &Config::getMaxFPS,
         [this](unsigned int mValue) { Config::setMaxFPS(window, mValue); }, 30u,
-        200u, 5u) |
-        whenTimerIsStatic;
-    fps.create<i::Single>("use dynamic fps", [this] {
-        Config::setTimerStatic(window, false);
-    }) | whenTimerIsStatic;
+        200u, 5u);
     fps.create<i::Toggle>("show fps", &Config::getShowFPS, &Config::setShowFPS);
     fps.create<i::GoBack>("back");
 
@@ -1128,9 +1081,9 @@ void MenuGame::initMenus()
     main.create<i::Single>("LEVEL SELECT", [this] {
         if(firstLevelSelection)
         {
-            lvlDrawer->packIdx = diffMultIdx = 0;
-            lvlDrawer->levelDataIds =
-                assets.getLevelIdsByPack(assets.getPackInfos().at(0).id);
+            lvlSlct.packIdx = diffMultIdx = 0;
+            lvlSlct.levelDataIds =
+                &assets.getLevelIdsByPack(assets.getPackInfos().at(0).id);
             setIndex(0);
         }
         changeStateTo(States::LevelSelection);
@@ -1162,8 +1115,10 @@ void MenuGame::initMenus()
     for(auto& p : assets.getLocalProfileNames())
     {
         profileName = p;
-        profileSelection.create<i::Single>(profileName,
-            [this, profileName] { assets.pSetCurrent(profileName); });
+        profileSelection.create<i::Single>(profileName, [this, profileName] {
+            assets.pSetCurrent(profileName);
+            changeFavoriteLevelsToProfile();
+        });
     }
     profileSelection.sortByName();
 }
@@ -1219,8 +1174,8 @@ bool MenuGame::loadCommandLineLevel(
         }
 
         // Level found, initialize parameters
-        lvlDrawer->packIdx = i;
-        lvlDrawer->levelDataIds = levelsList;
+        lvlSlct.packIdx = i;
+        lvlSlct.levelDataIds = &levelsList;
         setIndex(it - levelsList.begin());
 
         break;
@@ -1250,9 +1205,8 @@ bool MenuGame::loadCommandLineLevel(
 
     // Start game
     window.setGameState(hexagonGame.getGame());
-    hexagonGame.newGame(packID,
-        lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex), true,
-        ssvu::getByModIdx(diffMults, diffMultIdx), false);
+    hexagonGame.newGame(packID, lvlSlct.levelDataIds->at(lvlSlct.currentIndex),
+        true, ssvu::getByModIdx(diffMults, diffMultIdx), false);
 
     return true;
 }
@@ -1386,7 +1340,7 @@ void MenuGame::upAction()
             // and scroll the menu to show it.
             if(prevIdx < 0)
             {
-                setIndex(lvlDrawer->levelDataIds.size() - 1);
+                setIndex(lvlDrawer->levelDataIds->size() - 1);
                 calcScrollSpeed();
 
                 const float scroll{
@@ -1480,7 +1434,7 @@ void MenuGame::downAction()
         const int nextIdx{lvlDrawer->currentIndex + 1};
         if(getPackInfosSize() == 1)
         {
-            if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds.size() - 1))
+            if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
             {
                 // Skip to the first level label.
                 setIndex(0);
@@ -1493,7 +1447,7 @@ void MenuGame::downAction()
                 calcLevelChangeScroll(2);
             }
         }
-        else if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds.size() - 1))
+        else if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
         {
             // Go to the next pack.
             changePackAction(1);
@@ -1550,15 +1504,14 @@ void MenuGame::changePack()
     const auto& p{assets.getPackInfos()};
 
     // Deduce the new packIdx.
-    lvlDrawer->packIdx =
+    lvlSlct.packIdx =
         ssvu::getMod(lvlDrawer->packIdx + (packChangeDirection > 0 ? 1 : -1), 0,
             static_cast<int>(p.size()));
     // Load level ids relative to the new pack
-    lvlDrawer->levelDataIds =
-        assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
+    lvlSlct.levelDataIds =
+        &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
     // Set the correct level index.
-    setIndex(
-        packChangeDirection == -2 ? lvlDrawer->levelDataIds.size() - 1 : 0);
+    setIndex(packChangeDirection == -2 ? lvlSlct.levelDataIds->size() - 1 : 0);
     // Reset all text scrolling.
     resetNamesScrolls();
 }
@@ -1655,11 +1608,14 @@ void MenuGame::okAction()
                 // All good
                 assets.pCreate(enteredStr);
                 assets.pSetCurrent(enteredStr);
+                changeFavoriteLevelsToProfile();
 
                 // Create new menu item
                 std::string name{enteredStr};
-                profiles.create<ssvms::Items::Single>(
-                    name, [this, name] { assets.pSetCurrent(name); });
+                profiles.create<ssvms::Items::Single>(name, [this, name] {
+                    assets.pSetCurrent(name);
+                    changeFavoriteLevelsToProfile();
+                });
                 profiles.sortByName();
 
                 enteredStr = "";
@@ -1690,6 +1646,7 @@ void MenuGame::okAction()
             // offsets to 0.
             if(state == States::LevelSelection)
             {
+                setIndex(lvlDrawer->currentIndex);
                 adjustLevelsOffset();
                 return;
             }
@@ -1747,7 +1704,7 @@ void MenuGame::okAction()
 
             window.setGameState(hexagonGame.getGame());
             hexagonGame.newGame(assets.getPackInfos().at(lvlDrawer->packIdx).id,
-                lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex), true,
+                lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), true,
                 ssvu::getByModIdx(diffMults, diffMultIdx),
                 false /* executeLastReplay */);
             break;
@@ -1939,8 +1896,9 @@ void MenuGame::update(ssvu::FT mFT)
 
     if(hg::Joystick::addToFavoritesRisingEdge())
     {
-        changeLevelFavoriteFlag();
+        addRemoveFavoriteLevel();
     }
+
     if(hg::Joystick::favoritesMenuRisingEdge())
     {
         switchToFromFavoriteLevels();
@@ -2170,8 +2128,9 @@ void MenuGame::setIndex(const int mIdx)
 {
     lvlDrawer->currentIndex = mIdx;
 
-    levelData = &assets.getLevelData(
-        lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex));
+    const std::string levelID{
+        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)};
+    levelData = &assets.getLevelData(levelID);
     formatLevelDescription();
 
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
@@ -2181,6 +2140,8 @@ void MenuGame::setIndex(const int mIdx)
     // to the selected level.
     if(isFavoriteLevels())
     {
+        isLevelFavorite = true;
+
         const auto& p{assets.getPackInfos()};
 
         for(int i{0}; i < static_cast<int>(p.size()); ++i)
@@ -2191,6 +2152,15 @@ void MenuGame::setIndex(const int mIdx)
                 break;
             }
         }
+    }
+    else if(!firstLevelSelection)
+    {
+        // setIndex() is called for the first time at a point
+        // of the assets loading process where this call
+        // causes a crash, so it can only safely occur when
+        // the level selection menu is opened.
+        isLevelFavorite =
+            assets.getCurrentLocalProfile().isLevelFavorite(levelID);
     }
 
     // Set the colors of the menus
@@ -2895,7 +2865,9 @@ void MenuGame::drawOptionsSubmenus(
         quadHeight - txtMenuSmall.height * fontTopBorder + doubleBorder};
     for(int i{0}; i < size; ++i)
     {
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
+
         uppercasify(itemName);
         if(i == mSubMenu.getIdx())
         {
@@ -3045,10 +3017,11 @@ void MenuGame::drawProfileSelection(
         selected = i == mSubmenu.getIdx();
 
         // Draw profile name
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
-        uppercasify(itemName);
+
         yPos = txtHeight - (selected ? fontHeight * 0.75f : 0.f);
-        renderTextCentered(itemName, txtProfile.font,
+        renderTextCentered(toUppercase(itemName), txtProfile.font,
             selected ? profSelectedCharSize : profCharSize,
             {indent + textWidth / 2.f, yPos}, menuTextColor);
 
@@ -3139,10 +3112,11 @@ void MenuGame::drawProfileSelectionBoot()
         selected = i == mSubmenu.getIdx();
 
         // Draw profile name
+        assert(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
-        uppercasify(itemName);
+
         yPos = height - (selected ? fontHeight * 0.75f : 0.f);
-        renderTextCentered(itemName, txtProfile.font,
+        renderTextCentered(toUppercase(itemName), txtProfile.font,
             selected ? profSelectedCharSize : profCharSize, {w / 2.f, yPos});
 
         // Add total survival time for extra flavor
@@ -3485,7 +3459,7 @@ void MenuGame::calcLevelChangeScroll(const int dir)
         return;
     }
 
-    const int size{static_cast<int>(lvlDrawer->levelDataIds.size())};
+    const int size{static_cast<int>(lvlDrawer->levelDataIds->size())};
     // If we are approaching the bottom of the pack show either the
     // last level label and the next pack label or two next pack labels...
     if(lvlDrawer->currentIndex >= size - 2 &&
@@ -3502,7 +3476,7 @@ void MenuGame::calcLevelChangeScroll(const int dir)
         scroll = packLabelHeight * (actualPackIdx + 1) +
                  levelLabelHeight *
                      std::min(lvlDrawer->currentIndex + dir + 1,
-                         static_cast<int>(lvlDrawer->levelDataIds.size())) +
+                         static_cast<int>(lvlDrawer->levelDataIds->size())) +
                  2.f * slctFrameSize;
     }
 
@@ -3649,7 +3623,8 @@ void MenuGame::formatLevelDescription()
 {
     levelDescription.clear();
     std::string desc{
-        assets.getLevelData(lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex))
+        assets
+            .getLevelData(lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))
             .description};
 
     if(desc.empty())
@@ -3736,80 +3711,127 @@ void MenuGame::formatLevelDescription()
     }
 }
 
-void MenuGame::changeLevelFavoriteFlag()
+void MenuGame::changeFavoriteLevelsToProfile()
+{
+    // Each profile has its own favorite levels.
+    // Copy the `ProfileData` favorites into the menu's favorites vector.
+
+    favoriteLevelDataIds.clear();
+
+    for(const std::string& id :
+        assets.getCurrentLocalProfile().getFavoriteLevelIds())
+    {
+        favoriteLevelDataIds.push_back(id);
+    }
+
+    std::sort(favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(),
+        [this](const std::string& a, const std::string& b) -> bool {
+            return ssvu::toLower(assets.getLevelData(a).name) <
+                   ssvu::toLower(assets.getLevelData(b).name);
+        });
+
+    const int sz{static_cast<int>(favoriteLevelDataIds.size())};
+
+    // If the new current profile has no favorites force the level selection
+    // to use the regular drawer.
+    if(sz == 0)
+    {
+        lvlDrawer = &lvlSlct;
+        return;
+    }
+
+    // Make sure the level index is within boundaries.
+    ssvu::clamp(favSlct.currentIndex, 0, sz - 1);
+
+    // Resize the level offset parameters.
+    favSlct.lvlOffsets.resize(sz);
+}
+
+void MenuGame::addRemoveFavoriteLevel()
 {
     const LevelData& data{assets.getLevelData(
-        lvlDrawer->levelDataIds.at(lvlDrawer->currentIndex))};
+        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))};
+
     const std::string levelID{data.packId + "_" + data.id};
 
     // Level is a favorite so remove it.
-    if(data.favorite)
+    if(isLevelFavorite)
     {
-        favSlct.levelDataIds.erase(std::find(
-            favSlct.levelDataIds.begin(), favSlct.levelDataIds.end(), levelID));
+        assets.getCurrentLocalProfile().removeFavoriteLevel(levelID);
+        favoriteLevelDataIds.erase(std::find(
+            favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(), levelID));
         favSlct.lvlOffsets.pop_back();
-        assets.setLevelFavoriteFlag(levelID, false);
+
+        // Make sure the index is within bounds.
+        ssvu::clamp(favSlct.currentIndex, 0,
+            static_cast<int>(favSlct.levelDataIds->size()) - 1);
+
+        if(isFavoriteLevels())
+        {
+            adjustLevelsOffset();
+        }
 
         // If the favorite levels vector is empty
         // after the removal force exit from the
         // favorites menu.
-        if(favSlct.levelDataIds.empty())
+        if(favSlct.levelDataIds->empty())
         {
-            favSlct.currentIndex = 0;
             favSlct.XOffset = 0.f; // this way the menu is not drawn anymore.
             lvlDrawer = &lvlSlct;
-            setIndex(lvlSlct.currentIndex);
         }
-        else if(isFavoriteLevels())
+        else
         {
-            // If not empty make sure the selected level
-            // is one of the remaining ones.
-            lvlDrawer->currentIndex = std::min(lvlDrawer->currentIndex,
-                static_cast<int>(favSlct.levelDataIds.size()) - 1);
-
             // Make sure there is no empty space between the end of the list
             // and the bottom of the window. Needed to ensure the selected
             // level is always on screen.
             const float scroll{packLabelHeight + 2.f * slctFrameSize +
-                               levelLabelHeight * favSlct.levelDataIds.size()};
+                               levelLabelHeight * favSlct.levelDataIds->size()};
             if(h > scroll + lvlDrawer->YOffset)
             {
-                lvlDrawer->YScrollTo = h - scroll;
+                favSlct.YOffset = favSlct.YScrollTo = h - scroll;
             }
         }
-        adjustLevelsOffset();
+
+        // Update the looks.
+        setIndex(lvlDrawer->currentIndex);
     }
     else
     {
-        // Add the level to the favorites keeping them sorted
-        // in alphabetical order.
-        auto it{favSlct.levelDataIds.begin()};
-        const auto end{favSlct.levelDataIds.end()};
-        const std::string tweakedFavName{
-            toLower(assets.getLevelData(levelID).name)};
-        std::string tweakedLevelName;
+        assets.getCurrentLocalProfile().addFavoriteLevel(levelID);
+        favSlct.lvlOffsets.emplace_back(0.f);
+        isLevelFavorite = true;
 
+        // Add the level to the favorites vector
+        // keeping it sorted in alphabetical order.
+        auto it{favoriteLevelDataIds.begin()};
+        const auto end{favoriteLevelDataIds.end()};
+        const std::string tweakedFavName{
+            ssvu::toLower(assets.getLevelData(levelID).name)};
+
+        std::string tweakedLevelName;
         while(it != end)
         {
-            tweakedLevelName = toLower(assets.getLevelData(*it).name);
+            tweakedLevelName = ssvu::toLower(assets.getLevelData(*it).name);
             if(tweakedLevelName > tweakedFavName)
             {
                 break;
             }
+
             ++it;
         }
+
         if(it == end)
         {
-            favSlct.levelDataIds.emplace_back(levelID);
+            favoriteLevelDataIds.emplace_back(levelID);
         }
         else
         {
-            favSlct.levelDataIds.insert(it, levelID);
+            favoriteLevelDataIds.insert(it, levelID);
         }
-        // Add an extra drawing offset value.
-        favSlct.lvlOffsets.emplace_back(0.f);
-        // Turn off the favorite flag.
-        assets.setLevelFavoriteFlag(levelID, true);
+
+        // Just in case.
+        ssvu::clamp(favSlct.currentIndex, 0,
+            static_cast<int>(favSlct.levelDataIds->size()) - 1);
     }
 
     assets.playSound("select.ogg");
@@ -3817,7 +3839,7 @@ void MenuGame::changeLevelFavoriteFlag()
 
 void MenuGame::switchToFromFavoriteLevels()
 {
-    if(state != States::LevelSelection || favSlct.levelDataIds.empty())
+    if(state != States::LevelSelection || favSlct.levelDataIds->empty())
     {
         return;
     }
@@ -3854,13 +3876,13 @@ void MenuGame::drawLevelSelectionRightSide(
     int packsSize, levelsSize;
     if(drawer.isFavorites)
     {
-        levelsSize = drawer.levelDataIds.size();
+        levelsSize = drawer.levelDataIds->size();
         packsSize = 1;
     }
     else
     {
         packsSize = infos.size();
-        levelsSize = focusHeld ? 1 : drawer.levelDataIds.size();
+        levelsSize = focusHeld ? 1 : drawer.levelDataIds->size();
     }
     const LevelData* levelDataTemp;
     std::string tempString;
@@ -3873,9 +3895,16 @@ void MenuGame::drawLevelSelectionRightSide(
     // Therefore pack labels must be drawn above everything else (aka must
     // be drawn last).
 
-    renderTextCentered(isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS"
-                                          : "PRESS F2 TO SHOW FAVORITE LEVELS",
-        txtSelectionSmall.font, {w / 2.f, 5.f});
+    static std::string smallTextContents;
+
+    smallTextContents.clear();
+    smallTextContents += isFavoriteLevels()
+                             ? "PRESS F2 TO SHOW ALL LEVELS"
+                             : "PRESS F2 TO SHOW FAVORITE LEVELS";
+    smallTextContents += "\nHOLD FOCUS TO JUMP BETWEEN PACKS";
+
+    renderTextCentered(
+        smallTextContents, txtSelectionSmall.font, {w / 2.f, 5.f});
 
     //----------------------------------------
     // LEVELS LIST
@@ -3935,7 +3964,7 @@ void MenuGame::drawLevelSelectionRightSide(
 
         //-------------------------------------
         // Level data
-        levelDataTemp = &assets.getLevelData(drawer.levelDataIds.at(i));
+        levelDataTemp = &assets.getLevelData(drawer.levelDataIds->at(i));
         if(levelDataTemp == nullptr)
         {
             continue;
@@ -4111,7 +4140,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     const PackData& curPack{
         assets.getPackData(assets.getPackInfos()[drawer.packIdx].id)};
     const LevelData& levelData{
-        assets.getLevelData(drawer.levelDataIds.at(drawer.currentIndex))};
+        assets.getLevelData(drawer.levelDataIds->at(drawer.currentIndex))};
 
     const float maxPanelOffset{w * 0.33f},
         panelOffset{
@@ -4294,7 +4323,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     menuQuads.clear();
 
     renderTextCenteredOffset(
-        levelData.favorite ? "UNFAVORITE - F1" : "FAVORITE - F1",
+        isLevelFavorite ? "UNFAVORITE - F1" : "FAVORITE - F1",
         txtSelectionMedium.font, {maxPanelOffset / 2.f, height}, -panelOffset,
         menuQuadColor);
 
