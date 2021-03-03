@@ -110,7 +110,8 @@ public:
         return flags[CWFlags::Deadly];
     }
 
-    [[gnu::always_inline, nodiscard]] constexpr bool isCustomWall() const noexcept
+    [[gnu::always_inline, nodiscard]] constexpr bool
+    isCustomWall() const noexcept
     {
         return true;
     }
