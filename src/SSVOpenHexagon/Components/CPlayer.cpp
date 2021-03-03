@@ -186,7 +186,7 @@ template <typename Wall>
             continue;
         }
 
-        switch(getLineCircleIntersection(
+        switch(Utils::getLineCircleIntersection(
             vec1, vec2, wVertexes[i], wVertexes[j], mRadiusSquared))
         {
             case 1u:
@@ -202,6 +202,7 @@ template <typename Wall>
                 {
                     vec1 = vec2;
                 }
+
                 assignResult();
                 break;
             }

@@ -12,11 +12,12 @@ function pAltBarrage(mTimes, mStep)
 	t_wait(delay)
 end
 
+
 -- pSpiral: spawns a spiral of cWallEx
 function pSpiral(mTimes, mExtra)
 	local oldThickness = THICKNESS
 	THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
-	local delay = getPerfectDelay(THICKNESS) / l_getDelayMult()
+	local delay = getPerfectDelay(THICKNESS) / l_getDelayMult()  * 0.9 -- overlap a bit to avoid going through gaps
 	local startSide = getRandomSide()
 	local loopDir = getRandomDir()
 	local j = 0
@@ -36,7 +37,7 @@ end
 function pMirrorSpiral(mTimes, mExtra)
 	local oldThickness = THICKNESS
 	THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
-	local delay = getPerfectDelay(THICKNESS) / l_getDelayMult()
+	local delay = getPerfectDelay(THICKNESS) / l_getDelayMult() * 0.9 -- overlap a bit to avoid going through gaps
 	local startSide = getRandomSide()
 	local loopDir = getRandomDir()
 	j = 0
@@ -55,8 +56,8 @@ end
 -- pMirrorSpiralDouble: spawns a spiral of rWallEx where you need to change direction
 function pMirrorSpiralDouble(mTimes, mExtra)
     local oldThickness = THICKNESS
-    THICKNESS = getPerfectThickness(THICKNESS)
-    local delay = getPerfectDelayDM(THICKNESS)
+    THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
+    local delay = getPerfectDelayDM(THICKNESS) / l_getDelayMult() * 0.9 -- overlap a bit to avoid going through gaps
     local startSide = getRandomSide()
     local loopDir = getRandomDir()
     local j = 0
