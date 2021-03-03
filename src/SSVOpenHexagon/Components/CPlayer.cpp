@@ -275,7 +275,9 @@ template <typename Wall>
         return true;
     }
 
-    // If player survived apply test position and add a little padding.
+    // If player survived assign it the saving testPos, but displace it further
+    // out the wall border, otherwise player would be lying right on top of the
+    // border.
     pos =
         testPos + ssvs::getNormalized(testPos - prePushPos) * collisionPadding;
     angle = ssvs::getRad(pos);
@@ -377,7 +379,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
     {
         deadEffectTimer.update(mFT);
 
-        hue += 18 * mFT;
+        hue += 2.5f * mFT;
 
         if(hue > 360.f)
         {
