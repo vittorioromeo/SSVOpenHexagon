@@ -3896,14 +3896,11 @@ void MenuGame::drawLevelSelectionRightSide(
     // be drawn last).
 
     topLeft = {w / 2.f, 2.5f};
-    tempString = isFavoriteLevels()
-                     ? "PRESS F2 TO SHOW ALL LEVELS"
-                     : "PRESS F2 TO SHOW FAVORITE LEVELS";
-    renderTextCentered(
-        tempString, txtSelectionSmall.font, topLeft);
+    tempString = isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS"
+                                    : "PRESS F2 TO SHOW FAVORITE LEVELS";
+    renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
     tempString = "\nHOLD FOCUS TO JUMP BETWEEN PACKS";
-    renderTextCentered(
-        tempString, txtSelectionSmall.font, topLeft);
+    renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
 
     //----------------------------------------
     // LEVELS LIST
