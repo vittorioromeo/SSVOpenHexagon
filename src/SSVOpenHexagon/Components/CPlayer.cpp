@@ -99,14 +99,14 @@ void CPlayer::drawPivot(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
 
 void CPlayer::drawDeathEffect(HexagonGame& mHexagonGame)
 {
-    const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
+    const float div{ssvu::tau / 6 * 0.5f};
     const float dRadius{hue / 8.f};
     const float thickness{hue / 20.f};
 
     const sf::Color colorMain{
         ssvs::getColorFromHSV((360.f - hue) / 360.f, 1.f, 1.f)};
 
-    for(auto i(0u); i < mHexagonGame.getSides(); ++i)
+    for(auto i(0u); i < 6; ++i)
     {
         const float sAngle{div * 2.f * i};
 
@@ -235,7 +235,8 @@ template <typename Wall>
     // of the rotation is different from the direction player is moving.
     // Save the position difference in case we need to do a second attempt
     // at saving player.
-    if(wall.isCurving() && ssvu::getSign(wall.getCurve().speed) != movement)
+    const SpeedData& curveData{wall.getCurve()};
+    if(curveData.speed != 0.f && ssvu::getSign(curveData.speed) != movement)
     {
         wall.moveVertexAlongCurve(testPos, mCenterPos, mFT);
         pushVel = testPos - pos;
@@ -377,7 +378,7 @@ void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
     {
         deadEffectTimer.update(mFT);
 
-        hue += 2.5f * mFT;
+        hue += 18.f * mFT;
 
         if(hue > 360.f)
         {

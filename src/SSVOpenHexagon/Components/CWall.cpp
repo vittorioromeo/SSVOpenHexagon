@@ -25,11 +25,6 @@ CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
     vertexPositions[3] = ssvs::getOrbitRad(mCenterPos,
         angle - div + mHexagonGame.getWallAngleRight(),
         mDistance + mThickness + mHexagonGame.getWallSkewRight());
-
-    if(curve.speed != 0.f)
-    {
-        curving = true;
-    }
 }
 
 void CWall::draw(HexagonGame& mHexagonGame)
