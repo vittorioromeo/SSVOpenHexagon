@@ -710,8 +710,9 @@ void MenuGame::initLua()
             "w_wallHModCurveData",
 
             "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-            "cw_setCollision", "cw_getVertexPos", "cw_isOverlappingPlayer",
-            "cw_clear",
+            "cw_setCollision", "cw_setDeadly", "cw_setKillingSide",
+            "cw_getVertexPos", "cw_isOverlappingPlayer", "cw_clear",
+            "cw_getCollision", "cw_getDeadly", "cw_getKillingSide",
 
             "steam_unlockAchievement",
 
@@ -2528,7 +2529,7 @@ void MenuGame::refreshCamera()
     // Otherwise the game crashes.
     if(!firstLevelSelection)
     {
-        setIndex(lvlDrawer->currentIndex);
+        formatLevelDescription();
     }
 }
 
@@ -3884,7 +3885,7 @@ void MenuGame::drawLevelSelectionRightSide(
         levelsSize = focusHeld ? 1 : drawer.levelDataIds->size();
     }
     const LevelData* levelDataTemp;
-    std::string tempString;
+    static std::string tempString;
     float prevLevelIndent{0.f}, height{0.f}, indent, tempFloat;
     sf::Vector2f topLeft, topRight, bottomRight, bottomLeft;
 
@@ -3894,16 +3895,15 @@ void MenuGame::drawLevelSelectionRightSide(
     // Therefore pack labels must be drawn above everything else (aka must
     // be drawn last).
 
-    static std::string smallTextContents;
-
-    smallTextContents.clear();
-    smallTextContents += isFavoriteLevels()
-                             ? "PRESS F2 TO SHOW ALL LEVELS"
-                             : "PRESS F2 TO SHOW FAVORITE LEVELS";
-    smallTextContents += "\nHOLD FOCUS TO JUMP BETWEEN PACKS";
-
+    topLeft = {w / 2.f, 2.5f};
+    tempString = isFavoriteLevels()
+                     ? "PRESS F2 TO SHOW ALL LEVELS"
+                     : "PRESS F2 TO SHOW FAVORITE LEVELS";
     renderTextCentered(
-        smallTextContents, txtSelectionSmall.font, {w / 2.f, 5.f});
+        tempString, txtSelectionSmall.font, topLeft);
+    tempString = "\nHOLD FOCUS TO JUMP BETWEEN PACKS";
+    renderTextCentered(
+        tempString, txtSelectionSmall.font, topLeft);
 
     //----------------------------------------
     // LEVELS LIST

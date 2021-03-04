@@ -13,6 +13,7 @@
 #include <SFML/Graphics/Color.hpp>
 
 #include <array>
+#include <bitset>
 
 namespace hg
 {
@@ -26,8 +27,19 @@ public:
 
 private:
     std::array<sf::Vector2f, 4> vertexPositions;
+    std::array<sf::Vector2f, 4> oldVertexPositions;
     std::array<sf::Color, 4> vertexColors;
-    bool canCollide{true};
+    unsigned int killingSide{0u};
+
+    enum CWFlags : unsigned int
+    {
+        Collision,
+        Deadly,
+        CWFlagsCount
+    };
+
+    std::bitset<CWFlags::CWFlagsCount> flags{1}; // collision on
+
     // TODO: Implement this in drawing logic
     // int8_t renderOrder{1};
 
@@ -46,6 +58,7 @@ public:
     [[gnu::always_inline]] void setVertexPos(
         const int vertexIndex, const sf::Vector2f& pos) noexcept
     {
+        oldVertexPositions[vertexIndex] = vertexPositions[vertexIndex];
         vertexPositions[vertexIndex] = pos;
     }
 
@@ -57,7 +70,12 @@ public:
 
     [[gnu::always_inline]] void setCanCollide(const bool collide) noexcept
     {
-        canCollide = collide;
+        flags[CWFlags::Collision] = collide;
+    }
+
+    [[gnu::always_inline]] void setDeadly(const bool deadly) noexcept
+    {
+        flags[CWFlags::Deadly] = deadly;
     }
 
     // [[gnu::always_inline]] void setRenderOrder(const int8_t order) noexcept
@@ -71,9 +89,43 @@ public:
         return vertexPositions[vertexIndex];
     }
 
+    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    getVertexPositions() const noexcept
+    {
+        return vertexPositions;
+    }
+
+    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    getOldVertexPositions() const noexcept
+    {
+        return oldVertexPositions;
+    }
+
     [[gnu::always_inline, nodiscard]] bool getCanCollide() const noexcept
     {
-        return canCollide;
+        return flags[CWFlags::Collision];
+    }
+
+    [[gnu::always_inline, nodiscard]] bool getDeadly() const noexcept
+    {
+        return flags[CWFlags::Deadly];
+    }
+
+    [[gnu::always_inline, nodiscard]] constexpr bool
+    isCustomWall() const noexcept
+    {
+        return true;
+    }
+
+    [[gnu::always_inline]] void setKillingSide(const unsigned int side) noexcept
+    {
+        killingSide = side;
+    }
+
+    [[gnu::always_inline, nodiscard]] unsigned int
+    getKillingSide() const noexcept
+    {
+        return killingSide;
     }
 };
 

@@ -65,20 +65,26 @@ HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(
     switch(drawMode)
     {
         case DBoxDraw::topLeft:
+        {
             return [this](const Color& txtColor, const Color& backdropColor) {
                 drawTopLeft(txtColor, backdropColor);
             };
+        }
 
         case DBoxDraw::center:
+        {
             return [this](const Color& txtColor, const Color& backdropColor) {
                 drawCenter(txtColor, backdropColor);
             };
+        }
 
         default:
+        {
             assert(drawMode == DBoxDraw::centerUpperHalf);
             return [this](const Color& txtColor, const Color& backdropColor) {
                 drawCenterUpperHalf(txtColor, backdropColor);
             };
+        }
     }
 }
 
