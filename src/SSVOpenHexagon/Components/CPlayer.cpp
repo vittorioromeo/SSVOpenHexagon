@@ -227,7 +227,6 @@ template <typename Wall>
     }
 
     sf::Vector2f testPos{pos};
-
     sf::Vector2f pushVel{0.f, 0.f};
     const int movement{mHexagonGame.getInputMovement()};
 
@@ -236,8 +235,7 @@ template <typename Wall>
     // of the rotation is different from the direction player is moving.
     // Save the position difference in case we need to do a second attempt
     // at saving player.
-    const SpeedData& curveData{wall.getCurve()};
-    if(curveData.speed != 0.f && ssvu::getSign(curveData.speed) != movement)
+    if(wall.isCurving() && ssvu::getSign(wall.getCurve().speed) != movement)
     {
         wall.moveVertexAlongCurve(testPos, mCenterPos, mFT);
         pushVel = testPos - pos;
