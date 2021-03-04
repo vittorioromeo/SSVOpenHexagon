@@ -3087,7 +3087,7 @@ void MenuGame::drawProfileSelectionBoot()
     std::string itemName;
     if(scrollbarNotches != 0)
     {
-        float width;
+        float width = 0.f;
         for(auto& p : items)
         {
             itemName = p->getName();
@@ -3095,6 +3095,7 @@ void MenuGame::drawProfileSelectionBoot()
             txtProfile.font.setString(itemName);
             width = std::max(width, getGlobalWidth(txtProfile.font));
         }
+
         txtProfile.font.setString("Total survival time 0000:00");
         width = std::max(width, getGlobalWidth(txtProfile.font));
         width += 10.f;
