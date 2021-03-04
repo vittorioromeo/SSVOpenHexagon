@@ -36,6 +36,8 @@ private:
                            // value is set to true, so that the second check can
                            // be quickly dismissed with a boolean comparison.
 
+    bool curving{false};
+
     void moveTowardsCenter(HexagonGame& mHexagonGame,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
     void moveCurve(const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
@@ -72,6 +74,11 @@ public:
     [[gnu::always_inline, nodiscard]] const SpeedData& getCurve() const noexcept
     {
         return curve;
+    }
+
+    [[gnu::always_inline, nodiscard]] bool isCurving() const noexcept
+    {
+        return curving;
     }
 
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
