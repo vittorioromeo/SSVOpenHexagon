@@ -20,12 +20,8 @@
 
 #include <cassert>
 
-using namespace hg::Utils;
-
-
 namespace hg
 {
-
 namespace
 {
 
@@ -495,8 +491,9 @@ void HexagonGame::death(bool mForce)
 
     const bool isPersonalBest =
         !levelStatus.tutorialMode && !inReplay() &&
-        (status.getTimeSeconds() > assets.getLocalScore(getLocalValidator(
-                                       levelData->id, difficultyMult)));
+        (status.getTimeSeconds() >
+            assets.getLocalScore(
+                Utils::getLocalValidator(levelData->id, difficultyMult)));
 
     if(isPersonalBest)
     {
@@ -517,8 +514,8 @@ void HexagonGame::death(bool mForce)
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
             sf::Vector2f(Config::getWidth(), Config::getHeight())});
     backgroundCamera.setCenter(ssvs::zeroVec2f);
-    shakeCamera(effectTimelineManager, overlayCamera);
-    shakeCamera(effectTimelineManager, backgroundCamera);
+    Utils::shakeCamera(effectTimelineManager, overlayCamera);
+    Utils::shakeCamera(effectTimelineManager, backgroundCamera);
 
     status.hasDied = true;
     stopLevelMusic();
@@ -539,7 +536,7 @@ void HexagonGame::death(bool mForce)
     {
         pbStr += "PB: " +
                  timeFormat(assets.getLocalScore(
-                     getLocalValidator(levelData->id, difficultyMult))) +
+                     Utils::getLocalValidator(levelData->id, difficultyMult))) +
                  "s)";
     }
 
@@ -656,7 +653,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
     if(assets.pIsLocal())
     {
         std::string localValidator{
-            getLocalValidator(levelData->id, difficultyMult)};
+            Utils::getLocalValidator(levelData->id, difficultyMult)};
 
         // TODO: this crashes when going back to menu from replay drag and drop
         if(assets.getLocalScore(localValidator) < score)

@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
+#include "SSVOpenHexagon/Components/CPlayer.hpp"
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -27,6 +28,9 @@ class CCustomWallManager
 
     [[nodiscard]] bool isValidHandle(const CCustomWallHandle h) const noexcept;
 
+    [[nodiscard]] bool checkValidHandle(
+        const CCustomWallHandle h, const char* msg);
+
 public:
     [[nodiscard]] CCustomWallHandle create();
 
@@ -36,6 +40,11 @@ public:
         const sf::Vector2f& pos);
 
     void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);
+
+    void setDeadly(const CCustomWallHandle cwHandle, const bool deadly);
+
+    void setKillingSide(
+        const CCustomWallHandle cwHandle, const unsigned int deadly);
 
     // void setRenderOrder(const CCustomWallHandle cwHandle, const int8_t
     // order);
@@ -48,11 +57,18 @@ public:
 
     [[nodiscard]] bool getCanCollide(const CCustomWallHandle cwHandle);
 
+    [[nodiscard]] bool getDeadly(const CCustomWallHandle cwHandle);
+
+    [[nodiscard]] unsigned int getKillingSide(const CCustomWallHandle cwHandle);
+
     [[nodiscard]] bool isOverlappingPlayer(const CCustomWallHandle cwHandle);
 
     void cleanup();
     void clear();
     void draw(HexagonGame& hexagonGame);
+
+    [[nodiscard]] bool handleCollision(
+        HexagonGame& mHexagonGame, CPlayer& mPlayer, ssvu::FT mFT);
 
     template <typename F>
     void forCustomWalls(F&& f)

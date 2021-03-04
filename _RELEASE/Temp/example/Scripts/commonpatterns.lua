@@ -12,17 +12,18 @@ function pAltBarrage(mTimes, mStep)
 	t_wait(delay)
 end
 
--- pSpiral: spawns a spiral of cWall
+
+-- pSpiral: spawns a spiral of cWallEx
 function pSpiral(mTimes, mExtra)
-	oldThickness = THICKNESS
+	local oldThickness = THICKNESS
 	THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
-	delay = getPerfectDelay(THICKNESS) / l_getDelayMult()
-	startSide = getRandomSide()
-	loopDir = getRandomDir()
-	j = 0
+	local delay = getPerfectDelay(THICKNESS) / l_getDelayMult()  * 0.9 -- overlap a bit to avoid going through gaps
+	local startSide = getRandomSide()
+	local loopDir = getRandomDir()
+	local j = 0
 
 	for i = 0, mTimes do
-		cWall(startSide + j, mExtra)
+		cWallEx(startSide + j, mExtra)
 		j = j + loopDir
 		t_wait(delay)
 	end
@@ -34,11 +35,11 @@ end
 
 -- pMirrorSpiral: spawns a spiral of rWallEx
 function pMirrorSpiral(mTimes, mExtra)
-	oldThickness = THICKNESS
-	THICKNESS = getPerfectThickness(THICKNESS)
-	delay = getPerfectDelay(THICKNESS)
-	startSide = getRandomSide()
-	loopDir = getRandomDir()
+	local oldThickness = THICKNESS
+	THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
+	local delay = getPerfectDelay(THICKNESS) / l_getDelayMult() * 0.9 -- overlap a bit to avoid going through gaps
+	local startSide = getRandomSide()
+	local loopDir = getRandomDir()
 	j = 0
 
 	for i = 0, mTimes do
@@ -54,12 +55,12 @@ end
 
 -- pMirrorSpiralDouble: spawns a spiral of rWallEx where you need to change direction
 function pMirrorSpiralDouble(mTimes, mExtra)
-    oldThickness = THICKNESS
-    THICKNESS = getPerfectThickness(THICKNESS)
-    delay = getPerfectDelayDM(THICKNESS)
-    startSide = getRandomSide()
-    loopDir = getRandomDir()
-    j = 0
+    local oldThickness = THICKNESS
+    THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
+    local delay = getPerfectDelayDM(THICKNESS) / l_getDelayMult() * 0.9 -- overlap a bit to avoid going through gaps
+    local startSide = getRandomSide()
+    local loopDir = getRandomDir()
+    local j = 0
 
     for i = 0, mTimes do
         rWallEx(startSide + j, mExtra)

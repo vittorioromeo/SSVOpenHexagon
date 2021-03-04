@@ -10,8 +10,8 @@ namespace hg
 {
 
 CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
-    int mSide, float mThickness, float mDistance, const SpeedData& mSpeed,
-    const SpeedData& mCurve)
+    const int mSide, const float mThickness, const float mDistance,
+    const SpeedData& mSpeed, const SpeedData& mCurve)
     : speed{mSpeed}, curve{mCurve}, hueMod{0}, killed{false}
 {
     const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
@@ -25,6 +25,11 @@ CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
     vertexPositions[3] = ssvs::getOrbitRad(mCenterPos,
         angle - div + mHexagonGame.getWallAngleRight(),
         mDistance + mThickness + mHexagonGame.getWallSkewRight());
+
+    if(curve.speed != 0.f)
+    {
+        curving = true;
+    }
 }
 
 void CWall::draw(HexagonGame& mHexagonGame)
@@ -42,12 +47,19 @@ void CWall::draw(HexagonGame& mHexagonGame)
         vertexPositions[3]);
 }
 
-void CWall::update(const HexagonGame& mHexagonGame, const ssvu::FT mFT)
+void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
+    const ssvu::FT mFT)
 {
-    (void)mHexagonGame; // Currently unused.
-
     speed.update(mFT);
     curve.update(mFT);
+
+    moveTowardsCenter(mHexagonGame, mCenterPos, mFT);
+    if(curve.speed != 0.f)
+    {
+        moveCurve(mCenterPos, mFT);
+    }
+
+    outOfPlayerRadius = false;
 }
 
 void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
@@ -57,20 +69,19 @@ void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
     const float radius{mHexagonGame.getRadius() * 0.5f};
     const float outerBounds{wallSpawnDist * 1.1f};
 
-    int pointsOutOfBounds{0};
-    int pointsOnCenter{0};
+    int pointsOutOfBounds{0}, pointsOnCenter{0};
+    float xDistance, yDistance;
 
     for(sf::Vector2f& vp : vertexPositions)
     {
-        const float xDistance = std::abs(vp.x - mCenterPos.x);
-        const float yDistance = std::abs(vp.y - mCenterPos.y);
+        xDistance = std::abs(vp.x - mCenterPos.x);
+        yDistance = std::abs(vp.y - mCenterPos.y);
 
         if(xDistance < radius && yDistance < radius)
         {
             ++pointsOnCenter;
             continue;
         }
-
         if(xDistance > outerBounds || yDistance > outerBounds)
         {
             ++pointsOutOfBounds;
@@ -79,17 +90,14 @@ void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
         ssvs::moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
     }
 
-    if(pointsOnCenter > 3 || pointsOutOfBounds > 3)
+    if(pointsOnCenter == 4 || pointsOutOfBounds == 4)
     {
         killed = true;
     }
 }
 
-void CWall::moveCurve(const HexagonGame& mHexagonGame,
-    const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
+void CWall::moveCurve(const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
 {
-    (void)mHexagonGame; // Currently unused.
-
     for(sf::Vector2f& vp : vertexPositions)
     {
         moveVertexAlongCurve(vp, mCenterPos, mFT);
