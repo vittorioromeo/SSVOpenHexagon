@@ -79,6 +79,11 @@ void HexagonGame::update(ssvu::FT mFT)
 
     updateKeyIcons();
 
+    if(deathInputIgnore > 0.f)
+    {
+        deathInputIgnore -= mFT;
+    }
+
     if(status.started)
     {
         player.update(*this, mFT);
@@ -91,7 +96,12 @@ void HexagonGame::update(ssvu::FT mFT)
 
             if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
             {
-                player.updateInput(*this, mFT);
+                if(player.updateInput(*this, mFT))
+                {
+                    // Player successfully swapped.
+                    // TODO: document and cleanup
+                    runLuaFunction<void>("onSwap");
+                }
             }
 
             status.accumulateFrametime(mFT);

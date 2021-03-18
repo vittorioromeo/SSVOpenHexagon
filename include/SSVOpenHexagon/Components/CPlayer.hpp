@@ -95,7 +95,11 @@ public:
     void kill(HexagonGame& mHexagonGame);
 
     void update(HexagonGame& mHexagonGame, const ssvu::FT mFT);
-    void updateInput(HexagonGame& mHexagonGame, const ssvu::FT mFT);
+
+    [[nodiscard]] bool updateInput(
+        HexagonGame& mHexagonGame, const ssvu::FT mFT);
+    // Returns `true` if the player swapped, `false` otherwise.
+
     void updatePosition(const HexagonGame& mHexagonGame, const ssvu::FT mFT);
 
     void draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor);
