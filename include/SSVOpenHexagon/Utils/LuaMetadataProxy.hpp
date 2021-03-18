@@ -13,9 +13,15 @@
 #include <vector>
 #include <utility>
 #include <type_traits>
+#include <tuple>
 
 namespace hg::Utils
 {
+
+template <typename>
+struct TypeWrapper
+{
+};
 
 class LuaMetadataProxy
 {
@@ -27,62 +33,68 @@ private:
     std::string docs;
     std::vector<std::string> argNames;
 
-    template <typename T>
-    [[nodiscard]] constexpr static const char* typeToStr() noexcept
+    template <typename... Ts>
+    [[nodiscard]] static std::string typeToStr(TypeWrapper<std::tuple<Ts...>>) noexcept
     {
-        using Type = std::decay_t<T>;
+        std::string result;
 
-        if constexpr(std::is_same_v<Type, void>)
+        result += "tuple<";
+        ((result += typeToStr(TypeWrapper<Ts>{})), ...);
+        result += ">";
+
+        return result;
+    }
+
+    template <typename T>
+    [[nodiscard]] constexpr static const char* typeToStr(TypeWrapper<T>) noexcept
+    {
+        if constexpr(std::is_same_v<T, void>)
         {
             return "void";
         }
-        else if constexpr(std::is_same_v<Type, bool>)
+        else if constexpr(std::is_same_v<T, bool>)
         {
             return "bool";
         }
-        else if constexpr(std::is_same_v<Type, int>)
+        else if constexpr(std::is_same_v<T, int>)
         {
             return "int";
         }
-        else if constexpr(std::is_same_v<Type, float>)
+        else if constexpr(std::is_same_v<T, float>)
         {
             return "float";
         }
-        else if constexpr(std::is_same_v<Type, double>)
+        else if constexpr(std::is_same_v<T, double>)
         {
             return "double";
         }
-        else if constexpr(std::is_same_v<Type, std::string>)
+        else if constexpr(std::is_same_v<T, std::string>)
         {
             return "string";
         }
-        else if constexpr(std::is_same_v<Type, unsigned int>)
+        else if constexpr(std::is_same_v<T, unsigned int>)
         {
             return "unsigned int";
         }
-        else if constexpr(std::is_same_v<Type, long>)
+        else if constexpr(std::is_same_v<T, long>)
         {
             return "long";
         }
-        else if constexpr(std::is_same_v<Type, unsigned long>)
+        else if constexpr(std::is_same_v<T, unsigned long>)
         {
             return "unsigned long";
         }
-        else if constexpr(std::is_same_v<Type, long long>)
+        else if constexpr(std::is_same_v<T, long long>)
         {
             return "long long";
         }
-        else if constexpr(std::is_same_v<Type, unsigned long long>)
+        else if constexpr(std::is_same_v<T, unsigned long long>)
         {
             return "unsigned long long";
         }
-        else if constexpr(std::is_same_v<Type, std::size_t>)
+        else if constexpr(std::is_same_v<T, std::size_t>)
         {
             return "size_t";
-        }
-        else if constexpr(std::is_same_v<Type, std::tuple<float, float>>)
-        {
-            return "tuple<float, float>";
         }
         else
         {
@@ -94,7 +106,7 @@ private:
     template <typename ArgT>
     static void addTypeToStr(std::vector<std::string>& types)
     {
-        types.emplace_back(typeToStr<ArgT>());
+        types.emplace_back(typeToStr(TypeWrapper<std::decay_t<ArgT>>{}));
     }
 
     template <typename F>
@@ -169,7 +181,7 @@ public:
               using AE =
                   Utils::ArgExtractor<decltype(&std::decay_t<F>::operator())>;
 
-              return typeToStr<typename AE::Return>();
+              return typeToStr(TypeWrapper<std::decay_t<typename AE::Return>>{});
           }},
           erasedArgs{[](LuaMetadataProxy* self) {
               return makeArgsString<std::decay_t<F>>(self);

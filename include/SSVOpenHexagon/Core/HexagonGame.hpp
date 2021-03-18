@@ -138,6 +138,8 @@ private:
     random_number_generator rng;
     HexagonGameStatus status;
 
+    float deathInputIgnore{0.f};
+
     struct ActiveReplay
     {
         replay_file replayFile;
@@ -242,6 +244,17 @@ public:
                 goToMenu(false /* mSendScores */, true /* mError */);
             }
         }
+        catch(...)
+        {
+            std::cout << "[runLuaFunction] Unknown error on \"" << mName
+                      << "\" with level \"" << levelData->name << std::endl;
+
+            if(!Config::getDebug())
+            {
+                goToMenu(false /* mSendScores */, true /* mError */);
+            }
+        }
+
         return T();
     }
 
