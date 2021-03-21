@@ -158,7 +158,7 @@ public:
         return getLevelData(mPackId + "_" + mId);
     }
 
-    bool checkLevelIDValidity(const std::string& mAssetId)
+    [[nodiscard]] bool checkLevelIDValidity(const std::string& mAssetId)
     {
         return levelDatas.find(mAssetId) != levelDatas.end();
     }

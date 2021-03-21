@@ -798,10 +798,19 @@ private:
             // pushed on the stack
             const std::string errorMsg =
                 _readTopAndPop(1, (std::string*)nullptr);
+
             if(pcallReturnValue == LUA_ERRMEM)
-                throw(std::bad_alloc());
+            {
+                throw std::bad_alloc();
+            }
             else if(pcallReturnValue == LUA_ERRRUN)
-                throw(ExecutionErrorException(errorMsg));
+            {
+                throw ExecutionErrorException(errorMsg);
+            }
+            else
+            {
+                throw std::runtime_error("UNKNOWN RC: " + errorMsg);
+            }
         }
 
         // pcall succeeded, we pop the returned values and return them

@@ -656,6 +656,8 @@ void MenuGame::initLua()
             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
             "u_haltTime", "u_timelineWait", "u_clearWalls",
 
+            "u_rndReal", "u_rndIntUpper", "u_rndInt", "u_rndSwitch",
+
             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
             "a_playSound", "a_playPackSound", "a_syncMusicToDM",
             "a_setMusicPitch", "a_overrideBeepSound",

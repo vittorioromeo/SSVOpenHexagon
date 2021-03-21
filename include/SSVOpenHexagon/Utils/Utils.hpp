@@ -108,6 +108,29 @@ void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
 
 [[gnu::pure]] sf::Color transformHue(const sf::Color& in, float H);
 
+inline void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
+{
+    try
+    {
+        mLua.executeCode(mCode);
+    }
+    catch(std::runtime_error& mError)
+    {
+        ssvu::lo("hg::Utils::runLuaCode") << "Fatal lua error"
+                                          << "\n";
+        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << "\n";
+        ssvu::lo("hg::Utils::runLuaCode") << "Error: " << mError.what() << "\n"
+                                          << std::endl;
+    }
+    catch(...)
+    {
+        ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown lua error"
+                                          << "\n";
+        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << "\n";
+        ssvu::lo("hg::Utils::runLuaCode") << std::endl;
+    }
+}
+
 inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
 {
     std::ifstream s{mFileName};
@@ -123,6 +146,13 @@ inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
         ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n";
         ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << "\n"
                                           << std::endl;
+    }
+    catch(...)
+    {
+        ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown lua error"
+                                          << "\n";
+        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n";
+        ssvu::lo("hg::Utils::runLuaFile") << std::endl;
     }
 }
 

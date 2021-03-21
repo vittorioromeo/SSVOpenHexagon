@@ -321,7 +321,7 @@ void HexagonGame::initLua_MainTimeline()
 {
     addLuaFn("t_eval",
         [this](const std::string& mCode) {
-            timeline.append_do([=, this] { lua.executeCode(mCode); });
+            timeline.append_do([=, this] { Utils::runLuaCode(lua, mCode); });
         })
         .arg("code")
         .doc(
@@ -1182,6 +1182,12 @@ void HexagonGame::initLua_StyleControl()
         .doc(
             "Set the color of the center polygon to match the  style "
             "color with index `$0`.");
+
+    // TODO:
+    addLuaFn("s_getMainColor", [this]() -> std::tuple<int, int, int, int> {
+        const sf::Color& c = styleData.getMainColor();
+        return {c.r, c.g, c.b, c.a};
+    });
 }
 
 void HexagonGame::initLua_WallCreation()
