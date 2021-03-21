@@ -167,7 +167,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     game.addInput(
         Config::getTriggerRestart(),
         [this](ssvu::FT /*unused*/) {
-            if(status.hasDied)
+            if(deathInputIgnore <= 0.f && status.hasDied)
             {
                 status.mustStateChange = StateChange::MustRestart;
             }
@@ -177,7 +177,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     game.addInput(
         Config::getTriggerReplay(),
         [this](ssvu::FT /*unused*/) {
-            if(status.hasDied)
+            if(deathInputIgnore <= 0.f && status.hasDied)
             {
                 status.mustStateChange = StateChange::MustReplay;
             }
@@ -478,6 +478,8 @@ void HexagonGame::death(bool mForce)
     {
         return;
     }
+
+    deathInputIgnore = 10.f;
 
     fpsWatcher.disable();
     assets.playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);

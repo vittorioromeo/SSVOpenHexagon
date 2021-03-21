@@ -408,7 +408,8 @@ void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
     forcedMove = false;
 }
 
-void CPlayer::updateInput(HexagonGame& mHexagonGame, const ssvu::FT mFT)
+[[nodiscard]] bool CPlayer::updateInput(
+    HexagonGame& mHexagonGame, const ssvu::FT mFT)
 {
     const int movement{mHexagonGame.getInputMovement()};
     currentSpeed = mHexagonGame.getPlayerSpeedMult() *
@@ -421,12 +422,13 @@ void CPlayer::updateInput(HexagonGame& mHexagonGame, const ssvu::FT mFT)
         playerSwap(mHexagonGame, true /* mPlaySound */);
         swapTimer.restart(mHexagonGame.getSwapCooldown());
         swapBlinkTimer.restart(mHexagonGame.getSwapCooldown() / 6.f);
+
         justSwapped = true;
+        return true;
     }
-    else
-    {
-        justSwapped = false;
-    }
+
+    justSwapped = false;
+    return false;
 }
 
 void CPlayer::updatePosition(
