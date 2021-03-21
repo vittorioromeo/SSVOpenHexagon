@@ -60,31 +60,31 @@ public:
         segments.emplace_back(Segment{mSeconds, mBeatPulseDelayOffset});
     }
 
-    [[nodiscard]] Segment playRandomSegment(
+    [[nodiscard]] Segment playRandomSegment(sf::Sound& music,
         const std::string& mPackId, HGAssets& mAssets)
     {
         if(firstPlay)
         {
             firstPlay = false;
-            return playSegment(mPackId, mAssets, 0);
+            return playSegment(music, mPackId, mAssets, 0);
         }
         else
         {
             const Segment& segment = getRandomSegment();
-            playSeconds(mPackId, mAssets, segment.time);
+            playSeconds(music, mPackId, mAssets, segment.time);
             return segment;
         }
     }
 
-    [[nodiscard]] Segment playSegment(
+    [[nodiscard]] Segment playSegment(sf::Sound& music,
         const std::string& mPackId, HGAssets& mAssets, std::size_t mIdx)
     {
         const Segment& segment = segments[mIdx];
-        playSeconds(mPackId, mAssets, segment.time);
+        playSeconds(music, mPackId, mAssets, segment.time);
         return segment;
     }
 
-    void playSeconds(
+    void playSeconds(sf::Sound& music,
         const std::string& mPackId, HGAssets& mAssets, float mSeconds) const
     {
         if(Config::getNoMusic())
@@ -92,7 +92,7 @@ public:
             return;
         }
 
-        mAssets.playMusic(mPackId, id, sf::seconds(mSeconds));
+        mAssets.playMusic(music, mPackId, id, sf::seconds(mSeconds));
     }
 };
 

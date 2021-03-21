@@ -288,7 +288,8 @@ void HexagonGame::start()
 
     if(!Config::getNoMusic())
     {
-        assets.musicPlayer.resume();
+        music.setLoop(true);
+        music.play();
     }
 
     if(Config::getOfficial())
@@ -502,6 +503,85 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
 
 void HexagonGame::updateBeatPulse(ssvu::FT mFT)
 {
+    if(music.getStatus() != sf::Sound::Status::Playing)
+    {
+        return;
+    }
+
+    const sf::SoundBuffer* sb = music.getBuffer();
+    if(sb == nullptr)
+    {
+        return;
+    }
+
+    const unsigned int sampleFrequency{sb->getSampleRate()};
+    const unsigned int numberOfChannels{sb->getChannelCount()};
+    const sf::Uint64 sampleCount{sb->getSampleCount()};
+    const sf::Int16* sampleData{sb->getSamples()};
+    const sf::Time currentPlayingTime{music.getPlayingOffset()};
+    const sf::Uint32 currentSamplePosition{static_cast<sf::Uint32>(
+        currentPlayingTime.asSeconds() * sampleFrequency)};
+
+    int maxIdx = sampleCount * numberOfChannels;
+
+    auto sample = [&](int offset) {
+        const sf::Uint32 currentSampleDataIndex{
+            (currentSamplePosition + offset) * numberOfChannels};
+
+        int idxLeft = currentSampleDataIndex;
+        int idxRight = currentSampleDataIndex + 1;
+
+        if(idxLeft < 0 || idxLeft >= maxIdx)
+        {
+            return 0.f;
+        }
+
+        if(idxRight < 0 || idxRight >= maxIdx)
+        {
+            return 0.f;
+        }
+
+        sf::Int16 leftChannel{sampleData[idxLeft]};
+        sf::Int16 rightChannel{sampleData[idxRight]};
+
+        return (static_cast<float>(leftChannel) +
+                   static_cast<float>(rightChannel)) /
+               2.f;
+    };
+
+    std::vector<float> samples;
+    int nsamples = 8;
+    samples.push_back(sample(0));
+    for(int i = 1; i < nsamples; ++i)
+    {
+        samples.push_back(sample(i));
+        samples.push_back(sample(-i));
+    }
+
+    float avg = 0.f;
+    for(float s : samples) avg += s;
+    avg /= samples.size();
+
+    auto clamp = [&](float x, float lowerlimit, float upperlimit) {
+        if(x < lowerlimit) x = lowerlimit;
+        if(x > upperlimit) x = upperlimit;
+        return x;
+    };
+
+    auto smoothstep = [&](float edge0, float edge1, float x) {
+        // Scale, bias and saturate x to 0..1 range
+        x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+        // Evaluate polynomial
+        return x * x * (3 - 2 * x);
+    };
+
+    auto lerp = [&](float initial, float end, float i) {
+        return (1.0 - i) * initial + i * end;
+    };
+
+    status.waveformPulse =
+        lerp(status.waveformPulse, (avg / 32767.f * 30.f), 0.2f);
+
     if(status.beatPulseDelay <= 0)
     {
         status.beatPulse = levelStatus.beatPulseMax;
@@ -519,8 +599,8 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
     }
 
     float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
-    status.radius =
-        radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
+    status.radius = radiusMin * (status.pulse / levelStatus.pulseMin) +
+                    status.beatPulse + status.waveformPulse;
 }
 
 void HexagonGame::updateRotation(ssvu::FT mFT)

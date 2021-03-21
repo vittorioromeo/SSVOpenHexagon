@@ -314,11 +314,12 @@ void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
     {
-        auto& music(assetManager.load<sf::Music>(
+        auto& music(assetManager.load<sf::SoundBuffer>(
             mPackId + "_" + p.getFileNameNoExtensions(), p));
 
-        music.setVolume(Config::getMusicVolume());
-        music.setLoop(true);
+        // TODO:
+        // music.setVolume(Config::getMusicVolume());
+        // music.setLoop(true);
 
         loadInfo.assets++;
     }
@@ -568,11 +569,11 @@ std::string HGAssets::reloadPack(
         for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
         {
             temp = mPackId + "_" + p.getFileNameNoExtensions();
-            if(!assetManager.has<sf::Music>(temp))
+            if(!assetManager.has<sf::SoundBuffer>(temp))
             {
-                auto& music(assetManager.load<sf::Music>(temp, p));
-                music.setVolume(Config::getMusicVolume());
-                music.setLoop(true);
+                auto& music(assetManager.load<sf::SoundBuffer>(temp, p));
+                // music.setVolume(Config::getMusicVolume());
+                // music.setLoop(true);
             }
         }
         output += "Music files successfully reloaded\n";
@@ -701,7 +702,7 @@ std::string HGAssets::reloadLevel(const std::string& mPackId,
     else if(levelData.musicId != "nullMusicId")
     {
         assetId = mPackId + "_" + levelData.musicId;
-        if(assetManager.has<sf::Music>(assetId))
+        if(assetManager.has<sf::SoundBuffer>(assetId))
         {
             output +=
                 "music file " + levelData.musicId + ".ogg is already loaded\n";
@@ -716,9 +717,9 @@ std::string HGAssets::reloadLevel(const std::string& mPackId,
             else
             {
                 auto& music(
-                    assetManager.load<sf::Music>(assetId, musicFile[0]));
-                music.setVolume(Config::getMusicVolume());
-                music.setLoop(true);
+                    assetManager.load<sf::SoundBuffer>(assetId, musicFile[0]));
+                // music.setVolume(Config::getMusicVolume());
+                // music.setLoop(true);
                 output += "new music file " + levelData.musicId +
                           ".ogg successfully loaded\n";
             }
@@ -857,12 +858,7 @@ std::string HGAssets::getFirstLocalProfileName()
 void HGAssets::refreshVolumes()
 {
     soundPlayer.setVolume(Config::getSoundVolume());
-    musicPlayer.setVolume(Config::getMusicVolume());
-}
-
-void HGAssets::stopMusics()
-{
-    musicPlayer.stop();
+    // music.setVolume(Config::getMusicVolume());
 }
 
 void HGAssets::stopSounds()
@@ -897,14 +893,18 @@ void HGAssets::playPackSound(const std::string& mPackId, const std::string& mId,
     soundPlayer.play(assetManager.get<sf::SoundBuffer>(assetId), mMode);
 }
 
-void HGAssets::playMusic(
-    const std::string& mPackId, const std::string& mId, sf::Time mPlayingOffset)
+void HGAssets::playMusic(sf::Sound& music, const std::string& mPackId,
+    const std::string& mId, sf::Time mPlayingOffset)
 {
     const auto assetId = mPackId + "_" + mId;
 
-    if(assetManager.has<sf::Music>(assetId))
+    if(assetManager.has<sf::SoundBuffer>(assetId))
     {
-        musicPlayer.play(assetManager.get<sf::Music>(assetId), mPlayingOffset);
+        sf::SoundBuffer& buffer = assetManager.get<sf::SoundBuffer>(assetId);
+        music.setBuffer(buffer);
+        music.setPlayingOffset(mPlayingOffset);
+        music.setLoop(true);
+        music.play();
     }
 }
 

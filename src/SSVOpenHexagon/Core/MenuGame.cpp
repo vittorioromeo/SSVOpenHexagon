@@ -380,7 +380,6 @@ void MenuGame::init(bool error)
 
     discordManager.set_rich_presence_in_menu();
 
-    assets.stopMusics();
     assets.stopSounds();
 
     if(error)

@@ -67,6 +67,8 @@ private:
     ssvs::GameState game;
     ssvs::GameWindow& window;
 
+    sf::Sound music;
+
 public:
     CPlayer player;
     std::vector<CWall> walls;
@@ -535,7 +537,7 @@ public:
                                          : 1.f;
     }
 
-    void setMusicPitch(sf::Music& current)
+    void setMusicPitch(sf::Sound& current)
     {
         current.setPitch((getMusicDMSyncFactor()) *
                          Config::getMusicSpeedMult() * levelStatus.musicPitch);

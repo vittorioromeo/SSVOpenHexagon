@@ -41,6 +41,7 @@ public:
     float pulseDelayHalf{0};
     float beatPulse{0};
     float beatPulseDelay{0};
+    float waveformPulse{0};
     float pulse3D{1.f};
     float pulse3DDirection{1};
     float flashEffect{0};

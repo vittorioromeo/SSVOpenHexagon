@@ -326,17 +326,12 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     if(!Config::getNoMusic())
     {
         playLevelMusic();
-        assets.musicPlayer.pause();
-
-        sf::Music* current(assets.getMusicPlayer().getCurrent());
-        if(current != nullptr)
-        {
-            setMusicPitch(*current);
-        }
+        music.pause();
+        setMusicPitch(music);
     }
     else
     {
-        assets.musicPlayer.stop();
+        music.stop();
     }
 
     // Events cleanup
@@ -697,6 +692,8 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         runLuaFunction<void>("onUnload");
     }
 
+    music.stop();
+
     window.setGameState(mgPtr->getGame());
     mgPtr->returnToLevelSelection();
     mgPtr->init(mError);
@@ -779,7 +776,7 @@ void HexagonGame::playLevelMusic()
     if(!Config::getNoMusic())
     {
         const MusicData::Segment segment =
-            musicData.playRandomSegment(getPackId(), assets);
+            musicData.playRandomSegment(music, getPackId(), assets);
         status.beatPulseDelay += segment.beatPulseDelayOffset;
     }
 }
@@ -788,16 +785,13 @@ void HexagonGame::playLevelMusicAtTime(float mSeconds)
 {
     if(!Config::getNoMusic())
     {
-        musicData.playSeconds(getPackId(), assets, mSeconds);
+        musicData.playSeconds(music, getPackId(), assets, mSeconds);
     }
 }
 
 void HexagonGame::stopLevelMusic()
 {
-    if(!Config::getNoMusic())
-    {
-        assets.stopMusics();
-    }
+    music.stop();
 }
 
 void HexagonGame::invalidateScore(const std::string& mReason)
