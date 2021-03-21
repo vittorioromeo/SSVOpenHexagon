@@ -11,7 +11,6 @@
 
 #include <SSVStart/Assets/Assets.hpp>
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
-#include <SSVStart/MusicPlayer/MusicPlayer.hpp>
 
 #include <SSVUtils/Core/Assert/Assert.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
@@ -44,9 +43,6 @@ private:
 
     ssvs::AssetManager<> assetManager;
     ssvs::SoundPlayer soundPlayer;
-
-public:
-    ssvs::MusicPlayer musicPlayer;
 
 private:
     std::unordered_map<std::string, LevelData> levelDatas;
@@ -158,7 +154,7 @@ public:
         return getLevelData(mPackId + "_" + mId);
     }
 
-    bool checkLevelIDValidity(const std::string& mAssetId)
+    [[nodiscard]] bool checkLevelIDValidity(const std::string& mAssetId)
     {
         return levelDatas.find(mAssetId) != levelDatas.end();
     }
@@ -305,7 +301,6 @@ public:
 
 public:
     void refreshVolumes();
-    void stopMusics();
     void stopSounds();
 
     void playSound(const std::string& mId,
@@ -314,17 +309,12 @@ public:
     void playPackSound(const std::string& mPackId, const std::string& mId,
         ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
 
-    void playMusic(const std::string& mPackId, const std::string& mId,
-        sf::Time mPlayingOffset = sf::seconds(0));
+    void playMusic(sf::Sound& music, const std::string& mPackId,
+        const std::string& mId, sf::Time mPlayingOffset = sf::seconds(0));
 
     ssvs::SoundPlayer& getSoundPlayer() noexcept
     {
         return soundPlayer;
-    }
-
-    ssvs::MusicPlayer& getMusicPlayer() noexcept
-    {
-        return musicPlayer;
     }
 };
 
