@@ -9,11 +9,11 @@
 	"name": "Starship Showdown",
 	"album": "Caps On, Hats Off",
 	"author": "BOSSFIGHT",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 26 },
-		{ "time": 66 }
+		{ "time": 26.180 },
+		{ "time": 64.547 }
 	]
 }

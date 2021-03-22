@@ -467,8 +467,6 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
 
 void HexagonGame::updatePulse(ssvu::FT mFT)
 {
-    std::cout << status.pulseDelay << '\n';
-
     if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
     {
         const float pulseAdd{status.pulseDirection > 0

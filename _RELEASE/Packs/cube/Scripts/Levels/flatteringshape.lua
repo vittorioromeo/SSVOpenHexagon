@@ -51,14 +51,16 @@ function onInit()
 	l_setSidesMax(6)
 	l_setIncTime(15)
 
-	l_setPulseMin(75)
+	l_setPulseMin(74.73)
 	l_setPulseMax(91)
 	l_setPulseSpeed(1.5)
 	l_setPulseSpeedR(0.6)
 	l_setPulseDelayMax(11)
+	-- ((91 - 74.73) / 1.5) + 11 + ((91 - 74.73) / 0.6) = 48.963 ~= 24.489 * 2 ~= 48.978
+	-- (pulseDiff / pulseSpeed) + pulseDelayMax + (pulseDiff / pulseSpeedR) = 3600/BPM * C
 
 	l_setBeatPulseMax(17)
-	l_setBeatPulseDelayMax(24.4) -- BPM is 148
+	l_setBeatPulseDelayMax(24.489) -- BPM is 147
 
 	enableSwapIfDMGreaterThan(3)
 	disableIncIfDMGreaterThan(3)
