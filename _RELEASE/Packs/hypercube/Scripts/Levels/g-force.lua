@@ -51,14 +51,14 @@ function onInit()
 
 	l_setWallSkewLeft(-15)
 
-	l_setPulseMin(77)
+	l_setPulseMin(67.62)
 	l_setPulseMax(95)
-	l_setPulseSpeed(2.95)
-	l_setPulseSpeedR(0.5)
-	l_setPulseDelayMax(13)
+	l_setPulseSpeed(2.791)
+	l_setPulseSpeedR(0.83)
+	l_setPulseDelayMax(13.01)
 
-	l_setBeatPulseMax(19)
-	l_setBeatPulseDelayMax(14.2)
+	l_setBeatPulseMax(17)
+	l_setBeatPulseDelayMax(13.953)
 
 	l_setSwapEnabled(true)
 	l_addTracked("special", "special")

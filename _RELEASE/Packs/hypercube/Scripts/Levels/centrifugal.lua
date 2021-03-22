@@ -31,8 +31,8 @@ function onInit()
 	l_setPulseSpeedR(0)
 	l_setPulseDelayMax(6.8)
 
-	l_setBeatPulseMax(20)
-	l_setBeatPulseDelayMax(27.2)
+	l_setBeatPulseMax(19)
+	l_setBeatPulseDelayMax(28.346)
 
 	l_setSwapEnabled(true)
 	l_addTracked("curveSpeed", "curve speed")

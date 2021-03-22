@@ -9,11 +9,11 @@
 	"name": "Tengil",
 	"album": "",
 	"author": "Fantomenk",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 57 },
-		{ "time": 145 }
+		{ "time": 56.791 },
+		{ "time": 144.665 }
 	]
 }
