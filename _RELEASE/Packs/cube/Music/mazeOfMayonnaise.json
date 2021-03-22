@@ -9,12 +9,12 @@
 	"name": "The Maze of Mayonnaise",
 	"album": "Caps On, Hats Off",
 	"author": "BOSSFIGHT",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 35 },
-		{ "time": 52 },
-		{ "time": 93 }
+		{ "time": 34.724 },
+		{ "time": 51.613 },
+		{ "time": 92.502 }
 	]
 }

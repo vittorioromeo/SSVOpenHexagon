@@ -9,11 +9,11 @@
 	"name": "Commando Steve",
 	"album": "Caps On, Hats Off",
 	"author": "BOSSFIGHT",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 61 },
-		{ "time": 88 }
+		{ "time": 59.644 },
+		{ "time": 87.782 }
 	]
 }

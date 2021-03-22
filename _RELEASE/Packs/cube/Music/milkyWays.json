@@ -9,12 +9,12 @@
 	"name": "Milky Ways",
 	"album": "Caps On, Hats Off",
 	"author": "BOSSFIGHT",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 16 },
-		{ "time": 37 },
-		{ "time": 81 }
+		{ "time": 15.795 },
+		{ "time": 36.779 },
+		{ "time": 80.058 }
 	]
 }
