@@ -59,6 +59,9 @@ private:
 
     float currentSpeed; // Cached player speed in the current frame.
 
+    float triangleWidth; // Visual width of the triangle, varies when focusing.
+    float triangleWidthTransitionTime; // From 0 to 1, when transitioning
+
     Ticker swapTimer;
     Ticker swapBlinkTimer;
     Ticker deadEffectTimer;
