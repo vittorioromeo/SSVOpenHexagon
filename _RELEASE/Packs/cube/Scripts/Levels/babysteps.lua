@@ -40,12 +40,12 @@ step1_trFocus = "nope"
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-	l_setSpeedMult(1.00)
-	l_setSpeedInc(0.20)
+	l_setSpeedMult(0.70)
+	l_setSpeedInc(0.15)
 	l_setRotationSpeed(0.04)
 	l_setRotationSpeedMax(0.4)
 	l_setRotationSpeedInc(0.04)
-	l_setDelayMult(1.3)
+	l_setDelayMult(1.45)
 	l_setDelayInc(0.0)
 	l_setFastSpin(0.0)
 	l_setSides(6)
@@ -53,6 +53,10 @@ function onInit()
 	l_setSidesMax(6)
 	l_setIncTime(15)
 	l_setTutorialMode(true)
+
+	l_setBeatPulseMax(14)
+    l_setBeatPulseDelayMax(21.95) -- BPM is 164, 3600/164 is 21.95
+    l_setBeatPulseSpeedMult(0.45) -- Slows down the center going back to normal
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -85,7 +89,7 @@ end
 
 -- onInput is a hardcoded function invoked when the player executes input
 function onInput(mFrameTime, mMovement, mFocus, mSwap)
-	if step1 then
+	if not step25 and step1 then
 		if mMovement == -1 then
 			step0_trRotateLeft = "yes!"
 		end
@@ -98,6 +102,14 @@ function onInput(mFrameTime, mMovement, mFocus, mSwap)
 	if step25 then
 		if mFocus then
 			step1_trFocus = "yes!"
+
+			if mMovement == -1 then
+				step0_trRotateLeft = "yes!"
+			end
+
+			if mMovement == 1 then
+				step0_trRotateRight = "yes!"
+			end
 		end
 	end
 end
@@ -135,10 +147,13 @@ function onUpdate(mFrameTime)
 	if not step25 and step2 and l_getLevelTime() > step0_completionTime + 0.2 then
 		step25 = true
 
+		step0_trRotateLeft = "nope"
+		step0_trRotateRight = "nope"
+
 		l_addTracked("step1_trFocus", "focused")
 	end
 
-	if step25 and not step3 and step1_trFocus == "yes!" then
+	if step25 and not step3 and step0_trRotateLeft == "yes!" and step0_trRotateRight == "yes!" and step1_trFocus == "yes!" then
 		step3 = true
 		step3_completionTime = l_getLevelTime()
 
@@ -170,9 +185,10 @@ function onUpdate(mFrameTime)
 		e_messageAddImportant("get to 45 seconds to complete the tutorial!", 130)
 	end
 
-	if step4 and not step5 and l_getLevelTime() > 42 then
+	if step4 and not step5 and l_getLevelTime() > 43 then
 		step5 = true
 
+		u_clearWalls()
 		l_setIncEnabled(false);
 
 		if not achievementUnlocked then
