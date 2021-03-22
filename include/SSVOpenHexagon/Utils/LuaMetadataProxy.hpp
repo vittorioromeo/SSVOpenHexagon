@@ -34,7 +34,8 @@ private:
     std::vector<std::string> argNames;
 
     template <typename... Ts>
-    [[nodiscard]] static std::string typeToStr(TypeWrapper<std::tuple<Ts...>>) noexcept
+    [[nodiscard]] static std::string typeToStr(
+        TypeWrapper<std::tuple<Ts...>>) noexcept
     {
         std::string result;
 
@@ -46,7 +47,8 @@ private:
     }
 
     template <typename T>
-    [[nodiscard]] constexpr static const char* typeToStr(TypeWrapper<T>) noexcept
+    [[nodiscard]] constexpr static const char* typeToStr(
+        TypeWrapper<T>) noexcept
     {
         if constexpr(std::is_same_v<T, void>)
         {
@@ -181,7 +183,8 @@ public:
               using AE =
                   Utils::ArgExtractor<decltype(&std::decay_t<F>::operator())>;
 
-              return typeToStr(TypeWrapper<std::decay_t<typename AE::Return>>{});
+              return typeToStr(
+                  TypeWrapper<std::decay_t<typename AE::Return>>{});
           }},
           erasedArgs{[](LuaMetadataProxy* self) {
               return makeArgsString<std::decay_t<F>>(self);
