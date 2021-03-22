@@ -23,13 +23,19 @@ namespace hg
 {
 
 inline constexpr float baseThickness{5.f};
+inline constexpr float unfocusedTriangleWidth{3.f};
+inline constexpr float focusedTriangleWidth{-1.5f};
+inline constexpr float triangleWidthRange{
+    unfocusedTriangleWidth - focusedTriangleWidth};
 
 CPlayer::CPlayer(const sf::Vector2f& mPos, const float swapCooldown) noexcept
     : startPos{mPos}, pos{mPos},
       prePushPos{mPos}, lastPos{mPos}, hue{0}, angle{0}, lastAngle{0},
       size{Config::getPlayerSize()}, speed{Config::getPlayerSpeed()},
       focusSpeed{Config::getPlayerFocusSpeed()}, dead{false},
-      justSwapped{false}, forcedMove{false}, swapTimer{swapCooldown},
+      justSwapped{false}, forcedMove{false}, currentSpeed{0.f},
+      triangleWidth{unfocusedTriangleWidth},
+      triangleWidthTransitionTime{0.f}, swapTimer{swapCooldown},
       swapBlinkTimer{swapCooldown / 6.f}, deadEffectTimer{80.f, false}
 {
 }
@@ -46,8 +52,6 @@ void CPlayer::draw(HexagonGame& mHexagonGame, const sf::Color& mCapColor)
     sf::Color colorMain{!deadEffectTimer.isRunning()
                             ? mHexagonGame.getColorPlayer()
                             : ssvs::getColorFromHSV(hue / 360.f, 1.f, 1.f)};
-
-    const float triangleWidth{mHexagonGame.getInputFocused() ? -1.5f : 3.f};
 
     const sf::Vector2f pLeft = ssvs::getOrbitRad(
         pos, angle - ssvu::toRad(100.f), size + triangleWidth);
@@ -293,6 +297,7 @@ template <typename Wall>
     {
         return false;
     }
+
     if(wall.getDeadly())
     {
         return true;
@@ -374,6 +379,41 @@ template <typename Wall>
 
 void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
 {
+    if(mHexagonGame.getInputFocused() && triangleWidthTransitionTime < 1.f)
+    {
+        triangleWidthTransitionTime += mFT * 0.1f;
+        if(triangleWidthTransitionTime > 1.f)
+        {
+            triangleWidthTransitionTime = 1.f;
+        }
+    }
+    else if(!mHexagonGame.getInputFocused() &&
+            triangleWidthTransitionTime > 0.f)
+    {
+        triangleWidthTransitionTime -= mFT * 0.1f;
+        if(triangleWidthTransitionTime < 0.f)
+        {
+            triangleWidthTransitionTime = 0.f;
+        }
+    }
+
+    // TODO: cleanup
+    auto smoothstep = [](float edge0, float edge1, float x) {
+        auto clamp = [](float x, float lowerlimit, float upperlimit) {
+            if(x < lowerlimit) x = lowerlimit;
+            if(x > upperlimit) x = upperlimit;
+            return x;
+        };
+
+        // Scale, bias and saturate x to 0..1 range
+        x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+        // Evaluate polynomial
+        return x * x * (3 - 2 * x);
+    };
+
+    triangleWidth = triangleWidthRange *
+                    (1.f - smoothstep(0.f, 1.f, triangleWidthTransitionTime));
+
     if(deadEffectTimer.isRunning())
     {
         deadEffectTimer.update(mFT);
