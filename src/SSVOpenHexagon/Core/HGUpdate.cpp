@@ -100,7 +100,6 @@ void HexagonGame::update(ssvu::FT mFT)
                 {
                     // Player successfully swapped.
                     // TODO: document and cleanup
-                    runLuaFunctionIfExists<void>("onSwap");
                 }
             }
 
@@ -468,20 +467,27 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
 
 void HexagonGame::updatePulse(ssvu::FT mFT)
 {
+    std::cout << status.pulseDelay << '\n';
+
     if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
     {
-        float pulseAdd{status.pulseDirection > 0 ? levelStatus.pulseSpeed
-                                                 : -levelStatus.pulseSpeedR};
-        float pulseLimit{status.pulseDirection > 0 ? levelStatus.pulseMax
-                                                   : levelStatus.pulseMin};
+        const float pulseAdd{status.pulseDirection > 0
+                                 ? levelStatus.pulseSpeed
+                                 : -levelStatus.pulseSpeedR};
+
+        const float pulseLimit{status.pulseDirection > 0
+                                   ? levelStatus.pulseMax
+                                   : levelStatus.pulseMin};
 
         status.pulse += pulseAdd * mFT * getMusicDMSyncFactor();
+
         if((status.pulseDirection > 0 && status.pulse >= pulseLimit) ||
             (status.pulseDirection < 0 && status.pulse <= pulseLimit))
         {
             status.pulse = pulseLimit;
             status.pulseDirection *= -1;
             status.pulseDelayHalf = levelStatus.pulseDelayHalfMax;
+
             if(status.pulseDirection < 0)
             {
                 status.pulseDelay = levelStatus.pulseDelayMax;
@@ -489,11 +495,11 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
         }
     }
 
-    status.pulseDelay -= mFT;
-    status.pulseDelayHalf -= mFT;
+    status.pulseDelay -= mFT * getMusicDMSyncFactor();
+    status.pulseDelayHalf -= mFT * getMusicDMSyncFactor();
 
-    float p{status.pulse / levelStatus.pulseMin};
-    float rotation{backgroundCamera.getRotation()};
+    const float p{status.pulse / levelStatus.pulseMin};
+    const float rotation{backgroundCamera.getRotation()};
     backgroundCamera.setView({ssvs::zeroVec2f,
         {(Config::getWidth() * Config::getZoomFactor()) * p,
             (Config::getHeight() * Config::getZoomFactor()) * p}});
@@ -509,7 +515,7 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
     }
     else
     {
-        status.beatPulseDelay -= 1 * mFT * getMusicDMSyncFactor();
+        status.beatPulseDelay -= mFT * getMusicDMSyncFactor();
     }
 
     if(status.beatPulse > 0)
