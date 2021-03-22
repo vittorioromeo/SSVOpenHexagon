@@ -32,13 +32,13 @@ namespace
                : status.getPlayedAccumulatedFrametime();
 }
 
-} // namespace
-
-[[nodiscard]] static random_number_generator initializeRng()
+[[nodiscard]] random_number_generator initializeRng()
 {
     const random_number_generator::seed_type seed = ssvu::getRndEngine()();
     return random_number_generator{seed};
 }
+
+} // namespace
 
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
@@ -545,8 +545,10 @@ void HexagonGame::death(bool mForce)
 
     std::string nameStr = levelData->name;
     nameFormat(nameStr);
+
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
+
     discordManager.set_rich_presence_in_game(
         nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
 
@@ -640,7 +642,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
     {
         ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
             << "Not saving score - not eligible - "
-            << Config::getUneligibilityReason() << "\n";
+            << Config::getUneligibilityReason() << '\n';
 
         return CheckSaveScoreResult::Ineligible;
     }

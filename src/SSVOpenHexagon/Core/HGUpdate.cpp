@@ -24,8 +24,12 @@ void HexagonGame::update(ssvu::FT mFT)
 {
     mFT *= Config::getTimescale();
 
+    // ------------------------------------------------------------------------
+    // Update Discord and Steam "rich presence".
+    // Discord "rich presence" is also updated in `HexagonGame::start`.
     std::string nameStr = levelData->name;
     nameFormat(nameStr);
+
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
 
@@ -35,11 +39,12 @@ void HexagonGame::update(ssvu::FT mFT)
     if(timeUntilRichPresenceUpdate <= 0.f)
     {
         steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
-
         timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
     }
 
     updateRichPresenceCallbacks();
+
+    // ------------------------------------------------------------------------
     updateText(mFT);
     updateFlash(mFT);
     effectTimelineManager.update(mFT);
@@ -77,13 +82,21 @@ void HexagonGame::update(ssvu::FT mFT)
         inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
     }
 
-    updateKeyIcons();
+    // ------------------------------------------------------------------------
+    // Update key icons.
+    if(Config::getShowKeyIcons() || mustShowReplayUI())
+    {
+        updateKeyIcons();
+    }
 
+    // ------------------------------------------------------------------------
+    // Update input leniency time after death to avoid accidental restart.
     if(deathInputIgnore > 0.f)
     {
         deathInputIgnore -= mFT;
     }
 
+    // ------------------------------------------------------------------------
     if(status.started)
     {
         player.update(*this, mFT);
@@ -142,7 +155,6 @@ void HexagonGame::update(ssvu::FT mFT)
             ssvu::eraseRemoveIf(
                 walls, [](const CWall& w) { return w.isDead(); });
 
-            cwManager.cleanup();
             updateCustomWalls(mFT);
         }
         else
@@ -214,8 +226,11 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     {
         w.update(*this, centerPos, mFT);
 
+        // Broad-phase Manhattan distance optimization.
+        w.updateOutOfPlayerRadius(centerPos, getRadius());
+
         // If there is no collision skip to the next wall.
-        if(!w.isOverlapping(pPos, centerPos, radiusSquared))
+        if(!w.isOverlapping(pPos))
         {
             continue;
         }
@@ -240,6 +255,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         return;
     }
 
+    // Second round, always deadly...
     for(CWall& w : walls)
     {
         if(!w.isOverlapping(pPos))
@@ -251,6 +267,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         {
             steamManager.unlock_achievement("a22_swapdeath");
         }
+
         player.kill(*this);
     }
 }
@@ -272,9 +289,11 @@ void HexagonGame::start()
     if(!mustReplayInput())
     {
         std::string nameStr = levelData->name;
-        std::string packStr = getPackName();
         nameFormat(nameStr);
+
+        std::string packStr = getPackName();
         nameFormat(packStr);
+
         const std::string diffStr = diffFormat(difficultyMult);
 
         discordManager.set_rich_presence_in_game(
@@ -498,9 +517,11 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
 
     const float p{status.pulse / levelStatus.pulseMin};
     const float rotation{backgroundCamera.getRotation()};
+
     backgroundCamera.setView({ssvs::zeroVec2f,
         {(Config::getWidth() * Config::getZoomFactor()) * p,
             (Config::getHeight() * Config::getZoomFactor()) * p}});
+
     backgroundCamera.setRotation(rotation);
 }
 
@@ -522,7 +543,7 @@ void HexagonGame::updateBeatPulse(ssvu::FT mFT)
                             levelStatus.beatPulseSpeedMult;
     }
 
-    float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
+    const float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
     status.radius =
         radiusMin * (status.pulse / levelStatus.pulseMin) + status.beatPulse;
 }
@@ -537,6 +558,7 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
                     3.5f) *
                 17.f) *
             getSign(nextRotation);
+
         status.fastSpin -= mFT;
     }
 
@@ -549,7 +571,9 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
     {
         status.flashEffect -= 3 * mFT;
     }
+
     status.flashEffect = getClamped(status.flashEffect, 0.f, 255.f);
+
     for(auto i(0u); i < 4; ++i)
     {
         flashPolygon[i].color.a = status.flashEffect;
@@ -561,11 +585,11 @@ void HexagonGame::update3D(ssvu::FT mFT)
     status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
     if(status.pulse3D > styleData._3dPulseMax)
     {
-        status.pulse3DDirection = -1;
+        status.pulse3DDirection = -1.f;
     }
     else if(status.pulse3D < styleData._3dPulseMin)
     {
-        status.pulse3DDirection = 1;
+        status.pulse3DDirection = 1.f;
     }
 }
 

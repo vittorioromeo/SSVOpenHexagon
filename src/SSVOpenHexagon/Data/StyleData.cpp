@@ -85,8 +85,7 @@ void StyleData::update(ssvu::FT mFT, float mMult)
             currentHue = hueMax;
         }
     }
-
-    if(currentHue > hueMax)
+    else if(currentHue > hueMax)
     {
         if(huePingPong)
         {
@@ -106,7 +105,7 @@ void StyleData::update(ssvu::FT mFT, float mMult)
         pulseIncrement *= -1.f;
         pulseFactor = pulseMin;
     }
-    if(pulseFactor > pulseMax)
+    else if(pulseFactor > pulseMax)
     {
         pulseIncrement *= -1.f;
         pulseFactor = pulseMax;

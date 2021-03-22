@@ -587,7 +587,7 @@ void MenuGame::initInput()
 void MenuGame::initLua()
 {
     lua.writeVariable(
-        "u_log", [](string mLog) { lo("lua-menu") << mLog << "\n"; });
+        "u_log", [](string mLog) { lo("lua-menu") << mLog << '\n'; });
 
     lua.writeVariable("u_execScript", [this](string mName) {
         Utils::runLuaFile(lua, levelData->packPath + "Scripts/" + mName);
@@ -2247,7 +2247,7 @@ void MenuGame::setIndex(const int mIdx)
         std::cout << "[MenuGame::init] Runtime Lua error on menu "
                      "(onInit/onLoad) with level \""
                   << levelData->name << "\": \n"
-                  << ssvu::toStr(mError.what()) << "\n"
+                  << ssvu::toStr(mError.what()) << '\n'
                   << std::endl;
 
         if(!Config::getDebug())

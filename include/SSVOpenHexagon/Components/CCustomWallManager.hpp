@@ -7,11 +7,15 @@
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
+#include "SSVOpenHexagon/Utils/SparseIntegerSet.hpp"
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
 #include <vector>
+#include <cstdint>
+#include <cassert>
+#include <cstddef>
 
 namespace hg
 {
@@ -20,6 +24,8 @@ class HexagonGame;
 
 class CCustomWallManager
 {
+    // TODO: consider using a sparse integer set
+
     std::vector<CCustomWall> _customWalls;
     std::vector<CCustomWallHandle> _freeHandles;
     std::vector<bool> _handleAvailable;
@@ -44,10 +50,7 @@ public:
     void setDeadly(const CCustomWallHandle cwHandle, const bool deadly);
 
     void setKillingSide(
-        const CCustomWallHandle cwHandle, const unsigned int deadly);
-
-    // void setRenderOrder(const CCustomWallHandle cwHandle, const int8_t
-    // order);
+        const CCustomWallHandle cwHandle, const std::uint8_t killingSide);
 
     void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIndex,
         const sf::Color& color);
@@ -59,11 +62,10 @@ public:
 
     [[nodiscard]] bool getDeadly(const CCustomWallHandle cwHandle);
 
-    [[nodiscard]] unsigned int getKillingSide(const CCustomWallHandle cwHandle);
+    [[nodiscard]] std::uint8_t getKillingSide(const CCustomWallHandle cwHandle);
 
     [[nodiscard]] bool isOverlappingPlayer(const CCustomWallHandle cwHandle);
 
-    void cleanup();
     void clear();
     void draw(HexagonGame& hexagonGame);
 
@@ -102,6 +104,11 @@ public:
     [[nodiscard]] std::size_t count() const noexcept
     {
         return _count;
+    }
+
+    [[nodiscard]] std::size_t maxHandles() const noexcept
+    {
+        return _customWalls.size();
     }
 };
 

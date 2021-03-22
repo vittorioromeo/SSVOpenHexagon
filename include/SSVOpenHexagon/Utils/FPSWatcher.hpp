@@ -60,7 +60,7 @@ private:
         ++lostFrames;
 
         ssvu::lo("FPSWatcher::watch")
-            << "Slowdown " << lostFrames << "/" << maxLostFrames << "\n";
+            << "Slowdown " << lostFrames << "/" << maxLostFrames << '\n';
     }
 
 public:

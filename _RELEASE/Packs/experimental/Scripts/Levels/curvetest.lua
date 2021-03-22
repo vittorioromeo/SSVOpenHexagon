@@ -73,6 +73,7 @@ end
 -- onStep should contain your pattern spawning logic
 function onStep()
     hmcDefSpinner()
+	t_wait(50)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented

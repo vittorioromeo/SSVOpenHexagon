@@ -97,7 +97,7 @@ unsigned int getLineCircleIntersection(sf::Vector2f& i1, sf::Vector2f& i2,
     }
 
     // Two intersections.
-    const float sqrtDelta{hg::Utils::fastSqrt(delta)};
+    const float sqrtDelta{std::sqrt(delta)};
     t = (-b + sqrtDelta) / twoA;
     i1 = {p1.x + t * dx, p1.y + t * dy};
     t = (-b - sqrtDelta) / twoA;

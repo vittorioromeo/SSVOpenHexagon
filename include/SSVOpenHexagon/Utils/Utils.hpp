@@ -28,7 +28,7 @@
 namespace hg::Utils
 {
 
-constexpr float epsilon{1.0e-4};
+inline constexpr float epsilon{1.0e-4};
 
 inline void uppercasify(std::string& s)
 {
@@ -69,23 +69,20 @@ bool getLineCircleClosestIntersection(sf::Vector2f& mIntersection,
     const sf::Vector2f& mPos, const sf::Vector2f& p1, const sf::Vector2f& p2,
     const float mRadiusSquared);
 
-[[nodiscard, gnu::pure]] inline float fastSqrt(const float& n)
-{
-    union
-    {
-        int i;
-        float f;
-    } u;
-    u.i = 0x5F375A86 - (*(int*)&n >> 1);
-    return (int(3) - n * u.f * u.f) * n * u.f * 0.5f;
-}
-
-[[nodiscard, gnu::pure]] inline float getSaturated(float mValue)
+[[nodiscard, gnu::pure, gnu::always_inline]] inline float getSaturated(
+    float mValue)
 {
     return std::max(0.f, std::min(1.f, mValue));
 }
 
-[[nodiscard, gnu::pure]] inline float getSmootherStep(
+[[nodiscard, gnu::pure, gnu::always_inline]] inline float getSmoothStep(
+    float edge0, float edge1, float x)
+{
+    x = getSaturated((x - edge0) / (edge1 - edge0));
+    return x * x * (3 - 2 * x);
+}
+
+[[nodiscard, gnu::pure, gnu::always_inline]] inline float getSmootherStep(
     float edge0, float edge1, float x)
 {
     x = getSaturated((x - edge0) / (edge1 - edge0));
@@ -116,17 +113,15 @@ inline void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
     }
     catch(std::runtime_error& mError)
     {
-        ssvu::lo("hg::Utils::runLuaCode") << "Fatal lua error"
-                                          << "\n";
-        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << "\n";
-        ssvu::lo("hg::Utils::runLuaCode") << "Error: " << mError.what() << "\n"
+        ssvu::lo("hg::Utils::runLuaCode") << "Fatal lua error\n";
+        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << '\n';
+        ssvu::lo("hg::Utils::runLuaCode") << "Error: " << mError.what() << '\n'
                                           << std::endl;
     }
     catch(...)
     {
-        ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown lua error"
-                                          << "\n";
-        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << "\n";
+        ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown lua error\n";
+        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << '\n';
         ssvu::lo("hg::Utils::runLuaCode") << std::endl;
     }
 }
@@ -141,17 +136,15 @@ inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
     }
     catch(std::runtime_error& mError)
     {
-        ssvu::lo("hg::Utils::runLuaFile") << "Fatal lua error"
-                                          << "\n";
-        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n";
-        ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << "\n"
+        ssvu::lo("hg::Utils::runLuaFile") << "Fatal lua error\n";
+        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << '\n';
+        ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << '\n'
                                           << std::endl;
     }
     catch(...)
     {
-        ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown lua error"
-                                          << "\n";
-        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n";
+        ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown lua error\n";
+        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << '\n';
         ssvu::lo("hg::Utils::runLuaFile") << std::endl;
     }
 }

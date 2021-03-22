@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include "SSVOpenHexagon/Global/Config.hpp"
 
@@ -397,22 +398,9 @@ void CPlayer::update(HexagonGame& mHexagonGame, const ssvu::FT mFT)
         }
     }
 
-    // TODO: cleanup
-    auto smoothstep = [](float edge0, float edge1, float x) {
-        auto clamp = [](float x, float lowerlimit, float upperlimit) {
-            if(x < lowerlimit) x = lowerlimit;
-            if(x > upperlimit) x = upperlimit;
-            return x;
-        };
-
-        // Scale, bias and saturate x to 0..1 range
-        x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-        // Evaluate polynomial
-        return x * x * (3 - 2 * x);
-    };
-
-    triangleWidth = triangleWidthRange *
-                    (1.f - smoothstep(0.f, 1.f, triangleWidthTransitionTime));
+    triangleWidth =
+        triangleWidthRange *
+        (1.f - hg::Utils::getSmoothStep(0.f, 1.f, triangleWidthTransitionTime));
 
     if(deadEffectTimer.isRunning())
     {

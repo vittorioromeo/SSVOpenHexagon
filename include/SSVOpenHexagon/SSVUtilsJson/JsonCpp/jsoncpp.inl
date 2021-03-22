@@ -2232,7 +2232,7 @@ inline void StyledStreamWriter::write(std::ostream& out, const Value& root)
     writeCommentBeforeValue(root);
     writeValue(root);
     writeCommentAfterValueOnSameLine(root);
-    *document_ << "\n";
+    *document_ << '\n';
     document_ = nullptr;
 }
 inline void StyledStreamWriter::writeValue(const Value& value)
@@ -2387,7 +2387,7 @@ inline void StyledStreamWriter::writeCommentBeforeValue(const Value& root)
 {
     if(!root.hasComment(commentBefore)) return;
     *document_ << normalizeEOL(root.getComment(commentBefore));
-    *document_ << "\n";
+    *document_ << '\n';
 }
 inline void StyledStreamWriter::writeCommentAfterValueOnSameLine(
     const Value& root)
@@ -2397,9 +2397,9 @@ inline void StyledStreamWriter::writeCommentAfterValueOnSameLine(
                           normalizeEOL(root.getComment(commentAfterOnSameLine));
     if(root.hasComment(commentAfter))
     {
-        *document_ << "\n";
+        *document_ << '\n';
         *document_ << normalizeEOL(root.getComment(commentAfter));
-        *document_ << "\n";
+        *document_ << '\n';
     }
 }
 inline bool StyledStreamWriter::hasCommentForValue(const Value& value)

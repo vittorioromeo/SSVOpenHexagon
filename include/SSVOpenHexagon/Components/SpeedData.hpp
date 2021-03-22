@@ -15,12 +15,14 @@ struct SpeedData
     float accel;
     float min;
     float max;
-    bool pingPong;
+    float pingPong;
 
     SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f,
         float mMax = 0.f, bool mPingPong = false) noexcept
         : speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{
-                                                                  mPingPong}
+                                                                  mPingPong
+                                                                      ? -1.f
+                                                                      : 1.f}
     {
     }
 
@@ -36,18 +38,12 @@ struct SpeedData
         if(speed > max)
         {
             speed = max;
-            if(pingPong)
-            {
-                accel *= -1;
-            }
+            accel *= pingPong;
         }
         else if(speed < min)
         {
             speed = min;
-            if(pingPong)
-            {
-                accel *= -1;
-            }
+            accel *= pingPong;
         }
     }
 };
