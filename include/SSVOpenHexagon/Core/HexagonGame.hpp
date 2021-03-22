@@ -280,6 +280,16 @@ public:
                 goToMenu(false /* mSendScores */, true /* mError */);
             }
         }
+        catch(...)
+        {
+            std::cout << "[runLuaFunction] Unknown error on \"" << mName
+                      << "\" with level \"" << levelData->name << std::endl;
+
+            if(!Config::getDebug())
+            {
+                goToMenu(false /* mSendScores */, true /* mError */);
+            }
+        }
 
         return decltype(
             Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};

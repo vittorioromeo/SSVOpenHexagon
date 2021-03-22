@@ -207,7 +207,7 @@ void loadConfig(const vector<string>& mOverridesIds)
 {
     lo("::loadConfig") << "loading config\n";
 
-    for(const auto& p :
+    for(const ssvufs::Path& p :
         getScan<ssvufs::Mode::Single, ssvufs::Type::File, ssvufs::Pick::ByExt>(
             "ConfigOverrides/", ".json"))
     {

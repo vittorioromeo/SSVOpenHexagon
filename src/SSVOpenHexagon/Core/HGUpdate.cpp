@@ -100,7 +100,7 @@ void HexagonGame::update(ssvu::FT mFT)
                 {
                     // Player successfully swapped.
                     // TODO: document and cleanup
-                    runLuaFunction<void>("onSwap");
+                    runLuaFunctionIfExists<void>("onSwap");
                 }
             }
 
