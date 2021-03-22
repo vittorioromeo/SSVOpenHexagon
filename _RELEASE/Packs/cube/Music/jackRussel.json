@@ -13,9 +13,9 @@
 	// Segments
 	"segments":
 	[
-		{ "time": 32 },
-		{ "time": 47 },
-		{ "time": 98, "beatPulseDelayOffset": -6 },
-		{ "time": 125, "beatPulseDelayOffset": 14 }
+		{ "time": 31.613 },
+		{ "time": 45.835 },
+		{ "time": 96.502 },
+		{ "time": 124.946 }
 	]
 }

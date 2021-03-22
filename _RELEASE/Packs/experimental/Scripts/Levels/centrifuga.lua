@@ -163,10 +163,6 @@ achievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    maxChanges = u_rndInt(5, 12)
-    lastRotationDir = getRandomDir()
-    setDirection(u_rndInt(0, 6))
-
     l_setSpeedMult(7.00)
     l_setSpeedInc(0.125)
     l_setSpeedMax(5)
@@ -191,12 +187,16 @@ function onInit()
 
     l_setBeatPulseInitialDelay(53 / 2)
     l_setBeatPulseMax(35)
-    l_setBeatPulseDelayMax(19.5) -- BPM is 180
+    l_setBeatPulseDelayMax(20) -- BPM is 180
     l_setBeatPulseSpeedMult(2.00) -- Slows down the center going back to normal
 
     l_setSwapEnabled(true)
     l_setDarkenUnevenBackgroundChunk(false)
     l_setIncEnabled(false)
+
+    maxChanges = u_rndInt(5, 12)
+    lastRotationDir = getRandomDir()
+    setDirection(u_rndInt(0, 6))
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -268,7 +268,7 @@ function onUpdate(mFrameTime)
     end
 end
 
-function onSwap()
+function onCursorSwap()
     if style == 0 then
         style = 1
         s_setStyle("centrifuga2")

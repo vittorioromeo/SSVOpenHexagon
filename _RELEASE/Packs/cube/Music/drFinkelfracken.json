@@ -9,13 +9,13 @@
 	"name": "Dr. Finkelfracken's Cure",
 	"album": "Nice Catch Biggy!",
 	"author": "BOSSFIGHT",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 0 },
-		{ "time": 18 },
-		{ "time": 68 },
-		{ "time": 91 }
+		{ "time": 1.31 },
+		{ "time": 19.245 },
+		{ "time": 69 },
+		{ "time": 91.318 }
 	]
 }

@@ -54,10 +54,9 @@ function onInit()
 	l_setPulseSpeedR(1)
 	l_setPulseDelayMax(23.9)
 
-	l_setBeatPulseMax(17)
-	l_setBeatPulseInitialDelay(53 / 2)
-	l_setBeatPulseDelayMax(53) -- BPM is 68
-	l_setBeatPulseSpeedMult(0.35) -- Slows down the center going back to normal
+	l_setBeatPulseMax(18)
+	l_setBeatPulseDelayMax(26.67) -- BPM is 135, 3600/135 is 26.67
+	l_setBeatPulseSpeedMult(0.38) -- Slows down the center going back to normal
 
 	enableSwapIfDMGreaterThan(3)
 	disableIncIfDMGreaterThan(4)
