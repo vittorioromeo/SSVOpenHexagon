@@ -92,6 +92,7 @@ struct LevelStatus
     float pulseSpeedR{0.f};
     float pulseDelayMax{0.f};
     float pulseDelayHalfMax{0.f};
+    float pulseInitialDelay{0.f};
     float swapCooldownMult{1.f};
 
     // ------------------------------------------------------------------------
