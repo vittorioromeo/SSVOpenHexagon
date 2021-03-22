@@ -37,14 +37,14 @@ function onInit()
 
 	l_setWallSkewLeft(18)
 
-	l_setPulseMin(64)
-	l_setPulseMax(84)
-	l_setPulseSpeed(1.05)
-	l_setPulseSpeedR(1.35)
+	l_setPulseMin(68)
+	l_setPulseMax(82.93)
+	l_setPulseSpeed(1.521)
+	l_setPulseSpeedR(1.4)
 	l_setPulseDelayMax(7)
 
 	l_setBeatPulseMax(15)
-	l_setBeatPulseDelayMax(110)
+	l_setBeatPulseDelayMax(27.48)
 
 	l_setSwapEnabled(true)
 
@@ -142,10 +142,10 @@ function onLoad()
 	t_wait(100)
 	hmcSimpleSpinner(1)
 	hmcSimpleSpinner(-1.2)
-	t_wait(700)
+	t_wait(500)
 
-	e_messageAddImportant("well done!", 130)
 	e_messageAddImportant("now play some real levels!", 138)
+	e_messageAddImportant("good luck!", 130)
 
 	t_kill()
 end

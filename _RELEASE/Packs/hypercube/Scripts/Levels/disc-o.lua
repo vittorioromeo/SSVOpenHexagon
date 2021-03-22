@@ -50,12 +50,13 @@ function onInit()
 
 	l_setPulseMin(77)
 	l_setPulseMax(95)
-	l_setPulseSpeed(1.95)
-	l_setPulseSpeedR(0.51)
-	l_setPulseDelayMax(13)
+	l_setPulseSpeed(1.937)
+	l_setPulseSpeedR(0.524)
+	l_setPulseDelayMax(13.05)
+	l_setPulseInitialDelay(28.346) -- skip a beat to match with the clap
 
 	l_setBeatPulseMax(17)
-	l_setBeatPulseDelayMax(27.8)
+	l_setBeatPulseDelayMax(28.346)
 
 	l_setSwapEnabled(true)
 	l_addTracked("special", "special")

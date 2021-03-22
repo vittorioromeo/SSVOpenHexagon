@@ -9,12 +9,12 @@
 	"name": "Platforms and Pitfalls",
 	"album": "",
 	"author": "Fantomenk",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 13 },
-		{ "time": 72 },
-		{ "time": 110 }
+		{ "time": 13.300 },
+		{ "time": 72.478 },
+		{ "time": 110.286 }
 	]
 }

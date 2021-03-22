@@ -52,14 +52,14 @@ function onInit()
 	l_setSidesMax(6)
 	l_setIncTime(10)
 
-	l_setPulseMin(61)
-	l_setPulseMax(80)
+	l_setPulseMin(61.01)
+	l_setPulseMax(80.48)
 	l_setPulseSpeed(2.4)
-	l_setPulseSpeedR(1.45)
+	l_setPulseSpeedR(1.449)
 	l_setPulseDelayMax(6.8)
 
 	l_setBeatPulseMax(18)
-	l_setBeatPulseDelayMax(18.8)
+	l_setBeatPulseDelayMax(28.346)
 
 	l_setSwapEnabled(true)
 	l_addTracked("special", "special")

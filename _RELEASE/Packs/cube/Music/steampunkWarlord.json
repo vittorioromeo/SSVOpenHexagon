@@ -9,12 +9,12 @@
 	"name": "Steampunk Warlord",
 	"album": "Caps On, Hats Off",
 	"author": "BOSSFIGHT",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 74 },
-		{ "time": 98 },		
-		{ "time": 174 }
+		{ "time": 73.434 },
+		{ "time": 97.893 },
+		{ "time": 110.122 }
 	]
 }

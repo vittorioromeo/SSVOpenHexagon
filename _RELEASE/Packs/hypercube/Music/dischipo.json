@@ -9,12 +9,12 @@
 	"name": "Dischipo",
 	"album": "",
 	"author": "Fantomenk",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 15 },
-		{ "time": 54 },
-		{ "time": 127 }
+		{ "time": 15.172 },
+		{ "time": 52.967 },
+		{ "time": 126.668 }
 	]
 }

@@ -39,14 +39,14 @@ function onInit()
 
 	l_setWallSkewLeft(15)
 
-	l_setPulseMin(61)
-	l_setPulseMax(80)
-	l_setPulseSpeed(3.6)
-	l_setPulseSpeedR(1.45)
-	l_setPulseDelayMax(6.8)
+	l_setPulseMin(60.98)
+	l_setPulseMax(80.06)
+	l_setPulseSpeed(3.597)
+	l_setPulseSpeedR(1.448)
+	l_setPulseDelayMax(7.23)
 
-	l_setBeatPulseMax(20)
-	l_setBeatPulseDelayMax(26.1)
+	l_setBeatPulseMax(19)
+	l_setBeatPulseDelayMax(25.714)
 
 	l_setSwapEnabled(true)
 	l_addTracked("gap", "gap size")

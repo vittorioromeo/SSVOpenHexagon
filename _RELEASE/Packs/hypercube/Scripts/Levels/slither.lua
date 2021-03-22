@@ -62,14 +62,14 @@ function onInit()
 
 	l_setWallAngleLeft(-25)
 
-	l_setPulseMin(60)
-	l_setPulseMax(80)
-	l_setPulseSpeed(3.3)
-	l_setPulseSpeedR(1.30)
-	l_setPulseDelayMax(69 / 2)
+	l_setPulseMin(49.98)
+	l_setPulseMax(88.73)
+	l_setPulseSpeed(2.439)
+	l_setPulseSpeedR(0.668)
+	l_setPulseDelayMax(0.08)
 
-	l_setBeatPulseMax(15)
-	l_setBeatPulseDelayMax(23.4)
+	l_setBeatPulseMax(16)
+	l_setBeatPulseDelayMax(24.657)
 
 	l_setSwapEnabled(true)
 	l_addTracked("level", "level")

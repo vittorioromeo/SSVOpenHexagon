@@ -35,14 +35,14 @@ function onInit()
 	l_setSidesMax(0)
 	l_setIncTime(5)
 
-	l_setPulseMin(58)
-	l_setPulseMax(90)
-	l_setPulseSpeed(2.2)
-	l_setPulseSpeedR(0.65)
-	l_setPulseDelayMax(1)
+	l_setPulseMin(75)
+	l_setPulseMax(91)
+	l_setPulseSpeed(2)
+	l_setPulseSpeedR(1)
+	l_setPulseDelayMax(0.8275)
 
 	l_setBeatPulseMax(17)
-	l_setBeatPulseDelayMax(23.8)
+	l_setBeatPulseDelayMax(24.8275) -- BPM is 145
 
 	l_setRadiusMin(40)
 	l_addTracked("levelTracked", "level")

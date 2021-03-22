@@ -9,13 +9,13 @@
 	"name": "Flirt Flirt Oh It Hurts",
 	"album": "Caps On, Hats Off",
 	"author": "BOSSFIGHT",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 17 },
-		{ "time": 39 },
-		{ "time": 86 },
-		{ "time": 165 }
+		{ "time": 17.200 },
+		{ "time": 38.629 },
+		{ "time": 85.772 },
+		{ "time": 164.343 }
 	]
 }

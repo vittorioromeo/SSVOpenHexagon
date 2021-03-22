@@ -9,12 +9,12 @@
 	"name": "Minimal",
 	"album": "",
 	"author": "Fantomenk",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 13 },
-		{ "time": 27 },
-		{ "time": 75 }
+		{ "time": 12.895 },
+		{ "time": 27.466 },
+		{ "time": 75.466 }
 	]
 }

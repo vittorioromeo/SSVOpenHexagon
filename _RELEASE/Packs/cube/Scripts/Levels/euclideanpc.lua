@@ -44,13 +44,13 @@ function onInit()
 	l_setIncTime(15)
 
 	l_setPulseMin(60)
-	l_setPulseMax(87)
-	l_setPulseSpeed(1.2)
-	l_setPulseSpeedR(1)
+	l_setPulseMax(88.2)
+	l_setPulseSpeed(1.269)
+	l_setPulseSpeedR(0.838)
 	l_setPulseDelayMax(12.9)
 
 	l_setBeatPulseMax(17)
-	l_setBeatPulseDelayMax(24.8)
+	l_setBeatPulseDelayMax(22.92)
 
 	enableSwapIfDMGreaterThan(1)
 	disableIncIfDMGreaterThan(1)

@@ -9,12 +9,12 @@
 	"name": "CPU Mood",
 	"album": "",
 	"author": "Fantomenk",
-	
+
 	// Segments
 	"segments":
 	[
-		{ "time": 9 },
-		{ "time": 100 },
-		{ "time": 204 }
+		{ "time": 9.341 },
+		{ "time": 98.643 },
+		{ "time": 204.690 }
 	]
 }
