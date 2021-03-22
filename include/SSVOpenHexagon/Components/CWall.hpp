@@ -6,11 +6,13 @@
 
 #include "SSVOpenHexagon/Components/SpeedData.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
+#include "SSVOpenHexagon/Utils/WallUtils.hpp"
 
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SFML/System/Vector2.hpp>
 
 #include <array>
+#include <cstdint>
 
 namespace hg
 {
@@ -38,6 +40,7 @@ private:
 
     void moveTowardsCenter(HexagonGame& mHexagonGame,
         const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
+
     void moveCurve(const sf::Vector2f& mCenterPos, const ssvu::FT mFT);
 
 public:
@@ -74,34 +77,18 @@ public:
         return curve;
     }
 
-    [[gnu::always_inline, nodiscard]] bool isOverlapping(
-        const sf::Vector2f& mPoint, const sf::Vector2f& mCenterPos,
-        const float mRadiusSquared) noexcept
+    [[gnu::always_inline]] void updateOutOfPlayerRadius(
+        const sf::Vector2f& mCenterPos, const float mRadius) noexcept
     {
-        // If the wall is too far from the center is cannot cause collision.
-        // If it is and both distance and pointInPolygon() calculations are
-        // executed we lose performance, If not (which is the case in the vast
-        // majority of any level's runtime) we only run a much faster algorithm.
-
-        if(ssvs::getMagSquared((vertexPositions[0] + vertexPositions[1]) / 2.f -
-                               mCenterPos) > mRadiusSquared)
-        {
-            outOfPlayerRadius = true;
-            return false;
-        }
-
-        return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
+        outOfPlayerRadius = hg::Utils::broadphaseManhattan(
+            mCenterPos, mRadius, vertexPositions);
     }
 
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
         const sf::Vector2f& mPoint) const noexcept
     {
-        if(outOfPlayerRadius)
-        {
-            return false;
-        }
-
-        return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
+        return hg::Utils::narrowphaseOverlap(
+            outOfPlayerRadius, mPoint, vertexPositions);
     }
 
     [[gnu::always_inline, nodiscard]] constexpr bool
@@ -110,7 +97,7 @@ public:
         return false;
     }
 
-    [[gnu::always_inline, nodiscard]] unsigned int
+    [[gnu::always_inline, nodiscard]] std::uint8_t
     getKillingSide() const noexcept
     {
         return 0u;
@@ -119,6 +106,11 @@ public:
     [[gnu::always_inline, nodiscard]] bool isDead() const noexcept
     {
         return killed;
+    }
+
+    [[gnu::always_inline, nodiscard]] bool getOutOfPlayerRadius() const noexcept
+    {
+        return outOfPlayerRadius;
     }
 };
 

@@ -75,7 +75,7 @@ void HexagonGame::initLua_Utils()
         .doc("Flash the screen with `$0` intensity (from 0 to 255).");
 
     addLuaFn("u_log", //
-        [](const std::string& mLog) { ssvu::lo("lua") << mLog << "\n"; })
+        [](const std::string& mLog) { ssvu::lo("lua") << mLog << '\n'; })
         .arg("message")
         .doc("Print out `$0` to the console.");
 
@@ -654,9 +654,11 @@ void HexagonGame::initLua_LevelControl()
         "``PulseMax`` to ``PulseMin`` with `$0`.");
 
     lsVar("PulseInitialDelay", &LevelStatus::pulseInitialDelay,
-        "Gets the initial delay the level has to wait before it begins the first pulse cycle.",
+        "Gets the initial delay the level has to wait before it begins the "
+        "first pulse cycle.",
 
-        "Sets the initial delay the level has to wait before it begins the first pulse cycle with `$0`.");
+        "Sets the initial delay the level has to wait before it begins the "
+        "first pulse cycle with `$0`.");
 
     lsVar("SwapCooldownMult", &LevelStatus::swapCooldownMult,
         "Gets the multiplier that controls the cooldown for the player's 180 "
@@ -885,7 +887,7 @@ void HexagonGame::initLua_LevelControl()
                 std::cout
                     << "[l_overrideScore] Runtime error on overriding score "
                     << "with level \"" << levelData->name << "\": \n"
-                    << ssvu::toStr(mError.what()) << "\n"
+                    << ssvu::toStr(mError.what()) << '\n'
                     << std::endl;
                 if(!Config::getDebug())
                 {
@@ -1185,14 +1187,42 @@ void HexagonGame::initLua_StyleControl()
             int mIndex) { styleData.capColor = CapColorMode::ByIndex{mIndex}; })
         .arg("index")
         .doc(
-            "Set the color of the center polygon to match the  style "
-            "color with index `$0`.");
+            "Set the color of the center polygon to match the style color with "
+            "index `$0`.");
+
+    const auto colorToTuple = [](const sf::Color& c) {
+        return std::tuple<int, int, int, int>{c.r, c.g, c.b, c.a};
+    };
 
     // TODO:
-    addLuaFn("s_getMainColor", [this]() -> std::tuple<int, int, int, int> {
-        const sf::Color& c = styleData.getMainColor();
-        return {c.r, c.g, c.b, c.a};
-    });
+    const auto sdColorGetter = [this, &colorToTuple](const char* name,
+                                   const char* docName, auto pmf) {
+        std::string docString = "Return the current ";
+        docString += docName;
+        docString += " color computed by the level style.";
+
+        addLuaFn(name, [this, &colorToTuple, pmf] {
+            return colorToTuple((styleData.*pmf)());
+        }).doc(docString);
+    };
+
+    sdColorGetter("s_getMainColor", "main", &StyleData::getMainColor);
+    sdColorGetter("s_getPlayerColor", "player", &StyleData::getPlayerColor);
+    sdColorGetter("s_getTextColor", "text", &StyleData::getTextColor);
+
+    sdColorGetter(
+        "s_get3DOverrideColor", "3D override", &StyleData::get3DOverrideColor);
+
+    sdColorGetter("s_getCapColorResult", "cap color result",
+        &StyleData::getCapColorResult);
+
+    addLuaFn("s_getColor",
+        [this, &colorToTuple](
+            int mIndex) { return colorToTuple(styleData.getColor(mIndex)); })
+        .arg("index")
+        .doc(
+            "Return the current color with index `$0` computed by the level "
+            "style.");
 }
 
 void HexagonGame::initLua_WallCreation()
@@ -1397,8 +1427,8 @@ void HexagonGame::initLua_CustomWalls()
         .doc(
             "Given the custom wall represented by `$0`, set which "
             "one of its sides should beyond any doubt cause the "
-            "death of the player. Acceptable values are 0 to 3. "
-            "In a standard wall, side 0 is the side closer to the center. "
+            "death of the player. Acceptable values are `0` to `3`. "
+            "In a standard wall, side `0` is the side closer to the center. "
             "This parameter is useless if the custom wall is deadly.");
 
     addLuaFn("cw_getCollision", //

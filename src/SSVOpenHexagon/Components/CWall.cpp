@@ -64,19 +64,20 @@ void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
     const float radius{mHexagonGame.getRadius() * 0.5f};
     const float outerBounds{wallSpawnDist * 1.1f};
 
-    int pointsOutOfBounds{0}, pointsOnCenter{0};
-    float xDistance, yDistance;
+    int pointsOutOfBounds{0};
+    int pointsOnCenter{0};
 
     for(sf::Vector2f& vp : vertexPositions)
     {
-        xDistance = std::abs(vp.x - mCenterPos.x);
-        yDistance = std::abs(vp.y - mCenterPos.y);
+        const float xDistance = std::abs(vp.x - mCenterPos.x);
+        const float yDistance = std::abs(vp.y - mCenterPos.y);
 
         if(xDistance < radius && yDistance < radius)
         {
             ++pointsOnCenter;
             continue;
         }
+
         if(xDistance > outerBounds || yDistance > outerBounds)
         {
             ++pointsOutOfBounds;

@@ -236,7 +236,7 @@ public:
         {
             std::cout << "[runLuaFunction] Runtime error on \"" << mName
                       << "\" with level \"" << levelData->name << "\": \n"
-                      << ssvu::toStr(mError.what()) << "\n"
+                      << ssvu::toStr(mError.what()) << '\n'
                       << std::endl;
 
             if(!Config::getDebug())
@@ -259,7 +259,7 @@ public:
         {
             std::cout << "[runLuaFunctionIfExists] Runtime error on \"" << mName
                       << "\" with level \"" << levelData->name << "\": \n"
-                      << ssvu::toStr(mError.what()) << "\n"
+                      << ssvu::toStr(mError.what()) << '\n'
                       << std::endl;
 
             if(!Config::getDebug())
@@ -569,6 +569,12 @@ public:
     [[nodiscard]] bool mustShowReplayUI() const noexcept;
 
     [[nodiscard]] float getSwapCooldown() const noexcept;
+
+    [[gnu::always_inline, nodiscard]] const sf::Vector2f&
+    getCenterPos() const noexcept
+    {
+        return centerPos;
+    }
 };
 
 } // namespace hg

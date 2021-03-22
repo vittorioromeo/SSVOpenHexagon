@@ -96,10 +96,11 @@ void HexagonDialogBox::draw(const Color& txtColor, const Color& backdropColor)
 void HexagonDialogBox::drawBox(const Color& frameColor, const float x1,
     const float x2, const float y1, const float y2)
 {
-    sf::Vector2f topLeft{x1, y1};
-    sf::Vector2f topRight{x2, y1};
-    sf::Vector2f bottomRight{x2, y2};
-    sf::Vector2f bottomLeft{x1, y2};
+    const sf::Vector2f topLeft{x1, y1};
+    const sf::Vector2f topRight{x2, y1};
+    const sf::Vector2f bottomRight{x2, y2};
+    const sf::Vector2f bottomLeft{x1, y2};
+
     dialogFrame.batch_unsafe_emplace_back(
         frameColor, topLeft, topRight, bottomRight, bottomLeft);
 }
@@ -121,6 +122,7 @@ void HexagonDialogBox::drawText(
                     yOffset + heightOffset});
             window.draw(txtDialog);
         }
+
         heightOffset += interline;
     }
 }

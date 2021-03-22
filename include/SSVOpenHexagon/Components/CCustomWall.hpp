@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
+#include "SSVOpenHexagon/Utils/WallUtils.hpp"
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
@@ -14,6 +15,8 @@
 
 #include <array>
 #include <bitset>
+#include <cstdint>
+#include <utility>
 
 namespace hg
 {
@@ -29,19 +32,25 @@ private:
     std::array<sf::Vector2f, 4> vertexPositions;
     std::array<sf::Vector2f, 4> oldVertexPositions;
     std::array<sf::Color, 4> vertexColors;
-    unsigned int killingSide{0u};
+    std::uint8_t killingSide{0u};
+
+    bool
+        outOfPlayerRadius; // Collision with a regular wall is checked two times
+                           // per frame each frame. If in the first check it is
+                           // determined that the wall is too far from the
+                           // center to be a potential cause of collision this
+                           // value is set to true, so that the second check can
+                           // be quickly dismissed with a boolean comparison.
 
     enum CWFlags : unsigned int
     {
         Collision,
         Deadly,
+
         CWFlagsCount
     };
 
-    std::bitset<CWFlags::CWFlagsCount> flags{1}; // collision on
-
-    // TODO: Implement this in drawing logic
-    // int8_t renderOrder{1};
+    std::bitset<CWFlags::CWFlagsCount> flags{1 /* Collision on */};
 
 public:
     CCustomWall();
@@ -49,17 +58,25 @@ public:
     void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
     void draw(HexagonGame& mHexagonGame);
 
+    [[gnu::always_inline]] void updateOutOfPlayerRadius(
+        const sf::Vector2f& mCenterPos, const float mRadius) noexcept
+    {
+        outOfPlayerRadius = hg::Utils::broadphaseManhattan(
+            mCenterPos, mRadius, vertexPositions);
+    }
+
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
         const sf::Vector2f& mPoint) const noexcept
     {
-        return Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
+        return hg::Utils::narrowphaseOverlap(
+            outOfPlayerRadius, mPoint, vertexPositions);
     }
 
     [[gnu::always_inline]] void setVertexPos(
         const int vertexIndex, const sf::Vector2f& pos) noexcept
     {
-        oldVertexPositions[vertexIndex] = vertexPositions[vertexIndex];
-        vertexPositions[vertexIndex] = pos;
+        oldVertexPositions[vertexIndex] =
+            std::exchange(vertexPositions[vertexIndex], pos);
     }
 
     [[gnu::always_inline]] void setVertexColor(
@@ -77,11 +94,6 @@ public:
     {
         flags[CWFlags::Deadly] = deadly;
     }
-
-    // [[gnu::always_inline]] void setRenderOrder(const int8_t order) noexcept
-    // {
-    //     renderOrder = order;
-    // }
 
     [[gnu::always_inline, nodiscard]] const sf::Vector2f& getVertexPos(
         const int vertexIndex) const noexcept
@@ -117,15 +129,20 @@ public:
         return true;
     }
 
-    [[gnu::always_inline]] void setKillingSide(const unsigned int side) noexcept
+    [[gnu::always_inline]] void setKillingSide(const std::uint8_t side) noexcept
     {
         killingSide = side;
     }
 
-    [[gnu::always_inline, nodiscard]] unsigned int
+    [[gnu::always_inline, nodiscard]] std::uint8_t
     getKillingSide() const noexcept
     {
         return killingSide;
+    }
+
+    [[gnu::always_inline, nodiscard]] bool getOutOfPlayerRadius() const noexcept
+    {
+        return outOfPlayerRadius;
     }
 };
 

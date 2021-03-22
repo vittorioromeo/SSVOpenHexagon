@@ -14,9 +14,9 @@ namespace hg
 [[nodiscard]] bool CCustomWallManager::isValidHandle(
     const CCustomWallHandle h) const noexcept
 {
-    return h >= 0 &&                       //
-           h < (int)_customWalls.size() && //
-           h < (int)_handleAvailable.size();
+    return h >= 0 &&                                    //
+           h < static_cast<int>(_customWalls.size()) && //
+           h < static_cast<int>(_handleAvailable.size());
 }
 
 [[nodiscard]] bool CCustomWallManager::checkValidHandle(
@@ -27,6 +27,7 @@ namespace hg
         ssvu::lo("CustomWallManager")
             << "Attempted to " << msg << " of invalid custom wall " << h
             << '\n';
+
         SSVU_ASSERT(ssvu::contains(_freeHandles, h));
         return false;
     }
@@ -39,7 +40,7 @@ namespace hg
 {
     if(_freeHandles.empty())
     {
-        constexpr std::size_t reserveSize = 255;
+        constexpr std::size_t reserveSize = 32;
         const std::size_t maxHandleIndex = _nextFreeHandle + reserveSize;
 
         _freeHandles.reserve(maxHandleIndex);
@@ -127,7 +128,7 @@ void CCustomWallManager::setDeadly(
 }
 
 void CCustomWallManager::setKillingSide(
-    const CCustomWallHandle cwHandle, const unsigned int side)
+    const CCustomWallHandle cwHandle, const std::uint8_t side)
 {
     if(side > 3u)
     {
@@ -145,24 +146,6 @@ void CCustomWallManager::setKillingSide(
 
     _customWalls[cwHandle].setKillingSide(side);
 }
-
-// void CCustomWallManager::setRenderOrder(
-//     const CCustomWallHandle cwHandle, const int8_t order)
-// {
-//     if(_handleAvailable[cwHandle])
-//     {
-//         ssvu::lo("CustomWallManager")
-//             << "Attempted to set render order of invalid custom wall "
-//             << cwHandle << '\n';
-
-//         SSVU_ASSERT(ssvu::contains(_freeHandles, cwHandle));
-//         return;
-//     }
-
-//     SSVU_ASSERT(isValidHandle(cwHandle));
-
-//     _customWalls[cwHandle].setRenderOrder(order);
-// }
 
 [[nodiscard]] sf::Vector2f CCustomWallManager::getVertexPos(
     const CCustomWallHandle cwHandle, const int vertexIndex)
@@ -208,7 +191,7 @@ void CCustomWallManager::setKillingSide(
     return _customWalls[cwHandle].getDeadly();
 }
 
-[[nodiscard]] unsigned int CCustomWallManager::getKillingSide(
+[[nodiscard]] std::uint8_t CCustomWallManager::getKillingSide(
     const CCustomWallHandle cwHandle)
 {
     if(!checkValidHandle(cwHandle, "get killing side"))
@@ -254,10 +237,6 @@ void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle,
     return false; // _customWalls[cwHandle].isOverlappingPlayer();
 }
 
-void CCustomWallManager::cleanup()
-{
-}
-
 void CCustomWallManager::clear()
 {
     _freeHandles.clear();
@@ -281,77 +260,91 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
 [[nodiscard]] bool CCustomWallManager::handleCollision(
     HexagonGame& mHexagonGame, CPlayer& mPlayer, ssvu::FT mFT)
 {
-    CCustomWallHandle h;
-    bool collided{false};
-    const float radiusSquared{
-        mHexagonGame.getRadius() * mHexagonGame.getRadius()};
-    const int size{(int)_customWalls.size()};
+    const float radius{mHexagonGame.getRadius()};
+    const float radiusSquared{radius * radius};
+
+    const auto size{static_cast<int>(_customWalls.size())};
     const sf::Vector2f& pPos{mPlayer.getPosition()};
 
-    const auto overlap = [this](
-                             const int idx, const sf::Vector2f& pos) -> bool {
-        return !_handleAvailable[idx] && _customWalls[idx].getCanCollide() &&
-               _customWalls[idx].isOverlapping(pos);
-    };
-
-    for(h = 0; h < size; ++h)
     {
-        if(!overlap(h, pPos))
+        bool collided{false};
+        for(CCustomWallHandle h = 0; h < size; ++h)
         {
-            continue;
+            if(_handleAvailable[h] || //
+                !_customWalls[h].getCanCollide())
+            {
+                continue;
+            }
+
+            // Broad-phase Manhattan distance optimization.
+            _customWalls[h].updateOutOfPlayerRadius(
+                mHexagonGame.getCenterPos(), radius);
+
+            if(!_customWalls[h].isOverlapping(pPos))
+            {
+                continue;
+            }
+
+            if(mPlayer.getJustSwapped())
+            {
+                mPlayer.kill(mHexagonGame);
+                return true;
+            }
+
+            if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
+            {
+                mPlayer.kill(mHexagonGame);
+                return false;
+            }
+
+            collided = true;
         }
 
-        if(mPlayer.getJustSwapped())
+        if(!collided)
         {
-            mPlayer.kill(mHexagonGame);
-            return true;
-        }
-
-        if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
-        {
-            mPlayer.kill(mHexagonGame);
             return false;
         }
-
-        collided = true;
-    }
-
-    if(!collided)
-    {
-        return false;
     }
 
     // Recheck collision on all walls.
-    collided = false;
-    for(h = 0; h < size; ++h)
     {
-        if(!overlap(h, pPos))
+        bool collided = false;
+        for(CCustomWallHandle h = 0; h < size; ++h)
+        {
+            if(_handleAvailable[h] ||               //
+                !_customWalls[h].getCanCollide() || //
+                !_customWalls[h].isOverlapping(pPos))
+            {
+                continue;
+            }
+
+            if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
+            {
+                mPlayer.kill(mHexagonGame);
+                return false;
+            }
+
+            collided = true;
+        }
+
+        if(!collided)
+        {
+            return false;
+        }
+    }
+
+    // Last round with no push.
+    for(CCustomWallHandle h = 0; h < size; ++h)
+    {
+        if(_handleAvailable[h] ||               //
+            !_customWalls[h].getCanCollide() || //
+            !_customWalls[h].isOverlapping(pPos))
         {
             continue;
         }
 
-        if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
-        {
-            mPlayer.kill(mHexagonGame);
-            return false;
-        }
-
-        collided = true;
-    }
-
-    if(!collided)
-    {
+        mPlayer.kill(mHexagonGame);
         return false;
-    }
-
-    // Last round with no push.
-    for(h = 0; h < size; ++h)
-    {
-        if(overlap(h, pPos))
-        {
-            mPlayer.kill(mHexagonGame);
-            return false;
-        }
     }
 
     return false;

@@ -157,11 +157,14 @@ void HexagonGame::draw()
     drawParticles();
     drawText();
 
+    // ------------------------------------------------------------------------
+    // Draw key icons.
     if(Config::getShowKeyIcons() || mustShowReplayUI())
     {
         drawKeyIcons();
     }
 
+    // ------------------------------------------------------------------------
     if(Config::getFlash())
     {
         render(flashPolygon);
@@ -177,15 +180,19 @@ void HexagonGame::draw()
 void HexagonGame::initFlashEffect()
 {
     flashPolygon.clear();
+
     flashPolygon.emplace_back(
-        sf::Vector2f{-100.f, -100.f}, Color{255, 255, 255, 0});
+        sf::Vector2f{-100.f, -100.f}, sf::Color{255, 255, 255, 0});
+
     flashPolygon.emplace_back(sf::Vector2f{Config::getWidth() + 100.f, -100.f},
-        Color{255, 255, 255, 0});
+        sf::Color{255, 255, 255, 0});
+
     flashPolygon.emplace_back(
         sf::Vector2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f},
-        Color{255, 255, 255, 0});
+        sf::Color{255, 255, 255, 0});
+
     flashPolygon.emplace_back(sf::Vector2f{-100.f, Config::getHeight() + 100.f},
-        Color{255, 255, 255, 0});
+        sf::Color{255, 255, 255, 0});
 }
 
 void HexagonGame::drawKeyIcons()
@@ -227,8 +234,15 @@ void HexagonGame::drawParticles()
 
 void HexagonGame::updateText(ssvu::FT mFT)
 {
+    // ------------------------------------------------------------------------
+    // Update "personal best" text animation.
     pbTextGrowth += 0.08f * mFT;
+    if(pbTextGrowth > ssvu::pi * 2.f)
+    {
+        pbTextGrowth = 0;
+    }
 
+    // ------------------------------------------------------------------------
     os.str("");
 
     if(levelStatus.tutorialMode)
@@ -243,7 +257,31 @@ void HexagonGame::updateText(ssvu::FT mFT)
     if(Config::getDebug())
     {
         os << "DEBUG MODE\n";
-        os << "CUSTOM WALLS: " << cwManager.count() << "\n";
+
+        os << "CUSTOM WALLS: " << cwManager.count() << " / "
+           << cwManager.maxHandles() << '\n';
+
+        {
+            int culledCustomWalls{0};
+
+            cwManager.forCustomWalls([&](const CCustomWall& w) {
+                culledCustomWalls += w.getOutOfPlayerRadius();
+            });
+
+            os << "CULLED C. WALLS: " << culledCustomWalls << " / "
+               << cwManager.count() << '\n';
+        }
+
+        {
+            int culledNormalWalls{0};
+            for(const CWall& w : walls)
+            {
+                culledNormalWalls += w.getOutOfPlayerRadius();
+            }
+
+            os << "CULLED N. WALLS: " << culledNormalWalls << " / "
+               << walls.size() << '\n';
+        }
     }
 
     if(status.started)
@@ -260,7 +298,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
 
         if(Config::getTimescale() != 1.f)
         {
-            os << "TIMESCALE " << Config::getTimescale() << "\n";
+            os << "TIMESCALE " << Config::getTimescale() << '\n';
         }
 
         if(status.scoreInvalid)
@@ -287,7 +325,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
         const auto& trackedVariables(levelStatus.trackedVariables);
         if(Config::getShowTrackedVariables() && !trackedVariables.empty())
         {
-            os << "\n";
+            os << '\n';
             for(const auto& t : trackedVariables)
             {
                 if(!lua.doesVariableExist(t.variableName))
@@ -295,11 +333,13 @@ void HexagonGame::updateText(ssvu::FT mFT)
                     continue;
                 }
 
-                string name{t.displayName};
-                string var{lua.readVariable<string>(t.variableName)};
+                std::string name{t.displayName};
                 Utils::uppercasify(name);
+
+                std::string var{lua.readVariable<std::string>(t.variableName)};
                 Utils::uppercasify(var);
-                os << name << ": " << var << "\n";
+
+                os << name << ": " << var << '\n';
             }
         }
     }
