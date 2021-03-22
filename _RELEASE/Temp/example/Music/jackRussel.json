@@ -1,24 +1,21 @@
 {
-	// Music data id.
+	// Music data id
 	"id": "jackRussel",
 
-	// Music file.
+	// Music file
 	"file_name": "jackRussel.ogg",
 
-	// Music information. If the music is copyrighted, you must obtain explicit
-	// permission from the authors before including it in your pack.
+	// Music information
 	"name": "Jack Russel",
 	"album": "Caps On, Hats Off",
 	"author": "BOSSFIGHT",
 
-	// Music segments. Array of timestamps (in seconds) where the music can
-	// begin from. Useful to avoid repeating the same section over and over
-	// when the level is restarted.
+	// Segments
 	"segments":
 	[
-		{ "time": 32 },
-		{ "time": 47 },
-		{ "time": 98 },
-		{ "time": 125 }
+		{ "time": 31.613 },
+		{ "time": 45.835 },
+		{ "time": 96.502 },
+		{ "time": 124.946 }
 	]
 }
