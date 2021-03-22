@@ -653,6 +653,11 @@ void HexagonGame::initLua_LevelControl()
         "Sets the delay the level has to wait before it begins pulsing from "
         "``PulseMax`` to ``PulseMin`` with `$0`.");
 
+    lsVar("PulseInitialDelay", &LevelStatus::pulseInitialDelay,
+        "Gets the initial delay the level has to wait before it begins the first pulse cycle.",
+
+        "Sets the initial delay the level has to wait before it begins the first pulse cycle with `$0`.");
+
     lsVar("SwapCooldownMult", &LevelStatus::swapCooldownMult,
         "Gets the multiplier that controls the cooldown for the player's 180 "
         "degrees swap mechanic.",

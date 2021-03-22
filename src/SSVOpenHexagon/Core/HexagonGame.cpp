@@ -411,6 +411,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     setSides(levelStatus.sides);
 
     // Set initial values for some status fields from Lua
+    status.pulseDelay += levelStatus.pulseInitialDelay;
     status.beatPulseDelay += levelStatus.beatPulseInitialDelay;
     timeUntilRichPresenceUpdate = -1.f; // immediate update
 
