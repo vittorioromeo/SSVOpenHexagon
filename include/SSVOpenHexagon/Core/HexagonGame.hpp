@@ -509,7 +509,12 @@ public:
         return levelStatus._3dEffectMultiplier;
     }
 
-    [[nodiscard]] HexagonGameStatus& getStatus()
+    [[nodiscard]] HexagonGameStatus& getStatus() noexcept
+    {
+        return status;
+    }
+
+    [[nodiscard]] const HexagonGameStatus& getStatus() const noexcept
     {
         return status;
     }
