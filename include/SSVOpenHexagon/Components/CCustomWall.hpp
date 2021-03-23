@@ -59,17 +59,17 @@ public:
     void draw(HexagonGame& mHexagonGame);
 
     [[gnu::always_inline]] void updateOutOfPlayerRadius(
-        const sf::Vector2f& mCenterPos, const float mRadius) noexcept
+        const sf::Vector2f& mPoint) noexcept
     {
-        outOfPlayerRadius = hg::Utils::broadphaseManhattan(
-            mCenterPos, mRadius, vertexPositions);
+        outOfPlayerRadius =
+            hg::Utils::isOutOfPlayerRadius(mPoint, vertexPositions);
     }
 
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
         const sf::Vector2f& mPoint) const noexcept
     {
-        return hg::Utils::narrowphaseOverlap(
-            outOfPlayerRadius, mPoint, vertexPositions);
+        return !outOfPlayerRadius &&
+               Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
     }
 
     [[gnu::always_inline]] void setVertexPos(
