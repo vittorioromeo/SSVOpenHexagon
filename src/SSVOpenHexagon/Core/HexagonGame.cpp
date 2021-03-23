@@ -111,6 +111,84 @@ void HexagonGame::updateKeyIcons()
     replayIcon.setPosition(topRight);
 }
 
+void HexagonGame::updateLevelInfo()
+{
+    const float levelInfoScaling = 1.f;
+    const float scaling = levelInfoScaling / Config::getZoomFactor();
+    const float padding = 8.f * scaling;
+
+    const sf::Vector2f size{325.f, 75.f};
+    const sf::Vector2f halfSize{size / 2.f};
+    const sf::Vector2f scaledHalfSize{halfSize * scaling};
+
+    levelInfoRectangle.setSize(size);
+    levelInfoRectangle.setScale(scaling, scaling);
+
+    const sf::Color offsetColor{
+        Config::getBlackAndWhite() || styleData.getColors().empty()
+            ? sf::Color::Black
+            : styleData.getColor(0)};
+
+    levelInfoRectangle.setFillColor(offsetColor);
+    levelInfoRectangle.setOutlineColor(styleData.getMainColor());
+    levelInfoRectangle.setOrigin(halfSize);
+    levelInfoRectangle.setOutlineThickness(3.f);
+
+    const sf::Vector2f bottomLeft{padding + scaledHalfSize.x,
+        Config::getHeight() - padding - scaledHalfSize.y};
+
+    levelInfoRectangle.setPosition(bottomLeft);
+
+    const float tPadding = padding;
+
+    const auto trim = [](std::string s) {
+        if(s.size() > 28)
+        {
+            return s.substr(0, 28);
+        }
+
+        return s;
+    };
+
+    levelInfoTextLevel.setFillColor(styleData.getMainColor());
+    levelInfoTextLevel.setCharacterSize(20.f / Config::getZoomFactor());
+    levelInfoTextLevel.setString(trim(Utils::toUppercase(levelData->name)));
+    levelInfoTextLevel.setOrigin(ssvs::getLocalNW(levelInfoTextLevel));
+    levelInfoTextLevel.setPosition(ssvs::getGlobalNW(levelInfoRectangle) +
+                                   sf::Vector2f{tPadding, tPadding});
+
+    levelInfoTextPack.setFillColor(styleData.getMainColor());
+    levelInfoTextPack.setCharacterSize(14.f / Config::getZoomFactor());
+    levelInfoTextPack.setString(trim(Utils::toUppercase(getPackName())));
+    levelInfoTextPack.setOrigin(ssvs::getLocalNW(levelInfoTextPack));
+    levelInfoTextPack.setPosition(
+        ssvs::getGlobalSW(levelInfoTextLevel) + sf::Vector2f{0.f, tPadding});
+
+    levelInfoTextAuthor.setFillColor(styleData.getMainColor());
+    levelInfoTextAuthor.setCharacterSize(20.f / Config::getZoomFactor());
+    levelInfoTextAuthor.setString(trim(Utils::toUppercase(getPackAuthor())));
+    levelInfoTextAuthor.setOrigin(ssvs::getLocalSE(levelInfoTextAuthor));
+    levelInfoTextAuthor.setPosition(ssvs::getGlobalSE(levelInfoRectangle) -
+                                    sf::Vector2f{tPadding, tPadding});
+
+    levelInfoTextBy.setFillColor(styleData.getMainColor());
+    levelInfoTextBy.setCharacterSize(12.f / Config::getZoomFactor());
+    levelInfoTextBy.setString("BY");
+    levelInfoTextBy.setOrigin(ssvs::getLocalSE(levelInfoTextBy));
+    levelInfoTextBy.setPosition(
+        ssvs::getGlobalSW(levelInfoTextAuthor) - sf::Vector2f{tPadding, 0.f});
+
+    if(levelData->difficultyMults.size() > 1)
+    {
+        levelInfoTextDM.setFillColor(styleData.getMainColor());
+        levelInfoTextDM.setCharacterSize(14.f / Config::getZoomFactor());
+        levelInfoTextDM.setString(diffFormat(difficultyMult) + "x");
+        levelInfoTextDM.setOrigin(ssvs::getLocalSW(levelInfoTextDM));
+        levelInfoTextDM.setPosition(ssvs::getGlobalSW(levelInfoRectangle) +
+                                    sf::Vector2f{tPadding, -tPadding});
+    }
+}
+
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
     ssvs::GameWindow& mGameWindow)

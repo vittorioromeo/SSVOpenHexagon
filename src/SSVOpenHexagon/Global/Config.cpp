@@ -106,6 +106,7 @@ using namespace ssvu;
     X(keyIconsScale, float, "key_icons_scale")                             \
     X(firstTimePlaying, bool, "first_time_playing")                        \
     X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file")   \
+    X(showLevelInfo, bool, "show_level_info")                              \
     X_BINDSLINKEDVALUES
 
 namespace hg::Config
@@ -584,6 +585,11 @@ void setSaveLocalBestReplayToFile(bool mX)
     saveLocalBestReplayToFile() = mX;
 }
 
+void setShowLevelInfo(bool mX)
+{
+    showLevelInfo() = mX;
+}
+
 [[nodiscard]] bool getOnline()
 {
     return online();
@@ -891,6 +897,11 @@ void setSaveLocalBestReplayToFile(bool mX)
 [[nodiscard]] bool getSaveLocalBestReplayToFile()
 {
     return saveLocalBestReplayToFile();
+}
+
+[[nodiscard]] bool getShowLevelInfo()
+{
+    return showLevelInfo();
 }
 
 //***********************************************************
