@@ -183,7 +183,7 @@ function onInit()
     l_setPulseMax(125)
     l_setPulseSpeed(6.4)
     l_setPulseSpeedR(6.4)
-    l_setPulseDelayMax(25)
+    l_setPulseDelayMax(24.38)
 
     l_setBeatPulseInitialDelay(53 / 2)
     l_setBeatPulseMax(35)
@@ -271,12 +271,12 @@ end
 function onCursorSwap()
     if style == 0 then
         style = 1
-        s_setStyle("centrifuga2")
+        s_setStyle("bipolarity2")
         l_setRotationSpeed(0.25 * lastRotationDir * (u_getDifficultyMult() ^ 0.85))
         lastRotationDir = lastRotationDir * -1
     else
         style = 0
-        s_setStyle("centrifuga")
+        s_setStyle("bipolarity")
         l_setRotationSpeed(0)
     end
 end
