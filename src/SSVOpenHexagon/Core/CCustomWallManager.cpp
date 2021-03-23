@@ -276,9 +276,8 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
                 continue;
             }
 
-            // Broad-phase Manhattan distance optimization.
-            _customWalls[h].updateOutOfPlayerRadius(
-                mHexagonGame.getCenterPos(), radius);
+            // Broad-phase AABB collision optimization.
+            _customWalls[h].updateOutOfPlayerRadius(pPos);
 
             if(!_customWalls[h].isOverlapping(pPos))
             {
