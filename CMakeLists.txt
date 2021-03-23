@@ -22,6 +22,8 @@ CPMAddPackage(
   GIT_TAG 2f11710abc5aa478503a7ff3f9e654bd2078ebab
 )
 
+set(SFML_STATIC_LIBRARIES false)
+
 # -----------------------------------------------------------------------------
 
 CPMAddPackage(
@@ -50,6 +52,35 @@ CPMAddPackage(
   GITHUB_REPOSITORY madler/zlib
   VERSION 1.2.11
   GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f
+)
+
+# -----------------------------------------------------------------------------
+
+CPMAddPackage(
+  NAME imgui
+  GITHUB_REPOSITORY ocornut/imgui
+  VERSION 1.82
+  GIT_TAG 35b1148efb839381b84de9290d9caf0b66ad7d03
+  DOWNLOAD_ONLY YES
+)
+
+if (imgui_ADDED)
+  # imgui has no CMake support, so we create our own target
+
+  FILE(GLOB imgui_sources ${imgui_SOURCE_DIR}/*.cpp)
+
+  set(IMGUI_DIR ${imgui_SOURCE_DIR})
+  set(IMGUI_INCLUDE_DIR ${imgui_SOURCE_DIR})
+  set(IMGUI_SOURCES ${imgui_sources})
+endif()
+
+# -----------------------------------------------------------------------------
+
+CPMAddPackage(
+  NAME imgui-sfml
+  GITHUB_REPOSITORY eliasdaler/imgui-sfml
+  VERSION 2.2
+  GIT_TAG 43aae2de805257a0d87ecb736f35e7a99eef1950
 )
 
 # -----------------------------------------------------------------------------
@@ -142,12 +173,14 @@ target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${SFML_SOURCE_DIR}/in
 target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
 target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${zlib_SOURCE_DIR})
 target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${zlib_BINARY_DIR})
+target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${imgui_SOURCE_DIR})
 
 target_link_libraries(SSVOpenHexagonLib ${SFML_LIBRARIES})
 target_link_libraries(SSVOpenHexagonLib lua)
 target_link_libraries(SSVOpenHexagonLib zlib)
 target_link_libraries(SSVOpenHexagonLib ${PUBLIC_LIBRARIES})
 target_link_libraries(SSVOpenHexagonLib "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
+target_link_libraries(SSVOpenHexagonLib ImGui-SFML::ImGui-SFML)
 
 target_link_libraries(${PROJECT_NAME} SSVOpenHexagonLib)
 
@@ -157,6 +190,8 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${lua_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${imgui_SOURCE_DIR})
+
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(SSVOpenHexagonLib pthread)

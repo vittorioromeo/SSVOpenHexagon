@@ -588,10 +588,10 @@ void MenuGame::initLua()
 {
     lua.writeVariable("u_inMenu", [] { return true; });
 
-    lua.writeVariable(
-        "u_log", [](string mLog) { lo("lua-menu") << mLog << '\n'; });
+    lua.writeVariable("u_log",
+        [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
 
-    lua.writeVariable("u_execScript", [this](string mName) {
+    lua.writeVariable("u_execScript", [this](const std::string& mName) {
         Utils::runLuaFile(lua, levelData->packPath + "Scripts/" + mName);
     });
 
@@ -873,6 +873,12 @@ void MenuGame::initMenus()
     keyboard.create<KeyboardBindControl>("previous pack",
         &Config::getTriggerPreviousPack, &Config::addBindTriggerPreviousPack,
         &Config::clearBindTriggerPreviousPack, callBack, Tid::PreviousPack);
+    keyboard.create<KeyboardBindControl>("open lua console (debug only)",
+        &Config::getTriggerLuaConsole, &Config::addBindTriggerLuaConsole,
+        &Config::clearBindTriggerLuaConsole, callBack, Tid::LuaConsole);
+    keyboard.create<KeyboardBindControl>("pause game (debug only)",
+        &Config::getTriggerPause, &Config::addBindTriggerPause,
+        &Config::clearBindTriggerPause, callBack, Tid::Pause);
     keyboard.create<i::GoBack>("back");
 
     // Joystick binds

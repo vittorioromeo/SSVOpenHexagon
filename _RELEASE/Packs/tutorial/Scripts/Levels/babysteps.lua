@@ -140,7 +140,7 @@ function onUpdate(mFrameTime)
 		e_messageAddImportant("well done!", 120)
 		e_messageAddImportant("you can slow down by focusing", 120)
 		e_messageAddImportant("by default, use left shift", 120)
-		e_messageAddImportant("try it now!", 120)
+		e_messageAddImportant("try it while rotating!", 120)
 		e_stopTimeS(8)
 	end
 

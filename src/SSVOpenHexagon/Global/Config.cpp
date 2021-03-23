@@ -49,7 +49,9 @@ using namespace ssvu;
     X(triggerUp, Trigger, "t_up")                             \
     X(triggerDown, Trigger, "t_down")                         \
     X(triggerNextPack, Trigger, "t_next")                     \
-    X(triggerPreviousPack, Trigger, "t_previous")
+    X(triggerPreviousPack, Trigger, "t_previous")             \
+    X(triggerLuaConsole, Trigger, "t_lua_console")            \
+    X(triggerPause, Trigger, "t_pause")
 
 #define X_LINKEDVALUES                                                     \
     X(online, bool, "online")                                              \
@@ -991,11 +993,12 @@ std::string bindToHumanReadableName(std::string s)
 }
 
 const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
-    keyboardTriggerGetters{{getTriggerRotateCCW, getTriggerRotateCW,
-        getTriggerFocus, getTriggerSelect, getTriggerExit,
-        getTriggerForceRestart, getTriggerRestart, getTriggerReplay,
-        getTriggerScreenshot, getTriggerSwap, getTriggerUp, getTriggerDown,
-        getTriggerNextPack, getTriggerPreviousPack}};
+    keyboardTriggerGetters{
+        {getTriggerRotateCCW, getTriggerRotateCW, getTriggerFocus,
+            getTriggerSelect, getTriggerExit, getTriggerForceRestart,
+            getTriggerRestart, getTriggerReplay, getTriggerScreenshot,
+            getTriggerSwap, getTriggerUp, getTriggerDown, getTriggerNextPack,
+            getTriggerPreviousPack, getTriggerLuaConsole, getTriggerPause}};
 
 [[nodiscard]] std::string getKeyboardBindNames(const int bindID)
 {
@@ -1135,6 +1138,14 @@ void addBindTriggerPreviousPack(const int key, const int btn, const int index)
     triggerPreviousPack() =
         rebindTrigger(triggerPreviousPack(), key, btn, index);
 }
+void addBindTriggerLuaConsole(const int key, const int btn, const int index)
+{
+    triggerLuaConsole() = rebindTrigger(triggerLuaConsole(), key, btn, index);
+}
+void addBindTriggerPause(const int key, const int btn, const int index)
+{
+    triggerPause() = rebindTrigger(triggerPause(), key, btn, index);
+}
 
 //**************************************************
 // Unbind key
@@ -1200,6 +1211,15 @@ void clearBindTriggerPreviousPack(const int index)
 {
     triggerPreviousPack() = clearTriggerBind(triggerPreviousPack(), index);
 }
+void clearBindTriggerLuaConsole(const int index)
+{
+    triggerLuaConsole() = clearTriggerBind(triggerLuaConsole(), index);
+}
+void clearBindTriggerPause(const int index)
+{
+    triggerPause() = clearTriggerBind(triggerPause(), index);
+}
+
 
 //**************************************************
 // Get key
@@ -1260,6 +1280,14 @@ Trigger getTriggerPreviousPack()
 {
     return triggerPreviousPack();
 }
+Trigger getTriggerLuaConsole()
+{
+    return triggerLuaConsole();
+}
+Trigger getTriggerPause()
+{
+    return triggerPause();
+}
 
 //**************************************************
 // Set key
@@ -1319,6 +1347,14 @@ void setTriggerNextPack(Trigger& trig)
 void setTriggerPreviousPack(Trigger& trig)
 {
     triggerPreviousPack() = trig;
+}
+void setTriggerLuaConsole(Trigger& trig)
+{
+    triggerLuaConsole() = trig;
+}
+void setTriggerPause(Trigger& trig)
+{
+    triggerPause() = trig;
 }
 
 //***********************************************************

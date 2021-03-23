@@ -7,6 +7,9 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 #include <SSVStart/Utils/Vector2.hpp>
 
 using namespace std;
@@ -182,6 +185,19 @@ void HexagonGame::draw()
         window.saveScreenshot("screenshot.png");
         mustTakeScreenshot = false;
     }
+
+    drawImguiLuaConsole();
+}
+
+void HexagonGame::drawImguiLuaConsole()
+{
+    if(!ilcShowConsole)
+    {
+        return;
+    }
+
+    overlayCamera.unapply();
+    ImGui::SFML::Render(window);
 }
 
 void HexagonGame::initFlashEffect()
@@ -261,6 +277,11 @@ void HexagonGame::updateText(ssvu::FT mFT)
 
     // ------------------------------------------------------------------------
     os.str("");
+
+    if(debugPause)
+    {
+        os << "(!) PAUSED (!)\n";
+    }
 
     if(levelStatus.tutorialMode)
     {
