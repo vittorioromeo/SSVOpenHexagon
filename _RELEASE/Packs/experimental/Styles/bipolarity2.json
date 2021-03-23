@@ -1,12 +1,12 @@
 {
 	// Style data id
-	"id": "centrifuga2",
+	"id": "bipolarity2",
 
 	// Hue options
 	"hue_min": 0,
 	"hue_max": 360,
 	"hue_ping_pong": false,
-	"hue_increment": 10.0,
+	"hue_increment": 7.0,
 
 	// Pulse options
 	"pulse_min": 0.0,
