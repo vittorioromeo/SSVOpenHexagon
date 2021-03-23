@@ -26,6 +26,9 @@
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
 #include <SSVStart/VertexVector/VertexVector.hpp>
@@ -66,6 +69,19 @@ private:
 
     ssvs::GameState game;
     ssvs::GameWindow& window;
+
+    // IMGUI Lua Console
+    sf::Clock ilcDeltaClock;
+    std::vector<std::string> ilcCmdLog;
+    std::vector<std::string> ilcHistory;
+    int ilcHistoryPos{-1};
+    char ilcCmdBuffer[512] = "";
+    bool ilcShowConsole{false};
+    bool ilcShowConsoleNext{false};
+    bool debugPause{false};
+
+public:
+    int ilcTextEditCallback(ImGuiInputTextCallbackData* data);
 
 public:
     CPlayer player;
@@ -317,6 +333,9 @@ private:
     void updateLevelInfo();
     void updateParticles(ssvu::FT mFT);
 
+    // Post update methods
+    void postUpdateImguiLuaConsole();
+
     // Draw methods
     void draw();
 
@@ -332,6 +351,7 @@ private:
     void drawKeyIcons();
     void drawLevelInfo();
     void drawParticles();
+    void drawImguiLuaConsole();
 
     // Data-related methods
     void setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay);
@@ -361,6 +381,7 @@ private:
 
     void invalidateScore(const std::string& mReason);
 
+    [[nodiscard]] bool imguiLuaConsoleHasInput();
 
     template <typename F>
     Utils::LuaMetadataProxy addLuaFn(const std::string& name, F&& f)
@@ -384,6 +405,66 @@ private:
                 i);
         }
     }
+
+    const std::vector<std::string>& getAllLuaFunctionNames()
+    {
+        static std::vector<std::string> result = [&] {
+            std::vector<std::string> v;
+
+            for(std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i)
+            {
+                luaMetadata.forFnEntries(
+                    [&](const std::string&, const std::string& name,
+                        const std::string&,
+                        const std::string&) { v.emplace_back(name); },
+                    i);
+            }
+
+            return v;
+        }();
+
+        return result;
+    }
+
+    std::string getDocsForLuaFunction(const std::string& fnName)
+    {
+        bool found = false;
+        std::string result;
+
+        for(std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i)
+        {
+            std::cout << '\n' << luaMetadata.prefixHeaders.at(i) << "\n\n";
+
+            luaMetadata.forFnEntries(
+                [&](const std::string& ret, const std::string& name,
+                    const std::string& args, const std::string& docs) {
+                    if(!found && name == fnName)
+                    {
+                        found = true;
+
+                        result += ret;
+                        result += " ";
+                        result += name;
+                        result += "(";
+                        result += args;
+                        result += "):\n";
+                        result += docs;
+                        result += "\n\n";
+                    }
+                },
+                i);
+        }
+
+        if(!found)
+        {
+            return "UNKNOWN FUNCTION";
+        }
+
+        return result;
+    }
+
+    template <typename T>
+    auto makeLuaAccessor(T& obj, const std::string& prefix);
 
     static void nameFormat(std::string& name)
     {

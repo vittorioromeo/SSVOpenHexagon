@@ -11,6 +11,9 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
@@ -157,36 +160,43 @@ void HexagonGame::updateLevelInfo()
     levelInfoTextLevel.setPosition(ssvs::getGlobalNW(levelInfoRectangle) +
                                    sf::Vector2f{tPadding, tPadding});
 
-    levelInfoTextPack.setFillColor(styleData.getMainColor());
-    levelInfoTextPack.setCharacterSize(14.f / Config::getZoomFactor());
-    levelInfoTextPack.setString(trim(Utils::toUppercase(getPackName())));
+    const auto prepareText = [&](sf::Text& text, const float characterSize,
+                                 const std::string& string) {
+        text.setFillColor(styleData.getTextColor());
+        text.setCharacterSize(characterSize / Config::getZoomFactor());
+        text.setString(string);
+    };
+
+    prepareText(
+        levelInfoTextPack, 14.f, trim(Utils::toUppercase(getPackName())));
     levelInfoTextPack.setOrigin(ssvs::getLocalNW(levelInfoTextPack));
     levelInfoTextPack.setPosition(
         ssvs::getGlobalSW(levelInfoTextLevel) + sf::Vector2f{0.f, tPadding});
 
-    levelInfoTextAuthor.setFillColor(styleData.getMainColor());
-    levelInfoTextAuthor.setCharacterSize(20.f / Config::getZoomFactor());
-    levelInfoTextAuthor.setString(trim(Utils::toUppercase(getPackAuthor())));
+    prepareText(
+        levelInfoTextAuthor, 20.f, trim(Utils::toUppercase(getPackAuthor())));
     levelInfoTextAuthor.setOrigin(ssvs::getLocalSE(levelInfoTextAuthor));
     levelInfoTextAuthor.setPosition(ssvs::getGlobalSE(levelInfoRectangle) -
                                     sf::Vector2f{tPadding, tPadding});
 
-    levelInfoTextBy.setFillColor(styleData.getMainColor());
-    levelInfoTextBy.setCharacterSize(12.f / Config::getZoomFactor());
-    levelInfoTextBy.setString("BY");
+    prepareText(levelInfoTextBy, 12.f, "BY");
     levelInfoTextBy.setOrigin(ssvs::getLocalSE(levelInfoTextBy));
     levelInfoTextBy.setPosition(
         ssvs::getGlobalSW(levelInfoTextAuthor) - sf::Vector2f{tPadding, 0.f});
 
     if(levelData->difficultyMults.size() > 1)
     {
-        levelInfoTextDM.setFillColor(styleData.getMainColor());
-        levelInfoTextDM.setCharacterSize(14.f / Config::getZoomFactor());
-        levelInfoTextDM.setString(diffFormat(difficultyMult) + "x");
+        prepareText(levelInfoTextDM, 14.f, diffFormat(difficultyMult) + "x");
         levelInfoTextDM.setOrigin(ssvs::getLocalSW(levelInfoTextDM));
         levelInfoTextDM.setPosition(ssvs::getGlobalSW(levelInfoRectangle) +
                                     sf::Vector2f{tPadding, -tPadding});
     }
+}
+
+[[nodiscard]] bool HexagonGame::imguiLuaConsoleHasInput()
+{
+    return ilcShowConsole && (ImGui::GetIO().WantCaptureKeyboard ||
+                                 ImGui::GetIO().WantCaptureMouse);
 }
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
@@ -202,9 +212,14 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     game.onPostUpdate += [this] {
         inputImplLastMovement = inputMovement;
         inputImplBothCWCCW = inputImplCW && inputImplCCW;
+
+        postUpdateImguiLuaConsole();
     };
 
     game.onDraw += [this] { draw(); };
+
+    game.onAnyEvent +=
+        [](const sf::Event& event) { ImGui::SFML::ProcessEvent(event); };
 
     window.onRecreation += [this] {
         initFlashEffect();
@@ -227,17 +242,36 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 
     game.addInput(
         {{sf::Keyboard::Key::Escape}},
-        [this](ssvu::FT /*unused*/) { goToMenu(); }, // hardcoded
+        [this](ssvu::FT /*unused*/) {
+            if(imguiLuaConsoleHasInput())
+            {
+                return;
+            }
+
+            goToMenu();
+        }, // hardcoded
         ssvs::Input::Type::Always);
 
     game.addInput(
         Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) { goToMenu(); }, // editable
+        [this](ssvu::FT /*unused*/) {
+            if(imguiLuaConsoleHasInput())
+            {
+                return;
+            }
+
+            goToMenu();
+        }, // editable
         ssvs::Input::Type::Always, Tid::Exit);
 
     game.addInput(
         Config::getTriggerForceRestart(),
         [this](ssvu::FT /*unused*/) {
+            if(imguiLuaConsoleHasInput())
+            {
+                return;
+            }
+
             status.mustStateChange = StateChange::MustRestart;
         },
         ssvs::Input::Type::Once, Tid::ForceRestart);
@@ -245,6 +279,11 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     game.addInput(
         Config::getTriggerRestart(),
         [this](ssvu::FT /*unused*/) {
+            if(imguiLuaConsoleHasInput())
+            {
+                return;
+            }
+
             if(deathInputIgnore <= 0.f && status.hasDied)
             {
                 status.mustStateChange = StateChange::MustRestart;
@@ -255,6 +294,11 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     game.addInput(
         Config::getTriggerReplay(),
         [this](ssvu::FT /*unused*/) {
+            if(imguiLuaConsoleHasInput())
+            {
+                return;
+            }
+
             if(deathInputIgnore <= 0.f && status.hasDied)
             {
                 status.mustStateChange = StateChange::MustReplay;
@@ -264,8 +308,47 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 
     game.addInput(
         Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; },
+        [this](ssvu::FT /*unused*/) {
+            if(imguiLuaConsoleHasInput())
+            {
+                return;
+            }
+
+            mustTakeScreenshot = true;
+        },
         ssvs::Input::Type::Once, Tid::Screenshot);
+
+    game.addInput(
+        Config::getTriggerLuaConsole(),
+        [this](ssvu::FT /*unused*/) {
+            if(!Config::getDebug())
+            {
+                return;
+            }
+
+            ilcShowConsoleNext = true;
+        },
+        ssvs::Input::Type::Once, Tid::LuaConsole);
+
+    game.addInput(
+        Config::getTriggerPause(),
+        [this](ssvu::FT /*unused*/) {
+            if(!Config::getDebug())
+            {
+                return;
+            }
+
+            debugPause = !debugPause;
+            if(debugPause)
+            {
+                assets.musicPlayer.pause();
+            }
+            else if(!status.hasDied)
+            {
+                assets.musicPlayer.resume();
+            }
+        },
+        ssvs::Input::Type::Once, Tid::Pause);
 
     // ------------------------------------------------------------------------
     // Joystick binds
@@ -417,6 +500,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         assets.musicPlayer.stop();
     }
 
+    debugPause = false;
+
     // Events cleanup
     messageText.setString("");
     pbText.setString("");
@@ -493,7 +578,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     status.beatPulseDelay += levelStatus.beatPulseInitialDelay;
     timeUntilRichPresenceUpdate = -1.f; // immediate update
 
-    // Store the keys/buttons to be pressed to replay and restart after you die.
+    // Store the keys/buttons to be pressed to replay and restart after you
+    // die.
     using Tid = Config::Tid;
     status.restartInput = Config::getKeyboardBindNames(Tid::Restart);
     status.replayInput = Config::getKeyboardBindNames(Tid::Replay);
@@ -738,7 +824,8 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
         std::string localValidator{
             Utils::getLocalValidator(levelData->id, difficultyMult)};
 
-        // TODO: this crashes when going back to menu from replay drag and drop
+        // TODO: this crashes when going back to menu from replay drag and
+        // drop
         if(assets.getLocalScore(localValidator) < score)
         {
             assets.setLocalScore(localValidator, score);
@@ -937,8 +1024,8 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
-    // TODO: the joystick thing should be in updateInput, this should be a blind
-    // getter
+    // TODO: the joystick thing should be in updateInput, this should be a
+    // blind getter
     return inputFocused || (!inReplay() && hg::Joystick::focusPressed());
 }
 
@@ -949,8 +1036,8 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const
 {
-    // TODO: the joystick thing should be in updateInput, this should be a blind
-    // getter
+    // TODO: the joystick thing should be in updateInput, this should be a
+    // blind getter
     return inputSwap || (!inReplay() && hg::Joystick::swapPressed());
 }
 

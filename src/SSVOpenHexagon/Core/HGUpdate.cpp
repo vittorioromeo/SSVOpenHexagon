@@ -6,6 +6,9 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 #include <SSVStart/Utils/Vector2.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
@@ -45,145 +48,151 @@ void HexagonGame::update(ssvu::FT mFT)
     updateRichPresenceCallbacks();
 
     // ------------------------------------------------------------------------
+
     updateText(mFT);
-    updateFlash(mFT);
-    effectTimelineManager.update(mFT);
 
-    if(!mustReplayInput())
+    if(!debugPause)
     {
-        updateInput();
-    }
-    else
-    {
-        assert(activeReplay.has_value());
+        updateFlash(mFT);
+        effectTimelineManager.update(mFT);
 
-        if(!status.started)
+        if(!mustReplayInput())
         {
-            start();
-        }
-
-        const input_bitset ib =
-            activeReplay->replayPlayer.get_current_and_move_forward();
-
-        if(ib[static_cast<unsigned int>(input_bit::left)])
-        {
-            inputMovement = -1;
-        }
-        else if(ib[static_cast<unsigned int>(input_bit::right)])
-        {
-            inputMovement = 1;
+            updateInput();
         }
         else
         {
-            inputMovement = 0;
+            assert(activeReplay.has_value());
+
+            if(!status.started)
+            {
+                start();
+            }
+
+            const input_bitset ib =
+                activeReplay->replayPlayer.get_current_and_move_forward();
+
+            if(ib[static_cast<unsigned int>(input_bit::left)])
+            {
+                inputMovement = -1;
+            }
+            else if(ib[static_cast<unsigned int>(input_bit::right)])
+            {
+                inputMovement = 1;
+            }
+            else
+            {
+                inputMovement = 0;
+            }
+
+            inputSwap = ib[static_cast<unsigned int>(input_bit::swap)];
+            inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
         }
 
-        inputSwap = ib[static_cast<unsigned int>(input_bit::swap)];
-        inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
-    }
-
-    // ------------------------------------------------------------------------
-    // Update key icons.
-    if(Config::getShowKeyIcons() || mustShowReplayUI())
-    {
-        updateKeyIcons();
-    }
-
-    // ------------------------------------------------------------------------
-    // Update level info.
-    if(Config::getShowLevelInfo() || mustShowReplayUI())
-    {
-        updateLevelInfo();
-    }
-
-    // ------------------------------------------------------------------------
-    // Update input leniency time after death to avoid accidental restart.
-    if(deathInputIgnore > 0.f)
-    {
-        deathInputIgnore -= mFT;
-    }
-
-    // ------------------------------------------------------------------------
-    if(status.started)
-    {
-        player.update(*this, mFT);
-
-        if(!status.hasDied)
+        // ------------------------------------------------------------------------
+        // Update key icons.
+        if(Config::getShowKeyIcons() || mustShowReplayUI())
         {
-            const std::optional<bool> preventPlayerInput =
-                runLuaFunctionIfExists<bool, float, int, bool, bool>("onInput",
-                    mFT, getInputMovement(), getInputFocused(), getInputSwap());
+            updateKeyIcons();
+        }
 
-            if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
+        // ------------------------------------------------------------------------
+        // Update level info.
+        if(Config::getShowLevelInfo() || mustShowReplayUI())
+        {
+            updateLevelInfo();
+        }
+
+        // ------------------------------------------------------------------------
+        // Update input leniency time after death to avoid accidental restart.
+        if(deathInputIgnore > 0.f)
+        {
+            deathInputIgnore -= mFT;
+        }
+
+        // ------------------------------------------------------------------------
+        if(status.started)
+        {
+            player.update(*this, mFT);
+
+            if(!status.hasDied)
             {
-                if(player.updateInput(*this, mFT))
+                const std::optional<bool> preventPlayerInput =
+                    runLuaFunctionIfExists<bool, float, int, bool, bool>(
+                        "onInput", mFT, getInputMovement(), getInputFocused(),
+                        getInputSwap());
+
+                if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
                 {
-                    // Player successfully swapped.
-                    // TODO: document and cleanup
+                    if(player.updateInput(*this, mFT))
+                    {
+                        // Player successfully swapped.
+                        // TODO: document and cleanup
+                    }
                 }
-            }
 
-            status.accumulateFrametime(mFT);
-            if(levelStatus.scoreOverridden)
+                status.accumulateFrametime(mFT);
+                if(levelStatus.scoreOverridden)
+                {
+                    status.updateCustomScore(
+                        lua.readVariable<float>(levelStatus.scoreOverride));
+                }
+
+                updateEvents(mFT);
+                updateIncrement();
+
+                if(mustChangeSides && walls.empty())
+                {
+                    sideChange(rng.get_int(
+                        levelStatus.sidesMin, levelStatus.sidesMax));
+                }
+
+                updateLevel(mFT);
+
+                if(Config::getBeatPulse())
+                {
+                    updateBeatPulse(mFT);
+                }
+
+                if(Config::getPulse())
+                {
+                    updatePulse(mFT);
+                }
+
+                if(!Config::getBlackAndWhite())
+                {
+                    styleData.update(mFT, pow(difficultyMult, 0.8f));
+                }
+
+                player.updatePosition(*this, mFT);
+
+                updateWalls(mFT);
+                ssvu::eraseRemoveIf(
+                    walls, [](const CWall& w) { return w.isDead(); });
+
+                updateCustomWalls(mFT);
+            }
+            else
             {
-                status.updateCustomScore(
-                    lua.readVariable<float>(levelStatus.scoreOverride));
+                levelStatus.rotationSpeed *= 0.99f;
             }
 
-            updateEvents(mFT);
-            updateIncrement();
-
-            if(mustChangeSides && walls.empty())
+            if(Config::get3D())
             {
-                sideChange(
-                    rng.get_int(levelStatus.sidesMin, levelStatus.sidesMax));
+                update3D(mFT);
             }
 
-            updateLevel(mFT);
-
-            if(Config::getBeatPulse())
+            if(!Config::getNoRotation())
             {
-                updateBeatPulse(mFT);
+                updateRotation(mFT);
             }
-
-            if(Config::getPulse())
-            {
-                updatePulse(mFT);
-            }
-
-            if(!Config::getBlackAndWhite())
-            {
-                styleData.update(mFT, pow(difficultyMult, 0.8f));
-            }
-
-            player.updatePosition(*this, mFT);
-
-            updateWalls(mFT);
-            ssvu::eraseRemoveIf(
-                walls, [](const CWall& w) { return w.isDead(); });
-
-            updateCustomWalls(mFT);
         }
-        else
-        {
-            levelStatus.rotationSpeed *= 0.99f;
-        }
 
-        if(Config::get3D())
-        {
-            update3D(mFT);
-        }
+        updateParticles(mFT);
 
-        if(!Config::getNoRotation())
-        {
-            updateRotation(mFT);
-        }
+        overlayCamera.update(mFT);
+        backgroundCamera.update(mFT);
     }
-
-    updateParticles(mFT);
-
-    overlayCamera.update(mFT);
-    backgroundCamera.update(mFT);
 
     if(status.started)
     {
@@ -326,6 +335,11 @@ void HexagonGame::start()
 
 void HexagonGame::updateInput()
 {
+    if(imguiLuaConsoleHasInput())
+    {
+        return;
+    }
+
     // Joystick support
     hg::Joystick::update();
 
@@ -493,34 +507,37 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
 
 void HexagonGame::updatePulse(ssvu::FT mFT)
 {
-    if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
+    if(!levelStatus.manualPulseControl)
     {
-        const float pulseAdd{status.pulseDirection > 0
-                                 ? levelStatus.pulseSpeed
-                                 : -levelStatus.pulseSpeedR};
-
-        const float pulseLimit{status.pulseDirection > 0
-                                   ? levelStatus.pulseMax
-                                   : levelStatus.pulseMin};
-
-        status.pulse += pulseAdd * mFT * getMusicDMSyncFactor();
-
-        if((status.pulseDirection > 0 && status.pulse >= pulseLimit) ||
-            (status.pulseDirection < 0 && status.pulse <= pulseLimit))
+        if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
         {
-            status.pulse = pulseLimit;
-            status.pulseDirection *= -1;
-            status.pulseDelayHalf = levelStatus.pulseDelayHalfMax;
+            const float pulseAdd{status.pulseDirection > 0
+                                     ? levelStatus.pulseSpeed
+                                     : -levelStatus.pulseSpeedR};
 
-            if(status.pulseDirection < 0)
+            const float pulseLimit{status.pulseDirection > 0
+                                       ? levelStatus.pulseMax
+                                       : levelStatus.pulseMin};
+
+            status.pulse += pulseAdd * mFT * getMusicDMSyncFactor();
+
+            if((status.pulseDirection > 0 && status.pulse >= pulseLimit) ||
+                (status.pulseDirection < 0 && status.pulse <= pulseLimit))
             {
-                status.pulseDelay = levelStatus.pulseDelayMax;
+                status.pulse = pulseLimit;
+                status.pulseDirection *= -1;
+                status.pulseDelayHalf = levelStatus.pulseDelayHalfMax;
+
+                if(status.pulseDirection < 0)
+                {
+                    status.pulseDelay = levelStatus.pulseDelayMax;
+                }
             }
         }
-    }
 
-    status.pulseDelay -= mFT * getMusicDMSyncFactor();
-    status.pulseDelayHalf -= mFT * getMusicDMSyncFactor();
+        status.pulseDelay -= mFT * getMusicDMSyncFactor();
+        status.pulseDelayHalf -= mFT * getMusicDMSyncFactor();
+    }
 
     const float p{status.pulse / levelStatus.pulseMin};
     const float rotation{backgroundCamera.getRotation()};
@@ -534,20 +551,23 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
 
 void HexagonGame::updateBeatPulse(ssvu::FT mFT)
 {
-    if(status.beatPulseDelay <= 0)
+    if(!levelStatus.manualBeatPulseControl)
     {
-        status.beatPulse = levelStatus.beatPulseMax;
-        status.beatPulseDelay = levelStatus.beatPulseDelayMax;
-    }
-    else
-    {
-        status.beatPulseDelay -= mFT * getMusicDMSyncFactor();
-    }
+        if(status.beatPulseDelay <= 0)
+        {
+            status.beatPulse = levelStatus.beatPulseMax;
+            status.beatPulseDelay = levelStatus.beatPulseDelayMax;
+        }
+        else
+        {
+            status.beatPulseDelay -= mFT * getMusicDMSyncFactor();
+        }
 
-    if(status.beatPulse > 0)
-    {
-        status.beatPulse -= (2.f * mFT * getMusicDMSyncFactor()) *
-                            levelStatus.beatPulseSpeedMult;
+        if(status.beatPulse > 0)
+        {
+            status.beatPulse -= (2.f * mFT * getMusicDMSyncFactor()) *
+                                levelStatus.beatPulseSpeedMult;
+        }
     }
 
     const float radiusMin{Config::getBeatPulse() ? levelStatus.radiusMin : 75};
@@ -650,6 +670,282 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
             nextPBParticleSpawn = 2.75f;
         }
     }
+}
+
+static int ilcTextEditCallbackStub(ImGuiInputTextCallbackData* data)
+{
+    auto hg = (HexagonGame*)data->UserData;
+    return hg->ilcTextEditCallback(data);
+}
+
+static int Stricmp(const char* s1, const char* s2)
+{
+    int d;
+    while((d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
+    {
+        s1++;
+        s2++;
+    }
+    return d;
+}
+
+static int Strnicmp(const char* s1, const char* s2, int n)
+{
+    int d = 0;
+    while(n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1)
+    {
+        s1++;
+        s2++;
+        n--;
+    }
+    return d;
+}
+
+int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
+{
+    switch(data->EventFlag)
+    {
+        case ImGuiInputTextFlags_CallbackCompletion:
+        {
+            // Locate beginning of current word
+            const char* word_end = data->Buf + data->CursorPos;
+            const char* word_start = word_end;
+            while(word_start > data->Buf)
+            {
+                const char c = word_start[-1];
+                if(c == ' ' || c == '\t' || c == ',' || c == ';') break;
+                word_start--;
+            }
+
+            // Build a list of candidates
+            ImVector<const char*> candidates;
+            for(const std::string& fnName : getAllLuaFunctionNames())
+            {
+                if(Strnicmp(fnName.c_str(), word_start,
+                       (int)(word_end - word_start)) == 0)
+                {
+                    candidates.push_back(fnName.c_str());
+                }
+            }
+
+            if(candidates.Size == 0)
+            {
+                char buf[255];
+                std::snprintf(buf, sizeof(buf), "No match for \"%.*s\"!\n",
+                    (int)(word_end - word_start), word_start);
+
+                // No match
+                ilcCmdLog.emplace_back(buf);
+            }
+            else if(candidates.Size == 1)
+            {
+                // Single match. Delete the beginning of the word and replace it
+                // entirely so we've got nice casing.
+                data->DeleteChars((int)(word_start - data->Buf),
+                    (int)(word_end - word_start));
+                data->InsertChars(data->CursorPos, candidates[0]);
+                data->InsertChars(data->CursorPos, " ");
+            }
+            else
+            {
+                // Multiple matches. Complete as much as we can..
+                // So inputing "C"+Tab will complete to "CL" then display
+                // "CLEAR" and "CLASSIFY" as matches.
+                int match_len = (int)(word_end - word_start);
+                for(;;)
+                {
+                    int c = 0;
+                    bool all_candidates_matches = true;
+                    for(int i = 0;
+                        i < candidates.Size && all_candidates_matches; i++)
+                        if(i == 0)
+                            c = toupper(candidates[i][match_len]);
+                        else if(c == 0 ||
+                                c != toupper(candidates[i][match_len]))
+                            all_candidates_matches = false;
+                    if(!all_candidates_matches) break;
+                    match_len++;
+                }
+
+                if(match_len > 0)
+                {
+                    data->DeleteChars((int)(word_start - data->Buf),
+                        (int)(word_end - word_start));
+
+                    data->InsertChars(data->CursorPos, candidates[0],
+                        candidates[0] + match_len);
+                }
+
+                // List matches
+                ilcCmdLog.emplace_back("Possible matches:\n");
+                for(int i = 0; i < candidates.Size; i++)
+                {
+                    ilcCmdLog.emplace_back(
+                        std::string{"- "} + candidates[i] + '\n');
+                }
+            }
+
+            break;
+        }
+        case ImGuiInputTextFlags_CallbackHistory:
+        {
+            const int prev_history_pos = ilcHistoryPos;
+            if(data->EventKey == ImGuiKey_UpArrow)
+            {
+                if(ilcHistoryPos == -1)
+                {
+                    ilcHistoryPos = ilcHistory.size() - 1;
+                }
+                else if(ilcHistoryPos > 0)
+                {
+                    ilcHistoryPos--;
+                }
+            }
+            else if(data->EventKey == ImGuiKey_DownArrow)
+            {
+                if(ilcHistoryPos != -1)
+                {
+                    if(++ilcHistoryPos >= static_cast<int>(ilcHistory.size()))
+                    {
+                        ilcHistoryPos = -1;
+                    }
+                }
+            }
+
+            if(prev_history_pos != ilcHistoryPos)
+            {
+                const char* history_str =
+                    (ilcHistoryPos >= 0) ? ilcHistory[ilcHistoryPos].c_str()
+                                         : "";
+
+                data->DeleteChars(0, data->BufTextLen);
+                data->InsertChars(0, history_str);
+            }
+        }
+    }
+
+    return 0;
+}
+
+void HexagonGame::postUpdateImguiLuaConsole()
+{
+    if(ilcShowConsoleNext)
+    {
+        ilcShowConsole = !ilcShowConsole;
+        ilcShowConsoleNext = false;
+    }
+
+    if(!ilcShowConsole)
+    {
+        return;
+    }
+
+    ImGui::SFML::Update(window, ilcDeltaClock.restart());
+
+    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Lua console");
+
+    const float footer_height_to_reserve =
+        ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+
+    ImGui::PushStyleVar(
+        ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
+
+    ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve),
+        false, ImGuiWindowFlags_HorizontalScrollbar);
+
+    for(decltype(ilcCmdLog.size()) i = 0; i < ilcCmdLog.size(); ++i)
+    {
+        const char* item = ilcCmdLog[i].c_str();
+
+        ImVec4 color;
+        bool has_color = false;
+
+        if(std::strstr(item, "[error]"))
+        {
+            color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f);
+            has_color = true;
+        }
+        else if(std::strstr(item, "[lua]"))
+        {
+            color = ImVec4(0.4f, 1.0f, 0.4f, 1.0f);
+            has_color = true;
+        }
+        else if(std::strncmp(item, "# ", 2) == 0)
+        {
+            color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f);
+            has_color = true;
+        }
+
+        if(has_color) ImGui::PushStyleColor(ImGuiCol_Text, color);
+        ImGui::TextUnformatted(item);
+        if(has_color) ImGui::PopStyleColor();
+    }
+
+    ImGui::SetScrollHereY(1.0f);
+    ImGui::PopStyleVar();
+    ImGui::EndChild();
+    ImGui::Separator();
+
+    ImGuiInputTextFlags input_text_flags =
+        ImGuiInputTextFlags_EnterReturnsTrue |
+        ImGuiInputTextFlags_CallbackCompletion |
+        ImGuiInputTextFlags_CallbackHistory;
+
+    if(ImGui::InputText("Command", ilcCmdBuffer, IM_ARRAYSIZE(ilcCmdBuffer),
+           input_text_flags, &ilcTextEditCallbackStub, (void*)this))
+    {
+        const std::string cmdString = ilcCmdBuffer;
+        ilcCmdLog.emplace_back(std::string{"# "} + cmdString + '\n');
+
+        ilcHistoryPos = -1;
+        for(int i = ilcHistory.size() - 1; i >= 0; --i)
+        {
+            if(ilcHistory[i] == cmdString)
+            {
+                ilcHistory.erase(ilcHistory.begin() + i);
+                break;
+            }
+        }
+
+        ilcHistory.emplace_back(cmdString);
+
+        if(Stricmp(cmdString.c_str(), "!CLEAR") == 0)
+        {
+            ilcCmdLog.clear();
+        }
+        else if(cmdString[0] == '?')
+        {
+            const std::string rest = cmdString.substr(1);
+            const std::string docs = getDocsForLuaFunction(rest);
+            ilcCmdLog.emplace_back(docs);
+        }
+        else
+        {
+            try
+            {
+                lua.executeCode(cmdString);
+            }
+            catch(std::runtime_error& mError)
+            {
+                std::string temp = "[error]: ";
+                temp += mError.what();
+                temp += '\n';
+
+                ilcCmdLog.emplace_back(temp);
+            }
+            catch(...)
+            {
+                ilcCmdLog.emplace_back("[error]: unknown\n");
+            }
+        }
+
+        std::strcpy(ilcCmdBuffer, "");
+        ImGui::SetItemDefaultFocus();
+        ImGui::SetKeyboardFocusHere(-1);
+    }
+
+    ImGui::End();
 }
 
 } // namespace hg

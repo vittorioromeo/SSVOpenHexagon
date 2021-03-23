@@ -18,6 +18,7 @@ using namespace ssvuj;
 
 namespace hg
 {
+
 void HexagonGame::redefineLuaFunctions()
 {
     try
@@ -81,7 +82,10 @@ void HexagonGame::initLua_Utils()
         .doc("Flash the screen with `$0` intensity (from 0 to 255).");
 
     addLuaFn("u_log", //
-        [](const std::string& mLog) { ssvu::lo("lua") << mLog << '\n'; })
+        [this](const std::string& mLog) {
+            ssvu::lo("lua") << mLog << '\n';
+            ilcCmdLog.emplace_back("[lua]: " + mLog + '\n');
+        })
         .arg("message")
         .doc("Print out `$0` to the console.");
 
@@ -487,25 +491,30 @@ void HexagonGame::initLua_EventTimeline()
         .doc("Remove all previously scheduled messages.");
 }
 
-void HexagonGame::initLua_LevelControl()
+template <typename T>
+auto HexagonGame::makeLuaAccessor(T& obj, const std::string& prefix)
 {
-    const auto lsVar = [this](const std::string& name, auto pmd,
-                           const std::string& getterDesc,
-                           const std::string& setterDesc) {
-        using Type = std::decay_t<decltype(levelStatus.*pmd)>;
+    return [this, &obj, prefix](const std::string& name, auto pmd,
+               const std::string& getterDesc, const std::string& setterDesc) {
+        using Type = std::decay_t<decltype(obj.*pmd)>;
 
-        const std::string getterString = std::string{"l_get"} + name;
-        const std::string setterString = std::string{"l_set"} + name;
+        const std::string getterString = prefix + "_get" + name;
+        const std::string setterString = prefix + "_set" + name;
 
         addLuaFn(getterString, //
-            [this, pmd]() -> Type { return levelStatus.*pmd; })
+            [this, pmd, &obj]() -> Type { return obj.*pmd; })
             .doc(getterDesc);
 
         addLuaFn(setterString, //
-            [this, pmd](Type mValue) { levelStatus.*pmd = mValue; })
+            [this, pmd, &obj](Type mValue) { obj.*pmd = mValue; })
             .arg("value")
             .doc(setterDesc);
     };
+}
+
+void HexagonGame::initLua_LevelControl()
+{
+    const auto lsVar = makeLuaAccessor(levelStatus, "l");
 
     lsVar("SpeedMult", &LevelStatus::speedMult,
         "Gets the speed multiplier of the level. The speed multiplier is "
@@ -713,12 +722,10 @@ void HexagonGame::initLua_LevelControl()
 
     lsVar("RadiusMin", &LevelStatus::radiusMin,
         "Gets the minimum radius of the polygon in a level. This is used to "
-        "determine "
-        "the absolute size of the polygon in the level.",
+        "determine the absolute size of the polygon in the level.",
 
         "Sets the minimum radius of the polygon to `$0`. Use this to set the "
-        "size of "
-        "the polygon in the level, not ``BeatPulseMax``.");
+        "size of the polygon in the level, not ``BeatPulseMax``.");
 
     lsVar("WallSkewLeft", &LevelStatus::wallSkewLeft,
         "Gets the Y axis offset of the top left vertex in all walls.",
@@ -848,14 +855,25 @@ void HexagonGame::initLua_LevelControl()
     lsVar("DarkenUnevenBackgroundChunk",
         &LevelStatus::darkenUnevenBackgroundChunk,
         "Gets whether the ``Nth`` panel of a polygon with ``N`` sides "
-        "(assuming ``N`` "
-        "is odd) will be darkened to make styles look more balanced. By "
-        "default, this "
-        "value is set to ``true``, but there can be styles where having this "
-        "darkened "
-        "panel can look very unpleasing.",
+        "(assuming ``N`` is odd) will be darkened to make styles look more "
+        "balanced. By default, this value is set to ``true``, but there can be "
+        "styles where having this darkened panel can look very unpleasing.",
 
         "Sets the darkened panel to `$0`.");
+
+    lsVar("ManualPulseControl", &LevelStatus::manualPulseControl,
+        "Gets whether the pulse effect is being controlled manually via Lua or "
+        "automatically by the C++ engine.",
+
+        "Sets whether the pulse effect is being controlled manually via Lua or "
+        "automatically by the C++ engine to `$0`.");
+
+    lsVar("ManualBeatPulseControl", &LevelStatus::manualBeatPulseControl,
+        "Gets whether the beat pulse effect is being controlled manually via "
+        "Lua or automatically by the C++ engine.",
+
+        "Sets whether the beat  pulse effect is being controlled manually via "
+        "Lua or automatically by the C++ engine to `$0`.");
 
     lsVar("CurrentIncrements", &LevelStatus::currentIncrements,
         "Gets the current amount of times the level has incremented. Very "
@@ -958,49 +976,62 @@ void HexagonGame::initLua_LevelControl()
             playLevelMusic();
         });
     */
+
+    const auto sVar = makeLuaAccessor(status, "l");
+
+    sVar("Pulse", &HexagonGameStatus::pulse,
+        "Gets the current pulse value, which will vary between "
+        "`l_getPulseMin()` and `l_getPulseMax()` unless manually overridden.",
+
+        "Sets the current pulse value to `$0`.");
+
+    sVar("PulseDirection", &HexagonGameStatus::pulseDirection,
+        "Gets the current pulse direction value, which will either be `-1` or "
+        "`1` unless manually overridden.",
+
+        "Sets the current pulse direction value to `$0`. Valid choices are "
+        "`-1` or `1`.");
+
+    sVar("PulseDelay", &HexagonGameStatus::pulseDelay,
+        "Gets the current pulse delay value, which will vary between "
+        "`0` and `l_getPulseDelayMax()` unless manually overridden.",
+
+        "Sets the current pulse delay value to `$0`.");
+
+    sVar("BeatPulse", &HexagonGameStatus::beatPulse,
+        "Gets the current beat pulse value, which will vary between `0` and "
+        "`l_getBeatPulseMax()` unless manually overridden.",
+
+        "Sets the current beat pulse value to `$0`.");
+
+    sVar("BeatPulseDelay", &HexagonGameStatus::beatPulseDelay,
+        "Gets the current beat pulse delay value, which will vary between "
+        "`0` and `l_getBeatPulseDelayMax()` unless manually overridden.",
+
+        "Sets the current beat pulse delay value to `$0`.");
 }
 
 
 
 void HexagonGame::initLua_StyleControl()
 {
-    const auto sdVar = [this](const std::string& name, auto pmd,
-                           const std::string& getterDesc,
-                           const std::string& setterDesc) {
-        using Type = std::decay_t<decltype(styleData.*pmd)>;
-
-        const std::string getterString = std::string{"s_get"} + name;
-        const std::string setterString = std::string{"s_set"} + name;
-
-        addLuaFn(getterString, //
-            [this, pmd]() -> Type { return styleData.*pmd; })
-            .doc(getterDesc);
-
-        addLuaFn(setterString, //
-            [this, pmd](Type mValue) { styleData.*pmd = mValue; })
-            .arg("value")
-            .doc(setterDesc);
-    };
+    const auto sdVar = makeLuaAccessor(styleData, "s");
 
     sdVar("HueMin", &StyleData::hueMin,
         "Gets the minimum value for the hue range of a level style. The hue "
-        "attribute is an "
-        "important attribute that is dedicated specifically to all colors that "
-        "have the "
-        "``dynamic`` property enabled.",
+        "attribute is an important attribute that is dedicated specifically to "
+        "all colors that have the ``dynamic`` property enabled.",
 
         "Sets the minimum value for the hue range to `$0`. Usually you want "
-        "this value at 0 "
-        "to start off at completely red.");
+        "this value at 0 to start off at completely red.");
 
     sdVar("HueMax", &StyleData::hueMax,
         "Gets the maximum value for the hue range of a level style. Only "
-        "applies to all colors "
-        "with the ``dynamic`` property enabled.",
+        "applies to all colors with the ``dynamic`` property enabled.",
 
         "Sets the maximum value for the hue range to `$0`. Usually you want "
-        "this value at 360 "
-        "to end off at red, to hopefully loop the colors around.");
+        "this value at 360 to end off at red, to hopefully loop the colors "
+        "around.");
 
     // backwards-compatible
     sdVar("HueInc", &StyleData::hueIncrement,

@@ -10,6 +10,9 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
 #include <string>
@@ -141,6 +144,10 @@ int main(int argc, char* argv[])
     window.setTimer<ssvs::TimerStatic>(0.25f, 0.25f);
 
     // ------------------------------------------------------------------------
+    // Initialize IMGUI
+    ImGui::SFML::Init(window);
+
+    // ------------------------------------------------------------------------
     // Create the game and menu states
     auto assets = std::make_unique<hg::HGAssets>(steamManager);
 
@@ -206,6 +213,10 @@ int main(int argc, char* argv[])
     // ------------------------------------------------------------------------
     // Run the game!
     window.run();
+
+    // ------------------------------------------------------------------------
+    // Shut down IMGUI
+    ImGui::SFML::Shutdown();
 
     // ------------------------------------------------------------------------
     // Flush output, save configuration and log

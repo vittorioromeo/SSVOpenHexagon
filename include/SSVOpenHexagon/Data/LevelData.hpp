@@ -124,6 +124,8 @@ struct LevelStatus
     bool rndSideChangesEnabled{true};
     bool darkenUnevenBackgroundChunk{true};
 
+    bool manualPulseControl{false};
+    bool manualBeatPulseControl{false};
 
     std::size_t currentIncrements{0u};
 

@@ -169,6 +169,8 @@ enum Tid
     Down,
     NextPack,
     PreviousPack,
+    LuaConsole,
+    Pause,
     TriggersCount
 };
 
@@ -189,6 +191,8 @@ void keyboardBindsSanityCheck();
 [[nodiscard]] ssvs::Input::Trigger getTriggerDown();
 [[nodiscard]] ssvs::Input::Trigger getTriggerNextPack();
 [[nodiscard]] ssvs::Input::Trigger getTriggerPreviousPack();
+[[nodiscard]] ssvs::Input::Trigger getTriggerLuaConsole();
+[[nodiscard]] ssvs::Input::Trigger getTriggerPause();
 
 using KeyboardTriggerGetter = ssvs::Input::Trigger (*)();
 extern const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
@@ -208,6 +212,8 @@ void addBindTriggerUp(const int key, const int btn, const int index);
 void addBindTriggerDown(const int key, const int btn, const int index);
 void addBindTriggerNextPack(const int key, const int btn, const int index);
 void addBindTriggerPreviousPack(const int key, const int btn, const int index);
+void addBindTriggerLuaConsole(const int key, const int btn, const int index);
+void addBindTriggerPause(const int key, const int btn, const int index);
 
 void setTriggerRotateCCW(ssvs::Input::Trigger& trig);
 void setTriggerRotateCW(ssvs::Input::Trigger& trig);
@@ -223,6 +229,8 @@ void setTriggerUp(ssvs::Input::Trigger& trig);
 void setTriggerDown(ssvs::Input::Trigger& trig);
 void setTriggerNextPack(ssvs::Input::Trigger& trig);
 void setTriggerPreviousPack(ssvs::Input::Trigger& trig);
+void setTriggerLuaConsole(ssvs::Input::Trigger& trig);
+void setTriggerPause(ssvs::Input::Trigger& trig);
 
 void clearBindTriggerRotateCCW(const int index);
 void clearBindTriggerRotateCW(const int index);
@@ -238,6 +246,8 @@ void clearBindTriggerUp(const int index);
 void clearBindTriggerDown(const int index);
 void clearBindTriggerNextPack(const int index);
 void clearBindTriggerPreviousPack(const int index);
+void clearBindTriggerLuaConsole(const int index);
+void clearBindTriggerPause(const int index);
 
 // joystick binds
 

@@ -34,10 +34,10 @@
 	"key_icons_scale" : 0.750,
 	"limit_fps" : true,
 	"max_fps" : 200,
-	"mouse_visible" : false,
+	"mouse_visible" : true,
 	"music_speed_dm_sync" : true,
 	"music_speed_mult" : 1.0,
-	"music_volume" : 30.0,
+	"music_volume" : 55.0,
 	"no_background" : false,
 	"no_music" : false,
 	"no_rotation" : false,
@@ -58,7 +58,7 @@
 	"show_level_info" : true,
 	"show_messages" : true,
 	"show_tracked_variables" : true,
-	"sound_volume" : 75.0,
+	"sound_volume" : 85.0,
 	"t_down" : 
 	[
 		[ "" ],
@@ -87,9 +87,23 @@
 		[ "" ],
 		[ "" ]
 	],
+	"t_lua_console" : 
+	[
+		[ "kF1" ],
+		[ "" ],
+		[ "" ],
+		[ "" ]
+	],
 	"t_next" : 
 	[
 		[ "kPageDown" ],
+		[ "" ],
+		[ "" ],
+		[ "" ]
+	],
+	"t_pause" : 
+	[
+		[ "kF2" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
