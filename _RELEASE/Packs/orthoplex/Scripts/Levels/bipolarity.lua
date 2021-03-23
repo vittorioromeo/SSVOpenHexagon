@@ -194,9 +194,11 @@ function onInit()
     l_setDarkenUnevenBackgroundChunk(false)
     l_setIncEnabled(false)
 
-    maxChanges = u_rndInt(5, 12)
-    lastRotationDir = getRandomDir()
-    setDirection(u_rndInt(0, 6))
+    if not u_inMenu() then
+        maxChanges = u_rndInt(5, 12)
+        lastRotationDir = getRandomDir()
+        setDirection(u_rndInt(0, 6))
+    end
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted

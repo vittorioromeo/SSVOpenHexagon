@@ -8,8 +8,10 @@ cp -r ./_RELEASE/Assets ./_PREPARED_RELEASE
 cp -r ./_RELEASE/ConfigOverrides ./_PREPARED_RELEASE
 
 mkdir -p ./_PREPARED_RELEASE/Packs
+cp -r ./_RELEASE/Packs/tutorial ./_PREPARED_RELEASE/Packs
 cp -r ./_RELEASE/Packs/cube ./_PREPARED_RELEASE/Packs
 cp -r ./_RELEASE/Packs/hypercube ./_PREPARED_RELEASE/Packs
+cp -r ./_RELEASE/Packs/orthoplex ./_PREPARED_RELEASE/Packs
 
 mkdir -p ./_PREPARED_RELEASE/Profiles
 

@@ -69,6 +69,12 @@ void HexagonGame::destroyMaliciousFunctions()
 
 void HexagonGame::initLua_Utils()
 {
+    addLuaFn("u_inMenu", //
+        [] { return false; })
+        .doc(
+            "Returns `true` if the script is being executed in the menu, "
+            "`false` otherwise.");
+
     addLuaFn("u_setFlashEffect", //
         [this](float mIntensity) { status.flashEffect = mIntensity; })
         .arg("value")

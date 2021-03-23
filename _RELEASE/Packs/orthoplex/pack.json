@@ -1,7 +1,7 @@
 {
 	"disambiguator": "ohvrvanilla",
-	"name": "hypercube",
+	"name": "orthoplex",
 	"author": "vittorio romeo",
 	"version": 1,
-	"priority": -99999.01
+	"priority": -99999.00
 }
