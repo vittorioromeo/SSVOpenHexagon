@@ -3,5 +3,5 @@
 	"name": "cube",
 	"author": "vittorio romeo",
 	"version": 1,
-	"priority": 0
+	"priority": -99999.02
 }

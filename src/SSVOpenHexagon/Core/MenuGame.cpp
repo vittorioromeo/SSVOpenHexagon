@@ -586,6 +586,8 @@ void MenuGame::initInput()
 
 void MenuGame::initLua()
 {
+    lua.writeVariable("u_inMenu", [] { return true; });
+
     lua.writeVariable(
         "u_log", [](string mLog) { lo("lua-menu") << mLog << '\n'; });
 
@@ -691,6 +693,8 @@ void MenuGame::initLua()
             "l_overrideScore",
 
             "l_getSwapCooldownMult", "l_setSwapCooldownMult",
+
+            "l_getPulseInitialDelay", "l_setPulseInitialDelay",
 
             "s_getCameraShake", "s_setCameraShake", "s_setStyle", "s_getHueMin",
             "s_setHueMin", "s_getHueMax", "s_setHueMax", "s_getPulseMin",
