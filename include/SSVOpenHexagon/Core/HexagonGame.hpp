@@ -128,6 +128,13 @@ private:
     sf::Sprite keyIconSwap;
     sf::Sprite replayIcon;
 
+    sf::RectangleShape levelInfoRectangle;
+    sf::Text levelInfoTextLevel{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextPack{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextAuthor{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextBy{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextDM{"", assets.get<sf::Font>("forcedsquare.ttf")};
+
     bool firstPlay{true};
     bool restartFirstTime{true};
     bool inputFocused{false};
@@ -307,6 +314,7 @@ private:
     void update3D(ssvu::FT mFT);
     void updateText(ssvu::FT mFT);
     void updateKeyIcons();
+    void updateLevelInfo();
     void updateParticles(ssvu::FT mFT);
 
     // Draw methods
@@ -322,6 +330,7 @@ private:
     void drawText_PersonalBest(const sf::Color& offsetColor);
     void drawText();
     void drawKeyIcons();
+    void drawLevelInfo();
     void drawParticles();
 
     // Data-related methods
