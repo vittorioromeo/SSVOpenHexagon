@@ -90,6 +90,13 @@ void HexagonGame::update(ssvu::FT mFT)
     }
 
     // ------------------------------------------------------------------------
+    // Update level info.
+    if(Config::getShowLevelInfo() || mustShowReplayUI())
+    {
+        updateLevelInfo();
+    }
+
+    // ------------------------------------------------------------------------
     // Update input leniency time after death to avoid accidental restart.
     if(deathInputIgnore > 0.f)
     {
@@ -226,8 +233,8 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     {
         w.update(*this, centerPos, mFT);
 
-        // Broad-phase Manhattan distance optimization.
-        w.updateOutOfPlayerRadius(centerPos, getRadius());
+        // Broad-phase AABB collision optimization.
+        w.updateOutOfPlayerRadius(pPos);
 
         // If there is no collision skip to the next wall.
         if(!w.isOverlapping(pPos))

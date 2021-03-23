@@ -1028,6 +1028,8 @@ void MenuGame::initMenus()
         "key icons scaling", &Config::getKeyIconsScale,
         [](float mValue) { Config::setKeyIconsScale(mValue); }, 0.1f, 4.f,
         0.05f);
+    gfx.create<i::Toggle>("show level info", &Config::getShowLevelInfo,
+        &Config::setShowLevelInfo);
 
     gfx.create<i::GoBack>("back");
 

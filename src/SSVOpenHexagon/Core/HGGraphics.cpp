@@ -165,6 +165,13 @@ void HexagonGame::draw()
     }
 
     // ------------------------------------------------------------------------
+    // Draw level info.
+    if(Config::getShowLevelInfo() || mustShowReplayUI())
+    {
+        drawLevelInfo();
+    }
+
+    // ------------------------------------------------------------------------
     if(Config::getFlash())
     {
         render(flashPolygon);
@@ -222,6 +229,16 @@ void HexagonGame::drawKeyIcons()
         replayIcon.setColor(onColor);
         render(replayIcon);
     }
+}
+
+void HexagonGame::drawLevelInfo()
+{
+    render(levelInfoRectangle);
+    render(levelInfoTextLevel);
+    render(levelInfoTextPack);
+    render(levelInfoTextAuthor);
+    render(levelInfoTextBy);
+    render(levelInfoTextDM);
 }
 
 void HexagonGame::drawParticles()
@@ -471,9 +488,20 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         fpsText.setFillColor(colorText);
         fpsText.setOrigin(0, ssvs::getGlobalHeight(fpsText));
-        fpsText.setPosition(sf::Vector2f{
-            padding, Config::getHeight() - ((8.f * (2.f * offsetRatio))) *
-                                               Config::getTextScaling()});
+
+        if(Config::getShowLevelInfo() || mustShowReplayUI())
+        {
+            fpsText.setPosition(sf::Vector2f{padding,
+                ssvs::getGlobalTop(levelInfoRectangle) -
+                    ((8.f * (2.f * offsetRatio))) * Config::getTextScaling()});
+        }
+        else
+        {
+            fpsText.setPosition(sf::Vector2f{
+                padding, Config::getHeight() - ((8.f * (2.f * offsetRatio))) *
+                                                   Config::getTextScaling()});
+        }
+
         render(fpsText);
     }
 
