@@ -9,46 +9,38 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <cmath>
+#include <cstdint>
+#include <array>
+#include <utility>
+#include <algorithm>
 
 namespace hg::Utils
 {
 
-template <typename TC>
-[[gnu::always_inline, nodiscard]] inline bool broadphaseManhattan(
-    const sf::Vector2f& mCenterPos, const float mRadius,
-    const TC& mVertexPositions) noexcept
+[[gnu::always_inline, nodiscard]] inline float min4(
+    const float a, const float b, const float c, const float d) noexcept
 {
-    const float broadRadius{mRadius * 1.2f};
-
-    for(const sf::Vector2f& vp : mVertexPositions)
-    {
-        if(const float xDistance = std::abs(vp.x - mCenterPos.x);
-            xDistance < broadRadius)
-        {
-            return false;
-        }
-
-        if(const float yDistance = std::abs(vp.y - mCenterPos.y);
-            yDistance < broadRadius)
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return std::min(std::min(a, b), std::min(c, d));
 }
 
-template <typename TC>
-[[gnu::always_inline, nodiscard]] inline bool narrowphaseOverlap(
-    const bool mOutOfPlayerRadius, const sf::Vector2f& mPoint,
-    const TC& mVertexPositions) noexcept
+[[gnu::always_inline, nodiscard]] inline float max4(
+    const float a, const float b, const float c, const float d) noexcept
 {
-    if(mOutOfPlayerRadius)
-    {
-        return false;
-    }
+    return std::max(std::max(a, b), std::max(c, d));
+}
 
-    return Utils::pointInPolygon(mVertexPositions, mPoint.x, mPoint.y);
+[[gnu::always_inline, nodiscard]] inline bool isOutOfPlayerRadius(
+    const sf::Vector2f& mPoint,
+    const std::array<sf::Vector2f, 4>& mVertices) noexcept
+{
+    return [&]<std::size_t... Is>(std::index_sequence<Is...>)
+    {
+        return (mPoint.x < min4(mVertices[Is].x...)) ||
+               (mPoint.y < min4(mVertices[Is].y...)) ||
+               (mPoint.x > max4(mVertices[Is].x...)) ||
+               (mPoint.y > max4(mVertices[Is].y...));
+    }
+    (std::make_index_sequence<4>{});
 }
 
 } // namespace hg::Utils
