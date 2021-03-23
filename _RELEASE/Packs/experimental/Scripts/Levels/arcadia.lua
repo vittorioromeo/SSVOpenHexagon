@@ -11,30 +11,29 @@ FloatingWall.__index = FloatingWall
 floatingWalls = {}
 
 function FloatingWall:new(handle)
-    local obj = {}
-    setmetatable(obj, FloatingWall)
-    obj.cwHandle = handle
-    obj.dead = false
-    obj.dir = 1
-    return obj
+   local obj = {}
+   setmetatable(obj, FloatingWall)
+   obj.cwHandle = handle
+   obj.dead = false
+   obj.dir = 1
+   return obj
 end
 
 function FloatingWall:move(mFrameTime)
-    for i = 0, 3 do
-        local oldX, oldY = cw_getVertexPos(self.cwHandle, i)
+    for i=0,3 do
+        local oldX,oldY = cw_getVertexPos(self.cwHandle, i)
 
         if oldX < -1500 or oldX > 1500 or oldY < -1500 or oldY > 1500 then
             self.dead = true
             return
         end
 
-        cw_setVertexPos(self.cwHandle, i, oldX + self.velocity_x * mFrameTime,
-                                          oldY + self.velocity_y * mFrameTime)
+        cw_setVertexPos(self.cwHandle, i, oldX + self.velocity_x * mFrameTime, oldY + self.velocity_y * mFrameTime)
 
         if self.wobbly == true then
             self.velocity_y = self.velocity_y + (self.dir * 0.10 * mFrameTime)
 
-            if self.velocity_y >= 3 or self.velocity_y <= -3 then
+            if self.velocity_y >= 3 or self.velocity_y <= - 3 then
                 self.dir = self.dir * -1
             end
         end
@@ -51,10 +50,10 @@ function mkVertWall(mY, mYVel, mX)
     local width = 3000
     local height = 40
 
-    cw_setVertexPos(cwHandle, 0, x, y)
+    cw_setVertexPos(cwHandle, 0, x,         y)
     cw_setVertexPos(cwHandle, 1, x + width, y)
     cw_setVertexPos(cwHandle, 2, x + width, y + height)
-    cw_setVertexPos(cwHandle, 3, x, y + height)
+    cw_setVertexPos(cwHandle, 3, x,         y + height)
 
     if nIncrement % 2 == 0 then
         cw_setVertexColor(cwHandle, 0, 0, 255, 0, 255)
@@ -87,10 +86,10 @@ function mkHalfHorizWall(mInv, mY, color, mXVel, mX)
     local width = 20
     local height = 800
 
-    cw_setVertexPos(cwHandle, 0, x, y)
+    cw_setVertexPos(cwHandle, 0, x,         y)
     cw_setVertexPos(cwHandle, 1, x + width, y)
     cw_setVertexPos(cwHandle, 2, x + width, y + height)
-    cw_setVertexPos(cwHandle, 3, x, y + height)
+    cw_setVertexPos(cwHandle, 3, x,         y + height)
 
     --[[
     if color == 0 then
@@ -110,6 +109,7 @@ function mkHalfHorizWall(mInv, mY, color, mXVel, mX)
         cw_setVertexColor(cwHandle, 3, 255, 255, 0, 190)
     end
     --]]
+
     if nIncrement % 2 == 0 then
         cw_setVertexColor(cwHandle, 0, 0, 255, 0, 255)
         cw_setVertexColor(cwHandle, 1, 0, 255, 0, 255)
@@ -133,139 +133,67 @@ end
 
 waitTime = 3.1
 
-upOffsets = {0, 12.5, 25, 37.5, 50, 75, 150}
-downOffsets = {50, 62.5, 75, 125, 200, 235, 270}
+upOffsets   = {0,  12.5, 25, 37.5, 50,  75,  150}
+downOffsets = {50, 62.5, 75, 125,  200, 235, 270}
 
-upOffsets2 = {0, 12.5, 25, 37.5, 50, 75, 150}
-downOffsets2 = {50, 62.5, 75, 125, 200, 235, 270}
+upOffsets2   = {0,  12.5, 25, 37.5, 50,  75,  150}
+downOffsets2 = {50, 62.5, 75, 125,  200, 235, 270}
 
-gapMod = 28
+gapMod = 28;
 
 function halfWaveImpl(spawnX, vel, colorA, colorB)
-    local gap = -100 + gapMod
-    local yOff = 0 - gapMod / 2
+    local gap = -100 + gapMod;
+    local yOff = 0 - gapMod / 2;
 
-    for i = 1, #upOffsets do
-        t_eval(
-            [[mkHalfHorizWall(0, ]] ..
-                yOff + downOffsets[i] + gap ..
-                    [[ , ]] ..
-                        colorA ..
-                            [[, ]] ..
-                                vel ..
-                                    [[, ]] ..
-                                        spawnX ..
-                                            [[)
-                 mkHalfHorizWall(0, ]] ..
-                                                yOff + upOffsets[i] ..
-                                                    [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]]
-        )
+    for i=1, #upOffsets do
+        t_eval([[mkHalfHorizWall(0, ]] .. yOff + downOffsets[i] + gap .. [[ , ]] .. colorA .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)
+                 mkHalfHorizWall(0, ]] .. yOff + upOffsets[i]   .. [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]])
         t_wait(waitTime)
     end
 
-    for i = #upOffsets - 1, 1, -1 do
-        t_eval(
-            [[mkHalfHorizWall(0, ]] ..
-                yOff + downOffsets[i] + gap ..
-                    [[ , ]] ..
-                        colorA ..
-                            [[, ]] ..
-                                vel ..
-                                    [[, ]] ..
-                                        spawnX ..
-                                            [[)
-                 mkHalfHorizWall(0, ]] ..
-                                                yOff + upOffsets[i] ..
-                                                    [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]]
-        )
+    for i=#upOffsets - 1, 1, -1 do
+        t_eval([[mkHalfHorizWall(0, ]] .. yOff + downOffsets[i] + gap .. [[ , ]] .. colorA .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)
+                 mkHalfHorizWall(0, ]] .. yOff + upOffsets[i]   .. [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]])
         t_wait(waitTime)
     end
 end
 
 function halfWaveImplR(spawnX, vel, colorA, colorB)
-    local gap = -100 + gapMod
-    local yOff = 0 - gapMod / 2
+    local gap = -100 + gapMod;
+    local yOff = 0 - gapMod / 2;
 
-    local off = 200
+    local off = 200;
 
-    for i = 1, #upOffsets do
-        t_eval(
-            [[mkHalfHorizWall(0, ]] ..
-                yOff + off - upOffsets2[i] + gap ..
-                    [[ , ]] ..
-                        colorA ..
-                            [[, ]] ..
-                                vel ..
-                                    [[, ]] ..
-                                        spawnX ..
-                                            [[)
-                 mkHalfHorizWall(0, ]] ..
-                                                yOff + off - downOffsets2[i] ..
-                                                    [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]]
-        )
+    for i=1, #upOffsets do
+        t_eval([[mkHalfHorizWall(0, ]] .. yOff + off - upOffsets2[i]   + gap .. [[ , ]] .. colorA .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)
+                 mkHalfHorizWall(0, ]] .. yOff + off - downOffsets2[i] .. [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]])
         t_wait(waitTime)
     end
 
-    for i = #upOffsets - 1, 1, -1 do
-        t_eval(
-            [[mkHalfHorizWall(0, ]] ..
-                yOff + off - upOffsets2[i] + gap ..
-                    [[ , ]] ..
-                        colorA ..
-                            [[, ]] ..
-                                vel ..
-                                    [[, ]] ..
-                                        spawnX ..
-                                            [[)
-                 mkHalfHorizWall(0, ]] ..
-                                                yOff + off - downOffsets2[i] ..
-                                                    [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]]
-        )
+    for i=#upOffsets - 1, 1, -1 do
+        t_eval([[mkHalfHorizWall(0, ]] .. yOff + off - upOffsets2[i]   + gap .. [[ , ]] .. colorA .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)
+                 mkHalfHorizWall(0, ]] .. yOff + off - downOffsets2[i] .. [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]])
         t_wait(waitTime)
     end
 end
 
 function waveImpl(spawnX, vel, colorA, colorB)
-    local gap = -100 + gapMod
-    local yOff = 0 - gapMod / 2
+    local gap = -100 + gapMod;
+    local yOff = 0 - gapMod / 2;
 
     halfWaveImpl(spawnX, vel, colorA, colorB)
 
-    for i = 1, #upOffsets do
-        t_eval(
-            [[mkHalfHorizWall(0, ]] ..
-                yOff + 0 + gap ..
-                    [[ + 200, ]] ..
-                        colorA ..
-                            [[, ]] ..
-                                vel ..
-                                    [[, ]] ..
-                                        spawnX ..
-                                            [[)
-                 mkHalfHorizWall(0, ]] ..
-                                                yOff + 0 ..
-                                                    [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]]
-        )
+    for i=1, #upOffsets do
+        t_eval([[mkHalfHorizWall(0, ]] .. yOff + 0 + gap .. [[ + 200, ]] .. colorA .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)
+                 mkHalfHorizWall(0, ]] .. yOff + 0 .. [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]])
         t_wait(waitTime)
     end
 
     halfWaveImplR(spawnX, vel, colorA, colorB)
 
-    for i = 1, #upOffsets do
-        t_eval(
-            [[mkHalfHorizWall(0, ]] ..
-                yOff + 0 + gap ..
-                    [[ + 200, ]] ..
-                        colorA ..
-                            [[, ]] ..
-                                vel ..
-                                    [[, ]] ..
-                                        spawnX ..
-                                            [[)
-                 mkHalfHorizWall(0, ]] ..
-                                                yOff + 0 ..
-                                                    [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]]
-        )
+    for i=1, #upOffsets do
+        t_eval([[mkHalfHorizWall(0, ]] .. yOff + 0 + gap .. [[ + 200, ]] .. colorA .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)
+                 mkHalfHorizWall(0, ]] .. yOff + 0 .. [[ - 950, ]] .. colorB .. [[, ]] .. vel .. [[, ]] .. spawnX .. [[)]])
         t_wait(waitTime)
     end
 end
@@ -390,73 +318,27 @@ end
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-    if mKey == 0 then
-        pattern0()
-    elseif mKey == 1 then
-        pattern1()
-    elseif mKey == 2 then
-        pattern2()
-    elseif mKey == 3 then
-        pattern3()
-    elseif mKey == 4 then
-        pattern4() -- swap
-    elseif mKey == 5 then
-        pattern5() -- swap
-    elseif mKey == 6 then
-        pattern6()
-    elseif mKey == 7 then
-        pattern7()
-    elseif mKey == 8 then
-        pattern8()
-    elseif mKey == 9 then
-        pattern9()
-    elseif mKey == 10 then
-        pattern10()
-    elseif mKey == 11 then
-        pattern11()
-    elseif mKey == 12 then
-        pattern12()
-    elseif mKey == 13 then
-        pattern13()
+        if mKey == 0 then pattern0()
+    elseif mKey == 1 then pattern1()
+    elseif mKey == 2 then pattern2()
+    elseif mKey == 3 then pattern3()
+    elseif mKey == 4 then pattern4() -- swap
+    elseif mKey == 5 then pattern5() -- swap
+    elseif mKey == 6 then pattern6()
+    elseif mKey == 7 then pattern7()
+    elseif mKey == 8 then pattern8()
+    elseif mKey == 9 then pattern9()
+    elseif mKey == 10 then pattern10()
+    elseif mKey == 11 then pattern11()
+    elseif mKey == 12 then pattern12()
+    elseif mKey == 13 then pattern13()
     end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = {
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13
-}
+keys = { 0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+         0, 1, 2, 3, 4, 5, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 }
 shuffle(keys)
 index = 0
 
@@ -496,13 +378,13 @@ function onInit()
         l_setSwapCooldownMult(0.8)
         waitTime = 2.5
     elseif u_getDifficultyMult() >= 1.49 then
-        l_setSwapCooldownMult(0.9)
+		l_setSwapCooldownMult(0.9)
         waitTime = 2.75
     elseif u_getDifficultyMult() <= 0.51 then
         l_setSwapCooldownMult(0.8)
         waitTime = 6
         gapMod = 75
-    end
+	end
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -517,12 +399,12 @@ function onStep()
     addPattern(keys[index])
     t_wait(waitTime * 3)
 
-    index = index + 1
+	index = index + 1
 
-    if index - 1 == #keys then
-        index = 1
-        shuffle(keys)
-    end
+	if index - 1 == #keys then
+		index = 1
+		shuffle(keys)
+	end
 end
 
 nIncrement = 0
@@ -569,38 +451,35 @@ end
 -- TODO: move to utils
 -- From: https://stackoverflow.com/questions/12394841/
 function ArrayRemove(t, fnRemove)
-    local j, n = 1, #t
+    local j, n = 1, #t;
 
-    for i = 1, n do
+    for i=1,n do
         if (not fnRemove(t, i, j)) then
             -- Move i's kept value to j's position, if it's not already there.
             if (i ~= j) then
-                t[j] = t[i]
-                t[i] = nil
+                t[j] = t[i];
+                t[i] = nil;
             end
-            j = j + 1 -- Increment position of where we'll place the next kept value.
+            j = j + 1; -- Increment position of where we'll place the next kept value.
         else
-            t[i] = nil
+            t[i] = nil;
         end
     end
 
-    return t
+    return t;
 end
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
-    ArrayRemove(
-        floatingWalls,
-        function(t, i, j)
-            local v = t[i]
-            if v.dead then
-                cw_destroy(v.cwHandle)
-                return true
-            else
-                return false
-            end
+    ArrayRemove(floatingWalls, function(t, i, j)
+        local v = t[i]
+        if v.dead then
+            cw_destroy(v.cwHandle)
+            return true
+        else
+            return false
         end
-    )
+    end);
 
     for _, fw in ipairs(floatingWalls) do
         fw:move(mFrameTime)
@@ -621,5 +500,4 @@ function onInput(mFrameTime, mMovement, mFocus, mSwap)
 
     return true
 end
-]]
- --
+]]--
