@@ -78,6 +78,7 @@ void setShowKeyIcons(bool mX);
 void setKeyIconsScale(float mX);
 void setFirstTimePlaying(bool mX);
 void setSaveLocalBestReplayToFile(bool mX);
+void setShowLevelInfo(bool mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -147,6 +148,7 @@ void setSaveLocalBestReplayToFile(bool mX);
 [[nodiscard]] float getKeyIconsScale();
 [[nodiscard]] bool getFirstTimePlaying();
 [[nodiscard]] bool getSaveLocalBestReplayToFile();
+[[nodiscard]] bool getShowLevelInfo();
 
 // keyboard binds
 
