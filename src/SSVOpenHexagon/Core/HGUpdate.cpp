@@ -960,6 +960,11 @@ void HexagonGame::postUpdateImguiLuaConsole()
         ImGui::SetKeyboardFocusHere(-1);
     }
 
+    ImGui::Separator();
+
+    ImGui::Text("update ms: %.2f", window.getMsUpdate());
+    ImGui::Text("  draw ms: %.2f", window.getMsDraw());
+
     ImGui::End();
 }
 
