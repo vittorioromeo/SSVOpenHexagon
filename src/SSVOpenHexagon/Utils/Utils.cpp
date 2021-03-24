@@ -2,8 +2,9 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
@@ -162,11 +163,11 @@ GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot)
 
 ProfileData loadProfileFromJson(HGAssets& mAssets, const ssvuj::Obj& mRoot)
 {
-    GameVersion version{-1, 0, 0};
-    if(ssvuj::isObj("version"))
-    {
-        version = loadVersionFromJson(ssvuj::getObj(mRoot, "version"));
-    }
+    const GameVersion version =
+        ssvuj::isObj("version")
+            ? loadVersionFromJson(ssvuj::getObj(mRoot, "version"))
+            : GameVersion{-1, 0, 0};
+
     return {mAssets, version, ssvuj::getExtr<std::string>(mRoot, "name"),
         ssvuj::getObj(mRoot, "scores"),
         ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {}),

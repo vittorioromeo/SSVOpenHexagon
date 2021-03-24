@@ -22,7 +22,7 @@ protected:
     int ID;
 
 public:
-    BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
+    explicit BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, const int mID)
         : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
     {
@@ -58,7 +58,7 @@ private:
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncClear,
         typename TFuncCallback>
-    KeyboardBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
+    explicit KeyboardBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
         TFuncClear mFuncClear, TFuncCallback mCallback, const int mTriggerID,
         const ssvs::KKey mHardcodedKey = ssvs::KKey::Unknown)
@@ -112,7 +112,7 @@ private:
 
 public:
     template <typename TFuncGet, typename TFuncSet, typename TFuncCallback>
-    JoystickBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
+    explicit JoystickBindControl(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
         TFuncCallback mCallback, const int mButtonID)
         : BindControlBase{mMenu, mCategory, mName, mButtonID},

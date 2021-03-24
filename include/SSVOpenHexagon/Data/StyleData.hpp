@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 

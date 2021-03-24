@@ -2,7 +2,6 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -11,12 +10,6 @@
 #include <imgui-SFML.h>
 
 #include <SSVStart/Utils/Vector2.hpp>
-
-using namespace std;
-using namespace sf;
-using namespace ssvs;
-using namespace hg::Utils;
-using namespace ssvu;
 
 namespace hg
 {
@@ -30,15 +23,16 @@ void HexagonGame::draw()
 {
     styleData.computeColors(levelStatus);
 
-    window.clear(Color::Black);
+    window.clear(sf::Color::Black);
 
     if(!status.hasDied)
     {
         if(levelStatus.cameraShake > 0.f)
         {
-            const sf::Vector2f shake(
-                getRndR(-levelStatus.cameraShake, levelStatus.cameraShake),
-                getRndR(-levelStatus.cameraShake, levelStatus.cameraShake));
+            const sf::Vector2f shake(ssvu::getRndR(-levelStatus.cameraShake,
+                                         levelStatus.cameraShake),
+                ssvu::getRndR(
+                    -levelStatus.cameraShake, levelStatus.cameraShake));
 
             backgroundCamera.setCenter(shake);
             overlayCamera.setCenter(
@@ -69,14 +63,15 @@ void HexagonGame::draw()
 
     for(CWall& w : walls)
     {
-        w.draw(*this);
+        w.draw(getColorMain(), wallQuads);
     }
 
-    cwManager.draw(*this);
+    cwManager.draw(wallQuads);
 
     if(status.started)
     {
-        player.draw(*this, styleData.getCapColorResult());
+        player.draw(getSides(), getColorMain(), getColorPlayer(), wallQuads,
+            capTris, playerTris, styleData.getCapColorResult());
     }
 
     if(Config::get3D())
@@ -119,7 +114,7 @@ void HexagonGame::draw()
 
             sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
-            status.overrideColor = getColorDarkened(
+            status.overrideColor = Utils::getColorDarkened(
                 styleData.get3DOverrideColor(), styleData._3dDarkenMult);
             status.overrideColor.a /= styleData._3dAlphaMult;
             status.overrideColor.a -= i * styleData._3dAlphaFalloff;
@@ -134,7 +129,7 @@ void HexagonGame::draw()
             // Apply player color if no 3D override is present.
             if(styleData.get3DOverrideColor() == styleData.getMainColor())
             {
-                status.overrideColor = getColorDarkened(
+                status.overrideColor = Utils::getColorDarkened(
                     styleData.getPlayerColor(), styleData._3dDarkenMult);
                 status.overrideColor.a /= styleData._3dAlphaMult;
                 status.overrideColor.a -= i * styleData._3dAlphaFalloff;
@@ -425,17 +420,17 @@ void HexagonGame::updateText(ssvu::FT mFT)
     // Set FPS Text, if option is enabled.
     if(Config::getShowFPS())
     {
-        fpsText.setString(toStr(window.getFPS()));
+        fpsText.setString(ssvu::toStr(window.getFPS()));
         fpsText.setCharacterSize(getScaledCharacterSize(25.f));
         // fpsText.setOrigin(0, 0);
     }
 
     messageText.setCharacterSize(getScaledCharacterSize(38.f));
-    messageText.setOrigin(getGlobalWidth(messageText) / 2.f, 0);
+    messageText.setOrigin(ssvs::getGlobalWidth(messageText) / 2.f, 0);
 
     const float growth = std::sin(pbTextGrowth);
     pbText.setCharacterSize(getScaledCharacterSize(64.f) + growth * 10.f);
-    pbText.setOrigin(getGlobalWidth(pbText) / 2.f, 0);
+    pbText.setOrigin(ssvs::getGlobalWidth(pbText) / 2.f, 0);
 
     // ------------------------------------------------------------------------
     if(mustShowReplayUI())
@@ -585,7 +580,7 @@ void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor)
 void HexagonGame::drawText()
 {
     const sf::Color offsetColor{
-        Config::getBlackAndWhite() ? Color::Black : getColor(0)};
+        Config::getBlackAndWhite() ? sf::Color::Black : getColor(0)};
 
     drawText_TimeAndStatus(offsetColor);
     drawText_Message(offsetColor);

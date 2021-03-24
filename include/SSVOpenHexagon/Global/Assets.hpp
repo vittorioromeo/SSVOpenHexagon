@@ -29,7 +29,9 @@ namespace hg
 
 namespace Steam
 {
+
 class steam_manager;
+
 }
 
 class MusicData;

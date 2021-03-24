@@ -137,4 +137,7 @@ public:
     }
 };
 
+using FastVertexVectorTris = FastVertexVector<sf::PrimitiveType::Triangles>;
+using FastVertexVectorQuads = FastVertexVector<sf::PrimitiveType::Quads>;
+
 } // namespace hg::Utils

@@ -18,7 +18,7 @@ private:
     bool _initialized;
 
 public:
-    discord_manager();
+    explicit discord_manager();
     ~discord_manager();
 
     discord_manager(const discord_manager&) = delete;

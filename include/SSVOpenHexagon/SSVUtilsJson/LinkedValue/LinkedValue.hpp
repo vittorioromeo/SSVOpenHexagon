@@ -24,7 +24,12 @@ public:
     {
     }
 
-    operator T() const noexcept
+    operator T&() noexcept
+    {
+        return value;
+    }
+
+    operator const T&() const noexcept
     {
         return value;
     }

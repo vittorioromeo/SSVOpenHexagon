@@ -46,7 +46,8 @@ namespace
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
-    walls.emplace_back(*this, centerPos, mSide, mThickness,
+    walls.emplace_back(getSides(), getWallAngleLeft(), getWallAngleRight(),
+        getWallSkewLeft(), getWallSkewRight(), centerPos, mSide, mThickness,
         levelStatus.wallSpawnDistance, mSpeed, mCurve);
 
     walls.back().setHueMod(mHueMod);
@@ -190,6 +191,10 @@ void HexagonGame::updateLevelInfo()
         levelInfoTextDM.setOrigin(ssvs::getLocalSW(levelInfoTextDM));
         levelInfoTextDM.setPosition(ssvs::getGlobalSW(levelInfoRectangle) +
                                     sf::Vector2f{tPadding, -tPadding});
+    }
+    else
+    {
+        levelInfoTextDM.setString("");
     }
 }
 
@@ -1064,6 +1069,26 @@ void HexagonGame::setSides(unsigned int mSides)
 [[nodiscard]] float HexagonGame::getSwapCooldown() const noexcept
 {
     return std::max(36.f * levelStatus.swapCooldownMult, 8.f);
+}
+
+void HexagonGame::performPlayerSwap(const bool playSound)
+{
+    player.playerSwap();
+    runLuaFunctionIfExists<void>("onCursorSwap");
+
+    if(playSound)
+    {
+        getAssets().playSound(getLevelStatus().swapSound);
+    }
+}
+
+void HexagonGame::performPlayerKill()
+{
+    const bool fatal =
+        !Config::getInvincible() && !getLevelStatus().tutorialMode;
+
+    player.kill(fatal);
+    death();
 }
 
 } // namespace hg

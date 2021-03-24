@@ -66,14 +66,16 @@ HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(
     {
         case DBoxDraw::topLeft:
         {
-            return [this](const Color& txtColor, const Color& backdropColor) {
+            return [this](const sf::Color& txtColor,
+                       const sf::Color& backdropColor) {
                 drawTopLeft(txtColor, backdropColor);
             };
         }
 
         case DBoxDraw::center:
         {
-            return [this](const Color& txtColor, const Color& backdropColor) {
+            return [this](const sf::Color& txtColor,
+                       const sf::Color& backdropColor) {
                 drawCenter(txtColor, backdropColor);
             };
         }
@@ -81,19 +83,21 @@ HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(
         default:
         {
             assert(drawMode == DBoxDraw::centerUpperHalf);
-            return [this](const Color& txtColor, const Color& backdropColor) {
+            return [this](const sf::Color& txtColor,
+                       const sf::Color& backdropColor) {
                 drawCenterUpperHalf(txtColor, backdropColor);
             };
         }
     }
 }
 
-void HexagonDialogBox::draw(const Color& txtColor, const Color& backdropColor)
+void HexagonDialogBox::draw(
+    const sf::Color& txtColor, const sf::Color& backdropColor)
 {
     drawFunc(txtColor, backdropColor);
 }
 
-void HexagonDialogBox::drawBox(const Color& frameColor, const float x1,
+void HexagonDialogBox::drawBox(const sf::Color& frameColor, const float x1,
     const float x2, const float y1, const float y2)
 {
     const sf::Vector2f topLeft{x1, y1};
@@ -106,7 +110,7 @@ void HexagonDialogBox::drawBox(const Color& frameColor, const float x1,
 }
 
 void HexagonDialogBox::drawText(
-    const Color& txtColor, const float xOffset, const float yOffset)
+    const sf::Color& txtColor, const float xOffset, const float yOffset)
 {
     float heightOffset = 0.f;
     const float interline = lineHeight * 1.5f;
@@ -130,7 +134,7 @@ void HexagonDialogBox::drawText(
 inline constexpr float fontHeightDifferential = 0.9f;
 
 void HexagonDialogBox::drawTopLeft(
-    const Color& txtColor, const Color& backdropColor)
+    const sf::Color& txtColor, const sf::Color& backdropColor)
 {
     dialogFrame.clear();
     dialogFrame.reserve(8);
@@ -152,7 +156,7 @@ void HexagonDialogBox::drawTopLeft(
 }
 
 void HexagonDialogBox::drawCenter(
-    const Color& txtColor, const Color& backdropColor)
+    const sf::Color& txtColor, const sf::Color& backdropColor)
 {
     const float fmax = std::max(
                     1024.f / Config::getWidth(), 768.f / Config::getHeight()),
@@ -182,7 +186,7 @@ void HexagonDialogBox::drawCenter(
 }
 
 void HexagonDialogBox::drawCenterUpperHalf(
-    const Color& txtColor, const Color& backdropColor)
+    const sf::Color& txtColor, const sf::Color& backdropColor)
 {
     const float fmax = std::max(
                     1024.f / Config::getWidth(), 768.f / Config::getHeight()),

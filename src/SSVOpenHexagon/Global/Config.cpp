@@ -3,7 +3,6 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
@@ -13,45 +12,36 @@
 
 #include <iostream>
 #include <fstream>
-#include <memory>
 
-using namespace std;
-using namespace sf;
-using namespace ssvs;
-using namespace ssvs::Input;
-using namespace ssvu::FileSystem;
-using namespace ssvuj;
-using namespace ssvu;
-
-#define X_BINDSLINKEDVALUES                                   \
-    X(joystickSelect, unsigned int, "j_select")               \
-    X(joystickExit, unsigned int, "j_exit")                   \
-    X(joystickFocus, unsigned int, "j_focus")                 \
-    X(joystickSwap, unsigned int, "j_swap")                   \
-    X(joystickForceRestart, unsigned int, "j_force_restart")  \
-    X(joystickRestart, unsigned int, "j_restart")             \
-    X(joystickReplay, unsigned int, "j_replay")               \
-    X(joystickScreenshot, unsigned int, "j_screenshot")       \
-    X(joystickNextPack, unsigned int, "j_next")               \
-    X(joystickPreviousPack, unsigned int, "j_previous")       \
-    X(joystickAddToFavorites, unsigned int, "j_add_favorite") \
-    X(joystickFavoritesMenu, unsigned int, "j_favorite_menu") \
-    X(triggerRotateCCW, Trigger, "t_rotate_ccw")              \
-    X(triggerRotateCW, Trigger, "t_rotate_cw")                \
-    X(triggerFocus, Trigger, "t_focus")                       \
-    X(triggerSelect, Trigger, "t_select")                     \
-    X(triggerExit, Trigger, "t_exit")                         \
-    X(triggerForceRestart, Trigger, "t_force_restart")        \
-    X(triggerRestart, Trigger, "t_restart")                   \
-    X(triggerReplay, Trigger, "t_replay")                     \
-    X(triggerScreenshot, Trigger, "t_screenshot")             \
-    X(triggerSwap, Trigger, "t_swap")                         \
-    X(triggerUp, Trigger, "t_up")                             \
-    X(triggerDown, Trigger, "t_down")                         \
-    X(triggerNextPack, Trigger, "t_next")                     \
-    X(triggerPreviousPack, Trigger, "t_previous")             \
-    X(triggerLuaConsole, Trigger, "t_lua_console")            \
-    X(triggerPause, Trigger, "t_pause")
+#define X_BINDSLINKEDVALUES                                         \
+    X(joystickSelect, unsigned int, "j_select")                     \
+    X(joystickExit, unsigned int, "j_exit")                         \
+    X(joystickFocus, unsigned int, "j_focus")                       \
+    X(joystickSwap, unsigned int, "j_swap")                         \
+    X(joystickForceRestart, unsigned int, "j_force_restart")        \
+    X(joystickRestart, unsigned int, "j_restart")                   \
+    X(joystickReplay, unsigned int, "j_replay")                     \
+    X(joystickScreenshot, unsigned int, "j_screenshot")             \
+    X(joystickNextPack, unsigned int, "j_next")                     \
+    X(joystickPreviousPack, unsigned int, "j_previous")             \
+    X(joystickAddToFavorites, unsigned int, "j_add_favorite")       \
+    X(joystickFavoritesMenu, unsigned int, "j_favorite_menu")       \
+    X(triggerRotateCCW, ssvs::Input::Trigger, "t_rotate_ccw")       \
+    X(triggerRotateCW, ssvs::Input::Trigger, "t_rotate_cw")         \
+    X(triggerFocus, ssvs::Input::Trigger, "t_focus")                \
+    X(triggerSelect, ssvs::Input::Trigger, "t_select")              \
+    X(triggerExit, ssvs::Input::Trigger, "t_exit")                  \
+    X(triggerForceRestart, ssvs::Input::Trigger, "t_force_restart") \
+    X(triggerRestart, ssvs::Input::Trigger, "t_restart")            \
+    X(triggerReplay, ssvs::Input::Trigger, "t_replay")              \
+    X(triggerScreenshot, ssvs::Input::Trigger, "t_screenshot")      \
+    X(triggerSwap, ssvs::Input::Trigger, "t_swap")                  \
+    X(triggerUp, ssvs::Input::Trigger, "t_up")                      \
+    X(triggerDown, ssvs::Input::Trigger, "t_down")                  \
+    X(triggerNextPack, ssvs::Input::Trigger, "t_next")              \
+    X(triggerPreviousPack, ssvs::Input::Trigger, "t_previous")      \
+    X(triggerLuaConsole, ssvs::Input::Trigger, "t_lua_console")     \
+    X(triggerPause, ssvs::Input::Trigger, "t_pause")
 
 #define X_LINKEDVALUES                                                     \
     X(online, bool, "online")                                              \
@@ -195,31 +185,33 @@ std::string uneligibilityReason;
 
 void applyAutoWindowedResolution()
 {
-    auto d(VideoMode::getDesktopMode());
+    auto d(sf::VideoMode::getDesktopMode());
     windowedWidth() = d.width;
     windowedHeight() = d.height;
 }
+
 void applyAutoFullscreenResolution()
 {
-    auto d(VideoMode::getDesktopMode());
+    auto d(sf::VideoMode::getDesktopMode());
     fullscreenWidth() = d.width;
     fullscreenHeight() = d.height;
 }
 
-void loadConfig(const vector<string>& mOverridesIds)
+void loadConfig(const std::vector<std::string>& mOverridesIds)
 {
-    lo("::loadConfig") << "loading config\n";
+    ssvu::lo("::loadConfig") << "loading config\n";
 
     for(const ssvufs::Path& p :
-        getScan<ssvufs::Mode::Single, ssvufs::Type::File, ssvufs::Pick::ByExt>(
-            "ConfigOverrides/", ".json"))
+        ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
+            ssvufs::Pick::ByExt>("ConfigOverrides/", ".json"))
     {
-        if(contains(mOverridesIds, p.getFileNameNoExtensions()))
+        if(ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
         {
-            const auto overrideRoot(getFromFile(p));
-            for(auto itr(begin(overrideRoot)); itr != end(overrideRoot); ++itr)
+            const auto overrideRoot(ssvuj::getFromFile(p));
+            for(auto itr(std::begin(overrideRoot));
+                itr != std::end(overrideRoot); ++itr)
             {
-                root()[getKey(itr)] = *itr;
+                root()[ssvuj::getKey(itr)] = *itr;
             }
         }
     }
@@ -241,7 +233,7 @@ void loadConfig(const vector<string>& mOverridesIds)
 
 void resetConfigToDefaults()
 {
-    lo("::resetConfigToDefaults") << "resetting configs\n";
+    ssvu::lo("::resetConfigToDefaults") << "resetting configs\n";
 
     if(!ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
     {
@@ -267,7 +259,7 @@ void resetConfigToDefaults()
 
 void resetBindsToDefaults()
 {
-    lo("::resetBindsToDefaults") << "resetting binds to defaults\n";
+    ssvu::lo("::resetBindsToDefaults") << "resetting binds to defaults\n";
 
     if(!ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
     {
@@ -281,9 +273,9 @@ void resetBindsToDefaults()
 
 void saveConfig()
 {
-    lo("::saveConfig") << "saving config\n";
+    ssvu::lo("::saveConfig") << "saving config\n";
     syncAllToObj();
-    writeToFile(root(), "config.json");
+    ssvuj::writeToFile(root(), "config.json");
 }
 
 bool isEligibleForScore()
@@ -341,7 +333,7 @@ bool isEligibleForScore()
 
 void recalculateSizes()
 {
-    sizeX = sizeY = max(getWidth(), getHeight()) * 1.3f;
+    sizeX = sizeY = std::max(getWidth(), getHeight()) * 1.3f;
     if(!getAutoZoomFactor())
     {
         return;
@@ -349,9 +341,10 @@ void recalculateSizes()
 
     const float factorX(1024.f / ssvu::toFloat(getWidth()));
     const float factorY(768.f / ssvu::toFloat(getHeight()));
-    zoomFactor() = max(factorX, factorY);
+    zoomFactor() = std::max(factorX, factorY);
 }
-void setFullscreen(GameWindow& mWindow, bool mFullscreen)
+
+void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen)
 {
     fullscreen() = mFullscreen;
 
@@ -368,7 +361,7 @@ void refreshWindowSize(unsigned int mWidth, unsigned int mHeight)
 }
 
 void setCurrentResolution(
-    GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight)
+    ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight)
 {
     if(fullscreen())
     {
@@ -388,7 +381,8 @@ void setCurrentResolution(
 
     recalculateSizes();
 }
-void setCurrentResolutionAuto(GameWindow& mWindow)
+
+void setCurrentResolutionAuto(ssvs::GameWindow& mWindow)
 {
     if(fullscreen())
     {
@@ -405,16 +399,19 @@ void setCurrentResolutionAuto(GameWindow& mWindow)
     mWindow.setFullscreen(getFullscreen());
     recalculateSizes();
 }
+
 void setVsync(ssvs::GameWindow& mWindow, bool mValue)
 {
     vsync() = mValue;
     mWindow.setVsync(vsync());
 }
+
 void setLimitFPS(ssvs::GameWindow& mWindow, bool mValue)
 {
     limitFPS() = mValue;
     mWindow.setFPSLimited(mValue);
 }
+
 void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue)
 {
     maxFPS() = mValue;
@@ -602,7 +599,7 @@ void setShowLevelInfo(bool mX)
     return official();
 }
 
-[[nodiscard]] string getUneligibilityReason()
+[[nodiscard]] const std::string& getUneligibilityReason()
 {
     return uneligibilityReason;
 }
@@ -917,9 +914,9 @@ void setShowLevelInfo(bool mX)
 
 inline constexpr int maxBinds{4};
 
-[[nodiscard]] Trigger resizeTrigger(Trigger trig) noexcept
+void resizeTrigger(ssvs::Input::Trigger& trig) noexcept
 {
-    std::vector<Combo>& combos{trig.getCombos()};
+    std::vector<ssvs::Input::Combo>& combos{trig.getCombos()};
 
     // Remove empty slots to agglomerate all binds
     // close to each other
@@ -942,26 +939,24 @@ inline constexpr int maxBinds{4};
     // spots with unbound combos
     while(combos.size() < maxBinds)
     {
-        combos.emplace_back(Combo({KKey::Unknown}));
+        combos.emplace_back(ssvs::Input::Combo({ssvs::KKey::Unknown}));
     }
-
-    return trig;
 }
 
 void keyboardBindsSanityCheck()
 {
-    triggerRotateCCW() = resizeTrigger(triggerRotateCCW());
-    triggerRotateCW() = resizeTrigger(triggerRotateCW());
-    triggerFocus() = resizeTrigger(triggerFocus());
-    triggerSelect() = resizeTrigger(triggerSelect());
-    triggerExit() = resizeTrigger(triggerExit());
-    triggerForceRestart() = resizeTrigger(triggerForceRestart());
-    triggerRestart() = resizeTrigger(triggerRestart());
-    triggerReplay() = resizeTrigger(triggerReplay());
-    triggerScreenshot() = resizeTrigger(triggerScreenshot());
-    triggerSwap() = resizeTrigger(triggerSwap());
-    triggerUp() = resizeTrigger(triggerUp());
-    triggerDown() = resizeTrigger(triggerDown());
+    resizeTrigger(triggerRotateCCW());
+    resizeTrigger(triggerRotateCW());
+    resizeTrigger(triggerFocus());
+    resizeTrigger(triggerSelect());
+    resizeTrigger(triggerExit());
+    resizeTrigger(triggerForceRestart());
+    resizeTrigger(triggerRestart());
+    resizeTrigger(triggerReplay());
+    resizeTrigger(triggerScreenshot());
+    resizeTrigger(triggerSwap());
+    resizeTrigger(triggerUp());
+    resizeTrigger(triggerDown());
 }
 
 //**************************************************
@@ -1059,8 +1054,8 @@ const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
 //**************************************************
 // Add new key binds
 
-[[nodiscard]] Trigger rebindTrigger(
-    Trigger trig, const int key, const int btn, int index) noexcept
+void rebindTrigger(ssvs::Input::Trigger& trig, const int key, const int btn,
+    int index) noexcept
 {
     // if both slots are taken replace the first one
     if(index >= maxBinds)
@@ -1071,291 +1066,351 @@ const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
 
     if(key > -1)
     {
-        trig.getCombos()[index].addKey(KKey(key));
+        trig.getCombos()[index].addKey(ssvs::KKey(key));
     }
     else
     {
-        trig.getCombos()[index].addBtn(MBtn(btn));
+        trig.getCombos()[index].addBtn(ssvs::MBtn(btn));
     }
-    return trig;
 }
 
 void addBindTriggerRotateCCW(const int key, const int btn, const int index)
 {
-    triggerRotateCCW() = rebindTrigger(triggerRotateCCW(), key, btn, index);
+    rebindTrigger(triggerRotateCCW(), key, btn, index);
 }
+
 void addBindTriggerRotateCW(const int key, const int btn, const int index)
 {
-    triggerRotateCW() = rebindTrigger(triggerRotateCW(), key, btn, index);
+    rebindTrigger(triggerRotateCW(), key, btn, index);
 }
+
 void addBindTriggerFocus(const int key, const int btn, const int index)
 {
-    triggerFocus() = rebindTrigger(triggerFocus(), key, btn, index);
+    rebindTrigger(triggerFocus(), key, btn, index);
 }
+
 void addBindTriggerSelect(const int key, const int btn, const int index)
 {
-    triggerSelect() = rebindTrigger(triggerSelect(), key, btn, index);
+    rebindTrigger(triggerSelect(), key, btn, index);
 }
+
 void addBindTriggerExit(const int key, const int btn, const int index)
 {
-    triggerExit() = rebindTrigger(triggerExit(), key, btn, index);
+    rebindTrigger(triggerExit(), key, btn, index);
 }
+
 void addBindTriggerForceRestart(const int key, const int btn, const int index)
 {
-    triggerForceRestart() =
-        rebindTrigger(triggerForceRestart(), key, btn, index);
+    rebindTrigger(triggerForceRestart(), key, btn, index);
 }
+
 void addBindTriggerRestart(const int key, const int btn, const int index)
 {
-    triggerRestart() = rebindTrigger(triggerRestart(), key, btn, index);
+    rebindTrigger(triggerRestart(), key, btn, index);
 }
+
 void addBindTriggerReplay(const int key, const int btn, const int index)
 {
-    triggerReplay() = rebindTrigger(triggerReplay(), key, btn, index);
+    rebindTrigger(triggerReplay(), key, btn, index);
 }
+
 void addBindTriggerScreenshot(const int key, const int btn, const int index)
 {
-    triggerScreenshot() = rebindTrigger(triggerScreenshot(), key, btn, index);
+    rebindTrigger(triggerScreenshot(), key, btn, index);
 }
+
 void addBindTriggerSwap(const int key, const int btn, const int index)
 {
-    triggerSwap() = rebindTrigger(triggerSwap(), key, btn, index);
+    rebindTrigger(triggerSwap(), key, btn, index);
 }
+
 void addBindTriggerUp(const int key, const int btn, const int index)
 {
-    triggerUp() = rebindTrigger(triggerUp(), key, btn, index);
+    rebindTrigger(triggerUp(), key, btn, index);
 }
+
 void addBindTriggerDown(const int key, const int btn, const int index)
 {
-    triggerDown() = rebindTrigger(triggerDown(), key, btn, index);
+    rebindTrigger(triggerDown(), key, btn, index);
 }
+
 void addBindTriggerNextPack(const int key, const int btn, const int index)
 {
-    triggerNextPack() = rebindTrigger(triggerNextPack(), key, btn, index);
+    rebindTrigger(triggerNextPack(), key, btn, index);
 }
+
 void addBindTriggerPreviousPack(const int key, const int btn, const int index)
 {
-    triggerPreviousPack() =
-        rebindTrigger(triggerPreviousPack(), key, btn, index);
+    rebindTrigger(triggerPreviousPack(), key, btn, index);
 }
+
 void addBindTriggerLuaConsole(const int key, const int btn, const int index)
 {
-    triggerLuaConsole() = rebindTrigger(triggerLuaConsole(), key, btn, index);
+    rebindTrigger(triggerLuaConsole(), key, btn, index);
 }
+
 void addBindTriggerPause(const int key, const int btn, const int index)
 {
-    triggerPause() = rebindTrigger(triggerPause(), key, btn, index);
+    rebindTrigger(triggerPause(), key, btn, index);
 }
 
 //**************************************************
 // Unbind key
 
-[[nodiscard]] Trigger clearTriggerBind(Trigger trig, const int index) noexcept
+void clearTriggerBind(ssvs::Input::Trigger& trig, const int index) noexcept
 {
     trig.getCombos()[index].clearBind();
-    return trig;
 }
+
 void clearBindTriggerRotateCCW(const int index)
 {
-    triggerRotateCCW() = clearTriggerBind(triggerRotateCCW(), index);
+    clearTriggerBind(triggerRotateCCW(), index);
 }
+
 void clearBindTriggerRotateCW(const int index)
 {
-    triggerRotateCW() = clearTriggerBind(triggerRotateCW(), index);
+    clearTriggerBind(triggerRotateCW(), index);
 }
+
 void clearBindTriggerFocus(const int index)
 {
-    triggerFocus() = clearTriggerBind(triggerFocus(), index);
+    clearTriggerBind(triggerFocus(), index);
 }
+
 void clearBindTriggerSelect(const int index)
 {
-    triggerSelect() = clearTriggerBind(triggerSelect(), index);
+    clearTriggerBind(triggerSelect(), index);
 }
+
 void clearBindTriggerExit(const int index)
 {
-    triggerExit() = clearTriggerBind(triggerExit(), index);
+    clearTriggerBind(triggerExit(), index);
 }
+
 void clearBindTriggerForceRestart(const int index)
 {
-    triggerForceRestart() = clearTriggerBind(triggerForceRestart(), index);
+    clearTriggerBind(triggerForceRestart(), index);
 }
+
 void clearBindTriggerRestart(const int index)
 {
-    triggerRestart() = clearTriggerBind(triggerRestart(), index);
+    clearTriggerBind(triggerRestart(), index);
 }
+
 void clearBindTriggerReplay(const int index)
 {
-    triggerReplay() = clearTriggerBind(triggerReplay(), index);
+    clearTriggerBind(triggerReplay(), index);
 }
+
 void clearBindTriggerScreenshot(const int index)
 {
-    triggerScreenshot() = clearTriggerBind(triggerScreenshot(), index);
+    clearTriggerBind(triggerScreenshot(), index);
 }
+
 void clearBindTriggerSwap(const int index)
 {
-    triggerSwap() = clearTriggerBind(triggerSwap(), index);
+    clearTriggerBind(triggerSwap(), index);
 }
+
 void clearBindTriggerUp(const int index)
 {
-    triggerUp() = clearTriggerBind(triggerUp(), index);
+    clearTriggerBind(triggerUp(), index);
 }
+
 void clearBindTriggerDown(const int index)
 {
-    triggerDown() = clearTriggerBind(triggerDown(), index);
+    clearTriggerBind(triggerDown(), index);
 }
+
 void clearBindTriggerNextPack(const int index)
 {
-    triggerNextPack() = clearTriggerBind(triggerNextPack(), index);
+    clearTriggerBind(triggerNextPack(), index);
 }
+
 void clearBindTriggerPreviousPack(const int index)
 {
-    triggerPreviousPack() = clearTriggerBind(triggerPreviousPack(), index);
+    clearTriggerBind(triggerPreviousPack(), index);
 }
+
 void clearBindTriggerLuaConsole(const int index)
 {
-    triggerLuaConsole() = clearTriggerBind(triggerLuaConsole(), index);
+    clearTriggerBind(triggerLuaConsole(), index);
 }
+
 void clearBindTriggerPause(const int index)
 {
-    triggerPause() = clearTriggerBind(triggerPause(), index);
+    clearTriggerBind(triggerPause(), index);
 }
+
 
 
 //**************************************************
 // Get key
 
-Trigger getTriggerRotateCCW()
+const ssvs::Input::Trigger& getTriggerRotateCCW()
 {
     return triggerRotateCCW();
 }
-Trigger getTriggerRotateCW()
+
+const ssvs::Input::Trigger& getTriggerRotateCW()
 {
     return triggerRotateCW();
 }
-Trigger getTriggerFocus()
+
+const ssvs::Input::Trigger& getTriggerFocus()
 {
     return triggerFocus();
 }
-Trigger getTriggerSelect()
+
+const ssvs::Input::Trigger& getTriggerSelect()
 {
     return triggerSelect();
 }
-Trigger getTriggerExit()
+
+const ssvs::Input::Trigger& getTriggerExit()
 {
     return triggerExit();
 }
-Trigger getTriggerForceRestart()
+
+const ssvs::Input::Trigger& getTriggerForceRestart()
 {
     return triggerForceRestart();
 }
-Trigger getTriggerRestart()
+
+const ssvs::Input::Trigger& getTriggerRestart()
 {
     return triggerRestart();
 }
-Trigger getTriggerReplay()
+
+const ssvs::Input::Trigger& getTriggerReplay()
 {
     return triggerReplay();
 }
-Trigger getTriggerScreenshot()
+
+const ssvs::Input::Trigger& getTriggerScreenshot()
 {
     return triggerScreenshot();
 }
-Trigger getTriggerSwap()
+
+const ssvs::Input::Trigger& getTriggerSwap()
 {
     return triggerSwap();
 }
-Trigger getTriggerUp()
+
+const ssvs::Input::Trigger& getTriggerUp()
 {
     return triggerUp();
 }
-Trigger getTriggerDown()
+
+const ssvs::Input::Trigger& getTriggerDown()
 {
     return triggerDown();
 }
-Trigger getTriggerNextPack()
+
+const ssvs::Input::Trigger& getTriggerNextPack()
 {
     return triggerNextPack();
 }
-Trigger getTriggerPreviousPack()
+
+const ssvs::Input::Trigger& getTriggerPreviousPack()
 {
     return triggerPreviousPack();
 }
-Trigger getTriggerLuaConsole()
+
+const ssvs::Input::Trigger& getTriggerLuaConsole()
 {
     return triggerLuaConsole();
 }
-Trigger getTriggerPause()
+
+const ssvs::Input::Trigger& getTriggerPause()
 {
     return triggerPause();
 }
 
+
 //**************************************************
 // Set key
 
-void setTriggerRotateCCW(Trigger& trig)
+void setTriggerRotateCCW(const ssvs::Input::Trigger& trig)
 {
     triggerRotateCCW() = trig;
 }
-void setTriggerRotateCW(Trigger& trig)
+
+void setTriggerRotateCW(const ssvs::Input::Trigger& trig)
 {
     triggerRotateCW() = trig;
 }
-void setTriggerFocus(Trigger& trig)
+
+void setTriggerFocus(const ssvs::Input::Trigger& trig)
 {
     triggerFocus() = trig;
 }
-void setTriggerSelect(Trigger& trig)
+
+void setTriggerSelect(const ssvs::Input::Trigger& trig)
 {
     triggerSelect() = trig;
 }
-void setTriggerExit(Trigger& trig)
+
+void setTriggerExit(const ssvs::Input::Trigger& trig)
 {
     triggerExit() = trig;
 }
-void setTriggerForceRestart(Trigger& trig)
+
+void setTriggerForceRestart(const ssvs::Input::Trigger& trig)
 {
     triggerForceRestart() = trig;
 }
-void setTriggerRestart(Trigger& trig)
+
+void setTriggerRestart(const ssvs::Input::Trigger& trig)
 {
     triggerRestart() = trig;
 }
-void setTriggerReplay(Trigger& trig)
+
+void setTriggerReplay(const ssvs::Input::Trigger& trig)
 {
     triggerReplay() = trig;
 }
-void setTriggerScreenshot(Trigger& trig)
+
+void setTriggerScreenshot(const ssvs::Input::Trigger& trig)
 {
     triggerScreenshot() = trig;
 }
-void setTriggerSwap(Trigger& trig)
+
+void setTriggerSwap(const ssvs::Input::Trigger& trig)
 {
     triggerSwap() = trig;
 }
-void setTriggerUp(Trigger& trig)
+
+void setTriggerUp(const ssvs::Input::Trigger& trig)
 {
     triggerUp() = trig;
 }
-void setTriggerDown(Trigger& trig)
+
+void setTriggerDown(const ssvs::Input::Trigger& trig)
 {
     triggerDown() = trig;
 }
-void setTriggerNextPack(Trigger& trig)
+
+void setTriggerNextPack(const ssvs::Input::Trigger& trig)
 {
     triggerNextPack() = trig;
 }
-void setTriggerPreviousPack(Trigger& trig)
+
+void setTriggerPreviousPack(const ssvs::Input::Trigger& trig)
 {
     triggerPreviousPack() = trig;
 }
-void setTriggerLuaConsole(Trigger& trig)
+
+void setTriggerLuaConsole(const ssvs::Input::Trigger& trig)
 {
     triggerLuaConsole() = trig;
 }
-void setTriggerPause(Trigger& trig)
+
+void setTriggerPause(const ssvs::Input::Trigger& trig)
 {
     triggerPause() = trig;
 }
+
 
 //***********************************************************
 //
@@ -1419,46 +1474,57 @@ unsigned int getJoystickSelect()
 {
     return joystickSelect();
 }
+
 unsigned int getJoystickExit()
 {
     return joystickExit();
 }
+
 unsigned int getJoystickFocus()
 {
     return joystickFocus();
 }
+
 unsigned int getJoystickSwap()
 {
     return joystickSwap();
 }
+
 unsigned int getJoystickForceRestart()
 {
     return joystickForceRestart();
 }
+
 unsigned int getJoystickRestart()
 {
     return joystickRestart();
 }
+
 unsigned int getJoystickReplay()
 {
     return joystickReplay();
 }
+
 unsigned int getJoystickScreenshot()
 {
     return joystickScreenshot();
 }
+
 unsigned int getJoystickNextPack()
 {
     return joystickNextPack();
 }
+
 unsigned int getJoystickPreviousPack()
 {
     return joystickPreviousPack();
 }
+
 unsigned int getJoystickAddToFavorites()
 {
     return joystickAddToFavorites();
 }
+
 unsigned int getJoystickFavoritesMenu()
 {
     return joystickFavoritesMenu();
@@ -1488,46 +1554,57 @@ void setJoystickSelect(const unsigned int button)
 {
     joystickSelect() = button;
 }
+
 void setJoystickExit(const unsigned int button)
 {
     joystickExit() = button;
 }
+
 void setJoystickFocus(const unsigned int button)
 {
     joystickFocus() = button;
 }
+
 void setJoystickSwap(const unsigned int button)
 {
     joystickSwap() = button;
 }
+
 void setJoystickForceRestart(const unsigned int button)
 {
     joystickForceRestart() = button;
 }
+
 void setJoystickRestart(const unsigned int button)
 {
     joystickRestart() = button;
 }
+
 void setJoystickReplay(const unsigned int button)
 {
     joystickReplay() = button;
 }
+
 void setJoystickScreenshot(const unsigned int button)
 {
     joystickScreenshot() = button;
 }
+
 void setJoystickNextPack(const unsigned int button)
 {
     joystickNextPack() = button;
 }
+
 void setJoystickPreviousPack(const unsigned int button)
 {
     joystickPreviousPack() = button;
 }
+
 void setJoystickAddToFavorites(const unsigned int button)
 {
     joystickAddToFavorites() = button;
 }
+
 void setJoystickFavoritesMenu(const unsigned int button)
 {
     joystickFavoritesMenu() = button;

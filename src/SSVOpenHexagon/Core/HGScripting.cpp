@@ -5,16 +5,11 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
-#include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
-#include "SSVOpenHexagon/Components/CCustomWall.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-using namespace sf;
-using namespace ssvs;
-using namespace ssvuj;
 
 namespace hg
 {
@@ -97,7 +92,7 @@ void HexagonGame::initLua_Utils()
         .doc("Execute the script located at `<pack>/Scripts/$0`.");
 
     addLuaFn("u_isKeyPressed",
-        [this](int mKey) { return window.getInputState()[KKey(mKey)]; })
+        [this](int mKey) { return window.getInputState()[ssvs::KKey(mKey)]; })
         .arg("keyCode")
         .doc(
             "Return `true` if the keyboard key with code `$0` is being "
@@ -136,7 +131,7 @@ void HexagonGame::initLua_Utils()
         .doc("Set the current angle of the player to `$0`, in radians.");
 
     addLuaFn("u_isMouseButtonPressed",
-        [this](int mKey) { return window.getInputState()[MBtn(mKey)]; })
+        [this](int mKey) { return window.getInputState()[ssvs::MBtn(mKey)]; })
         .arg("buttonCode")
         .doc(
             "Return `true` if the mouse button with code `$0` is being "
@@ -172,7 +167,7 @@ void HexagonGame::initLua_Utils()
             "difficulty multiplier.");
 
     addLuaFn("u_swapPlayer", //
-        [this](bool mPlaySound) { player.playerSwap(*this, mPlaySound); })
+        [this](bool mPlaySound) { performPlayerSwap(mPlaySound); })
         .arg("playSound")
         .doc(
             "Force-swaps (180 degrees) the player when invoked. If `$0` is "
@@ -1267,7 +1262,7 @@ void HexagonGame::initLua_WallCreation()
     addLuaFn("w_wall", //
         [this](int mSide, float mThickness) {
             timeline.append_do([=, this] {
-                createWall(mSide, mThickness, {getSpeedMultDM()});
+                createWall(mSide, mThickness, SpeedData{getSpeedMultDM()});
             });
         })
         .arg("side")
@@ -1280,7 +1275,8 @@ void HexagonGame::initLua_WallCreation()
     addLuaFn("w_wallAdj", //
         [this](int mSide, float mThickness, float mSpeedAdj) {
             timeline.append_do([=, this] {
-                createWall(mSide, mThickness, mSpeedAdj * getSpeedMultDM());
+                createWall(
+                    mSide, mThickness, SpeedData{mSpeedAdj * getSpeedMultDM()});
             });
         })
         .arg("side")
@@ -1297,7 +1293,7 @@ void HexagonGame::initLua_WallCreation()
             float mAcceleration, float mMinSpeed, float mMaxSpeed) {
             timeline.append_do([=, this] {
                 createWall(mSide, mThickness,
-                    {mSpeedAdj * getSpeedMultDM(),
+                    SpeedData{mSpeedAdj * getSpeedMultDM(),
                         mAcceleration / (std::pow(difficultyMult, 0.65f)),
                         mMinSpeed * getSpeedMultDM(),
                         mMaxSpeed * getSpeedMultDM()});
@@ -1322,8 +1318,9 @@ void HexagonGame::initLua_WallCreation()
             float mSAcc, float mSMin, float mSMax, bool mSPingPong) {
             timeline.append_do([=, this] {
                 createWall(mSide, mThickness,
-                    {mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax, mSPingPong},
-                    mHMod);
+                    SpeedData{mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax,
+                        mSPingPong},
+                    SpeedData{}, mHMod);
             });
         })
         .arg("hueModifier")
@@ -1349,8 +1346,8 @@ void HexagonGame::initLua_WallCreation()
         [this](float mHMod, int mSide, float mThickness, float mCAdj,
             float mCAcc, float mCMin, float mCMax, bool mCPingPong) {
             timeline.append_do([=, this] {
-                createWall(mSide, mThickness, {getSpeedMultDM()},
-                    {mCAdj, mCAcc, mCMin, mCMax, mCPingPong}, mHMod);
+                createWall(mSide, mThickness, SpeedData{getSpeedMultDM()},
+                    SpeedData{mCAdj, mCAcc, mCMin, mCMax, mCPingPong}, mHMod);
             });
         })
         .arg("hueModifier")

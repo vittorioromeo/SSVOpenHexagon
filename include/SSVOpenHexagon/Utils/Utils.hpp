@@ -24,6 +24,7 @@
 #include <set>
 #include <cctype>
 #include <optional>
+#include <cctype>
 
 namespace hg::Utils
 {
@@ -36,6 +37,34 @@ inline void uppercasify(std::string& s)
     {
         c = std::toupper(c);
     }
+}
+
+inline void lTrim(std::string& str)
+{
+    const auto it = std::find_if(
+        str.begin(), str.end(), [](char ch) { return !std::isspace(ch); });
+
+    str.erase(str.begin(), it);
+}
+
+inline void rTrim(std::string& str)
+{
+    const auto it = std::find_if(
+        str.rbegin(), str.rend(), [](char ch) { return !std::isspace(ch); });
+
+    str.erase(it.base(), str.end());
+}
+
+[[nodiscard]] inline std::string getLTrim(std::string s)
+{
+    lTrim(s);
+    return s;
+}
+
+[[nodiscard]] inline std::string getRTrim(std::string s)
+{
+    rTrim(s);
+    return s;
 }
 
 [[nodiscard]] inline std::string toUppercase(std::string s)
