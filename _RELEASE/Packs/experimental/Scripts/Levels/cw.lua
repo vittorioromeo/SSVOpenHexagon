@@ -54,6 +54,8 @@ function onInit()
 
 	l_setSwapEnabled(true)
 	l_addTracked("special", "special")
+
+	l_setTutorialMode(true)
 end
 
 FloatingWall = {}
@@ -89,17 +91,15 @@ function onLoad()
 	e_messageAddImportant("test", 130)
 end
 
--- onStep is an hardcoded function that is called when the level timeline is empty
--- onStep should contain your pattern spawning logic
-function onStep()
-	function randomSign()
-		if math.random() > 0.5 then
-			return -1
-		else
-			return 1
-		end
+function randomSign()
+	if math.random() > 0.5 then
+		return -1
+	else
+		return 1
 	end
+end
 
+function makeWall()
 	cwHandle = cw_create()
 	cw_setDeadly(cwHandle, true)
 
@@ -134,8 +134,14 @@ function onStep()
 	end
 
 	table.insert(floatingWalls, fw)
+end
 
-	t_wait(1.5)
+-- onStep is an hardcoded function that is called when the level timeline is empty
+-- onStep should contain your pattern spawning logic
+function onStep()
+	for i=0, 50 do
+		makeWall()
+	end
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
