@@ -11,6 +11,8 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Core/BindControl.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Utils/Casts.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
@@ -481,39 +483,33 @@ void MenuGame::initInput()
     using t = ssvs::Input::Type;
     using Tid = Config::Tid;
 
-    game.addInput(
-        Config::getTriggerRotateCCW(),
-        [this](ssvu::FT /*unused*/) { leftAction(); }, t::Once, Tid::RotateCCW);
+    const auto addTidInput = [&](const Tid tid, const t type, auto action) {
+        game.addInput(
+            Config::getTrigger(tid), action, type, static_cast<int>(tid));
+    };
 
-    game.addInput(
-        Config::getTriggerRotateCW(),
-        [this](ssvu::FT /*unused*/) { rightAction(); }, t::Once, Tid::RotateCW);
+    addTidInput(Tid::RotateCCW, t::Once, [this](ssvu::FT) { leftAction(); });
 
-    game.addInput( // hardcoded
-        {{k::Up}}, [this](ssvu::FT /*unused*/) { upAction(); }, t::Once);
-
-    game.addInput(
-        Config::getTriggerUp(), [this](ssvu::FT /*unused*/) { upAction(); },
-        t::Once, Tid::Up);
+    addTidInput(Tid::RotateCW, t::Once, [this](ssvu::FT) { rightAction(); });
 
     game.addInput( // hardcoded
-        {{k::Down}}, [this](ssvu::FT /*unused*/) { downAction(); }, t::Once);
+        {{k::Up}}, [this](ssvu::FT) { upAction(); }, t::Once);
 
-    game.addInput(
-        Config::getTriggerDown(), [this](ssvu::FT /*unused*/) { downAction(); },
-        t::Once, Tid::Down);
+    addTidInput(Tid::Up, t::Once, [this](ssvu::FT) { upAction(); });
 
-    game.addInput(
-        Config::getTriggerNextPack(),
-        [this](ssvu::FT /*unused*/) { changePackAction(1); }, t::Once,
-        Tid::NextPack);
+    game.addInput( // hardcoded
+        {{k::Down}}, [this](ssvu::FT) { downAction(); }, t::Once);
 
-    game.addInput(
-        Config::getTriggerPreviousPack(),
-        [this](ssvu::FT /*unused*/) { changePackAction(-1); }, t::Once,
-        Tid::PreviousPack);
+    addTidInput(Tid::Down, t::Once, [this](ssvu::FT) { downAction(); });
 
-    add2StateInput(game, Config::getTriggerFocus(), focusHeld, Tid::Focus);
+    addTidInput(
+        Tid::NextPack, t::Once, [this](ssvu::FT) { changePackAction(1); });
+
+    addTidInput(
+        Tid::PreviousPack, t::Once, [this](ssvu::FT) { changePackAction(-1); });
+
+    add2StateInput(game, Config::getTrigger(Tid::Focus), focusHeld,
+        static_cast<int>(Tid::Focus));
 
     game.addInput( // hardcoded
         {{k::Return}}, [this](ssvu::FT /*unused*/) { okAction(); }, t::Once);
@@ -531,21 +527,16 @@ void MenuGame::initInput()
     game.addInput( // hardcoded
         {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, t::Once);
 
-    game.addInput(
-        Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) {
-            if(isEnteringText())
-            {
-                return;
-            }
-            exitAction();
-        },
-        t::Once, Tid::Exit); // editable
+    addTidInput(Tid::Exit, t::Once, [this](ssvu::FT /*unused*/) {
+        if(isEnteringText())
+        {
+            return;
+        }
+        exitAction();
+    }); // editable
 
-    game.addInput(
-        Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; }, t::Once,
-        Tid::Screenshot);
+    addTidInput(Tid::Screenshot, t::Once,
+        [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; });
 
     game.addInput(
             {{k::LAlt, k::Return}},
@@ -820,97 +811,84 @@ void MenuGame::initMenus()
     controls.create<i::GoBack>("back");
 
     // Keyboard binds
-    auto callBack = [this](const ssvs::Input::Trigger& trig, const int bindID) {
+    const auto callBack = [this](const ssvs::Input::Trigger& trig,
+                              const int bindID) {
         game.refreshTrigger(trig, bindID);
         hexagonGame.refreshTrigger(trig, bindID);
     };
 
     using Tid = Config::Tid;
 
-    keyboard.create<KeyboardBindControl>("rotate ccw",
-        &Config::getTriggerRotateCCW, &Config::addBindTriggerRotateCCW,
-        &Config::clearBindTriggerRotateCCW, callBack, Tid::RotateCCW);
-    keyboard.create<KeyboardBindControl>("rotate cw",
-        &Config::getTriggerRotateCW, &Config::addBindTriggerRotateCW,
-        &Config::clearBindTriggerRotateCW, callBack, Tid::RotateCW);
-    keyboard.create<KeyboardBindControl>("focus", &Config::getTriggerFocus,
-        &Config::addBindTriggerFocus, &Config::clearBindTriggerFocus, callBack,
-        Tid::Focus);
-    keyboard.create<KeyboardBindControl>("exit", &Config::getTriggerExit,
-        &Config::addBindTriggerExit, &Config::clearBindTriggerExit, callBack,
-        Tid::Exit, ssvs::KKey::Escape);
-    keyboard.create<KeyboardBindControl>("force restart",
-        &Config::getTriggerForceRestart, &Config::addBindTriggerForceRestart,
-        &Config::clearBindTriggerForceRestart, callBack, Tid::ForceRestart);
-    keyboard.create<KeyboardBindControl>("restart", &Config::getTriggerRestart,
-        &Config::addBindTriggerRestart, &Config::clearBindTriggerRestart,
-        callBack, Tid::Restart);
-    keyboard.create<KeyboardBindControl>("replay", &Config::getTriggerReplay,
-        &Config::addBindTriggerReplay, &Config::clearBindTriggerReplay,
-        callBack, Tid::Replay);
-    keyboard.create<KeyboardBindControl>("screenshot",
-        &Config::getTriggerScreenshot, &Config::addBindTriggerScreenshot,
-        &Config::clearBindTriggerScreenshot, callBack, Tid::Screenshot);
-    keyboard.create<KeyboardBindControl>("swap", &Config::getTriggerSwap,
-        &Config::addBindTriggerSwap, &Config::clearBindTriggerSwap, callBack,
-        Tid::Swap);
-    keyboard.create<KeyboardBindControl>("up", &Config::getTriggerUp,
-        &Config::addBindTriggerUp, &Config::clearBindTriggerUp, callBack,
-        Tid::Up, ssvs::KKey::Up);
-    keyboard.create<KeyboardBindControl>("down", &Config::getTriggerDown,
-        &Config::addBindTriggerDown, &Config::clearBindTriggerDown, callBack,
-        Tid::Down, ssvs::KKey::Down);
-    keyboard.create<KeyboardBindControl>("next pack",
-        &Config::getTriggerNextPack, &Config::addBindTriggerNextPack,
-        &Config::clearBindTriggerNextPack, callBack, Tid::NextPack);
-    keyboard.create<KeyboardBindControl>("previous pack",
-        &Config::getTriggerPreviousPack, &Config::addBindTriggerPreviousPack,
-        &Config::clearBindTriggerPreviousPack, callBack, Tid::PreviousPack);
-    keyboard.create<KeyboardBindControl>("open lua console (debug only)",
-        &Config::getTriggerLuaConsole, &Config::addBindTriggerLuaConsole,
-        &Config::clearBindTriggerLuaConsole, callBack, Tid::LuaConsole);
-    keyboard.create<KeyboardBindControl>("pause game (debug only)",
-        &Config::getTriggerPause, &Config::addBindTriggerPause,
-        &Config::clearBindTriggerPause, callBack, Tid::Pause);
+    const auto mkAddBindFn = [](ssvs::Input::Trigger& trig) {
+        return [&trig](const int key, const int btn, const int index) {
+            Config::rebindTrigger(trig, key, btn, index);
+        };
+    };
+
+    const auto mkClearBindFn = [](ssvs::Input::Trigger& trig) {
+        return
+            [&trig](const int index) { Config::clearTriggerBind(trig, index); };
+    };
+
+    const auto createKeyboardBindControl = [&](const char* name, const Tid tid,
+                                               const ssvs::KKey hardcodedKey =
+                                                   ssvs::KKey::Unknown) {
+        const auto trigGetter = Config::triggerGetters[toSizeT(tid)];
+
+        ssvs::Input::Trigger& trig = trigGetter();
+
+        keyboard.create<KeyboardBindControl>(name, trigGetter,
+            mkAddBindFn(trig), mkClearBindFn(trig), callBack,
+            static_cast<int>(tid), hardcodedKey);
+    };
+
+    createKeyboardBindControl("rotate ccw", Tid::RotateCCW);
+    createKeyboardBindControl("rotate cw", Tid::RotateCW);
+    createKeyboardBindControl("focus", Tid::Focus);
+    createKeyboardBindControl("exit", Tid::Exit, ssvs::KKey::Escape);
+    createKeyboardBindControl("force restart", Tid::ForceRestart);
+    createKeyboardBindControl("restart", Tid::Restart);
+    createKeyboardBindControl("replay", Tid::Replay);
+    createKeyboardBindControl("screenshot", Tid::Screenshot);
+    createKeyboardBindControl("swap", Tid::Swap);
+    createKeyboardBindControl("up", Tid::Up, ssvs::KKey::Up);
+    createKeyboardBindControl("down", Tid::Down, ssvs::KKey::Down);
+    createKeyboardBindControl("next pack", Tid::NextPack);
+    createKeyboardBindControl("previous pack", Tid::PreviousPack);
+    createKeyboardBindControl("lua console (debug only)", Tid::LuaConsole);
+    createKeyboardBindControl("pause game (debug only)", Tid::Pause);
     keyboard.create<i::GoBack>("back");
 
     // Joystick binds
-    using Jid = hg::Joystick::Jid;
+    using Jid = Joystick::Jid;
 
-    auto JoystickCallBack = [](const unsigned int button, const int buttonID) {
-        hg::Joystick::setJoystickBind(button, buttonID);
+    const auto joystickCallBack = [](const unsigned int button,
+                                      const int buttonID) {
+        Joystick::setJoystickBind(button, buttonID);
     };
 
-    joystick.create<JoystickBindControl>("select", &Config::getJoystickSelect,
-        &Config::setJoystickSelect, JoystickCallBack, Jid::Select);
-    joystick.create<JoystickBindControl>("exit", &Config::getJoystickExit,
-        &Config::setJoystickExit, JoystickCallBack, Jid::Exit);
-    joystick.create<JoystickBindControl>("focus", &Config::getJoystickFocus,
-        &Config::setJoystickFocus, JoystickCallBack, Jid::Focus);
-    joystick.create<JoystickBindControl>("swap", &Config::getJoystickSwap,
-        &Config::setJoystickSwap, JoystickCallBack, Jid::Swap);
-    joystick.create<JoystickBindControl>("force restart",
-        &Config::getJoystickForceRestart, &Config::setJoystickForceRestart,
-        JoystickCallBack, Jid::ForceRestart);
-    joystick.create<JoystickBindControl>("restart", &Config::getJoystickRestart,
-        &Config::setJoystickRestart, JoystickCallBack, Jid::Restart);
-    joystick.create<JoystickBindControl>("replay", &Config::getJoystickReplay,
-        &Config::setJoystickReplay, JoystickCallBack, Jid::Replay);
-    joystick.create<JoystickBindControl>("screenshot",
-        &Config::getJoystickScreenshot, &Config::setJoystickScreenshot,
-        JoystickCallBack, Jid::Screenshot);
-    joystick.create<JoystickBindControl>("next pack",
-        &Config::getJoystickNextPack, &Config::setJoystickNextPack,
-        JoystickCallBack, Jid::NextPack);
-    joystick.create<JoystickBindControl>("previous pack",
-        &Config::getJoystickPreviousPack, &Config::setJoystickPreviousPack,
-        JoystickCallBack, Jid::PreviousPack);
-    joystick.create<JoystickBindControl>("(un)favorite level",
-        &Config::getJoystickAddToFavorites, &Config::setJoystickAddToFavorites,
-        JoystickCallBack, Jid::AddToFavorites);
-    joystick.create<JoystickBindControl>("favorites menu",
-        &Config::getJoystickFavoritesMenu, &Config::setJoystickFavoritesMenu,
-        JoystickCallBack, Jid::FavoritesMenu);
+    const auto createJoystickBindControl = [&](const char* name,
+                                               const Jid jid) {
+        const auto btnGetter = Config::joystickTriggerGetters[toSizeT(jid)];
+
+        const auto btnSetter = Config::joystickTriggerSetters[toSizeT(jid)];
+
+        joystick.create<JoystickBindControl>(name, btnGetter, btnSetter,
+            joystickCallBack, static_cast<int>(jid));
+    };
+
+    createJoystickBindControl("select", Jid::Select);
+    createJoystickBindControl("exit", Jid::Exit);
+    createJoystickBindControl("focus", Jid::Focus);
+    createJoystickBindControl("swap", Jid::Swap);
+    createJoystickBindControl("force restart", Jid::ForceRestart);
+    createJoystickBindControl("restart", Jid::Restart);
+    createJoystickBindControl("replay", Jid::Replay);
+    createJoystickBindControl("screenshot", Jid::Screenshot);
+    createJoystickBindControl("next pack", Jid::NextPack);
+    createJoystickBindControl("previous pack", Jid::PreviousPack);
+    createJoystickBindControl("(un)favorite level", Jid::AddToFavorites);
+    createJoystickBindControl("favorites menu", Jid::FavoritesMenu);
     joystick.create<i::GoBack>("back");
 
     //--------------------------------
@@ -1897,23 +1875,23 @@ void MenuGame::update(ssvu::FT mFT)
 {
     hexagonGame.updateRichPresenceCallbacks();
 
-    hg::Joystick::update();
+    Joystick::update();
 
-    if(hg::Joystick::nextPackRisingEdge())
+    if(Joystick::risingEdge(Joystick::Jid::NextPack))
     {
         changePackAction(1);
     }
-    else if(hg::Joystick::previousPackRisingEdge())
+    else if(Joystick::risingEdge(Joystick::Jid::PreviousPack))
     {
         changePackAction(-1);
     }
 
-    if(hg::Joystick::addToFavoritesRisingEdge())
+    if(Joystick::risingEdge(Joystick::Jid::AddToFavorites))
     {
         addRemoveFavoriteLevel();
     }
 
-    if(hg::Joystick::favoritesMenuRisingEdge())
+    if(Joystick::risingEdge(Joystick::Jid::FavoritesMenu))
     {
         switchToFromFavoriteLevels();
     }
@@ -1926,7 +1904,7 @@ void MenuGame::update(ssvu::FT mFT)
     }
     else if(!focusHeld)
     {
-        focusHeld = hg::Joystick::focusPressed();
+        focusHeld = Joystick::pressed(Joystick::Jid::Focus);
     }
 
     // If focus was not pressed it means we have initiated a quick
@@ -1944,33 +1922,33 @@ void MenuGame::update(ssvu::FT mFT)
     }
     wasFocusHeld = focusHeld;
 
-    if(hg::Joystick::leftRisingEdge())
+    if(Joystick::risingEdge(Joystick::Jdir::Left))
     {
         leftAction();
     }
-    else if(hg::Joystick::rightRisingEdge())
+    else if(Joystick::risingEdge(Joystick::Jdir::Right))
     {
         rightAction();
     }
-    else if(hg::Joystick::upRisingEdge())
+    else if(Joystick::risingEdge(Joystick::Jdir::Up))
     {
         upAction();
     }
-    else if(hg::Joystick::downRisingEdge())
+    else if(Joystick::risingEdge(Joystick::Jdir::Down))
     {
         downAction();
     }
 
-    if(hg::Joystick::selectRisingEdge())
+    if(Joystick::risingEdge(Joystick::Jid::Select))
     {
         okAction();
     }
-    else if(hg::Joystick::exitRisingEdge())
+    else if(Joystick::risingEdge(Joystick::Jid::Exit))
     {
         exitAction();
     }
 
-    if(hg::Joystick::screenshotRisingEdge())
+    if(Joystick::risingEdge(Joystick::Jid::Screenshot))
     {
         mustTakeScreenshot = true;
     }
@@ -2552,10 +2530,10 @@ void MenuGame::refreshCamera()
 void MenuGame::refreshBinds()
 {
     // Keyboard-mouse
-    for(std::size_t i{0u}; i < Config::keyboardTriggerGetters.size(); ++i)
+    for(std::size_t i{0u}; i < Config::triggerGetters.size(); ++i)
     {
-        game.refreshTrigger(Config::keyboardTriggerGetters[i](), i);
-        hexagonGame.refreshTrigger(Config::keyboardTriggerGetters[i](), i);
+        game.refreshTrigger(Config::triggerGetters[i](), i);
+        hexagonGame.refreshTrigger(Config::triggerGetters[i](), i);
     }
 
     // Joystick
@@ -2569,12 +2547,12 @@ void MenuGame::setIgnoreAllInputs(const unsigned int presses)
     if(!ignoreInputs)
     {
         game.ignoreAllInputs(false);
-        hg::Joystick::ignoreAllPresses(false);
+        Joystick::ignoreAllPresses(false);
         return;
     }
 
     game.ignoreAllInputs(true);
-    hg::Joystick::ignoreAllPresses(true);
+    Joystick::ignoreAllPresses(true);
 }
 
 //*****************************************************
@@ -2856,12 +2834,12 @@ void MenuGame::drawOptionsSubmenus(
 
     // Calculate quads coordinates
     float quadBorder{txtMenuSmall.height * frameSizeMulti};
-    const float doubleBorder{quadBorder * 2.f},
-        interline{2.5f * txtMenuSmall.height},
-        totalHeight{
-            interline * (size - 1) + 2.f * doubleBorder + txtMenuSmall.height},
-        quadHeight{std::max(menuHalfHeight - totalHeight / 2.f,
-            ssvs::getGlobalBottom(creditsBar2) + 10.f)};
+    const float doubleBorder{quadBorder * 2.f};
+    const float interline{2.1f * txtMenuSmall.height};
+    const float totalHeight{
+        interline * (size - 1) + 2.f * doubleBorder + txtMenuSmall.height};
+    const float quadHeight{std::max(menuHalfHeight - totalHeight / 2.f,
+        ssvs::getGlobalBottom(creditsBar2) + 10.f)};
 
     // Offset
     const float panelOffset{

@@ -112,7 +112,8 @@ void KeyboardBindControl::applyBind(const ssvs::KKey key, const ssvs::MBtn btn)
 
 [[nodiscard]] std::string KeyboardBindControl::getName() const
 {
-    std::string bindNames = Config::getKeyboardBindNames(ID);
+    std::string bindNames =
+        Config::getKeyboardBindNames(static_cast<Config::Tid>(ID));
 
     if(waitingForBind)
     {
@@ -166,7 +167,8 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
 
 [[nodiscard]] std::string JoystickBindControl::getName() const
 {
-    std::string bindName = Config::getJoystickBindNames(ID);
+    std::string bindName =
+        Config::getJoystickBindNames(static_cast<Joystick::Jid>(ID));
 
     if(waitingForBind)
     {
