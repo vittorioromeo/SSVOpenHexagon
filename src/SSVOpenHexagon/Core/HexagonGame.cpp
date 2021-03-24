@@ -238,12 +238,21 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 
     using Tid = Config::Tid;
 
-    add2StateInput(
-        game, Config::getTriggerRotateCCW(), inputImplCCW, Tid::RotateCCW);
-    add2StateInput(
-        game, Config::getTriggerRotateCW(), inputImplCW, Tid::RotateCW);
-    add2StateInput(game, Config::getTriggerFocus(), inputFocused, Tid::Focus);
-    add2StateInput(game, Config::getTriggerSwap(), inputSwap, Tid::Swap);
+    const auto addTidInput = [&](const Tid tid, const ssvs::Input::Type type,
+                                 auto action) {
+        game.addInput(
+            Config::getTrigger(tid), action, type, static_cast<int>(tid));
+    };
+
+    const auto addTid2StateInput = [&](const Tid tid, bool& value) {
+        add2StateInput(game, Config::getTrigger(tid), value,
+            static_cast<int>(Tid::RotateCCW));
+    };
+
+    addTid2StateInput(Tid::RotateCCW, inputImplCCW);
+    addTid2StateInput(Tid::RotateCW, inputImplCW);
+    addTid2StateInput(Tid::Focus, inputFocused);
+    addTid2StateInput(Tid::Swap, inputSwap);
 
     game.addInput(
         {{sf::Keyboard::Key::Escape}},
@@ -257,20 +266,17 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
         }, // hardcoded
         ssvs::Input::Type::Always);
 
-    game.addInput(
-        Config::getTriggerExit(),
-        [this](ssvu::FT /*unused*/) {
+    addTidInput(
+        Tid::Exit, ssvs::Input::Type::Always, [this](ssvu::FT /*unused*/) {
             if(imguiLuaConsoleHasInput())
             {
                 return;
             }
 
             goToMenu();
-        }, // editable
-        ssvs::Input::Type::Always, Tid::Exit);
+        });
 
-    game.addInput(
-        Config::getTriggerForceRestart(),
+    addTidInput(Tid::ForceRestart, ssvs::Input::Type::Once,
         [this](ssvu::FT /*unused*/) {
             if(imguiLuaConsoleHasInput())
             {
@@ -278,12 +284,10 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
             }
 
             status.mustStateChange = StateChange::MustRestart;
-        },
-        ssvs::Input::Type::Once, Tid::ForceRestart);
+        });
 
-    game.addInput(
-        Config::getTriggerRestart(),
-        [this](ssvu::FT /*unused*/) {
+    addTidInput(
+        Tid::Restart, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
             if(imguiLuaConsoleHasInput())
             {
                 return;
@@ -293,12 +297,10 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
             {
                 status.mustStateChange = StateChange::MustRestart;
             }
-        },
-        ssvs::Input::Type::Once, Tid::Restart);
+        });
 
-    game.addInput(
-        Config::getTriggerReplay(),
-        [this](ssvu::FT /*unused*/) {
+    addTidInput(
+        Tid::Replay, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
             if(imguiLuaConsoleHasInput())
             {
                 return;
@@ -308,36 +310,30 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
             {
                 status.mustStateChange = StateChange::MustReplay;
             }
-        },
-        ssvs::Input::Type::Once, Tid::Replay);
+        });
 
-    game.addInput(
-        Config::getTriggerScreenshot(),
-        [this](ssvu::FT /*unused*/) {
+    addTidInput(
+        Tid::Screenshot, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
             if(imguiLuaConsoleHasInput())
             {
                 return;
             }
 
             mustTakeScreenshot = true;
-        },
-        ssvs::Input::Type::Once, Tid::Screenshot);
+        });
 
-    game.addInput(
-        Config::getTriggerLuaConsole(),
-        [this](ssvu::FT /*unused*/) {
+    addTidInput(
+        Tid::LuaConsole, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
             if(!Config::getDebug())
             {
                 return;
             }
 
             ilcShowConsoleNext = true;
-        },
-        ssvs::Input::Type::Once, Tid::LuaConsole);
+        });
 
-    game.addInput(
-        Config::getTriggerPause(),
-        [this](ssvu::FT /*unused*/) {
+    addTidInput(
+        Tid::Pause, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
             if(!Config::getDebug())
             {
                 return;
@@ -352,8 +348,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
             {
                 assets.musicPlayer.resume();
             }
-        },
-        ssvs::Input::Type::Once, Tid::Pause);
+        });
 
     // ------------------------------------------------------------------------
     // Joystick binds
@@ -1031,7 +1026,8 @@ void HexagonGame::setSides(unsigned int mSides)
 {
     // TODO: the joystick thing should be in updateInput, this should be a
     // blind getter
-    return inputFocused || (!inReplay() && hg::Joystick::focusPressed());
+    return inputFocused ||
+           (!inReplay() && Joystick::pressed(Joystick::Jid::Focus));
 }
 
 [[nodiscard]] float HexagonGame::getPlayerSpeedMult() const
@@ -1043,7 +1039,7 @@ void HexagonGame::setSides(unsigned int mSides)
 {
     // TODO: the joystick thing should be in updateInput, this should be a
     // blind getter
-    return inputSwap || (!inReplay() && hg::Joystick::swapPressed());
+    return inputSwap || (!inReplay() && Joystick::pressed(Joystick::Jid::Swap));
 }
 
 [[nodiscard]] int HexagonGame::getInputMovement() const

@@ -352,10 +352,10 @@ void HexagonGame::updateInput()
     }
 
     // Joystick support
-    hg::Joystick::update();
+    Joystick::update();
 
-    const bool jCW = hg::Joystick::rightPressed();
-    const bool jCCW = hg::Joystick::leftPressed();
+    const bool jCW = Joystick::pressed(Joystick::Jdir::Right);
+    const bool jCCW = Joystick::pressed(Joystick::Jdir::Left);
 
     if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
                               inputImplCW || inputImplBothCWCCW || jCW || jCCW))
@@ -445,16 +445,16 @@ void HexagonGame::updateInput()
     }
 
     // Joystick support
-    if(hg::Joystick::exitRisingEdge())
+    if(Joystick::risingEdge(Joystick::Jid::Exit))
     {
         goToMenu();
     }
-    else if(hg::Joystick::forceRestartRisingEdge() ||
-            (status.hasDied && hg::Joystick::restartRisingEdge()))
+    else if(Joystick::risingEdge(Joystick::Jid::ForceRestart) ||
+            (status.hasDied && Joystick::risingEdge(Joystick::Jid::Restart)))
     {
         status.mustStateChange = StateChange::MustRestart;
     }
-    else if(status.hasDied && hg::Joystick::replayRisingEdge())
+    else if(status.hasDied && Joystick::risingEdge(Joystick::Jid::Replay))
     {
         status.mustStateChange = StateChange::MustReplay;
     }

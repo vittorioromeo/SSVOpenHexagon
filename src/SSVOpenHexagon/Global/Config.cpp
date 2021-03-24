@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Utils/Casts.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
@@ -987,20 +988,32 @@ std::string bindToHumanReadableName(std::string s)
     return s;
 }
 
-const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
-    keyboardTriggerGetters{
-        {getTriggerRotateCCW, getTriggerRotateCW, getTriggerFocus,
-            getTriggerSelect, getTriggerExit, getTriggerForceRestart,
-            getTriggerRestart, getTriggerReplay, getTriggerScreenshot,
-            getTriggerSwap, getTriggerUp, getTriggerDown, getTriggerNextPack,
-            getTriggerPreviousPack, getTriggerLuaConsole, getTriggerPause}};
 
-[[nodiscard]] std::string getKeyboardBindNames(const int bindID)
+const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
+    []() -> ssvs::Input::Trigger& { return triggerRotateCCW(); },
+    []() -> ssvs::Input::Trigger& { return triggerRotateCW(); },
+    []() -> ssvs::Input::Trigger& { return triggerFocus(); },
+    []() -> ssvs::Input::Trigger& { return triggerSelect(); },
+    []() -> ssvs::Input::Trigger& { return triggerExit(); },
+    []() -> ssvs::Input::Trigger& { return triggerForceRestart(); },
+    []() -> ssvs::Input::Trigger& { return triggerRestart(); },
+    []() -> ssvs::Input::Trigger& { return triggerReplay(); },
+    []() -> ssvs::Input::Trigger& { return triggerScreenshot(); },
+    []() -> ssvs::Input::Trigger& { return triggerSwap(); },
+    []() -> ssvs::Input::Trigger& { return triggerUp(); },
+    []() -> ssvs::Input::Trigger& { return triggerDown(); },
+    []() -> ssvs::Input::Trigger& { return triggerNextPack(); },
+    []() -> ssvs::Input::Trigger& { return triggerPreviousPack(); },
+    []() -> ssvs::Input::Trigger& { return triggerLuaConsole(); },
+    []() -> ssvs::Input::Trigger& { return triggerPause(); }};
+
+[[nodiscard]] std::string getKeyboardBindNames(const Tid bindID)
 {
     int j;
     std::string bindNames;
 
-    const auto combos = keyboardTriggerGetters[bindID]().getCombos();
+    const auto combos = triggerGetters[toSizeT(bindID)]().getCombos();
+
     for(const auto& c : combos)
     {
         if(c.isUnbound())
@@ -1054,8 +1067,8 @@ const std::array<KeyboardTriggerGetter, Tid::TriggersCount>
 //**************************************************
 // Add new key binds
 
-void rebindTrigger(ssvs::Input::Trigger& trig, const int key, const int btn,
-    int index) noexcept
+void rebindTrigger(
+    ssvs::Input::Trigger& trig, const int key, const int btn, int index)
 {
     // if both slots are taken replace the first one
     if(index >= maxBinds)
@@ -1074,343 +1087,13 @@ void rebindTrigger(ssvs::Input::Trigger& trig, const int key, const int btn,
     }
 }
 
-void addBindTriggerRotateCCW(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerRotateCCW(), key, btn, index);
-}
-
-void addBindTriggerRotateCW(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerRotateCW(), key, btn, index);
-}
-
-void addBindTriggerFocus(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerFocus(), key, btn, index);
-}
-
-void addBindTriggerSelect(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerSelect(), key, btn, index);
-}
-
-void addBindTriggerExit(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerExit(), key, btn, index);
-}
-
-void addBindTriggerForceRestart(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerForceRestart(), key, btn, index);
-}
-
-void addBindTriggerRestart(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerRestart(), key, btn, index);
-}
-
-void addBindTriggerReplay(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerReplay(), key, btn, index);
-}
-
-void addBindTriggerScreenshot(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerScreenshot(), key, btn, index);
-}
-
-void addBindTriggerSwap(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerSwap(), key, btn, index);
-}
-
-void addBindTriggerUp(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerUp(), key, btn, index);
-}
-
-void addBindTriggerDown(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerDown(), key, btn, index);
-}
-
-void addBindTriggerNextPack(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerNextPack(), key, btn, index);
-}
-
-void addBindTriggerPreviousPack(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerPreviousPack(), key, btn, index);
-}
-
-void addBindTriggerLuaConsole(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerLuaConsole(), key, btn, index);
-}
-
-void addBindTriggerPause(const int key, const int btn, const int index)
-{
-    rebindTrigger(triggerPause(), key, btn, index);
-}
-
 //**************************************************
 // Unbind key
 
-void clearTriggerBind(ssvs::Input::Trigger& trig, const int index) noexcept
+void clearTriggerBind(ssvs::Input::Trigger& trig, const int index)
 {
     trig.getCombos()[index].clearBind();
 }
-
-void clearBindTriggerRotateCCW(const int index)
-{
-    clearTriggerBind(triggerRotateCCW(), index);
-}
-
-void clearBindTriggerRotateCW(const int index)
-{
-    clearTriggerBind(triggerRotateCW(), index);
-}
-
-void clearBindTriggerFocus(const int index)
-{
-    clearTriggerBind(triggerFocus(), index);
-}
-
-void clearBindTriggerSelect(const int index)
-{
-    clearTriggerBind(triggerSelect(), index);
-}
-
-void clearBindTriggerExit(const int index)
-{
-    clearTriggerBind(triggerExit(), index);
-}
-
-void clearBindTriggerForceRestart(const int index)
-{
-    clearTriggerBind(triggerForceRestart(), index);
-}
-
-void clearBindTriggerRestart(const int index)
-{
-    clearTriggerBind(triggerRestart(), index);
-}
-
-void clearBindTriggerReplay(const int index)
-{
-    clearTriggerBind(triggerReplay(), index);
-}
-
-void clearBindTriggerScreenshot(const int index)
-{
-    clearTriggerBind(triggerScreenshot(), index);
-}
-
-void clearBindTriggerSwap(const int index)
-{
-    clearTriggerBind(triggerSwap(), index);
-}
-
-void clearBindTriggerUp(const int index)
-{
-    clearTriggerBind(triggerUp(), index);
-}
-
-void clearBindTriggerDown(const int index)
-{
-    clearTriggerBind(triggerDown(), index);
-}
-
-void clearBindTriggerNextPack(const int index)
-{
-    clearTriggerBind(triggerNextPack(), index);
-}
-
-void clearBindTriggerPreviousPack(const int index)
-{
-    clearTriggerBind(triggerPreviousPack(), index);
-}
-
-void clearBindTriggerLuaConsole(const int index)
-{
-    clearTriggerBind(triggerLuaConsole(), index);
-}
-
-void clearBindTriggerPause(const int index)
-{
-    clearTriggerBind(triggerPause(), index);
-}
-
-
-
-//**************************************************
-// Get key
-
-const ssvs::Input::Trigger& getTriggerRotateCCW()
-{
-    return triggerRotateCCW();
-}
-
-const ssvs::Input::Trigger& getTriggerRotateCW()
-{
-    return triggerRotateCW();
-}
-
-const ssvs::Input::Trigger& getTriggerFocus()
-{
-    return triggerFocus();
-}
-
-const ssvs::Input::Trigger& getTriggerSelect()
-{
-    return triggerSelect();
-}
-
-const ssvs::Input::Trigger& getTriggerExit()
-{
-    return triggerExit();
-}
-
-const ssvs::Input::Trigger& getTriggerForceRestart()
-{
-    return triggerForceRestart();
-}
-
-const ssvs::Input::Trigger& getTriggerRestart()
-{
-    return triggerRestart();
-}
-
-const ssvs::Input::Trigger& getTriggerReplay()
-{
-    return triggerReplay();
-}
-
-const ssvs::Input::Trigger& getTriggerScreenshot()
-{
-    return triggerScreenshot();
-}
-
-const ssvs::Input::Trigger& getTriggerSwap()
-{
-    return triggerSwap();
-}
-
-const ssvs::Input::Trigger& getTriggerUp()
-{
-    return triggerUp();
-}
-
-const ssvs::Input::Trigger& getTriggerDown()
-{
-    return triggerDown();
-}
-
-const ssvs::Input::Trigger& getTriggerNextPack()
-{
-    return triggerNextPack();
-}
-
-const ssvs::Input::Trigger& getTriggerPreviousPack()
-{
-    return triggerPreviousPack();
-}
-
-const ssvs::Input::Trigger& getTriggerLuaConsole()
-{
-    return triggerLuaConsole();
-}
-
-const ssvs::Input::Trigger& getTriggerPause()
-{
-    return triggerPause();
-}
-
-
-//**************************************************
-// Set key
-
-void setTriggerRotateCCW(const ssvs::Input::Trigger& trig)
-{
-    triggerRotateCCW() = trig;
-}
-
-void setTriggerRotateCW(const ssvs::Input::Trigger& trig)
-{
-    triggerRotateCW() = trig;
-}
-
-void setTriggerFocus(const ssvs::Input::Trigger& trig)
-{
-    triggerFocus() = trig;
-}
-
-void setTriggerSelect(const ssvs::Input::Trigger& trig)
-{
-    triggerSelect() = trig;
-}
-
-void setTriggerExit(const ssvs::Input::Trigger& trig)
-{
-    triggerExit() = trig;
-}
-
-void setTriggerForceRestart(const ssvs::Input::Trigger& trig)
-{
-    triggerForceRestart() = trig;
-}
-
-void setTriggerRestart(const ssvs::Input::Trigger& trig)
-{
-    triggerRestart() = trig;
-}
-
-void setTriggerReplay(const ssvs::Input::Trigger& trig)
-{
-    triggerReplay() = trig;
-}
-
-void setTriggerScreenshot(const ssvs::Input::Trigger& trig)
-{
-    triggerScreenshot() = trig;
-}
-
-void setTriggerSwap(const ssvs::Input::Trigger& trig)
-{
-    triggerSwap() = trig;
-}
-
-void setTriggerUp(const ssvs::Input::Trigger& trig)
-{
-    triggerUp() = trig;
-}
-
-void setTriggerDown(const ssvs::Input::Trigger& trig)
-{
-    triggerDown() = trig;
-}
-
-void setTriggerNextPack(const ssvs::Input::Trigger& trig)
-{
-    triggerNextPack() = trig;
-}
-
-void setTriggerPreviousPack(const ssvs::Input::Trigger& trig)
-{
-    triggerPreviousPack() = trig;
-}
-
-void setTriggerLuaConsole(const ssvs::Input::Trigger& trig)
-{
-    triggerLuaConsole() = trig;
-}
-
-void setTriggerPause(const ssvs::Input::Trigger& trig)
-{
-    triggerPause() = trig;
-}
-
 
 //***********************************************************
 //
@@ -1421,14 +1104,23 @@ void setTriggerPause(const ssvs::Input::Trigger& trig)
 //**********************************************
 // Get binds names
 
-const std::array<JoystickTriggerGetter, hg::Joystick::Jid::JoystickBindsCount>
-    joystickTriggerGetters{
-        {getJoystickSelect, getJoystickExit, getJoystickFocus, getJoystickSwap,
-            getJoystickForceRestart, getJoystickRestart, getJoystickReplay,
-            getJoystickScreenshot, getJoystickNextPack, getJoystickPreviousPack,
-            getJoystickAddToFavorites, getJoystickFavoritesMenu}};
+const std::array<JoystickTriggerGetter,
+    toSizeT(Joystick::Jid::JoystickBindsCount)>
+    joystickTriggerGetters{//
+        []() -> unsigned int { return joystickSelect(); },
+        []() -> unsigned int { return joystickExit(); },
+        []() -> unsigned int { return joystickFocus(); },
+        []() -> unsigned int { return joystickSwap(); },
+        []() -> unsigned int { return joystickForceRestart(); },
+        []() -> unsigned int { return joystickRestart(); },
+        []() -> unsigned int { return joystickReplay(); },
+        []() -> unsigned int { return joystickScreenshot(); },
+        []() -> unsigned int { return joystickNextPack(); },
+        []() -> unsigned int { return joystickPreviousPack(); },
+        []() -> unsigned int { return joystickAddToFavorites(); },
+        []() -> unsigned int { return joystickFavoritesMenu(); }};
 
-const std::string getJoystickBindNames(const int bindID)
+const std::string getJoystickBindNames(const Joystick::Jid bindID)
 {
     static constexpr std::array<std::array<std::string_view, 2>, 12>
         buttonsNames{{{"A", "SQUARE"}, {"B", "CROSS"}, {"X", "CIRCLE"},
@@ -1437,7 +1129,7 @@ const std::string getJoystickBindNames(const int bindID)
             {"LT", "LEFT STICK"}, {"RT", "RIGHT STICK"}}};
 
     std::string bindName;
-    const unsigned int value{joystickTriggerGetters[bindID]()};
+    const unsigned int value{joystickTriggerGetters[toSizeT(bindID)]()};
 
     if(value == 33)
     {
@@ -1470,144 +1162,36 @@ const std::string getJoystickBindNames(const int bindID)
 //**********************************************
 // Get bind
 
-unsigned int getJoystickSelect()
-{
-    return joystickSelect();
-}
-
-unsigned int getJoystickExit()
-{
-    return joystickExit();
-}
-
-unsigned int getJoystickFocus()
-{
-    return joystickFocus();
-}
-
-unsigned int getJoystickSwap()
-{
-    return joystickSwap();
-}
-
-unsigned int getJoystickForceRestart()
-{
-    return joystickForceRestart();
-}
-
-unsigned int getJoystickRestart()
-{
-    return joystickRestart();
-}
-
-unsigned int getJoystickReplay()
-{
-    return joystickReplay();
-}
-
-unsigned int getJoystickScreenshot()
-{
-    return joystickScreenshot();
-}
-
-unsigned int getJoystickNextPack()
-{
-    return joystickNextPack();
-}
-
-unsigned int getJoystickPreviousPack()
-{
-    return joystickPreviousPack();
-}
-
-unsigned int getJoystickAddToFavorites()
-{
-    return joystickAddToFavorites();
-}
-
-unsigned int getJoystickFavoritesMenu()
-{
-    return joystickFavoritesMenu();
-}
-
 void loadAllJoystickBinds()
 {
     for(std::size_t i{0u}; i < Config::joystickTriggerGetters.size(); ++i)
     {
-        hg::Joystick::setJoystickBind(Config::joystickTriggerGetters[i](), i);
+        Joystick::setJoystickBind(Config::joystickTriggerGetters[i](), i);
     }
 }
 
 //**********************************************
 // Set bind
 
-using JoystickTriggerSetter = void (*)(const unsigned int button);
-constexpr std::array<JoystickTriggerSetter,
-    hg::Joystick::Jid::JoystickBindsCount>
-    joystickTriggerSetters{
-        {setJoystickSelect, setJoystickExit, setJoystickFocus, setJoystickSwap,
-            setJoystickForceRestart, setJoystickRestart, setJoystickReplay,
-            setJoystickScreenshot, setJoystickNextPack, setJoystickPreviousPack,
-            setJoystickAddToFavorites, setJoystickFavoritesMenu}};
+const std::array<JoystickTriggerSetter,
+    toSizeT(Joystick::Jid::JoystickBindsCount)>
+    joystickTriggerSetters{//
+        [](const unsigned int btn) { joystickSelect() = btn; },
+        [](const unsigned int btn) { joystickExit() = btn; },
+        [](const unsigned int btn) { joystickFocus() = btn; },
+        [](const unsigned int btn) { joystickSwap() = btn; },
+        [](const unsigned int btn) { joystickForceRestart() = btn; },
+        [](const unsigned int btn) { joystickRestart() = btn; },
+        [](const unsigned int btn) { joystickReplay() = btn; },
+        [](const unsigned int btn) { joystickScreenshot() = btn; },
+        [](const unsigned int btn) { joystickNextPack() = btn; },
+        [](const unsigned int btn) { joystickPreviousPack() = btn; },
+        [](const unsigned int btn) { joystickAddToFavorites() = btn; },
+        [](const unsigned int btn) { joystickFavoritesMenu() = btn; }};
 
-void setJoystickSelect(const unsigned int button)
+ssvs::Input::Trigger& getTrigger(const Tid tid)
 {
-    joystickSelect() = button;
-}
-
-void setJoystickExit(const unsigned int button)
-{
-    joystickExit() = button;
-}
-
-void setJoystickFocus(const unsigned int button)
-{
-    joystickFocus() = button;
-}
-
-void setJoystickSwap(const unsigned int button)
-{
-    joystickSwap() = button;
-}
-
-void setJoystickForceRestart(const unsigned int button)
-{
-    joystickForceRestart() = button;
-}
-
-void setJoystickRestart(const unsigned int button)
-{
-    joystickRestart() = button;
-}
-
-void setJoystickReplay(const unsigned int button)
-{
-    joystickReplay() = button;
-}
-
-void setJoystickScreenshot(const unsigned int button)
-{
-    joystickScreenshot() = button;
-}
-
-void setJoystickNextPack(const unsigned int button)
-{
-    joystickNextPack() = button;
-}
-
-void setJoystickPreviousPack(const unsigned int button)
-{
-    joystickPreviousPack() = button;
-}
-
-void setJoystickAddToFavorites(const unsigned int button)
-{
-    joystickAddToFavorites() = button;
-}
-
-void setJoystickFavoritesMenu(const unsigned int button)
-{
-    joystickFavoritesMenu() = button;
+    return triggerGetters[toSizeT(tid)]();
 }
 
 } // namespace hg::Config
