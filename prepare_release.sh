@@ -23,6 +23,7 @@ cp ./_RELEASE/sfml-graphics-2.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/sfml-network-2.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/sfml-system-2.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/sfml-window-2.dll ./_PREPARED_RELEASE
+cp ./_RELEASE/libImGui-SFML.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/steam_api64.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/discord_game_sdk.dll ./_PREPARED_RELEASE
 cp ./misc/default_config.json ./_PREPARED_RELEASE/default_config.json

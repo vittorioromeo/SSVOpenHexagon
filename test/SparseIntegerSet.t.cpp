@@ -31,6 +31,7 @@ int main()
 
     for(int x : s)
     {
+        (void) x;
         TEST_ASSERT(false);
     }
 
@@ -69,6 +70,7 @@ int main()
 
     for(int x : s)
     {
+        (void) x;
         TEST_ASSERT(false);
     }
 
