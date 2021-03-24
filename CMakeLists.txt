@@ -15,14 +15,15 @@ endif()
 include(${CPM_DOWNLOAD_LOCATION})
 # -----------------------------------------------------------------------------
 
+set(BUILD_SHARED_LIBS true)
+set(SFML_STATIC_LIBRARIES false)
+
 CPMAddPackage(
   NAME SFML
   GITHUB_REPOSITORY SFML/SFML
   VERSION 2.5.1
   GIT_TAG 2f11710abc5aa478503a7ff3f9e654bd2078ebab
 )
-
-set(SFML_STATIC_LIBRARIES false)
 
 # -----------------------------------------------------------------------------
 
@@ -191,10 +192,6 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${lua_SOURCE_DIR})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${imgui_SOURCE_DIR})
-
-if(WIN_PROFILE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -gdwarf-2 -Wall -Wextra -Wpedantic")
-endif()
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(SSVOpenHexagonLib pthread)
