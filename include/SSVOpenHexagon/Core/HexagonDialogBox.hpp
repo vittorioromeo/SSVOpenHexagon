@@ -4,10 +4,14 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Window/Keyboard.hpp>
 
 #include <string>
 
@@ -28,8 +32,7 @@ class HexagonDialogBox
 {
 private:
     using KKey = sf::Keyboard::Key;
-    using Color = sf::Color;
-    using DrawFunc = std::function<void(const Color&, const Color&)>;
+    using DrawFunc = std::function<void(const sf::Color&, const sf::Color&)>;
 
     HGAssets& assets;
     ssvs::GameWindow& window;
@@ -39,7 +42,7 @@ private:
 
     DrawFunc drawFunc;
 
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> dialogFrame;
+    Utils::FastVertexVectorQuads dialogFrame;
     std::vector<std::string> dialogText;
     sf::Font& imagine;
     sf::Text txtDialog;
@@ -58,15 +61,16 @@ private:
     [[nodiscard]] DrawFunc drawModeToDrawFunc(DBoxDraw drawMode);
 
     void drawText(
-        const Color& txtColor, const float xOffset, const float yOffset);
-    void drawBox(const Color& frameColor, const float x1, const float x2,
+        const sf::Color& txtColor, const float xOffset, const float yOffset);
+    void drawBox(const sf::Color& frameColor, const float x1, const float x2,
         const float y1, const float y2);
-    void drawCenter(const Color& txtColor, const Color& backdropColor);
-    void drawCenterUpperHalf(const Color& txtColor, const Color& backdropColor);
-    void drawTopLeft(const Color& txtColor, const Color& backdropColor);
+    void drawCenter(const sf::Color& txtColor, const sf::Color& backdropColor);
+    void drawCenterUpperHalf(
+        const sf::Color& txtColor, const sf::Color& backdropColor);
+    void drawTopLeft(const sf::Color& txtColor, const sf::Color& backdropColor);
 
 public:
-    HexagonDialogBox(
+    explicit HexagonDialogBox(
         HGAssets& mAssets, ssvs::GameWindow& window, StyleData& styleData);
 
     void create(const std::string& output, const int charSize,
@@ -77,7 +81,7 @@ public:
         const KKey mKeyToClose, const float mXPos = 0.f,
         const float mYPos = 0.f);
 
-    void draw(const Color& txtColor, const Color& backdropColor);
+    void draw(const sf::Color& txtColor, const sf::Color& backdropColor);
     void clearDialogBox();
 
     [[nodiscard]] KKey getKeyToClose() const noexcept

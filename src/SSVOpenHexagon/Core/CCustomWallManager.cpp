@@ -3,7 +3,8 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+
+#include "SSVOpenHexagon/Components/CPlayer.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
@@ -246,21 +247,20 @@ void CCustomWallManager::clear()
     _count = 0;
 }
 
-void CCustomWallManager::draw(HexagonGame& hexagonGame)
+void CCustomWallManager::draw(Utils::FastVertexVectorQuads& wallQuads)
 {
     for(CCustomWallHandle h = 0; h < (int)_customWalls.size(); ++h)
     {
         if(!_handleAvailable[h])
         {
-            _customWalls[h].draw(hexagonGame);
+            _customWalls[h].draw(wallQuads);
         }
     }
 }
 
 [[nodiscard]] bool CCustomWallManager::handleCollision(
-    HexagonGame& mHexagonGame, CPlayer& mPlayer, ssvu::FT mFT)
+    const int movement, const float radius, CPlayer& mPlayer, ssvu::FT mFT)
 {
-    const float radius{mHexagonGame.getRadius()};
     const float radiusSquared{radius * radius};
 
     const auto size{static_cast<int>(_customWalls.size())};
@@ -284,16 +284,11 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
                 continue;
             }
 
-            if(mPlayer.getJustSwapped())
+            if(mPlayer.getJustSwapped() ||
+                mPlayer.push(
+                    movement, radius, _customWalls[h], radiusSquared, mFT))
             {
-                mPlayer.kill(mHexagonGame);
                 return true;
-            }
-
-            if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
-            {
-                mPlayer.kill(mHexagonGame);
-                return false;
             }
 
             collided = true;
@@ -317,10 +312,10 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
                 continue;
             }
 
-            if(mPlayer.push(mHexagonGame, _customWalls[h], radiusSquared, mFT))
+            if(mPlayer.push(
+                   movement, radius, _customWalls[h], radiusSquared, mFT))
             {
-                mPlayer.kill(mHexagonGame);
-                return false;
+                return true;
             }
 
             collided = true;
@@ -342,8 +337,7 @@ void CCustomWallManager::draw(HexagonGame& hexagonGame)
             continue;
         }
 
-        mPlayer.kill(mHexagonGame);
-        return false;
+        return true;
     }
 
     return false;

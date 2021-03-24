@@ -6,7 +6,6 @@
 
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
@@ -230,7 +229,7 @@ private:
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
     sf::Color dialogBoxTextColor;
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> menuQuads;
+    Utils::FastVertexVectorQuads menuQuads;
 
     void draw();
     void render(sf::Drawable& mDrawable)

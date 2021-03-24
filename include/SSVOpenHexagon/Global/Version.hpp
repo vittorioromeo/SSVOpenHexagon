@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tuple>
-
 namespace hg
 {
 
@@ -19,15 +17,17 @@ struct GameVersion
     [[nodiscard]] constexpr bool operator<(
         const GameVersion& rhs) const noexcept
     {
-        return std::tie(major, minor, micro) <
-               std::tie(rhs.major, rhs.minor, rhs.micro);
-    }
+        if(major != rhs.major)
+        {
+            return major < rhs.major;
+        }
 
-    [[nodiscard]] constexpr bool operator>(
-        const GameVersion& rhs) const noexcept
-    {
-        return std::tie(major, minor, micro) >
-               std::tie(rhs.major, rhs.minor, rhs.micro);
+        if(minor != rhs.minor)
+        {
+            return minor < rhs.minor;
+        }
+
+        return micro < rhs.micro;
     }
 
     [[nodiscard]] constexpr bool operator==(

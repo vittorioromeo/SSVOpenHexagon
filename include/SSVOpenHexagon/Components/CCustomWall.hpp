@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
 #include "SSVOpenHexagon/Utils/WallUtils.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
@@ -21,26 +22,24 @@
 namespace hg
 {
 
-class HexagonGame;
-
 class CCustomWall
 {
 public:
     using Handle = int;
 
 private:
-    std::array<sf::Vector2f, 4> vertexPositions;
-    std::array<sf::Vector2f, 4> oldVertexPositions;
-    std::array<sf::Color, 4> vertexColors;
-    std::uint8_t killingSide{0u};
+    std::array<sf::Vector2f, 4> _vertexPositions;
+    std::array<sf::Vector2f, 4> _oldVertexPositions;
+    std::array<sf::Color, 4> _vertexColors;
+    std::uint8_t _killingSide{0u};
 
-    bool
-        outOfPlayerRadius; // Collision with a regular wall is checked two times
-                           // per frame each frame. If in the first check it is
-                           // determined that the wall is too far from the
-                           // center to be a potential cause of collision this
-                           // value is set to true, so that the second check can
-                           // be quickly dismissed with a boolean comparison.
+    bool _outOfPlayerRadius; // Collision with a regular wall is checked two
+                             // times per frame each frame. If in the first
+                             // check it is determined that the wall is too far
+                             // from the center to be a potential cause of
+                             // collision this value is set to true, so that the
+                             // second check can be quickly dismissed with a
+                             // boolean comparison.
 
     enum CWFlags : unsigned int
     {
@@ -50,77 +49,81 @@ private:
         CWFlagsCount
     };
 
-    std::bitset<CWFlags::CWFlagsCount> flags{1 /* Collision on */};
+    std::bitset<CWFlags::CWFlagsCount> _flags{1 /* Collision on */};
 
 public:
-    CCustomWall();
-
-    void update(HexagonGame& mHexagonGame, ssvu::FT mFT);
-    void draw(HexagonGame& mHexagonGame);
+    [[gnu::always_inline]] void draw(Utils::FastVertexVectorQuads& wallQuads)
+    {
+        wallQuads.reserve_more(4);
+        wallQuads.unsafe_emplace_back(_vertexPositions[0], _vertexColors[0]);
+        wallQuads.unsafe_emplace_back(_vertexPositions[1], _vertexColors[1]);
+        wallQuads.unsafe_emplace_back(_vertexPositions[2], _vertexColors[2]);
+        wallQuads.unsafe_emplace_back(_vertexPositions[3], _vertexColors[3]);
+    }
 
     [[gnu::always_inline]] void updateOutOfPlayerRadius(
-        const sf::Vector2f& mPoint) noexcept
+        const sf::Vector2f& point) noexcept
     {
-        outOfPlayerRadius =
-            hg::Utils::isOutOfPlayerRadius(mPoint, vertexPositions);
+        _outOfPlayerRadius =
+            hg::Utils::isOutOfPlayerRadius(point, _vertexPositions);
     }
 
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
-        const sf::Vector2f& mPoint) const noexcept
+        const sf::Vector2f& point) const noexcept
     {
-        return !outOfPlayerRadius &&
-               Utils::pointInPolygon(vertexPositions, mPoint.x, mPoint.y);
+        return !_outOfPlayerRadius &&
+               Utils::pointInPolygon(_vertexPositions, point.x, point.y);
     }
 
     [[gnu::always_inline]] void setVertexPos(
         const int vertexIndex, const sf::Vector2f& pos) noexcept
     {
-        oldVertexPositions[vertexIndex] =
-            std::exchange(vertexPositions[vertexIndex], pos);
+        _oldVertexPositions[vertexIndex] =
+            std::exchange(_vertexPositions[vertexIndex], pos);
     }
 
     [[gnu::always_inline]] void setVertexColor(
         const int vertexIndex, const sf::Color& color) noexcept
     {
-        vertexColors[vertexIndex] = color;
+        _vertexColors[vertexIndex] = color;
     }
 
     [[gnu::always_inline]] void setCanCollide(const bool collide) noexcept
     {
-        flags[CWFlags::Collision] = collide;
+        _flags[CWFlags::Collision] = collide;
     }
 
     [[gnu::always_inline]] void setDeadly(const bool deadly) noexcept
     {
-        flags[CWFlags::Deadly] = deadly;
+        _flags[CWFlags::Deadly] = deadly;
     }
 
     [[gnu::always_inline, nodiscard]] const sf::Vector2f& getVertexPos(
         const int vertexIndex) const noexcept
     {
-        return vertexPositions[vertexIndex];
+        return _vertexPositions[vertexIndex];
     }
 
     [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
     getVertexPositions() const noexcept
     {
-        return vertexPositions;
+        return _vertexPositions;
     }
 
     [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
     getOldVertexPositions() const noexcept
     {
-        return oldVertexPositions;
+        return _oldVertexPositions;
     }
 
     [[gnu::always_inline, nodiscard]] bool getCanCollide() const noexcept
     {
-        return flags[CWFlags::Collision];
+        return _flags[CWFlags::Collision];
     }
 
     [[gnu::always_inline, nodiscard]] bool getDeadly() const noexcept
     {
-        return flags[CWFlags::Deadly];
+        return _flags[CWFlags::Deadly];
     }
 
     [[gnu::always_inline, nodiscard]] constexpr bool
@@ -131,18 +134,18 @@ public:
 
     [[gnu::always_inline]] void setKillingSide(const std::uint8_t side) noexcept
     {
-        killingSide = side;
+        _killingSide = side;
     }
 
     [[gnu::always_inline, nodiscard]] std::uint8_t
     getKillingSide() const noexcept
     {
-        return killingSide;
+        return _killingSide;
     }
 
     [[gnu::always_inline, nodiscard]] bool getOutOfPlayerRadius() const noexcept
     {
-        return outOfPlayerRadius;
+        return _outOfPlayerRadius;
     }
 };
 

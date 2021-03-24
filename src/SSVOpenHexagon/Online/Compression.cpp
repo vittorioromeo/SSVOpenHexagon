@@ -7,18 +7,17 @@
 #include <sstream>
 #include <cstring>
 
-using namespace std;
-
 namespace hg
 {
-string getZLibCompress(const string& mStr, int mCompressionlevel)
+
+std::string getZLibCompress(const std::string& mStr, int mCompressionlevel)
 {
     z_stream zs;
     std::memset(&zs, 0, sizeof(zs));
 
     if(deflateInit(&zs, mCompressionlevel) != Z_OK)
     {
-        throw(runtime_error("deflateInit failed while compressing."));
+        throw std::runtime_error("deflateInit failed while compressing.");
     }
 
     zs.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(mStr.data()));
@@ -26,7 +25,7 @@ string getZLibCompress(const string& mStr, int mCompressionlevel)
 
     int ret;
     char outbuffer[32768];
-    string outstring;
+    std::string outstring;
 
     do
     {
@@ -45,22 +44,22 @@ string getZLibCompress(const string& mStr, int mCompressionlevel)
 
     if(ret != Z_STREAM_END)
     {
-        ostringstream oss;
+        std::ostringstream oss;
         oss << "Exception during zlib compression: (" << ret << ") " << zs.msg;
-        throw(runtime_error(oss.str()));
+        throw std::runtime_error(oss.str());
     }
 
     return outstring;
 }
 
-string getZLibDecompress(const string& mStr)
+std::string getZLibDecompress(const std::string& mStr)
 {
     z_stream zs;
     std::memset(&zs, 0, sizeof(zs));
 
     if(inflateInit(&zs) != Z_OK)
     {
-        throw(runtime_error("inflateInit failed while decompressing."));
+        throw std::runtime_error("inflateInit failed while decompressing.");
     }
 
     zs.next_in = reinterpret_cast<Bytef*>(const_cast<char*>(mStr.data()));
@@ -68,7 +67,7 @@ string getZLibDecompress(const string& mStr)
 
     int ret;
     char outbuffer[32768];
-    string outstring;
+    std::string outstring;
 
     do
     {
@@ -87,12 +86,13 @@ string getZLibDecompress(const string& mStr)
 
     if(ret != Z_STREAM_END)
     {
-        ostringstream oss;
+        std::ostringstream oss;
         oss << "Exception during zlib decompression: (" << ret << ") "
             << zs.msg;
-        throw(runtime_error(oss.str()));
+        throw std::runtime_error(oss.str());
     }
 
     return outstring;
 }
+
 } // namespace hg

@@ -148,8 +148,8 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
     const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
         distance{bgTileRadius};
 
-    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
-    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> hexagon;
+    static Utils::FastVertexVectorTris vertices;
+    static Utils::FastVertexVectorTris hexagon;
 
     vertices.clear();
     hexagon.clear();
@@ -195,8 +195,8 @@ void StyleData::drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
     const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
         distance{bgTileRadius}, hexagonRadius{fourByThree ? 75.f : 100.f};
 
-    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
-    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> hexagon;
+    static Utils::FastVertexVectorTris vertices;
+    static Utils::FastVertexVectorTris hexagon;
 
     vertices.clear();
     hexagon.clear();
@@ -252,8 +252,8 @@ sf::Color StyleData::getCapColorResult() const noexcept
         [this](CapColorMode::Main) { return getMainColor(); }, //
         [this](CapColorMode::MainDarkened) {
             return Utils::getColorDarkened(getMainColor(), 1.4f);
-        },                                                             //
-        [this](CapColorMode::ByIndex x) { return getColor(x.index); }, //
+        },                                                              //
+        [this](CapColorMode::ByIndex x) { return getColor(x._index); }, //
         [this](ColorData data) { return calculateColor(data); });
 }
 

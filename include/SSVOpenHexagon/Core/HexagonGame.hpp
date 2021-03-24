@@ -486,11 +486,15 @@ private:
     }
 
 public:
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTris;
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads3D;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris3D;
+    void performPlayerSwap(const bool playSound);
+    void performPlayerKill();
+
+public:
+    Utils::FastVertexVectorQuads wallQuads;
+    Utils::FastVertexVectorTris playerTris;
+    Utils::FastVertexVectorTris capTris;
+    Utils::FastVertexVectorQuads wallQuads3D;
+    Utils::FastVertexVectorTris playerTris3D;
 
     MenuGame* mgPtr;
 

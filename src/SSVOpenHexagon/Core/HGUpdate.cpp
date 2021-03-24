@@ -14,11 +14,7 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 
-using namespace std;
-using namespace sf;
-using namespace ssvs;
-using namespace ssvu;
-using namespace hg::Utils;
+#include <optional>
 
 namespace hg
 {
@@ -113,7 +109,7 @@ void HexagonGame::update(ssvu::FT mFT)
         // ------------------------------------------------------------------------
         if(status.started)
         {
-            player.update(*this, mFT);
+            player.update(getInputFocused(), getLevelStatus().swapEnabled, mFT);
 
             if(!status.hasDied)
             {
@@ -124,10 +120,19 @@ void HexagonGame::update(ssvu::FT mFT)
 
                 if(!preventPlayerInput.has_value() || !(*preventPlayerInput))
                 {
-                    if(player.updateInput(*this, mFT))
+                    player.updateInputMovement(getInputMovement(),
+                        getPlayerSpeedMult(), getInputFocused(), mFT);
+
+                    if(getLevelStatus().swapEnabled && getInputSwap() &&
+                        player.isReadyToSwap())
                     {
-                        // Player successfully swapped.
-                        // TODO: document and cleanup
+                        performPlayerSwap(true /* mPlaySound */);
+                        player.resetSwap(getSwapCooldown());
+                        player.setJustSwapped(true);
+                    }
+                    else
+                    {
+                        player.setJustSwapped(false);
                     }
                 }
 
@@ -164,7 +169,7 @@ void HexagonGame::update(ssvu::FT mFT)
                     styleData.update(mFT, pow(difficultyMult, 0.8f));
                 }
 
-                player.updatePosition(*this, mFT);
+                player.updatePosition(getRadius());
 
                 updateWalls(mFT);
                 ssvu::eraseRemoveIf(
@@ -240,7 +245,7 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 
     for(CWall& w : walls)
     {
-        w.update(*this, centerPos, mFT);
+        w.update(levelStatus.wallSpawnDistance, getRadius(), centerPos, mFT);
 
         // Broad-phase AABB collision optimization.
         w.updateOutOfPlayerRadius(pPos);
@@ -254,12 +259,13 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         // Kill after a swap or if player could not be pushed out to safety.
         if(player.getJustSwapped())
         {
-            player.kill(*this);
+            performPlayerKill();
             steamManager.unlock_achievement("a22_swapdeath");
         }
-        else if(player.push(*this, w, centerPos, radiusSquared, mFT))
+        else if(player.push(getInputMovement(), getRadius(), w, centerPos,
+                    radiusSquared, mFT))
         {
-            player.kill(*this);
+            performPlayerKill();
         }
 
         collided = true;
@@ -284,15 +290,20 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
             steamManager.unlock_achievement("a22_swapdeath");
         }
 
-        player.kill(*this);
+        performPlayerKill();
     }
 }
 
 void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 {
-    if(cwManager.handleCollision(*this, player, mFT))
+    if(cwManager.handleCollision(getInputMovement(), getRadius(), player, mFT))
     {
-        steamManager.unlock_achievement("a22_swapdeath");
+        performPlayerKill();
+
+        if(player.getJustSwapped())
+        {
+            steamManager.unlock_achievement("a22_swapdeath");
+        }
     }
 }
 
@@ -580,11 +591,11 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
     auto nextRotation(getRotationSpeed() * 10.f);
     if(status.fastSpin > 0)
     {
-        nextRotation +=
-            abs((getSmootherStep(0, levelStatus.fastSpin, status.fastSpin) /
-                    3.5f) *
-                17.f) *
-            getSign(nextRotation);
+        nextRotation += std::abs((Utils::getSmootherStep(0,
+                                      levelStatus.fastSpin, status.fastSpin) /
+                                     3.5f) *
+                                 17.f) *
+                        ssvu::getSign(nextRotation);
 
         status.fastSpin -= mFT;
     }
@@ -599,7 +610,7 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
         status.flashEffect -= 3 * mFT;
     }
 
-    status.flashEffect = getClamped(status.flashEffect, 0.f, 255.f);
+    status.flashEffect = ssvu::getClamped(status.flashEffect, 0.f, 255.f);
 
     for(auto i(0u); i < 4; ++i)
     {
@@ -858,28 +869,32 @@ void HexagonGame::postUpdateImguiLuaConsole()
     {
         const char* item = ilcCmdLog[i].c_str();
 
-        ImVec4 color;
-        bool has_color = false;
+        std::optional<ImVec4> color;
 
         if(std::strstr(item, "[error]"))
         {
             color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f);
-            has_color = true;
         }
         else if(std::strstr(item, "[lua]"))
         {
             color = ImVec4(0.4f, 1.0f, 0.4f, 1.0f);
-            has_color = true;
         }
         else if(std::strncmp(item, "# ", 2) == 0)
         {
             color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f);
-            has_color = true;
         }
 
-        if(has_color) ImGui::PushStyleColor(ImGuiCol_Text, color);
+        if(color.has_value())
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, *color);
+        }
+
         ImGui::TextUnformatted(item);
-        if(has_color) ImGui::PopStyleColor();
+
+        if(color.has_value())
+        {
+            ImGui::PopStyleColor();
+        }
     }
 
     ImGui::SetScrollHereY(1.0f);
@@ -916,7 +931,7 @@ void HexagonGame::postUpdateImguiLuaConsole()
         }
         else if(cmdString[0] == '?')
         {
-            const std::string rest = cmdString.substr(1);
+            const std::string rest = Utils::getRTrim(cmdString.substr(1));
             const std::string docs = getDocsForLuaFunction(rest);
             ilcCmdLog.emplace_back(docs);
         }

@@ -6,8 +6,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
-#include "SSVOpenHexagon/Components/CPlayer.hpp"
-#include "SSVOpenHexagon/Utils/SparseIntegerSet.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
@@ -20,7 +19,7 @@
 namespace hg
 {
 
-class HexagonGame;
+class CPlayer;
 
 class CCustomWallManager
 {
@@ -67,10 +66,10 @@ public:
     [[nodiscard]] bool isOverlappingPlayer(const CCustomWallHandle cwHandle);
 
     void clear();
-    void draw(HexagonGame& hexagonGame);
+    void draw(Utils::FastVertexVectorQuads& wallQuads);
 
     [[nodiscard]] bool handleCollision(
-        HexagonGame& mHexagonGame, CPlayer& mPlayer, ssvu::FT mFT);
+        const int movement, const float radius, CPlayer& mPlayer, ssvu::FT mFT);
 
     template <typename F>
     void forCustomWalls(F&& f)
