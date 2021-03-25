@@ -130,6 +130,7 @@ list(REMOVE_ITEM SRC_LIST ${MAIN_FILE})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
+vrm_cmake_include_vc_dependency_once(vc_detection)
 vrm_cmake_add_common_compiler_flags()
 
 vrm_cmake_find_extlib(vrm_pp)
