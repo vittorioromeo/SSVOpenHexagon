@@ -254,7 +254,7 @@ end
 -- Returns a random value between minimum and maximum, but is a floating point
 -- number.
 function randomFloat(minimum, maximum)
-    return math.random() * (maximum - minimum) + minimum;
+    return u_rndReal() * (maximum - minimum) + minimum;
 end
 
 -- Takes in a number value and follows true rounding rules.
@@ -266,7 +266,7 @@ end
 -- "Shuffles" an array by swapping elements randomly across a table.
 function shuffle(t)
     for i = #t, 3, -1 do
-        local j = math.random(i - 1)
+        local j = u_rndIntUpper(i - 1)
         t[i], t[j] = t[j], t[i]
     end
 end

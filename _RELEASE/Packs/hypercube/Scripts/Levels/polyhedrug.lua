@@ -10,10 +10,10 @@ incrementTime = 10
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-        if mKey == 0 then pTrapBarrage(math.random(0, l_getSides()))
-    elseif mKey == 1 then pTrapBarrageDouble(math.random(0, l_getSides()))
-    elseif mKey == 2 then pTrapBarrageInverse(math.random(0, l_getSides()))
-    elseif mKey == 3 then pTrapBarrageAlt(math.random(0, l_getSides()))
+        if mKey == 0 then pTrapBarrage(u_rndInt(0, l_getSides()))
+    elseif mKey == 1 then pTrapBarrageDouble(u_rndInt(0, l_getSides()))
+    elseif mKey == 2 then pTrapBarrageInverse(u_rndInt(0, l_getSides()))
+    elseif mKey == 3 then pTrapBarrageAlt(u_rndInt(0, l_getSides()))
     end
 end
 

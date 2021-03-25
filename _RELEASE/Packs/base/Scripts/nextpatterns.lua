@@ -82,7 +82,7 @@ end
 function pRCBarrage()
     local currentSides = l_getSides()
     local delay = getPerfectDelayDM(THICKNESS) * 3.7
-    local startSide = math.random(0, 10)
+    local startSide = u_rndInt(0, 10)
 
     for i = 0, currentSides - 2 do
         local currentSide = startSide + i
@@ -94,7 +94,7 @@ end
 function pRCBarrageDouble()
     local currentSides = l_getSides()
     local delay = getPerfectDelayDM(THICKNESS) * 3.7
-    local startSide = math.random(0, 10)
+    local startSide = u_rndInt(0, 10)
 
     for i = 0, currentSides - 2 do
         local currentSide = startSide + i
@@ -107,7 +107,7 @@ end
 function pRCBarrageSpin()
     local currentSides = l_getSides()
     local delay = getPerfectDelayDM(THICKNESS) * 3.7
-    local startSide = math.random(0, 10)
+    local startSide = u_rndInt(0, 10)
     local loopDir = getRandomDir()
 
     for j = 0, 2 do
@@ -123,11 +123,11 @@ end
 function pACBarrage()
     local currentSides = l_getSides()
     local delay = getPerfectDelayDM(THICKNESS) * 3.7
-    local startSide = math.random(0, 10)
+    local startSide = u_rndInt(0, 10)
 
     for i = 0, currentSides - 2 do
         local currentSide = startSide + i
-        wallSAcc(currentSide, 9 + math.random(0, 1), -1.1, 1, 12)
+        wallSAcc(currentSide, 9 + u_rndInt(0, 1), -1.1, 1, 12)
     end
     t_wait(delay * 2.5)
 end
@@ -135,7 +135,7 @@ end
 function pACBarrageMulti()
     local currentSides = l_getSides()
     local delay = getPerfectDelayDM(THICKNESS) * 3.7
-    local startSide = math.random(0, 10)
+    local startSide = u_rndInt(0, 10)
 
     for i = 0, currentSides - 2 do
         local currentSide = startSide + i
@@ -151,7 +151,7 @@ function pACBarrageMultiAltDir()
     local currentSides = l_getSides()
     local delay = getPerfectDelayDM(THICKNESS) * 4
     local mdiff = 1 + math.abs(1 - u_getDifficultyMult())
-    local startSide = math.random(0, 10)
+    local startSide = u_rndInt(0, 10)
     local loopDir = getRandomDir()
 
     for i = 0, currentSides + getHalfSides() do

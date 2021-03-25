@@ -10,12 +10,12 @@ function addPattern(mKey)
         mKey = 5
     end
 
-        if mKey == 0 then pAltBarrage(math.random(2, 4), 2)
-    elseif mKey == 1 then pMirrorSpiral(math.random(2, 5), getHalfSides() - 3)
-    elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
+        if mKey == 0 then pAltBarrage(u_rndInt(2, 4), 2)
+    elseif mKey == 1 then pMirrorSpiral(u_rndInt(2, 5), getHalfSides() - 3)
+    elseif mKey == 2 then pBarrageSpiral(u_rndInt(0, 3), 1, 1)
     elseif mKey == 3 then pInverseBarrage(0)
-    elseif mKey == 4 then pTunnel(math.random(1, 3))
-    elseif mKey == 5 then pSpiral(l_getSides() * math.random(1, 2), 0)
+    elseif mKey == 4 then pTunnel(u_rndInt(1, 3))
+    elseif mKey == 5 then pSpiral(l_getSides() * u_rndInt(1, 2), 0)
     end
 end
 

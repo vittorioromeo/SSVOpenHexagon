@@ -72,7 +72,7 @@ end
 -- onStep should contain your pattern spawning logic
 function onStep()
     if special == "incongruence" then
-        l_setSides(math.random(4, 5))
+        l_setSides(u_rndInt(4, 5))
     else
         l_setSides(4)
     end

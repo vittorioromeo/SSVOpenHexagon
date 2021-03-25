@@ -5,12 +5,12 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-        if mKey == 0 then cWallEx(math.random(0, l_getSides()), math.random(1, 2)) t_wait(getPerfectDelay(THICKNESS) * 2.5)
-    elseif mKey == 1 then pMirrorSpiralDouble(math.random(1, 2), 4)
-    elseif mKey == 2 then rWallEx(math.random(0, l_getSides()), math.random(1, 2)) t_wait(getPerfectDelay(THICKNESS) * 2.8)
+        if mKey == 0 then cWallEx(u_rndInt(0, l_getSides()), u_rndInt(1, 2)) t_wait(getPerfectDelay(THICKNESS) * 2.5)
+    elseif mKey == 1 then pMirrorSpiralDouble(u_rndInt(1, 2), 4)
+    elseif mKey == 2 then rWallEx(u_rndInt(0, l_getSides()), u_rndInt(1, 2)) t_wait(getPerfectDelay(THICKNESS) * 2.8)
     elseif mKey == 3 then pMirrorWallStrip(1, 2)
-    elseif mKey == 4 then rWallEx(math.random(0, l_getSides()), 1) t_wait(getPerfectDelay(THICKNESS) * 2.3)
-    elseif mKey == 5 then cWallEx(math.random(0, l_getSides()), 7) t_wait(getPerfectDelay(THICKNESS) * 2.7)
+    elseif mKey == 4 then rWallEx(u_rndInt(0, l_getSides()), 1) t_wait(getPerfectDelay(THICKNESS) * 2.3)
+    elseif mKey == 5 then cWallEx(u_rndInt(0, l_getSides()), 7) t_wait(getPerfectDelay(THICKNESS) * 2.7)
     end
 end
 

@@ -25,13 +25,13 @@ function slitherSpiralAcc()
     t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
     local side = getRandomSide()
 
-    local acc = math.random(50, 90) / 500.0 * getRandomDir()
-    local minimum = math.random(15, 21) / 10.0 * -1
+    local acc = u_rndInt(50, 90) / 500.0 * getRandomDir()
+    local minimum = u_rndInt(15, 21) / 10.0 * -1
     local maximum = -minimum
 
     t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 
-    for i = 0, math.random(6, 10) do
+    for i = 0, u_rndInt(6, 10) do
         hmcSimpleSpinnerSAcc(side, 0, acc, minimum, maximum, true)
         t_wait(getPerfectDelay(THICKNESS) * 0.55)
     end
@@ -85,7 +85,7 @@ end
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()
-    l_setSides(math.random(smin, smax) * 2)
+    l_setSides(u_rndInt(smin, smax) * 2)
     slitherSpiralAcc()
 end
 
