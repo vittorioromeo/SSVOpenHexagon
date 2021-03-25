@@ -206,11 +206,11 @@ void HexagonGame::updateLevelInfo()
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-    ssvs::GameWindow& mGameWindow)
+    ssvs::GameWindow& mGameWindow, const bool mPrintLuaDocs)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), window(mGameWindow),
       player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()},
-      fpsWatcher(window)
+      fpsWatcher(window), mustPrintLuaDocs{mPrintLuaDocs}
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
 
@@ -824,8 +824,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
         std::string localValidator{
             Utils::getLocalValidator(levelData->id, difficultyMult)};
 
-        // TODO: this crashes when going back to menu from replay drag and
-        // drop
+        // TODO: this crashes when going back to menu from replay drag and drop
         if(assets.getLocalScore(localValidator) < score)
         {
             assets.setLocalScore(localValidator, score);
