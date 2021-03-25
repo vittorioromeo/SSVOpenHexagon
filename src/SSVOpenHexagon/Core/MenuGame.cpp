@@ -13,6 +13,7 @@
 #include "SSVOpenHexagon/Core/BindControl.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
+#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
@@ -583,7 +584,11 @@ void MenuGame::initLua()
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
 
     lua.writeVariable("u_execScript", [this](const std::string& mName) {
-        Utils::runLuaFile(lua, levelData->packPath + "Scripts/" + mName);
+        const std::string context = execScriptPackPathContext.empty()
+                                        ? levelData->packPath.getStr()
+                                        : execScriptPackPathContext.back();
+
+        Utils::runLuaFile(lua, context + "Scripts/" + mName);
     });
 
     lua.writeVariable("u_execDependencyScript", //
@@ -598,6 +603,11 @@ void MenuGame::initLua()
             const PackData& dependencyData =
                 Utils::findDependencyPackDataOrThrow(assets, curPack,
                     mPackDisambiguator, mPackName, mPackAuthor);
+
+            execScriptPackPathContext.emplace_back(dependencyData.folderPath);
+
+            Utils::scope_guard sg{
+                [this] { execScriptPackPathContext.pop_back(); }};
 
             Utils::runLuaFile(
                 lua, dependencyData.folderPath + "Scripts/" + mScriptName);

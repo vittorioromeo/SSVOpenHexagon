@@ -71,12 +71,14 @@ private:
     ssvs::GameWindow& window;
     HexagonDialogBox dialogBox;
 
+    Lua::LuaContext lua;
+    std::vector<std::string> execScriptPackPathContext;
+
     //---------------------------------------
     // Initialization
 
     void initAssets();
     void initInput();
-    Lua::LuaContext lua;
     void initLua();
     void initMenus();
     void playLocally();

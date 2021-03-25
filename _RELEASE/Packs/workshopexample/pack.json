@@ -23,5 +23,18 @@
     "version": 1,
 
     // Priority of the pack in the pack selection list.
-    "priority": 0
+    "priority": 0,
+
+    // Packs can depend on other packs in order to reuse code.
+    "dependencies":
+    [
+        // To specify a dependency, exactly match the dependee's disambiguator,
+        // name, and author. Also, specify a minimum version.
+        {
+            "disambiguator": "ohvrvanilla",
+            "name": "base",
+            "author": "vittorio romeo",
+            "min_version": 1
+        }
+    ]
 }

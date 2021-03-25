@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 
@@ -94,7 +95,11 @@ void HexagonGame::initLua_Utils()
 
     addLuaFn("u_execScript", //
         [this](const std::string& mScriptName) {
-            runLuaFile(levelData->packPath + "Scripts/" + mScriptName);
+            const std::string context = execScriptPackPathContext.empty()
+                                            ? levelData->packPath.getStr()
+                                            : execScriptPackPathContext.back();
+
+            runLuaFile(context + "Scripts/" + mScriptName);
         })
         .arg("scriptFilename")
         .doc("Execute the script located at `<pack>/Scripts/$0`.");
@@ -106,6 +111,11 @@ void HexagonGame::initLua_Utils()
             const PackData& dependencyData =
                 Utils::findDependencyPackDataOrThrow(assets, getPackData(),
                     mPackDisambiguator, mPackName, mPackAuthor);
+
+            execScriptPackPathContext.emplace_back(dependencyData.folderPath);
+
+            Utils::scope_guard sg{
+                [this] { execScriptPackPathContext.pop_back(); }};
 
             runLuaFile(dependencyData.folderPath + "Scripts/" + mScriptName);
         })
