@@ -84,10 +84,10 @@ function mkVertWall(mAngle, mY, mYVel, mX)
     local x2, y2 = rotatePoint(ac, as, cx, cy, mAngle, px + width, py + height)
     local x3, y3 = rotatePoint(ac, as, cx, cy, mAngle, px, py + height)
 
-    cw_setVertexPos(cwHandle, 0, x0, y0)
-    cw_setVertexPos(cwHandle, 1, x1, y1)
-    cw_setVertexPos(cwHandle, 2, x2, y2)
-    cw_setVertexPos(cwHandle, 3, x3, y3)
+    cw_setVertexPos4(cwHandle, x0, y0,
+                               x1, y1,
+                               x2, y2,
+                               x3, y3)
 
     local fw = FloatingWall:new(cwHandle)
 
@@ -256,11 +256,7 @@ function onUpdate(mFrameTime)
             cw_destroy(v.cwHandle)
             return true
         else
-            cw_setVertexColor(v.cwHandle, 0, r, g, b, a)
-            cw_setVertexColor(v.cwHandle, 1, r, g, b, a)
-            cw_setVertexColor(v.cwHandle, 2, r, g, b, a)
-            cw_setVertexColor(v.cwHandle, 3, r, g, b, a)
-
+            cw_setVertexColor4Same(v.cwHandle, r, g, b, a)
             return false
         end
     end);
