@@ -1,43 +1,43 @@
 -- include useful files
-u_execScript("utils.lua")
-u_execScript("common.lua")
-u_execScript("commonpatterns.lua")
-u_execScript("nextpatterns.lua")
-u_execScript("evolutionpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "utils.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "common.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "nextpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "evolutionpatterns.lua")
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-	l_setSpeedMult(0.4)
-	l_setSpeedInc(0.0)
-	l_setRotationSpeed(0.0)
-	l_setRotationSpeedMax(0.0)
-	l_setRotationSpeedInc(0.0)
-	l_setDelayMult(0.5)
-	l_setDelayInc(0.0)
-	l_setFastSpin(71.0)
-	l_setSides(1024)
-	l_setSidesMin(1024)
-	l_setSidesMax(1024)
-	l_setIncTime(10000)
+    l_setSpeedMult(0.4)
+    l_setSpeedInc(0.0)
+    l_setRotationSpeed(0.0)
+    l_setRotationSpeedMax(0.0)
+    l_setRotationSpeedInc(0.0)
+    l_setDelayMult(0.5)
+    l_setDelayInc(0.0)
+    l_setFastSpin(71.0)
+    l_setSides(1024)
+    l_setSidesMin(1024)
+    l_setSidesMax(1024)
+    l_setIncTime(10000)
 
-	l_setWallSkewLeft(15)
+    l_setWallSkewLeft(15)
 
-	l_setPulseMin(75)
-	l_setPulseMax(75)
-	l_setPulseSpeed(0)
-	l_setPulseSpeedR(0)
-	l_setPulseDelayMax(6.8)
+    l_setPulseMin(75)
+    l_setPulseMax(75)
+    l_setPulseSpeed(0)
+    l_setPulseSpeedR(0)
+    l_setPulseDelayMax(6.8)
 
-	l_setBeatPulseMax(20)
-	l_setBeatPulseDelayMax(26.1)
+    l_setBeatPulseMax(20)
+    l_setBeatPulseDelayMax(26.1)
 
-	l_setSwapEnabled(true)
+    l_setSwapEnabled(true)
     l_setTutorialMode(true)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	e_messageAdd("remember, swap with spacebar!", 120)
+    e_messageAdd("remember, swap with spacebar!", 120)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

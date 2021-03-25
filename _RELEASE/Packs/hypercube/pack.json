@@ -1,7 +1,17 @@
 {
-	"disambiguator": "ohvrvanilla",
-	"name": "hypercube",
-	"author": "vittorio romeo",
-	"version": 1,
-	"priority": -99999.01
+    "disambiguator": "ohvrvanilla",
+    "name": "hypercube",
+    "author": "vittorio romeo",
+    "version": 1,
+    "priority": -99999.01,
+
+    "dependencies":
+    [
+        {
+            "disambiguator": "ohvrvanilla",
+            "name": "base",
+            "author": "vittorio romeo",
+            "min_version": 1
+        }
+    ]
 }

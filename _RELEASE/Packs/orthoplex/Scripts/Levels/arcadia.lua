@@ -1,9 +1,9 @@
 -- include useful files
-u_execScript("utils.lua")
-u_execScript("common.lua")
-u_execScript("commonpatterns.lua")
-u_execScript("nextpatterns.lua")
-u_execScript("evolutionpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "utils.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "common.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "nextpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "evolutionpatterns.lua")
 
 FloatingWall = {}
 FloatingWall.__index = FloatingWall
@@ -347,13 +347,13 @@ function onInit()
         l_setSwapCooldownMult(0.8)
         waitTime = 2.5
     elseif u_getDifficultyMult() >= 1.49 then
-		l_setSwapCooldownMult(0.9)
+        l_setSwapCooldownMult(0.9)
         waitTime = 2.75
     elseif u_getDifficultyMult() <= 0.51 then
         l_setSwapCooldownMult(0.8)
         waitTime = 6
         gapMod = 75
-	end
+    end
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -368,12 +368,12 @@ function onStep()
     addPattern(keys[index])
     t_wait(waitTime * 3)
 
-	index = index + 1
+    index = index + 1
 
-	if index - 1 == #keys then
-		index = 1
-		shuffle(keys)
-	end
+    if index - 1 == #keys then
+        index = 1
+        shuffle(keys)
+    end
 end
 
 nIncrement = 0
@@ -417,30 +417,9 @@ end
 function onUnload()
 end
 
--- TODO: move to utils
--- From: https://stackoverflow.com/questions/12394841/
-function ArrayRemove(t, fnRemove)
-    local j, n = 1, #t;
-
-    for i=1,n do
-        if (not fnRemove(t, i, j)) then
-            -- Move i's kept value to j's position, if it's not already there.
-            if (i ~= j) then
-                t[j] = t[i];
-                t[i] = nil;
-            end
-            j = j + 1; -- Increment position of where we'll place the next kept value.
-        else
-            t[i] = nil;
-        end
-    end
-
-    return t;
-end
-
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
-    ArrayRemove(floatingWalls, function(t, i, j)
+    ArrayRemoveIf(floatingWalls, function(t, i, j)
         local v = t[i]
         if v.dead then
             cw_destroy(v.cwHandle)

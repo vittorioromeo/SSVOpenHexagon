@@ -1,12 +1,12 @@
 {
-	"id": "cw",
-	"name": "cw",
-	"description": "test",
-	"author": "vittorio romeo",
-	"menuPriority": 10,
-	"selectable": true,
-	"styleId": "cw",
-	"musicId": "jackRussel",
-	"luaFile": "Scripts/Levels/cw.lua",
-	"difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
+    "id": "cw",
+    "name": "cw",
+    "description": "test",
+    "author": "vittorio romeo",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "cw",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/cw.lua",
+    "difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
 }

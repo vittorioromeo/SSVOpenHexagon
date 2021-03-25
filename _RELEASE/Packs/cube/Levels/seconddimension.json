@@ -1,12 +1,12 @@
 {
-	"id": "seconddimension",
-	"name": "second dimension",
-	"description": "hard level of difficulty",
-	"author": "vittorio romeo",
-	"menuPriority": 30,
-	"selectable": true,
-	"styleId": "seconddimension",
-	"musicId": "mazeOfMayonnaise",
-	"luaFile": "Scripts/Levels/seconddimension.lua",
-	"difficultyMults": [1.4, 0.75, 0.6, 1.8, 2.2]
+    "id": "seconddimension",
+    "name": "second dimension",
+    "description": "hard level of difficulty",
+    "author": "vittorio romeo",
+    "menuPriority": 30,
+    "selectable": true,
+    "styleId": "seconddimension",
+    "musicId": "mazeOfMayonnaise",
+    "luaFile": "Scripts/Levels/seconddimension.lua",
+    "difficultyMults": [1.4, 0.75, 0.6, 1.8, 2.2]
 }

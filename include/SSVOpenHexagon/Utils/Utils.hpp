@@ -266,7 +266,7 @@ inline const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     {
         throw std::runtime_error(
             Utils::concat("Pack with disambiguator '", mPackDisambiguator,
-                "', name '", mPackName, " author: '", mPackAuthor,
+                "', name '", mPackName, "', author: '", mPackAuthor,
                 "' is not a dependency of '", currentPack.name, "'\n"));
     }
 
@@ -279,7 +279,7 @@ inline const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     {
         throw std::runtime_error(
             Utils::concat("Could not find dependency pack with disambiguator '",
-                mPackDisambiguator, "', name '", mPackName, " author: '",
+                mPackDisambiguator, "', name '", mPackName, "', author: '",
                 mPackAuthor, "'\n"));
     }
 
@@ -287,7 +287,7 @@ inline const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     {
         throw std::runtime_error(
             Utils::concat("Dependency pack with disambiguator '",
-                mPackDisambiguator, "', name '", mPackName, " author: '",
+                mPackDisambiguator, "', name '", mPackName, "', author: '",
                 mPackAuthor, "' has version '", dependencyData->version,
                 "' but at least '", depIt->minVersion, "' is required\n"));
     }

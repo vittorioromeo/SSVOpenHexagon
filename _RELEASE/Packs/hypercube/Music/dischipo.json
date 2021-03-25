@@ -1,20 +1,20 @@
 {
-	// Music data id
-	"id": "dischipo",
+    // Music data id
+    "id": "dischipo",
 
-	// Music file
-	"file_name": "gmoomh.ogg",
+    // Music file
+    "file_name": "gmoomh.ogg",
 
-	// Music information
-	"name": "Dischipo",
-	"album": "",
-	"author": "Fantomenk",
+    // Music information
+    "name": "Dischipo",
+    "album": "",
+    "author": "Fantomenk",
 
-	// Segments
-	"segments":
-	[
-		{ "time": 15.172 },
-		{ "time": 52.967 },
-		{ "time": 126.668 }
-	]
+    // Segments
+    "segments":
+    [
+        { "time": 15.172 },
+        { "time": 52.967 },
+        { "time": 126.668 }
+    ]
 }
