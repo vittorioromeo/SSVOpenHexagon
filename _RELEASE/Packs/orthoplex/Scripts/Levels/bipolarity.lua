@@ -58,9 +58,7 @@ function toRad(x)
 end
 
 function mkVertWall(mAngle, mY, mYVel, mX)
-    local cwHandle = cw_create()
-    cw_setDeadly(cwHandle, true)
-    cw_setCollision(cwHandle, true)
+    local cwHandle = cw_createDeadly()
 
     mAngle = toRad(mAngle)
 

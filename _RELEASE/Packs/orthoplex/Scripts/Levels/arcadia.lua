@@ -21,28 +21,28 @@ end
 
 function FloatingWall:move(mFrameTime)
     for i=0,3 do
-        local oldX,oldY = cw_getVertexPos(self.cwHandle, i)
+        local oldX, oldY = cw_getVertexPos(self.cwHandle, i)
 
         if oldX < -1500 or oldX > 1500 or oldY < -1500 or oldY > 1500 then
             self.dead = true
             return
         end
+    end
 
-        cw_setVertexPos(self.cwHandle, i, oldX + self.velocity_x * mFrameTime, oldY + self.velocity_y * mFrameTime)
+    cw_addVertexPos4Same(self.cwHandle, self.velocity_x * mFrameTime,
+                                        self.velocity_y * mFrameTime)
 
-        if self.wobbly == true then
-            self.velocity_y = self.velocity_y + (self.dir * 0.10 * mFrameTime)
+    if self.wobbly == true then
+        self.velocity_y = self.velocity_y + ((self.dir * 0.10 * mFrameTime) * 4.0)
 
-            if self.velocity_y >= 3 or self.velocity_y <= - 3 then
-                self.dir = self.dir * -1
-            end
+        if self.velocity_y >= 3 or self.velocity_y <= - 3 then
+            self.dir = self.dir * -1
         end
     end
 end
 
 function mkVertWall(mY, mYVel, mX)
-    local cwHandle = cw_create()
-    cw_setDeadly(cwHandle, true)
+    local cwHandle = cw_createDeadly()
 
     local x = mX
     local y = mY
@@ -71,8 +71,7 @@ function mkVertWall(mY, mYVel, mX)
 end
 
 function mkHalfHorizWall(mInv, mY, color, mXVel, mX)
-    local cwHandle = cw_create()
-    cw_setDeadly(cwHandle, true)
+    local cwHandle = cw_createDeadly()
 
     local x = mX
     local y = mY
