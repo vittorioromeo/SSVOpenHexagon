@@ -24,14 +24,25 @@ template <sf::PrimitiveType TPrimitive>
 struct FastVertexVector : public sf::Drawable
 {
 private:
-    std::unique_ptr<sf::Vertex[]> _data{nullptr};
+    union VertexUnion
+    {
+        // To avoid invoking the default constructor of `sf::Vertex` when
+        // resizing the dynamic array.
+        sf::Vertex _v;
+        VertexUnion() { }
+    };
+
+    static_assert(sizeof(VertexUnion) == sizeof(sf::Vertex));
+    static_assert(alignof(VertexUnion) == alignof(sf::Vertex));
+
+    std::unique_ptr<VertexUnion[]> _data{nullptr};
     std::size_t _size{};
     std::size_t _capacity{};
 
 public:
     [[gnu::always_inline]] void reserve_more(const std::size_t n)
     {
-        reserve(_size + n);
+        reserve(_size * 2 + n);
     }
 
     void reserve(const std::size_t n)
@@ -41,7 +52,7 @@ public:
             return;
         }
 
-        auto new_data = std::make_unique<sf::Vertex[]>(n);
+        auto new_data = std::make_unique<VertexUnion[]>(n);
 
         if(SSVU_UNLIKELY(_data != nullptr))
         {
@@ -92,7 +103,7 @@ public:
         SSVU_ASSERT(_size <= _capacity);
         SSVU_ASSERT(_data != nullptr);
 
-        new(&_data[_size++]) sf::Vertex{std::forward<Ts>(xs)...};
+        new(&_data[_size++]._v) sf::Vertex{std::forward<Ts>(xs)...};
     }
 
     template <typename... Ts>
@@ -102,7 +113,7 @@ public:
         SSVU_ASSERT(_size + sizeof...(positions) <= _capacity);
         SSVU_ASSERT(_data != nullptr);
 
-        ((new(&_data[_size++]) sf::Vertex{positions, color}), ...);
+        ((new(&_data[_size++]._v) sf::Vertex{positions, color}), ...);
     }
 
     void draw(sf::RenderTarget& mRenderTarget,
@@ -115,7 +126,9 @@ public:
             return;
         }
 
-        mRenderTarget.draw(_data.get(), _size, TPrimitive, mRenderStates);
+        // UB:
+        mRenderTarget.draw(reinterpret_cast<sf::Vertex*>(_data.get()), _size,
+            TPrimitive, mRenderStates);
     }
 
     [[gnu::always_inline, nodiscard]] sf::Vertex& operator[](
@@ -124,7 +137,7 @@ public:
         SSVU_ASSERT(i < _size);
         SSVU_ASSERT(_data != nullptr);
 
-        return _data[i];
+        return _data[i]._v;
     }
 
     [[gnu::always_inline, nodiscard]] const sf::Vertex& operator[](
@@ -133,7 +146,7 @@ public:
         SSVU_ASSERT(i < _size);
         SSVU_ASSERT(_data != nullptr);
 
-        return _data[i];
+        return _data[i]._v;
     }
 };
 
