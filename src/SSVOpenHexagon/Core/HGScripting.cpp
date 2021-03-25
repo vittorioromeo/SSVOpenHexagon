@@ -4,12 +4,14 @@
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <algorithm>
 
 namespace hg
 {
@@ -91,11 +93,30 @@ void HexagonGame::initLua_Utils()
         .doc("Print out `$0` to the console.");
 
     addLuaFn("u_execScript", //
-        [this](const std::string& mName) {
-            runLuaFile(levelData->packPath + "Scripts/" + mName);
+        [this](const std::string& mScriptName) {
+            runLuaFile(levelData->packPath + "Scripts/" + mScriptName);
         })
         .arg("scriptFilename")
         .doc("Execute the script located at `<pack>/Scripts/$0`.");
+
+    addLuaFn("u_execDependencyScript", //
+        [this](const std::string& mPackDisambiguator,
+            const std::string& mPackName, const std::string& mPackAuthor,
+            const std::string& mScriptName) {
+            const PackData& dependencyData =
+                Utils::findDependencyPackDataOrThrow(assets, getPackData(),
+                    mPackDisambiguator, mPackName, mPackAuthor);
+
+            runLuaFile(dependencyData.folderPath + "Scripts/" + mScriptName);
+        })
+        .arg("packDisambiguator")
+        .arg("packName")
+        .arg("packAuthor")
+        .arg("scriptFilename")
+        .doc(
+            "Execute the script provided by the dependee pack with "
+            "disambiguator `$0`, name `$1`, author `$2`, located at "
+            "`<dependeePack>/Scripts/$3`.");
 
     addLuaFn("u_isKeyPressed",
         [this](int mKey) { return window.getInputState()[ssvs::KKey(mKey)]; })

@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
@@ -25,6 +26,7 @@
 #include <cctype>
 #include <optional>
 #include <cctype>
+#include <stdexcept>
 
 namespace hg::Utils
 {
@@ -127,7 +129,7 @@ bool getLineCircleClosestIntersection(sf::Vector2f& mIntersection,
 
 MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);
 GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot);
-ProfileData loadProfileFromJson(HGAssets& mAssets, const ssvuj::Obj& mRoot);
+ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot);
 
 std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 
@@ -149,16 +151,20 @@ inline void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
     }
     catch(std::runtime_error& mError)
     {
-        ssvu::lo("hg::Utils::runLuaCode") << "Fatal lua error\n";
-        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << '\n';
-        ssvu::lo("hg::Utils::runLuaCode") << "Error: " << mError.what() << '\n'
+        ssvu::lo("hg::Utils::runLuaCode") << "Fatal Lua error\n"
+                                          << "Code: " << mCode << '\n'
+                                          << "Error: " << mError.what() << '\n'
                                           << std::endl;
+
+        throw;
     }
     catch(...)
     {
-        ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown lua error\n";
-        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << '\n';
-        ssvu::lo("hg::Utils::runLuaCode") << std::endl;
+        ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown Lua error\n"
+                                          << "Code: " << mCode << '\n'
+                                          << std::endl;
+
+        throw;
     }
 }
 
@@ -172,16 +178,20 @@ inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
     }
     catch(std::runtime_error& mError)
     {
-        ssvu::lo("hg::Utils::runLuaFile") << "Fatal lua error\n";
-        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << '\n';
-        ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << '\n'
+        ssvu::lo("hg::Utils::runLuaFile") << "Fatal Lua error\n"
+                                          << "Filename: " << mFileName << '\n'
+                                          << "Error: " << mError.what() << '\n'
                                           << std::endl;
+
+        throw;
     }
     catch(...)
     {
-        ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown lua error\n";
-        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << '\n';
-        ssvu::lo("hg::Utils::runLuaFile") << std::endl;
+        ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown Lua error\n"
+                                          << "Filename: " << mFileName << '\n'
+                                          << std::endl;
+
+        throw;
     }
 }
 
@@ -237,5 +247,52 @@ template <typename T1, typename T2, typename T3, typename T4>
            getSkewedVecFromRad(mRad, mRadius, mSkew);
 }
 
+inline const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
+    const PackData& currentPack, const std::string& mPackDisambiguator,
+    const std::string& mPackName, const std::string& mPackAuthor)
+{
+    const auto& dependencies = currentPack.dependencies;
+
+    // ------------------------------------------------------------------------
+    // Check if provided arguments are a dependency of current pack.
+    const auto depIt = std::find_if(dependencies.begin(), dependencies.end(),
+        [&](const PackDependency& pd) {
+            return pd.disambiguator == mPackDisambiguator && //
+                   pd.name == mPackName &&                   //
+                   pd.author == mPackAuthor;
+        });
+
+    if(depIt == dependencies.end())
+    {
+        throw std::runtime_error(
+            Utils::concat("Pack with disambiguator '", mPackDisambiguator,
+                "', name '", mPackName, " author: '", mPackAuthor,
+                "' is not a dependency of '", currentPack.name, "'\n"));
+    }
+
+    // ------------------------------------------------------------------------
+    // Find the pack data corresponding to the specified arguments.
+    const PackData* const dependencyData =
+        assets.findPackData(mPackDisambiguator, mPackName, mPackAuthor);
+
+    if(dependencyData == nullptr)
+    {
+        throw std::runtime_error(
+            Utils::concat("Could not find dependency pack with disambiguator '",
+                mPackDisambiguator, "', name '", mPackName, " author: '",
+                mPackAuthor, "'\n"));
+    }
+
+    if(dependencyData->version < depIt->minVersion)
+    {
+        throw std::runtime_error(
+            Utils::concat("Dependency pack with disambiguator '",
+                mPackDisambiguator, "', name '", mPackName, " author: '",
+                mPackAuthor, "' has version '", dependencyData->version,
+                "' but at least '", depIt->minVersion, "' is required\n"));
+    }
+
+    return *dependencyData;
+}
 
 } // namespace hg::Utils

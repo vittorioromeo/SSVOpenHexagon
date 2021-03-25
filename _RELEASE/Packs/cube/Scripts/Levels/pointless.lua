@@ -3,6 +3,8 @@ u_execScript("utils.lua")
 u_execScript("common.lua")
 u_execScript("commonpatterns.lua")
 
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "test.lua")
+
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
 	if mKey == 1 and l_getSides() == 5 then

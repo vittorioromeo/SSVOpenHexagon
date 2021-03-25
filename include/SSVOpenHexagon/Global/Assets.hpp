@@ -62,7 +62,9 @@ private:
         std::string id;
         ssvufs::Path path;
     };
+
     std::vector<PackInfo> packInfos;
+    std::vector<PackInfo> selectablePackInfos;
 
     std::map<std::string, MusicData> musicDataMap;
     std::map<std::string, StyleData> styleDataMap;
@@ -110,7 +112,7 @@ public:
 private:
     LoadInfo loadInfo;
 
-    LevelData& getEditLevelData(const std::string& mAssetId)
+    [[nodiscard]] LevelData& getEditLevelData(const std::string& mAssetId)
     {
         const auto it = levelDatas.find(mAssetId);
         if(it == levelDatas.end())
@@ -128,65 +130,102 @@ private:
 public:
     HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly = false);
 
-    LoadInfo& getLoadResults()
+    [[nodiscard]] LoadInfo& getLoadResults()
     {
         return loadInfo;
     }
 
-    auto& operator()()
+    [[nodiscard]] auto& operator()()
     {
         return assetManager;
     }
 
     template <typename T>
-    T& get(const std::string& mId)
+    [[nodiscard]] T& get(const std::string& mId)
     {
         return assetManager.get<T>(mId);
     }
 
-    const std::unordered_map<std::string, LevelData>& getLevelDatas()
+    [[nodiscard]] const std::unordered_map<std::string, LevelData>&
+    getLevelDatas()
     {
         return levelDatas;
     }
 
-    const LevelData& getLevelData(const std::string& mAssetId)
+    [[nodiscard]] const LevelData& getLevelData(const std::string& mAssetId)
     {
         return getEditLevelData(mAssetId);
     }
 
-    const LevelData& getLevelData(
+    [[nodiscard]] const LevelData& getLevelData(
         const std::string& mPackId, const std::string& mId)
     {
         return getLevelData(mPackId + "_" + mId);
     }
 
-    [[nodiscard]] bool checkLevelIDValidity(const std::string& mAssetId)
+    [[nodiscard]] bool packHasLevels(const std::string& mPackId)
     {
-        return levelDatas.find(mAssetId) != levelDatas.end();
+        return levelDataIdsByPack.count(mPackId) > 0;
     }
 
-    const std::vector<std::string>& getLevelIdsByPack(
+    [[nodiscard]] const std::vector<std::string>& getLevelIdsByPack(
         const std::string& mPackId)
     {
         SSVU_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
         return levelDataIdsByPack.at(mPackId);
     }
 
-    const std::unordered_map<std::string, PackData>& getPacksData()
+    [[nodiscard]] const std::unordered_map<std::string, PackData>&
+    getPacksData()
     {
         return packDatas;
     }
 
-    const PackData& getPackData(const std::string& mPackId)
+    [[nodiscard]] bool isValidPackId(const std::string& mPackId) const noexcept
     {
-        SSVU_ASSERT(packDatas.count(mPackId) > 0);
+        return packDatas.count(mPackId) > 0;
+    }
+
+    [[nodiscard]] const PackData& getPackData(const std::string& mPackId)
+    {
+        SSVU_ASSERT(isValidPackId(mPackId));
         return packDatas.at(mPackId);
     }
 
-    const std::vector<PackInfo>& getPackInfos()
+    [[nodiscard]] const std::vector<PackInfo>& getPackInfos() const noexcept
     {
         return packInfos;
     }
+
+    [[nodiscard]] const std::vector<PackInfo>&
+    getSelectablePackInfos() const noexcept
+    {
+        return selectablePackInfos;
+    }
+
+    [[nodiscard]] const std::unordered_map<std::string, PackData>&
+    getPackDatas() const noexcept
+    {
+        return packDatas;
+    }
+
+    [[nodiscard]] const PackData* findPackData(
+        const std::string& mPackDisambiguator, const std::string& mPackName,
+        const std::string& mPackAuthor) const noexcept
+    {
+        for(const auto& [packId, packData] : packDatas)
+        {
+            if(packData.disambiguator == mPackDisambiguator && //
+                packData.name == mPackName &&                  //
+                packData.author == mPackAuthor)
+            {
+                return &packData;
+            }
+        }
+
+        return nullptr;
+    }
+
 
     [[nodiscard]] bool loadAssets();
 
@@ -197,9 +236,9 @@ public:
     void loadCustomSounds(
         const std::string& mPackId, const ssvufs::Path& mPath);
 
-    const MusicData& getMusicData(
+    [[nodiscard]] const MusicData& getMusicData(
         const std::string& mPackId, const std::string& mId);
-    const StyleData& getStyleData(
+    [[nodiscard]] const StyleData& getStyleData(
         const std::string& mPackId, const std::string& mId);
 
     [[nodiscard]] std::string reloadPack(
@@ -216,28 +255,29 @@ public:
     void setCurrentLocalProfile(const std::string& mName);
 
     [[nodiscard]] bool anyLocalProfileActive() const;
-    ProfileData& getCurrentLocalProfile();
-    const ProfileData& getCurrentLocalProfile() const;
-    std::string getCurrentLocalProfileFilePath();
-    ProfileData* getLocalProfileByName(const std::string& mName);
-    const ProfileData* getLocalProfileByName(const std::string& mName) const;
+    [[nodiscard]] ProfileData& getCurrentLocalProfile();
+    [[nodiscard]] const ProfileData& getCurrentLocalProfile() const;
+    [[nodiscard]] std::string getCurrentLocalProfileFilePath();
+    [[nodiscard]] ProfileData* getLocalProfileByName(const std::string& mName);
+    [[nodiscard]] const ProfileData* getLocalProfileByName(
+        const std::string& mName) const;
     void createLocalProfile(const std::string& mName);
-    std::size_t getLocalProfilesSize();
-    std::vector<std::string> getLocalProfileNames();
-    std::string getFirstLocalProfileName();
+    [[nodiscard]] std::size_t getLocalProfilesSize();
+    [[nodiscard]] std::vector<std::string> getLocalProfileNames();
+    [[nodiscard]] std::string getFirstLocalProfileName();
 
-    bool pIsValidLocalProfile()
+    [[nodiscard]] bool pIsValidLocalProfile() const
     {
         return currentProfilePtr != nullptr;
     }
 
-    std::string pGetName() const
+    [[nodiscard]] std::string pGetName() const
     {
         assert(playingLocally); // TODO
         return getCurrentLocalProfile().getName();
     }
 
-    const std::vector<std::string>& pGetTrackedNames() const
+    [[nodiscard]] const std::vector<std::string>& pGetTrackedNames() const
     {
         assert(playingLocally); // TODO
         return getCurrentLocalProfile().getTrackedNames();
@@ -295,7 +335,7 @@ public:
         createLocalProfile(mName);
     }
 
-    bool pIsLocal() const
+    [[nodiscard]] bool pIsLocal() const
     {
         return playingLocally;
     }
@@ -319,12 +359,12 @@ public:
     void playMusic(const std::string& mPackId, const std::string& mId,
         sf::Time mPlayingOffset = sf::seconds(0));
 
-    ssvs::SoundPlayer& getSoundPlayer() noexcept
+    [[nodiscard]] ssvs::SoundPlayer& getSoundPlayer() noexcept
     {
         return soundPlayer;
     }
 
-    ssvs::MusicPlayer& getMusicPlayer() noexcept
+    [[nodiscard]] ssvs::MusicPlayer& getMusicPlayer() noexcept
     {
         return musicPlayer;
     }

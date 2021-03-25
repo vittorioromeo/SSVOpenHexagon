@@ -161,14 +161,14 @@ GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot)
         ssvuj::getExtr<int>(mRoot, "micro")};
 }
 
-ProfileData loadProfileFromJson(HGAssets& mAssets, const ssvuj::Obj& mRoot)
+ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
 {
     const GameVersion version =
         ssvuj::isObj("version")
             ? loadVersionFromJson(ssvuj::getObj(mRoot, "version"))
             : GameVersion{-1, 0, 0};
 
-    return {mAssets, version, ssvuj::getExtr<std::string>(mRoot, "name"),
+    return {version, ssvuj::getExtr<std::string>(mRoot, "name"),
         ssvuj::getObj(mRoot, "scores"),
         ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {}),
         ssvuj::getExtr<std::vector<std::string>>(mRoot, "favorites", {})};

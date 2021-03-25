@@ -51,7 +51,7 @@ public:
         ssvu::sort(difficultyMults);
     }
 
-    std::string getRootString() const
+    [[nodiscard]] std::string getRootString() const
     {
         return ssvuj::getWriteToString(root);
     }

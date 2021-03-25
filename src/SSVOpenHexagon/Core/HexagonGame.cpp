@@ -549,7 +549,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
     backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
 
-    // LUA context and game status cleanup
+    // Lua context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
 
     lua = Lua::LuaContext{};
@@ -925,25 +925,30 @@ void HexagonGame::setLevelData(
     return levelData->packId;
 }
 
+[[nodiscard]] const PackData& HexagonGame::getPackData() const noexcept
+{
+    return assets.getPackData(getPackId());
+}
+
 [[nodiscard]] const std::string&
 HexagonGame::getPackDisambiguator() const noexcept
 {
-    return assets.getPackData(getPackId()).disambiguator;
+    return getPackData().disambiguator;
 }
 
 [[nodiscard]] const std::string& HexagonGame::getPackAuthor() const noexcept
 {
-    return assets.getPackData(getPackId()).author;
+    return getPackData().author;
 }
 
 [[nodiscard]] const std::string& HexagonGame::getPackName() const noexcept
 {
-    return assets.getPackData(getPackId()).name;
+    return getPackData().name;
 }
 
 [[nodiscard]] int HexagonGame::getPackVersion() const noexcept
 {
-    return assets.getPackData(getPackId()).version;
+    return getPackData().version;
 }
 
 void HexagonGame::playLevelMusic()

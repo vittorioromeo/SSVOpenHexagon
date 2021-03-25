@@ -5,9 +5,18 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace hg
 {
+
+struct PackDependency
+{
+    std::string disambiguator;
+    std::string name;
+    std::string author;
+    int minVersion;
+};
 
 struct PackData
 {
@@ -19,6 +28,7 @@ struct PackData
     std::string description;
     int version;
     float priority;
+    std::vector<PackDependency> dependencies;
 };
 
 } // namespace hg
