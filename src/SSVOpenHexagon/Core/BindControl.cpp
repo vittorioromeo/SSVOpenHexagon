@@ -23,7 +23,7 @@ namespace hg
     decltype(combos.size()) i = 0;
     for(; i < combos.size(); ++i)
     {
-        if(combos[i].isUnbound())
+        if(combos.at(i).isUnbound())
         {
             break;
         }
@@ -69,7 +69,7 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::KKey key)
 
     for(int i = 0; i < sizeGetter(); ++i)
     {
-        if(combos[i].getKeys()[int(key) + 1])
+        if(combos.at(i).getKeys()[int(key) + 1])
         {
             waitingForBind = false;
             return true;
@@ -87,7 +87,7 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::MBtn btn)
 
     for(int i = 0; i < sizeGetter(); ++i)
     {
-        if(combos[i].getBtns()[int(btn) + 1])
+        if(combos.at(i).getBtns()[int(btn) + 1])
         {
             waitingForBind = false;
             return true;

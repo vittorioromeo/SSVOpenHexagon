@@ -24,12 +24,12 @@ public:
     {
     }
 
-    operator T&() noexcept
+    [[nodiscard]] operator T&() noexcept
     {
         return value;
     }
 
-    operator const T&() const noexcept
+    [[nodiscard]] operator const T&() const noexcept
     {
         return value;
     }
