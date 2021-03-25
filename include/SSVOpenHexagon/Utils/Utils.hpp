@@ -172,6 +172,15 @@ inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
 {
     std::ifstream s{mFileName};
 
+    if(!s)
+    {
+        const std::string errorStr = Utils::concat(
+            "Fatal Lua error\n", "Could not open file: ", mFileName, '\n');
+
+        ssvu::lo("hg::Utils::runLuaFile") << errorStr << std::endl;
+        throw std::runtime_error(errorStr);
+    }
+
     try
     {
         mLua.executeCode(s);

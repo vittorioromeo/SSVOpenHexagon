@@ -85,6 +85,8 @@ private:
     std::vector<std::string> ilcLuaTrackedResults;
     bool debugPause{false};
 
+    std::vector<std::string> execScriptPackPathContext;
+
 public:
     int ilcTextEditCallback(ImGuiInputTextCallbackData* data);
 
