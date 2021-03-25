@@ -171,28 +171,27 @@ set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
 "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so")
 endif()
 
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${zlib_SOURCE_DIR})
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${zlib_BINARY_DIR})
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${imgui_SOURCE_DIR})
+target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
+                                                    PUBLIC ${PUBLIC_INCLUDE_DIRS}
+                                                    PUBLIC ${zlib_SOURCE_DIR}
+                                                    PUBLIC ${zlib_BINARY_DIR}
+                                                    PUBLIC ${imgui_SOURCE_DIR})
 
-target_link_libraries(SSVOpenHexagonLib ${SFML_LIBRARIES})
-target_link_libraries(SSVOpenHexagonLib lua)
-target_link_libraries(SSVOpenHexagonLib zlib)
-target_link_libraries(SSVOpenHexagonLib ${PUBLIC_LIBRARIES})
-target_link_libraries(SSVOpenHexagonLib "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
-target_link_libraries(SSVOpenHexagonLib ImGui-SFML::ImGui-SFML)
+target_link_libraries(SSVOpenHexagonLib ${SFML_LIBRARIES}
+                                        lua
+                                        zlib
+                                        ${PUBLIC_LIBRARIES}
+                                        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll"
+                                        ImGui-SFML::ImGui-SFML)
 
 target_link_libraries(${PROJECT_NAME} SSVOpenHexagonLib)
 
-# TODO: reduce repetition of includes
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_SOURCE_DIR})
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${lua_SOURCE_DIR})
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${imgui_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
+                                                  PUBLIC ${PUBLIC_INCLUDE_DIRS}
+                                                  PUBLIC ${zlib_SOURCE_DIR}
+                                                  PUBLIC ${zlib_BINARY_DIR}
+                                                  PUBLIC ${lua_SOURCE_DIR}
+                                                  PUBLIC ${imgui_SOURCE_DIR})
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(SSVOpenHexagonLib pthread)
