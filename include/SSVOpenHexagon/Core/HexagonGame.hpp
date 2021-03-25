@@ -12,6 +12,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
@@ -243,7 +244,10 @@ private:
         }
         catch(...)
         {
-            death();
+            if(!Config::getDebug())
+            {
+                goToMenu(false /* mSendScores */, true /* mError */);
+            }
         }
     }
 
@@ -263,7 +267,7 @@ public:
         {
             std::cout << "[runLuaFunction] Runtime error on \"" << mName
                       << "\" with level \"" << levelData->name << "\": \n"
-                      << ssvu::toStr(mError.what()) << '\n'
+                      << mError.what() << '\n'
                       << std::endl;
 
             if(!Config::getDebug())
@@ -271,6 +275,19 @@ public:
                 goToMenu(false /* mSendScores */, true /* mError */);
             }
         }
+        catch(...)
+        {
+            std::cout << "[runLuaFunction] Unknown runtime error on \"" << mName
+                      << "\" with level \"" << levelData->name << "\": \n"
+                      << '\n'
+                      << std::endl;
+
+            if(!Config::getDebug())
+            {
+                goToMenu(false /* mSendScores */, true /* mError */);
+            }
+        }
+
         return T();
     }
 
@@ -286,7 +303,7 @@ public:
         {
             std::cout << "[runLuaFunctionIfExists] Runtime error on \"" << mName
                       << "\" with level \"" << levelData->name << "\": \n"
-                      << ssvu::toStr(mError.what()) << '\n'
+                      << mError.what() << '\n'
                       << std::endl;
 
             if(!Config::getDebug())
@@ -654,6 +671,7 @@ public:
     }
 
     // Pack information
+    [[nodiscard]] const PackData& getPackData() const noexcept;
     [[nodiscard]] const std::string& getPackId() const noexcept;
     [[nodiscard]] const std::string& getPackDisambiguator() const noexcept;
     [[nodiscard]] const std::string& getPackAuthor() const noexcept;

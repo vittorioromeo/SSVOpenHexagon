@@ -24,6 +24,7 @@
 #include <utility>
 #include <array>
 #include <string_view>
+#include <cassert>
 
 namespace hg
 {
@@ -342,7 +343,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     const auto [randomPack, randomLevel] = pickRandomMainMenuBackgroundStyle();
     lvlSlct.levelDataIds =
-        &assets.getLevelIdsByPack(assets.getPackInfos().at(randomPack).id);
+        &assets.getLevelIdsByPack(getNthSelectablePackInfo(randomPack).id);
     setIndex(randomLevel);
 
     // Setup for the loading menu
@@ -356,10 +357,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     // Set size of the level offsets vector to the minimum required
     unsigned int maxSize{0}, packSize;
-    for(size_t i{0}; i < getPackInfosSize(); ++i)
+    for(size_t i{0}; i < getSelectablePackInfosSize(); ++i)
     {
-        packSize =
-            assets.getLevelIdsByPack(assets.getPackInfos().at(i).id).size();
+        const std::string& packId = getNthSelectablePackInfo(i).id;
+
+        if(!assets.packHasLevels(packId))
+        {
+            continue;
+        }
+
+        packSize = assets.getLevelIdsByPack(packId).size();
         if(packSize > maxSize)
         {
             maxSize = packSize;
@@ -578,6 +585,23 @@ void MenuGame::initLua()
     lua.writeVariable("u_execScript", [this](const std::string& mName) {
         Utils::runLuaFile(lua, levelData->packPath + "Scripts/" + mName);
     });
+
+    lua.writeVariable("u_execDependencyScript", //
+        [this](const std::string& mPackDisambiguator,
+            const std::string& mPackName, const std::string& mPackAuthor,
+            const std::string& mScriptName) {
+            assert(lvlDrawer != nullptr);
+
+            const PackData& curPack{assets.getPackData(
+                getNthSelectablePackInfo(lvlDrawer->packIdx).id)};
+
+            const PackData& dependencyData =
+                Utils::findDependencyPackDataOrThrow(assets, curPack,
+                    mPackDisambiguator, mPackName, mPackAuthor);
+
+            Utils::runLuaFile(
+                lua, dependencyData.folderPath + "Scripts/" + mScriptName);
+        });
 
     lua.writeVariable("u_getDifficultyMult", [] { return 1; });
 
@@ -1071,7 +1095,7 @@ void MenuGame::initMenus()
         {
             lvlSlct.packIdx = diffMultIdx = 0;
             lvlSlct.levelDataIds =
-                &assets.getLevelIdsByPack(assets.getPackInfos().at(0).id);
+                &assets.getLevelIdsByPack(getNthSelectablePackInfo(0).id);
             setIndex(0);
         }
         changeStateTo(States::LevelSelection);
@@ -1136,10 +1160,19 @@ bool MenuGame::loadCommandLineLevel(
         return false;
     }
 
+    if(!assets.packHasLevels(packID))
+    {
+        ssvu::lo("hg::Menugame::MenuGame()")
+            << "Pack '" << pack
+            << "' has no levels, aborting boot level load\n";
+
+        return false;
+    }
+
     // Iterate through packInfos to find the menu pack index and the index
     // of the level.
     const std::string levelID{packID + "_" + level};
-    const auto& p{assets.getPackInfos()};
+    const auto& p{assets.getSelectablePackInfos()};
     const auto& levelsList{assets.getLevelIdsByPack(packID)};
 
     for(int i{0}; i < static_cast<int>(p.size()); ++i)
@@ -1231,14 +1264,21 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
     const std::string pickedLevel{levelIDs[ssvu::getRndI(0, levelIDs.size())]};
 
     // retrieve the level index location
-    const auto& p(assets.getPackInfos());
+    const auto& p(assets.getSelectablePackInfos());
     const std::vector<std::string>* levelsIDs;
 
     // store info main menu requires to set the color theme
     for(int i{0}; i < static_cast<int>(p.size()); ++i)
     {
-        levelsIDs = &assets.getLevelIdsByPack(p.at(i).id);
-        auto it = find(levelsIDs->begin(), levelsIDs->end(), pickedLevel);
+        const std::string& packId = p.at(i).id;
+
+        if(!assets.packHasLevels(packId))
+        {
+            continue;
+        }
+
+        levelsIDs = &assets.getLevelIdsByPack(packId);
+        auto it = std::find(levelsIDs->begin(), levelsIDs->end(), pickedLevel);
         if(it != levelsIDs->end())
         {
             return {i, it - levelsIDs->begin()};
@@ -1322,7 +1362,7 @@ void MenuGame::upAction()
         const int prevIdx{lvlDrawer->currentIndex - 1};
 
         // If there is only one pack behave differently.
-        if(getPackInfosSize() == 1)
+        if(getSelectablePackInfosSize() == 1)
         {
             // If we are at the top of the pack go to its end instead
             // and scroll the menu to show it.
@@ -1420,7 +1460,7 @@ void MenuGame::downAction()
         }
 
         const int nextIdx{lvlDrawer->currentIndex + 1};
-        if(getPackInfosSize() == 1)
+        if(getSelectablePackInfosSize() == 1)
         {
             if(nextIdx > ssvu::toInt(lvlDrawer->levelDataIds->size() - 1))
             {
@@ -1489,17 +1529,20 @@ void MenuGame::downAction()
 
 void MenuGame::changePack()
 {
-    const auto& p{assets.getPackInfos()};
+    const auto& p{assets.getSelectablePackInfos()};
 
     // Deduce the new packIdx.
     lvlSlct.packIdx =
         ssvu::getMod(lvlDrawer->packIdx + (packChangeDirection > 0 ? 1 : -1), 0,
             static_cast<int>(p.size()));
+
     // Load level ids relative to the new pack
     lvlSlct.levelDataIds =
         &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
+
     // Set the correct level index.
     setIndex(packChangeDirection == -2 ? lvlSlct.levelDataIds->size() - 1 : 0);
+
     // Reset all text scrolling.
     resetNamesScrolls();
 }
@@ -1533,9 +1576,10 @@ void MenuGame::changePackQuick(const int direction)
 
     // Height of the bottom of the pack label that is one index after the
     // current one.
-    scroll = packLabelHeight * std::min(lvlDrawer->packIdx + 2,
-                                   static_cast<int>(getPackInfosSize())) +
-             levelLabelHeight + 3.f * slctFrameSize;
+    scroll =
+        packLabelHeight * std::min(lvlDrawer->packIdx + 2,
+                              static_cast<int>(getSelectablePackInfosSize())) +
+        levelLabelHeight + 3.f * slctFrameSize;
 
     // If the height is outside the boundaries of the screen adjust offset to
     // show it.
@@ -1547,7 +1591,7 @@ void MenuGame::changePackQuick(const int direction)
 
 void MenuGame::changePackAction(const int direction)
 {
-    if(state != States::LevelSelection || getPackInfosSize() == 1 ||
+    if(state != States::LevelSelection || getSelectablePackInfosSize() == 1 ||
         packChangeState != PackChange::Rest)
     {
         return;
@@ -1692,7 +1736,7 @@ void MenuGame::okAction()
             resetNamesScrolls();
 
             window.setGameState(hexagonGame.getGame());
-            hexagonGame.newGame(assets.getPackInfos().at(lvlDrawer->packIdx).id,
+            hexagonGame.newGame(getNthSelectablePackInfo(lvlDrawer->packIdx).id,
                 lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), true,
                 ssvu::getByModIdx(diffMults, diffMultIdx),
                 false /* executeLastReplay */);
@@ -2080,6 +2124,7 @@ void MenuGame::update(ssvu::FT mFT)
 
                     // Change the pack
                     changePack();
+
                     // Set the stretch info
                     packChangeOffset = getLevelListHeight();
                     calcScrollSpeed();
@@ -2134,7 +2179,7 @@ void MenuGame::setIndex(const int mIdx)
     {
         isLevelFavorite = true;
 
-        const auto& p{assets.getPackInfos()};
+        const auto& p{assets.getSelectablePackInfos()};
 
         for(int i{0}; i < static_cast<int>(p.size()); ++i)
         {
@@ -2227,18 +2272,30 @@ void MenuGame::setIndex(const int mIdx)
     diffMults = levelData->difficultyMults;
     diffMultIdx = ssvu::idxOf(diffMults, 1);
 
-    Utils::runLuaFile(lua, levelData->luaScriptPath);
     try
     {
+        Utils::runLuaFile(lua, levelData->luaScriptPath);
         Utils::runLuaFunction<void>(lua, "onInit");
         Utils::runLuaFunction<void>(lua, "onLoad");
     }
     catch(std::runtime_error& mError)
     {
         std::cout << "[MenuGame::init] Runtime Lua error on menu "
-                     "(onInit/onLoad) with level \""
+                     "(loadFile/onInit/onLoad) with level \""
                   << levelData->name << "\": \n"
-                  << ssvu::toStr(mError.what()) << '\n'
+                  << mError.what() << '\n'
+                  << std::endl;
+
+        if(!Config::getDebug())
+        {
+            assets.playSound("error.ogg");
+        }
+    }
+    catch(...)
+    {
+        std::cout << "[MenuGame::init] Unknown runtime Lua error on menu "
+                     "(loadFile/onInit/onLoad) with level \""
+                  << levelData->name << "\"\n"
                   << std::endl;
 
         if(!Config::getDebug())
@@ -3355,9 +3412,10 @@ void MenuGame::updateLevelSelectionDrawingParameters()
 
 float MenuGame::getLevelSelectionHeight() const
 {
-    return packLabelHeight * getPackInfosSize() + getLevelListHeight() -
-           packChangeOffset +
-           (lvlDrawer->packIdx != static_cast<int>(getPackInfosSize()) - 1
+    return packLabelHeight * getSelectablePackInfosSize() +
+           getLevelListHeight() - packChangeOffset +
+           (lvlDrawer->packIdx !=
+                       static_cast<int>(getSelectablePackInfosSize()) - 1
                    ? 2.f
                    : 1.f) *
                slctFrameSize;
@@ -3464,7 +3522,7 @@ void MenuGame::calcLevelChangeScroll(const int dir)
     // If we are approaching the bottom of the pack show either the
     // last level label and the next pack label or two next pack labels...
     if(lvlDrawer->currentIndex >= size - 2 &&
-        actualPackIdx != static_cast<int>(getPackInfosSize()) - 1)
+        actualPackIdx != static_cast<int>(getSelectablePackInfosSize()) - 1)
     {
         scroll =
             packLabelHeight * (actualPackIdx + 1 +
@@ -3512,7 +3570,8 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
     if(packChangeDirection == -2)
     {
         // Scrolling for all packs except the last one of the list.
-        if(lvlDrawer->packIdx != static_cast<int>(getPackInfosSize()) - 1)
+        if(lvlDrawer->packIdx !=
+            static_cast<int>(getSelectablePackInfosSize()) - 1)
         {
             // Height of the top of the pack label of the current pack.
             scrollTop = packLabelHeight * lvlDrawer->packIdx;
@@ -3546,7 +3605,8 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
         }
 
         // Bottom of the pack label.
-        scrollTop = packLabelHeight * getPackInfosSize() + slctFrameSize;
+        scrollTop =
+            packLabelHeight * getSelectablePackInfosSize() + slctFrameSize;
         // Bottom of the level list.
         scrollBottom =
             scrollTop + std::max(0.f, mLevelListHeight - packChangeOffset);
@@ -3850,6 +3910,7 @@ void MenuGame::switchToFromFavoriteLevels()
     {
         changePack();
     }
+
     packChangeState = PackChange::Rest;
     lvlDrawer->YScrollTo = lvlDrawer->YOffset;
     packChangeOffset = 0.f;
@@ -3873,7 +3934,7 @@ void MenuGame::drawLevelSelectionRightSide(
         levelIndent{quadsIndent + outerFrame},
         panelOffset{
             calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
-    const auto& infos{assets.getPackInfos()};
+    const auto& infos{assets.getSelectablePackInfos()};
     int packsSize, levelsSize;
     if(drawer.isFavorites)
     {
@@ -4135,23 +4196,27 @@ void MenuGame::drawLevelSelectionLeftSide(
     LevelDrawer& drawer, const bool revertOffset)
 {
     constexpr float lineThickness{2.f};
+
     const PackData& curPack{
-        assets.getPackData(assets.getPackInfos()[drawer.packIdx].id)};
+        assets.getPackData(getNthSelectablePackInfo(drawer.packIdx).id)};
+
     const LevelData& levelData{
         assets.getLevelData(drawer.levelDataIds->at(drawer.currentIndex))};
 
-    const float maxPanelOffset{w * 0.33f},
-        panelOffset{
-            calcMenuOffset(levelDetailsOffset, maxPanelOffset, revertOffset)},
-        smallInterline{txtSelectionSmall.height * 1.5f},
-        smallLeftInterline{txtSelectionLSmall.height * 1.5f},
-        postTitleSpace{txtSelectionMedium.height +
-                       (smallLeftInterline - txtSelectionLSmall.height) -
-                       txtSelectionLSmall.height * fontTopBorder},
-        preLineSpace{txtSelectionMedium.height / 2.f +
-                     txtSelectionLSmall.height * (1.f + fontTopBorder)},
-        textXPos{textToQuadBorder - panelOffset},
-        textRightBorder{getMaximumTextWidth()};
+    const float maxPanelOffset{w * 0.33f};
+    const float panelOffset{
+        calcMenuOffset(levelDetailsOffset, maxPanelOffset, revertOffset)};
+    const float smallInterline{txtSelectionSmall.height * 1.5f};
+    const float smallLeftInterline{txtSelectionLSmall.height * 1.5f};
+    const float postTitleSpace{
+        txtSelectionMedium.height +
+        (smallLeftInterline - txtSelectionLSmall.height) -
+        txtSelectionLSmall.height * fontTopBorder};
+    const float preLineSpace{txtSelectionMedium.height / 2.f +
+                             txtSelectionLSmall.height * (1.f + fontTopBorder)};
+    const float textXPos{textToQuadBorder - panelOffset};
+    const float textRightBorder{getMaximumTextWidth()};
+
     float width{maxPanelOffset - panelOffset}, height{textToQuadBorder},
         tempFloat;
 

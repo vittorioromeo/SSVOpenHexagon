@@ -344,13 +344,20 @@ private:
     LevelDrawer* lvlDrawer{&lvlSlct};
 
     void changeFavoriteLevelsToProfile();
-    bool isFavoriteLevels() const
+
+    [[nodiscard]] bool isFavoriteLevels() const
     {
         return lvlDrawer->isFavorites;
     }
-    size_t getPackInfosSize() const
+
+    [[nodiscard]] std::size_t getSelectablePackInfosSize() const
     {
-        return isFavoriteLevels() ? 1 : assets.getPackInfos().size();
+        return isFavoriteLevels() ? 1 : assets.getSelectablePackInfos().size();
+    }
+
+    [[nodiscard]] const auto& getNthSelectablePackInfo(const std::size_t i)
+    {
+        return assets.getSelectablePackInfos().at(i);
     }
 
     int diffMultIdx{0};
