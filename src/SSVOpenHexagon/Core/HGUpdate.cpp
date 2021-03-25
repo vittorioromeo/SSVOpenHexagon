@@ -854,6 +854,8 @@ void HexagonGame::postUpdateImguiLuaConsole()
     {
         ilcShowConsole = !ilcShowConsole;
         ilcShowConsoleNext = false;
+
+        ImGui::SFML::ProcessEvent(sf::Event{sf::Event::GainedFocus});
     }
 
     if(!ilcShowConsole)
@@ -864,10 +866,9 @@ void HexagonGame::postUpdateImguiLuaConsole()
     ImGui::SFML::Update(window, ilcDeltaClock.restart());
 
     ImGui::SetNextWindowSize(ImVec2(600, 700), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Lua console");
+    ImGui::Begin("Lua Console");
 
     ImGui::Text("Enter `!help` to show help.");
-    ImGui::Text("ALT+TAB in and out of Open Hexagon if console has no focus.");
     ImGui::Separator();
 
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y +
