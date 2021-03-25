@@ -36,12 +36,18 @@ class CCustomWallManager
     [[nodiscard]] bool checkValidHandle(
         const CCustomWallHandle h, const char* msg);
 
+    [[nodiscard]] bool checkValidVertexIdx(
+        const CCustomWallHandle h, const int vertexIdx, const char* msg);
+
+    [[nodiscard]] bool checkValidVertexIdxAndHandle(
+        const CCustomWallHandle h, const int vertexIdx, const char* msg);
+
 public:
     [[nodiscard]] CCustomWallHandle create();
 
     void destroy(const CCustomWallHandle cwHandle);
 
-    void setVertexPos(const CCustomWallHandle cwHandle, const int vertexIndex,
+    void setVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
         const sf::Vector2f& pos);
 
     void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);
@@ -51,11 +57,20 @@ public:
     void setKillingSide(
         const CCustomWallHandle cwHandle, const std::uint8_t killingSide);
 
-    void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIndex,
+    void setVertexColor(const CCustomWallHandle cwHandle, const int vertexIdx,
         const sf::Color& color);
 
+    void setVertexPos4(const CCustomWallHandle cwHandle, const sf::Vector2f& p0,
+        const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Vector2f& p3);
+
+    void setVertexColor4(const CCustomWallHandle cwHandle, const sf::Color& c0,
+        const sf::Color& c1, const sf::Color& c2, const sf::Color& c3);
+
+    void setVertexColor4Same(
+        const CCustomWallHandle cwHandle, const sf::Color& color);
+
     [[nodiscard]] sf::Vector2f getVertexPos(
-        const CCustomWallHandle cwHandle, const int vertexIndex);
+        const CCustomWallHandle cwHandle, const int vertexIdx);
 
     [[nodiscard]] bool getCanCollide(const CCustomWallHandle cwHandle);
 
