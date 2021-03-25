@@ -37,6 +37,27 @@ namespace hg
     return true;
 }
 
+[[nodiscard]] bool CCustomWallManager::checkValidVertexIdx(
+    const CCustomWallHandle h, const int vertexIdx, const char* msg)
+{
+    if(vertexIdx < 0 || vertexIdx > 3)
+    {
+        ssvu::lo("CustomWallManager")
+            << "Invalid vertex index " << vertexIdx << " for custom wall " << h
+            << " while attempting to " << msg << '\n';
+
+        return false;
+    }
+
+    return true;
+}
+
+[[nodiscard]] bool CCustomWallManager::checkValidVertexIdxAndHandle(
+    const CCustomWallHandle h, const int vertexIdx, const char* msg)
+{
+    return checkValidVertexIdx(h, vertexIdx, msg) && checkValidHandle(h, msg);
+}
+
 [[nodiscard]] CCustomWallHandle CCustomWallManager::create()
 {
     if(_freeHandles.empty())
@@ -85,25 +106,15 @@ void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
 }
 
 void CCustomWallManager::setVertexPos(const CCustomWallHandle cwHandle,
-    const int vertexIndex, const sf::Vector2f& pos)
+    const int vertexIdx, const sf::Vector2f& pos)
 {
-    if(vertexIndex < 0 || vertexIndex > 3)
-    {
-        ssvu::lo("CustomWallManager")
-            << "Vertex index " << vertexIndex
-            << "out of bounds while attempting to set vertex position of "
-               "invalid custom wall "
-            << cwHandle << '\n';
-
-        return;
-    }
-
-    if(!checkValidHandle(cwHandle, "set vertex position"))
+    if(!checkValidVertexIdxAndHandle(
+           cwHandle, vertexIdx, "set vertex position"))
     {
         return;
     }
 
-    _customWalls[cwHandle].setVertexPos(vertexIndex, pos);
+    _customWalls[cwHandle].setVertexPos(vertexIdx, pos);
 }
 
 void CCustomWallManager::setCanCollide(
@@ -149,25 +160,15 @@ void CCustomWallManager::setKillingSide(
 }
 
 [[nodiscard]] sf::Vector2f CCustomWallManager::getVertexPos(
-    const CCustomWallHandle cwHandle, const int vertexIndex)
+    const CCustomWallHandle cwHandle, const int vertexIdx)
 {
-    if(vertexIndex < 0 || vertexIndex > 3)
-    {
-        ssvu::lo("CustomWallManager")
-            << "Vertex index " << vertexIndex
-            << "out of bounds while attempting to get vertex position of "
-               "invalid custom wall "
-            << cwHandle << '\n';
-
-        return sf::Vector2f{0.f, 0.f};
-    }
-
-    if(!checkValidHandle(cwHandle, "get vertex position"))
+    if(!checkValidVertexIdxAndHandle(
+           cwHandle, vertexIdx, "get vertex position"))
     {
         return sf::Vector2f{0.f, 0.f};
     }
 
-    return _customWalls[cwHandle].getVertexPos(vertexIndex);
+    return _customWalls[cwHandle].getVertexPos(vertexIdx);
 }
 
 [[nodiscard]] bool CCustomWallManager::getCanCollide(
@@ -204,25 +205,58 @@ void CCustomWallManager::setKillingSide(
 }
 
 void CCustomWallManager::setVertexColor(const CCustomWallHandle cwHandle,
-    const int vertexIndex, const sf::Color& color)
+    const int vertexIdx, const sf::Color& color)
 {
-    if(vertexIndex < 0 || vertexIndex > 3)
-    {
-        ssvu::lo("CustomWallManager")
-            << "Vertex index " << vertexIndex
-            << "out of bounds while attempting to set vertex position of "
-               "invalid custom wall "
-            << cwHandle << '\n';
-
-        return;
-    }
-
-    if(!checkValidHandle(cwHandle, "set vertex color"))
+    if(!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "set vertex color"))
     {
         return;
     }
 
-    _customWalls[cwHandle].setVertexColor(vertexIndex, color);
+    _customWalls[cwHandle].setVertexColor(vertexIdx, color);
+}
+
+void CCustomWallManager::setVertexPos4(const CCustomWallHandle cwHandle,
+    const sf::Vector2f& p0, const sf::Vector2f& p1, const sf::Vector2f& p2,
+    const sf::Vector2f& p3)
+{
+    if(!checkValidHandle(cwHandle, "set four vertex pos"))
+    {
+        return;
+    }
+
+    _customWalls[cwHandle].setVertexPos(0, p0);
+    _customWalls[cwHandle].setVertexPos(1, p1);
+    _customWalls[cwHandle].setVertexPos(2, p2);
+    _customWalls[cwHandle].setVertexPos(3, p3);
+}
+
+void CCustomWallManager::setVertexColor4(const CCustomWallHandle cwHandle,
+    const sf::Color& c0, const sf::Color& c1, const sf::Color& c2,
+    const sf::Color& c3)
+{
+    if(!checkValidHandle(cwHandle, "set four vertex color"))
+    {
+        return;
+    }
+
+    _customWalls[cwHandle].setVertexColor(0, c0);
+    _customWalls[cwHandle].setVertexColor(1, c1);
+    _customWalls[cwHandle].setVertexColor(2, c2);
+    _customWalls[cwHandle].setVertexColor(3, c3);
+}
+
+void CCustomWallManager::setVertexColor4Same(
+    const CCustomWallHandle cwHandle, const sf::Color& color)
+{
+    if(!checkValidHandle(cwHandle, "set four vertex color same"))
+    {
+        return;
+    }
+
+    _customWalls[cwHandle].setVertexColor(0, color);
+    _customWalls[cwHandle].setVertexColor(1, color);
+    _customWalls[cwHandle].setVertexColor(2, color);
+    _customWalls[cwHandle].setVertexColor(3, color);
 }
 
 // TODO:
