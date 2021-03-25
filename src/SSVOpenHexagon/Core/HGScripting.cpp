@@ -65,6 +65,12 @@ void HexagonGame::destroyMaliciousFunctions()
 
 void HexagonGame::initLua_Utils()
 {
+    // TODO:
+    lua.writeVariable(
+        "u_impl_addTrackedResult", [this](const std::string& result) {
+            ilcLuaTrackedResults.emplace_back(result);
+        });
+
     addLuaFn("u_inMenu", //
         [] { return false; })
         .doc(
@@ -1427,6 +1433,84 @@ void HexagonGame::initLua_CustomWalls()
         .doc(
             "Given the custom wall represented by `$0`, set the color of "
             "its vertex with index `$1` to `{$2, $3, $4, $5}`.");
+
+    addLuaFn("cw_setVertexPos4",           //
+        [this](CCustomWallHandle cwHandle, //
+            float x0, float y0,            //
+            float x1, float y1,            //
+            float x2, float y2,            //
+            float x3, float y3) {
+            cwManager.setVertexPos4(cwHandle, //
+                sf::Vector2f{x0, y0},         //
+                sf::Vector2f{x1, y1},         //
+                sf::Vector2f{x2, y2},         //
+                sf::Vector2f{x3, y3});
+        })
+        .arg("cwHandle")
+        .arg("x0")
+        .arg("y0")
+        .arg("x1")
+        .arg("y1")
+        .arg("x2")
+        .arg("y2")
+        .arg("x3")
+        .arg("y3")
+        .doc(
+            "Given the custom wall represented by `$0`, set the position of "
+            "its vertex with index `0` to `{$1, $2}`, index `1` to `{$3, $4}`, "
+            "index `2` to `{$5, $6}`, index `3` to `{$7, $8}`. More efficient "
+            "than invoking `cw_setVertexPos` four times in a row.");
+
+    addLuaFn("cw_setVertexColor4",          //
+        [this](CCustomWallHandle cwHandle,  //
+            int r0, int g0, int b0, int a0, //
+            int r1, int g1, int b1, int a1, //
+            int r2, int g2, int b2, int a2, //
+            int r3, int g3, int b3, int a3) {
+            cwManager.setVertexColor4(cwHandle, //
+                sf::Color(r0, g0, b0, a0),      //
+                sf::Color(r1, g1, b1, a1),      //
+                sf::Color(r2, g2, b2, a2),      //
+                sf::Color(r3, g3, b3, a3));
+        })
+        .arg("cwHandle")
+        .arg("r0")
+        .arg("g0")
+        .arg("b0")
+        .arg("a0")
+        .arg("r1")
+        .arg("g1")
+        .arg("b1")
+        .arg("a1")
+        .arg("r2")
+        .arg("g2")
+        .arg("b2")
+        .arg("a2")
+        .arg("r3")
+        .arg("g3")
+        .arg("b3")
+        .arg("a3")
+        .doc(
+            "Given the custom wall represented by `$0`, set the color of "
+            "its vertex with index `0` to `{$1, $2, $3, $4}`, index `1` to "
+            "`{$5, $6, $7, $8}`, index `2` to `{$9, $10, $11, $12}`, index `3` "
+            "to `{$13, $14, $15, $16}`. More efficient than invoking "
+            "`cw_setVertexColor` four times in a row.");
+
+    addLuaFn("cw_setVertexColor4Same", //
+        [this](CCustomWallHandle cwHandle, int r, int g, int b, int a) {
+            cwManager.setVertexColor4Same(cwHandle, sf::Color(r, g, b, a));
+        })
+        .arg("cwHandle")
+        .arg("r")
+        .arg("g")
+        .arg("b")
+        .arg("a")
+        .doc(
+            "Given the custom wall represented by `$0`, set the color of "
+            "its vertices with indiced `0`, `1`, `2`, and `3' to `{$1, $2, $3, "
+            "$4}`. More efficient than invoking `cw_setVertexColor` four times "
+            "in a row.");
 
     addLuaFn("cw_setCollision", //
         [this](CCustomWallHandle cwHandle, bool collision) {
