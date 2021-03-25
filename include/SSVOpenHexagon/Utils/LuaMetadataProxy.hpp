@@ -166,9 +166,32 @@ private:
                 continue;
             }
 
-            const std::size_t index = docs.at(i + 1) - '0';
-            result += argNames.at(index);
             ++i;
+
+            std::size_t j = i;
+            for(; j < docs.size(); ++j)
+            {
+                const char next = docs.at(j);
+                if(next < '0' || next > '9')
+                {
+                    break;
+                }
+            }
+
+            // Range `[i, j)` is now the position of the argument.
+            // Parse into integer.
+
+            std::size_t indexAcc = 0;
+            std::size_t tens = 1;
+
+            for(std::size_t k = j - 1; k >= i; --k)
+            {
+                indexAcc += tens * (docs.at(k) - '0');
+                tens *= 10;
+            }
+
+            result += argNames.at(indexAcc);
+            i = j - 1;
         }
 
         return result;
