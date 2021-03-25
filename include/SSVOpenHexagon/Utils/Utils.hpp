@@ -67,6 +67,13 @@ inline void rTrim(std::string& str)
     return s;
 }
 
+[[nodiscard]] inline std::string getLRTrim(std::string s)
+{
+    lTrim(s);
+    rTrim(s);
+    return s;
+}
+
 [[nodiscard]] inline std::string toUppercase(std::string s)
 {
     uppercasify(s);
