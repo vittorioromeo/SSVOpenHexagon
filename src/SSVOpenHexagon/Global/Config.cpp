@@ -14,7 +14,7 @@
 #include <iostream>
 #include <fstream>
 
-#define X_BINDSLINKEDVALUES_JOYSTICK                          \
+#define X_LINKEDVALUES_BINDS_JOYSTICK                         \
     X(joystickSelect, unsigned int, "j_select")               \
     X(joystickExit, unsigned int, "j_exit")                   \
     X(joystickFocus, unsigned int, "j_focus")                 \
@@ -28,7 +28,7 @@
     X(joystickAddToFavorites, unsigned int, "j_add_favorite") \
     X(joystickFavoritesMenu, unsigned int, "j_favorite_menu")
 
-#define X_BINDSLINKEDVALUES_TRIGGERS                                \
+#define X_LINKEDVALUES_BINDS_TRIGGERS                               \
     X(triggerRotateCCW, ssvs::Input::Trigger, "t_rotate_ccw")       \
     X(triggerRotateCW, ssvs::Input::Trigger, "t_rotate_cw")         \
     X(triggerFocus, ssvs::Input::Trigger, "t_focus")                \
@@ -46,9 +46,9 @@
     X(triggerLuaConsole, ssvs::Input::Trigger, "t_lua_console")     \
     X(triggerPause, ssvs::Input::Trigger, "t_pause")
 
-#define X_BINDSLINKEDVALUES      \
-    X_BINDSLINKEDVALUES_JOYSTICK \
-    X_BINDSLINKEDVALUES_TRIGGERS
+#define X_LINKEDVALUES_BINDS      \
+    X_LINKEDVALUES_BINDS_JOYSTICK \
+    X_LINKEDVALUES_BINDS_TRIGGERS
 
 #define X_LINKEDVALUES                                                     \
     X(online, bool, "online")                                              \
@@ -106,7 +106,7 @@
     X(firstTimePlaying, bool, "first_time_playing")                        \
     X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file")   \
     X(showLevelInfo, bool, "show_level_info")                              \
-    X_BINDSLINKEDVALUES
+    X_LINKEDVALUES_BINDS
 
 namespace hg::Config
 {
@@ -171,7 +171,7 @@ static void fixupMissingTriggers()
     };
 
 #define X(name, type, key) doIt(name());
-    X_BINDSLINKEDVALUES_TRIGGERS
+    X_LINKEDVALUES_BINDS_TRIGGERS
 #undef X
 }
 
@@ -203,12 +203,14 @@ static void resetBindsFromObj()
 {
 #define X(name, type, key) \
     name().syncFrom(ssvuj::getFromFile("default_config.json"));
-    X_BINDSLINKEDVALUES
+    X_LINKEDVALUES_BINDS
 #undef X
 }
 
 #undef X_LINKEDVALUES
-#undef X_BINDSLINKEDVALUES
+#undef X_LINKEDVALUES_BINDS
+#undef X_LINKEDVALUES_BINDS_TRIGGERS
+#undef X_LINKEDVALUES_BINDS_JOYSTICK
 
 float sizeX{1500}, sizeY{1500};
 constexpr float spawnDistance{1600};
