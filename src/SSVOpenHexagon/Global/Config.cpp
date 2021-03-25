@@ -14,19 +14,21 @@
 #include <iostream>
 #include <fstream>
 
-#define X_BINDSLINKEDVALUES                                         \
-    X(joystickSelect, unsigned int, "j_select")                     \
-    X(joystickExit, unsigned int, "j_exit")                         \
-    X(joystickFocus, unsigned int, "j_focus")                       \
-    X(joystickSwap, unsigned int, "j_swap")                         \
-    X(joystickForceRestart, unsigned int, "j_force_restart")        \
-    X(joystickRestart, unsigned int, "j_restart")                   \
-    X(joystickReplay, unsigned int, "j_replay")                     \
-    X(joystickScreenshot, unsigned int, "j_screenshot")             \
-    X(joystickNextPack, unsigned int, "j_next")                     \
-    X(joystickPreviousPack, unsigned int, "j_previous")             \
-    X(joystickAddToFavorites, unsigned int, "j_add_favorite")       \
-    X(joystickFavoritesMenu, unsigned int, "j_favorite_menu")       \
+#define X_BINDSLINKEDVALUES_JOYSTICK                          \
+    X(joystickSelect, unsigned int, "j_select")               \
+    X(joystickExit, unsigned int, "j_exit")                   \
+    X(joystickFocus, unsigned int, "j_focus")                 \
+    X(joystickSwap, unsigned int, "j_swap")                   \
+    X(joystickForceRestart, unsigned int, "j_force_restart")  \
+    X(joystickRestart, unsigned int, "j_restart")             \
+    X(joystickReplay, unsigned int, "j_replay")               \
+    X(joystickScreenshot, unsigned int, "j_screenshot")       \
+    X(joystickNextPack, unsigned int, "j_next")               \
+    X(joystickPreviousPack, unsigned int, "j_previous")       \
+    X(joystickAddToFavorites, unsigned int, "j_add_favorite") \
+    X(joystickFavoritesMenu, unsigned int, "j_favorite_menu")
+
+#define X_BINDSLINKEDVALUES_TRIGGERS                                \
     X(triggerRotateCCW, ssvs::Input::Trigger, "t_rotate_ccw")       \
     X(triggerRotateCW, ssvs::Input::Trigger, "t_rotate_cw")         \
     X(triggerFocus, ssvs::Input::Trigger, "t_focus")                \
@@ -43,6 +45,10 @@
     X(triggerPreviousPack, ssvs::Input::Trigger, "t_previous")      \
     X(triggerLuaConsole, ssvs::Input::Trigger, "t_lua_console")     \
     X(triggerPause, ssvs::Input::Trigger, "t_pause")
+
+#define X_BINDSLINKEDVALUES      \
+    X_BINDSLINKEDVALUES_JOYSTICK \
+    X_BINDSLINKEDVALUES_TRIGGERS
 
 #define X_LINKEDVALUES                                                     \
     X(online, bool, "online")                                              \
@@ -115,24 +121,23 @@ namespace hg::Config
 
             return ssvuj::getFromFile("config.json");
         }
-        else if(ssvufs::Path{"default_config.json"}
-                    .exists<ssvufs::Type::File>())
+
+        if(ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
         {
             ssvu::lo("hg::Config::root()")
-                << "User `config.json` file not found, looking for default\n";
+                << "User `config.json` file not found, looking for "
+                   "default\n";
 
             ssvu::lo("hg::Config::root()")
                 << "Default `default_config.json` file found\n";
 
             return ssvuj::getFromFile("default_config.json");
         }
-        else
-        {
-            ssvu::lo("hg::Config::root()")
-                << "FATAL ERROR: No suitable config file found\n";
 
-            std::abort();
-        }
+        ssvu::lo("hg::Config::root()")
+            << "FATAL ERROR: No suitable config file found\n";
+
+        std::abort();
     }();
 
     return res;
@@ -147,11 +152,36 @@ namespace hg::Config
 X_LINKEDVALUES
 #undef X
 
+static void fixupMissingTriggers()
+{
+    const auto doIt = [](ssvs::Input::Trigger& trig) {
+        auto& combos = trig.getCombos();
+
+        if(!combos.empty())
+        {
+            return;
+        }
+
+        combos.resize(4);
+
+        for(ssvs::Input::Combo& c : combos)
+        {
+            c.clearBind(); // mark as unbound
+        }
+    };
+
+#define X(name, type, key) doIt(name());
+    X_BINDSLINKEDVALUES_TRIGGERS
+#undef X
+}
+
 static void syncAllFromObj()
 {
 #define X(name, type, key) name().syncFrom(root());
     X_LINKEDVALUES
 #undef X
+
+    fixupMissingTriggers();
 }
 
 static void syncAllToObj()
@@ -239,7 +269,8 @@ void resetConfigToDefaults()
     if(!ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
     {
         ssvu::lo("hg::Config::resetConfigToDefaults()")
-            << "`default_config.json` file not found, config reset aborted\n";
+            << "`default_config.json` file not found, config reset "
+               "aborted\n";
         return;
     }
 
@@ -265,7 +296,8 @@ void resetBindsToDefaults()
     if(!ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
     {
         ssvu::lo("hg::Config::resetBindsToDefaults()")
-            << "`default_config.json` file not found, config reset aborted\n";
+            << "`default_config.json` file not found, config reset "
+               "aborted\n";
         return;
     }
 
@@ -1012,7 +1044,7 @@ const std::array<TriggerGetter, toSizeT(Tid::TriggersCount)> triggerGetters{
     int j;
     std::string bindNames;
 
-    const auto combos = triggerGetters[toSizeT(bindID)]().getCombos();
+    const auto combos = triggerGetters.at(toSizeT(bindID))().getCombos();
 
     for(const auto& c : combos)
     {
@@ -1074,16 +1106,16 @@ void rebindTrigger(
     if(index >= maxBinds)
     {
         index = 0;
-        trig.getCombos()[index].clearBind();
+        trig.getCombos().at(index).clearBind();
     }
 
     if(key > -1)
     {
-        trig.getCombos()[index].addKey(ssvs::KKey(key));
+        trig.getCombos().at(index).addKey(ssvs::KKey(key));
     }
     else
     {
-        trig.getCombos()[index].addBtn(ssvs::MBtn(btn));
+        trig.getCombos().at(index).addBtn(ssvs::MBtn(btn));
     }
 }
 
@@ -1092,7 +1124,7 @@ void rebindTrigger(
 
 void clearTriggerBind(ssvs::Input::Trigger& trig, const int index)
 {
-    trig.getCombos()[index].clearBind();
+    trig.getCombos().at(index).clearBind();
 }
 
 //***********************************************************

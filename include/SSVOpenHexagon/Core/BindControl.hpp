@@ -81,7 +81,7 @@ public:
 
         for(int i = 0; i < static_cast<int>(combos.size()); ++i)
         {
-            if(combos[i].getKeys()[int(hardcodedKey) + 1])
+            if(combos.at(i).getKeys()[int(hardcodedKey) + 1])
             {
                 mFuncClear(i);
             }
