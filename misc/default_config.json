@@ -172,6 +172,7 @@
 	],
 	"text_padding": 8.0,
 	"text_scaling": 1.0,
+	"timescale" : 1.0,
 	"vsync": false,
 	"windowed_auto_resolution": false,
 	"windowed_height": 600,
