@@ -38,7 +38,6 @@ public:
     float pulse{75};
     float pulseDirection{1};
     float pulseDelay{0};
-    float pulseDelayHalf{0};
     float beatPulse{0};
     float beatPulseDelay{0};
     float pulse3D{1.f};

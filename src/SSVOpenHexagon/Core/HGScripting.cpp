@@ -690,16 +690,6 @@ void HexagonGame::initLua_LevelControl()
         "Sets the delay the level has to wait before it begins another pulse "
         "cycle with `$0`.");
 
-    // TODO: Repurpose PulseDelayHalfMax to do what is listed on this
-    // documentation
-
-    lsVar("PulseDelayHalfMax", &LevelStatus::pulseDelayHalfMax,
-        "Gets the delay the level has to wait before it begins pulsing from "
-        "``PulseMax`` to ``PulseMin``.",
-
-        "Sets the delay the level has to wait before it begins pulsing from "
-        "``PulseMax`` to ``PulseMin`` with `$0`.");
-
     lsVar("PulseInitialDelay", &LevelStatus::pulseInitialDelay,
         "Gets the initial delay the level has to wait before it begins the "
         "first pulse cycle.",
