@@ -7,10 +7,10 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "evolutionpatter
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-        if mKey == 0 then pAltBarrage(math.random(1, 3), 2)
-    elseif mKey == 1 then pMirrorSpiral(math.random(2, 4), 0)
-    elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
-    elseif mKey == 3 then pBarrageSpiral(math.random(0, 2), 1.2, 2)
+        if mKey == 0 then pAltBarrage(u_rndInt(1, 3), 2)
+    elseif mKey == 1 then pMirrorSpiral(u_rndInt(2, 4), 0)
+    elseif mKey == 2 then pBarrageSpiral(u_rndInt(0, 3), 1, 1)
+    elseif mKey == 3 then pBarrageSpiral(u_rndInt(0, 2), 1.2, 2)
     elseif mKey == 4 then pBarrageSpiral(2, 0.7, 1)
     elseif mKey == 5 then pInverseBarrage(0)
     elseif mKey == 6 then hmcDefBarrageSpiral()
@@ -72,16 +72,24 @@ function FloatingWall:new(handle)
 end
 
 function FloatingWall:move(mFrameTime)
-    for i=0,3 do
-        oldX,oldY = cw_getVertexPos(self.cwHandle, i)
+    p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y = cw_getVertexPos4(self.cwHandle)
 
-        if oldX < -1000 or oldX > 1000 or oldY < -1000 or oldY > 1000 then
-            self.dead = true
-            return
-        end
-
-        cw_setVertexPos(self.cwHandle, i, oldX + self.velocity_x * mFrameTime, oldY + self.velocity_y * mFrameTime)
+    if  p0x < -1000 or p0x > 1000 or
+        p1x < -1000 or p1x > 1000 or
+        p2x < -1000 or p2x > 1000 or
+        p3x < -1000 or p3x > 1000 or
+        p0y < -1000 or p0y > 1000 or
+        p1y < -1000 or p1y > 1000 or
+        p2y < -1000 or p2y > 1000 or
+        p3y < -1000 or p3y > 1000
+    then
+        self.dead = true
+        return
     end
+
+    cw_addVertexPos4Same(self.cwHandle,
+        self.velocity_x * mFrameTime,
+        self.velocity_y * mFrameTime)
 end
 
 
@@ -92,7 +100,7 @@ function onLoad()
 end
 
 function randomSign()
-    if math.random() > 0.5 then
+    if u_rndReal() > 0.5 then
         return -1
     else
         return 1
@@ -100,21 +108,20 @@ function randomSign()
 end
 
 function makeWall()
-    cwHandle = cw_create()
-    cw_setDeadly(cwHandle, true)
+    cwHandle = cw_createDeadly()
 
-    if math.random() > 0.5 then
-        x = math.random(-600, 600)
+    if u_rndReal() > 0.5 then
+        x = u_rndInt(-600, 600)
         y = 1000 * randomSign()
     else
         x = 1000 * randomSign()
-        y = math.random(-600, 600)
+        y = u_rndInt(-600, 600)
     end
 
-    wallSize = math.random(35, 85)
+    wallSize = u_rndInt(35, 85)
 
-    cw_setVertexPos4(cwHandle, x + wallSize, y + wallSize,
-                               x + wallSize, y + wallSize * 2,
+    cw_setVertexPos4(cwHandle, x + wallSize,     y + wallSize,
+                               x + wallSize,     y + wallSize * 2,
                                x + wallSize * 2, y + wallSize * 2,
                                x + wallSize * 2, y + wallSize)
 
@@ -122,12 +129,12 @@ function makeWall()
 
     fw = FloatingWall:new(cwHandle)
 
-    if math.random() > 0.5 then
-        fw.velocity_x = math.random(10, 15) * randomSign()
+    if u_rndReal() > 0.5 then
+        fw.velocity_x = u_rndInt(10, 15) * randomSign()
         fw.velocity_y = 0
     else
         fw.velocity_x = 0
-        fw.velocity_y = math.random(10, 15) * randomSign()
+        fw.velocity_y = u_rndInt(10, 15) * randomSign()
     end
 
     table.insert(floatingWalls, fw)
@@ -135,9 +142,14 @@ end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
+what = true
 function onStep()
-    for i=0, 50 do
-        makeWall()
+    if what then
+        for i=0, 15000 do
+            makeWall()
+        end
+
+        what = false
     end
 end
 
@@ -153,6 +165,7 @@ end
 function onUpdate(mFrameTime)
     ArrayRemoveIf(floatingWalls, function(t, i, j)
         local v = t[i]
+
         if v.dead then
             cw_destroy(v.cwHandle)
             return true

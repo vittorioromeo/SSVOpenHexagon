@@ -1942,11 +1942,13 @@ void HexagonGame::initLua()
             {
                 return rndReal();
             }
-            else if(mode == 1)
+
+            if(mode == 1)
             {
                 return rndIntUpper(upper);
             }
-            else if(mode == 2)
+
+            if(mode == 2)
             {
                 return rndInt(lower, upper);
             }

@@ -5,20 +5,20 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-        if mKey ==  0 then pAltBarrage(math.random(2, 4), 2)
-    elseif mKey ==  1 then pMirrorSpiral(math.random(3, 6), 0)
-    elseif mKey ==  2 then pBarrageSpiral(math.random(0, 3), 1, 1)
-    elseif mKey ==  3 then pBarrageSpiral(math.random(0, 2), 1.2, 2)
+        if mKey ==  0 then pAltBarrage(u_rndInt(2, 4), 2)
+    elseif mKey ==  1 then pMirrorSpiral(u_rndInt(3, 6), 0)
+    elseif mKey ==  2 then pBarrageSpiral(u_rndInt(0, 3), 1, 1)
+    elseif mKey ==  3 then pBarrageSpiral(u_rndInt(0, 2), 1.2, 2)
     elseif mKey ==  4 then pBarrageSpiral(2, 0.7, 1)
     elseif mKey ==  5 then pInverseBarrage(0)
-    elseif mKey ==  6 then pTunnel(math.random(1, 3))
+    elseif mKey ==  6 then pTunnel(u_rndInt(1, 3))
     elseif mKey ==  7 then pMirrorWallStrip(1, 0)
     elseif mKey ==  8 then
         if l_getSides() > 5 then
             pWallExVortex(0, 1, 1)
         end
-    elseif mKey ==  9 then pDMBarrageSpiral(math.random(4, 7), 0.4, 1)
-    elseif mKey == 10 then pRandomBarrage(math.random(2, 4), 2.25)
+    elseif mKey ==  9 then pDMBarrageSpiral(u_rndInt(4, 7), 0.4, 1)
+    elseif mKey == 10 then pRandomBarrage(u_rndInt(2, 4), 2.25)
     end
 end
 

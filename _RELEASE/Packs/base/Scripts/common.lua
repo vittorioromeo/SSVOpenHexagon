@@ -26,7 +26,7 @@ end
 function getHalfSides() return math.ceil(l_getSides() / 2) end
 
 -- getRandomSide: returns random mSide
-function getRandomSide() return math.random(0, l_getSides() - 1) end
+function getRandomSide() return u_rndInt(0, l_getSides() - 1) end
 
 -- getPlayerSide: gets the current side that the player is in
 function getPlayerSide()
@@ -39,7 +39,7 @@ end
 
 -- getRandomDir: returns either 1 or -1
 function getRandomDir()
-    if math.random(0, 100) > 50 then return 1 end
+    if u_rndInt(0, 100) > 50 then return 1 end
     return -1
 end
 

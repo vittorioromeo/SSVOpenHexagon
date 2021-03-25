@@ -26,7 +26,7 @@ end
 function randomArray(mNumber,mLower,mUpper)
     local a = {}
     for k = 1, mNumber do
-        a[k] = math.random(mLower,mUpper)
+        a[k] = u_rndInt(mLower, mUpper)
     end
     return a
 end
@@ -70,7 +70,7 @@ function pLadder(mTimes,mArray,myThickness)
     local eArray = {}
     local l = 1
     local s = #mArray/l_getSides()
-    local t = math.random(0,100)
+    local t = u_rndInt(0, 100)
 
     for i = 1, mTimes do
         local q = (i+t) % s + 1

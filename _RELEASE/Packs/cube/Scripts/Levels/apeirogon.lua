@@ -20,19 +20,19 @@ function addPattern(mKey)
         mKey = 7
     end
 
-        if mKey == 0 then pAltBarrage(math.random(2, 3), 2)
+        if mKey == 0 then pAltBarrage(u_rndInt(2, 3), 2)
     elseif mKey == 1 then pBarrageSpiral(3, 0.6, 1)
     elseif mKey == 2 then pInverseBarrage(0)
-    elseif mKey == 3 then pTunnel(math.random(1, 3))
+    elseif mKey == 3 then pTunnel(u_rndInt(1, 3))
     elseif mKey == 4 then pMirrorWallStrip(1, 0)
     elseif mKey == 5 then
         if l_getSides() > 5 then
-            pWallExVortex(0, math.random(1, 2), 1)
+            pWallExVortex(0, u_rndInt(1, 2), 1)
         end
-    elseif mKey == 6 then pDMBarrageSpiral(math.random(3, 6), 0.295 * (u_getDifficultyMult() ^ 0.56), 1)
-    elseif mKey == 7 then pRandomBarrage(math.random(2, 5), 2.25)
-    elseif mKey == 8 then pMirrorSpiralDouble(math.random(4, 6), 0)
-    elseif mKey == 9 then pMirrorSpiral(math.random(2, 4), 0)
+    elseif mKey == 6 then pDMBarrageSpiral(u_rndInt(3, 6), 0.295 * (u_getDifficultyMult() ^ 0.56), 1)
+    elseif mKey == 7 then pRandomBarrage(u_rndInt(2, 5), 2.25)
+    elseif mKey == 8 then pMirrorSpiralDouble(u_rndInt(4, 6), 0)
+    elseif mKey == 9 then pMirrorSpiral(u_rndInt(2, 4), 0)
     end
 end
 

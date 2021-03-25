@@ -14,7 +14,7 @@ local curveMult = 1
 function wallHMCurveAcc(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
     if sync == true then
         mCurve = l_getRotationSpeed() * 10.0
-        mCurve = mCurve + (math.random(syncRndMin, syncRndMax) / 100.0)
+        mCurve = mCurve + (u_rndInt(syncRndMin, syncRndMax) / 100.0)
     end
 
     w_wallHModCurveData(hueModifier, mSide, THICKNESS, mCurve * (u_getDifficultyMult() ^ 0.25) * curveMult, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
@@ -33,7 +33,7 @@ function hmcSimpleSpinner(mCurve)
 end
 
 function hmcDefSpinner()
-    hmcSimpleSpinner(math.random(10, 45) / 10.0 * getRandomDir())
+    hmcSimpleSpinner(u_rndInt(10, 45) / 10.0 * getRandomDir())
     t_wait(getPerfectDelayDM(THICKNESS) * 1.2)
 end
 

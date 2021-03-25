@@ -62,7 +62,7 @@ end
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()
-    l_setSides(math.random(lowerBound, upperBound))
+    l_setSides(u_rndInt(lowerBound, upperBound))
     addPattern(keys[index])
     index = index + 1
 
@@ -74,8 +74,8 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-    lowerBound = math.random(4, 6)
-    upperBound = lowerBound + math.random(1, 3)
+    lowerBound = u_rndInt(4, 6)
+    upperBound = lowerBound + u_rndInt(1, 3)
     e_messageAddImportant("Sides ("..lowerBound.." / "..upperBound..")", 170)
 end
 
