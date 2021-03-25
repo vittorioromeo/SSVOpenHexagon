@@ -17,6 +17,7 @@ include(${CPM_DOWNLOAD_LOCATION})
 
 set(BUILD_SHARED_LIBS true)
 set(SFML_STATIC_LIBRARIES false)
+set(USE_LUAJIT true)
 
 CPMAddPackage(
   NAME SFML
@@ -27,23 +28,39 @@ CPMAddPackage(
 
 # -----------------------------------------------------------------------------
 
-CPMAddPackage(
-  NAME lua
-  GIT_REPOSITORY https://github.com/lua/lua.git
-  VERSION 5.3.5
-  DOWNLOAD_ONLY YES
-)
+if (NOT USE_LUAJIT)
 
-if (lua_ADDED)
-  # lua has no CMake support, so we create our own target
-
-  FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
-  add_library(lua STATIC ${lua_sources})
-
-  target_include_directories(lua
-    PUBLIC
-      $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
+  CPMAddPackage(
+    NAME lua
+    GIT_REPOSITORY https://github.com/lua/lua.git
+    VERSION 5.3.5
+    DOWNLOAD_ONLY YES
   )
+
+  if (lua_ADDED)
+    # lua has no CMake support, so we create our own target
+
+    FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
+    add_library(lua STATIC ${lua_sources})
+
+    target_include_directories(lua
+      PUBLIC
+        $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
+    )
+  endif()
+
+endif()
+
+# -----------------------------------------------------------------------------
+
+if (USE_LUAJIT)
+
+  CPMAddPackage(
+    NAME luajit
+    GIT_REPOSITORY https://github.com/WohlSoft/LuaJIT
+    GIT_TAG 05db1d35d8a35f74ce40d0ba5e387717ad91b24d
+  )
+
 endif()
 
 # -----------------------------------------------------------------------------
@@ -81,7 +98,7 @@ CPMAddPackage(
   NAME imgui-sfml
   GITHUB_REPOSITORY eliasdaler/imgui-sfml
   VERSION 2.2
-  GIT_TAG 43aae2de805257a0d87ecb736f35e7a99eef1950
+  GIT_TAG a181782e151e40cdec7a0d98dcec5ddd56252d10
 )
 
 # -----------------------------------------------------------------------------
@@ -171,14 +188,24 @@ set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
 "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so")
 endif()
 
+if(USE_LUAJIT)
+  add_definitions(-DSSVOH_USE_LUAJIT)
+  set(LUASRC "${luajit_SOURCE_DIR}/src")
+  set(LUALIB libluajit)
+else()
+  set(LUASRC "${lua_SOURCE_DIR}")
+  set(LUALIB lua)
+endif()
+
 target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
                                                     PUBLIC ${PUBLIC_INCLUDE_DIRS}
                                                     PUBLIC ${zlib_SOURCE_DIR}
                                                     PUBLIC ${zlib_BINARY_DIR}
+                                                    PUBLIC ${LUASRC}
                                                     PUBLIC ${imgui_SOURCE_DIR})
 
 target_link_libraries(SSVOpenHexagonLib ${SFML_LIBRARIES}
-                                        lua
+                                        ${LUALIB}
                                         zlib
                                         ${PUBLIC_LIBRARIES}
                                         "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll"
@@ -190,7 +217,7 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/incl
                                                   PUBLIC ${PUBLIC_INCLUDE_DIRS}
                                                   PUBLIC ${zlib_SOURCE_DIR}
                                                   PUBLIC ${zlib_BINARY_DIR}
-                                                  PUBLIC ${lua_SOURCE_DIR}
+                                                  PUBLIC ${LUASRC}
                                                   PUBLIC ${imgui_SOURCE_DIR})
 
 if(UNIX AND NOT APPLE)
