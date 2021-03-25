@@ -1964,13 +1964,13 @@ end
     initLua_CustomWalls();
     initLua_Deprecated();
 
-    // TODO: refactor doc stuff and have a command line option to print this:
-#if 0
-    ssvu::lo("hg::HexagonGame::initLua") << "Printing Lua Markdown docs\n\n";
-    printLuaDocs();
-    std::cout << "\n\n";
-    ssvu::lo("hg::HexagonGame::initLua") << "Done\n";
-#endif
+    if(mustPrintLuaDocs)
+    {
+        ssvu::lo("hg::HexagonGame::initLua") << "Print Lua Markdown docs\n\n";
+        printLuaDocs();
+        std::cout << "\n\n";
+        ssvu::lo("hg::HexagonGame::initLua") << "Done\n";
+    }
 }
 
 } // namespace hg

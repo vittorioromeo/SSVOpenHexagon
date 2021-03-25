@@ -45,16 +45,17 @@ struct ParsedArgs
     std::vector<std::string> args;
     std::optional<std::string> cliLevelName;
     std::optional<std::string> cliLevelPack;
+    bool printLuaDocs{false};
 };
 
-ParsedArgs parseArgs(int argc, char* argv[])
+ParsedArgs parseArgs(const int argc, char* argv[])
 {
     ParsedArgs result;
 
     for(int i = 0; i < argc; ++i)
     {
         // Find command-line pack name (to immediately run level)
-        if(!strcmp(argv[i], "-p") && i + 1 < argc)
+        if(!std::strcmp(argv[i], "-p") && i + 1 < argc)
         {
             ++i;
             result.cliLevelPack = argv[i];
@@ -62,10 +63,17 @@ ParsedArgs parseArgs(int argc, char* argv[])
         }
 
         // Find command-line level name (to immediately run level)
-        if(!strcmp(argv[i], "-l") && i + 1 < argc)
+        if(!std::strcmp(argv[i], "-l") && i + 1 < argc)
         {
             ++i;
             result.cliLevelName = argv[i];
+            continue;
+        }
+
+        // Find command-line argument to print Lua docs
+        if(!std::strcmp(argv[i], "-printLuaDocs"))
+        {
+            result.printLuaDocs = true;
             continue;
         }
 
@@ -125,7 +133,9 @@ int main(int argc, char* argv[])
 
     // ------------------------------------------------------------------------
     // Parse arguments and load configuration (and overrides)
-    const auto [args, cliLevelName, cliLevelPack] = parseArgs(argc, argv);
+    const auto [args, cliLevelName, cliLevelPack, printLuaDocs] =
+        parseArgs(argc, argv);
+
     hg::Config::loadConfig(args);
 
     // ------------------------------------------------------------------------
@@ -152,7 +162,7 @@ int main(int argc, char* argv[])
     auto assets = std::make_unique<hg::HGAssets>(steamManager);
 
     auto hg = std::make_unique<hg::HexagonGame>(
-        steamManager, discordManager, *assets, window);
+        steamManager, discordManager, *assets, window, printLuaDocs);
 
     auto mg = std::make_unique<hg::MenuGame>(
         steamManager, discordManager, *assets, *hg, window);

@@ -298,7 +298,7 @@ template <typename Wall>
     // Look for a side that is moving in a direction perpendicular to the
     // player, such side is a candidate for pushing it like a curving wall would
     // do. (_lastPos is the best candidate for this check).
-    std::array<const sf::Vector2f*, 4> collisionPolygon;
+
     const std::array<sf::Vector2f, 4>& wVertexes{wall.getVertexPositions()};
     const std::array<sf::Vector2f, 4>& wOldVertexes{
         wall.getOldVertexPositions()};
@@ -315,11 +315,10 @@ template <typename Wall>
             continue;
         }
 
-        collisionPolygon = {
-            &wVertexes[i], &wOldVertexes[i], &wOldVertexes[j], &wVertexes[j]};
+        const std::array<sf::Vector2f, 4> collisionPolygon{
+            wVertexes[i], wOldVertexes[i], wOldVertexes[j], wVertexes[j]};
 
-        if(Utils::pointInPolygonPointers(
-               collisionPolygon, _lastPos.x, _lastPos.y))
+        if(Utils::pointInPolygon(collisionPolygon, _lastPos.x, _lastPos.y))
         {
             // For a side to be an effective source of push it must have
             // intersected the player's positions circle both now and the

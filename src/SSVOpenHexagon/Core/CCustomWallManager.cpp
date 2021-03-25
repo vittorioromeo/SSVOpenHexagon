@@ -304,7 +304,7 @@ void CCustomWallManager::draw(Utils::FastVertexVectorQuads& wallQuads)
         bool collided{false};
         for(CCustomWallHandle h = 0; h < size; ++h)
         {
-            if(_handleAvailable[h] || //
+            if(_handleAvailable[h] ||               //
                 !_customWalls[h].getCanCollide() || //
                 !_customWalls[h].isOverlapping(pPos))
             {

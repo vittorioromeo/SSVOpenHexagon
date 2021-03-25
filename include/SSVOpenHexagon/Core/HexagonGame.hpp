@@ -413,6 +413,8 @@ private:
         return Utils::LuaMetadataProxy{f, luaMetadata, name};
     }
 
+    bool mustPrintLuaDocs;
+
     void printLuaDocs()
     {
         for(std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i)
@@ -521,7 +523,7 @@ public:
 
     HexagonGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-        ssvs::GameWindow& mGameWindow);
+        ssvs::GameWindow& mGameWindow, const bool mPrintLuaDocs);
 
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
     {
