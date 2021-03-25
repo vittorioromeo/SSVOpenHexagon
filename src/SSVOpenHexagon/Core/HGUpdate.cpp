@@ -517,7 +517,7 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
 {
     if(!levelStatus.manualPulseControl)
     {
-        if(status.pulseDelay <= 0 && status.pulseDelayHalf <= 0)
+        if(status.pulseDelay <= 0)
         {
             const float pulseAdd{status.pulseDirection > 0
                                      ? levelStatus.pulseSpeed
@@ -534,7 +534,6 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
             {
                 status.pulse = pulseLimit;
                 status.pulseDirection *= -1;
-                status.pulseDelayHalf = levelStatus.pulseDelayHalfMax;
 
                 if(status.pulseDirection < 0)
                 {
@@ -544,7 +543,6 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
         }
 
         status.pulseDelay -= mFT * getMusicDMSyncFactor();
-        status.pulseDelayHalf -= mFT * getMusicDMSyncFactor();
     }
 
     const float p{status.pulse / levelStatus.pulseMin};
