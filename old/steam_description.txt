@@ -1,0 +1,55 @@
+Open Hexagon is a fast-paced and adrenaline-inducing arcade experience by Vittorio Romeo. Designed for moddability and custom level creation.
+
+
+--- ONLY THREE BUTTONS ---
+
+Open Hexagon is easy to learn but extremely hard to master. There are three main actions you can perform: rotate clockwise, rotate counter-clockwise, and swap by 180° degrees.
+
+If you want to beat the hardest levels, you'll need impeccable timing and precision.
+
+
+--- ONLY ONE GOAL: SURVIVE ---
+
+Simplicity and minimalism are key features of Open Hexagon. While certain levels might have special quirks and mechanics, the goal is always the same: survive as long as possible.
+
+Challenge your friends and family (or yourself) for the highest possible survival times.
+
+
+--- AMAZING SOUNDTRACK ---
+
+Headbang your way through polygons by listening to the absolutely amazing chiptune and bitpop tracks by artists such as BOSSFIGHT, Dunderpatrullen, and Fantomenk.
+
+You'll want to keep listening even after you're done playing - that is 100% guaranteed.
+
+
+--- INNOVATIVE GAMEPLAY ---
+
+The main idea behind Open Hexagon comes from the excellent "Super Hexagon" by Terry Cavanagh. However, Open Hexagon expands on formula by introducing a 180° swap mechanic, curving walls, accelerating walls, scriptable levels and much much more.
+
+Whether you're a veteran of games like Open Hexagon or new to the genre, you'll find something fresh to spike up your adrenaline.
+
+
+--- DESIGNED FOR MODDING ---
+
+Open Hexagon was developed with the goal of being open. Players can create their own custom levels by using the simple yet immensely powerful Lua scripting language. The amount of freedom that level designers have is unprecedented: you can keep your custom levels simple, or go wild and implement brand new mechanics.
+
+If you have never used a scripting language before, Open Hexagon can be a great (and fun) introduction to programming.
+
+
+--- FULLY CUSTOMIZABLE ---
+
+Play the game the way you want to. Speed up or slow down levels. Change the colors and the way the environments are rendered. Open Hexagon gives players the freedom to customize their game just the way they like to.
+
+If you want to take it one step further, you can also modify the game engine itself as it is fully open-source.
+
+
+--- THRIVING COMMUNITY ---
+
+Open Hexagon has been around for a while. Many players have spent countless hours becoming masters of the game or building incredibly creative custom levels.
+
+Become part of a growing community by sharing your achievements or by turning your crazy level ideas into reality.
+
+
+--- UPCOMING FEATURES ---
+
+The development of Open Hexagon is far from finished. While the game is fully-playable and all major features are implemented, there is a lot of room for improvement. Contribute to the evolution of the game with your feedback and suggestions, and keep an eye out for upcoming features such as online leaderboards, rich presence, and new scripting possibilities for level designers.
