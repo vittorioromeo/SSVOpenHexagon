@@ -56,7 +56,9 @@
 	"show_key_icons": false,
 	"show_level_info": false,
 	"show_messages": true,
+	"show_status_text": true,
 	"show_tracked_variables": true,
+	"show_timer": true,
 	"sound_volume": 75.0,
 	"t_down" :
 	[

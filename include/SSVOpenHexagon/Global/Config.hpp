@@ -80,6 +80,8 @@ void setKeyIconsScale(float mX);
 void setFirstTimePlaying(bool mX);
 void setSaveLocalBestReplayToFile(bool mX);
 void setShowLevelInfo(bool mX);
+void setShowTimer(bool mX);
+void setShowStatusText(bool mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -150,6 +152,8 @@ void setShowLevelInfo(bool mX);
 [[nodiscard]] bool getFirstTimePlaying();
 [[nodiscard]] bool getSaveLocalBestReplayToFile();
 [[nodiscard]] bool getShowLevelInfo();
+[[nodiscard]] bool getShowTimer();
+[[nodiscard]] bool getShowStatusText();
 
 // keyboard binds
 

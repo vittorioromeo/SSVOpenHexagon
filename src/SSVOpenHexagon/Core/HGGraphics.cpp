@@ -469,14 +469,21 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
 
     const sf::Color colorText = getColorText();
 
-    timeText.setFillColor(colorText);
-    timeText.setPosition(
-        sf::Vector2f{padding, -22.f * offsetRatio * Config::getTextScaling()});
-    render(timeText);
+    if(Config::getShowTimer())
+    {
+        timeText.setFillColor(colorText);
+        timeText.setPosition(sf::Vector2f{
+            padding, -22.f * offsetRatio * Config::getTextScaling()});
+        render(timeText);
+    }
 
-    text.setFillColor(colorText);
-    text.setPosition(sf::Vector2f{padding, ssvs::getGlobalBottom(timeText)});
-    render(text);
+    if(Config::getShowStatusText())
+    {
+        text.setFillColor(colorText);
+        text.setPosition(
+            sf::Vector2f{padding, ssvs::getGlobalBottom(timeText)});
+        render(text);
+    }
 
     if(Config::getShowFPS())
     {

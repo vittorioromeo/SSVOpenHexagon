@@ -106,6 +106,8 @@
     X(firstTimePlaying, bool, "first_time_playing")                        \
     X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file")   \
     X(showLevelInfo, bool, "show_level_info")                              \
+    X(showTimer, bool, "show_timer")                              \
+    X(showStatusText, bool, "show_status_text")                              \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config
@@ -624,6 +626,10 @@ void setShowLevelInfo(bool mX)
     showLevelInfo() = mX;
 }
 
+void setShowTimer(bool mX){showTimer() = mX;}
+
+void setShowStatusText(bool mX){showStatusText() = mX;}
+
 [[nodiscard]] bool getOnline()
 {
     return online();
@@ -936,6 +942,16 @@ void setShowLevelInfo(bool mX)
 [[nodiscard]] bool getShowLevelInfo()
 {
     return showLevelInfo();
+}
+
+[[nodiscard]] bool getShowTimer()
+{
+    return getOfficial() ? true : showTimer();
+}
+
+[[nodiscard]] bool getShowStatusText()
+{
+    return getOfficial() ? true : showStatusText();
 }
 
 //***********************************************************
