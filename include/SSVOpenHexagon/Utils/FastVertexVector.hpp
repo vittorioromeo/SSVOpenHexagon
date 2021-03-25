@@ -29,7 +29,9 @@ private:
         // To avoid invoking the default constructor of `sf::Vertex` when
         // resizing the dynamic array.
         sf::Vertex _v;
-        VertexUnion() { }
+        VertexUnion()
+        {
+        }
     };
 
     static_assert(sizeof(VertexUnion) == sizeof(sf::Vertex));
