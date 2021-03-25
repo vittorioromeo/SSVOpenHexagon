@@ -14,6 +14,7 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
@@ -1032,11 +1033,25 @@ void MenuGame::initMenus()
         [](float mValue) { Config::setTextScaling(mValue); }, 0.1f, 4.f, 0.05f);
 
     gfx.create<i::Slider>(
-        "antialiasing", &Config::getAntialiasingLevel,
-        [this](unsigned int mValue) {
-            Config::setAntialiasingLevel(window, mValue);
+        "antialiasing",
+        [] { return Utils::concat(Config::getAntialiasingLevel(), 'x'); },
+        [this] {
+            if(Config::getAntialiasingLevel() == 0)
+            {
+                Config::setAntialiasingLevel(window, 1);
+                return;
+            }
+
+            Config::setAntialiasingLevel(
+                window, ssvu::getClamped(
+                            Config::getAntialiasingLevel() << 1u, 0u, 16u));
         },
-        0u, 3u, 1u);
+        [this] {
+            Config::setAntialiasingLevel(
+                window, ssvu::getClamped(
+                            Config::getAntialiasingLevel() >> 1u, 0u, 16u));
+        });
+
     gfx.create<i::Toggle>("darken background chunk",
         &Config::getDarkenUnevenBackgroundChunk,
         &Config::setDarkenUnevenBackgroundChunk);
@@ -1048,6 +1063,12 @@ void MenuGame::initMenus()
         0.05f);
     gfx.create<i::Toggle>("show level info", &Config::getShowLevelInfo,
         &Config::setShowLevelInfo);
+    gfx.create<i::Toggle>(
+        "show timer", &Config::getShowTimer, &Config::setShowTimer) |
+        whenNotOfficial;
+    gfx.create<i::Toggle>("show status text", &Config::getShowStatusText,
+        &Config::setShowStatusText) |
+        whenNotOfficial;
 
     gfx.create<i::GoBack>("back");
 
