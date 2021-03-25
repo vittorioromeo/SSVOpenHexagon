@@ -845,6 +845,10 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
     assets.stopSounds();
 
+    ilcLuaTracked.clear();
+    ilcLuaTrackedNames.clear();
+    ilcLuaTrackedResults.clear();
+
     if(!mError)
     {
         assets.playSound("beep.ogg");
