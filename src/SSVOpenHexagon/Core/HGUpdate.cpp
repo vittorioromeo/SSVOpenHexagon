@@ -724,8 +724,18 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
             while(word_start > data->Buf)
             {
                 const char c = word_start[-1];
-                if(c == ' ' || c == '\t' || c == ',' || c == ';') break;
+                if(c == ' ' || c == '\t' || c == ',' || c == ';')
+                {
+                    break;
+                }
+
                 word_start--;
+            }
+
+            // Skip starting `?` for Lua docs
+            if(*word_start == '?')
+            {
+                ++word_start;
             }
 
             // Build a list of candidates
@@ -770,9 +780,9 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
                     for(int i = 0;
                         i < candidates.Size && all_candidates_matches; i++)
                         if(i == 0)
-                            c = toupper(candidates[i][match_len]);
+                            c = std::toupper(candidates[i][match_len]);
                         else if(c == 0 ||
-                                c != toupper(candidates[i][match_len]))
+                                c != std::toupper(candidates[i][match_len]))
                             all_candidates_matches = false;
                     if(!all_candidates_matches) break;
                     match_len++;
@@ -853,11 +863,16 @@ void HexagonGame::postUpdateImguiLuaConsole()
 
     ImGui::SFML::Update(window, ilcDeltaClock.restart());
 
-    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(600, 700), ImGuiCond_FirstUseEver);
     ImGui::Begin("Lua console");
 
-    const float footer_height_to_reserve =
-        ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    ImGui::Text("Enter `!help` to show help.");
+    ImGui::Text("ALT+TAB in and out of Open Hexagon if console has no focus.");
+    ImGui::Separator();
+
+    const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y +
+                                           ImGui::GetFrameHeightWithSpacing() +
+                                           150;
 
     ImGui::PushStyleVar(
         ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
@@ -867,7 +882,8 @@ void HexagonGame::postUpdateImguiLuaConsole()
 
     for(decltype(ilcCmdLog.size()) i = 0; i < ilcCmdLog.size(); ++i)
     {
-        const char* item = ilcCmdLog[i].c_str();
+        const std::string& sItem = ilcCmdLog[i];
+        const char* item = sItem.c_str();
 
         std::optional<ImVec4> color;
 
@@ -883,13 +899,53 @@ void HexagonGame::postUpdateImguiLuaConsole()
         {
             color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f);
         }
+        else if(std::strstr(item, "[?]"))
+        {
+            color = ImVec4(0.4f, 0.4f, 1.0f, 1.0f);
+        }
 
         if(color.has_value())
         {
             ImGui::PushStyleColor(ImGuiCol_Text, *color);
         }
 
-        ImGui::TextUnformatted(item);
+        std::vector<std::string> split;
+        std::size_t last = 0;
+
+        for(std::size_t j = 0; j < sItem.size(); ++j)
+        {
+            if(sItem[j] == '\n')
+            {
+                split.emplace_back(sItem.substr(last, j - last));
+                last = j + 1;
+            }
+        }
+
+        const std::string lastPiece = sItem.substr(last);
+        if(!lastPiece.empty())
+        {
+            split.emplace_back(lastPiece);
+        }
+
+        for(const std::string& s : split)
+        {
+            constexpr std::size_t lineLimit = 80;
+            if(s.size() <= lineLimit)
+            {
+                ImGui::TextUnformatted(s.c_str());
+            }
+            else
+            {
+                constexpr std::size_t charsPerSubstr = lineLimit;
+                const std::size_t nSubstrs = s.size() / charsPerSubstr;
+
+                for(std::size_t j = 0; j < nSubstrs + 1; ++j)
+                {
+                    ImGui::TextUnformatted(
+                        s.substr(j * charsPerSubstr, charsPerSubstr).c_str());
+                }
+            }
+        }
 
         if(color.has_value())
         {
@@ -929,17 +985,32 @@ void HexagonGame::postUpdateImguiLuaConsole()
         {
             ilcCmdLog.clear();
         }
+        else if(Stricmp(cmdString.c_str(), "!HELP") == 0)
+        {
+            ilcCmdLog.emplace_back(R"(Built-in commands:
+!clear          Clears the console
+!help           Display this help
+?fn             Display Lua docs for function `fn`
+)");
+        }
         else if(cmdString[0] == '?')
         {
             const std::string rest = Utils::getRTrim(cmdString.substr(1));
             const std::string docs = getDocsForLuaFunction(rest);
-            ilcCmdLog.emplace_back(docs);
+            ilcCmdLog.emplace_back(std::string{"[?]: "} + docs);
         }
         else
         {
             try
             {
-                lua.executeCode(cmdString);
+                try
+                {
+                    lua.executeCode(std::string{"u_log("} + cmdString + ")\n");
+                }
+                catch(std::runtime_error& mError)
+                {
+                    lua.executeCode(cmdString + "\n");
+                }
             }
             catch(std::runtime_error& mError)
             {
@@ -963,7 +1034,106 @@ void HexagonGame::postUpdateImguiLuaConsole()
     ImGui::Separator();
 
     ImGui::Text("update ms: %.2f", window.getMsUpdate());
-    ImGui::Text("  draw ms: %.2f", window.getMsDraw());
+    ImGui::SameLine();
+    ImGui::Text("draw ms: %.2f", window.getMsDraw());
+
+    static float simSpeed = Config::getTimescale();
+    ImGui::DragFloat("Timescale", &simSpeed, 0.005f);
+    Config::setTimescale(simSpeed);
+
+    ImGui::SameLine();
+
+    static bool invincible = Config::getInvincible();
+    ImGui::Checkbox("Invincible", &invincible);
+    Config::setInvincible(invincible);
+
+    ImGui::Separator();
+
+    {
+        if(ImGui::InputText("Track", ilcTrackBuffer,
+               IM_ARRAYSIZE(ilcTrackBuffer),
+               ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            const std::string codeToTrack = Utils::getLRTrim(ilcTrackBuffer);
+            ilcLuaTracked.emplace_back(
+                std::string{"u_impl_addTrackedResult("} + codeToTrack + ")\n");
+            ilcLuaTrackedNames.emplace_back(codeToTrack);
+
+            std::strcpy(ilcTrackBuffer, "");
+            ImGui::SetItemDefaultFocus();
+            ImGui::SetKeyboardFocusHere(-1);
+        }
+
+        ImGui::SameLine();
+
+        if(ImGui::Button("Untrack All"))
+        {
+            ilcLuaTracked.clear();
+            ilcLuaTrackedNames.clear();
+        }
+    }
+
+    if(ilcLuaTracked.size() > 0)
+    {
+        ilcLuaTrackedResults.clear();
+        bool problem = false;
+
+        for(auto i = 0; i < ilcLuaTracked.size(); ++i)
+        {
+            const std::string& code = ilcLuaTracked[i];
+
+            try
+            {
+                lua.executeCode(code);
+            }
+            catch(std::runtime_error& e)
+            {
+                ilcCmdLog.emplace_back(std::string{"[error]: error '"} +
+                                       e.what() + "' while tracking " + code +
+                                       '\n');
+
+                ilcLuaTracked.erase(ilcLuaTracked.begin() + i);
+                ilcLuaTrackedNames.erase(ilcLuaTrackedNames.begin() + i);
+                problem = true;
+                break;
+            }
+            catch(...)
+            {
+
+                ilcCmdLog.emplace_back(
+                    std::string{"[error]: unknown error while tracking "} +
+                    code + '\n');
+
+                ilcLuaTracked.erase(ilcLuaTracked.begin() + i);
+                ilcLuaTrackedNames.erase(ilcLuaTrackedNames.begin() + i);
+                problem = true;
+                break;
+            }
+        }
+
+        if(!problem)
+        {
+            ImGui::Separator();
+            assert(ilcLuaTracked.size() == ilcLuaTrackedNames.size());
+            assert(ilcLuaTracked.size() == ilcLuaTrackedResults.size());
+
+            if(ImGui::BeginTable("TrackedResults", 2))
+            {
+                for(std::size_t i = 0; i < ilcLuaTracked.size(); ++i)
+                {
+                    ImGui::TableNextRow();
+
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::TextUnformatted(ilcLuaTrackedNames[i].c_str());
+
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::TextUnformatted(ilcLuaTrackedResults[i].c_str());
+                }
+
+                ImGui::EndTable();
+            }
+        }
+    }
 
     ImGui::End();
 }
