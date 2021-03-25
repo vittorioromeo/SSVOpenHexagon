@@ -305,15 +305,8 @@ void CCustomWallManager::draw(Utils::FastVertexVectorQuads& wallQuads)
         for(CCustomWallHandle h = 0; h < size; ++h)
         {
             if(_handleAvailable[h] || //
-                !_customWalls[h].getCanCollide())
-            {
-                continue;
-            }
-
-            // Broad-phase AABB collision optimization.
-            _customWalls[h].updateOutOfPlayerRadius(pPos);
-
-            if(!_customWalls[h].isOverlapping(pPos))
+                !_customWalls[h].getCanCollide() || //
+                !_customWalls[h].isOverlapping(pPos))
             {
                 continue;
             }
@@ -336,7 +329,7 @@ void CCustomWallManager::draw(Utils::FastVertexVectorQuads& wallQuads)
 
     // Recheck collision on all walls.
     {
-        bool collided = false;
+        bool collided{false};
         for(CCustomWallHandle h = 0; h < size; ++h)
         {
             if(_handleAvailable[h] ||               //

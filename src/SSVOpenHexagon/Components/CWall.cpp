@@ -49,8 +49,6 @@ void CWall::update(const float wallSpawnDist, const float radius,
     {
         moveCurve(centerPos, ft);
     }
-
-    _outOfPlayerRadius = false;
 }
 
 void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
