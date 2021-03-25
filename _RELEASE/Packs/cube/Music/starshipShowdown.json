@@ -1,19 +1,19 @@
 {
-	// Music data id
-	"id": "starshipShowdown",
+    // Music data id
+    "id": "starshipShowdown",
 
-	// Music file
-	"file_name": "starshipShowdown.ogg",
+    // Music file
+    "file_name": "starshipShowdown.ogg",
 
-	// Music information
-	"name": "Starship Showdown",
-	"album": "Caps On, Hats Off",
-	"author": "BOSSFIGHT",
+    // Music information
+    "name": "Starship Showdown",
+    "album": "Caps On, Hats Off",
+    "author": "BOSSFIGHT",
 
-	// Segments
-	"segments":
-	[
-		{ "time": 26.180 },
-		{ "time": 64.547 }
-	]
+    // Segments
+    "segments":
+    [
+        { "time": 26.180 },
+        { "time": 64.547 }
+    ]
 }

@@ -1,12 +1,12 @@
 {
-	"id": "flatteringshape",
-	"name": "flattering shape",
-	"description": "normal level of difficulty",
-	"author": "vittorio romeo",
-	"menuPriority": 20,
-	"selectable": true,
-	"styleId": "flatteringshape",
-	"musicId": "starshipShowdown",
-	"luaFile": "Scripts/Levels/flatteringshape.lua",
-	"difficultyMults": [1.5, 2, 2.5, 0.5, 3, 4]
+    "id": "flatteringshape",
+    "name": "flattering shape",
+    "description": "normal level of difficulty",
+    "author": "vittorio romeo",
+    "menuPriority": 20,
+    "selectable": true,
+    "styleId": "flatteringshape",
+    "musicId": "starshipShowdown",
+    "luaFile": "Scripts/Levels/flatteringshape.lua",
+    "difficultyMults": [1.5, 2, 2.5, 0.5, 3, 4]
 }

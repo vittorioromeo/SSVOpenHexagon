@@ -341,7 +341,7 @@ void HexagonGame::start()
         fpsWatcher.enable();
     }
 
-    runLuaFunction<void>("onLoad");
+    runLuaFunctionIfExists<void>("onLoad");
 }
 
 void HexagonGame::updateInput()
@@ -504,14 +504,14 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
         return;
     }
 
-    runLuaFunction<float>("onUpdate", mFT);
+    runLuaFunctionIfExists<float>("onUpdate", mFT);
 
     const auto o = timelineRunner.update(timeline, status.getTimeTP());
 
     if(o == hg::Utils::timeline2_runner::outcome::finished && !mustChangeSides)
     {
         timeline.clear();
-        runLuaFunction<void>("onStep");
+        runLuaFunctionIfExists<void>("onStep");
         timelineRunner = {};
     }
 }

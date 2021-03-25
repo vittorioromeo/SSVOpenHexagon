@@ -1,12 +1,12 @@
 {
-	"id": "bipolarity",
-	"name": "bipolarity",
-	"description": "test",
-	"author": "vittorio romeo",
-	"menuPriority": 10,
-	"selectable": true,
-	"styleId": "bipolarity",
-	"musicId": "ultima2",
-	"luaFile": "Scripts/Levels/bipolarity.lua",
-	"difficultyMults": [1.5, 2.0, 0.5]
+    "id": "bipolarity",
+    "name": "bipolarity",
+    "description": "test",
+    "author": "vittorio romeo",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "bipolarity",
+    "musicId": "ultima2",
+    "luaFile": "Scripts/Levels/bipolarity.lua",
+    "difficultyMults": [1.5, 2.0, 0.5]
 }

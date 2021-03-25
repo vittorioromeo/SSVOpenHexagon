@@ -1,20 +1,20 @@
 {
-	// Music data id
-	"id": "steampunkWarlord",
+    // Music data id
+    "id": "steampunkWarlord",
 
-	// Music file
-	"file_name": "steampunkWarlord.ogg",
+    // Music file
+    "file_name": "steampunkWarlord.ogg",
 
-	// Music information
-	"name": "Steampunk Warlord",
-	"album": "Caps On, Hats Off",
-	"author": "BOSSFIGHT",
+    // Music information
+    "name": "Steampunk Warlord",
+    "album": "Caps On, Hats Off",
+    "author": "BOSSFIGHT",
 
-	// Segments
-	"segments":
-	[
-		{ "time": 73.434 },
-		{ "time": 97.893 },
-		{ "time": 110.122 }
-	]
+    // Segments
+    "segments":
+    [
+        { "time": 73.434 },
+        { "time": 97.893 },
+        { "time": 110.122 }
+    ]
 }

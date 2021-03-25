@@ -2275,8 +2275,8 @@ void MenuGame::setIndex(const int mIdx)
     try
     {
         Utils::runLuaFile(lua, levelData->luaScriptPath);
-        Utils::runLuaFunction<void>(lua, "onInit");
-        Utils::runLuaFunction<void>(lua, "onLoad");
+        Utils::runLuaFunctionIfExists<void>(lua, "onInit");
+        Utils::runLuaFunctionIfExists<void>(lua, "onLoad");
     }
     catch(std::runtime_error& mError)
     {

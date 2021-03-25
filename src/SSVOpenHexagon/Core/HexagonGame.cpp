@@ -559,7 +559,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     if(!firstPlay)
     {
-        runLuaFunction<void>("onUnload");
+        runLuaFunctionIfExists<void>("onUnload");
         assets.playSound("restart.ogg");
     }
     else
@@ -567,7 +567,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         assets.playSound("select.ogg");
     }
 
-    runLuaFunction<void>("onInit");
+    runLuaFunctionIfExists<void>("onInit");
 
     restartId = mId;
     restartFirstTime = false;
@@ -792,7 +792,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     mustChangeSides = false;
 
     assets.playSound(levelStatus.levelUpSound);
-    runLuaFunction<void>("onIncrement");
+    runLuaFunctionIfExists<void>("onIncrement");
 }
 
 HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
@@ -866,7 +866,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     // onUnload.
     if(!mError)
     {
-        runLuaFunction<void>("onUnload");
+        runLuaFunctionIfExists<void>("onUnload");
     }
 
     window.setGameState(mgPtr->getGame());

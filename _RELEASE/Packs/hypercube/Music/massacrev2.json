@@ -1,20 +1,20 @@
 {
-	// Music data id
-	"id": "massacrev2",
+    // Music data id
+    "id": "massacrev2",
 
-	// Music file
-	"file_name": "massacrev2.ogg",
+    // Music file
+    "file_name": "massacrev2.ogg",
 
-	// Music information
-	"name": "Massacre (version 2)",
-	"album": "",
-	"author": "Fantomenk",
+    // Music information
+    "name": "Massacre (version 2)",
+    "album": "",
+    "author": "Fantomenk",
 
-	// Segments
-	"segments":
-	[
-		{ "time": 15.280 },
-		{ "time": 83.311 },
-		{ "time": 159.847 }
-	]
+    // Segments
+    "segments":
+    [
+        { "time": 15.280 },
+        { "time": 83.311 },
+        { "time": 159.847 }
+    ]
 }

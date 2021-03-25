@@ -1,7 +1,7 @@
 {
-	"disambiguator": "ohvrvanilla",
-	"name": "base",
-	"author": "vittorio romeo",
-	"version": 1,
-	"priority": -99999.04
+    "disambiguator": "ohvrvanilla",
+    "name": "base",
+    "author": "vittorio romeo",
+    "version": 1,
+    "priority": -99999.04
 }

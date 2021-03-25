@@ -1,25 +1,25 @@
 -- include useful files
-u_execScript("utils.lua")
-u_execScript("common.lua")
-u_execScript("commonpatterns.lua")
-u_execScript("nextpatterns.lua")
-u_execScript("evolutionpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "utils.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "common.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "nextpatterns.lua")
+u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "evolutionpatterns.lua")
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-		if mKey == 0 then pAltBarrage(math.random(1, 3), 2)
-	elseif mKey == 1 then pMirrorSpiral(math.random(2, 4), 0)
-	elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
-	elseif mKey == 3 then pBarrageSpiral(math.random(0, 2), 1.2, 2)
-	elseif mKey == 4 then pBarrageSpiral(2, 0.7, 1)
-	elseif mKey == 5 then pInverseBarrage(0)
-	elseif mKey == 6 then hmcDefBarrageSpiral()
-	elseif mKey == 7 then pMirrorWallStrip(1, 0)
-	elseif mKey == 8 then hmcDefSpinner()
-	elseif mKey == 9 then hmcDefBarrage()
-	elseif mKey == 10 then hmcDef2Cage()
-	elseif mKey == 11 then hmcDefBarrageSpiralSpin()
-	end
+        if mKey == 0 then pAltBarrage(math.random(1, 3), 2)
+    elseif mKey == 1 then pMirrorSpiral(math.random(2, 4), 0)
+    elseif mKey == 2 then pBarrageSpiral(math.random(0, 3), 1, 1)
+    elseif mKey == 3 then pBarrageSpiral(math.random(0, 2), 1.2, 2)
+    elseif mKey == 4 then pBarrageSpiral(2, 0.7, 1)
+    elseif mKey == 5 then pInverseBarrage(0)
+    elseif mKey == 6 then hmcDefBarrageSpiral()
+    elseif mKey == 7 then pMirrorWallStrip(1, 0)
+    elseif mKey == 8 then hmcDefSpinner()
+    elseif mKey == 9 then hmcDefBarrage()
+    elseif mKey == 10 then hmcDef2Cage()
+    elseif mKey == 11 then hmcDefBarrageSpiralSpin()
+    end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
@@ -30,32 +30,32 @@ index = 0
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-	l_setSpeedMult(1.7)
-	l_setSpeedInc(0.15)
-	l_setRotationSpeed(0.1)
-	l_setRotationSpeedMax(0.4)
-	l_setRotationSpeedInc(0.035)
-	l_setDelayMult(1.2)
-	l_setDelayInc(0.0)
-	l_setFastSpin(0.0)
-	l_setSides(6)
-	l_setSidesMin(6)
-	l_setSidesMax(6)
-	l_setIncTime(15)
+    l_setSpeedMult(1.7)
+    l_setSpeedInc(0.15)
+    l_setRotationSpeed(0.1)
+    l_setRotationSpeedMax(0.4)
+    l_setRotationSpeedInc(0.035)
+    l_setDelayMult(1.2)
+    l_setDelayInc(0.0)
+    l_setFastSpin(0.0)
+    l_setSides(6)
+    l_setSidesMin(6)
+    l_setSidesMax(6)
+    l_setIncTime(15)
 
-	l_setPulseMin(77)
-	l_setPulseMax(95)
-	l_setPulseSpeed(1.95)
-	l_setPulseSpeedR(0.51)
-	l_setPulseDelayMax(13)
+    l_setPulseMin(77)
+    l_setPulseMax(95)
+    l_setPulseSpeed(1.95)
+    l_setPulseSpeedR(0.51)
+    l_setPulseDelayMax(13)
 
-	l_setBeatPulseMax(17)
-	l_setBeatPulseDelayMax(27.8)
+    l_setBeatPulseMax(17)
+    l_setBeatPulseDelayMax(27.8)
 
-	l_setSwapEnabled(true)
-	l_addTracked("special", "special")
+    l_setSwapEnabled(true)
+    l_addTracked("special", "special")
 
-	l_setTutorialMode(true)
+    l_setTutorialMode(true)
 end
 
 FloatingWall = {}
@@ -72,73 +72,73 @@ function FloatingWall:new(handle)
 end
 
 function FloatingWall:move(mFrameTime)
-	for i=0,3 do
-		oldX,oldY = cw_getVertexPos(self.cwHandle, i)
+    for i=0,3 do
+        oldX,oldY = cw_getVertexPos(self.cwHandle, i)
 
-		if oldX < -1000 or oldX > 1000 or oldY < -1000 or oldY > 1000 then
-			self.dead = true
-			return
-		end
+        if oldX < -1000 or oldX > 1000 or oldY < -1000 or oldY > 1000 then
+            self.dead = true
+            return
+        end
 
-		cw_setVertexPos(self.cwHandle, i, oldX + self.velocity_x * mFrameTime, oldY + self.velocity_y * mFrameTime)
-	end
+        cw_setVertexPos(self.cwHandle, i, oldX + self.velocity_x * mFrameTime, oldY + self.velocity_y * mFrameTime)
+    end
 end
 
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-	e_waitUntilS(2)
-	e_messageAddImportant("test", 130)
+    e_waitUntilS(2)
+    e_messageAddImportant("test", 130)
 end
 
 function randomSign()
-	if math.random() > 0.5 then
-		return -1
-	else
-		return 1
-	end
+    if math.random() > 0.5 then
+        return -1
+    else
+        return 1
+    end
 end
 
 function makeWall()
-	cwHandle = cw_create()
-	cw_setDeadly(cwHandle, true)
+    cwHandle = cw_create()
+    cw_setDeadly(cwHandle, true)
 
-	if math.random() > 0.5 then
-		x = math.random(-600, 600)
-		y = 1000 * randomSign()
-	else
-		x = 1000 * randomSign()
-		y = math.random(-600, 600)
-	end
+    if math.random() > 0.5 then
+        x = math.random(-600, 600)
+        y = 1000 * randomSign()
+    else
+        x = 1000 * randomSign()
+        y = math.random(-600, 600)
+    end
 
-	wallSize = math.random(35, 85)
+    wallSize = math.random(35, 85)
 
-	cw_setVertexPos4(cwHandle, x + wallSize, y + wallSize,
-	                           x + wallSize, y + wallSize * 2,
-	                           x + wallSize * 2, y + wallSize * 2,
-	                           x + wallSize * 2, y + wallSize)
+    cw_setVertexPos4(cwHandle, x + wallSize, y + wallSize,
+                               x + wallSize, y + wallSize * 2,
+                               x + wallSize * 2, y + wallSize * 2,
+                               x + wallSize * 2, y + wallSize)
 
-	cw_setVertexColor4Same(cwHandle, 255, 0, 0, 175)
+    cw_setVertexColor4Same(cwHandle, 255, 0, 0, 175)
 
-	fw = FloatingWall:new(cwHandle)
+    fw = FloatingWall:new(cwHandle)
 
-	if math.random() > 0.5 then
-		fw.velocity_x = math.random(10, 15) * randomSign()
-		fw.velocity_y = 0
-	else
-		fw.velocity_x = 0
-		fw.velocity_y = math.random(10, 15) * randomSign()
-	end
+    if math.random() > 0.5 then
+        fw.velocity_x = math.random(10, 15) * randomSign()
+        fw.velocity_y = 0
+    else
+        fw.velocity_x = 0
+        fw.velocity_y = math.random(10, 15) * randomSign()
+    end
 
-	table.insert(floatingWalls, fw)
+    table.insert(floatingWalls, fw)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()
-	for i=0, 50 do
-		makeWall()
-	end
+    for i=0, 50 do
+        makeWall()
+    end
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
@@ -149,39 +149,19 @@ end
 function onUnload()
 end
 
--- From: https://stackoverflow.com/questions/12394841/
-function ArrayRemove(t, fnRemove)
-    local j, n = 1, #t;
-
-    for i=1,n do
-        if (not fnRemove(t, i, j)) then
-            -- Move i's kept value to j's position, if it's not already there.
-            if (i ~= j) then
-                t[j] = t[i];
-                t[i] = nil;
-            end
-            j = j + 1; -- Increment position of where we'll place the next kept value.
-        else
-            t[i] = nil;
-        end
-    end
-
-    return t;
-end
-
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
-	ArrayRemove(floatingWalls, function(t, i, j)
-		local v = t[i]
-		if v.dead then
-			cw_destroy(v.cwHandle)
-			return true
-		else
-			return false
-		end
-	end);
+    ArrayRemoveIf(floatingWalls, function(t, i, j)
+        local v = t[i]
+        if v.dead then
+            cw_destroy(v.cwHandle)
+            return true
+        else
+            return false
+        end
+    end);
 
-	for _, fw in ipairs(floatingWalls) do
-		fw:move(mFrameTime)
-	end
+    for _, fw in ipairs(floatingWalls) do
+        fw:move(mFrameTime)
+    end
 end

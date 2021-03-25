@@ -1,20 +1,20 @@
 {
-	// Music data id
-	"id": "minimal",
+    // Music data id
+    "id": "minimal",
 
-	// Music file
-	"file_name": "minimal.ogg",
+    // Music file
+    "file_name": "minimal.ogg",
 
-	// Music information
-	"name": "Minimal",
-	"album": "",
-	"author": "Fantomenk",
+    // Music information
+    "name": "Minimal",
+    "album": "",
+    "author": "Fantomenk",
 
-	// Segments
-	"segments":
-	[
-		{ "time": 12.895 },
-		{ "time": 27.466 },
-		{ "time": 75.466 }
-	]
+    // Segments
+    "segments":
+    [
+        { "time": 12.895 },
+        { "time": 27.466 },
+        { "time": 75.466 }
+    ]
 }
