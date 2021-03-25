@@ -6,7 +6,6 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
-#include "SSVOpenHexagon/Utils/WallUtils.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
@@ -33,14 +32,6 @@ private:
     std::array<sf::Color, 4> _vertexColors;
     std::uint8_t _killingSide{0u};
 
-    bool _outOfPlayerRadius; // Collision with a regular wall is checked two
-                             // times per frame each frame. If in the first
-                             // check it is determined that the wall is too far
-                             // from the center to be a potential cause of
-                             // collision this value is set to true, so that the
-                             // second check can be quickly dismissed with a
-                             // boolean comparison.
-
     enum CWFlags : unsigned int
     {
         Collision,
@@ -61,18 +52,10 @@ public:
         wallQuads.unsafe_emplace_back(_vertexPositions[3], _vertexColors[3]);
     }
 
-    [[gnu::always_inline]] void updateOutOfPlayerRadius(
-        const sf::Vector2f& point) noexcept
-    {
-        _outOfPlayerRadius =
-            hg::Utils::isOutOfPlayerRadius(point, _vertexPositions);
-    }
-
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
         const sf::Vector2f& point) const noexcept
     {
-        return !_outOfPlayerRadius &&
-               Utils::pointInPolygon(_vertexPositions, point.x, point.y);
+        return Utils::pointInPolygon(_vertexPositions, point.x, point.y);
     }
 
     [[gnu::always_inline]] void setVertexPos(
@@ -141,11 +124,6 @@ public:
     getKillingSide() const noexcept
     {
         return _killingSide;
-    }
-
-    [[gnu::always_inline, nodiscard]] bool getOutOfPlayerRadius() const noexcept
-    {
-        return _outOfPlayerRadius;
     }
 };
 

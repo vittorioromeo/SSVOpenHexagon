@@ -293,28 +293,6 @@ void HexagonGame::updateText(ssvu::FT mFT)
 
         os << "CUSTOM WALLS: " << cwManager.count() << " / "
            << cwManager.maxHandles() << '\n';
-
-        {
-            int culledCustomWalls{0};
-
-            cwManager.forCustomWalls([&](const CCustomWall& w) {
-                culledCustomWalls += w.getOutOfPlayerRadius();
-            });
-
-            os << "CULLED C. WALLS: " << culledCustomWalls << " / "
-               << cwManager.count() << '\n';
-        }
-
-        {
-            int culledNormalWalls{0};
-            for(const CWall& w : walls)
-            {
-                culledNormalWalls += w.getOutOfPlayerRadius();
-            }
-
-            os << "CULLED N. WALLS: " << culledNormalWalls << " / "
-               << walls.size() << '\n';
-        }
     }
 
     if(status.started)

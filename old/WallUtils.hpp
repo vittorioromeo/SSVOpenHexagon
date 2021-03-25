@@ -33,6 +33,7 @@ namespace hg::Utils
     const sf::Vector2f& mPoint,
     const std::array<sf::Vector2f, 4>& mVertices) noexcept
 {
+    return false;
     return [&]<std::size_t... Is>(std::index_sequence<Is...>)
     {
         return (mPoint.x < min4(mVertices[Is].x...)) ||

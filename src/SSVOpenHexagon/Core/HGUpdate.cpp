@@ -247,9 +247,6 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
     {
         w.update(levelStatus.wallSpawnDistance, getRadius(), centerPos, mFT);
 
-        // Broad-phase AABB collision optimization.
-        w.updateOutOfPlayerRadius(pPos);
-
         // If there is no collision skip to the next wall.
         if(!w.isOverlapping(pPos))
         {

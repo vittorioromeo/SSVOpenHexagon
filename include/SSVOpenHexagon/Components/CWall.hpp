@@ -6,7 +6,6 @@
 
 #include "SSVOpenHexagon/Components/SpeedData.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
-#include "SSVOpenHexagon/Utils/WallUtils.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SSVStart/Utils/Vector2.hpp>
@@ -29,14 +28,6 @@ private:
 
     float _hueMod;
     bool _killed;
-
-    bool _outOfPlayerRadius; // Collision with a regular wall is checked two
-                             // times per frame each frame. If in the first
-                             // check it is determined that the wall is too far
-                             // from the center to be a potential cause of
-                             // collision this value is set to true, so that the
-                             // second check can be quickly dismissed with a
-                             // boolean comparison.
 
     void moveTowardsCenter(const float wallSpawnDist, const float radius,
         const sf::Vector2f& centerPos, const ssvu::FT ft);
@@ -79,18 +70,10 @@ public:
         return _curve;
     }
 
-    [[gnu::always_inline]] void updateOutOfPlayerRadius(
-        const sf::Vector2f& point) noexcept
-    {
-        _outOfPlayerRadius =
-            hg::Utils::isOutOfPlayerRadius(point, _vertexPositions);
-    }
-
     [[gnu::always_inline, nodiscard]] bool isOverlapping(
         const sf::Vector2f& point) const noexcept
     {
-        return !_outOfPlayerRadius &&
-               Utils::pointInPolygon(_vertexPositions, point.x, point.y);
+        return Utils::pointInPolygon(_vertexPositions, point.x, point.y);
     }
 
     [[gnu::always_inline, nodiscard]] constexpr bool
@@ -108,11 +91,6 @@ public:
     [[gnu::always_inline, nodiscard]] bool isDead() const noexcept
     {
         return _killed;
-    }
-
-    [[gnu::always_inline, nodiscard]] bool getOutOfPlayerRadius() const noexcept
-    {
-        return _outOfPlayerRadius;
     }
 };
 
