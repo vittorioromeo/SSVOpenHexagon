@@ -1078,7 +1078,7 @@ void HexagonGame::postUpdateImguiLuaConsole()
         ilcLuaTrackedResults.clear();
         bool problem = false;
 
-        for(auto i = 0; i < ilcLuaTracked.size(); ++i)
+        for(std::size_t i = 0; i < ilcLuaTracked.size(); ++i)
         {
             const std::string& code = ilcLuaTracked[i];
 
