@@ -50,21 +50,15 @@ function mkVertWall(mY, mYVel, mX)
     local width = 3000
     local height = 40
 
-    cw_setVertexPos(cwHandle, 0, x,         y)
-    cw_setVertexPos(cwHandle, 1, x + width, y)
-    cw_setVertexPos(cwHandle, 2, x + width, y + height)
-    cw_setVertexPos(cwHandle, 3, x,         y + height)
+    cw_setVertexPos4(cwHandle, x,         y,
+                               x + width, y,
+                               x + width, y + height,
+                               x,         y + height)
 
     if nIncrement % 2 == 0 then
-        cw_setVertexColor(cwHandle, 0, 0, 255, 0, 255)
-        cw_setVertexColor(cwHandle, 1, 0, 255, 0, 255)
-        cw_setVertexColor(cwHandle, 2, 0, 255, 0, 255)
-        cw_setVertexColor(cwHandle, 3, 0, 255, 0, 255)
+        cw_setVertexColor4Same(cwHandle, 0, 255, 0, 255)
     else
-        cw_setVertexColor(cwHandle, 0, 255, 255, 255, 255)
-        cw_setVertexColor(cwHandle, 1, 255, 255, 255, 255)
-        cw_setVertexColor(cwHandle, 2, 255, 255, 255, 255)
-        cw_setVertexColor(cwHandle, 3, 255, 255, 255, 255)
+        cw_setVertexColor4Same(cwHandle, 255, 255, 255, 255)
     end
 
     local fw = FloatingWall:new(cwHandle)
@@ -86,40 +80,15 @@ function mkHalfHorizWall(mInv, mY, color, mXVel, mX)
     local width = 20
     local height = 800
 
-    cw_setVertexPos(cwHandle, 0, x,         y)
-    cw_setVertexPos(cwHandle, 1, x + width, y)
-    cw_setVertexPos(cwHandle, 2, x + width, y + height)
-    cw_setVertexPos(cwHandle, 3, x,         y + height)
-
-    --[[
-    if color == 0 then
-        cw_setVertexColor(cwHandle, 0, 255, 0, 0, 255)
-        cw_setVertexColor(cwHandle, 1, 255, 0, 0, 255)
-        cw_setVertexColor(cwHandle, 2, 255, 0, 0, 255)
-        cw_setVertexColor(cwHandle, 3, 255, 0, 0, 255)
-    elseif color == 1 then
-        cw_setVertexColor(cwHandle, 0, 0, 0, 255, 255)
-        cw_setVertexColor(cwHandle, 1, 0, 0, 255, 255)
-        cw_setVertexColor(cwHandle, 2, 0, 0, 255, 255)
-        cw_setVertexColor(cwHandle, 3, 0, 0, 255, 255)
-    else
-        cw_setVertexColor(cwHandle, 0, 255, 0, 0, 190)
-        cw_setVertexColor(cwHandle, 1, 0, 255, 0, 190)
-        cw_setVertexColor(cwHandle, 2, 0, 0, 255, 190)
-        cw_setVertexColor(cwHandle, 3, 255, 255, 0, 190)
-    end
-    --]]
+    cw_setVertexPos4(cwHandle, x,         y,
+                               x + width, y,
+                               x + width, y + height,
+                               x,         y + height)
 
     if nIncrement % 2 == 0 then
-        cw_setVertexColor(cwHandle, 0, 0, 255, 0, 255)
-        cw_setVertexColor(cwHandle, 1, 0, 255, 0, 255)
-        cw_setVertexColor(cwHandle, 2, 0, 255, 0, 255)
-        cw_setVertexColor(cwHandle, 3, 0, 255, 0, 255)
+        cw_setVertexColor4Same(cwHandle, 0, 255, 0, 255)
     else
-        cw_setVertexColor(cwHandle, 0, 255, 255, 255, 255)
-        cw_setVertexColor(cwHandle, 1, 255, 255, 255, 255)
-        cw_setVertexColor(cwHandle, 2, 255, 255, 255, 255)
-        cw_setVertexColor(cwHandle, 3, 255, 255, 255, 255)
+        cw_setVertexColor4Same(cwHandle, 255, 255, 255, 255)
     end
 
     local fw = FloatingWall:new(cwHandle)

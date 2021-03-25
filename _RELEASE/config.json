@@ -17,7 +17,7 @@
 	"fullscreen_auto_resolution" : false,
 	"fullscreen_height" : 600,
 	"fullscreen_width" : 800,
-	"invincible" : false,
+	"invincible" : true,
 	"j_add_favorite" : 8,
 	"j_exit" : 2,
 	"j_favorite_menu" : 9,

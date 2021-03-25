@@ -113,15 +113,12 @@ function makeWall()
 
 	wallSize = math.random(35, 85)
 
-	cw_setVertexPos(cwHandle, 0, x + wallSize, y + wallSize)
-	cw_setVertexPos(cwHandle, 1, x + wallSize, y + wallSize * 2)
-	cw_setVertexPos(cwHandle, 2, x + wallSize * 2, y + wallSize * 2)
-	cw_setVertexPos(cwHandle, 3, x + wallSize * 2, y + wallSize)
+	cw_setVertexPos4(cwHandle, x + wallSize, y + wallSize,
+	                           x + wallSize, y + wallSize * 2,
+	                           x + wallSize * 2, y + wallSize * 2,
+	                           x + wallSize * 2, y + wallSize)
 
-	cw_setVertexColor(cwHandle, 0, 255, 0, 0, 175)
-	cw_setVertexColor(cwHandle, 1, 255, 0, 0, 175)
-	cw_setVertexColor(cwHandle, 2, 255, 0, 0, 175)
-	cw_setVertexColor(cwHandle, 3, 255, 0, 0, 175)
+	cw_setVertexColor4Same(cwHandle, 255, 0, 0, 175)
 
 	fw = FloatingWall:new(cwHandle)
 
