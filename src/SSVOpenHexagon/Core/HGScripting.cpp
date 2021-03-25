@@ -410,7 +410,8 @@ void HexagonGame::initLua_EventTimeline()
 {
     addLuaFn("e_eval",
         [this](const std::string& mCode) {
-            eventTimeline.append_do([=, this] { lua.executeCode(mCode); });
+            eventTimeline.append_do(
+                [=, this] { Utils::runLuaCode(lua, mCode); });
         })
         .arg("code")
         .doc(
@@ -1419,8 +1420,28 @@ void HexagonGame::initLua_Steam()
 void HexagonGame::initLua_CustomWalls()
 {
     addLuaFn("cw_create", //
-        [this]() -> CCustomWallHandle { return cwManager.create(); })
+        [this]() -> CCustomWallHandle {
+            return cwManager.create([](CCustomWall&) {});
+        })
         .doc("Create a new custom wall and return a integer handle to it.");
+
+    addLuaFn("cw_createDeadly", //
+        [this]() -> CCustomWallHandle {
+            return cwManager.create(
+                [](CCustomWall& cw) { cw.setDeadly(true); });
+        })
+        .doc(
+            "Create a new deadly custom wall and return a integer handle to "
+            "it.");
+
+    addLuaFn("cw_createNoCollision", //
+        [this]() -> CCustomWallHandle {
+            return cwManager.create(
+                [](CCustomWall& cw) { cw.setCanCollide(false); });
+        })
+        .doc(
+            "Create a new custom wall without collision and return a integer "
+            "handle to it.");
 
     addLuaFn("cw_destroy", //
         [this](CCustomWallHandle cwHandle) { cwManager.destroy(cwHandle); })
@@ -1438,6 +1459,29 @@ void HexagonGame::initLua_CustomWalls()
         .doc(
             "Given the custom wall represented by `$0`, set the position of "
             "its vertex with index `$1` to `{$2, $3}`.");
+
+    addLuaFn("cw_addVertexPos", //
+        [this](CCustomWallHandle cwHandle, int vertexIndex, float x, float y) {
+            cwManager.addVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y});
+        })
+        .arg("cwHandle")
+        .arg("vertexIndex")
+        .arg("offsetX")
+        .arg("offsetY")
+        .doc(
+            "Given the custom wall represented by `$0`, add `{$2, $3}` to the "
+            "position of its vertex with index `$1`.");
+
+    addLuaFn("cw_addVertexPos4Same", //
+        [this](CCustomWallHandle cwHandle, float x, float y) {
+            cwManager.addVertexPos4Same(cwHandle, sf::Vector2f{x, y});
+        })
+        .arg("cwHandle")
+        .arg("offsetX")
+        .arg("offsetY")
+        .doc(
+            "Given the custom wall represented by `$0`, add `{$1, $2}` to the "
+            "position of its vertex with indices `0`, `1`, `2`, and `3`.");
 
     addLuaFn("cw_setVertexColor", //
         [this](CCustomWallHandle cwHandle, int vertexIndex, int r, int g, int b,
@@ -1600,15 +1644,28 @@ void HexagonGame::initLua_CustomWalls()
     addLuaFn("cw_getVertexPos", //
         [this](CCustomWallHandle cwHandle,
             int vertexIndex) -> std::tuple<float, float> {
-            const sf::Vector2f pos =
+            const sf::Vector2f& pos =
                 cwManager.getVertexPos(cwHandle, vertexIndex);
-            return std::tuple{pos.x, pos.y};
+
+            return {pos.x, pos.y};
         })
         .arg("cwHandle")
         .arg("vertexIndex")
         .doc(
             "Given the custom wall represented by `$0`, return the position of "
             "its vertex with index `$1`.");
+
+    addLuaFn("cw_getVertexPos4", //
+        [this](
+            CCustomWallHandle cwHandle) -> std::tuple<float, float, float,
+                                            float, float, float, float, float> {
+            const auto& [p0, p1, p2, p3] = cwManager.getVertexPos4(cwHandle);
+            return {p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y};
+        })
+        .arg("cwHandle")
+        .doc(
+            "Given the custom wall represented by `$0`, return the position of "
+            "its vertics with indices `0`, `1`, `2`, and `3`, as a tuple.");
 
     // TODO:
     /*

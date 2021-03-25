@@ -30,6 +30,7 @@ class CCustomWallManager
     std::vector<bool> _handleAvailable;
     CCustomWallHandle _nextFreeHandle{0};
     std::size_t _count{0};
+    std::vector<CCustomWallHandle> _tempAliveHandles;
 
     [[nodiscard]] bool isValidHandle(const CCustomWallHandle h) const noexcept;
 
@@ -42,13 +43,23 @@ class CCustomWallManager
     [[nodiscard]] bool checkValidVertexIdxAndHandle(
         const CCustomWallHandle h, const int vertexIdx, const char* msg);
 
+    void destroyUnchecked(const CCustomWallHandle cwHandle);
+
 public:
-    [[nodiscard]] CCustomWallHandle create();
+    [[nodiscard]] CCustomWallHandle create(void (*fAfterCreate)(CCustomWall&));
 
     void destroy(const CCustomWallHandle cwHandle);
 
+    void destroyAllOutOfBounds(const sf::Vector2f& bounds);
+
     void setVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
         const sf::Vector2f& pos);
+
+    void addVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
+        const sf::Vector2f& offset);
+
+    void addVertexPos4Same(
+        const CCustomWallHandle cwHandle, const sf::Vector2f& offset);
 
     void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);
 
@@ -69,8 +80,11 @@ public:
     void setVertexColor4Same(
         const CCustomWallHandle cwHandle, const sf::Color& color);
 
-    [[nodiscard]] sf::Vector2f getVertexPos(
+    [[nodiscard]] const sf::Vector2f& getVertexPos(
         const CCustomWallHandle cwHandle, const int vertexIdx);
+
+    [[nodiscard]] const std::array<sf::Vector2f, 4>& getVertexPos4(
+        const CCustomWallHandle cwHandle);
 
     [[nodiscard]] bool getCanCollide(const CCustomWallHandle cwHandle);
 
@@ -85,35 +99,6 @@ public:
 
     [[nodiscard]] bool handleCollision(
         const int movement, const float radius, CPlayer& mPlayer, ssvu::FT mFT);
-
-    template <typename F>
-    void forCustomWalls(F&& f)
-    {
-        for(CCustomWallHandle h = 0; h < (int)_customWalls.size(); ++h)
-        {
-            if(!_handleAvailable[h])
-            {
-                f(_customWalls[h]);
-            }
-        }
-    }
-
-    template <typename F>
-    [[nodiscard]] bool anyCustomWall(F&& f)
-    {
-        for(CCustomWallHandle h = 0; h < (int)_customWalls.size(); ++h)
-        {
-            if(!_handleAvailable[h])
-            {
-                if(f(_customWalls[h]))
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 
     [[nodiscard]] std::size_t count() const noexcept
     {

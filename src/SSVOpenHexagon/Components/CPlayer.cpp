@@ -290,11 +290,6 @@ template <typename Wall>
         return false;
     }
 
-    if(wall.getDeadly())
-    {
-        return true;
-    }
-
     // Look for a side that is moving in a direction perpendicular to the
     // player, such side is a candidate for pushing it like a curving wall would
     // do. (_lastPos is the best candidate for this check).
