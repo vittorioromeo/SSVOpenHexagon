@@ -5,7 +5,6 @@
 #pragma once
 
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SSVUtils/Core/Common/Frametime.hpp>

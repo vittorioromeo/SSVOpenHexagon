@@ -8,6 +8,7 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
+#include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
 namespace hg
 {
@@ -23,7 +24,7 @@ namespace hg
 [[nodiscard]] bool CCustomWallManager::checkValidHandle(
     const CCustomWallHandle h, const char* msg)
 {
-    if(_handleAvailable[h])
+    if(SSVU_UNLIKELY(_handleAvailable[h]))
     {
         ssvu::lo("CustomWallManager")
             << "Attempted to " << msg << " of invalid custom wall " << h
@@ -40,7 +41,7 @@ namespace hg
 [[nodiscard]] bool CCustomWallManager::checkValidVertexIdx(
     const CCustomWallHandle h, const int vertexIdx, const char* msg)
 {
-    if(vertexIdx < 0 || vertexIdx > 3)
+    if(SSVU_UNLIKELY(vertexIdx < 0 || vertexIdx > 3))
     {
         ssvu::lo("CustomWallManager")
             << "Invalid vertex index " << vertexIdx << " for custom wall " << h
@@ -58,11 +59,12 @@ namespace hg
     return checkValidVertexIdx(h, vertexIdx, msg) && checkValidHandle(h, msg);
 }
 
-[[nodiscard]] CCustomWallHandle CCustomWallManager::create()
+[[nodiscard]] CCustomWallHandle CCustomWallManager::create(
+    void (*fAfterCreate)(CCustomWall&))
 {
-    if(_freeHandles.empty())
+    if(SSVU_UNLIKELY(_freeHandles.empty()))
     {
-        constexpr std::size_t reserveSize = 32;
+        const std::size_t reserveSize = 32 + _nextFreeHandle * 2;
         const std::size_t maxHandleIndex = _nextFreeHandle + reserveSize;
 
         _freeHandles.reserve(maxHandleIndex);
@@ -71,10 +73,11 @@ namespace hg
 
         for(std::size_t i = 0; i < reserveSize; ++i)
         {
-            _freeHandles.emplace_back(_nextFreeHandle);
-            _handleAvailable[_nextFreeHandle] = true;
-            ++_nextFreeHandle;
+            _freeHandles.emplace_back(_nextFreeHandle + i);
+            _handleAvailable[_nextFreeHandle + i] = true;
         }
+
+        _nextFreeHandle = maxHandleIndex;
     }
 
     const auto res = _freeHandles.back();
@@ -83,19 +86,14 @@ namespace hg
     _handleAvailable[res] = false;
     ++_count;
 
+    fAfterCreate(_customWalls[res]);
+
     return res;
 }
 
-void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
+void CCustomWallManager::destroyUnchecked(const CCustomWallHandle cwHandle)
 {
-    if(_handleAvailable[cwHandle])
-    {
-        ssvu::lo("CustomWallManager")
-            << "Attempted to destroy invalid wall " << cwHandle << '\n';
-
-        return;
-    }
-
+    SSVU_ASSERT(!_handleAvailable[cwHandle]);
     SSVU_ASSERT(isValidHandle(cwHandle));
 
     _handleAvailable[cwHandle] = true;
@@ -105,16 +103,50 @@ void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
     _freeHandles.emplace_back(cwHandle);
 }
 
+void CCustomWallManager::destroy(const CCustomWallHandle cwHandle)
+{
+    if(SSVU_UNLIKELY(_handleAvailable[cwHandle]))
+    {
+        ssvu::lo("CustomWallManager")
+            << "Attempted to destroy invalid wall " << cwHandle << '\n';
+
+        return;
+    }
+
+    destroyUnchecked(cwHandle);
+}
+
 void CCustomWallManager::setVertexPos(const CCustomWallHandle cwHandle,
     const int vertexIdx, const sf::Vector2f& pos)
 {
-    if(!checkValidVertexIdxAndHandle(
-           cwHandle, vertexIdx, "set vertex position"))
+    if(!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "set vertex pos"))
     {
         return;
     }
 
     _customWalls[cwHandle].setVertexPos(vertexIdx, pos);
+}
+
+void CCustomWallManager::addVertexPos(const CCustomWallHandle cwHandle,
+    const int vertexIdx, const sf::Vector2f& offset)
+{
+    if(!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "add vertex pos"))
+    {
+        return;
+    }
+
+    _customWalls[cwHandle].addVertexPos(vertexIdx, offset);
+}
+
+void CCustomWallManager::addVertexPos4Same(
+    const CCustomWallHandle cwHandle, const sf::Vector2f& offset)
+{
+    if(!checkValidHandle(cwHandle, "add four vertex pos same"))
+    {
+        return;
+    }
+
+    _customWalls[cwHandle].addVertexPos4Same(offset);
 }
 
 void CCustomWallManager::setCanCollide(
@@ -142,7 +174,7 @@ void CCustomWallManager::setDeadly(
 void CCustomWallManager::setKillingSide(
     const CCustomWallHandle cwHandle, const std::uint8_t side)
 {
-    if(side > 3u)
+    if(SSVU_UNLIKELY(side > 3u))
     {
         ssvu::lo("CustomWallManager")
             << "Attempted to set killing side with invalid value " << side
@@ -159,16 +191,29 @@ void CCustomWallManager::setKillingSide(
     _customWalls[cwHandle].setKillingSide(side);
 }
 
-[[nodiscard]] sf::Vector2f CCustomWallManager::getVertexPos(
+[[nodiscard]] const sf::Vector2f& CCustomWallManager::getVertexPos(
     const CCustomWallHandle cwHandle, const int vertexIdx)
 {
-    if(!checkValidVertexIdxAndHandle(
-           cwHandle, vertexIdx, "get vertex position"))
+    if(!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "get vertex pos"))
     {
-        return sf::Vector2f{0.f, 0.f};
+        return ssvs::zeroVec2f;
     }
 
     return _customWalls[cwHandle].getVertexPos(vertexIdx);
+}
+
+static const std::array<sf::Vector2f, 4> zeroArr{
+    ssvs::zeroVec2f, ssvs::zeroVec2f, ssvs::zeroVec2f, ssvs::zeroVec2f};
+
+[[nodiscard]] const std::array<sf::Vector2f, 4>&
+CCustomWallManager::getVertexPos4(const CCustomWallHandle cwHandle)
+{
+    if(!checkValidHandle(cwHandle, "get four vertex pos"))
+    {
+        return zeroArr;
+    }
+
+    return _customWalls[cwHandle].getVertexPositions();
 }
 
 [[nodiscard]] bool CCustomWallManager::getCanCollide(
@@ -295,23 +340,31 @@ void CCustomWallManager::draw(Utils::FastVertexVectorQuads& wallQuads)
 [[nodiscard]] bool CCustomWallManager::handleCollision(
     const int movement, const float radius, CPlayer& mPlayer, ssvu::FT mFT)
 {
-    const float radiusSquared{radius * radius};
+    // ------------------------------------------------------------------------
+    // Get all alive walls
+    _tempAliveHandles.clear();
 
-    const auto size{static_cast<int>(_customWalls.size())};
+    for(CCustomWallHandle h = 0; h < static_cast<int>(_customWalls.size()); ++h)
+    {
+        if(!_handleAvailable[h] && _customWalls[h].getCanCollide())
+        {
+            _tempAliveHandles.emplace_back(h);
+        }
+    }
+
+    const float radiusSquared{radius * radius};
     const sf::Vector2f& pPos{mPlayer.getPosition()};
 
     {
         bool collided{false};
-        for(CCustomWallHandle h = 0; h < size; ++h)
+        for(const CCustomWallHandle h : _tempAliveHandles)
         {
-            if(_handleAvailable[h] ||               //
-                !_customWalls[h].getCanCollide() || //
-                !_customWalls[h].isOverlapping(pPos))
+            if(!_customWalls[h].isOverlapping(pPos))
             {
                 continue;
             }
 
-            if(mPlayer.getJustSwapped() ||
+            if(mPlayer.getJustSwapped() || _customWalls[h].getDeadly() ||
                 mPlayer.push(
                     movement, radius, _customWalls[h], radiusSquared, mFT))
             {
@@ -330,11 +383,9 @@ void CCustomWallManager::draw(Utils::FastVertexVectorQuads& wallQuads)
     // Recheck collision on all walls.
     {
         bool collided{false};
-        for(CCustomWallHandle h = 0; h < size; ++h)
+        for(const CCustomWallHandle h : _tempAliveHandles)
         {
-            if(_handleAvailable[h] ||               //
-                !_customWalls[h].getCanCollide() || //
-                !_customWalls[h].isOverlapping(pPos))
+            if(!_customWalls[h].isOverlapping(pPos))
             {
                 continue;
             }
@@ -355,11 +406,9 @@ void CCustomWallManager::draw(Utils::FastVertexVectorQuads& wallQuads)
     }
 
     // Last round with no push.
-    for(CCustomWallHandle h = 0; h < size; ++h)
+    for(const CCustomWallHandle h : _tempAliveHandles)
     {
-        if(_handleAvailable[h] ||               //
-            !_customWalls[h].getCanCollide() || //
-            !_customWalls[h].isOverlapping(pPos))
+        if(!_customWalls[h].isOverlapping(pPos))
         {
             continue;
         }

@@ -34,13 +34,13 @@ private:
 
     enum CWFlags : unsigned int
     {
-        Collision,
+        NoCollision,
         Deadly,
 
         CWFlagsCount
     };
 
-    std::bitset<CWFlags::CWFlagsCount> _flags{1 /* Collision on */};
+    std::bitset<CWFlags::CWFlagsCount> _flags; // Default: collides, not deadly
 
 public:
     [[gnu::always_inline]] void draw(Utils::FastVertexVectorQuads& wallQuads)
@@ -65,6 +65,24 @@ public:
             std::exchange(_vertexPositions[vertexIndex], pos);
     }
 
+    [[gnu::always_inline]] void addVertexPos(
+        const int vertexIndex, const sf::Vector2f& offset) noexcept
+    {
+        _oldVertexPositions[vertexIndex] = _vertexPositions[vertexIndex];
+        _vertexPositions[vertexIndex] += offset;
+    }
+
+    [[gnu::always_inline]] void addVertexPos4Same(
+        const sf::Vector2f& offset) noexcept
+    {
+        _oldVertexPositions = _vertexPositions;
+
+        for(sf::Vector2f& v : _vertexPositions)
+        {
+            v += offset;
+        }
+    }
+
     [[gnu::always_inline]] void setVertexColor(
         const int vertexIndex, const sf::Color& color) noexcept
     {
@@ -73,7 +91,7 @@ public:
 
     [[gnu::always_inline]] void setCanCollide(const bool collide) noexcept
     {
-        _flags[CWFlags::Collision] = collide;
+        _flags[CWFlags::NoCollision] = !collide;
     }
 
     [[gnu::always_inline]] void setDeadly(const bool deadly) noexcept
@@ -101,7 +119,7 @@ public:
 
     [[gnu::always_inline, nodiscard]] bool getCanCollide() const noexcept
     {
-        return _flags[CWFlags::Collision];
+        return !_flags[CWFlags::NoCollision];
     }
 
     [[gnu::always_inline, nodiscard]] bool getDeadly() const noexcept

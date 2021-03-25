@@ -668,12 +668,6 @@ public:
     [[nodiscard]] bool getInputSwap() const;
     [[nodiscard]] int getInputMovement() const;
 
-    template <typename F>
-    [[nodiscard]] bool anyCustomWall(F&& f)
-    {
-        return cwManager.anyCustomWall(std::forward<F>(f));
-    }
-
     // Pack information
     [[nodiscard]] const PackData& getPackData() const noexcept;
     [[nodiscard]] const std::string& getPackId() const noexcept;
