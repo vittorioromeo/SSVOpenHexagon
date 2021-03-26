@@ -69,9 +69,7 @@ void HexagonGame::initLua_Utils()
                     mPackDisambiguator, mPackName, mPackAuthor);
 
             execScriptPackPathContext.emplace_back(dependencyData.folderPath);
-
-            Utils::scope_guard sg{
-                [this] { execScriptPackPathContext.pop_back(); }};
+            HG_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
 
             runLuaFile(dependencyData.folderPath + "Scripts/" + mScriptName);
         })
@@ -1579,14 +1577,12 @@ void HexagonGame::initLua()
     initLua_WallCreation();
     initLua_Steam();
     initLua_Deprecated();
+}
 
-    if(mustPrintLuaDocs)
-    {
-        ssvu::lo("hg::HexagonGame::initLua") << "Print Lua Markdown docs\n\n";
-        LuaScripting::printDocs();
-        std::cout << "\n\n";
-        ssvu::lo("hg::HexagonGame::initLua") << "Done\n";
-    }
+void HexagonGame::initLuaAndPrintDocs()
+{
+    initLua();
+    LuaScripting::printDocs();
 }
 
 } // namespace hg

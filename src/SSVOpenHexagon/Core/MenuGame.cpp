@@ -611,9 +611,7 @@ void MenuGame::initLua()
                     mPackDisambiguator, mPackName, mPackAuthor);
 
             execScriptPackPathContext.emplace_back(dependencyData.folderPath);
-
-            Utils::scope_guard sg{
-                [this] { execScriptPackPathContext.pop_back(); }};
+            HG_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
 
             Utils::runLuaFile(
                 lua, dependencyData.folderPath + "Scripts/" + mScriptName);

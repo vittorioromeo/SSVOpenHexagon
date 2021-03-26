@@ -205,14 +205,8 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
     try
     {
-        if(!ssvufs::Path{packPath + "Music/"}.exists<ssvufs::Type::Folder>())
-        {
-            errorMessage = "Warning - " + packId + " has no 'Music' folder\n";
-            loadInfo.errorMessages.emplace_back(errorMessage);
-
-            ssvu::lo("::loadAssets") << errorMessage;
-        }
-        else if(!levelsOnly)
+        if(ssvufs::Path{packPath + "Music/"}.exists<ssvufs::Type::Folder>() &&
+            !levelsOnly)
         {
             ssvu::lo("::loadAssets") << "loading " << packId << " music\n";
             loadMusic(packId, packPath);
@@ -221,27 +215,13 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
             loadMusicData(packId, packPath);
         }
 
-        if(!ssvufs::Path{packPath + "Styles/"}.exists<ssvufs::Type::Folder>())
-        {
-            errorMessage = "Warning - " + packId + " has no 'Styles' folder\n";
-            loadInfo.errorMessages.emplace_back(errorMessage);
-
-            ssvu::lo("::loadAssets") << errorMessage;
-        }
-        else
+        if(ssvufs::Path{packPath + "Styles/"}.exists<ssvufs::Type::Folder>())
         {
             ssvu::lo("::loadAssets") << "loading " << packId << " style data\n";
             loadStyleData(packId, packPath);
         }
 
-        if(!ssvufs::Path{packPath + "Levels/"}.exists<ssvufs::Type::Folder>())
-        {
-            errorMessage = "Warning - " + packId + " has no 'Levels' folder\n";
-            loadInfo.errorMessages.emplace_back(errorMessage);
-
-            ssvu::lo("::loadAssets") << errorMessage;
-        }
-        else
+        if(ssvufs::Path{packPath + "Levels/"}.exists<ssvufs::Type::Folder>())
         {
             ssvu::lo("::loadAssets") << "loading " << packId << " level data\n";
             loadLevelData(packId, packPath);

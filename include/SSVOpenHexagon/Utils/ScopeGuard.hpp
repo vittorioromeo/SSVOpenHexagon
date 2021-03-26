@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <vrm/pp/cat.hpp>
+
 #include <utility>
 
 namespace hg::Utils
@@ -23,3 +25,9 @@ struct scope_guard : F
 };
 
 } // namespace hg::Utils
+
+#define HG_SCOPE_GUARD(...)                           \
+    ::hg::Utils::scope_guard VRM_PP_CAT(sg, __LINE__) \
+    {                                                 \
+        [&] __VA_ARGS__                               \
+    }

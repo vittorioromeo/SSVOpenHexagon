@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>
@@ -114,6 +115,13 @@ int main(int argc, char* argv[])
     }
 
     // ------------------------------------------------------------------------
+    // Flush and save log (at the end of the scope)
+    HG_SCOPE_GUARD({
+        ssvu::lo().flush();
+        ssvu::saveLogToFile("log.txt");
+    });
+
+    // ------------------------------------------------------------------------
     // Set working directory to current executable location
     std::filesystem::current_path(std::filesystem::path{argv[0]}.parent_path());
 
@@ -137,6 +145,7 @@ int main(int argc, char* argv[])
         parseArgs(argc, argv);
 
     hg::Config::loadConfig(args);
+    HG_SCOPE_GUARD({ hg::Config::saveConfig(); });
 
     // ------------------------------------------------------------------------
     // Create the game window
@@ -156,13 +165,21 @@ int main(int argc, char* argv[])
     // ------------------------------------------------------------------------
     // Initialize IMGUI
     ImGui::SFML::Init(window);
+    HG_SCOPE_GUARD({ ImGui::SFML::Shutdown(); });
 
     // ------------------------------------------------------------------------
     // Create the game and menu states
     auto assets = std::make_unique<hg::HGAssets>(steamManager);
+    HG_SCOPE_GUARD({ assets->pSaveAll(); });
 
     auto hg = std::make_unique<hg::HexagonGame>(
-        steamManager, discordManager, *assets, window, printLuaDocs);
+        steamManager, discordManager, *assets, window);
+
+    if(printLuaDocs)
+    {
+        hg->initLuaAndPrintDocs();
+        return 0;
+    }
 
     auto mg = std::make_unique<hg::MenuGame>(
         steamManager, discordManager, *assets, *hg, window);
@@ -223,19 +240,6 @@ int main(int argc, char* argv[])
     // ------------------------------------------------------------------------
     // Run the game!
     window.run();
-
-    // ------------------------------------------------------------------------
-    // Shut down IMGUI
-    ImGui::SFML::Shutdown();
-
-    // ------------------------------------------------------------------------
-    // Flush output, save configuration and log
-    ssvu::lo().flush();
-
-    hg::Config::saveConfig();
-    assets->pSaveAll();
-
-    ssvu::saveLogToFile("log.txt");
 
     return 0;
 }

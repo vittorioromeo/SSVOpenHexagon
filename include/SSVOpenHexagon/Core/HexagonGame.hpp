@@ -254,6 +254,8 @@ private:
         const SpeedData& mCurve = SpeedData{}, float mHueMod = 0);
 
 public:
+    void initLuaAndPrintDocs();
+
     template <typename T, typename... TArgs>
     T runLuaFunction(const std::string& mName, const TArgs&... mArgs)
     {
@@ -402,8 +404,6 @@ private:
 
     [[nodiscard]] bool imguiLuaConsoleHasInput();
 
-    bool mustPrintLuaDocs;
-
     template <typename T>
     auto makeLuaAccessor(T& obj, const std::string& prefix);
 
@@ -441,7 +441,7 @@ public:
 
     HexagonGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-        ssvs::GameWindow& mGameWindow, const bool mPrintLuaDocs);
+        ssvs::GameWindow& mGameWindow);
 
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
     {

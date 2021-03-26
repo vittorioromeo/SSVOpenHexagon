@@ -206,11 +206,11 @@ void HexagonGame::updateLevelInfo()
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-    ssvs::GameWindow& mGameWindow, const bool mPrintLuaDocs)
+    ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), window(mGameWindow),
       player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()},
-      fpsWatcher(window), mustPrintLuaDocs{mPrintLuaDocs}
+      fpsWatcher(window)
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
 
