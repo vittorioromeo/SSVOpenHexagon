@@ -57,8 +57,8 @@ if (USE_LUAJIT)
 
   CPMAddPackage(
     NAME luajit
-    GIT_REPOSITORY https://github.com/SuperV1234/LuaJIT
-    GIT_TAG f31ad47377470a5ca66c7d2bfcd297104c7f09dc
+    GIT_REPOSITORY https://github.com/WohlSoft/LuaJIT
+    GIT_TAG 73e6a59d6add696be9b5ca3cc61ac6ae6710e5bf
   )
 
 endif()
