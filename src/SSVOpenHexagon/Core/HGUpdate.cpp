@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
+#include "SSVOpenHexagon/Core/LuaScripting.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>
@@ -735,7 +736,7 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
 
             // Build a list of candidates
             ImVector<const char*> candidates;
-            for(const std::string& fnName : getAllLuaFunctionNames())
+            for(const std::string& fnName : LuaScripting::getAllFunctionNames())
             {
                 if(Strnicmp(fnName.c_str(), word_start,
                        (int)(word_end - word_start)) == 0)
@@ -992,7 +993,7 @@ void HexagonGame::postUpdateImguiLuaConsole()
         else if(cmdString[0] == '?')
         {
             const std::string rest = Utils::getRTrim(cmdString.substr(1));
-            const std::string docs = getDocsForLuaFunction(rest);
+            const std::string docs = LuaScripting::getDocsForFunction(rest);
             ilcCmdLog.emplace_back(std::string{"[?]: "} + docs);
         }
         else

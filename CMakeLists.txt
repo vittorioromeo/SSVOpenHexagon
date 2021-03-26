@@ -23,7 +23,7 @@ CPMAddPackage(
   NAME SFML
   GITHUB_REPOSITORY SFML/SFML
   VERSION 2.5.1
-  GIT_TAG 2f11710abc5aa478503a7ff3f9e654bd2078ebab
+  GIT_TAG 748ba1bc82fdd35e972912a436f82023ec4a333a
 )
 
 # -----------------------------------------------------------------------------

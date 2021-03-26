@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Utils/ArgExtractor.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
+#include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
@@ -17,11 +18,6 @@
 
 namespace hg::Utils
 {
-
-template <typename>
-struct TypeWrapper
-{
-};
 
 class LuaMetadataProxy
 {
@@ -200,7 +196,7 @@ private:
 public:
     template <typename F>
     explicit LuaMetadataProxy(
-        F&&, LuaMetadata& mLuaMetadata, const std::string& mName)
+        TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
         : luaMetadata{mLuaMetadata}, name{mName},
           erasedRet{[](LuaMetadataProxy*) -> std::string {
               using AE =

@@ -218,14 +218,10 @@ private:
         float y;
     };
 
-    Utils::LuaMetadata luaMetadata;
-
     std::string packId;
     std::string levelId;
 
     // Lua related methods
-    void redefineLuaFunctions();
-    void destroyMaliciousFunctions();
     void initLua_Utils();
     void initLua_AudioControl();
     void initLua_MainTimeline();
@@ -406,85 +402,7 @@ private:
 
     [[nodiscard]] bool imguiLuaConsoleHasInput();
 
-    template <typename F>
-    Utils::LuaMetadataProxy addLuaFn(const std::string& name, F&& f)
-    {
-        lua.writeVariable(name, std::forward<F>(f));
-        return Utils::LuaMetadataProxy{f, luaMetadata, name};
-    }
-
     bool mustPrintLuaDocs;
-
-    void printLuaDocs()
-    {
-        for(std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i)
-        {
-            std::cout << '\n' << luaMetadata.prefixHeaders.at(i) << "\n\n";
-
-            luaMetadata.forFnEntries(
-                [](const std::string& ret, const std::string& name,
-                    const std::string& args, const std::string& docs) {
-                    std::cout << "* **`" << ret << " " << name << "(" << args
-                              << ")`**: " << docs << "\n\n";
-                },
-                i);
-        }
-    }
-
-    const std::vector<std::string>& getAllLuaFunctionNames()
-    {
-        static std::vector<std::string> result = [&] {
-            std::vector<std::string> v;
-
-            for(std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i)
-            {
-                luaMetadata.forFnEntries(
-                    [&](const std::string&, const std::string& name,
-                        const std::string&,
-                        const std::string&) { v.emplace_back(name); },
-                    i);
-            }
-
-            return v;
-        }();
-
-        return result;
-    }
-
-    std::string getDocsForLuaFunction(const std::string& fnName)
-    {
-        bool found = false;
-        std::string result;
-
-        for(std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i)
-        {
-            luaMetadata.forFnEntries(
-                [&](const std::string& ret, const std::string& name,
-                    const std::string& args, const std::string& docs) {
-                    if(!found && name == fnName)
-                    {
-                        found = true;
-
-                        result += ret;
-                        result += " ";
-                        result += name;
-                        result += "(";
-                        result += args;
-                        result += "):\n";
-                        result += docs;
-                        result += "\n\n";
-                    }
-                },
-                i);
-        }
-
-        if(!found)
-        {
-            return "UNKNOWN FUNCTION";
-        }
-
-        return result;
-    }
 
     template <typename T>
     auto makeLuaAccessor(T& obj, const std::string& prefix);
