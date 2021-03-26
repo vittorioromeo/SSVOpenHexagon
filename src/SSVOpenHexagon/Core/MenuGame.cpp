@@ -15,6 +15,8 @@
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
+#include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
@@ -579,7 +581,10 @@ void MenuGame::initInput()
 
 void MenuGame::initLua()
 {
-    lua.writeVariable("u_inMenu", [] { return true; });
+    static CCustomWallManager cwManager;
+    static random_number_generator rng{0};
+
+    LuaScripting::init(lua, rng, true /* inMenu */, cwManager);
 
     lua.writeVariable("u_log",
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
@@ -655,15 +660,6 @@ void MenuGame::initLua()
     lua.writeVariable(
         "l_getPulseSpeedR", [this] { return levelStatus.pulseSpeedR; });
 
-    lua.writeVariable(
-        "u_getVersionMajor", [] { return Config::getVersion().major; });
-    lua.writeVariable(
-        "u_getVersionMinor", [] { return Config::getVersion().minor; });
-    lua.writeVariable(
-        "u_getVersionMicro", [] { return Config::getVersion().micro; });
-    lua.writeVariable(
-        "u_getVersionString", [] { return Config::getVersionString(); });
-
     lua.writeVariable("l_setRotationSpeed",
         [this](float mValue) { levelStatus.rotationSpeed = mValue; });
 
@@ -676,8 +672,6 @@ void MenuGame::initLua()
     for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
             "u_haltTime", "u_timelineWait", "u_clearWalls",
-
-            "u_rndReal", "u_rndIntUpper", "u_rndInt", "u_rndSwitch",
 
             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
             "a_playSound", "a_playPackSound", "a_syncMusicToDM",
@@ -733,11 +727,6 @@ void MenuGame::initLua()
 
             "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
             "w_wallHModCurveData",
-
-            "cw_create", "cw_destroy", "cw_setVertexPos", "cw_setVertexColor",
-            "cw_setCollision", "cw_setDeadly", "cw_setKillingSide",
-            "cw_getVertexPos", "cw_isOverlappingPlayer", "cw_clear",
-            "cw_getCollision", "cw_getDeadly", "cw_getKillingSide",
 
             "steam_unlockAchievement",
 
