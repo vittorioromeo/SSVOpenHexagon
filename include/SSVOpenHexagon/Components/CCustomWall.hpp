@@ -65,14 +65,14 @@ public:
             std::exchange(_vertexPositions[vertexIndex], pos);
     }
 
-    [[gnu::always_inline]] void addVertexPos(
+    [[gnu::always_inline]] void moveVertexPos(
         const int vertexIndex, const sf::Vector2f& offset) noexcept
     {
         _oldVertexPositions[vertexIndex] = _vertexPositions[vertexIndex];
         _vertexPositions[vertexIndex] += offset;
     }
 
-    [[gnu::always_inline]] void addVertexPos4Same(
+    [[gnu::always_inline]] void moveVertexPos4Same(
         const sf::Vector2f& offset) noexcept
     {
         _oldVertexPositions = _vertexPositions;
