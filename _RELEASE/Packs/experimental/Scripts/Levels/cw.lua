@@ -87,7 +87,7 @@ function FloatingWall:move(mFrameTime)
         return
     end
 
-    cw_addVertexPos4Same(self.cwHandle,
+    cw_moveVertexPos4Same(self.cwHandle,
         self.velocity_x * mFrameTime,
         self.velocity_y * mFrameTime)
 end

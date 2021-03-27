@@ -255,10 +255,10 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "Given the custom wall represented by `$0`, set the position of "
             "its vertex with index `$1` to `{$2, $3}`.");
 
-    addLuaFn(lua, "cw_addVertexPos", //
+    addLuaFn(lua, "cw_moveVertexPos", //
         [&cwManager](
             CCustomWallHandle cwHandle, int vertexIndex, float x, float y) {
-            cwManager.addVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y});
+            cwManager.moveVertexPos(cwHandle, vertexIndex, sf::Vector2f{x, y});
         })
         .arg("cwHandle")
         .arg("vertexIndex")
@@ -268,9 +268,9 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "Given the custom wall represented by `$0`, add `{$2, $3}` to the "
             "position of its vertex with index `$1`.");
 
-    addLuaFn(lua, "cw_addVertexPos4Same", //
+    addLuaFn(lua, "cw_moveVertexPos4Same", //
         [&cwManager](CCustomWallHandle cwHandle, float x, float y) {
-            cwManager.addVertexPos4Same(cwHandle, sf::Vector2f{x, y});
+            cwManager.moveVertexPos4Same(cwHandle, sf::Vector2f{x, y});
         })
         .arg("cwHandle")
         .arg("offsetX")

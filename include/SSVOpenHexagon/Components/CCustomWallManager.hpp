@@ -55,10 +55,10 @@ public:
     void setVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
         const sf::Vector2f& pos);
 
-    void addVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
+    void moveVertexPos(const CCustomWallHandle cwHandle, const int vertexIdx,
         const sf::Vector2f& offset);
 
-    void addVertexPos4Same(
+    void moveVertexPos4Same(
         const CCustomWallHandle cwHandle, const sf::Vector2f& offset);
 
     void setCanCollide(const CCustomWallHandle cwHandle, const bool collide);

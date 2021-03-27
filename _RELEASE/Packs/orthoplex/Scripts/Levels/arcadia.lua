@@ -29,7 +29,7 @@ function FloatingWall:move(mFrameTime)
         end
     end
 
-    cw_addVertexPos4Same(self.cwHandle, self.velocity_x * mFrameTime,
+    cw_moveVertexPos4Same(self.cwHandle, self.velocity_x * mFrameTime,
                                         self.velocity_y * mFrameTime)
 
     if self.wobbly == true then

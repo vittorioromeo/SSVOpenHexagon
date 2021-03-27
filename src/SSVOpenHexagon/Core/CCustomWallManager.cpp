@@ -127,7 +127,7 @@ void CCustomWallManager::setVertexPos(const CCustomWallHandle cwHandle,
     _customWalls[cwHandle].setVertexPos(vertexIdx, pos);
 }
 
-void CCustomWallManager::addVertexPos(const CCustomWallHandle cwHandle,
+void CCustomWallManager::moveVertexPos(const CCustomWallHandle cwHandle,
     const int vertexIdx, const sf::Vector2f& offset)
 {
     if(!checkValidVertexIdxAndHandle(cwHandle, vertexIdx, "add vertex pos"))
@@ -135,10 +135,10 @@ void CCustomWallManager::addVertexPos(const CCustomWallHandle cwHandle,
         return;
     }
 
-    _customWalls[cwHandle].addVertexPos(vertexIdx, offset);
+    _customWalls[cwHandle].moveVertexPos(vertexIdx, offset);
 }
 
-void CCustomWallManager::addVertexPos4Same(
+void CCustomWallManager::moveVertexPos4Same(
     const CCustomWallHandle cwHandle, const sf::Vector2f& offset)
 {
     if(!checkValidHandle(cwHandle, "add four vertex pos same"))
@@ -146,7 +146,7 @@ void CCustomWallManager::addVertexPos4Same(
         return;
     }
 
-    _customWalls[cwHandle].addVertexPos4Same(offset);
+    _customWalls[cwHandle].moveVertexPos4Same(offset);
 }
 
 void CCustomWallManager::setCanCollide(
