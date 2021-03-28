@@ -8,7 +8,8 @@
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 #include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Geometry.hpp"
+#include "SSVOpenHexagon/Utils/Easing.hpp"
 
 #include "SSVOpenHexagon/Global/Config.hpp"
 
@@ -385,7 +386,7 @@ void CPlayer::updateTriangleWidthTransition(
     }
 
     _triangleWidth =
-        triangleWidthRange * (1.f - hg::Utils::getSmoothStep(0.f, 1.f,
+        triangleWidthRange * (1.f - Utils::getSmoothStep(0.f, 1.f,
                                         _triangleWidthTransitionTime));
 }
 

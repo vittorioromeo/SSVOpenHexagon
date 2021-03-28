@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/ObfuscatedValue.hpp"
-
 #include <SFML/Graphics/Color.hpp>
 
 #include <chrono>
+#include <string>
 
 namespace hg
 {
@@ -50,7 +49,6 @@ public:
     bool scoreInvalid{false};
     std::string invalidReason{""};
     bool started{false};
-    ssvu::ObfuscatedValue<float> lostFrames{0};
     std::string restartInput;
     std::string replayInput;
 

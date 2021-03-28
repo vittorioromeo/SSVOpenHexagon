@@ -2,7 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
@@ -21,7 +21,7 @@ namespace hg
 
 void HexagonGame::draw()
 {
-    styleData.computeColors(levelStatus);
+    styleData.computeColors();
 
     window.clear(sf::Color::Black);
 
@@ -50,7 +50,13 @@ void HexagonGame::draw()
     if(!Config::getNoBackground())
     {
         backgroundCamera.apply();
-        styleData.drawBackground(window, ssvs::zeroVec2f, levelStatus);
+
+        backgroundTris.clear();
+
+        styleData.drawBackground(backgroundTris, ssvs::zeroVec2f,
+            levelStatus.sides, levelStatus.darkenUnevenBackgroundChunk);
+
+        window.draw(backgroundTris);
     }
 
     backgroundCamera.apply();

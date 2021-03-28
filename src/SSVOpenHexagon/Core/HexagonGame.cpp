@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>

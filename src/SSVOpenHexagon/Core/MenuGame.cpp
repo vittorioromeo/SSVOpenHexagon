@@ -15,6 +15,9 @@
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
+#include "SSVOpenHexagon/Utils/FontHeight.hpp"
+#include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 
@@ -2191,7 +2194,7 @@ void MenuGame::setIndex(const int mIdx)
     formatLevelDescription();
 
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
-    styleData.computeColors(levelStatus);
+    styleData.computeColors();
 
     // If we are in the favorite menu we must find the packId relative
     // to the selected level.
@@ -4501,7 +4504,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
 void MenuGame::draw()
 {
-    styleData.computeColors(levelStatus);
+    styleData.computeColors();
     window.clear(sf::Color{0, 0, 0, 255});
 
     backgroundCamera.apply();
@@ -4510,9 +4513,15 @@ void MenuGame::draw()
     // Only draw the hexagon background past the loading screens.
     if(mainOrAbove)
     {
-        styleData.drawBackgroundMenu(
-            window, ssvs::zeroVec2f, levelStatus, fourByThree);
+        menuBackgroundTris.clear();
+
+        styleData.drawBackgroundMenu(menuBackgroundTris, ssvs::zeroVec2f,
+            levelStatus.sides, levelStatus.darkenUnevenBackgroundChunk,
+            fourByThree);
+
+        window.draw(menuBackgroundTris);
     }
+
     overlayCamera.apply();
 
     // Draw the profile name.

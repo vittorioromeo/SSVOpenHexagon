@@ -152,7 +152,12 @@ public:
     }
 };
 
-using FastVertexVectorTris = FastVertexVector<sf::PrimitiveType::Triangles>;
-using FastVertexVectorQuads = FastVertexVector<sf::PrimitiveType::Quads>;
+class FastVertexVectorTris : public FastVertexVector<sf::PrimitiveType::Triangles>
+{
+};
+
+class FastVertexVectorQuads : public FastVertexVector<sf::PrimitiveType::Quads>
+{
+};
 
 } // namespace hg::Utils

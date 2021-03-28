@@ -3,13 +3,15 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
+#include "SSVOpenHexagon/Core/Joystick.hpp"
 
+#include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
-#include "SSVOpenHexagon/Core/Joystick.hpp"
 
 #include <iostream>
 #include <fstream>

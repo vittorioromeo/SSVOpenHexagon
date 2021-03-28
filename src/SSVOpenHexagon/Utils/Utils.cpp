@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
 
@@ -18,161 +17,6 @@
 
 namespace hg::Utils
 {
-
-bool getLinesIntersection(sf::Vector2f& mIntersection, const sf::Vector2f& l1p1,
-    const sf::Vector2f& l1p2, const sf::Vector2f& l2p1,
-    const sf::Vector2f& l2p2)
-{
-    // Take care of the special cases where the intersection is against a y = n
-    // line.
-    const unsigned int isVerticalOne{
-        std::abs(l1p1.x - l1p2.x) < epsilon ? 1u : 0u};
-    const unsigned int isVerticalTwo{
-        std::abs(l2p1.x - l2p2.x) < epsilon ? 2u : 0u};
-
-    switch(isVerticalOne + isVerticalTwo)
-    {
-        case 1u:
-            mIntersection.x = l1p1.x;
-            mIntersection.y = (l2p2.y - l2p1.y) / (l2p2.x - l2p1.x) *
-                                  (mIntersection.x - l2p1.x) +
-                              l2p1.y;
-            return true;
-
-        case 2u:
-            mIntersection.x = l2p1.x;
-            mIntersection.y = (l1p2.y - l1p1.y) / (l1p2.x - l1p1.x) *
-                                  (mIntersection.x - l1p2.x) +
-                              l1p2.y;
-            return true;
-
-        case 3u:
-            // the lines are parallel, there can be no intersection.
-            return false;
-
-        default: break;
-    }
-
-    const float mOne{(l1p2.y - l1p1.y) / (l1p2.x - l1p1.x)};
-    const float mTwo{(l2p2.y - l2p1.y) / (l2p2.x - l2p1.x)};
-
-    // the lines are parallel, there can be no intersection.
-    if(std::abs(mOne - mTwo) < epsilon)
-    {
-        return false;
-    }
-
-    const float qOne{l1p2.y - mOne * l1p2.x};
-    const float qTwo{l2p2.y - mTwo * l2p2.x};
-
-    mIntersection.x = (qTwo - qOne) / (mOne - mTwo);
-    mIntersection.y = mOne * mIntersection.x + qOne;
-    return true;
-}
-
-unsigned int getLineCircleIntersection(sf::Vector2f& i1, sf::Vector2f& i2,
-    const sf::Vector2f& p1, const sf::Vector2f& p2, const float mRadiusSquared)
-{
-    const float dx{p2.x - p1.x};
-    const float dy{p2.y - p1.y};
-    const float a{dx * dx + dy * dy};
-    const float b{2.f * (dx * p1.x + dy * p1.y)};
-    const float c{p1.x * p1.x + p1.y * p1.y - mRadiusSquared};
-    const float delta{b * b - 4.f * a * c};
-
-    // No intersections.
-    if(delta < 0.f)
-    {
-        return 0u;
-    }
-
-    float t;
-    const float twoA{2.f * a};
-
-    // One intersection.
-    if(delta < epsilon)
-    {
-        t = -b / twoA;
-        i1 = {p1.x + t * dx, p1.y + t * dy};
-        return 1u;
-    }
-
-    // Two intersections.
-    const float sqrtDelta{std::sqrt(delta)};
-    t = (-b + sqrtDelta) / twoA;
-    i1 = {p1.x + t * dx, p1.y + t * dy};
-    t = (-b - sqrtDelta) / twoA;
-    i2 = {p1.x + t * dx, p1.y + t * dy};
-    return 2u;
-}
-
-bool getLineCircleClosestIntersection(sf::Vector2f& mIntersection,
-    const sf::Vector2f& mPos, const sf::Vector2f& p1, const sf::Vector2f& p2,
-    const float mRadiusSquared)
-{
-    sf::Vector2f v1, v2;
-
-    switch(getLineCircleIntersection(v1, v2, p1, p2, mRadiusSquared))
-    {
-        case 1u: mIntersection = v1; return true;
-
-        case 2u:
-            if(ssvs::getMagSquared(v1 - mPos) > ssvs::getMagSquared(v2 - mPos))
-            {
-                mIntersection = v2;
-            }
-            else
-            {
-                mIntersection = v1;
-            }
-            return true;
-
-        default: return false;
-    }
-}
-
-sf::Color getColorDarkened(sf::Color mColor, float mMultiplier)
-{
-    mColor.r /= mMultiplier;
-    mColor.b /= mMultiplier;
-    mColor.g /= mMultiplier;
-    return mColor;
-}
-
-MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
-{
-    MusicData result{ssvuj::getExtr<std::string>(mRoot, "id"),
-        ssvuj::getExtr<std::string>(mRoot, "file_name"),
-        ssvuj::getExtr<std::string>(mRoot, "name"),
-        ssvuj::getExtr<std::string>(mRoot, "album"),
-        ssvuj::getExtr<std::string>(mRoot, "author")};
-    for(const auto& segment : ssvuj::getObj(mRoot, "segments"))
-    {
-        result.addSegment(ssvuj::getExtr<float>(segment, "time"),
-            ssvuj::getExtr<float>(segment, "beatPulseDelayOffset", 0.f));
-    }
-    return result;
-}
-
-GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot)
-{
-    return {ssvuj::getExtr<int>(mRoot, "major"),
-        ssvuj::getExtr<int>(mRoot, "minor"),
-        ssvuj::getExtr<int>(mRoot, "micro")};
-}
-
-ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot)
-{
-    const GameVersion version =
-        ssvuj::isObj("version")
-            ? loadVersionFromJson(ssvuj::getObj(mRoot, "version"))
-            : GameVersion{-1, 0, 0};
-
-    return {version, ssvuj::getExtr<std::string>(mRoot, "name"),
-        ssvuj::getObj(mRoot, "scores"),
-        ssvuj::getExtr<std::vector<std::string>>(mRoot, "trackedNames", {}),
-        ssvuj::getExtr<std::vector<std::string>>(mRoot, "favorites", {})};
-}
 
 std::string getLocalValidator(const std::string& mId, float mDifficultyMult)
 {
@@ -291,21 +135,6 @@ void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
             throw std::runtime_error(s);
         }
     }
-}
-
-[[gnu::pure]] sf::Color transformHue(const sf::Color& in, float H)
-{
-    const float u{std::cos(H * 3.14f / 180.f)};
-    const float w{std::sin(H * 3.14f / 180.f)};
-
-    sf::Color ret;
-    ret.r = (.701 * u + .168 * w) * in.r + (-.587 * u + .330 * w) * in.g +
-            (-.114 * u - .497 * w) * in.b;
-    ret.g = (-.299 * u - .328 * w) * in.r + (.413 * u + .035 * w) * in.g +
-            (-.114 * u + .292 * w) * in.b;
-    ret.b = (-.3 * u + 1.25 * w) * in.r + (-.588 * u - 1.05 * w) * in.g +
-            (.886 * u - .203 * w) * in.b;
-    return ret;
 }
 
 } // namespace hg::Utils

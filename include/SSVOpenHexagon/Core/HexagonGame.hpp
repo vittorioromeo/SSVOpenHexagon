@@ -431,6 +431,7 @@ public:
     void performPlayerKill();
 
 public:
+    Utils::FastVertexVectorTris backgroundTris;
     Utils::FastVertexVectorQuads wallQuads;
     Utils::FastVertexVectorTris playerTris;
     Utils::FastVertexVectorTris capTris;
