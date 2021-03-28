@@ -74,6 +74,7 @@ private:
 
     Lua::LuaContext lua;
     std::vector<std::string> execScriptPackPathContext;
+    const PackData* currentPack{nullptr};
 
     //---------------------------------------
     // Initialization

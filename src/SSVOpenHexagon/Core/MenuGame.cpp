@@ -345,10 +345,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     //--------------------------------
     // Main menu background
 
-    const auto [randomPack, randomLevel] = pickRandomMainMenuBackgroundStyle();
-    lvlSlct.levelDataIds =
-        &assets.getLevelIdsByPack(getNthSelectablePackInfo(randomPack).id);
-    setIndex(randomLevel);
+    {
+        const auto [randomPack, randomLevel] =
+            pickRandomMainMenuBackgroundStyle();
+
+        const std::string& randomPackId =
+            getNthSelectablePackInfo(randomPack).id;
+
+        lvlSlct.levelDataIds = &assets.getLevelIdsByPack(randomPackId);
+        setIndex(randomLevel);
+    }
 
     // Setup for the loading menu
     static constexpr std::array<std::array<std::string_view, 2>, 4> tips{
@@ -361,7 +367,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     // Set size of the level offsets vector to the minimum required
     unsigned int maxSize{0}, packSize;
-    for(size_t i{0}; i < getSelectablePackInfosSize(); ++i)
+    for(std::size_t i{0}; i < getSelectablePackInfosSize(); ++i)
     {
         const std::string& packId = getNthSelectablePackInfo(i).id;
 
@@ -589,32 +595,24 @@ void MenuGame::initLua()
     lua.writeVariable("u_log",
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
 
-    lua.writeVariable("u_execScript", [this](const std::string& mName) {
-        const std::string context = execScriptPackPathContext.empty()
-                                        ? levelData->packPath.getStr()
-                                        : execScriptPackPathContext.back();
-
-        Utils::runLuaFile(lua, context + "Scripts/" + mName);
+    lua.writeVariable("u_execScript", [this](const std::string& mScriptName) {
+        Utils::runLuaFile(
+            lua, Utils::getDependentScriptFilename(execScriptPackPathContext,
+                     levelData->packPath.getStr(), mScriptName));
     });
 
     lua.writeVariable("u_execDependencyScript", //
         [this](const std::string& mPackDisambiguator,
             const std::string& mPackName, const std::string& mPackAuthor,
             const std::string& mScriptName) {
-            assert(lvlDrawer != nullptr);
+            assert(currentPack != nullptr);
 
-            const PackData& curPack{assets.getPackData(
-                getNthSelectablePackInfo(lvlDrawer->packIdx).id)};
-
-            const PackData& dependencyData =
-                Utils::findDependencyPackDataOrThrow(assets, curPack,
-                    mPackDisambiguator, mPackName, mPackAuthor);
-
-            execScriptPackPathContext.emplace_back(dependencyData.folderPath);
-            HG_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
-
-            Utils::runLuaFile(
-                lua, dependencyData.folderPath + "Scripts/" + mScriptName);
+            Utils::withDependencyScriptFilename(
+                [this](const std::string& filename) {
+                    Utils::runLuaFile(lua, filename);
+                },
+                execScriptPackPathContext, assets, *currentPack,
+                mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
         });
 
     lua.writeVariable("u_getDifficultyMult", [] { return 1; });
@@ -1266,8 +1264,9 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
     if(!ssvufs::Path{"Assets/menubackgrounds.json"}
             .exists<ssvufs::Type::File>())
     {
-        ssvu::lo("::pickRandomMainMenuBackgroundStyle")
-            << "File Assets/menubackgrounds.json does not exist" << std::endl;
+        ssvu::lo("MenuGame::pickRandomMainMenuBackgroundStyle")
+            << "File 'Assets/menubackgrounds.json' does not exist" << std::endl;
+
         return {0, 0};
     }
 
@@ -2185,7 +2184,10 @@ void MenuGame::setIndex(const int mIdx)
 
     const std::string levelID{
         lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex)};
+
     levelData = &assets.getLevelData(levelID);
+    currentPack = &assets.getPackData(levelData->packId);
+
     formatLevelDescription();
 
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
@@ -4213,10 +4215,12 @@ void MenuGame::drawLevelSelectionRightSide(
 void MenuGame::drawLevelSelectionLeftSide(
     LevelDrawer& drawer, const bool revertOffset)
 {
-    constexpr float lineThickness{2.f};
+    if(currentPack == nullptr)
+    {
+        return;
+    }
 
-    const PackData& curPack{
-        assets.getPackData(getNthSelectablePackInfo(drawer.packIdx).id)};
+    constexpr float lineThickness{2.f};
 
     const LevelData& levelData{
         assets.getLevelData(drawer.levelDataIds->at(drawer.currentIndex))};
@@ -4326,21 +4330,21 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     // Pack name
     height += postTitleSpace;
-    tempString = curPack.name;
+    tempString = currentPack->name;
     scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall.font,
         namesScroll[static_cast<int>(Label::PackName)], textRightBorder);
     renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
     // Pack author
     height += smallLeftInterline;
-    tempString = curPack.author;
+    tempString = currentPack->author;
     scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall.font,
         namesScroll[static_cast<int>(Label::PackAuthor)], textRightBorder);
     renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
     // Version
     height += smallLeftInterline;
-    tempString = "VERSION: " + ssvu::toStr(curPack.version);
+    tempString = "VERSION: " + ssvu::toStr(currentPack->version);
     Utils::uppercasify(tempString);
     renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
 
