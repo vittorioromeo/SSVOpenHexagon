@@ -152,7 +152,8 @@ public:
     }
 };
 
-class FastVertexVectorTris : public FastVertexVector<sf::PrimitiveType::Triangles>
+class FastVertexVectorTris
+    : public FastVertexVector<sf::PrimitiveType::Triangles>
 {
 };
 

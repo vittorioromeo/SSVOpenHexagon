@@ -386,8 +386,8 @@ void CPlayer::updateTriangleWidthTransition(
     }
 
     _triangleWidth =
-        triangleWidthRange * (1.f - Utils::getSmoothStep(0.f, 1.f,
-                                        _triangleWidthTransitionTime));
+        triangleWidthRange *
+        (1.f - Utils::getSmoothStep(0.f, 1.f, _triangleWidthTransitionTime));
 }
 
 void CPlayer::update(

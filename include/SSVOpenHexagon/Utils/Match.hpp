@@ -15,8 +15,7 @@ template <typename... Fs>
 struct overload_set : Fs...
 {
     template <typename... FFwds>
-     constexpr overload_set(FFwds&&... fFwds)
-        : Fs{std::forward<FFwds>(fFwds)}...
+    constexpr overload_set(FFwds&&... fFwds) : Fs{std::forward<FFwds>(fFwds)}...
     {
     }
 
