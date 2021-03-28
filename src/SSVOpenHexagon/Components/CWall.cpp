@@ -33,7 +33,6 @@ void CWall::draw(sf::Color color, Utils::FastVertexVectorQuads& wallQuads)
         color = Utils::transformHue(color, _hueMod);
     }
 
-    wallQuads.reserve_more(4);
     wallQuads.batch_unsafe_emplace_back(color, _vertexPositions[0],
         _vertexPositions[1], _vertexPositions[2], _vertexPositions[3]);
 }

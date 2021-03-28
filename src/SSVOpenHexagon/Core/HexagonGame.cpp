@@ -988,14 +988,10 @@ auto HexagonGame::getColorMain() const -> sf::Color
 {
     if(Config::getBlackAndWhite())
     {
-        //			if(status.drawing3D) return Color{255, 255, 255,
-        // status.overrideColor.a};
         return sf::Color(255, 255, 255, styleData.getMainColor().a);
     }
-    //	else if(status.drawing3D) return status.overrideColor;
-    {
-        return styleData.getMainColor();
-    }
+
+    return styleData.getMainColor();
 }
 
 auto HexagonGame::getColorPlayer() const -> sf::Color
