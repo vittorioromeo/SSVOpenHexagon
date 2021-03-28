@@ -4,15 +4,11 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/Data/ProfileData.hpp"
-#include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
 
@@ -32,106 +28,6 @@
 namespace hg::Utils
 {
 
-inline constexpr float epsilon{1.0e-4};
-
-inline void uppercasify(std::string& s)
-{
-    for(auto& c : s)
-    {
-        c = std::toupper(c);
-    }
-}
-
-inline void lTrim(std::string& str)
-{
-    const auto it = std::find_if(
-        str.begin(), str.end(), [](char ch) { return !std::isspace(ch); });
-
-    str.erase(str.begin(), it);
-}
-
-inline void rTrim(std::string& str)
-{
-    const auto it = std::find_if(
-        str.rbegin(), str.rend(), [](char ch) { return !std::isspace(ch); });
-
-    str.erase(it.base(), str.end());
-}
-
-[[nodiscard]] inline std::string getLTrim(std::string s)
-{
-    lTrim(s);
-    return s;
-}
-
-[[nodiscard]] inline std::string getRTrim(std::string s)
-{
-    rTrim(s);
-    return s;
-}
-
-[[nodiscard]] inline std::string getLRTrim(std::string s)
-{
-    lTrim(s);
-    rTrim(s);
-    return s;
-}
-
-[[nodiscard]] inline std::string toUppercase(std::string s)
-{
-    uppercasify(s);
-    return s;
-}
-
-[[nodiscard]] inline float getFontHeight(sf::Text& font)
-{
-    font.setString("A");
-    return ssvs::getGlobalHeight(font);
-}
-
-[[nodiscard]] inline float getFontHeight(
-    sf::Text& font, const unsigned int charSize)
-{
-    font.setCharacterSize(charSize);
-    font.setString("A");
-    return ssvs::getGlobalHeight(font);
-}
-
-bool getLinesIntersection(sf::Vector2f& mIntersection, const sf::Vector2f& l1p1,
-    const sf::Vector2f& l1p2, const sf::Vector2f& l2p1,
-    const sf::Vector2f& l2p2);
-
-unsigned int getLineCircleIntersection(sf::Vector2f& i1, sf::Vector2f& i2,
-    const sf::Vector2f& p1, const sf::Vector2f& p2, const float mRadiusSquared);
-
-bool getLineCircleClosestIntersection(sf::Vector2f& mIntersection,
-    const sf::Vector2f& mPos, const sf::Vector2f& p1, const sf::Vector2f& p2,
-    const float mRadiusSquared);
-
-[[nodiscard, gnu::pure, gnu::always_inline]] inline float getSaturated(
-    float mValue)
-{
-    return std::max(0.f, std::min(1.f, mValue));
-}
-
-[[nodiscard, gnu::pure, gnu::always_inline]] inline float getSmoothStep(
-    float edge0, float edge1, float x)
-{
-    x = getSaturated((x - edge0) / (edge1 - edge0));
-    return x * x * (3 - 2 * x);
-}
-
-[[nodiscard, gnu::pure, gnu::always_inline]] inline float getSmootherStep(
-    float edge0, float edge1, float x)
-{
-    x = getSaturated((x - edge0) / (edge1 - edge0));
-    return x * x * x * (x * (x * 6 - 15) + 10);
-}
-
-MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);
-GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot);
-ProfileData loadProfileFromJson(const ssvuj::Obj& mRoot);
-
 std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 
 void shakeCamera(
@@ -141,8 +37,6 @@ std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
 
 void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
     const ssvufs::Path& mPackPath, const std::string& mLuaScript);
-
-[[gnu::pure]] sf::Color transformHue(const sf::Color& in, float H);
 
 inline void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
 {

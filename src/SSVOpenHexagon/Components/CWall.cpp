@@ -3,7 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Color.hpp"
 
 namespace hg
 {

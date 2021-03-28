@@ -2,7 +2,8 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
+#include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
@@ -462,7 +463,7 @@ void HexagonGame::updateEvents(ssvu::FT)
 {
     if(const auto o =
             eventTimelineRunner.update(eventTimeline, status.getTimeTP());
-        o == hg::Utils::timeline2_runner::outcome::finished)
+        o == Utils::timeline2_runner::outcome::finished)
     {
         eventTimeline.clear();
         eventTimelineRunner = {};
@@ -470,7 +471,7 @@ void HexagonGame::updateEvents(ssvu::FT)
 
     if(const auto o = messageTimelineRunner.update(
            messageTimeline, status.getCurrentTP());
-        o == hg::Utils::timeline2_runner::outcome::finished)
+        o == Utils::timeline2_runner::outcome::finished)
     {
         messageTimeline.clear();
         messageTimelineRunner = {};
@@ -506,7 +507,7 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
 
     const auto o = timelineRunner.update(timeline, status.getTimeTP());
 
-    if(o == hg::Utils::timeline2_runner::outcome::finished && !mustChangeSides)
+    if(o == Utils::timeline2_runner::outcome::finished && !mustChangeSides)
     {
         timeline.clear();
         runLuaFunctionIfExists<void>("onStep");

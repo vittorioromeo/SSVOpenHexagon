@@ -11,6 +11,8 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/Utils/FontHeight.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
@@ -233,6 +235,7 @@ private:
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
     sf::Color dialogBoxTextColor;
+    Utils::FastVertexVectorTris menuBackgroundTris;
     Utils::FastVertexVectorQuads menuQuads;
 
     void draw();

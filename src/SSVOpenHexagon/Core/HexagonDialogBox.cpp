@@ -1,6 +1,6 @@
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
 
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"

@@ -4,7 +4,7 @@
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/EraseIf.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
@@ -387,6 +387,7 @@ void HGAssets::loadCustomSounds(
         ++loadInfo.assets;
     }
 }
+
 void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
@@ -400,6 +401,7 @@ void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
         ++loadInfo.assets;
     }
 }
+
 void HGAssets::loadMusicData(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
@@ -415,6 +417,7 @@ void HGAssets::loadMusicData(
         ++loadInfo.assets;
     }
 }
+
 void HGAssets::loadStyleData(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {
@@ -430,6 +433,7 @@ void HGAssets::loadStyleData(
         ++loadInfo.assets;
     }
 }
+
 void HGAssets::loadLevelData(
     const std::string& mPackId, const ssvufs::Path& mPath)
 {

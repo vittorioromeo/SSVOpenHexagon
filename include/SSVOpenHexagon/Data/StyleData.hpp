@@ -9,14 +9,19 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/RenderTarget.hpp>
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
-namespace hg
+namespace hg::Utils
 {
 
-struct LevelStatus;
+class FastVertexVectorTris;
+class FastVertexVectorQuads;
+
+} // namespace hg::Utils
+
+namespace hg
+{
 
 class StyleData
 {
@@ -40,6 +45,14 @@ private:
 
         return mDefault;
     }
+
+    void drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
+        const sf::Vector2f& mCenterPos, const unsigned int sides,
+        const bool darkenUnevenBackgroundChunk) const;
+
+    void drawBackgroundMenuHexagonImpl(Utils::FastVertexVectorTris& vertices,
+        const sf::Vector2f& mCenterPos, const unsigned int sides,
+        const bool fourByThree) const;
 
 public:
     std::string id;
@@ -129,14 +142,15 @@ public:
 
     void update(ssvu::FT mFT, float mMult = 1.f);
 
-    void computeColors(const LevelStatus& levelStatus);
+    void computeColors();
 
-    void drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
-        const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
-        const bool fourByThree) const;
+    void drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
+        const sf::Vector2f& mCenterPos, const unsigned int sides,
+        const bool darkenUnevenBackgroundChunk, const bool fourByThree) const;
 
-    void drawBackground(sf::RenderTarget& mRenderTarget,
-        const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const;
+    void drawBackground(Utils::FastVertexVectorTris& mTris,
+        const sf::Vector2f& mCenterPos, const unsigned int sides,
+        const bool darkenUnevenBackgroundChunk) const;
 
     void setRootPath(const ssvufs::Path& mPath)
     {
