@@ -888,6 +888,10 @@ void HexagonGame::postUpdateImguiLuaConsole()
         {
             color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f);
         }
+        else if(std::strstr(item, "[warning]"))
+        {
+            color = ImVec4(1.0f, 0.4f, 1.0f, 1.0f);
+        }
         else if(std::strstr(item, "[lua]"))
         {
             color = ImVec4(0.4f, 1.0f, 0.4f, 1.0f);

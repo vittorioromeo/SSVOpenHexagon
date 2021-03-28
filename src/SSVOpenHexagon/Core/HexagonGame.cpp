@@ -877,14 +877,20 @@ void HexagonGame::raiseWarning(
     const std::string& mFunctionName, const std::string& mAdditionalInfo)
 {
     // Only raise the warning once to avoid redundancy
-    if(!calledDeprecatedFunctions.contains(mFunctionName))
+    if(calledDeprecatedFunctions.contains(mFunctionName))
     {
-        calledDeprecatedFunctions.emplace(mFunctionName);
-        // Raise warning to the console
-        std::cout << "[Lua] WARNING: The function \"" << mFunctionName
-                  << "\" (used in level \"" << levelData->name
-                  << "\") is deprecated. " << mAdditionalInfo << std::endl;
+        return;
     }
+
+    calledDeprecatedFunctions.emplace(mFunctionName);
+
+    // Raise warning to the console
+    const std::string errorMsg = Utils::concat("[Lua] WARNING: The function \"",
+        mFunctionName, "\" (used in level \"", levelData->name,
+        "\") is deprecated. ", mAdditionalInfo);
+
+    std::cout << errorMsg << std::endl;
+    ilcCmdLog.emplace_back(Utils::concat("[warning]: ", errorMsg, '\n'));
 }
 
 void HexagonGame::addMessage(
