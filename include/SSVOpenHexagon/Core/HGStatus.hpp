@@ -50,7 +50,6 @@ public:
     bool scoreInvalid{false};
     std::string invalidReason{""};
     bool started{false};
-    sf::Color overrideColor{sf::Color::Transparent};
     ssvu::ObfuscatedValue<float> lostFrames{0};
     std::string restartInput;
     std::string replayInput;

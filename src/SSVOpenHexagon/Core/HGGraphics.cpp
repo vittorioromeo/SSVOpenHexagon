@@ -61,6 +61,9 @@ void HexagonGame::draw()
     playerTris.clear();
     capTris.clear();
 
+    // Reserve right amount of memory for all walls and custom walls
+    wallQuads.reserve_more(4 * walls.size() + 4 * cwManager.count());
+
     for(CWall& w : walls)
     {
         w.draw(getColorMain(), wallQuads);
@@ -112,34 +115,35 @@ void HexagonGame::draw()
                                (float(i + 1.f) * styleData._3dPerspectiveMult) *
                                (effect * 3.6f) * 1.4f);
 
-            sf::Vector2f newPos(offset * cosRot, offset * sinRot);
+            const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
-            status.overrideColor = Utils::getColorDarkened(
-                styleData.get3DOverrideColor(), styleData._3dDarkenMult);
-            status.overrideColor.a /= styleData._3dAlphaMult;
-            status.overrideColor.a -= i * styleData._3dAlphaFalloff;
+            sf::Color overrideColor{Utils::getColorDarkened(
+                styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
+
+            overrideColor.a /= styleData._3dAlphaMult;
+            overrideColor.a -= i * styleData._3dAlphaFalloff;
 
             for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
                 ++k)
             {
                 wallQuads3D[k].position += newPos;
-                wallQuads3D[k].color = status.overrideColor;
+                wallQuads3D[k].color = overrideColor;
             }
 
             // Apply player color if no 3D override is present.
             if(styleData.get3DOverrideColor() == styleData.getMainColor())
             {
-                status.overrideColor = Utils::getColorDarkened(
+                overrideColor = Utils::getColorDarkened(
                     styleData.getPlayerColor(), styleData._3dDarkenMult);
-                status.overrideColor.a /= styleData._3dAlphaMult;
-                status.overrideColor.a -= i * styleData._3dAlphaFalloff;
+                overrideColor.a /= styleData._3dAlphaMult;
+                overrideColor.a -= i * styleData._3dAlphaFalloff;
             }
 
             for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
                 ++k)
             {
                 playerTris3D[k].position += newPos;
-                playerTris3D[k].color = status.overrideColor;
+                playerTris3D[k].color = overrideColor;
             }
         }
     }

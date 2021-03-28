@@ -45,7 +45,6 @@ private:
 public:
     [[gnu::always_inline]] void draw(Utils::FastVertexVectorQuads& wallQuads)
     {
-        wallQuads.reserve_more(4);
         wallQuads.unsafe_emplace_back(_vertexPositions[0], _vertexColors[0]);
         wallQuads.unsafe_emplace_back(_vertexPositions[1], _vertexColors[1]);
         wallQuads.unsafe_emplace_back(_vertexPositions[2], _vertexColors[2]);
