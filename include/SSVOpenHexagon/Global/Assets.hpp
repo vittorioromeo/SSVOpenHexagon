@@ -183,7 +183,7 @@ public:
 
     [[nodiscard]] bool isValidPackId(const std::string& mPackId) const noexcept
     {
-        return packDatas.count(mPackId) > 0;
+        return packDatas.find(mPackId) != packDatas.end();
     }
 
     [[nodiscard]] const PackData& getPackData(const std::string& mPackId)

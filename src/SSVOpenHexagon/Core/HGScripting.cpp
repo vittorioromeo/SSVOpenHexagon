@@ -51,11 +51,9 @@ void HexagonGame::initLua_Utils()
 
     addLuaFn(lua, "u_execScript", //
         [this](const std::string& mScriptName) {
-            const std::string context = execScriptPackPathContext.empty()
-                                            ? levelData->packPath.getStr()
-                                            : execScriptPackPathContext.back();
-
-            runLuaFile(context + "Scripts/" + mScriptName);
+            runLuaFile(
+                Utils::getDependentScriptFilename(execScriptPackPathContext,
+                    levelData->packPath.getStr(), mScriptName));
         })
         .arg("scriptFilename")
         .doc("Execute the script located at `<pack>/Scripts/$0`.");
@@ -64,14 +62,10 @@ void HexagonGame::initLua_Utils()
         [this](const std::string& mPackDisambiguator,
             const std::string& mPackName, const std::string& mPackAuthor,
             const std::string& mScriptName) {
-            const PackData& dependencyData =
-                Utils::findDependencyPackDataOrThrow(assets, getPackData(),
-                    mPackDisambiguator, mPackName, mPackAuthor);
-
-            execScriptPackPathContext.emplace_back(dependencyData.folderPath);
-            HG_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
-
-            runLuaFile(dependencyData.folderPath + "Scripts/" + mScriptName);
+            Utils::withDependencyScriptFilename(
+                [this](const std::string& filename) { runLuaFile(filename); },
+                execScriptPackPathContext, assets, getPackData(),
+                mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
         })
         .arg("packDisambiguator")
         .arg("packName")
@@ -1405,7 +1399,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua, "e_eventStopTime", //
         [this](double mDuration) {
-            raiseWarning("u_eventStopTime",
+            raiseWarning("e_eventStopTime",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_stopTime\" in your level files.");
@@ -1422,7 +1416,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua, "e_eventStopTimeS", //
         [this](double mDuration) {
-            raiseWarning("u_eventStopTimeS",
+            raiseWarning("e_eventStopTimeS",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_stopTimeS\" in your level files.");
@@ -1437,7 +1431,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua, "e_eventWait",
         [this](double mDuration) {
-            raiseWarning("u_eventWait",
+            raiseWarning("e_eventWait",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_wait\" in your level files.");
@@ -1452,7 +1446,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua, "e_eventWaitS", //
         [this](double mDuration) {
-            raiseWarning("u_eventWaitS",
+            raiseWarning("e_eventWaitS",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_waitS\" in your level files.");
@@ -1466,7 +1460,7 @@ void HexagonGame::initLua_Deprecated()
 
     addLuaFn(lua, "e_eventWaitUntilS", //
         [this](double mDuration) {
-            raiseWarning("u_eventWaitUntilS",
+            raiseWarning("e_eventWaitUntilS",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_waitUntilS\" in your level files.");

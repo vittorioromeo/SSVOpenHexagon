@@ -734,8 +734,8 @@ private:
         {
             // there was an error during loading, an error message was
             // pushed on the stack
-            const char* errorMsg = lua_tostring(_state, -1);
-            lua_pop(_state, 1);
+            const std::string errorMsg =
+                _readTopAndPop(1, (std::string*)nullptr);
 
             if(loadReturnValue == LUA_ERRMEM)
             {
@@ -743,7 +743,7 @@ private:
             }
             else if(loadReturnValue == LUA_ERRSYNTAX)
             {
-                throw SyntaxErrorException(std::string(errorMsg));
+                throw SyntaxErrorException(errorMsg);
             }
         }
     }
@@ -801,8 +801,8 @@ private:
         {
             // there was an error during loading, an error message was
             // pushed on the stack
-            const char* errorMsg = lua_tostring(_state, -1);
-            lua_pop(_state, 1);
+            const std::string errorMsg =
+                _readTopAndPop(1, (std::string*)nullptr);
 
             if(loadReturnValue == LUA_ERRMEM)
             {
@@ -810,7 +810,7 @@ private:
             }
             else if(loadReturnValue == LUA_ERRSYNTAX)
             {
-                throw SyntaxErrorException(std::string(errorMsg));
+                throw SyntaxErrorException(errorMsg);
             }
         }
     }

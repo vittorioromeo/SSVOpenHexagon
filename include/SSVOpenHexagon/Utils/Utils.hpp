@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
@@ -181,6 +182,11 @@ inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
         throw std::runtime_error(errorStr);
     }
 
+#ifndef NDEBUG
+    ssvu::lo("hg::Utils::runLuaFile")
+        << "Running Lua file '" << mFileName << "'" << std::endl;
+#endif
+
     try
     {
         mLua.executeCode(s);
@@ -302,6 +308,49 @@ inline const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     }
 
     return *dependencyData;
+}
+
+template <typename F>
+inline void withDependencyScriptFilename(F&& f,
+    std::vector<std::string>& execScriptPackPathContext, HGAssets& assets,
+    const PackData& currentPack, const std::string& mPackDisambiguator,
+    const std::string& mPackName, const std::string& mPackAuthor,
+    const std::string& mScriptName)
+try
+{
+    const PackData& dependencyData = findDependencyPackDataOrThrow(
+        assets, currentPack, mPackDisambiguator, mPackName, mPackAuthor);
+
+    execScriptPackPathContext.emplace_back(dependencyData.folderPath);
+    HG_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
+
+    return f(concat(dependencyData.folderPath, "Scripts/", mScriptName));
+}
+catch(const std::runtime_error& err)
+{
+    ssvu::lo("hg::Utils::getDependencyScriptFilename")
+        << "Fatal error while looking for Lua dependency\nError: " << err.what()
+        << std::endl;
+
+    throw;
+}
+catch(...)
+{
+    ssvu::lo("hg::Utils::getDependencyScriptFilename")
+        << "Fatal unknown error while looking for Lua dependency" << std::endl;
+
+    throw;
+}
+
+[[nodiscard]] inline std::string getDependentScriptFilename(
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::string& currentPackPath, const std::string& mScriptName)
+{
+    const std::string& context = execScriptPackPathContext.empty()
+                                     ? currentPackPath
+                                     : execScriptPackPathContext.back();
+
+    return concat(context, "Scripts/", mScriptName);
 }
 
 } // namespace hg::Utils
