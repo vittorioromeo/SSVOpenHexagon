@@ -86,10 +86,11 @@ if (imgui_ADDED)
   # imgui has no CMake support, so we create our own target
 
   FILE(GLOB imgui_sources ${imgui_SOURCE_DIR}/*.cpp)
+  FILE(GLOB imgui_sources_cpp ${imgui_SOURCE_DIR}/misc/cpp/*.cpp)
 
   set(IMGUI_DIR ${imgui_SOURCE_DIR})
   set(IMGUI_INCLUDE_DIR ${imgui_SOURCE_DIR})
-  set(IMGUI_SOURCES ${imgui_sources})
+  set(IMGUI_SOURCES ${imgui_sources} ${imgui_sources_cpp})
 endif()
 
 # -----------------------------------------------------------------------------
