@@ -32,7 +32,7 @@
 	"j_swap" : 5,
 	"joystick_deadzone" : 5.0,
 	"key_icons_scale" : 0.750,
-	"limit_fps" : true,
+	"limit_fps" : false,
 	"max_fps" : 200,
 	"mouse_visible" : true,
 	"music_speed_dm_sync" : true,

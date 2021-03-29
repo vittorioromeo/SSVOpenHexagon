@@ -76,8 +76,8 @@ private:
     std::vector<std::string> ilcCmdLog;
     std::vector<std::string> ilcHistory;
     int ilcHistoryPos{-1};
-    char ilcCmdBuffer[512] = "";
-    char ilcTrackBuffer[512] = "";
+    std::string ilcCmdBuffer;
+    std::string ilcTrackBuffer;
     bool ilcShowConsole{false};
     bool ilcShowConsoleNext{false};
     std::vector<std::string> ilcLuaTracked;

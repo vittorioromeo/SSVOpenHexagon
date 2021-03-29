@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
@@ -750,9 +751,8 @@ void setShowStatusText(bool mX)
 
 [[nodiscard]] const std::string& getVersionString()
 {
-    static std::string result{std::to_string(GAME_VERSION.major) + "." +
-                              std::to_string(GAME_VERSION.minor) + "." +
-                              std::to_string(GAME_VERSION.micro)};
+    static std::string result{Utils::concat(
+        GAME_VERSION.major, '.', GAME_VERSION.minor, '.', GAME_VERSION.micro)};
 
     return result;
 }

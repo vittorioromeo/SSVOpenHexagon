@@ -2,9 +2,10 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Utils/Utils.hpp"
+
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
 
