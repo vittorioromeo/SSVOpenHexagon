@@ -30,6 +30,9 @@ template <typename F>
 Utils::LuaMetadataProxy addLuaFn(
     Lua::LuaContext& lua, const std::string& name, F&& f)
 {
+    // TODO: does this handle duplicates properly? Both menu and game call the
+    // same thing.
+
     lua.writeVariable(name, std::forward<F>(f));
     return Utils::LuaMetadataProxy{
         Utils::TypeWrapper<F>{}, getMetadata(), name};
