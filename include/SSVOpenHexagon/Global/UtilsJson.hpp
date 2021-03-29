@@ -6,12 +6,11 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
-#include <SSVStart/Tileset/Tileset.hpp>
+#include <SSVStart/Global/Typedefs.hpp>
 #include <SSVStart/Input/Enums.hpp>
 #include <SSVStart/Input/Combo.hpp>
 #include <SSVStart/Input/Trigger.hpp>
 #include <SSVStart/Utils/Input.hpp>
-#include <SSVStart/Global/Typedefs.hpp>
 #include <SSVStart/Assets/AssetManager.hpp>
 
 #include <SSVUtils/Core/Log/Log.hpp>

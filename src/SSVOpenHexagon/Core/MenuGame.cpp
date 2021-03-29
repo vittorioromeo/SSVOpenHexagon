@@ -32,7 +32,6 @@
 #include <utility>
 #include <array>
 #include <string_view>
-#include <cassert>
 
 namespace hg
 {

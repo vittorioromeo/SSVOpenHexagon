@@ -23,8 +23,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <cassert>
-
 namespace hg
 {
 namespace

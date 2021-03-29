@@ -8,7 +8,6 @@
 
 #include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
-#include <cassert>
 #include <fstream>
 #include <sstream>
 

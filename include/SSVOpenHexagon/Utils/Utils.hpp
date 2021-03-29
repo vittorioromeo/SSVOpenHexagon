@@ -5,24 +5,18 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <SSVUtils/Timeline/Timeline.hpp>
 
-#include <SFML/Graphics/Color.hpp>
-
 #include <string>
-#include <sstream>
-#include <set>
+#include <fstream>
 #include <cctype>
 #include <optional>
-#include <cctype>
 #include <stdexcept>
 
 namespace hg::Utils
@@ -32,11 +26,6 @@ std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 
 void shakeCamera(
     ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
-
-std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
-
-void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
-    const ssvufs::Path& mPackPath, const std::string& mLuaScript);
 
 inline void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
 {
