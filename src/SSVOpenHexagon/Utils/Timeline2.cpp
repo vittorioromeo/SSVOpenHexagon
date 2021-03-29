@@ -13,7 +13,6 @@
 #include <chrono>
 #include <optional>
 #include <functional>
-#include <cassert>
 
 namespace hg::Utils
 {

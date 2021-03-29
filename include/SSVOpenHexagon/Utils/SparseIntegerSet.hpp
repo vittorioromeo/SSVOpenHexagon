@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <vector>
 #include <cstdint>
-#include <cassert>
 #include <cstddef>
 
 namespace hg::Utils

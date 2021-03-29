@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include <algorithm>
-#include <cassert>
 #include <cstring>
 #include <limits>
 #include <map>
@@ -1441,7 +1440,6 @@ private:
         {
             throw WrongTypeException{};
         }
-
 
         std::map<Key, Value> retValue;
 

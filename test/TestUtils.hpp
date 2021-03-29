@@ -4,7 +4,6 @@
 #include <string>
 #include <sstream>
 #include <iostream>
-#include <cassert>
 
 #define TEST_MAIN(...) int __attribute__((const)) main(__VA_ARGS__)
 

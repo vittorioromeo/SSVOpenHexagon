@@ -4,27 +4,29 @@
 
 #pragma once
 
+#include <algorithm>
+
 namespace hg::Utils
 {
 
 [[nodiscard, gnu::pure, gnu::always_inline]] inline float getSaturated(
-    float mValue)
+    const float mValue)
 {
     return std::max(0.f, std::min(1.f, mValue));
 }
 
 [[nodiscard, gnu::pure, gnu::always_inline]] inline float getSmoothStep(
-    float edge0, float edge1, float x)
+    const float edge0, const float edge1, float x)
 {
     x = getSaturated((x - edge0) / (edge1 - edge0));
-    return x * x * (3 - 2 * x);
+    return x * x * (3.f - 2.f * x);
 }
 
 [[nodiscard, gnu::pure, gnu::always_inline]] inline float getSmootherStep(
-    float edge0, float edge1, float x)
+    const float edge0, const float edge1, float x)
 {
     x = getSaturated((x - edge0) / (edge1 - edge0));
-    return x * x * x * (x * (x * 6 - 15) + 10);
+    return x * x * x * (x * (x * 6.f - 15.f) + 10.f);
 }
 
 } // namespace hg::Utils

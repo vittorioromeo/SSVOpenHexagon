@@ -6,6 +6,8 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
+#include <cstddef>
+
 namespace hg
 {
 

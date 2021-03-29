@@ -8,7 +8,6 @@
 
 #include <SSVUtils/Internal/PCG/PCG.hpp>
 
-#include <cassert>
 #include <random>
 
 namespace hg
