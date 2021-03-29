@@ -456,7 +456,7 @@ void HGAssets::loadLocalProfiles()
         // Remove invalid level ids that might have been added to the files.
         Utils::erase_if(profileData.getFavoriteLevelIds(),
             [this](const std::string& favId) {
-                return levelDatas.find(favId) != levelDatas.end();
+                return levelDatas.find(favId) == levelDatas.end();
             });
 
         profileDataMap.emplace(profileData.getName(), std::move(profileData));
