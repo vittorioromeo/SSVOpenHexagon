@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -10,6 +11,7 @@
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 
 #include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 #include <imgui-SFML.h>
 
 #include <SSVStart/Utils/Vector2.hpp>
@@ -800,7 +802,7 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
                 for(int i = 0; i < candidates.Size; i++)
                 {
                     ilcCmdLog.emplace_back(
-                        std::string{"- "} + candidates[i] + '\n');
+                        Utils::concat("- ", candidates[i], '\n'));
                 }
             }
 
@@ -966,11 +968,13 @@ void HexagonGame::postUpdateImguiLuaConsole()
         ImGuiInputTextFlags_CallbackCompletion |
         ImGuiInputTextFlags_CallbackHistory;
 
-    if(ImGui::InputText("Command", ilcCmdBuffer, IM_ARRAYSIZE(ilcCmdBuffer),
-           input_text_flags, &ilcTextEditCallbackStub, (void*)this))
+    if(ImGui::InputText("Command", &ilcCmdBuffer, input_text_flags,
+           &ilcTextEditCallbackStub, (void*)this))
     {
         const std::string cmdString = ilcCmdBuffer;
-        ilcCmdLog.emplace_back(std::string{"# "} + cmdString + '\n');
+        ilcCmdBuffer.clear();
+
+        ilcCmdLog.emplace_back(Utils::concat("# ", cmdString, '\n'));
 
         ilcHistoryPos = -1;
         for(int i = ilcHistory.size() - 1; i >= 0; --i)
@@ -1000,7 +1004,7 @@ void HexagonGame::postUpdateImguiLuaConsole()
         {
             const std::string rest = Utils::getRTrim(cmdString.substr(1));
             const std::string docs = LuaScripting::getDocsForFunction(rest);
-            ilcCmdLog.emplace_back(std::string{"[?]: "} + docs);
+            ilcCmdLog.emplace_back(Utils::concat("[?]: ", docs));
         }
         else
         {
@@ -1008,7 +1012,7 @@ void HexagonGame::postUpdateImguiLuaConsole()
             {
                 try
                 {
-                    lua.executeCode(std::string{"u_log("} + cmdString + ")\n");
+                    lua.executeCode(Utils::concat("u_log(", cmdString, ")\n"));
                 }
                 catch(std::runtime_error& mError)
                 {
@@ -1029,7 +1033,6 @@ void HexagonGame::postUpdateImguiLuaConsole()
             }
         }
 
-        std::strcpy(ilcCmdBuffer, "");
         ImGui::SetItemDefaultFocus();
         ImGui::SetKeyboardFocusHere(-1);
     }
@@ -1053,16 +1056,15 @@ void HexagonGame::postUpdateImguiLuaConsole()
     ImGui::Separator();
 
     {
-        if(ImGui::InputText("Track", ilcTrackBuffer,
-               IM_ARRAYSIZE(ilcTrackBuffer),
-               ImGuiInputTextFlags_EnterReturnsTrue))
+        if(ImGui::InputText(
+               "Track", &ilcTrackBuffer, ImGuiInputTextFlags_EnterReturnsTrue))
         {
             const std::string codeToTrack = Utils::getLRTrim(ilcTrackBuffer);
             ilcLuaTracked.emplace_back(
-                std::string{"u_impl_addTrackedResult("} + codeToTrack + ")\n");
+                Utils::concat("u_impl_addTrackedResult(", codeToTrack, ")\n"));
             ilcLuaTrackedNames.emplace_back(codeToTrack);
 
-            std::strcpy(ilcTrackBuffer, "");
+            ilcTrackBuffer.clear();
             ImGui::SetItemDefaultFocus();
             ImGui::SetKeyboardFocusHere(-1);
         }
@@ -1091,9 +1093,8 @@ void HexagonGame::postUpdateImguiLuaConsole()
             }
             catch(std::runtime_error& e)
             {
-                ilcCmdLog.emplace_back(std::string{"[error]: error '"} +
-                                       e.what() + "' while tracking " + code +
-                                       '\n');
+                ilcCmdLog.emplace_back(Utils::concat("[error]: error '",
+                    e.what(), "' while tracking ", code, '\n'));
 
                 ilcLuaTracked.erase(ilcLuaTracked.begin() + i);
                 ilcLuaTrackedNames.erase(ilcLuaTrackedNames.begin() + i);
@@ -1103,9 +1104,8 @@ void HexagonGame::postUpdateImguiLuaConsole()
             catch(...)
             {
 
-                ilcCmdLog.emplace_back(
-                    std::string{"[error]: unknown error while tracking "} +
-                    code + '\n');
+                ilcCmdLog.emplace_back(Utils::concat(
+                    "[error]: unknown error while tracking ", code, '\n'));
 
                 ilcLuaTracked.erase(ilcLuaTracked.begin() + i);
                 ilcLuaTrackedNames.erase(ilcLuaTrackedNames.begin() + i);

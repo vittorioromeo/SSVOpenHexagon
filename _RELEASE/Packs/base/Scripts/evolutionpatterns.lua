@@ -272,11 +272,11 @@ function hmcDefSpinnerSpiral()
 end
 
 function getRndMinDM(mNum)
-    return u_getRndInt(math.floor(mNum - (u_getDifficultyMult() ^ 3)), math.ceil(mNum))
+    return u_rndInt(math.floor(mNum - (u_getDifficultyMult() ^ 3)), math.ceil(mNum))
 end
 
 function getRndMaxDM(mNum)
-    return u_getRndInt(math.floor(mNum), math.ceil(mNum + (u_getDifficultyMult() ^ 2.25)))
+    return u_rndInt(math.floor(mNum), math.ceil(mNum + (u_getDifficultyMult() ^ 2.25)))
 end
 
 function hmcDefSpinnerSpiralAcc()
@@ -284,15 +284,15 @@ function hmcDefSpinnerSpiralAcc()
     t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
     local side = getRandomSide()
 
-    local acc = u_getRndInt(getRndMinDM(50), getRndMaxDM(100)) / 1000.0 * getRandomDir()
-    local minimum = u_getRndInt(getRndMinDM(12), getRndMaxDM(28)) / 10.0 * -1
-    local maximum = u_getRndInt(getRndMinDM(12), getRndMaxDM(28)) / 10.0
+    local acc = u_rndInt(getRndMinDM(50), getRndMaxDM(100)) / 1000.0 * getRandomDir()
+    local minimum = u_rndInt(getRndMinDM(12), getRndMaxDM(28)) / 10.0 * -1
+    local maximum = u_rndInt(getRndMinDM(12), getRndMaxDM(28)) / 10.0
 
 
 
     t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
 
-    for i = 0, u_getRndInt(4, 8) do
+    for i = 0, u_rndInt(4, 8) do
         hmcSimpleSpinnerSAcc(side, 0, acc, minimum, maximum, true)
         t_wait(getPerfectDelay(THICKNESS) * 0.8)
     end

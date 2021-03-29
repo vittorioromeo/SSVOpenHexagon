@@ -587,6 +587,18 @@ void MenuGame::initInput()
         t::Once);
 }
 
+void MenuGame::runLuaFile(const std::string& mFileName)
+try
+{
+    Utils::runLuaFile(lua, mFileName);
+}
+catch(...)
+{
+    assets.playSound("error.ogg");
+    ssvu::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '"
+                                      << mFileName << '\'' << std::endl;
+}
+
 void MenuGame::initLua()
 {
     static CCustomWallManager cwManager;
@@ -598,9 +610,8 @@ void MenuGame::initLua()
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
 
     lua.writeVariable("u_execScript", [this](const std::string& mScriptName) {
-        Utils::runLuaFile(
-            lua, Utils::getDependentScriptFilename(execScriptPackPathContext,
-                     levelData->packPath.getStr(), mScriptName));
+        runLuaFile(Utils::getDependentScriptFilename(execScriptPackPathContext,
+            levelData->packPath.getStr(), mScriptName));
     });
 
     lua.writeVariable("u_execDependencyScript", //
@@ -610,9 +621,7 @@ void MenuGame::initLua()
             SSVOH_ASSERT(currentPack != nullptr);
 
             Utils::withDependencyScriptFilename(
-                [this](const std::string& filename) {
-                    Utils::runLuaFile(lua, filename);
-                },
+                [this](const std::string& filename) { runLuaFile(filename); },
                 execScriptPackPathContext, assets, *currentPack,
                 mPackDisambiguator, mPackName, mPackAuthor, mScriptName);
         });
