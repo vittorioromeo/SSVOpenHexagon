@@ -26,7 +26,7 @@ template <typename... Fs>
 overload_set(Fs...) -> overload_set<Fs...>;
 
 template <typename... Fs>
-constexpr auto make_overload_set(Fs&&... fs)
+[[nodiscard]] constexpr auto make_overload_set(Fs&&... fs)
 {
     return overload_set<std::decay_t<Fs>...>{std::forward<Fs>(fs)...};
 }

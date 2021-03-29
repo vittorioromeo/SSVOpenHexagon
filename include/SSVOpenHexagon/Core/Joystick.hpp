@@ -7,9 +7,22 @@
 namespace hg::Joystick
 {
 
-enum Jid
+enum class Jdir : int
 {
     Unknown = -1,
+
+    Left,
+    Right,
+    Up,
+    Down,
+
+    JoystickDirectionsCount
+};
+
+enum class Jid : int
+{
+    Unknown = -1,
+
     Select = 0,
     Exit,
     Focus,
@@ -22,6 +35,7 @@ enum Jid
     PreviousPack,
     AddToFavorites,
     FavoritesMenu,
+
     JoystickBindsCount
 };
 
@@ -30,52 +44,10 @@ void update();
 void ignoreAllPresses(bool ignore);
 void setJoystickBind(const unsigned int button, const int buttonID);
 
-[[nodiscard]] bool leftPressed();
-[[nodiscard]] bool leftRisingEdge();
+[[nodiscard]] bool pressed(const Jdir jdir);
+[[nodiscard]] bool risingEdge(const Jdir jdir);
 
-[[nodiscard]] bool rightPressed();
-[[nodiscard]] bool rightRisingEdge();
-
-[[nodiscard]] bool upPressed();
-[[nodiscard]] bool upRisingEdge();
-
-[[nodiscard]] bool downPressed();
-[[nodiscard]] bool downRisingEdge();
-
-[[nodiscard]] bool selectPressed();
-[[nodiscard]] bool selectRisingEdge();
-
-[[nodiscard]] bool exitPressed();
-[[nodiscard]] bool exitRisingEdge();
-
-[[nodiscard]] bool focusPressed();
-[[nodiscard]] bool focusRisingEdge();
-
-[[nodiscard]] bool swapPressed();
-[[nodiscard]] bool swapRisingEdge();
-
-[[nodiscard]] bool restartPressed();
-[[nodiscard]] bool restartRisingEdge();
-
-[[nodiscard]] bool forceRestartPressed();
-[[nodiscard]] bool forceRestartRisingEdge();
-
-[[nodiscard]] bool replayPressed();
-[[nodiscard]] bool replayRisingEdge();
-
-[[nodiscard]] bool screenshotPressed();
-[[nodiscard]] bool screenshotRisingEdge();
-
-[[nodiscard]] bool nextPackPressed();
-[[nodiscard]] bool nextPackRisingEdge();
-
-[[nodiscard]] bool previousPackPressed();
-[[nodiscard]] bool previousPackRisingEdge();
-
-[[nodiscard]] bool addToFavoritesPressed();
-[[nodiscard]] bool addToFavoritesRisingEdge();
-
-[[nodiscard]] bool favoritesMenuPressed();
-[[nodiscard]] bool favoritesMenuRisingEdge();
+[[nodiscard]] bool pressed(const Jid jid);
+[[nodiscard]] bool risingEdge(const Jid jid);
 
 } // namespace hg::Joystick

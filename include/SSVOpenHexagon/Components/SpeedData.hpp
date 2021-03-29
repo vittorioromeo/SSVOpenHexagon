@@ -11,43 +11,39 @@ namespace hg
 
 struct SpeedData
 {
-    float speed;
-    float accel;
-    float min;
-    float max;
-    bool pingPong;
+    float _speed;
+    float _accel;
+    float _min;
+    float _max;
+    float _pingPong;
 
-    SpeedData(float mSpeed = 0, float mAccel = 0.f, float mMin = 0.f,
-        float mMax = 0.f, bool mPingPong = false) noexcept
-        : speed{mSpeed}, accel{mAccel}, min{mMin}, max{mMax}, pingPong{
-                                                                  mPingPong}
+    explicit SpeedData(float speed = 0, float accel = 0.f, float min = 0.f,
+        float max = 0.f, bool pingPong = false) noexcept
+        : _speed{speed}, _accel{accel}, _min{min}, _max{max}, _pingPong{
+                                                                  pingPong
+                                                                      ? -1.f
+                                                                      : 1.f}
     {
     }
 
-    void update(ssvu::FT mFT) noexcept
+    void update(const ssvu::FT ft) noexcept
     {
-        if(accel == 0)
+        if(_accel == 0)
         {
             return;
         }
 
-        speed += accel * mFT;
+        _speed += _accel * ft;
 
-        if(speed > max)
+        if(_speed > _max)
         {
-            speed = max;
-            if(pingPong)
-            {
-                accel *= -1;
-            }
+            _speed = _max;
+            _accel *= _pingPong;
         }
-        else if(speed < min)
+        else if(_speed < _min)
         {
-            speed = min;
-            if(pingPong)
-            {
-                accel *= -1;
-            }
+            _speed = _min;
+            _accel *= _pingPong;
         }
     }
 };

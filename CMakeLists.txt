@@ -15,32 +15,52 @@ endif()
 include(${CPM_DOWNLOAD_LOCATION})
 # -----------------------------------------------------------------------------
 
+set(BUILD_SHARED_LIBS true)
+set(SFML_STATIC_LIBRARIES false)
+set(USE_LUAJIT true)
+
 CPMAddPackage(
   NAME SFML
   GITHUB_REPOSITORY SFML/SFML
   VERSION 2.5.1
-  GIT_TAG 2f11710abc5aa478503a7ff3f9e654bd2078ebab
+  GIT_TAG 748ba1bc82fdd35e972912a436f82023ec4a333a
 )
 
 # -----------------------------------------------------------------------------
 
-CPMAddPackage(
-  NAME lua
-  GIT_REPOSITORY https://github.com/lua/lua.git
-  VERSION 5.3.5
-  DOWNLOAD_ONLY YES
-)
+if (NOT USE_LUAJIT)
 
-if (lua_ADDED)
-  # lua has no CMake support, so we create our own target
-
-  FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
-  add_library(lua STATIC ${lua_sources})
-
-  target_include_directories(lua
-    PUBLIC
-      $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
+  CPMAddPackage(
+    NAME lua
+    GIT_REPOSITORY https://github.com/lua/lua.git
+    VERSION 5.3.5
+    DOWNLOAD_ONLY YES
   )
+
+  if (lua_ADDED)
+    # lua has no CMake support, so we create our own target
+
+    FILE(GLOB lua_sources ${lua_SOURCE_DIR}/*.c)
+    add_library(lua STATIC ${lua_sources})
+
+    target_include_directories(lua
+      PUBLIC
+        $<BUILD_INTERFACE:${lua_SOURCE_DIR}>
+    )
+  endif()
+
+endif()
+
+# -----------------------------------------------------------------------------
+
+if (USE_LUAJIT)
+
+  CPMAddPackage(
+    NAME luajit
+    GIT_REPOSITORY https://github.com/WohlSoft/LuaJIT
+    GIT_TAG 73e6a59d6add696be9b5ca3cc61ac6ae6710e5bf
+  )
+
 endif()
 
 # -----------------------------------------------------------------------------
@@ -50,6 +70,35 @@ CPMAddPackage(
   GITHUB_REPOSITORY madler/zlib
   VERSION 1.2.11
   GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f
+)
+
+# -----------------------------------------------------------------------------
+
+CPMAddPackage(
+  NAME imgui
+  GITHUB_REPOSITORY ocornut/imgui
+  VERSION 1.82
+  GIT_TAG 35b1148efb839381b84de9290d9caf0b66ad7d03
+  DOWNLOAD_ONLY YES
+)
+
+if (imgui_ADDED)
+  # imgui has no CMake support, so we create our own target
+
+  FILE(GLOB imgui_sources ${imgui_SOURCE_DIR}/*.cpp)
+
+  set(IMGUI_DIR ${imgui_SOURCE_DIR})
+  set(IMGUI_INCLUDE_DIR ${imgui_SOURCE_DIR})
+  set(IMGUI_SOURCES ${imgui_sources})
+endif()
+
+# -----------------------------------------------------------------------------
+
+CPMAddPackage(
+  NAME imgui-sfml
+  GITHUB_REPOSITORY eliasdaler/imgui-sfml
+  VERSION 2.2
+  GIT_TAG a181782e151e40cdec7a0d98dcec5ddd56252d10
 )
 
 # -----------------------------------------------------------------------------
@@ -98,6 +147,7 @@ list(REMOVE_ITEM SRC_LIST ${MAIN_FILE})
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
+vrm_cmake_include_vc_dependency_once(vc_detection)
 vrm_cmake_add_common_compiler_flags()
 
 vrm_cmake_find_extlib(vrm_pp)
@@ -138,25 +188,37 @@ set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
 "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so")
 endif()
 
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${zlib_SOURCE_DIR})
-target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${zlib_BINARY_DIR})
+if(USE_LUAJIT)
+  add_definitions(-DSSVOH_USE_LUAJIT)
+  set(LUASRC "${luajit_SOURCE_DIR}/src")
+  set(LUALIB libluajit)
+else()
+  set(LUASRC "${lua_SOURCE_DIR}")
+  set(LUALIB lua)
+endif()
 
-target_link_libraries(SSVOpenHexagonLib ${SFML_LIBRARIES})
-target_link_libraries(SSVOpenHexagonLib lua)
-target_link_libraries(SSVOpenHexagonLib zlib)
-target_link_libraries(SSVOpenHexagonLib ${PUBLIC_LIBRARIES})
-target_link_libraries(SSVOpenHexagonLib "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll")
+target_include_directories(SSVOpenHexagonLib SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
+                                                    PUBLIC ${PUBLIC_INCLUDE_DIRS}
+                                                    PUBLIC ${zlib_SOURCE_DIR}
+                                                    PUBLIC ${zlib_BINARY_DIR}
+                                                    PUBLIC ${LUASRC}
+                                                    PUBLIC ${imgui_SOURCE_DIR})
+
+target_link_libraries(SSVOpenHexagonLib ${SFML_LIBRARIES}
+                                        ${LUALIB}
+                                        zlib
+                                        ${PUBLIC_LIBRARIES}
+                                        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll"
+                                        ImGui-SFML::ImGui-SFML)
 
 target_link_libraries(${PROJECT_NAME} SSVOpenHexagonLib)
 
-# TODO: reduce repetition of includes
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${PUBLIC_INCLUDE_DIRS})
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_SOURCE_DIR})
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${zlib_BINARY_DIR})
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${lua_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
+                                                  PUBLIC ${PUBLIC_INCLUDE_DIRS}
+                                                  PUBLIC ${zlib_SOURCE_DIR}
+                                                  PUBLIC ${zlib_BINARY_DIR}
+                                                  PUBLIC ${LUASRC}
+                                                  PUBLIC ${imgui_SOURCE_DIR})
 
 if(UNIX AND NOT APPLE)
     target_link_libraries(SSVOpenHexagonLib pthread)

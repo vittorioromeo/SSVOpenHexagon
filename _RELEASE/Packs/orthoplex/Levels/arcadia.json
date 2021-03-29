@@ -1,0 +1,12 @@
+{
+    "id": "arcadia",
+    "name": "arcadia",
+    "description": "test",
+    "author": "vittorio romeo",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "arcadia",
+    "musicId": "arcadia",
+    "luaFile": "Scripts/Levels/arcadia.lua",
+    "difficultyMults": [1.5, 2.0, 0.5]
+}

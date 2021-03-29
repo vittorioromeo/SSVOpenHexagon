@@ -6,8 +6,6 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/JsonCpp/JsonCpp.hpp"
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-
 #include <string>
 
 namespace ssvuj
@@ -21,7 +19,6 @@ using Key = std::string;
 using Idx = unsigned int;
 using Writer = Json::StyledStreamWriter;
 using Reader = Json::Reader;
-using Path = ssvu::FileSystem::Path;
 using Iterator = typename Json::Value::iterator;
 using ConstIterator = typename Json::Value::const_iterator;
 

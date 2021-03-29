@@ -6,9 +6,6 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
-#include <utility>
-#include <string>
-
 namespace ssvuj
 {
 
@@ -24,7 +21,12 @@ public:
     {
     }
 
-    operator T() const noexcept
+    [[nodiscard]] operator T&() noexcept
+    {
+        return value;
+    }
+
+    [[nodiscard]] operator const T&() const noexcept
     {
         return value;
     }

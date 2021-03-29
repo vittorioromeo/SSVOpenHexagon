@@ -12,6 +12,7 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
@@ -25,6 +26,9 @@
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include <imgui.h>
+#include <imgui-SFML.h>
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
@@ -66,6 +70,25 @@ private:
 
     ssvs::GameState game;
     ssvs::GameWindow& window;
+
+    // IMGUI Lua Console
+    sf::Clock ilcDeltaClock;
+    std::vector<std::string> ilcCmdLog;
+    std::vector<std::string> ilcHistory;
+    int ilcHistoryPos{-1};
+    char ilcCmdBuffer[512] = "";
+    char ilcTrackBuffer[512] = "";
+    bool ilcShowConsole{false};
+    bool ilcShowConsoleNext{false};
+    std::vector<std::string> ilcLuaTracked;
+    std::vector<std::string> ilcLuaTrackedNames;
+    std::vector<std::string> ilcLuaTrackedResults;
+    bool debugPause{false};
+
+    std::vector<std::string> execScriptPackPathContext;
+
+public:
+    int ilcTextEditCallback(ImGuiInputTextCallbackData* data);
 
 public:
     CPlayer player;
@@ -128,6 +151,13 @@ private:
     sf::Sprite keyIconSwap;
     sf::Sprite replayIcon;
 
+    sf::RectangleShape levelInfoRectangle;
+    sf::Text levelInfoTextLevel{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextPack{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextAuthor{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextBy{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextDM{"", assets.get<sf::Font>("forcedsquare.ttf")};
+
     bool firstPlay{true};
     bool restartFirstTime{true};
     bool inputFocused{false};
@@ -188,14 +218,10 @@ private:
         float y;
     };
 
-    Utils::LuaMetadata luaMetadata;
-
     std::string packId;
     std::string levelId;
 
     // Lua related methods
-    void redefineLuaFunctions();
-    void destroyMaliciousFunctions();
     void initLua_Utils();
     void initLua_AudioControl();
     void initLua_MainTimeline();
@@ -216,7 +242,10 @@ private:
         }
         catch(...)
         {
-            death();
+            if(!Config::getDebug())
+            {
+                goToMenu(false /* mSendScores */, true /* mError */);
+            }
         }
     }
 
@@ -225,6 +254,8 @@ private:
         const SpeedData& mCurve = SpeedData{}, float mHueMod = 0);
 
 public:
+    void initLuaAndPrintDocs();
+
     template <typename T, typename... TArgs>
     T runLuaFunction(const std::string& mName, const TArgs&... mArgs)
     {
@@ -236,7 +267,7 @@ public:
         {
             std::cout << "[runLuaFunction] Runtime error on \"" << mName
                       << "\" with level \"" << levelData->name << "\": \n"
-                      << ssvu::toStr(mError.what()) << "\n"
+                      << mError.what() << '\n'
                       << std::endl;
 
             if(!Config::getDebug())
@@ -244,6 +275,19 @@ public:
                 goToMenu(false /* mSendScores */, true /* mError */);
             }
         }
+        catch(...)
+        {
+            std::cout << "[runLuaFunction] Unknown runtime error on \"" << mName
+                      << "\" with level \"" << levelData->name << "\": \n"
+                      << '\n'
+                      << std::endl;
+
+            if(!Config::getDebug())
+            {
+                goToMenu(false /* mSendScores */, true /* mError */);
+            }
+        }
+
         return T();
     }
 
@@ -259,7 +303,7 @@ public:
         {
             std::cout << "[runLuaFunctionIfExists] Runtime error on \"" << mName
                       << "\" with level \"" << levelData->name << "\": \n"
-                      << ssvu::toStr(mError.what()) << "\n"
+                      << mError.what() << '\n'
                       << std::endl;
 
             if(!Config::getDebug())
@@ -307,7 +351,11 @@ private:
     void update3D(ssvu::FT mFT);
     void updateText(ssvu::FT mFT);
     void updateKeyIcons();
+    void updateLevelInfo();
     void updateParticles(ssvu::FT mFT);
+
+    // Post update methods
+    void postUpdateImguiLuaConsole();
 
     // Draw methods
     void draw();
@@ -322,7 +370,9 @@ private:
     void drawText_PersonalBest(const sf::Color& offsetColor);
     void drawText();
     void drawKeyIcons();
+    void drawLevelInfo();
     void drawParticles();
+    void drawImguiLuaConsole();
 
     // Data-related methods
     void setLevelData(const LevelData& mLevelData, bool mMusicFirstPlay);
@@ -352,29 +402,10 @@ private:
 
     void invalidateScore(const std::string& mReason);
 
+    [[nodiscard]] bool imguiLuaConsoleHasInput();
 
-    template <typename F>
-    Utils::LuaMetadataProxy addLuaFn(const std::string& name, F&& f)
-    {
-        lua.writeVariable(name, std::forward<F>(f));
-        return Utils::LuaMetadataProxy{f, luaMetadata, name};
-    }
-
-    void printLuaDocs()
-    {
-        for(std::size_t i = 0; i < luaMetadata.getNumCategories(); ++i)
-        {
-            std::cout << '\n' << luaMetadata.prefixHeaders.at(i) << "\n\n";
-
-            luaMetadata.forFnEntries(
-                [](const std::string& ret, const std::string& name,
-                    const std::string& args, const std::string& docs) {
-                    std::cout << "* **`" << ret << " " << name << "(" << args
-                              << ")`**: " << docs << "\n\n";
-                },
-                i);
-        }
-    }
+    template <typename T>
+    auto makeLuaAccessor(T& obj, const std::string& prefix);
 
     static void nameFormat(std::string& name)
     {
@@ -396,11 +427,16 @@ private:
     }
 
 public:
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> capTris;
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> wallQuads3D;
-    Utils::FastVertexVector<sf::PrimitiveType::Triangles> playerTris3D;
+    void performPlayerSwap(const bool playSound);
+    void performPlayerKill();
+
+public:
+    Utils::FastVertexVectorTris backgroundTris;
+    Utils::FastVertexVectorQuads wallQuads;
+    Utils::FastVertexVectorTris playerTris;
+    Utils::FastVertexVectorTris capTris;
+    Utils::FastVertexVectorQuads wallQuads3D;
+    Utils::FastVertexVectorTris playerTris3D;
 
     MenuGame* mgPtr;
 
@@ -509,7 +545,12 @@ public:
         return levelStatus._3dEffectMultiplier;
     }
 
-    [[nodiscard]] HexagonGameStatus& getStatus()
+    [[nodiscard]] HexagonGameStatus& getStatus() noexcept
+    {
+        return status;
+    }
+
+    [[nodiscard]] const HexagonGameStatus& getStatus() const noexcept
     {
         return status;
     }
@@ -546,13 +587,8 @@ public:
     [[nodiscard]] bool getInputSwap() const;
     [[nodiscard]] int getInputMovement() const;
 
-    template <typename F>
-    [[nodiscard]] bool anyCustomWall(F&& f)
-    {
-        return cwManager.anyCustomWall(std::forward<F>(f));
-    }
-
     // Pack information
+    [[nodiscard]] const PackData& getPackData() const noexcept;
     [[nodiscard]] const std::string& getPackId() const noexcept;
     [[nodiscard]] const std::string& getPackDisambiguator() const noexcept;
     [[nodiscard]] const std::string& getPackAuthor() const noexcept;
@@ -564,6 +600,12 @@ public:
     [[nodiscard]] bool mustShowReplayUI() const noexcept;
 
     [[nodiscard]] float getSwapCooldown() const noexcept;
+
+    [[gnu::always_inline, nodiscard]] const sf::Vector2f&
+    getCenterPos() const noexcept
+    {
+        return centerPos;
+    }
 };
 
 } // namespace hg

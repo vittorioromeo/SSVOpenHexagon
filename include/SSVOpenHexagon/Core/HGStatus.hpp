@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/ObfuscatedValue.hpp"
-
 #include <SFML/Graphics/Color.hpp>
 
 #include <chrono>
+#include <string>
 
 namespace hg
 {
@@ -38,7 +37,6 @@ public:
     float pulse{75};
     float pulseDirection{1};
     float pulseDelay{0};
-    float pulseDelayHalf{0};
     float beatPulse{0};
     float beatPulseDelay{0};
     float pulse3D{1.f};
@@ -51,8 +49,6 @@ public:
     bool scoreInvalid{false};
     std::string invalidReason{""};
     bool started{false};
-    sf::Color overrideColor{sf::Color::Transparent};
-    ssvu::ObfuscatedValue<float> lostFrames{0};
     std::string restartInput;
     std::string replayInput;
 

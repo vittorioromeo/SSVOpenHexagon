@@ -3,11 +3,12 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/StyleData.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+
+#include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SSVUtils/Core/Utils/Math.hpp>
 
@@ -23,17 +24,16 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
 
     if(mColorData.dynamic)
     {
-        const auto hue =
+        const float hue =
             std::fmod(currentHue + mColorData.hueShift, 360.f) / 360.f;
 
-        const auto& dynamicColor(
-            ssvs::getColorFromHSV(ssvu::getClamped(hue, 0.f, 1.f), 1.f, 1.f));
+        const sf::Color dynamicColor = ssvs::getColorFromHSV(hue, 1.f, 1.f);
 
         if(!mColorData.main)
         {
             if(mColorData.dynamicOffset)
             {
-                SSVU_ASSERT(mColorData.offset != 0);
+                SSVOH_ASSERT(mColorData.offset != 0);
 
                 color.r += dynamicColor.r / mColorData.offset;
                 color.g += dynamicColor.g / mColorData.offset;
@@ -52,15 +52,25 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
         }
     }
 
-    const auto& pulse(mColorData.pulse);
-    return sf::Color(ssvu::toNum<sf::Uint8>(ssvu::getClamped(
-                         color.r + pulse.r * pulseFactor, 0.f, 255.f)),
-        ssvu::toNum<sf::Uint8>(
-            ssvu::getClamped(color.g + pulse.g * pulseFactor, 0.f, 255.f)),
-        ssvu::toNum<sf::Uint8>(
-            ssvu::getClamped(color.b + pulse.b * pulseFactor, 0.f, 255.f)),
-        ssvu::toNum<sf::Uint8>(
-            ssvu::getClamped(color.a + pulse.a * pulseFactor, 0.f, 255.f)));
+    const auto componentClamp = [](const float value) -> sf::Uint8 {
+        if(value > 255.f)
+        {
+            return sf::Uint8(255);
+        }
+
+        if(value < 0)
+        {
+            return sf::Uint8(0);
+        }
+
+        return static_cast<sf::Uint8>(value);
+    };
+
+    return sf::Color( //
+        componentClamp(color.r + mColorData.pulse.r * pulseFactor),
+        componentClamp(color.g + mColorData.pulse.g * pulseFactor),
+        componentClamp(color.b + mColorData.pulse.b * pulseFactor),
+        componentClamp(color.a + mColorData.pulse.a * pulseFactor));
 }
 
 void StyleData::update(ssvu::FT mFT, float mMult)
@@ -85,8 +95,7 @@ void StyleData::update(ssvu::FT mFT, float mMult)
             currentHue = hueMax;
         }
     }
-
-    if(currentHue > hueMax)
+    else if(currentHue > hueMax)
     {
         if(huePingPong)
         {
@@ -106,17 +115,15 @@ void StyleData::update(ssvu::FT mFT, float mMult)
         pulseIncrement *= -1.f;
         pulseFactor = pulseMin;
     }
-    if(pulseFactor > pulseMax)
+    else if(pulseFactor > pulseMax)
     {
         pulseIncrement *= -1.f;
         pulseFactor = pulseMax;
     }
 }
 
-void StyleData::computeColors(const LevelStatus& levelStatus)
+void StyleData::computeColors()
 {
-    (void)levelStatus;
-
     currentMainColor = calculateColor(mainColorData);
     currentPlayerColor = calculateColor(playerColor);
     currentTextColor = calculateColor(textColor);
@@ -126,7 +133,7 @@ void StyleData::computeColors(const LevelStatus& levelStatus)
 
     currentColors.clear();
 
-    for(const auto& cd : colorDatas)
+    for(const ColorData& cd : colorDatas)
     {
         currentColors.emplace_back(calculateColor(cd));
     }
@@ -141,39 +148,31 @@ void StyleData::computeColors(const LevelStatus& levelStatus)
     }
 }
 
-void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
-    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus) const
+void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
+    const sf::Vector2f& mCenterPos, const unsigned int sides,
+    const bool darkenUnevenBackgroundChunk) const
 {
-    const auto sides = levelStatus.sides;
+    const float div{ssvu::tau / sides * 1.0001f};
+    const float halfDiv{div / 2.f};
+    const float distance{bgTileRadius};
 
-    const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
-        distance{bgTileRadius};
-
-    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
-    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> hexagon;
-
-    vertices.clear();
-    hexagon.clear();
-    vertices.reserve(sides * 3);
-    hexagon.reserve(sides * 6);
-
-    const auto& colors(getColors());
+    const std::vector<sf::Color>& colors(getColors());
 
     for(auto i(0u); i < sides; ++i)
     {
         const float angle{ssvu::toRad(BGRotOff) + div * i};
         sf::Color currentColor{ssvu::getByModIdx(colors, i)};
 
-        const bool darkenUnevenBackgroundChunk =
+        const bool mustDarkenUnevenBackgroundChunk =
             (i % 2 == 0 && i == sides - 1) &&
             Config::getDarkenUnevenBackgroundChunk() &&
-            levelStatus.darkenUnevenBackgroundChunk;
+            darkenUnevenBackgroundChunk;
 
         if(Config::getBlackAndWhite())
         {
             currentColor = sf::Color::Black;
         }
-        else if(darkenUnevenBackgroundChunk)
+        else if(mustDarkenUnevenBackgroundChunk)
         {
             currentColor = Utils::getColorDarkened(currentColor, 1.4f);
         }
@@ -182,68 +181,52 @@ void StyleData::drawBackground(sf::RenderTarget& mRenderTarget,
             ssvs::getOrbitRad(mCenterPos, angle + halfDiv, distance),
             ssvs::getOrbitRad(mCenterPos, angle - halfDiv, distance));
     }
-
-    mRenderTarget.draw(vertices);
-    mRenderTarget.draw(hexagon);
 }
 
-void StyleData::drawBackgroundMenu(sf::RenderTarget& mRenderTarget,
-    const sf::Vector2f& mCenterPos, const LevelStatus& levelStatus,
-    const bool fourByThree) const
+void StyleData::drawBackgroundMenuHexagonImpl(
+    Utils::FastVertexVectorTris& vertices, const sf::Vector2f& mCenterPos,
+    const unsigned int sides, const bool fourByThree) const
 {
-    const auto sides = levelStatus.sides;
+    const float div{ssvu::tau / sides * 1.0001f};
+    const float halfDiv{div / 2.f};
+    const float hexagonRadius{fourByThree ? 75.f : 100.f};
 
-    const float div{ssvu::tau / sides * 1.0001f}, halfDiv{div / 2.f},
-        distance{bgTileRadius}, hexagonRadius{fourByThree ? 75.f : 100.f};
-
-    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> vertices;
-    static Utils::FastVertexVector<sf::PrimitiveType::Triangles> hexagon;
-
-    vertices.clear();
-    hexagon.clear();
-    vertices.reserve(sides * 3);
-    hexagon.reserve(sides * 6);
-
-    const auto& colors(getColors());
-    const sf::Color colorMain{getMainColor()};
+    const sf::Color& colorMain{getMainColor()};
     const sf::Color colorCap{getCapColorResult()};
 
     for(auto i(0u); i < sides; ++i)
     {
         const float angle{ssvu::toRad(BGRotOff) + div * i};
-        sf::Color currentColor{ssvu::getByModIdx(colors, i)};
 
-        const bool darkenUnevenBackgroundChunk =
-            (i % 2 == 0 && i == sides - 1) &&
-            Config::getDarkenUnevenBackgroundChunk() &&
-            levelStatus.darkenUnevenBackgroundChunk;
-
-        if(Config::getBlackAndWhite())
-        {
-            currentColor = sf::Color::Black;
-        }
-        else if(darkenUnevenBackgroundChunk)
-        {
-            currentColor = Utils::getColorDarkened(currentColor, 1.4f);
-        }
-
-        vertices.batch_unsafe_emplace_back(currentColor, mCenterPos,
-            ssvs::getOrbitRad(mCenterPos, angle + halfDiv, distance),
-            ssvs::getOrbitRad(mCenterPos, angle - halfDiv, distance));
-
-        hexagon.batch_unsafe_emplace_back(colorMain, mCenterPos,
+        vertices.batch_unsafe_emplace_back(colorMain, mCenterPos,
             ssvs::getOrbitRad(
                 mCenterPos, angle + halfDiv, hexagonRadius + 10.f),
             ssvs::getOrbitRad(
                 mCenterPos, angle - halfDiv, hexagonRadius + 10.f));
 
-        hexagon.batch_unsafe_emplace_back(colorCap, mCenterPos,
+        vertices.batch_unsafe_emplace_back(colorCap, mCenterPos,
             ssvs::getOrbitRad(mCenterPos, angle + halfDiv, hexagonRadius),
             ssvs::getOrbitRad(mCenterPos, angle - halfDiv, hexagonRadius));
     }
+}
 
-    mRenderTarget.draw(vertices);
-    mRenderTarget.draw(hexagon);
+void StyleData::drawBackground(Utils::FastVertexVectorTris& mTris,
+    const sf::Vector2f& mCenterPos, const unsigned int sides,
+    const bool darkenUnevenBackgroundChunk) const
+{
+    mTris.reserve_more(sides * 3);
+
+    drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk);
+}
+
+void StyleData::drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
+    const sf::Vector2f& mCenterPos, const unsigned int sides,
+    const bool darkenUnevenBackgroundChunk, const bool fourByThree) const
+{
+    mTris.reserve_more(sides * 3 + sides * 6);
+
+    drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk);
+    drawBackgroundMenuHexagonImpl(mTris, mCenterPos, sides, fourByThree);
 }
 
 sf::Color StyleData::getCapColorResult() const noexcept
@@ -253,8 +236,8 @@ sf::Color StyleData::getCapColorResult() const noexcept
         [this](CapColorMode::Main) { return getMainColor(); }, //
         [this](CapColorMode::MainDarkened) {
             return Utils::getColorDarkened(getMainColor(), 1.4f);
-        },                                                             //
-        [this](CapColorMode::ByIndex x) { return getColor(x.index); }, //
+        },                                                              //
+        [this](CapColorMode::ByIndex x) { return getColor(x._index); }, //
         [this](ColorData data) { return calculateColor(data); });
 }
 

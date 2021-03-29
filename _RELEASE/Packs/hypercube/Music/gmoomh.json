@@ -1,20 +1,20 @@
 {
-	// Music data id
-	"id": "gmoomh",
+    // Music data id
+    "id": "gmoomh",
 
-	// Music file
-	"file_name": "gmoomh.ogg",
+    // Music file
+    "file_name": "gmoomh.ogg",
 
-	// Music information
-	"name": "Getting melodies out of my head",
-	"album": "",
-	"author": "Fantomenk",
-	
-	// Segments
-	"segments":
-	[
-		{ "time": 2 },
-		{ "time": 65 },
-		{ "time": 123 }
-	]
+    // Music information
+    "name": "Getting melodies out of my head",
+    "album": "",
+    "author": "Fantomenk",
+
+    // Segments
+    "segments":
+    [
+        { "time": 2 },
+        { "time": 65 },
+        { "time": 123 }
+    ]
 }

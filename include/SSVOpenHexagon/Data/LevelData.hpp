@@ -51,7 +51,7 @@ public:
         ssvu::sort(difficultyMults);
     }
 
-    std::string getRootString() const
+    [[nodiscard]] std::string getRootString() const
     {
         return ssvuj::getWriteToString(root);
     }
@@ -91,7 +91,7 @@ struct LevelStatus
     float pulseSpeed{0.f};
     float pulseSpeedR{0.f};
     float pulseDelayMax{0.f};
-    float pulseDelayHalfMax{0.f};
+    float pulseInitialDelay{0.f};
     float swapCooldownMult{1.f};
 
     // ------------------------------------------------------------------------
@@ -123,6 +123,8 @@ struct LevelStatus
     bool rndSideChangesEnabled{true};
     bool darkenUnevenBackgroundChunk{true};
 
+    bool manualPulseControl{false};
+    bool manualBeatPulseControl{false};
 
     std::size_t currentIncrements{0u};
 

@@ -1,12 +1,12 @@
 {
-	"id": "centrifugal",
-	"name": "centrifugal force",
-	"description": "insert cool description here",
-	"author": "vittorio romeo",	
-	"menuPriority": 71,
-	"selectable": true,
-	"styleId": "centrifugal",
-	"musicId": "tengil",
-	"luaFile": "Scripts/Levels/centrifugal.lua",
-	"difficultyMults": [1.2, 1.4, 1.6, 0.6, 0.3]
+    "id": "centrifugal",
+    "name": "centrifugal force",
+    "description": "insert cool description here",
+    "author": "vittorio romeo",
+    "menuPriority": 71,
+    "selectable": true,
+    "styleId": "centrifugal",
+    "musicId": "tengil",
+    "luaFile": "Scripts/Levels/centrifugal.lua",
+    "difficultyMults": [1.2, 1.4, 1.6, 0.6, 0.3]
 }

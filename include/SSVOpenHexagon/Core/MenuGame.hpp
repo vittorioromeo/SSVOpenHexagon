@@ -6,12 +6,14 @@
 
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
-#include "SSVOpenHexagon/Global/Common.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/Utils/FontHeight.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
+#include "SSVOpenHexagon/Core/LuaScripting.hpp"
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
@@ -72,12 +74,15 @@ private:
     ssvs::GameWindow& window;
     HexagonDialogBox dialogBox;
 
+    Lua::LuaContext lua;
+    std::vector<std::string> execScriptPackPathContext;
+    const PackData* currentPack{nullptr};
+
     //---------------------------------------
     // Initialization
 
     void initAssets();
     void initInput();
-    Lua::LuaContext lua;
     void initLua();
     void initMenus();
     void playLocally();
@@ -230,7 +235,8 @@ private:
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
     sf::Color dialogBoxTextColor;
-    Utils::FastVertexVector<sf::PrimitiveType::Quads> menuQuads;
+    Utils::FastVertexVectorTris menuBackgroundTris;
+    Utils::FastVertexVectorQuads menuQuads;
 
     void draw();
     void render(sf::Drawable& mDrawable)
@@ -345,13 +351,20 @@ private:
     LevelDrawer* lvlDrawer{&lvlSlct};
 
     void changeFavoriteLevelsToProfile();
-    bool isFavoriteLevels() const
+
+    [[nodiscard]] bool isFavoriteLevels() const
     {
         return lvlDrawer->isFavorites;
     }
-    size_t getPackInfosSize() const
+
+    [[nodiscard]] std::size_t getSelectablePackInfosSize() const
     {
-        return isFavoriteLevels() ? 1 : assets.getPackInfos().size();
+        return isFavoriteLevels() ? 1 : assets.getSelectablePackInfos().size();
+    }
+
+    [[nodiscard]] const auto& getNthSelectablePackInfo(const std::size_t i)
+    {
+        return assets.getSelectablePackInfos().at(i);
     }
 
     int diffMultIdx{0};

@@ -2,106 +2,99 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
-#include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Color.hpp"
 
 namespace hg
 {
 
-CWall::CWall(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
-    const int mSide, const float mThickness, const float mDistance,
-    const SpeedData& mSpeed, const SpeedData& mCurve)
-    : speed{mSpeed}, curve{mCurve}, hueMod{0}, killed{false}
+CWall::CWall(const unsigned int sides, const float wallAngleLeft,
+    const float wallAngleRight, const float wallSkewLeft,
+    const float wallSkewRight, const sf::Vector2f& centerPos, const int side,
+    const float thickness, const float distance, const SpeedData& speed,
+    const SpeedData& curve)
+    : _speed{speed}, _curve{curve}, _hueMod{0}, _killed{false}
 {
-    const float div{ssvu::tau / mHexagonGame.getSides() * 0.5f};
-    const float angle{div * 2.f * mSide};
+    const float div{ssvu::tau / sides * 0.5f};
+    const float angle{div * 2.f * side};
 
-    vertexPositions[0] = ssvs::getOrbitRad(mCenterPos, angle - div, mDistance);
-    vertexPositions[1] = ssvs::getOrbitRad(mCenterPos, angle + div, mDistance);
-    vertexPositions[2] = ssvs::getOrbitRad(mCenterPos,
-        angle + div + mHexagonGame.getWallAngleLeft(),
-        mDistance + mThickness + mHexagonGame.getWallSkewLeft());
-    vertexPositions[3] = ssvs::getOrbitRad(mCenterPos,
-        angle - div + mHexagonGame.getWallAngleRight(),
-        mDistance + mThickness + mHexagonGame.getWallSkewRight());
+    _vertexPositions[0] = ssvs::getOrbitRad(centerPos, angle - div, distance);
+    _vertexPositions[1] = ssvs::getOrbitRad(centerPos, angle + div, distance);
+    _vertexPositions[2] = ssvs::getOrbitRad(centerPos,
+        angle + div + wallAngleLeft, distance + thickness + wallSkewLeft);
+    _vertexPositions[3] = ssvs::getOrbitRad(centerPos,
+        angle - div + wallAngleRight, distance + thickness + wallSkewRight);
 }
 
-void CWall::draw(HexagonGame& mHexagonGame)
+void CWall::draw(sf::Color color, Utils::FastVertexVectorQuads& wallQuads)
 {
-    sf::Color colorMain(mHexagonGame.getColorMain());
-
-    if(hueMod != 0)
+    if(_hueMod != 0)
     {
-        colorMain = Utils::transformHue(colorMain, hueMod);
+        color = Utils::transformHue(color, _hueMod);
     }
 
-    mHexagonGame.wallQuads.reserve_more(4);
-    mHexagonGame.wallQuads.batch_unsafe_emplace_back(colorMain,
-        vertexPositions[0], vertexPositions[1], vertexPositions[2],
-        vertexPositions[3]);
+    wallQuads.batch_unsafe_emplace_back(color, _vertexPositions[0],
+        _vertexPositions[1], _vertexPositions[2], _vertexPositions[3]);
 }
 
-void CWall::update(HexagonGame& mHexagonGame, const sf::Vector2f& mCenterPos,
-    const ssvu::FT mFT)
+void CWall::update(const float wallSpawnDist, const float radius,
+    const sf::Vector2f& centerPos, const ssvu::FT ft)
 {
-    speed.update(mFT);
-    curve.update(mFT);
+    _speed.update(ft);
+    _curve.update(ft);
 
-    moveTowardsCenter(mHexagonGame, mCenterPos, mFT);
-    if(curve.speed != 0.f)
+    moveTowardsCenter(wallSpawnDist, radius, centerPos, ft);
+    if(_curve._speed != 0.f)
     {
-        moveCurve(mCenterPos, mFT);
+        moveCurve(centerPos, ft);
     }
-
-    outOfPlayerRadius = false;
 }
 
-void CWall::moveTowardsCenter(HexagonGame& mHexagonGame,
-    const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
+void CWall::moveTowardsCenter(const float wallSpawnDist, const float radius,
+    const sf::Vector2f& centerPos, const ssvu::FT ft)
 {
-    const float wallSpawnDist{mHexagonGame.getLevelStatus().wallSpawnDistance};
-    const float radius{mHexagonGame.getRadius() * 0.5f};
+    const float halfRadius{radius * 0.5f};
     const float outerBounds{wallSpawnDist * 1.1f};
 
-    int pointsOutOfBounds{0}, pointsOnCenter{0};
-    float xDistance, yDistance;
+    int pointsOutOfBounds{0};
+    int pointsOnCenter{0};
 
-    for(sf::Vector2f& vp : vertexPositions)
+    for(sf::Vector2f& vp : _vertexPositions)
     {
-        xDistance = std::abs(vp.x - mCenterPos.x);
-        yDistance = std::abs(vp.y - mCenterPos.y);
+        const float xDistance = std::abs(vp.x - centerPos.x);
+        const float yDistance = std::abs(vp.y - centerPos.y);
 
-        if(xDistance < radius && yDistance < radius)
+        if(xDistance < halfRadius && yDistance < halfRadius)
         {
             ++pointsOnCenter;
             continue;
         }
+
         if(xDistance > outerBounds || yDistance > outerBounds)
         {
             ++pointsOutOfBounds;
         }
 
-        ssvs::moveTowards(vp, mCenterPos, speed.speed * 5.f * mFT);
+        ssvs::moveTowards(vp, centerPos, _speed._speed * 5.f * ft);
     }
 
     if(pointsOnCenter == 4 || pointsOutOfBounds == 4)
     {
-        killed = true;
+        _killed = true;
     }
 }
 
-void CWall::moveCurve(const sf::Vector2f& mCenterPos, const ssvu::FT mFT)
+void CWall::moveCurve(const sf::Vector2f& centerPos, const ssvu::FT ft)
 {
-    for(sf::Vector2f& vp : vertexPositions)
+    for(sf::Vector2f& vp : _vertexPositions)
     {
-        moveVertexAlongCurve(vp, mCenterPos, mFT);
+        moveVertexAlongCurve(vp, centerPos, ft);
     }
 }
 
-void CWall::setHueMod(float mHueMod) noexcept
+void CWall::setHueMod(float hueMod) noexcept
 {
-    hueMod = mHueMod;
+    _hueMod = hueMod;
 }
 
 } // namespace hg

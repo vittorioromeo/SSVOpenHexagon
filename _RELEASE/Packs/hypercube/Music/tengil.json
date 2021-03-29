@@ -1,19 +1,19 @@
 {
-	// Music data id
-	"id": "tengil",
+    // Music data id
+    "id": "tengil",
 
-	// Music file
-	"file_name": "tengil.ogg",
+    // Music file
+    "file_name": "tengil.ogg",
 
-	// Music information
-	"name": "Tengil",
-	"album": "",
-	"author": "Fantomenk",
-	
-	// Segments
-	"segments":
-	[
-		{ "time": 57 },
-		{ "time": 145 }
-	]
+    // Music information
+    "name": "Tengil",
+    "album": "",
+    "author": "Fantomenk",
+
+    // Segments
+    "segments":
+    [
+        { "time": 56.791 },
+        { "time": 144.665 }
+    ]
 }

@@ -6,8 +6,6 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 
-#include <SSVUtils/Core/Common/Aliases.hpp>
-
 namespace ssvuj
 {
 /// @brief Gets a JSON Obj from another JSON Obj.
@@ -272,7 +270,7 @@ template <Idx TIdx, typename TArg, typename... TArgs>
 inline void extrArrayHelper(const Obj& mArray, TArg& mArg, TArgs&... mArgs)
 {
     extrArrayHelper<TIdx>(mArray, mArg);
-    extrArrayHelper<TIdx + 1>(mArray, FWD(mArgs)...);
+    extrArrayHelper<TIdx + 1>(mArray, mArgs...);
 }
 
 template <Idx TIdx, typename TArg>
@@ -285,7 +283,7 @@ inline void archArrayHelper(
     Obj& mArray, const TArg& mArg, const TArgs&... mArgs)
 {
     archArrayHelper<TIdx>(mArray, mArg);
-    archArrayHelper<TIdx + 1>(mArray, FWD(mArgs)...);
+    archArrayHelper<TIdx + 1>(mArray, mArgs...);
 }
 
 template <typename TArg>
@@ -298,7 +296,7 @@ inline void extrObjHelper(
     const Obj& mObj, const Key& mKey, TArg& mArg, TArgs&... mArgs)
 {
     extrObjHelper(mObj, mKey, mArg);
-    extrObjHelper(mObj, FWD(mArgs)...);
+    extrObjHelper(mObj, mArgs...);
 }
 
 template <typename TArg>
@@ -308,10 +306,10 @@ inline void archObjHelper(Obj& mObj, const Key& mKey, const TArg& mArg)
 }
 template <typename TArg, typename... TArgs>
 inline void archObjHelper(
-    Obj& mObj, const Key& mKey, TArg&& mArg, const TArgs&... mArgs)
+    Obj& mObj, const Key& mKey, const TArg& mArg, const TArgs&... mArgs)
 {
     archObjHelper(mObj, mKey, mArg);
-    archObjHelper(mObj, FWD(mArgs)...);
+    archObjHelper(mObj, mArgs...);
 }
 } // namespace Impl
 
@@ -321,7 +319,7 @@ inline void archObjHelper(
 template <typename... TArgs>
 inline void extrArray(const Obj& mArray, TArgs&... mArgs)
 {
-    Impl::extrArrayHelper<0>(mArray, FWD(mArgs)...);
+    Impl::extrArrayHelper<0>(mArray, mArgs...);
 }
 
 /// @brief Archives any number of values into a JSON array.
@@ -330,7 +328,7 @@ inline void extrArray(const Obj& mArray, TArgs&... mArgs)
 template <typename... TArgs>
 inline void archArray(Obj& mArray, const TArgs&... mArgs)
 {
-    Impl::archArrayHelper<0>(mArray, FWD(mArgs)...);
+    Impl::archArrayHelper<0>(mArray, mArgs...);
 }
 
 /// @brief Returns a new JSON array instance with any number of values
@@ -341,7 +339,7 @@ template <typename... TArgs>
 inline Obj getArchArray(const TArgs&... mArgs)
 {
     Obj result;
-    archArray(result, FWD(mArgs)...);
+    archArray(result, mArgs...);
     return result;
 }
 
@@ -353,7 +351,7 @@ inline Obj getArchArray(const TArgs&... mArgs)
 template <typename... TArgs>
 inline void extrObj(const Obj& mObj, TArgs&... mArgs)
 {
-    Impl::extrObjHelper(mObj, FWD(mArgs)...);
+    Impl::extrObjHelper(mObj, mArgs...);
 }
 
 /// @brief Archives any number of values into a JSON Obj.
@@ -364,7 +362,7 @@ inline void extrObj(const Obj& mObj, TArgs&... mArgs)
 template <typename... TArgs>
 inline void archObj(Obj& mObj, const TArgs&... mArgs)
 {
-    Impl::archObjHelper(mObj, FWD(mArgs)...);
+    Impl::archObjHelper(mObj, mArgs...);
 }
 
 /// @brief Returns a new JSON Obj instance with any number of values
@@ -377,7 +375,7 @@ template <typename... TArgs>
 inline Obj getArchObj(const TArgs&... mArgs)
 {
     Obj result;
-    archObj(result, FWD(mArgs)...);
+    archObj(result, mArgs...);
     return result;
 }
 
@@ -410,7 +408,7 @@ inline void convert(Obj& mObj, const T& mValue)
 template <typename... TArgs>
 inline void convertArray(const Obj& mObj, TArgs&... mArgs)
 {
-    extrArray(mObj, FWD(mArgs)...);
+    extrArray(mObj, mArgs...);
 }
 
 /// @brief Archives/extracts any number of values into/from a JSON array,
@@ -420,7 +418,7 @@ inline void convertArray(const Obj& mObj, TArgs&... mArgs)
 template <typename... TArgs>
 inline void convertArray(Obj& mObj, const TArgs&... mArgs)
 {
-    archArray(mObj, FWD(mArgs)...);
+    archArray(mObj, mArgs...);
 }
 
 /// @brief Archives/extracts any number of values into/from a JSON Obj,
@@ -432,7 +430,7 @@ inline void convertArray(Obj& mObj, const TArgs&... mArgs)
 template <typename... TArgs>
 inline void convertObj(const Obj& mObj, TArgs&... mArgs)
 {
-    extrObj(mObj, FWD(mArgs)...);
+    extrObj(mObj, mArgs...);
 }
 
 /// @brief Archives/extracts any number of values into/from a JSON Obj,
@@ -444,7 +442,7 @@ inline void convertObj(const Obj& mObj, TArgs&... mArgs)
 template <typename... TArgs>
 inline void convertObj(Obj& mObj, const TArgs&... mArgs)
 {
-    archObj(mObj, FWD(mArgs)...);
+    archObj(mObj, mArgs...);
 }
 
 } // namespace ssvuj

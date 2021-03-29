@@ -1,0 +1,21 @@
+{
+    // Music data id
+    "id": "arcadia",
+
+    // Music file
+    "file_name": "arcadia.ogg",
+
+    // Music information
+    "name": "Arcadia",
+    "album": "",
+    "author": "Dunderpatrullen",
+
+    // Segments
+    "segments":
+    [
+        { "time": 7.49 },
+        { "time": 35.93 },
+        { "time": 63.93 },
+        { "time": 135.49 }
+    ]
+}
