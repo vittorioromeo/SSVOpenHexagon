@@ -34,6 +34,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -527,9 +529,9 @@ private:
     {
         try
         {
-            assert(lua_gettop(_state) >= 1); // making sure there's
-                                             // something on the stack (ie.
-                                             // the value to set)
+            SSVOH_ASSERT(lua_gettop(_state) >= 1); // making sure there's
+                                                   // something on the stack
+                                                   // (ie. the value to set)
 
             // two possibilities: either "variable" is a global variable, or
             // a member of an array
@@ -634,7 +636,7 @@ private:
         // keep it pushed
         if(!lua_istable(_state, -1))
         {
-            assert(lua_isnil(_state, -1));
+            SSVOH_ASSERT(lua_isnil(_state, -1));
 
             lua_pop(_state, 1);
             lua_newtable(_state);
@@ -697,8 +699,8 @@ private:
             // read function; "data" must be an instance of Reader
             static const char* read(lua_State*, void* data, std::size_t* size)
             {
-                assert(size != nullptr);
-                assert(data != nullptr);
+                SSVOH_ASSERT(size != nullptr);
+                SSVOH_ASSERT(data != nullptr);
 
                 Reader& me = *((Reader*)data);
                 if(me.stream.eof())
@@ -768,8 +770,8 @@ private:
             // read function; "data" must be an instance of Reader
             static const char* read(lua_State*, void* data, std::size_t* size)
             {
-                assert(size != nullptr);
-                assert(data != nullptr);
+                SSVOH_ASSERT(size != nullptr);
+                SSVOH_ASSERT(data != nullptr);
 
                 SReader& me = *((SReader*)data);
 
@@ -977,7 +979,7 @@ public:
 
             void push(LuaContext& ctxt) const
             {
-                assert(lua_istable(ctxt._state, -1));
+                SSVOH_ASSERT(lua_istable(ctxt._state, -1));
 
                 ctxt._push(key);
                 ctxt._push(value);
@@ -1128,7 +1130,7 @@ private:
             // note that I'm using "" because of g++,
             // I don't know if it is required by standards or if it is a
             // bug
-            assert(_state == state);
+            SSVOH_ASSERT(_state == state);
 
             // FnTupleWrapper<FnType> is a specialized template
             // structure which defines
@@ -1174,12 +1176,12 @@ private:
             // this function is called when the lua script tries to call our
             // custom data type
             // what we do is we simply call the function
-            assert(lua_gettop(lua) >= 1);
-            assert(lua_isuserdata(lua, 1));
+            SSVOH_ASSERT(lua_gettop(lua) >= 1);
+            SSVOH_ASSERT(lua_isuserdata(lua, 1));
 
             auto function = (FunctionPushType*)lua_touserdata(lua, 1);
 
-            assert(function);
+            SSVOH_ASSERT(function);
             return (*function)(lua);
         };
 
@@ -1187,11 +1189,11 @@ private:
             // this one is called when lua's garbage collector no longer
             // needs our custom data type
             // we call std::function<int (lua_State*)>'s destructor
-            assert(lua_gettop(lua) == 1);
+            SSVOH_ASSERT(lua_gettop(lua) == 1);
 
             auto function = (FunctionPushType*)lua_touserdata(lua, 1);
 
-            assert(function);
+            SSVOH_ASSERT(function);
             function->~FunctionPushType();
             return 0;
         };
@@ -1258,12 +1260,12 @@ private:
             // we simply call its destructor
             static int garbage(lua_State* lua)
             {
-                assert(lua_gettop(lua) == 1);
+                SSVOH_ASSERT(lua_gettop(lua) == 1);
 
                 std::shared_ptr<T>* ptr =
                     (std::shared_ptr<T>*)lua_touserdata(lua, 1);
 
-                assert(ptr && *ptr);
+                SSVOH_ASSERT(ptr && *ptr);
                 ptr->~shared_ptr();
 
                 return 0;
@@ -1312,7 +1314,7 @@ private:
 
                 if(!lua_istable(_state, -1))
                 {
-                    assert(lua_isnil(_state, -1));
+                    SSVOH_ASSERT(lua_isnil(_state, -1));
                     lua_pop(_state, 1);
                     lua_newtable(_state);
                     lua_pushlightuserdata(
@@ -1524,7 +1526,7 @@ return table;*/
         const auto ptr =
             static_cast<std::shared_ptr<T>*>(lua_touserdata(_state, mIdx));
 
-        assert(ptr && *ptr);
+        SSVOH_ASSERT(ptr && *ptr);
         return *ptr; // returning a copy of the shared_ptr
     }
 

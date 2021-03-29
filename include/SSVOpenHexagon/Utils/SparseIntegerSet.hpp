@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
+
 #include <algorithm>
 #include <vector>
 #include <cstdint>
@@ -58,14 +60,14 @@ public:
 
     [[gnu::always_inline, nodiscard]] bool has(const size_type i) const noexcept
     {
-        assert(valid_index(i));
+        SSVOH_ASSERT(valid_index(i));
         return _sparse[i] != nullptr;
     }
 
     [[gnu::always_inline]] void insert_unchecked(const size_type i)
     {
-        assert(valid_index(i));
-        assert(!has(i));
+        SSVOH_ASSERT(valid_index(i));
+        SSVOH_ASSERT(!has(i));
 
         _dense.push_back(i);
         _sparse[i] = &_dense.back();
@@ -73,7 +75,7 @@ public:
 
     [[gnu::always_inline, nodiscard]] bool insert(const size_type i)
     {
-        assert(valid_index(i));
+        SSVOH_ASSERT(valid_index(i));
 
         if(has(i))
         {
@@ -86,8 +88,8 @@ public:
 
     [[gnu::always_inline]] void unchecked_erase(const size_type i)
     {
-        assert(valid_index(i));
-        assert(has(i));
+        SSVOH_ASSERT(valid_index(i));
+        SSVOH_ASSERT(has(i));
 
         auto* const ptr = _sparse[i];
 
@@ -101,7 +103,7 @@ public:
 
     [[gnu::always_inline, nodiscard]] bool erase(const size_type i)
     {
-        assert(valid_index(i));
+        SSVOH_ASSERT(valid_index(i));
 
         if(!has(i))
         {

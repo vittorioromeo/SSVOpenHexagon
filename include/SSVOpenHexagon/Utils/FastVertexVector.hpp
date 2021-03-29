@@ -4,13 +4,14 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 
-#include <SSVUtils/Core/Assert/Assert.hpp>
 #include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
 #include <cstddef>
@@ -63,8 +64,8 @@ public:
         }
         else
         {
-            SSVU_ASSERT(_size == 0);
-            SSVU_ASSERT(_capacity == 0);
+            SSVOH_ASSERT(_size == 0);
+            SSVOH_ASSERT(_capacity == 0);
         }
 
         _data = std::move(new_data);
@@ -74,14 +75,14 @@ public:
     [[gnu::always_inline]] void unsafe_emplace_other(
         const FastVertexVector& rhs) noexcept
     {
-        SSVU_ASSERT(_size + rhs._size <= _capacity);
+        SSVOH_ASSERT(_size + rhs._size <= _capacity);
 
         if(SSVU_UNLIKELY(rhs.size() == 0))
         {
             return;
         }
 
-        SSVU_ASSERT(_data != nullptr);
+        SSVOH_ASSERT(_data != nullptr);
 
         std::memcpy(_data.get() + _size, rhs._data.get(),
             sizeof(sf::Vertex) * rhs._size);
@@ -102,8 +103,8 @@ public:
     template <typename... Ts>
     [[gnu::always_inline]] void unsafe_emplace_back(Ts&&... xs)
     {
-        SSVU_ASSERT(_size <= _capacity);
-        SSVU_ASSERT(_data != nullptr);
+        SSVOH_ASSERT(_size <= _capacity);
+        SSVOH_ASSERT(_data != nullptr);
 
         new(&_data[_size++]._v) sf::Vertex{std::forward<Ts>(xs)...};
     }
@@ -112,8 +113,8 @@ public:
     [[gnu::always_inline]] void batch_unsafe_emplace_back(
         const sf::Color& color, Ts&&... positions)
     {
-        SSVU_ASSERT(_size + sizeof...(positions) <= _capacity);
-        SSVU_ASSERT(_data != nullptr);
+        SSVOH_ASSERT(_size + sizeof...(positions) <= _capacity);
+        SSVOH_ASSERT(_data != nullptr);
 
         ((new(&_data[_size++]._v) sf::Vertex{positions, color}), ...);
     }
@@ -123,8 +124,8 @@ public:
     {
         if(SSVU_UNLIKELY(_data == nullptr))
         {
-            SSVU_ASSERT(_size == 0);
-            SSVU_ASSERT(_capacity == 0);
+            SSVOH_ASSERT(_size == 0);
+            SSVOH_ASSERT(_capacity == 0);
             return;
         }
 
@@ -136,8 +137,8 @@ public:
     [[gnu::always_inline, nodiscard]] sf::Vertex& operator[](
         const std::size_t i) noexcept
     {
-        SSVU_ASSERT(i < _size);
-        SSVU_ASSERT(_data != nullptr);
+        SSVOH_ASSERT(i < _size);
+        SSVOH_ASSERT(_data != nullptr);
 
         return _data[i]._v;
     }
@@ -145,8 +146,8 @@ public:
     [[gnu::always_inline, nodiscard]] const sf::Vertex& operator[](
         const std::size_t i) const noexcept
     {
-        SSVU_ASSERT(i < _size);
-        SSVU_ASSERT(_data != nullptr);
+        SSVOH_ASSERT(i < _size);
+        SSVOH_ASSERT(_data != nullptr);
 
         return _data[i]._v;
     }

@@ -436,10 +436,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
             os << formatTime(rf._played_score);
         }
 
-        os << " BY " << rf._player_name << '\n'
-           << activeReplay->replayPackName << " - "
-           << activeReplay->replayLevelName << " (" << rf._difficulty_mult
-           << "x)";
+        os << " BY " << rf._player_name;
 
         os.flush();
 

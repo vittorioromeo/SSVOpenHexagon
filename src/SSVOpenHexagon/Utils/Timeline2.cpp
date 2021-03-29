@@ -3,7 +3,9 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
+
 #include "SSVOpenHexagon/Utils/Match.hpp"
+#include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include <type_traits>
 #include <variant>
@@ -59,7 +61,7 @@ void timeline2::append_wait_until_fn(const std::function<time_point()>& tp_fn)
 [[nodiscard]] timeline2::action& timeline2::action_at(
     const std::size_t i) noexcept
 {
-    assert(i < size());
+    SSVOH_ASSERT(i < size());
     return _actions[i];
 }
 
@@ -133,7 +135,7 @@ timeline2_runner::outcome timeline2_runner::update(
             return o;
         }
 
-        assert(false);
+        SSVOH_ASSERT(false);
     }
 
     return outcome::finished;

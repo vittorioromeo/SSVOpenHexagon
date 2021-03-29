@@ -2,6 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
@@ -108,18 +109,6 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
 [[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)
 {
-    const auto& packPathStr(packPath.getStr());
-
-    // TODO: unused?
-    /*
-    std::string packLua;
-    for(const auto& p : ssvufs::getScan<ssvufs::Mode::Recurse,
-            ssvufs::Type::File, ssvufs::Pick::ByExt>(packPath, ".lua"))
-    {
-        packLua.append(p.getContentsAsStr());
-    }
-    */
-
     if(!ssvufs::Path{packPath + "/pack.json"}.exists<ssvufs::Type::File>())
     {
         return false;
@@ -180,7 +169,7 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
 
     packDatas.emplace(packId, //
         PackData{
-            .folderPath{packPathStr},                     //
+            .folderPath{packPath.getStr()},               //
             .id{packId},                                  //
             .disambiguator{std::move(packDisambiguator)}, //
             .name{std::move(packName)},                   //
@@ -552,7 +541,7 @@ const MusicData& HGAssets::getMusicData(
     {
         ssvu::lo("getMusicData") << "Asset '" << assetId << "' not found\n";
 
-        SSVU_ASSERT(!musicDataMap.empty());
+        SSVOH_ASSERT(!musicDataMap.empty());
         return musicDataMap.begin()->second;
     }
 
@@ -569,7 +558,7 @@ const StyleData& HGAssets::getStyleData(
     {
         ssvu::lo("getStyleData") << "Asset '" << assetId << "' not found\n";
 
-        SSVU_ASSERT(!styleDataMap.empty());
+        SSVOH_ASSERT(!styleDataMap.empty());
         return styleDataMap.begin()->second;
     }
 
@@ -879,26 +868,26 @@ void HGAssets::setCurrentLocalProfile(const std::string& mName)
 
 ProfileData& HGAssets::getCurrentLocalProfile()
 {
-    assert(currentProfilePtr != nullptr);
+    SSVOH_ASSERT(currentProfilePtr != nullptr);
     return *currentProfilePtr;
 }
 
 ProfileData* HGAssets::getLocalProfileByName(const std::string& mName)
 {
-    assert(profileDataMap.contains(mName));
+    SSVOH_ASSERT(profileDataMap.contains(mName));
     return &profileDataMap.find(mName)->second;
 }
 
 const ProfileData& HGAssets::getCurrentLocalProfile() const
 {
-    assert(currentProfilePtr != nullptr);
+    SSVOH_ASSERT(currentProfilePtr != nullptr);
     return *currentProfilePtr;
 }
 
 const ProfileData* HGAssets::getLocalProfileByName(
     const std::string& mName) const
 {
-    assert(profileDataMap.contains(mName));
+    SSVOH_ASSERT(profileDataMap.contains(mName));
     return &profileDataMap.find(mName)->second;
 }
 

@@ -30,12 +30,14 @@ Utils::LuaMetadataProxy addLuaFn(
 
 void HexagonGame::initLua_Utils()
 {
-    // TODO:
+    // ------------------------------------------------------------------------
+    // Used internally to track values in the console.
     lua.writeVariable(
         "u_impl_addTrackedResult", [this](const std::string& result) {
             ilcLuaTrackedResults.emplace_back(result);
         });
 
+    // ------------------------------------------------------------------------
     addLuaFn(lua, "u_setFlashEffect", //
         [this](float mIntensity) { status.flashEffect = mIntensity; })
         .arg("value")

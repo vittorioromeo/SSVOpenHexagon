@@ -3,6 +3,8 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
@@ -31,7 +33,7 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
         {
             if(mColorData.dynamicOffset)
             {
-                SSVU_ASSERT(mColorData.offset != 0);
+                SSVOH_ASSERT(mColorData.offset != 0);
 
                 color.r += dynamicColor.r / mColorData.offset;
                 color.g += dynamicColor.g / mColorData.offset;

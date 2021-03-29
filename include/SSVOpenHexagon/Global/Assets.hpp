@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
@@ -13,7 +14,6 @@
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 #include <SSVStart/MusicPlayer/MusicPlayer.hpp>
 
-#include <SSVUtils/Core/Assert/Assert.hpp>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 #include <SFML/System.hpp>
@@ -120,7 +120,7 @@ private:
             ssvu::lo("getLevelData")
                 << "Asset '" << mAssetId << "' not found\n";
 
-            SSVU_ASSERT(!levelDatas.empty());
+            SSVOH_ASSERT(!levelDatas.empty());
             return levelDatas.begin()->second;
         }
 
@@ -171,7 +171,7 @@ public:
     [[nodiscard]] const std::vector<std::string>& getLevelIdsByPack(
         const std::string& mPackId)
     {
-        SSVU_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
+        SSVOH_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
         return levelDataIdsByPack.at(mPackId);
     }
 
@@ -188,7 +188,7 @@ public:
 
     [[nodiscard]] const PackData& getPackData(const std::string& mPackId)
     {
-        SSVU_ASSERT(isValidPackId(mPackId));
+        SSVOH_ASSERT(isValidPackId(mPackId));
         return packDatas.at(mPackId);
     }
 
@@ -273,25 +273,25 @@ public:
 
     [[nodiscard]] std::string pGetName() const
     {
-        assert(playingLocally); // TODO
+        SSVOH_ASSERT(playingLocally); // TODO
         return getCurrentLocalProfile().getName();
     }
 
     [[nodiscard]] const std::vector<std::string>& pGetTrackedNames() const
     {
-        assert(playingLocally); // TODO
+        SSVOH_ASSERT(playingLocally); // TODO
         return getCurrentLocalProfile().getTrackedNames();
     }
 
     void pClearTrackedNames()
     {
-        assert(playingLocally); // TODO
+        SSVOH_ASSERT(playingLocally); // TODO
         getCurrentLocalProfile().clearTrackedNames();
     }
 
     void pAddTrackedName(const std::string& mName)
     {
-        assert(playingLocally); // TODO
+        SSVOH_ASSERT(playingLocally); // TODO
         getCurrentLocalProfile().addTrackedName(mName);
     }
 

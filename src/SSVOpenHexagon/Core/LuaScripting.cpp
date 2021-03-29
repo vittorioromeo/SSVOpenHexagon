@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
@@ -60,8 +61,6 @@ static void initRandom(Lua::LuaContext& lua, random_number_generator& rng)
         .arg("upper")
         .doc("Return a random integer number in the [`$0`; `$1`] range.");
 
-    // TODO: eww, but seems to fix. consider exposing functions and deprecating
-    // `math.random`
     addLuaFn(lua, "u_rndSwitch",
         [rndReal, rndIntUpper, rndInt](
             int mode, int lower, int upper) -> float {
@@ -80,7 +79,7 @@ static void initRandom(Lua::LuaContext& lua, random_number_generator& rng)
                 return rndInt(lower, upper);
             }
 
-            assert(false);
+            SSVOH_ASSERT(false);
             return 0;
         })
         .arg("mode")
