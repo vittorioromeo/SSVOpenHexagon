@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build libsfml-dev libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev
+        sudo apt-get install -y ninja-build libsfml-dev libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxcursor-dev
 
     - name: CMake configure
       run: |
