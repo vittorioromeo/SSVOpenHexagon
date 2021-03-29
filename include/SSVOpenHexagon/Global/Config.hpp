@@ -25,7 +25,7 @@ class Trigger;
 namespace hg::Config
 {
 
-inline constexpr GameVersion GAME_VERSION{2, 0, 4};
+inline constexpr GameVersion GAME_VERSION{2, 0, 5};
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
 void resetConfigToDefaults();
