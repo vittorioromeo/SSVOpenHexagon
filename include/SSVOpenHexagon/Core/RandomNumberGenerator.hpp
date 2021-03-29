@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
+
 #include <SSVUtils/Internal/PCG/PCG.hpp>
 
-#include <cassert>
 #include <random>
 
 namespace hg
@@ -29,14 +30,14 @@ public:
     template <typename T>
     [[nodiscard]] T get_int(const T min, const T max) noexcept
     {
-        assert(min <= max);
+        SSVOH_ASSERT(min <= max);
         return std::uniform_int_distribution<T>{min, max}(_rng);
     }
 
     template <typename T>
     [[nodiscard]] T get_real(const T min, const T max) noexcept
     {
-        assert(min <= max);
+        SSVOH_ASSERT(min <= max);
         return std::uniform_real_distribution<T>{min, max}(_rng);
     }
 };

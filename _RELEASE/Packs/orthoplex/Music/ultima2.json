@@ -1,0 +1,20 @@
+{
+    // Music data id
+    "id": "ultima2",
+
+    // Music file
+    "file_name": "ultima2.ogg",
+
+    // Music information
+    "name": "Ultima 2.0",
+    "album": "",
+    "author": "Dunderpatrullen",
+
+    // Segments
+    "segments":
+    [
+        { "time": 20.074 },
+        { "time": 64.074 },
+        { "time": 166.074 }
+    ]
+}

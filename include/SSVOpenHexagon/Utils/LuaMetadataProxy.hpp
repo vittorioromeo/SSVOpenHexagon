@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Utils/ArgExtractor.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
+#include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
@@ -17,11 +18,6 @@
 
 namespace hg::Utils
 {
-
-template <typename>
-struct TypeWrapper
-{
-};
 
 class LuaMetadataProxy
 {
@@ -166,9 +162,32 @@ private:
                 continue;
             }
 
-            const std::size_t index = docs.at(i + 1) - '0';
-            result += argNames.at(index);
             ++i;
+
+            std::size_t j = i;
+            for(; j < docs.size(); ++j)
+            {
+                const char next = docs.at(j);
+                if(next < '0' || next > '9')
+                {
+                    break;
+                }
+            }
+
+            // Range `[i, j)` is now the position of the argument.
+            // Parse into integer.
+
+            std::size_t indexAcc = 0;
+            std::size_t tens = 1;
+
+            for(std::size_t k = j - 1; k >= i; --k)
+            {
+                indexAcc += tens * (docs.at(k) - '0');
+                tens *= 10;
+            }
+
+            result += argNames.at(indexAcc);
+            i = j - 1;
         }
 
         return result;
@@ -177,7 +196,7 @@ private:
 public:
     template <typename F>
     explicit LuaMetadataProxy(
-        F&&, LuaMetadata& mLuaMetadata, const std::string& mName)
+        TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
         : luaMetadata{mLuaMetadata}, name{mName},
           erasedRet{[](LuaMetadataProxy*) -> std::string {
               using AE =

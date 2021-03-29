@@ -13,8 +13,6 @@
 namespace hg
 {
 
-class HGAssets;
-
 class ProfileData
 {
 private:
@@ -24,22 +22,15 @@ private:
     std::vector<std::string> trackedNames;
     std::unordered_set<std::string> favoriteLevelsDataIDs;
 
-    void checkFavoriteLevelsHealth(HGAssets& assets);
-
 public:
-    ProfileData(HGAssets& mAssets, const GameVersion mVersion,
-        const std::string& mName, const ssvuj::Obj& mScores,
+    ProfileData(const GameVersion mVersion, const std::string& mName,
+        const ssvuj::Obj& mScores,
         const std::vector<std::string>& mTrackedNames,
         const std::vector<std::string>& mFavorites)
-        : version{mVersion}, name{mName}, scores{mScores}, trackedNames{
-                                                               mTrackedNames}
+        : version{mVersion}, name{mName}, scores{mScores},
+          trackedNames{mTrackedNames}, favoriteLevelsDataIDs{
+                                           mFavorites.begin(), mFavorites.end()}
     {
-        for(const std::string& favID : mFavorites)
-        {
-            favoriteLevelsDataIDs.emplace(favID);
-        }
-
-        checkFavoriteLevelsHealth(mAssets);
     }
 
     [[nodiscard]] constexpr GameVersion getVersion() const noexcept
@@ -61,6 +52,12 @@ public:
     getTrackedNames() const noexcept
     {
         return trackedNames;
+    }
+
+    [[nodiscard]] std::unordered_set<std::string>&
+    getFavoriteLevelIds() noexcept
+    {
+        return favoriteLevelsDataIDs;
     }
 
     [[nodiscard]] const std::unordered_set<std::string>&

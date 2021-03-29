@@ -1,12 +1,12 @@
 {
-	"id": "collisiontest",
-	"name": "Collision Test",
-	"description": "Side collision testing on ordinary walls",
-	"author": "Morxemplum",
-	"menuPriority": 12,
-	"selectable": true,
-	"styleId": "wall_ref",
-	"musicId": "jackRussel",
-	"luaFile": "Scripts/Levels/collision_test.lua",
-	"difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
+    "id": "collisiontest",
+    "name": "Collision Test",
+    "description": "Side collision testing on ordinary walls",
+    "author": "Morxemplum",
+    "menuPriority": 12,
+    "selectable": true,
+    "styleId": "wall_ref",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/collision_test.lua",
+    "difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
 }

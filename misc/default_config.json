@@ -54,8 +54,11 @@
 	"server_verbose": true,
 	"show_fps": false,
 	"show_key_icons": false,
+	"show_level_info": false,
 	"show_messages": true,
+	"show_status_text": true,
 	"show_tracked_variables": true,
+	"show_timer": true,
 	"sound_volume": 75.0,
 	"t_down" :
 	[
@@ -127,6 +130,20 @@
 		[ "bRight" ],
 		[ "" ]
 	],
+	"t_lua_console" :
+	[
+		[ "kF1" ],
+		[ "" ],
+		[ "" ],
+		[ "" ]
+	],
+	"t_pause" :
+	[
+		[ "kF2" ],
+		[ "" ],
+		[ "" ],
+		[ "" ]
+	],
 	"t_screenshot" :
 	[
 		[ "kF12" ],
@@ -157,6 +174,7 @@
 	],
 	"text_padding": 8.0,
 	"text_scaling": 1.0,
+	"timescale" : 1.0,
 	"vsync": false,
 	"windowed_auto_resolution": false,
 	"windowed_height": 600,

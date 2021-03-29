@@ -18,7 +18,7 @@ namespace CapColorMode
 // clang-format off
 struct Main         { };
 struct MainDarkened { };
-struct ByIndex      { int index; };
+struct ByIndex      { int _index; };
 // clang-format on
 
 } // namespace CapColorMode

@@ -1,0 +1,21 @@
+{
+    // Music data id
+    "id": "drFinkelfracken",
+
+    // Music file
+    "file_name": "drFinkelfracken.ogg",
+
+    // Music information
+    "name": "Dr. Finkelfracken's Cure",
+    "album": "Nice Catch Biggy!",
+    "author": "BOSSFIGHT",
+
+    // Segments
+    "segments":
+    [
+        { "time": 1.31 },
+        { "time": 19.245 },
+        { "time": 69 },
+        { "time": 91.318 }
+    ]
+}

@@ -1,12 +1,12 @@
 {
-	"id": "pointless",
-	"name": "pointless",
-	"description": "easiest level of difficulty",
-	"author": "vittorio romeo",
-	"menuPriority": 10,
-	"selectable": true,
-	"styleId": "pointless",
-	"musicId": "jackRussel",
-	"luaFile": "Scripts/Levels/pointless.lua",
-	"difficultyMults": [1.5, 2, 2.5, 3, 0.5, 4, 5]
+    "id": "pointless",
+    "name": "pointless",
+    "description": "easiest level of difficulty",
+    "author": "vittorio romeo",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "pointless",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/pointless.lua",
+    "difficultyMults": [1.5, 2, 2.5, 3, 0.5, 4, 5]
 }

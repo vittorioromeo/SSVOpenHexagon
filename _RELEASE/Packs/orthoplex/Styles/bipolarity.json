@@ -1,0 +1,34 @@
+{
+    // Style data id
+    "id": "bipolarity",
+
+    // Hue options
+    "hue_min": 0,
+    "hue_max": 360,
+    "hue_ping_pong": false,
+    "hue_increment": 7.0,
+
+    // Pulse options
+    "pulse_min": 0.0,
+    "pulse_max": 1.5,
+    "pulse_increment": 0.025,
+
+    // 3D options
+    "3D_depth": 0,
+    "3D_skew": 0.15,
+    "3D_spacing": 1.5,
+    "3D_darken_multiplier": 1.5,
+    "3D_alpha_multiplier": 0.5,
+    "3D_alpha_falloff": 19.0,
+    "3D_override_color": [45, 45, 45, 255],
+
+    // Main color
+    "main": { "main": true, "dynamic": true, "value": [0, 0, 0, 255], "pulse": [0, 0, 0, 0] },
+    "cap_color": {"legacy": true, "index": 0},
+
+    // Background colors
+    "colors":
+    [
+        { "dynamic": false, "dynamic_offset": false, "dynamic_darkness": 1.0, "value": [0, 0, 0, 255], "pulse": [0, 0, 0, 0]}
+    ]
+}

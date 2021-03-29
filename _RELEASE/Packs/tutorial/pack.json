@@ -1,0 +1,17 @@
+{
+    "disambiguator": "ohvrvanilla",
+    "name": "tutorial",
+    "author": "vittorio romeo",
+    "version": 1,
+    "priority": -99999.03,
+
+    "dependencies":
+    [
+        {
+            "disambiguator": "ohvrvanilla",
+            "name": "base",
+            "author": "vittorio romeo",
+            "min_version": 1
+        }
+    ]
+}

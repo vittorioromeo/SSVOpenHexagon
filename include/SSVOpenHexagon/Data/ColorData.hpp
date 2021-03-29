@@ -9,7 +9,6 @@
 
 #include <SFML/Graphics/Color.hpp>
 
-
 struct PulseColor
 {
     int r;
@@ -36,9 +35,9 @@ struct ColorData
     sf::Color color;
     PulseColor pulse;
 
-    ColorData() = default;
+    explicit ColorData() = default;
 
-    ColorData(const ssvuj::Obj& mRoot)
+    explicit ColorData(const ssvuj::Obj& mRoot)
         : main{ssvuj::getExtr<bool>(mRoot, "main", false)},
           dynamic{ssvuj::getExtr<bool>(mRoot, "dynamic", false)},
           dynamicOffset{ssvuj::getExtr<bool>(mRoot, "dynamic_offset", false)},
@@ -49,9 +48,10 @@ struct ColorData
           color{ssvuj::getExtr<sf::Color>(mRoot, "value", sf::Color::Black)},
           pulse{hg::pulse_from_json(mRoot)} {};
 
-    ColorData(const bool mMain, const bool mDynamic, const bool mDynamicOffset,
-        const float mDynamicDarkness, const float mHueShift,
-        const float mOffset, sf::Color mColor, const PulseColor& mPulse)
+    explicit ColorData(const bool mMain, const bool mDynamic,
+        const bool mDynamicOffset, const float mDynamicDarkness,
+        const float mHueShift, const float mOffset, sf::Color mColor,
+        const PulseColor& mPulse)
         : main{mMain}, dynamic{mDynamic}, dynamicOffset{mDynamicOffset},
           dynamicDarkness{mDynamicDarkness}, hueShift{mHueShift},
           offset{mOffset}, color{mColor}, pulse{mPulse}

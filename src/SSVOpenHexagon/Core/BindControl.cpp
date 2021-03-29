@@ -23,7 +23,7 @@ namespace hg
     decltype(combos.size()) i = 0;
     for(; i < combos.size(); ++i)
     {
-        if(combos[i].isUnbound())
+        if(combos.at(i).isUnbound())
         {
             break;
         }
@@ -69,7 +69,7 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::KKey key)
 
     for(int i = 0; i < sizeGetter(); ++i)
     {
-        if(combos[i].getKeys()[int(key) + 1])
+        if(combos.at(i).getKeys()[int(key) + 1])
         {
             waitingForBind = false;
             return true;
@@ -87,7 +87,7 @@ bool KeyboardBindControl::newKeyboardBind(const ssvs::MBtn btn)
 
     for(int i = 0; i < sizeGetter(); ++i)
     {
-        if(combos[i].getBtns()[int(btn) + 1])
+        if(combos.at(i).getBtns()[int(btn) + 1])
         {
             waitingForBind = false;
             return true;
@@ -112,7 +112,8 @@ void KeyboardBindControl::applyBind(const ssvs::KKey key, const ssvs::MBtn btn)
 
 [[nodiscard]] std::string KeyboardBindControl::getName() const
 {
-    std::string bindNames = Config::getKeyboardBindNames(ID);
+    std::string bindNames =
+        Config::getKeyboardBindNames(static_cast<Config::Tid>(ID));
 
     if(waitingForBind)
     {
@@ -166,7 +167,8 @@ void JoystickBindControl::newJoystickBind(const unsigned int joy)
 
 [[nodiscard]] std::string JoystickBindControl::getName() const
 {
-    std::string bindName = Config::getJoystickBindNames(ID);
+    std::string bindName =
+        Config::getJoystickBindNames(static_cast<Joystick::Jid>(ID));
 
     if(waitingForBind)
     {

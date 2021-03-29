@@ -4,109 +4,28 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/Data/ProfileData.hpp"
-#include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 #include <SSVUtils/Timeline/Timeline.hpp>
 
-#include <SFML/Graphics/Color.hpp>
-
 #include <string>
-#include <sstream>
-#include <set>
+#include <fstream>
 #include <cctype>
 #include <optional>
+#include <stdexcept>
 
 namespace hg::Utils
 {
-
-constexpr float epsilon{1.0e-4};
-
-inline void uppercasify(std::string& s)
-{
-    for(auto& c : s)
-    {
-        c = std::toupper(c);
-    }
-}
-
-[[nodiscard]] inline std::string toUppercase(std::string s)
-{
-    uppercasify(s);
-    return s;
-}
-
-[[nodiscard]] inline float getFontHeight(sf::Text& font)
-{
-    font.setString("A");
-    return ssvs::getGlobalHeight(font);
-}
-
-[[nodiscard]] inline float getFontHeight(
-    sf::Text& font, const unsigned int charSize)
-{
-    font.setCharacterSize(charSize);
-    font.setString("A");
-    return ssvs::getGlobalHeight(font);
-}
-
-bool getLinesIntersection(sf::Vector2f& mIntersection, const sf::Vector2f& l1p1,
-    const sf::Vector2f& l1p2, const sf::Vector2f& l2p1,
-    const sf::Vector2f& l2p2);
-
-unsigned int getLineCircleIntersection(sf::Vector2f& i1, sf::Vector2f& i2,
-    const sf::Vector2f& p1, const sf::Vector2f& p2, const float mRadiusSquared);
-
-bool getLineCircleClosestIntersection(sf::Vector2f& mIntersection,
-    const sf::Vector2f& mPos, const sf::Vector2f& p1, const sf::Vector2f& p2,
-    const float mRadiusSquared);
-
-[[nodiscard, gnu::pure]] inline float fastSqrt(const float& n)
-{
-    union
-    {
-        int i;
-        float f;
-    } u;
-    u.i = 0x5F375A86 - (*(int*)&n >> 1);
-    return (int(3) - n * u.f * u.f) * n * u.f * 0.5f;
-}
-
-[[nodiscard, gnu::pure]] inline float getSaturated(float mValue)
-{
-    return std::max(0.f, std::min(1.f, mValue));
-}
-
-[[nodiscard, gnu::pure]] inline float getSmootherStep(
-    float edge0, float edge1, float x)
-{
-    x = getSaturated((x - edge0) / (edge1 - edge0));
-    return x * x * x * (x * (x * 6 - 15) + 10);
-}
-
-MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);
-GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot);
-ProfileData loadProfileFromJson(HGAssets& mAssets, const ssvuj::Obj& mRoot);
 
 std::string getLocalValidator(const std::string& mId, float mDifficultyMult);
 
 void shakeCamera(
     ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);
-
-std::set<std::string> getIncludedLuaFileNames(const std::string& mLuaScript);
-
-void recursiveFillIncludedLuaFileNames(std::set<std::string>& mLuaScriptNames,
-    const ssvufs::Path& mPackPath, const std::string& mLuaScript);
-
-[[gnu::pure]] sf::Color transformHue(const sf::Color& in, float H);
 
 inline void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
 {
@@ -116,18 +35,20 @@ inline void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode)
     }
     catch(std::runtime_error& mError)
     {
-        ssvu::lo("hg::Utils::runLuaCode") << "Fatal lua error"
-                                          << "\n";
-        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << "\n";
-        ssvu::lo("hg::Utils::runLuaCode") << "Error: " << mError.what() << "\n"
+        ssvu::lo("hg::Utils::runLuaCode") << "Fatal Lua error\n"
+                                          << "Code: " << mCode << '\n'
+                                          << "Error: " << mError.what() << '\n'
                                           << std::endl;
+
+        throw;
     }
     catch(...)
     {
-        ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown lua error"
-                                          << "\n";
-        ssvu::lo("hg::Utils::runLuaCode") << "Code: " << mCode << "\n";
-        ssvu::lo("hg::Utils::runLuaCode") << std::endl;
+        ssvu::lo("hg::Utils::runLuaCode") << "Fatal unknown Lua error\n"
+                                          << "Code: " << mCode << '\n'
+                                          << std::endl;
+
+        throw;
     }
 }
 
@@ -135,24 +56,40 @@ inline void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
 {
     std::ifstream s{mFileName};
 
+    if(!s)
+    {
+        const std::string errorStr = Utils::concat(
+            "Fatal Lua error\n", "Could not open file: ", mFileName, '\n');
+
+        ssvu::lo("hg::Utils::runLuaFile") << errorStr << std::endl;
+        throw std::runtime_error(errorStr);
+    }
+
+#ifndef NDEBUG
+    ssvu::lo("hg::Utils::runLuaFile")
+        << "Running Lua file '" << mFileName << "'" << std::endl;
+#endif
+
     try
     {
         mLua.executeCode(s);
     }
     catch(std::runtime_error& mError)
     {
-        ssvu::lo("hg::Utils::runLuaFile") << "Fatal lua error"
-                                          << "\n";
-        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n";
-        ssvu::lo("hg::Utils::runLuaFile") << "Error: " << mError.what() << "\n"
+        ssvu::lo("hg::Utils::runLuaFile") << "Fatal Lua error\n"
+                                          << "Filename: " << mFileName << '\n'
+                                          << "Error: " << mError.what() << '\n'
                                           << std::endl;
+
+        throw;
     }
     catch(...)
     {
-        ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown lua error"
-                                          << "\n";
-        ssvu::lo("hg::Utils::runLuaFile") << "Filename: " << mFileName << "\n";
-        ssvu::lo("hg::Utils::runLuaFile") << std::endl;
+        ssvu::lo("hg::Utils::runLuaFile") << "Fatal unknown Lua error\n"
+                                          << "Filename: " << mFileName << '\n'
+                                          << std::endl;
+
+        throw;
     }
 }
 
@@ -208,5 +145,95 @@ template <typename T1, typename T2, typename T3, typename T4>
            getSkewedVecFromRad(mRad, mRadius, mSkew);
 }
 
+inline const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
+    const PackData& currentPack, const std::string& mPackDisambiguator,
+    const std::string& mPackName, const std::string& mPackAuthor)
+{
+    const auto& dependencies = currentPack.dependencies;
+
+    // ------------------------------------------------------------------------
+    // Check if provided arguments are a dependency of current pack.
+    const auto depIt = std::find_if(dependencies.begin(), dependencies.end(),
+        [&](const PackDependency& pd) {
+            return pd.disambiguator == mPackDisambiguator && //
+                   pd.name == mPackName &&                   //
+                   pd.author == mPackAuthor;
+        });
+
+    if(depIt == dependencies.end())
+    {
+        throw std::runtime_error(
+            Utils::concat("Pack with disambiguator '", mPackDisambiguator,
+                "', name '", mPackName, "', author: '", mPackAuthor,
+                "' is not a dependency of '", currentPack.name, "'\n"));
+    }
+
+    // ------------------------------------------------------------------------
+    // Find the pack data corresponding to the specified arguments.
+    const PackData* const dependencyData =
+        assets.findPackData(mPackDisambiguator, mPackName, mPackAuthor);
+
+    if(dependencyData == nullptr)
+    {
+        throw std::runtime_error(
+            Utils::concat("Could not find dependency pack with disambiguator '",
+                mPackDisambiguator, "', name '", mPackName, "', author: '",
+                mPackAuthor, "'\n"));
+    }
+
+    if(dependencyData->version < depIt->minVersion)
+    {
+        throw std::runtime_error(
+            Utils::concat("Dependency pack with disambiguator '",
+                mPackDisambiguator, "', name '", mPackName, "', author: '",
+                mPackAuthor, "' has version '", dependencyData->version,
+                "' but at least '", depIt->minVersion, "' is required\n"));
+    }
+
+    return *dependencyData;
+}
+
+template <typename F>
+inline void withDependencyScriptFilename(F&& f,
+    std::vector<std::string>& execScriptPackPathContext, HGAssets& assets,
+    const PackData& currentPack, const std::string& mPackDisambiguator,
+    const std::string& mPackName, const std::string& mPackAuthor,
+    const std::string& mScriptName)
+try
+{
+    const PackData& dependencyData = findDependencyPackDataOrThrow(
+        assets, currentPack, mPackDisambiguator, mPackName, mPackAuthor);
+
+    execScriptPackPathContext.emplace_back(dependencyData.folderPath);
+    HG_SCOPE_GUARD({ execScriptPackPathContext.pop_back(); });
+
+    return f(concat(dependencyData.folderPath, "Scripts/", mScriptName));
+}
+catch(const std::runtime_error& err)
+{
+    ssvu::lo("hg::Utils::getDependencyScriptFilename")
+        << "Fatal error while looking for Lua dependency\nError: " << err.what()
+        << std::endl;
+
+    throw;
+}
+catch(...)
+{
+    ssvu::lo("hg::Utils::getDependencyScriptFilename")
+        << "Fatal unknown error while looking for Lua dependency" << std::endl;
+
+    throw;
+}
+
+[[nodiscard]] inline std::string getDependentScriptFilename(
+    std::vector<std::string>& execScriptPackPathContext,
+    const std::string& currentPackPath, const std::string& mScriptName)
+{
+    const std::string& context = execScriptPackPathContext.empty()
+                                     ? currentPackPath
+                                     : execScriptPackPathContext.back();
+
+    return concat(context, "Scripts/", mScriptName);
+}
 
 } // namespace hg::Utils

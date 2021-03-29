@@ -4,9 +4,10 @@
 
 #include "SSVOpenHexagon/Core/Replay.hpp"
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
+
 #include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
-#include <cassert>
 #include <fstream>
 #include <sstream>
 
@@ -76,7 +77,7 @@ void replay_data::record_input(const bool left, const bool right,
 [[nodiscard]] input_bitset replay_data::at(
     const std::size_t index) const noexcept
 {
-    assert(index < size());
+    SSVOH_ASSERT(index < size());
     return _inputs[index];
 }
 

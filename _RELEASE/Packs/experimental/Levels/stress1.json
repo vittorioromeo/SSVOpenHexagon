@@ -1,0 +1,12 @@
+{
+    "id": "stress1",
+    "name": "stress1",
+    "description": "dance!",
+    "author": "vittorio romeo",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "cw2",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/stress1.lua",
+    "difficultyMults": [1.6, 2.2, 2.8, 0.6, 0.4]
+}
