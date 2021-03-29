@@ -2,6 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
@@ -108,10 +109,10 @@ void HexagonGame::updateKeyIcons()
     // ------------------------------------------------------------------------
 
     replayIcon.setOrigin({size, size});
-    replayIcon.setScale(scaling, scaling);
+    replayIcon.setScale(scaling / 2.f, scaling / 2.f);
 
-    const sf::Vector2f topRight{
-        Config::getWidth() - padding - scaledSize, padding + scaledSize};
+    const sf::Vector2f topRight{Config::getWidth() - padding - scaledHalfSize,
+        padding + scaledHalfSize};
 
     replayIcon.setPosition(topRight);
 }
@@ -825,7 +826,6 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
         std::string localValidator{
             Utils::getLocalValidator(levelData->id, difficultyMult)};
 
-        // TODO: this crashes when going back to menu from replay drag and drop
         if(assets.getLocalScore(localValidator) < score)
         {
             assets.setLocalScore(localValidator, score);
@@ -837,7 +837,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
         return CheckSaveScoreResult::Local_NoNewBest;
     }
 
-    assert(false);
+    SSVOH_ASSERT(false);
     return CheckSaveScoreResult::Local_NoNewBest;
 }
 

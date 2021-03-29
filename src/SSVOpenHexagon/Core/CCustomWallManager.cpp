@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
@@ -30,11 +31,11 @@ namespace hg
             << "Attempted to " << msg << " of invalid custom wall " << h
             << '\n';
 
-        SSVU_ASSERT(ssvu::contains(_freeHandles, h));
+        SSVOH_ASSERT(ssvu::contains(_freeHandles, h));
         return false;
     }
 
-    SSVU_ASSERT(isValidHandle(h));
+    SSVOH_ASSERT(isValidHandle(h));
     return true;
 }
 
@@ -93,13 +94,13 @@ namespace hg
 
 void CCustomWallManager::destroyUnchecked(const CCustomWallHandle cwHandle)
 {
-    SSVU_ASSERT(!_handleAvailable[cwHandle]);
-    SSVU_ASSERT(isValidHandle(cwHandle));
+    SSVOH_ASSERT(!_handleAvailable[cwHandle]);
+    SSVOH_ASSERT(isValidHandle(cwHandle));
 
     _handleAvailable[cwHandle] = true;
     --_count;
 
-    SSVU_ASSERT(!ssvu::contains(_freeHandles, cwHandle));
+    SSVOH_ASSERT(!ssvu::contains(_freeHandles, cwHandle));
     _freeHandles.emplace_back(cwHandle);
 }
 

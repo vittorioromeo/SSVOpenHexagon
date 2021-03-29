@@ -2,6 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
@@ -49,8 +50,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow),
-      dialogBox(mAssets, mGameWindow, styleData),
-      loadInfo(mAssets.getLoadResults())
+      dialogBox(mAssets, mGameWindow), loadInfo(mAssets.getLoadResults())
 {
     if(Config::getFirstTimePlaying())
     {
@@ -608,7 +608,7 @@ void MenuGame::initLua()
         [this](const std::string& mPackDisambiguator,
             const std::string& mPackName, const std::string& mPackAuthor,
             const std::string& mScriptName) {
-            assert(currentPack != nullptr);
+            SSVOH_ASSERT(currentPack != nullptr);
 
             Utils::withDependencyScriptFilename(
                 [this](const std::string& filename) {
@@ -2943,7 +2943,7 @@ void MenuGame::drawOptionsSubmenus(
         quadHeight - txtMenuSmall.height * fontTopBorder + doubleBorder};
     for(int i{0}; i < size; ++i)
     {
-        assert(i < static_cast<int>(items.size()));
+        SSVOH_ASSERT(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
 
         Utils::uppercasify(itemName);
@@ -3097,7 +3097,7 @@ void MenuGame::drawProfileSelection(
         selected = i == mSubmenu.getIdx();
 
         // Draw profile name
-        assert(i < static_cast<int>(items.size()));
+        SSVOH_ASSERT(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
 
         yPos = txtHeight - (selected ? fontHeight * 0.75f : 0.f);
@@ -3193,7 +3193,7 @@ void MenuGame::drawProfileSelectionBoot()
         selected = i == mSubmenu.getIdx();
 
         // Draw profile name
-        assert(i < static_cast<int>(items.size()));
+        SSVOH_ASSERT(i < static_cast<int>(items.size()));
         itemName = items[i]->getName();
 
         yPos = height - (selected ? fontHeight * 0.75f : 0.f);

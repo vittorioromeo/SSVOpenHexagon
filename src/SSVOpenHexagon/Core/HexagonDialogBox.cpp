@@ -1,5 +1,6 @@
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
@@ -10,9 +11,8 @@
 namespace hg
 {
 
-HexagonDialogBox::HexagonDialogBox(
-    HGAssets& mAssets, ssvs::GameWindow& mWindow, StyleData& mStyleData)
-    : assets{mAssets}, window{mWindow}, styleData{mStyleData},
+HexagonDialogBox::HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& mWindow)
+    : assets{mAssets}, window{mWindow},
       imagine{assets.get<sf::Font>("forcedsquare.ttf")}, txtDialog{
                                                              "", imagine, 0}
 {
@@ -82,7 +82,7 @@ HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(
 
         default:
         {
-            assert(drawMode == DBoxDraw::centerUpperHalf);
+            SSVOH_ASSERT(drawMode == DBoxDraw::centerUpperHalf);
             return [this](const sf::Color& txtColor,
                        const sf::Color& backdropColor) {
                 drawCenterUpperHalf(txtColor, backdropColor);

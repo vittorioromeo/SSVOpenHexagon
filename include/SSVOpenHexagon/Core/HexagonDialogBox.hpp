@@ -19,7 +19,6 @@ namespace hg
 {
 
 class HGAssets;
-class StyleData;
 
 enum class DBoxDraw
 {
@@ -36,10 +35,6 @@ private:
 
     HGAssets& assets;
     ssvs::GameWindow& window;
-
-    // TODO: unused
-    StyleData& styleData;
-
     DrawFunc drawFunc;
 
     Utils::FastVertexVectorQuads dialogFrame;
@@ -70,8 +65,7 @@ private:
     void drawTopLeft(const sf::Color& txtColor, const sf::Color& backdropColor);
 
 public:
-    explicit HexagonDialogBox(
-        HGAssets& mAssets, ssvs::GameWindow& window, StyleData& styleData);
+    explicit HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& window);
 
     void create(const std::string& output, const int charSize,
         const float mFrameSize, const DBoxDraw mDrawMode,

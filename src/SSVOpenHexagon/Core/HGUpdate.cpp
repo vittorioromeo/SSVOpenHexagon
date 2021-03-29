@@ -2,6 +2,7 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
@@ -60,7 +61,7 @@ void HexagonGame::update(ssvu::FT mFT)
         }
         else
         {
-            assert(activeReplay.has_value());
+            SSVOH_ASSERT(activeReplay.has_value());
 
             if(!status.started)
             {
@@ -1116,8 +1117,8 @@ void HexagonGame::postUpdateImguiLuaConsole()
         if(!problem)
         {
             ImGui::Separator();
-            assert(ilcLuaTracked.size() == ilcLuaTrackedNames.size());
-            assert(ilcLuaTracked.size() == ilcLuaTrackedResults.size());
+            SSVOH_ASSERT(ilcLuaTracked.size() == ilcLuaTrackedNames.size());
+            SSVOH_ASSERT(ilcLuaTracked.size() == ilcLuaTrackedResults.size());
 
             if(ImGui::BeginTable("TrackedResults", 2))
             {
