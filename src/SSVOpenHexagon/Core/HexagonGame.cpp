@@ -245,8 +245,8 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     };
 
     const auto addTid2StateInput = [&](const Tid tid, bool& value) {
-        add2StateInput(game, Config::getTrigger(tid), value,
-            static_cast<int>(Tid::RotateCCW));
+        add2StateInput(
+            game, Config::getTrigger(tid), value, static_cast<int>(tid));
     };
 
     addTid2StateInput(Tid::RotateCCW, inputImplCCW);
