@@ -402,7 +402,7 @@ void HexagonGame::playSound(
 {
     if(window != nullptr)
     {
-        playSound(mId, mMode);
+        assets.playSound(mId, mMode);
     }
 }
 

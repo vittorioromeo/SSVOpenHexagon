@@ -212,23 +212,20 @@ public:
     }
 
     ~LuaMetadataProxy()
+    try
     {
-        try
-        {
-            luaMetadata.addFnEntry((*erasedRet)(this), name,
-                (*erasedArgs)(this), resolveArgNames(docs));
-        }
-        catch(const std::exception& e)
-        {
-            ssvu::lo("LuaMetadataProxy")
-                << "Failed to generate documentation for " << name << ": "
-                << e.what() << '\n';
-        }
-        catch(...)
-        {
-            ssvu::lo("LuaMetadataProxy")
-                << "Failed to generate documentation for " << name << '\n';
-        }
+        luaMetadata.addFnEntry((*erasedRet)(this), name, (*erasedArgs)(this),
+            resolveArgNames(docs));
+    }
+    catch(const std::exception& e)
+    {
+        ssvu::lo("LuaMetadataProxy") << "Failed to generate documentation for "
+                                     << name << ": " << e.what() << '\n';
+    }
+    catch(...)
+    {
+        ssvu::lo("LuaMetadataProxy")
+            << "Failed to generate documentation for " << name << '\n';
     }
 
     LuaMetadataProxy& arg(const std::string& mArgName)
