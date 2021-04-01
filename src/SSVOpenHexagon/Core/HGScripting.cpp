@@ -79,7 +79,12 @@ void HexagonGame::initLua_Utils()
             "`<dependeePack>/Scripts/$3`.");
 
     addLuaFn(lua, "u_isKeyPressed",
-        [this](int mKey) { return window.getInputState()[ssvs::KKey(mKey)]; })
+        [this](int mKey) {
+            // TODO: this is not saved in replays. Deprecate?
+
+            return window != nullptr &&
+                   window->getInputState()[ssvs::KKey(mKey)];
+        })
         .arg("keyCode")
         .doc(
             "Return `true` if the keyboard key with code `$0` is being "
@@ -107,7 +112,12 @@ void HexagonGame::initLua_Utils()
         .doc("Set the current angle of the player to `$0`, in radians.");
 
     addLuaFn(lua, "u_isMouseButtonPressed",
-        [this](int mKey) { return window.getInputState()[ssvs::MBtn(mKey)]; })
+        [this](int mKey) {
+            // TODO: this is not saved in replays. Deprecate?
+
+            return window != nullptr &&
+                   window->getInputState()[ssvs::MBtn(mKey)];
+        })
         .arg("buttonCode")
         .doc(
             "Return `true` if the mouse button with code `$0` is being "
@@ -190,7 +200,7 @@ void HexagonGame::initLua_AudioControl()
             "at time `$1` (in seconds).");
 
     addLuaFn(lua, "a_playSound", //
-        [this](const std::string& mId) { assets.playSound(mId); })
+        [this](const std::string& mId) { playSound(mId); })
         .arg("soundId")
         .doc(
             "Play the sound with id `$0`. The id must be registered in "
@@ -888,12 +898,23 @@ void HexagonGame::initLua_LevelControl()
         .doc("Clears all tracked variables.");
 
     addLuaFn(lua, "l_setRotation", //
-        [this](float mValue) { backgroundCamera.setRotation(mValue); })
+        [this](float mValue) {
+            // TODO: might break replays
+            if(backgroundCamera.has_value())
+            {
+                backgroundCamera->setRotation(mValue);
+            }
+        })
         .arg("angle")
         .doc("Set the background camera rotation to `$0` degrees.");
 
     addLuaFn(lua, "l_getRotation", //
-        [this] { return backgroundCamera.getRotation(); })
+        [this] {
+            // TODO: might break replays
+            return backgroundCamera.has_value()
+                       ? backgroundCamera->getRotation()
+                       : 0.f;
+        })
         .doc("Return the background camera rotation, in degrees.");
 
     addLuaFn(lua, "l_getLevelTime", //
@@ -1375,7 +1396,7 @@ void HexagonGame::initLua_Deprecated()
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"a_playSound\" in your level files.");
-            assets.playSound(mId);
+            playSound(mId);
         })
         .arg("soundId")
         .doc(

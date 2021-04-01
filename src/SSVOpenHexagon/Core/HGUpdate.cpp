@@ -90,28 +90,28 @@ void HexagonGame::update(ssvu::FT mFT)
             inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
         }
 
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Update key icons.
         if(Config::getShowKeyIcons() || mustShowReplayUI())
         {
             updateKeyIcons();
         }
 
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Update level info.
         if(Config::getShowLevelInfo() || mustShowReplayUI())
         {
             updateLevelInfo();
         }
 
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         // Update input leniency time after death to avoid accidental restart.
         if(deathInputIgnore > 0.f)
         {
             deathInputIgnore -= mFT;
         }
 
-        // ------------------------------------------------------------------------
+        // --------------------------------------------------------------------
         if(status.started)
         {
             player.update(getInputFocused(), getLevelStatus().swapEnabled, mFT);
@@ -198,10 +198,15 @@ void HexagonGame::update(ssvu::FT mFT)
             }
         }
 
-        updateParticles(mFT);
+        if(window != nullptr)
+        {
+            SSVOH_ASSERT(overlayCamera.has_value());
+            SSVOH_ASSERT(backgroundCamera.has_value());
 
-        overlayCamera.update(mFT);
-        backgroundCamera.update(mFT);
+            updateParticles(mFT);
+            overlayCamera->update(mFT);
+            backgroundCamera->update(mFT);
+        }
     }
 
     if(status.started)
@@ -225,6 +230,8 @@ void HexagonGame::update(ssvu::FT mFT)
                 executeLastReplay);
         }
 
+// TODO: score invalidation
+#if 0
         if(!status.scoreInvalid && Config::getOfficial())
         {
             invalidateScore("PERFORMANCE ISSUES");
@@ -234,6 +241,7 @@ void HexagonGame::update(ssvu::FT mFT)
         {
             invalidateScore("3D REQUIRED");
         }
+#endif
     }
 }
 
@@ -308,7 +316,7 @@ void HexagonGame::start()
 {
     status.start();
     messageText.setString("");
-    assets.playSound("go.ogg");
+    playSound("go.ogg");
 
     if(!mustReplayInput())
     {
@@ -369,9 +377,14 @@ void HexagonGame::updateInput_UpdateJoystickControls()
 
 void HexagonGame::updateInput_UpdateTouchControls()
 {
-    for(const auto& p : window.getFingerDownPositions())
+    if(window == nullptr)
     {
-        if(p.x < window.getWidth() / 2.f)
+        return;
+    }
+
+    for(const auto& p : window->getFingerDownPositions())
+    {
+        if(p.x < window->getWidth() / 2.f)
         {
             setInputImplIfFalse(inputImplCCW, true);
         }
@@ -543,14 +556,19 @@ void HexagonGame::updatePulse(ssvu::FT mFT)
         status.pulseDelay -= mFT * getMusicDMSyncFactor();
     }
 
-    const float p{status.pulse / levelStatus.pulseMin};
-    const float rotation{backgroundCamera.getRotation()};
+    if(window != nullptr)
+    {
+        SSVOH_ASSERT(backgroundCamera.has_value());
 
-    backgroundCamera.setView({ssvs::zeroVec2f,
-        {(Config::getWidth() * Config::getZoomFactor()) * p,
-            (Config::getHeight() * Config::getZoomFactor()) * p}});
+        const float p{status.pulse / levelStatus.pulseMin};
+        const float rotation{backgroundCamera->getRotation()};
 
-    backgroundCamera.setRotation(rotation);
+        backgroundCamera->setView({ssvs::zeroVec2f,
+            {(Config::getWidth() * Config::getZoomFactor()) * p,
+                (Config::getHeight() * Config::getZoomFactor()) * p}});
+
+        backgroundCamera->setRotation(rotation);
+    }
 }
 
 void HexagonGame::updateBeatPulse(ssvu::FT mFT)
@@ -593,7 +611,11 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
         status.fastSpin -= mFT;
     }
 
-    backgroundCamera.turn(nextRotation);
+    if(window != nullptr)
+    {
+        SSVOH_ASSERT(backgroundCamera.has_value());
+        backgroundCamera->turn(nextRotation);
+    }
 }
 
 void HexagonGame::updateFlash(ssvu::FT mFT)
@@ -841,8 +863,19 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
     return 0;
 }
 
-void HexagonGame::postUpdateImguiLuaConsole()
+void HexagonGame::postUpdate_InputLastMovement()
 {
+    inputImplLastMovement = inputMovement;
+    inputImplBothCWCCW = inputImplCW && inputImplCCW;
+}
+
+void HexagonGame::postUpdate_ImguiLuaConsole()
+{
+    if(window == nullptr)
+    {
+        return;
+    }
+
     if(ilcShowConsoleNext)
     {
         ilcShowConsole = !ilcShowConsole;
@@ -856,7 +889,7 @@ void HexagonGame::postUpdateImguiLuaConsole()
         return;
     }
 
-    ImGui::SFML::Update(window, ilcDeltaClock.restart());
+    ImGui::SFML::Update(*window, ilcDeltaClock.restart());
 
     ImGui::SetNextWindowSize(ImVec2(600, 700), ImGuiCond_FirstUseEver);
     ImGui::Begin("Lua Console");
@@ -1032,9 +1065,9 @@ void HexagonGame::postUpdateImguiLuaConsole()
 
     ImGui::Separator();
 
-    ImGui::Text("update ms: %.2f", window.getMsUpdate());
+    ImGui::Text("update ms: %.2f", window->getMsUpdate());
     ImGui::SameLine();
-    ImGui::Text("draw ms: %.2f", window.getMsDraw());
+    ImGui::Text("draw ms: %.2f", window->getMsDraw());
 
     static float simSpeed = Config::getTimescale();
     ImGui::DragFloat("Timescale", &simSpeed, 0.005f);
@@ -1132,6 +1165,12 @@ void HexagonGame::postUpdateImguiLuaConsole()
     }
 
     ImGui::End();
+}
+
+void HexagonGame::postUpdate()
+{
+    postUpdate_InputLastMovement();
+    postUpdate_ImguiLuaConsole();
 }
 
 } // namespace hg

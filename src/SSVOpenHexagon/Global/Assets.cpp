@@ -947,7 +947,6 @@ void HGAssets::stopSounds()
     soundPlayer.stop();
 }
 
-
 void HGAssets::playSound(const std::string& mId, ssvs::SoundPlayer::Mode mMode)
 {
     const auto assetId = mId;
@@ -959,7 +958,6 @@ void HGAssets::playSound(const std::string& mId, ssvs::SoundPlayer::Mode mMode)
 
     soundPlayer.play(assetManager.get<sf::SoundBuffer>(assetId), mMode);
 }
-
 
 void HGAssets::playPackSound(const std::string& mPackId, const std::string& mId,
     ssvs::SoundPlayer::Mode mMode)
