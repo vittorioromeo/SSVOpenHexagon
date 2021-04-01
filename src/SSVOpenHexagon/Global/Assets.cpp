@@ -60,7 +60,8 @@ namespace hg
         ssvufs::Pick::ByName>(path, name);
 }
 
-HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
+HGAssets::HGAssets(
+    Steam::steam_manager& mSteamManager, bool mHeadless, bool mLevelsOnly)
     : steamManager{mSteamManager}, levelsOnly{mLevelsOnly}
 {
     if(!levelsOnly)
@@ -71,11 +72,13 @@ HGAssets::HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly)
                 << "Folder Assets/ does not exist" << std::endl;
             std::terminate();
         }
-        else
+        else if(!mHeadless)
         {
             auto [object, error] =
                 ssvuj::getFromFileWithErrors("Assets/assets.json");
+
             loadAssetsFromJson(assetManager, "Assets/", object);
+
             loadInfo.addFormattedError(error);
         }
     }
