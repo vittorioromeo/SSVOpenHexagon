@@ -68,7 +68,7 @@ private:
     const LevelData* levelData;
 
     ssvs::GameState game;
-    ssvs::GameWindow& window;
+    ssvs::GameWindow* window;
 
     // IMGUI Lua Console
     sf::Clock ilcDeltaClock;
@@ -96,13 +96,8 @@ public:
     float timeUntilRichPresenceUpdate = 0.f;
 
 private:
-    ssvs::Camera backgroundCamera{window,
-        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
-                              Config::getHeight() * Config::getZoomFactor()}}};
-
-    ssvs::Camera overlayCamera{
-        window, {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                    sf::Vector2f(Config::getWidth(), Config::getHeight())}};
+    std::optional<ssvs::Camera> backgroundCamera;
+    std::optional<ssvs::Camera> overlayCamera;
 
     ssvu::TimelineManager effectTimelineManager;
 
@@ -357,7 +352,9 @@ private:
     void updateParticles(ssvu::FT mFT);
 
     // Post update methods
-    void postUpdateImguiLuaConsole();
+    void postUpdate();
+    void postUpdate_InputLastMovement();
+    void postUpdate_ImguiLuaConsole();
 
     // Draw methods
     void draw();
@@ -429,7 +426,7 @@ private:
     }
 
 public:
-    void performPlayerSwap(const bool playSound);
+    void performPlayerSwap(const bool mPlaySound);
     void performPlayerKill();
 
 public:
@@ -444,7 +441,7 @@ public:
 
     HexagonGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-        ssvs::GameWindow& mGameWindow);
+        ssvs::GameWindow* mGameWindow);
 
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
     {
@@ -454,17 +451,30 @@ public:
     // Gameplay methods
     void newGame(const std::string& mPackId, const std::string& mId,
         bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
+
     void death(bool mForce = false);
+
+    void executeGameUntilDeath();
 
     // Other methods
     void executeEvents(ssvuj::Obj& mRoot, float mTime);
     void updateRichPresenceCallbacks();
+    void playSound(const std::string& mId,
+        ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
 
     // Graphics-related methods
     void render(sf::Drawable& mDrawable,
         const sf::RenderStates& mStates = sf::RenderStates::Default)
     {
-        window.draw(mDrawable, mStates);
+        if(window == nullptr)
+        {
+            ssvu::lo("hg::HexagonGame::render")
+                << "Attempted to render without a game window\n";
+
+            return;
+        }
+
+        window->draw(mDrawable, mStates);
     }
 
     // Setters

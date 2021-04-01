@@ -126,6 +126,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 playLocally();
                 setIgnoreAllInputs(0);
             }
+
             assets.playSound("select.ogg");
         }
     };

@@ -21,9 +21,17 @@ namespace hg
 
 void HexagonGame::draw()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
+    SSVOH_ASSERT(backgroundCamera.has_value());
+    SSVOH_ASSERT(overlayCamera.has_value());
+
     styleData.computeColors();
 
-    window.clear(sf::Color::Black);
+    window->clear(sf::Color::Black);
 
     if(!status.hasDied)
     {
@@ -34,22 +42,22 @@ void HexagonGame::draw()
                 ssvu::getRndR(
                     -levelStatus.cameraShake, levelStatus.cameraShake));
 
-            backgroundCamera.setCenter(shake);
-            overlayCamera.setCenter(
+            backgroundCamera->setCenter(shake);
+            overlayCamera->setCenter(
                 shake + sf::Vector2f{Config::getWidth() / 2.f,
                             Config::getHeight() / 2.f});
         }
         else
         {
-            backgroundCamera.setCenter(ssvs::zeroVec2f);
-            overlayCamera.setCenter(sf::Vector2f{
+            backgroundCamera->setCenter(ssvs::zeroVec2f);
+            overlayCamera->setCenter(sf::Vector2f{
                 Config::getWidth() / 2.f, Config::getHeight() / 2.f});
         }
     }
 
     if(!Config::getNoBackground())
     {
-        backgroundCamera.apply();
+        backgroundCamera->apply();
 
         backgroundTris.clear();
 
@@ -59,7 +67,7 @@ void HexagonGame::draw()
         render(backgroundTris);
     }
 
-    backgroundCamera.apply();
+    backgroundCamera->apply();
 
     wallQuads3D.clear();
     playerTris3D.clear();
@@ -96,10 +104,10 @@ void HexagonGame::draw()
             styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
 
         const sf::Vector2f skew{1.f, 1.f + effect};
-        backgroundCamera.setSkew(skew);
+        backgroundCamera->setSkew(skew);
 
         const float radRot(
-            ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
+            ssvu::toRad(backgroundCamera->getRotation()) + (ssvu::pi / 2.f));
         const float sinRot(std::sin(radRot));
         const float cosRot(std::cos(radRot));
 
@@ -160,7 +168,7 @@ void HexagonGame::draw()
     render(playerTris);
     render(capTris);
 
-    overlayCamera.apply();
+    overlayCamera->apply();
 
     drawParticles();
     drawText();
@@ -187,7 +195,11 @@ void HexagonGame::draw()
 
     if(mustTakeScreenshot)
     {
-        window.saveScreenshot("screenshot.png");
+        if(window != nullptr)
+        {
+            window->saveScreenshot("screenshot.png");
+        }
+
         mustTakeScreenshot = false;
     }
 
@@ -196,13 +208,20 @@ void HexagonGame::draw()
 
 void HexagonGame::drawImguiLuaConsole()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     if(!ilcShowConsole)
     {
         return;
     }
 
-    overlayCamera.unapply();
-    ImGui::SFML::Render(window);
+    SSVOH_ASSERT(overlayCamera.has_value());
+    overlayCamera->unapply();
+
+    ImGui::SFML::Render(*window);
 }
 
 void HexagonGame::initFlashEffect()
@@ -272,6 +291,11 @@ void HexagonGame::drawParticles()
 
 void HexagonGame::updateText(ssvu::FT mFT)
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     // ------------------------------------------------------------------------
     // Update "personal best" text animation.
     pbTextGrowth += 0.08f * mFT;
@@ -408,7 +432,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
     // Set FPS Text, if option is enabled.
     if(Config::getShowFPS())
     {
-        fpsText.setString(ssvu::toStr(window.getFPS()));
+        fpsText.setString(ssvu::toStr(window->getFPS()));
         fpsText.setCharacterSize(getScaledCharacterSize(25.f));
     }
 

@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 
@@ -47,6 +48,7 @@ struct ParsedArgs
     std::optional<std::string> cliLevelName;
     std::optional<std::string> cliLevelPack;
     bool printLuaDocs{false};
+    bool headless{false};
 };
 
 ParsedArgs parseArgs(const int argc, char* argv[])
@@ -75,6 +77,13 @@ ParsedArgs parseArgs(const int argc, char* argv[])
         if(!std::strcmp(argv[i], "-printLuaDocs"))
         {
             result.printLuaDocs = true;
+            continue;
+        }
+
+        // Find command-line argument to run in headless mode
+        if(!std::strcmp(argv[i], "-headless"))
+        {
+            result.headless = true;
             continue;
         }
 
@@ -141,7 +150,7 @@ int main(int argc, char* argv[])
 
     // ------------------------------------------------------------------------
     // Parse arguments and load configuration (and overrides)
-    const auto [args, cliLevelName, cliLevelPack, printLuaDocs] =
+    const auto [args, cliLevelName, cliLevelPack, printLuaDocs, headless] =
         parseArgs(argc, argv);
 
     hg::Config::loadConfig(args);
@@ -149,31 +158,52 @@ int main(int argc, char* argv[])
 
     // ------------------------------------------------------------------------
     // Create the game window
-    ssvs::GameWindow window;
+    std::optional<ssvs::GameWindow> window;
 
-    window.setTitle(makeWindowTitle());
-    window.setSize(hg::Config::getWidth(), hg::Config::getHeight());
-    window.setPixelMult(hg::Config::getPixelMultiplier());
-    window.setFullscreen(hg::Config::getFullscreen());
-    window.setAntialiasingLevel(hg::Config::getAntialiasingLevel());
-    window.setVsync(hg::Config::getVsync());
-    window.setFPSLimited(hg::Config::getLimitFPS());
-    window.setMaxFPS(hg::Config::getMaxFPS());
+    if(!headless)
+    {
+        window.emplace();
 
-    window.setTimer<ssvs::TimerStatic>(0.25f, 0.25f);
+        window->setTitle(makeWindowTitle());
+        window->setSize(hg::Config::getWidth(), hg::Config::getHeight());
+        window->setPixelMult(hg::Config::getPixelMultiplier());
+        window->setFullscreen(hg::Config::getFullscreen());
+        window->setAntialiasingLevel(hg::Config::getAntialiasingLevel());
+        window->setVsync(hg::Config::getVsync());
+        window->setFPSLimited(hg::Config::getLimitFPS());
+        window->setMaxFPS(hg::Config::getMaxFPS());
+
+        // 240 ticks per second.
+        window->setTimer<ssvs::TimerStatic>(
+            hg::Config::TIME_STEP, hg::Config::TIME_SLICE);
+    }
 
     // ------------------------------------------------------------------------
     // Initialize IMGUI
-    ImGui::SFML::Init(window);
-    HG_SCOPE_GUARD({ ImGui::SFML::Shutdown(); });
+    if(!headless)
+    {
+        SSVOH_ASSERT(window.has_value());
+        ImGui::SFML::Init(*window);
+    }
+
+    HG_SCOPE_GUARD({
+        if(!headless)
+        {
+            ImGui::SFML::Shutdown();
+        }
+    });
 
     // ------------------------------------------------------------------------
-    // Create the game and menu states
+    // Initialize assets
     auto assets = std::make_unique<hg::HGAssets>(steamManager);
     HG_SCOPE_GUARD({ assets->pSaveAll(); });
 
-    auto hg = std::make_unique<hg::HexagonGame>(
-        steamManager, discordManager, *assets, window);
+    assets->refreshVolumes();
+
+    // ------------------------------------------------------------------------
+    // Initialize hexagon game
+    auto hg = std::make_unique<hg::HexagonGame>(steamManager, discordManager,
+        *assets, (window.has_value() ? &*window : nullptr));
 
     if(printLuaDocs)
     {
@@ -181,65 +211,118 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    auto mg = std::make_unique<hg::MenuGame>(
-        steamManager, discordManager, *assets, *hg, window);
+    // ------------------------------------------------------------------------
+    // Initialize menu game and link to hexagon game
+    std::unique_ptr<hg::MenuGame> mg;
 
-    hg->mgPtr = mg.get();
+    if(!headless)
+    {
+        SSVOH_ASSERT(window.has_value());
 
-    assets->refreshVolumes();
+        mg = std::make_unique<hg::MenuGame>(
+            steamManager, discordManager, *assets, *hg, *window);
+
+        hg->mgPtr = mg.get();
+    }
+    else
+    {
+        hg->mgPtr = nullptr;
+    }
 
     // ------------------------------------------------------------------------
     // Load drag & drop replay, if any -- otherwise run game as normal
     const std::optional<std::string> replayFilename =
         getFirstReplayFilenameFromArgs(args);
 
-    const auto gotoMenu = [&] {
-        window.setGameState(mg->getGame());
-        mg->init(false /* mError */);
-    };
-
-    const auto gotoGameReplay = [&](const hg::replay_file& replayFile) {
-        hg->setLastReplay(replayFile);
-
-        hg->newGame(replayFile._pack_id, replayFile._level_id,
-            replayFile._first_play, replayFile._difficulty_mult,
-            /* mExecuteLastReplay */ true);
-
-        window.setGameState(hg->getGame());
-    };
-
-    if(!replayFilename.has_value())
+    if(!headless)
     {
-        if(cliLevelPack.has_value() && cliLevelName.has_value())
+        SSVOH_ASSERT(window.has_value());
+
+        const auto gotoMenu = [&] {
+            window->setGameState(mg->getGame());
+            mg->init(false /* mError */);
+        };
+
+        const auto gotoGameReplay = [&](const hg::replay_file& replayFile) {
+            hg->setLastReplay(replayFile);
+
+            hg->newGame(replayFile._pack_id, replayFile._level_id,
+                replayFile._first_play, replayFile._difficulty_mult,
+                /* mExecuteLastReplay */ true);
+
+            window->setGameState(hg->getGame());
+        };
+
+        if(!replayFilename.has_value())
         {
-            mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
+            if(cliLevelPack.has_value() && cliLevelName.has_value())
+            {
+                // Load pack and levels specified via command line args.
+                mg->init(false /* mError */, *cliLevelPack, *cliLevelName);
+            }
+            else
+            {
+                // Start game as normal.
+                gotoMenu();
+            }
         }
         else
         {
-            gotoMenu();
+            if(hg::replay_file rf; rf.deserialize_from_file(*replayFilename))
+            {
+                ssvu::lo("Replay")
+                    << "Playing replay file '" << *replayFilename << "'\n";
+
+                gotoGameReplay(rf);
+            }
+            else
+            {
+                ssvu::lo("Replay") << "Failed to read replay file '"
+                                   << replayFilename.value() << "'\n";
+
+                gotoMenu();
+            }
         }
     }
     else
     {
-        if(hg::replay_file rf; rf.deserialize_from_file(*replayFilename))
+        // TODO: code repetition, cleanup
+        if(!replayFilename.has_value())
         {
-            ssvu::lo("Replay")
-                << "Playing replay file '" << *replayFilename << "'\n";
-
-            gotoGameReplay(rf);
+            std::cout << "TODO: Running in headless mode without replay...?"
+                      << std::endl;
         }
         else
         {
-            ssvu::lo("Replay") << "Failed to read replay file '"
-                               << replayFilename.value() << "'\n";
+            if(hg::replay_file rf; rf.deserialize_from_file(*replayFilename))
+            {
+                ssvu::lo("Replay") << "Playing replay file in headless mode '"
+                                   << *replayFilename << "'\n";
 
-            gotoMenu();
+                hg->setLastReplay(rf);
+
+                hg->newGame(rf._pack_id, rf._level_id, rf._first_play,
+                    rf._difficulty_mult,
+                    /* mExecuteLastReplay */ true);
+
+                hg->executeGameUntilDeath(); // TODO
+            }
+            else
+            {
+                ssvu::lo("Replay")
+                    << "Failed to read replay file in headless mode '"
+                    << replayFilename.value() << "'\n";
+            }
         }
     }
 
     // ------------------------------------------------------------------------
     // Run the game!
-    window.run();
+    if(!headless)
+    {
+        SSVOH_ASSERT(window.has_value());
+        window->run();
+    }
 
     return 0;
 }

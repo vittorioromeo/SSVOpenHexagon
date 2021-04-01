@@ -55,6 +55,11 @@ void HexagonGame::createWall(int mSide, float mThickness,
 
 void HexagonGame::initKeyIcons()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     for(const auto& t :
         {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
     {
@@ -72,6 +77,11 @@ void HexagonGame::initKeyIcons()
 
 void HexagonGame::updateKeyIcons()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     constexpr float halfSize = 32.f;
     constexpr float size = halfSize * 2.f;
 
@@ -117,6 +127,11 @@ void HexagonGame::updateKeyIcons()
 
 void HexagonGame::updateLevelInfo()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     const float levelInfoScaling = 1.f;
     const float scaling = levelInfoScaling / Config::getZoomFactor();
     const float padding = 8.f * scaling;
@@ -206,29 +221,43 @@ void HexagonGame::updateLevelInfo()
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-    ssvs::GameWindow& mGameWindow)
+    ssvs::GameWindow* mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), window(mGameWindow),
       player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()}
 {
+    if(window != nullptr)
+    {
+        const float width = Config::getWidth();
+        const float height = Config::getHeight();
+        const float zoomFactor = Config::getZoomFactor();
+
+        backgroundCamera.emplace(*window,
+            sf::View{ssvs::zeroVec2f,
+                sf::Vector2f{width * zoomFactor, height * zoomFactor}});
+
+        overlayCamera.emplace(
+            *window, sf::View{sf::Vector2f{width / 2.f, height / 2.f},
+                         sf::Vector2f{width, height}});
+    }
+
+
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
 
-    game.onPostUpdate += [this] {
-        inputImplLastMovement = inputMovement;
-        inputImplBothCWCCW = inputImplCW && inputImplCCW;
-
-        postUpdateImguiLuaConsole();
-    };
+    game.onPostUpdate += [this] { postUpdate(); };
 
     game.onDraw += [this] { draw(); };
 
     game.onAnyEvent +=
         [](const sf::Event& event) { ImGui::SFML::ProcessEvent(event); };
 
-    window.onRecreation += [this] {
-        initFlashEffect();
-        initKeyIcons();
-    };
+    if(window != nullptr)
+    {
+        window->onRecreation += [this] {
+            initFlashEffect();
+            initKeyIcons();
+        };
+    }
 
     // ------------------------------------------------------------------------
     // Keyboard binds
@@ -368,6 +397,15 @@ void HexagonGame::updateRichPresenceCallbacks()
     }
 }
 
+void HexagonGame::playSound(
+    const std::string& mId, ssvs::SoundPlayer::Mode mMode)
+{
+    if(window != nullptr)
+    {
+        playSound(mId, mMode);
+    }
+}
+
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
@@ -443,7 +481,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Audio cleanup
     assets.stopSounds();
     stopLevelMusic();
-    // assets.playSound("go.ogg");
+
     if(!Config::getNoMusic())
     {
         playLevelMusic();
@@ -492,18 +530,24 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     nextPBParticleSpawn = 0.f;
     particles.clear();
 
-    // Reset zoom
-    overlayCamera.setView(
-        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vector2f(Config::getWidth(), Config::getHeight())});
-    backgroundCamera.setView(
-        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
-                              Config::getHeight() * Config::getZoomFactor()}});
-    backgroundCamera.setRotation(0);
+    if(window != nullptr)
+    {
+        SSVOH_ASSERT(overlayCamera.has_value());
+        SSVOH_ASSERT(backgroundCamera.has_value());
 
-    // Reset skew
-    overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
-    backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
+        // Reset zoom
+        overlayCamera->setView(
+            {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                sf::Vector2f(Config::getWidth(), Config::getHeight())});
+        backgroundCamera->setView({ssvs::zeroVec2f,
+            {Config::getWidth() * Config::getZoomFactor(),
+                Config::getHeight() * Config::getZoomFactor()}});
+        backgroundCamera->setRotation(0);
+
+        // Reset skew
+        overlayCamera->setSkew(sf::Vector2f{1.f, 1.f});
+        backgroundCamera->setSkew(sf::Vector2f{1.f, 1.f});
+    }
 
     // Lua context and game status cleanup
     inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
@@ -516,11 +560,11 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     if(!firstPlay)
     {
         runLuaFunctionIfExists<void>("onUnload");
-        assets.playSound("restart.ogg");
+        playSound("restart.ogg");
     }
     else
     {
-        assets.playSound("select.ogg");
+        playSound("select.ogg");
     }
 
     runLuaFunctionIfExists<void>("onInit");
@@ -602,7 +646,7 @@ void HexagonGame::death(bool mForce)
 
     deathInputIgnore = 10.f;
 
-    assets.playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);
+    playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);
 
     runLuaFunctionIfExists<void>("onPreDeath");
 
@@ -622,22 +666,31 @@ void HexagonGame::death(bool mForce)
         pbText.setString("NEW PERSONAL BEST!");
         mustSpawnPBParticles = true;
 
-        assets.playSound("personalBest.ogg", ssvs::SoundPlayer::Mode::Abort);
+        playSound("personalBest.ogg", ssvs::SoundPlayer::Mode::Abort);
     }
     else
     {
-        assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
+        playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
     }
 
     runLuaFunctionIfExists<void>("onDeath");
 
     status.flashEffect = 255;
-    overlayCamera.setView(
-        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vector2f(Config::getWidth(), Config::getHeight())});
-    backgroundCamera.setCenter(ssvs::zeroVec2f);
-    Utils::shakeCamera(effectTimelineManager, overlayCamera);
-    Utils::shakeCamera(effectTimelineManager, backgroundCamera);
+
+    if(window != nullptr)
+    {
+        SSVOH_ASSERT(overlayCamera.has_value());
+        SSVOH_ASSERT(backgroundCamera.has_value());
+
+        overlayCamera->setView(
+            {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                sf::Vector2f(Config::getWidth(), Config::getHeight())});
+
+        backgroundCamera->setCenter(ssvs::zeroVec2f);
+
+        Utils::shakeCamera(effectTimelineManager, *overlayCamera);
+        Utils::shakeCamera(effectTimelineManager, *backgroundCamera);
+    }
 
     status.hasDied = true;
     stopLevelMusic();
@@ -716,9 +769,21 @@ void HexagonGame::death(bool mForce)
     }
 }
 
+void HexagonGame::executeGameUntilDeath()
+{
+    while(!status.hasDied)
+    {
+        update(Config::TIME_STEP);
+        postUpdate();
+    }
+
+    std::cout << "Player died.\nFinal time: " << status.getTimeSeconds()
+              << '\n';
+}
+
 void HexagonGame::incrementDifficulty()
 {
-    assets.playSound("levelUp.ogg");
+    playSound("levelUp.ogg");
 
     const float signMult = (levelStatus.rotationSpeed > 0.f) ? 1.f : -1.f;
 
@@ -746,7 +811,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     mustChangeSides = false;
 
-    assets.playSound(levelStatus.levelUpSound);
+    playSound(levelStatus.levelUpSound);
     runLuaFunctionIfExists<void>("onIncrement");
 }
 
@@ -796,6 +861,14 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
+    if(window == nullptr)
+    {
+        ssvu::lo("hg::HexagonGame::goToMenu")
+            << "Attempted to go back to menu without a game window\n";
+
+        return;
+    }
+
     assets.stopSounds();
 
     ilcLuaTracked.clear();
@@ -804,7 +877,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     if(!mError)
     {
-        assets.playSound("beep.ogg");
+        playSound("beep.ogg");
     }
 
     calledDeprecatedFunctions.clear();
@@ -821,7 +894,8 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         runLuaFunctionIfExists<void>("onUnload");
     }
 
-    window.setGameState(mgPtr->getGame());
+    SSVOH_ASSERT(mgPtr != nullptr);
+    window->setGameState(mgPtr->getGame());
     mgPtr->returnToLevelSelection();
     mgPtr->init(mError);
 }
@@ -854,8 +928,9 @@ void HexagonGame::addMessage(
     messageTimeline.append_do([this, mSoundToggle, mMessage] {
         if(mSoundToggle)
         {
-            assets.playSound(levelStatus.beepSound);
+            playSound(levelStatus.beepSound);
         }
+
         messageText.setString(mMessage);
     });
 
@@ -911,6 +986,11 @@ HexagonGame::getPackDisambiguator() const noexcept
 
 void HexagonGame::playLevelMusic()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     if(!Config::getNoMusic())
     {
         const MusicData::Segment segment =
@@ -921,6 +1001,11 @@ void HexagonGame::playLevelMusic()
 
 void HexagonGame::playLevelMusicAtTime(float mSeconds)
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     if(!Config::getNoMusic())
     {
         musicData.playSeconds(getPackId(), assets, mSeconds);
@@ -929,6 +1014,11 @@ void HexagonGame::playLevelMusicAtTime(float mSeconds)
 
 void HexagonGame::stopLevelMusic()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     if(!Config::getNoMusic())
     {
         assets.stopMusics();
@@ -975,7 +1065,7 @@ auto HexagonGame::getColorText() const -> sf::Color
 
 void HexagonGame::setSides(unsigned int mSides)
 {
-    assets.playSound(levelStatus.beepSound);
+    playSound(levelStatus.beepSound);
 
     if(mSides < 3)
     {
@@ -1028,14 +1118,14 @@ void HexagonGame::setSides(unsigned int mSides)
     return std::max(36.f * levelStatus.swapCooldownMult, 8.f);
 }
 
-void HexagonGame::performPlayerSwap(const bool playSound)
+void HexagonGame::performPlayerSwap(const bool mPlaySound)
 {
     player.playerSwap();
     runLuaFunctionIfExists<void>("onCursorSwap");
 
-    if(playSound)
+    if(mPlaySound)
     {
-        getAssets().playSound(getLevelStatus().swapSound);
+        playSound(getLevelStatus().swapSound);
     }
 }
 
