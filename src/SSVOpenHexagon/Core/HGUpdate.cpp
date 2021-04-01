@@ -208,8 +208,6 @@ void HexagonGame::update(ssvu::FT mFT)
     {
         if(status.mustStateChange != StateChange::None)
         {
-            fpsWatcher.disable();
-
             const bool executeLastReplay =
                 status.mustStateChange == StateChange::MustReplay;
 
@@ -227,8 +225,7 @@ void HexagonGame::update(ssvu::FT mFT)
                 executeLastReplay);
         }
 
-        if(!status.scoreInvalid && Config::getOfficial() &&
-            fpsWatcher.isLimitReached())
+        if(!status.scoreInvalid && Config::getOfficial())
         {
             invalidateScore("PERFORMANCE ISSUES");
         }
@@ -237,8 +234,6 @@ void HexagonGame::update(ssvu::FT mFT)
         {
             invalidateScore("3D REQUIRED");
         }
-
-        fpsWatcher.update();
     }
 }
 
@@ -338,115 +333,25 @@ void HexagonGame::start()
         assets.musicPlayer.resume();
     }
 
-    if(Config::getOfficial())
-    {
-        fpsWatcher.enable();
-    }
-
     runLuaFunctionIfExists<void>("onLoad");
 }
 
-void HexagonGame::updateInput()
+static void setInputImplIfFalse(bool& var, const bool x)
 {
-    if(imguiLuaConsoleHasInput())
+    if(!var)
     {
-        return;
+        var = x;
     }
+}
 
-    // Joystick support
+void HexagonGame::updateInput_UpdateJoystickControls()
+{
     Joystick::update();
 
-    const bool jCW = Joystick::pressed(Joystick::Jdir::Right);
-    const bool jCCW = Joystick::pressed(Joystick::Jdir::Left);
+    setInputImplIfFalse(inputImplCCW, Joystick::pressed(Joystick::Jdir::Left));
+    setInputImplIfFalse(inputImplCW, Joystick::pressed(Joystick::Jdir::Right));
+    setInputImplIfFalse(inputSwap, Joystick::pressed(Joystick::Jid::Swap));
 
-    if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
-                              inputImplCW || inputImplBothCWCCW || jCW || jCCW))
-    {
-        start();
-    }
-
-    // Naive touch controls
-    for(const auto& p : window.getFingerDownPositions())
-    {
-        if(p.x < window.getWidth() / 2.f)
-        {
-            inputImplCCW = 1;
-        }
-        else
-        {
-            inputImplCW = 1;
-        }
-    }
-
-    if(inputImplCW && !inputImplCCW)
-    {
-        inputMovement = 1;
-    }
-    else if(!inputImplCW && inputImplCCW)
-    {
-        inputMovement = -1;
-    }
-    else if(inputImplCW && inputImplCCW)
-    {
-        if(!inputImplBothCWCCW)
-        {
-            if(inputMovement == 1 && inputImplLastMovement == 1)
-            {
-                inputMovement = -1;
-            }
-            else if(inputMovement == -1 && inputImplLastMovement == -1)
-            {
-                inputMovement = 1;
-            }
-        }
-    }
-    else
-    {
-        inputMovement = 0;
-
-        // Joystick support
-        {
-            if(jCW && !jCCW)
-            {
-                inputMovement = 1;
-            }
-            else if(!jCW && jCCW)
-            {
-                inputMovement = -1;
-            }
-            else if(jCW && jCCW)
-            {
-                if(!inputImplBothCWCCW)
-                {
-                    if(inputMovement == 1 && inputImplLastMovement == 1)
-                    {
-                        inputMovement = -1;
-                    }
-                    else if(inputMovement == -1 && inputImplLastMovement == -1)
-                    {
-                        inputMovement = 1;
-                    }
-                }
-            }
-            else
-            {
-                inputMovement = 0;
-            }
-        }
-    }
-
-    // Replay support
-    if(status.started && !status.hasDied)
-    {
-        const bool left = getInputMovement() == -1;
-        const bool right = getInputMovement() == 1;
-        const bool swap = getInputSwap();
-        const bool focus = getInputFocused();
-
-        lastReplayData.record_input(left, right, swap, focus);
-    }
-
-    // Joystick support
     if(Joystick::risingEdge(Joystick::Jid::Exit))
     {
         goToMenu();
@@ -460,6 +365,94 @@ void HexagonGame::updateInput()
     {
         status.mustStateChange = StateChange::MustReplay;
     }
+}
+
+void HexagonGame::updateInput_UpdateTouchControls()
+{
+    for(const auto& p : window.getFingerDownPositions())
+    {
+        if(p.x < window.getWidth() / 2.f)
+        {
+            setInputImplIfFalse(inputImplCCW, true);
+        }
+        else
+        {
+            setInputImplIfFalse(inputImplCW, true);
+        }
+    }
+}
+
+void HexagonGame::updateInput_ResolveInputImplToInputMovement()
+{
+    if(inputImplCW && !inputImplCCW)
+    {
+        inputMovement = 1;
+        return;
+    }
+
+    if(!inputImplCW && inputImplCCW)
+    {
+        inputMovement = -1;
+        return;
+    }
+
+    if(inputImplCW && inputImplCCW)
+    {
+        if(!inputImplBothCWCCW)
+        {
+            if(inputMovement == 1 && inputImplLastMovement == 1)
+            {
+                inputMovement = -1;
+                return;
+            }
+
+            if(inputMovement == -1 && inputImplLastMovement == -1)
+            {
+                inputMovement = 1;
+                return;
+            }
+        }
+
+        return;
+    }
+
+    inputMovement = 0;
+}
+
+void HexagonGame::updateInput_RecordCurrentInputToLastReplayData()
+{
+    if(!status.started || status.hasDied)
+    {
+        return;
+    }
+
+    const bool left = getInputMovement() == -1;
+    const bool right = getInputMovement() == 1;
+    const bool swap = getInputSwap();
+    const bool focus = getInputFocused();
+
+    lastReplayData.record_input(left, right, swap, focus);
+}
+
+void HexagonGame::updateInput()
+{
+    if(imguiLuaConsoleHasInput())
+    {
+        return;
+    }
+
+    if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
+                              inputImplCW || inputImplBothCWCCW))
+    {
+        start();
+    }
+
+    // Keyboard and mouse state is handled by callbacks set in the constructor.
+    updateInput_UpdateJoystickControls(); // Joystick state.
+    updateInput_UpdateTouchControls();    // Touchscreen state.
+
+    updateInput_ResolveInputImplToInputMovement();
+    updateInput_RecordCurrentInputToLastReplayData();
 }
 
 void HexagonGame::updateEvents(ssvu::FT)

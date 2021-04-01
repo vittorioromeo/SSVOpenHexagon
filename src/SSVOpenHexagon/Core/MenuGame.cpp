@@ -4527,7 +4527,7 @@ void MenuGame::draw()
             levelStatus.sides, levelStatus.darkenUnevenBackgroundChunk,
             fourByThree);
 
-        window.draw(menuBackgroundTris);
+        render(menuBackgroundTris);
     }
 
     overlayCamera.apply();

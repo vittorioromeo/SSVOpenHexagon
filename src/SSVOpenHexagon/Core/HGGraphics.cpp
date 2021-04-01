@@ -56,7 +56,7 @@ void HexagonGame::draw()
         styleData.drawBackground(backgroundTris, ssvs::zeroVec2f,
             levelStatus.sides, levelStatus.darkenUnevenBackgroundChunk);
 
-        window.draw(backgroundTris);
+        render(backgroundTris);
     }
 
     backgroundCamera.apply();
@@ -410,7 +410,6 @@ void HexagonGame::updateText(ssvu::FT mFT)
     {
         fpsText.setString(ssvu::toStr(window.getFPS()));
         fpsText.setCharacterSize(getScaledCharacterSize(25.f));
-        // fpsText.setOrigin(0, 0);
     }
 
     messageText.setCharacterSize(getScaledCharacterSize(38.f));
