@@ -648,6 +648,8 @@ void HexagonGame::update3D(ssvu::FT mFT)
 
 void HexagonGame::updateParticles(ssvu::FT mFT)
 {
+    SSVOH_ASSERT(window != nullptr);
+
     const auto isOutOfBounds = [](const Particle& p) {
         const sf::Sprite& sp = p.sprite;
         const sf::Vector2f& pos = sp.getPosition();
