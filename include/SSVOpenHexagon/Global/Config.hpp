@@ -86,6 +86,7 @@ void setSaveLocalBestReplayToFile(bool mX);
 void setShowLevelInfo(bool mX);
 void setShowTimer(bool mX);
 void setShowStatusText(bool mX);
+void setServerIp(const std::string& mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -158,6 +159,7 @@ void setShowStatusText(bool mX);
 [[nodiscard]] bool getShowLevelInfo();
 [[nodiscard]] bool getShowTimer();
 [[nodiscard]] bool getShowStatusText();
+[[nodiscard]] const std::string& getServerIp();
 
 // keyboard binds
 

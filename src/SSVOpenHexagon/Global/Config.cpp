@@ -111,6 +111,7 @@
     X(showLevelInfo, bool, "show_level_info")                              \
     X(showTimer, bool, "show_timer")                                       \
     X(showStatusText, bool, "show_status_text")                            \
+    X(serverIp, std::string, "server_ip")                                  \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config
@@ -639,6 +640,11 @@ void setShowStatusText(bool mX)
     showStatusText() = mX;
 }
 
+void setServerIp(const std::string& mX)
+{
+    serverIp() = mX;
+}
+
 [[nodiscard]] bool getOnline()
 {
     return online();
@@ -960,6 +966,11 @@ void setShowStatusText(bool mX)
 [[nodiscard]] bool getShowStatusText()
 {
     return getOfficial() ? true : showStatusText();
+}
+
+[[nodiscard]] const std::string& getServerIp(const std::string& mX)
+{
+    return serverIp();
 }
 
 //***********************************************************

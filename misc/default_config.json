@@ -50,6 +50,7 @@
 	"pulse_enabled": true,
 	"rotate_to_start": false,
 	"save_local_best_replay_to_file": true,
+	"server_ip": "139.162.199.162",
 	"server_local": true,
 	"server_verbose": true,
 	"show_fps": false,
