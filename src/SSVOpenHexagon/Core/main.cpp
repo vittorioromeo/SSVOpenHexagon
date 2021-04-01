@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 
     // ------------------------------------------------------------------------
     // Initialize assets
-    auto assets = std::make_unique<hg::HGAssets>(steamManager);
+    auto assets = std::make_unique<hg::HGAssets>(steamManager, headless);
     HG_SCOPE_GUARD({ assets->pSaveAll(); });
 
     assets->refreshVolumes();

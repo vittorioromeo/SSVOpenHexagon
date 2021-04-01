@@ -128,7 +128,8 @@ private:
     }
 
 public:
-    HGAssets(Steam::steam_manager& mSteamManager, bool mLevelsOnly = false);
+    HGAssets(Steam::steam_manager& mSteamManager, bool mHeadless,
+        bool mLevelsOnly = false);
 
     [[nodiscard]] LoadInfo& getLoadResults()
     {
