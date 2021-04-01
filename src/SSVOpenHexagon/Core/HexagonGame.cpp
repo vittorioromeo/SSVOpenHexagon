@@ -209,8 +209,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     ssvs::GameWindow& mGameWindow)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), window(mGameWindow),
-      player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()},
-      fpsWatcher(window)
+      player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()}
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
 
@@ -254,99 +253,65 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     addTid2StateInput(Tid::Focus, inputFocused);
     addTid2StateInput(Tid::Swap, inputSwap);
 
-    game.addInput(
-        {{sf::Keyboard::Key::Escape}},
-        [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
+    const auto notInConsole = [this](auto&& f) {
+        return [this, f](ssvu::FT /*unused*/) {
+            if(!imguiLuaConsoleHasInput())
             {
-                return;
+                f();
             }
+        };
+    };
 
-            goToMenu();
-        }, // hardcoded
+    game.addInput({{sf::Keyboard::Key::Escape}},
+        notInConsole([this] { goToMenu(); }), // hardcoded
         ssvs::Input::Type::Always);
 
-    addTidInput(
-        Tid::Exit, ssvs::Input::Type::Always, [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
-
-            goToMenu();
-        });
+    addTidInput(Tid::Exit, ssvs::Input::Type::Always,
+        notInConsole([this] { goToMenu(); }));
 
     addTidInput(Tid::ForceRestart, ssvs::Input::Type::Once,
-        [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
+        notInConsole(
+            [this] { status.mustStateChange = StateChange::MustRestart; }));
 
+    addTidInput(Tid::Restart, ssvs::Input::Type::Once, notInConsole([this] {
+        if(deathInputIgnore <= 0.f && status.hasDied)
+        {
             status.mustStateChange = StateChange::MustRestart;
-        });
+        }
+    }));
 
-    addTidInput(
-        Tid::Restart, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
+    addTidInput(Tid::Replay, ssvs::Input::Type::Once, notInConsole([this] {
+        if(deathInputIgnore <= 0.f && status.hasDied)
+        {
+            status.mustStateChange = StateChange::MustReplay;
+        }
+    }));
 
-            if(deathInputIgnore <= 0.f && status.hasDied)
-            {
-                status.mustStateChange = StateChange::MustRestart;
-            }
-        });
-
-    addTidInput(
-        Tid::Replay, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
-
-            if(deathInputIgnore <= 0.f && status.hasDied)
-            {
-                status.mustStateChange = StateChange::MustReplay;
-            }
-        });
-
-    addTidInput(
-        Tid::Screenshot, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
-
-            mustTakeScreenshot = true;
-        });
+    addTidInput(Tid::Screenshot, ssvs::Input::Type::Once,
+        notInConsole([this] { mustTakeScreenshot = true; }));
 
     addTidInput(
         Tid::LuaConsole, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(!Config::getDebug())
+            if(Config::getDebug())
             {
-                return;
+                ilcShowConsoleNext = true;
             }
-
-            ilcShowConsoleNext = true;
         });
 
     addTidInput(
         Tid::Pause, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(!Config::getDebug())
+            if(Config::getDebug())
             {
-                return;
-            }
+                debugPause = !debugPause;
 
-            debugPause = !debugPause;
-            if(debugPause)
-            {
-                assets.musicPlayer.pause();
-            }
-            else if(!status.hasDied)
-            {
-                assets.musicPlayer.resume();
+                if(debugPause)
+                {
+                    assets.musicPlayer.pause();
+                }
+                else if(!status.hasDied)
+                {
+                    assets.musicPlayer.resume();
+                }
             }
         });
 
@@ -406,11 +371,6 @@ void HexagonGame::updateRichPresenceCallbacks()
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
-    if(executeLastReplay)
-    {
-        fpsWatcher.disable();
-    }
-
     initFlashEffect();
 
     packId = mPackId;
@@ -532,10 +492,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     nextPBParticleSpawn = 0.f;
     particles.clear();
 
-    // FPSWatcher reset
-    fpsWatcher.reset();
-    // if(Config::getOfficial()) fpsWatcher.enable();
-
     // Reset zoom
     overlayCamera.setView(
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
@@ -646,7 +602,6 @@ void HexagonGame::death(bool mForce)
 
     deathInputIgnore = 10.f;
 
-    fpsWatcher.disable();
     assets.playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);
 
     runLuaFunctionIfExists<void>("onPreDeath");
@@ -853,7 +808,6 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
     }
 
     calledDeprecatedFunctions.clear();
-    fpsWatcher.disable();
 
     if(mSendScores && !status.hasDied && !mError && !inReplay())
     {
@@ -1046,9 +1000,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const
 {
-    // TODO: the joystick thing should be in updateInput, this should be a
-    // blind getter
-    return inputSwap || (!inReplay() && Joystick::pressed(Joystick::Jid::Swap));
+    return inputSwap;
 }
 
 [[nodiscard]] int HexagonGame::getInputMovement() const

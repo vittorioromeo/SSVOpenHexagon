@@ -18,7 +18,6 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
-#include "SSVOpenHexagon/Utils/FPSWatcher.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
@@ -199,7 +198,6 @@ private:
     bool inputImplBothCWCCW{false};
     std::ostringstream os;
 
-    FPSWatcher fpsWatcher;
     sf::Text fpsText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
         ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
     sf::Text timeText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
@@ -339,6 +337,10 @@ private:
     // Update methods
     void update(ssvu::FT mFT);
     void updateInput();
+    void updateInput_UpdateJoystickControls();
+    void updateInput_UpdateTouchControls();
+    void updateInput_ResolveInputImplToInputMovement();
+    void updateInput_RecordCurrentInputToLastReplayData();
     void updateWalls(ssvu::FT mFT);
     void updateIncrement();
     void updateEvents(ssvu::FT mFT);
