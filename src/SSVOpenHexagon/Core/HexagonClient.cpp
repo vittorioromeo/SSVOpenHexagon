@@ -134,6 +134,8 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
 HexagonClient::~HexagonClient()
 {
     SSVOH_CLOG << "Uninitializing client...\n";
+
+    _socket.disconnect();
 }
 
 } // namespace hg
