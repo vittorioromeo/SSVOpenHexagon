@@ -192,11 +192,10 @@ private:
 
     std::string restartId;
     float difficultyMult{1};
-    int inputImplLastMovement{0};
     int inputMovement{0};
+    int inputImplLastMovement{0};
     bool inputImplCW{false};
     bool inputImplCCW{false};
-    bool inputImplBothCWCCW{false};
     std::ostringstream os;
 
     FPSWatcher fpsWatcher;
@@ -339,6 +338,7 @@ private:
     // Update methods
     void update(ssvu::FT mFT);
     void updateInput();
+    bool updateInputMovement(const bool mCW, const bool mCCW);
     void updateWalls(ssvu::FT mFT);
     void updateIncrement();
     void updateEvents(ssvu::FT mFT);

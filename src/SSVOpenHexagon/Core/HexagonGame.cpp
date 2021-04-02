@@ -214,12 +214,7 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 {
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
 
-    game.onPostUpdate += [this] {
-        inputImplLastMovement = inputMovement;
-        inputImplBothCWCCW = inputImplCW && inputImplCCW;
-
-        postUpdateImguiLuaConsole();
-    };
+    game.onPostUpdate += [this] { postUpdateImguiLuaConsole(); };
 
     game.onDraw += [this] { draw(); };
 
@@ -550,7 +545,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
 
     // Lua context and game status cleanup
-    inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
+    inputImplCCW = inputImplCW = false;
 
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();

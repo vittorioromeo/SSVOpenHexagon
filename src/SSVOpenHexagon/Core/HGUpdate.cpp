@@ -346,6 +346,25 @@ void HexagonGame::start()
     runLuaFunctionIfExists<void>("onLoad");
 }
 
+bool HexagonGame::updateInputMovement(const bool mCW, const bool mCCW)
+{
+    switch((mCW ? 1u : 0u) + (mCCW ? 2u : 0u))
+	{
+		case 1u:
+            inputMovement = inputImplLastMovement = 1;
+            return true;
+		case 2u:
+            inputMovement = inputImplLastMovement = -1;
+            return true;
+		case 3u:
+            inputMovement = -inputImplLastMovement;
+            return true;
+		default:
+            inputMovement = inputImplLastMovement = 0;
+            return false;
+	};
+}
+
 void HexagonGame::updateInput()
 {
     if(imguiLuaConsoleHasInput())
@@ -360,7 +379,7 @@ void HexagonGame::updateInput()
     const bool jCCW = Joystick::pressed(Joystick::Jdir::Left);
 
     if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
-                              inputImplCW || inputImplBothCWCCW || jCW || jCCW))
+                           inputImplCW || jCW || jCCW))
     {
         start();
     }
@@ -378,61 +397,13 @@ void HexagonGame::updateInput()
         }
     }
 
-    if(inputImplCW && !inputImplCCW)
+    // Process the user inputs. If the first call to 
+    // updateInputMovement returns false it means there
+    // was no input from mouse/keyboard/touchscreen, so
+    // we try with the joystick instead
+    if(!updateInputMovement(inputImplCW, inputImplCCW))
     {
-        inputMovement = 1;
-    }
-    else if(!inputImplCW && inputImplCCW)
-    {
-        inputMovement = -1;
-    }
-    else if(inputImplCW && inputImplCCW)
-    {
-        if(!inputImplBothCWCCW)
-        {
-            if(inputMovement == 1 && inputImplLastMovement == 1)
-            {
-                inputMovement = -1;
-            }
-            else if(inputMovement == -1 && inputImplLastMovement == -1)
-            {
-                inputMovement = 1;
-            }
-        }
-    }
-    else
-    {
-        inputMovement = 0;
-
-        // Joystick support
-        {
-            if(jCW && !jCCW)
-            {
-                inputMovement = 1;
-            }
-            else if(!jCW && jCCW)
-            {
-                inputMovement = -1;
-            }
-            else if(jCW && jCCW)
-            {
-                if(!inputImplBothCWCCW)
-                {
-                    if(inputMovement == 1 && inputImplLastMovement == 1)
-                    {
-                        inputMovement = -1;
-                    }
-                    else if(inputMovement == -1 && inputImplLastMovement == -1)
-                    {
-                        inputMovement = 1;
-                    }
-                }
-            }
-            else
-            {
-                inputMovement = 0;
-            }
-        }
+        updateInputMovement(jCW, jCCW);
     }
 
     // Replay support
