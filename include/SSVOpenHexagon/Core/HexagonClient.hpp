@@ -8,6 +8,14 @@
 #include <SFML/Network/TcpSocket.hpp>
 
 #include <list>
+#include <cstdint>
+
+namespace hg::Steam
+{
+
+class steam_manager;
+
+}
 
 namespace hg
 {
@@ -15,15 +23,21 @@ namespace hg
 class HexagonClient
 {
 private:
+    Steam::steam_manager& _steamManager;
+
+    std::uint64_t _ticketSteamID;
+
     const sf::IpAddress _serverIp;
     const unsigned short _serverPort;
 
     sf::TcpSocket _socket;
+    bool _socketConnected;
 
-    void initializeTcpSocket();
+    [[nodiscard]] bool initializeTicketSteamID();
+    [[nodiscard]] bool initializeTcpSocket();
 
 public:
-    explicit HexagonClient();
+    explicit HexagonClient(Steam::steam_manager& steamManager);
     ~HexagonClient();
 
     HexagonClient(const HexagonClient&) = delete;

@@ -133,6 +133,8 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Flush and save log (at the end of the scope)
     HG_SCOPE_GUARD({
@@ -140,32 +142,57 @@ int main(int argc, char* argv[])
         ssvu::saveLogToFile("log.txt");
     });
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Set working directory to current executable location
     std::filesystem::current_path(std::filesystem::path{argv[0]}.parent_path());
 
+    //
+    //
+    // ------------------------------------------------------------------------
+    // Parse command line arguments
+    const auto [args, cliLevelName, cliLevelPack, printLuaDocs, headless,
+        server] = parseArgs(argc, argv);
+
     // ------------------------------------------------------------------------
     // Steam integration
     hg::Steam::steam_manager steamManager;
-    steamManager.request_stats_and_achievements();
 
+    if(steamManager.is_initialized() && !server)
+    {
+        steamManager.request_encrypted_app_ticket();
+        steamManager.request_stats_and_achievements();
+        steamManager.run_callbacks();
+    }
+
+    //
+    //
     // ------------------------------------------------------------------------
     // Discord integration
-    hg::Discord::discord_manager discordManager;
+    std::optional<hg::Discord::discord_manager> discordManager;
 
+    if(!headless && !server)
+    {
+        discordManager.emplace();
+    }
+
+    //
+    //
     // ------------------------------------------------------------------------
     // Create game folders if needed
     createFolderIfNonExistant("Profiles/");
     createFolderIfNonExistant("Replays/");
 
+    //
+    //
     // ------------------------------------------------------------------------
-    // Parse arguments and load configuration (and overrides)
-    const auto [args, cliLevelName, cliLevelPack, printLuaDocs, headless,
-        server] = parseArgs(argc, argv);
-
+    // Load configuration (and overrides)
     hg::Config::loadConfig(args);
     HG_SCOPE_GUARD({ hg::Config::saveConfig(); });
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Create the game window
     std::optional<ssvs::GameWindow> window;
@@ -188,6 +215,8 @@ int main(int argc, char* argv[])
             hg::Config::TIME_STEP, hg::Config::TIME_SLICE);
     }
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Initialize IMGUI
     if(!headless)
@@ -203,6 +232,8 @@ int main(int argc, char* argv[])
         }
     });
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Initialize assets
     auto assets = std::make_unique<hg::HGAssets>(steamManager, headless);
@@ -216,13 +247,16 @@ int main(int argc, char* argv[])
 
     if(!server)
     {
-        hc = std::make_unique<hg::HexagonClient>();
+        hc = std::make_unique<hg::HexagonClient>(steamManager);
     }
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Initialize hexagon game
-    auto hg = std::make_unique<hg::HexagonGame>(steamManager, discordManager,
-        *assets, (window.has_value() ? &*window : nullptr), &*hc);
+    auto hg = std::make_unique<hg::HexagonGame>(steamManager,
+        (discordManager.has_value() ? &*discordManager : nullptr), *assets,
+        (window.has_value() ? &*window : nullptr), &*hc);
 
     if(printLuaDocs)
     {
@@ -230,6 +264,8 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Initialize menu game and link to hexagon game
     std::unique_ptr<hg::MenuGame> mg;
@@ -237,9 +273,10 @@ int main(int argc, char* argv[])
     if(!headless)
     {
         SSVOH_ASSERT(window.has_value());
+        SSVOH_ASSERT(discordManager.has_value());
 
         mg = std::make_unique<hg::MenuGame>(
-            steamManager, discordManager, *assets, *hg, *window);
+            steamManager, *discordManager, *assets, *hg, *window);
 
         hg->mgPtr = mg.get();
     }
@@ -248,6 +285,8 @@ int main(int argc, char* argv[])
         hg->mgPtr = nullptr;
     }
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Load drag & drop replay, if any -- otherwise run game as normal
     const std::optional<std::string> replayFilename =
@@ -346,6 +385,8 @@ int main(int argc, char* argv[])
         }
     }
 
+    //
+    //
     // ------------------------------------------------------------------------
     // Run the game!
     if(!headless)
