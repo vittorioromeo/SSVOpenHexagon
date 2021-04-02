@@ -3,6 +3,8 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/HexagonServer.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
@@ -49,6 +51,7 @@ struct ParsedArgs
     std::optional<std::string> cliLevelPack;
     bool printLuaDocs{false};
     bool headless{false};
+    bool server{false};
 };
 
 ParsedArgs parseArgs(const int argc, char* argv[])
@@ -84,6 +87,13 @@ ParsedArgs parseArgs(const int argc, char* argv[])
         if(!std::strcmp(argv[i], "-headless"))
         {
             result.headless = true;
+            continue;
+        }
+
+        // Find command-line argument to run in server mode
+        if(!std::strcmp(argv[i], "-server"))
+        {
+            result.server = true;
             continue;
         }
 
@@ -150,8 +160,8 @@ int main(int argc, char* argv[])
 
     // ------------------------------------------------------------------------
     // Parse arguments and load configuration (and overrides)
-    const auto [args, cliLevelName, cliLevelPack, printLuaDocs, headless] =
-        parseArgs(argc, argv);
+    const auto [args, cliLevelName, cliLevelPack, printLuaDocs, headless,
+        server] = parseArgs(argc, argv);
 
     hg::Config::loadConfig(args);
     HG_SCOPE_GUARD({ hg::Config::saveConfig(); });
@@ -201,9 +211,18 @@ int main(int argc, char* argv[])
     assets->refreshVolumes();
 
     // ------------------------------------------------------------------------
+    // Initialize hexagon client
+    std::unique_ptr<hg::HexagonClient> hc;
+
+    if(!server)
+    {
+        hc = std::make_unique<hg::HexagonClient>();
+    }
+
+    // ------------------------------------------------------------------------
     // Initialize hexagon game
     auto hg = std::make_unique<hg::HexagonGame>(steamManager, discordManager,
-        *assets, (window.has_value() ? &*window : nullptr));
+        *assets, (window.has_value() ? &*window : nullptr), &*hc);
 
     if(printLuaDocs)
     {
@@ -286,32 +305,43 @@ int main(int argc, char* argv[])
     }
     else
     {
-        // TODO: code repetition, cleanup
-        if(!replayFilename.has_value())
+        SSVOH_ASSERT(headless);
+
+        if(server)
         {
-            std::cout << "TODO: Running in headless mode without replay...?"
-                      << std::endl;
+            auto hs = std::make_unique<hg::HexagonServer>(*assets, *hg);
         }
         else
         {
-            if(hg::replay_file rf; rf.deserialize_from_file(*replayFilename))
+            // TODO: code repetition, cleanup
+            if(!replayFilename.has_value())
             {
-                ssvu::lo("Replay") << "Playing replay file in headless mode '"
-                                   << *replayFilename << "'\n";
-
-                hg->setLastReplay(rf);
-
-                hg->newGame(rf._pack_id, rf._level_id, rf._first_play,
-                    rf._difficulty_mult,
-                    /* mExecuteLastReplay */ true);
-
-                hg->executeGameUntilDeath(); // TODO
+                std::cout << "TODO: Running in headless mode without replay...?"
+                          << std::endl;
             }
             else
             {
-                ssvu::lo("Replay")
-                    << "Failed to read replay file in headless mode '"
-                    << replayFilename.value() << "'\n";
+                if(hg::replay_file rf;
+                    rf.deserialize_from_file(*replayFilename))
+                {
+                    ssvu::lo("Replay")
+                        << "Playing replay file in headless mode '"
+                        << *replayFilename << "'\n";
+
+                    hg->setLastReplay(rf);
+
+                    hg->newGame(rf._pack_id, rf._level_id, rf._first_play,
+                        rf._difficulty_mult,
+                        /* mExecuteLastReplay */ true);
+
+                    hg->executeGameUntilDeath(); // TODO
+                }
+                else
+                {
+                    ssvu::lo("Replay")
+                        << "Failed to read replay file in headless mode '"
+                        << replayFilename.value() << "'\n";
+                }
             }
         }
     }

@@ -2,9 +2,11 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
@@ -221,9 +223,9 @@ void HexagonGame::updateLevelInfo()
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-    ssvs::GameWindow* mGameWindow)
+    ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), window(mGameWindow),
+      assets(mAssets), window(mGameWindow), hexagonClient{mHexagonClient},
       player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()}
 {
     if(window != nullptr)
