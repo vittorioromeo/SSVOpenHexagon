@@ -188,7 +188,8 @@ set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll"
 else()
 set(PUBLIC_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so"
 "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libdiscord_game_sdk.so"
-"${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsdkencryptedappticket.so")
+"${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsdkencryptedappticket.so"
+Xcursor)
 endif()
 
 if(USE_LUAJIT)
