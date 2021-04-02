@@ -462,8 +462,11 @@ void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue)
 
 void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue)
 {
-    antialiasingLevel() = mValue;
-    mWindow.setAntialiasingLevel(mValue);
+    if(mValue != antialiasingLevel())
+    {
+        antialiasingLevel() = mValue;
+        mWindow.setAntialiasingLevel(mValue);
+    }
 }
 
 void setOnline(bool mOnline)
