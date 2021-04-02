@@ -171,6 +171,14 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
 HexagonServer::~HexagonServer()
 {
     SSVOH_SLOG << "Uninitializing server...\n";
+
+    for(ConnectedClient& connectedClient : _connectedClients)
+    {
+        connectedClient._socket.disconnect();
+    }
+
+    _socketSelector.clear();
+    _listener.close();
 }
 
 } // namespace hg
