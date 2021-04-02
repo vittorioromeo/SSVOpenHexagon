@@ -8,6 +8,7 @@
 #include "steam/steam_api.h"
 
 #include <functional>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -20,6 +21,9 @@ class steam_manager
 private:
     bool _initialized;
     bool _got_stats;
+    bool _got_ticket_response;
+    bool _got_ticket;
+    std::optional<CSteamID> _ticket_steam_id;
 
     std::unordered_set<std::string> _unlocked_achievements;
     std::unordered_set<std::string> _workshop_pack_folders;
@@ -37,6 +41,12 @@ private:
 
     void load_workshop_data();
 
+    void on_encrypted_app_ticket_response(
+        EncryptedAppTicketResponse_t* data, bool io_failure);
+
+    CCallResult<steam_manager, EncryptedAppTicketResponse_t>
+        _encrypted_app_ticket_response_call_result;
+
 public:
     steam_manager();
     ~steam_manager();
@@ -46,6 +56,8 @@ public:
 
     steam_manager(steam_manager&&) = delete;
     steam_manager& operator=(steam_manager&&) = delete;
+
+    [[nodiscard]] bool is_initialized() const noexcept;
 
     bool request_stats_and_achievements();
 
@@ -66,6 +78,14 @@ public:
 
     void for_workshop_pack_folders(
         const std::function<void(const std::string&)>& f) const;
+
+    bool request_encrypted_app_ticket();
+
+    [[nodiscard]] bool got_encrypted_app_ticket_response() const noexcept;
+
+    [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
+
+    [[nodiscard]] std::optional<CSteamID> get_ticket_steam_id() const noexcept;
 };
 
 } // namespace hg::Steam
