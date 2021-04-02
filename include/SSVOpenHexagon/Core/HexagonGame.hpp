@@ -51,6 +51,7 @@ namespace hg
 {
 
 class MenuGame;
+class HexagonClient;
 
 class HexagonGame
 {
@@ -69,6 +70,8 @@ private:
 
     ssvs::GameState game;
     ssvs::GameWindow* window;
+
+    HexagonClient* hexagonClient;
 
     // IMGUI Lua Console
     sf::Clock ilcDeltaClock;
@@ -441,7 +444,7 @@ public:
 
     HexagonGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-        ssvs::GameWindow* mGameWindow);
+        ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient);
 
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
     {

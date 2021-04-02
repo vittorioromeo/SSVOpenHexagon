@@ -87,6 +87,7 @@ void setShowLevelInfo(bool mX);
 void setShowTimer(bool mX);
 void setShowStatusText(bool mX);
 void setServerIp(const std::string& mX);
+void setServerPort(unsigned short mX);
 
 [[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
@@ -160,6 +161,7 @@ void setServerIp(const std::string& mX);
 [[nodiscard]] bool getShowTimer();
 [[nodiscard]] bool getShowStatusText();
 [[nodiscard]] const std::string& getServerIp();
+[[nodiscard]] unsigned short getServerPort();
 
 // keyboard binds
 
