@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
@@ -46,9 +47,11 @@ inline constexpr float maxOffset{100.f};
 
 MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-    HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow)
+    HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow,
+    HexagonClient& mHexagonClient)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), hexagonGame(mHexagonGame), window(mGameWindow),
+      assets(mAssets), hexagonGame(mHexagonGame),
+      window(mGameWindow), hexagonClient{mHexagonClient},
       dialogBox(mAssets, mGameWindow), loadInfo(mAssets.getLoadResults())
 {
     if(Config::getFirstTimePlaying())
@@ -1946,6 +1949,7 @@ void MenuGame::exitAction()
 
 void MenuGame::update(ssvu::FT mFT)
 {
+    hexagonClient.update();
     hexagonGame.updateRichPresenceCallbacks();
 
     Joystick::update();

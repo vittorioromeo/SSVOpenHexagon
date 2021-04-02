@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/EraseIf.hpp"
@@ -476,9 +477,9 @@ void HGAssets::saveCurrentLocalProfile()
     ssvuj::Obj profileRoot;
     ssvuj::Obj currentVersion;
 
-    ssvuj::arch(currentVersion, "major", Config::GAME_VERSION.major);
-    ssvuj::arch(currentVersion, "minor", Config::GAME_VERSION.minor);
-    ssvuj::arch(currentVersion, "micro", Config::GAME_VERSION.micro);
+    ssvuj::arch(currentVersion, "major", GAME_VERSION.major);
+    ssvuj::arch(currentVersion, "minor", GAME_VERSION.minor);
+    ssvuj::arch(currentVersion, "micro", GAME_VERSION.micro);
 
     ssvuj::arch(profileRoot, "version", currentVersion);
     ssvuj::arch(profileRoot, "name", getCurrentLocalProfile().getName());
@@ -500,9 +501,9 @@ void HGAssets::saveCurrentLocalProfile()
 void HGAssets::saveAllProfiles()
 {
     ssvuj::Obj currentVersion;
-    ssvuj::arch(currentVersion, "major", Config::GAME_VERSION.major);
-    ssvuj::arch(currentVersion, "minor", Config::GAME_VERSION.minor);
-    ssvuj::arch(currentVersion, "micro", Config::GAME_VERSION.micro);
+    ssvuj::arch(currentVersion, "major", GAME_VERSION.major);
+    ssvuj::arch(currentVersion, "minor", GAME_VERSION.minor);
+    ssvuj::arch(currentVersion, "micro", GAME_VERSION.micro);
 
     std::vector<std::string> favorites;
 

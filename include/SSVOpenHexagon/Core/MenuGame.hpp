@@ -59,6 +59,7 @@ enum class States
 };
 
 class HexagonGame;
+class HexagonClient;
 
 class MenuGame
 {
@@ -72,6 +73,7 @@ private:
     HexagonGame& hexagonGame;
     ssvs::GameState game;
     ssvs::GameWindow& window;
+    HexagonClient& hexagonClient;
     HexagonDialogBox dialogBox;
 
     Lua::LuaContext lua;
@@ -563,7 +565,8 @@ private:
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-        HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow);
+        HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow,
+        HexagonClient& mHexagonClient);
 
     void init(bool mErrored);
     void init(bool mErrored, const std::string& pack, const std::string& level);
