@@ -44,15 +44,24 @@ private:
         sf::TcpSocket _socket;
         TimePoint _lastActivity;
         int _consecutiveFailures;
+        bool _mustDisconnect;
 
         explicit ConnectedClient(const TimePoint lastActivity)
-            : _lastActivity{lastActivity}, _consecutiveFailures{0}
+            : _socket{}, _lastActivity{lastActivity}, _consecutiveFailures{0},
+              _mustDisconnect{false}
         {
+        }
+
+        ~ConnectedClient()
+        {
+            _socket.disconnect();
         }
     };
 
     std::list<ConnectedClient> _connectedClients;
     using ConnectedClientIterator = std::list<ConnectedClient>::iterator;
+
+    bool _verbose;
 
     [[nodiscard]] bool initializeTcpListener();
     [[nodiscard]] bool initializeSocketSelector();
@@ -61,7 +70,7 @@ private:
     void runSocketSelector_Iteration();
     bool runSocketSelector_Iteration_TryAcceptingNewClient();
     void runSocketSelector_Iteration_LoopOverSockets();
-    void runSocketSelector_Iteration_PurgeTimedOutClients();
+    void runSocketSelector_Iteration_PurgeClients();
 
     [[nodiscard]] bool processPacket(ConnectedClient& c, sf::Packet& p);
 

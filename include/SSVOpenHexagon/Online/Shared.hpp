@@ -16,15 +16,35 @@ namespace hg
 {
 
 // clang-format off
-struct PInvalid   { std::string error; };
-struct PHeartbeat { };
+struct PInvalid { std::string error; };
 // clang-format on
 
-using PacketVariant = std::variant<PInvalid, PHeartbeat>;
+// ----------------------------------------------------------------------------
 
-void makePacket(sf::Packet& p, const PHeartbeat& data);
+// clang-format off
+struct CTSPHeartbeat  { };
+struct CTSPDisconnect { };
+// clang-format on
 
-[[nodiscard]] PacketVariant decodePacket(
+using PVClientToServer = std::variant<PInvalid, CTSPHeartbeat, CTSPDisconnect>;
+
+void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat& data);
+void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect& data);
+
+[[nodiscard]] PVClientToServer decodeClientToServerPacket(
+    std::ostringstream& errorOss, sf::Packet& p);
+
+// ----------------------------------------------------------------------------
+
+// clang-format off
+struct STCPKick { };
+// clang-format on
+
+using PVServerToClient = std::variant<PInvalid, STCPKick>;
+
+void makeServerToClientPacket(sf::Packet& p, const STCPKick& data);
+
+[[nodiscard]] PVServerToClient decodeServerToClientPacket(
     std::ostringstream& errorOss, sf::Packet& p);
 
 } // namespace hg

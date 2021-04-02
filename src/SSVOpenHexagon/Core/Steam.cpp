@@ -471,7 +471,7 @@ void steam_manager::for_workshop_pack_folders(
     }
 }
 
-static std::uint32_t unSecretData = 123456;
+[[maybe_unused]] static std::uint32_t unSecretData = 123456;
 
 bool steam_manager::request_encrypted_app_ticket()
 {
@@ -499,7 +499,8 @@ bool steam_manager::request_encrypted_app_ticket()
 }
 
 void steam_manager::on_encrypted_app_ticket_response(
-    EncryptedAppTicketResponse_t* data, bool io_failure)
+    [[maybe_unused]] EncryptedAppTicketResponse_t* data,
+    [[maybe_unused]] bool io_failure)
 {
 #if __has_include("SSVOpenHexagon/Online/SecretSteamKey.hpp")
     ssvu::lo("Steam") << "Received encrypted app ticket response\n";
