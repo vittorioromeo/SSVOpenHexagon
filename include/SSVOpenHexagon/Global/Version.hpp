@@ -38,4 +38,6 @@ struct GameVersion
     }
 };
 
+inline constexpr GameVersion GAME_VERSION{2, 0, 5};
+
 } // namespace hg

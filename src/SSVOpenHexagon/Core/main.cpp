@@ -254,6 +254,8 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Initialize hexagon game
+    SSVOH_ASSERT(assets != nullptr);
+
     auto hg = std::make_unique<hg::HexagonGame>(steamManager,
         (discordManager.has_value() ? &*discordManager : nullptr), *assets,
         (window.has_value() ? &*window : nullptr), &*hc);
@@ -270,13 +272,16 @@ int main(int argc, char* argv[])
     // Initialize menu game and link to hexagon game
     std::unique_ptr<hg::MenuGame> mg;
 
-    if(!headless)
+    if(!headless && !server)
     {
         SSVOH_ASSERT(window.has_value());
         SSVOH_ASSERT(discordManager.has_value());
+        SSVOH_ASSERT(assets != nullptr);
+        SSVOH_ASSERT(hg != nullptr);
+        SSVOH_ASSERT(hc != nullptr);
 
         mg = std::make_unique<hg::MenuGame>(
-            steamManager, *discordManager, *assets, *hg, *window);
+            steamManager, *discordManager, *assets, *hg, *window, *hc);
 
         hg->mgPtr = mg.get();
     }

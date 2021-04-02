@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Online/Shared.hpp"
 
 #include <SFML/Network/Packet.hpp>
 
@@ -84,9 +85,29 @@ namespace hg
     return true;
 }
 
+[[nodiscard]] bool HexagonClient::sendHeartbeat()
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    makePacket(_packetBuffer, PHeartbeat{});
+
+    if(_socket.send(_packetBuffer) != sf::Socket::Status::Done)
+    {
+        SSVOH_CLOG_ERROR << "Failure sending heartbeat packet to server\n";
+        return false;
+    }
+
+    _lastHeartbeatTime = Clock::now();
+    return true;
+}
+
 HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
     : _steamManager{steamManager}, _serverIp{Config::getServerIp()},
-      _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false}
+      _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false},
+      _packetBuffer{}, _lastHeartbeatTime{}
 {
     SSVOH_CLOG << "Initializing client...\n";
 
@@ -116,17 +137,11 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
         return;
     }
 
-    // TODO:
-    SSVOH_CLOG << "Socket successfully connected to server\n";
-
-    SSVOH_CLOG << "Sending test packet to server...\n";
-
-    sf::Packet testPacket;
-    testPacket << "hello world!";
-
-    if(_socket.send(testPacket) != sf::Socket::Status::Done)
+    if(!sendHeartbeat())
     {
-        SSVOH_CLOG_ERROR << "Failure sending test packet to server\n";
+        SSVOH_CLOG_ERROR
+            << "Failure initializing client, error sending first heartbeat\n";
+
         return;
     }
 }
@@ -134,8 +149,44 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
 HexagonClient::~HexagonClient()
 {
     SSVOH_CLOG << "Uninitializing client...\n";
+    disconnect();
+}
+
+void HexagonClient::disconnect()
+{
+    SSVOH_CLOG << "Disconnecting client...\n";
 
     _socket.disconnect();
+    _socketConnected = false;
+}
+
+bool HexagonClient::sendHeartbeatIfNecessary()
+{
+    if(!_socketConnected)
+    {
+        return true;
+    }
+
+    constexpr std::chrono::duration heatbeatInterval = std::chrono::seconds(45);
+
+    if(Clock::now() - _lastHeartbeatTime > heatbeatInterval)
+    {
+        if(!sendHeartbeat())
+        {
+            SSVOH_CLOG_ERROR
+                << "Error sending heartbeat, disconnecting client\n";
+
+            disconnect();
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void HexagonClient::update()
+{
+    sendHeartbeatIfNecessary();
 }
 
 } // namespace hg

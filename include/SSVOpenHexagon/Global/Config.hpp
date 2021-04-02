@@ -29,8 +29,6 @@ inline constexpr float TICKS_PER_SECOND = 240.f;
 inline constexpr float TIME_STEP = 60.f / TICKS_PER_SECOND;
 inline constexpr float TIME_SLICE = 60.f / TICKS_PER_SECOND;
 
-inline constexpr GameVersion GAME_VERSION{2, 0, 5};
-
 void loadConfig(const std::vector<std::string>& mOverridesIds);
 void resetConfigToDefaults();
 void resetBindsToDefaults();

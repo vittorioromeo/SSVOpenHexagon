@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 
@@ -26,6 +27,11 @@ namespace hg
 
 void HexagonGame::update(ssvu::FT mFT)
 {
+    if(hexagonClient != nullptr)
+    {
+        hexagonClient->update();
+    }
+
     mFT *= Config::getTimescale();
 
     // ------------------------------------------------------------------------
@@ -105,7 +111,8 @@ void HexagonGame::update(ssvu::FT mFT)
         }
 
         // --------------------------------------------------------------------
-        // Update input leniency time after death to avoid accidental restart.
+        // Update input leniency time after death to avoid accidental
+        // restart.
         if(deathInputIgnore > 0.f)
         {
             deathInputIgnore -= mFT;
@@ -219,8 +226,8 @@ void HexagonGame::update(ssvu::FT mFT)
             if(!executeLastReplay && !assets.anyLocalProfileActive())
             {
                 // If playing a replay from file, there is no local profile
-                // active, so just go to the menu when attempting to restart the
-                // level.
+                // active, so just go to the menu when attempting to restart
+                // the level.
 
                 goToMenu();
                 return;
@@ -466,7 +473,8 @@ void HexagonGame::updateInput()
         start();
     }
 
-    // Keyboard and mouse state is handled by callbacks set in the constructor.
+    // Keyboard and mouse state is handled by callbacks set in the
+    // constructor.
     updateInput_UpdateJoystickControls(); // Joystick state.
     updateInput_UpdateTouchControls();    // Touchscreen state.
 
@@ -783,8 +791,8 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
             }
             else if(candidates.Size == 1)
             {
-                // Single match. Delete the beginning of the word and replace it
-                // entirely so we've got nice casing.
+                // Single match. Delete the beginning of the word and
+                // replace it entirely so we've got nice casing.
                 data->DeleteChars((int)(word_start - data->Buf),
                     (int)(word_end - word_start));
                 data->InsertChars(data->CursorPos, candidates[0]);

@@ -8,9 +8,11 @@
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/SocketSelector.hpp>
+#include <SFML/Network/Packet.hpp>
 
 #include <list>
 #include <chrono>
+#include <sstream>
 
 namespace hg
 {
@@ -34,6 +36,9 @@ private:
     sf::SocketSelector _socketSelector;
     bool _running;
 
+    sf::Packet _packetBuffer;
+    std::ostringstream _errorOss;
+
     struct ConnectedClient
     {
         sf::TcpSocket _socket;
@@ -47,8 +52,18 @@ private:
     };
 
     std::list<ConnectedClient> _connectedClients;
+    using ConnectedClientIterator = std::list<ConnectedClient>::iterator;
 
-    void initializeTcpListener();
+    [[nodiscard]] bool initializeTcpListener();
+    [[nodiscard]] bool initializeSocketSelector();
+
+    void runSocketSelector();
+    void runSocketSelector_Iteration();
+    bool runSocketSelector_Iteration_TryAcceptingNewClient();
+    void runSocketSelector_Iteration_LoopOverSockets();
+    void runSocketSelector_Iteration_PurgeTimedOutClients();
+
+    [[nodiscard]] bool processPacket(ConnectedClient& c, sf::Packet& p);
 
 public:
     explicit HexagonServer(HGAssets& assets, HexagonGame& hexagonGame);
