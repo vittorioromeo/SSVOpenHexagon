@@ -349,20 +349,20 @@ void HexagonGame::start()
 bool HexagonGame::updateInputMovement(const bool mCW, const bool mCCW)
 {
     switch((mCW ? 1u : 0u) + (mCCW ? 2u : 0u))
-	{
-		case 1u:
+    {
+        case 1u:
             inputMovement = inputImplLastMovement = 1;
             return true;
-		case 2u:
+        case 2u:
             inputMovement = inputImplLastMovement = -1;
             return true;
-		case 3u:
+        case 3u:
             inputMovement = -inputImplLastMovement;
             return true;
-		default:
+        default:
             inputMovement = inputImplLastMovement = 0;
             return false;
-	};
+    };
 }
 
 void HexagonGame::updateInput()
