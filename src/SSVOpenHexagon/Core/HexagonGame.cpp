@@ -222,7 +222,7 @@ void HexagonGame::updateLevelInfo()
 }
 
 HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
-    Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
+    Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
       assets(mAssets), window(mGameWindow), hexagonClient{mHexagonClient},
@@ -384,9 +384,9 @@ void HexagonGame::updateRichPresenceCallbacks()
     }
 
     // Update Discord Rich Presence
-    if(!discordHung)
+    if(discordManager != nullptr && !discordHung)
     {
-        if(!discordManager.run_callbacks())
+        if(!discordManager->run_callbacks())
         {
             discordAttempt += 1;
             if(discordAttempt > 20)
@@ -723,8 +723,11 @@ void HexagonGame::death(bool mForce)
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
 
-    discordManager.set_rich_presence_in_game(
-        nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
+    if(discordManager != nullptr)
+    {
+        discordManager->set_rich_presence_in_game(
+            nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
+    }
 
     const bool localNewBest =
         checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;

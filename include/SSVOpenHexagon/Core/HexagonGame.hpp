@@ -59,7 +59,7 @@ class HexagonGame
 
 private:
     Steam::steam_manager& steamManager;
-    Discord::discord_manager& discordManager;
+    Discord::discord_manager* discordManager;
     bool discordHung{false};
     bool steamHung{false};
     std::int8_t discordAttempt{1};
@@ -443,7 +443,7 @@ public:
     MenuGame* mgPtr;
 
     HexagonGame(Steam::steam_manager& mSteamManager,
-        Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
+        Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
         ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient);
 
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)

@@ -328,12 +328,18 @@ void HexagonGame::start()
 
         const std::string diffStr = diffFormat(difficultyMult);
 
-        discordManager.set_rich_presence_in_game(
-            nameStr + " [x" + diffStr + "]", packStr);
+        if(discordManager != nullptr)
+        {
+            discordManager->set_rich_presence_in_game(
+                nameStr + " [x" + diffStr + "]", packStr);
+        }
     }
     else
     {
-        discordManager.set_rich_presence_on_replay();
+        if(discordManager != nullptr)
+        {
+            discordManager->set_rich_presence_on_replay();
+        }
     }
 
     if(!Config::getNoMusic())
