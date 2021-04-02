@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
+#include "SSVOpenHexagon/Utils/Match.hpp"
 
 #include <SFML/Network/Packet.hpp>
 
@@ -22,7 +23,12 @@ static auto& clog(const char* funcName)
 }
 
 #define SSVOH_CLOG ::clog(__func__)
+
+#define SSVOH_CLOG_VERBOSE \
+    if(_verbose) ::clog(__func__)
+
 #define SSVOH_CLOG_ERROR ::clog(__func__) << "[ERROR] "
+
 #define SSVOH_CLOG_VAR(x) '\'' << #x << "': '" << x << '\''
 
 namespace hg
@@ -81,8 +87,106 @@ namespace hg
         return false;
     }
 
+    _socket.setBlocking(false);
     _socketConnected = true;
+
     return true;
+}
+
+[[nodiscard]] bool HexagonClient::sendPacketRecursive(
+    const int tries, sf::Packet& p)
+{
+    if(tries > 5)
+    {
+        SSVOH_CLOG_ERROR
+            << "Failure receiving packet from server, too many tries\n";
+
+        return false;
+    }
+
+    const auto status = _socket.send(p);
+
+    if(status == sf::Socket::Status::NotReady)
+    {
+        return false;
+    }
+
+    if(status == sf::Socket::Status::Error)
+    {
+        SSVOH_CLOG_ERROR << "Failure sending packet to server\n";
+
+        disconnect();
+        return false;
+    }
+
+    if(status == sf::Socket::Status::Disconnected)
+    {
+        SSVOH_CLOG_ERROR << "Disconnected while sending packet to server\n";
+
+        disconnect();
+        return false;
+    }
+
+    if(status == sf::Socket::Status::Done)
+    {
+        return true;
+    }
+
+    SSVOH_ASSERT(status == sf::Socket::Status::Partial);
+    return sendPacketRecursive(tries + 1, p);
+}
+
+[[nodiscard]] bool HexagonClient::recvPacketRecursive(
+    const int tries, sf::Packet& p)
+{
+    if(tries > 5)
+    {
+        SSVOH_CLOG_ERROR
+            << "Failure receiving packet from server, too many tries\n";
+
+        return false;
+    }
+
+    const auto status = _socket.receive(p);
+
+    if(status == sf::Socket::Status::NotReady)
+    {
+        return false;
+    }
+
+    if(status == sf::Socket::Status::Error)
+    {
+        SSVOH_CLOG_ERROR << "Failure receiving packet from server\n";
+
+        disconnect();
+        return false;
+    }
+
+    if(status == sf::Socket::Status::Disconnected)
+    {
+        SSVOH_CLOG_ERROR << "Disconnected while receiving packet from server\n";
+
+        disconnect();
+        return false;
+    }
+
+    if(status == sf::Socket::Status::Done)
+    {
+        return true;
+    }
+
+    SSVOH_ASSERT(status == sf::Socket::Status::Partial);
+    return recvPacketRecursive(tries + 1, p);
+}
+
+[[nodiscard]] bool HexagonClient::sendPacket(sf::Packet& p)
+{
+    return sendPacketRecursive(0, p);
+}
+
+[[nodiscard]] bool HexagonClient::recvPacket(sf::Packet& p)
+{
+    return recvPacketRecursive(0, p);
 }
 
 [[nodiscard]] bool HexagonClient::sendHeartbeat()
@@ -92,11 +196,10 @@ namespace hg
         return false;
     }
 
-    makePacket(_packetBuffer, PHeartbeat{});
+    makeClientToServerPacket(_packetBuffer, CTSPHeartbeat{});
 
-    if(_socket.send(_packetBuffer) != sf::Socket::Status::Done)
+    if(!sendPacket(_packetBuffer))
     {
-        SSVOH_CLOG_ERROR << "Failure sending heartbeat packet to server\n";
         return false;
     }
 
@@ -107,7 +210,7 @@ namespace hg
 HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
     : _steamManager{steamManager}, _serverIp{Config::getServerIp()},
       _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false},
-      _packetBuffer{}, _lastHeartbeatTime{}
+      _packetBuffer{}, _errorOss{}, _lastHeartbeatTime{}, _verbose{true}
 {
     SSVOH_CLOG << "Initializing client...\n";
 
@@ -156,6 +259,11 @@ void HexagonClient::disconnect()
 {
     SSVOH_CLOG << "Disconnecting client...\n";
 
+    _socket.setBlocking(true);
+
+    makeClientToServerPacket(_packetBuffer, CTSPDisconnect{});
+    _socket.send(_packetBuffer);
+
     _socket.disconnect();
     _socketConnected = false;
 }
@@ -184,9 +292,51 @@ bool HexagonClient::sendHeartbeatIfNecessary()
     return true;
 }
 
+bool HexagonClient::receiveDataFromServer(sf::Packet& p)
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(!recvPacket(p))
+    {
+        return false;
+    }
+
+    _errorOss.str("");
+    const PVServerToClient pv = decodeServerToClientPacket(_errorOss, p);
+
+    return Utils::match(
+        pv,
+
+        [&](const PInvalid&) {
+            SSVOH_CLOG_ERROR << "Error processing packet from server, details: "
+                             << _errorOss.str() << '\n';
+
+            return false;
+        },
+
+        [&](const STCPKick&) {
+            SSVOH_CLOG << "Received kick packet from server, disconnecting\n";
+
+            disconnect();
+            return true;
+        }
+
+        //
+    );
+}
+
 void HexagonClient::update()
 {
+    if(!_socketConnected)
+    {
+        return;
+    }
+
     sendHeartbeatIfNecessary();
+    receiveDataFromServer(_packetBuffer);
 }
 
 } // namespace hg

@@ -20,7 +20,10 @@ namespace
 
 enum class PacketType : std::uint8_t
 {
-    Heartbeat = 0
+    CTS_Heartbeat = 0,
+    CTS_Disconnect = 1,
+
+    STC_Kick = 128,
 };
 
 static constexpr std::uint8_t preamble1stByte{'o'};
@@ -122,13 +125,19 @@ void initializePacketForSending(sf::Packet& p, const PacketType pt)
 
 } // namespace
 
-void makePacket(sf::Packet& p, const PHeartbeat& data)
+void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat& data)
 {
     (void)data;
-    initializePacketForSending(p, PacketType::Heartbeat);
+    initializePacketForSending(p, PacketType::CTS_Heartbeat);
 }
 
-[[nodiscard]] PacketVariant decodePacket(
+void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect& data)
+{
+    (void)data;
+    initializePacketForSending(p, PacketType::CTS_Disconnect);
+}
+
+[[nodiscard]] PVClientToServer decodeClientToServerPacket(
     std::ostringstream& errorOss, sf::Packet& p)
 {
     const std::optional<PacketType> pt =
@@ -139,14 +148,43 @@ void makePacket(sf::Packet& p, const PHeartbeat& data)
         return {PInvalid{.error = errorOss.str()}};
     }
 
-    if(*pt == PacketType::Heartbeat)
+    if(*pt == PacketType::CTS_Heartbeat)
     {
-        return {PHeartbeat{}};
+        return {CTSPHeartbeat{}};
     }
 
-    errorOss << "Unknown packet type '" << static_cast<std::uint8_t>(*pt)
-             << "'\n";
+    if(*pt == PacketType::CTS_Disconnect)
+    {
+        return {CTSPDisconnect{}};
+    }
 
+    errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
+    return {PInvalid{.error = errorOss.str()}};
+}
+
+void makeServerToClientPacket(sf::Packet& p, const STCPKick& data)
+{
+    (void)data;
+    initializePacketForSending(p, PacketType::STC_Kick);
+}
+
+[[nodiscard]] PVServerToClient decodeServerToClientPacket(
+    std::ostringstream& errorOss, sf::Packet& p)
+{
+    const std::optional<PacketType> pt =
+        decodeReceivedPacketAndGetPacketType(errorOss, p);
+
+    if(!pt.has_value())
+    {
+        return {PInvalid{.error = errorOss.str()}};
+    }
+
+    if(*pt == PacketType::STC_Kick)
+    {
+        return {STCPKick{}};
+    }
+
+    errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
     return {PInvalid{.error = errorOss.str()}};
 }
 

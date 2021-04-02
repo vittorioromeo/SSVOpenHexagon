@@ -22,7 +22,12 @@ static auto& slog(const char* funcName)
 }
 
 #define SSVOH_SLOG ::slog(__func__)
+
+#define SSVOH_SLOG_VERBOSE \
+    if(_verbose) ::slog(__func__)
+
 #define SSVOH_SLOG_ERROR ::slog(__func__) << "[ERROR] "
+
 #define SSVOH_SLOG_VAR(x) '\'' << #x << "': '" << x << '\''
 
 namespace hg
@@ -58,7 +63,7 @@ void HexagonServer::runSocketSelector()
 
 void HexagonServer::runSocketSelector_Iteration()
 {
-    SSVOH_SLOG << "Waiting for clients...\n";
+    SSVOH_SLOG_VERBOSE << "Waiting for clients...\n";
 
     if(_socketSelector.wait(sf::seconds(30)))
     {
@@ -69,7 +74,7 @@ void HexagonServer::runSocketSelector_Iteration()
         runSocketSelector_Iteration_LoopOverSockets();
     }
 
-    runSocketSelector_Iteration_PurgeTimedOutClients();
+    runSocketSelector_Iteration_PurgeClients();
 } // namespace hg
 
 bool HexagonServer::runSocketSelector_Iteration_TryAcceptingNewClient()
@@ -79,7 +84,7 @@ bool HexagonServer::runSocketSelector_Iteration_TryAcceptingNewClient()
         return false;
     }
 
-    SSVOH_SLOG << "Listener is ready\n";
+    SSVOH_SLOG_VERBOSE << "Listener is ready\n";
 
     ConnectedClient& potentialClient =
         _connectedClients.emplace_back(Clock::now());
@@ -123,14 +128,15 @@ void HexagonServer::runSocketSelector_Iteration_LoopOverSockets()
             continue;
         }
 
-        SSVOH_SLOG << "Client '" << clientAddress << "' has sent data\n ";
+        SSVOH_SLOG_VERBOSE << "Client '" << clientAddress
+                           << "' has sent data\n ";
 
         // The client has sent some data, we can receive it
         _packetBuffer.clear();
         if(clientSocket.receive(_packetBuffer) == sf::Socket::Done)
         {
-            SSVOH_SLOG << "Successfully received data from client '"
-                       << clientAddress << "'\n";
+            SSVOH_SLOG_VERBOSE << "Successfully received data from client '"
+                               << clientAddress << "'\n";
 
             if(processPacket(connectedClient, _packetBuffer))
             {
@@ -146,9 +152,9 @@ void HexagonServer::runSocketSelector_Iteration_LoopOverSockets()
         }
 
         // Failed to receive data
-        SSVOH_SLOG << "Failed to receive data from client '" << clientAddress
-                   << "' (consecutive failures: "
-                   << connectedClient._consecutiveFailures << ")\n";
+        SSVOH_SLOG_VERBOSE << "Failed to receive data from client '"
+                           << clientAddress << "' (consecutive failures: "
+                           << connectedClient._consecutiveFailures << ")\n";
 
         ++connectedClient._consecutiveFailures;
 
@@ -164,7 +170,7 @@ void HexagonServer::runSocketSelector_Iteration_LoopOverSockets()
     }
 }
 
-void HexagonServer::runSocketSelector_Iteration_PurgeTimedOutClients()
+void HexagonServer::runSocketSelector_Iteration_PurgeClients()
 {
     constexpr std::chrono::duration maxInactivity = std::chrono::seconds(60);
 
@@ -176,16 +182,31 @@ void HexagonServer::runSocketSelector_Iteration_PurgeTimedOutClients()
         ConnectedClient& connectedClient = *it;
         const void* clientAddress = static_cast<void*>(&connectedClient);
 
-        if(now - connectedClient._lastActivity <= maxInactivity)
+        const auto kickClient = [&] {
+            makeServerToClientPacket(_packetBuffer, STCPKick{});
+            connectedClient._socket.send(_packetBuffer);
+
+            _socketSelector.remove(connectedClient._socket);
+            it = _connectedClients.erase(it);
+        };
+
+        if(connectedClient._mustDisconnect)
         {
+            SSVOH_SLOG << "Client '" << clientAddress
+                       << "' disconnected, removing from list\n";
+
+            kickClient();
             continue;
         }
 
-        SSVOH_SLOG << "Client '" << clientAddress
-                   << "' timed out, removing from list\n";
+        if(now - connectedClient._lastActivity > maxInactivity)
+        {
+            SSVOH_SLOG << "Client '" << clientAddress
+                       << "' timed out, removing from list\n";
 
-        _socketSelector.remove(connectedClient._socket);
-        it = _connectedClients.erase(it);
+            kickClient();
+            continue;
+        }
     }
 }
 
@@ -195,7 +216,7 @@ void HexagonServer::runSocketSelector_Iteration_PurgeTimedOutClients()
     const void* clientAddress = static_cast<void*>(&c);
 
     _errorOss.str("");
-    const PacketVariant pv = decodePacket(_errorOss, p);
+    const PVClientToServer pv = decodeClientToServerPacket(_errorOss, p);
 
     return Utils::match(
         pv,
@@ -208,7 +229,12 @@ void HexagonServer::runSocketSelector_Iteration_PurgeTimedOutClients()
             return false;
         },
 
-        [&](const PHeartbeat&) { return true; }
+        [&](const CTSPHeartbeat&) { return true; },
+
+        [&](const CTSPDisconnect&) {
+            c._mustDisconnect = true;
+            return true;
+        }
 
         //
     );
@@ -217,7 +243,7 @@ void HexagonServer::runSocketSelector_Iteration_PurgeTimedOutClients()
 HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
     : _assets{assets}, _hexagonGame{hexagonGame},
       _serverIp{Config::getServerIp()}, _serverPort{Config::getServerPort()},
-      _listener{}, _socketSelector{}, _running{true}
+      _listener{}, _socketSelector{}, _running{true}, _verbose{true}
 {
     SSVOH_SLOG << "Initializing server...\n";
 
@@ -259,6 +285,11 @@ HexagonServer::~HexagonServer()
 
     for(ConnectedClient& connectedClient : _connectedClients)
     {
+        connectedClient._socket.setBlocking(true);
+
+        makeServerToClientPacket(_packetBuffer, STCPKick{});
+        connectedClient._socket.send(_packetBuffer);
+
         connectedClient._socket.disconnect();
     }
 

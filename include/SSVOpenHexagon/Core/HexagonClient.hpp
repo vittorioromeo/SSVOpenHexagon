@@ -11,6 +11,7 @@
 #include <list>
 #include <cstdint>
 #include <chrono>
+#include <sstream>
 
 namespace hg::Steam
 {
@@ -39,13 +40,24 @@ private:
     bool _socketConnected;
 
     sf::Packet _packetBuffer;
+    std::ostringstream _errorOss;
 
     TimePoint _lastHeartbeatTime;
+
+    bool _verbose;
 
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
 
     [[nodiscard]] bool sendHeartbeat();
+
+    [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
+    [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
+
+    [[nodiscard]] bool sendPacket(sf::Packet& p);
+    [[nodiscard]] bool recvPacket(sf::Packet& p);
+
+    bool receiveDataFromServer(sf::Packet& p);
 
     void disconnect();
 
