@@ -1954,6 +1954,39 @@ void MenuGame::update(ssvu::FT mFT)
 
     Joystick::update();
 
+    // Focus should have no effect if we are in the favorites menu
+    // or a pack change animation is in progress.
+    if(state == States::LevelSelection && !isFavoriteLevels() &&
+        packChangeState == PackChange::Rest)
+    {
+        if(!focusHeld)
+        {
+            focusHeld = Joystick::pressed(Joystick::Jid::Focus);
+        }
+
+        // If focus was not pressed it means we have initiated a quick
+        // pack switch.
+        if(focusHeld && !wasFocusHeld)
+        {
+            if(lvlDrawer->currentIndex != 0)
+            {
+                setIndex(0);
+            }
+            quickPackFoldStretch();
+        }
+        else if(!focusHeld && wasFocusHeld)
+        {
+            // focus is now released we have to stretch the level list of the
+            // current menu.
+            quickPackFoldStretch();
+        }
+        wasFocusHeld = focusHeld;
+    }
+    else
+    {
+        wasFocusHeld = focusHeld = false;
+    }
+
     if(Joystick::risingEdge(Joystick::Jid::NextPack))
     {
         changePackAction(1);
@@ -1972,32 +2005,6 @@ void MenuGame::update(ssvu::FT mFT)
     {
         switchToFromFavoriteLevels();
     }
-
-    // Focus should have no effect if we are in the favorites menu
-    // or a pack change animation is in progress.
-    if(!(!isFavoriteLevels() && packChangeState == PackChange::Rest))
-    {
-        focusHeld = false;
-    }
-    else if(!focusHeld)
-    {
-        focusHeld = Joystick::pressed(Joystick::Jid::Focus);
-    }
-
-    // If focus was not pressed it means we have initiated a quick
-    // pack switch.
-    if(focusHeld && !wasFocusHeld)
-    {
-        setIndex(0);
-        quickPackFoldStretch();
-    }
-    else if(!focusHeld && wasFocusHeld)
-    {
-        // focus is now released we have to stretch the level list of the
-        // current menu.
-        quickPackFoldStretch();
-    }
-    wasFocusHeld = focusHeld;
 
     if(Joystick::risingEdge(Joystick::Jdir::Left))
     {
