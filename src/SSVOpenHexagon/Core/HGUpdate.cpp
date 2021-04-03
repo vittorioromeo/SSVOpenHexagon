@@ -903,33 +903,38 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve),
         false, ImGuiWindowFlags_HorizontalScrollbar);
 
-    for(decltype(ilcCmdLog.size()) i = 0; i < ilcCmdLog.size(); ++i)
+    for(const std::string& sItem : ilcCmdLog)
     {
-        const std::string& sItem = ilcCmdLog[i];
         const char* item = sItem.c_str();
 
-        std::optional<ImVec4> color;
+        const auto color = [&]() -> std::optional<ImVec4> {
+            if(std::strstr(item, "[error]"))
+            {
+                return ImVec4(1.0f, 0.4f, 0.4f, 1.0f);
+            }
 
-        if(std::strstr(item, "[error]"))
-        {
-            color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f);
-        }
-        else if(std::strstr(item, "[warning]"))
-        {
-            color = ImVec4(1.0f, 0.4f, 1.0f, 1.0f);
-        }
-        else if(std::strstr(item, "[lua]"))
-        {
-            color = ImVec4(0.4f, 1.0f, 0.4f, 1.0f);
-        }
-        else if(std::strncmp(item, "# ", 2) == 0)
-        {
-            color = ImVec4(1.0f, 0.8f, 0.6f, 1.0f);
-        }
-        else if(std::strstr(item, "[?]"))
-        {
-            color = ImVec4(0.4f, 0.4f, 1.0f, 1.0f);
-        }
+            if(std::strstr(item, "[warning]"))
+            {
+                return ImVec4(1.0f, 0.4f, 1.0f, 1.0f);
+            }
+
+            if(std::strstr(item, "[lua]"))
+            {
+                return ImVec4(0.4f, 1.0f, 0.4f, 1.0f);
+            }
+
+            if(std::strncmp(item, "# ", 2) == 0)
+            {
+                return ImVec4(1.0f, 0.8f, 0.6f, 1.0f);
+            }
+
+            if(std::strstr(item, "[?]"))
+            {
+                return ImVec4(0.4f, 0.4f, 1.0f, 1.0f);
+            }
+
+            return std::nullopt;
+        }();
 
         if(color.has_value())
         {
