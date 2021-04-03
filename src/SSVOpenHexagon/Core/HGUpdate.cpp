@@ -412,37 +412,23 @@ void HexagonGame::updateInput_ResolveInputImplToInputMovement()
 {
     if(inputImplCW && !inputImplCCW)
     {
-        inputMovement = 1;
+        inputMovement = inputImplLastMovement = 1;
         return;
     }
 
     if(!inputImplCW && inputImplCCW)
     {
-        inputMovement = -1;
+        inputMovement = inputImplLastMovement = -1;
         return;
     }
 
     if(inputImplCW && inputImplCCW)
     {
-        if(!inputImplBothCWCCW)
-        {
-            if(inputMovement == 1 && inputImplLastMovement == 1)
-            {
-                inputMovement = -1;
-                return;
-            }
-
-            if(inputMovement == -1 && inputImplLastMovement == -1)
-            {
-                inputMovement = 1;
-                return;
-            }
-        }
-
+        inputMovement = -inputImplLastMovement;
         return;
     }
 
-    inputMovement = 0;
+    inputMovement = inputImplLastMovement = 0;
 }
 
 void HexagonGame::updateInput_RecordCurrentInputToLastReplayData()
@@ -467,8 +453,8 @@ void HexagonGame::updateInput()
         return;
     }
 
-    if(!status.started && (!Config::getRotateToStart() || inputImplCCW ||
-                              inputImplCW || inputImplBothCWCCW))
+    if(!status.started &&
+        (!Config::getRotateToStart() || inputImplCCW || inputImplCW))
     {
         start();
     }
@@ -879,12 +865,6 @@ int HexagonGame::ilcTextEditCallback(ImGuiInputTextCallbackData* data)
     return 0;
 }
 
-void HexagonGame::postUpdate_InputLastMovement()
-{
-    inputImplLastMovement = inputMovement;
-    inputImplBothCWCCW = inputImplCW && inputImplCCW;
-}
-
 void HexagonGame::postUpdate_ImguiLuaConsole()
 {
     if(window == nullptr)
@@ -1185,7 +1165,6 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 
 void HexagonGame::postUpdate()
 {
-    postUpdate_InputLastMovement();
     postUpdate_ImguiLuaConsole();
 }
 
