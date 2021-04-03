@@ -50,12 +50,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C"
 {
 
-#ifdef SSVOH_USE_LUAJIT
 #include <luajit.h>
-#else
-#include <lua.h>
-#endif
-
 #include <lualib.h>
 #include <lauxlib.h>
 }
@@ -723,12 +718,7 @@ private:
 
 
         const int loadReturnValue =
-            lua_load(_state, &Reader::read, &reader, "chunk"
-#ifndef SSVOH_USE_LUAJIT
-                ,
-                nullptr
-#endif
-            );
+            lua_load(_state, &Reader::read, &reader, "chunk");
 
         // now we have to check return value
         if(loadReturnValue != 0)
@@ -790,12 +780,7 @@ private:
         // we create an instance of Reader, and we call lua_load
         SReader sReader(code);
         const int loadReturnValue =
-            lua_load(_state, &SReader::read, &sReader, "chunk"
-#ifndef SSVOH_USE_LUAJIT
-                ,
-                nullptr
-#endif
-            );
+            lua_load(_state, &SReader::read, &sReader, "chunk");
 
         // now we have to check return value
         if(loadReturnValue != 0)
