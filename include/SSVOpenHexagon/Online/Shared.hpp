@@ -4,12 +4,17 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Online/Sodium.hpp"
+
 #include <SFML/Network/Packet.hpp>
+
+#include <sodium.h>
 
 #include <cstdint>
 #include <sstream>
 #include <optional>
 #include <variant>
+#include <array>
 #include <string>
 
 namespace hg
@@ -24,12 +29,17 @@ struct PInvalid { std::string error; };
 // clang-format off
 struct CTSPHeartbeat  { };
 struct CTSPDisconnect { };
+struct CTSPPublicKey  { SodiumPublicKeyArray key; };
+struct CTSPReady      { };
 // clang-format on
 
-using PVClientToServer = std::variant<PInvalid, CTSPHeartbeat, CTSPDisconnect>;
+using PVClientToServer = std::variant<PInvalid, CTSPHeartbeat, CTSPDisconnect,
+    CTSPPublicKey, CTSPReady>;
 
 void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat& data);
 void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect& data);
+void makeClientToServerPacket(sf::Packet& p, const CTSPPublicKey& data);
+void makeClientToServerPacket(sf::Packet& p, const CTSPReady& data);
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
     std::ostringstream& errorOss, sf::Packet& p);
@@ -37,12 +47,14 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect& data);
 // ----------------------------------------------------------------------------
 
 // clang-format off
-struct STCPKick { };
+struct STCPKick      { };
+struct STCPPublicKey { SodiumPublicKeyArray key; };
 // clang-format on
 
-using PVServerToClient = std::variant<PInvalid, STCPKick>;
+using PVServerToClient = std::variant<PInvalid, STCPKick, STCPPublicKey>;
 
 void makeServerToClientPacket(sf::Packet& p, const STCPKick& data);
+void makeServerToClientPacket(sf::Packet& p, const STCPPublicKey& data);
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(
     std::ostringstream& errorOss, sf::Packet& p);
