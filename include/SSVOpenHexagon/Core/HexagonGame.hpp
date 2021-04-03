@@ -193,7 +193,6 @@ private:
     int inputMovement{0};
     bool inputImplCW{false};
     bool inputImplCCW{false};
-    bool inputImplBothCWCCW{false};
     std::ostringstream os;
 
     sf::Text fpsText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
@@ -356,7 +355,6 @@ private:
 
     // Post update methods
     void postUpdate();
-    void postUpdate_InputLastMovement();
     void postUpdate_ImguiLuaConsole();
 
     // Draw methods

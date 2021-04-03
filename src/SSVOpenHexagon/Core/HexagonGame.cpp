@@ -552,7 +552,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
 
     // Lua context and game status cleanup
-    inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
+    inputImplCCW = inputImplCW = false;
 
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();
