@@ -132,6 +132,52 @@ void initializePacketForSending(sf::Packet& p, const PacketType pt)
     return {static_cast<PacketType>(*extracted)};
 }
 
+template <std::size_t NExpected, typename T, std::size_t N>
+void encodeArray(sf::Packet& p, const std::array<T, N>& arr)
+{
+    static_assert(NExpected == N);
+
+    for(std::size_t i = 0; i < arr.size(); ++i)
+    {
+        p << arr[i];
+    }
+}
+
+template <typename T>
+void encodeDynamicRange(sf::Packet& p, const T* data, const std::size_t len)
+{
+    SSVOH_ASSERT(data != nullptr);
+
+    for(std::size_t i = 0; i < len; ++i)
+    {
+        p << data[i];
+    }
+}
+
+template <typename T>
+void encodeFirstNVectorElements(
+    sf::Packet& p, const std::vector<T>& data, const std::size_t len)
+{
+    SSVOH_ASSERT(data.size() >= len);
+
+    for(std::size_t i = 0; i < len; ++i)
+    {
+        p << data[i];
+    }
+}
+
+std::vector<unsigned char>& getStaticMessageBuffer()
+{
+    thread_local std::vector<unsigned char> result;
+    return result;
+}
+
+std::vector<unsigned char>& getStaticCiphertextBuffer()
+{
+    thread_local std::vector<unsigned char> result;
+    return result;
+}
+
 } // namespace
 
 void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat&)
@@ -147,11 +193,7 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect&)
 void makeClientToServerPacket(sf::Packet& p, const CTSPPublicKey& data)
 {
     initializePacketForSending(p, PacketType::CTS_PublicKey);
-
-    for(std::size_t i = 0; i < sodiumPublicKeyBytes; ++i)
-    {
-        p << data.key[i];
-    }
+    encodeArray<sodiumPublicKeyBytes>(p, data.key);
 }
 
 void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
@@ -166,7 +208,8 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
 
     const SodiumNonceArray nonce = generateNonce();
 
-    std::vector<unsigned char> message;
+    std::vector<unsigned char>& message = getStaticMessageBuffer();
+    message.clear();
     message.reserve(data.msg.size());
     for(const char c : data.msg)
     {
@@ -185,18 +228,9 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
         return false;
     }
 
-    for(std::size_t i = 0; i < sodiumNonceBytes; ++i)
-    {
-        p << nonce[i];
-    }
-
+    encodeArray<sodiumNonceBytes>(p, nonce);
     p << ciphertextLength;
-
-    for(std::size_t i = 0; i < ciphertextLength; ++i)
-    {
-        p << ciphertext[i];
-    }
-
+    encodeFirstNVectorElements(p, ciphertext, ciphertextLength);
     p << messageLength;
 
     return true;
