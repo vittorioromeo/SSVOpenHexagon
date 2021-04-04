@@ -568,6 +568,8 @@ public:
         HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow,
         HexagonClient& mHexagonClient);
 
+    ~MenuGame();
+
     void init(bool mErrored);
     void init(bool mErrored, const std::string& pack, const std::string& level);
     bool loadCommandLineLevel(

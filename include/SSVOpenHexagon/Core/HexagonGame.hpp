@@ -444,6 +444,8 @@ public:
         Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
         ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient);
 
+    ~HexagonGame();
+
     void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
     {
         game.refreshTrigger(trigger, bindID);

@@ -8,6 +8,8 @@
 
 #include <SFML/Network/Packet.hpp>
 
+#include <sodium.h>
+
 #include <cstdint>
 #include <sstream>
 #include <optional>
@@ -22,8 +24,11 @@ enum class PacketType : std::uint8_t
 {
     CTS_Heartbeat = 0,
     CTS_Disconnect = 1,
+    CTS_PublicKey = 2,
+    CTS_Ready = 3,
 
     STC_Kick = 128,
+    STC_PublicKey = 129
 };
 
 static constexpr std::uint8_t preamble1stByte{'o'};
@@ -125,16 +130,29 @@ void initializePacketForSending(sf::Packet& p, const PacketType pt)
 
 } // namespace
 
-void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat& data)
+void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat&)
 {
-    (void)data;
     initializePacketForSending(p, PacketType::CTS_Heartbeat);
 }
 
-void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect& data)
+void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect&)
 {
-    (void)data;
     initializePacketForSending(p, PacketType::CTS_Disconnect);
+}
+
+void makeClientToServerPacket(sf::Packet& p, const CTSPPublicKey& data)
+{
+    initializePacketForSending(p, PacketType::CTS_PublicKey);
+
+    for(std::size_t i = 0; i < sodiumPublicKeyBytes; ++i)
+    {
+        p << data.key[i];
+    }
+}
+
+void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
+{
+    initializePacketForSending(p, PacketType::CTS_Ready);
 }
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
@@ -158,14 +176,50 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect& data)
         return {CTSPDisconnect{}};
     }
 
+    if(*pt == PacketType::CTS_PublicKey)
+    {
+        CTSPPublicKey result;
+
+        for(std::size_t i = 0; i < sodiumPublicKeyBytes; ++i)
+        {
+            if(p >> result.key[i])
+            {
+                continue;
+            }
+
+            errorOss << "Error decoding client public key packet at index '"
+                     << i << "'\n";
+
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        return {result};
+    }
+
+    if(*pt == PacketType::CTS_Ready)
+    {
+        return {CTSPReady{}};
+    }
+
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
     return {PInvalid{.error = errorOss.str()}};
 }
 
-void makeServerToClientPacket(sf::Packet& p, const STCPKick& data)
+// ----------------------------------------------------------------------------
+
+void makeServerToClientPacket(sf::Packet& p, const STCPKick&)
 {
-    (void)data;
     initializePacketForSending(p, PacketType::STC_Kick);
+}
+
+void makeServerToClientPacket(sf::Packet& p, const STCPPublicKey& data)
+{
+    initializePacketForSending(p, PacketType::STC_PublicKey);
+
+    for(std::size_t i = 0; i < sodiumPublicKeyBytes; ++i)
+    {
+        p << data.key[i];
+    }
 }
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(
@@ -182,6 +236,26 @@ void makeServerToClientPacket(sf::Packet& p, const STCPKick& data)
     if(*pt == PacketType::STC_Kick)
     {
         return {STCPKick{}};
+    }
+
+    if(*pt == PacketType::STC_PublicKey)
+    {
+        STCPPublicKey result;
+
+        for(std::size_t i = 0; i < sodiumPublicKeyBytes; ++i)
+        {
+            if(p >> result.key[i])
+            {
+                continue;
+            }
+
+            errorOss << "Error decoding server public key packet at index '"
+                     << i << "'\n";
+
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        return {result};
     }
 
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";

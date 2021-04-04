@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Online/Sodium.hpp"
+
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
@@ -13,6 +15,7 @@
 #include <list>
 #include <chrono>
 #include <sstream>
+#include <optional>
 
 namespace hg
 {
@@ -45,10 +48,13 @@ private:
         TimePoint _lastActivity;
         int _consecutiveFailures;
         bool _mustDisconnect;
+        std::optional<SodiumPublicKeyArray> _clientPublicKey;
+        std::optional<SodiumRTKeys> _rsKeys;
+        bool _ready;
 
         explicit ConnectedClient(const TimePoint lastActivity)
             : _socket{}, _lastActivity{lastActivity}, _consecutiveFailures{0},
-              _mustDisconnect{false}
+              _mustDisconnect{false}, _clientPublicKey{}, _ready{false}
         {
         }
 
@@ -63,8 +69,13 @@ private:
 
     bool _verbose;
 
+    const SodiumPSKeys _serverPSKeys;
+
     [[nodiscard]] bool initializeTcpListener();
     [[nodiscard]] bool initializeSocketSelector();
+
+    [[nodiscard]] bool sendKick(ConnectedClient& c);
+    [[nodiscard]] bool sendPublicKey(ConnectedClient& c);
 
     void runSocketSelector();
     void runSocketSelector_Iteration();

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Online/Sodium.hpp"
+
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
@@ -12,6 +14,7 @@
 #include <cstdint>
 #include <chrono>
 #include <sstream>
+#include <optional>
 
 namespace hg::Steam
 {
@@ -46,10 +49,16 @@ private:
 
     bool _verbose;
 
+    const SodiumPSKeys _clientPSKeys;
+    std::optional<SodiumPublicKeyArray> _serverPublicKey;
+    std::optional<SodiumRTKeys> _clientRTKeys;
+
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
 
     [[nodiscard]] bool sendHeartbeat();
+    [[nodiscard]] bool sendPublicKey();
+    [[nodiscard]] bool sendReady();
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -62,6 +71,8 @@ private:
     void disconnect();
 
     bool sendHeartbeatIfNecessary();
+
+    bool connect();
 
 public:
     explicit HexagonClient(Steam::steam_manager& steamManager);
