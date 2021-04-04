@@ -251,11 +251,8 @@ namespace hg
         return false;
     }
 
-    CTSPEncryptedMsg em;
-    em.msg << s;
-
-    if(!makeClientToServerPacket(
-           _packetBuffer, _clientRTKeys->keyTransmit, em))
+    if(!makeClientToServerEncryptedPacket(
+           _clientRTKeys->keyTransmit, _packetBuffer, CTSPPrint{s}))
     {
         SSVOH_CLOG_ERROR << "Error building encrypted message packet\n";
         return false;
