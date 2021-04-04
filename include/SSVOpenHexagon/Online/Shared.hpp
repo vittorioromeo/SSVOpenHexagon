@@ -28,23 +28,25 @@ struct PInvalid { std::string error; };
 // ----------------------------------------------------------------------------
 
 // clang-format off
-struct CTSPHeartbeat    { };
-struct CTSPDisconnect   { };
-struct CTSPPublicKey    { SodiumPublicKeyArray key; };
-struct CTSPReady        { };
-struct CTSPPrint        { std::string msg; };
+struct CTSPHeartbeat  { };
+struct CTSPDisconnect { };
+struct CTSPPublicKey  { SodiumPublicKeyArray key; };
+struct CTSPReady      { };
+struct CTSPPrint      { std::string msg; };
+// clang-format on
 
 struct CTSPEncryptedMsg
 {
     SodiumNonceArray nonce;
     std::size_t messageLength;
     std::size_t ciphertextLength;
-    std::vector<unsigned char> ciphertext;
+    std::vector<unsigned char>* ciphertext;
 };
-// clang-format on
 
 using PVClientToServer = std::variant<PInvalid, CTSPHeartbeat, CTSPDisconnect,
     CTSPPublicKey, CTSPReady, CTSPPrint, CTSPEncryptedMsg>;
+
+// ----------------------------------------------------------------------------
 
 template <typename T>
 void makeClientToServerPacket(sf::Packet& p, const T& data);
@@ -65,6 +67,8 @@ struct STCPPublicKey { SodiumPublicKeyArray key; };
 // clang-format on
 
 using PVServerToClient = std::variant<PInvalid, STCPKick, STCPPublicKey>;
+
+// ----------------------------------------------------------------------------
 
 template <typename T>
 void makeServerToClientPacket(sf::Packet& p, const T& data);
