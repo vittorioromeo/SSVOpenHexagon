@@ -247,7 +247,7 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
 
     _errorOss.str("");
     const PVClientToServer pv = decodeClientToServerPacket(
-        _errorOss, p, c._rtKeys.has_value() ? &c._rtKeys->keyReceive : nullptr);
+        c._rtKeys.has_value() ? &c._rtKeys->keyReceive : nullptr, _errorOss, p);
 
     return Utils::match(
         pv,
@@ -256,6 +256,14 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
             SSVOH_SLOG_ERROR << "Error processing packet from client '"
                              << clientAddress
                              << "', details: " << _errorOss.str() << '\n';
+
+            return false;
+        },
+
+        [&](const PEncryptedMsg&) {
+            SSVOH_SLOG
+                << "Received non-decrypted encrypted msg packet from client '"
+                << clientAddress << "'\n";
 
             return false;
         },
@@ -325,14 +333,6 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
                        << "'\nContents: '" << ctsp.msg << "'\n";
 
             return true;
-        },
-
-        [&](const CTSPEncryptedMsg&) {
-            SSVOH_SLOG
-                << "Received non-decrypted encrypted msg packet from client '"
-                << clientAddress << "'\n";
-
-            return false;
         }
 
         //

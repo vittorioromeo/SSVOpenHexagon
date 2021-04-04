@@ -385,7 +385,9 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
     }
 
     _errorOss.str("");
-    const PVServerToClient pv = decodeServerToClientPacket(_errorOss, p);
+    const PVServerToClient pv = decodeServerToClientPacket(
+        _clientRTKeys.has_value() ? &_clientRTKeys->keyReceive : nullptr,
+        _errorOss, p);
 
     return Utils::match(
         pv,
@@ -393,6 +395,13 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         [&](const PInvalid&) {
             SSVOH_CLOG_ERROR << "Error processing packet from server, details: "
                              << _errorOss.str() << '\n';
+
+            return false;
+        },
+
+        [&](const PEncryptedMsg&) {
+            SSVOH_CLOG
+                << "Received non-decrypted encrypted msg packet from server\n";
 
             return false;
         },

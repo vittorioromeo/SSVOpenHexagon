@@ -21,9 +21,18 @@
 namespace hg
 {
 
-// clang-format off
-struct PInvalid { std::string error; };
-// clang-format on
+struct PInvalid
+{
+    std::string error;
+};
+
+struct PEncryptedMsg
+{
+    SodiumNonceArray nonce;
+    std::size_t messageLength;
+    std::size_t ciphertextLength;
+    std::vector<unsigned char>* ciphertext;
+};
 
 // ----------------------------------------------------------------------------
 
@@ -35,16 +44,8 @@ struct CTSPReady      { };
 struct CTSPPrint      { std::string msg; };
 // clang-format on
 
-struct CTSPEncryptedMsg
-{
-    SodiumNonceArray nonce;
-    std::size_t messageLength;
-    std::size_t ciphertextLength;
-    std::vector<unsigned char>* ciphertext;
-};
-
-using PVClientToServer = std::variant<PInvalid, CTSPHeartbeat, CTSPDisconnect,
-    CTSPPublicKey, CTSPReady, CTSPPrint, CTSPEncryptedMsg>;
+using PVClientToServer = std::variant<PInvalid, PEncryptedMsg, CTSPHeartbeat,
+    CTSPDisconnect, CTSPPublicKey, CTSPReady, CTSPPrint>;
 
 // ----------------------------------------------------------------------------
 
@@ -56,8 +57,8 @@ template <typename T>
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data);
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
-    std::ostringstream& errorOss, sf::Packet& p,
-    const SodiumReceiveKeyArray* keyReceive);
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p);
 
 // ----------------------------------------------------------------------------
 
@@ -66,7 +67,8 @@ struct STCPKick      { };
 struct STCPPublicKey { SodiumPublicKeyArray key; };
 // clang-format on
 
-using PVServerToClient = std::variant<PInvalid, STCPKick, STCPPublicKey>;
+using PVServerToClient =
+    std::variant<PInvalid, PEncryptedMsg, STCPKick, STCPPublicKey>;
 
 // ----------------------------------------------------------------------------
 
@@ -74,6 +76,7 @@ template <typename T>
 void makeServerToClientPacket(sf::Packet& p, const T& data);
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(
-    std::ostringstream& errorOss, sf::Packet& p);
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p);
 
 } // namespace hg

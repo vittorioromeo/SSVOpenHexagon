@@ -322,7 +322,7 @@ void encodeOHPacket(sf::Packet& p, const CTSPPrint& data)
     p << data.msg;
 }
 
-void encodeOHPacket(sf::Packet& p, const CTSPEncryptedMsg& data)
+void encodeOHPacket(sf::Packet& p, const PEncryptedMsg& data)
 {
     encodePacketType(p, data);
 
@@ -347,6 +347,61 @@ void encodeOHPacket(sf::Packet& p, const STCPPublicKey& data)
     }
 }
 
+[[nodiscard]] bool decryptPacket(std::ostringstream& errorOss, sf::Packet& p,
+    const SodiumReceiveKeyArray& keyReceive, sf::Packet& decryptedPacket)
+{
+    SodiumNonceArray nonce;
+    if(!extractInto(nonce, errorOss, p))
+    {
+        errorOss << "Error decoding client nonce\n";
+        return false;
+    }
+
+    std::size_t messageLength;
+    if(!extractInto(messageLength, errorOss, p))
+    {
+        errorOss << "Error decoding client message length\n";
+        return false;
+    }
+
+    std::size_t ciphertextLength;
+    if(!extractInto(ciphertextLength, errorOss, p))
+    {
+        errorOss << "Error decoding client ciphertext length\n";
+        return false;
+    }
+
+    std::vector<unsigned char>& ciphertext = getStaticCiphertextBuffer();
+    ciphertext.resize(ciphertextLength);
+
+    for(std::size_t i = 0; i < ciphertextLength; ++i)
+    {
+        if(p >> ciphertext[i])
+        {
+            continue;
+        }
+
+        errorOss << "Error decoding client ciphertext at index '" << i << "'\n";
+
+        return false;
+    }
+
+    std::vector<unsigned char>& message = getStaticMessageBuffer();
+    message.resize(messageLength);
+
+    if(crypto_secretbox_open_easy(message.data(), ciphertext.data(),
+           ciphertextLength, nonce.data(), keyReceive.data()) != 0)
+    {
+        errorOss << "Failure decrypting encrypted client message\n";
+        return false;
+    }
+
+    decryptedPacket.clear();
+    decryptedPacket.append(message.data(), messageLength);
+
+    return true;
+};
+
 } // namespace
 
 // ----------------------------------------------------------------------------
@@ -358,12 +413,12 @@ void makeClientToServerPacket(sf::Packet& p, const T& data)
     encodeOHPacket(p, data);
 }
 
+template void makeClientToServerPacket(sf::Packet&, const PEncryptedMsg&);
 template void makeClientToServerPacket(sf::Packet&, const CTSPHeartbeat&);
 template void makeClientToServerPacket(sf::Packet&, const CTSPDisconnect&);
 template void makeClientToServerPacket(sf::Packet&, const CTSPPublicKey&);
 template void makeClientToServerPacket(sf::Packet&, const CTSPReady&);
 template void makeClientToServerPacket(sf::Packet&, const CTSPPrint&);
-template void makeClientToServerPacket(sf::Packet&, const CTSPEncryptedMsg&);
 
 // ----------------------------------------------------------------------------
 
@@ -376,7 +431,7 @@ template <typename T>
 
     encodeOHPacket(packetToEncrypt, data);
 
-    CTSPEncryptedMsg encryptedMsg{
+    PEncryptedMsg encryptedMsg{
         .nonce = generateNonce(),
         .messageLength = packetToEncrypt.getDataSize(),
         .ciphertextLength = getCiphertextLength(packetToEncrypt.getDataSize())
@@ -404,14 +459,34 @@ template bool makeClientToServerEncryptedPacket(
 // ----------------------------------------------------------------------------
 
 [[nodiscard]] static PVClientToServer decodeClientToServerPacketInner(
-    std::ostringstream& errorOss, sf::Packet& p,
-    const SodiumReceiveKeyArray* keyReceive)
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p)
 {
     const std::optional<PacketType> pt = extractPacketType(errorOss, p);
 
     if(!pt.has_value())
     {
         return {PInvalid{.error = errorOss.str()}};
+    }
+
+    if(*pt == getPacketType<PEncryptedMsg>())
+    {
+        if(keyReceive == nullptr)
+        {
+            errorOss << "Cannot decode client encrypted message without "
+                        "receive key\n";
+
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        sf::Packet& decryptedPacket = getStaticPacketBuffer();
+        if(!decryptPacket(errorOss, p, *keyReceive, decryptedPacket))
+        {
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        return decodeClientToServerPacketInner(
+            keyReceive, errorOss, decryptedPacket);
     }
 
     if(*pt == getPacketType<CTSPHeartbeat>())
@@ -454,88 +529,20 @@ template bool makeClientToServerEncryptedPacket(
         return {result};
     }
 
-    if(*pt == getPacketType<CTSPEncryptedMsg>())
-    {
-        if(keyReceive == nullptr)
-        {
-            errorOss << "Cannot decode client encrypted message without "
-                        "receive key\n";
-
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
-        SodiumNonceArray nonce;
-        if(!extractInto(nonce, errorOss, p))
-        {
-            errorOss << "Error decoding client nonce\n";
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
-        std::size_t messageLength;
-        if(!extractInto(messageLength, errorOss, p))
-        {
-            errorOss << "Error decoding client message length\n";
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
-        std::size_t ciphertextLength;
-        if(!extractInto(ciphertextLength, errorOss, p))
-        {
-            errorOss << "Error decoding client ciphertext length\n";
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
-        std::vector<unsigned char>& ciphertext = getStaticCiphertextBuffer();
-        ciphertext.resize(ciphertextLength);
-
-        for(std::size_t i = 0; i < ciphertextLength; ++i)
-        {
-            if(p >> ciphertext[i])
-            {
-                continue;
-            }
-
-            errorOss << "Error decoding client ciphertext at index '" << i
-                     << "'\n";
-
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
-        std::vector<unsigned char>& message = getStaticMessageBuffer();
-        message.resize(messageLength);
-
-        SSVOH_ASSERT(keyReceive != nullptr);
-
-        if(crypto_secretbox_open_easy(message.data(), ciphertext.data(),
-               ciphertextLength, nonce.data(), keyReceive->data()) != 0)
-        {
-            errorOss << "Failure decrypting encrypted client message\n";
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
-        sf::Packet& decryptedPacket = getStaticPacketBuffer();
-
-        decryptedPacket.clear();
-        decryptedPacket.append(message.data(), messageLength);
-
-        return decodeClientToServerPacketInner(
-            errorOss, decryptedPacket, keyReceive);
-    }
-
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
     return {PInvalid{.error = errorOss.str()}};
 }
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
-    std::ostringstream& errorOss, sf::Packet& p,
-    const SodiumReceiveKeyArray* keyReceive)
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p)
 {
     if(!verifyReceivedPacketPreambleAndVersion(errorOss, p))
     {
         return {PInvalid{.error = errorOss.str()}};
     }
 
-    return decodeClientToServerPacketInner(errorOss, p, keyReceive);
+    return decodeClientToServerPacketInner(keyReceive, errorOss, p);
 }
 
 // ----------------------------------------------------------------------------
@@ -547,19 +554,41 @@ void makeServerToClientPacket(sf::Packet& p, const T& data)
     encodeOHPacket(p, data);
 }
 
+template void makeServerToClientPacket(sf::Packet&, const PEncryptedMsg&);
 template void makeServerToClientPacket(sf::Packet&, const STCPKick&);
 template void makeServerToClientPacket(sf::Packet&, const STCPPublicKey&);
 
 // ----------------------------------------------------------------------------
 
 [[nodiscard]] static PVServerToClient decodeServerToClientPacketInner(
-    std::ostringstream& errorOss, sf::Packet& p)
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p)
 {
     const std::optional<PacketType> pt = extractPacketType(errorOss, p);
 
     if(!pt.has_value())
     {
         return {PInvalid{.error = errorOss.str()}};
+    }
+
+    if(*pt == getPacketType<PEncryptedMsg>())
+    {
+        if(keyReceive == nullptr)
+        {
+            errorOss << "Cannot decode client encrypted message without "
+                        "receive key\n";
+
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        sf::Packet& decryptedPacket = getStaticPacketBuffer();
+        if(!decryptPacket(errorOss, p, *keyReceive, decryptedPacket))
+        {
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        return decodeServerToClientPacketInner(
+            keyReceive, errorOss, decryptedPacket);
     }
 
     if(*pt == getPacketType<STCPKick>())
@@ -584,14 +613,15 @@ template void makeServerToClientPacket(sf::Packet&, const STCPPublicKey&);
 }
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(
-    std::ostringstream& errorOss, sf::Packet& p)
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p)
 {
     if(!verifyReceivedPacketPreambleAndVersion(errorOss, p))
     {
         return {PInvalid{.error = errorOss.str()}};
     }
 
-    return decodeServerToClientPacketInner(errorOss, p);
+    return decodeServerToClientPacketInner(keyReceive, errorOss, p);
 }
 
 } // namespace hg
