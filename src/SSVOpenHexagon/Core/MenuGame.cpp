@@ -391,6 +391,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     lvlSlct.lvlOffsets.resize(maxSize);
 }
 
+MenuGame::~MenuGame()
+{
+    ssvu::lo("MenuGame::~MenuGame") << "Cleaning up menu resources...\n";
+}
+
 void MenuGame::init(bool error)
 {
     steamManager.set_rich_presence_in_menu();

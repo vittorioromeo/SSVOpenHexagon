@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Utils/Match.hpp"
+#include "SSVOpenHexagon/Online/Sodium.hpp"
 
 #include <SFML/Network/Packet.hpp>
 
@@ -74,6 +75,12 @@ namespace hg
 
 [[nodiscard]] bool HexagonClient::initializeTcpSocket()
 {
+    if(_socketConnected)
+    {
+        SSVOH_CLOG_ERROR << "Socket already initialized\n";
+        return false;
+    }
+
     _socket.setBlocking(true);
 
     SSVOH_CLOG << "Connecting socket to server...\n";
@@ -207,12 +214,77 @@ namespace hg
     return true;
 }
 
+[[nodiscard]] bool HexagonClient::sendPublicKey()
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    makeClientToServerPacket(
+        _packetBuffer, CTSPPublicKey{_clientPSKeys.keyPublic});
+
+    return sendPacket(_packetBuffer);
+}
+
+[[nodiscard]] bool HexagonClient::sendReady()
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    makeClientToServerPacket(_packetBuffer, CTSPReady{});
+    return sendPacket(_packetBuffer);
+}
+
+bool HexagonClient::connect()
+{
+    if(_socketConnected)
+    {
+        SSVOH_CLOG_ERROR << "Socket already initialized\n";
+        return false;
+    }
+
+    if(!initializeTcpSocket())
+    {
+        SSVOH_CLOG_ERROR
+            << "Failure connecting, error initializing TCP socket\n";
+
+        return false;
+    }
+
+    if(!sendHeartbeat())
+    {
+        SSVOH_CLOG_ERROR
+            << "Failure connecting, error sending first heartbeat\n";
+
+        return false;
+    }
+
+    if(!sendPublicKey())
+    {
+        SSVOH_CLOG_ERROR << "Failure connecting, error sending public key\n";
+        return false;
+    }
+
+    return true;
+}
+
 HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
     : _steamManager{steamManager}, _serverIp{Config::getServerIp()},
       _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false},
-      _packetBuffer{}, _errorOss{}, _lastHeartbeatTime{}, _verbose{true}
+      _packetBuffer{}, _errorOss{}, _lastHeartbeatTime{}, _verbose{true},
+      _clientPSKeys{generateSodiumPSKeys()}
 {
-    SSVOH_CLOG << "Initializing client...\n";
+    const auto sKeyPublic = sodiumKeyToString(_clientPSKeys.keyPublic);
+    const auto sKeySecret = sodiumKeyToString(_clientPSKeys.keySecret);
+
+    SSVOH_CLOG << "Initializing client...\n"
+               << " - " << SSVOH_CLOG_VAR(_serverIp) << '\n'
+               << " - " << SSVOH_CLOG_VAR(_serverPort) << '\n'
+               << " - " << SSVOH_CLOG_VAR(sKeyPublic) << '\n'
+               << " - " << SSVOH_CLOG_VAR(sKeySecret) << '\n';
 
     if(_serverIp == sf::IpAddress::None)
     {
@@ -222,37 +294,20 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
         return;
     }
 
-    SSVOH_CLOG << "Client data:\n"
-               << SSVOH_CLOG_VAR(_serverIp) << '\n'
-               << SSVOH_CLOG_VAR(_serverPort) << '\n';
-
     if(!initializeTicketSteamID())
     {
         SSVOH_CLOG_ERROR << "Failure initializing client, no ticket Steam ID\n";
         return;
     }
 
-    if(!initializeTcpSocket())
-    {
-        SSVOH_CLOG_ERROR
-            << "Failure initializing client, error initializing TCP socket\n";
-
-        return;
-    }
-
-    if(!sendHeartbeat())
-    {
-        SSVOH_CLOG_ERROR
-            << "Failure initializing client, error sending first heartbeat\n";
-
-        return;
-    }
+    connect();
 }
 
 HexagonClient::~HexagonClient()
 {
     SSVOH_CLOG << "Uninitializing client...\n";
     disconnect();
+    SSVOH_CLOG << "Client uninitialized\n";
 }
 
 void HexagonClient::disconnect()
@@ -266,6 +321,8 @@ void HexagonClient::disconnect()
 
     _socket.disconnect();
     _socketConnected = false;
+
+    SSVOH_CLOG << "Client disconnected\n";
 }
 
 bool HexagonClient::sendHeartbeatIfNecessary()
@@ -322,6 +379,49 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
             disconnect();
             return true;
+        },
+
+        [&](const STCPPublicKey& stcp) {
+            SSVOH_CLOG << "Received public key packet from server\n";
+
+            if(_serverPublicKey.has_value())
+            {
+                SSVOH_CLOG << "Already had public key, replacing\n";
+            }
+            else
+            {
+                SSVOH_CLOG << "Did not have public key, setting\n";
+            }
+
+            _serverPublicKey = stcp.key;
+
+            SSVOH_CLOG << "Server public key: '" << sodiumKeyToString(stcp.key)
+                       << "'\n";
+
+            SSVOH_CLOG << "Calculating RT keys\n";
+            _clientRTKeys =
+                calculateClientSessionSodiumRTKeys(_clientPSKeys, stcp.key);
+
+            if(!_clientRTKeys.has_value())
+            {
+                SSVOH_CLOG_ERROR << "Failed calculating RT keys, disconnecting "
+                                    "from server\n";
+
+                disconnect();
+                return false;
+            }
+
+            const auto keyReceive =
+                sodiumKeyToString(_clientRTKeys->keyReceive);
+            const auto keyTransmit =
+                sodiumKeyToString(_clientRTKeys->keyTransmit);
+
+            SSVOH_CLOG << "Calculated RT keys\n"
+                       << " - " << SSVOH_CLOG_VAR(keyReceive) << '\n'
+                       << " - " << SSVOH_CLOG_VAR(keyTransmit) << '\n';
+
+            SSVOH_CLOG << "Replying with ready status\n";
+            return sendReady();
         }
 
         //

@@ -10,11 +10,15 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
+#include "SSVOpenHexagon/Online/Sodium.hpp"
 
 #include <SFML/Network.hpp>
 
 #include <thread>
 #include <chrono>
+#include <csignal>
+#include <cstdlib>
+#include <cstdio>
 
 static auto& slog(const char* funcName)
 {
@@ -50,6 +54,33 @@ namespace hg
 [[nodiscard]] bool HexagonServer::initializeSocketSelector()
 {
     _socketSelector.add(_listener);
+    return true;
+}
+
+[[nodiscard]] bool HexagonServer::sendKick(ConnectedClient& c)
+{
+    makeServerToClientPacket(_packetBuffer, STCPKick{});
+
+    if(c._socket.send(_packetBuffer) != sf::Socket::Status::Done)
+    {
+        SSVOH_SLOG << "Failure sending kick packet\n";
+        return false;
+    }
+
+    return true;
+}
+
+[[nodiscard]] bool HexagonServer::sendPublicKey(ConnectedClient& c)
+{
+    makeServerToClientPacket(
+        _packetBuffer, STCPPublicKey{_serverPSKeys.keyPublic});
+
+    if(c._socket.send(_packetBuffer) != sf::Socket::Status::Done)
+    {
+        SSVOH_SLOG << "Failure sending kick packet\n";
+        return false;
+    }
+
     return true;
 }
 
@@ -183,8 +214,7 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
         const void* clientAddress = static_cast<void*>(&connectedClient);
 
         const auto kickClient = [&] {
-            makeServerToClientPacket(_packetBuffer, STCPKick{});
-            connectedClient._socket.send(_packetBuffer);
+            (void)sendKick(connectedClient);
 
             _socketSelector.remove(connectedClient._socket);
             it = _connectedClients.erase(it);
@@ -234,6 +264,59 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
         [&](const CTSPDisconnect&) {
             c._mustDisconnect = true;
             return true;
+        },
+
+        [&](const CTSPPublicKey& ctsp) {
+            SSVOH_SLOG << "Received public key packet from client '"
+                       << clientAddress << "'\n";
+
+            if(c._clientPublicKey.has_value())
+            {
+                SSVOH_SLOG << "Already had public key, replacing\n";
+            }
+            else
+            {
+                SSVOH_SLOG << "Did not have public key, setting\n";
+            }
+
+            c._clientPublicKey = ctsp.key;
+
+            SSVOH_SLOG << "Client public key: '" << sodiumKeyToString(ctsp.key)
+                       << "'\n";
+
+            SSVOH_SLOG << "Calculating RT keys\n";
+            c._rsKeys =
+                calculateServerSessionSodiumRTKeys(_serverPSKeys, ctsp.key);
+
+            if(!c._rsKeys.has_value())
+            {
+                SSVOH_SLOG_ERROR
+                    << "Failed calculating RT keys, disconnecting client '"
+                    << clientAddress << "'\n";
+
+                c._mustDisconnect = true;
+                (void)sendKick(c);
+
+                return false;
+            }
+
+            const auto keyReceive = sodiumKeyToString(c._rsKeys->keyReceive);
+            const auto keyTransmit = sodiumKeyToString(c._rsKeys->keyTransmit);
+
+            SSVOH_SLOG << "Calculated RT keys\n"
+                       << " - " << SSVOH_SLOG_VAR(keyReceive) << '\n'
+                       << " - " << SSVOH_SLOG_VAR(keyTransmit) << '\n';
+
+            SSVOH_SLOG << "Replying with own public key\n";
+            return sendPublicKey(c);
+        },
+
+        [&](const CTSPReady&) {
+            SSVOH_SLOG << "Received ready packet from client '" << clientAddress
+                       << "'\n";
+
+            c._ready = true;
+            return true;
         }
 
         //
@@ -241,11 +324,19 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
 }
 
 HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
-    : _assets{assets}, _hexagonGame{hexagonGame},
-      _serverIp{Config::getServerIp()}, _serverPort{Config::getServerPort()},
-      _listener{}, _socketSelector{}, _running{true}, _verbose{true}
+    : _assets{assets},
+      _hexagonGame{hexagonGame}, _serverIp{Config::getServerIp()},
+      _serverPort{Config::getServerPort()}, _listener{}, _socketSelector{},
+      _running{true}, _verbose{true}, _serverPSKeys{generateSodiumPSKeys()}
 {
-    SSVOH_SLOG << "Initializing server...\n";
+    const auto sKeyPublic = sodiumKeyToString(_serverPSKeys.keyPublic);
+    const auto sKeySecret = sodiumKeyToString(_serverPSKeys.keySecret);
+
+    SSVOH_SLOG << "Initializing server...\n"
+               << " - " << SSVOH_SLOG_VAR(_serverIp) << '\n'
+               << " - " << SSVOH_SLOG_VAR(_serverPort) << '\n'
+               << " - " << SSVOH_SLOG_VAR(sKeyPublic) << '\n'
+               << " - " << SSVOH_SLOG_VAR(sKeySecret) << '\n';
 
     if(_serverIp == sf::IpAddress::None)
     {
@@ -254,10 +345,6 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
 
         return;
     }
-
-    SSVOH_SLOG << "Server data:\n"
-               << SSVOH_SLOG_VAR(_serverIp) << '\n'
-               << SSVOH_SLOG_VAR(_serverPort) << '\n';
 
     if(!initializeTcpListener())
     {
@@ -276,6 +363,19 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
         return;
     }
 
+    // Signal handling: exit gracefully on CTRL-C
+    {
+        static bool& globalRunning = _running;
+        static sf::TcpListener& globalListener = _listener;
+
+        // TODO: UB
+        std::signal(SIGINT, [](int s) {
+            std::printf("Caught signal %d\n", s);
+            globalListener.close();
+            globalRunning = false;
+        });
+    }
+
     runSocketSelector();
 }
 
@@ -287,9 +387,7 @@ HexagonServer::~HexagonServer()
     {
         connectedClient._socket.setBlocking(true);
 
-        makeServerToClientPacket(_packetBuffer, STCPKick{});
-        connectedClient._socket.send(_packetBuffer);
-
+        (void)sendKick(connectedClient);
         connectedClient._socket.disconnect();
     }
 

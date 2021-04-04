@@ -111,6 +111,11 @@ HGAssets::HGAssets(
     loadInfo.errorMessages.shrink_to_fit();
 }
 
+HGAssets::~HGAssets()
+{
+    ssvu::lo("HGAssets::~HGAssets") << "Cleaning up assets...\n";
+}
+
 [[nodiscard]] bool HGAssets::loadPackData(const ssvufs::Path& packPath)
 {
     if(!ssvufs::Path{packPath + "/pack.json"}.exists<ssvufs::Type::File>())

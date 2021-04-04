@@ -131,6 +131,8 @@ public:
     HGAssets(Steam::steam_manager& mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);
 
+    ~HGAssets();
+
     [[nodiscard]] LoadInfo& getLoadResults()
     {
         return loadInfo;

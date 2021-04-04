@@ -14,6 +14,8 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 
+#include <sodium.h>
+
 #include <imgui.h>
 #include <imgui-SFML.h>
 
@@ -25,6 +27,9 @@
 #include <memory>
 #include <filesystem>
 #include <string_view>
+#include <csignal>
+#include <cstdlib>
+#include <cstdio>
 
 namespace
 {
@@ -136,10 +141,36 @@ int main(int argc, char* argv[])
     //
     //
     // ------------------------------------------------------------------------
+    // libsodium initialization
+    if(sodium_init() < 0)
+    {
+        ssvu::lo("::main") << "Failed initializing libsodium\n";
+        return 1;
+    }
+
+    //
+    //
+    // ------------------------------------------------------------------------
+    // Basic signal handling
+    // TODO: UB
+    std::signal(SIGINT, [](int s) {
+        ssvu::lo("::main") << "Caught signal '" << s
+                           << "' without game window open, exiting...\n";
+
+        std::exit(1);
+    });
+
+    //
+    //
+    // ------------------------------------------------------------------------
     // Flush and save log (at the end of the scope)
     HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving log to 'log.txt'...\n";
+
         ssvu::lo().flush();
         ssvu::saveLogToFile("log.txt");
+
+        ssvu::lo("::main") << "Done saving log to 'log.txt'\n";
     });
 
     //
@@ -189,7 +220,11 @@ int main(int argc, char* argv[])
     // ------------------------------------------------------------------------
     // Load configuration (and overrides)
     hg::Config::loadConfig(args);
-    HG_SCOPE_GUARD({ hg::Config::saveConfig(); });
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving config...\n";
+        hg::Config::saveConfig();
+        ssvu::lo("::main") << "Done saving config\n";
+    });
 
     //
     //
@@ -213,6 +248,21 @@ int main(int argc, char* argv[])
         // 240 ticks per second.
         window->setTimer<ssvs::TimerStatic>(
             hg::Config::TIME_STEP, hg::Config::TIME_SLICE);
+
+        // Signal handling: exit gracefully on CTRL-C
+        {
+            static ssvs::GameWindow& globalWindow = *window;
+
+            // TODO: UB
+            std::signal(SIGINT, [](int s) {
+                ssvu::lo("::main")
+                    << "Caught signal '" << s << "' with game window open\n";
+
+                ssvu::lo("::main") << "Stopping game window...\n";
+                globalWindow.stop();
+                ssvu::lo("::main") << "Done stopping game window\n";
+            });
+        }
     }
 
     //
@@ -226,10 +276,14 @@ int main(int argc, char* argv[])
     }
 
     HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Shutting down ImGui...\n";
+
         if(!headless)
         {
             ImGui::SFML::Shutdown();
         }
+
+        ssvu::lo("::main") << "Done shutting down ImGui...\n";
     });
 
     //
@@ -237,7 +291,11 @@ int main(int argc, char* argv[])
     // ------------------------------------------------------------------------
     // Initialize assets
     auto assets = std::make_unique<hg::HGAssets>(steamManager, headless);
-    HG_SCOPE_GUARD({ assets->pSaveAll(); });
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving all local profiles...\n";
+        assets->pSaveAll();
+        ssvu::lo("::main") << "Done saving all local profiles\n";
+    });
 
     assets->refreshVolumes();
 
@@ -400,5 +458,6 @@ int main(int argc, char* argv[])
         window->run();
     }
 
+    ssvu::lo("::main") << "Reached end of 'main'\n";
     return 0;
 }

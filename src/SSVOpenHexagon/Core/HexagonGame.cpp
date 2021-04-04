@@ -356,6 +356,11 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     initKeyIcons();
 }
 
+HexagonGame::~HexagonGame()
+{
+    ssvu::lo("HexagonGame::~HexagonGame") << "Cleaning up game resources...\n";
+}
+
 void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 {
     lastSeed = mReplayFile._seed;
