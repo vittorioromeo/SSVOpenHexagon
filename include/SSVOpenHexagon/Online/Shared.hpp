@@ -16,6 +16,7 @@
 #include <variant>
 #include <array>
 #include <string>
+#include <vector>
 
 namespace hg
 {
@@ -31,18 +32,26 @@ struct CTSPHeartbeat    { };
 struct CTSPDisconnect   { };
 struct CTSPPublicKey    { SodiumPublicKeyArray key; };
 struct CTSPReady        { };
-struct CTSPEncryptedMsg { sf::Packet msg; };
+struct CTSPPrint        { std::string msg; };
+
+struct CTSPEncryptedMsg
+{
+    SodiumNonceArray nonce;
+    std::size_t messageLength;
+    std::size_t ciphertextLength;
+    std::vector<unsigned char> ciphertext;
+};
 // clang-format on
 
 using PVClientToServer = std::variant<PInvalid, CTSPHeartbeat, CTSPDisconnect,
-    CTSPPublicKey, CTSPReady, CTSPEncryptedMsg>;
+    CTSPPublicKey, CTSPReady, CTSPPrint, CTSPEncryptedMsg>;
 
-void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat& data);
-void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect& data);
-void makeClientToServerPacket(sf::Packet& p, const CTSPPublicKey& data);
-void makeClientToServerPacket(sf::Packet& p, const CTSPReady& data);
-[[nodiscard]] bool makeClientToServerPacket(sf::Packet& p,
-    const SodiumTransmitKeyArray& keyTransmit, const CTSPEncryptedMsg& data);
+template <typename T>
+void makeClientToServerPacket(sf::Packet& p, const T& data);
+
+template <typename T>
+[[nodiscard]] bool makeClientToServerEncryptedPacket(
+    const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data);
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
     std::ostringstream& errorOss, sf::Packet& p,
@@ -57,8 +66,8 @@ struct STCPPublicKey { SodiumPublicKeyArray key; };
 
 using PVServerToClient = std::variant<PInvalid, STCPKick, STCPPublicKey>;
 
-void makeServerToClientPacket(sf::Packet& p, const STCPKick& data);
-void makeServerToClientPacket(sf::Packet& p, const STCPPublicKey& data);
+template <typename T>
+void makeServerToClientPacket(sf::Packet& p, const T& data);
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(
     std::ostringstream& errorOss, sf::Packet& p);

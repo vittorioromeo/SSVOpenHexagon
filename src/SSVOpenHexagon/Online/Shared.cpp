@@ -16,6 +16,7 @@
 #include <sstream>
 #include <iostream>
 #include <optional>
+#include <type_traits>
 
 namespace hg
 {
@@ -23,17 +24,66 @@ namespace hg
 namespace
 {
 
-enum class PacketType : std::uint8_t
-{
-    CTS_Heartbeat = 0,
-    CTS_Disconnect = 1,
-    CTS_PublicKey = 2,
-    CTS_Ready = 3,
-    CTS_EncryptedMsg = 4,
 
-    STC_Kick = 128,
-    STC_PublicKey = 129
+template <typename...>
+struct TypeList
+{
 };
+
+template <typename T, typename... Ts>
+[[nodiscard]] constexpr bool contains(TypeList<Ts...>)
+{
+    return (std::is_same_v<T, Ts> || ...);
+}
+
+template <typename T, typename... Ts>
+[[nodiscard]] constexpr std::size_t indexOfType(TypeList<Ts...>)
+{
+    static_assert(contains<T>(TypeList<Ts...>{}));
+
+    constexpr std::array test{std::is_same_v<T, Ts>...};
+    for(std::size_t i = 0; i < test.size(); ++i)
+    {
+        if(test[i])
+        {
+            return i;
+        }
+    }
+
+    throw;
+}
+
+template <typename T, typename... Ts>
+[[nodiscard]] constexpr bool variantContains(TypeList<std::variant<Ts...>>)
+{
+    return contains<T>(TypeList<Ts...>{});
+}
+
+template <typename T, typename... Ts>
+[[nodiscard]] constexpr std::size_t indexOfVariantType(
+    TypeList<std::variant<Ts...>>)
+{
+    return indexOfType<T>(TypeList<Ts...>{});
+}
+
+using PacketType = std::uint8_t;
+
+template <typename T>
+[[nodiscard]] constexpr PacketType getPacketType()
+{
+    if constexpr(variantContains<T>(TypeList<PVClientToServer>{}))
+    {
+        return indexOfVariantType<T>(TypeList<PVClientToServer>{});
+    }
+    else if constexpr(variantContains<T>(TypeList<PVServerToClient>{}))
+    {
+        return indexOfVariantType<T>(TypeList<PVServerToClient>{});
+    }
+    else
+    {
+        throw;
+    }
+}
 
 static constexpr std::uint8_t preamble1stByte{'o'};
 static constexpr std::uint8_t preamble2ndByte{'h'};
@@ -51,10 +101,12 @@ void addVersion(sf::Packet& p)
       << static_cast<std::uint8_t>(GAME_VERSION.micro);
 }
 
-void addPacketType(sf::Packet& p, const PacketType pt)
+template <typename T>
+void addPacketType(sf::Packet& p, const T&)
 {
-    p << static_cast<std::uint8_t>(pt);
+    p << static_cast<std::uint8_t>(getPacketType<T>());
 }
+
 
 auto makeByteMatcher(std::ostringstream& errorOss, sf::Packet& p)
 {
@@ -92,7 +144,7 @@ auto makeByteExtractor(std::ostringstream& errorOss, sf::Packet& p)
     };
 }
 
-[[nodiscard]] bool verifyReceivedPacket(
+[[nodiscard]] bool verifyReceivedPacketPreambleAndVersion(
     std::ostringstream& errorOss, sf::Packet& p)
 {
     const auto matchByte = makeByteMatcher(errorOss, p);
@@ -104,23 +156,17 @@ auto makeByteExtractor(std::ostringstream& errorOss, sf::Packet& p)
            matchByte("micro version", GAME_VERSION.micro);
 }
 
-void initializePacketForSending(sf::Packet& p, const PacketType pt)
+void initializePacketForSending(sf::Packet& p)
 {
     p.clear();
 
     addPreamble(p);
     addVersion(p);
-    addPacketType(p, pt);
 }
 
 [[nodiscard]] std::optional<PacketType> decodeReceivedPacketAndGetPacketType(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    if(!verifyReceivedPacket(errorOss, p))
-    {
-        return std::nullopt;
-    }
-
     const auto extractByte = makeByteExtractor(errorOss, p);
     const std::optional<std::uint8_t> extracted = extractByte("packet type");
 
@@ -178,60 +224,111 @@ std::vector<unsigned char>& getStaticCiphertextBuffer()
     return result;
 }
 
-} // namespace
-
-void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat&)
+void encodeOHPacket(sf::Packet& p, const CTSPHeartbeat& data)
 {
-    initializePacketForSending(p, PacketType::CTS_Heartbeat);
+    addPacketType(p, data);
 }
 
-void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect&)
+void encodeOHPacket(sf::Packet& p, const CTSPDisconnect& data)
 {
-    initializePacketForSending(p, PacketType::CTS_Disconnect);
+    addPacketType(p, data);
 }
 
-void makeClientToServerPacket(sf::Packet& p, const CTSPPublicKey& data)
+void encodeOHPacket(sf::Packet& p, const CTSPPublicKey& data)
 {
-    initializePacketForSending(p, PacketType::CTS_PublicKey);
+    addPacketType(p, data);
     encodeArray<sodiumPublicKeyBytes>(p, data.key);
 }
 
-void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
+void encodeOHPacket(sf::Packet& p, const CTSPReady& data)
 {
-    initializePacketForSending(p, PacketType::CTS_Ready);
+    addPacketType(p, data);
 }
 
-[[nodiscard]] bool makeClientToServerPacket(sf::Packet& p,
-    const SodiumTransmitKeyArray& keyTransmit, const CTSPEncryptedMsg& data)
+void encodeOHPacket(sf::Packet& p, const CTSPPrint& data)
 {
-    initializePacketForSending(p, PacketType::CTS_EncryptedMsg);
+    addPacketType(p, data);
+    p << data.msg;
+}
 
-    const SodiumNonceArray nonce = generateNonce();
+void encodeOHPacket(sf::Packet& p, const CTSPEncryptedMsg& data)
+{
+    addPacketType(p, data);
 
-    const auto messageData =
-        static_cast<const unsigned char*>(data.msg.getData());
+    encodeArray<sodiumNonceBytes>(p, data.nonce);
+    p << data.messageLength;
+    p << data.ciphertextLength;
+    encodeFirstNVectorElements(p, data.ciphertext, data.ciphertextLength);
+}
 
-    const std::size_t messageLength = data.msg.getDataSize();
+void encodeOHPacket(sf::Packet& p, const STCPKick& data)
+{
+    addPacketType(p, data);
+}
 
-    const std::size_t ciphertextLength = getCiphertextLength(messageLength);
-    std::vector<unsigned char> ciphertext;
-    ciphertext.resize(ciphertextLength);
+void encodeOHPacket(sf::Packet& p, const STCPPublicKey& data)
+{
+    addPacketType(p, data);
 
-    if(crypto_secretbox_easy(ciphertext.data(), messageData, messageLength,
-           nonce.data(), keyTransmit.data()) != 0)
+    for(std::size_t i = 0; i < sodiumPublicKeyBytes; ++i)
+    {
+        p << data.key[i];
+    }
+}
+
+} // namespace
+
+// ----------------------------------------------------------------------------
+
+template <typename T>
+void makeClientToServerPacket(sf::Packet& p, const T& data)
+{
+    initializePacketForSending(p);
+    encodeOHPacket(p, data);
+}
+
+template void makeClientToServerPacket(sf::Packet&, const CTSPHeartbeat&);
+template void makeClientToServerPacket(sf::Packet&, const CTSPDisconnect&);
+template void makeClientToServerPacket(sf::Packet&, const CTSPPublicKey&);
+template void makeClientToServerPacket(sf::Packet&, const CTSPReady&);
+template void makeClientToServerPacket(sf::Packet&, const CTSPPrint&);
+template void makeClientToServerPacket(sf::Packet&, const CTSPEncryptedMsg&);
+
+// ----------------------------------------------------------------------------
+
+template <typename T>
+[[nodiscard]] bool makeClientToServerEncryptedPacket(
+    const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
+{
+    sf::Packet packetToEncrypt;
+    encodeOHPacket(packetToEncrypt, data);
+
+    CTSPEncryptedMsg encryptedMsg{
+        .nonce = generateNonce(),
+        .messageLength = packetToEncrypt.getDataSize(),
+        .ciphertextLength = getCiphertextLength(packetToEncrypt.getDataSize())
+        //
+    };
+
+    encryptedMsg.ciphertext.resize(encryptedMsg.ciphertextLength);
+    if(crypto_secretbox_easy(encryptedMsg.ciphertext.data(),
+           static_cast<const unsigned char*>(packetToEncrypt.getData()),
+           encryptedMsg.messageLength, encryptedMsg.nonce.data(),
+           keyTransmit.data()) != 0)
     {
         return false;
     }
 
-    encodeArray<sodiumNonceBytes>(p, nonce);
-    p << ciphertextLength;
-    encodeFirstNVectorElements(p, ciphertext, ciphertextLength);
-    p << messageLength;
-
+    makeClientToServerPacket(p, encryptedMsg);
     return true;
 }
 
-[[nodiscard]] PVClientToServer decodeClientToServerPacket(
+template bool makeClientToServerEncryptedPacket(
+    const SodiumTransmitKeyArray&, sf::Packet&, const CTSPPrint&);
+
+// ----------------------------------------------------------------------------
+
+[[nodiscard]] static PVClientToServer decodeClientToServerPacketInner(
     std::ostringstream& errorOss, sf::Packet& p,
     const SodiumReceiveKeyArray* keyReceive)
 {
@@ -243,17 +340,17 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
         return {PInvalid{.error = errorOss.str()}};
     }
 
-    if(*pt == PacketType::CTS_Heartbeat)
+    if(*pt == getPacketType<CTSPHeartbeat>())
     {
         return {CTSPHeartbeat{}};
     }
 
-    if(*pt == PacketType::CTS_Disconnect)
+    if(*pt == getPacketType<CTSPDisconnect>())
     {
         return {CTSPDisconnect{}};
     }
 
-    if(*pt == PacketType::CTS_PublicKey)
+    if(*pt == getPacketType<CTSPPublicKey>())
     {
         CTSPPublicKey result;
 
@@ -273,12 +370,25 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
         return {result};
     }
 
-    if(*pt == PacketType::CTS_Ready)
+    if(*pt == getPacketType<CTSPReady>())
     {
         return {CTSPReady{}};
     }
 
-    if(*pt == PacketType::CTS_EncryptedMsg)
+    if(*pt == getPacketType<CTSPPrint>())
+    {
+        CTSPPrint result;
+
+        if(!(p >> result.msg))
+        {
+            errorOss << "Error decoding client print message\n";
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        return {result};
+    }
+
+    if(*pt == getPacketType<CTSPEncryptedMsg>())
     {
         if(keyReceive == nullptr)
         {
@@ -289,8 +399,6 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
         }
 
         SodiumNonceArray nonce;
-
-
         for(std::size_t i = 0; i < sodiumNonceBytes; ++i)
         {
             if(p >> nonce[i])
@@ -302,14 +410,19 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
             return {PInvalid{.error = errorOss.str()}};
         }
 
+        std::size_t messageLength;
+        if(!(p >> messageLength))
+        {
+            errorOss << "Error decoding client message length\n";
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
         std::size_t ciphertextLength;
         if(!(p >> ciphertextLength))
         {
             errorOss << "Error decoding client ciphertext length\n";
             return {PInvalid{.error = errorOss.str()}};
         }
-
-
 
         std::vector<unsigned char> ciphertext;
         ciphertext.resize(ciphertextLength);
@@ -327,13 +440,6 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
             return {PInvalid{.error = errorOss.str()}};
         }
 
-        std::size_t messageLength;
-        if(!(p >> messageLength))
-        {
-            errorOss << "Error decoding client message length\n";
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
         std::vector<unsigned char> message;
         message.resize(messageLength);
 
@@ -346,35 +452,51 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
             return {PInvalid{.error = errorOss.str()}};
         }
 
-        CTSPEncryptedMsg result;
-        result.msg.append(message.data(), messageLength);
-        return {result};
+        sf::Packet decryptedPacket;
+        decryptedPacket.append(message.data(), messageLength);
+
+        return decodeClientToServerPacketInner(
+            errorOss, decryptedPacket, keyReceive);
     }
 
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
     return {PInvalid{.error = errorOss.str()}};
 }
 
+[[nodiscard]] PVClientToServer decodeClientToServerPacket(
+    std::ostringstream& errorOss, sf::Packet& p,
+    const SodiumReceiveKeyArray* keyReceive)
+{
+    if(!verifyReceivedPacketPreambleAndVersion(errorOss, p))
+    {
+        return {PInvalid{.error = errorOss.str()}};
+    }
+
+    return decodeClientToServerPacketInner(errorOss, p, keyReceive);
+}
+
 // ----------------------------------------------------------------------------
 
-void makeServerToClientPacket(sf::Packet& p, const STCPKick&)
+template <typename T>
+void makeServerToClientPacket(sf::Packet& p, const T& data)
 {
-    initializePacketForSending(p, PacketType::STC_Kick);
+    initializePacketForSending(p);
+    encodeOHPacket(p, data);
 }
 
-void makeServerToClientPacket(sf::Packet& p, const STCPPublicKey& data)
-{
-    initializePacketForSending(p, PacketType::STC_PublicKey);
+template void makeServerToClientPacket(sf::Packet&, const STCPKick&);
+template void makeServerToClientPacket(sf::Packet&, const STCPPublicKey&);
 
-    for(std::size_t i = 0; i < sodiumPublicKeyBytes; ++i)
-    {
-        p << data.key[i];
-    }
-}
+// ----------------------------------------------------------------------------
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(
     std::ostringstream& errorOss, sf::Packet& p)
 {
+    if(!verifyReceivedPacketPreambleAndVersion(errorOss, p))
+    {
+        return {PInvalid{.error = errorOss.str()}};
+    }
+
     const std::optional<PacketType> pt =
         decodeReceivedPacketAndGetPacketType(errorOss, p);
 
@@ -383,12 +505,12 @@ void makeServerToClientPacket(sf::Packet& p, const STCPPublicKey& data)
         return {PInvalid{.error = errorOss.str()}};
     }
 
-    if(*pt == PacketType::STC_Kick)
+    if(*pt == getPacketType<STCPKick>())
     {
         return {STCPKick{}};
     }
 
-    if(*pt == PacketType::STC_PublicKey)
+    if(*pt == getPacketType<STCPPublicKey>())
     {
         STCPPublicKey result;
 
