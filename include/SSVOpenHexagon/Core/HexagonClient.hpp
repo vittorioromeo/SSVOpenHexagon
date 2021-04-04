@@ -59,6 +59,7 @@ private:
     [[nodiscard]] bool sendHeartbeat();
     [[nodiscard]] bool sendPublicKey();
     [[nodiscard]] bool sendReady();
+    [[nodiscard]] bool sendEncryptedMessage(const std::string& s);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
