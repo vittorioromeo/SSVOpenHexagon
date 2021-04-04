@@ -31,7 +31,7 @@ struct CTSPHeartbeat    { };
 struct CTSPDisconnect   { };
 struct CTSPPublicKey    { SodiumPublicKeyArray key; };
 struct CTSPReady        { };
-struct CTSPEncryptedMsg { std::string msg; };
+struct CTSPEncryptedMsg { sf::Packet msg; };
 // clang-format on
 
 using PVClientToServer = std::variant<PInvalid, CTSPHeartbeat, CTSPDisconnect,

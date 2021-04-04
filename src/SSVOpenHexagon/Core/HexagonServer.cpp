@@ -321,9 +321,13 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
         },
 
         [&](const CTSPEncryptedMsg& ctsp) {
+            sf::Packet copy = ctsp.msg;
+
+            std::string s;
+            copy >> s;
+
             SSVOH_SLOG << "Received encrypted msg packet from client '"
-                       << clientAddress << "'\nContents: '" << ctsp.msg
-                       << "'\n";
+                       << clientAddress << "'\nContents: '" << s << "'\n";
 
             return true;
         }

@@ -208,21 +208,16 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
 
     const SodiumNonceArray nonce = generateNonce();
 
-    std::vector<unsigned char>& message = getStaticMessageBuffer();
-    message.clear();
-    message.reserve(data.msg.size());
-    for(const char c : data.msg)
-    {
-        message.emplace_back(static_cast<unsigned char>(c));
-    }
+    const auto messageData =
+        static_cast<const unsigned char*>(data.msg.getData());
 
-    const std::size_t messageLength = message.size();
+    const std::size_t messageLength = data.msg.getDataSize();
 
     const std::size_t ciphertextLength = getCiphertextLength(messageLength);
     std::vector<unsigned char> ciphertext;
     ciphertext.resize(ciphertextLength);
 
-    if(crypto_secretbox_easy(ciphertext.data(), message.data(), messageLength,
+    if(crypto_secretbox_easy(ciphertext.data(), messageData, messageLength,
            nonce.data(), keyTransmit.data()) != 0)
     {
         return false;
@@ -351,14 +346,9 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
             return {PInvalid{.error = errorOss.str()}};
         }
 
-        std::string s;
-        s.reserve(messageLength);
-        for(const unsigned char c : message)
-        {
-            s += static_cast<char>(c);
-        }
-
-        return {CTSPEncryptedMsg{s}};
+        CTSPEncryptedMsg result;
+        result.msg.append(message.data(), messageLength);
+        return {result};
     }
 
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
