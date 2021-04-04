@@ -18,12 +18,27 @@ inline constexpr std::size_t sodiumPublicKeyBytes = crypto_kx_PUBLICKEYBYTES;
 inline constexpr std::size_t sodiumSecretKeyBytes = crypto_kx_SECRETKEYBYTES;
 inline constexpr std::size_t sodiumReceiveKeyBytes = crypto_kx_SESSIONKEYBYTES;
 inline constexpr std::size_t sodiumTransmitKeyBytes = crypto_kx_SESSIONKEYBYTES;
+inline constexpr std::size_t sodiumNonceBytes = crypto_secretbox_NONCEBYTES;
 
 using SodiumPublicKeyArray = std::array<unsigned char, sodiumPublicKeyBytes>;
 using SodiumSecretKeyArray = std::array<unsigned char, sodiumSecretKeyBytes>;
 using SodiumReceiveKeyArray = std::array<unsigned char, sodiumReceiveKeyBytes>;
 using SodiumTransmitKeyArray =
     std::array<unsigned char, sodiumTransmitKeyBytes>;
+using SodiumNonceArray = std::array<unsigned char, sodiumNonceBytes>;
+
+[[nodiscard]] inline constexpr std::size_t getCiphertextLength(
+    const std::size_t messageLength)
+{
+    return crypto_secretbox_MACBYTES + messageLength;
+}
+
+[[nodiscard]] inline SodiumNonceArray generateNonce()
+{
+    SodiumNonceArray result;
+    randombytes_buf(result.data(), result.size());
+    return result;
+}
 
 struct SodiumPSKeys
 {

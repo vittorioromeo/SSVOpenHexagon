@@ -49,7 +49,7 @@ private:
         int _consecutiveFailures;
         bool _mustDisconnect;
         std::optional<SodiumPublicKeyArray> _clientPublicKey;
-        std::optional<SodiumRTKeys> _rsKeys;
+        std::optional<SodiumRTKeys> _rtKeys;
         bool _ready;
 
         explicit ConnectedClient(const TimePoint lastActivity)

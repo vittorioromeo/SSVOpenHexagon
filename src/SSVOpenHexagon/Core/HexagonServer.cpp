@@ -246,7 +246,8 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
     const void* clientAddress = static_cast<void*>(&c);
 
     _errorOss.str("");
-    const PVClientToServer pv = decodeClientToServerPacket(_errorOss, p);
+    const PVClientToServer pv = decodeClientToServerPacket(
+        _errorOss, p, c._rtKeys.has_value() ? &c._rtKeys->keyReceive : nullptr);
 
     return Utils::match(
         pv,
@@ -285,10 +286,10 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
                        << "'\n";
 
             SSVOH_SLOG << "Calculating RT keys\n";
-            c._rsKeys =
+            c._rtKeys =
                 calculateServerSessionSodiumRTKeys(_serverPSKeys, ctsp.key);
 
-            if(!c._rsKeys.has_value())
+            if(!c._rtKeys.has_value())
             {
                 SSVOH_SLOG_ERROR
                     << "Failed calculating RT keys, disconnecting client '"
@@ -300,8 +301,8 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
                 return false;
             }
 
-            const auto keyReceive = sodiumKeyToString(c._rsKeys->keyReceive);
-            const auto keyTransmit = sodiumKeyToString(c._rsKeys->keyTransmit);
+            const auto keyReceive = sodiumKeyToString(c._rtKeys->keyReceive);
+            const auto keyTransmit = sodiumKeyToString(c._rtKeys->keyTransmit);
 
             SSVOH_SLOG << "Calculated RT keys\n"
                        << " - " << SSVOH_SLOG_VAR(keyReceive) << '\n'
@@ -316,6 +317,14 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
                        << "'\n";
 
             c._ready = true;
+            return true;
+        },
+
+        [&](const CTSPEncryptedMsg& ctsp) {
+            SSVOH_SLOG << "Received encrypted msg packet from client '"
+                       << clientAddress << "'\nContents: '" << ctsp.msg
+                       << "'\n";
+
             return true;
         }
 

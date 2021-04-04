@@ -238,6 +238,29 @@ namespace hg
     return sendPacket(_packetBuffer);
 }
 
+[[nodiscard]] bool HexagonClient::sendEncryptedMessage(const std::string& s)
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(!_clientRTKeys.has_value())
+    {
+        SSVOH_CLOG_ERROR << "Tried to send encrypted message without RT keys\n";
+        return false;
+    }
+
+    if(!makeClientToServerPacket(
+           _packetBuffer, _clientRTKeys->keyTransmit, CTSPEncryptedMsg{s}))
+    {
+        SSVOH_CLOG_ERROR << "Error building encrypted message packet\n";
+        return false;
+    }
+
+    return sendPacket(_packetBuffer);
+}
+
 bool HexagonClient::connect()
 {
     if(_socketConnected)
@@ -420,8 +443,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                        << " - " << SSVOH_CLOG_VAR(keyReceive) << '\n'
                        << " - " << SSVOH_CLOG_VAR(keyTransmit) << '\n';
 
-            SSVOH_CLOG << "Replying with ready status\n";
-            return sendReady();
+            SSVOH_CLOG << "Replying with ready status and encrypted message\n";
+            return sendReady() && sendEncryptedMessage("hello world!!!");
         }
 
         //

@@ -4,7 +4,9 @@
 
 #include "SSVOpenHexagon/Online/Shared.hpp"
 
+#include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
+#include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include <SFML/Network/Packet.hpp>
 
@@ -12,6 +14,7 @@
 
 #include <cstdint>
 #include <sstream>
+#include <iostream>
 #include <optional>
 
 namespace hg
@@ -26,6 +29,7 @@ enum class PacketType : std::uint8_t
     CTS_Disconnect = 1,
     CTS_PublicKey = 2,
     CTS_Ready = 3,
+    CTS_EncryptedMsg = 4,
 
     STC_Kick = 128,
     STC_PublicKey = 129
@@ -155,8 +159,52 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
     initializePacketForSending(p, PacketType::CTS_Ready);
 }
 
+[[nodiscard]] bool makeClientToServerPacket(sf::Packet& p,
+    const SodiumTransmitKeyArray& keyTransmit, const CTSPEncryptedMsg& data)
+{
+    initializePacketForSending(p, PacketType::CTS_EncryptedMsg);
+
+    const SodiumNonceArray nonce = generateNonce();
+
+    std::vector<unsigned char> message;
+    message.reserve(data.msg.size());
+    for(const char c : data.msg)
+    {
+        message.emplace_back(static_cast<unsigned char>(c));
+    }
+
+    const std::size_t messageLength = message.size();
+
+    const std::size_t ciphertextLength = getCiphertextLength(messageLength);
+    std::vector<unsigned char> ciphertext;
+    ciphertext.resize(ciphertextLength);
+
+    if(crypto_secretbox_easy(ciphertext.data(), message.data(), messageLength,
+           nonce.data(), keyTransmit.data()) != 0)
+    {
+        return false;
+    }
+
+    for(std::size_t i = 0; i < sodiumNonceBytes; ++i)
+    {
+        p << nonce[i];
+    }
+
+    p << ciphertextLength;
+
+    for(std::size_t i = 0; i < ciphertextLength; ++i)
+    {
+        p << ciphertext[i];
+    }
+
+    p << messageLength;
+
+    return true;
+}
+
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
-    std::ostringstream& errorOss, sf::Packet& p)
+    std::ostringstream& errorOss, sf::Packet& p,
+    const SodiumReceiveKeyArray* keyReceive)
 {
     const std::optional<PacketType> pt =
         decodeReceivedPacketAndGetPacketType(errorOss, p);
@@ -199,6 +247,84 @@ void makeClientToServerPacket(sf::Packet& p, const CTSPReady&)
     if(*pt == PacketType::CTS_Ready)
     {
         return {CTSPReady{}};
+    }
+
+    if(*pt == PacketType::CTS_EncryptedMsg)
+    {
+        if(keyReceive == nullptr)
+        {
+            errorOss << "Cannot decode client encrypted message without "
+                        "receive key\n";
+
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        SodiumNonceArray nonce;
+
+
+        for(std::size_t i = 0; i < sodiumNonceBytes; ++i)
+        {
+            if(p >> nonce[i])
+            {
+                continue;
+            }
+
+            errorOss << "Error decoding client nonce at index '" << i << "'\n";
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        std::size_t ciphertextLength;
+        if(!(p >> ciphertextLength))
+        {
+            errorOss << "Error decoding client ciphertext length\n";
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+
+
+        std::vector<unsigned char> ciphertext;
+        ciphertext.resize(ciphertextLength);
+
+        for(std::size_t i = 0; i < ciphertextLength; ++i)
+        {
+            if(p >> ciphertext[i])
+            {
+                continue;
+            }
+
+            errorOss << "Error decoding client ciphertext at index '" << i
+                     << "'\n";
+
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        std::size_t messageLength;
+        if(!(p >> messageLength))
+        {
+            errorOss << "Error decoding client message length\n";
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        std::vector<unsigned char> message;
+        message.resize(messageLength);
+
+        SSVOH_ASSERT(keyReceive != nullptr);
+
+        if(crypto_secretbox_open_easy(message.data(), ciphertext.data(),
+               ciphertextLength, nonce.data(), keyReceive->data()) != 0)
+        {
+            errorOss << "Failure decrypting encrypted client message\n";
+            return {PInvalid{.error = errorOss.str()}};
+        }
+
+        std::string s;
+        s.reserve(messageLength);
+        for(const unsigned char c : message)
+        {
+            s += static_cast<char>(c);
+        }
+
+        return {CTSPEncryptedMsg{s}};
     }
 
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";

@@ -27,22 +27,26 @@ struct PInvalid { std::string error; };
 // ----------------------------------------------------------------------------
 
 // clang-format off
-struct CTSPHeartbeat  { };
-struct CTSPDisconnect { };
-struct CTSPPublicKey  { SodiumPublicKeyArray key; };
-struct CTSPReady      { };
+struct CTSPHeartbeat    { };
+struct CTSPDisconnect   { };
+struct CTSPPublicKey    { SodiumPublicKeyArray key; };
+struct CTSPReady        { };
+struct CTSPEncryptedMsg { std::string msg; };
 // clang-format on
 
 using PVClientToServer = std::variant<PInvalid, CTSPHeartbeat, CTSPDisconnect,
-    CTSPPublicKey, CTSPReady>;
+    CTSPPublicKey, CTSPReady, CTSPEncryptedMsg>;
 
 void makeClientToServerPacket(sf::Packet& p, const CTSPHeartbeat& data);
 void makeClientToServerPacket(sf::Packet& p, const CTSPDisconnect& data);
 void makeClientToServerPacket(sf::Packet& p, const CTSPPublicKey& data);
 void makeClientToServerPacket(sf::Packet& p, const CTSPReady& data);
+[[nodiscard]] bool makeClientToServerPacket(sf::Packet& p,
+    const SodiumTransmitKeyArray& keyTransmit, const CTSPEncryptedMsg& data);
 
 [[nodiscard]] PVClientToServer decodeClientToServerPacket(
-    std::ostringstream& errorOss, sf::Packet& p);
+    std::ostringstream& errorOss, sf::Packet& p,
+    const SodiumReceiveKeyArray* keyReceive);
 
 // ----------------------------------------------------------------------------
 
