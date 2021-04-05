@@ -11,6 +11,7 @@
 #include <sodium.h>
 
 #include <cstdint>
+#include <cstddef>
 #include <sstream>
 #include <optional>
 #include <variant>
@@ -29,9 +30,9 @@ struct PInvalid
 struct PEncryptedMsg
 {
     SodiumNonceArray nonce;
-    std::size_t messageLength;
-    std::size_t ciphertextLength;
-    std::vector<unsigned char>* ciphertext;
+    std::uint64_t messageLength;
+    std::uint64_t ciphertextLength;
+    std::vector<std::uint8_t>* ciphertext;
 };
 
 // ----------------------------------------------------------------------------

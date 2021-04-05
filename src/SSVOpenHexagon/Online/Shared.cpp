@@ -277,15 +277,15 @@ void encodeFirstNVectorElements(
     }
 }
 
-std::vector<unsigned char>& getStaticMessageBuffer()
+std::vector<std::uint8_t>& getStaticMessageBuffer()
 {
-    thread_local std::vector<unsigned char> result;
+    thread_local std::vector<std::uint8_t> result;
     return result;
 }
 
-std::vector<unsigned char>& getStaticCiphertextBuffer()
+std::vector<std::uint8_t>& getStaticCiphertextBuffer()
 {
-    thread_local std::vector<unsigned char> result;
+    thread_local std::vector<std::uint8_t> result;
     return result;
 }
 
@@ -357,21 +357,21 @@ void encodeOHPacket(sf::Packet& p, const STCPPublicKey& data)
         return false;
     }
 
-    std::size_t messageLength;
+    std::uint64_t messageLength;
     if(!extractInto(messageLength, errorOss, p))
     {
         errorOss << "Error decoding client message length\n";
         return false;
     }
 
-    std::size_t ciphertextLength;
+    std::uint64_t ciphertextLength;
     if(!extractInto(ciphertextLength, errorOss, p))
     {
         errorOss << "Error decoding client ciphertext length\n";
         return false;
     }
 
-    std::vector<unsigned char>& ciphertext = getStaticCiphertextBuffer();
+    std::vector<std::uint8_t>& ciphertext = getStaticCiphertextBuffer();
     ciphertext.resize(ciphertextLength);
 
     for(std::size_t i = 0; i < ciphertextLength; ++i)
@@ -386,7 +386,7 @@ void encodeOHPacket(sf::Packet& p, const STCPPublicKey& data)
         return false;
     }
 
-    std::vector<unsigned char>& message = getStaticMessageBuffer();
+    std::vector<std::uint8_t>& message = getStaticMessageBuffer();
     message.resize(messageLength);
 
     if(crypto_secretbox_open_easy(message.data(), ciphertext.data(),
@@ -442,7 +442,7 @@ template <typename T>
     encryptedMsg.ciphertext->resize(encryptedMsg.ciphertextLength);
 
     if(crypto_secretbox_easy(encryptedMsg.ciphertext->data(),
-           static_cast<const unsigned char*>(packetToEncrypt.getData()),
+           static_cast<const std::uint8_t*>(packetToEncrypt.getData()),
            encryptedMsg.messageLength, encryptedMsg.nonce.data(),
            keyTransmit.data()) != 0)
     {
