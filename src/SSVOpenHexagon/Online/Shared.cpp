@@ -400,7 +400,7 @@ void encodeOHPacket(sf::Packet& p, const STCPPublicKey& data)
     decryptedPacket.append(message.data(), messageLength);
 
     return true;
-};
+}
 
 } // namespace
 
