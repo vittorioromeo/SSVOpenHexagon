@@ -65,7 +65,7 @@ template <typename T, typename... Ts>
     return indexOfType<T>(TypeList<Ts...>{});
 }
 
-using PacketType = std::uint8_t;
+using PacketType = sf::Uint8;
 
 template <typename T>
 [[nodiscard]] constexpr PacketType getPacketType()
@@ -84,20 +84,20 @@ template <typename T>
     }
 }
 
-static constexpr std::uint8_t preamble1stByte{'o'};
-static constexpr std::uint8_t preamble2ndByte{'h'};
+static constexpr sf::Uint8 preamble1stByte{'o'};
+static constexpr sf::Uint8 preamble2ndByte{'h'};
 
 void encodePreamble(sf::Packet& p)
 {
-    p << static_cast<std::uint8_t>(preamble1stByte)
-      << static_cast<std::uint8_t>(preamble2ndByte);
+    p << static_cast<sf::Uint8>(preamble1stByte)
+      << static_cast<sf::Uint8>(preamble2ndByte);
 }
 
 void encodeVersion(sf::Packet& p)
 {
-    p << static_cast<std::uint8_t>(GAME_VERSION.major)
-      << static_cast<std::uint8_t>(GAME_VERSION.minor)
-      << static_cast<std::uint8_t>(GAME_VERSION.micro);
+    p << static_cast<sf::Uint8>(GAME_VERSION.major)
+      << static_cast<sf::Uint8>(GAME_VERSION.minor)
+      << static_cast<sf::Uint8>(GAME_VERSION.micro);
 }
 
 void clearPacketAndEncodePreambleAndVersion(sf::Packet& p)
@@ -111,7 +111,7 @@ void clearPacketAndEncodePreambleAndVersion(sf::Packet& p)
 template <typename T>
 void encodePacketType(sf::Packet& p, const T&)
 {
-    p << static_cast<std::uint8_t>(getPacketType<T>());
+    p << static_cast<sf::Uint8>(getPacketType<T>());
 }
 
 template <typename T, typename = void>
@@ -220,7 +220,7 @@ template <typename T>
 [[nodiscard]] bool verifyReceivedPacketPreambleAndVersion(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    const auto matchByte = makeMatcher<std::uint8_t>(errorOss, p);
+    const auto matchByte = makeMatcher<sf::Uint8>(errorOss, p);
 
     return matchByte("preamble 1st byte", preamble1stByte) &&
            matchByte("preamble 2nd byte", preamble2ndByte) &&
@@ -232,8 +232,8 @@ template <typename T>
 [[nodiscard]] std::optional<PacketType> extractPacketType(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    const std::optional<std::uint8_t> extracted =
-        makeExtractor<std::uint8_t>(errorOss, p)("packet type");
+    const std::optional<sf::Uint8> extracted =
+        makeExtractor<sf::Uint8>(errorOss, p)("packet type");
 
     if(!extracted.has_value())
     {
@@ -277,15 +277,15 @@ void encodeFirstNVectorElements(
     }
 }
 
-std::vector<std::uint8_t>& getStaticMessageBuffer()
+std::vector<sf::Uint8>& getStaticMessageBuffer()
 {
-    thread_local std::vector<std::uint8_t> result;
+    thread_local std::vector<sf::Uint8> result;
     return result;
 }
 
-std::vector<std::uint8_t>& getStaticCiphertextBuffer()
+std::vector<sf::Uint8>& getStaticCiphertextBuffer()
 {
-    thread_local std::vector<std::uint8_t> result;
+    thread_local std::vector<sf::Uint8> result;
     return result;
 }
 
@@ -357,21 +357,21 @@ void encodeOHPacket(sf::Packet& p, const STCPPublicKey& data)
         return false;
     }
 
-    std::uint64_t messageLength;
+    sf::Uint64 messageLength;
     if(!extractInto(messageLength, errorOss, p))
     {
         errorOss << "Error decoding client message length\n";
         return false;
     }
 
-    std::uint64_t ciphertextLength;
+    sf::Uint64 ciphertextLength;
     if(!extractInto(ciphertextLength, errorOss, p))
     {
         errorOss << "Error decoding client ciphertext length\n";
         return false;
     }
 
-    std::vector<std::uint8_t>& ciphertext = getStaticCiphertextBuffer();
+    std::vector<sf::Uint8>& ciphertext = getStaticCiphertextBuffer();
     ciphertext.resize(ciphertextLength);
 
     for(std::size_t i = 0; i < ciphertextLength; ++i)
@@ -386,7 +386,7 @@ void encodeOHPacket(sf::Packet& p, const STCPPublicKey& data)
         return false;
     }
 
-    std::vector<std::uint8_t>& message = getStaticMessageBuffer();
+    std::vector<sf::Uint8>& message = getStaticMessageBuffer();
     message.resize(messageLength);
 
     if(crypto_secretbox_open_easy(message.data(), ciphertext.data(),
@@ -442,7 +442,7 @@ template <typename T>
     encryptedMsg.ciphertext->resize(encryptedMsg.ciphertextLength);
 
     if(crypto_secretbox_easy(encryptedMsg.ciphertext->data(),
-           static_cast<const std::uint8_t*>(packetToEncrypt.getData()),
+           static_cast<const sf::Uint8*>(packetToEncrypt.getData()),
            encryptedMsg.messageLength, encryptedMsg.nonce.data(),
            keyTransmit.data()) != 0)
     {

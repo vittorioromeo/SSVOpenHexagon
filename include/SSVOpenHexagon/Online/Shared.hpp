@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
 #include <SFML/Network/Packet.hpp>
+#include <SFML/Config.hpp>
 
 #include <sodium.h>
 
@@ -30,9 +31,9 @@ struct PInvalid
 struct PEncryptedMsg
 {
     SodiumNonceArray nonce;
-    std::uint64_t messageLength;
-    std::uint64_t ciphertextLength;
-    std::vector<std::uint8_t>* ciphertext;
+    sf::Uint64 messageLength;
+    sf::Uint64 ciphertextLength;
+    std::vector<sf::Uint8>* ciphertext;
 };
 
 // ----------------------------------------------------------------------------
