@@ -113,6 +113,7 @@
     X(showStatusText, bool, "show_status_text")                            \
     X(serverIp, std::string, "server_ip")                                  \
     X(serverPort, unsigned short, "server_port")                           \
+    X(serverControlPort, unsigned short, "server_control_port")            \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config
@@ -656,6 +657,11 @@ void setServerPort(unsigned short mX)
     serverPort() = mX;
 }
 
+void setServerControlPort(unsigned short mX)
+{
+    serverControlPort() = mX;
+}
+
 [[nodiscard]] bool getOnline()
 {
     return online();
@@ -987,6 +993,11 @@ void setServerPort(unsigned short mX)
 [[nodiscard]] unsigned short getServerPort()
 {
     return serverPort();
+}
+
+[[nodiscard]] unsigned short getServerControlPort()
+{
+    return serverControlPort();
 }
 
 //***********************************************************

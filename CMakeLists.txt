@@ -344,6 +344,30 @@ install(
 #
 #
 # -----------------------------------------------------------------------------
+# Server control tool
+# -----------------------------------------------------------------------------
+
+add_executable(
+    OHServerControl "${CMAKE_CURRENT_SOURCE_DIR}/src/OHServerControl/main.cpp"
+)
+
+target_include_directories(
+    OHServerControl SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
+)
+
+target_link_libraries(OHServerControl sfml-system sfml-network)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(OHServerControl pthread)
+endif()
+
+install(
+    TARGETS OHServerControl RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
+)
+
+#
+#
+# -----------------------------------------------------------------------------
 # Tests
 # -----------------------------------------------------------------------------
 
