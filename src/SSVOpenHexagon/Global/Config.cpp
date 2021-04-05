@@ -280,6 +280,7 @@ void resetConfigToDefaults()
         ssvu::lo("hg::Config::resetConfigToDefaults()")
             << "`default_config.json` file not found, config reset "
                "aborted\n";
+
         return;
     }
 
@@ -307,6 +308,7 @@ void resetBindsToDefaults()
         ssvu::lo("hg::Config::resetBindsToDefaults()")
             << "`default_config.json` file not found, config reset "
                "aborted\n";
+
         return;
     }
 
