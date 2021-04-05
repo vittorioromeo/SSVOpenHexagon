@@ -79,8 +79,19 @@ private:
     [[nodiscard]] bool initializeTcpListener();
     [[nodiscard]] bool initializeSocketSelector();
 
+    [[nodiscard]] bool sendPacket(ConnectedClient& c, sf::Packet& p);
+
+    template <typename T>
+    [[nodiscard]] bool sendEncrypted(ConnectedClient& c, const T& data);
+
     [[nodiscard]] bool sendKick(ConnectedClient& c);
     [[nodiscard]] bool sendPublicKey(ConnectedClient& c);
+    [[nodiscard]] bool sendRegistrationSuccess(ConnectedClient& c);
+    [[nodiscard]] bool sendRegistrationFailure(
+        ConnectedClient& c, const std::string& error);
+    [[nodiscard]] bool sendLoginSuccess(ConnectedClient& c);
+    [[nodiscard]] bool sendLoginFailure(
+        ConnectedClient& c, const std::string& error);
 
     void runSocketSelector();
     void runSocketSelector_Iteration();

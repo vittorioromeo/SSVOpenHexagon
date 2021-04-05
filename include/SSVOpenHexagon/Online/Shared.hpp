@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
+#include <vrm/pp/tpl.hpp>
+
 #include <SFML/Network/Packet.hpp>
 #include <SFML/Config.hpp>
 
@@ -44,10 +46,16 @@ struct CTSPDisconnect { };
 struct CTSPPublicKey  { SodiumPublicKeyArray key; };
 struct CTSPReady      { };
 struct CTSPPrint      { std::string msg; };
+struct CTSPRegister   { std::uint64_t steamId; std::string name; };
+struct CTSPLogin      { std::uint64_t steamId; std::string name; };
 // clang-format on
 
-using PVClientToServer = std::variant<PInvalid, PEncryptedMsg, CTSPHeartbeat,
-    CTSPDisconnect, CTSPPublicKey, CTSPReady, CTSPPrint>;
+#define SSVOH_CTS_PACKETS                                                    \
+    VRM_PP_TPL_MAKE(CTSPHeartbeat, CTSPDisconnect, CTSPPublicKey, CTSPReady, \
+        CTSPPrint, CTSPRegister, CTSPLogin)
+
+using PVClientToServer = std::variant<PInvalid, PEncryptedMsg,
+    VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;
 
 // ----------------------------------------------------------------------------
 
@@ -65,17 +73,29 @@ template <typename T>
 // ----------------------------------------------------------------------------
 
 // clang-format off
-struct STCPKick      { };
-struct STCPPublicKey { SodiumPublicKeyArray key; };
+struct STCPKick                { };
+struct STCPPublicKey           { SodiumPublicKeyArray key; };
+struct STCPRegistrationSuccess { };
+struct STCPRegistrationFailure { std::string error; };
+struct STCPLoginSuccess        { };
+struct STCPLoginFailure        { std::string error; };
 // clang-format on
 
-using PVServerToClient =
-    std::variant<PInvalid, PEncryptedMsg, STCPKick, STCPPublicKey>;
+#define SSVOH_STC_PACKETS                                             \
+    VRM_PP_TPL_MAKE(STCPKick, STCPPublicKey, STCPRegistrationSuccess, \
+        STCPRegistrationFailure, STCPLoginSuccess, STCPLoginFailure)
+
+using PVServerToClient = std::variant<PInvalid, PEncryptedMsg,
+    VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS)>;
 
 // ----------------------------------------------------------------------------
 
 template <typename T>
 void makeServerToClientPacket(sf::Packet& p, const T& data);
+
+template <typename T>
+[[nodiscard]] bool makeServerToClientEncryptedPacket(
+    const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data);
 
 [[nodiscard]] PVServerToClient decodeServerToClientPacket(
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,

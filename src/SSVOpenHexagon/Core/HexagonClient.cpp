@@ -13,6 +13,8 @@
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
+#include <SSVUtils/Core/Log/Log.hpp>
+
 #include <SFML/Network/Packet.hpp>
 
 #include <thread>
@@ -238,7 +240,8 @@ namespace hg
     return sendPacket(_packetBuffer);
 }
 
-[[nodiscard]] bool HexagonClient::sendEncryptedMessage(const std::string& s)
+template <typename T>
+[[nodiscard]] bool HexagonClient::sendEncrypted(const T& data)
 {
     if(!_socketConnected)
     {
@@ -252,13 +255,30 @@ namespace hg
     }
 
     if(!makeClientToServerEncryptedPacket(
-           _clientRTKeys->keyTransmit, _packetBuffer, CTSPPrint{s}))
+           _clientRTKeys->keyTransmit, _packetBuffer, data))
     {
         SSVOH_CLOG_ERROR << "Error building encrypted message packet\n";
         return false;
     }
 
     return sendPacket(_packetBuffer);
+}
+
+[[nodiscard]] bool HexagonClient::sendPrint(const std::string& s)
+{
+    return sendEncrypted(CTSPPrint{s});
+}
+
+[[nodiscard]] bool HexagonClient::sendRegister(
+    const std::uint64_t steamId, const std::string& name)
+{
+    return sendEncrypted(CTSPRegister{steamId, name});
+}
+
+[[nodiscard]] bool HexagonClient::sendLogin(
+    const std::uint64_t steamId, const std::string& name)
+{
+    return sendEncrypted(CTSPLogin{steamId, name});
 }
 
 bool HexagonClient::connect()
@@ -453,7 +473,33 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                        << " - " << SSVOH_CLOG_VAR(keyTransmit) << '\n';
 
             SSVOH_CLOG << "Replying with ready status and encrypted message\n";
-            return sendReady() && sendEncryptedMessage("hello world!!!");
+            return sendReady() && sendPrint("hello world!!!");
+        },
+
+        [&](const STCPRegistrationSuccess& stcp) {
+            SSVOH_CLOG << "Successfully registered to server\n";
+            // TODO
+            return true;
+        },
+
+        [&](const STCPRegistrationFailure& stcp) {
+            SSVOH_CLOG << "Registration to server failed, error: '"
+                       << stcp.error << "'\n";
+            // TODO
+            return true;
+        },
+
+        [&](const STCPLoginSuccess& stcp) {
+            SSVOH_CLOG << "Successfully logged into server\n";
+            // TODO
+            return true;
+        },
+
+        [&](const STCPLoginFailure& stcp) {
+            SSVOH_CLOG << "Login to server failed, error: '" << stcp.error
+                       << "'\n";
+            // TODO
+            return true;
         }
 
         //
