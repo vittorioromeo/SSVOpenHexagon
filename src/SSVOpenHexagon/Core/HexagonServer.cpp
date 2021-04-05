@@ -37,6 +37,23 @@ static auto& slog(const char* funcName)
 namespace hg
 {
 
+[[nodiscard]] bool HexagonServer::initializeControlSocket()
+{
+    SSVOH_SLOG << "Initializing UDP control socket...\n";
+
+    _controlSocket.setBlocking(true);
+
+    if(_controlSocket.bind(_serverControlPort, sf::IpAddress::LocalHost) !=
+        sf::Socket::Status::Done)
+    {
+        SSVOH_SLOG_ERROR << "Failure binding UDP control socket\n";
+        return false;
+    }
+
+    _socketSelector.add(_controlSocket);
+    return true;
+}
+
 [[nodiscard]] bool HexagonServer::initializeTcpListener()
 {
     SSVOH_SLOG << "Initializing TCP listener...\n";
@@ -63,7 +80,7 @@ namespace hg
 
     if(c._socket.send(_packetBuffer) != sf::Socket::Status::Done)
     {
-        SSVOH_SLOG << "Failure sending kick packet\n";
+        SSVOH_SLOG_ERROR << "Failure sending kick packet\n";
         return false;
     }
 
@@ -77,7 +94,7 @@ namespace hg
 
     if(c._socket.send(_packetBuffer) != sf::Socket::Status::Done)
     {
-        SSVOH_SLOG << "Failure sending kick packet\n";
+        SSVOH_SLOG_ERROR << "Failure sending kick packet\n";
         return false;
     }
 
@@ -101,12 +118,44 @@ void HexagonServer::runSocketSelector_Iteration()
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
 
+        runSocketSelector_Iteration_Control();
         runSocketSelector_Iteration_TryAcceptingNewClient();
         runSocketSelector_Iteration_LoopOverSockets();
     }
 
     runSocketSelector_Iteration_PurgeClients();
 } // namespace hg
+
+bool HexagonServer::runSocketSelector_Iteration_Control()
+{
+    if(!_socketSelector.isReady(_controlSocket))
+    {
+        return false;
+    }
+
+    sf::IpAddress senderIp;
+    unsigned short senderPort;
+
+    if(_controlSocket.receive(_packetBuffer, senderIp, senderPort) !=
+        sf::Socket::Status::Done)
+    {
+        SSVOH_SLOG_ERROR << "Failure receiving control packet\n";
+        return false;
+    }
+
+    std::string controlMsg;
+
+    if(!(_packetBuffer >> controlMsg))
+    {
+        SSVOH_SLOG_ERROR << "Failure decoding control packet\n";
+        return false;
+    }
+
+    SSVOH_SLOG << "Received control packet from '" << senderIp << ':'
+               << senderPort << "', contents: '" << controlMsg << "'\n";
+
+    return true;
+}
 
 bool HexagonServer::runSocketSelector_Iteration_TryAcceptingNewClient()
 {
@@ -340,10 +389,11 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
 }
 
 HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
-    : _assets{assets},
-      _hexagonGame{hexagonGame}, _serverIp{Config::getServerIp()},
-      _serverPort{Config::getServerPort()}, _listener{}, _socketSelector{},
-      _running{true}, _verbose{true}, _serverPSKeys{generateSodiumPSKeys()}
+    : _assets{assets}, _hexagonGame{hexagonGame},
+      _serverIp{Config::getServerIp()}, _serverPort{Config::getServerPort()},
+      _serverControlPort{Config::getServerControlPort()}, _listener{},
+      _socketSelector{}, _running{true}, _verbose{true},
+      _serverPSKeys{generateSodiumPSKeys()}
 {
     const auto sKeyPublic = sodiumKeyToString(_serverPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_serverPSKeys.keySecret);
@@ -351,6 +401,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
     SSVOH_SLOG << "Initializing server...\n"
                << " - " << SSVOH_SLOG_VAR(_serverIp) << '\n'
                << " - " << SSVOH_SLOG_VAR(_serverPort) << '\n'
+               << " - " << SSVOH_SLOG_VAR(_serverControlPort) << '\n'
                << " - " << SSVOH_SLOG_VAR(sKeyPublic) << '\n'
                << " - " << SSVOH_SLOG_VAR(sKeySecret) << '\n';
 
@@ -358,6 +409,14 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
     {
         SSVOH_SLOG_ERROR << "Failure initializing server, invalid ip address '"
                          << Config::getServerIp() << "'\n";
+
+        return;
+    }
+
+    if(!initializeControlSocket())
+    {
+        SSVOH_SLOG_ERROR << "Failure initializing server, control socket could "
+                            "not be initialized\n";
 
         return;
     }
@@ -409,6 +468,7 @@ HexagonServer::~HexagonServer()
 
     _socketSelector.clear();
     _listener.close();
+    _controlSocket.unbind();
 }
 
 } // namespace hg

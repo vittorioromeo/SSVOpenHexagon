@@ -52,6 +52,7 @@
 	"save_local_best_replay_to_file": true,
 	"server_ip": "139.162.199.162",
 	"server_port": 50505,
+	"server_control_port": 50506,
 	"server_local": true,
 	"server_verbose": true,
 	"show_fps": false,

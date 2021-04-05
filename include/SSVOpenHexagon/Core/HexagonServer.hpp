@@ -9,6 +9,7 @@
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/TcpListener.hpp>
 #include <SFML/Network/TcpSocket.hpp>
+#include <SFML/Network/UdpSocket.hpp>
 #include <SFML/Network/SocketSelector.hpp>
 #include <SFML/Network/Packet.hpp>
 
@@ -34,6 +35,9 @@ private:
 
     const sf::IpAddress _serverIp;
     const unsigned short _serverPort;
+    const unsigned short _serverControlPort;
+
+    sf::UdpSocket _controlSocket;
 
     sf::TcpListener _listener;
     sf::SocketSelector _socketSelector;
@@ -71,6 +75,7 @@ private:
 
     const SodiumPSKeys _serverPSKeys;
 
+    [[nodiscard]] bool initializeControlSocket();
     [[nodiscard]] bool initializeTcpListener();
     [[nodiscard]] bool initializeSocketSelector();
 
@@ -79,6 +84,7 @@ private:
 
     void runSocketSelector();
     void runSocketSelector_Iteration();
+    bool runSocketSelector_Iteration_Control();
     bool runSocketSelector_Iteration_TryAcceptingNewClient();
     void runSocketSelector_Iteration_LoopOverSockets();
     void runSocketSelector_Iteration_PurgeClients();
