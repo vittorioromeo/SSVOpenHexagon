@@ -22,6 +22,12 @@ int main(int argc, char* argv[])
         return -1;
     }
 
+    if(argc > 2)
+    {
+        std::cerr << "Invalid number of arguments" << std::endl;
+        return -1;
+    }
+
     std::string stringBuf;
     sf::Packet packet;
     sf::UdpSocket controlSocket;
@@ -34,7 +40,10 @@ int main(int argc, char* argv[])
             sf::Socket::Status::Done)
         {
             std::cerr << "Error sending control packet\n";
+            return false;
         }
+
+        return true;
     };
 
     if(argc == 1) // Interactive mode
@@ -49,15 +58,13 @@ int main(int argc, char* argv[])
 
             sendToServer();
         }
+
+        return 0;
     }
-    else if(argc == 2) // One-off send
+
+    if(argc == 2) // One-off send
     {
         stringBuf = argv[1];
-        sendToServer();
-    }
-    else
-    {
-        std::cerr << "Invalid number of arguments" << std::endl;
-        return -1;
+        return sendToServer() ? 0 : 1;
     }
 }

@@ -56,10 +56,17 @@ private:
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
 
+    template <typename T>
+    [[nodiscard]] bool sendEncrypted(const T& data);
+
     [[nodiscard]] bool sendHeartbeat();
     [[nodiscard]] bool sendPublicKey();
     [[nodiscard]] bool sendReady();
-    [[nodiscard]] bool sendEncryptedMessage(const std::string& s);
+    [[nodiscard]] bool sendPrint(const std::string& s);
+    [[nodiscard]] bool sendRegister(
+        const std::uint64_t steamId, const std::string& name);
+    [[nodiscard]] bool sendLogin(
+        const std::uint64_t steamId, const std::string& name);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);

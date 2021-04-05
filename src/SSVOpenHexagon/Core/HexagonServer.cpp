@@ -9,8 +9,12 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
+#include "SSVOpenHexagon/Online/Database.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
+
+#include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Network.hpp>
 
@@ -74,17 +78,49 @@ namespace hg
     return true;
 }
 
-[[nodiscard]] bool HexagonServer::sendKick(ConnectedClient& c)
+[[nodiscard]] bool HexagonServer::sendPacket(ConnectedClient& c, sf::Packet& p)
 {
-    makeServerToClientPacket(_packetBuffer, STCPKick{});
-
     if(c._socket.send(_packetBuffer) != sf::Socket::Status::Done)
     {
-        SSVOH_SLOG_ERROR << "Failure sending kick packet\n";
+        SSVOH_SLOG_ERROR << "Failure sending packet\n";
         return false;
     }
 
     return true;
+}
+
+template <typename T>
+[[nodiscard]] bool HexagonServer::sendEncrypted(
+    ConnectedClient& c, const T& data)
+{
+    const void* clientAddress = static_cast<void*>(&c);
+
+    if(!c._rtKeys.has_value())
+    {
+        SSVOH_SLOG_ERROR
+            << "Tried to send encrypted message without RT keys for client '"
+            << clientAddress << "'\n";
+
+        return false;
+    }
+
+    if(!makeServerToClientEncryptedPacket(
+           c._rtKeys->keyTransmit, _packetBuffer, data))
+    {
+        SSVOH_SLOG_ERROR
+            << "Error building encrypted message packetfor client '"
+            << clientAddress << "'\n";
+
+        return false;
+    }
+
+    return sendPacket(c, _packetBuffer);
+}
+
+[[nodiscard]] bool HexagonServer::sendKick(ConnectedClient& c)
+{
+    makeServerToClientPacket(_packetBuffer, STCPKick{});
+    return sendPacket(c, _packetBuffer);
 }
 
 [[nodiscard]] bool HexagonServer::sendPublicKey(ConnectedClient& c)
@@ -92,13 +128,29 @@ namespace hg
     makeServerToClientPacket(
         _packetBuffer, STCPPublicKey{_serverPSKeys.keyPublic});
 
-    if(c._socket.send(_packetBuffer) != sf::Socket::Status::Done)
-    {
-        SSVOH_SLOG_ERROR << "Failure sending kick packet\n";
-        return false;
-    }
+    return sendPacket(c, _packetBuffer);
+}
 
-    return true;
+[[nodiscard]] bool HexagonServer::sendRegistrationSuccess(ConnectedClient& c)
+{
+    return sendEncrypted(c, STCPRegistrationSuccess{});
+}
+
+[[nodiscard]] bool HexagonServer::sendRegistrationFailure(
+    ConnectedClient& c, const std::string& error)
+{
+    return sendEncrypted(c, STCPRegistrationFailure{error});
+}
+
+[[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient& c)
+{
+    return sendEncrypted(c, STCPLoginSuccess{});
+}
+
+[[nodiscard]] bool HexagonServer::sendLoginFailure(
+    ConnectedClient& c, const std::string& error)
+{
+    return sendEncrypted(c, STCPLoginFailure{error});
 }
 
 void HexagonServer::runSocketSelector()
@@ -153,6 +205,77 @@ bool HexagonServer::runSocketSelector_Iteration_Control()
 
     SSVOH_SLOG << "Received control packet from '" << senderIp << ':'
                << senderPort << "', contents: '" << controlMsg << "'\n";
+
+    if(controlMsg.empty())
+    {
+        return true;
+    }
+
+    const auto splitted = Utils::split<std::string>(controlMsg);
+
+    if(splitted.empty())
+    {
+        return true;
+    }
+
+    if(splitted[0] == "db")
+    {
+        if(splitted.size() < 2)
+        {
+            SSVOH_SLOG_ERROR << "'db' command must be followed by 'exec'\n";
+
+            return true;
+        }
+
+        if(splitted[1] == "exec")
+        {
+            if(splitted.size() < 3)
+            {
+                SSVOH_SLOG_ERROR << "'db exec' command must be followed by a "
+                                    "sqlite command\n";
+
+                return true;
+            }
+
+            const auto connection =
+                Database::Impl::getStorage().get_connection();
+
+            const auto callback = [](void* a_param, int argc, char** argv,
+                                      char** column) -> int {
+                (void)a_param;
+                (void)column;
+
+                for(int i = 0; i < argc; i++)
+                {
+                    std::printf("%s,\t", argv[i]);
+                }
+
+                std::printf("\n");
+                return 0;
+            };
+
+            std::string query = splitted[2];
+            for(std::size_t i = 3; i < splitted.size(); ++i)
+            {
+                query += ' ';
+                query += splitted[i];
+            }
+
+            sqlite3* db = connection.get();
+
+            char* error = nullptr;
+
+            SSVOH_SLOG << "'db exec' start\n";
+            sqlite3_exec(db, query.c_str(), callback, nullptr, &error);
+            SSVOH_SLOG << "'db exec' end\n";
+
+            if(error != nullptr)
+            {
+                SSVOH_SLOG_ERROR << "'db exec' error:\n" << error << '\n';
+                sqlite3_free(error);
+            }
+        }
+    }
 
     return true;
 }
@@ -381,6 +504,16 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
             SSVOH_SLOG << "Received print packet from client '" << clientAddress
                        << "'\nContents: '" << ctsp.msg << "'\n";
 
+            return true;
+        },
+
+        [&](const CTSPRegister& ctsp) {
+            // TODO
+            return true;
+        },
+
+        [&](const CTSPLogin& ctsp) {
+            // TODO
             return true;
         }
 

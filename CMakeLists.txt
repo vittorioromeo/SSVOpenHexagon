@@ -176,7 +176,8 @@ file(GLOB_RECURSE MAIN_FILE "${SRC_DIR}/SSVOpenHexagon/*/main.cpp")
 file(GLOB_RECURSE SRC_LIST
      "${INC_DIR}/SSVOpenHexagon/*"
      "${SRC_DIR}/SSVOpenHexagon/*"
-     "public/discord/*")
+     "public/discord/*"
+     "public/sqlite/*.c")
 
 list(REMOVE_ITEM SRC_LIST ${MAIN_FILE})
 
@@ -249,7 +250,7 @@ add_executable(${PROJECT_NAME} ${MAIN_FILE})
 # Link and include libs
 # -----------------------------------------------------------------------------
 
-set(PUBLIC_INCLUDE_DIRS "public")
+set(PUBLIC_INCLUDE_DIRS "public" "public/sqlite" "public/sqlite_orm")
 
 set(SFML_LIBRARIES
     sfml-system sfml-window sfml-graphics sfml-audio sfml-network)
