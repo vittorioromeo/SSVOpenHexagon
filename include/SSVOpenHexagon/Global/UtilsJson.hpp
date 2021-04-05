@@ -97,6 +97,8 @@ struct Converter<ssvs::Input::Combo>
 
     static void fromObj(const Obj& mObj, T& mValue)
     {
+        mValue.clearBind();
+
         std::string str;
 
         for(const auto& i : mObj)
@@ -120,8 +122,7 @@ struct Converter<ssvs::Input::Combo>
                 ssvu::lo("ssvs::getInputComboFromJSON")
                     << "<" << i
                     << "> is not a valid input name, an empty bind has been "
-                       "put in its place"
-                    << std::endl;
+                       "put in its place\n";
 
                 mValue.addKey(ssvs::KKey::Unknown);
             }
