@@ -28,8 +28,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY SFML/SFML
-    VERSION 2.5.1
-    GIT_TAG 20238e758e2dd3a4a5e62bb4cdc82511a3c19729
+    GIT_TAG eaeb9777005eab322f25f809966043feca937960
 )
 
 #
@@ -92,7 +91,7 @@ CPMAddPackage(
     NAME imgui-sfml
     GITHUB_REPOSITORY eliasdaler/imgui-sfml
     VERSION 2.2
-    GIT_TAG 64093df4879ba92e78aea636c133bf5a9096bdcb
+    GIT_TAG cec902d8c3e5e7757c150def3e46c669acf31008
 )
 
 #
