@@ -78,4 +78,6 @@ template <typename T>
 
 [[nodiscard]] std::string sodiumHash(const std::string& s);
 
+[[nodiscard]] std::uint64_t randomUInt64();
+
 } // namespace hg

@@ -42,6 +42,14 @@ static auto& slog(const char* funcName)
 namespace hg
 {
 
+template <typename TClock>
+[[nodiscard]] static std::uint64_t nowTimestamp()
+{
+    return std::chrono::duration_cast<std::chrono::seconds>(
+        TClock::now().time_since_epoch())
+        .count();
+}
+
 [[nodiscard]] bool HexagonServer::initializeControlSocket()
 {
     SSVOH_SLOG << "Initializing UDP control socket...\n";
@@ -64,6 +72,7 @@ namespace hg
     SSVOH_SLOG << "Initializing TCP listener...\n";
 
     _listener.setBlocking(true);
+
     if(_listener.listen(_serverPort) == sf::TcpListener::Status::Error)
     {
         SSVOH_SLOG_ERROR << "Failure initializing TCP listener\n";
@@ -75,6 +84,8 @@ namespace hg
 
 [[nodiscard]] bool HexagonServer::initializeSocketSelector()
 {
+    SSVOH_SLOG << "Initializing socket selector...\n";
+
     _socketSelector.add(_listener);
     return true;
 }
@@ -143,9 +154,11 @@ template <typename T>
     return sendEncrypted(c, STCPRegistrationFailure{error});
 }
 
-[[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient& c)
+[[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient& c,
+    const std::uint64_t loginToken, const std::string& loginName)
 {
-    return sendEncrypted(c, STCPLoginSuccess{});
+    return sendEncrypted(
+        c, STCPLoginSuccess{static_cast<sf::Uint64>(loginToken), loginName});
 }
 
 [[nodiscard]] bool HexagonServer::sendLoginFailure(
@@ -154,15 +167,15 @@ template <typename T>
     return sendEncrypted(c, STCPLoginFailure{error});
 }
 
-void HexagonServer::runSocketSelector()
+void HexagonServer::run()
 {
     while(_running)
     {
-        runSocketSelector_Iteration();
+        runIteration();
     }
 }
 
-void HexagonServer::runSocketSelector_Iteration()
+void HexagonServer::runIteration()
 {
     SSVOH_SLOG_VERBOSE << "Waiting for clients...\n";
 
@@ -171,15 +184,15 @@ void HexagonServer::runSocketSelector_Iteration()
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
 
-        runSocketSelector_Iteration_Control();
-        runSocketSelector_Iteration_TryAcceptingNewClient();
-        runSocketSelector_Iteration_LoopOverSockets();
+        runIteration_Control();
+        runIteration_TryAcceptingNewClient();
+        runIteration_LoopOverSockets();
     }
 
-    runSocketSelector_Iteration_PurgeClients();
-} // namespace hg
+    runIteration_PurgeClients();
+}
 
-bool HexagonServer::runSocketSelector_Iteration_Control()
+bool HexagonServer::runIteration_Control()
 {
     if(!_socketSelector.isReady(_controlSocket))
     {
@@ -281,7 +294,7 @@ bool HexagonServer::runSocketSelector_Iteration_Control()
     return true;
 }
 
-bool HexagonServer::runSocketSelector_Iteration_TryAcceptingNewClient()
+bool HexagonServer::runIteration_TryAcceptingNewClient()
 {
     if(!_socketSelector.isReady(_listener))
     {
@@ -318,7 +331,7 @@ bool HexagonServer::runSocketSelector_Iteration_TryAcceptingNewClient()
     return true;
 }
 
-void HexagonServer::runSocketSelector_Iteration_LoopOverSockets()
+void HexagonServer::runIteration_LoopOverSockets()
 {
     for(auto it = _connectedClients.begin(); it != _connectedClients.end();
         ++it)
@@ -374,7 +387,7 @@ void HexagonServer::runSocketSelector_Iteration_LoopOverSockets()
     }
 }
 
-void HexagonServer::runSocketSelector_Iteration_PurgeClients()
+void HexagonServer::runIteration_PurgeClients()
 {
     constexpr std::chrono::duration maxInactivity = std::chrono::seconds(60);
 
@@ -595,10 +608,40 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
                 return sendLoginFailure(c, errorStr);
             }
 
-            SSVOH_SLOG << "Successfully logged in\n";
+            SSVOH_SLOG << "Successfully logged in, creating token for user\n";
 
-            // TODO: token system??
-            return sendLoginSuccess(c);
+            const std::uint64_t loginToken = randomUInt64();
+
+            Database::removeAllLoginTokensForUser(user->id);
+
+            Database::addLoginToken( //
+                Database::LoginToken{
+                    .userId = user->id,
+                    .timestamp = nowTimestamp<Clock>(),
+                    .token = loginToken //
+                });
+
+            return sendLoginSuccess(c, loginToken, user->name);
+        },
+
+        [&](const CTSPLogout& ctsp) {
+            SSVOH_SLOG << "Received logout packet from client '"
+                       << clientAddress << "'\nContents: '" << ctsp.steamId
+                       << "'\n";
+
+            const std::optional<Database::User> user =
+                Database::getUserWithSteamId(ctsp.steamId);
+
+            if(!user.has_value())
+            {
+                SSVOH_SLOG << "No user with steamId '" << ctsp.steamId << "'\n";
+                return true;
+            }
+
+            SSVOH_ASSERT(user.has_value());
+
+            Database::removeAllLoginTokensForUser(user->id);
+            return true;
         }
 
         //
@@ -622,36 +665,30 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
                << " - " << SSVOH_SLOG_VAR(sKeyPublic) << '\n'
                << " - " << SSVOH_SLOG_VAR(sKeySecret) << '\n';
 
+#define SSVOH_SLOG_INIT_ERROR \
+    SSVOH_SLOG_ERROR << "Failure initializing server: "
+
     if(_serverIp == sf::IpAddress::None)
     {
-        SSVOH_SLOG_ERROR << "Failure initializing server, invalid ip address '"
-                         << Config::getServerIp() << "'\n";
-
+        SSVOH_SLOG_INIT_ERROR << "Invalid IP '" << _serverIp << "'\n";
         return;
     }
 
     if(!initializeControlSocket())
     {
-        SSVOH_SLOG_ERROR << "Failure initializing server, control socket could "
-                            "not be initialized\n";
-
+        SSVOH_SLOG_INIT_ERROR << "Control socket could not be initialized\n";
         return;
     }
 
     if(!initializeTcpListener())
     {
-        SSVOH_SLOG_ERROR << "Failure initializing server, TCP listener could "
-                            "not be initialized\n";
-
+        SSVOH_SLOG_INIT_ERROR << "TCP listener could not be initialized\n";
         return;
     }
 
     if(!initializeSocketSelector())
     {
-        SSVOH_SLOG_ERROR
-            << "Failure initializing server, socket selector could "
-               "not be initialized\n";
-
+        SSVOH_SLOG_INIT_ERROR << "Socket selector could not be initialized\n";
         return;
     }
 
@@ -668,7 +705,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
         });
     }
 
-    runSocketSelector();
+    run();
 }
 
 HexagonServer::~HexagonServer()

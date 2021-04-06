@@ -57,12 +57,7 @@ void dumpUsers()
 
 [[nodiscard]] bool anyUserWithSteamId(const std::uint64_t steamId)
 {
-    using namespace sqlite_orm;
-
-    auto query =
-        Impl::getStorage().get_all<User>(where(steamId == c(&User::steamId)));
-
-    return !query.empty();
+    return !getAllUsersWithSteamId(steamId).empty();
 }
 
 [[nodiscard]] bool anyUserWithName(const std::string& name)
@@ -93,6 +88,56 @@ void dumpUsers()
         SSVOH_DLOG_ERROR
             << "Database integrity error, multiple users with same steamId '"
             << steamId << "' and name '" << name << "'\n";
+
+        return std::nullopt;
+    }
+
+    SSVOH_ASSERT(query.size() == 1);
+    return {query[0]};
+}
+
+void removeAllLoginTokensForUser(const std::uint32_t userId)
+{
+    using namespace sqlite_orm;
+
+    Impl::getStorage().remove_all<LoginToken>(
+        where(userId == c(&LoginToken::userId)));
+}
+
+void addLoginToken(const LoginToken& loginToken)
+{
+    const int id = Impl::getStorage().insert(loginToken);
+
+    SSVOH_DLOG << "Added login token with id '" << id << "' to storage:\n"
+               << Impl::getStorage().dump(loginToken) << '\n';
+}
+
+[[nodiscard]] std::vector<User> getAllUsersWithSteamId(
+    const std::uint64_t steamId)
+{
+    using namespace sqlite_orm;
+
+    auto query =
+        Impl::getStorage().get_all<User>(where(steamId == c(&User::steamId)));
+
+    return query;
+}
+
+[[nodiscard]] std::optional<User> getUserWithSteamId(
+    const std::uint64_t steamId)
+{
+    const auto query = getAllUsersWithSteamId(steamId);
+
+    if(query.empty())
+    {
+        return std::nullopt;
+    }
+
+    if(query.size() > 1)
+    {
+        SSVOH_DLOG_ERROR
+            << "Database integrity error, multiple users with same steamId '"
+            << steamId << "'\n";
 
         return std::nullopt;
     }
