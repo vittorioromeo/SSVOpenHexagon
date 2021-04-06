@@ -1,4 +1,3 @@
-
 {
 	"3D_enabled" : true,
 	"3D_max_depth" : 100,
@@ -51,10 +50,10 @@
 	"pulse_enabled" : true,
 	"rotate_to_start" : false,
 	"save_local_best_replay_to_file" : true,
-	"server_control_port" : 50506,
 	"server_ip" : "127.0.0.1",
 	"server_local" : true,
 	"server_port" : 50505,
+	"server_control_port": 50506,
 	"server_verbose" : true,
 	"show_fps" : true,
 	"show_key_icons" : true,
@@ -182,7 +181,7 @@
 	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 475,
-	"windowed_width" : 759,
-	"zoom_factor" : 1.616842150688171
+	"windowed_height" : 900,
+	"windowed_width" : 1600,
+	"zoom_factor" : 0.8533333539962769
 }
