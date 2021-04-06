@@ -41,15 +41,9 @@ namespace hg
 
 enum class States
 {
-    ETUser,
-    ETPass,
-    ETEmail,
-    ETFriend,
     ETLPNewBoot,
     LoadingScreen,
     EpilepsyWarning,
-    SLogging,
-    MWlcm,
     SLPSelectBoot,
     SMain,
     LevelSelection,
@@ -114,7 +108,6 @@ private:
     //---------------------------------------
     // Text Entering
 
-    std::string lrUser, lrPass, lrEmail;
     std::vector<char> enteredChars;
 
     [[nodiscard]] bool isEnteringText() const noexcept
@@ -140,7 +133,6 @@ private:
     bool focusHeld{false};
     float wheelProgress{0.f};
     float touchDelay{0.f};
-    // TODO: change this to MWlcm when leaderboards are enabled
     States state{States::LoadingScreen};
 
     void leftAction();
@@ -160,7 +152,6 @@ private:
         switch(state)
         {
             case States::SMain: return &mainMenu;
-            case States::MWlcm: return &welcomeMenu;
             case States::MOpts: return &optionsMenu;
             case States::MOnline: return &onlineMenu;
             case States::SLPSelectBoot:
@@ -191,8 +182,6 @@ private:
     int ignoreInputs{0};
     void update(ssvu::FT mFT);
     void setIndex(int mIdx);
-    void updateLeaderboard();
-    void updateFriends();
     void refreshCamera();
     void reloadAssets(const bool reloadEntirePack);
     void setIgnoreAllInputs(const unsigned int presses);
@@ -568,9 +557,7 @@ private:
     std::string scoresMessage;
     float exitTimer{0}, currentCreditsId{0};
     bool mustTakeScreenshot{false};
-    std::string currentLeaderboard, enteredStr, leaderboardString,
-        friendsString;
-    void drawWelcome();
+    std::string currentLeaderboard, enteredStr, leaderboardString;
 
     void runLuaFile(const std::string& mFileName);
 

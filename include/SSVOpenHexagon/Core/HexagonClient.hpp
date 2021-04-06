@@ -45,7 +45,7 @@ private:
 
     Steam::steam_manager& _steamManager;
 
-    std::uint64_t _ticketSteamID;
+    std::optional<std::uint64_t> _ticketSteamID;
 
     const sf::IpAddress _serverIp;
     const unsigned short _serverPort;
@@ -66,6 +66,9 @@ private:
 
     State _state;
 
+    std::optional<std::uint64_t> _loginToken;
+    std::optional<std::string> _loginName;
+
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
 
@@ -80,6 +83,7 @@ private:
         const std::string& name, const std::string& passwordHash);
     [[nodiscard]] bool sendLogin(const std::uint64_t steamId,
         const std::string& name, const std::string& passwordHash);
+    [[nodiscard]] bool sendLogout(const std::uint64_t steamId);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -88,8 +92,6 @@ private:
     [[nodiscard]] bool recvPacket(sf::Packet& p);
 
     bool receiveDataFromServer(sf::Packet& p);
-
-    void disconnect();
 
     bool sendHeartbeatIfNecessary();
 
@@ -101,14 +103,20 @@ public:
     HexagonClient(HexagonClient&&) = delete;
 
     bool connect();
+    void disconnect();
+
     void update();
 
     bool tryRegisterToServer(
         const std::string& name, const std::string& password);
 
     bool tryLoginToServer(const std::string& name, const std::string& password);
+    bool tryLogoutFromServer();
 
     [[nodiscard]] State getState() const noexcept;
+
+    [[nodiscard]] const std::optional<std::string>
+    getLoginName() const noexcept;
 };
 
 } // namespace hg

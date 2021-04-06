@@ -48,11 +48,12 @@ struct CTSPReady      { };
 struct CTSPPrint      { std::string msg; };
 struct CTSPRegister   { sf::Uint64 steamId; std::string name; std::string passwordHash; };
 struct CTSPLogin      { sf::Uint64 steamId; std::string name; std::string passwordHash; };
+struct CTSPLogout     { sf::Uint64 steamId; };
 // clang-format on
 
 #define SSVOH_CTS_PACKETS                                                    \
     VRM_PP_TPL_MAKE(CTSPHeartbeat, CTSPDisconnect, CTSPPublicKey, CTSPReady, \
-        CTSPPrint, CTSPRegister, CTSPLogin)
+        CTSPPrint, CTSPRegister, CTSPLogin, CTSPLogout)
 
 using PVClientToServer = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;
@@ -77,7 +78,7 @@ struct STCPKick                { };
 struct STCPPublicKey           { SodiumPublicKeyArray key; };
 struct STCPRegistrationSuccess { };
 struct STCPRegistrationFailure { std::string error; };
-struct STCPLoginSuccess        { };
+struct STCPLoginSuccess        { sf::Uint64 loginToken; std::string loginName; };
 struct STCPLoginFailure        { std::string error; };
 // clang-format on
 

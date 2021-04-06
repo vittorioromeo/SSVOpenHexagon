@@ -54,7 +54,7 @@ private:
         bool _mustDisconnect;
         std::optional<SodiumPublicKeyArray> _clientPublicKey;
         std::optional<SodiumRTKeys> _rtKeys;
-        bool _ready;
+        bool _ready; // TODO: maybe use an enum here
 
         explicit ConnectedClient(const TimePoint lastActivity)
             : _socket{}, _lastActivity{lastActivity}, _consecutiveFailures{0},
@@ -89,16 +89,17 @@ private:
     [[nodiscard]] bool sendRegistrationSuccess(ConnectedClient& c);
     [[nodiscard]] bool sendRegistrationFailure(
         ConnectedClient& c, const std::string& error);
-    [[nodiscard]] bool sendLoginSuccess(ConnectedClient& c);
+    [[nodiscard]] bool sendLoginSuccess(
+        ConnectedClient& c, const std::uint64_t loginToken, const std::string& loginName);
     [[nodiscard]] bool sendLoginFailure(
         ConnectedClient& c, const std::string& error);
 
-    void runSocketSelector();
-    void runSocketSelector_Iteration();
-    bool runSocketSelector_Iteration_Control();
-    bool runSocketSelector_Iteration_TryAcceptingNewClient();
-    void runSocketSelector_Iteration_LoopOverSockets();
-    void runSocketSelector_Iteration_PurgeClients();
+    void run();
+    void runIteration();
+    bool runIteration_Control();
+    bool runIteration_TryAcceptingNewClient();
+    void runIteration_LoopOverSockets();
+    void runIteration_PurgeClients();
 
     [[nodiscard]] bool processPacket(ConnectedClient& c, sf::Packet& p);
 

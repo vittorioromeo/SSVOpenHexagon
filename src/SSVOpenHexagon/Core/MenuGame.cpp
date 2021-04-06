@@ -818,7 +818,6 @@ void MenuGame::initMenus()
     //--------------------------------
 
     auto& options(optionsMenu.createCategory("options"));
-    auto& friends(optionsMenu.createCategory("friends"));
     auto& play(optionsMenu.createCategory("gameplay"));
     auto& controls(optionsMenu.createCategory("controls"));
     auto& keyboard(optionsMenu.createCategory("keyboard"));
@@ -836,13 +835,6 @@ void MenuGame::initMenus()
         Config::resetConfigToDefaults();
         refreshBinds();
     });
-
-    // TODO:
-    // options.create<i::Single>("login screen", [this] {
-    // changeStateTo(States::MWlcm);
-    // });
-    // options.create<i::Toggle>("online", &Config::getOnline,
-    // &Config::setOnline);
 
     //--------------------------------
     // Gameplay
@@ -1152,17 +1144,6 @@ void MenuGame::initMenus()
         whenMusicEnabled;
     sfx.create<i::GoBack>("back");
 
-    //--------------------------------
-    // FRIENDS
-    //--------------------------------
-
-    friends.create<i::Single>("add friend", [this] {
-        enteredStr = "";
-        changeStateTo(States::ETFriend);
-    });
-    friends.create<i::Single>(
-        "clear friends", [this] { assets.pClearTrackedNames(); });
-    friends.create<i::GoBack>("back");
 
     //--------------------------------
     // MAIN MENU
@@ -1201,7 +1182,7 @@ void MenuGame::initMenus()
         return hexagonClient.getState() == HexagonClient::State::Connected;
     };
 
-    auto whenMustLogin = [this] {
+    auto whenConnected = [this] {
         return hexagonClient.getState() == HexagonClient::State::Connected;
     };
 
@@ -1209,20 +1190,28 @@ void MenuGame::initMenus()
         return hexagonClient.getState() == HexagonClient::State::LoggedIn;
     };
 
-    // TODO: logout and disconnect
-
     auto& online(onlineMenu.createCategory("options"));
 
     // TODO: how to pick login and password???
 
     online.create<i::Single>("CONNECT", [this] { hexagonClient.connect(); }) |
         whenMustConnect;
+
+    online.create<i::Single>("DISCONNECT", [this] {
+        hexagonClient.disconnect();
+    }) | whenConnected;
+
     online.create<i::Single>("REGISTER", [this] {
         hexagonClient.tryRegisterToServer("fakeuser2", "fakepwd2");
     }) | whenMustRegister;
+
     online.create<i::Single>("LOGIN", [this] {
         hexagonClient.tryLoginToServer("fakeuser2", "fakepwd2");
-    }) | whenMustLogin;
+    }) | whenConnected;
+
+    online.create<i::Single>("LOGOUT", [this] {
+        hexagonClient.tryLogoutFromServer();
+    }) | whenLoggedIn;
 
     //--------------------------------
     // PROFILES MENU
@@ -1882,46 +1871,6 @@ void MenuGame::okAction()
                 false /* executeLastReplay */);
             break;
 
-            /* Currently unused
-        case States::ETFriend:
-            if(!enteredStr.empty() &&
-            !ssvu::contains(assets.pGetTrackedNames(), enteredStr))
-            {
-                assets.pAddTrackedName(enteredStr);
-                changeStateTo(States::SMain);
-                enteredStr = "";
-            }
-            break;
-
-        case States::ETUser:
-            if(!enteredStr.empty())
-            {
-                lrUser = enteredStr;
-                changeStateTo(States::ETPass);
-                enteredStr = "";
-            }
-            break;
-
-        case States::ETPass:
-            if(!enteredStr.empty())
-            {
-                lrPass = enteredStr;
-                changeStateTo(States::SLogging);
-                enteredStr = "";
-                //Online::tryLogin(lrUser, lrPass);
-            }
-            break;
-
-        case States::ETEmail:
-            if(!enteredStr.empty() && ssvu::contains(enteredStr, '@'))
-            {
-                lrEmail = enteredStr;
-                enteredStr = "";
-                //Online::trySendUserEmail(lrEmail);
-            }
-            break;
-             */
-
         default:
             if(isInMenu())
             {
@@ -2210,17 +2159,6 @@ void MenuGame::update(ssvu::FT mFT)
     creditsBar2.setTexture(assets.get<sf::Texture>(
         ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100))));
 
-    /*
-    // If connection is lost, kick the player back into welcome screen
-    if(!assets.pIsLocal() && Online::getConnectionStatus() != ocs::Connected)
-    {
-        changeStateTo(States::MWlcm);
-    }
-     */
-
-    updateLeaderboard();
-    updateFriends();
-
     if(exitTimer > 20)
     {
         window.stop();
@@ -2454,158 +2392,6 @@ void MenuGame::setIndex(const int mIdx)
             assets.playSound("error.ogg");
         }
     }
-}
-
-void MenuGame::updateLeaderboard()
-{
-    if(assets.pIsLocal())
-    {
-        leaderboardString = "playing locally";
-        return;
-    }
-
-// TODO: remove
-#if 0
-    currentLeaderboard = Online::getCurrentLeaderboard();
-    if(currentLeaderboard == "NULL")
-    {
-        leaderboardString = "...";
-        return;
-    }
-
-    constexpr unsigned int leaderboardRecordCount{8};
-    ssvuj::Obj root{getFromStr(currentLeaderboard)};
-    if(getExtr<std::string>(root, "id") != levelData->id)
-    {
-        leaderboardString = "...";
-        return;
-    }
-
-    auto currentPlayerScore = getExtr<std::string>(root, "ps");
-    auto currentPlayerPosition = getExtr<std::string>(root, "pp");
-
-    using RecordPair = std::pair<std::string, float>;
-    std::vector<RecordPair> recordPairs;
-
-    int playerPosition{-1};
-
-    for(auto& record : ssvuj::getObj(root, "r"))
-    {
-       std:: string name{toLower(getExtr<std::string>(record, 0))};
-        float score{getExtr<float>(record, 1)};
-        recordPairs.emplace_back(name, score);
-    }
-
-    bool foundPlayer{false};
-    for(auto i(0u); i < recordPairs.size(); ++i)
-    {
-        if(recordPairs[i].first != assets.pGetName())
-        {
-            continue;
-        }
-        playerPosition = ssvu::toInt(i) + 1;
-        foundPlayer = true;
-        break;
-    }
-
-   std:: string result;
-    for(auto i(0u); i < recordPairs.size(); ++i)
-    {
-        if(currentPlayerScore != "NULL" && !currentPlayerScore.empty() &&
-            !foundPlayer && i == leaderboardRecordCount - 1)
-        {
-            result.append("...(" + currentPlayerPosition + ") " +
-                          assets.pGetName() + ": " + ssvu::toStr(currentPlayerScore) +
-                          "\n");
-            break;
-        }
-
-        if(i <= leaderboardRecordCount)
-        {
-            if(playerPosition == -1 || i < leaderboardRecordCount)
-            {
-                auto& recordPair(recordPairs[i]);
-                if(recordPair.first == assets.pGetName())
-                {
-                    result.append(" >> ");
-                }
-                result.append("(" + ssvu::toStr(i + 1) + ") " + recordPair.first +
-                              ": " + ssvu::toStr(recordPair.second) + "\n");
-            }
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    leaderboardString = result;
-#endif
-}
-
-void MenuGame::updateFriends()
-{
-    if(state != States::SMain)
-    {
-        return;
-    }
-
-    if(assets.pIsLocal())
-    {
-        friendsString = "playing locally";
-        return;
-    }
-
-    // TODO: remove
-#if 0
-    if(assets.pGetTrackedNames().empty())
-    {
-        friendsString = "you have no friends! :(\nadd them in the options menu";
-        return;
-    }
-
-    const auto& fs(Online::getCurrentFriendScores());
-
-    if(ssvuj::getObjSize(fs) == 0)
-    {
-        friendsString = "";
-        for(const auto& n : assets.pGetTrackedNames())
-        {
-            friendsString.append("(?)" + n + "\n");
-        }
-        return;
-    }
-
-    using ScoreTuple = tuple<int, string, float>;
-   std:: vector<ScoreTuple> tuples;
-    for(const auto& n : assets.pGetTrackedNames())
-    {
-        if(!ssvuj::hasObj(fs, n))
-        {
-            continue;
-        }
-
-        const auto& score(ssvuj::getExtr<float>(fs[n], 0));
-        const auto& pos(ssvuj::getExtr<unsigned int>(fs[n], 1));
-
-        if(pos == 0)
-        {
-            continue;
-        }
-        tuples.emplace_back(pos, n, score);
-    }
-
-    sort(tuples, [](const auto& mA, const auto& mB) {
-        return std::get<0>(mA) < std::get<0>(mB);
-    });
-    friendsString.clear();
-    for(const auto& t : tuples)
-    {
-        friendsString.append("(" + ssvu::toStr(std::get<0>(t)) + ") " +
-                             std::get<1>(t) + ": " + ssvu::toStr(std::get<2>(t)) +
-                             "\n");
-    }
-#endif
 }
 
 void MenuGame::reloadAssets(const bool reloadEntirePack)
@@ -4587,50 +4373,6 @@ void MenuGame::drawLevelSelectionLeftSide(
     createQuad(menuQuadColor, 0, width, height, height + lineThickness);
     height += lineThickness;
 
-    // TODO: uncomment when online is available
-    /*
-
-    // "GLOBAL"
-    height += txtSmallHeight / 2.f;
-
-    renderTextCenteredOffset("<< GLOBAL >>", txtSelectionMedium.font,
-        {maxPanelOffset / 2.f, height - txtMediumHeight}, -maxPanelOffset);
-
-    // Line
-    height += txtSmallHeight / 2.f + txtMediumHeight;
-    menuQuads.reserve_more(4);
-    createQuad(menuQuadColor, 0, width, height, height + lineThickness);
-    height += lineThickness;
-
-    // "USERNAME" and "TIME"
-    tempFloat = maxPanelOffset * 0.6f;
-    menuQuads.reserve_more(4);
-    createQuad(menuQuadColor, tempFloat - lineThickness / 2.f - maxPanelOffset,
-        tempFloat + lineThickness / 2.f - maxPanelOffset, height, h);
-
-    height += txtSmallHeight / 2.f;
-    renderTextCenteredOffset("USERNAME", txtSelectionMedium.font,
-        {tempFloat / 2.f, height - txtMediumHeight}, -maxPanelOffset);
-
-    renderTextCenteredOffset("TIME", txtSelectionMedium.font,
-        {tempFloat + maxPanelOffset * 0.2f, height - txtMediumHeight},
-        -maxPanelOffset);
-
-    // Line
-    height += txtSmallHeight / 2.f + txtMediumHeight;
-    menuQuads.reserve_more(8);
-    createQuad(menuQuadColor, 0, tempFloat - lineThickness / 2.f -
-    maxPanelOffset, height, height + lineThickness); createQuad(menuQuadColor,
-    tempFloat + lineThickness / 2.f - maxPanelOffset, width, height, height +
-    lineThickness); height += lineThickness;
-
-    // When online will be re-enabled there will be a list of the global
-    // leaderboards here
-    height += (h - height) / 2.f;
-    renderTextCenteredOffset("ONLINE DISABLED", txtSelectionLSmall,
-        {tempFloat / 2.f, height - txtMediumHeight * 1.5f}, -maxPanelOffset);
-    */
-
     render(menuQuads);
 }
 
@@ -4802,8 +4544,6 @@ void MenuGame::draw()
             drawOnlineStatus();
             break;
 
-        case States::MWlcm: drawWelcome(); break;
-
         default: break;
     }
 
@@ -4844,15 +4584,39 @@ void MenuGame::drawOnlineStatus()
 
     const HexagonClient::State state = hexagonClient.getState();
 
-    const auto stateToString = [&]() -> const char* {
+    const auto stateToString = [&]() -> std::string {
         switch(state)
         {
-            case HexagonClient::State::Disconnected: return "DISCONNECTED";
-            case HexagonClient::State::InitError: return "ERROR";
-            case HexagonClient::State::Connecting: return "CONNECTING";
-            case HexagonClient::State::ConnectionError: return "ERROR";
-            case HexagonClient::State::Connected: return "CONNECTED";
-            case HexagonClient::State::LoggedIn: return "LOGGED IN";
+            case HexagonClient::State::Disconnected:
+            {
+                return "DISCONNECTED";
+            }
+
+            case HexagonClient::State::InitError:
+            {
+                return "CLIENT ERROR";
+            }
+
+            case HexagonClient::State::Connecting:
+            {
+                return "CONNECTING";
+            }
+
+            case HexagonClient::State::ConnectionError:
+            {
+                return "CONNECTION ERROR";
+            }
+
+            case HexagonClient::State::Connected:
+            {
+                return "CONNECTED, PLEASE LOG IN";
+            }
+
+            case HexagonClient::State::LoggedIn:
+            {
+                return "LOGGED IN AS '" +
+                       hexagonClient.getLoginName().value_or("UNKNOWN") + "'";
+            }
         }
 
         return "UNKNOWN";
@@ -4873,27 +4637,6 @@ void MenuGame::drawOnlineStatus()
 
     render(rsOnlineStatus);
     render(txtOnlineStatus);
-}
-
-void MenuGame::drawWelcome()
-{
-    // drawMenu(welcomeMenu);
-
-    /*
-    renderText(Online::getLoginStatus() == ols::Logged
-                   ? "logged in as: " + Online::getCurrentUsername()
-                   : "not logged in",
-        txtProf, {20, h - 50.f});
-
-    std::string connStatus;
-    switch(Online::getConnectionStatus())
-    {
-        case ocs::Disconnected: connStatus = "not connected to server"; break;
-        case ocs::Connecting: connStatus = "connecting to server..."; break;
-        case ocs::Connected: connStatus = "connected to server"; break;
-    }
-    renderText(connStatus, txtProf, {20, h - 30.f});
-     */
 }
 
 } // namespace hg

@@ -338,6 +338,12 @@ void encodeOHPacket(sf::Packet& p, const CTSPLogin& data)
     p << data.passwordHash;
 }
 
+void encodeOHPacket(sf::Packet& p, const CTSPLogout& data)
+{
+    encodePacketType(p, data);
+    p << data.steamId;
+}
+
 void encodeOHPacket(sf::Packet& p, const PEncryptedMsg& data)
 {
     encodePacketType(p, data);
@@ -377,6 +383,8 @@ void encodeOHPacket(sf::Packet& p, const STCPRegistrationFailure& data)
 void encodeOHPacket(sf::Packet& p, const STCPLoginSuccess& data)
 {
     encodePacketType(p, data);
+    p << data.loginToken;
+    p << data.loginName;
 }
 
 void encodeOHPacket(sf::Packet& p, const STCPLoginFailure& data)
@@ -592,6 +600,13 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
         return {result};
     }
 
+    if(*pt == getPacketType<CTSPLogout>())
+    {
+        CTSPLogout result;
+        EXTRACT_OR_FAIL(result.steamId, "logout steam id");
+        return {result};
+    }
+
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
     return {PInvalid{.error = errorOss.str()}};
 }
@@ -720,7 +735,13 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
         return {result};
     }
 
-    HANDLE_EMPTY_PACKET(STCPLoginSuccess);
+    if(*pt == getPacketType<STCPLoginSuccess>())
+    {
+        STCPLoginSuccess result;
+        EXTRACT_OR_FAIL(result.loginToken, "login token error");
+        EXTRACT_OR_FAIL(result.loginName, "login name error");
+        return {result};
+    }
 
     if(*pt == getPacketType<STCPLoginFailure>())
     {

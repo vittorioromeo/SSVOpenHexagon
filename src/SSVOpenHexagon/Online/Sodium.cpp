@@ -63,4 +63,11 @@ namespace hg
     return out;
 }
 
+[[nodiscard]] std::uint64_t randomUInt64()
+{
+    std::uint64_t result;
+    randombytes_buf(static_cast<void*>(&result), sizeof(result));
+    return result;
+}
+
 } // namespace hg

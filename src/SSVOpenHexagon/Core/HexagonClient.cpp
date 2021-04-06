@@ -283,6 +283,12 @@ template <typename T>
     return sendEncrypted(CTSPLogin{steamId, name, passwordHash});
 }
 
+[[nodiscard]] bool HexagonClient::sendLogout(const std::uint64_t steamId)
+{
+    SSVOH_CLOG << "Sending logout request to server...\n";
+    return sendEncrypted(CTSPLogout{steamId});
+}
+
 bool HexagonClient::connect()
 {
     _state = State::Connecting;
@@ -324,10 +330,12 @@ bool HexagonClient::connect()
 }
 
 HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
-    : _steamManager{steamManager}, _serverIp{Config::getServerIp()},
+    : _steamManager{steamManager},
+      _ticketSteamID{}, _serverIp{Config::getServerIp()},
       _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false},
       _packetBuffer{}, _errorOss{}, _lastHeartbeatTime{}, _verbose{true},
-      _clientPSKeys{generateSodiumPSKeys()}, _state{State::Disconnected}
+      _clientPSKeys{generateSodiumPSKeys()}, _state{State::Disconnected},
+      _loginToken{}, _loginName{}
 {
     const auto sKeyPublic = sodiumKeyToString(_clientPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_clientPSKeys.keySecret);
@@ -508,10 +516,23 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         },
 
         [&](const STCPLoginSuccess& stcp) {
-            SSVOH_CLOG << "Successfully logged into server\n";
+            SSVOH_CLOG << "Successfully logged into server, token: '"
+                       << stcp.loginToken << "'\n";
+
+            if(_loginToken.has_value())
+            {
+                SSVOH_CLOG << "Already had login token, replacing\n";
+            }
+            else
+            {
+                SSVOH_CLOG << "Did not have login token, setting\n";
+            }
+
+            _loginToken = stcp.loginToken;
+            _loginName = stcp.loginName;
 
             _state = State::LoggedIn;
-            // TODO
+
             return true;
         },
 
@@ -564,7 +585,8 @@ bool HexagonClient::tryRegisterToServer(
         return false;
     }
 
-    return sendRegister(_ticketSteamID, name, hashPwd(password));
+    SSVOH_ASSERT(_ticketSteamID.has_value());
+    return sendRegister(_ticketSteamID.value(), name, hashPwd(password));
 }
 
 bool HexagonClient::tryLoginToServer(
@@ -580,12 +602,39 @@ bool HexagonClient::tryLoginToServer(
         return false;
     }
 
-    return sendLogin(_ticketSteamID, name, hashPwd(password));
+    SSVOH_ASSERT(_ticketSteamID.has_value());
+    return sendLogin(_ticketSteamID.value(), name, hashPwd(password));
+}
+
+bool HexagonClient::tryLogoutFromServer()
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(_state != State::LoggedIn)
+    {
+        return false;
+    }
+
+    _state = State::Connected;
+    _loginToken.reset();
+    _loginName.reset();
+
+    SSVOH_ASSERT(_ticketSteamID.has_value());
+    return sendLogout(_ticketSteamID.value());
 }
 
 [[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept
 {
     return _state;
+}
+
+[[nodiscard]] const std::optional<std::string>
+HexagonClient::getLoginName() const noexcept
+{
+    return _loginName;
 }
 
 } // namespace hg
