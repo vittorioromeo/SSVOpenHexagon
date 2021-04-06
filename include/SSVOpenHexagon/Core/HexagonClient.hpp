@@ -28,6 +28,17 @@ namespace hg
 
 class HexagonClient
 {
+public:
+    enum class State : std::uint8_t
+    {
+        Disconnected = 0,
+        InitError = 1,
+        Connecting = 2,
+        ConnectionError = 3,
+        Connected = 4,
+        LoggedIn = 5,
+    };
+
 private:
     using Clock = std::chrono::high_resolution_clock;
     using TimePoint = std::chrono::time_point<Clock>;
@@ -53,6 +64,8 @@ private:
     std::optional<SodiumPublicKeyArray> _serverPublicKey;
     std::optional<SodiumRTKeys> _clientRTKeys;
 
+    State _state;
+
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
 
@@ -63,10 +76,10 @@ private:
     [[nodiscard]] bool sendPublicKey();
     [[nodiscard]] bool sendReady();
     [[nodiscard]] bool sendPrint(const std::string& s);
-    [[nodiscard]] bool sendRegister(
-        const std::uint64_t steamId, const std::string& name);
-    [[nodiscard]] bool sendLogin(
-        const std::uint64_t steamId, const std::string& name);
+    [[nodiscard]] bool sendRegister(const std::uint64_t steamId,
+        const std::string& name, const std::string& passwordHash);
+    [[nodiscard]] bool sendLogin(const std::uint64_t steamId,
+        const std::string& name, const std::string& passwordHash);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -80,8 +93,6 @@ private:
 
     bool sendHeartbeatIfNecessary();
 
-    bool connect();
-
 public:
     explicit HexagonClient(Steam::steam_manager& steamManager);
     ~HexagonClient();
@@ -89,7 +100,15 @@ public:
     HexagonClient(const HexagonClient&) = delete;
     HexagonClient(HexagonClient&&) = delete;
 
+    bool connect();
     void update();
+
+    bool tryRegisterToServer(
+        const std::string& name, const std::string& password);
+
+    bool tryLoginToServer(const std::string& name, const std::string& password);
+
+    [[nodiscard]] State getState() const noexcept;
 };
 
 } // namespace hg

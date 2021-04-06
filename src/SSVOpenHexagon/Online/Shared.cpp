@@ -327,6 +327,7 @@ void encodeOHPacket(sf::Packet& p, const CTSPRegister& data)
     encodePacketType(p, data);
     p << data.steamId;
     p << data.name;
+    p << data.passwordHash;
 }
 
 void encodeOHPacket(sf::Packet& p, const CTSPLogin& data)
@@ -334,6 +335,7 @@ void encodeOHPacket(sf::Packet& p, const CTSPLogin& data)
     encodePacketType(p, data);
     p << data.steamId;
     p << data.name;
+    p << data.passwordHash;
 }
 
 void encodeOHPacket(sf::Packet& p, const PEncryptedMsg& data)
@@ -577,6 +579,7 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
         CTSPRegister result;
         EXTRACT_OR_FAIL(result.steamId, "register steam id");
         EXTRACT_OR_FAIL(result.name, "register name");
+        EXTRACT_OR_FAIL(result.passwordHash, "register password hash");
         return {result};
     }
 
@@ -585,6 +588,7 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
         CTSPLogin result;
         EXTRACT_OR_FAIL(result.steamId, "login steam id");
         EXTRACT_OR_FAIL(result.name, "login name");
+        EXTRACT_OR_FAIL(result.passwordHash, "login password hash");
         return {result};
     }
 

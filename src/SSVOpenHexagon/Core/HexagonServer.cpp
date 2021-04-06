@@ -22,6 +22,7 @@
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
+#include <optional>
 #include <cstdio>
 
 static auto& slog(const char* funcName)
@@ -80,7 +81,7 @@ namespace hg
 
 [[nodiscard]] bool HexagonServer::sendPacket(ConnectedClient& c, sf::Packet& p)
 {
-    if(c._socket.send(_packetBuffer) != sf::Socket::Status::Done)
+    if(c._socket.send(p) != sf::Socket::Status::Done)
     {
         SSVOH_SLOG_ERROR << "Failure sending packet\n";
         return false;
@@ -508,13 +509,96 @@ void HexagonServer::runSocketSelector_Iteration_PurgeClients()
         },
 
         [&](const CTSPRegister& ctsp) {
-            // TODO
-            return true;
+            const auto& [steamId, name, passwordHash] = ctsp;
+
+            SSVOH_SLOG << "Received register packet from client '"
+                       << clientAddress << "'\nContents: '" << steamId << ", "
+                       << name << ", " << passwordHash << "'\n";
+
+            if(Database::anyUserWithSteamId(steamId))
+            {
+                const std::string errorStr = Utils::concat(
+                    "User with steamId '", steamId, "' already registered");
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendRegistrationFailure(c, errorStr);
+            }
+
+            if(Database::anyUserWithName(name))
+            {
+                const std::string errorStr = Utils::concat(
+                    "User with name '", name, "' already registered");
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendRegistrationFailure(c, errorStr);
+            }
+
+            SSVOH_SLOG << "Successfully registered\n";
+
+            Database::addUser( //
+                Database::User{
+                    .steamId = steamId,
+                    .name = name,
+                    .passwordHash = passwordHash //
+                }                                //
+            );
+
+            return sendRegistrationSuccess(c);
         },
 
         [&](const CTSPLogin& ctsp) {
-            // TODO
-            return true;
+            const auto& [steamId, name, passwordHash] = ctsp;
+
+            SSVOH_SLOG << "Received login packet from client '" << clientAddress
+                       << "'\nContents: '" << steamId << ", " << name << ", "
+                       << passwordHash << "'\n";
+
+            if(!Database::anyUserWithSteamId(steamId))
+            {
+                const std::string errorStr = Utils::concat(
+                    "No user with steamId '", steamId, "' registered");
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendLoginFailure(c, errorStr);
+            }
+
+            if(!Database::anyUserWithName(name))
+            {
+                const std::string errorStr =
+                    Utils::concat("No user with name '", name, "' registered");
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendLoginFailure(c, errorStr);
+            }
+
+            const std::optional<Database::User> user =
+                Database::getUserWithSteamIdAndName(steamId, name);
+
+            if(!user.has_value())
+            {
+                const std::string errorStr = Utils::concat("No user matching '",
+                    steamId, "' and '", name, "' registered");
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendLoginFailure(c, errorStr);
+            }
+
+            SSVOH_ASSERT(user.has_value());
+
+            if(user->passwordHash != passwordHash)
+            {
+                const std::string errorStr =
+                    Utils::concat("Invalid password for user matching '",
+                        steamId, "' and '", name, '\'');
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendLoginFailure(c, errorStr);
+            }
+
+            SSVOH_SLOG << "Successfully logged in\n";
+
+            // TODO: token system??
+            return sendLoginSuccess(c);
         }
 
         //

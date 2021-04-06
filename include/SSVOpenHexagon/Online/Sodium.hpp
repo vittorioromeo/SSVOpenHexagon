@@ -76,6 +76,6 @@ template <typename T>
     return result;
 }
 
-
+[[nodiscard]] std::string sodiumHash(const std::string& s);
 
 } // namespace hg

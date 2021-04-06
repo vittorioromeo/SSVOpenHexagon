@@ -54,6 +54,7 @@ enum class States
     SMain,
     LevelSelection,
     MOpts,
+    MOnline,
     SLPSelect,
     ETLPNew
 };
@@ -103,6 +104,12 @@ private:
 
     sf::Font& imagine = assets.get<sf::Font>(
         "forcedsquare.ttf"); // G++ bug (cannot initialize with curly braces)
+
+    //---------------------------------------
+    // Online status bar
+
+    sf::RectangleShape rsOnlineStatus{sf::Vector2f{128.f, 32.f}};
+    sf::Text txtOnlineStatus{"", imagine, 24};
 
     //---------------------------------------
     // Text Entering
@@ -155,6 +162,7 @@ private:
             case States::SMain: return &mainMenu;
             case States::MWlcm: return &welcomeMenu;
             case States::MOpts: return &optionsMenu;
+            case States::MOnline: return &onlineMenu;
             case States::SLPSelectBoot:
             case States::SLPSelect: return &profileSelectionMenu;
 
@@ -198,6 +206,7 @@ private:
     ssvms::Menu welcomeMenu;
     ssvms::Menu mainMenu;
     ssvms::Menu optionsMenu;
+    ssvms::Menu onlineMenu;
     ssvms::Menu profileSelectionMenu;
     const LevelData* levelData;
     StyleData styleData;
@@ -260,6 +269,8 @@ private:
         render(creditsBar2);
         render(txtVersion.font);
     }
+
+    void drawOnlineStatus();
 
     void adjustMenuOffset(const bool resetMenuOffset);
     float calcMenuOffset(float& offset, const float maxOffset,
@@ -543,6 +554,7 @@ private:
             xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
         render(mText);
     }
+
     void renderTextCenteredOffset(const std::string& mStr, sf::Text& mText,
         const sf::Vector2f& mPos, const float xOffset, const sf::Color& mColor)
     {
@@ -586,6 +598,7 @@ public:
         lvlDrawer->XOffset = 0.f;
         setIgnoreAllInputs(1); // otherwise you go back to the main menu
     }
+
     void refreshBinds();
 };
 

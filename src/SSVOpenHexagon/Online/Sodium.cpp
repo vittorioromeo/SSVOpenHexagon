@@ -6,6 +6,7 @@
 
 #include <sodium.h>
 
+#include <vector>
 #include <optional>
 
 namespace hg
@@ -48,6 +49,17 @@ namespace hg
     }
 
     return result;
+}
+
+[[nodiscard]] std::string sodiumHash(const std::string& in)
+{
+    std::string out;
+    out.resize(crypto_generichash_BYTES);
+
+    crypto_generichash(reinterpret_cast<unsigned char*>(out.data()), out.size(),
+        reinterpret_cast<const unsigned char*>(in.data()), in.size(), nullptr, 0);
+
+    return out;
 }
 
 } // namespace hg

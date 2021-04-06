@@ -4,9 +4,10 @@
 
 #include "SSVOpenHexagon/Online/Database.hpp"
 
-#include <SSVUtils/Core/Log/Log.hpp>
-
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+
+#include <SSVUtils/Core/Log/Log.hpp>
 
 static auto& dlog(const char* funcName)
 {
@@ -52,6 +53,52 @@ void dumpUsers()
     {
         SSVOH_DLOG << Impl::getStorage().dump(user) << '\n';
     }
+}
+
+[[nodiscard]] bool anyUserWithSteamId(const std::uint64_t steamId)
+{
+    using namespace sqlite_orm;
+
+    auto query =
+        Impl::getStorage().get_all<User>(where(steamId == c(&User::steamId)));
+
+    return !query.empty();
+}
+
+[[nodiscard]] bool anyUserWithName(const std::string& name)
+{
+    using namespace sqlite_orm;
+
+    auto query =
+        Impl::getStorage().get_all<User>(where(name == c(&User::name)));
+
+    return !query.empty();
+}
+
+[[nodiscard]] std::optional<User> getUserWithSteamIdAndName(
+    const std::uint64_t steamId, const std::string& name)
+{
+    using namespace sqlite_orm;
+
+    auto query = Impl::getStorage().get_all<User>(
+        where(steamId == c(&User::steamId) && name == c(&User::name)));
+
+    if(query.empty())
+    {
+        return std::nullopt;
+    }
+
+    if(query.size() > 1)
+    {
+        SSVOH_DLOG_ERROR
+            << "Database integrity error, multiple users with same steamId '"
+            << steamId << "' and name '" << name << "'\n";
+
+        return std::nullopt;
+    }
+
+    SSVOH_ASSERT(query.size() == 1);
+    return {query[0]};
 }
 
 } // namespace hg::Database
