@@ -37,6 +37,42 @@
 namespace hg
 {
 
+[[nodiscard]] static bool anyItemEnabled(const ssvms::Menu& menu)
+{
+    for(const auto& i : menu.getItems())
+    {
+        if(i->isEnabled())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+[[nodiscard]] static bool scrollToEnabledMenuItem(ssvms::Menu* menu)
+{
+    if(menu == nullptr)
+    {
+        return false;
+    }
+
+    // Scroll to a menu item that is enabled
+    menu->update();
+
+    if(!anyItemEnabled(*menu))
+    {
+        return false;
+    }
+
+    while(!menu->getItem().isEnabled())
+    {
+        menu->next();
+    }
+
+    return true;
+}
+
 //*****************************************************
 //
 // INITIALIZATION
@@ -66,6 +102,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
 
     game.onDraw += [this] { draw(); };
+
+    game.onEvent(sf::Event::EventType::Resized) +=
+        [this](const sf::Event& event) {
+            Config::setCurrentResolution(
+                window, event.size.width, event.size.height);
+            refreshCamera();
+        };
 
     game.onEvent(
         sf::Event::EventType::TextEntered) += [this](const sf::Event& mEvent) {
@@ -762,14 +805,12 @@ void MenuGame::initMenus()
 
     auto whenLocal = [this] { return assets.pIsLocal(); };
     auto whenNotOfficial = [] { return !Config::getOfficial(); };
-    auto whenUnlogged = [] { return true; };
     auto whenSoundEnabled = [] { return !Config::getNoSound(); };
     auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
 
     // Welcome menu
     auto& wlcm(welcomeMenu.createCategory("welcome"));
-    wlcm.create<i::Single>("play locally", [this] { playLocally(); }) |
-        whenUnlogged;
+    wlcm.create<i::Single>("play locally", [this] { playLocally(); });
     wlcm.create<i::Single>("exit game", [this] { window.stop(); });
 
     //--------------------------------
@@ -961,6 +1002,7 @@ void MenuGame::initMenus()
                         [this, &vm] {
                             Config::setCurrentResolution(
                                 window, vm.width, vm.height);
+                            refreshCamera();
                         });
                     break;
 
@@ -970,6 +1012,7 @@ void MenuGame::initMenus()
                         [this, &vm] {
                             Config::setCurrentResolution(
                                 window, vm.width, vm.height);
+                            refreshCamera();
                         });
                     break;
 
@@ -979,6 +1022,7 @@ void MenuGame::initMenus()
                         [this, &vm] {
                             Config::setCurrentResolution(
                                 window, vm.width, vm.height);
+                            refreshCamera();
                         });
                     break;
             }
@@ -1138,8 +1182,47 @@ void MenuGame::initMenus()
         assets.playSound("select.ogg");
     });
     main.create<i::Goto>("LOCAL PROFILES", localProfiles) | whenLocal;
+    main.create<i::Single>(
+        "ONLINE", [this] { changeStateTo(States::MOnline); });
     main.create<i::Single>("OPTIONS", [this] { changeStateTo(States::MOpts); });
     main.create<i::Single>("EXIT", [this] { window.stop(); });
+
+    //--------------------------------
+    // ONLINE MENU
+    //--------------------------------
+
+    auto whenMustConnect = [this] {
+        return hexagonClient.getState() == HexagonClient::State::Disconnected ||
+               hexagonClient.getState() ==
+                   HexagonClient::State::ConnectionError;
+    };
+
+    auto whenMustRegister = [this] {
+        return hexagonClient.getState() == HexagonClient::State::Connected;
+    };
+
+    auto whenMustLogin = [this] {
+        return hexagonClient.getState() == HexagonClient::State::Connected;
+    };
+
+    auto whenLoggedIn = [this] {
+        return hexagonClient.getState() == HexagonClient::State::LoggedIn;
+    };
+
+    // TODO: logout and disconnect
+
+    auto& online(onlineMenu.createCategory("options"));
+
+    // TODO: how to pick login and password???
+
+    online.create<i::Single>("CONNECT", [this] { hexagonClient.connect(); }) |
+        whenMustConnect;
+    online.create<i::Single>("REGISTER", [this] {
+        hexagonClient.tryRegisterToServer("fakeuser2", "fakepwd2");
+    }) | whenMustRegister;
+    online.create<i::Single>("LOGIN", [this] {
+        hexagonClient.tryLoginToServer("fakeuser2", "fakepwd2");
+    }) | whenMustLogin;
 
     //--------------------------------
     // PROFILES MENU
@@ -1469,6 +1552,11 @@ void MenuGame::upAction()
         scrollbarOffset = std::max(index - (maxProfilesOnScreen - 1), 0);
     }
 
+    if(getCurrentMenu() != nullptr && !anyItemEnabled(*getCurrentMenu()))
+    {
+        return;
+    }
+
     // Go to the first enabled menu item.
     do
     {
@@ -1553,6 +1641,11 @@ void MenuGame::downAction()
         const int index = ssvu::getMod(getCurrentMenu()->getIdx() + 1, 0,
             static_cast<int>(getCurrentMenu()->getItems().size()));
         scrollbarOffset = std::max(index - (maxProfilesOnScreen - 1), 0);
+    }
+
+    if(getCurrentMenu() != nullptr && !anyItemEnabled(*getCurrentMenu()))
+    {
+        return;
     }
 
     do
@@ -1727,10 +1820,9 @@ void MenuGame::okAction()
             }
 
             // Scroll to a menu item that is enabled
-            getCurrentMenu()->update();
-            while(!getCurrentMenu()->getItem().isEnabled())
+            if(scrollToEnabledMenuItem(getCurrentMenu()) == false)
             {
-                getCurrentMenu()->next();
+                return;
             }
 
             // Adjust the indents if we moved to a new submenu
@@ -1759,10 +1851,21 @@ void MenuGame::okAction()
             }
 
             // Scroll to a menu item that is enabled
-            getCurrentMenu()->update();
-            while(!getCurrentMenu()->getItem().isEnabled())
+            if(scrollToEnabledMenuItem(getCurrentMenu()) == false)
             {
-                getCurrentMenu()->next();
+                return;
+            }
+        }
+        break;
+
+        case States::MOnline:
+        {
+            getCurrentMenu()->exec();
+
+            // Scroll to a menu item that is enabled
+            if(scrollToEnabledMenuItem(getCurrentMenu()) == false)
+            {
+                return;
             }
         }
         break;
@@ -2589,6 +2692,10 @@ void MenuGame::refreshCamera()
         c->getOffset() = 0.f;
     }
     for(auto& c : optionsMenu.getCategories())
+    {
+        c->getOffset() = 0.f;
+    }
+    for(auto& c : onlineMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
@@ -4614,6 +4721,7 @@ void MenuGame::draw()
             // Draw main menu (right)
             drawMainSubmenus(mainMenu.getCategories(), indentBig);
             drawGraphics();
+            drawOnlineStatus();
             break;
 
         case States::MOpts:
@@ -4631,6 +4739,25 @@ void MenuGame::draw()
             // Draw options submenus (left)
             drawSubmenusSmall(optionsMenu.getCategories(), indentSmall);
             drawGraphics();
+            drawOnlineStatus();
+            break;
+
+        case States::MOnline:
+            // fold the main menu
+            if(mainMenu.getCategory().getOffset() != 0.f)
+            {
+                drawMainMenu(
+                    mainMenu.getCategoryByName("main"), w - indentBig, true);
+            }
+
+            // Online Menu (right)
+            drawMainMenu(
+                onlineMenu.getCategoryByName("options"), w - indentBig, false);
+
+            // Draw online submenus (left)
+            drawSubmenusSmall(onlineMenu.getCategories(), indentSmall);
+            drawGraphics();
+            drawOnlineStatus();
             break;
 
         case States::ETLPNew:
@@ -4672,6 +4799,7 @@ void MenuGame::draw()
                 }
             }
             drawLevelSelectionLeftSide(*lvlDrawer, false);
+            drawOnlineStatus();
             break;
 
         case States::MWlcm: drawWelcome(); break;
@@ -4698,6 +4826,53 @@ void MenuGame::draw()
     {
         dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
+}
+
+void MenuGame::drawOnlineStatus()
+{
+    overlayCamera.unapply();
+
+    constexpr float padding = 4.f;
+
+    rsOnlineStatus.setSize(sf::Vector2f{1.f, 1.f});
+    rsOnlineStatus.setFillColor(sf::Color::Black);
+    rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
+    rsOnlineStatus.setPosition(0 + padding, Config::getHeight() - padding);
+
+    txtOnlineStatus.setCharacterSize(12);
+    txtOnlineStatus.setFillColor(sf::Color::White);
+
+    const HexagonClient::State state = hexagonClient.getState();
+
+    const auto stateToString = [&]() -> const char* {
+        switch(state)
+        {
+            case HexagonClient::State::Disconnected: return "DISCONNECTED";
+            case HexagonClient::State::InitError: return "ERROR";
+            case HexagonClient::State::Connecting: return "CONNECTING";
+            case HexagonClient::State::ConnectionError: return "ERROR";
+            case HexagonClient::State::Connected: return "CONNECTED";
+            case HexagonClient::State::LoggedIn: return "LOGGED IN";
+        }
+
+        return "UNKNOWN";
+    };
+
+    txtOnlineStatus.setString(stateToString());
+
+    txtOnlineStatus.setOrigin(ssvs::getLocalSW(txtOnlineStatus));
+    txtOnlineStatus.setPosition(rsOnlineStatus.getPosition().x + padding,
+        rsOnlineStatus.getPosition().y - padding);
+
+    rsOnlineStatus.setSize(
+        sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 2.f,
+            ssvs::getGlobalHeight(txtOnlineStatus) + padding * 2.f});
+
+    rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
+    rsOnlineStatus.setPosition(0 + padding, Config::getHeight() - padding);
+
+    render(rsOnlineStatus);
+    render(txtOnlineStatus);
 }
 
 void MenuGame::drawWelcome()

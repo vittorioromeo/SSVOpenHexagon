@@ -269,20 +269,24 @@ template <typename T>
     return sendEncrypted(CTSPPrint{s});
 }
 
-[[nodiscard]] bool HexagonClient::sendRegister(
-    const std::uint64_t steamId, const std::string& name)
+[[nodiscard]] bool HexagonClient::sendRegister(const std::uint64_t steamId,
+    const std::string& name, const std::string& passwordHash)
 {
-    return sendEncrypted(CTSPRegister{steamId, name});
+    SSVOH_CLOG << "Sending registration request to server...\n";
+    return sendEncrypted(CTSPRegister{steamId, name, passwordHash});
 }
 
-[[nodiscard]] bool HexagonClient::sendLogin(
-    const std::uint64_t steamId, const std::string& name)
+[[nodiscard]] bool HexagonClient::sendLogin(const std::uint64_t steamId,
+    const std::string& name, const std::string& passwordHash)
 {
-    return sendEncrypted(CTSPLogin{steamId, name});
+    SSVOH_CLOG << "Sending login request to server...\n";
+    return sendEncrypted(CTSPLogin{steamId, name, passwordHash});
 }
 
 bool HexagonClient::connect()
 {
+    _state = State::Connecting;
+
     if(_socketConnected)
     {
         SSVOH_CLOG_ERROR << "Socket already initialized\n";
@@ -294,6 +298,7 @@ bool HexagonClient::connect()
         SSVOH_CLOG_ERROR
             << "Failure connecting, error initializing TCP socket\n";
 
+        _state = State::ConnectionError;
         return false;
     }
 
@@ -302,15 +307,19 @@ bool HexagonClient::connect()
         SSVOH_CLOG_ERROR
             << "Failure connecting, error sending first heartbeat\n";
 
+        _state = State::ConnectionError;
         return false;
     }
 
     if(!sendPublicKey())
     {
         SSVOH_CLOG_ERROR << "Failure connecting, error sending public key\n";
+
+        _state = State::ConnectionError;
         return false;
     }
 
+    _state = State::Connected;
     return true;
 }
 
@@ -318,7 +327,7 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
     : _steamManager{steamManager}, _serverIp{Config::getServerIp()},
       _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false},
       _packetBuffer{}, _errorOss{}, _lastHeartbeatTime{}, _verbose{true},
-      _clientPSKeys{generateSodiumPSKeys()}
+      _clientPSKeys{generateSodiumPSKeys()}, _state{State::Disconnected}
 {
     const auto sKeyPublic = sodiumKeyToString(_clientPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_clientPSKeys.keySecret);
@@ -334,12 +343,15 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
         SSVOH_CLOG_ERROR << "Failure initializing client, invalid ip address '"
                          << Config::getServerIp() << "'\n";
 
+        _state = State::InitError;
         return;
     }
 
     if(!initializeTicketSteamID())
     {
         SSVOH_CLOG_ERROR << "Failure initializing client, no ticket Steam ID\n";
+
+        _state = State::InitError;
         return;
     }
 
@@ -366,6 +378,8 @@ void HexagonClient::disconnect()
     _socketConnected = false;
 
     SSVOH_CLOG << "Client disconnected\n";
+
+    _state = State::Disconnected;
 }
 
 bool HexagonClient::sendHeartbeatIfNecessary()
@@ -472,7 +486,11 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                        << " - " << SSVOH_CLOG_VAR(keyReceive) << '\n'
                        << " - " << SSVOH_CLOG_VAR(keyTransmit) << '\n';
 
-            SSVOH_CLOG << "Replying with ready status and encrypted message\n";
+            SSVOH_CLOG << "Replying with login attempt\n";
+
+            // TODO: get rid of these packet types, send login attempt here,
+            // display registration reminder in case of failure
+
             return sendReady() && sendPrint("hello world!!!");
         },
 
@@ -491,6 +509,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
         [&](const STCPLoginSuccess& stcp) {
             SSVOH_CLOG << "Successfully logged into server\n";
+
+            _state = State::LoggedIn;
             // TODO
             return true;
         },
@@ -515,6 +535,57 @@ void HexagonClient::update()
 
     sendHeartbeatIfNecessary();
     receiveDataFromServer(_packetBuffer);
+}
+
+static std::string hashPwd(const std::string& password)
+{
+#if __has_include("SSVOpenHexagon/Online/SecretPasswordSalt.hpp")
+    const std::string salt =
+#include "SSVOpenHexagon/Online/SecretPasswordSalt.hpp"
+        ;
+#else
+    const std::string salt = "salt";
+#endif
+
+    const std::string saltedPassword = salt + password;
+    return sodiumHash(saltedPassword);
+}
+
+bool HexagonClient::tryRegisterToServer(
+    const std::string& name, const std::string& password)
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(_state != State::Connected)
+    {
+        return false;
+    }
+
+    return sendRegister(_ticketSteamID, name, hashPwd(password));
+}
+
+bool HexagonClient::tryLoginToServer(
+    const std::string& name, const std::string& password)
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(_state != State::Connected)
+    {
+        return false;
+    }
+
+    return sendLogin(_ticketSteamID, name, hashPwd(password));
+}
+
+[[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept
+{
+    return _state;
 }
 
 } // namespace hg

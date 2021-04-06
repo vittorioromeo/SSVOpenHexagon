@@ -46,8 +46,8 @@ struct CTSPDisconnect { };
 struct CTSPPublicKey  { SodiumPublicKeyArray key; };
 struct CTSPReady      { };
 struct CTSPPrint      { std::string msg; };
-struct CTSPRegister   { std::uint64_t steamId; std::string name; };
-struct CTSPLogin      { std::uint64_t steamId; std::string name; };
+struct CTSPRegister   { std::uint64_t steamId; std::string name; std::string passwordHash; };
+struct CTSPLogin      { std::uint64_t steamId; std::string name; std::string passwordHash; };
 // clang-format on
 
 #define SSVOH_CTS_PACKETS                                                    \

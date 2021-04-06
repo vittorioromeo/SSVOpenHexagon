@@ -9,6 +9,7 @@
 
 #include <string>
 #include <cstdint>
+#include <optional>
 
 namespace hg::Database
 {
@@ -18,6 +19,7 @@ struct User
     std::uint32_t id;
     std::uint64_t steamId;
     std::string name;
+    std::string passwordHash;
 };
 
 namespace Impl
@@ -31,8 +33,9 @@ inline auto makeStorage()
                                                                           //
         make_table("users",                                               //
             make_column("id", &User::id, autoincrement(), primary_key()), //
-            make_column("steam_id", &User::steamId, unique()),            //
-            make_column("name", &User::name)                              //
+            make_column("steamId", &User::steamId, unique()),             //
+            make_column("name", &User::name),                             //
+            make_column("passwordHash", &User::passwordHash)              //
             )                                                             //
                                                                           //
     );
@@ -52,5 +55,9 @@ inline auto& getStorage()
 void addUser(const User& user);
 void removeUser(const std::uint32_t id);
 void dumpUsers();
+[[nodiscard]] bool anyUserWithSteamId(const std::uint64_t steamId);
+[[nodiscard]] bool anyUserWithName(const std::string& name);
+[[nodiscard]] std::optional<User> getUserWithSteamIdAndName(
+    const std::uint64_t steamId, const std::string& name);
 
 } // namespace hg::Database
