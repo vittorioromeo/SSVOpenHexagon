@@ -167,6 +167,27 @@ template <typename T>
     return sendEncrypted(c, STCPLoginFailure{error});
 }
 
+[[nodiscard]] bool HexagonServer::sendLogoutSuccess(ConnectedClient& c)
+{
+    return sendEncrypted(c, STCPLogoutSuccess{});
+}
+
+[[nodiscard]] bool HexagonServer::sendLogoutFailure(ConnectedClient& c)
+{
+    return sendEncrypted(c, STCPLogoutFailure{});
+}
+
+[[nodiscard]] bool HexagonServer::sendDeleteAccountSuccess(ConnectedClient& c)
+{
+    return sendEncrypted(c, STCPDeleteAccountSuccess{});
+}
+
+[[nodiscard]] bool HexagonServer::sendDeleteAccountFailure(
+    ConnectedClient& c, const std::string& error)
+{
+    return sendEncrypted(c, STCPDeleteAccountFailure{error});
+}
+
 void HexagonServer::run()
 {
     while(_running)
@@ -528,6 +549,15 @@ void HexagonServer::runIteration_PurgeClients()
                        << clientAddress << "'\nContents: '" << steamId << ", "
                        << name << ", " << passwordHash << "'\n";
 
+            if(name.size() > 32)
+            {
+                const std::string errorStr =
+                    "Name too long, max is 32 characters";
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendRegistrationFailure(c, errorStr);
+            }
+
             if(Database::anyUserWithSteamId(steamId))
             {
                 const std::string errorStr = Utils::concat(
@@ -565,6 +595,15 @@ void HexagonServer::runIteration_PurgeClients()
             SSVOH_SLOG << "Received login packet from client '" << clientAddress
                        << "'\nContents: '" << steamId << ", " << name << ", "
                        << passwordHash << "'\n";
+
+            if(name.size() > 32)
+            {
+                const std::string errorStr =
+                    "Name too long, max is 32 characters";
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendLoginFailure(c, errorStr);
+            }
 
             if(!Database::anyUserWithSteamId(steamId))
             {
@@ -635,13 +674,60 @@ void HexagonServer::runIteration_PurgeClients()
             if(!user.has_value())
             {
                 SSVOH_SLOG << "No user with steamId '" << ctsp.steamId << "'\n";
-                return true;
+
+                return sendLogoutFailure(c);
             }
 
             SSVOH_ASSERT(user.has_value());
 
             Database::removeAllLoginTokensForUser(user->id);
-            return true;
+            return sendLogoutSuccess(c);
+        },
+
+        [&](const CTSPDeleteAccount& ctsp) {
+            const auto& [steamId, passwordHash] = ctsp;
+
+            SSVOH_SLOG << "Received delete account packet from client '"
+                       << clientAddress << "'\nContents: '" << steamId << ", "
+                       << passwordHash << "'\n";
+
+            if(!Database::anyUserWithSteamId(steamId))
+            {
+                const std::string errorStr = Utils::concat(
+                    "No user with steamId '", steamId, "' registered");
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendDeleteAccountFailure(c, errorStr);
+            }
+
+            const std::optional<Database::User> user =
+                Database::getUserWithSteamId(ctsp.steamId);
+
+            if(!user.has_value())
+            {
+                const std::string errorStr =
+                    Utils::concat("No user with steamId '", ctsp.steamId, '\'');
+
+                SSVOH_SLOG << errorStr;
+                return sendDeleteAccountFailure(c, errorStr);
+            }
+
+            SSVOH_ASSERT(user.has_value());
+
+            if(user->passwordHash != passwordHash)
+            {
+                const std::string errorStr = Utils::concat(
+                    "Invalid password for user matching '", steamId, '\'');
+
+                SSVOH_SLOG << errorStr << '\n';
+                return sendDeleteAccountFailure(c, errorStr);
+            }
+
+            Database::removeAllLoginTokensForUser(user->id);
+            Database::removeUser(user->id);
+
+            SSVOH_SLOG << "Successfully deleted account\n";
+            return sendDeleteAccountSuccess(c);
         }
 
         //

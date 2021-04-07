@@ -53,6 +53,10 @@ private:
 
     KKey keyToClose{KKey::Unknown};
 
+    bool inputBox{false};
+    bool inputBoxPassword{false};
+    std::string input;
+
     [[nodiscard]] DrawFunc drawModeToDrawFunc(DBoxDraw drawMode);
 
     void drawText(
@@ -69,11 +73,16 @@ public:
 
     void create(const std::string& output, const int charSize,
         const float mFrameSize, const DBoxDraw mDrawMode,
-        const float xPos = 0.f, const float yPos = 0.f);
+        const float xPos = 0.f, const float yPos = 0.f,
+        const bool mInputBox = false);
+
     void create(const std::string& output, const int charSize,
         const float mFrameSize, const DBoxDraw mDrawMode,
         const KKey mKeyToClose, const float mXPos = 0.f,
         const float mYPos = 0.f);
+
+    void createInput(const std::string& output, const int charSize,
+        const float mFrameSize, const DBoxDraw mDrawMode);
 
     void draw(const sf::Color& txtColor, const sf::Color& backdropColor);
     void clearDialogBox();
@@ -86,6 +95,31 @@ public:
     [[nodiscard]] bool empty() const noexcept
     {
         return dialogText.empty();
+    }
+
+    [[nodiscard]] bool isInputBox() const noexcept
+    {
+        return inputBox;
+    }
+
+    [[nodiscard]] std::string& getInput() noexcept
+    {
+        return input;
+    }
+
+    [[nodiscard]] const std::string& getInput() const noexcept
+    {
+        return input;
+    }
+
+    void setInputBoxPassword(const bool x) noexcept
+    {
+        inputBoxPassword = x;
+    }
+
+    [[nodiscard]] bool getInputBoxPassword() noexcept
+    {
+        return inputBoxPassword;
     }
 };
 

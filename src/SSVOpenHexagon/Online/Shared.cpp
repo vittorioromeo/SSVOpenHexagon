@@ -344,6 +344,13 @@ void encodeOHPacket(sf::Packet& p, const CTSPLogout& data)
     p << data.steamId;
 }
 
+void encodeOHPacket(sf::Packet& p, const CTSPDeleteAccount& data)
+{
+    encodePacketType(p, data);
+    p << data.steamId;
+    p << data.passwordHash;
+}
+
 void encodeOHPacket(sf::Packet& p, const PEncryptedMsg& data)
 {
     encodePacketType(p, data);
@@ -388,6 +395,27 @@ void encodeOHPacket(sf::Packet& p, const STCPLoginSuccess& data)
 }
 
 void encodeOHPacket(sf::Packet& p, const STCPLoginFailure& data)
+{
+    encodePacketType(p, data);
+    p << data.error;
+}
+
+void encodeOHPacket(sf::Packet& p, const STCPLogoutSuccess& data)
+{
+    encodePacketType(p, data);
+}
+
+void encodeOHPacket(sf::Packet& p, const STCPLogoutFailure& data)
+{
+    encodePacketType(p, data);
+}
+
+void encodeOHPacket(sf::Packet& p, const STCPDeleteAccountSuccess& data)
+{
+    encodePacketType(p, data);
+}
+
+void encodeOHPacket(sf::Packet& p, const STCPDeleteAccountFailure& data)
 {
     encodePacketType(p, data);
     p << data.error;
@@ -607,6 +635,14 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
         return {result};
     }
 
+    if(*pt == getPacketType<CTSPDeleteAccount>())
+    {
+        CTSPDeleteAccount result;
+        EXTRACT_OR_FAIL(result.steamId, "delete account steam id");
+        EXTRACT_OR_FAIL(result.passwordHash, "delete account password hash");
+        return {result};
+    }
+
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
     return {PInvalid{.error = errorOss.str()}};
 }
@@ -747,6 +783,18 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
     {
         STCPLoginFailure result;
         EXTRACT_OR_FAIL(result.error, "login failure error");
+        return {result};
+    }
+
+    HANDLE_EMPTY_PACKET(STCPLogoutSuccess);
+    HANDLE_EMPTY_PACKET(STCPLogoutFailure);
+
+    HANDLE_EMPTY_PACKET(STCPDeleteAccountSuccess);
+
+    if(*pt == getPacketType<STCPDeleteAccountFailure>())
+    {
+        STCPDeleteAccountFailure result;
+        EXTRACT_OR_FAIL(result.error, "delete account failure error");
         return {result};
     }
 

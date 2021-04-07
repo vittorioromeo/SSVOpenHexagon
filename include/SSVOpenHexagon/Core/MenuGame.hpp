@@ -102,8 +102,16 @@ private:
     //---------------------------------------
     // Online status bar
 
+    sf::Sprite sOnline;
     sf::RectangleShape rsOnlineStatus{sf::Vector2f{128.f, 32.f}};
     sf::Text txtOnlineStatus{"", imagine, 24};
+
+    void initOnlineIcons()
+    {
+        assets.get<sf::Texture>("onlineIcon.png").setSmooth(true);
+        assets.get<sf::Texture>("onlineIconFail.png").setSmooth(true);
+        sOnline.setTexture(assets.get<sf::Texture>("onlineIconFail.png"));
+    }
 
     //---------------------------------------
     // Text Entering
@@ -560,6 +568,35 @@ private:
     std::string currentLeaderboard, enteredStr, leaderboardString;
 
     void runLuaFile(const std::string& mFileName);
+
+    //---------------------------------------
+    // Input boxes
+
+    enum class DialogInputState
+    {
+        Nothing,
+
+        Registration_EnteringUsername,
+        Registration_EnteringPassword,
+
+        Login_EnteringUsername,
+        Login_EnteringPassword,
+
+        DeleteAccount_EnteringPassword,
+    };
+
+    DialogInputState dialogInputState{DialogInputState::Nothing};
+
+    std::string registrationUsername;
+    std::string registrationPassword;
+    std::string loginUsername;
+    std::string loginPassword;
+    std::string deleteAccountPassword;
+
+    void showDialogBox(const std::string& msg);
+    void showInputDialogBox(const std::string& msg);
+    void showInputDialogBoxNice(const std::string& title,
+        const std::string& inputType, const std::string& extra = "");
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,

@@ -20,7 +20,7 @@ HexagonDialogBox::HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& mWindow)
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
     const float mFrameSize, const DBoxDraw mDrawMode, const float mXPos,
-    const float mYPos)
+    const float mYPos, const bool mInputBox)
 {
     lineHeight = Utils::getFontHeight(txtDialog, charSize);
     txtDialog.setString(output);
@@ -30,6 +30,9 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
     drawFunc = drawModeToDrawFunc(mDrawMode);
     xPos = mXPos;
     yPos = mYPos;
+    inputBox = mInputBox;
+    inputBoxPassword = false;
+    input.clear();
 
     std::string temp;
     for(char c : output)
@@ -49,6 +52,11 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
     const float dialogHeight =
         lineHeight * size + (lineHeight / 2.f) * (size - 1);
     totalHeight = dialogHeight + 2.f * doubleFrameSize;
+
+    if(inputBox)
+    {
+        totalHeight += lineHeight * 4;
+    }
 }
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
@@ -57,6 +65,13 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
 {
     create(output, charSize, mFrameSize, mDrawMode, mXPos, mYPos);
     keyToClose = mKeyToClose;
+}
+
+void HexagonDialogBox::createInput(const std::string& output,
+    const int charSize, const float mFrameSize, const DBoxDraw mDrawMode)
+{
+    create(output, charSize, mFrameSize, mDrawMode, 0.f, 0.f, true);
+    keyToClose = KKey::Enter;
 }
 
 HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(
@@ -128,6 +143,24 @@ void HexagonDialogBox::drawText(
         }
 
         heightOffset += interline;
+    }
+
+    if(inputBox)
+    {
+        heightOffset += interline;
+
+        if(inputBoxPassword)
+        {
+            txtDialog.setString(std::string(input.size(), '*'));
+        }
+        else
+        {
+            txtDialog.setString(input);
+        }
+
+        txtDialog.setPosition({xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
+            yOffset + heightOffset});
+        window.draw(txtDialog);
     }
 }
 
@@ -218,8 +251,12 @@ void HexagonDialogBox::drawCenterUpperHalf(
 void HexagonDialogBox::clearDialogBox()
 {
     assets.playSound("select.ogg");
+
     dialogFrame.clear();
     dialogText.clear();
+    input.clear();
+    inputBox = false;
+    inputBoxPassword = false;
     keyToClose = KKey::Unknown;
 }
 
