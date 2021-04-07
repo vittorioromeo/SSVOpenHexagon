@@ -14,6 +14,7 @@
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
@@ -35,6 +36,8 @@
 #include <string>
 #include <vector>
 #include <string_view>
+#include <unordered_map>
+#include <chrono>
 
 namespace hg
 {
@@ -56,6 +59,35 @@ enum class States
 class HexagonGame;
 class HexagonClient;
 
+class LeaderboardCache
+{
+public:
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = std::chrono::time_point<Clock>;
+
+private:
+    struct CachedScores
+    {
+        std::vector<Database::ProcessedScore> _scores;
+        TimePoint _cacheTime;
+    };
+
+    std::unordered_map<std::string, CachedScores> _levelValidatorToScores;
+    const std::vector<Database::ProcessedScore> _emptyScores;
+
+public:
+    void receivedScores(const std::string& levelValidator,
+        const std::vector<Database::ProcessedScore>& scores);
+
+    void requestedScores(const std::string& levelValidator);
+
+    [[nodiscard]] bool shouldRequestScores(
+        const std::string& levelValidator) const;
+
+    [[nodiscard]] const std::vector<Database::ProcessedScore>& getScores(
+        const std::string& levelValidator) const;
+};
+
 class MenuGame
 {
 private:
@@ -70,6 +102,7 @@ private:
     ssvs::GameWindow& window;
     HexagonClient& hexagonClient;
     HexagonDialogBox dialogBox;
+    LeaderboardCache leaderboardCache;
 
     Lua::LuaContext lua;
     std::vector<std::string> execScriptPackPathContext;

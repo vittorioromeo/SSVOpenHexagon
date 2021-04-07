@@ -270,27 +270,60 @@ template <typename T>
     const std::string& name, const std::string& passwordHash)
 {
     SSVOH_CLOG << "Sending registration request to server...\n";
-    return sendEncrypted(CTSPRegister{steamId, name, passwordHash});
+
+    return sendEncrypted( //
+        CTSPRegister{
+            .steamId = steamId,          //
+            .name = name,                //
+            .passwordHash = passwordHash //
+        }                                //
+    );
 }
 
 [[nodiscard]] bool HexagonClient::sendLogin(const std::uint64_t steamId,
     const std::string& name, const std::string& passwordHash)
 {
     SSVOH_CLOG << "Sending login request to server...\n";
-    return sendEncrypted(CTSPLogin{steamId, name, passwordHash});
+
+    return sendEncrypted( //
+        CTSPLogin{
+            .steamId = steamId,          //
+            .name = name,                //
+            .passwordHash = passwordHash //
+        }                                //
+    );
 }
 
 [[nodiscard]] bool HexagonClient::sendLogout(const std::uint64_t steamId)
 {
     SSVOH_CLOG << "Sending logout request to server...\n";
-    return sendEncrypted(CTSPLogout{steamId});
+    return sendEncrypted(CTSPLogout{.steamId = steamId});
 }
 
 [[nodiscard]] bool HexagonClient::sendDeleteAccount(
     const std::uint64_t steamId, const std::string& passwordHash)
 {
     SSVOH_CLOG << "Sending delete account request to server...\n";
-    return sendEncrypted(CTSPDeleteAccount{steamId, passwordHash});
+
+    return sendEncrypted( //
+        CTSPDeleteAccount{
+            .steamId = steamId,          //
+            .passwordHash = passwordHash //
+        }                                //
+    );
+}
+
+[[nodiscard]] bool HexagonClient::sendRequestTopScores(
+    const sf::Uint64 loginToken, const std::string& levelValidator)
+{
+    SSVOH_CLOG << "Sending top scores request to server...\n";
+
+    return sendEncrypted( //
+        CTSPRequestTopScores{
+            .loginToken = loginToken,        //
+            .levelValidator = levelValidator //
+        }                                    //
+    );
 }
 
 bool HexagonClient::connect()
@@ -453,8 +486,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         },
 
         [&](const PEncryptedMsg&) {
-            SSVOH_CLOG
-                << "Received non-decrypted encrypted msg packet from server\n";
+            SSVOH_CLOG << "Received non-decrypted encrypted msg packet "
+                          "from server\n";
 
             return false;
         },
@@ -587,6 +620,17 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
             addEvent(EDeleteAccountFailure{stcp.error});
             return true;
+        },
+
+        [&](const STCPTopScores& stcp) {
+            SSVOH_CLOG << "Received top scores from server, levelValidator: '"
+                       << stcp.levelValidator << "', size: '"
+                       << stcp.scores.size() << "'\n";
+
+            addEvent(EReceivedTopScores{
+                .levelValidator = stcp.levelValidator, .scores = stcp.scores});
+
+            return true;
         }
 
         //
@@ -699,6 +743,22 @@ bool HexagonClient::tryDeleteAccount(const std::string& password)
 
     SSVOH_ASSERT(_ticketSteamID.has_value());
     return sendDeleteAccount(_ticketSteamID.value(), hashPwd(password));
+}
+
+bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(_state != State::LoggedIn)
+    {
+        return false;
+    }
+
+    SSVOH_ASSERT(_loginToken.has_value());
+    return sendRequestTopScores(_loginToken.value(), levelValidator);
 }
 
 [[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Online/Sodium.hpp"
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/TcpSocket.hpp>
@@ -54,6 +55,7 @@ public:
     struct ELogoutFailure        { };
     struct EDeleteAccountSuccess { };
     struct EDeleteAccountFailure { std::string error; };
+    struct EReceivedTopScores    { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
     // clang-format on
 
     using Event = std::variant< //
@@ -67,7 +69,8 @@ public:
         ELogoutSuccess,         //
         ELogoutFailure,         //
         EDeleteAccountSuccess,  //
-        EDeleteAccountFailure   //
+        EDeleteAccountFailure,  //
+        EReceivedTopScores      //
         >;
 
 private:
@@ -123,6 +126,8 @@ private:
     [[nodiscard]] bool sendLogout(const std::uint64_t steamId);
     [[nodiscard]] bool sendDeleteAccount(
         const std::uint64_t steamId, const std::string& passwordHash);
+    [[nodiscard]] bool sendRequestTopScores(
+        const sf::Uint64 loginToken, const std::string& levelValidator);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -153,6 +158,7 @@ public:
     bool tryLogin(const std::string& name, const std::string& password);
     bool tryLogoutFromServer();
     bool tryDeleteAccount(const std::string& password);
+    bool tryRequestTopScores(const std::string& levelValidator);
 
     [[nodiscard]] State getState() const noexcept;
 

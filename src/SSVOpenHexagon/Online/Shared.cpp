@@ -116,11 +116,17 @@ void encodePacketType(sf::Packet& p, const T&)
     p << static_cast<sf::Uint8>(getPacketType<T>());
 }
 
+template <typename T>
+[[nodiscard]] bool extractInto(
+    T& target, std::ostringstream& errorOss, sf::Packet& p);
+
 template <typename T, typename = void>
 struct Extractor
 {
-    [[nodiscard]] static bool extractInto(
-        T& target, std::ostringstream& errorOss, sf::Packet& p)
+    template <typename U = T>
+    [[nodiscard]] static auto doExtractIntoImpl(
+        U& target, std::ostringstream& errorOss, sf::Packet& p, int)
+        -> decltype((p >> target), bool())
     {
         if(!(p >> target))
         {
@@ -130,6 +136,31 @@ struct Extractor
 
         return true;
     }
+
+    template <typename U = T>
+    [[nodiscard]] static bool doExtractIntoImpl(
+        U& target, std::ostringstream& errorOss, sf::Packet& p, long)
+    {
+        bool result = true;
+
+        if constexpr(boost::pfr::tuple_size_v<T> > 0)
+        {
+            boost::pfr::for_each_field(target, [&](auto& nestedField) {
+                if(!extractInto(nestedField, errorOss, p))
+                {
+                    result = false;
+                }
+            });
+        }
+
+        return result;
+    }
+
+    [[nodiscard]] static bool doExtractInto(
+        T& target, std::ostringstream& errorOss, sf::Packet& p)
+    {
+        return doExtractIntoImpl(target, errorOss, p, 0);
+    }
 };
 
 template <typename T, std::size_t N>
@@ -137,12 +168,12 @@ struct Extractor<std::array<T, N>>
 {
     using Type = std::array<T, N>;
 
-    [[nodiscard]] static bool extractInto(
+    [[nodiscard]] static bool doExtractInto(
         Type& result, std::ostringstream& errorOss, sf::Packet& p)
     {
         for(std::size_t i = 0; i < N; ++i)
         {
-            if(p >> result[i])
+            if(extractInto(result[i], errorOss, p))
             {
                 continue;
             }
@@ -157,11 +188,46 @@ struct Extractor<std::array<T, N>>
     }
 };
 
+
+template <typename T>
+struct Extractor<std::vector<T>>
+{
+    using Type = std::vector<T>;
+
+    [[nodiscard]] static bool doExtractInto(
+        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    {
+        sf::Uint64 size;
+        if(!(p >> size))
+        {
+            errorOss << "Error extracting vector size\n";
+            return false;
+        }
+
+        result.resize(size);
+
+        for(std::size_t i = 0; i < size; ++i)
+        {
+            if(extractInto(result[i], errorOss, p))
+            {
+                continue;
+            }
+
+            errorOss << "Error extracting vector element at index '" << i
+                     << "'\n";
+
+            return false;
+        }
+
+        return true;
+    }
+};
+
 template <typename T>
 [[nodiscard]] bool extractInto(
     T& target, std::ostringstream& errorOss, sf::Packet& p)
 {
-    return Extractor<T>::extractInto(target, errorOss, p);
+    return Extractor<T>::doExtractInto(target, errorOss, p);
 }
 
 template <typename T>
@@ -170,7 +236,7 @@ template <typename T>
 {
     T temp;
 
-    if(!Extractor<T>::extractInto(temp, errorOss, p))
+    if(!extractInto(temp, errorOss, p))
     {
         return std::nullopt;
     }
@@ -276,17 +342,49 @@ sf::Packet& getStaticPacketBuffer()
 }
 
 template <typename TData, typename TField>
-void encodeField(sf::Packet& p, const TData&, const TField& field)
+auto encodeField(sf::Packet& p, const TData& data, const TField& field);
+
+template <typename TData, typename TField>
+void encodeFieldImpl(
+    sf::Packet& p, const TData& data, const TField& field, long)
+{
+    if constexpr(boost::pfr::tuple_size_v<TField> > 0)
+    {
+        boost::pfr::for_each_field(field, [&](const auto& nestedField) {
+            encodeField(p, data, nestedField);
+        });
+    }
+}
+
+template <typename TData, typename TField>
+auto encodeFieldImpl(sf::Packet& p, const TData&, const TField& field, int)
+    -> decltype((p << field), void())
 {
     p << field;
 }
 
+template <typename TData, typename TField>
+auto encodeField(sf::Packet& p, const TData& data, const TField& field)
+{
+    encodeFieldImpl(p, data, field, 0);
+}
+
 template <typename TData, typename T, std::size_t N>
-void encodeField(sf::Packet& p, const TData&, const std::array<T, N>& arr)
+void encodeField(sf::Packet& p, const TData& data, const std::array<T, N>& arr)
 {
     for(std::size_t i = 0; i < arr.size(); ++i)
     {
-        p << arr[i];
+        encodeField(p, data, arr[i]);
+    }
+}
+
+template <typename TData, typename T>
+void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
+{
+    encodeField(p, data, static_cast<sf::Uint64>(vec.size()));
+    for(const T& x : vec)
+    {
+        encodeField(p, data, x);
     }
 }
 
