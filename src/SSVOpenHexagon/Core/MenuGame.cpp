@@ -908,7 +908,6 @@ void MenuGame::initMenus()
 {
     namespace i = ssvms::Items;
 
-    auto whenLocal = [this] { return assets.pIsLocal(); };
     auto whenNotOfficial = [] { return !Config::getOfficial(); };
     auto whenSoundEnabled = [] { return !Config::getNoSound(); };
     auto whenMusicEnabled = [] { return !Config::getNoMusic(); };
@@ -1266,7 +1265,7 @@ void MenuGame::initMenus()
         changeStateTo(States::LevelSelection);
         assets.playSound("select.ogg");
     });
-    main.create<i::Goto>("LOCAL PROFILES", localProfiles) | whenLocal;
+    main.create<i::Goto>("LOCAL PROFILES", localProfiles);
     main.create<i::Single>(
         "ONLINE", [this] { changeStateTo(States::MOnline); });
     main.create<i::Single>("OPTIONS", [this] { changeStateTo(States::MOpts); });
@@ -1475,7 +1474,6 @@ bool MenuGame::loadCommandLineLevel(
 void MenuGame::playLocally()
 {
     assets.pSaveCurrent();
-    assets.pSetPlayingLocally(true);
     enteredStr = "";
     state = assets.getLocalProfilesSize() == 0 ? States::ETLPNewBoot
                                                : States::SLPSelectBoot;
@@ -2103,8 +2101,7 @@ void MenuGame::exitAction()
         return;
     }
 
-    if((assets.pIsLocal() && assets.pIsValidLocalProfile()) ||
-        !assets.pIsLocal())
+    if(assets.pIsValidLocalProfile())
     {
         if(isInMenu())
         {
@@ -3147,11 +3144,6 @@ inline constexpr unsigned int profSelectedCharSize{35 + 12};
 void MenuGame::drawProfileSelection(
     const float xOffset, const bool revertOffset)
 {
-    if(!assets.pIsLocal())
-    {
-        throw;
-    }
-
     ssvms::Category& mSubmenu{profileSelectionMenu.getCategory()};
     const auto& items{mSubmenu.getItems()};
 
@@ -3278,11 +3270,6 @@ void MenuGame::drawProfileSelection(
 
 void MenuGame::drawProfileSelectionBoot()
 {
-    if(!assets.pIsLocal())
-    {
-        throw;
-    }
-
     ssvms::Category& mSubmenu{profileSelectionMenu.getCategory()};
     const auto& items(mSubmenu.getItems());
 

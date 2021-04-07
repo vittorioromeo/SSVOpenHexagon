@@ -933,17 +933,6 @@ void HexagonGame::initLua_LevelControl()
             "Resets the lever time to zero, also resets increment time and "
             "pause time.");
 
-    // TODO: test and consider re-enabling
-    /*
-    addLuaFn(lua, "l_setLevel",
-     [this](const std::string& mId)
-        {
-            setLevelData(assets.getLevelData(mId), true);
-            stopLevelMusic();
-            playLevelMusic();
-        });
-    */
-
     const auto sVar = makeLuaAccessor(status, "l");
 
     sVar("Pulse", &HexagonGameStatus::pulse,

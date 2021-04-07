@@ -372,6 +372,7 @@ void HexagonGame::updateInput_UpdateJoystickControls()
     setInputImplIfFalse(inputImplCCW, Joystick::pressed(Joystick::Jdir::Left));
     setInputImplIfFalse(inputImplCW, Joystick::pressed(Joystick::Jdir::Right));
     setInputImplIfFalse(inputSwap, Joystick::pressed(Joystick::Jid::Swap));
+    setInputImplIfFalse(inputFocused, Joystick::pressed(Joystick::Jid::Focus));
 
     if(Joystick::risingEdge(Joystick::Jid::Exit))
     {
