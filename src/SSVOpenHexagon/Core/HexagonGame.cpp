@@ -532,6 +532,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     effectTimelineManager.clear();
     mustChangeSides = false;
+    mustStart = false;
 
     // Particles cleanup
     pbTextGrowth = 0.f;

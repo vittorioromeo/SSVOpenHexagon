@@ -36,8 +36,6 @@ void HexagonGame::update(ssvu::FT mFT)
         hexagonClient->update();
     }
 
-    styleData.computeColors();
-
     mFT *= Config::getTimescale();
 
     // ------------------------------------------------------------------------
@@ -64,6 +62,12 @@ void HexagonGame::update(ssvu::FT mFT)
 
     updateText(mFT);
 
+    if(mustStart)
+    {
+        mustStart = false;
+        start();
+    }
+
     if(!debugPause)
     {
         updateFlash(mFT);
@@ -79,27 +83,29 @@ void HexagonGame::update(ssvu::FT mFT)
 
             if(!status.started)
             {
-                start();
-            }
-
-            const input_bitset ib =
-                activeReplay->replayPlayer.get_current_and_move_forward();
-
-            if(ib[static_cast<unsigned int>(input_bit::left)])
-            {
-                inputMovement = -1;
-            }
-            else if(ib[static_cast<unsigned int>(input_bit::right)])
-            {
-                inputMovement = 1;
+                mustStart = true;
             }
             else
             {
-                inputMovement = 0;
-            }
+                const input_bitset ib =
+                    activeReplay->replayPlayer.get_current_and_move_forward();
 
-            inputSwap = ib[static_cast<unsigned int>(input_bit::swap)];
-            inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
+                if(ib[static_cast<unsigned int>(input_bit::left)])
+                {
+                    inputMovement = -1;
+                }
+                else if(ib[static_cast<unsigned int>(input_bit::right)])
+                {
+                    inputMovement = 1;
+                }
+                else
+                {
+                    inputMovement = 0;
+                }
+
+                inputSwap = ib[static_cast<unsigned int>(input_bit::swap)];
+                inputFocused = ib[static_cast<unsigned int>(input_bit::focus)];
+            }
         }
 
         // --------------------------------------------------------------------
@@ -127,6 +133,8 @@ void HexagonGame::update(ssvu::FT mFT)
         // --------------------------------------------------------------------
         if(status.started)
         {
+            styleData.computeColors();
+
             player.update(getInputFocused(), getLevelStatus().swapEnabled, mFT);
 
             if(!status.hasDied)
@@ -223,13 +231,13 @@ void HexagonGame::update(ssvu::FT mFT)
                         reinterpret_cast<const unsigned char*>(&x), sizeof(T));
                 };
 
-                addHash(status.pulse);
-                addHash(status.beatPulse);
-                addHash(status.pulse3D);
-                addHash(status.radius);
-                addHash(status.fastSpin);
-                addHash(status.flashEffect);
-                addHash(levelStatus.rotationSpeed);
+                addHash(static_cast<std::int32_t>(status.pulse));
+                addHash(static_cast<std::int32_t>(status.beatPulse));
+                addHash(static_cast<std::int32_t>(status.pulse3D));
+                addHash(static_cast<std::int32_t>(status.radius));
+                addHash(static_cast<std::int32_t>(status.fastSpin));
+                addHash(static_cast<std::int32_t>(status.flashEffect));
+                addHash(static_cast<std::int32_t>(levelStatus.rotationSpeed));
                 addHash(styleData.getMainColor().toInteger());
                 addHash(styleData.getPlayerColor().toInteger());
                 addHash(styleData.getTextColor().toInteger());
@@ -237,8 +245,9 @@ void HexagonGame::update(ssvu::FT mFT)
                 {
                     addHash(c.toInteger());
                 }
-                addHash(styleData.getCurrentHue());
-                addHash(styleData.getCurrentSwapTime());
+                addHash(static_cast<std::int32_t>(styleData.getCurrentHue()));
+                addHash(
+                    static_cast<std::int32_t>(styleData.getCurrentSwapTime()));
                 addHash(styleData.get3DOverrideColor().toInteger());
                 addHash(styleData.getCapColorResult().toInteger());
 
@@ -514,7 +523,7 @@ void HexagonGame::updateInput()
     if(!status.started &&
         (!Config::getRotateToStart() || inputImplCCW || inputImplCW))
     {
-        start();
+        mustStart = true;
     }
 
     // Keyboard and mouse state is handled by callbacks set in the

@@ -161,6 +161,7 @@ private:
     bool inputSwap{false};
     bool mustTakeScreenshot{false};
     bool mustChangeSides{false};
+    bool mustStart{false};
 
     random_number_generator rng;
     HexagonGameStatus status;
@@ -182,10 +183,10 @@ private:
 
     std::optional<ActiveReplay> activeReplay;
 
-    random_number_generator::seed_type lastSeed;
-    replay_data lastReplayData;
-    bool lastFirstPlay;
-    double lastPlayedScore;
+    random_number_generator::seed_type lastSeed{};
+    replay_data lastReplayData{};
+    bool lastFirstPlay{};
+    double lastPlayedScore{};
 
     std::string restartId;
     float difficultyMult{1};
@@ -206,12 +207,6 @@ private:
 
     // Color of the polygon in the center.
     CapColor capColor;
-
-    struct CExprVec2f
-    {
-        float x;
-        float y;
-    };
 
     std::string packId;
     std::string levelId;
