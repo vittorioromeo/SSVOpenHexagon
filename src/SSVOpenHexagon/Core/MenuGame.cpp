@@ -14,6 +14,7 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Core/BindControl.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
@@ -108,9 +109,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 
     game.onEvent(sf::Event::EventType::Resized) +=
         [this](const sf::Event& event) {
-            Config::setCurrentResolution(
-                window, event.size.width, event.size.height);
-            refreshCamera();
+            changeResolutionTo(event.size.width, event.size.height);
         };
 
     game.onEvent(
@@ -490,7 +489,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
         };
 
-    window.onRecreation += [this] { refreshCamera(); };
+    window.onRecreation += [this] {
+        refreshCamera();
+        adjustLevelsOffset();
+        adjustMenuOffset(true);
+        resetNamesScrolls();
+        mustRefresh = true;
+    };
 
     initMenus();
     initInput();
@@ -754,6 +759,16 @@ catch(...)
     assets.playSound("error.ogg");
     ssvu::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '"
                                       << mFileName << '\'' << std::endl;
+}
+
+void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
+{
+    Config::setCurrentResolution(window, mWidth, mHeight);
+
+    refreshCamera();
+    adjustLevelsOffset();
+    adjustMenuOffset(true);
+    resetNamesScrolls();
 }
 
 void MenuGame::initLua()
@@ -1095,9 +1110,7 @@ void MenuGame::initMenus()
                     sixByNine.create<i::Single>(
                         ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
                         [this, &vm] {
-                            Config::setCurrentResolution(
-                                window, vm.width, vm.height);
-                            refreshCamera();
+                            changeResolutionTo(vm.width, vm.height);
                         });
                     break;
 
@@ -1105,9 +1118,7 @@ void MenuGame::initMenus()
                     fourByThree.create<i::Single>(
                         ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
                         [this, &vm] {
-                            Config::setCurrentResolution(
-                                window, vm.width, vm.height);
-                            refreshCamera();
+                            changeResolutionTo(vm.width, vm.height);
                         });
                     break;
 
@@ -1115,9 +1126,7 @@ void MenuGame::initMenus()
                     sixByTen.create<i::Single>(
                         ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
                         [this, &vm] {
-                            Config::setCurrentResolution(
-                                window, vm.width, vm.height);
-                            refreshCamera();
+                            changeResolutionTo(vm.width, vm.height);
                         });
                     break;
             }
@@ -2340,10 +2349,10 @@ void MenuGame::update(ssvu::FT mFT)
 
     if(window.getFingerDownCount() == 1)
     {
-        auto wThird{window.getWidth() / 3.f};
-        auto wLT{window.getWidth() - wThird};
-        auto hThird{window.getHeight() / 3.f};
-        auto hLT{window.getHeight() - hThird};
+        auto wThird{getWindowWidth() / 3.f};
+        auto wLT{getWindowWidth() - wThird};
+        auto hThird{getWindowHeight() / 3.f};
+        auto hLT{getWindowHeight() - hThird};
 
         for(const auto& p : window.getFingerDownPositions())
         {
@@ -2353,7 +2362,7 @@ void MenuGame::update(ssvu::FT mFT)
                 {
                     leftAction();
                 }
-                else if(p.x < ssvu::toNum<int>(window.getWidth()) && p.x > wLT)
+                else if(p.x < ssvu::toNum<int>(getWindowWidth()) && p.x > wLT)
                 {
                     rightAction();
                 }
@@ -2660,15 +2669,23 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
 
 void MenuGame::refreshCamera()
 {
-    float fw{1024.f / Config::getWidth()};
-    float fh{768.f / Config::getHeight()};
-    float fmax{std::max(fw, fh)};
-    w = Config::getWidth() * fmax;
-    h = Config::getHeight() * fmax;
+    const float fw{1024.f / getWindowWidth()};
+    const float fh{768.f / getWindowHeight()};
+    const float fmax{std::max(fw, fh)};
+
+    w = getWindowWidth() * fmax;
+    h = getWindowHeight() * fmax;
+
+    backgroundCamera.setView(
+        {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
+                              Config::getSizeY() * Config::getZoomFactor()}});
+
     overlayCamera.setView(sf::View{sf::FloatRect(0, 0, w, h)});
+
     titleBar.setOrigin(ssvs::zeroVec2f);
     titleBar.setScale({0.5f, 0.5f});
     titleBar.setPosition({20.f, 20.f});
+
     txtVersion.font.setString(Config::getVersionString());
     txtVersion.font.setOrigin({ssvs::getLocalRight(txtVersion.font), 0.f});
     txtVersion.font.setPosition({ssvs::getGlobalRight(titleBar) - 15.f,
@@ -2683,13 +2700,14 @@ void MenuGame::refreshCamera()
     creditsBar2.setPosition(
         {w - 20.f, 17.f + ssvs::getGlobalBottom(creditsBar1)});
 
-    float scaleFactor{w / 1024.f};
+    const float scaleFactor{w / 1024.f};
     epilepsyWarning.setOrigin(ssvs::getLocalCenter(epilepsyWarning));
     epilepsyWarning.setPosition({1024 / (2.f / scaleFactor), 768 / 2.f - 50});
     epilepsyWarning.setScale({0.36f, 0.36f});
 
     // Readjust the menu background skew and the indents
-    fourByThree = 10.f * Config::getWidth() / Config::getHeight() < 16;
+    fourByThree = 10.f * getWindowWidth() / getWindowHeight() < 16;
+
     if(fourByThree)
     {
         backgroundCamera.setSkew({1.f, 0.8f});
@@ -2698,22 +2716,27 @@ void MenuGame::refreshCamera()
     {
         backgroundCamera.setSkew({1.f, 0.6f});
     }
+
     for(auto& c : mainMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
+
     for(auto& c : welcomeMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
+
     for(auto& c : optionsMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
+
     for(auto& c : onlineMenu.getCategories())
     {
         c->getOffset() = 0.f;
     }
+
     for(auto& c : profileSelectionMenu.getCategories())
     {
         c->getOffset() = 0.f;
@@ -2730,7 +2753,7 @@ void MenuGame::refreshCamera()
     {
         txtMenuBig.font.setCharacterSize(45);
         txtMenuSmall.font.setCharacterSize(30);
-        txtSelectionLSmall.font.setCharacterSize(24);
+        txtSelectionLSmall.font.setCharacterSize(16);
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
@@ -2752,6 +2775,9 @@ void MenuGame::refreshCamera()
     {
         formatLevelDescription();
     }
+
+    overlayCamera.update(0.5f);
+    backgroundCamera.update(0.5f);
 }
 
 void MenuGame::refreshBinds()
@@ -2790,6 +2816,11 @@ void MenuGame::setIgnoreAllInputs(const unsigned int presses)
 
 void MenuGame::adjustMenuOffset(const bool resetMenuOffset)
 {
+    if(getCurrentMenu() == nullptr)
+    {
+        return;
+    }
+
     // Set to 0 the offset of the whole submenu.
     if(resetMenuOffset)
     {
@@ -2803,6 +2834,7 @@ void MenuGame::adjustMenuOffset(const bool resetMenuOffset)
     {
         i->getOffset() = 0.f;
     }
+
     items[getCurrentMenu()->getIdx()]->getOffset() = maxOffset;
 }
 
@@ -2813,6 +2845,7 @@ void MenuGame::adjustLevelsOffset()
     {
         offset = 0.f;
     }
+
     lvlSlct.lvlOffsets[lvlSlct.currentIndex] = maxOffset;
 
     // Do the same for the favorites menu but only if there are levels in it.
@@ -2820,10 +2853,12 @@ void MenuGame::adjustLevelsOffset()
     {
         return;
     }
+
     for(auto& offset : favSlct.lvlOffsets)
     {
         offset = 0.f;
     }
+
     favSlct.lvlOffsets[favSlct.currentIndex] = maxOffset;
 }
 
@@ -2857,6 +2892,7 @@ float MenuGame::calcMenuOffset(float& offset, const float maxOffset,
             offset = maxOffset;
         }
     }
+
     return maxOffset - offset;
 }
 
@@ -3562,8 +3598,10 @@ void MenuGame::updateLevelSelectionDrawingParameters()
 {
     textToQuadBorder = txtSelectionMedium.height * frameSizeMulti;
     slctFrameSize = textToQuadBorder * 0.3f;
+
     packLabelHeight =
         txtSelectionMedium.height + 2.f * textToQuadBorder + slctFrameSize;
+
     levelLabelHeight = txtSelectionBig.height +           // level name
                        txtSelectionSmall.height * 1.75f + // author + interspace
                        2.f * textToQuadBorder - // top and bottom spaces
@@ -3838,7 +3876,7 @@ void MenuGame::scrollLevelListToTargetY(ssvu::FT mFT)
     }
 }
 
-inline constexpr int descLines{7};
+inline constexpr int descLines{5};
 
 void MenuGame::formatLevelDescription()
 {
@@ -3984,8 +4022,15 @@ void MenuGame::addRemoveFavoriteLevel()
         favSlct.lvlOffsets.pop_back();
 
         // Make sure the index is within bounds.
-        ssvu::clamp(favSlct.currentIndex, 0,
-            static_cast<int>(favSlct.levelDataIds->size()) - 1);
+        if(!favSlct.levelDataIds->empty())
+        {
+            ssvu::clamp(favSlct.currentIndex, 0,
+                static_cast<int>(favSlct.levelDataIds->size()) - 1);
+        }
+        else
+        {
+            favSlct.currentIndex = 0;
+        }
 
         if(isFavoriteLevels())
         {
@@ -4379,8 +4424,9 @@ void MenuGame::drawLevelSelectionLeftSide(
     const float textXPos{textToQuadBorder - panelOffset};
     const float textRightBorder{getMaximumTextWidth()};
 
-    float width{maxPanelOffset - panelOffset}, height{textToQuadBorder},
-        tempFloat;
+    float width{maxPanelOffset - panelOffset};
+    float height{textToQuadBorder};
+    float tempFloat;
 
     //-------------------------------------
     // Backdrop - Right border
@@ -4549,20 +4595,30 @@ void MenuGame::drawLevelSelectionLeftSide(
     menuQuads.clear();
 
     renderTextCenteredOffset(
-        isLevelFavorite ? "UNFAVORITE - F1" : "FAVORITE - F1",
+        isLevelFavorite ? "[F1] UNFAVORITE" : "[F1]    FAVORITE",
         txtSelectionMedium.font, {maxPanelOffset / 2.f, height}, -panelOffset,
         menuQuadColor);
 
     height = tempFloat;
 
     //-------------------------------------
-    // Leaderboards
+    // Leaderboard
 
-    // "LEADERBOARDS"
-    height += textToQuadBorder;
-    renderTextCenteredOffset("LEADERBOARDS", txtSelectionBig.font,
-        {maxPanelOffset / 2.f, height - txtSelectionBig.height * fontTopBorder},
-        -panelOffset);
+    // Personal best
+    height += txtSelectionMedium.height / 2.f;
+    renderText("LOCAL PERSONAL BEST", txtSelectionSmall.font,
+        {textToQuadBorder - panelOffset,
+            height - txtSelectionSmall.height * fontTopBorder},
+        menuQuadColor);
+
+    height += txtSelectionSmall.height + txtSelectionSmall.height;
+    tempString = Utils::getLevelValidator(
+        levelData.id, ssvu::getByModIdx(diffMults, diffMultIdx));
+    renderText(
+        ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) + "s",
+        txtSelectionScore.font,
+        {textToQuadBorder - panelOffset,
+            height - txtSelectionScore.height * fontTopBorder});
 
     // Line
     height += txtSelectionBig.height + textToQuadBorder;
@@ -4570,33 +4626,93 @@ void MenuGame::drawLevelSelectionLeftSide(
     createQuad(menuQuadColor, 0, width, height, height + lineThickness);
     height += lineThickness;
 
-    // Personal best
-    height += txtSelectionMedium.height / 2.f;
-    renderText("PERSONAL BEST", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset,
-            height - txtSelectionMedium.height * fontTopBorder},
-        menuQuadColor);
-
-    height += txtSelectionMedium.height + txtSelectionSmall.height;
-    tempString = Utils::getLocalValidator(
-        levelData.id, ssvu::getByModIdx(diffMults, diffMultIdx));
-    renderText(
-        ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)),
-        txtSelectionScore.font,
-        {textToQuadBorder - panelOffset,
-            height - txtSelectionScore.height * fontTopBorder});
+    // "LEADERBOARD"
+    height += textToQuadBorder;
+    renderTextCenteredOffset("ONLINE LEADERBOARD", txtSelectionBig.font,
+        {maxPanelOffset / 2.f, height - txtSelectionBig.height * fontTopBorder},
+        -panelOffset);
 
     // Line
-    height += txtSelectionScore.height + txtSelectionMedium.height / 2.f;
+    height += txtSelectionScore.height + txtSelectionBig.height / 2.f;
     menuQuads.reserve_more(4);
     createQuad(menuQuadColor, 0, width, height, height + lineThickness);
     height += lineThickness;
+
+    height += txtSelectionSmall.height;
+
+    if(hexagonClient.getState() != HexagonClient::State::LoggedIn)
+    {
+        renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionSmall.height * fontTopBorder});
+    }
+    else
+    {
+        SSVOH_ASSERT(lvlDrawer != nullptr);
+
+        const std::string& packId =
+            getNthSelectablePackInfo(lvlDrawer->packIdx).id;
+
+        const std::string& levelId =
+            lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex);
+
+        const float diffMult = ssvu::getByModIdx(diffMults, diffMultIdx);
+
+        ssvu::lo("TODO") << "Request leaderboard for:\n"
+                         << " - packId: " << packId << '\n'
+                         << " - levelId: " << levelId << '\n'
+                         << " - diffMult: " << diffMult << '\n';
+
+        const auto drawEntry = [&](const int i, const bool last) {
+            const float score = 4.153 * i;
+
+            const std::string posStr = hg::Utils::concat('#', i);
+            std::string scoreStr = ssvu::toStr(score) + 's';
+            std::string playerStr = "PLAYERNAME";
+
+            const float tx = textToQuadBorder - panelOffset;
+            const float ty = height - txtSelectionMedium.height * fontTopBorder;
+
+            renderText(posStr, txtSelectionMedium.font, {tx, ty});
+            renderText(scoreStr, txtSelectionMedium.font, {tx + 54.f, ty});
+            renderText(playerStr, txtSelectionMedium.font, {tx + 150.f, ty});
+
+            if(!last)
+            {
+                height += txtSelectionMedium.height + txtSelectionSmall.height;
+            }
+        };
+
+        for(int i = 0; i < 13; ++i)
+        {
+            drawEntry(i, i == 12);
+        }
+
+        // Line
+        height += txtSelectionScore.height + txtSelectionBig.height / 2.f;
+        menuQuads.reserve_more(4);
+        createQuad(menuQuadColor, 0, width, height, height + lineThickness);
+        height += lineThickness;
+
+        height += txtSelectionSmall.height;
+        drawEntry(75, false);
+    }
 
     render(menuQuads);
 }
 
 void MenuGame::draw()
 {
+    if(mustRefresh)
+    {
+        mustRefresh = false;
+
+        refreshCamera();
+        adjustLevelsOffset();
+        adjustMenuOffset(true);
+        resetNamesScrolls();
+    }
+
     styleData.computeColors();
     window.clear(sf::Color{0, 0, 0, 255});
 
@@ -4665,14 +4781,17 @@ void MenuGame::draw()
                 drawMainMenu(optionsMenu.getCategoryByName("options"),
                     w - indentBig, true);
             }
+
             if(profileSelectionMenu.getCategory().getOffset() != 0.f)
             {
                 drawProfileSelection(profileIndent, true);
             }
+
             if(enteringTextOffset != 0.f)
             {
                 drawEnteringText(profileIndent, true);
             }
+
             if(levelDetailsOffset != 0.f)
             {
                 drawLevelSelectionRightSide(*lvlDrawer, true);
@@ -4759,6 +4878,7 @@ void MenuGame::draw()
                     drawLevelSelectionRightSide(favSlct, true);
                 }
             }
+
             drawLevelSelectionLeftSide(*lvlDrawer, false);
             drawOnlineStatus();
             break;
@@ -4858,7 +4978,7 @@ void MenuGame::drawOnlineStatus()
 
     sOnline.setScale(sf::Vector2f{spriteScale, spriteScale});
     sOnline.setOrigin(ssvs::getLocalSW(sOnline));
-    sOnline.setPosition(0 + padding, Config::getHeight() - padding);
+    sOnline.setPosition(0 + padding, getWindowHeight() - padding);
 
     rsOnlineStatus.setSize(
         sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 2.f,

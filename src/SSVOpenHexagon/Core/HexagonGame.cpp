@@ -12,6 +12,8 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
@@ -666,7 +668,7 @@ void HexagonGame::death(bool mForce)
         !levelStatus.tutorialMode && !inReplay() &&
         (status.getTimeSeconds() >
             assets.getLocalScore(
-                Utils::getLocalValidator(levelData->id, difficultyMult)));
+                Utils::getLevelValidator(levelData->id, difficultyMult)));
 
     if(isPersonalBest)
     {
@@ -718,7 +720,7 @@ void HexagonGame::death(bool mForce)
     {
         pbStr += "PB: " +
                  timeFormat(assets.getLocalScore(
-                     Utils::getLocalValidator(levelData->id, difficultyMult))) +
+                     Utils::getLevelValidator(levelData->id, difficultyMult))) +
                  "s)";
     }
 
@@ -852,7 +854,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
     // Local score
     {
         std::string localValidator{
-            Utils::getLocalValidator(levelData->id, difficultyMult)};
+            Utils::getLevelValidator(levelData->id, difficultyMult)};
 
         if(assets.getLocalScore(localValidator) < score)
         {

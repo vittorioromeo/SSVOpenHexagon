@@ -106,9 +106,13 @@ private:
     [[nodiscard]] bool initializeTcpSocket();
 
     template <typename T>
+    [[nodiscard]] bool sendUnencrypted(const T& data);
+
+    template <typename T>
     [[nodiscard]] bool sendEncrypted(const T& data);
 
     [[nodiscard]] bool sendHeartbeat();
+    [[nodiscard]] bool sendDisconnect();
     [[nodiscard]] bool sendPublicKey();
     [[nodiscard]] bool sendReady();
     [[nodiscard]] bool sendPrint(const std::string& s);
