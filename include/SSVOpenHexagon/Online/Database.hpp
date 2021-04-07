@@ -10,6 +10,7 @@
 #include <string>
 #include <cstdint>
 #include <optional>
+#include <chrono>
 
 namespace hg::Database
 {
@@ -32,7 +33,8 @@ struct LoginToken
 
 struct Score
 {
-
+    std::string levelValidator;
+    std::uint64_t userSteamId;
 };
 
 namespace Impl
@@ -73,6 +75,26 @@ inline auto& getStorage()
 
 } // namespace Impl
 
+using Clock = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<Clock>;
+
+[[nodiscard]] inline std::uint64_t timestamp(const TimePoint tp)
+{
+    return std::chrono::duration_cast<std::chrono::seconds>(
+        tp.time_since_epoch())
+        .count();
+}
+
+[[nodiscard]] inline std::uint64_t nowTimestamp()
+{
+    return timestamp(Clock::now());
+}
+
+[[nodiscard]] inline TimePoint toTimepoint(const std::uint64_t timestamp)
+{
+    return TimePoint{} + std::chrono::seconds(timestamp);
+}
+
 void addUser(const User& user);
 
 void removeUser(const std::uint32_t id);
@@ -95,5 +117,8 @@ void addLoginToken(const LoginToken& loginToken);
 
 [[nodiscard]] std::optional<User> getUserWithSteamId(
     const std::uint64_t steamId);
+
+[[nodiscard]] std::vector<LoginToken> getAllStaleLoginTokens();
+void removeAllStaleLoginTokens();
 
 } // namespace hg::Database

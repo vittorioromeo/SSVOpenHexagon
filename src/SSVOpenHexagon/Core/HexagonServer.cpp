@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <optional>
 #include <cstdio>
+#include <type_traits>
 
 static auto& slog(const char* funcName)
 {
@@ -41,14 +42,6 @@ static auto& slog(const char* funcName)
 
 namespace hg
 {
-
-template <typename TClock>
-[[nodiscard]] static std::uint64_t nowTimestamp()
-{
-    return std::chrono::duration_cast<std::chrono::seconds>(
-        TClock::now().time_since_epoch())
-        .count();
-}
 
 [[nodiscard]] bool HexagonServer::initializeControlSocket()
 {
@@ -223,6 +216,7 @@ void HexagonServer::runIteration()
     }
 
     runIteration_PurgeClients();
+    runIteration_PurgeTokens();
 }
 
 bool HexagonServer::runIteration_Control()
@@ -456,6 +450,42 @@ void HexagonServer::runIteration_PurgeClients()
     }
 }
 
+void HexagonServer::runIteration_PurgeTokens()
+{
+    if(Clock::now() - _lastTokenPurge < std::chrono::seconds(240))
+    {
+        return;
+    }
+
+    SSVOH_SLOG << "Purging old login tokens\n";
+
+    for(const Database::LoginToken& lt : Database::getAllStaleLoginTokens())
+    {
+        SSVOH_SLOG << "Found stale token for user '" << lt.userId << "'\n";
+
+        for(auto it = _connectedClients.begin(); it != _connectedClients.end();
+            ++it)
+        {
+            ConnectedClient& c = *it;
+            const void* clientAddress = static_cast<void*>(&c);
+
+            if(c._loginData.has_value())
+            {
+                if(c._loginData->_userId == lt.userId)
+                {
+                    SSVOH_SLOG << "Kicking stale token client '"
+                               << clientAddress << "'\n";
+
+                    kickAndRemoveClient(c);
+                    it = _connectedClients.erase(it);
+                }
+            }
+        }
+    }
+
+    Database::removeAllStaleLoginTokens();
+}
+
 [[nodiscard]] bool HexagonServer::processPacket(
     ConnectedClient& c, sf::Packet& p)
 {
@@ -664,10 +694,12 @@ void HexagonServer::runIteration_PurgeClients()
 
             Database::removeAllLoginTokensForUser(user->id);
 
+            static_assert(std::is_same_v<Clock, Database::Clock>);
+
             Database::addLoginToken( //
                 Database::LoginToken{
                     .userId = user->id,
-                    .timestamp = nowTimestamp<Clock>(),
+                    .timestamp = Database::nowTimestamp(),
                     .token = loginToken //
                 });
 
@@ -764,7 +796,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
       _serverIp{Config::getServerIp()}, _serverPort{Config::getServerPort()},
       _serverControlPort{Config::getServerControlPort()}, _listener{},
       _socketSelector{}, _running{true}, _verbose{true},
-      _serverPSKeys{generateSodiumPSKeys()}
+      _serverPSKeys{generateSodiumPSKeys()}, _lastTokenPurge{Clock::now()}
 {
     const auto sKeyPublic = sodiumKeyToString(_serverPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_serverPSKeys.keySecret);

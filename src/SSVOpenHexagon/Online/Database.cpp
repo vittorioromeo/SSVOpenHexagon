@@ -146,4 +146,35 @@ void addLoginToken(const LoginToken& loginToken)
     return {query[0]};
 }
 
+
+[[nodiscard]] std::vector<LoginToken> getAllStaleLoginTokens()
+{
+    using namespace sqlite_orm;
+
+    constexpr int tokenValiditySeconds = 3600;
+    const TimePoint now = Clock::now();
+
+    auto query = Impl::getStorage().get_all<LoginToken>();
+
+    query.erase(std::remove_if(query.begin(), query.end(),
+                    [&](const LoginToken& lt) {
+                        return (now - toTimepoint(lt.timestamp)) <
+                               std::chrono::seconds(tokenValiditySeconds);
+                    }),
+        std::end(query));
+
+    return query;
+}
+
+void removeAllStaleLoginTokens()
+{
+    using namespace sqlite_orm;
+
+    const auto staleTokens = getAllStaleLoginTokens();
+    for(const LoginToken& lt : staleTokens)
+    {
+        Impl::getStorage().remove<LoginToken>(lt.id);
+    }
+}
+
 } // namespace hg::Database

@@ -95,6 +95,8 @@ private:
 
     const SodiumPSKeys _serverPSKeys;
 
+    TimePoint _lastTokenPurge;
+
     [[nodiscard]] bool initializeControlSocket();
     [[nodiscard]] bool initializeTcpListener();
     [[nodiscard]] bool initializeSocketSelector();
@@ -127,6 +129,7 @@ private:
     bool runIteration_TryAcceptingNewClient();
     void runIteration_LoopOverSockets();
     void runIteration_PurgeClients();
+    void runIteration_PurgeTokens();
 
     [[nodiscard]] bool processPacket(ConnectedClient& c, sf::Packet& p);
 
