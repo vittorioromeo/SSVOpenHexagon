@@ -41,7 +41,6 @@ class HGAssets
 private:
     Steam::steam_manager& steamManager;
 
-    bool playingLocally{true};
     bool levelsOnly{false};
 
     ssvs::AssetManager<> assetManager;
@@ -276,77 +275,44 @@ public:
 
     [[nodiscard]] std::string pGetName() const
     {
-        SSVOH_ASSERT(playingLocally); // TODO
         return getCurrentLocalProfile().getName();
     }
 
     [[nodiscard]] const std::vector<std::string>& pGetTrackedNames() const
     {
-        SSVOH_ASSERT(playingLocally); // TODO
         return getCurrentLocalProfile().getTrackedNames();
     }
 
     void pClearTrackedNames()
     {
-        SSVOH_ASSERT(playingLocally); // TODO
         getCurrentLocalProfile().clearTrackedNames();
     }
 
     void pAddTrackedName(const std::string& mName)
     {
-        SSVOH_ASSERT(playingLocally); // TODO
         getCurrentLocalProfile().addTrackedName(mName);
     }
 
     void pSaveCurrent()
     {
-        if(!playingLocally)
-        {
-            return;
-        }
-
         saveCurrentLocalProfile();
     }
 
     void pSaveAll()
     {
-        if(!playingLocally)
-        {
-            return;
-        }
-
         saveAllProfiles();
     }
 
     void pSetCurrent(const std::string& mName)
     {
-        if(!playingLocally)
-        {
-            throw;
-        }
-
         setCurrentLocalProfile(mName);
     }
 
     void pCreate(const std::string& mName)
     {
-        if(!playingLocally)
-        {
-            throw;
-        }
-
         createLocalProfile(mName);
     }
 
-    [[nodiscard]] bool pIsLocal() const
-    {
-        return playingLocally;
-    }
-
-    void pSetPlayingLocally(bool mPlayingLocally)
-    {
-        playingLocally = mPlayingLocally;
-    }
 
 public:
     void refreshVolumes();

@@ -849,7 +849,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
         return CheckSaveScoreResult::Invalid;
     }
 
-    if(assets.pIsLocal())
+    // Local score
     {
         std::string localValidator{
             Utils::getLocalValidator(levelData->id, difficultyMult)};
@@ -1087,10 +1087,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
-    // TODO: the joystick thing should be in updateInput, this should be a
-    // blind getter
-    return inputFocused ||
-           (!inReplay() && Joystick::pressed(Joystick::Jid::Focus));
+    return inputFocused;
 }
 
 [[nodiscard]] float HexagonGame::getPlayerSpeedMult() const

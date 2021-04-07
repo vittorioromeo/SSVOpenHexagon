@@ -506,8 +506,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
             SSVOH_CLOG << "Replying with login attempt\n";
 
-            // TODO: get rid of these packet types, send login attempt here,
-            // display registration reminder in case of failure
+            // TODO: get rid of these packet types, decide what to do with
+            // "ready"
 
             return sendReady() && sendPrint("hello world!!!");
         },
