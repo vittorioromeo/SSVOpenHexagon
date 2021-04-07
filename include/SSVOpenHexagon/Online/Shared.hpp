@@ -25,6 +25,16 @@
 namespace hg
 {
 
+namespace Impl
+{
+
+struct CiphertextVectorPtr
+{
+    std::vector<sf::Uint8>* ptr;
+};
+
+} // namespace Impl
+
 struct PInvalid
 {
     std::string error;
@@ -35,7 +45,7 @@ struct PEncryptedMsg
     SodiumNonceArray nonce;
     sf::Uint64 messageLength;
     sf::Uint64 ciphertextLength;
-    std::vector<sf::Uint8>* ciphertext;
+    Impl::CiphertextVectorPtr ciphertext;
 };
 
 // ----------------------------------------------------------------------------

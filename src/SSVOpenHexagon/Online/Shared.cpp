@@ -12,6 +12,8 @@
 
 #include <sodium.h>
 
+#include <boost/pfr.hpp>
+
 #include <cstdint>
 #include <sstream>
 #include <iostream>
@@ -243,28 +245,6 @@ template <typename T>
     return {static_cast<PacketType>(*extracted)};
 }
 
-template <std::size_t NExpected, typename T, std::size_t N>
-void encodeArray(sf::Packet& p, const std::array<T, N>& arr)
-{
-    static_assert(NExpected == N);
-
-    for(std::size_t i = 0; i < arr.size(); ++i)
-    {
-        p << arr[i];
-    }
-}
-
-template <typename T>
-void encodeDynamicRange(sf::Packet& p, const T* data, const std::size_t len)
-{
-    SSVOH_ASSERT(data != nullptr);
-
-    for(std::size_t i = 0; i < len; ++i)
-    {
-        p << data[i];
-    }
-}
-
 template <typename T>
 void encodeFirstNVectorElements(
     sf::Packet& p, const std::vector<T>& data, const std::size_t len)
@@ -295,130 +275,38 @@ sf::Packet& getStaticPacketBuffer()
     return result;
 }
 
-void encodeOHPacket(sf::Packet& p, const CTSPHeartbeat& data)
+template <typename TData, typename TField>
+void encodeField(sf::Packet& p, const TData&, const TField& field)
 {
-    encodePacketType(p, data);
+    p << field;
 }
 
-void encodeOHPacket(sf::Packet& p, const CTSPDisconnect& data)
+template <typename TData, typename T, std::size_t N>
+void encodeField(sf::Packet& p, const TData&, const std::array<T, N>& arr)
 {
-    encodePacketType(p, data);
-}
-
-void encodeOHPacket(sf::Packet& p, const CTSPPublicKey& data)
-{
-    encodePacketType(p, data);
-    encodeArray<sodiumPublicKeyBytes>(p, data.key);
-}
-
-void encodeOHPacket(sf::Packet& p, const CTSPReady& data)
-{
-    encodePacketType(p, data);
-}
-
-void encodeOHPacket(sf::Packet& p, const CTSPPrint& data)
-{
-    encodePacketType(p, data);
-    p << data.msg;
-}
-
-void encodeOHPacket(sf::Packet& p, const CTSPRegister& data)
-{
-    encodePacketType(p, data);
-    p << data.steamId;
-    p << data.name;
-    p << data.passwordHash;
-}
-
-void encodeOHPacket(sf::Packet& p, const CTSPLogin& data)
-{
-    encodePacketType(p, data);
-    p << data.steamId;
-    p << data.name;
-    p << data.passwordHash;
-}
-
-void encodeOHPacket(sf::Packet& p, const CTSPLogout& data)
-{
-    encodePacketType(p, data);
-    p << data.steamId;
-}
-
-void encodeOHPacket(sf::Packet& p, const CTSPDeleteAccount& data)
-{
-    encodePacketType(p, data);
-    p << data.steamId;
-    p << data.passwordHash;
-}
-
-void encodeOHPacket(sf::Packet& p, const PEncryptedMsg& data)
-{
-    encodePacketType(p, data);
-
-    encodeArray<sodiumNonceBytes>(p, data.nonce);
-    p << data.messageLength;
-    p << data.ciphertextLength;
-    encodeFirstNVectorElements(p, *data.ciphertext, data.ciphertextLength);
-}
-
-void encodeOHPacket(sf::Packet& p, const STCPKick& data)
-{
-    encodePacketType(p, data);
-}
-
-void encodeOHPacket(sf::Packet& p, const STCPPublicKey& data)
-{
-    encodePacketType(p, data);
-
-    for(std::size_t i = 0; i < sodiumPublicKeyBytes; ++i)
+    for(std::size_t i = 0; i < arr.size(); ++i)
     {
-        p << data.key[i];
+        p << arr[i];
     }
 }
 
-void encodeOHPacket(sf::Packet& p, const STCPRegistrationSuccess& data)
+template <typename TData>
+void encodeField(
+    sf::Packet& p, const TData& data, const Impl::CiphertextVectorPtr& field)
 {
-    encodePacketType(p, data);
+    encodeFirstNVectorElements(p, *field.ptr, data.ciphertextLength);
 }
 
-void encodeOHPacket(sf::Packet& p, const STCPRegistrationFailure& data)
+template <typename T>
+void encodeOHPacket(sf::Packet& p, const T& data)
 {
     encodePacketType(p, data);
-    p << data.error;
-}
 
-void encodeOHPacket(sf::Packet& p, const STCPLoginSuccess& data)
-{
-    encodePacketType(p, data);
-    p << data.loginToken;
-    p << data.loginName;
-}
-
-void encodeOHPacket(sf::Packet& p, const STCPLoginFailure& data)
-{
-    encodePacketType(p, data);
-    p << data.error;
-}
-
-void encodeOHPacket(sf::Packet& p, const STCPLogoutSuccess& data)
-{
-    encodePacketType(p, data);
-}
-
-void encodeOHPacket(sf::Packet& p, const STCPLogoutFailure& data)
-{
-    encodePacketType(p, data);
-}
-
-void encodeOHPacket(sf::Packet& p, const STCPDeleteAccountSuccess& data)
-{
-    encodePacketType(p, data);
-}
-
-void encodeOHPacket(sf::Packet& p, const STCPDeleteAccountFailure& data)
-{
-    encodePacketType(p, data);
-    p << data.error;
+    if constexpr(boost::pfr::tuple_size_v<T> > 0)
+    {
+        boost::pfr::for_each_field(
+            data, [&](const auto& field) { encodeField(p, data, field); });
+    }
 }
 
 [[nodiscard]] bool decryptPacket(std::ostringstream& errorOss, sf::Packet& p,
@@ -476,6 +364,37 @@ void encodeOHPacket(sf::Packet& p, const STCPDeleteAccountFailure& data)
     return true;
 }
 
+template <typename F, typename T>
+[[nodiscard]] bool makeEncryptedPacketImpl(F&& f,
+    const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
+{
+    sf::Packet& packetToEncrypt = getStaticPacketBuffer();
+    packetToEncrypt.clear();
+
+    encodeOHPacket(packetToEncrypt, data);
+
+    PEncryptedMsg encryptedMsg{
+        .nonce = generateNonce(),
+        .messageLength = packetToEncrypt.getDataSize(),
+        .ciphertextLength = getCiphertextLength(packetToEncrypt.getDataSize())
+        //
+    };
+
+    encryptedMsg.ciphertext.ptr = &getStaticCiphertextBuffer();
+    encryptedMsg.ciphertext.ptr->resize(encryptedMsg.ciphertextLength);
+
+    if(crypto_secretbox_easy(encryptedMsg.ciphertext.ptr->data(),
+           static_cast<const sf::Uint8*>(packetToEncrypt.getData()),
+           encryptedMsg.messageLength, encryptedMsg.nonce.data(),
+           keyTransmit.data()) != 0)
+    {
+        return false;
+    }
+
+    f(p, encryptedMsg);
+    return true;
+}
+
 } // namespace
 
 // ----------------------------------------------------------------------------
@@ -495,39 +414,17 @@ template void makeClientToServerPacket(sf::Packet&, const PEncryptedMsg&);
 VRM_PP_FOREACH_REVERSE(
     INSTANTIATE_MAKE_CTS, VRM_PP_EMPTY(), VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS))
 
-#undef INSTANTIATE_MAKE_CTS
-
 // ----------------------------------------------------------------------------
 
 template <typename T>
 [[nodiscard]] bool makeClientToServerEncryptedPacket(
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
-    sf::Packet& packetToEncrypt = getStaticPacketBuffer();
-    packetToEncrypt.clear();
-
-    encodeOHPacket(packetToEncrypt, data);
-
-    PEncryptedMsg encryptedMsg{
-        .nonce = generateNonce(),
-        .messageLength = packetToEncrypt.getDataSize(),
-        .ciphertextLength = getCiphertextLength(packetToEncrypt.getDataSize())
-        //
-    };
-
-    encryptedMsg.ciphertext = &getStaticCiphertextBuffer();
-    encryptedMsg.ciphertext->resize(encryptedMsg.ciphertextLength);
-
-    if(crypto_secretbox_easy(encryptedMsg.ciphertext->data(),
-           static_cast<const sf::Uint8*>(packetToEncrypt.getData()),
-           encryptedMsg.messageLength, encryptedMsg.nonce.data(),
-           keyTransmit.data()) != 0)
-    {
-        return false;
-    }
-
-    makeClientToServerPacket(p, encryptedMsg);
-    return true;
+    return makeEncryptedPacketImpl(
+        [](auto&&... xs) {
+            makeClientToServerPacket(std::forward<decltype(xs)>(xs)...);
+        },
+        keyTransmit, p, data);
 }
 
 #define INSTANTIATE_MAKE_CTS_ENCRYPTED(mIdx, mData, mArg) \
@@ -537,111 +434,97 @@ template <typename T>
 VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
     VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS))
 
-#undef INSTANTIATE_MAKE_CTS_ENCRYPTED
+// ----------------------------------------------------------------------------
+
+#define HANDLE_PACKET(type)                                 \
+    do                                                      \
+    {                                                       \
+        if(*pt == getPacketType<type>())                    \
+        {                                                   \
+            type result;                                    \
+                                                            \
+            if(!extractAllMembers(result))                  \
+            {                                               \
+                return {PInvalid{.error = errorOss.str()}}; \
+            }                                               \
+                                                            \
+            return {result};                                \
+        }                                                   \
+    } while(false)
+
+#define INJECT_COMMON_PACKET_HANDLING_CODE(function)                     \
+    const std::optional<PacketType> pt = extractPacketType(errorOss, p); \
+                                                                         \
+    if(!pt.has_value())                                                  \
+    {                                                                    \
+        return {PInvalid{.error = errorOss.str()}};                      \
+    }                                                                    \
+                                                                         \
+    if(*pt == getPacketType<PEncryptedMsg>())                            \
+    {                                                                    \
+        if(!decodeEncryptedPacket(keyReceive, errorOss, p))              \
+        {                                                                \
+            return {PInvalid{.error = errorOss.str()}};                  \
+        }                                                                \
+                                                                         \
+        return function(keyReceive, errorOss, getStaticPacketBuffer());  \
+    }                                                                    \
+                                                                         \
+    const auto extractAllMembers = makeExtractAllMembers(errorOss, p)
+
+
+#define FORIMPL_HANDLE_PACKET(mIdx, mData, mArg) HANDLE_PACKET(mArg);
 
 // ----------------------------------------------------------------------------
 
-#define HANDLE_EMPTY_PACKET(type)        \
-    do                                   \
-    {                                    \
-        if(*pt == getPacketType<type>()) \
-        {                                \
-            return {type{}};             \
-        }                                \
-    } while(false)
-
-#define EXTRACT_OR_FAIL(target, info)                   \
-    do                                                  \
-    {                                                   \
-        if(!extractInto(target, errorOss, p))           \
-        {                                               \
-            errorOss << "Error decoding " info "\n";    \
-            return {PInvalid{.error = errorOss.str()}}; \
-        }                                               \
-    } while(false)
-
-[[nodiscard]] static PVClientToServer
-    decodeClientToServerPacketInner(const SodiumReceiveKeyArray* keyReceive,
-        std::ostringstream& errorOss, sf::Packet& p)
+static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
 {
-    const std::optional<PacketType> pt = extractPacketType(errorOss, p);
+    return [&]<typename T>(T& target) {
+        bool success = true;
 
-    if(!pt.has_value())
-    {
-        return {PInvalid{.error = errorOss.str()}};
-    }
-
-    if(*pt == getPacketType<PEncryptedMsg>())
-    {
-        if(keyReceive == nullptr)
+        if constexpr(boost::pfr::tuple_size_v<T> > 0)
         {
-            errorOss << "Cannot decode client encrypted message without "
-                        "receive key\n";
-
-            return {PInvalid{.error = errorOss.str()}};
+            boost::pfr::for_each_field(target, [&](auto& field, std::size_t i) {
+                if(!extractInto(field, errorOss, p))
+                {
+                    errorOss << "Error decoding field #" << i << " \n";
+                    success = false;
+                }
+            });
         }
 
-        sf::Packet& decryptedPacket = getStaticPacketBuffer();
-        if(!decryptPacket(errorOss, p, *keyReceive, decryptedPacket))
-        {
-            return {PInvalid{.error = errorOss.str()}};
-        }
+        return success;
+    };
+}
 
-        return decodeClientToServerPacketInner(
-            keyReceive, errorOss, decryptedPacket);
-    }
-
-    HANDLE_EMPTY_PACKET(CTSPHeartbeat);
-    HANDLE_EMPTY_PACKET(CTSPDisconnect);
-
-    if(*pt == getPacketType<CTSPPublicKey>())
+[[nodiscard]] static bool decodeEncryptedPacket(
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p)
+{
+    if(keyReceive == nullptr)
     {
-        CTSPPublicKey result;
-        EXTRACT_OR_FAIL(result.key, "client public key");
-        return {result};
+        errorOss << "Cannot decode encrypted message without receive key\n";
+        return false;
     }
 
-    HANDLE_EMPTY_PACKET(CTSPReady);
-
-    if(*pt == getPacketType<CTSPPrint>())
+    if(!decryptPacket(errorOss, p, *keyReceive, getStaticPacketBuffer()))
     {
-        CTSPPrint result;
-        EXTRACT_OR_FAIL(result.msg, "client print message");
-        return {result};
+        return false;
     }
 
-    if(*pt == getPacketType<CTSPRegister>())
-    {
-        CTSPRegister result;
-        EXTRACT_OR_FAIL(result.steamId, "register steam id");
-        EXTRACT_OR_FAIL(result.name, "register name");
-        EXTRACT_OR_FAIL(result.passwordHash, "register password hash");
-        return {result};
-    }
+    return true;
+}
 
-    if(*pt == getPacketType<CTSPLogin>())
-    {
-        CTSPLogin result;
-        EXTRACT_OR_FAIL(result.steamId, "login steam id");
-        EXTRACT_OR_FAIL(result.name, "login name");
-        EXTRACT_OR_FAIL(result.passwordHash, "login password hash");
-        return {result};
-    }
+// ----------------------------------------------------------------------------
 
-    if(*pt == getPacketType<CTSPLogout>())
-    {
-        CTSPLogout result;
-        EXTRACT_OR_FAIL(result.steamId, "logout steam id");
-        return {result};
-    }
+[[nodiscard]] static PVClientToServer decodeClientToServerPacketInner(
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p)
+{
+    INJECT_COMMON_PACKET_HANDLING_CODE(decodeClientToServerPacketInner);
 
-    if(*pt == getPacketType<CTSPDeleteAccount>())
-    {
-        CTSPDeleteAccount result;
-        EXTRACT_OR_FAIL(result.steamId, "delete account steam id");
-        EXTRACT_OR_FAIL(result.passwordHash, "delete account password hash");
-        return {result};
-    }
+    VRM_PP_FOREACH_REVERSE(FORIMPL_HANDLE_PACKET, VRM_PP_EMPTY(),
+        VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS))
 
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
     return {PInvalid{.error = errorOss.str()}};
@@ -676,39 +559,17 @@ template void makeServerToClientPacket(sf::Packet&, const PEncryptedMsg&);
 VRM_PP_FOREACH_REVERSE(
     INSTANTIATE_MAKE_STC, VRM_PP_EMPTY(), VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS))
 
-#undef INSTANTIATE_MAKE_STC
-
 // ----------------------------------------------------------------------------
 
 template <typename T>
 [[nodiscard]] bool makeServerToClientEncryptedPacket(
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
-    sf::Packet& packetToEncrypt = getStaticPacketBuffer();
-    packetToEncrypt.clear();
-
-    encodeOHPacket(packetToEncrypt, data);
-
-    PEncryptedMsg encryptedMsg{
-        .nonce = generateNonce(),
-        .messageLength = packetToEncrypt.getDataSize(),
-        .ciphertextLength = getCiphertextLength(packetToEncrypt.getDataSize())
-        //
-    };
-
-    encryptedMsg.ciphertext = &getStaticCiphertextBuffer();
-    encryptedMsg.ciphertext->resize(encryptedMsg.ciphertextLength);
-
-    if(crypto_secretbox_easy(encryptedMsg.ciphertext->data(),
-           static_cast<const sf::Uint8*>(packetToEncrypt.getData()),
-           encryptedMsg.messageLength, encryptedMsg.nonce.data(),
-           keyTransmit.data()) != 0)
-    {
-        return false;
-    }
-
-    makeServerToClientPacket(p, encryptedMsg);
-    return true;
+    return makeEncryptedPacketImpl(
+        [](auto&&... xs) {
+            makeServerToClientPacket(std::forward<decltype(xs)>(xs)...);
+        },
+        keyTransmit, p, data);
 }
 
 #define INSTANTIATE_MAKE_STC_ENCRYPTED(mIdx, mData, mArg) \
@@ -718,85 +579,16 @@ template <typename T>
 VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
     VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS))
 
-#undef INSTANTIATE_MAKE_STC_ENCRYPTED
-
 // ----------------------------------------------------------------------------
 
 [[nodiscard]] static PVServerToClient
     decodeServerToClientPacketInner(const SodiumReceiveKeyArray* keyReceive,
         std::ostringstream& errorOss, sf::Packet& p)
 {
-    const std::optional<PacketType> pt = extractPacketType(errorOss, p);
+    INJECT_COMMON_PACKET_HANDLING_CODE(decodeServerToClientPacketInner);
 
-    if(!pt.has_value())
-    {
-        return {PInvalid{.error = errorOss.str()}};
-    }
-
-    if(*pt == getPacketType<PEncryptedMsg>())
-    {
-        if(keyReceive == nullptr)
-        {
-            errorOss << "Cannot decode client encrypted message without "
-                        "receive key\n";
-
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
-        sf::Packet& decryptedPacket = getStaticPacketBuffer();
-        if(!decryptPacket(errorOss, p, *keyReceive, decryptedPacket))
-        {
-            return {PInvalid{.error = errorOss.str()}};
-        }
-
-        return decodeServerToClientPacketInner(
-            keyReceive, errorOss, decryptedPacket);
-    }
-
-    HANDLE_EMPTY_PACKET(STCPKick);
-
-    if(*pt == getPacketType<STCPPublicKey>())
-    {
-        STCPPublicKey result;
-        EXTRACT_OR_FAIL(result.key, "server public key");
-        return {result};
-    }
-
-    HANDLE_EMPTY_PACKET(STCPRegistrationSuccess);
-
-    if(*pt == getPacketType<STCPRegistrationFailure>())
-    {
-        STCPRegistrationFailure result;
-        EXTRACT_OR_FAIL(result.error, "registration failure error");
-        return {result};
-    }
-
-    if(*pt == getPacketType<STCPLoginSuccess>())
-    {
-        STCPLoginSuccess result;
-        EXTRACT_OR_FAIL(result.loginToken, "login token error");
-        EXTRACT_OR_FAIL(result.loginName, "login name error");
-        return {result};
-    }
-
-    if(*pt == getPacketType<STCPLoginFailure>())
-    {
-        STCPLoginFailure result;
-        EXTRACT_OR_FAIL(result.error, "login failure error");
-        return {result};
-    }
-
-    HANDLE_EMPTY_PACKET(STCPLogoutSuccess);
-    HANDLE_EMPTY_PACKET(STCPLogoutFailure);
-
-    HANDLE_EMPTY_PACKET(STCPDeleteAccountSuccess);
-
-    if(*pt == getPacketType<STCPDeleteAccountFailure>())
-    {
-        STCPDeleteAccountFailure result;
-        EXTRACT_OR_FAIL(result.error, "delete account failure error");
-        return {result};
-    }
+    VRM_PP_FOREACH_REVERSE(FORIMPL_HANDLE_PACKET, VRM_PP_EMPTY(),
+        VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS))
 
     errorOss << "Unknown packet type '" << static_cast<int>(*pt) << "'\n";
     return {PInvalid{.error = errorOss.str()}};
