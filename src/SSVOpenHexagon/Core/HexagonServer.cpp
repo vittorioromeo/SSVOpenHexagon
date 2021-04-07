@@ -188,6 +188,18 @@ template <typename T>
     return sendEncrypted(c, STCPDeleteAccountFailure{error});
 }
 
+void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
+{
+    (void)sendKick(c);
+
+    if(c._loginData.has_value())
+    {
+        Database::removeAllLoginTokensForUser(c._loginData->_userId);
+    }
+
+    _socketSelector.remove(c._socket);
+}
+
 void HexagonServer::run()
 {
     while(_running)
@@ -346,6 +358,8 @@ bool HexagonServer::runIteration_TryAcceptingNewClient()
     SSVOH_SLOG << "Listener accepted new client '" << potentialClientAddress
                << "'\n";
 
+    potentialClient._state = ConnectedClient::State::Connected;
+
     // Add the new client to the selector so that we will  be notified when he
     // sends something
     _socketSelector.add(potentialSocket);
@@ -402,7 +416,7 @@ void HexagonServer::runIteration_LoopOverSockets()
             SSVOH_SLOG << "Too many consecutive failures for client '"
                        << clientAddress << "', removing from list\n";
 
-            _socketSelector.remove(connectedClient._socket);
+            kickAndRemoveClient(connectedClient);
             it = _connectedClients.erase(it);
         }
     }
@@ -420,19 +434,13 @@ void HexagonServer::runIteration_PurgeClients()
         ConnectedClient& connectedClient = *it;
         const void* clientAddress = static_cast<void*>(&connectedClient);
 
-        const auto kickClient = [&] {
-            (void)sendKick(connectedClient);
-
-            _socketSelector.remove(connectedClient._socket);
-            it = _connectedClients.erase(it);
-        };
-
         if(connectedClient._mustDisconnect)
         {
             SSVOH_SLOG << "Client '" << clientAddress
                        << "' disconnected, removing from list\n";
 
-            kickClient();
+            kickAndRemoveClient(connectedClient);
+            it = _connectedClients.erase(it);
             continue;
         }
 
@@ -441,7 +449,8 @@ void HexagonServer::runIteration_PurgeClients()
             SSVOH_SLOG << "Client '" << clientAddress
                        << "' timed out, removing from list\n";
 
-            kickClient();
+            kickAndRemoveClient(connectedClient);
+            it = _connectedClients.erase(it);
             continue;
         }
     }
@@ -479,6 +488,7 @@ void HexagonServer::runIteration_PurgeClients()
 
         [&](const CTSPDisconnect&) {
             c._mustDisconnect = true;
+            c._state = ConnectedClient::State::Disconnected;
             return true;
         },
 
@@ -531,7 +541,8 @@ void HexagonServer::runIteration_PurgeClients()
             SSVOH_SLOG << "Received ready packet from client '" << clientAddress
                        << "'\n";
 
-            c._ready = true;
+            // TODO
+            // c._ready = true;
             return true;
         },
 
@@ -660,6 +671,16 @@ void HexagonServer::runIteration_PurgeClients()
                     .token = loginToken //
                 });
 
+            c._loginData = ConnectedClient::LoginData{
+                ._userId = user->id,
+                ._steamId = steamId,
+                ._name = name,
+                ._passwordHash = passwordHash,
+                ._loginToken = loginToken //
+            };
+
+            c._state = ConnectedClient::State::LoggedIn;
+
             return sendLoginSuccess(c, loginToken, user->name);
         },
 
@@ -681,6 +702,10 @@ void HexagonServer::runIteration_PurgeClients()
             SSVOH_ASSERT(user.has_value());
 
             Database::removeAllLoginTokensForUser(user->id);
+
+            c._loginData.reset();
+            c._state = ConnectedClient::State::Connected;
+
             return sendLogoutSuccess(c);
         },
 

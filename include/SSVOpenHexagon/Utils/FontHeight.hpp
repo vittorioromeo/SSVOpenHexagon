@@ -13,7 +13,7 @@ namespace hg::Utils
 
 [[nodiscard]] inline float getFontHeight(sf::Text& font)
 {
-    font.setString("A");
+    font.setString("ABCDEFGHILMNOPQRSTUVZ:");
     return ssvs::getGlobalHeight(font);
 }
 
@@ -21,8 +21,7 @@ namespace hg::Utils
     sf::Text& font, const unsigned int charSize)
 {
     font.setCharacterSize(charSize);
-    font.setString("A");
-    return ssvs::getGlobalHeight(font);
+    return getFontHeight(font);
 }
 
 } // namespace hg::Utils

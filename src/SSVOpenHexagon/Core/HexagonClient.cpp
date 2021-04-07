@@ -199,45 +199,15 @@ namespace hg
     return recvPacketRecursive(0, p);
 }
 
-[[nodiscard]] bool HexagonClient::sendHeartbeat()
+template <typename T>
+[[nodiscard]] bool HexagonClient::sendUnencrypted(const T& data)
 {
     if(!_socketConnected)
     {
         return false;
     }
 
-    makeClientToServerPacket(_packetBuffer, CTSPHeartbeat{});
-
-    if(!sendPacket(_packetBuffer))
-    {
-        return false;
-    }
-
-    _lastHeartbeatTime = Clock::now();
-    return true;
-}
-
-[[nodiscard]] bool HexagonClient::sendPublicKey()
-{
-    if(!_socketConnected)
-    {
-        return false;
-    }
-
-    makeClientToServerPacket(
-        _packetBuffer, CTSPPublicKey{_clientPSKeys.keyPublic});
-
-    return sendPacket(_packetBuffer);
-}
-
-[[nodiscard]] bool HexagonClient::sendReady()
-{
-    if(!_socketConnected)
-    {
-        return false;
-    }
-
-    makeClientToServerPacket(_packetBuffer, CTSPReady{});
+    makeClientToServerPacket(_packetBuffer, data);
     return sendPacket(_packetBuffer);
 }
 
@@ -263,6 +233,32 @@ template <typename T>
     }
 
     return sendPacket(_packetBuffer);
+}
+
+[[nodiscard]] bool HexagonClient::sendHeartbeat()
+{
+    if(!sendUnencrypted(CTSPHeartbeat{}))
+    {
+        return false;
+    }
+
+    _lastHeartbeatTime = Clock::now();
+    return true;
+}
+
+[[nodiscard]] bool HexagonClient::sendDisconnect()
+{
+    return sendUnencrypted(CTSPDisconnect{});
+}
+
+[[nodiscard]] bool HexagonClient::sendPublicKey()
+{
+    return sendUnencrypted(CTSPPublicKey{_clientPSKeys.keyPublic});
+}
+
+[[nodiscard]] bool HexagonClient::sendReady()
+{
+    return sendUnencrypted(CTSPReady{});
 }
 
 [[nodiscard]] bool HexagonClient::sendPrint(const std::string& s)
@@ -387,8 +383,15 @@ void HexagonClient::disconnect()
 
     _socket.setBlocking(true);
 
-    makeClientToServerPacket(_packetBuffer, CTSPDisconnect{});
-    _socket.send(_packetBuffer);
+    if(_state == State::LoggedIn && _ticketSteamID.has_value())
+    {
+        (void)sendLogout(*_ticketSteamID);
+    }
+
+    if(_state == State::Connected || _state == State::LoggedIn)
+    {
+        (void)sendDisconnect();
+    }
 
     _socket.disconnect();
     _socketConnected = false;
@@ -630,6 +633,8 @@ bool HexagonClient::tryRegister(
 
     if(name.empty() || name.size() > 32 || password.empty())
     {
+        addEvent(
+            ERegistrationFailure{"Name or password fields too long or empty"});
         return false;
     }
 
@@ -652,6 +657,7 @@ bool HexagonClient::tryLogin(
 
     if(name.empty() || name.size() > 32 || password.empty())
     {
+        addEvent(ELoginFailure{"Name or password fields too long or empty"});
         return false;
     }
 

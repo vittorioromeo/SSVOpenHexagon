@@ -224,14 +224,14 @@ float sizeX{1500}, sizeY{1500};
 constexpr float spawnDistance{1600};
 std::string uneligibilityReason;
 
-void applyAutoWindowedResolution()
+static void applyAutoWindowedResolution()
 {
     auto d(sf::VideoMode::getDesktopMode());
     windowedWidth() = d.width;
     windowedHeight() = d.height;
 }
 
-void applyAutoFullscreenResolution()
+static void applyAutoFullscreenResolution()
 {
     auto d(sf::VideoMode::getDesktopMode());
     fullscreenWidth() = d.width;
@@ -379,6 +379,7 @@ bool isEligibleForScore()
 void recalculateSizes()
 {
     sizeX = sizeY = std::max(getWidth(), getHeight()) * 1.3f;
+
     if(!getAutoZoomFactor())
     {
         return;
@@ -393,22 +394,18 @@ void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen)
 {
     fullscreen() = mFullscreen;
 
-    mWindow.setSize(getWidth(), getHeight());
+    const sf::Vector2u res{getWidth(), getHeight()};
+    mWindow.getRenderWindow().setSize(res);
+    mWindow.setSize(res.x, res.y);
     mWindow.setFullscreen(getFullscreen());
 
     recalculateSizes();
 }
 
-void refreshWindowSize(unsigned int mWidth, unsigned int mHeight)
-{
-    windowedWidth() = mWidth;
-    windowedHeight() = mHeight;
-}
-
 void setCurrentResolution(
     ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight)
 {
-    if(fullscreen())
+    if(getFullscreen())
     {
         fullscreenAutoResolution() = false;
         fullscreenWidth() = mWidth;
@@ -421,10 +418,7 @@ void setCurrentResolution(
         windowedHeight() = mHeight;
     }
 
-    mWindow.setSize(getWidth(), getHeight());
-    mWindow.setFullscreen(getFullscreen());
-
-    recalculateSizes();
+    setFullscreen(mWindow, getFullscreen());
 }
 
 void setCurrentResolutionAuto(ssvs::GameWindow& mWindow)
@@ -440,9 +434,7 @@ void setCurrentResolutionAuto(ssvs::GameWindow& mWindow)
         applyAutoWindowedResolution();
     }
 
-    mWindow.setSize(getWidth(), getHeight());
-    mWindow.setFullscreen(getFullscreen());
-    recalculateSizes();
+    setFullscreen(mWindow, getFullscreen());
 }
 
 void setVsync(ssvs::GameWindow& mWindow, bool mValue)

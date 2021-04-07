@@ -48,17 +48,37 @@ private:
 
     struct ConnectedClient
     {
+        enum class State : std::uint8_t
+        {
+            Disconnected = 0,
+            Connected = 1,
+            LoggedIn = 2,
+        };
+
         sf::TcpSocket _socket;
         TimePoint _lastActivity;
         int _consecutiveFailures;
         bool _mustDisconnect;
         std::optional<SodiumPublicKeyArray> _clientPublicKey;
         std::optional<SodiumRTKeys> _rtKeys;
-        bool _ready; // TODO: maybe use an enum here
+
+        struct LoginData
+        {
+            std::uint32_t _userId;
+            std::uint64_t _steamId;
+            std::string _name;
+            std::string _passwordHash;
+            std::uint64_t _loginToken;
+        };
+
+        std::optional<LoginData> _loginData;
+
+        State _state;
 
         explicit ConnectedClient(const TimePoint lastActivity)
             : _socket{}, _lastActivity{lastActivity}, _consecutiveFailures{0},
-              _mustDisconnect{false}, _clientPublicKey{}, _ready{false}
+              _mustDisconnect{false}, _clientPublicKey{},
+              _loginData{}, _state{State::Disconnected}
         {
         }
 
@@ -98,6 +118,8 @@ private:
     [[nodiscard]] bool sendDeleteAccountSuccess(ConnectedClient& c);
     [[nodiscard]] bool sendDeleteAccountFailure(
         ConnectedClient& c, const std::string& error);
+
+    void kickAndRemoveClient(ConnectedClient& c);
 
     void run();
     void runIteration();

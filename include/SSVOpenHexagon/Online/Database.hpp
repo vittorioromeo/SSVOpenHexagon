@@ -30,6 +30,11 @@ struct LoginToken
     std::uint64_t token;
 };
 
+struct Score
+{
+
+};
+
 namespace Impl
 {
 

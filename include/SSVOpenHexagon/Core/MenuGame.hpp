@@ -128,11 +128,14 @@ private:
     ssvs::Camera backgroundCamera{window,
         {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
                               Config::getSizeY() * Config::getZoomFactor()}}};
+
     ssvs::Camera overlayCamera{
         window, {{Config::getWidth() / 2.f,
                      Config::getHeight() * Config::getZoomFactor() / 2.f},
                     {Config::getWidth() * Config::getZoomFactor(),
                         Config::getHeight() * Config::getZoomFactor()}}};
+
+    bool mustRefresh{false};
 
     //---------------------------------------
     // Navigation
@@ -234,11 +237,11 @@ private:
     MenuFont txtInstructionsMedium{.font{"", imagine}};
     MenuFont txtInstructionsSmall{.font{"", imagine, 24}};
     MenuFont txtEnteringText{.font{"", imagine, 60}};
-    MenuFont txtSelectionBig{.font{"", imagine, 40}};
-    MenuFont txtSelectionMedium{.font{"", imagine, 32}};
-    MenuFont txtSelectionLSmall{.font{"", imagine, 24}};
+    MenuFont txtSelectionBig{.font{"", imagine, 32}};
+    MenuFont txtSelectionMedium{.font{"", imagine, 24}};
+    MenuFont txtSelectionLSmall{.font{"", imagine, 16}};
     MenuFont txtSelectionSmall{.font{"", imagine, 16}};
-    MenuFont txtSelectionScore{.font{"", imagine, 50}};
+    MenuFont txtSelectionScore{.font{"", imagine, 32}};
     sf::Color menuTextColor;
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
@@ -568,6 +571,17 @@ private:
     std::string currentLeaderboard, enteredStr, leaderboardString;
 
     void runLuaFile(const std::string& mFileName);
+    void changeResolutionTo(unsigned int mWidth, unsigned int mHeight);
+
+    [[nodiscard]] float getWindowWidth() const noexcept
+    {
+        return window.getRenderWindow().getSize().x;
+    }
+
+    [[nodiscard]] float getWindowHeight() const noexcept
+    {
+        return window.getRenderWindow().getSize().y;
+    }
 
     //---------------------------------------
     // Input boxes
