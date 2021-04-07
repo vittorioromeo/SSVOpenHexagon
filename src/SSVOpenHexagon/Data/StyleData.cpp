@@ -157,6 +157,10 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
     const float distance{bgTileRadius};
 
     const std::vector<sf::Color>& colors(getColors());
+    if(colors.empty())
+    {
+        return;
+    }
 
     for(auto i(0u); i < sides; ++i)
     {
