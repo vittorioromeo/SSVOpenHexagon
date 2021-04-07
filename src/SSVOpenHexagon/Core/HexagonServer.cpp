@@ -131,7 +131,7 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendPublicKey(ConnectedClient& c)
 {
     makeServerToClientPacket(
-        _packetBuffer, STCPPublicKey{_serverPSKeys.keyPublic});
+        _packetBuffer, STCPPublicKey{.key = _serverPSKeys.keyPublic});
 
     return sendPacket(c, _packetBuffer);
 }
@@ -144,20 +144,24 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendRegistrationFailure(
     ConnectedClient& c, const std::string& error)
 {
-    return sendEncrypted(c, STCPRegistrationFailure{error});
+    return sendEncrypted(c, STCPRegistrationFailure{.error = error});
 }
 
 [[nodiscard]] bool HexagonServer::sendLoginSuccess(ConnectedClient& c,
     const std::uint64_t loginToken, const std::string& loginName)
 {
-    return sendEncrypted(
-        c, STCPLoginSuccess{static_cast<sf::Uint64>(loginToken), loginName});
+    return sendEncrypted(c, //
+        STCPLoginSuccess{
+            .loginToken = static_cast<sf::Uint64>(loginToken), //
+            .loginName = loginName                             //
+        }                                                      //
+    );
 }
 
 [[nodiscard]] bool HexagonServer::sendLoginFailure(
     ConnectedClient& c, const std::string& error)
 {
-    return sendEncrypted(c, STCPLoginFailure{error});
+    return sendEncrypted(c, STCPLoginFailure{.error = error});
 }
 
 [[nodiscard]] bool HexagonServer::sendLogoutSuccess(ConnectedClient& c)
@@ -179,6 +183,18 @@ template <typename T>
     ConnectedClient& c, const std::string& error)
 {
     return sendEncrypted(c, STCPDeleteAccountFailure{error});
+}
+
+[[nodiscard]] bool HexagonServer::sendTopScores(ConnectedClient& c,
+    const std::string& levelValidator,
+    const std::vector<Database::ProcessedScore>& scores)
+{
+    return sendEncrypted(c, //
+        STCPTopScores{
+            .levelValidator = levelValidator, //
+            .scores = scores                  //
+        }                                     //
+    );
 }
 
 void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
@@ -785,6 +801,32 @@ void HexagonServer::runIteration_PurgeTokens()
 
             SSVOH_SLOG << "Successfully deleted account\n";
             return sendDeleteAccountSuccess(c);
+        },
+
+        [&](const CTSPRequestTopScores& ctsp) {
+            if(!c._loginData.has_value())
+            {
+                SSVOH_SLOG << "Client '" << clientAddress
+                           << "', is not logged in, can't send top scores\n";
+
+                return true;
+            }
+
+            const auto cLoginToken = c._loginData->_loginToken;
+
+            if(cLoginToken != ctsp.loginToken)
+            {
+                SSVOH_SLOG << "Client '" << clientAddress
+                           << "' login token mismatch\n";
+
+                return true;
+            }
+
+            SSVOH_SLOG << "Sending top 12 scores to client '" << clientAddress
+                       << "'\n";
+
+            const auto scores = Database::getTopScores(12, ctsp.levelValidator);
+            return sendTopScores(c, ctsp.levelValidator, scores);
         }
 
         //

@@ -40,6 +40,44 @@
 namespace hg
 {
 
+void LeaderboardCache::receivedScores(const std::string& levelValidator,
+    const std::vector<Database::ProcessedScore>& scores)
+{
+    CachedScores& cs = _levelValidatorToScores[levelValidator];
+    cs._scores = scores;
+    cs._cacheTime = Clock::now();
+}
+
+void LeaderboardCache::requestedScores(const std::string& levelValidator)
+{
+    _levelValidatorToScores[levelValidator]._cacheTime = Clock::now();
+}
+
+[[nodiscard]] bool LeaderboardCache::shouldRequestScores(
+    const std::string& levelValidator) const
+{
+    const auto it = _levelValidatorToScores.find(levelValidator);
+    if(it == _levelValidatorToScores.end())
+    {
+        return true;
+    }
+
+    const CachedScores& cs = it->second;
+    return (Clock::now() - cs._cacheTime) > std::chrono::seconds(5);
+}
+
+[[nodiscard]] const std::vector<Database::ProcessedScore>&
+LeaderboardCache::getScores(const std::string& levelValidator) const
+{
+    const auto it = _levelValidatorToScores.find(levelValidator);
+    if(it == _levelValidatorToScores.end())
+    {
+        return _emptyScores;
+    }
+
+    return it->second._scores;
+}
+
 [[nodiscard]] static bool anyItemEnabled(const ssvms::Menu& menu)
 {
     for(const auto& i : menu.getItems())
@@ -2241,7 +2279,13 @@ void MenuGame::update(ssvu::FT mFT)
             [&](const HexagonClient::EDeleteAccountFailure& e) {
                 showHCEventDialogBox(
                     true /* error */, "DELETE ACCOUNT FAILURE", e.error);
-            } //
+            },
+
+            [&](const HexagonClient::EReceivedTopScores& e) {
+                leaderboardCache.receivedScores(e.levelValidator, e.scores);
+            }
+
+            //
         );
     }
 
@@ -4611,9 +4655,11 @@ void MenuGame::drawLevelSelectionLeftSide(
             height - txtSelectionSmall.height * fontTopBorder},
         menuQuadColor);
 
-    height += txtSelectionSmall.height + txtSelectionSmall.height;
-    tempString = Utils::getLevelValidator(
+    const std::string currentLevelValidator = Utils::getLevelValidator(
         levelData.id, ssvu::getByModIdx(diffMults, diffMultIdx));
+
+    height += txtSelectionSmall.height + txtSelectionSmall.height;
+    tempString = currentLevelValidator;
     renderText(
         ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) + "s",
         txtSelectionScore.font,
@@ -4650,25 +4696,20 @@ void MenuGame::drawLevelSelectionLeftSide(
     {
         SSVOH_ASSERT(lvlDrawer != nullptr);
 
-        const std::string& packId =
-            getNthSelectablePackInfo(lvlDrawer->packIdx).id;
+        if(leaderboardCache.shouldRequestScores(currentLevelValidator))
+        {
+            hexagonClient.tryRequestTopScores(currentLevelValidator);
+            leaderboardCache.requestedScores(currentLevelValidator);
+        }
 
-        const std::string& levelId =
-            lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex);
-
-        const float diffMult = ssvu::getByModIdx(diffMults, diffMultIdx);
-
-        ssvu::lo("TODO") << "Request leaderboard for:\n"
-                         << " - packId: " << packId << '\n'
-                         << " - levelId: " << levelId << '\n'
-                         << " - diffMult: " << diffMult << '\n';
-
-        const auto drawEntry = [&](const int i, const bool last) {
-            const float score = 4.153 * i;
+        const auto drawEntry = [&](const int i, const std::string& userName,
+                                   const std::uint64_t scoreTimestamp,
+                                   const double scoreValue) {
+            const float score = scoreValue;
 
             const std::string posStr = hg::Utils::concat('#', i);
             std::string scoreStr = ssvu::toStr(score) + 's';
-            std::string playerStr = "PLAYERNAME";
+            std::string playerStr = userName;
 
             const float tx = textToQuadBorder - panelOffset;
             const float ty = height - txtSelectionMedium.height * fontTopBorder;
@@ -4677,16 +4718,18 @@ void MenuGame::drawLevelSelectionLeftSide(
             renderText(scoreStr, txtSelectionMedium.font, {tx + 54.f, ty});
             renderText(playerStr, txtSelectionMedium.font, {tx + 150.f, ty});
 
-            if(!last)
-            {
-                height += txtSelectionMedium.height + txtSelectionSmall.height;
-            }
+            height += txtSelectionMedium.height + txtSelectionSmall.height;
         };
 
-        for(int i = 0; i < 13; ++i)
+        int index = 0;
+        for(const Database::ProcessedScore& ps :
+            leaderboardCache.getScores(currentLevelValidator))
         {
-            drawEntry(i, i == 12);
+            drawEntry(index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
+            ++index;
         }
+
+        height -= txtSelectionMedium.height + txtSelectionSmall.height;
 
         // Line
         height += txtSelectionScore.height + txtSelectionBig.height / 2.f;
@@ -4695,7 +4738,9 @@ void MenuGame::drawLevelSelectionLeftSide(
         height += lineThickness;
 
         height += txtSelectionSmall.height;
-        drawEntry(75, false);
+
+        // TODO: own score request
+        drawEntry(75, "FAKEUSER", 38126901, 123.456);
     }
 
     render(menuQuads);

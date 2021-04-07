@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
+
 #include <sqlite3.h>
 #include <sqlite_orm.h>
 
@@ -14,28 +16,6 @@
 
 namespace hg::Database
 {
-
-struct User
-{
-    std::uint32_t id;
-    std::uint64_t steamId;
-    std::string name;
-    std::string passwordHash;
-};
-
-struct LoginToken
-{
-    std::uint32_t id;
-    std::uint32_t userId;
-    std::uint64_t timestamp;
-    std::uint64_t token;
-};
-
-struct Score
-{
-    std::string levelValidator;
-    std::uint64_t userSteamId;
-};
 
 namespace Impl
 {
@@ -59,6 +39,15 @@ inline auto makeStorage()
             make_column("userId", &LoginToken::userId, unique()),         //
             make_column("timestamp", &LoginToken::timestamp),             //
             make_column("token", &LoginToken::token)                      //
+            ),                                                            //
+                                                                          //
+        make_table("scores",                                              //
+            make_column(                                                  //
+                "id", &Score::id, autoincrement(), primary_key()),        //
+            make_column("levelValidator", &Score::levelValidator),        //
+            make_column("timestamp", &Score::timestamp),                  //
+            make_column("userSteamId", &Score::userSteamId),              //
+            make_column("value", &Score::value)                           //
             )                                                             //
         //
     );
@@ -120,5 +109,10 @@ void addLoginToken(const LoginToken& loginToken);
 
 [[nodiscard]] std::vector<LoginToken> getAllStaleLoginTokens();
 void removeAllStaleLoginTokens();
+
+[[nodiscard]] std::vector<ProcessedScore> getTopScores(
+    const int topLimit, const std::string& levelValidator);
+
+[[nodiscard]] bool isLoginTokenValid(std::uint64_t token);
 
 } // namespace hg::Database

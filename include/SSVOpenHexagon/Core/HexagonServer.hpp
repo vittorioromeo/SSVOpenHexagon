@@ -5,6 +5,7 @@
 #pragma once
 
 #include "SSVOpenHexagon/Online/Sodium.hpp"
+#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
 #include <SFML/Network/IpAddress.hpp>
 #include <SFML/Network/TcpListener.hpp>
@@ -120,6 +121,9 @@ private:
     [[nodiscard]] bool sendDeleteAccountSuccess(ConnectedClient& c);
     [[nodiscard]] bool sendDeleteAccountFailure(
         ConnectedClient& c, const std::string& error);
+    [[nodiscard]] bool sendTopScores(ConnectedClient& c,
+        const std::string& levelValidator,
+        const std::vector<Database::ProcessedScore>& scores);
 
     void kickAndRemoveClient(ConnectedClient& c);
 

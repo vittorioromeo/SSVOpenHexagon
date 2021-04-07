@@ -146,20 +146,25 @@ void addLoginToken(const LoginToken& loginToken)
     return {query[0]};
 }
 
+constexpr int tokenValiditySeconds = 3600;
+
+[[nodiscard]] static bool isLoginTokenTimestampValid(const LoginToken& lt)
+{
+    const TimePoint now = Clock::now();
+
+    return (now - toTimepoint(lt.timestamp)) <
+           std::chrono::seconds(tokenValiditySeconds);
+}
 
 [[nodiscard]] std::vector<LoginToken> getAllStaleLoginTokens()
 {
     using namespace sqlite_orm;
 
-    constexpr int tokenValiditySeconds = 3600;
-    const TimePoint now = Clock::now();
-
     auto query = Impl::getStorage().get_all<LoginToken>();
 
     query.erase(std::remove_if(query.begin(), query.end(),
                     [&](const LoginToken& lt) {
-                        return (now - toTimepoint(lt.timestamp)) <
-                               std::chrono::seconds(tokenValiditySeconds);
+                        return isLoginTokenTimestampValid(lt);
                     }),
         std::end(query));
 
@@ -175,6 +180,47 @@ void removeAllStaleLoginTokens()
     {
         Impl::getStorage().remove<LoginToken>(lt.id);
     }
+}
+
+[[nodiscard]] std::vector<ProcessedScore> getTopScores(
+    const int topLimit, const std::string& levelValidator)
+{
+    using namespace sqlite_orm;
+
+    auto query = Impl::getStorage().select(
+        columns(&User::name, &Score::timestamp, &Score::value),
+        join<Score>(on(c(&User::steamId) == &Score::userSteamId)),
+        where(levelValidator == c(&Score::levelValidator)),
+        order_by(&Score::value).desc(), limit(topLimit));
+
+    std::vector<ProcessedScore> result;
+
+    for(const auto& row : query)
+    {
+        result.push_back( //
+            ProcessedScore{
+                .userName = std::get<0>(row),       //
+                .scoreTimestamp = std::get<1>(row), //
+                .scoreValue = std::get<2>(row),     //
+            });
+    }
+
+    return result;
+}
+
+[[nodiscard]] bool isLoginTokenValid(std::uint64_t token)
+{
+    using namespace sqlite_orm;
+
+    const auto query = Impl::getStorage().get_all<LoginToken>(
+        where(token == c(&LoginToken::token)));
+
+    if(query.empty() || query.size() > 1)
+    {
+        return false;
+    }
+
+    return isLoginTokenTimestampValid(query.at(0));
 }
 
 } // namespace hg::Database
