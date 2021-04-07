@@ -1208,8 +1208,14 @@ void HexagonGame::initLua_StyleControl()
         &StyleData::getCapColorResult);
 
     addLuaFn(lua, "s_getColor",
-        [this, &colorToTuple](
-            int mIndex) { return colorToTuple(styleData.getColor(mIndex)); })
+        [this, &colorToTuple](int mIndex) {
+            if(styleData.getColors().empty())
+            {
+                return colorToTuple(sf::Color{0, 0, 0, 0});
+            }
+
+            return colorToTuple(styleData.getColor(mIndex));
+        })
         .arg("index")
         .doc(
             "Return the current color with index `$0` computed by the level "

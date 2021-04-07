@@ -29,8 +29,6 @@ void HexagonGame::draw()
     SSVOH_ASSERT(backgroundCamera.has_value());
     SSVOH_ASSERT(overlayCamera.has_value());
 
-    styleData.computeColors();
-
     window->clear(sf::Color::Black);
 
     if(!status.hasDied)
@@ -595,7 +593,9 @@ void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor)
 void HexagonGame::drawText()
 {
     const sf::Color offsetColor{
-        Config::getBlackAndWhite() ? sf::Color::Black : getColor(0)};
+        Config::getBlackAndWhite() || styleData.getColors().empty()
+            ? sf::Color::Black
+            : getColor(0)};
 
     drawText_TimeAndStatus(offsetColor);
     drawText_Message(offsetColor);
