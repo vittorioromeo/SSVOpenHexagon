@@ -116,6 +116,23 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 #
 #
 # -----------------------------------------------------------------------------
+# CPM: Boost.PFR
+# -----------------------------------------------------------------------------
+
+CPMAddPackage(
+    NAME boostpfr
+    GITHUB_REPOSITORY boostorg/pfr
+    GIT_TAG ea4c6e85f734b0ed9f4233ba9654b877398fa948
+    DOWNLOAD_ONLY YES
+)
+
+if (boostpfr_ADDED)
+    set(boostpfr_INCLUDE_DIR ${boostpfr_SOURCE_DIR}/include)
+endif()
+
+#
+#
+# -----------------------------------------------------------------------------
 # vrm_cmake
 # -----------------------------------------------------------------------------
 
@@ -281,6 +298,7 @@ target_include_directories(
                              PUBLIC ${zlib_BINARY_DIR}
                              PUBLIC ${LUASRC}
                              PUBLIC ${imgui_SOURCE_DIR}
+                             PUBLIC ${boostpfr_INCLUDE_DIR}
 )
 
 target_link_libraries(
