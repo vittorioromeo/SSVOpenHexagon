@@ -89,9 +89,14 @@ private:
     [[nodiscard]] bool sendRegistrationSuccess(ConnectedClient& c);
     [[nodiscard]] bool sendRegistrationFailure(
         ConnectedClient& c, const std::string& error);
-    [[nodiscard]] bool sendLoginSuccess(
-        ConnectedClient& c, const std::uint64_t loginToken, const std::string& loginName);
+    [[nodiscard]] bool sendLoginSuccess(ConnectedClient& c,
+        const std::uint64_t loginToken, const std::string& loginName);
     [[nodiscard]] bool sendLoginFailure(
+        ConnectedClient& c, const std::string& error);
+    [[nodiscard]] bool sendLogoutSuccess(ConnectedClient& c);
+    [[nodiscard]] bool sendLogoutFailure(ConnectedClient& c);
+    [[nodiscard]] bool sendDeleteAccountSuccess(ConnectedClient& c);
+    [[nodiscard]] bool sendDeleteAccountFailure(
         ConnectedClient& c, const std::string& error);
 
     void run();

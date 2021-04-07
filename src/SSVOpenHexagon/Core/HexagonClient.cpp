@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Utils/Match.hpp"
+#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
@@ -289,6 +290,13 @@ template <typename T>
     return sendEncrypted(CTSPLogout{steamId});
 }
 
+[[nodiscard]] bool HexagonClient::sendDeleteAccount(
+    const std::uint64_t steamId, const std::string& passwordHash)
+{
+    SSVOH_CLOG << "Sending delete account request to server...\n";
+    return sendEncrypted(CTSPDeleteAccount{steamId, passwordHash});
+}
+
 bool HexagonClient::connect()
 {
     _state = State::Connecting;
@@ -299,32 +307,32 @@ bool HexagonClient::connect()
         return false;
     }
 
+    const auto fail = [&](const std::string& reason) {
+        const std::string errorStr = "Failure connecting, error " + reason;
+        SSVOH_CLOG_ERROR << errorStr << '\n';
+
+        addEvent(EConnectionFailure{errorStr});
+        _state = State::ConnectionError;
+
+        return false;
+    };
+
     if(!initializeTcpSocket())
     {
-        SSVOH_CLOG_ERROR
-            << "Failure connecting, error initializing TCP socket\n";
-
-        _state = State::ConnectionError;
-        return false;
+        return fail("initializing TCP socket");
     }
 
     if(!sendHeartbeat())
     {
-        SSVOH_CLOG_ERROR
-            << "Failure connecting, error sending first heartbeat\n";
-
-        _state = State::ConnectionError;
-        return false;
+        return fail("sending first heartbeat");
     }
 
     if(!sendPublicKey())
     {
-        SSVOH_CLOG_ERROR << "Failure connecting, error sending public key\n";
-
-        _state = State::ConnectionError;
-        return false;
+        return fail("sending public key");
     }
 
+    addEvent(EConnectionSuccess{});
     _state = State::Connected;
     return true;
 }
@@ -335,7 +343,7 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
       _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false},
       _packetBuffer{}, _errorOss{}, _lastHeartbeatTime{}, _verbose{true},
       _clientPSKeys{generateSodiumPSKeys()}, _state{State::Disconnected},
-      _loginToken{}, _loginName{}
+      _loginToken{}, _loginName{}, _events{}
 {
     const auto sKeyPublic = sodiumKeyToString(_clientPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_clientPSKeys.keySecret);
@@ -451,6 +459,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         [&](const STCPKick&) {
             SSVOH_CLOG << "Received kick packet from server, disconnecting\n";
 
+            addEvent(EKicked{});
+
             disconnect();
             return true;
         },
@@ -502,16 +512,18 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return sendReady() && sendPrint("hello world!!!");
         },
 
-        [&](const STCPRegistrationSuccess& stcp) {
+        [&](const STCPRegistrationSuccess&) {
             SSVOH_CLOG << "Successfully registered to server\n";
-            // TODO
+
+            addEvent(ERegistrationSuccess{});
             return true;
         },
 
         [&](const STCPRegistrationFailure& stcp) {
             SSVOH_CLOG << "Registration to server failed, error: '"
                        << stcp.error << "'\n";
-            // TODO
+
+            addEvent(ERegistrationFailure{stcp.error});
             return true;
         },
 
@@ -533,13 +545,44 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
             _state = State::LoggedIn;
 
+            addEvent(ELoginSuccess{});
             return true;
         },
 
         [&](const STCPLoginFailure& stcp) {
             SSVOH_CLOG << "Login to server failed, error: '" << stcp.error
                        << "'\n";
-            // TODO
+
+            addEvent(ELoginFailure{stcp.error});
+            return true;
+        },
+
+        [&](const STCPLogoutSuccess&) {
+            SSVOH_CLOG << "Logout from server success\n";
+
+            addEvent(ELogoutSuccess{});
+            return true;
+        },
+
+        [&](const STCPLogoutFailure&) {
+            SSVOH_CLOG << "Logout from server failure\n";
+
+            addEvent(ELogoutFailure{});
+            return true;
+        },
+
+        [&](const STCPDeleteAccountSuccess&) {
+            SSVOH_CLOG << "Delete account from server success\n";
+
+            addEvent(EDeleteAccountSuccess{});
+            return true;
+        },
+
+        [&](const STCPDeleteAccountFailure& stcp) {
+            SSVOH_CLOG << "Delete account from server failure, error: '"
+                       << stcp.error << "'\n";
+
+            addEvent(EDeleteAccountFailure{stcp.error});
             return true;
         }
 
@@ -572,7 +615,7 @@ static std::string hashPwd(const std::string& password)
     return sodiumHash(saltedPassword);
 }
 
-bool HexagonClient::tryRegisterToServer(
+bool HexagonClient::tryRegister(
     const std::string& name, const std::string& password)
 {
     if(!_socketConnected)
@@ -581,6 +624,11 @@ bool HexagonClient::tryRegisterToServer(
     }
 
     if(_state != State::Connected)
+    {
+        return false;
+    }
+
+    if(name.empty() || name.size() > 32 || password.empty())
     {
         return false;
     }
@@ -589,7 +637,7 @@ bool HexagonClient::tryRegisterToServer(
     return sendRegister(_ticketSteamID.value(), name, hashPwd(password));
 }
 
-bool HexagonClient::tryLoginToServer(
+bool HexagonClient::tryLogin(
     const std::string& name, const std::string& password)
 {
     if(!_socketConnected)
@@ -598,6 +646,11 @@ bool HexagonClient::tryLoginToServer(
     }
 
     if(_state != State::Connected)
+    {
+        return false;
+    }
+
+    if(name.empty() || name.size() > 32 || password.empty())
     {
         return false;
     }
@@ -626,15 +679,47 @@ bool HexagonClient::tryLogoutFromServer()
     return sendLogout(_ticketSteamID.value());
 }
 
+bool HexagonClient::tryDeleteAccount(const std::string& password)
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(_state != State::Connected)
+    {
+        return false;
+    }
+
+    SSVOH_ASSERT(_ticketSteamID.has_value());
+    return sendDeleteAccount(_ticketSteamID.value(), hashPwd(password));
+}
+
 [[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept
 {
     return _state;
 }
 
-[[nodiscard]] const std::optional<std::string>
+[[nodiscard]] const std::optional<std::string>&
 HexagonClient::getLoginName() const noexcept
 {
     return _loginName;
+}
+
+void HexagonClient::addEvent(const Event& e)
+{
+    _events.push_back(e);
+}
+
+[[nodiscard]] std::optional<HexagonClient::Event> HexagonClient::pollEvent()
+{
+    if(_events.empty())
+    {
+        return std::nullopt;
+    }
+
+    HG_SCOPE_GUARD({ _events.pop_front(); });
+    return {_events.front()};
 }
 
 } // namespace hg

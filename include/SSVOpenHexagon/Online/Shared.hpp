@@ -41,19 +41,20 @@ struct PEncryptedMsg
 // ----------------------------------------------------------------------------
 
 // clang-format off
-struct CTSPHeartbeat  { };
-struct CTSPDisconnect { };
-struct CTSPPublicKey  { SodiumPublicKeyArray key; };
-struct CTSPReady      { };
-struct CTSPPrint      { std::string msg; };
-struct CTSPRegister   { sf::Uint64 steamId; std::string name; std::string passwordHash; };
-struct CTSPLogin      { sf::Uint64 steamId; std::string name; std::string passwordHash; };
-struct CTSPLogout     { sf::Uint64 steamId; };
+struct CTSPHeartbeat     { };
+struct CTSPDisconnect    { };
+struct CTSPPublicKey     { SodiumPublicKeyArray key; };
+struct CTSPReady         { };
+struct CTSPPrint         { std::string msg; };
+struct CTSPRegister      { sf::Uint64 steamId; std::string name; std::string passwordHash; };
+struct CTSPLogin         { sf::Uint64 steamId; std::string name; std::string passwordHash; };
+struct CTSPLogout        { sf::Uint64 steamId; };
+struct CTSPDeleteAccount { sf::Uint64 steamId; std::string passwordHash; };
 // clang-format on
 
 #define SSVOH_CTS_PACKETS                                                    \
     VRM_PP_TPL_MAKE(CTSPHeartbeat, CTSPDisconnect, CTSPPublicKey, CTSPReady, \
-        CTSPPrint, CTSPRegister, CTSPLogin, CTSPLogout)
+        CTSPPrint, CTSPRegister, CTSPLogin, CTSPLogout, CTSPDeleteAccount)
 
 using PVClientToServer = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;
@@ -74,17 +75,23 @@ template <typename T>
 // ----------------------------------------------------------------------------
 
 // clang-format off
-struct STCPKick                { };
-struct STCPPublicKey           { SodiumPublicKeyArray key; };
-struct STCPRegistrationSuccess { };
-struct STCPRegistrationFailure { std::string error; };
-struct STCPLoginSuccess        { sf::Uint64 loginToken; std::string loginName; };
-struct STCPLoginFailure        { std::string error; };
+struct STCPKick                 { };
+struct STCPPublicKey            { SodiumPublicKeyArray key; };
+struct STCPRegistrationSuccess  { };
+struct STCPRegistrationFailure  { std::string error; };
+struct STCPLoginSuccess         { sf::Uint64 loginToken; std::string loginName; };
+struct STCPLoginFailure         { std::string error; };
+struct STCPLogoutSuccess        { };
+struct STCPLogoutFailure        { };
+struct STCPDeleteAccountSuccess { };
+struct STCPDeleteAccountFailure { std::string error; };
 // clang-format on
 
-#define SSVOH_STC_PACKETS                                             \
-    VRM_PP_TPL_MAKE(STCPKick, STCPPublicKey, STCPRegistrationSuccess, \
-        STCPRegistrationFailure, STCPLoginSuccess, STCPLoginFailure)
+#define SSVOH_STC_PACKETS                                               \
+    VRM_PP_TPL_MAKE(STCPKick, STCPPublicKey, STCPRegistrationSuccess,   \
+        STCPRegistrationFailure, STCPLoginSuccess, STCPLoginFailure,    \
+        STCPLogoutSuccess, STCPLogoutFailure, STCPDeleteAccountSuccess, \
+        STCPDeleteAccountFailure)
 
 using PVServerToClient = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS)>;

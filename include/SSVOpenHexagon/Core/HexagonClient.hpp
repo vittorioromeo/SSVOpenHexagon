@@ -15,6 +15,9 @@
 #include <chrono>
 #include <sstream>
 #include <optional>
+#include <vector>
+#include <variant>
+#include <deque>
 
 namespace hg::Steam
 {
@@ -38,6 +41,34 @@ public:
         Connected = 4,
         LoggedIn = 5,
     };
+
+    // clang-format off
+    struct EConnectionSuccess    { };
+    struct EConnectionFailure    { std::string error; };
+    struct EKicked               { };
+    struct ERegistrationSuccess  { };
+    struct ERegistrationFailure  { std::string error;};
+    struct ELoginSuccess         { };
+    struct ELoginFailure         { std::string error; };
+    struct ELogoutSuccess        { };
+    struct ELogoutFailure        { };
+    struct EDeleteAccountSuccess { };
+    struct EDeleteAccountFailure { std::string error; };
+    // clang-format on
+
+    using Event = std::variant< //
+        EConnectionSuccess,     //
+        EConnectionFailure,     //
+        EKicked,                //
+        ERegistrationSuccess,   //
+        ERegistrationFailure,   //
+        ELoginSuccess,          //
+        ELoginFailure,          //
+        ELogoutSuccess,         //
+        ELogoutFailure,         //
+        EDeleteAccountSuccess,  //
+        EDeleteAccountFailure   //
+        >;
 
 private:
     using Clock = std::chrono::high_resolution_clock;
@@ -69,6 +100,8 @@ private:
     std::optional<std::uint64_t> _loginToken;
     std::optional<std::string> _loginName;
 
+    std::deque<Event> _events;
+
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
 
@@ -84,6 +117,8 @@ private:
     [[nodiscard]] bool sendLogin(const std::uint64_t steamId,
         const std::string& name, const std::string& passwordHash);
     [[nodiscard]] bool sendLogout(const std::uint64_t steamId);
+    [[nodiscard]] bool sendDeleteAccount(
+        const std::uint64_t steamId, const std::string& passwordHash);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -94,6 +129,8 @@ private:
     bool receiveDataFromServer(sf::Packet& p);
 
     bool sendHeartbeatIfNecessary();
+
+    void addEvent(const Event& e);
 
 public:
     explicit HexagonClient(Steam::steam_manager& steamManager);
@@ -107,16 +144,18 @@ public:
 
     void update();
 
-    bool tryRegisterToServer(
-        const std::string& name, const std::string& password);
+    bool tryRegister(const std::string& name, const std::string& password);
 
-    bool tryLoginToServer(const std::string& name, const std::string& password);
+    bool tryLogin(const std::string& name, const std::string& password);
     bool tryLogoutFromServer();
+    bool tryDeleteAccount(const std::string& password);
 
     [[nodiscard]] State getState() const noexcept;
 
-    [[nodiscard]] const std::optional<std::string>
+    [[nodiscard]] const std::optional<std::string>&
     getLoginName() const noexcept;
+
+    [[nodiscard]] std::optional<Event> pollEvent();
 };
 
 } // namespace hg

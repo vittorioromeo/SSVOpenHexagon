@@ -20,6 +20,7 @@
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
+#include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 
@@ -32,6 +33,7 @@
 
 #include <utility>
 #include <array>
+#include <tuple>
 #include <string_view>
 
 namespace hg
@@ -97,6 +99,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     }
 
     initAssets();
+    initOnlineIcons();
     refreshCamera();
 
     game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
@@ -154,7 +157,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     setIgnoreAllInputs(1);
 
     const auto checkCloseBootScreens = [this] {
-        if(!(--ignoreInputs))
+        if((--ignoreInputs) == 0)
         {
             if(state == States::LoadingScreen)
             {
@@ -168,7 +171,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 mainMenu.getCategory().getOffset() =
                     fourByThree ? 280.f : 400.f;
 
-                // TODO: remove when welcome screen is implemented
                 playLocally();
                 setIgnoreAllInputs(0);
             }
@@ -178,18 +180,112 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     const auto checkCloseDialogBox = [this] {
-        if(!ignoreInputs)
-        {
+        const auto closeBox = [this] {
             dialogBox.clearDialogBox();
             setIgnoreAllInputs(0);
+        };
+
+        const auto transitionInputSequence =
+            [this, closeBox](const DialogInputState newState) {
+                dialogInputState = newState;
+                HG_SCOPE_GUARD({ closeBox(); });
+                return dialogBox.getInput();
+            };
+
+        const auto endInputSequence = [this, closeBox] {
+            dialogInputState = DialogInputState::Nothing;
+            HG_SCOPE_GUARD({ closeBox(); });
+            return dialogBox.getInput();
+        };
+
+        if(ignoreInputs != 0)
+        {
+            return;
+        }
+
+        if(dialogInputState == DialogInputState::Nothing)
+        {
+            closeBox();
+            return;
+        }
+
+        if(dialogInputState == DialogInputState::Registration_EnteringPassword)
+        {
+            registrationPassword = endInputSequence();
+            hexagonClient.tryRegister(
+                registrationUsername, registrationPassword);
+            return;
+        }
+
+        if(dialogInputState == DialogInputState::Registration_EnteringUsername)
+        {
+            registrationUsername = transitionInputSequence(
+                DialogInputState::Registration_EnteringPassword);
+
+            showInputDialogBoxNice("REGISTRATION", "PASSWORD");
+            dialogBox.setInputBoxPassword(true);
+            setIgnoreAllInputs(1);
+            return;
+        }
+
+        if(dialogInputState == DialogInputState::Login_EnteringPassword)
+        {
+            loginPassword = endInputSequence();
+            hexagonClient.tryLogin(loginUsername, loginPassword);
+            return;
+        }
+
+        if(dialogInputState == DialogInputState::Login_EnteringUsername)
+        {
+            loginUsername = transitionInputSequence(
+                DialogInputState::Login_EnteringPassword);
+
+            showInputDialogBoxNice("LOGIN", "PASSWORD");
+            dialogBox.setInputBoxPassword(true);
+            setIgnoreAllInputs(1);
+            return;
+        }
+
+        if(dialogInputState == DialogInputState::DeleteAccount_EnteringPassword)
+        {
+            deleteAccountPassword = endInputSequence();
+            hexagonClient.tryDeleteAccount(deleteAccountPassword);
+            return;
         }
     };
+
+    game.onEvent(sf::Event::EventType::TextEntered) +=
+        [this](const sf::Event& mEvent) {
+            if(dialogBox.empty() || !dialogBox.isInputBox())
+            {
+                return;
+            }
+
+            std::string& input = dialogBox.getInput();
+
+            if(mEvent.text.unicode >= 32 && mEvent.text.unicode < 127)
+            {
+                if(input.size() < 32)
+                {
+                    assets.playSound("beep.ogg");
+                    input.push_back(static_cast<char>(mEvent.text.unicode));
+                }
+            }
+            else if(mEvent.text.unicode == 8) // backspace
+            {
+                if(!input.empty())
+                {
+                    assets.playSound("beep.ogg");
+                    input.pop_back();
+                }
+            }
+        };
 
     game.onEvent(sf::Event::EventType::KeyReleased) +=
         [this, checkCloseBootScreens, checkCloseDialogBox](
             const sf::Event& mEvent) {
             // don't do anything if inputs are being processed as usual
-            if(!ignoreInputs)
+            if(ignoreInputs == 0)
             {
                 return;
             }
@@ -209,7 +305,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            ssvs::KKey key{mEvent.key.code};
+            const ssvs::KKey key{mEvent.key.code};
             if(!dialogBox.empty())
             {
                 if(dialogBox.getKeyToClose() == ssvs::KKey::Unknown ||
@@ -217,6 +313,16 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 {
                     --ignoreInputs;
                 }
+
+                if(dialogBox.isInputBox() && key == ssvs::KKey::Escape)
+                {
+                    setIgnoreAllInputs(0);
+                    dialogInputState = DialogInputState::Nothing;
+                    dialogBox.clearDialogBox();
+
+                    return;
+                }
+
                 checkCloseDialogBox();
                 return;
             }
@@ -231,7 +337,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            if(!(--ignoreInputs))
+            if((--ignoreInputs) == 0)
             {
                 if(getCurrentMenu() == nullptr || state != States::MOpts)
                 {
@@ -256,12 +362,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 {
                     assets.playSound("error.ogg");
                     setIgnoreAllInputs(1);
-                    dialogBox.create(
+                    showDialogBox(
                         "THE KEY YOU ARE TRYING TO ASSIGN TO THIS ACTION\n"
                         "IS ALREADY BOUND TO IT BY DEFAULT,\n"
                         "YOUR LAST INPUT HAS BEEN IGNORED\n\n"
-                        "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
-                        26, 10.f, DBoxDraw::center);
+                        "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
                     return;
                 }
 
@@ -274,7 +379,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(sf::Event::EventType::MouseButtonReleased) +=
         [this, checkCloseBootScreens, checkCloseDialogBox](
             const sf::Event& mEvent) {
-            if(!ignoreInputs)
+            if(ignoreInputs == 0)
             {
                 return;
             }
@@ -302,7 +407,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            if(!(--ignoreInputs))
+            if((--ignoreInputs) == 0)
             {
                 if(getCurrentMenu() == nullptr || state != States::MOpts)
                 {
@@ -331,7 +436,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onEvent(sf::Event::EventType::JoystickButtonReleased) +=
         [this, checkCloseBootScreens, checkCloseDialogBox](
             const sf::Event& mEvent) {
-            if(!ignoreInputs)
+            if(ignoreInputs == 0)
             {
                 return;
             }
@@ -359,7 +464,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 return;
             }
 
-            if(!(--ignoreInputs))
+            if((--ignoreInputs) == 0)
             {
                 if(getCurrentMenu() == nullptr || state != States::MOpts)
                 {
@@ -505,9 +610,9 @@ void MenuGame::changeStateTo(const States mState)
     };
 
     const auto showTip = [&](const char* str) {
-        assets.playSound("beep.ogg");
+        assets.playSound("select.ogg");
 
-        dialogBox.create(str, 26, 10.f, DBoxDraw::center);
+        showDialogBox(str);
         setIgnoreAllInputs(1);
 
         // Prevent dialog box from being closed immediately:
@@ -868,7 +973,7 @@ void MenuGame::initMenus()
         refreshBinds();
     });
     controls.create<i::Single>("hardcoded keys reference", [this] {
-        dialogBox.create(
+        showDialogBox(
             "UP ARROW - UP\n"
             "DOWN ARROW - DOWN\n"
             "RETURN - ENTER\n"
@@ -877,8 +982,7 @@ void MenuGame::initMenus()
             "F2 - SWITCH TO/FROM FAVORITE LEVELS\n"
             "F3 - RELOAD LEVEL ASSETS (DEBUG MODE ONLY)\n"
             "F4 - RELOAD PACK ASSETS (DEBUG MODE ONLY)\n\n"
-            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
-            26, 10.f, DBoxDraw::center);
+            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
         setIgnoreAllInputs(2);
     });
     controls.create<i::GoBack>("back");
@@ -1192,8 +1296,6 @@ void MenuGame::initMenus()
 
     auto& online(onlineMenu.createCategory("options"));
 
-    // TODO: how to pick login and password???
-
     online.create<i::Single>("CONNECT", [this] { hexagonClient.connect(); }) |
         whenMustConnect;
 
@@ -1202,16 +1304,46 @@ void MenuGame::initMenus()
     }) | whenConnected;
 
     online.create<i::Single>("REGISTER", [this] {
-        hexagonClient.tryRegisterToServer("fakeuser2", "fakepwd2");
+        if(dialogInputState != DialogInputState::Nothing)
+        {
+            return;
+        }
+
+        dialogInputState = DialogInputState::Registration_EnteringUsername;
+
+        showInputDialogBoxNice("REGISTRATION", "USERNAME");
+        setIgnoreAllInputs(2);
     }) | whenMustRegister;
 
     online.create<i::Single>("LOGIN", [this] {
-        hexagonClient.tryLoginToServer("fakeuser2", "fakepwd2");
+        if(dialogInputState != DialogInputState::Nothing)
+        {
+            return;
+        }
+
+        dialogInputState = DialogInputState::Login_EnteringUsername;
+
+        showInputDialogBoxNice("LOGIN", "USERNAME");
+        setIgnoreAllInputs(2);
     }) | whenConnected;
 
     online.create<i::Single>("LOGOUT", [this] {
         hexagonClient.tryLogoutFromServer();
     }) | whenLoggedIn;
+
+    online.create<i::Single>("DELETE ACCOUNT", [this] {
+        if(dialogInputState != DialogInputState::Nothing)
+        {
+            return;
+        }
+
+        dialogInputState = DialogInputState::DeleteAccount_EnteringPassword;
+
+        showInputDialogBoxNice("DELETE ACCOUNT", "PASSWORD",
+            "WARNING: THIS WILL DELETE ALL YOUR SCORES");
+        dialogBox.setInputBoxPassword(true);
+        setIgnoreAllInputs(2);
+    }) | whenConnected;
 
     //--------------------------------
     // PROFILES MENU
@@ -1455,7 +1587,7 @@ void MenuGame::upAction()
 {
     if(state == States::LevelSelection)
     {
-        // Do not do anything untul the pack change animation is over.
+        // Do not do anything until the pack change animation is over.
         if(packChangeState != PackChange::Rest)
         {
             return;
@@ -1747,11 +1879,11 @@ void MenuGame::okAction()
                     if(enteredStr == i->getName())
                     {
                         assets.playSound("error.ogg");
-                        dialogBox.create(
+                        showDialogBox(
                             "A PROFILE WITH THE SAME NAME ALREADY EXISTS\n"
                             "PLEASE ENTER ANOTHER NAME\n\n"
-                            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
-                            26, 10.f, DBoxDraw::center);
+                            "PRESS ANY KEY OR BUTTON TO CLOSE THIS "
+                            "MESSAGE\n");
                         setIgnoreAllInputs(2);
                         return;
                     }
@@ -1794,7 +1926,7 @@ void MenuGame::okAction()
             getCurrentMenu()->exec();
 
             // Going into the level selection set the selected level
-            // label pffset to the maximum value and set the other
+            // label offset to the maximum value and set the other
             // offsets to 0.
             if(state == States::LevelSelection)
             {
@@ -1898,20 +2030,18 @@ void MenuGame::eraseAction()
         if(profileSelectionMenu.getCategory().getItems().size() <= 1)
         {
             assets.playSound("error.ogg");
-            dialogBox.create(
+            showDialogBox(
                 "YOU CANNOT ERASE THE ONLY REMAINING PROFILE\n\n"
-                "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
-                26, 10.f, DBoxDraw::center);
+                "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
             setIgnoreAllInputs(2);
             return;
         }
         if(assets.pGetName() == name)
         {
             assets.playSound("error.ogg");
-            dialogBox.create(
+            showDialogBox(
                 "YOU CANNOT ERASE THE CURRENTLY IN USE PROFILE\n\n"
-                "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n",
-                26, 10.f, DBoxDraw::center);
+                "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
             setIgnoreAllInputs(2);
             return;
         }
@@ -2007,6 +2137,108 @@ void MenuGame::exitAction()
 void MenuGame::update(ssvu::FT mFT)
 {
     hexagonClient.update();
+
+    const auto showHCEventDialogBox = [this](const bool error,
+                                          const std::string& msg,
+                                          const std::string& err = "") {
+        if(!dialogBox.empty())
+        {
+            return;
+        }
+
+        if(state != States::SMain && state != States::MOnline &&
+            state != States::MOpts && state != States::SLPSelect &&
+            state != States::LevelSelection)
+        {
+            return;
+        }
+
+        if(error)
+        {
+            assets.playSound("error.ogg");
+        }
+        else
+        {
+            assets.playSound("select.ogg");
+        }
+
+        std::string finalMsg = msg;
+        if(!err.empty())
+        {
+            finalMsg += "\n\n";
+            finalMsg += err;
+        }
+
+        finalMsg += "\n";
+
+        // Prevent dialog box from being closed immediately:
+        dialogBoxDelay = 16.f;
+
+        showDialogBox(finalMsg);
+        setIgnoreAllInputs(1);
+
+        SSVOH_ASSERT(!dialogBox.empty());
+        SSVOH_ASSERT(ignoreInputs == 1);
+    };
+
+    std::optional<HexagonClient::Event> hcEvent;
+    while((hcEvent = hexagonClient.pollEvent()).has_value())
+    {
+        Utils::match(
+            *hcEvent, //
+
+            [&](const HexagonClient::EConnectionSuccess&) {
+                showHCEventDialogBox(false /* error */, "CONNECTION SUCCESS");
+            },
+
+            [&](const HexagonClient::EConnectionFailure& e) {
+                showHCEventDialogBox(
+                    true /* error */, "CONNECTION FAILURE", e.error);
+            },
+
+            [&](const HexagonClient::EKicked&) {
+                showHCEventDialogBox(
+                    true /* error */, "DISCONNECTED FROM SERVER");
+            },
+
+            [&](const HexagonClient::ERegistrationSuccess&) {
+                showHCEventDialogBox(false /* error */, "REGISTRATION SUCCESS");
+            },
+
+            [&](const HexagonClient::ERegistrationFailure& e) {
+                showHCEventDialogBox(
+                    true /* error */, "REGISTRATION FAILURE", e.error);
+            },
+
+            [&](const HexagonClient::ELoginSuccess&) {
+                showHCEventDialogBox(false /* error */, "LOGIN SUCCESS");
+            },
+
+            [&](const HexagonClient::ELoginFailure& e) {
+                showHCEventDialogBox(
+                    true /* error */, "LOGIN FAILURE", e.error);
+            },
+
+            [&](const HexagonClient::ELogoutSuccess&) {
+                showHCEventDialogBox(false /* error */, "LOGOUT SUCCESS");
+            },
+
+            [&](const HexagonClient::ELogoutFailure&) {
+                showHCEventDialogBox(true /* error */, "LOGOUT FAILURE");
+            },
+
+            [&](const HexagonClient::EDeleteAccountSuccess&) {
+                showHCEventDialogBox(
+                    false /* error */, "DELETE ACCOUNT SUCCESS");
+            },
+
+            [&](const HexagonClient::EDeleteAccountFailure& e) {
+                showHCEventDialogBox(
+                    true /* error */, "DELETE ACCOUNT FAILURE", e.error);
+            } //
+        );
+    }
+
     hexagonGame.updateRichPresenceCallbacks();
 
     Joystick::update();
@@ -2424,9 +2656,9 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     // Needs to be two because the dialog box reacts to key releases.
     // First key release is the one of the key press that made the dialog
     // box pop up, the second one belongs to the key press that closes it
-    setIgnoreAllInputs(2);
     assets.playSound("select.ogg");
-    dialogBox.create(reloadOutput, 26, 10.f, DBoxDraw::center);
+    showDialogBox(reloadOutput);
+    setIgnoreAllInputs(2);
 }
 
 void MenuGame::refreshCamera()
@@ -2542,7 +2774,7 @@ void MenuGame::setIgnoreAllInputs(const unsigned int presses)
 {
     ignoreInputs = presses;
 
-    if(!ignoreInputs)
+    if(ignoreInputs == 0)
     {
         game.ignoreAllInputs(false);
         Joystick::ignoreAllPresses(false);
@@ -4564,6 +4796,7 @@ void MenuGame::draw()
 
     if(!dialogBox.empty())
     {
+        overlayCamera.apply();
         dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
 }
@@ -4572,71 +4805,119 @@ void MenuGame::drawOnlineStatus()
 {
     overlayCamera.unapply();
 
-    constexpr float padding = 4.f;
+    const float onlineStatusScaling = 1.5f;
+    const float scaling = onlineStatusScaling / Config::getZoomFactor();
+    const float padding = 3.f * onlineStatusScaling;
 
-    rsOnlineStatus.setSize(sf::Vector2f{1.f, 1.f});
-    rsOnlineStatus.setFillColor(sf::Color::Black);
-    rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
-    rsOnlineStatus.setPosition(0 + padding, Config::getHeight() - padding);
-
-    txtOnlineStatus.setCharacterSize(12);
+    txtOnlineStatus.setCharacterSize(12 * scaling);
     txtOnlineStatus.setFillColor(sf::Color::White);
 
     const HexagonClient::State state = hexagonClient.getState();
 
-    const auto stateToString = [&]() -> std::string {
+    const auto [stateGood,
+        stateString] = [&]() -> std::tuple<bool, std::string> {
         switch(state)
         {
             case HexagonClient::State::Disconnected:
             {
-                return "DISCONNECTED";
+                return {false, "DISCONNECTED"};
             }
 
             case HexagonClient::State::InitError:
             {
-                return "CLIENT ERROR";
+                return {false, "CLIENT ERROR"};
             }
 
             case HexagonClient::State::Connecting:
             {
-                return "CONNECTING";
+                return {false, "CONNECTING"};
             }
 
             case HexagonClient::State::ConnectionError:
             {
-                return "CONNECTION ERROR";
+                return {false, "CONNECTION ERROR"};
             }
 
             case HexagonClient::State::Connected:
             {
-                return "CONNECTED, PLEASE LOG IN";
+                return {true, "CONNECTED, PLEASE LOG IN"};
             }
 
             case HexagonClient::State::LoggedIn:
             {
-                return "LOGGED IN AS '" +
-                       hexagonClient.getLoginName().value_or("UNKNOWN") + "'";
+                return {true,
+                    "LOGGED IN AS '" +
+                        hexagonClient.getLoginName().value_or("UNKNOWN") + "'"};
             }
         }
 
-        return "UNKNOWN";
-    };
+        return {false, "UNKNOWN"};
+    }();
 
-    txtOnlineStatus.setString(stateToString());
+    txtOnlineStatus.setString("ABC,:ç@'");
+    const auto txtHeight = ssvs::getGlobalHeight(txtOnlineStatus);
+    const float spriteScale = (txtHeight + padding * 2.f) / 64.f;
 
-    txtOnlineStatus.setOrigin(ssvs::getLocalSW(txtOnlineStatus));
-    txtOnlineStatus.setPosition(rsOnlineStatus.getPosition().x + padding,
-        rsOnlineStatus.getPosition().y - padding);
+    txtOnlineStatus.setString(stateString);
+
+    if(stateGood)
+    {
+        sOnline.setTexture(assets.get<sf::Texture>("onlineIcon.png"));
+    }
+    else
+    {
+        sOnline.setTexture(assets.get<sf::Texture>("onlineIconFail.png"));
+    }
+
+    sOnline.setScale(sf::Vector2f{spriteScale, spriteScale});
+    sOnline.setOrigin(ssvs::getLocalSW(sOnline));
+    sOnline.setPosition(0 + padding, Config::getHeight() - padding);
 
     rsOnlineStatus.setSize(
         sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 2.f,
-            ssvs::getGlobalHeight(txtOnlineStatus) + padding * 2.f});
-
+            txtHeight + padding * 2.f});
+    rsOnlineStatus.setFillColor(sf::Color::Black);
     rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
-    rsOnlineStatus.setPosition(0 + padding, Config::getHeight() - padding);
+    rsOnlineStatus.setPosition(
+        ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y);
 
+    txtOnlineStatus.setOrigin(ssvs::getLocalCenterW(txtOnlineStatus));
+    txtOnlineStatus.setPosition(ssvs::getGlobalLeft(rsOnlineStatus) + padding,
+        ssvs::getGlobalCenter(rsOnlineStatus).y);
+
+    render(sOnline);
     render(rsOnlineStatus);
     render(txtOnlineStatus);
+}
+
+void MenuGame::showDialogBox(const std::string& msg)
+{
+    dialogBox.create(
+        msg, 26 /* charSize */, 10.f /* frameSize */, DBoxDraw::center);
+}
+
+void MenuGame::showInputDialogBox(const std::string& msg)
+{
+    dialogBox.createInput(
+        msg, 26 /* charSize */, 10.f /* frameSize */, DBoxDraw::center);
+}
+
+void MenuGame::showInputDialogBoxNice(const std::string& title,
+    const std::string& inputType, const std::string& extra)
+{
+    std::string msg;
+    if(extra.empty())
+    {
+        msg = Utils::concat(title, "\n\nPLEASE INSERT ", inputType,
+            "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");
+    }
+    else
+    {
+        msg = Utils::concat(title, "\n\nPLEASE INSERT ", inputType, "\n\n",
+            extra, "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");
+    }
+
+    showInputDialogBox(msg);
 }
 
 } // namespace hg
