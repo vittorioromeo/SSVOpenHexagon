@@ -769,6 +769,7 @@ void HexagonGame::death(bool mForce)
                 << "Successfully saved new local best replay file '" << p
                 << "'\n";
 
+            // TODO: should send independently of local new best
             if(hexagonClient != nullptr)
             {
                 hexagonClient->trySendReplay(rf);

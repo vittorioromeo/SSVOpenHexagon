@@ -118,4 +118,7 @@ void removeAllStaleLoginTokens();
 void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
     const std::uint64_t userSteamId, const double value);
 
+[[nodiscard]] std::optional<ProcessedScore> getScore(
+    const std::string& levelValidator, const std::uint64_t userSteamId);
+
 } // namespace hg::Database

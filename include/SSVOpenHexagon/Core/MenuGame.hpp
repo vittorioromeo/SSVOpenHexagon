@@ -38,6 +38,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <chrono>
+#include <optional>
 
 namespace hg
 {
@@ -69,6 +70,7 @@ private:
     struct CachedScores
     {
         std::vector<Database::ProcessedScore> _scores;
+        std::optional<Database::ProcessedScore> _ownScore;
         TimePoint _cacheTime;
     };
 
@@ -79,12 +81,18 @@ public:
     void receivedScores(const std::string& levelValidator,
         const std::vector<Database::ProcessedScore>& scores);
 
+    void receivedOwnScore(const std::string& levelValidator,
+        const Database::ProcessedScore& score);
+
     void requestedScores(const std::string& levelValidator);
 
     [[nodiscard]] bool shouldRequestScores(
         const std::string& levelValidator) const;
 
     [[nodiscard]] const std::vector<Database::ProcessedScore>& getScores(
+        const std::string& levelValidator) const;
+
+    [[nodiscard]] const Database::ProcessedScore* getOwnScore(
         const std::string& levelValidator) const;
 };
 

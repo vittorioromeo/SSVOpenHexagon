@@ -58,6 +58,7 @@ public:
     struct EDeleteAccountSuccess { };
     struct EDeleteAccountFailure { std::string error; };
     struct EReceivedTopScores    { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
+    struct EReceivedOwnScore     { std::string levelValidator; Database::ProcessedScore score; };
     // clang-format on
 
     using Event = std::variant< //
@@ -72,7 +73,8 @@ public:
         ELogoutFailure,         //
         EDeleteAccountSuccess,  //
         EDeleteAccountFailure,  //
-        EReceivedTopScores      //
+        EReceivedTopScores,     //
+        EReceivedOwnScore       //
         >;
 
 private:
@@ -132,6 +134,8 @@ private:
         const sf::Uint64 loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendReplay(
         const sf::Uint64 loginToken, const replay_file& replayFile);
+    [[nodiscard]] bool sendRequestOwnScore(
+        const sf::Uint64 loginToken, const std::string& levelValidator);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -164,6 +168,7 @@ public:
     bool tryDeleteAccount(const std::string& password);
     bool tryRequestTopScores(const std::string& levelValidator);
     bool trySendReplay(const replay_file& replayFile);
+    bool tryRequestOwnScore(const std::string& levelValidator);
 
     [[nodiscard]] State getState() const noexcept;
 

@@ -195,14 +195,18 @@ void removeAllStaleLoginTokens()
 
     std::vector<ProcessedScore> result;
 
+    std::uint32_t index = 0;
     for(const auto& row : query)
     {
         result.push_back( //
             ProcessedScore{
+                .position = index,                  //
                 .userName = std::get<0>(row),       //
                 .scoreTimestamp = std::get<1>(row), //
                 .scoreValue = std::get<2>(row),     //
             });
+
+        ++index;
     }
 
     return result;
@@ -261,6 +265,42 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
 
     SSVOH_DLOG << "Updated score with id '" << score.id << "' to storage:\n"
                << Impl::getStorage().dump(score) << '\n';
+}
+
+[[nodiscard]] std::optional<ProcessedScore> getScore(
+    const std::string& levelValidator, const std::uint64_t userSteamId)
+{
+    using namespace sqlite_orm;
+
+    const auto query =
+        Impl::getStorage().select(columns(&User::name, &Score::timestamp,
+                                      &Score::value, &Score::userSteamId),
+            join<Score>(on(c(&User::steamId) == &Score::userSteamId)),
+            where(levelValidator == c(&Score::levelValidator)),
+            order_by(&Score::value).desc());
+
+    if(query.empty())
+    {
+        return std::nullopt;
+    }
+
+    std::uint32_t index = 0;
+    for(const auto& row : query)
+    {
+        if(std::get<3>(row) == userSteamId)
+        {
+            return {ProcessedScore{
+                .position = index,                  //
+                .userName = std::get<0>(row),       //
+                .scoreTimestamp = std::get<1>(row), //
+                .scoreValue = std::get<2>(row),     //
+            }};
+        }
+
+        ++index;
+    }
+
+    return std::nullopt;
 }
 
 } // namespace hg::Database

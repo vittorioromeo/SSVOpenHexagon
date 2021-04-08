@@ -64,12 +64,13 @@ struct CTSPLogout           { sf::Uint64 steamId; };
 struct CTSPDeleteAccount    { sf::Uint64 steamId; std::string passwordHash; };
 struct CTSPRequestTopScores { sf::Uint64 loginToken; std::string levelValidator; };
 struct CTSPReplay           { sf::Uint64 loginToken; replay_file replayFile; };
+struct CTSPRequestOwnScore  { sf::Uint64 loginToken; std::string levelValidator; };
 // clang-format on
 
 #define SSVOH_CTS_PACKETS                                                    \
     VRM_PP_TPL_MAKE(CTSPHeartbeat, CTSPDisconnect, CTSPPublicKey, CTSPReady, \
         CTSPPrint, CTSPRegister, CTSPLogin, CTSPLogout, CTSPDeleteAccount,   \
-        CTSPRequestTopScores, CTSPReplay)
+        CTSPRequestTopScores, CTSPReplay, CTSPRequestOwnScore)
 
 using PVClientToServer = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;
@@ -101,13 +102,14 @@ struct STCPLogoutFailure        { };
 struct STCPDeleteAccountSuccess { };
 struct STCPDeleteAccountFailure { std::string error; };
 struct STCPTopScores            { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
+struct STCPOwnScore             { std::string levelValidator; Database::ProcessedScore score; };
 // clang-format on
 
 #define SSVOH_STC_PACKETS                                               \
     VRM_PP_TPL_MAKE(STCPKick, STCPPublicKey, STCPRegistrationSuccess,   \
         STCPRegistrationFailure, STCPLoginSuccess, STCPLoginFailure,    \
         STCPLogoutSuccess, STCPLogoutFailure, STCPDeleteAccountSuccess, \
-        STCPDeleteAccountFailure, STCPTopScores)
+        STCPDeleteAccountFailure, STCPTopScores, STCPOwnScore)
 
 using PVServerToClient = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS)>;

@@ -73,6 +73,10 @@ namespace hg
     }
 
     SSVOH_CLOG << "Successfully got validated Steam ID\n";
+
+    // TODO: for testing
+    // _ticketSteamID = randomUInt64();
+
     _ticketSteamID = ticketSteamId->ConvertToUint64();
     return true;
 }
@@ -125,16 +129,12 @@ namespace hg
     if(status == sf::Socket::Status::Error)
     {
         SSVOH_CLOG_ERROR << "Failure sending packet to server\n";
-
-        disconnect();
         return false;
     }
 
     if(status == sf::Socket::Status::Disconnected)
     {
         SSVOH_CLOG_ERROR << "Disconnected while sending packet to server\n";
-
-        disconnect();
         return false;
     }
 
@@ -340,6 +340,20 @@ template <typename T>
         }                             //
     );
 }
+
+[[nodiscard]] bool HexagonClient::sendRequestOwnScore(
+    const sf::Uint64 loginToken, const std::string& levelValidator)
+{
+    SSVOH_CLOG << "Sending own score request to server...\n";
+
+    return sendEncrypted( //
+        CTSPRequestOwnScore{
+            .loginToken = loginToken,        //
+            .levelValidator = levelValidator //
+        }                                    //
+    );
+}
+
 
 bool HexagonClient::connect()
 {
@@ -646,6 +660,16 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                 .levelValidator = stcp.levelValidator, .scores = stcp.scores});
 
             return true;
+        },
+
+        [&](const STCPOwnScore& stcp) {
+            SSVOH_CLOG << "Received own score from server, levelValidator: '"
+                       << stcp.levelValidator << "'\n";
+
+            addEvent(EReceivedOwnScore{
+                .levelValidator = stcp.levelValidator, .score = stcp.score});
+
+            return true;
         }
 
         //
@@ -790,6 +814,22 @@ bool HexagonClient::trySendReplay(const replay_file& replayFile)
 
     SSVOH_ASSERT(_loginToken.has_value());
     return sendReplay(_loginToken.value(), replayFile);
+}
+
+bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(_state != State::LoggedIn)
+    {
+        return false;
+    }
+
+    SSVOH_ASSERT(_loginToken.has_value());
+    return sendRequestOwnScore(_loginToken.value(), levelValidator);
 }
 
 [[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept
