@@ -432,7 +432,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         firstPlay = mFirstPlay;
     }
 
-    SSVOH_ASSERT(assets.isValidLevelId(mAssetId));
+    SSVOH_ASSERT(assets.isValidLevelId(mId));
     setLevelData(assets.getLevelData(mId), mFirstPlay);
 
     difficultyMult = mDifficultyMult;
