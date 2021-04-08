@@ -199,6 +199,17 @@ template <typename T>
     );
 }
 
+[[nodiscard]] bool HexagonServer::sendOwnScore(ConnectedClient& c,
+    const std::string& levelValidator, const Database::ProcessedScore& score)
+{
+    return sendEncrypted(c, //
+        STCPOwnScore{
+            .levelValidator = levelValidator, //
+            .score = score                    //
+        }                                     //
+    );
+}
+
 void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
 {
     (void)sendKick(c);
@@ -635,7 +646,8 @@ void HexagonServer::runIteration_PurgeTokens()
                 return sendRegistrationFailure(c, errorStr);
             }
 
-            SSVOH_SLOG << "Successfully registered\n";
+            // TODO: crashes on unique constraint failure, maybe catch
+            // exception? Check orm
 
             Database::addUser( //
                 Database::User{
@@ -644,6 +656,8 @@ void HexagonServer::runIteration_PurgeTokens()
                     .passwordHash = passwordHash //
                 }                                //
             );
+
+            SSVOH_SLOG << "Successfully registered\n";
 
             return sendRegistrationSuccess(c);
         },
@@ -872,6 +886,40 @@ void HexagonServer::runIteration_PurgeTokens()
                 c._loginData->_steamId, score);
 
             return true; // TODO: reply
+        },
+
+        [&](const CTSPRequestOwnScore& ctsp) {
+            if(!c._loginData.has_value())
+            {
+                SSVOH_SLOG << "Client '" << clientAddress
+                           << "', is not logged in, can't process replay\n";
+
+                return true;
+            }
+
+            const auto cLoginToken = c._loginData->_loginToken;
+
+            if(cLoginToken != ctsp.loginToken)
+            {
+                SSVOH_SLOG << "Client '" << clientAddress
+                           << "' login token mismatch\n";
+
+                return true;
+            }
+
+            SSVOH_SLOG << "Sending own score to client '" << clientAddress
+                       << "'\n";
+
+            const std::optional<Database::ProcessedScore> ps =
+                Database::getScore(ctsp.levelValidator, c._loginData->_steamId);
+
+            if(!ps.has_value())
+            {
+                return true;
+            }
+
+            SSVOH_ASSERT(ps.has_value());
+            return sendOwnScore(c, ctsp.levelValidator, *ps);
         }
 
         //

@@ -37,6 +37,7 @@ struct Score
 
 struct ProcessedScore // not stored in database
 {
+    std::uint32_t position;
     std::string userName;
     std::uint64_t scoreTimestamp;
     double scoreValue;

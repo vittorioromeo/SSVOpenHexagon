@@ -124,6 +124,9 @@ private:
     [[nodiscard]] bool sendTopScores(ConnectedClient& c,
         const std::string& levelValidator,
         const std::vector<Database::ProcessedScore>& scores);
+    [[nodiscard]] bool sendOwnScore(ConnectedClient& c,
+        const std::string& levelValidator,
+        const Database::ProcessedScore& score);
 
     void kickAndRemoveClient(ConnectedClient& c);
 

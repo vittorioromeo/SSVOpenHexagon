@@ -48,6 +48,14 @@ void LeaderboardCache::receivedScores(const std::string& levelValidator,
     cs._cacheTime = Clock::now();
 }
 
+void LeaderboardCache::receivedOwnScore(
+    const std::string& levelValidator, const Database::ProcessedScore& score)
+{
+    CachedScores& cs = _levelValidatorToScores[levelValidator];
+    cs._ownScore = score;
+    cs._cacheTime = Clock::now();
+}
+
 void LeaderboardCache::requestedScores(const std::string& levelValidator)
 {
     _levelValidatorToScores[levelValidator]._cacheTime = Clock::now();
@@ -76,6 +84,19 @@ LeaderboardCache::getScores(const std::string& levelValidator) const
     }
 
     return it->second._scores;
+}
+
+[[nodiscard]] const Database::ProcessedScore* LeaderboardCache::getOwnScore(
+    const std::string& levelValidator) const
+{
+    const auto it = _levelValidatorToScores.find(levelValidator);
+    if(it == _levelValidatorToScores.end())
+    {
+        return nullptr;
+    }
+
+    const auto& os =it->second._ownScore;
+    return os.has_value() ? &*os : nullptr;
 }
 
 [[nodiscard]] static bool anyItemEnabled(const ssvms::Menu& menu)
@@ -2283,6 +2304,10 @@ void MenuGame::update(ssvu::FT mFT)
 
             [&](const HexagonClient::EReceivedTopScores& e) {
                 leaderboardCache.receivedScores(e.levelValidator, e.scores);
+            },
+
+            [&](const HexagonClient::EReceivedOwnScore& e) {
+                leaderboardCache.receivedOwnScore(e.levelValidator, e.score);
             }
 
             //
@@ -4707,6 +4732,8 @@ void MenuGame::drawLevelSelectionLeftSide(
         if(leaderboardCache.shouldRequestScores(levelValidator))
         {
             hexagonClient.tryRequestTopScores(levelValidator);
+            hexagonClient.tryRequestOwnScore(levelValidator);
+
             leaderboardCache.requestedScores(levelValidator);
         }
 
@@ -4729,15 +4756,26 @@ void MenuGame::drawLevelSelectionLeftSide(
             height += txtSelectionMedium.height + txtSelectionSmall.height;
         };
 
-        int index = 0;
-        for(const Database::ProcessedScore& ps :
-            leaderboardCache.getScores(levelValidator))
-        {
-            drawEntry(index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
-            ++index;
-        }
+        const auto scores = leaderboardCache.getScores(levelValidator);
 
-        height -= txtSelectionMedium.height + txtSelectionSmall.height;
+        if(!scores.empty())
+        {
+            int index = 0;
+            for(const Database::ProcessedScore& ps : scores)
+            {
+                drawEntry(index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
+                ++index;
+            }
+
+            height -= txtSelectionMedium.height + txtSelectionSmall.height;
+        }
+        else
+        {
+            const float tx = textToQuadBorder - panelOffset;
+            const float ty = height - txtSelectionMedium.height * fontTopBorder;
+
+            renderText("NO SCORES FOUND", txtSelectionMedium.font, {tx, ty});
+        }
 
         // Line
         height += txtSelectionScore.height + txtSelectionBig.height / 2.f;
@@ -4747,8 +4785,25 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         height += txtSelectionSmall.height;
 
-        // TODO: own score request
-        drawEntry(75, "FAKEUSER", 38126901, 123.456);
+        renderText("YOUR POSITION", txtSelectionSmall.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionSmall.height * fontTopBorder});
+
+        height += txtSelectionSmall.height * 2.f;
+
+        const auto* ownScore = leaderboardCache.getOwnScore(levelValidator);
+        if(ownScore == nullptr)
+        {
+            const float tx = textToQuadBorder - panelOffset;
+            const float ty = height - txtSelectionMedium.height * fontTopBorder;
+
+            renderText("NO OWN SCORE SET", txtSelectionMedium.font, {tx, ty});
+        }
+        else
+        {
+            drawEntry(ownScore->position, ownScore->userName,
+                ownScore->scoreTimestamp, ownScore->scoreValue);
+        }
     }
 
     render(menuQuads);
