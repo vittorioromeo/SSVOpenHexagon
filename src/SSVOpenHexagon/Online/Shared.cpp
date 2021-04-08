@@ -223,6 +223,24 @@ struct Extractor<std::vector<T>>
     }
 };
 
+template <>
+struct Extractor<hg::replay_file>
+{
+    using Type = hg::replay_file;
+
+    [[nodiscard]] static bool doExtractInto(
+        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    {
+        if(!result.deserialize_from_packet(p))
+        {
+            errorOss << "Error deserializing replay\n";
+            return false;
+        }
+
+        return true;
+    }
+};
+
 template <typename T>
 [[nodiscard]] bool extractInto(
     T& target, std::ostringstream& errorOss, sf::Packet& p)
@@ -386,6 +404,13 @@ void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
     {
         encodeField(p, data, x);
     }
+}
+
+template <typename TData>
+void encodeField(sf::Packet& p, const TData& data, const hg::replay_file& rf)
+{
+    (void)data;
+    rf.serialize_to_packet(p);
 }
 
 template <typename TData>

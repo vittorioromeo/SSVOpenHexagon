@@ -223,4 +223,44 @@ void removeAllStaleLoginTokens()
     return isLoginTokenTimestampValid(query.at(0));
 }
 
+void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
+    const std::uint64_t userSteamId, const double value)
+{
+    using namespace sqlite_orm;
+
+    Score score{
+        .levelValidator = levelValidator, //
+        .timestamp = timestamp,           //
+        .userSteamId = userSteamId,       //
+        .value = value                    //
+    };
+
+    const auto query = Impl::getStorage().get_all<Score>(
+        where(userSteamId == c(&Score::userSteamId) &&
+              levelValidator == c(&Score::levelValidator)));
+
+    if(query.empty())
+    {
+        const int id = Impl::getStorage().insert(score);
+
+        SSVOH_DLOG << "Added score with id '" << id << "' to storage:\n"
+                   << Impl::getStorage().dump(score) << '\n';
+
+        return;
+    }
+
+    const Score& existingScore = query.at(0);
+    if(existingScore.value >= value)
+    {
+        return;
+    }
+
+    score.id = existingScore.id;
+
+    Impl::getStorage().update(score);
+
+    SSVOH_DLOG << "Updated score with id '" << score.id << "' to storage:\n"
+               << Impl::getStorage().dump(score) << '\n';
+}
+
 } // namespace hg::Database

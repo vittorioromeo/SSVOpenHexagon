@@ -433,10 +433,11 @@ int main(int argc, char* argv[])
                     hg->setLastReplay(rf);
 
                     hg->newGame(rf._pack_id, rf._level_id, rf._first_play,
-                        rf._difficulty_mult,
-                        /* mExecuteLastReplay */ true);
+                        rf._difficulty_mult, /* mExecuteLastReplay */ true);
 
-                    hg->executeGameUntilDeath(); // TODO
+                    const double score = hg->executeGameUntilDeath(); // TODO
+
+                    std::cout << "Player died.\nFinal time: " << score << '\n';
                 }
                 else
                 {

@@ -768,6 +768,11 @@ void HexagonGame::death(bool mForce)
             ssvu::lo("Replay")
                 << "Successfully saved new local best replay file '" << p
                 << "'\n";
+
+            if(hexagonClient != nullptr)
+            {
+                hexagonClient->trySendReplay(rf);
+            }
         }
         else
         {
@@ -782,7 +787,7 @@ void HexagonGame::death(bool mForce)
     }
 }
 
-void HexagonGame::executeGameUntilDeath()
+[[nodiscard]] double HexagonGame::executeGameUntilDeath()
 {
     while(!status.hasDied)
     {
@@ -790,8 +795,7 @@ void HexagonGame::executeGameUntilDeath()
         postUpdate();
     }
 
-    std::cout << "Player died.\nFinal time: " << status.getTimeSeconds()
-              << '\n';
+    return status.getTimeSeconds();
 }
 
 void HexagonGame::incrementDifficulty()

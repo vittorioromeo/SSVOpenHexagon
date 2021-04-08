@@ -115,4 +115,7 @@ void removeAllStaleLoginTokens();
 
 [[nodiscard]] bool isLoginTokenValid(std::uint64_t token);
 
+void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
+    const std::uint64_t userSteamId, const double value);
+
 } // namespace hg::Database

@@ -45,6 +45,7 @@
 #include <cstdint>
 #include <sstream>
 #include <unordered_set>
+#include <functional>
 #include <optional>
 
 namespace hg
@@ -452,7 +453,7 @@ public:
 
     void death(bool mForce = false);
 
-    void executeGameUntilDeath();
+    [[nodiscard]] double executeGameUntilDeath();
 
     // Other methods
     void executeEvents(ssvuj::Obj& mRoot, float mTime);

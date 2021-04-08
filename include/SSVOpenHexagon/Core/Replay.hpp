@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 
+#include <SFML/Network/Packet.hpp>
+
 #include <bitset>
 #include <vector>
 #include <cstddef>
@@ -136,6 +138,9 @@ struct replay_file
 
     [[nodiscard]] bool serialize_to_file(const std::filesystem::path& p) const;
     [[nodiscard]] bool deserialize_from_file(const std::filesystem::path& p);
+
+    [[nodiscard]] bool serialize_to_packet(sf::Packet& p) const;
+    [[nodiscard]] bool deserialize_from_packet(sf::Packet& p);
 
     [[nodiscard]] std::string create_filename() const;
 };

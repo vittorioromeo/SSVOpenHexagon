@@ -6,6 +6,8 @@
 
 #include "TestUtils.hpp"
 
+#include <SFML/Network/Packet.hpp>
+
 #include <random>
 
 static void test_replay_data_basic()
@@ -185,12 +187,25 @@ static void test_replay_file_serialization_to_file()
         //
     };
 
-    TEST_ASSERT(rf.serialize_to_file("test.ohr"));
+    {
+        TEST_ASSERT(rf.serialize_to_file("test.ohr"));
 
-    hg::replay_file rf_out;
-    TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
+        hg::replay_file rf_out;
+        TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
 
-    TEST_ASSERT_NS_EQ(rf_out, rf);
+        TEST_ASSERT_NS_EQ(rf_out, rf);
+    }
+
+    {
+        sf::Packet p;
+
+        TEST_ASSERT(rf.serialize_to_packet(p));
+
+        hg::replay_file rf_out;
+        TEST_ASSERT(rf_out.deserialize_from_packet(p));
+
+        TEST_ASSERT_NS_EQ(rf_out, rf);
+    }
 }
 
 [[nodiscard]] static auto& getRng()
@@ -241,12 +256,25 @@ static void test_replay_file_serialization_to_file_randomized(
         //
     };
 
-    TEST_ASSERT(rf.serialize_to_file("test.ohr"));
+    {
+        TEST_ASSERT(rf.serialize_to_file("test.ohr"));
 
-    hg::replay_file rf_out;
-    TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
+        hg::replay_file rf_out;
+        TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
 
-    TEST_ASSERT_NS_EQ(rf_out, rf);
+        TEST_ASSERT_NS_EQ(rf_out, rf);
+    }
+
+    {
+        sf::Packet p;
+
+        TEST_ASSERT(rf.serialize_to_packet(p));
+
+        hg::replay_file rf_out;
+        TEST_ASSERT(rf_out.deserialize_from_packet(p));
+
+        TEST_ASSERT_NS_EQ(rf_out, rf);
+    }
 }
 
 int main()

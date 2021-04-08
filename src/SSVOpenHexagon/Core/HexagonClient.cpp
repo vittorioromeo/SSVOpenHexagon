@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
@@ -323,6 +324,20 @@ template <typename T>
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
         }                                    //
+    );
+}
+
+[[nodiscard]] bool HexagonClient::sendReplay(
+    const sf::Uint64 loginToken, const replay_file& replayFile)
+{
+    SSVOH_CLOG << "Sending replay for level '" << replayFile._level_id
+               << "' to server...\n";
+
+    return sendEncrypted( //
+        CTSPReplay{
+            .loginToken = loginToken, //
+            .replayFile = replayFile  //
+        }                             //
     );
 }
 
@@ -759,6 +774,22 @@ bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
 
     SSVOH_ASSERT(_loginToken.has_value());
     return sendRequestTopScores(_loginToken.value(), levelValidator);
+}
+
+bool HexagonClient::trySendReplay(const replay_file& replayFile)
+{
+    if(!_socketConnected)
+    {
+        return false;
+    }
+
+    if(_state != State::LoggedIn)
+    {
+        return false;
+    }
+
+    SSVOH_ASSERT(_loginToken.has_value());
+    return sendReplay(_loginToken.value(), replayFile);
 }
 
 [[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept

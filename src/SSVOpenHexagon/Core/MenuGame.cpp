@@ -4655,11 +4655,13 @@ void MenuGame::drawLevelSelectionLeftSide(
             height - txtSelectionSmall.height * fontTopBorder},
         menuQuadColor);
 
-    const std::string currentLevelValidator = Utils::getLevelValidator(
-        levelData.id, ssvu::getByModIdx(diffMults, diffMultIdx));
+    const auto currentDiffMult = ssvu::getByModIdx(diffMults, diffMultIdx);
+
+    const std::string localLevelValidator =
+        Utils::getLevelValidator(levelData.id, currentDiffMult);
 
     height += txtSelectionSmall.height + txtSelectionSmall.height;
-    tempString = currentLevelValidator;
+    tempString = localLevelValidator;
     renderText(
         ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) + "s",
         txtSelectionScore.font,
@@ -4696,10 +4698,16 @@ void MenuGame::drawLevelSelectionLeftSide(
     {
         SSVOH_ASSERT(lvlDrawer != nullptr);
 
-        if(leaderboardCache.shouldRequestScores(currentLevelValidator))
+        const std::string& levelId =
+            lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex);
+
+        const std::string levelValidator =
+            Utils::getLevelValidator(levelId, currentDiffMult);
+
+        if(leaderboardCache.shouldRequestScores(levelValidator))
         {
-            hexagonClient.tryRequestTopScores(currentLevelValidator);
-            leaderboardCache.requestedScores(currentLevelValidator);
+            hexagonClient.tryRequestTopScores(levelValidator);
+            leaderboardCache.requestedScores(levelValidator);
         }
 
         const auto drawEntry = [&](const int i, const std::string& userName,
@@ -4707,7 +4715,7 @@ void MenuGame::drawLevelSelectionLeftSide(
                                    const double scoreValue) {
             const float score = scoreValue;
 
-            const std::string posStr = hg::Utils::concat('#', i);
+            const std::string posStr = hg::Utils::concat('#', i + 1);
             std::string scoreStr = ssvu::toStr(score) + 's';
             std::string playerStr = userName;
 
@@ -4723,7 +4731,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         int index = 0;
         for(const Database::ProcessedScore& ps :
-            leaderboardCache.getScores(currentLevelValidator))
+            leaderboardCache.getScores(levelValidator))
         {
             drawEntry(index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
             ++index;
