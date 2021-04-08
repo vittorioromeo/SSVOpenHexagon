@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 #include "SSVOpenHexagon/Data/CapColor.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/Assert.hpp"
 
 #include <SFML/Graphics/Color.hpp>
 
@@ -184,6 +185,7 @@ public:
 
     [[nodiscard]] const sf::Color& getColor(int mIdx) const noexcept
     {
+        SSVOH_ASSERT(!currentColors.empty());
         return ssvu::getByModIdx(currentColors, mIdx);
     }
 
