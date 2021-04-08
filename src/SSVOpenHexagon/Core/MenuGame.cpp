@@ -822,6 +822,11 @@ catch(...)
 
 void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
 {
+    if(Config::getWidth() == mWidth && Config::getHeight() == mHeight)
+    {
+        return;
+    }
+
     Config::setCurrentResolution(window, mWidth, mHeight);
 
     refreshCamera();

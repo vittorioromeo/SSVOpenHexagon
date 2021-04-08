@@ -482,6 +482,7 @@ bool steam_manager::request_encrypted_app_ticket()
 
         return false;
     }
+
 #if __has_include("SSVOpenHexagon/Online/SecretSteamKey.hpp")
     const SteamAPICall_t handle = SteamUser()->RequestEncryptedAppTicket(
         &unSecretData, sizeof(unSecretData));
