@@ -430,14 +430,8 @@ int main(int argc, char* argv[])
                         << "Playing replay file in headless mode '"
                         << *replayFilename << "'\n";
 
-                    hg->setLastReplay(rf);
-
-                    hg->newGame(rf._pack_id, rf._level_id, rf._first_play,
-                        rf._difficulty_mult, /* mExecuteLastReplay */ true);
-
-                    const double score = hg->executeGameUntilDeath(); // TODO
-
-                    std::cout << "Player died.\nFinal time: " << score << '\n';
+                    std::cout << "Player died.\nFinal time: "
+                              << hg->runReplayUntilDeathAndGetScore(rf) << '\n';
                 }
                 else
                 {

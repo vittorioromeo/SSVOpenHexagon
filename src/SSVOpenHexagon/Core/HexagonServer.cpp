@@ -27,6 +27,7 @@
 #include <optional>
 #include <cstdio>
 #include <type_traits>
+#include <stdexcept>
 
 static auto& slog(const char* funcName)
 {
@@ -45,6 +46,19 @@ static auto& slog(const char* funcName)
 namespace hg
 {
 
+template <typename... Ts>
+[[nodiscard]] bool HexagonServer::fail(const Ts&... xs)
+{
+    if constexpr(sizeof...(Ts) > 0)
+    {
+        auto& stream = SSVOH_SLOG_ERROR;
+        (stream << ... << xs);
+        stream << '\n';
+    }
+
+    return false;
+}
+
 [[nodiscard]] bool HexagonServer::initializeControlSocket()
 {
     SSVOH_SLOG << "Initializing UDP control socket...\n";
@@ -54,8 +68,7 @@ namespace hg
     if(_controlSocket.bind(_serverControlPort, sf::IpAddress::LocalHost) !=
         sf::Socket::Status::Done)
     {
-        SSVOH_SLOG_ERROR << "Failure binding UDP control socket\n";
-        return false;
+        return fail("Failure binding UDP control socket");
     }
 
     _socketSelector.add(_controlSocket);
@@ -70,8 +83,7 @@ namespace hg
 
     if(_listener.listen(_serverPort) == sf::TcpListener::Status::Error)
     {
-        SSVOH_SLOG_ERROR << "Failure initializing TCP listener\n";
-        return false;
+        return fail("Failure initializing TCP listener");
     }
 
     return true;
@@ -89,8 +101,7 @@ namespace hg
 {
     if(c._socket.send(p) != sf::Socket::Status::Done)
     {
-        SSVOH_SLOG_ERROR << "Failure sending packet\n";
-        return false;
+        return fail("Failure sending packet");
     }
 
     return true;
@@ -100,25 +111,20 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendEncrypted(
     ConnectedClient& c, const T& data)
 {
-    const void* clientAddress = static_cast<void*>(&c);
+    const void* clientAddr = static_cast<void*>(&c);
 
     if(!c._rtKeys.has_value())
     {
-        SSVOH_SLOG_ERROR
-            << "Tried to send encrypted message without RT keys for client '"
-            << clientAddress << "'\n";
-
-        return false;
+        return fail(
+            "Tried to send encrypted message without RT keys for client '",
+            clientAddr, '\'');
     }
 
     if(!makeServerToClientEncryptedPacket(
            c._rtKeys->keyTransmit, _packetBuffer, data))
     {
-        SSVOH_SLOG_ERROR
-            << "Error building encrypted message packetfor client '"
-            << clientAddress << "'\n";
-
-        return false;
+        return fail("Error building encrypted message packet for client '",
+            clientAddr, '\'');
     }
 
     return sendPacket(c, _packetBuffer);
@@ -184,7 +190,7 @@ template <typename T>
 [[nodiscard]] bool HexagonServer::sendDeleteAccountFailure(
     ConnectedClient& c, const std::string& error)
 {
-    return sendEncrypted(c, STCPDeleteAccountFailure{error});
+    return sendEncrypted(c, STCPDeleteAccountFailure{.error = error});
 }
 
 [[nodiscard]] bool HexagonServer::sendTopScores(ConnectedClient& c,
@@ -226,7 +232,18 @@ void HexagonServer::run()
 {
     while(_running)
     {
-        runIteration();
+        try
+        {
+            runIteration();
+        }
+        catch(const std::runtime_error& e)
+        {
+            SSVOH_SLOG_ERROR << "Exception: '" << e.what() << "'\n";
+        }
+        catch(...)
+        {
+            SSVOH_SLOG_ERROR << "Unknown exception";
+        }
     }
 }
 
@@ -252,7 +269,7 @@ bool HexagonServer::runIteration_Control()
 {
     if(!_socketSelector.isReady(_controlSocket))
     {
-        return false;
+        return fail();
     }
 
     sf::IpAddress senderIp;
@@ -261,16 +278,14 @@ bool HexagonServer::runIteration_Control()
     if(_controlSocket.receive(_packetBuffer, senderIp, senderPort) !=
         sf::Socket::Status::Done)
     {
-        SSVOH_SLOG_ERROR << "Failure receiving control packet\n";
-        return false;
+        return fail("Failure receiving control packet");
     }
 
     std::string controlMsg;
 
     if(!(_packetBuffer >> controlMsg))
     {
-        SSVOH_SLOG_ERROR << "Failure decoding control packet\n";
-        return false;
+        return fail("Failure decoding control packet");
     }
 
     SSVOH_SLOG << "Received control packet from '" << senderIp << ':'
@@ -395,7 +410,7 @@ void HexagonServer::runIteration_LoopOverSockets()
         ++it)
     {
         ConnectedClient& connectedClient = *it;
-        const void* clientAddress = static_cast<void*>(&connectedClient);
+        const void* clientAddr = static_cast<void*>(&connectedClient);
         sf::TcpSocket& clientSocket = connectedClient._socket;
 
         if(!_socketSelector.isReady(clientSocket))
@@ -403,15 +418,14 @@ void HexagonServer::runIteration_LoopOverSockets()
             continue;
         }
 
-        SSVOH_SLOG_VERBOSE << "Client '" << clientAddress
-                           << "' has sent data\n ";
+        SSVOH_SLOG_VERBOSE << "Client '" << clientAddr << "' has sent data\n ";
 
         // The client has sent some data, we can receive it
         _packetBuffer.clear();
         if(clientSocket.receive(_packetBuffer) == sf::Socket::Done)
         {
             SSVOH_SLOG_VERBOSE << "Successfully received data from client '"
-                               << clientAddress << "'\n";
+                               << clientAddr << "'\n";
 
             if(processPacket(connectedClient, _packetBuffer))
             {
@@ -428,7 +442,7 @@ void HexagonServer::runIteration_LoopOverSockets()
 
         // Failed to receive data
         SSVOH_SLOG_VERBOSE << "Failed to receive data from client '"
-                           << clientAddress << "' (consecutive failures: "
+                           << clientAddr << "' (consecutive failures: "
                            << connectedClient._consecutiveFailures << ")\n";
 
         ++connectedClient._consecutiveFailures;
@@ -437,7 +451,7 @@ void HexagonServer::runIteration_LoopOverSockets()
         if(connectedClient._consecutiveFailures == maxConsecutiveFailures)
         {
             SSVOH_SLOG << "Too many consecutive failures for client '"
-                       << clientAddress << "', removing from list\n";
+                       << clientAddr << "', removing from list\n";
 
             kickAndRemoveClient(connectedClient);
             it = _connectedClients.erase(it);
@@ -455,11 +469,11 @@ void HexagonServer::runIteration_PurgeClients()
         ++it)
     {
         ConnectedClient& connectedClient = *it;
-        const void* clientAddress = static_cast<void*>(&connectedClient);
+        const void* clientAddr = static_cast<void*>(&connectedClient);
 
         if(connectedClient._mustDisconnect)
         {
-            SSVOH_SLOG << "Client '" << clientAddress
+            SSVOH_SLOG << "Client '" << clientAddr
                        << "' disconnected, removing from list\n";
 
             kickAndRemoveClient(connectedClient);
@@ -469,7 +483,7 @@ void HexagonServer::runIteration_PurgeClients()
 
         if(now - connectedClient._lastActivity > maxInactivity)
         {
-            SSVOH_SLOG << "Client '" << clientAddress
+            SSVOH_SLOG << "Client '" << clientAddr
                        << "' timed out, removing from list\n";
 
             kickAndRemoveClient(connectedClient);
@@ -496,14 +510,14 @@ void HexagonServer::runIteration_PurgeTokens()
             ++it)
         {
             ConnectedClient& c = *it;
-            const void* clientAddress = static_cast<void*>(&c);
+            const void* clientAddr = static_cast<void*>(&c);
 
             if(c._loginData.has_value())
             {
                 if(c._loginData->_userId == lt.userId)
                 {
-                    SSVOH_SLOG << "Kicking stale token client '"
-                               << clientAddress << "'\n";
+                    SSVOH_SLOG << "Kicking stale token client '" << clientAddr
+                               << "'\n";
 
                     kickAndRemoveClient(c);
                     it = _connectedClients.erase(it);
@@ -518,7 +532,7 @@ void HexagonServer::runIteration_PurgeTokens()
 [[nodiscard]] bool HexagonServer::processPacket(
     ConnectedClient& c, sf::Packet& p)
 {
-    const void* clientAddress = static_cast<void*>(&c);
+    const void* clientAddr = static_cast<void*>(&c);
 
     _errorOss.str("");
     const PVClientToServer pv = decodeClientToServerPacket(
@@ -528,19 +542,14 @@ void HexagonServer::runIteration_PurgeTokens()
         pv,
 
         [&](const PInvalid&) {
-            SSVOH_SLOG_ERROR << "Error processing packet from client '"
-                             << clientAddress
-                             << "', details: " << _errorOss.str() << '\n';
-
-            return false;
+            return fail("Error processing packet from client '", clientAddr,
+                "', details: ", _errorOss.str());
         },
 
         [&](const PEncryptedMsg&) {
-            SSVOH_SLOG
-                << "Received non-decrypted encrypted msg packet from client '"
-                << clientAddress << "'\n";
-
-            return false;
+            return fail(
+                "Received non-decrypted encrypted msg packet from client '",
+                clientAddr, '\'');
         },
 
         [&](const CTSPHeartbeat&) { return true; },
@@ -553,7 +562,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPPublicKey& ctsp) {
             SSVOH_SLOG << "Received public key packet from client '"
-                       << clientAddress << "'\n";
+                       << clientAddr << "'\n";
 
             if(c._clientPublicKey.has_value())
             {
@@ -577,7 +586,7 @@ void HexagonServer::runIteration_PurgeTokens()
             {
                 SSVOH_SLOG_ERROR
                     << "Failed calculating RT keys, disconnecting client '"
-                    << clientAddress << "'\n";
+                    << clientAddr << "'\n";
 
                 c._mustDisconnect = true;
                 (void)sendKick(c);
@@ -597,7 +606,7 @@ void HexagonServer::runIteration_PurgeTokens()
         },
 
         [&](const CTSPReady&) {
-            SSVOH_SLOG << "Received ready packet from client '" << clientAddress
+            SSVOH_SLOG << "Received ready packet from client '" << clientAddr
                        << "'\n";
 
             // TODO
@@ -606,7 +615,7 @@ void HexagonServer::runIteration_PurgeTokens()
         },
 
         [&](const CTSPPrint& ctsp) {
-            SSVOH_SLOG << "Received print packet from client '" << clientAddress
+            SSVOH_SLOG << "Received print packet from client '" << clientAddr
                        << "'\nContents: '" << ctsp.msg << "'\n";
 
             return true;
@@ -615,39 +624,33 @@ void HexagonServer::runIteration_PurgeTokens()
         [&](const CTSPRegister& ctsp) {
             const auto& [steamId, name, passwordHash] = ctsp;
 
-            SSVOH_SLOG << "Received register packet from client '"
-                       << clientAddress << "'\nContents: '" << steamId << ", "
-                       << name << ", " << passwordHash << "'\n";
+            SSVOH_SLOG << "Received register packet from client '" << clientAddr
+                       << "'\nContents: '" << steamId << ", " << name << ", "
+                       << passwordHash << "'\n";
 
-            if(name.size() > 32)
-            {
-                const std::string errorStr =
-                    "Name too long, max is 32 characters";
+            const auto sendFail = [&](const auto&... xs) {
+                const std::string errorStr = Utils::concat(xs...);
 
                 SSVOH_SLOG << errorStr << '\n';
                 return sendRegistrationFailure(c, errorStr);
+            };
+
+            if(name.size() > 32)
+            {
+                return sendFail("Name too long, max is 32 characters");
             }
 
             if(Database::anyUserWithSteamId(steamId))
             {
-                const std::string errorStr = Utils::concat(
+                return sendFail(
                     "User with steamId '", steamId, "' already registered");
-
-                SSVOH_SLOG << errorStr << '\n';
-                return sendRegistrationFailure(c, errorStr);
             }
 
             if(Database::anyUserWithName(name))
             {
-                const std::string errorStr = Utils::concat(
+                return sendFail(
                     "User with name '", name, "' already registered");
-
-                SSVOH_SLOG << errorStr << '\n';
-                return sendRegistrationFailure(c, errorStr);
             }
-
-            // TODO: crashes on unique constraint failure, maybe catch
-            // exception? Check orm
 
             Database::addUser( //
                 Database::User{
@@ -658,42 +661,37 @@ void HexagonServer::runIteration_PurgeTokens()
             );
 
             SSVOH_SLOG << "Successfully registered\n";
-
             return sendRegistrationSuccess(c);
         },
 
         [&](const CTSPLogin& ctsp) {
             const auto& [steamId, name, passwordHash] = ctsp;
 
-            SSVOH_SLOG << "Received login packet from client '" << clientAddress
+            SSVOH_SLOG << "Received login packet from client '" << clientAddr
                        << "'\nContents: '" << steamId << ", " << name << ", "
                        << passwordHash << "'\n";
 
-            if(name.size() > 32)
-            {
-                const std::string errorStr =
-                    "Name too long, max is 32 characters";
+            const auto sendFail = [&](const auto&... xs) {
+                const std::string errorStr = Utils::concat(xs...);
 
                 SSVOH_SLOG << errorStr << '\n';
                 return sendLoginFailure(c, errorStr);
+            };
+
+            if(name.size() > 32)
+            {
+                return sendFail("Name too long, max is 32 characters");
             }
 
             if(!Database::anyUserWithSteamId(steamId))
             {
-                const std::string errorStr = Utils::concat(
+                return sendFail(
                     "No user with steamId '", steamId, "' registered");
-
-                SSVOH_SLOG << errorStr << '\n';
-                return sendLoginFailure(c, errorStr);
             }
 
             if(!Database::anyUserWithName(name))
             {
-                const std::string errorStr =
-                    Utils::concat("No user with name '", name, "' registered");
-
-                SSVOH_SLOG << errorStr << '\n';
-                return sendLoginFailure(c, errorStr);
+                return sendFail("No user with name '", name, "' registered");
             }
 
             const std::optional<Database::User> user =
@@ -701,26 +699,19 @@ void HexagonServer::runIteration_PurgeTokens()
 
             if(!user.has_value())
             {
-                const std::string errorStr = Utils::concat("No user matching '",
-                    steamId, "' and '", name, "' registered");
-
-                SSVOH_SLOG << errorStr << '\n';
-                return sendLoginFailure(c, errorStr);
+                return sendFail("No user matching '", steamId, "' and '", name,
+                    "' registered");
             }
 
             SSVOH_ASSERT(user.has_value());
 
             if(user->passwordHash != passwordHash)
             {
-                const std::string errorStr =
-                    Utils::concat("Invalid password for user matching '",
-                        steamId, "' and '", name, '\'');
-
-                SSVOH_SLOG << errorStr << '\n';
-                return sendLoginFailure(c, errorStr);
+                return sendFail("Invalid password for user matching '", steamId,
+                    "' and '", name, '\'');
             }
 
-            SSVOH_SLOG << "Successfully logged in, creating token for user\n";
+            SSVOH_SLOG << "Creating login token for user\n";
 
             const std::uint64_t loginToken = randomUInt64();
 
@@ -745,13 +736,13 @@ void HexagonServer::runIteration_PurgeTokens()
 
             c._state = ConnectedClient::State::LoggedIn;
 
+            SSVOH_SLOG << "Successfully logged in\n";
             return sendLoginSuccess(c, loginToken, user->name);
         },
 
         [&](const CTSPLogout& ctsp) {
-            SSVOH_SLOG << "Received logout packet from client '"
-                       << clientAddress << "'\nContents: '" << ctsp.steamId
-                       << "'\n";
+            SSVOH_SLOG << "Received logout packet from client '" << clientAddr
+                       << "'\nContents: '" << ctsp.steamId << "'\n";
 
             const std::optional<Database::User> user =
                 Database::getUserWithSteamId(ctsp.steamId);
@@ -759,7 +750,6 @@ void HexagonServer::runIteration_PurgeTokens()
             if(!user.has_value())
             {
                 SSVOH_SLOG << "No user with steamId '" << ctsp.steamId << "'\n";
-
                 return sendLogoutFailure(c);
             }
 
@@ -777,16 +767,20 @@ void HexagonServer::runIteration_PurgeTokens()
             const auto& [steamId, passwordHash] = ctsp;
 
             SSVOH_SLOG << "Received delete account packet from client '"
-                       << clientAddress << "'\nContents: '" << steamId << ", "
+                       << clientAddr << "'\nContents: '" << steamId << ", "
                        << passwordHash << "'\n";
 
-            if(!Database::anyUserWithSteamId(steamId))
-            {
-                const std::string errorStr = Utils::concat(
-                    "No user with steamId '", steamId, "' registered");
+            const auto sendFail = [&](const auto&... xs) {
+                const std::string errorStr = Utils::concat(xs...);
 
                 SSVOH_SLOG << errorStr << '\n';
                 return sendDeleteAccountFailure(c, errorStr);
+            };
+
+            if(!Database::anyUserWithSteamId(steamId))
+            {
+                return sendFail(
+                    "No user with steamId '", steamId, "' registered");
             }
 
             const std::optional<Database::User> user =
@@ -794,22 +788,15 @@ void HexagonServer::runIteration_PurgeTokens()
 
             if(!user.has_value())
             {
-                const std::string errorStr =
-                    Utils::concat("No user with steamId '", ctsp.steamId, '\'');
-
-                SSVOH_SLOG << errorStr;
-                return sendDeleteAccountFailure(c, errorStr);
+                return sendFail("No user with steamId '", ctsp.steamId, '\'');
             }
 
             SSVOH_ASSERT(user.has_value());
 
             if(user->passwordHash != passwordHash)
             {
-                const std::string errorStr = Utils::concat(
+                return sendFail(
                     "Invalid password for user matching '", steamId, '\'');
-
-                SSVOH_SLOG << errorStr << '\n';
-                return sendDeleteAccountFailure(c, errorStr);
             }
 
             Database::removeAllLoginTokensForUser(user->id);
@@ -822,7 +809,7 @@ void HexagonServer::runIteration_PurgeTokens()
         [&](const CTSPRequestTopScores& ctsp) {
             if(!c._loginData.has_value())
             {
-                SSVOH_SLOG << "Client '" << clientAddress
+                SSVOH_SLOG << "Client '" << clientAddr
                            << "', is not logged in, can't send top scores\n";
 
                 return true;
@@ -832,23 +819,26 @@ void HexagonServer::runIteration_PurgeTokens()
 
             if(cLoginToken != ctsp.loginToken)
             {
-                SSVOH_SLOG << "Client '" << clientAddress
+                SSVOH_SLOG << "Client '" << clientAddr
                            << "' login token mismatch\n";
 
                 return true;
             }
 
-            SSVOH_SLOG << "Sending top 12 scores to client '" << clientAddress
-                       << "'\n";
+            constexpr int topLimit = 12;
 
-            const auto scores = Database::getTopScores(12, ctsp.levelValidator);
+            SSVOH_SLOG << "Sending top " << topLimit << " scores to client '"
+                       << clientAddr << "'\n";
+
+            const auto scores =
+                Database::getTopScores(topLimit, ctsp.levelValidator);
             return sendTopScores(c, ctsp.levelValidator, scores);
         },
 
         [&](const CTSPReplay& ctsp) {
             if(!c._loginData.has_value())
             {
-                SSVOH_SLOG << "Client '" << clientAddress
+                SSVOH_SLOG << "Client '" << clientAddr
                            << "', is not logged in, can't process replay\n";
 
                 return true;
@@ -858,7 +848,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
             if(cLoginToken != ctsp.loginToken)
             {
-                SSVOH_SLOG << "Client '" << clientAddress
+                SSVOH_SLOG << "Client '" << clientAddr
                            << "' login token mismatch\n";
 
                 return true;
@@ -869,15 +859,11 @@ void HexagonServer::runIteration_PurgeTokens()
             const std::string levelValidator =
                 Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
 
-            SSVOH_SLOG << "Processing replay from client '" << clientAddress
+            SSVOH_SLOG << "Processing replay from client '" << clientAddr
                        << "' for level '" << levelValidator << "'\n";
 
-            _hexagonGame.setLastReplay(rf);
-
-            _hexagonGame.newGame(rf._pack_id, rf._level_id, rf._first_play,
-                rf._difficulty_mult, /* mExecuteLastReplay */ true);
-
-            const double score = _hexagonGame.executeGameUntilDeath();
+            const double score =
+                _hexagonGame.runReplayUntilDeathAndGetScore(rf);
 
             SSVOH_SLOG << "Replay processed, final time: '" << score
                        << "' - adding to database if best\n";
@@ -891,7 +877,7 @@ void HexagonServer::runIteration_PurgeTokens()
         [&](const CTSPRequestOwnScore& ctsp) {
             if(!c._loginData.has_value())
             {
-                SSVOH_SLOG << "Client '" << clientAddress
+                SSVOH_SLOG << "Client '" << clientAddr
                            << "', is not logged in, can't process replay\n";
 
                 return true;
@@ -901,13 +887,13 @@ void HexagonServer::runIteration_PurgeTokens()
 
             if(cLoginToken != ctsp.loginToken)
             {
-                SSVOH_SLOG << "Client '" << clientAddress
+                SSVOH_SLOG << "Client '" << clientAddr
                            << "' login token mismatch\n";
 
                 return true;
             }
 
-            SSVOH_SLOG << "Sending own score to client '" << clientAddress
+            SSVOH_SLOG << "Sending own score to client '" << clientAddr
                        << "'\n";
 
             const std::optional<Database::ProcessedScore> ps =
