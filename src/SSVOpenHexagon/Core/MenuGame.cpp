@@ -95,7 +95,7 @@ LeaderboardCache::getScores(const std::string& levelValidator) const
         return nullptr;
     }
 
-    const auto& os =it->second._ownScore;
+    const auto& os = it->second._ownScore;
     return os.has_value() ? &*os : nullptr;
 }
 
