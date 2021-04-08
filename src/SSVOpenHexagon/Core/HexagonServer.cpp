@@ -317,6 +317,29 @@ bool HexagonServer::runIteration_Control()
         return true;
     }
 
+    if(splitted[0] == "verbose")
+    {
+        if(splitted.size() != 2)
+        {
+            SSVOH_SLOG_ERROR
+                << "'verbose' command must be followed by 'true' or 'false'\n";
+
+            return true;
+        }
+
+        if(splitted[1] == "true")
+        {
+            _verbose = true;
+            return true;
+        }
+
+        if(splitted[1] == "false")
+        {
+            _verbose = false;
+            return true;
+        }
+    }
+
     if(splitted[0] == "db")
     {
         if(splitted.size() < 2)
@@ -515,6 +538,7 @@ void HexagonServer::runIteration_PurgeTokens()
     }
 
     SSVOH_SLOG << "Purging old login tokens\n";
+    _lastTokenPurge = Clock::now();
 
     for(const Database::LoginToken& lt : Database::getAllStaleLoginTokens())
     {
@@ -837,8 +861,8 @@ void HexagonServer::runIteration_PurgeTokens()
 
             const std::string& lv = ctsp.levelValidator;
 
-            SSVOH_SLOG << "Sending top " << topScoresLimit
-                       << " scores to client '" << clientAddr << "'\n";
+            SSVOH_SLOG_VERBOSE << "Sending top " << topScoresLimit
+                               << " scores to client '" << clientAddr << "'\n";
 
             return sendTopScores(
                 c, lv, Database::getTopScores(topScoresLimit, lv));
@@ -861,6 +885,24 @@ void HexagonServer::runIteration_PurgeTokens()
             }
 
             const hg::replay_file& rf = ctsp.replayFile;
+
+            const HGAssets& assets = _hexagonGame.getAssets();
+
+            if(!assets.isValidPackId(rf._pack_id))
+            {
+                SSVOH_SLOG << "Discarding replay from client '" << clientAddr
+                           << "', invalid pack id '" << rf._pack_id << "'\n";
+
+                return true;
+            }
+
+            if(!assets.isValidLevelId(rf._level_id))
+            {
+                SSVOH_SLOG << "Discarding replay from client '" << clientAddr
+                           << "', invalid level id '" << rf._level_id << "'\n";
+
+                return true;
+            }
 
             const std::string levelValidator =
                 Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
@@ -913,8 +955,8 @@ void HexagonServer::runIteration_PurgeTokens()
                 return true;
             }
 
-            SSVOH_SLOG << "Sending own score to client '" << clientAddr
-                       << "'\n";
+            SSVOH_SLOG_VERBOSE << "Sending own score to client '" << clientAddr
+                               << "'\n";
 
             return sendOwnScore(c, ctsp.levelValidator, *ps);
         },
@@ -927,9 +969,9 @@ void HexagonServer::runIteration_PurgeTokens()
 
             const std::string& lv = ctsp.levelValidator;
 
-            SSVOH_SLOG << "Sending top " << topScoresLimit
-                       << " scores and own score to client '" << clientAddr
-                       << "'\n";
+            SSVOH_SLOG_VERBOSE << "Sending top " << topScoresLimit
+                               << " scores and own score to client '"
+                               << clientAddr << "'\n";
 
             return sendTopScoresAndOwnScore(c, lv,
                 Database::getTopScores(topScoresLimit, lv),
@@ -944,8 +986,8 @@ void HexagonServer::runIteration_PurgeTokens()
 
             const std::string& lv = ctsp.levelValidator;
 
-            SSVOH_SLOG_VERBOSE << "Client '" << clientAddr
-                               << "' started game for level '" << lv << "'\n";
+            SSVOH_SLOG << "Client '" << clientAddr
+                       << "' started game for level '" << lv << "'\n";
 
             c._gameStatus = ConnectedClient::GameStatus{
                 ._startTP = Clock::now(), //
@@ -963,7 +1005,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
     : _assets{assets}, _hexagonGame{hexagonGame},
       _serverIp{Config::getServerIp()}, _serverPort{Config::getServerPort()},
       _serverControlPort{Config::getServerControlPort()}, _listener{},
-      _socketSelector{}, _running{true}, _verbose{true},
+      _socketSelector{}, _running{true}, _verbose{false},
       _serverPSKeys{generateSodiumPSKeys()}, _lastTokenPurge{Clock::now()}
 {
     const auto sKeyPublic = sodiumKeyToString(_serverPSKeys.keyPublic);

@@ -154,8 +154,15 @@ public:
         return levelDatas;
     }
 
+    [[nodiscard]] bool isValidLevelId(
+        const std::string& mLevelId) const noexcept
+    {
+        return levelDatas.find(mLevelId) != levelDatas.end();
+    }
+
     [[nodiscard]] const LevelData& getLevelData(const std::string& mAssetId)
     {
+        SSVOH_ASSERT(isValidLevelId(mAssetId));
         return getEditLevelData(mAssetId);
     }
 

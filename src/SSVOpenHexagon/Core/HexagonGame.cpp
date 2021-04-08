@@ -432,7 +432,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         firstPlay = mFirstPlay;
     }
 
+    SSVOH_ASSERT(assets.isValidLevelId(mAssetId));
     setLevelData(assets.getLevelData(mId), mFirstPlay);
+
     difficultyMult = mDifficultyMult;
 
     const double tempReplayScore = getReplayScore(status);
@@ -474,6 +476,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         }
 
         activeReplay->replayPlayer.reset();
+
+        SSVOH_ASSERT(assets.isValidPackId(mPackId));
 
         activeReplay->replayPackName =
             Utils::toUppercase(assets.getPackData(mPackId).name);
@@ -808,6 +812,9 @@ void HexagonGame::death(bool mForce)
 [[nodiscard]] double HexagonGame::runReplayUntilDeathAndGetScore(
     const replay_file& mReplayFile)
 {
+    SSVOH_ASSERT(assets.isValidPackId(mReplayFile._pack_id));
+    SSVOH_ASSERT(assets.isValidLevelId(mReplayFile._level_id));
+
     setLastReplay(mReplayFile);
 
     newGame(mReplayFile._pack_id, mReplayFile._level_id,

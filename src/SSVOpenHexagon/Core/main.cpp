@@ -430,6 +430,8 @@ int main(int argc, char* argv[])
                         << "Playing replay file in headless mode '"
                         << *replayFilename << "'\n";
 
+                    // TODO: check level validity
+
                     std::cout << "Player died.\nFinal time: "
                               << hg->runReplayUntilDeathAndGetScore(rf) << '\n';
                 }

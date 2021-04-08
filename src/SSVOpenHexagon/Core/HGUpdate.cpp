@@ -219,6 +219,7 @@ void HexagonGame::update(ssvu::FT mFT)
                 updateRotation(mFT);
             }
 
+#if 0
             // Advance random number generator state with various level and
             // style values to avoid cheating by modifying Lua scripts
             if(!status.hasDied)
@@ -272,6 +273,7 @@ void HexagonGame::update(ssvu::FT mFT)
                     rng.advance(delta);
                 }
             }
+#endif
         }
 
         if(window != nullptr)

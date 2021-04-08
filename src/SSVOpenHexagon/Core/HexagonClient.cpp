@@ -256,7 +256,7 @@ template <typename T>
 [[nodiscard]] bool HexagonClient::sendRegister(const std::uint64_t steamId,
     const std::string& name, const std::string& passwordHash)
 {
-    SSVOH_CLOG << "Sending registration request to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending registration request to server...\n";
 
     return sendEncrypted( //
         CTSPRegister{
@@ -270,7 +270,7 @@ template <typename T>
 [[nodiscard]] bool HexagonClient::sendLogin(const std::uint64_t steamId,
     const std::string& name, const std::string& passwordHash)
 {
-    SSVOH_CLOG << "Sending login request to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending login request to server...\n";
 
     return sendEncrypted( //
         CTSPLogin{
@@ -283,14 +283,14 @@ template <typename T>
 
 [[nodiscard]] bool HexagonClient::sendLogout(const std::uint64_t steamId)
 {
-    SSVOH_CLOG << "Sending logout request to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending logout request to server...\n";
     return sendEncrypted(CTSPLogout{.steamId = steamId});
 }
 
 [[nodiscard]] bool HexagonClient::sendDeleteAccount(
     const std::uint64_t steamId, const std::string& passwordHash)
 {
-    SSVOH_CLOG << "Sending delete account request to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending delete account request to server...\n";
 
     return sendEncrypted( //
         CTSPDeleteAccount{
@@ -303,7 +303,7 @@ template <typename T>
 [[nodiscard]] bool HexagonClient::sendRequestTopScores(
     const sf::Uint64 loginToken, const std::string& levelValidator)
 {
-    SSVOH_CLOG << "Sending top scores request to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending top scores request to server...\n";
 
     return sendEncrypted( //
         CTSPRequestTopScores{
@@ -316,8 +316,8 @@ template <typename T>
 [[nodiscard]] bool HexagonClient::sendReplay(
     const sf::Uint64 loginToken, const replay_file& replayFile)
 {
-    SSVOH_CLOG << "Sending replay for level '" << replayFile._level_id
-               << "' to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending replay for level '" << replayFile._level_id
+                       << "' to server...\n";
 
     return sendEncrypted( //
         CTSPReplay{
@@ -330,7 +330,7 @@ template <typename T>
 [[nodiscard]] bool HexagonClient::sendRequestOwnScore(
     const sf::Uint64 loginToken, const std::string& levelValidator)
 {
-    SSVOH_CLOG << "Sending own score request to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending own score request to server...\n";
 
     return sendEncrypted( //
         CTSPRequestOwnScore{
@@ -343,7 +343,8 @@ template <typename T>
 [[nodiscard]] bool HexagonClient::sendRequestTopScoresAndOwnScore(
     const sf::Uint64 loginToken, const std::string& levelValidator)
 {
-    SSVOH_CLOG << "Sending top scores and own score request to server...\n";
+    SSVOH_CLOG_VERBOSE
+        << "Sending top scores and own score request to server...\n";
 
     return sendEncrypted( //
         CTSPRequestTopScoresAndOwnScore{
@@ -356,7 +357,7 @@ template <typename T>
 [[nodiscard]] bool HexagonClient::sendStartedGame(
     const sf::Uint64 loginToken, const std::string& levelValidator)
 {
-    SSVOH_CLOG << "Sending started game packet to server...\n";
+    SSVOH_CLOG_VERBOSE << "Sending started game packet to server...\n";
 
     return sendEncrypted( //
         CTSPStartedGame{
