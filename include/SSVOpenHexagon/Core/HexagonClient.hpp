@@ -121,8 +121,6 @@ private:
     [[nodiscard]] bool sendHeartbeat();
     [[nodiscard]] bool sendDisconnect();
     [[nodiscard]] bool sendPublicKey();
-    [[nodiscard]] bool sendReady();
-    [[nodiscard]] bool sendPrint(const std::string& s);
     [[nodiscard]] bool sendRegister(const std::uint64_t steamId,
         const std::string& name, const std::string& passwordHash);
     [[nodiscard]] bool sendLogin(const std::uint64_t steamId,
@@ -135,6 +133,10 @@ private:
     [[nodiscard]] bool sendReplay(
         const sf::Uint64 loginToken, const replay_file& replayFile);
     [[nodiscard]] bool sendRequestOwnScore(
+        const sf::Uint64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendRequestTopScoresAndOwnScore(
+        const sf::Uint64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendStartedGame(
         const sf::Uint64 loginToken, const std::string& levelValidator);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
@@ -173,6 +175,8 @@ public:
     bool tryRequestTopScores(const std::string& levelValidator);
     bool trySendReplay(const replay_file& replayFile);
     bool tryRequestOwnScore(const std::string& levelValidator);
+    bool tryRequestTopScoresAndOwnScore(const std::string& levelValidator);
+    bool trySendStartedGame(const std::string& levelValidator);
 
     [[nodiscard]] State getState() const noexcept;
 

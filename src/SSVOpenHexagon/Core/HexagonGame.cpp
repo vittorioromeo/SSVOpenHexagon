@@ -740,21 +740,33 @@ void HexagonGame::death(bool mForce)
     const bool localNewBest =
         checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
 
+    const replay_file rf{
+        ._version{0},
+        ._player_name{assets.getCurrentLocalProfile().getName()}, // TODO
+        ._seed{lastSeed},
+        ._data{lastReplayData},
+        ._pack_id{packId},
+        ._level_id{levelId},
+        ._first_play{firstPlay},
+        ._difficulty_mult{difficultyMult},
+        ._played_score{getReplayScore(status)},
+    };
+
+    if(hexagonClient != nullptr &&
+        hexagonClient->getState() == HexagonClient::State::LoggedIn &&
+        Config::getOfficial())
+    {
+        ssvu::lo("Replay") << "Sending replay to server...\n";
+
+        if(!hexagonClient->trySendReplay(rf))
+        {
+            ssvu::lo("Replay") << "Could not send replay to server\n";
+        }
+    }
+
     // TODO: more options? Always save replay? Prompt?
     if(Config::getSaveLocalBestReplayToFile() && localNewBest)
     {
-        const replay_file rf{
-            ._version{0},
-            ._player_name{assets.getCurrentLocalProfile().getName()}, // TODO
-            ._seed{lastSeed},
-            ._data{lastReplayData},
-            ._pack_id{packId},
-            ._level_id{levelId},
-            ._first_play{firstPlay},
-            ._difficulty_mult{difficultyMult},
-            ._played_score{getReplayScore(status)},
-        };
-
         const std::string filename = rf.create_filename();
 
         std::filesystem::create_directory("Replays/");
@@ -768,12 +780,6 @@ void HexagonGame::death(bool mForce)
             ssvu::lo("Replay")
                 << "Successfully saved new local best replay file '" << p
                 << "'\n";
-
-            // TODO: should send independently of local new best
-            if(hexagonClient != nullptr)
-            {
-                hexagonClient->trySendReplay(rf);
-            }
         }
         else
         {
@@ -1025,6 +1031,8 @@ void HexagonGame::playLevelMusic()
     {
         const MusicData::Segment segment =
             musicData.playRandomSegment(getPackId(), assets);
+
+        // TODO: problems with addHash in headless mode:
         status.beatPulseDelay += segment.beatPulseDelayOffset;
     }
 }

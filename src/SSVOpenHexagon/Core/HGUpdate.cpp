@@ -6,6 +6,7 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
+#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
@@ -218,8 +219,10 @@ void HexagonGame::update(ssvu::FT mFT)
                 updateRotation(mFT);
             }
 
-            // Advance random number generator state with various level and
-            // style values to avoid cheating by modifying Lua scripts
+// Advance random number generator state with various level and
+// style values to avoid cheating by modifying Lua scripts
+#if 0
+            if(!status.hasDied)
             {
                 std::array<unsigned char, crypto_generichash_BYTES> hash;
                 crypto_generichash_state state;
@@ -232,15 +235,12 @@ void HexagonGame::update(ssvu::FT mFT)
                 };
 
                 addHash(static_cast<std::int32_t>(status.pulse));
-                addHash(static_cast<std::int32_t>(status.beatPulse));
                 addHash(static_cast<std::int32_t>(status.pulse3D));
-                addHash(static_cast<std::int32_t>(status.radius));
                 addHash(static_cast<std::int32_t>(status.fastSpin));
                 addHash(static_cast<std::int32_t>(status.flashEffect));
                 addHash(static_cast<std::int32_t>(levelStatus.rotationSpeed));
                 addHash(styleData.getMainColor().toInteger());
                 addHash(styleData.getPlayerColor().toInteger());
-                addHash(styleData.getTextColor().toInteger());
                 for(const sf::Color& c : styleData.getColors())
                 {
                     addHash(c.toInteger());
@@ -269,6 +269,7 @@ void HexagonGame::update(ssvu::FT mFT)
                     rng.advance(delta);
                 }
             }
+#endif
         }
 
         if(window != nullptr)
@@ -405,6 +406,14 @@ void HexagonGame::start()
         {
             discordManager->set_rich_presence_in_game(
                 nameStr + " [x" + diffStr + "]", packStr);
+        }
+
+        if(hexagonClient != nullptr &&
+            hexagonClient->getState() == HexagonClient::State::LoggedIn &&
+            Config::getOfficial())
+        {
+            hexagonClient->trySendStartedGame(
+                Utils::getLevelValidator(levelData->id, difficultyMult));
         }
     }
     else

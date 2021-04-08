@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Core/Replay.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
@@ -310,11 +311,18 @@ void replay_player::reset() noexcept
     return result;
 }
 
+static constexpr std::size_t buf_size{2097152}; // 2MB
+
+[[nodiscard]] static auto& get_static_buf()
+{
+    thread_local std::byte buf[buf_size];
+    return buf;
+}
+
 [[nodiscard]] bool replay_file::serialize_to_file(
     const std::filesystem::path& p) const
 {
-    constexpr std::size_t buf_size{2097152}; // 2MB
-    static std::byte buf[buf_size];
+    auto& buf = get_static_buf();
 
     const serialization_result sr = serialize(buf, buf_size);
     if(!sr)
@@ -340,8 +348,7 @@ void replay_player::reset() noexcept
     const std::size_t bytes_to_read = is.tellg();
     is.seekg(0, std::ios::beg);
 
-    constexpr std::size_t buf_size{2097152}; // 2MB
-    static std::byte buf[buf_size];
+    auto& buf = get_static_buf();
 
     is.read(reinterpret_cast<char*>(buf), bytes_to_read);
 
@@ -356,9 +363,7 @@ void replay_player::reset() noexcept
 
 [[nodiscard]] bool replay_file::serialize_to_packet(sf::Packet& p) const
 {
-    // TODO: code repetition
-    constexpr std::size_t buf_size{2097152}; // 2MB
-    static std::byte buf[buf_size];
+    auto& buf = get_static_buf();
 
     const serialization_result sr = serialize(buf, buf_size);
     if(!sr)
@@ -375,9 +380,6 @@ void replay_player::reset() noexcept
 
 [[nodiscard]] bool replay_file::deserialize_from_packet(sf::Packet& p)
 {
-    constexpr std::size_t buf_size{2097152}; // 2MB
-    static std::byte buf[buf_size];
-
     std::size_t bytes_to_read;
     if(!(p >> bytes_to_read))
     {
@@ -386,6 +388,8 @@ void replay_player::reset() noexcept
 
     static_assert(sizeof(sf::Uint8) == sizeof(std::byte));
     static_assert(alignof(sf::Uint8) == alignof(std::byte));
+
+    auto& buf = get_static_buf();
 
     for(std::size_t i = 0; i < bytes_to_read; ++i)
     {
@@ -402,22 +406,8 @@ void replay_player::reset() noexcept
 
 [[nodiscard]] std::string replay_file::create_filename() const
 {
-    std::ostringstream oss;
-
-    oss << _version         //
-        << '_'              //
-        << _player_name     //
-        << '_'              //
-        << _pack_id         //
-        << '_'              //
-        << _level_id        //
-        << '_'              //
-        << _difficulty_mult //
-        << '_'              //
-        << _played_score    //
-        << ".ohreplay";
-
-    return oss.str();
+    return Utils::concat(_version, '_', _player_name, '_', _pack_id, '_',
+        _level_id, '_', _difficulty_mult, '_', _played_score, ".ohreplay");
 }
 
 } // namespace hg
