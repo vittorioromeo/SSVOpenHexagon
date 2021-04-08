@@ -7,6 +7,8 @@
 #include <string>
 #include <cstdint>
 
+#include <SFML/Config.hpp>
+
 namespace hg::Database
 {
 
@@ -37,9 +39,9 @@ struct Score
 
 struct ProcessedScore // not stored in database
 {
-    std::uint32_t position;
+    sf::Uint32 position;
     std::string userName;
-    std::uint64_t scoreTimestamp;
+    sf::Uint64 scoreTimestamp;
     double scoreValue;
 };
 
