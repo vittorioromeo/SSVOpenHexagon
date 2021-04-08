@@ -253,16 +253,6 @@ template <typename T>
     return sendUnencrypted(CTSPPublicKey{_clientPSKeys.keyPublic});
 }
 
-[[nodiscard]] bool HexagonClient::sendReady()
-{
-    return sendUnencrypted(CTSPReady{});
-}
-
-[[nodiscard]] bool HexagonClient::sendPrint(const std::string& s)
-{
-    return sendEncrypted(CTSPPrint{s});
-}
-
 [[nodiscard]] bool HexagonClient::sendRegister(const std::uint64_t steamId,
     const std::string& name, const std::string& passwordHash)
 {
@@ -350,6 +340,31 @@ template <typename T>
     );
 }
 
+[[nodiscard]] bool HexagonClient::sendRequestTopScoresAndOwnScore(
+    const sf::Uint64 loginToken, const std::string& levelValidator)
+{
+    SSVOH_CLOG << "Sending top scores and own score request to server...\n";
+
+    return sendEncrypted( //
+        CTSPRequestTopScoresAndOwnScore{
+            .loginToken = loginToken,        //
+            .levelValidator = levelValidator //
+        }                                    //
+    );
+}
+
+[[nodiscard]] bool HexagonClient::sendStartedGame(
+    const sf::Uint64 loginToken, const std::string& levelValidator)
+{
+    SSVOH_CLOG << "Sending started game packet to server...\n";
+
+    return sendEncrypted( //
+        CTSPStartedGame{
+            .loginToken = loginToken,        //
+            .levelValidator = levelValidator //
+        }                                    //
+    );
+}
 
 bool HexagonClient::connect()
 {
@@ -563,10 +578,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
             SSVOH_CLOG << "Replying with login attempt\n";
 
-            // TODO: get rid of these packet types, decide what to do with
-            // "ready"
-
-            return sendReady() && sendPrint("hello world!!!");
+            return true;
         },
 
         [&](const STCPRegistrationSuccess&) {
@@ -660,6 +672,24 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
             addEvent(EReceivedOwnScore{
                 .levelValidator = stcp.levelValidator, .score = stcp.score});
+
+            return true;
+        },
+
+        [&](const STCPTopScoresAndOwnScore& stcp) {
+            SSVOH_CLOG << "Received top scores and own score from server, "
+                          "levelValidator: '"
+                       << stcp.levelValidator << "'\n";
+
+            addEvent(EReceivedTopScores{
+                .levelValidator = stcp.levelValidator, .scores = stcp.scores});
+
+            if(stcp.ownScore.has_value())
+            {
+                addEvent(
+                    EReceivedOwnScore{.levelValidator = stcp.levelValidator,
+                        .score = *stcp.ownScore});
+            }
 
             return true;
         }
@@ -798,6 +828,29 @@ bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
 
     SSVOH_ASSERT(_loginToken.has_value());
     return sendRequestOwnScore(_loginToken.value(), levelValidator);
+}
+
+bool HexagonClient::tryRequestTopScoresAndOwnScore(
+    const std::string& levelValidator)
+{
+    if(!connectedAndInState(State::LoggedIn))
+    {
+        return fail();
+    }
+
+    SSVOH_ASSERT(_loginToken.has_value());
+    return sendRequestTopScoresAndOwnScore(_loginToken.value(), levelValidator);
+}
+
+bool HexagonClient::trySendStartedGame(const std::string& levelValidator)
+{
+    if(!connectedAndInState(State::LoggedIn))
+    {
+        return fail();
+    }
+
+    SSVOH_ASSERT(_loginToken.has_value());
+    return sendStartedGame(_loginToken.value(), levelValidator);
 }
 
 [[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept

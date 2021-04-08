@@ -76,6 +76,14 @@ private:
 
         State _state;
 
+        struct GameStatus
+        {
+            TimePoint _startTP;
+            std::string _levelValidator;
+        };
+
+        std::optional<GameStatus> _gameStatus;
+
         explicit ConnectedClient(const TimePoint lastActivity)
             : _socket{}, _lastActivity{lastActivity}, _consecutiveFailures{0},
               _mustDisconnect{false}, _clientPublicKey{},
@@ -127,6 +135,10 @@ private:
     [[nodiscard]] bool sendOwnScore(ConnectedClient& c,
         const std::string& levelValidator,
         const Database::ProcessedScore& score);
+    [[nodiscard]] bool sendTopScoresAndOwnScore(ConnectedClient& c,
+        const std::string& levelValidator,
+        const std::vector<Database::ProcessedScore>& scores,
+        const std::optional<Database::ProcessedScore>& ownScore);
 
     void kickAndRemoveClient(ConnectedClient& c);
 

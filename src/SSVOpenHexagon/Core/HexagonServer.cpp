@@ -216,6 +216,20 @@ template <typename T>
     );
 }
 
+[[nodiscard]] bool HexagonServer::sendTopScoresAndOwnScore(ConnectedClient& c,
+    const std::string& levelValidator,
+    const std::vector<Database::ProcessedScore>& scores,
+    const std::optional<Database::ProcessedScore>& ownScore)
+{
+    return sendEncrypted(c, //
+        STCPTopScoresAndOwnScore{
+            .levelValidator = levelValidator, //
+            .scores = scores,                 //
+            .ownScore = ownScore              //
+        }                                     //
+    );
+}
+
 void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
 {
     (void)sendKick(c);
@@ -534,6 +548,31 @@ void HexagonServer::runIteration_PurgeTokens()
 {
     const void* clientAddr = static_cast<void*>(&c);
 
+    const auto validateLogin = [&](const char* context,
+                                   const sf::Uint64 ctspLoginToken) -> bool {
+        if(!c._loginData.has_value())
+        {
+            SSVOH_SLOG << "Client '" << clientAddr << "', is not logged in for "
+                       << context << '\n';
+
+            return false;
+        }
+
+        const auto cLoginToken = c._loginData->_loginToken;
+
+        if(cLoginToken != ctspLoginToken)
+        {
+            SSVOH_SLOG << "Client '" << clientAddr
+                       << "' login token mismatch for " << context << '\n';
+
+            return false;
+        }
+
+        return true;
+    };
+
+    constexpr int topScoresLimit = 12;
+
     _errorOss.str("");
     const PVClientToServer pv = decodeClientToServerPacket(
         c._rtKeys.has_value() ? &c._rtKeys->keyReceive : nullptr, _errorOss, p);
@@ -603,22 +642,6 @@ void HexagonServer::runIteration_PurgeTokens()
 
             SSVOH_SLOG << "Replying with own public key\n";
             return sendPublicKey(c);
-        },
-
-        [&](const CTSPReady&) {
-            SSVOH_SLOG << "Received ready packet from client '" << clientAddr
-                       << "'\n";
-
-            // TODO
-            // c._ready = true;
-            return true;
-        },
-
-        [&](const CTSPPrint& ctsp) {
-            SSVOH_SLOG << "Received print packet from client '" << clientAddr
-                       << "'\nContents: '" << ctsp.msg << "'\n";
-
-            return true;
         },
 
         [&](const CTSPRegister& ctsp) {
@@ -807,49 +830,32 @@ void HexagonServer::runIteration_PurgeTokens()
         },
 
         [&](const CTSPRequestTopScores& ctsp) {
-            if(!c._loginData.has_value())
+            if(!validateLogin("top scores", ctsp.loginToken))
             {
-                SSVOH_SLOG << "Client '" << clientAddr
-                           << "', is not logged in, can't send top scores\n";
-
                 return true;
             }
 
-            const auto cLoginToken = c._loginData->_loginToken;
+            const std::string& lv = ctsp.levelValidator;
 
-            if(cLoginToken != ctsp.loginToken)
-            {
-                SSVOH_SLOG << "Client '" << clientAddr
-                           << "' login token mismatch\n";
+            SSVOH_SLOG << "Sending top " << topScoresLimit
+                       << " scores to client '" << clientAddr << "'\n";
 
-                return true;
-            }
-
-            constexpr int topLimit = 12;
-
-            SSVOH_SLOG << "Sending top " << topLimit << " scores to client '"
-                       << clientAddr << "'\n";
-
-            const auto scores =
-                Database::getTopScores(topLimit, ctsp.levelValidator);
-            return sendTopScores(c, ctsp.levelValidator, scores);
+            return sendTopScores(
+                c, lv, Database::getTopScores(topScoresLimit, lv));
         },
 
         [&](const CTSPReplay& ctsp) {
-            if(!c._loginData.has_value())
-            {
-                SSVOH_SLOG << "Client '" << clientAddr
-                           << "', is not logged in, can't process replay\n";
+            const TimePoint receiveTime = Clock::now();
 
+            if(!validateLogin("replay", ctsp.loginToken))
+            {
                 return true;
             }
 
-            const auto cLoginToken = c._loginData->_loginToken;
-
-            if(cLoginToken != ctsp.loginToken)
+            if(!c._gameStatus.has_value())
             {
-                SSVOH_SLOG << "Client '" << clientAddr
-                           << "' login token mismatch\n";
+                SSVOH_SLOG << "Discarding replay from client '" << clientAddr
+                           << "', no game was started\n";
 
                 return true;
             }
@@ -865,8 +871,27 @@ void HexagonServer::runIteration_PurgeTokens()
             const double score =
                 _hexagonGame.runReplayUntilDeathAndGetScore(rf);
 
-            SSVOH_SLOG << "Replay processed, final time: '" << score
-                       << "' - adding to database if best\n";
+            SSVOH_SLOG << "Replay processed, final time: '" << score << "'\n";
+
+            const double elapsedSecs =
+                std::chrono::duration_cast<std::chrono::duration<double>>(
+                    receiveTime - c._gameStatus->_startTP)
+                    .count();
+
+            const double difference = std::fabs(score - elapsedSecs);
+
+            SSVOH_SLOG << "Elapsed request time: " << elapsedSecs << '\n'
+                       << "Difference: " << difference << '\n';
+
+            // TODO: something smarter here?
+            if(difference > 3.5)
+            {
+                SSVOH_SLOG << "Replay invalid, difference too large\n";
+                return true;
+            }
+
+            // TODO:
+            SSVOH_SLOG << "Replay valid, adding to database\n";
 
             Database::addScore(levelValidator, Database::nowTimestamp(),
                 c._loginData->_steamId, score);
@@ -875,26 +900,10 @@ void HexagonServer::runIteration_PurgeTokens()
         },
 
         [&](const CTSPRequestOwnScore& ctsp) {
-            if(!c._loginData.has_value())
+            if(!validateLogin("own score", ctsp.loginToken))
             {
-                SSVOH_SLOG << "Client '" << clientAddr
-                           << "', is not logged in, can't process replay\n";
-
                 return true;
             }
-
-            const auto cLoginToken = c._loginData->_loginToken;
-
-            if(cLoginToken != ctsp.loginToken)
-            {
-                SSVOH_SLOG << "Client '" << clientAddr
-                           << "' login token mismatch\n";
-
-                return true;
-            }
-
-            SSVOH_SLOG << "Sending own score to client '" << clientAddr
-                       << "'\n";
 
             const std::optional<Database::ProcessedScore> ps =
                 Database::getScore(ctsp.levelValidator, c._loginData->_steamId);
@@ -904,8 +913,46 @@ void HexagonServer::runIteration_PurgeTokens()
                 return true;
             }
 
-            SSVOH_ASSERT(ps.has_value());
+            SSVOH_SLOG << "Sending own score to client '" << clientAddr
+                       << "'\n";
+
             return sendOwnScore(c, ctsp.levelValidator, *ps);
+        },
+
+        [&](const CTSPRequestTopScoresAndOwnScore& ctsp) {
+            if(!validateLogin("top scores and own scores", ctsp.loginToken))
+            {
+                return true;
+            }
+
+            const std::string& lv = ctsp.levelValidator;
+
+            SSVOH_SLOG << "Sending top " << topScoresLimit
+                       << " scores and own score to client '" << clientAddr
+                       << "'\n";
+
+            return sendTopScoresAndOwnScore(c, lv,
+                Database::getTopScores(topScoresLimit, lv),
+                Database::getScore(lv, c._loginData->_steamId));
+        },
+
+        [&](const CTSPStartedGame& ctsp) {
+            if(!validateLogin("started game", ctsp.loginToken))
+            {
+                return true;
+            }
+
+            const std::string& lv = ctsp.levelValidator;
+
+            SSVOH_SLOG_VERBOSE << "Client '" << clientAddr
+                               << "' started game for level '" << lv << "'\n";
+
+            c._gameStatus = ConnectedClient::GameStatus{
+                ._startTP = Clock::now(), //
+                ._levelValidator = lv     //
+            };
+
+            return true;
         }
 
         //

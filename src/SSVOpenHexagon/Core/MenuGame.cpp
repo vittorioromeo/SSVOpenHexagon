@@ -1366,8 +1366,16 @@ void MenuGame::initMenus()
     online.create<i::Single>("CONNECT", [this] { hexagonClient.connect(); }) |
         whenMustConnect;
 
-    online.create<i::Single>("DISCONNECT", [this] {
-        hexagonClient.disconnect();
+    online.create<i::Single>("LOGIN", [this] {
+        if(dialogInputState != DialogInputState::Nothing)
+        {
+            return;
+        }
+
+        dialogInputState = DialogInputState::Login_EnteringUsername;
+
+        showInputDialogBoxNice("LOGIN", "USERNAME");
+        setIgnoreAllInputs(2);
     }) | whenConnected;
 
     online.create<i::Single>("REGISTER", [this] {
@@ -1382,21 +1390,14 @@ void MenuGame::initMenus()
         setIgnoreAllInputs(2);
     }) | whenMustRegister;
 
-    online.create<i::Single>("LOGIN", [this] {
-        if(dialogInputState != DialogInputState::Nothing)
-        {
-            return;
-        }
-
-        dialogInputState = DialogInputState::Login_EnteringUsername;
-
-        showInputDialogBoxNice("LOGIN", "USERNAME");
-        setIgnoreAllInputs(2);
-    }) | whenConnected;
-
     online.create<i::Single>("LOGOUT", [this] {
         hexagonClient.tryLogoutFromServer();
     }) | whenLoggedIn;
+
+
+    online.create<i::Single>("DISCONNECT", [this] {
+        hexagonClient.disconnect();
+    }) | whenConnected;
 
     online.create<i::Single>("DELETE ACCOUNT", [this] {
         if(dialogInputState != DialogInputState::Nothing)
@@ -4731,9 +4732,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         if(leaderboardCache.shouldRequestScores(levelValidator))
         {
-            hexagonClient.tryRequestTopScores(levelValidator);
-            hexagonClient.tryRequestOwnScore(levelValidator);
-
+            hexagonClient.tryRequestTopScoresAndOwnScore(levelValidator);
             leaderboardCache.requestedScores(levelValidator);
         }
 

@@ -223,6 +223,39 @@ struct Extractor<std::vector<T>>
     }
 };
 
+template <typename T>
+struct Extractor<std::optional<T>>
+{
+    using Type = std::optional<T>;
+
+    [[nodiscard]] static bool doExtractInto(
+        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    {
+        bool set;
+        if(!(p >> set))
+        {
+            errorOss << "Error extracting optional set flag\n";
+            return false;
+        }
+
+        if(!set)
+        {
+            result.reset();
+            return true;
+        }
+
+        result.emplace();
+
+        if(!extractInto(*result, errorOss, p))
+        {
+            errorOss << "Error extracting optional element\n";
+            return false;
+        }
+
+        return true;
+    }
+};
+
 template <>
 struct Extractor<hg::replay_file>
 {
@@ -400,9 +433,21 @@ template <typename TData, typename T>
 void encodeField(sf::Packet& p, const TData& data, const std::vector<T>& vec)
 {
     encodeField(p, data, static_cast<sf::Uint64>(vec.size()));
+
     for(const T& x : vec)
     {
         encodeField(p, data, x);
+    }
+}
+
+template <typename TData, typename T>
+void encodeField(sf::Packet& p, const TData& data, const std::optional<T>& opt)
+{
+    encodeField(p, data, opt.has_value());
+
+    if(opt.has_value())
+    {
+        encodeField(p, data, *opt);
     }
 }
 
@@ -410,7 +455,7 @@ template <typename TData>
 void encodeField(sf::Packet& p, const TData& data, const hg::replay_file& rf)
 {
     (void)data;
-    rf.serialize_to_packet(p);
+    (void)rf.serialize_to_packet(p);
 }
 
 template <typename TData>
