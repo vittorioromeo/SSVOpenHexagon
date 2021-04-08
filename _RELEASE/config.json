@@ -182,7 +182,7 @@
 	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 717,
-	"windowed_width" : 1650,
-	"zoom_factor" : 1.071129679679871
+	"windowed_height" : 1027,
+	"windowed_width" : 1920,
+	"zoom_factor" : 0.7478091716766357
 }

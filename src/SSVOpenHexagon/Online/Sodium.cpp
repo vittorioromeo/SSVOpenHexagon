@@ -53,12 +53,14 @@ namespace hg
 
 [[nodiscard]] std::string sodiumHash(const std::string& in)
 {
+    constexpr std::array<unsigned char, crypto_generichash_KEYBYTES> key{};
+
     std::string out;
     out.resize(crypto_generichash_BYTES);
 
     crypto_generichash(reinterpret_cast<unsigned char*>(out.data()), out.size(),
-        reinterpret_cast<const unsigned char*>(in.data()), in.size(), nullptr,
-        0);
+        reinterpret_cast<const unsigned char*>(in.data()), in.size(),
+        key.data(), key.size());
 
     return out;
 }
