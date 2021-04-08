@@ -1144,6 +1144,7 @@ void HexagonGame::initLua_StyleControl()
     addLuaFn(lua, "s_setStyle", //
         [this](const std::string& mId) {
             styleData = assets.getStyleData(levelData->packId, mId);
+            styleData.computeColors();
         })
         .arg("styleId")
         .doc(
