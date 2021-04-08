@@ -140,6 +140,9 @@ private:
 
     [[nodiscard]] bool processPacket(ConnectedClient& c, sf::Packet& p);
 
+    template <typename... Ts>
+    [[nodiscard]] bool fail(const Ts&...);
+
 public:
     explicit HexagonServer(HGAssets& assets, HexagonGame& hexagonGame);
     ~HexagonServer();

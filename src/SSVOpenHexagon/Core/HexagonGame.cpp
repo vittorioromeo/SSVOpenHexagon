@@ -799,6 +799,18 @@ void HexagonGame::death(bool mForce)
     return status.getTimeSeconds();
 }
 
+[[nodiscard]] double HexagonGame::runReplayUntilDeathAndGetScore(
+    const replay_file& mReplayFile)
+{
+    setLastReplay(mReplayFile);
+
+    newGame(mReplayFile._pack_id, mReplayFile._level_id,
+        mReplayFile._first_play, mReplayFile._difficulty_mult,
+        /* mExecuteLastReplay */ true);
+
+    return executeGameUntilDeath();
+}
+
 void HexagonGame::incrementDifficulty()
 {
     playSound("levelUp.ogg");

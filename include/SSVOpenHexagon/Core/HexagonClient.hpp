@@ -149,6 +149,11 @@ private:
 
     void addEvent(const Event& e);
 
+    template <typename... Ts>
+    [[nodiscard]] bool fail(const Ts&...);
+
+    [[nodiscard]] bool connectedAndInState(const State s) const noexcept;
+
 public:
     explicit HexagonClient(Steam::steam_manager& steamManager);
     ~HexagonClient();
@@ -162,7 +167,6 @@ public:
     void update();
 
     bool tryRegister(const std::string& name, const std::string& password);
-
     bool tryLogin(const std::string& name, const std::string& password);
     bool tryLogoutFromServer();
     bool tryDeleteAccount(const std::string& password);

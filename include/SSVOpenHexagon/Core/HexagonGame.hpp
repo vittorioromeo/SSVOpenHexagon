@@ -455,6 +455,9 @@ public:
 
     [[nodiscard]] double executeGameUntilDeath();
 
+    [[nodiscard]] double runReplayUntilDeathAndGetScore(
+        const replay_file& mReplayFile);
+
     // Other methods
     void executeEvents(ssvuj::Obj& mRoot, float mTime);
     void updateRichPresenceCallbacks();
