@@ -219,15 +219,18 @@ void HexagonGame::update(ssvu::FT mFT)
                 updateRotation(mFT);
             }
 
-// Advance random number generator state with various level and
-// style values to avoid cheating by modifying Lua scripts
-#if 0
+            // Advance random number generator state with various level and
+            // style values to avoid cheating by modifying Lua scripts
             if(!status.hasDied)
             {
-                std::array<unsigned char, crypto_generichash_BYTES> hash;
-                crypto_generichash_state state;
+                constexpr std::array<unsigned char, crypto_generichash_KEYBYTES>
+                    key{};
 
-                crypto_generichash_init(&state, nullptr, 0, hash.size());
+                std::array<unsigned char, crypto_generichash_BYTES> hash{};
+                crypto_generichash_state state{};
+
+                crypto_generichash_init(
+                    &state, key.data(), key.size(), hash.size());
 
                 const auto addHash = [&]<typename T>(const T& x) {
                     crypto_generichash_update(&state,
@@ -269,7 +272,6 @@ void HexagonGame::update(ssvu::FT mFT)
                     rng.advance(delta);
                 }
             }
-#endif
         }
 
         if(window != nullptr)
