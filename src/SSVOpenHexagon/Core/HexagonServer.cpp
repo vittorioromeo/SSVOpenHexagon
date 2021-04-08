@@ -8,7 +8,9 @@
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
@@ -827,6 +829,49 @@ void HexagonServer::runIteration_PurgeTokens()
 
             const auto scores = Database::getTopScores(12, ctsp.levelValidator);
             return sendTopScores(c, ctsp.levelValidator, scores);
+        },
+
+        [&](const CTSPReplay& ctsp) {
+            if(!c._loginData.has_value())
+            {
+                SSVOH_SLOG << "Client '" << clientAddress
+                           << "', is not logged in, can't process replay\n";
+
+                return true;
+            }
+
+            const auto cLoginToken = c._loginData->_loginToken;
+
+            if(cLoginToken != ctsp.loginToken)
+            {
+                SSVOH_SLOG << "Client '" << clientAddress
+                           << "' login token mismatch\n";
+
+                return true;
+            }
+
+            const hg::replay_file& rf = ctsp.replayFile;
+
+            const std::string levelValidator =
+                Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
+
+            SSVOH_SLOG << "Processing replay from client '" << clientAddress
+                       << "' for level '" << levelValidator << "'\n";
+
+            _hexagonGame.setLastReplay(rf);
+
+            _hexagonGame.newGame(rf._pack_id, rf._level_id, rf._first_play,
+                rf._difficulty_mult, /* mExecuteLastReplay */ true);
+
+            const double score = _hexagonGame.executeGameUntilDeath();
+
+            SSVOH_SLOG << "Replay processed, final time: '" << score
+                       << "' - adding to database if best\n";
+
+            Database::addScore(levelValidator, Database::nowTimestamp(),
+                c._loginData->_steamId, score);
+
+            return true; // TODO: reply
         }
 
         //

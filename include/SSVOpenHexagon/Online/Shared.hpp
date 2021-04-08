@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
+#include "SSVOpenHexagon/Core/Replay.hpp"
 
 #include <vrm/pp/tpl.hpp>
 
@@ -62,12 +63,13 @@ struct CTSPLogin            { sf::Uint64 steamId; std::string name; std::string 
 struct CTSPLogout           { sf::Uint64 steamId; };
 struct CTSPDeleteAccount    { sf::Uint64 steamId; std::string passwordHash; };
 struct CTSPRequestTopScores { sf::Uint64 loginToken; std::string levelValidator; };
+struct CTSPReplay           { sf::Uint64 loginToken; replay_file replayFile; };
 // clang-format on
 
 #define SSVOH_CTS_PACKETS                                                    \
     VRM_PP_TPL_MAKE(CTSPHeartbeat, CTSPDisconnect, CTSPPublicKey, CTSPReady, \
         CTSPPrint, CTSPRegister, CTSPLogin, CTSPLogout, CTSPDeleteAccount,   \
-        CTSPRequestTopScores)
+        CTSPRequestTopScores, CTSPReplay)
 
 using PVClientToServer = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;

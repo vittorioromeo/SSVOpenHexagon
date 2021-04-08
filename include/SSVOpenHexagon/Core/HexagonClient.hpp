@@ -30,6 +30,8 @@ class steam_manager;
 namespace hg
 {
 
+class replay_file;
+
 class HexagonClient
 {
 public:
@@ -128,6 +130,8 @@ private:
         const std::uint64_t steamId, const std::string& passwordHash);
     [[nodiscard]] bool sendRequestTopScores(
         const sf::Uint64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendReplay(
+        const sf::Uint64 loginToken, const replay_file& replayFile);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -159,6 +163,7 @@ public:
     bool tryLogoutFromServer();
     bool tryDeleteAccount(const std::string& password);
     bool tryRequestTopScores(const std::string& levelValidator);
+    bool trySendReplay(const replay_file& replayFile);
 
     [[nodiscard]] State getState() const noexcept;
 

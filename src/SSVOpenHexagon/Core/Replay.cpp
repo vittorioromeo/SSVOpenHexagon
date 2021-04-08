@@ -8,6 +8,8 @@
 
 #include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
+#include <SFML/Network/Packet.hpp>
+
 #include <fstream>
 #include <sstream>
 
@@ -351,6 +353,52 @@ void replay_player::reset() noexcept
     const deserialization_result dr = deserialize(buf, bytes_to_read);
     return static_cast<bool>(dr);
 }
+
+[[nodiscard]] bool replay_file::serialize_to_packet(sf::Packet& p) const
+{
+    // TODO: code repetition
+    constexpr std::size_t buf_size{2097152}; // 2MB
+    static std::byte buf[buf_size];
+
+    const serialization_result sr = serialize(buf, buf_size);
+    if(!sr)
+    {
+        return false;
+    }
+
+    const std::size_t written_bytes = sr.written_bytes();
+
+    p << written_bytes;
+    p.append(static_cast<const void*>(buf), written_bytes);
+    return true;
+}
+
+[[nodiscard]] bool replay_file::deserialize_from_packet(sf::Packet& p)
+{
+    constexpr std::size_t buf_size{2097152}; // 2MB
+    static std::byte buf[buf_size];
+
+    std::size_t bytes_to_read;
+    if(!(p >> bytes_to_read))
+    {
+        return false;
+    }
+
+    static_assert(sizeof(sf::Uint8) == sizeof(std::byte));
+    static_assert(alignof(sf::Uint8) == alignof(std::byte));
+
+    for(std::size_t i = 0; i < bytes_to_read; ++i)
+    {
+        if(!(p >> reinterpret_cast<sf::Uint8&>(buf[i])))
+        {
+            return false;
+        }
+    }
+
+    const deserialization_result dr = deserialize(buf, bytes_to_read);
+    return static_cast<bool>(dr);
+}
+
 
 [[nodiscard]] std::string replay_file::create_filename() const
 {
