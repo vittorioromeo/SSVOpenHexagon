@@ -371,7 +371,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
         return false;
     }
 
-    const std::size_t written_bytes = sr.written_bytes();
+    const sf::Uint64 written_bytes = sr.written_bytes();
 
     p << written_bytes;
     p.append(static_cast<const void*>(buf), written_bytes);
@@ -380,7 +380,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
 [[nodiscard]] bool replay_file::deserialize_from_packet(sf::Packet& p)
 {
-    std::size_t bytes_to_read;
+    sf::Uint64 bytes_to_read;
     if(!(p >> bytes_to_read))
     {
         return false;
@@ -391,7 +391,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
     auto& buf = get_static_buf();
 
-    for(std::size_t i = 0; i < bytes_to_read; ++i)
+    for(sf::Uint64 i = 0; i < bytes_to_read; ++i)
     {
         if(!(p >> reinterpret_cast<sf::Uint8&>(buf[i])))
         {
