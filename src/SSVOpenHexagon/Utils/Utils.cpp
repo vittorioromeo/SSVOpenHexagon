@@ -82,11 +82,6 @@ void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName)
         throw std::runtime_error(errorStr);
     }
 
-#ifndef NDEBUG
-    ssvu::lo("hg::Utils::runLuaFile")
-        << "Running Lua file '" << mFileName << "'" << std::endl;
-#endif
-
     try
     {
         mLua.executeCode(s);
