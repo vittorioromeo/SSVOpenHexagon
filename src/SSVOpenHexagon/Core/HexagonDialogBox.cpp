@@ -3,7 +3,6 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 #include <SSVStart/Utils/SFML.hpp>
@@ -11,10 +10,8 @@
 namespace hg
 {
 
-HexagonDialogBox::HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& mWindow)
-    : assets{mAssets}, window{mWindow},
-      imagine{assets.get<sf::Font>("forcedsquare.ttf")}, txtDialog{
-                                                             "", imagine, 0}
+HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow)
+    : window{mWindow}, txtDialog{"", mFont, 0}
 {
 }
 
@@ -250,8 +247,6 @@ void HexagonDialogBox::drawCenterUpperHalf(
 
 void HexagonDialogBox::clearDialogBox()
 {
-    assets.playSound("select.ogg");
-
     dialogFrame.clear();
     dialogText.clear();
     input.clear();

@@ -167,11 +167,13 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
         const float angle{ssvu::toRad(BGRotOff) + div * i};
         sf::Color currentColor{ssvu::getByModIdx(colors, i)};
 
+        // TODO (P2): remove dependency on config
         const bool mustDarkenUnevenBackgroundChunk =
             (i % 2 == 0 && i == sides - 1) &&
             Config::getDarkenUnevenBackgroundChunk() &&
             darkenUnevenBackgroundChunk;
 
+        // TODO (P2): remove dependency on config
         if(Config::getBlackAndWhite())
         {
             currentColor = sf::Color::Black;

@@ -18,8 +18,6 @@
 namespace hg
 {
 
-class HGAssets;
-
 enum class DBoxDraw
 {
     topLeft = 0,
@@ -33,13 +31,12 @@ private:
     using KKey = sf::Keyboard::Key;
     using DrawFunc = std::function<void(const sf::Color&, const sf::Color&)>;
 
-    HGAssets& assets;
     ssvs::GameWindow& window;
+
     DrawFunc drawFunc;
 
     Utils::FastVertexVectorQuads dialogFrame;
     std::vector<std::string> dialogText;
-    sf::Font& imagine;
     sf::Text txtDialog;
 
     float dialogWidth{0.f};
@@ -69,7 +66,7 @@ private:
     void drawTopLeft(const sf::Color& txtColor, const sf::Color& backdropColor);
 
 public:
-    explicit HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& window);
+    explicit HexagonDialogBox(sf::Font& font, ssvs::GameWindow& window);
 
     void create(const std::string& output, const int charSize,
         const float mFrameSize, const DBoxDraw mDrawMode,

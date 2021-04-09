@@ -43,6 +43,10 @@
 namespace hg
 {
 
+class Audio;
+class HexagonGame;
+class HexagonClient;
+
 enum class States
 {
     ETLPNewBoot,
@@ -56,9 +60,6 @@ enum class States
     SLPSelect,
     ETLPNew
 };
-
-class HexagonGame;
-class HexagonClient;
 
 class LeaderboardCache
 {
@@ -105,6 +106,8 @@ private:
     Steam::steam_manager& steamManager;
     Discord::discord_manager& discordManager;
     HGAssets& assets;
+    sf::Font& imagine;
+    Audio& audio;
     HexagonGame& hexagonGame;
     ssvs::GameState game;
     ssvs::GameWindow& window;
@@ -137,8 +140,6 @@ private:
     sf::Sprite creditsBar2{assets.get<sf::Texture>("creditsBar2.png")};
     sf::Sprite epilepsyWarning{assets.get<sf::Texture>("epilepsyWarning.png")};
 
-    sf::Font& imagine = assets.get<sf::Font>(
-        "forcedsquare.ttf"); // G++ bug (cannot initialize with curly braces)
 
     //---------------------------------------
     // Online status bar
@@ -613,6 +614,7 @@ private:
 
     void runLuaFile(const std::string& mFileName);
     void changeResolutionTo(unsigned int mWidth, unsigned int mHeight);
+    void playSoundOverride(const std::string& assetId);
 
     [[nodiscard]] float getWindowWidth() const noexcept
     {
@@ -656,7 +658,7 @@ private:
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-        HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow,
+        Audio& mAudio, HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow,
         HexagonClient& mHexagonClient);
 
     ~MenuGame();

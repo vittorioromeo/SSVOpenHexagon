@@ -4,7 +4,6 @@
 
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 
-#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
@@ -408,6 +407,7 @@ bool HexagonClient::connect()
 
 HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
     : _steamManager{steamManager},
+      // TODO (P2): remove dependency on config
       _ticketSteamID{}, _serverIp{Config::getServerIp()},
       _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false},
       _packetBuffer{}, _errorOss{}, _lastHeartbeatTime{}, _verbose{true},

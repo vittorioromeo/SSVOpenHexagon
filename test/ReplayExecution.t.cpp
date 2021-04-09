@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
@@ -25,10 +26,15 @@ try
     auto assets = std::make_unique<hg::HGAssets>(
         nullptr /* steamManager */, true /* headless */);
 
+    hg::Audio audio{
+        [](const std::string&) -> sf::SoundBuffer* { return nullptr; }, //
+        [](const std::string&) -> sf::Music* { return nullptr; }        //
+    };
+
     for(int i = 0; i < 100; ++i)
     {
         auto hg = std::make_unique<hg::HexagonGame>(nullptr /* steamManager */,
-            nullptr /* discordManager */, *assets, nullptr /* window */,
+            nullptr /* discordManager */, *assets, audio, nullptr /* window */,
             nullptr /* client */);
 
         double score;
@@ -37,7 +43,7 @@ try
         hg->onReplayCreated = [&](const hg::replay_file& newRf) {
             auto hg2 = std::make_unique<hg::HexagonGame>(
                 nullptr /* steamManager */, nullptr /* discordManager */,
-                *assets, nullptr /* window */, nullptr /* client */);
+                *assets, audio, nullptr /* window */, nullptr /* client */);
 
             score2 = hg2->runReplayUntilDeathAndGetScore(newRf);
         };

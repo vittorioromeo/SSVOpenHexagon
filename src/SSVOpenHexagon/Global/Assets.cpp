@@ -8,6 +8,7 @@
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/BuildPackId.hpp"
 #include "SSVOpenHexagon/Utils/EraseIf.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
@@ -19,33 +20,6 @@
 
 namespace hg
 {
-
-[[nodiscard]] static std::string buildPackId(
-    const std::string& packDisambiguator, const std::string& packAuthor,
-    const std::string& packName, const int packVersion)
-{
-    const auto spaceToUnderscore = [](std::string x) {
-        for(char& c : x)
-        {
-            if(c == ' ' || c == '\n' || c == '\t')
-            {
-                c = '_';
-            }
-        }
-
-        return x;
-    };
-
-    return Utils::concat(                              //
-        spaceToUnderscore(packDisambiguator),          //
-        '_',                                           //
-        spaceToUnderscore(packAuthor),                 //
-        '_',                                           //
-        spaceToUnderscore(packName),                   //
-        '_',                                           //
-        spaceToUnderscore(std::to_string(packVersion)) //
-    );
-}
 
 [[nodiscard]] static auto scanSingleByExt(
     const ssvufs::Path& path, const std::string& extension)
@@ -144,8 +118,9 @@ HGAssets::~HGAssets()
 
     const auto packPriority = ssvuj::getExtr<float>(packRoot, "priority", 100);
 
-    const std::string packId =
-        buildPackId(packDisambiguator, packAuthor, packName, packVersion);
+    // TODO (P0): what to do with packs without a disambiguator?
+    const std::string packId = Utils::buildPackId(
+        packDisambiguator, packAuthor, packName, packVersion);
 
     const auto getPackDependencies = [&] {
         std::vector<PackDependency> result;
@@ -950,59 +925,27 @@ std::string HGAssets::getFirstLocalProfileName()
     return begin(profileDataMap)->second.getName();
 }
 
-//**********************************************
-// SOUND
-
-void HGAssets::refreshVolumes()
+[[nodiscard]] sf::SoundBuffer* HGAssets::getSoundBuffer(
+    const std::string& assetId)
 {
-    soundPlayer.setVolume(Config::getSoundVolume());
-    musicPlayer.setVolume(Config::getMusicVolume());
-}
-
-void HGAssets::stopMusics()
-{
-    musicPlayer.stop();
-}
-
-void HGAssets::stopSounds()
-{
-    soundPlayer.stop();
-}
-
-void HGAssets::playSound(const std::string& mId, ssvs::SoundPlayer::Mode mMode)
-{
-    const auto assetId = mId;
-
-    if(Config::getNoSound() || !assetManager.has<sf::SoundBuffer>(assetId))
+    // TODO (P2): remove assetmanager
+    if(!assetManager.has<sf::SoundBuffer>(assetId))
     {
-        return;
+        return nullptr;
     }
 
-    soundPlayer.play(assetManager.get<sf::SoundBuffer>(assetId), mMode);
+    return &assetManager.get<sf::SoundBuffer>(assetId);
 }
 
-void HGAssets::playPackSound(const std::string& mPackId, const std::string& mId,
-    ssvs::SoundPlayer::Mode mMode)
+[[nodiscard]] sf::Music* HGAssets::getMusic(const std::string& assetId)
 {
-    const auto assetId = mPackId + "_" + mId;
-
-    if(Config::getNoSound() || !assetManager.has<sf::SoundBuffer>(assetId))
+    // TODO (P2): remove assetmanager
+    if(!assetManager.has<sf::Music>(assetId))
     {
-        return;
+        return nullptr;
     }
 
-    soundPlayer.play(assetManager.get<sf::SoundBuffer>(assetId), mMode);
-}
-
-void HGAssets::playMusic(
-    const std::string& mPackId, const std::string& mId, sf::Time mPlayingOffset)
-{
-    const auto assetId = mPackId + "_" + mId;
-
-    if(assetManager.has<sf::Music>(assetId))
-    {
-        musicPlayer.play(assetManager.get<sf::Music>(assetId), mPlayingOffset);
-    }
+    return &assetManager.get<sf::Music>(assetId);
 }
 
 } // namespace hg

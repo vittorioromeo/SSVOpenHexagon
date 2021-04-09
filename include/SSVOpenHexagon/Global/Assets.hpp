@@ -11,8 +11,6 @@
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 
 #include <SSVStart/Assets/Assets.hpp>
-#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
-#include <SSVStart/MusicPlayer/MusicPlayer.hpp>
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -23,6 +21,14 @@
 #include <vector>
 #include <string>
 #include <cstddef>
+
+namespace sf
+{
+
+class SoundBuffer;
+class Music;
+
+} // namespace sf
 
 namespace hg
 {
@@ -44,12 +50,7 @@ private:
     bool levelsOnly{false};
 
     ssvs::AssetManager<> assetManager;
-    ssvs::SoundPlayer soundPlayer;
 
-public:
-    ssvs::MusicPlayer musicPlayer;
-
-private:
     std::unordered_map<std::string, LevelData> levelDatas;
     std::unordered_map<std::string, std::vector<std::string>>
         levelDataIdsByPack;
@@ -320,30 +321,9 @@ public:
         createLocalProfile(mName);
     }
 
+    [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const std::string& assetId);
 
-public:
-    void refreshVolumes();
-    void stopMusics();
-    void stopSounds();
-
-    void playSound(const std::string& mId,
-        ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
-
-    void playPackSound(const std::string& mPackId, const std::string& mId,
-        ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
-
-    void playMusic(const std::string& mPackId, const std::string& mId,
-        sf::Time mPlayingOffset = sf::seconds(0));
-
-    [[nodiscard]] ssvs::SoundPlayer& getSoundPlayer() noexcept
-    {
-        return soundPlayer;
-    }
-
-    [[nodiscard]] ssvs::MusicPlayer& getMusicPlayer() noexcept
-    {
-        return musicPlayer;
-    }
+    [[nodiscard]] sf::Music* getMusic(const std::string& assetId);
 };
 
 } // namespace hg

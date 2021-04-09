@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
@@ -297,7 +298,23 @@ int main(int argc, char* argv[])
         ssvu::lo("::main") << "Done saving all local profiles\n";
     });
 
-    assets->refreshVolumes();
+    //
+    //
+    // ------------------------------------------------------------------------
+    // Initialize audio
+    hg::Audio audio{
+        //
+        [&assets](const std::string& assetId) -> sf::SoundBuffer* {
+            return assets->getSoundBuffer(assetId);
+        }, //
+
+        [&assets](const std::string& assetId) -> sf::Music* {
+            return assets->getMusic(assetId);
+        } //
+    };
+
+    audio.setSoundVolume(hg::Config::getSoundVolume());
+    audio.setMusicVolume(hg::Config::getMusicVolume());
 
     // ------------------------------------------------------------------------
     // Initialize hexagon client
@@ -316,7 +333,7 @@ int main(int argc, char* argv[])
 
     auto hg = std::make_unique<hg::HexagonGame>(&steamManager,
         (discordManager.has_value() ? &*discordManager : nullptr), *assets,
-        (window.has_value() ? &*window : nullptr), &*hc);
+        audio, (window.has_value() ? &*window : nullptr), &*hc);
 
     if(printLuaDocs)
     {
@@ -339,7 +356,7 @@ int main(int argc, char* argv[])
         SSVOH_ASSERT(hc != nullptr);
 
         mg = std::make_unique<hg::MenuGame>(
-            steamManager, *discordManager, *assets, *hg, *window, *hc);
+            steamManager, *discordManager, *assets, audio, *hg, *window, *hc);
 
         hg->mgPtr = mg.get();
     }

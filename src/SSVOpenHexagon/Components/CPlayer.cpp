@@ -33,6 +33,7 @@ inline constexpr float triangleWidthRange{
 CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown) noexcept
     : _startPos{pos}, _pos{pos},
       _prePushPos{pos}, _lastPos{pos}, _hue{0}, _angle{0}, _lastAngle{0},
+      // TODO (P2): remove dependency on config
       _size{Config::getPlayerSize()}, _speed{Config::getPlayerSpeed()},
       _focusSpeed{Config::getPlayerFocusSpeed()}, _dead{false},
       _justSwapped{false}, _forcedMove{false}, _currentSpeed{0.f},

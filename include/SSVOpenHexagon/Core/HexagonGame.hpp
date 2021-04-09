@@ -15,7 +15,6 @@
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
@@ -52,6 +51,8 @@
 namespace hg
 {
 
+class Audio;
+class HGAssets;
 class MenuGame;
 class HexagonClient;
 
@@ -68,6 +69,10 @@ private:
     std::int8_t steamAttempt{1};
 
     HGAssets& assets;
+    sf::Font& font;
+
+    Audio& audio;
+
     const LevelData* levelData;
 
     ssvs::GameState game;
@@ -124,7 +129,7 @@ private:
     Utils::timeline2 messageTimeline;
     Utils::timeline2_runner messageTimelineRunner;
 
-    sf::Font& font{assets.get<sf::Font>("forcedsquare.ttf")};
+
 
     sf::Text messageText{
         "", font, ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
@@ -450,7 +455,8 @@ public:
 
     HexagonGame(Steam::steam_manager* mSteamManager,
         Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
-        ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient);
+        Audio& mAudio, ssvs::GameWindow* mGameWindow,
+        HexagonClient* mHexagonClient);
 
     ~HexagonGame();
 
@@ -473,8 +479,11 @@ public:
     // Other methods
     void executeEvents(ssvuj::Obj& mRoot, float mTime);
     void updateRichPresenceCallbacks();
-    void playSound(const std::string& mId,
-        ssvs::SoundPlayer::Mode mMode = ssvs::SoundPlayer::Mode::Override);
+
+    void playSoundOverride(const std::string& mId);
+    void playSoundAbort(const std::string& mId);
+    void playPackSoundOverride(
+        const std::string& mPackId, const std::string& mId);
 
     // Graphics-related methods
     void render(sf::Drawable& mDrawable,
@@ -595,17 +604,9 @@ public:
     [[nodiscard]] sf::Color getColorPlayer() const;
     [[nodiscard]] sf::Color getColorText() const;
 
-    [[nodiscard]] float getMusicDMSyncFactor() const
-    {
-        return levelStatus.syncMusicToDM ? std::pow(difficultyMult, 0.12f)
-                                         : 1.f;
-    }
+    [[nodiscard]] float getMusicDMSyncFactor() const;
 
-    void setMusicPitch(sf::Music& current)
-    {
-        current.setPitch((getMusicDMSyncFactor()) *
-                         Config::getMusicSpeedMult() * levelStatus.musicPitch);
-    }
+    void refreshMusicPitch();
 
     // Input
     [[nodiscard]] bool getInputFocused() const;
