@@ -233,7 +233,6 @@ private:
     MenuFont txtEnteringText;
     MenuFont txtSelectionBig;
     MenuFont txtSelectionMedium;
-    MenuFont txtSelectionLSmall;
     MenuFont txtSelectionSmall;
     MenuFont txtSelectionScore;
     sf::Color menuTextColor;
