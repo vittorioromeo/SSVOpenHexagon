@@ -10,7 +10,6 @@
 
 #include <string>
 #include <vector>
-#include <cstddef>
 
 namespace hg {
 
@@ -83,7 +82,7 @@ struct LevelStatus
     bool manualPulseControl{false};
     bool manualBeatPulseControl{false};
 
-    std::size_t currentIncrements{0u};
+    unsigned long currentIncrements{0u};
 
     explicit LevelStatus(
         const bool mSyncMusicToDM, const float mWallSpawnDistance);

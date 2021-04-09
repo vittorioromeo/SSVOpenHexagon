@@ -32,12 +32,12 @@ template <typename T>
     else if constexpr RETURN_T_STR(int)
     else if constexpr RETURN_T_STR(float)
     else if constexpr RETURN_T_STR(double)
-    else if constexpr RETURN_T_STR(std::string)
     else if constexpr RETURN_T_STR(unsigned int)
     else if constexpr RETURN_T_STR(long)
     else if constexpr RETURN_T_STR(unsigned long)
     else if constexpr RETURN_T_STR(long long)
-    else if constexpr RETURN_T_STR(std::size_t)
+    else if constexpr RETURN_T_STR(unsigned long long)
+    else if constexpr RETURN_T_STR(std::string)
     else
     {
         struct fail;
@@ -51,12 +51,12 @@ template const char* LuaMetadataProxy::typeToStr(TypeWrapper<bool>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<int>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<float>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<double>);
-template const char* LuaMetadataProxy::typeToStr(TypeWrapper<std::string>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned int>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<long>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned long>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<long long>);
-template const char* LuaMetadataProxy::typeToStr(TypeWrapper<std::size_t>);
+template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned long long>);
+template const char* LuaMetadataProxy::typeToStr(TypeWrapper<std::string>);
 
 // ----------------------------------------------------------------------------
 
