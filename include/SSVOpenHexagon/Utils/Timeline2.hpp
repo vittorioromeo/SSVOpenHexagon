@@ -12,8 +12,7 @@
 #include <optional>
 #include <cstddef>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 class timeline2
 {

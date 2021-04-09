@@ -13,6 +13,8 @@
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 
 #include <sodium.h>
@@ -32,8 +34,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-namespace
-{
+namespace {
 
 void createFolderIfNonExistant(const std::string& folderName)
 {
@@ -111,8 +112,8 @@ ParsedArgs parseArgs(const int argc, char* argv[])
 
 std::string makeWindowTitle()
 {
-    return "Open Hexagon " + hg::Config::getVersionString() +
-           " - by Vittorio Romeo - https://vittorioromeo.info";
+    return hg::Utils::concat("Open Hexagon ", hg::GAME_VERSION_STR,
+        " - by Vittorio Romeo - https://vittorioromeo.info");
 }
 
 std::optional<std::string> getFirstReplayFilenameFromArgs(

@@ -9,8 +9,7 @@
 
 #include <SFML/Config.hpp>
 
-namespace hg::Database
-{
+namespace hg::Database {
 
 struct User
 {

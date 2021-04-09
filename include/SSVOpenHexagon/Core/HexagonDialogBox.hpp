@@ -6,8 +6,6 @@
 
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
-#include <SSVStart/GameSystem/GameSystem.hpp>
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -15,8 +13,13 @@
 
 #include <string>
 
-namespace hg
-{
+namespace ssvs {
+
+class GameWindow;
+
+}
+
+namespace hg {
 
 enum class DBoxDraw
 {

@@ -6,8 +6,7 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
 
-namespace ssvuj
-{
+namespace ssvuj {
 /// @brief Gets a JSON Obj from another JSON Obj.
 /// @param mObj Source JSON Obj.
 inline Obj& getObj(Obj& mObj) noexcept
@@ -259,8 +258,7 @@ inline auto end(const Obj& mObj) noexcept
     return mObj.end();
 }
 
-namespace Impl
-{
+namespace Impl {
 template <Idx TIdx, typename TArg>
 inline void extrArrayHelper(const Obj& mArray, TArg& mArg)
 {

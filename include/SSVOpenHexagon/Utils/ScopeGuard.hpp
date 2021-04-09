@@ -8,8 +8,7 @@
 
 #include <utility>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 template <typename F>
 struct scope_guard : F

@@ -9,14 +9,74 @@
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
 #include <SSVUtils/Core/Utils/Math.hpp>
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
 
-namespace hg
+namespace hg {
+
+[[nodiscard]] ColorData StyleData::colorDataFromObjOrDefault(
+    const ssvuj::Obj& mRoot, const std::string& mKey, const ColorData& mDefault)
 {
+    if(ssvuj::hasObj(mRoot, mKey))
+    {
+        return ColorData{ssvuj::getObj(mRoot, mKey)};
+    }
+
+    return mDefault;
+}
+
+StyleData::StyleData() = default;
+
+StyleData::StyleData(const ssvuj::Obj& mRoot)
+    : id{ssvuj::getExtr<std::string>(mRoot, "id", "nullId")},
+      hueMin{ssvuj::getExtr<float>(mRoot, "hue_min", 0.f)},
+      hueMax{ssvuj::getExtr<float>(mRoot, "hue_max", 360.f)},
+      hueIncrement{ssvuj::getExtr<float>(mRoot, "hue_increment", 0.f)},
+      huePingPong{ssvuj::getExtr<bool>(mRoot, "hue_ping_pong", false)},
+
+      pulseMin{ssvuj::getExtr<float>(mRoot, "pulse_min", 0.f)},
+      pulseMax{ssvuj::getExtr<float>(mRoot, "pulse_max", 0.f)},
+      pulseIncrement{ssvuj::getExtr<float>(mRoot, "pulse_increment", 0.f)},
+      maxSwapTime{ssvuj::getExtr<float>(mRoot, "max_swap_time", 100.f)},
+
+      _3dDepth{ssvuj::getExtr<float>(mRoot, "3D_depth", 15.f)},
+      _3dSkew{ssvuj::getExtr<float>(mRoot, "3D_skew", 0.18f)},
+      _3dSpacing{ssvuj::getExtr<float>(mRoot, "3D_spacing", 1.f)},
+      _3dDarkenMult{ssvuj::getExtr<float>(mRoot, "3D_darken_multiplier", 1.5f)},
+      _3dAlphaMult{ssvuj::getExtr<float>(mRoot, "3D_alpha_multiplier", 0.5f)},
+      _3dAlphaFalloff{ssvuj::getExtr<float>(mRoot, "3D_alpha_falloff", 3.f)},
+      _3dPulseMax{ssvuj::getExtr<float>(mRoot, "3D_pulse_max", 3.2f)},
+      _3dPulseMin{ssvuj::getExtr<float>(mRoot, "3D_pulse_min", 0.f)},
+      _3dPulseSpeed{ssvuj::getExtr<float>(mRoot, "3D_pulse_speed", 0.01f)},
+      _3dPerspectiveMult{
+          ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
+      _3dOverrideColor{ssvuj::getExtr<sf::Color>(
+          mRoot, "3D_override_color", sf::Color::Transparent)},
+
+      mainColorData{ssvuj::getObj(mRoot, "main")}, //
+      playerColor{
+          colorDataFromObjOrDefault(mRoot, "player_color", mainColorData)}, //
+      textColor{
+          colorDataFromObjOrDefault(mRoot, "text_color", mainColorData)}, //
+      capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
+{
+    currentHue = hueMin;
+
+    const auto& objColors(ssvuj::getObj(mRoot, "colors"));
+    const auto& colorCount(ssvuj::getObjSize(objColors));
+
+    colorDatas.reserve(colorCount);
+    for(auto i(0u); i < colorCount; i++)
+    {
+        colorDatas.emplace_back(ssvuj::getObj(objColors, i));
+    }
+}
 
 sf::Color StyleData::calculateColor(const ColorData& mColorData) const
 {
@@ -233,6 +293,48 @@ void StyleData::drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
 
     drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk);
     drawBackgroundMenuHexagonImpl(mTris, mCenterPos, sides, fourByThree);
+}
+
+[[nodiscard]] const sf::Color& StyleData::getMainColor() const noexcept
+{
+    return currentMainColor;
+}
+
+[[nodiscard]] const sf::Color& StyleData::getPlayerColor() const noexcept
+{
+    return currentPlayerColor;
+}
+
+[[nodiscard]] const sf::Color& StyleData::getTextColor() const noexcept
+{
+    return currentTextColor;
+}
+
+[[nodiscard]] const std::vector<sf::Color>&
+StyleData::getColors() const noexcept
+{
+    return currentColors;
+}
+
+[[nodiscard]] const sf::Color& StyleData::getColor(int mIdx) const noexcept
+{
+    SSVOH_ASSERT(!currentColors.empty());
+    return ssvu::getByModIdx(currentColors, mIdx);
+}
+
+[[nodiscard]] float StyleData::getCurrentHue() const noexcept
+{
+    return currentHue;
+}
+
+[[nodiscard]] float StyleData::getCurrentSwapTime() const noexcept
+{
+    return currentSwapTime;
+}
+
+[[nodiscard]] const sf::Color& StyleData::get3DOverrideColor() const noexcept
+{
+    return current3DOverrideColor;
 }
 
 sf::Color StyleData::getCapColorResult() const noexcept

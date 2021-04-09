@@ -11,8 +11,7 @@
 #include <cstddef>
 #include <optional>
 
-namespace hg
-{
+namespace hg {
 
 inline constexpr std::size_t sodiumPublicKeyBytes = crypto_kx_PUBLICKEYBYTES;
 inline constexpr std::size_t sodiumSecretKeyBytes = crypto_kx_SECRETKEYBYTES;
@@ -33,12 +32,7 @@ using SodiumNonceArray = std::array<unsigned char, sodiumNonceBytes>;
     return crypto_secretbox_MACBYTES + messageLength;
 }
 
-[[nodiscard]] inline SodiumNonceArray generateNonce()
-{
-    SodiumNonceArray result;
-    randombytes_buf(result.data(), result.size());
-    return result;
-}
+[[nodiscard]] SodiumNonceArray generateNonce();
 
 struct SodiumPSKeys
 {

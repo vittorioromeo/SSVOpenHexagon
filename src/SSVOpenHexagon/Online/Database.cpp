@@ -6,8 +6,17 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 
 #include <SSVUtils/Core/Log/Log.hpp>
+
+#include <sqlite3.h>
+#include <sqlite_orm.h>
+
+#include <string>
+#include <cstdint>
+#include <optional>
+#include <chrono>
 
 static auto& dlog(const char* funcName)
 {
@@ -23,8 +32,70 @@ static auto& dlog(const char* funcName)
 
 #define SSVOH_DLOG_VAR(x) '\'' << #x << "': '" << x << '\''
 
-namespace hg::Database
+namespace hg::Database {
+
+namespace Impl {
+
+inline auto makeStorage()
 {
+    using namespace sqlite_orm;
+
+    auto storage = make_storage("ohdb.sqlite",                            //
+                                                                          //
+        make_table("users",                                               //
+            make_column("id", &User::id, autoincrement(), primary_key()), //
+            make_column("steamId", &User::steamId, unique()),             //
+            make_column("name", &User::name),                             //
+            make_column("passwordHash", &User::passwordHash)              //
+            ),                                                            //
+                                                                          //
+        make_table("loginTokens",                                         //
+            make_column(                                                  //
+                "id", &LoginToken::id, autoincrement(), primary_key()),   //
+            make_column("userId", &LoginToken::userId, unique()),         //
+            make_column("timestamp", &LoginToken::timestamp),             //
+            make_column("token", &LoginToken::token)                      //
+            ),                                                            //
+                                                                          //
+        make_table("scores",                                              //
+            make_column(                                                  //
+                "id", &Score::id, autoincrement(), primary_key()),        //
+            make_column("levelValidator", &Score::levelValidator),        //
+            make_column("timestamp", &Score::timestamp),                  //
+            make_column("userSteamId", &Score::userSteamId),              //
+            make_column("value", &Score::value)                           //
+            )                                                             //
+        //
+    );
+
+    storage.sync_schema(true /* preserve */);
+    return storage;
+}
+
+inline auto& getStorage()
+{
+    static auto storage = makeStorage();
+    return storage;
+}
+
+} // namespace Impl
+
+[[nodiscard]] std::uint64_t timestamp(const TimePoint tp)
+{
+    return std::chrono::duration_cast<std::chrono::seconds>(
+        tp.time_since_epoch())
+        .count();
+}
+
+[[nodiscard]] std::uint64_t nowTimestamp()
+{
+    return timestamp(Clock::now());
+}
+
+[[nodiscard]] TimePoint toTimepoint(const std::uint64_t timestamp)
+{
+    return TimePoint{} + std::chrono::seconds(timestamp);
+}
 
 void addUser(const User& user)
 {
@@ -298,6 +369,36 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
         }
 
         ++index;
+    }
+
+    return std::nullopt;
+}
+
+[[nodiscard]] std::optional<std::string> execute(const std::string& query)
+{
+    const auto callback = [](void* a_param, int argc, char** argv,
+                              char** column) -> int {
+        (void)a_param;
+        (void)column;
+
+        for(int i = 0; i < argc; i++)
+        {
+            std::printf("%s,\t", argv[i]);
+        }
+
+        std::printf("\n");
+        return 0;
+    };
+
+    sqlite3* db = Impl::getStorage().get_connection().get();
+
+    char* error = nullptr;
+    sqlite3_exec(db, query.c_str(), callback, nullptr, &error);
+
+    if(error != nullptr)
+    {
+        HG_SCOPE_GUARD({ sqlite3_free(error); });
+        return {error};
     }
 
     return std::nullopt;

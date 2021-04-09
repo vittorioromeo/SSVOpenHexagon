@@ -7,8 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace hg
-{
+namespace hg {
 
 struct PackDependency
 {

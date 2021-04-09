@@ -35,8 +35,7 @@ static auto& clog(const char* funcName)
 
 #define SSVOH_CLOG_VAR(x) '\'' << #x << "': '" << x << '\''
 
-namespace hg
-{
+namespace hg {
 
 template <typename... Ts>
 [[nodiscard]] bool HexagonClient::fail(const Ts&... xs)
@@ -408,11 +407,20 @@ bool HexagonClient::connect()
 HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
     : _steamManager{steamManager},
       // TODO (P2): remove dependency on config
-      _ticketSteamID{}, _serverIp{Config::getServerIp()},
-      _serverPort{Config::getServerPort()}, _socket{}, _socketConnected{false},
-      _packetBuffer{}, _errorOss{}, _lastHeartbeatTime{}, _verbose{true},
-      _clientPSKeys{generateSodiumPSKeys()}, _state{State::Disconnected},
-      _loginToken{}, _loginName{}, _events{}
+      _ticketSteamID{},
+      _serverIp{Config::getServerIp()},
+      _serverPort{Config::getServerPort()},
+      _socket{},
+      _socketConnected{false},
+      _packetBuffer{},
+      _errorOss{},
+      _lastHeartbeatTime{},
+      _verbose{true},
+      _clientPSKeys{generateSodiumPSKeys()},
+      _state{State::Disconnected},
+      _loginToken{},
+      _loginName{},
+      _events{}
 {
     const auto sKeyPublic = sodiumKeyToString(_clientPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_clientPSKeys.keySecret);

@@ -5,12 +5,12 @@
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
@@ -23,8 +23,7 @@
 #include <string>
 #include <cstddef>
 
-namespace hg::LuaScripting
-{
+namespace hg::LuaScripting {
 
 template <typename F>
 Utils::LuaMetadataProxy addLuaFn(
@@ -195,21 +194,20 @@ static void initUtils(Lua::LuaContext& lua, const bool inMenu)
             "Returns `true` if the script is being executed in the menu, "
             "`false` otherwise.");
 
-    // TODO (P2): remove dependency on config
     addLuaFn(lua, "u_getVersionMajor", //
-        [] { return Config::getVersion().major; })
+        [] { return GAME_VERSION.major; })
         .doc("Returns the major of the current version of the game");
 
     addLuaFn(lua, "u_getVersionMinor", //
-        [] { return Config::getVersion().minor; })
+        [] { return GAME_VERSION.minor; })
         .doc("Returns the minor of the current version of the game");
 
     addLuaFn(lua, "u_getVersionMicro", //
-        [] { return Config::getVersion().micro; })
+        [] { return GAME_VERSION.micro; })
         .doc("Returns the micro of the current version of the game");
 
     addLuaFn(lua, "u_getVersionString", //
-        [] { return Config::getVersionString(); })
+        []() -> std::string { return GAME_VERSION_STR; })
         .doc("Returns the string representing the current version of the game");
 }
 

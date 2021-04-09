@@ -6,8 +6,7 @@
 
 #include <chrono>
 
-namespace hg
-{
+namespace hg {
 
 void HexagonGameStatus::start() noexcept
 {

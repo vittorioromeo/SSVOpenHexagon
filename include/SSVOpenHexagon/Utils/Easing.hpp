@@ -4,15 +4,22 @@
 
 #pragma once
 
-#include <algorithm>
-
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 [[nodiscard, gnu::pure, gnu::always_inline]] inline float getSaturated(
     const float mValue)
 {
-    return std::max(0.f, std::min(1.f, mValue));
+    if(mValue < 0.f)
+    {
+        return 0.f;
+    }
+
+    if(mValue > 1.f)
+    {
+        return 1.f;
+    }
+
+    return mValue;
 }
 
 [[nodiscard, gnu::pure, gnu::always_inline]] inline float getSmoothStep(

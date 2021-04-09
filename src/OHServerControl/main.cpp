@@ -4,8 +4,7 @@
 #include <string>
 #include <iostream>
 
-namespace
-{
+namespace {
 
 [[nodiscard]] bool cin_getline_string(std::string& result) noexcept
 {

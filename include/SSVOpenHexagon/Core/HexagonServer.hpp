@@ -19,8 +19,7 @@
 #include <sstream>
 #include <optional>
 
-namespace hg
-{
+namespace hg {
 
 class HGAssets;
 class HexagonGame;
@@ -85,9 +84,13 @@ private:
         std::optional<GameStatus> _gameStatus;
 
         explicit ConnectedClient(const TimePoint lastActivity)
-            : _socket{}, _lastActivity{lastActivity}, _consecutiveFailures{0},
-              _mustDisconnect{false}, _clientPublicKey{},
-              _loginData{}, _state{State::Disconnected}
+            : _socket{},
+              _lastActivity{lastActivity},
+              _consecutiveFailures{0},
+              _mustDisconnect{false},
+              _clientPublicKey{},
+              _loginData{},
+              _state{State::Disconnected}
         {
         }
 

@@ -9,8 +9,7 @@
 #include <chrono>
 #include <string>
 
-namespace hg
-{
+namespace hg {
 
 enum class StateChange
 {

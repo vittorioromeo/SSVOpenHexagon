@@ -14,8 +14,7 @@
 #include <array>
 #include <cstdint>
 
-namespace hg
-{
+namespace hg {
 
 
 class CWall

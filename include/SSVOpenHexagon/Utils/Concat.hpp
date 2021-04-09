@@ -7,8 +7,7 @@
 #include <string>
 #include <sstream>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 template <typename... Ts>
 [[nodiscard]] std::string concat(const Ts&... xs)

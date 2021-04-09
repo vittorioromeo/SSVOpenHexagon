@@ -8,8 +8,7 @@
 
 #include <string_view>
 
-namespace hg::Discord
-{
+namespace hg::Discord {
 
 class discord_manager
 {

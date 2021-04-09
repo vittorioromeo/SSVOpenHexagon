@@ -116,8 +116,7 @@
     X(serverControlPort, unsigned short, "server_control_port")            \
     X_LINKEDVALUES_BINDS
 
-namespace hg::Config
-{
+namespace hg::Config {
 
 [[nodiscard]] static ssvuj::Obj& root() noexcept
 {
@@ -765,14 +764,6 @@ void setServerControlPort(unsigned short mX)
 [[nodiscard]] bool getFullscreen()
 {
     return fullscreen();
-}
-
-[[nodiscard]] const std::string& getVersionString()
-{
-    static std::string result{Utils::concat(
-        GAME_VERSION.major, '.', GAME_VERSION.minor, '.', GAME_VERSION.micro)};
-
-    return result;
 }
 
 [[nodiscard]] bool getWindowedAutoResolution()

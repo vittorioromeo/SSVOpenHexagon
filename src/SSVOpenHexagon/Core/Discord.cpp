@@ -11,8 +11,7 @@
 
 #include "discord/discord.h"
 
-namespace hg::Discord
-{
+namespace hg::Discord {
 
 [[nodiscard]] static bool initialize_discord(discord::Core** core)
 {

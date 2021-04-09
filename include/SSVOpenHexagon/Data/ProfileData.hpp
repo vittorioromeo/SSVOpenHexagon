@@ -10,8 +10,7 @@
 #include <unordered_set>
 #include <string>
 
-namespace hg
-{
+namespace hg {
 
 class ProfileData
 {
@@ -27,9 +26,11 @@ public:
         const ssvuj::Obj& mScores,
         const std::vector<std::string>& mTrackedNames,
         const std::vector<std::string>& mFavorites)
-        : version{mVersion}, name{mName}, scores{mScores},
-          trackedNames{mTrackedNames}, favoriteLevelsDataIDs{
-                                           mFavorites.begin(), mFavorites.end()}
+        : version{mVersion},
+          name{mName},
+          scores{mScores},
+          trackedNames{mTrackedNames},
+          favoriteLevelsDataIDs{mFavorites.begin(), mFavorites.end()}
     {
     }
 

@@ -18,8 +18,7 @@
 #include <cstring>
 #include <memory>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 template <sf::PrimitiveType TPrimitive>
 struct FastVertexVector : public sf::Drawable
@@ -30,6 +29,7 @@ private:
         // To avoid invoking the default constructor of `sf::Vertex` when
         // resizing the dynamic array.
         sf::Vertex _v;
+
         VertexUnion()
         {
         }

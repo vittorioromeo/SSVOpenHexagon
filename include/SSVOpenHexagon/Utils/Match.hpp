@@ -8,8 +8,7 @@
 #include <variant>
 #include <utility>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 template <typename... Fs>
 struct overload_set : Fs...

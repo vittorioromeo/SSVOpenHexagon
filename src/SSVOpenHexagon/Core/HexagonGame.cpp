@@ -28,10 +28,8 @@
 
 #include <SFML/Graphics.hpp>
 
-namespace hg
-{
-namespace
-{
+namespace hg {
+namespace {
 
 [[nodiscard]] double getReplayScore(const HexagonGameStatus& status)
 {
@@ -227,10 +225,16 @@ void HexagonGame::updateLevelInfo()
 HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio& mAudio,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
-    : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), font{assets.get<sf::Font>("forcedsquare.ttf")},
-      audio(mAudio), window(mGameWindow), hexagonClient{mHexagonClient},
-      player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()}
+    : steamManager(mSteamManager),
+      discordManager(mDiscordManager),
+      assets(mAssets),
+      font{assets.get<sf::Font>("forcedsquare.ttf")},
+      audio(mAudio),
+      window(mGameWindow),
+      hexagonClient{mHexagonClient},
+      player{ssvs::zeroVec2f, getSwapCooldown()},
+      levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
+      rng{initializeRng()}
 {
     if(window != nullptr)
     {
@@ -1029,7 +1033,8 @@ void HexagonGame::setLevelData(
     const LevelData& mLevelData, bool mMusicFirstPlay)
 {
     levelData = &mLevelData;
-    levelStatus = LevelStatus{};
+    levelStatus =
+        LevelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()};
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
     musicData = assets.getMusicData(levelData->packId, levelData->musicId);
     musicData.firstPlay = mMusicFirstPlay;

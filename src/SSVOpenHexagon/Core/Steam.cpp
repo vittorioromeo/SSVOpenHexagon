@@ -15,8 +15,7 @@
 #include <array>
 #include <charconv>
 
-namespace hg::Steam
-{
+namespace hg::Steam {
 
 [[nodiscard]] static std::optional<CSteamID> get_user_steam_id()
 {
@@ -124,8 +123,11 @@ void steam_manager::load_workshop_data()
 }
 
 steam_manager::steam_manager()
-    : _initialized{initialize_steamworks()}, _got_stats{false},
-      _got_ticket_response{false}, _got_ticket{false}, _ticket_steam_id{}
+    : _initialized{initialize_steamworks()},
+      _got_stats{false},
+      _got_ticket_response{false},
+      _got_ticket{false},
+      _ticket_steam_id{}
 {
     if(!_initialized)
     {

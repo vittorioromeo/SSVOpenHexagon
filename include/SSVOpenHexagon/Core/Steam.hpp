@@ -13,9 +13,9 @@
 #include <string_view>
 #include <unordered_set>
 
-namespace hg::Steam
-{
+namespace hg::Steam {
 
+// TODO (P2): pimpl
 class steam_manager
 {
 private:

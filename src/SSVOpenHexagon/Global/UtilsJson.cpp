@@ -15,8 +15,7 @@
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
-namespace ssvs
-{
+namespace ssvs {
 
 void loadAssetsFromJson(ssvs::AssetManager<>& mAM,
     const ssvufs::Path& mRootPath, const ssvuj::Obj& mObj)

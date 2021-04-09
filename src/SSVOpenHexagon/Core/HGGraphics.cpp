@@ -11,8 +11,7 @@
 
 #include <SSVStart/Utils/Vector2.hpp>
 
-namespace hg
-{
+namespace hg {
 
 [[nodiscard]] static std::string formatTime(const double x)
 {

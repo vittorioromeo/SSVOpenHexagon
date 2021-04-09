@@ -11,8 +11,7 @@
 #include <string>
 #include <cstddef>
 
-namespace hg
-{
+namespace hg {
 
 MusicData::MusicData() = default;
 

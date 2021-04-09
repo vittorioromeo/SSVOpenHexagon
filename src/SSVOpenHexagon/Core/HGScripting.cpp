@@ -17,8 +17,7 @@
 
 #include <algorithm>
 
-namespace hg
-{
+namespace hg {
 
 template <typename F>
 Utils::LuaMetadataProxy addLuaFn(

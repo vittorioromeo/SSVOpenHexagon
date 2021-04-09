@@ -20,15 +20,13 @@
 #include <variant>
 #include <deque>
 
-namespace hg::Steam
-{
+namespace hg::Steam {
 
 class steam_manager;
 
 }
 
-namespace hg
-{
+namespace hg {
 
 class replay_file;
 

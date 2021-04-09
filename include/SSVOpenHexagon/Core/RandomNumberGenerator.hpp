@@ -5,19 +5,19 @@
 #pragma once
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 
 #include <SSVUtils/Internal/PCG/PCG.hpp>
 
 #include <random>
 
-namespace hg
-{
+namespace hg {
 
 class random_number_generator
 {
 public:
     using engine_type = pcg32_fast;
-    using seed_type = unsigned long long;
+    using seed_type = random_number_generator_seed_type;
     using state_type = engine_type::state_type;
 
 private:
@@ -30,20 +30,22 @@ public:
     [[nodiscard]] seed_type seed() const noexcept;
 
     template <typename T>
-    [[nodiscard]] T get_int(const T min, const T max) noexcept
+    [[nodiscard, gnu::always_inline]] inline T get_int(
+        const T min, const T max) noexcept
     {
         SSVOH_ASSERT(min <= max);
         return std::uniform_int_distribution<T>{min, max}(_rng);
     }
 
     template <typename T>
-    [[nodiscard]] T get_real(const T min, const T max) noexcept
+    [[nodiscard, gnu::always_inline]] inline T get_real(
+        const T min, const T max) noexcept
     {
         SSVOH_ASSERT(min <= max);
         return std::uniform_real_distribution<T>{min, max}(_rng);
     }
 
-    void advance(const state_type delta) noexcept
+    [[gnu::always_inline]] inline void advance(const state_type delta) noexcept
     {
         _rng.advance(delta);
     }

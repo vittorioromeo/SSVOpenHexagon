@@ -4,8 +4,7 @@
 
 #pragma once
 
-namespace hg::Joystick
-{
+namespace hg::Joystick {
 
 enum class Jdir : int
 {

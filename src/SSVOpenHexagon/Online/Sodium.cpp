@@ -9,8 +9,14 @@
 #include <vector>
 #include <optional>
 
-namespace hg
+namespace hg {
+
+[[nodiscard]] SodiumNonceArray generateNonce()
 {
+    SodiumNonceArray result;
+    randombytes_buf(result.data(), result.size());
+    return result;
+}
 
 [[nodiscard]] SodiumPSKeys generateSodiumPSKeys()
 {
@@ -50,6 +56,8 @@ namespace hg
 
     return result;
 }
+
+// ----------------------------------------------------------------------------
 
 [[nodiscard]] std::string sodiumHash(const std::string& in)
 {

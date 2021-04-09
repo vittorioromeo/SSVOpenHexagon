@@ -51,8 +51,7 @@ XBOX 360 Controller Mapping
 
 */
 
-namespace hg::Joystick
-{
+namespace hg::Joystick {
 
 struct JoystickState
 {

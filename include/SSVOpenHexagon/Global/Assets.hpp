@@ -9,6 +9,8 @@
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Data/LoadInfo.hpp"
+#include "SSVOpenHexagon/Data/PackInfo.hpp"
 
 #include <SSVStart/Assets/Assets.hpp>
 
@@ -22,19 +24,16 @@
 #include <string>
 #include <cstddef>
 
-namespace sf
-{
+namespace sf {
 
 class SoundBuffer;
 class Music;
 
 } // namespace sf
 
-namespace hg
-{
+namespace hg {
 
-namespace Steam
-{
+namespace Steam {
 
 class steam_manager;
 
@@ -57,12 +56,6 @@ private:
 
     std::unordered_map<std::string, PackData> packDatas;
 
-    struct PackInfo
-    {
-        std::string id;
-        ssvufs::Path path;
-    };
-
     std::vector<PackInfo> packInfos;
     std::vector<PackInfo> selectablePackInfos;
 
@@ -73,41 +66,6 @@ private:
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
     [[nodiscard]] bool loadPackInfo(const PackData& packData);
-
-public:
-    struct LoadInfo
-    {
-        unsigned int packs{0};
-        unsigned int levels{0};
-        unsigned int assets{0};
-        std::vector<std::string> errorMessages;
-
-        void addFormattedError(std::string& error)
-        {
-            if(error.empty())
-            {
-                return;
-            }
-
-            // Remove the first two characters
-            error.erase(0, 2);
-
-            // Replace first newline with '-', place a space before it,
-            // and remove a space after it.
-            std::size_t i = error.find('\n');
-            error.insert(i, " ");
-            error[++i] = '-';
-            error.erase(++i, 1);
-
-            // Remove all other newlines.
-            while((i = error.find('\n', i)) != std::string::npos)
-            {
-                error.erase(i, 1);
-            }
-
-            errorMessages.emplace_back(error);
-        }
-    };
 
 private:
     LoadInfo loadInfo;

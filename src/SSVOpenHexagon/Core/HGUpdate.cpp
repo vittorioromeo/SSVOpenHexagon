@@ -29,8 +29,7 @@
 #include <array>
 #include <cstring>
 
-namespace hg
-{
+namespace hg {
 
 void HexagonGame::update(ssvu::FT mFT)
 {

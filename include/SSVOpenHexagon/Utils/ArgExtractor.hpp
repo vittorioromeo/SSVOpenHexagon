@@ -7,8 +7,7 @@
 #include <cstddef>
 #include <tuple>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 template <typename>
 struct ArgExtractor;

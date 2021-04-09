@@ -10,7 +10,6 @@
 
 #include <vrm/pp/tpl.hpp>
 
-#include <SFML/Network/Packet.hpp>
 #include <SFML/Config.hpp>
 
 #include <sodium.h>
@@ -24,11 +23,15 @@
 #include <string>
 #include <vector>
 
-namespace hg
-{
+namespace sf {
 
-namespace Impl
-{
+class Packet;
+
+}
+
+namespace hg {
+
+namespace Impl {
 
 struct CiphertextVectorPtr
 {

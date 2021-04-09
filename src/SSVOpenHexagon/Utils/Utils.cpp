@@ -20,8 +20,7 @@
 #include <fstream>
 #include <stdexcept>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 void shakeCamera(ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera)
 {
