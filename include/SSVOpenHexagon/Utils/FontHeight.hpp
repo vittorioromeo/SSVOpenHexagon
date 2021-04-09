@@ -4,24 +4,15 @@
 
 #pragma once
 
-#include <SSVStart/Utils/SFML.hpp>
+namespace sf {
 
-#include <SFML/Graphics/Text.hpp>
+class Text;
 
-namespace hg::Utils
-{
-
-[[nodiscard]] inline float getFontHeight(sf::Text& font)
-{
-    font.setString("ABCDEFGHILMNOPQRSTUVZ:");
-    return ssvs::getGlobalHeight(font);
 }
 
-[[nodiscard]] inline float getFontHeight(
-    sf::Text& font, const unsigned int charSize)
-{
-    font.setCharacterSize(charSize);
-    return getFontHeight(font);
-}
+namespace hg::Utils {
+
+[[nodiscard]] float getFontHeight(sf::Text& font);
+[[nodiscard]] float getFontHeight(sf::Text& font, const unsigned int charSize);
 
 } // namespace hg::Utils

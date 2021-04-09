@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
+#include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
@@ -48,8 +49,7 @@
 #include <optional>
 #include <functional>
 
-namespace hg
-{
+namespace hg {
 
 class Audio;
 class HGAssets;

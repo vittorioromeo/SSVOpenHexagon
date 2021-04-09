@@ -6,8 +6,7 @@
 
 #include <SFML/System/Vector2.hpp>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 inline constexpr float epsilon{1.0e-4};
 

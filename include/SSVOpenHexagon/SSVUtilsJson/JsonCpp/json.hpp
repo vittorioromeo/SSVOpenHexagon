@@ -21,8 +21,7 @@
     }
 #define JSON_HAS_INT64
 
-namespace Json
-{
+namespace Json {
 inline bool in(char c, char c1, char c2, char c3, char c4) noexcept
 {
     return c == c1 || c == c2 || c == c3 || c == c4;

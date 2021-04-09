@@ -7,30 +7,26 @@
 #include <vector>
 #include <string>
 
-namespace Lua
-{
+namespace Lua {
 
 class LuaContext;
 
 }
 
-namespace hg
-{
+namespace hg {
 
 class random_number_generator;
 class CCustomWallManager;
 
 } // namespace hg
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 class LuaMetadata;
 
 }
 
-namespace hg::LuaScripting
-{
+namespace hg::LuaScripting {
 
 [[nodiscard]] Utils::LuaMetadata& getMetadata();
 

@@ -6,9 +6,9 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 
 #include <SSVStart/Utils/SFML.hpp>
+#include <SSVStart/GameSystem/GameWindow.hpp>
 
-namespace hg
-{
+namespace hg {
 
 HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow)
     : window{mWindow}, txtDialog{"", mFont, 0}

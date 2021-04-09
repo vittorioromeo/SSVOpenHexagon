@@ -8,16 +8,14 @@
 #include <memory>
 #include <functional>
 
-namespace sf
-{
+namespace sf {
 
 class SoundBuffer;
 class Music;
 
 } // namespace sf
 
-namespace hg
-{
+namespace hg {
 
 class Audio
 {

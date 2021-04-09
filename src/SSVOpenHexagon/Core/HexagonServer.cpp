@@ -42,8 +42,7 @@ static auto& slog(const char* funcName)
 
 #define SSVOH_SLOG_VAR(x) '\'' << #x << "': '" << x << '\''
 
-namespace hg
-{
+namespace hg {
 
 template <typename... Ts>
 [[nodiscard]] bool HexagonServer::fail(const Ts&... xs)
@@ -358,23 +357,6 @@ bool HexagonServer::runIteration_Control()
                 return true;
             }
 
-            const auto connection =
-                Database::Impl::getStorage().get_connection();
-
-            const auto callback = [](void* a_param, int argc, char** argv,
-                                      char** column) -> int {
-                (void)a_param;
-                (void)column;
-
-                for(int i = 0; i < argc; i++)
-                {
-                    std::printf("%s,\t", argv[i]);
-                }
-
-                std::printf("\n");
-                return 0;
-            };
-
             std::string query = splitted[2];
             for(std::size_t i = 3; i < splitted.size(); ++i)
             {
@@ -382,18 +364,13 @@ bool HexagonServer::runIteration_Control()
                 query += splitted[i];
             }
 
-            sqlite3* db = connection.get();
+            const std::optional<std::string> executeOutcome =
+                Database::execute(query);
 
-            char* error = nullptr;
-
-            SSVOH_SLOG << "'db exec' start\n";
-            sqlite3_exec(db, query.c_str(), callback, nullptr, &error);
-            SSVOH_SLOG << "'db exec' end\n";
-
-            if(error != nullptr)
+            if(executeOutcome.has_value())
             {
-                SSVOH_SLOG_ERROR << "'db exec' error:\n" << error << '\n';
-                sqlite3_free(error);
+                SSVOH_SLOG_ERROR << "'db exec' error:\n"
+                                 << *executeOutcome << '\n';
             }
         }
     }
@@ -939,7 +916,7 @@ void HexagonServer::runIteration_PurgeTokens()
             Database::addScore(levelValidator, Database::nowTimestamp(),
                 c._loginData->_steamId, score);
 
-            return true; // TODO: reply
+            return true; // TODO: reply?
         },
 
         [&](const CTSPRequestOwnScore& ctsp) {
@@ -1003,12 +980,18 @@ void HexagonServer::runIteration_PurgeTokens()
 }
 
 HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
-    : _assets{assets}, _hexagonGame{hexagonGame},
+    : _assets{assets},
+      _hexagonGame{hexagonGame},
       // TODO (P2): remove dependency on config
-      _serverIp{Config::getServerIp()}, _serverPort{Config::getServerPort()},
-      _serverControlPort{Config::getServerControlPort()}, _listener{},
-      _socketSelector{}, _running{true}, _verbose{false},
-      _serverPSKeys{generateSodiumPSKeys()}, _lastTokenPurge{Clock::now()}
+      _serverIp{Config::getServerIp()},
+      _serverPort{Config::getServerPort()},
+      _serverControlPort{Config::getServerControlPort()},
+      _listener{},
+      _socketSelector{},
+      _running{true},
+      _verbose{false},
+      _serverPSKeys{generateSodiumPSKeys()},
+      _lastTokenPurge{Clock::now()}
 {
     const auto sKeyPublic = sodiumKeyToString(_serverPSKeys.keyPublic);
     const auto sKeySecret = sodiumKeyToString(_serverPSKeys.keySecret);

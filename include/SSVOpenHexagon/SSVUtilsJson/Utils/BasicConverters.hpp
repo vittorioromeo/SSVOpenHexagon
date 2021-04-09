@@ -33,8 +33,7 @@
 /// @macro End macro, required after defining a simple converter.
 #define SSVUJ_CNV_SIMPLE_END() }
 
-namespace ssvuj
-{
+namespace ssvuj {
 // Convert enums
 template <typename T>
 struct Converter
@@ -52,8 +51,7 @@ struct Converter
     }
 };
 
-namespace Impl
-{
+namespace Impl {
 template <typename T>
 struct ConverterSimpleImpl
 {

@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
-
-#include <SFML/Network/Packet.hpp>
+#include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 
 #include <bitset>
 #include <vector>
@@ -16,8 +14,13 @@
 #include <string>
 #include <filesystem>
 
-namespace hg
-{
+namespace sf {
+
+class Packet;
+
+}
+
+namespace hg {
 
 enum class input_bit : unsigned int
 {
@@ -108,7 +111,7 @@ public:
 
 struct replay_file
 {
-    using seed_type = random_number_generator::seed_type;
+    using seed_type = random_number_generator_seed_type;
 
     std::uint32_t _version;   // Replay format version.
     std::string _player_name; // Name of the player.

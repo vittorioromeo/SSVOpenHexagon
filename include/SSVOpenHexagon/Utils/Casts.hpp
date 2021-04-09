@@ -6,8 +6,7 @@
 
 #include <cstddef>
 
-namespace hg
-{
+namespace hg {
 
 template <typename T>
 [[gnu::always_inline, nodiscard]] inline constexpr std::size_t toSizeT(

@@ -56,6 +56,11 @@ CPMAddPackage(
     GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f
 )
 
+# Remove example binaries from CMakeLists
+file(READ "${zlib_SOURCE_DIR}/CMakeLists.txt" CONTENTS)
+string(REGEX REPLACE "Example binaries.*" "" STRIPPED1 "${CONTENTS}")
+file(WRITE "${zlib_SOURCE_DIR}/CMakeLists.txt" "${STRIPPED1}")
+
 #
 #
 # -----------------------------------------------------------------------------
@@ -196,6 +201,9 @@ file(GLOB_RECURSE SRC_LIST
      "public/sqlite/*.c")
 
 list(REMOVE_ITEM SRC_LIST ${MAIN_FILE})
+
+set_source_files_properties("public/sqlite/sqlite3.c" PROPERTIES COMPILE_FLAGS "-w")
+set_source_files_properties("public/sqlite/shell.c" PROPERTIES COMPILE_FLAGS "-w")
 
 #
 #

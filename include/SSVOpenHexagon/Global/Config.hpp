@@ -12,18 +12,15 @@
 #include <string>
 #include <array>
 
-namespace ssvs
-{
+namespace ssvs {
 class GameWindow;
 } // namespace ssvs
 
-namespace ssvs::Input
-{
+namespace ssvs::Input {
 class Trigger;
 } // namespace ssvs::Input
 
-namespace hg::Config
-{
+namespace hg::Config {
 
 // TODO (P2): move to some new constants file
 inline constexpr float TICKS_PER_SECOND = 240.f;
@@ -120,15 +117,6 @@ void setServerControlPort(unsigned short mX);
 [[nodiscard]] unsigned int getHeight();
 [[nodiscard]] bool getShowMessages();
 [[nodiscard]] bool getRotateToStart();
-
-// TODO (P2): move to some new constants file
-// TODO (P2): add build version
-[[nodiscard, gnu::const]] inline constexpr GameVersion getVersion()
-{
-    return GAME_VERSION;
-}
-
-[[nodiscard]] const std::string& getVersionString();
 
 [[nodiscard]] bool getDebug();
 [[nodiscard]] bool getPulse();

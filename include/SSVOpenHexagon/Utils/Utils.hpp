@@ -13,30 +13,26 @@
 #include <optional>
 #include <functional>
 
-namespace ssvu
-{
+namespace ssvu {
 
 class TimelineManager;
 
 }
 
-namespace ssvs
-{
+namespace ssvs {
 
 class Camera;
 
 }
 
-namespace hg
-{
+namespace hg {
 
 class HGAssets;
 struct PackData;
 
 } // namespace hg
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 void shakeCamera(
     ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera);

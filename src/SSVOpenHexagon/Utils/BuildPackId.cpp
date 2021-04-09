@@ -9,8 +9,7 @@
 
 #include <string>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 [[nodiscard]] std::string buildPackId(const std::string& packDisambiguator,
     const std::string& packAuthor, const std::string& packName,

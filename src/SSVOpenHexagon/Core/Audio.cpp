@@ -16,8 +16,7 @@
 #include <string>
 #include <memory>
 
-namespace hg
-{
+namespace hg {
 
 class Audio::AudioImpl
 {

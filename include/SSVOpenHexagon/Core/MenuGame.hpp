@@ -4,31 +4,30 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/HexagonDialogBox.hpp"
-#include "SSVOpenHexagon/Data/LevelData.hpp"
-#include "SSVOpenHexagon/Data/StyleData.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
-#include "SSVOpenHexagon/Utils/FontHeight.hpp"
-#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
-#include "SSVOpenHexagon/Core/LuaScripting.hpp"
-#include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
-#include <SSVStart/GameSystem/GameSystem.hpp>
+#include "SSVOpenHexagon/Data/StyleData.hpp"
+#include "SSVOpenHexagon/Data/LevelData.hpp"
+#include "SSVOpenHexagon/Data/LevelStatus.hpp"
+
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
+#include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+
 #include <SSVStart/Camera/Camera.hpp>
-#include <SSVStart/VertexVector/VertexVector.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
 
 #include <SSVMenuSystem/SSVMenuSystem.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
-#include <SFML/Audio.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
+
+#include <SFML/System/Vector2.hpp>
 
 #include <cctype>
 #include <array>
@@ -36,16 +35,38 @@
 #include <string>
 #include <vector>
 #include <string_view>
-#include <unordered_map>
-#include <chrono>
-#include <optional>
+#include <memory>
 
-namespace hg
-{
+namespace ssvs {
 
+class GameWindow;
+
+}
+
+namespace hg {
+
+class HGAssets;
 class Audio;
 class HexagonGame;
 class HexagonClient;
+class LeaderboardCache;
+class ProfileData;
+
+struct PackData;
+struct PackInfo;
+struct LoadInfo;
+
+namespace Steam {
+
+class steam_manager;
+
+}
+
+namespace Discord {
+
+class discord_manager;
+
+}
 
 enum class States
 {
@@ -59,42 +80,6 @@ enum class States
     MOnline,
     SLPSelect,
     ETLPNew
-};
-
-class LeaderboardCache
-{
-public:
-    using Clock = std::chrono::high_resolution_clock;
-    using TimePoint = std::chrono::time_point<Clock>;
-
-private:
-    struct CachedScores
-    {
-        std::vector<Database::ProcessedScore> _scores;
-        std::optional<Database::ProcessedScore> _ownScore;
-        TimePoint _cacheTime;
-    };
-
-    std::unordered_map<std::string, CachedScores> _levelValidatorToScores;
-    const std::vector<Database::ProcessedScore> _emptyScores;
-
-public:
-    void receivedScores(const std::string& levelValidator,
-        const std::vector<Database::ProcessedScore>& scores);
-
-    void receivedOwnScore(const std::string& levelValidator,
-        const Database::ProcessedScore& score);
-
-    void requestedScores(const std::string& levelValidator);
-
-    [[nodiscard]] bool shouldRequestScores(
-        const std::string& levelValidator) const;
-
-    [[nodiscard]] const std::vector<Database::ProcessedScore>& getScores(
-        const std::string& levelValidator) const;
-
-    [[nodiscard]] const Database::ProcessedScore* getOwnScore(
-        const std::string& levelValidator) const;
 };
 
 class MenuGame
@@ -113,11 +98,11 @@ private:
     ssvs::GameWindow& window;
     HexagonClient& hexagonClient;
     HexagonDialogBox dialogBox;
-    LeaderboardCache leaderboardCache;
+    std::unique_ptr<LeaderboardCache> leaderboardCache;
 
     Lua::LuaContext lua;
     std::vector<std::string> execScriptPackPathContext;
-    const PackData* currentPack{nullptr};
+    const PackData* currentPack;
 
     //---------------------------------------
     // Initialization
@@ -127,7 +112,8 @@ private:
     void initLua();
     void initMenus();
     void playLocally();
-    std::pair<const unsigned int, const unsigned int>
+
+    [[nodiscard]] std::pair<const unsigned int, const unsigned int>
     pickRandomMainMenuBackgroundStyle();
 
     //---------------------------------------
@@ -135,58 +121,45 @@ private:
 
     static constexpr std::array<const char*, 3> creditsIds{
         "creditsBar2.png", "creditsBar2b.png", "creditsBar2c.png"};
-    sf::Sprite titleBar{assets.get<sf::Texture>("titleBar.png")};
-    sf::Sprite creditsBar1{assets.get<sf::Texture>("creditsBar1.png")};
-    sf::Sprite creditsBar2{assets.get<sf::Texture>("creditsBar2.png")};
-    sf::Sprite epilepsyWarning{assets.get<sf::Texture>("epilepsyWarning.png")};
+
+    sf::Sprite titleBar;
+    sf::Sprite creditsBar1;
+    sf::Sprite creditsBar2;
+    sf::Sprite epilepsyWarning;
 
 
     //---------------------------------------
     // Online status bar
 
     sf::Sprite sOnline;
-    sf::RectangleShape rsOnlineStatus{sf::Vector2f{128.f, 32.f}};
-    sf::Text txtOnlineStatus{"", imagine, 24};
+    sf::RectangleShape rsOnlineStatus;
+    sf::Text txtOnlineStatus;
 
-    void initOnlineIcons()
-    {
-        assets.get<sf::Texture>("onlineIcon.png").setSmooth(true);
-        assets.get<sf::Texture>("onlineIconFail.png").setSmooth(true);
-        sOnline.setTexture(assets.get<sf::Texture>("onlineIconFail.png"));
-    }
+    void initOnlineIcons();
 
     //---------------------------------------
     // Text Entering
 
     std::vector<char> enteredChars;
 
-    [[nodiscard]] bool isEnteringText() const noexcept
-    {
-        return state <= States::ETLPNewBoot || state == States::ETLPNew;
-    }
+    [[nodiscard]] bool isEnteringText() const noexcept;
 
     //---------------------------------------
     // Cameras
-    ssvs::Camera backgroundCamera{window,
-        {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
-                              Config::getSizeY() * Config::getZoomFactor()}}};
+    ssvs::Camera backgroundCamera;
+    ssvs::Camera overlayCamera;
 
-    ssvs::Camera overlayCamera{
-        window, {{Config::getWidth() / 2.f,
-                     Config::getHeight() * Config::getZoomFactor() / 2.f},
-                    {Config::getWidth() * Config::getZoomFactor(),
-                        Config::getHeight() * Config::getZoomFactor()}}};
-
-    bool mustRefresh{false};
+    bool mustRefresh;
 
     //---------------------------------------
     // Navigation
 
-    bool wasFocusHeld{false};
-    bool focusHeld{false};
-    float wheelProgress{0.f};
-    float touchDelay{0.f};
-    States state{States::LoadingScreen};
+    bool wasFocusHeld;
+    bool focusHeld;
+    float wheelProgress;
+    float touchDelay;
+    States state;
+    int packChangeDirection;
 
     void leftAction();
     void rightAction();
@@ -195,33 +168,13 @@ private:
     void okAction();
     void eraseAction();
     void exitAction();
-    int packChangeDirection{0};
+
     void changePack();
     void changePackQuick(const int direction);
     void changePackAction(const int direction);
 
-    [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept
-    {
-        switch(state)
-        {
-            case States::SMain: return &mainMenu;
-            case States::MOpts: return &optionsMenu;
-            case States::MOnline: return &onlineMenu;
-            case States::SLPSelectBoot:
-            case States::SLPSelect: return &profileSelectionMenu;
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnull-dereference"
-            default: return nullptr;
-#pragma GCC diagnostic pop
-        }
-    }
-
-    [[nodiscard]] bool isInMenu() noexcept
-    {
-        return getCurrentMenu() != nullptr;
-    }
-
+    [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept;
+    [[nodiscard]] bool isInMenu() noexcept;
 
     //---------------------------------------
     // State changes
@@ -232,7 +185,8 @@ private:
     // Update
 
     LevelStatus levelStatus;
-    int ignoreInputs{0};
+    int ignoreInputs;
+
     void update(ssvu::FT mFT);
     void setIndex(int mIdx);
     void refreshCamera();
@@ -242,7 +196,8 @@ private:
     //---------------------------------------
     // Drawing
 
-    float w, h;
+    float w;
+    float h;
     int scrollbarOffset{0};
     bool fourByThree{false};
     ssvms::Menu welcomeMenu;
@@ -261,29 +216,26 @@ private:
         sf::Text font;
         float height;
 
-        void updateHeight()
-        {
-            height = hg::Utils::getFontHeight(font);
-        }
+        void updateHeight();
     };
 
-    MenuFont txtVersion{.font{"", imagine, 40}};
-    MenuFont txtProf{.font{"", imagine, 21}};
-    MenuFont txtLoadBig{.font{"", imagine, 80}};
-    MenuFont txtLoadSmall{.font{"", imagine}};
-    MenuFont txtMenuBig{.font{"", imagine, 80}};
-    MenuFont txtMenuSmall{.font{"", imagine}};
-    MenuFont txtProfile{.font{"", imagine, 35}};
-    MenuFont txtRandomTip{.font{"", imagine, 38}};
-    MenuFont txtInstructionsBig{.font{"", imagine, 50}};
-    MenuFont txtInstructionsMedium{.font{"", imagine}};
-    MenuFont txtInstructionsSmall{.font{"", imagine, 24}};
-    MenuFont txtEnteringText{.font{"", imagine, 60}};
-    MenuFont txtSelectionBig{.font{"", imagine, 32}};
-    MenuFont txtSelectionMedium{.font{"", imagine, 24}};
-    MenuFont txtSelectionLSmall{.font{"", imagine, 16}};
-    MenuFont txtSelectionSmall{.font{"", imagine, 16}};
-    MenuFont txtSelectionScore{.font{"", imagine, 32}};
+    MenuFont txtVersion;
+    MenuFont txtProf;
+    MenuFont txtLoadBig;
+    MenuFont txtLoadSmall;
+    MenuFont txtMenuBig;
+    MenuFont txtMenuSmall;
+    MenuFont txtProfile;
+    MenuFont txtRandomTip;
+    MenuFont txtInstructionsBig;
+    MenuFont txtInstructionsMedium;
+    MenuFont txtInstructionsSmall;
+    MenuFont txtEnteringText;
+    MenuFont txtSelectionBig;
+    MenuFont txtSelectionMedium;
+    MenuFont txtSelectionLSmall;
+    MenuFont txtSelectionSmall;
+    MenuFont txtSelectionScore;
     sf::Color menuTextColor;
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
@@ -292,40 +244,31 @@ private:
     Utils::FastVertexVectorQuads menuQuads;
 
     void draw();
-    void render(sf::Drawable& mDrawable)
-    {
-        window.draw(mDrawable);
-    }
+    void render(sf::Drawable& mDrawable);
 
     // Helper functions
-    [[nodiscard]] float getFPSMult() const
-    {
-        // multiplier for FPS consistent drawing operations.
-        return 200.f / window.getFPS();
-    }
+    [[nodiscard]] float getFPSMult() const;
 
-    void drawGraphics()
-    {
-        render(titleBar);
-        render(creditsBar1);
-        render(creditsBar2);
-        render(txtVersion.font);
-    }
+    void drawGraphics();
 
     void drawOnlineStatus();
 
     void adjustMenuOffset(const bool resetMenuOffset);
-    float calcMenuOffset(float& offset, const float maxOffset,
+
+    [[nodiscard]] float calcMenuOffset(float& offset, const float maxOffset,
         const bool revertOffset, const bool speedUp = false);
+
     void calcMenuItemOffset(float& offset, bool selected);
 
     void createQuad(
         const sf::Color& color, float x1, float x2, float y1, float y2);
+
     void createQuadTrapezoid(const sf::Color& color, float x1, float x2,
         float x3, float y1, float y2, bool left);
 
-    std::pair<int, int> getScrollbarNotches(
+    [[nodiscard]] std::pair<int, int> getScrollbarNotches(
         const int size, const int maxSize) const;
+
     void drawScrollbar(const float totalHeight, const int size,
         const int notches, const float x, const float y,
         const sf::Color& color);
@@ -333,18 +276,20 @@ private:
     void drawMainSubmenus(
         const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
         const float indent);
+
     void drawSubmenusSmall(
         const std::vector<std::unique_ptr<ssvms::Category>>& subMenus,
         const float indent);
 
     // Load menu
-    const hg::HGAssets::LoadInfo& loadInfo;
+    LoadInfo& loadInfo;
     std::array<std::string_view, 2> randomTip;
-    float hexagonRotation{0.f};
+    float hexagonRotation;
     void drawLoadResults();
 
     // Main menu
-    float menuHalfHeight{0.f};
+    float menuHalfHeight;
+
     void drawMainMenu(
         ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset);
 
@@ -358,7 +303,7 @@ private:
     void drawProfileSelectionBoot();
 
     // Entering text menu
-    float enteringTextOffset{0.f};
+    float enteringTextOffset;
     void drawEnteringText(const float xOffset, const bool revertOffset);
     void drawEnteringTextBoot();
 
@@ -398,29 +343,16 @@ private:
         bool isFavorites{false};
     };
 
-    bool isLevelFavorite{false};
+    bool isLevelFavorite;
     std::vector<std::string> favoriteLevelDataIds;
     LevelDrawer lvlSlct;
-    LevelDrawer favSlct{
-        .levelDataIds = &favoriteLevelDataIds, .isFavorites = true};
-    LevelDrawer* lvlDrawer{&lvlSlct};
+    LevelDrawer favSlct;
+    LevelDrawer* lvlDrawer;
 
     void changeFavoriteLevelsToProfile();
-
-    [[nodiscard]] bool isFavoriteLevels() const
-    {
-        return lvlDrawer->isFavorites;
-    }
-
-    [[nodiscard]] std::size_t getSelectablePackInfosSize() const
-    {
-        return isFavoriteLevels() ? 1 : assets.getSelectablePackInfos().size();
-    }
-
-    [[nodiscard]] const auto& getNthSelectablePackInfo(const std::size_t i)
-    {
-        return assets.getSelectablePackInfos().at(i);
-    }
+    [[nodiscard]] bool isFavoriteLevels() const;
+    [[nodiscard]] std::size_t getSelectablePackInfosSize() const;
+    [[nodiscard]] const PackInfo& getNthSelectablePackInfo(const std::size_t i);
 
     int diffMultIdx{0};
     std::vector<float> diffMults;
@@ -455,154 +387,77 @@ private:
     void updateLevelSelectionDrawingParameters();
 
     [[nodiscard]] float getLevelSelectionHeight() const;
+    [[nodiscard]] float getLevelListHeight() const;
 
-    [[nodiscard]] float getLevelListHeight() const
-    {
-        return levelLabelHeight *
-                   (focusHeld ? 1 : lvlDrawer->levelDataIds->size()) +
-               slctFrameSize;
-    }
-
-    void calcScrollSpeed()
-    {
-        // Only speed up the animation if there are more than 16 levels.
-        scrollSpeed = baseScrollSpeed *
-                      std::max(lvlDrawer->levelDataIds->size() / 16.f, 1.f);
-    }
+    void calcScrollSpeed();
     void calcLevelChangeScroll(const int dir);
     void calcPackChangeScrollFold(const float mLevelListHeight);
     void calcPackChangeScrollStretch(const float mLevelListHeight);
     void quickPackFoldStretch();
     void scrollLevelListToTargetY(ssvu::FT mFT);
+
     void checkWindowTopScroll(
-        const float scroll, std::function<void(const float)> action)
-    {
-        const float target{-scroll};
-        if(target <= lvlDrawer->YOffset)
-        {
-            return;
-        }
-        action(target);
-    }
+        const float scroll, std::function<void(const float)> action);
+
     void checkWindowBottomScroll(
-        const float scroll, std::function<void(const float)> action)
-    {
-        const float target{h - scroll};
-        if(target >= lvlDrawer->YOffset)
-        {
-            return;
-        }
-        action(target);
-    }
+        const float scroll, std::function<void(const float)> action);
 
     void scrollName(std::string& text, float& scroller);
+
     void scrollNameRightBorder(std::string& text, const std::string key,
         sf::Text& font, float& scroller, float border);
+
     void scrollNameRightBorder(
         std::string& text, sf::Text& font, float& scroller, const float border);
 
-    void resetNamesScrolls()
-    {
-        for(int i = 0; i < static_cast<int>(Label::ScrollsSize); ++i)
-        {
-            namesScroll[i] = 0;
-        }
-    }
-    void resetLevelNamesScrolls()
-    {
-        // Reset all scrolls except the ones relative to the pack.
-        namesScroll[static_cast<int>(Label::LevelName)] = 0.f;
-        for(int i = static_cast<int>(Label::MusicName);
-            i < static_cast<int>(Label::ScrollsSize); ++i)
-        {
-            namesScroll[i] = 0.f;
-        }
-    }
+    void resetNamesScrolls();
 
-    float getMaximumTextWidth() const
-    {
-        return w * 0.33f - 2.f * textToQuadBorder;
-    }
+    void resetLevelNamesScrolls();
+
+    [[nodiscard]] float getMaximumTextWidth() const;
+
     void formatLevelDescription();
+
     void drawLevelSelectionRightSide(
         LevelDrawer& drawer, const bool revertOffset);
+
     void drawLevelSelectionLeftSide(
         LevelDrawer& drawer, const bool revertOffset);
 
     // Text rendering
     void renderText(
-        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
-    {
-        mText.setString(mStr);
-        mText.setPosition(mPos);
-        render(mText);
-    }
+        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos);
+
     void renderText(const std::string& mStr, sf::Text& mText,
-        const sf::Vector2f& mPos, const sf::Color& mColor)
-    {
-        mText.setFillColor(mColor);
-        renderText(mStr, mText, mPos);
-    }
+        const sf::Vector2f& mPos, const sf::Color& mColor);
+
     void renderText(const std::string& mStr, sf::Text& mText,
-        const unsigned int mSize, const sf::Vector2f& mPos)
-    {
-        mText.setCharacterSize(mSize);
-        renderText(mStr, mText, mPos);
-    }
+        const unsigned int mSize, const sf::Vector2f& mPos);
+
     void renderText(const std::string& mStr, sf::Text& mText,
         const unsigned int mSize, const sf::Vector2f& mPos,
-        const sf::Color& mColor)
-    {
-        mText.setCharacterSize(mSize);
-        mText.setFillColor(mColor);
-        renderText(mStr, mText, mPos);
-    }
+        const sf::Color& mColor);
 
     // Text rendering centered
     void renderTextCentered(
-        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos)
-    {
-        mText.setString(mStr);
-        mText.setPosition(mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
-        render(mText);
-    }
+        const std::string& mStr, sf::Text& mText, const sf::Vector2f& mPos);
+
     void renderTextCentered(const std::string& mStr, sf::Text& mText,
-        const sf::Vector2f& mPos, const sf::Color& mColor)
-    {
-        mText.setFillColor(mColor);
-        renderTextCentered(mStr, mText, mPos);
-    }
+        const sf::Vector2f& mPos, const sf::Color& mColor);
+
     void renderTextCentered(const std::string& mStr, sf::Text& mText,
-        const unsigned int mSize, const sf::Vector2f& mPos)
-    {
-        mText.setCharacterSize(mSize);
-        renderTextCentered(mStr, mText, mPos);
-    }
+        const unsigned int mSize, const sf::Vector2f& mPos);
+
     void renderTextCentered(const std::string& mStr, sf::Text& mText,
         const unsigned int mSize, const sf::Vector2f& mPos,
-        const sf::Color& mColor)
-    {
-        mText.setCharacterSize(mSize);
-        mText.setFillColor(mColor);
-        renderTextCentered(mStr, mText, mPos);
-    }
+        const sf::Color& mColor);
 
     // Text rendering centered with an offset
     void renderTextCenteredOffset(const std::string& mStr, sf::Text& mText,
-        const sf::Vector2f& mPos, const float xOffset)
-    {
-        mText.setString(mStr);
-        mText.setPosition(
-            xOffset + mPos.x - ssvs::getGlobalHalfWidth(mText), mPos.y);
-        render(mText);
-    }
+        const sf::Vector2f& mPos, const float xOffset);
 
     void renderTextCenteredOffset(const std::string& mStr, sf::Text& mText,
-        const sf::Vector2f& mPos, const float xOffset, const sf::Color& mColor)
-    {
-        mText.setFillColor(mColor);
-        renderTextCenteredOffset(mStr, mText, mPos, xOffset);
-    }
+        const sf::Vector2f& mPos, const float xOffset, const sf::Color& mColor);
 
     //---------------------------------------
     // Misc / Unused
@@ -616,15 +471,9 @@ private:
     void changeResolutionTo(unsigned int mWidth, unsigned int mHeight);
     void playSoundOverride(const std::string& assetId);
 
-    [[nodiscard]] float getWindowWidth() const noexcept
-    {
-        return window.getRenderWindow().getSize().x;
-    }
+    [[nodiscard]] float getWindowWidth() const noexcept;
 
-    [[nodiscard]] float getWindowHeight() const noexcept
-    {
-        return window.getRenderWindow().getSize().y;
-    }
+    [[nodiscard]] float getWindowHeight() const noexcept;
 
     //---------------------------------------
     // Input boxes
@@ -665,20 +514,13 @@ public:
 
     void init(bool mErrored);
     void init(bool mErrored, const std::string& pack, const std::string& level);
+
     bool loadCommandLineLevel(
         const std::string& pack, const std::string& level);
 
-    [[nodiscard]] ssvs::GameState& getGame() noexcept
-    {
-        return game;
-    }
+    [[nodiscard]] ssvs::GameState& getGame() noexcept;
 
-    void returnToLevelSelection()
-    {
-        adjustLevelsOffset();
-        lvlDrawer->XOffset = 0.f;
-        setIgnoreAllInputs(1); // otherwise you go back to the main menu
-    }
+    void returnToLevelSelection();
 
     void refreshBinds();
 };

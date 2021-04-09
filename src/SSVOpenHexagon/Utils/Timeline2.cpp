@@ -14,8 +14,7 @@
 #include <optional>
 #include <functional>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 void timeline2::clear()
 {

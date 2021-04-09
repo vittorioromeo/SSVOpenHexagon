@@ -8,8 +8,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace hg
-{
+namespace hg {
 
 class Audio;
 

@@ -13,8 +13,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-namespace hg
-{
+namespace hg {
 
 class CWall;
 class CCustomWall;

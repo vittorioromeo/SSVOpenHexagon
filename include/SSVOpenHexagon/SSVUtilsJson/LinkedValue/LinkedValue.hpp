@@ -6,8 +6,7 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
 
-namespace ssvuj
-{
+namespace ssvuj {
 
 template <typename T>
 class LinkedValue

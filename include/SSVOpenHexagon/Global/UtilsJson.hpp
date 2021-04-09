@@ -19,16 +19,14 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-namespace ssvs
-{
+namespace ssvs {
 
 void loadAssetsFromJson(ssvs::AssetManager<>& mAM,
     const ssvufs::Path& mRootPath, const ssvuj::Obj& mObj);
 
 } // namespace ssvs
 
-namespace ssvuj
-{
+namespace ssvuj {
 
 template <typename T>
 SSVUJ_CNV_SIMPLE(sf::Vector2<T>, mObj, mV)

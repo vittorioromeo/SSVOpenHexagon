@@ -4,10 +4,21 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-#include "SSVOpenHexagon/Global/UtilsJson.hpp"
-
 #include <SFML/Graphics/Color.hpp>
+
+namespace Json {
+
+class Value;
+
+}
+
+namespace ssvuj {
+
+using Obj = Json::Value;
+
+}
+
+namespace hg {
 
 struct PulseColor
 {
@@ -17,12 +28,7 @@ struct PulseColor
     int a;
 };
 
-namespace hg
-{
-
 [[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept;
-
-}
 
 struct ColorData
 {
@@ -32,29 +38,18 @@ struct ColorData
     float dynamicDarkness{};
     float hueShift{};
     float offset{};
+
     sf::Color color{};
     PulseColor pulse{};
 
-    explicit ColorData() = default;
+    explicit ColorData();
 
-    explicit ColorData(const ssvuj::Obj& mRoot)
-        : main{ssvuj::getExtr<bool>(mRoot, "main", false)},
-          dynamic{ssvuj::getExtr<bool>(mRoot, "dynamic", false)},
-          dynamicOffset{ssvuj::getExtr<bool>(mRoot, "dynamic_offset", false)},
-          dynamicDarkness{
-              ssvuj::getExtr<float>(mRoot, "dynamic_darkness", 1.f)},
-          hueShift{ssvuj::getExtr<float>(mRoot, "hue_shift", 0.f)},
-          offset{ssvuj::getExtr<float>(mRoot, "offset", 0.f)},
-          color{ssvuj::getExtr<sf::Color>(mRoot, "value", sf::Color::Black)},
-          pulse{hg::pulse_from_json(mRoot)} {};
+    explicit ColorData(const ssvuj::Obj& mRoot);
 
     explicit ColorData(const bool mMain, const bool mDynamic,
         const bool mDynamicOffset, const float mDynamicDarkness,
         const float mHueShift, const float mOffset, sf::Color mColor,
-        const PulseColor& mPulse)
-        : main{mMain}, dynamic{mDynamic}, dynamicOffset{mDynamicOffset},
-          dynamicDarkness{mDynamicDarkness}, hueShift{mHueShift},
-          offset{mOffset}, color{mColor}, pulse{mPulse}
-    {
-    }
+        const PulseColor& mPulse);
 };
+
+} // namespace hg

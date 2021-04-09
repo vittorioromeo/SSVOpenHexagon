@@ -9,8 +9,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 template <typename TSplitType = std::string_view, typename F>
 void withSplit(

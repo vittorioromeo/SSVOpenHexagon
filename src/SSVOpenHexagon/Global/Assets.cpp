@@ -12,14 +12,14 @@
 #include "SSVOpenHexagon/Utils/EraseIf.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
-namespace hg
-{
+namespace hg {
 
 [[nodiscard]] static auto scanSingleByExt(
     const ssvufs::Path& path, const std::string& extension)
@@ -412,7 +412,7 @@ void HGAssets::loadStyleData(
         auto [object, error] = ssvuj::getFromFileWithErrors(p);
         loadInfo.addFormattedError(error);
 
-        StyleData styleData{object, p};
+        StyleData styleData{object};
         styleDataMap.emplace(
             mPackId + "_" + styleData.id, std::move(styleData));
 
@@ -604,7 +604,7 @@ std::string HGAssets::reloadPack(
     {
         for(const auto& p : scanSingleByExt(mPath + "Styles/", ".json"))
         {
-            StyleData styleData{ssvuj::getFromFile(p), p};
+            StyleData styleData{ssvuj::getFromFile(p)};
             temp = mPackId + "_" + styleData.id;
 
             styleDataMap[temp] = std::move(styleData);
@@ -726,7 +726,7 @@ std::string HGAssets::reloadLevel(const std::string& mPackId,
         }
         else
         {
-            StyleData styleData{ssvuj::getFromFile(styleFile[0]), styleFile[0]};
+            StyleData styleData{ssvuj::getFromFile(styleFile[0])};
             temp = mPackId + "_" + levelData.styleId;
 
             styleDataMap[temp] = std::move(styleData);

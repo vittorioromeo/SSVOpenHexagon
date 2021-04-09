@@ -21,8 +21,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-namespace hg
-{
+namespace hg {
 
 inline constexpr float baseThickness{5.f};
 inline constexpr float unfocusedTriangleWidth{3.f};
@@ -31,14 +30,25 @@ inline constexpr float triangleWidthRange{
     unfocusedTriangleWidth - focusedTriangleWidth};
 
 CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown) noexcept
-    : _startPos{pos}, _pos{pos},
-      _prePushPos{pos}, _lastPos{pos}, _hue{0}, _angle{0}, _lastAngle{0},
+    : _startPos{pos},
+      _pos{pos},
+      _prePushPos{pos},
+      _lastPos{pos},
+      _hue{0},
+      _angle{0},
+      _lastAngle{0},
       // TODO (P2): remove dependency on config
-      _size{Config::getPlayerSize()}, _speed{Config::getPlayerSpeed()},
-      _focusSpeed{Config::getPlayerFocusSpeed()}, _dead{false},
-      _justSwapped{false}, _forcedMove{false}, _currentSpeed{0.f},
-      _triangleWidth{unfocusedTriangleWidth}, _triangleWidthTransitionTime{0.f},
-      _swapTimer{swapCooldown}, _swapBlinkTimer{swapCooldown / 6.f},
+      _size{Config::getPlayerSize()},
+      _speed{Config::getPlayerSpeed()},
+      _focusSpeed{Config::getPlayerFocusSpeed()},
+      _dead{false},
+      _justSwapped{false},
+      _forcedMove{false},
+      _currentSpeed{0.f},
+      _triangleWidth{unfocusedTriangleWidth},
+      _triangleWidthTransitionTime{0.f},
+      _swapTimer{swapCooldown},
+      _swapBlinkTimer{swapCooldown / 6.f},
       _deadEffectTimer{80.f, false}
 {
 }

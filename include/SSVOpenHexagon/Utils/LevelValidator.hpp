@@ -6,8 +6,7 @@
 
 #include <string>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 [[nodiscard]] std::string getLevelValidator(
     const std::string& levelId, float diffMult);

@@ -10,8 +10,7 @@
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 [[nodiscard]] MusicData loadMusicFromJson(const ssvuj::Obj& mRoot)
 {

@@ -14,8 +14,7 @@
 
 #define JSON_ASSERT_UNREACHABLE SSVOH_ASSERT(false)
 
-namespace Json
-{
+namespace Json {
 inline std::string codePointToUTF8(unsigned int cp)
 {
     std::string result;
@@ -71,14 +70,29 @@ inline bool containsNewLine(Reader::Location begin, Reader::Location end)
     return false;
 }
 inline Reader::Reader()
-    : errors_(), document_(), begin_(), end_(), current_(), lastValueEnd_(),
-      lastValue_(), commentsBefore_(), features_(Features::all()),
+    : errors_(),
+      document_(),
+      begin_(),
+      end_(),
+      current_(),
+      lastValueEnd_(),
+      lastValue_(),
+      commentsBefore_(),
+      features_(Features::all()),
       collectComments_()
 {
 }
 inline Reader::Reader(const Features& features)
-    : errors_(), document_(), begin_(), end_(), current_(), lastValueEnd_(),
-      lastValue_(), commentsBefore_(), features_(features), collectComments_()
+    : errors_(),
+      document_(),
+      begin_(),
+      end_(),
+      current_(),
+      lastValueEnd_(),
+      lastValue_(),
+      commentsBefore_(),
+      features_(features),
+      collectComments_()
 {
 }
 inline bool Reader::parse(
@@ -2220,7 +2234,9 @@ inline std::string StyledWriter::normalizeEOL(const std::string& text)
     return normalized;
 }
 inline StyledStreamWriter::StyledStreamWriter(std::string indentation)
-    : document_(nullptr), rightMargin_(74), indentation_(indentation),
+    : document_(nullptr),
+      rightMargin_(74),
+      indentation_(indentation),
       addChildValues_()
 {
 }

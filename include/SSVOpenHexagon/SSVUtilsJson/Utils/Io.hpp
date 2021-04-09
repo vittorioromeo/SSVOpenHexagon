@@ -9,10 +9,8 @@
 
 #include <sstream>
 
-namespace ssvuj
-{
-namespace Impl
-{
+namespace ssvuj {
+namespace Impl {
 inline bool tryParse(Obj& mObj, Reader& mReader, const std::string& mSrc)
 {
     if(mReader.parse(mSrc, mObj, false)) return true;

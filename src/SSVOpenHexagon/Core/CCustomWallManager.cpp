@@ -11,8 +11,7 @@
 #include <SSVUtils/Core/Utils/Containers.hpp>
 #include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
-namespace hg
-{
+namespace hg {
 
 [[nodiscard]] bool CCustomWallManager::isValidHandle(
     const CCustomWallHandle h) const noexcept

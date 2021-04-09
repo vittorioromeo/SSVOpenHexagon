@@ -4,8 +4,7 @@
 
 #pragma once
 
-namespace hg
-{
+namespace hg {
 
 // Allow us to represent the game's version in a major.minor.micro format
 struct GameVersion
@@ -39,5 +38,6 @@ struct GameVersion
 };
 
 inline constexpr GameVersion GAME_VERSION{2, 0, 5};
+inline constexpr auto& GAME_VERSION_STR = "2.0.5";
 
 } // namespace hg

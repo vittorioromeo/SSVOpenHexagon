@@ -18,8 +18,7 @@
 #include <cstdint>
 #include <utility>
 
-namespace hg
-{
+namespace hg {
 
 class CCustomWall
 {

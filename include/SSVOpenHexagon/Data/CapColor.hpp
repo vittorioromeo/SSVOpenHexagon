@@ -5,15 +5,20 @@
 #pragma once
 
 #include "SSVOpenHexagon/Data/ColorData.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include <variant>
 
-namespace hg
-{
+namespace Json {
+class Value;
+}
 
-namespace CapColorMode
-{
+namespace ssvuj {
+using Obj = Json::Value;
+}
+
+namespace hg {
+
+namespace CapColorMode {
 
 // clang-format off
 struct Main         { };

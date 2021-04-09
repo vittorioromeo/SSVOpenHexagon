@@ -5,8 +5,7 @@
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 
-namespace hg
-{
+namespace hg {
 
 CWall::CWall(const unsigned int sides, const float wallAngleLeft,
     const float wallAngleRight, const float wallSkewLeft,

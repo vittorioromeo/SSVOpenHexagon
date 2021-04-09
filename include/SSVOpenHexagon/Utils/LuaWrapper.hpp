@@ -47,16 +47,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <tuple>
 #include <type_traits>
 
-extern "C"
-{
-
+extern "C" {
 #include <luajit.h>
 #include <lualib.h>
 #include <lauxlib.h>
 }
 
-namespace Lua
-{
+namespace Lua {
 
 template <typename>
 struct RemoveMemberPtr;

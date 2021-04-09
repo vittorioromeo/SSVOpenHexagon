@@ -7,8 +7,7 @@
 #include <string>
 #include <algorithm>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 inline void lTrim(std::string& str)
 {

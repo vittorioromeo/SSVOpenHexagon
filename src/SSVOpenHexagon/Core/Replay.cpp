@@ -13,9 +13,10 @@
 
 #include <fstream>
 #include <sstream>
+#include <type_traits>
+#include <iostream>
 
-namespace hg
-{
+namespace hg {
 
 [[gnu::cold]] static void printTryFailure(const char* code)
 {
