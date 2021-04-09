@@ -27,10 +27,14 @@ namespace hg
 class StyleData
 {
 private:
-    float currentHue, currentSwapTime{0}, pulseFactor{0};
+    float currentHue{0};
+    float currentSwapTime{0};
+    float pulseFactor{0};
     ssvufs::Path rootPath;
-    sf::Color currentMainColor, currentPlayerColor, currentTextColor,
-        current3DOverrideColor;
+    sf::Color currentMainColor;
+    sf::Color currentPlayerColor;
+    sf::Color currentTextColor;
+    sf::Color current3DOverrideColor;
     std::vector<sf::Color> currentColors;
 
     sf::Color calculateColor(const ColorData& mColorData) const;
@@ -56,27 +60,27 @@ private:
         const bool fourByThree) const;
 
 public:
-    std::string id;
-    float hueMin;
-    float hueMax;
-    float hueIncrement;
-    bool huePingPong;
+    std::string id{};
+    float hueMin{};
+    float hueMax{};
+    float hueIncrement{};
+    bool huePingPong{};
 
-    float pulseMin;
-    float pulseMax;
-    float pulseIncrement;
-    float maxSwapTime;
+    float pulseMin{};
+    float pulseMax{};
+    float pulseIncrement{};
+    float maxSwapTime{};
 
-    float _3dDepth;
-    float _3dSkew;
-    float _3dSpacing;
-    float _3dDarkenMult;
-    float _3dAlphaMult;
-    float _3dAlphaFalloff;
-    float _3dPulseMax;
-    float _3dPulseMin;
-    float _3dPulseSpeed;
-    float _3dPerspectiveMult;
+    float _3dDepth{};
+    float _3dSkew{};
+    float _3dSpacing{};
+    float _3dDarkenMult{};
+    float _3dAlphaMult{};
+    float _3dAlphaFalloff{};
+    float _3dPulseMax{};
+    float _3dPulseMin{};
+    float _3dPulseSpeed{};
+    float _3dPerspectiveMult{};
 
     float bgTileRadius{10000.f};
     unsigned int BGColorOffset{0};
@@ -153,16 +157,6 @@ public:
         const sf::Vector2f& mCenterPos, const unsigned int sides,
         const bool darkenUnevenBackgroundChunk) const;
 
-    void setRootPath(const ssvufs::Path& mPath)
-    {
-        rootPath = mPath;
-    }
-
-    [[nodiscard]] const ssvufs::Path& getRootPath() const noexcept
-    {
-        return rootPath;
-    }
-
     [[nodiscard]] const sf::Color& getMainColor() const noexcept
     {
         return currentMainColor;
@@ -202,16 +196,6 @@ public:
     [[nodiscard]] const sf::Color& get3DOverrideColor() const noexcept
     {
         return current3DOverrideColor;
-    }
-
-    [[nodiscard]] CapColor& getCapColor() noexcept
-    {
-        return capColor;
-    }
-
-    [[nodiscard]] const CapColor& getCapColor() const noexcept
-    {
-        return capColor;
     }
 
     [[nodiscard]] sf::Color getCapColorResult() const noexcept;

@@ -62,31 +62,31 @@ namespace hg
 }
 
 HGAssets::HGAssets(
-    Steam::steam_manager& mSteamManager, bool mHeadless, bool mLevelsOnly)
+    Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
     : steamManager{mSteamManager}, levelsOnly{mLevelsOnly}
 {
-    if(!levelsOnly)
+    if(!levelsOnly && !mHeadless)
     {
         if(!ssvufs::Path{"Assets/"}.exists<ssvufs::Type::Folder>())
         {
             ssvu::lo("FATAL ERROR")
                 << "Folder Assets/ does not exist" << std::endl;
+
             std::terminate();
+            return;
         }
-        else if(!mHeadless)
-        {
-            auto [object, error] =
-                ssvuj::getFromFileWithErrors("Assets/assets.json");
 
-            loadAssetsFromJson(assetManager, "Assets/", object);
+        auto [object, error] =
+            ssvuj::getFromFileWithErrors("Assets/assets.json");
 
-            loadInfo.addFormattedError(error);
-        }
+        loadAssetsFromJson(assetManager, "Assets/", object);
+
+        loadInfo.addFormattedError(error);
     }
 
     if(!loadAssets())
     {
-        ssvu::lo("FATAL ERROR") << "Folder Packs/ does not exist" << std::endl;
+        std::terminate();
         return;
     }
 
@@ -268,6 +268,7 @@ HGAssets::~HGAssets()
 {
     if(!ssvufs::Path{"Packs/"}.exists<ssvufs::Type::Folder>())
     {
+        ssvu::lo("::loadAssets") << "Folder Packs/ does not exist" << std::endl;
         return false;
     }
 
@@ -293,22 +294,26 @@ HGAssets::~HGAssets()
 
     // ------------------------------------------------------------------------
     // Load packs from Steam workshop.
-    steamManager.for_workshop_pack_folders([&](const std::string& folderPath) {
-        const ssvufs::Path packPath{folderPath};
+    if(steamManager != nullptr)
+    {
+        steamManager->for_workshop_pack_folders(
+            [&](const std::string& folderPath) {
+                const ssvufs::Path packPath{folderPath};
 
-        if(!loadPackData(packPath))
-        {
-            errorMessage =
-                "Error loading pack data '" + packPath.getStr() + "'\n";
-            loadInfo.errorMessages.emplace_back(errorMessage);
-            ssvu::lo("::loadAssets")
-                << "Error loading pack data '" << packPath << "'\n";
-        }
-        else
-        {
-            ++loadInfo.packs;
-        }
-    });
+                if(!loadPackData(packPath))
+                {
+                    errorMessage =
+                        "Error loading pack data '" + packPath.getStr() + "'\n";
+                    loadInfo.errorMessages.emplace_back(errorMessage);
+                    ssvu::lo("::loadAssets")
+                        << "Error loading pack data '" << packPath << "'\n";
+                }
+                else
+                {
+                    ++loadInfo.packs;
+                }
+            });
+    }
 
     // ------------------------------------------------------------------------
     // Load pack infos.
@@ -369,8 +374,16 @@ HGAssets::~HGAssets()
 
     // ------------------------------------------------------------------------
     // Load profiles.
-    ssvu::lo("::loadAssets") << "loading local profiles\n";
-    loadLocalProfiles();
+    if(!ssvufs::Path{"Profiles/"}.exists<ssvufs::Type::Folder>())
+    {
+        ssvu::lo("::loadAssets")
+            << "Folder Profiles/ does not exist" << std::endl;
+    }
+    else
+    {
+        ssvu::lo("::loadAssets") << "loading local profiles\n";
+        loadLocalProfiles();
+    }
 
     return true;
 }

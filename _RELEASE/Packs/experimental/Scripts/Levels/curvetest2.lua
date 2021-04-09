@@ -58,3 +58,7 @@ end
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
 end
+
+function onDeath()
+    u_log("DEAD")
+end

@@ -53,7 +53,11 @@ void HexagonGame::update(ssvu::FT mFT)
 
     if(timeUntilRichPresenceUpdate <= 0.f)
     {
-        steamManager.set_rich_presence_in_game(nameStr, diffStr, timeStr);
+        if(steamManager != nullptr)
+        {
+            steamManager->set_rich_presence_in_game(nameStr, diffStr, timeStr);
+        }
+
         timeUntilRichPresenceUpdate = DELAY_TO_UPDATE;
     }
 
@@ -219,6 +223,17 @@ void HexagonGame::update(ssvu::FT mFT)
                 updateRotation(mFT);
             }
 
+            // Advance random number generator state with various level and
+            // style values to avoid cheating by modifying Lua scripts
+            if(!status.hasDied)
+            {
+                rng.advance(status.pulse);
+                rng.advance(status.pulse3D);
+                rng.advance(status.fastSpin);
+                rng.advance(status.flashEffect);
+                rng.advance(levelStatus.rotationSpeed);
+            }
+
 #if 0
             // Advance random number generator state with various level and
             // style values to avoid cheating by modifying Lua scripts
@@ -343,7 +358,11 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
         if(player.getJustSwapped())
         {
             performPlayerKill();
-            steamManager.unlock_achievement("a22_swapdeath");
+
+            if(steamManager != nullptr)
+            {
+                steamManager->unlock_achievement("a22_swapdeath");
+            }
         }
         else if(player.push(getInputMovement(), getRadius(), w, centerPos,
                     radiusSquared, mFT))
@@ -370,7 +389,10 @@ void HexagonGame::updateWalls(ssvu::FT mFT)
 
         if(player.getJustSwapped())
         {
-            steamManager.unlock_achievement("a22_swapdeath");
+            if(steamManager != nullptr)
+            {
+                steamManager->unlock_achievement("a22_swapdeath");
+            }
         }
 
         performPlayerKill();
@@ -385,7 +407,10 @@ void HexagonGame::updateCustomWalls(ssvu::FT mFT)
 
         if(player.getJustSwapped())
         {
-            steamManager.unlock_achievement("a22_swapdeath");
+            if(steamManager != nullptr)
+            {
+                steamManager->unlock_achievement("a22_swapdeath");
+            }
         }
     }
 }

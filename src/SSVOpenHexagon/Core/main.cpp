@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Initialize assets
-    auto assets = std::make_unique<hg::HGAssets>(steamManager, headless);
+    auto assets = std::make_unique<hg::HGAssets>(&steamManager, headless);
     HG_SCOPE_GUARD({
         ssvu::lo("::main") << "Saving all local profiles...\n";
         assets->pSaveAll();
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
     // Initialize hexagon game
     SSVOH_ASSERT(assets != nullptr);
 
-    auto hg = std::make_unique<hg::HexagonGame>(steamManager,
+    auto hg = std::make_unique<hg::HexagonGame>(&steamManager,
         (discordManager.has_value() ? &*discordManager : nullptr), *assets,
         (window.has_value() ? &*window : nullptr), &*hc);
 

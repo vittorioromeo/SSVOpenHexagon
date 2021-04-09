@@ -223,7 +223,7 @@ void HexagonGame::updateLevelInfo()
                                  ImGui::GetIO().WantCaptureMouse);
 }
 
-HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
+HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
@@ -376,9 +376,9 @@ void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 void HexagonGame::updateRichPresenceCallbacks()
 {
     // Update Steam Rich Presence
-    if(!steamHung)
+    if(steamManager != nullptr && !steamHung)
     {
-        if(!steamManager.run_callbacks())
+        if(!steamManager->run_callbacks())
         {
             steamAttempt += 1;
             if(steamAttempt > 20)
@@ -418,6 +418,9 @@ void HexagonGame::playSound(
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
+    SSVOH_ASSERT(assets.isValidPackId(mPackId));
+    SSVOH_ASSERT(assets.isValidLevelId(mId));
+
     initFlashEffect();
 
     packId = mPackId;
@@ -492,23 +495,26 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
 
     // Audio cleanup
-    assets.stopSounds();
-    stopLevelMusic();
-
-    if(!Config::getNoMusic())
+    if(window != nullptr)
     {
-        playLevelMusic();
-        assets.musicPlayer.pause();
+        assets.stopSounds();
+        stopLevelMusic();
 
-        sf::Music* current(assets.getMusicPlayer().getCurrent());
-        if(current != nullptr)
+        if(!Config::getNoMusic())
         {
-            setMusicPitch(*current);
+            playLevelMusic();
+            assets.musicPlayer.pause();
+
+            sf::Music* current(assets.getMusicPlayer().getCurrent());
+            if(current != nullptr)
+            {
+                setMusicPitch(*current);
+            }
         }
-    }
-    else
-    {
-        assets.musicPlayer.stop();
+        else
+        {
+            assets.musicPlayer.stop();
+        }
     }
 
     debugPause = false;
@@ -671,6 +677,7 @@ void HexagonGame::death(bool mForce)
 
     const bool isPersonalBest =
         !levelStatus.tutorialMode && !inReplay() &&
+        assets.anyLocalProfileActive() &&
         (status.getTimeSeconds() >
             assets.getLocalScore(
                 Utils::getLevelValidator(levelData->id, difficultyMult)));
@@ -715,6 +722,8 @@ void HexagonGame::death(bool mForce)
         return;
     }
 
+// TODO: ??? meant for rich presence?
+#if 0
     // Gather player's Personal Best
     std::string pbStr = "(";
     if(isPersonalBest)
@@ -728,6 +737,7 @@ void HexagonGame::death(bool mForce)
                      Utils::getLevelValidator(levelData->id, difficultyMult))) +
                  "s)";
     }
+#endif
 
     std::string nameStr = levelData->name;
     nameFormat(nameStr);
@@ -744,9 +754,14 @@ void HexagonGame::death(bool mForce)
     const bool localNewBest =
         checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
 
+    // TODO
+    const std::string rfName = assets.anyLocalProfileActive()
+                                   ? assets.getCurrentLocalProfile().getName()
+                                   : "no_profile";
+
     const replay_file rf{
         ._version{0},
-        ._player_name{assets.getCurrentLocalProfile().getName()}, // TODO
+        ._player_name{rfName}, // TODO
         ._seed{lastSeed},
         ._data{lastReplayData},
         ._pack_id{packId},
@@ -755,6 +770,11 @@ void HexagonGame::death(bool mForce)
         ._difficulty_mult{difficultyMult},
         ._played_score{getReplayScore(status)},
     };
+
+    if(onReplayCreated)
+    {
+        onReplayCreated(rf);
+    }
 
     if(hexagonClient != nullptr &&
         hexagonClient->getState() == HexagonClient::State::LoggedIn &&
@@ -860,6 +880,12 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 {
+    // TODO
+    if(!assets.anyLocalProfileActive())
+    {
+        return CheckSaveScoreResult::Invalid;
+    }
+
     const float score = levelStatus.scoreOverridden
                             ? lua.readVariable<float>(levelStatus.scoreOverride)
                             : status.getTimeSeconds();

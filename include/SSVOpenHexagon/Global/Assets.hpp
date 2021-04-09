@@ -39,7 +39,7 @@ class MusicData;
 class HGAssets
 {
 private:
-    Steam::steam_manager& steamManager;
+    Steam::steam_manager* steamManager;
 
     bool levelsOnly{false};
 
@@ -127,7 +127,7 @@ private:
     }
 
 public:
-    HGAssets(Steam::steam_manager& mSteamManager, bool mHeadless,
+    HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);
 
     ~HGAssets();
