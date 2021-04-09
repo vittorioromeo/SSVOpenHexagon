@@ -206,7 +206,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       txtEnteringText{.font{"", imagine, 60}},
       txtSelectionBig{.font{"", imagine, 32}},
       txtSelectionMedium{.font{"", imagine, 24}},
-      txtSelectionLSmall{.font{"", imagine, 16}},
       txtSelectionSmall{.font{"", imagine, 16}},
       txtSelectionScore{.font{"", imagine, 32}},
       menuTextColor{},
@@ -2788,7 +2787,6 @@ void MenuGame::setIndex(const int mIdx)
     // Set color of the fonts.
     txtSelectionBig.font.setFillColor(menuQuadColor);
     txtSelectionSmall.font.setFillColor(menuQuadColor);
-    txtSelectionLSmall.font.setFillColor(menuQuadColor);
     txtInstructionsSmall.font.setFillColor(menuQuadColor);
     txtSelectionScore.font.setFillColor(menuQuadColor);
 
@@ -2944,20 +2942,20 @@ void MenuGame::refreshCamera()
     {
         txtMenuBig.font.setCharacterSize(33);
         txtMenuSmall.font.setCharacterSize(20);
-        txtSelectionLSmall.font.setCharacterSize(16);
+        txtSelectionSmall.font.setCharacterSize(16);
     }
     else
     {
         txtMenuBig.font.setCharacterSize(45);
         txtMenuSmall.font.setCharacterSize(30);
-        txtSelectionLSmall.font.setCharacterSize(16);
+        txtSelectionSmall.font.setCharacterSize(16);
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
     for(auto f : {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig,
             &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
             &txtInstructionsMedium, &txtInstructionsSmall, &txtEnteringText,
-            &txtSelectionBig, &txtSelectionMedium, &txtSelectionLSmall,
+            &txtSelectionBig, &txtSelectionMedium,
             &txtSelectionSmall, &txtSelectionScore})
     {
         f->updateHeight();
@@ -3328,8 +3326,13 @@ void MenuGame::drawSubmenusSmall(
     }
 }
 
-inline constexpr float fontTopBorder = 0.9f;
-inline constexpr float frameSizeMulti = 0.6f;
+// What is this font * fontHeightOffset thing about?
+// The font used has some empty space on top that causes text to be drawn
+// below what you would expect according to the chosen coordinates.
+// Therefore, if we assume the text has to be drawn at 'Y' height the
+// actual value to be sent to the renderer is 'Y - fontHeight * fontHeightOffset.
+inline constexpr float fontHeightOffset{0.9f};
+inline constexpr float frameSizeMulti{0.6f};
 
 void MenuGame::drawMainMenu(
     ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset)
@@ -3349,7 +3352,7 @@ void MenuGame::drawMainMenu(
         doubleBorder{2.f * quadBorder},
         totalHeight{interline * (size - 1) + doubleBorder + txtMenuBig.height};
     float quadHeight{(h - totalHeight) / 2.f + interline - quadBorder},
-        txtHeight{quadHeight - txtMenuBig.height * fontTopBorder + quadBorder},
+        txtHeight{quadHeight - txtMenuBig.height * fontHeightOffset + quadBorder},
         indent;
 
     // Store info needed to draw the submenus
@@ -3422,7 +3425,7 @@ void MenuGame::drawOptionsSubmenus(
     quadBorder = quadBorder * 1.5f - panelOffset;
     std::string itemName;
     float txtHeight{
-        quadHeight - txtMenuSmall.height * fontTopBorder + doubleBorder};
+        quadHeight - txtMenuSmall.height * fontHeightOffset + doubleBorder};
     for(int i{0}; i < size; ++i)
     {
         SSVOH_ASSERT(i < static_cast<int>(items.size()));
@@ -3533,7 +3536,7 @@ void MenuGame::drawProfileSelection(
     // Calculate vertical coordinates
     float quadHeight{std::max(
         (h - totalHeight) / 2.f, ssvs::getGlobalBottom(titleBar) + 60.f)},
-        txtHeight{quadHeight - fontHeight * fontTopBorder + doubleBorder +
+        txtHeight{quadHeight - fontHeight * fontHeightOffset + doubleBorder +
                   profFrameSize * 0.5f};
 
     // Submenu global offset
@@ -3703,7 +3706,7 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
         totalHeight{txtEnteringText.height + txtBottom + doubleFrame * 2.f};
     float quadHeight{menuHalfHeight - totalHeight / 2.f},
         txtHeight{
-            quadHeight - txtEnteringText.height * fontTopBorder + doubleFrame};
+            quadHeight - txtEnteringText.height * fontHeightOffset + doubleFrame};
 
     // Offset
     const float panelOffset{
@@ -3905,10 +3908,11 @@ void MenuGame::updateLevelSelectionDrawingParameters()
     packLabelHeight =
         txtSelectionMedium.height + 2.f * textToQuadBorder + slctFrameSize;
 
-    levelLabelHeight = txtSelectionBig.height +           // level name
-                       txtSelectionSmall.height * 1.75f + // author + interspace
-                       2.f * textToQuadBorder - // top and bottom spaces
-                       slctFrameSize;
+    levelLabelHeight = txtSelectionBig.height +     // level name
+                       txtSelectionSmall.height +   // level author
+                       textToQuadBorder +           // interspace
+                       2.f * textToQuadBorder -     // top and bottom space
+                       slctFrameSize;               // the bottom border
 }
 
 float MenuGame::getLevelSelectionHeight() const
@@ -4510,15 +4514,17 @@ void MenuGame::switchToFromFavoriteLevels()
 void MenuGame::drawLevelSelectionRightSide(
     LevelDrawer& drawer, const bool revertOffset)
 {
-    const float outerFrame{
-        textToQuadBorder +
-        slctFrameSize}, // total distance from the top of the text
-                        // to the outer border of the label.
-        packLabelOffset{w * 0.33f - outerFrame},
-        quadsIndent{w - packLabelOffset}, txtIndent{w - packLabelOffset / 2.f},
-        levelIndent{quadsIndent + outerFrame},
-        panelOffset{
-            calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
+    // total distance from the top of the text
+    // to the outer border of the label.
+    const float outerFrame{textToQuadBorder + slctFrameSize};
+    const float packLabelOffset{w * 0.33f - outerFrame};
+    const float quadsIndent{w - packLabelOffset};
+    const float txtIndent{w - packLabelOffset / 2.f};
+    const float levelIndent{quadsIndent + outerFrame};
+    const float panelOffset{
+        calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
+    std::cout << drawer.XOffset << std::endl;
+
     const auto& infos{assets.getSelectablePackInfos()};
     int packsSize, levelsSize;
     if(drawer.isFavorites)
@@ -4531,9 +4537,9 @@ void MenuGame::drawLevelSelectionRightSide(
         packsSize = infos.size();
         levelsSize = focusHeld ? 1 : drawer.levelDataIds->size();
     }
-    const LevelData* levelDataTemp;
+
     static std::string tempString;
-    float prevLevelIndent{0.f}, height{0.f}, indent, tempFloat;
+    float prevLevelIndent{0.f}, height{0.f};
     sf::Vector2f topLeft, topRight, bottomRight, bottomLeft;
 
     // The drawing order is: levels list then pack labels.
@@ -4542,7 +4548,7 @@ void MenuGame::drawLevelSelectionRightSide(
     // Therefore pack labels must be drawn above everything else (aka must
     // be drawn last).
 
-    topLeft = {w / 2.f, 2.5f};
+    topLeft = {w / 2.f, 2.f};
     tempString = isFavoriteLevels() ? "PRESS F2 TO SHOW ALL LEVELS"
                                     : "PRESS F2 TO SHOW FAVORITE LEVELS";
     renderTextCentered(tempString, txtSelectionSmall.font, topLeft);
@@ -4575,12 +4581,12 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             calcMenuItemOffset(drawer.lvlOffsets[i], i == drawer.currentIndex);
         }
-        indent = quadsIndent;
+
+        float indent = quadsIndent + panelOffset;
         if(!focusHeld)
         {
             indent -= drawer.lvlOffsets[i];
         }
-        tempFloat = indent + panelOffset;
 
         // Top frame
         if(i > 0 && drawer.lvlOffsets[i - 1] > drawer.lvlOffsets[i])
@@ -4591,24 +4597,25 @@ void MenuGame::drawLevelSelectionRightSide(
         else
         {
             createQuad(
-                menuQuadColor, tempFloat, w, height, height + slctFrameSize);
+                menuQuadColor, indent, w, height, height + slctFrameSize);
         }
         // Side frame
-        createQuad(menuQuadColor, tempFloat, tempFloat + slctFrameSize,
+        createQuad(menuQuadColor, indent, indent + slctFrameSize,
             height + slctFrameSize, height + levelLabelHeight);
         // Body
         createQuad(
             i == drawer.currentIndex ? menuSelectionColor : alphaTextColor,
-            tempFloat + slctFrameSize, w, height + slctFrameSize,
+            indent + slctFrameSize, w, height + slctFrameSize,
             height + levelLabelHeight);
 
         render(menuQuads);
-        prevLevelIndent = tempFloat;
+        prevLevelIndent = indent;
 
         //-------------------------------------
         // Level data
-        levelDataTemp = &assets.getLevelData(drawer.levelDataIds->at(i));
-        if(levelDataTemp == nullptr)
+        const LevelData* const levelData{
+            &assets.getLevelData(drawer.levelDataIds->at(i))};
+        if(levelData == nullptr)
         {
             continue;
         }
@@ -4616,27 +4623,26 @@ void MenuGame::drawLevelSelectionRightSide(
         //-------------------------------------
         // Level name
 
-        indent = levelIndent;
+        indent = levelIndent + panelOffset;
         if(!focusHeld)
         {
             indent -= drawer.lvlOffsets[i];
         }
-        tempFloat = indent + panelOffset;
         height += textToQuadBorder;
 
-        tempString = focusHeld ? "..." : levelDataTemp->name;
+        tempString = focusHeld ? "..." : levelData->name;
         Utils::uppercasify(tempString);
         renderText(tempString, txtSelectionBig.font,
-            {tempFloat, height - txtSelectionBig.height * fontTopBorder});
+            {indent, height - txtSelectionBig.height * fontHeightOffset});
 
         //-------------------------------------
         // Author
-        height += txtSelectionBig.height + txtSelectionSmall.height * 0.75f;
+        height += txtSelectionBig.height + textToQuadBorder;
 
-        tempString = focusHeld ? "..." : levelDataTemp->author;
+        tempString = focusHeld ? "..." : levelData->author;
         Utils::uppercasify(tempString);
         renderText(tempString, txtSelectionSmall.font,
-            {tempFloat, height - txtSelectionSmall.height * 0.7f});
+            {indent, height - txtSelectionSmall.height * fontHeightOffset});
 
         height += txtSelectionSmall.height + textToQuadBorder - slctFrameSize;
     }
@@ -4666,11 +4672,12 @@ void MenuGame::drawLevelSelectionRightSide(
         menuQuads.clear();
         menuQuads.reserve(8);
 
-        tempFloat = quadsIndent - outerFrame + panelOffset;
-        createQuad(menuTextColor, tempFloat - slctFrameSize, w, height,
-            height + txtSelectionMedium.height + 2.f * outerFrame);
-        createQuad(menuQuadColor, tempFloat, w, height + slctFrameSize,
-            height + txtSelectionMedium.height + outerFrame + textToQuadBorder);
+        float temp = quadsIndent - outerFrame + panelOffset;
+
+        createQuad(menuTextColor, temp - slctFrameSize, w, height,
+            height + packLabelHeight + slctFrameSize);
+        createQuad(menuQuadColor, temp, w, height + slctFrameSize,
+            height + packLabelHeight);
         render(menuQuads);
 
         // Name & >
@@ -4685,14 +4692,14 @@ void MenuGame::drawLevelSelectionRightSide(
         }
 
         txtSelectionMedium.font.setString(tempString);
-        tempFloat =
+        temp =
             std::max(
                 txtIndent - ssvs::getGlobalWidth(txtSelectionMedium.font) / 2.f,
                 quadsIndent + arrowWidth + 2.f * slctFrameSize + outerFrame) +
             panelOffset;
 
-        txtSelectionMedium.font.setPosition({tempFloat,
-            height + textToQuadBorder - txtSelectionMedium.height * 0.8f});
+        txtSelectionMedium.font.setPosition({temp,
+            height + outerFrame - txtSelectionMedium.height * fontHeightOffset});
         render(txtSelectionMedium.font);
 
         menuQuads.clear();
@@ -4706,28 +4713,28 @@ void MenuGame::drawLevelSelectionRightSide(
             // slctFrameSize) wide
             height +=
                 (packLabelHeight - textToQuadBorder - slctFrameSize) / 2.f;
-            tempFloat =
+            temp =
                 quadsIndent + arrowWidth / 2.f + slctFrameSize + panelOffset;
 
-            topLeft = {tempFloat - arrowWidth, height};
-            bottomLeft = {tempFloat - arrowWidth, height + 2.f * slctFrameSize};
+            topLeft = {temp - arrowWidth, height};
+            bottomLeft = {temp - arrowWidth, height + 2.f * slctFrameSize};
 
             height += arrowWidth;
 
-            topRight = {tempFloat, height};
-            bottomRight = {tempFloat, height + 2.f * slctFrameSize};
+            topRight = {temp, height};
+            bottomRight = {temp, height + 2.f * slctFrameSize};
 
             menuQuads.batch_unsafe_emplace_back(
                 menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
 
-            topLeft = {tempFloat, height};
-            bottomLeft = {tempFloat, height + 2.f * slctFrameSize};
+            topLeft = {temp, height};
+            bottomLeft = {temp, height + 2.f * slctFrameSize};
 
             height -= arrowWidth;
-            tempFloat += arrowWidth;
+            temp += arrowWidth;
 
-            topRight = {tempFloat, height};
-            bottomRight = {tempFloat, height + 2.f * slctFrameSize};
+            topRight = {temp, height};
+            bottomRight = {temp, height + 2.f * slctFrameSize};
 
             menuQuads.batch_unsafe_emplace_back(
                 menuTextColor, topLeft, bottomLeft, bottomRight, topRight);
@@ -4737,30 +4744,30 @@ void MenuGame::drawLevelSelectionRightSide(
         else
         {
             height += slctFrameSize / 2.f;
-            tempFloat = quadsIndent + panelOffset;
+            temp = quadsIndent + panelOffset;
 
-            topLeft = {tempFloat, height + textToQuadBorder};
+            topLeft = {temp, height + textToQuadBorder};
             topRight = {
-                tempFloat + 2.f * slctFrameSize, height + textToQuadBorder};
+                temp + 2.f * slctFrameSize, height + textToQuadBorder};
 
             height += packLabelHeight / 2.f;
-            tempFloat += packLabelHeight / 2.f - textToQuadBorder;
+            temp += packLabelHeight / 2.f - textToQuadBorder;
 
-            bottomLeft = {tempFloat, height};
-            bottomRight = {tempFloat + 2.f * slctFrameSize, height};
+            bottomLeft = {temp, height};
+            bottomRight = {temp + 2.f * slctFrameSize, height};
 
             menuQuads.batch_unsafe_emplace_back(
                 menuTextColor, topLeft, topRight, bottomRight, bottomLeft);
 
-            topLeft = {tempFloat, height};
-            topRight = {tempFloat + 2.f * slctFrameSize, height};
+            topLeft = {temp, height};
+            topRight = {temp + 2.f * slctFrameSize, height};
 
             height += packLabelHeight / 2.f;
-            tempFloat = quadsIndent + panelOffset;
+            temp = quadsIndent + panelOffset;
 
-            bottomLeft = {tempFloat, height - textToQuadBorder};
+            bottomLeft = {temp, height - textToQuadBorder};
             bottomRight = {
-                tempFloat + 2.f * slctFrameSize, height - textToQuadBorder};
+                temp + 2.f * slctFrameSize, height - textToQuadBorder};
 
             menuQuads.batch_unsafe_emplace_back(
                 menuTextColor, topLeft, topRight, bottomRight, bottomLeft);
@@ -4774,8 +4781,7 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             height = drawer.YOffset;
         }
-    }
-    while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    } while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
 void MenuGame::drawLevelSelectionLeftSide(
@@ -4795,19 +4801,12 @@ void MenuGame::drawLevelSelectionLeftSide(
     const float panelOffset{
         calcMenuOffset(levelDetailsOffset, maxPanelOffset, revertOffset)};
     const float smallInterline{txtSelectionSmall.height * 1.5f};
-    const float smallLeftInterline{txtSelectionLSmall.height * 1.5f};
-    const float postTitleSpace{
-        txtSelectionMedium.height +
-        (smallLeftInterline - txtSelectionLSmall.height) -
-        txtSelectionLSmall.height * fontTopBorder};
-    const float preLineSpace{txtSelectionMedium.height / 2.f +
-                             txtSelectionLSmall.height * (1.f + fontTopBorder)};
+    const float mediumInterline{txtSelectionSmall.height / 2.f};
     const float textXPos{textToQuadBorder - panelOffset};
     const float textRightBorder{getMaximumTextWidth()};
 
-    float width{maxPanelOffset - panelOffset};
+    const float width{maxPanelOffset - panelOffset};
     float height{textToQuadBorder};
-    float tempFloat;
 
     //-------------------------------------
     // Backdrop - Right border
@@ -4827,10 +4826,11 @@ void MenuGame::drawLevelSelectionLeftSide(
     scrollNameRightBorder(tempString, txtSelectionBig.font,
         namesScroll[static_cast<int>(Label::LevelName)], textRightBorder);
     renderText(tempString, txtSelectionBig.font,
-        {textXPos, height - txtSelectionBig.height * fontTopBorder});
+        {textXPos, height - txtSelectionBig.height * fontHeightOffset});
 
     //-------------------------------------
     // Level description
+
     height += txtSelectionBig.height + textToQuadBorder -
               txtSelectionSmall.height * 0.7f;
 
@@ -4860,10 +4860,11 @@ void MenuGame::drawLevelSelectionLeftSide(
     createQuad(menuQuadColor, 0, width, height - lineThickness, height);
 
     // Text
-    height += 0.5f * txtSelectionMedium.height;
+    height += textToQuadBorder;
+    const float difficultyHeight{height - txtSelectionMedium.height * fontHeightOffset};
 
     renderText("DIFFICULTY: ", txtSelectionMedium.font,
-        {textXPos, height - txtSelectionMedium.height}, menuQuadColor);
+        {textXPos, difficultyHeight}, menuQuadColor);
 
     tempString =
         diffMults.size() > 1
@@ -4878,98 +4879,116 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     renderText(tempString, txtSelectionMedium.font,
         {textXPos + txtSelectionMedium.font.getGlobalBounds().width,
-            height - txtSelectionMedium.height});
+            difficultyHeight});
 
     txtSelectionMedium.font.setScale(1.f, 1.f);
 
     // Bottom line
-    height += txtSelectionMedium.height * 1.5f;
-    createQuad(menuQuadColor, 0, width, height, height + lineThickness);
-    height += lineThickness;
+    height += txtSelectionMedium.height + textToQuadBorder + lineThickness;
+
+    createQuad(menuQuadColor, 0, width, height, height - lineThickness);
 
     //-------------------------------------
     // Pack info
 
     // "PACK"
-    height += txtSelectionMedium.height / 2.f;
+    height += textToQuadBorder;
+
     renderText("PACK", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset, height - txtSelectionMedium.height});
+        {textToQuadBorder - panelOffset, height -
+            txtSelectionMedium.height * fontHeightOffset});
 
     // Pack name
-    height += postTitleSpace;
+    height += txtSelectionMedium.height + mediumInterline;
     tempString = currentPack->name;
-    scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall.font,
+
+    scrollNameRightBorder(tempString, "NAME: ", txtSelectionSmall.font,
         namesScroll[static_cast<int>(Label::PackName)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
+    renderText(tempString, txtSelectionSmall.font,
+        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Pack author
-    height += smallLeftInterline;
+    height += txtSelectionSmall.height + mediumInterline;
+
     tempString = currentPack->author;
-    scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall.font,
+    scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionSmall.font,
         namesScroll[static_cast<int>(Label::PackAuthor)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
+    renderText(tempString, txtSelectionSmall.font,
+        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Version
-    height += smallLeftInterline;
+    height += txtSelectionSmall.height + mediumInterline;
+
     tempString = "VERSION: " + ssvu::toStr(currentPack->version);
     Utils::uppercasify(tempString);
-    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
+    renderText(tempString, txtSelectionSmall.font,
+        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Bottom line
     menuQuads.reserve_more(4);
-    height += preLineSpace;
-    createQuad(menuQuadColor, 0, width, height, height + lineThickness);
-    height += lineThickness;
+    height += txtSelectionSmall.height + txtSelectionMedium.height / 2.f +
+              lineThickness;
+
+    createQuad(menuQuadColor, 0, width, height, height - lineThickness);
 
     //-------------------------------------
     // Music info
 
     // "MUSIC"
-    height += txtSelectionMedium.height / 2.f;
+    height += textToQuadBorder;
+
     renderText("MUSIC", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset, height - txtSelectionMedium.height});
+        {textToQuadBorder - panelOffset,
+            height - txtSelectionMedium.height * fontHeightOffset});
 
     // Track name
     const MusicData& musicDataTemp =
         assets.getMusicData(levelData.packId, levelData.musicId);
-    height += postTitleSpace;
+    height += txtSelectionMedium.height + mediumInterline;
     tempString = musicDataTemp.name;
-    scrollNameRightBorder(tempString, "NAME: ", txtSelectionLSmall.font,
+
+    scrollNameRightBorder(tempString, "NAME: ", txtSelectionSmall.font,
         namesScroll[static_cast<int>(Label::MusicName)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
+    renderText(tempString, txtSelectionSmall.font,
+        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Track author
-    height += smallLeftInterline;
+    height += txtSelectionSmall.height + mediumInterline;
     tempString = musicDataTemp.author;
-    scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionLSmall.font,
+
+    scrollNameRightBorder(tempString, "AUTHOR: ", txtSelectionSmall.font,
         namesScroll[static_cast<int>(Label::MusicAuthor)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
+    renderText(tempString, txtSelectionSmall.font,
+        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
 
     // Album name
-    height += smallLeftInterline;
+    height += txtSelectionSmall.height + mediumInterline;
     tempString = !musicDataTemp.album.empty() ? musicDataTemp.album : "NONE";
-    scrollNameRightBorder(tempString, "ALBUM: ", txtSelectionLSmall.font,
+
+    scrollNameRightBorder(tempString, "ALBUM: ", txtSelectionSmall.font,
         namesScroll[static_cast<int>(Label::MusicAlbum)], textRightBorder);
-    renderText(tempString, txtSelectionLSmall.font, {textXPos, height});
+    renderText(tempString, txtSelectionSmall.font,
+        {textXPos, height - txtSelectionSmall.height * fontHeightOffset});
+
+    height += txtSelectionSmall.height + textToQuadBorder;
 
     //-------------------------------------
     // Favorite "button"
 
-    height += preLineSpace;
-    tempFloat = height + 3.f * txtSelectionMedium.height;
     menuQuads.reserve_more(8 * 5);
+    const float favoriteButtonBottom{height + 3.f * txtSelectionMedium.height};
 
     // Frame
     createQuad(menuQuadColor, lineThickness - panelOffset, width, height,
         height + lineThickness);
     createQuad(menuQuadColor, -panelOffset, lineThickness - panelOffset, height,
-        tempFloat);
-    createQuad(menuQuadColor, width, width, height, tempFloat);
+        favoriteButtonBottom);
+    createQuad(menuQuadColor, width, width, height, favoriteButtonBottom);
     createQuad(menuQuadColor, lineThickness - panelOffset, width,
-        tempFloat - lineThickness, tempFloat);
+        favoriteButtonBottom - lineThickness, favoriteButtonBottom);
     // Backdrop
     createQuad(menuSelectionColor, lineThickness - panelOffset, width,
-        height + lineThickness, tempFloat - lineThickness);
+        height + lineThickness, favoriteButtonBottom - lineThickness);
 
     // Also renders all previous quads
     render(menuQuads);
@@ -4977,44 +4996,42 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     renderTextCenteredOffset(
         isLevelFavorite ? "[F1] UNFAVORITE" : "[F1]    FAVORITE",
-        txtSelectionMedium.font, {maxPanelOffset / 2.f, height}, -panelOffset,
-        menuQuadColor);
+        txtSelectionMedium.font,
+        {maxPanelOffset / 2.f, height + txtSelectionMedium.height * (1.f - fontHeightOffset)},
+        -panelOffset, menuQuadColor);
 
-    height = tempFloat;
+    height = favoriteButtonBottom + textToQuadBorder;
 
     //-------------------------------------
     // Leaderboard
 
     // Personal best
-    height += txtSelectionMedium.height / 2.f;
-    renderText("LOCAL PERSONAL BEST", txtSelectionSmall.font,
+    renderText("LOCAL PERSONAL BEST", txtSelectionMedium.font,
         {textToQuadBorder - panelOffset,
-            height - txtSelectionSmall.height * fontTopBorder},
-        menuQuadColor);
+            height - txtSelectionMedium.height * fontHeightOffset});
 
     const auto currentDiffMult = ssvu::getByModIdx(diffMults, diffMultIdx);
 
     const std::string localLevelValidator =
         Utils::getLevelValidator(levelData.id, currentDiffMult);
 
-    height += txtSelectionSmall.height + txtSelectionSmall.height;
+    height += txtSelectionMedium.height + textToQuadBorder;
     tempString = localLevelValidator;
     renderText(
         ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) + "s",
         txtSelectionScore.font,
         {textToQuadBorder - panelOffset,
-            height - txtSelectionScore.height * fontTopBorder});
+            height - txtSelectionScore.height * fontHeightOffset});
 
     // Line
-    height += txtSelectionBig.height + textToQuadBorder;
+    height += txtSelectionScore.height + textToQuadBorder + lineThickness;
     menuQuads.reserve(4);
-    createQuad(menuQuadColor, 0, width, height, height + lineThickness);
-    height += lineThickness;
+    createQuad(menuQuadColor, 0, width, height, height - lineThickness);
 
     // "LEADERBOARD"
     height += textToQuadBorder;
     renderTextCenteredOffset("ONLINE LEADERBOARD", txtSelectionBig.font,
-        {maxPanelOffset / 2.f, height - txtSelectionBig.height * fontTopBorder},
+        {maxPanelOffset / 2.f, height - txtSelectionBig.height * fontHeightOffset},
         -panelOffset);
 
     // Line
@@ -5029,7 +5046,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     {
         renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontTopBorder});
+                height - txtSelectionSmall.height * fontHeightOffset});
     }
     else
     {
@@ -5060,7 +5077,7 @@ void MenuGame::drawLevelSelectionLeftSide(
             std::string playerStr = userName;
 
             const float tx = textToQuadBorder - panelOffset;
-            const float ty = height - txtSelectionMedium.height * fontTopBorder;
+            const float ty = height - txtSelectionMedium.height * fontHeightOffset;
 
             renderText(posStr, txtSelectionMedium.font, {tx, ty});
             renderText(scoreStr, txtSelectionMedium.font, {tx + 54.f, ty});
@@ -5085,7 +5102,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         else
         {
             const float tx = textToQuadBorder - panelOffset;
-            const float ty = height - txtSelectionMedium.height * fontTopBorder;
+            const float ty = height - txtSelectionMedium.height * fontHeightOffset;
 
             renderText("NO SCORES FOUND", txtSelectionMedium.font, {tx, ty});
         }
@@ -5100,7 +5117,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         renderText("YOUR POSITION", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontTopBorder});
+                height - txtSelectionSmall.height * fontHeightOffset});
 
         height += txtSelectionSmall.height * 2.f;
 
@@ -5108,7 +5125,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         if(ownScore == nullptr)
         {
             const float tx = textToQuadBorder - panelOffset;
-            const float ty = height - txtSelectionMedium.height * fontTopBorder;
+            const float ty = height - txtSelectionMedium.height * fontHeightOffset;
 
             renderText("NO OWN SCORE SET", txtSelectionMedium.font, {tx, ty});
         }
@@ -5158,7 +5175,7 @@ void MenuGame::draw()
     if(mainOrAbove && state != States::LevelSelection && Config::getOnline())
     {
         renderText("CURRENT PROFILE: " + assets.pGetName(),
-            txtSelectionLSmall.font,
+            txtSelectionSmall.font,
             sf::Vector2f{20.f, ssvs::getGlobalBottom(titleBar) + 8});
     }
 
