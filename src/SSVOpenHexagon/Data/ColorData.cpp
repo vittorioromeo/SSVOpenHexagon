@@ -22,8 +22,7 @@ ColorData::ColorData(const ssvuj::Obj& mRoot)
       offset{ssvuj::getExtr<float>(mRoot, "offset", 0.f)},
       color{ssvuj::getExtr<sf::Color>(mRoot, "value", sf::Color::Black)},
       pulse{hg::pulse_from_json(mRoot)}
-{
-}
+{}
 
 ColorData::ColorData(const bool mMain, const bool mDynamic,
     const bool mDynamicOffset, const float mDynamicDarkness,
@@ -37,8 +36,7 @@ ColorData::ColorData(const bool mMain, const bool mDynamic,
       offset{mOffset},
       color{mColor},
       pulse{mPulse}
-{
-}
+{}
 
 [[nodiscard]] PulseColor pulse_from_json(const ssvuj::Obj& root) noexcept
 {

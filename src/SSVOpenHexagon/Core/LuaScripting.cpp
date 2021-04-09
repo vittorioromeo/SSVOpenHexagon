@@ -39,17 +39,14 @@ Utils::LuaMetadataProxy addLuaFn(
 
 static void initRandom(Lua::LuaContext& lua, random_number_generator& rng)
 {
-    const auto rndReal = [&rng]() -> float {
-        return rng.get_real<float>(0, 1);
-    };
+    const auto rndReal = [&rng]() -> float
+    { return rng.get_real<float>(0, 1); };
 
-    const auto rndIntUpper = [&rng](int upper) -> float {
-        return rng.get_int<int>(1, upper);
-    };
+    const auto rndIntUpper = [&rng](int upper) -> float
+    { return rng.get_int<int>(1, upper); };
 
-    const auto rndInt = [&rng](int lower, int upper) -> float {
-        return rng.get_int<int>(lower, upper);
-    };
+    const auto rndInt = [&rng](int lower, int upper) -> float
+    { return rng.get_int<int>(lower, upper); };
 
     addLuaFn(lua, "u_rndReal", rndReal)
         .doc("Return a random real number in the [0; 1] range.");
@@ -64,8 +61,8 @@ static void initRandom(Lua::LuaContext& lua, random_number_generator& rng)
         .doc("Return a random integer number in the [`$0`; `$1`] range.");
 
     addLuaFn(lua, "u_rndSwitch",
-        [rndReal, rndIntUpper, rndInt](
-            int mode, int lower, int upper) -> float {
+        [rndReal, rndIntUpper, rndInt](int mode, int lower, int upper) -> float
+        {
             if(mode == 0)
             {
                 return rndReal();
@@ -214,9 +211,8 @@ static void initUtils(Lua::LuaContext& lua, const bool inMenu)
 static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
 {
     addLuaFn(lua, "cw_create", //
-        [&cwManager]() -> CCustomWallHandle {
-            return cwManager.create([](CCustomWall&) {});
-        })
+        [&cwManager]() -> CCustomWallHandle
+        { return cwManager.create([](CCustomWall&) {}); })
         .doc("Create a new custom wall and return a integer handle to it.");
 
     addLuaFn(lua, "cw_createDeadly", //
@@ -238,8 +234,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "handle to it.");
 
     addLuaFn(lua, "cw_destroy", //
-        [&cwManager](
-            CCustomWallHandle cwHandle) { cwManager.destroy(cwHandle); })
+        [&cwManager](CCustomWallHandle cwHandle)
+        { cwManager.destroy(cwHandle); })
         .arg("cwHandle")
         .doc("Destroy the custom wall represented by `$0`.");
 
@@ -301,7 +297,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             float x0, float y0,                  //
             float x1, float y1,                  //
             float x2, float y2,                  //
-            float x3, float y3) {
+            float x3, float y3)
+        {
             cwManager.setVertexPos4(cwHandle, //
                 sf::Vector2f{x0, y0},         //
                 sf::Vector2f{x1, y1},         //
@@ -328,7 +325,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             int r0, int g0, int b0, int a0,      //
             int r1, int g1, int b1, int a1,      //
             int r2, int g2, int b2, int a2,      //
-            int r3, int g3, int b3, int a3) {
+            int r3, int g3, int b3, int a3)
+        {
             cwManager.setVertexColor4(cwHandle, //
                 sf::Color(r0, g0, b0, a0),      //
                 sf::Color(r1, g1, b1, a1),      //
@@ -360,9 +358,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "`cw_setVertexColor` four times in a row.");
 
     addLuaFn(lua, "cw_setVertexColor4Same", //
-        [&cwManager](CCustomWallHandle cwHandle, int r, int g, int b, int a) {
-            cwManager.setVertexColor4Same(cwHandle, sf::Color(r, g, b, a));
-        })
+        [&cwManager](CCustomWallHandle cwHandle, int r, int g, int b, int a)
+        { cwManager.setVertexColor4Same(cwHandle, sf::Color(r, g, b, a)); })
         .arg("cwHandle")
         .arg("r")
         .arg("g")
@@ -375,9 +372,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "in a row.");
 
     addLuaFn(lua, "cw_setCollision", //
-        [&cwManager](CCustomWallHandle cwHandle, bool collision) {
-            cwManager.setCanCollide(cwHandle, collision);
-        })
+        [&cwManager](CCustomWallHandle cwHandle, bool collision)
+        { cwManager.setCanCollide(cwHandle, collision); })
         .arg("cwHandle")
         .arg("collision")
         .doc(
@@ -387,9 +383,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "custom walls can collide with the player.");
 
     addLuaFn(lua, "cw_setDeadly", //
-        [&cwManager](CCustomWallHandle cwHandle, bool deadly) {
-            cwManager.setDeadly(cwHandle, deadly);
-        })
+        [&cwManager](CCustomWallHandle cwHandle, bool deadly)
+        { cwManager.setDeadly(cwHandle, deadly); })
         .arg("cwHandle")
         .arg("deadly")
         .doc(
@@ -399,9 +394,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "or very thin and should definitively kill the player.");
 
     addLuaFn(lua, "cw_setKillingSide", //
-        [&cwManager](CCustomWallHandle cwHandle, unsigned int side) {
-            cwManager.setKillingSide(cwHandle, side);
-        })
+        [&cwManager](CCustomWallHandle cwHandle, unsigned int side)
+        { cwManager.setKillingSide(cwHandle, side); })
         .arg("cwHandle")
         .arg("side")
         .doc(
@@ -412,27 +406,24 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "This parameter is useless if the custom wall is deadly.");
 
     addLuaFn(lua, "cw_getCollision", //
-        [&cwManager](CCustomWallHandle cwHandle) -> bool {
-            return cwManager.getCanCollide(cwHandle);
-        })
+        [&cwManager](CCustomWallHandle cwHandle) -> bool
+        { return cwManager.getCanCollide(cwHandle); })
         .arg("cwHandle")
         .doc(
             "Given the custom wall represented by `$0`, get whether it can "
             "collide with player or not.");
 
     addLuaFn(lua, "cw_getDeadly", //
-        [&cwManager](CCustomWallHandle cwHandle) -> bool {
-            return cwManager.getDeadly(cwHandle);
-        })
+        [&cwManager](CCustomWallHandle cwHandle) -> bool
+        { return cwManager.getDeadly(cwHandle); })
         .arg("cwHandle")
         .doc(
             "Given the custom wall represented by `$0`, get whether it "
             "instantly kills the player on touch or not.");
 
     addLuaFn(lua, "cw_getKillingSide", //
-        [&cwManager](CCustomWallHandle cwHandle) -> unsigned int {
-            return cwManager.getKillingSide(cwHandle);
-        })
+        [&cwManager](CCustomWallHandle cwHandle) -> unsigned int
+        { return cwManager.getKillingSide(cwHandle); })
         .arg("cwHandle")
         .doc(
             "Given the custom wall represented by `$0`, get which one of its "
@@ -440,7 +431,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
 
     addLuaFn(lua, "cw_getVertexPos", //
         [&cwManager](CCustomWallHandle cwHandle,
-            int vertexIndex) -> std::tuple<float, float> {
+            int vertexIndex) -> std::tuple<float, float>
+        {
             const sf::Vector2f& pos =
                 cwManager.getVertexPos(cwHandle, vertexIndex);
 
@@ -455,7 +447,8 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
     addLuaFn(lua, "cw_getVertexPos4", //
         [&cwManager](
             CCustomWallHandle cwHandle) -> std::tuple<float, float, float,
-                                            float, float, float, float, float> {
+                                            float, float, float, float, float>
+        {
             const auto& [p0, p1, p2, p3] = cwManager.getVertexPos4(cwHandle);
             return {p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y};
         })
@@ -512,7 +505,8 @@ void printDocs()
 
         lm.forFnEntries(
             [](const std::string& ret, const std::string& name,
-                const std::string& args, const std::string& docs) {
+                const std::string& args, const std::string& docs)
+            {
                 std::cout << "* **`" << ret << " " << name << "(" << args
                           << ")`**: " << docs << "\n\n";
             },
@@ -524,14 +518,15 @@ const std::vector<std::string>& getAllFunctionNames()
 {
     Utils::LuaMetadata& lm = getMetadata();
 
-    static std::vector<std::string> result = [&] {
+    static std::vector<std::string> result = [&]
+    {
         std::vector<std::string> v;
 
         for(std::size_t i = 0; i < lm.getNumCategories(); ++i)
         {
             lm.forFnEntries([&](const std::string&, const std::string& name,
-                                const std::string&,
-                                const std::string&) { v.emplace_back(name); },
+                                const std::string&, const std::string&)
+                { v.emplace_back(name); },
                 i);
         }
 
@@ -552,7 +547,8 @@ std::string getDocsForFunction(const std::string& fnName)
     {
         lm.forFnEntries(
             [&](const std::string& ret, const std::string& name,
-                const std::string& args, const std::string& docs) {
+                const std::string& args, const std::string& docs)
+            {
                 if(found || name != fnName)
                 {
                     return; // basically a `continue`

@@ -58,8 +58,7 @@ struct Features
     inline Features() = default;
     inline Features(bool mAllowComments, bool mStrictRoot)
         : allowComments_{mAllowComments}, strictRoot_{mStrictRoot}
-    {
-    }
+    {}
     inline static Features all() noexcept
     {
         return {};
@@ -95,8 +94,7 @@ private:
 
 public:
     inline explicit StaticString(const char* czstring) : str_(czstring)
-    {
-    }
+    {}
     inline operator const char*() const noexcept
     {
         return str_;
@@ -556,8 +554,7 @@ class FastWriter final : public Writer
 public:
     FastWriter();
     virtual ~FastWriter()
-    {
-    }
+    {}
     void enableYAMLCompatibility();
     void dropNullPlaceholders();
     virtual std::string write(const Value& root);
@@ -573,8 +570,7 @@ class StyledWriter final : public Writer
 public:
     StyledWriter();
     virtual ~StyledWriter()
-    {
-    }
+    {}
     virtual std::string write(const Value& root);
 
 private:
@@ -603,8 +599,7 @@ class StyledStreamWriter
 public:
     StyledStreamWriter(std::string indentation = "\t");
     ~StyledStreamWriter()
-    {
-    }
+    {}
     void write(std::ostream& out, const Value& root);
 
 private:

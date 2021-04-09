@@ -374,7 +374,8 @@ bool HexagonClient::connect()
         return fail("Socket already initialized");
     }
 
-    const auto failEvent = [&](const std::string& reason) {
+    const auto failEvent = [&](const std::string& reason)
+    {
         const std::string errorStr = "Failure connecting, error " + reason;
         SSVOH_CLOG_ERROR << errorStr << '\n';
 
@@ -526,7 +527,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
     return Utils::match(
         pv,
 
-        [&](const PInvalid&) {
+        [&](const PInvalid&)
+        {
             return fail("Error processing packet from server, details: ",
                 _errorOss.str());
         },
@@ -536,7 +538,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                 "Received non-decrypted encrypted msg packet from server");
         },
 
-        [&](const STCPKick&) {
+        [&](const STCPKick&)
+        {
             SSVOH_CLOG << "Received kick packet from server, disconnecting\n";
 
             addEvent(EKicked{});
@@ -545,7 +548,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPPublicKey& stcp) {
+        [&](const STCPPublicKey& stcp)
+        {
             SSVOH_CLOG << "Received public key packet from server\n";
 
             if(_serverPublicKey.has_value())
@@ -590,14 +594,16 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPRegistrationSuccess&) {
+        [&](const STCPRegistrationSuccess&)
+        {
             SSVOH_CLOG << "Successfully registered to server\n";
 
             addEvent(ERegistrationSuccess{});
             return true;
         },
 
-        [&](const STCPRegistrationFailure& stcp) {
+        [&](const STCPRegistrationFailure& stcp)
+        {
             SSVOH_CLOG << "Registration to server failed, error: '"
                        << stcp.error << "'\n";
 
@@ -605,7 +611,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPLoginSuccess& stcp) {
+        [&](const STCPLoginSuccess& stcp)
+        {
             SSVOH_CLOG << "Successfully logged into server, token: '"
                        << stcp.loginToken << "'\n";
 
@@ -627,7 +634,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPLoginFailure& stcp) {
+        [&](const STCPLoginFailure& stcp)
+        {
             SSVOH_CLOG << "Login to server failed, error: '" << stcp.error
                        << "'\n";
 
@@ -635,28 +643,32 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPLogoutSuccess&) {
+        [&](const STCPLogoutSuccess&)
+        {
             SSVOH_CLOG << "Logout from server success\n";
 
             addEvent(ELogoutSuccess{});
             return true;
         },
 
-        [&](const STCPLogoutFailure&) {
+        [&](const STCPLogoutFailure&)
+        {
             SSVOH_CLOG << "Logout from server failure\n";
 
             addEvent(ELogoutFailure{});
             return true;
         },
 
-        [&](const STCPDeleteAccountSuccess&) {
+        [&](const STCPDeleteAccountSuccess&)
+        {
             SSVOH_CLOG << "Delete account from server success\n";
 
             addEvent(EDeleteAccountSuccess{});
             return true;
         },
 
-        [&](const STCPDeleteAccountFailure& stcp) {
+        [&](const STCPDeleteAccountFailure& stcp)
+        {
             SSVOH_CLOG << "Delete account from server failure, error: '"
                        << stcp.error << "'\n";
 
@@ -664,7 +676,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPTopScores& stcp) {
+        [&](const STCPTopScores& stcp)
+        {
             SSVOH_CLOG << "Received top scores from server, levelValidator: '"
                        << stcp.levelValidator << "', size: '"
                        << stcp.scores.size() << "'\n";
@@ -675,7 +688,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPOwnScore& stcp) {
+        [&](const STCPOwnScore& stcp)
+        {
             SSVOH_CLOG << "Received own score from server, levelValidator: '"
                        << stcp.levelValidator << "'\n";
 
@@ -685,7 +699,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPTopScoresAndOwnScore& stcp) {
+        [&](const STCPTopScoresAndOwnScore& stcp)
+        {
             SSVOH_CLOG << "Received top scores and own score from server, "
                           "levelValidator: '"
                        << stcp.levelValidator << "'\n";

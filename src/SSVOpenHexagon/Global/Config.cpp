@@ -120,7 +120,8 @@ namespace hg::Config {
 
 [[nodiscard]] static ssvuj::Obj& root() noexcept
 {
-    static ssvuj::Obj res = [] {
+    static ssvuj::Obj res = []
+    {
         if(ssvufs::Path{"config.json"}.exists<ssvufs::Type::File>())
         {
             ssvu::lo("hg::Config::root()")
@@ -161,7 +162,8 @@ X_LINKEDVALUES
 
 static void fixupMissingTriggers()
 {
-    const auto doIt = [](ssvs::Input::Trigger& trig) {
+    const auto doIt = [](ssvs::Input::Trigger& trig)
+    {
         auto& combos = trig.getCombos();
 
         if(!combos.empty())

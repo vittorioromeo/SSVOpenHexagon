@@ -9,8 +9,7 @@ namespace hg {
 LevelStatus::LevelStatus(
     const bool mSyncMusicToDM, const float mWallSpawnDistance)
     : syncMusicToDM{mSyncMusicToDM}, wallSpawnDistance{mWallSpawnDistance}
-{
-}
+{}
 
 [[nodiscard]] bool LevelStatus::hasSpeedMaxLimit() const noexcept
 {

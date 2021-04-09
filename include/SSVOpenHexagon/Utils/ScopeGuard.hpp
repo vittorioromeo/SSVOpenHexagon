@@ -14,8 +14,7 @@ template <typename F>
 struct scope_guard : F
 {
     explicit scope_guard(F&& f) noexcept : F{std::move(f)}
-    {
-    }
+    {}
 
     ~scope_guard() noexcept
     {

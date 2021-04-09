@@ -340,7 +340,8 @@ bool steam_manager::update_hardcoded_achievement_cube_master()
         return false;
     }
 
-    const auto unlocked = [this](const char* name) -> int {
+    const auto unlocked = [this](const char* name) -> int
+    {
         bool res{false};
         const bool rc = get_achievement(&res, name);
 
@@ -397,7 +398,8 @@ bool steam_manager::update_hardcoded_achievement_hypercube_master()
         return false;
     }
 
-    const auto unlocked = [this](const char* name) -> int {
+    const auto unlocked = [this](const char* name) -> int
+    {
         bool res{false};
         const bool rc = get_achievement(&res, name);
 

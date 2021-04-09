@@ -241,12 +241,12 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     game.onDraw += [this] { draw(); };
 
     game.onEvent(sf::Event::EventType::Resized) +=
-        [this](const sf::Event& event) {
-            changeResolutionTo(event.size.width, event.size.height);
-        };
+        [this](const sf::Event& event)
+    { changeResolutionTo(event.size.width, event.size.height); };
 
-    game.onEvent(
-        sf::Event::EventType::TextEntered) += [this](const sf::Event& mEvent) {
+    game.onEvent(sf::Event::EventType::TextEntered) +=
+        [this](const sf::Event& mEvent)
+    {
         if(mEvent.text.unicode < 128)
         {
             enteredChars.emplace_back(ssvu::toNum<char>(mEvent.text.unicode));
@@ -254,41 +254,43 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     game.onEvent(sf::Event::EventType::MouseWheelMoved) +=
-        [this](const sf::Event& mEvent) {
-            // Disable scroll while assigning a bind
-            if(state == States::MOpts)
+        [this](const sf::Event& mEvent)
+    {
+        // Disable scroll while assigning a bind
+        if(state == States::MOpts)
+        {
+            const auto* const bc{
+                dynamic_cast<BindControlBase*>(&getCurrentMenu()->getItem())};
+            if(bc != nullptr && bc->isWaitingForBind())
             {
-                const auto* const bc{dynamic_cast<BindControlBase*>(
-                    &getCurrentMenu()->getItem())};
-                if(bc != nullptr && bc->isWaitingForBind())
-                {
-                    return;
-                }
-            }
-
-            if(state == States::LevelSelection && focusHeld)
-            {
-                changePackQuick(mEvent.mouseWheel.delta > 0 ? -1 : 1);
                 return;
             }
+        }
 
-            wheelProgress += mEvent.mouseWheel.delta;
-            if(wheelProgress > 1.f)
-            {
-                wheelProgress = 0.f;
-                upAction();
-            }
-            else if(wheelProgress < -1.f)
-            {
-                wheelProgress = 0.f;
-                downAction();
-            }
-        };
+        if(state == States::LevelSelection && focusHeld)
+        {
+            changePackQuick(mEvent.mouseWheel.delta > 0 ? -1 : 1);
+            return;
+        }
+
+        wheelProgress += mEvent.mouseWheel.delta;
+        if(wheelProgress > 1.f)
+        {
+            wheelProgress = 0.f;
+            upAction();
+        }
+        else if(wheelProgress < -1.f)
+        {
+            wheelProgress = 0.f;
+            downAction();
+        }
+    };
 
     // To close the load results with any key
     setIgnoreAllInputs(1);
 
-    const auto checkCloseBootScreens = [this] {
+    const auto checkCloseBootScreens = [this]
+    {
         if((--ignoreInputs) == 0)
         {
             if(state == States::LoadingScreen)
@@ -311,21 +313,25 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    const auto checkCloseDialogBox = [this] {
-        const auto closeBox = [this] {
+    const auto checkCloseDialogBox = [this]
+    {
+        const auto closeBox = [this]
+        {
             playSoundOverride("select.ogg");
             dialogBox.clearDialogBox();
             setIgnoreAllInputs(0);
         };
 
         const auto transitionInputSequence =
-            [this, closeBox](const DialogInputState newState) {
-                dialogInputState = newState;
-                HG_SCOPE_GUARD({ closeBox(); });
-                return dialogBox.getInput();
-            };
+            [this, closeBox](const DialogInputState newState)
+        {
+            dialogInputState = newState;
+            HG_SCOPE_GUARD({ closeBox(); });
+            return dialogBox.getInput();
+        };
 
-        const auto endInputSequence = [this, closeBox] {
+        const auto endInputSequence = [this, closeBox]
+        {
             dialogInputState = DialogInputState::Nothing;
             HG_SCOPE_GUARD({ closeBox(); });
             return dialogBox.getInput();
@@ -388,244 +394,246 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     };
 
     game.onEvent(sf::Event::EventType::TextEntered) +=
-        [this](const sf::Event& mEvent) {
-            if(dialogBox.empty() || !dialogBox.isInputBox())
-            {
-                return;
-            }
+        [this](const sf::Event& mEvent)
+    {
+        if(dialogBox.empty() || !dialogBox.isInputBox())
+        {
+            return;
+        }
 
-            std::string& input = dialogBox.getInput();
+        std::string& input = dialogBox.getInput();
 
-            if(mEvent.text.unicode >= 32 && mEvent.text.unicode < 127)
+        if(mEvent.text.unicode >= 32 && mEvent.text.unicode < 127)
+        {
+            if(input.size() < 32)
             {
-                if(input.size() < 32)
-                {
-                    playSoundOverride("beep.ogg");
-                    input.push_back(static_cast<char>(mEvent.text.unicode));
-                }
+                playSoundOverride("beep.ogg");
+                input.push_back(static_cast<char>(mEvent.text.unicode));
             }
-            else if(mEvent.text.unicode == 8) // backspace
+        }
+        else if(mEvent.text.unicode == 8) // backspace
+        {
+            if(!input.empty())
             {
-                if(!input.empty())
-                {
-                    playSoundOverride("beep.ogg");
-                    input.pop_back();
-                }
+                playSoundOverride("beep.ogg");
+                input.pop_back();
             }
-        };
+        }
+    };
 
     game.onEvent(sf::Event::EventType::KeyReleased) +=
         [this, checkCloseBootScreens, checkCloseDialogBox](
-            const sf::Event& mEvent) {
-            // don't do anything if inputs are being processed as usual
-            if(ignoreInputs == 0)
+            const sf::Event& mEvent)
+    {
+        // don't do anything if inputs are being processed as usual
+        if(ignoreInputs == 0)
+        {
+            return;
+        }
+
+        // Scenario one: epilepsy warning is being drawn and user
+        // must close it with any key press
+        if(state == States::EpilepsyWarning || state == States::LoadingScreen)
+        {
+            checkCloseBootScreens();
+            return;
+        }
+
+        // Scenario two: actions are blocked cause a dialog box is open
+        if(dialogBoxDelay > 0.f)
+        {
+            return;
+        }
+
+        const ssvs::KKey key{mEvent.key.code};
+        if(!dialogBox.empty())
+        {
+            if(dialogBox.getKeyToClose() == ssvs::KKey::Unknown ||
+                key == dialogBox.getKeyToClose())
             {
-                return;
+                --ignoreInputs;
             }
 
-            // Scenario one: epilepsy warning is being drawn and user
-            // must close it with any key press
-            if(state == States::EpilepsyWarning ||
-                state == States::LoadingScreen)
+            if(dialogBox.isInputBox() && key == ssvs::KKey::Escape)
             {
-                checkCloseBootScreens();
-                return;
-            }
-
-            // Scenario two: actions are blocked cause a dialog box is open
-            if(dialogBoxDelay > 0.f)
-            {
-                return;
-            }
-
-            const ssvs::KKey key{mEvent.key.code};
-            if(!dialogBox.empty())
-            {
-                if(dialogBox.getKeyToClose() == ssvs::KKey::Unknown ||
-                    key == dialogBox.getKeyToClose())
-                {
-                    --ignoreInputs;
-                }
-
-                if(dialogBox.isInputBox() && key == ssvs::KKey::Escape)
-                {
-                    setIgnoreAllInputs(0);
-                    dialogInputState = DialogInputState::Nothing;
-
-                    playSoundOverride("select.ogg");
-                    dialogBox.clearDialogBox();
-
-                    return;
-                }
-
-                checkCloseDialogBox();
-                return;
-            }
-
-            // Scenario three: actions are blocked cause we are using a
-            // BindControl menu item
-            if(getCurrentMenu() != nullptr && key == ssvs::KKey::Escape)
-            {
-                getCurrentMenu()->getItem().exec(); // turn off bind inputting
                 setIgnoreAllInputs(0);
-                playSoundOverride("beep.ogg");
-                return;
-            }
-
-            if((--ignoreInputs) == 0)
-            {
-                if(getCurrentMenu() == nullptr || state != States::MOpts)
-                {
-                    setIgnoreAllInputs(0);
-                    return;
-                }
-
-                auto* const bc{dynamic_cast<KeyboardBindControl*>(
-                    &getCurrentMenu()->getItem())};
-
-                // don't try assigning a keyboard key to a controller bind
-                if(bc == nullptr)
-                {
-                    playSoundOverride("error.ogg");
-                    ignoreInputs = 1;
-                    return;
-                }
-
-                // If user tries to bind a key that is already hardcoded ignore
-                // the input and notify it of what has happened.
-                if(!bc->newKeyboardBind(key))
-                {
-                    playSoundOverride("error.ogg");
-                    setIgnoreAllInputs(1);
-                    showDialogBox(
-                        "THE KEY YOU ARE TRYING TO ASSIGN TO THIS ACTION\n"
-                        "IS ALREADY BOUND TO IT BY DEFAULT,\n"
-                        "YOUR LAST INPUT HAS BEEN IGNORED\n\n"
-                        "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
-                    return;
-                }
+                dialogInputState = DialogInputState::Nothing;
 
                 playSoundOverride("select.ogg");
-                setIgnoreAllInputs(0);
-                touchDelay = 10.f;
+                dialogBox.clearDialogBox();
+
+                return;
             }
-        };
+
+            checkCloseDialogBox();
+            return;
+        }
+
+        // Scenario three: actions are blocked cause we are using a
+        // BindControl menu item
+        if(getCurrentMenu() != nullptr && key == ssvs::KKey::Escape)
+        {
+            getCurrentMenu()->getItem().exec(); // turn off bind inputting
+            setIgnoreAllInputs(0);
+            playSoundOverride("beep.ogg");
+            return;
+        }
+
+        if((--ignoreInputs) == 0)
+        {
+            if(getCurrentMenu() == nullptr || state != States::MOpts)
+            {
+                setIgnoreAllInputs(0);
+                return;
+            }
+
+            auto* const bc{dynamic_cast<KeyboardBindControl*>(
+                &getCurrentMenu()->getItem())};
+
+            // don't try assigning a keyboard key to a controller bind
+            if(bc == nullptr)
+            {
+                playSoundOverride("error.ogg");
+                ignoreInputs = 1;
+                return;
+            }
+
+            // If user tries to bind a key that is already hardcoded ignore
+            // the input and notify it of what has happened.
+            if(!bc->newKeyboardBind(key))
+            {
+                playSoundOverride("error.ogg");
+                setIgnoreAllInputs(1);
+                showDialogBox(
+                    "THE KEY YOU ARE TRYING TO ASSIGN TO THIS ACTION\n"
+                    "IS ALREADY BOUND TO IT BY DEFAULT,\n"
+                    "YOUR LAST INPUT HAS BEEN IGNORED\n\n"
+                    "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+                return;
+            }
+
+            playSoundOverride("select.ogg");
+            setIgnoreAllInputs(0);
+            touchDelay = 10.f;
+        }
+    };
 
     game.onEvent(sf::Event::EventType::MouseButtonReleased) +=
         [this, checkCloseBootScreens, checkCloseDialogBox](
-            const sf::Event& mEvent) {
-            if(ignoreInputs == 0)
+            const sf::Event& mEvent)
+    {
+        if(ignoreInputs == 0)
+        {
+            return;
+        }
+
+        if(state == States::EpilepsyWarning || state == States::LoadingScreen)
+        {
+            checkCloseBootScreens();
+            return;
+        }
+
+        if(dialogBoxDelay > 0.f)
+        {
+            return;
+        }
+
+        if(!dialogBox.empty())
+        {
+            if(dialogBox.getKeyToClose() != ssvs::KKey::Unknown)
             {
                 return;
             }
+            --ignoreInputs;
+            checkCloseDialogBox();
+            return;
+        }
 
-            if(state == States::EpilepsyWarning ||
-                state == States::LoadingScreen)
+        if((--ignoreInputs) == 0)
+        {
+            if(getCurrentMenu() == nullptr || state != States::MOpts)
             {
-                checkCloseBootScreens();
-                return;
-            }
-
-            if(dialogBoxDelay > 0.f)
-            {
-                return;
-            }
-
-            if(!dialogBox.empty())
-            {
-                if(dialogBox.getKeyToClose() != ssvs::KKey::Unknown)
-                {
-                    return;
-                }
-                --ignoreInputs;
-                checkCloseDialogBox();
-                return;
-            }
-
-            if((--ignoreInputs) == 0)
-            {
-                if(getCurrentMenu() == nullptr || state != States::MOpts)
-                {
-                    setIgnoreAllInputs(0);
-                    return;
-                }
-
-                auto* const bc{dynamic_cast<KeyboardBindControl*>(
-                    &getCurrentMenu()->getItem())};
-
-                // don't try assigning a keyboard key to a controller bind
-                if(bc == nullptr)
-                {
-                    playSoundOverride("error.ogg");
-                    ignoreInputs = 1;
-                    return;
-                }
-
-                bc->newKeyboardBind(mEvent.mouseButton.button);
-                playSoundOverride("select.ogg");
                 setIgnoreAllInputs(0);
-                touchDelay = 10.f;
+                return;
             }
-        };
+
+            auto* const bc{dynamic_cast<KeyboardBindControl*>(
+                &getCurrentMenu()->getItem())};
+
+            // don't try assigning a keyboard key to a controller bind
+            if(bc == nullptr)
+            {
+                playSoundOverride("error.ogg");
+                ignoreInputs = 1;
+                return;
+            }
+
+            bc->newKeyboardBind(mEvent.mouseButton.button);
+            playSoundOverride("select.ogg");
+            setIgnoreAllInputs(0);
+            touchDelay = 10.f;
+        }
+    };
 
     game.onEvent(sf::Event::EventType::JoystickButtonReleased) +=
         [this, checkCloseBootScreens, checkCloseDialogBox](
-            const sf::Event& mEvent) {
-            if(ignoreInputs == 0)
+            const sf::Event& mEvent)
+    {
+        if(ignoreInputs == 0)
+        {
+            return;
+        }
+
+        if(state == States::EpilepsyWarning || state == States::LoadingScreen)
+        {
+            checkCloseBootScreens();
+            return;
+        }
+
+        if(dialogBoxDelay > 0.f)
+        {
+            return;
+        }
+
+        if(!dialogBox.empty())
+        {
+            if(dialogBox.getKeyToClose() != ssvs::KKey::Unknown)
             {
                 return;
             }
+            --ignoreInputs;
+            checkCloseDialogBox();
+            return;
+        }
 
-            if(state == States::EpilepsyWarning ||
-                state == States::LoadingScreen)
+        if((--ignoreInputs) == 0)
+        {
+            if(getCurrentMenu() == nullptr || state != States::MOpts)
             {
-                checkCloseBootScreens();
-                return;
-            }
-
-            if(dialogBoxDelay > 0.f)
-            {
-                return;
-            }
-
-            if(!dialogBox.empty())
-            {
-                if(dialogBox.getKeyToClose() != ssvs::KKey::Unknown)
-                {
-                    return;
-                }
-                --ignoreInputs;
-                checkCloseDialogBox();
-                return;
-            }
-
-            if((--ignoreInputs) == 0)
-            {
-                if(getCurrentMenu() == nullptr || state != States::MOpts)
-                {
-                    setIgnoreAllInputs(0);
-                    return;
-                }
-
-                auto* const bc{dynamic_cast<JoystickBindControl*>(
-                    &getCurrentMenu()->getItem())};
-
-                // don't try assigning a controller button to a keyboard bind
-                if(bc == nullptr)
-                {
-                    playSoundOverride("error.ogg");
-                    ignoreInputs = 1;
-                    return;
-                }
-
-                bc->newJoystickBind(mEvent.joystickButton.button);
                 setIgnoreAllInputs(0);
-                playSoundOverride("select.ogg");
-                touchDelay = 10.f;
+                return;
             }
-        };
 
-    window.onRecreation += [this] {
+            auto* const bc{dynamic_cast<JoystickBindControl*>(
+                &getCurrentMenu()->getItem())};
+
+            // don't try assigning a controller button to a keyboard bind
+            if(bc == nullptr)
+            {
+                playSoundOverride("error.ogg");
+                ignoreInputs = 1;
+                return;
+            }
+
+            bc->newJoystickBind(mEvent.joystickButton.button);
+            setIgnoreAllInputs(0);
+            playSoundOverride("select.ogg");
+            touchDelay = 10.f;
+        }
+    };
+
+    window.onRecreation += [this]
+    {
         refreshCamera();
         adjustLevelsOffset();
         adjustMenuOffset(true);
@@ -746,11 +754,11 @@ void MenuGame::changeStateTo(const States mState)
         return;
     }
 
-    const auto mustShowTip = [&](const States s, bool& flag) {
-        return state == s && std::exchange(flag, false);
-    };
+    const auto mustShowTip = [&](const States s, bool& flag)
+    { return state == s && std::exchange(flag, false); };
 
-    const auto showTip = [&](const char* str) {
+    const auto showTip = [&](const char* str)
+    {
         playSoundOverride("select.ogg");
 
         showDialogBox(str);
@@ -800,7 +808,8 @@ void MenuGame::initInput()
     using t = ssvs::Input::Type;
     using Tid = Config::Tid;
 
-    const auto addTidInput = [&](const Tid tid, const t type, auto action) {
+    const auto addTidInput = [&](const Tid tid, const t type, auto action)
+    {
         game.addInput(
             Config::getTrigger(tid), action, type, static_cast<int>(tid));
     };
@@ -833,7 +842,8 @@ void MenuGame::initInput()
 
     game.addInput( // hardcoded
         {{k::Escape}},
-        [this](ssvs::FT mFT) {
+        [this](ssvs::FT mFT)
+        {
             if(state != States::MOpts)
             {
                 exitTimer += mFT;
@@ -844,20 +854,23 @@ void MenuGame::initInput()
     game.addInput( // hardcoded
         {{k::Escape}}, [this](ssvu::FT /*unused*/) { exitAction(); }, t::Once);
 
-    addTidInput(Tid::Exit, t::Once, [this](ssvu::FT /*unused*/) {
-        if(isEnteringText())
+    addTidInput(Tid::Exit, t::Once,
+        [this](ssvu::FT /*unused*/)
         {
-            return;
-        }
-        exitAction();
-    }); // editable
+            if(isEnteringText())
+            {
+                return;
+            }
+            exitAction();
+        }); // editable
 
     addTidInput(Tid::Screenshot, t::Once,
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; });
 
     game.addInput(
             {{k::LAlt, k::Return}},
-            [this](ssvu::FT /*unused*/) {
+            [this](ssvu::FT /*unused*/)
+            {
                 Config::setFullscreen(window, !window.getFullscreen());
                 game.ignoreNextInputs();
             },
@@ -930,15 +943,19 @@ void MenuGame::initLua()
     lua.writeVariable("u_log",
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
 
-    lua.writeVariable("u_execScript", [this](const std::string& mScriptName) {
-        runLuaFile(Utils::getDependentScriptFilename(execScriptPackPathContext,
-            levelData->packPath.getStr(), mScriptName));
-    });
+    lua.writeVariable("u_execScript",
+        [this](const std::string& mScriptName)
+        {
+            runLuaFile(
+                Utils::getDependentScriptFilename(execScriptPackPathContext,
+                    levelData->packPath.getStr(), mScriptName));
+        });
 
     lua.writeVariable("u_execDependencyScript", //
         [this](const std::string& mPackDisambiguator,
             const std::string& mPackName, const std::string& mPackAuthor,
-            const std::string& mScriptName) {
+            const std::string& mScriptName)
+        {
             SSVOH_ASSERT(currentPack != nullptr);
 
             Utils::withDependencyScriptFilename(
@@ -1099,10 +1116,12 @@ void MenuGame::initMenus()
     options.create<i::Goto>("RESOLUTION", resolution);
     options.create<i::Goto>("GRAPHICS", gfx);
     options.create<i::Goto>("AUDIO", sfx);
-    options.create<i::Single>("RESET CONFIG", [this] {
-        Config::resetConfigToDefaults();
-        refreshBinds();
-    });
+    options.create<i::Single>("RESET CONFIG",
+        [this]
+        {
+            Config::resetConfigToDefaults();
+            refreshBinds();
+        });
 
     //--------------------------------
     // Gameplay
@@ -1131,48 +1150,54 @@ void MenuGame::initMenus()
     controls.create<i::Slider>("joystick deadzone",
         &Config::getJoystickDeadzone, &Config::setJoystickDeadzone, 0.f, 100.f,
         1.f);
-    controls.create<i::Single>("reset binds", [this] {
-        Config::resetBindsToDefaults();
-        refreshBinds();
-    });
-    controls.create<i::Single>("hardcoded keys reference", [this] {
-        showDialogBox(
-            "UP ARROW - UP\n"
-            "DOWN ARROW - DOWN\n"
-            "RETURN - ENTER\n"
-            "BACKSPACE - REMOVE BIND\n"
-            "F1 - ADD LEVEL TO FAVORITES\n"
-            "F2 - SWITCH TO/FROM FAVORITE LEVELS\n"
-            "F3 - RELOAD LEVEL ASSETS (DEBUG MODE ONLY)\n"
-            "F4 - RELOAD PACK ASSETS (DEBUG MODE ONLY)\n\n"
-            "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
-        setIgnoreAllInputs(2);
-    });
+    controls.create<i::Single>("reset binds",
+        [this]
+        {
+            Config::resetBindsToDefaults();
+            refreshBinds();
+        });
+    controls.create<i::Single>("hardcoded keys reference",
+        [this]
+        {
+            showDialogBox(
+                "UP ARROW - UP\n"
+                "DOWN ARROW - DOWN\n"
+                "RETURN - ENTER\n"
+                "BACKSPACE - REMOVE BIND\n"
+                "F1 - ADD LEVEL TO FAVORITES\n"
+                "F2 - SWITCH TO/FROM FAVORITE LEVELS\n"
+                "F3 - RELOAD LEVEL ASSETS (DEBUG MODE ONLY)\n"
+                "F4 - RELOAD PACK ASSETS (DEBUG MODE ONLY)\n\n"
+                "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+            setIgnoreAllInputs(2);
+        });
     controls.create<i::GoBack>("back");
 
     // Keyboard binds
-    const auto callBack = [this](const ssvs::Input::Trigger& trig,
-                              const int bindID) {
+    const auto callBack =
+        [this](const ssvs::Input::Trigger& trig, const int bindID)
+    {
         game.refreshTrigger(trig, bindID);
         hexagonGame.refreshTrigger(trig, bindID);
     };
 
     using Tid = Config::Tid;
 
-    const auto mkAddBindFn = [](ssvs::Input::Trigger& trig) {
-        return [&trig](const int key, const int btn, const int index) {
-            Config::rebindTrigger(trig, key, btn, index);
-        };
+    const auto mkAddBindFn = [](ssvs::Input::Trigger& trig)
+    {
+        return [&trig](const int key, const int btn, const int index)
+        { Config::rebindTrigger(trig, key, btn, index); };
     };
 
     const auto mkClearBindFn = [](ssvs::Input::Trigger& trig) {
-        return
-            [&trig](const int index) { Config::clearTriggerBind(trig, index); };
+        return [&trig](const int index)
+        { Config::clearTriggerBind(trig, index); };
     };
 
-    const auto createKeyboardBindControl = [&](const char* name, const Tid tid,
-                                               const ssvs::KKey hardcodedKey =
-                                                   ssvs::KKey::Unknown) {
+    const auto createKeyboardBindControl =
+        [&](const char* name, const Tid tid,
+            const ssvs::KKey hardcodedKey = ssvs::KKey::Unknown)
+    {
         const auto trigGetter = Config::triggerGetters[toSizeT(tid)];
 
         ssvs::Input::Trigger& trig = trigGetter();
@@ -1202,13 +1227,12 @@ void MenuGame::initMenus()
     // Joystick binds
     using Jid = Joystick::Jid;
 
-    const auto joystickCallBack = [](const unsigned int button,
-                                      const int buttonID) {
-        Joystick::setJoystickBind(button, buttonID);
-    };
+    const auto joystickCallBack =
+        [](const unsigned int button, const int buttonID)
+    { Joystick::setJoystickBind(button, buttonID); };
 
-    const auto createJoystickBindControl = [&](const char* name,
-                                               const Jid jid) {
+    const auto createJoystickBindControl = [&](const char* name, const Jid jid)
+    {
         const auto btnGetter = Config::joystickTriggerGetters[toSizeT(jid)];
 
         const auto btnSetter = Config::joystickTriggerSetters[toSizeT(jid)];
@@ -1258,25 +1282,22 @@ void MenuGame::initMenus()
                 case 17: // 16:9
                     sixByNine.create<i::Single>(
                         ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
-                        [this, &vm] {
-                            changeResolutionTo(vm.width, vm.height);
-                        });
+                        [this, &vm]
+                        { changeResolutionTo(vm.width, vm.height); });
                     break;
 
                 case 13: // 4:3
                     fourByThree.create<i::Single>(
                         ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
-                        [this, &vm] {
-                            changeResolutionTo(vm.width, vm.height);
-                        });
+                        [this, &vm]
+                        { changeResolutionTo(vm.width, vm.height); });
                     break;
 
                 default: // 16:10 and uncommon
                     sixByTen.create<i::Single>(
                         ssvu::toStr(vm.width) + "x" + ssvu::toStr(vm.height),
-                        [this, &vm] {
-                            changeResolutionTo(vm.width, vm.height);
-                        });
+                        [this, &vm]
+                        { changeResolutionTo(vm.width, vm.height); });
                     break;
             }
         }
@@ -1337,7 +1358,8 @@ void MenuGame::initMenus()
     gfx.create<i::Slider>(
         "antialiasing",
         [] { return Utils::concat(Config::getAntialiasingLevel(), 'x'); },
-        [this] {
+        [this]
+        {
             if(Config::getAntialiasingLevel() == 0)
             {
                 Config::setAntialiasingLevel(window, 1);
@@ -1348,7 +1370,8 @@ void MenuGame::initMenus()
                 window, ssvu::getClamped(
                             Config::getAntialiasingLevel() << 1u, 0u, 16u));
         },
-        [this] {
+        [this]
+        {
             Config::setAntialiasingLevel(
                 window, ssvu::getClamped(
                             Config::getAntialiasingLevel() >> 1u, 0u, 16u));
@@ -1381,7 +1404,8 @@ void MenuGame::initMenus()
     sfx.create<i::Toggle>("no music", &Config::getNoMusic, &Config::setNoMusic);
     sfx.create<i::Slider>(
         "sound volume", &Config::getSoundVolume,
-        [this](unsigned int mValue) {
+        [this](unsigned int mValue)
+        {
             Config::setSoundVolume(mValue);
             audio.setSoundVolume(mValue);
         },
@@ -1389,7 +1413,8 @@ void MenuGame::initMenus()
         whenSoundEnabled;
     sfx.create<i::Slider>(
         "music volume", &Config::getMusicVolume,
-        [this](unsigned int mValue) {
+        [this](unsigned int mValue)
+        {
             Config::setMusicVolume(mValue);
             audio.setMusicVolume(mValue);
         },
@@ -1412,17 +1437,19 @@ void MenuGame::initMenus()
 
     auto& main{mainMenu.createCategory("main")};
     auto& localProfiles{mainMenu.createCategory("local profiles")};
-    main.create<i::Single>("LEVEL SELECT", [this] {
-        if(firstLevelSelection)
+    main.create<i::Single>("LEVEL SELECT",
+        [this]
         {
-            lvlSlct.packIdx = diffMultIdx = 0;
-            lvlSlct.levelDataIds =
-                &assets.getLevelIdsByPack(getNthSelectablePackInfo(0).id);
-            setIndex(0);
-        }
-        changeStateTo(States::LevelSelection);
-        playSoundOverride("select.ogg");
-    });
+            if(firstLevelSelection)
+            {
+                lvlSlct.packIdx = diffMultIdx = 0;
+                lvlSlct.levelDataIds =
+                    &assets.getLevelIdsByPack(getNthSelectablePackInfo(0).id);
+                setIndex(0);
+            }
+            changeStateTo(States::LevelSelection);
+            playSoundOverride("select.ogg");
+        });
     main.create<i::Goto>("LOCAL PROFILES", localProfiles);
     main.create<i::Single>(
         "ONLINE", [this] { changeStateTo(States::MOnline); });
@@ -1433,75 +1460,82 @@ void MenuGame::initMenus()
     // ONLINE MENU
     //--------------------------------
 
-    auto whenMustConnect = [this] {
+    auto whenMustConnect = [this]
+    {
         return hexagonClient.getState() == HexagonClient::State::Disconnected ||
                hexagonClient.getState() ==
                    HexagonClient::State::ConnectionError;
     };
 
-    auto whenMustRegister = [this] {
-        return hexagonClient.getState() == HexagonClient::State::Connected;
-    };
+    auto whenMustRegister = [this]
+    { return hexagonClient.getState() == HexagonClient::State::Connected; };
 
-    auto whenConnected = [this] {
-        return hexagonClient.getState() == HexagonClient::State::Connected;
-    };
+    auto whenConnected = [this]
+    { return hexagonClient.getState() == HexagonClient::State::Connected; };
 
-    auto whenLoggedIn = [this] {
-        return hexagonClient.getState() == HexagonClient::State::LoggedIn;
-    };
+    auto whenLoggedIn = [this]
+    { return hexagonClient.getState() == HexagonClient::State::LoggedIn; };
 
     auto& online(onlineMenu.createCategory("options"));
 
     online.create<i::Single>("CONNECT", [this] { hexagonClient.connect(); }) |
         whenMustConnect;
 
-    online.create<i::Single>("LOGIN", [this] {
-        if(dialogInputState != DialogInputState::Nothing)
+    online.create<i::Single>("LOGIN",
+        [this]
         {
-            return;
-        }
+            if(dialogInputState != DialogInputState::Nothing)
+            {
+                return;
+            }
 
-        dialogInputState = DialogInputState::Login_EnteringUsername;
+            dialogInputState = DialogInputState::Login_EnteringUsername;
 
-        showInputDialogBoxNice("LOGIN", "USERNAME");
-        setIgnoreAllInputs(2);
-    }) | whenConnected;
+            showInputDialogBoxNice("LOGIN", "USERNAME");
+            setIgnoreAllInputs(2);
+        }) |
+        whenConnected;
 
-    online.create<i::Single>("REGISTER", [this] {
-        if(dialogInputState != DialogInputState::Nothing)
+    online.create<i::Single>("REGISTER",
+        [this]
         {
-            return;
-        }
+            if(dialogInputState != DialogInputState::Nothing)
+            {
+                return;
+            }
 
-        dialogInputState = DialogInputState::Registration_EnteringUsername;
+            dialogInputState = DialogInputState::Registration_EnteringUsername;
 
-        showInputDialogBoxNice("REGISTRATION", "USERNAME");
-        setIgnoreAllInputs(2);
-    }) | whenMustRegister;
+            showInputDialogBoxNice("REGISTRATION", "USERNAME");
+            setIgnoreAllInputs(2);
+        }) |
+        whenMustRegister;
 
-    online.create<i::Single>("LOGOUT", [this] {
-        hexagonClient.tryLogoutFromServer();
-    }) | whenLoggedIn;
+    online.create<i::Single>(
+        "LOGOUT", [this] { hexagonClient.tryLogoutFromServer(); }) |
+        whenLoggedIn;
 
 
-    online.create<i::Single>("DISCONNECT", [this] {
-        hexagonClient.disconnect();
-    }) | whenConnected;
+    online.create<i::Single>(
+        "DISCONNECT", [this] { hexagonClient.disconnect(); }) |
+        whenConnected;
 
-    online.create<i::Single>("DELETE ACCOUNT", [this] {
-        if(dialogInputState != DialogInputState::Nothing)
+    online.create<i::Single>("DELETE ACCOUNT",
+        [this]
         {
-            return;
-        }
+            if(dialogInputState != DialogInputState::Nothing)
+            {
+                return;
+            }
 
-        dialogInputState = DialogInputState::DeleteAccount_EnteringPassword;
+            dialogInputState = DialogInputState::DeleteAccount_EnteringPassword;
 
-        showInputDialogBoxNice("DELETE ACCOUNT", "PASSWORD",
-            "WARNING: THIS WILL DELETE ALL YOUR SCORES");
-        dialogBox.setInputBoxPassword(true);
-        setIgnoreAllInputs(2);
-    }) | whenConnected;
+            showInputDialogBoxNice("DELETE ACCOUNT", "PASSWORD",
+                "WARNING: THIS WILL DELETE ALL YOUR SCORES");
+            dialogBox.setInputBoxPassword(true);
+            setIgnoreAllInputs(2);
+        }) |
+        whenConnected;
 
     //--------------------------------
     // PROFILES MENU
@@ -1509,11 +1543,13 @@ void MenuGame::initMenus()
 
     localProfiles.create<i::Single>(
         "CHOOSE PROFILE", [this] { changeStateTo(States::SLPSelect); });
-    localProfiles.create<i::Single>("NEW PROFILE", [this] {
-        changeStateTo(States::ETLPNew);
-        enteredStr = "";
-        playSoundOverride("select.ogg");
-    });
+    localProfiles.create<i::Single>("NEW PROFILE",
+        [this]
+        {
+            changeStateTo(States::ETLPNew);
+            enteredStr = "";
+            playSoundOverride("select.ogg");
+        });
     localProfiles.create<i::GoBack>("BACK");
 
     //--------------------------------
@@ -1525,10 +1561,12 @@ void MenuGame::initMenus()
     for(auto& p : assets.getLocalProfileNames())
     {
         profileName = p;
-        profileSelection.create<i::Single>(profileName, [this, profileName] {
-            assets.pSetCurrent(profileName);
-            changeFavoriteLevelsToProfile();
-        });
+        profileSelection.create<i::Single>(profileName,
+            [this, profileName]
+            {
+                assets.pSetCurrent(profileName);
+                changeFavoriteLevelsToProfile();
+            });
     }
     profileSelection.sortByName();
 }
@@ -1839,7 +1877,8 @@ void MenuGame::upAction()
     do
     {
         getCurrentMenu()->previous();
-    } while(!getCurrentMenu()->getItem().isEnabled());
+    }
+    while(!getCurrentMenu()->getItem().isEnabled());
 
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
@@ -1929,7 +1968,8 @@ void MenuGame::downAction()
     do
     {
         getCurrentMenu()->next();
-    } while(!getCurrentMenu()->getItem().isEnabled());
+    }
+    while(!getCurrentMenu()->getItem().isEnabled());
 
     playSoundOverride("beep.ogg");
     touchDelay = 50.f;
@@ -2053,10 +2093,12 @@ void MenuGame::okAction()
 
                 // Create new menu item
                 std::string name{enteredStr};
-                profiles.create<ssvms::Items::Single>(name, [this, name] {
-                    assets.pSetCurrent(name);
-                    changeFavoriteLevelsToProfile();
-                });
+                profiles.create<ssvms::Items::Single>(name,
+                    [this, name]
+                    {
+                        assets.pSetCurrent(name);
+                        changeFavoriteLevelsToProfile();
+                    });
                 profiles.sortByName();
 
                 enteredStr = "";
@@ -2296,7 +2338,8 @@ void MenuGame::update(ssvu::FT mFT)
 
     const auto showHCEventDialogBox = [this](const bool error,
                                           const std::string& msg,
-                                          const std::string& err = "") {
+                                          const std::string& err = "")
+    {
         if(!dialogBox.empty())
         {
             return;
@@ -2343,9 +2386,8 @@ void MenuGame::update(ssvu::FT mFT)
         Utils::match(
             *hcEvent, //
 
-            [&](const HexagonClient::EConnectionSuccess&) {
-                showHCEventDialogBox(false /* error */, "CONNECTION SUCCESS");
-            },
+            [&](const HexagonClient::EConnectionSuccess&)
+            { showHCEventDialogBox(false /* error */, "CONNECTION SUCCESS"); },
 
             [&](const HexagonClient::EConnectionFailure& e) {
                 showHCEventDialogBox(
@@ -2366,22 +2408,19 @@ void MenuGame::update(ssvu::FT mFT)
                     true /* error */, "REGISTRATION FAILURE", e.error);
             },
 
-            [&](const HexagonClient::ELoginSuccess&) {
-                showHCEventDialogBox(false /* error */, "LOGIN SUCCESS");
-            },
+            [&](const HexagonClient::ELoginSuccess&)
+            { showHCEventDialogBox(false /* error */, "LOGIN SUCCESS"); },
 
             [&](const HexagonClient::ELoginFailure& e) {
                 showHCEventDialogBox(
                     true /* error */, "LOGIN FAILURE", e.error);
             },
 
-            [&](const HexagonClient::ELogoutSuccess&) {
-                showHCEventDialogBox(false /* error */, "LOGOUT SUCCESS");
-            },
+            [&](const HexagonClient::ELogoutSuccess&)
+            { showHCEventDialogBox(false /* error */, "LOGOUT SUCCESS"); },
 
-            [&](const HexagonClient::ELogoutFailure&) {
-                showHCEventDialogBox(true /* error */, "LOGOUT FAILURE");
-            },
+            [&](const HexagonClient::ELogoutFailure&)
+            { showHCEventDialogBox(true /* error */, "LOGOUT FAILURE"); },
 
             [&](const HexagonClient::EDeleteAccountSuccess&) {
                 showHCEventDialogBox(
@@ -2393,13 +2432,11 @@ void MenuGame::update(ssvu::FT mFT)
                     true /* error */, "DELETE ACCOUNT FAILURE", e.error);
             },
 
-            [&](const HexagonClient::EReceivedTopScores& e) {
-                leaderboardCache->receivedScores(e.levelValidator, e.scores);
-            },
+            [&](const HexagonClient::EReceivedTopScores& e)
+            { leaderboardCache->receivedScores(e.levelValidator, e.scores); },
 
-            [&](const HexagonClient::EReceivedOwnScore& e) {
-                leaderboardCache->receivedOwnScore(e.levelValidator, e.score);
-            }
+            [&](const HexagonClient::EReceivedOwnScore& e)
+            { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); }
 
             //
         );
@@ -4037,10 +4074,12 @@ void MenuGame::calcPackChangeScrollFold(const float mLevelListHeight)
     // As soon as the bottom of the level list goes out of the screen
     // switch pack by setting the packChangeOffset to the height of the
     // level list.
-    checkWindowTopScroll(scroll, [this, mLevelListHeight](const float target) {
-        lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
-        packChangeOffset = mLevelListHeight;
-    });
+    checkWindowTopScroll(scroll,
+        [this, mLevelListHeight](const float target)
+        {
+            lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
+            packChangeOffset = mLevelListHeight;
+        });
 }
 
 void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
@@ -4090,12 +4129,10 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
         scrollBottom =
             scrollTop + std::max(0.f, mLevelListHeight - packChangeOffset);
 
-        checkWindowBottomScroll(scrollBottom, [this](const float target) {
-            lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
-        });
-        checkWindowTopScroll(scrollTop, [this](const float target) {
-            lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
-        });
+        checkWindowBottomScroll(scrollBottom, [this](const float target)
+            { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
+        checkWindowTopScroll(scrollTop, [this](const float target)
+            { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
         return;
     }
 
@@ -4108,12 +4145,10 @@ void MenuGame::calcPackChangeScrollStretch(const float mLevelListHeight)
                                 packChangeOffset,
                        h);
 
-    checkWindowBottomScroll(scrollBottom, [this](const float target) {
-        lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
-    });
-    checkWindowTopScroll(scrollTop, [this](const float target) {
-        lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
-    });
+    checkWindowBottomScroll(scrollBottom, [this](const float target)
+        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
+    checkWindowTopScroll(scrollTop, [this](const float target)
+        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
 }
 
 void MenuGame::quickPackFoldStretch()
@@ -4124,12 +4159,10 @@ void MenuGame::quickPackFoldStretch()
     const float scrollBottom{scrollTop + 2.f * packLabelHeight + slctFrameSize +
                              getLevelListHeight()};
 
-    checkWindowBottomScroll(scrollBottom, [this](const float target) {
-        lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
-    });
-    checkWindowTopScroll(scrollTop, [this](const float target) {
-        lvlDrawer->YScrollTo = lvlDrawer->YOffset = target;
-    });
+    checkWindowBottomScroll(scrollBottom, [this](const float target)
+        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
+    checkWindowTopScroll(scrollTop, [this](const float target)
+        { lvlDrawer->YScrollTo = lvlDrawer->YOffset = target; });
     adjustLevelsOffset();
 }
 
@@ -4313,7 +4346,8 @@ void MenuGame::changeFavoriteLevelsToProfile()
     }
 
     std::sort(favoriteLevelDataIds.begin(), favoriteLevelDataIds.end(),
-        [this](const std::string& a, const std::string& b) -> bool {
+        [this](const std::string& a, const std::string& b) -> bool
+        {
             return ssvu::toLower(assets.getLevelData(a).name) <
                    ssvu::toLower(assets.getLevelData(b).name);
         });
@@ -4740,7 +4774,8 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             height = drawer.YOffset;
         }
-    } while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    }
+    while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
 void MenuGame::drawLevelSelectionLeftSide(
@@ -5014,7 +5049,8 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         const auto drawEntry = [&](const int i, const std::string& userName,
                                    const std::uint64_t scoreTimestamp,
-                                   const double scoreValue) {
+                                   const double scoreValue)
+        {
             const float score = scoreValue;
 
             // TODO (P1): display date and time
@@ -5325,8 +5361,8 @@ void MenuGame::drawOnlineStatus()
 
     const HexagonClient::State state = hexagonClient.getState();
 
-    const auto [stateGood,
-        stateString] = [&]() -> std::tuple<bool, std::string> {
+    const auto [stateGood, stateString] = [&]() -> std::tuple<bool, std::string>
+    {
         switch(state)
         {
             case HexagonClient::State::Disconnected:

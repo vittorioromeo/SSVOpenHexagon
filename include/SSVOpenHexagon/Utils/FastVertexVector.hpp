@@ -31,8 +31,7 @@ private:
         sf::Vertex _v;
 
         VertexUnion()
-        {
-        }
+        {}
     };
 
     static_assert(sizeof(VertexUnion) == sizeof(sf::Vertex));
@@ -155,11 +154,9 @@ public:
 
 class FastVertexVectorTris
     : public FastVertexVector<sf::PrimitiveType::Triangles>
-{
-};
+{};
 
 class FastVertexVectorQuads : public FastVertexVector<sf::PrimitiveType::Quads>
-{
-};
+{};
 
 } // namespace hg::Utils

@@ -234,9 +234,8 @@ constexpr int tokenValiditySeconds = 3600;
     auto query = Impl::getStorage().get_all<LoginToken>();
 
     query.erase(std::remove_if(query.begin(), query.end(),
-                    [&](const LoginToken& lt) {
-                        return isLoginTokenTimestampValid(lt);
-                    }),
+                    [&](const LoginToken& lt)
+                    { return isLoginTokenTimestampValid(lt); }),
         std::end(query));
 
     return query;
@@ -377,7 +376,8 @@ void addScore(const std::string& levelValidator, const std::uint64_t timestamp,
 [[nodiscard]] std::optional<std::string> execute(const std::string& query)
 {
     const auto callback = [](void* a_param, int argc, char** argv,
-                              char** column) -> int {
+                              char** column) -> int
+    {
         (void)a_param;
         (void)column;
 

@@ -19,8 +19,7 @@ MusicData::MusicData(const std::string& mId, const std::string& mFileName,
     const std::string& mName, const std::string& mAlbum,
     const std::string& mAuthor)
     : id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{mAuthor}
-{
-}
+{}
 
 [[nodiscard]] const MusicData::Segment& MusicData::getSegment(
     std::size_t index) const

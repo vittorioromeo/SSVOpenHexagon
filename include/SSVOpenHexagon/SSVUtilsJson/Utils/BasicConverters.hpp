@@ -80,8 +80,7 @@ using TplArg =
 
 template <std::size_t I = 0, typename... TArgs>
 std::enable_if_t<I == sizeof...(TArgs)> toTpl(const Obj&, std::tuple<TArgs...>&)
-{
-}
+{}
 template <std::size_t I = 0, typename... TArgs>
     std::enable_if_t <
     I<sizeof...(TArgs)> toTpl(const Obj& mObj, std::tuple<TArgs...>& mTpl)
@@ -94,8 +93,7 @@ template <std::size_t I = 0, typename... TArgs>
 template <std::size_t I = 0, typename... TArgs>
 std::enable_if_t<I == sizeof...(TArgs)> fromTpl(
     Obj&, const std::tuple<TArgs...>&)
-{
-}
+{}
 template <std::size_t I = 0, typename... TArgs>
     std::enable_if_t <
     I<sizeof...(TArgs)> fromTpl(Obj& mObj, const std::tuple<TArgs...>& mTpl)

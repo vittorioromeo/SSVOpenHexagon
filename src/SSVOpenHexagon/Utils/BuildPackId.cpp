@@ -23,7 +23,8 @@ namespace hg::Utils {
     // TODO (P2): minor optimization, preallocate buffer and build the string in
     // one go
 
-    const auto spaceToUnderscore = [](std::string x) {
+    const auto spaceToUnderscore = [](std::string x)
+    {
         for(char& c : x)
         {
             if(c == ' ' || c == '\n' || c == '\t')

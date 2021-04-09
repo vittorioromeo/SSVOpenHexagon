@@ -8,7 +8,6 @@ namespace hg::Utils {
 
 template <typename>
 struct TypeWrapper
-{
-};
+{};
 
 } // namespace hg::Utils

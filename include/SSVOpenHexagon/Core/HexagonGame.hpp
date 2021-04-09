@@ -186,8 +186,7 @@ private:
 
         ActiveReplay(const replay_file& mReplayFile)
             : replayFile{mReplayFile}, replayPlayer{replayFile._data}
-        {
-        }
+        {}
     };
 
     std::optional<ActiveReplay> activeReplay;

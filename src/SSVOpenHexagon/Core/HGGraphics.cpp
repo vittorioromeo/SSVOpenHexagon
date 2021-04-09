@@ -413,7 +413,8 @@ void HexagonGame::updateText(ssvu::FT mFT)
             lua.readVariable<std::string>(levelStatus.scoreOverride));
     }
 
-    const auto getScaledCharacterSize = [&](const float size) {
+    const auto getScaledCharacterSize = [&](const float size)
+    {
         return ssvu::toNum<unsigned int>(
             size / Config::getZoomFactor() * Config::getTextScaling());
     };

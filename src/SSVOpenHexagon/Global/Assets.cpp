@@ -66,19 +66,18 @@ HGAssets::HGAssets(
 
     for(auto& v : levelDataIdsByPack)
     {
-        ssvu::sort(v.second, [&](const auto& mA, const auto& mB) {
-            return levelDatas.at(mA).menuPriority <
-                   levelDatas.at(mB).menuPriority;
-        });
+        ssvu::sort(v.second,
+            [&](const auto& mA, const auto& mB) {
+                return levelDatas.at(mA).menuPriority <
+                       levelDatas.at(mB).menuPriority;
+            });
     }
 
-    ssvu::sort(packInfos, [&](const auto& mA, const auto& mB) {
-        return getPackData(mA.id).priority < getPackData(mB.id).priority;
-    });
+    ssvu::sort(packInfos, [&](const auto& mA, const auto& mB)
+        { return getPackData(mA.id).priority < getPackData(mB.id).priority; });
 
-    ssvu::sort(selectablePackInfos, [&](const auto& mA, const auto& mB) {
-        return getPackData(mA.id).priority < getPackData(mB.id).priority;
-    });
+    ssvu::sort(selectablePackInfos, [&](const auto& mA, const auto& mB)
+        { return getPackData(mA.id).priority < getPackData(mB.id).priority; });
 
     // This will not be used for the rest of the game,
     // so shrink it to fit the actually used size.
@@ -122,7 +121,8 @@ HGAssets::~HGAssets()
     const std::string packId = Utils::buildPackId(
         packDisambiguator, packAuthor, packName, packVersion);
 
-    const auto getPackDependencies = [&] {
+    const auto getPackDependencies = [&]
+    {
         std::vector<PackDependency> result;
 
         if(!ssvuj::hasObj(packRoot, "dependencies"))
@@ -272,7 +272,8 @@ HGAssets::~HGAssets()
     if(steamManager != nullptr)
     {
         steamManager->for_workshop_pack_folders(
-            [&](const std::string& folderPath) {
+            [&](const std::string& folderPath)
+            {
                 const ssvufs::Path packPath{folderPath};
 
                 if(!loadPackData(packPath))
@@ -305,7 +306,8 @@ HGAssets::~HGAssets()
 
     // ------------------------------------------------------------------------
     // Verify pack dependencies.
-    const auto dependencyExists = [this](const PackDependency& pd) {
+    const auto dependencyExists = [this](const PackDependency& pd)
+    {
         for(const auto& [packId, packData] : packDatas)
         {
             if(                                                 //
@@ -343,9 +345,8 @@ HGAssets::~HGAssets()
         }
     }
 
-    ssvu::eraseRemoveIf(selectablePackInfos, [&](const PackInfo& pi) {
-        return packIdsWithMissingDependencies.contains(pi.id);
-    });
+    ssvu::eraseRemoveIf(selectablePackInfos, [&](const PackInfo& pi)
+        { return packIdsWithMissingDependencies.contains(pi.id); });
 
     // ------------------------------------------------------------------------
     // Load profiles.
@@ -452,9 +453,8 @@ void HGAssets::loadLocalProfiles()
 
         // Remove invalid level ids that might have been added to the files.
         Utils::erase_if(profileData.getFavoriteLevelIds(),
-            [this](const std::string& favId) {
-                return levelDatas.find(favId) == levelDatas.end();
-            });
+            [this](const std::string& favId)
+            { return levelDatas.find(favId) == levelDatas.end(); });
 
         profileDataMap.emplace(profileData.getName(), std::move(profileData));
     }
