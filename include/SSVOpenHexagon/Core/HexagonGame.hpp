@@ -47,6 +47,7 @@
 #include <unordered_set>
 #include <functional>
 #include <optional>
+#include <functional>
 
 namespace hg
 {
@@ -59,7 +60,7 @@ class HexagonGame
     friend MenuGame;
 
 private:
-    Steam::steam_manager& steamManager;
+    Steam::steam_manager* steamManager;
     Discord::discord_manager* discordManager;
     bool discordHung{false};
     bool steamHung{false};
@@ -123,11 +124,13 @@ private:
     Utils::timeline2 messageTimeline;
     Utils::timeline2_runner messageTimelineRunner;
 
-    sf::Text messageText{"", assets.get<sf::Font>("forcedsquare.ttf"),
-        ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
+    sf::Font& font{assets.get<sf::Font>("forcedsquare.ttf")};
 
-    sf::Text pbText{"", assets.get<sf::Font>("forcedsquare.ttf"),
-        ssvu::toNum<unsigned int>(65.f / Config::getZoomFactor())};
+    sf::Text messageText{
+        "", font, ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
+
+    sf::Text pbText{
+        "", font, ssvu::toNum<unsigned int>(65.f / Config::getZoomFactor())};
 
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
 
@@ -150,11 +153,11 @@ private:
     sf::Sprite replayIcon;
 
     sf::RectangleShape levelInfoRectangle;
-    sf::Text levelInfoTextLevel{"", assets.get<sf::Font>("forcedsquare.ttf")};
-    sf::Text levelInfoTextPack{"", assets.get<sf::Font>("forcedsquare.ttf")};
-    sf::Text levelInfoTextAuthor{"", assets.get<sf::Font>("forcedsquare.ttf")};
-    sf::Text levelInfoTextBy{"", assets.get<sf::Font>("forcedsquare.ttf")};
-    sf::Text levelInfoTextDM{"", assets.get<sf::Font>("forcedsquare.ttf")};
+    sf::Text levelInfoTextLevel{"", font};
+    sf::Text levelInfoTextPack{"", font};
+    sf::Text levelInfoTextAuthor{"", font};
+    sf::Text levelInfoTextBy{"", font};
+    sf::Text levelInfoTextDM{"", font};
 
     bool firstPlay{true};
     bool restartFirstTime{true};
@@ -197,14 +200,14 @@ private:
     bool inputImplCCW{false};
     std::ostringstream os;
 
-    sf::Text fpsText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
-        ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
-    sf::Text timeText{"0", assets.get<sf::Font>("forcedsquare.ttf"),
-        ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())};
-    sf::Text text{"", assets.get<sf::Font>("forcedsquare.ttf"),
-        ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
-    sf::Text replayText{"", assets.get<sf::Font>("forcedsquare.ttf"),
-        ssvu::toNum<unsigned int>(20.f / Config::getZoomFactor())};
+    sf::Text fpsText{
+        "0", font, ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
+    sf::Text timeText{
+        "0", font, ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())};
+    sf::Text text{
+        "", font, ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
+    sf::Text replayText{
+        "", font, ssvu::toNum<unsigned int>(20.f / Config::getZoomFactor())};
 
     // Color of the polygon in the center.
     CapColor capColor;
@@ -245,6 +248,15 @@ private:
         const SpeedData& mCurve = SpeedData{}, float mHueMod = 0);
 
 public:
+    // For testing
+    std::function<void(const replay_file&)> onReplayCreated;
+
+    // For testing
+    void setMustStart(const bool x)
+    {
+        mustStart = x;
+    }
+
     void initLuaAndPrintDocs();
 
     template <typename T, typename... TArgs>
@@ -436,7 +448,7 @@ public:
 
     MenuGame* mgPtr;
 
-    HexagonGame(Steam::steam_manager& mSteamManager,
+    HexagonGame(Steam::steam_manager* mSteamManager,
         Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
         ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient);
 

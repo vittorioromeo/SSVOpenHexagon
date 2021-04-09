@@ -1346,9 +1346,9 @@ void HexagonGame::initLua_Steam()
                 return;
             }
 
-            if(Config::getOfficial())
+            if(steamManager != nullptr && Config::getOfficial())
             {
-                steamManager.unlock_achievement(mId);
+                steamManager->unlock_achievement(mId);
             }
         })
         .arg("achievementId")

@@ -242,17 +242,20 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
 {
     ssvu::lo("::loadConfig") << "loading config\n";
 
-    for(const ssvufs::Path& p :
-        ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
-            ssvufs::Pick::ByExt>("ConfigOverrides/", ".json"))
+    if(ssvufs::Path{"ConfigOverrides/"}.exists<ssvufs::Type::Folder>())
     {
-        if(ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
+        for(const ssvufs::Path& p :
+            ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
+                ssvufs::Pick::ByExt>("ConfigOverrides/", ".json"))
         {
-            const auto overrideRoot(ssvuj::getFromFile(p));
-            for(auto itr(std::begin(overrideRoot));
-                itr != std::end(overrideRoot); ++itr)
+            if(ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
             {
-                root()[ssvuj::getKey(itr)] = *itr;
+                const auto overrideRoot(ssvuj::getFromFile(p));
+                for(auto itr(std::begin(overrideRoot));
+                    itr != std::end(overrideRoot); ++itr)
+                {
+                    root()[ssvuj::getKey(itr)] = *itr;
+                }
             }
         }
     }
