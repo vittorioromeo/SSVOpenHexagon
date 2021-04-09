@@ -2,15 +2,20 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
+#include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
+#include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallHandle.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -1239,8 +1244,10 @@ void HexagonGame::initLua_WallCreation()
         [this](int mSide, float mThickness)
         {
             timeline.append_do(
-                [=, this] {
-                    createWall(mSide, mThickness, SpeedData{getSpeedMultDM()});
+                [=, this]
+                {
+                    createWall(mSide, mThickness, SpeedData{getSpeedMultDM()},
+                        SpeedData{} /* curve */, 0.f /* hueMod */);
                 });
         })
         .arg("side")
@@ -1254,9 +1261,11 @@ void HexagonGame::initLua_WallCreation()
         [this](int mSide, float mThickness, float mSpeedAdj)
         {
             timeline.append_do(
-                [=, this] {
+                [=, this]
+                {
                     createWall(mSide, mThickness,
-                        SpeedData{mSpeedAdj * getSpeedMultDM()});
+                        SpeedData{mSpeedAdj * getSpeedMultDM()},
+                        SpeedData{} /* curve */, 0.f /* hueMod */);
                 });
         })
         .arg("side")
@@ -1279,7 +1288,8 @@ void HexagonGame::initLua_WallCreation()
                         SpeedData{mSpeedAdj * getSpeedMultDM(),
                             mAcceleration / (std::pow(difficultyMult, 0.65f)),
                             mMinSpeed * getSpeedMultDM(),
-                            mMaxSpeed * getSpeedMultDM()});
+                            mMaxSpeed * getSpeedMultDM()},
+                        SpeedData{} /* curve */, 0.f /* hueMod */);
                 });
         })
         .arg("side")
@@ -1306,7 +1316,7 @@ void HexagonGame::initLua_WallCreation()
                     createWall(mSide, mThickness,
                         SpeedData{mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax,
                             mSPingPong},
-                        SpeedData{}, mHMod);
+                        SpeedData{} /* curve */, mHMod);
                 });
         })
         .arg("hueModifier")
@@ -1637,10 +1647,53 @@ void HexagonGame::initLua()
     initLua_Deprecated();
 }
 
+void HexagonGame::runLuaFile(const std::string& mFileName)
+try
+{
+    Utils::runLuaFile(lua, mFileName);
+}
+catch(...)
+{
+    if(!Config::getDebug())
+    {
+        goToMenu(false /* mSendScores */, true /* mError */);
+    }
+}
+
 void HexagonGame::initLuaAndPrintDocs()
 {
     initLua();
     LuaScripting::printDocs();
+}
+
+void HexagonGame::luaExceptionLippincottHandler(const std::string& mName)
+try
+{
+    throw;
+}
+catch(const std::runtime_error& mError)
+{
+    std::cout << "[runLuaFunctionIfExists] Runtime error on \"" << mName
+              << "\" with level \"" << levelData->name << "\": \n"
+              << mError.what() << '\n'
+              << std::endl;
+
+    if(!Config::getDebug())
+    {
+        goToMenu(false /* mSendScores */, true /* mError */);
+    }
+}
+catch(...)
+{
+    std::cout << "[runLuaFunctionIfExists] Unknown runtime error on \"" << mName
+              << "\" with level \"" << levelData->name << "\": \n"
+              << '\n'
+              << std::endl;
+
+    if(!Config::getDebug())
+    {
+        goToMenu(false /* mSendScores */, true /* mError */);
+    }
 }
 
 } // namespace hg

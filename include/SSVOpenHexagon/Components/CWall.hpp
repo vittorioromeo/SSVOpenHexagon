@@ -16,7 +16,6 @@
 
 namespace hg {
 
-
 class CWall
 {
 private:

@@ -4,13 +4,15 @@
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
+#include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
-#include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
@@ -23,12 +25,16 @@
 
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
+#include <SSVStart/Input/Trigger.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
 #include <SFML/Graphics.hpp>
 
+#include <cmath>
+
 namespace hg {
+
 namespace {
 
 [[nodiscard]] double getReplayScore(const HexagonGameStatus& status)
@@ -45,6 +51,10 @@ namespace {
 }
 
 } // namespace
+
+HexagonGame::ActiveReplay::ActiveReplay(const replay_file& mReplayFile)
+    : replayFile{mReplayFile}, replayPlayer{replayFile._data}
+{}
 
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
@@ -218,6 +228,25 @@ void HexagonGame::updateLevelInfo()
     }
 }
 
+void HexagonGame::nameFormat(std::string& name)
+{
+    name[0] = std::toupper(name[0]);
+}
+
+[[nodiscard]] std::string HexagonGame::diffFormat(float diff)
+{
+    char buf[255];
+    std::snprintf(buf, sizeof(buf), "%g", diff);
+    return buf;
+}
+
+[[nodiscard]] std::string HexagonGame::timeFormat(float time)
+{
+    char buf[255];
+    std::snprintf(buf, sizeof(buf), "%.3f", time);
+    return buf;
+}
+
 [[nodiscard]] bool HexagonGame::imguiLuaConsoleHasInput()
 {
     return ilcShowConsole && (ImGui::GetIO().WantCaptureKeyboard ||
@@ -236,7 +265,23 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       hexagonClient{mHexagonClient},
       player{ssvs::zeroVec2f, getSwapCooldown()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
-      rng{initializeRng()}
+      messageText{
+          "", font, ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())},
+      pbText{
+          "", font, ssvu::toNum<unsigned int>(65.f / Config::getZoomFactor())},
+      levelInfoTextLevel{"", font},
+      levelInfoTextPack{"", font},
+      levelInfoTextAuthor{"", font},
+      levelInfoTextBy{"", font},
+      levelInfoTextDM{"", font},
+      rng{initializeRng()},
+      fpsText{
+          "0", font, ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())},
+      timeText{
+          "0", font, ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())},
+      text{"", font, ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())},
+      replayText{
+          "", font, ssvu::toNum<unsigned int>(20.f / Config::getZoomFactor())}
 {
     if(window != nullptr)
     {
@@ -382,6 +427,12 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 HexagonGame::~HexagonGame()
 {
     ssvu::lo("HexagonGame::~HexagonGame") << "Cleaning up game resources...\n";
+}
+
+void HexagonGame::refreshTrigger(
+    const ssvs::Input::Trigger& trigger, const int bindID)
+{
+    game.refreshTrigger(trigger, bindID);
 }
 
 void HexagonGame::setLastReplay(const replay_file& mReplayFile)
@@ -995,10 +1046,10 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         runLuaFunctionIfExists<void>("onUnload");
     }
 
-    SSVOH_ASSERT(mgPtr != nullptr);
-    window->setGameState(mgPtr->getGame());
-    mgPtr->returnToLevelSelection();
-    mgPtr->init(mError);
+    if(fnGoToMenu)
+    {
+        fnGoToMenu(mError);
+    }
 }
 
 void HexagonGame::raiseWarning(
@@ -1191,6 +1242,100 @@ void HexagonGame::setSides(unsigned int mSides)
     }
 
     levelStatus.sides = mSides;
+}
+
+[[nodiscard]] ssvs::GameState& HexagonGame::getGame() noexcept
+{
+    return game;
+}
+
+[[nodiscard]] float HexagonGame::getRadius() const noexcept
+{
+    return status.radius;
+}
+
+[[nodiscard]] const sf::Color& HexagonGame::getColor(int mIdx) const noexcept
+{
+    return styleData.getColor(mIdx);
+}
+
+[[nodiscard]] float HexagonGame::getSpeedMultDM() const noexcept
+{
+    const auto res = levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
+
+    if(!levelStatus.hasSpeedMaxLimit())
+    {
+        return res;
+    }
+
+    return (res < levelStatus.speedMax) ? res : levelStatus.speedMax;
+}
+
+[[nodiscard]] float HexagonGame::getDelayMultDM() const noexcept
+{
+    const auto res = levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
+
+    if(!levelStatus.hasDelayMaxLimit())
+    {
+        return res;
+    }
+
+    return (res < levelStatus.delayMax) ? res : levelStatus.delayMax;
+}
+
+[[nodiscard]] float HexagonGame::getRotationSpeed() const noexcept
+{
+    return levelStatus.rotationSpeed;
+}
+
+[[nodiscard]] unsigned int HexagonGame::getSides() const noexcept
+{
+    return levelStatus.sides;
+}
+
+[[nodiscard]] float HexagonGame::getWallSkewLeft() const noexcept
+{
+    return levelStatus.wallSkewLeft;
+}
+
+[[nodiscard]] float HexagonGame::getWallSkewRight() const noexcept
+{
+    return levelStatus.wallSkewRight;
+}
+
+[[nodiscard]] float HexagonGame::getWallAngleLeft() const noexcept
+{
+    return levelStatus.wallAngleLeft;
+}
+
+[[nodiscard]] float HexagonGame::getWallAngleRight() const noexcept
+{
+    return levelStatus.wallAngleRight;
+}
+
+[[nodiscard]] float HexagonGame::get3DEffectMult() const noexcept
+{
+    return levelStatus._3dEffectMultiplier;
+}
+
+[[nodiscard]] HexagonGameStatus& HexagonGame::getStatus() noexcept
+{
+    return status;
+}
+
+[[nodiscard]] const HexagonGameStatus& HexagonGame::getStatus() const noexcept
+{
+    return status;
+}
+
+[[nodiscard]] LevelStatus& HexagonGame::getLevelStatus()
+{
+    return levelStatus;
+}
+
+[[nodiscard]] HGAssets& HexagonGame::getAssets()
+{
+    return assets;
 }
 
 [[nodiscard]] bool HexagonGame::getInputFocused() const

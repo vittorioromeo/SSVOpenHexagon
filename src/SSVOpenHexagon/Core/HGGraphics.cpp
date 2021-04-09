@@ -2,9 +2,12 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>
@@ -16,6 +19,20 @@ namespace hg {
 [[nodiscard]] static std::string formatTime(const double x)
 {
     return ssvu::toStr(std::floor(x * 1000) / 1000.f);
+}
+
+void HexagonGame::render(
+    sf::Drawable& mDrawable, const sf::RenderStates& mStates)
+{
+    if(window == nullptr)
+    {
+        ssvu::lo("hg::HexagonGame::render")
+            << "Attempted to render without a game window\n";
+
+        return;
+    }
+
+    window->draw(mDrawable, mStates);
 }
 
 void HexagonGame::draw()

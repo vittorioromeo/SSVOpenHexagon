@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
