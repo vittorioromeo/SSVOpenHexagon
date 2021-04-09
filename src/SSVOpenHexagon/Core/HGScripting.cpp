@@ -3,6 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
@@ -200,7 +201,7 @@ void HexagonGame::initLua_AudioControl()
             "at time `$1` (in seconds).");
 
     addLuaFn(lua, "a_playSound", //
-        [this](const std::string& mId) { playSound(mId); })
+        [this](const std::string& mId) { playSoundOverride(mId); })
         .arg("soundId")
         .doc(
             "Play the sound with id `$0`. The id must be registered in "
@@ -208,7 +209,7 @@ void HexagonGame::initLua_AudioControl()
 
     addLuaFn(lua, "a_playPackSound", //
         [this](const std::string& fileName) {
-            assets.playPackSound(getPackId(), fileName);
+            playPackSoundOverride(getPackId(), fileName);
         })
         .arg("fileName")
         .doc(
@@ -218,14 +219,7 @@ void HexagonGame::initLua_AudioControl()
     addLuaFn(lua, "a_syncMusicToDM", //
         [this](bool value) {
             levelStatus.syncMusicToDM = value;
-
-            sf::Music* current(assets.getMusicPlayer().getCurrent());
-            if(current == nullptr)
-            {
-                return;
-            }
-
-            setMusicPitch(*current);
+            refreshMusicPitch();
         })
         .arg("value")
         .doc(
@@ -236,12 +230,7 @@ void HexagonGame::initLua_AudioControl()
     addLuaFn(lua, "a_setMusicPitch", //
         [this](float mPitch) {
             levelStatus.musicPitch = mPitch;
-
-            sf::Music* current(assets.getMusicPlayer().getCurrent());
-            if(current == nullptr)
-            {
-                return;
-            }
+            refreshMusicPitch();
         })
         .arg("pitch")
         .doc(
@@ -1392,7 +1381,7 @@ void HexagonGame::initLua_Deprecated()
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"a_playSound\" in your level files.");
-            playSound(mId);
+            playSoundOverride(mId);
         })
         .arg("soundId")
         .doc(
@@ -1407,7 +1396,7 @@ void HexagonGame::initLua_Deprecated()
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"a_playPackSound\" in your level files.");
-            assets.playPackSound(getPackId(), fileName);
+            playPackSoundOverride(getPackId(), fileName);
         })
         .arg("fileName")
         .doc(

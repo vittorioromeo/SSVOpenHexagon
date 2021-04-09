@@ -66,6 +66,7 @@ struct LevelStatus
     std::string scoreOverride;
 
     // Music and sound related attributes
+    // TODO (P2): remove dependency on config
     bool syncMusicToDM = Config::getMusicSpeedDMSync();
     float musicPitch{1.f};
     std::string beepSound{"beep.ogg"};
@@ -107,6 +108,7 @@ struct LevelStatus
     float wallSkewRight{0.f};
     float wallAngleLeft{0.f};
     float wallAngleRight{0.f};
+    // TODO (P2): remove dependency on config
     float wallSpawnDistance{Config::getSpawnDistance()};
     float _3dEffectMultiplier{1.f};
 

@@ -195,6 +195,7 @@ static void initUtils(Lua::LuaContext& lua, const bool inMenu)
             "Returns `true` if the script is being executed in the menu, "
             "`false` otherwise.");
 
+    // TODO (P2): remove dependency on config
     addLuaFn(lua, "u_getVersionMajor", //
         [] { return Config::getVersion().major; })
         .doc("Returns the major of the current version of the game");

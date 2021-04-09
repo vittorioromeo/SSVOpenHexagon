@@ -13,6 +13,7 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Core/BindControl.hpp"
+#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
@@ -144,13 +145,14 @@ LeaderboardCache::getScores(const std::string& levelValidator) const
 inline constexpr float maxOffset{100.f};
 
 MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
-    Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
+    Discord::discord_manager& mDiscordManager, HGAssets& mAssets, Audio& mAudio,
     HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow,
     HexagonClient& mHexagonClient)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), hexagonGame(mHexagonGame),
+      assets(mAssets), imagine(mAssets.get<sf::Font>("forcedsquare.ttf")),
+      audio(mAudio), hexagonGame(mHexagonGame),
       window(mGameWindow), hexagonClient{mHexagonClient},
-      dialogBox(mAssets, mGameWindow), loadInfo(mAssets.getLoadResults())
+      dialogBox(imagine, mGameWindow), loadInfo(mAssets.getLoadResults())
 {
     if(Config::getFirstTimePlaying())
     {
@@ -233,12 +235,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 setIgnoreAllInputs(0);
             }
 
-            assets.playSound("select.ogg");
+            playSoundOverride("select.ogg");
         }
     };
 
     const auto checkCloseDialogBox = [this] {
         const auto closeBox = [this] {
+            playSoundOverride("select.ogg");
             dialogBox.clearDialogBox();
             setIgnoreAllInputs(0);
         };
@@ -325,7 +328,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             {
                 if(input.size() < 32)
                 {
-                    assets.playSound("beep.ogg");
+                    playSoundOverride("beep.ogg");
                     input.push_back(static_cast<char>(mEvent.text.unicode));
                 }
             }
@@ -333,7 +336,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             {
                 if(!input.empty())
                 {
-                    assets.playSound("beep.ogg");
+                    playSoundOverride("beep.ogg");
                     input.pop_back();
                 }
             }
@@ -376,6 +379,8 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 {
                     setIgnoreAllInputs(0);
                     dialogInputState = DialogInputState::Nothing;
+
+                    playSoundOverride("select.ogg");
                     dialogBox.clearDialogBox();
 
                     return;
@@ -391,7 +396,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             {
                 getCurrentMenu()->getItem().exec(); // turn off bind inputting
                 setIgnoreAllInputs(0);
-                assets.playSound("beep.ogg");
+                playSoundOverride("beep.ogg");
                 return;
             }
 
@@ -409,7 +414,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 // don't try assigning a keyboard key to a controller bind
                 if(bc == nullptr)
                 {
-                    assets.playSound("error.ogg");
+                    playSoundOverride("error.ogg");
                     ignoreInputs = 1;
                     return;
                 }
@@ -418,7 +423,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 // the input and notify it of what has happened.
                 if(!bc->newKeyboardBind(key))
                 {
-                    assets.playSound("error.ogg");
+                    playSoundOverride("error.ogg");
                     setIgnoreAllInputs(1);
                     showDialogBox(
                         "THE KEY YOU ARE TRYING TO ASSIGN TO THIS ACTION\n"
@@ -428,7 +433,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                     return;
                 }
 
-                assets.playSound("select.ogg");
+                playSoundOverride("select.ogg");
                 setIgnoreAllInputs(0);
                 touchDelay = 10.f;
             }
@@ -479,13 +484,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 // don't try assigning a keyboard key to a controller bind
                 if(bc == nullptr)
                 {
-                    assets.playSound("error.ogg");
+                    playSoundOverride("error.ogg");
                     ignoreInputs = 1;
                     return;
                 }
 
                 bc->newKeyboardBind(mEvent.mouseButton.button);
-                assets.playSound("select.ogg");
+                playSoundOverride("select.ogg");
                 setIgnoreAllInputs(0);
                 touchDelay = 10.f;
             }
@@ -536,14 +541,14 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
                 // don't try assigning a controller button to a keyboard bind
                 if(bc == nullptr)
                 {
-                    assets.playSound("error.ogg");
+                    playSoundOverride("error.ogg");
                     ignoreInputs = 1;
                     return;
                 }
 
                 bc->newJoystickBind(mEvent.joystickButton.button);
                 setIgnoreAllInputs(0);
-                assets.playSound("select.ogg");
+                playSoundOverride("select.ogg");
                 touchDelay = 10.f;
             }
         };
@@ -615,16 +620,16 @@ void MenuGame::init(bool error)
 
     discordManager.set_rich_presence_in_menu();
 
-    assets.stopMusics();
-    assets.stopSounds();
+    audio.stopMusic();
+    audio.stopSounds();
 
     if(error)
     {
-        assets.playSound("error.ogg");
+        playSoundOverride("error.ogg");
     }
     else
     {
-        assets.playSound("select.ogg");
+        playSoundOverride("select.ogg");
     }
 
     // Online::setForceLeaderboardRefresh(true);
@@ -674,7 +679,7 @@ void MenuGame::changeStateTo(const States mState)
     };
 
     const auto showTip = [&](const char* str) {
-        assets.playSound("select.ogg");
+        playSoundOverride("select.ogg");
 
         showDialogBox(str);
         setIgnoreAllInputs(1);
@@ -815,7 +820,7 @@ try
 }
 catch(...)
 {
-    assets.playSound("error.ogg");
+    playSoundOverride("error.ogg");
     ssvu::lo("hg::MenuGame::initLua") << "Fatal error in menu for Lua file '"
                                       << mFileName << '\'' << std::endl;
 }
@@ -833,6 +838,14 @@ void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
     adjustLevelsOffset();
     adjustMenuOffset(true);
     resetNamesScrolls();
+}
+
+void MenuGame::playSoundOverride(const std::string& assetId)
+{
+    if(!Config::getNoSound())
+    {
+        audio.playSoundOverride(assetId);
+    }
 }
 
 void MenuGame::initLua()
@@ -1298,7 +1311,7 @@ void MenuGame::initMenus()
         "sound volume", &Config::getSoundVolume,
         [this](unsigned int mValue) {
             Config::setSoundVolume(mValue);
-            assets.refreshVolumes();
+            audio.setSoundVolume(mValue);
         },
         0u, 100u, 5u) |
         whenSoundEnabled;
@@ -1306,7 +1319,7 @@ void MenuGame::initMenus()
         "music volume", &Config::getMusicVolume,
         [this](unsigned int mValue) {
             Config::setMusicVolume(mValue);
-            assets.refreshVolumes();
+            audio.setMusicVolume(mValue);
         },
         0u, 100u, 5u) |
         whenMusicEnabled;
@@ -1336,7 +1349,7 @@ void MenuGame::initMenus()
             setIndex(0);
         }
         changeStateTo(States::LevelSelection);
-        assets.playSound("select.ogg");
+        playSoundOverride("select.ogg");
     });
     main.create<i::Goto>("LOCAL PROFILES", localProfiles);
     main.create<i::Single>(
@@ -1427,7 +1440,7 @@ void MenuGame::initMenus()
     localProfiles.create<i::Single>("NEW PROFILE", [this] {
         changeStateTo(States::ETLPNew);
         enteredStr = "";
-        assets.playSound("select.ogg");
+        playSoundOverride("select.ogg");
     });
     localProfiles.create<i::GoBack>("BACK");
 
@@ -1614,7 +1627,7 @@ void MenuGame::leftAction()
     {
         --diffMultIdx;
         difficultyBumpEffect = difficultyBumpEffectMax;
-        assets.playSound("difficultyMultDown.ogg");
+        playSoundOverride("difficultyMultDown.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1626,7 +1639,7 @@ void MenuGame::leftAction()
     }
 
     getCurrentMenu()->decrease();
-    assets.playSound("beep.ogg");
+    playSoundOverride("beep.ogg");
     touchDelay = 50.f;
 }
 
@@ -1637,7 +1650,7 @@ void MenuGame::rightAction()
     {
         ++diffMultIdx;
         difficultyBumpEffect = difficultyBumpEffectMax;
-        assets.playSound("difficultyMultUp.ogg");
+        playSoundOverride("difficultyMultUp.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1649,7 +1662,7 @@ void MenuGame::rightAction()
     }
 
     getCurrentMenu()->increase();
-    assets.playSound("beep.ogg");
+    playSoundOverride("beep.ogg");
     touchDelay = 50.f;
 }
 
@@ -1714,7 +1727,7 @@ void MenuGame::upAction()
         // Reset the scroll values of the text items that are related
         // to level specific fields.
         resetLevelNamesScrolls();
-        assets.playSound("beep.ogg");
+        playSoundOverride("beep.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1725,7 +1738,7 @@ void MenuGame::upAction()
         if(scrollbarOffset != 0)
         {
             --scrollbarOffset;
-            assets.playSound("beep.ogg");
+            playSoundOverride("beep.ogg");
             touchDelay = 50.f;
         }
         return;
@@ -1756,7 +1769,7 @@ void MenuGame::upAction()
         getCurrentMenu()->previous();
     } while(!getCurrentMenu()->getItem().isEnabled());
 
-    assets.playSound("beep.ogg");
+    playSoundOverride("beep.ogg");
     touchDelay = 50.f;
 }
 
@@ -1805,7 +1818,7 @@ void MenuGame::downAction()
         }
 
         resetLevelNamesScrolls();
-        assets.playSound("beep.ogg");
+        playSoundOverride("beep.ogg");
         touchDelay = 50.f;
         return;
     }
@@ -1816,7 +1829,7 @@ void MenuGame::downAction()
             static_cast<int>(loadInfo.errorMessages.size()) - maxErrorsOnScreen)
         {
             ++scrollbarOffset;
-            assets.playSound("beep.ogg");
+            playSoundOverride("beep.ogg");
             touchDelay = 50.f;
         }
         return;
@@ -1846,7 +1859,7 @@ void MenuGame::downAction()
         getCurrentMenu()->next();
     } while(!getCurrentMenu()->getItem().isEnabled());
 
-    assets.playSound("beep.ogg");
+    playSoundOverride("beep.ogg");
     touchDelay = 50.f;
 }
 
@@ -1878,7 +1891,7 @@ void MenuGame::changePackQuick(const int direction)
     }
 
     packChangeDirection = direction;
-    assets.playSound("beep.ogg");
+    playSoundOverride("beep.ogg");
     changePack();
     adjustLevelsOffset();
 
@@ -1927,7 +1940,7 @@ void MenuGame::changePackAction(const int direction)
     calcScrollSpeed();
 
     touchDelay = 50.f;
-    assets.playSound("beep.ogg");
+    playSoundOverride("beep.ogg");
 }
 
 void MenuGame::okAction()
@@ -1950,7 +1963,7 @@ void MenuGame::okAction()
                 {
                     if(enteredStr == i->getName())
                     {
-                        assets.playSound("error.ogg");
+                        playSoundOverride("error.ogg");
                         showDialogBox(
                             "A PROFILE WITH THE SAME NAME ALREADY EXISTS\n"
                             "PLEASE ENTER ANOTHER NAME\n\n"
@@ -1977,7 +1990,7 @@ void MenuGame::okAction()
                 enteredStr = "";
                 if(state == States::ETLPNewBoot)
                 {
-                    assets.playSound("openHexagon.ogg");
+                    playSoundOverride("openHexagon.ogg");
                     changeStateTo(States::SMain);
                     return;
                 }
@@ -1986,7 +1999,7 @@ void MenuGame::okAction()
             break;
 
         case States::SLPSelectBoot:
-            assets.playSound("openHexagon.ogg");
+            playSoundOverride("openHexagon.ogg");
             getCurrentMenu()->exec();
             changeStateTo(States::SMain);
             return;
@@ -2039,7 +2052,7 @@ void MenuGame::okAction()
             {
                 setIgnoreAllInputs(2);
                 touchDelay = 10.f;
-                assets.playSound("beep.ogg");
+                playSoundOverride("beep.ogg");
                 return;
             }
 
@@ -2083,7 +2096,7 @@ void MenuGame::okAction()
             break;
     }
 
-    assets.playSound("select.ogg");
+    playSoundOverride("select.ogg");
 }
 
 void MenuGame::eraseAction()
@@ -2091,7 +2104,7 @@ void MenuGame::eraseAction()
     if(isEnteringText() && !enteredStr.empty())
     {
         enteredStr.erase(enteredStr.end() - 1);
-        assets.playSound("beep.ogg");
+        playSoundOverride("beep.ogg");
     }
     else if(state == States::SLPSelect)
     {
@@ -2101,7 +2114,7 @@ void MenuGame::eraseAction()
         // currently in use.
         if(profileSelectionMenu.getCategory().getItems().size() <= 1)
         {
-            assets.playSound("error.ogg");
+            playSoundOverride("error.ogg");
             showDialogBox(
                 "YOU CANNOT ERASE THE ONLY REMAINING PROFILE\n\n"
                 "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
@@ -2110,7 +2123,7 @@ void MenuGame::eraseAction()
         }
         if(assets.pGetName() == name)
         {
-            assets.playSound("error.ogg");
+            playSoundOverride("error.ogg");
             showDialogBox(
                 "YOU CANNOT ERASE THE CURRENTLY IN USE PROFILE\n\n"
                 "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
@@ -2130,7 +2143,7 @@ void MenuGame::eraseAction()
 
         // Remove the item from the menu
         profileSelectionMenu.getCategory().remove();
-        assets.playSound("beep.ogg");
+        playSoundOverride("beep.ogg");
     }
     else if(state == States::MOpts && isInMenu())
     {
@@ -2145,7 +2158,7 @@ void MenuGame::eraseAction()
 
         if(bc->erase())
         {
-            assets.playSound("beep.ogg");
+            playSoundOverride("beep.ogg");
         }
 
         touchDelay = 10.f;
@@ -2159,7 +2172,7 @@ void MenuGame::exitAction()
         return;
     }
 
-    assets.playSound("beep.ogg");
+    playSoundOverride("beep.ogg");
 
     if(state == States::SLPSelectBoot)
     {
@@ -2226,11 +2239,11 @@ void MenuGame::update(ssvu::FT mFT)
 
         if(error)
         {
-            assets.playSound("error.ogg");
+            playSoundOverride("error.ogg");
         }
         else
         {
-            assets.playSound("select.ogg");
+            playSoundOverride("select.ogg");
         }
 
         std::string finalMsg = msg;
@@ -2488,7 +2501,7 @@ void MenuGame::update(ssvu::FT mFT)
             if(enteredStr.size() < limit &&
                 (ssvu::isAlphanumeric(c) || ssvu::isPunctuation(c)))
             {
-                assets.playSound("beep.ogg");
+                playSoundOverride("beep.ogg");
                 enteredStr.append(ssvu::toStr(c));
             }
         }
@@ -2690,7 +2703,7 @@ void MenuGame::setIndex(const int mIdx)
 
         if(!Config::getDebug())
         {
-            assets.playSound("error.ogg");
+            playSoundOverride("error.ogg");
         }
     }
     catch(...)
@@ -2702,7 +2715,7 @@ void MenuGame::setIndex(const int mIdx)
 
         if(!Config::getDebug())
         {
-            assets.playSound("error.ogg");
+            playSoundOverride("error.ogg");
         }
     }
 }
@@ -2737,7 +2750,7 @@ void MenuGame::reloadAssets(const bool reloadEntirePack)
     // Needs to be two because the dialog box reacts to key releases.
     // First key release is the one of the key press that made the dialog
     // box pop up, the second one belongs to the key press that closes it
-    assets.playSound("select.ogg");
+    playSoundOverride("select.ogg");
     showDialogBox(reloadOutput);
     setIgnoreAllInputs(2);
 }
@@ -4175,7 +4188,7 @@ void MenuGame::addRemoveFavoriteLevel()
             static_cast<int>(favSlct.levelDataIds->size()) - 1);
     }
 
-    assets.playSound("select.ogg");
+    playSoundOverride("select.ogg");
 }
 
 void MenuGame::switchToFromFavoriteLevels()
@@ -4199,7 +4212,7 @@ void MenuGame::switchToFromFavoriteLevels()
     setIndex(lvlDrawer->currentIndex); // update the looks
     adjustLevelsOffset();
     resetNamesScrolls();
-    assets.playSound("select.ogg");
+    playSoundOverride("select.ogg");
 }
 
 void MenuGame::drawLevelSelectionRightSide(
@@ -4745,6 +4758,8 @@ void MenuGame::drawLevelSelectionLeftSide(
                                    const std::uint64_t scoreTimestamp,
                                    const double scoreValue) {
             const float score = scoreValue;
+
+            // TODO (P1): display date and time
 
             const std::string posStr = hg::Utils::concat('#', i + 1);
             std::string scoreStr = ssvu::toStr(score) + 's';

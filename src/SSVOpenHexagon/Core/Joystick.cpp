@@ -112,6 +112,7 @@ enum class AxisDir : int
 [[nodiscard]] static AxisDir axisPressed(
     const unsigned int joyId, const sf::Joystick::Axis axis)
 {
+    // TODO (P2): remove dependency on config
     const float deadzone = Config::getJoystickDeadzone();
     const auto pos = sf::Joystick::getAxisPosition(joyId, axis);
 

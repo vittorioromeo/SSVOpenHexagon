@@ -3,6 +3,8 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
@@ -223,6 +225,7 @@ void HexagonGame::update(ssvu::FT mFT)
                 updateRotation(mFT);
             }
 
+            // TODO (P0): test with server, think about colors
             // Advance random number generator state with various level and
             // style values to avoid cheating by modifying Lua scripts
             if(!status.hasDied)
@@ -234,6 +237,7 @@ void HexagonGame::update(ssvu::FT mFT)
                 rng.advance(levelStatus.rotationSpeed);
             }
 
+// TODO (P0): decide what to do with this
 #if 0
             // Advance random number generator state with various level and
             // style values to avoid cheating by modifying Lua scripts
@@ -419,7 +423,7 @@ void HexagonGame::start()
 {
     status.start();
     messageText.setString("");
-    playSound("go.ogg");
+    playSoundOverride("go.ogg");
 
     if(!mustReplayInput())
     {
@@ -455,7 +459,7 @@ void HexagonGame::start()
 
     if(!Config::getNoMusic())
     {
-        assets.musicPlayer.resume();
+        audio.resumeMusic();
     }
 
     runLuaFunctionIfExists<void>("onLoad");

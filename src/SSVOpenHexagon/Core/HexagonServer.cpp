@@ -20,7 +20,6 @@
 
 #include <SFML/Network.hpp>
 
-#include <thread>
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
@@ -925,6 +924,8 @@ void HexagonServer::runIteration_PurgeTokens()
             SSVOH_SLOG << "Elapsed request time: " << elapsedSecs << '\n'
                        << "Difference: " << difference << '\n';
 
+            // TODO (P0): doesn't work with levels that have pauses (e.g.
+            // tutorial, which should be non-rankable)
             // TODO: something smarter here?
             if(difference > 3.5)
             {
@@ -1003,6 +1004,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
 HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
     : _assets{assets}, _hexagonGame{hexagonGame},
+      // TODO (P2): remove dependency on config
       _serverIp{Config::getServerIp()}, _serverPort{Config::getServerPort()},
       _serverControlPort{Config::getServerControlPort()}, _listener{},
       _socketSelector{}, _running{true}, _verbose{false},

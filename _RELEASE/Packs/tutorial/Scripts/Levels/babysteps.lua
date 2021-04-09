@@ -121,7 +121,7 @@ function onUpdate(mFrameTime)
 
         e_messageAddImportant("welcome to open hexagon 2!", 120)
         e_messageAddImportant("let's learn about the controls", 120)
-        e_messageAddImportant("use left/right to rotate around the center", 180)
+        e_messageAddImportant("use left/right to rotate around the center", 200)
         e_messageAddImportant("try it now!", 120)
         e_stopTimeS(9)
     end
@@ -138,9 +138,9 @@ function onUpdate(mFrameTime)
         step0_completionTime = l_getLevelTime()
 
         e_messageAddImportant("well done!", 120)
-        e_messageAddImportant("you can slow down by focusing", 120)
-        e_messageAddImportant("by default, use left shift", 120)
-        e_messageAddImportant("try it while rotating!", 120)
+        e_messageAddImportant("you can slow down by focusing", 160)
+        e_messageAddImportant("by default, use left shift", 160)
+        e_messageAddImportant("try it while rotating!", 140)
         e_stopTimeS(8)
     end
 
@@ -181,8 +181,8 @@ function onUpdate(mFrameTime)
             e_messageAddImportant("nice try...", 110)
         end
 
-        e_messageAddImportant("after a while, things get harder", 120)
-        e_messageAddImportant("get to 45 seconds to complete the tutorial!", 130)
+        e_messageAddImportant("after a while, things get harder", 140)
+        e_messageAddImportant("get to 45 seconds to complete the tutorial!", 160)
     end
 
     if step4 and not step5 and l_getLevelTime() > 43 then

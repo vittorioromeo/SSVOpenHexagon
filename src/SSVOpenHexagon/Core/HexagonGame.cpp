@@ -6,6 +6,7 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/MenuGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
@@ -224,10 +225,11 @@ void HexagonGame::updateLevelInfo()
 }
 
 HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
-    Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
+    Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio& mAudio,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
     : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), window(mGameWindow), hexagonClient{mHexagonClient},
+      assets(mAssets), font{assets.get<sf::Font>("forcedsquare.ttf")},
+      audio(mAudio), window(mGameWindow), hexagonClient{mHexagonClient},
       player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()}
 {
     if(window != nullptr)
@@ -339,11 +341,11 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
                 if(debugPause)
                 {
-                    assets.musicPlayer.pause();
+                    audio.pauseMusic();
                 }
                 else if(!status.hasDied)
                 {
-                    assets.musicPlayer.resume();
+                    audio.resumeMusic();
                 }
             }
         });
@@ -406,12 +408,28 @@ void HexagonGame::updateRichPresenceCallbacks()
     }
 }
 
-void HexagonGame::playSound(
-    const std::string& mId, ssvs::SoundPlayer::Mode mMode)
+void HexagonGame::playSoundOverride(const std::string& mId)
 {
-    if(window != nullptr)
+    if(window != nullptr && !Config::getNoSound())
     {
-        assets.playSound(mId, mMode);
+        audio.playSoundOverride(mId);
+    }
+}
+
+void HexagonGame::playSoundAbort(const std::string& mId)
+{
+    if(window != nullptr && !Config::getNoSound())
+    {
+        audio.playSoundAbort(mId);
+    }
+}
+
+void HexagonGame::playPackSoundOverride(
+    const std::string& mPackId, const std::string& mId)
+{
+    if(window != nullptr && !Config::getNoSound())
+    {
+        audio.playPackSoundOverride(mPackId, mId);
     }
 }
 
@@ -497,23 +515,18 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Audio cleanup
     if(window != nullptr)
     {
-        assets.stopSounds();
+        audio.stopSounds();
         stopLevelMusic();
 
         if(!Config::getNoMusic())
         {
             playLevelMusic();
-            assets.musicPlayer.pause();
-
-            sf::Music* current(assets.getMusicPlayer().getCurrent());
-            if(current != nullptr)
-            {
-                setMusicPitch(*current);
-            }
+            audio.pauseMusic();
+            refreshMusicPitch();
         }
         else
         {
-            assets.musicPlayer.stop();
+            audio.stopMusic();
         }
     }
 
@@ -580,11 +593,11 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     if(!firstPlay)
     {
         runLuaFunctionIfExists<void>("onUnload");
-        playSound("restart.ogg");
+        playSoundOverride("restart.ogg");
     }
     else
     {
-        playSound("select.ogg");
+        playSoundOverride("select.ogg");
     }
 
     runLuaFunctionIfExists<void>("onInit");
@@ -666,7 +679,7 @@ void HexagonGame::death(bool mForce)
 
     deathInputIgnore = 10.f;
 
-    playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);
+    playSoundAbort(levelStatus.deathSound);
 
     runLuaFunctionIfExists<void>("onPreDeath");
 
@@ -687,11 +700,11 @@ void HexagonGame::death(bool mForce)
         pbText.setString("NEW PERSONAL BEST!");
         mustSpawnPBParticles = true;
 
-        playSound("personalBest.ogg", ssvs::SoundPlayer::Mode::Abort);
+        playSoundAbort("personalBest.ogg");
     }
     else
     {
-        playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
+        playSoundAbort("gameOver.ogg");
     }
 
     runLuaFunctionIfExists<void>("onDeath");
@@ -846,7 +859,7 @@ void HexagonGame::death(bool mForce)
 
 void HexagonGame::incrementDifficulty()
 {
-    playSound("levelUp.ogg");
+    playSoundOverride("levelUp.ogg");
 
     const float signMult = (levelStatus.rotationSpeed > 0.f) ? 1.f : -1.f;
 
@@ -874,7 +887,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     mustChangeSides = false;
 
-    playSound(levelStatus.levelUpSound);
+    playSoundOverride(levelStatus.levelUpSound);
     runLuaFunctionIfExists<void>("onIncrement");
 }
 
@@ -938,7 +951,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         return;
     }
 
-    assets.stopSounds();
+    audio.stopSounds();
 
     ilcLuaTracked.clear();
     ilcLuaTrackedNames.clear();
@@ -946,7 +959,7 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     if(!mError)
     {
-        playSound("beep.ogg");
+        playSoundOverride("beep.ogg");
     }
 
     calledDeprecatedFunctions.clear();
@@ -997,7 +1010,7 @@ void HexagonGame::addMessage(
     messageTimeline.append_do([this, mSoundToggle, mMessage] {
         if(mSoundToggle)
         {
-            playSound(levelStatus.beepSound);
+            playSoundOverride(levelStatus.beepSound);
         }
 
         messageText.setString(mMessage);
@@ -1063,7 +1076,7 @@ void HexagonGame::playLevelMusic()
     if(!Config::getNoMusic())
     {
         const MusicData::Segment segment =
-            musicData.playRandomSegment(getPackId(), assets);
+            musicData.playRandomSegment(getPackId(), audio);
 
         // TODO: problems with addHash in headless mode:
         status.beatPulseDelay += segment.beatPulseDelayOffset;
@@ -1079,7 +1092,7 @@ void HexagonGame::playLevelMusicAtTime(float mSeconds)
 
     if(!Config::getNoMusic())
     {
-        musicData.playSeconds(getPackId(), assets, mSeconds);
+        musicData.playSeconds(getPackId(), audio, mSeconds);
     }
 }
 
@@ -1092,7 +1105,7 @@ void HexagonGame::stopLevelMusic()
 
     if(!Config::getNoMusic())
     {
-        assets.stopMusics();
+        audio.stopMusic();
     }
 }
 
@@ -1134,9 +1147,21 @@ auto HexagonGame::getColorText() const -> sf::Color
     return styleData.getTextColor();
 }
 
+[[nodiscard]] float HexagonGame::getMusicDMSyncFactor() const
+{
+    return levelStatus.syncMusicToDM ? std::pow(difficultyMult, 0.12f) : 1.f;
+}
+
+void HexagonGame::refreshMusicPitch()
+{
+    audio.setCurrentMusicPitch((getMusicDMSyncFactor()) *
+                               Config::getMusicSpeedMult() *
+                               levelStatus.musicPitch);
+}
+
 void HexagonGame::setSides(unsigned int mSides)
 {
-    playSound(levelStatus.beepSound);
+    playSoundOverride(levelStatus.beepSound);
 
     if(mSides < 3)
     {
@@ -1193,7 +1218,7 @@ void HexagonGame::performPlayerSwap(const bool mPlaySound)
 
     if(mPlaySound)
     {
-        playSound(getLevelStatus().swapSound);
+        playSoundOverride(getLevelStatus().swapSound);
     }
 }
 
