@@ -549,7 +549,8 @@ void HexagonServer::runIteration_PurgeTokens()
     const void* clientAddr = static_cast<void*>(&c);
 
     const auto validateLogin = [&](const char* context,
-                                   const sf::Uint64 ctspLoginToken) -> bool {
+                                   const sf::Uint64 ctspLoginToken) -> bool
+    {
         if(!c._loginData.has_value())
         {
             SSVOH_SLOG << "Client '" << clientAddr << "', is not logged in for "
@@ -580,12 +581,14 @@ void HexagonServer::runIteration_PurgeTokens()
     return Utils::match(
         pv,
 
-        [&](const PInvalid&) {
+        [&](const PInvalid&)
+        {
             return fail("Error processing packet from client '", clientAddr,
                 "', details: ", _errorOss.str());
         },
 
-        [&](const PEncryptedMsg&) {
+        [&](const PEncryptedMsg&)
+        {
             return fail(
                 "Received non-decrypted encrypted msg packet from client '",
                 clientAddr, '\'');
@@ -593,13 +596,15 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPHeartbeat&) { return true; },
 
-        [&](const CTSPDisconnect&) {
+        [&](const CTSPDisconnect&)
+        {
             c._mustDisconnect = true;
             c._state = ConnectedClient::State::Disconnected;
             return true;
         },
 
-        [&](const CTSPPublicKey& ctsp) {
+        [&](const CTSPPublicKey& ctsp)
+        {
             SSVOH_SLOG << "Received public key packet from client '"
                        << clientAddr << "'\n";
 
@@ -644,14 +649,16 @@ void HexagonServer::runIteration_PurgeTokens()
             return sendPublicKey(c);
         },
 
-        [&](const CTSPRegister& ctsp) {
+        [&](const CTSPRegister& ctsp)
+        {
             const auto& [steamId, name, passwordHash] = ctsp;
 
             SSVOH_SLOG << "Received register packet from client '" << clientAddr
                        << "'\nContents: '" << steamId << ", " << name << ", "
                        << passwordHash << "'\n";
 
-            const auto sendFail = [&](const auto&... xs) {
+            const auto sendFail = [&](const auto&... xs)
+            {
                 const std::string errorStr = Utils::concat(xs...);
 
                 SSVOH_SLOG << errorStr << '\n';
@@ -687,14 +694,16 @@ void HexagonServer::runIteration_PurgeTokens()
             return sendRegistrationSuccess(c);
         },
 
-        [&](const CTSPLogin& ctsp) {
+        [&](const CTSPLogin& ctsp)
+        {
             const auto& [steamId, name, passwordHash] = ctsp;
 
             SSVOH_SLOG << "Received login packet from client '" << clientAddr
                        << "'\nContents: '" << steamId << ", " << name << ", "
                        << passwordHash << "'\n";
 
-            const auto sendFail = [&](const auto&... xs) {
+            const auto sendFail = [&](const auto&... xs)
+            {
                 const std::string errorStr = Utils::concat(xs...);
 
                 SSVOH_SLOG << errorStr << '\n';
@@ -763,7 +772,8 @@ void HexagonServer::runIteration_PurgeTokens()
             return sendLoginSuccess(c, loginToken, user->name);
         },
 
-        [&](const CTSPLogout& ctsp) {
+        [&](const CTSPLogout& ctsp)
+        {
             SSVOH_SLOG << "Received logout packet from client '" << clientAddr
                        << "'\nContents: '" << ctsp.steamId << "'\n";
 
@@ -786,14 +796,16 @@ void HexagonServer::runIteration_PurgeTokens()
             return sendLogoutSuccess(c);
         },
 
-        [&](const CTSPDeleteAccount& ctsp) {
+        [&](const CTSPDeleteAccount& ctsp)
+        {
             const auto& [steamId, passwordHash] = ctsp;
 
             SSVOH_SLOG << "Received delete account packet from client '"
                        << clientAddr << "'\nContents: '" << steamId << ", "
                        << passwordHash << "'\n";
 
-            const auto sendFail = [&](const auto&... xs) {
+            const auto sendFail = [&](const auto&... xs)
+            {
                 const std::string errorStr = Utils::concat(xs...);
 
                 SSVOH_SLOG << errorStr << '\n';
@@ -829,7 +841,8 @@ void HexagonServer::runIteration_PurgeTokens()
             return sendDeleteAccountSuccess(c);
         },
 
-        [&](const CTSPRequestTopScores& ctsp) {
+        [&](const CTSPRequestTopScores& ctsp)
+        {
             if(!validateLogin("top scores", ctsp.loginToken))
             {
                 return true;
@@ -844,7 +857,8 @@ void HexagonServer::runIteration_PurgeTokens()
                 c, lv, Database::getTopScores(topScoresLimit, lv));
         },
 
-        [&](const CTSPReplay& ctsp) {
+        [&](const CTSPReplay& ctsp)
+        {
             const TimePoint receiveTime = Clock::now();
 
             if(!validateLogin("replay", ctsp.loginToken))
@@ -919,7 +933,8 @@ void HexagonServer::runIteration_PurgeTokens()
             return true; // TODO: reply?
         },
 
-        [&](const CTSPRequestOwnScore& ctsp) {
+        [&](const CTSPRequestOwnScore& ctsp)
+        {
             if(!validateLogin("own score", ctsp.loginToken))
             {
                 return true;
@@ -939,7 +954,8 @@ void HexagonServer::runIteration_PurgeTokens()
             return sendOwnScore(c, ctsp.levelValidator, *ps);
         },
 
-        [&](const CTSPRequestTopScoresAndOwnScore& ctsp) {
+        [&](const CTSPRequestTopScoresAndOwnScore& ctsp)
+        {
             if(!validateLogin("top scores and own scores", ctsp.loginToken))
             {
                 return true;
@@ -956,7 +972,8 @@ void HexagonServer::runIteration_PurgeTokens()
                 Database::getScore(lv, c._loginData->_steamId));
         },
 
-        [&](const CTSPStartedGame& ctsp) {
+        [&](const CTSPStartedGame& ctsp)
+        {
             if(!validateLogin("started game", ctsp.loginToken))
             {
                 return true;
@@ -1036,11 +1053,13 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
         static sf::TcpListener& globalListener = _listener;
 
         // TODO: UB
-        std::signal(SIGINT, [](int s) {
-            std::printf("Caught signal %d\n", s);
-            globalListener.close();
-            globalRunning = false;
-        });
+        std::signal(SIGINT,
+            [](int s)
+            {
+                std::printf("Caught signal %d\n", s);
+                globalListener.close();
+                globalRunning = false;
+            });
     }
 
     run();

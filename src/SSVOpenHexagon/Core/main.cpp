@@ -155,25 +155,28 @@ int main(int argc, char* argv[])
     // ------------------------------------------------------------------------
     // Basic signal handling
     // TODO: UB
-    std::signal(SIGINT, [](int s) {
-        ssvu::lo("::main") << "Caught signal '" << s
-                           << "' without game window open, exiting...\n";
+    std::signal(SIGINT,
+        [](int s)
+        {
+            ssvu::lo("::main") << "Caught signal '" << s
+                               << "' without game window open, exiting...\n";
 
-        std::exit(1);
-    });
+            std::exit(1);
+        });
 
     //
     //
     // ------------------------------------------------------------------------
     // Flush and save log (at the end of the scope)
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Saving log to 'log.txt'...\n";
+    HG_SCOPE_GUARD(
+        {
+            ssvu::lo("::main") << "Saving log to 'log.txt'...\n";
 
-        ssvu::lo().flush();
-        ssvu::saveLogToFile("log.txt");
+            ssvu::lo().flush();
+            ssvu::saveLogToFile("log.txt");
 
-        ssvu::lo("::main") << "Done saving log to 'log.txt'\n";
-    });
+            ssvu::lo("::main") << "Done saving log to 'log.txt'\n";
+        });
 
     //
     //
@@ -222,11 +225,12 @@ int main(int argc, char* argv[])
     // ------------------------------------------------------------------------
     // Load configuration (and overrides)
     hg::Config::loadConfig(args);
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Saving config...\n";
-        hg::Config::saveConfig();
-        ssvu::lo("::main") << "Done saving config\n";
-    });
+    HG_SCOPE_GUARD(
+        {
+            ssvu::lo("::main") << "Saving config...\n";
+            hg::Config::saveConfig();
+            ssvu::lo("::main") << "Done saving config\n";
+        });
 
     //
     //
@@ -256,14 +260,16 @@ int main(int argc, char* argv[])
             static ssvs::GameWindow& globalWindow = *window;
 
             // TODO: UB
-            std::signal(SIGINT, [](int s) {
-                ssvu::lo("::main")
-                    << "Caught signal '" << s << "' with game window open\n";
+            std::signal(SIGINT,
+                [](int s)
+                {
+                    ssvu::lo("::main") << "Caught signal '" << s
+                                       << "' with game window open\n";
 
-                ssvu::lo("::main") << "Stopping game window...\n";
-                globalWindow.stop();
-                ssvu::lo("::main") << "Done stopping game window\n";
-            });
+                    ssvu::lo("::main") << "Stopping game window...\n";
+                    globalWindow.stop();
+                    ssvu::lo("::main") << "Done stopping game window\n";
+                });
         }
     }
 
@@ -277,27 +283,29 @@ int main(int argc, char* argv[])
         ImGui::SFML::Init(*window);
     }
 
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Shutting down ImGui...\n";
-
-        if(!headless)
+    HG_SCOPE_GUARD(
         {
-            ImGui::SFML::Shutdown();
-        }
+            ssvu::lo("::main") << "Shutting down ImGui...\n";
 
-        ssvu::lo("::main") << "Done shutting down ImGui...\n";
-    });
+            if(!headless)
+            {
+                ImGui::SFML::Shutdown();
+            }
+
+            ssvu::lo("::main") << "Done shutting down ImGui...\n";
+        });
 
     //
     //
     // ------------------------------------------------------------------------
     // Initialize assets
     auto assets = std::make_unique<hg::HGAssets>(&steamManager, headless);
-    HG_SCOPE_GUARD({
-        ssvu::lo("::main") << "Saving all local profiles...\n";
-        assets->pSaveAll();
-        ssvu::lo("::main") << "Done saving all local profiles\n";
-    });
+    HG_SCOPE_GUARD(
+        {
+            ssvu::lo("::main") << "Saving all local profiles...\n";
+            assets->pSaveAll();
+            ssvu::lo("::main") << "Done saving all local profiles\n";
+        });
 
     //
     //
@@ -377,12 +385,14 @@ int main(int argc, char* argv[])
     {
         SSVOH_ASSERT(window.has_value());
 
-        const auto gotoMenu = [&] {
+        const auto gotoMenu = [&]
+        {
             window->setGameState(mg->getGame());
             mg->init(false /* mError */);
         };
 
-        const auto gotoGameReplay = [&](const hg::replay_file& replayFile) {
+        const auto gotoGameReplay = [&](const hg::replay_file& replayFile)
+        {
             hg->setLastReplay(replayFile);
 
             hg->newGame(replayFile._pack_id, replayFile._level_id,

@@ -13,8 +13,7 @@ namespace hg {
 
 random_number_generator::random_number_generator(const seed_type seed) noexcept
     : _seed{seed}, _rng{seed}
-{
-}
+{}
 
 [[nodiscard]] random_number_generator::seed_type
 random_number_generator::seed() const noexcept

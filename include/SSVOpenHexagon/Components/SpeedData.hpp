@@ -23,8 +23,7 @@ struct SpeedData
           _min{min},
           _max{max},
           _pingPong{pingPong ? -1.f : 1.f}
-    {
-    }
+    {}
 
     void update(const ssvu::FT ft) noexcept
     {

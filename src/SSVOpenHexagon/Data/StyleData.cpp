@@ -112,7 +112,8 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
         }
     }
 
-    const auto componentClamp = [](const float value) -> sf::Uint8 {
+    const auto componentClamp = [](const float value) -> sf::Uint8
+    {
         if(value > 255.f)
         {
             return sf::Uint8(255);
@@ -342,9 +343,8 @@ sf::Color StyleData::getCapColorResult() const noexcept
     return Utils::match(
         capColor,                                              //
         [this](CapColorMode::Main) { return getMainColor(); }, //
-        [this](CapColorMode::MainDarkened) {
-            return Utils::getColorDarkened(getMainColor(), 1.4f);
-        },                                                              //
+        [this](CapColorMode::MainDarkened)
+        { return Utils::getColorDarkened(getMainColor(), 1.4f); },      //
         [this](CapColorMode::ByIndex x) { return getColor(x._index); }, //
         [this](ColorData data) { return calculateColor(data); });
 }

@@ -12,8 +12,7 @@ namespace hg {
 
 HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow)
     : window{mWindow}, txtDialog{"", mFont, 0}
-{
-}
+{}
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
     const float mFrameSize, const DBoxDraw mDrawMode, const float mXPos,
@@ -79,26 +78,23 @@ HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(
         case DBoxDraw::topLeft:
         {
             return [this](const sf::Color& txtColor,
-                       const sf::Color& backdropColor) {
-                drawTopLeft(txtColor, backdropColor);
-            };
+                       const sf::Color& backdropColor)
+            { drawTopLeft(txtColor, backdropColor); };
         }
 
         case DBoxDraw::center:
         {
             return [this](const sf::Color& txtColor,
-                       const sf::Color& backdropColor) {
-                drawCenter(txtColor, backdropColor);
-            };
+                       const sf::Color& backdropColor)
+            { drawCenter(txtColor, backdropColor); };
         }
 
         default:
         {
             SSVOH_ASSERT(drawMode == DBoxDraw::centerUpperHalf);
             return [this](const sf::Color& txtColor,
-                       const sf::Color& backdropColor) {
-                drawCenterUpperHalf(txtColor, backdropColor);
-            };
+                       const sf::Color& backdropColor)
+            { drawCenterUpperHalf(txtColor, backdropColor); };
         }
     }
 }

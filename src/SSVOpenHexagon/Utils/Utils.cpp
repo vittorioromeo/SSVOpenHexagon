@@ -30,10 +30,12 @@ void shakeCamera(ssvu::TimelineManager& mTimelineManager, ssvs::Camera& mCamera)
 
     for(int i{s}; i > 0; --i)
     {
-        timeline.append<ssvu::Do>([&mCamera, oldCenter, i] {
-            mCamera.setCenter(oldCenter + sf::Vector2f(ssvu::getRndI(-i, i),
-                                              ssvu::getRndI(-i, i)));
-        });
+        timeline.append<ssvu::Do>(
+            [&mCamera, oldCenter, i]
+            {
+                mCamera.setCenter(oldCenter + sf::Vector2f(ssvu::getRndI(-i, i),
+                                                  ssvu::getRndI(-i, i)));
+            });
         timeline.append<ssvu::Wait>(1);
         timeline.append<ssvu::Go>(0, 3);
     }
@@ -113,7 +115,8 @@ const PackData& findDependencyPackDataOrThrow(const HGAssets& assets,
     // ------------------------------------------------------------------------
     // Check if provided arguments are a dependency of current pack.
     const auto depIt = std::find_if(dependencies.begin(), dependencies.end(),
-        [&](const PackDependency& pd) {
+        [&](const PackDependency& pd)
+        {
             return pd.disambiguator == mPackDisambiguator && //
                    pd.name == mPackName &&                   //
                    pd.author == mPackAuthor;

@@ -50,8 +50,7 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown) noexcept
       _swapTimer{swapCooldown},
       _swapBlinkTimer{swapCooldown / 6.f},
       _deadEffectTimer{80.f, false}
-{
-}
+{}
 
 void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
@@ -177,7 +176,8 @@ template <typename Wall>
     // function just to do without this variable,
     const unsigned int killingSide{wall.getKillingSide()};
 
-    const auto assignResult = [&]() {
+    const auto assignResult = [&]()
+    {
         tempDistance = ssvs::getMagSquared(vec1 - pos);
         if(tempDistance < safeDistance)
         {

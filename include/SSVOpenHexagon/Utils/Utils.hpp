@@ -42,8 +42,7 @@ void runLuaCode(Lua::LuaContext& mLua, const std::string& mCode);
 void runLuaFile(Lua::LuaContext& mLua, const std::string& mFileName);
 
 struct Nothing
-{
-};
+{};
 
 template <typename T>
 using VoidToNothing = std::conditional_t<std::is_same_v<T, void>, Nothing, T>;

@@ -17,8 +17,7 @@ private:
 
 public:
     constexpr explicit LinkedValue(const char* mLinkedName) : name{mLinkedName}
-    {
-    }
+    {}
 
     [[nodiscard]] operator T&() noexcept
     {

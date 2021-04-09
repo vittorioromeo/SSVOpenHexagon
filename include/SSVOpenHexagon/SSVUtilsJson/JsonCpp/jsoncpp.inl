@@ -59,7 +59,8 @@ inline void uintToString(LargestUInt value, char*& current)
     {
         *--current = char(value % 10) + '0';
         value /= 10;
-    } while(value != 0);
+    }
+    while(value != 0);
 }
 
 
@@ -80,8 +81,7 @@ inline Reader::Reader()
       commentsBefore_(),
       features_(Features::all()),
       collectComments_()
-{
-}
+{}
 inline Reader::Reader(const Features& features)
     : errors_(),
       document_(),
@@ -93,8 +93,7 @@ inline Reader::Reader(const Features& features)
       commentsBefore_(),
       features_(features),
       collectComments_()
-{
-}
+{}
 inline bool Reader::parse(
     const std::string& document, Value& root, bool collectComments)
 {
@@ -181,7 +180,8 @@ inline void Reader::skipCommentTokens(Token& token)
         do
         {
             readToken(token);
-        } while(token.type_ == tokenComment);
+        }
+        while(token.type_ == tokenComment);
     }
     else
         readToken(token);
@@ -787,13 +787,11 @@ private:
 };
 
 inline ValueIteratorBase::ValueIteratorBase() : current_(), isNull_(true)
-{
-}
+{}
 inline ValueIteratorBase::ValueIteratorBase(
     const Value::ObjectValues::iterator& current)
     : current_(current), isNull_(false)
-{
-}
+{}
 
 inline Value& ValueIteratorBase::deref() const
 {
@@ -847,13 +845,11 @@ inline const char* ValueIteratorBase::memberName() const
     return name ? name : "";
 }
 inline ValueConstIterator::ValueConstIterator()
-{
-}
+{}
 inline ValueConstIterator::ValueConstIterator(
     const Value::ObjectValues::iterator& current)
     : ValueIteratorBase(current)
-{
-}
+{}
 
 inline ValueConstIterator& ValueConstIterator::operator=(
     const ValueIteratorBase& other)
@@ -862,22 +858,18 @@ inline ValueConstIterator& ValueConstIterator::operator=(
     return *this;
 }
 inline ValueIterator::ValueIterator()
-{
-}
+{}
 inline ValueIterator::ValueIterator(
     const Value::ObjectValues::iterator& current)
     : ValueIteratorBase(current)
-{
-}
+{}
 
 inline ValueIterator::ValueIterator(const ValueConstIterator& other)
     : ValueIteratorBase(other)
-{
-}
+{}
 inline ValueIterator::ValueIterator(const ValueIterator& other)
     : ValueIteratorBase(other)
-{
-}
+{}
 inline ValueIterator& ValueIterator::operator=(const SelfType& other)
 {
     copy(other);
@@ -926,13 +918,11 @@ inline void Value::CommentInfo::setComment(const char* text)
     comment_ = duplicateStringValue(text);
 }
 inline Value::CZString::CZString(ArrayIndex mIdx) : cstr_(nullptr), index_(mIdx)
-{
-}
+{}
 inline Value::CZString::CZString(const char* cstr, DuplicationPolicy allocate)
     : cstr_(allocate == duplicate ? duplicateStringValue(cstr) : cstr),
       index_(allocate)
-{
-}
+{}
 inline Value::CZString::CZString(const CZString& other)
     : cstr_(other.index_ != noDuplication && other.cstr_ != nullptr
                 ? duplicateStringValue(other.cstr_)
@@ -942,8 +932,7 @@ inline Value::CZString::CZString(const CZString& other)
                            ? static_cast<unsigned int>(noDuplication)
                            : static_cast<unsigned int>(duplicate))
                  : other.index_)
-{
-}
+{}
 inline Value::CZString::~CZString()
 {
     if(cstr_ != nullptr && index_ == duplicate)
@@ -1720,20 +1709,16 @@ inline Value::iterator Value::end()
     return iterator();
 }
 inline PathArgument::PathArgument() : key_(), index_(), kind_(kindNone)
-{
-}
+{}
 inline PathArgument::PathArgument(ArrayIndex index)
     : key_(), index_(index), kind_(kindIndex)
-{
-}
+{}
 inline PathArgument::PathArgument(const char* key)
     : key_(key), index_(), kind_(kindKey)
-{
-}
+{}
 inline PathArgument::PathArgument(const std::string& key)
     : key_(key.c_str()), index_(), kind_(kindKey)
-{
-}
+{}
 inline Path::Path(const std::string& path, const PathArgument& a1,
     const PathArgument& a2, const PathArgument& a3, const PathArgument& a4,
     const PathArgument& a5)
@@ -1788,17 +1773,14 @@ inline void Path::addPathInArg(const std::string&, const InArgs& in,
     InArgs::const_iterator& itInArg, PathArgument::Kind kind)
 {
     if(itInArg == in.end())
-    {
-    }
+    {}
     else if((*itInArg)->kind_ != kind)
-    {
-    }
+    {}
     else
         args_.emplace_back(**itInArg);
 }
 inline void Path::invalidPath(const std::string&, int)
-{
-}
+{}
 inline const Value& Path::resolve(const Value& root) const
 {
     const Value* node = &root;
@@ -1953,12 +1935,10 @@ inline std::string valueToQuotedString(const char* value)
     return result;
 }
 inline Writer::~Writer()
-{
-}
+{}
 inline FastWriter::FastWriter()
     : yamlCompatiblityEnabled_(false), dropNullPlaceholders_(false)
-{
-}
+{}
 inline void FastWriter::enableYAMLCompatibility()
 {
     yamlCompatiblityEnabled_ = true;
@@ -2022,8 +2002,7 @@ inline void FastWriter::writeValue(const Value& value)
 }
 inline StyledWriter::StyledWriter()
     : rightMargin_(74), indentSize_(3), addChildValues_()
-{
-}
+{}
 inline std::string StyledWriter::write(const Value& root)
 {
     document_ = "";
@@ -2238,8 +2217,7 @@ inline StyledStreamWriter::StyledStreamWriter(std::string indentation)
       rightMargin_(74),
       indentation_(indentation),
       addChildValues_()
-{
-}
+{}
 inline void StyledStreamWriter::write(std::ostream& out, const Value& root)
 {
     document_ = &out;

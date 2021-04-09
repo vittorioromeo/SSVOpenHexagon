@@ -91,8 +91,7 @@ private:
               _clientPublicKey{},
               _loginData{},
               _state{State::Disconnected}
-        {
-        }
+        {}
 
         ~ConnectedClient()
         {

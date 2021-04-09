@@ -138,8 +138,7 @@ public:
 Audio::Audio(
     const SoundBufferGetter& soundBufferGetter, const MusicGetter& musicGetter)
     : _impl{std::make_unique<AudioImpl>(soundBufferGetter, musicGetter)}
-{
-}
+{}
 
 Audio::~Audio() = default;
 

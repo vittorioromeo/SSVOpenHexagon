@@ -26,8 +26,7 @@ namespace {
 
 template <typename...>
 struct TypeList
-{
-};
+{};
 
 template <typename T, typename... Ts>
 [[nodiscard]] constexpr bool contains(TypeList<Ts...>)
@@ -141,14 +140,16 @@ struct Extractor
     {
         bool result = true;
 
-        if constexpr(boost::pfr::tuple_size_v<T> > 0)
+        if constexpr(boost::pfr::tuple_size_v < T >> 0)
         {
-            boost::pfr::for_each_field(target, [&](auto& nestedField) {
-                if(!extractInto(nestedField, errorOss, p))
+            boost::pfr::for_each_field(target,
+                [&](auto& nestedField)
                 {
-                    result = false;
-                }
-            });
+                    if(!extractInto(nestedField, errorOss, p))
+                    {
+                        result = false;
+                    }
+                });
         }
 
         return result;
@@ -296,7 +297,8 @@ template <typename T>
 template <typename T>
 [[nodiscard]] auto makeMatcher(std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&](const char* name, const T& expected) -> bool {
+    return [&](const char* name, const T& expected) -> bool
+    {
         T temp;
 
         if(!extractInto<T>(temp, errorOss, p))
@@ -321,7 +323,8 @@ template <typename T>
 template <typename T>
 [[nodiscard]] auto makeExtractor(std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&](const char* name) -> std::optional<T> {
+    return [&](const char* name) -> std::optional<T>
+    {
         T temp;
 
         if(!extractInto<T>(temp, errorOss, p))
@@ -397,11 +400,10 @@ template <typename TData, typename TField>
 void encodeFieldImpl(
     sf::Packet& p, const TData& data, const TField& field, long)
 {
-    if constexpr(boost::pfr::tuple_size_v<TField> > 0)
+    if constexpr(boost::pfr::tuple_size_v < TField >> 0)
     {
-        boost::pfr::for_each_field(field, [&](const auto& nestedField) {
-            encodeField(p, data, nestedField);
-        });
+        boost::pfr::for_each_field(field, [&](const auto& nestedField)
+            { encodeField(p, data, nestedField); });
     }
 }
 
@@ -468,7 +470,7 @@ void encodeOHPacket(sf::Packet& p, const T& data)
 {
     encodePacketType(p, data);
 
-    if constexpr(boost::pfr::tuple_size_v<T> > 0)
+    if constexpr(boost::pfr::tuple_size_v < T >> 0)
     {
         boost::pfr::for_each_field(
             data, [&](const auto& field) { encodeField(p, data, field); });
@@ -586,10 +588,8 @@ template <typename T>
 [[nodiscard]] bool makeClientToServerEncryptedPacket(
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
-    return makeEncryptedPacketImpl(
-        [](auto&&... xs) {
-            makeClientToServerPacket(std::forward<decltype(xs)>(xs)...);
-        },
+    return makeEncryptedPacketImpl([](auto&&... xs)
+        { makeClientToServerPacket(std::forward<decltype(xs)>(xs)...); },
         keyTransmit, p, data);
 }
 
@@ -616,7 +616,8 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
                                                             \
             return {result};                                \
         }                                                   \
-    } while(false)
+    }                                                       \
+    while(false)
 
 #define INJECT_COMMON_PACKET_HANDLING_CODE(function)                     \
     const std::optional<PacketType> pt = extractPacketType(errorOss, p); \
@@ -645,18 +646,21 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_CTS_ENCRYPTED, VRM_PP_EMPTY(),
 
 static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&]<typename T>(T& target) {
+    return [&]<typename T>(T& target)
+    {
         bool success = true;
 
-        if constexpr(boost::pfr::tuple_size_v<T> > 0)
+        if constexpr(boost::pfr::tuple_size_v < T >> 0)
         {
-            boost::pfr::for_each_field(target, [&](auto& field, std::size_t i) {
-                if(!extractInto(field, errorOss, p))
+            boost::pfr::for_each_field(target,
+                [&](auto& field, std::size_t i)
                 {
-                    errorOss << "Error decoding field #" << i << " \n";
-                    success = false;
-                }
-            });
+                    if(!extractInto(field, errorOss, p))
+                    {
+                        errorOss << "Error decoding field #" << i << " \n";
+                        success = false;
+                    }
+                });
         }
 
         return success;
@@ -731,10 +735,8 @@ template <typename T>
 [[nodiscard]] bool makeServerToClientEncryptedPacket(
     const SodiumTransmitKeyArray& keyTransmit, sf::Packet& p, const T& data)
 {
-    return makeEncryptedPacketImpl(
-        [](auto&&... xs) {
-            makeServerToClientPacket(std::forward<decltype(xs)>(xs)...);
-        },
+    return makeEncryptedPacketImpl([](auto&&... xs)
+        { makeServerToClientPacket(std::forward<decltype(xs)>(xs)...); },
         keyTransmit, p, data);
 }
 
@@ -747,9 +749,9 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
 
 // ----------------------------------------------------------------------------
 
-[[nodiscard]] static PVServerToClient
-    decodeServerToClientPacketInner(const SodiumReceiveKeyArray* keyReceive,
-        std::ostringstream& errorOss, sf::Packet& p)
+[[nodiscard]] static PVServerToClient decodeServerToClientPacketInner(
+    const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
+    sf::Packet& p)
 {
     INJECT_COMMON_PACKET_HANDLING_CODE(decodeServerToClientPacketInner);
 

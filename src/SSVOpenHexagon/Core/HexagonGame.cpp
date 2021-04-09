@@ -163,7 +163,8 @@ void HexagonGame::updateLevelInfo()
 
     const float tPadding = padding;
 
-    const auto trim = [](std::string s) {
+    const auto trim = [](std::string s)
+    {
         if(s.size() > 28)
         {
             return s.substr(0, 28);
@@ -180,7 +181,8 @@ void HexagonGame::updateLevelInfo()
                                    sf::Vector2f{tPadding, tPadding});
 
     const auto prepareText = [&](sf::Text& text, const float characterSize,
-                                 const std::string& string) {
+                                 const std::string& string)
+    {
         text.setFillColor(styleData.getTextColor());
         text.setCharacterSize(characterSize / Config::getZoomFactor());
         text.setString(string);
@@ -263,7 +265,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     if(window != nullptr)
     {
-        window->onRecreation += [this] {
+        window->onRecreation += [this]
+        {
             initFlashEffect();
             initKeyIcons();
         };
@@ -276,13 +279,15 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     using Tid = Config::Tid;
 
-    const auto addTidInput = [&](const Tid tid, const ssvs::Input::Type type,
-                                 auto action) {
+    const auto addTidInput =
+        [&](const Tid tid, const ssvs::Input::Type type, auto action)
+    {
         game.addInput(
             Config::getTrigger(tid), action, type, static_cast<int>(tid));
     };
 
-    const auto addTid2StateInput = [&](const Tid tid, bool& value) {
+    const auto addTid2StateInput = [&](const Tid tid, bool& value)
+    {
         add2StateInput(
             game, Config::getTrigger(tid), value, static_cast<int>(tid));
     };
@@ -292,8 +297,10 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     addTid2StateInput(Tid::Focus, inputFocused);
     addTid2StateInput(Tid::Swap, inputSwap);
 
-    const auto notInConsole = [this](auto&& f) {
-        return [this, f](ssvu::FT /*unused*/) {
+    const auto notInConsole = [this](auto&& f)
+    {
+        return [this, f](ssvu::FT /*unused*/)
+        {
             if(!imguiLuaConsoleHasInput())
             {
                 f();
@@ -312,33 +319,41 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         notInConsole(
             [this] { status.mustStateChange = StateChange::MustRestart; }));
 
-    addTidInput(Tid::Restart, ssvs::Input::Type::Once, notInConsole([this] {
-        if(deathInputIgnore <= 0.f && status.hasDied)
-        {
-            status.mustStateChange = StateChange::MustRestart;
-        }
-    }));
+    addTidInput(Tid::Restart, ssvs::Input::Type::Once,
+        notInConsole(
+            [this]
+            {
+                if(deathInputIgnore <= 0.f && status.hasDied)
+                {
+                    status.mustStateChange = StateChange::MustRestart;
+                }
+            }));
 
-    addTidInput(Tid::Replay, ssvs::Input::Type::Once, notInConsole([this] {
-        if(deathInputIgnore <= 0.f && status.hasDied)
-        {
-            status.mustStateChange = StateChange::MustReplay;
-        }
-    }));
+    addTidInput(Tid::Replay, ssvs::Input::Type::Once,
+        notInConsole(
+            [this]
+            {
+                if(deathInputIgnore <= 0.f && status.hasDied)
+                {
+                    status.mustStateChange = StateChange::MustReplay;
+                }
+            }));
 
     addTidInput(Tid::Screenshot, ssvs::Input::Type::Once,
         notInConsole([this] { mustTakeScreenshot = true; }));
 
-    addTidInput(
-        Tid::LuaConsole, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
+    addTidInput(Tid::LuaConsole, ssvs::Input::Type::Once,
+        [this](ssvu::FT /*unused*/)
+        {
             if(Config::getDebug())
             {
                 ilcShowConsoleNext = true;
             }
         });
 
-    addTidInput(
-        Tid::Pause, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
+    addTidInput(Tid::Pause, ssvs::Input::Type::Once,
+        [this](ssvu::FT /*unused*/)
+        {
             if(Config::getDebug())
             {
                 debugPause = !debugPause;
@@ -1011,14 +1026,16 @@ void HexagonGame::addMessage(
 {
     Utils::uppercasify(mMessage);
 
-    messageTimeline.append_do([this, mSoundToggle, mMessage] {
-        if(mSoundToggle)
+    messageTimeline.append_do(
+        [this, mSoundToggle, mMessage]
         {
-            playSoundOverride(levelStatus.beepSound);
-        }
+            if(mSoundToggle)
+            {
+                playSoundOverride(levelStatus.beepSound);
+            }
 
-        messageText.setString(mMessage);
-    });
+            messageText.setString(mMessage);
+        });
 
     messageTimeline.append_wait_for_sixths(mDuration);
     messageTimeline.append_do([this] { messageText.setString(""); });

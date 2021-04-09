@@ -32,10 +32,9 @@ void HexagonGame::initLua_Utils()
 {
     // ------------------------------------------------------------------------
     // Used internally to track values in the console.
-    lua.writeVariable(
-        "u_impl_addTrackedResult", [this](const std::string& result) {
-            ilcLuaTrackedResults.emplace_back(result);
-        });
+    lua.writeVariable("u_impl_addTrackedResult",
+        [this](const std::string& result)
+        { ilcLuaTrackedResults.emplace_back(result); });
 
     // ------------------------------------------------------------------------
     addLuaFn(lua, "u_setFlashEffect", //
@@ -44,7 +43,8 @@ void HexagonGame::initLua_Utils()
         .doc("Flash the screen with `$0` intensity (from 0 to 255).");
 
     addLuaFn(lua, "u_log", //
-        [this](const std::string& mLog) {
+        [this](const std::string& mLog)
+        {
             ssvu::lo("lua") << mLog << '\n';
             ilcCmdLog.emplace_back("[lua]: " + mLog + '\n');
         })
@@ -52,7 +52,8 @@ void HexagonGame::initLua_Utils()
         .doc("Print out `$0` to the console.");
 
     addLuaFn(lua, "u_execScript", //
-        [this](const std::string& mScriptName) {
+        [this](const std::string& mScriptName)
+        {
             runLuaFile(
                 Utils::getDependentScriptFilename(execScriptPackPathContext,
                     levelData->packPath.getStr(), mScriptName));
@@ -63,7 +64,8 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_execDependencyScript", //
         [this](const std::string& mPackDisambiguator,
             const std::string& mPackName, const std::string& mPackAuthor,
-            const std::string& mScriptName) {
+            const std::string& mScriptName)
+        {
             Utils::withDependencyScriptFilename(
                 [this](const std::string& filename) { runLuaFile(filename); },
                 execScriptPackPathContext, assets, getPackData(),
@@ -79,7 +81,8 @@ void HexagonGame::initLua_Utils()
             "`<dependeePack>/Scripts/$3`.");
 
     addLuaFn(lua, "u_isKeyPressed",
-        [this](int mKey) {
+        [this](int mKey)
+        {
             // TODO: this is not saved in replays. Deprecate?
 
             return window != nullptr &&
@@ -92,9 +95,8 @@ void HexagonGame::initLua_Utils()
             "definition of the SFML `sf::Keyboard::Key` enumeration.");
 
     addLuaFn(lua, "u_haltTime", //
-        [this](double mDuration) {
-            status.pauseTime(ssvu::getFTToSeconds(mDuration));
-        })
+        [this](double mDuration)
+        { status.pauseTime(ssvu::getFTToSeconds(mDuration)); })
         .arg("duration")
         .doc("Pause the game timer for `$0` seconds.");
 
@@ -112,7 +114,8 @@ void HexagonGame::initLua_Utils()
         .doc("Set the current angle of the player to `$0`, in radians.");
 
     addLuaFn(lua, "u_isMouseButtonPressed",
-        [this](int mKey) {
+        [this](int mKey)
+        {
             // TODO: this is not saved in replays. Deprecate?
 
             return window != nullptr &&
@@ -163,7 +166,8 @@ void HexagonGame::initLua_Utils()
 void HexagonGame::initLua_AudioControl()
 {
     addLuaFn(lua, "a_setMusic", //
-        [this](const std::string& mId) {
+        [this](const std::string& mId)
+        {
             musicData = assets.getMusicData(levelData->packId, mId);
             musicData.firstPlay = true;
             stopLevelMusic();
@@ -175,7 +179,8 @@ void HexagonGame::initLua_AudioControl()
             "defined in the music `.json` file, under `\"id\"`.");
 
     addLuaFn(lua, "a_setMusicSegment", //
-        [this](const std::string& mId, int segment) {
+        [this](const std::string& mId, int segment)
+        {
             musicData = assets.getMusicData(levelData->packId, mId);
             stopLevelMusic();
             playLevelMusicAtTime(musicData.getSegment(segment).time);
@@ -188,7 +193,8 @@ void HexagonGame::initLua_AudioControl()
             "under `\"segments\"`.");
 
     addLuaFn(lua, "a_setMusicSeconds", //
-        [this](const std::string& mId, float mTime) {
+        [this](const std::string& mId, float mTime)
+        {
             musicData = assets.getMusicData(levelData->packId, mId);
             stopLevelMusic();
             playLevelMusicAtTime(mTime);
@@ -207,16 +213,16 @@ void HexagonGame::initLua_AudioControl()
             "`assets.json`, under `\"soundBuffers\"`.");
 
     addLuaFn(lua, "a_playPackSound", //
-        [this](const std::string& fileName) {
-            playPackSoundOverride(getPackId(), fileName);
-        })
+        [this](const std::string& fileName)
+        { playPackSoundOverride(getPackId(), fileName); })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
             "plays the specified file `$0`.");
 
     addLuaFn(lua, "a_syncMusicToDM", //
-        [this](bool value) {
+        [this](bool value)
+        {
             levelStatus.syncMusicToDM = value;
             refreshMusicPitch();
         })
@@ -227,7 +233,8 @@ void HexagonGame::initLua_AudioControl()
             "for levels that rely on the music to time events.");
 
     addLuaFn(lua, "a_setMusicPitch", //
-        [this](float mPitch) {
+        [this](float mPitch)
+        {
             levelStatus.musicPitch = mPitch;
             refreshMusicPitch();
         })
@@ -239,9 +246,8 @@ void HexagonGame::initLua_AudioControl()
             "not work!**");
 
     addLuaFn(lua, "a_overrideBeepSound", //
-        [this](const std::string& mId) {
-            levelStatus.beepSound = getPackId() + "_" + mId;
-        })
+        [this](const std::string& mId)
+        { levelStatus.beepSound = getPackId() + "_" + mId; })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -249,9 +255,8 @@ void HexagonGame::initLua_AudioControl()
             "applies to the particular level where this function is called.");
 
     addLuaFn(lua, "a_overrideIncrementSound", //
-        [this](const std::string& mId) {
-            levelStatus.levelUpSound = getPackId() + "_" + mId;
-        })
+        [this](const std::string& mId)
+        { levelStatus.levelUpSound = getPackId() + "_" + mId; })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -260,9 +265,8 @@ void HexagonGame::initLua_AudioControl()
             "applies to the particular level where this function is called.");
 
     addLuaFn(lua, "a_overrideSwapSound", //
-        [this](const std::string& mId) {
-            levelStatus.swapSound = getPackId() + "_" + mId;
-        })
+        [this](const std::string& mId)
+        { levelStatus.swapSound = getPackId() + "_" + mId; })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -270,9 +274,8 @@ void HexagonGame::initLua_AudioControl()
             "applies to the particular level where this function is called.");
 
     addLuaFn(lua, "a_overrideDeathSound", //
-        [this](const std::string& mId) {
-            levelStatus.deathSound = getPackId() + "_" + mId;
-        })
+        [this](const std::string& mId)
+        { levelStatus.deathSound = getPackId() + "_" + mId; })
         .arg("fileName")
         .doc(
             "Dives into the `Sounds` folder of the current level pack and "
@@ -283,43 +286,44 @@ void HexagonGame::initLua_AudioControl()
 void HexagonGame::initLua_MainTimeline()
 {
     addLuaFn(lua, "t_eval",
-        [this](const std::string& mCode) {
-            timeline.append_do([=, this] { Utils::runLuaCode(lua, mCode); });
-        })
+        [this](const std::string& mCode)
+        { timeline.append_do([=, this] { Utils::runLuaCode(lua, mCode); }); })
         .arg("code")
         .doc(
             "*Add to the main timeline*: evaluate the Lua code specified in "
             "`$0`.");
 
-    addLuaFn(lua, "t_clear", [this]() {
-        timeline.clear();
-    }).doc("Clear the main timeline.");
+    addLuaFn(lua, "t_clear", [this]() { timeline.clear(); })
+        .doc("Clear the main timeline.");
 
     addLuaFn(lua, "t_kill", //
         [this] { timeline.append_do([this] { death(true); }); })
         .doc("*Add to the main timeline*: kill the player.");
 
     addLuaFn(lua, "t_wait",
-        [this](
-            double mDuration) { timeline.append_wait_for_sixths(mDuration); })
+        [this](double mDuration)
+        { timeline.append_wait_for_sixths(mDuration); })
         .arg("duration")
         .doc(
             "*Add to the main timeline*: wait for `$0` frames (under the "
             "assumption of a 60 FPS frame rate).");
 
     addLuaFn(lua, "t_waitS", //
-        [this](
-            double mDuration) { timeline.append_wait_for_seconds(mDuration); })
+        [this](double mDuration)
+        { timeline.append_wait_for_seconds(mDuration); })
         .arg("duration")
         .doc("*Add to the main timeline*: wait for `$0` seconds.");
 
     addLuaFn(lua, "t_waitUntilS", //
-        [this](double mDuration) {
-            timeline.append_wait_until_fn([this, mDuration] {
-                return status.getLevelStartTP() +
-                       std::chrono::milliseconds(
-                           static_cast<int>(mDuration * 1000.0));
-            });
+        [this](double mDuration)
+        {
+            timeline.append_wait_until_fn(
+                [this, mDuration]
+                {
+                    return status.getLevelStartTP() +
+                           std::chrono::milliseconds(
+                               static_cast<int>(mDuration * 1000.0));
+                });
         })
         .arg("duration")
         .doc(
@@ -344,10 +348,10 @@ void HexagonGame::initLua_EventTimeline()
         .doc("*Add to the event timeline*: kill the player.");
 
     addLuaFn(lua, "e_stopTime", //
-        [this](double mDuration) {
-            eventTimeline.append_do([=, this] {
-                status.pauseTime(ssvu::getFTToSeconds(mDuration));
-            });
+        [this](double mDuration)
+        {
+            eventTimeline.append_do([=, this]
+                { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
         })
         .arg("duration")
         .doc(
@@ -364,28 +368,29 @@ void HexagonGame::initLua_EventTimeline()
             "seconds.");
 
     addLuaFn(lua, "e_wait",
-        [this](double mDuration) {
-            eventTimeline.append_wait_for_sixths(mDuration);
-        })
+        [this](double mDuration)
+        { eventTimeline.append_wait_for_sixths(mDuration); })
         .arg("duration")
         .doc(
             "*Add to the event timeline*: wait for `$0` frames (under the "
             "assumption of a 60 FPS frame rate).");
 
     addLuaFn(lua, "e_waitS", //
-        [this](double mDuration) {
-            eventTimeline.append_wait_for_seconds(mDuration);
-        })
+        [this](double mDuration)
+        { eventTimeline.append_wait_for_seconds(mDuration); })
         .arg("duration")
         .doc("*Add to the event timeline*: wait for `$0` seconds.");
 
     addLuaFn(lua, "e_waitUntilS", //
-        [this](double mDuration) {
-            eventTimeline.append_wait_until_fn([this, mDuration] {
-                return status.getLevelStartTP() +
-                       std::chrono::milliseconds(
-                           static_cast<int>(mDuration * 1000.0));
-            });
+        [this](double mDuration)
+        {
+            eventTimeline.append_wait_until_fn(
+                [this, mDuration]
+                {
+                    return status.getLevelStartTP() +
+                           std::chrono::milliseconds(
+                               static_cast<int>(mDuration * 1000.0));
+                });
         })
         .arg("duration")
         .doc(
@@ -393,13 +398,16 @@ void HexagonGame::initLua_EventTimeline()
             "seconds.");
 
     addLuaFn(lua, "e_messageAdd", //
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(firstPlay && Config::getShowMessages())
+        [this](const std::string& mMsg, double mDuration)
+        {
+            eventTimeline.append_do(
+                [=, this]
                 {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                }
-            });
+                    if(firstPlay && Config::getShowMessages())
+                    {
+                        addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                    }
+                });
         })
         .arg("message")
         .arg("duration")
@@ -409,13 +417,16 @@ void HexagonGame::initLua_EventTimeline()
             "run of the level.");
 
     addLuaFn(lua, "e_messageAddImportant", //
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(Config::getShowMessages())
+        [this](const std::string& mMsg, double mDuration)
+        {
+            eventTimeline.append_do(
+                [=, this]
                 {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                }
-            });
+                    if(Config::getShowMessages())
+                    {
+                        addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                    }
+                });
         })
         .arg("message")
         .arg("duration")
@@ -425,13 +436,16 @@ void HexagonGame::initLua_EventTimeline()
             "level.");
 
     addLuaFn(lua, "e_messageAddImportantSilent",
-        [this](const std::string& mMsg, double mDuration) {
-            eventTimeline.append_do([=, this] {
-                if(Config::getShowMessages())
+        [this](const std::string& mMsg, double mDuration)
+        {
+            eventTimeline.append_do(
+                [=, this]
                 {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
-                }
-            });
+                    if(Config::getShowMessages())
+                    {
+                        addMessage(mMsg, mDuration, /* mSoundToggle */ false);
+                    }
+                });
         })
         .arg("message")
         .arg("duration")
@@ -449,7 +463,8 @@ template <typename T>
 auto HexagonGame::makeLuaAccessor(T& obj, const std::string& prefix)
 {
     return [this, &obj, prefix](const std::string& name, auto pmd,
-               const std::string& getterDesc, const std::string& setterDesc) {
+               const std::string& getterDesc, const std::string& setterDesc)
+    {
         using Type = std::decay_t<decltype(obj.*pmd)>;
 
         const std::string getterString = prefix + "_get" + name;
@@ -839,7 +854,8 @@ void HexagonGame::initLua_LevelControl()
             "increment.");
 
     addLuaFn(lua, "l_overrideScore", //
-        [this](const std::string& mVar) {
+        [this](const std::string& mVar)
+        {
             try
             {
                 levelStatus.scoreOverride = mVar;
@@ -886,7 +902,8 @@ void HexagonGame::initLua_LevelControl()
         .doc("Clears all tracked variables.");
 
     addLuaFn(lua, "l_setRotation", //
-        [this](float mValue) {
+        [this](float mValue)
+        {
             // TODO: might break replays
             if(backgroundCamera.has_value())
             {
@@ -897,7 +914,8 @@ void HexagonGame::initLua_LevelControl()
         .doc("Set the background camera rotation to `$0` degrees.");
 
     addLuaFn(lua, "l_getRotation", //
-        [this] {
+        [this]
+        {
             // TODO: might break replays
             return backgroundCamera.has_value()
                        ? backgroundCamera->getRotation()
@@ -1130,7 +1148,8 @@ void HexagonGame::initLua_StyleControl()
         "Sets the rotation offset of the background panels to `$0` degrees.");
 
     addLuaFn(lua, "s_setStyle", //
-        [this](const std::string& mId) {
+        [this](const std::string& mId)
+        {
             styleData = assets.getStyleData(levelData->packId, mId);
             styleData.computeColors();
         })
@@ -1163,8 +1182,8 @@ void HexagonGame::initLua_StyleControl()
             "color, darkened.");
 
     addLuaFn(lua, "s_setCapColorByIndex", //
-        [this](
-            int mIndex) { styleData.capColor = CapColorMode::ByIndex{mIndex}; })
+        [this](int mIndex)
+        { styleData.capColor = CapColorMode::ByIndex{mIndex}; })
         .arg("index")
         .doc(
             "Set the color of the center polygon to match the style color with "
@@ -1175,15 +1194,17 @@ void HexagonGame::initLua_StyleControl()
     };
 
     // TODO:
-    const auto sdColorGetter = [this, &colorToTuple](const char* name,
-                                   const char* docName, auto pmf) {
+    const auto sdColorGetter =
+        [this, &colorToTuple](const char* name, const char* docName, auto pmf)
+    {
         std::string docString = "Return the current ";
         docString += docName;
         docString += " color computed by the level style.";
 
-        addLuaFn(lua, name, [this, &colorToTuple, pmf] {
-            return colorToTuple((styleData.*pmf)());
-        }).doc(docString);
+        addLuaFn(lua, name,
+            [this, &colorToTuple, pmf]
+            { return colorToTuple((styleData.*pmf)()); })
+            .doc(docString);
     };
 
     sdColorGetter("s_getMainColor", "main", &StyleData::getMainColor);
@@ -1197,7 +1218,8 @@ void HexagonGame::initLua_StyleControl()
         &StyleData::getCapColorResult);
 
     addLuaFn(lua, "s_getColor",
-        [this, &colorToTuple](int mIndex) {
+        [this, &colorToTuple](int mIndex)
+        {
             if(styleData.getColors().empty())
             {
                 return colorToTuple(sf::Color{0, 0, 0, 0});
@@ -1214,10 +1236,12 @@ void HexagonGame::initLua_StyleControl()
 void HexagonGame::initLua_WallCreation()
 {
     addLuaFn(lua, "w_wall", //
-        [this](int mSide, float mThickness) {
-            timeline.append_do([=, this] {
-                createWall(mSide, mThickness, SpeedData{getSpeedMultDM()});
-            });
+        [this](int mSide, float mThickness)
+        {
+            timeline.append_do(
+                [=, this] {
+                    createWall(mSide, mThickness, SpeedData{getSpeedMultDM()});
+                });
         })
         .arg("side")
         .arg("thickness")
@@ -1227,11 +1251,13 @@ void HexagonGame::initLua_WallCreation()
             "adjusted for the current difficulty multiplier.");
 
     addLuaFn(lua, "w_wallAdj", //
-        [this](int mSide, float mThickness, float mSpeedAdj) {
-            timeline.append_do([=, this] {
-                createWall(
-                    mSide, mThickness, SpeedData{mSpeedAdj * getSpeedMultDM()});
-            });
+        [this](int mSide, float mThickness, float mSpeedAdj)
+        {
+            timeline.append_do(
+                [=, this] {
+                    createWall(mSide, mThickness,
+                        SpeedData{mSpeedAdj * getSpeedMultDM()});
+                });
         })
         .arg("side")
         .arg("thickness")
@@ -1244,14 +1270,17 @@ void HexagonGame::initLua_WallCreation()
 
     addLuaFn(lua, "w_wallAcc", //
         [this](int mSide, float mThickness, float mSpeedAdj,
-            float mAcceleration, float mMinSpeed, float mMaxSpeed) {
-            timeline.append_do([=, this] {
-                createWall(mSide, mThickness,
-                    SpeedData{mSpeedAdj * getSpeedMultDM(),
-                        mAcceleration / (std::pow(difficultyMult, 0.65f)),
-                        mMinSpeed * getSpeedMultDM(),
-                        mMaxSpeed * getSpeedMultDM()});
-            });
+            float mAcceleration, float mMinSpeed, float mMaxSpeed)
+        {
+            timeline.append_do(
+                [=, this]
+                {
+                    createWall(mSide, mThickness,
+                        SpeedData{mSpeedAdj * getSpeedMultDM(),
+                            mAcceleration / (std::pow(difficultyMult, 0.65f)),
+                            mMinSpeed * getSpeedMultDM(),
+                            mMaxSpeed * getSpeedMultDM()});
+                });
         })
         .arg("side")
         .arg("thickness")
@@ -1269,13 +1298,16 @@ void HexagonGame::initLua_WallCreation()
 
     addLuaFn(lua, "w_wallHModSpeedData", //
         [this](float mHMod, int mSide, float mThickness, float mSAdj,
-            float mSAcc, float mSMin, float mSMax, bool mSPingPong) {
-            timeline.append_do([=, this] {
-                createWall(mSide, mThickness,
-                    SpeedData{mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax,
-                        mSPingPong},
-                    SpeedData{}, mHMod);
-            });
+            float mSAcc, float mSMin, float mSMax, bool mSPingPong)
+        {
+            timeline.append_do(
+                [=, this]
+                {
+                    createWall(mSide, mThickness,
+                        SpeedData{mSAdj * getSpeedMultDM(), mSAcc, mSMin, mSMax,
+                            mSPingPong},
+                        SpeedData{}, mHMod);
+                });
         })
         .arg("hueModifier")
         .arg("side")
@@ -1298,11 +1330,15 @@ void HexagonGame::initLua_WallCreation()
 
     addLuaFn(lua, "w_wallHModCurveData", //
         [this](float mHMod, int mSide, float mThickness, float mCAdj,
-            float mCAcc, float mCMin, float mCMax, bool mCPingPong) {
-            timeline.append_do([=, this] {
-                createWall(mSide, mThickness, SpeedData{getSpeedMultDM()},
-                    SpeedData{mCAdj, mCAcc, mCMin, mCMax, mCPingPong}, mHMod);
-            });
+            float mCAcc, float mCMin, float mCMax, bool mCPingPong)
+        {
+            timeline.append_do(
+                [=, this]
+                {
+                    createWall(mSide, mThickness, SpeedData{getSpeedMultDM()},
+                        SpeedData{mCAdj, mCAcc, mCMin, mCMax, mCPingPong},
+                        mHMod);
+                });
         })
         .arg("hueModifier")
         .arg("side")
@@ -1327,7 +1363,8 @@ void HexagonGame::initLua_WallCreation()
 void HexagonGame::initLua_Steam()
 {
     addLuaFn(lua, "steam_unlockAchievement", //
-        [this](const std::string& mId) {
+        [this](const std::string& mId)
+        {
             if(inReplay())
             {
                 // Do not unlock achievements while watching a replay.
@@ -1349,7 +1386,8 @@ void HexagonGame::initLua_Steam()
 void HexagonGame::initLua_Deprecated()
 {
     addLuaFn(lua, "u_kill", //
-        [this] {
+        [this]
+        {
             raiseWarning("u_kill",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
@@ -1362,7 +1400,8 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use t_kill instead!**");
 
     addLuaFn(lua, "u_eventKill", //
-        [this] {
+        [this]
+        {
             raiseWarning("u_eventKill",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
@@ -1375,7 +1414,8 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_kill instead!**");
 
     addLuaFn(lua, "u_playSound", //
-        [this](const std::string& mId) {
+        [this](const std::string& mId)
+        {
             raiseWarning("u_playSound",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
@@ -1390,7 +1430,8 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use a_playSound instead!**");
 
     addLuaFn(lua, "u_playPackSound", //
-        [this](const std::string& fileName) {
+        [this](const std::string& fileName)
+        {
             raiseWarning("u_playPackSound",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
@@ -1405,14 +1446,14 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use a_playPackSound instead!**");
 
     addLuaFn(lua, "e_eventStopTime", //
-        [this](double mDuration) {
+        [this](double mDuration)
+        {
             raiseWarning("e_eventStopTime",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_stopTime\" in your level files.");
-            eventTimeline.append_do([=, this] {
-                status.pauseTime(ssvu::getFTToSeconds(mDuration));
-            });
+            eventTimeline.append_do([=, this]
+                { status.pauseTime(ssvu::getFTToSeconds(mDuration)); });
         })
         .arg("duration")
         .doc(
@@ -1422,7 +1463,8 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_stopTime instead!**");
 
     addLuaFn(lua, "e_eventStopTimeS", //
-        [this](double mDuration) {
+        [this](double mDuration)
+        {
             raiseWarning("e_eventStopTimeS",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
@@ -1437,7 +1479,8 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_stopTimeS instead!**");
 
     addLuaFn(lua, "e_eventWait",
-        [this](double mDuration) {
+        [this](double mDuration)
+        {
             raiseWarning("e_eventWait",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
@@ -1452,7 +1495,8 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_wait instead!**");
 
     addLuaFn(lua, "e_eventWaitS", //
-        [this](double mDuration) {
+        [this](double mDuration)
+        {
             raiseWarning("e_eventWaitS",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
@@ -1466,16 +1510,19 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_waitS instead!**");
 
     addLuaFn(lua, "e_eventWaitUntilS", //
-        [this](double mDuration) {
+        [this](double mDuration)
+        {
             raiseWarning("e_eventWaitUntilS",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_waitUntilS\" in your level files.");
-            eventTimeline.append_wait_until_fn([this, mDuration] {
-                return status.getLevelStartTP() +
-                       std::chrono::milliseconds(
-                           static_cast<int>(mDuration * 1000.0));
-            });
+            eventTimeline.append_wait_until_fn(
+                [this, mDuration]
+                {
+                    return status.getLevelStartTP() +
+                           std::chrono::milliseconds(
+                               static_cast<int>(mDuration * 1000.0));
+                });
         })
         .arg("duration")
         .doc(
@@ -1485,17 +1532,20 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_waitUntilS instead!**");
 
     addLuaFn(lua, "m_messageAdd", //
-        [this](const std::string& mMsg, double mDuration) {
+        [this](const std::string& mMsg, double mDuration)
+        {
             raiseWarning("m_messageAdd",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_messageAdd\" in your level files and common.lua.");
-            eventTimeline.append_do([=, this] {
-                if(firstPlay && Config::getShowMessages())
+            eventTimeline.append_do(
+                [=, this]
                 {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                }
-            });
+                    if(firstPlay && Config::getShowMessages())
+                    {
+                        addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                    }
+                });
         })
         .arg("message")
         .arg("duration")
@@ -1507,18 +1557,21 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_messageAdd instead!**");
 
     addLuaFn(lua, "m_messageAddImportant", //
-        [this](const std::string& mMsg, double mDuration) {
+        [this](const std::string& mMsg, double mDuration)
+        {
             raiseWarning("m_messageAddImportant",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_messageAddImportant\" in your level files and "
                 "common.lua.");
-            eventTimeline.append_do([=, this] {
-                if(Config::getShowMessages())
+            eventTimeline.append_do(
+                [=, this]
                 {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                }
-            });
+                    if(Config::getShowMessages())
+                    {
+                        addMessage(mMsg, mDuration, /* mSoundToggle */ true);
+                    }
+                });
         })
         .arg("message")
         .arg("duration")
@@ -1530,17 +1583,20 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_messageAddImportant instead!**");
 
     addLuaFn(lua, "m_messageAddImportantSilent",
-        [this](const std::string& mMsg, double mDuration) {
+        [this](const std::string& mMsg, double mDuration)
+        {
             raiseWarning("m_messageAddImportantSilent",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_messageAddImportantSilent\" in your level files.");
-            eventTimeline.append_do([=, this] {
-                if(Config::getShowMessages())
+            eventTimeline.append_do(
+                [=, this]
                 {
-                    addMessage(mMsg, mDuration, /* mSoundToggle */ false);
-                }
-            });
+                    if(Config::getShowMessages())
+                    {
+                        addMessage(mMsg, mDuration, /* mSoundToggle */ false);
+                    }
+                });
         })
         .arg("message")
         .arg("duration")
@@ -1552,7 +1608,8 @@ void HexagonGame::initLua_Deprecated()
             "version. Please use e_messageAddImportantSilent instead!**");
 
     addLuaFn(lua, "m_clearMessages", //
-        [this] {
+        [this]
+        {
             raiseWarning("m_clearMessages",
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "

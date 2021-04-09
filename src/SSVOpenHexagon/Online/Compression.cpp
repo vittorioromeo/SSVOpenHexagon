@@ -39,7 +39,8 @@ std::string getZLibCompress(const std::string& mStr)
         {
             outstring.append(outbuffer, zs.total_out - outstring.size());
         }
-    } while(ret == Z_OK);
+    }
+    while(ret == Z_OK);
 
     deflateEnd(&zs);
 
@@ -81,7 +82,8 @@ std::string getZLibDecompress(const std::string& mStr)
         {
             outstring.append(outbuffer, zs.total_out - outstring.size());
         }
-    } while(ret == Z_OK);
+    }
+    while(ret == Z_OK);
 
     inflateEnd(&zs);
 

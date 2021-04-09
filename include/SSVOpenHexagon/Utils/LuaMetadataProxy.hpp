@@ -84,18 +84,17 @@ public:
         TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
         : luaMetadata{mLuaMetadata},
           name{mName},
-          erasedRet{[](LuaMetadataProxy*) -> std::string {
-              using AE =
-                  Utils::ArgExtractor<decltype(&std::decay_t<F>::operator())>;
+          erasedRet{[](LuaMetadataProxy*) -> std::string
+              {
+                  using AE = Utils::ArgExtractor<decltype(
+                      &std::decay_t<F>::operator())>;
 
-              return typeToStr(
-                  TypeWrapper<std::decay_t<typename AE::Return>>{});
-          }},
-          erasedArgs{[](LuaMetadataProxy* self) {
-              return makeArgsString<std::decay_t<F>>(self);
-          }}
-    {
-    }
+                  return typeToStr(
+                      TypeWrapper<std::decay_t<typename AE::Return>>{});
+              }},
+          erasedArgs{[](LuaMetadataProxy* self)
+              { return makeArgsString<std::decay_t<F>>(self); }}
+    {}
 
     ~LuaMetadataProxy();
 

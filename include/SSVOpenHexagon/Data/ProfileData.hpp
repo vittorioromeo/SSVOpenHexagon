@@ -31,8 +31,7 @@ public:
           scores{mScores},
           trackedNames{mTrackedNames},
           favoriteLevelsDataIDs{mFavorites.begin(), mFavorites.end()}
-    {
-    }
+    {}
 
     [[nodiscard]] constexpr GameVersion getVersion() const noexcept
     {

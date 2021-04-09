@@ -141,31 +141,26 @@ void update()
         return;
     }
 
-    const auto dpadXIs = [&](const AxisDir axisDir) {
-        return axisPressed(joyId, sf::Joystick::Axis::PovX) == axisDir;
-    };
+    const auto dpadXIs = [&](const AxisDir axisDir)
+    { return axisPressed(joyId, sf::Joystick::Axis::PovX) == axisDir; };
 
-    const auto dpadYIs = [&](const AxisDir axisDir) {
-        return axisPressed(joyId, sf::Joystick::Axis::PovY) == axisDir;
-    };
+    const auto dpadYIs = [&](const AxisDir axisDir)
+    { return axisPressed(joyId, sf::Joystick::Axis::PovY) == axisDir; };
 
-    const auto leftStickXIs = [&](const AxisDir axisDir) {
-        return axisPressed(joyId, sf::Joystick::Axis::X) == axisDir;
-    };
+    const auto leftStickXIs = [&](const AxisDir axisDir)
+    { return axisPressed(joyId, sf::Joystick::Axis::X) == axisDir; };
 
-    const auto leftStickYIs = [&](const AxisDir axisDir) {
-        return axisPressed(joyId, sf::Joystick::Axis::Y) == axisDir;
-    };
+    const auto leftStickYIs = [&](const AxisDir axisDir)
+    { return axisPressed(joyId, sf::Joystick::Axis::Y) == axisDir; };
 
-    const auto xIs = [&](const AxisDir axisDir) {
-        return dpadXIs(axisDir) || leftStickXIs(axisDir);
-    };
+    const auto xIs = [&](const AxisDir axisDir)
+    { return dpadXIs(axisDir) || leftStickXIs(axisDir); };
 
-    const auto yIs = [&](const AxisDir axisDir) {
-        return dpadYIs(axisDir) || leftStickYIs(-axisDir);
-    };
+    const auto yIs = [&](const AxisDir axisDir)
+    { return dpadYIs(axisDir) || leftStickYIs(-axisDir); };
 
-    const auto doDir = [&](const Jdir jdir, const bool check) {
+    const auto doDir = [&](const Jdir jdir, const bool check)
+    {
         s.dirWasPressed[toSizeT(jdir)] =
             std::exchange(s.dirPressed[toSizeT(jdir)], check);
     };
@@ -175,7 +170,8 @@ void update()
     doDir(Jdir::Up, yIs(AxisDir::Right));
     doDir(Jdir::Down, yIs(AxisDir::Left));
 
-    const auto doButton = [&](const Jid jid) {
+    const auto doButton = [&](const Jid jid)
+    {
         s.wasPressed[toSizeT(jid)] = std::exchange(
             s.pressed[toSizeT(jid)], sf::Joystick::isButtonPressed(joyId,
                                          s.joystickInputs[toSizeT(jid)]));

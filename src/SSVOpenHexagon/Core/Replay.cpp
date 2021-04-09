@@ -33,13 +33,14 @@ namespace hg {
             printTryFailure(#__VA_ARGS__);  \
             return result;                  \
         }                                   \
-                                            \
-    } while(false)
+    }                                       \
+    while(false)
 
 static auto make_write(serialization_result& result, std::byte*& buffer,
     const std::byte* const buffer_end)
 {
-    return [&result, &buffer, buffer_end](const auto& datum) {
+    return [&result, &buffer, buffer_end](const auto& datum)
+    {
         if(buffer + sizeof(datum) > buffer_end)
         {
             result._success = false;
@@ -55,7 +56,8 @@ static auto make_write(serialization_result& result, std::byte*& buffer,
 static auto make_read(deserialization_result& result, const std::byte*& buffer,
     const std::byte* const buffer_end)
 {
-    return [&result, &buffer, buffer_end](auto& target) {
+    return [&result, &buffer, buffer_end](auto& target)
+    {
         if(buffer + sizeof(target) > buffer_end)
         {
             result._success = false;
@@ -161,8 +163,7 @@ void replay_data::record_input(const bool left, const bool right,
 
 replay_player::replay_player(const replay_data& rd) noexcept
     : _replay_data{rd}, _current_index{0}
-{
-}
+{}
 
 [[nodiscard]] input_bitset
 replay_player::get_current_and_move_forward() noexcept
@@ -224,7 +225,8 @@ void replay_player::reset() noexcept
     serialization_result result;
     const auto write = make_write(result, buffer, buffer_end);
 
-    const auto write_str = [&](const std::string& s) {
+    const auto write_str = [&](const std::string& s)
+    {
         SSVOH_TRY(write(static_cast<std::uint32_t>(s.size())));
 
         for(const char c : s)
@@ -266,7 +268,8 @@ void replay_player::reset() noexcept
     deserialization_result result;
     const auto read = make_read(result, buffer, buffer_end);
 
-    const auto read_str = [&](std::string& s) {
+    const auto read_str = [&](std::string& s)
+    {
         std::uint32_t s_size;
         SSVOH_TRY(read(s_size));
 

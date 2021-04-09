@@ -758,7 +758,8 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
 {
     SSVOH_ASSERT(window != nullptr);
 
-    const auto isOutOfBounds = [](const Particle& p) {
+    const auto isOutOfBounds = [](const Particle& p)
+    {
         const sf::Sprite& sp = p.sprite;
         const sf::Vector2f& pos = sp.getPosition();
         constexpr float padding = 256.f;
@@ -767,7 +768,8 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
                 pos.y < 0 - padding || pos.y > Config::getHeight() + padding);
     };
 
-    const auto makePBParticle = [this] {
+    const auto makePBParticle = [this]
+    {
         Particle p;
 
         p.sprite.setTexture(assets.get<sf::Texture>("starParticle.png"));
@@ -1015,7 +1017,8 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
     {
         const char* item = sItem.c_str();
 
-        const auto color = [&]() -> std::optional<ImVec4> {
+        const auto color = [&]() -> std::optional<ImVec4>
+        {
             if(std::strstr(item, "[error]"))
             {
                 return ImVec4(1.0f, 0.4f, 0.4f, 1.0f);

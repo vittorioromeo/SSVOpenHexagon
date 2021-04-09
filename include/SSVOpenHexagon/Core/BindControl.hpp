@@ -24,8 +24,7 @@ public:
     explicit BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, const int mID)
         : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
-    {
-    }
+    {}
 
     [[nodiscard]] virtual bool erase() = 0;
     [[nodiscard]] virtual bool isWaitingForBind() const = 0;
@@ -65,10 +64,9 @@ public:
           triggerGetter{mFuncGet},
           sizeGetter{
               [this] { return getRealSize(triggerGetter().getCombos()); }},
-          addBind{[this, mFuncSet](
-                      const ssvs::KKey setKey, const ssvs::MBtn setBtn) {
-              mFuncSet(setKey, setBtn, sizeGetter());
-          }},
+          addBind{
+              [this, mFuncSet](const ssvs::KKey setKey, const ssvs::MBtn setBtn)
+              { mFuncSet(setKey, setBtn, sizeGetter()); }},
           clearBind{[this, mFuncClear] { mFuncClear(sizeGetter() - 1); }},
           callback{mCallback},
           hardcodedKey{mHardcodedKey}
@@ -119,8 +117,7 @@ public:
           valueGetter{mFuncGet},
           setButton{mFuncSet},
           callback{mCallback}
-    {
-    }
+    {}
 
     void exec() override;
 

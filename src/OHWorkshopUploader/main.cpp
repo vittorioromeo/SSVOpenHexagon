@@ -32,8 +32,7 @@ template <typename F>
 struct scope_guard : F
 {
     explicit scope_guard(F&& f) noexcept : F{std::move(f)}
-    {
-    }
+    {}
 
     ~scope_guard() noexcept
     {
@@ -175,7 +174,8 @@ private:
         {                   \
             return #e;      \
         }                   \
-    } while(false)
+    }                       \
+    while(false)
 
         RETURN_IF_EQUALS(EResult::k_EResultNone);
         RETURN_IF_EQUALS(EResult::k_EResultOK);
@@ -358,8 +358,7 @@ private:
 public:
     steam_helper() noexcept
         : _initialized{initialize_steamworks()}, _pending_operations{0}
-    {
-    }
+    {}
 
     ~steam_helper() noexcept
     {
@@ -512,15 +511,16 @@ private:
     steam_helper& _steam_helper;
 
     explicit cli(steam_helper& sh) noexcept : _steam_helper{sh}
-    {
-    }
+    {}
 
     void create_new_workshop_item()
     {
-        _steam_helper.create_workshop_item([](const PublishedFileId_t item_id) {
-            std::cout << "Successfully created new workshop item: " << item_id
-                      << ".\n";
-        });
+        _steam_helper.create_workshop_item(
+            [](const PublishedFileId_t item_id)
+            {
+                std::cout << "Successfully created new workshop item: "
+                          << item_id << ".\n";
+            });
     }
 
     void upload_contents_to_existing_workshop_item()
@@ -557,8 +557,9 @@ private:
 
         log("CLI") << "Uploading contents to Steam servers...\n";
 
-        _steam_helper.submit_item_update(
-            update_handle.value(), changelog_note.c_str(), [item_id] {
+        _steam_helper.submit_item_update(update_handle.value(),
+            changelog_note.c_str(),
+            [item_id] {
                 std::cout << "Successfully updated workshop item: " << item_id
                           << ".\n";
             });
@@ -600,8 +601,9 @@ private:
 
         log("CLI") << "Uploading preview image to Steam servers...\n";
 
-        _steam_helper.submit_item_update(
-            update_handle.value(), changelog_note.c_str(), [item_id] {
+        _steam_helper.submit_item_update(update_handle.value(),
+            changelog_note.c_str(),
+            [item_id] {
                 std::cout << "Successfully updated workshop item: " << item_id
                           << ".\n";
             });
@@ -651,8 +653,7 @@ Enter one of the following options:
 
 public:
     ~cli() noexcept
-    {
-    }
+    {}
 
     [[nodiscard]] static std::optional<cli> make(steam_helper& sh)
     {

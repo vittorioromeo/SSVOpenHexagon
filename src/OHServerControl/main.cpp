@@ -31,7 +31,8 @@ int main(int argc, char* argv[])
     sf::Packet packet;
     sf::UdpSocket controlSocket;
 
-    const auto sendToServer = [&] {
+    const auto sendToServer = [&]
+    {
         packet.clear();
         packet << stringBuf;
 
