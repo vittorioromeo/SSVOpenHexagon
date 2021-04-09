@@ -365,14 +365,37 @@ int main(int argc, char* argv[])
         SSVOH_ASSERT(hc != nullptr);
 
         mg = std::make_unique<hg::MenuGame>(
-            steamManager, *discordManager, *assets, audio, *hg, *window, *hc);
+            steamManager, *discordManager, *assets, audio, *window, *hc);
 
-        hg->mgPtr = mg.get();
+        mg->fnHGTriggerRefresh = [&](const ssvs::Input::Trigger& trigger,
+                                     int bindId) //
+        {
+            hg->refreshTrigger(trigger, bindId); //
+        };
+
+        mg->fnHGNewGame = [&](const std::string& packId,
+                              const std::string& levelId, bool firstPlay,
+                              float diffMult, bool executeLastReplay)
+        {
+            window->setGameState(hg->getGame());
+
+            hg->newGame(
+                packId, levelId, firstPlay, diffMult, executeLastReplay);
+        };
+
+        mg->fnHGUpdateRichPresenceCallbacks = [&] //
+        {                                         //
+            hg->updateRichPresenceCallbacks();
+        };
+
+        hg->fnGoToMenu = [&](const bool error)
+        {
+            window->setGameState(mg->getGame());
+            mg->returnToLevelSelection();
+            mg->init(error);
+        };
     }
-    else
-    {
-        hg->mgPtr = nullptr;
-    }
+
 
     //
     //

@@ -36,11 +36,14 @@
 #include <vector>
 #include <string_view>
 #include <memory>
+#include <functional>
 
 namespace ssvs {
-
 class GameWindow;
+}
 
+namespace ssvs::Input {
+class Trigger;
 }
 
 namespace hg {
@@ -57,15 +60,11 @@ struct PackInfo;
 struct LoadInfo;
 
 namespace Steam {
-
 class steam_manager;
-
 }
 
 namespace Discord {
-
 class discord_manager;
-
 }
 
 enum class States
@@ -84,6 +83,17 @@ enum class States
 
 class MenuGame
 {
+public:
+    //---------------------------------------
+    // Hexagon game callbacks (to avoid physical dependency)
+    std::function<void(const ssvs::Input::Trigger&, int)> fnHGTriggerRefresh;
+
+    std::function<void(
+        const std::string&, const std::string&, bool, float, bool)>
+        fnHGNewGame;
+
+    std::function<void()> fnHGUpdateRichPresenceCallbacks;
+
 private:
     //---------------------------------------
     // Classes
@@ -93,7 +103,6 @@ private:
     HGAssets& assets;
     sf::Font& imagine;
     Audio& audio;
-    HexagonGame& hexagonGame;
     ssvs::GameState game;
     ssvs::GameWindow& window;
     HexagonClient& hexagonClient;
@@ -506,7 +515,7 @@ private:
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-        Audio& mAudio, HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow,
+        Audio& mAudio, ssvs::GameWindow& mGameWindow,
         HexagonClient& mHexagonClient);
 
     ~MenuGame();

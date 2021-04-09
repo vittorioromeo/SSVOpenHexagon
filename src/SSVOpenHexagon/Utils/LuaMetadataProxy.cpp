@@ -55,7 +55,8 @@ template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned int>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<long>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned long>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<long long>);
-template const char* LuaMetadataProxy::typeToStr(TypeWrapper<unsigned long long>);
+template const char* LuaMetadataProxy::typeToStr(
+    TypeWrapper<unsigned long long>);
 template const char* LuaMetadataProxy::typeToStr(TypeWrapper<std::string>);
 
 // ----------------------------------------------------------------------------

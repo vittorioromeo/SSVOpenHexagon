@@ -9,13 +9,13 @@
 #include "SSVOpenHexagon/Core/BindControl.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
+#include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
 #include "SSVOpenHexagon/Data/PackInfo.hpp"
@@ -141,14 +141,12 @@ inline constexpr float maxOffset{100.f};
 
 MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     Discord::discord_manager& mDiscordManager, HGAssets& mAssets, Audio& mAudio,
-    HexagonGame& mHexagonGame, ssvs::GameWindow& mGameWindow,
-    HexagonClient& mHexagonClient)
+    ssvs::GameWindow& mGameWindow, HexagonClient& mHexagonClient)
     : steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
       imagine(mAssets.get<sf::Font>("forcedsquare.ttf")),
       audio(mAudio),
-      hexagonGame(mHexagonGame),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
       dialogBox(imagine, mGameWindow),
@@ -1177,7 +1175,11 @@ void MenuGame::initMenus()
         [this](const ssvs::Input::Trigger& trig, const int bindID)
     {
         game.refreshTrigger(trig, bindID);
-        hexagonGame.refreshTrigger(trig, bindID);
+
+        if(fnHGTriggerRefresh)
+        {
+            fnHGTriggerRefresh(trig, bindID);
+        }
     };
 
     using Tid = Config::Tid;
@@ -1660,9 +1662,11 @@ bool MenuGame::loadCommandLineLevel(
     changeStateTo(States::LevelSelection);
 
     // Start game
-    window.setGameState(hexagonGame.getGame());
-    hexagonGame.newGame(packID, lvlSlct.levelDataIds->at(lvlSlct.currentIndex),
-        true, ssvu::getByModIdx(diffMults, diffMultIdx), false);
+    if(fnHGNewGame)
+    {
+        fnHGNewGame(packID, lvlSlct.levelDataIds->at(lvlSlct.currentIndex),
+            true, ssvu::getByModIdx(diffMults, diffMultIdx), false);
+    }
 
     return true;
 }
@@ -2060,8 +2064,9 @@ void MenuGame::okAction()
 
     switch(state)
     {
-        case States::ETLPNewBoot:
+        case States::ETLPNewBoot: [[fallthrough]];
         case States::ETLPNew:
+        {
             if(!enteredStr.empty())
             {
                 ssvms::Category& profiles(
@@ -2109,13 +2114,17 @@ void MenuGame::okAction()
                 }
                 changeStateTo(States::SMain);
             }
+
             break;
+        }
 
         case States::SLPSelectBoot:
+        {
             playSoundOverride("openHexagon.ogg");
             getCurrentMenu()->exec();
             changeStateTo(States::SMain);
             return;
+        }
 
         case States::SMain:
         {
@@ -2149,8 +2158,9 @@ void MenuGame::okAction()
             {
                 adjustMenuOffset(true);
             }
+
+            break;
         }
-        break;
 
         case States::MOpts:
         {
@@ -2174,8 +2184,9 @@ void MenuGame::okAction()
             {
                 return;
             }
+
+            break;
         }
-        break;
 
         case States::MOnline:
         {
@@ -2186,27 +2197,36 @@ void MenuGame::okAction()
             {
                 return;
             }
+
+            break;
         }
-        break;
 
         case States::LevelSelection:
+        {
             // Reset the scroll of the text fields so that
             // they will be 0 when user exit the level.
             resetNamesScrolls();
 
-            window.setGameState(hexagonGame.getGame());
-            hexagonGame.newGame(getNthSelectablePackInfo(lvlDrawer->packIdx).id,
-                lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), true,
-                ssvu::getByModIdx(diffMults, diffMultIdx),
-                false /* executeLastReplay */);
+            if(fnHGNewGame)
+            {
+                fnHGNewGame(getNthSelectablePackInfo(lvlDrawer->packIdx).id,
+                    lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), true,
+                    ssvu::getByModIdx(diffMults, diffMultIdx),
+                    false /* executeLastReplay */);
+            }
+
             break;
+        }
 
         default:
+        {
             if(isInMenu())
             {
                 getCurrentMenu()->exec();
             }
+
             break;
+        }
     }
 
     playSoundOverride("select.ogg");
@@ -2441,7 +2461,10 @@ void MenuGame::update(ssvu::FT mFT)
         );
     }
 
-    hexagonGame.updateRichPresenceCallbacks();
+    if(fnHGUpdateRichPresenceCallbacks)
+    {
+        fnHGUpdateRichPresenceCallbacks();
+    }
 
     Joystick::update();
 
@@ -2952,11 +2975,11 @@ void MenuGame::refreshCamera()
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
-    for(auto f : {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig,
-            &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
-            &txtInstructionsMedium, &txtInstructionsSmall, &txtEnteringText,
-            &txtSelectionBig, &txtSelectionMedium,
-            &txtSelectionSmall, &txtSelectionScore})
+    for(auto f :
+        {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig, &txtMenuSmall,
+            &txtInstructionsBig, &txtRandomTip, &txtInstructionsMedium,
+            &txtInstructionsSmall, &txtEnteringText, &txtSelectionBig,
+            &txtSelectionMedium, &txtSelectionSmall, &txtSelectionScore})
     {
         f->updateHeight();
     }
@@ -3082,7 +3105,11 @@ void MenuGame::refreshBinds()
     for(std::size_t i{0u}; i < Config::triggerGetters.size(); ++i)
     {
         game.refreshTrigger(Config::triggerGetters[i](), i);
-        hexagonGame.refreshTrigger(Config::triggerGetters[i](), i);
+
+        if(fnHGTriggerRefresh)
+        {
+            fnHGTriggerRefresh(Config::triggerGetters[i](), i);
+        }
     }
 
     // Joystick
@@ -3330,7 +3357,8 @@ void MenuGame::drawSubmenusSmall(
 // The font used has some empty space on top that causes text to be drawn
 // below what you would expect according to the chosen coordinates.
 // Therefore, if we assume the text has to be drawn at 'Y' height the
-// actual value to be sent to the renderer is 'Y - fontHeight * fontHeightOffset.
+// actual value to be sent to the renderer is 'Y - fontHeight *
+// fontHeightOffset.
 inline constexpr float fontHeightOffset{0.9f};
 inline constexpr float frameSizeMulti{0.6f};
 
@@ -3352,7 +3380,8 @@ void MenuGame::drawMainMenu(
         doubleBorder{2.f * quadBorder},
         totalHeight{interline * (size - 1) + doubleBorder + txtMenuBig.height};
     float quadHeight{(h - totalHeight) / 2.f + interline - quadBorder},
-        txtHeight{quadHeight - txtMenuBig.height * fontHeightOffset + quadBorder},
+        txtHeight{
+            quadHeight - txtMenuBig.height * fontHeightOffset + quadBorder},
         indent;
 
     // Store info needed to draw the submenus
@@ -3705,8 +3734,8 @@ void MenuGame::drawEnteringText(const float xOffset, const bool revertOffset)
         txtBottom{txtEnteringText.height * 0.45f},
         totalHeight{txtEnteringText.height + txtBottom + doubleFrame * 2.f};
     float quadHeight{menuHalfHeight - totalHeight / 2.f},
-        txtHeight{
-            quadHeight - txtEnteringText.height * fontHeightOffset + doubleFrame};
+        txtHeight{quadHeight - txtEnteringText.height * fontHeightOffset +
+                  doubleFrame};
 
     // Offset
     const float panelOffset{
@@ -3908,11 +3937,11 @@ void MenuGame::updateLevelSelectionDrawingParameters()
     packLabelHeight =
         txtSelectionMedium.height + 2.f * textToQuadBorder + slctFrameSize;
 
-    levelLabelHeight = txtSelectionBig.height +     // level name
-                       txtSelectionSmall.height +   // level author
-                       textToQuadBorder +           // interspace
-                       2.f * textToQuadBorder -     // top and bottom space
-                       slctFrameSize;               // the bottom border
+    levelLabelHeight = txtSelectionBig.height +   // level name
+                       txtSelectionSmall.height + // level author
+                       textToQuadBorder +         // interspace
+                       2.f * textToQuadBorder -   // top and bottom space
+                       slctFrameSize;             // the bottom border
 }
 
 float MenuGame::getLevelSelectionHeight() const
@@ -4698,8 +4727,9 @@ void MenuGame::drawLevelSelectionRightSide(
                 quadsIndent + arrowWidth + 2.f * slctFrameSize + outerFrame) +
             panelOffset;
 
-        txtSelectionMedium.font.setPosition({temp,
-            height + outerFrame - txtSelectionMedium.height * fontHeightOffset});
+        txtSelectionMedium.font.setPosition(
+            {temp, height + outerFrame -
+                       txtSelectionMedium.height * fontHeightOffset});
         render(txtSelectionMedium.font);
 
         menuQuads.clear();
@@ -4713,8 +4743,7 @@ void MenuGame::drawLevelSelectionRightSide(
             // slctFrameSize) wide
             height +=
                 (packLabelHeight - textToQuadBorder - slctFrameSize) / 2.f;
-            temp =
-                quadsIndent + arrowWidth / 2.f + slctFrameSize + panelOffset;
+            temp = quadsIndent + arrowWidth / 2.f + slctFrameSize + panelOffset;
 
             topLeft = {temp - arrowWidth, height};
             bottomLeft = {temp - arrowWidth, height + 2.f * slctFrameSize};
@@ -4747,8 +4776,7 @@ void MenuGame::drawLevelSelectionRightSide(
             temp = quadsIndent + panelOffset;
 
             topLeft = {temp, height + textToQuadBorder};
-            topRight = {
-                temp + 2.f * slctFrameSize, height + textToQuadBorder};
+            topRight = {temp + 2.f * slctFrameSize, height + textToQuadBorder};
 
             height += packLabelHeight / 2.f;
             temp += packLabelHeight / 2.f - textToQuadBorder;
@@ -4781,7 +4809,8 @@ void MenuGame::drawLevelSelectionRightSide(
         {
             height = drawer.YOffset;
         }
-    } while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
+    }
+    while(i != ssvu::getMod(drawer.packIdx + 1, packsSize));
 }
 
 void MenuGame::drawLevelSelectionLeftSide(
@@ -4861,7 +4890,8 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     // Text
     height += textToQuadBorder;
-    const float difficultyHeight{height - txtSelectionMedium.height * fontHeightOffset};
+    const float difficultyHeight{
+        height - txtSelectionMedium.height * fontHeightOffset};
 
     renderText("DIFFICULTY: ", txtSelectionMedium.font,
         {textXPos, difficultyHeight}, menuQuadColor);
@@ -4895,8 +4925,8 @@ void MenuGame::drawLevelSelectionLeftSide(
     height += textToQuadBorder;
 
     renderText("PACK", txtSelectionMedium.font,
-        {textToQuadBorder - panelOffset, height -
-            txtSelectionMedium.height * fontHeightOffset});
+        {textToQuadBorder - panelOffset,
+            height - txtSelectionMedium.height * fontHeightOffset});
 
     // Pack name
     height += txtSelectionMedium.height + mediumInterline;
@@ -4997,7 +5027,8 @@ void MenuGame::drawLevelSelectionLeftSide(
     renderTextCenteredOffset(
         isLevelFavorite ? "[F1] UNFAVORITE" : "[F1]    FAVORITE",
         txtSelectionMedium.font,
-        {maxPanelOffset / 2.f, height + txtSelectionMedium.height * (1.f - fontHeightOffset)},
+        {maxPanelOffset / 2.f,
+            height + txtSelectionMedium.height * (1.f - fontHeightOffset)},
         -panelOffset, menuQuadColor);
 
     height = favoriteButtonBottom + textToQuadBorder;
@@ -5031,7 +5062,8 @@ void MenuGame::drawLevelSelectionLeftSide(
     // "LEADERBOARD"
     height += textToQuadBorder;
     renderTextCenteredOffset("ONLINE LEADERBOARD", txtSelectionBig.font,
-        {maxPanelOffset / 2.f, height - txtSelectionBig.height * fontHeightOffset},
+        {maxPanelOffset / 2.f,
+            height - txtSelectionBig.height * fontHeightOffset},
         -panelOffset);
 
     // Line
@@ -5077,7 +5109,8 @@ void MenuGame::drawLevelSelectionLeftSide(
             std::string playerStr = userName;
 
             const float tx = textToQuadBorder - panelOffset;
-            const float ty = height - txtSelectionMedium.height * fontHeightOffset;
+            const float ty =
+                height - txtSelectionMedium.height * fontHeightOffset;
 
             renderText(posStr, txtSelectionMedium.font, {tx, ty});
             renderText(scoreStr, txtSelectionMedium.font, {tx + 54.f, ty});
@@ -5102,7 +5135,8 @@ void MenuGame::drawLevelSelectionLeftSide(
         else
         {
             const float tx = textToQuadBorder - panelOffset;
-            const float ty = height - txtSelectionMedium.height * fontHeightOffset;
+            const float ty =
+                height - txtSelectionMedium.height * fontHeightOffset;
 
             renderText("NO SCORES FOUND", txtSelectionMedium.font, {tx, ty});
         }
@@ -5125,7 +5159,8 @@ void MenuGame::drawLevelSelectionLeftSide(
         if(ownScore == nullptr)
         {
             const float tx = textToQuadBorder - panelOffset;
-            const float ty = height - txtSelectionMedium.height * fontHeightOffset;
+            const float ty =
+                height - txtSelectionMedium.height * fontHeightOffset;
 
             renderText("NO OWN SCORE SET", txtSelectionMedium.font, {tx, ty});
         }

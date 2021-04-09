@@ -5,61 +5,77 @@
 #pragma once
 
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
-#include "SSVOpenHexagon/Core/Discord.hpp"
-#include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
-#include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
-#include "SSVOpenHexagon/Components/CWall.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
-#include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
-#include "SSVOpenHexagon/Utils/LuaMetadataProxy.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
-#include <imgui.h>
-#include <imgui-SFML.h>
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
 #include <SSVStart/Camera/Camera.hpp>
 #include <SSVStart/VertexVector/VertexVector.hpp>
-#include <SSVStart/Utils/Vector2.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Timeline/Timeline.hpp>
 
-#include <SFML/Audio.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/Graphics/Texture.hpp>
+
+#include <SFML/System/Vector2.hpp>
+#include <SFML/System/Clock.hpp>
 
 #include <cstdint>
 #include <sstream>
 #include <unordered_set>
 #include <functional>
 #include <optional>
-#include <functional>
+#include <vector>
+#include <string>
+
+struct ImGuiInputTextCallbackData;
+
+namespace Json {
+class Value;
+}
+
+namespace ssvuj {
+using Obj = Json::Value;
+}
+
+namespace ssvs::Input {
+class Trigger;
+}
 
 namespace hg {
 
 class Audio;
 class HGAssets;
-class MenuGame;
 class HexagonClient;
+class LevelData;
+class SpeedData;
+struct PackData;
+
+namespace Steam {
+class steam_manager;
+}
+
+namespace Discord {
+class discord_manager;
+}
 
 class HexagonGame
 {
-    friend MenuGame;
-
 private:
     Steam::steam_manager* steamManager;
     Discord::discord_manager* discordManager;
@@ -111,7 +127,7 @@ private:
 
     ssvu::TimelineManager effectTimelineManager;
 
-    const sf::Vector2f centerPos{ssvs::zeroVec2f};
+    const sf::Vector2f centerPos{0.f, 0.f};
 
     Lua::LuaContext lua;
     std::unordered_set<std::string> calledDeprecatedFunctions;
@@ -129,13 +145,8 @@ private:
     Utils::timeline2 messageTimeline;
     Utils::timeline2_runner messageTimelineRunner;
 
-
-
-    sf::Text messageText{
-        "", font, ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())};
-
-    sf::Text pbText{
-        "", font, ssvu::toNum<unsigned int>(65.f / Config::getZoomFactor())};
+    sf::Text messageText;
+    sf::Text pbText;
 
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
 
@@ -158,11 +169,11 @@ private:
     sf::Sprite replayIcon;
 
     sf::RectangleShape levelInfoRectangle;
-    sf::Text levelInfoTextLevel{"", font};
-    sf::Text levelInfoTextPack{"", font};
-    sf::Text levelInfoTextAuthor{"", font};
-    sf::Text levelInfoTextBy{"", font};
-    sf::Text levelInfoTextDM{"", font};
+    sf::Text levelInfoTextLevel;
+    sf::Text levelInfoTextPack;
+    sf::Text levelInfoTextAuthor;
+    sf::Text levelInfoTextBy;
+    sf::Text levelInfoTextDM;
 
     bool firstPlay{true};
     bool restartFirstTime{true};
@@ -184,9 +195,7 @@ private:
         std::string replayPackName;
         std::string replayLevelName;
 
-        ActiveReplay(const replay_file& mReplayFile)
-            : replayFile{mReplayFile}, replayPlayer{replayFile._data}
-        {}
+        explicit ActiveReplay(const replay_file& mReplayFile);
     };
 
     std::optional<ActiveReplay> activeReplay;
@@ -204,14 +213,10 @@ private:
     bool inputImplCCW{false};
     std::ostringstream os;
 
-    sf::Text fpsText{
-        "0", font, ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
-    sf::Text timeText{
-        "0", font, ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())};
-    sf::Text text{
-        "", font, ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())};
-    sf::Text replayText{
-        "", font, ssvu::toNum<unsigned int>(20.f / Config::getZoomFactor())};
+    sf::Text fpsText;
+    sf::Text timeText;
+    sf::Text text;
+    sf::Text replayText;
 
     // Color of the polygon in the center.
     CapColor capColor;
@@ -232,30 +237,17 @@ private:
     void initLua_Deprecated();
 
     void initLua();
-    void runLuaFile(const std::string& mFileName)
-    {
-        try
-        {
-            Utils::runLuaFile(lua, mFileName);
-        }
-        catch(...)
-        {
-            if(!Config::getDebug())
-            {
-                goToMenu(false /* mSendScores */, true /* mError */);
-            }
-        }
-    }
+    void runLuaFile(const std::string& mFileName);
 
     // Wall creation
     void createWall(int mSide, float mThickness, const SpeedData& mSpeed,
-        const SpeedData& mCurve = SpeedData{}, float mHueMod = 0);
+        const SpeedData& mCurve, float mHueMod);
 
 public:
-    // For testing
+    // TODO (P2): For testing
     std::function<void(const replay_file&)> onReplayCreated;
 
-    // For testing
+    // TODO (P2): For testing
     void setMustStart(const bool x)
     {
         mustStart = x;
@@ -263,78 +255,24 @@ public:
 
     void initLuaAndPrintDocs();
 
-    template <typename T, typename... TArgs>
-    T runLuaFunction(const std::string& mName, const TArgs&... mArgs)
-    {
-        try
-        {
-            return Utils::runLuaFunction<T, TArgs...>(lua, mName, mArgs...);
-        }
-        catch(const std::runtime_error& mError)
-        {
-            std::cout << "[runLuaFunction] Runtime error on \"" << mName
-                      << "\" with level \"" << levelData->name << "\": \n"
-                      << mError.what() << '\n'
-                      << std::endl;
-
-            if(!Config::getDebug())
-            {
-                goToMenu(false /* mSendScores */, true /* mError */);
-            }
-        }
-        catch(...)
-        {
-            std::cout << "[runLuaFunction] Unknown runtime error on \"" << mName
-                      << "\" with level \"" << levelData->name << "\": \n"
-                      << '\n'
-                      << std::endl;
-
-            if(!Config::getDebug())
-            {
-                goToMenu(false /* mSendScores */, true /* mError */);
-            }
-        }
-
-        return T();
-    }
+    void luaExceptionLippincottHandler(const std::string& mName);
 
     template <typename T, typename... TArgs>
     auto runLuaFunctionIfExists(const std::string& mName, const TArgs&... mArgs)
+    try
     {
-        try
-        {
-            return Utils::runLuaFunctionIfExists<T, TArgs...>(
-                lua, mName, mArgs...);
-        }
-        catch(std::runtime_error& mError)
-        {
-            std::cout << "[runLuaFunctionIfExists] Runtime error on \"" << mName
-                      << "\" with level \"" << levelData->name << "\": \n"
-                      << mError.what() << '\n'
-                      << std::endl;
-
-            if(!Config::getDebug())
-            {
-                goToMenu(false /* mSendScores */, true /* mError */);
-            }
-        }
-        catch(...)
-        {
-            std::cout << "[runLuaFunction] Unknown error on \"" << mName
-                      << "\" with level \"" << levelData->name << std::endl;
-
-            if(!Config::getDebug())
-            {
-                goToMenu(false /* mSendScores */, true /* mError */);
-            }
-        }
-
+        return Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...);
+    }
+    catch(...)
+    {
+        luaExceptionLippincottHandler(mName);
         return decltype(
             Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};
     }
 
     void raiseWarning(
         const std::string& mFunctionName, const std::string& mAdditionalInfo);
+
     void setLastReplay(const replay_file& mReplayFile);
 
 private:
@@ -419,30 +357,14 @@ private:
     template <typename T>
     auto makeLuaAccessor(T& obj, const std::string& prefix);
 
-    static void nameFormat(std::string& name)
-    {
-        name[0] = std::toupper(name[0]);
-    }
+    static void nameFormat(std::string& name);
+    [[nodiscard]] static std::string diffFormat(float diff);
+    [[nodiscard]] static std::string timeFormat(float time);
 
-    [[nodiscard]] static std::string diffFormat(float diff)
-    {
-        char buf[255];
-        std::snprintf(buf, sizeof(buf), "%g", diff);
-        return buf;
-    }
-
-    [[nodiscard]] static std::string timeFormat(float time)
-    {
-        char buf[255];
-        std::snprintf(buf, sizeof(buf), "%.3f", time);
-        return buf;
-    }
-
-public:
+private:
     void performPlayerSwap(const bool mPlaySound);
     void performPlayerKill();
 
-public:
     Utils::FastVertexVectorTris backgroundTris;
     Utils::FastVertexVectorQuads wallQuads;
     Utils::FastVertexVectorTris playerTris;
@@ -450,7 +372,8 @@ public:
     Utils::FastVertexVectorQuads wallQuads3D;
     Utils::FastVertexVectorTris playerTris3D;
 
-    MenuGame* mgPtr;
+public:
+    std::function<void(const bool)> fnGoToMenu;
 
     HexagonGame(Steam::steam_manager* mSteamManager,
         Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
@@ -459,10 +382,7 @@ public:
 
     ~HexagonGame();
 
-    void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID)
-    {
-        game.refreshTrigger(trigger, bindID);
-    }
+    void refreshTrigger(const ssvs::Input::Trigger& trigger, const int bindID);
 
     // Gameplay methods
     void newGame(const std::string& mPackId, const std::string& mId,
@@ -486,123 +406,31 @@ public:
 
     // Graphics-related methods
     void render(sf::Drawable& mDrawable,
-        const sf::RenderStates& mStates = sf::RenderStates::Default)
-    {
-        if(window == nullptr)
-        {
-            ssvu::lo("hg::HexagonGame::render")
-                << "Attempted to render without a game window\n";
-
-            return;
-        }
-
-        window->draw(mDrawable, mStates);
-    }
+        const sf::RenderStates& mStates = sf::RenderStates::Default);
 
     // Setters
     void setSides(unsigned int mSides);
 
     // Getters
-    [[nodiscard]] ssvs::GameState& getGame() noexcept
-    {
-        return game;
-    }
-
-    [[nodiscard]] float getRadius() const noexcept
-    {
-        return status.radius;
-    }
-
-    [[nodiscard]] const sf::Color& getColor(int mIdx) const noexcept
-    {
-        return styleData.getColor(mIdx);
-    }
-
-    [[nodiscard]] float getSpeedMultDM() const noexcept
-    {
-        const auto res =
-            levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
-
-        if(!levelStatus.hasSpeedMaxLimit())
-        {
-            return res;
-        }
-
-        return (res < levelStatus.speedMax) ? res : levelStatus.speedMax;
-    }
-
-    [[nodiscard]] float getDelayMultDM() const noexcept
-    {
-        const auto res =
-            levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
-
-        if(!levelStatus.hasDelayMaxLimit())
-        {
-            return res;
-        }
-
-        return (res < levelStatus.delayMax) ? res : levelStatus.delayMax;
-    }
-
-    [[nodiscard]] float getRotationSpeed() const noexcept
-    {
-        return levelStatus.rotationSpeed;
-    }
-
-    [[nodiscard]] unsigned int getSides() const noexcept
-    {
-        return levelStatus.sides;
-    }
-
-    [[nodiscard]] float getWallSkewLeft() const noexcept
-    {
-        return levelStatus.wallSkewLeft;
-    }
-
-    [[nodiscard]] float getWallSkewRight() const noexcept
-    {
-        return levelStatus.wallSkewRight;
-    }
-
-    [[nodiscard]] float getWallAngleLeft() const noexcept
-    {
-        return levelStatus.wallAngleLeft;
-    }
-
-    [[nodiscard]] float getWallAngleRight() const noexcept
-    {
-        return levelStatus.wallAngleRight;
-    }
-
-    [[nodiscard]] float get3DEffectMult() const noexcept
-    {
-        return levelStatus._3dEffectMultiplier;
-    }
-
-    [[nodiscard]] HexagonGameStatus& getStatus() noexcept
-    {
-        return status;
-    }
-
-    [[nodiscard]] const HexagonGameStatus& getStatus() const noexcept
-    {
-        return status;
-    }
-
-    [[nodiscard]] LevelStatus& getLevelStatus()
-    {
-        return levelStatus;
-    }
-
-    [[nodiscard]] HGAssets& getAssets()
-    {
-        return assets;
-    }
-
+    [[nodiscard]] ssvs::GameState& getGame() noexcept;
+    [[nodiscard]] float getRadius() const noexcept;
+    [[nodiscard]] const sf::Color& getColor(int mIdx) const noexcept;
+    [[nodiscard]] float getSpeedMultDM() const noexcept;
+    [[nodiscard]] float getDelayMultDM() const noexcept;
+    [[nodiscard]] float getRotationSpeed() const noexcept;
+    [[nodiscard]] unsigned int getSides() const noexcept;
+    [[nodiscard]] float getWallSkewLeft() const noexcept;
+    [[nodiscard]] float getWallSkewRight() const noexcept;
+    [[nodiscard]] float getWallAngleLeft() const noexcept;
+    [[nodiscard]] float getWallAngleRight() const noexcept;
+    [[nodiscard]] float get3DEffectMult() const noexcept;
+    [[nodiscard]] HexagonGameStatus& getStatus() noexcept;
+    [[nodiscard]] const HexagonGameStatus& getStatus() const noexcept;
+    [[nodiscard]] LevelStatus& getLevelStatus();
+    [[nodiscard]] HGAssets& getAssets();
     [[nodiscard]] sf::Color getColorMain() const;
     [[nodiscard]] sf::Color getColorPlayer() const;
     [[nodiscard]] sf::Color getColorText() const;
-
     [[nodiscard]] float getMusicDMSyncFactor() const;
 
     void refreshMusicPitch();
@@ -626,12 +454,6 @@ public:
     [[nodiscard]] bool mustShowReplayUI() const noexcept;
 
     [[nodiscard]] float getSwapCooldown() const noexcept;
-
-    [[gnu::always_inline, nodiscard]] const sf::Vector2f&
-    getCenterPos() const noexcept
-    {
-        return centerPos;
-    }
 };
 
 } // namespace hg
