@@ -255,6 +255,7 @@ public:
 
     // TODO (P2): For testing
     bool executeRandomInputs{false};
+    bool alwaysSpinRight{false};
 
     void initLuaAndPrintDocs();
 

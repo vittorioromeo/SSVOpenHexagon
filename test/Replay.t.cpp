@@ -208,30 +208,6 @@ static void test_replay_file_serialization_to_file()
     }
 }
 
-[[nodiscard]] static auto& getRng()
-{
-    static std::random_device rd;
-    static std::mt19937 rng(rd());
-
-    return rng;
-}
-
-[[nodiscard]] static float getRndFloat(float min, float max)
-{
-    return std::uniform_real_distribution<float>{min, max}(getRng());
-}
-
-template <typename T>
-[[nodiscard]] static T getRndInt(T min, T max)
-{
-    return std::uniform_int_distribution<T>{min, max}(getRng());
-}
-
-[[nodiscard]] static bool getRndBool()
-{
-    return getRndInt<int>(0, 10) > 5;
-}
-
 static void test_replay_file_serialization_to_file_randomized(
     int minInputs, int maxInputs)
 {
