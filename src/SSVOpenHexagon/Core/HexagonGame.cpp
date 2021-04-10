@@ -61,9 +61,7 @@ void HexagonGame::createWall(int mSide, float mThickness,
 {
     walls.emplace_back(getSides(), getWallAngleLeft(), getWallAngleRight(),
         getWallSkewLeft(), getWallSkewRight(), centerPos, mSide, mThickness,
-        levelStatus.wallSpawnDistance, mSpeed, mCurve);
-
-    walls.back().setHueMod(mHueMod);
+        levelStatus.wallSpawnDistance, mSpeed, mCurve, mHueMod);
 }
 
 void HexagonGame::initKeyIcons()

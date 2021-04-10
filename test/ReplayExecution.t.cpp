@@ -55,23 +55,10 @@ try
             hg.alwaysSpinRight = true;
         }
 
-        double score2;
 
-        hg.onReplayCreated = [&](const hg::replay_file& newRf)
-        {
-            if(differentHG)
-            {
-                hg::HexagonGame hg2(nullptr /* steamManager */,
-                    nullptr /* discordManager */, *assets, audio,
-                    nullptr /* window */, nullptr /* client */);
+        hg::replay_file rf;
 
-                score2 = hg2.runReplayUntilDeathAndGetScore(newRf);
-            }
-            else
-            {
-                score2 = hg.runReplayUntilDeathAndGetScore(newRf);
-            }
-        };
+        hg.onReplayCreated = [&](const hg::replay_file& newRf) { rf = newRf; };
 
         hg.newGame(packs[i % packs.size()], levels[i % levels.size()],
             true /* firstPlay */, 1.f /* diffMult */,
@@ -79,6 +66,20 @@ try
 
         hg.setMustStart(true);
         const double score = hg.executeGameUntilDeath();
+
+        double score2;
+        if(differentHG)
+        {
+            hg::HexagonGame hg2(nullptr /* steamManager */,
+                nullptr /* discordManager */, *assets, audio,
+                nullptr /* window */, nullptr /* client */);
+
+            score2 = hg2.runReplayUntilDeathAndGetScore(rf);
+        }
+        else
+        {
+            score2 = hg.runReplayUntilDeathAndGetScore(rf);
+        }
 
         std::cerr << score << " == " << score2 << std::endl;
         TEST_ASSERT_EQ(score, score2);

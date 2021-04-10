@@ -241,8 +241,8 @@ void HexagonGame::update(ssvu::FT mFT)
                 rng.advance(levelStatus.rotationSpeed);
             }
 
-// TODO (P0): decide what to do with this
-#if 1
+// TODO (P0): decide what to do with this, definitely broken on the server
+#if 0
             // Advance random number generator state with various level and
             // style values to avoid cheating by modifying Lua scripts
             if(!status.hasDied)
