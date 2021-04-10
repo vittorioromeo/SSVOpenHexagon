@@ -1,0 +1,12 @@
+{
+    "id": "autotest0",
+    "name": "autotest0",
+    "description": "dance!",
+    "author": "vittorio romeo",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "cw2",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/autotest0.lua",
+    "difficultyMults": []
+}

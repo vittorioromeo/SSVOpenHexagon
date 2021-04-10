@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Core/BindControl.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
+#include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LeaderboardCache.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
@@ -934,8 +935,10 @@ void MenuGame::initLua()
 {
     static CCustomWallManager cwManager;
     static random_number_generator rng{0};
+    static HexagonGameStatus hexagonGameStatus;
 
-    LuaScripting::init(lua, rng, true /* inMenu */, cwManager);
+    LuaScripting::init(lua, rng, true /* inMenu */, cwManager, levelStatus,
+        hexagonGameStatus, styleData);
 
     lua.writeVariable("u_log",
         [](const std::string& mLog) { ssvu::lo("lua-menu") << mLog << '\n'; });
@@ -969,47 +972,6 @@ void MenuGame::initLua()
 
     lua.writeVariable("u_getPlayerAngle", [] { return 0; });
 
-    lua.writeVariable("l_setRotationSpeed",
-        [this](float mValue) { levelStatus.rotationSpeed = mValue; });
-
-    lua.writeVariable("l_setSides",
-        [this](unsigned int mValue) { levelStatus.sides = mValue; });
-
-    lua.writeVariable(
-        "l_getRotationSpeed", [this] { return levelStatus.rotationSpeed; });
-
-    lua.writeVariable("l_getSides", [this] { return levelStatus.sides; });
-
-    lua.writeVariable("l_set3dRequired",
-        [this](bool mValue) { levelStatus._3DRequired = mValue; });
-
-    lua.writeVariable("s_setPulseInc",
-        [this](float mValue) { styleData.pulseIncrement = mValue; });
-
-    lua.writeVariable("s_setPulseIncrement",
-        [this](float mValue) { styleData.pulseIncrement = mValue; });
-
-    lua.writeVariable("s_setHueInc",
-        [this](float mValue) { styleData.hueIncrement = mValue; });
-
-    lua.writeVariable("s_setHueIncrement",
-        [this](float mValue) { styleData.hueIncrement = mValue; });
-
-    lua.writeVariable("l_getPulseMin", [this] { return levelStatus.pulseMin; });
-    lua.writeVariable("l_getPulseMax", [this] { return levelStatus.pulseMax; });
-    lua.writeVariable(
-        "l_getPulseSpeed", [this] { return levelStatus.pulseSpeed; });
-    lua.writeVariable(
-        "l_getPulseSpeedR", [this] { return levelStatus.pulseSpeedR; });
-
-    lua.writeVariable("l_setRotationSpeed",
-        [this](float mValue) { levelStatus.rotationSpeed = mValue; });
-
-    lua.writeVariable("s_getHueInc", [this] { return styleData.hueIncrement; });
-
-    lua.writeVariable(
-        "s_getHueIncrement", [this] { return styleData.hueIncrement; });
-
     // Unused functions
     for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
@@ -1027,45 +989,10 @@ void MenuGame::initLua()
             "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
             "e_messageAddImportantSilent", "e_clearMessages",
 
-            "l_setSpeedMult", "l_setPlayerSpeedMult", "l_setSpeedInc",
-            "l_setSpeedMax", "l_getSpeedMax", "l_getDelayMin", "l_setDelayMin",
-            "l_setDelayMax", "l_getDelayMax", "l_setRotationSpeedMax",
-            "l_setRotationSpeedInc", "l_setDelayInc", "l_setFastSpin",
-            "l_setSidesMin", "l_setSidesMax", "l_setIncTime", "l_setPulseMin",
-            "l_setPulseMax", "l_setPulseSpeed", "l_setPulseSpeedR",
-            "l_setPulseDelayMax", "l_setBeatPulseMax", "l_setBeatPulseDelayMax",
-            "l_setBeatPulseInitialDelay", "l_setBeatPulseSpeedMult",
-            "l_getBeatPulseInitialDelay", "l_getBeatPulseSpeedMult",
-            "l_setWallSkewLeft", "l_setWallSkewRight", "l_setWallAngleLeft",
-            "l_setWallAngleRight", "l_getWallSpawnDistance",
-            "l_setWallSpawnDistance", "l_setRadiusMin", "l_setSwapEnabled",
-            "l_setTutorialMode", "l_setIncEnabled", "l_get3dRequired",
-            "l_enableRndSideChanges", "l_setDarkenUnevenBackgroundChunk",
-            "l_getDarkenUnevenBackgroundChunk", "l_getSpeedMult",
+            "l_overrideScore", "l_setRotation", "l_getRotation",
+            "l_getOfficial",
 
-            "l_getPlayerSpeedMult", "l_getDelayMult", "l_addTracked",
-            "l_getRotation", "l_setRotation", "l_setDelayMult", "l_getOfficial",
-            "l_overrideScore",
-
-            "l_getSwapCooldownMult", "l_setSwapCooldownMult",
-
-            "l_getPulseInitialDelay", "l_setPulseInitialDelay",
-
-            "s_getCameraShake", "s_setCameraShake", "s_setStyle", "s_getHueMin",
-            "s_setHueMin", "s_getHueMax", "s_setHueMax", "s_getPulseMin",
-            "s_setPulseMin", "s_getPulseMax", "s_setPulseMax", "s_getPulseInc",
-            "s_getPulseIncrement", "s_getHuePingPing", "s_setHuePingPong",
-            "s_getMaxSwapTime", "s_setMaxSwapTime", "s_get3dDepth",
-            "s_set3dDepth", "s_get3dSkew", "s_set3dSkew", "s_get3dSpacing",
-            "s_set3dSpacing", "s_get3dDarkenMult", "s_set3dDarkenMult",
-            "s_get3dAlphaMult", "s_set3dAlphaMult", "s_get3dAlphaFalloff",
-            "s_set3dAlphaFalloff", "s_get3dPulseMax", "s_set3dPulseMax",
-            "s_get3dPulseMin", "s_set3dPulseMin", "s_get3dPulseSpeed",
-            "s_set3dPulseSpeed", "s_get3dPerspectiveMult",
-            "s_set3dPerspectiveMult", "s_setCapColorMain",
-            "s_setCapColorMainDarkened", "s_setCapColorByIndex",
-            "s_setBGColorOffset", "s_getBGColorOffset", "s_setBGTileRadius",
-            "s_getBGTileRadius", "s_setBGRotOff", "s_getBGRotOff",
+            "s_setStyle",
 
             "w_wall", "w_wallAdj", "w_wallAcc", "w_wallHModSpeedData",
             "w_wallHModCurveData",
@@ -4552,7 +4479,6 @@ void MenuGame::drawLevelSelectionRightSide(
     const float levelIndent{quadsIndent + outerFrame};
     const float panelOffset{
         calcMenuOffset(drawer.XOffset, w - quadsIndent, revertOffset)};
-    std::cout << drawer.XOffset << std::endl;
 
     const auto& infos{assets.getSelectablePackInfos()};
     int packsSize, levelsSize;

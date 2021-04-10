@@ -242,7 +242,7 @@ void HexagonGame::update(ssvu::FT mFT)
             }
 
 // TODO (P0): decide what to do with this
-#if 0
+#if 1
             // Advance random number generator state with various level and
             // style values to avoid cheating by modifying Lua scripts
             if(!status.hasDied)
@@ -572,10 +572,23 @@ void HexagonGame::updateInput()
         mustStart = true;
     }
 
-    // Keyboard and mouse state is handled by callbacks set in the
-    // constructor.
-    updateInput_UpdateJoystickControls(); // Joystick state.
-    updateInput_UpdateTouchControls();    // Touchscreen state.
+    if(executeRandomInputs) // TODO (P2): For testing
+    {
+        static std::random_device rd;
+        static std::mt19937 en(rd());
+
+        inputImplCCW = std::uniform_int_distribution<int>{0, 1}(en);
+        inputImplCW = std::uniform_int_distribution<int>{0, 1}(en);
+        inputSwap = std::uniform_int_distribution<int>{0, 1}(en);
+        inputFocused = std::uniform_int_distribution<int>{0, 1}(en);
+    }
+    else
+    {
+        // Keyboard and mouse state is handled by callbacks set in the
+        // constructor.
+        updateInput_UpdateJoystickControls(); // Joystick state.
+        updateInput_UpdateTouchControls();    // Touchscreen state.
+    }
 
     updateInput_ResolveInputImplToInputMovement();
     updateInput_RecordCurrentInputToLastReplayData();

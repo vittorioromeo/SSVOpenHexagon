@@ -253,6 +253,9 @@ public:
         mustStart = x;
     }
 
+    // TODO (P2): For testing
+    bool executeRandomInputs{false};
+
     void initLuaAndPrintDocs();
 
     void luaExceptionLippincottHandler(const std::string& mName);
