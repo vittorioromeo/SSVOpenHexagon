@@ -127,7 +127,7 @@ void replay_data::record_input(const bool left, const bool right,
 
     for(const input_bitset& ib : _inputs)
     {
-        // TODO: optimize! only need 4 bits
+        // TODO (P2): optimize! only need 4 bits
         const std::uint8_t ib_byte = ib.to_ulong();
         SSVOH_TRY(write(ib_byte));
     }
@@ -148,7 +148,6 @@ void replay_data::record_input(const bool left, const bool right,
 
     for(std::size_t i = 0; i < n_inputs; ++i)
     {
-        // TODO: gcc bug?
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         std::uint8_t ib_byte;
@@ -275,7 +274,6 @@ void replay_player::reset() noexcept
 
         s.resize(s_size);
 
-// TODO: gcc bug?
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         for(std::uint32_t i = 0; i < s_size; ++i)

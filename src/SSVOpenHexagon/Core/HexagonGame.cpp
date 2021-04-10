@@ -533,7 +533,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     if(!executeLastReplay)
     {
-        // TODO: this can be used to restore normal speed
+        // TODO (P2): this can be used to restore normal speed
         // window.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
 
         rng = initializeRng();
@@ -554,8 +554,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
             activeReplay.emplace(replay_file{
                 ._version{0},
-                ._player_name{
-                    assets.getCurrentLocalProfile().getName()}, // TODO
+
+                // TODO (P1): should this stay local?
+                ._player_name{assets.getCurrentLocalProfile().getName()},
+
                 ._seed{lastSeed},
                 ._data{lastReplayData},
                 ._pack_id{mPackId},
@@ -575,7 +577,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
         activeReplay->replayLevelName = Utils::toUppercase(levelData->name);
 
-        // TODO: this can be used to speed up the replay
+        // TODO (P2): this can be used to speed up the replay
         // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
 
         rng = random_number_generator{activeReplay->replayFile._seed};
@@ -805,7 +807,7 @@ void HexagonGame::death(bool mForce)
         return;
     }
 
-// TODO: ??? meant for rich presence?
+// TODO (P2): ??? meant for rich presence?
 #if 0
     // Gather player's Personal Best
     std::string pbStr = "(";
@@ -837,14 +839,14 @@ void HexagonGame::death(bool mForce)
     const bool localNewBest =
         checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
 
-    // TODO
+    // TODO (P2): for testing
     const std::string rfName = assets.anyLocalProfileActive()
                                    ? assets.getCurrentLocalProfile().getName()
                                    : "no_profile";
 
     const replay_file rf{
         ._version{0},
-        ._player_name{rfName}, // TODO
+        ._player_name{rfName},
         ._seed{lastSeed},
         ._data{lastReplayData},
         ._pack_id{packId},
@@ -871,7 +873,7 @@ void HexagonGame::death(bool mForce)
         }
     }
 
-    // TODO: more options? Always save replay? Prompt?
+    // TODO (P2): more options? Always save replay? Prompt?
     if(Config::getSaveLocalBestReplayToFile() && localNewBest)
     {
         const std::string filename = rf.create_filename();
@@ -963,7 +965,7 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
 HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 {
-    // TODO
+    // TODO (P2): for testing
     if(!assets.anyLocalProfileActive())
     {
         return CheckSaveScoreResult::Invalid;
@@ -1151,7 +1153,7 @@ void HexagonGame::playLevelMusic()
         const MusicData::Segment segment =
             musicData.playRandomSegment(getPackId(), audio);
 
-        // TODO: problems with addHash in headless mode:
+        // TODO (P1): problems with addHash in headless mode:
         status.beatPulseDelay += segment.beatPulseDelayOffset;
     }
 }

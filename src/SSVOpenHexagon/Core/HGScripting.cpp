@@ -88,7 +88,7 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_isKeyPressed",
         [this](int mKey)
         {
-            // TODO: this is not saved in replays. Deprecate?
+            // TODO (P2): this is not saved in replays. Deprecate?
 
             return window != nullptr &&
                    window->getInputState()[ssvs::KKey(mKey)];
@@ -121,7 +121,7 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_isMouseButtonPressed",
         [this](int mKey)
         {
-            // TODO: this is not saved in replays. Deprecate?
+            // TODO (P2): this is not saved in replays. Deprecate?
 
             return window != nullptr &&
                    window->getInputState()[ssvs::MBtn(mKey)];
@@ -909,7 +909,7 @@ void HexagonGame::initLua_LevelControl()
     addLuaFn(lua, "l_setRotation", //
         [this](float mValue)
         {
-            // TODO: might break replays
+            // TODO (P2): might break replays?
             if(backgroundCamera.has_value())
             {
                 backgroundCamera->setRotation(mValue);
@@ -921,7 +921,7 @@ void HexagonGame::initLua_LevelControl()
     addLuaFn(lua, "l_getRotation", //
         [this]
         {
-            // TODO: might break replays
+            // TODO (P2): might break replays?
             return backgroundCamera.has_value()
                        ? backgroundCamera->getRotation()
                        : 0.f;
@@ -1198,18 +1198,14 @@ void HexagonGame::initLua_StyleControl()
         return std::tuple<int, int, int, int>{c.r, c.g, c.b, c.a};
     };
 
-    // TODO:
     const auto sdColorGetter =
         [this, &colorToTuple](const char* name, const char* docName, auto pmf)
     {
-        std::string docString = "Return the current ";
-        docString += docName;
-        docString += " color computed by the level style.";
-
         addLuaFn(lua, name,
             [this, &colorToTuple, pmf]
             { return colorToTuple((styleData.*pmf)()); })
-            .doc(docString);
+            .doc(Utils::concat("Return the current ", docName,
+                " color computed by the level style."));
     };
 
     sdColorGetter("s_getMainColor", "main", &StyleData::getMainColor);

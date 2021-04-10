@@ -13,6 +13,7 @@
 #include "SSVOpenHexagon/Data/PackInfo.hpp"
 
 #include <SSVStart/Assets/Assets.hpp>
+#include <SSVStart/Assets/AssetManager.hpp>
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -232,7 +233,6 @@ public:
     void createLocalProfile(const std::string& mName);
     [[nodiscard]] std::size_t getLocalProfilesSize();
     [[nodiscard]] std::vector<std::string> getLocalProfileNames();
-    [[nodiscard]] std::string getFirstLocalProfileName();
 
     [[nodiscard]] bool pIsValidLocalProfile() const
     {
