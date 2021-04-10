@@ -867,12 +867,17 @@ void HexagonServer::runIteration_PurgeTokens()
                 return true;
             }
 
-            if(!c._gameStatus.has_value())
+            const auto discard = [&](const auto&... reason)
             {
                 SSVOH_SLOG << "Discarding replay from client '" << clientAddr
-                           << "', no game was started\n";
+                           << "', " << Utils::concat(reason...) << '\n';
 
                 return true;
+            };
+
+            if(!c._gameStatus.has_value())
+            {
+                return discard("no game started");
             }
 
             const hg::replay_file& rf = ctsp.replayFile;
@@ -881,18 +886,19 @@ void HexagonServer::runIteration_PurgeTokens()
 
             if(!assets.isValidPackId(rf._pack_id))
             {
-                SSVOH_SLOG << "Discarding replay from client '" << clientAddr
-                           << "', invalid pack id '" << rf._pack_id << "'\n";
-
-                return true;
+                return discard("invalid pack id '", rf._pack_id, '\'');
             }
 
             if(!assets.isValidLevelId(rf._level_id))
             {
-                SSVOH_SLOG << "Discarding replay from client '" << clientAddr
-                           << "', invalid level id '" << rf._level_id << "'\n";
+                return discard("invalid level id '", rf._level_id, '\'');
+            }
 
-                return true;
+            const LevelData& levelData = assets.getLevelData(rf._level_id);
+
+            if(levelData.unscored)
+            {
+                return discard("unscored level id '", rf._level_id, '\'');
             }
 
             const std::string levelValidator =
@@ -916,12 +922,10 @@ void HexagonServer::runIteration_PurgeTokens()
             SSVOH_SLOG << "Elapsed request time: " << elapsedSecs << '\n'
                        << "Difference: " << difference << '\n';
 
-            // TODO (P0): doesn't work with levels that have pauses (e.g.
-            // tutorial, which should be non-rankable)
+            // TODO (P0): doesn't work with levels that have pauses
             if(difference > 3.5) // TODO (P1): something smarter here?
             {
-                SSVOH_SLOG << "Replay invalid, difference too large\n";
-                return true;
+                return discard("difference too large");
             }
 
             SSVOH_SLOG << "Replay valid, adding to database\n";

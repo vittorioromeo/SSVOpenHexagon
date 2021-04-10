@@ -2,9 +2,9 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
-#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
+
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
@@ -237,6 +237,113 @@ HGAssets::~HGAssets()
 //**********************************************
 // LOAD
 
+[[nodiscard]] LoadInfo& HGAssets::getLoadResults()
+{
+    return loadInfo;
+}
+
+[[nodiscard]] auto& HGAssets::operator()()
+{
+    return assetManager;
+}
+
+// ----------------------------------------------------------------------------
+
+template <typename T>
+[[nodiscard]] T& HGAssets::get(const std::string& mId)
+{
+    return assetManager.get<T>(mId);
+}
+
+template sf::Texture& HGAssets::get(const std::string& mId);
+template sf::Font& HGAssets::get(const std::string& mId);
+
+// ----------------------------------------------------------------------------
+
+[[nodiscard]] const std::unordered_map<std::string, LevelData>&
+HGAssets::getLevelDatas()
+{
+    return levelDatas;
+}
+
+[[nodiscard]] bool HGAssets::isValidLevelId(
+    const std::string& mLevelId) const noexcept
+{
+    return levelDatas.find(mLevelId) != levelDatas.end();
+}
+
+[[nodiscard]] const LevelData& HGAssets::getLevelData(
+    const std::string& mAssetId) const
+{
+    SSVOH_ASSERT(isValidLevelId(mAssetId));
+    return levelDatas.at(mAssetId);
+}
+
+[[nodiscard]] bool HGAssets::packHasLevels(const std::string& mPackId)
+{
+    return levelDataIdsByPack.count(mPackId) > 0;
+}
+
+[[nodiscard]] const std::vector<std::string>& HGAssets::getLevelIdsByPack(
+    const std::string& mPackId)
+{
+    SSVOH_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
+    return levelDataIdsByPack.at(mPackId);
+}
+
+[[nodiscard]] const std::unordered_map<std::string, PackData>&
+HGAssets::getPacksData()
+{
+    return packDatas;
+}
+
+[[nodiscard]] bool HGAssets::isValidPackId(
+    const std::string& mPackId) const noexcept
+{
+    return packDatas.find(mPackId) != packDatas.end();
+}
+
+[[nodiscard]] const PackData& HGAssets::getPackData(const std::string& mPackId)
+{
+    SSVOH_ASSERT(isValidPackId(mPackId));
+    return packDatas.at(mPackId);
+}
+
+[[nodiscard]] const std::vector<PackInfo>&
+HGAssets::getPackInfos() const noexcept
+{
+    return packInfos;
+}
+
+[[nodiscard]] const std::vector<PackInfo>&
+HGAssets::getSelectablePackInfos() const noexcept
+{
+    return selectablePackInfos;
+}
+
+[[nodiscard]] const std::unordered_map<std::string, PackData>&
+HGAssets::getPackDatas() const noexcept
+{
+    return packDatas;
+}
+
+[[nodiscard]] const PackData* HGAssets::findPackData(
+    const std::string& mPackDisambiguator, const std::string& mPackName,
+    const std::string& mPackAuthor) const noexcept
+{
+    for(const auto& [packId, packData] : packDatas)
+    {
+        if(packData.disambiguator == mPackDisambiguator && //
+            packData.name == mPackName &&                  //
+            packData.author == mPackAuthor)
+        {
+            return &packData;
+        }
+    }
+
+    return nullptr;
+}
+
 [[nodiscard]] bool HGAssets::loadAssets()
 {
     if(!ssvufs::Path{"Packs/"}.exists<ssvufs::Type::Folder>())
@@ -368,12 +475,9 @@ void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
     {
-
-
         auto& music(assetManager.load<sf::Music>(
             Utils::concat(mPackId, '_', p.getFileNameNoExtensions()), p));
 
-        music.setVolume(Config::getMusicVolume());
         music.setLoop(true);
 
         ++loadInfo.assets;
@@ -485,6 +589,7 @@ void HGAssets::saveCurrentLocalProfile()
 void HGAssets::saveAllProfiles()
 {
     ssvuj::Obj currentVersion;
+
     ssvuj::arch(currentVersion, "major", GAME_VERSION.major);
     ssvuj::arch(currentVersion, "minor", GAME_VERSION.minor);
     ssvuj::arch(currentVersion, "micro", GAME_VERSION.micro);
@@ -636,7 +741,6 @@ void HGAssets::saveAllProfiles()
             if(!assetManager.has<sf::Music>(temp))
             {
                 auto& music(assetManager.load<sf::Music>(temp, p));
-                music.setVolume(Config::getMusicVolume());
                 music.setLoop(true);
             }
         }
@@ -782,7 +886,6 @@ void HGAssets::saveAllProfiles()
             {
                 auto& music(
                     assetManager.load<sf::Music>(assetId, musicFile[0]));
-                music.setVolume(Config::getMusicVolume());
                 music.setLoop(true);
                 output += "new music file " + levelData.musicId +
                           ".ogg successfully loaded\n";
@@ -909,6 +1012,52 @@ void HGAssets::createLocalProfile(const std::string& mName)
         result.emplace_back(pair.second.getName());
     }
     return result;
+}
+
+
+[[nodiscard]] bool HGAssets::pIsValidLocalProfile() const
+{
+    return currentProfilePtr != nullptr;
+}
+
+[[nodiscard]] std::string HGAssets::pGetName() const
+{
+    return getCurrentLocalProfile().getName();
+}
+
+[[nodiscard]] const std::vector<std::string>& HGAssets::pGetTrackedNames() const
+{
+    return getCurrentLocalProfile().getTrackedNames();
+}
+
+void HGAssets::pClearTrackedNames()
+{
+    getCurrentLocalProfile().clearTrackedNames();
+}
+
+void HGAssets::pAddTrackedName(const std::string& mName)
+{
+    getCurrentLocalProfile().addTrackedName(mName);
+}
+
+void HGAssets::pSaveCurrent()
+{
+    saveCurrentLocalProfile();
+}
+
+void HGAssets::pSaveAll()
+{
+    saveAllProfiles();
+}
+
+void HGAssets::pSetCurrent(const std::string& mName)
+{
+    setCurrentLocalProfile(mName);
+}
+
+void HGAssets::pCreate(const std::string& mName)
+{
+    createLocalProfile(mName);
 }
 
 [[nodiscard]] sf::SoundBuffer* HGAssets::getSoundBuffer(

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 #include "SSVOpenHexagon/Data/PackData.hpp"
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
@@ -15,9 +14,7 @@
 #include <SSVStart/Assets/Assets.hpp>
 #include <SSVStart/Assets/AssetManager.hpp>
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-
-#include <SFML/System.hpp>
+#include <SSVUtils/Core/FileSystem/Path.hpp>
 
 #include <unordered_map>
 #include <map>
@@ -35,9 +32,7 @@ class Music;
 namespace hg {
 
 namespace Steam {
-
 class steam_manager;
-
 }
 
 class MusicData;
@@ -71,130 +66,51 @@ private:
 private:
     LoadInfo loadInfo;
 
-    [[nodiscard]] LevelData& getEditLevelData(const std::string& mAssetId)
-    {
-        const auto it = levelDatas.find(mAssetId);
-        if(it == levelDatas.end())
-        {
-            ssvu::lo("getLevelData")
-                << "Asset '" << mAssetId << "' not found\n";
-
-            SSVOH_ASSERT(!levelDatas.empty());
-            return levelDatas.begin()->second;
-        }
-
-        return it->second;
-    }
-
 public:
     HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);
 
     ~HGAssets();
 
-    [[nodiscard]] LoadInfo& getLoadResults()
-    {
-        return loadInfo;
-    }
+    [[nodiscard]] LoadInfo& getLoadResults();
 
-    [[nodiscard]] auto& operator()()
-    {
-        return assetManager;
-    }
+    [[nodiscard]] auto& operator()();
 
     template <typename T>
-    [[nodiscard]] T& get(const std::string& mId)
-    {
-        return assetManager.get<T>(mId);
-    }
+    [[nodiscard]] T& get(const std::string& mId);
 
     [[nodiscard]] const std::unordered_map<std::string, LevelData>&
-    getLevelDatas()
-    {
-        return levelDatas;
-    }
+    getLevelDatas();
 
     [[nodiscard]] bool isValidLevelId(
-        const std::string& mLevelId) const noexcept
-    {
-        return levelDatas.find(mLevelId) != levelDatas.end();
-    }
-
-    [[nodiscard]] const LevelData& getLevelData(const std::string& mAssetId)
-    {
-        SSVOH_ASSERT(isValidLevelId(mAssetId));
-        return getEditLevelData(mAssetId);
-    }
+        const std::string& mLevelId) const noexcept;
 
     [[nodiscard]] const LevelData& getLevelData(
-        const std::string& mPackId, const std::string& mId)
-    {
-        return getLevelData(mPackId + "_" + mId);
-    }
+        const std::string& mAssetId) const;
 
-    [[nodiscard]] bool packHasLevels(const std::string& mPackId)
-    {
-        return levelDataIdsByPack.count(mPackId) > 0;
-    }
+    [[nodiscard]] bool packHasLevels(const std::string& mPackId);
 
     [[nodiscard]] const std::vector<std::string>& getLevelIdsByPack(
-        const std::string& mPackId)
-    {
-        SSVOH_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
-        return levelDataIdsByPack.at(mPackId);
-    }
+        const std::string& mPackId);
 
     [[nodiscard]] const std::unordered_map<std::string, PackData>&
-    getPacksData()
-    {
-        return packDatas;
-    }
+    getPacksData();
 
-    [[nodiscard]] bool isValidPackId(const std::string& mPackId) const noexcept
-    {
-        return packDatas.find(mPackId) != packDatas.end();
-    }
+    [[nodiscard]] bool isValidPackId(const std::string& mPackId) const noexcept;
 
-    [[nodiscard]] const PackData& getPackData(const std::string& mPackId)
-    {
-        SSVOH_ASSERT(isValidPackId(mPackId));
-        return packDatas.at(mPackId);
-    }
+    [[nodiscard]] const PackData& getPackData(const std::string& mPackId);
 
-    [[nodiscard]] const std::vector<PackInfo>& getPackInfos() const noexcept
-    {
-        return packInfos;
-    }
+    [[nodiscard]] const std::vector<PackInfo>& getPackInfos() const noexcept;
 
     [[nodiscard]] const std::vector<PackInfo>&
-    getSelectablePackInfos() const noexcept
-    {
-        return selectablePackInfos;
-    }
+    getSelectablePackInfos() const noexcept;
 
     [[nodiscard]] const std::unordered_map<std::string, PackData>&
-    getPackDatas() const noexcept
-    {
-        return packDatas;
-    }
+    getPackDatas() const noexcept;
 
     [[nodiscard]] const PackData* findPackData(
         const std::string& mPackDisambiguator, const std::string& mPackName,
-        const std::string& mPackAuthor) const noexcept
-    {
-        for(const auto& [packId, packData] : packDatas)
-        {
-            if(packData.disambiguator == mPackDisambiguator && //
-                packData.name == mPackName &&                  //
-                packData.author == mPackAuthor)
-            {
-                return &packData;
-            }
-        }
-
-        return nullptr;
-    }
-
+        const std::string& mPackAuthor) const noexcept;
 
     [[nodiscard]] bool loadAssets();
 
@@ -234,53 +150,18 @@ public:
     [[nodiscard]] std::size_t getLocalProfilesSize();
     [[nodiscard]] std::vector<std::string> getLocalProfileNames();
 
-    [[nodiscard]] bool pIsValidLocalProfile() const
-    {
-        return currentProfilePtr != nullptr;
-    }
+    [[nodiscard]] bool pIsValidLocalProfile() const;
+    [[nodiscard]] std::string pGetName() const;
+    [[nodiscard]] const std::vector<std::string>& pGetTrackedNames() const;
 
-    [[nodiscard]] std::string pGetName() const
-    {
-        return getCurrentLocalProfile().getName();
-    }
-
-    [[nodiscard]] const std::vector<std::string>& pGetTrackedNames() const
-    {
-        return getCurrentLocalProfile().getTrackedNames();
-    }
-
-    void pClearTrackedNames()
-    {
-        getCurrentLocalProfile().clearTrackedNames();
-    }
-
-    void pAddTrackedName(const std::string& mName)
-    {
-        getCurrentLocalProfile().addTrackedName(mName);
-    }
-
-    void pSaveCurrent()
-    {
-        saveCurrentLocalProfile();
-    }
-
-    void pSaveAll()
-    {
-        saveAllProfiles();
-    }
-
-    void pSetCurrent(const std::string& mName)
-    {
-        setCurrentLocalProfile(mName);
-    }
-
-    void pCreate(const std::string& mName)
-    {
-        createLocalProfile(mName);
-    }
+    void pClearTrackedNames();
+    void pAddTrackedName(const std::string& mName);
+    void pSaveCurrent();
+    void pSaveAll();
+    void pSetCurrent(const std::string& mName);
+    void pCreate(const std::string& mName);
 
     [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const std::string& assetId);
-
     [[nodiscard]] sf::Music* getMusic(const std::string& assetId);
 };
 

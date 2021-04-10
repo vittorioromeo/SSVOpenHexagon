@@ -7,5 +7,6 @@
     "selectable": true,
     "styleId": "babysteps",
     "musicId": "drFinkelfracken",
-    "luaFile": "Scripts/Levels/babysteps.lua"
+    "luaFile": "Scripts/Levels/babysteps.lua",
+    "unscored": true
 }

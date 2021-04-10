@@ -29,7 +29,8 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath,
       luaScriptPath{packPath + ssvuj::getExtr<std::string>(
                                    mRoot, "luaFile", "nullLuaPath")},
       difficultyMults{
-          ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {})}
+          ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {})},
+      unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
 {
     difficultyMults.emplace_back(1.f);
     ssvu::sort(difficultyMults);
