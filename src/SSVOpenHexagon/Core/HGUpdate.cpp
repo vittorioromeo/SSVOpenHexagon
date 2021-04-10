@@ -572,7 +572,14 @@ void HexagonGame::updateInput()
         mustStart = true;
     }
 
-    if(executeRandomInputs) // TODO (P2): For testing
+    if(alwaysSpinRight)
+    {
+        inputImplCCW = false;
+        inputImplCW = true;
+        inputSwap = false;
+        inputFocused = false;
+    }
+    else if(executeRandomInputs) // TODO (P2): For testing
     {
         static std::random_device rd;
         static std::mt19937 en(rd());

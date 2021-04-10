@@ -40,124 +40,58 @@ try
         [](const std::string&) -> sf::Music* { return nullptr; }        //
     };
 
-    // with a different hexagon game
-    for(int i = 0; i < 100; ++i)
+    const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)
     {
-        auto hg = std::make_unique<hg::HexagonGame>(nullptr /* steamManager */,
-            nullptr /* discordManager */, *assets, audio, nullptr /* window */,
+        hg::HexagonGame hg(nullptr /* steamManager */,
+            nullptr /* discordManager */, *assets, audio, gw,
             nullptr /* client */);
 
-        hg->executeRandomInputs = true;
+        if(getRndBool())
+        {
+            hg.executeRandomInputs = true;
+        }
+        else
+        {
+            hg.alwaysSpinRight = true;
+        }
 
-        double score;
         double score2;
 
-        hg->onReplayCreated = [&](const hg::replay_file& newRf)
+        hg.onReplayCreated = [&](const hg::replay_file& newRf)
         {
-            auto hg2 = std::make_unique<hg::HexagonGame>(
-                nullptr /* steamManager */, nullptr /* discordManager */,
-                *assets, audio, nullptr /* window */, nullptr /* client */);
+            if(differentHG)
+            {
+                hg::HexagonGame hg2(nullptr /* steamManager */,
+                    nullptr /* discordManager */, *assets, audio,
+                    nullptr /* window */, nullptr /* client */);
 
-            score2 = hg2->runReplayUntilDeathAndGetScore(newRf);
+                score2 = hg2.runReplayUntilDeathAndGetScore(newRf);
+            }
+            else
+            {
+                score2 = hg.runReplayUntilDeathAndGetScore(newRf);
+            }
         };
 
-        hg->newGame(packs[i % packs.size()], levels[i % levels.size()],
+        hg.newGame(packs[i % packs.size()], levels[i % levels.size()],
             true /* firstPlay */, 1.f /* diffMult */,
             /* mExecuteLastReplay */ false);
 
-        hg->setMustStart(true);
-        score = hg->executeGameUntilDeath();
+        hg.setMustStart(true);
+        const double score = hg.executeGameUntilDeath();
 
         std::cerr << score << " == " << score2 << std::endl;
         TEST_ASSERT_EQ(score, score2);
-    }
+    };
 
-    // with a different hexagon game and window
+    ssvs::GameWindow gw;
+
     for(int i = 0; i < 100; ++i)
     {
-        ssvs::GameWindow gw;
-
-        auto hg = std::make_unique<hg::HexagonGame>(nullptr /* steamManager */,
-            nullptr /* discordManager */, *assets, audio, &gw,
-            nullptr /* client */);
-
-        hg->executeRandomInputs = true;
-
-        double score;
-        double score2;
-
-        hg->onReplayCreated = [&](const hg::replay_file& newRf)
-        {
-            auto hg2 = std::make_unique<hg::HexagonGame>(
-                nullptr /* steamManager */, nullptr /* discordManager */,
-                *assets, audio, nullptr /* window */, nullptr /* client */);
-
-            score2 = hg2->runReplayUntilDeathAndGetScore(newRf);
-        };
-
-        hg->newGame(packs[i % packs.size()], levels[i % levels.size()],
-            true /* firstPlay */, 1.f /* diffMult */,
-            /* mExecuteLastReplay */ false);
-
-        hg->setMustStart(true);
-        score = hg->executeGameUntilDeath();
-
-        std::cerr << score << " == " << score2 << std::endl;
-        TEST_ASSERT_EQ(score, score2);
-    }
-
-    // with same hexagon game
-    for(int i = 0; i < 100; ++i)
-    {
-        auto hg = std::make_unique<hg::HexagonGame>(nullptr /* steamManager */,
-            nullptr /* discordManager */, *assets, audio, nullptr /* window */,
-            nullptr /* client */);
-
-        hg->executeRandomInputs = true;
-
-        double score;
-        double score2;
-
-        hg->onReplayCreated = [&](const hg::replay_file& newRf)
-        { score2 = hg->runReplayUntilDeathAndGetScore(newRf); };
-
-        hg->newGame(packs[i % packs.size()], levels[i % levels.size()],
-            true /* firstPlay */, 1.f /* diffMult */,
-            /* mExecuteLastReplay */ false);
-
-        hg->setMustStart(true);
-        score = hg->executeGameUntilDeath();
-
-        std::cerr << score << " == " << score2 << std::endl;
-        TEST_ASSERT_EQ(score, score2);
-    }
-
-    // with same hexagon game and window
-    for(int i = 0; i < 100; ++i)
-    {
-        ssvs::GameWindow gw;
-
-        auto hg = std::make_unique<hg::HexagonGame>(nullptr /* steamManager */,
-            nullptr /* discordManager */, *assets, audio, &gw,
-            nullptr /* client */);
-
-        hg->executeRandomInputs = true;
-
-        double score;
-        double score2;
-
-        hg->onReplayCreated = [&](const hg::replay_file& newRf)
-        { score2 = hg->runReplayUntilDeathAndGetScore(newRf); };
-
-        hg->newGame(packs[i % packs.size()], levels[i % levels.size()],
-            true /* firstPlay */, 1.f /* diffMult */,
-            /* mExecuteLastReplay */ false);
-
-        hg->setMustStart(true);
-        score = hg->executeGameUntilDeath();
-
-        std::cerr << score << " == " << score2 << std::endl;
-        TEST_ASSERT_EQ(score, score2);
+        doTest(i, false, nullptr);
+        doTest(i, true, nullptr);
+        doTest(i, false, &gw);
+        doTest(i, true, &gw);
     }
 
     return 0;
