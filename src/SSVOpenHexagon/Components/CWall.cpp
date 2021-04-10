@@ -11,8 +11,8 @@ CWall::CWall(const unsigned int sides, const float wallAngleLeft,
     const float wallAngleRight, const float wallSkewLeft,
     const float wallSkewRight, const sf::Vector2f& centerPos, const int side,
     const float thickness, const float distance, const SpeedData& speed,
-    const SpeedData& curve)
-    : _speed{speed}, _curve{curve}, _hueMod{0}, _killed{false}
+    const SpeedData& curve, const float hueMod)
+    : _speed{speed}, _curve{curve}, _hueMod{hueMod}, _killed{false}
 {
     const float div{ssvu::tau / sides * 0.5f};
     const float angle{div * 2.f * side};
