@@ -304,7 +304,7 @@ void CCustomWallManager::setVertexColor4Same(
     _customWalls[cwHandle].setVertexColor(3, color);
 }
 
-// TODO:
+// TODO (P2): implement
 [[nodiscard]] bool CCustomWallManager::isOverlappingPlayer(
     const CCustomWallHandle cwHandle)
 {
@@ -313,7 +313,6 @@ void CCustomWallManager::setVertexColor4Same(
         return false;
     }
 
-    // TODO:
     return false; // _customWalls[cwHandle].isOverlappingPlayer();
 }
 

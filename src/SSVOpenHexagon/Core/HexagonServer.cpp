@@ -918,20 +918,18 @@ void HexagonServer::runIteration_PurgeTokens()
 
             // TODO (P0): doesn't work with levels that have pauses (e.g.
             // tutorial, which should be non-rankable)
-            // TODO: something smarter here?
-            if(difference > 3.5)
+            if(difference > 3.5) // TODO (P1): something smarter here?
             {
                 SSVOH_SLOG << "Replay invalid, difference too large\n";
                 return true;
             }
 
-            // TODO:
             SSVOH_SLOG << "Replay valid, adding to database\n";
 
             Database::addScore(levelValidator, Database::nowTimestamp(),
                 c._loginData->_steamId, score);
 
-            return true; // TODO: reply?
+            return true;
         },
 
         [&](const CTSPRequestOwnScore& ctsp)
@@ -1053,7 +1051,7 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
         static bool& globalRunning = _running;
         static sf::TcpListener& globalListener = _listener;
 
-        // TODO: UB
+        // TODO (P2): UB
         std::signal(SIGINT,
             [](int s)
             {

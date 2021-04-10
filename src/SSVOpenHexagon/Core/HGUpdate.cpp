@@ -331,7 +331,7 @@ void HexagonGame::update(ssvu::FT mFT)
                 executeLastReplay);
         }
 
-// TODO: score invalidation
+// TODO (P2): score invalidation
 #if 0
         if(!status.scoreInvalid && Config::getOfficial())
         {

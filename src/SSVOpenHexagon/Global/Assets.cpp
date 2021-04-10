@@ -211,20 +211,18 @@ HGAssets::~HGAssets()
     catch(const std::runtime_error& mEx)
     {
         errorMessage =
-            "Exception during asset loading: " + std::string(mEx.what()) + "\n";
+            Utils::concat("Exception during asset loading: ", mEx.what(), '\n');
+
         loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
-
         ssvu::lo("FATAL ERROR") << errorMessage;
-
         return false;
     }
     catch(...)
     {
         errorMessage = "Exception during asset loading: unknown.\n";
+
         loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
-
         ssvu::lo("FATAL ERROR") << errorMessage;
-
         return false;
     }
 
@@ -250,14 +248,13 @@ HGAssets::~HGAssets()
     std::string errorMessage;
 
     // ------------------------------------------------------------------------
-    // Load packs from `Packs/` folder.
-    for(const auto& packPath :
-        ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::Folder>("Packs/"))
+    const auto tryLoadPackFromPath = [&](const auto& packPath)
     {
         if(!loadPackData(packPath))
         {
             errorMessage =
-                "Error loading pack data '" + packPath.getStr() + "'\n";
+                Utils::concat("Error loading pack data '", packPath, '\n');
+
             loadInfo.errorMessages.emplace_back(errorMessage);
             ssvu::lo("::loadAssets") << errorMessage;
         }
@@ -265,30 +262,21 @@ HGAssets::~HGAssets()
         {
             ++loadInfo.packs;
         }
+    };
+
+    // ------------------------------------------------------------------------
+    // Load packs from `Packs/` folder.
+    for(const auto& packPath :
+        ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::Folder>("Packs/"))
+    {
+        tryLoadPackFromPath(packPath);
     }
 
     // ------------------------------------------------------------------------
     // Load packs from Steam workshop.
     if(steamManager != nullptr)
     {
-        steamManager->for_workshop_pack_folders(
-            [&](const std::string& folderPath)
-            {
-                const ssvufs::Path packPath{folderPath};
-
-                if(!loadPackData(packPath))
-                {
-                    errorMessage =
-                        "Error loading pack data '" + packPath.getStr() + "'\n";
-                    loadInfo.errorMessages.emplace_back(errorMessage);
-                    ssvu::lo("::loadAssets")
-                        << "Error loading pack data '" << packPath << "'\n";
-                }
-                else
-                {
-                    ++loadInfo.packs;
-                }
-            });
+        steamManager->for_workshop_pack_folders(tryLoadPackFromPath);
     }
 
     // ------------------------------------------------------------------------
@@ -297,10 +285,11 @@ HGAssets::~HGAssets()
     {
         if(!loadPackInfo(packData))
         {
-            errorMessage = "Error loading pack info '" + packId + "'\n";
+            errorMessage =
+                Utils::concat("Error loading pack info '", packId, '\n');
+
             loadInfo.errorMessages.emplace_back(errorMessage);
-            ssvu::lo("::loadAssets")
-                << "Error loading pack info '" << packId << "'\n";
+            ssvu::lo("::loadAssets") << errorMessage;
         }
     }
 
@@ -334,12 +323,11 @@ HGAssets::~HGAssets()
                 continue;
             }
 
-            const std::string errorMsg =
-                Utils::concat("Missing pack dependency '", pd.name,
-                    "' for pack '", packData.name, "'\n");
+            errorMessage = Utils::concat("Missing pack dependency '", pd.name,
+                "' for pack '", packData.name, "'\n");
 
-            loadInfo.errorMessages.emplace_back(errorMsg);
-            ssvu::lo("::loadAssets") << errorMsg;
+            loadInfo.errorMessages.emplace_back(errorMessage);
+            ssvu::lo("::loadAssets") << errorMessage;
 
             packIdsWithMissingDependencies.emplace(packId);
         }
@@ -369,7 +357,8 @@ void HGAssets::loadCustomSounds(
 {
     for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
     {
-        assetManager.load<sf::SoundBuffer>(mPackId + "_" + p.getFileName(), p);
+        assetManager.load<sf::SoundBuffer>(
+            Utils::concat(mPackId, '_', p.getFileName()), p);
 
         ++loadInfo.assets;
     }
@@ -379,8 +368,10 @@ void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
     {
+
+
         auto& music(assetManager.load<sf::Music>(
-            mPackId + "_" + p.getFileNameNoExtensions(), p));
+            Utils::concat(mPackId, '_', p.getFileNameNoExtensions()), p));
 
         music.setVolume(Config::getMusicVolume());
         music.setLoop(true);
@@ -399,7 +390,7 @@ void HGAssets::loadMusicData(
 
         MusicData musicData{Utils::loadMusicFromJson(object)};
         musicDataMap.emplace(
-            mPackId + "_" + musicData.id, std::move(musicData));
+            Utils::concat(mPackId, '_', musicData.id), std::move(musicData));
 
         ++loadInfo.assets;
     }
@@ -415,7 +406,7 @@ void HGAssets::loadStyleData(
 
         StyleData styleData{object};
         styleDataMap.emplace(
-            mPackId + "_" + styleData.id, std::move(styleData));
+            Utils::concat(mPackId, '_', styleData.id), std::move(styleData));
 
         ++loadInfo.assets;
     }
@@ -430,10 +421,10 @@ void HGAssets::loadLevelData(
         loadInfo.addFormattedError(error);
 
         LevelData levelData{object, mPath, mPackId};
+        std::string assetId = Utils::concat(mPackId, '_', levelData.id);
 
-        const std::string assetId = mPackId + "_" + levelData.id;
         levelDataIdsByPack[mPackId].emplace_back(assetId);
-        levelDatas.emplace(assetId, std::move(levelData));
+        levelDatas.emplace(std::move(assetId), std::move(levelData));
 
         ++loadInfo.levels;
     }
@@ -528,7 +519,7 @@ void HGAssets::saveAllProfiles()
 //**********************************************
 // GET
 
-const MusicData& HGAssets::getMusicData(
+[[nodiscard]] const MusicData& HGAssets::getMusicData(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string assetId = mPackId + "_" + mId;
@@ -545,7 +536,7 @@ const MusicData& HGAssets::getMusicData(
     return it->second;
 }
 
-const StyleData& HGAssets::getStyleData(
+[[nodiscard]] const StyleData& HGAssets::getStyleData(
     const std::string& mPackId, const std::string& mId)
 {
     const std::string assetId = mPackId + "_" + mId;
@@ -565,7 +556,7 @@ const StyleData& HGAssets::getStyleData(
 //**********************************************
 // RELOAD
 
-std::string HGAssets::reloadPack(
+[[nodiscard]] std::string HGAssets::reloadPack(
     const std::string& mPackId, const std::string& mPath)
 {
     std::string temp, output;
@@ -674,7 +665,7 @@ std::string HGAssets::reloadPack(
     return output;
 }
 
-std::string HGAssets::reloadLevel(const std::string& mPackId,
+[[nodiscard]] std::string HGAssets::reloadLevel(const std::string& mPackId,
     const std::string& mPath, const std::string& mId)
 {
     std::string temp, output;
@@ -888,7 +879,7 @@ const ProfileData* HGAssets::getLocalProfileByName(
     return &profileDataMap.find(mName)->second;
 }
 
-std::string HGAssets::getCurrentLocalProfileFilePath()
+[[nodiscard]] std::string HGAssets::getCurrentLocalProfileFilePath()
 {
     return "Profiles/" + currentProfilePtr->getName() + ".json";
 }
@@ -905,12 +896,12 @@ void HGAssets::createLocalProfile(const std::string& mName)
     loadLocalProfiles();
 }
 
-std::size_t HGAssets::getLocalProfilesSize()
+[[nodiscard]] std::size_t HGAssets::getLocalProfilesSize()
 {
     return profileDataMap.size();
 }
 
-std::vector<std::string> HGAssets::getLocalProfileNames()
+[[nodiscard]] std::vector<std::string> HGAssets::getLocalProfileNames()
 {
     std::vector<std::string> result;
     for(auto& pair : profileDataMap)
@@ -918,11 +909,6 @@ std::vector<std::string> HGAssets::getLocalProfileNames()
         result.emplace_back(pair.second.getName());
     }
     return result;
-}
-
-std::string HGAssets::getFirstLocalProfileName()
-{
-    return begin(profileDataMap)->second.getName();
 }
 
 [[nodiscard]] sf::SoundBuffer* HGAssets::getSoundBuffer(

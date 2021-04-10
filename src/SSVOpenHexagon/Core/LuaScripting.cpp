@@ -29,8 +29,8 @@ template <typename F>
 Utils::LuaMetadataProxy addLuaFn(
     Lua::LuaContext& lua, const std::string& name, F&& f)
 {
-    // TODO: does this handle duplicates properly? Both menu and game call the
-    // same thing.
+    // TODO (P2): does this handle duplicates properly? Both menu and game call
+    // the same thing.
 
     lua.writeVariable(name, std::forward<F>(f));
     return Utils::LuaMetadataProxy{
@@ -103,7 +103,7 @@ static void initRandom(Lua::LuaContext& lua, random_number_generator& rng)
     // Initialize Lua random seed from random generator one:
     try
     {
-        // TODO: likely not needed anymore
+        // TODO (P2): likely not needed anymore
         lua.executeCode("math.randomseed(u_getAttemptRandomSeed())\n");
     }
     catch(...)
@@ -457,7 +457,7 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "Given the custom wall represented by `$0`, return the position of "
             "its vertics with indices `0`, `1`, `2`, and `3`, as a tuple.");
 
-    // TODO:
+    // TODO (P2): implement
     /*
     addLuaFn(lua, "cw_isOverlappingPlayer", //
         [&cwManager](CCustomWallHandle cwHandle) -> bool {

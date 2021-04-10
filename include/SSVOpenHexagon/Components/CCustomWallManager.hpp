@@ -22,7 +22,7 @@ class CPlayer;
 
 class CCustomWallManager
 {
-    // TODO: consider using a sparse integer set
+    // TODO (P2): consider using a sparse integer set
 
     std::vector<CCustomWall> _customWalls;
     std::vector<CCustomWallHandle> _freeHandles;

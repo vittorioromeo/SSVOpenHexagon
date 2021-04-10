@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Basic signal handling
-    // TODO: UB
+    // TODO (P2): UB
     std::signal(SIGINT,
         [](int s)
         {
@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
         {
             static ssvs::GameWindow& globalWindow = *window;
 
-            // TODO: UB
+            // TODO (P2): UB
             std::signal(SIGINT,
                 [](int s)
                 {
@@ -466,10 +466,10 @@ int main(int argc, char* argv[])
         }
         else
         {
-            // TODO: code repetition, cleanup
+            // TODO (P2): code repetition, cleanup
             if(!replayFilename.has_value())
             {
-                std::cout << "TODO: Running in headless mode without replay...?"
+                std::cout << "Running in headless mode without replay...?"
                           << std::endl;
             }
             else
@@ -481,7 +481,7 @@ int main(int argc, char* argv[])
                         << "Playing replay file in headless mode '"
                         << *replayFilename << "'\n";
 
-                    // TODO: check level validity
+                    // TODO (P2): check level validity
 
                     std::cout << "Player died.\nFinal time: "
                               << hg->runReplayUntilDeathAndGetScore(rf) << '\n';
