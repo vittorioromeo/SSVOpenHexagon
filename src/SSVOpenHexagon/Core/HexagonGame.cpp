@@ -861,7 +861,7 @@ void HexagonGame::death(bool mForce)
         onReplayCreated(rf);
     }
 
-    if(hexagonClient != nullptr &&
+    if(!levelData->unscored && hexagonClient != nullptr &&
         hexagonClient->getState() == HexagonClient::State::LoggedIn &&
         Config::getOfficial())
     {
@@ -874,7 +874,8 @@ void HexagonGame::death(bool mForce)
     }
 
     // TODO (P2): more options? Always save replay? Prompt?
-    if(Config::getSaveLocalBestReplayToFile() && localNewBest)
+    if(!levelData->unscored && Config::getSaveLocalBestReplayToFile() &&
+        localNewBest)
     {
         const std::string filename = rf.create_filename();
 

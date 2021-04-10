@@ -5041,18 +5041,29 @@ void MenuGame::drawLevelSelectionLeftSide(
         {textToQuadBorder - panelOffset,
             height - txtSelectionMedium.height * fontHeightOffset});
 
+    height += txtSelectionMedium.height + textToQuadBorder;
+
     const auto currentDiffMult = ssvu::getByModIdx(diffMults, diffMultIdx);
 
-    const std::string localLevelValidator =
-        Utils::getLevelValidator(levelData.id, currentDiffMult);
+    if(levelData.unscored)
+    {
+        renderText("N/A", txtSelectionScore.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionScore.height * fontHeightOffset});
+    }
+    else
+    {
+        const std::string localLevelValidator =
+            Utils::getLevelValidator(levelData.id, currentDiffMult);
 
-    height += txtSelectionMedium.height + textToQuadBorder;
-    tempString = localLevelValidator;
-    renderText(
-        ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) + "s",
-        txtSelectionScore.font,
-        {textToQuadBorder - panelOffset,
-            height - txtSelectionScore.height * fontHeightOffset});
+        tempString = localLevelValidator;
+        renderText(
+            ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) +
+                "s",
+            txtSelectionScore.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionScore.height * fontHeightOffset});
+    }
 
     // Line
     height += txtSelectionScore.height + textToQuadBorder + lineThickness;
@@ -5074,7 +5085,14 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     height += txtSelectionSmall.height;
 
-    if(hexagonClient.getState() != HexagonClient::State::LoggedIn)
+    if(levelData.unscored)
+    {
+        renderText("LEADERBOARD DISABLED FOR THIS LEVEL",
+            txtSelectionSmall.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionSmall.height * fontHeightOffset});
+    }
+    else if(hexagonClient.getState() != HexagonClient::State::LoggedIn)
     {
         renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,

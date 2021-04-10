@@ -44,7 +44,7 @@ void LeaderboardCache::requestedScores(const std::string& levelValidator)
     }
 
     const CachedScores& cs = it->second;
-    return (Clock::now() - cs._cacheTime) > std::chrono::seconds(5);
+    return (Clock::now() - cs._cacheTime) > std::chrono::seconds(6);
 }
 
 [[nodiscard]] const std::vector<Database::ProcessedScore>&

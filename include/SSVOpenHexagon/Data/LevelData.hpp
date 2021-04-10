@@ -37,6 +37,7 @@ struct LevelData
     std::string styleId;
     ssvufs::Path luaScriptPath;
     std::vector<float> difficultyMults;
+    bool unscored;
 
     LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath,
         const std::string& mPackId);
