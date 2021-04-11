@@ -14,8 +14,8 @@ class LuaContext;
 namespace hg {
 class random_number_generator;
 class CCustomWallManager;
-class LevelStatus;
-class HexagonGameStatus;
+struct LevelStatus;
+struct HexagonGameStatus;
 class StyleData;
 } // namespace hg
 

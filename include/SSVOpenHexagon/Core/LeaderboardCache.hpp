@@ -30,7 +30,7 @@ private:
     };
 
     std::unordered_map<std::string, CachedScores> _levelValidatorToScores;
-    const std::vector<Database::ProcessedScore> _emptyScores;
+    const std::vector<Database::ProcessedScore> _emptyScores{};
 
 public:
     void receivedScores(const std::string& levelValidator,

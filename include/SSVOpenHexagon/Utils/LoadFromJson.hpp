@@ -19,7 +19,7 @@ using Obj = Json::Value;
 namespace hg {
 
 class MusicData;
-class GameVersion;
+struct GameVersion;
 class ProfileData;
 
 } // namespace hg

@@ -30,10 +30,13 @@ private:
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
     STEAM_CALLBACK(steam_manager, on_user_stats_received, UserStatsReceived_t);
     STEAM_CALLBACK(steam_manager, on_user_stats_stored, UserStatsStored_t);
     STEAM_CALLBACK(
         steam_manager, on_user_achievement_stored, UserAchievementStored_t);
+#pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 
     bool update_hardcoded_achievement_cube_master();

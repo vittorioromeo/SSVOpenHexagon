@@ -28,7 +28,7 @@ class steam_manager;
 
 namespace hg {
 
-class replay_file;
+struct replay_file;
 
 class HexagonClient
 {

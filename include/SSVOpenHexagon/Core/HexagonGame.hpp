@@ -62,8 +62,8 @@ namespace hg {
 class Audio;
 class HGAssets;
 class HexagonClient;
-class LevelData;
-class SpeedData;
+struct LevelData;
+struct SpeedData;
 struct PackData;
 
 namespace Steam {
