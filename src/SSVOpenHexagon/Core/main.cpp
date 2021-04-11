@@ -188,8 +188,9 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Parse command line arguments
-    const auto [args, cliLevelName, cliLevelPack, printLuaDocs, headless,
+    const auto [args, cliLevelName, cliLevelPack, printLuaDocs, headlessB,
         server] = parseArgs(argc, argv);
+    const auto headless = headlessB; // Workaround binding capture
 
     // ------------------------------------------------------------------------
     // Steam integration

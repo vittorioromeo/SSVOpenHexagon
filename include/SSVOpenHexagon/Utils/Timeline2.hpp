@@ -11,6 +11,7 @@
 #include <functional>
 #include <optional>
 #include <cstddef>
+#include <vector>
 
 namespace hg::Utils {
 

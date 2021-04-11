@@ -882,19 +882,17 @@ void HexagonServer::runIteration_PurgeTokens()
 
             const hg::replay_file& rf = ctsp.replayFile;
 
-            const HGAssets& assets = _hexagonGame.getAssets();
-
-            if(!assets.isValidPackId(rf._pack_id))
+            if(!_assets.isValidPackId(rf._pack_id))
             {
                 return discard("invalid pack id '", rf._pack_id, '\'');
             }
 
-            if(!assets.isValidLevelId(rf._level_id))
+            if(!_assets.isValidLevelId(rf._level_id))
             {
                 return discard("invalid level id '", rf._level_id, '\'');
             }
 
-            const LevelData& levelData = assets.getLevelData(rf._level_id);
+            const LevelData& levelData = _assets.getLevelData(rf._level_id);
 
             if(levelData.unscored)
             {

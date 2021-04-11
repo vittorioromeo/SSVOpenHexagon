@@ -234,11 +234,18 @@ void HexagonGame::update(ssvu::FT mFT)
             // style values to avoid cheating by modifying Lua scripts
             if(!status.hasDied)
             {
-                rng.advance(status.pulse);
-                rng.advance(status.pulse3D);
-                rng.advance(status.fastSpin);
-                rng.advance(status.flashEffect);
-                rng.advance(levelStatus.rotationSpeed);
+                const auto fixup =
+                    [](const float x) -> random_number_generator::state_type
+                {
+                    // Avoid UB when converting to unsigned type:
+                    return x < 0.f ? -x : x;
+                };
+
+                rng.advance(fixup(status.pulse));
+                rng.advance(fixup(status.pulse3D));
+                rng.advance(fixup(status.fastSpin));
+                rng.advance(fixup(status.flashEffect));
+                rng.advance(fixup(levelStatus.rotationSpeed));
             }
 
 // TODO (P0): decide what to do with this, definitely broken on the server

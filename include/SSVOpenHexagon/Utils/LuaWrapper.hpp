@@ -45,6 +45,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <sstream>
 #include <tuple>
+#include <vector>
 #include <type_traits>
 
 extern "C" {
@@ -602,7 +603,7 @@ private:
         using FunctionType =
             typename RemoveMemberPtr<decltype(&T::operator())>::Type;
 
-        using ObjectType = std::tuple_element_t<0,
+        using ObjectType = typename std::tuple_element_t<0,
             typename FnTupleWrapper<FunctionType>::ParamsType>::element_type;
 
         // trying to get the existing functions list
@@ -1322,7 +1323,7 @@ private:
     {
         return [ this, &t ]<int... Is>(std::integer_sequence<int, Is...>)
         {
-            return (_push(std::get<Is>(t)) + ... + 0);
+            return (this->_push(std::get<Is>(t)) + ... + 0);
         }
         (std::make_integer_sequence<int, sizeof...(Args)>{});
     }
@@ -1502,8 +1503,8 @@ return table;*/
     {
         return [ this, index ]<int... Is>(std::integer_sequence<int, Is...>)
         {
-            return std::make_tuple(
-                _read(index + Is, static_cast<std::decay_t<Ts>*>(nullptr))...);
+            return std::make_tuple(this->_read(
+                index + Is, static_cast<std::decay_t<Ts>*>(nullptr))...);
         }
         (std::make_integer_sequence<int, sizeof...(Ts)>{});
     }

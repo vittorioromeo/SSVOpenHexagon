@@ -96,8 +96,11 @@ HGAssets::~HGAssets()
         return false;
     }
 
-    auto [packRoot, error] =
-        ssvuj::getFromFileWithErrors(packPath + "/pack.json");
+    auto p = ssvuj::getFromFileWithErrors(packPath + "/pack.json");
+
+    // Workaround of lambda capture of structured binding.
+    auto& packRoot = p.first;
+    auto& error = p.second;
 
     loadInfo.addFormattedError(error);
 

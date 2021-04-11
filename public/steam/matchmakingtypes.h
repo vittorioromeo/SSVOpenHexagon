@@ -1,6 +1,6 @@
 //========= Copyright � 1996-2008, Valve LLC, All rights reserved. ============
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================
@@ -13,8 +13,10 @@
 #endif
 
 #ifdef POSIX
+#ifndef __MINGW32__
 #ifndef _snprintf
 #define _snprintf snprintf
+#endif
 #endif
 #endif
 
@@ -61,17 +63,17 @@ enum EMatchMakingServerResponse
 
 // servernetadr_t is all the addressing info the serverbrowser needs to know about a game server,
 // namely: its IP, its connection port, and its query port.
-class servernetadr_t 
+class servernetadr_t
 {
 public:
 
 	servernetadr_t() : m_usConnectionPort( 0 ), m_usQueryPort( 0 ), m_unIP( 0 ) {}
-	
+
 	void	Init( unsigned int ip, uint16 usQueryPort, uint16 usConnectionPort );
 #ifdef NETADR_H
 	netadr_t	GetIPAndQueryPort();
 #endif
-	
+
 	// Access the query port.
 	uint16	GetQueryPort() const;
 	void	SetQueryPort( uint16 usPort );
@@ -97,7 +99,7 @@ public:
 		m_unIP = that.m_unIP;
 	}
 
-	
+
 private:
 	const char *ToString( uint32 unIP, uint16 usPort ) const;
 	uint16	m_usConnectionPort;	// (in HOST byte order)
@@ -173,7 +175,7 @@ inline const char* servernetadr_t::GetConnectionAddressString() const
 
 inline const char* servernetadr_t::GetQueryAddressString() const
 {
-	return ToString( m_unIP, m_usQueryPort );	
+	return ToString( m_unIP, m_usQueryPort );
 }
 
 inline bool servernetadr_t::operator<(const servernetadr_t &netadr) const

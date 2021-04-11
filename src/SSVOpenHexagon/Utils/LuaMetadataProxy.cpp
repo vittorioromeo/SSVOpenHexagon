@@ -149,13 +149,12 @@ try
 }
 catch(const std::exception& e)
 {
-    ssvu::lo("LuaMetadataProxy") << "Failed to generate documentation for "
-                                 << name << ": " << e.what() << '\n';
+    ssvu::lo("LuaMetadataProxy")
+        << "Failed to generate documentation: " << e.what() << '\n';
 }
 catch(...)
 {
-    ssvu::lo("LuaMetadataProxy")
-        << "Failed to generate documentation for " << name << '\n';
+    ssvu::lo("LuaMetadataProxy") << "Failed to generate documentation\n";
 }
 
 LuaMetadataProxy& LuaMetadataProxy::arg(const std::string& mArgName)

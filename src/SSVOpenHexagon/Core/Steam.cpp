@@ -13,6 +13,7 @@
 #include "steam/steamencryptedappticket.h"
 
 #include <array>
+#include <cstring>
 #include <charconv>
 
 namespace hg::Steam {
@@ -614,11 +615,16 @@ void steam_manager::on_encrypted_app_ticket_response(
     }
 
     std::uint32_t cubData;
-    std::uint32_t* pUnSecretData =
-        (std::uint32_t*)SteamEncryptedAppTicket_GetUserVariableData(
+    std::uint32_t pUnSecretData;
+
+    const std::uint8_t* receivedData =
+        SteamEncryptedAppTicket_GetUserVariableData(
             rgubDecrypted, cubDecrypted, &cubData);
 
-    if(cubData != sizeof(std::uint32_t) || *pUnSecretData != unSecretData)
+    std::memcpy(static_cast<void*>(&pUnSecretData),
+        static_cast<const void*>(receivedData), sizeof(pUnSecretData));
+
+    if(cubData != sizeof(std::uint32_t) || pUnSecretData != unSecretData)
     {
         ssvu::lo("Steam") << "Error: failed to retrieve secret data\n";
     }
