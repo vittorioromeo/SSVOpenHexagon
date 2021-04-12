@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-
 #include <string>
 
 namespace hg {
@@ -13,7 +11,7 @@ namespace hg {
 struct PackInfo
 {
     std::string id;
-    ssvufs::Path path;
+    std::string path;
 };
 
 } // namespace hg

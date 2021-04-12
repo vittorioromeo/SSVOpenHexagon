@@ -6,14 +6,12 @@
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-
 #include <string>
 #include <vector>
 
 namespace hg {
 
-LevelData::LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath,
+LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
     const std::string& mPackId)
     : packPath{mPackPath},
       packId{mPackId},

@@ -64,10 +64,9 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
         drawDeathEffect(wallQuads);
     }
 
-    sf::Color adjustedColorMain{
-        !_deadEffectTimer.isRunning()
-            ? colorPlayer
-            : ssvs::getColorFromHSV(_hue / 360.f, 1.f, 1.f)};
+    sf::Color adjustedColorMain{!_deadEffectTimer.isRunning()
+                                    ? colorPlayer
+                                    : Utils::getColorFromHue(_hue / 360.f)};
 
     const sf::Vector2f pLeft = ssvs::getOrbitRad(
         _pos, _angle - ssvu::toRad(100.f), _size + _triangleWidth);
@@ -77,8 +76,8 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
 
     if(!_swapTimer.isRunning() && !_dead)
     {
-        adjustedColorMain = ssvs::getColorFromHSV(
-            (_swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
+        adjustedColorMain =
+            Utils::getColorFromHue((_swapBlinkTimer.getCurrent() * 15) / 360.f);
     }
 
     playerTris.reserve_more(3);
@@ -120,8 +119,7 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorQuads& wallQuads)
     const float dRadius{_hue / 8.f};
     const float thickness{_hue / 20.f};
 
-    const sf::Color colorMain{
-        ssvs::getColorFromHSV((360.f - _hue) / 360.f, 1.f, 1.f)};
+    const sf::Color colorMain{Utils::getColorFromHue((360.f - _hue) / 360.f)};
 
     for(auto i(0u); i < 6; ++i)
     {

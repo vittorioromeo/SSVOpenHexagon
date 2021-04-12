@@ -15,7 +15,7 @@
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
-#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
+#include <SSVStart/Assets/AssetManager.hpp>
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -40,7 +40,9 @@ namespace hg {
 
 HGAssets::HGAssets(
     Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
-    : steamManager{mSteamManager}, levelsOnly{mLevelsOnly}
+    : steamManager{mSteamManager},
+      levelsOnly{mLevelsOnly},
+      assetManager{std::make_unique<ssvs::DefaultAssetManager>()}
 {
     if(!levelsOnly && !mHeadless)
     {
@@ -56,7 +58,7 @@ HGAssets::HGAssets(
         auto [object, error] =
             ssvuj::getFromFileWithErrors("Assets/assets.json");
 
-        loadAssetsFromJson(assetManager, "Assets/", object);
+        loadAssetsFromJson(*assetManager, "Assets/", object);
 
         loadInfo.addFormattedError(error);
     }
@@ -231,7 +233,7 @@ HGAssets::~HGAssets()
     catch(...)
     {
         errorMutex.lock();
-        
+
         errorMessage = "Exception during asset loading: unknown.\n";
         loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
 
@@ -252,17 +254,12 @@ HGAssets::~HGAssets()
     return loadInfo;
 }
 
-[[nodiscard]] auto& HGAssets::operator()()
-{
-    return assetManager;
-}
-
 // ----------------------------------------------------------------------------
 
 template <typename T>
 [[nodiscard]] T& HGAssets::get(const std::string& mId)
 {
-    return assetManager.get<T>(mId);
+    return assetManager->get<T>(mId);
 }
 
 template sf::Texture& HGAssets::get(const std::string& mId);
@@ -381,7 +378,7 @@ HGAssets::getPackDatas() const noexcept
     // ------------------------------------------------------------------------
     // Load packs from `Packs/` folder.
 
-    for(const std::string& packPath: 
+    for(const std::string& packPath:
         ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::Folder>("Packs/"))
     {
         tryLoadPackFromPath(packPath);
@@ -418,10 +415,10 @@ HGAssets::getPackDatas() const noexcept
                 errorMessage =
                     Utils::concat("Error loading pack info '", packId, '\n');
                 loadInfo.errorMessages.emplace_back(errorMessage);
-                
+
                 errorMutex.unlock();
 
-                ssvu::lo("::loadAssets") << errorMessage;   
+                ssvu::lo("::loadAssets") << errorMessage;
             }
         });
     }
@@ -505,7 +502,7 @@ void HGAssets::loadCustomSounds(
     {
         assetManagerMutex.lock();
 
-        assetManager.load<sf::SoundBuffer>(
+        assetManager->load<sf::SoundBuffer>(
             Utils::concat(mPackId, '_', p.getFileName()), p);
 
         assetManagerMutex.unlock();
@@ -520,8 +517,9 @@ void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
     {
         assetManagerMutex.lock();
 
-        auto& music(assetManager.load<sf::Music>(
+        auto& music(assetManager->load<sf::Music>(
             Utils::concat(mPackId, '_', p.getFileNameNoExtensions()), p));
+
         music.setLoop(true);
 
         assetManagerMutex.unlock();
@@ -577,7 +575,7 @@ void HGAssets::loadLevelData(
     for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
     {
         auto [object, error] = ssvuj::getFromFileWithErrors(p);
-        
+
         loadLevelDataMtx.lock();
 
         loadInfo.addFormattedError(error);
@@ -687,7 +685,7 @@ void HGAssets::saveAllProfiles()
 [[nodiscard]] const MusicData& HGAssets::getMusicData(
     const std::string& mPackId, const std::string& mId)
 {
-    const std::string assetId = mPackId + "_" + mId;
+    const std::string assetId = Utils::concat(mPackId, '_', mId);
 
     const auto it = musicDataMap.find(assetId);
     if(it == musicDataMap.end())
@@ -704,7 +702,7 @@ void HGAssets::saveAllProfiles()
 [[nodiscard]] const StyleData& HGAssets::getStyleData(
     const std::string& mPackId, const std::string& mId)
 {
-    const std::string assetId = mPackId + "_" + mId;
+    const std::string assetId = Utils::concat(mPackId, '_', mId);
 
     const auto it = styleDataMap.find(assetId);
     if(it == styleDataMap.end())
@@ -798,9 +796,9 @@ void HGAssets::saveAllProfiles()
         for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
         {
             temp = mPackId + "_" + p.getFileNameNoExtensions();
-            if(!assetManager.has<sf::Music>(temp))
+            if(!assetManager->has<sf::Music>(temp))
             {
-                auto& music(assetManager.load<sf::Music>(temp, p));
+                auto& music(assetManager->load<sf::Music>(temp, p));
                 music.setLoop(true);
             }
         }
@@ -818,9 +816,9 @@ void HGAssets::saveAllProfiles()
         for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
         {
             temp = mPackId + "_" + p.getFileName();
-            if(!assetManager.has<sf::SoundBuffer>(temp))
+            if(!assetManager->has<sf::SoundBuffer>(temp))
             {
-                assetManager.load<sf::SoundBuffer>(temp, p);
+                assetManager->load<sf::SoundBuffer>(temp, p);
             }
         }
         output += "Custom sound files successfully reloaded\n";
@@ -930,7 +928,7 @@ void HGAssets::saveAllProfiles()
     else if(levelData.musicId != "nullMusicId")
     {
         assetId = mPackId + "_" + levelData.musicId;
-        if(assetManager.has<sf::Music>(assetId))
+        if(assetManager->has<sf::Music>(assetId))
         {
             output +=
                 "music file " + levelData.musicId + ".ogg is already loaded\n";
@@ -945,7 +943,7 @@ void HGAssets::saveAllProfiles()
             else
             {
                 auto& music(
-                    assetManager.load<sf::Music>(assetId, musicFile[0]));
+                    assetManager->load<sf::Music>(assetId, musicFile[0]));
                 music.setLoop(true);
                 output += "new music file " + levelData.musicId +
                           ".ogg successfully loaded\n";
@@ -970,7 +968,7 @@ void HGAssets::saveAllProfiles()
 
     // Check if this custom sound file is already loaded
     assetId = mPackId + "_" + levelData.soundId;
-    if(assetManager.has<sf::SoundBuffer>(assetId))
+    if(assetManager->has<sf::SoundBuffer>(assetId))
     {
         output += "custom sound file " + levelData.soundId +
                   ".ogg is already loaded\n";
@@ -984,7 +982,7 @@ void HGAssets::saveAllProfiles()
         return output;
     }
 
-    assetManager.load<sf::SoundBuffer>(assetId, soundFile[0]);
+    assetManager->load<sf::SoundBuffer>(assetId, soundFile[0]);
     output += "new custom sound file " + levelData.soundId +
               ".ogg successfully loaded\n";
 
@@ -1120,27 +1118,32 @@ void HGAssets::pCreate(const std::string& mName)
     createLocalProfile(mName);
 }
 
+void HGAssets::pRemove(const std::string& mName)
+{
+    profileDataMap.erase(mName);
+}
+
 [[nodiscard]] sf::SoundBuffer* HGAssets::getSoundBuffer(
     const std::string& assetId)
 {
     // TODO (P2): remove assetmanager
-    if(!assetManager.has<sf::SoundBuffer>(assetId))
+    if(!assetManager->has<sf::SoundBuffer>(assetId))
     {
         return nullptr;
     }
 
-    return &assetManager.get<sf::SoundBuffer>(assetId);
+    return &assetManager->get<sf::SoundBuffer>(assetId);
 }
 
 [[nodiscard]] sf::Music* HGAssets::getMusic(const std::string& assetId)
 {
     // TODO (P2): remove assetmanager
-    if(!assetManager.has<sf::Music>(assetId))
+    if(!assetManager->has<sf::Music>(assetId))
     {
         return nullptr;
     }
 
-    return &assetManager.get<sf::Music>(assetId);
+    return &assetManager->get<sf::Music>(assetId);
 }
 
 } // namespace hg

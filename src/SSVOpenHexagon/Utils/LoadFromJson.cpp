@@ -44,7 +44,7 @@ namespace hg::Utils {
             : GameVersion{-1, 0, 0};
 
     return {version, ssvuj::getExtr<std::string>(mRoot, "name"),
-        ssvuj::getObj(mRoot, "scores"),
+        ssvuj::getExtr<std::unordered_map<std::string, float>>(mRoot, "scores"),
         ssvuj::getExtr<std::vector<std::string>>(mRoot, "tracked_names", {}),
         ssvuj::getExtr<std::vector<std::string>>(mRoot, "favorites", {})};
 }

@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
+#include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
@@ -13,6 +14,10 @@
 #include <imgui-SFML.h>
 
 #include <SSVStart/Utils/Vector2.hpp>
+#include <SSVStart/Utils/SFML.hpp>
+
+#include <SSVUtils/Core/Log/Log.hpp>
+#include <SSVUtils/Core/Utils/Rnd.hpp>
 
 namespace hg {
 
@@ -135,6 +140,17 @@ void HexagonGame::draw()
             playerTris3D.unsafe_emplace_other(playerTris);
         }
 
+        const auto adjustAlpha = [&](sf::Color& c, const float i)
+        {
+            SSVOH_ASSERT(styleData._3dAlphaMult != 0.f);
+
+            const float newAlpha =
+                (static_cast<float>(c.a) / styleData._3dAlphaMult) -
+                i * styleData._3dAlphaFalloff;
+
+            c.a = Utils::componentClamp(newAlpha);
+        };
+
         for(int j(0); j < static_cast<int>(depth); ++j)
         {
             const float i(depth - j - 1);
@@ -148,8 +164,7 @@ void HexagonGame::draw()
             sf::Color overrideColor{Utils::getColorDarkened(
                 styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
 
-            overrideColor.a /= styleData._3dAlphaMult;
-            overrideColor.a -= i * styleData._3dAlphaFalloff;
+            adjustAlpha(overrideColor, i);
 
             for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
                 ++k)
@@ -163,8 +178,8 @@ void HexagonGame::draw()
             {
                 overrideColor = Utils::getColorDarkened(
                     styleData.getPlayerColor(), styleData._3dDarkenMult);
-                overrideColor.a /= styleData._3dAlphaMult;
-                overrideColor.a -= i * styleData._3dAlphaFalloff;
+
+                adjustAlpha(overrideColor, i);
             }
 
             for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
@@ -385,20 +400,18 @@ void HexagonGame::updateText(ssvu::FT mFT)
         if(Config::getShowTrackedVariables() && !trackedVariables.empty())
         {
             os << '\n';
-            for(const auto& t : trackedVariables)
+            for(const auto& [variableName, display] : trackedVariables)
             {
-                if(!lua.doesVariableExist(t.variableName))
+                if(!lua.doesVariableExist(variableName))
                 {
                     continue;
                 }
 
-                std::string name{t.displayName};
-                Utils::uppercasify(name);
+                const std::string value{
+                    lua.readVariable<std::string>(variableName)};
 
-                std::string var{lua.readVariable<std::string>(t.variableName)};
-                Utils::uppercasify(var);
-
-                os << name << ": " << var << '\n';
+                os << Utils::toUppercase(display) << ": "
+                   << Utils::toUppercase(value) << '\n';
             }
         }
     }

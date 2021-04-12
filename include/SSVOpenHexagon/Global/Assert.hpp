@@ -4,6 +4,34 @@
 
 #pragma once
 
-#include <SSVUtils/Core/Assert/Assert.hpp>
+#include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
-#define SSVOH_ASSERT SSVU_ASSERT
+#include <vrm/pp/sep_to_str.hpp>
+
+namespace hg::Impl {
+
+[[gnu::cold]] void assertionFailure(
+    const char* code, const char* file, const int line);
+
+}
+
+#ifndef NDEBUG
+
+#define SSVOH_ASSERT(...)                                                  \
+    do                                                                     \
+    {                                                                      \
+        constexpr const char* assert_code =                                \
+            VRM_PP_SEP_TOSTR(" ", VRM_PP_EMPTY(), __VA_ARGS__);            \
+                                                                           \
+        if(SSVU_UNLIKELY(!static_cast<bool>(__VA_ARGS__)))                 \
+        {                                                                  \
+            ::hg::Impl::assertionFailure(assert_code, __FILE__, __LINE__); \
+        }                                                                  \
+    }                                                                      \
+    while(false)
+
+#else
+
+#define SSVOH_ASSERT(...)
+
+#endif

@@ -28,8 +28,6 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 
-#include <sodium.h>
-
 #include <optional>
 #include <array>
 #include <cstring>
@@ -246,64 +244,8 @@ void HexagonGame::update(ssvu::FT mFT)
                 rng.advance(fixup(status.fastSpin));
                 rng.advance(fixup(status.flashEffect));
                 rng.advance(fixup(levelStatus.rotationSpeed));
+                // TODO (P1): stuff from style?
             }
-
-// TODO (P0): decide what to do with this, definitely broken on the server
-#if 0
-            // Advance random number generator state with various level and
-            // style values to avoid cheating by modifying Lua scripts
-            if(!status.hasDied)
-            {
-                constexpr std::array<unsigned char, crypto_generichash_KEYBYTES>
-                    key{};
-
-                std::array<unsigned char, crypto_generichash_BYTES> hash{};
-                crypto_generichash_state state{};
-
-                crypto_generichash_init(
-                    &state, key.data(), key.size(), hash.size());
-
-                const auto addHash = [&]<typename T>(const T& x) {
-                    crypto_generichash_update(&state,
-                        reinterpret_cast<const unsigned char*>(&x), sizeof(T));
-                };
-
-                addHash(static_cast<std::int32_t>(status.pulse));
-                addHash(static_cast<std::int32_t>(status.pulse3D));
-                addHash(static_cast<std::int32_t>(status.fastSpin));
-                addHash(static_cast<std::int32_t>(status.flashEffect));
-                addHash(static_cast<std::int32_t>(levelStatus.rotationSpeed));
-                addHash(styleData.getMainColor().toInteger());
-                addHash(styleData.getPlayerColor().toInteger());
-                for(const sf::Color& c : styleData.getColors())
-                {
-                    addHash(c.toInteger());
-                }
-                addHash(static_cast<std::int32_t>(styleData.getCurrentHue()));
-                addHash(
-                    static_cast<std::int32_t>(styleData.getCurrentSwapTime()));
-                addHash(styleData.get3DOverrideColor().toInteger());
-                addHash(styleData.getCapColorResult().toInteger());
-
-                crypto_generichash_final(&state, hash.data(), hash.size());
-
-                using state_type = random_number_generator::state_type;
-                constexpr std::size_t state_type_size = sizeof(state_type);
-                static_assert(hash.size() % state_type_size == 0);
-                constexpr std::size_t inc = hash.size() / state_type_size;
-
-                for(std::size_t i = 0; i < inc; ++i)
-                {
-                    const unsigned char* b = &hash[i * inc];
-
-                    state_type delta;
-                    std::memcpy(static_cast<void*>(&delta),
-                        static_cast<const void*>(b), inc);
-
-                    rng.advance(delta);
-                }
-            }
-#endif
         }
 
         if(window != nullptr)
