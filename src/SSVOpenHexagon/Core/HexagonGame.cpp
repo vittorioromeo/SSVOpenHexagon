@@ -23,11 +23,13 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
-#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
+#include <SSVStart/Utils/SFML.hpp>
 #include <SSVStart/Input/Trigger.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
+#include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Graphics.hpp>
 
@@ -550,6 +552,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         {
             lastPlayedScore = tempReplayScore;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbraced-scalar-init"
+
             activeReplay.emplace(replay_file{
                 ._version{0},
 
@@ -564,6 +569,8 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
                 ._difficulty_mult{mDifficultyMult},
                 ._played_score{lastPlayedScore},
             });
+
+#pragma GCC diagnostic pop
         }
 
         activeReplay->replayPlayer.reset();
@@ -842,6 +849,9 @@ void HexagonGame::death(bool mForce)
                                    ? assets.getCurrentLocalProfile().getName()
                                    : "no_profile";
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbraced-scalar-init"
+
     const replay_file rf{
         ._version{0},
         ._player_name{rfName},
@@ -853,6 +863,8 @@ void HexagonGame::death(bool mForce)
         ._difficulty_mult{difficultyMult},
         ._played_score{getReplayScore(status)},
     };
+
+#pragma GCC diagnostic pop
 
     if(onReplayCreated)
     {
@@ -1102,9 +1114,13 @@ void HexagonGame::setLevelData(
     const LevelData& mLevelData, bool mMusicFirstPlay)
 {
     levelData = &mLevelData;
+
     levelStatus =
         LevelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()};
+
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
+    styleData.computeColors();
+
     musicData = assets.getMusicData(levelData->packId, levelData->musicId);
     musicData.firstPlay = mMusicFirstPlay;
 }

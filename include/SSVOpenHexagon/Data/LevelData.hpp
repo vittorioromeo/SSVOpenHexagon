@@ -4,10 +4,6 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Data/TrackedVariable.hpp"
-
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-
 #include <string>
 #include <vector>
 
@@ -23,7 +19,7 @@ namespace hg {
 
 struct LevelData
 {
-    ssvufs::Path packPath;
+    std::string packPath;
     std::string packId;
 
     std::string id;
@@ -35,11 +31,11 @@ struct LevelData
     std::string musicId;
     std::string soundId;
     std::string styleId;
-    ssvufs::Path luaScriptPath;
+    std::string luaScriptPath;
     std::vector<float> difficultyMults;
     bool unscored;
 
-    LevelData(const ssvuj::Obj& mRoot, const ssvufs::Path& mPackPath,
+    LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
         const std::string& mPackId);
 };
 

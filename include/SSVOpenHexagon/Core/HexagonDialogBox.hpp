@@ -4,20 +4,21 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 #include <string>
+#include <vector>
 
 namespace ssvs {
-
 class GameWindow;
-
 }
+
+namespace hg::Utils {
+class FastVertexVectorQuads;
+} // namespace hg::Utils
 
 namespace hg {
 
@@ -32,13 +33,11 @@ class HexagonDialogBox
 {
 private:
     using KKey = sf::Keyboard::Key;
-    using DrawFunc = std::function<void(const sf::Color&, const sf::Color&)>;
 
     ssvs::GameWindow& window;
 
-    DrawFunc drawFunc;
+    DBoxDraw drawMode;
 
-    Utils::FastVertexVectorQuads dialogFrame;
     std::vector<std::string> dialogText;
     sf::Text txtDialog;
 
@@ -57,11 +56,10 @@ private:
     bool inputBoxPassword{false};
     std::string input;
 
-    [[nodiscard]] DrawFunc drawModeToDrawFunc(DBoxDraw drawMode);
-
     void drawText(
         const sf::Color& txtColor, const float xOffset, const float yOffset);
-    void drawBox(const sf::Color& frameColor, const float x1, const float x2,
+    void drawBox(Utils::FastVertexVectorQuads& quads,
+        const sf::Color& frameColor, const float x1, const float x2,
         const float y1, const float y2);
     void drawCenter(const sf::Color& txtColor, const sf::Color& backdropColor);
     void drawCenterUpperHalf(
@@ -85,42 +83,16 @@ public:
         const float mFrameSize, const DBoxDraw mDrawMode);
 
     void draw(const sf::Color& txtColor, const sf::Color& backdropColor);
+
     void clearDialogBox();
 
-    [[nodiscard]] KKey getKeyToClose() const noexcept
-    {
-        return keyToClose;
-    }
-
-    [[nodiscard]] bool empty() const noexcept
-    {
-        return dialogText.empty();
-    }
-
-    [[nodiscard]] bool isInputBox() const noexcept
-    {
-        return inputBox;
-    }
-
-    [[nodiscard]] std::string& getInput() noexcept
-    {
-        return input;
-    }
-
-    [[nodiscard]] const std::string& getInput() const noexcept
-    {
-        return input;
-    }
-
-    void setInputBoxPassword(const bool x) noexcept
-    {
-        inputBoxPassword = x;
-    }
-
-    [[nodiscard]] bool getInputBoxPassword() noexcept
-    {
-        return inputBoxPassword;
-    }
+    [[nodiscard]] KKey getKeyToClose() const noexcept;
+    [[nodiscard]] bool empty() const noexcept;
+    [[nodiscard]] bool isInputBox() const noexcept;
+    [[nodiscard]] std::string& getInput() noexcept;
+    [[nodiscard]] const std::string& getInput() const noexcept;
+    void setInputBoxPassword(const bool x) noexcept;
+    [[nodiscard]] bool getInputBoxPassword() noexcept;
 };
 
 } // namespace hg

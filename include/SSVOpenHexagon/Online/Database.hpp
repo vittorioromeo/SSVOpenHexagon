@@ -12,6 +12,8 @@
 #include <vector>
 #include <chrono>
 
+// TODO (P2): remove reliance on steam ID for future platforms
+
 namespace hg::Database {
 
 using Clock = std::chrono::high_resolution_clock;

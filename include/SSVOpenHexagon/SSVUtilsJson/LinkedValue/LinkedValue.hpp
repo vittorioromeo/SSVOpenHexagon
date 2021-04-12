@@ -4,7 +4,13 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/SSVUtilsJson/Utils/Main.hpp"
+namespace Json {
+class Value;
+}
+
+namespace ssvuj {
+using Obj = Json::Value;
+}
 
 namespace ssvuj {
 
@@ -12,38 +18,22 @@ template <typename T>
 class LinkedValue
 {
 private:
-    const char* name;
+    const char* const name;
     T value;
+    const T defValue;
 
 public:
-    constexpr explicit LinkedValue(const char* mLinkedName) : name{mLinkedName}
-    {}
+    explicit LinkedValue(const char* mLinkedName, const T& mDefault);
 
-    [[nodiscard]] operator T&() noexcept
-    {
-        return value;
-    }
+    [[nodiscard]] operator T&() noexcept;
+    [[nodiscard]] operator const T&() const noexcept;
 
-    [[nodiscard]] operator const T&() const noexcept
-    {
-        return value;
-    }
+    LinkedValue& operator=(const T& mValue);
 
-    auto& operator=(const T& mValue)
-    {
-        value = mValue;
-        return *this;
-    }
+    void syncFrom(const Obj& mObj);
+    void syncTo(Obj& mObj) const;
 
-    void syncFrom(const Obj& mObj)
-    {
-        extr(mObj, name, value);
-    }
-
-    void syncTo(Obj& mObj) const
-    {
-        arch(mObj, name, value);
-    }
+    void resetToDefault();
 };
 
 } // namespace ssvuj

@@ -17,10 +17,15 @@
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 
+#include <SSVUtils/Core/Log/Log.hpp>
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-#include <algorithm>
+#include <iostream>
+#include <string>
+#include <chrono>
+#include <cmath>
 
 namespace hg {
 
@@ -28,6 +33,7 @@ template <typename F>
 Utils::LuaMetadataProxy addLuaFn(
     Lua::LuaContext& lua, const std::string& name, F&& f)
 {
+    // TODO (P2): reduce instantiations by using captureless lambdas
     lua.writeVariable(name, std::forward<F>(f));
     return Utils::LuaMetadataProxy{
         Utils::TypeWrapper<F>{}, LuaScripting::getMetadata(), name};
@@ -61,7 +67,7 @@ void HexagonGame::initLua_Utils()
         {
             runLuaFile(
                 Utils::getDependentScriptFilename(execScriptPackPathContext,
-                    levelData->packPath.getStr(), mScriptName));
+                    levelData->packPath, mScriptName));
         })
         .arg("scriptFilename")
         .doc("Execute the script located at `<pack>/Scripts/$0`.");
@@ -506,7 +512,7 @@ void HexagonGame::initLua_LevelControl()
                 std::cout
                     << "[l_overrideScore] Runtime error on overriding score "
                     << "with level \"" << levelData->name << "\": \n"
-                    << ssvu::toStr(mError.what()) << '\n'
+                    << mError.what() << '\n'
                     << std::endl;
                 if(!Config::getDebug())
                 {

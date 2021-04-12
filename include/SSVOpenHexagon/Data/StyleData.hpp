@@ -42,13 +42,14 @@ private:
     float currentHue{0};
     float currentSwapTime{0};
     float pulseFactor{0};
-    sf::Color currentMainColor;
-    sf::Color currentPlayerColor;
-    sf::Color currentTextColor;
-    sf::Color current3DOverrideColor;
+    sf::Color currentMainColor{sf::Color::Black};
+    sf::Color currentPlayerColor{sf::Color::Black};
+    sf::Color currentTextColor{sf::Color::Black};
+    sf::Color current3DOverrideColor{sf::Color::Black};
     std::vector<sf::Color> currentColors;
 
-    sf::Color calculateColor(const ColorData& mColorData) const;
+    [[nodiscard]] static sf::Color calculateColor(const float mCurrentHue,
+        const float mPulseFactor, const ColorData& mColorData);
 
     [[nodiscard]] static ColorData colorDataFromObjOrDefault(
         const ssvuj::Obj& mRoot, const std::string& mKey,
@@ -89,6 +90,7 @@ public:
     unsigned int BGColorOffset{0};
     float BGRotOff{0}; // In degrees
 
+private:
     sf::Color _3dOverrideColor;
     ColorData mainColorData;
     ColorData playerColor;
@@ -98,6 +100,7 @@ public:
 
     std::vector<ColorData> colorDatas;
 
+public:
     explicit StyleData();
     explicit StyleData(const ssvuj::Obj& mRoot);
 
@@ -113,11 +116,14 @@ public:
         const sf::Vector2f& mCenterPos, const unsigned int sides,
         const bool darkenUnevenBackgroundChunk) const;
 
+    void setCapColor(const CapColor& mCapColor);
+
     [[nodiscard]] const sf::Color& getMainColor() const noexcept;
     [[nodiscard]] const sf::Color& getPlayerColor() const noexcept;
     [[nodiscard]] const sf::Color& getTextColor() const noexcept;
     [[nodiscard]] const std::vector<sf::Color>& getColors() const noexcept;
-    [[nodiscard]] const sf::Color& getColor(int mIdx) const noexcept;
+    [[nodiscard]] const sf::Color& getColor(
+        const std::size_t mIdx) const noexcept;
     [[nodiscard]] float getCurrentHue() const noexcept;
     [[nodiscard]] float getCurrentSwapTime() const noexcept;
     [[nodiscard]] const sf::Color& get3DOverrideColor() const noexcept;
