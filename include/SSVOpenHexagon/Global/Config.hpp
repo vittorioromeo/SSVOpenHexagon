@@ -37,8 +37,7 @@ void saveConfig();
 void recalculateSizes();
 void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
-void setCurrentResolution(
-    ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight);
+void setCurrentResolution(unsigned int mWidth, unsigned int mHeight);
 void setCurrentResolutionAuto(ssvs::GameWindow& mWindow);
 
 void setVsync(ssvs::GameWindow& mWindow, bool mValue);

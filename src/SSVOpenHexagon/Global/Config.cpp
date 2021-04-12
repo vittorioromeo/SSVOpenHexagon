@@ -91,7 +91,7 @@ using m = ssvs::MBtn;
     X(autoZoomFactor, bool, "auto_zoom_factor", true)                          \
     X(fullscreen, bool, "fullscreen", false)                                   \
     X(windowedAutoResolution, bool, "windowed_auto_resolution", false)         \
-    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", true)      \
+    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", false)     \
     X(fullscreenWidth, uint, "fullscreen_width", 1920)                         \
     X(fullscreenHeight, uint, "fullscreen_height", 1080)                       \
     X(windowedWidth, uint, "windowed_width", 800)                              \
@@ -390,8 +390,7 @@ void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen)
     recalculateSizes();
 }
 
-void setCurrentResolution(
-    ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight)
+void setCurrentResolution(unsigned int mWidth, unsigned int mHeight)
 {
     if(getFullscreen())
     {
@@ -406,7 +405,7 @@ void setCurrentResolution(
         windowedHeight() = mHeight;
     }
 
-    setFullscreen(mWindow, getFullscreen());
+    recalculateSizes();
 }
 
 void setCurrentResolutionAuto(ssvs::GameWindow& mWindow)
