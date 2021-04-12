@@ -37,8 +37,7 @@ void saveConfig();
 void recalculateSizes();
 void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
-void setCurrentResolution(
-    ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight);
+void setCurrentResolution(unsigned int mWidth, unsigned int mHeight);
 void setCurrentResolutionAuto(ssvs::GameWindow& mWindow);
 
 void setVsync(ssvs::GameWindow& mWindow, bool mValue);
@@ -46,7 +45,6 @@ void setLimitFPS(ssvs::GameWindow& mWindow, bool mValue);
 void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue);
 void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue);
 
-void setOnline(bool mOnline);
 void setOfficial(bool mOfficial);
 void setDebug(bool mDebug);
 void setNoRotation(bool mNoRotation);
@@ -63,8 +61,6 @@ void setMusicVolume(float mVolume);
 void setFlash(bool mFlash);
 void setMusicSpeedDMSync(bool mValue);
 void setShowFPS(bool mValue);
-void setServerLocal(bool mValue);
-void setServerVerbose(bool mValue);
 void setMouseVisible(bool mValue);
 void setMusicSpeedMult(float mValue);
 void setDrawTextOutlines(bool mX);
@@ -85,7 +81,6 @@ void setServerIp(const std::string& mX);
 void setServerPort(unsigned short mX);
 void setServerControlPort(unsigned short mX);
 
-[[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
 [[nodiscard]] float getSizeX();
@@ -132,8 +127,6 @@ void setServerControlPort(unsigned short mX);
 [[nodiscard]] unsigned int getMaxFPS();
 [[nodiscard]] bool getShowFPS();
 [[nodiscard]] unsigned int getAntialiasingLevel();
-[[nodiscard]] bool getServerLocal();
-[[nodiscard]] bool getServerVerbose();
 [[nodiscard]] bool getMouseVisible();
 [[nodiscard]] float getMusicSpeedMult();
 [[nodiscard]] bool getDrawTextOutlines();

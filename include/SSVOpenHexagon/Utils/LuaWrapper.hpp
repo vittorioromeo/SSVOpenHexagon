@@ -36,7 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
-#include <algorithm>
 #include <cstring>
 #include <limits>
 #include <map>
