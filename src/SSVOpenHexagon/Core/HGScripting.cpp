@@ -65,9 +65,8 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_execScript", //
         [this](const std::string& mScriptName)
         {
-            runLuaFile(
-                Utils::getDependentScriptFilename(execScriptPackPathContext,
-                    levelData->packPath, mScriptName));
+            runLuaFile(Utils::getDependentScriptFilename(
+                execScriptPackPathContext, levelData->packPath, mScriptName));
         })
         .arg("scriptFilename")
         .doc("Execute the script located at `<pack>/Scripts/$0`.");

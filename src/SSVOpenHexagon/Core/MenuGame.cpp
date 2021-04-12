@@ -917,7 +917,8 @@ void MenuGame::changeResolutionTo(unsigned int mWidth, unsigned int mHeight)
         return;
     }
 
-    Config::setCurrentResolution(window, mWidth, mHeight);
+    Config::setCurrentResolution(mWidth, mHeight);
+    window.getRenderWindow().setSize(sf::Vector2u{mWidth, mHeight});
 
     refreshCamera();
     adjustLevelsOffset();
@@ -948,9 +949,8 @@ void MenuGame::initLua()
     lua.writeVariable("u_execScript",
         [this](const std::string& mScriptName)
         {
-            runLuaFile(
-                Utils::getDependentScriptFilename(execScriptPackPathContext,
-                    levelData->packPath, mScriptName));
+            runLuaFile(Utils::getDependentScriptFilename(
+                execScriptPackPathContext, levelData->packPath, mScriptName));
         });
 
     lua.writeVariable("u_execDependencyScript", //
@@ -5353,7 +5353,8 @@ void MenuGame::drawGraphics()
 
 void MenuGame::drawOnlineStatus()
 {
-    overlayCamera.unapply();
+    window.getRenderWindow().setView(
+        sf::View{{0.f, 0.f, getWindowWidth(), getWindowHeight()}});
 
     const float onlineStatusScaling = 1.5f;
     const float scaling = onlineStatusScaling / Config::getZoomFactor();
