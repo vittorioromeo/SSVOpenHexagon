@@ -13,7 +13,6 @@
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
 #include <SSVUtils/Core/Utils/Math.hpp>
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/Utils/SFML.hpp>
@@ -58,7 +57,6 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
           ssvuj::getExtr<float>(mRoot, "3D_perspective_multiplier", 1.f)},
       _3dOverrideColor{ssvuj::getExtr<sf::Color>(
           mRoot, "3D_override_color", sf::Color::Transparent)},
-
       mainColorData{ssvuj::getObj(mRoot, "main")}, //
       playerColor{
           colorDataFromObjOrDefault(mRoot, "player_color", mainColorData)}, //
@@ -78,16 +76,17 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
     }
 }
 
-sf::Color StyleData::calculateColor(const ColorData& mColorData) const
+sf::Color StyleData::calculateColor(const float mCurrentHue,
+    const float mPulseFactor, const ColorData& mColorData)
 {
     sf::Color color{mColorData.color};
 
     if(mColorData.dynamic)
     {
         const float hue =
-            std::fmod(currentHue + mColorData.hueShift, 360.f) / 360.f;
+            std::fmod(mCurrentHue + mColorData.hueShift, 360.f) / 360.f;
 
-        const sf::Color dynamicColor = ssvs::getColorFromHSV(hue, 1.f, 1.f);
+        const sf::Color dynamicColor = Utils::getColorFromHue(hue);
 
         if(!mColorData.main)
         {
@@ -112,26 +111,11 @@ sf::Color StyleData::calculateColor(const ColorData& mColorData) const
         }
     }
 
-    const auto componentClamp = [](const float value) -> sf::Uint8
-    {
-        if(value > 255.f)
-        {
-            return sf::Uint8(255);
-        }
-
-        if(value < 0)
-        {
-            return sf::Uint8(0);
-        }
-
-        return static_cast<sf::Uint8>(value);
-    };
-
     return sf::Color( //
-        componentClamp(color.r + mColorData.pulse.r * pulseFactor),
-        componentClamp(color.g + mColorData.pulse.g * pulseFactor),
-        componentClamp(color.b + mColorData.pulse.b * pulseFactor),
-        componentClamp(color.a + mColorData.pulse.a * pulseFactor));
+        Utils::componentClamp(color.r + mColorData.pulse.r * mPulseFactor),
+        Utils::componentClamp(color.g + mColorData.pulse.g * mPulseFactor),
+        Utils::componentClamp(color.b + mColorData.pulse.b * mPulseFactor),
+        Utils::componentClamp(color.a + mColorData.pulse.a * mPulseFactor));
 }
 
 void StyleData::update(ssvu::FT mFT, float mMult)
@@ -185,9 +169,9 @@ void StyleData::update(ssvu::FT mFT, float mMult)
 
 void StyleData::computeColors()
 {
-    currentMainColor = calculateColor(mainColorData);
-    currentPlayerColor = calculateColor(playerColor);
-    currentTextColor = calculateColor(textColor);
+    currentMainColor = calculateColor(currentHue, pulseFactor, mainColorData);
+    currentPlayerColor = calculateColor(currentHue, pulseFactor, playerColor);
+    currentTextColor = calculateColor(currentHue, pulseFactor, textColor);
 
     current3DOverrideColor =
         _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
@@ -196,7 +180,7 @@ void StyleData::computeColors()
 
     for(const ColorData& cd : colorDatas)
     {
-        currentColors.emplace_back(calculateColor(cd));
+        currentColors.emplace_back(calculateColor(currentHue, pulseFactor, cd));
     }
 
     if(currentColors.size() > 1)
@@ -296,6 +280,11 @@ void StyleData::drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
     drawBackgroundMenuHexagonImpl(mTris, mCenterPos, sides, fourByThree);
 }
 
+void StyleData::setCapColor(const CapColor& mCapColor)
+{
+    capColor = mCapColor;
+}
+
 [[nodiscard]] const sf::Color& StyleData::getMainColor() const noexcept
 {
     return currentMainColor;
@@ -317,7 +306,8 @@ StyleData::getColors() const noexcept
     return currentColors;
 }
 
-[[nodiscard]] const sf::Color& StyleData::getColor(int mIdx) const noexcept
+[[nodiscard]] const sf::Color& StyleData::getColor(
+    const std::size_t mIdx) const noexcept
 {
     SSVOH_ASSERT(!currentColors.empty());
     return ssvu::getByModIdx(currentColors, mIdx);
@@ -346,7 +336,8 @@ sf::Color StyleData::getCapColorResult() const noexcept
         [this](CapColorMode::MainDarkened)
         { return Utils::getColorDarkened(getMainColor(), 1.4f); },      //
         [this](CapColorMode::ByIndex x) { return getColor(x._index); }, //
-        [this](ColorData data) { return calculateColor(data); });
+        [this](const ColorData& data)
+        { return calculateColor(currentHue, pulseFactor, data); });
 }
 
 } // namespace hg

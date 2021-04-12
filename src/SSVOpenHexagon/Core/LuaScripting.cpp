@@ -875,15 +875,21 @@ static void initLevelControl(
             "increment.");
 
     addLuaFn(lua, "l_addTracked", //
-        [&levelStatus](const std::string& mVar, const std::string& mName) {
-            levelStatus.trackedVariables.push_back({mVar, mName});
-        })
+        [&levelStatus](const std::string& mVar, const std::string& mName)
+        { levelStatus.trackedVariables[mVar] = mName; })
         .arg("variable")
         .arg("name")
         .doc(
-            "Add the variable `$0` to the list of tracked variables, with name "
-            "`$1`. Tracked variables are displayed in game, below the game "
-            "timer. *NOTE: Your variable must be global for this to work.*");
+            "Add or set the variable `$0` to the list of tracked variables, "
+            "with name `$1`. Tracked variables are displayed in game, below "
+            "the game timer. *NOTE: Your variable must be global for this to "
+            "work.*");
+
+    addLuaFn(lua, "l_removeTracked", //
+        [&levelStatus](const std::string& mVar)
+        { levelStatus.trackedVariables.erase(mVar); })
+        .arg("variable")
+        .doc("Remove the variable `$0` from the list of tracked variables");
 
     addLuaFn(lua, "l_clearTracked", //
         [&levelStatus] { levelStatus.trackedVariables.clear(); })
@@ -1108,20 +1114,20 @@ static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)
         "Sets the rotation offset of the background panels to `$0` degrees.");
 
     addLuaFn(lua, "s_setCapColorMain", //
-        [&styleData] { styleData.capColor = CapColorMode::Main{}; })
+        [&styleData] { styleData.setCapColor(CapColorMode::Main{}); })
         .doc(
             "Set the color of the center polygon to match the main style "
             "color.");
 
     addLuaFn(lua, "s_setCapColorMainDarkened", //
-        [&styleData] { styleData.capColor = CapColorMode::MainDarkened{}; })
+        [&styleData] { styleData.setCapColor(CapColorMode::MainDarkened{}); })
         .doc(
             "Set the color of the center polygon to match the main style "
             "color, darkened.");
 
     addLuaFn(lua, "s_setCapColorByIndex", //
         [&styleData](int mIndex)
-        { styleData.capColor = CapColorMode::ByIndex{mIndex}; })
+        { styleData.setCapColor(CapColorMode::ByIndex{mIndex}); })
         .arg("index")
         .doc(
             "Set the color of the center polygon to match the style color with "

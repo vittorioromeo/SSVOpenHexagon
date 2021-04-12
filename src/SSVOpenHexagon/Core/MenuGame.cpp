@@ -43,6 +43,8 @@
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVStart/Input/Input.hpp>
+#include <SSVStart/Utils/SFML.hpp>
+#include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
 #include <SSVStart/GameSystem/GameSystem.hpp>
 
@@ -948,7 +950,7 @@ void MenuGame::initLua()
         {
             runLuaFile(
                 Utils::getDependentScriptFilename(execScriptPackPathContext,
-                    levelData->packPath.getStr(), mScriptName));
+                    levelData->packPath, mScriptName));
         });
 
     lua.writeVariable("u_execDependencyScript", //
@@ -2200,6 +2202,11 @@ void MenuGame::eraseAction()
 
             return;
         }
+        else
+        {
+            // Remove profile from memory as well
+            assets.pRemove(name);
+        }
 
         // Remove the item from the menu
         profileSelectionMenu.getCategory().remove();
@@ -3406,7 +3413,7 @@ std::string MenuGame::formatSurvivalTime(ProfileData* data)
     int time{0};
     for(auto& s : data->getScores())
     {
-        time += s.asInt();
+        time += s.second;
     }
 
     std::stringstream stream;
@@ -5151,7 +5158,7 @@ void MenuGame::draw()
     overlayCamera.apply();
 
     // Draw the profile name.
-    if(mainOrAbove && state != States::LevelSelection && Config::getOnline())
+    if(mainOrAbove && state != States::LevelSelection)
     {
         renderText("CURRENT PROFILE: " + assets.pGetName(),
             txtSelectionSmall.font,

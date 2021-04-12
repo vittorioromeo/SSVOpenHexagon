@@ -4,18 +4,14 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Data/TrackedVariable.hpp"
-
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 namespace hg {
 
 struct LevelStatus
 {
-    std::vector<TrackedVariable> trackedVariables;
+    std::unordered_map<std::string, std::string> trackedVariables;
 
     // Allows alternative scoring to be possible
     bool scoreOverridden{false};

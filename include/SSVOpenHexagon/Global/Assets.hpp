@@ -11,23 +11,27 @@
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
 #include "SSVOpenHexagon/Data/PackInfo.hpp"
 
-#include <SSVStart/Assets/Assets.hpp>
-#include <SSVStart/Assets/AssetManager.hpp>
-
-#include <SSVUtils/Core/FileSystem/Path.hpp>
-
-#include <unordered_map>
-#include <map>
-#include <vector>
-#include <string>
 #include <cstddef>
+#include <map>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace sf {
-
 class SoundBuffer;
 class Music;
-
 } // namespace sf
+
+namespace ssvu::FileSystem {
+class Path;
+}
+
+namespace ssvufs = ssvu::FileSystem;
+
+namespace ssvs {
+class DefaultAssetManager;
+}
 
 namespace hg {
 
@@ -44,7 +48,7 @@ private:
 
     bool levelsOnly{false};
 
-    ssvs::AssetManager<> assetManager;
+    std::unique_ptr<ssvs::DefaultAssetManager> assetManager;
 
     std::unordered_map<std::string, LevelData> levelDatas;
     std::unordered_map<std::string, std::vector<std::string>>
@@ -73,8 +77,6 @@ public:
     ~HGAssets();
 
     [[nodiscard]] LoadInfo& getLoadResults();
-
-    [[nodiscard]] auto& operator()();
 
     template <typename T>
     [[nodiscard]] T& get(const std::string& mId);
@@ -160,6 +162,7 @@ public:
     void pSaveAll();
     void pSetCurrent(const std::string& mName);
     void pCreate(const std::string& mName);
+    void pRemove(const std::string& mName);
 
     [[nodiscard]] sf::SoundBuffer* getSoundBuffer(const std::string& assetId);
     [[nodiscard]] sf::Music* getMusic(const std::string& assetId);

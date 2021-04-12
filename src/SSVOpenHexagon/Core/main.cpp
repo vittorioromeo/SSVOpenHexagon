@@ -24,6 +24,10 @@
 
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
+#include <SSVUtils/Core/Log/Log.hpp>
+#include <SSVUtils/Core/Log/Log.inl>
+#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
+
 #include <string>
 #include <optional>
 #include <vector>
@@ -378,10 +382,10 @@ int main(int argc, char* argv[])
                               const std::string& levelId, bool firstPlay,
                               float diffMult, bool executeLastReplay)
         {
-            window->setGameState(hg->getGame());
-
             hg->newGame(
                 packId, levelId, firstPlay, diffMult, executeLastReplay);
+
+            window->setGameState(hg->getGame());
         };
 
         mg->fnHGUpdateRichPresenceCallbacks = [&] //
@@ -391,9 +395,10 @@ int main(int argc, char* argv[])
 
         hg->fnGoToMenu = [&](const bool error)
         {
-            window->setGameState(mg->getGame());
             mg->returnToLevelSelection();
             mg->init(error);
+
+            window->setGameState(mg->getGame());
         };
     }
 
@@ -411,8 +416,9 @@ int main(int argc, char* argv[])
 
         const auto gotoMenu = [&]
         {
-            window->setGameState(mg->getGame());
             mg->init(false /* mError */);
+
+            window->setGameState(mg->getGame());
         };
 
         const auto gotoGameReplay = [&](const hg::replay_file& replayFile)

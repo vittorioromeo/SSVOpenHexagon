@@ -40,10 +40,10 @@ private:
         types.emplace_back(typeToStr(TypeWrapper<std::decay_t<ArgT>>{}));
     }
 
-    template <typename F>
+    template <typename FOp>
     [[nodiscard]] static std::string makeArgsString(LuaMetadataProxy* self)
     {
-        using AE = Utils::ArgExtractor<decltype(&F::operator())>;
+        using AE = Utils::ArgExtractor<FOp>;
 
         std::vector<std::string> types;
 
@@ -78,22 +78,21 @@ private:
 
     [[nodiscard]] std::string resolveArgNames(const std::string& docs);
 
+    template <typename FOp>
+    [[nodiscard]] static std::string makeErasedRet(LuaMetadataProxy*)
+    {
+        using AE = Utils::ArgExtractor<FOp>;
+        return typeToStr(TypeWrapper<std::decay_t<typename AE::Return>>{});
+    }
+
 public:
-    template <typename F>
+    template <typename F, typename FOp = decltype(&std::decay_t<F>::operator())>
     explicit LuaMetadataProxy(
         TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
         : luaMetadata{mLuaMetadata},
           name{mName},
-          erasedRet{[](LuaMetadataProxy*) -> std::string
-              {
-                  using AE = Utils::ArgExtractor<decltype(
-                      &std::decay_t<F>::operator())>;
-
-                  return typeToStr(
-                      TypeWrapper<std::decay_t<typename AE::Return>>{});
-              }},
-          erasedArgs{[](LuaMetadataProxy* self)
-              { return makeArgsString<std::decay_t<F>>(self); }}
+          erasedRet{&makeErasedRet<FOp>},
+          erasedArgs{&makeArgsString<FOp>}
     {}
 
     ~LuaMetadataProxy();

@@ -42,7 +42,7 @@
 	"no_music" : false,
 	"no_rotation" : false,
 	"no_sound" : false,
-	"official" : true,
+	"official" : false,
 	"online" : true,
 	"pixel_multiplier" : 1,
 	"player_focus_speed" : 4.6250,
@@ -64,112 +64,112 @@
 	"show_timer" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 85.0,
-	"t_down" : 
+	"t_down" :
 	[
 		[ "" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_exit" : 
+	"t_exit" :
 	[
 		[ "kT" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_focus" : 
+	"t_focus" :
 	[
 		[ "kLShift" ],
 		[ "bXButton1" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_force_restart" : 
+	"t_force_restart" :
 	[
 		[ "kUp" ],
 		[ "kR" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_lua_console" : 
+	"t_lua_console" :
 	[
 		[ "kF1" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_next" : 
+	"t_next" :
 	[
 		[ "kPageDown" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_pause" : 
+	"t_pause" :
 	[
 		[ "kF2" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_previous" : 
+	"t_previous" :
 	[
 		[ "kPageUp" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_replay" : 
+	"t_replay" :
 	[
 		[ "kY" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_restart" : 
+	"t_restart" :
 	[
 		[ "bMiddle" ],
 		[ "kSpace" ],
 		[ "kReturn" ],
 		[ "" ]
 	],
-	"t_rotate_ccw" : 
+	"t_rotate_ccw" :
 	[
 		[ "kA" ],
 		[ "kLeft" ],
 		[ "bLeft" ],
 		[ "" ]
 	],
-	"t_rotate_cw" : 
+	"t_rotate_cw" :
 	[
 		[ "kD" ],
 		[ "kRight" ],
 		[ "bRight" ],
 		[ "" ]
 	],
-	"t_screenshot" : 
+	"t_screenshot" :
 	[
 		[ "kF12" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_select" : 
+	"t_select" :
 	[
 		[ "kSpace" ],
 		[ "bMiddle" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_swap" : 
+	"t_swap" :
 	[
 		[ "bMiddle" ],
 		[ "kSpace" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_up" : 
+	"t_up" :
 	[
 		[ "" ],
 		[ "" ],
@@ -182,7 +182,7 @@
 	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 603,
-	"windowed_width" : 1176,
-	"zoom_factor" : 1.273631811141968
+	"windowed_height" : 886,
+	"windowed_width" : 1666,
+	"zoom_factor" : 0.8668171763420105
 }

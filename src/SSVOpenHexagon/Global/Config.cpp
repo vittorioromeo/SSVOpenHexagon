@@ -3,12 +3,15 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/String.hpp"
-#include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
+
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/LinkedValue/LinkedValue.hpp"
 
 #include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Input/Input.hpp>
@@ -17,103 +20,110 @@
 #include <iostream>
 #include <fstream>
 
-#define X_LINKEDVALUES_BINDS_JOYSTICK                         \
-    X(joystickSelect, unsigned int, "j_select")               \
-    X(joystickExit, unsigned int, "j_exit")                   \
-    X(joystickFocus, unsigned int, "j_focus")                 \
-    X(joystickSwap, unsigned int, "j_swap")                   \
-    X(joystickForceRestart, unsigned int, "j_force_restart")  \
-    X(joystickRestart, unsigned int, "j_restart")             \
-    X(joystickReplay, unsigned int, "j_replay")               \
-    X(joystickScreenshot, unsigned int, "j_screenshot")       \
-    X(joystickNextPack, unsigned int, "j_next")               \
-    X(joystickPreviousPack, unsigned int, "j_previous")       \
-    X(joystickAddToFavorites, unsigned int, "j_add_favorite") \
-    X(joystickFavoritesMenu, unsigned int, "j_favorite_menu")
+using uint = unsigned int;
+using ushort = unsigned short;
+using trig = ssvs::Input::Trigger;
+using k = ssvs::KKey;
+using m = ssvs::MBtn;
 
-#define X_LINKEDVALUES_BINDS_TRIGGERS                               \
-    X(triggerRotateCCW, ssvs::Input::Trigger, "t_rotate_ccw")       \
-    X(triggerRotateCW, ssvs::Input::Trigger, "t_rotate_cw")         \
-    X(triggerFocus, ssvs::Input::Trigger, "t_focus")                \
-    X(triggerSelect, ssvs::Input::Trigger, "t_select")              \
-    X(triggerExit, ssvs::Input::Trigger, "t_exit")                  \
-    X(triggerForceRestart, ssvs::Input::Trigger, "t_force_restart") \
-    X(triggerRestart, ssvs::Input::Trigger, "t_restart")            \
-    X(triggerReplay, ssvs::Input::Trigger, "t_replay")              \
-    X(triggerScreenshot, ssvs::Input::Trigger, "t_screenshot")      \
-    X(triggerSwap, ssvs::Input::Trigger, "t_swap")                  \
-    X(triggerUp, ssvs::Input::Trigger, "t_up")                      \
-    X(triggerDown, ssvs::Input::Trigger, "t_down")                  \
-    X(triggerNextPack, ssvs::Input::Trigger, "t_next")              \
-    X(triggerPreviousPack, ssvs::Input::Trigger, "t_previous")      \
-    X(triggerLuaConsole, ssvs::Input::Trigger, "t_lua_console")     \
-    X(triggerPause, ssvs::Input::Trigger, "t_pause")
+#define X_LINKEDVALUES_BINDS_JOYSTICK                    \
+    X(joystickSelect, uint, "j_select", 1)               \
+    X(joystickExit, uint, "j_exit", 2)                   \
+    X(joystickFocus, uint, "j_focus", 4)                 \
+    X(joystickSwap, uint, "j_swap", 5)                   \
+    X(joystickForceRestart, uint, "j_force_restart", 3)  \
+    X(joystickRestart, uint, "j_restart", 0)             \
+    X(joystickReplay, uint, "j_replay", 6)               \
+    X(joystickScreenshot, uint, "j_screenshot", 7)       \
+    X(joystickNextPack, uint, "j_next", 11)              \
+    X(joystickPreviousPack, uint, "j_previous", 10)      \
+    X(joystickAddToFavorites, uint, "j_add_favorite", 8) \
+    X(joystickFavoritesMenu, uint, "j_favorite_menu", 9)
+
+#define X_LINKEDVALUES_BINDS_TRIGGERS                                      \
+    X(triggerRotateCCW, trig, "t_rotate_ccw",                              \
+        {{{k::A}}, {{k::Left}}, {{}, {m::Left}}})                          \
+    X(triggerRotateCW, trig, "t_rotate_cw",                                \
+        {{{k::D}}, {{k::Right}}, {{}, {m::Right}}})                        \
+    X(triggerFocus, trig, "t_focus", {{{k::LShift}}, {{}, {m::XButton1}}}) \
+    X(triggerSelect, trig, "t_select", {{{k::Space}}, {{}, {m::Middle}}})  \
+    X(triggerExit, trig, "t_exit", {{{k::T}}})                             \
+    X(triggerForceRestart, trig, "t_force_restart", {{{k::Up}}, {{k::R}}}) \
+    X(triggerRestart, trig, "t_restart",                                   \
+        {{{k::Space}}, {{k::Return}}, {{}, {m::Middle}}})                  \
+    X(triggerReplay, trig, "t_replay", {{{k::Y}}})                         \
+    X(triggerScreenshot, trig, "t_screenshot", {{{k::F12}}})               \
+    X(triggerSwap, trig, "t_swap", {{{k::Space}}, {{}, {m::Middle}}})      \
+    X(triggerUp, trig, "t_up", {{{k::W}}})                                 \
+    X(triggerDown, trig, "t_down", {{{k::S}}})                             \
+    X(triggerNextPack, trig, "t_next", {{{k::PageDown}}})                  \
+    X(triggerPreviousPack, trig, "t_previous", {{{k::PageUp}}})            \
+    X(triggerLuaConsole, trig, "t_lua_console", {{{k::F1}}})               \
+    X(triggerPause, trig, "t_pause", {{{k::F2}}})
 
 #define X_LINKEDVALUES_BINDS      \
     X_LINKEDVALUES_BINDS_JOYSTICK \
     X_LINKEDVALUES_BINDS_TRIGGERS
 
-#define X_LINKEDVALUES                                                     \
-    X(online, bool, "online")                                              \
-    X(official, bool, "official")                                          \
-    X(noRotation, bool, "no_rotation")                                     \
-    X(noBackground, bool, "no_background")                                 \
-    X(noSound, bool, "no_sound")                                           \
-    X(noMusic, bool, "no_music")                                           \
-    X(blackAndWhite, bool, "black_and_white")                              \
-    X(pulseEnabled, bool, "pulse_enabled")                                 \
-    X(_3DEnabled, bool, "3D_enabled")                                      \
-    X(_3DMultiplier, float, "3D_multiplier")                               \
-    X(_3DMaxDepth, unsigned int, "3D_max_depth")                           \
-    X(invincible, bool, "invincible")                                      \
-    X(autoRestart, bool, "auto_restart")                                   \
-    X(soundVolume, float, "sound_volume")                                  \
-    X(musicVolume, float, "music_volume")                                  \
-    X(flashEnabled, bool, "flash_enabled")                                 \
-    X(zoomFactor, float, "zoom_factor")                                    \
-    X(pixelMultiplier, int, "pixel_multiplier")                            \
-    X(playerSpeed, float, "player_speed")                                  \
-    X(playerFocusSpeed, float, "player_focus_speed")                       \
-    X(playerSize, float, "player_size")                                    \
-    X(limitFPS, bool, "limit_fps")                                         \
-    X(vsync, bool, "vsync")                                                \
-    X(autoZoomFactor, bool, "auto_zoom_factor")                            \
-    X(fullscreen, bool, "fullscreen")                                      \
-    X(windowedAutoResolution, bool, "windowed_auto_resolution")            \
-    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution")        \
-    X(fullscreenWidth, unsigned int, "fullscreen_width")                   \
-    X(fullscreenHeight, unsigned int, "fullscreen_height")                 \
-    X(windowedWidth, unsigned int, "windowed_width")                       \
-    X(windowedHeight, unsigned int, "windowed_height")                     \
-    X(showMessages, bool, "show_messages")                                 \
-    X(debug, bool, "debug")                                                \
-    X(beatPulse, bool, "beatpulse_enabled")                                \
-    X(showTrackedVariables, bool, "show_tracked_variables")                \
-    X(musicSpeedDMSync, bool, "music_speed_dm_sync")                       \
-    X(maxFPS, unsigned int, "max_fps")                                     \
-    X(antialiasingLevel, unsigned int, "antialiasing_level")               \
-    X(showFPS, bool, "show_fps")                                           \
-    X(serverLocal, bool, "server_local")                                   \
-    X(serverVerbose, bool, "server_verbose")                               \
-    X(mouseVisible, bool, "mouse_visible")                                 \
-    X(musicSpeedMult, float, "music_speed_mult")                           \
-    X(drawTextOutlines, bool, "draw_text_outlines")                        \
-    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk") \
-    X(rotateToStart, bool, "rotate_to_start")                              \
-    X(joystickDeadzone, float, "joystick_deadzone")                        \
-    X(textPadding, float, "text_padding")                                  \
-    X(textScaling, float, "text_scaling")                                  \
-    X(timescale, float, "timescale")                                       \
-    X(showKeyIcons, bool, "show_key_icons")                                \
-    X(keyIconsScale, float, "key_icons_scale")                             \
-    X(firstTimePlaying, bool, "first_time_playing")                        \
-    X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file")   \
-    X(showLevelInfo, bool, "show_level_info")                              \
-    X(showTimer, bool, "show_timer")                                       \
-    X(showStatusText, bool, "show_status_text")                            \
-    X(serverIp, std::string, "server_ip")                                  \
-    X(serverPort, unsigned short, "server_port")                           \
-    X(serverControlPort, unsigned short, "server_control_port")            \
+#define X_LINKEDVALUES                                                         \
+    X(official, bool, "official", true)                                        \
+    X(noRotation, bool, "no_rotation", false)                                  \
+    X(noBackground, bool, "no_background", false)                              \
+    X(noSound, bool, "no_sound", false)                                        \
+    X(noMusic, bool, "no_music", false)                                        \
+    X(blackAndWhite, bool, "black_and_white", false)                           \
+    X(pulseEnabled, bool, "pulse_enabled", true)                               \
+    X(_3DEnabled, bool, "3D_enabled", true)                                    \
+    X(_3DMultiplier, float, "3D_multiplier", 1.f)                              \
+    X(_3DMaxDepth, uint, "3D_max_depth", 100)                                  \
+    X(invincible, bool, "invincible", false)                                   \
+    X(autoRestart, bool, "auto_restart", false)                                \
+    X(soundVolume, float, "sound_volume", 100.f)                               \
+    X(musicVolume, float, "music_volume", 100.f)                               \
+    X(flashEnabled, bool, "flash_enabled", true)                               \
+    X(zoomFactor, float, "zoom_factor", 1.27f)                                 \
+    X(pixelMultiplier, int, "pixel_multiplier", 1)                             \
+    X(playerSpeed, float, "player_speed", 9.45f)                               \
+    X(playerFocusSpeed, float, "player_focus_speed", 4.625f)                   \
+    X(playerSize, float, "player_size", 7.3f)                                  \
+    X(limitFPS, bool, "limit_fps", true)                                       \
+    X(vsync, bool, "vsync", false)                                             \
+    X(autoZoomFactor, bool, "auto_zoom_factor", true)                          \
+    X(fullscreen, bool, "fullscreen", false)                                   \
+    X(windowedAutoResolution, bool, "windowed_auto_resolution", false)         \
+    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", true)      \
+    X(fullscreenWidth, uint, "fullscreen_width", 1920)                         \
+    X(fullscreenHeight, uint, "fullscreen_height", 1080)                       \
+    X(windowedWidth, uint, "windowed_width", 800)                              \
+    X(windowedHeight, uint, "windowed_height", 600)                            \
+    X(showMessages, bool, "show_messages", true)                               \
+    X(debug, bool, "debug", false)                                             \
+    X(beatPulse, bool, "beatpulse_enabled", true)                              \
+    X(showTrackedVariables, bool, "show_tracked_variables", true)              \
+    X(musicSpeedDMSync, bool, "music_speed_dm_sync", true)                     \
+    X(maxFPS, uint, "max_fps", 200)                                            \
+    X(antialiasingLevel, uint, "antialiasing_level", 4)                        \
+    X(showFPS, bool, "show_fps", false)                                        \
+    X(mouseVisible, bool, "mouse_visible", false)                              \
+    X(musicSpeedMult, float, "music_speed_mult", 1.0f)                         \
+    X(drawTextOutlines, bool, "draw_text_outlines", true)                      \
+    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk",     \
+        true)                                                                  \
+    X(rotateToStart, bool, "rotate_to_start", false)                           \
+    X(joystickDeadzone, float, "joystick_deadzone", 5.0f)                      \
+    X(textPadding, float, "text_padding", 8.0f)                                \
+    X(textScaling, float, "text_scaling", 1.0f)                                \
+    X(timescale, float, "timescale", 1.0f)                                     \
+    X(showKeyIcons, bool, "show_key_icons", false)                             \
+    X(keyIconsScale, float, "key_icons_scale", 0.75f)                          \
+    X(firstTimePlaying, bool, "first_time_playing", true)                      \
+    X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file", true) \
+    X(showLevelInfo, bool, "show_level_info", false)                           \
+    X(showTimer, bool, "show_timer", true)                                     \
+    X(showStatusText, bool, "show_status_text", true)                          \
+    X(serverIp, std::string, "server_ip", "139.162.199.162")                   \
+    X(serverPort, ushort, "server_port", 50505)                                \
+    X(serverControlPort, ushort, "server_control_port", 50506)                 \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -130,35 +140,29 @@ namespace hg::Config {
             return ssvuj::getFromFile("config.json");
         }
 
-        if(ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
-        {
-            ssvu::lo("hg::Config::root()")
-                << "User `config.json` file not found, looking for "
-                   "default\n";
-
-            ssvu::lo("hg::Config::root()")
-                << "Default `default_config.json` file found\n";
-
-            return ssvuj::getFromFile("default_config.json");
-        }
-
         ssvu::lo("hg::Config::root()")
-            << "FATAL ERROR: No suitable config file found\n";
+            << "No suitable config file found, using defaults\n";
 
-        std::abort();
+        return ssvuj::Obj{};
     }();
 
     return res;
 }
 
-#define X(name, type, key)                                 \
-    [[nodiscard]] static auto& name() noexcept             \
-    {                                                      \
-        static auto res = ::ssvuj::LinkedValue<type>(key); \
-        return res;                                        \
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbraced-scalar-init"
+
+#define X(name, type, key, ...)                                               \
+    [[nodiscard]] static auto& name() noexcept                                \
+    {                                                                         \
+        static auto res = ::ssvuj::LinkedValue<type>(key, type{__VA_ARGS__}); \
+        return res;                                                           \
     }
 X_LINKEDVALUES
 #undef X
+
+#pragma GCC diagnostic pop
 
 static void fixupMissingTriggers()
 {
@@ -179,14 +183,14 @@ static void fixupMissingTriggers()
         }
     };
 
-#define X(name, type, key) doIt(name());
+#define X(name, type, key, ...) doIt(name());
     X_LINKEDVALUES_BINDS_TRIGGERS
 #undef X
 }
 
 static void syncAllFromObj()
 {
-#define X(name, type, key) name().syncFrom(root());
+#define X(name, type, key, ...) name().syncFrom(root());
     X_LINKEDVALUES
 #undef X
 
@@ -195,23 +199,21 @@ static void syncAllFromObj()
 
 static void syncAllToObj()
 {
-#define X(name, type, key) name().syncTo(root());
+#define X(name, type, key, ...) name().syncTo(root());
     X_LINKEDVALUES
 #undef X
 }
 
-static void resetAllFromObj()
+static void resetAllFromDefault()
 {
-#define X(name, type, key) \
-    name().syncFrom(ssvuj::getFromFile("default_config.json"));
+#define X(name, type, key, ...) name().resetToDefault();
     X_LINKEDVALUES
 #undef X
 }
 
-static void resetBindsFromObj()
+static void resetBindsFromDefault()
 {
-#define X(name, type, key) \
-    name().syncFrom(ssvuj::getFromFile("default_config.json"));
+#define X(name, type, key, ...) name().resetToDefault();
     X_LINKEDVALUES_BINDS
 #undef X
 }
@@ -280,16 +282,7 @@ void resetConfigToDefaults()
 {
     ssvu::lo("::resetConfigToDefaults") << "resetting configs\n";
 
-    if(!ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
-    {
-        ssvu::lo("hg::Config::resetConfigToDefaults()")
-            << "`default_config.json` file not found, config reset "
-               "aborted\n";
-
-        return;
-    }
-
-    resetAllFromObj();
+    resetAllFromDefault();
 
     if(getWindowedAutoResolution())
     {
@@ -308,16 +301,7 @@ void resetBindsToDefaults()
 {
     ssvu::lo("::resetBindsToDefaults") << "resetting binds to defaults\n";
 
-    if(!ssvufs::Path{"default_config.json"}.exists<ssvufs::Type::File>())
-    {
-        ssvu::lo("hg::Config::resetBindsToDefaults()")
-            << "`default_config.json` file not found, config reset "
-               "aborted\n";
-
-        return;
-    }
-
-    resetBindsFromObj();
+    resetBindsFromDefault();
 }
 
 void saveConfig()
@@ -468,11 +452,6 @@ void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue)
     }
 }
 
-void setOnline(bool mOnline)
-{
-    online() = mOnline;
-}
-
 void setOfficial(bool mOfficial)
 {
     official() = mOfficial;
@@ -551,16 +530,6 @@ void setMusicSpeedDMSync(bool mValue)
 void setShowFPS(bool mValue)
 {
     showFPS() = mValue;
-}
-
-void setServerLocal(bool mValue)
-{
-    serverLocal() = mValue;
-}
-
-void setServerVerbose(bool mValue)
-{
-    serverVerbose() = mValue;
 }
 
 void setMouseVisible(bool mValue)
@@ -656,11 +625,6 @@ void setServerPort(unsigned short mX)
 void setServerControlPort(unsigned short mX)
 {
     serverControlPort() = mX;
-}
-
-[[nodiscard]] bool getOnline()
-{
-    return online();
 }
 
 [[nodiscard]] bool getOfficial()
@@ -881,16 +845,6 @@ void setServerControlPort(unsigned short mX)
 [[nodiscard]] bool getShowFPS()
 {
     return showFPS();
-}
-
-[[nodiscard]] bool getServerLocal()
-{
-    return serverLocal();
-}
-
-[[nodiscard]] bool getServerVerbose()
-{
-    return serverVerbose();
 }
 
 [[nodiscard]] bool getMouseVisible()
