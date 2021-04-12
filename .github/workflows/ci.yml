@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     env:
-      CXXFLAGS: -I/usr/local/include/SFML -std=c++2a
+      CXXFLAGS: -std=c++2a
       LDFLAGS: -L/usr/local/lib
 
     steps:
@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build libsfml-dev libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxcursor-dev
+        sudo apt-get install -y ninja-build libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxcursor-dev
 
     - name: CMake configure
       run: |
@@ -33,7 +33,7 @@ jobs:
     - name: Copy artifacts
       run: |
         cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
-        cp /usr/lib/x86_64-linux-gnu/libsfml-*.so _RELEASE
+        cp build/_deps/sfml-build/lib/libsfml-*.so _RELEASE
         mv _RELEASE/libsfml-audio.so _RELEASE/libsfml-audio.so.2.5
         mv _RELEASE/libsfml-graphics.so _RELEASE/libsfml-graphics.so.2.5
         mv _RELEASE/libsfml-network.so _RELEASE/libsfml-network.so.2.5
