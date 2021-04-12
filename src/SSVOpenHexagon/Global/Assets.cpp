@@ -21,6 +21,7 @@
 
 #include <thread>
 #include <mutex>
+#include <algorithm>
 
 namespace hg {
 
@@ -187,8 +188,12 @@ HGAssets::~HGAssets()
         });
 
     // This is done here to later accelerate work partitioning on
-    // loadPackAssets().
-    packInfos.emplace_back(PackInfo{packId, packPath.getStr()});
+    // `loadPackAssets`.
+    if(std::none_of(packInfos.begin(), packInfos.end(),
+           [&](const PackInfo& pi) { return pi.id == packId; }))
+    {
+        packInfos.emplace_back(PackInfo{packId, packPath.getStr()});
+    }
 
     return true;
 }
