@@ -65,10 +65,16 @@ private:
     ProfileData* currentProfilePtr{nullptr};
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
-    [[nodiscard]] bool loadPackInfo(const PackData& packData);
+    [[nodiscard]] bool loadPackAssets(const PackData& packData);
 
-private:
     LoadInfo loadInfo;
+
+    // Mutexes for multithreaded assets loading.
+    std::mutex errorMutex;
+    std::mutex assetManagerMutex;
+    std::mutex loadMusicDataMtx;
+    std::mutex loadStyleDataMtx;
+    std::mutex loadLevelDataMtx;
 
 public:
     HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
