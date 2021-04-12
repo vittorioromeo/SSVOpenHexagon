@@ -69,13 +69,6 @@ private:
 
     LoadInfo loadInfo;
 
-    // Mutexes for multithreaded assets loading.
-    std::mutex errorMutex;
-    std::mutex assetManagerMutex;
-    std::mutex loadMusicDataMtx;
-    std::mutex loadStyleDataMtx;
-    std::mutex loadLevelDataMtx;
-
 public:
     HGAssets(Steam::steam_manager* mSteamManager, bool mHeadless,
         bool mLevelsOnly = false);

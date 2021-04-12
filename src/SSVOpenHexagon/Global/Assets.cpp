@@ -24,6 +24,13 @@
 
 namespace hg {
 
+// Mutexes for multithreaded assets loading.
+std::mutex errorMutex;
+std::mutex assetManagerMutex;
+std::mutex loadMusicDataMtx;
+std::mutex loadStyleDataMtx;
+std::mutex loadLevelDataMtx;
+
 [[nodiscard]] static auto scanSingleByExt(
     const ssvufs::Path& path, const std::string& extension)
 {
@@ -58,7 +65,10 @@ HGAssets::HGAssets(
         auto [object, error] =
             ssvuj::getFromFileWithErrors("Assets/assets.json");
 
-        loadAssetsFromJson(*assetManager, "Assets/", object);
+        {
+            std::scoped_lock sl{assetManagerMutex};
+            loadAssetsFromJson(*assetManager, "Assets/", object);
+        }
 
         loadInfo.addFormattedError(error);
     }
@@ -69,13 +79,17 @@ HGAssets::HGAssets(
         return;
     }
 
-    for(auto& v : levelDataIdsByPack)
     {
-        ssvu::sort(v.second,
-            [&](const auto& mA, const auto& mB) {
-                return levelDatas.at(mA).menuPriority <
-                       levelDatas.at(mB).menuPriority;
-            });
+        std::scoped_lock sl{loadLevelDataMtx};
+
+        for(auto& v : levelDataIdsByPack)
+        {
+            ssvu::sort(v.second,
+                [&](const auto& mA, const auto& mB) {
+                    return levelDatas.at(mA).menuPriority <
+                           levelDatas.at(mB).menuPriority;
+                });
+        }
     }
 
     ssvu::sort(packInfos, [&](const auto& mA, const auto& mB)
@@ -172,7 +186,8 @@ HGAssets::~HGAssets()
             .dependencies{getPackDependencies()}          //
         });
 
-    // This is done here to later accelerate work partitioning on loadPackAssets().
+    // This is done here to later accelerate work partitioning on
+    // loadPackAssets().
     packInfos.emplace_back(PackInfo{packId, packPath.getStr()});
 
     return true;
@@ -219,27 +234,28 @@ HGAssets::~HGAssets()
     }
     catch(const std::runtime_error& mEx)
     {
-        errorMutex.lock();
+        {
+            std::scoped_lock sl{errorMutex};
 
-        errorMessage =
-            Utils::concat("Exception during asset loading: ", mEx.what(), '\n');
-        loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
+            errorMessage = Utils::concat(
+                "Exception during asset loading: ", mEx.what(), '\n');
 
-        errorMutex.unlock();
+            loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
 
-        ssvu::lo("FATAL ERROR") << errorMessage;
+            ssvu::lo("FATAL ERROR") << errorMessage;
+        }
         return false;
     }
     catch(...)
     {
-        errorMutex.lock();
+        {
+            std::scoped_lock sl{errorMutex};
 
-        errorMessage = "Exception during asset loading: unknown.\n";
-        loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
+            errorMessage = "Exception during asset loading: unknown.\n";
+            loadInfo.errorMessages.emplace_back("FATAL ERROR, " + errorMessage);
 
-        errorMutex.unlock();
-
-        ssvu::lo("FATAL ERROR") << errorMessage;
+            ssvu::lo("FATAL ERROR") << errorMessage;
+        }
         return false;
     }
 
@@ -259,6 +275,7 @@ HGAssets::~HGAssets()
 template <typename T>
 [[nodiscard]] T& HGAssets::get(const std::string& mId)
 {
+    std::scoped_lock sl{assetManagerMutex};
     return assetManager->get<T>(mId);
 }
 
@@ -270,30 +287,38 @@ template sf::Font& HGAssets::get(const std::string& mId);
 [[nodiscard]] const std::unordered_map<std::string, LevelData>&
 HGAssets::getLevelDatas()
 {
+    std::scoped_lock sl{loadLevelDataMtx};
+
     return levelDatas;
 }
 
 [[nodiscard]] bool HGAssets::isValidLevelId(
     const std::string& mLevelId) const noexcept
 {
+    std::scoped_lock sl{loadLevelDataMtx};
     return levelDatas.find(mLevelId) != levelDatas.end();
 }
 
 [[nodiscard]] const LevelData& HGAssets::getLevelData(
     const std::string& mAssetId) const
 {
+    std::scoped_lock sl{loadLevelDataMtx};
+
     SSVOH_ASSERT(isValidLevelId(mAssetId));
     return levelDatas.at(mAssetId);
 }
 
 [[nodiscard]] bool HGAssets::packHasLevels(const std::string& mPackId)
 {
+    std::scoped_lock sl{loadLevelDataMtx};
     return levelDataIdsByPack.count(mPackId) > 0;
 }
 
 [[nodiscard]] const std::vector<std::string>& HGAssets::getLevelIdsByPack(
     const std::string& mPackId)
 {
+    std::scoped_lock sl{loadLevelDataMtx};
+
     SSVOH_ASSERT(levelDataIdsByPack.count(mPackId) > 0);
     return levelDataIdsByPack.at(mPackId);
 }
@@ -378,7 +403,7 @@ HGAssets::getPackDatas() const noexcept
     // ------------------------------------------------------------------------
     // Load packs from `Packs/` folder.
 
-    for(const std::string& packPath:
+    for(const std::string& packPath :
         ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::Folder>("Packs/"))
     {
         tryLoadPackFromPath(packPath);
@@ -395,35 +420,41 @@ HGAssets::getPackDatas() const noexcept
     // ------------------------------------------------------------------------
     // Load pack infos.
 
-    const unsigned int workersAmount{8u};
-    std::array<std::thread, workersAmount> workers;
+    const unsigned int workerCount = 1;
+    std::thread::hardware_concurrency();
 
-    for(unsigned int i{0u}; i < workersAmount; ++i)
+    std::vector<std::thread> workers;
+    workers.reserve(workerCount);
+
+    for(unsigned int i{0u}; i < workerCount; ++i)
     {
-        workers[i] = std::thread([&, i]() {
-            for(unsigned int j{i}; j < packInfos.size(); j += workersAmount)
+        workers.emplace_back(
+            [&, i]()
             {
-                const std::string& packId{packInfos[j].id};
-
-                if(loadPackAssets(packDatas[packId]))
+                for(unsigned int j{i}; j < packInfos.size(); j += workerCount)
                 {
-                    continue;
+                    const std::string& packId{packInfos[j].id};
+
+                    if(loadPackAssets(packDatas[packId]))
+                    {
+                        continue;
+                    }
+
+                    {
+                        std::scoped_lock sl{errorMutex};
+
+                        errorMessage = Utils::concat(
+                            "Error loading pack info '", packId, '\n');
+
+                        loadInfo.errorMessages.emplace_back(errorMessage);
+
+                        ssvu::lo("::loadAssets") << errorMessage;
+                    }
                 }
-
-                errorMutex.lock();
-
-                errorMessage =
-                    Utils::concat("Error loading pack info '", packId, '\n');
-                loadInfo.errorMessages.emplace_back(errorMessage);
-
-                errorMutex.unlock();
-
-                ssvu::lo("::loadAssets") << errorMessage;
-            }
-        });
+            });
     }
 
-    for(std::thread& t: workers)
+    for(std::thread& t : workers)
     {
         t.join();
     }
@@ -500,12 +531,10 @@ void HGAssets::loadCustomSounds(
 {
     for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
     {
-        assetManagerMutex.lock();
+        std::scoped_lock sl{assetManagerMutex};
 
         assetManager->load<sf::SoundBuffer>(
             Utils::concat(mPackId, '_', p.getFileName()), p);
-
-        assetManagerMutex.unlock();
 
         ++loadInfo.assets;
     }
@@ -515,14 +544,12 @@ void HGAssets::loadMusic(const std::string& mPackId, const ssvufs::Path& mPath)
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
     {
-        assetManagerMutex.lock();
+        std::scoped_lock sl{assetManagerMutex};
 
         auto& music(assetManager->load<sf::Music>(
             Utils::concat(mPackId, '_', p.getFileNameNoExtensions()), p));
 
         music.setLoop(true);
-
-        assetManagerMutex.unlock();
 
         ++loadInfo.assets;
     }
@@ -533,7 +560,7 @@ void HGAssets::loadMusicData(
 {
     for(const auto& p : scanSingleByExt(mPath + "Music/", ".json"))
     {
-        loadMusicDataMtx.lock();
+        std::scoped_lock sl{loadMusicDataMtx};
 
         auto [object, error] = ssvuj::getFromFileWithErrors(p);
         loadInfo.addFormattedError(error);
@@ -541,8 +568,6 @@ void HGAssets::loadMusicData(
         MusicData musicData{Utils::loadMusicFromJson(object)};
         musicDataMap.emplace(
             Utils::concat(mPackId, '_', musicData.id), std::move(musicData));
-
-        loadMusicDataMtx.unlock();
 
         ++loadInfo.assets;
     }
@@ -553,17 +578,14 @@ void HGAssets::loadStyleData(
 {
     for(const auto& p : scanSingleByExt(mPath + "Styles/", ".json"))
     {
+        std::scoped_lock sl{loadStyleDataMtx};
+
         auto [object, error] = ssvuj::getFromFileWithErrors(p);
-
-        loadStyleDataMtx.lock();
-
         loadInfo.addFormattedError(error);
 
         StyleData styleData{object};
         styleDataMap.emplace(
             Utils::concat(mPackId, '_', styleData.id), std::move(styleData));
-
-        loadStyleDataMtx.unlock();
 
         ++loadInfo.assets;
     }
@@ -574,9 +596,9 @@ void HGAssets::loadLevelData(
 {
     for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
     {
-        auto [object, error] = ssvuj::getFromFileWithErrors(p);
+        std::scoped_lock sl{loadLevelDataMtx};
 
-        loadLevelDataMtx.lock();
+        auto [object, error] = ssvuj::getFromFileWithErrors(p);
 
         loadInfo.addFormattedError(error);
 
@@ -585,8 +607,6 @@ void HGAssets::loadLevelData(
 
         levelDataIdsByPack[mPackId].emplace_back(assetId);
         levelDatas.emplace(std::move(assetId), std::move(levelData));
-
-        loadLevelDataMtx.unlock();
 
         ++loadInfo.levels;
     }
@@ -604,10 +624,14 @@ void HGAssets::loadLocalProfiles()
 
         ProfileData profileData{Utils::loadProfileFromJson(object)};
 
-        // Remove invalid level ids that might have been added to the files.
-        Utils::erase_if(profileData.getFavoriteLevelIds(),
-            [this](const std::string& favId)
-            { return levelDatas.find(favId) == levelDatas.end(); });
+        {
+            std::scoped_lock sl{loadLevelDataMtx};
+
+            // Remove invalid level ids that might have been added to the files.
+            Utils::erase_if(profileData.getFavoriteLevelIds(),
+                [this](const std::string& favId)
+                { return levelDatas.find(favId) == levelDatas.end(); });
+        }
 
         profileDataMap.emplace(profileData.getName(), std::move(profileData));
     }
@@ -685,6 +709,8 @@ void HGAssets::saveAllProfiles()
 [[nodiscard]] const MusicData& HGAssets::getMusicData(
     const std::string& mPackId, const std::string& mId)
 {
+    std::scoped_lock sl{loadMusicDataMtx};
+
     const std::string assetId = Utils::concat(mPackId, '_', mId);
 
     const auto it = musicDataMap.find(assetId);
@@ -702,6 +728,8 @@ void HGAssets::saveAllProfiles()
 [[nodiscard]] const StyleData& HGAssets::getStyleData(
     const std::string& mPackId, const std::string& mId)
 {
+    std::scoped_lock sl{loadStyleDataMtx};
+
     const std::string assetId = Utils::concat(mPackId, '_', mId);
 
     const auto it = styleDataMap.find(assetId);
@@ -732,6 +760,8 @@ void HGAssets::saveAllProfiles()
     }
     for(const auto& p : scanSingleByExt(mPath + "Levels/", ".json"))
     {
+        std::scoped_lock sl{loadLevelDataMtx};
+
         LevelData levelData{ssvuj::getFromFile(p), mPath, mPackId};
         temp = mPackId + "_" + levelData.id;
 
@@ -761,6 +791,7 @@ void HGAssets::saveAllProfiles()
             StyleData styleData{ssvuj::getFromFile(p)};
             temp = mPackId + "_" + styleData.id;
 
+            std::scoped_lock sl{loadStyleDataMtx};
             styleDataMap[temp] = std::move(styleData);
         }
         output += "Styles successfully reloaded\n";
@@ -780,6 +811,7 @@ void HGAssets::saveAllProfiles()
                 Utils::loadMusicFromJson(ssvuj::getFromFile(p))};
             temp = mPackId + "_" + musicData.id;
 
+            std::scoped_lock sl{loadMusicDataMtx};
             musicDataMap[temp] = std::move(musicData);
         }
         output += "Music data successfully reloaded\n";
@@ -795,6 +827,8 @@ void HGAssets::saveAllProfiles()
     {
         for(const auto& p : scanSingleByExt(mPath + "Music/", ".ogg"))
         {
+            std::scoped_lock sl{assetManagerMutex};
+
             temp = mPackId + "_" + p.getFileNameNoExtensions();
             if(!assetManager->has<sf::Music>(temp))
             {
@@ -815,6 +849,8 @@ void HGAssets::saveAllProfiles()
     {
         for(const auto& p : scanSingleByExt(mPath + "Sounds/", ".ogg"))
         {
+            std::scoped_lock sl{assetManagerMutex};
+
             temp = mPackId + "_" + p.getFileName();
             if(!assetManager->has<sf::SoundBuffer>(temp))
             {
@@ -851,17 +887,22 @@ void HGAssets::saveAllProfiles()
     LevelData levelData{ssvuj::getFromFile(levelFile[0]), mPath, mPackId};
     temp = mPackId + "_" + mId;
 
-    auto it = levelDatas.find(temp);
-    if(it == levelDatas.end())
     {
-        levelDataIdsByPack[mPackId].emplace_back(temp);
-        levelDatas.emplace(temp, std::move(levelData));
+        std::scoped_lock sl{loadLevelDataMtx};
+
+        auto it = levelDatas.find(temp);
+        if(it == levelDatas.end())
+        {
+
+            levelDataIdsByPack[mPackId].emplace_back(temp);
+            levelDatas.emplace(temp, std::move(levelData));
+        }
+        else
+        {
+            it->second = levelData;
+        }
+        output = "level data " + mId + ".json successfully loaded\n";
     }
-    else
-    {
-        it->second = levelData;
-    }
-    output = "level data " + mId + ".json successfully loaded\n";
 
     //*******************************************
     // Style
@@ -882,6 +923,7 @@ void HGAssets::saveAllProfiles()
             StyleData styleData{ssvuj::getFromFile(styleFile[0])};
             temp = mPackId + "_" + levelData.styleId;
 
+            std::scoped_lock sl{loadStyleDataMtx};
             styleDataMap[temp] = std::move(styleData);
 
             output += "style data " + levelData.styleId +
@@ -910,6 +952,7 @@ void HGAssets::saveAllProfiles()
                 Utils::loadMusicFromJson(ssvuj::getFromFile(musicDataFile[0]))};
             temp = mPackId + "_" + levelData.musicId;
 
+            std::scoped_lock sl{loadMusicDataMtx};
             musicDataMap[temp] = std::move(musicData);
 
             output += "music data " + levelData.musicId +
@@ -927,6 +970,8 @@ void HGAssets::saveAllProfiles()
     }
     else if(levelData.musicId != "nullMusicId")
     {
+        std::scoped_lock sl{assetManagerMutex};
+
         assetId = mPackId + "_" + levelData.musicId;
         if(assetManager->has<sf::Music>(assetId))
         {
@@ -965,6 +1010,8 @@ void HGAssets::saveAllProfiles()
         output += "invalid custom sound folder path\n";
         return output;
     }
+
+    std::scoped_lock sl{assetManagerMutex};
 
     // Check if this custom sound file is already loaded
     assetId = mPackId + "_" + levelData.soundId;
@@ -1126,6 +1173,8 @@ void HGAssets::pRemove(const std::string& mName)
 [[nodiscard]] sf::SoundBuffer* HGAssets::getSoundBuffer(
     const std::string& assetId)
 {
+    std::scoped_lock sl{assetManagerMutex};
+
     // TODO (P2): remove assetmanager
     if(!assetManager->has<sf::SoundBuffer>(assetId))
     {
@@ -1137,6 +1186,8 @@ void HGAssets::pRemove(const std::string& mName)
 
 [[nodiscard]] sf::Music* HGAssets::getMusic(const std::string& assetId)
 {
+    std::scoped_lock sl{assetManagerMutex};
+
     // TODO (P2): remove assetmanager
     if(!assetManager->has<sf::Music>(assetId))
     {
