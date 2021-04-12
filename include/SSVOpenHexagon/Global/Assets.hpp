@@ -65,8 +65,9 @@ private:
     ProfileData* currentProfilePtr{nullptr};
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
-    [[nodiscard]] bool loadPackAssets(const PackData& packData);
+    [[nodiscard]] bool loadPackInfo(const PackData& packData);
 
+private:
     LoadInfo loadInfo;
 
 public:
