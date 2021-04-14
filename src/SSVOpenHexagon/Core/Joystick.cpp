@@ -3,7 +3,7 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Core/Joystick.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
+
 #include "SSVOpenHexagon/Utils/Casts.hpp"
 
 #include <SFML/Window.hpp>
@@ -71,7 +71,7 @@ struct JoystickState
     return res;
 }
 
-void ignoreAllPresses(bool ignore)
+void ignoreAllPresses(const bool ignore)
 {
     auto& s = getJoystickState();
 
@@ -108,11 +108,9 @@ enum class AxisDir : int
     return static_cast<AxisDir>(-static_cast<int>(dir));
 }
 
-[[nodiscard]] static AxisDir axisPressed(
+[[nodiscard]] static AxisDir axisPressed(const float deadzone,
     const unsigned int joyId, const sf::Joystick::Axis axis)
 {
-    // TODO (P2): remove dependency on config
-    const float deadzone = Config::getJoystickDeadzone();
     const auto pos = sf::Joystick::getAxisPosition(joyId, axis);
 
     if(pos < -deadzone)
@@ -128,7 +126,7 @@ enum class AxisDir : int
     return AxisDir::Dead;
 }
 
-void update()
+void update(const float deadzone)
 {
     sf::Joystick::update();
 
@@ -141,17 +139,21 @@ void update()
         return;
     }
 
-    const auto dpadXIs = [&](const AxisDir axisDir)
-    { return axisPressed(joyId, sf::Joystick::Axis::PovX) == axisDir; };
+    const auto dpadXIs = [&](const AxisDir axisDir) {
+        return axisPressed(deadzone, joyId, sf::Joystick::Axis::PovX) ==
+               axisDir;
+    };
 
-    const auto dpadYIs = [&](const AxisDir axisDir)
-    { return axisPressed(joyId, sf::Joystick::Axis::PovY) == axisDir; };
+    const auto dpadYIs = [&](const AxisDir axisDir) {
+        return axisPressed(deadzone, joyId, sf::Joystick::Axis::PovY) ==
+               axisDir;
+    };
 
     const auto leftStickXIs = [&](const AxisDir axisDir)
-    { return axisPressed(joyId, sf::Joystick::Axis::X) == axisDir; };
+    { return axisPressed(deadzone, joyId, sf::Joystick::Axis::X) == axisDir; };
 
     const auto leftStickYIs = [&](const AxisDir axisDir)
-    { return axisPressed(joyId, sf::Joystick::Axis::Y) == axisDir; };
+    { return axisPressed(deadzone, joyId, sf::Joystick::Axis::Y) == axisDir; };
 
     const auto xIs = [&](const AxisDir axisDir)
     { return dpadXIs(axisDir) || leftStickXIs(axisDir); };

@@ -428,7 +428,7 @@ static void setInputImplIfFalse(bool& var, const bool x)
 
 void HexagonGame::updateInput_UpdateJoystickControls()
 {
-    Joystick::update();
+    Joystick::update(Config::getJoystickDeadzone());
 
     setInputImplIfFalse(inputImplCCW, Joystick::pressed(Joystick::Jdir::Left));
     setInputImplIfFalse(inputImplCW, Joystick::pressed(Joystick::Jdir::Right));
@@ -746,7 +746,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     {
         Particle p;
 
-        p.sprite.setTexture(assets.get<sf::Texture>("starParticle.png"));
+        p.sprite.setTexture(assets.getTextureOrNullTexture("starParticle.png"));
         p.sprite.setPosition(
             {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
         p.sprite.setRotation(ssvu::getRndR(0.f, 360.f));

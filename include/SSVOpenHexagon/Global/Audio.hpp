@@ -9,11 +9,8 @@
 #include <functional>
 
 namespace sf {
-
 class SoundBuffer;
-class Music;
-
-} // namespace sf
+}
 
 namespace hg {
 
@@ -23,7 +20,8 @@ public:
     using SoundBufferGetter =
         std::function<sf::SoundBuffer*(const std::string&)>;
 
-    using MusicGetter = std::function<sf::Music*(const std::string&)>;
+    using MusicPathGetter =
+        std::function<const std::string*(const std::string&)>;
 
 private:
     class AudioImpl;
@@ -35,7 +33,7 @@ private:
 
 public:
     explicit Audio(const SoundBufferGetter& soundBufferGetter,
-        const MusicGetter& musicGetter);
+        const MusicPathGetter& musicPathGetter);
 
     ~Audio();
 
@@ -55,8 +53,8 @@ public:
     void playSoundAbort(const std::string& id);
     void playPackSoundAbort(const std::string& packId, const std::string& id);
 
-    void playMusic(const std::string& packId, const std::string& id,
-        const float playingOffsetSeconds);
+    [[nodiscard]] bool loadAndPlayMusic(const std::string& packId,
+        const std::string& id, const float playingOffsetSeconds);
 
     void setCurrentMusicPitch(const float pitch);
 };

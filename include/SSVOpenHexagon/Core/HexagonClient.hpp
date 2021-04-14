@@ -155,7 +155,9 @@ private:
     [[nodiscard]] bool connectedAndInState(const State s) const noexcept;
 
 public:
-    explicit HexagonClient(Steam::steam_manager& steamManager);
+    explicit HexagonClient(Steam::steam_manager& steamManager,
+        const sf::IpAddress& serverIp, const unsigned short serverPort);
+
     ~HexagonClient();
 
     HexagonClient(const HexagonClient&) = delete;

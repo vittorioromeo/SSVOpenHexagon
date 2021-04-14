@@ -5,8 +5,10 @@
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 
 #include "SSVOpenHexagon/Global/Audio.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <SSVUtils/Core/Utils/Rnd.hpp>
+#include <SSVUtils/Core/Log/Log.hpp>
 
 #include <string>
 #include <cstddef>
@@ -56,7 +58,11 @@ void MusicData::addSegment(float mSeconds, float mBeatPulseDelayOffset)
 void MusicData::playSeconds(
     const std::string& mPackId, Audio& mAudio, float mSeconds) const
 {
-    mAudio.playMusic(mPackId, id, mSeconds);
+    if(!mAudio.loadAndPlayMusic(mPackId, id, mSeconds))
+    {
+        ssvu::lo("MusicData::playSeconds")
+            << "Failed playing music '" << mPackId << '_' << id << "'\n";
+    }
 }
 
 } // namespace hg

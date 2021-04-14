@@ -15,12 +15,10 @@ namespace hg {
 
 ProfileData::ProfileData(const GameVersion mVersion, const std::string& mName,
     const std::unordered_map<std::string, float>& mScores,
-    const std::vector<std::string>& mTrackedNames,
     const std::vector<std::string>& mFavorites)
     : version{mVersion},
       name{mName},
       scores{mScores},
-      trackedNames{mTrackedNames},
       favoriteLevelsDataIDs{mFavorites.begin(), mFavorites.end()}
 {}
 
@@ -38,12 +36,6 @@ ProfileData::ProfileData(const GameVersion mVersion, const std::string& mName,
 ProfileData::getScores() const noexcept
 {
     return scores;
-}
-
-[[nodiscard]] const std::vector<std::string>&
-ProfileData::getTrackedNames() const noexcept
-{
-    return trackedNames;
 }
 
 [[nodiscard]] std::unordered_set<std::string>&
@@ -73,16 +65,6 @@ void ProfileData::setScore(const std::string& mId, const float mScore)
     }
 
     return it->second;
-}
-
-void ProfileData::addTrackedName(const std::string& mTrackedName)
-{
-    trackedNames.emplace_back(ssvu::toLower(mTrackedName));
-}
-
-void ProfileData::clearTrackedNames()
-{
-    trackedNames.clear();
 }
 
 void ProfileData::addFavoriteLevel(const std::string& mLevelID)

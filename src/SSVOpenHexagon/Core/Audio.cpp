@@ -8,26 +8,32 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
-#include <SSVStart/MusicPlayer/MusicPlayer.hpp>
+
+#include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
 
-#include <string>
 #include <memory>
+#include <optional>
+#include <string>
 
 namespace hg {
 
 class Audio::AudioImpl
 {
 private:
-    // TODO (P2): remove these, roll own system
-    ssvs::SoundPlayer _soundPlayer;
-    ssvs::MusicPlayer _musicPlayer;
-
     // TODO (P2): cleaner way of doing this
     SoundBufferGetter _soundBufferGetter;
-    MusicGetter _musicGetter;
+    MusicPathGetter _musicPathGetter;
+
+    // TODO (P2): remove these, roll own system
+    ssvs::SoundPlayer _soundPlayer;
+
+    std::optional<sf::Music> _music;
+    float _musicVolume;
+    std::string _lastLoadedMusicPath;
+
 
     void playSoundImpl(
         const std::string& assetId, const ssvs::SoundPlayer::Mode mode)
@@ -41,11 +47,15 @@ private:
 
 public:
     explicit AudioImpl(const SoundBufferGetter& soundBufferGetter,
-        const MusicGetter& musicGetter)
-        : _soundBufferGetter{soundBufferGetter}, _musicGetter{musicGetter}
+        const MusicPathGetter& musicPathGetter)
+        : _soundBufferGetter{soundBufferGetter},
+          _musicPathGetter{musicPathGetter},
+          _soundPlayer{},
+          _music{},
+          _musicVolume{100.f},
+          _lastLoadedMusicPath{}
     {
         SSVOH_ASSERT(static_cast<bool>(_soundBufferGetter));
-        SSVOH_ASSERT(static_cast<bool>(_musicGetter));
     }
 
     void setSoundVolume(const float volume)
@@ -57,22 +67,37 @@ public:
     void setMusicVolume(const float volume)
     {
         SSVOH_ASSERT(volume >= 0.f && volume <= 100.f);
-        _musicPlayer.setVolume(volume);
+        _musicVolume = volume;
+
+        if(_music.has_value())
+        {
+            _music->setVolume(_musicVolume);
+        }
     }
 
     void resumeMusic()
     {
-        _musicPlayer.resume();
+        if(_music.has_value())
+        {
+            _music->setVolume(_musicVolume);
+            _music->play();
+        }
     }
 
     void pauseMusic()
     {
-        _musicPlayer.pause();
+        if(_music.has_value())
+        {
+            _music->pause();
+        }
     }
 
     void stopMusic()
     {
-        _musicPlayer.stop();
+        if(_music.has_value())
+        {
+            _music->stop();
+        }
     }
 
     void stopSounds()
@@ -102,23 +127,51 @@ public:
             Utils::concat(packId, '_', id), ssvs::SoundPlayer::Mode::Abort);
     }
 
-    void playMusic(const std::string& packId, const std::string& id,
-        const float playingOffsetSeconds)
+    [[nodiscard]] bool loadAndPlayMusic(const std::string& packId,
+        const std::string& id, const float playingOffsetSeconds)
     {
         const std::string assetId = Utils::concat(packId, '_', id);
+        const std::string* path = _musicPathGetter(assetId);
 
-        if(sf::Music* music = _musicGetter(assetId); music != nullptr)
+        if(path == nullptr)
         {
-            _musicPlayer.play(*music, sf::seconds(playingOffsetSeconds));
+            ssvu::lo("hg::AudioImpl::playMusic")
+                << "No path for music id '" << assetId << "'\n";
+
+            return false;
         }
+
+        if(!_music.has_value())
+        {
+            _music.emplace();
+        }
+
+        if(_lastLoadedMusicPath != *path)
+        {
+            if(!_music->openFromFile(*path))
+            {
+                ssvu::lo("hg::AudioImpl::playMusic")
+                    << "Failed loading music file '" << path << "'\n";
+
+                _music.reset();
+                return false;
+            }
+
+            _lastLoadedMusicPath = *path;
+        }
+
+        _music->setLoop(true);
+        _music->setPlayingOffset(sf::seconds(playingOffsetSeconds));
+        resumeMusic();
+
+        return true;
     }
 
     void setCurrentMusicPitch(const float pitch)
     {
-        if(sf::Music* currentMusic = _musicPlayer.getCurrent();
-            currentMusic != nullptr)
+        if(_music.has_value())
         {
-            currentMusic->setPitch(pitch);
+            _music->setPitch(pitch);
         }
     }
 };
@@ -135,9 +188,9 @@ public:
     return *_impl;
 }
 
-Audio::Audio(
-    const SoundBufferGetter& soundBufferGetter, const MusicGetter& musicGetter)
-    : _impl{std::make_unique<AudioImpl>(soundBufferGetter, musicGetter)}
+Audio::Audio(const SoundBufferGetter& soundBufferGetter,
+    const MusicPathGetter& musicPathGetter)
+    : _impl{std::make_unique<AudioImpl>(soundBufferGetter, musicPathGetter)}
 {}
 
 Audio::~Audio() = default;
@@ -193,10 +246,10 @@ void Audio::playPackSoundAbort(const std::string& packId, const std::string& id)
     impl().playPackSoundAbort(packId, id);
 }
 
-void Audio::playMusic(const std::string& packId, const std::string& id,
-    const float playingOffsetSeconds)
+[[nodiscard]] bool Audio::loadAndPlayMusic(const std::string& packId,
+    const std::string& id, const float playingOffsetSeconds)
 {
-    impl().playMusic(packId, id, playingOffsetSeconds);
+    return impl().loadAndPlayMusic(packId, id, playingOffsetSeconds);
 }
 
 void Audio::setCurrentMusicPitch(const float pitch)

@@ -92,11 +92,13 @@ sf::Color StyleData::calculateColor(const float mCurrentHue,
         {
             if(mColorData.dynamicOffset)
             {
-                SSVOH_ASSERT(mColorData.offset != 0);
+                if(mColorData.offset != 0)
+                {
+                    color.r += dynamicColor.r / mColorData.offset;
+                    color.g += dynamicColor.g / mColorData.offset;
+                    color.b += dynamicColor.b / mColorData.offset;
+                }
 
-                color.r += dynamicColor.r / mColorData.offset;
-                color.g += dynamicColor.g / mColorData.offset;
-                color.b += dynamicColor.b / mColorData.offset;
                 color.a += dynamicColor.a;
             }
             else

@@ -5,7 +5,7 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
-#include <math.h>
+#include <math.h> // Needed by `discord.h`...
 #include <cstdint>
 #include <chrono>
 

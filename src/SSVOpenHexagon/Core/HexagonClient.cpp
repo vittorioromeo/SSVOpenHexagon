@@ -5,7 +5,6 @@
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
@@ -72,7 +71,7 @@ template <typename... Ts>
         return fail("Never got valid Steam encrypted app ticket");
     }
 
-    const std::optional<CSteamID> ticketSteamId =
+    const std::optional<std::uint64_t> ticketSteamId =
         _steamManager.get_ticket_steam_id();
 
     if(!ticketSteamId.has_value())
@@ -82,7 +81,7 @@ template <typename... Ts>
 
     SSVOH_CLOG << "Successfully got validated Steam ID\n";
 
-    _ticketSteamID = ticketSteamId->ConvertToUint64();
+    _ticketSteamID = ticketSteamId;
     return true;
 }
 
@@ -405,12 +404,12 @@ bool HexagonClient::connect()
     return true;
 }
 
-HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
+HexagonClient::HexagonClient(Steam::steam_manager& steamManager,
+    const sf::IpAddress& serverIp, const unsigned short serverPort)
     : _steamManager{steamManager},
-      // TODO (P2): remove dependency on config
       _ticketSteamID{},
-      _serverIp{Config::getServerIp()},
-      _serverPort{Config::getServerPort()},
+      _serverIp{serverIp},
+      _serverPort{serverPort},
       _socket{},
       _socketConnected{false},
       _packetBuffer{},
@@ -435,7 +434,7 @@ HexagonClient::HexagonClient(Steam::steam_manager& steamManager)
     if(_serverIp == sf::IpAddress::None)
     {
         SSVOH_CLOG_ERROR << "Failure initializing client, invalid ip address '"
-                         << Config::getServerIp() << "'\n";
+                         << _serverIp << "'\n";
 
         _state = State::InitError;
         return;

@@ -4,9 +4,11 @@
 
 #pragma once
 
-#include "discord/discord.h"
+#include <string>
 
-#include <string_view>
+namespace discord {
+class Core;
+}
 
 namespace hg::Discord {
 

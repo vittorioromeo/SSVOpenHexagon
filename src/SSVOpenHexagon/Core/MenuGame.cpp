@@ -130,8 +130,8 @@ void MenuGame::MenuFont::updateHeight()
 
 void MenuGame::initOnlineIcons()
 {
-    assets.get<sf::Texture>("onlineIcon.png").setSmooth(true);
-    assets.get<sf::Texture>("onlineIconFail.png").setSmooth(true);
+    assets.getTexture("onlineIcon.png").setSmooth(true);
+    assets.getTexture("onlineIconFail.png").setSmooth(true);
 }
 
 //*****************************************************
@@ -148,7 +148,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     : steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
-      imagine(mAssets.get<sf::Font>("forcedsquare.ttf")),
+      imagine(mAssets.getFont("forcedsquare.ttf")),
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
@@ -157,11 +157,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       lua{},
       execScriptPackPathContext{},
       currentPack{nullptr},
-      titleBar{assets.get<sf::Texture>("titleBar.png")},
-      creditsBar1{assets.get<sf::Texture>("creditsBar1.png")},
-      creditsBar2{assets.get<sf::Texture>("creditsBar2.png")},
-      epilepsyWarning{assets.get<sf::Texture>("epilepsyWarning.png")},
-      sOnline{assets.get<sf::Texture>("onlineIconFail.png")},
+      titleBar{assets.getTexture("titleBar.png")},
+      creditsBar1{assets.getTexture("creditsBar1.png")},
+      creditsBar2{assets.getTexture("creditsBar2.png")},
+      epilepsyWarning{assets.getTexture("epilepsyWarning.png")},
+      sOnline{assets.getTexture("onlineIconFail.png")},
       rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
       txtOnlineStatus{"", imagine, 24},
       enteredChars{},
@@ -728,7 +728,7 @@ void MenuGame::initAssets()
             "creditsBar2b.png", "creditsBar2c.png", "creditsBar2d.png",
             "bottomBar.png", "epilepsyWarning.png"})
     {
-        assets.get<sf::Texture>(t).setSmooth(true);
+        assets.getTexture(t).setSmooth(true);
     }
 }
 
@@ -1508,7 +1508,7 @@ bool MenuGame::loadCommandLineLevel(
     // user. `packDatas` is the only vector in assets with a data type
     // containing the name of the pack (without it being part of the id).
     std::string packID;
-    for(auto& d : assets.getPacksData())
+    for(auto& d : assets.getPackDatas())
     {
         if(d.second.name == pack)
         {
@@ -2400,7 +2400,7 @@ void MenuGame::update(ssvu::FT mFT)
         fnHGUpdateRichPresenceCallbacks();
     }
 
-    Joystick::update();
+    Joystick::update(Config::getJoystickDeadzone());
 
     // Focus should have no effect if we are in the favorites menu
     // or a pack change animation is in progress.
@@ -2547,7 +2547,7 @@ void MenuGame::update(ssvu::FT mFT)
     }
 
     currentCreditsId += mFT;
-    creditsBar2.setTexture(assets.get<sf::Texture>(
+    creditsBar2.setTexture(assets.getTexture(
         ssvu::getByModIdx(creditsIds, ssvu::toInt(currentCreditsId / 100))));
 
     if(exitTimer > 20)
@@ -4219,11 +4219,13 @@ void MenuGame::formatLevelDescription()
     {
         return;
     }
+
     Utils::uppercasify(desc);
 
     // Split description into words.
     desc += '\n'; // Add a safety newline
-    std::size_t i{0}, j{0};
+    std::size_t i{0};
+    std::size_t j{0};
     std::vector<std::string> words;
     for(; i < desc.size(); ++i)
     {
@@ -4242,7 +4244,8 @@ void MenuGame::formatLevelDescription()
     // Group words into lines depending on wherever
     // they fit within the maximum width.
     const float maxWidth{getMaximumTextWidth()};
-    std::string candidate, temp;
+    std::string candidate;
+    std::string temp;
     for(i = 0; i < words.size() && levelDescription.size() < descLines; ++i)
     {
         if(!candidate.empty())
@@ -4257,7 +4260,7 @@ void MenuGame::formatLevelDescription()
         }
 
         // If last character is a newline...
-        if(temp[temp.size() - 1] == '\n')
+        if(!temp.empty() && temp[temp.size() - 1] == '\n')
         {
             // ...if it all fits add to the vector as a single line...
             if(ssvs::getGlobalWidth(txtSelectionSmall.font) < maxWidth)
@@ -5055,7 +5058,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
             // TODO (P1): display date and time
 
-            const std::string posStr = hg::Utils::concat('#', i + 1);
+            const std::string posStr = Utils::concat('#', i + 1);
             std::string scoreStr = ssvu::toStr(score) + 's';
             std::string playerStr = userName;
 
@@ -5413,11 +5416,11 @@ void MenuGame::drawOnlineStatus()
 
     if(stateGood)
     {
-        sOnline.setTexture(assets.get<sf::Texture>("onlineIcon.png"));
+        sOnline.setTexture(assets.getTexture("onlineIcon.png"));
     }
     else
     {
-        sOnline.setTexture(assets.get<sf::Texture>("onlineIconFail.png"));
+        sOnline.setTexture(assets.getTexture("onlineIconFail.png"));
     }
 
     sOnline.setScale(sf::Vector2f{spriteScale, spriteScale});

@@ -321,9 +321,8 @@ int main(int argc, char* argv[])
         [&assets](const std::string& assetId) -> sf::SoundBuffer* {
             return assets->getSoundBuffer(assetId);
         }, //
-
-        [&assets](const std::string& assetId) -> sf::Music* {
-            return assets->getMusic(assetId);
+        [&assets](const std::string& assetId) -> const std::string* {
+            return assets->getMusicPath(assetId);
         } //
     };
 
@@ -336,7 +335,8 @@ int main(int argc, char* argv[])
 
     if(!server)
     {
-        hc = std::make_unique<hg::HexagonClient>(steamManager);
+        hc = std::make_unique<hg::HexagonClient>(steamManager,
+            hg::Config::getServerIp(), hg::Config::getServerPort());
     }
 
     //
@@ -469,7 +469,9 @@ int main(int argc, char* argv[])
 
         if(server)
         {
-            auto hs = std::make_unique<hg::HexagonServer>(*assets, *hg);
+            auto hs = std::make_unique<hg::HexagonServer>(*assets, *hg,
+                hg::Config::getServerIp(), hg::Config::getServerPort(),
+                hg::Config::getServerControlPort());
         }
         else
         {

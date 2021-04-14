@@ -36,8 +36,8 @@ try
         nullptr /* steamManager */, true /* headless */);
 
     hg::Audio audio{
-        [](const std::string&) -> sf::SoundBuffer* { return nullptr; }, //
-        [](const std::string&) -> sf::Music* { return nullptr; }        //
+        [](const std::string&) -> sf::SoundBuffer* { return nullptr; },
+        [](const std::string&) -> const std::string* { return nullptr; } //
     };
 
     const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)

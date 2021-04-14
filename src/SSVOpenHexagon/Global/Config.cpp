@@ -1226,7 +1226,7 @@ const std::array<JoystickTriggerSetter,
         [](const unsigned int btn) { joystickAddToFavorites() = btn; },
         [](const unsigned int btn) { joystickFavoritesMenu() = btn; }};
 
-ssvs::Input::Trigger& getTrigger(const Tid tid)
+[[nodiscard]] ssvs::Input::Trigger& getTrigger(const Tid tid)
 {
     return triggerGetters[toSizeT(tid)]();
 }

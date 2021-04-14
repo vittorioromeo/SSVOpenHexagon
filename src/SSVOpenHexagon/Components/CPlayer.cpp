@@ -11,8 +11,6 @@
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 
-#include "SSVOpenHexagon/Global/Config.hpp"
-
 #include <SSVStart/Utils/SFML.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
@@ -29,7 +27,8 @@ inline constexpr float focusedTriangleWidth{-1.5f};
 inline constexpr float triangleWidthRange{
     unfocusedTriangleWidth - focusedTriangleWidth};
 
-CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown) noexcept
+CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
+    const float size, const float speed, const float focusSpeed) noexcept
     : _startPos{pos},
       _pos{pos},
       _prePushPos{pos},
@@ -37,10 +36,9 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown) noexcept
       _hue{0},
       _angle{0},
       _lastAngle{0},
-      // TODO (P2): remove dependency on config
-      _size{Config::getPlayerSize()},
-      _speed{Config::getPlayerSpeed()},
-      _focusSpeed{Config::getPlayerFocusSpeed()},
+      _size{size},
+      _speed{speed},
+      _focusSpeed{focusSpeed},
       _dead{false},
       _justSwapped{false},
       _forcedMove{false},

@@ -4,54 +4,27 @@
 
 #pragma once
 
-#include <stdint.h> // Steam API needs this.
-#include "steam/steam_api.h"
-
+#include <cstdint>
 #include <functional>
+#include <memory>
 #include <optional>
-#include <string>
 #include <string_view>
-#include <unordered_set>
+#include <string>
 
 namespace hg::Steam {
 
-// TODO (P2): pimpl
 class steam_manager
 {
 private:
-    bool _initialized;
-    bool _got_stats;
-    bool _got_ticket_response;
-    bool _got_ticket;
-    std::optional<CSteamID> _ticket_steam_id;
+    class steam_manager_impl;
 
-    std::unordered_set<std::string> _unlocked_achievements;
-    std::unordered_set<std::string> _workshop_pack_folders;
+    std::unique_ptr<steam_manager_impl> _impl;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-    STEAM_CALLBACK(steam_manager, on_user_stats_received, UserStatsReceived_t);
-    STEAM_CALLBACK(steam_manager, on_user_stats_stored, UserStatsStored_t);
-    STEAM_CALLBACK(
-        steam_manager, on_user_achievement_stored, UserAchievementStored_t);
-#pragma GCC diagnostic pop
-#pragma GCC diagnostic pop
-
-    bool update_hardcoded_achievement_cube_master();
-    bool update_hardcoded_achievement_hypercube_master();
-
-    void load_workshop_data();
-
-    void on_encrypted_app_ticket_response(
-        EncryptedAppTicketResponse_t* data, bool io_failure);
-
-    CCallResult<steam_manager, EncryptedAppTicketResponse_t>
-        _encrypted_app_ticket_response_call_result;
+    [[nodiscard]] const steam_manager_impl& impl() const noexcept;
+    [[nodiscard]] steam_manager_impl& impl() noexcept;
 
 public:
-    steam_manager();
+    explicit steam_manager();
     ~steam_manager();
 
     steam_manager(const steam_manager&) = delete;
@@ -88,7 +61,8 @@ public:
 
     [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
 
-    [[nodiscard]] std::optional<CSteamID> get_ticket_steam_id() const noexcept;
+    [[nodiscard]] std::optional<std::uint64_t>
+    get_ticket_steam_id() const noexcept;
 };
 
 } // namespace hg::Steam

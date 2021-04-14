@@ -20,9 +20,6 @@ namespace hg::Utils {
     SSVOH_ASSERT(!packName.empty());
     SSVOH_ASSERT(packVersion > 0);
 
-    // TODO (P2): minor optimization, preallocate buffer and build the string in
-    // one go
-
     const auto spaceToUnderscore = [](std::string x)
     {
         for(char& c : x)
@@ -36,14 +33,14 @@ namespace hg::Utils {
         return x;
     };
 
-    return Utils::concat(                              //
-        spaceToUnderscore(packDisambiguator),          //
-        '_',                                           //
-        spaceToUnderscore(packAuthor),                 //
-        '_',                                           //
-        spaceToUnderscore(packName),                   //
-        '_',                                           //
-        spaceToUnderscore(std::to_string(packVersion)) //
+    return Utils::concat(                     //
+        spaceToUnderscore(packDisambiguator), //
+        '_',                                  //
+        spaceToUnderscore(packAuthor),        //
+        '_',                                  //
+        spaceToUnderscore(packName),          //
+        '_',                                  //
+        packVersion                           //
     );
 }
 
