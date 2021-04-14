@@ -5021,6 +5021,8 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     height += txtSelectionSmall.height;
 
+    // TODO (P0): add a message here if the server doesn't have the level, need
+    // a new packet and some state probably...
     if(levelData.unscored)
     {
         renderText("LEADERBOARD DISABLED FOR THIS LEVEL",
