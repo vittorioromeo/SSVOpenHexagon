@@ -347,7 +347,7 @@ int main(int argc, char* argv[])
 
     auto hg = std::make_unique<hg::HexagonGame>(&steamManager,
         (discordManager.has_value() ? &*discordManager : nullptr), *assets,
-        audio, (window.has_value() ? &*window : nullptr), &*hc);
+        audio, (window.has_value() ? &*window : nullptr), hc.get());
 
     if(printLuaDocs)
     {
