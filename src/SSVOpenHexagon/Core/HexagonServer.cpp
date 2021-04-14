@@ -904,7 +904,8 @@ void HexagonServer::runIteration_PurgeTokens()
             SSVOH_SLOG << "Processing replay from client '" << clientAddr
                        << "' for level '" << levelValidator << "'\n";
 
-            // TODO (P0): sometimes this seems to hang :/
+            // TODO (P0): sometimes this seems to hang... should figure out why
+            // and also have a time limit to avoid freezing the server
 
             const double score =
                 _hexagonGame.runReplayUntilDeathAndGetScore(rf);
