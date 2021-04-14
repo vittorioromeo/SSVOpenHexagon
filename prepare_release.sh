@@ -32,6 +32,11 @@ cp ./_RELEASE/discord_game_sdk.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/libsodium.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/sdkencryptedappticket64.dll ./_PREPARED_RELEASE
 
+cp ./_RELEASE/libwinpthread-1.dll ./_PREPARED_RELEASE
+cp ./_RELEASE/libstdc++-6.dll ./_PREPARED_RELEASE
+cp ./_RELEASE/libgcc_s_seh-1.dll ./_PREPARED_RELEASE
+cp ./_RELEASE/libopenal-1.dll ./_PREPARED_RELEASE
+
 cp ./_RELEASE/steam_appid.txt ./_PREPARED_RELEASE
 cp ./_RELEASE/windowed.bat ./_PREPARED_RELEASE
 cp ./_RELEASE/windowed_no3D.bat ./_PREPARED_RELEASE
