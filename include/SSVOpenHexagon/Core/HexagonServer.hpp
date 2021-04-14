@@ -14,10 +14,12 @@
 #include <SFML/Network/SocketSelector.hpp>
 #include <SFML/Network/Packet.hpp>
 
-#include <list>
 #include <chrono>
-#include <sstream>
+#include <list>
 #include <optional>
+#include <sstream>
+#include <string>
+#include <unordered_set>
 
 namespace hg {
 
@@ -32,6 +34,8 @@ private:
 
     HGAssets& _assets;
     HexagonGame& _hexagonGame;
+
+    const std::unordered_set<std::string> _supportedLevelValidators;
 
     const sf::IpAddress _serverIp;
     const unsigned short _serverPort;
@@ -141,6 +145,8 @@ private:
         const std::string& levelValidator,
         const std::vector<Database::ProcessedScore>& scores,
         const std::optional<Database::ProcessedScore>& ownScore);
+    [[nodiscard]] bool sendLevelScoresUnsupported(
+        ConnectedClient& c, const std::string& levelValidator);
 
     void kickAndRemoveClient(ConnectedClient& c);
 

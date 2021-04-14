@@ -170,6 +170,9 @@ public:
 
     [[nodiscard]] const std::string* getMusicPath(
         const std::string& assetId) const;
+
+    [[nodiscard]] const std::unordered_map<std::string, LevelData>&
+    getLevelDatas() const noexcept;
 };
 
 } // namespace hg

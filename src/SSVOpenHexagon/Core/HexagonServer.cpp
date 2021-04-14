@@ -228,6 +228,16 @@ template <typename T>
     );
 }
 
+[[nodiscard]] bool HexagonServer::sendLevelScoresUnsupported(
+    ConnectedClient& c, const std::string& levelValidator)
+{
+    return sendEncrypted(c, //
+        STCPLevelScoresUnsupported{
+            .levelValidator = levelValidator //
+        }                                    //
+    );
+}
+
 void HexagonServer::kickAndRemoveClient(ConnectedClient& c)
 {
     (void)sendKick(c);
@@ -513,7 +523,7 @@ void HexagonServer::runIteration_PurgeTokens()
         return;
     }
 
-    SSVOH_SLOG << "Purging old login tokens\n";
+    SSVOH_SLOG_VERBOSE << "Purging old login tokens\n";
     _lastTokenPurge = Clock::now();
 
     for(const Database::LoginToken& lt : Database::getAllStaleLoginTokens())
@@ -610,19 +620,19 @@ void HexagonServer::runIteration_PurgeTokens()
 
             if(c._clientPublicKey.has_value())
             {
-                SSVOH_SLOG << "Already had public key, replacing\n";
+                SSVOH_SLOG_VERBOSE << "Already had public key, replacing\n";
             }
             else
             {
-                SSVOH_SLOG << "Did not have public key, setting\n";
+                SSVOH_SLOG_VERBOSE << "Did not have public key, setting\n";
             }
 
             c._clientPublicKey = ctsp.key;
 
-            SSVOH_SLOG << "Client public key: '" << sodiumKeyToString(ctsp.key)
-                       << "'\n";
+            SSVOH_SLOG_VERBOSE << "Client public key: '"
+                               << sodiumKeyToString(ctsp.key) << "'\n";
 
-            SSVOH_SLOG << "Calculating RT keys\n";
+            SSVOH_SLOG_VERBOSE << "Calculating RT keys\n";
             c._rtKeys =
                 calculateServerSessionSodiumRTKeys(_serverPSKeys, ctsp.key);
 
@@ -641,9 +651,9 @@ void HexagonServer::runIteration_PurgeTokens()
             const auto keyReceive = sodiumKeyToString(c._rtKeys->keyReceive);
             const auto keyTransmit = sodiumKeyToString(c._rtKeys->keyTransmit);
 
-            SSVOH_SLOG << "Calculated RT keys\n"
-                       << " - " << SSVOH_SLOG_VAR(keyReceive) << '\n'
-                       << " - " << SSVOH_SLOG_VAR(keyTransmit) << '\n';
+            SSVOH_SLOG_VERBOSE << "Calculated RT keys\n"
+                               << " - " << SSVOH_SLOG_VAR(keyReceive) << '\n'
+                               << " - " << SSVOH_SLOG_VAR(keyTransmit) << '\n';
 
             SSVOH_SLOG << "Replying with own public key\n";
             return sendPublicKey(c);
@@ -848,6 +858,11 @@ void HexagonServer::runIteration_PurgeTokens()
                 return true;
             }
 
+            if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
+            {
+                return sendLevelScoresUnsupported(c, ctsp.levelValidator);
+            }
+
             const std::string& lv = ctsp.levelValidator;
 
             SSVOH_SLOG_VERBOSE << "Sending top " << topScoresLimit
@@ -943,6 +958,11 @@ void HexagonServer::runIteration_PurgeTokens()
                 return true;
             }
 
+            if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
+            {
+                return sendLevelScoresUnsupported(c, ctsp.levelValidator);
+            }
+
             const std::optional<Database::ProcessedScore> ps =
                 Database::getScore(ctsp.levelValidator, c._loginData->_steamId);
 
@@ -962,6 +982,11 @@ void HexagonServer::runIteration_PurgeTokens()
             if(!validateLogin("top scores and own scores", ctsp.loginToken))
             {
                 return true;
+            }
+
+            if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
+            {
+                return sendLevelScoresUnsupported(c, ctsp.levelValidator);
             }
 
             const std::string& lv = ctsp.levelValidator;
@@ -999,11 +1024,28 @@ void HexagonServer::runIteration_PurgeTokens()
     );
 }
 
+[[nodiscard]] static std::unordered_set<std::string>
+makeSupportedLevelValidators(HGAssets& assets)
+{
+    std::unordered_set<std::string> result;
+
+    for(const auto& [assetId, ld] : assets.getLevelDatas())
+    {
+        for(const float dm : ld.difficultyMults)
+        {
+            result.emplace(Utils::getLevelValidator(assetId, dm));
+        }
+    }
+
+    return result;
+}
+
 HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
     const sf::IpAddress& serverIp, const unsigned short serverPort,
     const unsigned short serverControlPort)
     : _assets{assets},
       _hexagonGame{hexagonGame},
+      _supportedLevelValidators{makeSupportedLevelValidators(assets)},
       _serverIp{serverIp},
       _serverPort{serverPort},
       _serverControlPort{serverControlPort},
