@@ -39,13 +39,13 @@ set(SFML_STATIC_LIBRARIES false)
 
 CPMAddPackage(
     NAME SFML
-    GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG 28b8b4e5d8a22b7c7aacb4282bca5796694ff9c5
+    GITHUB_REPOSITORY SFML/SFML
+    GIT_TAG c0b19109a97481a1edf8551e66b2a3993c7cce6d
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
-set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD OFF)
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD OFF)
 set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
 set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
 

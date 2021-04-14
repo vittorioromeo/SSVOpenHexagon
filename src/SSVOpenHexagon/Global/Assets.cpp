@@ -25,6 +25,8 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
 
+#include <chrono>
+
 namespace hg {
 
 static void loadAssetsFromJson(AssetStorage& assetStorage,
@@ -60,18 +62,45 @@ static void loadAssetsFromJson(AssetStorage& assetStorage,
     }
 }
 
-[[nodiscard]] static auto scanSingleByExt(
-    const ssvufs::Path& path, const std::string& extension)
+[[nodiscard]] static std::vector<ssvufs::Path>& getScanBuffer()
 {
-    return ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
-        ssvufs::Pick::ByExt>(path, extension);
+    static std::vector<ssvufs::Path> buffer;
+    return buffer;
 }
 
-[[nodiscard]] static auto scanSingleByName(
+[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleByExt(
+    const ssvufs::Path& path, const std::string& extension)
+{
+    std::vector<ssvufs::Path>& buffer = getScanBuffer();
+    buffer.clear();
+
+    ssvufs::scan<ssvufs::Mode::Single, ssvufs::Type::File, ssvufs::Pick::ByExt>(
+        buffer, path, extension);
+
+    return buffer;
+}
+
+[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleByName(
     const ssvufs::Path& path, const std::string& name)
 {
-    return ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::File,
-        ssvufs::Pick::ByName>(path, name);
+    std::vector<ssvufs::Path>& buffer = getScanBuffer();
+    buffer.clear();
+
+    ssvufs::scan<ssvufs::Mode::Single, ssvufs::Type::File,
+        ssvufs::Pick::ByName>(buffer, path, name);
+
+    return buffer;
+}
+
+[[nodiscard]] static const std::vector<ssvufs::Path>& scanSingleFolderName(
+    const ssvufs::Path& path)
+{
+    std::vector<ssvufs::Path>& buffer = getScanBuffer();
+    buffer.clear();
+
+    ssvufs::scan<ssvufs::Mode::Single, ssvufs::Type::Folder>(buffer, path);
+
+    return buffer;
 }
 
 template <typename... Ts>
@@ -88,6 +117,11 @@ HGAssets::HGAssets(
       levelsOnly{mLevelsOnly},
       assetStorage{std::make_unique<AssetStorage>()}
 {
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = std::chrono::time_point<Clock>;
+
+    const std::chrono::time_point tpBeforeLoad = Clock::now();
+
     if(!levelsOnly && !mHeadless)
     {
         if(!ssvufs::Path{"Assets/"}.exists<ssvufs::Type::Folder>())
@@ -155,6 +189,14 @@ HGAssets::HGAssets(
     // This will not be used for the rest of the game,
     // so shrink it to fit the actually used size.
     loadInfo.errorMessages.shrink_to_fit();
+
+    const std::chrono::duration durElapsed = Clock::now() - tpBeforeLoad;
+
+    ssvu::lo("HGAssets::HGAssets")
+        << "Loaded all assets in "
+        << std::chrono::duration_cast<std::chrono::milliseconds>(durElapsed)
+               .count()
+        << "ms\n";
 }
 
 HGAssets::~HGAssets()
@@ -438,8 +480,7 @@ HGAssets::getSelectablePackInfos() const noexcept
 
     // ------------------------------------------------------------------------
     // Load pack datas from `Packs/` folder.
-    for(const auto& packPath :
-        ssvufs::getScan<ssvufs::Mode::Single, ssvufs::Type::Folder>("Packs/"))
+    for(const auto& packPath : scanSingleFolderName("Packs/"))
     {
         tryLoadPackFromPath(packPath);
     }
