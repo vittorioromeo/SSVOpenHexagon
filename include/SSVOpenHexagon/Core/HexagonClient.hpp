@@ -44,35 +44,37 @@ public:
     };
 
     // clang-format off
-    struct EConnectionSuccess    { };
-    struct EConnectionFailure    { std::string error; };
-    struct EKicked               { };
-    struct ERegistrationSuccess  { };
-    struct ERegistrationFailure  { std::string error;};
-    struct ELoginSuccess         { };
-    struct ELoginFailure         { std::string error; };
-    struct ELogoutSuccess        { };
-    struct ELogoutFailure        { };
-    struct EDeleteAccountSuccess { };
-    struct EDeleteAccountFailure { std::string error; };
-    struct EReceivedTopScores    { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
-    struct EReceivedOwnScore     { std::string levelValidator; Database::ProcessedScore score; };
+    struct EConnectionSuccess              { };
+    struct EConnectionFailure              { std::string error; };
+    struct EKicked                         { };
+    struct ERegistrationSuccess            { };
+    struct ERegistrationFailure            { std::string error;};
+    struct ELoginSuccess                   { };
+    struct ELoginFailure                   { std::string error; };
+    struct ELogoutSuccess                  { };
+    struct ELogoutFailure                  { };
+    struct EDeleteAccountSuccess           { };
+    struct EDeleteAccountFailure           { std::string error; };
+    struct EReceivedTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
+    struct EReceivedOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
+    struct EReceivedLevelScoresUnsupported { std::string levelValidator; };
     // clang-format on
 
-    using Event = std::variant< //
-        EConnectionSuccess,     //
-        EConnectionFailure,     //
-        EKicked,                //
-        ERegistrationSuccess,   //
-        ERegistrationFailure,   //
-        ELoginSuccess,          //
-        ELoginFailure,          //
-        ELogoutSuccess,         //
-        ELogoutFailure,         //
-        EDeleteAccountSuccess,  //
-        EDeleteAccountFailure,  //
-        EReceivedTopScores,     //
-        EReceivedOwnScore       //
+    using Event = std::variant<         //
+        EConnectionSuccess,             //
+        EConnectionFailure,             //
+        EKicked,                        //
+        ERegistrationSuccess,           //
+        ERegistrationFailure,           //
+        ELoginSuccess,                  //
+        ELoginFailure,                  //
+        ELogoutSuccess,                 //
+        ELogoutFailure,                 //
+        EDeleteAccountSuccess,          //
+        EDeleteAccountFailure,          //
+        EReceivedTopScores,             //
+        EReceivedOwnScore,              //
+        EReceivedLevelScoresUnsupported //
         >;
 
 private:

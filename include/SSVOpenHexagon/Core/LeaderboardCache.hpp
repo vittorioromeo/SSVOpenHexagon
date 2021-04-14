@@ -24,13 +24,13 @@ public:
 private:
     struct CachedScores
     {
+        bool _supported{true};
         std::vector<Database::ProcessedScore> _scores;
         std::optional<Database::ProcessedScore> _ownScore;
         TimePoint _cacheTime;
     };
 
     std::unordered_map<std::string, CachedScores> _levelValidatorToScores;
-    const std::vector<Database::ProcessedScore> _emptyScores{};
 
 public:
     void receivedScores(const std::string& levelValidator,
@@ -38,6 +38,8 @@ public:
 
     void receivedOwnScore(const std::string& levelValidator,
         const Database::ProcessedScore& score);
+
+    void receivedScoresUnsupported(const std::string& levelValidator);
 
     void requestedScores(const std::string& levelValidator);
 
@@ -49,6 +51,9 @@ public:
 
     [[nodiscard]] const Database::ProcessedScore* getOwnScore(
         const std::string& levelValidator) const;
+
+    [[nodiscard]] bool getSupported(const std::string& levelValidator) const;
+    [[nodiscard]] bool hasInformation(const std::string& levelValidator) const;
 };
 
 } // namespace hg

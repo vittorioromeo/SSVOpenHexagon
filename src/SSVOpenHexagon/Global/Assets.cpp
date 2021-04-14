@@ -1169,4 +1169,10 @@ void HGAssets::pRemove(const std::string& mName)
     return it == musicPathMap.end() ? nullptr : &it->second;
 }
 
+[[nodiscard]] const std::unordered_map<std::string, LevelData>&
+HGAssets::getLevelDatas() const noexcept
+{
+    return levelDatas;
+}
+
 } // namespace hg

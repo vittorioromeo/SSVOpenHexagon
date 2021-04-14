@@ -175,9 +175,9 @@ void HexagonGame::updateLevelInfo()
 
     const auto trim = [](std::string s)
     {
-        if(s.size() > 28)
+        if(s.size() > 26)
         {
-            return s.substr(0, 28);
+            return s.substr(0, 26);
         }
 
         return s;

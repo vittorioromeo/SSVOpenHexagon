@@ -95,19 +95,20 @@ template <typename T>
 // ----------------------------------------------------------------------------
 
 // clang-format off
-struct STCPKick                 { };
-struct STCPPublicKey            { SodiumPublicKeyArray key; };
-struct STCPRegistrationSuccess  { };
-struct STCPRegistrationFailure  { std::string error; };
-struct STCPLoginSuccess         { sf::Uint64 loginToken; std::string loginName; };
-struct STCPLoginFailure         { std::string error; };
-struct STCPLogoutSuccess        { };
-struct STCPLogoutFailure        { };
-struct STCPDeleteAccountSuccess { };
-struct STCPDeleteAccountFailure { std::string error; };
-struct STCPTopScores            { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
-struct STCPOwnScore             { std::string levelValidator; Database::ProcessedScore score; };
-struct STCPTopScoresAndOwnScore { std::string levelValidator; std::vector<Database::ProcessedScore> scores; std::optional<Database::ProcessedScore> ownScore; };
+struct STCPKick                   { };
+struct STCPPublicKey              { SodiumPublicKeyArray key; };
+struct STCPRegistrationSuccess    { };
+struct STCPRegistrationFailure    { std::string error; };
+struct STCPLoginSuccess           { sf::Uint64 loginToken; std::string loginName; };
+struct STCPLoginFailure           { std::string error; };
+struct STCPLogoutSuccess          { };
+struct STCPLogoutFailure          { };
+struct STCPDeleteAccountSuccess   { };
+struct STCPDeleteAccountFailure   { std::string error; };
+struct STCPTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
+struct STCPOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
+struct STCPTopScoresAndOwnScore   { std::string levelValidator; std::vector<Database::ProcessedScore> scores; std::optional<Database::ProcessedScore> ownScore; };
+struct STCPLevelScoresUnsupported { std::string levelValidator; };
 // clang-format on
 
 #define SSVOH_STC_PACKETS                                               \
@@ -115,7 +116,7 @@ struct STCPTopScoresAndOwnScore { std::string levelValidator; std::vector<Databa
         STCPRegistrationFailure, STCPLoginSuccess, STCPLoginFailure,    \
         STCPLogoutSuccess, STCPLogoutFailure, STCPDeleteAccountSuccess, \
         STCPDeleteAccountFailure, STCPTopScores, STCPOwnScore,          \
-        STCPTopScoresAndOwnScore)
+        STCPTopScoresAndOwnScore, STCPLevelScoresUnsupported)
 
 using PVServerToClient = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS)>;

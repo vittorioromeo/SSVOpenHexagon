@@ -715,6 +715,18 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             }
 
             return true;
+        },
+
+        [&](const STCPLevelScoresUnsupported& stcp)
+        {
+            SSVOH_CLOG
+                << "Received scores unsupported from server, levelValidator: '"
+                << stcp.levelValidator << "'\n";
+
+            addEvent(EReceivedLevelScoresUnsupported{
+                .levelValidator = stcp.levelValidator});
+
+            return true;
         }
 
         //

@@ -2389,7 +2389,10 @@ void MenuGame::update(ssvu::FT mFT)
             { leaderboardCache->receivedScores(e.levelValidator, e.scores); },
 
             [&](const HexagonClient::EReceivedOwnScore& e)
-            { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); }
+            { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); },
+
+            [&](const HexagonClient::EReceivedLevelScoresUnsupported& e)
+            { leaderboardCache->receivedScoresUnsupported(e.levelValidator); }
 
             //
         );
@@ -5021,6 +5024,23 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     height += txtSelectionSmall.height;
 
+    SSVOH_ASSERT(lvlDrawer != nullptr);
+    const std::string& levelId =
+        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex);
+
+    const std::string levelValidator =
+        Utils::getLevelValidator(levelId, currentDiffMult);
+
+    if(!levelData.unscored &&
+        hexagonClient.getState() == HexagonClient::State::LoggedIn &&
+        leaderboardCache->shouldRequestScores(levelValidator))
+    {
+        hexagonClient.tryRequestTopScoresAndOwnScore(levelValidator);
+        leaderboardCache->requestedScores(levelValidator);
+    }
+
+    const bool gotScoreInfo = leaderboardCache->hasInformation(levelValidator);
+
     // TODO (P0): add a message here if the server doesn't have the level, need
     // a new packet and some state probably...
     if(levelData.unscored)
@@ -5036,21 +5056,26 @@ void MenuGame::drawLevelSelectionLeftSide(
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }
+    else if(!gotScoreInfo)
+    {
+        renderText("...", txtSelectionSmall.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionSmall.height * fontHeightOffset});
+    }
+    else if(gotScoreInfo && !leaderboardCache->getSupported(levelValidator))
+    {
+        renderText("THIS LEVEL IS NOT SUPPORTED BY THE SERVER",
+            txtSelectionSmall.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionSmall.height * fontHeightOffset});
+    }
     else
     {
-        SSVOH_ASSERT(lvlDrawer != nullptr);
-
-        const std::string& levelId =
-            lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex);
-
-        const std::string levelValidator =
-            Utils::getLevelValidator(levelId, currentDiffMult);
-
-        if(leaderboardCache->shouldRequestScores(levelValidator))
-        {
-            hexagonClient.tryRequestTopScoresAndOwnScore(levelValidator);
-            leaderboardCache->requestedScores(levelValidator);
-        }
+        SSVOH_ASSERT(!levelData.unscored);
+        SSVOH_ASSERT(gotScoreInfo);
+        SSVOH_ASSERT(leaderboardCache->getSupported(levelValidator));
+        SSVOH_ASSERT(
+            hexagonClient.getState() == HexagonClient::State::LoggedIn);
 
         const auto drawEntry = [&](const int i, const std::string& userName,
                                    const std::uint64_t scoreTimestamp,
@@ -5075,26 +5100,31 @@ void MenuGame::drawLevelSelectionLeftSide(
             height += txtSelectionMedium.height + txtSelectionSmall.height;
         };
 
-        const auto scores = leaderboardCache->getScores(levelValidator);
-
-        if(!scores.empty())
+        if(gotScoreInfo)
         {
-            int index = 0;
-            for(const Database::ProcessedScore& ps : scores)
+            const auto scores = leaderboardCache->getScores(levelValidator);
+
+            if(!scores.empty())
             {
-                drawEntry(index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
-                ++index;
+                int index = 0;
+                for(const Database::ProcessedScore& ps : scores)
+                {
+                    drawEntry(
+                        index, ps.userName, ps.scoreTimestamp, ps.scoreValue);
+                    ++index;
+                }
+
+                height -= txtSelectionMedium.height + txtSelectionSmall.height;
             }
+            else
+            {
+                const float tx = textToQuadBorder - panelOffset;
+                const float ty =
+                    height - txtSelectionMedium.height * fontHeightOffset;
 
-            height -= txtSelectionMedium.height + txtSelectionSmall.height;
-        }
-        else
-        {
-            const float tx = textToQuadBorder - panelOffset;
-            const float ty =
-                height - txtSelectionMedium.height * fontHeightOffset;
-
-            renderText("NO SCORES FOUND", txtSelectionMedium.font, {tx, ty});
+                renderText(
+                    "NO SCORES FOUND", txtSelectionMedium.font, {tx, ty});
+            }
         }
 
         // Line
@@ -5111,19 +5141,25 @@ void MenuGame::drawLevelSelectionLeftSide(
 
         height += txtSelectionSmall.height * 2.f;
 
-        const auto* ownScore = leaderboardCache->getOwnScore(levelValidator);
-        if(ownScore == nullptr)
+        if(gotScoreInfo)
         {
-            const float tx = textToQuadBorder - panelOffset;
-            const float ty =
-                height - txtSelectionMedium.height * fontHeightOffset;
+            const auto* ownScore =
+                leaderboardCache->getOwnScore(levelValidator);
 
-            renderText("NO OWN SCORE SET", txtSelectionMedium.font, {tx, ty});
-        }
-        else
-        {
-            drawEntry(ownScore->position, ownScore->userName,
-                ownScore->scoreTimestamp, ownScore->scoreValue);
+            if(ownScore == nullptr)
+            {
+                const float tx = textToQuadBorder - panelOffset;
+                const float ty =
+                    height - txtSelectionMedium.height * fontHeightOffset;
+
+                renderText(
+                    "NO OWN SCORE SET", txtSelectionMedium.font, {tx, ty});
+            }
+            else
+            {
+                drawEntry(ownScore->position, ownScore->userName,
+                    ownScore->scoreTimestamp, ownScore->scoreValue);
+            }
         }
     }
 
