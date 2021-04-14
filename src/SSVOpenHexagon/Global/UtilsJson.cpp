@@ -4,7 +4,8 @@
 
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
-#include <SSVStart/Assets/AssetManager.hpp>
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
 #include <SSVStart/Global/Typedefs.hpp>
 #include <SSVStart/Input/Combo.hpp>
 #include <SSVStart/Input/Enums.hpp>
@@ -13,72 +14,12 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
-#include <SSVUtils/Core/FileSystem/Path.hpp>
-
-#include <SFML/Graphics/Font.hpp>
-#include <SFML/Graphics/Image.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <SFML/Graphics/Shader.hpp>
 #include <SFML/Graphics/Color.hpp>
-
-#include <SFML/Audio/SoundBuffer.hpp>
-#include <SFML/Audio/Music.hpp>
 
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 #include <SFML/System/Vector2.hpp>
-
-namespace ssvs {
-
-void loadAssetsFromJson(ssvs::DefaultAssetManager& mAM,
-    const ssvu::FileSystem::Path& mRootPath, const ssvuj::Obj& mObj)
-{
-    for(const auto& f : ssvuj::getExtr<std::vector<std::string>>(mObj, "fonts"))
-    {
-        mAM.template load<sf::Font>(f, mRootPath + f);
-    }
-
-    for(const auto& f :
-        ssvuj::getExtr<std::vector<std::string>>(mObj, "images"))
-    {
-        mAM.template load<sf::Image>(f, mRootPath + f);
-    }
-
-    for(const auto& f :
-        ssvuj::getExtr<std::vector<std::string>>(mObj, "textures"))
-    {
-        mAM.template load<sf::Texture>(f, mRootPath + f);
-    }
-
-    for(const auto& f :
-        ssvuj::getExtr<std::vector<std::string>>(mObj, "soundBuffers"))
-    {
-        mAM.template load<sf::SoundBuffer>(f, mRootPath + f);
-    }
-
-    for(const auto& f :
-        ssvuj::getExtr<std::vector<std::string>>(mObj, "musics"))
-    {
-        mAM.template load<sf::Music>(f, mRootPath + f);
-    }
-
-    for(const auto& f :
-        ssvuj::getExtr<std::vector<std::string>>(mObj, "shadersVertex"))
-    {
-        mAM.template load<sf::Shader>(
-            f, mRootPath + f, sf::Shader::Type::Vertex, Impl::ShaderFromPath{});
-    }
-
-    for(const auto& f :
-        ssvuj::getExtr<std::vector<std::string>>(mObj, "shadersFragment"))
-    {
-        mAM.template load<sf::Shader>(f, mRootPath + f,
-            sf::Shader::Type::Fragment, Impl::ShaderFromPath{});
-    }
-}
-
-} // namespace ssvs
 
 namespace ssvuj {
 
@@ -120,12 +61,12 @@ void Converter<ssvs::Input::Trigger>::toObj(Obj& mObj, const T& mValue)
     arch(mObj, mValue.getCombos());
 }
 
-void Converter<ssvs::KKey>::fromObj(const Obj& mObj, T& mValue)
+void Converter<sf::Keyboard::Key>::fromObj(const Obj& mObj, T& mValue)
 {
     mValue = ssvs::getKKey(getExtr<std::string>(mObj));
 }
 
-void Converter<ssvs::KKey>::toObj(Obj& mObj, const T& mValue)
+void Converter<sf::Keyboard::Key>::toObj(Obj& mObj, const T& mValue)
 {
     if(mValue == T::Unknown)
     {
@@ -137,12 +78,12 @@ void Converter<ssvs::KKey>::toObj(Obj& mObj, const T& mValue)
     arch(mObj, ssvs::getKKeyName(mValue));
 }
 
-void Converter<ssvs::MBtn>::fromObj(const Obj& mObj, T& mValue)
+void Converter<sf::Mouse::Button>::fromObj(const Obj& mObj, T& mValue)
 {
     mValue = ssvs::getMBtn(getExtr<std::string>(mObj));
 }
 
-void Converter<ssvs::MBtn>::toObj(Obj& mObj, const T& mValue)
+void Converter<sf::Mouse::Button>::toObj(Obj& mObj, const T& mValue)
 {
     arch(mObj, ssvs::getMBtnName(mValue));
 }
@@ -159,15 +100,15 @@ void Converter<ssvs::Input::Combo>::fromObj(const Obj& mObj, T& mValue)
 
         if(str.empty())
         {
-            mValue.addKey(ssvs::KKey::Unknown);
+            mValue.addKey(sf::Keyboard::Key::Unknown);
         }
         else if(ssvs::isKKeyNameValid(str))
         {
-            mValue.addKey(getExtr<ssvs::KKey>(i));
+            mValue.addKey(getExtr<sf::Keyboard::Key>(i));
         }
         else if(ssvs::isMBtnNameValid(str))
         {
-            mValue.addBtn(getExtr<ssvs::MBtn>(i));
+            mValue.addBtn(getExtr<sf::Mouse::Button>(i));
         }
         else
         {
@@ -176,7 +117,7 @@ void Converter<ssvs::Input::Combo>::fromObj(const Obj& mObj, T& mValue)
                 << "> is not a valid input name, an empty bind has been "
                    "put in its place\n";
 
-            mValue.addKey(ssvs::KKey::Unknown);
+            mValue.addKey(sf::Keyboard::Key::Unknown);
         }
     }
 }
@@ -185,7 +126,7 @@ void Converter<ssvs::Input::Combo>::toObj(Obj& mObj, const T& mValue)
 {
     if(mValue.isUnbound())
     {
-        arch(mObj, 0, ssvs::KKey(-1));
+        arch(mObj, 0, sf::Keyboard::Key(-1));
         return;
     }
 
@@ -193,19 +134,19 @@ void Converter<ssvs::Input::Combo>::toObj(Obj& mObj, const T& mValue)
     const auto& keys(mValue.getKeys());
     const auto& btns(mValue.getBtns());
 
-    for(auto j(0u); j < ssvs::kKeyCount; ++j)
+    for(auto j(0u); j < sf::Keyboard::KeyCount; ++j)
     {
-        if(ssvs::getKeyBit(keys, ssvs::KKey(j)))
+        if(ssvs::getKeyBit(keys, sf::Keyboard::Key(j)))
         {
-            arch(mObj, i++, ssvs::KKey(j));
+            arch(mObj, i++, sf::Keyboard::Key(j));
         }
     }
 
-    for(auto j(0u); j < ssvs::mBtnCount; ++j)
+    for(auto j(0u); j < sf::Mouse::ButtonCount; ++j)
     {
-        if(ssvs::getBtnBit(btns, ssvs::MBtn(j)))
+        if(ssvs::getBtnBit(btns, sf::Mouse::Button(j)))
         {
-            arch(mObj, i++, ssvs::MBtn(j));
+            arch(mObj, i++, sf::Mouse::Button(j));
         }
     }
 }

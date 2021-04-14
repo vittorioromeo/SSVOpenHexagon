@@ -21,11 +21,11 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
+#include <cstddef>
 #include <sstream>
+#include <string>
 #include <tuple>
 #include <vector>
-#include <string>
-#include <cstddef>
 
 namespace hg::LuaScripting {
 
@@ -124,19 +124,6 @@ static void initRandom(Lua::LuaContext& lua, random_number_generator& rng)
             "beginning of the level. `math.randomseed` is automatically "
             "initialized with the result of this function at the beginning of "
             "a level.");
-
-    // ------------------------------------------------------------------------
-    // Initialize Lua random seed from random generator one:
-    try
-    {
-        // TODO (P2): likely not needed anymore
-        lua.executeCode("math.randomseed(u_getAttemptRandomSeed())\n");
-    }
-    catch(...)
-    {
-        ssvu::lo("hg::LuaScripting::initRandom")
-            << "Failure to initialize Lua random generator seed\n";
-    }
 }
 
 static void redefineIoOpen(Lua::LuaContext& lua)

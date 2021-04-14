@@ -146,7 +146,10 @@ void replay_data::record_input(const bool left, const bool right,
 
     _inputs.resize(n_inputs);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
     for(std::size_t i = 0; i < n_inputs; ++i)
+#pragma GCC diagnostic pop
     {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"

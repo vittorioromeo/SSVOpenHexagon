@@ -76,14 +76,14 @@ void HexagonGame::initKeyIcons()
     for(const auto& t :
         {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
     {
-        assets.get<sf::Texture>(t).setSmooth(true);
+        assets.getTextureOrNullTexture(t).setSmooth(true);
     }
 
-    keyIconLeft.setTexture(assets.get<sf::Texture>("keyArrow.png"));
-    keyIconRight.setTexture(assets.get<sf::Texture>("keyArrow.png"));
-    keyIconFocus.setTexture(assets.get<sf::Texture>("keyFocus.png"));
-    keyIconSwap.setTexture(assets.get<sf::Texture>("keySwap.png"));
-    replayIcon.setTexture(assets.get<sf::Texture>("replayIcon.png"));
+    keyIconLeft.setTexture(assets.getTextureOrNullTexture("keyArrow.png"));
+    keyIconRight.setTexture(assets.getTextureOrNullTexture("keyArrow.png"));
+    keyIconFocus.setTexture(assets.getTextureOrNullTexture("keyFocus.png"));
+    keyIconSwap.setTexture(assets.getTextureOrNullTexture("keySwap.png"));
+    replayIcon.setTexture(assets.getTextureOrNullTexture("replayIcon.png"));
 
     updateKeyIcons();
 }
@@ -259,11 +259,12 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     : steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
-      font{assets.get<sf::Font>("forcedsquare.ttf")},
+      font{assets.getFontOrNullFont("forcedsquare.ttf")},
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
-      player{ssvs::zeroVec2f, getSwapCooldown()},
+      player{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
+          Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       messageText{
           "", font, ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())},
@@ -624,7 +625,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Manager cleanup
     walls.clear();
     cwManager.clear();
-    player = CPlayer{ssvs::zeroVec2f, getSwapCooldown()};
+    player =
+        CPlayer{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
+            Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()};
 
     // Timeline cleanup
     timeline.clear();

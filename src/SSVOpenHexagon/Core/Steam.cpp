@@ -8,13 +8,20 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
+#include <stdint.h> // Steam API needs this.
 #include "steam/steam_api.h"
 #include "steam/steam_api_flat.h"
 #include "steam/steamencryptedappticket.h"
 
 #include <array>
-#include <cstring>
 #include <charconv>
+#include <cstdint>
+#include <cstring>
+#include <functional>
+#include <optional>
+#include <string_view>
+#include <string>
+#include <unordered_set>
 
 namespace hg::Steam {
 
@@ -68,7 +75,85 @@ static void shutdown_steamworks()
     ssvu::lo("Steam") << "Shut down Steam API\n";
 }
 
-void steam_manager::on_user_stats_received(UserStatsReceived_t* data)
+class steam_manager::steam_manager_impl
+{
+private:
+    bool _initialized;
+    bool _got_stats;
+    bool _got_ticket_response;
+    bool _got_ticket;
+    std::optional<CSteamID> _ticket_steam_id;
+
+    std::unordered_set<std::string> _unlocked_achievements;
+    std::unordered_set<std::string> _workshop_pack_folders;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+    STEAM_CALLBACK(
+        steam_manager_impl, on_user_stats_received, UserStatsReceived_t);
+    STEAM_CALLBACK(steam_manager_impl, on_user_stats_stored, UserStatsStored_t);
+    STEAM_CALLBACK(steam_manager_impl, on_user_achievement_stored,
+        UserAchievementStored_t);
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
+
+    bool update_hardcoded_achievement_cube_master();
+    bool update_hardcoded_achievement_hypercube_master();
+
+    void load_workshop_data();
+
+    void on_encrypted_app_ticket_response(
+        EncryptedAppTicketResponse_t* data, bool io_failure);
+
+    CCallResult<steam_manager_impl, EncryptedAppTicketResponse_t>
+        _encrypted_app_ticket_response_call_result;
+
+public:
+    steam_manager_impl();
+    ~steam_manager_impl();
+
+    steam_manager_impl(const steam_manager_impl&) = delete;
+    steam_manager_impl& operator=(const steam_manager_impl&) = delete;
+
+    steam_manager_impl(steam_manager_impl&&) = delete;
+    steam_manager_impl& operator=(steam_manager_impl&&) = delete;
+
+    [[nodiscard]] bool is_initialized() const noexcept;
+
+    bool request_stats_and_achievements();
+
+    bool run_callbacks();
+
+    bool store_stats();
+    bool unlock_achievement(std::string_view name);
+
+    bool set_rich_presence_in_menu();
+    bool set_rich_presence_in_game(std::string_view level_name_format,
+        std::string_view difficulty_mult_format, std::string_view time_format);
+
+    bool set_and_store_stat(std::string_view name, int data);
+    [[nodiscard]] bool get_achievement(bool* out, std::string_view name);
+    [[nodiscard]] bool get_stat(int* out, std::string_view name);
+
+    bool update_hardcoded_achievements();
+
+    void for_workshop_pack_folders(
+        const std::function<void(const std::string&)>& f) const;
+
+    bool request_encrypted_app_ticket();
+
+    [[nodiscard]] bool got_encrypted_app_ticket_response() const noexcept;
+
+    [[nodiscard]] bool got_encrypted_app_ticket() const noexcept;
+
+    [[nodiscard]] std::optional<std::uint64_t>
+    get_ticket_steam_id() const noexcept;
+};
+
+void steam_manager::steam_manager_impl::on_user_stats_received(
+    UserStatsReceived_t* data)
 {
     (void)data;
 
@@ -78,21 +163,23 @@ void steam_manager::on_user_stats_received(UserStatsReceived_t* data)
     _got_stats = true;
 }
 
-void steam_manager::on_user_stats_stored(UserStatsStored_t* data)
+void steam_manager::steam_manager_impl::on_user_stats_stored(
+    UserStatsStored_t* data)
 {
     (void)data;
 
     ssvu::lo("Steam") << "Stored user stats\n";
 }
 
-void steam_manager::on_user_achievement_stored(UserAchievementStored_t* data)
+void steam_manager::steam_manager_impl::on_user_achievement_stored(
+    UserAchievementStored_t* data)
 {
     (void)data;
 
     ssvu::lo("Steam") << "Stored user achievement\n";
 }
 
-void steam_manager::load_workshop_data()
+void steam_manager::steam_manager_impl::load_workshop_data()
 {
     const auto nSubscribedItems = SteamUGC()->GetNumSubscribedItems();
     std::vector<PublishedFileId_t> subscribedItemsIds(nSubscribedItems);
@@ -123,7 +210,7 @@ void steam_manager::load_workshop_data()
     }
 }
 
-steam_manager::steam_manager()
+steam_manager::steam_manager_impl::steam_manager_impl()
     : _initialized{initialize_steamworks()},
       _got_stats{false},
       _got_ticket_response{false},
@@ -138,7 +225,7 @@ steam_manager::steam_manager()
     load_workshop_data();
 }
 
-steam_manager::~steam_manager()
+steam_manager::steam_manager_impl::~steam_manager_impl()
 {
     if(_initialized)
     {
@@ -146,12 +233,13 @@ steam_manager::~steam_manager()
     }
 }
 
-[[nodiscard]] bool steam_manager::is_initialized() const noexcept
+[[nodiscard]] bool
+steam_manager::steam_manager_impl::is_initialized() const noexcept
 {
     return _initialized;
 }
 
-bool steam_manager::request_stats_and_achievements()
+bool steam_manager::steam_manager_impl::request_stats_and_achievements()
 {
     if(!_initialized)
     {
@@ -170,7 +258,7 @@ bool steam_manager::request_stats_and_achievements()
     return true;
 }
 
-bool steam_manager::run_callbacks()
+bool steam_manager::steam_manager_impl::run_callbacks()
 {
     if(!_initialized)
     {
@@ -181,7 +269,7 @@ bool steam_manager::run_callbacks()
     return true;
 }
 
-bool steam_manager::store_stats()
+bool steam_manager::steam_manager_impl::store_stats()
 {
     if(!_initialized)
     {
@@ -204,7 +292,8 @@ bool steam_manager::store_stats()
     return true;
 }
 
-bool steam_manager::unlock_achievement(std::string_view name)
+bool steam_manager::steam_manager_impl::unlock_achievement(
+    std::string_view name)
 {
     if(!_initialized)
     {
@@ -234,7 +323,7 @@ bool steam_manager::unlock_achievement(std::string_view name)
     return store_stats();
 }
 
-bool steam_manager::set_rich_presence_in_menu()
+bool steam_manager::steam_manager_impl::set_rich_presence_in_menu()
 {
     if(!_initialized)
     {
@@ -244,7 +333,7 @@ bool steam_manager::set_rich_presence_in_menu()
     return SteamFriends()->SetRichPresence("steam_display", "#InMenu");
 }
 
-bool steam_manager::set_rich_presence_in_game(
+bool steam_manager::steam_manager_impl::set_rich_presence_in_game(
     std::string_view level_name_format, std::string_view difficulty_mult_format,
     std::string_view time_format)
 {
@@ -261,7 +350,8 @@ bool steam_manager::set_rich_presence_in_game(
            SteamFriends()->SetRichPresence("steam_display", "#InGame");
 }
 
-bool steam_manager::set_and_store_stat(std::string_view name, int data)
+bool steam_manager::steam_manager_impl::set_and_store_stat(
+    std::string_view name, int data)
 {
     if(!_initialized)
     {
@@ -282,7 +372,7 @@ bool steam_manager::set_and_store_stat(std::string_view name, int data)
     return store_stats();
 }
 
-[[nodiscard]] bool steam_manager::get_achievement(
+[[nodiscard]] bool steam_manager::steam_manager_impl::get_achievement(
     bool* out, std::string_view name)
 {
     if(!_initialized)
@@ -304,7 +394,8 @@ bool steam_manager::set_and_store_stat(std::string_view name, int data)
     return true;
 }
 
-[[nodiscard]] bool steam_manager::get_stat(int* out, std::string_view name)
+[[nodiscard]] bool steam_manager::steam_manager_impl::get_stat(
+    int* out, std::string_view name)
 {
     if(!_initialized)
     {
@@ -329,7 +420,8 @@ bool steam_manager::set_and_store_stat(std::string_view name, int data)
     return true;
 }
 
-bool steam_manager::update_hardcoded_achievement_cube_master()
+bool steam_manager::steam_manager_impl::
+    update_hardcoded_achievement_cube_master()
 {
     if(!_initialized)
     {
@@ -387,7 +479,8 @@ bool steam_manager::update_hardcoded_achievement_cube_master()
     return true;
 }
 
-bool steam_manager::update_hardcoded_achievement_hypercube_master()
+bool steam_manager::steam_manager_impl::
+    update_hardcoded_achievement_hypercube_master()
 {
     if(!_initialized)
     {
@@ -445,7 +538,7 @@ bool steam_manager::update_hardcoded_achievement_hypercube_master()
     return true;
 }
 
-bool steam_manager::update_hardcoded_achievements()
+bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
 {
     bool success = true;
 
@@ -462,7 +555,7 @@ bool steam_manager::update_hardcoded_achievements()
     return success;
 }
 
-void steam_manager::for_workshop_pack_folders(
+void steam_manager::steam_manager_impl::for_workshop_pack_folders(
     const std::function<void(const std::string&)>& f) const
 {
     if(!_initialized)
@@ -478,7 +571,7 @@ void steam_manager::for_workshop_pack_folders(
 
 [[maybe_unused]] static std::uint32_t unSecretData = 123456;
 
-bool steam_manager::request_encrypted_app_ticket()
+bool steam_manager::steam_manager_impl::request_encrypted_app_ticket()
 {
     if(!_initialized)
     {
@@ -492,8 +585,8 @@ bool steam_manager::request_encrypted_app_ticket()
     const SteamAPICall_t handle = SteamUser()->RequestEncryptedAppTicket(
         &unSecretData, sizeof(unSecretData));
 
-    _encrypted_app_ticket_response_call_result.Set(
-        handle, this, &steam_manager::on_encrypted_app_ticket_response);
+    _encrypted_app_ticket_response_call_result.Set(handle, this,
+        &steam_manager::steam_manager_impl::on_encrypted_app_ticket_response);
 
     return true;
 #else
@@ -504,7 +597,7 @@ bool steam_manager::request_encrypted_app_ticket()
 #endif
 }
 
-void steam_manager::on_encrypted_app_ticket_response(
+void steam_manager::steam_manager_impl::on_encrypted_app_ticket_response(
     [[maybe_unused]] EncryptedAppTicketResponse_t* data,
     [[maybe_unused]] bool io_failure)
 {
@@ -642,20 +735,130 @@ void steam_manager::on_encrypted_app_ticket_response(
 }
 
 [[nodiscard]] bool
-steam_manager::got_encrypted_app_ticket_response() const noexcept
+steam_manager::steam_manager_impl::got_encrypted_app_ticket_response()
+    const noexcept
 {
     return _got_ticket_response;
 }
 
-[[nodiscard]] bool steam_manager::got_encrypted_app_ticket() const noexcept
+[[nodiscard]] bool
+steam_manager::steam_manager_impl::got_encrypted_app_ticket() const noexcept
 {
     return _got_ticket;
 }
 
-[[nodiscard]] std::optional<CSteamID>
+[[nodiscard]] std::optional<std::uint64_t>
+steam_manager::steam_manager_impl::get_ticket_steam_id() const noexcept
+{
+    return _ticket_steam_id->ConvertToUint64();
+}
+
+// ----------------------------------------------------------------------------
+
+
+[[nodiscard]] const steam_manager::steam_manager_impl&
+steam_manager::impl() const noexcept
+{
+    SSVOH_ASSERT(_impl != nullptr);
+    return *_impl;
+}
+
+[[nodiscard]] steam_manager::steam_manager_impl& steam_manager::impl() noexcept
+{
+    SSVOH_ASSERT(_impl != nullptr);
+    return *_impl;
+}
+
+steam_manager::steam_manager() : _impl{std::make_unique<steam_manager_impl>()}
+{}
+
+steam_manager::~steam_manager() = default;
+
+[[nodiscard]] bool steam_manager::is_initialized() const noexcept
+{
+    return impl().is_initialized();
+}
+
+bool steam_manager::request_stats_and_achievements()
+{
+    return impl().request_stats_and_achievements();
+}
+
+bool steam_manager::run_callbacks()
+{
+    return impl().run_callbacks();
+}
+
+bool steam_manager::store_stats()
+{
+    return impl().store_stats();
+}
+
+bool steam_manager::unlock_achievement(std::string_view name)
+{
+    return impl().unlock_achievement(name);
+}
+
+bool steam_manager::set_rich_presence_in_menu()
+{
+    return impl().set_rich_presence_in_menu();
+}
+
+bool steam_manager::set_rich_presence_in_game(
+    std::string_view level_name_format, std::string_view difficulty_mult_format,
+    std::string_view time_format)
+{
+    return impl().set_rich_presence_in_game(
+        level_name_format, difficulty_mult_format, time_format);
+}
+
+bool steam_manager::set_and_store_stat(std::string_view name, int data)
+{
+    return impl().set_and_store_stat(name, data);
+}
+
+[[nodiscard]] bool steam_manager::get_achievement(
+    bool* out, std::string_view name)
+{
+    return impl().get_achievement(out, name);
+}
+
+[[nodiscard]] bool steam_manager::get_stat(int* out, std::string_view name)
+{
+    return impl().get_stat(out, name);
+}
+
+bool steam_manager::update_hardcoded_achievements()
+{
+    return impl().update_hardcoded_achievements();
+}
+
+void steam_manager::for_workshop_pack_folders(
+    const std::function<void(const std::string&)>& f) const
+{
+    return impl().for_workshop_pack_folders(f);
+}
+
+bool steam_manager::request_encrypted_app_ticket()
+{
+    return impl().request_encrypted_app_ticket();
+}
+
+[[nodiscard]] bool
+steam_manager::got_encrypted_app_ticket_response() const noexcept
+{
+    return impl().got_encrypted_app_ticket_response();
+}
+
+[[nodiscard]] bool steam_manager::got_encrypted_app_ticket() const noexcept
+{
+    return impl().got_encrypted_app_ticket();
+}
+
+[[nodiscard]] std::optional<std::uint64_t>
 steam_manager::get_ticket_steam_id() const noexcept
 {
-    return _ticket_steam_id;
+    return impl().get_ticket_steam_id();
 }
 
 } // namespace hg::Steam

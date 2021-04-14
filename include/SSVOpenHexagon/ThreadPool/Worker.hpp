@@ -72,7 +72,8 @@ public:
     /// @brief Returns `true` if the worker has exited the processing loop.
     [[nodiscard]] bool finished() const noexcept;
 
-    /// @brief TODO
+    /// @brief Return `true` if the worker has finished processing tasks in a
+    /// blocking manner.
     [[nodiscard]] bool done_blocking_processing() const noexcept;
 };
 } // namespace hg::ThreadPool

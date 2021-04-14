@@ -4,20 +4,8 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
-
 #include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/Keyboard.hpp>
-
-#include <SFML/System/Vector2.hpp>
-
-namespace ssvu::FileSystem {
-class Path;
-}
-
-namespace ssvs {
-class DefaultAssetManager;
-}
 
 namespace ssvs::Input {
 class Trigger;
@@ -25,17 +13,28 @@ class Combo;
 } // namespace ssvs::Input
 
 namespace sf {
+template <typename T>
+class Vector2;
+
+using Vector2f = Vector2<float>;
+
 class Color;
+} // namespace sf
+
+
+namespace Json {
+class Value;
 }
 
-namespace ssvs {
+namespace ssvuj {
+using Obj = Json::Value;
 
-void loadAssetsFromJson(ssvs::DefaultAssetManager& mAM,
-    const ssvu::FileSystem::Path& mRootPath, const ssvuj::Obj& mObj);
-
-} // namespace ssvs
+template <typename>
+struct Converter;
+} // namespace ssvuj
 
 namespace ssvuj {
+
 
 template <>
 struct Converter<sf::Vector2f>

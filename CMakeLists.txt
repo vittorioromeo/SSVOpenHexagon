@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.9)
 
+#
+#
+# -----------------------------------------------------------------------------
+# CCache
+# -----------------------------------------------------------------------------
+
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
     message(STATUS "Found CCACHE")
@@ -34,8 +40,14 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG a65f86606e8b3bcc13154f17371c24fc3b02512d
+    GIT_TAG 28b8b4e5d8a22b7c7aacb4282bca5796694ff9c5
 )
+
+set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-window PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-graphics PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-audio PROPERTIES UNITY_BUILD ON)
+set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
 
 #
 #
@@ -103,7 +115,9 @@ CPMAddPackage(
     GITHUB_REPOSITORY eliasdaler/imgui-sfml
     VERSION 2.2
     GIT_TAG cec902d8c3e5e7757c150def3e46c669acf31008
-)
+    )
+
+set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
 
 #
 #
@@ -189,6 +203,14 @@ message(STATUS "initialized project ${PROJECT_NAME}")
 #
 #
 # -----------------------------------------------------------------------------
+# Global unity builds
+# -----------------------------------------------------------------------------
+
+set(CMAKE_UNITY_BUILD ON)
+
+#
+#
+# -----------------------------------------------------------------------------
 # Source and includes
 # -----------------------------------------------------------------------------
 
@@ -203,7 +225,9 @@ file(GLOB_RECURSE MAIN_FILE "${SRC_DIR}/SSVOpenHexagon/*/main.cpp")
 file(GLOB_RECURSE SRC_LIST
      "${INC_DIR}/SSVOpenHexagon/*"
      "${SRC_DIR}/SSVOpenHexagon/*"
-     "public/discord/*"
+     "public/discord/*")
+
+file(GLOB_RECURSE C_SRC_LIST
      "public/sqlite/*.c")
 
 list(REMOVE_ITEM SRC_LIST ${MAIN_FILE})
@@ -227,11 +251,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
 vrm_cmake_include_vc_dependency_once(vc_detection)
 vrm_cmake_add_common_compiler_flags()
-
-vrm_cmake_find_extlib(vrm_pp)
-vrm_cmake_find_extlib(SSVUtils)
-vrm_cmake_find_extlib(SSVMenuSystem)
-vrm_cmake_find_extlib(SSVStart)
 
 #
 #
@@ -271,8 +290,22 @@ endif()
 # Targets
 # -----------------------------------------------------------------------------
 
+add_library(SSVOpenHexagonLibC STATIC ${C_SRC_LIST})
 add_library(SSVOpenHexagonLib STATIC ${SRC_LIST})
-add_executable(${PROJECT_NAME} ${MAIN_FILE})
+add_executable(SSVOpenHexagon ${MAIN_FILE})
+
+#
+#
+# -----------------------------------------------------------------------------
+# PCH
+# -----------------------------------------------------------------------------
+
+target_precompile_headers(
+    SSVOpenHexagonLib PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/SSVOpenHexagon/Global/PCH.hpp"
+)
+
+target_precompile_headers(SSVOpenHexagon REUSE_FROM SSVOpenHexagonLib)
 
 #
 #
@@ -324,15 +357,20 @@ target_link_libraries(
                       ImGui-SFML::ImGui-SFML
 )
 
-target_link_libraries(${PROJECT_NAME} SSVOpenHexagonLib)
+vrm_cmake_find_extlib_for_target(SSVOpenHexagonLib vrm_pp)
+vrm_cmake_find_extlib_for_target(SSVOpenHexagonLib SSVUtils)
+vrm_cmake_find_extlib_for_target(SSVOpenHexagonLib SSVMenuSystem)
+vrm_cmake_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
+
+target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 
 target_include_directories(
-    ${PROJECT_NAME} SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
-                           PUBLIC ${PUBLIC_INCLUDE_DIRS}
-                           PUBLIC ${zlib_SOURCE_DIR}
-                           PUBLIC ${zlib_BINARY_DIR}
-                           PUBLIC ${LUASRC}
-                           PUBLIC ${imgui_SOURCE_DIR}
+    SSVOpenHexagon SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
+                          PUBLIC ${PUBLIC_INCLUDE_DIRS}
+                          PUBLIC ${zlib_SOURCE_DIR}
+                          PUBLIC ${zlib_BINARY_DIR}
+                          PUBLIC ${LUASRC}
+                          PUBLIC ${imgui_SOURCE_DIR}
 )
 
 if(UNIX AND NOT APPLE)
@@ -340,7 +378,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 install(
-    TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
+    TARGETS SSVOpenHexagon RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
 )
 
 #

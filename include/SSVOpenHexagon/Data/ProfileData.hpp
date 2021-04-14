@@ -19,22 +19,17 @@ private:
     GameVersion version;
     std::string name;
     std::unordered_map<std::string, float> scores;
-    std::vector<std::string> trackedNames;
     std::unordered_set<std::string> favoriteLevelsDataIDs;
 
 public:
     ProfileData(const GameVersion mVersion, const std::string& mName,
         const std::unordered_map<std::string, float>& mScores,
-        const std::vector<std::string>& mTrackedNames,
         const std::vector<std::string>& mFavorites);
 
     [[nodiscard]] GameVersion getVersion() const noexcept;
     [[nodiscard]] const std::string& getName() const noexcept;
     [[nodiscard]] const std::unordered_map<std::string, float>&
     getScores() const noexcept;
-
-    [[nodiscard]] const std::vector<std::string>&
-    getTrackedNames() const noexcept;
 
     [[nodiscard]] std::unordered_set<std::string>&
     getFavoriteLevelIds() noexcept;
@@ -44,9 +39,6 @@ public:
 
     void setScore(const std::string& mId, const float mScore);
     [[nodiscard]] float getScore(const std::string& mId) const;
-
-    void addTrackedName(const std::string& mTrackedName);
-    void clearTrackedNames();
 
     void addFavoriteLevel(const std::string& mLevelID);
     void removeFavoriteLevel(const std::string& mLevelID);

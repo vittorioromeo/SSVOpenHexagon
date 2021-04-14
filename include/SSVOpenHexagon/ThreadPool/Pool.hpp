@@ -21,7 +21,8 @@ private:
     std::vector<worker> _workers;
     std::atomic<unsigned int> _remaining_inits;
 
-    /// @brief TODO
+    /// @brief  Returns `true` if all workers have finished processing packets
+    /// in a blocking manner.
     [[nodiscard]] bool all_workers_done_blocking_processing() const noexcept;
 
     /// @brief Returns `true` if all workers have finished (exited from

@@ -158,7 +158,10 @@ private:
     [[nodiscard]] bool fail(const Ts&...);
 
 public:
-    explicit HexagonServer(HGAssets& assets, HexagonGame& hexagonGame);
+    explicit HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
+        const sf::IpAddress& serverIp, const unsigned short serverPort,
+        const unsigned short serverControlPort);
+
     ~HexagonServer();
 
     HexagonServer(const HexagonServer&) = delete;

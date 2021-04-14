@@ -7,7 +7,6 @@
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
@@ -905,6 +904,8 @@ void HexagonServer::runIteration_PurgeTokens()
             SSVOH_SLOG << "Processing replay from client '" << clientAddr
                        << "' for level '" << levelValidator << "'\n";
 
+            // TODO (P0): sometimes this seems to hang :/
+
             const double score =
                 _hexagonGame.runReplayUntilDeathAndGetScore(rf);
 
@@ -997,13 +998,14 @@ void HexagonServer::runIteration_PurgeTokens()
     );
 }
 
-HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame)
+HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
+    const sf::IpAddress& serverIp, const unsigned short serverPort,
+    const unsigned short serverControlPort)
     : _assets{assets},
       _hexagonGame{hexagonGame},
-      // TODO (P2): remove dependency on config
-      _serverIp{Config::getServerIp()},
-      _serverPort{Config::getServerPort()},
-      _serverControlPort{Config::getServerControlPort()},
+      _serverIp{serverIp},
+      _serverPort{serverPort},
+      _serverControlPort{serverControlPort},
       _listener{},
       _socketSelector{},
       _running{true},
