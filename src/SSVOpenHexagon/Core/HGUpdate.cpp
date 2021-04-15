@@ -227,9 +227,6 @@ void HexagonGame::update(ssvu::FT mFT)
                 updateRotation(mFT);
             }
 
-            // TODO (P0): test with server, think about colors
-            // Advance random number generator state with various level and
-            // style values to avoid cheating by modifying Lua scripts
             if(!status.hasDied)
             {
                 const auto fixup =
@@ -410,9 +407,9 @@ void HexagonGame::start()
         }
     }
 
-    if(!Config::getNoMusic())
+    if(audio != nullptr && !Config::getNoMusic())
     {
-        audio.resumeMusic();
+        audio->resumeMusic();
     }
 
     runLuaFunctionIfExists<void>("onLoad");

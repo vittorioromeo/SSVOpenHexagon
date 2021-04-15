@@ -55,7 +55,8 @@ using mil = std::initializer_list<ssvs::MBtn>;
         std::initializer_list<c>{c{{k::LShift}}, c{kil{}, mil{m::XButton1}}}) \
     X(triggerSelect, trig, "t_select",                                        \
         std::initializer_list<c>{c{{k::Space}}, c{kil{}, mil{m::Middle}}})    \
-    X(triggerExit, trig, "t_exit", std::initializer_list<c>{c{{k::T}}})       \
+    X(triggerExit, trig, "t_exit",                                            \
+        std::initializer_list<c>{c{{k::T}}, c{kil{}, mil{m::XButton2}}})      \
     X(triggerForceRestart, trig, "t_force_restart",                           \
         std::initializer_list<c>{c{{k::Up}}, c{{k::R}}})                      \
     X(triggerRestart, trig, "t_restart",                                      \

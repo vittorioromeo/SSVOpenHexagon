@@ -582,7 +582,7 @@ void HexagonServer::runIteration_PurgeTokens()
         return true;
     };
 
-    constexpr int topScoresLimit = 12;
+    constexpr int topScoresLimit = 6;
 
     _errorOss.str("");
     const PVClientToServer pv = decodeClientToServerPacket(
@@ -919,34 +919,52 @@ void HexagonServer::runIteration_PurgeTokens()
             SSVOH_SLOG << "Processing replay from client '" << clientAddr
                        << "' for level '" << levelValidator << "'\n";
 
-            // TODO (P0): sometimes this seems to hang... should figure out why
-            // and also have a time limit to avoid freezing the server
+            // TODO (P1): sometimes this seems to hang... should figure out why
 
-            const double score =
-                _hexagonGame.runReplayUntilDeathAndGetScore(rf);
+            const std::optional<HexagonGame::GameExecutionResult> ger =
+                _hexagonGame.runReplayUntilDeathAndGetScore(
+                    rf, 5 /* maxProcessingSeconds */);
 
-            SSVOH_SLOG << "Replay processed, final time: '" << score << "'\n";
+            if(!ger.has_value())
+            {
+                return discard("max processing time exceeded");
+            }
+
+            const double replayTotalTime = ger->totalTimeSeconds;
+            const double replayPlayedTime = ger->playedTimeSeconds;
+
+            SSVOH_SLOG << "Replay processed, final time: '" << replayTotalTime
+                       << "'\n";
 
             const double elapsedSecs =
                 std::chrono::duration_cast<std::chrono::duration<double>>(
                     receiveTime - c._gameStatus->_startTP)
                     .count();
 
-            const double difference = std::fabs(score - elapsedSecs);
+            const double difference = std::fabs(replayTotalTime - elapsedSecs);
+            const double ratio = replayTotalTime / elapsedSecs;
+
+            const bool goodDifference = difference < 3.5;
+            const bool goodRatio = ratio > 0.75 && ratio < 1.25;
 
             SSVOH_SLOG << "Elapsed request time: " << elapsedSecs << '\n'
-                       << "Difference: " << difference << '\n';
+                       << "Difference: " << difference << '\n'
+                       << "Ratio: " << ratio << '\n';
 
-            // TODO (P0): doesn't work with levels that have pauses
-            if(difference > 3.5) // TODO (P1): something smarter here?
+            if(!goodDifference)
             {
                 return discard("difference too large");
+            }
+
+            if(!goodRatio)
+            {
+                return discard("bad ratio");
             }
 
             SSVOH_SLOG << "Replay valid, adding to database\n";
 
             Database::addScore(levelValidator, Database::nowTimestamp(),
-                c._loginData->_steamId, score);
+                c._loginData->_steamId, replayPlayedTime);
 
             return true;
         },

@@ -87,7 +87,7 @@ private:
     HGAssets& assets;
     sf::Font& font;
 
-    Audio& audio;
+    Audio* audio;
 
     const LevelData* levelData;
 
@@ -381,7 +381,7 @@ public:
 
     HexagonGame(Steam::steam_manager* mSteamManager,
         Discord::discord_manager* mDiscordManager, HGAssets& mAssets,
-        Audio& mAudio, ssvs::GameWindow* mGameWindow,
+        Audio* mAudio, ssvs::GameWindow* mGameWindow,
         HexagonClient* mHexagonClient);
 
     ~HexagonGame();
@@ -394,10 +394,20 @@ public:
 
     void death(bool mForce = false);
 
-    [[nodiscard]] double executeGameUntilDeath();
+    struct GameExecutionResult
+    {
+        double playedTimeSeconds;
+        double pausedTimeSeconds;
+        double totalTimeSeconds;
+        float customScore;
+    };
 
-    [[nodiscard]] double runReplayUntilDeathAndGetScore(
-        const replay_file& mReplayFile);
+    [[nodiscard]] std::optional<GameExecutionResult> executeGameUntilDeath(
+        const int maxProcessingSeconds);
+
+    [[nodiscard]] std::optional<GameExecutionResult>
+    runReplayUntilDeathAndGetScore(
+        const replay_file& mReplayFile, const int maxProcessingSeconds);
 
     // Other methods
     void executeEvents(ssvuj::Obj& mRoot, float mTime);

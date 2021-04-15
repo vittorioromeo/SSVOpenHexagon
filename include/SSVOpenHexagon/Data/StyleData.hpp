@@ -57,7 +57,7 @@ private:
 
     void drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
         const sf::Vector2f& mCenterPos, const unsigned int sides,
-        const bool darkenUnevenBackgroundChunk) const;
+        const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const;
 
     void drawBackgroundMenuHexagonImpl(Utils::FastVertexVectorTris& vertices,
         const sf::Vector2f& mCenterPos, const unsigned int sides,
@@ -110,11 +110,12 @@ public:
 
     void drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
         const sf::Vector2f& mCenterPos, const unsigned int sides,
-        const bool darkenUnevenBackgroundChunk, const bool fourByThree) const;
+        const bool darkenUnevenBackgroundChunk, const bool blackAndWhite,
+        const bool fourByThree) const;
 
     void drawBackground(Utils::FastVertexVectorTris& mTris,
         const sf::Vector2f& mCenterPos, const unsigned int sides,
-        const bool darkenUnevenBackgroundChunk) const;
+        const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const;
 
     void setCapColor(const CapColor& mCapColor);
 

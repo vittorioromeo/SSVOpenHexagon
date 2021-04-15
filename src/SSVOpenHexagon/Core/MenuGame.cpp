@@ -29,9 +29,12 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 
+#include "SSVOpenHexagon/Online/Database.hpp"
+
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include "SSVOpenHexagon/Utils/Casts.hpp"
+#include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
@@ -814,9 +817,23 @@ void MenuGame::initInput()
             Config::getTrigger(tid), action, type, static_cast<int>(tid));
     };
 
-    addTidInput(Tid::RotateCCW, t::Once, [this](ssvu::FT) { leftAction(); });
+    addTidInput(Tid::RotateCCW, t::Once,
+        [this](ssvu::FT)
+        {
+            if(!mouseHovering)
+            {
+                leftAction();
+            }
+        });
 
-    addTidInput(Tid::RotateCW, t::Once, [this](ssvu::FT) { rightAction(); });
+    addTidInput(Tid::RotateCW, t::Once,
+        [this](ssvu::FT)
+        {
+            if(!mouseHovering)
+            {
+                rightAction();
+            }
+        });
 
     game.addInput( // hardcoded
         {{k::Up}}, [this](ssvu::FT) { upAction(); }, t::Once);
@@ -1907,6 +1924,24 @@ void MenuGame::downAction()
     touchDelay = 50.f;
 }
 
+void MenuGame::changePackTo(const int idx)
+{
+    const auto& p{assets.getSelectablePackInfos()};
+
+    // Deduce the new packIdx.
+    lvlSlct.packIdx = ssvu::getMod(idx, 0, static_cast<int>(p.size()));
+
+    // Load level ids relative to the new pack
+    lvlSlct.levelDataIds =
+        &assets.getLevelIdsByPack(p.at(lvlDrawer->packIdx).id);
+
+    // Set the correct level index.
+    setIndex(0);
+
+    // Reset all text scrolling.
+    resetNamesScrolls();
+}
+
 void MenuGame::changePack()
 {
     const auto& p{assets.getSelectablePackInfos()};
@@ -2436,6 +2471,59 @@ void MenuGame::update(ssvu::FT mFT)
     else
     {
         wasFocusHeld = focusHeld = false;
+    }
+
+    // TODO (P2): cleanup mouse control
+    if((state == States::SMain || state == States::MOpts ||
+           state == States::MOnline || state == States::SLPSelect) &&
+        mustUseMainMenuItem.has_value())
+    {
+        if(getCurrentMenu() != nullptr)
+        {
+            auto& items = getCurrentMenu()->getItems();
+            if(static_cast<int>(items.size()) > *mustUseMainMenuItem)
+            {
+                playSoundOverride("beep.ogg");
+                items.at(*mustUseMainMenuItem)->exec();
+            }
+        }
+
+        mustUseMainMenuItem.reset();
+    }
+
+    // TODO (P2): cleanup mouse control
+    if(state == States::LevelSelection && packChangeState == PackChange::Rest &&
+        mustFavorite)
+    {
+        addRemoveFavoriteLevel();
+        mustFavorite = false;
+    }
+
+    // TODO (P2): cleanup mouse control
+    if(state == States::LevelSelection && packChangeState == PackChange::Rest &&
+        mustChangeIndexTo.has_value())
+    {
+        if(lvlDrawer != nullptr &&
+            lvlDrawer->currentIndex != *mustChangeIndexTo)
+        {
+            playSoundOverride("beep.ogg");
+            setIndex(*mustChangeIndexTo);
+        }
+
+        mustChangeIndexTo.reset();
+    }
+
+    // TODO (P2): cleanup mouse control
+    if(state == States::LevelSelection && packChangeState == PackChange::Rest &&
+        mustChangePackIndexTo.has_value())
+    {
+        if(lvlSlct.packIdx != *mustChangePackIndexTo)
+        {
+            playSoundOverride("beep.ogg");
+            changePackTo(*mustChangePackIndexTo);
+        }
+
+        mustChangePackIndexTo.reset();
     }
 
     if(Joystick::risingEdge(Joystick::Jid::NextPack))
@@ -3192,6 +3280,12 @@ void MenuGame::createQuad(const sf::Color& color, const float x1,
         color, topLeft, topRight, bottomRight, bottomLeft);
 }
 
+void MenuGame::createQuad(
+    const sf::Color& color, const sf::Vector2f& mins, const sf::Vector2f& maxs)
+{
+    createQuad(color, mins.x, maxs.x, mins.y, maxs.y);
+}
+
 void MenuGame::createQuadTrapezoid(const sf::Color& color, const float x1,
     const float x2, const float x3, const float y1, const float y2,
     const bool left)
@@ -3334,12 +3428,36 @@ void MenuGame::drawMainMenu(
         calcMenuItemOffset(items[i]->getOffset(), i == mSubMenu.getIdx());
         indent = baseIndent - items[i]->getOffset();
 
-        createQuadTrapezoid(!items[i]->isEnabled()
-                                ? sf::Color{110, 110, 110, 255}
-                                : menuQuadColor,
-            indent - txtMenuBig.height * 2.5f, w,
-            indent - txtMenuBig.height / 2.f, quadHeight,
-            quadHeight + doubleBorder + txtMenuBig.height, false);
+        {
+            sf::Vector2f bodyMins{
+                indent - txtMenuBig.height * 2.5f, quadHeight};
+            sf::Vector2f bodyMaxs{
+                w, quadHeight + doubleBorder + txtMenuBig.height};
+
+            const auto mp = overlayCamera.getMousePosition();
+            const bool mouseOverlap = mp.x > bodyMins.x && mp.x < bodyMaxs.x &&
+                                      mp.y > bodyMins.y && mp.y < bodyMaxs.y;
+
+            if(mouseOverlap)
+            {
+                mouseHovering = true;
+            }
+
+            sf::Color c = !items[i]->isEnabled() ? sf::Color{110, 110, 110, 255}
+                                                 : menuQuadColor;
+
+            createQuadTrapezoid(mouseOverlap ? Utils::transformHue(c, 0.5f) : c,
+                indent - txtMenuBig.height * 2.5f, w,
+                indent - txtMenuBig.height / 2.f, quadHeight,
+                quadHeight + doubleBorder + txtMenuBig.height, false);
+
+            // TODO (P2): cleanup mouse control
+            if(mouseOverlap && !mustUseMainMenuItem.has_value() &&
+                mousePressed && !mouseWasPressed)
+            {
+                mustUseMainMenuItem = i;
+            }
+        }
 
         quadHeight += interline;
     }
@@ -4567,14 +4685,38 @@ void MenuGame::drawLevelSelectionRightSide(
             createQuad(
                 menuQuadColor, indent, w, height, height + slctFrameSize);
         }
+
         // Side frame
         createQuad(menuQuadColor, indent, indent + slctFrameSize,
             height + slctFrameSize, height + levelLabelHeight);
+
         // Body
-        createQuad(
-            i == drawer.currentIndex ? menuSelectionColor : alphaTextColor,
-            indent + slctFrameSize, w, height + slctFrameSize,
-            height + levelLabelHeight);
+        sf::Vector2f bodyMins{indent + slctFrameSize, height + slctFrameSize};
+        sf::Vector2f bodyMaxs{w, height + levelLabelHeight};
+
+        const auto mp = overlayCamera.getMousePosition();
+        const bool mouseOverlap = mp.x > bodyMins.x && mp.x < bodyMaxs.x &&
+                                  mp.y > bodyMins.y && mp.y < bodyMaxs.y;
+
+        if(mouseOverlap)
+        {
+            mouseHovering = true;
+        }
+
+        sf::Color c =
+            i == drawer.currentIndex ? menuSelectionColor : alphaTextColor;
+
+        createQuad(mouseOverlap ? Utils::transformHue(c, 0.5f) : c, bodyMins,
+            bodyMaxs);
+
+        {
+            // TODO (P2): cleanup mouse control
+            if(mouseOverlap && !mustChangeIndexTo.has_value() && mousePressed &&
+                !mouseWasPressed)
+            {
+                mustChangeIndexTo = i;
+            }
+        }
 
         render(menuQuads);
         prevLevelIndent = indent;
@@ -4644,8 +4786,32 @@ void MenuGame::drawLevelSelectionRightSide(
 
         createQuad(menuTextColor, temp - slctFrameSize, w, height,
             height + packLabelHeight + slctFrameSize);
-        createQuad(menuQuadColor, temp, w, height + slctFrameSize,
-            height + packLabelHeight);
+
+        sf::Vector2f bodyMins{temp, height + slctFrameSize};
+        sf::Vector2f bodyMaxs{w, height + packLabelHeight};
+
+        const auto mp = overlayCamera.getMousePosition();
+        const bool mouseOverlap = mp.x > bodyMins.x && mp.x < bodyMaxs.x &&
+                                  mp.y > bodyMins.y && mp.y < bodyMaxs.y;
+
+        if(mouseOverlap)
+        {
+            mouseHovering = true;
+        }
+
+        createQuad(mouseOverlap ? Utils::transformHue(menuQuadColor, 0.5f)
+                                : menuQuadColor,
+            bodyMins, bodyMaxs);
+
+        {
+            // TODO (P2): cleanup mouse control
+            if(mouseOverlap && !mustChangePackIndexTo.has_value() &&
+                mousePressed && !mouseWasPressed)
+            {
+                mustChangePackIndexTo = i;
+            }
+        }
+
         render(menuQuads);
 
         // Name & >
@@ -4955,9 +5121,31 @@ void MenuGame::drawLevelSelectionLeftSide(
     createQuad(menuQuadColor, width, width, height, favoriteButtonBottom);
     createQuad(menuQuadColor, lineThickness - panelOffset, width,
         favoriteButtonBottom - lineThickness, favoriteButtonBottom);
+
     // Backdrop
-    createQuad(menuSelectionColor, lineThickness - panelOffset, width,
-        height + lineThickness, favoriteButtonBottom - lineThickness);
+    sf::Vector2f bodyMins{lineThickness - panelOffset, height + lineThickness};
+    sf::Vector2f bodyMaxs{width, favoriteButtonBottom - lineThickness};
+
+    const auto mp = overlayCamera.getMousePosition();
+    const bool mouseOverlap = mp.x > bodyMins.x && mp.x < bodyMaxs.x &&
+                              mp.y > bodyMins.y && mp.y < bodyMaxs.y;
+
+    if(mouseOverlap)
+    {
+        mouseHovering = true;
+    }
+
+    createQuad(mouseOverlap ? Utils::transformHue(menuSelectionColor, 0.5f)
+                            : menuSelectionColor,
+        bodyMins, bodyMaxs);
+
+    {
+        // TODO (P2): cleanup mouse control
+        if(mouseOverlap && !mustFavorite && !mouseWasPressed && mousePressed)
+        {
+            mustFavorite = true;
+        }
+    }
 
     // Also renders all previous quads
     render(menuQuads);
@@ -4986,9 +5174,9 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     if(levelData.unscored)
     {
-        renderText("N/A", txtSelectionScore.font,
+        renderText("N/A", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
-                height - txtSelectionScore.height * fontHeightOffset});
+                height - txtSelectionSmall.height * fontHeightOffset});
     }
     else
     {
@@ -4999,13 +5187,13 @@ void MenuGame::drawLevelSelectionLeftSide(
         renderText(
             ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) +
                 "s",
-            txtSelectionScore.font,
+            txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
-                height - txtSelectionScore.height * fontHeightOffset});
+                height - txtSelectionSmall.height * fontHeightOffset});
     }
 
     // Line
-    height += txtSelectionScore.height + textToQuadBorder + lineThickness;
+    height += txtSelectionSmall.height + textToQuadBorder + lineThickness;
     menuQuads.reserve(4);
     createQuad(menuQuadColor, 0, width, height, height - lineThickness);
 
@@ -5017,7 +5205,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         -panelOffset);
 
     // Line
-    height += txtSelectionScore.height + txtSelectionBig.height / 2.f;
+    height += txtSelectionScore.height + txtSelectionBig.height / 2.f + 3.f;
     menuQuads.reserve_more(4);
     createQuad(menuQuadColor, 0, width, height, height + lineThickness);
     height += lineThickness;
@@ -5041,8 +5229,6 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     const bool gotScoreInfo = leaderboardCache->hasInformation(levelValidator);
 
-    // TODO (P0): add a message here if the server doesn't have the level, need
-    // a new packet and some state probably...
     if(levelData.unscored)
     {
         renderText("LEADERBOARD DISABLED FOR THIS LEVEL",
@@ -5077,27 +5263,45 @@ void MenuGame::drawLevelSelectionLeftSide(
         SSVOH_ASSERT(
             hexagonClient.getState() == HexagonClient::State::LoggedIn);
 
+        const auto serializeTimePoint =
+            [](const auto& time, const std::string& format)
+        {
+            std::time_t tt = std::chrono::system_clock::to_time_t(time);
+            std::tm tm = *std::gmtime(&tt); // GMT (UTC)
+            std::stringstream ss;
+            ss << std::put_time(&tm, format.c_str());
+            return ss.str();
+        };
+
         const auto drawEntry = [&](const int i, const std::string& userName,
                                    const std::uint64_t scoreTimestamp,
                                    const double scoreValue)
         {
             const float score = scoreValue;
 
-            // TODO (P1): display date and time
+            const auto tp = Database::toTimepoint(scoreTimestamp);
+
+            const std::string timestampStr =
+                serializeTimePoint(tp, "%Y-%m-%d %H:%M:%S");
 
             const std::string posStr = Utils::concat('#', i + 1);
             std::string scoreStr = ssvu::toStr(score) + 's';
             std::string playerStr = userName;
 
             const float tx = textToQuadBorder - panelOffset;
-            const float ty =
-                height - txtSelectionMedium.height * fontHeightOffset;
+            const float ty = height -
+                             txtSelectionMedium.height * fontHeightOffset +
+                             txtSelectionSmall.height;
 
-            renderText(posStr, txtSelectionMedium.font, {tx, ty});
-            renderText(scoreStr, txtSelectionMedium.font, {tx + 54.f, ty});
-            renderText(playerStr, txtSelectionMedium.font, {tx + 150.f, ty});
+            renderText(timestampStr, txtSelectionSmall.font, {tx, ty});
+            renderText(posStr, txtSelectionMedium.font, {tx, ty + 7.5f});
+            renderText(
+                scoreStr, txtSelectionMedium.font, {tx + 54.f, ty + 7.5f});
+            renderText(
+                playerStr, txtSelectionMedium.font, {tx + 150.f, ty + 7.5f});
 
-            height += txtSelectionMedium.height + txtSelectionSmall.height;
+            height += txtSelectionMedium.height + txtSelectionSmall.height +
+                      txtSelectionSmall.height + 10.f;
         };
 
         if(gotScoreInfo)
@@ -5139,7 +5343,7 @@ void MenuGame::drawLevelSelectionLeftSide(
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
 
-        height += txtSelectionSmall.height * 2.f;
+        height += txtSelectionSmall.height * 2.f + 5.f;
 
         if(gotScoreInfo)
         {
@@ -5168,6 +5372,10 @@ void MenuGame::drawLevelSelectionLeftSide(
 
 void MenuGame::draw()
 {
+    mouseHovering = false;
+    mouseWasPressed = mousePressed;
+    mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+
     if(mustRefresh)
     {
         mustRefresh = false;
@@ -5190,8 +5398,10 @@ void MenuGame::draw()
         menuBackgroundTris.clear();
 
         styleData.drawBackgroundMenu(menuBackgroundTris, ssvs::zeroVec2f,
-            levelStatus.sides, levelStatus.darkenUnevenBackgroundChunk,
-            fourByThree);
+            levelStatus.sides,
+            Config::getDarkenUnevenBackgroundChunk() &&
+                levelStatus.darkenUnevenBackgroundChunk,
+            Config::getBlackAndWhite(), fourByThree);
 
         render(menuBackgroundTris);
     }
@@ -5357,14 +5567,7 @@ void MenuGame::draw()
         mustTakeScreenshot = false;
     }
 
-    if(hg::Config::getFullscreen())
-    {
-        window.setMouseCursorVisible(false);
-    }
-    else
-    {
-        window.setMouseCursorVisible(hg::Config::getMouseVisible());
-    }
+    window.setMouseCursorVisible(hg::Config::getMouseVisible());
 
     if(!dialogBox.empty())
     {

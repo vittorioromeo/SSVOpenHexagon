@@ -29,14 +29,15 @@
 
 #include <SFML/System/Vector2.hpp>
 
-#include <cctype>
 #include <array>
-#include <utility>
-#include <string>
-#include <vector>
-#include <string_view>
-#include <memory>
+#include <cctype>
 #include <functional>
+#include <memory>
+#include <optional>
+#include <string_view>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace ssvs {
 class GameWindow;
@@ -178,6 +179,7 @@ private:
     void eraseAction();
     void exitAction();
 
+    void changePackTo(const int idx);
     void changePack();
     void changePackQuick(const int direction);
     void changePackAction(const int direction);
@@ -251,6 +253,15 @@ private:
     Utils::FastVertexVectorTris menuBackgroundTris;
     Utils::FastVertexVectorQuads menuQuads;
 
+    // Mouse control
+    bool mouseHovering{false};
+    bool mouseWasPressed{false};
+    bool mousePressed{false};
+    bool mustFavorite{false};
+    std::optional<int> mustChangeIndexTo;
+    std::optional<int> mustChangePackIndexTo;
+    std::optional<int> mustUseMainMenuItem;
+
     void draw();
     void render(sf::Drawable& mDrawable);
 
@@ -270,6 +281,11 @@ private:
 
     void createQuad(
         const sf::Color& color, float x1, float x2, float y1, float y2);
+
+    void createQuad(const sf::Color& color, const sf::Vector2f& mins,
+        const sf::Vector2f& maxs);
+
+    void createQuad(const sf::Color& color, const sf::FloatRect& rect);
 
     void createQuadTrapezoid(const sf::Color& color, float x1, float x2,
         float x3, float y1, float y2, bool left);

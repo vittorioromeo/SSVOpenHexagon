@@ -255,20 +255,6 @@ vrm_cmake_add_common_compiler_flags()
 #
 #
 # -----------------------------------------------------------------------------
-# Increase stack size
-# -----------------------------------------------------------------------------
-
-if(WIN32)
-    if(MSVC)
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:4194304")
-    else()
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--stack,4194304 -fpermissive")
-    endif()
-endif()
-
-#
-#
-# -----------------------------------------------------------------------------
 # LTO
 # -----------------------------------------------------------------------------
 

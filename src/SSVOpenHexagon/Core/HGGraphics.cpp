@@ -81,7 +81,10 @@ void HexagonGame::draw()
         backgroundTris.clear();
 
         styleData.drawBackground(backgroundTris, ssvs::zeroVec2f,
-            levelStatus.sides, levelStatus.darkenUnevenBackgroundChunk);
+            levelStatus.sides,
+            Config::getDarkenUnevenBackgroundChunk() &&
+                levelStatus.darkenUnevenBackgroundChunk,
+            Config::getBlackAndWhite());
 
         render(backgroundTris);
     }
@@ -415,7 +418,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
             }
         }
     }
-    else
+    else if(Config::getRotateToStart())
     {
         os << "ROTATE TO START\n";
         messageText.setString("ROTATE TO START");
