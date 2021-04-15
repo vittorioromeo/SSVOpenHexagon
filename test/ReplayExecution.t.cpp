@@ -3,7 +3,6 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
@@ -35,16 +34,16 @@ try
     auto assets = std::make_unique<hg::HGAssets>(
         nullptr /* steamManager */, true /* headless */);
 
-    hg::Audio audio{
-        [](const std::string&) -> sf::SoundBuffer* { return nullptr; },
-        [](const std::string&) -> const std::string* { return nullptr; } //
-    };
-
     const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)
     {
-        hg::HexagonGame hg(nullptr /* steamManager */,
-            nullptr /* discordManager */, *assets, audio, gw,
-            nullptr /* client */);
+        hg::HexagonGame hg{
+            nullptr /* steamManager */,   //
+            nullptr /* discordManager */, //
+            *assets,                      //
+            nullptr /* audio */,          //
+            gw,                           //
+            nullptr /* client */          //
+        };
 
         if(getRndBool())
         {
@@ -65,32 +64,48 @@ try
             /* mExecuteLastReplay */ false);
 
         hg.setMustStart(true);
-        const double score = hg.executeGameUntilDeath();
+        const double score =
+            hg.executeGameUntilDeath(1 /* maxProcessingSeconds */)
+                .value()
+                .playedTimeSeconds;
 
-        double score2;
+        std::optional<hg::HexagonGame::GameExecutionResult> score2;
         if(differentHG)
         {
-            hg::HexagonGame hg2(nullptr /* steamManager */,
-                nullptr /* discordManager */, *assets, audio,
-                nullptr /* window */, nullptr /* client */);
+            hg::HexagonGame hg2{
+                nullptr /* steamManager */,                //
+                nullptr /* discordManager */,              //
+                *assets,                                   //
+                nullptr /* audio */, nullptr /* window */, //
+                nullptr /* client */                       //
+            };
 
-            score2 = hg2.runReplayUntilDeathAndGetScore(rf);
+            score2 = hg2.runReplayUntilDeathAndGetScore(
+                rf, 1 /* maxProcessingSeconds */);
         }
         else
         {
-            score2 = hg.runReplayUntilDeathAndGetScore(rf);
+            score2 = hg.runReplayUntilDeathAndGetScore(
+                rf, 1 /* maxProcessingSeconds */);
         }
 
-        std::cerr << score << " == " << score2 << std::endl;
-        TEST_ASSERT_EQ(score, score2);
-    };
+        TEST_ASSERT(score2.has_value());
+        const double replayPlayedTimeSeconds = score2.value().playedTimeSeconds;
 
-    ssvs::GameWindow gw;
+        std::cerr << score << " == " << replayPlayedTimeSeconds << std::endl;
+
+        TEST_ASSERT_EQ(score, replayPlayedTimeSeconds);
+    };
 
     for(int i = 0; i < 25; ++i)
     {
         doTest(i, false, nullptr);
         doTest(i, true, nullptr);
+    }
+
+    ssvs::GameWindow gw;
+    for(int i = 0; i < 25; ++i)
+    {
         doTest(i, false, &gw);
         doTest(i, true, &gw);
     }

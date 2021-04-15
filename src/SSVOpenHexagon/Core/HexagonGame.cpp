@@ -34,6 +34,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <cmath>
+#include <chrono>
 
 namespace hg {
 
@@ -254,7 +255,7 @@ void HexagonGame::nameFormat(std::string& name)
 }
 
 HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
-    Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio& mAudio,
+    Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio* mAudio,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
     : steamManager(mSteamManager),
       discordManager(mDiscordManager),
@@ -406,11 +407,17 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
                 if(debugPause)
                 {
-                    audio.pauseMusic();
+                    if(audio != nullptr)
+                    {
+                        audio->pauseMusic();
+                    }
                 }
                 else if(!status.hasDied)
                 {
-                    audio.resumeMusic();
+                    if(audio != nullptr)
+                    {
+                        audio->resumeMusic();
+                    }
                 }
             }
         });
@@ -481,26 +488,26 @@ void HexagonGame::updateRichPresenceCallbacks()
 
 void HexagonGame::playSoundOverride(const std::string& mId)
 {
-    if(window != nullptr && !Config::getNoSound())
+    if(window != nullptr && audio != nullptr && !Config::getNoSound())
     {
-        audio.playSoundOverride(mId);
+        audio->playSoundOverride(mId);
     }
 }
 
 void HexagonGame::playSoundAbort(const std::string& mId)
 {
-    if(window != nullptr && !Config::getNoSound())
+    if(window != nullptr && audio != nullptr && !Config::getNoSound())
     {
-        audio.playSoundAbort(mId);
+        audio->playSoundAbort(mId);
     }
 }
 
 void HexagonGame::playPackSoundOverride(
     const std::string& mPackId, const std::string& mId)
 {
-    if(window != nullptr && !Config::getNoSound())
+    if(window != nullptr && audio != nullptr && !Config::getNoSound())
     {
-        audio.playPackSoundOverride(mPackId, mId);
+        audio->playPackSoundOverride(mPackId, mId);
     }
 }
 
@@ -591,20 +598,20 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
 
     // Audio cleanup
-    if(window != nullptr)
+    if(window != nullptr && audio != nullptr)
     {
-        audio.stopSounds();
+        audio->stopSounds();
         stopLevelMusic();
 
         if(!Config::getNoMusic())
         {
             playLevelMusic();
-            audio.pauseMusic();
+            audio->pauseMusic();
             refreshMusicPitch();
         }
         else
         {
-            audio.stopMusic();
+            audio->stopMusic();
         }
     }
 
@@ -917,19 +924,43 @@ void HexagonGame::death(bool mForce)
     }
 }
 
-[[nodiscard]] double HexagonGame::executeGameUntilDeath()
+[[nodiscard]] std::optional<HexagonGame::GameExecutionResult>
+HexagonGame::executeGameUntilDeath(const int maxProcessingSeconds)
 {
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = std::chrono::time_point<Clock>;
+
+    const TimePoint tpBegin = Clock::now();
+
+    const auto exceededProcessingTime = [&]
+    {
+        return std::chrono::duration_cast<std::chrono::seconds>(
+                   Clock::now() - tpBegin)
+                   .count() > maxProcessingSeconds;
+    };
+
     while(!status.hasDied)
     {
         update(Config::TIME_STEP);
         postUpdate();
+
+        if(exceededProcessingTime())
+        {
+            return std::nullopt;
+        }
     }
 
-    return status.getTimeSeconds();
+    return GameExecutionResult{
+        .playedTimeSeconds = status.getPlayedAccumulatedFrametimeInSeconds(), //
+        .pausedTimeSeconds = status.getPausedAccumulatedFrametimeInSeconds(), //
+        .totalTimeSeconds = status.getTotalAccumulatedFrametimeInSeconds(),   //
+        .customScore = status.getCustomScore()                                //
+    };
 }
 
-[[nodiscard]] double HexagonGame::runReplayUntilDeathAndGetScore(
-    const replay_file& mReplayFile)
+[[nodiscard]] std::optional<HexagonGame::GameExecutionResult>
+HexagonGame::runReplayUntilDeathAndGetScore(
+    const replay_file& mReplayFile, const int maxProcessingSeconds)
 {
     SSVOH_ASSERT(assets.isValidPackId(mReplayFile._pack_id));
     SSVOH_ASSERT(assets.isValidLevelId(mReplayFile._level_id));
@@ -940,7 +971,7 @@ void HexagonGame::death(bool mForce)
         mReplayFile._first_play, mReplayFile._difficulty_mult,
         /* mExecuteLastReplay */ true);
 
-    return executeGameUntilDeath();
+    return executeGameUntilDeath(maxProcessingSeconds);
 }
 
 void HexagonGame::incrementDifficulty()
@@ -1037,7 +1068,10 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         return;
     }
 
-    audio.stopSounds();
+    if(audio != nullptr)
+    {
+        audio->stopSounds();
+    }
 
     ilcLuaTracked.clear();
     ilcLuaTrackedNames.clear();
@@ -1166,10 +1200,10 @@ void HexagonGame::playLevelMusic()
         return;
     }
 
-    if(!Config::getNoMusic())
+    if(audio != nullptr && !Config::getNoMusic())
     {
         const MusicData::Segment segment =
-            musicData.playRandomSegment(getPackId(), audio);
+            musicData.playRandomSegment(getPackId(), *audio);
 
         // TODO (P1): problems with addHash in headless mode:
         status.beatPulseDelay += segment.beatPulseDelayOffset;
@@ -1183,9 +1217,9 @@ void HexagonGame::playLevelMusicAtTime(float mSeconds)
         return;
     }
 
-    if(!Config::getNoMusic())
+    if(audio != nullptr && !Config::getNoMusic())
     {
-        musicData.playSeconds(getPackId(), audio, mSeconds);
+        musicData.playSeconds(getPackId(), *audio, mSeconds);
     }
 }
 
@@ -1196,9 +1230,9 @@ void HexagonGame::stopLevelMusic()
         return;
     }
 
-    if(!Config::getNoMusic())
+    if(audio != nullptr && !Config::getNoMusic())
     {
-        audio.stopMusic();
+        audio->stopMusic();
     }
 }
 
@@ -1247,9 +1281,12 @@ auto HexagonGame::getColorText() const -> sf::Color
 
 void HexagonGame::refreshMusicPitch()
 {
-    audio.setCurrentMusicPitch((getMusicDMSyncFactor()) *
-                               Config::getMusicSpeedMult() *
-                               levelStatus.musicPitch);
+    if(audio != nullptr)
+    {
+        audio->setCurrentMusicPitch((getMusicDMSyncFactor()) *
+                                    Config::getMusicSpeedMult() *
+                                    levelStatus.musicPitch);
+    }
 }
 
 void HexagonGame::setSides(unsigned int mSides)

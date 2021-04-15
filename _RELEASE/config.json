@@ -52,7 +52,7 @@
 	"rotate_to_start" : false,
 	"save_local_best_replay_to_file" : true,
 	"server_control_port" : 50506,
-	"server_ip" : "139.162.199.162",
+	"server_ip" : "127.0.0.1",
 	"server_local" : true,
 	"server_port" : 50505,
 	"server_verbose" : true,
@@ -74,7 +74,7 @@
 	"t_exit" : 
 	[
 		[ "kT" ],
-		[ "" ],
+		[ "bXButton2" ],
 		[ "" ],
 		[ "" ]
 	],
@@ -182,7 +182,7 @@
 	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 763,
-	"windowed_width" : 1406,
-	"zoom_factor" : 1.006553053855896
+	"windowed_height" : 671,
+	"windowed_width" : 1111,
+	"zoom_factor" : 1.144560337066650
 }

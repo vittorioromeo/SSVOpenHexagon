@@ -8,7 +8,6 @@
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
@@ -197,7 +196,7 @@ void StyleData::computeColors()
 
 void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
     const sf::Vector2f& mCenterPos, const unsigned int sides,
-    const bool darkenUnevenBackgroundChunk) const
+    const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const
 {
     const float div{ssvu::tau / sides * 1.0001f};
     const float halfDiv{div / 2.f};
@@ -214,14 +213,10 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
         const float angle{ssvu::toRad(BGRotOff) + div * i};
         sf::Color currentColor{ssvu::getByModIdx(colors, i)};
 
-        // TODO (P2): remove dependency on config
         const bool mustDarkenUnevenBackgroundChunk =
-            (i % 2 == 0 && i == sides - 1) &&
-            Config::getDarkenUnevenBackgroundChunk() &&
-            darkenUnevenBackgroundChunk;
+            (i % 2 == 0 && i == sides - 1) && darkenUnevenBackgroundChunk;
 
-        // TODO (P2): remove dependency on config
-        if(Config::getBlackAndWhite())
+        if(blackAndWhite)
         {
             currentColor = sf::Color::Black;
         }
@@ -265,20 +260,23 @@ void StyleData::drawBackgroundMenuHexagonImpl(
 
 void StyleData::drawBackground(Utils::FastVertexVectorTris& mTris,
     const sf::Vector2f& mCenterPos, const unsigned int sides,
-    const bool darkenUnevenBackgroundChunk) const
+    const bool darkenUnevenBackgroundChunk, const bool blackAndWhite) const
 {
     mTris.reserve_more(sides * 3);
 
-    drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk);
+    drawBackgroundImpl(
+        mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
 }
 
 void StyleData::drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
     const sf::Vector2f& mCenterPos, const unsigned int sides,
-    const bool darkenUnevenBackgroundChunk, const bool fourByThree) const
+    const bool darkenUnevenBackgroundChunk, const bool blackAndWhite,
+    const bool fourByThree) const
 {
     mTris.reserve_more(sides * 3 + sides * 6);
 
-    drawBackgroundImpl(mTris, mCenterPos, sides, darkenUnevenBackgroundChunk);
+    drawBackgroundImpl(
+        mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
     drawBackgroundMenuHexagonImpl(mTris, mCenterPos, sides, fourByThree);
 }
 
