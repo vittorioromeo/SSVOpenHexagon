@@ -347,8 +347,8 @@ target_link_libraries(
 
 macro(ssvoh_find_extlib_for_target target extlib)
     list(APPEND CMAKE_MODULE_PATH
-        "${CMAKE_SOURCE_DIR}/${dir}/${extlib}/cmake/modules/"
-        "${CMAKE_SOURCE_DIR}/${dir}/${extlib}/cmake/"
+        "${CMAKE_SOURCE_DIR}/../${extlib}/cmake/modules/"
+        "${CMAKE_SOURCE_DIR}/../${extlib}/cmake/"
         "${CMAKE_SOURCE_DIR}/extlibs/${extlib}/cmake/modules/"
         "${CMAKE_SOURCE_DIR}/extlibs/${extlib}/cmake/")
 
