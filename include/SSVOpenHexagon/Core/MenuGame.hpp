@@ -30,6 +30,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include <array>
+#include <chrono>
 #include <cctype>
 #include <functional>
 #include <memory>
@@ -254,13 +255,33 @@ private:
     Utils::FastVertexVectorQuads menuQuads;
 
     // Mouse control
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = Clock::time_point;
+    using Duration = Clock::duration;
+    TimePoint lastMouseClick{};
     bool mouseHovering{false};
     bool mouseWasPressed{false};
     bool mousePressed{false};
     bool mustFavorite{false};
+    bool mustPlay{false};
     std::optional<int> mustChangeIndexTo;
     std::optional<int> mustChangePackIndexTo;
-    std::optional<int> mustUseMainMenuItem;
+    std::optional<int> mustUseMenuItem;
+
+    std::string strBuf;
+
+    void playSelectedLevel();
+
+    [[nodiscard]] bool overlayMouseOverlap(
+        const sf::Vector2f& mins, const sf::Vector2f& maxs) const;
+
+    [[nodiscard]] bool overlayMouseOverlapAndUpdateHover(
+        const sf::Vector2f& mins, const sf::Vector2f& maxs);
+
+    [[nodiscard]] sf::Color mouseOverlapColor(
+        const bool mouseOverlap, const sf::Color& c) const;
+
+    [[nodiscard]] bool mouseLeftRisingEdge() const;
 
     void draw();
     void render(sf::Drawable& mDrawable);

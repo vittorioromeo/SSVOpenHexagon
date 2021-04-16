@@ -86,7 +86,11 @@ namespace hg {
     _handleAvailable[res] = false;
     ++_count;
 
-    fAfterCreate(_customWalls[res]);
+    // Restore default state
+    CCustomWall& cw = _customWalls[res];
+    cw.reset();
+
+    fAfterCreate(cw);
 
     return res;
 }
