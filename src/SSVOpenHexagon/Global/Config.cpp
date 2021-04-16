@@ -120,7 +120,6 @@ using mil = std::initializer_list<ssvs::MBtn>;
     X(maxFPS, uint, "max_fps", 200)                                            \
     X(antialiasingLevel, uint, "antialiasing_level", 4)                        \
     X(showFPS, bool, "show_fps", false)                                        \
-    X(mouseVisible, bool, "mouse_visible", true)                               \
     X(musicSpeedMult, float, "music_speed_mult", 1.0f)                         \
     X(drawTextOutlines, bool, "draw_text_outlines", true)                      \
     X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk",     \
@@ -547,11 +546,6 @@ void setShowFPS(bool mValue)
     showFPS() = mValue;
 }
 
-void setMouseVisible(bool mValue)
-{
-    mouseVisible() = mValue;
-}
-
 void setMusicSpeedMult(float mValue)
 {
     musicSpeedMult() = mValue;
@@ -860,11 +854,6 @@ void setServerControlPort(unsigned short mX)
 [[nodiscard]] bool getShowFPS()
 {
     return showFPS();
-}
-
-[[nodiscard]] bool getMouseVisible()
-{
-    return mouseVisible();
 }
 
 [[nodiscard]] float getMusicSpeedMult()
