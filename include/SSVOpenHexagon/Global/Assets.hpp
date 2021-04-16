@@ -63,6 +63,8 @@ private:
     std::map<std::string, ProfileData> profileDataMap;
     ProfileData* currentProfilePtr{nullptr};
 
+    std::unordered_set<std::string> packIdsWithMissingDependencies;
+
     std::string buf;
 
     template <typename... Ts>
@@ -70,7 +72,7 @@ private:
 
     [[nodiscard]] bool loadAllPackDatas();
     [[nodiscard]] bool loadAllPackAssets();
-    [[nodiscard]] bool verifyPackDependencies();
+    [[nodiscard]] bool verifyAllPackDependencies();
     [[nodiscard]] bool loadAllLocalProfiles();
 
     [[nodiscard]] bool loadPackData(const ssvufs::Path& packPath);
@@ -173,6 +175,9 @@ public:
 
     [[nodiscard]] const std::unordered_map<std::string, LevelData>&
     getLevelDatas() const noexcept;
+
+    [[nodiscard]] const std::unordered_set<std::string>&
+    getPackIdsWithMissingDependencies() const noexcept;
 };
 
 } // namespace hg

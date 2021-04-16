@@ -155,7 +155,7 @@ HGAssets::HGAssets(
         return;
     }
 
-    if(!verifyPackDependencies())
+    if(!verifyAllPackDependencies())
     {
         ssvu::lo("HGAssets::HGAssets") << "Error verifying pack dependencies\n";
         std::terminate();
@@ -516,7 +516,7 @@ HGAssets::getSelectablePackInfos() const noexcept
     return true;
 }
 
-[[nodiscard]] bool HGAssets::verifyPackDependencies()
+[[nodiscard]] bool HGAssets::verifyAllPackDependencies()
 {
     // ------------------------------------------------------------------------
     // Verify pack dependencies.
@@ -536,8 +536,6 @@ HGAssets::getSelectablePackInfos() const noexcept
 
         return false;
     };
-
-    std::unordered_set<std::string> packIdsWithMissingDependencies;
 
     for(const auto& [packId, packData] : packDatas)
     {
@@ -1173,6 +1171,12 @@ void HGAssets::pRemove(const std::string& mName)
 HGAssets::getLevelDatas() const noexcept
 {
     return levelDatas;
+}
+
+[[nodiscard]] const std::unordered_set<std::string>&
+HGAssets::getPackIdsWithMissingDependencies() const noexcept
+{
+    return packIdsWithMissingDependencies;
 }
 
 } // namespace hg
