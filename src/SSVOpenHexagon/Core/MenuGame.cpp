@@ -4846,7 +4846,7 @@ void MenuGame::drawLevelSelectionRightSide(
         if(mouseOverlap && mouseLeftRisingEdge())
         {
             if(!mustPlay &&
-                Clock::now() - lastMouseClick < std::chrono::milliseconds(200))
+                Clock::now() - lastMouseClick < std::chrono::milliseconds(160))
             {
                 mustPlay = true;
             }
