@@ -34,7 +34,6 @@
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 
 #include "SSVOpenHexagon/Utils/Casts.hpp"
-#include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
@@ -229,6 +228,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       favSlct{.levelDataIds = &favoriteLevelDataIds, .isFavorites = true},
       lvlDrawer{&lvlSlct}
 {
+    // Set cursor visible by default, will be disabled when using keyboard and
+    // re-enabled when moving the mouse.
+    window.setMouseCursorVisible(true);
+
     if(Config::getFirstTimePlaying())
     {
         showFirstTimeTips = true;
@@ -256,9 +259,30 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
+    game.onEvent(sf::Event::EventType::KeyPressed) += [this](const sf::Event&)
+    {
+        if(window.hasFocus())
+        {
+            window.setMouseCursorVisible(false);
+        }
+    };
+
+    game.onEvent(sf::Event::EventType::MouseMoved) += [this](const sf::Event&)
+    {
+        if(window.hasFocus())
+        {
+            window.setMouseCursorVisible(true);
+        }
+    };
+
     game.onEvent(sf::Event::EventType::MouseWheelMoved) +=
         [this](const sf::Event& mEvent)
     {
+        if(window.hasFocus())
+        {
+            window.setMouseCursorVisible(true);
+        }
+
         // Disable scroll while assigning a bind
         if(state == States::MOpts)
         {
@@ -891,6 +915,9 @@ void MenuGame::initInput()
 
     addTidInput(Tid::Screenshot, t::Once,
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; });
+
+    addTidInput(
+        Tid::Swap, t::Once, [this](ssvu::FT /*unused*/) { okAction(); });
 
     game.addInput(
             {{k::LAlt, k::Return}},
@@ -1616,11 +1643,7 @@ bool MenuGame::loadCommandLineLevel(
     changeStateTo(States::LevelSelection);
 
     // Start game
-    if(fnHGNewGame)
-    {
-        fnHGNewGame(packID, lvlSlct.levelDataIds->at(lvlSlct.currentIndex),
-            true, ssvu::getByModIdx(diffMults, diffMultIdx), false);
-    }
+    playSelectedLevel();
 
     return true;
 }
@@ -1689,6 +1712,12 @@ MenuGame::pickRandomMainMenuBackgroundStyle()
 
 void MenuGame::leftAction()
 {
+    if(state == States::SLPSelectBoot)
+    {
+        okAction();
+        return;
+    }
+
     // Change difficulty in the level selection menu.
     if(state == States::LevelSelection)
     {
@@ -1712,6 +1741,12 @@ void MenuGame::leftAction()
 
 void MenuGame::rightAction()
 {
+    if(state == States::SLPSelectBoot)
+    {
+        okAction();
+        return;
+    }
+
     // Change difficulty in the level selection menu.
     if(state == States::LevelSelection)
     {
@@ -2201,10 +2236,15 @@ void MenuGame::playSelectedLevel()
 {
     if(fnHGNewGame)
     {
-        fnHGNewGame(getNthSelectablePackInfo(lvlDrawer->packIdx).id,
-            lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), true,
-            ssvu::getByModIdx(diffMults, diffMultIdx),
-            false /* executeLastReplay */);
+        window.setMouseCursorVisible(false);
+
+        fnHGNewGame(                                              //
+            getNthSelectablePackInfo(lvlDrawer->packIdx).id,      //
+            lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), //
+            true /* firstPlay */,                                 //
+            ssvu::getByModIdx(diffMults, diffMultIdx),            //
+            false /* executeLastReplay */                         //
+        );
     }
 }
 
@@ -3051,8 +3091,10 @@ void MenuGame::renderText(
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
     const sf::Vector2f& mPos, const sf::Color& mColor)
 {
+    const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
     renderText(mStr, mText, mPos);
+    mText.setFillColor(prevColor);
 }
 
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
@@ -3066,8 +3108,10 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
     const unsigned int mSize, const sf::Vector2f& mPos, const sf::Color& mColor)
 {
     mText.setCharacterSize(mSize);
+    const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
     renderText(mStr, mText, mPos);
+    mText.setFillColor(prevColor);
 }
 
 // Text rendering centered
@@ -3082,8 +3126,10 @@ void MenuGame::renderTextCentered(
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
     const sf::Vector2f& mPos, const sf::Color& mColor)
 {
+    const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
     renderTextCentered(mStr, mText, mPos);
+    mText.setFillColor(prevColor);
 }
 
 void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
@@ -3097,8 +3143,10 @@ void MenuGame::renderTextCentered(const std::string& mStr, sf::Text& mText,
     const unsigned int mSize, const sf::Vector2f& mPos, const sf::Color& mColor)
 {
     mText.setCharacterSize(mSize);
+    const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
     renderTextCentered(mStr, mText, mPos);
+    mText.setFillColor(prevColor);
 }
 
 // Text rendering centered with an offset
@@ -3115,8 +3163,10 @@ void MenuGame::renderTextCenteredOffset(const std::string& mStr,
     sf::Text& mText, const sf::Vector2f& mPos, const float xOffset,
     const sf::Color& mColor)
 {
+    const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
     renderTextCenteredOffset(mStr, mText, mPos, xOffset);
+    mText.setFillColor(prevColor);
 }
 
 [[nodiscard]] float MenuGame::getWindowWidth() const noexcept
@@ -3414,6 +3464,8 @@ inline constexpr float frameSizeMulti{0.6f};
 [[nodiscard]] bool MenuGame::overlayMouseOverlap(
     const sf::Vector2f& mins, const sf::Vector2f& maxs) const
 {
+    constexpr float tolerance = 1.f;
+
     if(!window.hasFocus())
     {
         return false;
@@ -3421,7 +3473,8 @@ inline constexpr float frameSizeMulti{0.6f};
 
     const sf::Vector2f mp = overlayCamera.getMousePosition();
 
-    return mp.x > mins.x && mp.x < maxs.x && mp.y > mins.y && mp.y < maxs.y;
+    return mp.x > mins.x - tolerance && mp.x < maxs.x + tolerance &&
+           mp.y > mins.y - tolerance && mp.y < maxs.y + tolerance;
 }
 
 [[nodiscard]] bool MenuGame::overlayMouseOverlapAndUpdateHover(
@@ -3444,17 +3497,11 @@ inline constexpr float frameSizeMulti{0.6f};
         return c;
     }
 
-    if(c == sf::Color::Black)
-    {
-        return sf::Color{175, 175, 175};
-    }
-
-    if(c == sf::Color::White)
-    {
-        return sf::Color{100, 100, 100};
-    }
-
-    return Utils::transformHue(c, 0.2f);
+    return sf::Color{
+        static_cast<sf::Uint8>(255 - c.r), //
+        static_cast<sf::Uint8>(255 - c.g), //
+        static_cast<sf::Uint8>(255 - c.b)  //
+    };
 }
 
 [[nodiscard]] bool MenuGame::mouseLeftRisingEdge() const
@@ -3491,8 +3538,10 @@ void MenuGame::drawMainMenu(
     menuQuads.clear();
     menuQuads.reserve(4 * size);
 
-    int i;
-    for(i = 0; i < size; ++i)
+    static std::vector<bool> mouseOverlaps;
+    mouseOverlaps.resize(size);
+
+    for(int i = 0; i < size; ++i)
     {
         calcMenuItemOffset(items[i]->getOffset(), i == mSubMenu.getIdx());
         indent = baseIndent - items[i]->getOffset();
@@ -3505,6 +3554,8 @@ void MenuGame::drawMainMenu(
 
         const bool mouseOverlap =
             overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
+
+        mouseOverlaps[i] = mouseOverlap;
 
         sf::Color c = !items[i]->isEnabled() ? sf::Color{110, 110, 110, 255}
                                              : menuQuadColor;
@@ -3523,16 +3574,21 @@ void MenuGame::drawMainMenu(
 
         quadHeight += interline;
     }
+
     render(menuQuads);
 
     // Draw the text on top of the quads
-    std::string itemName;
-    for(i = 0; i < size; ++i)
+    for(int i = 0; i < size; ++i)
     {
         indent = baseIndent - items[i]->getOffset();
-        renderText(items[i]->getName(), txtMenuBig.font, {indent, txtHeight},
+
+        const sf::Color c = mouseOverlapColor(mouseOverlaps.at(i),
             !items[i]->isEnabled() ? sf::Color{150, 150, 150, 255}
                                    : menuTextColor);
+
+        renderText(
+            items[i]->getName(), txtMenuBig.font, {indent, txtHeight}, c);
+
         txtHeight += interline;
     }
 }
@@ -4770,7 +4826,7 @@ void MenuGame::drawLevelSelectionRightSide(
         const bool mouseOverlap =
             overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
 
-        sf::Color c =
+        const sf::Color c =
             i == drawer.currentIndex ? menuSelectionColor : alphaTextColor;
 
         createQuad(mouseOverlapColor(mouseOverlap, c), bodyMins, bodyMaxs);
@@ -4813,8 +4869,11 @@ void MenuGame::drawLevelSelectionRightSide(
 
         tempString = focusHeld ? "..." : levelData->name;
         Utils::uppercasify(tempString);
+
+        const sf::Color c0 = mouseOverlapColor(mouseOverlap, menuQuadColor);
+
         renderText(tempString, txtSelectionBig.font,
-            {indent, height - txtSelectionBig.height * fontHeightOffset});
+            {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
 
         //-------------------------------------
         // Author
@@ -4822,8 +4881,11 @@ void MenuGame::drawLevelSelectionRightSide(
 
         tempString = focusHeld ? "..." : levelData->author;
         Utils::uppercasify(tempString);
+
+        const sf::Color c1 = mouseOverlapColor(mouseOverlap, menuQuadColor);
+
         renderText(tempString, txtSelectionSmall.font,
-            {indent, height - txtSelectionSmall.height * fontHeightOffset});
+            {indent, height - txtSelectionSmall.height * fontHeightOffset}, c1);
 
         height += txtSelectionSmall.height + textToQuadBorder - slctFrameSize;
     }
@@ -4897,7 +4959,12 @@ void MenuGame::drawLevelSelectionRightSide(
         txtSelectionMedium.font.setPosition(
             {temp, height + outerFrame -
                        txtSelectionMedium.height * fontHeightOffset});
+
+        const sf::Color oldC =txtSelectionMedium.font.getFillColor();
+        txtSelectionMedium.font.setFillColor(
+            mouseOverlapColor(mouseOverlap, menuTextColor));
         render(txtSelectionMedium.font);
+        txtSelectionMedium.font.setFillColor(oldC);
 
         menuQuads.clear();
         menuQuads.reserve(8);
@@ -5055,6 +5122,10 @@ void MenuGame::drawLevelSelectionLeftSide(
     height += lineThickness;
     createQuad(menuQuadColor, 0, width, height - lineThickness, height);
 
+
+    txtSelectionSmall.font.setFillColor(menuQuadColor);
+    txtSelectionMedium.font.setFillColor(menuQuadColor);
+
     // Text
     height += textToQuadBorder;
     const float difficultyHeight{
@@ -5098,6 +5169,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     // Pack name
     height += txtSelectionMedium.height + mediumInterline;
     tempString = currentPack->name;
+
 
     scrollNameRightBorder(tempString, "NAME: ", txtSelectionSmall.font,
         namesScroll[static_cast<int>(Label::PackName)], textRightBorder);
@@ -5211,7 +5283,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         txtSelectionMedium.font,
         {maxPanelOffset / 2.f,
             height + txtSelectionMedium.height * (1.f - fontHeightOffset)},
-        -panelOffset, menuQuadColor);
+        -panelOffset, mouseOverlapColor(mouseOverlap, menuQuadColor));
 
     height = favoriteButtonBottom + textToQuadBorder;
 
@@ -5640,8 +5712,6 @@ void MenuGame::draw()
         window.saveScreenshot("screenshot.png");
         mustTakeScreenshot = false;
     }
-
-    window.setMouseCursorVisible(hg::Config::getMouseVisible());
 
     if(!dialogBox.empty())
     {
