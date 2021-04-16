@@ -2441,6 +2441,8 @@ void MenuGame::update(ssvu::FT mFT)
             [&](const HexagonClient::EReceivedOwnScore& e)
             { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); },
 
+            // TODO (P0): stop sending scores/requests for unsupported levels,
+            // client sends "started game" packets, etc...
             [&](const HexagonClient::EReceivedLevelScoresUnsupported& e)
             { leaderboardCache->receivedScoresUnsupported(e.levelValidator); }
 
