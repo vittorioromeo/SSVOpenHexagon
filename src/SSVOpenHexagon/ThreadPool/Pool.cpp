@@ -101,7 +101,7 @@ pool::~pool()
 
 void pool::post(task&& f)
 {
-    const bool enqueued = _queue.enqueue(std::move(f));
+    [[maybe_unused]] const bool enqueued = _queue.enqueue(std::move(f));
     SSVOH_ASSERT(enqueued);
 }
 

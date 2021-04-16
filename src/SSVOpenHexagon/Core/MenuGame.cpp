@@ -5719,9 +5719,9 @@ void MenuGame::drawOnlineStatus()
 
             case HexagonClient::State::LoggedIn:
             {
-                return {true,
-                    "LOGGED IN AS '" +
-                        hexagonClient.getLoginName().value_or("UNKNOWN") + "'"};
+                return {
+                    true, "LOGGED IN AS " +
+                              hexagonClient.getLoginName().value_or("UNKNOWN")};
             }
         }
 
