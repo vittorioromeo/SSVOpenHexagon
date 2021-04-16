@@ -230,7 +230,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
 {
     // Set cursor visible by default, will be disabled when using keyboard and
     // re-enabled when moving the mouse.
-    window.setMouseCursorVisible(true);
+    setMouseCursorVisible(true);
 
     if(Config::getFirstTimePlaying())
     {
@@ -263,7 +263,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     {
         if(window.hasFocus())
         {
-            window.setMouseCursorVisible(false);
+            setMouseCursorVisible(false);
         }
     };
 
@@ -271,7 +271,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     {
         if(window.hasFocus())
         {
-            window.setMouseCursorVisible(true);
+            setMouseCursorVisible(true);
         }
     };
 
@@ -280,7 +280,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     {
         if(window.hasFocus())
         {
-            window.setMouseCursorVisible(true);
+            setMouseCursorVisible(true);
         }
 
         // Disable scroll while assigning a bind
@@ -2236,7 +2236,7 @@ void MenuGame::playSelectedLevel()
 {
     if(fnHGNewGame)
     {
-        window.setMouseCursorVisible(false);
+        setMouseCursorVisible(false);
 
         fnHGNewGame(                                              //
             getNthSelectablePackInfo(lvlDrawer->packIdx).id,      //
@@ -3461,12 +3461,23 @@ void MenuGame::drawSubmenusSmall(
 inline constexpr float fontHeightOffset{0.9f};
 inline constexpr float frameSizeMulti{0.6f};
 
+void MenuGame::setMouseCursorVisible(const bool x)
+{
+    window.setMouseCursorVisible(x);
+    mouseCursorVisible = x;
+}
+
+[[nodiscard]] bool MenuGame::isMouseCursorVisible() const
+{
+    return mouseCursorVisible;
+}
+
 [[nodiscard]] bool MenuGame::overlayMouseOverlap(
     const sf::Vector2f& mins, const sf::Vector2f& maxs) const
 {
     constexpr float tolerance = 1.f;
 
-    if(!window.hasFocus())
+    if(!isMouseCursorVisible() || !window.hasFocus())
     {
         return false;
     }
@@ -4960,7 +4971,7 @@ void MenuGame::drawLevelSelectionRightSide(
             {temp, height + outerFrame -
                        txtSelectionMedium.height * fontHeightOffset});
 
-        const sf::Color oldC =txtSelectionMedium.font.getFillColor();
+        const sf::Color oldC = txtSelectionMedium.font.getFillColor();
         txtSelectionMedium.font.setFillColor(
             mouseOverlapColor(mouseOverlap, menuTextColor));
         render(txtSelectionMedium.font);
