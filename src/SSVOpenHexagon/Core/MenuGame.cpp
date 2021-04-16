@@ -270,9 +270,17 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             }
         }
 
-        if(state == States::LevelSelection && focusHeld)
+        if(state == States::LevelSelection)
         {
-            changePackQuick(mEvent.mouseWheel.delta > 0 ? -1 : 1);
+            if(focusHeld)
+            {
+                changePackQuick(mEvent.mouseWheel.delta > 0 ? -1 : 1);
+            }
+            else if(lvlDrawer != nullptr)
+            {
+                lvlDrawer->YScrollTo += mEvent.mouseWheel.delta * 48.f;
+            }
+
             return;
         }
 
@@ -994,7 +1002,7 @@ void MenuGame::initLua()
     // Unused functions
     for(const auto& un : {"u_isKeyPressed", "u_isMouseButtonPressed",
             "u_isFastSpinning", "u_setPlayerAngle", "u_forceIncrement",
-            "u_haltTime", "u_timelineWait", "u_clearWalls",
+            "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setFlashEffect",
 
             "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
             "a_playSound", "a_playPackSound", "a_syncMusicToDM",
@@ -1504,17 +1512,17 @@ void MenuGame::initMenus()
 
     auto& profileSelection{
         profileSelectionMenu.createCategory("profile selection")};
-    std::string profileName;
+
     for(auto& p : assets.getLocalProfileNames())
     {
-        profileName = p;
-        profileSelection.create<i::Single>(profileName,
-            [this, profileName]
+        profileSelection.create<i::Single>(p,
+            [this, p]
             {
-                assets.pSetCurrent(profileName);
+                assets.pSetCurrent(p);
                 changeFavoriteLevelsToProfile();
             });
     }
+
     profileSelection.sortByName();
 }
 
@@ -2060,13 +2068,13 @@ void MenuGame::okAction()
                 changeFavoriteLevelsToProfile();
 
                 // Create new menu item
-                std::string name{enteredStr};
-                profiles.create<ssvms::Items::Single>(name,
-                    [this, name]
+                profiles.create<ssvms::Items::Single>(enteredStr,
+                    [this, name = enteredStr]
                     {
                         assets.pSetCurrent(name);
                         changeFavoriteLevelsToProfile();
                     });
+
                 profiles.sortByName();
 
                 enteredStr = "";
@@ -2170,14 +2178,7 @@ void MenuGame::okAction()
             // Reset the scroll of the text fields so that
             // they will be 0 when user exit the level.
             resetNamesScrolls();
-
-            if(fnHGNewGame)
-            {
-                fnHGNewGame(getNthSelectablePackInfo(lvlDrawer->packIdx).id,
-                    lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), true,
-                    ssvu::getByModIdx(diffMults, diffMultIdx),
-                    false /* executeLastReplay */);
-            }
+            playSelectedLevel();
 
             break;
         }
@@ -2196,6 +2197,17 @@ void MenuGame::okAction()
     playSoundOverride("select.ogg");
 }
 
+void MenuGame::playSelectedLevel()
+{
+    if(fnHGNewGame)
+    {
+        fnHGNewGame(getNthSelectablePackInfo(lvlDrawer->packIdx).id,
+            lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), true,
+            ssvu::getByModIdx(diffMults, diffMultIdx),
+            false /* executeLastReplay */);
+    }
+}
+
 void MenuGame::eraseAction()
 {
     if(isEnteringText() && !enteredStr.empty())
@@ -2205,8 +2217,9 @@ void MenuGame::eraseAction()
     }
     else if(state == States::SLPSelect)
     {
-        std::string name{
+        const std::string name{
             profileSelectionMenu.getCategory().getItem().getName()};
+
         // There must be at least one profile, don't erase profile
         // currently in use.
         if(profileSelectionMenu.getCategory().getItems().size() <= 1)
@@ -2229,7 +2242,7 @@ void MenuGame::eraseAction()
         }
 
         // Remove the profile .json
-        std::string fileName{"Profiles/" + name + ".json"};
+        const std::string fileName{"Profiles/" + name + ".json"};
         if(std::remove(fileName.c_str()) != 0)
         {
             ssvu::lo("eraseAction()")
@@ -2349,19 +2362,21 @@ void MenuGame::update(ssvu::FT mFT)
             playSoundOverride("select.ogg");
         }
 
-        std::string finalMsg = msg;
+        strBuf.clear();
+
+        strBuf += msg;
         if(!err.empty())
         {
-            finalMsg += "\n\n";
-            finalMsg += err;
+            strBuf += "\n\n";
+            strBuf += err;
         }
 
-        finalMsg += "\n";
+        strBuf += "\n";
 
         // Prevent dialog box from being closed immediately:
         dialogBoxDelay = 16.f;
 
-        showDialogBox(finalMsg);
+        showDialogBox(strBuf);
         setIgnoreAllInputs(1);
 
         SSVOH_ASSERT(!dialogBox.empty());
@@ -2476,54 +2491,55 @@ void MenuGame::update(ssvu::FT mFT)
     // TODO (P2): cleanup mouse control
     if((state == States::SMain || state == States::MOpts ||
            state == States::MOnline || state == States::SLPSelect) &&
-        mustUseMainMenuItem.has_value())
+        mustUseMenuItem.has_value())
     {
         if(getCurrentMenu() != nullptr)
         {
             auto& items = getCurrentMenu()->getItems();
-            if(static_cast<int>(items.size()) > *mustUseMainMenuItem)
+            if(static_cast<int>(items.size()) > *mustUseMenuItem)
             {
                 playSoundOverride("beep.ogg");
-                items.at(*mustUseMainMenuItem)->exec();
+                items.at(*mustUseMenuItem)->exec();
             }
         }
 
-        mustUseMainMenuItem.reset();
+        mustUseMenuItem.reset();
     }
 
     // TODO (P2): cleanup mouse control
-    if(state == States::LevelSelection && packChangeState == PackChange::Rest &&
-        mustFavorite)
+    if(state == States::LevelSelection && packChangeState == PackChange::Rest)
     {
-        addRemoveFavoriteLevel();
-        mustFavorite = false;
-    }
-
-    // TODO (P2): cleanup mouse control
-    if(state == States::LevelSelection && packChangeState == PackChange::Rest &&
-        mustChangeIndexTo.has_value())
-    {
-        if(lvlDrawer != nullptr &&
-            lvlDrawer->currentIndex != *mustChangeIndexTo)
+        if(mustFavorite)
         {
-            playSoundOverride("beep.ogg");
-            setIndex(*mustChangeIndexTo);
+            addRemoveFavoriteLevel();
+            mustFavorite = false;
         }
-
-        mustChangeIndexTo.reset();
-    }
-
-    // TODO (P2): cleanup mouse control
-    if(state == States::LevelSelection && packChangeState == PackChange::Rest &&
-        mustChangePackIndexTo.has_value())
-    {
-        if(lvlSlct.packIdx != *mustChangePackIndexTo)
+        else if(mustPlay)
         {
-            playSoundOverride("beep.ogg");
-            changePackTo(*mustChangePackIndexTo);
+            playSelectedLevel();
+            mustPlay = false;
         }
+        else if(mustChangeIndexTo.has_value())
+        {
+            if(lvlDrawer != nullptr &&
+                lvlDrawer->currentIndex != *mustChangeIndexTo)
+            {
+                playSoundOverride("beep.ogg");
+                setIndex(*mustChangeIndexTo);
+            }
 
-        mustChangePackIndexTo.reset();
+            mustChangeIndexTo.reset();
+        }
+        else if(mustChangePackIndexTo.has_value())
+        {
+            if(lvlSlct.packIdx != *mustChangePackIndexTo)
+            {
+                playSoundOverride("beep.ogg");
+                changePackTo(*mustChangePackIndexTo);
+            }
+
+            mustChangePackIndexTo.reset();
+        }
     }
 
     if(Joystick::risingEdge(Joystick::Jid::NextPack))
@@ -3393,6 +3409,57 @@ void MenuGame::drawSubmenusSmall(
 inline constexpr float fontHeightOffset{0.9f};
 inline constexpr float frameSizeMulti{0.6f};
 
+[[nodiscard]] bool MenuGame::overlayMouseOverlap(
+    const sf::Vector2f& mins, const sf::Vector2f& maxs) const
+{
+    if(!window.hasFocus())
+    {
+        return false;
+    }
+
+    const sf::Vector2f mp = overlayCamera.getMousePosition();
+
+    return mp.x > mins.x && mp.x < maxs.x && mp.y > mins.y && mp.y < maxs.y;
+}
+
+[[nodiscard]] bool MenuGame::overlayMouseOverlapAndUpdateHover(
+    const sf::Vector2f& mins, const sf::Vector2f& maxs)
+{
+    if(overlayMouseOverlap(mins, maxs))
+    {
+        mouseHovering = true;
+        return true;
+    }
+
+    return false;
+}
+
+[[nodiscard]] sf::Color MenuGame::mouseOverlapColor(
+    const bool mouseOverlap, const sf::Color& c) const
+{
+    if(!mouseOverlap)
+    {
+        return c;
+    }
+
+    if(c == sf::Color::Black)
+    {
+        return sf::Color{175, 175, 175};
+    }
+
+    if(c == sf::Color::White)
+    {
+        return sf::Color{100, 100, 100};
+    }
+
+    return Utils::transformHue(c, 0.2f);
+}
+
+[[nodiscard]] bool MenuGame::mouseLeftRisingEdge() const
+{
+    return !mouseWasPressed && mousePressed;
+}
+
 void MenuGame::drawMainMenu(
     ssvms::Category& mSubMenu, float baseIndent, const bool revertOffset)
 {
@@ -3428,35 +3495,28 @@ void MenuGame::drawMainMenu(
         calcMenuItemOffset(items[i]->getOffset(), i == mSubMenu.getIdx());
         indent = baseIndent - items[i]->getOffset();
 
+        const sf::Vector2f bodyMins{
+            indent - txtMenuBig.height * 2.5f, quadHeight};
+
+        const sf::Vector2f bodyMaxs{
+            w, quadHeight + doubleBorder + txtMenuBig.height};
+
+        const bool mouseOverlap =
+            overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
+
+        sf::Color c = !items[i]->isEnabled() ? sf::Color{110, 110, 110, 255}
+                                             : menuQuadColor;
+
+        createQuadTrapezoid(mouseOverlapColor(mouseOverlap, c),
+            indent - txtMenuBig.height * 2.5f, w,
+            indent - txtMenuBig.height / 2.f, quadHeight,
+            quadHeight + doubleBorder + txtMenuBig.height, false);
+
+        // TODO (P2): cleanup mouse control
+        if(mouseOverlap && !mustUseMenuItem.has_value() &&
+            mouseLeftRisingEdge())
         {
-            sf::Vector2f bodyMins{
-                indent - txtMenuBig.height * 2.5f, quadHeight};
-            sf::Vector2f bodyMaxs{
-                w, quadHeight + doubleBorder + txtMenuBig.height};
-
-            const auto mp = overlayCamera.getMousePosition();
-            const bool mouseOverlap = mp.x > bodyMins.x && mp.x < bodyMaxs.x &&
-                                      mp.y > bodyMins.y && mp.y < bodyMaxs.y;
-
-            if(mouseOverlap)
-            {
-                mouseHovering = true;
-            }
-
-            sf::Color c = !items[i]->isEnabled() ? sf::Color{110, 110, 110, 255}
-                                                 : menuQuadColor;
-
-            createQuadTrapezoid(mouseOverlap ? Utils::transformHue(c, 0.5f) : c,
-                indent - txtMenuBig.height * 2.5f, w,
-                indent - txtMenuBig.height / 2.f, quadHeight,
-                quadHeight + doubleBorder + txtMenuBig.height, false);
-
-            // TODO (P2): cleanup mouse control
-            if(mouseOverlap && !mustUseMainMenuItem.has_value() &&
-                mousePressed && !mouseWasPressed)
-            {
-                mustUseMainMenuItem = i;
-            }
+            mustUseMenuItem = i;
         }
 
         quadHeight += interline;
@@ -4331,34 +4391,42 @@ void MenuGame::resetLevelNamesScrolls()
 void MenuGame::formatLevelDescription()
 {
     levelDescription.clear();
-    std::string desc{
-        assets
-            .getLevelData(lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))
-            .description};
 
-    if(desc.empty())
-    {
-        return;
-    }
-
-    Utils::uppercasify(desc);
-
-    // Split description into words.
-    desc += '\n'; // Add a safety newline
-    std::size_t i{0};
-    std::size_t j{0};
     std::vector<std::string> words;
-    for(; i < desc.size(); ++i)
+
     {
-        if(desc[i] == '\n')
+        strBuf.clear();
+        std::string& desc = strBuf;
+
+        desc += assets
+                    .getLevelData(
+                        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex))
+                    .description;
+
+        if(desc.empty())
         {
-            words.emplace_back(desc.substr(j, i - j + 1)); // include newline.
-            j = i + 1;
+            return;
         }
-        else if(desc[i] == ' ')
+
+        Utils::uppercasify(desc);
+
+        // Split description into words.
+        desc += '\n'; // Add a safety newline
+        std::size_t i{0};
+        std::size_t j{0};
+        for(; i < desc.size(); ++i)
         {
-            words.emplace_back(desc.substr(j, i - j));
-            j = i + 1; // skip the space.
+            if(desc[i] == '\n')
+            {
+                words.emplace_back(
+                    desc.substr(j, i - j + 1)); // include newline.
+                j = i + 1;
+            }
+            else if(desc[i] == ' ')
+            {
+                words.emplace_back(desc.substr(j, i - j));
+                j = i + 1; // skip the space.
+            }
         }
     }
 
@@ -4367,7 +4435,8 @@ void MenuGame::formatLevelDescription()
     const float maxWidth{getMaximumTextWidth()};
     std::string candidate;
     std::string temp;
-    for(i = 0; i < words.size() && levelDescription.size() < descLines; ++i)
+    for(std::size_t i = 0;
+        i < words.size() && levelDescription.size() < descLines; ++i)
     {
         if(!candidate.empty())
         {
@@ -4691,28 +4760,28 @@ void MenuGame::drawLevelSelectionRightSide(
             height + slctFrameSize, height + levelLabelHeight);
 
         // Body
-        sf::Vector2f bodyMins{indent + slctFrameSize, height + slctFrameSize};
-        sf::Vector2f bodyMaxs{w, height + levelLabelHeight};
+        const sf::Vector2f bodyMins{
+            indent + slctFrameSize, height + slctFrameSize};
 
-        const auto mp = overlayCamera.getMousePosition();
-        const bool mouseOverlap = mp.x > bodyMins.x && mp.x < bodyMaxs.x &&
-                                  mp.y > bodyMins.y && mp.y < bodyMaxs.y;
+        const sf::Vector2f bodyMaxs{w, height + levelLabelHeight};
 
-        if(mouseOverlap)
-        {
-            mouseHovering = true;
-        }
+        const bool mouseOverlap =
+            overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
 
         sf::Color c =
             i == drawer.currentIndex ? menuSelectionColor : alphaTextColor;
 
-        createQuad(mouseOverlap ? Utils::transformHue(c, 0.5f) : c, bodyMins,
-            bodyMaxs);
+        createQuad(mouseOverlapColor(mouseOverlap, c), bodyMins, bodyMaxs);
 
+        // TODO (P2): cleanup mouse control
+        if(mouseOverlap && mouseLeftRisingEdge())
         {
-            // TODO (P2): cleanup mouse control
-            if(mouseOverlap && !mustChangeIndexTo.has_value() && mousePressed &&
-                !mouseWasPressed)
+            if(!mustPlay &&
+                Clock::now() - lastMouseClick < std::chrono::milliseconds(200))
+            {
+                mustPlay = true;
+            }
+            else if(!mustChangeIndexTo.has_value())
             {
                 mustChangeIndexTo = i;
             }
@@ -4787,29 +4856,20 @@ void MenuGame::drawLevelSelectionRightSide(
         createQuad(menuTextColor, temp - slctFrameSize, w, height,
             height + packLabelHeight + slctFrameSize);
 
-        sf::Vector2f bodyMins{temp, height + slctFrameSize};
-        sf::Vector2f bodyMaxs{w, height + packLabelHeight};
+        const sf::Vector2f bodyMins{temp, height + slctFrameSize};
+        const sf::Vector2f bodyMaxs{w, height + packLabelHeight};
 
-        const auto mp = overlayCamera.getMousePosition();
-        const bool mouseOverlap = mp.x > bodyMins.x && mp.x < bodyMaxs.x &&
-                                  mp.y > bodyMins.y && mp.y < bodyMaxs.y;
+        const bool mouseOverlap =
+            overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
 
-        if(mouseOverlap)
+        createQuad(
+            mouseOverlapColor(mouseOverlap, menuQuadColor), bodyMins, bodyMaxs);
+
+        // TODO (P2): cleanup mouse control
+        if(mouseOverlap && !mustChangePackIndexTo.has_value() &&
+            mouseLeftRisingEdge())
         {
-            mouseHovering = true;
-        }
-
-        createQuad(mouseOverlap ? Utils::transformHue(menuQuadColor, 0.5f)
-                                : menuQuadColor,
-            bodyMins, bodyMaxs);
-
-        {
-            // TODO (P2): cleanup mouse control
-            if(mouseOverlap && !mustChangePackIndexTo.has_value() &&
-                mousePressed && !mouseWasPressed)
-            {
-                mustChangePackIndexTo = i;
-            }
+            mustChangePackIndexTo = i;
         }
 
         render(menuQuads);
@@ -5123,28 +5183,21 @@ void MenuGame::drawLevelSelectionLeftSide(
         favoriteButtonBottom - lineThickness, favoriteButtonBottom);
 
     // Backdrop
-    sf::Vector2f bodyMins{lineThickness - panelOffset, height + lineThickness};
-    sf::Vector2f bodyMaxs{width, favoriteButtonBottom - lineThickness};
+    const sf::Vector2f bodyMins{
+        lineThickness - panelOffset, height + lineThickness};
 
-    const auto mp = overlayCamera.getMousePosition();
-    const bool mouseOverlap = mp.x > bodyMins.x && mp.x < bodyMaxs.x &&
-                              mp.y > bodyMins.y && mp.y < bodyMaxs.y;
+    const sf::Vector2f bodyMaxs{width, favoriteButtonBottom - lineThickness};
 
-    if(mouseOverlap)
+    const bool mouseOverlap =
+        overlayMouseOverlapAndUpdateHover(bodyMins, bodyMaxs);
+
+    createQuad(mouseOverlapColor(mouseOverlap, menuSelectionColor), bodyMins,
+        bodyMaxs);
+
+    // TODO (P2): cleanup mouse control
+    if(mouseOverlap && !mustFavorite && mouseLeftRisingEdge())
     {
-        mouseHovering = true;
-    }
-
-    createQuad(mouseOverlap ? Utils::transformHue(menuSelectionColor, 0.5f)
-                            : menuSelectionColor,
-        bodyMins, bodyMaxs);
-
-    {
-        // TODO (P2): cleanup mouse control
-        if(mouseOverlap && !mustFavorite && !mouseWasPressed && mousePressed)
-        {
-            mustFavorite = true;
-        }
+        mustFavorite = true;
     }
 
     // Also renders all previous quads
@@ -5374,7 +5427,8 @@ void MenuGame::draw()
 {
     mouseHovering = false;
     mouseWasPressed = mousePressed;
-    mousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+    mousePressed =
+        (ignoreInputs == 0) && sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
     if(mustRefresh)
     {
@@ -5411,8 +5465,26 @@ void MenuGame::draw()
     // Draw the profile name.
     if(mainOrAbove && state != States::LevelSelection)
     {
-        renderText("CURRENT PROFILE: " + assets.pGetName(),
-            txtSelectionSmall.font,
+        strBuf.clear();
+        strBuf += "CURRENT PROFILE: ";
+        strBuf += assets.pGetName();
+
+        const auto& pwmd = assets.getPackIdsWithMissingDependencies();
+
+        if(!pwmd.empty())
+        {
+            strBuf += "\n\nWARNING - PACKS WITH MISSING DEPENDENCIES:";
+
+            for(const auto& p : pwmd)
+            {
+                strBuf += "\n    ";
+                strBuf += p;
+            }
+
+            strBuf += "\nFORGOT TO DOWNLOAD THEM FROM THE STEAM WORKSHOP?";
+        }
+
+        renderText(strBuf, txtSelectionSmall.font,
             sf::Vector2f{20.f, ssvs::getGlobalBottom(titleBar) + 8});
     }
 
@@ -5574,6 +5646,11 @@ void MenuGame::draw()
         overlayCamera.apply();
         dialogBox.draw(dialogBoxTextColor, styleData.getColor(0));
     }
+
+    if(!mouseWasPressed && mousePressed)
+    {
+        lastMouseClick = Clock::now();
+    }
 }
 
 void MenuGame::render(sf::Drawable& mDrawable)
@@ -5700,19 +5777,20 @@ void MenuGame::showInputDialogBox(const std::string& msg)
 void MenuGame::showInputDialogBoxNice(const std::string& title,
     const std::string& inputType, const std::string& extra)
 {
-    std::string msg;
+    strBuf.clear();
+
     if(extra.empty())
     {
-        msg = Utils::concat(title, "\n\nPLEASE INSERT ", inputType,
+        strBuf += Utils::concat(title, "\n\nPLEASE INSERT ", inputType,
             "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");
     }
     else
     {
-        msg = Utils::concat(title, "\n\nPLEASE INSERT ", inputType, "\n\n",
+        strBuf += Utils::concat(title, "\n\nPLEASE INSERT ", inputType, "\n\n",
             extra, "\n\nCONFIRM WITH [ENTER]\nCANCEL WITH [ESCAPE]\n");
     }
 
-    showInputDialogBox(msg);
+    showInputDialogBox(strBuf);
 }
 
 } // namespace hg
