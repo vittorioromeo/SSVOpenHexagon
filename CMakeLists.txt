@@ -206,7 +206,7 @@ message(STATUS "initialized project ${PROJECT_NAME}")
 # Global unity builds
 # -----------------------------------------------------------------------------
 
-set(CMAKE_UNITY_BUILD OFF)
+set(CMAKE_UNITY_BUILD ON)
 
 #
 #
