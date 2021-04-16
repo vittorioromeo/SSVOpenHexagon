@@ -120,7 +120,7 @@ HGAssets::HGAssets(
     using Clock = std::chrono::high_resolution_clock;
     using TimePoint = std::chrono::time_point<Clock>;
 
-    const std::chrono::time_point tpBeforeLoad = Clock::now();
+    const TimePoint tpBeforeLoad = Clock::now();
 
     if(!levelsOnly && !mHeadless)
     {
