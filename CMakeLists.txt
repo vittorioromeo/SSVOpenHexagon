@@ -250,7 +250,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 # -----------------------------------------------------------------------------
 
 vrm_cmake_include_vc_dependency_once(vc_detection)
-vrm_cmake_add_common_compiler_flags()
+
+# TODO: decide how to handle flags
+# vrm_cmake_add_common_compiler_flags()
 
 #
 #
@@ -263,11 +265,11 @@ check_ipo_supported(RESULT result)
 
 if(result)
     if("${vrm_cmake_build_type_lower}" STREQUAL "release")
-        vrm_cmake_message("Enabling LTO")
+        message(STATUS "Enabling LTO")
         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
     endif()
 else()
-    vrm_cmake_message("LTO not supported")
+    message(STATUS "LTO not supported")
 endif()
 
 #
@@ -343,10 +345,23 @@ target_link_libraries(
                       ImGui-SFML::ImGui-SFML
 )
 
-vrm_cmake_find_extlib_for_target(SSVOpenHexagonLib vrm_pp)
-vrm_cmake_find_extlib_for_target(SSVOpenHexagonLib SSVUtils)
-vrm_cmake_find_extlib_for_target(SSVOpenHexagonLib SSVMenuSystem)
-vrm_cmake_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
+macro(ssvoh_find_extlib_for_target target extlib)
+    list(APPEND CMAKE_MODULE_PATH
+        "${CMAKE_SOURCE_DIR}/${dir}/${extlib}/cmake/modules/"
+        "${CMAKE_SOURCE_DIR}/${dir}/${extlib}/cmake/"
+        "${CMAKE_SOURCE_DIR}/extlibs/${extlib}/cmake/modules/"
+        "${CMAKE_SOURCE_DIR}/extlibs/${extlib}/cmake/")
+
+    find_package("${extlib}" REQUIRED)
+    string(TOUPPER "${extlib}" ${extlib}_UPPER)
+
+    target_include_directories(${target} PUBLIC "${${${extlib}_UPPER}_INCLUDE_DIR}")
+endmacro()
+
+ssvoh_find_extlib_for_target(SSVOpenHexagonLib vrm_pp)
+ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVUtils)
+ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVMenuSystem)
+ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
 
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 
