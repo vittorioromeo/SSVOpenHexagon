@@ -895,7 +895,6 @@ void HexagonGame::death(bool mForce)
         {
             steamManager->unlock_achievement("a24_onlinescore");
         }
-
     }
 
     // TODO (P2): more options? Always save replay? Prompt?
