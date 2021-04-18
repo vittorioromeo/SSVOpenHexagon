@@ -337,12 +337,16 @@ bool HexagonServer::runIteration_Control()
 
         if(splitted[1] == "true")
         {
+            SSVOH_SLOG << "Enabled verbose mode\n";
+
             _verbose = true;
             return true;
         }
 
         if(splitted[1] == "false")
         {
+            SSVOH_SLOG << "Disabled verbose mode\n";
+
             _verbose = false;
             return true;
         }
@@ -456,10 +460,6 @@ void HexagonServer::runIteration_LoopOverSockets()
                 connectedClient._consecutiveFailures = 0;
 
                 continue;
-            }
-            else
-            {
-                ++connectedClient._consecutiveFailures;
             }
         }
 
@@ -747,7 +747,8 @@ void HexagonServer::runIteration_PurgeTokens()
 
             SSVOH_ASSERT(user.has_value());
 
-            if(user->passwordHash != passwordHash)
+            if(user->passwordHash !=
+                std::vector<char>(passwordHash.begin(), passwordHash.end()))
             {
                 return sendFail("Invalid password for user matching '", steamId,
                     "' and '", name, '\'');
@@ -838,7 +839,8 @@ void HexagonServer::runIteration_PurgeTokens()
 
             SSVOH_ASSERT(user.has_value());
 
-            if(user->passwordHash != passwordHash)
+            if(user->passwordHash !=
+                std::vector<char>(passwordHash.begin(), passwordHash.end()))
             {
                 return sendFail(
                     "Invalid password for user matching '", steamId, '\'');

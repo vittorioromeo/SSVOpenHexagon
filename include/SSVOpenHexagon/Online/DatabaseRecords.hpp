@@ -16,7 +16,7 @@ struct User
     std::uint32_t id;
     std::uint64_t steamId;
     std::string name;
-    std::string passwordHash;
+    std::vector<char> passwordHash;
 };
 
 struct LoginToken
