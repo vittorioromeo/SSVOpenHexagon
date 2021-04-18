@@ -181,6 +181,7 @@ public:
     bool trySendStartedGame(const std::string& levelValidator);
 
     [[nodiscard]] State getState() const noexcept;
+    [[nodiscard]] bool hasRTKeys() const noexcept;
 
     [[nodiscard]] const std::optional<std::string>&
     getLoginName() const noexcept;

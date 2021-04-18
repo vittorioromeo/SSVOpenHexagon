@@ -755,7 +755,7 @@ void HexagonClient::update()
     }
 }
 
-static std::string hashPwd(const std::string& password)
+static std::string saltAndHashPwd(const std::string& password)
 {
 #if __has_include("SSVOpenHexagon/Online/SecretPasswordSalt.hpp")
     const std::string salt =
@@ -785,7 +785,7 @@ bool HexagonClient::tryRegister(
     }
 
     SSVOH_ASSERT(_ticketSteamID.has_value());
-    return sendRegister(_ticketSteamID.value(), name, hashPwd(password));
+    return sendRegister(_ticketSteamID.value(), name, saltAndHashPwd(password));
 }
 
 bool HexagonClient::tryLogin(
@@ -803,7 +803,7 @@ bool HexagonClient::tryLogin(
     }
 
     SSVOH_ASSERT(_ticketSteamID.has_value());
-    return sendLogin(_ticketSteamID.value(), name, hashPwd(password));
+    return sendLogin(_ticketSteamID.value(), name, saltAndHashPwd(password));
 }
 
 bool HexagonClient::tryLogoutFromServer()
@@ -829,7 +829,7 @@ bool HexagonClient::tryDeleteAccount(const std::string& password)
     }
 
     SSVOH_ASSERT(_ticketSteamID.has_value());
-    return sendDeleteAccount(_ticketSteamID.value(), hashPwd(password));
+    return sendDeleteAccount(_ticketSteamID.value(), saltAndHashPwd(password));
 }
 
 bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
@@ -891,6 +891,11 @@ bool HexagonClient::trySendStartedGame(const std::string& levelValidator)
 [[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept
 {
     return _state;
+}
+
+[[nodiscard]] bool HexagonClient::hasRTKeys() const noexcept
+{
+    return _clientRTKeys.has_value();
 }
 
 [[nodiscard]] const std::optional<std::string>&
