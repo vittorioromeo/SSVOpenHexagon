@@ -29,7 +29,12 @@ hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    l_setSpeedMult(1.30)
+    if u_getDifficultyMult() > 3 then
+        l_setSpeedMult(1.40)
+    else
+        l_setSpeedMult(1.30)
+    end
+
     l_setSpeedInc(0.125)
     l_setSpeedMax(5)
     l_setRotationSpeed(0.07)

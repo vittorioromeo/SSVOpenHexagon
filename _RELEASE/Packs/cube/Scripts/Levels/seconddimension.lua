@@ -42,8 +42,8 @@ hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    if u_getDifficultyMult() > 2 then
-        l_setSpeedMult(2.52)
+    if u_getDifficultyMult() > 1.5 then
+        l_setSpeedMult(2.60)
     else
         l_setSpeedMult(2.65)
     end
@@ -53,7 +53,7 @@ function onInit()
     l_setRotationSpeed(0.2)
     l_setRotationSpeedMax(2)
 
-    if u_getDifficultyMult() > 2 then
+    if u_getDifficultyMult() > 1.5 then
         l_setRotationSpeedInc(0.1)
     else
         l_setRotationSpeedInc(0.05)
@@ -65,7 +65,7 @@ function onInit()
     l_setFastSpin(70.0)
     l_setSides(6)
 
-    if u_getDifficultyMult() > 2 then
+    if u_getDifficultyMult() > 1.5 then
         l_setSidesMin(6)
         l_setSidesMax(6)
     else
@@ -86,8 +86,8 @@ function onInit()
     l_setBeatPulseDelayMax(26.667) -- BPM is 135
     l_setBeatPulseSpeedMult(0.45) -- Slows down the center going back to normal
 
-    enableSwapIfDMGreaterThan(2)
-    disableSpeedIncIfDMGreaterThan(2)
+    enableSwapIfDMGreaterThan(1.5)
+    disableSpeedIncIfDMGreaterThan(1.5)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
