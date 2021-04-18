@@ -891,6 +891,11 @@ void HexagonGame::death(bool mForce)
         {
             ssvu::lo("Replay") << "Could not send replay to server\n";
         }
+        else
+        {
+            steamManager->unlock_achievement("a24_onlinescore");
+        }
+
     }
 
     // TODO (P2): more options? Always save replay? Prompt?

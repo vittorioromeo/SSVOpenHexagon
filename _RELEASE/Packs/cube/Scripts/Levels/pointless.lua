@@ -25,6 +25,7 @@ keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -33,7 +34,12 @@ function onInit()
     l_setSpeedMax(5)
     l_setRotationSpeed(0.07)
     l_setRotationSpeedMax(1)
-    l_setRotationSpeedInc(0.04)
+
+    if u_getDifficultyMult() > 3 then
+        l_setRotationSpeedInc(0.1)
+    else
+        l_setRotationSpeedInc(0.04)
+    end
 
     if u_getDifficultyMult() == 1 then
         l_setDelayMult(1.4)
@@ -44,7 +50,13 @@ function onInit()
     l_setDelayInc(0)
     l_setFastSpin(0.0)
     l_setSides(6)
-    l_setSidesMin(5)
+
+    if u_getDifficultyMult() > 3 then
+        l_setSidesMin(6)
+    else
+        l_setSidesMin(5)
+    end
+
     l_setSidesMax(6)
     l_setIncTime(15)
 
@@ -59,13 +71,15 @@ function onInit()
     l_setBeatPulseSpeedMult(0.38) -- Slows down the center going back to normal
 
     enableSwapIfDMGreaterThan(3)
-    disableIncIfDMGreaterThan(4)
+    disableSpeedIncIfDMGreaterThan(3)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-    e_messageAdd("tutorials are over", 130)
-    e_messageAdd("good luck getting high scores!", 130)
+    if u_getDifficultyMult() == 1 then
+        e_messageAdd("tutorials are over", 130)
+        e_messageAdd("good luck getting high scores!", 130)
+    end
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -94,5 +108,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 120 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a1_pointless")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 45 and u_getDifficultyMult() > 3 then
+        steam_unlockAchievement("a25_pointless_hard")
+        hardAchievementUnlocked = true
     end
 end

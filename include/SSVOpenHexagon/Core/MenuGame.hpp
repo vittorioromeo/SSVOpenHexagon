@@ -267,10 +267,15 @@ private:
     std::optional<int> mustChangeIndexTo;
     std::optional<int> mustChangePackIndexTo;
     std::optional<int> mustUseMenuItem;
+    bool mouseCursorVisible{true};
 
     std::string strBuf;
 
     void playSelectedLevel();
+
+    void setMouseCursorVisible(const bool x);
+
+    [[nodiscard]] bool isMouseCursorVisible() const;
 
     [[nodiscard]] bool overlayMouseOverlap(
         const sf::Vector2f& mins, const sf::Vector2f& maxs) const;
