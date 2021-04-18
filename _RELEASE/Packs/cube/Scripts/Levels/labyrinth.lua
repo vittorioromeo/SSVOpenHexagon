@@ -65,7 +65,7 @@ function onIncrement()
         achievementUnlocked = true
     end
 
-    if not hardAchievementUnlocked and levelTracked == 6 and u_getDifficultyMult() > 1.5 then
+    if not hardAchievementUnlocked and levelTracked == 6 and u_getDifficultyMult() > 1 then
         steam_unlockAchievement("a32_lab_hard")
         hardAchievementUnlocked = true
     end
