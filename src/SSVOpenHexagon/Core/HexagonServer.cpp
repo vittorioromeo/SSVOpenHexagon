@@ -518,7 +518,7 @@ void HexagonServer::runIteration_PurgeClients()
 
 void HexagonServer::runIteration_PurgeTokens()
 {
-    if(Clock::now() - _lastTokenPurge < std::chrono::seconds(240))
+    if(Clock::now() - _lastTokenPurge < std::chrono::seconds(1800))
     {
         return;
     }
