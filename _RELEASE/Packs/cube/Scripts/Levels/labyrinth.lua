@@ -7,6 +7,7 @@ level = 0
 levelTracked = 1
 incrementTime = 3
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
@@ -48,13 +49,12 @@ function onInit()
     l_addTracked("levelTracked", "level")
     l_enableRndSideChanges(false)
 
-    enableSwapIfDMGreaterThan(1.5)
+    enableSwapIfDMGreaterThan(1)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
     a_playSound("beep.ogg")
-    a_playSound("VeeEndurance_test.ogg")
 
     level = level + 1
     levelTracked = level + 1
@@ -63,6 +63,11 @@ function onIncrement()
     if not achievementUnlocked and levelTracked == 7 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a8_lab")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and levelTracked == 6 and u_getDifficultyMult() > 1.5 then
+        steam_unlockAchievement("a32_lab_hard")
+        hardAchievementUnlocked = true
     end
 
     l_setSides(l_getSides() + 1)

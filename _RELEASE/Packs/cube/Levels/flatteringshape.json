@@ -8,5 +8,5 @@
     "styleId": "flatteringshape",
     "musicId": "starshipShowdown",
     "luaFile": "Scripts/Levels/flatteringshape.lua",
-    "difficultyMults": [1.5, 2, 2.5, 0.5, 3, 4]
+    "difficultyMults": [0.5, 3, 4]
 }

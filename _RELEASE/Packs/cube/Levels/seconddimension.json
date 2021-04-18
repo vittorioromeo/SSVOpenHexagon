@@ -8,5 +8,5 @@
     "styleId": "seconddimension",
     "musicId": "mazeOfMayonnaise",
     "luaFile": "Scripts/Levels/seconddimension.lua",
-    "difficultyMults": [1.4, 0.75, 0.6, 1.8, 2.2]
+    "difficultyMults": [0.6, 1.8, 2.2]
 }

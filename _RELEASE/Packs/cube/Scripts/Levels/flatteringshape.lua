@@ -33,6 +33,7 @@ keys = { 0, 0, 1, 1, 2, 2, 3, 4, 5, 5, 6, 7, 7, 8 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -41,13 +42,25 @@ function onInit()
     l_setSpeedMax(6.0)
     l_setRotationSpeed(0.13)
     l_setRotationSpeedMax(1)
-    l_setRotationSpeedInc(0.04)
+
+    if u_getDifficultyMult() > 3 then
+        l_setRotationSpeedInc(0.1)
+    else
+        l_setRotationSpeedInc(0.04)
+    end
+
     l_setDelayMult(1.0)
     l_setDelayInc(0.0075)
     l_setDelayMax(1.165)
     l_setFastSpin(0.0)
     l_setSides(6)
-    l_setSidesMin(5)
+
+    if u_getDifficultyMult() > 3 then
+        l_setSidesMin(6)
+    else
+        l_setSidesMin(5)
+    end
+
     l_setSidesMax(6)
     l_setIncTime(15)
 
@@ -64,7 +77,7 @@ function onInit()
     l_setBeatPulseDelayMax(24.489) -- BPM is 147
 
     enableSwapIfDMGreaterThan(3)
-    disableIncIfDMGreaterThan(3)
+    disableSpeedIncIfDMGreaterThan(3)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -97,5 +110,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a2_flattering")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 3 then
+        steam_unlockAchievement("a26_flattering_hard")
+        hardAchievementUnlocked = true
     end
 end

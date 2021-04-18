@@ -8,5 +8,5 @@
     "styleId": "euclideanpc",
     "musicId": "steampunkWarlord",
     "luaFile": "Scripts/Levels/euclideanpc.lua",
-    "difficultyMults": [1.25, 1.50, 1.80, 0.75, 0.5]
+    "difficultyMults": [1.80, 0.5]
 }
