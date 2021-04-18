@@ -116,7 +116,7 @@ template <typename... Ts>
 {
     if(tries > 5)
     {
-        return fail("Failure receiving packet from server, too many tries");
+        return fail("Failure sending packet to server, too many tries");
     }
 
     const auto status = _socket.send(p);

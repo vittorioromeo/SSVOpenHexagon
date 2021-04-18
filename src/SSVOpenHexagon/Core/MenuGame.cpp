@@ -2452,7 +2452,10 @@ void MenuGame::update(ssvu::FT mFT)
             },
 
             [&](const HexagonClient::ELoginSuccess&)
-            { showHCEventDialogBox(false /* error */, "LOGIN SUCCESS"); },
+            {
+                showHCEventDialogBox(false /* error */, "LOGIN SUCCESS");
+                steamManager.unlock_achievement("a23_login");
+            },
 
             [&](const HexagonClient::ELoginFailure& e) {
                 showHCEventDialogBox(
