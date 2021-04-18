@@ -916,9 +916,6 @@ void MenuGame::initInput()
     addTidInput(Tid::Screenshot, t::Once,
         [this](ssvu::FT /*unused*/) { mustTakeScreenshot = true; });
 
-    addTidInput(
-        Tid::Swap, t::Once, [this](ssvu::FT /*unused*/) { okAction(); });
-
     game.addInput(
             {{k::LAlt, k::Return}},
             [this](ssvu::FT /*unused*/)
@@ -1449,14 +1446,33 @@ void MenuGame::initMenus()
                    HexagonClient::State::ConnectionError;
     };
 
+    auto whenMustLogin = [this]
+    {
+        return hexagonClient.getState() == HexagonClient::State::Connected &&
+               hexagonClient.hasRTKeys();
+    };
+
     auto whenMustRegister = [this]
-    { return hexagonClient.getState() == HexagonClient::State::Connected; };
+    {
+        return hexagonClient.getState() == HexagonClient::State::Connected &&
+               hexagonClient.hasRTKeys();
+    };
 
     auto whenConnected = [this]
     { return hexagonClient.getState() == HexagonClient::State::Connected; };
 
     auto whenLoggedIn = [this]
-    { return hexagonClient.getState() == HexagonClient::State::LoggedIn; };
+    {
+        return hexagonClient.getState() == HexagonClient::State::LoggedIn &&
+               hexagonClient.hasRTKeys();
+    };
+
+    auto whenMustDeleteAccount = [this]
+    {
+        return hexagonClient.getState() == HexagonClient::State::Connected &&
+               hexagonClient.hasRTKeys();
+    };
+
 
     auto& online(onlineMenu.createCategory("options"));
 
@@ -1476,7 +1492,7 @@ void MenuGame::initMenus()
             showInputDialogBoxNice("LOGIN", "USERNAME");
             setIgnoreAllInputs(2);
         }) |
-        whenConnected;
+        whenMustLogin;
 
     online.create<i::Single>("REGISTER",
         [this]
@@ -1517,7 +1533,7 @@ void MenuGame::initMenus()
             dialogBox.setInputBoxPassword(true);
             setIgnoreAllInputs(2);
         }) |
-        whenConnected;
+        whenMustDeleteAccount;
 
     //--------------------------------
     // PROFILES MENU
@@ -2900,7 +2916,9 @@ void MenuGame::setIndex(const int mIdx)
     txtSelectionScore.font.setFillColor(menuQuadColor);
 
     // Set gameplay values
-    diffMults = levelData->difficultyMults;
+    diffMults = std::vector<float>(
+        levelData->difficultyMults.begin(), levelData->difficultyMults.end());
+
     diffMultIdx = ssvu::idxOf(diffMults, 1);
 
     try
@@ -5798,7 +5816,14 @@ void MenuGame::drawOnlineStatus()
 
             case HexagonClient::State::Connected:
             {
-                return {true, "CONNECTED, PLEASE LOG IN"};
+                if(hexagonClient.hasRTKeys())
+                {
+                    return {true, "CONNECTED, PLEASE LOG IN"};
+                }
+                else
+                {
+                    return {false, "CONNECTED, BUT KEY EXCHANGE FAILED"};
+                }
             }
 
             case HexagonClient::State::LoggedIn:

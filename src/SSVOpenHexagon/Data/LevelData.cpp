@@ -8,8 +8,14 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 namespace hg {
+
+[[nodiscard]] static std::set<float> vectorToSet(const std::vector<float>& vec)
+{
+    return std::set<float>(vec.begin(), vec.end());
+}
 
 LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
     const std::string& mPackId)
@@ -26,12 +32,11 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
       styleId{ssvuj::getExtr<std::string>(mRoot, "styleId", "nullStyleId")},
       luaScriptPath{packPath + ssvuj::getExtr<std::string>(
                                    mRoot, "luaFile", "nullLuaPath")},
-      difficultyMults{
-          ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {})},
+      difficultyMults{vectorToSet(
+          ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {}))},
       unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
 {
-    difficultyMults.emplace_back(1.f);
-    ssvu::sort(difficultyMults);
+    difficultyMults.emplace(1.f);
 }
 
 } // namespace hg
