@@ -268,6 +268,10 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
         {
             if(ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
             {
+                ssvu::lo("::loadConfig")
+                    << "applying config override '"
+                    << p.getFileNameNoExtensions() << "'\n";
+
                 const auto overrideRoot(ssvuj::getFromFile(p));
                 for(auto itr(std::begin(overrideRoot));
                     itr != std::end(overrideRoot); ++itr)
