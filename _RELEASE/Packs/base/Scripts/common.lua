@@ -3,7 +3,7 @@ THICKNESS = 40.0;
 
 function enableSwapIfDMGreaterThan(mDM)
     if(u_getDifficultyMult() > mDM) then
-        e_messageAdd(" difficulty > " ..mDM.. "\nswap enabled!", 65)
+        e_messageAdd("difficulty > " ..mDM.. "\nswap enabled!", 65)
         l_setSwapEnabled(true)
     end
 end
@@ -17,8 +17,15 @@ end
 
 function disableIncIfDMGreaterThan(mDM)
     if(u_getDifficultyMult() > mDM) then
-        e_messageAdd(" difficulty > " ..mDM.. "\nincrement disabled!", 65)
+        e_messageAdd("difficulty > " ..mDM.. "\nincrement disabled!", 65)
         l_setIncEnabled(false)
+    end
+end
+
+function disableSpeedIncIfDMGreaterThan(mDM)
+    if(u_getDifficultyMult() > mDM) then
+        e_messageAdd("difficulty > " ..mDM.. "\nspeed increment disabled!", 65)
+        l_setSpeedInc(0.0)
     end
 end
 

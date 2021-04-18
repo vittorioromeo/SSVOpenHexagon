@@ -10,3 +10,10 @@ echo "--------------------------------------------------------------------"
 cp ./SSVOpenHexagon.exe ../_RELEASE
 cp ./OHWorkshopUploader.exe ../_RELEASE
 cp ./OHServerControl.exe ../_RELEASE
+
+echo ""
+echo ""
+echo "--------------------------------------------------------------------"
+echo "| COPYING LIBRARIES                                                |"
+echo "--------------------------------------------------------------------"
+./copylibs.sh

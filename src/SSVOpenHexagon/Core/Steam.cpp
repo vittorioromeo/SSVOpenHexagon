@@ -101,6 +101,7 @@ private:
 
     bool update_hardcoded_achievement_cube_master();
     bool update_hardcoded_achievement_hypercube_master();
+    bool update_hardcoded_achievement_cube_god();
 
     void load_workshop_data();
 
@@ -538,6 +539,64 @@ bool steam_manager::steam_manager_impl::
     return true;
 }
 
+
+bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
+{
+    if(!_initialized)
+    {
+        return false;
+    }
+
+    if(!_got_stats)
+    {
+        return false;
+    }
+
+    const auto unlocked = [this](const char* name) -> int
+    {
+        bool res{false};
+        const bool rc = get_achievement(&res, name);
+
+        if(!rc)
+        {
+            return 0;
+        }
+
+        return res ? 1 : 0;
+    };
+
+    // "Cube God"
+    {
+        int stat;
+        const bool rc = get_stat(&stat, "s2_packprogress_cubegod");
+
+        if(!rc)
+        {
+            return false;
+        }
+
+        const int acc = unlocked("a25_pointless_hard") +  //
+                        unlocked("a26_flattering_hard") + //
+                        unlocked("a27_seconddim_hard") +  //
+                        unlocked("a28_apeirogon_hard") +  //
+                        unlocked("a29_commando_hard") +   //
+                        unlocked("a30_euclidian_hard") +  //
+                        unlocked("a31_pi_hard") +         //
+                        unlocked("a32_lab_hard") +        //
+                        unlocked("a33_ratio_hard");
+
+        if(acc > stat)
+        {
+            if(!set_and_store_stat("s2_packprogress_cubegod", acc))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
 {
     bool success = true;
@@ -548,6 +607,11 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
     }
 
     if(!update_hardcoded_achievement_hypercube_master())
+    {
+        success = false;
+    }
+
+    if(!update_hardcoded_achievement_cube_god())
     {
         success = false;
     }
