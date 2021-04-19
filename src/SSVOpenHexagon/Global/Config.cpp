@@ -81,64 +81,63 @@ using mil = std::initializer_list<ssvs::MBtn>;
     X_LINKEDVALUES_BINDS_JOYSTICK \
     X_LINKEDVALUES_BINDS_TRIGGERS
 
-#define X_LINKEDVALUES                                                         \
-    X(official, bool, "official", true)                                        \
-    X(noRotation, bool, "no_rotation", false)                                  \
-    X(noBackground, bool, "no_background", false)                              \
-    X(noSound, bool, "no_sound", false)                                        \
-    X(noMusic, bool, "no_music", false)                                        \
-    X(blackAndWhite, bool, "black_and_white", false)                           \
-    X(pulseEnabled, bool, "pulse_enabled", true)                               \
-    X(_3DEnabled, bool, "3D_enabled", true)                                    \
-    X(_3DMultiplier, float, "3D_multiplier", 1.f)                              \
-    X(_3DMaxDepth, uint, "3D_max_depth", 100)                                  \
-    X(invincible, bool, "invincible", false)                                   \
-    X(autoRestart, bool, "auto_restart", false)                                \
-    X(soundVolume, float, "sound_volume", 100.f)                               \
-    X(musicVolume, float, "music_volume", 100.f)                               \
-    X(flashEnabled, bool, "flash_enabled", true)                               \
-    X(zoomFactor, float, "zoom_factor", 1.27f)                                 \
-    X(pixelMultiplier, int, "pixel_multiplier", 1)                             \
-    X(playerSpeed, float, "player_speed", 9.45f)                               \
-    X(playerFocusSpeed, float, "player_focus_speed", 4.625f)                   \
-    X(playerSize, float, "player_size", 7.3f)                                  \
-    X(limitFPS, bool, "limit_fps", true)                                       \
-    X(vsync, bool, "vsync", false)                                             \
-    X(autoZoomFactor, bool, "auto_zoom_factor", true)                          \
-    X(fullscreen, bool, "fullscreen", false)                                   \
-    X(windowedAutoResolution, bool, "windowed_auto_resolution", false)         \
-    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", false)     \
-    X(fullscreenWidth, uint, "fullscreen_width", 1920)                         \
-    X(fullscreenHeight, uint, "fullscreen_height", 1080)                       \
-    X(windowedWidth, uint, "windowed_width", 800)                              \
-    X(windowedHeight, uint, "windowed_height", 600)                            \
-    X(showMessages, bool, "show_messages", true)                               \
-    X(debug, bool, "debug", false)                                             \
-    X(beatPulse, bool, "beatpulse_enabled", true)                              \
-    X(showTrackedVariables, bool, "show_tracked_variables", true)              \
-    X(musicSpeedDMSync, bool, "music_speed_dm_sync", true)                     \
-    X(maxFPS, uint, "max_fps", 200)                                            \
-    X(antialiasingLevel, uint, "antialiasing_level", 4)                        \
-    X(showFPS, bool, "show_fps", false)                                        \
-    X(musicSpeedMult, float, "music_speed_mult", 1.0f)                         \
-    X(drawTextOutlines, bool, "draw_text_outlines", true)                      \
-    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk",     \
-        true)                                                                  \
-    X(rotateToStart, bool, "rotate_to_start", false)                           \
-    X(joystickDeadzone, float, "joystick_deadzone", 5.0f)                      \
-    X(textPadding, float, "text_padding", 8.0f)                                \
-    X(textScaling, float, "text_scaling", 1.0f)                                \
-    X(timescale, float, "timescale", 1.0f)                                     \
-    X(showKeyIcons, bool, "show_key_icons", false)                             \
-    X(keyIconsScale, float, "key_icons_scale", 0.75f)                          \
-    X(firstTimePlaying, bool, "first_time_playing", true)                      \
-    X(saveLocalBestReplayToFile, bool, "save_local_best_replay_to_file", true) \
-    X(showLevelInfo, bool, "show_level_info", false)                           \
-    X(showTimer, bool, "show_timer", true)                                     \
-    X(showStatusText, bool, "show_status_text", true)                          \
-    X(serverIp, std::string, "server_ip", "139.162.199.162")                   \
-    X(serverPort, ushort, "server_port", 50505)                                \
-    X(serverControlPort, ushort, "server_control_port", 50506)                 \
+#define X_LINKEDVALUES                                                     \
+    X(official, bool, "official", true)                                    \
+    X(noRotation, bool, "no_rotation", false)                              \
+    X(noBackground, bool, "no_background", false)                          \
+    X(noSound, bool, "no_sound", false)                                    \
+    X(noMusic, bool, "no_music", false)                                    \
+    X(blackAndWhite, bool, "black_and_white", false)                       \
+    X(pulseEnabled, bool, "pulse_enabled", true)                           \
+    X(_3DEnabled, bool, "3D_enabled", true)                                \
+    X(_3DMultiplier, float, "3D_multiplier", 1.f)                          \
+    X(_3DMaxDepth, uint, "3D_max_depth", 100)                              \
+    X(invincible, bool, "invincible", false)                               \
+    X(autoRestart, bool, "auto_restart", false)                            \
+    X(soundVolume, float, "sound_volume", 100.f)                           \
+    X(musicVolume, float, "music_volume", 100.f)                           \
+    X(flashEnabled, bool, "flash_enabled", true)                           \
+    X(zoomFactor, float, "zoom_factor", 1.27f)                             \
+    X(pixelMultiplier, int, "pixel_multiplier", 1)                         \
+    X(playerSpeed, float, "player_speed", 9.45f)                           \
+    X(playerFocusSpeed, float, "player_focus_speed", 4.625f)               \
+    X(playerSize, float, "player_size", 7.3f)                              \
+    X(limitFPS, bool, "limit_fps", true)                                   \
+    X(vsync, bool, "vsync", false)                                         \
+    X(autoZoomFactor, bool, "auto_zoom_factor", true)                      \
+    X(fullscreen, bool, "fullscreen", false)                               \
+    X(windowedAutoResolution, bool, "windowed_auto_resolution", false)     \
+    X(fullscreenAutoResolution, bool, "fullscreen_auto_resolution", false) \
+    X(fullscreenWidth, uint, "fullscreen_width", 1920)                     \
+    X(fullscreenHeight, uint, "fullscreen_height", 1080)                   \
+    X(windowedWidth, uint, "windowed_width", 800)                          \
+    X(windowedHeight, uint, "windowed_height", 600)                        \
+    X(showMessages, bool, "show_messages", true)                           \
+    X(debug, bool, "debug", false)                                         \
+    X(beatPulse, bool, "beatpulse_enabled", true)                          \
+    X(showTrackedVariables, bool, "show_tracked_variables", true)          \
+    X(musicSpeedDMSync, bool, "music_speed_dm_sync", true)                 \
+    X(maxFPS, uint, "max_fps", 200)                                        \
+    X(antialiasingLevel, uint, "antialiasing_level", 4)                    \
+    X(showFPS, bool, "show_fps", false)                                    \
+    X(musicSpeedMult, float, "music_speed_mult", 1.0f)                     \
+    X(drawTextOutlines, bool, "draw_text_outlines", true)                  \
+    X(darkenUnevenBackgroundChunk, bool, "darken_uneven_background_chunk", \
+        true)                                                              \
+    X(rotateToStart, bool, "rotate_to_start", false)                       \
+    X(joystickDeadzone, float, "joystick_deadzone", 5.0f)                  \
+    X(textPadding, float, "text_padding", 8.0f)                            \
+    X(textScaling, float, "text_scaling", 1.0f)                            \
+    X(timescale, float, "timescale", 1.0f)                                 \
+    X(showKeyIcons, bool, "show_key_icons", false)                         \
+    X(keyIconsScale, float, "key_icons_scale", 0.75f)                      \
+    X(firstTimePlaying, bool, "first_time_playing", true)                  \
+    X(showLevelInfo, bool, "show_level_info", false)                       \
+    X(showTimer, bool, "show_timer", true)                                 \
+    X(showStatusText, bool, "show_status_text", true)                      \
+    X(serverIp, std::string, "server_ip", "139.162.199.162")               \
+    X(serverPort, ushort, "server_port", 50505)                            \
+    X(serverControlPort, ushort, "server_control_port", 50506)             \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -268,6 +267,10 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
         {
             if(ssvu::contains(mOverridesIds, p.getFileNameNoExtensions()))
             {
+                ssvu::lo("::loadConfig")
+                    << "applying config override '"
+                    << p.getFileNameNoExtensions() << "'\n";
+
                 const auto overrideRoot(ssvuj::getFromFile(p));
                 for(auto itr(std::begin(overrideRoot));
                     itr != std::end(overrideRoot); ++itr)
@@ -601,11 +604,6 @@ void setFirstTimePlaying(bool mX)
     firstTimePlaying() = mX;
 }
 
-void setSaveLocalBestReplayToFile(bool mX)
-{
-    saveLocalBestReplayToFile() = mX;
-}
-
 void setShowLevelInfo(bool mX)
 {
     showLevelInfo() = mX;
@@ -909,11 +907,6 @@ void setServerControlPort(unsigned short mX)
 [[nodiscard]] bool getFirstTimePlaying()
 {
     return firstTimePlaying();
-}
-
-[[nodiscard]] bool getSaveLocalBestReplayToFile()
-{
-    return saveLocalBestReplayToFile();
 }
 
 [[nodiscard]] bool getShowLevelInfo()

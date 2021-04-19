@@ -31,7 +31,6 @@ namespace hg {
     return i;
 }
 
-
 void KeyboardBindControl::exec()
 {
     waitingForBind = !waitingForBind;

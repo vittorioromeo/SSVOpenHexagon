@@ -8,5 +8,5 @@
     "styleId": "commando",
     "musicId": "commandoSteve",
     "luaFile": "Scripts/Levels/commando.lua",
-    "difficultyMults": [1.50, 0.5]
+    "difficultyMults": [0.5, 1.50]
 }

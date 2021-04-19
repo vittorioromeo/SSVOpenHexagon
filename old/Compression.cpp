@@ -9,8 +9,6 @@
 #include <sstream>
 #include <cstring>
 
-// TODO (P1): consider compressing replays/packets
-
 namespace hg {
 
 std::string getZLibCompress(const std::string& mStr)

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <set>
 
 namespace Json {
 class Value;
@@ -32,7 +32,7 @@ struct LevelData
     std::string soundId;
     std::string styleId;
     std::string luaScriptPath;
-    std::vector<float> difficultyMults;
+    std::set<float> difficultyMults;
     bool unscored;
 
     LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,

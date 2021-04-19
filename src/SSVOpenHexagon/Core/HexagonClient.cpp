@@ -310,20 +310,6 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendReplay(
-    const sf::Uint64 loginToken, const replay_file& replayFile)
-{
-    SSVOH_CLOG_VERBOSE << "Sending replay for level '" << replayFile._level_id
-                       << "' to server...\n";
-
-    return sendEncrypted( //
-        CTSPReplay{
-            .loginToken = loginToken, //
-            .replayFile = replayFile  //
-        }                             //
-    );
-}
-
 [[nodiscard]] bool HexagonClient::sendRequestOwnScore(
     const sf::Uint64 loginToken, const std::string& levelValidator)
 {
@@ -361,6 +347,21 @@ template <typename T>
             .loginToken = loginToken,        //
             .levelValidator = levelValidator //
         }                                    //
+    );
+}
+
+[[nodiscard]] bool HexagonClient::sendCompressedReplay(
+    const sf::Uint64 loginToken, const std::string& levelValidator,
+    const compressed_replay_file& compressedReplayFile)
+{
+    SSVOH_CLOG_VERBOSE << "Sending compressed replay for level validator '"
+                       << levelValidator << "' to server...\n";
+
+    return sendEncrypted( //
+        CTSPCompressedReplay{
+            .loginToken = loginToken,                    //
+            .compressedReplayFile = compressedReplayFile //
+        }                                                //
     );
 }
 
@@ -723,8 +724,15 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
                 << "Received scores unsupported from server, levelValidator: '"
                 << stcp.levelValidator << "'\n";
 
-            addEvent(EReceivedLevelScoresUnsupported{
-                .levelValidator = stcp.levelValidator});
+            const auto [it, added] =
+                _levelValidatorsUnsupportedByServer.emplace(
+                    stcp.levelValidator);
+
+            if(added)
+            {
+                addEvent(EReceivedLevelScoresUnsupported{
+                    .levelValidator = stcp.levelValidator});
+            }
 
             return true;
         }
@@ -755,7 +763,7 @@ void HexagonClient::update()
     }
 }
 
-static std::string hashPwd(const std::string& password)
+static std::string saltAndHashPwd(const std::string& password)
 {
 #if __has_include("SSVOpenHexagon/Online/SecretPasswordSalt.hpp")
     const std::string salt =
@@ -785,7 +793,7 @@ bool HexagonClient::tryRegister(
     }
 
     SSVOH_ASSERT(_ticketSteamID.has_value());
-    return sendRegister(_ticketSteamID.value(), name, hashPwd(password));
+    return sendRegister(_ticketSteamID.value(), name, saltAndHashPwd(password));
 }
 
 bool HexagonClient::tryLogin(
@@ -803,7 +811,7 @@ bool HexagonClient::tryLogin(
     }
 
     SSVOH_ASSERT(_ticketSteamID.has_value());
-    return sendLogin(_ticketSteamID.value(), name, hashPwd(password));
+    return sendLogin(_ticketSteamID.value(), name, saltAndHashPwd(password));
 }
 
 bool HexagonClient::tryLogoutFromServer()
@@ -829,7 +837,7 @@ bool HexagonClient::tryDeleteAccount(const std::string& password)
     }
 
     SSVOH_ASSERT(_ticketSteamID.has_value());
-    return sendDeleteAccount(_ticketSteamID.value(), hashPwd(password));
+    return sendDeleteAccount(_ticketSteamID.value(), saltAndHashPwd(password));
 }
 
 bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
@@ -843,15 +851,25 @@ bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
     return sendRequestTopScores(_loginToken.value(), levelValidator);
 }
 
-bool HexagonClient::trySendReplay(const replay_file& replayFile)
+bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator,
+    const compressed_replay_file& compressedReplayFile)
 {
     if(!connectedAndInState(State::LoggedIn))
     {
         return fail();
     }
 
+    if(_levelValidatorsUnsupportedByServer.contains(levelValidator))
+    {
+        SSVOH_CLOG_VERBOSE << "Not sending compressed replay for level '"
+                           << levelValidator << "', unsupported by server\n";
+
+        return true;
+    }
+
     SSVOH_ASSERT(_loginToken.has_value());
-    return sendReplay(_loginToken.value(), replayFile);
+    return sendCompressedReplay(
+        _loginToken.value(), levelValidator, compressedReplayFile);
 }
 
 bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
@@ -891,6 +909,11 @@ bool HexagonClient::trySendStartedGame(const std::string& levelValidator)
 [[nodiscard]] HexagonClient::State HexagonClient::getState() const noexcept
 {
     return _state;
+}
+
+[[nodiscard]] bool HexagonClient::hasRTKeys() const noexcept
+{
+    return _clientRTKeys.has_value();
 }
 
 [[nodiscard]] const std::optional<std::string>&

@@ -68,13 +68,15 @@ struct CTSPReplay                      { sf::Uint64 loginToken; replay_file repl
 struct CTSPRequestOwnScore             { sf::Uint64 loginToken; std::string levelValidator; };
 struct CTSPRequestTopScoresAndOwnScore { sf::Uint64 loginToken; std::string levelValidator; };
 struct CTSPStartedGame                 { sf::Uint64 loginToken; std::string levelValidator; };
+struct CTSPCompressedReplay            { sf::Uint64 loginToken; compressed_replay_file compressedReplayFile; };
 // clang-format on
 
 #define SSVOH_CTS_PACKETS                                         \
     VRM_PP_TPL_MAKE(CTSPHeartbeat, CTSPDisconnect, CTSPPublicKey, \
         CTSPRegister, CTSPLogin, CTSPLogout, CTSPDeleteAccount,   \
         CTSPRequestTopScores, CTSPReplay, CTSPRequestOwnScore,    \
-        CTSPRequestTopScoresAndOwnScore, CTSPStartedGame)
+        CTSPRequestTopScoresAndOwnScore, CTSPStartedGame,         \
+        CTSPCompressedReplay)
 
 using PVClientToServer = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;
