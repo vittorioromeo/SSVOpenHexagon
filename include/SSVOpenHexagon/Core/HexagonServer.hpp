@@ -158,6 +158,12 @@ private:
     void runIteration_PurgeClients();
     void runIteration_PurgeTokens();
 
+    [[nodiscard]] bool validateLogin(ConnectedClient& c, const char* context,
+        const sf::Uint64 ctspLoginToken);
+
+    [[nodiscard]] bool processReplay(
+        ConnectedClient& c, const sf::Uint64 loginToken, const replay_file& rf);
+
     [[nodiscard]] bool processPacket(ConnectedClient& c, sf::Packet& p);
 
     template <typename... Ts>

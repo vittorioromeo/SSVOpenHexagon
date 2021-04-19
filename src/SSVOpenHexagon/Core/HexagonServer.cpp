@@ -12,6 +12,7 @@
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
+#include "SSVOpenHexagon/Utils/StringToCharVec.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
@@ -553,34 +554,134 @@ void HexagonServer::runIteration_PurgeTokens()
     Database::removeAllStaleLoginTokens();
 }
 
+[[nodiscard]] bool HexagonServer::validateLogin(
+    ConnectedClient& c, const char* context, const sf::Uint64 ctspLoginToken)
+{
+    const void* clientAddr = static_cast<void*>(&c);
+
+    if(!c._loginData.has_value())
+    {
+        SSVOH_SLOG << "Client '" << clientAddr << "', is not logged in for "
+                   << context << '\n';
+
+        return false;
+    }
+
+    const auto cLoginToken = c._loginData->_loginToken;
+
+    if(cLoginToken != ctspLoginToken)
+    {
+        SSVOH_SLOG << "Client '" << clientAddr << "' login token mismatch for "
+                   << context << '\n';
+
+        return false;
+    }
+
+    return true;
+}
+
+[[nodiscard]] bool HexagonServer::processReplay(
+    ConnectedClient& c, const sf::Uint64 loginToken, const replay_file& rf)
+{
+    const void* clientAddr = static_cast<void*>(&c);
+
+    const TimePoint receiveTime = Clock::now();
+
+    if(!validateLogin(c, "replay", loginToken))
+    {
+        return true;
+    }
+
+    const auto discard = [&](const auto&... reason)
+    {
+        SSVOH_SLOG << "Discarding replay from client '" << clientAddr << "', "
+                   << Utils::concat(reason...) << '\n';
+
+        return true;
+    };
+
+    if(!c._gameStatus.has_value())
+    {
+        return discard("no game started");
+    }
+
+    if(!_assets.isValidPackId(rf._pack_id))
+    {
+        return discard("invalid pack id '", rf._pack_id, '\'');
+    }
+
+    if(!_assets.isValidLevelId(rf._level_id))
+    {
+        return discard("invalid level id '", rf._level_id, '\'');
+    }
+
+    const LevelData& levelData = _assets.getLevelData(rf._level_id);
+
+    if(levelData.unscored)
+    {
+        return discard("unscored level id '", rf._level_id, '\'');
+    }
+
+    const std::string levelValidator =
+        Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
+
+    SSVOH_SLOG << "Processing replay from client '" << clientAddr
+               << "' for level '" << levelValidator << "'\n";
+
+    // TODO (P1): sometimes this seems to hang... should figure out why
+
+    const std::optional<HexagonGame::GameExecutionResult> ger =
+        _hexagonGame.runReplayUntilDeathAndGetScore(
+            rf, 5 /* maxProcessingSeconds */);
+
+    if(!ger.has_value())
+    {
+        return discard("max processing time exceeded");
+    }
+
+    const double replayTotalTime = ger->totalTimeSeconds;
+    const double replayPlayedTime = ger->playedTimeSeconds;
+
+    SSVOH_SLOG << "Replay processed, final time: '" << replayTotalTime << "'\n";
+
+    const double elapsedSecs =
+        std::chrono::duration_cast<std::chrono::duration<double>>(
+            receiveTime - c._gameStatus->_startTP)
+            .count();
+
+    const double difference = std::fabs(replayTotalTime - elapsedSecs);
+    const double ratio = replayTotalTime / elapsedSecs;
+
+    const bool goodDifference = difference < 3.5;
+    const bool goodRatio = ratio > 0.75 && ratio < 1.25;
+
+    SSVOH_SLOG << "Elapsed request time: " << elapsedSecs << '\n'
+               << "Difference: " << difference << '\n'
+               << "Ratio: " << ratio << '\n';
+
+    if(!goodDifference)
+    {
+        return discard("difference too large");
+    }
+
+    if(!goodRatio)
+    {
+        return discard("bad ratio");
+    }
+
+    SSVOH_SLOG << "Replay valid, adding to database\n";
+
+    Database::addScore(levelValidator, Database::nowTimestamp(),
+        c._loginData->_steamId, replayPlayedTime);
+
+    return true;
+}
+
 [[nodiscard]] bool HexagonServer::processPacket(
     ConnectedClient& c, sf::Packet& p)
 {
     const void* clientAddr = static_cast<void*>(&c);
 
-    const auto validateLogin = [&](const char* context,
-                                   const sf::Uint64 ctspLoginToken) -> bool
-    {
-        if(!c._loginData.has_value())
-        {
-            SSVOH_SLOG << "Client '" << clientAddr << "', is not logged in for "
-                       << context << '\n';
-
-            return false;
-        }
-
-        const auto cLoginToken = c._loginData->_loginToken;
-
-        if(cLoginToken != ctspLoginToken)
-        {
-            SSVOH_SLOG << "Client '" << clientAddr
-                       << "' login token mismatch for " << context << '\n';
-
-            return false;
-        }
-
-        return true;
-    };
 
     constexpr int topScoresLimit = 6;
 
@@ -696,8 +797,8 @@ void HexagonServer::runIteration_PurgeTokens()
                 Database::User{
                     .steamId = steamId,
                     .name = name,
-                    .passwordHash = passwordHash //
-                }                                //
+                    .passwordHash = Utils::stringToCharVec(passwordHash) //
+                }                                                        //
             );
 
             SSVOH_SLOG << "Successfully registered\n";
@@ -747,8 +848,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
             SSVOH_ASSERT(user.has_value());
 
-            if(user->passwordHash !=
-                std::vector<char>(passwordHash.begin(), passwordHash.end()))
+            if(user->passwordHash != Utils::stringToCharVec(passwordHash))
             {
                 return sendFail("Invalid password for user matching '", steamId,
                     "' and '", name, '\'');
@@ -839,8 +939,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
             SSVOH_ASSERT(user.has_value());
 
-            if(user->passwordHash !=
-                std::vector<char>(passwordHash.begin(), passwordHash.end()))
+            if(user->passwordHash != Utils::stringToCharVec(passwordHash))
             {
                 return sendFail(
                     "Invalid password for user matching '", steamId, '\'');
@@ -855,7 +954,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPRequestTopScores& ctsp)
         {
-            if(!validateLogin("top scores", ctsp.loginToken))
+            if(!validateLogin(c, "top scores", ctsp.loginToken))
             {
                 return true;
             }
@@ -876,104 +975,13 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPReplay& ctsp)
         {
-            const TimePoint receiveTime = Clock::now();
-
-            if(!validateLogin("replay", ctsp.loginToken))
-            {
-                return true;
-            }
-
-            const auto discard = [&](const auto&... reason)
-            {
-                SSVOH_SLOG << "Discarding replay from client '" << clientAddr
-                           << "', " << Utils::concat(reason...) << '\n';
-
-                return true;
-            };
-
-            if(!c._gameStatus.has_value())
-            {
-                return discard("no game started");
-            }
-
-            const hg::replay_file& rf = ctsp.replayFile;
-
-            if(!_assets.isValidPackId(rf._pack_id))
-            {
-                return discard("invalid pack id '", rf._pack_id, '\'');
-            }
-
-            if(!_assets.isValidLevelId(rf._level_id))
-            {
-                return discard("invalid level id '", rf._level_id, '\'');
-            }
-
-            const LevelData& levelData = _assets.getLevelData(rf._level_id);
-
-            if(levelData.unscored)
-            {
-                return discard("unscored level id '", rf._level_id, '\'');
-            }
-
-            const std::string levelValidator =
-                Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
-
-            SSVOH_SLOG << "Processing replay from client '" << clientAddr
-                       << "' for level '" << levelValidator << "'\n";
-
-            // TODO (P1): sometimes this seems to hang... should figure out why
-
-            const std::optional<HexagonGame::GameExecutionResult> ger =
-                _hexagonGame.runReplayUntilDeathAndGetScore(
-                    rf, 5 /* maxProcessingSeconds */);
-
-            if(!ger.has_value())
-            {
-                return discard("max processing time exceeded");
-            }
-
-            const double replayTotalTime = ger->totalTimeSeconds;
-            const double replayPlayedTime = ger->playedTimeSeconds;
-
-            SSVOH_SLOG << "Replay processed, final time: '" << replayTotalTime
-                       << "'\n";
-
-            const double elapsedSecs =
-                std::chrono::duration_cast<std::chrono::duration<double>>(
-                    receiveTime - c._gameStatus->_startTP)
-                    .count();
-
-            const double difference = std::fabs(replayTotalTime - elapsedSecs);
-            const double ratio = replayTotalTime / elapsedSecs;
-
-            const bool goodDifference = difference < 3.5;
-            const bool goodRatio = ratio > 0.75 && ratio < 1.25;
-
-            SSVOH_SLOG << "Elapsed request time: " << elapsedSecs << '\n'
-                       << "Difference: " << difference << '\n'
-                       << "Ratio: " << ratio << '\n';
-
-            if(!goodDifference)
-            {
-                return discard("difference too large");
-            }
-
-            if(!goodRatio)
-            {
-                return discard("bad ratio");
-            }
-
-            SSVOH_SLOG << "Replay valid, adding to database\n";
-
-            Database::addScore(levelValidator, Database::nowTimestamp(),
-                c._loginData->_steamId, replayPlayedTime);
-
-            return true;
+            const auto& [loginToken, rf] = ctsp;
+            return processReplay(c, loginToken, rf);
         },
 
         [&](const CTSPRequestOwnScore& ctsp)
         {
-            if(!validateLogin("own score", ctsp.loginToken))
+            if(!validateLogin(c, "own score", ctsp.loginToken))
             {
                 return true;
             }
@@ -999,7 +1007,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPRequestTopScoresAndOwnScore& ctsp)
         {
-            if(!validateLogin("top scores and own scores", ctsp.loginToken))
+            if(!validateLogin(c, "top scores and own scores", ctsp.loginToken))
             {
                 return true;
             }
@@ -1022,7 +1030,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPStartedGame& ctsp)
         {
-            if(!validateLogin("started game", ctsp.loginToken))
+            if(!validateLogin(c, "started game", ctsp.loginToken))
             {
                 return true;
             }
@@ -1038,6 +1046,25 @@ void HexagonServer::runIteration_PurgeTokens()
             };
 
             return true;
+        },
+
+        [&](const CTSPCompressedReplay& ctsp)
+        {
+            const auto& [loginToken, crf] = ctsp;
+
+            const std::optional<replay_file> rfOpt =
+                decompress_replay_file(crf);
+
+            if(!rfOpt.has_value())
+            {
+                SSVOH_SLOG_ERROR
+                    << "Failed to decompress replay received from client '"
+                    << clientAddr << "'\n";
+
+                return false;
+            }
+
+            return processReplay(c, loginToken, rfOpt.value());
         }
 
         //
