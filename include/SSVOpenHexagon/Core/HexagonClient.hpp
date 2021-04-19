@@ -43,6 +43,7 @@ public:
         ConnectionError = 3,
         Connected = 4,
         LoggedIn = 5,
+        LoggedIn_Ready = 6,
     };
 
     // clang-format off
@@ -59,24 +60,24 @@ public:
     struct EDeleteAccountFailure           { std::string error; };
     struct EReceivedTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
     struct EReceivedOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
-    struct EReceivedLevelScoresUnsupported { std::string levelValidator; };
+    struct EVersionMismatch                { };
     // clang-format on
 
-    using Event = std::variant<         //
-        EConnectionSuccess,             //
-        EConnectionFailure,             //
-        EKicked,                        //
-        ERegistrationSuccess,           //
-        ERegistrationFailure,           //
-        ELoginSuccess,                  //
-        ELoginFailure,                  //
-        ELogoutSuccess,                 //
-        ELogoutFailure,                 //
-        EDeleteAccountSuccess,          //
-        EDeleteAccountFailure,          //
-        EReceivedTopScores,             //
-        EReceivedOwnScore,              //
-        EReceivedLevelScoresUnsupported //
+    using Event = std::variant< //
+        EConnectionSuccess,     //
+        EConnectionFailure,     //
+        EKicked,                //
+        ERegistrationSuccess,   //
+        ERegistrationFailure,   //
+        ELoginSuccess,          //
+        ELoginFailure,          //
+        ELogoutSuccess,         //
+        ELogoutFailure,         //
+        EDeleteAccountSuccess,  //
+        EDeleteAccountFailure,  //
+        EReceivedTopScores,     //
+        EReceivedOwnScore,      //
+        EVersionMismatch        //
         >;
 
 private:
@@ -111,7 +112,7 @@ private:
 
     std::deque<Event> _events;
 
-    std::unordered_set<std::string> _levelValidatorsUnsupportedByServer;
+    std::unordered_set<std::string> _levelValidatorsSupportedByServer;
 
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
@@ -143,6 +144,8 @@ private:
     [[nodiscard]] bool sendCompressedReplay(const sf::Uint64 loginToken,
         const std::string& levelValidator,
         const compressed_replay_file& compressedReplayFile);
+    [[nodiscard]] bool sendRequestServerStatus(const sf::Uint64 loginToken);
+    [[nodiscard]] bool sendReady(const sf::Uint64 loginToken);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -160,6 +163,8 @@ private:
     [[nodiscard]] bool fail(const Ts&...);
 
     [[nodiscard]] bool connectedAndInState(const State s) const noexcept;
+    [[nodiscard]] bool connectedAndInAnyState(
+        const State s0, const State s1) const noexcept;
 
 public:
     explicit HexagonClient(Steam::steam_manager& steamManager,
@@ -193,6 +198,9 @@ public:
     getLoginName() const noexcept;
 
     [[nodiscard]] std::optional<Event> pollEvent();
+
+    [[nodiscard]] bool isLevelSupportedByServer(
+        const std::string& levelValidator) const noexcept;
 };
 
 } // namespace hg

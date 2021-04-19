@@ -17,7 +17,6 @@ void LeaderboardCache::receivedScores(const std::string& levelValidator,
     const std::vector<Database::ProcessedScore>& scores)
 {
     CachedScores& cs = _levelValidatorToScores[levelValidator];
-    cs._supported = true;
     cs._scores = scores;
     cs._cacheTime = Clock::now();
 }
@@ -26,16 +25,8 @@ void LeaderboardCache::receivedOwnScore(
     const std::string& levelValidator, const Database::ProcessedScore& score)
 {
     CachedScores& cs = _levelValidatorToScores[levelValidator];
-    cs._supported = true;
     cs._ownScore = score;
     cs._cacheTime = Clock::now();
-}
-
-void LeaderboardCache::receivedScoresUnsupported(
-    const std::string& levelValidator)
-{
-    CachedScores& cs = _levelValidatorToScores[levelValidator];
-    cs._supported = false;
 }
 
 void LeaderboardCache::requestedScores(const std::string& levelValidator)
@@ -54,8 +45,7 @@ void LeaderboardCache::requestedScores(const std::string& levelValidator)
 
     const CachedScores& cs = it->second;
 
-    return cs._supported &&
-           (Clock::now() - cs._cacheTime) > std::chrono::seconds(6);
+    return (Clock::now() - cs._cacheTime) > std::chrono::seconds(6);
 }
 
 [[nodiscard]] const std::vector<Database::ProcessedScore>&
@@ -72,13 +62,6 @@ LeaderboardCache::getScores(const std::string& levelValidator) const
 
     const auto& os = _levelValidatorToScores.at(levelValidator)._ownScore;
     return os.has_value() ? &*os : nullptr;
-}
-
-[[nodiscard]] bool LeaderboardCache::getSupported(
-    const std::string& levelValidator) const
-{
-    SSVOH_ASSERT(hasInformation(levelValidator));
-    return _levelValidatorToScores.at(levelValidator)._supported;
 }
 
 [[nodiscard]] bool LeaderboardCache::hasInformation(
