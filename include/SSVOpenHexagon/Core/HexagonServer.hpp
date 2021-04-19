@@ -25,6 +25,7 @@ namespace hg {
 
 class HGAssets;
 class HexagonGame;
+struct GameVersion;
 
 class HexagonServer
 {
@@ -36,6 +37,7 @@ private:
     HexagonGame& _hexagonGame;
 
     const std::unordered_set<std::string> _supportedLevelValidators;
+    const std::vector<std::string> _supportedLevelValidatorsVector;
 
     const sf::IpAddress _serverIp;
     const unsigned short _serverPort;
@@ -57,6 +59,7 @@ private:
             Disconnected = 0,
             Connected = 1,
             LoggedIn = 2,
+            LoggedIn_Ready = 3,
         };
 
         sf::TcpSocket _socket;
@@ -145,8 +148,9 @@ private:
         const std::string& levelValidator,
         const std::vector<Database::ProcessedScore>& scores,
         const std::optional<Database::ProcessedScore>& ownScore);
-    [[nodiscard]] bool sendLevelScoresUnsupported(
-        ConnectedClient& c, const std::string& levelValidator);
+    [[nodiscard]] bool sendServerStatus(ConnectedClient& c,
+        const GameVersion& gameVersion,
+        const std::vector<std::string> supportedLevelValidators);
 
     void kickAndRemoveClient(ConnectedClient& c);
 
@@ -163,6 +167,10 @@ private:
 
     [[nodiscard]] bool processReplay(
         ConnectedClient& c, const sf::Uint64 loginToken, const replay_file& rf);
+
+    template <typename T>
+    void printCTSPDataVerbose(
+        ConnectedClient& c, const char* title, const T& ctsp);
 
     [[nodiscard]] bool processPacket(ConnectedClient& c, sf::Packet& p);
 

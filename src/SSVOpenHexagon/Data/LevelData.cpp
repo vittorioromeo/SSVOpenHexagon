@@ -5,17 +5,14 @@
 #include "SSVOpenHexagon/Data/LevelData.hpp"
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
 
 #include <string>
 #include <vector>
 #include <set>
 
 namespace hg {
-
-[[nodiscard]] static std::set<float> vectorToSet(const std::vector<float>& vec)
-{
-    return std::set<float>(vec.begin(), vec.end());
-}
 
 LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
     const std::string& mPackId)
@@ -32,11 +29,40 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
       styleId{ssvuj::getExtr<std::string>(mRoot, "styleId", "nullStyleId")},
       luaScriptPath{packPath + ssvuj::getExtr<std::string>(
                                    mRoot, "luaFile", "nullLuaPath")},
-      difficultyMults{vectorToSet(
-          ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {}))},
+      difficultyMults{
+          ssvuj::getExtr<std::vector<float>>(mRoot, "difficultyMults", {})},
       unscored{ssvuj::getExtr<bool>(mRoot, "unscored", false)}
 {
-    difficultyMults.emplace(1.f);
+    difficultyMults.emplace_back(1.f);
+    std::sort(difficultyMults.begin(), difficultyMults.end());
+
+    for(const float dm : difficultyMults)
+    {
+        validators[dm] =
+            Utils::getLevelValidator(Utils::concat(packId, '_', id), dm);
+    }
+}
+
+[[nodiscard]] const std::string& LevelData::getValidator(
+    const float diffMult) const
+{
+    SSVOH_ASSERT(validators.find(diffMult) != validators.end());
+    return validators.at(diffMult);
+}
+
+[[nodiscard]] float LevelData::getNthDiffMult(int index) const noexcept
+{
+    while(index < 0)
+    {
+        index += difficultyMults.size();
+    }
+
+    while(index >= static_cast<int>(difficultyMults.size()))
+    {
+        index -= difficultyMults.size();
+    }
+
+    return difficultyMults.at(index);
 }
 
 } // namespace hg
