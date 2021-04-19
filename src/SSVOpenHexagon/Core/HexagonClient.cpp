@@ -310,20 +310,6 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonClient::sendReplay(
-    const sf::Uint64 loginToken, const replay_file& replayFile)
-{
-    SSVOH_CLOG_VERBOSE << "Sending replay for level '" << replayFile._level_id
-                       << "' to server...\n";
-
-    return sendEncrypted( //
-        CTSPReplay{
-            .loginToken = loginToken, //
-            .replayFile = replayFile  //
-        }                             //
-    );
-}
-
 [[nodiscard]] bool HexagonClient::sendRequestOwnScore(
     const sf::Uint64 loginToken, const std::string& levelValidator)
 {
@@ -863,28 +849,6 @@ bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
 
     SSVOH_ASSERT(_loginToken.has_value());
     return sendRequestTopScores(_loginToken.value(), levelValidator);
-}
-
-bool HexagonClient::trySendReplay(const replay_file& replayFile)
-{
-    if(!connectedAndInState(State::LoggedIn))
-    {
-        return fail();
-    }
-
-    const std::string levelValidator = Utils::getLevelValidator(
-        replayFile._level_id, replayFile._difficulty_mult);
-
-    if(_levelValidatorsUnsupportedByServer.contains(levelValidator))
-    {
-        SSVOH_CLOG_VERBOSE << "Not sending replay for level '" << levelValidator
-                           << "', unsupported by server\n";
-
-        return true;
-    }
-
-    SSVOH_ASSERT(_loginToken.has_value());
-    return sendReplay(_loginToken.value(), replayFile);
 }
 
 bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator,
