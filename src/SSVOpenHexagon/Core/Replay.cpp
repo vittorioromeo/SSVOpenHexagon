@@ -11,10 +11,13 @@
 
 #include <SFML/Network/Packet.hpp>
 
+#include <zlib.h>
+
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <type_traits>
-#include <iostream>
+#include <utility>
 
 namespace hg {
 
@@ -127,7 +130,6 @@ void replay_data::record_input(const bool left, const bool right,
 
     for(const input_bitset& ib : _inputs)
     {
-        // TODO (P2): optimize! only need 4 bits
         const std::uint8_t ib_byte = ib.to_ulong();
         SSVOH_TRY(write(ib_byte));
     }
@@ -318,7 +320,7 @@ void replay_player::reset() noexcept
 
 static constexpr std::size_t buf_size{2097152}; // 2MB
 
-[[nodiscard]] static auto& get_static_buf()
+[[nodiscard]] static std::byte* get_static_buf()
 {
     thread_local std::byte buf[buf_size];
     return buf;
@@ -327,18 +329,16 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 [[nodiscard]] bool replay_file::serialize_to_file(
     const std::filesystem::path& p) const
 {
-    auto& buf = get_static_buf();
+    std::byte* buf = get_static_buf();
 
     const serialization_result sr = serialize(buf, buf_size);
-    if(!sr)
+    if(!static_cast<bool>(sr))
     {
         return false;
     }
 
-    const std::size_t written_bytes = sr.written_bytes();
-
     std::ofstream os(p, std::ios::binary | std::ios::out);
-    os.write(reinterpret_cast<const char*>(buf), written_bytes);
+    os.write(reinterpret_cast<const char*>(buf), sr.written_bytes());
     os.flush();
 
     return static_cast<bool>(os);
@@ -353,7 +353,7 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
     const std::size_t bytes_to_read = is.tellg();
     is.seekg(0, std::ios::beg);
 
-    auto& buf = get_static_buf();
+    std::byte* buf = get_static_buf();
 
     is.read(reinterpret_cast<char*>(buf), bytes_to_read);
 
@@ -368,10 +368,10 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
 [[nodiscard]] bool replay_file::serialize_to_packet(sf::Packet& p) const
 {
-    auto& buf = get_static_buf();
+    std::byte* buf = get_static_buf();
 
     const serialization_result sr = serialize(buf, buf_size);
-    if(!sr)
+    if(!static_cast<bool>(sr))
     {
         return false;
     }
@@ -385,16 +385,16 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 
 [[nodiscard]] bool replay_file::deserialize_from_packet(sf::Packet& p)
 {
+    static_assert(sizeof(sf::Uint8) == sizeof(std::byte));
+    static_assert(alignof(sf::Uint8) == alignof(std::byte));
+
     sf::Uint64 bytes_to_read;
     if(!(p >> bytes_to_read))
     {
         return false;
     }
 
-    static_assert(sizeof(sf::Uint8) == sizeof(std::byte));
-    static_assert(alignof(sf::Uint8) == alignof(std::byte));
-
-    auto& buf = get_static_buf();
+    std::byte* buf = get_static_buf();
 
     for(sf::Uint64 i = 0; i < bytes_to_read; ++i)
     {
@@ -413,6 +413,133 @@ static constexpr std::size_t buf_size{2097152}; // 2MB
 {
     return Utils::concat(_version, '_', _player_name, '_', _pack_id, '_',
         _level_id, '_', _difficulty_mult, '_', _played_score, ".ohreplay");
+}
+
+[[nodiscard]] bool compressed_replay_file::serialize_to_file(
+    const std::filesystem::path& p) const
+{
+    std::ofstream os(p, std::ios::binary | std::ios::out);
+    os.write(_data.data(), _data.size());
+    os.flush();
+
+    return static_cast<bool>(os);
+}
+
+[[nodiscard]] bool compressed_replay_file::deserialize_from_file(
+    const std::filesystem::path& p)
+{
+    std::ifstream is(p, std::ios::binary | std::ios::in);
+
+    is.seekg(0, std::ios::end);
+    const std::size_t bytes_to_read = is.tellg();
+    is.seekg(0, std::ios::beg);
+
+    _data.resize(bytes_to_read);
+    is.read(_data.data(), bytes_to_read);
+
+    return static_cast<bool>(is);
+}
+
+[[nodiscard]] bool compressed_replay_file::serialize_to_packet(
+    sf::Packet& p) const
+{
+    p << static_cast<sf::Uint64>(_data.size());
+    p.append(static_cast<const void*>(_data.data()), _data.size());
+    return true;
+}
+
+[[nodiscard]] bool compressed_replay_file::deserialize_from_packet(
+    sf::Packet& p)
+{
+    static_assert(sizeof(sf::Uint8) == sizeof(char));
+    static_assert(alignof(sf::Uint8) == alignof(char));
+
+    sf::Uint64 bytes_to_read;
+    if(!(p >> bytes_to_read))
+    {
+        return false;
+    }
+
+    _data.resize(bytes_to_read);
+
+    for(sf::Uint64 i = 0; i < bytes_to_read; ++i)
+    {
+        if(!(p >> reinterpret_cast<sf::Uint8&>(_data[i])))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+[[nodiscard]] static std::byte* get_static_compression_buf()
+{
+    thread_local std::byte buf[buf_size];
+    return buf;
+}
+
+[[nodiscard]] std::optional<compressed_replay_file> compress_replay_file(
+    const replay_file& rf)
+{
+    std::byte* buf = get_static_buf();
+
+    const serialization_result sr = rf.serialize(buf, buf_size);
+    if(!static_cast<bool>(sr))
+    {
+        return std::nullopt;
+    }
+
+    std::byte* compression_buf = get_static_compression_buf();
+
+    uLongf in_out_dest_len = buf_size;
+    const int rc = compress2(reinterpret_cast<Bytef*>(compression_buf),
+        &in_out_dest_len, reinterpret_cast<const Bytef*>(buf),
+        sr.written_bytes(), Z_BEST_COMPRESSION);
+
+    if(rc != Z_OK)
+    {
+        std::cerr << "Failed compression of replay file, error code: '" << rc
+                  << "'\n";
+
+        return std::nullopt;
+    }
+
+    compressed_replay_file result;
+    result._data.resize(in_out_dest_len);
+
+    std::memcpy(static_cast<void*>(result._data.data()),
+        static_cast<const void*>(compression_buf), result._data.size());
+
+    return {std::move(result)};
+}
+
+[[nodiscard]] std::optional<replay_file> decompress_replay_file(
+    const compressed_replay_file& crf)
+{
+    std::byte* buf = get_static_buf();
+
+    uLongf in_out_dest_len = buf_size;
+    const int rc = uncompress(reinterpret_cast<Bytef*>(buf), &in_out_dest_len,
+        reinterpret_cast<const Bytef*>(crf._data.data()), crf._data.size());
+
+    if(rc != Z_OK)
+    {
+        std::cerr << "Failed compression of replay file, error code: '" << rc
+                  << "'\n";
+
+        return std::nullopt;
+    }
+
+    replay_file result;
+
+    const deserialization_result dr = result.deserialize(buf, in_out_dest_len);
+    if(!static_cast<bool>(dr))
+    {
+        return std::nullopt;
+    }
+
+    return {std::move(result)};
 }
 
 } // namespace hg

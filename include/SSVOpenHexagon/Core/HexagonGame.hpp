@@ -393,6 +393,11 @@ public:
         bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
 
     void death(bool mForce = false);
+    void death_sendAndSaveReplay();
+    [[nodiscard]] bool death_sendReplay(
+        const std::string& levelValidator, const compressed_replay_file& crf);
+    [[nodiscard]] bool death_saveReplay(
+        const std::string& filename, const compressed_replay_file& crf);
 
     struct GameExecutionResult
     {

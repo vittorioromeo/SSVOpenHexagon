@@ -119,12 +119,12 @@ std::string makeWindowTitle()
         " - by Vittorio Romeo - https://vittorioromeo.info");
 }
 
-std::optional<std::string> getFirstReplayFilenameFromArgs(
+std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     const std::vector<std::string>& args)
 {
     for(const std::string& arg : args)
     {
-        if(arg.find(".ohreplay") != std::string::npos)
+        if(arg.find(".ohreplay.gz") != std::string::npos)
         {
             return arg;
         }
@@ -374,8 +374,8 @@ std::optional<std::string> getFirstReplayFilenameFromArgs(
     //
     // ------------------------------------------------------------------------
     // Load drag & drop replay, if any -- otherwise run game as normal
-    const std::optional<std::string> replayFilename =
-        getFirstReplayFilenameFromArgs(args);
+    const std::optional<std::string> compressedReplayFilename =
+        getFirstCompressedReplayFilenameFromArgs(args);
 
     if(!headless)
     {
@@ -388,8 +388,20 @@ std::optional<std::string> getFirstReplayFilenameFromArgs(
             window->setGameState(mg->getGame());
         };
 
-        const auto gotoGameReplay = [&](const hg::replay_file& replayFile)
+        const auto gotoGameCompressedReplay =
+            [&](const hg::compressed_replay_file& compressedReplayFile)
         {
+            std::optional<hg::replay_file> replayFileOpt =
+                hg::decompress_replay_file(compressedReplayFile);
+
+            if(!replayFileOpt.has_value())
+            {
+                std::cerr << "Could not decompress replay file\n";
+                return;
+            }
+
+            hg::replay_file& replayFile = replayFileOpt.value();
+
             hg.setLastReplay(replayFile);
 
             hg.newGame(replayFile._pack_id, replayFile._level_id,
@@ -399,7 +411,7 @@ std::optional<std::string> getFirstReplayFilenameFromArgs(
             window->setGameState(hg.getGame());
         };
 
-        if(!replayFilename.has_value())
+        if(!compressedReplayFilename.has_value())
         {
             if(cliLevelPack.has_value() && cliLevelName.has_value())
             {
@@ -414,17 +426,18 @@ std::optional<std::string> getFirstReplayFilenameFromArgs(
         }
         else
         {
-            if(hg::replay_file rf; rf.deserialize_from_file(*replayFilename))
+            if(hg::compressed_replay_file crf;
+                crf.deserialize_from_file(*compressedReplayFilename))
             {
-                ssvu::lo("Replay")
-                    << "Playing replay file '" << *replayFilename << "'\n";
+                ssvu::lo("Replay") << "Playing compressed replay file '"
+                                   << *compressedReplayFilename << "'\n";
 
-                gotoGameReplay(rf);
+                gotoGameCompressedReplay(crf);
             }
             else
             {
-                ssvu::lo("Replay") << "Failed to read replay file '"
-                                   << replayFilename.value() << "'\n";
+                ssvu::lo("Replay") << "Failed to read compressed replay file '"
+                                   << compressedReplayFilename.value() << "'\n";
 
                 gotoMenu();
             }
@@ -435,22 +448,35 @@ std::optional<std::string> getFirstReplayFilenameFromArgs(
         SSVOH_ASSERT(headless);
 
         // TODO (P2): code repetition, cleanup
-        if(!replayFilename.has_value())
+        if(!compressedReplayFilename.has_value())
         {
             std::cout << "Running in headless mode without replay...?\n";
             return 1;
         }
 
-        if(hg::replay_file rf; rf.deserialize_from_file(*replayFilename))
+        if(hg::compressed_replay_file crf;
+            crf.deserialize_from_file(*compressedReplayFilename))
         {
-            ssvu::lo("Replay") << "Playing replay file in headless mode '"
-                               << *replayFilename << "'\n";
+            std::optional<hg::replay_file> replayFileOpt =
+                hg::decompress_replay_file(crf);
+
+            if(!replayFileOpt.has_value())
+            {
+                std::cerr << "Could not decompress replay file\n";
+                return 1;
+            }
+
+            hg::replay_file& replayFile = replayFileOpt.value();
+
+            ssvu::lo("Replay")
+                << "Playing compressed replay file in headless mode '"
+                << *compressedReplayFilename << "'\n";
 
             // TODO (P2): check level validity
 
             std::cout << "Player died.\nFinal time: "
                       << hg.runReplayUntilDeathAndGetScore(
-                               rf, 1 /* maxProcessingSeconds */)
+                               replayFile, 1 /* maxProcessingSeconds */)
                              .value()
                              .playedTimeSeconds
                       << '\n';
@@ -458,8 +484,8 @@ std::optional<std::string> getFirstReplayFilenameFromArgs(
         else
         {
             ssvu::lo("Replay")
-                << "Failed to read replay file in headless mode '"
-                << replayFilename.value() << "'\n";
+                << "Failed to read compressed replay file in headless mode '"
+                << compressedReplayFilename.value() << "'\n";
         }
     }
 

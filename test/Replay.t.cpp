@@ -162,6 +162,42 @@ static void test_replay_file_serialization_to_buffer()
     TEST_ASSERT_NS_EQ(rf_out, rf);
 }
 
+void test_impl_file_serialization(hg::replay_file& rf)
+{
+    TEST_ASSERT(rf.serialize_to_file("test.ohr"));
+
+    hg::replay_file rf_out;
+    TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
+
+    TEST_ASSERT_NS_EQ(rf_out, rf);
+}
+
+void test_impl_packet_serialization(hg::replay_file& rf)
+{
+    sf::Packet p;
+    TEST_ASSERT(rf.serialize_to_packet(p));
+
+    hg::replay_file rf_out;
+    TEST_ASSERT(rf_out.deserialize_from_packet(p));
+
+    TEST_ASSERT_NS_EQ(rf_out, rf);
+}
+
+void test_impl_file_compressed_serialization(hg::replay_file& rf)
+{
+    std::optional<hg::compressed_replay_file> crf =
+        hg::compress_replay_file(rf);
+
+    TEST_ASSERT(crf.value().serialize_to_file("test.ohr"));
+
+    hg::compressed_replay_file crf_out;
+    TEST_ASSERT(crf_out.deserialize_from_file("test.ohr"));
+
+    std::optional<hg::replay_file> rf_out = hg::decompress_replay_file(crf_out);
+
+    TEST_ASSERT_NS_EQ(rf_out.value(), rf);
+}
+
 static void test_replay_file_serialization_to_file()
 {
     hg::replay_data rd;
@@ -187,25 +223,9 @@ static void test_replay_file_serialization_to_file()
         //
     };
 
-    {
-        TEST_ASSERT(rf.serialize_to_file("test.ohr"));
-
-        hg::replay_file rf_out;
-        TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
-
-        TEST_ASSERT_NS_EQ(rf_out, rf);
-    }
-
-    {
-        sf::Packet p;
-
-        TEST_ASSERT(rf.serialize_to_packet(p));
-
-        hg::replay_file rf_out;
-        TEST_ASSERT(rf_out.deserialize_from_packet(p));
-
-        TEST_ASSERT_NS_EQ(rf_out, rf);
-    }
+    test_impl_file_serialization(rf);
+    test_impl_packet_serialization(rf);
+    test_impl_file_compressed_serialization(rf);
 }
 
 static void test_replay_file_serialization_to_file_randomized(
@@ -232,25 +252,9 @@ static void test_replay_file_serialization_to_file_randomized(
         //
     };
 
-    {
-        TEST_ASSERT(rf.serialize_to_file("test.ohr"));
-
-        hg::replay_file rf_out;
-        TEST_ASSERT(rf_out.deserialize_from_file("test.ohr"));
-
-        TEST_ASSERT_NS_EQ(rf_out, rf);
-    }
-
-    {
-        sf::Packet p;
-
-        TEST_ASSERT(rf.serialize_to_packet(p));
-
-        hg::replay_file rf_out;
-        TEST_ASSERT(rf_out.deserialize_from_packet(p));
-
-        TEST_ASSERT_NS_EQ(rf_out, rf);
-    }
+    test_impl_file_serialization(rf);
+    test_impl_packet_serialization(rf);
+    test_impl_file_compressed_serialization(rf);
 }
 
 int main()

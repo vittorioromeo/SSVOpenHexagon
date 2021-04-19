@@ -11,14 +11,15 @@
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/Packet.hpp>
 
-#include <list>
-#include <cstdint>
 #include <chrono>
-#include <sstream>
-#include <optional>
-#include <vector>
-#include <variant>
+#include <cstdint>
 #include <deque>
+#include <list>
+#include <optional>
+#include <sstream>
+#include <unordered_set>
+#include <variant>
+#include <vector>
 
 namespace hg::Steam {
 
@@ -29,6 +30,7 @@ class steam_manager;
 namespace hg {
 
 struct replay_file;
+struct compressed_replay_file;
 
 class HexagonClient
 {
@@ -109,6 +111,8 @@ private:
 
     std::deque<Event> _events;
 
+    std::unordered_set<std::string> _levelValidatorsUnsupportedByServer;
+
     [[nodiscard]] bool initializeTicketSteamID();
     [[nodiscard]] bool initializeTcpSocket();
 
@@ -138,6 +142,9 @@ private:
         const sf::Uint64 loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendStartedGame(
         const sf::Uint64 loginToken, const std::string& levelValidator);
+    [[nodiscard]] bool sendCompressedReplay(const sf::Uint64 loginToken,
+        const std::string& levelValidator,
+        const compressed_replay_file& compressedReplayFile);
 
     [[nodiscard]] bool sendPacketRecursive(const int tries, sf::Packet& p);
     [[nodiscard]] bool recvPacketRecursive(const int tries, sf::Packet& p);
@@ -179,6 +186,8 @@ public:
     bool tryRequestOwnScore(const std::string& levelValidator);
     bool tryRequestTopScoresAndOwnScore(const std::string& levelValidator);
     bool trySendStartedGame(const std::string& levelValidator);
+    bool trySendCompressedReplay(const std::string& levelValidator,
+        const compressed_replay_file& compressedReplayFile);
 
     [[nodiscard]] State getState() const noexcept;
     [[nodiscard]] bool hasRTKeys() const noexcept;
