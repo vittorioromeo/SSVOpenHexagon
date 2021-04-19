@@ -134,8 +134,6 @@ private:
         const std::uint64_t steamId, const std::string& passwordHash);
     [[nodiscard]] bool sendRequestTopScores(
         const sf::Uint64 loginToken, const std::string& levelValidator);
-    [[nodiscard]] bool sendReplay(
-        const sf::Uint64 loginToken, const replay_file& replayFile);
     [[nodiscard]] bool sendRequestOwnScore(
         const sf::Uint64 loginToken, const std::string& levelValidator);
     [[nodiscard]] bool sendRequestTopScoresAndOwnScore(
@@ -182,7 +180,6 @@ public:
     bool tryLogoutFromServer();
     bool tryDeleteAccount(const std::string& password);
     bool tryRequestTopScores(const std::string& levelValidator);
-    bool trySendReplay(const replay_file& replayFile);
     bool tryRequestOwnScore(const std::string& levelValidator);
     bool tryRequestTopScoresAndOwnScore(const std::string& levelValidator);
     bool trySendStartedGame(const std::string& levelValidator);
