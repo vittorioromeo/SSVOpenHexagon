@@ -560,9 +560,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         {
             lastPlayedScore = tempReplayScore;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wbraced-scalar-init"
-
             activeReplay.emplace(replay_file{
                 ._version{0},
 
@@ -577,8 +574,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
                 ._difficulty_mult{mDifficultyMult},
                 ._played_score{lastPlayedScore},
             });
-
-#pragma GCC diagnostic pop
         }
 
         activeReplay->replayPlayer.reset();
@@ -851,16 +846,28 @@ void HexagonGame::death(bool mForce)
             nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
     }
 
-    const bool localNewBest =
-        checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
+    if(levelData->unscored)
+    {
+        ssvu::lo("Replay") << "Not creating replay for unscored level\n";
+    }
+    else
+    {
+        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+        death_sendAndSaveReplay();
+    }
 
+    if(Config::getAutoRestart())
+    {
+        status.mustStateChange = StateChange::MustRestart;
+    }
+}
+
+void HexagonGame::death_sendAndSaveReplay()
+{
     // TODO (P2): for testing
     const std::string rfName = assets.anyLocalProfileActive()
                                    ? assets.getCurrentLocalProfile().getName()
                                    : "no_profile";
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wbraced-scalar-init"
 
     const replay_file rf{
         ._version{0},
@@ -874,58 +881,81 @@ void HexagonGame::death(bool mForce)
         ._played_score{getReplayScore(status)},
     };
 
-#pragma GCC diagnostic pop
-
     if(onReplayCreated)
     {
         onReplayCreated(rf);
     }
 
-    if(!levelData->unscored && hexagonClient != nullptr &&
-        hexagonClient->getState() == HexagonClient::State::LoggedIn &&
-        Config::getOfficial())
-    {
-        ssvu::lo("Replay") << "Sending replay to server...\n";
+    const std::optional<compressed_replay_file> crfOpt =
+        compress_replay_file(rf);
 
-        if(!hexagonClient->trySendReplay(rf))
-        {
-            ssvu::lo("Replay") << "Could not send replay to server\n";
-        }
-        else
-        {
-            steamManager->unlock_achievement("a24_onlinescore");
-        }
+    if(!crfOpt.has_value())
+    {
+        ssvu::lo("Replay") << "Failed to compress replay, will not save to "
+                              "file or send to server\n";
+
+        return;
     }
 
-    // TODO (P2): more options? Always save replay? Prompt?
-    if(!levelData->unscored && Config::getSaveLocalBestReplayToFile() &&
-        localNewBest)
+    const compressed_replay_file& crf = crfOpt.value();
+
+    if(const std::string levelValidator =
+            Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
+        !death_sendReplay(levelValidator, crf))
     {
-        const std::string filename = rf.create_filename();
-
-        std::filesystem::create_directory("Replays/");
-
-        std::filesystem::path p;
-        p /= "Replays/";
-        p /= filename;
-
-        if(rf.serialize_to_file(p))
-        {
-            ssvu::lo("Replay")
-                << "Successfully saved new local best replay file '" << p
-                << "'\n";
-        }
-        else
-        {
-            ssvu::lo("Replay")
-                << "Failed to save new local best replay file '" << p << "'\n";
-        }
+        ssvu::lo("Replay") << "Failure sending replay\n";
     }
 
-    if(Config::getAutoRestart())
+    if(const std::string filename = Utils::concat(rf.create_filename(), ".gz");
+        !death_saveReplay(filename, crf))
     {
-        status.mustStateChange = StateChange::MustRestart;
+        ssvu::lo("Replay") << "Failure saving replay\n";
     }
+}
+
+[[nodiscard]] bool HexagonGame::death_sendReplay(
+    const std::string& levelValidator, const compressed_replay_file& crf)
+{
+    if(hexagonClient == nullptr ||
+        hexagonClient->getState() != HexagonClient::State::LoggedIn ||
+        !Config::getOfficial())
+    {
+        return false;
+    }
+
+    ssvu::lo("Replay") << "Sending compressed replay to server...\n";
+
+    if(!hexagonClient->trySendCompressedReplay(levelValidator, crf))
+    {
+        ssvu::lo("Replay") << "Could not send compressed replay to server\n";
+        return false;
+    }
+
+    steamManager->unlock_achievement("a24_onlinescore");
+    return true;
+}
+
+[[nodiscard]] bool HexagonGame::death_saveReplay(
+    const std::string& filename, const compressed_replay_file& crf)
+{
+    std::filesystem::create_directory("Replays/");
+
+    std::filesystem::path p;
+    p /= "Replays/";
+    p /= filename;
+
+    if(!crf.serialize_to_file(p))
+    {
+        ssvu::lo("Replay") << "Failed to save new compressed replay file '" << p
+                           << "'\n";
+
+        return false;
+    }
+
+    ssvu::lo("Replay") << "Successfully saved new compressed replay file '" << p
+                       << "'\n";
+
+    return true;
 }
 
 [[nodiscard]] std::optional<HexagonGame::GameExecutionResult>

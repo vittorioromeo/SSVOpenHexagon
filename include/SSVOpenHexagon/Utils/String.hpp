@@ -63,4 +63,18 @@ inline void uppercasify(std::string& s)
     return s;
 }
 
+inline void lowercasify(std::string& s)
+{
+    for(auto& c : s)
+    {
+        c = std::tolower(c);
+    }
+}
+
+[[nodiscard]] inline std::string toLowercase(std::string s)
+{
+    lowercasify(s);
+    return s;
+}
+
 } // namespace hg::Utils
