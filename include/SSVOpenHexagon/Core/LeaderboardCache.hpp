@@ -24,7 +24,6 @@ public:
 private:
     struct CachedScores
     {
-        bool _supported{true};
         std::vector<Database::ProcessedScore> _scores;
         std::optional<Database::ProcessedScore> _ownScore;
         TimePoint _cacheTime;
@@ -38,8 +37,6 @@ public:
 
     void receivedOwnScore(const std::string& levelValidator,
         const Database::ProcessedScore& score);
-
-    void receivedScoresUnsupported(const std::string& levelValidator);
 
     void requestedScores(const std::string& levelValidator);
 

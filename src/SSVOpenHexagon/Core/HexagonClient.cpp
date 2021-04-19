@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
@@ -365,6 +366,29 @@ template <typename T>
     );
 }
 
+[[nodiscard]] bool HexagonClient::sendRequestServerStatus(
+    const sf::Uint64 loginToken)
+{
+    SSVOH_CLOG_VERBOSE << "Sending status request to server...\n";
+
+    return sendEncrypted( //
+        CTSPRequestServerStatus{
+            .loginToken = loginToken, //
+        }                             //
+    );
+}
+
+[[nodiscard]] bool HexagonClient::sendReady(const sf::Uint64 loginToken)
+{
+    SSVOH_CLOG_VERBOSE << "Sending ready to server...\n";
+
+    return sendEncrypted( //
+        CTSPReady{
+            .loginToken = loginToken, //
+        }                             //
+    );
+}
+
 bool HexagonClient::connect()
 {
     _state = State::Connecting;
@@ -465,12 +489,14 @@ void HexagonClient::disconnect()
 
     _socket.setBlocking(true);
 
-    if(_state == State::LoggedIn && _ticketSteamID.has_value())
+    if((_state == State::LoggedIn || _state == State::LoggedIn_Ready) &&
+        _ticketSteamID.has_value())
     {
         (void)sendLogout(*_ticketSteamID);
     }
 
-    if(_state == State::Connected || _state == State::LoggedIn)
+    if(_state == State::Connected || _state == State::LoggedIn ||
+        _state == State::LoggedIn_Ready)
     {
         (void)sendDisconnect();
     }
@@ -630,8 +656,8 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
 
             _state = State::LoggedIn;
 
-            addEvent(ELoginSuccess{});
-            return true;
+            SSVOH_ASSERT(_loginToken.has_value());
+            return sendRequestServerStatus(_loginToken.value());
         },
 
         [&](const STCPLoginFailure& stcp)
@@ -718,23 +744,28 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             return true;
         },
 
-        [&](const STCPLevelScoresUnsupported& stcp)
+        [&](const STCPServerStatus& stcp)
         {
-            SSVOH_CLOG
-                << "Received scores unsupported from server, levelValidator: '"
-                << stcp.levelValidator << "'\n";
+            SSVOH_CLOG << "Received server status from server\n";
 
-            const auto [it, added] =
-                _levelValidatorsUnsupportedByServer.emplace(
-                    stcp.levelValidator);
+            const auto& [serverGameVersion, supportedLevelValidatorsVector] =
+                stcp;
 
-            if(added)
+            if(serverGameVersion != GAME_VERSION)
             {
-                addEvent(EReceivedLevelScoresUnsupported{
-                    .levelValidator = stcp.levelValidator});
+                addEvent(EVersionMismatch{});
+                return true;
             }
 
-            return true;
+            _levelValidatorsSupportedByServer.insert(
+                supportedLevelValidatorsVector.begin(),
+                supportedLevelValidatorsVector.end());
+
+            _state = State::LoggedIn_Ready;
+            addEvent(ELoginSuccess{});
+
+            SSVOH_ASSERT(_loginToken.has_value());
+            return sendReady(_loginToken.value());
         }
 
         //
@@ -816,7 +847,7 @@ bool HexagonClient::tryLogin(
 
 bool HexagonClient::tryLogoutFromServer()
 {
-    if(!connectedAndInState(State::LoggedIn))
+    if(!connectedAndInAnyState(State::LoggedIn, State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -842,7 +873,7 @@ bool HexagonClient::tryDeleteAccount(const std::string& password)
 
 bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
 {
-    if(!connectedAndInState(State::LoggedIn))
+    if(!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -854,12 +885,12 @@ bool HexagonClient::tryRequestTopScores(const std::string& levelValidator)
 bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator,
     const compressed_replay_file& compressedReplayFile)
 {
-    if(!connectedAndInState(State::LoggedIn))
+    if(!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
 
-    if(_levelValidatorsUnsupportedByServer.contains(levelValidator))
+    if(!isLevelSupportedByServer(levelValidator))
     {
         SSVOH_CLOG_VERBOSE << "Not sending compressed replay for level '"
                            << levelValidator << "', unsupported by server\n";
@@ -874,7 +905,7 @@ bool HexagonClient::trySendCompressedReplay(const std::string& levelValidator,
 
 bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
 {
-    if(!connectedAndInState(State::LoggedIn))
+    if(!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -886,7 +917,7 @@ bool HexagonClient::tryRequestOwnScore(const std::string& levelValidator)
 bool HexagonClient::tryRequestTopScoresAndOwnScore(
     const std::string& levelValidator)
 {
-    if(!connectedAndInState(State::LoggedIn))
+    if(!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -897,7 +928,7 @@ bool HexagonClient::tryRequestTopScoresAndOwnScore(
 
 bool HexagonClient::trySendStartedGame(const std::string& levelValidator)
 {
-    if(!connectedAndInState(State::LoggedIn))
+    if(!connectedAndInState(State::LoggedIn_Ready))
     {
         return fail();
     }
@@ -933,6 +964,12 @@ void HexagonClient::addEvent(const Event& e)
     return _socketConnected && _state == s;
 }
 
+[[nodiscard]] bool HexagonClient::connectedAndInAnyState(
+    const State s0, const State s1) const noexcept
+{
+    return _socketConnected && (_state == s0 || _state == s1);
+}
+
 [[nodiscard]] std::optional<HexagonClient::Event> HexagonClient::pollEvent()
 {
     if(_events.empty())
@@ -942,6 +979,12 @@ void HexagonClient::addEvent(const Event& e)
 
     HG_SCOPE_GUARD({ _events.pop_front(); });
     return {_events.front()};
+}
+
+[[nodiscard]] bool HexagonClient::isLevelSupportedByServer(
+    const std::string& levelValidator) const noexcept
+{
+    return _levelValidatorsSupportedByServer.contains(levelValidator);
 }
 
 } // namespace hg

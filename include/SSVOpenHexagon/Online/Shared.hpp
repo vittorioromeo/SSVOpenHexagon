@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
 
 #include <vrm/pp/tpl.hpp>
 
@@ -69,6 +70,8 @@ struct CTSPRequestOwnScore             { sf::Uint64 loginToken; std::string leve
 struct CTSPRequestTopScoresAndOwnScore { sf::Uint64 loginToken; std::string levelValidator; };
 struct CTSPStartedGame                 { sf::Uint64 loginToken; std::string levelValidator; };
 struct CTSPCompressedReplay            { sf::Uint64 loginToken; compressed_replay_file compressedReplayFile; };
+struct CTSPRequestServerStatus         { sf::Uint64 loginToken; };
+struct CTSPReady                       { sf::Uint64 loginToken; };
 // clang-format on
 
 #define SSVOH_CTS_PACKETS                                         \
@@ -76,7 +79,7 @@ struct CTSPCompressedReplay            { sf::Uint64 loginToken; compressed_repla
         CTSPRegister, CTSPLogin, CTSPLogout, CTSPDeleteAccount,   \
         CTSPRequestTopScores, CTSPReplay, CTSPRequestOwnScore,    \
         CTSPRequestTopScoresAndOwnScore, CTSPStartedGame,         \
-        CTSPCompressedReplay)
+        CTSPCompressedReplay, CTSPRequestServerStatus, CTSPReady)
 
 using PVClientToServer = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_CTS_PACKETS)>;
@@ -110,7 +113,7 @@ struct STCPDeleteAccountFailure   { std::string error; };
 struct STCPTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
 struct STCPOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
 struct STCPTopScoresAndOwnScore   { std::string levelValidator; std::vector<Database::ProcessedScore> scores; std::optional<Database::ProcessedScore> ownScore; };
-struct STCPLevelScoresUnsupported { std::string levelValidator; };
+struct STCPServerStatus           { GameVersion gameVersion; std::vector<std::string> supportedLevelValidators; };
 // clang-format on
 
 #define SSVOH_STC_PACKETS                                               \
@@ -118,7 +121,7 @@ struct STCPLevelScoresUnsupported { std::string levelValidator; };
         STCPRegistrationFailure, STCPLoginSuccess, STCPLoginFailure,    \
         STCPLogoutSuccess, STCPLogoutFailure, STCPDeleteAccountSuccess, \
         STCPDeleteAccountFailure, STCPTopScores, STCPOwnScore,          \
-        STCPTopScoresAndOwnScore, STCPLevelScoresUnsupported)
+        STCPTopScoresAndOwnScore, STCPServerStatus)
 
 using PVServerToClient = std::variant<PInvalid, PEncryptedMsg,
     VRM_PP_TPL_EXPLODE(SSVOH_STC_PACKETS)>;
@@ -137,3 +140,5 @@ template <typename T>
     sf::Packet& p);
 
 } // namespace hg
+
+// TODO (P0): leaderboards article on /r/gamedev

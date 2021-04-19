@@ -392,11 +392,11 @@ void HexagonGame::start()
         }
 
         if(hexagonClient != nullptr &&
-            hexagonClient->getState() == HexagonClient::State::LoggedIn &&
+            hexagonClient->getState() == HexagonClient::State::LoggedIn_Ready &&
             Config::getOfficial())
         {
             hexagonClient->trySendStartedGame(
-                Utils::getLevelValidator(levelData->id, difficultyMult));
+                levelData->getValidator(difficultyMult));
         }
     }
     else
