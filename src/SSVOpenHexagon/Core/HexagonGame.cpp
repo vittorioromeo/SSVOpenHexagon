@@ -774,8 +774,7 @@ void HexagonGame::death(bool mForce)
         !levelStatus.tutorialMode && !inReplay() &&
         assets.anyLocalProfileActive() &&
         (status.getTimeSeconds() >
-            assets.getLocalScore(
-                Utils::getLevelValidator(levelData->id, difficultyMult)));
+            assets.getLocalScore(levelData->getValidator(difficultyMult)));
 
     if(isPersonalBest)
     {
@@ -828,8 +827,7 @@ void HexagonGame::death(bool mForce)
     else
     {
         pbStr += "PB: " +
-                 timeFormat(assets.getLocalScore(
-                     Utils::getLevelValidator(levelData->id, difficultyMult))) +
+                 timeFormat(assets.getLocalScore(levelData->getValidator(difficultyMult))) +
                  "s)";
     }
 #endif
@@ -917,7 +915,7 @@ void HexagonGame::death_sendAndSaveReplay()
     const std::string& levelValidator, const compressed_replay_file& crf)
 {
     if(hexagonClient == nullptr ||
-        hexagonClient->getState() != HexagonClient::State::LoggedIn ||
+        hexagonClient->getState() != HexagonClient::State::LoggedIn_Ready ||
         !Config::getOfficial())
     {
         return false;
@@ -1074,8 +1072,8 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
 
     // Local score
     {
-        std::string localValidator{
-            Utils::getLevelValidator(levelData->id, difficultyMult)};
+        const std::string& localValidator =
+            levelData->getValidator(difficultyMult);
 
         if(assets.getLocalScore(localValidator) < score)
         {

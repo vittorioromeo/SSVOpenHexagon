@@ -6,6 +6,7 @@
 
 #include <string>
 #include <set>
+#include <unordered_map>
 
 namespace Json {
 class Value;
@@ -32,11 +33,15 @@ struct LevelData
     std::string soundId;
     std::string styleId;
     std::string luaScriptPath;
-    std::set<float> difficultyMults;
+    std::vector<float> difficultyMults;
     bool unscored;
+    std::unordered_map<float, std::string> validators;
 
     LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
         const std::string& mPackId);
+
+    [[nodiscard]] const std::string& getValidator(const float diffMult) const;
+    [[nodiscard]] float getNthDiffMult(int index) const noexcept;
 };
 
 } // namespace hg

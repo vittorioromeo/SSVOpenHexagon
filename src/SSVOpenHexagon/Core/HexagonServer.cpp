@@ -7,6 +7,7 @@
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
@@ -20,6 +21,8 @@
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Network.hpp>
+
+#include <boost/pfr.hpp>
 
 #include <chrono>
 #include <csignal>
@@ -229,13 +232,15 @@ template <typename T>
     );
 }
 
-[[nodiscard]] bool HexagonServer::sendLevelScoresUnsupported(
-    ConnectedClient& c, const std::string& levelValidator)
+[[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient& c,
+    const GameVersion& gameVersion,
+    const std::vector<std::string> supportedLevelValidators)
 {
     return sendEncrypted(c, //
-        STCPLevelScoresUnsupported{
-            .levelValidator = levelValidator //
-        }                                    //
+        STCPServerStatus{
+            .gameVersion = gameVersion,                          //
+            .supportedLevelValidators = supportedLevelValidators //
+        }                                                        //
     );
 }
 
@@ -677,17 +682,90 @@ void HexagonServer::runIteration_PurgeTokens()
     return true;
 }
 
+template <typename T>
+void HexagonServer::printCTSPDataVerbose(
+    ConnectedClient& c, const char* title, const T& ctsp)
+{
+    if(!_verbose)
+    {
+        return;
+    }
+
+    const auto stringify = []<typename U>(const U& field) -> decltype(auto)
+    {
+        if constexpr(std::is_same_v<U, SodiumPublicKeyArray>)
+        {
+            return sodiumKeyToString(field);
+        }
+        else if constexpr(std::is_same_v<U, replay_file>)
+        {
+            return "<REPLAY_FILE>";
+        }
+        else if constexpr(std::is_same_v<U, compressed_replay_file>)
+        {
+            return "<COMPRESSED_REPLAY_FILE>";
+        }
+        else if constexpr(std::is_same_v<U, std::string>)
+        {
+            return field;
+        }
+        else
+        {
+            return std::to_string(field);
+        }
+    };
+
+    auto& stream = SSVOH_SLOG;
+
+    const void* clientAddr = static_cast<void*>(&c);
+
+    stream << "Received '" << title << "' packet from client '" << clientAddr
+           << "', contents: {";
+
+    constexpr std::size_t nFields = boost::pfr::tuple_size_v<T>;
+    if constexpr(nFields > 0)
+    {
+        std::size_t i = 0;
+        boost::pfr::for_each_field(ctsp,
+            [&](const auto& field)
+            {
+                stream << stringify(field);
+
+                if(i != nFields - 1)
+                {
+                    stream << ", ";
+                }
+
+                ++i;
+            });
+    }
+
+    stream << "}\n";
+}
+
 [[nodiscard]] bool HexagonServer::processPacket(
     ConnectedClient& c, sf::Packet& p)
 {
     const void* clientAddr = static_cast<void*>(&c);
-
 
     constexpr int topScoresLimit = 6;
 
     _errorOss.str("");
     const PVClientToServer pv = decodeClientToServerPacket(
         c._rtKeys.has_value() ? &c._rtKeys->keyReceive : nullptr, _errorOss, p);
+
+    const auto checkState = [&](const ConnectedClient::State state)
+    {
+        if(c._state != state)
+        {
+            SSVOH_SLOG_VERBOSE << "Invalid client state, expected '"
+                               << static_cast<int>(state) << "'\n";
+
+            return false;
+        }
+
+        return true;
+    };
 
     return Utils::match(
         pv,
@@ -707,8 +785,10 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPHeartbeat&) { return true; },
 
-        [&](const CTSPDisconnect&)
+        [&](const CTSPDisconnect& ctsp)
         {
+            printCTSPDataVerbose(c, "disconnect", ctsp);
+
             c._mustDisconnect = true;
             c._state = ConnectedClient::State::Disconnected;
             return true;
@@ -716,8 +796,7 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPPublicKey& ctsp)
         {
-            SSVOH_SLOG << "Received public key packet from client '"
-                       << clientAddr << "'\n";
+            printCTSPDataVerbose(c, "public key", ctsp);
 
             if(c._clientPublicKey.has_value())
             {
@@ -762,11 +841,9 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPRegister& ctsp)
         {
-            const auto& [steamId, name, passwordHash] = ctsp;
+            printCTSPDataVerbose(c, "register", ctsp);
 
-            SSVOH_SLOG << "Received register packet from client '" << clientAddr
-                       << "'\nContents: '" << steamId << ", " << name << ", "
-                       << passwordHash << "'\n";
+            const auto& [steamId, name, passwordHash] = ctsp;
 
             const auto sendFail = [&](const auto&... xs)
             {
@@ -775,6 +852,11 @@ void HexagonServer::runIteration_PurgeTokens()
                 SSVOH_SLOG << errorStr << '\n';
                 return sendRegistrationFailure(c, errorStr);
             };
+
+            if(!checkState(ConnectedClient::State::Connected))
+            {
+                return sendFail("Client not in connected state");
+            }
 
             if(name.size() > 32)
             {
@@ -807,11 +889,9 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPLogin& ctsp)
         {
-            const auto& [steamId, name, passwordHash] = ctsp;
+            printCTSPDataVerbose(c, "login", ctsp);
 
-            SSVOH_SLOG << "Received login packet from client '" << clientAddr
-                       << "'\nContents: '" << steamId << ", " << name << ", "
-                       << passwordHash << "'\n";
+            const auto& [steamId, name, passwordHash] = ctsp;
 
             const auto sendFail = [&](const auto&... xs)
             {
@@ -820,6 +900,11 @@ void HexagonServer::runIteration_PurgeTokens()
                 SSVOH_SLOG << errorStr << '\n';
                 return sendLoginFailure(c, errorStr);
             };
+
+            if(!checkState(ConnectedClient::State::Connected))
+            {
+                return sendFail("Client not in connected state");
+            }
 
             if(name.size() > 32)
             {
@@ -885,8 +970,17 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPLogout& ctsp)
         {
-            SSVOH_SLOG << "Received logout packet from client '" << clientAddr
-                       << "'\nContents: '" << ctsp.steamId << "'\n";
+            printCTSPDataVerbose(c, "logout", ctsp);
+
+            if(c._state != ConnectedClient::State::LoggedIn ||
+                c._state != ConnectedClient::State::LoggedIn_Ready)
+            {
+                SSVOH_SLOG_VERBOSE
+                    << "Invalid client state, expected 'logged in' or "
+                       "'ready'\n";
+
+                return true;
+            }
 
             const std::optional<Database::User> user =
                 Database::getUserWithSteamId(ctsp.steamId);
@@ -909,11 +1003,14 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPDeleteAccount& ctsp)
         {
+            printCTSPDataVerbose(c, "delete account", ctsp);
+
             const auto& [steamId, passwordHash] = ctsp;
 
-            SSVOH_SLOG << "Received delete account packet from client '"
-                       << clientAddr << "'\nContents: '" << steamId << ", "
-                       << passwordHash << "'\n";
+            if(!checkState(ConnectedClient::State::Connected))
+            {
+                return true;
+            }
 
             const auto sendFail = [&](const auto&... xs)
             {
@@ -954,14 +1051,17 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPRequestTopScores& ctsp)
         {
-            if(!validateLogin(c, "top scores", ctsp.loginToken))
+            printCTSPDataVerbose(c, "request top scores", ctsp);
+
+            if(!checkState(ConnectedClient::State::LoggedIn_Ready) ||
+                !validateLogin(c, "top scores", ctsp.loginToken))
             {
                 return true;
             }
 
             if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
             {
-                return sendLevelScoresUnsupported(c, ctsp.levelValidator);
+                return true;
             }
 
             const std::string& lv = ctsp.levelValidator;
@@ -975,20 +1075,30 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPReplay& ctsp)
         {
+            printCTSPDataVerbose(c, "replay", ctsp);
+
+            if(!checkState(ConnectedClient::State::LoggedIn_Ready))
+            {
+                return true;
+            }
+
             const auto& [loginToken, rf] = ctsp;
             return processReplay(c, loginToken, rf);
         },
 
         [&](const CTSPRequestOwnScore& ctsp)
         {
-            if(!validateLogin(c, "own score", ctsp.loginToken))
+            printCTSPDataVerbose(c, "request own score", ctsp);
+
+            if(!checkState(ConnectedClient::State::LoggedIn_Ready) ||
+                !validateLogin(c, "own score", ctsp.loginToken))
             {
                 return true;
             }
 
             if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
             {
-                return sendLevelScoresUnsupported(c, ctsp.levelValidator);
+                return true;
             }
 
             const std::optional<Database::ProcessedScore> ps =
@@ -1007,14 +1117,17 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPRequestTopScoresAndOwnScore& ctsp)
         {
-            if(!validateLogin(c, "top scores and own scores", ctsp.loginToken))
+            printCTSPDataVerbose(c, "request top scores and own score", ctsp);
+
+            if(!checkState(ConnectedClient::State::LoggedIn_Ready) ||
+                !validateLogin(c, "top scores and own scores", ctsp.loginToken))
             {
                 return true;
             }
 
             if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
             {
-                return sendLevelScoresUnsupported(c, ctsp.levelValidator);
+                return true;
             }
 
             const std::string& lv = ctsp.levelValidator;
@@ -1030,7 +1143,10 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPStartedGame& ctsp)
         {
-            if(!validateLogin(c, "started game", ctsp.loginToken))
+            printCTSPDataVerbose(c, "started game", ctsp);
+
+            if(!checkState(ConnectedClient::State::LoggedIn_Ready) ||
+                !validateLogin(c, "started game", ctsp.loginToken))
             {
                 return true;
             }
@@ -1050,6 +1166,13 @@ void HexagonServer::runIteration_PurgeTokens()
 
         [&](const CTSPCompressedReplay& ctsp)
         {
+            printCTSPDataVerbose(c, "compressed replay", ctsp);
+
+            if(!checkState(ConnectedClient::State::LoggedIn_Ready))
+            {
+                return true;
+            }
+
             const auto& [loginToken, crf] = ctsp;
 
             const std::optional<replay_file> rfOpt =
@@ -1065,6 +1188,34 @@ void HexagonServer::runIteration_PurgeTokens()
             }
 
             return processReplay(c, loginToken, rfOpt.value());
+        },
+
+        [&](const CTSPRequestServerStatus& ctsp)
+        {
+            printCTSPDataVerbose(c, "request server status", ctsp);
+
+            if(!checkState(ConnectedClient::State::LoggedIn) ||
+                !validateLogin(c, "request server status", ctsp.loginToken))
+            {
+                return true;
+            }
+
+            return sendServerStatus(
+                c, GAME_VERSION, _supportedLevelValidatorsVector);
+        },
+
+        [&](const CTSPReady& ctsp)
+        {
+            printCTSPDataVerbose(c, "ready", ctsp);
+
+            if(!checkState(ConnectedClient::State::LoggedIn) ||
+                !validateLogin(c, "ready", ctsp.loginToken))
+            {
+                return true;
+            }
+
+            c._state = ConnectedClient::State::LoggedIn_Ready;
+            return true;
         }
 
         //
@@ -1078,9 +1229,14 @@ makeSupportedLevelValidators(HGAssets& assets)
 
     for(const auto& [assetId, ld] : assets.getLevelDatas())
     {
+        if(ld.unscored)
+        {
+            continue;
+        }
+
         for(const float dm : ld.difficultyMults)
         {
-            result.emplace(Utils::getLevelValidator(assetId, dm));
+            result.emplace(ld.getValidator(dm));
         }
     }
 
@@ -1093,6 +1249,8 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
     : _assets{assets},
       _hexagonGame{hexagonGame},
       _supportedLevelValidators{makeSupportedLevelValidators(assets)},
+      _supportedLevelValidatorsVector{
+          _supportedLevelValidators.begin(), _supportedLevelValidators.end()},
       _serverIp{serverIp},
       _serverPort{serverPort},
       _serverControlPort{serverControlPort},

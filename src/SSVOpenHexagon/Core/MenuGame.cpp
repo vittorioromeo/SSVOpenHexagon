@@ -211,6 +211,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       txtSelectionMedium{.font{"", imagine, 24}},
       txtSelectionSmall{.font{"", imagine, 16}},
       txtSelectionScore{.font{"", imagine, 32}},
+      txtSelectionRanked{.font{"", imagine, 12}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -1463,7 +1464,9 @@ void MenuGame::initMenus()
 
     auto whenLoggedIn = [this]
     {
-        return hexagonClient.getState() == HexagonClient::State::LoggedIn &&
+        return (hexagonClient.getState() == HexagonClient::State::LoggedIn ||
+                   hexagonClient.getState() ==
+                       HexagonClient::State::LoggedIn_Ready) &&
                hexagonClient.hasRTKeys();
     };
 
@@ -2258,7 +2261,7 @@ void MenuGame::playSelectedLevel()
             getNthSelectablePackInfo(lvlDrawer->packIdx).id,      //
             lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex), //
             true /* firstPlay */,                                 //
-            ssvu::getByModIdx(diffMults, diffMultIdx),            //
+            levelData->getNthDiffMult(diffMultIdx),               //
             false /* executeLastReplay */                         //
         );
     }
@@ -2500,8 +2503,10 @@ void MenuGame::update(ssvu::FT mFT)
             [&](const HexagonClient::EReceivedOwnScore& e)
             { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); },
 
-            [&](const HexagonClient::EReceivedLevelScoresUnsupported& e)
-            { leaderboardCache->receivedScoresUnsupported(e.levelValidator); }
+            [&](const HexagonClient::EVersionMismatch&) {
+                showHCEventDialogBox(
+                    true /* error */, "CLIENT/SERVER VERSION MISMATCH");
+            }
 
             //
         );
@@ -2910,14 +2915,14 @@ void MenuGame::setIndex(const int mIdx)
     // Set color of the fonts.
     txtSelectionBig.font.setFillColor(menuQuadColor);
     txtSelectionSmall.font.setFillColor(menuQuadColor);
+    txtSelectionRanked.font.setFillColor(menuQuadColor);
     txtInstructionsSmall.font.setFillColor(menuQuadColor);
     txtSelectionScore.font.setFillColor(menuQuadColor);
 
     // Set gameplay values
-    diffMults = std::vector<float>(
-        levelData->difficultyMults.begin(), levelData->difficultyMults.end());
-
-    diffMultIdx = ssvu::idxOf(diffMults, 1);
+    diffMultIdx = 0;
+    for(; levelData->difficultyMults.at(diffMultIdx) != 1.f; ++diffMultIdx)
+    {}
 
     try
     {
@@ -3068,20 +3073,22 @@ void MenuGame::refreshCamera()
         txtMenuBig.font.setCharacterSize(33);
         txtMenuSmall.font.setCharacterSize(20);
         txtSelectionSmall.font.setCharacterSize(16);
+        txtSelectionRanked.font.setCharacterSize(12);
     }
     else
     {
         txtMenuBig.font.setCharacterSize(45);
         txtMenuSmall.font.setCharacterSize(30);
         txtSelectionSmall.font.setCharacterSize(16);
+        txtSelectionRanked.font.setCharacterSize(12);
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
-    for(auto f :
-        {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig, &txtMenuSmall,
-            &txtInstructionsBig, &txtRandomTip, &txtInstructionsMedium,
-            &txtInstructionsSmall, &txtEnteringText, &txtSelectionBig,
-            &txtSelectionMedium, &txtSelectionSmall, &txtSelectionScore})
+    for(auto f : {&txtProf, &txtLoadBig, &txtLoadSmall, &txtMenuBig,
+            &txtMenuSmall, &txtInstructionsBig, &txtRandomTip,
+            &txtInstructionsMedium, &txtInstructionsSmall, &txtEnteringText,
+            &txtSelectionBig, &txtSelectionMedium, &txtSelectionSmall,
+            &txtSelectionScore, &txtSelectionRanked})
     {
         f->updateHeight();
     }
@@ -3126,11 +3133,13 @@ void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
 void MenuGame::renderText(const std::string& mStr, sf::Text& mText,
     const unsigned int mSize, const sf::Vector2f& mPos, const sf::Color& mColor)
 {
+    const auto prevSize = mText.getCharacterSize();
     mText.setCharacterSize(mSize);
     const sf::Color prevColor = mText.getFillColor();
     mText.setFillColor(mColor);
     renderText(mStr, mText, mPos);
     mText.setFillColor(prevColor);
+    mText.setCharacterSize(prevSize);
 }
 
 // Text rendering centered
@@ -4902,6 +4911,33 @@ void MenuGame::drawLevelSelectionRightSide(
 
         const sf::Color c0 = mouseOverlapColor(mouseOverlap, menuQuadColor);
 
+        const auto currentDiffMult = levelData->getNthDiffMult(diffMultIdx);
+        const std::string& levelValidator =
+            levelData->getValidator(currentDiffMult);
+
+        if(!levelData->unscored &&
+            hexagonClient.isLevelSupportedByServer(levelValidator))
+        {
+            const float padding = 5.f;
+            const float width = 50.f;
+
+            menuQuads.clear();
+            menuQuads.reserve(4);
+
+            createQuad(menuQuadColor, w - width - padding, w,
+                height - textToQuadBorder,
+                height - textToQuadBorder + txtSelectionRanked.height +
+                    padding);
+
+            render(menuQuads);
+
+            renderText("RANKED", txtSelectionRanked.font,
+                {w - width, height -
+                                txtSelectionRanked.height * fontHeightOffset -
+                                5.5f},
+                mouseOverlapColor(mouseOverlap, c));
+        }
+
         renderText(tempString, txtSelectionBig.font,
             {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
 
@@ -5165,9 +5201,8 @@ void MenuGame::drawLevelSelectionLeftSide(
         {textXPos, difficultyHeight}, menuQuadColor);
 
     tempString =
-        diffMults.size() > 1
-            ? "< " + ssvu::toStr(ssvu::getByModIdx(diffMults, diffMultIdx)) +
-                  " >"
+        levelData.difficultyMults.size() > 1
+            ? "< " + ssvu::toStr(levelData.getNthDiffMult(diffMultIdx)) + " >"
             : "NONE";
 
     const float difficultyBumpFactor =
@@ -5327,7 +5362,7 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     height += txtSelectionMedium.height + textToQuadBorder;
 
-    const auto currentDiffMult = ssvu::getByModIdx(diffMults, diffMultIdx);
+    const auto currentDiffMult = levelData.getNthDiffMult(diffMultIdx);
 
     if(levelData.unscored)
     {
@@ -5337,8 +5372,8 @@ void MenuGame::drawLevelSelectionLeftSide(
     }
     else
     {
-        const std::string localLevelValidator =
-            Utils::getLevelValidator(levelData.id, currentDiffMult);
+        const std::string& localLevelValidator =
+            levelData.getValidator(currentDiffMult);
 
         tempString = localLevelValidator;
         renderText(
@@ -5369,15 +5404,11 @@ void MenuGame::drawLevelSelectionLeftSide(
 
     height += txtSelectionSmall.height;
 
-    SSVOH_ASSERT(lvlDrawer != nullptr);
-    const std::string& levelId =
-        lvlDrawer->levelDataIds->at(lvlDrawer->currentIndex);
-
-    const std::string levelValidator =
-        Utils::getLevelValidator(levelId, currentDiffMult);
+    const std::string& levelValidator = levelData.getValidator(currentDiffMult);
 
     if(!levelData.unscored &&
-        hexagonClient.getState() == HexagonClient::State::LoggedIn &&
+        hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready &&
+        hexagonClient.isLevelSupportedByServer(levelValidator) &&
         leaderboardCache->shouldRequestScores(levelValidator))
     {
         hexagonClient.tryRequestTopScoresAndOwnScore(levelValidator);
@@ -5393,7 +5424,14 @@ void MenuGame::drawLevelSelectionLeftSide(
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }
-    else if(hexagonClient.getState() != HexagonClient::State::LoggedIn)
+    else if(!hexagonClient.isLevelSupportedByServer(levelValidator))
+    {
+        renderText("THIS LEVEL IS NOT SUPPORTED BY THE SERVER",
+            txtSelectionSmall.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionSmall.height * fontHeightOffset});
+    }
+    else if(hexagonClient.getState() != HexagonClient::State::LoggedIn_Ready)
     {
         renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
@@ -5405,20 +5443,13 @@ void MenuGame::drawLevelSelectionLeftSide(
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }
-    else if(gotScoreInfo && !leaderboardCache->getSupported(levelValidator))
-    {
-        renderText("THIS LEVEL IS NOT SUPPORTED BY THE SERVER",
-            txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
-    }
     else
     {
         SSVOH_ASSERT(!levelData.unscored);
         SSVOH_ASSERT(gotScoreInfo);
-        SSVOH_ASSERT(leaderboardCache->getSupported(levelValidator));
+        SSVOH_ASSERT(hexagonClient.isLevelSupportedByServer(levelValidator));
         SSVOH_ASSERT(
-            hexagonClient.getState() == HexagonClient::State::LoggedIn);
+            hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready);
 
         const auto serializeTimePoint =
             [](const auto& time, const std::string& format)
@@ -5824,7 +5855,8 @@ void MenuGame::drawOnlineStatus()
                 }
             }
 
-            case HexagonClient::State::LoggedIn:
+            case HexagonClient::State::LoggedIn: [[fallthrough]];
+            case HexagonClient::State::LoggedIn_Ready:
             {
                 return {
                     true, "LOGGED IN AS " +

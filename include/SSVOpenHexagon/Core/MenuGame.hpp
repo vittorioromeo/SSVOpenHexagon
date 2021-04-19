@@ -247,6 +247,7 @@ private:
     MenuFont txtSelectionMedium;
     MenuFont txtSelectionSmall;
     MenuFont txtSelectionScore;
+    MenuFont txtSelectionRanked;
     sf::Color menuTextColor;
     sf::Color menuQuadColor;
     sf::Color menuSelectionColor;
@@ -405,7 +406,6 @@ private:
     [[nodiscard]] const PackInfo& getNthSelectablePackInfo(const std::size_t i);
 
     int diffMultIdx{0};
-    std::vector<float> diffMults;
     bool firstLevelSelection{true};
     PackChange packChangeState{PackChange::Rest};
     float namesScroll[static_cast<int>(Label::ScrollsSize)]{0};
@@ -553,6 +553,8 @@ private:
     void showInputDialogBox(const std::string& msg);
     void showInputDialogBoxNice(const std::string& title,
         const std::string& inputType, const std::string& extra = "");
+
+
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,

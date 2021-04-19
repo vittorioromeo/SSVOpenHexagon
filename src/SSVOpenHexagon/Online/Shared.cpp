@@ -140,7 +140,7 @@ struct Extractor
     {
         bool result = true;
 
-        if constexpr(boost::pfr::tuple_size_v < T >> 0)
+        if constexpr((boost::pfr::tuple_size_v<T>) > 0)
         {
             boost::pfr::for_each_field(target,
                 [&](auto& nestedField)
@@ -286,6 +286,43 @@ struct Extractor<hg::compressed_replay_file>
             errorOss << "Error deserializing compressed replay\n";
             return false;
         }
+
+        return true;
+    }
+};
+
+template <>
+struct Extractor<hg::GameVersion>
+{
+    using Type = hg::GameVersion;
+
+    [[nodiscard]] static bool doExtractInto(
+        Type& result, std::ostringstream& errorOss, sf::Packet& p)
+    {
+        sf::Int32 major;
+        if(!(p >> major))
+        {
+            errorOss << "Error deserializing major version\n";
+            return false;
+        }
+
+        sf::Int32 minor;
+        if(!(p >> minor))
+        {
+            errorOss << "Error deserializing minor version\n";
+            return false;
+        }
+
+        sf::Int32 micro;
+        if(!(p >> micro))
+        {
+            errorOss << "Error deserializing micro version\n";
+            return false;
+        }
+
+        result.major = major;
+        result.minor = minor;
+        result.micro = micro;
 
         return true;
     }
@@ -485,6 +522,14 @@ void encodeField(
 }
 
 template <typename TData>
+void encodeField(sf::Packet& p, const TData& data, const hg::GameVersion& gv)
+{
+    (void)data;
+    p << static_cast<sf::Int32>(gv.major) << static_cast<sf::Int32>(gv.minor)
+      << static_cast<sf::Int32>(gv.micro);
+}
+
+template <typename TData>
 void encodeField(
     sf::Packet& p, const TData& data, const Impl::CiphertextVectorPtr& field)
 {
@@ -676,7 +721,7 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
     {
         bool success = true;
 
-        if constexpr(boost::pfr::tuple_size_v < T >> 0)
+        if constexpr((boost::pfr::tuple_size_v<T>) > 0)
         {
             boost::pfr::for_each_field(target,
                 [&](auto& field, std::size_t i)
