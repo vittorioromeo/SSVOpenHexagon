@@ -806,7 +806,7 @@ void setServerControlPort(unsigned short mX)
 
 [[nodiscard]] bool get3D()
 {
-    return _3DEnabled();
+    return getOfficial() ? true : _3DEnabled();
 }
 
 [[nodiscard]] float get3DMultiplier()
