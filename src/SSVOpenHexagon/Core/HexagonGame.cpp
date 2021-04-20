@@ -774,7 +774,8 @@ void HexagonGame::death(bool mForce)
         !levelStatus.tutorialMode && !inReplay() &&
         assets.anyLocalProfileActive() &&
         (status.getTimeSeconds() >
-            assets.getLocalScore(levelData->getValidator(difficultyMult)));
+            assets.getLocalScore(
+                levelData->getValidatorWithoutPackId(difficultyMult)));
 
     if(isPersonalBest)
     {
@@ -827,7 +828,7 @@ void HexagonGame::death(bool mForce)
     else
     {
         pbStr += "PB: " +
-                 timeFormat(assets.getLocalScore(levelData->getValidator(difficultyMult))) +
+                 timeFormat(assets.getLocalScore(levelData->getValidatorWithoutPackId(difficultyMult))) +
                  "s)";
     }
 #endif
@@ -843,6 +844,8 @@ void HexagonGame::death(bool mForce)
         discordManager->set_rich_presence_in_game(
             nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
     }
+
+    checkAndSaveScore();
 
     if(levelData->unscored)
     {
@@ -1073,7 +1076,7 @@ HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
     // Local score
     {
         const std::string& localValidator =
-            levelData->getValidator(difficultyMult);
+            levelData->getValidatorWithoutPackId(difficultyMult);
 
         if(assets.getLocalScore(localValidator) < score)
         {
