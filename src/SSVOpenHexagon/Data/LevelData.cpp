@@ -40,14 +40,9 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
     {
         validators[dm] =
             Utils::getLevelValidator(Utils::concat(packId, '_', id), dm);
-    }
-}
 
-[[nodiscard]] const std::string& LevelData::getValidator(
-    const float diffMult) const
-{
-    SSVOH_ASSERT(validators.find(diffMult) != validators.end());
-    return validators.at(diffMult);
+        validatorsWithoutPackId[dm] = Utils::getLevelValidator(id, dm);
+    }
 }
 
 [[nodiscard]] float LevelData::getNthDiffMult(int index) const noexcept
@@ -63,6 +58,21 @@ LevelData::LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
     }
 
     return difficultyMults.at(index);
+}
+
+[[nodiscard]] const std::string& LevelData::getValidator(
+    const float diffMult) const
+{
+    SSVOH_ASSERT(validators.find(diffMult) != validators.end());
+    return validators.at(diffMult);
+}
+
+[[nodiscard]] const std::string& LevelData::getValidatorWithoutPackId(
+    const float diffMult) const
+{
+    SSVOH_ASSERT(validatorsWithoutPackId.find(diffMult) !=
+                 validatorsWithoutPackId.end());
+    return validatorsWithoutPackId.at(diffMult);
 }
 
 } // namespace hg

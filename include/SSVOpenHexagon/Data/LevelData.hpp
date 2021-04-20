@@ -36,11 +36,16 @@ struct LevelData
     std::vector<float> difficultyMults;
     bool unscored;
     std::unordered_map<float, std::string> validators;
+    std::unordered_map<float, std::string> validatorsWithoutPackId;
 
     LevelData(const ssvuj::Obj& mRoot, const std::string& mPackPath,
         const std::string& mPackId);
 
     [[nodiscard]] const std::string& getValidator(const float diffMult) const;
+
+    [[nodiscard]] const std::string& getValidatorWithoutPackId(
+        const float diffMult) const;
+
     [[nodiscard]] float getNthDiffMult(int index) const noexcept;
 };
 

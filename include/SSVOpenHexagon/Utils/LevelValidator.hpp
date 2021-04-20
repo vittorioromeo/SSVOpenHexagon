@@ -9,6 +9,6 @@
 namespace hg::Utils {
 
 [[nodiscard]] std::string getLevelValidator(
-    const std::string& levelId, float diffMult);
+    const std::string& levelId, const float diffMult);
 
 } // namespace hg::Utils

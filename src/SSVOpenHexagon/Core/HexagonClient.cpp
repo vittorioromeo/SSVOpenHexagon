@@ -754,6 +754,7 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
             if(serverGameVersion != GAME_VERSION)
             {
                 addEvent(EVersionMismatch{});
+                disconnect();
                 return true;
             }
 
