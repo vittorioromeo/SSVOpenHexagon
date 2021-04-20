@@ -1298,7 +1298,8 @@ void MenuGame::initMenus()
 
     auto& visfx(optionsMenu.createCategory("visual fxs"));
     gfx.create<i::Goto>("visual fxs", visfx);
-    visfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
+    visfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D) |
+        whenNotOfficial;
     visfx.create<i::Toggle>(
         "no rotation", &Config::getNoRotation, &Config::setNoRotation) |
         whenNotOfficial;
@@ -5425,16 +5426,16 @@ void MenuGame::drawLevelSelectionLeftSide(
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }
+    else if(hexagonClient.getState() != HexagonClient::State::LoggedIn_Ready)
+    {
+        renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionSmall.height * fontHeightOffset});
+    }
     else if(!hexagonClient.isLevelSupportedByServer(levelValidator))
     {
         renderText("THIS LEVEL IS NOT SUPPORTED BY THE SERVER",
             txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
-    }
-    else if(hexagonClient.getState() != HexagonClient::State::LoggedIn_Ready)
-    {
-        renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }

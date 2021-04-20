@@ -142,3 +142,6 @@ template <typename T>
 } // namespace hg
 
 // TODO (P0): leaderboards article on /r/gamedev
+// - fast math issue
+// - rng advance for graphical things
+// - check devlogs
