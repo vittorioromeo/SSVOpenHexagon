@@ -5373,9 +5373,10 @@ void MenuGame::drawLevelSelectionLeftSide(
     else
     {
         const std::string& localLevelValidator =
-            levelData.getValidator(currentDiffMult);
+            levelData.getValidatorWithoutPackId(currentDiffMult);
 
         tempString = localLevelValidator;
+        // TODO (P0): bugged, look at profile. it doesnt have pack id
         renderText(
             ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) +
                 "s",
