@@ -343,11 +343,7 @@ private:
         Ineligible,
         Invalid,
         Local_NewBest,
-        Local_NoNewBest,
-        Online_LessThan8Secs,
-        Online_ConnectionError,
-        Online_VersionMismatch,
-        Online_Sent
+        Local_NoNewBest
     };
 
     // Level/menu loading/unloading/changing
