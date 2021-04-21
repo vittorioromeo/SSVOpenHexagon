@@ -55,11 +55,18 @@ set_target_properties(sfml-network PROPERTIES UNITY_BUILD ON)
 # CPM: luajit
 # -----------------------------------------------------------------------------
 
+# TODO (P2): revisit this decision about FFI
+set(LUAJIT_DISABLE_FFI true)
+set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
+
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/WohlSoft/LuaJIT
     GIT_TAG 73e6a59d6add696be9b5ca3cc61ac6ae6710e5bf
 )
+
+set(LUAJIT_DISABLE_FFI true)
+set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 
 #
 #

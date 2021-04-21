@@ -217,10 +217,9 @@ void HexagonGame::update(ssvu::FT mFT)
                 levelStatus.rotationSpeed *= 0.99f;
             }
 
-            if(Config::get3D())
-            {
-                update3D(mFT);
-            }
+            // This is done even with 3D disabled as it's used to affect the RNG
+            // state for replay validation.
+            updatePulse3D(mFT);
 
             if(!Config::getNoRotation())
             {
@@ -277,18 +276,18 @@ void HexagonGame::update(ssvu::FT mFT)
                 executeLastReplay);
         }
 
-// TODO (P2): score invalidation
+// TODO (P2): score invalidation due to performance
 #if 0
         if(!status.scoreInvalid && Config::getOfficial())
         {
             invalidateScore("PERFORMANCE ISSUES");
         }
-        else if(!status.scoreInvalid && !Config::get3D() &&
-                levelStatus._3DRequired)
+#endif
+
+        if(!Config::get3D() && levelStatus._3DRequired)
         {
             invalidateScore("3D REQUIRED");
         }
-#endif
     }
 }
 
@@ -712,7 +711,7 @@ void HexagonGame::updateFlash(ssvu::FT mFT)
     }
 }
 
-void HexagonGame::update3D(ssvu::FT mFT)
+void HexagonGame::updatePulse3D(ssvu::FT mFT)
 {
     status.pulse3D += styleData._3dPulseSpeed * status.pulse3DDirection * mFT;
     if(status.pulse3D > styleData._3dPulseMax)

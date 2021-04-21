@@ -752,68 +752,31 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
 }
 
-void HexagonGame::death(bool mForce)
+void HexagonGame::death_shakeCamera()
 {
-    if(status.hasDied)
+    if(window == nullptr)
     {
         return;
     }
 
-    deathInputIgnore = 10.f;
+    SSVOH_ASSERT(overlayCamera.has_value());
+    SSVOH_ASSERT(backgroundCamera.has_value());
 
-    playSoundAbort(levelStatus.deathSound);
+    overlayCamera->setView(
+        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+            sf::Vector2f(Config::getWidth(), Config::getHeight())});
 
-    runLuaFunctionIfExists<void>("onPreDeath");
+    backgroundCamera->setCenter(ssvs::zeroVec2f);
 
-    if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
-    {
-        return;
-    }
+    Utils::shakeCamera(effectTimelineManager, *overlayCamera);
+    Utils::shakeCamera(effectTimelineManager, *backgroundCamera);
+}
 
-    const bool isPersonalBest =
-        !levelStatus.tutorialMode && !inReplay() &&
-        assets.anyLocalProfileActive() &&
-        (status.getTimeSeconds() >
-            assets.getLocalScore(
-                levelData->getValidatorWithoutPackId(difficultyMult)));
-
-    if(isPersonalBest)
-    {
-        pbText.setString("NEW PERSONAL BEST!");
-        mustSpawnPBParticles = true;
-
-        playSoundAbort("personalBest.ogg");
-    }
-    else
-    {
-        playSoundAbort("gameOver.ogg");
-    }
-
-    runLuaFunctionIfExists<void>("onDeath");
-
-    status.flashEffect = 255;
-
-    if(window != nullptr)
-    {
-        SSVOH_ASSERT(overlayCamera.has_value());
-        SSVOH_ASSERT(backgroundCamera.has_value());
-
-        overlayCamera->setView(
-            {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-                sf::Vector2f(Config::getWidth(), Config::getHeight())});
-
-        backgroundCamera->setCenter(ssvs::zeroVec2f);
-
-        Utils::shakeCamera(effectTimelineManager, *overlayCamera);
-        Utils::shakeCamera(effectTimelineManager, *backgroundCamera);
-    }
-
-    status.hasDied = true;
-    stopLevelMusic();
-
+void HexagonGame::death_updateRichPresence()
+{
     if(inReplay())
     {
-        // Do not save scores or update rich presence if watching a replay.
+        // Do not update rich presence if watching a replay.
         return;
     }
 
@@ -844,18 +807,74 @@ void HexagonGame::death(bool mForce)
         discordManager->set_rich_presence_in_game(
             nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
     }
+}
 
-    checkAndSaveScore();
+void HexagonGame::death_saveScore()
+{
+    SSVOH_ASSERT(shouldSaveScore());
+    SSVOH_ASSERT(!inReplay());
+    SSVOH_ASSERT(!levelData->unscored);
 
-    if(levelData->unscored)
+    ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+    death_sendAndSaveReplay();
+}
+
+void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
+{
+    const bool mustSaveScore = shouldSaveScore();
+
+    if(!mustSaveScore)
     {
-        ssvu::lo("Replay") << "Not creating replay for unscored level\n";
+        playSoundAbort("gameOver.ogg");
+        return;
     }
-    else
+
+    death_saveScore(); // Saves local best, local replay, and sends replay
+
+    const bool isPersonalBest =
+        (status.getTimeSeconds() >
+            assets.getLocalScore(
+                levelData->getValidatorWithoutPackId(difficultyMult)));
+
+    if(!isPersonalBest)
     {
-        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
-        death_sendAndSaveReplay();
+        playSoundAbort("gameOver.ogg");
+        return;
     }
+
+    pbText.setString("NEW PERSONAL BEST!");
+    mustSpawnPBParticles = true;
+
+    playSoundAbort("personalBest.ogg");
+}
+
+void HexagonGame::death(bool mForce)
+{
+    if(status.hasDied)
+    {
+        return;
+    }
+
+    deathInputIgnore = 10.f;
+
+    playSoundAbort(levelStatus.deathSound);
+
+    runLuaFunctionIfExists<void>("onPreDeath");
+
+    if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
+    {
+        return;
+    }
+
+    runLuaFunctionIfExists<void>("onDeath");
+    death_shakeCamera();
+    death_updateRichPresence();
+    stopLevelMusic();
+
+    status.flashEffect = 255;
+    status.hasDied = true;
+
+    death_saveScoreIfNeededAndShowPBEffects();
 
     if(Config::getAutoRestart())
     {
@@ -1043,55 +1062,68 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
     runLuaFunctionIfExists<void>("onIncrement");
 }
 
-HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
+[[nodiscard]] bool HexagonGame::shouldSaveScore()
 {
     // TODO (P2): for testing
     if(!assets.anyLocalProfileActive())
     {
-        return CheckSaveScoreResult::Invalid;
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+            << "No local profile active, rejecting\n";
+
+        return false;
     }
 
-    const float score = levelStatus.scoreOverridden
-                            ? lua.readVariable<float>(levelStatus.scoreOverride)
-                            : status.getTimeSeconds();
-
-    // These are requirements that need to be met for a score to be valid
     if(!Config::isEligibleForScore())
     {
-        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - not eligible - "
             << Config::getUneligibilityReason() << '\n';
 
-        return CheckSaveScoreResult::Ineligible;
+        return false;
     }
 
     if(status.scoreInvalid)
     {
-        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - score invalidated\n";
 
-        return CheckSaveScoreResult::Invalid;
+        return false;
     }
 
-    // Local score
+    if(levelStatus.tutorialMode)
     {
-        const std::string& localValidator =
-            levelData->getValidatorWithoutPackId(difficultyMult);
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+            << "Not saving score - in tutorial mode\n";
 
-        if(assets.getLocalScore(localValidator) < score)
-        {
-            assets.setLocalScore(localValidator, score);
-            assets.saveCurrentLocalProfile();
-
-            return CheckSaveScoreResult::Local_NewBest;
-        }
-
-        return CheckSaveScoreResult::Local_NoNewBest;
+        return false;
     }
 
-    SSVOH_ASSERT(false);
-    return CheckSaveScoreResult::Local_NoNewBest;
+    if(levelData->unscored)
+    {
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+            << "Not saving score - unscored level\n";
+
+        return false;
+    }
+
+    if(inReplay())
+    {
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+            << "Not saving score - currently in replay\n";
+
+        return false;
+    }
+
+    return true;
 }
+
+#if 0
+// TODO (P0): use?
+const double score =
+    levelStatus.scoreOverridden
+        ? lua.readVariable<double>(levelStatus.scoreOverride)
+        : status.getTimeSeconds();
+#endif
 
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
@@ -1119,9 +1151,9 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     calledDeprecatedFunctions.clear();
 
-    if(mSendScores && !status.hasDied && !mError && !inReplay())
+    if(shouldSaveScore())
     {
-        checkAndSaveScore();
+        death_saveScore(); // Saves local best, local replay, and sends replay
     }
 
     // Stop infinite feedback from occurring if the error is happening on
@@ -1273,8 +1305,14 @@ void HexagonGame::stopLevelMusic()
 
 void HexagonGame::invalidateScore(const std::string& mReason)
 {
+    if(status.scoreInvalid)
+    {
+        return;
+    }
+
     status.scoreInvalid = true;
     status.invalidReason = mReason;
+
     ssvu::lo("HexagonGame::invalidateScore")
         << "Invalidating official game (" << mReason << ")\n";
 }
