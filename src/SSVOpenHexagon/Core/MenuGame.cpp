@@ -1298,8 +1298,7 @@ void MenuGame::initMenus()
 
     auto& visfx(optionsMenu.createCategory("visual fxs"));
     gfx.create<i::Goto>("visual fxs", visfx);
-    visfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D) |
-        whenNotOfficial;
+    visfx.create<i::Toggle>("3D effects", &Config::get3D, &Config::set3D);
     visfx.create<i::Toggle>(
         "no rotation", &Config::getNoRotation, &Config::setNoRotation) |
         whenNotOfficial;
@@ -5377,7 +5376,6 @@ void MenuGame::drawLevelSelectionLeftSide(
             levelData.getValidatorWithoutPackId(currentDiffMult);
 
         tempString = localLevelValidator;
-        // TODO (P0): bugged, look at profile. it doesnt have pack id
         renderText(
             ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) +
                 "s",

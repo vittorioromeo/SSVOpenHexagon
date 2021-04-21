@@ -58,6 +58,12 @@ void LinkedValue<T>::resetToDefault()
     value = defValue;
 }
 
+template <typename T>
+[[nodiscard]] const T& LinkedValue<T>::getDefault() const noexcept
+{
+    return defValue;
+}
+
 template class LinkedValue<bool>;
 template class LinkedValue<int>;
 template class LinkedValue<float>;

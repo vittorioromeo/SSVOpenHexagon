@@ -238,7 +238,7 @@ static void resetBindsFromDefault()
 #undef X_LINKEDVALUES_BINDS_JOYSTICK
 
 float sizeX{1500}, sizeY{1500};
-constexpr float spawnDistance{1600};
+constexpr float defaultSpawnDistance{1600};
 std::string uneligibilityReason;
 
 static void applyAutoWindowedResolution()
@@ -337,6 +337,12 @@ bool isEligibleForScore()
         return false;
     }
 
+    if(getSpawnDistance() != defaultSpawnDistance)
+    {
+        uneligibilityReason = "spawn distance modified";
+        return false;
+    }
+
     if(getDebug())
     {
         uneligibilityReason = "debug mode on";
@@ -349,19 +355,19 @@ bool isEligibleForScore()
         return false;
     }
 
-    if(getPlayerSpeed() != 9.45f)
+    if(getPlayerSpeed() != playerSpeed().getDefault())
     {
         uneligibilityReason = "player speed modified";
         return false;
     }
 
-    if(getPlayerFocusSpeed() != 4.625f)
+    if(getPlayerFocusSpeed() != playerFocusSpeed().getDefault())
     {
         uneligibilityReason = "player focus speed modified";
         return false;
     }
 
-    if(getPlayerSize() != 7.3f)
+    if(getPlayerSize() != playerSize().getDefault())
     {
         uneligibilityReason = "player size modified";
         return false;
@@ -656,7 +662,7 @@ void setServerControlPort(unsigned short mX)
 
 [[nodiscard]] float getSpawnDistance()
 {
-    return spawnDistance;
+    return defaultSpawnDistance;
 }
 
 [[nodiscard]] float getZoomFactor()
@@ -671,32 +677,32 @@ void setServerControlPort(unsigned short mX)
 
 [[nodiscard]] float getPlayerSpeed()
 {
-    return getOfficial() ? 9.45f : playerSpeed();
+    return getOfficial() ? playerSpeed().getDefault() : playerSpeed();
 }
 
 [[nodiscard]] float getPlayerFocusSpeed()
 {
-    return getOfficial() ? 4.625f : playerFocusSpeed();
+    return getOfficial() ? playerFocusSpeed().getDefault() : playerFocusSpeed();
 }
 
 [[nodiscard]] float getPlayerSize()
 {
-    return getOfficial() ? 7.3f : playerSize();
+    return getOfficial() ? playerSize().getDefault() : playerSize();
 }
 
 [[nodiscard]] bool getNoRotation()
 {
-    return getOfficial() ? false : noRotation();
+    return getOfficial() ? noRotation().getDefault() : noRotation();
 }
 
 [[nodiscard]] bool getNoBackground()
 {
-    return getOfficial() ? false : noBackground();
+    return getOfficial() ? noBackground().getDefault() : noBackground();
 }
 
 [[nodiscard]] bool getBlackAndWhite()
 {
-    return getOfficial() ? false : blackAndWhite();
+    return getOfficial() ? blackAndWhite().getDefault() : blackAndWhite();
 }
 
 [[nodiscard]] bool getNoSound()
@@ -731,7 +737,7 @@ void setServerControlPort(unsigned short mX)
 
 [[nodiscard]] bool getAutoZoomFactor()
 {
-    return getOfficial() ? true : autoZoomFactor();
+    return getOfficial() ? autoZoomFactor().getDefault() : autoZoomFactor();
 }
 
 [[nodiscard]] bool getFullscreen()
@@ -786,27 +792,27 @@ void setServerControlPort(unsigned short mX)
 
 [[nodiscard]] bool getDebug()
 {
-    return getOfficial() ? false : debug();
+    return getOfficial() ? debug().getDefault() : debug();
 }
 
 [[nodiscard]] bool getPulse()
 {
-    return getOfficial() ? true : pulseEnabled();
+    return getOfficial() ? pulseEnabled().getDefault() : pulseEnabled();
 }
 
 [[nodiscard]] bool getBeatPulse()
 {
-    return getOfficial() ? true : beatPulse();
+    return getOfficial() ? beatPulse().getDefault() : beatPulse();
 }
 
 [[nodiscard]] bool getInvincible()
 {
-    return getOfficial() ? false : invincible();
+    return getOfficial() ? invincible().getDefault() : invincible();
 }
 
 [[nodiscard]] bool get3D()
 {
-    return getOfficial() ? true : _3DEnabled();
+    return _3DEnabled();
 }
 
 [[nodiscard]] float get3DMultiplier()
@@ -891,7 +897,7 @@ void setServerControlPort(unsigned short mX)
 
 [[nodiscard]] float getTimescale()
 {
-    return getOfficial() ? 1.f : timescale();
+    return getOfficial() ? timescale().getDefault() : timescale();
 }
 
 [[nodiscard]] bool getShowKeyIcons()
@@ -916,12 +922,12 @@ void setServerControlPort(unsigned short mX)
 
 [[nodiscard]] bool getShowTimer()
 {
-    return getOfficial() ? true : showTimer();
+    return getOfficial() ? showTimer().getDefault() : showTimer();
 }
 
 [[nodiscard]] bool getShowStatusText()
 {
-    return getOfficial() ? true : showStatusText();
+    return getOfficial() ? showStatusText().getDefault() : showStatusText();
 }
 
 [[nodiscard]] const std::string& getServerIp()
