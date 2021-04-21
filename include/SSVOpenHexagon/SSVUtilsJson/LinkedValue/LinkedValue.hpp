@@ -34,6 +34,8 @@ public:
     void syncTo(Obj& mObj) const;
 
     void resetToDefault();
+
+    [[nodiscard]] const T& getDefault() const noexcept;
 };
 
 } // namespace ssvuj

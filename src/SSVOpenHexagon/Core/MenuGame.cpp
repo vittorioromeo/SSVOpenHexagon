@@ -5376,7 +5376,6 @@ void MenuGame::drawLevelSelectionLeftSide(
             levelData.getValidatorWithoutPackId(currentDiffMult);
 
         tempString = localLevelValidator;
-        // TODO (P0): bugged, look at profile. it doesnt have pack id
         renderText(
             ssvu::toStr(assets.getCurrentLocalProfile().getScore(tempString)) +
                 "s",
@@ -5425,16 +5424,16 @@ void MenuGame::drawLevelSelectionLeftSide(
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }
+    else if(hexagonClient.getState() != HexagonClient::State::LoggedIn_Ready)
+    {
+        renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
+            {textToQuadBorder - panelOffset,
+                height - txtSelectionSmall.height * fontHeightOffset});
+    }
     else if(!hexagonClient.isLevelSupportedByServer(levelValidator))
     {
         renderText("THIS LEVEL IS NOT SUPPORTED BY THE SERVER",
             txtSelectionSmall.font,
-            {textToQuadBorder - panelOffset,
-                height - txtSelectionSmall.height * fontHeightOffset});
-    }
-    else if(hexagonClient.getState() != HexagonClient::State::LoggedIn_Ready)
-    {
-        renderText("PLEASE LOG IN TO LOAD LEADERBOARD", txtSelectionSmall.font,
             {textToQuadBorder - panelOffset,
                 height - txtSelectionSmall.height * fontHeightOffset});
     }

@@ -301,7 +301,7 @@ private:
     void updateBeatPulse(ssvu::FT mFT);
     void updateRotation(ssvu::FT mFT);
     void updateFlash(ssvu::FT mFT);
-    void update3D(ssvu::FT mFT);
+    void updatePulse3D(ssvu::FT mFT);
     void updateText(ssvu::FT mFT);
     void updateKeyIcons();
     void updateLevelInfo();
@@ -338,20 +338,16 @@ private:
     void addMessage(std::string mMessage, double mDuration, bool mSoundToggle);
     void clearMessages();
 
-    enum class CheckSaveScoreResult
+    enum class CheckScore
     {
+        NoLocalProfile,
         Ineligible,
         Invalid,
-        Local_NewBest,
-        Local_NoNewBest,
-        Online_LessThan8Secs,
-        Online_ConnectionError,
-        Online_VersionMismatch,
-        Online_Sent
+        Valid,
     };
 
     // Level/menu loading/unloading/changing
-    CheckSaveScoreResult checkAndSaveScore();
+    [[nodiscard]] bool shouldSaveScore();
     void goToMenu(bool mSendScores = true, bool mError = false);
 
     void invalidateScore(const std::string& mReason);
@@ -393,7 +389,11 @@ public:
         bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
 
     void death(bool mForce = false);
+    void death_shakeCamera();
     void death_sendAndSaveReplay();
+    void death_updateRichPresence();
+    void death_saveScore();
+    void death_saveScoreIfNeededAndShowPBEffects();
     [[nodiscard]] bool death_sendReplay(
         const std::string& levelValidator, const compressed_replay_file& crf);
     [[nodiscard]] bool death_saveReplay(
