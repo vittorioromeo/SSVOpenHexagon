@@ -268,9 +268,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    game.onEvent(sf::Event::EventType::MouseMoved) += [this](const sf::Event&)
+    game.onEvent(sf::Event::EventType::MouseMoved) += [this](const sf::Event& e)
     {
-        if(window.hasFocus())
+        const sf::Vector2i mouseMoveVec = {e.mouseMove.x, e.mouseMove.y};
+        const sf::Vector2i mouseMoveDelta =
+            lastMouseMovedPosition - mouseMoveVec;
+
+        lastMouseMovedPosition = mouseMoveVec;
+
+        const bool actuallyMoved =
+            (mouseMoveDelta.x != 0) || (mouseMoveDelta.y != 0);
+
+        if(window.hasFocus() && actuallyMoved)
         {
             setMouseCursorVisible(true);
         }
