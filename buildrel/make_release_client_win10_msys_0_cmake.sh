@@ -14,4 +14,5 @@ cmake .. -G"MinGW Makefiles" \
          -DCMAKE_CXX_FLAGS="\
              -Wall -Wextra -Wpedantic -Wno-braced-scalar-init \
              -Wno-pragmas -Wno-missing-field-initializers \
-             -O3 -DNDEBUG"
+             -O3 -DNDEBUG\
+             -frounding-math -fsignaling-nans -ffloat-store -ffp-contract=off"
