@@ -563,6 +563,16 @@ HGAssets::getSelectablePackInfos() const noexcept
     return true;
 }
 
+void HGAssets::addLocalProfile(ProfileData&& profileData)
+{
+    // Remove invalid level ids that might have been added to the files.
+    Utils::erase_if(profileData.getFavoriteLevelIds(),
+        [this](const std::string& favId)
+        { return levelDatas.find(favId) == levelDatas.end(); });
+
+    profileDataMap.emplace(profileData.getName(), std::move(profileData));
+}
+
 [[nodiscard]] bool HGAssets::loadAllLocalProfiles()
 {
     if(!ssvufs::Path{"Profiles/"}.exists<ssvufs::Type::Folder>())
@@ -581,13 +591,7 @@ HGAssets::getSelectablePackInfos() const noexcept
         loadInfo.addFormattedError(error);
 
         ProfileData profileData{Utils::loadProfileFromJson(object)};
-
-        // Remove invalid level ids that might have been added to the files.
-        Utils::erase_if(profileData.getFavoriteLevelIds(),
-            [this](const std::string& favId)
-            { return levelDatas.find(favId) == levelDatas.end(); });
-
-        profileDataMap.emplace(profileData.getName(), std::move(profileData));
+        addLocalProfile(std::move(profileData));
     }
 
     return true;
@@ -1128,7 +1132,10 @@ void HGAssets::pSaveAll()
 
 void HGAssets::pSetCurrent(const std::string& mName)
 {
-    currentProfilePtr = &profileDataMap.find(mName)->second;
+    const auto it = profileDataMap.find(mName);
+
+    SSVOH_ASSERT(it != profileDataMap.end());
+    currentProfilePtr = &it->second;
 }
 
 void HGAssets::pCreate(const std::string& mName)
