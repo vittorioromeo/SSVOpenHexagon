@@ -52,3 +52,7 @@ jobs:
 
     - name: Run tests
       run: ninja -C build check
+      
+    - name: Check ldd
+      run: |
+        ldd build/test/test.Replay.t
