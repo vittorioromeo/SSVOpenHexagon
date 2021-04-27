@@ -5,9 +5,9 @@ set -e
 echo ""
 echo ""
 echo "--------------------------------------------------------------------"
-echo "| RUNNING CMAKE IN DEBUG MODE (MINGW MAKEFILES)                    |"
+echo "| RUNNING CMAKE IN DEBUG MODE (NINJA)                              |"
 echo "--------------------------------------------------------------------"
-cmake .. -G"MinGW Makefiles" \
+cmake .. -G"Ninja" \
          -DCMAKE_BUILD_TYPE=DEBUG \
          -DCMAKE_C_COMPILER="gcc" \
          -DCMAKE_CXX_COMPILER="g++" \
