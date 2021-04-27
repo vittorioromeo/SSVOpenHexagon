@@ -51,7 +51,10 @@ jobs:
         path: _RELEASE
 
     - name: Run tests
-      run: ninja -C build check
+      run: |
+        mkdir -p build/test
+        ln -s _RELEASE/Packs build/test/
+        ninja -C build check
       
     - name: Check ldd
       run: |
