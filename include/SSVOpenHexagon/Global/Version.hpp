@@ -35,6 +35,12 @@ struct GameVersion
         return (major == other.major) && (minor == other.minor) &&
                (micro == other.micro);
     }
+
+    [[nodiscard]] constexpr bool operator!=(
+        const GameVersion& other) const noexcept
+    {
+        return !(*this == other);
+    }
 };
 
 inline constexpr GameVersion GAME_VERSION{2, 0, 5};
