@@ -34,7 +34,7 @@ jobs:
     - name: CMake configure
       run: |
         cd build
-        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE -DSSVOH_HEADLESS_TESTS=1 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE -DSSVOH_HEADLESS_TESTS=1 ..
         
     - name: Build
       run: ninja -C build
