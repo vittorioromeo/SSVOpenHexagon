@@ -279,7 +279,7 @@ void HexagonServer::runIteration()
 {
     SSVOH_SLOG_VERBOSE << "Waiting for clients...\n";
 
-    if(_socketSelector.wait(sf::seconds(30)))
+    if(_socketSelector.wait(sf::seconds(1)))
     {
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
@@ -660,17 +660,22 @@ void HexagonServer::runIteration_PurgeTokens()
     const bool goodDifference = difference < 3.5;
     const bool goodRatio = ratio > 0.75 && ratio < 1.25;
 
-    SSVOH_SLOG << "Elapsed request time: " << elapsedSecs << '\n'
-               << "Difference: " << difference << '\n'
-               << "Ratio: " << ratio << '\n';
+    const auto printDifferenceAndRatio = [&]
+    {
+        SSVOH_SLOG << "Elapsed request time: " << elapsedSecs << '\n'
+                   << "Difference: " << difference << '\n'
+                   << "Ratio: " << ratio << '\n';
+    };
 
     if(!goodDifference)
     {
+        printDifferenceAndRatio();
         return discard("difference too large");
     }
 
     if(!goodRatio)
     {
+        printDifferenceAndRatio();
         return discard("bad ratio");
     }
 
