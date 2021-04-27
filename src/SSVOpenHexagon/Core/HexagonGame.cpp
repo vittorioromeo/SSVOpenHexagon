@@ -1353,14 +1353,19 @@ auto HexagonGame::getColorText() const -> sf::Color
 
 [[nodiscard]] float HexagonGame::getMusicDMSyncFactor() const
 {
-    return levelStatus.syncMusicToDM ? std::pow(difficultyMult, 0.12f) : 1.f;
+    return std::pow(difficultyMult, 0.12f);
+}
+
+[[nodiscard]] float HexagonGame::getOptionalMusicDMSyncFactor() const
+{
+    return levelStatus.syncMusicToDM ? getMusicDMSyncFactor() : 1.f;
 }
 
 void HexagonGame::refreshMusicPitch()
 {
     if(audio != nullptr)
     {
-        audio->setCurrentMusicPitch((getMusicDMSyncFactor()) *
+        audio->setCurrentMusicPitch(getOptionalMusicDMSyncFactor() *
                                     Config::getMusicSpeedMult() *
                                     levelStatus.musicPitch);
     }
