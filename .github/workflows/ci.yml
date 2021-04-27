@@ -26,10 +26,15 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y ninja-build libgl1-mesa-dev libgl-dev libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxcursor-dev
 
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ubuntu-20.04-RELEASE
+
     - name: CMake configure
       run: |
         cd build
-        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE -DSSVOH_HEADLESS_TESTS=1 ..
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE -DSSVOH_HEADLESS_TESTS=1 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
         
     - name: Build
       run: ninja -C build
@@ -52,11 +57,8 @@ jobs:
 
     - name: Run tests
       run: |
-        mkdir -p build/test
-        ls _RELEASE
-        ls _RELEASE/Packs
-        ln -s _RELEASE/Packs build/test/
-        ls build/test/
+        ln -s _RELEASE/Packs .
+        ln -s _RELEASE/Packs ./build
         ninja -C build check
       
     - name: Check ldd
