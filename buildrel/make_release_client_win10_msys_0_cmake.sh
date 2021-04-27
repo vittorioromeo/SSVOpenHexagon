@@ -8,6 +8,7 @@ echo "--------------------------------------------------------------------"
 echo "| RUNNING CMAKE IN RELEASE MODE (NINJA)                            |"
 echo "--------------------------------------------------------------------"
 cmake .. -G"Ninja" \
+         -DFORCE_COLORED_OUTPUT=1 \
          -DCMAKE_BUILD_TYPE=RELEASE \
          -DCMAKE_C_COMPILER="gcc" \
          -DCMAKE_CXX_COMPILER="g++" \

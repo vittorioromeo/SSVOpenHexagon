@@ -8,6 +8,7 @@ echo "--------------------------------------------------------------------"
 echo "| RUNNING CMAKE IN DEBUG MODE (NINJA)                              |"
 echo "--------------------------------------------------------------------"
 cmake .. -G"Ninja" \
+         -DFORCE_COLORED_OUTPUT=1 \
          -DCMAKE_BUILD_TYPE=DEBUG \
          -DCMAKE_C_COMPILER="gcc" \
          -DCMAKE_CXX_COMPILER="g++" \
