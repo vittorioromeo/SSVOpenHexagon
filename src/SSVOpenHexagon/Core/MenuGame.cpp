@@ -1525,7 +1525,6 @@ void MenuGame::initMenus()
         "LOGOUT", [this] { hexagonClient.tryLogoutFromServer(); }) |
         whenLoggedIn;
 
-
     online.create<i::Single>(
         "DISCONNECT", [this] { hexagonClient.disconnect(); }) |
         whenConnected;
@@ -5483,7 +5482,13 @@ void MenuGame::drawLevelSelectionLeftSide(
 
             const std::string posStr = Utils::concat('#', i + 1);
             std::string scoreStr = ssvu::toStr(score) + 's';
+
             std::string playerStr = userName;
+            if(playerStr.size() > 20)
+            {
+                playerStr.resize(17);
+                playerStr += "...";
+            }
 
             const float tx = textToQuadBorder - panelOffset;
             const float ty = height -
