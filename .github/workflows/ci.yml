@@ -58,9 +58,8 @@ jobs:
     - name: Run tests
       run: |
         mkdir -p build/test
-        ln -s _RELEASE/Packs .
-        ln -s _RELEASE/Packs build
-        ln -s _RELEASE/Packs build/test
+        ln -s _RELEASE/Packs /home/runner/work/SSVOpenHexagon/SSVOpenHexagon/build
+        ln -s _RELEASE/Packs /home/runner/work/SSVOpenHexagon/SSVOpenHexagon/build/test
         ninja -C build check
       
     - name: Check ldd
