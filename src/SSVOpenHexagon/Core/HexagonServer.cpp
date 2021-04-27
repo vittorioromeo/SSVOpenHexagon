@@ -759,7 +759,8 @@ void HexagonServer::printCTSPDataVerbose(
         if(c._state != state)
         {
             SSVOH_SLOG_VERBOSE << "Invalid client state, expected '"
-                               << static_cast<int>(state) << "'\n";
+                               << static_cast<int>(state) << "', state was '"
+                               << c._state << "''\n";
 
             return false;
         }
