@@ -1,5 +1,5 @@
 -- common variables
-THICKNESS = 40.0;
+THICKNESS = 40.0
 
 function enableSwapIfDMGreaterThan(mDM)
     if(u_getDifficultyMult() > mDM) then
@@ -95,8 +95,8 @@ end
 
 -- cWallEx: creates a wall with mExtra walls attached to it
 function cWallEx(mSide, mExtra)
-    cWall(mSide);
-    local exLoopDir = 1;
+    cWall(mSide)
+    local exLoopDir = 1
 
     if mExtra < 0 then exLoopDir = -1 end
     for i = 0, mExtra, exLoopDir do cWall(mSide + i) end

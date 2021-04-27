@@ -28,14 +28,33 @@
 #include <SSVUtils/Core/Log/Log.inl>
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
-#include <string>
-#include <optional>
-#include <vector>
-#include <filesystem>
-#include <string_view>
 #include <csignal>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
+#include <filesystem>
+#include <optional>
+#include <string_view>
+#include <string>
+#include <type_traits>
+#include <vector>
+
+//
+//
+// ----------------------------------------------------------------------------
+// Floating-point sanity checks
+// ----------------------------------------------------------------------------
+
+static_assert(std::numeric_limits<float>::is_iec559);
+static_assert(std::numeric_limits<float>::digits == 24);
+
+static_assert(std::numeric_limits<double>::is_iec559);
+static_assert(std::numeric_limits<double>::digits == 53);
+
+//
+//
+// ----------------------------------------------------------------------------
+// Utilities
+// ----------------------------------------------------------------------------
 
 namespace {
 
@@ -135,6 +154,12 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 
 } // namespace
 
+//
+//
+// ----------------------------------------------------------------------------
+// Server main entrypoint
+// ----------------------------------------------------------------------------
+
 [[nodiscard]] int mainServer()
 {
     hg::Steam::steam_manager steamManager;
@@ -164,6 +189,12 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     ssvu::lo("::mainServer") << "Finished\n";
     return 0;
 }
+
+//
+//
+// ----------------------------------------------------------------------------
+// Client main entrypoint
+// ----------------------------------------------------------------------------
 
 [[nodiscard]] int mainClient(const bool headless, const bool printLuaDocs,
     const std::vector<std::string>& args,
@@ -502,6 +533,12 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     ssvu::lo("::mainClient") << "Finished\n";
     return 0;
 }
+
+//
+//
+// ----------------------------------------------------------------------------
+// Program main entrypoint
+// ----------------------------------------------------------------------------
 
 int main(int argc, char* argv[])
 {

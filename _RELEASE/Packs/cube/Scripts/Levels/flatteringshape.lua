@@ -3,6 +3,20 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "utils.lua")
 u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "common.lua")
 u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.lua")
 
+preAdjustedThickness = 0
+
+function adjustThicknessForLowDM(mult)
+    preAdjustedThickness = THICKNESS
+
+    if u_getDifficultyMult() < 1 then
+        THICKNESS = THICKNESS * mult
+    end
+end
+
+function restoreThicknessForLowDM()
+    THICKNESS = preAdjustedThickness
+end
+
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
     if mKey == 1 and l_getSides() == 5 then
@@ -16,14 +30,23 @@ function addPattern(mKey)
     end
 
         if mKey == 0 then pAltBarrage(u_rndInt(2, 4), 2)
-    elseif mKey == 1 then pMirrorSpiral(u_rndInt(3, 6), 0)
+    elseif mKey == 1 then
+        adjustThicknessForLowDM(2)
+        pMirrorSpiral(u_rndInt(3, 6), 0)
+        restoreThicknessForLowDM()
     elseif mKey == 2 then pBarrageSpiral(u_rndInt(0, 3), 1, 1)
     elseif mKey == 3 then pBarrageSpiral(u_rndInt(0, 2), 1.2, 2)
     elseif mKey == 4 then pBarrageSpiral(2, 0.7, 1)
     elseif mKey == 5 then pInverseBarrage(0)
-    elseif mKey == 6 then pTunnel(u_rndInt(1, 3))
+    elseif mKey == 6 then
+        adjustThicknessForLowDM(2)
+        pTunnel(u_rndInt(1, 3))
+        restoreThicknessForLowDM()
     elseif mKey == 7 then pMirrorWallStrip(1, 0)
-    elseif mKey == 8 then pSpiral(l_getSides() * u_rndInt(1, 2), 0)
+    elseif mKey == 8 then
+        adjustThicknessForLowDM(2)
+        pSpiral(l_getSides() * u_rndInt(1, 2), 0)
+        restoreThicknessForLowDM()
     end
 end
 

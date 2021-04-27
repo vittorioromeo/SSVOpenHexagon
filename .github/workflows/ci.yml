@@ -10,30 +10,37 @@ jobs:
     runs-on: ubuntu-20.04
 
     env:
-      CXXFLAGS: -I/usr/local/include/SFML -std=c++2a
+      CXXFLAGS: -std=c++2a
       LDFLAGS: -L/usr/local/lib
 
     steps:
     - uses: actions/checkout@v1
       with:
         submodules: recursive
-
+        
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y ninja-build libsfml-dev libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxcursor-dev
+        sudo apt-get install -y ninja-build libgl1-mesa-dev libgl-dev libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxcursor-dev
+
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ubuntu-20.04-RELEASE
 
     - name: CMake configure
       run: |
         cd build
-        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE ..
+        export LD_RUN_PATH="/opt/gcc-latest/lib64"
+        cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE -DSSVOH_HEADLESS_TESTS=1 ..
+        
     - name: Build
       run: ninja -C build
 
     - name: Copy artifacts
       run: |
         cp build/SSVOpenHexagon build/OHWorkshopUploader _RELEASE
-        cp /usr/lib/x86_64-linux-gnu/libsfml-*.so _RELEASE
+        cp build/_deps/sfml-build/lib/libsfml-*.so _RELEASE
         mv _RELEASE/libsfml-audio.so _RELEASE/libsfml-audio.so.2.5
         mv _RELEASE/libsfml-graphics.so _RELEASE/libsfml-graphics.so.2.5
         mv _RELEASE/libsfml-network.so _RELEASE/libsfml-network.so.2.5
@@ -47,4 +54,13 @@ jobs:
         path: _RELEASE
 
     - name: Run tests
-      run: ninja -C build check
+      run: |
+        mkdir -p build/test
+        cp -R _RELEASE/Packs .
+        cp -R _RELEASE/Packs build
+        cp -R _RELEASE/Packs build/test
+        ninja -C build check
+      
+    - name: Check ldd
+      run: |
+        ldd build/test/test.Replay.t

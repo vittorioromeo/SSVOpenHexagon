@@ -5,7 +5,7 @@ set -e
 echo ""
 echo ""
 echo "--------------------------------------------------------------------"
-echo "| BUILDING WITH MAKE                                               |"
+echo "| BUILDING WITH NINJA                                              |"
 echo "--------------------------------------------------------------------"
-make -j8
-make check -j8
+ninja
+ninja check

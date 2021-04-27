@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 #include "TestUtils.hpp"
@@ -31,15 +32,18 @@ try
 
     hg::Config::loadConfig({});
 
-    auto assets = std::make_unique<hg::HGAssets>(
-        nullptr /* steamManager */, true /* headless */);
+    hg::HGAssets assets{nullptr /* steamManager */, true /* headless */};
+
+    hg::ProfileData fakeProfile{hg::GAME_VERSION, "testProfile", {}, {}};
+    assets.addLocalProfile(std::move(fakeProfile));
+    assets.pSetCurrent("testProfile");
 
     const auto doTest = [&](int i, bool differentHG, ssvs::GameWindow* gw)
     {
         hg::HexagonGame hg{
             nullptr /* steamManager */,   //
             nullptr /* discordManager */, //
-            *assets,                      //
+            assets,                       //
             nullptr /* audio */,          //
             gw,                           //
             nullptr /* client */          //
@@ -53,7 +57,6 @@ try
         {
             hg.alwaysSpinRight = true;
         }
-
 
         hg::replay_file rf;
 
@@ -73,11 +76,12 @@ try
         if(differentHG)
         {
             hg::HexagonGame hg2{
-                nullptr /* steamManager */,                //
-                nullptr /* discordManager */,              //
-                *assets,                                   //
-                nullptr /* audio */, nullptr /* window */, //
-                nullptr /* client */                       //
+                nullptr /* steamManager */,   //
+                nullptr /* discordManager */, //
+                assets,                       //
+                nullptr /* audio */,          //
+                nullptr /* window */,         //
+                nullptr /* client */          //
             };
 
             score2 = hg2.runReplayUntilDeathAndGetScore(
@@ -103,12 +107,14 @@ try
         doTest(i, true, nullptr);
     }
 
+#ifndef SSVOH_HEADLESS_TESTS
     ssvs::GameWindow gw;
     for(int i = 0; i < 25; ++i)
     {
         doTest(i, false, &gw);
         doTest(i, true, &gw);
     }
+#endif
 
     return 0;
 }
