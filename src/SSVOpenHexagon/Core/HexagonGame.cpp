@@ -774,6 +774,11 @@ void HexagonGame::death_shakeCamera()
 
 void HexagonGame::death_updateRichPresence()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     if(inReplay())
     {
         // Do not update rich presence if watching a replay.
@@ -821,6 +826,11 @@ void HexagonGame::death_saveScore()
 
 void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     const bool mustSaveScore = shouldSaveScore();
 
     if(!mustSaveScore)
@@ -881,7 +891,7 @@ void HexagonGame::death(bool mForce)
 
     death_saveScoreIfNeededAndShowPBEffects();
 
-    if(Config::getAutoRestart())
+    if(window != nullptr && Config::getAutoRestart())
     {
         status.mustStateChange = StateChange::MustRestart;
     }
