@@ -136,7 +136,7 @@ function pWallExVortex(mTimes, mStep, mExtraMult)
         loopDir = loopDir * -1
 
         for i = 0, mStep + 1 do
-            currentSide = currentSide + loopDir;
+            currentSide = currentSide + loopDir
             rWallEx(currentSide, loopDir * mExtraMult)
             t_wait(delay)
         end
