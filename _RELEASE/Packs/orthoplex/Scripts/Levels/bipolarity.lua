@@ -10,6 +10,9 @@ direction = 0
 changes = 0
 style = 0
 lastRotationDir = 0
+swapped = false
+rotSpeed = 0.25
+rotSpeedMax = 1
 
 FloatingWall = {}
 FloatingWall.__index = FloatingWall
@@ -124,31 +127,54 @@ function addPattern(mKey)
     changes = changes + 1
 
     if changes == maxChanges then
+
         maxChanges = u_rndInt(5, 12)
         changes = 0
 
-        setDirection(direction + l_getSides() / 2)
+        setDirection(direction + l_getSides() / 2+ getRandomDir())
 
-        if dm > 1.5 then
-            dm = 1.5
+        local oldT = THICKNESS
+        THICKNESS = 160
+        cBarrage(oldDirection + l_getSides() / 2)
+        THICKNESS = oldT
+
+
+        beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()
+        t_wait(beat)
+
+        if (dm == 1.0) then
+            e_wait(beat)
+        elseif (dm == 0.5) then
+            e_wait(beat * 2)
         end
 
-        if dm < 1 then
-            dm = 2
-        end
+        e_eval([[s_setCapColorMain()]])
+        e_eval([[u_setFlashEffect(100)]])
+        e_wait(beat * 2)
+        e_eval([[s_setCapColorByIndex(0)]])
+        --        t_wait(10 * (dm ^ 0.2))
 
-        t_wait(10 * (dm ^ 1.2))
-        t_eval([[mkSwapWall(]] .. oldDirection + l_getSides() / 2 .. [[)]])
-        t_wait(10 * (dm ^ 1.2))
+--        t_eval([[mkSwapWall(]] .. oldDirection + l_getSides() / 2 .. [[)]])
+
+--        t_wait(10 * (dm ^ 0.2))
+--        if dm < 1.0 then
+--            t_wait(5)
+--        end
     else
+        local oldT = THICKNESS
+        THICKNESS = 80
         cBarrage(direction)
+        THICKNESS = oldT
 
         if changes ~= maxChanges - 1 then
             setDirection(direction + getRandomDir())
         end
 
-        local delay = getPerfectDelayDM(THICKNESS) * 5.6
-        t_wait(delay)
+        -- local delay = getPerfectDelayDM(THICKNESS) * 5.6
+        -- t_wait(delay)
+
+        beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()
+        t_wait(beat)
     end
 end
 
@@ -158,17 +184,18 @@ keys = { 0, 0, 0, 0, 0, 0, 0, 3, 4, 5, 5 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+timeAcc = 0
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    l_setSpeedMult(7.00)
-    l_setSpeedInc(0.125)
-    l_setSpeedMax(5)
+    l_setSpeedMult(5.75)
+    l_setSpeedInc(0.25)
+    l_setSpeedMax(8)
     l_setRotationSpeed(0.0)
     l_setRotationSpeedMax(1)
     l_setRotationSpeedInc(0.04)
 
-    l_setDelayMult(1.85)
+    l_setDelayMult(1.00)
 
     l_setDelayInc(0)
     l_setFastSpin(0.0)
@@ -183,9 +210,9 @@ function onInit()
     l_setPulseSpeedR(6.4)
     l_setPulseDelayMax(24.38)
 
-    l_setBeatPulseInitialDelay(53 / 2)
     l_setBeatPulseMax(35)
-    l_setBeatPulseDelayMax(20) -- BPM is 180
+    beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()
+    l_setBeatPulseDelayMax(beat)
     l_setBeatPulseSpeedMult(2.00) -- Slows down the center going back to normal
 
     l_setSwapEnabled(true)
@@ -197,6 +224,8 @@ function onInit()
         lastRotationDir = getRandomDir()
         setDirection(u_rndInt(0, 6))
     end
+
+    t_wait(12 / getMusicDMSyncFactor())
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -241,17 +270,41 @@ function onUpdate(mFrameTime)
     for _, fw in ipairs(floatingWalls) do
         fw:move(mFrameTime)
     end
+
+    timeAcc = timeAcc + mFrameTime
+    if timeAcc >= 60 * 10 then
+        timeAcc = 0
+
+        a_playSound("levelUp.ogg")
+
+        beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()
+        t_wait(beat*4)
+        t_eval([[a_playSound("increment.ogg")]])
+        l_setSpeedMult(l_getSpeedMult() + l_getSpeedInc())
+        if l_getSpeedMult() > l_getSpeedMax() then
+            l_setSpeedMult(l_getSpeedMax())
+        end
+    end
 end
 
-function onCursorSwap()
+function swapStyle()
     if style == 0 then
         style = 1
         s_setStyle("bipolarity2")
-        l_setRotationSpeed(0.25 * lastRotationDir * (u_getDifficultyMult() ^ 0.85))
+        l_setRotationSpeed(rotSpeed * lastRotationDir * (u_getDifficultyMult() ^ 0.85))
         lastRotationDir = lastRotationDir * -1
+
+        if rotSpeed < rotSpeedMax then
+            rotSpeed = rotSpeed + 0.015
+        end
     else
         style = 0
         s_setStyle("bipolarity")
         l_setRotationSpeed(0)
     end
+end
+
+function onCursorSwap()
+    swapStyle()
+    swapped = true
 end
