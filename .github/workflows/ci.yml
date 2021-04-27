@@ -53,7 +53,10 @@ jobs:
     - name: Run tests
       run: |
         mkdir -p build/test
+        ls _RELEASE
+        ls _RELEASE/Packs
         ln -s _RELEASE/Packs build/test/
+        ls build/test/
         ninja -C build check
       
     - name: Check ldd
