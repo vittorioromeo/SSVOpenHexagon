@@ -107,12 +107,14 @@ try
         doTest(i, true, nullptr);
     }
 
+#ifndef SSVOH_HEADLESS_TESTS
     ssvs::GameWindow gw;
     for(int i = 0; i < 25; ++i)
     {
         doTest(i, false, &gw);
         doTest(i, true, &gw);
     }
+#endif
 
     return 0;
 }
