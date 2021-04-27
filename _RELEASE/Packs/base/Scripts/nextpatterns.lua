@@ -18,7 +18,7 @@ end
 
 function pTrapBarrageDouble(mSide)
     local delay = getPerfectDelayDM(THICKNESS) * 3.7
-    local side2 = mSide + getHalfSides();
+    local side2 = mSide + getHalfSides()
 
     for i = 0, l_getSides() - 1 do
         local currentSide = mSide + i
