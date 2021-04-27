@@ -58,8 +58,6 @@ jobs:
     - name: Run tests
       run: |
         mkdir -p build/test
-        cp -R _RELEASE/Packs /home/runner/work/SSVOpenHexagon/SSVOpenHexagon/build
-        cp -R _RELEASE/Packs /home/runner/work/SSVOpenHexagon/SSVOpenHexagon/build/test
         cp -R _RELEASE/Packs .
         cp -R _RELEASE/Packs build
         cp -R _RELEASE/Packs build/test
