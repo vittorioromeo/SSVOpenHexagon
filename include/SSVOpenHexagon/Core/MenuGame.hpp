@@ -269,6 +269,7 @@ private:
     std::optional<int> mustChangePackIndexTo;
     std::optional<int> mustUseMenuItem;
     bool mouseCursorVisible{true};
+    sf::Vector2i lastMouseMovedPosition{};
 
     std::string strBuf;
 

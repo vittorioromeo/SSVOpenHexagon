@@ -178,6 +178,8 @@ public:
 
     [[nodiscard]] const std::unordered_set<std::string>&
     getPackIdsWithMissingDependencies() const noexcept;
+
+    void addLocalProfile(ProfileData&& profileData);
 };
 
 } // namespace hg

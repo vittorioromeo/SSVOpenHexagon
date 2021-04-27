@@ -268,9 +268,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
         }
     };
 
-    game.onEvent(sf::Event::EventType::MouseMoved) += [this](const sf::Event&)
+    game.onEvent(sf::Event::EventType::MouseMoved) += [this](const sf::Event& e)
     {
-        if(window.hasFocus())
+        const sf::Vector2i mouseMoveVec = {e.mouseMove.x, e.mouseMove.y};
+        const sf::Vector2i mouseMoveDelta =
+            lastMouseMovedPosition - mouseMoveVec;
+
+        lastMouseMovedPosition = mouseMoveVec;
+
+        const bool actuallyMoved =
+            (mouseMoveDelta.x != 0) || (mouseMoveDelta.y != 0);
+
+        if(window.hasFocus() && actuallyMoved)
         {
             setMouseCursorVisible(true);
         }
@@ -1515,7 +1524,6 @@ void MenuGame::initMenus()
     online.create<i::Single>(
         "LOGOUT", [this] { hexagonClient.tryLogoutFromServer(); }) |
         whenLoggedIn;
-
 
     online.create<i::Single>(
         "DISCONNECT", [this] { hexagonClient.disconnect(); }) |
@@ -5474,7 +5482,13 @@ void MenuGame::drawLevelSelectionLeftSide(
 
             const std::string posStr = Utils::concat('#', i + 1);
             std::string scoreStr = ssvu::toStr(score) + 's';
+
             std::string playerStr = userName;
+            if(playerStr.size() > 20)
+            {
+                playerStr.resize(17);
+                playerStr += "...";
+            }
 
             const float tx = textToQuadBorder - panelOffset;
             const float ty = height -
