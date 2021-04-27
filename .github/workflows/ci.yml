@@ -18,17 +18,20 @@ jobs:
       with:
         submodules: recursive
         
-    - name: GCC Snapshot
-      uses: JohelEGP/gcc-snapshot@v1.0.0
-
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y ninja-build libgl1-mesa-dev libgl-dev libx11-dev libxrandr-dev libudev-dev libopenal-dev libvorbis-dev libflac-dev libxcursor-dev
 
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ubuntu-20.04-RELEASE
+
     - name: CMake configure
       run: |
         cd build
+        export LD_RUN_PATH="/opt/gcc-latest/lib64"
         cmake -GNinja -DCMAKE_BUILD_TYPE=RELEASE -DSSVOH_HEADLESS_TESTS=1 ..
         
     - name: Build
@@ -51,4 +54,13 @@ jobs:
         path: _RELEASE
 
     - name: Run tests
-      run: ninja -C build check
+      run: |
+        mkdir -p build/test
+        cp -R _RELEASE/Packs .
+        cp -R _RELEASE/Packs build
+        cp -R _RELEASE/Packs build/test
+        ninja -C build check
+      
+    - name: Check ldd
+      run: |
+        ldd build/test/test.Replay.t
