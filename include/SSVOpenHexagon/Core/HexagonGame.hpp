@@ -451,6 +451,7 @@ public:
     [[nodiscard]] sf::Color getColorPlayer() const;
     [[nodiscard]] sf::Color getColorText() const;
     [[nodiscard]] float getMusicDMSyncFactor() const;
+    [[nodiscard]] float getOptionalMusicDMSyncFactor() const;
 
     void refreshMusicPitch();
 
