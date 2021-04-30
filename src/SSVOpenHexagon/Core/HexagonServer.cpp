@@ -291,6 +291,11 @@ void HexagonServer::runIteration()
 
     runIteration_PurgeClients();
     runIteration_PurgeTokens();
+
+    // Flush logs.
+    std::cout.flush();
+    std::cerr.flush();
+    ssvu::lo().flush();
 }
 
 bool HexagonServer::runIteration_Control()
