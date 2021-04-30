@@ -798,6 +798,22 @@ void HexagonServer::printCTSPDataVerbose(
         return true;
     };
 
+    const auto checkState2 = [&](const ConnectedClient::State state0,
+                                 const ConnectedClient::State state1)
+    {
+        if(c._state != state0 && c._state != state1)
+        {
+            SSVOH_SLOG_VERBOSE << "Invalid client state, expected '"
+                               << static_cast<int>(state0) << "' or '"
+                               << static_cast<int>(state1) << "', state was '"
+                               << static_cast<int>(c._state) << "''\n";
+
+            return false;
+        }
+
+        return true;
+    };
+
     return Utils::match(
         pv,
 
@@ -1003,13 +1019,9 @@ void HexagonServer::printCTSPDataVerbose(
         {
             printCTSPDataVerbose(c, "logout", ctsp);
 
-            if(c._state != ConnectedClient::State::LoggedIn ||
-                c._state != ConnectedClient::State::LoggedIn_Ready)
+            if(!checkState2(ConnectedClient::State::LoggedIn,
+                   ConnectedClient::State::LoggedIn_Ready))
             {
-                SSVOH_SLOG_VERBOSE
-                    << "Invalid client state, expected 'logged in' or "
-                       "'ready'\n";
-
                 return true;
             }
 
