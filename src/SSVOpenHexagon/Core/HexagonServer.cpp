@@ -279,7 +279,7 @@ void HexagonServer::runIteration()
 {
     SSVOH_SLOG_VERBOSE << "Waiting for clients...\n";
 
-    if(_socketSelector.wait(sf::seconds(30)))
+    if(_socketSelector.wait(sf::seconds(1)))
     {
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
