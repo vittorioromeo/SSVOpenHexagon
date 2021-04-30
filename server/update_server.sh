@@ -2,6 +2,11 @@
 
 OH_ROOT="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon"
 
+echo "git pulling..." && \
+cd "$OH_ROOT" && \
+git pull && \
+echo "Done" && \
+\
 echo "Reloading daemon..." && \
 sudo systemctl daemon-reload && \
 echo "Done" && \
