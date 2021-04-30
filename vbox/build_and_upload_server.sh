@@ -3,6 +3,8 @@
 OH_VBOX_ROOT="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon"
 OH_SERVER_ROOT="/home/vittorioromeo/OHWorkspace/SSVOpenHexagon"
 
+git pull
+
 echo "Building server release..." && \
 cd "$OH_VBOX_ROOT/buildlx" && \
 ./make_release_server_vbox.sh && \
