@@ -26,13 +26,15 @@ namespace hg {
 class HGAssets;
 class HexagonGame;
 struct GameVersion;
+struct replay_file;
 
 class HexagonServer
 {
-private:
+public:
     using Clock = std::chrono::high_resolution_clock;
     using TimePoint = std::chrono::time_point<Clock>;
 
+private:
     HGAssets& _assets;
     HexagonGame& _hexagonGame;
 
@@ -114,6 +116,7 @@ private:
     const SodiumPSKeys _serverPSKeys;
 
     TimePoint _lastTokenPurge;
+    TimePoint _lastLogsFlush;
 
     [[nodiscard]] bool initializeControlSocket();
     [[nodiscard]] bool initializeTcpListener();
@@ -161,6 +164,7 @@ private:
     void runIteration_LoopOverSockets();
     void runIteration_PurgeClients();
     void runIteration_PurgeTokens();
+    void runIteration_FlushLogs();
 
     [[nodiscard]] bool validateLogin(ConnectedClient& c, const char* context,
         const sf::Uint64 ctspLoginToken);

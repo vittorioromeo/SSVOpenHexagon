@@ -277,9 +277,9 @@ void HexagonServer::run()
 
 void HexagonServer::runIteration()
 {
-    SSVOH_SLOG_VERBOSE << "Waiting for clients...\n";
+    SSVOH_SLOG_VERBOSE << "New iteration...\n";
 
-    if(_socketSelector.wait(sf::seconds(1)))
+    if(_socketSelector.wait(sf::seconds(30)))
     {
         // A timeout is specified so that we can purge clients even if we didn't
         // receive anything.
@@ -291,11 +291,7 @@ void HexagonServer::runIteration()
 
     runIteration_PurgeClients();
     runIteration_PurgeTokens();
-
-    // Flush logs.
-    std::cout.flush();
-    std::cerr.flush();
-    ssvu::lo().flush();
+    runIteration_FlushLogs();
 }
 
 bool HexagonServer::runIteration_Control()
@@ -527,15 +523,27 @@ void HexagonServer::runIteration_PurgeClients()
     }
 }
 
+template <typename Duration>
+[[nodiscard]] static bool checkAndUpdateLastElapsed(
+    HexagonServer::TimePoint& last, const Duration duration)
+{
+    if(HexagonServer::Clock::now() - last < duration)
+    {
+        return false;
+    }
+
+    last = HexagonServer::Clock::now();
+    return true;
+}
+
 void HexagonServer::runIteration_PurgeTokens()
 {
-    if(Clock::now() - _lastTokenPurge < std::chrono::seconds(1800))
+    if(!checkAndUpdateLastElapsed(_lastTokenPurge, std::chrono::seconds(1800)))
     {
         return;
     }
 
     SSVOH_SLOG_VERBOSE << "Purging old login tokens\n";
-    _lastTokenPurge = Clock::now();
 
     for(const Database::LoginToken& lt : Database::getAllStaleLoginTokens())
     {
@@ -562,6 +570,18 @@ void HexagonServer::runIteration_PurgeTokens()
     }
 
     Database::removeAllStaleLoginTokens();
+}
+
+void HexagonServer::runIteration_FlushLogs()
+{
+    if(!checkAndUpdateLastElapsed(_lastLogsFlush, std::chrono::seconds(1)))
+    {
+        return;
+    }
+
+    std::cout.flush();
+    std::cerr.flush();
+    ssvu::lo().flush();
 }
 
 [[nodiscard]] bool HexagonServer::validateLogin(

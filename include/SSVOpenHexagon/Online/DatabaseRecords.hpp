@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <string>
-#include <cstdint>
-
 #include <SFML/Config.hpp>
+
+#include <cstdint>
+#include <string>
+#include <vector>
 
 namespace hg::Database {
 
