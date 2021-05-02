@@ -111,7 +111,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-    enableSwapIfSpeedGEThan(4);
+    enableSwapIfSpeedGEThan(3.4);
     if (u_getSpeedMultDM() >= 4.5 and l_getSidesMin() == 5) then
         e_messageAddImportant("Speed >= 4.5\nPentagon removed!", 120)
         if (l_getSides() == 5) then

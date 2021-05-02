@@ -67,9 +67,9 @@ function onInit()
     end
 
     l_setSpeedInc(0.18)
-    l_setSpeedMax(6.0)
+    l_setSpeedMax(4)
     l_setRotationSpeed(0.13)
-    l_setRotationSpeedMax(1)
+    l_setRotationSpeedMax(0.9)
 
     if u_getDifficultyMult() > 3 then
         l_setRotationSpeedInc(0.1)

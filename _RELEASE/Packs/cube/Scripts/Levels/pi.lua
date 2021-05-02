@@ -7,10 +7,10 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.
 function addPattern(mKey)
         if mKey == 0 then cWallEx(u_rndInt(0, l_getSides()), u_rndInt(1, 2)) t_wait(getPerfectDelay(THICKNESS) * 2.5)
     elseif mKey == 1 then pMirrorSpiralDouble(u_rndInt(1, 2), 4)
-    elseif mKey == 2 then rWallEx(u_rndInt(0, l_getSides()), u_rndInt(1, 2)) t_wait(getPerfectDelay(THICKNESS) * 2.8)
+    elseif mKey == 2 then rWallEx(u_rndInt(0, l_getSides()), u_rndInt(0, 1)) t_wait(getPerfectDelay(THICKNESS) * 2.8)
     elseif mKey == 3 then pMirrorWallStrip(1, 2)
     elseif mKey == 4 then rWallEx(u_rndInt(0, l_getSides()), 1) t_wait(getPerfectDelay(THICKNESS) * 2.3)
-    elseif mKey == 5 then cWallEx(u_rndInt(0, l_getSides()), 7) t_wait(getPerfectDelay(THICKNESS) * 2.7)
+    elseif mKey == 5 then cWallEx(u_rndInt(0, l_getSides()), 5) t_wait(getPerfectDelay(THICKNESS) * 2.7)
     end
 end
 
@@ -42,7 +42,7 @@ end
 function onInit()
     l_setSpeedMult(3.4)
     l_setSpeedInc(0.10)
-    l_setSpeedMax(5)
+    l_setSpeedMax(4.3)
     l_setRotationSpeed(0.25)
     l_setRotationSpeedMax(1)
 
@@ -76,7 +76,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-    enableSwapIfSpeedGEThan(4.5);
+    enableSwapIfSpeedGEThan(4);
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
