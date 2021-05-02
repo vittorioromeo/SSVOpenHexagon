@@ -42,16 +42,18 @@ hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    if u_getDifficultyMult() > 1.5 then
-        l_setSpeedMult(2.60)
+    if u_getDifficultyMult() > 2.0 then
+        l_setSpeedMult(2.45)
+    elseif u_getDifficultyMult() > 1.5 then
+        l_setSpeedMult(2.55)
     else
         l_setSpeedMult(2.65)
     end
 
     l_setSpeedInc(0.1)
-    l_setSpeedMax(5)
+    l_setSpeedMax(4.2)
     l_setRotationSpeed(0.2)
-    l_setRotationSpeedMax(2)
+    l_setRotationSpeedMax(0.9)
 
     if u_getDifficultyMult() > 1.5 then
         l_setRotationSpeedInc(0.1)
@@ -115,7 +117,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-    enableSwapIfSpeedGEThan(4);
+    enableSwapIfSpeedGEThan(3.8);
     if (u_getSpeedMultDM() >= 4.5 and l_getSidesMin() == 5) then
         e_messageAddImportant("Speed >= 4.5\nPentagon removed!", 120)
         if (l_getSides() == 5) then
