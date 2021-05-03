@@ -285,8 +285,12 @@ private:
     void initKeyIcons();
     void initFlashEffect();
 
+    // Fast-forward
+    std::optional<double> fastForwardTarget;
+    void fastForwardTo(const double target);
+
     // Update methods
-    void update(ssvu::FT mFT);
+    void update(ssvu::FT mFT, const float timescale);
     void updateInput();
     void updateInput_UpdateJoystickControls();
     void updateInput_UpdateTouchControls();
@@ -408,16 +412,18 @@ public:
     };
 
     [[nodiscard]] std::optional<GameExecutionResult> executeGameUntilDeath(
-        const int maxProcessingSeconds);
+        const int maxProcessingSeconds, const float timescale);
 
     [[nodiscard]] std::optional<GameExecutionResult>
-    runReplayUntilDeathAndGetScore(
-        const replay_file& mReplayFile, const int maxProcessingSeconds);
+    runReplayUntilDeathAndGetScore(const replay_file& mReplayFile,
+        const int maxProcessingSeconds, const float timescale);
 
     // Other methods
     void executeEvents(ssvuj::Obj& mRoot, float mTime);
     void updateRichPresenceCallbacks();
 
+    [[nodiscard]] bool shouldPlaySounds() const;
+    [[nodiscard]] bool shouldPlayMusic() const;
     void playSoundOverride(const std::string& mId);
     void playSoundAbort(const std::string& mId);
     void playPackSoundOverride(
