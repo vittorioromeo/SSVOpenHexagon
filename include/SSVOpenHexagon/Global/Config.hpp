@@ -77,6 +77,7 @@ void setShowStatusText(bool mX);
 void setServerIp(const std::string& mX);
 void setServerPort(unsigned short mX);
 void setServerControlPort(unsigned short mX);
+void setServerLevelWhitelist(const std::vector<std::string>& levelValidators);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -140,6 +141,7 @@ void setServerControlPort(unsigned short mX);
 [[nodiscard]] const std::string& getServerIp();
 [[nodiscard]] unsigned short getServerPort();
 [[nodiscard]] unsigned short getServerControlPort();
+[[nodiscard]] const std::vector<std::string> getServerLevelWhitelist();
 
 // keyboard binds
 
