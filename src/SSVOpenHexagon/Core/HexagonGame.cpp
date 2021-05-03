@@ -254,6 +254,13 @@ void HexagonGame::nameFormat(std::string& name)
                                  ImGui::GetIO().WantCaptureMouse);
 }
 
+[[nodiscard]] static sf::Text initText(
+    const char* text, const sf::Font& font, const float characterSize)
+{
+    return sf::Text{text, font,
+        ssvu::toNum<unsigned int>(characterSize / Config::getZoomFactor())};
+}
+
 HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio* mAudio,
     ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
@@ -267,23 +274,18 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       player{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
-      messageText{
-          "", font, ssvu::toNum<unsigned int>(38.f / Config::getZoomFactor())},
-      pbText{
-          "", font, ssvu::toNum<unsigned int>(65.f / Config::getZoomFactor())},
+      messageText{initText("", font, 38.f)},
+      pbText{initText("", font, 65.f)},
       levelInfoTextLevel{"", font},
       levelInfoTextPack{"", font},
       levelInfoTextAuthor{"", font},
       levelInfoTextBy{"", font},
       levelInfoTextDM{"", font},
       rng{initializeRng()},
-      fpsText{
-          "0", font, ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())},
-      timeText{
-          "0", font, ssvu::toNum<unsigned int>(70.f / Config::getZoomFactor())},
-      text{"", font, ssvu::toNum<unsigned int>(25.f / Config::getZoomFactor())},
-      replayText{
-          "", font, ssvu::toNum<unsigned int>(20.f / Config::getZoomFactor())}
+      fpsText{initText("0", font, 25.f)},
+      timeText{initText("0", font, 70.f)},
+      text{initText("", font, 25.f)},
+      replayText{initText("", font, 20.f)}
 {
     if(window != nullptr)
     {
@@ -301,7 +303,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     }
 
 
-    game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
+    game.onUpdate +=
+        [this](ssvu::FT mFT) { update(mFT, Config::getTimescale()); };
 
     game.onPostUpdate += [this] { postUpdate(); };
 
@@ -486,9 +489,19 @@ void HexagonGame::updateRichPresenceCallbacks()
     }
 }
 
+[[nodiscard]] bool HexagonGame::shouldPlaySounds() const
+{
+    return window != nullptr && audio != nullptr && !Config::getNoSound();
+}
+
+[[nodiscard]] bool HexagonGame::shouldPlayMusic() const
+{
+    return window != nullptr && audio != nullptr && !Config::getNoMusic();
+}
+
 void HexagonGame::playSoundOverride(const std::string& mId)
 {
-    if(window != nullptr && audio != nullptr && !Config::getNoSound())
+    if(shouldPlaySounds())
     {
         audio->playSoundOverride(mId);
     }
@@ -496,7 +509,7 @@ void HexagonGame::playSoundOverride(const std::string& mId)
 
 void HexagonGame::playSoundAbort(const std::string& mId)
 {
-    if(window != nullptr && audio != nullptr && !Config::getNoSound())
+    if(shouldPlaySounds())
     {
         audio->playSoundAbort(mId);
     }
@@ -505,7 +518,7 @@ void HexagonGame::playSoundAbort(const std::string& mId)
 void HexagonGame::playPackSoundOverride(
     const std::string& mPackId, const std::string& mId)
 {
-    if(window != nullptr && audio != nullptr && !Config::getNoSound())
+    if(shouldPlaySounds())
     {
         audio->playPackSoundOverride(mPackId, mId);
     }
@@ -994,7 +1007,8 @@ void HexagonGame::death_sendAndSaveReplay()
 }
 
 [[nodiscard]] std::optional<HexagonGame::GameExecutionResult>
-HexagonGame::executeGameUntilDeath(const int maxProcessingSeconds)
+HexagonGame::executeGameUntilDeath(
+    const int maxProcessingSeconds, const float timescale)
 {
     using Clock = std::chrono::high_resolution_clock;
     using TimePoint = std::chrono::time_point<Clock>;
@@ -1010,7 +1024,7 @@ HexagonGame::executeGameUntilDeath(const int maxProcessingSeconds)
 
     while(!status.hasDied)
     {
-        update(Config::TIME_STEP);
+        update(Config::TIME_STEP, timescale);
         postUpdate();
 
         if(exceededProcessingTime())
@@ -1028,8 +1042,8 @@ HexagonGame::executeGameUntilDeath(const int maxProcessingSeconds)
 }
 
 [[nodiscard]] std::optional<HexagonGame::GameExecutionResult>
-HexagonGame::runReplayUntilDeathAndGetScore(
-    const replay_file& mReplayFile, const int maxProcessingSeconds)
+HexagonGame::runReplayUntilDeathAndGetScore(const replay_file& mReplayFile,
+    const int maxProcessingSeconds, const float timescale)
 {
     SSVOH_ASSERT(assets.isValidPackId(mReplayFile._pack_id));
     SSVOH_ASSERT(assets.isValidLevelId(mReplayFile._level_id));
@@ -1040,7 +1054,7 @@ HexagonGame::runReplayUntilDeathAndGetScore(
         mReplayFile._first_play, mReplayFile._difficulty_mult,
         /* mExecuteLastReplay */ true);
 
-    return executeGameUntilDeath(maxProcessingSeconds);
+    return executeGameUntilDeath(maxProcessingSeconds, timescale);
 }
 
 void HexagonGame::incrementDifficulty()
@@ -1206,6 +1220,11 @@ void HexagonGame::raiseWarning(
 void HexagonGame::addMessage(
     std::string mMessage, double mDuration, bool mSoundToggle)
 {
+    if(!Config::getShowMessages())
+    {
+        return;
+    }
+
     Utils::uppercasify(mMessage);
 
     messageTimeline.append_do(
@@ -1276,12 +1295,7 @@ HexagonGame::getPackDisambiguator() const noexcept
 
 void HexagonGame::playLevelMusic()
 {
-    if(window == nullptr)
-    {
-        return;
-    }
-
-    if(audio != nullptr && !Config::getNoMusic())
+    if(shouldPlayMusic())
     {
         const MusicData::Segment segment =
             musicData.playRandomSegment(getPackId(), *audio);
@@ -1293,12 +1307,7 @@ void HexagonGame::playLevelMusic()
 
 void HexagonGame::playLevelMusicAtTime(float mSeconds)
 {
-    if(window == nullptr)
-    {
-        return;
-    }
-
-    if(audio != nullptr && !Config::getNoMusic())
+    if(shouldPlayMusic())
     {
         musicData.playSeconds(getPackId(), *audio, mSeconds);
     }
@@ -1306,12 +1315,7 @@ void HexagonGame::playLevelMusicAtTime(float mSeconds)
 
 void HexagonGame::stopLevelMusic()
 {
-    if(window == nullptr)
-    {
-        return;
-    }
-
-    if(audio != nullptr && !Config::getNoMusic())
+    if(shouldPlayMusic())
     {
         audio->stopMusic();
     }

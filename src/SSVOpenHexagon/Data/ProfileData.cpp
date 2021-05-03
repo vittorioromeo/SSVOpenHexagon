@@ -5,6 +5,7 @@
 #include "SSVOpenHexagon/Data/ProfileData.hpp"
 
 #include "SSVOpenHexagon/Global/Version.hpp"
+#include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
 #include <SSVUtils/Core/String/Utils.hpp>
 
@@ -19,7 +20,7 @@ ProfileData::ProfileData(const GameVersion mVersion, const std::string& mName,
     : version{mVersion},
       name{mName},
       scores{mScores},
-      favoriteLevelsDataIDs{mFavorites.begin(), mFavorites.end()}
+      favoriteLevelsDataIDs{Utils::toUnorderedSet(mFavorites)}
 {}
 
 [[nodiscard]] GameVersion ProfileData::getVersion() const noexcept

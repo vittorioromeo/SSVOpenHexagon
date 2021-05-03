@@ -413,7 +413,7 @@ void HexagonGame::initLua_EventTimeline()
             eventTimeline.append_do(
                 [=, this]
                 {
-                    if(firstPlay && Config::getShowMessages())
+                    if(firstPlay)
                     {
                         addMessage(mMsg, mDuration, /* mSoundToggle */ true);
                     }
@@ -429,14 +429,8 @@ void HexagonGame::initLua_EventTimeline()
     addLuaFn(lua, "e_messageAddImportant", //
         [this](const std::string& mMsg, double mDuration)
         {
-            eventTimeline.append_do(
-                [=, this]
-                {
-                    if(Config::getShowMessages())
-                    {
-                        addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                    }
-                });
+            eventTimeline.append_do([=, this]
+                { addMessage(mMsg, mDuration, /* mSoundToggle */ true); });
         })
         .arg("message")
         .arg("duration")
@@ -448,14 +442,8 @@ void HexagonGame::initLua_EventTimeline()
     addLuaFn(lua, "e_messageAddImportantSilent",
         [this](const std::string& mMsg, double mDuration)
         {
-            eventTimeline.append_do(
-                [=, this]
-                {
-                    if(Config::getShowMessages())
-                    {
-                        addMessage(mMsg, mDuration, /* mSoundToggle */ false);
-                    }
-                });
+            eventTimeline.append_do([=, this]
+                { addMessage(mMsg, mDuration, /* mSoundToggle */ false); });
         })
         .arg("message")
         .arg("duration")
@@ -882,7 +870,7 @@ void HexagonGame::initLua_Deprecated()
             eventTimeline.append_do(
                 [=, this]
                 {
-                    if(firstPlay && Config::getShowMessages())
+                    if(firstPlay)
                     {
                         addMessage(mMsg, mDuration, /* mSoundToggle */ true);
                     }
@@ -905,14 +893,8 @@ void HexagonGame::initLua_Deprecated()
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_messageAddImportant\" in your level files and "
                 "common.lua.");
-            eventTimeline.append_do(
-                [=, this]
-                {
-                    if(Config::getShowMessages())
-                    {
-                        addMessage(mMsg, mDuration, /* mSoundToggle */ true);
-                    }
-                });
+            eventTimeline.append_do([=, this]
+                { addMessage(mMsg, mDuration, /* mSoundToggle */ true); });
         })
         .arg("message")
         .arg("duration")
@@ -930,14 +912,8 @@ void HexagonGame::initLua_Deprecated()
                 "This function will be removed in a future version of Open "
                 "Hexagon. Please replace all occurrences of this function with "
                 "\"e_messageAddImportantSilent\" in your level files.");
-            eventTimeline.append_do(
-                [=, this]
-                {
-                    if(Config::getShowMessages())
-                    {
-                        addMessage(mMsg, mDuration, /* mSoundToggle */ false);
-                    }
-                });
+            eventTimeline.append_do([=, this]
+                { addMessage(mMsg, mDuration, /* mSoundToggle */ false); });
         })
         .arg("message")
         .arg("duration")
