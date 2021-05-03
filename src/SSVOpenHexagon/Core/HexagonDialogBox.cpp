@@ -9,6 +9,10 @@
 #include <SSVStart/Utils/SFML.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
+#include <algorithm>
+#include <string>
+#include <tuple>
+
 namespace hg {
 
 [[nodiscard]] static Utils::FastVertexVectorQuads& getDialogFrame()
@@ -181,13 +185,27 @@ void HexagonDialogBox::drawTopLeft(
         yPos - lineHeight * fontHeightDifferential + doubleFrameSize);
 }
 
+[[nodiscard]] static float calculateFMax(
+    const float configWidth, const float configHeight)
+{
+    return std::max(1024.f / configWidth, 768.f / configHeight);
+}
+
+[[nodiscard]] static std::tuple<float, float, float> calculateFMaxAndWAndH(
+    const float configWidth, const float configHeight, const float yPos)
+{
+    const float fmax = calculateFMax(configWidth, configHeight);
+    const float w = configWidth * fmax;
+    const float h = (configHeight * fmax) / 2.f + yPos;
+
+    return {fmax, w, h};
+}
+
 void HexagonDialogBox::drawCenter(
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
-    const float fmax = std::max(
-                    1024.f / Config::getWidth(), 768.f / Config::getHeight()),
-                w = Config::getWidth() * fmax,
-                h = (Config::getHeight() * fmax) / 2.f + yPos;
+    const auto [fmax, w, h] =
+        calculateFMaxAndWAndH(Config::getWidth(), Config::getHeight(), yPos);
 
     const float leftBorder = (w - dialogWidth) / 2.f + xPos,
                 rightBorder = (w + dialogWidth) / 2.f + xPos,
@@ -216,10 +234,8 @@ void HexagonDialogBox::drawCenter(
 void HexagonDialogBox::drawCenterUpperHalf(
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
-    const float fmax = std::max(
-                    1024.f / Config::getWidth(), 768.f / Config::getHeight()),
-                w = Config::getWidth() * fmax,
-                h = (Config::getHeight() * fmax) / 2.f + yPos;
+    const auto [fmax, w, h] =
+        calculateFMaxAndWAndH(Config::getWidth(), Config::getHeight(), yPos);
 
     const float leftBorder = (w - dialogWidth) / 2.f + xPos,
                 rightBorder = (w + dialogWidth) / 2.f + xPos;

@@ -373,9 +373,9 @@ void HexagonGame::updateText(ssvu::FT mFT)
             os << "INVINCIBILITY ON\n";
         }
 
-        if(Config::getTimescale() != 1.f)
+        if(const float timescale = Config::getTimescale(); timescale != 1.f)
         {
-            os << "TIMESCALE " << Config::getTimescale() << '\n';
+            os << "TIMESCALE " << timescale << '\n';
         }
 
         if(status.scoreInvalid)

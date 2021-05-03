@@ -68,7 +68,8 @@ try
 
         hg.setMustStart(true);
         const double score =
-            hg.executeGameUntilDeath(1 /* maxProcessingSeconds */)
+            hg.executeGameUntilDeath(
+                  1 /* maxProcessingSeconds */, 1.f /* timescale */)
                 .value()
                 .playedTimeSeconds;
 
@@ -85,12 +86,12 @@ try
             };
 
             score2 = hg2.runReplayUntilDeathAndGetScore(
-                rf, 1 /* maxProcessingSeconds */);
+                rf, 1 /* maxProcessingSeconds */, 1.f /* timescale */);
         }
         else
         {
             score2 = hg.runReplayUntilDeathAndGetScore(
-                rf, 1 /* maxProcessingSeconds */);
+                rf, 1 /* maxProcessingSeconds */, 1.f /* timescale */);
         }
 
         TEST_ASSERT(score2.has_value());
