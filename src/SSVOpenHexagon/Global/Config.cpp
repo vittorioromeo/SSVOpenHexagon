@@ -17,8 +17,48 @@
 #include <SSVStart/Input/Input.hpp>
 #include <SSVStart/GameSystem/GameWindow.hpp>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+
+[[nodiscard]] static const std::vector<std::string>&
+defaultServerLevelWhitelist()
+{
+    static const std::vector<std::string> result{
+        "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_0.35",
+        "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1.6",
+        "ohvrvanilla_vittorio_romeo_cube_1_commando_m_0.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_commando_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_commando_m_1.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_euclideanpc_m_0.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_euclideanpc_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_euclideanpc_m_1.8",
+        "ohvrvanilla_vittorio_romeo_cube_1_flatteringshape_m_0.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_flatteringshape_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_flatteringshape_m_3",
+        "ohvrvanilla_vittorio_romeo_cube_1_flatteringshape_m_4",
+        "ohvrvanilla_vittorio_romeo_cube_1_goldenratio_m_0.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_goldenratio_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_goldenratio_m_2",
+        "ohvrvanilla_vittorio_romeo_cube_1_labyrinth_m_0.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_labyrinth_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_labyrinth_m_1.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_pi_m_0.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_pi_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_pi_m_1.8",
+        "ohvrvanilla_vittorio_romeo_cube_1_pointless_m_0.5",
+        "ohvrvanilla_vittorio_romeo_cube_1_pointless_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_pointless_m_3",
+        "ohvrvanilla_vittorio_romeo_cube_1_pointless_m_5",
+        "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_0.6",
+        "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1",
+        "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1.8",
+        "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_2.2"};
+
+    return result;
+}
 
 using uint = unsigned int;
 using ushort = unsigned short;
@@ -138,6 +178,8 @@ using mil = std::initializer_list<ssvs::MBtn>;
     X(serverIp, std::string, "server_ip", "139.162.199.162")               \
     X(serverPort, ushort, "server_port", 50505)                            \
     X(serverControlPort, ushort, "server_control_port", 50506)             \
+    X(serverLevelWhitelist, std::vector<std::string>,                      \
+        "server_level_whitelist", defaultServerLevelWhitelist())           \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -640,6 +682,11 @@ void setServerControlPort(unsigned short mX)
     serverControlPort() = mX;
 }
 
+void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
+{
+    serverLevelWhitelist() = levelValidators;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -943,6 +990,11 @@ void setServerControlPort(unsigned short mX)
 [[nodiscard]] unsigned short getServerControlPort()
 {
     return serverControlPort();
+}
+
+[[nodiscard]] const std::vector<std::string> getServerLevelWhitelist()
+{
+    return serverLevelWhitelist();
 }
 
 //***********************************************************

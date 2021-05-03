@@ -16,6 +16,7 @@
 #include "SSVOpenHexagon/Global/Version.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
+#include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 
 #include <sodium.h>
 
@@ -36,6 +37,7 @@
 #include <string_view>
 #include <string>
 #include <type_traits>
+#include <unordered_set>
 #include <vector>
 
 //
@@ -164,6 +166,8 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 {
     hg::Steam::steam_manager steamManager;
 
+    hg::Config::loadConfig({} /* overrideIds */);
+
     hg::HGAssets assets{
         &steamManager,      //
         true /* headless */ //
@@ -179,11 +183,12 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     };
 
     hg::HexagonServer hs{
-        assets,                            //
-        hg,                                //
-        hg::Config::getServerIp(),         //
-        hg::Config::getServerPort(),       //
-        hg::Config::getServerControlPort() //
+        assets,                                                          //
+        hg,                                                              //
+        hg::Config::getServerIp(),                                       //
+        hg::Config::getServerPort(),                                     //
+        hg::Config::getServerControlPort(),                              //
+        hg::Utils::toUnorderedSet(hg::Config::getServerLevelWhitelist()) //
     };
 
     ssvu::lo("::mainServer") << "Finished\n";
@@ -506,8 +511,9 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
             // TODO (P2): check level validity
 
             std::cout << "Player died.\nFinal time: "
-                      << hg.runReplayUntilDeathAndGetScore(
-                               replayFile, 1 /* maxProcessingSeconds */)
+                      << hg.runReplayUntilDeathAndGetScore(replayFile,
+                               1 /* maxProcessingSeconds */,
+                               1.f /* timescale */)
                              .value()
                              .playedTimeSeconds
                       << '\n';

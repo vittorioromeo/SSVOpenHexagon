@@ -4,6 +4,7 @@
 
 #include "SSVOpenHexagon/Core/HexagonServer.hpp"
 
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
@@ -14,6 +15,7 @@
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/StringToCharVec.hpp"
+#include "SSVOpenHexagon/Utils/VectorToSet.hpp"
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
@@ -29,6 +31,8 @@
 #include <cstdlib>
 #include <optional>
 #include <cstdio>
+#include <sstream>
+#include <string>
 #include <type_traits>
 #include <stdexcept>
 
@@ -59,6 +63,12 @@ template <typename... Ts>
     }
 
     return false;
+}
+
+[[nodiscard]] bool HexagonServer::isLevelSupported(
+    const std::string& levelValidator) const
+{
+    return _supportedLevelValidators.contains(levelValidator);
 }
 
 [[nodiscard]] bool HexagonServer::initializeControlSocket()
@@ -662,7 +672,7 @@ void HexagonServer::runIteration_FlushLogs()
 
     const std::optional<HexagonGame::GameExecutionResult> ger =
         _hexagonGame.runReplayUntilDeathAndGetScore(
-            rf, 5 /* maxProcessingSeconds */);
+            rf, 5 /* maxProcessingSeconds */, 1.f /* timescale */);
 
     if(!ger.has_value())
     {
@@ -1102,7 +1112,7 @@ void HexagonServer::printCTSPDataVerbose(
                 return true;
             }
 
-            if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
+            if(!isLevelSupported(ctsp.levelValidator))
             {
                 return true;
             }
@@ -1139,7 +1149,7 @@ void HexagonServer::printCTSPDataVerbose(
                 return true;
             }
 
-            if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
+            if(!isLevelSupported(ctsp.levelValidator))
             {
                 return true;
             }
@@ -1168,7 +1178,7 @@ void HexagonServer::printCTSPDataVerbose(
                 return true;
             }
 
-            if(_supportedLevelValidators.count(ctsp.levelValidator) == 0)
+            if(!isLevelSupported(ctsp.levelValidator))
             {
                 return true;
             }
@@ -1266,7 +1276,8 @@ void HexagonServer::printCTSPDataVerbose(
 }
 
 [[nodiscard]] static std::unordered_set<std::string>
-makeSupportedLevelValidators(HGAssets& assets)
+makeSupportedLevelValidators(HGAssets& assets,
+    const std::unordered_set<std::string>& levelValidatorWhitelist)
 {
     std::unordered_set<std::string> result;
 
@@ -1279,7 +1290,11 @@ makeSupportedLevelValidators(HGAssets& assets)
 
         for(const float dm : ld.difficultyMults)
         {
-            result.emplace(ld.getValidator(dm));
+            if(const std::string& validator = ld.getValidator(dm);
+                levelValidatorWhitelist.contains(validator))
+            {
+                result.emplace(validator);
+            }
         }
     }
 
@@ -1288,12 +1303,14 @@ makeSupportedLevelValidators(HGAssets& assets)
 
 HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
     const sf::IpAddress& serverIp, const unsigned short serverPort,
-    const unsigned short serverControlPort)
+    const unsigned short serverControlPort,
+    const std::unordered_set<std::string>& serverLevelWhitelist)
     : _assets{assets},
       _hexagonGame{hexagonGame},
-      _supportedLevelValidators{makeSupportedLevelValidators(assets)},
+      _supportedLevelValidators{
+          makeSupportedLevelValidators(assets, serverLevelWhitelist)},
       _supportedLevelValidatorsVector{
-          _supportedLevelValidators.begin(), _supportedLevelValidators.end()},
+          Utils::toVector(_supportedLevelValidators)},
       _serverIp{serverIp},
       _serverPort{serverPort},
       _serverControlPort{serverControlPort},
@@ -1314,6 +1331,8 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
                << " - " << SSVOH_SLOG_VAR(sKeyPublic) << '\n'
                << " - " << SSVOH_SLOG_VAR(sKeySecret) << '\n';
 
+    // ------------------------------------------------------------------------
+    // Check initialization failures
 #define SSVOH_SLOG_INIT_ERROR \
     SSVOH_SLOG_ERROR << "Failure initializing server: "
 
@@ -1341,6 +1360,9 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
         return;
     }
 
+#undef SSVOH_SLOG_INIT_ERROR
+
+    // ------------------------------------------------------------------------
     // Signal handling: exit gracefully on CTRL-C
     {
         static bool& globalRunning = _running;
@@ -1354,6 +1376,20 @@ HexagonServer::HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
                 globalListener.close();
                 globalRunning = false;
             });
+    }
+
+    // ------------------------------------------------------------------------
+    // Print supported (ranked) level validators
+    {
+        std::ostringstream oss;
+        oss << "Server initialized!\nSupported levels:\n";
+
+        for(const std::string& levelValidator : _supportedLevelValidators)
+        {
+            oss << " - " << levelValidator << '\n';
+        }
+
+        SSVOH_SLOG << oss.str() << '\n';
     }
 
     run();

@@ -181,10 +181,14 @@ private:
     template <typename... Ts>
     [[nodiscard]] bool fail(const Ts&...);
 
+    [[nodiscard]] bool isLevelSupported(
+        const std::string& levelValidator) const;
+
 public:
     explicit HexagonServer(HGAssets& assets, HexagonGame& hexagonGame,
         const sf::IpAddress& serverIp, const unsigned short serverPort,
-        const unsigned short serverControlPort);
+        const unsigned short serverControlPort,
+        const std::unordered_set<std::string>& serverLevelWhitelist);
 
     ~HexagonServer();
 
