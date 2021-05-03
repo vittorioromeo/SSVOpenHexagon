@@ -21,8 +21,7 @@
     }
 #define JSON_HAS_INT64
 
-namespace Json
-{
+namespace Json {
 inline bool in(char c, char c1, char c2, char c3, char c4) noexcept
 {
     return c == c1 || c == c2 || c == c3 || c == c4;
@@ -59,8 +58,7 @@ struct Features
     inline Features() = default;
     inline Features(bool mAllowComments, bool mStrictRoot)
         : allowComments_{mAllowComments}, strictRoot_{mStrictRoot}
-    {
-    }
+    {}
     inline static Features all() noexcept
     {
         return {};
@@ -96,8 +94,7 @@ private:
 
 public:
     inline explicit StaticString(const char* czstring) : str_(czstring)
-    {
-    }
+    {}
     inline operator const char*() const noexcept
     {
         return str_;
@@ -557,8 +554,7 @@ class FastWriter final : public Writer
 public:
     FastWriter();
     virtual ~FastWriter()
-    {
-    }
+    {}
     void enableYAMLCompatibility();
     void dropNullPlaceholders();
     virtual std::string write(const Value& root);
@@ -574,8 +570,7 @@ class StyledWriter final : public Writer
 public:
     StyledWriter();
     virtual ~StyledWriter()
-    {
-    }
+    {}
     virtual std::string write(const Value& root);
 
 private:
@@ -604,8 +599,7 @@ class StyledStreamWriter
 public:
     StyledStreamWriter(std::string indentation = "\t");
     ~StyledStreamWriter()
-    {
-    }
+    {}
     void write(std::ostream& out, const Value& root);
 
 private:

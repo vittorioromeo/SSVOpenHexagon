@@ -6,8 +6,7 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 
-namespace hg
-{
+namespace hg {
 
 struct SpeedData
 {
@@ -19,12 +18,12 @@ struct SpeedData
 
     explicit SpeedData(float speed = 0, float accel = 0.f, float min = 0.f,
         float max = 0.f, bool pingPong = false) noexcept
-        : _speed{speed}, _accel{accel}, _min{min}, _max{max}, _pingPong{
-                                                                  pingPong
-                                                                      ? -1.f
-                                                                      : 1.f}
-    {
-    }
+        : _speed{speed},
+          _accel{accel},
+          _min{min},
+          _max{max},
+          _pingPong{pingPong ? -1.f : 1.f}
+    {}
 
     void update(const ssvu::FT ft) noexcept
     {

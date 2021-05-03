@@ -13,8 +13,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-namespace hg
-{
+namespace hg {
 
 class CWall;
 class CCustomWall;
@@ -78,8 +77,8 @@ private:
     void updateTriangleWidthTransition(const bool focused, const ssvu::FT ft);
 
 public:
-    explicit CPlayer(
-        const sf::Vector2f& pos, const float swapCooldown) noexcept;
+    explicit CPlayer(const sf::Vector2f& pos, const float swapCooldown,
+        const float size, const float speed, const float focusSpeed) noexcept;
 
     [[gnu::always_inline, nodiscard]] const sf::Vector2f&
     getPosition() const noexcept

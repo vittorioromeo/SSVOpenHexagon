@@ -12,20 +12,19 @@
 #include <string>
 #include <array>
 
-namespace ssvs
-{
+namespace ssvs {
 class GameWindow;
 } // namespace ssvs
 
-namespace ssvs::Input
-{
+namespace ssvs::Input {
 class Trigger;
 } // namespace ssvs::Input
 
-namespace hg::Config
-{
+namespace hg::Config {
 
-inline constexpr GameVersion GAME_VERSION{2, 0, 4};
+inline constexpr float TICKS_PER_SECOND = 240.f;
+inline constexpr float TIME_STEP = 60.f / TICKS_PER_SECOND;
+inline constexpr float TIME_SLICE = 60.f / TICKS_PER_SECOND;
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
 void resetConfigToDefaults();
@@ -37,9 +36,7 @@ void saveConfig();
 void recalculateSizes();
 void setFullscreen(ssvs::GameWindow& mWindow, bool mFullscreen);
 
-void refreshWindowSize(unsigned int mWidth, unsigned int mHeight);
-void setCurrentResolution(
-    ssvs::GameWindow& mWindow, unsigned int mWidth, unsigned int mHeight);
+void setCurrentResolution(unsigned int mWidth, unsigned int mHeight);
 void setCurrentResolutionAuto(ssvs::GameWindow& mWindow);
 
 void setVsync(ssvs::GameWindow& mWindow, bool mValue);
@@ -47,7 +44,6 @@ void setLimitFPS(ssvs::GameWindow& mWindow, bool mValue);
 void setMaxFPS(ssvs::GameWindow& mWindow, unsigned int mValue);
 void setAntialiasingLevel(ssvs::GameWindow& mWindow, unsigned int mValue);
 
-void setOnline(bool mOnline);
 void setOfficial(bool mOfficial);
 void setDebug(bool mDebug);
 void setNoRotation(bool mNoRotation);
@@ -64,9 +60,6 @@ void setMusicVolume(float mVolume);
 void setFlash(bool mFlash);
 void setMusicSpeedDMSync(bool mValue);
 void setShowFPS(bool mValue);
-void setServerLocal(bool mValue);
-void setServerVerbose(bool mValue);
-void setMouseVisible(bool mValue);
 void setMusicSpeedMult(float mValue);
 void setDrawTextOutlines(bool mX);
 void setDarkenUnevenBackgroundChunk(bool mX);
@@ -78,12 +71,14 @@ void setTimescale(float mX);
 void setShowKeyIcons(bool mX);
 void setKeyIconsScale(float mX);
 void setFirstTimePlaying(bool mX);
-void setSaveLocalBestReplayToFile(bool mX);
 void setShowLevelInfo(bool mX);
 void setShowTimer(bool mX);
 void setShowStatusText(bool mX);
+void setServerIp(const std::string& mX);
+void setServerPort(unsigned short mX);
+void setServerControlPort(unsigned short mX);
+void setServerLevelWhitelist(const std::vector<std::string>& levelValidators);
 
-[[nodiscard]] bool getOnline();
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
 [[nodiscard]] float getSizeX();
@@ -116,13 +111,6 @@ void setShowStatusText(bool mX);
 [[nodiscard]] bool getShowMessages();
 [[nodiscard]] bool getRotateToStart();
 
-[[nodiscard, gnu::const]] inline constexpr GameVersion getVersion()
-{
-    return GAME_VERSION;
-}
-
-[[nodiscard]] const std::string& getVersionString();
-
 [[nodiscard]] bool getDebug();
 [[nodiscard]] bool getPulse();
 [[nodiscard]] bool getBeatPulse();
@@ -137,9 +125,6 @@ void setShowStatusText(bool mX);
 [[nodiscard]] unsigned int getMaxFPS();
 [[nodiscard]] bool getShowFPS();
 [[nodiscard]] unsigned int getAntialiasingLevel();
-[[nodiscard]] bool getServerLocal();
-[[nodiscard]] bool getServerVerbose();
-[[nodiscard]] bool getMouseVisible();
 [[nodiscard]] float getMusicSpeedMult();
 [[nodiscard]] bool getDrawTextOutlines();
 [[nodiscard]] bool getDarkenUnevenBackgroundChunk();
@@ -150,10 +135,13 @@ void setShowStatusText(bool mX);
 [[nodiscard]] bool getShowKeyIcons();
 [[nodiscard]] float getKeyIconsScale();
 [[nodiscard]] bool getFirstTimePlaying();
-[[nodiscard]] bool getSaveLocalBestReplayToFile();
 [[nodiscard]] bool getShowLevelInfo();
 [[nodiscard]] bool getShowTimer();
 [[nodiscard]] bool getShowStatusText();
+[[nodiscard]] const std::string& getServerIp();
+[[nodiscard]] unsigned short getServerPort();
+[[nodiscard]] unsigned short getServerControlPort();
+[[nodiscard]] const std::vector<std::string> getServerLevelWhitelist();
 
 // keyboard binds
 
@@ -213,6 +201,6 @@ extern const std::array<JoystickTriggerSetter,
     toSizeT(Joystick::Jid::JoystickBindsCount)>
     joystickTriggerSetters;
 
-ssvs::Input::Trigger& getTrigger(const Tid tid);
+[[nodiscard]] ssvs::Input::Trigger& getTrigger(const Tid tid);
 
 } // namespace hg::Config

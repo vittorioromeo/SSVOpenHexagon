@@ -17,12 +17,16 @@
 enum EP2PSessionError
 {
 	k_EP2PSessionErrorNone = 0,
-	k_EP2PSessionErrorNotRunningApp = 1,			// target is not running the same game
 	k_EP2PSessionErrorNoRightsToApp = 2,			// local user doesn't own the app that is running
-	k_EP2PSessionErrorDestinationNotLoggedIn = 3,	// target user isn't connected to Steam
 	k_EP2PSessionErrorTimeout = 4,					// target isn't responding, perhaps not calling AcceptP2PSessionWithUser()
 													// corporate firewalls can also block this (NAT traversal is not firewall traversal)
 													// make sure that UDP ports 3478, 4379, and 4380 are open in an outbound direction
+
+	// The following error codes were removed and will never be sent.
+	// For privacy reasons, there is no reply if the user is offline or playing another game.
+	k_EP2PSessionErrorNotRunningApp_DELETED = 1,
+	k_EP2PSessionErrorDestinationNotLoggedIn_DELETED = 3,
+
 	k_EP2PSessionErrorMax = 5
 };
 
@@ -120,6 +124,10 @@ enum ESNetSocketConnectionType
 //-----------------------------------------------------------------------------
 // Purpose: Functions for making connections and sending data between clients,
 //			traversing NAT's where possible
+//
+// NOTE: This interface is deprecated and may be removed in a future release of
+///      the Steamworks SDK.  Please see ISteamNetworkingSockets and
+///      ISteamNetworkingMessages
 //-----------------------------------------------------------------------------
 class ISteamNetworking
 {
@@ -133,6 +141,9 @@ public:
 	// Both interface styles can send both reliable and unreliable messages.
 	//
 	// Automatically establishes NAT-traversing or Relay server connections
+	//
+	// These APIs are deprecated, and may be removed in a future version of the Steamworks
+	// SDK.  See ISteamNetworkingMessages.
 
 	// Sends a P2P packet to the specified user
 	// UDP-like, unreliable and a max packet size of 1200 bytes
@@ -181,6 +192,10 @@ public:
 	// or to existing connections that need to automatically reconnect after this value is set.
 	//
 	// P2P packet relay is allowed by default
+	//
+	// NOTE: This function is deprecated and may be removed in a future version of the SDK.  For
+	// security purposes, we may decide to relay the traffic to certain peers, even if you pass false
+	// to this function, to prevent revealing the client's IP address top another peer.
 	virtual bool AllowP2PPacketRelay( bool bAllow ) = 0;
 
 
@@ -197,6 +212,9 @@ public:
 	// simply send messages to a SteamID, use the UDP-style functions above.
 	//
 	// Both methods can send both reliable and unreliable methods.
+	//
+	// These APIs are deprecated, and may be removed in a future version of the Steamworks
+	// SDK.  See ISteamNetworkingSockets.
 	//
 	////////////////////////////////////////////////////////////////////////////////////////////
 

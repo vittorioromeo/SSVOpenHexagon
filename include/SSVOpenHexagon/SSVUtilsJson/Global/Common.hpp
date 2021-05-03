@@ -8,8 +8,7 @@
 
 #include <string>
 
-namespace ssvuj
-{
+namespace ssvuj {
 
 template <typename T>
 struct Converter;

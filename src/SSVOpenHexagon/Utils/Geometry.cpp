@@ -10,8 +10,7 @@
 
 #include <cmath>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 [[nodiscard]] unsigned int getLineCircleIntersection(sf::Vector2f& i1,
     sf::Vector2f& i2, const sf::Vector2f& p1, const sf::Vector2f& p2,

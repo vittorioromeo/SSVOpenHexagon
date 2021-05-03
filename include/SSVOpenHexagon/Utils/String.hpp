@@ -7,8 +7,7 @@
 #include <string>
 #include <algorithm>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 inline void lTrim(std::string& str)
 {
@@ -61,6 +60,20 @@ inline void uppercasify(std::string& s)
 [[nodiscard]] inline std::string toUppercase(std::string s)
 {
     uppercasify(s);
+    return s;
+}
+
+inline void lowercasify(std::string& s)
+{
+    for(auto& c : s)
+    {
+        c = std::tolower(c);
+    }
+}
+
+[[nodiscard]] inline std::string toLowercase(std::string s)
+{
+    lowercasify(s);
     return s;
 }
 

@@ -14,8 +14,7 @@
 #include <optional>
 #include <functional>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 void timeline2::clear()
 {
@@ -79,11 +78,13 @@ timeline2_runner::outcome timeline2_runner::update(
 
         const outcome o = match(
             a._inner, //
-            [&](const timeline2::action_do& x) {
+            [&](const timeline2::action_do& x)
+            {
                 x._func();
                 return outcome::proceed;
             },
-            [&](const timeline2::action_wait_for& x) {
+            [&](const timeline2::action_wait_for& x)
+            {
                 if(!_wait_start_tp.has_value())
                 {
                     // Just started waiting.
@@ -101,7 +102,8 @@ timeline2_runner::outcome timeline2_runner::update(
                 _wait_start_tp.reset();
                 return outcome::proceed;
             },
-            [&](const timeline2::action_wait_until& x) {
+            [&](const timeline2::action_wait_until& x)
+            {
                 if(tp < x._time_point)
                 {
                     // Still waiting.
@@ -111,7 +113,8 @@ timeline2_runner::outcome timeline2_runner::update(
                 // Finished waiting.
                 return outcome::proceed;
             }, //
-            [&](const timeline2::action_wait_until_fn& x) {
+            [&](const timeline2::action_wait_until_fn& x)
+            {
                 if(tp < x._time_point_fn())
                 {
                     // Still waiting.

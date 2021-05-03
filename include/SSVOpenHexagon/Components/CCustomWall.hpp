@@ -18,8 +18,7 @@
 #include <cstdint>
 #include <utility>
 
-namespace hg
-{
+namespace hg {
 
 class CCustomWall
 {
@@ -43,6 +42,12 @@ private:
     std::bitset<CWFlags::CWFlagsCount> _flags; // Default: collides, not deadly
 
 public:
+    [[gnu::always_inline]] void reset()
+    {
+        _killingSide = 0u;
+        _flags.reset();
+    }
+
     [[gnu::always_inline]] void draw(Utils::FastVertexVectorQuads& wallQuads)
     {
         wallQuads.unsafe_emplace_back(_vertexPositions[0], _vertexColors[0]);

@@ -26,6 +26,7 @@ keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 7, 7, 8, 9, 10, 10, 10, 11, 11 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -34,7 +35,13 @@ function onInit()
     l_setSpeedMax(3.5)
     l_setRotationSpeed(0.25)
     l_setRotationSpeedMax(1)
-    l_setRotationSpeedInc(0.04)
+
+    if u_getDifficultyMult() > 1.5 then
+        l_setRotationSpeedInc(0.1)
+    else
+        l_setRotationSpeedInc(0.04)
+    end
+
     l_setDelayMult(1.0)
     l_setDelayInc(0.0)
     l_setFastSpin(85.0)
@@ -52,8 +59,8 @@ function onInit()
     l_setBeatPulseMax(17)
     l_setBeatPulseDelayMax(22.92)
 
-    enableSwapIfDMGreaterThan(1)
-    disableIncIfDMGreaterThan(1)
+    enableSwapIfDMGreaterThan(1.5)
+    disableSpeedIncIfDMGreaterThan(1.5)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -85,5 +92,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a6_euclidian")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 1.5 then
+        steam_unlockAchievement("a30_euclidian_hard")
+        hardAchievementUnlocked = true
     end
 end

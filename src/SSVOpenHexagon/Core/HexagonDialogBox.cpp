@@ -3,33 +3,43 @@
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Utils/FontHeight.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 
 #include <SSVStart/Utils/SFML.hpp>
+#include <SSVStart/GameSystem/GameWindow.hpp>
 
-namespace hg
-{
+#include <algorithm>
+#include <string>
+#include <tuple>
 
-HexagonDialogBox::HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& mWindow)
-    : assets{mAssets}, window{mWindow},
-      imagine{assets.get<sf::Font>("forcedsquare.ttf")}, txtDialog{
-                                                             "", imagine, 0}
+namespace hg {
+
+[[nodiscard]] static Utils::FastVertexVectorQuads& getDialogFrame()
 {
+    thread_local Utils::FastVertexVectorQuads result;
+    return result;
 }
+
+HexagonDialogBox::HexagonDialogBox(sf::Font& mFont, ssvs::GameWindow& mWindow)
+    : window{mWindow}, txtDialog{"", mFont, 0}
+{}
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
     const float mFrameSize, const DBoxDraw mDrawMode, const float mXPos,
-    const float mYPos)
+    const float mYPos, const bool mInputBox)
 {
     lineHeight = Utils::getFontHeight(txtDialog, charSize);
     txtDialog.setString(output);
     dialogWidth = ssvs::getGlobalWidth(txtDialog);
     frameSize = mFrameSize;
     doubleFrameSize = 2.f * frameSize;
-    drawFunc = drawModeToDrawFunc(mDrawMode);
+    drawMode = mDrawMode;
     xPos = mXPos;
     yPos = mYPos;
+    inputBox = mInputBox;
+    inputBoxPassword = false;
+    input.clear();
 
     std::string temp;
     for(char c : output)
@@ -49,6 +59,11 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
     const float dialogHeight =
         lineHeight * size + (lineHeight / 2.f) * (size - 1);
     totalHeight = dialogHeight + 2.f * doubleFrameSize;
+
+    if(inputBox)
+    {
+        totalHeight += lineHeight * 4;
+    }
 }
 
 void HexagonDialogBox::create(const std::string& output, const int charSize,
@@ -59,53 +74,49 @@ void HexagonDialogBox::create(const std::string& output, const int charSize,
     keyToClose = mKeyToClose;
 }
 
-HexagonDialogBox::DrawFunc HexagonDialogBox::drawModeToDrawFunc(
-    DBoxDraw drawMode)
+void HexagonDialogBox::createInput(const std::string& output,
+    const int charSize, const float mFrameSize, const DBoxDraw mDrawMode)
 {
-    switch(drawMode)
-    {
-        case DBoxDraw::topLeft:
-        {
-            return [this](const sf::Color& txtColor,
-                       const sf::Color& backdropColor) {
-                drawTopLeft(txtColor, backdropColor);
-            };
-        }
-
-        case DBoxDraw::center:
-        {
-            return [this](const sf::Color& txtColor,
-                       const sf::Color& backdropColor) {
-                drawCenter(txtColor, backdropColor);
-            };
-        }
-
-        default:
-        {
-            SSVOH_ASSERT(drawMode == DBoxDraw::centerUpperHalf);
-            return [this](const sf::Color& txtColor,
-                       const sf::Color& backdropColor) {
-                drawCenterUpperHalf(txtColor, backdropColor);
-            };
-        }
-    }
+    create(output, charSize, mFrameSize, mDrawMode, 0.f, 0.f, true);
+    keyToClose = KKey::Enter;
 }
 
 void HexagonDialogBox::draw(
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
-    drawFunc(txtColor, backdropColor);
+    switch(drawMode)
+    {
+        case DBoxDraw::topLeft:
+        {
+            drawTopLeft(txtColor, backdropColor);
+            break;
+        }
+
+        case DBoxDraw::center:
+        {
+            drawCenter(txtColor, backdropColor);
+            break;
+        }
+
+        default:
+        {
+            SSVOH_ASSERT(drawMode == DBoxDraw::centerUpperHalf);
+            drawCenterUpperHalf(txtColor, backdropColor);
+            break;
+        }
+    }
 }
 
-void HexagonDialogBox::drawBox(const sf::Color& frameColor, const float x1,
-    const float x2, const float y1, const float y2)
+void HexagonDialogBox::drawBox(Utils::FastVertexVectorQuads& quads,
+    const sf::Color& frameColor, const float x1, const float x2, const float y1,
+    const float y2)
 {
     const sf::Vector2f topLeft{x1, y1};
     const sf::Vector2f topRight{x2, y1};
     const sf::Vector2f bottomRight{x2, y2};
     const sf::Vector2f bottomLeft{x1, y2};
 
-    dialogFrame.batch_unsafe_emplace_back(
+    quads.batch_unsafe_emplace_back(
         frameColor, topLeft, topRight, bottomRight, bottomLeft);
 }
 
@@ -129,6 +140,24 @@ void HexagonDialogBox::drawText(
 
         heightOffset += interline;
     }
+
+    if(inputBox)
+    {
+        heightOffset += interline;
+
+        if(inputBoxPassword)
+        {
+            txtDialog.setString(std::string(input.size(), '*'));
+        }
+        else
+        {
+            txtDialog.setString(input);
+        }
+
+        txtDialog.setPosition({xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
+            yOffset + heightOffset});
+        window.draw(txtDialog);
+    }
 }
 
 inline constexpr float fontHeightDifferential = 0.9f;
@@ -136,15 +165,16 @@ inline constexpr float fontHeightDifferential = 0.9f;
 void HexagonDialogBox::drawTopLeft(
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
+    Utils::FastVertexVectorQuads& dialogFrame = getDialogFrame();
     dialogFrame.clear();
     dialogFrame.reserve(8);
 
     // outer frame
-    drawBox(txtColor, xPos, 2.f * doubleFrameSize + dialogWidth + xPos, yPos,
-        totalHeight + yPos);
+    drawBox(dialogFrame, txtColor, xPos,
+        2.f * doubleFrameSize + dialogWidth + xPos, yPos, totalHeight + yPos);
 
     // text backdrop
-    drawBox(backdropColor, frameSize + xPos,
+    drawBox(dialogFrame, backdropColor, frameSize + xPos,
         doubleFrameSize + frameSize + dialogWidth + xPos, frameSize + yPos,
         totalHeight - frameSize + yPos);
 
@@ -155,28 +185,44 @@ void HexagonDialogBox::drawTopLeft(
         yPos - lineHeight * fontHeightDifferential + doubleFrameSize);
 }
 
+[[nodiscard]] static float calculateFMax(
+    const float configWidth, const float configHeight)
+{
+    return std::max(1024.f / configWidth, 768.f / configHeight);
+}
+
+[[nodiscard]] static std::tuple<float, float, float> calculateFMaxAndWAndH(
+    const float configWidth, const float configHeight, const float yPos)
+{
+    const float fmax = calculateFMax(configWidth, configHeight);
+    const float w = configWidth * fmax;
+    const float h = (configHeight * fmax) / 2.f + yPos;
+
+    return {fmax, w, h};
+}
+
 void HexagonDialogBox::drawCenter(
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
-    const float fmax = std::max(
-                    1024.f / Config::getWidth(), 768.f / Config::getHeight()),
-                w = Config::getWidth() * fmax,
-                h = (Config::getHeight() * fmax) / 2.f + yPos;
+    const auto [fmax, w, h] =
+        calculateFMaxAndWAndH(Config::getWidth(), Config::getHeight(), yPos);
 
     const float leftBorder = (w - dialogWidth) / 2.f + xPos,
                 rightBorder = (w + dialogWidth) / 2.f + xPos,
                 halfHeight = totalHeight / 2.f;
 
+    Utils::FastVertexVectorQuads& dialogFrame = getDialogFrame();
     dialogFrame.clear();
     dialogFrame.reserve(8);
 
     // outer frame
-    drawBox(txtColor, leftBorder - doubleFrameSize,
+    drawBox(dialogFrame, txtColor, leftBorder - doubleFrameSize,
         rightBorder + doubleFrameSize, h - halfHeight, h + halfHeight);
 
     // text backdrop
-    drawBox(backdropColor, leftBorder - frameSize, rightBorder + frameSize,
-        h - halfHeight + frameSize, h + halfHeight - frameSize);
+    drawBox(dialogFrame, backdropColor, leftBorder - frameSize,
+        rightBorder + frameSize, h - halfHeight + frameSize,
+        h + halfHeight - frameSize);
 
     window.draw(dialogFrame);
 
@@ -188,24 +234,23 @@ void HexagonDialogBox::drawCenter(
 void HexagonDialogBox::drawCenterUpperHalf(
     const sf::Color& txtColor, const sf::Color& backdropColor)
 {
-    const float fmax = std::max(
-                    1024.f / Config::getWidth(), 768.f / Config::getHeight()),
-                w = Config::getWidth() * fmax,
-                h = (Config::getHeight() * fmax) / 2.f + yPos;
+    const auto [fmax, w, h] =
+        calculateFMaxAndWAndH(Config::getWidth(), Config::getHeight(), yPos);
 
     const float leftBorder = (w - dialogWidth) / 2.f + xPos,
                 rightBorder = (w + dialogWidth) / 2.f + xPos;
 
+    Utils::FastVertexVectorQuads& dialogFrame = getDialogFrame();
     dialogFrame.clear();
     dialogFrame.reserve(8);
 
     // outer frame
-    drawBox(txtColor, leftBorder - doubleFrameSize,
+    drawBox(dialogFrame, txtColor, leftBorder - doubleFrameSize,
         rightBorder + doubleFrameSize, h - totalHeight, h);
 
     // text backdrop
-    drawBox(backdropColor, leftBorder - frameSize, rightBorder + frameSize,
-        h - totalHeight + frameSize, h - frameSize);
+    drawBox(dialogFrame, backdropColor, leftBorder - frameSize,
+        rightBorder + frameSize, h - totalHeight + frameSize, h - frameSize);
 
     window.draw(dialogFrame);
 
@@ -217,10 +262,47 @@ void HexagonDialogBox::drawCenterUpperHalf(
 
 void HexagonDialogBox::clearDialogBox()
 {
-    assets.playSound("select.ogg");
-    dialogFrame.clear();
+    getDialogFrame().clear();
     dialogText.clear();
+    input.clear();
+    inputBox = false;
+    inputBoxPassword = false;
     keyToClose = KKey::Unknown;
+}
+
+[[nodiscard]] ssvs::KKey HexagonDialogBox::getKeyToClose() const noexcept
+{
+    return keyToClose;
+}
+
+[[nodiscard]] bool HexagonDialogBox::empty() const noexcept
+{
+    return dialogText.empty();
+}
+
+[[nodiscard]] bool HexagonDialogBox::isInputBox() const noexcept
+{
+    return inputBox;
+}
+
+[[nodiscard]] std::string& HexagonDialogBox::getInput() noexcept
+{
+    return input;
+}
+
+[[nodiscard]] const std::string& HexagonDialogBox::getInput() const noexcept
+{
+    return input;
+}
+
+void HexagonDialogBox::setInputBoxPassword(const bool x) noexcept
+{
+    inputBoxPassword = x;
+}
+
+[[nodiscard]] bool HexagonDialogBox::getInputBoxPassword() noexcept
+{
+    return inputBoxPassword;
 }
 
 } // namespace hg

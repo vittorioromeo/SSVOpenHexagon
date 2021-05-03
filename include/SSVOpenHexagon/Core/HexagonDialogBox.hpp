@@ -4,21 +4,23 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
-
-#include <SSVStart/GameSystem/GameSystem.hpp>
-
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
 #include <string>
+#include <vector>
 
-namespace hg
-{
+namespace ssvs {
+class GameWindow;
+}
 
-class HGAssets;
+namespace hg::Utils {
+class FastVertexVectorQuads;
+} // namespace hg::Utils
+
+namespace hg {
 
 enum class DBoxDraw
 {
@@ -31,15 +33,12 @@ class HexagonDialogBox
 {
 private:
     using KKey = sf::Keyboard::Key;
-    using DrawFunc = std::function<void(const sf::Color&, const sf::Color&)>;
 
-    HGAssets& assets;
     ssvs::GameWindow& window;
-    DrawFunc drawFunc;
 
-    Utils::FastVertexVectorQuads dialogFrame;
+    DBoxDraw drawMode;
+
     std::vector<std::string> dialogText;
-    sf::Font& imagine;
     sf::Text txtDialog;
 
     float dialogWidth{0.f};
@@ -53,11 +52,14 @@ private:
 
     KKey keyToClose{KKey::Unknown};
 
-    [[nodiscard]] DrawFunc drawModeToDrawFunc(DBoxDraw drawMode);
+    bool inputBox{false};
+    bool inputBoxPassword{false};
+    std::string input;
 
     void drawText(
         const sf::Color& txtColor, const float xOffset, const float yOffset);
-    void drawBox(const sf::Color& frameColor, const float x1, const float x2,
+    void drawBox(Utils::FastVertexVectorQuads& quads,
+        const sf::Color& frameColor, const float x1, const float x2,
         const float y1, const float y2);
     void drawCenter(const sf::Color& txtColor, const sf::Color& backdropColor);
     void drawCenterUpperHalf(
@@ -65,28 +67,32 @@ private:
     void drawTopLeft(const sf::Color& txtColor, const sf::Color& backdropColor);
 
 public:
-    explicit HexagonDialogBox(HGAssets& mAssets, ssvs::GameWindow& window);
+    explicit HexagonDialogBox(sf::Font& font, ssvs::GameWindow& window);
 
     void create(const std::string& output, const int charSize,
         const float mFrameSize, const DBoxDraw mDrawMode,
-        const float xPos = 0.f, const float yPos = 0.f);
+        const float xPos = 0.f, const float yPos = 0.f,
+        const bool mInputBox = false);
+
     void create(const std::string& output, const int charSize,
         const float mFrameSize, const DBoxDraw mDrawMode,
         const KKey mKeyToClose, const float mXPos = 0.f,
         const float mYPos = 0.f);
 
+    void createInput(const std::string& output, const int charSize,
+        const float mFrameSize, const DBoxDraw mDrawMode);
+
     void draw(const sf::Color& txtColor, const sf::Color& backdropColor);
+
     void clearDialogBox();
 
-    [[nodiscard]] KKey getKeyToClose() const noexcept
-    {
-        return keyToClose;
-    }
-
-    [[nodiscard]] bool empty() const noexcept
-    {
-        return dialogText.empty();
-    }
+    [[nodiscard]] KKey getKeyToClose() const noexcept;
+    [[nodiscard]] bool empty() const noexcept;
+    [[nodiscard]] bool isInputBox() const noexcept;
+    [[nodiscard]] std::string& getInput() noexcept;
+    [[nodiscard]] const std::string& getInput() const noexcept;
+    void setInputBoxPassword(const bool x) noexcept;
+    [[nodiscard]] bool getInputBoxPassword() noexcept;
 };
 
 } // namespace hg

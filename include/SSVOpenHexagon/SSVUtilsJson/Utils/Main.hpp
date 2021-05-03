@@ -5,9 +5,11 @@
 #pragma once
 
 #include "SSVOpenHexagon/SSVUtilsJson/Global/Common.hpp"
+#include "SSVOpenHexagon/SSVUtilsJson/Utils/TypeChecker.hpp"
 
-namespace ssvuj
-{
+#include <utility>
+
+namespace ssvuj {
 /// @brief Gets a JSON Obj from another JSON Obj.
 /// @param mObj Source JSON Obj.
 inline Obj& getObj(Obj& mObj) noexcept
@@ -71,7 +73,7 @@ inline auto getObjSize(const Obj& mArray, Idx mIdx) noexcept
 /// @param mKey Key of the child.
 inline bool hasObj(const Obj& mObj, const Key& mKey) noexcept
 {
-    return mObj.isMember(mKey);
+    return mObj.isObject() && mObj.isMember(mKey);
 }
 
 /// @brief Checks whether a JSON Obj array has a certain member.
@@ -79,7 +81,7 @@ inline bool hasObj(const Obj& mObj, const Key& mKey) noexcept
 /// @param mIdx Index of the child.
 inline bool hasObj(const Obj& mArray, Idx mIdx) noexcept
 {
-    return mArray.isValidIndex(mIdx);
+    return mArray.isArray() && mArray.isValidIndex(mIdx);
 }
 
 /// @brief Checks if a JSON Obj is an array.
@@ -257,192 +259,6 @@ inline auto begin(const Obj& mObj) noexcept
 inline auto end(const Obj& mObj) noexcept
 {
     return mObj.end();
-}
-
-namespace Impl
-{
-template <Idx TIdx, typename TArg>
-inline void extrArrayHelper(const Obj& mArray, TArg& mArg)
-{
-    extr(mArray, TIdx, mArg);
-}
-template <Idx TIdx, typename TArg, typename... TArgs>
-inline void extrArrayHelper(const Obj& mArray, TArg& mArg, TArgs&... mArgs)
-{
-    extrArrayHelper<TIdx>(mArray, mArg);
-    extrArrayHelper<TIdx + 1>(mArray, mArgs...);
-}
-
-template <Idx TIdx, typename TArg>
-inline void archArrayHelper(Obj& mArray, const TArg& mArg)
-{
-    arch(mArray, TIdx, mArg);
-}
-template <Idx TIdx, typename TArg, typename... TArgs>
-inline void archArrayHelper(
-    Obj& mArray, const TArg& mArg, const TArgs&... mArgs)
-{
-    archArrayHelper<TIdx>(mArray, mArg);
-    archArrayHelper<TIdx + 1>(mArray, mArgs...);
-}
-
-template <typename TArg>
-inline void extrObjHelper(const Obj& mObj, const Key& mKey, TArg& mArg)
-{
-    extr(mObj, mKey, mArg);
-}
-template <typename TArg, typename... TArgs>
-inline void extrObjHelper(
-    const Obj& mObj, const Key& mKey, TArg& mArg, TArgs&... mArgs)
-{
-    extrObjHelper(mObj, mKey, mArg);
-    extrObjHelper(mObj, mArgs...);
-}
-
-template <typename TArg>
-inline void archObjHelper(Obj& mObj, const Key& mKey, const TArg& mArg)
-{
-    arch(mObj, mKey, mArg);
-}
-template <typename TArg, typename... TArgs>
-inline void archObjHelper(
-    Obj& mObj, const Key& mKey, const TArg& mArg, const TArgs&... mArgs)
-{
-    archObjHelper(mObj, mKey, mArg);
-    archObjHelper(mObj, mArgs...);
-}
-} // namespace Impl
-
-/// @brief Extracts a JSON array into value references.
-/// @param mArray Array to extract.
-/// @param mArgs References to be assigned after the extraction.
-template <typename... TArgs>
-inline void extrArray(const Obj& mArray, TArgs&... mArgs)
-{
-    Impl::extrArrayHelper<0>(mArray, mArgs...);
-}
-
-/// @brief Archives any number of values into a JSON array.
-/// @param mArray Array to archive the values in.
-/// @param mArgs Const references to the values to archive.
-template <typename... TArgs>
-inline void archArray(Obj& mArray, const TArgs&... mArgs)
-{
-    Impl::archArrayHelper<0>(mArray, mArgs...);
-}
-
-/// @brief Returns a new JSON array instance with any number of values
-/// archived
-/// in it.
-/// @param mArgs Const references to the values to archive.
-template <typename... TArgs>
-inline Obj getArchArray(const TArgs&... mArgs)
-{
-    Obj result;
-    archArray(result, mArgs...);
-    return result;
-}
-
-/// @brief Extracts any number of values from a JSON Obj.
-/// @param mObj Object to extract the values from.
-/// @param mArgs For every value extracted, pass a key and a reference to
-/// the
-/// value.
-template <typename... TArgs>
-inline void extrObj(const Obj& mObj, TArgs&... mArgs)
-{
-    Impl::extrObjHelper(mObj, mArgs...);
-}
-
-/// @brief Archives any number of values into a JSON Obj.
-/// @param mObj Object to archive the values in.
-/// @param mArgs For every value archived, pass a key and a const reference
-/// to
-/// the value.
-template <typename... TArgs>
-inline void archObj(Obj& mObj, const TArgs&... mArgs)
-{
-    Impl::archObjHelper(mObj, mArgs...);
-}
-
-/// @brief Returns a new JSON Obj instance with any number of values
-/// archived in
-/// it.
-/// @param mArgs For every value archived, pass a key and a const reference
-/// to
-/// the value.
-template <typename... TArgs>
-inline Obj getArchObj(const TArgs&... mArgs)
-{
-    Obj result;
-    archObj(result, mArgs...);
-    return result;
-}
-
-/// @brief Archives/extracts a value into/from a JSON Obj, depending from
-/// the
-/// constness.
-/// @param mObj Object to extract.
-/// @param mValue Value to extract.
-template <typename T>
-inline void convert(const Obj& mObj, T& mValue)
-{
-    extr(mObj, mValue);
-}
-
-/// @brief Archives/extracts a value into/from a JSON Obj, depending from
-/// the
-/// constness.
-/// @param mObj Object to archive.
-/// @param mValue Value to archive.
-template <typename T>
-inline void convert(Obj& mObj, const T& mValue)
-{
-    arch(mObj, mValue);
-}
-
-/// @brief Archives/extracts any number of values into/from a JSON array,
-/// depending from the constness.
-/// @param mObj Object to extract.
-/// @param mArgs Values to extract.
-template <typename... TArgs>
-inline void convertArray(const Obj& mObj, TArgs&... mArgs)
-{
-    extrArray(mObj, mArgs...);
-}
-
-/// @brief Archives/extracts any number of values into/from a JSON array,
-/// depending from the constness.
-/// @param mObj Object to archive.
-/// @param mArgs Values to archive.
-template <typename... TArgs>
-inline void convertArray(Obj& mObj, const TArgs&... mArgs)
-{
-    archArray(mObj, mArgs...);
-}
-
-/// @brief Archives/extracts any number of values into/from a JSON Obj,
-/// depending from the constness.
-/// @param mObj Object to extract.
-/// @param mArgs For every value extracted, pass a key and a reference to
-/// the
-/// value.
-template <typename... TArgs>
-inline void convertObj(const Obj& mObj, TArgs&... mArgs)
-{
-    extrObj(mObj, mArgs...);
-}
-
-/// @brief Archives/extracts any number of values into/from a JSON Obj,
-/// depending from the constness.
-/// @param mObj Object to archive.
-/// @param mArgs For every value archived, pass a key and a const reference
-/// to
-/// the value.
-template <typename... TArgs>
-inline void convertObj(Obj& mObj, const TArgs&... mArgs)
-{
-    archObj(mObj, mArgs...);
 }
 
 } // namespace ssvuj

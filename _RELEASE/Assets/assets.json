@@ -17,6 +17,8 @@
 		"keyFocus.png",
 		"keySwap.png",
 		"replayIcon.png",
+		"onlineIcon.png",
+		"onlineIconFail.png",
 		"starParticle.png"
 	],
 	"soundBuffers":

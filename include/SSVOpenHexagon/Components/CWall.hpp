@@ -14,9 +14,7 @@
 #include <array>
 #include <cstdint>
 
-namespace hg
-{
-
+namespace hg {
 
 class CWall
 {
@@ -39,7 +37,7 @@ public:
         const float wallAngleRight, const float wallSkewLeft,
         const float wallSkewRight, const sf::Vector2f& centerPos,
         const int side, const float thickness, const float distance,
-        const SpeedData& speed, const SpeedData& curve);
+        const SpeedData& speed, const SpeedData& curve, const float hueMod);
 
     void update(const float wallSpawnDist, const float radius,
         const sf::Vector2f& centerPos, const ssvu::FT ft);

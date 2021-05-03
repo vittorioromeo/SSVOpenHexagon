@@ -12,8 +12,7 @@
 
 #include <string>
 
-namespace hg
-{
+namespace hg {
 
 class BindControlBase : public ssvms::ItemBase
 {
@@ -25,8 +24,7 @@ public:
     explicit BindControlBase(ssvms::Menu& mMenu, ssvms::Category& mCategory,
         const std::string& mName, const int mID)
         : ssvms::ItemBase(mMenu, mCategory, mName), ID{mID}
-    {
-    }
+    {}
 
     [[nodiscard]] virtual bool erase() = 0;
     [[nodiscard]] virtual bool isWaitingForBind() const = 0;
@@ -63,15 +61,15 @@ public:
         TFuncClear mFuncClear, TFuncCallback mCallback, const int mTriggerID,
         const ssvs::KKey mHardcodedKey = ssvs::KKey::Unknown)
         : BindControlBase{mMenu, mCategory, mName, mTriggerID},
-          triggerGetter{mFuncGet}, sizeGetter{[this] {
-              return getRealSize(triggerGetter().getCombos());
-          }},
-          addBind{[this, mFuncSet](
-                      const ssvs::KKey setKey, const ssvs::MBtn setBtn) {
-              mFuncSet(setKey, setBtn, sizeGetter());
-          }},
+          triggerGetter{mFuncGet},
+          sizeGetter{
+              [this] { return getRealSize(triggerGetter().getCombos()); }},
+          addBind{
+              [this, mFuncSet](const ssvs::KKey setKey, const ssvs::MBtn setBtn)
+              { mFuncSet(setKey, setBtn, sizeGetter()); }},
           clearBind{[this, mFuncClear] { mFuncClear(sizeGetter() - 1); }},
-          callback{mCallback}, hardcodedKey{mHardcodedKey}
+          callback{mCallback},
+          hardcodedKey{mHardcodedKey}
     {
         // If user manually added a hardcoded key to the config file
         // sanitize the bind. Cannot use a reference here because
@@ -116,9 +114,10 @@ public:
         const std::string& mName, TFuncGet mFuncGet, TFuncSet mFuncSet,
         TFuncCallback mCallback, const int mButtonID)
         : BindControlBase{mMenu, mCategory, mName, mButtonID},
-          valueGetter{mFuncGet}, setButton{mFuncSet}, callback{mCallback}
-    {
-    }
+          valueGetter{mFuncGet},
+          setButton{mFuncSet},
+          callback{mCallback}
+    {}
 
     void exec() override;
 

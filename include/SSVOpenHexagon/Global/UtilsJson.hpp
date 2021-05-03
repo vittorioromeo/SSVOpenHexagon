@@ -4,90 +4,81 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/Keyboard.hpp>
 
-#include <SSVStart/Global/Typedefs.hpp>
-#include <SSVStart/Input/Enums.hpp>
-#include <SSVStart/Input/Combo.hpp>
-#include <SSVStart/Input/Trigger.hpp>
-#include <SSVStart/Utils/Input.hpp>
-#include <SSVStart/Assets/AssetManager.hpp>
+namespace ssvs::Input {
+class Trigger;
+class Combo;
+} // namespace ssvs::Input
 
-#include <SSVUtils/Core/Log/Log.hpp>
-#include <SSVUtils/Core/FileSystem/FileSystem.hpp>
-
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/Color.hpp>
-
-namespace ssvs
-{
-
-void loadAssetsFromJson(ssvs::AssetManager<>& mAM,
-    const ssvufs::Path& mRootPath, const ssvuj::Obj& mObj);
-
-} // namespace ssvs
-
-namespace ssvuj
-{
-
+namespace sf {
 template <typename T>
-SSVUJ_CNV_SIMPLE(sf::Vector2<T>, mObj, mV)
-{
-    ssvuj::convertArray(mObj, mV.x, mV.y);
+class Vector2;
+
+using Vector2f = Vector2<float>;
+
+class Color;
+} // namespace sf
+
+
+namespace Json {
+class Value;
 }
-SSVUJ_CNV_SIMPLE_END();
+
+namespace ssvuj {
+using Obj = Json::Value;
+
+template <typename>
+struct Converter;
+} // namespace ssvuj
+
+namespace ssvuj {
+
 
 template <>
-SSVUJ_CNV_SIMPLE(sf::Color, mObj, mV)
+struct Converter<sf::Vector2f>
 {
-    ssvuj::convertArray(mObj, mV.r, mV.g, mV.b, mV.a);
-}
-SSVUJ_CNV_SIMPLE_END();
+    using T = sf::Vector2f;
 
-template <>
-SSVUJ_CNV_SIMPLE(ssvs::Input::Trigger, mObj, mV)
-{
-    ssvuj::convert(mObj, mV.getCombos());
-}
-SSVUJ_CNV_SIMPLE_END();
-
-template <>
-struct Converter<ssvs::KKey>
-{
-    using T = ssvs::KKey;
-
-    static void fromObj(const Obj& mObj, T& mValue)
-    {
-        mValue = ssvs::getKKey(getExtr<std::string>(mObj));
-    }
-
-    static void toObj(Obj& mObj, const T& mValue)
-    {
-        if(mValue == T::Unknown)
-        {
-            std::string empty;
-            arch(mObj, empty); // TODO: using `""` seems to be bugged
-            return;
-        }
-
-        arch(mObj, ssvs::getKKeyName(mValue));
-    }
+    static void fromObj(const Obj& mObj, T& mValue);
+    static void toObj(Obj& mObj, const T& mValue);
 };
 
 template <>
-struct Converter<ssvs::MBtn>
+struct Converter<sf::Color>
 {
-    using T = ssvs::MBtn;
+    using T = sf::Color;
 
-    static void fromObj(const Obj& mObj, T& mValue)
-    {
-        mValue = ssvs::getMBtn(getExtr<std::string>(mObj));
-    }
+    static void fromObj(const Obj& mObj, T& mValue);
+    static void toObj(Obj& mObj, const T& mValue);
+};
 
-    static void toObj(Obj& mObj, const T& mValue)
-    {
-        arch(mObj, ssvs::getMBtnName(mValue));
-    }
+template <>
+struct Converter<ssvs::Input::Trigger>
+{
+    using T = ssvs::Input::Trigger;
+
+    static void fromObj(const Obj& mObj, T& mValue);
+    static void toObj(Obj& mObj, const T& mValue);
+};
+
+template <>
+struct Converter<sf::Keyboard::Key>
+{
+    using T = sf::Keyboard::Key;
+
+    static void fromObj(const Obj& mObj, T& mValue);
+    static void toObj(Obj& mObj, const T& mValue);
+};
+
+template <>
+struct Converter<sf::Mouse::Button>
+{
+    using T = sf::Mouse::Button;
+
+    static void fromObj(const Obj& mObj, T& mValue);
+    static void toObj(Obj& mObj, const T& mValue);
 };
 
 template <>
@@ -95,68 +86,8 @@ struct Converter<ssvs::Input::Combo>
 {
     using T = ssvs::Input::Combo;
 
-    static void fromObj(const Obj& mObj, T& mValue)
-    {
-        mValue.clearBind();
-
-        std::string str;
-
-        for(const auto& i : mObj)
-        {
-            str = getExtr<std::string>(i);
-
-            if(str.empty())
-            {
-                mValue.addKey(ssvs::KKey::Unknown);
-            }
-            else if(ssvs::isKKeyNameValid(str))
-            {
-                mValue.addKey(getExtr<ssvs::KKey>(i));
-            }
-            else if(ssvs::isMBtnNameValid(str))
-            {
-                mValue.addBtn(getExtr<ssvs::MBtn>(i));
-            }
-            else
-            {
-                ssvu::lo("ssvs::getInputComboFromJSON")
-                    << "<" << i
-                    << "> is not a valid input name, an empty bind has been "
-                       "put in its place\n";
-
-                mValue.addKey(ssvs::KKey::Unknown);
-            }
-        }
-    }
-
-    static void toObj(Obj& mObj, const T& mValue)
-    {
-        if(mValue.isUnbound())
-        {
-            arch(mObj, 0, ssvs::KKey(-1));
-            return;
-        }
-
-        auto i(0u);
-        const auto& keys(mValue.getKeys());
-        const auto& btns(mValue.getBtns());
-
-        for(auto j(0u); j < ssvs::kKeyCount; ++j)
-        {
-            if(ssvs::getKeyBit(keys, ssvs::KKey(j)))
-            {
-                arch(mObj, i++, ssvs::KKey(j));
-            }
-        }
-
-        for(auto j(0u); j < ssvs::mBtnCount; ++j)
-        {
-            if(ssvs::getBtnBit(btns, ssvs::MBtn(j)))
-            {
-                arch(mObj, i++, ssvs::MBtn(j));
-            }
-        }
-    }
+    static void fromObj(const Obj& mObj, T& mValue);
+    static void toObj(Obj& mObj, const T& mValue);
 };
 
 } // namespace ssvuj

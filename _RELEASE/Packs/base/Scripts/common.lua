@@ -1,9 +1,9 @@
 -- common variables
-THICKNESS = 40.0;
+THICKNESS = 40.0
 
 function enableSwapIfDMGreaterThan(mDM)
     if(u_getDifficultyMult() > mDM) then
-        e_messageAdd(" difficulty > " ..mDM.. "\nswap enabled!", 65)
+        e_messageAdd("difficulty > " ..mDM.. "\nswap enabled!", 65)
         l_setSwapEnabled(true)
     end
 end
@@ -17,8 +17,15 @@ end
 
 function disableIncIfDMGreaterThan(mDM)
     if(u_getDifficultyMult() > mDM) then
-        e_messageAdd(" difficulty > " ..mDM.. "\nincrement disabled!", 65)
+        e_messageAdd("difficulty > " ..mDM.. "\nincrement disabled!", 65)
         l_setIncEnabled(false)
+    end
+end
+
+function disableSpeedIncIfDMGreaterThan(mDM)
+    if(u_getDifficultyMult() > mDM) then
+        e_messageAdd("difficulty > " ..mDM.. "\nspeed increment disabled!", 65)
+        l_setSpeedInc(0.0)
     end
 end
 
@@ -88,8 +95,8 @@ end
 
 -- cWallEx: creates a wall with mExtra walls attached to it
 function cWallEx(mSide, mExtra)
-    cWall(mSide);
-    local exLoopDir = 1;
+    cWall(mSide)
+    local exLoopDir = 1
 
     if mExtra < 0 then exLoopDir = -1 end
     for i = 0, mExtra, exLoopDir do cWall(mSide + i) end

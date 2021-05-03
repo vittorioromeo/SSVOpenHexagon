@@ -2,31 +2,43 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+
+#include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
-#include "SSVOpenHexagon/Core/MenuGame.hpp"
+#include "SSVOpenHexagon/Global/Audio.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/Discord.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/LevelValidator.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#include <SSVStart/Utils/Input.hpp>
 #include <SSVStart/Utils/Vector2.hpp>
-#include <SSVStart/SoundPlayer/SoundPlayer.hpp>
+#include <SSVStart/Utils/SFML.hpp>
+#include <SSVStart/Input/Trigger.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
+#include <SSVUtils/Core/Log/Log.hpp>
 
 #include <SFML/Graphics.hpp>
 
-namespace hg
-{
-namespace
-{
+#include <cmath>
+#include <chrono>
+
+namespace hg {
+
+namespace {
 
 [[nodiscard]] double getReplayScore(const HexagonGameStatus& status)
 {
@@ -43,35 +55,47 @@ namespace
 
 } // namespace
 
+HexagonGame::ActiveReplay::ActiveReplay(const replay_file& mReplayFile)
+    : replayFile{mReplayFile}, replayPlayer{replayFile._data}
+{}
+
 void HexagonGame::createWall(int mSide, float mThickness,
     const SpeedData& mSpeed, const SpeedData& mCurve, float mHueMod)
 {
     walls.emplace_back(getSides(), getWallAngleLeft(), getWallAngleRight(),
         getWallSkewLeft(), getWallSkewRight(), centerPos, mSide, mThickness,
-        levelStatus.wallSpawnDistance, mSpeed, mCurve);
-
-    walls.back().setHueMod(mHueMod);
+        levelStatus.wallSpawnDistance, mSpeed, mCurve, mHueMod);
 }
 
 void HexagonGame::initKeyIcons()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     for(const auto& t :
         {"keyArrow.png", "keyFocus.png", "keySwap.png", "replayIcon.png"})
     {
-        assets.get<sf::Texture>(t).setSmooth(true);
+        assets.getTextureOrNullTexture(t).setSmooth(true);
     }
 
-    keyIconLeft.setTexture(assets.get<sf::Texture>("keyArrow.png"));
-    keyIconRight.setTexture(assets.get<sf::Texture>("keyArrow.png"));
-    keyIconFocus.setTexture(assets.get<sf::Texture>("keyFocus.png"));
-    keyIconSwap.setTexture(assets.get<sf::Texture>("keySwap.png"));
-    replayIcon.setTexture(assets.get<sf::Texture>("replayIcon.png"));
+    keyIconLeft.setTexture(assets.getTextureOrNullTexture("keyArrow.png"));
+    keyIconRight.setTexture(assets.getTextureOrNullTexture("keyArrow.png"));
+    keyIconFocus.setTexture(assets.getTextureOrNullTexture("keyFocus.png"));
+    keyIconSwap.setTexture(assets.getTextureOrNullTexture("keySwap.png"));
+    replayIcon.setTexture(assets.getTextureOrNullTexture("replayIcon.png"));
 
     updateKeyIcons();
 }
 
 void HexagonGame::updateKeyIcons()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     constexpr float halfSize = 32.f;
     constexpr float size = halfSize * 2.f;
 
@@ -117,6 +141,11 @@ void HexagonGame::updateKeyIcons()
 
 void HexagonGame::updateLevelInfo()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     const float levelInfoScaling = 1.f;
     const float scaling = levelInfoScaling / Config::getZoomFactor();
     const float padding = 8.f * scaling;
@@ -145,10 +174,11 @@ void HexagonGame::updateLevelInfo()
 
     const float tPadding = padding;
 
-    const auto trim = [](std::string s) {
-        if(s.size() > 28)
+    const auto trim = [](std::string s)
+    {
+        if(s.size() > 26)
         {
-            return s.substr(0, 28);
+            return s.substr(0, 26);
         }
 
         return s;
@@ -162,7 +192,8 @@ void HexagonGame::updateLevelInfo()
                                    sf::Vector2f{tPadding, tPadding});
 
     const auto prepareText = [&](sf::Text& text, const float characterSize,
-                                 const std::string& string) {
+                                 const std::string& string)
+    {
         text.setFillColor(styleData.getTextColor());
         text.setCharacterSize(characterSize / Config::getZoomFactor());
         text.setString(string);
@@ -198,38 +229,98 @@ void HexagonGame::updateLevelInfo()
     }
 }
 
+void HexagonGame::nameFormat(std::string& name)
+{
+    name[0] = std::toupper(name[0]);
+}
+
+[[nodiscard]] std::string HexagonGame::diffFormat(float diff)
+{
+    char buf[255];
+    std::snprintf(buf, sizeof(buf), "%g", diff);
+    return buf;
+}
+
+[[nodiscard]] std::string HexagonGame::timeFormat(float time)
+{
+    char buf[255];
+    std::snprintf(buf, sizeof(buf), "%.3f", time);
+    return buf;
+}
+
 [[nodiscard]] bool HexagonGame::imguiLuaConsoleHasInput()
 {
     return ilcShowConsole && (ImGui::GetIO().WantCaptureKeyboard ||
                                  ImGui::GetIO().WantCaptureMouse);
 }
 
-HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
-    Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
-    ssvs::GameWindow& mGameWindow)
-    : steamManager(mSteamManager), discordManager(mDiscordManager),
-      assets(mAssets), window(mGameWindow),
-      player{ssvs::zeroVec2f, getSwapCooldown()}, rng{initializeRng()},
-      fpsWatcher(window)
+[[nodiscard]] static sf::Text initText(
+    const char* text, const sf::Font& font, const float characterSize)
 {
-    game.onUpdate += [this](ssvu::FT mFT) { update(mFT); };
+    return sf::Text{text, font,
+        ssvu::toNum<unsigned int>(characterSize / Config::getZoomFactor())};
+}
 
-    game.onPostUpdate += [this] {
-        inputImplLastMovement = inputMovement;
-        inputImplBothCWCCW = inputImplCW && inputImplCCW;
+HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
+    Discord::discord_manager* mDiscordManager, HGAssets& mAssets, Audio* mAudio,
+    ssvs::GameWindow* mGameWindow, HexagonClient* mHexagonClient)
+    : steamManager(mSteamManager),
+      discordManager(mDiscordManager),
+      assets(mAssets),
+      font{assets.getFontOrNullFont("forcedsquare.ttf")},
+      audio(mAudio),
+      window(mGameWindow),
+      hexagonClient{mHexagonClient},
+      player{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
+          Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
+      levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
+      messageText{initText("", font, 38.f)},
+      pbText{initText("", font, 65.f)},
+      levelInfoTextLevel{"", font},
+      levelInfoTextPack{"", font},
+      levelInfoTextAuthor{"", font},
+      levelInfoTextBy{"", font},
+      levelInfoTextDM{"", font},
+      rng{initializeRng()},
+      fpsText{initText("0", font, 25.f)},
+      timeText{initText("0", font, 70.f)},
+      text{initText("", font, 25.f)},
+      replayText{initText("", font, 20.f)}
+{
+    if(window != nullptr)
+    {
+        const float width = Config::getWidth();
+        const float height = Config::getHeight();
+        const float zoomFactor = Config::getZoomFactor();
 
-        postUpdateImguiLuaConsole();
-    };
+        backgroundCamera.emplace(*window,
+            sf::View{ssvs::zeroVec2f,
+                sf::Vector2f{width * zoomFactor, height * zoomFactor}});
+
+        overlayCamera.emplace(
+            *window, sf::View{sf::Vector2f{width / 2.f, height / 2.f},
+                         sf::Vector2f{width, height}});
+    }
+
+
+    game.onUpdate +=
+        [this](ssvu::FT mFT) { update(mFT, Config::getTimescale()); };
+
+    game.onPostUpdate += [this] { postUpdate(); };
 
     game.onDraw += [this] { draw(); };
 
     game.onAnyEvent +=
         [](const sf::Event& event) { ImGui::SFML::ProcessEvent(event); };
 
-    window.onRecreation += [this] {
-        initFlashEffect();
-        initKeyIcons();
-    };
+    if(window != nullptr)
+    {
+        window->onRecreation += [this]
+        {
+            initFlashEffect();
+            initKeyIcons();
+        };
+    }
 
     // ------------------------------------------------------------------------
     // Keyboard binds
@@ -238,13 +329,15 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
 
     using Tid = Config::Tid;
 
-    const auto addTidInput = [&](const Tid tid, const ssvs::Input::Type type,
-                                 auto action) {
+    const auto addTidInput =
+        [&](const Tid tid, const ssvs::Input::Type type, auto action)
+    {
         game.addInput(
             Config::getTrigger(tid), action, type, static_cast<int>(tid));
     };
 
-    const auto addTid2StateInput = [&](const Tid tid, bool& value) {
+    const auto addTid2StateInput = [&](const Tid tid, bool& value)
+    {
         add2StateInput(
             game, Config::getTrigger(tid), value, static_cast<int>(tid));
     };
@@ -254,99 +347,81 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     addTid2StateInput(Tid::Focus, inputFocused);
     addTid2StateInput(Tid::Swap, inputSwap);
 
-    game.addInput(
-        {{sf::Keyboard::Key::Escape}},
-        [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
+    const auto notInConsole = [this](auto&& f)
+    {
+        return [this, f](ssvu::FT /*unused*/)
+        {
+            if(!imguiLuaConsoleHasInput())
             {
-                return;
+                f();
             }
+        };
+    };
 
-            goToMenu();
-        }, // hardcoded
+    game.addInput({{sf::Keyboard::Key::Escape}},
+        notInConsole([this] { goToMenu(); }), // hardcoded
         ssvs::Input::Type::Always);
 
-    addTidInput(
-        Tid::Exit, ssvs::Input::Type::Always, [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
-
-            goToMenu();
-        });
+    addTidInput(Tid::Exit, ssvs::Input::Type::Always,
+        notInConsole([this] { goToMenu(); }));
 
     addTidInput(Tid::ForceRestart, ssvs::Input::Type::Once,
-        [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
+        notInConsole(
+            [this] { status.mustStateChange = StateChange::MustRestart; }));
 
-            status.mustStateChange = StateChange::MustRestart;
+    addTidInput(Tid::Restart, ssvs::Input::Type::Once,
+        notInConsole(
+            [this]
+            {
+                if(deathInputIgnore <= 0.f && status.hasDied)
+                {
+                    status.mustStateChange = StateChange::MustRestart;
+                }
+            }));
+
+    addTidInput(Tid::Replay, ssvs::Input::Type::Once,
+        notInConsole(
+            [this]
+            {
+                if(deathInputIgnore <= 0.f && status.hasDied)
+                {
+                    status.mustStateChange = StateChange::MustReplay;
+                }
+            }));
+
+    addTidInput(Tid::Screenshot, ssvs::Input::Type::Once,
+        notInConsole([this] { mustTakeScreenshot = true; }));
+
+    addTidInput(Tid::LuaConsole, ssvs::Input::Type::Once,
+        [this](ssvu::FT /*unused*/)
+        {
+            if(Config::getDebug())
+            {
+                ilcShowConsoleNext = true;
+            }
         });
 
-    addTidInput(
-        Tid::Restart, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
+    addTidInput(Tid::Pause, ssvs::Input::Type::Once,
+        [this](ssvu::FT /*unused*/)
+        {
+            if(Config::getDebug())
             {
-                return;
-            }
+                debugPause = !debugPause;
 
-            if(deathInputIgnore <= 0.f && status.hasDied)
-            {
-                status.mustStateChange = StateChange::MustRestart;
-            }
-        });
-
-    addTidInput(
-        Tid::Replay, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
-
-            if(deathInputIgnore <= 0.f && status.hasDied)
-            {
-                status.mustStateChange = StateChange::MustReplay;
-            }
-        });
-
-    addTidInput(
-        Tid::Screenshot, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(imguiLuaConsoleHasInput())
-            {
-                return;
-            }
-
-            mustTakeScreenshot = true;
-        });
-
-    addTidInput(
-        Tid::LuaConsole, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(!Config::getDebug())
-            {
-                return;
-            }
-
-            ilcShowConsoleNext = true;
-        });
-
-    addTidInput(
-        Tid::Pause, ssvs::Input::Type::Once, [this](ssvu::FT /*unused*/) {
-            if(!Config::getDebug())
-            {
-                return;
-            }
-
-            debugPause = !debugPause;
-            if(debugPause)
-            {
-                assets.musicPlayer.pause();
-            }
-            else if(!status.hasDied)
-            {
-                assets.musicPlayer.resume();
+                if(debugPause)
+                {
+                    if(audio != nullptr)
+                    {
+                        audio->pauseMusic();
+                    }
+                }
+                else if(!status.hasDied)
+                {
+                    if(audio != nullptr)
+                    {
+                        audio->resumeMusic();
+                    }
+                }
             }
         });
 
@@ -358,6 +433,17 @@ HexagonGame::HexagonGame(Steam::steam_manager& mSteamManager,
     // ------------------------------------------------------------------------
     // key icons
     initKeyIcons();
+}
+
+HexagonGame::~HexagonGame()
+{
+    ssvu::lo("HexagonGame::~HexagonGame") << "Cleaning up game resources...\n";
+}
+
+void HexagonGame::refreshTrigger(
+    const ssvs::Input::Trigger& trigger, const int bindID)
+{
+    game.refreshTrigger(trigger, bindID);
 }
 
 void HexagonGame::setLastReplay(const replay_file& mReplayFile)
@@ -373,9 +459,9 @@ void HexagonGame::setLastReplay(const replay_file& mReplayFile)
 void HexagonGame::updateRichPresenceCallbacks()
 {
     // Update Steam Rich Presence
-    if(!steamHung)
+    if(steamManager != nullptr && !steamHung)
     {
-        if(!steamManager.run_callbacks())
+        if(!steamManager->run_callbacks())
         {
             steamAttempt += 1;
             if(steamAttempt > 20)
@@ -388,9 +474,9 @@ void HexagonGame::updateRichPresenceCallbacks()
     }
 
     // Update Discord Rich Presence
-    if(!discordHung)
+    if(discordManager != nullptr && !discordHung)
     {
-        if(!discordManager.run_callbacks())
+        if(!discordManager->run_callbacks())
         {
             discordAttempt += 1;
             if(discordAttempt > 20)
@@ -403,13 +489,46 @@ void HexagonGame::updateRichPresenceCallbacks()
     }
 }
 
+[[nodiscard]] bool HexagonGame::shouldPlaySounds() const
+{
+    return window != nullptr && audio != nullptr && !Config::getNoSound();
+}
+
+[[nodiscard]] bool HexagonGame::shouldPlayMusic() const
+{
+    return window != nullptr && audio != nullptr && !Config::getNoMusic();
+}
+
+void HexagonGame::playSoundOverride(const std::string& mId)
+{
+    if(shouldPlaySounds())
+    {
+        audio->playSoundOverride(mId);
+    }
+}
+
+void HexagonGame::playSoundAbort(const std::string& mId)
+{
+    if(shouldPlaySounds())
+    {
+        audio->playSoundAbort(mId);
+    }
+}
+
+void HexagonGame::playPackSoundOverride(
+    const std::string& mPackId, const std::string& mId)
+{
+    if(shouldPlaySounds())
+    {
+        audio->playPackSoundOverride(mPackId, mId);
+    }
+}
+
 void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     bool mFirstPlay, float mDifficultyMult, bool executeLastReplay)
 {
-    if(executeLastReplay)
-    {
-        fpsWatcher.disable();
-    }
+    SSVOH_ASSERT(assets.isValidPackId(mPackId));
+    SSVOH_ASSERT(assets.isValidLevelId(mId));
 
     initFlashEffect();
 
@@ -425,7 +544,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
         firstPlay = mFirstPlay;
     }
 
+    SSVOH_ASSERT(assets.isValidLevelId(mId));
     setLevelData(assets.getLevelData(mId), mFirstPlay);
+
     difficultyMult = mDifficultyMult;
 
     const double tempReplayScore = getReplayScore(status);
@@ -433,7 +554,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     if(!executeLastReplay)
     {
-        // TODO: this can be used to restore normal speed
+        // TODO (P2): this can be used to restore normal speed
         // window.setTimer<ssvs::TimerStatic>(0.5f, 0.5f);
 
         rng = initializeRng();
@@ -454,8 +575,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
             activeReplay.emplace(replay_file{
                 ._version{0},
-                ._player_name{
-                    assets.getCurrentLocalProfile().getName()}, // TODO
+
+                // TODO (P1): should this stay local?
+                ._player_name{assets.getCurrentLocalProfile().getName()},
+
                 ._seed{lastSeed},
                 ._data{lastReplayData},
                 ._pack_id{mPackId},
@@ -468,12 +591,14 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
         activeReplay->replayPlayer.reset();
 
+        SSVOH_ASSERT(assets.isValidPackId(mPackId));
+
         activeReplay->replayPackName =
             Utils::toUppercase(assets.getPackData(mPackId).name);
 
         activeReplay->replayLevelName = Utils::toUppercase(levelData->name);
 
-        // TODO: this can be used to speed up the replay
+        // TODO (P2): this can be used to speed up the replay
         // window.setTimer<ssvs::TimerStatic>(0.5f, 0.1f);
 
         rng = random_number_generator{activeReplay->replayFile._seed};
@@ -481,23 +606,21 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
 
     // Audio cleanup
-    assets.stopSounds();
-    stopLevelMusic();
-    // assets.playSound("go.ogg");
-    if(!Config::getNoMusic())
+    if(window != nullptr && audio != nullptr)
     {
-        playLevelMusic();
-        assets.musicPlayer.pause();
+        audio->stopSounds();
+        stopLevelMusic();
 
-        sf::Music* current(assets.getMusicPlayer().getCurrent());
-        if(current != nullptr)
+        if(!Config::getNoMusic())
         {
-            setMusicPitch(*current);
+            playLevelMusic();
+            audio->pauseMusic();
+            refreshMusicPitch();
         }
-    }
-    else
-    {
-        assets.musicPlayer.stop();
+        else
+        {
+            audio->stopMusic();
+        }
     }
 
     debugPause = false;
@@ -517,7 +640,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     // Manager cleanup
     walls.clear();
     cwManager.clear();
-    player = CPlayer{ssvs::zeroVec2f, getSwapCooldown()};
+    player =
+        CPlayer{ssvs::zeroVec2f, getSwapCooldown(), Config::getPlayerSize(),
+            Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()};
 
     // Timeline cleanup
     timeline.clear();
@@ -525,6 +650,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 
     effectTimelineManager.clear();
     mustChangeSides = false;
+    mustStart = false;
 
     // Particles cleanup
     pbTextGrowth = 0.f;
@@ -532,25 +658,27 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     nextPBParticleSpawn = 0.f;
     particles.clear();
 
-    // FPSWatcher reset
-    fpsWatcher.reset();
-    // if(Config::getOfficial()) fpsWatcher.enable();
+    if(window != nullptr)
+    {
+        SSVOH_ASSERT(overlayCamera.has_value());
+        SSVOH_ASSERT(backgroundCamera.has_value());
 
-    // Reset zoom
-    overlayCamera.setView(
-        {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
-            sf::Vector2f(Config::getWidth(), Config::getHeight())});
-    backgroundCamera.setView(
-        {ssvs::zeroVec2f, {Config::getWidth() * Config::getZoomFactor(),
-                              Config::getHeight() * Config::getZoomFactor()}});
-    backgroundCamera.setRotation(0);
+        // Reset zoom
+        overlayCamera->setView(
+            {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
+                sf::Vector2f(Config::getWidth(), Config::getHeight())});
+        backgroundCamera->setView({ssvs::zeroVec2f,
+            {Config::getWidth() * Config::getZoomFactor(),
+                Config::getHeight() * Config::getZoomFactor()}});
+        backgroundCamera->setRotation(0);
 
-    // Reset skew
-    overlayCamera.setSkew(sf::Vector2f{1.f, 1.f});
-    backgroundCamera.setSkew(sf::Vector2f{1.f, 1.f});
+        // Reset skew
+        overlayCamera->setSkew(sf::Vector2f{1.f, 1.f});
+        backgroundCamera->setSkew(sf::Vector2f{1.f, 1.f});
+    }
 
     // Lua context and game status cleanup
-    inputImplCCW = inputImplCW = inputImplBothCWCCW = false;
+    inputImplCCW = inputImplCW = false;
 
     lua = Lua::LuaContext{};
     calledDeprecatedFunctions.clear();
@@ -560,11 +688,11 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     if(!firstPlay)
     {
         runLuaFunctionIfExists<void>("onUnload");
-        assets.playSound("restart.ogg");
+        playSoundOverride("restart.ogg");
     }
     else
     {
-        assets.playSound("select.ogg");
+        playSoundOverride("select.ogg");
     }
 
     runLuaFunctionIfExists<void>("onInit");
@@ -637,62 +765,41 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     }
 }
 
-void HexagonGame::death(bool mForce)
+void HexagonGame::death_shakeCamera()
 {
-    if(status.hasDied)
+    if(window == nullptr)
     {
         return;
     }
 
-    deathInputIgnore = 10.f;
+    SSVOH_ASSERT(overlayCamera.has_value());
+    SSVOH_ASSERT(backgroundCamera.has_value());
 
-    fpsWatcher.disable();
-    assets.playSound(levelStatus.deathSound, ssvs::SoundPlayer::Mode::Abort);
-
-    runLuaFunctionIfExists<void>("onPreDeath");
-
-    if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
-    {
-        return;
-    }
-
-    const bool isPersonalBest =
-        !levelStatus.tutorialMode && !inReplay() &&
-        (status.getTimeSeconds() >
-            assets.getLocalScore(
-                Utils::getLocalValidator(levelData->id, difficultyMult)));
-
-    if(isPersonalBest)
-    {
-        pbText.setString("NEW PERSONAL BEST!");
-        mustSpawnPBParticles = true;
-
-        assets.playSound("personalBest.ogg", ssvs::SoundPlayer::Mode::Abort);
-    }
-    else
-    {
-        assets.playSound("gameOver.ogg", ssvs::SoundPlayer::Mode::Abort);
-    }
-
-    runLuaFunctionIfExists<void>("onDeath");
-
-    status.flashEffect = 255;
-    overlayCamera.setView(
+    overlayCamera->setView(
         {{Config::getWidth() / 2.f, Config::getHeight() / 2.f},
             sf::Vector2f(Config::getWidth(), Config::getHeight())});
-    backgroundCamera.setCenter(ssvs::zeroVec2f);
-    Utils::shakeCamera(effectTimelineManager, overlayCamera);
-    Utils::shakeCamera(effectTimelineManager, backgroundCamera);
 
-    status.hasDied = true;
-    stopLevelMusic();
+    backgroundCamera->setCenter(ssvs::zeroVec2f);
+
+    Utils::shakeCamera(effectTimelineManager, *overlayCamera);
+    Utils::shakeCamera(effectTimelineManager, *backgroundCamera);
+}
+
+void HexagonGame::death_updateRichPresence()
+{
+    if(window == nullptr)
+    {
+        return;
+    }
 
     if(inReplay())
     {
-        // Do not save scores or update rich presence if watching a replay.
+        // Do not update rich presence if watching a replay.
         return;
     }
 
+// TODO (P2): ??? meant for rich presence?
+#if 0
     // Gather player's Personal Best
     std::string pbStr = "(";
     if(isPersonalBest)
@@ -702,10 +809,10 @@ void HexagonGame::death(bool mForce)
     else
     {
         pbStr += "PB: " +
-                 timeFormat(assets.getLocalScore(
-                     Utils::getLocalValidator(levelData->id, difficultyMult))) +
+                 timeFormat(assets.getLocalScore(levelData->getValidatorWithoutPackId(difficultyMult))) +
                  "s)";
     }
+#endif
 
     std::string nameStr = levelData->name;
     nameFormat(nameStr);
@@ -713,57 +820,246 @@ void HexagonGame::death(bool mForce)
     const std::string diffStr = diffFormat(difficultyMult);
     const std::string timeStr = timeFormat(status.getTimeSeconds());
 
-    discordManager.set_rich_presence_in_game(
-        nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
-
-    const bool localNewBest =
-        checkAndSaveScore() == CheckSaveScoreResult::Local_NewBest;
-
-    // TODO: more options? Always save replay? Prompt?
-    if(Config::getSaveLocalBestReplayToFile() && localNewBest)
+    if(discordManager != nullptr)
     {
-        const replay_file rf{
-            ._version{0},
-            ._player_name{assets.getCurrentLocalProfile().getName()}, // TODO
-            ._seed{lastSeed},
-            ._data{lastReplayData},
-            ._pack_id{packId},
-            ._level_id{levelId},
-            ._first_play{firstPlay},
-            ._difficulty_mult{difficultyMult},
-            ._played_score{getReplayScore(status)},
-        };
+        discordManager->set_rich_presence_in_game(
+            nameStr + " [x" + diffStr + "]", "Survived " + timeStr + "s", true);
+    }
+}
 
-        const std::string filename = rf.create_filename();
+void HexagonGame::death_saveScore()
+{
+    SSVOH_ASSERT(shouldSaveScore());
+    SSVOH_ASSERT(!inReplay());
+    SSVOH_ASSERT(!levelData->unscored);
 
-        std::filesystem::create_directory("Replays/");
+    ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+    death_sendAndSaveReplay();
+}
 
-        std::filesystem::path p;
-        p /= "Replays/";
-        p /= filename;
-
-        if(rf.serialize_to_file(p))
-        {
-            ssvu::lo("Replay")
-                << "Successfully saved new local best replay file '" << p
-                << "'\n";
-        }
-        else
-        {
-            ssvu::lo("Replay")
-                << "Failed to save new local best replay file '" << p << "'\n";
-        }
+void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
+{
+    if(window == nullptr)
+    {
+        return;
     }
 
-    if(Config::getAutoRestart())
+    const bool mustSaveScore = shouldSaveScore();
+
+    if(!mustSaveScore)
+    {
+        playSoundAbort("gameOver.ogg");
+        return;
+    }
+
+    death_saveScore(); // Saves local best, local replay, and sends replay
+
+    const std::string validatorWithoutPackid =
+        levelData->getValidatorWithoutPackId(difficultyMult);
+
+    const double score = status.getTimeSeconds();
+
+    const bool isPersonalBest =
+        score > assets.getLocalScore(validatorWithoutPackid);
+
+    if(!isPersonalBest)
+    {
+        playSoundAbort("gameOver.ogg");
+        return;
+    }
+
+    assets.setLocalScore(validatorWithoutPackid, score);
+
+    pbText.setString("NEW PERSONAL BEST!");
+    mustSpawnPBParticles = true;
+
+    playSoundAbort("personalBest.ogg");
+}
+
+void HexagonGame::death(bool mForce)
+{
+    if(status.hasDied)
+    {
+        return;
+    }
+
+    deathInputIgnore = 10.f;
+
+    playSoundAbort(levelStatus.deathSound);
+
+    runLuaFunctionIfExists<void>("onPreDeath");
+
+    if(!mForce && (Config::getInvincible() || levelStatus.tutorialMode))
+    {
+        return;
+    }
+
+    runLuaFunctionIfExists<void>("onDeath");
+    death_shakeCamera();
+    death_updateRichPresence();
+    stopLevelMusic();
+
+    status.flashEffect = 255;
+    status.hasDied = true;
+
+    death_saveScoreIfNeededAndShowPBEffects();
+
+    if(window != nullptr && Config::getAutoRestart())
     {
         status.mustStateChange = StateChange::MustRestart;
     }
 }
 
+void HexagonGame::death_sendAndSaveReplay()
+{
+    // TODO (P2): for testing
+    const std::string rfName = assets.anyLocalProfileActive()
+                                   ? assets.getCurrentLocalProfile().getName()
+                                   : "no_profile";
+
+    const replay_file rf{
+        ._version{0},
+        ._player_name{rfName},
+        ._seed{lastSeed},
+        ._data{lastReplayData},
+        ._pack_id{packId},
+        ._level_id{levelId},
+        ._first_play{firstPlay},
+        ._difficulty_mult{difficultyMult},
+        ._played_score{getReplayScore(status)},
+    };
+
+    if(onReplayCreated)
+    {
+        onReplayCreated(rf);
+    }
+
+    const std::optional<compressed_replay_file> crfOpt =
+        compress_replay_file(rf);
+
+    if(!crfOpt.has_value())
+    {
+        ssvu::lo("Replay") << "Failed to compress replay, will not save to "
+                              "file or send to server\n";
+
+        return;
+    }
+
+    const compressed_replay_file& crf = crfOpt.value();
+
+    if(const std::string levelValidator =
+            Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
+        !death_sendReplay(levelValidator, crf))
+    {
+        ssvu::lo("Replay") << "Failure sending replay\n";
+    }
+
+    if(const std::string filename = Utils::concat(rf.create_filename(), ".gz");
+        !death_saveReplay(filename, crf))
+    {
+        ssvu::lo("Replay") << "Failure saving replay\n";
+    }
+}
+
+[[nodiscard]] bool HexagonGame::death_sendReplay(
+    const std::string& levelValidator, const compressed_replay_file& crf)
+{
+    if(hexagonClient == nullptr ||
+        hexagonClient->getState() != HexagonClient::State::LoggedIn_Ready ||
+        !Config::getOfficial())
+    {
+        return false;
+    }
+
+    ssvu::lo("Replay") << "Sending compressed replay to server...\n";
+
+    if(!hexagonClient->trySendCompressedReplay(levelValidator, crf))
+    {
+        ssvu::lo("Replay") << "Could not send compressed replay to server\n";
+        return false;
+    }
+
+    steamManager->unlock_achievement("a24_onlinescore");
+    return true;
+}
+
+[[nodiscard]] bool HexagonGame::death_saveReplay(
+    const std::string& filename, const compressed_replay_file& crf)
+{
+    std::filesystem::create_directory("Replays/");
+
+    std::filesystem::path p;
+    p /= "Replays/";
+    p /= filename;
+
+    if(!crf.serialize_to_file(p))
+    {
+        ssvu::lo("Replay") << "Failed to save new compressed replay file '" << p
+                           << "'\n";
+
+        return false;
+    }
+
+    ssvu::lo("Replay") << "Successfully saved new compressed replay file '" << p
+                       << "'\n";
+
+    return true;
+}
+
+[[nodiscard]] std::optional<HexagonGame::GameExecutionResult>
+HexagonGame::executeGameUntilDeath(
+    const int maxProcessingSeconds, const float timescale)
+{
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = std::chrono::time_point<Clock>;
+
+    const TimePoint tpBegin = Clock::now();
+
+    const auto exceededProcessingTime = [&]
+    {
+        return std::chrono::duration_cast<std::chrono::seconds>(
+                   Clock::now() - tpBegin)
+                   .count() > maxProcessingSeconds;
+    };
+
+    while(!status.hasDied)
+    {
+        update(Config::TIME_STEP, timescale);
+        postUpdate();
+
+        if(exceededProcessingTime())
+        {
+            return std::nullopt;
+        }
+    }
+
+    return GameExecutionResult{
+        .playedTimeSeconds = status.getPlayedAccumulatedFrametimeInSeconds(), //
+        .pausedTimeSeconds = status.getPausedAccumulatedFrametimeInSeconds(), //
+        .totalTimeSeconds = status.getTotalAccumulatedFrametimeInSeconds(),   //
+        .customScore = status.getCustomScore()                                //
+    };
+}
+
+[[nodiscard]] std::optional<HexagonGame::GameExecutionResult>
+HexagonGame::runReplayUntilDeathAndGetScore(const replay_file& mReplayFile,
+    const int maxProcessingSeconds, const float timescale)
+{
+    SSVOH_ASSERT(assets.isValidPackId(mReplayFile._pack_id));
+    SSVOH_ASSERT(assets.isValidLevelId(mReplayFile._level_id));
+
+    setLastReplay(mReplayFile);
+
+    newGame(mReplayFile._pack_id, mReplayFile._level_id,
+        mReplayFile._first_play, mReplayFile._difficulty_mult,
+        /* mExecuteLastReplay */ true);
+
+    return executeGameUntilDeath(maxProcessingSeconds, timescale);
+}
+
 void HexagonGame::incrementDifficulty()
 {
-    assets.playSound("levelUp.ogg");
+    playSoundOverride("levelUp.ogg");
 
     const float signMult = (levelStatus.rotationSpeed > 0.f) ? 1.f : -1.f;
 
@@ -791,57 +1087,86 @@ void HexagonGame::sideChange(unsigned int mSideNumber)
 
     mustChangeSides = false;
 
-    assets.playSound(levelStatus.levelUpSound);
+    playSoundOverride(levelStatus.levelUpSound);
     runLuaFunctionIfExists<void>("onIncrement");
 }
 
-HexagonGame::CheckSaveScoreResult HexagonGame::checkAndSaveScore()
+[[nodiscard]] bool HexagonGame::shouldSaveScore()
 {
-    const float score = levelStatus.scoreOverridden
-                            ? lua.readVariable<float>(levelStatus.scoreOverride)
-                            : status.getTimeSeconds();
+    if(!assets.anyLocalProfileActive())
+    {
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+            << "No local profile active, rejecting\n";
 
-    // These are requirements that need to be met for a score to be valid
+        return false;
+    }
+
     if(!Config::isEligibleForScore())
     {
-        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - not eligible - "
             << Config::getUneligibilityReason() << '\n';
 
-        return CheckSaveScoreResult::Ineligible;
+        return false;
     }
 
     if(status.scoreInvalid)
     {
-        ssvu::lo("hg::HexagonGame::checkAndSaveScore()")
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
             << "Not saving score - score invalidated\n";
 
-        return CheckSaveScoreResult::Invalid;
+        return false;
     }
 
-    if(assets.pIsLocal())
+    if(levelStatus.tutorialMode)
     {
-        std::string localValidator{
-            Utils::getLocalValidator(levelData->id, difficultyMult)};
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+            << "Not saving score - in tutorial mode\n";
 
-        if(assets.getLocalScore(localValidator) < score)
-        {
-            assets.setLocalScore(localValidator, score);
-            assets.saveCurrentLocalProfile();
-
-            return CheckSaveScoreResult::Local_NewBest;
-        }
-
-        return CheckSaveScoreResult::Local_NoNewBest;
+        return false;
     }
 
-    SSVOH_ASSERT(false);
-    return CheckSaveScoreResult::Local_NoNewBest;
+    if(levelData->unscored)
+    {
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+            << "Not saving score - unscored level\n";
+
+        return false;
+    }
+
+    if(inReplay())
+    {
+        ssvu::lo("hg::HexagonGame::shouldSaveScore()")
+            << "Not saving score - currently in replay\n";
+
+        return false;
+    }
+
+    return true;
 }
+
+#if 0
+// TODO (P0): use?
+const double score =
+    levelStatus.scoreOverridden
+        ? lua.readVariable<double>(levelStatus.scoreOverride)
+        : status.getTimeSeconds();
+#endif
 
 void HexagonGame::goToMenu(bool mSendScores, bool mError)
 {
-    assets.stopSounds();
+    if(window == nullptr)
+    {
+        ssvu::lo("hg::HexagonGame::goToMenu")
+            << "Attempted to go back to menu without a game window\n";
+
+        return;
+    }
+
+    if(audio != nullptr)
+    {
+        audio->stopSounds();
+    }
 
     ilcLuaTracked.clear();
     ilcLuaTrackedNames.clear();
@@ -849,15 +1174,14 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     if(!mError)
     {
-        assets.playSound("beep.ogg");
+        playSoundOverride("beep.ogg");
     }
 
     calledDeprecatedFunctions.clear();
-    fpsWatcher.disable();
 
-    if(mSendScores && !status.hasDied && !mError && !inReplay())
+    if(mSendScores && !mError && shouldSaveScore())
     {
-        checkAndSaveScore();
+        death_saveScore(); // Saves local best, local replay, and sends replay
     }
 
     // Stop infinite feedback from occurring if the error is happening on
@@ -867,9 +1191,10 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
         runLuaFunctionIfExists<void>("onUnload");
     }
 
-    window.setGameState(mgPtr->getGame());
-    mgPtr->returnToLevelSelection();
-    mgPtr->init(mError);
+    if(fnGoToMenu)
+    {
+        fnGoToMenu(mError);
+    }
 }
 
 void HexagonGame::raiseWarning(
@@ -895,15 +1220,23 @@ void HexagonGame::raiseWarning(
 void HexagonGame::addMessage(
     std::string mMessage, double mDuration, bool mSoundToggle)
 {
+    if(!Config::getShowMessages())
+    {
+        return;
+    }
+
     Utils::uppercasify(mMessage);
 
-    messageTimeline.append_do([this, mSoundToggle, mMessage] {
-        if(mSoundToggle)
+    messageTimeline.append_do(
+        [this, mSoundToggle, mMessage]
         {
-            assets.playSound(levelStatus.beepSound);
-        }
-        messageText.setString(mMessage);
-    });
+            if(mSoundToggle)
+            {
+                playSoundOverride(levelStatus.beepSound);
+            }
+
+            messageText.setString(mMessage);
+        });
 
     messageTimeline.append_wait_for_sixths(mDuration);
     messageTimeline.append_do([this] { messageText.setString(""); });
@@ -918,8 +1251,13 @@ void HexagonGame::setLevelData(
     const LevelData& mLevelData, bool mMusicFirstPlay)
 {
     levelData = &mLevelData;
-    levelStatus = LevelStatus{};
+
+    levelStatus =
+        LevelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()};
+
     styleData = assets.getStyleData(levelData->packId, levelData->styleId);
+    styleData.computeColors();
+
     musicData = assets.getMusicData(levelData->packId, levelData->musicId);
     musicData.firstPlay = mMusicFirstPlay;
 }
@@ -957,34 +1295,42 @@ HexagonGame::getPackDisambiguator() const noexcept
 
 void HexagonGame::playLevelMusic()
 {
-    if(!Config::getNoMusic())
+    if(shouldPlayMusic())
     {
         const MusicData::Segment segment =
-            musicData.playRandomSegment(getPackId(), assets);
+            musicData.playRandomSegment(getPackId(), *audio);
+
+        // TODO (P1): problems with addHash in headless mode:
         status.beatPulseDelay += segment.beatPulseDelayOffset;
     }
 }
 
 void HexagonGame::playLevelMusicAtTime(float mSeconds)
 {
-    if(!Config::getNoMusic())
+    if(shouldPlayMusic())
     {
-        musicData.playSeconds(getPackId(), assets, mSeconds);
+        musicData.playSeconds(getPackId(), *audio, mSeconds);
     }
 }
 
 void HexagonGame::stopLevelMusic()
 {
-    if(!Config::getNoMusic())
+    if(shouldPlayMusic())
     {
-        assets.stopMusics();
+        audio->stopMusic();
     }
 }
 
 void HexagonGame::invalidateScore(const std::string& mReason)
 {
+    if(status.scoreInvalid)
+    {
+        return;
+    }
+
     status.scoreInvalid = true;
     status.invalidReason = mReason;
+
     ssvu::lo("HexagonGame::invalidateScore")
         << "Invalidating official game (" << mReason << ")\n";
 }
@@ -1019,9 +1365,29 @@ auto HexagonGame::getColorText() const -> sf::Color
     return styleData.getTextColor();
 }
 
+[[nodiscard]] float HexagonGame::getMusicDMSyncFactor() const
+{
+    return std::pow(difficultyMult, 0.12f);
+}
+
+[[nodiscard]] float HexagonGame::getOptionalMusicDMSyncFactor() const
+{
+    return levelStatus.syncMusicToDM ? getMusicDMSyncFactor() : 1.f;
+}
+
+void HexagonGame::refreshMusicPitch()
+{
+    if(audio != nullptr)
+    {
+        audio->setCurrentMusicPitch(getOptionalMusicDMSyncFactor() *
+                                    Config::getMusicSpeedMult() *
+                                    levelStatus.musicPitch);
+    }
+}
+
 void HexagonGame::setSides(unsigned int mSides)
 {
-    assets.playSound(levelStatus.beepSound);
+    playSoundOverride(levelStatus.beepSound);
 
     if(mSides < 3)
     {
@@ -1031,12 +1397,103 @@ void HexagonGame::setSides(unsigned int mSides)
     levelStatus.sides = mSides;
 }
 
+[[nodiscard]] ssvs::GameState& HexagonGame::getGame() noexcept
+{
+    return game;
+}
+
+[[nodiscard]] float HexagonGame::getRadius() const noexcept
+{
+    return status.radius;
+}
+
+[[nodiscard]] const sf::Color& HexagonGame::getColor(int mIdx) const noexcept
+{
+    return styleData.getColor(mIdx);
+}
+
+[[nodiscard]] float HexagonGame::getSpeedMultDM() const noexcept
+{
+    const auto res = levelStatus.speedMult * (std::pow(difficultyMult, 0.65f));
+
+    if(!levelStatus.hasSpeedMaxLimit())
+    {
+        return res;
+    }
+
+    return (res < levelStatus.speedMax) ? res : levelStatus.speedMax;
+}
+
+[[nodiscard]] float HexagonGame::getDelayMultDM() const noexcept
+{
+    const auto res = levelStatus.delayMult / (std::pow(difficultyMult, 0.10f));
+
+    if(!levelStatus.hasDelayMaxLimit())
+    {
+        return res;
+    }
+
+    return (res < levelStatus.delayMax) ? res : levelStatus.delayMax;
+}
+
+[[nodiscard]] float HexagonGame::getRotationSpeed() const noexcept
+{
+    return levelStatus.rotationSpeed;
+}
+
+[[nodiscard]] unsigned int HexagonGame::getSides() const noexcept
+{
+    return levelStatus.sides;
+}
+
+[[nodiscard]] float HexagonGame::getWallSkewLeft() const noexcept
+{
+    return levelStatus.wallSkewLeft;
+}
+
+[[nodiscard]] float HexagonGame::getWallSkewRight() const noexcept
+{
+    return levelStatus.wallSkewRight;
+}
+
+[[nodiscard]] float HexagonGame::getWallAngleLeft() const noexcept
+{
+    return levelStatus.wallAngleLeft;
+}
+
+[[nodiscard]] float HexagonGame::getWallAngleRight() const noexcept
+{
+    return levelStatus.wallAngleRight;
+}
+
+[[nodiscard]] float HexagonGame::get3DEffectMult() const noexcept
+{
+    return levelStatus._3dEffectMultiplier;
+}
+
+[[nodiscard]] HexagonGameStatus& HexagonGame::getStatus() noexcept
+{
+    return status;
+}
+
+[[nodiscard]] const HexagonGameStatus& HexagonGame::getStatus() const noexcept
+{
+    return status;
+}
+
+[[nodiscard]] LevelStatus& HexagonGame::getLevelStatus()
+{
+    return levelStatus;
+}
+
+[[nodiscard]] HGAssets& HexagonGame::getAssets()
+{
+    return assets;
+}
+
 [[nodiscard]] bool HexagonGame::getInputFocused() const
 {
-    // TODO: the joystick thing should be in updateInput, this should be a
-    // blind getter
-    return inputFocused ||
-           (!inReplay() && Joystick::pressed(Joystick::Jid::Focus));
+    return inputFocused;
 }
 
 [[nodiscard]] float HexagonGame::getPlayerSpeedMult() const
@@ -1046,9 +1503,7 @@ void HexagonGame::setSides(unsigned int mSides)
 
 [[nodiscard]] bool HexagonGame::getInputSwap() const
 {
-    // TODO: the joystick thing should be in updateInput, this should be a
-    // blind getter
-    return inputSwap || (!inReplay() && Joystick::pressed(Joystick::Jid::Swap));
+    return inputSwap;
 }
 
 [[nodiscard]] int HexagonGame::getInputMovement() const
@@ -1076,14 +1531,14 @@ void HexagonGame::setSides(unsigned int mSides)
     return std::max(36.f * levelStatus.swapCooldownMult, 8.f);
 }
 
-void HexagonGame::performPlayerSwap(const bool playSound)
+void HexagonGame::performPlayerSwap(const bool mPlaySound)
 {
     player.playerSwap();
     runLuaFunctionIfExists<void>("onCursorSwap");
 
-    if(playSound)
+    if(mPlaySound)
     {
-        getAssets().playSound(getLevelStatus().swapSound);
+        playSoundOverride(getLevelStatus().swapSound);
     }
 }
 

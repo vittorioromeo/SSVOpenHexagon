@@ -11,9 +11,9 @@
 #include <functional>
 #include <optional>
 #include <cstddef>
+#include <vector>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 class timeline2
 {

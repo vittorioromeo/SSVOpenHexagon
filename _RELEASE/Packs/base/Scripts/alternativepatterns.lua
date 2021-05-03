@@ -23,14 +23,6 @@ function pAltMirrorSpiral(mTimes, mExtra)
     t_wait(getPerfectDelay(THICKNESS) * 6.5)
 end
 
-function randomArray(mNumber,mLower,mUpper)
-    local a = {}
-    for k = 1, mNumber do
-        a[k] = u_rndInt(mLower, mUpper)
-    end
-    return a
-end
-
 function pAltTunnel(mTimes,mFree)
     local oldThickness = THICKNESS
     local myThickness = getPerfectThickness(THICKNESS)
@@ -99,7 +91,6 @@ function pLadder(mTimes,mArray,myThickness)
 
     patternizer(eArray,myThickness)
     t_wait(delay*2)
-
 end
 
 function patternizer(mArray,myThickness)

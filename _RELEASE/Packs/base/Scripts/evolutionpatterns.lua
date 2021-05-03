@@ -41,23 +41,23 @@ function hmcBarrageN(mSide, mNeighbors, mCurve, mCurveAcc, mCurveMin, mCurveMax,
 end
 
 function hmcBarrageS(mSide, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
-    hmcBarrageN(mSide, 0, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong);
+    hmcBarrageN(mSide, 0, mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 end
 
 function hmcBarrage(mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
-    hmcBarrageS(getRandomSide(), mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong);
+    hmcBarrageS(getRandomSide(), mCurve, mCurveAcc, mCurveMin, mCurveMax, mCurvePingPong)
 end
 
 function hmcSimpleBarrage(mCurve)
-    hmcBarrageN(getRandomSide(), 0, mCurve, 0, 0, 0, false);
+    hmcBarrageN(getRandomSide(), 0, mCurve, 0, 0, 0, false)
 end
 
 function hmcSimpleBarrageS(mSide, mCurve)
-    hmcBarrageN(mSide, 0, mCurve, 0, 0, 0, false);
+    hmcBarrageN(mSide, 0, mCurve, 0, 0, 0, false)
 end
 
 function hmcSimpleBarrageSNeigh(mSide, mCurve, mNeighbors)
-    hmcBarrageN(mSide, mNeighbors, mCurve, 0, 0, 0, false);
+    hmcBarrageN(mSide, mNeighbors, mCurve, 0, 0, 0, false)
 end
 
 

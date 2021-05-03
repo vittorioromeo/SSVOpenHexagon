@@ -4,19 +4,27 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+namespace Json {
 
-namespace hg
-{
+class Value;
+
+}
+
+namespace ssvuj {
+
+using Obj = Json::Value;
+
+}
+
+namespace hg {
 
 class MusicData;
-class GameVersion;
+struct GameVersion;
 class ProfileData;
 
 } // namespace hg
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 [[nodiscard]] MusicData loadMusicFromJson(const ssvuj::Obj& mRoot);
 [[nodiscard]] GameVersion loadVersionFromJson(const ssvuj::Obj& mRoot);

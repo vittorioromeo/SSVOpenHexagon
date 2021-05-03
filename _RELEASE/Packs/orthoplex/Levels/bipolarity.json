@@ -8,5 +8,5 @@
     "styleId": "bipolarity",
     "musicId": "ultima2",
     "luaFile": "Scripts/Levels/bipolarity.lua",
-    "difficultyMults": [1.5, 2.0, 0.5]
+    "difficultyMults": [2.0, 0.5]
 }

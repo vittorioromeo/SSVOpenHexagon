@@ -5,14 +5,13 @@
 
 #include <SSVUtils/Core/Log/Log.hpp>
 
-#include <math.h>
+#include <math.h> // Needed by `discord.h`...
 #include <cstdint>
 #include <chrono>
 
 #include "discord/discord.h"
 
-namespace hg::Discord
-{
+namespace hg::Discord {
 
 [[nodiscard]] static bool initialize_discord(discord::Core** core)
 {
@@ -37,7 +36,8 @@ discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
     }
 
     _core->SetLogHook(discord::LogLevel::Debug,
-        [](discord::LogLevel level, const char* message) {
+        [](discord::LogLevel level, const char* message)
+        {
             ssvu::lo("Discord")
                 << static_cast<uint32_t>(level) << ": " << message << '\n';
         });
@@ -63,8 +63,7 @@ discord_manager::discord_manager() : _initialized{initialize_discord(&_core)}
 }
 
 discord_manager::~discord_manager()
-{
-}
+{}
 
 bool discord_manager::run_callbacks()
 {
@@ -96,12 +95,14 @@ bool discord_manager::set_rich_presence_in_menu()
     currentTimestamp.SetStart(static_cast<std::int64_t>(
         std::chrono::high_resolution_clock::now().time_since_epoch().count() /
         1'000'000'000));
-    _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
-        if(r != discord::Result::Ok)
+    _core->ActivityManager().UpdateActivity(activity,
+        [](discord::Result r)
         {
-            ssvu::lo("Discord") << "Fail\n";
-        }
-    });
+            if(r != discord::Result::Ok)
+            {
+                ssvu::lo("Discord") << "Fail\n";
+            }
+        });
 
     return true;
 }
@@ -120,12 +121,14 @@ bool discord_manager::set_rich_presence_on_replay()
     discord::ActivityTimestamps& currentTimestamp = activity.GetTimestamps();
     // Remove any existing timestamp
     currentTimestamp.SetStart(0);
-    _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
-        if(r != discord::Result::Ok)
+    _core->ActivityManager().UpdateActivity(activity,
+        [](discord::Result r)
         {
-            ssvu::lo("Discord") << "Fail\n";
-        }
-    });
+            if(r != discord::Result::Ok)
+            {
+                ssvu::lo("Discord") << "Fail\n";
+            }
+        });
 
     return true;
 }
@@ -163,12 +166,14 @@ bool discord_manager::set_rich_presence_in_game(
         // It's unnecessary information.
         currentTimestamp.SetStart(0);
     }
-    _core->ActivityManager().UpdateActivity(activity, [](discord::Result r) {
-        if(r != discord::Result::Ok)
+    _core->ActivityManager().UpdateActivity(activity,
+        [](discord::Result r)
         {
-            ssvu::lo("Discord") << "Fail\n";
-        }
-    });
+            if(r != discord::Result::Ok)
+            {
+                ssvu::lo("Discord") << "Fail\n";
+            }
+        });
 
     return true;
 }

@@ -4,18 +4,24 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
+#include "SSVOpenHexagon/Core/RandomNumberGeneratorTypes.hpp"
 
 #include <bitset>
-#include <vector>
 #include <cstddef>
-#include <cstring>
 #include <cstdint>
-#include <string>
+#include <cstring>
 #include <filesystem>
+#include <optional>
+#include <string>
+#include <vector>
 
-namespace hg
-{
+namespace sf {
+
+class Packet;
+
+}
+
+namespace hg {
 
 enum class input_bit : unsigned int
 {
@@ -27,7 +33,7 @@ enum class input_bit : unsigned int
     k_count
 };
 
-// TODO: optimize size - `sizeof` this is `4`
+// TODO (P2): optimize size - `sizeof` this is `4`
 using input_bitset = std::bitset<static_cast<unsigned int>(input_bit::k_count)>;
 
 struct serialization_result
@@ -106,7 +112,7 @@ public:
 
 struct replay_file
 {
-    using seed_type = random_number_generator::seed_type;
+    using seed_type = random_number_generator_seed_type;
 
     std::uint32_t _version;   // Replay format version.
     std::string _player_name; // Name of the player.
@@ -137,7 +143,27 @@ struct replay_file
     [[nodiscard]] bool serialize_to_file(const std::filesystem::path& p) const;
     [[nodiscard]] bool deserialize_from_file(const std::filesystem::path& p);
 
+    [[nodiscard]] bool serialize_to_packet(sf::Packet& p) const;
+    [[nodiscard]] bool deserialize_from_packet(sf::Packet& p);
+
     [[nodiscard]] std::string create_filename() const;
 };
+
+struct compressed_replay_file
+{
+    std::vector<char> _data;
+
+    [[nodiscard]] bool serialize_to_file(const std::filesystem::path& p) const;
+    [[nodiscard]] bool deserialize_from_file(const std::filesystem::path& p);
+
+    [[nodiscard]] bool serialize_to_packet(sf::Packet& p) const;
+    [[nodiscard]] bool deserialize_from_packet(sf::Packet& p);
+};
+
+[[nodiscard]] std::optional<compressed_replay_file> compress_replay_file(
+    const replay_file& rf);
+
+[[nodiscard]] std::optional<replay_file> decompress_replay_file(
+    const compressed_replay_file& crf);
 
 } // namespace hg

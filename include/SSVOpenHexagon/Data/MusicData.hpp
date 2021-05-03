@@ -4,17 +4,13 @@
 
 #pragma once
 
-#include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
-
-#include <SFML/System.hpp>
-
 #include <string>
+#include <cstddef>
+#include <vector>
 
-namespace hg
-{
+namespace hg {
 
-class HGAssets;
+class Audio;
 
 class MusicData
 {
@@ -28,11 +24,6 @@ public:
 private:
     std::vector<Segment> segments;
 
-    [[nodiscard]] const Segment& getRandomSegment() const
-    {
-        return segments[ssvu::getRndI(std::size_t(0), segments.size())];
-    }
-
 public:
     std::string id;
     std::string fileName;
@@ -41,59 +32,24 @@ public:
     std::string author;
     bool firstPlay{true};
 
-    MusicData() = default;
+    MusicData();
+
     MusicData(const std::string& mId, const std::string& mFileName,
         const std::string& mName, const std::string& mAlbum,
-        const std::string& mAuthor)
-        : id{mId}, fileName{mFileName}, name{mName}, album{mAlbum}, author{
-                                                                        mAuthor}
-    {
-    }
+        const std::string& mAuthor);
 
-    [[nodiscard]] const Segment& getSegment(std::size_t index) const
-    {
-        return segments[index];
-    }
+    [[nodiscard]] const Segment& getSegment(std::size_t index) const;
 
-    void addSegment(float mSeconds, float mBeatPulseDelayOffset)
-    {
-        segments.emplace_back(Segment{mSeconds, mBeatPulseDelayOffset});
-    }
+    void addSegment(float mSeconds, float mBeatPulseDelayOffset);
 
     [[nodiscard]] Segment playRandomSegment(
-        const std::string& mPackId, HGAssets& mAssets)
-    {
-        if(firstPlay)
-        {
-            firstPlay = false;
-            return playSegment(mPackId, mAssets, 0);
-        }
-        else
-        {
-            const Segment& segment = getRandomSegment();
-            playSeconds(mPackId, mAssets, segment.time);
-            return segment;
-        }
-    }
+        const std::string& mPackId, Audio& mAudio);
 
     [[nodiscard]] Segment playSegment(
-        const std::string& mPackId, HGAssets& mAssets, std::size_t mIdx)
-    {
-        const Segment& segment = segments[mIdx];
-        playSeconds(mPackId, mAssets, segment.time);
-        return segment;
-    }
+        const std::string& mPackId, Audio& mAudio, std::size_t mIdx);
 
     void playSeconds(
-        const std::string& mPackId, HGAssets& mAssets, float mSeconds) const
-    {
-        if(Config::getNoMusic())
-        {
-            return;
-        }
-
-        mAssets.playMusic(mPackId, id, sf::seconds(mSeconds));
-    }
+        const std::string& mPackId, Audio& mAudio, float mSeconds) const;
 };
 
 } // namespace hg

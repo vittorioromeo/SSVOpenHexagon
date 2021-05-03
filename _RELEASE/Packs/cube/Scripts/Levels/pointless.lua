@@ -3,6 +3,20 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "utils.lua")
 u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "common.lua")
 u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.lua")
 
+preAdjustedThickness = 0
+
+function adjustThicknessForLowDM(mult)
+    preAdjustedThickness = THICKNESS
+
+    if u_getDifficultyMult() < 1 then
+        THICKNESS = THICKNESS * mult
+    end
+end
+
+function restoreThicknessForLowDM()
+    THICKNESS = preAdjustedThickness
+end
+
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
     if mKey == 1 and l_getSides() == 5 then
@@ -11,11 +25,20 @@ function addPattern(mKey)
     end
 
         if mKey == 0 then pAltBarrage(u_rndInt(2, 4), 2)
-    elseif mKey == 1 then pMirrorSpiral(u_rndInt(2, 5), getHalfSides() - 3)
+    elseif mKey == 1 then
+        adjustThicknessForLowDM(3)
+        pMirrorSpiral(u_rndInt(2, 5), getHalfSides() - 3)
+        restoreThicknessForLowDM()
     elseif mKey == 2 then pBarrageSpiral(u_rndInt(0, 3), 1, 1)
     elseif mKey == 3 then pInverseBarrage(0)
-    elseif mKey == 4 then pTunnel(u_rndInt(1, 3))
-    elseif mKey == 5 then pSpiral(l_getSides() * u_rndInt(1, 2), 0)
+    elseif mKey == 4 then
+        adjustThicknessForLowDM(3)
+        pTunnel(u_rndInt(1, 3))
+        restoreThicknessForLowDM()
+    elseif mKey == 5 then
+        adjustThicknessForLowDM(3)
+        pSpiral(l_getSides() * u_rndInt(1, 2), 0)
+        restoreThicknessForLowDM()
     end
 end
 
@@ -25,15 +48,26 @@ keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    l_setSpeedMult(1.30)
+    if u_getDifficultyMult() > 3 then
+        l_setSpeedMult(1.40)
+    else
+        l_setSpeedMult(1.30)
+    end
+
     l_setSpeedInc(0.125)
-    l_setSpeedMax(5)
+    l_setSpeedMax(4.75)
     l_setRotationSpeed(0.07)
-    l_setRotationSpeedMax(1)
-    l_setRotationSpeedInc(0.04)
+    l_setRotationSpeedMax(0.9)
+
+    if u_getDifficultyMult() > 3 then
+        l_setRotationSpeedInc(0.1)
+    else
+        l_setRotationSpeedInc(0.04)
+    end
 
     if u_getDifficultyMult() == 1 then
         l_setDelayMult(1.4)
@@ -44,7 +78,13 @@ function onInit()
     l_setDelayInc(0)
     l_setFastSpin(0.0)
     l_setSides(6)
-    l_setSidesMin(5)
+
+    if u_getDifficultyMult() > 3 then
+        l_setSidesMin(6)
+    else
+        l_setSidesMin(5)
+    end
+
     l_setSidesMax(6)
     l_setIncTime(15)
 
@@ -59,13 +99,15 @@ function onInit()
     l_setBeatPulseSpeedMult(0.38) -- Slows down the center going back to normal
 
     enableSwapIfDMGreaterThan(3)
-    disableIncIfDMGreaterThan(4)
+    disableSpeedIncIfDMGreaterThan(3)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-    e_messageAdd("tutorials are over", 130)
-    e_messageAdd("good luck getting high scores!", 130)
+    if u_getDifficultyMult() == 1 then
+        e_messageAdd("tutorials are over", 130)
+        e_messageAdd("good luck getting high scores!", 130)
+    end
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -94,5 +136,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 120 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a1_pointless")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 45 and u_getDifficultyMult() > 3 then
+        steam_unlockAchievement("a25_pointless_hard")
+        hardAchievementUnlocked = true
     end
 end

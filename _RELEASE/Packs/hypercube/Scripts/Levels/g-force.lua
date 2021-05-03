@@ -51,6 +51,7 @@ function onInit()
 
     l_setWallSkewLeft(-15)
 
+    l_setPulseInitialDelay(13.953 * 2)
     l_setPulseMin(67.62)
     l_setPulseMax(95)
     l_setPulseSpeed(2.791)

@@ -7,6 +7,7 @@ extra = 0
 level = 1
 incrementTime = 5
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
@@ -51,7 +52,6 @@ end
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
     a_playSound("beep.ogg")
-    a_playSound("VeeEndurance_test.ogg")
 
     extra = extra + 1
     level = extra + 1
@@ -60,6 +60,11 @@ function onIncrement()
     if not achievementUnlocked and level == 7 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a5_commando")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and level == 6 and u_getDifficultyMult() > 1 then
+        steam_unlockAchievement("a29_commando_hard")
+        hardAchievementUnlocked = true
     end
 
     l_setSides(l_getSides() + 2)

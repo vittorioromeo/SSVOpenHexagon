@@ -11,8 +11,6 @@
 #include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 
-#include "SSVOpenHexagon/Global/Config.hpp"
-
 #include <SSVStart/Utils/SFML.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
@@ -21,8 +19,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
-namespace hg
-{
+namespace hg {
 
 inline constexpr float baseThickness{5.f};
 inline constexpr float unfocusedTriangleWidth{3.f};
@@ -30,17 +27,28 @@ inline constexpr float focusedTriangleWidth{-1.5f};
 inline constexpr float triangleWidthRange{
     unfocusedTriangleWidth - focusedTriangleWidth};
 
-CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown) noexcept
-    : _startPos{pos}, _pos{pos},
-      _prePushPos{pos}, _lastPos{pos}, _hue{0}, _angle{0}, _lastAngle{0},
-      _size{Config::getPlayerSize()}, _speed{Config::getPlayerSpeed()},
-      _focusSpeed{Config::getPlayerFocusSpeed()}, _dead{false},
-      _justSwapped{false}, _forcedMove{false}, _currentSpeed{0.f},
-      _triangleWidth{unfocusedTriangleWidth}, _triangleWidthTransitionTime{0.f},
-      _swapTimer{swapCooldown}, _swapBlinkTimer{swapCooldown / 6.f},
+CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
+    const float size, const float speed, const float focusSpeed) noexcept
+    : _startPos{pos},
+      _pos{pos},
+      _prePushPos{pos},
+      _lastPos{pos},
+      _hue{0},
+      _angle{0},
+      _lastAngle{0},
+      _size{size},
+      _speed{speed},
+      _focusSpeed{focusSpeed},
+      _dead{false},
+      _justSwapped{false},
+      _forcedMove{false},
+      _currentSpeed{0.f},
+      _triangleWidth{unfocusedTriangleWidth},
+      _triangleWidthTransitionTime{0.f},
+      _swapTimer{swapCooldown},
+      _swapBlinkTimer{swapCooldown / 6.f},
       _deadEffectTimer{80.f, false}
-{
-}
+{}
 
 void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
@@ -54,10 +62,9 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
         drawDeathEffect(wallQuads);
     }
 
-    sf::Color adjustedColorMain{
-        !_deadEffectTimer.isRunning()
-            ? colorPlayer
-            : ssvs::getColorFromHSV(_hue / 360.f, 1.f, 1.f)};
+    sf::Color adjustedColorMain{!_deadEffectTimer.isRunning()
+                                    ? colorPlayer
+                                    : Utils::getColorFromHue(_hue / 360.f)};
 
     const sf::Vector2f pLeft = ssvs::getOrbitRad(
         _pos, _angle - ssvu::toRad(100.f), _size + _triangleWidth);
@@ -67,8 +74,8 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
 
     if(!_swapTimer.isRunning() && !_dead)
     {
-        adjustedColorMain = ssvs::getColorFromHSV(
-            (_swapBlinkTimer.getCurrent() * 15) / 360.f, 1, 1);
+        adjustedColorMain =
+            Utils::getColorFromHue((_swapBlinkTimer.getCurrent() * 15) / 360.f);
     }
 
     playerTris.reserve_more(3);
@@ -110,8 +117,7 @@ void CPlayer::drawDeathEffect(Utils::FastVertexVectorQuads& wallQuads)
     const float dRadius{_hue / 8.f};
     const float thickness{_hue / 20.f};
 
-    const sf::Color colorMain{
-        ssvs::getColorFromHSV((360.f - _hue) / 360.f, 1.f, 1.f)};
+    const sf::Color colorMain{Utils::getColorFromHue((360.f - _hue) / 360.f)};
 
     for(auto i(0u); i < 6; ++i)
     {
@@ -166,7 +172,8 @@ template <typename Wall>
     // function just to do without this variable,
     const unsigned int killingSide{wall.getKillingSide()};
 
-    const auto assignResult = [&]() {
+    const auto assignResult = [&]()
+    {
         tempDistance = ssvs::getMagSquared(vec1 - pos);
         if(tempDistance < safeDistance)
         {

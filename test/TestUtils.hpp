@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include <random>
 
 #define TEST_MAIN(...) int __attribute__((const)) main(__VA_ARGS__)
 
@@ -18,8 +19,7 @@
 
 #define VRM_CORE_LIKELY(...) __builtin_expect(!!(__VA_ARGS__), 1)
 
-namespace test_impl::impl
-{
+namespace test_impl::impl {
 
 inline auto& get_ostringstream() noexcept
 {
@@ -90,51 +90,58 @@ void do_test(bool x, TF&& f)
 
 } // namespace test_impl::impl
 
-namespace test_impl
-{
+namespace test_impl {
 
 template <typename T>
 inline auto test_expr(
     int line, bool x, T&& lhs_result, const char* expr) noexcept
 {
-    return impl::do_test(x, [&](auto& s) {
-        impl::output_header(s);
-        impl::output_line(s, line);
-        impl::output_expr(s, expr);
-        impl::output_result(s, lhs_result);
-    });
+    return impl::do_test(x,
+        [&](auto& s)
+        {
+            impl::output_header(s);
+            impl::output_line(s, line);
+            impl::output_expr(s, expr);
+            impl::output_result(s, lhs_result);
+        });
 }
 
 template <typename TLhs, typename TRhs>
 inline auto test_op(int line, bool x, TLhs&& lhs_result, TRhs&& rhs_result,
     const char* expr, const char* expected)
 {
-    return impl::do_test(x, [&](auto& s) {
-        impl::output_header(s);
-        impl::output_line(s, line);
-        impl::output_expr(s, expr);
-        impl::output_result(s, lhs_result);
-        impl::output_expected(s, expected, rhs_result);
-    });
+    return impl::do_test(x,
+        [&](auto& s)
+        {
+            impl::output_header(s);
+            impl::output_line(s, line);
+            impl::output_expr(s, expr);
+            impl::output_result(s, lhs_result);
+            impl::output_expected(s, expected, rhs_result);
+        });
 }
 
 inline auto test_expr_ns(int line, bool x, const char* expr) noexcept
 {
-    return impl::do_test(x, [&](auto& s) {
-        impl::output_header(s);
-        impl::output_line(s, line);
-        impl::output_expr(s, expr);
-    });
+    return impl::do_test(x,
+        [&](auto& s)
+        {
+            impl::output_header(s);
+            impl::output_line(s, line);
+            impl::output_expr(s, expr);
+        });
 }
 
 inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
 {
-    return impl::do_test(x, [&](auto& s) {
-        impl::output_header(s);
-        impl::output_line(s, line);
-        impl::output_expr(s, expr);
-        impl::output_expected(s, expected);
-    });
+    return impl::do_test(x,
+        [&](auto& s)
+        {
+            impl::output_header(s);
+            impl::output_line(s, line);
+            impl::output_expr(s, expr);
+            impl::output_expected(s, expected);
+        });
 }
 
 } // namespace test_impl
@@ -145,7 +152,8 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
         auto _t_x(expr);                                                      \
                                                                               \
         test_impl::test_expr(__LINE__, static_cast<bool>(_t_x), expr, #expr); \
-    } while(false)
+    }                                                                         \
+    while(false)
 
 #define TEST_ASSERT_OP(lhs, op, rhs)                                        \
     do                                                                      \
@@ -159,7 +167,8 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
                                                                             \
         test_impl::test_op(__LINE__, static_cast<bool>(_t_x), _t_xl, _t_xr, \
             #lhs " " #op " " #rhs, #rhs);                                   \
-    } while(false)
+    }                                                                       \
+    while(false)
 
 #define TEST_ASSERT_EQ(lhs, rhs) TEST_ASSERT_OP(lhs, ==, rhs)
 #define TEST_ASSERT_NE(lhs, rhs) TEST_ASSERT_OP(lhs, !=, rhs)
@@ -176,7 +185,8 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
         auto _t_x(expr);                                                   \
                                                                            \
         test_impl::test_expr_ns(__LINE__, static_cast<bool>(_t_x), #expr); \
-    } while(false)
+    }                                                                      \
+    while(false)
 
 #define TEST_ASSERT_NS_OP(lhs, op, rhs)                                      \
     do                                                                       \
@@ -186,7 +196,8 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
                                                                              \
         test_impl::test_op_ns(                                               \
             __LINE__, static_cast<bool>(_t_x), #lhs " " #op " " #rhs, #rhs); \
-    } while(false)
+    }                                                                        \
+    while(false)
 
 #define TEST_ASSERT_NS_EQ(lhs, rhs) TEST_ASSERT_NS_OP(lhs, ==, rhs)
 #define TEST_ASSERT_NS_NE(lhs, rhs) TEST_ASSERT_NS_OP(lhs, !=, rhs)
@@ -194,3 +205,29 @@ inline auto test_op_ns(int line, bool x, const char* expr, const char* expected)
 #define TEST_ASSERT_NS_LE(lhs, rhs) TEST_ASSERT_NS_OP(lhs, <=, rhs)
 #define TEST_ASSERT_NS_GT(lhs, rhs) TEST_ASSERT_NS_OP(lhs, >, rhs)
 #define TEST_ASSERT_NS_GE(lhs, rhs) TEST_ASSERT_NS_OP(lhs, >=, rhs)
+
+// ----------------------------------------------------------------------------
+
+[[nodiscard]] auto& getRng()
+{
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
+
+    return rng;
+}
+
+[[nodiscard]] float getRndFloat(float min, float max)
+{
+    return std::uniform_real_distribution<float>{min, max}(getRng());
+}
+
+template <typename T>
+[[nodiscard]] T getRndInt(T min, T max)
+{
+    return std::uniform_int_distribution<T>{min, max}(getRng());
+}
+
+[[nodiscard]] bool getRndBool()
+{
+    return getRndInt<int>(0, 10) > 5;
+}
