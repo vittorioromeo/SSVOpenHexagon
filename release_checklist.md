@@ -2,11 +2,13 @@
 
 ## Server
 
-1. Start the `endeavouros64` VirtualBox virtual machine
+1. `git push` from main development machine
 
-2. Run `SSVOpenHexagon/vbox/build_and_upload_server.sh`
+2. Start the `endeavouros64` VirtualBox virtual machine
 
-3. Verify that the server is working with `ssh vittorioromeo@139.162.199.162`, `sudo journalctl -u openhexagon-server -f`
+3. Run `SSVOpenHexagon/vbox/build_and_upload_server.sh`
+
+4. Verify that the server is working with `ssh vittorioromeo@139.162.199.162`, `sudo journalctl -u openhexagon-server -f`
 
 ## Client
 
