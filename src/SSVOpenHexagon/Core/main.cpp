@@ -166,7 +166,8 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 {
     hg::Steam::steam_manager steamManager;
 
-    hg::Config::loadConfig({} /* overrideIds */);
+    // TODO (P0): tries to use X11 server, fix.
+    // hg::Config::loadConfig({} /* overrideIds */);
 
     hg::HGAssets assets{
         &steamManager,      //

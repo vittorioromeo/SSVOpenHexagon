@@ -557,8 +557,6 @@ private:
     void showInputDialogBoxNice(const std::string& title,
         const std::string& inputType, const std::string& extra = "");
 
-
-
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
         Discord::discord_manager& mDiscordManager, HGAssets& mAssets,
