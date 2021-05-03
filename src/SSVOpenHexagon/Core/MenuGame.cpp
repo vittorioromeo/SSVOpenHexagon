@@ -393,14 +393,6 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        if(dialogInputState == DialogInputState::Registration_EnteringPassword)
-        {
-            registrationPassword = endInputSequence();
-            hexagonClient.tryRegister(
-                registrationUsername, registrationPassword);
-            return;
-        }
-
         if(dialogInputState == DialogInputState::Registration_EnteringUsername)
         {
             registrationUsername = transitionInputSequence(
@@ -412,10 +404,38 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             return;
         }
 
-        if(dialogInputState == DialogInputState::Login_EnteringPassword)
+        if(dialogInputState == DialogInputState::Registration_EnteringPassword)
         {
-            loginPassword = endInputSequence();
-            hexagonClient.tryLogin(loginUsername, loginPassword);
+            registrationPassword = transitionInputSequence(
+                DialogInputState::Registration_EnteringPasswordConfirm);
+
+            showInputDialogBoxNice("REGISTRATION", "CONFIRM PASSWORD");
+            dialogBox.setInputBoxPassword(true);
+            setIgnoreAllInputs(1);
+            return;
+        }
+
+        if(dialogInputState ==
+            DialogInputState::Registration_EnteringPasswordConfirm)
+        {
+            registrationPasswordConfirm = endInputSequence();
+
+            if(registrationPassword == registrationPasswordConfirm)
+            {
+                hexagonClient.tryRegister(
+                    registrationUsername, registrationPassword);
+            }
+            else
+            {
+                playSoundOverride("error.ogg");
+
+                showDialogBox(
+                    "PASSWORD MISMATCH\n\n"
+                    "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
+
+                setIgnoreAllInputs(1);
+            }
+
             return;
         }
 
@@ -427,6 +447,13 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             showInputDialogBoxNice("LOGIN", "PASSWORD");
             dialogBox.setInputBoxPassword(true);
             setIgnoreAllInputs(1);
+            return;
+        }
+
+        if(dialogInputState == DialogInputState::Login_EnteringPassword)
+        {
+            loginPassword = endInputSequence();
+            hexagonClient.tryLogin(loginUsername, loginPassword);
             return;
         }
 

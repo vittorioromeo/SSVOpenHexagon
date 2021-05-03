@@ -535,6 +535,7 @@ private:
 
         Registration_EnteringUsername,
         Registration_EnteringPassword,
+        Registration_EnteringPasswordConfirm,
 
         Login_EnteringUsername,
         Login_EnteringPassword,
@@ -546,6 +547,7 @@ private:
 
     std::string registrationUsername;
     std::string registrationPassword;
+    std::string registrationPasswordConfirm;
     std::string loginUsername;
     std::string loginPassword;
     std::string deleteAccountPassword;
