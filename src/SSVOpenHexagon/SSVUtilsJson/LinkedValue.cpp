@@ -13,6 +13,7 @@
 #include <SSVStart/Input/Input.hpp>
 
 #include <string>
+#include <vector>
 
 namespace ssvuj {
 
@@ -70,6 +71,7 @@ template class LinkedValue<float>;
 template class LinkedValue<unsigned int>;
 template class LinkedValue<unsigned short>;
 template class LinkedValue<std::string>;
+template class LinkedValue<std::vector<std::string>>;
 template class LinkedValue<ssvs::Input::Trigger>;
 
 } // namespace ssvuj
