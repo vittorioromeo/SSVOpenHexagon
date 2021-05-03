@@ -8,5 +8,5 @@
     "styleId": "goldenratio",
     "musicId": "captainCool",
     "luaFile": "Scripts/Levels/goldenratio.lua",
-    "difficultyMults": [1.25, 1.50, 0.75, 0.5]
+    "difficultyMults": [2.0, 0.5]
 }

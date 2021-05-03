@@ -8,8 +8,7 @@
 
 #include <cstddef>
 
-namespace hg
-{
+namespace hg {
 
 class Ticker
 {

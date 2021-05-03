@@ -3,6 +3,8 @@ AlignAfterOpenBracket: false
 AlignEscapedNewlinesLeft: true
 AlignOperands: true
 AlignTrailingComments: true
+AllowAllConstructorInitializersOnNextLine: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: false
@@ -11,7 +13,29 @@ AllowShortLoopsOnASingleLine: true
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: true
 BasedOnStyle: LLVM
-BreakBeforeBraces: Allman
+BreakConstructorInitializers: "BeforeColon"
+
+BreakBeforeBraces: Custom
+
+BraceWrapping:
+    AfterCaseLabel: true
+    AfterClass: true
+    AfterControlStatement: "Always"
+    AfterEnum: true
+    AfterFunction: true
+    AfterNamespace: false
+    AfterStruct: true
+    AfterUnion: true
+    AfterExternBlock: false
+    BeforeCatch: true
+    BeforeElse: true
+    BeforeLambdaBody: true
+    BeforeWhile: true
+    IndentBraces: false
+    SplitEmptyFunction: false
+    SplitEmptyRecord: false
+    SplitEmptyNamespace: false
+
 ColumnLimit: 80
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4

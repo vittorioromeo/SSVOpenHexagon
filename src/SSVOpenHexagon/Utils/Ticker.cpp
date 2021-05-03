@@ -4,13 +4,11 @@
 
 #include "SSVOpenHexagon/Utils/Ticker.hpp"
 
-namespace hg
-{
+namespace hg {
 
 Ticker::Ticker(ssvu::FT mTarget, bool mRunning) noexcept
     : target{mTarget}, running{mRunning}
-{
-}
+{}
 
 bool Ticker::update(ssvu::FT mFT) noexcept
 {

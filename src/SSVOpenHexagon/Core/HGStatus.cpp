@@ -6,8 +6,7 @@
 
 #include <chrono>
 
-namespace hg
-{
+namespace hg {
 
 void HexagonGameStatus::start() noexcept
 {
@@ -75,7 +74,7 @@ void HexagonGameStatus::resetTime()
 
 void HexagonGameStatus::accumulateFrametime(const double ft) noexcept
 {
-    // TODO: double-check what to do with remainder
+    // TODO (P2): double-check what to do with remainder
 
     totalFrametimeAccumulator += ft;
 

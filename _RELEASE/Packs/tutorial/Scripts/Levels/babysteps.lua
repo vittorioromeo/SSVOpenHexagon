@@ -19,6 +19,7 @@ shuffle(keys)
 index = 0
 achievementUnlocked = false
 challengeFailed = false
+challengeFailedText = "yes, so far..."
 
 step0 = false
 step1 = false
@@ -40,18 +41,18 @@ step1_trFocus = "nope"
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    l_setSpeedMult(0.70)
+    l_setSpeedMult(0.65)
     l_setSpeedInc(0.15)
     l_setRotationSpeed(0.04)
     l_setRotationSpeedMax(0.4)
     l_setRotationSpeedInc(0.04)
-    l_setDelayMult(1.45)
+    l_setDelayMult(1.65)
     l_setDelayInc(0.0)
     l_setFastSpin(0.0)
     l_setSides(6)
     l_setSidesMin(6)
     l_setSidesMax(6)
-    l_setIncTime(15)
+    l_setIncTime(1500)
     l_setTutorialMode(true)
 
     l_setBeatPulseMax(14)
@@ -119,9 +120,11 @@ function onUpdate(mFrameTime)
     if not step0 then
         step0 = true
 
+        l_resetTime()
+
         e_messageAddImportant("welcome to open hexagon 2!", 120)
         e_messageAddImportant("let's learn about the controls", 120)
-        e_messageAddImportant("use left/right to rotate around the center", 180)
+        e_messageAddImportant("use left/right to rotate around the center", 200)
         e_messageAddImportant("try it now!", 120)
         e_stopTimeS(9)
     end
@@ -129,8 +132,8 @@ function onUpdate(mFrameTime)
     if not step1 and l_getLevelTime() > 0.2 then
         step1 = true
 
-        l_addTracked("step0_trRotateLeft", "rotated left")
-        l_addTracked("step0_trRotateRight", "rotated right")
+        l_addTracked("step0_trRotateLeft", "rotated counter-clockwise")
+        l_addTracked("step0_trRotateRight", "rotated clockwise")
     end
 
     if step1 and not step2 and step0_trRotateLeft == "yes!" and step0_trRotateRight == "yes!" then
@@ -138,9 +141,9 @@ function onUpdate(mFrameTime)
         step0_completionTime = l_getLevelTime()
 
         e_messageAddImportant("well done!", 120)
-        e_messageAddImportant("you can slow down by focusing", 120)
-        e_messageAddImportant("by default, use left shift", 120)
-        e_messageAddImportant("try it while rotating!", 120)
+        e_messageAddImportant("you can slow down by focusing", 160)
+        e_messageAddImportant("by default, use left shift", 160)
+        e_messageAddImportant("try it while rotating!", 140)
         e_stopTimeS(8)
     end
 
@@ -151,6 +154,8 @@ function onUpdate(mFrameTime)
         step0_trRotateRight = "nope"
 
         l_addTracked("step1_trFocus", "focused")
+        l_addTracked("step0_trRotateLeft", "rotated counter-clockwise while focusing")
+        l_addTracked("step0_trRotateRight", "rotated clockwise while focusing")
     end
 
     if step25 and not step3 and step0_trRotateLeft == "yes!" and step0_trRotateRight == "yes!" and step1_trFocus == "yes!" then
@@ -167,7 +172,10 @@ function onUpdate(mFrameTime)
         step35 = true
 
         l_clearTracked()
+        l_addTracked("challengeFailedText", "surived until the end")
+
         l_resetTime()
+        l_setIncTime(15)
     end
 
     if step35 and not step4 and l_getLevelTime() > 30 then
@@ -181,8 +189,8 @@ function onUpdate(mFrameTime)
             e_messageAddImportant("nice try...", 110)
         end
 
-        e_messageAddImportant("after a while, things get harder", 120)
-        e_messageAddImportant("get to 45 seconds to complete the tutorial!", 130)
+        e_messageAddImportant("after a while, things get harder", 140)
+        e_messageAddImportant("get to 45 seconds to complete the tutorial!", 160)
     end
 
     if step4 and not step5 and l_getLevelTime() > 43 then
@@ -218,6 +226,7 @@ end
 function onPreDeath()
     if challengeFailed == false and l_getLevelTime() < 42 then
         challengeFailed = true
+        challengeFailedText = "not this time!"
         e_messageAddImportant("whoops!", 60)
     end
 end

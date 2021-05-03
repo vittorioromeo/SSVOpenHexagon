@@ -2,28 +2,55 @@
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
+#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+
+#include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Core/HexagonGame.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>
 
 #include <SSVStart/Utils/Vector2.hpp>
+#include <SSVStart/Utils/SFML.hpp>
 
-namespace hg
-{
+#include <SSVUtils/Core/Log/Log.hpp>
+#include <SSVUtils/Core/Utils/Rnd.hpp>
+
+namespace hg {
 
 [[nodiscard]] static std::string formatTime(const double x)
 {
     return ssvu::toStr(std::floor(x * 1000) / 1000.f);
 }
 
+void HexagonGame::render(
+    sf::Drawable& mDrawable, const sf::RenderStates& mStates)
+{
+    if(window == nullptr)
+    {
+        ssvu::lo("hg::HexagonGame::render")
+            << "Attempted to render without a game window\n";
+
+        return;
+    }
+
+    window->draw(mDrawable, mStates);
+}
+
 void HexagonGame::draw()
 {
-    styleData.computeColors();
+    if(window == nullptr)
+    {
+        return;
+    }
 
-    window.clear(sf::Color::Black);
+    SSVOH_ASSERT(backgroundCamera.has_value());
+    SSVOH_ASSERT(overlayCamera.has_value());
+
+    window->clear(sf::Color::Black);
 
     if(!status.hasDied)
     {
@@ -34,32 +61,35 @@ void HexagonGame::draw()
                 ssvu::getRndR(
                     -levelStatus.cameraShake, levelStatus.cameraShake));
 
-            backgroundCamera.setCenter(shake);
-            overlayCamera.setCenter(
+            backgroundCamera->setCenter(shake);
+            overlayCamera->setCenter(
                 shake + sf::Vector2f{Config::getWidth() / 2.f,
                             Config::getHeight() / 2.f});
         }
         else
         {
-            backgroundCamera.setCenter(ssvs::zeroVec2f);
-            overlayCamera.setCenter(sf::Vector2f{
+            backgroundCamera->setCenter(ssvs::zeroVec2f);
+            overlayCamera->setCenter(sf::Vector2f{
                 Config::getWidth() / 2.f, Config::getHeight() / 2.f});
         }
     }
 
     if(!Config::getNoBackground())
     {
-        backgroundCamera.apply();
+        backgroundCamera->apply();
 
         backgroundTris.clear();
 
         styleData.drawBackground(backgroundTris, ssvs::zeroVec2f,
-            levelStatus.sides, levelStatus.darkenUnevenBackgroundChunk);
+            levelStatus.sides,
+            Config::getDarkenUnevenBackgroundChunk() &&
+                levelStatus.darkenUnevenBackgroundChunk,
+            Config::getBlackAndWhite());
 
-        window.draw(backgroundTris);
+        render(backgroundTris);
     }
 
-    backgroundCamera.apply();
+    backgroundCamera->apply();
 
     wallQuads3D.clear();
     playerTris3D.clear();
@@ -96,10 +126,10 @@ void HexagonGame::draw()
             styleData._3dSkew * Config::get3DMultiplier() * status.pulse3D};
 
         const sf::Vector2f skew{1.f, 1.f + effect};
-        backgroundCamera.setSkew(skew);
+        backgroundCamera->setSkew(skew);
 
         const float radRot(
-            ssvu::toRad(backgroundCamera.getRotation()) + (ssvu::pi / 2.f));
+            ssvu::toRad(backgroundCamera->getRotation()) + (ssvu::pi / 2.f));
         const float sinRot(std::sin(radRot));
         const float cosRot(std::cos(radRot));
 
@@ -112,6 +142,17 @@ void HexagonGame::draw()
         {
             playerTris3D.unsafe_emplace_other(playerTris);
         }
+
+        const auto adjustAlpha = [&](sf::Color& c, const float i)
+        {
+            SSVOH_ASSERT(styleData._3dAlphaMult != 0.f);
+
+            const float newAlpha =
+                (static_cast<float>(c.a) / styleData._3dAlphaMult) -
+                i * styleData._3dAlphaFalloff;
+
+            c.a = Utils::componentClamp(newAlpha);
+        };
 
         for(int j(0); j < static_cast<int>(depth); ++j)
         {
@@ -126,8 +167,7 @@ void HexagonGame::draw()
             sf::Color overrideColor{Utils::getColorDarkened(
                 styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
 
-            overrideColor.a /= styleData._3dAlphaMult;
-            overrideColor.a -= i * styleData._3dAlphaFalloff;
+            adjustAlpha(overrideColor, i);
 
             for(std::size_t k = j * numWallQuads; k < (j + 1) * numWallQuads;
                 ++k)
@@ -141,8 +181,8 @@ void HexagonGame::draw()
             {
                 overrideColor = Utils::getColorDarkened(
                     styleData.getPlayerColor(), styleData._3dDarkenMult);
-                overrideColor.a /= styleData._3dAlphaMult;
-                overrideColor.a -= i * styleData._3dAlphaFalloff;
+
+                adjustAlpha(overrideColor, i);
             }
 
             for(std::size_t k = j * numPlayerTris; k < (j + 1) * numPlayerTris;
@@ -160,7 +200,7 @@ void HexagonGame::draw()
     render(playerTris);
     render(capTris);
 
-    overlayCamera.apply();
+    overlayCamera->apply();
 
     drawParticles();
     drawText();
@@ -187,7 +227,11 @@ void HexagonGame::draw()
 
     if(mustTakeScreenshot)
     {
-        window.saveScreenshot("screenshot.png");
+        if(window != nullptr)
+        {
+            window->saveScreenshot("screenshot.png");
+        }
+
         mustTakeScreenshot = false;
     }
 
@@ -196,13 +240,20 @@ void HexagonGame::draw()
 
 void HexagonGame::drawImguiLuaConsole()
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     if(!ilcShowConsole)
     {
         return;
     }
 
-    overlayCamera.unapply();
-    ImGui::SFML::Render(window);
+    SSVOH_ASSERT(overlayCamera.has_value());
+    overlayCamera->unapply();
+
+    ImGui::SFML::Render(*window);
 }
 
 void HexagonGame::initFlashEffect()
@@ -272,6 +323,11 @@ void HexagonGame::drawParticles()
 
 void HexagonGame::updateText(ssvu::FT mFT)
 {
+    if(window == nullptr)
+    {
+        return;
+    }
+
     // ------------------------------------------------------------------------
     // Update "personal best" text animation.
     pbTextGrowth += 0.08f * mFT;
@@ -317,9 +373,9 @@ void HexagonGame::updateText(ssvu::FT mFT)
             os << "INVINCIBILITY ON\n";
         }
 
-        if(Config::getTimescale() != 1.f)
+        if(const float timescale = Config::getTimescale(); timescale != 1.f)
         {
-            os << "TIMESCALE " << Config::getTimescale() << '\n';
+            os << "TIMESCALE " << timescale << '\n';
         }
 
         if(status.scoreInvalid)
@@ -347,24 +403,22 @@ void HexagonGame::updateText(ssvu::FT mFT)
         if(Config::getShowTrackedVariables() && !trackedVariables.empty())
         {
             os << '\n';
-            for(const auto& t : trackedVariables)
+            for(const auto& [variableName, display] : trackedVariables)
             {
-                if(!lua.doesVariableExist(t.variableName))
+                if(!lua.doesVariableExist(variableName))
                 {
                     continue;
                 }
 
-                std::string name{t.displayName};
-                Utils::uppercasify(name);
+                const std::string value{
+                    lua.readVariable<std::string>(variableName)};
 
-                std::string var{lua.readVariable<std::string>(t.variableName)};
-                Utils::uppercasify(var);
-
-                os << name << ": " << var << '\n';
+                os << Utils::toUppercase(display) << ": "
+                   << Utils::toUppercase(value) << '\n';
             }
         }
     }
-    else
+    else if(Config::getRotateToStart())
     {
         os << "ROTATE TO START\n";
         messageText.setString("ROTATE TO START");
@@ -392,7 +446,8 @@ void HexagonGame::updateText(ssvu::FT mFT)
             lua.readVariable<std::string>(levelStatus.scoreOverride));
     }
 
-    const auto getScaledCharacterSize = [&](const float size) {
+    const auto getScaledCharacterSize = [&](const float size)
+    {
         return ssvu::toNum<unsigned int>(
             size / Config::getZoomFactor() * Config::getTextScaling());
     };
@@ -408,9 +463,8 @@ void HexagonGame::updateText(ssvu::FT mFT)
     // Set FPS Text, if option is enabled.
     if(Config::getShowFPS())
     {
-        fpsText.setString(ssvu::toStr(window.getFPS()));
+        fpsText.setString(ssvu::toStr(window->getFPS()));
         fpsText.setCharacterSize(getScaledCharacterSize(25.f));
-        // fpsText.setOrigin(0, 0);
     }
 
     messageText.setCharacterSize(getScaledCharacterSize(38.f));
@@ -572,7 +626,9 @@ void HexagonGame::drawText_PersonalBest(const sf::Color& offsetColor)
 void HexagonGame::drawText()
 {
     const sf::Color offsetColor{
-        Config::getBlackAndWhite() ? sf::Color::Black : getColor(0)};
+        Config::getBlackAndWhite() || styleData.getColors().empty()
+            ? sf::Color::Black
+            : getColor(0)};
 
     drawText_TimeAndStatus(offsetColor);
     drawText_Message(offsetColor);

@@ -11,8 +11,7 @@
 #include <SSVUtils/Core/Utils/Containers.hpp>
 #include <SSVUtils/Core/Common/LikelyUnlikely.hpp>
 
-namespace hg
-{
+namespace hg {
 
 [[nodiscard]] bool CCustomWallManager::isValidHandle(
     const CCustomWallHandle h) const noexcept
@@ -87,7 +86,11 @@ namespace hg
     _handleAvailable[res] = false;
     ++_count;
 
-    fAfterCreate(_customWalls[res]);
+    // Restore default state
+    CCustomWall& cw = _customWalls[res];
+    cw.reset();
+
+    fAfterCreate(cw);
 
     return res;
 }
@@ -305,7 +308,7 @@ void CCustomWallManager::setVertexColor4Same(
     _customWalls[cwHandle].setVertexColor(3, color);
 }
 
-// TODO:
+// TODO (P2): implement
 [[nodiscard]] bool CCustomWallManager::isOverlappingPlayer(
     const CCustomWallHandle cwHandle)
 {
@@ -314,7 +317,6 @@ void CCustomWallManager::setVertexColor4Same(
         return false;
     }
 
-    // TODO:
     return false; // _customWalls[cwHandle].isOverlappingPlayer();
 }
 

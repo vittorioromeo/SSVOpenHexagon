@@ -7,14 +7,10 @@
 #pragma once
 
 #include <string>
-#include <zlib.h>
 
-namespace hg
-{
+namespace hg {
 
-std::string getZLibCompress(
-    const std::string& mStr, int mCompressionlevel = Z_BEST_COMPRESSION);
-
-std::string getZLibDecompress(const std::string& mStr);
+[[nodiscard]] std::string getZLibCompress(const std::string& mStr);
+[[nodiscard]] std::string getZLibDecompress(const std::string& mStr);
 
 } // namespace hg

@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include "discord/discord.h"
+#include <string>
 
-#include <string_view>
+namespace discord {
+class Core;
+}
 
-namespace hg::Discord
-{
+namespace hg::Discord {
 
 class discord_manager
 {

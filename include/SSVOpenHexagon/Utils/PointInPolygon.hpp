@@ -4,8 +4,7 @@
 
 #pragma once
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 template <typename TC, typename T>
 [[gnu::always_inline, gnu::pure, nodiscard]] inline bool pointInPolygon(

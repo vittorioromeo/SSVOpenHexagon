@@ -3,14 +3,15 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Data/CapColor.hpp"
+
 #include "SSVOpenHexagon/Data/ColorData.hpp"
 
 #include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+#include "SSVOpenHexagon/Global/UtilsJson.hpp"
 
 #include <string>
 
-namespace hg
-{
+namespace hg {
 
 [[nodiscard]] CapColor parseCapColor(const ssvuj::Obj& obj) noexcept
 {

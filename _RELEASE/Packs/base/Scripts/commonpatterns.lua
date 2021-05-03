@@ -12,14 +12,13 @@ function pAltBarrage(mTimes, mStep)
     t_wait(delay)
 end
 
-
--- pSpiral: spawns a spiral of cWallEx
-function pSpiral(mTimes, mExtra)
+-- pSpiralDir: spawns a spiral of cWallEx
+function pSpiralDir(mLoopDir, mTimes, mExtra)
     local oldThickness = THICKNESS
     THICKNESS = getPerfectThickness(THICKNESS) * l_getDelayMult()
     local delay = getPerfectDelay(THICKNESS) / l_getDelayMult()  * 0.9 -- overlap a bit to avoid going through gaps
     local startSide = getRandomSide()
-    local loopDir = getRandomDir()
+    local loopDir = mLoopDir
     local j = 0
 
     for i = 0, mTimes do
@@ -31,6 +30,11 @@ function pSpiral(mTimes, mExtra)
     THICKNESS = oldThickness
 
     t_wait(getPerfectDelayDM(THICKNESS) * 6.5)
+end
+
+-- pSpiral: spawns a spiral of cWallEx
+function pSpiral(mTimes, mExtra)
+    pSpiralDir(getRandomDir(), mTimes, mExtra)
 end
 
 -- pMirrorSpiral: spawns a spiral of rWallEx
@@ -132,7 +136,7 @@ function pWallExVortex(mTimes, mStep, mExtraMult)
         loopDir = loopDir * -1
 
         for i = 0, mStep + 1 do
-            currentSide = currentSide + loopDir;
+            currentSide = currentSide + loopDir
             rWallEx(currentSide, loopDir * mExtraMult)
             t_wait(delay)
         end

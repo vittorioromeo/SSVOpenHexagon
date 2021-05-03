@@ -7,5 +7,6 @@
     "selectable": true,
     "styleId": "evotutorial",
     "musicId": "gmoomh",
-    "luaFile": "Scripts/Levels/evotutorial.lua"
+    "luaFile": "Scripts/Levels/evotutorial.lua",
+    "unscored": true
 }

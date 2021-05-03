@@ -42,23 +42,43 @@ keys = { 0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 6, 7, 7, 7, 8, 9, 9 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    l_setSpeedMult(2.9)
+    if u_getDifficultyMult() > 1.5 then
+        l_setSpeedMult(3.6)
+    else
+        l_setSpeedMult(2.9)
+    end
+
     l_setSpeedInc(0.13)
     l_setSpeedMax(3.6)
     l_setRotationSpeed(0.3)
     l_setRotationSpeedMax(0.9)
-    l_setRotationSpeedInc(0.04)
+
+    if u_getDifficultyMult() > 1.5 then
+        l_setRotationSpeedInc(0.1)
+    else
+        l_setRotationSpeedInc(0.04)
+    end
+
     l_setDelayMult(1.1)
     l_setDelayInc(0.0)
     l_setFastSpin(71.0)
     l_setSides(6)
-    l_setSidesMin(5)
-    l_setSidesMax(7)
+
+    if u_getDifficultyMult() > 1.5 then
+        l_setSidesMin(6)
+        l_setSidesMax(6)
+    else
+        l_setSidesMin(5)
+        l_setSidesMax(7)
+    end
+
     l_setIncTime(15)
 
+    l_setPulseInitialDelay(19.672)
     l_setPulseMin(64)
     l_setPulseMax(84)
     l_setPulseSpeed(2.0)
@@ -69,16 +89,12 @@ function onInit()
     l_setBeatPulseDelayMax(19.672) -- BPM is 183
     l_setBeatPulseSpeedMult(1.35) -- Slows down the center going back to normal
 
-    enableSwapIfDMGreaterThan(1.25)
-    disableIncIfDMGreaterThan(1.5)
+    enableSwapIfDMGreaterThan(1.5)
+    disableSpeedIncIfDMGreaterThan(1.5)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-    if (u_getDifficultyMult() >= 1.25) then
-        e_messageAdd("Difficulty >= 1.25\nPentagon removed!", 120)
-        l_setSidesMin(6)
-    end
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -95,7 +111,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-    enableSwapIfSpeedGEThan(4);
+    enableSwapIfSpeedGEThan(3.4);
     if (u_getSpeedMultDM() >= 4.5 and l_getSidesMin() == 5) then
         e_messageAddImportant("Speed >= 4.5\nPentagon removed!", 120)
         if (l_getSides() == 5) then
@@ -126,5 +142,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a4_apeirogon")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 45 and u_getDifficultyMult() > 1.5 then
+        steam_unlockAchievement("a28_apeirogon_hard")
+        hardAchievementUnlocked = true
     end
 end

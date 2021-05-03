@@ -5,19 +5,18 @@
 #pragma once
 
 #include "SSVOpenHexagon/Utils/ArgExtractor.hpp"
-#include "SSVOpenHexagon/Utils/LuaMetadata.hpp"
 #include "SSVOpenHexagon/Utils/TypeWrapper.hpp"
-
-#include <SSVUtils/Core/Log/Log.hpp>
 
 #include <string>
 #include <vector>
 #include <utility>
 #include <type_traits>
 #include <tuple>
+#include <cstddef>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
+
+class LuaMetadata;
 
 class LuaMetadataProxy
 {
@@ -29,77 +28,11 @@ private:
     std::string docs;
     std::vector<std::string> argNames;
 
-    template <typename... Ts>
-    [[nodiscard]] static std::string typeToStr(
-        TypeWrapper<std::tuple<Ts...>>) noexcept
-    {
-        std::string result;
-
-        result += "tuple<";
-        ((result += typeToStr(TypeWrapper<Ts>{})), ...);
-        result += ">";
-
-        return result;
-    }
-
     template <typename T>
-    [[nodiscard]] constexpr static const char* typeToStr(
-        TypeWrapper<T>) noexcept
-    {
-        if constexpr(std::is_same_v<T, void>)
-        {
-            return "void";
-        }
-        else if constexpr(std::is_same_v<T, bool>)
-        {
-            return "bool";
-        }
-        else if constexpr(std::is_same_v<T, int>)
-        {
-            return "int";
-        }
-        else if constexpr(std::is_same_v<T, float>)
-        {
-            return "float";
-        }
-        else if constexpr(std::is_same_v<T, double>)
-        {
-            return "double";
-        }
-        else if constexpr(std::is_same_v<T, std::string>)
-        {
-            return "string";
-        }
-        else if constexpr(std::is_same_v<T, unsigned int>)
-        {
-            return "unsigned int";
-        }
-        else if constexpr(std::is_same_v<T, long>)
-        {
-            return "long";
-        }
-        else if constexpr(std::is_same_v<T, unsigned long>)
-        {
-            return "unsigned long";
-        }
-        else if constexpr(std::is_same_v<T, long long>)
-        {
-            return "long long";
-        }
-        else if constexpr(std::is_same_v<T, unsigned long long>)
-        {
-            return "unsigned long long";
-        }
-        else if constexpr(std::is_same_v<T, std::size_t>)
-        {
-            return "size_t";
-        }
-        else
-        {
-            struct fail;
-            return fail{};
-        }
-    }
+    [[nodiscard]] static const char* typeToStr(TypeWrapper<T>) noexcept;
+
+    template <typename... Ts>
+    [[nodiscard]] static std::string typeToStr(TypeWrapper<std::tuple<Ts...>>);
 
     template <typename ArgT>
     static void addTypeToStr(std::vector<std::string>& types)
@@ -107,10 +40,10 @@ private:
         types.emplace_back(typeToStr(TypeWrapper<std::decay_t<ArgT>>{}));
     }
 
-    template <typename F>
+    template <typename FOp>
     [[nodiscard]] static std::string makeArgsString(LuaMetadataProxy* self)
     {
-        using AE = Utils::ArgExtractor<decltype(&F::operator())>;
+        using AE = Utils::ArgExtractor<FOp>;
 
         std::vector<std::string> types;
 
@@ -143,105 +76,29 @@ private:
         return res;
     }
 
-    [[nodiscard]] std::string resolveArgNames(const std::string& docs)
+    [[nodiscard]] std::string resolveArgNames(const std::string& docs);
+
+    template <typename FOp>
+    [[nodiscard]] static std::string makeErasedRet(LuaMetadataProxy*)
     {
-        std::size_t argNameSize = 0;
-        for(const auto& argName : argNames)
-        {
-            argNameSize += argName.size() + 4;
-        }
-
-        std::string result;
-        result.reserve(docs.size() + argNameSize);
-
-        for(std::size_t i = 0; i < docs.size(); ++i)
-        {
-            if(docs[i] != '$')
-            {
-                result += docs[i];
-                continue;
-            }
-
-            ++i;
-
-            std::size_t j = i;
-            for(; j < docs.size(); ++j)
-            {
-                const char next = docs.at(j);
-                if(next < '0' || next > '9')
-                {
-                    break;
-                }
-            }
-
-            // Range `[i, j)` is now the position of the argument.
-            // Parse into integer.
-
-            std::size_t indexAcc = 0;
-            std::size_t tens = 1;
-
-            for(std::size_t k = j - 1; k >= i; --k)
-            {
-                indexAcc += tens * (docs.at(k) - '0');
-                tens *= 10;
-            }
-
-            result += argNames.at(indexAcc);
-            i = j - 1;
-        }
-
-        return result;
+        using AE = Utils::ArgExtractor<FOp>;
+        return typeToStr(TypeWrapper<std::decay_t<typename AE::Return>>{});
     }
 
 public:
-    template <typename F>
+    template <typename F, typename FOp = decltype(&std::decay_t<F>::operator())>
     explicit LuaMetadataProxy(
         TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
-        : luaMetadata{mLuaMetadata}, name{mName},
-          erasedRet{[](LuaMetadataProxy*) -> std::string {
-              using AE =
-                  Utils::ArgExtractor<decltype(&std::decay_t<F>::operator())>;
+        : luaMetadata{mLuaMetadata},
+          name{mName},
+          erasedRet{&makeErasedRet<FOp>},
+          erasedArgs{&makeArgsString<FOp>}
+    {}
 
-              return typeToStr(
-                  TypeWrapper<std::decay_t<typename AE::Return>>{});
-          }},
-          erasedArgs{[](LuaMetadataProxy* self) {
-              return makeArgsString<std::decay_t<F>>(self);
-          }}
-    {
-    }
+    ~LuaMetadataProxy();
 
-    ~LuaMetadataProxy()
-    {
-        try
-        {
-            luaMetadata.addFnEntry((*erasedRet)(this), name,
-                (*erasedArgs)(this), resolveArgNames(docs));
-        }
-        catch(const std::exception& e)
-        {
-            ssvu::lo("LuaMetadataProxy")
-                << "Failed to generate documentation for " << name << ": "
-                << e.what() << '\n';
-        }
-        catch(...)
-        {
-            ssvu::lo("LuaMetadataProxy")
-                << "Failed to generate documentation for " << name << '\n';
-        }
-    }
-
-    LuaMetadataProxy& arg(const std::string& mArgName)
-    {
-        argNames.emplace_back(mArgName);
-        return *this;
-    }
-
-    LuaMetadataProxy& doc(const std::string& mDocs)
-    {
-        docs = mDocs;
-        return *this;
-    }
+    LuaMetadataProxy& arg(const std::string& mArgName);
+    LuaMetadataProxy& doc(const std::string& mDocs);
 };
 
 } // namespace hg::Utils

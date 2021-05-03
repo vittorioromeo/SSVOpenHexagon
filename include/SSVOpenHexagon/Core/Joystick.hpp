@@ -4,8 +4,7 @@
 
 #pragma once
 
-namespace hg::Joystick
-{
+namespace hg::Joystick {
 
 enum class Jdir : int
 {
@@ -39,9 +38,9 @@ enum class Jid : int
     JoystickBindsCount
 };
 
-void update();
+void update(const float deadzone);
 
-void ignoreAllPresses(bool ignore);
+void ignoreAllPresses(const bool ignore);
 void setJoystickBind(const unsigned int button, const int buttonID);
 
 [[nodiscard]] bool pressed(const Jdir jdir);

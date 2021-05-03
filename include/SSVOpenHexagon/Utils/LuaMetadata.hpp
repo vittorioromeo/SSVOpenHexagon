@@ -6,9 +6,11 @@
 
 #include <string>
 #include <vector>
+#include <array>
+#include <cstddef>
+#include <string_view>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 class LuaMetadata
 {
@@ -29,27 +31,7 @@ private:
             "u_", "a_", "t_", "e_", "l_", "s_", "w_", "cw_", "Miscellaneous"};
 
     [[nodiscard]] std::size_t getCategoryIndexFromName(
-        const std::string_view fnName)
-    {
-        const std::size_t underscoreIndex = fnName.find("_");
-        if(underscoreIndex == std::string::npos)
-        {
-            return NUM_CATEGORIES -
-                   1; // Return the last index: the miscellaneous index.
-        }
-        const std::string_view prefix = fnName.substr(0, underscoreIndex + 1);
-
-        // Find the category it should be placed in, otherwise it'll be
-        // considered Miscellaneous
-        for(std::size_t i = 0; i < prefixCategories.size() - 1; ++i)
-        {
-            if(prefix == prefixCategories[i])
-            {
-                return i;
-            }
-        }
-        return NUM_CATEGORIES - 1;
-    }
+        const std::string_view fnName);
 
 public:
     static constexpr std::array<std::string_view, NUM_CATEGORIES>
@@ -135,17 +117,9 @@ public:
             "functions not meant to be used by pack developers at all."};
 
     void addFnEntry(const std::string& fnRet, const std::string& fnName,
-        const std::string& fnArgs, const std::string& fnDocs)
-    {
-        const std::size_t categoryIndex = getCategoryIndexFromName(fnName);
-        fnEntries.at(categoryIndex)
-            .push_back(FnEntry{fnRet, fnName, fnArgs, fnDocs});
-    }
+        const std::string& fnArgs, const std::string& fnDocs);
 
-    [[nodiscard]] std::size_t getNumCategories() const noexcept
-    {
-        return NUM_CATEGORIES;
-    }
+    [[nodiscard]] std::size_t getNumCategories() const noexcept;
 
     template <typename F>
     void forFnEntries(F&& f, const std::size_t categoryIndex)

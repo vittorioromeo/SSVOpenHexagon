@@ -1,0 +1,12 @@
+[Unit]
+Description=Open Hexagon Server
+
+[Service]
+User=vittorioromeo
+WorkingDirectory=/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/_RELEASE
+ExecStart=/home/vittorioromeo/OHWorkspace/SSVOpenHexagon/_RELEASE/SSVOpenHexagonVbox_Current -server
+Restart=always
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

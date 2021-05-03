@@ -38,24 +38,46 @@ keys = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 7, 7, 8, 9, 10, 10, 10 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    l_setSpeedMult(2.65)
+    if u_getDifficultyMult() > 2.0 then
+        l_setSpeedMult(2.45)
+    elseif u_getDifficultyMult() > 1.5 then
+        l_setSpeedMult(2.55)
+    else
+        l_setSpeedMult(2.65)
+    end
+
     l_setSpeedInc(0.1)
-    l_setSpeedMax(5)
+    l_setSpeedMax(4.2)
     l_setRotationSpeed(0.2)
-    l_setRotationSpeedMax(2)
-    l_setRotationSpeedInc(0.05)
+    l_setRotationSpeedMax(0.9)
+
+    if u_getDifficultyMult() > 1.5 then
+        l_setRotationSpeedInc(0.1)
+    else
+        l_setRotationSpeedInc(0.05)
+    end
+
     l_setDelayMult(1.1)
     l_setDelayInc(0.005)
     l_setDelayMax(1.22)
     l_setFastSpin(70.0)
     l_setSides(6)
-    l_setSidesMin(5)
-    l_setSidesMax(7)
+
+    if u_getDifficultyMult() > 1.5 then
+        l_setSidesMin(6)
+        l_setSidesMax(6)
+    else
+        l_setSidesMin(5)
+        l_setSidesMax(7)
+    end
+
     l_setIncTime(15)
 
+    l_setPulseInitialDelay(26.667)
     l_setPulseMin(70)
     l_setPulseMax(90.00025)
     l_setPulseSpeed(1.0)
@@ -66,21 +88,19 @@ function onInit()
     l_setBeatPulseDelayMax(26.667) -- BPM is 135
     l_setBeatPulseSpeedMult(0.45) -- Slows down the center going back to normal
 
-    enableSwapIfDMGreaterThan(2)
-    disableIncIfDMGreaterThan(2.2)
+    enableSwapIfDMGreaterThan(1.5)
+    disableSpeedIncIfDMGreaterThan(1.5)
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-    if (u_getDifficultyMult() >= 2.2) then
-        e_messageAdd("Difficulty >= 2.2\nPentagon removed!", 120)
-        l_setSidesMin(6)
+    if u_getDifficultyMult() == 1 then
+        e_waitS(16)
+        e_messageAdd("whoa!", 120)
+        e_waitS(45)
+        e_messageAddImportant("may the mayhem begin!", 130)
+        s_setPulseInc(0.15)
     end
-    e_waitS(16)
-    e_messageAdd("whoa!", 120)
-    e_waitS(45)
-    e_messageAddImportant("may the mayhem begin!", 130)
-    s_setPulseInc(0.15)
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -97,7 +117,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-    enableSwapIfSpeedGEThan(4);
+    enableSwapIfSpeedGEThan(3.8);
     if (u_getSpeedMultDM() >= 4.5 and l_getSidesMin() == 5) then
         e_messageAddImportant("Speed >= 4.5\nPentagon removed!", 120)
         if (l_getSides() == 5) then
@@ -116,5 +136,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a3_seconddim")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 20 and u_getDifficultyMult() > 2 then
+        steam_unlockAchievement("a27_seconddim_hard")
+        hardAchievementUnlocked = true
     end
 end

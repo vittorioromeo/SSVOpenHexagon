@@ -4,18 +4,19 @@
 
 #include "SSVOpenHexagon/Online/Compression.hpp"
 
+#include <zlib.h>
+
 #include <sstream>
 #include <cstring>
 
-namespace hg
-{
+namespace hg {
 
-std::string getZLibCompress(const std::string& mStr, int mCompressionlevel)
+std::string getZLibCompress(const std::string& mStr)
 {
     z_stream zs;
     std::memset(&zs, 0, sizeof(zs));
 
-    if(deflateInit(&zs, mCompressionlevel) != Z_OK)
+    if(deflateInit(&zs, Z_BEST_COMPRESSION) != Z_OK)
     {
         throw std::runtime_error("deflateInit failed while compressing.");
     }
@@ -38,7 +39,8 @@ std::string getZLibCompress(const std::string& mStr, int mCompressionlevel)
         {
             outstring.append(outbuffer, zs.total_out - outstring.size());
         }
-    } while(ret == Z_OK);
+    }
+    while(ret == Z_OK);
 
     deflateEnd(&zs);
 
@@ -80,7 +82,8 @@ std::string getZLibDecompress(const std::string& mStr)
         {
             outstring.append(outbuffer, zs.total_out - outstring.size());
         }
-    } while(ret == Z_OK);
+    }
+    while(ret == Z_OK);
 
     inflateEnd(&zs);
 

@@ -4,12 +4,10 @@
 
 #pragma once
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 template <typename>
 struct TypeWrapper
-{
-};
+{};
 
 } // namespace hg::Utils

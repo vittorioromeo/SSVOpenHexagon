@@ -4,14 +4,8 @@
 
 #pragma once
 
-#include <string>
+namespace hg {
 
-namespace hg
-{
-
-struct TrackedVariable
-{
-    std::string variableName, displayName;
-};
+using random_number_generator_seed_type = unsigned long long;
 
 } // namespace hg

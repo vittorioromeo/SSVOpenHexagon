@@ -6,8 +6,7 @@
 
 #include <unordered_set>
 
-namespace hg::Utils
-{
+namespace hg::Utils {
 
 // From:
 // https://en.cppreference.com/w/cpp/container/unordered_set/erase_if

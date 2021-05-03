@@ -14,8 +14,7 @@
 
 #include <string>
 
-namespace hg
-{
+namespace hg {
 
 [[nodiscard]] int KeyboardBindControl::getRealSize(
     const std::vector<ssvs::Input::Combo>& combos) const
@@ -31,7 +30,6 @@ namespace hg
 
     return i;
 }
-
 
 void KeyboardBindControl::exec()
 {
