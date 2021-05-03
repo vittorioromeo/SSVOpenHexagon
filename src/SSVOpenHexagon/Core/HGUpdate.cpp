@@ -10,9 +10,10 @@
 #include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
 #include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/Split.hpp"
+#include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Steam.hpp"
 #include "SSVOpenHexagon/Core/Discord.hpp"
@@ -28,20 +29,60 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 
-#include <optional>
 #include <array>
 #include <cstring>
+#include <optional>
+#include <stdexcept>
 
 namespace hg {
 
-void HexagonGame::update(ssvu::FT mFT)
+void HexagonGame::fastForwardTo(const double target)
 {
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = std::chrono::time_point<Clock>;
+
+    const TimePoint tpBegin = Clock::now();
+
+    const auto exceededProcessingTime = [&]
+    {
+        constexpr int maxProcessingSeconds = 3;
+
+        return std::chrono::duration_cast<std::chrono::seconds>(
+                   Clock::now() - tpBegin)
+                   .count() > maxProcessingSeconds;
+    };
+
+    while(!status.hasDied && status.getTimeSeconds() < target &&
+          !exceededProcessingTime())
+    {
+        update(Config::TIME_STEP, 1.0f /* timescale */);
+        postUpdate();
+    }
+}
+
+void HexagonGame::update(ssvu::FT mFT, const float timescale)
+{
+    // ------------------------------------------------------------------------
+    // Fast-forwarding for level testing
+    if(fastForwardTarget.has_value())
+    {
+        const double target = fastForwardTarget.value();
+        fastForwardTarget.reset();
+
+        fastForwardTo(target);
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // Update client
     if(hexagonClient != nullptr)
     {
         hexagonClient->update();
     }
 
-    mFT *= Config::getTimescale();
+    // ------------------------------------------------------------------------
+    // Scale simulation delta frame time
+    mFT *= timescale;
 
     // ------------------------------------------------------------------------
     // Update Discord and Steam "rich presence".
@@ -1096,6 +1137,9 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 
         ilcHistory.emplace_back(cmdString);
 
+        const std::vector<std::string> cmdSplit =
+            Utils::split<std::string>(cmdString);
+
         if(Stricmp(cmdString.c_str(), "!CLEAR") == 0)
         {
             ilcCmdLog.clear();
@@ -1105,8 +1149,31 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
             ilcCmdLog.emplace_back(R"(Built-in commands:
 !clear          Clears the console
 !help           Display this help
+!ff <seconds>   Fast-forward simulation to specified time
 ?fn             Display Lua docs for function `fn`
 )");
+        }
+        else if(cmdSplit.size() > 1 && cmdSplit.at(0) == "!ff")
+        {
+            try
+            {
+                const std::string& secondsStr = cmdSplit.at(1);
+                const double seconds = std::stod(secondsStr);
+
+                ilcCmdLog.emplace_back(
+                    Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
+
+                fastForwardTarget = seconds;
+            }
+            catch(const std::invalid_argument&)
+            {
+                ilcCmdLog.emplace_back(
+                    "[error]: invalid argument for <seconds>\n");
+            }
+            catch(const std::out_of_range&)
+            {
+                ilcCmdLog.emplace_back("[error]: out of range for <seconds>\n");
+            }
         }
         else if(cmdString[0] == '?')
         {
