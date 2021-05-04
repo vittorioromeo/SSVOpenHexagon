@@ -313,6 +313,18 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
             else if(lvlDrawer != nullptr)
             {
                 lvlDrawer->YScrollTo += mEvent.mouseWheel.delta * 48.f;
+
+                if(lvlDrawer->YScrollTo > 0)
+                {
+                    lvlDrawer->YScrollTo = 0;
+                }
+                else if(lvlDrawer->YScrollTo < -4000)
+                {
+                    // Why...
+                    steamManager.unlock_achievement("a35_eagerformore");
+                    playSoundOverride("error.ogg");
+                    lvlDrawer->YScrollTo = 0;
+                }
             }
 
             return;
