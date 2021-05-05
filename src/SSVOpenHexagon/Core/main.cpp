@@ -159,6 +159,36 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 //
 //
 // ----------------------------------------------------------------------------
+// Print lua docs entrypoint
+// ----------------------------------------------------------------------------
+
+[[nodiscard]] int mainPrintLuaDocs()
+{
+    hg::HGAssets assets{
+        nullptr, /* steamManager */ //
+        true /* headless */         //
+    };
+
+    hg::HexagonGame hg{
+        nullptr /* steamManager */,   //
+        nullptr /* discordManager */, //
+        assets,                       //
+        nullptr /* audio */,          //
+        nullptr /* window */,         //
+        nullptr /* client */          //
+    };
+
+    std::cout << "\n\n\n\n\n";
+    hg.initLuaAndPrintDocs();
+    std::cout << "\n\n\n\n\n";
+
+    ssvu::lo("::mainPrintLuaDocs") << "Finished\n";
+    return 0;
+}
+
+//
+//
+// ----------------------------------------------------------------------------
 // Server main entrypoint
 // ----------------------------------------------------------------------------
 
@@ -202,7 +232,7 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 // Client main entrypoint
 // ----------------------------------------------------------------------------
 
-[[nodiscard]] int mainClient(const bool headless, const bool printLuaDocs,
+[[nodiscard]] int mainClient(const bool headless,
     const std::vector<std::string>& args,
     const std::optional<std::string>& cliLevelName,
     const std::optional<std::string>& cliLevelPack)
@@ -358,12 +388,6 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
         (window.has_value() ? &*window : nullptr),                 //
         &hc                                                        //
     };
-
-    if(printLuaDocs)
-    {
-        hg.initLuaAndPrintDocs();
-        return 0;
-    }
 
     //
     //
@@ -610,6 +634,15 @@ int main(int argc, char* argv[])
     //
     //
     // ------------------------------------------------------------------------
+    // Print Lua docs mode
+    if(printLuaDocs)
+    {
+        return mainPrintLuaDocs();
+    }
+
+    //
+    //
+    // ------------------------------------------------------------------------
     // Server mode
     if(server)
     {
@@ -620,6 +653,7 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Client mode
+    SSVOH_ASSERT(!printLuaDocs);
     SSVOH_ASSERT(!server);
-    return mainClient(headless, printLuaDocs, args, cliLevelName, cliLevelPack);
+    return mainClient(headless, args, cliLevelName, cliLevelPack);
 }
