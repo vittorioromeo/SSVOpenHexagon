@@ -94,7 +94,7 @@ public:
         _size = 0;
     }
 
-    [[gnu::always_inline, nodiscard]] std::size_t size() const noexcept
+    [[nodiscard, gnu::always_inline]] std::size_t size() const noexcept
     {
         return _size;
     }
@@ -133,7 +133,7 @@ public:
             TPrimitive, mRenderStates);
     }
 
-    [[gnu::always_inline, nodiscard]] sf::Vertex& operator[](
+    [[nodiscard, gnu::always_inline]] sf::Vertex& operator[](
         const std::size_t i) noexcept
     {
         SSVOH_ASSERT(i < _size);
@@ -142,7 +142,7 @@ public:
         return _data[i]._v;
     }
 
-    [[gnu::always_inline, nodiscard]] const sf::Vertex& operator[](
+    [[nodiscard, gnu::always_inline]] const sf::Vertex& operator[](
         const std::size_t i) const noexcept
     {
         SSVOH_ASSERT(i < _size);

@@ -9,7 +9,7 @@
 namespace hg {
 
 template <typename T>
-[[gnu::always_inline, nodiscard]] inline constexpr std::size_t toSizeT(
+[[nodiscard, gnu::always_inline]] inline constexpr std::size_t toSizeT(
     const T value) noexcept
 {
     return static_cast<std::size_t>(value);

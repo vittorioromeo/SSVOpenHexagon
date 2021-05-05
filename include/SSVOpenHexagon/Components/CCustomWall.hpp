@@ -56,7 +56,7 @@ public:
         wallQuads.unsafe_emplace_back(_vertexPositions[3], _vertexColors[3]);
     }
 
-    [[gnu::always_inline, nodiscard]] bool isOverlapping(
+    [[nodiscard, gnu::always_inline]] bool isOverlapping(
         const sf::Vector2f& point) const noexcept
     {
         return Utils::pointInPolygon(_vertexPositions, point.x, point.y);
@@ -103,35 +103,35 @@ public:
         _flags[CWFlags::Deadly] = deadly;
     }
 
-    [[gnu::always_inline, nodiscard]] const sf::Vector2f& getVertexPos(
+    [[nodiscard, gnu::always_inline]] const sf::Vector2f& getVertexPos(
         const int vertexIndex) const noexcept
     {
         return _vertexPositions[vertexIndex];
     }
 
-    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    [[nodiscard, gnu::always_inline]] const std::array<sf::Vector2f, 4>&
     getVertexPositions() const noexcept
     {
         return _vertexPositions;
     }
 
-    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    [[nodiscard, gnu::always_inline]] const std::array<sf::Vector2f, 4>&
     getOldVertexPositions() const noexcept
     {
         return _oldVertexPositions;
     }
 
-    [[gnu::always_inline, nodiscard]] bool getCanCollide() const noexcept
+    [[nodiscard, gnu::always_inline]] bool getCanCollide() const noexcept
     {
         return !_flags[CWFlags::NoCollision];
     }
 
-    [[gnu::always_inline, nodiscard]] bool getDeadly() const noexcept
+    [[nodiscard, gnu::always_inline]] bool getDeadly() const noexcept
     {
         return _flags[CWFlags::Deadly];
     }
 
-    [[gnu::always_inline, nodiscard]] constexpr bool
+    [[nodiscard, gnu::always_inline]] constexpr bool
     isCustomWall() const noexcept
     {
         return true;
@@ -142,7 +142,7 @@ public:
         _killingSide = side;
     }
 
-    [[gnu::always_inline, nodiscard]] std::uint8_t
+    [[nodiscard, gnu::always_inline]] std::uint8_t
     getKillingSide() const noexcept
     {
         return _killingSide;
