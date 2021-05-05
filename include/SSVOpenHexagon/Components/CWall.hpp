@@ -52,41 +52,41 @@ public:
 
     void setHueMod(float hueMod) noexcept;
 
-    [[gnu::always_inline, nodiscard]] const std::array<sf::Vector2f, 4>&
+    [[nodiscard, gnu::always_inline]] const std::array<sf::Vector2f, 4>&
     getVertexPositions() const noexcept
     {
         return _vertexPositions;
     }
 
-    [[gnu::always_inline, nodiscard]] const SpeedData& getSpeed() const noexcept
+    [[nodiscard, gnu::always_inline]] const SpeedData& getSpeed() const noexcept
     {
         return _speed;
     }
 
-    [[gnu::always_inline, nodiscard]] const SpeedData& getCurve() const noexcept
+    [[nodiscard, gnu::always_inline]] const SpeedData& getCurve() const noexcept
     {
         return _curve;
     }
 
-    [[gnu::always_inline, nodiscard]] bool isOverlapping(
+    [[nodiscard, gnu::always_inline]] bool isOverlapping(
         const sf::Vector2f& point) const noexcept
     {
         return Utils::pointInPolygon(_vertexPositions, point.x, point.y);
     }
 
-    [[gnu::always_inline, nodiscard]] constexpr bool
+    [[nodiscard, gnu::always_inline]] constexpr bool
     isCustomWall() const noexcept
     {
         return false;
     }
 
-    [[gnu::always_inline, nodiscard]] std::uint8_t
+    [[nodiscard, gnu::always_inline]] std::uint8_t
     getKillingSide() const noexcept
     {
         return 0u;
     }
 
-    [[gnu::always_inline, nodiscard]] bool isDead() const noexcept
+    [[nodiscard, gnu::always_inline]] bool isDead() const noexcept
     {
         return _killed;
     }
