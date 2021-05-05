@@ -5,7 +5,9 @@
 #include "SSVOpenHexagon/Global/Audio.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SSVStart/SoundPlayer/SoundPlayer.hpp>
 
@@ -14,7 +16,6 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 #include <SFML/Audio/Music.hpp>
 
-#include <memory>
 #include <optional>
 #include <string>
 
@@ -190,7 +191,7 @@ public:
 
 Audio::Audio(const SoundBufferGetter& soundBufferGetter,
     const MusicPathGetter& musicPathGetter)
-    : _impl{std::make_unique<AudioImpl>(soundBufferGetter, musicPathGetter)}
+    : _impl{Utils::makeUnique<AudioImpl>(soundBufferGetter, musicPathGetter)}
 {}
 
 Audio::~Audio() = default;

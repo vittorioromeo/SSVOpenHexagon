@@ -42,6 +42,7 @@
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
 #include <SSVStart/Input/Input.hpp>
@@ -155,7 +156,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       window(mGameWindow),
       hexagonClient{mHexagonClient},
       dialogBox(imagine, mGameWindow),
-      leaderboardCache{std::make_unique<LeaderboardCache>()},
+      leaderboardCache{Utils::makeUnique<LeaderboardCache>()},
       lua{},
       execScriptPackPathContext{},
       currentPack{nullptr},

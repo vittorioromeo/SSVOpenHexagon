@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
+
 #include <string>
-#include <memory>
 
 namespace sf {
 
@@ -22,7 +23,7 @@ class AssetStorage
 private:
     class AssetStorageImpl;
 
-    std::unique_ptr<AssetStorageImpl> _impl;
+    Utils::UniquePtr<AssetStorageImpl> _impl;
 
     [[nodiscard]] const AssetStorageImpl& impl() const noexcept;
     [[nodiscard]] AssetStorageImpl& impl() noexcept;

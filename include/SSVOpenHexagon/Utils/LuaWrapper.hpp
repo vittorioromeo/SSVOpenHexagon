@@ -72,7 +72,10 @@ struct FnTupleWrapper
 template <typename... TArgs>
 struct FnTupleWrapper<void(TArgs...)>
 {
-    static constexpr int count{sizeof...(TArgs)};
+    enum
+    {
+        count = sizeof...(TArgs)
+    };
     using ParamsType = std::tuple<TArgs...>;
 
     template <typename T>
@@ -87,7 +90,10 @@ struct FnTupleWrapper<void(TArgs...)>
 template <typename R, typename... TArgs>
 struct FnTupleWrapper<R(TArgs...)>
 {
-    static constexpr int count{sizeof...(TArgs)};
+    enum
+    {
+        count = sizeof...(TArgs)
+    };
     using ParamsType = std::tuple<TArgs...>;
 
     template <typename T>
@@ -884,8 +890,8 @@ public:
         template <typename Key, typename Value, typename... Args>
         void insert(Key&& k, Value&& v, Args&&... args)
         {
-            typedef typename ToPushableType<std::decay_t<Key>>::type RKey;
-            typedef typename ToPushableType<std::decay_t<Value>>::type RValue;
+            using RKey = typename ToPushableType<std::decay_t<Key>>::type;
+            using RValue = typename ToPushableType<std::decay_t<Value>>::type;
 
             _elements.emplace_back(new Element<RKey, RValue>(
                 std::forward<Key>(k), std::forward<Value>(v)));
@@ -1070,110 +1076,111 @@ private:
         return 1;
     }
 
+    template <typename FunctionPushType>
+    static auto callbackCall(lua_State* lua)
+    {
+        // this function is called when the lua script tries to call our
+        // custom data type
+        // what we do is we simply call the function
+        SSVOH_ASSERT(lua_gettop(lua) >= 1);
+        SSVOH_ASSERT(lua_isuserdata(lua, 1));
+
+        auto function = (FunctionPushType*)lua_touserdata(lua, 1);
+
+        SSVOH_ASSERT(function);
+        return (*function)(lua);
+    }
+
+    template <typename FunctionPushType>
+    static int callbackGarbage(lua_State* lua)
+    {
+        // this one is called when lua's garbage collector no longer
+        // needs our custom data type
+        // we call std::function<int (lua_State*)>'s destructor
+        SSVOH_ASSERT(lua_gettop(lua) == 1);
+
+        auto function = (FunctionPushType*)lua_touserdata(lua, 1);
+
+        SSVOH_ASSERT(function);
+        function->~FunctionPushType();
+
+        return 0;
+    }
+
+    template <typename F, typename Op>
+    struct FunctionToPush
+    {
+        LuaContext* _ctx;
+        F _fn;
+
+        auto operator()(lua_State* state) const
+        {
+            SSVOH_ASSERT(_ctx->_state == state);
+
+            // FnTupleWrapper<FnType> is a specialized template
+            // structure which defines
+            // "ParamsType", "ReturnType" and "call"
+            // the first two correspond to the params list and return
+            // type as tuples
+            //   and "call" is a static function which will call a
+            //   function
+            //   of this type using parameters passed as a tuple
+            using FnType = typename RemoveMemberPtr<Op>::Type;
+            using TupledFunction = FnTupleWrapper<FnType>;
+
+            // checking if number of parameters is correct
+            if(lua_gettop(state) < TupledFunction::count)
+            {
+                // if not, using lua_error to return an error
+                luaL_where(state, 1);
+                lua_pushstring(state, "this function requires at least ");
+                lua_pushnumber(state, TupledFunction::count);
+                lua_pushstring(state, " parameter(s)");
+                lua_concat(state, 4);
+                return lua_error(state); // lua_error throws an
+                                         // exception when compiling as
+                                         // C++
+            }
+
+            // pushing the result on the stack and returning number of
+            // pushed elements
+            return _ctx->_push(
+                // calling the function, result should be a tuple
+                TupledFunction::call(_fn,
+
+                    // reading parameters from the stack
+                    _ctx->_read(-TupledFunction::count,
+                        static_cast<typename TupledFunction::ParamsType*>(
+                            nullptr))));
+        }
+    };
+
     // when you call _push with a functor, this definition should be used
     // (thanks to SFINAE)
     // it will determine the function category using its () operator, then
     //   generate a callable user data and push it
-    template <typename T, typename Op = decltype(&std::decay_t<T>::operator())>
+    template <typename T, typename DecayT = std::decay_t<T>,
+        typename Op = decltype(&DecayT::operator())>
     int _push(T&& fn, Op = nullptr)
     {
-        // the () operator has type "R(T::*)(Args)", this typedef converts
-        // it to "R(Args)"
-        using FnType = typename RemoveMemberPtr<Op>::Type;
-
         // when the lua script calls the thing we will push on the stack, we
         // want "fn" to be executed
         // if we used lua's cfunctions system, we could not detect when the
         // function is no longer in use, which could cause problems
         // so we use userdata instead
 
-        // we will create a userdata which contains a copy of a lambda
-        // function [](lua_State*) -> int
-        // but first we have to create it
-        auto functionToPush(
-            [this, fn = std::forward<T>(fn)](lua_State* state)
-            {
-                // note that I'm using "" because of g++,
-                // I don't know if it is required by standards or if it is a
-                // bug
-                SSVOH_ASSERT(_state == state);
-
-                // FnTupleWrapper<FnType> is a specialized template
-                // structure which defines
-                // "ParamsType", "ReturnType" and "call"
-                // the first two correspond to the params list and return
-                // type as tuples
-                //   and "call" is a static function which will call a
-                //   function
-                //   of this type using parameters passed as a tuple
-                using TupledFunction = FnTupleWrapper<FnType>;
-
-                // checking if number of parameters is correct
-                constexpr int paramsCount = TupledFunction::count;
-                if(lua_gettop(state) < paramsCount)
-                {
-                    // if not, using lua_error to return an error
-                    luaL_where(state, 1);
-                    lua_pushstring(state, "this function requires at least ");
-                    lua_pushnumber(state, paramsCount);
-                    lua_pushstring(state, " parameter(s)");
-                    lua_concat(state, 4);
-                    return lua_error(state); // lua_error throws an
-                                             // exception when compiling as
-                                             // C++
-                }
-
-                // pushing the result on the stack and returning number of
-                // pushed elements
-                return _push(
-                    // calling the function, result should be a tuple
-                    TupledFunction::call(fn,
-
-                        // reading parameters from the stack
-                        _read(-paramsCount,
-                            static_cast<typename TupledFunction::ParamsType*>(
-                                nullptr))));
-            });
-
         // typedefing the type of data we will push
-        using FunctionPushType = decltype(functionToPush);
-
-        auto callbackCall = [](lua_State* lua)
-        {
-            // this function is called when the lua script tries to call our
-            // custom data type
-            // what we do is we simply call the function
-            SSVOH_ASSERT(lua_gettop(lua) >= 1);
-            SSVOH_ASSERT(lua_isuserdata(lua, 1));
-
-            auto function = (FunctionPushType*)lua_touserdata(lua, 1);
-
-            SSVOH_ASSERT(function);
-            return (*function)(lua);
-        };
-
-        auto callbackGarbage = [](lua_State* lua)
-        {
-            // this one is called when lua's garbage collector no longer
-            // needs our custom data type
-            // we call std::function<int (lua_State*)>'s destructor
-            SSVOH_ASSERT(lua_gettop(lua) == 1);
-
-            auto function = (FunctionPushType*)lua_touserdata(lua, 1);
-
-            SSVOH_ASSERT(function);
-            function->~FunctionPushType();
-            return 0;
-        };
+        using FunctionPushType = FunctionToPush<DecayT, Op>;
 
         // creating the object
         // lua_newuserdata allocates memory in the internals of the lua
         // library and returns it so we can fill it
         //   and that's what we do with placement-new
-        auto const functionLocation = (FunctionPushType*)lua_newuserdata(
+        auto* const functionLocation = (FunctionPushType*)lua_newuserdata(
             _state, sizeof(FunctionPushType));
 
-        new(functionLocation) FunctionPushType(std::move(functionToPush));
+        new(functionLocation)
+            FunctionPushType{._ctx = this, ._fn = std::forward<T>(fn)};
 
         // creating the metatable (over the object on the stack)
         // lua_settable pops the key and value we just pushed, so stack
@@ -1181,14 +1188,17 @@ private:
         // all that remains on the stack after these function calls is the
         // metatable
         lua_newtable(_state);
+
         lua_pushstring(_state, "__call");
-        lua_pushcfunction(_state, callbackCall);
+        lua_pushcfunction(_state, &callbackCall<FunctionPushType>);
         lua_settable(_state, -3);
+
         lua_pushstring(_state, "_typeid");
         lua_pushlightuserdata(_state, const_cast<std::type_info*>(&typeid(T)));
         lua_settable(_state, -3);
+
         lua_pushstring(_state, "__gc");
-        lua_pushcfunction(_state, callbackGarbage);
+        lua_pushcfunction(_state, &callbackGarbage<FunctionPushType>);
         lua_settable(_state, -3);
 
         // at this point, the stack contains the object at offset -2 and the
@@ -1230,8 +1240,7 @@ private:
             {
                 SSVOH_ASSERT(lua_gettop(lua) == 1);
 
-                std::shared_ptr<T>* ptr =
-                    (std::shared_ptr<T>*)lua_touserdata(lua, 1);
+                auto* ptr = (std::shared_ptr<T>*)lua_touserdata(lua, 1);
 
                 SSVOH_ASSERT(ptr && *ptr);
                 ptr->~shared_ptr();
@@ -1516,24 +1525,6 @@ return table;*/
 };
 
 template <typename T>
-struct IsFunctor
-{
-    using one = char;
-    using two = long;
-
-    template <typename C>
-    static one test(decltype(&C::operator()));
-
-    template <typename C>
-    static two test(...);
-
-    enum
-    {
-        value = sizeof(test<T>(0)) == sizeof(char)
-    };
-};
-
-template <typename T>
 struct LuaContext::ToPushableType<T&>
 {
     using type = typename ToPushableType<T>::type;
@@ -1607,7 +1598,7 @@ struct LuaContext::ToPushableType<LuaContext::Table>
 };
 
 template <typename T>
-struct LuaContext::ToPushableType<T, std::enable_if_t<IsFunctor<T>::value>>
+struct LuaContext::ToPushableType<T, decltype(&T::operator(), void())>
 {
     using type = T;
 };
