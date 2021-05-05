@@ -245,7 +245,7 @@ private:
 
 public:
     // TODO (P2): For testing
-    std::function<void(const replay_file&)> onReplayCreated;
+    std::function<void(const replay_file&)> onDeathReplayCreated;
 
     // TODO (P2): For testing
     void setMustStart(const bool x)
@@ -392,12 +392,21 @@ public:
     void newGame(const std::string& mPackId, const std::string& mId,
         bool mFirstPlay, float mDifficultyMult, bool executeLastReplay);
 
+    enum class SaveScoreIfNeededResult
+    {
+        NoWindow = 0,
+        ShouldNotSave = 1,
+        NotPersonalBest = 2,
+        PersonalBest = 3,
+    };
+
     void death(bool mForce = false);
     void death_shakeCamera();
-    void death_sendAndSaveReplay();
+    [[nodiscard]] replay_file death_createReplayFile();
     void death_updateRichPresence();
-    void death_saveScore();
+    [[nodiscard]] SaveScoreIfNeededResult death_saveScoreIfNeeded();
     void death_saveScoreIfNeededAndShowPBEffects();
+    void death_sendAndSaveReplay(const replay_file& rf);
     [[nodiscard]] bool death_sendReplay(
         const std::string& levelValidator, const compressed_replay_file& crf);
     [[nodiscard]] bool death_saveReplay(
