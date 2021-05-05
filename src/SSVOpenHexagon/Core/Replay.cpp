@@ -148,19 +148,20 @@ void replay_data::record_input(const bool left, const bool right,
 
     _inputs.resize(n_inputs);
 
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
     for(std::size_t i = 0; i < n_inputs; ++i)
-#pragma GCC diagnostic pop
     {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         std::uint8_t ib_byte;
         SSVOH_TRY(read(ib_byte));
-#pragma GCC diagnostic pop
 
         _inputs[i] = input_bitset{static_cast<unsigned long>(ib_byte)};
     }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
     return result;
 }
@@ -279,8 +280,10 @@ void replay_player::reset() noexcept
 
         s.resize(s_size);
 
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         for(std::uint32_t i = 0; i < s_size; ++i)
         {
             char c;
@@ -288,7 +291,9 @@ void replay_player::reset() noexcept
 
             s[i] = c;
         }
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
+#endif
 
         return result;
     };
