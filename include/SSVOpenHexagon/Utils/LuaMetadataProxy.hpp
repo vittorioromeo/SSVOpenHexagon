@@ -34,55 +34,56 @@ private:
     template <typename... Ts>
     [[nodiscard]] static std::string typeToStr(TypeWrapper<std::tuple<Ts...>>);
 
-    template <typename ArgT>
-    static void addTypeToStr(std::vector<std::string>& types)
-    {
-        types.emplace_back(typeToStr(TypeWrapper<std::decay_t<ArgT>>{}));
-    }
-
     template <typename FOp>
     [[nodiscard]] static std::string makeArgsString(LuaMetadataProxy* self)
     {
         using AE = Utils::ArgExtractor<FOp>;
 
-        std::vector<std::string> types;
-
-        [&]<std::size_t... Is>(std::index_sequence<Is...>)
-        {
-            (addTypeToStr<typename AE::template NthArg<Is>>(types), ...);
-        }
-        (std::make_index_sequence<AE::numArgs>{});
-
-        if(types.empty())
+        if constexpr(AE::numArgs == 0)
         {
             return "";
         }
-
-        std::string res = types.at(0) + " " + self->argNames.at(0);
-
-        if(types.size() == 1)
+        else if constexpr(AE::numArgs == 1)
         {
+            std::string res;
+
+            res += typeToStr(
+                TypeWrapper<std::decay_t<typename AE::template NthArg<0>>>{});
+
+            res += ' ';
+            res += self->argNames.at(0);
+
             return res;
         }
-
-        for(std::size_t i = 1; i < types.size(); ++i)
+        else
         {
-            res += ", ";
-            res += types.at(i);
-            res += " ";
-            res += self->argNames.at(i);
-        }
+            std::string res;
 
-        return res;
+            [&]<std::size_t... Is>(std::index_sequence<Is...>)
+            {
+                (( //
+                     res += typeToStr(TypeWrapper<
+                         std::decay_t<typename AE::template NthArg<Is>>>{}), //
+                     res += ' ',                                             //
+                     res += self->argNames.at(Is),                           //
+                     res += ", "),
+                    ...);
+            }
+            (std::make_index_sequence<AE::numArgs>{});
+
+            res.pop_back();
+            res.pop_back();
+
+            return res;
+        }
     }
 
     [[nodiscard]] std::string resolveArgNames(const std::string& docs);
 
-    template <typename FOp>
+    template <typename Ret>
     [[nodiscard]] static std::string makeErasedRet(LuaMetadataProxy*)
     {
-        using AE = Utils::ArgExtractor<FOp>;
-        return typeToStr(TypeWrapper<std::decay_t<typename AE::Return>>{});
+        return typeToStr(TypeWrapper<std::decay_t<Ret>>{});
     }
 
 public:
@@ -91,7 +92,7 @@ public:
         TypeWrapper<F>, LuaMetadata& mLuaMetadata, const std::string& mName)
         : luaMetadata{mLuaMetadata},
           name{mName},
-          erasedRet{&makeErasedRet<FOp>},
+          erasedRet{&makeErasedRet<typename Utils::ArgExtractor<FOp>::Return>},
           erasedArgs{&makeArgsString<FOp>}
     {}
 

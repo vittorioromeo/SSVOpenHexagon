@@ -11,9 +11,10 @@
 #include "SSVOpenHexagon/Data/LoadInfo.hpp"
 #include "SSVOpenHexagon/Data/PackInfo.hpp"
 
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
+
 #include <cstddef>
 #include <map>
-#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -46,7 +47,7 @@ private:
 
     bool levelsOnly{false};
 
-    std::unique_ptr<AssetStorage> assetStorage;
+    Utils::UniquePtr<AssetStorage> assetStorage;
 
     std::unordered_map<std::string, LevelData> levelDatas;
     std::unordered_map<std::string, std::vector<std::string>>

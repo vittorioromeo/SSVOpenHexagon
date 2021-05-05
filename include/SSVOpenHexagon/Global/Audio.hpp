@@ -4,8 +4,9 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
+
 #include <string>
-#include <memory>
 #include <functional>
 
 namespace sf {
@@ -26,7 +27,7 @@ public:
 private:
     class AudioImpl;
 
-    std::unique_ptr<AudioImpl> _impl;
+    Utils::UniquePtr<AudioImpl> _impl;
 
     [[nodiscard]] const AudioImpl& impl() const noexcept;
     [[nodiscard]] AudioImpl& impl() noexcept;

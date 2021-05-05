@@ -18,22 +18,19 @@ struct ArgExtractor<R (F::*)(Args...)>
     using Return = R;
     using Function = F;
 
-    inline static constexpr std::size_t numArgs = sizeof...(Args);
+    enum
+    {
+        numArgs = sizeof...(Args)
+    };
 
     template <std::size_t I>
     using NthArg = std::tuple_element_t<I, std::tuple<Args...>>;
 };
 
 template <typename R, typename F, typename... Args>
-struct ArgExtractor<R (F::*)(Args...) const>
+struct ArgExtractor<R (F::*)(Args...) const> : ArgExtractor<R (F::*)(Args...)>
 {
-    using Return = R;
-    using Function = F;
-
-    inline static constexpr std::size_t numArgs = sizeof...(Args);
-
-    template <std::size_t I>
-    using NthArg = std::tuple_element_t<I, std::tuple<Args...>>;
+    using ArgExtractor<R (F::*)(Args...)>::NthArg;
 };
 
 } // namespace hg::Utils
