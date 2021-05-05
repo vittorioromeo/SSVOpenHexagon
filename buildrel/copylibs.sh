@@ -20,7 +20,6 @@ cp ./_deps/libsodium-cmake-build/libsodium.dll ../_RELEASE/
 cp ./_deps/luajit-build/src/libluajit.dll ../_RELEASE/
 cp ./_deps/zlib-build/libzlib1.dll ../_RELEASE/
 
-
 cp ./_deps/imgui-sfml-build/libImGui-SFML_d.dll ./test/
 cp ./_deps/imgui-sfml-build/libImGui-SFML.dll ./test/
 
@@ -40,3 +39,15 @@ cp ./_deps/sfml-src/extlibs/bin/x64/openal32.dll ./test/
 cp ./_deps/libsodium-cmake-build/libsodium.dll ./test/
 cp ./_deps/luajit-build/src/libluajit.dll ./test/
 cp ./_deps/zlib-build/libzlib1.dll ./test/
+
+cp /c/msys64/mingw64/bin/libssp-0.dll ../_RELEASE/
+cp /c/msys64/mingw64/bin/libssp-0.dll ./test/
+
+cp /c/msys64/mingw64/bin/libstdc++-6.dll ../_RELEASE/
+cp /c/msys64/mingw64/bin/libstdc++-6.dll ./test/
+
+cp /c/msys64/mingw64/bin/libgcc_s_seh-1.dll ../_RELEASE/
+cp /c/msys64/mingw64/bin/libgcc_s_seh-1.dll ./test/
+
+cp /c/msys64/mingw64/bin/libwinpthread-1.dll ../_RELEASE/
+cp /c/msys64/mingw64/bin/libwinpthread-1.dll ./test/

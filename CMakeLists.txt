@@ -57,7 +57,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY SFML/SFML
-    GIT_TAG c0b19109a97481a1edf8551e66b2a3993c7cce6d
+    GIT_TAG 2b79ae96d9649d26be9a3deea0862ac1ad29c19b
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -78,12 +78,19 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 
 CPMAddPackage(
     NAME luajit
-    GIT_REPOSITORY https://github.com/WohlSoft/LuaJIT
-    GIT_TAG 73e6a59d6add696be9b5ca3cc61ac6ae6710e5bf
+    GIT_REPOSITORY https://github.com/SuperV1234/LuaJIT
+    GIT_TAG 0591e7385dd6b3e346ef3a420561f5115da2ddf7
 )
 
 set(LUAJIT_DISABLE_FFI true)
 set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
+
+# Remove linking against libm on MinGW
+if(WIN32)
+    file(READ "${luajit_SOURCE_DIR}/src/CMakeLists.txt" CONTENTS)
+    string(REGEX REPLACE "target_link_libraries\\(libluajit \\\${LIBM_LIBRARIES}\\)" "" STRIPPED1 "${CONTENTS}")
+    file(WRITE "${luajit_SOURCE_DIR}/src/CMakeLists.txt" "${STRIPPED1}")
+endif()
 
 #
 #
@@ -94,7 +101,6 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME zlib
     GITHUB_REPOSITORY madler/zlib
-    VERSION 1.2.11
     GIT_TAG cacf7f1d4e3d44d871b605da3b647f07d718623f
 )
 
@@ -112,8 +118,7 @@ file(WRITE "${zlib_SOURCE_DIR}/CMakeLists.txt" "${STRIPPED1}")
 CPMAddPackage(
     NAME imgui
     GITHUB_REPOSITORY ocornut/imgui
-    VERSION 1.82
-    GIT_TAG d6a5cc7934b4f4f9d5effffc4f1acee151247f51
+    GIT_TAG 393941ceea61e1307ffad8e3a045ab384d1299bd
     DOWNLOAD_ONLY YES
 )
 
@@ -137,8 +142,7 @@ endif()
 CPMAddPackage(
     NAME imgui-sfml
     GITHUB_REPOSITORY eliasdaler/imgui-sfml
-    VERSION 2.2
-    GIT_TAG cec902d8c3e5e7757c150def3e46c669acf31008
+    GIT_TAG 82dc2033e51b8323857c3ae1cf1f458b3a933c35
     )
 
 set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
@@ -171,7 +175,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME boostpfr
     GITHUB_REPOSITORY boostorg/pfr
-    GIT_TAG ea4c6e85f734b0ed9f4233ba9654b877398fa948
+    GIT_TAG ed82d60966436eefc8fce3ad9b87ab056a2321fd
     DOWNLOAD_ONLY YES
 )
 
@@ -332,9 +336,9 @@ set(SFML_LIBRARIES
 
 if(WIN32)
     set(PUBLIC_LIBRARIES
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll"
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll"
-        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/sdkencryptedappticket64.dll"
+        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.lib"
+        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll.lib"
+        "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/sdkencryptedappticket64.lib"
         sodium
     )
 else()
@@ -347,25 +351,21 @@ else()
     )
 endif()
 
-set(LUASRC "${luajit_SOURCE_DIR}/src")
-set(LUALIB libluajit)
-
 target_include_directories(
     SSVOpenHexagonLib SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
                              PUBLIC ${PUBLIC_INCLUDE_DIRS}
                              PUBLIC ${zlib_SOURCE_DIR}
                              PUBLIC ${zlib_BINARY_DIR}
-                             PUBLIC ${LUASRC}
+                             PUBLIC ${luajit_SOURCE_DIR}/src
                              PUBLIC ${imgui_SOURCE_DIR}
                              PUBLIC ${boostpfr_INCLUDE_DIR}
 )
 
 target_link_libraries(
     SSVOpenHexagonLib ${SFML_LIBRARIES}
-                      ${LUALIB}
+                      libluajit
                       zlib
                       ${PUBLIC_LIBRARIES}
-                      "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/discord_game_sdk.dll"
                       ImGui-SFML::ImGui-SFML
 )
 
@@ -413,7 +413,7 @@ install(
 # -----------------------------------------------------------------------------
 
 if(WIN32)
-    set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.dll")
+    set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/steam_api64.lib")
 else()
     set(STEAM_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/_RELEASE/libsteam_api.so")
 endif()
