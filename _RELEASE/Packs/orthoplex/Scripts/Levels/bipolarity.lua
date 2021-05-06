@@ -12,7 +12,7 @@ style = 0
 lastRotationDir = 0
 swapped = false
 rotSpeed = 0.25
-rotSpeedMax = 1
+rotSpeedMax = 0.9
 
 FloatingWall = {}
 FloatingWall.__index = FloatingWall
@@ -204,11 +204,17 @@ function onInit()
     l_setSidesMax(6)
     l_setIncTime(15)
 
-    l_setPulseMin(75)
-    l_setPulseMax(125)
-    l_setPulseSpeed(6.4)
-    l_setPulseSpeedR(6.4)
-    l_setPulseDelayMax(24.38)
+    local pulseOffset = 0
+
+    if u_getDifficultyMult() > 1.5 then
+        pulseOffset = -10
+    end
+
+    l_setPulseMin(75 + pulseOffset)
+    l_setPulseMax(125 + pulseOffset)
+    l_setPulseSpeed(5.388)
+    l_setPulseSpeedR(5.353)
+    l_setPulseDelayMax(21.38)
 
     l_setBeatPulseMax(35)
     beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()
@@ -224,6 +230,8 @@ function onInit()
         lastRotationDir = getRandomDir()
         setDirection(u_rndInt(0, 6))
     end
+
+    disableIncIfDMGreaterThan(1.5)
 
     t_wait(12 / getMusicDMSyncFactor())
 end
@@ -271,18 +279,22 @@ function onUpdate(mFrameTime)
         fw:move(mFrameTime)
     end
 
-    timeAcc = timeAcc + mFrameTime
-    if timeAcc >= 60 * 10 then
-        timeAcc = 0
+    if u_getDifficultyMult() <= 1.5 then
+        timeAcc = timeAcc + mFrameTime
+        if timeAcc >= 60 * 15 then
+            timeAcc = 0
+            changes = 0
 
-        a_playSound("levelUp.ogg")
+            a_playSound("levelUp.ogg")
 
-        beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()
-        t_wait(beat*4)
-        t_eval([[a_playSound("increment.ogg")]])
-        l_setSpeedMult(l_getSpeedMult() + l_getSpeedInc())
-        if l_getSpeedMult() > l_getSpeedMax() then
-            l_setSpeedMult(l_getSpeedMax())
+            beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()
+            t_wait(beat * 2)
+            e_wait(beat * 2)
+            t_eval([[a_playSound("increment.ogg")]])
+            l_setSpeedMult(l_getSpeedMult() + l_getSpeedInc())
+            if l_getSpeedMult() > l_getSpeedMax() then
+                l_setSpeedMult(l_getSpeedMax())
+            end
         end
     end
 end
