@@ -190,7 +190,7 @@ timeAcc = 0
 function onInit()
     l_setSpeedMult(5.75)
     l_setSpeedInc(0.25)
-    l_setSpeedMax(8)
+    l_setSpeedMax(7.75)
     l_setRotationSpeed(0.0)
     l_setRotationSpeedMax(1)
     l_setRotationSpeedInc(0.04)
