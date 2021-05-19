@@ -70,6 +70,14 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
         fastForwardTarget.reset();
 
         fastForwardTo(target);
+
+        if(audio != nullptr)
+        {
+            audio->setMusicPlayingOffsetSeconds(
+                audio->getMusicPlayingOffsetSeconds() +
+                status.getTimeSeconds());
+        }
+
         return;
     }
 

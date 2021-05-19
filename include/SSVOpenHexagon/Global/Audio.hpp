@@ -45,6 +45,12 @@ public:
     void pauseMusic();
     void stopMusic();
 
+    void setMusicPlayingOffsetSeconds(const float seconds);
+    void setMusicPlayingOffsetMilliseconds(const int milliseconds);
+
+    [[nodiscard]] float getMusicPlayingOffsetSeconds() const;
+    [[nodiscard]] int getMusicPlayingOffsetMilliseconds() const;
+
     void stopSounds();
 
     void playSoundOverride(const std::string& id);
