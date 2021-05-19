@@ -23,10 +23,9 @@ foreach(_t IN LISTS vrm_cmake_out)
 
     target_link_libraries(${_t}
         ${SFML_LIBRARIES}
-        ${LUALIB}
+        libluajit
         zlib
         ${PUBLIC_LIBRARIES}
-        "${CMAKE_CURRENT_SOURCE_DIR}/../_RELEASE/discord_game_sdk.dll"
         SSVOpenHexagonLib
         SSVOpenHexagonLibC
     )

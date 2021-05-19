@@ -827,32 +827,18 @@ void HexagonGame::death_updateRichPresence()
     }
 }
 
-void HexagonGame::death_saveScore()
-{
-    SSVOH_ASSERT(shouldSaveScore());
-    SSVOH_ASSERT(!inReplay());
-    SSVOH_ASSERT(!levelData->unscored);
-
-    ssvu::lo("Replay") << "Attempting to send and save replay...\n";
-    death_sendAndSaveReplay();
-}
-
-void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
+[[nodiscard]] HexagonGame::SaveScoreIfNeededResult
+HexagonGame::death_saveScoreIfNeeded()
 {
     if(window == nullptr)
     {
-        return;
+        return SaveScoreIfNeededResult::NoWindow;
     }
 
-    const bool mustSaveScore = shouldSaveScore();
-
-    if(!mustSaveScore)
+    if(!shouldSaveScore())
     {
-        playSoundAbort("gameOver.ogg");
-        return;
+        return SaveScoreIfNeededResult::ShouldNotSave;
     }
-
-    death_saveScore(); // Saves local best, local replay, and sends replay
 
     const std::string validatorWithoutPackid =
         levelData->getValidatorWithoutPackId(difficultyMult);
@@ -864,11 +850,30 @@ void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
 
     if(!isPersonalBest)
     {
+        return SaveScoreIfNeededResult::NotPersonalBest;
+    }
+
+    assets.setLocalScore(validatorWithoutPackid, score);
+    return SaveScoreIfNeededResult::PersonalBest;
+}
+
+void HexagonGame::death_saveScoreIfNeededAndShowPBEffects()
+{
+    const SaveScoreIfNeededResult r = death_saveScoreIfNeeded();
+
+    if(r == SaveScoreIfNeededResult::NoWindow)
+    {
+        return;
+    }
+
+    if(r == SaveScoreIfNeededResult::ShouldNotSave ||
+        r == SaveScoreIfNeededResult::NotPersonalBest)
+    {
         playSoundAbort("gameOver.ogg");
         return;
     }
 
-    assets.setLocalScore(validatorWithoutPackid, score);
+    SSVOH_ASSERT(r == SaveScoreIfNeededResult::PersonalBest);
 
     pbText.setString("NEW PERSONAL BEST!");
     mustSpawnPBParticles = true;
@@ -902,7 +907,18 @@ void HexagonGame::death(bool mForce)
     status.flashEffect = 255;
     status.hasDied = true;
 
-    death_saveScoreIfNeededAndShowPBEffects();
+    const replay_file rf = death_createReplayFile();
+
+    // TODO (P2): for testing
+    if(onDeathReplayCreated)
+    {
+        onDeathReplayCreated(rf);
+    }
+
+    ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+    death_sendAndSaveReplay(rf);
+
+    death_saveScoreIfNeededAndShowPBEffects(); // Saves local best
 
     if(window != nullptr && Config::getAutoRestart())
     {
@@ -910,14 +926,14 @@ void HexagonGame::death(bool mForce)
     }
 }
 
-void HexagonGame::death_sendAndSaveReplay()
+[[nodiscard]] replay_file HexagonGame::death_createReplayFile()
 {
     // TODO (P2): for testing
     const std::string rfName = assets.anyLocalProfileActive()
                                    ? assets.getCurrentLocalProfile().getName()
                                    : "no_profile";
 
-    const replay_file rf{
+    return replay_file{
         ._version{0},
         ._player_name{rfName},
         ._seed{lastSeed},
@@ -928,12 +944,10 @@ void HexagonGame::death_sendAndSaveReplay()
         ._difficulty_mult{difficultyMult},
         ._played_score{getReplayScore(status)},
     };
+}
 
-    if(onReplayCreated)
-    {
-        onReplayCreated(rf);
-    }
-
+void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
+{
     const std::optional<compressed_replay_file> crfOpt =
         compress_replay_file(rf);
 
@@ -947,6 +961,8 @@ void HexagonGame::death_sendAndSaveReplay()
 
     const compressed_replay_file& crf = crfOpt.value();
 
+    // ------------------------------------------------------------------------
+    // Send compressed replay to server.
     if(const std::string levelValidator =
             Utils::getLevelValidator(rf._level_id, rf._difficulty_mult);
         !death_sendReplay(levelValidator, crf))
@@ -954,6 +970,8 @@ void HexagonGame::death_sendAndSaveReplay()
         ssvu::lo("Replay") << "Failure sending replay\n";
     }
 
+    // ------------------------------------------------------------------------
+    // Save compressed replay locally.
     if(const std::string filename = Utils::concat(rf.create_filename(), ".gz");
         !death_saveReplay(filename, crf))
     {
@@ -1181,7 +1199,12 @@ void HexagonGame::goToMenu(bool mSendScores, bool mError)
 
     if(mSendScores && !mError && shouldSaveScore())
     {
-        death_saveScore(); // Saves local best, local replay, and sends replay
+        (void)death_saveScoreIfNeeded(); // Saves local best
+
+        const replay_file rf = death_createReplayFile();
+
+        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+        death_sendAndSaveReplay(rf);
     }
 
     // Stop infinite feedback from occurring if the error is happening on

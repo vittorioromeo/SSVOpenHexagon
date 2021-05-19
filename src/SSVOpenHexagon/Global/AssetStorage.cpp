@@ -5,7 +5,9 @@
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Image.hpp>
@@ -14,7 +16,6 @@
 #include <SFML/Audio/SoundBuffer.hpp>
 
 #include <string>
-#include <memory>
 #include <unordered_map>
 
 namespace hg {
@@ -114,7 +115,7 @@ AssetStorage::impl() const noexcept
     return *_impl;
 }
 
-AssetStorage::AssetStorage() : _impl{std::make_unique<AssetStorageImpl>()}
+AssetStorage::AssetStorage() : _impl{Utils::makeUnique<AssetStorageImpl>()}
 {}
 
 AssetStorage::~AssetStorage() = default;

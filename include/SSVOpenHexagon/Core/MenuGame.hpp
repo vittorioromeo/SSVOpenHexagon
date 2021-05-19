@@ -12,6 +12,7 @@
 
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SSVStart/Camera/Camera.hpp>
 
@@ -109,7 +110,7 @@ private:
     ssvs::GameWindow& window;
     HexagonClient& hexagonClient;
     HexagonDialogBox dialogBox;
-    std::unique_ptr<LeaderboardCache> leaderboardCache;
+    Utils::UniquePtr<LeaderboardCache> leaderboardCache;
 
     Lua::LuaContext lua;
     std::vector<std::string> execScriptPackPathContext;
