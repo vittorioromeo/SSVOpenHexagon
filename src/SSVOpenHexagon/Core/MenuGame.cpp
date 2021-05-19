@@ -1090,6 +1090,9 @@ void MenuGame::initLua()
             "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
             "e_messageAddImportantSilent", "e_clearMessages",
 
+            "ct_create", "ct_eval", "ct_kill", "ct_stopTime", "ct_stopTimeS",
+            "ct_wait", "ct_waitS", "ct_waitUntilS",
+
             "l_overrideScore", "l_setRotation", "l_getRotation",
             "l_getOfficial",
 
