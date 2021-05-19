@@ -55,7 +55,10 @@ defaultServerLevelWhitelist()
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_0.6",
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1",
         "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1.8",
-        "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_2.2"};
+        "ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_2.2",
+        "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_0.5",
+        "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1",
+        "ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1.8"};
 
     return result;
 }
