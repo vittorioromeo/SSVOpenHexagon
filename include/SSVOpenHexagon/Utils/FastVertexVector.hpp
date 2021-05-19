@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
+#include "SSVOpenHexagon/Utils/UniquePtrArray.hpp"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Drawable.hpp>
@@ -16,7 +18,6 @@
 
 #include <cstddef>
 #include <cstring>
-#include <memory>
 
 namespace hg::Utils {
 
@@ -37,7 +38,7 @@ private:
     static_assert(sizeof(VertexUnion) == sizeof(sf::Vertex));
     static_assert(alignof(VertexUnion) == alignof(sf::Vertex));
 
-    std::unique_ptr<VertexUnion[]> _data{nullptr};
+    Utils::UniquePtrArray<VertexUnion> _data{nullptr};
     std::size_t _size{};
     std::size_t _capacity{};
 
@@ -54,7 +55,7 @@ public:
             return;
         }
 
-        auto new_data = std::make_unique<VertexUnion[]>(n);
+        auto new_data = Utils::makeUniqueArray<VertexUnion>(n);
 
         if(SSVU_UNLIKELY(_data != nullptr))
         {
@@ -94,7 +95,7 @@ public:
         _size = 0;
     }
 
-    [[gnu::always_inline, nodiscard]] std::size_t size() const noexcept
+    [[nodiscard, gnu::always_inline]] std::size_t size() const noexcept
     {
         return _size;
     }
@@ -129,11 +130,11 @@ public:
         }
 
         // UB:
-        mRenderTarget.draw(reinterpret_cast<sf::Vertex*>(_data.get()), _size,
-            TPrimitive, mRenderStates);
+        mRenderTarget.draw(reinterpret_cast<const sf::Vertex*>(_data.get()),
+            _size, TPrimitive, mRenderStates);
     }
 
-    [[gnu::always_inline, nodiscard]] sf::Vertex& operator[](
+    [[nodiscard, gnu::always_inline]] sf::Vertex& operator[](
         const std::size_t i) noexcept
     {
         SSVOH_ASSERT(i < _size);
@@ -142,7 +143,7 @@ public:
         return _data[i]._v;
     }
 
-    [[gnu::always_inline, nodiscard]] const sf::Vertex& operator[](
+    [[nodiscard, gnu::always_inline]] const sf::Vertex& operator[](
         const std::size_t i) const noexcept
     {
         SSVOH_ASSERT(i < _size);

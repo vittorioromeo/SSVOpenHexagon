@@ -4,17 +4,22 @@
 
 #include "SSVOpenHexagon/Global/Assets.hpp"
 
+#include "SSVOpenHexagon/Core/Steam.hpp"
+
+#include "SSVOpenHexagon/Data/MusicData.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/AssetStorage.hpp"
-#include "SSVOpenHexagon/Global/Version.hpp"
-#include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
-#include "SSVOpenHexagon/Utils/Concat.hpp"
-#include "SSVOpenHexagon/Utils/BuildPackId.hpp"
-#include "SSVOpenHexagon/Utils/EraseIf.hpp"
-#include "SSVOpenHexagon/Data/MusicData.hpp"
-#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
 #include "SSVOpenHexagon/Global/UtilsJson.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
+
+#include "SSVOpenHexagon/SSVUtilsJson/SSVUtilsJson.hpp"
+
+#include "SSVOpenHexagon/Utils/BuildPackId.hpp"
+#include "SSVOpenHexagon/Utils/Concat.hpp"
+#include "SSVOpenHexagon/Utils/EraseIf.hpp"
+#include "SSVOpenHexagon/Utils/LoadFromJson.hpp"
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 
 #include <SSVUtils/Core/FileSystem/FileSystem.hpp>
 
@@ -115,7 +120,7 @@ HGAssets::HGAssets(
     Steam::steam_manager* mSteamManager, bool mHeadless, bool mLevelsOnly)
     : steamManager{mSteamManager},
       levelsOnly{mLevelsOnly},
-      assetStorage{std::make_unique<AssetStorage>()}
+      assetStorage{Utils::makeUnique<AssetStorage>()}
 {
     using Clock = std::chrono::high_resolution_clock;
     using TimePoint = std::chrono::time_point<Clock>;

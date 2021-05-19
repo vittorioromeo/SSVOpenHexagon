@@ -9,9 +9,10 @@
 
 #include "TestUtils.hpp"
 
+#include <array>
+#include <optional>
 #include <random>
 #include <stdexcept>
-#include <array>
 
 int main()
 try
@@ -58,9 +59,12 @@ try
             hg.alwaysSpinRight = true;
         }
 
-        hg::replay_file rf;
+        std::optional<hg::replay_file> rf;
 
-        hg.onReplayCreated = [&](const hg::replay_file& newRf) { rf = newRf; };
+        hg.onDeathReplayCreated = [&](const hg::replay_file& newRf)
+        {
+            rf.emplace(newRf);
+        };
 
         hg.newGame(packs[i % packs.size()], levels[i % levels.size()],
             true /* firstPlay */, 1.f /* diffMult */,
@@ -72,6 +76,8 @@ try
                   1 /* maxProcessingSeconds */, 1.f /* timescale */)
                 .value()
                 .playedTimeSeconds;
+
+        TEST_ASSERT(rf.has_value());
 
         std::optional<hg::HexagonGame::GameExecutionResult> score2;
         if(differentHG)
@@ -86,12 +92,12 @@ try
             };
 
             score2 = hg2.runReplayUntilDeathAndGetScore(
-                rf, 1 /* maxProcessingSeconds */, 1.f /* timescale */);
+                rf.value(), 1 /* maxProcessingSeconds */, 1.f /* timescale */);
         }
         else
         {
             score2 = hg.runReplayUntilDeathAndGetScore(
-                rf, 1 /* maxProcessingSeconds */, 1.f /* timescale */);
+                rf.value(), 1 /* maxProcessingSeconds */, 1.f /* timescale */);
         }
 
         TEST_ASSERT(score2.has_value());

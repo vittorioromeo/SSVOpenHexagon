@@ -80,13 +80,13 @@ public:
     explicit CPlayer(const sf::Vector2f& pos, const float swapCooldown,
         const float size, const float speed, const float focusSpeed) noexcept;
 
-    [[gnu::always_inline, nodiscard]] const sf::Vector2f&
+    [[nodiscard, gnu::always_inline]] const sf::Vector2f&
     getPosition() const noexcept
     {
         return _pos;
     }
 
-    [[gnu::always_inline, nodiscard]] float getPlayerAngle() const noexcept
+    [[nodiscard, gnu::always_inline]] float getPlayerAngle() const noexcept
     {
         return _angle;
     }

@@ -6,6 +6,8 @@
 
 #include "SSVOpenHexagon/Global/Assert.hpp"
 
+#include "SSVOpenHexagon/Utils/UniquePtr.hpp"
+
 #include <SSVUtils/Core/Log/Log.hpp>
 
 #include <stdint.h> // Steam API needs this.
@@ -833,7 +835,7 @@ steam_manager::impl() const noexcept
     return *_impl;
 }
 
-steam_manager::steam_manager() : _impl{std::make_unique<steam_manager_impl>()}
+steam_manager::steam_manager() : _impl{Utils::makeUnique<steam_manager_impl>()}
 {}
 
 steam_manager::~steam_manager() = default;
