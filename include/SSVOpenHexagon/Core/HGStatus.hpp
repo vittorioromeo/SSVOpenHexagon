@@ -55,22 +55,22 @@ public:
     void start() noexcept;
 
     // Number of seconds that have passed since last increment
-    [[nodiscard]] double getIncrementTimeSeconds() noexcept;
+    [[nodiscard]] double getIncrementTimeSeconds() const noexcept;
 
     // Game timer, in seconds
-    [[nodiscard]] double getTimeSeconds() noexcept;
+    [[nodiscard]] double getTimeSeconds() const noexcept;
 
     // Absolute time, as time point
-    [[nodiscard]] TimePoint getCurrentTP() noexcept;
+    [[nodiscard]] TimePoint getCurrentTP() const noexcept;
 
     // Game timer, as time point
-    [[nodiscard]] TimePoint getTimeTP() noexcept;
+    [[nodiscard]] TimePoint getTimeTP() const noexcept;
 
     // Level start, as time point
-    [[nodiscard]] TimePoint getLevelStartTP() noexcept;
+    [[nodiscard]] TimePoint getLevelStartTP() const noexcept;
 
     // `true` if we are currently paused
-    [[nodiscard]] bool isTimePaused() noexcept;
+    [[nodiscard]] bool isTimePaused() const noexcept;
 
     // Start a new pause or extend the current pause by `seconds`
     void pauseTime(const double seconds) noexcept;

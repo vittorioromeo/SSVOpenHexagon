@@ -637,6 +637,9 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     messageTimeline.clear();
     messageTimelineRunner = {};
 
+    // Custom timeline manager cleanup
+    _customTimelineManager.clear();
+
     // Manager cleanup
     walls.clear();
     cwManager.clear();

@@ -229,6 +229,7 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
                 }
 
                 updateLevel(mFT);
+                updateCustomTimelines();
 
                 if(Config::getBeatPulse())
                 {
@@ -604,6 +605,11 @@ void HexagonGame::updateEvents(ssvu::FT)
         messageTimeline.clear();
         messageTimelineRunner = {};
     }
+}
+
+void HexagonGame::updateCustomTimelines()
+{
+    _customTimelineManager.updateAllTimelines(status.getCurrentTP());
 }
 
 void HexagonGame::updateIncrement()
