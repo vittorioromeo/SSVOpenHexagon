@@ -445,7 +445,6 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
         const auto gotoMenu = [&]
         {
             mg->init(false /* mError */);
-
             window->setGameState(mg->getGame());
         };
 

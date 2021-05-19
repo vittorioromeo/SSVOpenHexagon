@@ -141,6 +141,12 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
 
             if(!status.started)
             {
+                if(window != nullptr && window->hasTimer())
+                {
+                    // This avoids initial speedup when viewing replays.
+                    window->getTimerBase().reset();
+                }
+
                 mustStart = true;
             }
             else
