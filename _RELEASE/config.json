@@ -52,7 +52,7 @@
 	"save_local_best_replay_to_file" : true,
 	"server_control_port" : 50506,
 	"server_ip" : "139.162.199.162",
-	"server_level_whitelist" : 
+	"server_level_whitelist" :
 	[
 		"ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_0.35",
 		"ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1",
@@ -83,7 +83,10 @@
 		"ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_0.6",
 		"ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1",
 		"ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_1.8",
-		"ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_2.2"
+		"ohvrvanilla_vittorio_romeo_cube_1_seconddimension_m_2.2",
+		"ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_0.5",
+		"ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1",
+		"ohvrvanilla_vittorio_romeo_orthoplex_1_bipolarity_m_1.8"
 	],
 	"server_local" : true,
 	"server_port" : 50505,
@@ -96,112 +99,112 @@
 	"show_timer" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 85.0,
-	"t_down" : 
+	"t_down" :
 	[
 		[ "" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_exit" : 
+	"t_exit" :
 	[
 		[ "kT" ],
 		[ "bXButton2" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_focus" : 
+	"t_focus" :
 	[
 		[ "kLShift" ],
 		[ "bXButton1" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_force_restart" : 
+	"t_force_restart" :
 	[
 		[ "kUp" ],
 		[ "kR" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_lua_console" : 
+	"t_lua_console" :
 	[
 		[ "kF1" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_next" : 
+	"t_next" :
 	[
 		[ "kPageDown" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_pause" : 
+	"t_pause" :
 	[
 		[ "kF2" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_previous" : 
+	"t_previous" :
 	[
 		[ "kPageUp" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_replay" : 
+	"t_replay" :
 	[
 		[ "kY" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_restart" : 
+	"t_restart" :
 	[
 		[ "bMiddle" ],
 		[ "kSpace" ],
 		[ "kReturn" ],
 		[ "" ]
 	],
-	"t_rotate_ccw" : 
+	"t_rotate_ccw" :
 	[
 		[ "kA" ],
 		[ "kLeft" ],
 		[ "bLeft" ],
 		[ "" ]
 	],
-	"t_rotate_cw" : 
+	"t_rotate_cw" :
 	[
 		[ "kD" ],
 		[ "kRight" ],
 		[ "bRight" ],
 		[ "" ]
 	],
-	"t_screenshot" : 
+	"t_screenshot" :
 	[
 		[ "kF12" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_select" : 
+	"t_select" :
 	[
 		[ "kSpace" ],
 		[ "bMiddle" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_swap" : 
+	"t_swap" :
 	[
 		[ "bMiddle" ],
 		[ "kSpace" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_up" : 
+	"t_up" :
 	[
 		[ "" ],
 		[ "" ],
