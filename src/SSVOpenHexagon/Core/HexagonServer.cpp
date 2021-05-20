@@ -548,7 +548,8 @@ template <typename Duration>
 
 void HexagonServer::runIteration_PurgeTokens()
 {
-    if(!checkAndUpdateLastElapsed(_lastTokenPurge, std::chrono::seconds(1800)))
+    if(!checkAndUpdateLastElapsed(
+           _lastTokenPurge, std::chrono::seconds(3600) /* 1 hour */))
     {
         return;
     }
