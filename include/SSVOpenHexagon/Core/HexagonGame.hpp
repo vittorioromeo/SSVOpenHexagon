@@ -297,6 +297,10 @@ private:
     std::optional<double> fastForwardTarget;
     void fastForwardTo(const double target);
 
+    // Advance by ticks
+    std::optional<int> advanceTickCount;
+    void advanceByTicks(const int nTicks);
+
     // Update methods
     void update(ssvu::FT mFT, const float timescale);
     void updateInput();
