@@ -22,7 +22,7 @@ OS2Version: 4
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
 CreationTime: 1602678841
-ModificationTime: 1621714474
+ModificationTime: 1621735868
 PfmFamily: 17
 TTFWeight: 400
 TTFWidth: 5
@@ -57,13 +57,9 @@ OS2XHeight: 655
 OS2Vendor: 'PfEd'
 OS2CodePages: 00000001.00000000
 OS2UnicodeRanges: 00000003.00000000.00000000.00000000
-Lookup: 258 0 0 "'kern' Horizontal Kerning in Latin lookup 0" { "'kern' Horizontal Kerning in Latin lookup 0 per glyph data 0" [153,15,0] "'kern' Horizontal Kerning in Latin lookup 0 kerning class 1" [153,0,0] } ['kern' ('DFLT' <'dflt' > 'latn' <'dflt' > ) ]
+Lookup: 258 0 0 "'kern' Horizontal Kerning in Latin lookup 0" { "'kern' Horizontal Kerning in Latin lookup 0 per glyph data 0" [153,15,0] } ['kern' ('DFLT' <'dflt' > 'latn' <'dflt' > ) ]
 MarkAttachClasses: 1
 DEI: 91125
-KernClass2: 2 2 "'kern' Horizontal Kerning in Latin lookup 0 kerning class 1"
- 1 T
- 1 A
- 0 {} 0 {} 0 {} -102 {}
 TtTable: prep
 PUSHW_1
  511
@@ -750,7 +746,7 @@ NameList: AGL For New Fonts
 DisplaySize: -72
 AntiAlias: 1
 FitToEm: 0
-WinInfo: 0 26 10
+WinInfo: 52 26 10
 BeginPrivate: 1
 BlueValues 13 [0 0 655 655]
 EndPrivate
@@ -1253,6 +1249,7 @@ SplineSet
  238 0 l 1,0,-1
 EndSplineSet
 Validated: 1
+Kerns2: 18 -200 "'kern' Horizontal Kerning in Latin lookup 0 per glyph data 0"
 EndChar
 
 StartChar: zero
@@ -2316,6 +2313,7 @@ SplineSet
  479 0 l 5,0,-1
 EndSplineSet
 Validated: 1
+Kerns2: 63 -200 "'kern' Horizontal Kerning in Latin lookup 0 per glyph data 0"
 EndChar
 
 StartChar: bracketright
