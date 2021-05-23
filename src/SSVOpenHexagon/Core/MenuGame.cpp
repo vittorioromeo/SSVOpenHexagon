@@ -5502,19 +5502,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         const auto serializeTimePoint =
             [](const auto& time, const std::string& format)
         {
-            std::time_t tt;
-
-            // This is not the case on Apple.
-            if constexpr(std::is_same_v<std::chrono::high_resolution_clock, std::chrono::system_clock>) {
-                tt = std::chrono::system_clock::to_time_t(time);
-            } else {
-                // https://stackoverflow.com/questions/18361638/converting-steady-clocktime-point-to-time-t
-                const auto systemNow = std::chrono::system_clock::now();
-                const auto steadyNow = std::chrono::steady_clock::now();
-                const auto adjusted = std::chrono::time_point_cast<std::chrono::system_clock::duration>(systemNow + (time - steadyNow));
-                tt = std::chrono::system_clock::to_time_t(adjusted);
-            }
-
+            std::time_t tt = std::chrono::system_clock::to_time_t(time);
             std::tm tm = *std::gmtime(&tt); // GMT (UTC)
             std::stringstream ss;
             ss << std::put_time(&tm, format.c_str());
