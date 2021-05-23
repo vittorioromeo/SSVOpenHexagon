@@ -1,0 +1,12 @@
+{
+    "id": "wall_color_test",
+    "name": "Wall Color Test",
+    "description": "Another style test yay",
+    "author": "Morxemplum",
+    "menuPriority": 31,
+    "selectable": true,
+    "styleId": "construct",
+    "musicId": "jackRussel",
+    "luaFile": "Scripts/Levels/negative_pulse.lua",
+    "difficultyMults": []
+}
