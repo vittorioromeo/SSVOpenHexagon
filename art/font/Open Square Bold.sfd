@@ -22,7 +22,7 @@ OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
 CreationTime: 1602678841
-ModificationTime: 1621714550
+ModificationTime: 1621735995
 PfmFamily: 17
 TTFWeight: 700
 TTFWidth: 5
@@ -42,13 +42,9 @@ HheadAOffset: 1
 HheadDescent: 0
 HheadDOffset: 1
 OS2Vendor: 'PfEd'
-Lookup: 258 0 0 "Horizontal Kerning" { "Horizontal Kerning-1" [150,15,2] "Horizontal Kerning-2" [150,15,0] } ['kern' ('DFLT' <'dflt' > 'latn' <'dflt' > ) ]
+Lookup: 258 0 0 "Horizontal Kerning" { "Horizontal Kerning-1" [150,15,2] } ['kern' ('DFLT' <'dflt' > 'latn' <'dflt' > ) ]
 MarkAttachClasses: 1
 DEI: 91125
-KernClass2: 2 2 "Horizontal Kerning-2"
- 1 T
- 1 A
- 0 {} 0 {} 0 {} -102 {}
 LangName: 1033
 Encoding: ISO8859-1
 UnicodeInterp: none
@@ -120,7 +116,6 @@ SplineSet
  696 655 l 1
  696 0 l 5xac
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: O
@@ -183,7 +178,6 @@ SplineSet
  208 129 l 1
  553 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: P
@@ -234,7 +228,6 @@ SplineSet
  207 260 l 1
  207 0 l 1xbc
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: E
@@ -261,7 +254,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: F
@@ -286,8 +278,6 @@ SplineSet
  209 526 l 1
  209 389 l 1xb8
 EndSplineSet
-Validated: 1
-Kerns2: 8 -102 "Horizontal Kerning-1" 34 -102 "Horizontal Kerning-1" 127 -102 "Horizontal Kerning-1" 128 -102 "Horizontal Kerning-1" 129 -102 "Horizontal Kerning-1" 130 -102 "Horizontal Kerning-1" 131 -102 "Horizontal Kerning-1" 132 -102 "Horizontal Kerning-1" 133 -122 "Horizontal Kerning-1" 158 -102 "Horizontal Kerning-1" 160 -102 "Horizontal Kerning-1" 161 -102 "Horizontal Kerning-1" 162 -102 "Horizontal Kerning-1" 163 -102 "Horizontal Kerning-1" 164 -122 "Horizontal Kerning-1"
 EndChar
 
 StartChar: space
@@ -295,6 +285,8 @@ Encoding: 32 32 5
 Width: 409
 Flags: W
 LayerCount: 2
+Fore
+Validated: 1
 EndChar
 
 StartChar: H
@@ -321,7 +313,6 @@ SplineSet
  207 655 l 1
  207 389 l 1xb6
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: G
@@ -348,7 +339,6 @@ SplineSet
  207 129 l 1
  549 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: A
@@ -358,22 +348,21 @@ Flags: HW
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 20 -82 "Horizontal Kerning-1" 22 -102 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1" 55 -102 "Horizontal Kerning-1" 58 -82 "Horizontal Kerning-1" 76 -61 "Horizontal Kerning-1" 77 -61 "Horizontal Kerning-1" 78 -61 "Horizontal Kerning-1"
 EndChar
 
 StartChar: X
@@ -403,7 +392,6 @@ SplineSet
  379 227 l 1
  168 0 l 1xa0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: M
@@ -431,7 +419,6 @@ SplineSet
  558 655 l 1
  696 655 l 1xac
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: I
@@ -458,7 +445,6 @@ SplineSet
  61 0 l 1
  61 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: T
@@ -481,8 +467,6 @@ SplineSet
  305 0 l 1
  304 526 l 1xb0
 EndSplineSet
-Validated: 1
-Kerns2: 8 -82 "Horizontal Kerning-1" 34 -82 "Horizontal Kerning-1" 127 -82 "Horizontal Kerning-1" 128 -82 "Horizontal Kerning-1" 129 -82 "Horizontal Kerning-1" 130 -82 "Horizontal Kerning-1" 131 -82 "Horizontal Kerning-1" 132 -82 "Horizontal Kerning-1" 133 -102 "Horizontal Kerning-1" 158 -82 "Horizontal Kerning-1" 159 -82 "Horizontal Kerning-1" 160 -82 "Horizontal Kerning-1" 161 -82 "Horizontal Kerning-1" 162 -82 "Horizontal Kerning-1" 163 -82 "Horizontal Kerning-1" 164 -102 "Horizontal Kerning-1"
 EndChar
 
 StartChar: C
@@ -505,7 +489,6 @@ SplineSet
  207 129 l 1
  696 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: S
@@ -515,23 +498,23 @@ Flags: HW
 LayerCount: 2
 Fore
 SplineSet
-197.859127662 534 m 1
- 197.859127662 388.5 l 1
- 681 388.5 l 1
+198 534 m 1
+ 198 388 l 1
+ 681 388 l 1
  681 0 l 1
  61 0 l 1
  61 191 l 1
- 198.924609953 191 l 1
- 198.924609953 121 l 1
- 544.140872338 121 l 1
- 544.140872338 267.5 l 1
- 61 267.5 l 1
+ 199 191 l 1
+ 199 121 l 1
+ 544 121 l 1
+ 544 268 l 1
+ 61 268 l 1
  61 655 l 1
  681 655 l 1
  681 464 l 1
- 544.140872338 464 l 1
- 544.140872338 534 l 1
- 197.859127662 534 l 1
+ 544 464 l 1
+ 544 534 l 1
+ 198 534 l 1
 EndSplineSet
 EndChar
 
@@ -544,18 +527,18 @@ Fore
 SplineSet
 61 0 m 1
  61 655 l 1
- 524.24632018 655 l 1
- 681 502.545898438 l 1
- 681 152.454101562 l 1
- 524.24632018 0 l 1
+ 524 655 l 1
+ 681 503 l 1
+ 681 152 l 1
+ 524 0 l 1
  61 0 l 1
-431.799083248 534 m 1
- 197.859127662 534 l 1
- 197.859127662 121 l 1
- 431.768908456 121 l 1
- 544.140872338 227.146484375 l 1
- 544.140872338 428.774414062 l 1
- 431.799083248 534 l 1
+432 534 m 1
+ 198 534 l 1
+ 198 121 l 1
+ 432 121 l 1
+ 544 227 l 1
+ 544 429 l 1
+ 432 534 l 1
 EndSplineSet
 EndChar
 
@@ -587,7 +570,6 @@ SplineSet
  207 526 l 1
  207 389 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: U
@@ -610,7 +592,6 @@ SplineSet
  696 0 l 1
  61 0 l 1xd8
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: L
@@ -631,7 +612,6 @@ SplineSet
  205 655 l 1
  205 129 l 1xd0
 EndSplineSet
-Validated: 1
 Kerns2: 20 -82 "Horizontal Kerning-1" 58 -82 "Horizontal Kerning-1" 76 -61 "Horizontal Kerning-1"
 EndChar
 
@@ -660,7 +640,6 @@ SplineSet
  593 0 l 1
  205 223 l 1xa8
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Y
@@ -686,8 +665,6 @@ SplineSet
  169 655 l 1
  379 442 l 1xa8
 EndSplineSet
-Validated: 1
-Kerns2: 8 -82 "Horizontal Kerning-1" 34 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: Q
@@ -715,7 +692,6 @@ SplineSet
  207 129 l 1
  438 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: V
@@ -736,8 +712,6 @@ SplineSet
  193 655 l 1
  378 197 l 1xa0
 EndSplineSet
-Validated: 1
-Kerns2: 8 -102 "Horizontal Kerning-1" 34 -102 "Horizontal Kerning-1"
 EndChar
 
 StartChar: W
@@ -765,7 +739,6 @@ SplineSet
  551 206 l 1
  550 656 l 1xac
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Z
@@ -790,7 +763,6 @@ SplineSet
  696 129 l 1
 681 0 m 1025
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: J
@@ -815,7 +787,6 @@ SplineSet
  696 655 l 1
  698 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: B
@@ -865,14 +836,13 @@ SplineSet
  46 -15 l 1
  46 114 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: colon
 Encoding: 58 58 28
 Width: 221
 VWidth: 790
-Flags: HWO
+Flags: HW
 HStem: -15 129<46 175> 284 129<46 175>
 VStem: 46 129<-15 114 284 413>
 LayerCount: 2
@@ -926,7 +896,6 @@ SplineSet
  42 -97 l 1
  90 114 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: semicolon
@@ -952,7 +921,6 @@ SplineSet
  42 -108 l 1
  90 103 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: question
@@ -983,7 +951,6 @@ SplineSet
  284 -15 l 1
  284 114 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: zero
@@ -993,14 +960,14 @@ Flags: HW
 LayerCount: 2
 Fore
 SplineSet
-461.638113429 209.368164062 m 1
- 461.638113429 534 l 1
- 277.79578781 534 l 1
- 461.638113429 209.368164062 l 1
-198.108433735 446.935546875 m 1
- 198.108433735 121 l 1
- 384.04982951 121 l 1
- 198.108433735 446.935546875 l 1
+462 209 m 1
+ 462 534 l 1
+ 278 534 l 1
+ 462 209 l 1
+198 447 m 1
+ 198 121 l 1
+ 384 121 l 1
+ 198 447 l 1
 61 0 m 1
  61 655 l 1
  602 655 l 1
@@ -1016,22 +983,21 @@ Flags: HW
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 1
+558 358 m 1
  558 534 l 1
  198 534 l 1
- 198 357.5 l 1
- 558 357.5 l 1
+ 198 358 l 1
+ 558 358 l 1
 61 655 m 1
  695 655 l 1
  695 0 l 1
  558 0 l 1
- 558 236.5 l 1
- 198 236.5 l 1
+ 558 236 l 1
+ 198 236 l 1
  198 0 l 1
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 20 -82 "Horizontal Kerning-1" 22 -102 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1" 55 -102 "Horizontal Kerning-1" 58 -82 "Horizontal Kerning-1" 76 -61 "Horizontal Kerning-1"
 EndChar
 
 StartChar: b
@@ -1062,7 +1028,6 @@ SplineSet
  558 266 l 1xf4
  209 266 l 1
 EndSplineSet
-Validated: 1
 Kerns2: 20 -72 "Horizontal Kerning-1" 58 -72 "Horizontal Kerning-1" 155 -72 "Horizontal Kerning-1" 186 -72 "Horizontal Kerning-1" 188 -72 "Horizontal Kerning-1"
 EndChar
 
@@ -1086,7 +1051,6 @@ SplineSet
  207 129 l 1
  696 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: d
@@ -1098,18 +1062,18 @@ Fore
 SplineSet
 61 0 m 1
  61 655 l 1
- 524.24632018 655 l 1
- 681 502.545898438 l 1
- 681 152.454101562 l 1
- 524.24632018 0 l 1
+ 524 655 l 1
+ 681 503 l 1
+ 681 152 l 1
+ 524 0 l 1
  61 0 l 1
-431.799083248 534 m 1
- 197.859127662 534 l 1
- 197.859127662 121 l 1
- 431.768908456 121 l 1
- 544.140872338 227.146484375 l 1
- 544.140872338 428.774414062 l 1
- 431.799083248 534 l 1
+432 534 m 1
+ 198 534 l 1
+ 198 121 l 1
+ 432 121 l 1
+ 544 227 l 1
+ 544 429 l 1
+ 432 534 l 1
 EndSplineSet
 EndChar
 
@@ -1137,7 +1101,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: f
@@ -1162,8 +1125,6 @@ SplineSet
  209 526 l 1
  209 389 l 1xb8
 EndSplineSet
-Validated: 1
-Kerns2: 8 -102 "Horizontal Kerning-1" 34 -102 "Horizontal Kerning-1" 127 -102 "Horizontal Kerning-1" 128 -102 "Horizontal Kerning-1" 129 -102 "Horizontal Kerning-1" 130 -102 "Horizontal Kerning-1" 131 -102 "Horizontal Kerning-1" 132 -102 "Horizontal Kerning-1" 133 -122 "Horizontal Kerning-1" 158 -102 "Horizontal Kerning-1" 159 -102 "Horizontal Kerning-1" 160 -102 "Horizontal Kerning-1" 161 -102 "Horizontal Kerning-1" 162 -102 "Horizontal Kerning-1" 163 -102 "Horizontal Kerning-1" 164 -122 "Horizontal Kerning-1"
 EndChar
 
 StartChar: g
@@ -1190,7 +1151,6 @@ SplineSet
  207 129 l 1
  549 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: h
@@ -1217,7 +1177,6 @@ SplineSet
  207 655 l 1
  207 389 l 1xb6
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: i
@@ -1244,7 +1203,6 @@ SplineSet
  61 0 l 1
  61 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: j
@@ -1269,7 +1227,6 @@ SplineSet
  696 655 l 1
  698 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: k
@@ -1297,7 +1254,6 @@ SplineSet
  593 0 l 1
  205 223 l 1xa8
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: l
@@ -1318,7 +1274,6 @@ SplineSet
  205 655 l 1
  205 129 l 1xd0
 EndSplineSet
-Validated: 1
 Kerns2: 20 -82 "Horizontal Kerning-1" 58 -82 "Horizontal Kerning-1" 76 -61 "Horizontal Kerning-1"
 EndChar
 
@@ -1347,7 +1302,6 @@ SplineSet
  558 655 l 1
  696 655 l 1xac
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: n
@@ -1378,7 +1332,6 @@ SplineSet
  696 655 l 1
  696 0 l 1xac
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: o
@@ -1402,7 +1355,6 @@ SplineSet
  207 129 l 1
  551 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: p
@@ -1428,7 +1380,6 @@ SplineSet
  209 260 l 1
  209 0 l 1xbc
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: q
@@ -1456,7 +1407,6 @@ SplineSet
  207 129 l 1
  438 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: r
@@ -1487,7 +1437,6 @@ SplineSet
  207 526 l 1
  207 389 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: s
@@ -1498,23 +1447,23 @@ CounterMasks: 1 e0
 LayerCount: 2
 Fore
 SplineSet
-197.859127662 534 m 1
- 197.859127662 388.5 l 1
- 681 388.5 l 1
+198 534 m 1
+ 198 388 l 1
+ 681 388 l 1
  681 0 l 1
  61 0 l 1
  61 191 l 1
- 198.924609953 191 l 1
- 198.924609953 121 l 1
- 544.140872338 121 l 1
- 544.140872338 267.5 l 1
- 61 267.5 l 1
+ 199 191 l 1
+ 199 121 l 1
+ 544 121 l 1
+ 544 268 l 1
+ 61 268 l 1
  61 655 l 1
  681 655 l 1
  681 464 l 1
- 544.140872338 464 l 1
- 544.140872338 534 l 1
- 197.859127662 534 l 1
+ 544 464 l 1
+ 544 534 l 1
+ 198 534 l 1
 EndSplineSet
 EndChar
 
@@ -1538,8 +1487,6 @@ SplineSet
  305 0 l 1
  304 526 l 1xb0
 EndSplineSet
-Validated: 1
-Kerns2: 8 -82 "Horizontal Kerning-1" 34 -82 "Horizontal Kerning-1" 127 -82 "Horizontal Kerning-1" 128 -82 "Horizontal Kerning-1" 129 -82 "Horizontal Kerning-1" 130 -82 "Horizontal Kerning-1" 131 -82 "Horizontal Kerning-1" 132 -82 "Horizontal Kerning-1" 133 -102 "Horizontal Kerning-1" 158 -82 "Horizontal Kerning-1" 159 -82 "Horizontal Kerning-1" 160 -82 "Horizontal Kerning-1" 161 -82 "Horizontal Kerning-1" 162 -82 "Horizontal Kerning-1" 163 -82 "Horizontal Kerning-1" 164 -102 "Horizontal Kerning-1"
 EndChar
 
 StartChar: u
@@ -1562,7 +1509,6 @@ SplineSet
  696 0 l 1
  61 0 l 1xd8
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: v
@@ -1583,8 +1529,6 @@ SplineSet
  193 655 l 1
  378 197 l 1xa0
 EndSplineSet
-Validated: 1
-Kerns2: 8 -102 "Horizontal Kerning-1" 34 -102 "Horizontal Kerning-1"
 EndChar
 
 StartChar: w
@@ -1612,7 +1556,6 @@ SplineSet
  551 206 l 1
  550 656 l 1xac
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: x
@@ -1642,7 +1585,6 @@ SplineSet
  379 227 l 1
  168 0 l 1xa0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: y
@@ -1668,8 +1610,6 @@ SplineSet
  169 655 l 1
  379 442 l 1xa8
 EndSplineSet
-Validated: 1
-Kerns2: 8 -82 "Horizontal Kerning-1" 34 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: z
@@ -1694,7 +1634,6 @@ SplineSet
  696 129 l 1
 681 0 m 1025
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: one
@@ -1746,7 +1685,6 @@ SplineSet
  614 263 l 1
  207 263 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: three
@@ -1773,7 +1711,6 @@ SplineSet
  467 534 l 1
  61 535 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: four
@@ -1798,7 +1735,6 @@ SplineSet
  469 389 l 1
  469 655 l 1xb6
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: five
@@ -1810,15 +1746,15 @@ Fore
 SplineSet
 599 655 m 1
  599 534 l 1
- 198.12078443 534 l 1
- 198.12078443 388.5 l 1
- 599 388.5 l 1
+ 198 534 l 1
+ 198 388 l 1
+ 599 388 l 1
  599 0 l 1
  61 0 l 1
  61 121 l 1
- 461.87921557 121 l 1
- 461.87921557 267.5 l 1
- 61 267.5 l 1
+ 462 121 l 1
+ 462 268 l 1
+ 61 268 l 1
  61 655 l 1
  599 655 l 1
 EndSplineSet
@@ -1849,7 +1785,6 @@ SplineSet
  475 266 l 1
  209 266 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: seven
@@ -1874,7 +1809,6 @@ SplineSet
  61 655 l 1
  614 655 l 1xb8
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: eight
@@ -1903,7 +1837,6 @@ SplineSet
  469 266 l 1
  209 266 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: nine
@@ -1931,7 +1864,6 @@ SplineSet
  201 389 l 1
  467 389 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: bracketleft
@@ -1954,7 +1886,6 @@ SplineSet
  425 114 l 1
  425 -15 l 1xe0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: bracketright
@@ -1977,7 +1908,6 @@ SplineSet
  425 -15 l 1
  67 -15 l 1xe0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: slash
@@ -1996,7 +1926,7 @@ SplineSet
  579 575 l 1
  247 -15 l 1
 EndSplineSet
-Validated: 1
+Kerns2: 71 -200 "Horizontal Kerning-1"
 EndChar
 
 StartChar: backslash
@@ -2015,14 +1945,14 @@ SplineSet
  470 -15 l 1
  138 575 l 1
 EndSplineSet
-Validated: 1
+Kerns2: 72 -200 "Horizontal Kerning-1"
 EndChar
 
 StartChar: parenleft
 Encoding: 40 40 73
 Width: 491
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: -15 129<219 425> 542 129<223 425>
 VStem: 67 358<24 114 542 632> 67 143<127 533>
 LayerCount: 2
@@ -2052,7 +1982,7 @@ StartChar: parenright
 Encoding: 41 41 74
 Width: 491
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: -15 129<67 273> 542 129<67 268>
 VStem: 282 143<127 533>
 LayerCount: 2
@@ -2082,7 +2012,7 @@ StartChar: exclam
 Encoding: 33 33 75
 Width: 221
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: -15 129<46 175>
 VStem: 46 129<-15 114 181 671>
 LayerCount: 2
@@ -2106,7 +2036,7 @@ StartChar: quotesingle
 Encoding: 39 39 76
 Width: 221
 VWidth: 880
-Flags: W
+Flags: HW
 HStem: 476 195<46 175>
 VStem: 46 129<476 671>
 LayerCount: 2
@@ -2118,14 +2048,13 @@ SplineSet
  46 476 l 1
  46 671 l 1
 EndSplineSet
-Kerns2: 8 -61 "Horizontal Kerning-1" 34 -61 "Horizontal Kerning-1"
 EndChar
 
 StartChar: quotedbl
 Encoding: 34 34 77
 Width: 360
 VWidth: 880
-Flags: W
+Flags: HW
 HStem: 476 195<46 175 185 314>
 VStem: 46 129<476 671> 185 129<476 671>
 LayerCount: 2
@@ -2142,7 +2071,6 @@ SplineSet
  46 476 l 1
  46 671 l 1
 EndSplineSet
-Kerns2: 8 -61 "Horizontal Kerning-1"
 EndChar
 
 StartChar: hyphen
@@ -2160,8 +2088,6 @@ SplineSet
  46 263 l 1
  46 392 l 1
 EndSplineSet
-Validated: 1
-Kerns2: 8 -61 "Horizontal Kerning-1"
 EndChar
 
 StartChar: dollar
@@ -2338,40 +2264,40 @@ EndImage2
 Fore
 SplineSet
 681 0 m 1
- 449.312948411 0 l 1
- 449.312948411 -13.6669921875 449.312948411 -27.3330078125 449.312948411 -41 c 1
- 302.27639221 -41 l 1
- 302.27639221 -27.3330078125 302.27639221 -13.6669921875 302.27639221 0 c 1
+ 449 0 l 1
+ 449 -14 449 -27 449 -41 c 1
+ 302 -41 l 1
+ 302 -27 302 -14 302 0 c 1
  61 0 l 1
  61 191 l 1
- 198.924609953 191 l 1
- 198.924609953 121 l 1
- 302.27639221 121 l 1
- 302.27639221 267.5 l 1
- 61 267.5 l 1
+ 199 191 l 1
+ 199 121 l 1
+ 302 121 l 1
+ 302 268 l 1
+ 61 268 l 1
  61 655 l 1
- 302.27639221 655 l 1
- 302.27639221 668.666992188 302.27639221 682.333007812 302.27639221 696 c 1
- 449.312948411 696 l 1
- 449.312948411 682.333007812 449.312948411 668.666992188 449.312948411 655 c 1
+ 302 655 l 1
+ 302 669 302 682 302 696 c 1
+ 449 696 l 1
+ 449 682 449 669 449 655 c 1
  681 655 l 1
  681 464 l 1
- 544.140872338 464 l 1
- 544.140872338 534 l 1
- 449.312948411 534 l 1
- 449.312948411 388.5 l 1
- 681 388.5 l 1
+ 544 464 l 1
+ 544 534 l 1
+ 449 534 l 1
+ 449 388 l 1
+ 681 388 l 1
  681 0 l 1
-302.27639221 534 m 1
- 197.859127662 534 l 1
- 197.859127662 388.5 l 1
- 302.27639221 388.5 l 1
- 302.27639221 534 l 1
-544.140872338 121 m 1
- 544.140872338 267.5 l 1
- 449.312948411 267.5 l 1
- 449.312948411 121 l 1
- 544.140872338 121 l 1
+302 534 m 1
+ 198 534 l 1
+ 198 388 l 1
+ 302 388 l 1
+ 302 534 l 1
+544 121 m 1
+ 544 268 l 1
+ 449 268 l 1
+ 449 121 l 1
+ 544 121 l 1
 EndSplineSet
 EndChar
 
@@ -2379,7 +2305,7 @@ StartChar: percent
 Encoding: 37 37 80
 Width: 757
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 0 218<459 696> 437 218<61 286>
 VStem: 61 224<437 655> 459 238<0 218>
 LayerCount: 2
@@ -2409,7 +2335,7 @@ StartChar: numbersign
 Encoding: 35 35 81
 Width: 696
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 108 129<46 153 296 400 544 650> 419 129<46 153 296 400 544 650>
 VStem: 153 143<-15 108 237 419 548 671> 400 142<-15 108 237 419 548 671>
 LayerCount: 2
@@ -2478,7 +2404,6 @@ SplineSet
  568 263 l 1
  380 263 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: equal
@@ -2501,7 +2426,6 @@ SplineSet
  568 499 l 1
  568 370 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: grave
@@ -2519,7 +2443,6 @@ SplineSet
  172 583 l 1
  32 783 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: braceleft
@@ -2546,7 +2469,6 @@ SplineSet
  165 671 l 1
  523 671 l 1xf0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: braceright
@@ -2574,7 +2496,6 @@ SplineSet
  67 542 l 1
  67 671 l 1xf0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: bar
@@ -2591,7 +2512,6 @@ SplineSet
  292 36 l 1
  292 783 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: less
@@ -2613,7 +2533,6 @@ SplineSet
  46 377 l 1
  380 605 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: greater
@@ -2635,7 +2554,6 @@ SplineSet
  153 605 l 1
  486 377 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: asciicircum
@@ -2687,7 +2605,6 @@ SplineSet
  372 318 l 1
  439 318 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: at
@@ -2697,26 +2614,26 @@ Flags: HW
 LayerCount: 2
 Fore
 SplineSet
-589.5 600.5 m 1
- 589.5 211.5 l 1
- 254.5 211.5 l 1
- 254.5 444.5 l 1
- 448.5 444.5 l 1
- 448.5 286.5 l 1
- 475.5 286.5 l 1
- 475.5 499.5 l 1
- 220.5 499.5 l 1
- 220.5 155.5 l 1
- 589.5 155.5 l 1
- 589.5 53.5 l 1
- 106.5 53.5 l 1
- 106.5 600.5 l 1
- 589.5 600.5 l 1
-367.5 368.5 m 1
- 334.5 368.5 l 1
- 334.5 286.5 l 1
- 367.5 286.5 l 1
- 367.5 368.5 l 1
+590 600 m 1
+ 590 212 l 1
+ 254 212 l 1
+ 254 444 l 1
+ 448 444 l 1
+ 448 286 l 1
+ 476 286 l 1
+ 476 500 l 1
+ 220 500 l 1
+ 220 156 l 1
+ 590 156 l 1
+ 590 54 l 1
+ 106 54 l 1
+ 106 600 l 1
+ 590 600 l 1
+368 368 m 1
+ 334 368 l 1
+ 334 286 l 1
+ 368 286 l 1
+ 368 368 l 1
 EndSplineSet
 EndChar
 
@@ -2760,14 +2677,13 @@ SplineSet
  175 664 175 655 175 648 c 1
  181 655 188 664 194 671 c 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ampersand
 Encoding: 38 38 94
 Width: 696
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: -15 129<191 275> 263 129<519 650> 542 129<306 536>
 VStem: 46 145<114 263> 161 145<392 542>
 CounterMasks: 1 e0
@@ -2821,7 +2737,6 @@ SplineSet
  155 233 l 1
  46 233 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: questiondown
@@ -2852,7 +2767,6 @@ SplineSet
  345 335 l 1
  345 225 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: periodcentered
@@ -2870,7 +2784,6 @@ SplineSet
  61 333 l 1
  61 486 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: uni00AD
@@ -2888,7 +2801,6 @@ SplineSet
  46 263 l 1
  46 392 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: plusminus
@@ -2920,7 +2832,6 @@ SplineSet
  445 337 l 1
  304 337 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: acute
@@ -2938,7 +2849,6 @@ SplineSet
  47 583 l 1
  187 783 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: brokenbar
@@ -2960,7 +2870,6 @@ SplineSet
  292 456 l 1
  292 783 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: divide
@@ -2991,7 +2900,6 @@ SplineSet
  87 392 l 1
 594 279 m 1025
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: macron
@@ -3009,7 +2917,6 @@ SplineSet
  46 611 l 1
  46 740 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: copyright
@@ -3042,7 +2949,6 @@ SplineSet
  523 114 l 1
  523 542 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: multiply
@@ -3074,7 +2980,6 @@ SplineSet
  326 142 l 2
  306 142 284 142 264 142 c 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: registered
@@ -3115,7 +3020,6 @@ SplineSet
  523 114 l 1
  523 542 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: degree
@@ -3138,7 +3042,6 @@ SplineSet
  201 615 l 1
  201 687 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: mu
@@ -3163,7 +3066,6 @@ SplineSet
  46 -15 l 1
  46 671 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ordmasculine
@@ -3186,7 +3088,6 @@ SplineSet
  173 682 l 1
  216 682 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: cent
@@ -3217,7 +3118,6 @@ SplineSet
  361 647 361 627 361 608 c 1
  536 608 l 1x1c
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: yen
@@ -3259,7 +3159,6 @@ SplineSet
  348 458 l 1
  542 671 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: uni00B2
@@ -3285,7 +3184,6 @@ SplineSet
  139 592 l 1
  139 545 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: uni00B3
@@ -3311,7 +3209,6 @@ SplineSet
  61 712 l 1
  61 783 l 1xf0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: uni00B9
@@ -3335,7 +3232,6 @@ SplineSet
  141 550 l 1
  141 712 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: logicalnot
@@ -3357,7 +3253,6 @@ SplineSet
  503 380 l 1
 61 365 m 1025
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: sterling
@@ -3389,7 +3284,6 @@ SplineSet
  130 263 l 1
  46 263 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: currency
@@ -3429,7 +3323,6 @@ SplineSet
  441 237 l 1
  441 419 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: guillemotleft
@@ -3461,7 +3354,6 @@ SplineSet
  46 367 l 1
  250 547 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: guillemotright
@@ -3493,7 +3385,6 @@ SplineSet
  365 547 l 1
  568 367 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ordfeminine
@@ -3521,7 +3412,6 @@ SplineSet
  165 568 157 553 150 540 c 1
  77 540 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: paragraph
@@ -3552,7 +3442,6 @@ SplineSet
  423 389 l 1
  423 542 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: cedilla
@@ -3577,7 +3466,6 @@ SplineSet
  65 3 65 -10 65 -22 c 1
  183 -22 l 1xb8
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: dieresis
@@ -3601,7 +3489,6 @@ SplineSet
  96 714 l 1
  96 835 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: onequarter
@@ -3643,7 +3530,6 @@ SplineSet
  87 364 l 1
 594 307 m 1025
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: onehalf
@@ -3686,7 +3572,6 @@ SplineSet
  305 437 l 1
  305 599 l 1xcf
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: threequarters
@@ -3730,7 +3615,6 @@ SplineSet
  87 364 l 1
 594 307 m 1025
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Agrave
@@ -3742,17 +3626,17 @@ HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -3762,7 +3646,6 @@ SplineSet
  525 659 l 1
  386 659 l 1x20
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: Aacute
@@ -3774,17 +3657,17 @@ HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -3794,7 +3677,6 @@ SplineSet
  369 659 l 1
  231 659 l 1x20
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: Acircumflex
@@ -3806,17 +3688,17 @@ HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -3834,7 +3716,6 @@ SplineSet
  266 679 266 697 266 714 c 2
  266 720 l 1x20
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: Atilde
@@ -3847,17 +3728,17 @@ VStem: 254 76<660 719> 424 76<730 788>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -3875,7 +3756,6 @@ SplineSet
  415 788 l 1
  415 769 415 749 415 730 c 1x27
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: Adieresis
@@ -3889,34 +3769,34 @@ VStem: 209 140<668 788> 406 140<668 788>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
- 558 534 l 5
- 198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+558 358 m 1
+ 558 534 l 1
+ 198 534 l 1
+ 198 358 l 1
+ 558 358 l 1
   Spiro
-    558 357.5 v
+    558 358 v
     558 534 v
     198 534 v
-    198 357.5 v
+    198 358 v
     0 0 z
   EndSpiro
-61 655 m 5
- 695 655 l 5
- 695 0 l 5
- 558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
- 198 0 l 5
- 61 0 l 5
- 61 655 l 5
+61 655 m 1
+ 695 655 l 1
+ 695 0 l 1
+ 558 0 l 1
+ 558 236 l 1
+ 198 236 l 1
+ 198 0 l 1
+ 61 0 l 1
+ 61 655 l 1
   Spiro
     61 655 v
     695 655 v
     695 0 v
     558 0 v
-    558 236.5 v
-    198 236.5 v
+    558 236 v
+    198 236 v
     198 0 v
     61 0 v
     0 0 z
@@ -3946,7 +3826,6 @@ SplineSet
     0 0 z
   EndSpiro
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: Aring
@@ -3959,17 +3838,17 @@ VStem: 299 73<726 753> 383 73<726 753>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -3984,7 +3863,6 @@ SplineSet
  372 726 l 1
  383 726 l 1
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: AE
@@ -4053,7 +3931,6 @@ SplineSet
  207 526 l 1
  207 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Egrave
@@ -4085,7 +3962,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Eacute
@@ -4117,7 +3993,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Ecircumflex
@@ -4157,7 +4032,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Edieresis
@@ -4194,7 +4068,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Igrave
@@ -4226,7 +4099,6 @@ SplineSet
  534 659 l 1
  395 659 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Iacute
@@ -4258,7 +4130,6 @@ SplineSet
  61 0 l 1
  61 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Icircumflex
@@ -4298,7 +4169,6 @@ SplineSet
  61 0 l 1
  61 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Idieresis
@@ -4335,7 +4205,6 @@ SplineSet
  351 668 l 1
  211 668 l 1xf0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Eth
@@ -4369,7 +4238,6 @@ SplineSet
  514 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Ntilde
@@ -4413,7 +4281,6 @@ SplineSet
  696 655 l 1
  696 0 l 1xaf80
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Ograve
@@ -4442,7 +4309,6 @@ SplineSet
  207 129 l 1
  551 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Oacute
@@ -4471,7 +4337,6 @@ SplineSet
  207 129 l 1
  551 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Ocircumflex
@@ -4508,7 +4373,6 @@ SplineSet
  259 679 259 697 259 714 c 2
  259 720 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Odieresis
@@ -4542,7 +4406,6 @@ SplineSet
  207 129 l 1
  551 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Otilde
@@ -4579,7 +4442,6 @@ SplineSet
  418 788 l 1
  418 769 418 749 418 730 c 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Oslash
@@ -4606,7 +4468,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Ugrave
@@ -4634,7 +4495,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Uacute
@@ -4662,7 +4522,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Ucircumflex
@@ -4698,7 +4557,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Udieresis
@@ -4731,7 +4589,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Yacute
@@ -4762,7 +4619,6 @@ SplineSet
  169 655 l 1xa8
  379 442 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: Thorn
@@ -4790,7 +4646,6 @@ SplineSet
  558 404 l 1
  207 404 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: germandbls
@@ -4821,29 +4676,28 @@ SplineSet
  317 395 l 1
  442 395 l 1xf8
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: agrave
 Encoding: 224 224 158
 Width: 741
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 452> 635 20G<303 452>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -4853,29 +4707,28 @@ SplineSet
  525 659 l 1
  386 659 l 1x20
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: aacute
 Encoding: 225 225 159
 Width: 741
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 452> 635 20G<303 452>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -4885,29 +4738,28 @@ SplineSet
  369 659 l 1
  231 659 l 1x20
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: acircumflex
 Encoding: 226 226 160
 Width: 741
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 452> 635 20G<303 452>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -4925,30 +4777,29 @@ SplineSet
  266 679 266 697 266 714 c 2
  266 720 l 1x20
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: atilde
 Encoding: 227 227 161
 Width: 741
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 452> 635 20G<303 452> 660 128<253 329 338 414 424 500>
 VStem: 254 76<660 719> 424 76<730 788>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -4966,100 +4817,66 @@ SplineSet
  415 788 l 1
  415 769 415 749 415 730 c 1x27
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: adieresis
 Encoding: 228 228 162
 Width: 741
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 452> 635 20G<303 452> 668 121<209 350 405 546>
 VStem: 209 140<668 788> 406 140<668 788>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
-  Spiro
-    558 357.5 v
-    558 534 v
-    198 534 v
-    198 357.5 v
-    0 0 z
-  EndSpiro
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
-  Spiro
-    61 655 v
-    695 655 v
-    695 0 v
-    558 0 v
-    558 236.5 v
-    198 236.5 v
-    198 0 v
-    61 0 v
-    0 0 z
-  EndSpiro
 406 668 m 1
  406 788 l 1
  546 788 l 1
  546 668 l 1
  406 668 l 1
-  Spiro
-    406 668 v
-    406 788 v
-    546 788 v
-    546 668 v
-    0 0 z
-  EndSpiro
 209 668 m 1
  209 788 l 1
  349 788 l 1
  349 668 l 1
  209 668 l 1
-  Spiro
-    209 668 v
-    209 788 v
-    349 788 v
-    349 668 v
-    0 0 z
-  EndSpiro
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: aring
 Encoding: 229 229 163
 Width: 741
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 0 22G<46 202 553 709> 0 22G<46 202 553 709> 148 129<313 442> 635 20G<303 452> 635 20G<303 452> 659 160<299 372 383 456>
 VStem: 299 73<726 753> 383 73<726 753>
 LayerCount: 2
 Fore
 SplineSet
-558 357.5 m 5
+558 358 m 5
  558 534 l 5
  198 534 l 5
- 198 357.5 l 5
- 558 357.5 l 5
+ 198 358 l 5
+ 558 358 l 5
 61 655 m 5
  695 655 l 5
  695 0 l 5
  558 0 l 5
- 558 236.5 l 5
- 198 236.5 l 5
+ 558 236 l 5
+ 198 236 l 5
  198 0 l 5
  61 0 l 5
  61 655 l 5
@@ -5074,14 +4891,13 @@ SplineSet
  372 726 l 1
  383 726 l 1
 EndSplineSet
-Kerns2: 12 -82 "Horizontal Kerning-1" 53 -82 "Horizontal Kerning-1"
 EndChar
 
 StartChar: ae
 Encoding: 230 230 164
 Width: 969
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: 0 129<579 908> 148 129<326 425> 260 129<579 763> 534 122<579 908>
 VStem: 425 155<129 148 389 522>
 LayerCount: 2
@@ -5143,7 +4959,6 @@ SplineSet
  207 526 l 1
  207 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: egrave
@@ -5175,7 +4990,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: eacute
@@ -5207,7 +5021,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ecircumflex
@@ -5247,7 +5060,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: edieresis
@@ -5284,7 +5096,6 @@ SplineSet
  61 0 l 1
  61 655 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: igrave
@@ -5316,7 +5127,6 @@ SplineSet
  534 659 l 1
  395 659 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: iacute
@@ -5348,7 +5158,6 @@ SplineSet
  61 0 l 1
  61 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: icircumflex
@@ -5388,7 +5197,6 @@ SplineSet
  61 0 l 1
  61 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: idieresis
@@ -5425,7 +5233,6 @@ SplineSet
  351 668 l 1
  211 668 l 1xf0
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: eth
@@ -5459,7 +5266,6 @@ SplineSet
  514 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ntilde
@@ -5503,7 +5309,6 @@ SplineSet
  696 655 l 1
  696 0 l 1xaf80
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ograve
@@ -5532,7 +5337,6 @@ SplineSet
  207 129 l 1
  551 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: oacute
@@ -5561,7 +5365,6 @@ SplineSet
  207 129 l 1
  551 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ocircumflex
@@ -5598,7 +5401,6 @@ SplineSet
  259 679 259 697 259 714 c 2
  259 720 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: otilde
@@ -5635,7 +5437,6 @@ SplineSet
  418 788 l 1
  418 769 418 749 418 730 c 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: odieresis
@@ -5669,7 +5470,6 @@ SplineSet
  207 129 l 1
  551 129 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: oslash
@@ -5696,7 +5496,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ugrave
@@ -5724,7 +5523,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: uacute
@@ -5752,7 +5550,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ucircumflex
@@ -5788,7 +5585,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: udieresis
@@ -5821,7 +5617,6 @@ SplineSet
  696 0 l 1
  61 0 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: yacute
@@ -5852,7 +5647,6 @@ SplineSet
  169 655 l 1xa8
  379 442 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: thorn
@@ -5880,7 +5674,6 @@ SplineSet
  558 404 l 1
  207 404 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: ydieresis
@@ -5916,7 +5709,6 @@ SplineSet
  169 655 l 1xaa
  379 442 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: section
@@ -5948,7 +5740,6 @@ SplineSet
  507 267 l 1
  507 388 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: uni001F
@@ -5956,6 +5747,8 @@ Encoding: 31 31 190
 Width: 1024
 Flags: W
 LayerCount: 2
+Fore
+Validated: 1
 EndChar
 EndChars
 EndSplineFont
