@@ -1,7 +1,9 @@
 {
 	"fonts":
 	[
-		"forcedsquare.ttf"
+		"forcedsquare.ttf",
+		"OpenSquare-Regular.ttf",
+		"OpenSquare-Bold.ttf"
 	],
 	"textures":
 	[
