@@ -188,6 +188,7 @@ private:
 
     [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept;
     [[nodiscard]] bool isInMenu() noexcept;
+    void ignoreInputsAfterMenuExec();
 
     //---------------------------------------
     // State changes
