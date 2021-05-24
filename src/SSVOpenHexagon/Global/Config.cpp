@@ -179,6 +179,8 @@ using cil = std::initializer_list<cmb>;
     X(serverControlPort, ushort, "server_control_port", 50506)             \
     X(serverLevelWhitelist, std::vector<std::string>,                      \
         "server_level_whitelist", defaultServerLevelWhitelist())           \
+    X(saveLastLoginUsername, bool, "save_last_login_username", true)       \
+    X(lastLoginUsername, std::string, "last_login_username", "")           \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -686,6 +688,16 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
     serverLevelWhitelist() = levelValidators;
 }
 
+void setSaveLastLoginUsername(bool mX)
+{
+    saveLastLoginUsername() = mX;
+}
+
+void setLastLoginUsername(const std::string& mX)
+{
+    lastLoginUsername() = mX;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -994,6 +1006,16 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
 [[nodiscard]] const std::vector<std::string> getServerLevelWhitelist()
 {
     return serverLevelWhitelist();
+}
+
+[[nodiscard]] bool getSaveLastLoginUsername()
+{
+    return saveLastLoginUsername();
+}
+
+[[nodiscard]] const std::string& getLastLoginUsername()
+{
+    return lastLoginUsername();
 }
 
 //***********************************************************

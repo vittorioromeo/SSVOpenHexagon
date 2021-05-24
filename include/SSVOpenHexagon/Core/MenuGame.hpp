@@ -558,6 +558,9 @@ private:
     void showInputDialogBox(const std::string& msg);
     void showInputDialogBoxNice(const std::string& title,
         const std::string& inputType, const std::string& extra = "");
+    void showInputDialogBoxNiceWithDefault(const std::string& title,
+        const std::string& inputType, const std::string& def,
+        const std::string& extra = "");
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,

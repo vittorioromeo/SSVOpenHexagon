@@ -1177,6 +1177,8 @@ void MenuGame::initMenus()
     play.create<i::Slider>("timescale", &Config::getTimescale,
         &Config::setTimescale, 0.1f, 2.f, 0.05f) |
         whenNotOfficial;
+    play.create<i::Toggle>("save last username",
+        &Config::getSaveLastLoginUsername, &Config::setSaveLastLoginUsername);
     play.create<i::GoBack>("back");
 
     //--------------------------------
@@ -1553,7 +1555,14 @@ void MenuGame::initMenus()
 
             dialogInputState = DialogInputState::Login_EnteringUsername;
 
-            showInputDialogBoxNice("LOGIN", "USERNAME");
+            const std::string defaultLoginUsername =
+                Config::getSaveLastLoginUsername()
+                    ? Config::getLastLoginUsername()
+                    : "";
+
+            showInputDialogBoxNiceWithDefault(
+                "LOGIN", "USERNAME", defaultLoginUsername);
+
             ignoreInputsAfterMenuExec();
         }) |
         whenMustLogin;
@@ -5924,6 +5933,15 @@ void MenuGame::drawOnlineStatus()
             case HexagonClient::State::LoggedIn: [[fallthrough]];
             case HexagonClient::State::LoggedIn_Ready:
             {
+                if(Config::getSaveLastLoginUsername() &&
+                    hexagonClient.getLoginName().has_value())
+                {
+                    // Save last login username for quicker login next time.
+
+                    Config::setLastLoginUsername(
+                        hexagonClient.getLoginName().value());
+                }
+
                 return {
                     true, "LOGGED IN AS " +
                               hexagonClient.getLoginName().value_or("UNKNOWN")};
@@ -5984,6 +6002,14 @@ void MenuGame::showInputDialogBox(const std::string& msg)
 void MenuGame::showInputDialogBoxNice(const std::string& title,
     const std::string& inputType, const std::string& extra)
 {
+    showInputDialogBoxNiceWithDefault(
+        title, inputType, "" /* default */, extra);
+}
+
+void MenuGame::showInputDialogBoxNiceWithDefault(const std::string& title,
+    const std::string& inputType, const std::string& def,
+    const std::string& extra)
+{
     strBuf.clear();
 
     if(extra.empty())
@@ -5998,6 +6024,7 @@ void MenuGame::showInputDialogBoxNice(const std::string& title,
     }
 
     showInputDialogBox(strBuf);
+    dialogBox.getInput() = def;
 }
 
 } // namespace hg
