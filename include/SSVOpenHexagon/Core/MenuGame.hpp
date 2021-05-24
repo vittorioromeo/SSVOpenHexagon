@@ -422,6 +422,10 @@ private:
     static inline constexpr float baseScrollSpeed{30.f};
     float scrollSpeed{baseScrollSpeed};
 
+    // Login at startup
+    bool mustShowLoginAtStartup{true};
+    void openLoginDialogBoxAndStartLoginProcess();
+
     // First timer tips
     bool showFirstTimeTips{false};
     bool mustShowFTTMainMenu{true};

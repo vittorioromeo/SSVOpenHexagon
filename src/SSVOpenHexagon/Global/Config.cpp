@@ -181,6 +181,7 @@ using cil = std::initializer_list<cmb>;
         "server_level_whitelist", defaultServerLevelWhitelist())           \
     X(saveLastLoginUsername, bool, "save_last_login_username", true)       \
     X(lastLoginUsername, std::string, "last_login_username", "")           \
+    X(showLoginAtStartup, bool, "show_login_at_startup", false)            \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -698,6 +699,11 @@ void setLastLoginUsername(const std::string& mX)
     lastLoginUsername() = mX;
 }
 
+void setShowLoginAtStartup(bool mX)
+{
+    showLoginAtStartup() = mX;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -1016,6 +1022,11 @@ void setLastLoginUsername(const std::string& mX)
 [[nodiscard]] const std::string& getLastLoginUsername()
 {
     return lastLoginUsername();
+}
+
+[[nodiscard]] bool getShowLoginAtStartup()
+{
+    return showLoginAtStartup();
 }
 
 //***********************************************************
