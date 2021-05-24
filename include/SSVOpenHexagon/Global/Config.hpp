@@ -78,6 +78,8 @@ void setServerIp(const std::string& mX);
 void setServerPort(unsigned short mX);
 void setServerControlPort(unsigned short mX);
 void setServerLevelWhitelist(const std::vector<std::string>& levelValidators);
+void setSaveLastLoginUsername(bool mX);
+void setLastLoginUsername(const std::string& mX);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -142,6 +144,8 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators);
 [[nodiscard]] unsigned short getServerPort();
 [[nodiscard]] unsigned short getServerControlPort();
 [[nodiscard]] const std::vector<std::string> getServerLevelWhitelist();
+[[nodiscard]] bool getSaveLastLoginUsername();
+[[nodiscard]] const std::string& getLastLoginUsername();
 
 // keyboard binds
 
