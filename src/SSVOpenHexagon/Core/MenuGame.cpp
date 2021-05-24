@@ -1113,6 +1113,15 @@ void MenuGame::initLua()
     }
 }
 
+void MenuGame::ignoreInputsAfterMenuExec()
+{
+    // We only want to ignore a single input when using the left mouse button,
+    // otherwise the user would have to press enter twice to accept in a dialog
+    // box.
+
+    setIgnoreAllInputs(mustUseMenuItem.has_value() ? 1 : 2);
+}
+
 void MenuGame::initMenus()
 {
     namespace i = ssvms::Items;
@@ -1197,7 +1206,7 @@ void MenuGame::initMenus()
                 "F3 - RELOAD LEVEL ASSETS (DEBUG MODE ONLY)\n"
                 "F4 - RELOAD PACK ASSETS (DEBUG MODE ONLY)\n\n"
                 "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
-            setIgnoreAllInputs(2);
+            ignoreInputsAfterMenuExec();
         });
     controls.create<i::GoBack>("back");
 
@@ -1545,7 +1554,7 @@ void MenuGame::initMenus()
             dialogInputState = DialogInputState::Login_EnteringUsername;
 
             showInputDialogBoxNice("LOGIN", "USERNAME");
-            setIgnoreAllInputs(2);
+            ignoreInputsAfterMenuExec();
         }) |
         whenMustLogin;
 
@@ -1560,7 +1569,7 @@ void MenuGame::initMenus()
             dialogInputState = DialogInputState::Registration_EnteringUsername;
 
             showInputDialogBoxNice("REGISTRATION", "USERNAME");
-            setIgnoreAllInputs(2);
+            ignoreInputsAfterMenuExec();
         }) |
         whenMustRegister;
 
@@ -1585,7 +1594,7 @@ void MenuGame::initMenus()
             showInputDialogBoxNice("DELETE ACCOUNT", "PASSWORD",
                 "WARNING: THIS WILL DELETE ALL YOUR SCORES");
             dialogBox.setInputBoxPassword(true);
-            setIgnoreAllInputs(2);
+            ignoreInputsAfterMenuExec();
         }) |
         whenMustDeleteAccount;
 
