@@ -828,6 +828,16 @@ void MenuGame::changeStateTo(const States mState)
         return;
     }
 
+    if(state == States::SMain)
+    {
+        if(std::exchange(mustShowLoginAtStartup, false) &&
+            Config::getShowLoginAtStartup())
+        {
+            openLoginDialogBoxAndStartLoginProcess();
+            setIgnoreAllInputs(2);
+        }
+    }
+
     if(state == States::LevelSelection)
     {
         firstLevelSelection = false;
@@ -1179,6 +1189,8 @@ void MenuGame::initMenus()
         whenNotOfficial;
     play.create<i::Toggle>("save last username",
         &Config::getSaveLastLoginUsername, &Config::setSaveLastLoginUsername);
+    play.create<i::Toggle>("show login at startup",
+        &Config::getShowLoginAtStartup, &Config::setShowLoginAtStartup);
     play.create<i::GoBack>("back");
 
     //--------------------------------
@@ -1553,16 +1565,7 @@ void MenuGame::initMenus()
                 return;
             }
 
-            dialogInputState = DialogInputState::Login_EnteringUsername;
-
-            const std::string defaultLoginUsername =
-                Config::getSaveLastLoginUsername()
-                    ? Config::getLastLoginUsername()
-                    : "";
-
-            showInputDialogBoxNiceWithDefault(
-                "LOGIN", "USERNAME", defaultLoginUsername);
-
+            openLoginDialogBoxAndStartLoginProcess();
             ignoreInputsAfterMenuExec();
         }) |
         whenMustLogin;
@@ -6025,6 +6028,20 @@ void MenuGame::showInputDialogBoxNiceWithDefault(const std::string& title,
 
     showInputDialogBox(strBuf);
     dialogBox.getInput() = def;
+}
+
+void MenuGame::openLoginDialogBoxAndStartLoginProcess()
+{
+    SSVOH_ASSERT(dialogInputState == DialogInputState::Nothing);
+
+    dialogInputState = DialogInputState::Login_EnteringUsername;
+
+    const std::string defaultLoginUsername =
+        Config::getSaveLastLoginUsername() ? Config::getLastLoginUsername()
+                                           : "";
+
+    showInputDialogBoxNiceWithDefault(
+        "LOGIN", "USERNAME", defaultLoginUsername);
 }
 
 } // namespace hg

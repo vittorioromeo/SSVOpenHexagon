@@ -80,6 +80,7 @@ void setServerControlPort(unsigned short mX);
 void setServerLevelWhitelist(const std::vector<std::string>& levelValidators);
 void setSaveLastLoginUsername(bool mX);
 void setLastLoginUsername(const std::string& mX);
+void setShowLoginAtStartup(bool mX);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -146,6 +147,7 @@ void setLastLoginUsername(const std::string& mX);
 [[nodiscard]] const std::vector<std::string> getServerLevelWhitelist();
 [[nodiscard]] bool getSaveLastLoginUsername();
 [[nodiscard]] const std::string& getLastLoginUsername();
+[[nodiscard]] bool getShowLoginAtStartup();
 
 // keyboard binds
 
