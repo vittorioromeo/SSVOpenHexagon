@@ -196,8 +196,7 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 {
     hg::Steam::steam_manager steamManager;
 
-    // TODO (P0): tries to use X11 server, fix.
-    // hg::Config::loadConfig({} /* overrideIds */);
+    hg::Config::loadConfig({} /* overrideIds */);
 
     hg::HGAssets assets{
         &steamManager,      //
@@ -271,6 +270,8 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     // ------------------------------------------------------------------------
     // Load configuration (and overrides)
     hg::Config::loadConfig(args);
+    hg::Config::reapplyResolution();
+
     HG_SCOPE_GUARD(
         {
             ssvu::lo("::main") << "Saving config...\n";

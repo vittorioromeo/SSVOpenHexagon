@@ -67,6 +67,11 @@ void HexagonGame::createWall(int mSide, float mThickness,
         levelStatus.wallSpawnDistance, mSpeed, mCurve, mHueMod);
 }
 
+void HexagonGame::setMustStart(const bool x)
+{
+    mustStart = x;
+}
+
 void HexagonGame::initKeyIcons()
 {
     if(window == nullptr)
@@ -1326,6 +1331,8 @@ void HexagonGame::playLevelMusic()
         const MusicData::Segment segment =
             musicData.playRandomSegment(getPackId(), *audio);
 
+        // TODO (P0): can this actually de-sync replays? beatpulse affects
+        // gameplay
         // TODO (P1): problems with addHash in headless mode:
         status.beatPulseDelay += segment.beatPulseDelayOffset;
     }

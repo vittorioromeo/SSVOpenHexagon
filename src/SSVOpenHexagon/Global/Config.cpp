@@ -326,6 +326,11 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
     }
 
     syncAllFromObj();
+}
+
+void reapplyResolution()
+{
+    ssvu::lo("::reapplyResolution") << "reapplying resolution\n";
 
     if(getWindowedAutoResolution())
     {
@@ -345,18 +350,7 @@ void resetConfigToDefaults()
     ssvu::lo("::resetConfigToDefaults") << "resetting configs\n";
 
     resetAllFromDefault();
-
-    if(getWindowedAutoResolution())
-    {
-        applyAutoWindowedResolution();
-    }
-
-    if(getFullscreenAutoResolution())
-    {
-        applyAutoFullscreenResolution();
-    }
-
-    recalculateSizes();
+    reapplyResolution();
 }
 
 void resetBindsToDefaults()

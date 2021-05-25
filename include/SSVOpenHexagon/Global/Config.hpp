@@ -27,6 +27,7 @@ inline constexpr float TIME_STEP = 60.f / TICKS_PER_SECOND;
 inline constexpr float TIME_SLICE = 60.f / TICKS_PER_SECOND;
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
+void reapplyResolution();
 void resetConfigToDefaults();
 void resetBindsToDefaults();
 void saveConfig();

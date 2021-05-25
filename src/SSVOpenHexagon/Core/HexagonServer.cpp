@@ -669,8 +669,6 @@ void HexagonServer::runIteration_FlushLogs()
     SSVOH_SLOG << "Processing replay from client '" << clientAddr
                << "' for level '" << levelValidator << "'\n";
 
-    // TODO (P1): sometimes this seems to hang... should figure out why
-
     const std::optional<HexagonGame::GameExecutionResult> ger =
         _hexagonGame.runReplayUntilDeathAndGetScore(
             rf, 5 /* maxProcessingSeconds */, 1.f /* timescale */);

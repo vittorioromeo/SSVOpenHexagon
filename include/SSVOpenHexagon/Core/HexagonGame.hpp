@@ -252,18 +252,17 @@ private:
         const SpeedData& mCurve, float mHueMod);
 
 public:
-    // TODO (P2): For testing
+    // ------------------------------------------------------------------------
+    // Testing-related utilities
     std::function<void(const replay_file&)> onDeathReplayCreated;
 
-    // TODO (P2): For testing
-    void setMustStart(const bool x)
-    {
-        mustStart = x;
-    }
+    void setMustStart(const bool x);
 
-    // TODO (P2): For testing
     bool executeRandomInputs{false};
     bool alwaysSpinRight{false};
+
+    // ------------------------------------------------------------------------
+    // Lua stuff
 
     void initLuaAndPrintDocs();
 
