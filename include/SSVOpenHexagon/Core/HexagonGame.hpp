@@ -384,9 +384,11 @@ private:
 
     Utils::FastVertexVectorTris backgroundTris;
     Utils::FastVertexVectorQuads wallQuads;
+    Utils::FastVertexVectorQuads pivotQuads;
     Utils::FastVertexVectorTris playerTris;
     Utils::FastVertexVectorTris capTris;
     Utils::FastVertexVectorQuads wallQuads3D;
+    Utils::FastVertexVectorQuads pivotQuads3D;
     Utils::FastVertexVectorTris playerTris3D;
 
 public:
