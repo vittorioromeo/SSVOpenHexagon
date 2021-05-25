@@ -104,7 +104,7 @@ void HexagonGame::draw()
 
     for(CWall& w : walls)
     {
-        w.draw(styleData.getWallColor(), wallQuads);
+        w.draw(getColorWall(), wallQuads);
     }
 
     cwManager.draw(wallQuads);
@@ -112,7 +112,7 @@ void HexagonGame::draw()
     if(status.started)
     {
         player.draw(getSides(), getColorMain(), getColorPlayer(), pivotQuads,
-            capTris, playerTris, styleData.getCapColorResult());
+            capTris, playerTris, getColorCap());
     }
 
     if(Config::get3D())
@@ -165,8 +165,19 @@ void HexagonGame::draw()
 
             const sf::Vector2f newPos(offset * cosRot, offset * sinRot);
 
-            sf::Color overrideColor{Utils::getColorDarkened(
-                styleData.get3DOverrideColor(), styleData._3dDarkenMult)};
+            sf::Color overrideColor;
+
+            if(!Config::getBlackAndWhite())
+            {
+                overrideColor = Utils::getColorDarkened(
+                    styleData.get3DOverrideColor(), styleData._3dDarkenMult);
+            }
+            else
+            {
+                overrideColor = Utils::getColorDarkened(
+                    sf::Color(255, 255, 255, styleData.getMainColor().a),
+                    styleData._3dDarkenMult);
+            }
             adjustAlpha(overrideColor, i);
 
             // Draw pivot layers
@@ -180,7 +191,7 @@ void HexagonGame::draw()
             if(styleData.get3DOverrideColor() == styleData.getMainColor())
             {
                 overrideColor = Utils::getColorDarkened(
-                    styleData.getWallColor(), styleData._3dDarkenMult);
+                    getColorWall(), styleData._3dDarkenMult);
 
                 adjustAlpha(overrideColor, i);
             }
@@ -197,7 +208,7 @@ void HexagonGame::draw()
             if(styleData.get3DOverrideColor() == styleData.getMainColor())
             {
                 overrideColor = Utils::getColorDarkened(
-                    styleData.getPlayerColor(), styleData._3dDarkenMult);
+                    getColorPlayer(), styleData._3dDarkenMult);
 
                 adjustAlpha(overrideColor, i);
             }
