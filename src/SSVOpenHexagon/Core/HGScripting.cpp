@@ -101,7 +101,10 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_isKeyPressed",
         [this](int mKey)
         {
-            // TODO (P2): this is not saved in replays. Deprecate?
+            raiseWarning("u_isKeyPressed",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace uses of this function with the "
+                "`onInput` callback.");
 
             return window != nullptr &&
                    window->getInputState()[ssvs::KKey(mKey)];
@@ -110,7 +113,8 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Return `true` if the keyboard key with code `$0` is being "
             "pressed, `false` otherwise. The key code must match the "
-            "definition of the SFML `sf::Keyboard::Key` enumeration.");
+            "definition of the SFML `sf::Keyboard::Key` enumeration. **This "
+            "function is deprecated and will be removed in a future version.");
 
     addLuaFn(lua, "u_haltTime", //
         [this](double mDuration)
@@ -134,7 +138,10 @@ void HexagonGame::initLua_Utils()
     addLuaFn(lua, "u_isMouseButtonPressed",
         [this](int mKey)
         {
-            // TODO (P2): this is not saved in replays. Deprecate?
+            raiseWarning("u_isMouseButtonPressed",
+                "This function will be removed in a future version of Open "
+                "Hexagon. Please replace uses of this function with the "
+                "`onInput` callback.");
 
             return window != nullptr &&
                    window->getInputState()[ssvs::MBtn(mKey)];
@@ -143,7 +150,9 @@ void HexagonGame::initLua_Utils()
         .doc(
             "Return `true` if the mouse button with code `$0` is being "
             "pressed, `false` otherwise. The button code must match the "
-            "definition of the SFML `sf::Mouse::Button` enumeration.");
+            "definition of the SFML `sf::Mouse::Button` enumeration. **This "
+            "function is deprecated and will be removed in a future "
+            "version.");
 
     addLuaFn(lua, "u_isFastSpinning", //
         [this] { return status.fastSpin > 0; })
@@ -663,7 +672,8 @@ void HexagonGame::initLua_LevelControl()
     addLuaFn(lua, "l_setRotation", //
         [this](float mValue)
         {
-            // TODO (P2): might break replays?
+            // TODO (P2): might break replays if someone uses this to control
+            // game logic
             if(backgroundCamera.has_value())
             {
                 backgroundCamera->setRotation(mValue);
@@ -675,7 +685,8 @@ void HexagonGame::initLua_LevelControl()
     addLuaFn(lua, "l_getRotation", //
         [this]
         {
-            // TODO (P2): might break replays?
+            // TODO (P2): might break replays if someone uses this to control
+            // game logic
             return backgroundCamera.has_value()
                        ? backgroundCamera->getRotation()
                        : 0.f;
