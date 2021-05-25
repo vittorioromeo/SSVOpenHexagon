@@ -33,7 +33,6 @@ enum class input_bit : unsigned int
     k_count
 };
 
-// TODO (P2): optimize size - `sizeof` this is `4`
 using input_bitset = std::bitset<static_cast<unsigned int>(input_bit::k_count)>;
 
 struct serialization_result

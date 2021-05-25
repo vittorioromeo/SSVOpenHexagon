@@ -470,18 +470,6 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
             "Given the custom wall represented by `$0`, return the position of "
             "its vertics with indices `0`, `1`, `2`, and `3`, as a tuple.");
 
-    // TODO (P2): implement
-    /*
-    addLuaFn(lua, "cw_isOverlappingPlayer", //
-        [&cwManager](CCustomWallHandle cwHandle) -> bool {
-            return cwManager.isOverlappingPlayer(cwHandle);
-        })
-        .arg("cwHandle")
-        .doc(
-            "Return `true` if the custom wall represented by `$0` is "
-            "overlapping the player, `false` otherwise.");
-    */
-
     addLuaFn(lua, "cw_clear", //
         [&cwManager] { cwManager.clear(); })
         .doc("Remove all existing custom walls.");
