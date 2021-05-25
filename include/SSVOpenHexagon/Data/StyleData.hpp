@@ -45,6 +45,7 @@ private:
     sf::Color currentMainColor{sf::Color::Black};
     sf::Color currentPlayerColor{sf::Color::Black};
     sf::Color currentTextColor{sf::Color::Black};
+    sf::Color currentWallColor{sf::Color::White};
     sf::Color current3DOverrideColor{sf::Color::Black};
     std::vector<sf::Color> currentColors;
 
@@ -95,6 +96,7 @@ private:
     ColorData mainColorData;
     ColorData playerColor;
     ColorData textColor;
+    ColorData wallColor;
 
     CapColor capColor;
 
@@ -122,6 +124,7 @@ public:
     [[nodiscard]] const sf::Color& getMainColor() const noexcept;
     [[nodiscard]] const sf::Color& getPlayerColor() const noexcept;
     [[nodiscard]] const sf::Color& getTextColor() const noexcept;
+    [[nodiscard]] const sf::Color& getWallColor() const noexcept;
     [[nodiscard]] const std::vector<sf::Color>& getColors() const noexcept;
     [[nodiscard]] const sf::Color& getColor(
         const std::size_t mIdx) const noexcept;

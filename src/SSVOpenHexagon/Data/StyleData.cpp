@@ -61,6 +61,7 @@ StyleData::StyleData(const ssvuj::Obj& mRoot)
           colorDataFromObjOrDefault(mRoot, "player_color", mainColorData)}, //
       textColor{
           colorDataFromObjOrDefault(mRoot, "text_color", mainColorData)}, //
+      wallColor{colorDataFromObjOrDefault(mRoot, "wall_color", mainColorData)},
       capColor{parseCapColor(ssvuj::getObj(mRoot, "cap_color"))}
 {
     currentHue = hueMin;
@@ -173,6 +174,7 @@ void StyleData::computeColors()
     currentMainColor = calculateColor(currentHue, pulseFactor, mainColorData);
     currentPlayerColor = calculateColor(currentHue, pulseFactor, playerColor);
     currentTextColor = calculateColor(currentHue, pulseFactor, textColor);
+    currentWallColor = calculateColor(currentHue, pulseFactor, wallColor);
 
     current3DOverrideColor =
         _3dOverrideColor.a != 0 ? _3dOverrideColor : getMainColor();
@@ -298,6 +300,11 @@ void StyleData::setCapColor(const CapColor& mCapColor)
 [[nodiscard]] const sf::Color& StyleData::getTextColor() const noexcept
 {
     return currentTextColor;
+}
+
+[[nodiscard]] const sf::Color& StyleData::getWallColor() const noexcept
+{  
+    return currentWallColor;
 }
 
 [[nodiscard]] const std::vector<sf::Color>&
