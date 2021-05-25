@@ -151,11 +151,12 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     : steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
-      imagine(mAssets.getFont("forcedsquare.ttf")),
+      openSquare(mAssets.getFont("OpenSquare-Regular.ttf")),
+      openSquareBold(mAssets.getFont("OpenSquare-Bold.ttf")),
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
-      dialogBox(imagine, mGameWindow),
+      dialogBox(openSquare, mGameWindow),
       leaderboardCache{Utils::makeUnique<LeaderboardCache>()},
       lua{},
       execScriptPackPathContext{},
@@ -166,7 +167,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       epilepsyWarning{assets.getTexture("epilepsyWarning.png")},
       sOnline{assets.getTexture("onlineIconFail.png")},
       rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
-      txtOnlineStatus{"", imagine, 24},
+      txtOnlineStatus{"", openSquare, 24},
       enteredChars{},
       backgroundCamera{window,
           {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
@@ -196,23 +197,27 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       profileSelectionMenu{},
       levelData{},
       styleData{},
-      txtVersion{.font{"", imagine, 40}},
-      txtProf{.font{"", imagine, 21}},
-      txtLoadBig{.font{"", imagine, 80}},
-      txtLoadSmall{.font{"", imagine}},
-      txtMenuBig{.font{"", imagine, 80}},
-      txtMenuSmall{.font{"", imagine}},
-      txtProfile{.font{"", imagine, 35}},
-      txtRandomTip{.font{"", imagine, 38}},
-      txtInstructionsBig{.font{"", imagine, 50}},
-      txtInstructionsMedium{.font{"", imagine}},
-      txtInstructionsSmall{.font{"", imagine, 24}},
-      txtEnteringText{.font{"", imagine, 60}},
-      txtSelectionBig{.font{"", imagine, 32}},
-      txtSelectionMedium{.font{"", imagine, 24}},
-      txtSelectionSmall{.font{"", imagine, 16}},
-      txtSelectionScore{.font{"", imagine, 32}},
-      txtSelectionRanked{.font{"", imagine, 12}},
+      txtVersion{.font{"", openSquare, 40}},
+      txtProf{.font{"", openSquare, 18}},
+      // For the loading screen
+      txtLoadBig{.font{"", openSquare, 72}},
+      txtLoadSmall{.font{"", openSquareBold}},
+      // For the Main Menu
+      txtMenuBig{.font{"", openSquare, 96}},
+      txtMenuSmall{.font{"", openSquare}},
+      txtProfile{.font{"", openSquare, 32}},
+      txtRandomTip{.font{"", openSquare, 32}},
+      txtInstructionsBig{.font{"", openSquare, 46}},
+      txtInstructionsMedium{.font{"", openSquare}},
+      txtInstructionsSmall{.font{"", openSquare, 20}},
+      // Manual Input
+      txtEnteringText{.font{"", openSquare, 54}},
+      // For the Level Selection Screen
+      txtSelectionBig{.font{"", openSquareBold, 28}},
+      txtSelectionMedium{.font{"", openSquareBold, 20}},
+      txtSelectionSmall{.font{"", openSquare, 12}},
+      txtSelectionScore{.font{"", openSquare, 28}},
+      txtSelectionRanked{.font{"", openSquare, 10}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -3118,15 +3123,15 @@ void MenuGame::refreshCamera()
     // Update the height infos of the fonts.
     if(fourByThree)
     {
-        txtMenuBig.font.setCharacterSize(33);
-        txtMenuSmall.font.setCharacterSize(20);
+        txtMenuBig.font.setCharacterSize(26);
+        txtMenuSmall.font.setCharacterSize(16);
         txtSelectionSmall.font.setCharacterSize(16);
         txtSelectionRanked.font.setCharacterSize(12);
     }
     else
     {
-        txtMenuBig.font.setCharacterSize(45);
-        txtMenuSmall.font.setCharacterSize(30);
+        txtMenuBig.font.setCharacterSize(36);
+        txtMenuSmall.font.setCharacterSize(24);
         txtSelectionSmall.font.setCharacterSize(16);
         txtSelectionRanked.font.setCharacterSize(12);
     }
@@ -3534,7 +3539,7 @@ void MenuGame::drawSubmenusSmall(
 // Therefore, if we assume the text has to be drawn at 'Y' height the
 // actual value to be sent to the renderer is 'Y - fontHeight *
 // fontHeightOffset.
-inline constexpr float fontHeightOffset{0.9f};
+inline constexpr float fontHeightOffset{0.55f};
 inline constexpr float frameSizeMulti{0.6f};
 
 void MenuGame::setMouseCursorVisible(const bool x)
