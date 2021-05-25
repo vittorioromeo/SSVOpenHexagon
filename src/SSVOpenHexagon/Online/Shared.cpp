@@ -395,6 +395,8 @@ template <typename T>
 [[nodiscard]] bool verifyReceivedPacketPreambleAndVersion(
     std::ostringstream& errorOss, sf::Packet& p)
 {
+    // TODO (P0): should use a protocol version instead of the game version here
+
     const auto matchByte = makeMatcher<sf::Uint8>(errorOss, p);
 
     return matchByte("preamble 1st byte", preamble1stByte) &&
