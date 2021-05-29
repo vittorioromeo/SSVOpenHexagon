@@ -748,12 +748,17 @@ bool HexagonClient::receiveDataFromServer(sf::Packet& p)
         {
             SSVOH_CLOG << "Received server status from server\n";
 
-            const auto& [serverGameVersion, supportedLevelValidatorsVector] =
-                stcp;
+            const auto& [serverProtocolVersion, serverGameVersion,
+                supportedLevelValidatorsVector] = stcp;
 
             if(serverGameVersion != GAME_VERSION)
             {
-                addEvent(EVersionMismatch{});
+                addEvent(EGameVersionMismatch{});
+            }
+
+            if(serverProtocolVersion != PROTOCOL_VERSION)
+            {
+                addEvent(EProtocolVersionMismatch{});
                 disconnect();
                 return true;
             }
