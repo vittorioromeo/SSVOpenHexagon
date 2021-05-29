@@ -243,11 +243,12 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient& c,
-    const GameVersion& gameVersion,
+    const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
     const std::vector<std::string> supportedLevelValidators)
 {
     return sendEncrypted(c, //
         STCPServerStatus{
+            .protocolVersion = protocolVersion,                  //
             .gameVersion = gameVersion,                          //
             .supportedLevelValidators = supportedLevelValidators //
         }                                                        //
@@ -1252,8 +1253,8 @@ void HexagonServer::printCTSPDataVerbose(
                 return true;
             }
 
-            return sendServerStatus(
-                c, GAME_VERSION, _supportedLevelValidatorsVector);
+            return sendServerStatus(c, PROTOCOL_VERSION, GAME_VERSION,
+                _supportedLevelValidatorsVector);
         },
 
         [&](const CTSPReady& ctsp)

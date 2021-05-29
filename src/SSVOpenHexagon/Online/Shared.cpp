@@ -5,8 +5,10 @@
 #include "SSVOpenHexagon/Online/Shared.hpp"
 
 #include "SSVOpenHexagon/Online/Sodium.hpp"
-#include "SSVOpenHexagon/Global/Version.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
+#include "SSVOpenHexagon/Global/Version.hpp"
 
 #include <SFML/Network/Packet.hpp>
 
@@ -92,6 +94,11 @@ void encodePreamble(sf::Packet& p)
       << static_cast<sf::Uint8>(preamble2ndByte);
 }
 
+void encodeProtocolVersion(sf::Packet& p)
+{
+    p << static_cast<sf::Uint8>(PROTOCOL_VERSION);
+}
+
 void encodeVersion(sf::Packet& p)
 {
     p << static_cast<sf::Uint8>(GAME_VERSION.major)
@@ -104,6 +111,7 @@ void clearPacketAndEncodePreambleAndVersion(sf::Packet& p)
     p.clear();
 
     encodePreamble(p);
+    encodeProtocolVersion(p);
     encodeVersion(p);
 }
 
@@ -350,6 +358,24 @@ template <typename T>
 }
 
 template <typename T>
+[[nodiscard]] auto makeAlwaysTrueMatcher(
+    std::ostringstream& errorOss, sf::Packet& p)
+{
+    return [&](const char* name) -> bool
+    {
+        T temp;
+
+        if(!extractInto<T>(temp, errorOss, p))
+        {
+            errorOss << "Error extracting " << name << '\n';
+            return false;
+        }
+
+        return true;
+    };
+}
+
+template <typename T>
 [[nodiscard]] auto makeMatcher(std::ostringstream& errorOss, sf::Packet& p)
 {
     return [&](const char* name, const T& expected) -> bool
@@ -398,12 +424,15 @@ template <typename T>
     // TODO (P0): should use a protocol version instead of the game version here
 
     const auto matchByte = makeMatcher<sf::Uint8>(errorOss, p);
+    const auto matchByteAlwaysTrue =
+        makeAlwaysTrueMatcher<sf::Uint8>(errorOss, p);
 
     return matchByte("preamble 1st byte", preamble1stByte) &&
            matchByte("preamble 2nd byte", preamble2ndByte) &&
-           matchByte("major version", GAME_VERSION.major) &&
-           matchByte("minor version", GAME_VERSION.minor) &&
-           matchByte("micro version", GAME_VERSION.micro);
+           matchByte("protocol version", PROTOCOL_VERSION) &&
+           matchByteAlwaysTrue("major version") &&
+           matchByteAlwaysTrue("minor version") &&
+           matchByteAlwaysTrue("micro version");
 }
 
 [[nodiscard]] std::optional<PacketType> extractPacketType(
