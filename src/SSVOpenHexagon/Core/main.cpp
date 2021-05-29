@@ -85,7 +85,7 @@ struct ParsedArgs
     bool server{false};
 };
 
-ParsedArgs parseArgs(const int argc, char* argv[])
+[[nodiscard]] ParsedArgs parseArgs(const int argc, char* argv[])
 {
     ParsedArgs result;
 
@@ -134,14 +134,14 @@ ParsedArgs parseArgs(const int argc, char* argv[])
     return result;
 }
 
-std::string makeWindowTitle()
+[[nodiscard]] std::string makeWindowTitle()
 {
     return hg::Utils::concat("Open Hexagon ", hg::GAME_VERSION_STR,
         " - by Vittorio Romeo - https://vittorioromeo.info");
 }
 
-std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
-    const std::vector<std::string>& args)
+[[nodiscard]] std::optional<std::string>
+getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 {
     for(const std::string& arg : args)
     {
