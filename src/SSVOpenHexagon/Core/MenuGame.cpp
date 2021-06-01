@@ -1079,9 +1079,10 @@ void MenuGame::initLua()
             "u_haltTime", "u_timelineWait", "u_clearWalls", "u_setFlashEffect",
 
             "a_getMusicSeconds", "a_getMusicMilliseconds", "a_evalTo",
-            "a_evalToMs", "a_setMusic", "a_setMusicSegment",
-            "a_setMusicSeconds", "a_playSound", "a_playPackSound",
-            "a_syncMusicToDM", "a_setMusicPitch", "a_overrideBeepSound",
+            "a_evalToMs", "a_clearTimepoint", "a_clearTimepointMs", "a_clear",
+            "a_setMusic", "a_setMusicSegment", "a_setMusicSeconds",
+            "a_playSound", "a_playPackSound", "a_syncMusicToDM",
+            "a_setMusicPitch", "a_overrideBeepSound",
             "a_overrideIncrementSound", "a_overrideSwapSound",
             "a_overrideDeathSound",
 
