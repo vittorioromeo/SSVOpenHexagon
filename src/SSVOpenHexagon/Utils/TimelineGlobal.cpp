@@ -4,10 +4,7 @@
 
 #include "SSVOpenHexagon/Utils/TimelineGlobal.hpp"
 
-#include "SSVOpenHexagon/Global/Assert.hpp"
-
 #include <type_traits>
-#include <variant>
 #include <utility>
 #include <chrono>
 #include <optional>
