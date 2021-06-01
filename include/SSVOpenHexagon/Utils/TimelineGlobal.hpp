@@ -21,7 +21,6 @@ class timelineGlobal
 {
 public:
     using clock = std::chrono::high_resolution_clock;
-    using time_point = clock::time_point;
 
 
     // Variants don't need to be used here, because waiting functions aren't
@@ -31,37 +30,36 @@ public:
         std::function<void()> _func;
     };
 
-    using timeline_G = std::map<time_point, std::vector<action>>;
+    using timeline_G = std::map<int32_t, std::vector<action>>;
 
 private:
     timeline_G _actions;
 
 public:
-    [[nodiscard]] int hasTimepoint(time_point tp) const noexcept;
+    [[nodiscard]] int hasTimepoint(int32_t tp) const noexcept;
     [[nodiscard]] timeline_G::iterator begin() noexcept;
     [[nodiscard]] timeline_G::iterator end() noexcept;
     void clear();
-    void clearTimepoint(time_point tp);
+    void clearTimepoint(int32_t tp);
 
-    void append_to(time_point tp, const std::function<void()>& func);
+    void append_to(int32_t tp, const std::function<void()>& func);
 
     [[nodiscard]] std::size_t size() const noexcept;
-    [[nodiscard]] std::vector<action>& actions_at(const time_point tp);
+    [[nodiscard]] std::vector<action>& actions_at(const int32_t tp);
 };
 
 class timelineGlobal_runner
 {
 public:
-    using time_point = timelineGlobal::time_point;
     using action = timelineGlobal::action;
 
 private:
-    std::optional<time_point> prev_tp;
+    std::optional<int32_t> prev_tp;
 
 public:
-    [[nodiscard]] std::vector<time_point> getRunnableTimepoints(
-        timelineGlobal& timeline, const time_point tp);
-    void update(timelineGlobal& timeline, const time_point tp);
+    [[nodiscard]] std::vector<int32_t> getRunnableTimepoints(
+        timelineGlobal& timeline, const int32_t tp);
+    void update(timelineGlobal& timeline, const int32_t tp);
     void clearLastTp();
 };
 
