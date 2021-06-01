@@ -1326,6 +1326,7 @@ void HexagonGame::playLevelMusic()
     {
         const MusicData::Segment segment =
             musicData.playRandomSegment(getPackId(), *audio);
+        musicTimelineRunner.clearLastTp();
         // TODO (P1): problems with addHash in headless mode:
         status.beatPulseDelay += segment.beatPulseDelayOffset;
     }
@@ -1336,6 +1337,7 @@ void HexagonGame::playLevelMusicAtTime(float mSeconds)
     if(shouldPlayMusic())
     {
         musicData.playSeconds(getPackId(), *audio, mSeconds);
+        musicTimelineRunner.clearLastTp();
     }
 }
 
