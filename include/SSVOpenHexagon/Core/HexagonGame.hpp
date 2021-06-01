@@ -15,6 +15,7 @@
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
+#include "SSVOpenHexagon/Utils/TimelineGlobal.hpp"
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
@@ -141,6 +142,9 @@ private:
 
     Utils::timeline2 eventTimeline;
     Utils::timeline2_runner eventTimelineRunner;
+
+    Utils::timelineGlobal musicTimeline;
+    Utils::timelineGlobal_runner musicTimelineRunner;
 
     Utils::timeline2 messageTimeline;
     Utils::timeline2_runner messageTimelineRunner;
