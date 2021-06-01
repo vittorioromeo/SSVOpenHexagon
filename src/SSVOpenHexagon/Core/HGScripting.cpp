@@ -175,6 +175,17 @@ void HexagonGame::initLua_Utils()
 
 void HexagonGame::initLua_AudioControl()
 {
+    addLuaFn(lua, "a_getMusicSeconds", //
+        [this] { return status.getMusicTimeSeconds(); })
+        .doc("Return the music pointer's current position in seconds.");
+
+    addLuaFn(lua, "a_getMusicMilliseconds", //
+        [this] { return status.getMusicTime(); })
+        .doc(
+            "Return the music pointer's current position in milliseconds. "
+            "Unlike `a_getMusicSeconds`, this will return an integer. Useful "
+            "for avoiding floating point error.");
+
     addLuaFn(lua, "a_setMusic", //
         [this](const std::string& mId)
         {

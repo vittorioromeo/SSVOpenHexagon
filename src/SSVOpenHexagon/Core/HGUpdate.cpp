@@ -631,6 +631,7 @@ void HexagonGame::updateLevel(ssvu::FT mFT)
         return;
     }
 
+    status.updateMusicTime(audio->getCurrentMusicTime());
     runLuaFunctionIfExists<float>("onUpdate", mFT);
 
     const auto o = timelineRunner.update(timeline, status.getTimeTP());
