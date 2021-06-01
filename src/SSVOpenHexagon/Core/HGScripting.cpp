@@ -186,6 +186,32 @@ void HexagonGame::initLua_AudioControl()
             "Unlike `a_getMusicSeconds`, this will return an integer. Useful "
             "for avoiding floating point error.");
 
+    addLuaFn(lua, "a_evalTo", //
+        [this](double mTime, const std::string& mCode)
+        {
+            musicTimeline.append_to((int32_t)(mTime * 1000),
+                [=, this] { Utils::runLuaCode(lua, mCode); });
+            ssvu::lo("lua") << "Music timeline is now:\n" << musicTimeline.to_string() << '\n';
+        })
+        .arg("time")
+        .arg("code")
+        .doc(
+            "*Add to the music timeline*: evaluate the Lua code specified in "
+            "`$1` at `$0` seconds in the music timeline.");
+    
+    addLuaFn(lua, "a_evalToMs", //
+        [this](int32_t mTime, const std::string& mCode)
+        {
+            musicTimeline.append_to(mTime,
+                [=, this] { Utils::runLuaCode(lua, mCode); });
+            ssvu::lo("lua") << "Music timeline is now:\n" << musicTimeline.to_string() << '\n';
+        })
+        .arg("time")
+        .arg("code")
+        .doc(
+            "*Add to the music timeline*: evaluate the Lua code specified in "
+            "`$1` at `$0` milliseconds in the music timeline.");
+
     addLuaFn(lua, "a_setMusic", //
         [this](const std::string& mId)
         {

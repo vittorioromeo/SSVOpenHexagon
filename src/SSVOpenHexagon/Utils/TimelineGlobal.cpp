@@ -11,6 +11,7 @@
 #include <utility>
 #include <chrono>
 #include <optional>
+#include <string>
 #include <functional>
 
 namespace hg::Utils {
@@ -66,8 +67,18 @@ void timelineGlobal::append_to(int32_t tp, const std::function<void()>& func)
     return _actions[tp];
 }
 
-[[nodiscard]] std::vector<int32_t>
-timelineGlobal_runner::getRunnableTimepoints(
+[[nodiscard]] std::string timelineGlobal::to_string() noexcept
+{
+    std::string result = "CURRENT MUSIC TIMELINE MAP:\n";
+    for(timelineGlobal::timeline_G::iterator it = begin(); it != end(); it++)
+    {
+        std::string keyString = std::to_string(it->first);
+        result.append("\t[" + keyString + "]\n");
+    }
+    return result;
+}
+
+[[nodiscard]] std::vector<int32_t> timelineGlobal_runner::getRunnableTimepoints(
     timelineGlobal& timeline, const int32_t tp)
 {
     std::vector<int32_t> result{};
@@ -86,22 +97,20 @@ void timelineGlobal_runner::update(timelineGlobal& timeline, int32_t tp)
     if(!prev_tp.has_value())
     {
         // Just simply grab the time point
-        if(!timeline.hasTimepoint(tp))
+        if(timeline.hasTimepoint(tp))
         {
-            return;
-        }
-        std::vector<action> actions = timeline.actions_at(tp);
-        for(std::size_t i = 0; i < actions.size(); i++)
-        {
-            actions[i]._func();
+            std::vector<action> actions = timeline.actions_at(tp);
+            for(std::size_t i = 0; i < actions.size(); i++)
+            {
+                actions[i]._func();
+            }
         }
     }
     else
     {
         // Grab all timepoints in between the previous and current timepoint and
         // run all of the functions contained.
-        std::vector<int32_t> timepoints =
-            getRunnableTimepoints(timeline, tp);
+        std::vector<int32_t> timepoints = getRunnableTimepoints(timeline, tp);
         for(std::size_t t = 0; t < timepoints.size(); t++)
         {
             std::vector<timelineGlobal::action> actions =

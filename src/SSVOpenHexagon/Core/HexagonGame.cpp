@@ -633,6 +633,10 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     eventTimeline.clear();
     eventTimelineRunner = {};
 
+    // Music timeline cleanup
+    musicTimeline.clear();
+    musicTimelineRunner = {};
+
     // Message timeline cleanup
     messageTimeline.clear();
     messageTimelineRunner = {};
@@ -1322,7 +1326,6 @@ void HexagonGame::playLevelMusic()
     {
         const MusicData::Segment segment =
             musicData.playRandomSegment(getPackId(), *audio);
-
         // TODO (P1): problems with addHash in headless mode:
         status.beatPulseDelay += segment.beatPulseDelayOffset;
     }

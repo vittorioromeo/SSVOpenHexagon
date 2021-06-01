@@ -303,6 +303,7 @@ private:
     void updateWalls(ssvu::FT mFT);
     void updateIncrement();
     void updateEvents(ssvu::FT mFT);
+    void updateMusic(ssvu::FT mFT);
     void updateLevel(ssvu::FT mFT);
     void updateCustomWalls(ssvu::FT mFT);
     void updatePulse(ssvu::FT mFT);

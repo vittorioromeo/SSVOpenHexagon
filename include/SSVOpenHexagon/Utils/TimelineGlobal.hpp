@@ -11,6 +11,7 @@
 #include <functional>
 #include <cstddef>
 #include <optional>
+#include <string>
 
 #include <map>
 #include <vector> // We won't use the vector for the timeline itself, but a container
@@ -46,6 +47,7 @@ public:
 
     [[nodiscard]] std::size_t size() const noexcept;
     [[nodiscard]] std::vector<action>& actions_at(const int32_t tp);
+    [[nodiscard]] std::string to_string() noexcept;
 };
 
 class timelineGlobal_runner
