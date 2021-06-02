@@ -89,6 +89,7 @@ private:
     sf::Font& font;
 
     Audio* audio;
+    MusicData::Segment segment;
 
     const LevelData* levelData;
 
