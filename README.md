@@ -6,6 +6,8 @@
 
 > **Open Hexagon is a fast-paced and adrenaline-inducing paced arcade experience by [Vittorio Romeo](https://vittorioromeo.info). Designed for moddability and custom level creation.** Now available on [Steam](https://store.steampowered.com/app/1358090/)!
 
+[![Official Trailer (Early Access)](https://img.youtube.com/vi/TlSJZlQrVJ4/0.jpg)](https://www.youtube.com/watch?v=TlSJZlQrVJ4) [![Custom Level Showcase](https://img.youtube.com/vi/h4Jfj3lzWD4/0.jpg)](https://www.youtube.com/watch?v=h4Jfj3lzWD4) 
+
 ## Credits
 
 ### Original Inspiration
