@@ -202,11 +202,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       // For the loading screen
       txtLoadBig{.font{"", openSquare, 72}},
       txtLoadSmall{.font{"", openSquareBold}},
+      txtRandomTip{.font{"", openSquare, 32}},
       // For the Main Menu
       txtMenuBig{.font{"", openSquare, 96}},
       txtMenuSmall{.font{"", openSquare}},
       txtProfile{.font{"", openSquare, 32}},
-      txtRandomTip{.font{"", openSquare, 32}},
       txtInstructionsBig{.font{"", openSquare, 46}},
       txtInstructionsMedium{.font{"", openSquare}},
       txtInstructionsSmall{.font{"", openSquare, 20}},
@@ -3127,6 +3127,10 @@ void MenuGame::refreshCamera()
         txtMenuSmall.font.setCharacterSize(16);
         txtSelectionSmall.font.setCharacterSize(16);
         txtSelectionRanked.font.setCharacterSize(12);
+
+        txtLoadBig.font.setCharacterSize(56);
+        txtLoadSmall.font.setCharacterSize(16);
+        txtRandomTip.font.setCharacterSize(24);
     }
     else
     {
@@ -3134,6 +3138,10 @@ void MenuGame::refreshCamera()
         txtMenuSmall.font.setCharacterSize(24);
         txtSelectionSmall.font.setCharacterSize(16);
         txtSelectionRanked.font.setCharacterSize(12);
+
+        txtLoadBig.font.setCharacterSize(70);
+        txtLoadSmall.font.setCharacterSize(24);
+        txtRandomTip.font.setCharacterSize(32);
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
@@ -3770,8 +3778,8 @@ std::string MenuGame::formatSurvivalTime(ProfileData* data)
 }
 
 inline constexpr float profFrameSize{10.f};
-inline constexpr unsigned int profCharSize{35};
-inline constexpr unsigned int profSelectedCharSize{35 + 12};
+inline constexpr unsigned int profCharSize{30};
+inline constexpr unsigned int profSelectedCharSize{30 + 12};
 
 void MenuGame::drawProfileSelection(
     const float xOffset, const bool revertOffset)
@@ -4110,7 +4118,7 @@ void MenuGame::drawLoadResults()
     // Counters: text and numbers
 
     topHeight += 5.f - txtLoadSmall.height;
-    const float numbersHeight = bottomHeight - txtLoadBig.height * 2.1f;
+    const float numbersHeight = bottomHeight - txtLoadBig.height * 2.f;
 
     txtLoadSmall.font.setFillColor(sf::Color::White);
     txtLoadBig.font.setFillColor(sf::Color::White);
@@ -5873,7 +5881,7 @@ void MenuGame::drawOnlineStatus()
     const float scaling = onlineStatusScaling / Config::getZoomFactor();
     const float padding = 3.f * onlineStatusScaling;
 
-    txtOnlineStatus.setCharacterSize(12 * scaling);
+    txtOnlineStatus.setCharacterSize(10 * scaling);
     txtOnlineStatus.setFillColor(sf::Color::White);
 
     const HexagonClient::State state = hexagonClient.getState();
@@ -5946,7 +5954,7 @@ void MenuGame::drawOnlineStatus()
     sOnline.setPosition(0 + padding, getWindowHeight() - padding);
 
     rsOnlineStatus.setSize(
-        sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 2.f,
+        sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
             txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
     rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
@@ -5954,7 +5962,7 @@ void MenuGame::drawOnlineStatus()
         ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y);
 
     txtOnlineStatus.setOrigin(ssvs::getLocalCenterW(txtOnlineStatus));
-    txtOnlineStatus.setPosition(ssvs::getGlobalLeft(rsOnlineStatus) + padding,
+    txtOnlineStatus.setPosition(ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
         ssvs::getGlobalCenter(rsOnlineStatus).y);
 
     render(sOnline);
@@ -5965,13 +5973,13 @@ void MenuGame::drawOnlineStatus()
 void MenuGame::showDialogBox(const std::string& msg)
 {
     dialogBox.create(
-        msg, 26 /* charSize */, 10.f /* frameSize */, DBoxDraw::center);
+        msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
 }
 
 void MenuGame::showInputDialogBox(const std::string& msg)
 {
     dialogBox.createInput(
-        msg, 26 /* charSize */, 10.f /* frameSize */, DBoxDraw::center);
+        msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
 }
 
 void MenuGame::showInputDialogBoxNice(const std::string& title,

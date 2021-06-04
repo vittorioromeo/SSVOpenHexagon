@@ -467,7 +467,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
         fpsText.setCharacterSize(getScaledCharacterSize(20.f));
     }
 
-    messageText.setCharacterSize(getScaledCharacterSize(36.f));
+    messageText.setCharacterSize(getScaledCharacterSize(32.f));
     messageText.setOrigin(ssvs::getGlobalWidth(messageText) / 2.f, 0);
 
     const float growth = std::sin(pbTextGrowth);
@@ -542,7 +542,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         text.setFillColor(colorText);
         text.setPosition(
-            sf::Vector2f{padding, ssvs::getGlobalBottom(timeText)});
+            sf::Vector2f{padding * 1.5f, ssvs::getGlobalBottom(timeText)});
         render(text);
     }
 
@@ -610,7 +610,7 @@ static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
 void HexagonGame::drawText_Message(const sf::Color& offsetColor)
 {
     drawTextMessagePBImpl(messageText, offsetColor,
-        {Config::getWidth() / 2.f, Config::getHeight() / 6.f}, getColorText(),
+        {Config::getWidth() / 2.f, Config::getHeight() / 5.5f}, getColorText(),
         1.f /* outlineThickness */, [this](sf::Text& t) { render(t); });
 }
 
