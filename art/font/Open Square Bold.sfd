@@ -22,7 +22,7 @@ OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
 CreationTime: 1602678841
-ModificationTime: 1623035562
+ModificationTime: 1623046305
 PfmFamily: 17
 TTFWeight: 700
 TTFWidth: 5
@@ -636,7 +636,7 @@ SplineSet
  205 129 l 1
 EndSplineSet
 Validated: 1
-Kerns2: 20 -82 "Horizontal Kerning-1" 58 -82 "Horizontal Kerning-1" 76 -61 "Horizontal Kerning-1"
+Kerns2: 12 -100 "Horizontal Kerning-1" 20 -82 "Horizontal Kerning-1" 22 -100 "Horizontal Kerning-1" 53 -50 "Horizontal Kerning-1" 55 -90 "Horizontal Kerning-1" 58 -82 "Horizontal Kerning-1" 76 -61 "Horizontal Kerning-1"
 EndChar
 
 StartChar: K
@@ -849,7 +849,7 @@ SplineSet
  209 266 l 1
 EndSplineSet
 Validated: 1
-Kerns2: 20 -72 "Horizontal Kerning-1" 58 -72 "Horizontal Kerning-1" 155 -72 "Horizontal Kerning-1" 186 -72 "Horizontal Kerning-1" 188 -72 "Horizontal Kerning-1"
+Kerns2: 20 -72 "Horizontal Kerning-1" 58 -30 "Horizontal Kerning-1" 155 -72 "Horizontal Kerning-1" 186 -30 "Horizontal Kerning-1" 188 -30 "Horizontal Kerning-1"
 EndChar
 
 StartChar: period
@@ -1065,7 +1065,6 @@ SplineSet
  188 500 l 1
 EndSplineSet
 Validated: 1
-Kerns2: 20 -58 "Horizontal Kerning-1" 58 -58 "Horizontal Kerning-1" 155 -58 "Horizontal Kerning-1" 186 -58 "Horizontal Kerning-1" 188 -58 "Horizontal Kerning-1"
 EndChar
 
 StartChar: c
@@ -1143,7 +1142,7 @@ StartChar: f
 Encoding: 102 102 39
 Width: 476
 VWidth: 819
-Flags: HWO
+Flags: HW
 LayerCount: 2
 Fore
 SplineSet
@@ -1299,7 +1298,6 @@ SplineSet
  50 0 l 1
 EndSplineSet
 Validated: 1
-Kerns2: 20 -66 "Horizontal Kerning-1" 58 -66 "Horizontal Kerning-1" 76 -49 "Horizontal Kerning-1"
 EndChar
 
 StartChar: m
