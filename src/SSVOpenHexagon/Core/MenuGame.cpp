@@ -5454,7 +5454,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     height += textToQuadBorder;
     renderTextCenteredOffset("ONLINE LEADERBOARD", txtSelectionBig.font,
         {maxPanelOffset / 2.f,
-            height - txtSelectionBig.height * fontHeightOffset},
+            height - txtSelectionBig.height * fontHeightOffset * .8f},
         -panelOffset);
 
     // Line
