@@ -272,7 +272,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
     : steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
-      font{assets.getFontOrNullFont("forcedsquare.ttf")},
+      font{assets.getFontOrNullFont("OpenSquare-Regular.ttf")},
+      fontBold{assets.getFontOrNullFont("OpenSquare-Bold.ttf")},
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
@@ -280,7 +281,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
           Config::getPlayerSpeed(), Config::getPlayerFocusSpeed()},
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       messageText{initText("", font, 38.f)},
-      pbText{initText("", font, 65.f)},
+      pbText{initText("", fontBold, 65.f)},
       levelInfoTextLevel{"", font},
       levelInfoTextPack{"", font},
       levelInfoTextAuthor{"", font},
@@ -288,7 +289,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       levelInfoTextDM{"", font},
       rng{initializeRng()},
       fpsText{initText("0", font, 25.f)},
-      timeText{initText("0", font, 70.f)},
+      timeText{initText("0", fontBold, 70.f)},
       text{initText("", font, 25.f)},
       replayText{initText("", font, 20.f)}
 {
@@ -1396,6 +1397,26 @@ auto HexagonGame::getColorText() const -> sf::Color
     }
 
     return styleData.getTextColor();
+}
+
+auto HexagonGame::getColorCap() const -> sf::Color
+{
+    if (Config::getBlackAndWhite()) 
+    {
+        return sf::Color::Black;
+    }
+
+    return styleData.getCapColorResult();
+}
+
+auto HexagonGame::getColorWall() const -> sf::Color
+{
+    if (Config::getBlackAndWhite()) 
+    {
+        return sf::Color(255, 255, 255, styleData.getWallColor().a);
+    }
+
+    return styleData.getWallColor();
 }
 
 [[nodiscard]] float HexagonGame::getMusicDMSyncFactor() const

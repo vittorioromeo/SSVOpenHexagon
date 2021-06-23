@@ -151,11 +151,12 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
     : steamManager(mSteamManager),
       discordManager(mDiscordManager),
       assets(mAssets),
-      imagine(mAssets.getFont("forcedsquare.ttf")),
+      openSquare(mAssets.getFont("OpenSquare-Regular.ttf")),
+      openSquareBold(mAssets.getFont("OpenSquare-Bold.ttf")),
       audio(mAudio),
       window(mGameWindow),
       hexagonClient{mHexagonClient},
-      dialogBox(imagine, mGameWindow),
+      dialogBox(openSquare, mGameWindow),
       leaderboardCache{Utils::makeUnique<LeaderboardCache>()},
       lua{},
       execScriptPackPathContext{},
@@ -166,7 +167,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       epilepsyWarning{assets.getTexture("epilepsyWarning.png")},
       sOnline{assets.getTexture("onlineIconFail.png")},
       rsOnlineStatus{sf::Vector2f{128.f, 32.f}},
-      txtOnlineStatus{"", imagine, 24},
+      txtOnlineStatus{"", openSquare, 24},
       enteredChars{},
       backgroundCamera{window,
           {ssvs::zeroVec2f, {Config::getSizeX() * Config::getZoomFactor(),
@@ -196,23 +197,27 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       profileSelectionMenu{},
       levelData{},
       styleData{},
-      txtVersion{.font{"", imagine, 40}},
-      txtProf{.font{"", imagine, 21}},
-      txtLoadBig{.font{"", imagine, 80}},
-      txtLoadSmall{.font{"", imagine}},
-      txtMenuBig{.font{"", imagine, 80}},
-      txtMenuSmall{.font{"", imagine}},
-      txtProfile{.font{"", imagine, 35}},
-      txtRandomTip{.font{"", imagine, 38}},
-      txtInstructionsBig{.font{"", imagine, 50}},
-      txtInstructionsMedium{.font{"", imagine}},
-      txtInstructionsSmall{.font{"", imagine, 24}},
-      txtEnteringText{.font{"", imagine, 60}},
-      txtSelectionBig{.font{"", imagine, 32}},
-      txtSelectionMedium{.font{"", imagine, 24}},
-      txtSelectionSmall{.font{"", imagine, 16}},
-      txtSelectionScore{.font{"", imagine, 32}},
-      txtSelectionRanked{.font{"", imagine, 12}},
+      txtVersion{.font{"", openSquare, 40}},
+      txtProf{.font{"", openSquare, 18}},
+      // For the loading screen
+      txtLoadBig{.font{"", openSquare, 72}},
+      txtLoadSmall{.font{"", openSquareBold}},
+      txtRandomTip{.font{"", openSquare, 32}},
+      // For the Main Menu
+      txtMenuBig{.font{"", openSquare, 96}},
+      txtMenuSmall{.font{"", openSquare}},
+      txtProfile{.font{"", openSquare, 32}},
+      txtInstructionsBig{.font{"", openSquare, 46}},
+      txtInstructionsMedium{.font{"", openSquare}},
+      txtInstructionsSmall{.font{"", openSquare, 20}},
+      // Manual Input
+      txtEnteringText{.font{"", openSquare, 54}},
+      // For the Level Selection Screen
+      txtSelectionBig{.font{"", openSquareBold, 28}},
+      txtSelectionMedium{.font{"", openSquareBold, 20}},
+      txtSelectionSmall{.font{"", openSquare, 12}},
+      txtSelectionScore{.font{"", openSquare, 28}},
+      txtSelectionRanked{.font{"", openSquare, 10}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -2932,8 +2937,8 @@ void MenuGame::setIndex(const int mIdx)
 
     // Set the colors of the menus
     auto& colors{styleData.getColors()};
-    menuQuadColor = styleData.getTextColor();
-    if(ssvu::toInt(menuQuadColor.a) == 0)
+    menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255) : styleData.getTextColor();
+    if(ssvu::toInt(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
     {
         for(auto& c : colors)
         {
@@ -2944,7 +2949,7 @@ void MenuGame::setIndex(const int mIdx)
             }
         }
     }
-    menuTextColor = colors[0];
+    menuTextColor = Config::getBlackAndWhite() ? sf::Color::White : colors[0];
 
     dialogBoxTextColor = menuQuadColor;
     dialogBoxTextColor.a = 255;
@@ -2964,7 +2969,7 @@ void MenuGame::setIndex(const int mIdx)
         {
             for(auto& c : colors)
             {
-                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor)
+                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor && !Config::getBlackAndWhite())
                 {
                     menuTextColor = c;
                     break;
@@ -2973,7 +2978,7 @@ void MenuGame::setIndex(const int mIdx)
         }
 
         // Same as above.
-        menuSelectionColor = colors[1];
+        menuSelectionColor = Config::getBlackAndWhite() ? sf::Color::White : colors[1];
         if(ssvu::toInt(menuSelectionColor.a) == 0 ||
             menuSelectionColor == menuQuadColor ||
             menuSelectionColor == menuTextColor)
@@ -2981,7 +2986,7 @@ void MenuGame::setIndex(const int mIdx)
             for(auto& c : colors)
             {
                 if(ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
-                    c != menuTextColor)
+                    c != menuTextColor && !Config::getBlackAndWhite())
                 {
                     menuSelectionColor = c;
                     break;
@@ -2993,10 +2998,10 @@ void MenuGame::setIndex(const int mIdx)
 
     // Set color of the fonts.
     txtSelectionBig.font.setFillColor(menuQuadColor);
-    txtSelectionSmall.font.setFillColor(menuQuadColor);
-    txtSelectionRanked.font.setFillColor(menuQuadColor);
-    txtInstructionsSmall.font.setFillColor(menuQuadColor);
-    txtSelectionScore.font.setFillColor(menuQuadColor);
+    txtSelectionSmall.font.setFillColor(menuTextColor);
+    txtSelectionRanked.font.setFillColor(menuTextColor);
+    txtInstructionsSmall.font.setFillColor(menuTextColor);
+    txtSelectionScore.font.setFillColor(menuTextColor);
 
     // Set gameplay values
     diffMultIdx = 0;
@@ -3149,17 +3154,25 @@ void MenuGame::refreshCamera()
     // Update the height infos of the fonts.
     if(fourByThree)
     {
-        txtMenuBig.font.setCharacterSize(33);
-        txtMenuSmall.font.setCharacterSize(20);
+        txtMenuBig.font.setCharacterSize(26);
+        txtMenuSmall.font.setCharacterSize(16);
         txtSelectionSmall.font.setCharacterSize(16);
         txtSelectionRanked.font.setCharacterSize(12);
+
+        txtLoadBig.font.setCharacterSize(56);
+        txtLoadSmall.font.setCharacterSize(16);
+        txtRandomTip.font.setCharacterSize(24);
     }
     else
     {
-        txtMenuBig.font.setCharacterSize(45);
-        txtMenuSmall.font.setCharacterSize(30);
+        txtMenuBig.font.setCharacterSize(36);
+        txtMenuSmall.font.setCharacterSize(24);
         txtSelectionSmall.font.setCharacterSize(16);
         txtSelectionRanked.font.setCharacterSize(12);
+
+        txtLoadBig.font.setCharacterSize(70);
+        txtLoadSmall.font.setCharacterSize(24);
+        txtRandomTip.font.setCharacterSize(32);
     }
 
     // txtVersion and txtProfile are not in here cause they do not need it.
@@ -3565,7 +3578,7 @@ void MenuGame::drawSubmenusSmall(
 // Therefore, if we assume the text has to be drawn at 'Y' height the
 // actual value to be sent to the renderer is 'Y - fontHeight *
 // fontHeightOffset.
-inline constexpr float fontHeightOffset{0.9f};
+inline constexpr float fontHeightOffset{0.55f};
 inline constexpr float frameSizeMulti{0.6f};
 
 void MenuGame::setMouseCursorVisible(const bool x)
@@ -3796,8 +3809,8 @@ std::string MenuGame::formatSurvivalTime(ProfileData* data)
 }
 
 inline constexpr float profFrameSize{10.f};
-inline constexpr unsigned int profCharSize{35};
-inline constexpr unsigned int profSelectedCharSize{35 + 12};
+inline constexpr unsigned int profCharSize{30};
+inline constexpr unsigned int profSelectedCharSize{30 + 12};
 
 void MenuGame::drawProfileSelection(
     const float xOffset, const bool revertOffset)
@@ -4136,7 +4149,7 @@ void MenuGame::drawLoadResults()
     // Counters: text and numbers
 
     topHeight += 5.f - txtLoadSmall.height;
-    const float numbersHeight = bottomHeight - txtLoadBig.height * 2.1f;
+    const float numbersHeight = bottomHeight - txtLoadBig.height * 2.f;
 
     txtLoadSmall.font.setFillColor(sf::Color::White);
     txtLoadBig.font.setFillColor(sf::Color::White);
@@ -5472,7 +5485,7 @@ void MenuGame::drawLevelSelectionLeftSide(
     height += textToQuadBorder;
     renderTextCenteredOffset("ONLINE LEADERBOARD", txtSelectionBig.font,
         {maxPanelOffset / 2.f,
-            height - txtSelectionBig.height * fontHeightOffset},
+            height - txtSelectionBig.height * fontHeightOffset * .8f},
         -panelOffset);
 
     // Line
@@ -5899,7 +5912,7 @@ void MenuGame::drawOnlineStatus()
     const float scaling = onlineStatusScaling / Config::getZoomFactor();
     const float padding = 3.f * onlineStatusScaling;
 
-    txtOnlineStatus.setCharacterSize(12 * scaling);
+    txtOnlineStatus.setCharacterSize(10 * scaling);
     txtOnlineStatus.setFillColor(sf::Color::White);
 
     const HexagonClient::State state = hexagonClient.getState();
@@ -5981,7 +5994,7 @@ void MenuGame::drawOnlineStatus()
     sOnline.setPosition(0 + padding, getWindowHeight() - padding);
 
     rsOnlineStatus.setSize(
-        sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 2.f,
+        sf::Vector2f{ssvs::getGlobalWidth(txtOnlineStatus) + padding * 4.f,
             txtHeight + padding * 2.f});
     rsOnlineStatus.setFillColor(sf::Color::Black);
     rsOnlineStatus.setOrigin(ssvs::getLocalSW(rsOnlineStatus));
@@ -5989,7 +6002,7 @@ void MenuGame::drawOnlineStatus()
         ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y);
 
     txtOnlineStatus.setOrigin(ssvs::getLocalCenterW(txtOnlineStatus));
-    txtOnlineStatus.setPosition(ssvs::getGlobalLeft(rsOnlineStatus) + padding,
+    txtOnlineStatus.setPosition(ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
         ssvs::getGlobalCenter(rsOnlineStatus).y);
 
     render(sOnline);
@@ -6000,13 +6013,13 @@ void MenuGame::drawOnlineStatus()
 void MenuGame::showDialogBox(const std::string& msg)
 {
     dialogBox.create(
-        msg, 26 /* charSize */, 10.f /* frameSize */, DBoxDraw::center);
+        msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
 }
 
 void MenuGame::showInputDialogBox(const std::string& msg)
 {
     dialogBox.createInput(
-        msg, 26 /* charSize */, 10.f /* frameSize */, DBoxDraw::center);
+        msg, 22 /* charSize */, 12.f /* frameSize */, DBoxDraw::center);
 }
 
 void MenuGame::showInputDialogBoxNice(const std::string& title,

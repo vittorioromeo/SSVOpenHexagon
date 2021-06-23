@@ -235,14 +235,14 @@ void StyleData::drawBackgroundImpl(Utils::FastVertexVectorTris& vertices,
 
 void StyleData::drawBackgroundMenuHexagonImpl(
     Utils::FastVertexVectorTris& vertices, const sf::Vector2f& mCenterPos,
-    const unsigned int sides, const bool fourByThree) const
+    const unsigned int sides, const bool fourByThree, const bool blackAndWhite) const
 {
     const float div{ssvu::tau / sides * 1.0001f};
     const float halfDiv{div / 2.f};
     const float hexagonRadius{fourByThree ? 75.f : 100.f};
 
-    const sf::Color& colorMain{getMainColor()};
-    const sf::Color colorCap{getCapColorResult()};
+    const sf::Color& colorMain{blackAndWhite ? sf::Color::White : getMainColor()};
+    const sf::Color colorCap{blackAndWhite ? sf::Color::Black : getCapColorResult()};
 
     for(auto i(0u); i < sides; ++i)
     {
@@ -279,7 +279,7 @@ void StyleData::drawBackgroundMenu(Utils::FastVertexVectorTris& mTris,
 
     drawBackgroundImpl(
         mTris, mCenterPos, sides, darkenUnevenBackgroundChunk, blackAndWhite);
-    drawBackgroundMenuHexagonImpl(mTris, mCenterPos, sides, fourByThree);
+    drawBackgroundMenuHexagonImpl(mTris, mCenterPos, sides, fourByThree, blackAndWhite);
 }
 
 void StyleData::setCapColor(const CapColor& mCapColor)
