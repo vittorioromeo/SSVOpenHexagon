@@ -104,7 +104,8 @@ private:
     Steam::steam_manager& steamManager;
     Discord::discord_manager& discordManager;
     HGAssets& assets;
-    sf::Font& imagine;
+    sf::Font& openSquare;
+    sf::Font& openSquareBold;
     Audio& audio;
     ssvs::GameState game;
     ssvs::GameWindow& window;
