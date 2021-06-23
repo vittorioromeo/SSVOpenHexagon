@@ -1389,6 +1389,26 @@ auto HexagonGame::getColorText() const -> sf::Color
     return styleData.getTextColor();
 }
 
+auto HexagonGame::getColorCap() const -> sf::Color
+{
+    if (Config::getBlackAndWhite()) 
+    {
+        return sf::Color::Black;
+    }
+
+    return styleData.getCapColorResult();
+}
+
+auto HexagonGame::getColorWall() const -> sf::Color
+{
+    if (Config::getBlackAndWhite()) 
+    {
+        return sf::Color(255, 255, 255, styleData.getWallColor().a);
+    }
+
+    return styleData.getWallColor();
+}
+
 [[nodiscard]] float HexagonGame::getMusicDMSyncFactor() const
 {
     return std::pow(difficultyMult, 0.12f);

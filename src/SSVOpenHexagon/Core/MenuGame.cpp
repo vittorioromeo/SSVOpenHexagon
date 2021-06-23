@@ -2906,8 +2906,8 @@ void MenuGame::setIndex(const int mIdx)
 
     // Set the colors of the menus
     auto& colors{styleData.getColors()};
-    menuQuadColor = styleData.getTextColor();
-    if(ssvu::toInt(menuQuadColor.a) == 0)
+    menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255) : styleData.getTextColor();
+    if(ssvu::toInt(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
     {
         for(auto& c : colors)
         {
@@ -2918,7 +2918,7 @@ void MenuGame::setIndex(const int mIdx)
             }
         }
     }
-    menuTextColor = colors[0];
+    menuTextColor = Config::getBlackAndWhite() ? sf::Color::White : colors[0];
 
     dialogBoxTextColor = menuQuadColor;
     dialogBoxTextColor.a = 255;
@@ -2938,7 +2938,7 @@ void MenuGame::setIndex(const int mIdx)
         {
             for(auto& c : colors)
             {
-                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor)
+                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor && !Config::getBlackAndWhite())
                 {
                     menuTextColor = c;
                     break;
@@ -2947,7 +2947,7 @@ void MenuGame::setIndex(const int mIdx)
         }
 
         // Same as above.
-        menuSelectionColor = colors[1];
+        menuSelectionColor = Config::getBlackAndWhite() ? sf::Color::White : colors[1];
         if(ssvu::toInt(menuSelectionColor.a) == 0 ||
             menuSelectionColor == menuQuadColor ||
             menuSelectionColor == menuTextColor)
@@ -2955,7 +2955,7 @@ void MenuGame::setIndex(const int mIdx)
             for(auto& c : colors)
             {
                 if(ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
-                    c != menuTextColor)
+                    c != menuTextColor && !Config::getBlackAndWhite())
                 {
                     menuSelectionColor = c;
                     break;
@@ -2967,10 +2967,10 @@ void MenuGame::setIndex(const int mIdx)
 
     // Set color of the fonts.
     txtSelectionBig.font.setFillColor(menuQuadColor);
-    txtSelectionSmall.font.setFillColor(menuQuadColor);
-    txtSelectionRanked.font.setFillColor(menuQuadColor);
-    txtInstructionsSmall.font.setFillColor(menuQuadColor);
-    txtSelectionScore.font.setFillColor(menuQuadColor);
+    txtSelectionSmall.font.setFillColor(menuTextColor);
+    txtSelectionRanked.font.setFillColor(menuTextColor);
+    txtInstructionsSmall.font.setFillColor(menuTextColor);
+    txtSelectionScore.font.setFillColor(menuTextColor);
 
     // Set gameplay values
     diffMultIdx = 0;

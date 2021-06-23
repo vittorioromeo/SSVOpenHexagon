@@ -468,6 +468,8 @@ public:
     [[nodiscard]] sf::Color getColorMain() const;
     [[nodiscard]] sf::Color getColorPlayer() const;
     [[nodiscard]] sf::Color getColorText() const;
+    [[nodiscard]] sf::Color getColorCap() const;
+    [[nodiscard]] sf::Color getColorWall() const;
     [[nodiscard]] float getMusicDMSyncFactor() const;
     [[nodiscard]] float getOptionalMusicDMSyncFactor() const;
 
