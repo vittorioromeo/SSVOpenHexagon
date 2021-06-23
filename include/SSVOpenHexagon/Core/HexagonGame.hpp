@@ -86,6 +86,7 @@ private:
 
     HGAssets& assets;
     sf::Font& font;
+    sf::Font& fontBold;
 
     Audio* audio;
 

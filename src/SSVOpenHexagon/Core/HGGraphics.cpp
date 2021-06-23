@@ -477,17 +477,17 @@ void HexagonGame::updateText(ssvu::FT mFT)
 
     // Set information text
     text.setString(os.str());
-    text.setCharacterSize(getScaledCharacterSize(25.f));
+    text.setCharacterSize(getScaledCharacterSize(20.f));
     text.setOrigin(0, 0);
 
     // Set FPS Text, if option is enabled.
     if(Config::getShowFPS())
     {
         fpsText.setString(ssvu::toStr(window->getFPS()));
-        fpsText.setCharacterSize(getScaledCharacterSize(25.f));
+        fpsText.setCharacterSize(getScaledCharacterSize(20.f));
     }
 
-    messageText.setCharacterSize(getScaledCharacterSize(38.f));
+    messageText.setCharacterSize(getScaledCharacterSize(32.f));
     messageText.setOrigin(ssvs::getGlobalWidth(messageText) / 2.f, 0);
 
     const float growth = std::sin(pbTextGrowth);
@@ -514,7 +514,7 @@ void HexagonGame::updateText(ssvu::FT mFT)
 
         os.flush();
 
-        replayText.setCharacterSize(getScaledCharacterSize(20.f));
+        replayText.setCharacterSize(getScaledCharacterSize(16.f));
         replayText.setString(os.str());
     }
     else
@@ -554,7 +554,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         timeText.setFillColor(colorText);
         timeText.setPosition(sf::Vector2f{
-            padding, -22.f * offsetRatio * Config::getTextScaling()});
+            padding, -16.f * offsetRatio * Config::getTextScaling()});
         render(timeText);
     }
 
@@ -562,7 +562,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         text.setFillColor(colorText);
         text.setPosition(
-            sf::Vector2f{padding, ssvs::getGlobalBottom(timeText)});
+            sf::Vector2f{padding * 1.5f, ssvs::getGlobalBottom(timeText)});
         render(text);
     }
 
@@ -575,12 +575,12 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         {
             fpsText.setPosition(sf::Vector2f{padding,
                 ssvs::getGlobalTop(levelInfoRectangle) -
-                    ((8.f * (2.f * offsetRatio))) * Config::getTextScaling()});
+                    ((7.f * (2.f * offsetRatio))) * Config::getTextScaling()});
         }
         else
         {
             fpsText.setPosition(sf::Vector2f{
-                padding, Config::getHeight() - ((8.f * (2.f * offsetRatio))) *
+                padding, Config::getHeight() - ((7.f * (2.f * offsetRatio))) *
                                                    Config::getTextScaling()});
         }
 
@@ -630,7 +630,7 @@ static void drawTextMessagePBImpl(sf::Text& text, const sf::Color& offsetColor,
 void HexagonGame::drawText_Message(const sf::Color& offsetColor)
 {
     drawTextMessagePBImpl(messageText, offsetColor,
-        {Config::getWidth() / 2.f, Config::getHeight() / 6.f}, getColorText(),
+        {Config::getWidth() / 2.f, Config::getHeight() / 5.5f}, getColorText(),
         1.f /* outlineThickness */, [this](sf::Text& t) { render(t); });
 }
 
