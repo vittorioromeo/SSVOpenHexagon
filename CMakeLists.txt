@@ -35,12 +35,22 @@ endif()
 # CPM
 # -----------------------------------------------------------------------------
 
-set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM.cmake")
-set(CPM_DOWNLOAD_VERSION 0.25.1)
+set(CPM_DOWNLOAD_VERSION 0.32.0)
 
-if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION} AND CPM_VERSION STREQUAL CPM_DOWNLOAD_VERSION))
-    message(STATUS "Downloading CPM.cmake")
-    file(DOWNLOAD https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake ${CPM_DOWNLOAD_LOCATION})
+if(CPM_SOURCE_CACHE)
+    set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+elseif(DEFINED ENV{CPM_SOURCE_CACHE})
+    set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+else()
+    set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+endif()
+
+if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+    message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
+    file(DOWNLOAD
+        https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake
+        ${CPM_DOWNLOAD_LOCATION}
+    )
 endif()
 
 include(${CPM_DOWNLOAD_LOCATION})
@@ -57,7 +67,7 @@ set(SFML_STATIC_LIBRARIES false)
 CPMAddPackage(
     NAME SFML
     GITHUB_REPOSITORY SuperV1234/SFML
-    GIT_TAG 4e72e5d5bfa53310050b99bf69f73c5ff86419ac
+    GIT_TAG 40db2d71b81760067593f3254e73a15a0d658b21
 )
 
 set_target_properties(sfml-system PROPERTIES UNITY_BUILD ON)
@@ -79,7 +89,7 @@ set(LUAJIT_DISABLE_FFI ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME luajit
     GIT_REPOSITORY https://github.com/SuperV1234/LuaJIT
-    GIT_TAG 0591e7385dd6b3e346ef3a420561f5115da2ddf7
+    GIT_TAG abf43867b48c55e87d932817bf8155939b44b7c2
 )
 
 set(LUAJIT_DISABLE_FFI true)
@@ -118,7 +128,7 @@ file(WRITE "${zlib_SOURCE_DIR}/CMakeLists.txt" "${STRIPPED1}")
 CPMAddPackage(
     NAME imgui
     GITHUB_REPOSITORY ocornut/imgui
-    GIT_TAG 393941ceea61e1307ffad8e3a045ab384d1299bd
+    GIT_TAG 0b8a2470743f89d19ab2d5920606434b604b529e
     DOWNLOAD_ONLY YES
 )
 
@@ -142,7 +152,7 @@ endif()
 CPMAddPackage(
     NAME imgui-sfml
     GITHUB_REPOSITORY eliasdaler/imgui-sfml
-    GIT_TAG 82dc2033e51b8323857c3ae1cf1f458b3a933c35
+    GIT_TAG a91ba69f7bd21d0a9aeb8c87493af58271988dca
     )
 
 set_target_properties(ImGui-SFML PROPERTIES UNITY_BUILD ON)
@@ -175,7 +185,7 @@ set(SODIUM_DISABLE_TESTS ON CACHE BOOL "" FORCE)
 CPMAddPackage(
     NAME boostpfr
     GITHUB_REPOSITORY boostorg/pfr
-    GIT_TAG ed82d60966436eefc8fce3ad9b87ab056a2321fd
+    GIT_TAG 0436e48a7940b1de190b5065e0211f901a5b60de
     DOWNLOAD_ONLY YES
 )
 
