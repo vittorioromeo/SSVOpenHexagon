@@ -19,8 +19,8 @@ function addPattern(mKey)
         local ot = THICKNESS
         local rd = getRandomDir()
         THICKNESS = THICKNESS * 0.85
-        pSpiralDir(rd, l_getSides(), 1)
-        pSpiralDir(rd * -1, l_getSides(), 1)
+        pSpiral(l_getSides(), 1, rd)
+        pSpiral(l_getSides(), 1, rd * -1)
         THICKNESS = ot
     end
 
