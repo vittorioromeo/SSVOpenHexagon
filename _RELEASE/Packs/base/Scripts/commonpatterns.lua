@@ -15,7 +15,6 @@ function pAltBarrage(mTimes, mStep, mDelayMult)
 	mDelayMult = mDelayMult or 1
     local delay = getPerfectDelayDM(THICKNESS) * 5.6 * mDelayMult
 
-	-- TODO: Modify cube and ensure the amount of occurrences are still the same
     for i = 1, mTimes do
         cAltBarrage(i, mStep)
         t_wait(delay)
