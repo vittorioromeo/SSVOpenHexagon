@@ -7,7 +7,7 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.
 function addPattern(mKey)
     if mKey == 0 then pBarrageSpiral(u_rndInt(1, 2), 1, 1)
     elseif mKey == 1 then pInverseBarrage(0)
-    elseif mKey == 2 then pAltBarrage(u_rndInt(1, 3), 2)
+    elseif mKey == 2 then pAltBarrage(u_rndInt(2, 4), 2)
     elseif mKey == 3 then pSpiral(12, 0)
     end
 end
