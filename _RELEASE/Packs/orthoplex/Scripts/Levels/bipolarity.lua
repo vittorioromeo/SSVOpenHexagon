@@ -170,7 +170,7 @@ function addPattern(mKey)
             setDirection(direction + getRandomDir())
         end
 
-        -- local delay = getPerfectDelayDM(THICKNESS) * 5.6
+        -- local delay = getPerfectDelay(THICKNESS) * 5.6
         -- t_wait(delay)
 
         beat = getBPMToBeatPulseDelay(180) / getMusicDMSyncFactor()

@@ -18,7 +18,7 @@ end
 -- onStep should contain your pattern spawning logic
 function onStep()
     rWallEx(getRandomSide(), extra)
-    t_wait(getPerfectDelayDM(THICKNESS) * 6)
+    t_wait(getPerfectDelay(THICKNESS) * 6)
 end
 
 -- onInit is an hardcoded function that is called when the level is first loaded
