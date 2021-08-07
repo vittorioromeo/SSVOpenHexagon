@@ -141,3 +141,44 @@ function cAltBarrage(mSide, mStep)
         cWall(mSide + i)
     end
 end
+
+-- cSwapBarrageN: A barrage with mNeighbors to have an opening pocket, forcing the players to go into the pocket and swap.
+function cSwapBarrageN(mSide, mNeighbors, mDelayMult)
+	mDelayMult = mDelayMult or 1
+	local myThickness = getPerfectThickness(THICKNESS) * 2.5 * mDelayMult
+	local delay = getPerfectDelay(myThickness - THICKNESS) / u_getDelayMultDM()
+	cBarrageN(mSide, mNeighbors + 1) -- Create the initial barrage
+	w_wall(mSide + 1 + mNeighbors, myThickness)
+	w_wall(mSide + l_getSides() - 1 - mNeighbors, myThickness)
+	t_wait(delay)
+	for i = -mNeighbors, mNeighbors do
+		cWall(i + mSide)
+	end
+end
+
+-- cSwapBarrage: A barrage, but the opening is instead a pocket that is fully enclosed, forcing the player to swap to escape the pocket.
+function cSwapBarrage(mSide, mDelayMult)
+	mDelayMult = mDelayMult or 1
+	local myThickness = getPerfectThickness(THICKNESS) * 2.5 * mDelayMult
+	local delay = getPerfectDelay(myThickness - THICKNESS) / u_getDelayMultDM()
+	cBarrageN(mSide, 1)
+	w_wall(mSide + 1, myThickness)
+	w_wall(mSide + l_getSides() - 1, myThickness)
+	t_wait(delay)
+	cWall(mSide)
+end
+
+-- cSwapCorridor: A barrage, but the neighbors of the opening have elongated thicknesses
+function cSwapCorridor(mSide, mEnding)
+	mEnding = mEnding or false
+	local myThickness = getPerfectThickness(THICKNESS) * 4
+	local delay = getPerfectDelay(myThickness - THICKNESS) / u_getDelayMultDM()
+	cBarrageN(mSide, 1)
+	w_wall(mSide + 1, myThickness)
+	w_wall(mSide + l_getSides() - 1, myThickness)
+	t_wait(delay)
+	if (mEnding) then
+		cWall(mSide)
+	end
+	t_wait(getPerfectDelay(THICKNESS) / u_getDelayMultDM())
+end
