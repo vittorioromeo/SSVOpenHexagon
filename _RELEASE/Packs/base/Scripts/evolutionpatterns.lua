@@ -157,7 +157,7 @@ hmcSimpleBarrageSNeigh = hmcSimpleBarrage
 -- mCurveAdd: How much to add to the curving speed each iteration
 function hmcSimpleTwirl(mTimes, mCurve, mCurveAdd)
 	local startSide = getRandomSide()
-	local delay = getPerfectDelayDM(THICKNESS) * 5.7
+	local delay = getPerfectDelay(THICKNESS) * 5.7
 	local currentCurve = mCurve
 
 	for i = 0, mTimes do
@@ -223,13 +223,13 @@ function hmcDef2Cage()
 	local side = getRandomSide()
 	local rndspd = math.random(1, 5)
 
-	t_wait(getPerfectDelayDM(THICKNESS) * 5.2)
+	t_wait(getPerfectDelay(THICKNESS) * 5.2)
 	hmcSimpleCageS(rndspd, -1, side)
-	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelay(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelay(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	t_wait(getPerfectDelayDM(THICKNESS) * 5.3)
+	t_wait(getPerfectDelay(THICKNESS) * 5.3)
 end
 
 -- hmcDef2CageD: A doubled version of hmcDef2Cage, creating another one opposite of the first pattern
@@ -238,19 +238,19 @@ function hmcDef2CageD()
 	local oppositeSide = getHalfSides() + side
 	local rndspd = math.random(1, 5)
 
-	t_wait(getPerfectDelayDM(THICKNESS) * 5.2)
+	t_wait(getPerfectDelay(THICKNESS) * 5.2)
 	hmcSimpleCageS(rndspd, -1, side)
-	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelay(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelay(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, side)
-	t_wait(getPerfectDelayDM(THICKNESS) * 6.0)
+	t_wait(getPerfectDelay(THICKNESS) * 6.0)
 	hmcSimpleCageS(rndspd, -1, oppositeSide)
-	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelay(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, oppositeSide)
-	t_wait(getPerfectDelayDM(THICKNESS) * 1.1)
+	t_wait(getPerfectDelay(THICKNESS) * 1.1)
 	hmcSimpleCageS(rndspd, -1, oppositeSide)
-	t_wait(getPerfectDelayDM(THICKNESS) * 9.2)
+	t_wait(getPerfectDelay(THICKNESS) * 9.2)
 end
 
 -- A barrage spiral that travels at a constant curving speed.
@@ -261,7 +261,7 @@ end
 -- mNeighbors (OPTIONAL): The expansion of the barrage opening by this many adjacent neighbors
 function hmcSimpleBarrageSpiral(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
 	mNeighors = mNeighbors or 0
-	local delay = getPerfectDelayDM(THICKNESS) * 6.2 * mDelayMult
+	local delay = getPerfectDelay(THICKNESS) * 6.2 * mDelayMult
 	local startSide = getRandomSide()
 	local loopDir = mStep * getRandomDir()
 	local j = 0
@@ -273,16 +273,16 @@ function hmcSimpleBarrageSpiral(mTimes, mDelayMult, mStep, mCurve, mNeighbors)
 		if(l_getSides() < 6) then t_wait(delay * 0.7) end
 	end
 
-	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelay(THICKNESS) * 6.1)
 end
 
--- getPerfectDelayDM now has the same implementation as getPerfectDelay, so this pattern is now redundant.
+-- getPerfectDelay now has the same implementation as getPerfectDelay, so this pattern is now redundant.
 hmcSimpleBarrageSpiralStatic = hmcSimpleBarrageSpiral
 
 -- hmcBarrageInv: pInverseBarrage but with curving walls.
 function hmcBarrageInv(mMinCurve, mMaxCurve)
-	t_wait(getPerfectDelayDM(THICKNESS) * 2.0)
-	local delay = getPerfectDelayDM(THICKNESS) * 8
+	t_wait(getPerfectDelay(THICKNESS) * 2.0)
+	local delay = getPerfectDelay(THICKNESS) * 8
 	local side = getRandomSide()
 	local rndSpd = math.random(mMinCurve, mMaxCurve);
 	local oppositeSide = getRandomSide() + getHalfSides()
@@ -341,7 +341,7 @@ function hmpBarrage(mMin, mMax)
 	mMin = mMin or 1;
 	mMax = mMax or l_getSides() - 1;
 	hmcSimpleBarrage(getRandomSide(), math.random(mMin, mMax) * getRandomDir())
-	t_wait(getPerfectDelayDM(THICKNESS) * 8.1)
+	t_wait(getPerfectDelay(THICKNESS) * 8.1)
 end
 
 -- A patternized hmcBarrageStop, with a randomized side placement and optional offset randomization set by the user
@@ -351,7 +351,7 @@ function hmpBarrageStop(mOffsetMin, mOffsetMax)
 	mOffsetMin = mOffsetMin or 2;
 	mOffsetMax = mOffsetMax or l_getSides() * 2;
 	hmcBarrageStop(getRandomSide(), math.random(mOffsetMin, mOffsetMax) * getRandomDir());
-	t_wait(getPerfectDelayDM(THICKNESS) * 9)
+	t_wait(getPerfectDelay(THICKNESS) * 9)
 end
 
 -- A patternized hmcSimpleSpinner, with a randomized side placement and optional speed randomization set by the user
@@ -361,13 +361,13 @@ function hmpSpinner(mMin, mMax)
 	mMin = mMin or 1;
 	mMax = mMax or l_getSides() - 1;
 	hmcSimpleSpinner(getRandomSide(), math.random(mMin, mMax) * getRandomDir())
-	t_wait(getPerfectDelayDM(THICKNESS) * 9.1)
+	t_wait(getPerfectDelay(THICKNESS) * 9.1)
 end
 
 -- hmpTwirl: A patternized hmcSimpleTwirl that has a shorter delay between barrages and curve and curveAdd must go in the same direction.
 function hmpTwirl(mTimes, mCurve, mCurveAdd)
 	local startSide = getRandomSide()
-	local delay = getPerfectDelayDM(THICKNESS) * 4
+	local delay = getPerfectDelay(THICKNESS) * 4
 	local dir = getRandomDir()
 	local currentCurve = mCurve * dir
 
@@ -401,7 +401,7 @@ function hmpBarrageSpiralStop(mTimes, mMinCurve, mMaxCurve)
 	
 	local side = getRandomSide()
 	local loopDir = getRandomDir()
-	local delay = getPerfectDelayDM(THICKNESS) * 6.2
+	local delay = getPerfectDelay(THICKNESS) * 6.2
 
 	for i = 0, mTimes do
 		hmcBarrageStop(side + i * loopDir, math.random(mMinCurve, mMaxCurve) * getRandomDir());
@@ -409,7 +409,7 @@ function hmpBarrageSpiralStop(mTimes, mMinCurve, mMaxCurve)
 		if(l_getSides() < 6) then t_wait(delay * 0.7) end
 	end
 
-	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelay(THICKNESS) * 6.1)
 end
 
 -- hmpBarrageSpiralSpin: A subset of hmcSimpleBarrageSpiral to spawn barrages with 25% the normal delay
@@ -422,12 +422,12 @@ end
 
 -- hmpDefAccelBarrage: A barrage that is randomized in curving speed, minimum, and maximum accelerations.
 function hmpDefAccelBarrage()
-	t_wait(getPerfectDelayDM(THICKNESS) * 1.5)
+	t_wait(getPerfectDelay(THICKNESS) * 1.5)
 	local c = math.random(50, 100) / 1000.0 * getRandomDir()
 	local minimum = math.random(5, 35) / 10.0 * -1
 	local maximum = math.random(5, 35) / 10.0
 	hmcBarrage(0, c, minimum, maximum, true)
-	t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
+	t_wait(getPerfectDelay(THICKNESS) * 6.1)
 end
 
 -- hmpTunnelDynamic: A segment of hmcTunnelDynamics in a single pattern, written to avoid impossible outcomes.
@@ -534,7 +534,7 @@ function hmpChaserAltBarrage(mTimes, mStep, mSpeed, mTail)
 	mTail = mTail or false -- If true, the tunnel extends past the last alt barrage. Done for connectivity purposes
 	mTail = mTail and 1 or 0 -- Convert boolean to integer
 	local myThickness = getPerfectThickness(THICKNESS)
-	local delay = getPerfectDelayDM(myThickness) * 3
+	local delay = getPerfectDelay(myThickness) * 3
 
 	-- Create the tunnel wall (chaser)
 	-- For the side, we want to make sure that the chaser is on one of the first alt barrage walls (which is odd numbers)
@@ -586,7 +586,7 @@ function hmpSwarm(mLower, mUpper, mDecel, mConstant, mAccel, mDelayMult)
 	mConstant = mConstant or false
 	mAccel = mAccel or false
 	mDelayMult = mDelayMult or 1
-	local delay = getPerfectDelayDM(getPerfectThickness(THICKNESS)) * 2 * mDelayMult
+	local delay = getPerfectDelay(getPerfectThickness(THICKNESS)) * 2 * mDelayMult
 	
 	-- Constuct wall pool
 	local wall_pool = {}

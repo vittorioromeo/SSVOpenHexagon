@@ -43,7 +43,7 @@ end
 -- A trap version of a barrage
 -- mSide: The side the pattern will spawn on
 function pTrapBarrage(mSide)
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 		
 	cBarrage(mSide)
 	t_wait(delay * 3)
@@ -55,7 +55,7 @@ end
 -- A trap barrage with two gaps, both on opposing sides of each other
 -- mSide: The side the pattern will spawn on
 function pTrapBarrageDouble(mSide)
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local side2 = mSide + getHalfSides();
 	
 	for i = 0, l_getSides() - 1 do
@@ -73,7 +73,7 @@ end
 -- pTrapBarrage, but the whole barrage is speeding instead of the "trap".
 -- mSide: The side the pattern will spawn on
 function pTrapBarrageInverse(mSide)
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	
 	cWall(mSide)	
 	t_wait(delay * 3)
@@ -89,7 +89,7 @@ end
 -- A trap version of an alt barrage
 -- mSide: The side the pattern will spawn on
 function pTrapBarrageAlt(mSide)
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 
 	for i = 0, l_getSides() - 1 do
 		local currentSide = mSide + i
@@ -113,7 +113,7 @@ end
 -- Spawns a barrage with two opposing holes instead of one
 function pRCBarrageDouble()
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local startSide = getRandomSide()
 
 	for i = 0, currentSides - 2 do
@@ -128,7 +128,7 @@ end
 -- This as a result can cause the barrages to either spiral or stay still, depending on the side it spawns on
 -- This pattern can be unpredictable in it's nature.
 function pRCAscendBarrage(mSide, mStartSides, mEndSides)
-	local delay = getPerfectDelayDM(THICKNESS) * 5.6
+	local delay = getPerfectDelay(THICKNESS) * 5.6
 	for i = mStartSides, mEndSides do
 		t_eval([[l_setSides(]]..i..[[)]])
 		for r = 0, i - 2 do
@@ -143,7 +143,7 @@ end
 -- mStartSides: The starting number of sides for the pattern
 -- mEndSides: The ending number of sides for the pattern
 function pRCAscendBarrageRandom(mStartSides, mEndSides)
-	local delay = getPerfectDelayDM(THICKNESS) * 8.5
+	local delay = getPerfectDelay(THICKNESS) * 8.5
 	for i = mStartSides, mEndSides do
 		t_eval([[l_setSides(]]..i..[[)]])
 		local offset = math.random(1, i)
@@ -161,7 +161,7 @@ end
 -- mLowerSides: The lowest side count to select at random
 -- mUpperSides: The highest side count to select at random
 function pRCDynamicAltBarrage(mStep, mTimes, mLowerSides, mUpperSides)
-	local delay = getPerfectDelayDM(THICKNESS) * 5.6
+	local delay = getPerfectDelay(THICKNESS) * 5.6
 	local prevSides = 0
 	
 	for r = 0, mTimes do
@@ -185,7 +185,7 @@ end
 -- pACBarrageAccelerate: A barrage that will slowly increase in speed over time, accelerating.
 function pACBarrageAccelerate()
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local startSide = getRandomSide()
 
 	for i = 0, currentSides - 2 do
@@ -198,7 +198,7 @@ end
 -- pACBarrageDecelerate: A barrage that will quickly approach the player and decelerate.
 function pACBarrageDecelerate()
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local startSide = getRandomSide()
 
 	for i = 0, currentSides - 2 do
@@ -214,7 +214,7 @@ function pACBarrageDeception(mAdjMult, mAccMult)
 	mAccMult = mAccMult or 1;
 	
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local startSide = getRandomSide()
 
 	for i = 0, currentSides - 2 do
@@ -227,7 +227,7 @@ end
 -- pACInverseBarrage: Two decelerating barrages, one slower than the other to create an inverse barrage
 function pACInverseBarrage()
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local startSide = getRandomSide()
 	
 	for i = 0, currentSides - 2 do
@@ -244,7 +244,7 @@ end
 -- pACBarrageMulti: A decelerating barrage, followed by a trail of accelerating barrages for visual effect
 function pACBarrageMulti()
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local startSide = math.random(0, 10)
 
 	for i = 0, currentSides - 2 do
@@ -262,7 +262,7 @@ function pACSpiral()
 	local currentSides = l_getSides()
 	local oldThickness = THICKNESS;
 	THICKNESS = getPerfectThickness(THICKNESS);
-	local delay = getPerfectDelayDM(THICKNESS) * 3
+	local delay = getPerfectDelay(THICKNESS) * 3
 	local startSide = math.random(0, 10)
 	local loopDir = getRandomDir()
 
@@ -280,7 +280,7 @@ end
 -- mTimes: The number of alt barrage series to create
 function pACAltBarrage(mTimes)
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	
 	for t = 1, mTimes do
 		for i = 1, currentSides, 2 do
@@ -299,7 +299,7 @@ end
 -- pACAltBarrageMulti: Alt Barrage with similar behavior to pACBarrageMulti
 function pACAltBarrageMulti()
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local offset = math.random(0, 1);
 	
 	for i = 1, currentSides, 2 do
@@ -316,7 +316,7 @@ end
 -- mTimes: The number of alt barrages to create
 function pACAltBarrageReveal(mTimes)
 	local currentSides = l_getSides()
-	local delay = getPerfectDelayDM(THICKNESS) * 3.7
+	local delay = getPerfectDelay(THICKNESS) * 3.7
 	local chooser = 0;
 	
 	for t = 1, mTimes do
@@ -340,7 +340,7 @@ function pACTunnelReveal(mTimes)
 	local currentSides = l_getSides()
 	local oldThickness = THICKNESS
 	local myThickness = getPerfectThickness(THICKNESS);
-	local delay = getPerfectDelayDM(myThickness) * 5
+	local delay = getPerfectDelay(myThickness) * 5
 	local startSide = getRandomSide()
 	local loopDir = getRandomDir()
 	
