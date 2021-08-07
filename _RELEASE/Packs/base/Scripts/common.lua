@@ -1,6 +1,9 @@
--- common variables
+-- COMMON GLOBAL VARIABLES
 THICKNESS = 40.0
 
+-- COMMON FUNCTIONS
+
+-- enableSwapIfDMGreaterThan: If the player chooses to play a level that exceeds the given difficulty, turn on swap.
 function enableSwapIfDMGreaterThan(mDM)
     if(u_getDifficultyMult() > mDM) then
         e_messageAdd("difficulty > " ..mDM.. "\nswap enabled!", 65)
@@ -8,6 +11,7 @@ function enableSwapIfDMGreaterThan(mDM)
     end
 end
 
+-- enableSwapIfSpeedGEThan: If the player reaches a given speed on a level, turn on swap.
 function enableSwapIfSpeedGEThan(mSpeed)
     if (u_getSpeedMultDM() >= mSpeed and not l_getSwapEnabled()) then
         e_messageAddImportant("Speed >= "..mSpeed.."\nswap enabled!", 120)
@@ -15,6 +19,7 @@ function enableSwapIfSpeedGEThan(mSpeed)
     end
 end
 
+-- disableIncIfDMGreaterThan: If the player chooses to play a level that exceeds the given difficulty, disable incrementing.
 function disableIncIfDMGreaterThan(mDM)
     if(u_getDifficultyMult() > mDM) then
         e_messageAdd("difficulty > " ..mDM.. "\nincrement disabled!", 65)
@@ -22,6 +27,7 @@ function disableIncIfDMGreaterThan(mDM)
     end
 end
 
+-- disableSpeedIncIfDMGreaterThan: If the player chooses to play a level that exceeds the given difficulty, make speed not increase upon incrementing.
 function disableSpeedIncIfDMGreaterThan(mDM)
     if(u_getDifficultyMult() > mDM) then
         e_messageAdd("difficulty > " ..mDM.. "\nspeed increment disabled!", 65)
@@ -53,32 +59,32 @@ end
 -- getPerfectDelay: returns time to wait for two walls to be next to each other
 function getPerfectDelay(mThickness) return mThickness / (5.02 * u_getSpeedMultDM()) * u_getDelayMultDM() end
 
--- getPerfectDelayDM: returns getPerfectDelay calculated with difficulty mutliplier
-function getPerfectDelayDM(mThickness) return mThickness / (5.02 * u_getSpeedMultDM()) * u_getDelayMultDM() end
+-- getPerfectDelayDM's implementation has now been implemented into getPerfectDelay. Keeping the name for compatibility reasons.
+getPerfectDelayDM = getPerfectDelay
 
 -- getPerfectThickness: returns a good THICKNESS value in relation to human reflexes
 function getPerfectThickness(mThickness) return mThickness * u_getSpeedMultDM() end
 
 -- getSideDistance: returns shortest distance from a side to another
 function getSideDistance(mSide1, mSide2)
-    start = mSide1
-    rightSteps = 0
-    while start ~= mSide2 do
-        rightSteps = rightSteps + 1
-        start = start + 1
-        if start > l_getSides() - 1 then start = 0 end
+    if (mSide1 == mSide2) then
+        return 0
     end
-
-    start = mSide1
-    leftSteps = 0
-    while start ~= mSide2 do
-        leftSteps = leftSteps + 1
-        start = start - 1
-        if start < 0 then start = l_getSides() - 1 end
+    -- Pick out the lower and higher side
+    local low = math.min(mSide1, mSide2)
+    local high = math.max(mSide1, mSide2)
+    -- We need to get both high and low positive for modulus to work properly
+    -- We only need to check the lower number for this.
+    if (low < 0) then
+        high = high - low
+        low = 0
     end
-
-    if rightSteps < leftSteps then return rightSteps end
-    return leftSteps
+    -- Calculate the difference and make any last minute adjustments accordingly
+    local diff = (high - low) % l_getSides()
+    if (diff > getHalfSides()) then
+        return l_getSides() - diff
+    end
+    return diff 
 end
 
 -- cWall: creates a wall with the common THICKNESS
@@ -131,7 +137,7 @@ end
 
 -- cAltBarrage: spawns a barrage of alternate walls
 function cAltBarrage(mSide, mStep)
-    for i = 0, l_getSides() / mStep, 1 do
-        cWall(mSide + i * mStep)
+    for i = 0, l_getSides(), mStep do
+        cWall(mSide + i)
     end
 end
