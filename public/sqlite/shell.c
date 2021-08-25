@@ -12995,7 +12995,7 @@ static void explain_data_prepare(ShellState *p, sqlite3_stmt *pSql){
     /* Grow the p->aiIndent array as required */
     if( iOp>=nAlloc ){
       if( iOp==0 ){
-        /* Do further verfication that this is explain output.  Abort if
+        /* Do further verification that this is explain output.  Abort if
         ** it is not */
         static const char *explainCols[] = {
            "addr", "opcode", "p1", "p2", "p3", "p4", "p5", "comment" };
