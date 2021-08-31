@@ -1,16 +1,16 @@
 {
-    // Music data id
-    "id": "johnnyDerp",
+	// Music data id
+	"id": "johnnyDerp",
 
-    // Music file
-    "file_name": "johnnyDerp.ogg",
+	// Music file
+	"file_name": "johnnyDerp.ogg",
 
-    // Music information
-    "name": "Pablo Minibar",
-    "album": "Call Me Katla, Baby",
-    "author": "Dunderpatrullen",
+	// Music information
+	"name": "Pablo Minibar",
+	"album": "Call Me Katla, Baby",
+	"author": "Dunderpatrullen",
 
-    // Segments
+	// Segments
     "segments":
     [
         { "time": 6.792 },
