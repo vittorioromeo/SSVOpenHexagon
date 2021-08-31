@@ -6,7 +6,7 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "commonpatterns.
 
 -- This function adds a pattern to the level "timeline" based on a numeric key.
 function addPattern(mKey)
-        if mKey == 0 then pAltBarrage(u_rndInt(2, 4), 2)
+        if mKey == 0 then pAltBarrage(u_rndInt(3, 5), 2)
     elseif mKey == 1 then pMirrorSpiral(u_rndInt(2, 5), getHalfSides() - 3)
     elseif mKey == 2 then pBarrageSpiral(u_rndInt(0, 3), 1, 1)
     elseif mKey == 3 then pInverseBarrage(0)

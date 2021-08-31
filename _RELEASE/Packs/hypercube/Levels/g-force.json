@@ -1,12 +1,12 @@
 {
-    "id": "g-force",
-    "name": "g-force",
-    "description": "beware the acceleration",
-    "author": "vittorio romeo",
-    "menuPriority": 30,
-    "selectable": true,
-    "styleId": "g-force",
-    "musicId": "cpumood",
-    "luaFile": "Scripts/Levels/g-force.lua",
-    "difficultyMults": [1.6, 2.2, 2.8, 0.4, 0.6]
+	"id": "g-force",
+	"name": "g-force",
+	"description": "beware the acceleration",
+	"author": "vittorio romeo",	
+	"menuPriority": 60,
+	"selectable": true,
+	"styleId": "g-force",
+	"musicId": "cpumood",
+	"luaFile": "Scripts/Levels/g-force.lua",
+	"difficultyMults": [1.6, 2.2, 2.8, 0.4, 0.6]
 }
