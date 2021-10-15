@@ -238,10 +238,10 @@ private:
     MenuFont txtProf;
     MenuFont txtLoadBig;
     MenuFont txtLoadSmall;
+    MenuFont txtRandomTip;
     MenuFont txtMenuBig;
     MenuFont txtMenuSmall;
     MenuFont txtProfile;
-    MenuFont txtRandomTip;
     MenuFont txtInstructionsBig;
     MenuFont txtInstructionsMedium;
     MenuFont txtInstructionsSmall;

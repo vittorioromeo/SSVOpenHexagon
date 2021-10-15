@@ -2937,7 +2937,8 @@ void MenuGame::setIndex(const int mIdx)
 
     // Set the colors of the menus
     auto& colors{styleData.getColors()};
-    menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255) : styleData.getTextColor();
+    menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255)
+                                               : styleData.getTextColor();
     if(ssvu::toInt(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
     {
         for(auto& c : colors)
@@ -2969,7 +2970,8 @@ void MenuGame::setIndex(const int mIdx)
         {
             for(auto& c : colors)
             {
-                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor && !Config::getBlackAndWhite())
+                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
+                    !Config::getBlackAndWhite())
                 {
                     menuTextColor = c;
                     break;
@@ -2978,7 +2980,8 @@ void MenuGame::setIndex(const int mIdx)
         }
 
         // Same as above.
-        menuSelectionColor = Config::getBlackAndWhite() ? sf::Color::White : colors[1];
+        menuSelectionColor =
+            Config::getBlackAndWhite() ? sf::Color::White : colors[1];
         if(ssvu::toInt(menuSelectionColor.a) == 0 ||
             menuSelectionColor == menuQuadColor ||
             menuSelectionColor == menuTextColor)
@@ -5568,9 +5571,9 @@ void MenuGame::drawLevelSelectionLeftSide(
             std::string scoreStr = ssvu::toStr(score) + 's';
 
             std::string playerStr = userName;
-            if(playerStr.size() > 20)
+            if(playerStr.size() > 19)
             {
-                playerStr.resize(17);
+                playerStr.resize(16);
                 playerStr += "...";
             }
 
@@ -5579,12 +5582,14 @@ void MenuGame::drawLevelSelectionLeftSide(
                              txtSelectionMedium.height * fontHeightOffset +
                              txtSelectionSmall.height;
 
+            constexpr float ySpacing = 11.f;
+
             renderText(timestampStr, txtSelectionSmall.font, {tx, ty});
-            renderText(posStr, txtSelectionMedium.font, {tx, ty + 7.5f});
+            renderText(posStr, txtSelectionMedium.font, {tx, ty + ySpacing});
             renderText(
-                scoreStr, txtSelectionMedium.font, {tx + 54.f, ty + 7.5f});
-            renderText(
-                playerStr, txtSelectionMedium.font, {tx + 150.f, ty + 7.5f});
+                scoreStr, txtSelectionMedium.font, {tx + 58.f, ty + ySpacing});
+            renderText(playerStr, txtSelectionMedium.font,
+                {tx + 185.f, ty + ySpacing});
 
             height += txtSelectionMedium.height + txtSelectionSmall.height +
                       txtSelectionSmall.height + 10.f;
@@ -6002,7 +6007,8 @@ void MenuGame::drawOnlineStatus()
         ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y);
 
     txtOnlineStatus.setOrigin(ssvs::getLocalCenterW(txtOnlineStatus));
-    txtOnlineStatus.setPosition(ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
+    txtOnlineStatus.setPosition(
+        ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
         ssvs::getGlobalCenter(rsOnlineStatus).y);
 
     render(sOnline);
