@@ -10,6 +10,7 @@
 #include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
 
+#include <SFML/Config.hpp>
 #include <SFML/Network/Packet.hpp>
 
 #include <sodium.h>
@@ -375,6 +376,65 @@ template <typename T>
     };
 }
 
+class AdvancedMatcher
+{
+private:
+    std::ostringstream& _errorOss;
+    sf::Packet& _p;
+
+public:
+    [[nodiscard]] explicit AdvancedMatcher(
+        std::ostringstream& errorOss, sf::Packet& p)
+        : _errorOss{errorOss}, _p{p}
+    {}
+
+    template <typename T>
+    [[nodiscard]] bool extractIntoOrPrintError(const char* name, T& target)
+    {
+        if(!extractInto<T>(target, _errorOss, _p))
+        {
+            _errorOss << "Error extracting " << name << '\n';
+            return false;
+        }
+
+        return true;
+    }
+
+    template <typename T>
+    [[nodiscard]] bool matchOrPrintError(
+        const char* name, T& target, const T& expected)
+    {
+        if(!extractIntoOrPrintError(name, target))
+        {
+            return false;
+        }
+
+        if(target != expected)
+        {
+            _errorOss << "Error, " << name << " has value '" << target
+                      << ", which doesn't match expected value '" << expected
+                      << "'\n";
+
+            return false;
+        }
+
+        return true;
+    }
+
+    template <typename T>
+    [[nodiscard]] std::optional<T> extractOrPrintError(const char* name)
+    {
+        T temp;
+
+        if(!extractIntoOrPrintError(name, temp))
+        {
+            return std::nullopt;
+        }
+
+        return {std::move(temp)};
+    }
+};
+
 template <typename T>
 [[nodiscard]] auto makeMatcher(std::ostringstream& errorOss, sf::Packet& p)
 {
@@ -382,39 +442,16 @@ template <typename T>
     {
         T temp;
 
-        if(!extractInto<T>(temp, errorOss, p))
-        {
-            errorOss << "Error extracting " << name << '\n';
-            return false;
-        }
-
-        if(temp != expected)
-        {
-            errorOss << "Error, " << name << " has value '" << temp
-                     << ", which doesn't match expected value '" << expected
-                     << "'\n";
-
-            return false;
-        }
-
-        return true;
+        return AdvancedMatcher{errorOss, p}.matchOrPrintError<T>(
+            name, temp, expected);
     };
 }
 
 template <typename T>
 [[nodiscard]] auto makeExtractor(std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&](const char* name) -> std::optional<T>
-    {
-        T temp;
-
-        if(!extractInto<T>(temp, errorOss, p))
-        {
-            errorOss << "Error extracting " << name << '\n';
-            return std::nullopt;
-        }
-
-        return {std::move(temp)};
+    return [&](const char* name) -> std::optional<T> {
+        return AdvancedMatcher{errorOss, p}.extractOrPrintError<T>(name);
     };
 }
 
@@ -427,12 +464,54 @@ template <typename T>
     const auto matchByteAlwaysTrue =
         makeAlwaysTrueMatcher<sf::Uint8>(errorOss, p);
 
-    return matchByte("preamble 1st byte", preamble1stByte) &&
-           matchByte("preamble 2nd byte", preamble2ndByte) &&
-           matchByte("protocol version", PROTOCOL_VERSION) &&
-           matchByteAlwaysTrue("major version") &&
-           matchByteAlwaysTrue("minor version") &&
-           matchByteAlwaysTrue("micro version");
+    const bool preambleMatches =
+        matchByte("preamble 1st byte", preamble1stByte) &&
+        matchByte("preamble 2nd byte", preamble2ndByte);
+
+    if(!preambleMatches)
+    {
+        return false;
+    }
+
+    AdvancedMatcher matcher{errorOss, p};
+
+    const std::optional<sf::Uint8> afterPreamble0 =
+        matcher.extractOrPrintError<sf::Uint8>("byte0 after preamble");
+
+    const std::optional<sf::Uint8> afterPreamble1 =
+        matcher.extractOrPrintError<sf::Uint8>("byte1 after preamble");
+
+    const std::optional<sf::Uint8> afterPreamble2 =
+        matcher.extractOrPrintError<sf::Uint8>("byte2 after preamble");
+
+    if(!afterPreamble0 || !afterPreamble1 || !afterPreamble2)
+    {
+        errorOss << "extraction of after-preamble bytes failed\n";
+        return false;
+    }
+
+    // TODO (P0): this doesn't work probably because the server rejects the
+    // client's preamble
+
+    // 2.0.6 backward compatibility
+    if(afterPreamble0 == sf::Uint8{2} &&  //
+        afterPreamble1 == sf::Uint8{0} && //
+        afterPreamble2 == sf::Uint8{6})
+    {
+        errorOss << "connected to 2.0.6 (old) server\n";
+        return true;
+    }
+
+    SSVOH_ASSERT(afterPreamble0.has_value());
+    const ProtocolVersion extractedProtocolVersion = afterPreamble0.value();
+
+    if(extractedProtocolVersion != PROTOCOL_VERSION)
+    {
+        errorOss << "protocol version mismatch\n";
+        return false;
+    }
+
+    return true;
 }
 
 [[nodiscard]] std::optional<PacketType> extractPacketType(

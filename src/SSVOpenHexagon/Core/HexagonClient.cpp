@@ -109,6 +109,7 @@ template <typename... Ts>
     _socket.setBlocking(false);
     _socketConnected = true;
 
+    SSVOH_CLOG << "Socket connected to server\n";
     return true;
 }
 
@@ -414,11 +415,13 @@ bool HexagonClient::connect()
         return failEvent("initializing TCP socket");
     }
 
+    SSVOH_CLOG << "Sending first heartbeat...\n";
     if(!sendHeartbeat())
     {
         return failEvent("sending first heartbeat");
     }
 
+    SSVOH_CLOG << "Sending public key...\n";
     if(!sendPublicKey())
     {
         return failEvent("sending public key");
