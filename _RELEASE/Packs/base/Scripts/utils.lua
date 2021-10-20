@@ -11,7 +11,9 @@ SQRT_THREE = math.sqrt(3)
 
 -- Other Constants
 THICKNESS = 40			-- Wall thickness. Sometimes more convenient to define in utils
-FOCUSRATIO = 0.625		-- The percentage by which the player shrinks when focused
+FOCUS_RATIO = 0.625		-- The percentage by which the player shrinks when focused
+PLAYER_WIDTH_UNFOCUSED = 23
+PLAYER_WIDTH_FOCUSED = PLAYER_WIDTH_UNFOCUSED * FOCUS_RATIO
 
 -- Open Hexagon players, if certain things are causing issues for you please change this value
 -- to the refresh rate of your monitor.
