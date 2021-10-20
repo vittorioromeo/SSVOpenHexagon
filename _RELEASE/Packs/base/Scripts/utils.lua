@@ -279,7 +279,7 @@ end
 
 -- Takes a value <i> between <a> and <b> and proportionally maps it to a value between <c> and <d>
 function map(i, a, b, c, d)
-	return lerp(c, d, inverseLerp(a, b, i))
+    return c + ((d - c) / (b - a)) * (i - a)
 end
 
 -- Prints a table to the console. This includes all key value pairs, and recursively prints out any
@@ -586,10 +586,10 @@ function ArrayRemoveIf(t, fnRemove)
     return t
 end
 
--- Tests whether a number is equal to any number within a table
-function equalsWithin(num, arr)
-	for i = 1, #arr do
-		if num == arr[i] then return true end
+-- Tests whether a table contains a specific value on any existing key
+function contains(val, table)
+	for _, v in pairs(table) do
+		if val == v then return true end
 	end
 	return false
 end
@@ -624,12 +624,12 @@ function getDistanceBetweenCenterAndPlayer()
 	return l_getRadiusMin() * l_getPulse() / l_getPulseMin() + l_getBeatPulse()
 end
 -- Distance from center to tip of player arrow
-function getPlayerTipRadius()
+function getDistanceBetweenCenterAndPlayerTip()
 	return getPlayerRadius() + 7.25
 end
 
 -- Distance from center to base of player arrow (depends on focus)
-function getPlayerBaseRadius(mFocus)
+function getDistanceBetweenCenterAndPlayerBase(mFocus)
 	return getPlayerRadius() - (mFocus and 1.265625 or 2.025)
 end
 
@@ -638,14 +638,14 @@ function getPlayerHeight(mFocus)
 	return 7.25 + (mFocus and 1.265625 or 2.025)
 end
 
--- Half of the base width of the player triangle (depends on focus)
-function getPlayerHalfBaseWidth(mFocus)
-	return mFocus and 11.5 or 7.1875
-end
-
 -- Base width of the player triangle (depends on focus)
 function getPlayerBaseWidth(mFocus)
-	return mFocus and 23 or 14.375
+	return mFocus and PLAYER_WIDTH_FOCUSED or PLAYER_WIDTH_UNFOCUSED
+end
+
+-- Half of the base width of the player triangle (depends on focus)
+function getPlayerHalfBaseWidth(mFocus)
+    return getPlayerBaseWidth(mFocus) * 0.5
 end
 
 -- Radius of a circle circumscribed around the center polygon cap
