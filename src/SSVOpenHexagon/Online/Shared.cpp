@@ -107,7 +107,7 @@ void encodeVersion(sf::Packet& p)
       << static_cast<sf::Uint8>(GAME_VERSION.micro);
 }
 
-void clearPacketAndEncodePreambleAndVersion(sf::Packet& p)
+void clearPacketAndEncodePreambleAndProtocolVersionAndGameVersion(sf::Packet& p)
 {
     p.clear();
 
@@ -401,7 +401,7 @@ public:
     }
 
     template <typename T>
-    [[nodiscard]] bool matchOrPrintError(
+    [[nodiscard]] bool extractAndMatchOrPrintError(
         const char* name, T& target, const T& expected)
     {
         if(!extractIntoOrPrintError(name, target))
@@ -433,17 +433,21 @@ public:
 
         return {std::move(temp)};
     }
+
+    template <typename T>
+    [[nodiscard]] bool matchOrPrintError(const char* name, const T& expected)
+    {
+        T temp;
+        return extractAndMatchOrPrintError(name, temp, expected);
+    }
 };
 
 template <typename T>
 [[nodiscard]] auto makeMatcher(std::ostringstream& errorOss, sf::Packet& p)
 {
-    return [&](const char* name, const T& expected) -> bool
-    {
-        T temp;
-
+    return [&](const char* name, const T& expected) -> bool {
         return AdvancedMatcher{errorOss, p}.matchOrPrintError<T>(
-            name, temp, expected);
+            name, expected);
     };
 }
 
@@ -455,61 +459,96 @@ template <typename T>
     };
 }
 
-[[nodiscard]] bool verifyReceivedPacketPreambleAndVersion(
+[[nodiscard]] bool verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    // TODO (P0): should use a protocol version instead of the game version here
+    AdvancedMatcher matcher{errorOss, p};
 
-    const auto matchByte = makeMatcher<sf::Uint8>(errorOss, p);
-    const auto matchByteAlwaysTrue =
-        makeAlwaysTrueMatcher<sf::Uint8>(errorOss, p);
-
-    const bool preambleMatches =
-        matchByte("preamble 1st byte", preamble1stByte) &&
-        matchByte("preamble 2nd byte", preamble2ndByte);
+    const bool preambleMatches = //
+        matcher.matchOrPrintError<sf::Uint8>(
+            "preamble 1st byte", preamble1stByte) &&
+        matcher.matchOrPrintError<sf::Uint8>(
+            "preamble 2nd byte", preamble2ndByte);
 
     if(!preambleMatches)
     {
+        errorOss << "preamble mismatch\n";
         return false;
     }
 
-    AdvancedMatcher matcher{errorOss, p};
+    SSVOH_ASSERT(preambleMatches);
 
-    const std::optional<sf::Uint8> afterPreamble0 =
+    const std::optional<sf::Uint8> afterPreambleByte0 =
         matcher.extractOrPrintError<sf::Uint8>("byte0 after preamble");
 
-    const std::optional<sf::Uint8> afterPreamble1 =
-        matcher.extractOrPrintError<sf::Uint8>("byte1 after preamble");
-
-    const std::optional<sf::Uint8> afterPreamble2 =
-        matcher.extractOrPrintError<sf::Uint8>("byte2 after preamble");
-
-    if(!afterPreamble0 || !afterPreamble1 || !afterPreamble2)
+    if(!afterPreambleByte0.has_value())
     {
-        errorOss << "extraction of after-preamble bytes failed\n";
+        errorOss << "extraction of after-preamble byte0 failed\n";
         return false;
     }
+
+    const std::optional<sf::Uint8> afterPreambleByte1 =
+        matcher.extractOrPrintError<sf::Uint8>("byte1 after preamble");
+
+    if(!afterPreambleByte1.has_value())
+    {
+        errorOss << "extraction of after-preamble byte1 failed\n";
+        return false;
+    }
+
+    const std::optional<sf::Uint8> afterPreambleByte2 =
+        matcher.extractOrPrintError<sf::Uint8>("byte2 after preamble");
+
+    if(!afterPreambleByte2.has_value())
+    {
+        errorOss << "extraction of after-preamble byte2 failed\n";
+        return false;
+    }
+
+    SSVOH_ASSERT(afterPreambleByte0.has_value());
+    SSVOH_ASSERT(afterPreambleByte1.has_value());
+    SSVOH_ASSERT(afterPreambleByte2.has_value());
 
     // TODO (P0): this doesn't work probably because the server rejects the
     // client's preamble
 
+    // ------------------------------------------------------------------------
     // 2.0.6 backward compatibility
-    if(afterPreamble0 == sf::Uint8{2} &&  //
-        afterPreamble1 == sf::Uint8{0} && //
-        afterPreamble2 == sf::Uint8{6})
+    if(*afterPreambleByte0 == sf::Uint8{2} &&  //
+        *afterPreambleByte1 == sf::Uint8{0} && //
+        *afterPreambleByte2 == sf::Uint8{6})
     {
         errorOss << "connected to 2.0.6 (old) server\n";
         return true;
     }
 
-    SSVOH_ASSERT(afterPreamble0.has_value());
-    const ProtocolVersion extractedProtocolVersion = afterPreamble0.value();
+    // ------------------------------------------------------------------------
+    // Post-2.0.6 compatibility (protocol version byte)
+    SSVOH_ASSERT(afterPreambleByte0.has_value());
+    const ProtocolVersion extractedProtocolVersion = *afterPreambleByte0;
 
     if(extractedProtocolVersion != PROTOCOL_VERSION)
     {
         errorOss << "protocol version mismatch\n";
         return false;
     }
+
+    // Extract final byte (game micro version)
+    const std::optional<sf::Uint8> afterPreambleByte3 =
+        matcher.extractOrPrintError<sf::Uint8>("byte3 after preamble");
+
+    if(!afterPreambleByte3.has_value())
+    {
+        errorOss << "extraction of after-preamble byte3 failed\n";
+        return false;
+    }
+
+    const GameVersion extractedGameVersion{//
+        .major = *afterPreambleByte1,
+        .minor = *afterPreambleByte2,
+        .micro = *afterPreambleByte3};
+
+    (void)extractedGameVersion;
 
     return true;
 }
@@ -751,7 +790,7 @@ template <typename F, typename T>
 template <typename T>
 void makeClientToServerPacket(sf::Packet& p, const T& data)
 {
-    clearPacketAndEncodePreambleAndVersion(p);
+    clearPacketAndEncodePreambleAndProtocolVersionAndGameVersion(p);
     encodeOHPacket(p, data);
 }
 
@@ -885,7 +924,8 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    if(!verifyReceivedPacketPreambleAndVersion(errorOss, p))
+    if(!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
+           errorOss, p))
     {
         return {PInvalid{.error = errorOss.str()}};
     }
@@ -898,7 +938,7 @@ static auto makeExtractAllMembers(std::ostringstream& errorOss, sf::Packet& p)
 template <typename T>
 void makeServerToClientPacket(sf::Packet& p, const T& data)
 {
-    clearPacketAndEncodePreambleAndVersion(p);
+    clearPacketAndEncodePreambleAndProtocolVersionAndGameVersion(p);
     encodeOHPacket(p, data);
 }
 
@@ -947,7 +987,8 @@ VRM_PP_FOREACH_REVERSE(INSTANTIATE_MAKE_STC_ENCRYPTED, VRM_PP_EMPTY(),
     const SodiumReceiveKeyArray* keyReceive, std::ostringstream& errorOss,
     sf::Packet& p)
 {
-    if(!verifyReceivedPacketPreambleAndVersion(errorOss, p))
+    if(!verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
+           errorOss, p))
     {
         return {PInvalid{.error = errorOss.str()}};
     }
