@@ -620,7 +620,7 @@ function verifyShape(shape)
 end
 
 -- Distance from the center to the player position
-function getPlayerRadius()
+function getDistanceBetweenCenterAndPlayer()
 	return l_getRadiusMin() * l_getPulse() / l_getPulseMin() + l_getBeatPulse()
 end
 -- Distance from center to tip of player arrow
