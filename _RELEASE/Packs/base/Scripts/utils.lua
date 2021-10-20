@@ -664,6 +664,6 @@ function getPolygonRadius()
 end
 
 -- Returns the speed of walls in units per frame (5 times the speed mult)
-function getWallSpeed()
+function getWallSpeedInUnitsPerFrame()
 	return l_getSpeedMult() * 5
 end
