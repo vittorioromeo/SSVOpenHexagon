@@ -603,7 +603,7 @@ function getMusicDMSyncFactor()
 end
 
 -- Sets hue to a specific value by setting its min an max to the same value
-function setHue(h)
+function forceSetHue(h)
 	s_setHueMin(h)
 	s_setHueMax(h)
 end
