@@ -630,12 +630,12 @@ end
 
 -- Distance from center to base of player arrow (depends on focus)
 function getDistanceBetweenCenterAndPlayerBase(mFocus)
-	return getPlayerRadius() - (mFocus and 1.265625 or 2.025)
+	return getPlayerRadius() - 2.025 * (mFocus and FOCUS_RATIO or 1)
 end
 
 -- Distance from the base to the tip of the player triangle (depends on focus)
 function getPlayerHeight(mFocus)
-	return 7.25 + (mFocus and 1.265625 or 2.025)
+	return 7.25 + 2.025 * (mFocus and FOCUS_RATIO or 1)
 end
 
 -- Base width of the player triangle (depends on focus)
