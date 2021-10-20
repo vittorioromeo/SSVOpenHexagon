@@ -609,7 +609,7 @@ function forceSetHue(h)
 end
 
 -- Sets pulse to a specific value by setting its min an max to the same value
-function setPulse(p)
+function forceSetPulse(p)
 	s_setPulseMin(p)
 	s_setPulseMax(p)
 end
