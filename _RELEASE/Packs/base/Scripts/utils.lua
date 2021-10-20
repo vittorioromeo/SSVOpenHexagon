@@ -9,6 +9,10 @@ math.phi = (1 + 5 ^ 0.5) / 2
 SQRT_TWO = math.sqrt(2)
 SQRT_THREE = math.sqrt(3)
 
+-- Other Constants
+THICKNESS = 40			-- Wall thickness. Sometimes more convenient to define in utils
+FOCUSRATIO = 0.625		-- The percentage by which the player shrinks when focused
+
 -- Open Hexagon players, if certain things are causing issues for you please change this value
 -- to the refresh rate of your monitor.
 REFRESH_RATE = 60
@@ -163,10 +167,10 @@ local function fromHS(h, s)
 end
 
 -- Converts HSV color values to RGB color values in a 0 - 255 range (alpha not included).
+-- Now with type checking
 function fromHSV(h, s, v)
-    -- Saturation and Value are optional parameters
-    s = s or 1
-    v = v or 1
+    -- All parameters are optional. Hue defaults to 0, Saturation anf value default to 1
+    h, s, v = type(h) == 'number' and h or 0, type(s) == 'number' and clamp(s, 0, 1) or 1, type(v) == 'number' and clamp(v, 0, 1) or 1
 
     local r, g, b = fromHS(h, s)
     r = math.floor(r * v * 255)
@@ -177,7 +181,7 @@ end
 
 -- Returns coordinates (x, y) adjusted with the level rotation using polar coordinate math.
 function getAbsolutePosition(x, y)
-    local r, a = (x ^ 2 + y ^ 2) ^ 0.5, math.atan(y, x)
+    local r, a = (x ^ 2 + y ^ 2) ^ 0.5, math.atan(y)
     a = a + math.rad(l_getRotation())
     return r * math.cos(a), r * math.sin(a)
 end
@@ -193,32 +197,68 @@ function getSign(number)
     return 0
 end
 
+-- Sign function. Same as the function above but uses the mathmatical function abbreviation
+function sgn(x)
+	return x > 0 and 1 or x == 0 and 0 or -1
+end
+
+-- Square wave function with period p at value x with duty cycle d (range [-1, 1])
+function square(x, p, d)
+	return sgn(math.sin(math.pi * (2 * x / p + 0.5 - d)) - math.cos(math.pi * d))
+end
+
+-- Triangle wave function with period p at value x (range [-1, 1])
+function triangle(x, p)
+	return math.asin(math.sin(math.tau * x / p)) * 2 / math.pi
+end
+
+-- Sawtooth wave function with period p at value x (range [-1, 1])
+function sawtooth(x, p)
+	return 2 * (x / p - math.floor(0.5 + x / p))
+end
+
+-- Takes a coordinate, translates it by dX and dY, and returns the new coordinates
+function transformTranslate(dX, dY, x, y)
+	return x + dX, y + dY
+end
+
+-- Takes a coordinate, rotates it by R radians about the origin, and returns the new coordinates
+function transformRotation(R, x, y)
+	return x * math.cos(R) - y * math.sin(R), x * math.sin(R) + y * math.cos(R)
+end
+
+-- Takes a coordinate, scales it by sX or sY along the x or y axis respectively, and returns the new coordinates
+function transformScale(sX, sY, x, y)
+	return x * sX, y * sY
+end
+
+-- Transformation functions can be chained
+-- Ex: transformTranslate(20, 10, transformRotation(math.pi, x, y))
+
 -- A data structure that stores results for prime numbers as a way to "cache" results.
 -- This helps make isPrime run faster by knocking out calculations that were already done.
+-- First 100 prime numbers
 local prime_memoization = {
-    [0] = false,
-    [1] = false,
-    [2] = true
+    [2] = true, [3] = true, [5] = true, [7] = true, [11] = true, [13] = true, [17] = true, [19] = true, [23] = true, [29] = true, [31] = true, [37] = true, [41] = true, [43] = true, [47] = true, [53] = true, [59] = true, [61] = true, [67] = true, [71] = true,
+    [73] = true, [79] = true, [83] = true, [89] = true, [97] = true, [101] = true, [103] = true, [107] = true, [109] = true, [113] = true, [127] = true, [131] = true, [137] = true, [139] = true, [149] = true, [151] = true, [157] = true, [163] = true, [167] = true, [173] = true,
+    [179] = true, [181] = true, [191] = true, [193] = true, [197] = true, [199] = true, [211] = true, [223] = true, [227] = true, [229] = true, [233] = true, [239] = true, [241] = true, [251] = true, [257] = true, [263] = true, [269] = true, [271] = true, [277] = true, [281] = true,
+    [283] = true, [293] = true, [307] = true, [311] = true, [313] = true, [317] = true, [331] = true, [337] = true, [347] = true, [349] = true, [353] = true, [359] = true, [367] = true, [373] = true, [379] = true, [383] = true, [389] = true, [397] = true, [401] = true, [409] = true,
+    [419] = true, [421] = true, [431] = true, [433] = true, [439] = true, [443] = true, [449] = true, [457] = true, [461] = true, [463] = true, [467] = true, [479] = true, [487] = true, [491] = true, [499] = true, [503] = true, [509] = true, [521] = true, [523] = true, [541] = true
 }
 -- Checks whether an integer is a prime number or not
+-- More cursed but more concise and memory efficient
 function isPrime(integer)
-    -- Check if our argument is an integer
-    if (integer % 1 ~= 0) then
-        return false
-    end
-    if (prime_memoization[integer]) then
-        return prime_memoization[integer]
-    end
-    local divisor = 2
-    while (divisor ^ 2 <= integer) do
-        if (integer % divisor == 0) then
-            prime_memoization[integer] = false
-            return false
-          end
-          divisor = divisor + 1
-    end
-    prime_memoization[integer] = true
-    return true
+    return integer % 1 == 0 and (prime_memoization[integer] or (function ()
+        local divisor = 2
+        while (divisor ^ 2 <= integer) do
+            if (integer % divisor == 0) then
+                return false
+            end
+            divisor = divisor + 1
+        end
+        prime_memoization[integer] = true
+        return true
+    end)()) or false
 end
 
 -- Inverse linear interpolation function. Takes two number values, initial
@@ -233,6 +273,11 @@ end
 -- i is a number value between 0 and 1
 function lerp(initial, final, i)
     return (1 - i) * initial + i * final
+end
+
+-- Takes a value <i> between <a> and <b> and proportionally maps it to a value between <c> and <d>
+function map(i, a, b, c, d)
+	return lerp(c, d, inverseLerp(a, b, i))
 end
 
 -- Prints a table to the console. This includes all key value pairs, and recursively prints out any
@@ -539,10 +584,84 @@ function ArrayRemoveIf(t, fnRemove)
     return t
 end
 
+-- Tests whether a number is equal to any number within a table
+function equalsWithin(num, arr)
+	for i = 1, #arr do
+		if num == arr[i] then return true end
+	end
+	return false
+end
+
 function getBPMToBeatPulseDelay(bpm)
     return 3600 / bpm
 end
 
 function getMusicDMSyncFactor()
     return u_getDifficultyMult() ^ 0.12
+end
+
+-- Sets hue to a specific value by setting its min an max to the same value
+function setHue(h)
+	s_setHueMin(h)
+	s_setHueMax(h)
+end
+
+-- Sets pulse to a specific value by setting its min an max to the same value
+function setPulse(p)
+	s_setPulseMin(p)
+	s_setPulseMax(p)
+end
+
+-- Guarantees an input value to be a valid number of sides. Falls back to the level's current number of sides if an invalid argument is given
+function verifyShape(shape)
+	return type(shape) == 'number' and math.floor(math.max(shape, 3)) or l_getSides()
+end
+
+-- Distance from the center to the player position
+function getPlayerRadius()
+	return l_getRadiusMin() * l_getPulse() / l_getPulseMin() + l_getBeatPulse()
+end
+-- Distance from center to tip of player arrow
+function getPlayerTipRadius()
+	return getPlayerRadius() + 7.25
+end
+
+-- Distance from center to base of player arrow (depends on focus)
+function getPlayerBaseRadius(mFocus)
+	return getPlayerRadius() - (mFocus and 1.265625 or 2.025)
+end
+
+-- Distance from the base to the tip of the player triangle (depends on focus)
+function getPlayerHeight(mFocus)
+	return 7.25 + (mFocus and 1.265625 or 2.025)
+end
+
+-- Half of the base width of the player triangle (depends on focus)
+function getPlayerHalfBaseWidth(mFocus)
+	return mFocus and 11.5 or 7.1875
+end
+
+-- Base width of the player triangle (depends on focus)
+function getPlayerBaseWidth(mFocus)
+	return mFocus and 23 or 14.375
+end
+
+-- Radius of a circle circumscribed around the center polygon cap
+function getCapRadius()
+	return getPlayerRadius() * 0.75
+end
+
+-- Width of the polygon border
+function getPolygonBorderWidth()
+	return 5
+end
+
+-- Radius of a circle circumscribed around the center polygon
+function getPolygonRadius()
+	return getCapRadius() + getPolygonBorderWidth()
+end
+
+-- Returns the speed of walls in units per frame (5 times the speed mult)
+function getWallSpeed()
+	return l_getSpeedMult() * 5
 end
