@@ -1,12 +1,12 @@
 {
-	"id": "disc-o",
-	"name": "disc-o",
-	"description": "dance!",
-	"author": "vittorio romeo",	
-	"menuPriority": 40,
-	"selectable": true,
-	"styleId": "disc-o",
-	"musicId": "dischipo",
-	"luaFile": "Scripts/Levels/disc-o.lua",
-	"difficultyMults": [2, 2.8, 0.5]
+    "id": "disc-o",
+    "name": "disc-o",
+    "description": "dance!",
+    "author": "vittorio romeo",
+    "menuPriority": 40,
+    "selectable": true,
+    "styleId": "disc-o",
+    "musicId": "dischipo",
+    "luaFile": "Scripts/Levels/disc-o.lua",
+    "difficultyMults": [2, 2.8, 0.5]
 }

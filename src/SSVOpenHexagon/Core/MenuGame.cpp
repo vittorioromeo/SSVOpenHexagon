@@ -200,11 +200,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       txtVersion{.font{"", openSquare, 40}},
       txtProf{.font{"", openSquare, 18}},
       // For the loading screen
-      txtLoadBig{.font{"", openSquare, 72}},
+      txtLoadBig{.font{"", openSquare}},
       txtLoadSmall{.font{"", openSquareBold}},
-      txtRandomTip{.font{"", openSquare, 32}},
+      txtRandomTip{.font{"", openSquare}},
       // For the Main Menu
-      txtMenuBig{.font{"", openSquare, 96}},
+      txtMenuBig{.font{"", openSquare}},
       txtMenuSmall{.font{"", openSquare}},
       txtProfile{.font{"", openSquare, 32}},
       txtInstructionsBig{.font{"", openSquare, 46}},
@@ -214,10 +214,10 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       txtEnteringText{.font{"", openSquare, 54}},
       // For the Level Selection Screen
       txtSelectionBig{.font{"", openSquareBold, 28}},
-      txtSelectionMedium{.font{"", openSquareBold, 20}},
-      txtSelectionSmall{.font{"", openSquare, 12}},
+      txtSelectionMedium{.font{"", openSquareBold, 19}},
+      txtSelectionSmall{.font{"", openSquare}},
       txtSelectionScore{.font{"", openSquare, 28}},
-      txtSelectionRanked{.font{"", openSquare, 10}},
+      txtSelectionRanked{.font{"", openSquareBold}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -3159,22 +3159,26 @@ void MenuGame::refreshCamera()
     {
         txtMenuBig.font.setCharacterSize(26);
         txtMenuSmall.font.setCharacterSize(16);
-        txtSelectionSmall.font.setCharacterSize(16);
-        txtSelectionRanked.font.setCharacterSize(12);
+
+        txtSelectionSmall.font.setCharacterSize(14);
+        txtSelectionRanked.font.setCharacterSize(10);
 
         txtLoadBig.font.setCharacterSize(56);
         txtLoadSmall.font.setCharacterSize(16);
+
         txtRandomTip.font.setCharacterSize(24);
     }
     else
     {
         txtMenuBig.font.setCharacterSize(36);
         txtMenuSmall.font.setCharacterSize(24);
-        txtSelectionSmall.font.setCharacterSize(16);
-        txtSelectionRanked.font.setCharacterSize(12);
+
+        txtSelectionSmall.font.setCharacterSize(14);
+        txtSelectionRanked.font.setCharacterSize(10);
 
         txtLoadBig.font.setCharacterSize(70);
         txtLoadSmall.font.setCharacterSize(24);
+
         txtRandomTip.font.setCharacterSize(32);
     }
 
@@ -5010,6 +5014,9 @@ void MenuGame::drawLevelSelectionRightSide(
         const std::string& levelValidator =
             levelData->getValidator(currentDiffMult);
 
+        renderText(tempString, txtSelectionBig.font,
+            {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
+
         if(!levelData->unscored &&
             hexagonClient.isLevelSupportedByServer(levelValidator))
         {
@@ -5022,19 +5029,16 @@ void MenuGame::drawLevelSelectionRightSide(
             createQuad(menuQuadColor, w - width - padding, w,
                 height - textToQuadBorder,
                 height - textToQuadBorder + txtSelectionRanked.height +
-                    padding);
+                    padding + 1.f);
 
             render(menuQuads);
 
             renderText("RANKED", txtSelectionRanked.font,
                 {w - width, height -
                                 txtSelectionRanked.height * fontHeightOffset -
-                                5.5f},
+                                3.f},
                 mouseOverlapColor(mouseOverlap, c));
         }
-
-        renderText(tempString, txtSelectionBig.font,
-            {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
 
         //-------------------------------------
         // Author
@@ -5580,7 +5584,7 @@ void MenuGame::drawLevelSelectionLeftSide(
             const float tx = textToQuadBorder - panelOffset;
             const float ty = height -
                              txtSelectionMedium.height * fontHeightOffset +
-                             txtSelectionSmall.height;
+                             txtSelectionSmall.height - 9.f;
 
             constexpr float ySpacing = 11.f;
 
@@ -5740,13 +5744,13 @@ void MenuGame::draw()
         case States::LoadingScreen:
             drawLoadResults();
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
-                {txtProf.height, h - txtProf.height * 2.7f});
+                {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
 
         case States::EpilepsyWarning:
             render(epilepsyWarning);
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
-                {txtProf.height, h - txtProf.height * 2.7f});
+                {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
 
         case States::ETLPNewBoot:
