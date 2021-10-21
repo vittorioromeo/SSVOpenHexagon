@@ -60,24 +60,26 @@ public:
     struct EDeleteAccountFailure           { std::string error; };
     struct EReceivedTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
     struct EReceivedOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
-    struct EVersionMismatch                { };
+    struct EGameVersionMismatch            { };
+    struct EProtocolVersionMismatch        { };
     // clang-format on
 
-    using Event = std::variant< //
-        EConnectionSuccess,     //
-        EConnectionFailure,     //
-        EKicked,                //
-        ERegistrationSuccess,   //
-        ERegistrationFailure,   //
-        ELoginSuccess,          //
-        ELoginFailure,          //
-        ELogoutSuccess,         //
-        ELogoutFailure,         //
-        EDeleteAccountSuccess,  //
-        EDeleteAccountFailure,  //
-        EReceivedTopScores,     //
-        EReceivedOwnScore,      //
-        EVersionMismatch        //
+    using Event = std::variant<  //
+        EConnectionSuccess,      //
+        EConnectionFailure,      //
+        EKicked,                 //
+        ERegistrationSuccess,    //
+        ERegistrationFailure,    //
+        ELoginSuccess,           //
+        ELoginFailure,           //
+        ELogoutSuccess,          //
+        ELogoutFailure,          //
+        EDeleteAccountSuccess,   //
+        EDeleteAccountFailure,   //
+        EReceivedTopScores,      //
+        EReceivedOwnScore,       //
+        EGameVersionMismatch,    //
+        EProtocolVersionMismatch //
         >;
 
 private:
