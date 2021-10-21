@@ -201,38 +201,38 @@ end
 
 -- Sign function. Same as the function above but uses the mathmatical function abbreviation
 function sgn(x)
-	return x > 0 and 1 or x == 0 and 0 or -1
+    return x > 0 and 1 or x == 0 and 0 or -1
 end
 
 -- Square wave function with period p at value x with duty cycle d (range [-1, 1])
 function square(x, p, d)
-	return sgn(math.sin(math.pi * (2 * x / p + 0.5 - d)) - math.cos(math.pi * d))
+    return sgn(math.sin(math.pi * (2 * x / p + 0.5 - d)) - math.cos(math.pi * d))
 end
 
 -- Triangle wave function with period p at value x (range [-1, 1])
 function triangle(x, p)
-	return math.asin(math.sin(math.tau * x / p)) * 2 / math.pi
+    return math.asin(math.sin(math.tau * x / p)) * 2 / math.pi
 end
 
 -- Sawtooth wave function with period p at value x (range [-1, 1])
 function sawtooth(x, p)
-	return 2 * (x / p - math.floor(0.5 + x / p))
+    return 2 * (x / p - math.floor(0.5 + x / p))
 end
 
 -- Takes a coordinate, translates it by dX and dY, and returns the new coordinates
 function transformTranslate(dX, dY, x, y)
-	return x + dX, y + dY
+    return x + dX, y + dY
 end
 
 -- Takes a coordinate, rotates it by R radians about the origin, and returns the new coordinates
 function transformRotation(R, x, y)
     local cos, sin = math.cos(R), math.sin(R)
-	return x * cos - y * sin, x * sin + y * cos
+    return x * cos - y * sin, x * sin + y * cos
 end
 
 -- Takes a coordinate, scales it by sX or sY along the x or y axis respectively, and returns the new coordinates
 function transformScale(sX, sY, x, y)
-	return x * sX, y * sY
+    return x * sX, y * sY
 end
 
 -- Transformation functions can be chained
@@ -589,10 +589,10 @@ end
 
 -- Tests whether a table contains a specific value on any existing key
 function contains(val, table)
-	for _, v in pairs(table) do
-		if val == v then return true end
-	end
-	return false
+    for _, v in pairs(table) do
+        if val == v then return true end
+    end
+    return false
 end
 
 function getBPMToBeatPulseDelay(bpm)
@@ -605,43 +605,43 @@ end
 
 -- Sets hue to a specific value by setting its min an max to the same value
 function forceSetHue(h)
-	s_setHueMin(h)
-	s_setHueMax(h)
+    s_setHueMin(h)
+    s_setHueMax(h)
 end
 
 -- Sets pulse to a specific value by setting its min an max to the same value
 function forceSetPulse(p)
-	s_setPulseMin(p)
-	s_setPulseMax(p)
+    s_setPulseMin(p)
+    s_setPulseMax(p)
 end
 
 -- Guarantees an input value to be a valid number of sides. Falls back to the level's current number of sides if an invalid argument is given
 function verifyShape(shape)
-	return type(shape) == 'number' and math.floor(math.max(shape, 3)) or l_getSides()
+    return type(shape) == 'number' and math.floor(math.max(shape, 3)) or l_getSides()
 end
 
 -- Distance from the center to the player position
 function getDistanceBetweenCenterAndPlayer()
-	return l_getRadiusMin() * l_getPulse() / l_getPulseMin() + l_getBeatPulse()
+    return l_getRadiusMin() * l_getPulse() / l_getPulseMin() + l_getBeatPulse()
 end
 -- Distance from center to tip of player arrow
 function getDistanceBetweenCenterAndPlayerTip()
-	return getPlayerRadius() + 7.25
+    return getPlayerRadius() + 7.25
 end
 
 -- Distance from center to base of player arrow (depends on focus)
 function getDistanceBetweenCenterAndPlayerBase(mFocus)
-	return getPlayerRadius() - 2.025 * (mFocus and FOCUS_RATIO or 1)
+    return getPlayerRadius() - 2.025 * (mFocus and FOCUS_RATIO or 1)
 end
 
 -- Distance from the base to the tip of the player triangle (depends on focus)
 function getPlayerHeight(mFocus)
-	return 7.25 + 2.025 * (mFocus and FOCUS_RATIO or 1)
+    return 7.25 + 2.025 * (mFocus and FOCUS_RATIO or 1)
 end
 
 -- Base width of the player triangle (depends on focus)
 function getPlayerBaseWidth(mFocus)
-	return mFocus and PLAYER_WIDTH_FOCUSED or PLAYER_WIDTH_UNFOCUSED
+    return mFocus and PLAYER_WIDTH_FOCUSED or PLAYER_WIDTH_UNFOCUSED
 end
 
 -- Half of the base width of the player triangle (depends on focus)
@@ -651,20 +651,20 @@ end
 
 -- Radius of a circle circumscribed around the center polygon cap
 function getCapRadius()
-	return getPlayerRadius() * 0.75
+    return getPlayerRadius() * 0.75
 end
 
 -- Width of the polygon border
 function getPolygonBorderWidth()
-	return 5
+    return 5
 end
 
 -- Radius of a circle circumscribed around the center polygon
 function getPolygonRadius()
-	return getCapRadius() + getPolygonBorderWidth()
+    return getCapRadius() + getPolygonBorderWidth()
 end
 
 -- Returns the speed of walls in units per frame (5 times the speed mult)
 function getWallSpeedInUnitsPerFrame()
-	return l_getSpeedMult() * 5
+    return l_getSpeedMult() * 5
 end
