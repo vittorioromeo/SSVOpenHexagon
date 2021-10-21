@@ -422,6 +422,13 @@ public:
     }
 
     template <typename T>
+    [[nodiscard]] bool skipOrPrintError(const char* name)
+    {
+        T temp;
+        return extractIntoOrPrintError(name, temp);
+    }
+
+    template <typename T>
     [[nodiscard]] std::optional<T> extractOrPrintError(const char* name)
     {
         T temp;
@@ -462,95 +469,18 @@ template <typename T>
 [[nodiscard]] bool verifyReceivedPacketPreambleAndProtocolVersionAndGameVersion(
     std::ostringstream& errorOss, sf::Packet& p)
 {
-    AdvancedMatcher matcher{errorOss, p};
+    AdvancedMatcher m{errorOss, p};
 
-    const bool preambleMatches = //
-        matcher.matchOrPrintError<sf::Uint8>(
-            "preamble 1st byte", preamble1stByte) &&
-        matcher.matchOrPrintError<sf::Uint8>(
-            "preamble 2nd byte", preamble2ndByte);
+    return
+        // Preamble bytes and protocol version must match.
+        m.matchOrPrintError<sf::Uint8>("preamble 1st byte", preamble1stByte) &&
+        m.matchOrPrintError<sf::Uint8>("preamble 2st byte", preamble2ndByte) &&
+        m.matchOrPrintError<sf::Uint8>("protocol version", PROTOCOL_VERSION) &&
 
-    if(!preambleMatches)
-    {
-        errorOss << "preamble mismatch\n";
-        return false;
-    }
-
-    SSVOH_ASSERT(preambleMatches);
-
-    const std::optional<sf::Uint8> afterPreambleByte0 =
-        matcher.extractOrPrintError<sf::Uint8>("byte0 after preamble");
-
-    if(!afterPreambleByte0.has_value())
-    {
-        errorOss << "extraction of after-preamble byte0 failed\n";
-        return false;
-    }
-
-    const std::optional<sf::Uint8> afterPreambleByte1 =
-        matcher.extractOrPrintError<sf::Uint8>("byte1 after preamble");
-
-    if(!afterPreambleByte1.has_value())
-    {
-        errorOss << "extraction of after-preamble byte1 failed\n";
-        return false;
-    }
-
-    const std::optional<sf::Uint8> afterPreambleByte2 =
-        matcher.extractOrPrintError<sf::Uint8>("byte2 after preamble");
-
-    if(!afterPreambleByte2.has_value())
-    {
-        errorOss << "extraction of after-preamble byte2 failed\n";
-        return false;
-    }
-
-    SSVOH_ASSERT(afterPreambleByte0.has_value());
-    SSVOH_ASSERT(afterPreambleByte1.has_value());
-    SSVOH_ASSERT(afterPreambleByte2.has_value());
-
-    // TODO (P0): this doesn't work probably because the server rejects the
-    // client's preamble
-
-    // ------------------------------------------------------------------------
-    // 2.0.6 backward compatibility
-    if(*afterPreambleByte0 == sf::Uint8{2} &&  //
-        *afterPreambleByte1 == sf::Uint8{0} && //
-        *afterPreambleByte2 == sf::Uint8{6})
-    {
-        errorOss << "connected to 2.0.6 (old) server\n";
-        return true;
-    }
-
-    // ------------------------------------------------------------------------
-    // Post-2.0.6 compatibility (protocol version byte)
-    SSVOH_ASSERT(afterPreambleByte0.has_value());
-    const ProtocolVersion extractedProtocolVersion = *afterPreambleByte0;
-
-    if(extractedProtocolVersion != PROTOCOL_VERSION)
-    {
-        errorOss << "protocol version mismatch\n";
-        return false;
-    }
-
-    // Extract final byte (game micro version)
-    const std::optional<sf::Uint8> afterPreambleByte3 =
-        matcher.extractOrPrintError<sf::Uint8>("byte3 after preamble");
-
-    if(!afterPreambleByte3.has_value())
-    {
-        errorOss << "extraction of after-preamble byte3 failed\n";
-        return false;
-    }
-
-    const GameVersion extractedGameVersion{//
-        .major = *afterPreambleByte1,
-        .minor = *afterPreambleByte2,
-        .micro = *afterPreambleByte3};
-
-    (void)extractedGameVersion;
-
-    return true;
+        // Game version is currently ignored.
+        m.skipOrPrintError<sf::Uint8>("major version") &&
+        m.skipOrPrintError<sf::Uint8>("minor version") &&
+        m.skipOrPrintError<sf::Uint8>("micro version");
 }
 
 [[nodiscard]] std::optional<PacketType> extractPacketType(
