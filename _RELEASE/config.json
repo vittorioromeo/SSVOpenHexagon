@@ -13,7 +13,7 @@
 	"draw_text_outlines" : true,
 	"first_time_playing" : false,
 	"flash_enabled" : true,
-	"fullscreen" : true,
+	"fullscreen" : false,
 	"fullscreen_auto_resolution" : true,
 	"fullscreen_height" : 1080,
 	"fullscreen_width" : 1920,
@@ -32,7 +32,7 @@
 	"j_swap" : 5,
 	"joystick_deadzone" : 5.0,
 	"key_icons_scale" : 0.750,
-	"last_login_username" : "",
+	"last_login_username" : "vee",
 	"limit_fps" : false,
 	"max_fps" : 200,
 	"music_speed_dm_sync" : true,
@@ -221,6 +221,6 @@
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
 	"windowed_height" : 715,
-	"windowed_width" : 1391,
-	"zoom_factor" : 0.7111111283302307
+	"windowed_width" : 1275,
+	"zoom_factor" : 1.074125885963440
 }

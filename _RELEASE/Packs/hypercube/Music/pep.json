@@ -1,16 +1,16 @@
 {
-	// Music data id
-	"id": "pep",
+    // Music data id
+    "id": "pep",
 
-	// Music file
-	"file_name": "pep.ogg",
+    // Music file
+    "file_name": "pep.ogg",
 
-	// Music information
-	"name": "Platforms and Pitfalls",
-	"album": "",
-	"author": "Fantomenk",
-	
-	// Segments
+    // Music information
+    "name": "Platforms and Pitfalls",
+    "album": "",
+    "author": "Fantomenk",
+
+    // Segments
     "segments":
     [
         { "time": 13.300 },

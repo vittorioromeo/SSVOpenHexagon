@@ -1,16 +1,16 @@
 {
-	// Music data id
-	"id": "cpumood",
+    // Music data id
+    "id": "cpumood",
 
-	// Music file
-	"file_name": "cpumood.ogg",
+    // Music file
+    "file_name": "cpumood.ogg",
 
-	// Music information
-	"name": "CPU Mood",
-	"album": "",
-	"author": "Fantomenk",
-	
-	// Segments
+    // Music information
+    "name": "CPU Mood",
+    "album": "",
+    "author": "Fantomenk",
+
+    // Segments
     "segments":
     [
         { "time": 9.341 },

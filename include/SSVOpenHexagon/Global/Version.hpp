@@ -43,7 +43,7 @@ struct GameVersion
     }
 };
 
-inline constexpr GameVersion GAME_VERSION{2, 0, 6};
-inline constexpr auto& GAME_VERSION_STR = "2.0.6";
+inline constexpr GameVersion GAME_VERSION{2, 0, 7};
+inline constexpr auto& GAME_VERSION_STR = "2.0.7";
 
 } // namespace hg

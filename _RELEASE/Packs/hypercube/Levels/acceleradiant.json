@@ -1,12 +1,12 @@
 {
-	"id": "acceleradiant",
-	"name": "acceleradiant",
-	"description": "dunno lol",
-	"author": "vittorio romeo",	
-	"menuPriority": 10,
-	"selectable": true,
-	"styleId": "acceleradiant",
-	"musicId": "mrGawne",
-	"luaFile": "Scripts/Levels/acceleradiant.lua",
-	"difficultyMults": [0.85, 1.8, 2.4]
+    "id": "acceleradiant",
+    "name": "acceleradiant",
+    "description": "dunno lol",
+    "author": "vittorio romeo",
+    "menuPriority": 10,
+    "selectable": true,
+    "styleId": "acceleradiant",
+    "musicId": "mrGawne",
+    "luaFile": "Scripts/Levels/acceleradiant.lua",
+    "difficultyMults": [0.85, 1.8, 2.4]
 }

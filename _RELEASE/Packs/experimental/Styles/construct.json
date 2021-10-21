@@ -26,7 +26,7 @@
     "cap_color": {"legacy": false, "value": [255, 255, 255, 255], "pulse": [0, 0, 0, 0] },
     "player_color": {"dynamic": false, "value": [0, 255, 0, 255], "pulse": [0, 0, 0, 0] },
     "text_color": {"dynamic": false, "value": [255, 255, 255, 255], "pulse": [0, 0, 0, 0] },
-	"wall_color": {"dynamic": false, "value": [0, 198, 254, 255], "pulse": [0, 0, 0, 0] },
+    "wall_color": {"dynamic": false, "value": [0, 198, 254, 255], "pulse": [0, 0, 0, 0] },
 
     // Background colors
     "colors":

@@ -1,12 +1,12 @@
 {
-	"id": "polyhedrug",
-	"name": "polyhedrug",
-	"description": "ready to experience something different?",
-	"author": "vittorio romeo",	
-	"menuPriority": 30,
-	"selectable": true,
-	"styleId": "polyhedrug",
-	"musicId": "johnnyDerp",
-	"luaFile": "Scripts/Levels/polyhedrug.lua",
-	"difficultyMults": [0.75, 1.8]
+    "id": "polyhedrug",
+    "name": "polyhedrug",
+    "description": "ready to experience something different?",
+    "author": "vittorio romeo",
+    "menuPriority": 30,
+    "selectable": true,
+    "styleId": "polyhedrug",
+    "musicId": "johnnyDerp",
+    "luaFile": "Scripts/Levels/polyhedrug.lua",
+    "difficultyMults": [0.75, 1.8]
 }
