@@ -2556,9 +2556,16 @@ void MenuGame::update(ssvu::FT mFT)
             [&](const HexagonClient::EReceivedOwnScore& e)
             { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); },
 
-            [&](const HexagonClient::EVersionMismatch&) {
+            [&](const HexagonClient::EGameVersionMismatch&)
+            {
                 showHCEventDialogBox(
-                    true /* error */, "CLIENT/SERVER VERSION MISMATCH");
+                    true /* error */, "CLIENT/SERVER GAME VERSION MISMATCH");
+            },
+
+            [&](const HexagonClient::EProtocolVersionMismatch&)
+            {
+                showHCEventDialogBox(true /* error */,
+                    "CLIENT/SERVER PROTOCOL VERSION MISMATCH");
             }
 
             //
