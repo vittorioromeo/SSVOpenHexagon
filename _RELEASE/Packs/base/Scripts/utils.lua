@@ -10,8 +10,8 @@ SQRT_TWO = math.sqrt(2)
 SQRT_THREE = math.sqrt(3)
 
 -- Other Constants
-THICKNESS = 40			-- Wall thickness. Sometimes more convenient to define in utils
-FOCUS_RATIO = 0.625		-- The percentage by which the player shrinks when focused
+THICKNESS = 40         -- Wall thickness. Sometimes more convenient to define in utils
+FOCUS_RATIO = 0.625    -- The percentage by which the player shrinks when focused
 PLAYER_WIDTH_UNFOCUSED = 23
 PLAYER_WIDTH_FOCUSED = PLAYER_WIDTH_UNFOCUSED * FOCUS_RATIO
 
@@ -190,64 +190,34 @@ end
 
 -- Takes a number and returns it's sign value.
 -- Negatives return -1, positives return 1, and zero returns 0.
-function getSign(number)
-    if number < 0 then
-        return -1
-    elseif number > 0 then
-        return 1
-    end
-    return 0
-end
-
--- Sign function. Same as the function above but uses the mathmatical function abbreviation
-function sgn(x)
+function getSign(x)
     return x > 0 and 1 or x == 0 and 0 or -1
 end
 
 -- Square wave function with period p at value x with duty cycle d (range [-1, 1])
-function square(x, p, d)
-    return sgn(math.sin(math.pi * (2 * x / p + 0.5 - d)) - math.cos(math.pi * d))
+function squareWave(x, p, d)
+    return getSign(math.sin(math.pi * (2 * x / p + 0.5 - d)) - math.cos(math.pi * d))
 end
 
 -- Triangle wave function with period p at value x (range [-1, 1])
-function triangle(x, p)
+function triangleWave(x, p)
     return math.asin(math.sin(math.tau * x / p)) * 2 / math.pi
 end
 
 -- Sawtooth wave function with period p at value x (range [-1, 1])
-function sawtooth(x, p)
+function sawtoothWave(x, p)
     return 2 * (x / p - math.floor(0.5 + x / p))
 end
 
--- Takes a coordinate, translates it by dX and dY, and returns the new coordinates
-function transformTranslate(dX, dY, x, y)
-    return x + dX, y + dY
-end
-
 -- Takes a coordinate, rotates it by R radians about the origin, and returns the new coordinates
-function transformRotation(R, x, y)
+function rotate2DPointAroundOrigin(R, x, y)
     local cos, sin = math.cos(R), math.sin(R)
     return x * cos - y * sin, x * sin + y * cos
 end
 
--- Takes a coordinate, scales it by sX or sY along the x or y axis respectively, and returns the new coordinates
-function transformScale(sX, sY, x, y)
-    return x * sX, y * sY
-end
-
--- Transformation functions can be chained
--- Ex: transformTranslate(20, 10, transformRotation(math.pi, x, y))
-
 -- A data structure that stores results for prime numbers as a way to "cache" results.
 -- This helps make isPrime run faster by knocking out calculations that were already done.
--- First 100 prime numbers
-local prime_memoization = {
-    [2] = true, [3] = true, [5] = true, [7] = true, [11] = true, [13] = true, [17] = true, [19] = true, [23] = true, [29] = true, [31] = true, [37] = true, [41] = true, [43] = true, [47] = true, [53] = true, [59] = true, [61] = true, [67] = true, [71] = true,
-    [73] = true, [79] = true, [83] = true, [89] = true, [97] = true, [101] = true, [103] = true, [107] = true, [109] = true, [113] = true, [127] = true, [131] = true, [137] = true, [139] = true, [149] = true, [151] = true, [157] = true, [163] = true, [167] = true, [173] = true,
-    [179] = true, [181] = true, [191] = true, [193] = true, [197] = true, [199] = true, [211] = true, [223] = true, [227] = true, [229] = true, [233] = true, [239] = true, [241] = true, [251] = true, [257] = true, [263] = true, [269] = true, [271] = true, [277] = true, [281] = true,
-    [283] = true, [293] = true, [307] = true, [311] = true, [313] = true, [317] = true, [331] = true, [337] = true, [347] = true, [349] = true, [353] = true, [359] = true, [367] = true, [373] = true, [379] = true, [383] = true, [389] = true, [397] = true, [401] = true, [409] = true,
-    [419] = true, [421] = true, [431] = true, [433] = true, [439] = true, [443] = true, [449] = true, [457] = true, [461] = true, [463] = true, [467] = true, [479] = true, [487] = true, [491] = true, [499] = true, [503] = true, [509] = true, [521] = true, [523] = true, [541] = true
-}
+local prime_memoization = {[2] = true, [3] = true, [5] = true, [7] = true, [11] = true, [13] = true}
 -- Checks whether an integer is a prime number or not
 -- More cursed but more concise and memory efficient
 function isPrime(integer)
@@ -279,7 +249,7 @@ function lerp(initial, final, i)
 end
 
 -- Takes a value <i> between <a> and <b> and proportionally maps it to a value between <c> and <d>
-function map(i, a, b, c, d)
+function mapValue(i, a, b, c, d)
     return c + ((d - c) / (b - a)) * (i - a)
 end
 
@@ -588,7 +558,7 @@ function ArrayRemoveIf(t, fnRemove)
 end
 
 -- Tests whether a table contains a specific value on any existing key
-function contains(val, table)
+function tableContainsValue(val, table)
     for _, v in pairs(table) do
         if val == v then return true end
     end
