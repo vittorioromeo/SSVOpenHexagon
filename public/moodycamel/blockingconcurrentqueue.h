@@ -31,11 +31,11 @@ private:
 public:
 	typedef typename ConcurrentQueue::producer_token_t producer_token_t;
 	typedef typename ConcurrentQueue::consumer_token_t consumer_token_t;
-	
+
 	typedef typename ConcurrentQueue::index_t index_t;
 	typedef typename ConcurrentQueue::size_t size_t;
 	typedef typename std::make_signed<size_t>::type ssize_t;
-	
+
 	static const size_t BLOCK_SIZE = ConcurrentQueue::BLOCK_SIZE;
 	static const size_t EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD = ConcurrentQueue::EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD;
 	static const size_t EXPLICIT_INITIAL_INDEX_SIZE = ConcurrentQueue::EXPLICIT_INITIAL_INDEX_SIZE;
@@ -43,7 +43,7 @@ public:
 	static const size_t INITIAL_IMPLICIT_PRODUCER_HASH_SIZE = ConcurrentQueue::INITIAL_IMPLICIT_PRODUCER_HASH_SIZE;
 	static const std::uint32_t EXPLICIT_CONSUMER_CONSUMPTION_QUOTA_BEFORE_ROTATE = ConcurrentQueue::EXPLICIT_CONSUMER_CONSUMPTION_QUOTA_BEFORE_ROTATE;
 	static const size_t MAX_SUBQUEUE_SIZE = ConcurrentQueue::MAX_SUBQUEUE_SIZE;
-	
+
 public:
 	// Creates a queue with at least `capacity` element slots; note that the
 	// actual number of elements that can be inserted without additional memory
@@ -63,7 +63,7 @@ public:
 			MOODYCAMEL_THROW(std::bad_alloc());
 		}
 	}
-	
+
 	BlockingConcurrentQueue(size_t minCapacity, size_t maxExplicitProducers, size_t maxImplicitProducers)
 		: inner(minCapacity, maxExplicitProducers, maxImplicitProducers), sema(create<LightweightSemaphore, ssize_t, int>(0, (int)Traits::MAX_SEMA_SPINS), &BlockingConcurrentQueue::template destroy<LightweightSemaphore>)
 	{
@@ -72,11 +72,11 @@ public:
 			MOODYCAMEL_THROW(std::bad_alloc());
 		}
 	}
-	
+
 	// Disable copying and copy assignment
 	BlockingConcurrentQueue(BlockingConcurrentQueue const&) MOODYCAMEL_DELETE_FUNCTION;
 	BlockingConcurrentQueue& operator=(BlockingConcurrentQueue const&) MOODYCAMEL_DELETE_FUNCTION;
-	
+
 	// Moving is supported, but note that it is *not* a thread-safe operation.
 	// Nobody can use the queue while it's being moved, and the memory effects
 	// of that move must be propagated to other threads before they can use it.
@@ -86,12 +86,12 @@ public:
 	BlockingConcurrentQueue(BlockingConcurrentQueue&& other) MOODYCAMEL_NOEXCEPT
 		: inner(std::move(other.inner)), sema(std::move(other.sema))
 	{ }
-	
+
 	inline BlockingConcurrentQueue& operator=(BlockingConcurrentQueue&& other) MOODYCAMEL_NOEXCEPT
 	{
 		return swap_internal(other);
 	}
-	
+
 	// Swaps this queue's state with the other's. Not thread-safe.
 	// Swapping two queues does not invalidate their tokens, however
 	// the tokens that were created for one queue must be used with
@@ -101,19 +101,19 @@ public:
 	{
 		swap_internal(other);
 	}
-	
+
 private:
 	BlockingConcurrentQueue& swap_internal(BlockingConcurrentQueue& other)
 	{
 		if (this == &other) {
 			return *this;
 		}
-		
+
 		inner.swap(other.inner);
 		sema.swap(other.sema);
 		return *this;
 	}
-	
+
 public:
 	// Enqueues a single item (by copying it).
 	// Allocates memory if required. Only fails if memory allocation fails (or implicit
@@ -128,7 +128,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues a single item (by moving it, if possible).
 	// Allocates memory if required. Only fails if memory allocation fails (or implicit
 	// production is disabled because Traits::INITIAL_IMPLICIT_PRODUCER_HASH_SIZE is 0,
@@ -142,7 +142,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues a single item (by copying it) using an explicit producer token.
 	// Allocates memory if required. Only fails if memory allocation fails (or
 	// Traits::MAX_SUBQUEUE_SIZE has been defined and would be surpassed).
@@ -155,7 +155,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues a single item (by moving it, if possible) using an explicit producer token.
 	// Allocates memory if required. Only fails if memory allocation fails (or
 	// Traits::MAX_SUBQUEUE_SIZE has been defined and would be surpassed).
@@ -168,7 +168,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues several items.
 	// Allocates memory if required. Only fails if memory allocation fails (or
 	// implicit production is disabled because Traits::INITIAL_IMPLICIT_PRODUCER_HASH_SIZE
@@ -184,7 +184,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues several items using an explicit producer token.
 	// Allocates memory if required. Only fails if memory allocation fails
 	// (or Traits::MAX_SUBQUEUE_SIZE has been defined and would be surpassed).
@@ -200,7 +200,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues a single item (by copying it).
 	// Does not allocate memory. Fails if not enough room to enqueue (or implicit
 	// production is disabled because Traits::INITIAL_IMPLICIT_PRODUCER_HASH_SIZE
@@ -214,7 +214,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues a single item (by moving it, if possible).
 	// Does not allocate memory (except for one-time implicit producer).
 	// Fails if not enough room to enqueue (or implicit production is
@@ -228,7 +228,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues a single item (by copying it) using an explicit producer token.
 	// Does not allocate memory. Fails if not enough room to enqueue.
 	// Thread-safe.
@@ -240,7 +240,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues a single item (by moving it, if possible) using an explicit producer token.
 	// Does not allocate memory. Fails if not enough room to enqueue.
 	// Thread-safe.
@@ -252,7 +252,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues several items.
 	// Does not allocate memory (except for one-time implicit producer).
 	// Fails if not enough room to enqueue (or implicit production is
@@ -269,7 +269,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Enqueues several items using an explicit producer token.
 	// Does not allocate memory. Fails if not enough room to enqueue.
 	// Note: Use std::make_move_iterator if the elements should be moved
@@ -284,8 +284,8 @@ public:
 		}
 		return false;
 	}
-	
-	
+
+
 	// Attempts to dequeue from the queue.
 	// Returns false if all producer streams appeared empty at the time they
 	// were checked (so, the queue is likely but not guaranteed to be empty).
@@ -301,7 +301,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Attempts to dequeue from the queue using an explicit consumer token.
 	// Returns false if all producer streams appeared empty at the time they
 	// were checked (so, the queue is likely but not guaranteed to be empty).
@@ -317,7 +317,7 @@ public:
 		}
 		return false;
 	}
-	
+
 	// Attempts to dequeue several elements from the queue.
 	// Returns the number of items actually dequeued.
 	// Returns 0 if all producer streams appeared empty at the time they
@@ -333,7 +333,7 @@ public:
 		}
 		return count;
 	}
-	
+
 	// Attempts to dequeue several elements from the queue using an explicit consumer token.
 	// Returns the number of items actually dequeued.
 	// Returns 0 if all producer streams appeared empty at the time they
@@ -349,9 +349,9 @@ public:
 		}
 		return count;
 	}
-	
-	
-	
+
+
+
 	// Blocks the current thread until there's something to dequeue, then
 	// dequeues it.
 	// Never allocates. Thread-safe.
@@ -384,7 +384,7 @@ public:
 		}
 		return true;
 	}
-    
+
     // Blocks the current thread until either there's something to dequeue
 	// or the timeout expires. Returns false without setting `item` if the
     // timeout expires, otherwise assigns to `item` and returns true.
@@ -394,7 +394,7 @@ public:
     {
         return wait_dequeue_timed(item, std::chrono::duration_cast<std::chrono::microseconds>(timeout).count());
     }
-	
+
 	// Blocks the current thread until there's something to dequeue, then
 	// dequeues it using an explicit consumer token.
 	// Never allocates. Thread-safe.
@@ -408,7 +408,7 @@ public:
 			continue;
 		}
 	}
-	
+
 	// Blocks the current thread until either there's something to dequeue
 	// or the timeout (specified in microseconds) expires. Returns false
 	// without setting `item` if the timeout expires, otherwise assigns
@@ -427,7 +427,7 @@ public:
 		}
 		return true;
 	}
-    
+
     // Blocks the current thread until either there's something to dequeue
 	// or the timeout expires. Returns false without setting `item` if the
     // timeout expires, otherwise assigns to `item` and returns true.
@@ -437,7 +437,7 @@ public:
     {
         return wait_dequeue_timed(token, item, std::chrono::duration_cast<std::chrono::microseconds>(timeout).count());
     }
-	
+
 	// Attempts to dequeue several elements from the queue.
 	// Returns the number of items actually dequeued, which will
 	// always be at least one (this method blocks until the queue
@@ -453,7 +453,7 @@ public:
 		}
 		return count;
 	}
-	
+
 	// Attempts to dequeue several elements from the queue.
 	// Returns the number of items actually dequeued, which can
 	// be 0 if the timeout expires while waiting for elements,
@@ -471,7 +471,7 @@ public:
 		}
 		return count;
 	}
-    
+
     // Attempts to dequeue several elements from the queue.
 	// Returns the number of items actually dequeued, which can
 	// be 0 if the timeout expires while waiting for elements,
@@ -482,7 +482,7 @@ public:
     {
         return wait_dequeue_bulk_timed<It&>(itemFirst, max, std::chrono::duration_cast<std::chrono::microseconds>(timeout).count());
     }
-	
+
 	// Attempts to dequeue several elements from the queue using an explicit consumer token.
 	// Returns the number of items actually dequeued, which will
 	// always be at least one (this method blocks until the queue
@@ -498,7 +498,7 @@ public:
 		}
 		return count;
 	}
-	
+
 	// Attempts to dequeue several elements from the queue using an explicit consumer token.
 	// Returns the number of items actually dequeued, which can
 	// be 0 if the timeout expires while waiting for elements,
@@ -516,7 +516,7 @@ public:
 		}
 		return count;
 	}
-	
+
 	// Attempts to dequeue several elements from the queue using an explicit consumer token.
 	// Returns the number of items actually dequeued, which can
 	// be 0 if the timeout expires while waiting for elements,
@@ -527,8 +527,8 @@ public:
     {
         return wait_dequeue_bulk_timed<It&>(token, itemFirst, max, std::chrono::duration_cast<std::chrono::microseconds>(timeout).count());
     }
-	
-	
+
+
 	// Returns an estimate of the total number of elements currently in the queue. This
 	// estimate is only accurate if the queue has completely stabilized before it is called
 	// (i.e. all enqueue and dequeue operations have completed and their memory effects are
@@ -539,8 +539,8 @@ public:
 	{
 		return (size_t)sema->availableApprox();
 	}
-	
-	
+
+
 	// Returns true if the underlying atomic variables used by
 	// the queue are lock-free (they should be on most platforms).
 	// Thread-safe.
@@ -548,7 +548,7 @@ public:
 	{
 		return ConcurrentQueue::is_lock_free();
 	}
-	
+
 
 private:
 	template<typename U, typename A1, typename A2>
@@ -557,7 +557,7 @@ private:
 		void* p = (Traits::malloc)(sizeof(U));
 		return p != nullptr ? new (p) U(std::forward<A1>(a1), std::forward<A2>(a2)) : nullptr;
 	}
-	
+
 	template<typename U>
 	static inline void destroy(U* p)
 	{
@@ -566,7 +566,7 @@ private:
 		}
 		(Traits::free)(p);
 	}
-	
+
 private:
 	ConcurrentQueue inner;
 	std::unique_ptr<LightweightSemaphore, void (*)(LightweightSemaphore*)> sema;
