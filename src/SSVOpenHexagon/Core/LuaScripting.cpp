@@ -194,6 +194,16 @@ static void destroyMaliciousFunctions(Lua::LuaContext& lua)
     // properly.
     lua.clearVariable("package.loadlib");
     lua.clearVariable("package.searchpath");
+
+    // This removes some other ways in which the "os" and "debug" libraries can
+    // be accessed.
+    lua.clearVariable("package.loaded.os");
+    lua.clearVariable("package.loaded.debug");
+
+    // This removes some potentially dangerous packages that could be used to
+    // inject malicious code.
+    lua.clearVariable("package.loadlib");
+    lua.clearVariable("package.loaders");
 }
 
 static void initUtils(Lua::LuaContext& lua, const bool inMenu)
