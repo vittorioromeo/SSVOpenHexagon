@@ -213,7 +213,7 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       // Manual Input
       txtEnteringText{.font{"", openSquare, 54}},
       // For the Level Selection Screen
-      txtSelectionBig{.font{"", openSquareBold, 28}},
+      txtSelectionBig{.font{"", openSquareBold}},
       txtSelectionMedium{.font{"", openSquareBold, 19}},
       txtSelectionSmall{.font{"", openSquare}},
       txtSelectionScore{.font{"", openSquare, 28}},
@@ -3160,6 +3160,7 @@ void MenuGame::refreshCamera()
         txtMenuBig.font.setCharacterSize(26);
         txtMenuSmall.font.setCharacterSize(16);
 
+        txtSelectionBig.font.setCharacterSize(24);
         txtSelectionSmall.font.setCharacterSize(14);
         txtSelectionRanked.font.setCharacterSize(10);
 
@@ -3173,6 +3174,7 @@ void MenuGame::refreshCamera()
         txtMenuBig.font.setCharacterSize(36);
         txtMenuSmall.font.setCharacterSize(24);
 
+        txtSelectionBig.font.setCharacterSize(28);
         txtSelectionSmall.font.setCharacterSize(14);
         txtSelectionRanked.font.setCharacterSize(10);
 
