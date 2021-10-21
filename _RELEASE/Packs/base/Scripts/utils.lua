@@ -226,7 +226,8 @@ end
 
 -- Takes a coordinate, rotates it by R radians about the origin, and returns the new coordinates
 function transformRotation(R, x, y)
-	return x * math.cos(R) - y * math.sin(R), x * math.sin(R) + y * math.cos(R)
+    local cos, sin = math.cos(R), math.sin(R)
+	return x * cos - y * sin, x * sin + y * cos
 end
 
 -- Takes a coordinate, scales it by sX or sY along the x or y axis respectively, and returns the new coordinates
