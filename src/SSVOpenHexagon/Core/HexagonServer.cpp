@@ -243,11 +243,12 @@ template <typename T>
 }
 
 [[nodiscard]] bool HexagonServer::sendServerStatus(ConnectedClient& c,
-    const GameVersion& gameVersion,
+    const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
     const std::vector<std::string> supportedLevelValidators)
 {
     return sendEncrypted(c, //
         STCPServerStatus{
+            .protocolVersion = protocolVersion,                  //
             .gameVersion = gameVersion,                          //
             .supportedLevelValidators = supportedLevelValidators //
         }                                                        //
@@ -548,7 +549,8 @@ template <typename Duration>
 
 void HexagonServer::runIteration_PurgeTokens()
 {
-    if(!checkAndUpdateLastElapsed(_lastTokenPurge, std::chrono::seconds(1800)))
+    if(!checkAndUpdateLastElapsed(
+           _lastTokenPurge, std::chrono::seconds(3600) /* 1 hour */))
     {
         return;
     }
@@ -667,8 +669,6 @@ void HexagonServer::runIteration_FlushLogs()
 
     SSVOH_SLOG << "Processing replay from client '" << clientAddr
                << "' for level '" << levelValidator << "'\n";
-
-    // TODO (P1): sometimes this seems to hang... should figure out why
 
     const std::optional<HexagonGame::GameExecutionResult> ger =
         _hexagonGame.runReplayUntilDeathAndGetScore(
@@ -1253,8 +1253,8 @@ void HexagonServer::printCTSPDataVerbose(
                 return true;
             }
 
-            return sendServerStatus(
-                c, GAME_VERSION, _supportedLevelValidatorsVector);
+            return sendServerStatus(c, PROTOCOL_VERSION, GAME_VERSION,
+                _supportedLevelValidatorsVector);
         },
 
         [&](const CTSPReady& ctsp)
