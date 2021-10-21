@@ -1,9 +1,9 @@
 {
-	"fullscreen": true,
-	"fullscreen_auto_resolution": false,
-	"fullscreen_width": 640,
-	"fullscreen_height": 480,
-	"vsync": false,
-	"3D_enabled" : false,
-	"draw_text_outlines" : false
+    "fullscreen": true,
+    "fullscreen_auto_resolution": false,
+    "fullscreen_width": 640,
+    "fullscreen_height": 480,
+    "vsync": false,
+    "3D_enabled" : false,
+    "draw_text_outlines" : false
 }

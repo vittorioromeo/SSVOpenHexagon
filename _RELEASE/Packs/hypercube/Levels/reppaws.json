@@ -1,12 +1,12 @@
 {
-	"id": "reppaws",
-	"name": "reppaws",
-	"description": "180 degrees of awesomeness",
-	"author": "vittorio romeo",	
-	"menuPriority": 90,
-	"selectable": true,
-	"styleId": "reppaws",
-	"musicId": "minimal",
-	"luaFile": "Scripts/Levels/reppaws.lua",
-	"difficultyMults": [1.5, 1.8, 0.5]
+    "id": "reppaws",
+    "name": "reppaws",
+    "description": "180 degrees of awesomeness",
+    "author": "vittorio romeo",
+    "menuPriority": 90,
+    "selectable": true,
+    "styleId": "reppaws",
+    "musicId": "minimal",
+    "luaFile": "Scripts/Levels/reppaws.lua",
+    "difficultyMults": [1.5, 1.8, 0.5]
 }

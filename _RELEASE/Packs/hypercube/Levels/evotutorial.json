@@ -1,12 +1,12 @@
 {
-	"id": "evotutorial",
-	"name": "evotutorial",
-	"description": "learn new game mechanics here!",
-	"author": "vittorio romeo",	
-	"menuPriority": 0,
-	"selectable": true,
-	"styleId": "evotutorial",
-	"musicId": "gmoomh",
-	"luaFile": "Scripts/Levels/evotutorial.lua",
+    "id": "evotutorial",
+    "name": "evotutorial",
+    "description": "learn new game mechanics here!",
+    "author": "vittorio romeo",
+    "menuPriority": 0,
+    "selectable": true,
+    "styleId": "evotutorial",
+    "musicId": "gmoomh",
+    "luaFile": "Scripts/Levels/evotutorial.lua",
     "unscored": true
 }

@@ -1,12 +1,12 @@
 {
-	"id": "incongruence",
-	"name": "incongruence",
-	"description": "choose your side...",
-	"author": "vittorio romeo",	
-	"menuPriority": 20,
-	"selectable": true,
-	"styleId": "incongruence",
-	"musicId": "flirtFlirt",
-	"luaFile": "Scripts/Levels/incongruence.lua",
-	"difficultyMults": [0.5, 1.25, 1.8]
+    "id": "incongruence",
+    "name": "incongruence",
+    "description": "choose your side...",
+    "author": "vittorio romeo",
+    "menuPriority": 20,
+    "selectable": true,
+    "styleId": "incongruence",
+    "musicId": "flirtFlirt",
+    "luaFile": "Scripts/Levels/incongruence.lua",
+    "difficultyMults": [0.5, 1.25, 1.8]
 }
