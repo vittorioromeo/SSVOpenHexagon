@@ -32,6 +32,7 @@
 	"j_swap" : 5,
 	"joystick_deadzone" : 5.0,
 	"key_icons_scale" : 0.750,
+	"last_login_username" : "vee",
 	"limit_fps" : false,
 	"max_fps" : 200,
 	"music_speed_dm_sync" : true,
@@ -49,10 +50,11 @@
 	"player_speed" : 9.449999809265137,
 	"pulse_enabled" : true,
 	"rotate_to_start" : false,
+	"save_last_login_username" : true,
 	"save_local_best_replay_to_file" : true,
 	"server_control_port" : 50506,
 	"server_ip" : "139.162.199.162",
-	"server_level_whitelist" :
+	"server_level_whitelist" : 
 	[
 		"ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_0.35",
 		"ohvrvanilla_vittorio_romeo_cube_1_apeirogon_m_1",
@@ -94,117 +96,118 @@
 	"show_fps" : true,
 	"show_key_icons" : true,
 	"show_level_info" : true,
+	"show_login_at_startup" : false,
 	"show_messages" : true,
 	"show_status_text" : true,
 	"show_timer" : true,
 	"show_tracked_variables" : true,
 	"sound_volume" : 85.0,
-	"t_down" :
+	"t_down" : 
 	[
 		[ "" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_exit" :
+	"t_exit" : 
 	[
 		[ "kT" ],
 		[ "bXButton2" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_focus" :
+	"t_focus" : 
 	[
 		[ "kLShift" ],
 		[ "bXButton1" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_force_restart" :
+	"t_force_restart" : 
 	[
 		[ "kUp" ],
 		[ "kR" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_lua_console" :
+	"t_lua_console" : 
 	[
 		[ "kF1" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_next" :
+	"t_next" : 
 	[
 		[ "kPageDown" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_pause" :
+	"t_pause" : 
 	[
 		[ "kF2" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_previous" :
+	"t_previous" : 
 	[
 		[ "kPageUp" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_replay" :
+	"t_replay" : 
 	[
 		[ "kY" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_restart" :
+	"t_restart" : 
 	[
 		[ "bMiddle" ],
 		[ "kSpace" ],
 		[ "kReturn" ],
 		[ "" ]
 	],
-	"t_rotate_ccw" :
+	"t_rotate_ccw" : 
 	[
 		[ "kA" ],
 		[ "kLeft" ],
 		[ "bLeft" ],
 		[ "" ]
 	],
-	"t_rotate_cw" :
+	"t_rotate_cw" : 
 	[
 		[ "kD" ],
 		[ "kRight" ],
 		[ "bRight" ],
 		[ "" ]
 	],
-	"t_screenshot" :
+	"t_screenshot" : 
 	[
 		[ "kF12" ],
 		[ "" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_select" :
+	"t_select" : 
 	[
 		[ "kSpace" ],
 		[ "bMiddle" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_swap" :
+	"t_swap" : 
 	[
 		[ "bMiddle" ],
 		[ "kSpace" ],
 		[ "" ],
 		[ "" ]
 	],
-	"t_up" :
+	"t_up" : 
 	[
 		[ "" ],
 		[ "" ],
@@ -217,7 +220,7 @@
 	"timescale" : 1.0,
 	"vsync" : false,
 	"windowed_auto_resolution" : false,
-	"windowed_height" : 580,
-	"windowed_width" : 1019,
-	"zoom_factor" : 1.324137926101685
+	"windowed_height" : 715,
+	"windowed_width" : 1275,
+	"zoom_factor" : 1.074125885963440
 }

@@ -200,11 +200,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       txtVersion{.font{"", openSquare, 40}},
       txtProf{.font{"", openSquare, 18}},
       // For the loading screen
-      txtLoadBig{.font{"", openSquare, 72}},
+      txtLoadBig{.font{"", openSquare}},
       txtLoadSmall{.font{"", openSquareBold}},
-      txtRandomTip{.font{"", openSquare, 32}},
+      txtRandomTip{.font{"", openSquare}},
       // For the Main Menu
-      txtMenuBig{.font{"", openSquare, 96}},
+      txtMenuBig{.font{"", openSquare}},
       txtMenuSmall{.font{"", openSquare}},
       txtProfile{.font{"", openSquare, 32}},
       txtInstructionsBig{.font{"", openSquare, 46}},
@@ -213,11 +213,11 @@ MenuGame::MenuGame(Steam::steam_manager& mSteamManager,
       // Manual Input
       txtEnteringText{.font{"", openSquare, 54}},
       // For the Level Selection Screen
-      txtSelectionBig{.font{"", openSquareBold, 28}},
-      txtSelectionMedium{.font{"", openSquareBold, 20}},
-      txtSelectionSmall{.font{"", openSquare, 12}},
+      txtSelectionBig{.font{"", openSquareBold}},
+      txtSelectionMedium{.font{"", openSquareBold, 19}},
+      txtSelectionSmall{.font{"", openSquare}},
       txtSelectionScore{.font{"", openSquare, 28}},
-      txtSelectionRanked{.font{"", openSquare, 10}},
+      txtSelectionRanked{.font{"", openSquareBold}},
       menuTextColor{},
       menuQuadColor{},
       menuSelectionColor{},
@@ -833,6 +833,16 @@ void MenuGame::changeStateTo(const States mState)
         return;
     }
 
+    if(state == States::SMain)
+    {
+        if(std::exchange(mustShowLoginAtStartup, false) &&
+            Config::getShowLoginAtStartup())
+        {
+            openLoginDialogBoxAndStartLoginProcess();
+            setIgnoreAllInputs(2);
+        }
+    }
+
     if(state == States::LevelSelection)
     {
         firstLevelSelection = false;
@@ -1095,6 +1105,9 @@ void MenuGame::initLua()
             "e_waitS", "e_waitUntilS", "e_messageAdd", "e_messageAddImportant",
             "e_messageAddImportantSilent", "e_clearMessages",
 
+            "ct_create", "ct_eval", "ct_kill", "ct_stopTime", "ct_stopTimeS",
+            "ct_wait", "ct_waitS", "ct_waitUntilS",
+
             "l_overrideScore", "l_setRotation", "l_getRotation",
             "l_getOfficial",
 
@@ -1113,6 +1126,15 @@ void MenuGame::initLua()
     {
         lua.writeVariable(un, [] {});
     }
+}
+
+void MenuGame::ignoreInputsAfterMenuExec()
+{
+    // We only want to ignore a single input when using the left mouse button,
+    // otherwise the user would have to press enter twice to accept in a dialog
+    // box.
+
+    setIgnoreAllInputs(mustUseMenuItem.has_value() ? 1 : 2);
 }
 
 void MenuGame::initMenus()
@@ -1170,6 +1192,10 @@ void MenuGame::initMenus()
     play.create<i::Slider>("timescale", &Config::getTimescale,
         &Config::setTimescale, 0.1f, 2.f, 0.05f) |
         whenNotOfficial;
+    play.create<i::Toggle>("save last username",
+        &Config::getSaveLastLoginUsername, &Config::setSaveLastLoginUsername);
+    play.create<i::Toggle>("show login at startup",
+        &Config::getShowLoginAtStartup, &Config::setShowLoginAtStartup);
     play.create<i::GoBack>("back");
 
     //--------------------------------
@@ -1199,7 +1225,7 @@ void MenuGame::initMenus()
                 "F3 - RELOAD LEVEL ASSETS (DEBUG MODE ONLY)\n"
                 "F4 - RELOAD PACK ASSETS (DEBUG MODE ONLY)\n\n"
                 "PRESS ANY KEY OR BUTTON TO CLOSE THIS MESSAGE\n");
-            setIgnoreAllInputs(2);
+            ignoreInputsAfterMenuExec();
         });
     controls.create<i::GoBack>("back");
 
@@ -1544,10 +1570,8 @@ void MenuGame::initMenus()
                 return;
             }
 
-            dialogInputState = DialogInputState::Login_EnteringUsername;
-
-            showInputDialogBoxNice("LOGIN", "USERNAME");
-            setIgnoreAllInputs(2);
+            openLoginDialogBoxAndStartLoginProcess();
+            ignoreInputsAfterMenuExec();
         }) |
         whenMustLogin;
 
@@ -1562,7 +1586,7 @@ void MenuGame::initMenus()
             dialogInputState = DialogInputState::Registration_EnteringUsername;
 
             showInputDialogBoxNice("REGISTRATION", "USERNAME");
-            setIgnoreAllInputs(2);
+            ignoreInputsAfterMenuExec();
         }) |
         whenMustRegister;
 
@@ -1587,7 +1611,7 @@ void MenuGame::initMenus()
             showInputDialogBoxNice("DELETE ACCOUNT", "PASSWORD",
                 "WARNING: THIS WILL DELETE ALL YOUR SCORES");
             dialogBox.setInputBoxPassword(true);
-            setIgnoreAllInputs(2);
+            ignoreInputsAfterMenuExec();
         }) |
         whenMustDeleteAccount;
 
@@ -2556,9 +2580,16 @@ void MenuGame::update(ssvu::FT mFT)
             [&](const HexagonClient::EReceivedOwnScore& e)
             { leaderboardCache->receivedOwnScore(e.levelValidator, e.score); },
 
-            [&](const HexagonClient::EVersionMismatch&) {
+            [&](const HexagonClient::EGameVersionMismatch&)
+            {
                 showHCEventDialogBox(
-                    true /* error */, "CLIENT/SERVER VERSION MISMATCH");
+                    true /* error */, "CLIENT/SERVER GAME VERSION MISMATCH");
+            },
+
+            [&](const HexagonClient::EProtocolVersionMismatch&)
+            {
+                showHCEventDialogBox(true /* error */,
+                    "CLIENT/SERVER PROTOCOL VERSION MISMATCH");
             }
 
             //
@@ -2906,7 +2937,8 @@ void MenuGame::setIndex(const int mIdx)
 
     // Set the colors of the menus
     auto& colors{styleData.getColors()};
-    menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255) : styleData.getTextColor();
+    menuQuadColor = Config::getBlackAndWhite() ? sf::Color(20, 20, 20, 255)
+                                               : styleData.getTextColor();
     if(ssvu::toInt(menuQuadColor.a) == 0 && !Config::getBlackAndWhite())
     {
         for(auto& c : colors)
@@ -2938,7 +2970,8 @@ void MenuGame::setIndex(const int mIdx)
         {
             for(auto& c : colors)
             {
-                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor && !Config::getBlackAndWhite())
+                if(ssvu::toInt(c.a) != 0 && c != menuQuadColor &&
+                    !Config::getBlackAndWhite())
                 {
                     menuTextColor = c;
                     break;
@@ -2947,7 +2980,8 @@ void MenuGame::setIndex(const int mIdx)
         }
 
         // Same as above.
-        menuSelectionColor = Config::getBlackAndWhite() ? sf::Color::White : colors[1];
+        menuSelectionColor =
+            Config::getBlackAndWhite() ? sf::Color::White : colors[1];
         if(ssvu::toInt(menuSelectionColor.a) == 0 ||
             menuSelectionColor == menuQuadColor ||
             menuSelectionColor == menuTextColor)
@@ -3125,22 +3159,28 @@ void MenuGame::refreshCamera()
     {
         txtMenuBig.font.setCharacterSize(26);
         txtMenuSmall.font.setCharacterSize(16);
-        txtSelectionSmall.font.setCharacterSize(16);
-        txtSelectionRanked.font.setCharacterSize(12);
+
+        txtSelectionBig.font.setCharacterSize(24);
+        txtSelectionSmall.font.setCharacterSize(14);
+        txtSelectionRanked.font.setCharacterSize(10);
 
         txtLoadBig.font.setCharacterSize(56);
         txtLoadSmall.font.setCharacterSize(16);
+
         txtRandomTip.font.setCharacterSize(24);
     }
     else
     {
         txtMenuBig.font.setCharacterSize(36);
         txtMenuSmall.font.setCharacterSize(24);
-        txtSelectionSmall.font.setCharacterSize(16);
-        txtSelectionRanked.font.setCharacterSize(12);
+
+        txtSelectionBig.font.setCharacterSize(28);
+        txtSelectionSmall.font.setCharacterSize(14);
+        txtSelectionRanked.font.setCharacterSize(10);
 
         txtLoadBig.font.setCharacterSize(70);
         txtLoadSmall.font.setCharacterSize(24);
+
         txtRandomTip.font.setCharacterSize(32);
     }
 
@@ -4976,6 +5016,9 @@ void MenuGame::drawLevelSelectionRightSide(
         const std::string& levelValidator =
             levelData->getValidator(currentDiffMult);
 
+        renderText(tempString, txtSelectionBig.font,
+            {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
+
         if(!levelData->unscored &&
             hexagonClient.isLevelSupportedByServer(levelValidator))
         {
@@ -4988,19 +5031,16 @@ void MenuGame::drawLevelSelectionRightSide(
             createQuad(menuQuadColor, w - width - padding, w,
                 height - textToQuadBorder,
                 height - textToQuadBorder + txtSelectionRanked.height +
-                    padding);
+                    padding + 1.f);
 
             render(menuQuads);
 
             renderText("RANKED", txtSelectionRanked.font,
                 {w - width, height -
                                 txtSelectionRanked.height * fontHeightOffset -
-                                5.5f},
+                                3.f},
                 mouseOverlapColor(mouseOverlap, c));
         }
-
-        renderText(tempString, txtSelectionBig.font,
-            {indent, height - txtSelectionBig.height * fontHeightOffset}, c0);
 
         //-------------------------------------
         // Author
@@ -5537,23 +5577,25 @@ void MenuGame::drawLevelSelectionLeftSide(
             std::string scoreStr = ssvu::toStr(score) + 's';
 
             std::string playerStr = userName;
-            if(playerStr.size() > 20)
+            if(playerStr.size() > 19)
             {
-                playerStr.resize(17);
+                playerStr.resize(16);
                 playerStr += "...";
             }
 
             const float tx = textToQuadBorder - panelOffset;
             const float ty = height -
                              txtSelectionMedium.height * fontHeightOffset +
-                             txtSelectionSmall.height;
+                             txtSelectionSmall.height - 9.f;
+
+            constexpr float ySpacing = 11.f;
 
             renderText(timestampStr, txtSelectionSmall.font, {tx, ty});
-            renderText(posStr, txtSelectionMedium.font, {tx, ty + 7.5f});
+            renderText(posStr, txtSelectionMedium.font, {tx, ty + ySpacing});
             renderText(
-                scoreStr, txtSelectionMedium.font, {tx + 54.f, ty + 7.5f});
-            renderText(
-                playerStr, txtSelectionMedium.font, {tx + 150.f, ty + 7.5f});
+                scoreStr, txtSelectionMedium.font, {tx + 58.f, ty + ySpacing});
+            renderText(playerStr, txtSelectionMedium.font,
+                {tx + 185.f, ty + ySpacing});
 
             height += txtSelectionMedium.height + txtSelectionSmall.height +
                       txtSelectionSmall.height + 10.f;
@@ -5704,13 +5746,13 @@ void MenuGame::draw()
         case States::LoadingScreen:
             drawLoadResults();
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
-                {txtProf.height, h - txtProf.height * 2.7f});
+                {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
 
         case States::EpilepsyWarning:
             render(epilepsyWarning);
             renderText("PRESS ANY KEY OR BUTTON TO CONTINUE", txtProf.font,
-                {txtProf.height, h - txtProf.height * 2.7f});
+                {txtProf.height, h - txtProf.height * 2.7f + 5.f});
             return;
 
         case States::ETLPNewBoot:
@@ -5925,6 +5967,15 @@ void MenuGame::drawOnlineStatus()
             case HexagonClient::State::LoggedIn: [[fallthrough]];
             case HexagonClient::State::LoggedIn_Ready:
             {
+                if(Config::getSaveLastLoginUsername() &&
+                    hexagonClient.getLoginName().has_value())
+                {
+                    // Save last login username for quicker login next time.
+
+                    Config::setLastLoginUsername(
+                        hexagonClient.getLoginName().value());
+                }
+
                 return {
                     true, "LOGGED IN AS " +
                               hexagonClient.getLoginName().value_or("UNKNOWN")};
@@ -5962,7 +6013,8 @@ void MenuGame::drawOnlineStatus()
         ssvs::getGlobalRight(sOnline) + padding, sOnline.getPosition().y);
 
     txtOnlineStatus.setOrigin(ssvs::getLocalCenterW(txtOnlineStatus));
-    txtOnlineStatus.setPosition(ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
+    txtOnlineStatus.setPosition(
+        ssvs::getGlobalLeft(rsOnlineStatus) + padding * 2.f,
         ssvs::getGlobalCenter(rsOnlineStatus).y);
 
     render(sOnline);
@@ -5985,6 +6037,14 @@ void MenuGame::showInputDialogBox(const std::string& msg)
 void MenuGame::showInputDialogBoxNice(const std::string& title,
     const std::string& inputType, const std::string& extra)
 {
+    showInputDialogBoxNiceWithDefault(
+        title, inputType, "" /* default */, extra);
+}
+
+void MenuGame::showInputDialogBoxNiceWithDefault(const std::string& title,
+    const std::string& inputType, const std::string& def,
+    const std::string& extra)
+{
     strBuf.clear();
 
     if(extra.empty())
@@ -5999,6 +6059,21 @@ void MenuGame::showInputDialogBoxNice(const std::string& title,
     }
 
     showInputDialogBox(strBuf);
+    dialogBox.getInput() = def;
+}
+
+void MenuGame::openLoginDialogBoxAndStartLoginProcess()
+{
+    SSVOH_ASSERT(dialogInputState == DialogInputState::Nothing);
+
+    dialogInputState = DialogInputState::Login_EnteringUsername;
+
+    const std::string defaultLoginUsername =
+        Config::getSaveLastLoginUsername() ? Config::getLastLoginUsername()
+                                           : "";
+
+    showInputDialogBoxNiceWithDefault(
+        "LOGIN", "USERNAME", defaultLoginUsername);
 }
 
 } // namespace hg

@@ -6,18 +6,25 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "nextpatterns.lu
 u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "evolutionpatterns.lua")
 
 gap = 7
-minGap = 3
+minGap = 4
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-        if mKey == 0 then cBarrageN(getRandomSide(), gap) t_wait(getPerfectDelayDM(THICKNESS) * 6)
-    elseif mKey == 1 then hmcSimpleBarrageSNeigh(getRandomSide(), 0, gap) t_wait(getPerfectDelayDM(THICKNESS) * 6)
+        if mKey == 0 then cBarrageN(getRandomSide(), gap) t_wait(getPerfectDelay(THICKNESS) * 6)
+    elseif mKey == 1 then hmcSimpleBarrageSNeigh(getRandomSide(), 0, gap) t_wait(getPerfectDelay(THICKNESS) * 6)
+    elseif mKey == 2 then
+        if (u_getDifficultyMult() < 1) then
+            cSwapBarrageN(getRandomSide(), gap, 1.25)
+        else
+            cSwapBarrageN(getRandomSide(), gap, .75)
+        end
+        t_wait(getPerfectDelay(THICKNESS) * 6)
     end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 0, 0, 1, 1, 1 }
+keys = { 0, 0, 0, 1, 1, 1, 2, 2 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
@@ -27,15 +34,15 @@ function onInit()
     l_setSpeedMult(3.0)
     l_setSpeedInc(0.0)
     l_setRotationSpeed(0.22)
-    l_setRotationSpeedMax(0.4)
-    l_setRotationSpeedInc(0.0)
-    l_setDelayMult(1.35)
+    l_setRotationSpeedMax(0.75)
+    l_setRotationSpeedInc(0.03)
+    l_setDelayMult(1.5)
     l_setDelayInc(0.0)
     l_setFastSpin(71.0)
     l_setSides(32)
     l_setSidesMin(32)
     l_setSidesMax(32)
-    l_setIncTime(10)
+    l_setIncTime(15)
 
     l_setWallSkewLeft(15)
 
@@ -49,27 +56,28 @@ function onInit()
     l_setBeatPulseDelayMax(25.714)
 
     l_setSwapEnabled(true)
+    l_setSwapCooldownMult(0.7/u_getDifficultyMult())
     l_addTracked("gap", "gap size")
 
     if(u_getDifficultyMult() >= 1.59) then
         gap = 9
         minGap = 5
-        l_setSwapCooldownMult(0.8)
     elseif(u_getDifficultyMult() >= 1.39) then
         gap = 8
         minGap = 4
-        l_setSwapCooldownMult(0.9)
     else
         gap = 7
         minGap = 3
-        l_setSwapCooldownMult(1.0)
     end
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
     syncCurveWithRotationSpeed(0, 0)
-    e_messageAdd("remember, swap with spacebar!", 120)
+    e_messageAdd("Remember to swap!", 120)
+    if (u_getDifficultyMult() > 1) then
+        minGap = 5
+    end
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty

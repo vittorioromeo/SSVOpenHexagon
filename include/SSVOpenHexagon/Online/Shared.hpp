@@ -6,8 +6,11 @@
 
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
+
 #include "SSVOpenHexagon/Core/Replay.hpp"
+
 #include "SSVOpenHexagon/Global/Version.hpp"
+#include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
 
 #include <vrm/pp/tpl.hpp>
 
@@ -113,7 +116,7 @@ struct STCPDeleteAccountFailure   { std::string error; };
 struct STCPTopScores              { std::string levelValidator; std::vector<Database::ProcessedScore> scores; };
 struct STCPOwnScore               { std::string levelValidator; Database::ProcessedScore score; };
 struct STCPTopScoresAndOwnScore   { std::string levelValidator; std::vector<Database::ProcessedScore> scores; std::optional<Database::ProcessedScore> ownScore; };
-struct STCPServerStatus           { GameVersion gameVersion; std::vector<std::string> supportedLevelValidators; };
+struct STCPServerStatus           { ProtocolVersion protocolVersion; GameVersion gameVersion; std::vector<std::string> supportedLevelValidators; };
 // clang-format on
 
 #define SSVOH_STC_PACKETS                                               \
@@ -141,7 +144,7 @@ template <typename T>
 
 } // namespace hg
 
-// TODO (P0): leaderboards article on /r/gamedev
+// TODO (P1): leaderboards article on /r/gamedev
 // - fast math issue
 // - rng advance for graphical things
 // - check devlogs

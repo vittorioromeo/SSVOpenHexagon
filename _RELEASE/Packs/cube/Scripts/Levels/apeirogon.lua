@@ -20,7 +20,7 @@ function addPattern(mKey)
         mKey = 7
     end
 
-        if mKey == 0 then pAltBarrage(u_rndInt(2, 3), 2)
+        if mKey == 0 then pAltBarrage(u_rndInt(3, 4), 2)
     elseif mKey == 1 then pBarrageSpiral(3, 0.6, 1)
     elseif mKey == 2 then pInverseBarrage(0)
     elseif mKey == 3 then pTunnel(u_rndInt(1, 3))

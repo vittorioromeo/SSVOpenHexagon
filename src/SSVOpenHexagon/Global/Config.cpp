@@ -67,11 +67,14 @@ using uint = unsigned int;
 using ushort = unsigned short;
 
 using trig = ssvs::Input::Trigger;
+
 using k = ssvs::KKey;
 using m = ssvs::MBtn;
-using c = ssvs::Input::Combo;
+using cmb = ssvs::Input::Combo;
+
 using kil = std::initializer_list<ssvs::KKey>;
 using mil = std::initializer_list<ssvs::MBtn>;
+using cil = std::initializer_list<cmb>;
 
 #define X_LINKEDVALUES_BINDS_JOYSTICK                    \
     X(joystickSelect, uint, "j_select", 1)               \
@@ -87,38 +90,31 @@ using mil = std::initializer_list<ssvs::MBtn>;
     X(joystickAddToFavorites, uint, "j_add_favorite", 8) \
     X(joystickFavoritesMenu, uint, "j_favorite_menu", 9)
 
-#define X_LINKEDVALUES_BINDS_TRIGGERS                                         \
-    X(triggerRotateCCW, trig, "t_rotate_ccw",                                 \
-        std::initializer_list<c>{                                             \
-            c{{k::A}}, c{{k::Left}}, c{kil{}, mil{m::Left}}})                 \
-    X(triggerRotateCW, trig, "t_rotate_cw",                                   \
-        std::initializer_list<c>{                                             \
-            c{{k::D}}, c{{k::Right}}, c{kil{}, mil{m::Right}}})               \
-    X(triggerFocus, trig, "t_focus",                                          \
-        std::initializer_list<c>{c{{k::LShift}}, c{kil{}, mil{m::XButton1}}}) \
-    X(triggerSelect, trig, "t_select",                                        \
-        std::initializer_list<c>{c{{k::Space}}, c{kil{}, mil{m::Middle}}})    \
-    X(triggerExit, trig, "t_exit",                                            \
-        std::initializer_list<c>{c{{k::T}}, c{kil{}, mil{m::XButton2}}})      \
-    X(triggerForceRestart, trig, "t_force_restart",                           \
-        std::initializer_list<c>{c{{k::Up}}, c{{k::R}}})                      \
-    X(triggerRestart, trig, "t_restart",                                      \
-        std::initializer_list<c>{                                             \
-            c{{k::Space}}, c{{k::Return}}, c{kil{}, mil{m::Middle}}})         \
-    X(triggerReplay, trig, "t_replay", std::initializer_list<c>{c{{k::Y}}})   \
-    X(triggerScreenshot, trig, "t_screenshot",                                \
-        std::initializer_list<c>{c{{k::F12}}})                                \
-    X(triggerSwap, trig, "t_swap",                                            \
-        std::initializer_list<c>{c{{k::Space}}, c{kil{}, mil{m::Middle}}})    \
-    X(triggerUp, trig, "t_up", std::initializer_list<c>{c{{k::W}}})           \
-    X(triggerDown, trig, "t_down", std::initializer_list<c>{c{{k::S}}})       \
-    X(triggerNextPack, trig, "t_next",                                        \
-        std::initializer_list<c>{c{{k::PageDown}}})                           \
-    X(triggerPreviousPack, trig, "t_previous",                                \
-        std::initializer_list<c>{c{{k::PageUp}}})                             \
-    X(triggerLuaConsole, trig, "t_lua_console",                               \
-        std::initializer_list<c>{c{{k::F1}}})                                 \
-    X(triggerPause, trig, "t_pause", std::initializer_list<c>{c{{k::F2}}})
+#define X_LINKEDVALUES_BINDS_TRIGGERS                                       \
+    X(triggerRotateCCW, trig, "t_rotate_ccw",                               \
+        cil{cmb{{k::A}}, cmb{{k::Left}}, cmb{kil{}, mil{m::Left}}})         \
+    X(triggerRotateCW, trig, "t_rotate_cw",                                 \
+        cil{cmb{{k::D}}, cmb{{k::Right}}, cmb{kil{}, mil{m::Right}}})       \
+    X(triggerFocus, trig, "t_focus",                                        \
+        cil{cmb{{k::LShift}}, cmb{kil{}, mil{m::XButton1}}})                \
+    X(triggerSelect, trig, "t_select",                                      \
+        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                   \
+    X(triggerExit, trig, "t_exit",                                          \
+        cil{cmb{{k::T}}, cmb{kil{}, mil{m::XButton2}}})                     \
+    X(triggerForceRestart, trig, "t_force_restart",                         \
+        cil{cmb{{k::Up}}, cmb{{k::R}}})                                     \
+    X(triggerRestart, trig, "t_restart",                                    \
+        cil{cmb{{k::Space}}, cmb{{k::Return}}, cmb{kil{}, mil{m::Middle}}}) \
+    X(triggerReplay, trig, "t_replay", cil{cmb{{k::Y}}})                    \
+    X(triggerScreenshot, trig, "t_screenshot", cil{cmb{{k::F12}}})          \
+    X(triggerSwap, trig, "t_swap",                                          \
+        cil{cmb{{k::Space}}, cmb{kil{}, mil{m::Middle}}})                   \
+    X(triggerUp, trig, "t_up", cil{cmb{{k::W}}})                            \
+    X(triggerDown, trig, "t_down", cil{cmb{{k::S}}})                        \
+    X(triggerNextPack, trig, "t_next", cil{cmb{{k::PageDown}}})             \
+    X(triggerPreviousPack, trig, "t_previous", cil{cmb{{k::PageUp}}})       \
+    X(triggerLuaConsole, trig, "t_lua_console", cil{cmb{{k::F1}}})          \
+    X(triggerPause, trig, "t_pause", cil{cmb{{k::F2}}})
 
 #define X_LINKEDVALUES_BINDS      \
     X_LINKEDVALUES_BINDS_JOYSTICK \
@@ -183,6 +179,9 @@ using mil = std::initializer_list<ssvs::MBtn>;
     X(serverControlPort, ushort, "server_control_port", 50506)             \
     X(serverLevelWhitelist, std::vector<std::string>,                      \
         "server_level_whitelist", defaultServerLevelWhitelist())           \
+    X(saveLastLoginUsername, bool, "save_last_login_username", true)       \
+    X(lastLoginUsername, std::string, "last_login_username", "")           \
+    X(showLoginAtStartup, bool, "show_login_at_startup", false)            \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -327,6 +326,11 @@ void loadConfig(const std::vector<std::string>& mOverridesIds)
     }
 
     syncAllFromObj();
+}
+
+void reapplyResolution()
+{
+    ssvu::lo("::reapplyResolution") << "reapplying resolution\n";
 
     if(getWindowedAutoResolution())
     {
@@ -346,18 +350,7 @@ void resetConfigToDefaults()
     ssvu::lo("::resetConfigToDefaults") << "resetting configs\n";
 
     resetAllFromDefault();
-
-    if(getWindowedAutoResolution())
-    {
-        applyAutoWindowedResolution();
-    }
-
-    if(getFullscreenAutoResolution())
-    {
-        applyAutoFullscreenResolution();
-    }
-
-    recalculateSizes();
+    reapplyResolution();
 }
 
 void resetBindsToDefaults()
@@ -690,6 +683,21 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
     serverLevelWhitelist() = levelValidators;
 }
 
+void setSaveLastLoginUsername(bool mX)
+{
+    saveLastLoginUsername() = mX;
+}
+
+void setLastLoginUsername(const std::string& mX)
+{
+    lastLoginUsername() = mX;
+}
+
+void setShowLoginAtStartup(bool mX)
+{
+    showLoginAtStartup() = mX;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -998,6 +1006,21 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators)
 [[nodiscard]] const std::vector<std::string> getServerLevelWhitelist()
 {
     return serverLevelWhitelist();
+}
+
+[[nodiscard]] bool getSaveLastLoginUsername()
+{
+    return saveLastLoginUsername();
+}
+
+[[nodiscard]] const std::string& getLastLoginUsername()
+{
+    return lastLoginUsername();
+}
+
+[[nodiscard]] bool getShowLoginAtStartup()
+{
+    return showLoginAtStartup();
 }
 
 //***********************************************************

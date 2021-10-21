@@ -7,13 +7,14 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "evolutionpatter
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0 }
+keys = { 0, 0, 0, 1, 2 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
 
 smin = 2
 smax = 2
+completed = false
 
 level = 1
 incrementTime = 10
@@ -21,32 +22,44 @@ incrementTime = 10
 range = "("..(smin * 2).."/"..(smax * 2).."]"
 
 function slitherSpiralAcc()
-    t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
-    t_wait(getPerfectDelayDM(THICKNESS) * 2.1)
+    t_wait(getPerfectDelay(THICKNESS) * 2.1)
+    t_wait(getPerfectDelay(THICKNESS) * 2.1)
     local side = getRandomSide()
 
     local acc = u_rndInt(50, 90) / 500.0 * getRandomDir()
     local minimum = u_rndInt(15, 21) / 10.0 * -1
     local maximum = -minimum
 
-    t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
+    t_wait(getPerfectDelay(THICKNESS) * 3.1)
 
     for i = 0, u_rndInt(6, 10) do
         hmcSimpleSpinnerSAcc(side, 0, acc, minimum, maximum, true)
         t_wait(getPerfectDelay(THICKNESS) * 0.55)
     end
 
-    t_wait(getPerfectDelayDM(THICKNESS) * 5.3)
+    t_wait(getPerfectDelay(THICKNESS) * 5.3)
+end
+
+-- this function adds a pattern to the timeline based on a key
+function addPattern(mKey)
+    if (mKey == 0) then slitherSpiralAcc()
+    elseif (mKey == 1) then
+        hmpStripeSnakeBarrage(getRandomSide(), u_rndInt(5, 10), getHalfSides(), l_getSides())
+        t_wait(getPerfectDelay(THICKNESS) * 2)
+    elseif (mKey == 2) then
+        hmpStripeSnakeAltBarrage(u_rndInt(5, 10), 2, getHalfSides(), l_getSides())
+        t_wait(getPerfectDelay(THICKNESS) * 2)
+    end
 end
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    l_setSpeedMult(1.7)
-    l_setSpeedInc(0.1)
+    l_setSpeedMult(1.8)
+    l_setSpeedInc(0) -- This will be set later.
     l_setSpeedMax(2.9)
 
     l_setRotationSpeed(0.2)
-    l_setRotationSpeedMax(0.4)
+    l_setRotationSpeedMax(0.5)
     l_setRotationSpeedInc(0.035)
 
     l_setDelayMult(1.1)
@@ -85,22 +98,35 @@ end
 -- onStep is an hardcoded function that is called when the level timeline is empty
 -- onStep should contain your pattern spawning logic
 function onStep()
-    l_setSides(u_rndInt(smin, smax) * 2)
-    slitherSpiralAcc()
+    l_setSides(math.random(smin, smax) * 2)
+    addPattern(keys[index])
+    index = index + 1
+    if index - 1 == #keys then
+        index = 1
+        shuffle(keys)
+    end
 end
-
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
     level = level + 1
-    incrementTime = incrementTime + 5
-    e_messageAddImportant("level: "..(level).." / time: "..incrementTime, 150)
-
-    if smax < 4 then
-        smax = smax + 1;
-    else
-        smin = smin + 1;
-        smax = smin;
+    e_messageAddImportant("level: "..(level).." / time: "..incrementTime, 120)
+    if (not completed) then
+        incrementTime = incrementTime + 5
+        smin = smin + 1
+        if (smin > smax) then
+            smin = 2
+            smax = smax + 1
+            if (smax > 4) then
+                completed = true
+                l_setSpeedInc(0.1) -- Enable the speed increment
+                incrementTime = 30
+            end
+        end
+    end
+    if (completed) then
+        smin = math.random(2, 3)
+        smax = clamp(smin + math.random(0, 3), smin, 5)
     end
 
     range = "("..(smin * 2).."/"..(smax * 2).."]"

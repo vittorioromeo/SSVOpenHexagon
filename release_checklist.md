@@ -2,13 +2,15 @@
 
 ## Server
 
-1. `git push` from main development machine
+1. `git push` from main development machine, check the branch
 
 2. Start the `endeavouros64` VirtualBox virtual machine
 
-3. Run `SSVOpenHexagon/vbox/build_and_upload_server.sh`
+3. Check the repository's branch on the virtual machine
 
-4. Verify that the server is working with `ssh vittorioromeo@139.162.199.162`, `sudo journalctl -u openhexagon-server -f`
+4. Run `SSVOpenHexagon/vbox/build_and_upload_server.sh`
+
+5. Verify that the server is working with `ssh vittorioromeo@139.162.199.162`, `sudo journalctl -u openhexagon-server -f`
 
 ## Client
 

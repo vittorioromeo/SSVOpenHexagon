@@ -130,8 +130,8 @@ static void redefineIoOpen(Lua::LuaContext& lua)
 try
 {
     lua.executeCode(
-        "local open = io.open; io.open = function(filename) return "
-        "open(filename, \"r\"); end");
+        "local open = io.open; io.open = function(filename, mode) return "
+        "open(filename, mode == \"rb\" and mode or \"r\"); end");
 }
 catch(...)
 {
@@ -194,6 +194,16 @@ static void destroyMaliciousFunctions(Lua::LuaContext& lua)
     // properly.
     lua.clearVariable("package.loadlib");
     lua.clearVariable("package.searchpath");
+
+    // This removes some other ways in which the "os" and "debug" libraries can
+    // be accessed.
+    lua.clearVariable("package.loaded.os");
+    lua.clearVariable("package.loaded.debug");
+
+    // This removes some potentially dangerous packages that could be used to
+    // inject malicious code.
+    lua.clearVariable("package.loadlib");
+    lua.clearVariable("package.loaders");
 }
 
 static void initUtils(Lua::LuaContext& lua, const bool inMenu)
@@ -469,18 +479,6 @@ static void initCustomWalls(Lua::LuaContext& lua, CCustomWallManager& cwManager)
         .doc(
             "Given the custom wall represented by `$0`, return the position of "
             "its vertics with indices `0`, `1`, `2`, and `3`, as a tuple.");
-
-    // TODO (P2): implement
-    /*
-    addLuaFn(lua, "cw_isOverlappingPlayer", //
-        [&cwManager](CCustomWallHandle cwHandle) -> bool {
-            return cwManager.isOverlappingPlayer(cwHandle);
-        })
-        .arg("cwHandle")
-        .doc(
-            "Return `true` if the custom wall represented by `$0` is "
-            "overlapping the player, `false` otherwise.");
-    */
 
     addLuaFn(lua, "cw_clear", //
         [&cwManager] { cwManager.clear(); })

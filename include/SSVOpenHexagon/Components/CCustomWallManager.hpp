@@ -22,8 +22,6 @@ class CPlayer;
 
 class CCustomWallManager
 {
-    // TODO (P2): consider using a sparse integer set
-
     std::vector<CCustomWall> _customWalls;
     std::vector<CCustomWallHandle> _freeHandles;
     std::vector<bool> _handleAvailable;
@@ -90,8 +88,6 @@ public:
     [[nodiscard]] bool getDeadly(const CCustomWallHandle cwHandle);
 
     [[nodiscard]] std::uint8_t getKillingSide(const CCustomWallHandle cwHandle);
-
-    [[nodiscard]] bool isOverlappingPlayer(const CCustomWallHandle cwHandle);
 
     void clear();
     void draw(Utils::FastVertexVectorQuads& wallQuads);

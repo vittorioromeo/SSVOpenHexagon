@@ -7,18 +7,18 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "evolutionpatter
 
 function gforceBarrage()
     cBarrage(getRandomSide())
-    t_wait(getPerfectDelayDM(THICKNESS) * 6.1)
+    t_wait(getPerfectDelay(THICKNESS) * 6.1)
 end
 
 function gforceBarrageAssault()
     cBarrage(getRandomSide())
-    t_wait(getPerfectDelayDM(THICKNESS) * 3.1)
+    t_wait(getPerfectDelay(THICKNESS) * 3.5)
 end
 
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-        if mKey == 0 then hmcDefAccelBarrage()
+        if mKey == 0 then hmpDefAccelBarrage()
     elseif mKey == 1 then gforceBarrage()
     end
 end
@@ -31,16 +31,18 @@ index = 0
 achievementUnlocked = false
 
 specials = { "double", "assault", "incongruence", "dizzy" }
+shuffle(specials)
+currSpecial = 1
 special = "none"
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
     l_setSpeedMult(2.1)
-    l_setSpeedInc(0.16)
+    l_setSpeedInc(0) -- Disable it for right now
     l_setSpeedMax(3.9)
     l_setRotationSpeed(0.12)
-    l_setRotationSpeedMax(0.6)
-    l_setRotationSpeedInc(0.035)
+    l_setRotationSpeedMax(0.65)
+    l_setRotationSpeedInc(0.0175)
     l_setDelayMult(1.9)
     l_setDelayInc(0.0)
     l_setFastSpin(0.0)
@@ -62,6 +64,7 @@ function onInit()
     l_setBeatPulseDelayMax(13.953)
 
     l_setSwapEnabled(true)
+    l_setSwapCooldownMult(1.9/u_getSpeedMultDM())
     l_addTracked("special", "special")
 end
 
@@ -106,13 +109,23 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-    shuffle(specials)
-
     if special == "none" then
-        special = specials[1]
+        special = specials[currSpecial]
+        currSpecial = currSpecial + 1
+        if (currSpecial - 1 == #specials) then
+            currSpecial = 1
+            shuffle(specials)
+        end
         e_messageAddImportant("Special: "..special, 120)
+        l_setSpeedInc(0.16)
     else
         special = "none"
+        l_setSpeedInc(0)
+    end
+    if (special == "assault") then
+        l_setSwapCooldownMult(1/u_getSpeedMultDM()) -- Assault has tighter spacing so we need lower swap cooldown.
+    else
+        l_setSwapCooldownMult(1.9/u_getSpeedMultDM())
     end
 end
 
