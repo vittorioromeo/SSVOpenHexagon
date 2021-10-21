@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Global/ProtocolVersion.hpp"
+
 #include "SSVOpenHexagon/Online/Sodium.hpp"
 #include "SSVOpenHexagon/Online/DatabaseRecords.hpp"
 
@@ -152,7 +154,7 @@ private:
         const std::vector<Database::ProcessedScore>& scores,
         const std::optional<Database::ProcessedScore>& ownScore);
     [[nodiscard]] bool sendServerStatus(ConnectedClient& c,
-        const GameVersion& gameVersion,
+        const ProtocolVersion& protocolVersion, const GameVersion& gameVersion,
         const std::vector<std::string> supportedLevelValidators);
 
     void kickAndRemoveClient(ConnectedClient& c);
