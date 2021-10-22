@@ -457,6 +457,43 @@ HGAssets::getSelectablePackInfos() const noexcept
     return nullptr;
 }
 
+[[nodiscard]] bool HGAssets::loadWorkshopPackDatasFromCache()
+{
+    if(!ssvufs::Path{"workshopCache.json"}.exists<ssvufs::Type::File>())
+    {
+        ssvu::lo("::loadAssets") << "Workshop cache file does not exist. No workshop packs to load\n";
+        return false;
+    } 
+    auto [cacheObject, cacheError] = ssvuj::getFromFileWithErrors("workshopCache.json");
+
+    ssvu::lo("::loadAssets") << "Loading workshop packs from cache\n";
+    if (ssvuj::hasObj(cacheObject, "cachedPacks")) {
+        // Null check
+        auto& packValue = ssvuj::getObj(cacheObject, "cachedPacks");
+        if (packValue.type() == Json::ValueType::nullValue || packValue.type() != Json::ValueType::arrayValue) {
+            ssvu::lo("::loadAssets") << "Cache array is null. No workshop packs to load\n";
+            return false;
+        }  
+        // Empty check
+        std::vector<std::string> packArray = ssvuj::getExtr<std::vector<std::string>>(cacheObject, "cachedPacks");
+        if (packArray.size() <= 0) {
+            ssvu::lo("::loadAssets") << "Cache array is empty. No workshop packs to load\n";
+            return false;
+        }
+        for (const auto& f : packArray)
+        {
+            // Simply emplace them. We will check them later.
+            cachedWorkshopPackIds.emplace(f);
+        }
+    } else {
+        ssvu::lo("::loadAssets") << "[ERROR]: Cannot locate cache array in workshop cache file\n";
+        return false;
+    }
+
+    loadInfo.addFormattedError(cacheError);
+    return true;
+}
+
 [[nodiscard]] bool HGAssets::loadAllPackDatas()
 {
     if(!ssvufs::Path{"Packs/"}.exists<ssvufs::Type::Folder>())
@@ -494,8 +531,17 @@ HGAssets::getSelectablePackInfos() const noexcept
     // Load pack datas from Steam workshop.
     if(steamManager != nullptr)
     {
-        steamManager->for_workshop_pack_folders(tryLoadPackFromPath);
-    }
+        if (steamManager->is_initialized()) 
+        {
+            steamManager->for_workshop_pack_folders(tryLoadPackFromPath);
+        } else if(loadWorkshopPackDatasFromCache()) {
+            // In the case the Steam API can't be retrieved, look for a cache that contains the paths we need to load
+            for (const auto& cachedPath : cachedWorkshopPackIds) 
+            {
+                tryLoadPackFromPath(cachedPath);
+            }
+        }
+    } 
 
     return true;
 }
