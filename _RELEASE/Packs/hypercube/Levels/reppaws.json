@@ -8,5 +8,5 @@
     "styleId": "reppaws",
     "musicId": "minimal",
     "luaFile": "Scripts/Levels/reppaws.lua",
-    "difficultyMults": [1.5, 1.8, 0.5]
+    "difficultyMults": [1.8, 0.5]
 }

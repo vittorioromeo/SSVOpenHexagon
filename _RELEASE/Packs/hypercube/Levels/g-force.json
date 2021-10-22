@@ -8,5 +8,5 @@
     "styleId": "g-force",
     "musicId": "cpumood",
     "luaFile": "Scripts/Levels/g-force.lua",
-    "difficultyMults": [1.6, 2.2, 2.8, 0.4, 0.6]
+    "difficultyMults": [1.6, 2.8, 0.6]
 }

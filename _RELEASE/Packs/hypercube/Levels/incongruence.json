@@ -8,5 +8,5 @@
     "styleId": "incongruence",
     "musicId": "flirtFlirt",
     "luaFile": "Scripts/Levels/incongruence.lua",
-    "difficultyMults": [0.5, 1.25, 1.8]
+    "difficultyMults": [0.5, 1.8]
 }
