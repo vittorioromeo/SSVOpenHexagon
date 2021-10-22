@@ -8,5 +8,5 @@
     "styleId": "centrifugal",
     "musicId": "tengil",
     "luaFile": "Scripts/Levels/centrifugal.lua",
-    "difficultyMults": [1.2, 1.4, 1.6, 0.6, 0.3]
+    "difficultyMults": [1.6, 0.6]
 }
