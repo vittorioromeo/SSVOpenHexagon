@@ -73,6 +73,7 @@ private:
 
     [[nodiscard]] bool loadAllPackDatas();
     [[nodiscard]] bool loadAllPackAssets();
+    [[nodiscard]] bool loadWorkshopPackDatasFromCache();
     [[nodiscard]] bool verifyAllPackDependencies();
     [[nodiscard]] bool loadAllLocalProfiles();
 
@@ -101,6 +102,8 @@ public:
         bool mLevelsOnly = false);
 
     ~HGAssets();
+
+    std::unordered_set<std::string> cachedWorkshopPackIds;
 
     [[nodiscard]] LoadInfo& getLoadResults();
 
