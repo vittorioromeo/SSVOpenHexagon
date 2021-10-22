@@ -3,9 +3,9 @@ FontName: OpenSquare-Bold
 FullName: Open Square Bold
 FamilyName: OpenSquare
 Weight: Bold
-Copyright: Copyright (c) 2020, John Kline
+Copyright: Copyright (c) 2021, John Kline
 UComments: "2020-10-14: Created with FontForge (http://fontforge.org)"
-Version: 001.000
+Version: 001.010
 ItalicAngle: 0
 UnderlinePosition: -102
 UnderlineWidth: 51
@@ -22,7 +22,7 @@ OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
 CreationTime: 1602678841
-ModificationTime: 1623046305
+ModificationTime: 1634863760
 PfmFamily: 17
 TTFWeight: 700
 TTFWidth: 5
@@ -58,6 +58,8 @@ BeginPrivate: 1
 BlueValues 13 [0 0 655 655]
 EndPrivate
 Grid
+-341 1331 m 0
+ -341 -717 l 1024
 -1024 655.360351562 m 0
  2048 655.360351562 l 1024
   Named: "Letter Top"
@@ -1162,6 +1164,7 @@ SplineSet
  426 500 l 1
  426 379 l 1
 EndSplineSet
+Validated: 1
 EndChar
 
 StartChar: g
@@ -1226,8 +1229,8 @@ SplineSet
  50 500 l 1
  187 500 l 1
 187 655 m 1
- 187 534 l 1
- 50 534 l 1
+ 187 564 l 1
+ 50 564 l 1
  50 655 l 1
  187 655 l 1
 EndSplineSet
@@ -1251,8 +1254,8 @@ SplineSet
  50 -4 l 1
  191 -4 l 1
 424 655 m 1
- 424 534 l 1
- 287 534 l 1
+ 424 554 l 1
+ 287 554 l 1
  287 655 l 1
  424 655 l 1
 EndSplineSet
@@ -2015,7 +2018,7 @@ StartChar: exclam
 Encoding: 33 33 75
 Width: 221
 VWidth: 819
-Flags: W
+Flags: HW
 HStem: -15 129<46 175>
 VStem: 46 129<-15 114 181 671>
 LayerCount: 2
@@ -2023,8 +2026,8 @@ Fore
 SplineSet
 46 671 m 1
  175 671 l 1
- 175 181 l 1
- 46 181 l 1
+ 175 230 l 5
+ 46 230 l 5
  46 671 l 1
 61 655 m 1025
 46 114 m 1
@@ -2744,15 +2747,15 @@ StartChar: exclamdown
 Encoding: 161 161 95
 Width: 200
 VWidth: 565
-Flags: W
+Flags: HW
 HStem: 233 110<46 155>
 VStem: 46 109<-212 185 233 343>
 LayerCount: 2
 Fore
 SplineSet
 46 -212 m 1
- 46 185 l 1
- 155 185 l 1
+ 46 140 l 1
+ 155 140 l 1
  155 -212 l 1
  46 -212 l 1
 61 -197 m 1025
@@ -5193,11 +5196,11 @@ Flags: HW
 LayerCount: 2
 Fore
 SplineSet
-190 503 m 1
+190 533 m 5
  50 655 l 1
  166 655 l 1
- 308 503 l 1
- 190 503 l 1
+ 308 533 l 5
+ 190 533 l 5
 76 655 m 1025
 248 500 m 1
  248 0 l 1
@@ -5216,12 +5219,11 @@ Flags: HW
 LayerCount: 2
 Fore
 SplineSet
-50 503 m 1
+50 533 m 1
  189 655 l 1
  306 655 l 1
- 166 503 l 1
- 50 503 l 1
-76 526 m 1025
+ 166 533 l 1
+ 50 533 l 1
 247 500 m 1
  247 0 l 1
  110 0 l 1
@@ -5235,27 +5237,26 @@ StartChar: icircumflex
 Encoding: 238 238 172
 Width: 291
 VWidth: 818
-Flags: HW
+Flags: HWO
 LayerCount: 2
 Fore
 SplineSet
-251 579 m 5
- 251 527 l 5
- 197 527 l 5
- 145 578 l 5
- 98 527 l 5
- 41 527 l 5
- 41 580 l 5
- 110 655 l 5
- 183 655 l 5
- 251 579 l 5
+251 589 m 1
+ 251 537 l 1
+ 197 537 l 1
+ 145 583 l 1
+ 98 537 l 1
+ 41 537 l 1
+ 41 590 l 1
+ 110 655 l 1
+ 183 655 l 1
+ 251 589 l 1
 215 500 m 1
  215 0 l 1
  78 0 l 1
  78 500 l 1
  215 500 l 1
 EndSplineSet
-Validated: 1
 EndChar
 
 StartChar: idieresis
@@ -5266,17 +5267,17 @@ Flags: HW
 LayerCount: 2
 Fore
 SplineSet
-230 542 m 1
+230 562 m 5
  230 655 l 1
  351 655 l 1
- 351 542 l 1
- 230 542 l 1
+ 351 562 l 5
+ 230 562 l 5
 242 655 m 1025
-50 542 m 1
+50 562 m 5
  50 655 l 1
  171 655 l 1
- 171 542 l 1
- 50 542 l 1
+ 171 562 l 5
+ 50 562 l 5
 62 655 m 1025
 270 500 m 1
  270 0 l 1
