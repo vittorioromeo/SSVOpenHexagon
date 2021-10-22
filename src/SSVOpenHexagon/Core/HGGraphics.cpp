@@ -593,7 +593,8 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         }
         else
         {
-            fpsText.setPosition(sf::Vector2f{padding, padding});
+            fpsText.setPosition(
+                sf::Vector2f{padding, Config::getHeight() - padding});
         }
 
         render(fpsText);
