@@ -490,6 +490,7 @@ HGAssets::getSelectablePackInfos() const noexcept
                 << "Cache array is empty. No workshop packs to load\n";
             return false;
         }
+
         for(const auto& f : packArray)
         {
             // Simply emplace them. We will check them later.
