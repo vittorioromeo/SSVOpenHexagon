@@ -465,7 +465,7 @@ HGAssets::getSelectablePackInfos() const noexcept
                                     "workshop packs to load\n";
         return false;
     }
-    auto [cacheObject, cacheError] =
+    const auto [cacheObject, cacheError] =
         ssvuj::getFromFileWithErrors("workshopCache.json");
 
     ssvu::lo("::loadAssets") << "Loading workshop packs from cache\n";
