@@ -103,6 +103,8 @@ public:
 
     ~HGAssets();
 
+    // When the Steam API can not be retrieved, this set holds pack ids
+    // retrieved from the cache to try and load the workshop packs installed
     std::unordered_set<std::string> cachedWorkshopPackIds;
 
     [[nodiscard]] LoadInfo& getLoadResults();

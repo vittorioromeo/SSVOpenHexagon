@@ -191,8 +191,7 @@ void steam_manager::steam_manager_impl::load_workshop_data()
     constexpr std::size_t folderBufSize = 512;
     char folderBuf[folderBufSize];
 
-    int numPacks = 0;
-    ssvuj::Obj cacheArray{ssvuj::Obj{}};
+    ssvuj::Obj cacheArray;
 
     for(PublishedFileId_t id : subscribedItemsIds)
     {
@@ -206,24 +205,25 @@ void steam_manager::steam_manager_impl::load_workshop_data()
 
         if(installed)
         {
+            std::string folderBufStr{folderBuf};
+
             ssvu::lo("Steam")
                 << "Workshop id " << id << " is installed, with size "
-                << itemDiskSize << " at folder " << std::string{folderBuf}
-                << '\n';
-
-            _workshop_pack_folders.emplace(std::string{folderBuf});
+                << itemDiskSize << " at folder " << folderBufStr << '\n';
 
             // Write the path to an element in a JSON array.
-            ssvuj::arch(cacheArray, numPacks, std::string{folderBuf});
-            numPacks++;
+            ssvuj::arch(
+                cacheArray, _workshop_pack_folders.size(), folderBufStr);
+
+            _workshop_pack_folders.emplace(std::move(folderBufStr));
         }
     }
 
     // Update the workshop cache with our loaded folders
-    if(numPacks > 0)
+    if(_workshop_pack_folders.size() > 0)
     {
         ssvu::lo("Steam") << "Updating workshop cache\n";
-        ssvuj::Obj cacheObj{ssvuj::Obj{}};
+        ssvuj::Obj cacheObj;
 
         ssvuj::arch(cacheObj, "cachedPacks", cacheArray);
         ssvuj::writeToFile(cacheObj, "workshopCache.json");
