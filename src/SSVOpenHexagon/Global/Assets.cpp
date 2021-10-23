@@ -484,6 +484,7 @@ HGAssets::getSelectablePackInfos() const noexcept
         const auto packArray =
             ssvuj::getExtr<std::vector<std::string>>(
                 cacheObject, "cachedPacks");
+
         if(packArray.size() <= 0)
         {
             ssvu::lo("::loadAssets")
