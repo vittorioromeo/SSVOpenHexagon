@@ -481,7 +481,7 @@ HGAssets::getSelectablePackInfos() const noexcept
             return false;
         }
         // Empty check
-        std::vector<std::string> packArray =
+        const auto packArray =
             ssvuj::getExtr<std::vector<std::string>>(
                 cacheObject, "cachedPacks");
         if(packArray.size() <= 0)
