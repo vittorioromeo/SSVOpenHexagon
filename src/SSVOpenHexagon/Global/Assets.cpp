@@ -503,6 +503,7 @@ HGAssets::getSelectablePackInfos() const noexcept
     {
         ssvu::lo("::loadAssets")
             << "[ERROR]: Cannot locate cache array in workshop cache file\n";
+
         return false;
     }
 
