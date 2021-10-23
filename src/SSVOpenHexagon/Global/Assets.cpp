@@ -480,6 +480,7 @@ HGAssets::getSelectablePackInfos() const noexcept
                 << "Cache array is null. No workshop packs to load\n";
             return false;
         }
+
         // Empty check
         const auto packArray =
             ssvuj::getExtr<std::vector<std::string>>(
