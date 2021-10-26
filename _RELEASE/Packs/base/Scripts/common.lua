@@ -87,55 +87,55 @@ function getSideDistance(mSide1, mSide2)
     return diff
 end
 
--- cWall: creates a wall with the common THICKNESS or mThickness (optional)
-function cWall(mSide, mThickness, ...) w_wall(mSide, mThickness or THICKNESS) end
+-- cWall: creates a wall with the common THICKNESS
+function cWall(mSide) w_wall(mSide, THICKNESS) end
 
 -- oWall: creates a wall opposite to the mSide passed
-function oWall(mSide, mThickness, ...) cWall(mSide + getHalfSides(), mThickness, ...) end
+function oWall(mSide) cWall(mSide + getHalfSides()) end
 
 -- rWall: union of cwall and owall (created 2 walls facing each other)
-function rWall(mSide, mThickness, ...)
-    cWall(mSide, mThickness, ...)
-    oWall(mSide, mThickness, ...)
+function rWall(mSide)
+    cWall(mSide)
+    oWall(mSide)
 end
 
 -- cWallEx: creates a wall with mExtra walls attached to it
-function cWallEx(mSide, mExtra, mThickness, ...)
+function cWallEx(mSide, mExtra)
     local loopDir = mExtra > 0 and 1 or -1
-    for i = 0, mExtra, loopDir do cWall(mSide + i, mThickness, ...) end
+    for i = 0, mExtra, loopDir do cWall(mSide + i) end
 end
 
 -- oWallEx: creates a wall with mExtra walls opposite to mSide
-function oWallEx(mSide, mExtra, mThickness, ...)
-    cWallEx(mSide + getHalfSides(), mExtra, mThickness, ...)
+function oWallEx(mSide, mExtra)
+    cWallEx(mSide + getHalfSides(), mExtra)
 end
 
 -- rWallEx: union of cwallex and owallex
-function rWallEx(mSide, mExtra, mThickness, ...)
-    cWallEx(mSide, mExtra, mThickness, ...)
-    oWallEx(mSide, mExtra, mThickness, ...)
+function rWallEx(mSide, mExtra)
+    cWallEx(mSide, mExtra)
+    oWallEx(mSide, mExtra)
 end
 
 -- cBarrageN: spawns a barrage of walls, with a free mSide plus mNeighbors
-function cBarrageN(mSide, mNeighbors, mThickness, ...)
+function cBarrageN(mSide, mNeighbors)
     for i = mNeighbors, l_getSides() - 2 - mNeighbors do
-        cWall(mSide + i + 1, mThickness, ...)
+        cWall(mSide + i + 1)
     end
 end
 
 -- cBarrage: spawns a barrage of walls, with a single free mSide
-function cBarrage(mSide, mThickness, ...) cBarrageN(mSide, 0, mThickness, ...) end
+function cBarrage(mSide) cBarrageN(mSide, 0) end
 
 -- cBarrageOnlyN: spawns a barrage of wall, with only free mNeighbors
-function cBarrageOnlyN(mSide, mNeighbors, mThickness, ...)
-    cWall(mSide, mThickness, ...)
-    cBarrageN(mSide, mNeighbors, mThickness, ...)
+function cBarrageOnlyN(mSide, mNeighbors)
+    cWall(mSide)
+    cBarrageN(mSide, mNeighbors)
 end
 
 -- cAltBarrage: spawns a barrage of alternate walls
-function cAltBarrage(mSide, mStep, mThickness, ...)
+function cAltBarrage(mSide, mStep)
     for i = 0, l_getSides(), mStep do
-        cWall(mSide + i, mThickness, ...)
+        cWall(mSide + i)
     end
 end
 

@@ -619,19 +619,20 @@ function getPlayerHalfBaseWidth(mFocus)
     return getPlayerBaseWidth(mFocus) * 0.5
 end
 
--- Radius of a circle circumscribed around the center polygon cap
+-- Radius of a circle circumscribed around the center pivot (polygon) cap
 function getCapRadius()
     return getPlayerRadius() * 0.75
 end
 
--- Width of the pivot border
+-- Width of the pivot (polygon) border
+-- From baseThickness in CPlayer.cpp
 function getPivotBorderWidth()
     return 5
 end
 
--- Radius of a circle circumscribed around the center polygon
-function getPolygonRadius()
-    return getCapRadius() + getPolygonBorderWidth()
+-- Radius of a circle circumscribed around the center pivot (polygon)
+function getPivotRadius()
+    return getCapRadius() + getPivotBorderWidth()
 end
 
 -- Returns the speed of walls in units per frame (5 times the speed mult)
