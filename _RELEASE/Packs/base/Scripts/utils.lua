@@ -624,8 +624,8 @@ function getCapRadius()
     return getPlayerRadius() * 0.75
 end
 
--- Width of the polygon border
-function getPolygonBorderWidth()
+-- Width of the pivot border
+function getPivotBorderWidth()
     return 5
 end
 
