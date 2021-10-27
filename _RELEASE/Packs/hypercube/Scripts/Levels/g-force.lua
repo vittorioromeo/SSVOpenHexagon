@@ -29,6 +29,7 @@ keys = { 0, 1 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 specials = { "double", "assault", "incongruence", "dizzy" }
 shuffle(specials)
@@ -138,5 +139,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a14_gforce")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 40 and u_getDifficultyMult() > 2.5 then
+        steam_unlockAchievement("a40_gforce_hard")
+        hardAchievementUnlocked = true
     end
 end

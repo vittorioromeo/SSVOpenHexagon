@@ -30,6 +30,7 @@ index = 0
 lowerBound = 4
 upperBound = 6
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -124,6 +125,11 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a15_incongruence")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 45 and u_getDifficultyMult() > 1.5 then
+        steam_unlockAchievement("a41_incongruence_hard")
+        hardAchievementUnlocked = true
     end
 
     s_setHueInc(s_getHueInc() + hueIStep)

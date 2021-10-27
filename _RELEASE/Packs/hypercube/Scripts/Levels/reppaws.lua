@@ -28,6 +28,7 @@ keys = { 0, 0, 0, 1, 1, 1, 2, 2 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -111,5 +112,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 45 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a18_reppaws")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 1.5 then
+        steam_unlockAchievement("a44_reppaws_hard")
+        hardAchievementUnlocked = true
     end
 end

@@ -70,6 +70,7 @@ shuffle(keys)
 index = 1
 specialIndex = 1
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 specials = { "assemble", "turnaround", "alternate", "chaser", "tunnel", "swarm", "consistency"}
 shuffle(specials)
@@ -204,5 +205,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a20_massacre")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 1.5 then
+        steam_unlockAchievement("a46_massacre_hard")
+        hardAchievementUnlocked = true
     end
 end

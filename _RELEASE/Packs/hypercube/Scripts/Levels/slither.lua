@@ -11,6 +11,7 @@ keys = { 0, 0, 0, 1, 2 }
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 smin = 2
 smax = 2
@@ -157,5 +158,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 60 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a16_slither")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 1.8 then
+        steam_unlockAchievement("a42_slither_hard")
+        hardAchievementUnlocked = true
     end
 end
