@@ -629,25 +629,18 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
 {
     bool any_failure = false;
 
-    if(!update_hardcoded_achievement_cube_master())
+    const auto check_failure = [&](const bool x)
     {
-        any_failure = true;
-    }
+        if(!x)
+        {
+            any_failure = true;
+        }
+    };
 
-    if(!update_hardcoded_achievement_hypercube_master())
-    {
-        any_failure = true;
-    }
-
-    if(!update_hardcoded_achievement_cube_god())
-    {
-        any_failure = true;
-    }
-
-    if(!update_hardcoded_achievement_hypercube_god())
-    {
-        any_failure = true;
-    }
+    check_failure(update_hardcoded_achievement_cube_master());
+    check_failure(update_hardcoded_achievement_hypercube_master());
+    check_failure(update_hardcoded_achievement_cube_god());
+    check_failure(update_hardcoded_achievement_hypercube_god());
 
     return !any_failure;
 }
