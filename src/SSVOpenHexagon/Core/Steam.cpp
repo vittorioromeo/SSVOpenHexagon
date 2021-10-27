@@ -104,6 +104,7 @@ private:
     bool update_hardcoded_achievement_cube_master();
     bool update_hardcoded_achievement_hypercube_master();
     bool update_hardcoded_achievement_cube_god();
+    bool update_hardcoded_achievement_hypercube_god();
 
     void load_workshop_data();
 
@@ -139,6 +140,7 @@ public:
     bool set_and_store_stat(std::string_view name, int data);
     [[nodiscard]] bool get_achievement(bool* out, std::string_view name);
     [[nodiscard]] bool get_stat(int* out, std::string_view name);
+    [[nodiscard]] std::optional<bool> is_achievement_unlocked(const char* name);
 
     bool update_hardcoded_achievements();
 
@@ -429,31 +431,30 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
     return false;
 }
 
+[[nodiscard]] std::optional<bool>
+steam_manager::steam_manager_impl::is_achievement_unlocked(const char* name)
+{
+    bool res{false};
+    const bool rc = get_achievement(&res, name);
+
+    if(!rc)
+    {
+        return std::nullopt;
+    }
+
+    return res;
+}
+
 bool steam_manager::steam_manager_impl::
     update_hardcoded_achievement_cube_master()
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
 
     const auto unlocked = [this](const char* name) -> int
-    {
-        bool res{false};
-        const bool rc = get_achievement(&res, name);
-
-        if(!rc)
-        {
-            return 0;
-        }
-
-        return res ? 1 : 0;
-    };
+    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
 
     // "Cube Master"
     {
@@ -491,28 +492,13 @@ bool steam_manager::steam_manager_impl::
 bool steam_manager::steam_manager_impl::
     update_hardcoded_achievement_hypercube_master()
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
 
     const auto unlocked = [this](const char* name) -> int
-    {
-        bool res{false};
-        const bool rc = get_achievement(&res, name);
-
-        if(!rc)
-        {
-            return 0;
-        }
-
-        return res ? 1 : 0;
-    };
+    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
 
     // "Hypercube Master"
     {
@@ -547,31 +533,15 @@ bool steam_manager::steam_manager_impl::
     return true;
 }
 
-
 bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
 
     const auto unlocked = [this](const char* name) -> int
-    {
-        bool res{false};
-        const bool rc = get_achievement(&res, name);
-
-        if(!rc)
-        {
-            return 0;
-        }
-
-        return res ? 1 : 0;
-    };
+    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
 
     // "Cube God"
     {
@@ -605,6 +575,49 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievement_cube_god()
     return true;
 }
 
+bool steam_manager::steam_manager_impl::
+    update_hardcoded_achievement_hypercube_god()
+{
+    if(!_initialized || !_got_stats)
+    {
+        return false;
+    }
+
+    const auto unlocked = [this](const char* name) -> int
+    { return is_achievement_unlocked(name).value_or(false) ? 1 : 0; };
+
+    // "Hypercube Master"
+    {
+        int stat;
+        const bool rc = get_stat(&stat, "s3_packprogress_hypercubegod");
+
+        if(!rc)
+        {
+            return false;
+        }
+
+        const int acc = unlocked("a38_disco_hard") +            //
+                        unlocked("a39_acceleradiant_hard") +    //
+                        unlocked("a40_gforce_hard") +           //
+                        unlocked("a41_incongruence_hard") +     //
+                        unlocked("a42_slither_hard") +          //
+                        unlocked("a43_polyhedrug_hard") +       //
+                        unlocked("a44_reppaws_hard") +          //
+                        unlocked("a45_centrifugalforce_hard") + //
+                        unlocked("a46_massacre_hard");
+
+        if(acc > stat)
+        {
+            if(!set_and_store_stat("s3_packprogress_hypercubegod", acc))
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
 {
     bool success = true;
@@ -620,6 +633,11 @@ bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
     }
 
     if(!update_hardcoded_achievement_cube_god())
+    {
+        success = false;
+    }
+
+    if(!update_hardcoded_achievement_hypercube_god())
     {
         success = false;
     }
