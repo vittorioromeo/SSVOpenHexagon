@@ -398,12 +398,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
 [[nodiscard]] bool steam_manager::steam_manager_impl::get_achievement(
     bool* out, std::string_view name)
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
@@ -420,12 +415,7 @@ bool steam_manager::steam_manager_impl::set_and_store_stat(
 [[nodiscard]] bool steam_manager::steam_manager_impl::get_stat(
     int* out, std::string_view name)
 {
-    if(!_initialized)
-    {
-        return false;
-    }
-
-    if(!_got_stats)
+    if(!_initialized || !_got_stats)
     {
         return false;
     }
@@ -637,29 +627,29 @@ bool steam_manager::steam_manager_impl::
 
 bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
 {
-    bool success = true;
+    bool any_failure = false;
 
     if(!update_hardcoded_achievement_cube_master())
     {
-        success = false;
+        any_failure = true;
     }
 
     if(!update_hardcoded_achievement_hypercube_master())
     {
-        success = false;
+        any_failure = true;
     }
 
     if(!update_hardcoded_achievement_cube_god())
     {
-        success = false;
+        any_failure = true;
     }
 
     if(!update_hardcoded_achievement_hypercube_god())
     {
-        success = false;
+        any_failure = true;
     }
 
-    return success;
+    return !any_failure;
 }
 
 void steam_manager::steam_manager_impl::for_workshop_pack_folders(
