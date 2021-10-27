@@ -7,6 +7,7 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "evolutionpatter
 
 curveSpeed = 15
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -75,5 +76,10 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 45 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a19_centrifugalforce")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 1.5 then
+        steam_unlockAchievement("a45_centrifugalforce_hard")
+        hardAchievementUnlocked = true
     end
 end

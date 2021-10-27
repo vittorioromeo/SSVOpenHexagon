@@ -24,6 +24,7 @@ keys = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 8}
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
@@ -97,6 +98,11 @@ function onUpdate(mFrameTime)
     if not achievementUnlocked and l_getLevelTime() > 90 and u_getDifficultyMult() >= 1 then
         steam_unlockAchievement("a13_acceleradiant")
         achievementUnlocked = true
+    end
+
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 2.2 then
+        steam_unlockAchievement("a39_acceleradiant_hard")
+        hardAchievementUnlocked = true
     end
 
     s_setHueInc(s_getHueInc() + hueIStep * mFrameTime/FPS)
