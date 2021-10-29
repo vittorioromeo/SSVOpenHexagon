@@ -9,6 +9,7 @@
 #include "SSVOpenHexagon/Utils/String.hpp"
 #include "SSVOpenHexagon/Utils/Color.hpp"
 #include "SSVOpenHexagon/Components/CWall.hpp"
+#include "SSVStart/Utils/SFML.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>
@@ -484,7 +485,6 @@ void HexagonGame::updateText(ssvu::FT mFT)
     };
 
     timeText.setCharacterSize(getScaledCharacterSize(70.f));
-    timeText.setOrigin(0, 0);
 
     // Set information text
     text.setString(os.str());
@@ -556,43 +556,45 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
         replayText.setOutlineThickness(0.f);
     }
 
-    const float padding = Config::getTextPadding() * Config::getTextScaling();
-    const float offsetRatio = Config::getHeight() / 720.f;
+    const float padding =
+        (Config::getTextPadding() * Config::getTextScaling()) /
+        Config::getZoomFactor();
 
     const sf::Color colorText = getColorText();
 
     if(Config::getShowTimer())
     {
         timeText.setFillColor(colorText);
-        timeText.setPosition(sf::Vector2f{
-            padding, -16.f * offsetRatio * Config::getTextScaling()});
+        timeText.setOrigin(ssvs::getLocalNW(timeText));
+        timeText.setPosition(sf::Vector2f{padding, padding});
+
         render(timeText);
     }
 
     if(Config::getShowStatusText())
     {
         text.setFillColor(colorText);
+        text.setOrigin(ssvs::getLocalNW(text));
         text.setPosition(
-            sf::Vector2f{padding * 1.5f, ssvs::getGlobalBottom(timeText)});
+            sf::Vector2f{padding, ssvs::getGlobalBottom(timeText) + padding});
+
         render(text);
     }
 
     if(Config::getShowFPS())
     {
         fpsText.setFillColor(colorText);
-        fpsText.setOrigin(0, ssvs::getGlobalHeight(fpsText));
+        fpsText.setOrigin(ssvs::getLocalSW(fpsText));
 
         if(Config::getShowLevelInfo() || mustShowReplayUI())
         {
-            fpsText.setPosition(sf::Vector2f{padding,
-                ssvs::getGlobalTop(levelInfoRectangle) -
-                    ((7.f * (2.f * offsetRatio))) * Config::getTextScaling()});
+            fpsText.setPosition(sf::Vector2f{
+                padding, ssvs::getGlobalTop(levelInfoRectangle) - padding});
         }
         else
         {
-            fpsText.setPosition(sf::Vector2f{
-                padding, Config::getHeight() - ((7.f * (2.f * offsetRatio))) *
-                                                   Config::getTextScaling()});
+            fpsText.setPosition(
+                sf::Vector2f{padding, Config::getHeight() - padding});
         }
 
         render(fpsText);
@@ -602,6 +604,7 @@ void HexagonGame::drawText_TimeAndStatus(const sf::Color& offsetColor)
     {
         const float scaling =
             Config::getKeyIconsScale() / Config::getZoomFactor();
+
         const float replayPadding = 8.f * scaling;
 
         replayText.setFillColor(colorText);

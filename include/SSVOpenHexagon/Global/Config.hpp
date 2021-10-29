@@ -27,6 +27,7 @@ inline constexpr float TIME_STEP = 60.f / TICKS_PER_SECOND;
 inline constexpr float TIME_SLICE = 60.f / TICKS_PER_SECOND;
 
 void loadConfig(const std::vector<std::string>& mOverridesIds);
+void reapplyResolution();
 void resetConfigToDefaults();
 void resetBindsToDefaults();
 void saveConfig();
@@ -78,6 +79,9 @@ void setServerIp(const std::string& mX);
 void setServerPort(unsigned short mX);
 void setServerControlPort(unsigned short mX);
 void setServerLevelWhitelist(const std::vector<std::string>& levelValidators);
+void setSaveLastLoginUsername(bool mX);
+void setLastLoginUsername(const std::string& mX);
+void setShowLoginAtStartup(bool mX);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -142,6 +146,9 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators);
 [[nodiscard]] unsigned short getServerPort();
 [[nodiscard]] unsigned short getServerControlPort();
 [[nodiscard]] const std::vector<std::string> getServerLevelWhitelist();
+[[nodiscard]] bool getSaveLastLoginUsername();
+[[nodiscard]] const std::string& getLastLoginUsername();
+[[nodiscard]] bool getShowLoginAtStartup();
 
 // keyboard binds
 

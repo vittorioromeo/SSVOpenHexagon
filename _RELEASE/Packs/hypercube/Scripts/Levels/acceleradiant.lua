@@ -6,30 +6,35 @@ u_execDependencyScript("ohvrvanilla", "base", "vittorio romeo", "nextpatterns.lu
 
 -- this function adds a pattern to the timeline based on a key
 function addPattern(mKey)
-        if mKey == 0 then pACBarrage()
+        if mKey == 0 then pACBarrageDecelerate()
     elseif mKey == 1 then pACBarrageMulti()
-    elseif mKey == 2 then pACBarrageMultiAltDir()
+    elseif mKey == 2 then pACSpiral()
+    elseif mKey == 3 and u_getDifficultyMult() >= 1 then pACBarrageDeception()
+    elseif mKey == 4 then pACAltBarrage(math.random(2, 3))
+    elseif mKey == 5 then pACAltBarrageMulti()
+    elseif mKey == 6 then pACAltBarrageReveal(math.random(3, 4))
+    elseif mKey == 7 then pACInverseBarrage();
+    elseif mKey == 8 then pACTunnelReveal(math.random(2, 4));
     end
 end
 
 -- shuffle the keys, and then call them to add all the patterns
 -- shuffling is better than randomizing - it guarantees all the patterns will be called
-keys = { 0, 0, 1, 1, 2, 2, 0, 0, 0, 0, 0 }
+keys = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 8}
 shuffle(keys)
 index = 0
 achievementUnlocked = false
+hardAchievementUnlocked = false
 
 -- onInit is an hardcoded function that is called when the level is first loaded
 function onInit()
-    l_setSpeedMult(2.25)
-    l_setSpeedInc(0.045)
-    l_setSpeedMax(2.35);
+    l_setSpeedMult(2.2)
+    l_setSpeedInc(0.1)
+    l_setSpeedMax(4.5);
     l_setRotationSpeed(0.27)
     l_setRotationSpeedMax(0.45)
     l_setRotationSpeedInc(0.045)
     l_setDelayMult(1.1)
-    l_setDelayInc(-0.01)
-    l_setDelayMin(1.07)
     l_setFastSpin(71.0)
     l_setSides(6)
     l_setSidesMin(5)
@@ -46,6 +51,7 @@ function onInit()
     l_setBeatPulseDelayMax(21.8)
 
     enableSwapIfDMGreaterThan(1.4)
+    l_setSwapCooldownMult(1 / u_getDifficultyMult());
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
@@ -76,7 +82,7 @@ end
 dirChangeTime = 400
 hueIMin = 0.0
 hueIMax = 22.0
-hueIStep = 0.0065
+hueIStep = 6.5
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
@@ -94,7 +100,12 @@ function onUpdate(mFrameTime)
         achievementUnlocked = true
     end
 
-    s_setHueInc(s_getHueInc() + hueIStep)
+    if not hardAchievementUnlocked and l_getLevelTime() > 30 and u_getDifficultyMult() > 2.2 then
+        steam_unlockAchievement("a39_acceleradiant_hard")
+        hardAchievementUnlocked = true
+    end
+
+    s_setHueInc(s_getHueInc() + hueIStep * mFrameTime/FPS)
     if(s_getHueInc() > hueIMax) then hueIStep = hueIStep * -1 end
     if(s_getHueInc() < hueIMin) then hueIStep = hueIStep * -1 end
 end

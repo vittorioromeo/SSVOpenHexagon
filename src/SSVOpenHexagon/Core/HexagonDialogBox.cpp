@@ -134,7 +134,7 @@ void HexagonDialogBox::drawText(
             txtDialog.setString(str);
             txtDialog.setPosition(
                 {xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
-                    yOffset + heightOffset});
+                    yOffset + heightOffset + 5.f});
             window.draw(txtDialog);
         }
 
@@ -155,7 +155,7 @@ void HexagonDialogBox::drawText(
         }
 
         txtDialog.setPosition({xOffset - ssvs::getGlobalWidth(txtDialog) / 2.f,
-            yOffset + heightOffset});
+            yOffset + heightOffset + 5.f});
         window.draw(txtDialog);
     }
 }

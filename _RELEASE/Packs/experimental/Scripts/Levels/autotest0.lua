@@ -42,7 +42,7 @@ end
 -- onStep should contain your pattern spawning logic
 function onStep()
     hmcSimpleBarrageSNeigh(getRandomSide(), 3, 4)
-    t_wait(getPerfectDelayDM(THICKNESS) * 6)
+    t_wait(getPerfectDelay(THICKNESS) * 6)
 end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented

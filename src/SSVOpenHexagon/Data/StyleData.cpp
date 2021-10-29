@@ -303,7 +303,7 @@ void StyleData::setCapColor(const CapColor& mCapColor)
 }
 
 [[nodiscard]] const sf::Color& StyleData::getWallColor() const noexcept
-{  
+{
     return currentWallColor;
 }
 

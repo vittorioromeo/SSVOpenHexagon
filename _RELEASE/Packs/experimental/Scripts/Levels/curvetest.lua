@@ -34,7 +34,7 @@ end
 
 function hmcDefSpinner()
     hmcSimpleSpinner(u_rndInt(10, 45) / 10.0 * getRandomDir())
-    t_wait(getPerfectDelayDM(THICKNESS) * 1.2)
+    t_wait(getPerfectDelay(THICKNESS) * 1.2)
 end
 
 -- onInit is an hardcoded function that is called when the level is first loaded

@@ -37,14 +37,14 @@ function onInit()
 
     l_setWallSkewLeft(18)
 
-    l_setPulseMin(68)
-    l_setPulseMax(82.93)
-    l_setPulseSpeed(1.521)
-    l_setPulseSpeedR(1.4)
+    l_setPulseMin(64)
+    l_setPulseMax(84)
+    l_setPulseSpeed(1.05)
+    l_setPulseSpeedR(1.35)
     l_setPulseDelayMax(7)
 
     l_setBeatPulseMax(15)
-    l_setBeatPulseDelayMax(27.48)
+    l_setBeatPulseDelayMax(110)
 
     l_setSwapEnabled(true)
 
@@ -53,54 +53,85 @@ function onInit()
 end
 
 swappedOnce = false
+swapTime = false
 
 -- onCursorSwap is executed whenever the player executes a successful 180° swap
 function onCursorSwap()
-    if swappedOnce == false then
-        u_log("swap detected!")
+    if (swapTime and not swappedOnce) then
         swappedOnce = true
+        e_clearMessages()
     end
 end
 
 -- onLoad is an hardcoded function that is called when the level is started/restarted
 function onLoad()
-    e_messageAddImportant("welcome to the evolution tutorial", 120)
-    e_messageAddImportant("today you'll be introduced to...", 120)
-    e_messageAddImportant("1. swapping!", 100)
-    e_messageAddImportant("2. curving walls!", 100)
-    e_messageAddImportant("", 120)
-    e_messageAddImportant("press space or middle mouse button\nto swap", 250)
-    e_messageAddImportant("it allows you to rotate 180 degrees!", 200)
-    e_messageAddImportant("", 120)
+    e_waitS(1)
+    e_messageAddImportant("Welcome to the evolution tutorial", 150)
+    e_messageAddImportant("Today you'll be introduced to...", 120)
+    e_messageAddImportant("swapping, accelerating walls, and curving walls!", 300)
+    e_wait(570 + 120)
+    e_messageAddImportant("Swapping allows you to instantly rotate 180 degrees!", 200)
+    e_messageAddImportant("You can only swap when your player\nblinks red and yellow!", 250)
+    e_wait(450)
 
-    e_messageAddImportant("now: curving walls", 120)
+    e_eval([[swapTime = true]])
+    e_messageAddImportant("Try swapping now!\nPress space or middle mouse button to swap", 10000)
+end
+
+function partTwo()
+    e_messageAddImportant("Awesome!", 120)
+    e_messageAddImportant("After swapping, you must wait before\nswapping again!", 250)
+    e_messageAddImportant("Let's introduce a swap pattern.", 180);
+    e_messageAddImportant("For this pattern, you must swap to survive", 180)
+    e_messageAddImportant("Swap at the right moment!", 180)
+    e_wait(180 * 3 + 120 + 250 + 120)
+    e_messageAddImportant("Excellent! You know how to swap!", 120)
+    t_wait(610)
+    pSwapBarrage(getRandomSide(), 2)
+
+    e_messageAddImportant("Let's talk about accelerating walls", 180);
+    e_messageAddImportant("These walls can change speed over time", 180);
+    e_messageAddImportant("They can either accelerate...", 180);
+    e_messageAddImportant("Decelerate...", 180);
+    e_messageAddImportant("Or go completely backwards to trick you!", 180);
+    e_wait(180 * 5 + 120 + 120)
+
+    t_wait(760);
+    pACBarrageAccelerate();
+    t_wait(120);
+    pACBarrageDecelerate();
+    t_wait(100);
+    pACBarrageDeception(3, 1);
+
+    e_messageAddImportant("But wait, it gets crazier!", 120);
+    e_messageAddImportant("Let's focus on curving walls", 120)
     e_messageAddImportant("they can be simple...", 120)
-    e_messageAddImportant("", 120 * 3 + 80)
+    e_wait(300 + 410)
 
-    t_wait(135 * 8)
-    hmcSimpleBarrage(1)
+    t_wait(300)
+    hmcSimpleBarrage(0, 1)
     t_wait(100)
-    hmcSimpleBarrage(-1)
+    hmcSimpleBarrage(0, -1)
     t_wait(50)
-    hmcSimpleBarrage(1)
+    hmcSimpleBarrage(0, math.random(1, 6))
     t_wait(100)
-    hmcSimpleBarrage(-2.5)
+    hmcSimpleBarrage(0, -math.random(1, 6))
     t_wait(80)
-    hmcSimpleBarrage(2.5)
+    hmcSimpleBarrage(0, math.random(1, 6))
     t_wait(80)
-    hmcSimpleBarrage(3)
+    hmcSimpleBarrage(0, math.random(-6, 6))
 
     t_wait(50)
     e_messageAddImportant("...in various patterns...", 130)
-    e_messageAddImportant("", 120 * 5 + 80)
+    e_wait(100 + 120 * 5 + 80)
     t_wait(130)
 
-    hmcSimpleTwirl(5, 1, 0)
+    hmcSimpleTwirl(5, math.random(-3, 3), 0)
     t_wait(50)
-    hmcSimpleTwirl(5, -2.5, 0.3)
+    hmcSimpleTwirl(5, -2, 1)
 
-    e_messageAddImportant("...or can accellerate!", 130)
-    e_messageAddImportant("", 120 * 4 + 40)
+    e_messageAddImportant("...or can accelerate!", 130)
+    e_wait(130 + 340)
     t_wait(130)
 
     hmcBarrage(0, 0.05, -1.5, 3, true)
@@ -112,42 +143,40 @@ function onLoad()
     hmcBarrage(0, 0.1, -3, 3, true)
     t_wait(200)
 
-    e_messageAddImportant("they can also do crazy stuff!", 130)
-    e_messageAddImportant("", 120 * 8 + 50)
+    e_messageAddImportant("they can also do crazy stuff!", 180)
+    e_wait(120 * 9)
 
-    hmcSimpleCage(2.5, 1)
+    hmcSimpleCage(2, 1)
     t_wait(80)
-    hmcSimpleCage(2.5, -1)
+    hmcSimpleCage(2, -1)
     t_wait(100)
-    hmcSimpleCage(2.5, 1)
-    hmcSimpleCage(2.5, 1)
+    hmcSimpleCage(2, 1)
+    hmcSimpleCage(2, 1)
     t_wait(100)
-    hmcSimpleCage(2.5, 1)
-    hmcSimpleCage(2.5, -1)
+    hmcSimpleCage(2, 1)
+    hmcSimpleCage(2, -1)
     t_wait(100)
-    hmcSimpleSpinner(1)
+    hmcSimpleSpinner(getRandomSide(), 1)
     t_wait(100)
-    hmcSimpleSpinner(-2)
+    hmcGrowBarrage(getRandomSide(), 0)
     t_wait(100)
-    hmcSimpleSpinner(3)
+    hmcGrowBarrage(getRandomSide(), 3)
     t_wait(100)
-    hmcSimpleCage(1.5, 1)
-    hmcSimpleCage(2.5, 1)
+    hmcGrowBarrage(getRandomSide(), 6)
     t_wait(100)
-    hmcSimpleCage(1.5, 1)
-    hmcSimpleCage(2.5, -1)
+    hmcAssembleBarrage(getRandomSide())
     t_wait(100)
-    hmcSimpleSpinner(1)
-    hmcSimpleSpinner(1.2)
+    hmcAssembleBarrage(getRandomSide())
     t_wait(100)
-    hmcSimpleSpinner(1)
-    hmcSimpleSpinner(-1.2)
-    t_wait(500)
+    hmcAssembleBarrage(getRandomSide())
+    t_wait(700)
 
-    e_messageAddImportant("now play some real levels!", 138)
-    e_messageAddImportant("good luck!", 130)
+    e_messageAddImportant("Well done!", 130)
+    e_messageAddImportant("You should be prepared to take on Hypercube!", 300)
+    e_messageAddImportant("Have fun!", 1000)
 
-    t_kill()
+    e_wait(340)
+    e_kill()
 end
 
 -- onStep is an hardcoded function that is called when the level timeline is empty
@@ -168,6 +197,11 @@ dirChangeTime = 600
 
 -- onUpdate is an hardcoded function that is called every frame
 function onUpdate(mFrameTime)
+    --print(l_getPulse());
+    if (swappedOnce and swapTime) then
+        partTwo()
+        swapTime = false
+    end
     dirChangeTime = dirChangeTime - mFrameTime;
     if dirChangeTime < 0 then
         -- do not change direction while fast spinning

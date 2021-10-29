@@ -4,17 +4,22 @@
 
 #pragma once
 
+#include "SSVOpenHexagon/Core/CustomTimelineManager.hpp"
 #include "SSVOpenHexagon/Core/HGStatus.hpp"
 #include "SSVOpenHexagon/Core/RandomNumberGenerator.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
+
 #include "SSVOpenHexagon/Data/LevelStatus.hpp"
 #include "SSVOpenHexagon/Data/MusicData.hpp"
 #include "SSVOpenHexagon/Data/StyleData.hpp"
+
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
+
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 #include "SSVOpenHexagon/Utils/LuaWrapper.hpp"
 #include "SSVOpenHexagon/Utils/FastVertexVector.hpp"
 #include "SSVOpenHexagon/Utils/Timeline2.hpp"
+
 #include "SSVOpenHexagon/Components/CCustomWallManager.hpp"
 
 #include <SSVStart/GameSystem/GameSystem.hpp>
@@ -146,6 +151,8 @@ private:
     Utils::timeline2 messageTimeline;
     Utils::timeline2_runner messageTimelineRunner;
 
+    CustomTimelineManager _customTimelineManager;
+
     sf::Text messageText;
     sf::Text pbText;
 
@@ -230,6 +237,7 @@ private:
     void initLua_AudioControl();
     void initLua_MainTimeline();
     void initLua_EventTimeline();
+    void initLua_CustomTimelines();
     void initLua_LevelControl();
     void initLua_StyleControl();
     void initLua_WallCreation();
@@ -245,18 +253,17 @@ private:
         const SpeedData& mCurve, float mHueMod);
 
 public:
-    // TODO (P2): For testing
+    // ------------------------------------------------------------------------
+    // Testing-related utilities
     std::function<void(const replay_file&)> onDeathReplayCreated;
 
-    // TODO (P2): For testing
-    void setMustStart(const bool x)
-    {
-        mustStart = x;
-    }
+    void setMustStart(const bool x);
 
-    // TODO (P2): For testing
     bool executeRandomInputs{false};
     bool alwaysSpinRight{false};
+
+    // ------------------------------------------------------------------------
+    // Lua stuff
 
     void initLuaAndPrintDocs();
 
@@ -290,6 +297,10 @@ private:
     std::optional<double> fastForwardTarget;
     void fastForwardTo(const double target);
 
+    // Advance by ticks
+    std::optional<int> advanceTickCount;
+    void advanceByTicks(const int nTicks);
+
     // Update methods
     void update(ssvu::FT mFT, const float timescale);
     void updateInput();
@@ -301,6 +312,7 @@ private:
     void updateIncrement();
     void updateEvents(ssvu::FT mFT);
     void updateLevel(ssvu::FT mFT);
+    void updateCustomTimelines();
     void updateCustomWalls(ssvu::FT mFT);
     void updatePulse(ssvu::FT mFT);
     void updateBeatPulse(ssvu::FT mFT);

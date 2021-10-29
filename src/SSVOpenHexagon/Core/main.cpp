@@ -85,7 +85,7 @@ struct ParsedArgs
     bool server{false};
 };
 
-ParsedArgs parseArgs(const int argc, char* argv[])
+[[nodiscard]] ParsedArgs parseArgs(const int argc, char* argv[])
 {
     ParsedArgs result;
 
@@ -134,14 +134,14 @@ ParsedArgs parseArgs(const int argc, char* argv[])
     return result;
 }
 
-std::string makeWindowTitle()
+[[nodiscard]] std::string makeWindowTitle()
 {
     return hg::Utils::concat("Open Hexagon ", hg::GAME_VERSION_STR,
         " - by Vittorio Romeo - https://vittorioromeo.info");
 }
 
-std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
-    const std::vector<std::string>& args)
+[[nodiscard]] std::optional<std::string>
+getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 {
     for(const std::string& arg : args)
     {
@@ -196,8 +196,7 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
 {
     hg::Steam::steam_manager steamManager;
 
-    // TODO (P0): tries to use X11 server, fix.
-    // hg::Config::loadConfig({} /* overrideIds */);
+    hg::Config::loadConfig({} /* overrideIds */);
 
     hg::HGAssets assets{
         &steamManager,      //
@@ -271,6 +270,8 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
     // ------------------------------------------------------------------------
     // Load configuration (and overrides)
     hg::Config::loadConfig(args);
+    hg::Config::reapplyResolution();
+
     HG_SCOPE_GUARD(
         {
             ssvu::lo("::main") << "Saving config...\n";
@@ -445,7 +446,6 @@ std::optional<std::string> getFirstCompressedReplayFilenameFromArgs(
         const auto gotoMenu = [&]
         {
             mg->init(false /* mError */);
-
             window->setGameState(mg->getGame());
         };
 

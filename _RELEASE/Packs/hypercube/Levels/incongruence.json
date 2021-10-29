@@ -3,10 +3,10 @@
     "name": "incongruence",
     "description": "choose your side...",
     "author": "vittorio romeo",
-    "menuPriority": 40,
+    "menuPriority": 20,
     "selectable": true,
     "styleId": "incongruence",
     "musicId": "flirtFlirt",
     "luaFile": "Scripts/Levels/incongruence.lua",
-    "difficultyMults": [0.75, 1.25, 1.5, 1.8]
+    "difficultyMults": [0.5, 1.8]
 }

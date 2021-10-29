@@ -24,7 +24,7 @@ function addPattern(mKey)
         mKey = 5
     end
 
-        if mKey == 0 then pAltBarrage(u_rndInt(2, 4), 2)
+        if mKey == 0 then pAltBarrage(u_rndInt(3, 5), 2)
     elseif mKey == 1 then
         adjustThicknessForLowDM(3)
         pMirrorSpiral(u_rndInt(2, 5), getHalfSides() - 3)
@@ -38,6 +38,11 @@ function addPattern(mKey)
     elseif mKey == 5 then
         adjustThicknessForLowDM(3)
         pSpiral(l_getSides() * u_rndInt(1, 2), 0)
+
+        if l_getSpeedMult() >= 4.25 then
+            t_wait(getPerfectDelayDM(THICKNESS) * 0.5)
+        end
+
         restoreThicknessForLowDM()
     end
 end
@@ -124,7 +129,7 @@ end
 
 -- onIncrement is an hardcoded function that is called when the level difficulty is incremented
 function onIncrement()
-    enableSwapIfSpeedGEThan(4.5);
+    enableSwapIfSpeedGEThan(4.25);
 end
 
 -- onUnload is an hardcoded function that is called when the level is closed/restarted
