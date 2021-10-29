@@ -73,6 +73,7 @@ private:
 
     [[nodiscard]] bool loadAllPackDatas();
     [[nodiscard]] bool loadAllPackAssets();
+    [[nodiscard]] bool loadWorkshopPackDatasFromCache();
     [[nodiscard]] bool verifyAllPackDependencies();
     [[nodiscard]] bool loadAllLocalProfiles();
 
@@ -101,6 +102,10 @@ public:
         bool mLevelsOnly = false);
 
     ~HGAssets();
+
+    // When the Steam API can not be retrieved, this set holds pack ids
+    // retrieved from the cache to try and load the workshop packs installed
+    std::unordered_set<std::string> cachedWorkshopPackIds;
 
     [[nodiscard]] LoadInfo& getLoadResults();
 

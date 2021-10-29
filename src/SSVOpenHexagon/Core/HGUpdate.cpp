@@ -60,6 +60,15 @@ void HexagonGame::fastForwardTo(const double target)
     }
 }
 
+void HexagonGame::advanceByTicks(const int nTicks)
+{
+    for(int i = 0; i < nTicks; ++i)
+    {
+        update(Config::TIME_STEP, 1.0f /* timescale */);
+        postUpdate();
+    }
+}
+
 void HexagonGame::update(ssvu::FT mFT, const float timescale)
 {
     // ------------------------------------------------------------------------
@@ -70,6 +79,30 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
         fastForwardTarget.reset();
 
         fastForwardTo(target);
+
+        if(audio != nullptr)
+        {
+            audio->setMusicPlayingOffsetSeconds(
+                audio->getMusicPlayingOffsetSeconds() +
+                status.getTimeSeconds());
+        }
+
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // Advance by ticks for level testing
+    if(advanceTickCount.has_value())
+    {
+        const int nTicks = advanceTickCount.value();
+        advanceTickCount.reset();
+
+        const bool wasPaused = debugPause;
+
+        debugPause = false;
+        advanceByTicks(nTicks);
+        debugPause = wasPaused;
+
         return;
     }
 
@@ -133,6 +166,12 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
 
             if(!status.started)
             {
+                if(window != nullptr && window->hasTimer())
+                {
+                    // This avoids initial speedup when viewing replays.
+                    window->getTimerBase().reset();
+                }
+
                 mustStart = true;
             }
             else
@@ -229,6 +268,7 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
                 }
 
                 updateLevel(mFT);
+                updateCustomTimelines();
 
                 if(Config::getBeatPulse())
                 {
@@ -604,6 +644,11 @@ void HexagonGame::updateEvents(ssvu::FT)
         messageTimeline.clear();
         messageTimelineRunner = {};
     }
+}
+
+void HexagonGame::updateCustomTimelines()
+{
+    _customTimelineManager.updateAllTimelines(status.getCurrentTP());
 }
 
 void HexagonGame::updateIncrement()
@@ -1150,6 +1195,7 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
 !clear          Clears the console
 !help           Display this help
 !ff <seconds>   Fast-forward simulation to specified time
+!advt <ticks>   Advance simulation by specified number of ticks
 ?fn             Display Lua docs for function `fn`
 )");
         }
@@ -1164,6 +1210,28 @@ void HexagonGame::postUpdate_ImguiLuaConsole()
                     Utils::concat("[ff]: fast forwarding to ", seconds, '\n'));
 
                 fastForwardTarget = seconds;
+            }
+            catch(const std::invalid_argument&)
+            {
+                ilcCmdLog.emplace_back(
+                    "[error]: invalid argument for <seconds>\n");
+            }
+            catch(const std::out_of_range&)
+            {
+                ilcCmdLog.emplace_back("[error]: out of range for <seconds>\n");
+            }
+        }
+        else if(cmdSplit.size() > 1 && cmdSplit.at(0) == "!advt")
+        {
+            try
+            {
+                const std::string& ticksStr = cmdSplit.at(1);
+                const int ticks = std::stoi(ticksStr);
+
+                ilcCmdLog.emplace_back(Utils::concat(
+                    "[advt]: advancing simulation by ", ticks, " ticks\n"));
+
+                advanceTickCount = ticks >= 0 ? ticks : 0;
             }
             catch(const std::invalid_argument&)
             {

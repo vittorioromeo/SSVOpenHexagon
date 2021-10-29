@@ -189,6 +189,7 @@ private:
 
     [[nodiscard]] ssvms::Menu* getCurrentMenu() noexcept;
     [[nodiscard]] bool isInMenu() noexcept;
+    void ignoreInputsAfterMenuExec();
 
     //---------------------------------------
     // State changes
@@ -237,10 +238,10 @@ private:
     MenuFont txtProf;
     MenuFont txtLoadBig;
     MenuFont txtLoadSmall;
+    MenuFont txtRandomTip;
     MenuFont txtMenuBig;
     MenuFont txtMenuSmall;
     MenuFont txtProfile;
-    MenuFont txtRandomTip;
     MenuFont txtInstructionsBig;
     MenuFont txtInstructionsMedium;
     MenuFont txtInstructionsSmall;
@@ -422,6 +423,10 @@ private:
     static inline constexpr float baseScrollSpeed{30.f};
     float scrollSpeed{baseScrollSpeed};
 
+    // Login at startup
+    bool mustShowLoginAtStartup{true};
+    void openLoginDialogBoxAndStartLoginProcess();
+
     // First timer tips
     bool showFirstTimeTips{false};
     bool mustShowFTTMainMenu{true};
@@ -558,6 +563,9 @@ private:
     void showInputDialogBox(const std::string& msg);
     void showInputDialogBoxNice(const std::string& title,
         const std::string& inputType, const std::string& extra = "");
+    void showInputDialogBoxNiceWithDefault(const std::string& title,
+        const std::string& inputType, const std::string& def,
+        const std::string& extra = "");
 
 public:
     MenuGame(Steam::steam_manager& mSteamManager,
