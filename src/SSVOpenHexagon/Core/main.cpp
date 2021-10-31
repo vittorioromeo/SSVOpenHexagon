@@ -272,12 +272,11 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     hg::Config::loadConfig(args);
     hg::Config::reapplyResolution();
 
-    HG_SCOPE_GUARD(
-        {
-            ssvu::lo("::main") << "Saving config...\n";
-            hg::Config::saveConfig();
-            ssvu::lo("::main") << "Done saving config\n";
-        });
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving config...\n";
+        hg::Config::saveConfig();
+        ssvu::lo("::main") << "Done saving config\n";
+    });
 
     //
     //
@@ -331,29 +330,27 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         ImGui::SFML::Init(*window);
     }
 
-    HG_SCOPE_GUARD(
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Shutting down ImGui...\n";
+
+        if(!headless)
         {
-            ssvu::lo("::main") << "Shutting down ImGui...\n";
+            ImGui::SFML::Shutdown();
+        }
 
-            if(!headless)
-            {
-                ImGui::SFML::Shutdown();
-            }
-
-            ssvu::lo("::main") << "Done shutting down ImGui...\n";
-        });
+        ssvu::lo("::main") << "Done shutting down ImGui...\n";
+    });
 
     //
     //
     // ------------------------------------------------------------------------
     // Initialize assets
     hg::HGAssets assets{&steamManager, headless};
-    HG_SCOPE_GUARD(
-        {
-            ssvu::lo("::main") << "Saving all local profiles...\n";
-            assets.pSaveAll();
-            ssvu::lo("::main") << "Done saving all local profiles\n";
-        });
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving all local profiles...\n";
+        assets.pSaveAll();
+        ssvu::lo("::main") << "Done saving all local profiles\n";
+    });
 
     //
     //
@@ -361,12 +358,10 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
     // Initialize audio
     hg::Audio audio{
         //
-        [&assets](const std::string& assetId) -> sf::SoundBuffer* {
-            return assets.getSoundBuffer(assetId);
-        }, //
-        [&assets](const std::string& assetId) -> const std::string* {
-            return assets.getMusicPath(assetId);
-        } //
+        [&assets](const std::string& assetId) -> sf::SoundBuffer*
+        { return assets.getSoundBuffer(assetId); }, //
+        [&assets](const std::string& assetId) -> const std::string*
+        { return assets.getMusicPath(assetId); } //
     };
 
     audio.setSoundVolume(hg::Config::getSoundVolume());
@@ -607,15 +602,14 @@ int main(int argc, char* argv[])
     //
     // ------------------------------------------------------------------------
     // Flush and save log (at the end of the scope)
-    HG_SCOPE_GUARD(
-        {
-            ssvu::lo("::main") << "Saving log to 'log.txt'...\n";
+    HG_SCOPE_GUARD({
+        ssvu::lo("::main") << "Saving log to 'log.txt'...\n";
 
-            ssvu::lo().flush();
-            ssvu::saveLogToFile("log.txt");
+        ssvu::lo().flush();
+        ssvu::saveLogToFile("log.txt");
 
-            ssvu::lo("::main") << "Done saving log to 'log.txt'\n";
-        });
+        ssvu::lo("::main") << "Done saving log to 'log.txt'\n";
+    });
 
     //
     //
