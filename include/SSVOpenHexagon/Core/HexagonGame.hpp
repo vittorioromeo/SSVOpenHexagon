@@ -131,6 +131,15 @@ private:
     std::optional<ssvs::Camera> backgroundCamera;
     std::optional<ssvs::Camera> overlayCamera;
 
+    struct PreShakeCenters
+    {
+        sf::Vector2f backgroundCameraPreShakeCenter;
+        sf::Vector2f overlayCameraPreShakeCenter;
+    };
+
+    std::optional<PreShakeCenters> preShakeCenters;
+
+
     ssvu::TimelineManager effectTimelineManager;
 
     const sf::Vector2f centerPos{0.f, 0.f};
@@ -278,8 +287,8 @@ public:
     catch(...)
     {
         luaExceptionLippincottHandler(mName);
-        return decltype(
-            Utils::runLuaFunctionIfExists<T, TArgs...>(lua, mName, mArgs...)){};
+        return decltype(Utils::runLuaFunctionIfExists<T, TArgs...>(
+            lua, mName, mArgs...)){};
     }
 
     void raiseWarning(
@@ -291,7 +300,7 @@ private:
     void start();
 
     void initKeyIcons();
-    void initFlashEffect();
+    void initFlashEffect(int r, int g, int b);
 
     // Fast-forward
     std::optional<double> fastForwardTarget;
@@ -317,6 +326,7 @@ private:
     void updatePulse(ssvu::FT mFT);
     void updateBeatPulse(ssvu::FT mFT);
     void updateRotation(ssvu::FT mFT);
+    void updateCameraShake(ssvu::FT mFT);
     void updateFlash(ssvu::FT mFT);
     void updatePulse3D(ssvu::FT mFT);
     void updateText(ssvu::FT mFT);
@@ -417,6 +427,7 @@ public:
 
     void death(bool mForce = false);
     void death_shakeCamera();
+    void death_flashEffect();
     [[nodiscard]] replay_file death_createReplayFile();
     void death_updateRichPresence();
     [[nodiscard]] SaveScoreIfNeededResult death_saveScoreIfNeeded();

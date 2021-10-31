@@ -307,6 +307,8 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
                 updateRotation(mFT);
             }
 
+            updateCameraShake(mFT);
+
             if(!status.hasDied)
             {
                 const auto fixup =
@@ -780,6 +782,47 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
         SSVOH_ASSERT(backgroundCamera.has_value());
         backgroundCamera->turn(nextRotation);
     }
+}
+
+void HexagonGame::updateCameraShake(ssvu::FT mFT)
+{
+    if(!backgroundCamera.has_value() || !overlayCamera.has_value())
+    {
+        return;
+    }
+
+    if(status.cameraShake <= 0)
+    {
+        backgroundCamera->setCenter(
+            preShakeCenters->backgroundCameraPreShakeCenter);
+
+        overlayCamera->setCenter(preShakeCenters->overlayCameraPreShakeCenter);
+
+        preShakeCenters.reset();
+        return;
+    }
+
+    status.cameraShake -= mFT;
+
+    if(!preShakeCenters.has_value())
+    {
+        preShakeCenters = PreShakeCenters{
+            backgroundCamera->getCenter(), overlayCamera->getCenter()};
+    }
+
+    SSVOH_ASSERT(preShakeCenters.has_value());
+
+    const auto makeShakeVec = [this]
+    {
+        const float i = status.cameraShake;
+        return sf::Vector2f(rng.get_real(-i, i), rng.get_real(-i, i));
+    };
+
+    backgroundCamera->setCenter(
+        preShakeCenters->backgroundCameraPreShakeCenter + makeShakeVec());
+
+    overlayCamera->setCenter(
+        preShakeCenters->overlayCameraPreShakeCenter + makeShakeVec());
 }
 
 void HexagonGame::updateFlash(ssvu::FT mFT)
