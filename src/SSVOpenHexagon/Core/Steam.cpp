@@ -627,29 +627,17 @@ bool steam_manager::steam_manager_impl::
 
 bool steam_manager::steam_manager_impl::update_hardcoded_achievements()
 {
-    bool any_failure = false;
+    // Intentionally not short-circuiting via boolean operators here.
 
-    if(!update_hardcoded_achievement_cube_master())
-    {
-        any_failure = true;
-    }
+    int failures = 0;
 
-    if(!update_hardcoded_achievement_hypercube_master())
-    {
-        any_failure = true;
-    }
+    failures +=
+        static_cast<int>(!update_hardcoded_achievement_cube_master()) +
+        static_cast<int>(!update_hardcoded_achievement_hypercube_master()) +
+        static_cast<int>(!update_hardcoded_achievement_cube_god()) +
+        static_cast<int>(!update_hardcoded_achievement_hypercube_god());
 
-    if(!update_hardcoded_achievement_cube_god())
-    {
-        any_failure = true;
-    }
-
-    if(!update_hardcoded_achievement_hypercube_god())
-    {
-        any_failure = true;
-    }
-
-    return !any_failure;
+    return failures == 0;
 }
 
 void steam_manager::steam_manager_impl::for_workshop_pack_folders(
