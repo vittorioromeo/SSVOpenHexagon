@@ -42,6 +42,8 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
       _dead{false},
       _justSwapped{false},
       _forcedMove{false},
+      _radius{0.f},
+      _maxSafeDistance{0.f},
       _currentSpeed{0.f},
       _triangleWidth{unfocusedTriangleWidth},
       _triangleWidthTransitionTime{0.f},
@@ -147,6 +149,10 @@ void CPlayer::kill(const bool fatal)
     if(fatal)
     {
         _dead = true;
+
+        // Move back position to graphically show the tip of the triangle
+        // hitting the wall rather than the center of the triangle.
+        _pos = ssvs::getOrbitRad(_lastPos, _angle, -_size);
     }
 }
 
