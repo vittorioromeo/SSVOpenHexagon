@@ -151,7 +151,15 @@ function addPattern(mKey)
         end
 
         e_eval([[s_setCapColorMain()]])
-        e_eval([[u_setFlashEffect(100)]])
+
+        if style == 0 then
+            e_eval([[u_setFlashColor(255, 255, 255)]])
+            e_eval([[u_setFlashEffect(100)]])
+        else
+            e_eval([[u_setFlashColor(0, 0, 0)]])
+            e_eval([[u_setFlashEffect(215)]])
+        end
+
         e_wait(beat * 2)
         e_eval([[s_setCapColorByIndex(0)]])
         --        t_wait(10 * (dm ^ 0.2))
