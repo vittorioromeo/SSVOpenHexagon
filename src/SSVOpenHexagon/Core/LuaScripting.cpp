@@ -112,7 +112,7 @@ static void initRandom(Lua::LuaContext& lua, random_number_generator& rng)
         .arg("upper")
         .doc(
             "Internal replacement for `math.random`. Calls `u_rndReal()` with "
-            "`$0 == 0`, `u_rndUpper($2)` with `$0 == 1`, and `u_rndInt($1, "
+            "`$0 == 0`, `u_rndIntUpper($2)` with `$0 == 1`, and `u_rndInt($1, "
             "$2)` with `$0 == 2`.");
 
     // ------------------------------------------------------------------------
