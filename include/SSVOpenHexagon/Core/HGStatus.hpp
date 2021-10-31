@@ -24,6 +24,13 @@ public:
     using Clock = std::chrono::high_resolution_clock;
     using TimePoint = std::chrono::time_point<Clock>;
 
+    struct FlashColor
+    {
+        int r;
+        int g;
+        int b;
+    };
+
 private:
     double totalFrametimeAccumulator{};  // Total time (including pauses)
     double playedFrametimeAccumulator{}; // Played time (no pauses)
@@ -43,6 +50,7 @@ public:
     float flashEffect{0};
     float radius{75};
     float fastSpin{0};
+    float cameraShake{0};
     bool hasDied{false};
     StateChange mustStateChange{StateChange::None};
     bool scoreInvalid{false};
