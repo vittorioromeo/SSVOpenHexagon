@@ -16,8 +16,8 @@ namespace hg::Utils {
     const std::size_t underscoreIndex = fnName.find("_");
     if(underscoreIndex == std::string::npos)
     {
-        return NUM_CATEGORIES -
-               1; // Return the last index: the miscellaneous index.
+        // Return the last index: the miscellaneous index.
+        return NUM_CATEGORIES - 1;
     }
     const std::string_view prefix = fnName.substr(0, underscoreIndex + 1);
 
@@ -30,6 +30,7 @@ namespace hg::Utils {
             return i;
         }
     }
+
     return NUM_CATEGORIES - 1;
 }
 
