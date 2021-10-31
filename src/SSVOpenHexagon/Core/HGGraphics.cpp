@@ -11,6 +11,7 @@
 #include "SSVOpenHexagon/Components/CWall.hpp"
 #include "SSVStart/Utils/SFML.hpp"
 
+#include <SFML/Config.hpp>
 #include <imgui.h>
 #include <imgui-SFML.h>
 
@@ -288,22 +289,24 @@ void HexagonGame::drawImguiLuaConsole()
     ImGui::SFML::Render(*window);
 }
 
-void HexagonGame::initFlashEffect()
+void HexagonGame::initFlashEffect(int r, int g, int b)
 {
     flashPolygon.clear();
 
-    flashPolygon.emplace_back(
-        sf::Vector2f{-100.f, -100.f}, sf::Color{255, 255, 255, 0});
+    const sf::Color color{static_cast<sf::Uint8>(r), static_cast<sf::Uint8>(g),
+        static_cast<sf::Uint8>(b), 0};
 
-    flashPolygon.emplace_back(sf::Vector2f{Config::getWidth() + 100.f, -100.f},
-        sf::Color{255, 255, 255, 0});
+    flashPolygon.emplace_back(sf::Vector2f{-100.f, -100.f}, color);
+
+    flashPolygon.emplace_back(
+        sf::Vector2f{Config::getWidth() + 100.f, -100.f}, color);
 
     flashPolygon.emplace_back(
         sf::Vector2f{Config::getWidth() + 100.f, Config::getHeight() + 100.f},
-        sf::Color{255, 255, 255, 0});
+        color);
 
-    flashPolygon.emplace_back(sf::Vector2f{-100.f, Config::getHeight() + 100.f},
-        sf::Color{255, 255, 255, 0});
+    flashPolygon.emplace_back(
+        sf::Vector2f{-100.f, Config::getHeight() + 100.f}, color);
 }
 
 void HexagonGame::drawKeyIcons()
