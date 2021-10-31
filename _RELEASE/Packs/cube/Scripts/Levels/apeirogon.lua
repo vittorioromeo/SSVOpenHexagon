@@ -29,7 +29,15 @@ function addPattern(mKey)
         if l_getSides() > 5 then
             pWallExVortex(0, u_rndInt(1, 2), 1)
         end
-    elseif mKey == 6 then pDMBarrageSpiral(u_rndInt(3, 6), 0.295 * (u_getDifficultyMult() ^ 0.56), 1)
+    elseif mKey == 6 then
+        if u_getDifficultyMult() < 1.0 then
+            local oldThickness = THICKNESS
+            THICKNESS = 60
+            pDMBarrageSpiral(u_rndInt(2, 4), 0.12, 1)
+            THICKNESS = oldThickness
+        else
+            pDMBarrageSpiral(u_rndInt(3, 6), 0.295 * (u_getDifficultyMult() ^ 0.56), 1)
+        end
     elseif mKey == 7 then pRandomBarrage(u_rndInt(2, 5), 2.25)
     elseif mKey == 8 then pMirrorSpiralDouble(u_rndInt(4, 6), 0)
     elseif mKey == 9 then pMirrorSpiral(u_rndInt(2, 4), 0)
