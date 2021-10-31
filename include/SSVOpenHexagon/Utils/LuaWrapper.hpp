@@ -76,10 +76,11 @@ struct FnTupleWrapper<void(TArgs...)>
     {
         count = sizeof...(TArgs)
     };
+
     using ParamsType = std::tuple<TArgs...>;
 
     template <typename T>
-    [[nodiscard, gnu::always_inline]] inline constexpr static std::tuple<> call(
+    [[nodiscard, gnu::always_inline]] inline static constexpr std::tuple<> call(
         T&& fn, ParamsType&& mTpl)
     {
         std::apply(std::forward<T>(fn), std::move(mTpl));
@@ -94,10 +95,11 @@ struct FnTupleWrapper<R(TArgs...)>
     {
         count = sizeof...(TArgs)
     };
+
     using ParamsType = std::tuple<TArgs...>;
 
     template <typename T>
-    [[nodiscard, gnu::always_inline]] inline constexpr static std::tuple<R>
+    [[nodiscard, gnu::always_inline]] inline static constexpr std::tuple<R>
     call(T&& fn, ParamsType&& mTpl)
     {
         return std::tuple<R>{std::apply(std::forward<T>(fn), std::move(mTpl))};
