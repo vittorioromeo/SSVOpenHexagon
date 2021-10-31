@@ -49,8 +49,13 @@ namespace {
 
 [[nodiscard]] random_number_generator initializeRng()
 {
-    const random_number_generator::seed_type seed = ssvu::getRndEngine()();
-    return random_number_generator{seed};
+    thread_local pcg32_fast seed_rng = []
+    {
+        pcg_extras::seed_seq_from<std::random_device> seed_source;
+        return pcg32_fast{seed_source};
+    }();
+
+    return random_number_generator{seed_rng()};
 }
 
 } // namespace
@@ -321,11 +326,7 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
 
     if(window != nullptr)
     {
-        window->onRecreation += [this]
-        {
-            initFlashEffect();
-            initKeyIcons();
-        };
+        window->onRecreation += [this] { initKeyIcons(); };
     }
 
     // ------------------------------------------------------------------------
@@ -535,8 +536,6 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
 {
     SSVOH_ASSERT(assets.isValidPackId(mPackId));
     SSVOH_ASSERT(assets.isValidLevelId(mId));
-
-    initFlashEffect();
 
     packId = mPackId;
     levelId = mId;
@@ -790,8 +789,13 @@ void HexagonGame::death_shakeCamera()
 
     backgroundCamera->setCenter(ssvs::zeroVec2f);
 
-    Utils::shakeCamera(effectTimelineManager, *overlayCamera);
-    Utils::shakeCamera(effectTimelineManager, *backgroundCamera);
+    status.cameraShake = 50.f;
+}
+
+void HexagonGame::death_flashEffect()
+{
+    initFlashEffect(255, 255, 255);
+    status.flashEffect = 255;
 }
 
 void HexagonGame::death_updateRichPresence()
@@ -913,7 +917,8 @@ void HexagonGame::death(bool mForce)
     death_updateRichPresence();
     stopLevelMusic();
 
-    status.flashEffect = 255;
+    death_flashEffect();
+
     status.hasDied = true;
 
     const replay_file rf = death_createReplayFile();
@@ -1401,7 +1406,7 @@ auto HexagonGame::getColorText() const -> sf::Color
 
 auto HexagonGame::getColorCap() const -> sf::Color
 {
-    if (Config::getBlackAndWhite()) 
+    if(Config::getBlackAndWhite())
     {
         return sf::Color::Black;
     }
@@ -1411,7 +1416,7 @@ auto HexagonGame::getColorCap() const -> sf::Color
 
 auto HexagonGame::getColorWall() const -> sf::Color
 {
-    if (Config::getBlackAndWhite()) 
+    if(Config::getBlackAndWhite())
     {
         return sf::Color(255, 255, 255, styleData.getWallColor().a);
     }
