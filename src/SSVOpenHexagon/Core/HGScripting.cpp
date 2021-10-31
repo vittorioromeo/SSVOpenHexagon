@@ -61,6 +61,14 @@ void HexagonGame::initLua_Utils()
         .arg("value")
         .doc("Flash the screen with `$0` intensity (from 0 to 255).");
 
+    addLuaFn(lua, "u_setFlashColor", //
+        [this](int r, int g, int b) { initFlashEffect(r, g, b); })
+        .arg("r")
+        .arg("g")
+        .arg("b")
+        .doc("Set the color of the flash effect to `{$0, $1, $2}`.");
+    // ------------------------------------------------------------------------
+
     addLuaFn(lua, "u_log", //
         [this](const std::string& mLog)
         {
