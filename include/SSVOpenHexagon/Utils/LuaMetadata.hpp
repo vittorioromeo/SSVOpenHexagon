@@ -140,5 +140,3 @@ public:
 };
 
 } // namespace hg::Utils
-
-// TODO (P1): add category for ct_ functions and update docs
