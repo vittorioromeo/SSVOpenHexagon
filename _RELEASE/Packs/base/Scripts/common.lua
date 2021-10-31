@@ -52,7 +52,7 @@ end
 
 -- getRandomDir: returns either 1 or -1
 function getRandomDir()
-    if u_rndInt(0, 100) > 50 then return 1 end
+    if u_rndInt(0, 1) == 0 then return 1 end
     return -1
 end
 
