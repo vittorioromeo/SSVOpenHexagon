@@ -22,6 +22,7 @@
 - AlphaPromethium
 - Misa "Info Teddy" Elizabeth | [@Info__Teddy](https://twitter.com/Info__Teddy)
 - Ivory Duke
+- MultHub
 
 ### Testing
 
