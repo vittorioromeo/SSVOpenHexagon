@@ -921,16 +921,19 @@ void HexagonGame::death(bool mForce)
 
     status.hasDied = true;
 
-    const replay_file rf = death_createReplayFile();
-
-    // TODO (P2): for testing
-    if(onDeathReplayCreated)
+    if(!inReplay())
     {
-        onDeathReplayCreated(rf);
-    }
+        const replay_file rf = death_createReplayFile();
 
-    ssvu::lo("Replay") << "Attempting to send and save replay...\n";
-    death_sendAndSaveReplay(rf);
+        // TODO (P2): for testing
+        if(onDeathReplayCreated)
+        {
+            onDeathReplayCreated(rf);
+        }
+
+        ssvu::lo("Replay") << "Attempting to send and save replay...\n";
+        death_sendAndSaveReplay(rf);
+    }
 
     death_saveScoreIfNeededAndShowPBEffects(); // Saves local best
 

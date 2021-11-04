@@ -42,6 +42,7 @@
 #include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/ScopeGuard.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
+#include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/UniquePtr.hpp"
 #include "SSVOpenHexagon/Utils/Utils.hpp"
 
@@ -5552,15 +5553,7 @@ void MenuGame::drawLevelSelectionLeftSide(
         SSVOH_ASSERT(
             hexagonClient.getState() == HexagonClient::State::LoggedIn_Ready);
 
-        const auto serializeTimePoint =
-            [](const auto& time, const std::string& format)
-        {
-            std::time_t tt = std::chrono::system_clock::to_time_t(time);
-            std::tm tm = *std::gmtime(&tt); // GMT (UTC)
-            std::stringstream ss;
-            ss << std::put_time(&tm, format.c_str());
-            return ss.str();
-        };
+
 
         const auto drawEntry = [&](const int i, const std::string& userName,
                                    const std::uint64_t scoreTimestamp,
@@ -5568,10 +5561,10 @@ void MenuGame::drawLevelSelectionLeftSide(
         {
             const float score = scoreValue;
 
-            const auto tp = Database::toTimepoint(scoreTimestamp);
+            const auto tp = Utils::toTimepoint(scoreTimestamp);
 
             const std::string timestampStr =
-                serializeTimePoint(tp, "%Y-%m-%d %H:%M:%S");
+                Utils::formatTimepoint(tp, "%Y-%m-%d %H:%M:%S");
 
             const std::string posStr = Utils::concat('#', i + 1);
             std::string scoreStr = ssvu::toStr(score) + 's';

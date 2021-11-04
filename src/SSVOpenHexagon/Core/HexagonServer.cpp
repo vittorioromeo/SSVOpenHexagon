@@ -4,18 +4,22 @@
 
 #include "SSVOpenHexagon/Core/HexagonServer.hpp"
 
-#include "SSVOpenHexagon/Global/Config.hpp"
-#include "SSVOpenHexagon/Utils/Match.hpp"
-#include "SSVOpenHexagon/Global/Assets.hpp"
 #include "SSVOpenHexagon/Global/Assert.hpp"
+#include "SSVOpenHexagon/Global/Assets.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Version.hpp"
+
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 #include "SSVOpenHexagon/Core/Replay.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/Match.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/StringToCharVec.hpp"
+#include "SSVOpenHexagon/Utils/Timestamp.hpp"
 #include "SSVOpenHexagon/Utils/VectorToSet.hpp"
+
 #include "SSVOpenHexagon/Online/Shared.hpp"
 #include "SSVOpenHexagon/Online/Database.hpp"
 #include "SSVOpenHexagon/Online/Sodium.hpp"
@@ -716,7 +720,7 @@ void HexagonServer::runIteration_FlushLogs()
 
     SSVOH_SLOG << "Replay valid, adding to database\n";
 
-    Database::addScore(levelValidator, Database::nowTimestamp(),
+    Database::addScore(levelValidator, Utils::nowTimestamp(),
         c._loginData->_steamId, replayPlayedTime);
 
     return true;
@@ -1002,12 +1006,12 @@ void HexagonServer::printCTSPDataVerbose(
 
             Database::removeAllLoginTokensForUser(user->id);
 
-            static_assert(std::is_same_v<Clock, Database::Clock>);
+            static_assert(std::is_same_v<Clock, Utils::Clock>);
 
             Database::addLoginToken( //
                 Database::LoginToken{
                     .userId = user->id,
-                    .timestamp = Database::nowTimestamp(),
+                    .timestamp = Utils::nowTimestamp(),
                     .token = loginToken //
                 });
 
