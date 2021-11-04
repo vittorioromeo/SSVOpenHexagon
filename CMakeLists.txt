@@ -406,7 +406,7 @@ ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 
 if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
-    target_link_libraries(SSVOpenHexagon "C:/OHWorkspace/SSVOpenHexagon/art/icon.res" sfml-main)
+    target_link_libraries(SSVOpenHexagon "${CMAKE_SOURCE_DIR}/art/icon.res" sfml-main)
     target_compile_options(SSVOpenHexagon PRIVATE "-Wl,-subsystem,windows")
 endif()
 
