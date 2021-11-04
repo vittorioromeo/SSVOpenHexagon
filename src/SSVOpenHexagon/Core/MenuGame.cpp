@@ -2585,8 +2585,9 @@ void MenuGame::update(ssvu::FT mFT)
 
             [&](const HexagonClient::EGameVersionMismatch&)
             {
-                showHCEventDialogBox(
-                    true /* error */, "CLIENT/SERVER GAME VERSION MISMATCH");
+                ssvu::lo("hg::MenuGame::update")
+                    << "Client/server game version mismatch, likely not a "
+                       "problem\n";
             },
 
             [&](const HexagonClient::EProtocolVersionMismatch&)
