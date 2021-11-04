@@ -1392,6 +1392,8 @@ void MenuGame::initMenus()
     visfx.create<i::Toggle>("pulse", &Config::getPulse, &Config::setPulse) |
         whenNotOfficial;
     visfx.create<i::Toggle>("flash", &Config::getFlash, &Config::setFlash);
+    visfx.create<i::Slider>("shake mult.", &Config::getCameraShakeMultiplier,
+        &Config::setCameraShakeMultiplier, 0.f, 5.f, 0.1f);
     visfx.create<i::GoBack>("back");
 
     auto& fps(optionsMenu.createCategory("fps settings"));

@@ -789,7 +789,7 @@ void HexagonGame::death_shakeCamera()
 
     backgroundCamera->setCenter(ssvs::zeroVec2f);
 
-    status.cameraShake = 50.f;
+    status.cameraShake = 45.f * Config::getCameraShakeMultiplier();
 }
 
 void HexagonGame::death_flashEffect()
