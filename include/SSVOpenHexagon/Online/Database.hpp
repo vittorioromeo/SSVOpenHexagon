@@ -16,13 +16,6 @@
 
 namespace hg::Database {
 
-using Clock = std::chrono::high_resolution_clock;
-using TimePoint = std::chrono::time_point<Clock>;
-
-[[nodiscard]] std::uint64_t timestamp(const TimePoint tp);
-[[nodiscard]] std::uint64_t nowTimestamp();
-[[nodiscard]] TimePoint toTimepoint(const std::uint64_t timestamp);
-
 void addUser(const User& user);
 
 void removeUser(const std::uint32_t id);
