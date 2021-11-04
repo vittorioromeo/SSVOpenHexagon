@@ -297,6 +297,23 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         window->setFPSLimited(hg::Config::getLimitFPS());
         window->setMaxFPS(hg::Config::getMaxFPS());
 
+        {
+            const auto resetIcon = [&window]
+            {
+                sf::Image icon;
+                if(!icon.loadFromFile("Assets/icon.png"))
+                {
+                    ssvu::lo("::main") << "Failed to load icon image\n";
+                }
+
+                window->getRenderWindow().setIcon(
+                    icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+            };
+
+            window->onRecreation += resetIcon;
+            resetIcon();
+        }
+
         // 240 ticks per second.
         window->setTimer<ssvs::TimerStatic>(
             hg::Config::TIME_STEP, hg::Config::TIME_SLICE);
