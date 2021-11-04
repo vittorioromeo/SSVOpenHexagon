@@ -150,9 +150,14 @@ void CPlayer::kill(const bool fatal)
     {
         _dead = true;
 
-        // Move back position to graphically show the tip of the triangle
-        // hitting the wall rather than the center of the triangle.
-        _pos = ssvs::getOrbitRad(_lastPos, _angle, -_size);
+        // Avoid moving back position if the player had just swapped or the
+        // player was forcibly moved by a lot via Lua scripting.
+        if(!_justSwapped && ssvs::getDistEuclidean(_pos, _lastPos) < 24.f)
+        {
+            // Move back position to graphically show the tip of the triangle
+            // hitting the wall rather than the center of the triangle.
+            _pos = ssvs::getOrbitRad(_lastPos, _angle, -_size);
+        }
     }
 }
 
