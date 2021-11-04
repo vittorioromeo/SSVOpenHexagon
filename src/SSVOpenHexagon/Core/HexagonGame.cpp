@@ -989,7 +989,7 @@ void HexagonGame::death_sendAndSaveReplay(const replay_file& rf)
 
     // ------------------------------------------------------------------------
     // Save compressed replay locally.
-    if(const std::string filename = Utils::concat(rf.create_filename(), ".gz");
+    if(const std::string filename = Utils::concat(rf.create_filename(), ".z");
         !death_saveReplay(filename, crf))
     {
         ssvu::lo("Replay") << "Failure saving replay\n";

@@ -145,7 +145,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 {
     for(const std::string& arg : args)
     {
-        if(arg.find(".ohreplay.gz") != std::string::npos)
+        if(arg.find(".ohr.z") != std::string::npos)
         {
             return arg;
         }
