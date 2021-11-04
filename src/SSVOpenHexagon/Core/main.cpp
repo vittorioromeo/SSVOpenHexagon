@@ -145,7 +145,7 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
 {
     for(const std::string& arg : args)
     {
-        if(arg.find(".ohreplay.gz") != std::string::npos)
+        if(arg.find(".ohr.z") != std::string::npos)
         {
             return arg;
         }
@@ -296,6 +296,23 @@ getFirstCompressedReplayFilenameFromArgs(const std::vector<std::string>& args)
         window->setVsync(hg::Config::getVsync());
         window->setFPSLimited(hg::Config::getLimitFPS());
         window->setMaxFPS(hg::Config::getMaxFPS());
+
+        {
+            const auto resetIcon = [&window]
+            {
+                sf::Image icon;
+                if(!icon.loadFromFile("Assets/icon.png"))
+                {
+                    ssvu::lo("::main") << "Failed to load icon image\n";
+                }
+
+                window->getRenderWindow().setIcon(
+                    icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+            };
+
+            window->onRecreation += resetIcon;
+            resetIcon();
+        }
 
         // 240 ticks per second.
         window->setTimer<ssvs::TimerStatic>(

@@ -82,6 +82,7 @@ void setServerLevelWhitelist(const std::vector<std::string>& levelValidators);
 void setSaveLastLoginUsername(bool mX);
 void setLastLoginUsername(const std::string& mX);
 void setShowLoginAtStartup(bool mX);
+void setCameraShakeMultiplier(float x);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -114,7 +115,6 @@ void setShowLoginAtStartup(bool mX);
 [[nodiscard]] unsigned int getHeight();
 [[nodiscard]] bool getShowMessages();
 [[nodiscard]] bool getRotateToStart();
-
 [[nodiscard]] bool getDebug();
 [[nodiscard]] bool getPulse();
 [[nodiscard]] bool getBeatPulse();
@@ -149,6 +149,7 @@ void setShowLoginAtStartup(bool mX);
 [[nodiscard]] bool getSaveLastLoginUsername();
 [[nodiscard]] const std::string& getLastLoginUsername();
 [[nodiscard]] bool getShowLoginAtStartup();
+[[nodiscard]] float getCameraShakeMultiplier();
 
 // keyboard binds
 

@@ -51,3 +51,6 @@ cp /c/msys64/mingw64/bin/libgcc_s_seh-1.dll ./test/
 
 cp /c/msys64/mingw64/bin/libwinpthread-1.dll ../_RELEASE/
 cp /c/msys64/mingw64/bin/libwinpthread-1.dll ./test/
+
+cp ../_RELEASE/discord_game_sdk.dll ./test
+cp ../_RELEASE/steam_api64.dll ./test

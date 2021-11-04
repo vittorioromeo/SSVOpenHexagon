@@ -12,15 +12,16 @@
         "creditsBar2b.png",
         "creditsBar2c.png",
         "creditsBar2d.png",
-        "titleBar.png",
         "epilepsyWarning.png",
+        "icon.png",
         "keyArrow.png",
         "keyFocus.png",
         "keySwap.png",
-        "replayIcon.png",
         "onlineIcon.png",
         "onlineIconFail.png",
-        "starParticle.png"
+        "replayIcon.png",
+        "starParticle.png",
+        "titleBar.png"
     ],
     "soundBuffers":
     [

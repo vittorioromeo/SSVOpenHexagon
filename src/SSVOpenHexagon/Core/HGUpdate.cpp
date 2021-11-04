@@ -786,19 +786,9 @@ void HexagonGame::updateRotation(ssvu::FT mFT)
 
 void HexagonGame::updateCameraShake(ssvu::FT mFT)
 {
-    if(!backgroundCamera.has_value() || !overlayCamera.has_value())
+    if(!backgroundCamera.has_value() || !overlayCamera.has_value() ||
+        status.cameraShake <= 0)
     {
-        return;
-    }
-
-    if(status.cameraShake <= 0)
-    {
-        backgroundCamera->setCenter(
-            preShakeCenters->backgroundCameraPreShakeCenter);
-
-        overlayCamera->setCenter(preShakeCenters->overlayCameraPreShakeCenter);
-
-        preShakeCenters.reset();
         return;
     }
 
@@ -806,10 +796,24 @@ void HexagonGame::updateCameraShake(ssvu::FT mFT)
 
     if(!preShakeCenters.has_value())
     {
+        if(status.cameraShake <= 0)
+        {
+            backgroundCamera->setCenter(
+                preShakeCenters->backgroundCameraPreShakeCenter);
+
+            overlayCamera->setCenter(
+                preShakeCenters->overlayCameraPreShakeCenter);
+
+            preShakeCenters.reset();
+            return;
+        }
+
         preShakeCenters = PreShakeCenters{
             backgroundCamera->getCenter(), overlayCamera->getCenter()};
     }
 
+    SSVOH_ASSERT(backgroundCamera.has_value());
+    SSVOH_ASSERT(overlayCamera.has_value());
     SSVOH_ASSERT(preShakeCenters.has_value());
 
     const auto makeShakeVec = [this]

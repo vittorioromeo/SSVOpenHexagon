@@ -287,6 +287,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 # Flags and extlibs
 # -----------------------------------------------------------------------------
 
+string(TOLOWER "${CMAKE_BUILD_TYPE}" vrm_cmake_build_type_lower)
 vrm_cmake_include_vc_dependency_once(vc_detection)
 
 # TODO: decide how to handle flags
@@ -298,17 +299,17 @@ vrm_cmake_include_vc_dependency_once(vc_detection)
 # LTO
 # -----------------------------------------------------------------------------
 
-include(CheckIPOSupported)
-check_ipo_supported(RESULT result)
-
-if(result)
-    if("${vrm_cmake_build_type_lower}" STREQUAL "release")
-        message(STATUS "Enabling LTO")
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-    endif()
-else()
-    message(STATUS "LTO not supported")
-endif()
+# include(CheckIPOSupported)
+# check_ipo_supported(RESULT result)
+#
+# if(result)
+#     if("${vrm_cmake_build_type_lower}" STREQUAL "release")
+#         message(STATUS "Enabling LTO")
+#         set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+#     endif()
+# else()
+#     message(STATUS "LTO not supported")
+# endif()
 
 #
 #
@@ -318,7 +319,12 @@ endif()
 
 add_library(SSVOpenHexagonLibC STATIC ${C_SRC_LIST})
 add_library(SSVOpenHexagonLib STATIC ${SRC_LIST})
-add_executable(SSVOpenHexagon ${MAIN_FILE})
+
+if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+    add_executable(SSVOpenHexagon WIN32 ${MAIN_FILE})
+else()
+    add_executable(SSVOpenHexagon ${MAIN_FILE})
+endif()
 
 #
 #
@@ -398,6 +404,11 @@ ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVMenuSystem)
 ssvoh_find_extlib_for_target(SSVOpenHexagonLib SSVStart)
 
 target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
+
+if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+    target_link_libraries(SSVOpenHexagon "${CMAKE_SOURCE_DIR}/art/icon.res" sfml-main)
+    target_compile_options(SSVOpenHexagon PRIVATE "-Wl,-subsystem,windows")
+endif()
 
 target_include_directories(
     SSVOpenHexagon SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
