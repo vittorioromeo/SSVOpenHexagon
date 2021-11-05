@@ -172,7 +172,7 @@ function onUpdate(mFrameTime)
         step35 = true
 
         l_clearTracked()
-        l_addTracked("challengeFailedText", "surived until the end")
+        l_addTracked("challengeFailedText", "survived until the end")
 
         l_resetTime()
         l_setIncTime(15)
