@@ -194,7 +194,7 @@ void HexagonGame::updateLevelInfo()
         return s;
     };
 
-    levelInfoTextLevel.setFillColor(styleData.getMainColor());
+    levelInfoTextLevel.setFillColor(getColorText());
     levelInfoTextLevel.setCharacterSize(20.f / Config::getZoomFactor());
     levelInfoTextLevel.setString(trim(Utils::toUppercase(levelData->name)));
     levelInfoTextLevel.setOrigin(ssvs::getLocalNW(levelInfoTextLevel));
@@ -204,7 +204,7 @@ void HexagonGame::updateLevelInfo()
     const auto prepareText = [&](sf::Text& text, const float characterSize,
                                  const std::string& string)
     {
-        text.setFillColor(styleData.getTextColor());
+        text.setFillColor(getColorText());
         text.setCharacterSize(characterSize / Config::getZoomFactor());
         text.setString(string);
     };
