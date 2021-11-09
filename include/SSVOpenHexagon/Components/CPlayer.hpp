@@ -114,6 +114,9 @@ public:
 
     void updatePosition(const float radius);
 
+    [[nodiscard]] sf::Color getColorAdjustedForSwap(
+        const sf::Color& colorPlayer) const;
+
     void draw(const unsigned int sides, const sf::Color& colorMain,
         const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
         Utils::FastVertexVectorTris& capTris,
@@ -129,9 +132,14 @@ public:
 
     [[nodiscard]] bool getJustSwapped() const noexcept;
 
-    [[nodiscard]] bool isReadyToSwap() const noexcept
+    [[nodiscard, gnu::always_inline]] bool isReadyToSwap() const noexcept
     {
         return !_swapTimer.isRunning();
+    }
+
+    [[nodiscard, gnu::always_inline]] bool hasChangedAngle() const noexcept
+    {
+        return _angle != _lastAngle;
     }
 };
 
