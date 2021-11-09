@@ -143,8 +143,3 @@ template <typename T>
     sf::Packet& p);
 
 } // namespace hg
-
-// TODO (P1): leaderboards article on /r/gamedev
-// - fast math issue
-// - rng advance for graphical things
-// - check devlogs
