@@ -12432,6 +12432,7 @@ namespace sqlite_orm {
                 }
             }
 
+          public:
             connection_ref get_connection() {
                 connection_ref res{*this->connection};
                 if(1 == this->connection->retain_count()) {
