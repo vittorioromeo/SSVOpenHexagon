@@ -1408,6 +1408,9 @@ void MenuGame::initMenus()
         &Config::setPlayerTrailScale, 0.05f, 1.f, 0.05f);
     playervisfx.create<i::Slider>("trail decay", &Config::getPlayerTrailDecay,
         &Config::setPlayerTrailDecay, 0.5f, 50.f, 2.5f);
+    playervisfx.create<i::Toggle>("trail has swap color",
+        &Config::getPlayerTrailHasSwapColor,
+        &Config::setPlayerTrailHasSwapColor);
     playervisfx.create<i::GoBack>("back");
 
     auto& fps(optionsMenu.createCategory("fps settings"));
