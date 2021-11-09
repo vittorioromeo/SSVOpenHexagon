@@ -114,7 +114,8 @@ void HexagonGame::draw()
     if(status.started)
     {
         player.draw(getSides(), getColorMain(), getColorPlayer(), pivotQuads,
-            capTris, playerTris, getColorCap());
+            capTris, playerTris, getColorCap(),
+            Config::getAngleTiltIntensity());
     }
 
     if(Config::get3D())

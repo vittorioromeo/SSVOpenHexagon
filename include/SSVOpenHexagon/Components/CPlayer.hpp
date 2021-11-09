@@ -64,6 +64,8 @@ private:
     Ticker _swapBlinkTimer;
     Ticker _deadEffectTimer;
 
+    float _currTiltedAngle;
+
     void drawPivot(const unsigned int sides, const sf::Color& colorMain,
         Utils::FastVertexVectorQuads& wallQuads,
         Utils::FastVertexVectorTris& capTris, const sf::Color& capColor);
@@ -115,7 +117,8 @@ public:
     void draw(const unsigned int sides, const sf::Color& colorMain,
         const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
         Utils::FastVertexVectorTris& capTris,
-        Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor);
+        Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
+        const float angleTiltIntensity);
 
     [[nodiscard]] bool push(const int movementDir, const float radius,
         const CWall& wall, const sf::Vector2f& mCenterPos,

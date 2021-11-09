@@ -83,6 +83,7 @@ void setSaveLastLoginUsername(bool mX);
 void setLastLoginUsername(const std::string& mX);
 void setShowLoginAtStartup(bool mX);
 void setCameraShakeMultiplier(float x);
+void setAngleTiltIntensity(float x);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -150,6 +151,7 @@ void setCameraShakeMultiplier(float x);
 [[nodiscard]] const std::string& getLastLoginUsername();
 [[nodiscard]] bool getShowLoginAtStartup();
 [[nodiscard]] float getCameraShakeMultiplier();
+[[nodiscard]] float getAngleTiltIntensity();
 
 // keyboard binds
 
