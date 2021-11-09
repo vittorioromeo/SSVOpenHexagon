@@ -287,6 +287,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       messageText{initText("", font, 38.f)},
       pbText{initText("", fontBold, 65.f)},
+      txStarParticle(assets.getTextureOrNullTexture("starParticle.png")),
+      txSmallCircle(assets.getTextureOrNullTexture("smallCircle.png")),
       levelInfoTextLevel{"", font},
       levelInfoTextPack{"", font},
       levelInfoTextAuthor{"", font},
@@ -665,6 +667,7 @@ void HexagonGame::newGame(const std::string& mPackId, const std::string& mId,
     mustSpawnPBParticles = false;
     nextPBParticleSpawn = 0.f;
     particles.clear();
+    trailParticles.clear();
 
     if(window != nullptr)
     {

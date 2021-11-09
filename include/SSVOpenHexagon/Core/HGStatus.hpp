@@ -58,6 +58,7 @@ public:
     bool started{false};
     std::string restartInput;
     std::string replayInput;
+    bool showPlayerTrail{true};
 
     // Reset all the time points and signal that we started
     void start() noexcept;

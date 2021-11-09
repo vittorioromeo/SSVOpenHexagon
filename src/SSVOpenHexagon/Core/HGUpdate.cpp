@@ -29,6 +29,10 @@
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
 
+#include <SFML/Config.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
+
 #include <array>
 #include <cstring>
 #include <optional>
@@ -333,6 +337,12 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
             SSVOH_ASSERT(backgroundCamera.has_value());
 
             updateParticles(mFT);
+
+            if(Config::getShowPlayerTrail() && status.showPlayerTrail)
+            {
+                updateTrailParticles(mFT);
+            }
+
             overlayCamera->update(mFT);
             backgroundCamera->update(mFT);
         }
@@ -871,14 +881,11 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
                 pos.y < 0 - padding || pos.y > Config::getHeight() + padding);
     };
 
-    const auto isDead = [&](const Particle& p)
-    { return p.sprite.getColor().a <= 0 || isOutOfBounds(p); };
-
     const auto makePBParticle = [this]
     {
         Particle p;
 
-        p.sprite.setTexture(assets.getTextureOrNullTexture("starParticle.png"));
+        p.sprite.setTexture(txStarParticle);
         p.sprite.setPosition(
             {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
         p.sprite.setRotation(ssvu::getRndR(0.f, 360.f));
@@ -896,7 +903,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
         return p;
     };
 
-    ssvu::eraseRemoveIf(particles, isDead);
+    ssvu::eraseRemoveIf(particles, isOutOfBounds);
 
     for(Particle& p : particles)
     {
@@ -913,6 +920,67 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
             particles.emplace_back(makePBParticle());
             nextPBParticleSpawn = 2.75f;
         }
+    }
+}
+
+void HexagonGame::updateTrailParticles(ssvu::FT mFT)
+{
+    SSVOH_ASSERT(window != nullptr);
+
+    const auto isDead = [&](const TrailParticle& p)
+    { return p.sprite.getColor().a <= 3; };
+
+    const auto makeTrailParticle = [this]
+    {
+        TrailParticle p;
+
+        p.sprite.setTexture(txSmallCircle);
+        p.sprite.setPosition(player.getPosition());
+        p.sprite.setOrigin(sf::Vector2f{txSmallCircle.getSize()} / 2.f);
+
+        const float scale = Config::getPlayerTrailScale();
+        p.sprite.setScale({scale, scale});
+
+        sf::Color c = Config::getPlayerTrailHasSwapColor()
+                          ? player.getColorAdjustedForSwap(getColorPlayer())
+                          : getColorPlayer();
+
+        c.a = Config::getPlayerTrailAlpha();
+        p.sprite.setColor(c);
+
+        p.angle = player.getPlayerAngle();
+
+        return p;
+    };
+
+    ssvu::eraseRemoveIf(trailParticles, isDead);
+
+    for(TrailParticle& p : trailParticles)
+    {
+        sf::Color color = p.sprite.getColor();
+        auto alpha = static_cast<float>(color.a);
+
+        if(alpha > 0.f)
+        {
+            alpha -= Config::getPlayerTrailDecay() * mFT;
+            if(alpha <= 0.f)
+            {
+                alpha = 0;
+            }
+        }
+
+        color.a = static_cast<sf::Uint8>(alpha);
+        p.sprite.setColor(color);
+
+        p.sprite.setScale(p.sprite.getScale() * 0.98f);
+
+        p.sprite.setPosition(
+            ssvs::getVecFromRad(p.angle, status.radius + 2.4f));
+    }
+
+    if(player.hasChangedAngle())
+    {
+        trailParticles.emplace_back(makeTrailParticle());
     }
 }
 

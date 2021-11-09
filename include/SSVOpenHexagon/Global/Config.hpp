@@ -84,6 +84,11 @@ void setLastLoginUsername(const std::string& mX);
 void setShowLoginAtStartup(bool mX);
 void setCameraShakeMultiplier(float x);
 void setAngleTiltIntensity(float x);
+void setShowPlayerTrail(bool mX);
+void setPlayerTrailAlpha(unsigned int x);
+void setPlayerTrailScale(float x);
+void setPlayerTrailDecay(float x);
+void setPlayerTrailHasSwapColor(bool x);
 
 [[nodiscard]] bool getOfficial();
 [[nodiscard]] const std::string& getUneligibilityReason();
@@ -152,6 +157,11 @@ void setAngleTiltIntensity(float x);
 [[nodiscard]] bool getShowLoginAtStartup();
 [[nodiscard]] float getCameraShakeMultiplier();
 [[nodiscard]] float getAngleTiltIntensity();
+[[nodiscard]] bool getShowPlayerTrail();
+[[nodiscard]] unsigned int getPlayerTrailAlpha();
+[[nodiscard]] float getPlayerTrailScale();
+[[nodiscard]] float getPlayerTrailDecay();
+[[nodiscard]] bool getPlayerTrailHasSwapColor();
 
 // keyboard binds
 

@@ -226,6 +226,11 @@ void HexagonGame::draw()
         }
     }
 
+    if(Config::getShowPlayerTrail() && status.showPlayerTrail)
+    {
+        drawTrailParticles();
+    }
+
     render(wallQuads3D);
     render(pivotQuads3D);
     render(playerTris3D);
@@ -352,6 +357,14 @@ void HexagonGame::drawLevelInfo()
 void HexagonGame::drawParticles()
 {
     for(Particle& p : particles)
+    {
+        render(p.sprite);
+    }
+}
+
+void HexagonGame::drawTrailParticles()
+{
+    for(TrailParticle& p : trailParticles)
     {
         render(p.sprite);
     }
