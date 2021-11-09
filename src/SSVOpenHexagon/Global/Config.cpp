@@ -218,8 +218,8 @@ using cil = std::initializer_list<cmb>;
     X(angleTiltIntensity, float, "angle_tilt_intensity", 1.f)              \
     X(showPlayerTrail, bool, "show_player_trail", true)                    \
     X(playerTrailAlpha, uint, "player_trail_alpha", 170)                   \
-    X(playerTrailScale, float, "player_trail_scale", 0.5f)                 \
-    X(playerTrailDecay, float, "player_trail_decay", 12.5f)                 \
+    X(playerTrailScale, float, "player_trail_scale", 0.75f)                \
+    X(playerTrailDecay, float, "player_trail_decay", 12.5f)                \
     X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)  \
     X_LINKEDVALUES_BINDS
 
