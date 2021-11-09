@@ -19,6 +19,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
 
+#include <cmath>
+
 namespace hg {
 
 inline constexpr float baseThickness{5.f};
@@ -53,6 +55,19 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
       _currTiltedAngle{0}
 {}
 
+[[nodiscard]] sf::Color CPlayer::getColorAdjustedForSwap(
+    const sf::Color& colorPlayer) const
+{
+    if(!_swapTimer.isRunning() && !_dead)
+    {
+        return Utils::getColorFromHue(
+            std::fmod(_swapBlinkTimer.getCurrent() / 12.f, 0.2f));
+    }
+
+    return !_deadEffectTimer.isRunning() ? colorPlayer
+                                         : Utils::getColorFromHue(_hue / 360.f);
+}
+
 void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
     Utils::FastVertexVectorTris& capTris,
@@ -66,10 +81,6 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
         drawDeathEffect(wallQuads);
     }
 
-    sf::Color adjustedColorMain{!_deadEffectTimer.isRunning()
-                                    ? colorPlayer
-                                    : Utils::getColorFromHue(_hue / 360.f)};
-
     const float tiltedAngle =
         _angle + (_currTiltedAngle * ssvu::toRad(24.f) * angleTiltIntensity);
 
@@ -79,14 +90,8 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     const sf::Vector2f pRight = ssvs::getOrbitRad(
         _pos, tiltedAngle + ssvu::toRad(100.f), _size + _triangleWidth);
 
-    if(!_swapTimer.isRunning() && !_dead)
-    {
-        adjustedColorMain = Utils::getColorFromHue(
-            (_swapBlinkTimer.getCurrent() * 15.f) / 360.f);
-    }
-
     playerTris.reserve_more(3);
-    playerTris.batch_unsafe_emplace_back(adjustedColorMain,
+    playerTris.batch_unsafe_emplace_back(getColorAdjustedForSwap(colorPlayer),
         ssvs::getOrbitRad(_pos, tiltedAngle, _size), pLeft, pRight);
 }
 
@@ -441,7 +446,7 @@ void CPlayer::update(
         }
     }
 
-    _swapBlinkTimer.update(ft);
+    _swapBlinkTimer.update(ft / 3.f);
 
     if(swapEnabled && _swapTimer.update(ft))
     {
