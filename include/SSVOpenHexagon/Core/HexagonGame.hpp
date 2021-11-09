@@ -167,11 +167,18 @@ private:
 
     ssvs::VertexVector<sf::PrimitiveType::Quads> flashPolygon{4};
 
+    enum class ParticleType : std::uint8_t
+    {
+        Normal,
+        Trail
+    };
+
     struct Particle
     {
         sf::Sprite sprite;
         sf::Vector2f velocity;
         float angularVelocity;
+        ParticleType type;
     };
 
     std::vector<Particle> particles;

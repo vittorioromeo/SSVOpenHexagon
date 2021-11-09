@@ -48,14 +48,16 @@ CPlayer::CPlayer(const sf::Vector2f& pos, const float swapCooldown,
       _triangleWidth{unfocusedTriangleWidth},
       _triangleWidthTransitionTime{0.f},
       _swapTimer{swapCooldown},
-      _swapBlinkTimer{swapCooldown / 6.f},
-      _deadEffectTimer{80.f, false}
+      _swapBlinkTimer{6.f},
+      _deadEffectTimer{80.f, false},
+      _currTiltedAngle{0}
 {}
 
 void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
     const sf::Color& colorPlayer, Utils::FastVertexVectorQuads& wallQuads,
     Utils::FastVertexVectorTris& capTris,
-    Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor)
+    Utils::FastVertexVectorTris& playerTris, const sf::Color& capColor,
+    const float angleTiltIntensity)
 {
     drawPivot(sides, colorMain, wallQuads, capTris, capColor);
 
@@ -68,21 +70,24 @@ void CPlayer::draw(const unsigned int sides, const sf::Color& colorMain,
                                     ? colorPlayer
                                     : Utils::getColorFromHue(_hue / 360.f)};
 
+    const float tiltedAngle =
+        _angle + (_currTiltedAngle * ssvu::toRad(24.f) * angleTiltIntensity);
+
     const sf::Vector2f pLeft = ssvs::getOrbitRad(
-        _pos, _angle - ssvu::toRad(100.f), _size + _triangleWidth);
+        _pos, tiltedAngle - ssvu::toRad(100.f), _size + _triangleWidth);
 
     const sf::Vector2f pRight = ssvs::getOrbitRad(
-        _pos, _angle + ssvu::toRad(100.f), _size + _triangleWidth);
+        _pos, tiltedAngle + ssvu::toRad(100.f), _size + _triangleWidth);
 
     if(!_swapTimer.isRunning() && !_dead)
     {
-        adjustedColorMain =
-            Utils::getColorFromHue((_swapBlinkTimer.getCurrent() * 15) / 360.f);
+        adjustedColorMain = Utils::getColorFromHue(
+            (_swapBlinkTimer.getCurrent() * 15.f) / 360.f);
     }
 
     playerTris.reserve_more(3);
     playerTris.batch_unsafe_emplace_back(adjustedColorMain,
-        ssvs::getOrbitRad(_pos, _angle, _size), pLeft, pRight);
+        ssvs::getOrbitRad(_pos, tiltedAngle, _size), pLeft, pRight);
 }
 
 void CPlayer::drawPivot(const unsigned int sides, const sf::Color& colorMain,
@@ -452,12 +457,40 @@ void CPlayer::updateInputMovement(const float movementDir,
 {
     _currentSpeed = playerSpeedMult * (focused ? _focusSpeed : _speed) * ft;
     _angle += ssvu::toRad(_currentSpeed * movementDir);
+
+    const float inc = ft / 10.f;
+
+    if(movementDir == 0)
+    {
+        if(_currTiltedAngle > 0)
+        {
+            _currTiltedAngle -= inc;
+        }
+        else if(_currTiltedAngle < 0)
+        {
+            _currTiltedAngle += inc;
+        }
+    }
+    else if(movementDir == 1)
+    {
+        if(_currTiltedAngle < 1)
+        {
+            _currTiltedAngle += inc * 2.f;
+        }
+    }
+    else if(movementDir == -1)
+    {
+        if(_currTiltedAngle > -1)
+        {
+            _currTiltedAngle -= inc * 2.f;
+        }
+    }
 }
 
 void CPlayer::resetSwap(const float swapCooldown)
 {
     _swapTimer.restart(swapCooldown);
-    _swapBlinkTimer.restart(swapCooldown / 6.f);
+    _swapBlinkTimer.restart(6.f);
 }
 
 void CPlayer::setJustSwapped(const bool value)

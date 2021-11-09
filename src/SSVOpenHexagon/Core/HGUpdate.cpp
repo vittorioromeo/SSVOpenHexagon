@@ -871,6 +871,9 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
                 pos.y < 0 - padding || pos.y > Config::getHeight() + padding);
     };
 
+    const auto isDead = [&](const Particle& p)
+    { return p.sprite.getColor().a <= 0 || isOutOfBounds(p); };
+
     const auto makePBParticle = [this]
     {
         Particle p;
@@ -893,7 +896,7 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
         return p;
     };
 
-    ssvu::eraseRemoveIf(particles, isOutOfBounds);
+    ssvu::eraseRemoveIf(particles, isDead);
 
     for(Particle& p : particles)
     {

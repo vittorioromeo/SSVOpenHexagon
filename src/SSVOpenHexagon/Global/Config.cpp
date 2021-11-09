@@ -215,6 +215,7 @@ using cil = std::initializer_list<cmb>;
     X(lastLoginUsername, std::string, "last_login_username", "")           \
     X(showLoginAtStartup, bool, "show_login_at_startup", false)            \
     X(cameraShakeMultiplier, float, "camera_shake_multiplier", 1.f)        \
+    X(angleTiltIntensity, float, "angle_tilt_intensity", 1.f)              \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -736,6 +737,11 @@ void setCameraShakeMultiplier(float x)
     cameraShakeMultiplier() = x;
 }
 
+void setAngleTiltIntensity(float x)
+{
+    angleTiltIntensity() = x;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -1064,6 +1070,11 @@ void setCameraShakeMultiplier(float x)
 [[nodiscard]] float getCameraShakeMultiplier()
 {
     return cameraShakeMultiplier();
+}
+
+[[nodiscard]] float getAngleTiltIntensity()
+{
+    return angleTiltIntensity();
 }
 
 //***********************************************************
