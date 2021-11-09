@@ -322,6 +322,7 @@ add_library(SSVOpenHexagonLib STATIC ${SRC_LIST})
 
 if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
     add_executable(SSVOpenHexagon WIN32 ${MAIN_FILE})
+    add_executable(SSVOpenHexagon-Console ${MAIN_FILE})
 else()
     add_executable(SSVOpenHexagon ${MAIN_FILE})
 endif()
@@ -338,6 +339,10 @@ target_precompile_headers(
 )
 
 target_precompile_headers(SSVOpenHexagon REUSE_FROM SSVOpenHexagonLib)
+
+if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+    target_precompile_headers(SSVOpenHexagon-Console REUSE_FROM SSVOpenHexagonLib)
+endif()
 
 #
 #
@@ -408,6 +413,7 @@ target_link_libraries(SSVOpenHexagon SSVOpenHexagonLib SSVOpenHexagonLibC)
 if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
     target_link_libraries(SSVOpenHexagon "${CMAKE_SOURCE_DIR}/art/icon.res" sfml-main)
     target_compile_options(SSVOpenHexagon PRIVATE "-Wl,-subsystem,windows")
+    target_link_libraries(SSVOpenHexagon-Console SSVOpenHexagonLib SSVOpenHexagonLibC)
 endif()
 
 target_include_directories(
@@ -419,6 +425,17 @@ target_include_directories(
                           PUBLIC ${imgui_SOURCE_DIR}
 )
 
+if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+    target_include_directories(
+        SSVOpenHexagon-Console SYSTEM PUBLIC ${SFML_SOURCE_DIR}/include
+                                    PUBLIC ${PUBLIC_INCLUDE_DIRS}
+                                    PUBLIC ${zlib_SOURCE_DIR}
+                                    PUBLIC ${zlib_BINARY_DIR}
+                                    PUBLIC ${LUASRC}
+                                    PUBLIC ${imgui_SOURCE_DIR}
+    )
+endif()
+
 if(UNIX AND NOT APPLE)
     target_link_libraries(SSVOpenHexagonLib pthread)
 endif()
@@ -426,6 +443,13 @@ endif()
 install(
     TARGETS SSVOpenHexagon RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
 )
+
+if(WIN32 AND "${vrm_cmake_build_type_lower}" STREQUAL "release")
+    install(
+        TARGETS SSVOpenHexagon-Console RUNTIME DESTINATION ${CMAKE_SOURCE_DIR}/_RELEASE/
+    )
+endif()
+
 
 #
 #
