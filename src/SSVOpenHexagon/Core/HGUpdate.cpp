@@ -885,7 +885,8 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     {
         Particle p;
 
-        p.sprite.setTexture(txStarParticle);
+        SSVOH_ASSERT(txStarParticle != nullptr);
+        p.sprite.setTexture(*txStarParticle);
         p.sprite.setPosition(
             {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
         p.sprite.setRotation(ssvu::getRndR(0.f, 360.f));
@@ -934,9 +935,10 @@ void HexagonGame::updateTrailParticles(ssvu::FT mFT)
     {
         TrailParticle p;
 
-        p.sprite.setTexture(txSmallCircle);
+        SSVOH_ASSERT(txSmallCircle != nullptr);
+        p.sprite.setTexture(*txSmallCircle);
         p.sprite.setPosition(player.getPosition());
-        p.sprite.setOrigin(sf::Vector2f{txSmallCircle.getSize()} / 2.f);
+        p.sprite.setOrigin(sf::Vector2f{txSmallCircle->getSize()} / 2.f);
 
         const float scale = Config::getPlayerTrailScale();
         p.sprite.setScale({scale, scale});

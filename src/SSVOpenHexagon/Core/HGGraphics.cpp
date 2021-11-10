@@ -226,14 +226,15 @@ void HexagonGame::draw()
         }
     }
 
+    render(wallQuads3D);
+    render(pivotQuads3D);
+    render(playerTris3D);
+
     if(Config::getShowPlayerTrail() && status.showPlayerTrail)
     {
         drawTrailParticles();
     }
 
-    render(wallQuads3D);
-    render(pivotQuads3D);
-    render(playerTris3D);
     render(wallQuads);
     render(capTris);
     render(pivotQuads);

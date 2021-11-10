@@ -287,8 +287,8 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
       levelStatus{Config::getMusicSpeedDMSync(), Config::getSpawnDistance()},
       messageText{initText("", font, 38.f)},
       pbText{initText("", fontBold, 65.f)},
-      txStarParticle(assets.getTextureOrNullTexture("starParticle.png")),
-      txSmallCircle(assets.getTextureOrNullTexture("smallCircle.png")),
+      txStarParticle{nullptr},
+      txSmallCircle{nullptr},
       levelInfoTextLevel{"", font},
       levelInfoTextPack{"", font},
       levelInfoTextAuthor{"", font},
@@ -313,6 +313,9 @@ HexagonGame::HexagonGame(Steam::steam_manager* mSteamManager,
         overlayCamera.emplace(
             *window, sf::View{sf::Vector2f{width / 2.f, height / 2.f},
                          sf::Vector2f{width, height}});
+
+        txStarParticle = &assets.getTextureOrNullTexture("starParticle.png");
+        txSmallCircle = &assets.getTextureOrNullTexture("smallCircle.png");
     }
 
 

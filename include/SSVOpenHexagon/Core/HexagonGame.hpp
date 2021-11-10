@@ -180,8 +180,8 @@ private:
         float angle;
     };
 
-    sf::Texture& txStarParticle;
-    sf::Texture& txSmallCircle;
+    sf::Texture* txStarParticle;
+    sf::Texture* txSmallCircle;
 
     std::vector<Particle> particles;
     std::vector<TrailParticle> trailParticles;
