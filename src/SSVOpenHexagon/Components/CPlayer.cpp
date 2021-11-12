@@ -3,22 +3,26 @@
 // AFL License page: https://opensource.org/licenses/AFL-3.0
 
 #include "SSVOpenHexagon/Components/CPlayer.hpp"
-#include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Components/CCustomWall.hpp"
+#include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Utils/Color.hpp"
-#include "SSVOpenHexagon/Utils/Ticker.hpp"
-#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
-#include "SSVOpenHexagon/Utils/Geometry.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
+#include "SSVOpenHexagon/Utils/Geometry.hpp"
+#include "SSVOpenHexagon/Utils/MoveTowards.hpp"
+#include "SSVOpenHexagon/Utils/PointInPolygon.hpp"
+#include "SSVOpenHexagon/Utils/Ticker.hpp"
 
 #include <SSVStart/Utils/SFML.hpp>
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Math.hpp>
 
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
 
+#include <algorithm>
 #include <cmath>
 
 namespace hg {
@@ -398,19 +402,11 @@ void CPlayer::updateTriangleWidthTransition(
 {
     if(focused && _triangleWidthTransitionTime < 1.f)
     {
-        _triangleWidthTransitionTime += ft * 0.1f;
-        if(_triangleWidthTransitionTime > 1.f)
-        {
-            _triangleWidthTransitionTime = 1.f;
-        }
+        Utils::moveTowards(_triangleWidthTransitionTime, 1.f, ft * 0.1f);
     }
     else if(!focused && _triangleWidthTransitionTime > 0.f)
     {
-        _triangleWidthTransitionTime -= ft * 0.1f;
-        if(_triangleWidthTransitionTime < 0.f)
-        {
-            _triangleWidthTransitionTime = 0.f;
-        }
+        Utils::moveTowardsZero(_triangleWidthTransitionTime, ft * 0.1f);
     }
 
     _triangleWidth =
@@ -465,31 +461,10 @@ void CPlayer::updateInputMovement(const float movementDir,
 
     const float inc = ft / 10.f;
 
-    if(movementDir == 0)
-    {
-        if(_currTiltedAngle > 0)
-        {
-            _currTiltedAngle -= inc;
-        }
-        else if(_currTiltedAngle < 0)
-        {
-            _currTiltedAngle += inc;
-        }
-    }
-    else if(movementDir == 1)
-    {
-        if(_currTiltedAngle < 1)
-        {
-            _currTiltedAngle += inc * 2.f;
-        }
-    }
-    else if(movementDir == -1)
-    {
-        if(_currTiltedAngle > -1)
-        {
-            _currTiltedAngle -= inc * 2.f;
-        }
-    }
+    _currTiltedAngle =
+        (movementDir == 0.f)
+            ? Utils::getMoveTowardsZero(_currTiltedAngle, inc)
+            : Utils::getMoveTowards(_currTiltedAngle, movementDir, inc * 2.f);
 }
 
 void CPlayer::resetSwap(const float swapCooldown)
