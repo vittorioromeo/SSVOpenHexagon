@@ -5,20 +5,24 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/MoveTowards.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
-#include "SSVOpenHexagon/Core/HexagonClient.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
+
 #include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -960,18 +964,11 @@ void HexagonGame::updateTrailParticles(ssvu::FT mFT)
     for(TrailParticle& p : trailParticles)
     {
         sf::Color color = p.sprite.getColor();
-        auto alpha = static_cast<float>(color.a);
 
-        if(alpha > 0.f)
-        {
-            alpha -= Config::getPlayerTrailDecay() * mFT;
-            if(alpha <= 0.f)
-            {
-                alpha = 0;
-            }
-        }
+        const float newAlpha = Utils::getMoveTowardsZero(
+            static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
 
-        color.a = static_cast<sf::Uint8>(alpha);
+        color.a = static_cast<sf::Uint8>(newAlpha);
         p.sprite.setColor(color);
 
         p.sprite.setScale(p.sprite.getScale() * 0.98f);
