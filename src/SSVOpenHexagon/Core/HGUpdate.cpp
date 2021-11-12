@@ -5,20 +5,24 @@
 #include "SSVOpenHexagon/Core/HexagonGame.hpp"
 
 #include "SSVOpenHexagon/Components/CWall.hpp"
+
 #include "SSVOpenHexagon/Global/Assert.hpp"
 #include "SSVOpenHexagon/Global/Assets.hpp"
-#include "SSVOpenHexagon/Global/Config.hpp"
 #include "SSVOpenHexagon/Global/Audio.hpp"
+#include "SSVOpenHexagon/Global/Config.hpp"
+
 #include "SSVOpenHexagon/Utils/Concat.hpp"
 #include "SSVOpenHexagon/Utils/Easing.hpp"
 #include "SSVOpenHexagon/Utils/LevelValidator.hpp"
+#include "SSVOpenHexagon/Utils/MoveTowards.hpp"
 #include "SSVOpenHexagon/Utils/Split.hpp"
 #include "SSVOpenHexagon/Utils/String.hpp"
-#include "SSVOpenHexagon/Core/HexagonClient.hpp"
-#include "SSVOpenHexagon/Core/Steam.hpp"
+
 #include "SSVOpenHexagon/Core/Discord.hpp"
+#include "SSVOpenHexagon/Core/HexagonClient.hpp"
 #include "SSVOpenHexagon/Core/Joystick.hpp"
 #include "SSVOpenHexagon/Core/LuaScripting.hpp"
+#include "SSVOpenHexagon/Core/Steam.hpp"
 
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -28,6 +32,10 @@
 
 #include <SSVUtils/Core/Common/Frametime.hpp>
 #include <SSVUtils/Core/Utils/Containers.hpp>
+
+#include <SFML/Config.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include <array>
 #include <cstring>
@@ -333,6 +341,12 @@ void HexagonGame::update(ssvu::FT mFT, const float timescale)
             SSVOH_ASSERT(backgroundCamera.has_value());
 
             updateParticles(mFT);
+
+            if(Config::getShowPlayerTrail() && status.showPlayerTrail)
+            {
+                updateTrailParticles(mFT);
+            }
+
             overlayCamera->update(mFT);
             backgroundCamera->update(mFT);
         }
@@ -875,7 +889,8 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
     {
         Particle p;
 
-        p.sprite.setTexture(assets.getTextureOrNullTexture("starParticle.png"));
+        SSVOH_ASSERT(txStarParticle != nullptr);
+        p.sprite.setTexture(*txStarParticle);
         p.sprite.setPosition(
             {ssvu::getRndR(-64.f, Config::getWidth() + 64.f), -64.f});
         p.sprite.setRotation(ssvu::getRndR(0.f, 360.f));
@@ -910,6 +925,61 @@ void HexagonGame::updateParticles(ssvu::FT mFT)
             particles.emplace_back(makePBParticle());
             nextPBParticleSpawn = 2.75f;
         }
+    }
+}
+
+void HexagonGame::updateTrailParticles(ssvu::FT mFT)
+{
+    SSVOH_ASSERT(window != nullptr);
+
+    const auto isDead = [&](const TrailParticle& p)
+    { return p.sprite.getColor().a <= 3; };
+
+    const auto makeTrailParticle = [this]
+    {
+        TrailParticle p;
+
+        SSVOH_ASSERT(txSmallCircle != nullptr);
+        p.sprite.setTexture(*txSmallCircle);
+        p.sprite.setPosition(player.getPosition());
+        p.sprite.setOrigin(sf::Vector2f{txSmallCircle->getSize()} / 2.f);
+
+        const float scale = Config::getPlayerTrailScale();
+        p.sprite.setScale({scale, scale});
+
+        sf::Color c = Config::getPlayerTrailHasSwapColor()
+                          ? player.getColorAdjustedForSwap(getColorPlayer())
+                          : getColorPlayer();
+
+        c.a = Config::getPlayerTrailAlpha();
+        p.sprite.setColor(c);
+
+        p.angle = player.getPlayerAngle();
+
+        return p;
+    };
+
+    ssvu::eraseRemoveIf(trailParticles, isDead);
+
+    for(TrailParticle& p : trailParticles)
+    {
+        sf::Color color = p.sprite.getColor();
+
+        const float newAlpha = Utils::getMoveTowardsZero(
+            static_cast<float>(color.a), Config::getPlayerTrailDecay() * mFT);
+
+        color.a = static_cast<sf::Uint8>(newAlpha);
+        p.sprite.setColor(color);
+
+        p.sprite.setScale(p.sprite.getScale() * 0.98f);
+
+        p.sprite.setPosition(
+            ssvs::getVecFromRad(p.angle, status.radius + 2.4f));
+    }
+
+    if(player.hasChangedAngle())
+    {
+        trailParticles.emplace_back(makeTrailParticle());
     }
 }
 

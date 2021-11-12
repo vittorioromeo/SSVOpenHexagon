@@ -215,6 +215,12 @@ using cil = std::initializer_list<cmb>;
     X(lastLoginUsername, std::string, "last_login_username", "")           \
     X(showLoginAtStartup, bool, "show_login_at_startup", false)            \
     X(cameraShakeMultiplier, float, "camera_shake_multiplier", 1.f)        \
+    X(angleTiltIntensity, float, "angle_tilt_intensity", 1.f)              \
+    X(showPlayerTrail, bool, "show_player_trail", true)                    \
+    X(playerTrailAlpha, uint, "player_trail_alpha", 35)                    \
+    X(playerTrailScale, float, "player_trail_scale", 0.9f)                 \
+    X(playerTrailDecay, float, "player_trail_decay", 3.0f)                 \
+    X(playerTrailHasSwapColor, bool, "player_trail_has_swap_color", true)  \
     X_LINKEDVALUES_BINDS
 
 namespace hg::Config {
@@ -736,6 +742,36 @@ void setCameraShakeMultiplier(float x)
     cameraShakeMultiplier() = x;
 }
 
+void setAngleTiltIntensity(float x)
+{
+    angleTiltIntensity() = x;
+}
+
+void setShowPlayerTrail(bool x)
+{
+    showPlayerTrail() = x;
+}
+
+void setPlayerTrailAlpha(unsigned int x)
+{
+    playerTrailAlpha() = x;
+}
+
+void setPlayerTrailScale(float x)
+{
+    playerTrailScale() = x;
+}
+
+void setPlayerTrailDecay(float x)
+{
+    playerTrailDecay() = x;
+}
+
+void setPlayerTrailHasSwapColor(bool x)
+{
+    playerTrailHasSwapColor() = x;
+}
+
 [[nodiscard]] bool getOfficial()
 {
     return official();
@@ -1064,6 +1100,36 @@ void setCameraShakeMultiplier(float x)
 [[nodiscard]] float getCameraShakeMultiplier()
 {
     return cameraShakeMultiplier();
+}
+
+[[nodiscard]] float getAngleTiltIntensity()
+{
+    return angleTiltIntensity();
+}
+
+[[nodiscard]] bool getShowPlayerTrail()
+{
+    return showPlayerTrail();
+}
+
+[[nodiscard]] unsigned int getPlayerTrailAlpha()
+{
+    return playerTrailAlpha();
+}
+
+[[nodiscard]] float getPlayerTrailScale()
+{
+    return playerTrailScale();
+}
+
+[[nodiscard]] float getPlayerTrailDecay()
+{
+    return playerTrailDecay();
+}
+
+[[nodiscard]] bool getPlayerTrailHasSwapColor()
+{
+    return playerTrailHasSwapColor();
 }
 
 //***********************************************************

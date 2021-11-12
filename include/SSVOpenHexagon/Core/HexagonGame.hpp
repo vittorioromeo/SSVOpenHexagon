@@ -174,7 +174,17 @@ private:
         float angularVelocity;
     };
 
+    struct TrailParticle
+    {
+        sf::Sprite sprite;
+        float angle;
+    };
+
+    sf::Texture* txStarParticle;
+    sf::Texture* txSmallCircle;
+
     std::vector<Particle> particles;
+    std::vector<TrailParticle> trailParticles;
     bool mustSpawnPBParticles{false};
     float nextPBParticleSpawn{0.f};
     float pbTextGrowth{0.f};
@@ -333,6 +343,7 @@ private:
     void updateKeyIcons();
     void updateLevelInfo();
     void updateParticles(ssvu::FT mFT);
+    void updateTrailParticles(ssvu::FT mFT);
 
     // Post update methods
     void postUpdate();
@@ -353,6 +364,7 @@ private:
     void drawKeyIcons();
     void drawLevelInfo();
     void drawParticles();
+    void drawTrailParticles();
     void drawImguiLuaConsole();
 
     // Data-related methods

@@ -114,7 +114,8 @@ void HexagonGame::draw()
     if(status.started)
     {
         player.draw(getSides(), getColorMain(), getColorPlayer(), pivotQuads,
-            capTris, playerTris, getColorCap());
+            capTris, playerTris, getColorCap(),
+            Config::getAngleTiltIntensity());
     }
 
     if(Config::get3D())
@@ -228,6 +229,12 @@ void HexagonGame::draw()
     render(wallQuads3D);
     render(pivotQuads3D);
     render(playerTris3D);
+
+    if(Config::getShowPlayerTrail() && status.showPlayerTrail)
+    {
+        drawTrailParticles();
+    }
+
     render(wallQuads);
     render(capTris);
     render(pivotQuads);
@@ -351,6 +358,14 @@ void HexagonGame::drawLevelInfo()
 void HexagonGame::drawParticles()
 {
     for(Particle& p : particles)
+    {
+        render(p.sprite);
+    }
+}
+
+void HexagonGame::drawTrailParticles()
+{
+    for(TrailParticle& p : trailParticles)
     {
         render(p.sprite);
     }

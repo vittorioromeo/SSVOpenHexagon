@@ -922,6 +922,12 @@ static void initLevelControl(
         "`0` and `l_getBeatPulseDelayMax()` unless manually overridden.",
 
         "Sets the current beat pulse delay value to `$0`.");
+
+    sVar("ShowPlayerTrail", &HexagonGameStatus::showPlayerTrail,
+        "Gets whether the current level allows player trails to be shown.",
+
+        "Sets whether the current level allows player trails to be shown to "
+        "`$0`.");
 }
 
 static void initStyleControl(Lua::LuaContext& lua, StyleData& styleData)

@@ -17,7 +17,7 @@ cmake .. -G"Ninja" \
          -DCMAKE_CXX_COMPILER="g++" \
          -DCMAKE_CXX_FLAGS="\
             -fuse-ld=lld \
-            -O0 -fno-omit-frame-pointer \
+            -Og -g3 -fno-omit-frame-pointer \
             -Wall -Wextra -Wpedantic -Wno-braced-scalar-init -Wno-missing-field-initializers \
             -D_GLIBCXX_ASSERTIONS=1 -D_FORTIFY_SOURCE=2 \
             -fstack-protector -Wno-pragmas\

@@ -17,6 +17,7 @@ cp -r ./_RELEASE/Packs/orthoplex ./_PREPARED_RELEASE/Packs
 mkdir -p ./_PREPARED_RELEASE/Profiles
 
 cp ./_RELEASE/SSVOpenHexagon.exe ./_PREPARED_RELEASE
+cp ./_RELEASE/SSVOpenHexagon-Console.exe ./_PREPARED_RELEASE
 
 cp ./_RELEASE/libzlib1.dll ./_PREPARED_RELEASE
 cp ./_RELEASE/openal32.dll ./_PREPARED_RELEASE
@@ -46,5 +47,10 @@ cp ./_RELEASE/highfps.bat ./_PREPARED_RELEASE
 cp ./_RELEASE/noaudio.bat ./_PREPARED_RELEASE
 
 cp ./_RELEASE/OHWorkshopUploader.exe ./_PREPARED_RELEASE
+
+cd ./_PREPARED_RELEASE
+upx -9 ./*.dll
+upx -9 ./*.exe
+cd ..
 
 cp -r ./_PREPARED_RELEASE ./_PREPARED_RELEASE_TEST
