@@ -2667,8 +2667,13 @@ void MenuGame::update(ssvu::FT mFT)
             auto& items = getCurrentMenu()->getItems();
             if(static_cast<int>(items.size()) > *mustUseMenuItem)
             {
-                playSoundOverride("beep.ogg");
-                items.at(*mustUseMenuItem)->exec();
+                ssvms::ItemBase& item = *items.at(*mustUseMenuItem);
+
+                if(item.isEnabled())
+                {
+                    playSoundOverride("beep.ogg");
+                    item.exec();
+                }
             }
         }
 
@@ -3728,7 +3733,7 @@ void MenuGame::drawMainMenu(
 
         // TODO (P2): cleanup mouse control
         if(mouseOverlap && !mustUseMenuItem.has_value() &&
-            mouseLeftRisingEdge())
+            mouseLeftRisingEdge() && items[i]->isEnabled())
         {
             mustUseMenuItem = i;
         }
